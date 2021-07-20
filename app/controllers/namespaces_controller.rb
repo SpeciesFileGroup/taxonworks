@@ -53,7 +53,7 @@ class NamespacesController < ApplicationController
     respond_to do |format|
       if @namespace.update(namespace_params)
         format.html { redirect_to @namespace, notice: 'Namespace was successfully updated.' }
-        format.json { head :no_content }
+        format.json { render action: 'show', status: :ok, location: @namespace }
       else
         format.html { render action: 'edit' }
         format.json { render json: @namespace.errors, status: :unprocessable_entity }

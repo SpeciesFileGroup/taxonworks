@@ -5,6 +5,7 @@ import { image } from './Paths/image.js'
 import { label } from './Paths/label.js'
 import { pencil } from './Paths/pencil'
 import { pin } from './Paths/pin'
+import { reset } from './Paths/reset'
 import { trash } from './Paths/trash'
 import { undo } from './Paths/undo.js'
 import { expand } from './Paths/expand'
@@ -19,6 +20,7 @@ const Icons = {
   pencil,
   pin,
   trash,
+  reset,
   undo
 }
 

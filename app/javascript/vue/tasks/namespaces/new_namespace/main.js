@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import App from './app.vue'
 
-function init (){
+function init () {
   const app = createApp(App)
 
   app.mount('#new_namespace_task')
