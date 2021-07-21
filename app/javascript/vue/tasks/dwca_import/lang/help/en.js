@@ -30,7 +30,7 @@ const helpData = {
       <span>Supported formats:</span>
       <ul>
         <li>Darwin Core Archive (DwC-A) ZIP file with meta.xml and data files inside (preferred)</li>
-        <li>Tab-separated values text file (TXT)</li>
+        <li>Tab-separated values text file (TXT, TSV)</li>
         <li>Spreadsheet (XLS, XLSX and ODS supported)</li>
       </ul>
       `
