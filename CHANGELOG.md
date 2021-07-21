@@ -10,7 +10,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 - Help plugin
 - Original relationships in Collection object quick form
+- CO Quick forms in comprehensive specimen digitization [#2354]
 
+[#2354]: https://github.com/SpeciesFileGroup/taxonworks/issues/2354
 
 
 ## [0.19.1] - 2021-07-15

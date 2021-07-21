@@ -69,6 +69,7 @@
       <draggable
         class="table-entrys-list"
         tag="tbody"
+        item-key="id"
         v-model="list"
         @end="onSortable">
         <template #item="{ element, index }">
