@@ -228,8 +228,8 @@ class ImportDataset::DarwinCore < ImportDataset
         records[:extensions][type] = get_dwc_records(extension)
         headers[:extensions][type] = get_dwc_headers(extension)
       end
-    elsif source.path =~ /\.(txt|xlsx?|ods)\z/i
-      if source.path =~ /\.(txt)\z/i
+    elsif source.path =~ /\.(txt|tsv|xlsx?|ods)\z/i
+      if source.path =~ /\.(txt|tsv)\z/i
         records[:core] = CSV.read(source.path, headers: true, col_sep: "\t", quote_char: nil, encoding: 'bom|utf-8')
       else
         records[:core] = CSV.parse(Roo::Spreadsheet.open(source.path).to_csv, headers: true)
