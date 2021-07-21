@@ -97,6 +97,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
         Identifier::Local::Import.create!(
           namespace: get_core_record_identifier_namespace,
+          project: self.project,
           identifier_object: specimen,
           identifier: get_field_value(:occurrenceID)
         ) unless get_field_value(:occurrenceID).nil? || get_core_record_identifier_namespace.nil?
@@ -114,7 +115,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         Georeference::VerbatimData.create!({
           collecting_event: collecting_event,
           error_radius: get_field_value("coordinateUncertaintyInMeters")
-        }) if collecting_event.verbatim_latitude && collecting_event.verbatim_longitude
+        }.merge(attributes[:georeference])) if collecting_event.verbatim_latitude && collecting_event.verbatim_longitude
 
         self.metadata["imported_objects"] = { collection_object: { id: specimen.id } }
         self.status = "Imported"
@@ -385,7 +386,11 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # otherCatalogNumbers: [Not mapped]
 
-    # occurrenceRemarks: [Not mapped]
+    # occurrenceRemarks: [specimen note]
+    note = get_field_value(:occurrenceRemarks)
+    set_hash_val(res[:specimen], :notes_attributes, [{text: note}]) if note
+
+    res
   end
 
   def parse_event_class
@@ -484,7 +489,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # fieldNotes: field_notes
     set_hash_val(collecting_event, :field_notes, get_field_value(:fieldNotes))
 
-    # eventRemarks: Maybe field_notes (concatenated with fieldNotes)
+    # eventRemarks: [collecting event note]
+    note = get_field_value(:eventRemarks)
+    set_hash_val(collecting_event, :notes_attributes, [{text: note}]) if note
 
     { collecting_event: collecting_event }
   end
@@ -586,9 +593,14 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # georeferenceVerificationStatus: [Not mapped]
 
-    # georeferenceRemarks: [Not mapped. REVISIT]
+    # georeferenceRemarks: [georeference note]
+    note = get_field_value(:georeferenceRemarks)
+    georeference = note ? {notes_attributes: [{text: note}]} : {}
 
-    { collecting_event: collecting_event }
+    {
+      collecting_event: collecting_event,
+      georeference: georeference
+    }
   end
 
   def parse_identification_class
