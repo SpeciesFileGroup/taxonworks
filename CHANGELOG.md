@@ -7,11 +7,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+Accession/Deaccession section in Collection object match task [#2353]
+
 ### Fixed
 - Help plugin
 - Original relationships in Collection object quick form
 - CO Quick forms in comprehensive specimen digitization [#2354]
 
+[#2353]: https://github.com/SpeciesFileGroup/taxonworks/issues/2353
 [#2354]: https://github.com/SpeciesFileGroup/taxonworks/issues/2354
 
 
