@@ -9,7 +9,7 @@
       <h1 class="matrix-row-coder__title" v-html="title"/>
     </div>
     <div>
-      <div class="flex-separate">
+      <div class="flex-separate margin-medium-bottom">
         <div>
           <div class="align-start">
             <ul
@@ -26,7 +26,7 @@
               </li>
             </ul>
           </div>
-          <description-component/>
+          <description-component />
         </div>
         <div>
           <destroy-all-observations

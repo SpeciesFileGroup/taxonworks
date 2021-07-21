@@ -6,7 +6,8 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::AlternativeNa
     self.parent.disjoint_taxon_name_relationships +
         self.collect_to_s(TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic,
             TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Isonym,
-            TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::OrthographicVariant)
+            TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::OrthographicVariant,
+            TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Basionym)
   end
 
   def object_status

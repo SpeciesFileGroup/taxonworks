@@ -9,15 +9,10 @@
           v-hotkey="shortcuts"
           v-if="collectionObject.id"
           class="horizontal-left-content">
-          <radial-annotator
-            classs="separate-right"
-            :global-id="collectionObject.global_id"/>
-          <default-tag
-            classs="separate-right"
-            :global-id="collectionObject.global_id"/>
-          <radial-object
-            v-if="collectionObject.id"
-            :global-id="collectionObject.global_id"/>
+          <radial-annotator :global-id="collectionObject.global_id" />
+          <default-tag :global-id="collectionObject.global_id" />
+          <radial-object :global-id="collectionObject.global_id" />
+          <radial-navigation :global-id="collectionObject.global_id" />
         </div>
       </template>
       <template #body>
@@ -133,7 +128,8 @@ import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions'
 import BlockLayout from 'components/layout/BlockLayout.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import RadialObject from 'components/radials/navigation/radial.vue'
+import RadialNavigation from 'components/radials/navigation/radial.vue'
+import RadialObject from 'components/radials/object/radial.vue'
 import PredicatesComponent from 'components/custom_attributes/predicates/predicates'
 import DefaultTag from 'components/defaultTag.vue'
 import platformKey from 'helpers/getMacKey'
@@ -156,7 +152,8 @@ export default {
     PredicatesComponent,
     RadialObject,
     DefaultTag,
-    ExpandComponent
+    ExpandComponent,
+    RadialNavigation
   },
   computed: {
     preferences: {

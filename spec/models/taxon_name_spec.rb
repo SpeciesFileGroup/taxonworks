@@ -90,7 +90,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         expect(variety.cached_html).to eq('<i>Aus</i> (<i>Aus</i>) <i>aaa bbb</i> var. <i>ccc</i>')
 
         basionym = FactoryBot.create(:icn_variety, name: 'basionym', parent_id: variety.ancestor_at_rank('species').id,  verbatim_author: 'Linnaeus') # source_id: nil,
-        r = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: basionym, object_taxon_name: variety, type: 'TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym')
+        r = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: basionym, object_taxon_name: variety, type: 'TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Basionym')
         variety.reload
         expect(variety.save).to be_truthy
         expect(variety.cached_author_year).to eq('(Linnaeus) McAtee')
