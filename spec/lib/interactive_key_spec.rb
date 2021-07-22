@@ -484,7 +484,8 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
         project_id: observation_matrix.project_id,
         otu_id: otu5.id)
       expect(description.generated_diagnosis).to eq('Descriptor 2 State5. Descriptor 6 1.')
-      expect(description.similar_objects.first).to eq({:otu_id=>1, :similarities=>6})
+      expect(description.similar_objects.first[:otu_id]).to eq(otu1.id)
+      expect(description.similar_objects.first[:similarities]).to eq(6)
     end
 
     specify 'otu_diagnosis 2' do
@@ -492,8 +493,8 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
         observation_matrix_id: observation_matrix.id,
         project_id: observation_matrix.project_id,
         observation_matrix_row_id: r5.id)
-      expect(description.generated_diagnosis).to eq('Descriptor 2 State5. Descriptor 6 1.')
-      expect(description.similar_objects.first).to eq({:otu_id=>1, :similarities=>6})
+      expect(description.similar_objects.first[:otu_id]).to eq(otu1.id)
+      expect(description.similar_objects.first[:similarities]).to eq(6)
     end
   end
 end
