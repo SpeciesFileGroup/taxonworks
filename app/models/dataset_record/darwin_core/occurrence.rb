@@ -70,9 +70,16 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         append_dwc_attributes(dwc_data_attributes['CollectingEvent'], attributes[:collecting_event])
 
         specimen = Specimen.create!({
-            no_dwc_occurrence: true
-          }.merge!(attributes[:specimen])
-        )
+          no_dwc_occurrence: true
+        }.merge!(attributes[:specimen]))
+
+        if attributes[:type_material] && (innermost_otu&.name).nil?
+          # Best effort only, import will proceed even if creating the type material fails
+          TypeMaterial.create({
+            protonym: innermost_protonym,
+            collection_object: specimen,
+          }.merge!(attributes[:type_material]))
+        end
 
         if attributes[:catalog_number]
           namespace = attributes.dig(:catalog_number, :namespace)
@@ -97,7 +104,6 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
         Identifier::Local::Import.create!(
           namespace: get_core_record_identifier_namespace,
-          project: self.project,
           identifier_object: specimen,
           identifier: get_field_value(:occurrenceID)
         ) unless get_field_value(:occurrenceID).nil? || get_core_record_identifier_namespace.nil?
@@ -605,12 +611,20 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
   def parse_identification_class
     taxon_determination = {}
+    type_material = nil
 
     # identificationID: [Not mapped]
 
     # identificationQualifier: [Not mapped]
 
-    # typeStatus: [Not mapped]
+    # typeStatus: [Type material only if scientific name matches scientificName and type term is recognized by TW vocabulary]
+    type_status = get_field_value(:typeStatus)&.match(/(?<type>\w+)\s+OF\s+(?<scientificName>.*)/i)
+    scientific_name = get_field_value(:scientificName)&.gsub(/\s+/, ' ')
+    type_scientific_name = type_status&.[](:scientificName)&.gsub(/\s+/, ' ')
+
+    type_material = {
+      type_type: type_status[:type].downcase
+    } if scientific_name && type_scientific_name&.delete_prefix!(scientific_name)&.match(/^\W*$/)
 
     # identifiedBy: determiners of taxon determination
     set_hash_val(taxon_determination, :determiners, parse_people(:identifiedBy))
@@ -634,7 +648,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     note = get_field_value(:identificationRemarks)
     taxon_determination[:notes_attributes] = [{text: note}] if note
 
-    { taxon_determination: taxon_determination }
+    { 
+      taxon_determination: taxon_determination,
+      type_material: type_material
+    }
   end
 
   def parse_taxon_class
