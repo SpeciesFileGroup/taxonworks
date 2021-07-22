@@ -486,5 +486,14 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
       expect(description.generated_diagnosis).to eq('Descriptor 2 State5. Descriptor 6 1.')
       expect(description.similar_objects.first).to eq({:otu_id=>1, :similarities=>6})
     end
+
+    specify 'otu_diagnosis 2' do
+      description =  Catalog::DescriptionFromObservationMatrix.new(
+        observation_matrix_id: observation_matrix.id,
+        project_id: observation_matrix.project_id,
+        observation_matrix_row_id: r5.id)
+      expect(description.generated_diagnosis).to eq('Descriptor 2 State5. Descriptor 6 1.')
+      expect(description.similar_objects.first).to eq({:otu_id=>1, :similarities=>6})
+    end
   end
 end
