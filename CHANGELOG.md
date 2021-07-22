@@ -14,6 +14,7 @@ Accession/Deaccession section in Collection object match task [#2353]
 - Help plugin
 - Original relationships in Collection object quick form
 - CO Quick forms in comprehensive specimen digitization [#2354]
+- Biological associations in OTU quick forms
 
 [#2353]: https://github.com/SpeciesFileGroup/taxonworks/issues/2353
 [#2354]: https://github.com/SpeciesFileGroup/taxonworks/issues/2354
