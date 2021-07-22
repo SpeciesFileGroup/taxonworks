@@ -78,10 +78,10 @@ class Catalog::DescriptionFromObservationMatrix
   # Array of collection_object_ids
   attr_accessor :collection_object_id_filter_array
 
-  # @!otu_ids_count_hash
+  # @!similar_objects
   #   @return [hash]
-  # Hash of similar otus
-  attr_accessor :otu_ids_count_hash
+  # Hash of similar otus_ids and collection_objects_ids
+  attr_accessor :similar_objects
 
   # @!collection_object_ids_count_hash
   #   @return [hash]
@@ -112,8 +112,7 @@ class Catalog::DescriptionFromObservationMatrix
     keyword_ids: nil,
     observation_matrix_row_id: nil,
     otu_id: nil,
-    otu_ids_count_hash: nil,
-    collection_object_ids_count_hash: nil)
+    similar_objects: [])
 
     # raise if observation_matrix_id.blank? || project_id.blank?
     @observation_matrix_id = observation_matrix_id
@@ -335,8 +334,7 @@ class Catalog::DescriptionFromObservationMatrix
           end
         end
       end
-      @otu_ids_count_hash = otu_ids_count
-      @collection_object_ids_count_hash = collection_object_ids_count
+      @similar_objects = (otu_ids_count.to_a.map{|i| {otu_id: i[0], similarities: i[1]}} + collection_object_ids_count.to_a.map{|i| {collection_object_id: i[0], similarities: i[1]}}).sort_by{|j| -j[:similarities]}
     end
 
     descriptor_hash
