@@ -160,8 +160,8 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
     # 2   0   1   0   1-2   2 false
     # 0   2   0   1   1-3   3 true
     # 1   1   1   0   2-3   4 false
-    # 1   0   0   1   1-2   1 true
-    # 0   2   1   0   1     2 true
+    # 2   0   0   1   1-2   1 true
+    # 0   2   1   0   1     2 #true
 
     let!(:o1 ) {Observation::Qualitative.create!(descriptor: descriptor1, otu: otu1, character_state: cs1) }
     let!(:o1a) {Observation::Qualitative.create!(descriptor: descriptor1, otu: otu1, character_state: cs2) }
@@ -476,6 +476,16 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
         project_id: observation_matrix.project_id,
         otu_id: otu4.id)
       expect(description.generated_description).to eq('Descriptor 1 State1. Descriptor 2 State6. Descriptor 5 3–4. Descriptor 6 4. Descriptor 7 absent.')
+    end
+
+    specify 'otu_diagnosis 1' do
+      description =  Catalog::DescriptionFromObservationMatrix.new(
+        observation_matrix_id: observation_matrix.id,
+        project_id: observation_matrix.project_id,
+        otu_id: otu5.id)
+      expect(description.otu_ids_count_hash[1]).to eq(6)
+      expect(description.otu_ids_count_hash[4]).to eq(3)
+      expect(description.generated_diagnosis).to eq('Descriptor 1 State1. Descriptor 2 State6. Descriptor 5 3–4. Descriptor 6 4. Descriptor 7 absent.')
     end
   end
 end
