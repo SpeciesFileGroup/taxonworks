@@ -8,7 +8,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-Accession/Deaccession section in Collection object match task [#2353]
+- Accession/Deaccession section in Collection object match task [#2353]
+- Similar objects section in MRC
 
 ### Fixed
 - Help plugin
