@@ -26,8 +26,7 @@
               </li>
             </ul>
           </div>
-          <description-component />
-          <description-similar />
+          <description-main/>
         </div>
         <div>
           <destroy-all-observations
@@ -70,8 +69,7 @@ import MediaDescriptor from './MediaDescriptor/MediaDescriptor.vue'
 import Spinner from 'components/spinner'
 import CloneScoring from './Clone/Clone'
 import DestroyAllObservations from './ObservationRow/destroyObservationRow'
-import DescriptionComponent from './Description/Description.vue'
-import DescriptionSimilar from './Description/DescriptionSimilar.vue'
+import DescriptionMain from './Description/DescriptionMain.vue'
 
 const computed = mapState({
   title: state => state.taxonTitle,
@@ -164,8 +162,7 @@ export default {
     MediaDescriptor,
     Spinner,
     DestroyAllObservations,
-    DescriptionComponent,
-    DescriptionSimilar
+    DescriptionMain
   }
 }
 </script>
