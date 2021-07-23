@@ -221,8 +221,8 @@ class Catalog::DescriptionFromObservationMatrix
   def get_descriptor_hash
     descriptor_ids = @descriptors_with_filter.collect{|i| i.id}
     t = ['Observation::Continuous', 'Observation::PresenceAbsence', 'Observation::Sample']
-    otu_ids = @otu_id_filter_array + [0]
-    collection_object_ids = @collection_object_id_filter_array + [0]
+    otu_ids = @otu_id_filter_array.to_a + [0]
+    collection_object_ids = @collection_object_id_filter_array.to_a + [0]
     descriptor_hash = {}
     @descriptors_with_filter.each do |d|
       descriptor_hash[d.id] = {}
@@ -392,6 +392,15 @@ class Catalog::DescriptionFromObservationMatrix
   def get_diagnosis
     return nil if @descriptor_hash.empty?
     descriptor_array = @descriptor_hash.values.sort_by{|i| i[:similar_otu_ids].count + i[:similar_collection_object_ids].count}
+
+    i = 2
+    i_max = descriptor_array.count
+
+    #    while i < imax && imax > 2
+      #if descriptor_array[i][:similar_otu_ids] & descriptor_array[i-1][:similar_otu_ids]
+      i +=1
+    #    end
+
     or_separator = ' or '
     language = @language_id.blank? ? nil : @language_id.to_i
     str = ''
