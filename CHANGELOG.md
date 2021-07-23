@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Original relationships in Collection object quick form
 - CO Quick forms in comprehensive specimen digitization [#2354]
 - Biological associations in OTU quick forms
+- Update type species in new taxon name task
 
 [#2353]: https://github.com/SpeciesFileGroup/taxonworks/issues/2353
 [#2354]: https://github.com/SpeciesFileGroup/taxonworks/issues/2354
