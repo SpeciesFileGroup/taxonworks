@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Diagnosis</h2>
+    <h2>Diagnosis (generated)</h2>
     <span v-html="diagnosis"/>
   </div>
 </template>
