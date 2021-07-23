@@ -23,7 +23,7 @@ export default {
     },
 
     description () {
-      return this.$store.getters[GetterNames.GetDescription]
+      return this.$store.getters[GetterNames.GetDescription]?.generated_description
     }
   },
 
