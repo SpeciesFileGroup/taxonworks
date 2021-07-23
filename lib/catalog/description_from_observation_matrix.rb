@@ -269,8 +269,8 @@ class Catalog::DescriptionFromObservationMatrix
       end
     end
 
-    otu_ids = @otu_id_filter_array + [0]
-    collection_object_ids = @collection_object_id_filter_array + [0]
+    otu_ids = @otu_id_filter_array.to_a + [0]
+    collection_object_ids = @collection_object_id_filter_array.to_a + [0]
 
     unless @observation_matrix_id.nil?
       otu_ids_count = {}
