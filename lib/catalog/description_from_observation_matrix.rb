@@ -391,15 +391,27 @@ class Catalog::DescriptionFromObservationMatrix
 
   def get_diagnosis
     return nil if @descriptor_hash.empty?
-    descriptor_array = @descriptor_hash.values.sort_by{|i| i[:similar_otu_ids].count + i[:similar_collection_object_ids].count}
 
+    descriptor_array = @descriptor_hash.values.sort_by{|i| i[:similar_otu_ids].count + i[:similar_collection_object_ids].count}
     i = 2
     i_max = descriptor_array.count
+    j = 0
 
-    #    while i < imax && imax > 2
-      #if descriptor_array[i][:similar_otu_ids] & descriptor_array[i-1][:similar_otu_ids]
-      i +=1
-    #    end
+    while j < 3
+      while i < i_max && i_max > 2 do
+        count1 = (descriptor_array[i][:similar_otu_ids] & descriptor_array[i-1][:similar_otu_ids]).count +
+          (descriptor_array[i][:similar_collection_object_ids] & descriptor_array[i-1][:similar_collection_object_ids]).count
+        count2 = (descriptor_array[i][:similar_otu_ids] & descriptor_array[i-2][:similar_otu_ids]).count +
+          (descriptor_array[i][:similar_collection_object_ids] & descriptor_array[i-2][:similar_collection_object_ids]).count
+        if count2 > count1
+          temp = descriptor_array[i-2]
+          descriptor_array[i-2] = descriptor_array[i-1]
+          descriptor_array[i-1] = temp
+        end
+        i += 1
+      end
+      j += 1
+    end
 
     or_separator = ' or '
     language = @language_id.blank? ? nil : @language_id.to_i
