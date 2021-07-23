@@ -9,7 +9,6 @@ class Tasks::ObservationMatrices::DescriptionFromObservationMatrixController < A
   # GET /tasks/observation_matrices/description_from_observation_matrix/37/description
   def description
     @description = Catalog::DescriptionFromObservationMatrix.new(description_params)
-    render json: @description
   end
 
   protected
