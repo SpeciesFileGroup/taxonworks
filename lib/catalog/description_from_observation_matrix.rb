@@ -140,10 +140,11 @@ class Catalog::DescriptionFromObservationMatrix
   def find_matrix
     return nil if (@observation_matrix_id.blank? || @observation_matrix_id.to_s == '0') && @observation_matrix_row_id.blank?
     if @observation_matrix_row_id.blank?
-      m = ObservationMatrix.where(project_id: project_id).find(@observation_matrix_id)
+      m = ObservationMatrix.where(project_id: @project_id).find(@observation_matrix_id)
     else
       m = ObservationMatrixRow.find(@observation_matrix_row_id)&.observation_matrix
-      @observation_matrix_id = m.id.to_s
+      @observation_matrix_id = m&.id.to_s
+      @project_id = m&.project_id.to_s
     end
     m
   end
@@ -323,9 +324,9 @@ class Catalog::DescriptionFromObservationMatrix
             yes = true
           elsif !o.sample_min.nil? && o.sample_min >= descriptor_hash[o.d_id][:min] && o.sample_min <= descriptor_hash[o.d_id][:max]
             yes = true
-          elsif !o.o_presence.nil? && o.o_presence == true && descriptor_hash[o.d_id][:presence].include?('present')
+          elsif !o.o_presence.nil? && o.o_presence == true && descriptor_hash[o.d_id][:presence].to_s.include?('present')
             yes = true
-          elsif !o.o_presence.nil? && o.o_presence == false && descriptor_hash[o.d_id][:presence].include?('absent')
+          elsif !o.o_presence.nil? && o.o_presence == false && descriptor_hash[o.d_id][:presence].to_s.include?('absent')
             yes = true
           end
           if !o.r_otu_id.nil? && yes

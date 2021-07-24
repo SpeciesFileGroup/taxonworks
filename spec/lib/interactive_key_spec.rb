@@ -483,18 +483,28 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
         observation_matrix_id: observation_matrix.id,
         project_id: observation_matrix.project_id,
         otu_id: otu5.id)
-      expect(description.generated_diagnosis).to eq('Descriptor 2 State5. Descriptor 6 1.')
+      expect(description.generated_diagnosis).to eq('Descriptor 6 1. Descriptor 2 State5.')
       expect(description.similar_objects.first[:otu_id]).to eq(otu1.id)
       expect(description.similar_objects.first[:similarities]).to eq(6)
     end
 
     specify 'otu_diagnosis 2' do
-      description =  Catalog::DescriptionFromObservationMatrix.new(
-        observation_matrix_id: observation_matrix.id,
-        project_id: observation_matrix.project_id,
-        observation_matrix_row_id: r5.id)
+      description =  Catalog::DescriptionFromObservationMatrix.new(observation_matrix_row_id: r5.id)
       expect(description.similar_objects.first[:otu_id]).to eq(otu1.id)
       expect(description.similar_objects.first[:similarities]).to eq(6)
     end
+
+    specify 'soft_validate row 1' do
+      r1.soft_validate(only_sets: :cannot_be_separated)
+      expect(r1.soft_validations.messages_on(:base).empty?).to be_truthy
+    end
+
+    specify 'soft_validate row 2' do
+      otu11 = Otu.create!(name: 'b11')
+      r11 = ObservationMatrixRowItem::Single::Otu.create!(otu: otu11, observation_matrix: observation_matrix)
+      r11.soft_validate(only_sets: :cannot_be_separated)
+      expect(r11.soft_validations.messages_on(:base).count).to eq(1)
+    end
+
   end
 end
