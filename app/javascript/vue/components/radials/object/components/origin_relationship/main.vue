@@ -62,21 +62,25 @@
         <tr>
           <th>New object</th>
           <th>Old object</th>
-          <th></th>
+
+          <th />
         </tr>
       </thead>
       <draggable
         class="table-entrys-list"
-        element="tbody"
+        tag="tbody"
+        item-key="id"
         v-model="list"
         @end="onSortable">
         <template #item="{ element, index }">
           <tr>
             <td v-html="element.new_object_object_tag"/>
             <td v-html="element.old_object_object_tag"/>
-            <span
-              class="circle-button btn-delete"
-              @click="removeOrigin(index)"/>
+            <td>
+              <span
+                class="circle-button btn-delete"
+                @click="removeOrigin(index)"/>
+            </td>
           </tr>
         </template>
       </draggable>
@@ -136,7 +140,9 @@ export default {
 
   methods: {
     setObject (item) {
-      this.objectSelected = item
+      this.objectSelected = this.modelSelected === controllerRoute.Specimen
+        ? Object.assign(item, { base_class: 'CollectionObject' })
+        : item
     },
 
     createOrigin () {
@@ -150,12 +156,14 @@ export default {
       }
 
       this.create('/origin_relationships', { origin_relationship: originRelationship }).then(response => {
+        TW.workbench.alert.create('Origin relationship was successfully created.', 'notice')
         this.list.unshift(response.body)
       })
     },
 
     removeOrigin (index) {
       this.destroy(`/origin_relationships/${this.list[index].id}.json`).then(({ body }) => {
+        TW.workbench.alert.create('Origin relationship was successfully destroyed.', 'notice')
         this.list.splice(index, 1)
       })
     },

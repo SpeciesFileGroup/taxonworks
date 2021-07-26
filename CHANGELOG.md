@@ -7,7 +7,23 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+- Accession/Deaccession section in Collection object match task [#2353]
+- Similar objects section in MRC
+
+### Changed
+- Upgraded from Ruby version 2.7.3 to 2.7.4
+- Updated ruby gems
+### Fixed
+- Help plugin
+- Original relationships in Collection object quick form
+- CO Quick forms in comprehensive specimen digitization [#2354]
+- Biological associations in OTU quick forms
+- Update type species in new taxon name task
+
+[#2353]: https://github.com/SpeciesFileGroup/taxonworks/issues/2353
+[#2354]: https://github.com/SpeciesFileGroup/taxonworks/issues/2354
+
 
 ## [0.19.1] - 2021-07-15
 
@@ -27,7 +43,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Option to hide "Attributes", "Buffered", "Citations" and "Depictions" sections in comprehensive specimen digitization task [#2333]
 - Missing fields in comprehensive form
 - Fields not showing in "original combination and rank" section in New taxon name [#2346]
-- Help plugin
 
 [#2332]: https://github.com/SpeciesFileGroup/taxonworks/issues/2332
 [#2333]: https://github.com/SpeciesFileGroup/taxonworks/issues/2333

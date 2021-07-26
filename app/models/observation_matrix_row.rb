@@ -32,6 +32,7 @@ class ObservationMatrixRow < ApplicationRecord
   include Shared::Identifiers
   include Shared::Tags
   include Shared::Notes
+  include SoftValidation
   include Shared::IsData
 
   acts_as_list scope: [:observation_matrix_id, :project_id]

@@ -19,6 +19,7 @@ class ObservationMatrixRowItem < ApplicationRecord
   include Shared::Tags
   include Shared::Notes
   include Shared::IsData
+  include SoftValidation
 
   acts_as_list scope: [:observation_matrix_id, :project_id]
 
@@ -35,6 +36,11 @@ class ObservationMatrixRowItem < ApplicationRecord
 
   after_save :update_matrix_rows
   after_destroy :cleanup_matrix_rows
+
+  soft_validate(:sv_cannot_be_separated,
+                set: :cannot_be_separated,
+                name: 'Cannot be separated',
+                description: 'Observation matrix row cannot be separated from other rows in the matrix' )
 
   # @return [Array]
   #   of all objects this row references
@@ -248,6 +254,25 @@ class ObservationMatrixRowItem < ApplicationRecord
   def increment_matrix_row_reference_count(mr)
     mr.update_columns(reference_count: (mr.reference_count || 0) +  1)
     mr.update_columns(cached_observation_matrix_row_item_id: id) if type =~ /Single/
+  end
+
+  def sv_cannot_be_separated
+    description = Catalog::DescriptionFromObservationMatrix.new(observation_matrix_row_id: self.id)
+    if description && description.generated_diagnosis.blank?
+      soft_validations.add(:base, 'No observations.')
+    elsif description && description.generated_diagnosis == 'Cannot be separated from other rows in the matrix!'
+      str = description.generated_diagnosis.to_s + ' Similar rows:'
+      s = description.similar_objects.first[:similarities]
+      description.similar_objects.each do |i|
+        break if i[:similarities] != s
+        if i[:otu_id]
+          str += ' ' + Otu.find(i[:otu_id]).otu_name + '.'
+        else
+          str += ' Collection object #' + i[:collection_object_id].to_s + '.'
+        end
+      end
+      soft_validations.add(:base, str)
+    end
   end
 
 end
