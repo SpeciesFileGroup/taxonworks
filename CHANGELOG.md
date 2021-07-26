@@ -11,10 +11,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Accession/Deaccession section in Collection object match task [#2353]
 - Similar objects section in MRC
 - Soft validation in Edit/new matrix task
+- Update download form
 
 ### Changed
 - Upgraded from Ruby version 2.7.3 to 2.7.4
 - Updated ruby gems
+
 ### Fixed
 - Help plugin
 - Original relationships in Collection object quick form
