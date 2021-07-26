@@ -186,8 +186,8 @@ class ObservationMatrixRow < ApplicationRecord
 
   def sv_cannot_be_separated
     description = Catalog::DescriptionFromObservationMatrix.new(observation_matrix_row_id: self.id)
-    if description && description.generated_diagnosis.blank?
-      soft_validations.add(:base, 'No observations.')
+    if description && description.generated_description.blank?
+      soft_validations.add(:base, 'No observations!')
     elsif description && description.generated_diagnosis == 'Cannot be separated from other rows in the matrix!'
       str = description.generated_diagnosis.to_s + ' Similar rows:'
       s = description.similar_objects.first[:similarities]
