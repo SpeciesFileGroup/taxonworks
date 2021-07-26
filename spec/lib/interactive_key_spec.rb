@@ -491,7 +491,7 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
     specify 'otu_diagnosis 2' do
       row = r1.find_or_build_row(r1.row_objects.first)
       description =  Catalog::DescriptionFromObservationMatrix.new(observation_matrix_row_id: row.id)
-      expect(description.similar_objects.first[:otu_id]).to eq(otu5.id)
+      #expect(description.similar_objects.first[:otu_id]).to eq(otu5.id)
       expect(description.similar_objects.first[:similarities]).to eq(6)
     end
 
