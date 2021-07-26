@@ -18,6 +18,7 @@ import { Depiction } from './Depiction'
 import { Descriptor } from './Descriptor'
 import { Document } from './Document'
 import { Documentation } from './Documentation'
+import { Download } from './Download'
 import { Extract } from './Extract'
 import { GeographicArea } from './GeographicArea'
 import { Georeference } from './Georeference'
@@ -78,6 +79,7 @@ export {
   Descriptor,
   Document,
   Documentation,
+  Download,
   Extract,
   GeographicArea,
   Georeference,
