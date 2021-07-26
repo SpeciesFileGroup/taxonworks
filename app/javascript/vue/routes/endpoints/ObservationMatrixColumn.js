@@ -1,4 +1,4 @@
-import baseCRUD from './base'
+import baseCRUD, {annotations} from './base'
 
 const controller = 'observation_matrix_columns'
 const permitParams = {
