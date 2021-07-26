@@ -23,9 +23,14 @@
           >
             <td
               class="full_width"
-              v-for="label in attributes"
-              v-html="getValue(element, label)"
-            />
+              v-for="(label, key) in attributes"
+              :key="key"
+            >
+              <span v-html="getValue(element, label)"/>
+              <object-validation
+                v-if="code"
+                :global-id="element.global_id"/>
+            </td>
             <td>
               <div class="horizontal-left-content">
                 <template v-if="!element.is_dynamic">
@@ -43,6 +48,7 @@
                       :href="`/tasks/descriptors/new_descriptor?descriptor_id=${element.descriptor_id}&observation_matrix_id=${matrix.id}`"
                     />
                   </template>
+
                   <a
                     v-if="code"
                     type="button"
@@ -79,12 +85,14 @@ import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/navigation/radial.vue'
 import Draggable from 'vuedraggable'
 import { GetterNames } from '../../store/getters/getters'
+import ObjectValidation from 'components/soft_validations/objectValidation.vue'
 
 export default {
   components: {
     RadialAnnotator,
     Draggable,
-    RadialObject
+    RadialObject,
+    ObjectValidation
   },
   props: {
     list: {

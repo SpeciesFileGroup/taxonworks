@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - Accession/Deaccession section in Collection object match task [#2353]
 - Similar objects section in MRC
+- Soft validation in Edit/new matrix task
 
 ### Changed
 - Upgraded from Ruby version 2.7.3 to 2.7.4
