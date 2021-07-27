@@ -55,7 +55,7 @@
               <input
                 v-model="settings.softValidations"
                 type="checkbox">
-              Soft validations
+              Validation
             </label>
           </li>
           <li>
