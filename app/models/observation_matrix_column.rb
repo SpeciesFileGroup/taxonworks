@@ -46,6 +46,15 @@ class ObservationMatrixColumn < ApplicationRecord
     true
   end
 
+  # TODO: belong in helpers
+  def next_column
+    observation_matrix.observation_matrix_columns.where("position > ?", position).order(:position).first
+  end
+
+  def previous_column
+    observation_matrix.observation_matrix_columns.where("position < ?", position).order('position DESC').first
+  end
+
   protected
 
   def set_reference_count

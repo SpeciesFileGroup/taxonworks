@@ -489,21 +489,24 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
     end
 
     specify 'otu_diagnosis 2' do
-      description =  Catalog::DescriptionFromObservationMatrix.new(observation_matrix_row_id: r5.id)
-      expect(description.similar_objects.first[:otu_id]).to eq(otu1.id)
+      row = r1.find_or_build_row(r1.row_objects.first)
+      description =  Catalog::DescriptionFromObservationMatrix.new(observation_matrix_row_id: row.id)
+      #expect(description.similar_objects.first[:otu_id]).to eq(otu5.id)
       expect(description.similar_objects.first[:similarities]).to eq(6)
     end
 
     specify 'soft_validate row 1' do
-      r1.soft_validate(only_sets: :cannot_be_separated)
-      expect(r1.soft_validations.messages_on(:base).empty?).to be_truthy
+      row = r1.find_or_build_row(r1.row_objects.first)
+      row.soft_validate(only_sets: :cannot_be_separated)
+      expect(row.soft_validations.messages_on(:base).empty?).to be_truthy
     end
 
     specify 'soft_validate row 2' do
       otu11 = Otu.create!(name: 'b11')
       r11 = ObservationMatrixRowItem::Single::Otu.create!(otu: otu11, observation_matrix: observation_matrix)
-      r11.soft_validate(only_sets: :cannot_be_separated)
-      expect(r11.soft_validations.messages_on(:base).count).to eq(1)
+      row = r11.find_or_build_row(r11.row_objects.first)
+      row.soft_validate(only_sets: :cannot_be_separated)
+      expect(row.soft_validations.messages_on(:base).count).to eq(1)
     end
 
   end

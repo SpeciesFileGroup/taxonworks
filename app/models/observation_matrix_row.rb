@@ -59,6 +59,11 @@ class ObservationMatrixRow < ApplicationRecord
   validates_uniqueness_of :otu_id, scope: [:observation_matrix_id], if: -> {!otu_id.nil?}
   validates_uniqueness_of :collection_object_id, scope: [:observation_matrix_id], if: -> {!collection_object_id.nil?}
 
+  soft_validate(:sv_cannot_be_separated,
+                set: :cannot_be_separated,
+                name: 'Cannot be separated',
+                description: 'Observation matrix row cannot be separated from other rows in the matrix' )
+
   # @param array [Array]
   # @return true
   #   incrementally sort the supplied ids
@@ -176,6 +181,25 @@ class ObservationMatrixRow < ApplicationRecord
   def otu_and_collection_object_given
     if !otu_id.nil? && !collection_object_id.nil?
       errors.add(:base, 'Specify otu OR collection object, not both!')
+    end
+  end
+
+  def sv_cannot_be_separated
+    description = Catalog::DescriptionFromObservationMatrix.new(observation_matrix_row_id: self.id)
+    if description && description.generated_description.blank?
+      soft_validations.add(:base, 'No observations!')
+    elsif description && description.generated_diagnosis == 'Cannot be separated from other rows in the matrix!'
+      str = description.generated_diagnosis.to_s + ' Similar rows:'
+      s = description.similar_objects.first[:similarities]
+      description.similar_objects.each do |i|
+        break if i[:similarities] != s
+        if i[:otu_id]
+          str += ' ' + Otu.find(i[:otu_id]).otu_name + '.'
+        else
+          str += ' Collection object #' + i[:collection_object_id].to_s + '.'
+        end
+      end
+      soft_validations.add(:base, str)
     end
   end
 end

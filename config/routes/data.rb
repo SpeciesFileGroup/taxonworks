@@ -382,6 +382,7 @@ resources :namespaces do
 end
 
 match 'observation_matrices/row/', to: 'observation_matrices#row', via: :get, method: :json
+match 'observation_matrices/column/', to: 'observation_matrices#column', via: :get, method: :json
 resources :observation_matrices do
   concerns [:data_routes]
 
