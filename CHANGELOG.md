@@ -32,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - CO Quick forms in comprehensive specimen digitization [#2354]
 - Biological associations in OTU quick forms
 - Update type species in new taxon name task
+- Autocomplete in Interactive key task
 
 [#2362]: https://github.com/SpeciesFileGroup/taxonworks/issues/2362
 [#2353]: https://github.com/SpeciesFileGroup/taxonworks/issues/2353
