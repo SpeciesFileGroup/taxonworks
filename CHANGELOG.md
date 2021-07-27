@@ -7,7 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- Copy and clone option in Matrix Row Coder
 
 ## [0.19.2] - 2021-07-27
 

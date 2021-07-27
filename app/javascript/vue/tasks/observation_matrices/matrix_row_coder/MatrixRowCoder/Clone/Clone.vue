@@ -82,7 +82,7 @@ export default {
       return this.$store.getters[GetterNames.GetMatrixRow].row_object.base_class
     },
     buttonLabel() {
-      return this.copy ? `Copy observation from [pick object] to this ${this.rowClass}` : `Clone observations in this row to ${this.objectSelected ? this.objectSelected.label : '[pick object] '}`
+      return this.copy ? `Copy observation from  ${this.objectSelected ? this.objectSelected.label : '[pick object]'} to this ${this.rowClass}` : `Clone observations in this row to ${this.objectSelected ? this.objectSelected.label : '[pick object] '}`
     }
   },
   data() {
