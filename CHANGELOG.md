@@ -8,8 +8,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Fixed
-
+- Autocomplete in Interactive key task
 - Copy and clone option in Matrix Row Coder
+- Edit biological associations form [#2370]
+
+[#2370]: https://github.com/SpeciesFileGroup/taxonworks/issues/2370
 
 ## [0.19.2] - 2021-07-27
 
@@ -32,7 +35,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - CO Quick forms in comprehensive specimen digitization [#2354]
 - Biological associations in OTU quick forms
 - Update type species in new taxon name task
-- Autocomplete in Interactive key task
 
 [#2362]: https://github.com/SpeciesFileGroup/taxonworks/issues/2362
 [#2353]: https://github.com/SpeciesFileGroup/taxonworks/issues/2353
