@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.19.2] - 2021-07-27
+
 ### Added
 - OriginRelationship display in Browse collection object [#2362]
 - Accession/Deaccession section in Collection object match task [#2353]
@@ -30,7 +34,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2362]: https://github.com/SpeciesFileGroup/taxonworks/issues/2362
 [#2353]: https://github.com/SpeciesFileGroup/taxonworks/issues/2353
 [#2354]: https://github.com/SpeciesFileGroup/taxonworks/issues/2354
-
 
 ## [0.19.1] - 2021-07-15
 
@@ -1426,6 +1429,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
 [unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.1...development
+[0.19.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.1...v0.19.2
 [0.19.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.0...v0.19.1
 [0.19.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.18.1...v0.19.0
 [0.18.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.18.0...v0.18.1
