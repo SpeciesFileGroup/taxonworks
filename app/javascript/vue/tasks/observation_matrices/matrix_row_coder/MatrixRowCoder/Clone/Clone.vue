@@ -50,6 +50,14 @@
         :clear-after="true"
         display="label"
         @getItem="objectSelected = $event"/>
+      <div
+        v-if="objectSelected"
+        class="horizontal-left-content margin-medium-bottom">
+        <span v-html="objectSelected.label_html"/>
+        <span
+          class="button circle-button btn-undo button-default margin-small-left"
+          @click="objectSelected = undefined"/>
+      </div>
       <button
         type="button"
         :disabled="!objectSelected"
@@ -64,7 +72,6 @@
 
 import Autocomplete from 'components/ui/Autocomplete.vue'
 import { GetterNames } from '../../store/getters/getters'
-import { ActionNames } from '../../store/actions/actions'
 
 export default {
   components: {
@@ -82,7 +89,7 @@ export default {
       return this.$store.getters[GetterNames.GetMatrixRow].row_object.base_class
     },
     buttonLabel() {
-      return this.copy ? `Copy observation from  ${this.objectSelected ? this.objectSelected.label : '[pick object]'} to this ${this.rowClass}` : `Clone observations in this row to ${this.objectSelected ? this.objectSelected.label : '[pick object] '}`
+      return this.copy ? 'Copy observation' : 'Clone observations'
     }
   },
   data() {
