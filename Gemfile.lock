@@ -434,6 +434,8 @@ GEM
     rubocop-rspec (1.44.1)
       rubocop (~> 0.87)
       rubocop-ast (>= 0.7.1)
+    ruby-graphviz (1.2.5)
+      rexml
     ruby-prof (1.4.3)
     ruby-progressbar (1.11.0)
     ruby-rc4 (0.1.5)
@@ -640,6 +642,7 @@ DEPENDENCIES
   rubocop-faker (~> 0.2.0)
   rubocop-rails (~> 2.4)
   rubocop-rspec (~> 1.38)
+  ruby-graphviz (~> 1.2.5)
   ruby-prof (~> 1.2)
   ruby-units (~> 2.3.0)
   rubyzip (~> 2.3.0)

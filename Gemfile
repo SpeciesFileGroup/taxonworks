@@ -139,6 +139,8 @@ group :development do
   gem 'spring-commands-rspec', '~> 1.0.4'
   gem 'guard-rspec', '~> 4.7.3', require: false
 
+  gem 'ruby-graphviz', '~> 1.2.5', require: false
+
   gem 'web-console', '~> 4.0', '>= 4.0.1'
   gem 'rubocop', '~> 0.76'
   gem 'rubocop-rails', '~> 2.4'
