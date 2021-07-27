@@ -12,10 +12,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Similar objects section in MRC
 - Soft validation in Edit/new matrix task
 - Update download form [#2335]
+- Check and question icons
 
 ### Changed
 - Upgraded from Ruby version 2.7.3 to 2.7.4
 - Updated ruby gems
+- Object validation component
 
 ### Fixed
 - Help plugin

@@ -26,10 +26,14 @@
               v-for="(label, key) in attributes"
               :key="key"
             >
-              <span v-html="getValue(element, label)"/>
-              <object-validation
-                v-if="code"
-                :global-id="element.global_id"/>
+              <div class="middle">
+                <div class="margin-small-right">
+                  <object-validation
+                    v-if="code && enableSoftValidation"
+                    :global-id="element.global_id"/>
+                </div>
+                <span v-html="getValue(element, label)"/>
+              </div>
             </td>
             <td>
               <div class="horizontal-left-content">
@@ -148,6 +152,9 @@ export default {
     },
     sortable () {
       return this.$store.getters[GetterNames.GetSettings].sortable
+    },
+    enableSoftValidation () {
+      return this.$store.getters[GetterNames.GetSettings].softValidations
     }
   },
   data () {
