@@ -1,16 +1,9 @@
-import Vue from 'vue'
-
-export default function (state, relationship) {
-
-  var position = state.taxonRelationshipList.findIndex(item => {
-    if (item.id == relationship.id) {
-      return true
-    }
-  })
+export default (state, relationship) => {
+  const position = state.taxonRelationshipList.findIndex(item => item.id === relationship.id)
 
   if (position < 0) {
     state.taxonRelationshipList.push(relationship)
   } else {
-    Vue.set(state.taxonRelationshipList, position, relationship)
+    state.taxonRelationshipList[position] = relationship
   }
 }

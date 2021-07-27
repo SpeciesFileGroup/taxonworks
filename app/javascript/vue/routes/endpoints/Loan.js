@@ -50,4 +50,3 @@ const permitParams = {
 export const Loan = {
   ...baseCRUD('loans', permitParams)
 }
-

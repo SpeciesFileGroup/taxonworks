@@ -21,15 +21,20 @@
         :depiction="item"
         edit
       >
-        <div slot="thumbfooter">
-          <button
-            @click="removeDepiction(item)"
-            class="button circle-button btn-delete"/>
-        </div>
+        <template #thumbfooter>
+          <div class="horizontal-left-content">
+            <button
+              @click="removeDepiction(item)"
+              class="button circle-button btn-delete"
+            />
+            <zoom-image
+              :image-url="getImageDepictionUrl(item)"
+            />
+          </div>
+        </template>
       </image-viewer>
     </div>
   </div>
-
 </template>
 
 <script>
@@ -38,11 +43,14 @@ import ActionNames from '../../store/actions/actionNames'
 import ImageViewer from 'components/ui/ImageViewer/ImageViewer'
 import Dropzone from 'components/dropzone.vue'
 import { Depiction } from 'routes/endpoints'
+import ZoomImage from './zoomImage.vue'
+import { imageSVGViewBox } from 'helpers/images'
 
 export default {
   components: {
     ImageViewer,
-    Dropzone
+    Dropzone,
+    ZoomImage
   },
   props: {
     actionSave: {
@@ -66,7 +74,13 @@ export default {
       default: 'Drop images or click here to add figures'
     }
   },
-  data: function () {
+
+  emits: [
+    'create',
+    'delete'
+  ],
+
+  data () {
     return {
       creatingType: false,
       displayBody: true,
@@ -137,6 +151,20 @@ export default {
 
     error (event) {
       TW.workbench.alert.create(`There was an error uploading the image: ${event.xhr.responseText}`, 'error')
+    },
+
+    getImageDepictionUrl (depiction) {
+      const imageWidth = Math.floor(window.innerWidth * 0.75)
+      const imageHeight = (window.innerHeight * 0.40) < 400 ? Math.floor(window.innerHeight * 0.40) : 400
+
+      return depiction.svg_view_box
+        ? imageSVGViewBox(
+          depiction.image.id,
+          depiction.svg_view_box,
+          imageWidth,
+          imageHeight
+        )
+        : depiction.image.image_display_url
     }
   }
 }

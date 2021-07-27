@@ -35,7 +35,7 @@
 import extendedRow from './extendedRow.js'
 
 export default {
-  mixins: [extendedRow],
+  mixins: [extendedRow]
 }
 </script>
 <style lang="scss" module>

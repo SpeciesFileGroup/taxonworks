@@ -24,15 +24,19 @@
     <modal
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Confirm delete</h3>
-      <div slot="body">Are you sure you want to delete <span v-html="loan.object_tag"/>?</div>
-      <div slot="footer">
+      <template #header>
+        <h3>Confirm delete</h3>
+      </template>
+      <template #body>
+        <div>Are you sure you want to delete <span v-html="loan.object_tag"/>?</div>
+      </template>
+      <template #footer>
         <button
           @click="deleteLoan()"
           type="button"
           class="normal-input button button-delete align-end">Delete
         </button>
-      </div>
+      </template>
     </modal>
     <div
       class="body horizontal-left-content align-start"
@@ -176,97 +180,106 @@
 
 <script>
 
-  import rolePicker from 'components/role_picker.vue'
-  import modal from 'components/ui/Modal.vue'
-  import expand from './expand.vue'
-  import ActionNames from '../store/actions/actionNames'
-  import { GetterNames } from '../store/getters/getters'
-  import { updateLoan, destroyLoan } from '../request/resources'
+import RolePicker from 'components/role_picker.vue'
+import Modal from 'components/ui/Modal.vue'
+import Expand from './expand.vue'
+import ActionNames from '../store/actions/actionNames'
+import { GetterNames } from '../store/getters/getters'
+import { Loan } from 'routes/endpoints'
 
-  export default {
-    components: {
-      rolePicker,
-      expand,
-      modal
+export default {
+  components: {
+    RolePicker,
+    Expand,
+    Modal
+  },
+
+  computed: {
+    loanItems () {
+      return this.$store.getters[GetterNames.GetLoanItems]
     },
-    computed: {
-      loanItems() {
-        return this.$store.getters[GetterNames.GetLoanItems]
-      },
-      getLoan: {
-        get() {
-          return this.$store.getters[GetterNames.GetLoan]
-        }
-      },
-      rolesRecipient: {
-        get() {
-          return this.loan.loan_recipient_roles
-        },
-        set(value) {
-          this.roles_recipient = value
-        }
-      },
-      rolesSupervisor: {
-        get() {
-          return this.loan.loan_supervisor_roles
-        },
-        set(value) {
-          this.roles_supervisor = value
-        }
+
+    getLoan: {
+      get() {
+        return this.$store.getters[GetterNames.GetLoan]
       }
     },
-    data: function () {
-      return {
-        showModal: false,
-        displayBody: true,
-        roles_supervisor: [],
-        roles_recipient: [],
-        loan: {
-          loan_recipient_roles: [],
-          roles_attributes: [],
-          date_requested: undefined,
-          request_method: undefined,
-          date_sent: undefined,
-          date_received: undefined,
-          date_return_expected: undefined,
-          recipient_person_id: undefined,
-          recipient_address: undefined,
-          recipient_email: undefined,
-          recipient_phone: undefined,
-          recipient_country: undefined,
-          supervisor_person_id: undefined,
-          supervisor_email: undefined,
-          supervisor_phone: undefined,
-          date_closed: undefined,
-          recipient_honorific: undefined,
-          lender_address: undefined,
-          clone_from: undefined
-        }
+
+    rolesRecipient: {
+      get () {
+        return this.loan.loan_recipient_roles
+      },
+      set (value) {
+        this.roles_recipient = value
       }
     },
-    watch: {
-      getLoan: function () {
-        this.loan = this.getLoan
-      }
-    },
-    methods: {
-      update() {
-        this.loan.roles_attributes = this.roles_recipient.concat(this.roles_supervisor)
-        updateLoan({loan: this.loan}).then(response => {
-          TW.workbench.alert.create('Loan was successfully updated.', 'notice')
-        })
+
+    rolesSupervisor: {
+      get () {
+        return this.loan.loan_supervisor_roles
       },
-      create() {
-        this.loan.roles_attributes = this.roles_recipient.concat(this.roles_supervisor)
-        this.$store.dispatch(ActionNames.CreateLoan, this.loan)
-      },
-      deleteLoan() {
-        destroyLoan(this.loan.id).then(response => {
-          window.location.href = '/tasks/loans/edit_loan/'
-        })
+      set (value) {
+        this.roles_supervisor = value
       }
     }
+  },
+
+  data () {
+    return {
+      showModal: false,
+      displayBody: true,
+      roles_supervisor: [],
+      roles_recipient: [],
+      loan: {
+        loan_recipient_roles: [],
+        roles_attributes: [],
+        date_requested: undefined,
+        request_method: undefined,
+        date_sent: undefined,
+        date_received: undefined,
+        date_return_expected: undefined,
+        recipient_person_id: undefined,
+        recipient_address: undefined,
+        recipient_email: undefined,
+        recipient_phone: undefined,
+        recipient_country: undefined,
+        supervisor_person_id: undefined,
+        supervisor_email: undefined,
+        supervisor_phone: undefined,
+        date_closed: undefined,
+        recipient_honorific: undefined,
+        lender_address: undefined,
+        clone_from: undefined
+      }
+    }
+  },
+
+  watch: {
+    getLoan () {
+      this.loan = this.getLoan
+    }
+  },
+
+  methods: {
+    update () {
+      this.loan.roles_attributes = this.roles_recipient.concat(this.roles_supervisor)
+      Loan.update(this.loan.id, { loan: this.loan }).then(() => {
+        TW.workbench.alert.create('Loan was successfully updated.', 'notice')
+      })
+    },
+
+    create () {
+      this.loan.roles_attributes = this.roles_recipient.concat(this.roles_supervisor)
+      this.$store.dispatch(ActionNames.CreateLoan, this.loan)
+    },
+
+    deleteLoan () {
+      Loan.destroy(this.loan.id).then(() => {
+        window.location.href = '/tasks/loans/edit_loan/'
+      })
+    }
   }
+}
 </script>
 
 <style lang="scss">
@@ -274,10 +287,8 @@
     .column-left {
       width: 40%;
     }
-    .column-right {
-    }
+
     textarea {
-      header: 80px;
       min-height: 80px;
     }
   }

@@ -36,11 +36,11 @@ export default {
         promises.push(SoftValidation.find(globalId).then(({ body }) => body))
       })
 
-      Promise.all(promises).then((list) => {
+      Promise.all(promises).then(list => {
         const validationList = list.filter(item => item.soft_validations.length)
 
         if (validationList.length) {
-          this.$set(this.validations, key, { list: validationList, title: key })
+          this.validations[key] = { list: validationList, title: key }
         }
       })
     })

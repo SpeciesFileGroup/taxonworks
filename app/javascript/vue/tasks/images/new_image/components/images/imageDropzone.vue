@@ -4,7 +4,6 @@
       class="dropzone-card separate-bottom"
       @vdropzone-success="success"
       ref="image"
-      id="image"
       url="/images"
       :use-custom-dropzone-options="true"
       :dropzone-options="dropzone"/>
@@ -36,21 +35,31 @@ export default {
     ImageViewer,
     Dropzone
   },
+
   props: {
-    value: {
+    modelValue: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
+
   watch: {
-    value: {
+    modelValue: {
       handler(newVal) {
         this.figuresList = newVal
       },
       deep: true
     }
   },
-  data: function () {
+
+  emits: [
+    'update:modelValue',
+    'created',
+    'onClear',
+    'delete'
+  ],
+
+  data () {
     return {
       creatingType: false,
       displayBody: true,
@@ -69,16 +78,18 @@ export default {
       }
     }
   },
+
   methods: {
     success (file, response) {
       this.figuresList.push(response)
       this.$refs.image.removeFile(file)
-      this.$emit('input', this.figuresList)
-      this.$emit('created',response)
+      this.$emit('update:modelValue', this.figuresList)
+      this.$emit('created', response)
     },
+
     clearImages () {
-      if (window.confirm("Are you sure you want to clear the images?")) {
-        this.$emit('input', [])
+      if (window.confirm('Are you sure you want to clear the images?')) {
+        this.$emit('update:modelValue', [])
         this.$emit('onClear')
       }
     }

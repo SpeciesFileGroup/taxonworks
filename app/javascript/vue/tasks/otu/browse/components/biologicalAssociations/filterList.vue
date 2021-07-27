@@ -20,26 +20,31 @@
 <script>
 export default {
   props: {
-    value: {
+    modelValue: {
       type: [Array, Number],
       default: () => []
     },
+
     list: {
       type: Array,
       required: true
     },
+
     type: {
       type: String,
       default: 'checkbox'
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     selected: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   }

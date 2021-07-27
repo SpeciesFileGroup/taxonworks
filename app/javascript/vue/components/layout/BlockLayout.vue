@@ -38,25 +38,30 @@ export default {
     ExpandComponent,
     SpinnerComponent
   },
+
   props: {
     expand: {
       type: Boolean,
       default: false
     },
+
     anchor: {
       type: String,
       default: undefined
     },
+
     warning: {
       type: Boolean,
       default: false
     },
+
     spinner: {
       type: Boolean,
       default: false
     }
   },
-  data() {
+
+  data () {
     return {
       expanded: true
     }

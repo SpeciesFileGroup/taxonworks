@@ -13,25 +13,28 @@
 import InstanceComponent from './instance'
 
 export default {
-  components: {
-    InstanceComponent
-  },
+  components: { InstanceComponent },
+
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     descriptor: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set () {
-        this.$emit('input', this.value)
+        this.$emit('update:modelValue', this.value)
       }
     }
   },
+
   data () {
     return {
       tabs: [],

@@ -3,7 +3,7 @@
     <div ref="section">
       <soft-validation
         :validations="softValidation"
-        class="soft-validation-box margin-medium-top "/>
+        class="soft-validation-box margin-medium-top"/>
       <matches-component
         class="margin-medium-top"
         @select="$emit('select', $event)"
@@ -26,6 +26,8 @@ export default {
     SoftValidation,
     MatchesComponent
   },
+
+  emits: ['select'],
 
   computed: {
     softValidation () {

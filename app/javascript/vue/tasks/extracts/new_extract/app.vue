@@ -18,13 +18,15 @@
         <draggable
           class="full_width"
           v-model="componentsOrder"
+          :disabled="!settings.sortable"
+          :item-key="item => item"
           @end="updatePreferences"
-          :disabled="!settings.sortable">
-          <component
-            class="margin-medium-bottom"
-            v-for="componentName in componentsOrder"
-            :key="componentName"
-            :is="componentName"/>
+        >
+          <template #item="{ element }">
+            <component
+              class="margin-medium-bottom"
+              :is="element"/>
+          </template>
         </draggable>
       </div>
       <div class="item margin-medium-left">

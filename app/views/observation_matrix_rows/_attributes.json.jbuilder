@@ -3,6 +3,7 @@ json.extract! observation_matrix_row, :id, :observation_matrix_id, :otu_id, :col
 
 # Careful, we override this based on whether destroying a observation matrix row_item
 # will destroy a corresponding row (it could persist for dyanamic reasons)
+json.global_id observation_matrix_row.to_global_id.to_s
 json.cached_observation_matrix_row_item_id observation_matrix_row_destroyable?(observation_matrix_row)
 
 json.url observation_matrix_row_url(observation_matrix_row, format: :json)

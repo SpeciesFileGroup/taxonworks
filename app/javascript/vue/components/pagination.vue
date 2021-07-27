@@ -29,7 +29,7 @@
         </span>
       </template>
     </div>
-    <nav>
+    <nav class="pagination">
       <span
         v-if="pagination.paginationPage > rangePages"
         class="page gap">...</span>
@@ -37,7 +37,9 @@
         :class="{ current: n == pagination.paginationPage}"
         v-for="n in pagesCount">
         <template v-if="n < rangeMax && rangeMin < n">
-          <span v-if="n == pagination.paginationPage">{{ n }}</span>
+          <span
+            v-if="n == pagination.paginationPage"
+            class="page">{{ n }}</span>
           <a
             v-else
             class="cursor-pointer page"
@@ -73,27 +75,33 @@ export default {
       required: true
     }
   },
+
+  emits: ['nextPage'],
+
   computed: {
     pagesCount() {
       if(Object.keys(this.pagination).length)
         return this.pagination.totalPages
       return 1
     },
-    rangeMax() {
+
+    rangeMax () {
       return this.pagination.paginationPage + this.rangePages
     },
-    rangeMin() {
+
+    rangeMin () {
       return this.pagination.paginationPage - this.rangePages
     }
   },
-  data() {
+  data () {
     return {
       rangePages: 5
     }
   },
+
   methods: {
     sendPage(page) {
-      this.$emit('nextPage', { page: page })
+      this.$emit('nextPage', { page })
     }
   }
 }

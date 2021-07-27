@@ -2,9 +2,12 @@
   <div>
     <button
       type="button"
-      class="button button-default"
+      class="button button-default button-circle"
       @click="show = true">
-      Zoom
+      <v-icon
+        x-small
+        color="white"
+        name="expand"/>
     </button>
     <div
       v-if="show"
@@ -12,30 +15,35 @@
       :class="{ 'depiction-zoom-container-bottom': flip }">
       <img
         v-if="image"
+        class="img-size"
         :src="image.src"
-        :width="`${width}px`"
-        :height="`${height}px`">
+      >
       <div
         data-icon="close"
         class="btn-zoom close"
         @click="show = false"/>
       <div
-        data-icon="swap" 
+        data-icon="swap"
         @click="flip = !flip"
         class="btn-zoom flip-button"/>
-      </div>
     </div>
   </div>
 </template>
 
 <script>
+
+import VIcon from 'components/ui/VIcon/index'
+
 export default {
+  components: { VIcon },
+
   props: {
     imageUrl: {
       type: String,
       required: true
-    },
+    }
   },
+
   data () {
     return {
       show: false,
@@ -45,16 +53,16 @@ export default {
       flip: false
     }
   },
+
   watch: {
     show (newVal) {
       if (this.image) return
-      let that = this
-      let image = new Image()
-      
+      const image = new Image()
+
       image.onload = () => {
-        that.width = image.width
-        that.height = image.height
-        that.image = image
+        this.width = image.width
+        this.height = image.height
+        this.image = image
       }
       image.src = this.imageUrl
     }
@@ -72,6 +80,11 @@ export default {
     box-shadow: 0px 2px 4px 1px rgba(0,0,0,0.2);
     z-index: 500;
     line-height: 0px;
+
+    .img-size {
+      max-width: 90vw;
+      max-height: 50vh;
+    }
 
     .btn-zoom {
       padding: 0px;

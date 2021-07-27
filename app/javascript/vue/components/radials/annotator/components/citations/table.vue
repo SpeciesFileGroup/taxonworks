@@ -4,7 +4,7 @@
       <thead>
         <tr>
           <th>Citation</th>
-          <th></th>
+          <th />
         </tr>
       </thead>
       <transition-group
@@ -22,22 +22,24 @@
               class="margin-small-left"
               :global-id="item.global_id"/>
           </td>
-          <td class="vue-table-options">
-            <a
-              class="button-default circle-button btn-citation"
-              :href="`/tasks/nomenclature/by_source?source_id=${item.source_id}`"
-              target="blank"/>
-            <pdf-button
-              v-if="item.hasOwnProperty('target_document')"
-              :pdf="item.target_document"/>
-            <radial-annotator :global-id="item.global_id"/>
-            <span
-              class="circle-button btn-edit"
-              @click="$emit('edit', Object.assign({}, item))"/>
-            <span
-              class="circle-button btn-delete"
-              @click="deleteItem(item)">Remove
-            </span>
+          <td>
+            <div class="horizontal-right-content middle">
+              <a
+                class="button-default circle-button btn-citation"
+                :href="`/tasks/nomenclature/by_source?source_id=${item.source_id}`"
+                target="blank"/>
+              <pdf-button
+                v-if="item.hasOwnProperty('target_document')"
+                :pdf="item.target_document"/>
+              <radial-annotator :global-id="item.global_id"/>
+              <span
+                class="circle-button btn-edit"
+                @click="$emit('edit', Object.assign({}, item))"/>
+              <span
+                class="circle-button btn-delete"
+                @click="deleteItem(item)">Remove
+              </span>
+            </div>
           </td>
         </tr>
       </transition-group>
@@ -56,26 +58,33 @@ export default {
     SoftValidation,
     PdfButton
   },
+
   props: {
     list: {
       type: Array,
-      default: () => {
-        return []
-      }
-    },
+      default: () => []
+    }
   },
-  mounted() {
+
+  emits: [
+    'delete',
+    'edit'
+  ],
+
+  mounted () {
     this.$options.components['RadialAnnotator'] = RadialAnnotator
   },
+
   methods: {
-    deleteItem(item) {
-      if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+    deleteItem (item) {
+      if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
         this.$emit('delete', item)
       }
     }
   }
 }
 </script>
+
 <style lang="scss" scoped>
   .vue-table-container {
     padding: 0px;
@@ -84,11 +93,6 @@ export default {
 
   .vue-table {
     width: 100%;
-    .vue-table-options {
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-end;
-    }
     tr {
       cursor: default;
     }

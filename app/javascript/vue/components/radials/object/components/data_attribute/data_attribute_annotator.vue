@@ -20,9 +20,9 @@
       </div>
 
       <div>
-        <button 
-          @click="createNew()" 
-          class="button button-submit normal-input separate-bottom" 
+        <button
+          @click="createNew()"
+          class="button button-submit normal-input separate-bottom"
           type="button">Create
         </button>
       </div>
@@ -43,22 +43,19 @@
 import CRUD from '../../request/crud.js'
 import AnnotatorExtend from '../../components/annotatorExtend.js'
 import TableList from '../shared/tableList'
-import ListItems from '../shared/listItems'
 
 export default {
   mixins: [CRUD, AnnotatorExtend],
-  components: {
-    TableList,
-    ListItems
-  },
+
+  components: { TableList },
+
   computed: {
     defaultPredicates () {
-      return this.predicates.filter(item => { 
-        return this.customPredicate.find(predicateId => { return predicateId === item.id })
-      })
+      return this.predicates.filter(item => this.customPredicate.find(predicateId => predicateId === item.id))
     }
   },
-  data: function () {
+
+  data () {
     return {
       preferences: undefined,
       customPredicate: [],
@@ -66,10 +63,11 @@ export default {
       data_attributes: []
     }
   },
-  mounted: function () {
-    var that = this
+
+  mounted () {
     this.loadTabList()
   },
+
   methods: {
     newData () {
       return {
@@ -79,11 +77,10 @@ export default {
         annotated_global_entity: decodeURIComponent(this.globalId)
       }
     },
+
     createNew () {
-      let promises = []
-      let data = this.data_attributes.filter(item => {
-        return item.value.trim().length
-      })
+      const promises = []
+      const data = this.data_attributes.filter(item => item.value.trim().length)
 
       data.forEach(item => {
         promises.push(this.create('/data_attributes', { data_attribute: item }).then(response => {
@@ -94,19 +91,20 @@ export default {
       Promise.all(promises).then(() => {
         this.createFields()
       })
-
     },
+
     predicateAlreadyCreated (predicate) {
-      return this.list.find(item => { return predicate.id == item.controlled_vocabulary_term_id })
+      return this.list.find(item => predicate.id ===item.controlled_vocabulary_term_id)
     },
-    loadTabList () {
-      let promises = []
 
-      promises.push(this.getList(`/controlled_vocabulary_terms.json?type[]=Predicate`).then(response => {
+    loadTabList () {
+      const promises = []
+
+      promises.push(this.getList('/controlled_vocabulary_terms.json?type[]=Predicate').then(response => {
         this.predicates = response.body
       }))
 
-      promises.push(this.getList(`/project_preferences.json`).then(response => {
+      promises.push(this.getList('/project_preferences.json').then(response => {
         this.customPredicate = response.body.model_predicate_sets[this.metadata.object_type]
       }))
 
@@ -114,10 +112,11 @@ export default {
         this.createFields()
       })
     },
-    createFields() {
+
+    createFields () {
       this.data_attributes = []
       this.defaultPredicates.forEach(item => {
-        let data = this.newData()
+        const data = this.newData()
         data.controlled_vocabulary_term_id = item.id
         this.data_attributes.push(data)
       })
@@ -127,11 +126,10 @@ export default {
 </script>
 <style lang="scss">
 .radial-annotator {
-	.data_attribute_annotator {
-		button {
-			min-width: 100px;
-		}
-	}
+  .data_attribute_annotator {
+    button {
+      min-width: 100px;
+    }
+  }
 }
 </style>
-

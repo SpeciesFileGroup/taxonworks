@@ -4,19 +4,17 @@
       <button
         class="button button-default normal-input"
         @click="showModal = true"
-        v-if="otu">Change OTU
-      </button>
-      <button
-        class="button button-default normal-input"
-        @click="showModal = true"
-        v-else>Select OTU
+      >
+        {{ otu ? 'Change OTU' : 'Select OTU' }}
       </button>
     </div>
     <modal
       @close="showModal = false"
       v-if="showModal">
-      <h3 slot="header">Select OTU</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Select OTU</h3>
+      </template>
+      <template #body>
         <autocomplete
           url="/otus/autocomplete"
           min="2"
@@ -25,7 +23,7 @@
           @getItem="loadOtu($event.id)"
           label="label"
           :autofocus="true"/>
-      </div>
+      </template>
     </modal>
   </div>
 </template>

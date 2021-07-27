@@ -6,46 +6,48 @@
         v-if="display"
         :container-style="{ backgroundColor: 'transparent', boxShadow: 'none' }"
         @close="closeModal()">
-        <h3
-          slot="header"
-          class="flex-separate">
-          <span v-html="title" />
-          <span
-            v-if="metadata"
-            class="separate-right">
-            {{ metadata.object_type }}
-          </span>
-        </h3>
-        <div
-          slot="body"
-          class="flex-separate">
-          <spinner v-if="!menuCreated" />
-          <div class="radial-annotator-menu">
-            <div>
-              <radial-menu
-                v-if="menuCreated"
-                :options="menuOptions"
-                @onClick="selectComponent"/>
+        <template #header>
+          <h3 class="flex-separate">
+            <span v-html="title" />
+            <span
+              v-if="metadata"
+              class="separate-right">
+              {{ metadata.object_type }}
+            </span>
+          </h3>
+        </template>
+        <template #body>
+          <div
+            class="flex-separate">
+            <spinner v-if="!menuCreated" />
+            <div class="radial-annotator-menu">
+              <div>
+                <radial-menu
+                  v-if="menuCreated"
+                  :options="menuOptions"
+                  @onClick="selectComponent"/>
+              </div>
+            </div>
+            <div
+              class="radial-annotator-template panel"
+              :style="{ 'max-height': windowHeight(), 'min-height': windowHeight() }"
+              v-if="currentAnnotator">
+              <h2 class="capitalize view-title">
+                {{ currentAnnotator.replace("_"," ") }}
+              </h2>
+              <component
+                v-if="metadataLoaded"
+                class="radial-annotator-container"
+                :is="(currentAnnotator ? currentAnnotator + 'Annotator' : undefined)"
+                :type="currentAnnotator"
+                :url="url"
+                :metadata="metadata"
+                :global-id="globalId"
+                :object-type="metadata.object_type"
+                @updateCount="setTotal"/>
             </div>
           </div>
-          <div
-            class="radial-annotator-template panel"
-            :style="{ 'max-height': windowHeight(), 'min-height': windowHeight() }"
-            v-if="currentAnnotator">
-            <h2 class="capitalize view-title">
-              {{ currentAnnotator.replace("_"," ") }}
-            </h2>
-            <component
-              class="radial-annotator-container"
-              :is="(currentAnnotator ? currentAnnotator + 'Annotator' : undefined)"
-              :type="currentAnnotator"
-              :url="url"
-              :metadata="metadata"
-              :global-id="globalId"
-              :object-type="metadata.object_type"
-              @updateCount="setTotal"/>
-          </div>
-        </div>
+        </template>
       </modal>
       <span
         v-if="showBottom"
@@ -264,12 +266,12 @@ export default {
   watch: {
     metadataLoaded () {
       if (this.defaultView) {
-        this.currentAnnotator = this.defaultView ? (this.isComponentExist(this.defaultView) ? this.defaultView : undefined) : undefined
+        this.currentAnnotator = this.isComponentExist(this.defaultView)
       }
     },
     display (newVal) {
       if (newVal && this.metadataLoaded) {
-        this.currentAnnotator = this.defaultView ? (this.isComponentExist(this.defaultView) ? this.defaultView : undefined) : undefined
+        this.currentAnnotator = this.isComponentExist(this.defaultView)
       }
     }
   },
@@ -280,7 +282,7 @@ export default {
   },
   methods: {
     isComponentExist (componentName) {
-      return this.$options.components[componentName] ? true : false
+      return this.$options.components[`${componentName}Annotator`] ? componentName : undefined
     },
     loadContextMenu () {
       this.showContextMenu = true
@@ -394,13 +396,16 @@ export default {
       top: 30px;
       right: 20px;
     }
+
     .modal-mask {
       background-color: rgba(0, 0, 0, 0.7);
     }
+
     .modal-container {
       min-width: 1024px;
       width: 1200px;
     }
+
     .radial-annotator-template {
       border-radius: 3px;
       background: #FFFFFF;
@@ -409,6 +414,7 @@ export default {
       max-width: 100%;
       min-height: 600px;
     }
+
     .radial-annotator-container {
       display: flex;
       height: 600px;
@@ -416,18 +422,26 @@ export default {
       overflow-y: scroll;
       position: relative;
     }
+
+    .radial-annotator-inner-modal {
+      height: 700px;
+    }
+
     .radial-annotator-menu {
       padding-top: 1em;
       padding-bottom: 1em;
       width: 700px;
       min-height: 650px;
     }
+
     .annotator-buttons-list {
       overflow-y: scroll;
     }
+
     .save-annotator-button {
       width: 100px;
     }
+
     .circle-count {
       bottom: -6px;
     }

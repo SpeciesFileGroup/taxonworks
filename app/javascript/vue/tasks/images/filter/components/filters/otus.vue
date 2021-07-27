@@ -37,11 +37,13 @@ export default {
   },
 
   props: {
-    value: {
+    modelValue: {
       type: Array,
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
 
   data () {
     return {
@@ -51,7 +53,7 @@ export default {
 
   watch: {
     otusStore (newVal) {
-      this.$emit('input', newVal.map(otu => otu.id))
+      this.$emit('update:modelValue', newVal.map(otu => otu.id))
     }
   },
 

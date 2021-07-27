@@ -8,25 +8,30 @@
 <script>
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Array,
       required: true
     },
+
     position: {
       type: Number,
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     lines: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   methods: {
     addLine () {
       this.lines.push(this.position)

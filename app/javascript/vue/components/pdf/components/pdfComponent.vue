@@ -1,9 +1,11 @@
 <template>
   <div>
-    <slot v-if="loading" name="loading"/>
-    <div id="viewerContainer" ref="container">
-
-    </div>
+    <slot
+      v-if="loading"
+      name="loading"/>
+    <div
+      id="viewerContainer"
+      ref="container"/>
   </div>
 </template>
 <script>
@@ -11,7 +13,13 @@
 
 import 'pdfjs-dist/web/pdf_viewer.css'
 import pdfjsLib from 'pdfjs-dist/webpack.js'
-import { PDFLinkService, PDFPageView, PDFFindController, DefaultAnnotationLayerFactory, DefaultTextLayerFactory } from 'pdfjs-dist/web/pdf_viewer.js'
+import {
+  PDFLinkService,
+  PDFPageView,
+  PDFFindController,
+  DefaultAnnotationLayerFactory,
+  DefaultTextLayerFactory
+} from 'pdfjs-dist/web/pdf_viewer.js'
 //import resizeSensor from 'vue-resize-sensor'
 
 const DEFAULT_SCALE_DELTA = 1.1
@@ -45,7 +53,7 @@ function createLoadingTask (src, options) {
     }
   }
 
-  var loadingTask = pdfjsLib.getDocument(source)
+  const loadingTask = pdfjsLib.getDocument(source)
   loadingTask.__PDFDocumentLoadingTask = true // since PDFDocumentLoadingTask is not public
 
   if (options && options.onPassword) { loadingTask.onPassword = options.onPassword }
@@ -57,9 +65,7 @@ function createLoadingTask (src, options) {
 
 export default {
   createLoadingTask: createLoadingTask,
-  components: {
-    //resizeSensor
-  },
+
   data () {
     return {
       internalSrc: this.src,
@@ -68,74 +74,93 @@ export default {
       loading: true
     }
   },
+
   props: {
     src: {
       type: [String, Object],
       default: ''
     },
+
     page: {
       type: Number,
       default: 1
     },
+
     rotate: {
       type: Number,
       default: 0
     },
+
     scale: {
       type: [Number, String],
       default: 1
     },
+
     resize: {
       type: Boolean,
       default: false
     },
+
     annotation: {
       type: Boolean,
       default: false
     },
+
     text: {
       type: Boolean,
       default: true
     }
   },
+
+  emits: [
+    'numpages',
+    'loading'
+  ],
+
   watch: {
-    pdf: function (val) {
-      var pdfInfo = val.pdfInfo || val._pdfInfo
+    pdf (val) {
+      const pdfInfo = val.pdfInfo || val._pdfInfo
       this.$emit('numpages', pdfInfo.numPages)
     },
-    page: function (val) {
-      var self = this
-      this.pdf.getPage(val).then(function (pdfPage) {
-        self.pdfViewer.setPdfPage(pdfPage)
-        self.pdfViewer.draw()
+
+    page (val) {
+      this.pdf.getPage(val).then((pdfPage) => {
+        this.pdfViewer.setPdfPage(pdfPage)
+        this.pdfViewer.draw()
       })
     },
-    scale: function (val) {
+
+    scale (val) {
       this.drawScaled(val)
     },
-    rotate: function (newRotate) {
+
+    rotate (newRotate) {
       if (this.pdfViewer) {
         this.pdfViewer.update(this.scale, newRotate)
         this.pdfViewer.draw()
       }
     },
+
     src(newVal) {
       this.internalSrc = newVal
       this.loadPdf()
     }
   },
+
   methods: {
-    calculateScale: function (width = -1, height = -1) {
+    calculateScale (width = -1, height = -1) {
       this.pdfViewer.update(1, this.rotate)
       if (width === -1 && height === -1) {
         width = this.$refs.container.offsetWidth
         height = this.$refs.container.height
       }
-      let pageWidthScale = width / this.pdfViewer.viewport.width * 1
-      let pageHeightScale = height / this.pdfViewer.viewport.height * 1
+      const pageWidthScale = width / this.pdfViewer.viewport.width * 1
+      const pageHeightScale = height / this.pdfViewer.viewport.height * 1
+
       return pageWidthScale
     },
-    drawScaled: function (newScale) {
+
+    drawScaled (newScale) {
       if (this.pdfViewer) {
         if (newScale === 'page-width') {
           newScale = this.calculateScale()
@@ -146,42 +171,39 @@ export default {
         this.$emit('loading', false)
       }
     },
-    resizeScale(size) {
+
+    resizeScale (size) {
       if (this.resize) {
         this.drawScaled('page-width')
       }
     },
-    loadPdf() {
-      var self = this
-      //this.resetPdf()
-      if (!isPDFDocumentLoadingTask(self.internalSrc)) {
-        self.internalSrc = createLoadingTask(self.internalSrc)
-        self.$emit('loading', true)
+
+    loadPdf () {
+      if (!isPDFDocumentLoadingTask(this.internalSrc)) {
+        this.internalSrc = createLoadingTask(this.internalSrc)
+        this.$emit('loading', true)
       }
 
-      var SEARCH_FOR = 'Mozilla' // try 'Mozilla';
-
-      var container = this.$refs.container
-
-      var pdfLinkService = new PDFLinkService()
+      const container = this.$refs.container
+      const pdfLinkService = new PDFLinkService()
       let annotationLayer; let textLayer
-      if (self.annotation) {
+      if (this.annotation) {
         annotationLayer = new DefaultAnnotationLayerFactory()
       }
-      if (self.text) {
+      if (this.text) {
         textLayer = new DefaultTextLayerFactory()
       }
 
-      self.internalSrc
-        .then(function (pdfDocument) {
+      this.internalSrc
+        .then((pdfDocument) => {
         // Document loaded, retrieving the page.
-          self.pdf = pdfDocument
-          return pdfDocument.getPage(self.page)
-        }).then(function (pdfPage) {
+          this.pdf = pdfDocument
+          return pdfDocument.getPage(this.page)
+        }).then((pdfPage) => {
         // Creating the page view with default parameters.
-          self.pdfViewer = new PDFPageView({
+          this.pdfViewer = new PDFPageView({
             container: container,
-            id: self.page,
+            id: this.page,
             scale: 1,
             defaultViewport: pdfPage.getViewport(1),
             // We can enable text/annotations layers, if needed
@@ -189,13 +211,14 @@ export default {
             annotationLayerFactory: annotationLayer
           })
           // Associates the actual page with the view, and drawing it
-          self.pdfViewer.setPdfPage(pdfPage)
-          pdfLinkService.setViewer(self.pdfViewer)
-          self.drawScaled(self.scale)
+          this.pdfViewer.setPdfPage(pdfPage)
+          pdfLinkService.setViewer(this.pdfViewer)
+          this.drawScaled(this.scale)
         })
     }
   },
-  mounted() {
+
+  mounted () {
     this.loadPdf()
   }
 }

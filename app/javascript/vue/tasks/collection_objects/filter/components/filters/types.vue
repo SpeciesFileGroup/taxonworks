@@ -45,21 +45,25 @@ import { TypeMaterial } from 'routes/endpoints'
 
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true
     }
   },
+
   computed: {
     selectedTypes: {
-      get() {
-        return this.value
+      get () {
+        return this.modelValue
       },
-      set(value) {
-        this.$emit('input', value)
+      set (value) {
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
+  emits: ['update:modelValue'],
+
   watch: {
     nomenclature_code() {
       this.selectedTypes.is_type = []

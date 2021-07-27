@@ -1,16 +1,12 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from './app.vue'
 
 function init () {
-  new Vue({
-    el: '#descriptor_task',
-    render: function (createElement) {
-      return createElement(App)
-    }
-  })
+  const app = createApp(App)
+  app.mount('#descriptor_task')
 }
 
-document.addEventListener('turbolinks:load', (event) => {
+document.addEventListener('turbolinks:load', () => {
   if (document.querySelector('#descriptor_task')) {
     init()
   }

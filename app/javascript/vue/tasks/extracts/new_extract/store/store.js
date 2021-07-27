@@ -1,13 +1,9 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-
+import { createStore } from 'vuex'
 import { ActionFunctions } from '../store/actions/actions'
 import { GetterFunctions } from '../store/getters/getters'
 import { MutationFunctions } from '../store/mutations/mutations'
 
 import makeExtract from '../const/makeExtract'
-
-Vue.use(Vuex)
 
 const makeInitialState = () => {
   return {
@@ -40,7 +36,7 @@ const makeInitialState = () => {
 }
 
 function newStore () {
-  return new Vuex.Store({
+  return createStore({
     state: makeInitialState(),
     getters: GetterFunctions,
     mutations: MutationFunctions,

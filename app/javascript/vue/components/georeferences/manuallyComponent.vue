@@ -6,8 +6,10 @@
     <modal-component
       v-if="show"
       @close="show = false">
-      <h3 slot="header">Create georeference</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Create georeference</h3>
+      </template>
+      <template #body>
         <div class="field label-above">
           <label>Latitude</label>
           <input
@@ -16,7 +18,7 @@
         </div>
         <div class="field label-above">
           <label>Longitude</label>
-          <input 
+          <input
             type="text"
             v-model="shape.long">
         </div>
@@ -30,11 +32,11 @@
               name="georeference-distance"
               :value="range"
               v-model="shape.range">
-              {{ range }}
+            {{ range }}
           </label>
         </div>
-      </div>
-      <div slot="footer">
+      </template>
+      <template #footer>
         <button
           type="button"
           class="normal-input button button-submit"
@@ -42,7 +44,7 @@
           @click="createShape">
           Add point
         </button>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
@@ -53,14 +55,14 @@ import ModalComponent from 'components/ui/Modal'
 import convertDMS from 'helpers/parseDMS.js'
 
 export default {
-  components: {
-    ModalComponent
-  },
+  components: { ModalComponent },
+
   computed: {
     validateFields () {
       return convertDMS(this.shape.lat) && convertDMS(this.shape.long)
     }
   },
+
   data () {
     return {
       show: false,
@@ -68,6 +70,7 @@ export default {
       shape: this.resetShape()
     }
   },
+
   methods: {
     createShape () {
       this.$emit('create', {
@@ -81,6 +84,7 @@ export default {
       this.shape = this.resetShape()
       this.show = false
     },
+
     resetShape () {
       return {
         lat: undefined,
@@ -88,6 +92,7 @@ export default {
         range: 0
       }
     },
+
     openModal () {
       this.show = true
       this.shape = this.resetShape()
@@ -97,7 +102,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  ::v-deep .modal-container {
+  :deep(.modal-container) {
     max-width: 300px;
   }
 </style>

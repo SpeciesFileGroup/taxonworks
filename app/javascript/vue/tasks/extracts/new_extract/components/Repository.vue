@@ -1,36 +1,36 @@
 <template>
   <block-layout>
-    <div slot="header">
+    <template #header>
       <h3>Repository</h3>
-    </div>
-    <fieldset
-      slot="body"
-      class="fieldset">
-      <legend>Repository</legend>
-      <div class="margin-small-bottom horizontal-left-content align-start">
-        <smart-selector
-          class="full_width"
-          ref="smartSelector"
-          model="repositories"
-          target="CollectionObject"
-          klass="CollectionObject"
-          pin-section="Repositories"
-          pin-type="Repository"
-          @selected="setRepository"/>
-        <lock-component
-          class="margin-small-left"
-          v-model="settings.lock.repository"/>
-      </div>
-      <template v-if="repository">
-        <div class="middle separate-top">
-          <span data-icon="ok"/>
-          <span class="separate-right"> {{ repository.object_tag }}</span>
-          <span
-            class="circle-button button-default btn-undo"
-            @click="setRepository(undefined)"/>
+    </template>
+    <template #body>
+      <fieldset class="fieldset">
+        <legend>Repository</legend>
+        <div class="margin-small-bottom horizontal-left-content align-start">
+          <smart-selector
+            class="full_width"
+            ref="smartSelector"
+            model="repositories"
+            target="CollectionObject"
+            klass="CollectionObject"
+            pin-section="Repositories"
+            pin-type="Repository"
+            @selected="setRepository"/>
+          <lock-component
+            class="margin-small-left"
+            v-model="settings.lock.repository"/>
         </div>
-      </template>
-    </fieldset>
+        <template v-if="repository">
+          <div class="middle separate-top">
+            <span data-icon="ok"/>
+            <span class="separate-right"> {{ repository.object_tag }}</span>
+            <span
+              class="circle-button button-default btn-undo"
+              @click="setRepository(undefined)"/>
+          </div>
+        </template>
+      </fieldset>
+    </template>
   </block-layout>
 </template>
 
@@ -38,7 +38,7 @@
 
 import SmartSelector from 'components/ui/SmartSelector'
 import componentExtend from './mixins/componentExtend'
-import LockComponent from 'components/lock'
+import LockComponent from 'components/ui/VLock/index.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { Repository } from 'routes/endpoints'
@@ -51,13 +51,6 @@ export default {
     LockComponent,
     SmartSelector,
     BlockLayout
-  },
-
-  props: {
-    value: {
-      type: Object,
-      default: () => ({})
-    }
   },
 
   computed: {

@@ -60,8 +60,6 @@ class TaxonNameClassification < ApplicationRecord
 
   after_save :set_cached
   after_destroy :set_cached
-  #  after_save :set_cached_names_for_taxon_names
-  # after_destroy :set_cached_names_for_taxon_names
 
   def nomenclature_code
     return :iczn if type.match(/::Iczn/)
@@ -183,6 +181,7 @@ class TaxonNameClassification < ApplicationRecord
     set_cached_names_for_taxon_names
   end
 
+  # TODO: move these to individual classes?!
   def set_cached_names_for_taxon_names
     begin
       TaxonName.transaction_with_retry do
@@ -204,9 +203,11 @@ class TaxonNameClassification < ApplicationRecord
               cached_original_combination: t.get_original_combination,
               cached_original_combination_html: t.get_original_combination_html
           )
+
           TaxonNameRelationship::OriginalCombination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
             t1.update_cached_original_combinations
           end
+
           TaxonNameRelationship::Combination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
             t1.update_column(:verbatim_name, t1.cached) if t1.verbatim_name.nil?
             n = t1.get_full_name
@@ -216,16 +217,18 @@ class TaxonNameClassification < ApplicationRecord
             )
           end
         elsif type_name =~ /Latinized::Gender/
-          t.descendants.select{|t| t.id == t.cached_valid_taxon_name_id}.uniq.each do |t1|
+          t.descendants.with_same_cached_valid_id.each do |t1|
             n = t1.get_full_name
             t1.update_columns(
                 cached: n,
                 cached_html: t1.get_full_name_html(n)
             )
           end
+
           TaxonNameRelationship::OriginalCombination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
             t1.update_cached_original_combinations
           end
+
           TaxonNameRelationship::Combination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
             t1.update_column(:verbatim_name, t1.cached) if t1.verbatim_name.nil?
             n = t1.get_full_name
@@ -236,19 +239,25 @@ class TaxonNameClassification < ApplicationRecord
           end
         elsif TAXON_NAME_CLASS_NAMES_VALID.include?(type_name)
 #          TaxonName.where(cached_valid_taxon_name_id: t.cached_valid_taxon_name_id).each do |vn|
-#            vn.update_column(:cached_valid_taxon_name_id, vn.get_valid_taxon_name.id)  # update self too!
-#          end
+          #            vn.update_column(:cached_valid_taxon_name_id, vn.get_valid_taxon_name.id)  # update self too!
+          #          end
           vn = t.get_valid_taxon_name
-          vn.update_column(:cached_valid_taxon_name_id, vn.id)  # update self too!
+          vn.update_columns(
+            cached_valid_taxon_name_id: vn.id,
+            cached_is_valid: !vn.unavailable_or_invalid?) # Do not change!  
           vn.list_of_invalid_taxon_names.each do |s|
-            s.update_column(:cached_valid_taxon_name_id, vn.id)
+            s.update_columns(
+              cached_valid_taxon_name_id: vn.id,
+              cached_is_valid: false)
             s.combination_list_self.each do |c|
-              c.update_column(:cached_valid_taxon_name_id, vn.id)
+              c.update_columns(cached_valid_taxon_name_id: vn.id)
             end
           end
           t.combination_list_self.each do |c|
-            c.update_column(:cached_valid_taxon_name_id, vn.id)
+            c.update_columns(cached_valid_taxon_name_id: vn.id)
           end
+        else
+          t.update_columns(cached_is_valid: false)
         end
       end
     rescue ActiveRecord::RecordInvalid

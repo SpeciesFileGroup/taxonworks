@@ -21,6 +21,11 @@ import TableList from 'components/table_list'
 export default {
   components: { TableList },
 
+  emits: [
+    'onLoad',
+    'onDelete'
+  ],
+
   computed: {
     list () {
       return this.$store.getters[GetterNames.GetRecent]
@@ -29,10 +34,6 @@ export default {
 
   created () {
     this.$store.dispatch(ActionNames.LoadRecents)
-  },
-
-  methods: {
-
   }
 }
 </script>

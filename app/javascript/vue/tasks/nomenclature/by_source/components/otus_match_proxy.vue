@@ -19,119 +19,126 @@
 </template>
 <script>
 
-  import OtuTableComponent from './tables/otu_table.vue'
-  import Spinner from 'components/spinner.vue'
-  import AjaxCall from 'helpers/ajaxCall'
+import OtuTableComponent from './tables/otu_table.vue'
+import Spinner from 'components/spinner.vue'
+import { Otu } from 'routes/endpoints'
 
-  export default {
-    components: {
-      OtuTableComponent,
-      Spinner
+export default {
+  components: {
+    OtuTableComponent,
+    Spinner
+  },
+
+  props: {
+    sourceID: {
+      type: String,
+      default: '0',
     },
-    props: {
-      sourceID: {
-        type: String,
-        default: "0",
+    updateOtus: {
+      type: Boolean,
+      default: false
+    },
+    summarize: {
+      type: Object,
+      default: undefined
+    }
+  },
+
+  data () {
+    return {
+      otu_name_list: [],
+      otu_id_list: [],
+      processingList: false,
+      isLoading: false,
+      lastRun: undefined
+    }
+  },
+
+  watch: {
+    summarize: { 
+      handler(newVal) {
+        this.getSourceOtus(newVal.type, newVal.list)
       },
-      updateOtus: {
-        type: Boolean,
-        default: false
-      },
-      summarize: {
-        type: Object,
-        default: undefined
-      }
-    },
-    data() {
-      return {
-        otu_name_list: [],
-        otu_id_list: [],
-        processingList: false,
-        isLoading: false,
-        lastRun: undefined
-      }
-    },
-    watch: {
-      summarize: { 
-        handler(newVal) {
-          this.getSourceOtus(newVal.type, newVal.list)
-        },
-        deep: true
-      }
-    },
-    methods: {
-      getSourceOtus(type, list) {
-        let promises = [];
-        let runTime = Date.now()
-        this.lastRun = runTime
-        this.isLoading = true
+      deep: true
+    }
+  },
 
-        promises.push(this.processType(this.getIdsList(list), type))
+  methods: {
+    getSourceOtus(type, list) {
+      const promises = []
+      const runTime = Date.now()
+      this.lastRun = runTime
+      this.isLoading = true
 
-        Promise.all(promises).then(lists => {
-          if(this.lastRun == runTime) {
+      promises.push(this.processType(this.getIdsList(list), type))
 
-            if(this.append) {
-              let concat = this.otu_id_list.concat(lists)
-                    
-              concat = concat.filter((item, index, self) =>
-                index === self.findIndex((i) => (
-                  i.id === item.id
-                ))
-              )
-              this.otu_id_list = concat
-            }
-            
-            this.otu_id_list = [].concat.apply([], lists)
-            this.isLoading = false
+      Promise.all(promises).then(lists => {
+        if (this.lastRun == runTime) {
+          if (this.append) {
+            let concat = this.otu_id_list.concat(lists)
+
+            concat = concat.filter((item, index, self) =>
+              index === self.findIndex((i) => (
+                i.id === item.id
+              ))
+            )
+            this.otu_id_list = concat
           }
-        })
-      },
-      addOtu(otu) {
-        if((this.otu_name_list.findIndex(item => {return item.id == otu.id})) < 0) {
-          this.otu_name_list.push(otu)
-        }
-      },
-      getIdsList(list) {
-        return list.map((item) => { return item.citation_object_id })
-      },
-      processType(list, type) {
-        if(!list.length) return
-        return new Promise((resolve, reject) => {
-          let promises = []
-          const maxSize = 50;
-          var i, j;
-          let chunkArray = []
-          for (i = 0, j = list.length; i < j; i += maxSize) {
-            if(list.length > i+maxSize) {
-              chunkArray.push(list.slice(i, i + maxSize))
-            }
-            else {
-              chunkArray.push(list.slice(i, list.length))
-            }
-          }
-          chunkArray.forEach(item => {
-            promises.push(AjaxCall('get', '/otus.json', { params: { [type]: item } }).then(response => {
-              response.body.forEach(this.addOtu)
-            }))
-          })
 
-          Promise.all(promises).then(response => {
-            resolve()
-          })
-
-        })
-      },
-      getDWCATable(list) {
-        const IDS = list.map(item => { return item.id })
-        const chunk = IDS.length / this.perRequest
-        var i, j;
-        let chunkArray = []
-        for (i = 0,j = IDS.length; i < j; i += chunk) {
-            chunkArray.push(IDS.slice(i,i+chunk))
+          this.otu_id_list = [].concat.apply([], lists)
+          this.isLoading = false
         }
-        this.getDWCA(chunkArray)
-      },
+      })
     },
+    addOtu(otu) {
+      if((this.otu_name_list.findIndex(item => item.id === otu.id)) < 0) {
+        this.otu_name_list.push(otu)
+      }
+    },
+
+    getIdsList(list) {
+      return list.map((item) => item.citation_object_id)
+    },
+
+    processType (list, type) {
+      if (!list.length) return
+      return new Promise((resolve, reject) => {
+        const promises = []
+        const chunkArray = []
+        const maxSize = 50
+        let i, j
+
+        for (i = 0, j = list.length; i < j; i += maxSize) {
+          if (list.length > i+maxSize) {
+            chunkArray.push(list.slice(i, i + maxSize))
+          }
+          else {
+            chunkArray.push(list.slice(i, list.length))
+          }
+        }
+        chunkArray.forEach(item => {
+          promises.push(Otu.where({ [type]: item }).then(response => {
+            response.body.forEach(this.addOtu)
+          }))
+        })
+
+        Promise.all(promises).then(response => {
+          resolve()
+        })
+      })
+    },
+
+    getDWCATable (list) {
+      const IDS = list.map(item => item.id)
+      const chunk = IDS.length / this.perRequest
+      const chunkArray = []
+      let i, j
+
+      for (i = 0,j = IDS.length; i < j; i += chunk) {
+        chunkArray.push(IDS.slice(i, i + chunk))
+      }
+      this.getDWCA(chunkArray)
+    }
   }
+}
 </script>

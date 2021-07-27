@@ -1,8 +1,8 @@
-import { GetUserPreferences } from '../../request/resources'
+import { User } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
 export default ({ state, commit }) => {
-  GetUserPreferences().then(response => {
+  User.preferences().then(response => {
     if (response.body.layout.browseOtu) {
       const browseOtuPreferences = response.body.layout.browseOtu
       if (browseOtuPreferences.preferenceSchema === state.preferences.preferenceSchema) {

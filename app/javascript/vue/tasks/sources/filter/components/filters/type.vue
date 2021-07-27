@@ -21,21 +21,25 @@ import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
   props: {
-    value: {
+    modelValue: {
       type: String,
       default: undefined
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     type: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       types: {
@@ -46,6 +50,7 @@ export default {
       }
     }
   },
+
   mounted () {
     this.type = URLParamsToJSON(location.href).source_type
   }

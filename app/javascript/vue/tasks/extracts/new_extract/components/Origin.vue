@@ -1,43 +1,47 @@
 <template>
   <block-layout>
-    <h3 slot="header">Origin</h3>
-    <div slot="body">
-      <template v-if="!originRelationship.oldObject">
-        <div class="horizontal-left-content middle margin-small-bottom">
-          <switch-component
-            v-model="tabSelected"
-            :options="tabsOptions"/>
+    <template #header>
+      <h3>Origin</h3>
+    </template>
+    <template #body>
+      <div>
+        <template v-if="!originRelationship.oldObject">
+          <div class="horizontal-left-content middle margin-small-bottom">
+            <switch-component
+              v-model="tabSelected"
+              :options="tabsOptions"/>
+            <lock-component
+              class="margin-small-left"
+              v-model="settings.lock.originRelationship"/>
+          </div>
+
+          <smart-selector
+            :model="smartConfig.model"
+            klass="Extract"
+            @selected="setOrigin"/>
+        </template>
+
+        <div
+          v-if="originRelationship.object_tag"
+          class="horizontal-left-content">
+          <span v-html="originRelationship.object_tag"/>
+          <button
+            class="button circle-button btn-undo button-default"
+            type="button"
+            @click="originRelationship = {}"/>
           <lock-component
             class="margin-small-left"
             v-model="settings.lock.originRelationship"/>
         </div>
 
-        <smart-selector
-          :model="smartConfig.model"
-          klass="Extract"
-          @selected="setOrigin"/>
-      </template>
-
-      <div
-        v-if="originRelationship.object_tag"
-        class="horizontal-left-content">
-        <span v-html="originRelationship.object_tag"/>
-        <button
-          class="button circle-button btn-undo button-default"
-          type="button"
-          @click="originRelationship = {}"/>
-        <lock-component
-          class="margin-small-left"
-          v-model="settings.lock.originRelationship"/>
+        <label v-if="!isExtract">
+          Verbatim anatomical origin
+          <input
+            type="text"
+            v-model="extract.verbatim_anatomical_origin">
+        </label>
       </div>
-
-      <label v-if="!isExtract">
-        Verbatim anatomical origin
-        <input
-          type="text"
-          v-model="extract.verbatim_anatomical_origin">
-      </label>
-    </div>
+    </template>
   </block-layout>
 </template>
 
@@ -45,8 +49,8 @@
 
 import SmartSelector from 'components/ui/SmartSelector'
 import SwitchComponent from 'components/switch'
-import LockComponent from 'components/lock'
-import BlockLayout from'components/layout/BlockLayout'
+import LockComponent from 'components/ui/VLock/index.vue'
+import BlockLayout from 'components/layout/BlockLayout'
 import componentExtend from './mixins/componentExtend'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'

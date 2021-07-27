@@ -95,16 +95,24 @@ export default {
       required: true
     }
   },
+
+  emits: [
+    'onOtuGeo',
+    'onSourceGeo',
+    'onSourceOtu',
+    'remove'
+  ],
+
   methods: {
-    nomenclatureBySourceRoute(id) {
+    nomenclatureBySourceRoute (id) {
       return `${RouteNames.NomenclatureBySource}?source_id=${id}`
     },
-    removeItem(item) {
-      if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+    removeItem (item) {
+      if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
         this.$emit('remove', item)
       }
     },
-    browseOtu(id) {
+    browseOtu (id) {
       return `${RouteNames.BrowseOtu}?otu_id=${id}`
     }
   }

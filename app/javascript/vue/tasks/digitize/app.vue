@@ -1,8 +1,8 @@
 <template>
   <div
     id="vue-all-in-one"
-    v-shortkey="[getOSKey(), 'l']"
-    @shortkey="setLockAll">
+    v-hotkey="shortcuts"
+  >
     <div class="flex-separate middle">
       <h1>Comprehensive specimen digitization</h1>
       <ul class="context-menu">
@@ -18,7 +18,7 @@
     </div>
     <spinner-component
       v-if="saving || loading"
-      :full-screen="true"
+      full-screen
       :logo-size="{ width: '100px', height: '100px'}"
       :legend="(saving ? 'Saving changes...' : 'Loading...')"/>
     <task-header/>
@@ -28,12 +28,14 @@
         class="separate-right left-section"
         v-model="componentsOrder"
         :disabled="!settings.sortable"
-        @end="updatePreferences">
-        <component
-          class="margin-medium-bottom"
-          v-for="componentName in componentsOrder"
-          :key="componentName"
-          :is="componentName"/>
+        :item-key="item => item"
+        @end="updatePreferences"
+      >
+        <template #item="{ element }">
+          <component
+            class="margin-medium-bottom"
+            :is="element"/>
+        </template>
       </draggable>
       <collection-event-layout class="separate-left item ce-section"/>
     </div>
@@ -53,11 +55,14 @@ import { MutationNames } from './store/mutations/mutations.js'
 import { ActionNames } from './store/actions/actions.js'
 import { GetterNames } from './store/getters/getters.js'
 import SpinnerComponent from 'components/spinner.vue'
-import GetOSKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getMacKey.js'
 import Draggable from 'vuedraggable'
 
 export default {
+  name: 'Comprehensive',
+
   mixins: [SortComponent],
+
   components: {
     TaskHeader,
     CollectionObject,
@@ -68,11 +73,12 @@ export default {
     SpinnerComponent,
     Draggable
   },
+
   computed: {
-    saving() {
+    saving () {
       return this.$store.getters[GetterNames.IsSaving]
     },
-    loading() {
+    loading () {
       return this.$store.getters[GetterNames.IsLoading]
     },
     settings: {
@@ -82,15 +88,24 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetSettings, value)
       }
+    },
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+l`] = this.setLockAll
+
+      return keys
     }
   },
+
   data () {
     return {
-      componentsOrder: ['TaxonDeterminationLayout', 'BiologicalAssociation', 'TypeMaterial'],
-      keyStorage: 'tasks::digitize::LeftColumnOrder'
+      keyStorage: 'tasks::digitize::LeftColumnOrder',
+      componentsSection: 'leftColumn'
     }
   },
-  mounted() {
+
+  mounted () {
     const coId = location.pathname.split('/')[4]
     const urlParams = new URLSearchParams(window.location.search)
     const coIdParam = urlParams.get('collection_object_id')
@@ -115,21 +130,22 @@ export default {
       this.$store.dispatch(ActionNames.GetCollectionEvent, ceIdParam)
     }
   },
+
   methods: {
-    addShortcutsDescription() {
-      TW.workbench.keyboard.createLegend(`${this.getOSKey()}+s`, 'Save', 'Comprehensive digitization task')
-      TW.workbench.keyboard.createLegend(`${this.getOSKey()}+n`, 'Save and new', 'Comprehensive digitization task')
-      TW.workbench.keyboard.createLegend(`${this.getOSKey()}+p`, 'Add to container', 'Comprehensive digitization task')
-      TW.workbench.keyboard.createLegend(`${this.getOSKey()}+l`, 'Lock/Unlock all', 'Comprehensive digitization task')
-      TW.workbench.keyboard.createLegend(`${this.getOSKey()}+r`, 'Reset all', 'Comprehensive digitization task')
-      TW.workbench.keyboard.createLegend(`${this.getOSKey()}+e`, 'Browse collection object', 'Comprehensive digitization task')
-      TW.workbench.keyboard.createLegend(`${this.getOSKey()}+t`, 'Go to new taxon name task', 'Comprehensive digitization task')
-      TW.workbench.keyboard.createLegend(`${this.getOSKey()}+o`, 'Go to browse OTU', 'Comprehensive digitization task')
-      TW.workbench.keyboard.createLegend(`${this.getOSKey()}+m`, 'Go to new type material', 'Comprehensive digitization task')
-      TW.workbench.keyboard.createLegend(`${this.getOSKey()}+b`, 'Go to browse nomenclature', 'Comprehensive digitization task')
+    addShortcutsDescription () {
+      TW.workbench.keyboard.createLegend(`${platformKey()}+s`, 'Save', 'Comprehensive digitization task')
+      TW.workbench.keyboard.createLegend(`${platformKey()}+n`, 'Save and new', 'Comprehensive digitization task')
+      TW.workbench.keyboard.createLegend(`${platformKey()}+p`, 'Add to container', 'Comprehensive digitization task')
+      TW.workbench.keyboard.createLegend(`${platformKey()}+l`, 'Lock/Unlock all', 'Comprehensive digitization task')
+      TW.workbench.keyboard.createLegend(`${platformKey()}+r`, 'Reset all', 'Comprehensive digitization task')
+      TW.workbench.keyboard.createLegend(`${platformKey()}+e`, 'Browse collection object', 'Comprehensive digitization task')
+      TW.workbench.keyboard.createLegend(`${platformKey()}+t`, 'Go to new taxon name task', 'Comprehensive digitization task')
+      TW.workbench.keyboard.createLegend(`${platformKey()}+o`, 'Go to browse OTU', 'Comprehensive digitization task')
+      TW.workbench.keyboard.createLegend(`${platformKey()}+m`, 'Go to new type material', 'Comprehensive digitization task')
+      TW.workbench.keyboard.createLegend(`${platformKey()}+b`, 'Go to browse nomenclature', 'Comprehensive digitization task')
     },
-    getOSKey: GetOSKey,
-    setLockAll() {
+
+    setLockAll () {
       this.$store.commit(MutationNames.LockAll)
     }
   }
@@ -158,6 +174,10 @@ export default {
     .ce-section {
       display: flex;
       flex-grow: 2;
+    }
+
+    .otu_tag_taxon_name {
+      white-space: pre-wrap !important;
     }
   }
 </style>

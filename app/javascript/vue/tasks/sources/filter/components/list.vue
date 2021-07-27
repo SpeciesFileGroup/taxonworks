@@ -81,7 +81,7 @@ import RadialAnnotator from 'components/radials/annotator/annotator'
 import TagAll from 'tasks/collection_objects/filter/components/tagAll'
 import PdfButton from 'components/pdfButton'
 import AddToProject from 'components/addToProjectSource'
-import PinComponent from 'components/pin.vue'
+import PinComponent from 'components/ui/Pinboard/VPin.vue'
 import { sortArray } from 'helpers/arrays.js'
 
 export default {
@@ -93,32 +93,42 @@ export default {
     AddToProject,
     PinComponent
   },
+
   props: {
     list: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     },
-    value: {
+
+    modelValue: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
+
+  emits: [
+    'update:modelValue',
+    'onSort'
+  ],
+
   computed: {
     ids: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       ascending: false,
       sort: ['id', 'cached', 'year', 'type', 'documents']
     }
   },
+
   methods: {
     sortTable (sortProperty) {
       this.$emit('onSort', sortArray(this.list, sortProperty, this.ascending))

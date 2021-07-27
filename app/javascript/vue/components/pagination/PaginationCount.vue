@@ -29,11 +29,13 @@ export default {
       required: true
     },
 
-    value: {
+    modelValue: {
       type: [String, Number],
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
 
   data () {
     return {
@@ -57,10 +59,10 @@ export default {
 
     per: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   }

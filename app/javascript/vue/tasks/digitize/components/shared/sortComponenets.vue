@@ -7,29 +7,47 @@ import { User } from 'routes/endpoints'
 export default {
   computed: {
     preferences: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetPreferences]
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetPreferences, value)
+      }
+    },
+
+    componentsOrder: {
+      get () {
+        return this.$store.getters[GetterNames.GetComponentsOrder][this.componentsSection]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetComponentsOrder, Object.assign({}, this.$store.getters[GetterNames.GetComponentsOrder], { [this.componentsSection]: value }))
       }
     }
   },
-  data() {
+
+  data () {
     return {
-      componentsOrder: [],
-      keyStorage: ''
+      keyStorage: '',
+      componentsSection: ''
     }
   },
+
   watch: {
     preferences: {
-      handler(newVal) {
-        if(this.preferences.layout[this.keyStorage] && this.componentsOrder.length == this.preferences.layout[this.keyStorage].length)
+      handler (newVal) {
+        const storedOrder = this.preferences.layout[this.keyStorage]
+
+        if (storedOrder &&
+          this.componentsOrder.length === storedOrder.length &&
+          this.componentsOrder.every(item => storedOrder.includes(item))
+        ) {
           this.componentsOrder = this.preferences.layout[this.keyStorage]
+        }
       },
       deep: true
     }
   },
+
   methods: {
     updatePreferences () {
       User.update(this.preferences.id, { user: { layout: { [this.keyStorage]: this.componentsOrder } } }).then(response => {

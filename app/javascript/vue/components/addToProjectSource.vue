@@ -17,7 +17,7 @@
 
 <script>
 
-import AjaxCall from 'helpers/ajaxCall'
+import { ProjectSource } from 'routes/endpoints'
 
 export default {
   props: {
@@ -29,6 +29,7 @@ export default {
       type: [Number, String]
     }
   },
+
   data () {
     return {
       project_source: {
@@ -37,23 +38,23 @@ export default {
       createdSourceID: undefined
     }
   },
+
   methods: {
     create () {
-      AjaxCall('post', '/project_sources.json', {project_source: this.project_source}).then(response => {
+      ProjectSource.create({ project_source: this.project_source }).then(response => {
         this.createdSourceID = response.body.id
         TW.workbench.alert.create('Source was added to project successfully', 'notice')
       })
     },
     remove () {
-      AjaxCall('delete', `/project_sources/${this.createdSourceID}.json`).then(response => {
+      ProjectSource.destroy(this.createdSourceID).then(() => {
         this.createdSourceID = undefined
         TW.workbench.alert.create('Source was removed from project successfully', 'notice')
-      }, (response) => {
-
       })
     }
   },
-  mounted: function () {
+
+  mounted () {
     this.createdSourceID = this.projectSourceId
   }
 }

@@ -1,14 +1,19 @@
 <template>
-  <navbar-component>
+  <navbar-component v-hotkey="shortcuts">
     <div class="flex-separate middle">
-      <span
-        v-if="extract.id"
-        v-html="extract.object_tag"/>
+      <div
+        class="horizontal-left-content"
+        v-if="extract.id">
+        <span v-html="extract.object_tag"/>
+        <radial-annotator
+          :global-id="extract.global_id"
+        />
+      </div>
       <span v-else>
         New
       </span>
       <div class="horizontal-right-content">
-        <tippy-component
+        <tippy
           v-if="unsavedChanges"
           animation="scale"
           placement="bottom"
@@ -16,25 +21,19 @@
           inertia
           arrow
           content="You have unsaved changes.">
-          <template slot="trigger">
-            <span data-icon="warning"/>
-          </template>
-        </tippy-component>
+          <span data-icon="warning"/>
+        </tippy>
 
         <button
           type="button"
           class="button normal-input button-submit margin-small-right margin-small-left"
-          v-shortkey="[OSKey, 's']"
-          @shortkey="$emit('onSave')"
-          @click="$emit('onSave')">
+          @click="emitSave">
           Save
         </button>
         <button
           type="button"
           class="button normal-input button-default"
-          v-shortkey="[OSKey, 'n']"
-          @shortkey="$emit('onReset')"
-          @click="$emit('onReset')">
+          @click="emitReset">
           New
         </button>
       </div>
@@ -45,15 +44,22 @@
 <script>
 
 import { GetterNames } from '../store/getters/getters'
-import { TippyComponent } from 'vue-tippy'
+import { Tippy } from 'vue-tippy'
 import NavbarComponent from 'components/layout/NavBar'
-import OSKey from 'helpers/getMacKey.js'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import platformKey from 'helpers/getMacKey.js'
 
 export default {
   components: {
     NavbarComponent,
-    TippyComponent
+    Tippy,
+    RadialAnnotator
   },
+
+  emits: [
+    'onSave',
+    'onReset'
+  ],
 
   computed: {
     extract () {
@@ -72,7 +78,24 @@ export default {
       return this.lastChange > this.lastSave
     },
 
-    OSKey
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+s`] = this.emitSave
+      keys[`${platformKey()}+n`] = this.emitReset
+
+      return keys
+    }
+  },
+
+  methods: {
+    emitSave () {
+      this.$emit('onSave')
+    },
+
+    emitReset () {
+      this.$emit('onReset')
+    }
   }
 }
 </script>

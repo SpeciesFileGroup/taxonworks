@@ -1,12 +1,12 @@
 <template>
   <div class="expand-button">
     <span
-      @click="$emit('input', false)"
+      @click="$emit('update:modelValue', false)"
       data-icon="contract"
       title="Contract"
-      v-if="value"/>
+      v-if="modelValue"/>
     <span
-      @click="$emit('input', true)"
+      @click="$emit('update:modelValue', true)"
       title="Expand"
       data-icon="expand"
       v-else/>
@@ -14,14 +14,16 @@
 </template>
 <script>
 
-  export default {
-    props: {
-      value: {
-        type: Boolean,
-        default: true
-      }
+export default {
+  props: {
+    modelValue: {
+      type: Boolean,
+      default: true
     }
-  }
+  },
+
+  emits: ['update:modelValue']
+}
 </script>
 
 <style scoped>
@@ -29,4 +31,3 @@
     cursor: pointer;
   }
 </style>
-

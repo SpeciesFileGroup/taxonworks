@@ -3,24 +3,17 @@
     <v-modal
       v-if="viewMode"
       @close="viewMode = false"
-      :container-style="{ width: ((fullSizeImage ? `${depiction.image.width}px` : '500px') )}">
-      <h3 slot="header">View</h3>
-      <div slot="body">
+      :container-style="{ width: `${depiction.image.width}px`, minWidth: '700px' }">
+      <template #header>
+        <h3>View</h3>
+      </template>
+      <template #body>
         <div class="image-container">
-          <template>
-            <img
-              class="img-maxsize img-fullsize"
-              v-if="fullSizeImage"
-              @click="fullSizeImage = false"
-              :src="depiction.image.image_file_url">
-            <img
-              v-else
-              class="img-maxsize img-normalsize"
-              @click="fullSizeImage = true"
-              :src="depiction.image.alternatives.medium.image_file_url"
-              :height="depiction.image.alternatives.medium.height"
-              :width="depiction.image.alternatives.medium.width">
-          </template>
+          <img
+            :class="['img-maxsize', this.fullSizeImage ? 'img-fullsize' : 'img-normalsize']"
+            @click="fullSizeImage = !fullSizeImage"
+            :src="urlSrc"
+          >
         </div>
 
         <template v-if="edit">
@@ -89,10 +82,10 @@
             v-if="attributionsList.length"
             class="full_width panel content margin-small-left">
             <h3>Attributions</h3>
-            <template v-for="(attribution, index) in attributionsList">
-              <ul
-                class="no_bullets"
-                :key="index">
+            <template
+              v-for="(attribution, index) in attributionsList"
+              :key="index">
+              <ul class="no_bullets">
                 <li
                   v-for="(persons, pIndex) in attribution"
                   :key="pIndex">
@@ -115,18 +108,18 @@
             <span v-html="originalCitation"/>
           </div>
         </div>
-      </div>
+      </template>
     </v-modal>
     <div>
       <div
         class="cursor-pointer"
         @click="viewMode = true">
         <slot>
-          <div 
+          <div
             :class="[`depiction-${thumbSize}-image`]">
             <img
               class="img-thumb"
-              :src="depiction.image.alternatives[thumbSize].image_file_url"
+              :src="thumbUrlSrc"
               :height="depiction.image.alternatives[thumbSize].height"
               :width="depiction.image.alternatives[thumbSize].width">
           </div>
@@ -142,9 +135,16 @@ import VModal from 'components/ui/Modal.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import { capitalize } from 'helpers/strings.js'
 import { Image, Depiction } from 'routes/endpoints'
+import { imageSVGViewBox, imageScale } from 'helpers/images'
 
-const roleTypes = ['creator_roles', 'owner_roles', 'copyright_holder_roles', 'editor_roles']
+const CONVERT_IMAGE_TYPES = ['image/tiff']
+const ROLE_TYPES = ['creator_roles', 'owner_roles', 'copyright_holder_roles', 'editor_roles']
 const roleLabel = (role) => capitalize(role.replace('_roles', '').replaceAll('_', ' '))
+
+const IMG_MAX_SIZES = {
+  thumb: 100,
+  medium: 300
+}
 
 export default {
   components: {
@@ -172,11 +172,44 @@ export default {
   computed: {
     attributionsList () {
       return this.attributions.map(attr =>
-        roleTypes.map(role =>
+        ROLE_TYPES.map(role =>
           attr[role] ? `${roleLabel(role)}: <b>${attr[role].map(item => item?.person?.object_tag || item.organization.name).join('; ')}</b>` : []).filter(arr => arr.length))
     },
+
     originalCitation () {
       return this.citations.filter(citation => citation.is_original).map(citation => [citation.source.cached, citation.pages].filter(item => item).join(':')).join('; ')
+    },
+
+    urlSrc () {
+      const depiction = this.depiction
+      const image = this.image
+      const { width, height } = this.image
+
+      return this.hasSVGBox
+        ? imageSVGViewBox(depiction.image.id, depiction.svg_view_box, image.width, image.height)
+        : CONVERT_IMAGE_TYPES.includes(image.content_type)
+          ? imageScale(depiction.image.id, `0 0 ${width} ${height}`, width, height)
+          : image.image_file_url
+    },
+
+    hasSVGBox () {
+      return this.depiction.svg_view_box != null
+    },
+
+    thumbUrlSrc () {
+      const depiction = this.depiction
+
+      return this.hasSVGBox
+        ? imageSVGViewBox(depiction.image.id, depiction.svg_view_box, IMG_MAX_SIZES[this.thumbSize], IMG_MAX_SIZES[this.thumbSize])
+        : this.thumbImage.image_file_url
+    },
+
+    image () {
+      return this.fullSizeImage ? this.depiction.image : this.depiction.image.alternatives.medium
+    },
+
+    thumbImage () {
+      return this.depiction.image.alternatives[this.thumbSize]
     }
   },
 
@@ -276,6 +309,9 @@ export default {
     .image-container {
       display: flex;
       justify-content: center;
+      img {
+        border: 1px solid black;
+      }
     }
     hr {
         height: 1px;

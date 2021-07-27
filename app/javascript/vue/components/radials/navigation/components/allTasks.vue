@@ -11,12 +11,12 @@
 </template>
 <script>
 
-  export default {
-    props: {
-      metadata: {
-        type: Object,
-        required: true
-      }
+export default {
+  props: {
+    metadata: {
+      type: Object,
+      required: true
     }
   }
+}
 </script>

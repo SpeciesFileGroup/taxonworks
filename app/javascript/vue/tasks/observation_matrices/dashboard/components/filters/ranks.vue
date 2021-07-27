@@ -2,18 +2,17 @@
   <div v-if="taxonName">
     <h3>Select ranks</h3>
     <template
-      v-for="(group, key, index) in ranks[taxonName.nomenclatural_code]">
+      v-for="(group, key, index) in ranks[taxonName.nomenclatural_code]"
+      :key="key">
       <div
         v-if="index >= rankGroup.groupIndex"
-        class="separate-top capitalize"
-        :key="key">
+        class="separate-top capitalize">
         <ul class="no_bullets">
-          <template v-for="(rank, rIndex) in group">
-            <template
-              v-if="!(index == rankGroup.groupIndex && rankGroup.rankIndex > rIndex)">
-              <li
-                :key="rank.name"
-                v-if="(typicalUse ? (rank.typical_use) : true)">
+          <template
+            v-for="(rank, rIndex) in group"
+            :key="rank.name">
+            <template v-if="!(index == rankGroup.groupIndex && rankGroup.rankIndex > rIndex)">
+              <li v-if="(typicalUse ? rank.typical_use : true)">
                 <label>
                   <input
                     v-model="ranksSelected"
@@ -48,7 +47,7 @@ export default {
       type: Object,
       default: undefined
     },
-    value: {
+    modelValue: {
       type: Array,
       default: () => []
     }
@@ -56,10 +55,10 @@ export default {
   computed: {
     ranksSelected: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', this.orderRanks(value))
+        this.$emit('update:modelValue', this.orderRanks(value))
       }
     },
     ranks: {

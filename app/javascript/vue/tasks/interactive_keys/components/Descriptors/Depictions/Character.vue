@@ -21,29 +21,35 @@ export default {
       type: Object,
       required: true
     },
-    value: {
+    modelValue: {
       type: [Array, String],
       default: undefined
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     selected: {
       get () {
-        return this.value ? Array.isArray(this.value) ? this.value : [this.value] : []
+        return this.modelValue ? Array.isArray(this.modelValue) ? this.modelValue : [this.modelValue] : []
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       depictions: []
     }
   },
+
   created () {
     this.loadDepictions()
   },
+
   methods: {
     loadDepictions () {
       GetCharacterStateDepictions(this.characterState.id).then(response => {

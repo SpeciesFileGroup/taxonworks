@@ -7,21 +7,24 @@
 </template>
 
 <script>
-  export default {
-    props: {
-      item: {
-        type: Object,
-        required: true
-      },
-      display: {
-        type: String,
-        required: true
-      }
+export default {
+  props: {
+    item: {
+      type: Object,
+      required: true
     },
-    methods: {
-      sendItem() {
-        this.$emit('select', this.item);
-      }
+    display: {
+      type: String,
+      required: true
+    }
+  },
+
+  emits: ['select'],
+
+  methods: {
+    sendItem() {
+      this.$emit('select', this.item);
     }
   }
+}
 </script>

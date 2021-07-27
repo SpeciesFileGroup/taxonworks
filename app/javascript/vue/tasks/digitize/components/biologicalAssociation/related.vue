@@ -46,6 +46,9 @@ export default {
     SwitchComponent,
     SmartSelector
   },
+
+  emits: ['select'],
+
   computed: {
     otuView () {
       return this.view === 'otu'
@@ -54,18 +57,21 @@ export default {
       return this.$store.getters[GetterNames.GetLastSave]
     }
   },
+
   data () {
     return {
       view: 'otu',
       tabOptions: ['otu', 'collection object']
     }
   },
+
   watch: {
     lastSave (newVal) {
       this.$refs.smartSelector.refresh()
       this.$refs.otuSmartSelector.refresh()
     }
   },
+
   methods: {
     sendRelated (item) {
       item.type = item.base_class

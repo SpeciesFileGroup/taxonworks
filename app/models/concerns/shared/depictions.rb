@@ -5,7 +5,10 @@ module Shared::Depictions
   extend ActiveSupport::Concern
 
   included do
-    Depiction.related_foreign_keys.push self.name.foreign_key
+    ::Depiction.related_foreign_keys.push self.name.foreign_key
+
+    # Add a corresponding has_many in Image
+    Image.has_many self.name.tableize.to_sym, through: :depictions, source: :depiction_object, source_type: self.name
 
     has_many :depictions, validate: true, as: :depiction_object, dependent: :destroy, inverse_of: :depiction_object
     has_many :images, validate: true, through: :depictions

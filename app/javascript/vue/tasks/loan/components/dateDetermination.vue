@@ -61,6 +61,7 @@
 <script>
 
 import { createTaxonDetermination } from '../request/resources'
+import { TaxonDetermination } from 'routes/endpoints'
 import { MutationNames } from '../store/mutations/mutations'
 import rolePicker from 'components/role_picker.vue'
 import OtuPicker from 'components/otu/otu_picker/otu_picker'
@@ -83,8 +84,8 @@ export default {
       return this.determination.otu_id &&
 						this.list.length
     },
-    roles: { 
-      get() {
+    roles: {
+      get () {
         return this.determination.roles_attributes
       },
       set (value) {
@@ -107,13 +108,14 @@ export default {
   },
   methods: {
     setDeterminations () {
-      let newDetermination = this.determination
-      let promises = []
+      const newDetermination = this.determination
+      const promises = []
+
       this.$store.commit(MutationNames.SetSaving, true)
       this.list.forEach(item => {
-        if (item.loan_item_object_type == 'CollectionObject') {
+        if (item.loan_item_object_type === 'CollectionObject') {
           newDetermination.biological_collection_object_id = item.loan_item_object_id
-          promises.push(createTaxonDetermination({ taxon_determination: newDetermination }))
+          promises.push(TaxonDetermination.create({ taxon_determination: newDetermination }))
         }
       })
       Promise.all(promises).then(() => {

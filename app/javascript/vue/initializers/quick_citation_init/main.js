@@ -1,4 +1,4 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from './app.vue'
 
 function init (element) {
@@ -6,29 +6,20 @@ function init (element) {
   const sourceId = element.getAttribute('data-source-id')
   const globalId = element.getAttribute('data-global-id')
   const klass = element.classList.value
-
-  if (sourceId && globalId) {
-    element.setAttribute('id', id)
-
-    new Vue({
-      el: `#${id}`,
-      render: function (createElement) {
-        return createElement(App, {
-          props: {
-            id: id,
-            sourceId: sourceId,
-            globalId: globalId,
-            klass: klass
-          }
-        })
-      }
-    })
+  const props = {
+    id: id,
+    sourceId: sourceId,
+    globalId: globalId,
+    klass: klass
   }
+  const app = createApp(App, props)
+
+  app.mount(element)
 }
 
-document.addEventListener('turbolinks:load', (event) => {
+document.addEventListener('turbolinks:load', () => {
   if (document.querySelector('[data-quick-citation="true"]')) {
-    document.querySelectorAll('[data-quick-citation="true"]').forEach((element) => {
+    document.querySelectorAll('[data-quick-citation="true"]').forEach(element => {
       init(element)
     })
   }

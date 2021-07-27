@@ -61,7 +61,7 @@
 
 <script>
 
-import PinComponent from 'components/pin.vue'
+import PinComponent from 'components/ui/Pinboard/VPin.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import AddToProjectSource from 'components/addToProjectSource.vue'
 import CitationsCount from './citationsCount'

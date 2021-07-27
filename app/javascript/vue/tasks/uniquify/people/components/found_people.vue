@@ -37,8 +37,10 @@
         </thead>
         <tbody>
           <template v-if="expanded">
-            <template v-for="person in foundPeople">
-              <tr :key="person.id">
+            <template
+              v-for="person in foundPeople"
+              :key="person.id">
+              <tr>
                 <td>
                   <button
                     v-if="person.id != selected['id']"
@@ -106,8 +108,9 @@ export default {
     Autocomplete,
     DefaultPin
   },
+
   props: {
-    value: {
+    modelValue: {
       type: Object,
       default: undefined
     },
@@ -124,29 +127,39 @@ export default {
       default: true
     }
   },
+
+  emits: [
+    'update:modelValue',
+    'addToList',
+    'expand'
+  ],
+
   computed: {
     selectedPerson: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
-  data() {
+
+  data () {
     return {
       selected: {}
     }
   },
+
   methods: {
-    removeFromList(personID) {
+    removeFromList (personID) {
       const index = this.foundPeople.findIndex(item => item.id === personID)
 
       if (index > -1) {
         this.foundPeople.splice(index, 1)
       }
     },
+
     async addToList (person) {
       const personObj = await this.selectPerson(person)
 
@@ -154,12 +167,13 @@ export default {
         let element = document.createElement('span')
         element.innerHTML = person.label_html
         element = element.querySelector('[data-count]')
-        personObj.usedCount = element.getAttribute('data-count')
+        personObj.usedCount = element?.getAttribute('data-count')
       }
 
       this.$emit('addToList', personObj)
       this.selected = personObj
     },
+
     async selectPerson (person) {
       this.selected = person
       return People.find(person.id).then(response => {
@@ -168,9 +182,11 @@ export default {
         return response.body
       })
     },
+
     getRoles (person) {
       return person.roles ? [...new Set(person.roles.map(r => r.role_object_type))].join(', ') : '?'
     },
+
     yearValue (value) {
       return value || '?'
     }

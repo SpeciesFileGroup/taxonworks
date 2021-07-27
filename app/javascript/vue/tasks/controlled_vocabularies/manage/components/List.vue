@@ -19,7 +19,8 @@
           :key="item.id">
           <td
             class="line-nowrap"
-            v-html="item.object_tag"></td>
+            v-html="item.object_tag"
+          />
           <td>{{ item.definition }}</td>
           <td>{{ item.count }}</td>
           <td>
@@ -55,7 +56,7 @@
 
 import { ControlledVocabularyTerm } from 'routes/endpoints'
 import SpinnerComponent from 'components/spinner.vue'
-import PinComponent from 'components/pin.vue'
+import PinComponent from 'components/ui/Pinboard/VPin.vue'
 
 export default {
   components: {
@@ -68,6 +69,9 @@ export default {
       required: true
     }
   },
+
+  emits: ['edit'],
+
   data () {
     return {
       list: [],
@@ -75,6 +79,7 @@ export default {
       ascending: false
     }
   },
+
   watch: {
     type: {
       handler (newVal, oldVal) {
@@ -89,10 +94,12 @@ export default {
       immediate: true
     }
   },
+
   methods: {
     editItem (index) {
       this.$emit('edit', this.list[index])
     },
+
     removeCTV (index) {
       if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
         this.isLoading = true
@@ -102,15 +109,17 @@ export default {
         })
       }
     },
+
     addCTV (item) {
-      const index = this.list.findIndex(ctv => { return ctv.id === item.id })
+      const index = this.list.findIndex(ctv => ctv.id === item.id)
 
       if (index > -1) {
-        this.$set(this.list, index, item)
+        this.list[index] = item
       } else {
         this.list.unshift(item)
       }
     },
+
     sortTable (sortProperty) {
       this.list.sort((a, b) => {
         if (a[sortProperty] < b[sortProperty]) {

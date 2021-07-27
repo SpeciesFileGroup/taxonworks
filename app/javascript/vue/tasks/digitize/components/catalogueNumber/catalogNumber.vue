@@ -24,12 +24,10 @@
               pin-section="Namespaces"
               pin-type="Namespace"
               @selected="setNamespace"/>
-            <div class="horizontal-right-content">
-              <lock-component
-                class="circle-button-margin"
-                v-model="locked.identifier" />
-            </div>
-            <a 
+            <lock-component
+              class="margin-small-left"
+              v-model="locked.identifier" />
+            <a
               class="margin-small-top margin-small-left"
               href="/namespaces/new">New</a>
           </div>
@@ -101,7 +99,7 @@ import SmartSelector from 'components/ui/SmartSelector.vue'
 import validateComponent from '../shared/validate.vue'
 import validateIdentifier from '../../validations/namespace.js'
 import incrementIdentifier from '../../helpers/incrementIdentifier.js'
-import LockComponent from 'components/lock.vue'
+import LockComponent from 'components/ui/VLock/index.vue'
 import refreshSmartSelector from '../shared/refreshSmartSelector'
 
 export default {

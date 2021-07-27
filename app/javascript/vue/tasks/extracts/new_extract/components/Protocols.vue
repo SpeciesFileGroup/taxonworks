@@ -1,31 +1,35 @@
 <template>
   <block-layout>
-    <h3 slot="header">Protocols</h3>
-    <div slot="options">
-      <a href="/protocols/new">Create new</a>
-    </div>
-    <div
-      slot="body"
-      class="horizontal-left-content align-start">
-      <smart-selector
-        class="full_width"
-        model="protocols"
-        klass="Extract"
-        @selected="addProtocol"/>
-      <lock-component
-        class="margin-small-left"
-        v-model="settings.lock.protocols"/>
-    </div>
-    <display-list
-      :list="protocols"
-      @deleteIndex="removeProtocol"
-      label="object_tag"/>
+    <template #header>
+      <h3>Protocols</h3>
+    </template>
+    <template #options>
+      <div>
+        <a href="/protocols/new">Create new</a>
+      </div>
+    </template>
+    <template #body>
+      <div class="horizontal-left-content align-start">
+        <smart-selector
+          class="full_width"
+          model="protocols"
+          klass="Extract"
+          @selected="addProtocol"/>
+        <lock-component
+          class="margin-small-left"
+          v-model="settings.lock.protocols"/>
+      </div>
+      <display-list
+        :list="protocols"
+        @deleteIndex="removeProtocol"
+        label="object_tag"/>
+    </template>
   </block-layout>
 </template>
 
 <script>
 
-import LockComponent from 'components/lock'
+import LockComponent from 'components/ui/VLock/index.vue'
 import SmartSelector from 'components/ui/SmartSelector'
 import componentExtend from './mixins/componentExtend'
 import DisplayList from 'components/displayList'

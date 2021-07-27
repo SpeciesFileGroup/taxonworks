@@ -33,67 +33,70 @@
 </template>
 <script>
 
-  import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-  import RadialObject from 'components/radials/navigation/radial'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import RadialObject from 'components/radials/navigation/radial'
 
-  export default {
-    components: {
-      RadialAnnotator,
-      RadialObject
-    },
-    props: {
-      list: {
-        type: Array,
-        default: () => {
-          return []
-        }
-      },
-      header: {
-        type: Array,
-        default: () => {
-          return []
-        }
-      },
-      types: {
-        type: Object,
-        required: true
-      }, 
-    },
-    mounted() {
-      this.$options.components['RadialAnnotator'] = RadialAnnotator
-    },
-    methods: {
-      getValue(object, attributes) {
-        if (Array.isArray(attributes)) {
-          let obj = object
+export default {
+  components: {
+    RadialAnnotator,
+    RadialObject
+  },
 
-          for (var i = 0; i < attributes.length; i++) {
-            if(obj.hasOwnProperty(attributes[i])) {
-              obj = obj[attributes[i]]
-            }
-            else {
-              return null
-            }
+  props: {
+    list: {
+      type: Array,
+      default: () => []
+    },
+    header: {
+      type: Array,
+      default: () => []
+    },
+    types: {
+      type: Object,
+      required: true
+    }
+  },
+
+  emits: ['edit', 'delete'],
+
+  mounted () {
+    this.$options.components['RadialAnnotator'] = RadialAnnotator
+  },
+
+  methods: {
+    getValue(object, attributes) {
+      if (Array.isArray(attributes)) {
+        let obj = object
+
+        for (var i = 0; i < attributes.length; i++) {
+          if (obj.hasOwnProperty(attributes[i])) {
+            obj = obj[attributes[i]]
           }
-          return obj
-        }
-        else {
-          if(attributes.substr(0,1) === "@") {
-            return attributes.substr(1, attributes.length)
+          else {
+            return null
           }
         }
-        return object[attributes]
-      },
-      editObject(item) {
-        this.$emit('edit',item)
-      },
-      deleteObject(item) {
-        if (window.confirm(`You're trying to delete a record. Are you sure want to proceed?`)) {
-          this.$emit('delete', item)
+        return obj
+      }
+      else {
+        if (attributes.substr(0,1) === "@") {
+          return attributes.substr(1, attributes.length)
         }
+      }
+      return object[attributes]
+    },
+
+    editObject (item) {
+      this.$emit('edit', item)
+    },
+
+    deleteObject (item) {
+      if (window.confirm(`You're trying to delete a record. Are you sure want to proceed?`)) {
+        this.$emit('delete', item)
       }
     }
   }
+}
 </script>
 <style lang="scss" scoped>
   .vue-table-container {

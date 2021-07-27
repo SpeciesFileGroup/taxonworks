@@ -6,7 +6,6 @@ Parameters:
           url: Ajax url request
   placeholder: Input placeholder
         label: name of the propierty displayed on the list, could be an array to reach the label
-   event-send: event name used to pass item selected
     autofocus: set autofocus
       display: Sets the label of the item selected to be display on the input field
      getInput: Get the input text
@@ -52,7 +51,7 @@ Parameters:
         @mouseover="itemActive(index)"
         @click.prevent="itemClicked(index)">
         <span
-          v-if="typeof label !== 'function'"
+          v-if="(typeof label !== 'function')"
           v-html="getNested(item, label)"/>
         <span
           v-else
@@ -60,7 +59,7 @@ Parameters:
       </li>
       <li v-if="json.length == 20">Results may be truncated</li>
     </ul>
-    <ul 
+    <ul
       v-if="type && searchEnd && !json.length"
       class="vue-autocomplete-empty-list">
       <li>--None--</li>
@@ -73,43 +72,8 @@ Parameters:
 import AjaxCall from 'helpers/ajaxCall'
 
 export default {
-  data: function () {
-    return {
-      spinner: false,
-      showList: false,
-      searchEnd: false,
-      getRequest: 0,
-      type: this.sendLabel,
-      json: [],
-      current: -1,
-      requestId: Math.random().toString(36).substr(2, 5)
-    }
-  },
-
-  mounted: function () {
-    if (this.autofocus) {
-      this.$refs.autofocus.focus()
-    }
-  },
-
-  watch: {
-    value (newVal) {
-      this.type = newVal
-    },
-    type (newVal) {
-      if (this.type?.length < Number(this.min)) {
-        this.json = []
-      }
-      this.$emit('input', newVal)
-    },
-    sendLabel (val) {
-      this.type = val || ''
-    }
-  },
-
   props: {
-
-    value: {
+    modelValue: {
       type: [String, Number]
     },
 
@@ -136,12 +100,12 @@ export default {
     headers: {
       required: false,
       type: Object,
-      default: () => { return {}}
+      default: () => ({})
     },
 
     nested: {
       type: [Array, String],
-      default: () => { return [] }
+      default: () => []
     },
 
     clearAfter: {
@@ -154,7 +118,7 @@ export default {
       default: ''
     },
 
-    label: { 
+    label: {
       type: [String, Array, Function],
     },
 
@@ -180,9 +144,7 @@ export default {
 
     addParams: {
       type: Object,
-      default: () => {
-        return {}
-      }
+      default: () => ({})
     },
 
     limit: {
@@ -200,36 +162,71 @@ export default {
       default: 'value'
     },
 
-    eventSend: {
-      type: String,
-      default: 'itemSelect'
-    },
-
     inputStyle: {
       type: Object,
-      default: () => {}
+      default: () => ({})
+    }
+  },
+
+  emits: [
+    'update:modelValue',
+    'getInput',
+    'getItem',
+    'found'
+  ],
+
+  data () {
+    return {
+      spinner: false,
+      showList: false,
+      searchEnd: false,
+      getRequest: 0,
+      type: this.sendLabel,
+      json: [],
+      current: -1,
+      requestId: Math.random().toString(36).substr(2, 5)
+    }
+  },
+
+  mounted () {
+    if (this.autofocus) {
+      this.$refs.autofocus.focus()
+    }
+  },
+
+  watch: {
+    modelValue (newVal) {
+      this.type = newVal
+    },
+    type (newVal) {
+      if (this.type?.length < Number(this.min)) {
+        this.json = []
+      }
+      this.$emit('update:modelValue', newVal)
+    },
+    sendLabel (val) {
+      this.type = val || ''
     }
   },
 
   methods: {
-    downKey() {
+    downKey () {
       if(this.showList && this.current < this.json.length)
         this.current++
     },
 
-    upKey() {
+    upKey () {
       if(this.showList && this.current > 0)
         this.current--
     },
 
-    enterKey() {
+    enterKey () {
       if(this.showList && this.current > -1 && this.current < this.json.length)
         this.itemClicked(this.current)
     },
 
-    sendItem: function (item) {
-      this.$emit('input', item)
-      this.$parent.$emit(this.eventSend, item)
+    sendItem (item) {
+      this.$emit('update:modelValue', item)
       this.$emit('getItem', item)
     },
 
@@ -241,17 +238,17 @@ export default {
       this.type = value
     },
 
-    limitList: function (list) {
+    limitList (list) {
       if (this.limit == 0) { return list }
 
       return list.slice(0, this.limit)
     },
 
-    clearResults: function () {
+    clearResults () {
       this.json = []
     },
 
-    getNested(item, nested) {
+    getNested (item, nested) {
       if(nested) {
         if(Array.isArray(nested)) {
           let tmp = item
@@ -272,7 +269,7 @@ export default {
       }
     },
 
-    itemClicked: function (index) {
+    itemClicked (index) {
       if (this.display.length) { this.type = (this.clearAfter ? '' : this.json[index][this.display]) } else {
         this.type = (this.clearAfter ? '' : this.getNested(this.json[index], this.label))
       }
@@ -284,11 +281,11 @@ export default {
       this.showList = false
     },
 
-    itemActive: function (index) {
+    itemActive (index) {
       this.current = index
     },
 
-    ajaxUrl: function () {
+    ajaxUrl () {
       var tempUrl = this.url + '?' + this.param + '=' + encodeURIComponent(this.type)
       var params = ''
       if (Object.keys(this.addParams).length) {
@@ -306,63 +303,53 @@ export default {
       return tempUrl + params
     },
 
-    sendType: function () {
+    sendType () {
       this.$emit('getInput', this.type)
     },
 
-    checkTime: function () {
-      var that = this
+    checkTime () {
       this.current = -1
       this.searchEnd = false
       if (this.getRequest) {
         clearTimeout(this.getRequest)
       }
-      this.getRequest = setTimeout(function () {
-        that.update()
-      }, that.time)
+      this.getRequest = setTimeout(() => {
+        this.update()
+      }, this.time)
     },
 
-    update: function () {
+    update () {
       if (this.type.length < Number(this.min)) return
-      this.spinner = true
+
       this.clearResults()
+
       if (this.arrayList) {
-        var finded = []
-        var that = this
-
-        this.arrayList.forEach(function (item) {
-          if (item[that.label].toLowerCase().includes(that.type.toLowerCase())) {
-            finded.push(item)
-          }
-        })
-
-        this.spinner = false
-        this.json = finded
+        this.json = this.arrayList.filter(item => item[this.label].toLowerCase().includes(this.type.toLowerCase()))
         this.searchEnd = true
-        this.showList = (this.json.length > 0)
+        this.showList = this.json.length > 0
       } else {
+        this.spinner = true
         AjaxCall('get', this.ajaxUrl(), {
           requestId: this.requestId
-        }).then(response => {
-          this.json = this.getNested(response.body, this.nested)
-          this.showList = (this.json.length > 0)
-          this.spinner = false
-          this.searchEnd = true
-          this.$emit('found', this.showList)
-        }, response => {
-          // error callback
-          this.spinner = false
         })
+          .then(({ body }) => {
+            this.json = this.getNested(body, this.nested)
+            this.showList = (this.json.length > 0)
+            this.searchEnd = true
+            this.$emit('found', this.showList)
+          })
+          .finally(() => {
+            this.spinner = false
+          })
       }
     },
-    activeClass: function activeClass (index) {
+
+    activeClass (index) {
       return {
         active: this.current === index
       }
     },
-    activeSpinner: function () {
-      return 'ui-autocomplete-loading'
-    },
+
     setFocus () {
       this.$refs.autofocus.focus()
     }

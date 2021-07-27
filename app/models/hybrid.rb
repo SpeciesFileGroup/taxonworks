@@ -32,6 +32,11 @@ class Hybrid < TaxonName
   end
 
   # Overridden here, not applicable to this class
+  def set_cached_is_valid
+    true
+  end
+
+  # Overridden here, not applicable to this class
   def set_cached_valid_taxon_name_id
     true 
   end

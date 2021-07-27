@@ -21,7 +21,19 @@ module ObservationMatrices::Export::NexmlHelper
             if c.qualitative?
 
               c.character_states.each_with_index do |cs,i|
-                xml.state(id: "cs#{cs.id}", label: cs.name, symbol: "#{i}")
+                if cs.depictions.load.any?
+                  xml.state(id: "cs#{cs.id}", label: cs.target_name(:key, nil), symbol: "#{i}") do
+                    cs.depictions.each do |d|
+                      xml.meta(
+                        'xsi:type' => 'ResourceMeta',
+                        'rel' => 'foaf:depiction',
+                        'href' => root_url + d.image.image_file.url(:original)[1..-1]
+                      )
+                    end
+                  end
+                else
+                  xml.state(id: "cs#{cs.id}", label: cs.target_name(:key, nil), symbol: "#{i}")
+                end
               end
 
               # Add a missing state for each character regardless of whether we use it or not
@@ -53,12 +65,13 @@ module ObservationMatrices::Export::NexmlHelper
           end
         end  # end character loop for multistate states
 
-        descriptors.collect{|c| xml.char(id: "c#{c.id}", states: "states_for_chr_#{c.id}", label: c.name)}
+        descriptors.collect{|c| xml.char(id: "c#{c.id}", states: "states_for_chr_#{c.id}", label: c.target_name(:key, nil))}
       end # end format
       include_multistate_matrix(opt.merge(descriptors: descriptors)) if opt[:include_matrix]
     end # end characters
 
     d = m.continuous_descriptors.order('observation_matrix_columns.position').load
+
     # continuous characters
     xml.characters(
       id: "continuous_character_block_#{m.id}",
@@ -66,7 +79,7 @@ module ObservationMatrices::Export::NexmlHelper
       'xsi:type' => 'nex:ContinuousCells',
       label: "Continuous characters for matrix #{m.name}") do
         xml.format do
-          d.collect{|c| xml.char(id: "c#{c.id}", label: c.name)}
+          d.collect{|c| xml.char(id: "c#{c.id}", label: c.target_name(:key, nil))}
         end # end format
 
         include_continuous_matrix(opt.merge(descriptors: d)) if opt[:include_matrix]
@@ -100,11 +113,11 @@ module ObservationMatrices::Export::NexmlHelper
             observations = cells[ x  ][ y ]
 
             case observations.size
-            when 0 
+            when 0
               state = "missing#{d.id}"
             when 1
               o = observations.first
-              if d.qualitative? 
+              if d.qualitative?
                 state = "cs#{o.character_state_id}"
               elsif d.presence_absence?
                 # WRONG
@@ -112,7 +125,7 @@ module ObservationMatrices::Export::NexmlHelper
               else
                 state = "ERROR"
               end
-            else # > 1 
+            else # > 1
               if d.qualitative?
                 state = "cs#{d.id}unc_#{observations.collect{|i| i.character_state_id}.sort.join}" # should just unify identifiers with above.
               elsif d.presence_absence?
@@ -120,7 +133,7 @@ module ObservationMatrices::Export::NexmlHelper
               end
             end
 
-            #byebug if state == 'cs' # d.id == 37 
+            #byebug if state == 'cs' # d.id == 37
 
             xml.cell(char: "c#{d.id}", state: state)
           end
@@ -136,7 +149,7 @@ module ObservationMatrices::Export::NexmlHelper
     xml = Builder::XmlMarkup.new(target: opt[:target])
     m = opt[:observation_matrix]
 
-    # the matrix 
+    # the matrix
     cells = m.observations_in_grid({})[:grid]
 
     z = m.observation_matrix_rows.map.collect{|i| i.row_object.to_global_id}
@@ -187,21 +200,52 @@ module ObservationMatrices::Export::NexmlHelper
   def include_collection_objects(options = {})
     opt = {target: ''}.merge!(options)
     xml = Builder::XmlMarkup.new(target: opt[:target])
-    otu = opt[:otu] 
+    otu = opt[:otu]
 
     # otu.collection_objects.with_identifiers.each do |s|
     otu.current_collection_objects.each do |s|
       xml.meta('xsi:type' => 'ResourceMeta', 'rel' => 'dwc:individualID') do
         if a = s.preferred_catalog_number
-          xml.meta(a.namespace.name, 'xsi:type' => 'LiteralMeta', 'property' => 'dwc:collectionID') 
-          xml.meta(a.identifier, 'xsi:type' => 'LiteralMeta', 'property' => 'dwc:catalogNumber') 
+          xml.meta(a.namespace.name, 'xsi:type' => 'LiteralMeta', 'property' => 'dwc:collectionID')
+          xml.meta(a.identifier, 'xsi:type' => 'LiteralMeta', 'property' => 'dwc:catalogNumber')
         else
-          xml.meta('UNDEFINED', 'xsi:type' => 'LiteralMeta', 'property' => 'dwc:collectionID') 
-          xml.meta(s.id, 'xsi:type' => 'LiteralMeta', 'property' => 'dwc:catalogNumber') 
+          xml.meta('UNDEFINED', 'xsi:type' => 'LiteralMeta', 'property' => 'dwc:collectionID')
+          xml.meta(s.id, 'xsi:type' => 'LiteralMeta', 'property' => 'dwc:catalogNumber')
         end
       end
     end # end specimens
 
     return opt[:target]
   end
+
+  # TODO: if semantics change we can add them as block later.
+  def nexml_depictions(options = {})
+    opt = {target: '', descriptors: []}.merge!(options)
+    xml = Builder::XmlMarkup.new(target: opt[:target])
+    m = opt[:observation_matrix]
+
+    xml.depictions do
+      if true # character state options
+
+        xml.character_state_depictions(
+          id: "character_state_depiction_block_#{m.id}",
+          otus: "otu_block_#{m.id}",
+          #   'xsi:type' => 'nex:StandardCells',
+          label:  "Character state depictions for matrix #{m.name}"
+        ) do
+          ::Depiction.joins(image: [:character_states]).merge(m.character_states).each do |d|
+            xml.meta(
+              'xsi:type' => 'ResourceMeta',
+              'rel' => 'foaf:depiction',
+              'about' => "cs#{d.depiction_object_id}",
+              'href' => root_url + d.image.image_file.url(:original)[1..-1]
+            )
+          end
+        end
+      end
+
+      opt[:target]
+    end
+  end
+
 end

@@ -14,7 +14,7 @@
 
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Boolean,
       default: false
     }
@@ -22,10 +22,10 @@ export default {
   computed: {
     validity: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   }

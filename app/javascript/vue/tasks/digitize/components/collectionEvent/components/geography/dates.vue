@@ -29,7 +29,7 @@
           <label>&nbsp</label>
           <button
             type="button"
-            class="button normal-input button-default separate-left"
+            class="button normal-input button-default margin-small-right"
             @click="setActualDateForStart">
             Now
           </button>
@@ -70,7 +70,7 @@
           <label>&nbsp</label>
           <button
             type="button"
-            class="button normal-input button-default separate-left"
+            class="button normal-input button-default"
             @click="setActualDateForEnd">
             Now
           </button>
@@ -138,23 +138,24 @@ export default {
   },
   methods: {
     setActualDateForStart() {
-      let today = new Date()
+      const today = new Date()
+
       this.startDay = today.getDate()
       this.startMonth = today.getMonth() + 1
       this.startYear = today.getFullYear()
     },
     setActualDateForEnd() {
-      let today = new Date()
+      const today = new Date()
+
       this.endDay = today.getDate()
       this.endMonth = today.getMonth() + 1
       this.endYear = today.getFullYear()
     },
     cloneDate() {
-      let today = new Date()
       this.endDay = this.startDay
       this.endMonth = this.startMonth
       this.endYear = this.startYear
-    },    
+    }
   }
 }
 </script>

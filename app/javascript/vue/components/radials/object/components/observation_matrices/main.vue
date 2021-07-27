@@ -68,20 +68,27 @@ import { ObservationMatrix, ObservationMatrixRow, ObservationMatrixRowItem } fro
 
 export default {
   mixins: [CRUD, annotatorExtend],
+
   components: {
     DefaultPin,
     SpinnerComponent
   },
+
+  emits: [
+    'updateCount',
+    'close'
+  ],
+
   computed: {
     alreadyInMatrices () {
-      return this.matrices.filter(item => {
-        return this.rows.find(row => item.id === row.observation_matrix_id)
-      })
+      return this.matrices.filter(item => this.rows.find(row => item.id === row.observation_matrix_id))
     },
+
     alreadyInCurrentMatrix () {
       return this.rows.filter(row => this.selectedMatrix.id === row.observation_matrix_id)
     }
   },
+
   data () {
     return {
       show: false,
@@ -104,11 +111,13 @@ export default {
       }
     }
   },
+
   watch: {
     alreadyInMatrices (newVal) {
       this.$emit('updateCount', newVal.length)
     }
   },
+
   mounted () {
     this.loading = true
     this.show = true
@@ -130,6 +139,7 @@ export default {
       this.rows = response.body
     })
   },
+
   methods: {
     loadMatrix (matrix) {
       this.selectedMatrix = matrix
@@ -139,57 +149,60 @@ export default {
         this.openMatrixRowCoder()
       }
     },
+
     reset () {
       this.selectedMatrix = undefined
       this.rows = []
       this.show = false
     },
+
     createRow () {
       return new Promise((resolve, reject) => {
         if (window.confirm(`Are you sure you want to add this ${this.metadata.object_type} to this matrix?`)) {
-          const promises = []
-
-          Promise.all(promises).then(() => {
-            const data = {
-              observation_matrix_id: this.selectedMatrix.id,
-              [this.types[this.metadata.object_type].propertyName]: this.metadata.object_id,
-              type: this.types[this.metadata.object_type].type
-            }
-            ObservationMatrixRowItem.create({ observation_matrix_row_item: data }).then(response => {
-              ObservationMatrixRow.where({ [this.types[this.metadata.object_type].propertyName]: this.metadata.object_id }).then(response => {
-                this.rows = response.body
-                resolve(response)
-              })
+          const data = {
+            observation_matrix_id: this.selectedMatrix.id,
+            [this.types[this.metadata.object_type].propertyName]: this.metadata.object_id,
+            type: this.types[this.metadata.object_type].type
+          }
+          ObservationMatrixRowItem.create({ observation_matrix_row_item: data }).then(response => {
+            ObservationMatrixRow.where({ [this.types[this.metadata.object_type].propertyName]: this.metadata.object_id }).then(response => {
+              this.rows = response.body
+              resolve(response)
             })
           })
         }
       })
     },
+
     setMatrix (id) {
       ObservationMatrix.find(id).then(response => {
         this.selectedMatrix = response.body
         this.loadMatrix(this.selectedMatrix)
       })
     },
+
     openMatrixRowCoder () {
       if (this.alreadyInCurrentMatrix.length) {
         window.open(`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${this.alreadyInCurrentMatrix[0].id}`, '_blank')
+        this.$emit('close')
       } else {
         this.createRow().then(() => {
           window.open(`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${this.alreadyInCurrentMatrix[0].id}`, '_blank')
+          this.$emit('close')
         })
       }
-      this.$emit('close')
     },
+
     openImageMatrix () {
       if (this.alreadyInCurrentMatrix.length) {
-        window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_id=${this.alreadyInCurrentMatrix[0].id}&row_position=${this.alreadyInCurrentMatrix[0].position}`, '_blank')
+        window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_filter=${this.alreadyInCurrentMatrix[0].id}`, '_blank')
+        this.$emit('close')
       } else {
         this.createRow().then(() => {
-          window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_id=${this.alreadyInCurrentMatrix[0].id}&row_position=${this.alreadyInCurrentMatrix[0].position}`, '_blank')
+          window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_filter=${this.alreadyInCurrentMatrix[0].id}`, '_blank')
+          this.$emit('close')
         })
       }
-      this.$emit('close')
     }
   }
 }

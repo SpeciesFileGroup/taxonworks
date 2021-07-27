@@ -54,6 +54,7 @@ gem 'modularity', '~> 2.0.1' # Used!?
 gem 'paperclip', '~> 6.1.0'
 gem 'paperclip-meta', '~> 3.0'
 gem 'shortener', '~> 0.8.0'
+gem 'rails_or', '~> 1.1.8'
 
 # javascript
 gem 'sprockets-rails', '~> 3.2.0'

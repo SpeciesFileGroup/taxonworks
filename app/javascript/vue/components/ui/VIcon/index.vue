@@ -1,9 +1,9 @@
 <template>
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    :width="iconSize"
-    :height="iconSize"
-    viewBox="0 0 12 12"
+    :width="elementSize"
+    :height="elementSize"
+    :viewBox="viewbox"
     :aria-labelledby="name"
     role="presentation"
   >
@@ -11,9 +11,11 @@
       :id="name"
       lang="en"
     >
-      {{ name }} icon
+      {{ showTitle }}
     </title>
-    <g :fill="selectedColor">
+    <g
+      ref="svggroup"
+      :fill="selectedColor">
       <path
         v-for="(path, index) in iconPaths"
         :key="index"
@@ -25,46 +27,19 @@
 
 <script>
 
-import paletteColors from 'assets/styles/variables/_exports.scss'
-import { convertToUnit } from 'helpers/style'
+import mixinSizes from '../mixins/sizes.js'
+import mixinColors from '../mixins/colors.js'
 import { Icons } from './icons.js'
 
-const SIZE_MAP = {
-  xSmall: '12px',
-  small: '16px',
-  default: '24px',
-  medium: '28px',
-  large: '36px',
-  xLarge: '40px'
-}
-
 export default {
+  name: 'VIcon',
+
+  mixins: [
+    mixinSizes,
+    mixinColors
+  ],
+
   props: {
-    xSmall: {
-      type: Boolean,
-      default: false
-    },
-
-    small: {
-      type: Boolean,
-      default: false
-    },
-
-    medium: {
-      type: Boolean,
-      default: false
-    },
-
-    large: {
-      type: Boolean,
-      default: false
-    },
-
-    xLarge: {
-      type: Boolean,
-      default: false
-    },
-
     disabled: {
       type: Boolean,
       default: false
@@ -75,42 +50,53 @@ export default {
       required: true
     },
 
-    size: {
-      type: [Number, String],
-      default: SIZE_MAP.default
-    },
-
-    color: {
+    title: {
       type: String,
-      default: 'currentColor'
+      default: undefined
+    }
+  },
+
+  data () {
+    return {
+      viewbox: '0 0 12 12'
     }
   },
 
   computed: {
-    isComponentExist () {
-      return this.$options.components[this.iconName]
-    },
-
     iconPaths () {
       return Icons[this.name]?.paths || []
     },
 
-    selectedColor () {
-      return paletteColors[this.color] || this.color
-    },
+    showTitle () {
+      return this.title || `${this.name} icon`
+    }
+  },
 
-    iconSize () {
-      const sizes = {
-        xSmall: this.xSmall,
-        small: this.small,
-        medium: this.medium,
-        large: this.large,
-        xLarge: this.xLarge
+  watch: {
+    name: {
+      handler () {
+        this.viewbox = this.getViewboxSize()
       }
+    }
+  },
 
-      const explicitSize = Object.keys(sizes).find(key => sizes[key])
+  mounted () {
+    this.$nextTick(() => {
+      this.viewbox = this.getViewboxSize()
+    })
+  },
 
-      return (explicitSize && SIZE_MAP[explicitSize]) || convertToUnit(this.size)
+  methods: {
+    getViewboxSize () {
+      const refGroup = this.$refs.svggroup
+
+      if (refGroup) {
+        const groupSize = refGroup.getBBox()
+
+        return [groupSize.x, groupSize.y, groupSize.width, groupSize.height].join(' ')
+      } else {
+        return '0 0 12 12'
+      }
     }
   }
 }

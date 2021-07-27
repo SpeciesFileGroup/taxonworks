@@ -32,7 +32,7 @@
 import Layout from './shared/layout.js'
 
 export default {
-  mixins: [Layout],
+  mixins: [Layout]
 }
 </script>
 
