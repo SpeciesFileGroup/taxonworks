@@ -71,10 +71,13 @@ export default {
     },
 
     buttonClasses () {
+      const isLink = !!this.href
+
       return [
-        this.buttonSize,
         'button',
-        `btn-${this.color}`
+        `btn-${this.color}`,
+        isLink ? 'btn-link' : 'btn',
+        this.buttonSize,
       ]
     }
   }

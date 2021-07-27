@@ -53,6 +53,14 @@
           <li>
             <label class="middle">
               <input
+                v-model="settings.softValidations"
+                type="checkbox">
+              Soft validations
+            </label>
+          </li>
+          <li>
+            <label class="middle">
+              <input
                 v-model="settings.sortable"
                 type="checkbox">
               Sortable columns/rows

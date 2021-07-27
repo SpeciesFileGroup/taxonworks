@@ -9,7 +9,7 @@
       <h1 class="matrix-row-coder__title" v-html="title"/>
     </div>
     <div>
-      <div class="flex-separate">
+      <div class="flex-separate margin-medium-bottom">
         <div>
           <div class="align-start">
             <ul
@@ -26,7 +26,7 @@
               </li>
             </ul>
           </div>
-          <description-component/>
+          <description-main/>
         </div>
         <div>
           <destroy-all-observations
@@ -69,7 +69,7 @@ import MediaDescriptor from './MediaDescriptor/MediaDescriptor.vue'
 import Spinner from 'components/spinner'
 import CloneScoring from './Clone/Clone'
 import DestroyAllObservations from './ObservationRow/destroyObservationRow'
-import DescriptionComponent from './Description/Description.vue'
+import DescriptionMain from './Description/DescriptionMain.vue'
 
 const computed = mapState({
   title: state => state.taxonTitle,
@@ -162,7 +162,7 @@ export default {
     MediaDescriptor,
     Spinner,
     DestroyAllObservations,
-    DescriptionComponent
+    DescriptionMain
   }
 }
 </script>
