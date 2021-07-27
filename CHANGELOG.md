@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- OriginRelationship display in Browse collection object [#2362]
 - Accession/Deaccession section in Collection object match task [#2353]
 - Similar objects section in MRC
 - Soft validation in Edit/new matrix task
@@ -26,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Biological associations in OTU quick forms
 - Update type species in new taxon name task
 
+[#2362]: https://github.com/SpeciesFileGroup/taxonworks/issues/2362
 [#2353]: https://github.com/SpeciesFileGroup/taxonworks/issues/2353
 [#2354]: https://github.com/SpeciesFileGroup/taxonworks/issues/2354
 
