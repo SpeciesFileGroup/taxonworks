@@ -8,12 +8,37 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Fixed
+- Autocomplete in Interactive key task
+- Copy and clone option in Matrix Row Coder
+- Edit biological associations form [#2370]
+
+[#2370]: https://github.com/SpeciesFileGroup/taxonworks/issues/2370
+
+## [0.19.2] - 2021-07-27
+
+### Added
+- OriginRelationship display in Browse collection object [#2362]
+- Accession/Deaccession section in Collection object match task [#2353]
+- Similar objects section in MRC
+- Soft validation in Edit/new matrix task
+- Update download form [#2335]
+- Check and question icons
+
+### Changed
+- Upgraded from Ruby version 2.7.3 to 2.7.4
+- Updated ruby gems
+- Object validation component
+
+### Fixed
 - Help plugin
 - Original relationships in Collection object quick form
 - CO Quick forms in comprehensive specimen digitization [#2354]
+- Biological associations in OTU quick forms
+- Update type species in new taxon name task
 
+[#2362]: https://github.com/SpeciesFileGroup/taxonworks/issues/2362
+[#2353]: https://github.com/SpeciesFileGroup/taxonworks/issues/2353
 [#2354]: https://github.com/SpeciesFileGroup/taxonworks/issues/2354
-
 
 ## [0.19.1] - 2021-07-15
 
@@ -1409,6 +1434,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
 [unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.1...development
+[0.19.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.1...v0.19.2
 [0.19.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.0...v0.19.1
 [0.19.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.18.1...v0.19.0
 [0.18.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.18.0...v0.18.1

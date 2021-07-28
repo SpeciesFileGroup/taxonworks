@@ -1619,7 +1619,7 @@ class TaxonName < ApplicationRecord
   def sv_fix_cached_names
     begin
       TaxonName.transaction do
-        self.save
+        self.set_cached
         return true
       end
     rescue
