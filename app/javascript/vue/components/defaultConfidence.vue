@@ -5,9 +5,12 @@
       animation="scale"
       placement="bottom"
       size="small"
-      :inertia="true"
-      :arrow="true"
-      :content="`<p>Create confidence: ${getDefaultElement().firstChild.firstChild.textContent}.${confidenceCount ? `<br>Used already  on ${confidenceCount} ${confidenceCount > 200 ? 'or more' : '' } objects</p>` : ''}`">
+      inertia
+      arrow
+    >
+      <template #content>
+        <p>Create confidence: {{ getDefaultElement().firstChild.firstChild.textContent }}.<br>{{ confidenceCount ? `Used already  on ${confidenceCount} ${confidenceCount > 200 ? 'or more' : '' } objects` : '' }}</p>
+      </template>
       <div
         class="default_tag_widget circle-button btn-confidences btn-submit"
         @click="createConfidence()"/>
@@ -18,9 +21,12 @@
       animation="scale"
       placement="bottom"
       size="small"
-      :inertia="true"
-      :arrow="true"
-      :content="`<p>Remove confidence: ${getDefaultElement().firstChild.firstChild.textContent}.${confidenceCount ? `<br>Used already on ${confidenceCount} ${confidenceCount > 200 ? 'or more' : '' } objects</p>` : ''}`">
+      inertia
+      arrow
+    >
+      <template #content>
+        <p>Remove confidence: {{ getDefaultElement().firstChild.firstChild.textContent }}.<br>{{ confidenceCount ? `Used already  on ${confidenceCount} ${confidenceCount > 200 ? 'or more' : '' } objects` : '' }}</p>
+      </template>
       <div
         class="default_tag_widget circle-button btn-confidences btn-delete"
         @click="deleteConfidence()"
@@ -38,6 +44,8 @@ import { Tippy } from 'vue-tippy'
 import AjaxCall from 'helpers/ajaxCall'
 
 export default {
+  name: 'ButtonConfidence',
+
   components: { Tippy },
 
   props: {

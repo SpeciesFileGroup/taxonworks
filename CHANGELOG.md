@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Edit biological associations form [#2370]
 - Hidden pin and lock icons in asserted distribution quick form
 - biological_association_link helper
+- Confidence button
 
 [#2370]: https://github.com/SpeciesFileGroup/taxonworks/issues/2370
 
