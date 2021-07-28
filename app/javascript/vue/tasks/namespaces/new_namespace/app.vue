@@ -15,19 +15,21 @@
       </v-btn>
     </template>
     <template #body>
-      <namespace-form v-model="namespace"/>
-      <namespace-match
-        v-if="!namespace.id"
-        class="margin-small-left"
-        :name="namespace.name"
-        @onSelect="setNamespace"/>
+      <div class="horizontal-left-content align-start">
+        <namespace-form v-model="namespace"/>
+        <namespace-match
+          v-if="!namespace.id"
+          class="margin-small-left"
+          :name="namespace.name"
+          @onSelect="setNamespace"/>
+      </div>
     </template>
   </block-layout>
 </template>
 
 <script>
 
-import { ref, reactive, onBeforeMount } from 'vue'
+import { ref, onBeforeMount } from 'vue'
 import { Namespace } from 'routes/endpoints'
 import NamespaceForm from './components/Namespace/NamespaceForm.vue'
 import NamespaceMatch from './components/Namespace/NamespaceMatch.vue'
@@ -35,6 +37,8 @@ import namespaceObject from './const/namespace.js'
 import BlockLayout from 'components/layout/BlockLayout'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
+import SetParam from 'helpers/setParam'
+import { RouteNames } from 'routes/routes'
 
 export default {
   name: 'NewNamespace',
@@ -49,18 +53,24 @@ export default {
 
   setup () {
     const namespace = ref({})
-    const resetForm = () => { namespace.value = reactive(namespaceObject()) }
+    const resetForm = () => { namespace.value = namespaceObject() }
 
     onBeforeMount(async () => {
       const urlParams = new URLSearchParams(window.location.search)
       const namespaceId = urlParams.get('namespace_id')
 
       namespace.value = namespaceId
-        ? reactive((await Namespace.find(namespaceId)).body)
-        : reactive(namespaceObject())
+        ? (await Namespace.find(namespaceId)).body
+        : namespaceObject()
     })
 
+    const setNamespace = (value) => {
+      namespace.value = value
+      SetParam(RouteNames.NewNamespace, 'namespace_id', value.id)
+    }
+
     return {
+      setNamespace,
       namespace,
       resetForm
     }

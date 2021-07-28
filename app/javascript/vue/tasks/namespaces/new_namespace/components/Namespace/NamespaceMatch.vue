@@ -3,20 +3,16 @@
     v-if="matches.length"
     class="panel content">
     <h3>Match</h3>
-    <ul class="no_bullets">
+    <ul class="no_bullets full_width">
       <li
         v-for="item in matches"
         :key="item.id"
+        class="horizontal-left-content middle"
       >
-        {{ item.name }}
-        <v-btn
-          circle
-          color="primary"
-          @click="selectNamespace(item)">
-          <v-icon
-            x-small
-            name="pencil"/>
-        </v-btn>
+        <span
+          class="cursor-pointer"
+          @click="getNamespace(item.id)"
+          v-html="item.label_html"/>
       </li>
     </ul>
   </div>
@@ -24,17 +20,10 @@
 
 <script>
 
-import { Namespace } from 'routes/endpoints'
 import { watch, ref } from 'vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import { Namespace } from 'routes/endpoints'
 
 export default {
-  components: {
-    VBtn,
-    VIcon
-  },
-
   props: {
     name: {
       type: String,
@@ -53,19 +42,21 @@ export default {
       clearTimeout(requestTimeout)
 
       requestTimeout = setTimeout(async () => {
-        matches.value = currentValue
-          ? (await Namespace.where({ name: currentValue })).body
+        matches.value = currentValue.trim()
+          ? (await Namespace.autocomplete({ term: currentValue })).body
           : []
       }, delay)
     })
 
-    function selectNamespace (value) {
-      emit('onSelect', value)
+    function getNamespace (id) {
+      Namespace.find(id).then(({ body }) => {
+        emit('onSelect', body)
+      })
     }
 
     return {
       matches,
-      selectNamespace
+      getNamespace
     }
   }
 }
