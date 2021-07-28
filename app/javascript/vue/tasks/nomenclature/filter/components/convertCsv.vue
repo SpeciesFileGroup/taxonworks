@@ -13,7 +13,7 @@ import { parse } from 'json2csv'
 const fields = [
   'id',
   { label: 'name', value: 'cached' },
-  { label: 'author', value: 'verbatim_author' },
+  { label: 'author', value: 'cached_author_year' },
   { label: 'year of publication', value: 'year_of_publication' },
   { label: 'original combination', value: 'cached_original_combination' },
   'rank',
