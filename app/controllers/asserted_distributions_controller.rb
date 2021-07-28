@@ -36,7 +36,7 @@ class AssertedDistributionsController < ApplicationController
 
   # GET /asserted_distributions/1/edit
   def edit
-    @asserted_distribution.origin_citation.source = Source.new if !@asserted_distribution.origin_citation.source
+    @asserted_distribution.source = Source.new if !@asserted_distribution.source
   end
 
   # POST /asserted_distributions

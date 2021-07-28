@@ -15,12 +15,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - biological_association_link helper
 - Confidence button
 - Dynamic rows/columns are not destroyable [#2375]
+- Asserted distribution edit view [#2371]
 
 ### Changed
 - sort property, `name` to `cached` in Filter nomenclature [#2372]
 - replaced property `verbatim_author` to `cached_author_year` for csv download [#2373]
 
 [#2370]: https://github.com/SpeciesFileGroup/taxonworks/issues/2370
+[#2371]: https://github.com/SpeciesFileGroup/taxonworks/issues/2371
 [#2373]: https://github.com/SpeciesFileGroup/taxonworks/issues/2373
 [#2375]: https://github.com/SpeciesFileGroup/taxonworks/issues/2375
 
