@@ -127,6 +127,8 @@ import { ActionNames } from './store/actions/actions'
 import { RouteNames } from 'routes/routes'
 
 export default {
+  name: 'NewObservationMatrix',
+
   components: {
     NewMatrix,
     RowsFixed,

@@ -14,8 +14,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Hidden pin and lock icons in asserted distribution quick form
 - biological_association_link helper
 - Confidence button
+- Dynamic rows/columns are not destroyable [#2375]
 
 [#2370]: https://github.com/SpeciesFileGroup/taxonworks/issues/2370
+[#2375]: https://github.com/SpeciesFileGroup/taxonworks/issues/2375
 
 ## [0.19.2] - 2021-07-27
 
