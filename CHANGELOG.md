@@ -16,6 +16,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Confidence button
 - Dynamic rows/columns are not destroyable [#2375]
 
+### Changed
+- sort property, `name` to `cached` in Filter nomenclature [#2372]
+
 [#2370]: https://github.com/SpeciesFileGroup/taxonworks/issues/2370
 [#2375]: https://github.com/SpeciesFileGroup/taxonworks/issues/2375
 
