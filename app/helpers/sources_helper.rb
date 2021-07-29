@@ -48,6 +48,11 @@ module SourcesHelper
     link_to(source_tag(source).html_safe, source.metamorphosize )
   end
 
+  def history_link(source)
+    content_tag(:em, ' in ') + link_to(content_tag(:span, source_author_year_tag(source), title: source.cached, class: :history__in), send(:nomenclature_by_source_task_path, source_id: source.id) )
+    #        return content_tag(:span,  content_tag(:em, ' in ') + b, class: [:history__in])
+  end
+
   def short_sources_tag(sources)
     return nil if !sources.load.any?
     sources.collect{|s| source_author_year_tag(s) }.join('; ')

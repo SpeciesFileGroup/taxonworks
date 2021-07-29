@@ -364,6 +364,7 @@ class CollectionObjectsController < ApplicationController
       :buffered_collecting_event, :buffered_determinations,
       :buffered_other_labels, :accessioned_at, :deaccessioned_at, :deaccession_reason,
       :contained_in,
+      :taxon_determination_id,
       collecting_event_attributes: [],  # needs to be filled out!
       data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :value ],
       tags_attributes: [:id, :_destroy, :keyword_id],
@@ -444,6 +445,7 @@ class CollectionObjectsController < ApplicationController
       :sled_image_id,
       :spatial_geographic_areas,
       :start_date,  # CE filter
+      :taxon_determination_id,
       :taxon_determinations,
       :type_material,
       :type_specimen_taxon_name_id,

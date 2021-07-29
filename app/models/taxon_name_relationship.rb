@@ -424,16 +424,19 @@ class TaxonNameRelationship < ApplicationRecord
         if is_combination?
           t = object_taxon_name
 
-          t.send(:set_cached)
+          t.set_cached
 
-          if type_name =~/(OriginalCombination|Basionym)/
+          if type_name =~/(OriginalCombination)/
             t.update_columns(
               cached_original_combination: t.get_original_combination,
               cached_original_combination_html: t.get_original_combination_html,
               cached_author_year: t.get_author_and_year,
             )
           end
-
+        elsif type_name =~/(Basionym)/
+          TaxonName.where(cached_valid_taxon_name_id: object_taxon_name.cached_valid_taxon_name_id).each do |t|
+            t.update_column(:cached_author_year, t.get_author_and_year)
+          end
         elsif type_name =~/TaxonNameRelationship::Hybrid/ # TODO: move to Hybrid
           t = object_taxon_name
           n = t.get_full_name
