@@ -24,11 +24,11 @@ module BatchLoad
           protonym = TaxonName.find_by_cached(row['protonym'])
           type_type = row['type_type'].downcase
 
-          next if (collection_identifier.nil? or protonym.nil?)
+          # next if (collection_identifier.nil? or protonym.nil?)
 
           type_material = TypeMaterial.new({
                                              protonym: protonym,
-                                             collection_object: collection_identifier.identifier_object,
+                                             collection_object: collection_identifier&.identifier_object,
                                              type_type: type_type,
                                            })
           parse_result.objects[:type_materials].push type_material

@@ -22,16 +22,28 @@
         <%= batch_line_link_td(i) -%>
         <%= batch_all_objects_count_td(rp) -%>
         <td>
-          <%= rp.objects[:type_materials].collect { |n|
-            link_to(n.collection_object.identifiers[0].cached,
-                    '/tasks/collection_objects/browse?collection_object_id=' + n.collection_object.id.to_s,
-                    target: :_blank) }.join('<br>').html_safe -%>
+          <%= rp.objects[:type_materials].collect do |n|
+            if n.collection_object.identifiers.nil?
+              "Could not find matching identifier"
+            else
+              link_to(n.collection_object&.identifiers[0]&.cached,
+                      '/tasks/collection_objects/browse?collection_object_id=' + n.collection_object&.id&.to_s,
+                      target: :_blank)
+            end
+          end
+                .join('<br>').html_safe
+          %>
         </td>
         <td>
-          <%= rp.objects[:type_materials].collect { |n|
-            link_to(n.protonym.cached,
-                        '/taxon_names/' + n.protonym.id.to_s,
-                        target: :_blank) }.join('<br>').html_safe -%>
+          <%= rp.objects[:type_materials].collect do |n|
+            if n.protonym.nil?
+              "Could not match to existing protonym"
+            else
+              link_to(n.protonym&.cached,
+                      '/taxon_names/' + n.protonym&.id.to_s,
+                      target: :_blank)
+            end
+          end.join('<br>').html_safe -%>
         </td>
         <td>
           <%= rp.objects[:type_materials].collect { |n| n.type_type }.join('<br>').html_safe -%>
