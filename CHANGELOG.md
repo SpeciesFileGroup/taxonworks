@@ -7,6 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Add
+- Pdf icon in citation by source
+
 ### Fixed
 - Autocomplete in Interactive key task
 - Copy and clone option in Matrix Row Coder
