@@ -10,39 +10,56 @@ Object.assign(TW.workbench.alert, {
   },
 
   init: function () {
-    $(document).off("click", ".alert-close");
-    $(document).on("click", ".alert-close", function () {
-      $(this).parent(".alert").animate({
-        bottom: "-=" + ($(this).height() * 2),
-      }, 250, function () {
-        $(this).remove();
-      });
-    });
+    document.removeEventListener('click', this.removeMessage)
+    document.addEventListener('click', this.removeMessage)
 
-    if ($(".alert").length) {
-      this.play('<%= asset_path("notify.wav") %>');
+    if(document.querySelectorAll('.alert.alert-alert').length) {
+      this.play('error');
+    } else if (document.querySelectorAll('.alert').length) {
+      this.play('default');
     }
-    ;
+
   },
 
-  create: function (text) {
-    $(".alert[class*='alert-']").remove();
-    $("body").append('<div class="alert alert-error"><div class="message">' + text + '</div><div class="alert-close"></div></div>');
-    this.play('default');
+  removeMessage: function (event) {
+    const element = event.target;
+
+    if (element && element.classList.contains('alert-close')) {
+      element.parentNode.remove()
+    }
   },
 
-  create: function (text, type) {
-    $(".alert[class*='alert-']").remove();
-    $("body").append('<div class="alert alert-' + type + '"><div class="message">' + text + '</div><div class="alert-close"></div></div>');
+  createAlertMessage: function (noticeType, message) {
+    const divContainer = document.createElement('div');
+    const divMessage = document.createElement('div');
+    const divClose = document.createElement('div');
+
+    divMessage.innerHTML = message
+
+    divClose.classList.add('alert-close');
+    divContainer.classList.add('alert');
+    divContainer.classList.add('alert-' + noticeType);
+
+    divContainer.appendChild(divMessage);
+    divContainer.appendChild(divClose);
+
+    return divContainer
+  },
+
+  create: function (text, type = 'notice') {
+    document.querySelectorAll(".alert[class*='alert-']").forEach(function (el) {
+      el.parentNode.removeChild(el)
+    });
+    document.querySelector("body").appendChild(this.createAlertMessage(type, text));
     this.play(type);
   },
 
   play: function (type) {
-    var sound = new Audio((this.audioFile[type] == undefined ? this.audioFile.default : this.audioFile[type]));
+    var sound = new Audio(this.audioFile[type] || this.audioFile.default);
     sound.play();
   }
 });
 
-$(document).on('turbolinks:load', function () {
+document.addEventListener('turbolinks:load', () => {
   TW.workbench.alert.init();
 });
