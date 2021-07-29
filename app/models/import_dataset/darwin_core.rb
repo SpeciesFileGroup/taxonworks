@@ -11,19 +11,13 @@ class ImportDataset::DarwinCore < ImportDataset
   def initialize(params)
     super(params)
 
-    random = SecureRandom.hex(4)
-    project_name = Project.find(Current.project_id).name
-    namespace_name = "#{core_records_identifier_name} namespace for \"#{params[:description]}\" dataset in \"#{project_name}\" project [#{random}]"
-
     self.metadata = {
       core_headers: [],
       nomenclature_code: nil,
-      identifier_namespace: Namespace.create!(
-        name: namespace_name,
-        short_name: "#{core_records_identifier_name}-#{random}",
-        verbatim_short_name: core_records_identifier_name,
-        delimiter: ':'
-      ).id
+      namespaces: {
+        core: nil,
+        eventID: nil
+      }
     }
   end
 
@@ -209,6 +203,29 @@ class ImportDataset::DarwinCore < ImportDataset
     import_settings.each { |k, v| metadata["import_settings"].merge!({k => v}) }
     save!
     metadata["import_settings"]
+  end
+
+  def get_core_record_identifier_namespace
+    id = metadata.dig("namespaces", "core")
+
+    if id.nil? || (@core_record_identifier_namespace ||= Namespace.find_by(id: id)).nil?
+      random = SecureRandom.hex(4)
+      project_name = Project.find(Current.project_id).name
+      ap self.class
+      namespace_name = "#{core_records_identifier_name} namespace for \"#{description}\" dataset in \"#{project_name}\" project [#{random}]"
+
+      @core_record_identifier_namespace = Namespace.create!(
+        name: namespace_name,
+        short_name: "#{core_records_identifier_name}-#{random}",
+        verbatim_short_name: core_records_identifier_name,
+        delimiter: ':'
+      )
+
+      metadata["namespaces"]["core"] = @core_record_identifier_namespace.id
+      save!
+    end
+
+    @core_record_identifier_namespace
   end
 
   protected

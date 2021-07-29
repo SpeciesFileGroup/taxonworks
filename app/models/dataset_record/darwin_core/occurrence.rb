@@ -103,25 +103,61 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         end
 
         Identifier::Local::Import.create!(
-          namespace: get_core_record_identifier_namespace,
+          namespace: import_dataset.get_core_record_identifier_namespace,
           identifier_object: specimen,
           identifier: get_field_value(:occurrenceID)
-        ) unless get_field_value(:occurrenceID).nil? || get_core_record_identifier_namespace.nil?
+        ) unless get_field_value(:occurrenceID).nil? || import_dataset.get_core_record_identifier_namespace.nil?
 
         specimen.taxon_determinations.create!({
           otu: innermost_otu || innermost_protonym.otus.find_by(name: nil) || innermost_protonym.otus.first # TODO: Might require select-and-confirm functionality
         }.merge(attributes[:taxon_determination]))
 
-        # TODO: If all attributes are equal assume it is the same event and share it with other specimens?
-        collecting_event = CollectingEvent.create!({
-          collection_objects: [specimen],
-          no_dwc_occurrence: true
-        }.merge!(attributes[:collecting_event]))
+        event_id = get_field_value(:eventID)
+        unless event_id.nil?
+          namespace = get_field_value('TW:Namespace:eventID')
 
-        Georeference::VerbatimData.create!({
-          collecting_event: collecting_event,
-          error_radius: get_field_value("coordinateUncertaintyInMeters")
-        }.merge(attributes[:georeference])) if collecting_event.verbatim_latitude && collecting_event.verbatim_longitude
+          identifier_type = Identifier::Global.descendants.detect { |c| c.name.downcase == namespace.downcase } if namespace
+          identifier_attributes = {
+            identifier: event_id,
+            identifier_object_type: CollectingEvent.name
+          }
+
+          if identifier_type.nil?
+            identifier_type = Identifier::Local::TripCode # TODO: Or maybe Identifier::Local::Import?
+
+            if namespace.nil?
+              namespace = import_dataset.get_event_id_namespace
+            else
+              namespace = Namespace.find_by(Namespace.arel_table[:short_name].matches(namespace)) # Case insensitive match
+              raise DarwinCore::InvalidData.new({ "TW:Namespace:eventID" => ["Namespace not found"] }) unless namespace
+            end
+
+            identifier_attributes[:namespace] = namespace
+
+            event_id&.delete_prefix!(namespace.verbatim_short_name || namespace.short_name)&.delete_prefix!(namespace.delimiter)
+          end
+
+          collecting_event = identifier_type.find_by(identifier_attributes)&.identifier_object
+        end
+
+        # TODO: If all attributes are equal assume it is the same event and share it with other specimens? (eventID is an alternate method to detect duplicates)
+        if collecting_event
+          specimen.update!(collecting_event: collecting_event)
+        else
+          collecting_event = CollectingEvent.create!({
+            collection_objects: [specimen],
+            no_dwc_occurrence: true
+          }.merge!(attributes[:collecting_event]))
+
+          identifier_type.create!({
+            identifier_object: collecting_event
+          }.merge!(identifier_attributes))
+
+          Georeference::VerbatimData.create!({
+            collecting_event: collecting_event,
+            error_radius: get_field_value("coordinateUncertaintyInMeters")
+          }.merge(attributes[:georeference])) if collecting_event.verbatim_latitude && collecting_event.verbatim_longitude
+        end
 
         self.metadata["imported_objects"] = { collection_object: { id: specimen.id } }
         self.status = "Imported"
@@ -316,7 +352,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       collecting_event: {}
     }
 
-    # occurrenceID: [SHOULD BE MAPPED. Namespace perhaps should be something fixed and local to project or user-supplied if non-GUID (should be GUID!)]
+    # occurrenceID: [Mapped in import method]
 
     # catalogNumber: [catalog_number.identifier]
     set_hash_val(res[:catalog_number], :identifier, get_field_value(:catalogNumber))
@@ -402,7 +438,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   def parse_event_class
     collecting_event = { }
 
-    # eventID: [Not mapped]
+    # eventID: [Mapped in import method]
 
     # parentEventID: [Not mapped]
 

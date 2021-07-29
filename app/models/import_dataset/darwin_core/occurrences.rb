@@ -16,6 +16,28 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
     'occurrenceID'
   end
 
+  def get_event_id_namespace
+    id = metadata.dig("namespaces", "eventID")
+
+    if id.nil? || (@event_id_identifier_namespace ||= Namespace.find_by(id: id)).nil?
+      random = SecureRandom.hex(4)
+      project_name = Project.find(Current.project_id).name
+      namespace_name = "eventID namespace for \"#{description}\" dataset in \"#{project_name}\" project [#{random}]"
+
+      @event_id_identifier_namespace = Namespace.create!(
+        name: namespace_name,
+        short_name: "eventID-#{random}",
+        verbatim_short_name: "eventID",
+        delimiter: ':'
+      )
+
+      metadata["namespaces"]["eventID"] = @event_id_identifier_namespace.id
+      save!
+    end
+
+    @event_id_identifier_namespace
+  end
+
   # Stages core (Occurrence) records and all extension records.
   def perform_staging
     records, headers = get_records(source)

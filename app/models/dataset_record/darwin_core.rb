@@ -39,10 +39,6 @@ class DatasetRecord::DarwinCore < DatasetRecord
     .reject(&:nil?)
   end
 
-  def get_core_record_identifier_namespace
-    @core_record_identifier_namespace ||= Namespace.find_by(id: import_dataset.metadata["identifier_namespace"])
-  end
-
   private
 
   # Re-implemented method from DatasetRecord
