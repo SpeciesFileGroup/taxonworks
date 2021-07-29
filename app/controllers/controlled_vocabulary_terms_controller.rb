@@ -70,7 +70,7 @@ class ControlledVocabularyTermsController < ApplicationController
 
   def search
     if params[:id].blank?
-      redirect_to controlled_vocabulary_term_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to controlled_vocabulary_term_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to controlled_vocabulary_term_path(params[:id])
     end

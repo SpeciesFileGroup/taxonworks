@@ -192,7 +192,7 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_object/search
   def search
     if params[:id].blank?
-      redirect_to collection_object_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to collection_object_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to collection_object_path(params[:id])
     end
