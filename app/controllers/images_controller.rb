@@ -99,7 +99,7 @@ class ImagesController < ApplicationController
   # TODO: remove for /images.json
   def search
     if params[:id].blank?
-      redirect_to images_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to images_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to image_path(params[:id])
     end

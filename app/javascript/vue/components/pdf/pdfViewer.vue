@@ -82,6 +82,8 @@ import PdfViewer from './components/pdfComponent'
 import ResizeHandle from '../resizeHandle'
 
 export default {
+  name: 'PdfSlideout',
+
   components: {
     PdfViewer,
     ResizeHandle

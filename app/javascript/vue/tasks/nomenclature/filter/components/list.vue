@@ -3,7 +3,7 @@
     <table class="full_width">
       <thead>
         <tr>
-          <th @click="sortTable('name')">Name</th>
+          <th @click="sortTable('cached')">Name</th>
           <th @click="sortTable('cached_author_year')">Author and year</th>
           <th @click="sortTable('original_combination')">Original combination</th>
           <th>Valid?</th>

@@ -42,6 +42,7 @@
 <script>
 
 import ModalComponent from 'components/ui/Modal'
+import scrollToTop from '../../utils/scrollToTop.js'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 import { ActionNames } from '../../store/actions/actions'
@@ -79,7 +80,7 @@ export default {
       this.$store.dispatch(ActionNames.LoadObservationMatrix, this.observationMatrix.observation_matrix_id).then(() => {
         this.setModalView(false)
       })
-      document.querySelector('.descriptors-view div').scrollIntoView(0)
+      scrollToTop()
     }
   }
 }

@@ -90,7 +90,7 @@ class NotesController < ApplicationController
       if @note = Note.find(params[:id])
         redirect_to url_for(@note.note_object.metamorphosize)
       else
-        redirect_to note_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+        redirect_to note_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
       end
     end
   end

@@ -15,7 +15,7 @@
         @getId="getNewSource"
         type="Source"/>
     </div>
-    <span
+    <div
       v-if="source"
       class="source-text horizontal-left-content">
       <span>
@@ -25,16 +25,21 @@
       <radial-object :global-id="source.global_id"/>
       <radial-annotator :global-id="source.global_id"/>
       <pin-component
+        class="circle-button"
         v-if="source.id"
         :object-id="source.id"
         :type="source.base_class"/>
-      <a
+      <template 
         v-for="document in source.documents"
-        class="circle-button btn-download"
-        :download="document.document_file_file_name"
-        :title="document.document_file_file_name"
-        :href="document.document_file"></a>
-    </span>
+        :key="document.id">
+        <a
+          class="circle-button btn-download"
+          :download="document.document_file_file_name"
+          :title="document.document_file_file_name"
+          :href="document.document_file"></a>
+        <pdf-button :pdf="document"/>
+      </template>
+    </div>
     <ul
       v-if="source && source.author_roles.length"
       class="no_bullets">
@@ -56,6 +61,7 @@ import PinComponent from 'components/ui/Pinboard/VPin.vue'
 import RadialObject from 'components/radials/navigation/radial.vue'
 import DefaultSource from 'components/getDefaultPin'
 import AjaxCall from 'helpers/ajaxCall'
+import PdfButton from 'components/pdfButton.vue'
 import { Source } from 'routes/endpoints'
 
 export default {
@@ -64,7 +70,8 @@ export default {
     RadialAnnotator,
     RadialObject,
     PinComponent,
-    DefaultSource
+    DefaultSource,
+    PdfButton
   },
 
   data () {

@@ -7,7 +7,29 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Add
+- Pdf icon in citation by source
+
+### Fixed
+- Autocomplete in Interactive key task
+- Copy and clone option in Matrix Row Coder
+- Edit biological associations form, broken HTML and fields incorrectly mapped [#2370]
+- Hidden pin and lock icons in asserted distribution quick form
+- biological_association_link helper
+- Confidence button
+- Dynamic rows/columns are not destroyable [#2375]
+- Asserted distribution edit view [#2371]
+- Missing citation and soft validation icons in New asserted distribution task
+
+### Changed
+- sort property, `name` to `cached` in Filter nomenclature [#2372]
+- replaced property `verbatim_author` to `cached_author_year` for csv download [#2373]
+- Refactor notification code
+
+[#2370]: https://github.com/SpeciesFileGroup/taxonworks/issues/2370
+[#2371]: https://github.com/SpeciesFileGroup/taxonworks/issues/2371
+[#2373]: https://github.com/SpeciesFileGroup/taxonworks/issues/2373
+[#2375]: https://github.com/SpeciesFileGroup/taxonworks/issues/2375
 
 ## [0.19.2] - 2021-07-27
 

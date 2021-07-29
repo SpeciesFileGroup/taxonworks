@@ -11,10 +11,30 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
   accepts_nested_attributes_for :biocuration_classes, allow_destroy: true
   accepts_nested_attributes_for :biocuration_classifications, allow_destroy: true
 
-  soft_validate(:sv_missing_determination, set: :missing_determination)
-  soft_validate(:sv_missing_collecting_event, set: :missing_collecting_event)
-  soft_validate(:sv_missing_preparation_type, set: :missing_preparation_type)
-  soft_validate(:sv_missing_repository, set: :missing_repository)
+  soft_validate(:sv_missing_determination,
+                set: :missing_determination,
+                name: 'Missing determination',
+                description: 'Determination is missing')
+
+  soft_validate(:sv_missing_collecting_event,
+                set: :missing_collecting_event,
+                name: 'Missing collecting event',
+                description: 'Missing collecting event')
+
+  soft_validate(:sv_missing_preparation_type,
+                set: :missing_preparation_type,
+                name: 'Missing preparation type',
+                description: 'Missing preparation type')
+
+  soft_validate(:sv_missing_repository,
+                set: :missing_repository,
+                name: 'Missing repository',
+                description: 'Repository is not selected')
+
+  soft_validate(:sv_missing_biocuration_classification,
+                set: :missing_biocuration_classification,
+                name: 'Missing biocuration classification',
+                description: 'Biocuration classification is not indicated')
 
   def current_taxon_determination=(taxon_determination)
     if taxon_determinations.include?(taxon_determination)
@@ -60,6 +80,10 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
 
   def sv_missing_repository
     soft_validations.add(:repository_id, 'Repository is not selected') if self.repository_id.nil?
+  end
+
+  def sv_missing_biocuration_classification
+    soft_validations.add(:repository_id, 'Biocuration is not specified') unless self.biocuration_classifications.any?
   end
 
 end
