@@ -1,0 +1,49 @@
+<% content_for :warn_level do -%>
+  <%= warn_level_input(@result) -%>
+<% end %>
+
+<%= content_for :batch_form do -%>
+  <%= render partial: '/type_materials/batch_load/simple/form', locals: { url: create_simple_batch_load_type_materials_path, submit: :create } -%>
+<% end %>
+
+<%= content_for :line_breakdown do -%>
+  <table class="top_align_text">
+    <tr>
+      <th class="">line</th>
+      <th class="">data count</th>
+      <th class="">collection object identifier</th>
+      <th class="">protonym</th>
+      <th class="">type</th>
+      <th class="">data errors*</th>
+    </tr>
+
+    <% @result.sorted_processed_rows.each do |i, rp| -%>
+      <tr>
+        <%= batch_line_link_td(i) -%>
+        <%= batch_all_objects_count_td(rp) -%>
+        <td>
+          <%= rp.objects[:type_materials].collect { |n|
+            link_to(n.collection_object.identifiers[0].cached,
+                    '/tasks/collection_objects/browse?collection_object_id=' + n.collection_object.id.to_s,
+                    target: :_blank) }.join('<br>').html_safe -%>
+        </td>
+        <td>
+          <%= rp.objects[:type_materials].collect { |n|
+            link_to(n.protonym.cached,
+                        '/taxon_names/' + n.protonym.id.to_s,
+                        target: :_blank) }.join('<br>').html_safe -%>
+        </td>
+        <td>
+          <%= rp.objects[:type_materials].collect { |n| n.type_type }.join('<br>').html_safe -%>
+        </td>
+        <td>
+          <%= rp.objects[:type_materials].collect { |n| n.errors.full_messages }.join('<br>').html_safe -%>
+        </td>
+      </tr>
+    <% end -%>
+  </table>
+<% end %>
+
+
+<%= render partial: '/shared/data/all/batch_load/preview' -%>
+

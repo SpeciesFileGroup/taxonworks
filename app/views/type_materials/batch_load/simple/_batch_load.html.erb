@@ -1,0 +1,36 @@
+<div>
+  <h2> Simple batch load </h2>
+
+  <div class="flexbox full_viewport_whitespace">
+    <div class="item item1 one_third_width">
+      <h3> Description and requirements  </h3>
+
+      <p> Creates type materials. </p>
+      <ul>
+        <li>A tab-delimited, UTF-8 compatible text file is required.</li>
+        <li>Collection Object Identifier column cannot be blank and must be unique among all namespaces.</li>
+        <li>Protonym column cannot be blank and must match exactly one taxon name.</li>
+        <li>Column headers are <%= link_to('here', asset_path('batch_load_templates/namespaces/type_materials_simple_batch_load.tab'), target: '_blank') -%>.</li>
+        <li>Multiple uploads of the same data will fail the duplicated data.</li>
+        <li>There is currently some|no size limit to the file being loaded but this may change in the future.</li>
+      </ul>
+    </div>
+
+    <div class="item item2 one_third_width">
+      <h3> Example file </h3>
+
+      <p> A tab delimited formatted file.
+          In the example whitespace is a tab. View sample file template.</p>
+
+      <pre class="fixed_width_font">
+        collection_object_identifier    protonym    type_type
+        AMNH 66753    Bassaricyon neblina   holotype
+      </pre>
+    </div>
+
+    <div class="item item3">
+      <h3> Go! </h3>
+      <%= render partial: '/type_materials/batch_load/simple/form', locals: {url: preview_simple_batch_load_type_materials_path, submit: :preview} -%>
+    </div>
+  </div>
+</div>

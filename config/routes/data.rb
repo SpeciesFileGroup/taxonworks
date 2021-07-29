@@ -702,6 +702,8 @@ resources :type_materials do
   concerns [:data_routes]
   collection do
     get :type_types, {format: :json}
+    post :create_simple_batch_load
+    post :preview_simple_batch_load
   end
 end
 

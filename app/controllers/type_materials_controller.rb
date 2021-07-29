@@ -116,6 +116,36 @@ class TypeMaterialsController < ApplicationController
     }
   end
 
+  # GET /type_materials/batch_load
+  def batch_load
+  end
+
+  def preview_simple_batch_load
+    if params[:file]
+      @result = BatchLoad::Import::TypeMaterials::SimpleInterpreter.new(**batch_params)
+      digest_cookie(params[:file].tempfile, :simple_type_materials_md5)
+      render 'type_materials/batch_load/simple/preview'
+    else
+      flash[:notice] = 'No file provided!'
+      redirect_to action: :batch_load
+    end
+  end
+
+  def create_simple_batch_load
+    if params[:file] && digested_cookie_exists?(params[:file].tempfile, :simple_type_materials_md5)
+      @result = BatchLoad::Import::TypeMaterials::SimpleInterpreter.new(**batch_params)
+      if @result.create
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} type material records were created."
+        render 'type_materials/batch_load/simple/create' and return
+      else
+        flash[:alert] = 'Batch import failed.'
+      end
+    else
+      flash[:alert] = 'File to batch upload must be supplied.'
+    end
+    render :batch_load
+  end
+
   private
 
   def filter_params
@@ -136,5 +166,9 @@ class TypeMaterialsController < ApplicationController
         :id, :buffered_collecting_event, :buffered_other_labels, :buffered_determinations,
         :total, :collecting_event_id, :preparation_type_id, :repository_id]
     )
+  end
+
+  def batch_params
+    params.permit(:file, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 end
