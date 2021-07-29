@@ -13,7 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 - Autocomplete in Interactive key task
 - Copy and clone option in Matrix Row Coder
-- Edit biological associations form [#2370]
+- Edit biological associations form, broken HTML and fields incorrectly mapped [#2370]
 - Hidden pin and lock icons in asserted distribution quick form
 - biological_association_link helper
 - Confidence button
