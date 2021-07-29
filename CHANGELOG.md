@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Dynamic rows/columns are not destroyable [#2375]
 - Asserted distribution edit view [#2371]
 - Missing citation and soft validation icons in New asserted distribution task
+- Typo preventing labels listings from working
 
 ### Changed
 - sort property, `name` to `cached` in Filter nomenclature [#2372]
