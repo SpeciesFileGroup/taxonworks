@@ -424,7 +424,7 @@ class TaxonNameRelationship < ApplicationRecord
         if is_combination?
           t = object_taxon_name
 
-          t.set_cached
+          t.send(:set_cached)
 
           if type_name =~/(OriginalCombination)/
             t.update_columns(
