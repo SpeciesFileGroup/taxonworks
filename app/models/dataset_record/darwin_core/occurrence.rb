@@ -151,7 +151,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
           identifier_type.create!({
             identifier_object: collecting_event
-          }.merge!(identifier_attributes))
+          }.merge!(identifier_attributes)) unless identifier_attributes.nil?
 
           Georeference::VerbatimData.create!({
             collecting_event: collecting_event,
