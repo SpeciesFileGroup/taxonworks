@@ -25,7 +25,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - sort property, `name` to `cached` in Filter nomenclature [#2372]
 - replaced property `verbatim_author` to `cached_author_year` for csv download [#2373]
-- Refactor notification code
+- Refactor notification code, replaced jQuery for js vanilla
+- Refactor keyboard shortcuts code, replaced jQuery for js vanilla
 
 [#2370]: https://github.com/SpeciesFileGroup/taxonworks/issues/2370
 [#2371]: https://github.com/SpeciesFileGroup/taxonworks/issues/2371
