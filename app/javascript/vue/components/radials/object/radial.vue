@@ -330,7 +330,7 @@ export default {
     },
 
     eventClose () {
-      const event = new CustomEvent('annotator:close', {
+      const event = new CustomEvent('radialObject:close', {
         detail: {
           metadata: this.metadata
         }

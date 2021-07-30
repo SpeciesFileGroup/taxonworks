@@ -21,13 +21,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Asserted distribution edit view [#2371]
 - Missing citation and soft validation icons in New asserted distribution task
 - Typo preventing labels listings from working
+- Refresh summary in data view after use radial annotator
 
 ### Changed
 - sort property, `name` to `cached` in Filter nomenclature [#2372]
 - replaced property `verbatim_author` to `cached_author_year` for csv download [#2373]
 - Refactor notification code, replaced jQuery for js vanilla
-- Keyboard shortcuts code, replaced jQuery for js vanilla
-- Pinboard code, replaced jQuery for js vanilla
+- Keyboard shortcuts code, replaced jQuery with vanilla JS
+- Pinboard code, replaced jQuery with vanilla JS
+- Annotations code, replaced jQuery with vanilla JS
 
 [#2370]: https://github.com/SpeciesFileGroup/taxonworks/issues/2370
 [#2371]: https://github.com/SpeciesFileGroup/taxonworks/issues/2371
