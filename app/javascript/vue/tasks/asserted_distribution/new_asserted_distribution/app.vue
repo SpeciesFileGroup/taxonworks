@@ -215,12 +215,6 @@ export default {
       }
     },
 
-    LoadAssertedDistribution (id) {
-      AssertedDistribution.find(id).then(({ body }) => {
-        
-      })
-    },
-
     createRecord (asserted_distribution) {
       AssertedDistribution.create({ asserted_distribution }).then(response => {
         this.list.unshift(response.body)

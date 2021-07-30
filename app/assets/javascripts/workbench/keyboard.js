@@ -149,16 +149,16 @@ Object.assign(TW.workbench.keyboard, {
     const shortcutKey = element.getAttribute('data-shortcut-key')
     const shortcutDescription = element.getAttribute('data-shortcut-description')
     const isLeftTable = element.getAttribute('data-shortcut-left') === 'true'
-    const queryString = `#keyShortcuts .list table tbody[data-shortcut-section="${sectionName}"`
+    const queryString = `.list table tbody[data-shortcut-section="${sectionName}"`
     const tableClass = isLeftTable
       ? '.page-default'
       : '.page-shortcuts'
 
-    let sectionElement = document.querySelector(queryString)
+    let sectionElement = this.keyShortcutElement.querySelector(queryString)
 
     if (!sectionElement) {
-      document.querySelector(`#keyShortcuts .list ${tableClass} table`).append(...this.createSection(sectionName))
-      sectionElement = document.querySelector(queryString)
+      this.keyShortcutElement.querySelector(`.list ${tableClass} table`).append(...this.createSection(sectionName))
+      sectionElement = this.keyShortcutElement.querySelector(queryString)
     }
 
     sectionElement.append(this.addRowShortcut(shortcutKey, shortcutDescription))
@@ -166,10 +166,6 @@ Object.assign(TW.workbench.keyboard, {
 
   toggleViewPanel () {
     this.keyShortcutsPanel.classList.toggle('active')
-  },
-
-  showShortcuts () {
-    this.keyShortcutsPanel.style.display = 'block'
   },
 
   handleEvents () {
