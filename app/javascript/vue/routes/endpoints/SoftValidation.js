@@ -11,5 +11,5 @@ const permitParams = {
 export const SoftValidation = {
   fix: (globalId, params) => AjaxCall('post', `/soft_validations/fix?global_id=${globalId}`, filterParams(params, permitParams)),
 
-  find: (globalId) => AjaxCall('get', '/soft_validations/validate', { params: { global_id: globalId } })
+  find: (globalId, config) => AjaxCall('get', '/soft_validations/validate', { params: { global_id: globalId } }, config)
 }
