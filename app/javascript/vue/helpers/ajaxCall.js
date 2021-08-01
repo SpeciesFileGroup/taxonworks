@@ -54,16 +54,16 @@ const ajaxCall = (type, url, data = {}, config = {}) => {
   return new Promise((resolve, reject) => {
     axios[type](url, data, config).then(response => {
       response = setDataProperty(response)
-
       printDevelopmentResponse(response)
+
       resolve(response)
-    }, error => {
+    }).catch(error => {
       if (Axios.isCancel(error)) {
-        reject(error)
+        return reject(error)
       }
 
-      printDevelopmentResponse(error.response)
       error.response = setDataProperty(error.response)
+      printDevelopmentResponse(error.response)
 
       switch (error.response.status) {
         case 404:

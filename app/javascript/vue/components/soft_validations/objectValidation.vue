@@ -111,7 +111,7 @@ export default {
       SoftValidation.find(this.globalId, { cancelRequest: (c) => { this.cancel = c } }).then(response => {
         this.validations = response.body.soft_validations.map(validation => validation.message)
         this.isLoading = false
-      })
+      }).catch(_ => {})
     },
 
     setModalView (value) {
