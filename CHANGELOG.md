@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Add
 - Pdf icon in citation by source
+- Cancel function for http requests
 
 ### Fixed
 - Autocomplete in Interactive key task
