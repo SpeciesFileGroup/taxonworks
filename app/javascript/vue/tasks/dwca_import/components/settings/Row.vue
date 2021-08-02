@@ -15,7 +15,7 @@
           autofocus
           url="/namespaces/autocomplete"
           param="term"
-          label="label"
+          label="label_html"
           @getItem="setNamespace"/>
       </template>
       <template v-else>
@@ -44,7 +44,7 @@ export default {
   },
   computed: {
     namespaceLabel () {
-      return this.namespace ? this.namespace.name || this.namespace.label : ''
+      this.namespace ? `${this.namespace.name || this.namespace.label} (${this.namespace.short_name})` : ''
     }
   },
   props: {
