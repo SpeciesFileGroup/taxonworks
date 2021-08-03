@@ -29,7 +29,7 @@ Object.assign(TW.workbench.alert, {
     }
   },
 
-  createAlertMessage: function (noticeType, message) {
+  createMessage: function (noticeType, message) {
     const divContainer = document.createElement('div');
     const divMessage = document.createElement('div');
     const divClose = document.createElement('div');
@@ -50,7 +50,7 @@ Object.assign(TW.workbench.alert, {
     document.querySelectorAll(".alert[class*='alert-']").forEach(function (el) {
       el.parentNode.removeChild(el)
     });
-    document.querySelector("body").appendChild(this.createAlertMessage(type, text));
+    document.querySelector("body").appendChild(this.createMessage(type, text));
     this.play(type);
   },
 
