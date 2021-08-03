@@ -32,7 +32,7 @@ module Lib::CatalogHelper
 
   def history_in(source)
     return nil if source.nil?
-    return content_tag(:span,  content_tag(:em, ' in ') + source_author_year_tag(source), class: [:history__in])
+    return history_link(source)
   end
 
   protected

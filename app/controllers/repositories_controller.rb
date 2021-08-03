@@ -71,7 +71,7 @@ class RepositoriesController < ApplicationController
 
   def search
     if params[:id].blank?
-      redirect_to repositories_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to repositories_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to repository_path(params[:id])
     end

@@ -19,9 +19,17 @@
           v-for="biologicalAssociation in filteredList"
           :key="biologicalAssociation.id">
           <td v-html="biologicalAssociation.subject.object_tag"/>
-          <td v-html="biologicalAssociation.biological_relationship.object_tag"/>
+          <td>
+            <a :href="`/biological_associations/${biologicalAssociation.id}`" :title="`Edit`">
+              <span v-html="biologicalAssociation.biological_relationship.object_tag"/>
+            </a>
+          </td>
           <td v-html="biologicalAssociation.object.object_tag"/>
-          <td v-html="biologicalAssociation.citations.map(citation => (`${citation.source.author_year}` + (citation.pages ? `:${citation.pages}` : ''))).sort().join('; ')"/>
+          <td>
+            <a v-for="citation in biologicalAssociation.citations" :key="citation.id" :href="`/tasks/nomenclature/by_source?source_id=${citation.source.id}`" :title="`${citation.source.cached}`">
+              <span v-html="`${citation.source.author_year}` + `${citation.source.year_suffix}` + (citation.pages ? `:${citation.pages}` : '')"/>&nbsp;
+            </a>
+          </td>
         </tr>
       </tbody>
     </table>

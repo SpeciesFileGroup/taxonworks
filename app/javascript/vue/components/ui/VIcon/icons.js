@@ -1,4 +1,5 @@
 import { attention } from './Paths/attention.js'
+import { confidence } from './Paths/confidence'
 import { download } from './Paths/download'
 import { hexagon } from './Paths/hexagon.js'
 import { image } from './Paths/image.js'
@@ -16,6 +17,7 @@ const Icons = {
   attention,
   download,
   check,
+  confidence,
   expand,
   hexagon,
   image,

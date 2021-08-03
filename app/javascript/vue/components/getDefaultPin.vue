@@ -1,13 +1,13 @@
 <template>
   <v-btn
-    v-if="getDefault"
+    v-if="!!getDefault"
     circle
     color="primary"
     title="Use default pinned"
     @click="sendDefault"
   >
     <v-icon
-      x-small
+      small
       color="white"
       name="pin"
     />

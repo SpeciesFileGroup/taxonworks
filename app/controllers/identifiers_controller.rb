@@ -82,7 +82,7 @@ class IdentifiersController < ApplicationController
     if @identifier = Identifier.find(params[:id])
       redirect_to url_for(@identifier.identifier_object.metamorphosize)
     else
-      redirect_to identifier_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to identifier_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     end
   end
 
