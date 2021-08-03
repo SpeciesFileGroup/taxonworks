@@ -44,7 +44,7 @@ export default {
   },
   computed: {
     namespaceLabel () {
-      this.namespace ? `${this.namespace.name || this.namespace.label} (${this.namespace.short_name})` : ''
+      return this.namespace ? `${this.namespace.name || this.namespace.label} (${this.namespace.short_name})` : ''
     }
   },
   props: {
