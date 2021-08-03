@@ -71,7 +71,8 @@ module Queries
       # @param [String] string
       # @return [String]
       def normalize(string)
-        string.strip.split(/\s*\,\s*/, 2).join(', ')
+        n = string.strip.split(/\s*\,\s*/, 2).join(', ')
+        n = 'nothing to match' unless n.include?(' ')
       end
 
       # @return [String] simple name inversion
@@ -113,7 +114,18 @@ module Queries
 
         updated_queries = []
         queries.each_with_index do |q ,i|
-          a = q.joins(:roles).where(role_match.to_sql) if roles_assigned?
+          if roles_assigned?
+            a = q.joins(:roles).where(role_match.to_sql)
+          else
+            a = q.left_outer_joins(:roles)
+                  .joins("LEFT OUTER JOIN sources ON roles.role_object_id = sources.id AND roles.role_object_type = 'Source'")
+                  .joins('LEFT OUTER JOIN project_sources ON sources.id = project_sources.source_id')
+                  .select('people.*, COUNT(roles.id) AS role_count, CASE WHEN MAX(roles.project_id) > 0 THEN MAX(roles.project_id) ELSE MAX(project_sources.project_id) END AS role_project_id')
+                  .where('roles.project_id = ? or roles.project_id IS NULL', Current.project_id)
+                  .where('project_sources.project_id = ? or project_sources.project_id IS NULL', Current.project_id)
+                  .group('people.id')
+                  .order('role_project_id, role_count DESC')
+          end
           a ||= q
           updated_queries[i] = a
         end
@@ -124,7 +136,18 @@ module Queries
           result.uniq!
           break if result.count > 19
         end
-        result[0..19]
+        result = result[0..19]
+        unless result.empty?
+          result = ::Person.left_outer_joins(:roles)
+                         .joins("LEFT OUTER JOIN sources ON roles.role_object_id = sources.id AND roles.role_object_type = 'Source'")
+                         .joins('LEFT OUTER JOIN project_sources ON sources.id = project_sources.source_id')
+                         .select('people.*, COUNT(roles.id) AS role_count, CASE WHEN MAX(roles.project_id) > 0 THEN MAX(roles.project_id) ELSE MAX(project_sources.project_id) END AS role_project_id')
+                         .where('people.id IN (?)', result.collect{|i| i.id})
+                         .where('roles.project_id = ? or roles.project_id IS NULL', Current.project_id)
+                         .where('project_sources.project_id = ? or project_sources.project_id IS NULL', Current.project_id)
+                         .group('people.id')
+                         .order('role_project_id, role_count DESC')
+        end
       end
 
       # @return [Arel::Table]
