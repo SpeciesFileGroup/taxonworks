@@ -14,11 +14,7 @@
                            object:     'biological_association',
                            method:     'biological_association_subject_id',
                            tag_id:     'otu_id1_for_biological_association_subject',
-<<<<<<< HEAD
-                           display:    (@biological_association.biological_association_subject ? strip_tags(object_tag(@biological_association.biological_association_subject)) : nil)} %>
-=======
                            display:    (@biological_association.biological_association_subject && @biological_association.biological_association_subject.class.base_class.name == 'Otu' ? strip_tags(object_tag(@biological_association.biological_association_subject)) : nil)} %>
->>>>>>> development
     </div>
 
 
@@ -29,11 +25,7 @@
                            object:     'biological_association',
                            method:     'biological_association_subject_id',
                            tag_id:     'collection_object_id1_for_biological_association_object_id',
-<<<<<<< HEAD
-                           display:    (@biological_association.biological_association_subject ? strip_tags(object_tag(@biological_association.biological_association_subject)) : nil)} %>
-=======
                            display:    (@biological_association.biological_association_subject && @biological_association.biological_association_subject.class.base_class.name == 'CollectionObject' ? strip_tags(object_tag(@biological_association.biological_association_subject)) : nil)} %>
->>>>>>> development
     </div>
 
     <div class="field">
