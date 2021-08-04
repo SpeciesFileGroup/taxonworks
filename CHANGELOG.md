@@ -25,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing citation and soft validation icons in New asserted distribution task
 - Typo preventing labels listings from working
 - Refresh summary in data view after use radial annotator
+- Collecting event soft validation in comprehensive task [#2091]
 
 ### Changed
 - sort property, `name` to `cached` in Filter nomenclature [#2372]
@@ -40,6 +41,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2373]: https://github.com/SpeciesFileGroup/taxonworks/issues/2373
 [#2375]: https://github.com/SpeciesFileGroup/taxonworks/issues/2375
 [#2384]: https://github.com/SpeciesFileGroup/taxonworks/issues/2384
+[#2091]: https://github.com/SpeciesFileGroup/taxonworks/issues/2391
 
 ## [0.19.2] - 2021-07-27
 
