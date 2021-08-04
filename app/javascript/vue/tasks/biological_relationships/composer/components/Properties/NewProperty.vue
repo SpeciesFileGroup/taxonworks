@@ -9,36 +9,33 @@
     <modal-component
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Create property</h3>
-      <div slot="body">
-        <div class="field">
+      <template #header>
+        <h3>Create property</h3>
+      </template>
+      <template #body>
+        <div class="field label-above">
           <label>Name</label>
-          <br>
           <input
             class="full_width"
             v-model="controlVocabularyTerm.name"
             type="text">
         </div>
-        <div class="field">
+        <div class="field label-above">
           <label>Definition</label>
-          <br>
           <textarea
             class="full_width"
             v-model="controlVocabularyTerm.definition"
-            rows="5">
-          </textarea>
+            rows="5"/>
         </div>
-        <div class="field">
+        <div class="field label-above">
           <label>URI</label>
-          <br>
           <input
             class="full_width"
             v-model="controlVocabularyTerm.uri"
             type="text">
         </div>
-        <div class="field">
+        <div class="field label-above">
           <label>CSS color</label>
-          <br>
           <input
             v-model="controlVocabularyTerm.css_color"
             type="color">
@@ -48,46 +45,51 @@
           @click="save">
           Save
         </button>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
 
 <script>
 
-import { CreateProperty, UpdateProperty } from '../../request/resource'
-import ModalComponent from 'components/modal'
+import { ControlledVocabularyTerm } from 'routes/endpoints'
+import ModalComponent from 'components/ui/Modal'
 
 export default {
   components: {
     ModalComponent
   },
+
+  emits: [
+    'update:modelValue',
+    'save'
+  ],
+
   data () {
     return {
       controlVocabularyTerm: this.resetCVT(),
       showModal: false
     }
   },
+
   methods: {
     openModal () {
       this.showModal = true
       this.controlVocabularyTerm = this.resetCVT()
     },
-    save() {
-      if(this.controlVocabularyTerm.id) {
-        UpdateProperty(this.controlVocabularyTerm).then(response => {
-          this.$emit('update', response.body)
-          this.showModal = false
-          this.controlVocabularyTerm = this.resetCVT()
-        })
-      } else {
-        CreateProperty(this.controlVocabularyTerm).then(response => {
-          this.$emit('create', response.body)
-          this.showModal = false
-          this.controlVocabularyTerm = this.resetCVT()
-        })
-      }
+
+    save () {
+      const saveRecord = this.controlVocabularyTerm.id
+        ? ControlledVocabularyTerm.update(this.controlVocabularyTerm.id, { controlled_vocabulary_term: this.controlVocabularyTerm })
+        : ControlledVocabularyTerm.create({ controlled_vocabulary_term: this.controlVocabularyTerm })
+
+      saveRecord.then(response => {
+        this.$emit('save', response.body)
+        this.showModal = false
+        this.controlVocabularyTerm = this.resetCVT()
+      })
     },
+
     resetCVT () {
       return {
         id: undefined,
@@ -98,6 +100,7 @@ export default {
         css_color: undefined
       }
     },
+
     setProperty (property) {
       this.controlVocabularyTerm = property
       this.showModal = true
@@ -105,7 +108,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>

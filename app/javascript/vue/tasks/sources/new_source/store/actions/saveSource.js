@@ -1,25 +1,23 @@
 import { MutationNames } from '../mutations/mutations'
-import { CreateSource, UpdateSource, LoadSoftValidation } from '../../request/resources'
+import { Source, SoftValidation } from 'routes/endpoints'
+import { SmartSelectorRefresh } from 'helpers/smartSelector'
 
 import setParam from 'helpers/setParam'
 
 export default ({ state, commit }) => {
   state.settings.saving = true
-  if(state.source.id) {
-    UpdateSource(state.source).then(response => {
-      setSource(response.body)
-      TW.workbench.alert.create('Source was successfully updated.', 'notice')
-    }, () => {
-      state.settings.saving = false
-    })
-  } else {
-    CreateSource(state.source).then(response => {
-      setSource(response.body)
-      TW.workbench.alert.create('Source was successfully created.', 'notice')
-    }, () => {
-      state.settings.saving = false
-    })
-  }
+
+  const saveSource = state.source.id
+    ? Source.update(state.source.id, { source: state.source })
+    : Source.create({ source: state.source })
+
+  saveSource.then(response => {
+    setSource(response.body)
+    SmartSelectorRefresh()
+    TW.workbench.alert.create('Source was successfully saved.', 'notice')
+  }).finally(() => {
+    state.settings.saving = false
+  })
 
   function setSource (source) {
     const authors = source.author_roles
@@ -29,8 +27,8 @@ export default ({ state, commit }) => {
 
     commit(MutationNames.SetSource, source)
     setParam('/tasks/sources/new_source', 'source_id', source.id)
-    LoadSoftValidation(source.global_id).then(response => {
-      commit(MutationNames.SetSoftValidation, response.body.validations.soft_validations)
+    SoftValidation.find(source.global_id).then(response => {
+      commit(MutationNames.SetSoftValidation, { sources: { list: [response.body], title: 'Source' } })
     })
     state.settings.saving = false
     commit(MutationNames.SetLastSave, Date.now() + 100)

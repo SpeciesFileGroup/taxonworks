@@ -21,12 +21,14 @@
           placeholder="Label"
         >
       </div>
-      <textarea
-        class="normal-input separate-bottom"
-        type="text"
-        v-model="depiction.caption"
-        placeholder="Caption"
-      />
+      <div class="field">
+        <textarea
+          class="normal-input"
+          type="text"
+          v-model="depiction.caption"
+          placeholder="Caption"
+        />
+      </div>
       <label>
         <input
           type="checkbox"
@@ -35,8 +37,7 @@
         Is data depiction
       </label>
       <div class="separate-top separate-bottom">
-        <p /><h4>Move to</h4>
-        </p>
+        <h4>Move to</h4>
         <ul class="no_bullets">
           <li
             v-for="type in objectTypes"
@@ -88,7 +89,7 @@
       <div>
         <button
           type="button"
-          class="normal-input button button-submit"
+          class="normal-input button button-submit margin-small-right"
           @click="updateFigure()"
         >
           Update
@@ -108,37 +109,37 @@
         :autocomplete="false"
         :search="false"
         :target="objectType"
-        :addTabs="['new', 'filter']"
+        :add-tabs="['new', 'filter']"
         @selected="createDepiction">
-        <dropzone
-          slot="new"
-          class="dropzone-card separate-bottom"
-          @vdropzone-sending="sending"
-          @vdropzone-success="success"
-          ref="figure"
-          id="figure"
-          url="/depictions"
-          :use-custom-dropzone-options="true"
-          :dropzone-options="dropzone"
-        />
-        <div
-          class="horizontal-left-content align-start"
-          slot="filter">
-          <filter-image
-            @result="loadList"/>
-          <div class="margin-small-left flex-wrap-row">
-            <div
-              v-for="image in filterList"
-              :key="image.id"
-              class="thumbnail-container margin-small cursor-pointer"
-              @click="createDepiction(image)">
-              <img
-                :width="image.alternatives.thumb.width"
-                :height="image.alternatives.thumb.height"
-                :src="image.alternatives.thumb.image_file_url">
+        <template #new>
+          <dropzone
+            class="dropzone-card separate-bottom"
+            @vdropzone-sending="sending"
+            @vdropzone-success="success"
+            ref="figure"
+            url="/depictions"
+            :use-custom-dropzone-options="true"
+            :dropzone-options="dropzone"
+          />
+        </template>
+        <template #filter>
+          <div class="horizontal-left-content align-start">
+            <filter-image
+              @result="loadList"/>
+            <div class="margin-small-left flex-wrap-row">
+              <div
+                v-for="image in filterList"
+                :key="image.id"
+                class="thumbnail-container margin-small cursor-pointer"
+                @click="createDepiction(image)">
+                <img
+                  :width="image.alternatives.thumb.width"
+                  :height="image.alternatives.thumb.height"
+                  :src="image.alternatives.thumb.image_file_url">
+              </div>
             </div>
           </div>
-        </div>
+        </template>
       </smart-selector>
       <label>
         <input
@@ -188,14 +189,16 @@
 import CRUD from '../request/crud.js'
 import Dropzone from 'components/dropzone.vue'
 import annotatorExtend from '../components/annotatorExtend.js'
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import OtuPicker from 'components/otu/otu_picker/otu_picker'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import FilterImage from 'tasks/images/filter/components/filter'
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
+import { Depiction } from 'routes/endpoints'
 
 export default {
   mixins: [CRUD, annotatorExtend],
+
   components: {
     Dropzone,
     Autocomplete,
@@ -204,12 +207,14 @@ export default {
     RadialAnnotator,
     SmartSelector
   },
+
   computed: {
     updateObjectType () {
-      return (this.selectedObject && this.selectedType)
+      return this.selectedObject && this.selectedType
     }
   },
-  data: function () {
+
+  data () {
     return {
       depiction: undefined,
       dropzone: {
@@ -219,7 +224,7 @@ export default {
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
         dictDefaultMessage: 'Drop images here to add figures',
-        acceptedFiles: 'image/*'
+        acceptedFiles: 'image/*,.heic'
       },
       objectTypes: [
         {
@@ -241,6 +246,11 @@ export default {
           value: 'TaxonName',
           label: 'Taxon name',
           url: '/taxon_names/autocomplete'
+        },
+        {
+          value: 'Person',
+          label: 'Person',
+          url: '/people/autocomplete'
         }
       ],
       isDataDepiction: false,
@@ -249,48 +259,61 @@ export default {
       filterList: []
     }
   },
+
   mounted () {
     this.$options.components.RadialAnnotator = RadialAnnotator
   },
+
   methods: {
-    success: function (file, response) {
+    success (file, response) {
       this.list.push(response)
       this.$refs.figure.removeFile(file)
     },
-    sending: function (file, xhr, formData) {
+
+    sending (file, xhr, formData) {
       formData.append('depiction[annotated_global_entity]', decodeURIComponent(this.globalId))
       formData.append('depiction[is_metadata_depiction]', this.isDataDepiction)
     },
+
     updateFigure () {
       if (this.updateObjectType) {
         this.depiction.depiction_object_type = this.selectedType.value
         this.depiction.depiction_object_id = this.selectedObject.id
       }
-      this.update(`/depictions/${this.depiction.id}`, { depiction: this.depiction }).then(response => {
+
+      Depiction.update(this.depiction.id, { depiction: this.depiction }).then(response => {
+        const index = this.list.findIndex(element => this.depiction.id === element.id)
+
         if (this.updateObjectType) {
-          this.$delete(this.list, this.list.findIndex(element => this.depiction.id == element.id), response.body)
+          this.list.splice(index, 1)
         } else {
-          this.$set(this.list, this.list.findIndex(element => this.depiction.id == element.id), response.body)
+          this.list[index] = response.body
         }
         this.depiction = undefined
+
+        TW.workbench.alert.create('Depiction was successfully updated.', 'notice')
       })
     },
+
     confirmDelete (item) {
       if (window.confirm("You're trying to delete this record. Are you sure want to proceed?")) {
         this.removeItem(item)
       }
     },
+
     createDepiction (image) {
       const depiction = {
         image_id: image.id,
         annotated_global_entity: this.globalId,
         is_metadata_depiction: this.isDataDepiction
       }
-      this.create('/depictions.json', { depiction: depiction }).then(({ body }) => {
+
+      Depiction.create({ depiction }).then(({ body }) => {
         this.list.push(body)
         TW.workbench.alert.create('Depiction was successfully created.', 'notice')
       })
     },
+
     loadList (newList) {
       this.filterList = newList
     }
@@ -300,16 +323,16 @@ export default {
 
 <style lang="scss">
 .radial-annotator {
-	.depiction_annotator {
-		button {
-			min-width: 100px;
-		}
-		textarea {
-			padding-top: 14px;
-			padding-bottom: 14px;
-			width: 100%;
-			height: 100px;
-		}
-	}
+  .depiction_annotator {
+    button {
+      min-width: 100px;
+    }
+    textarea {
+      padding-top: 14px;
+      padding-bottom: 14px;
+      width: 100%;
+      height: 100px;
+    }
+  }
 }
 </style>

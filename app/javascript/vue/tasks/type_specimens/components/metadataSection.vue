@@ -40,34 +40,38 @@
             pin-type="Source"
             @selected="selectSource"
           >
-            <div slot="body">
-              <p
-                v-if="showSource && citation.source_id"
-                class="horizontal-left-content">
-                <span v-html="showSource"/>
-                <span
-                  class="circle-button button-default btn-undo"
-                  @click="resetCitation"/>
-              </p>
-            </div>
-            <div slot="footer">
-              <ul class="no_bullets context-menu">
-                <li>
-                  <input
-                    type="text"
-                    v-model="citation.pages"
-                    placeholder="Pages">
-                </li>
-                <li>
-                  <label>
+            <template #body>
+              <div>
+                <p
+                  v-if="showSource && citation.source_id"
+                  class="horizontal-left-content">
+                  <span v-html="showSource"/>
+                  <span
+                    class="circle-button button-default btn-undo"
+                    @click="resetCitation"/>
+                </p>
+              </div>
+            </template>
+            <template #footer>
+              <div>
+                <ul class="no_bullets context-menu">
+                  <li>
                     <input
-                      type="checkbox"
-                      v-model="citation.is_original">
-                    Is original
-                  </label>
-                </li>
-              </ul>
-            </div>
+                      type="text"
+                      v-model="citation.pages"
+                      placeholder="Pages">
+                  </li>
+                  <li>
+                    <label>
+                      <input
+                        type="checkbox"
+                        v-model="citation.is_original">
+                      Is original
+                    </label>
+                  </li>
+                </ul>
+              </div>
+            </template>
           </smart-selector>
         </fieldset>
         <div
@@ -91,13 +95,13 @@
 <script>
 
 import Expand from './expand.vue'
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import Spinner from 'components/spinner.vue'
 import SoftValidation from 'components/soft_validations/objectValidation.vue'
 
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { GetTypes, GetSource, DestroyCitation } from '../request/resources'
+import { Source, Citation, TypeMaterial } from 'routes/endpoints'
 
 export default {
   components: {
@@ -106,6 +110,7 @@ export default {
     SmartSelector,
     SoftValidation
   },
+
   computed: {
     citation: {
       get () {
@@ -132,30 +137,27 @@ export default {
     checkForTypeList () {
       return this.types && this.taxon
     },
-    typeMaterial: {
-      get () {
-        return this.$store.getters[GetterNames.GetTypeMaterial]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetTypeMaterial)
-      }
+    typeMaterial () {
+      return this.$store.getters[GetterNames.GetTypeMaterial]
     },
     citationCreated () {
-      return this.typeMaterial.hasOwnProperty('origin_citation') && this.typeMaterial.origin_citation
+      return !!this.typeMaterial?.origin_citation
     }
   },
-  data: function () {
+
+  data () {
     return {
       displayBody: true,
       types: undefined,
       showSource: undefined
     }
   },
+
   watch: {
     citation: {
       handler (newVal, oldVal) {
-        if(newVal.source_id && newVal.source_id !== oldVal.source_id) {
-          GetSource(newVal.source_id).then(response => {
+        if (newVal.source_id && newVal.source_id !== oldVal.source_id) {
+          Source.find(newVal.source_id).then(response => {
             this.showSource = response.body.object_tag
           })
         }
@@ -163,24 +165,28 @@ export default {
       deep: true
     }
   },
-  mounted: function () {
-    GetTypes().then(response => {
+
+  created () {
+    TypeMaterial.types().then(response => {
       this.types = response.body
     })
   },
+
   methods: {
     resetCitation () {
       this.showSource = undefined
       this.citation = {
-        source_id: undefined, 
+        source_id: undefined,
         pages: undefined
       }
     },
+
     removeCitation () {
-      DestroyCitation(this.typeMaterial.origin_citation.id).then(response => {
+      Citation.destroy(this.typeMaterial.origin_citation.id).then(() => {
         this.typeMaterial.origin_citation = undefined
       })
     },
+
     selectSource (source) {
       this.citation.source_id = source.id
       this.showSource = source.object_tag

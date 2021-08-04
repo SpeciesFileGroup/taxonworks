@@ -10,9 +10,10 @@
     <modal-component
       v-if="show"
       @close="reset">
-      <h3 slot="header">Select observation matrix to open MRC or Image matrix</h3>
-      <div
-        slot="body">
+      <template>
+        <h3>Select observation matrix to open MRC or Image matrix</h3>
+      </template>
+      <template #body>
         <spinner-component
           v-if="loading"
           legend="Loading"/>
@@ -32,9 +33,10 @@
           <div class="flex-separate">
             <div>
               <ul class="no_bullets">
-                <template v-for="item in alreadyInMatrices">
+                <template
+                  v-for="item in alreadyInMatrices"
+                  :key="item.id">
                   <li
-                    :key="item.id"
                     v-if="item.object_tag.toLowerCase().includes(filterType.toLowerCase())">
                     <button
                       class="button normal-input button-default margin-small-bottom"
@@ -44,10 +46,10 @@
                 </template>
               </ul>
               <ul class="no_bullets">
-                <template v-for="item in matrices">
-                  <li
-                    :key="item.id"
-                    v-if="item.object_tag.toLowerCase().includes(filterType.toLowerCase()) && !alreadyInMatrices.includes(item)">
+                <template
+                  v-for="item in matrices"
+                  :key="item.id">
+                  <li v-if="item.object_tag.toLowerCase().includes(filterType.toLowerCase()) && !alreadyInMatrices.includes(item)">
                     <button
                       class="button normal-input button-submit margin-small-bottom"
                       @click="loadMatrix(item)"
@@ -58,18 +60,22 @@
             </div>
           </div>
         </div>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import SpinnerComponent from 'components/spinner'
 import DefaultPin from 'components/getDefaultPin'
-
-import { GetObservationMatrices, GetObservationRow, CreateObservationMatrixRow, GetObservationMatrix, CreateOTU } from '../request/resources'
+import {
+  ObservationMatrix,
+  ObservationMatrixRow,
+  ObservationMatrixRowItem,
+  Otu
+} from 'routes/endpoints'
 
 export default {
   components: {
@@ -77,26 +83,29 @@ export default {
     SpinnerComponent,
     DefaultPin
   },
+
   props: {
     otuId: {
       type: [String, Number],
       default: undefined
     },
+
     taxonNameId: {
       type: Number,
       required: true
     }
   },
+
   computed: {
     alreadyInMatrices () {
-      return this.matrices.filter(item => {
-        return this.rows.find(row => { return item.id === row.observation_matrix_id })
-      })
+      return this.matrices.filter(item => this.rows.find(row => item.id === row.observation_matrix_id))
     },
+
     alreadyInCurrentMatrix () {
-      return this.rows.filter(row => { return this.selectedMatrix.id === row.observation_matrix_id })
+      return this.rows.filter(row => this.selectedMatrix.id === row.observation_matrix_id)
     }
   },
+
   data () {
     return {
       show: false,
@@ -109,6 +118,7 @@ export default {
       otuSelected: undefined
     }
   },
+
   watch: {
     otuId: {
       handler(newVal) {
@@ -117,6 +127,7 @@ export default {
       immediate: true
     }
   },
+
   methods: {
     loadMatrix (matrix) {
       this.selectedMatrix = matrix
@@ -126,10 +137,11 @@ export default {
         this.openMatrixRowCoder()
       }
     },
+
     openModal () {
       this.loading = true
       this.show = true
-      GetObservationMatrices().then(response => {
+      ObservationMatrix.all().then(response => {
         this.matrices = response.body.sort((a, b) => { 
           const compareA = a.object_tag
           const compareB = b.object_tag
@@ -144,24 +156,26 @@ export default {
         this.loading = false
       })
       if (this.otuSelected) {
-        GetObservationRow({ otu_id: this.otuSelected }).then(response => {
+        ObservationMatrixRow.where({ otu_id: this.otuSelected }).then(response => {
           this.rows = response.body
         })
       }
     },
+
     reset () {
       this.selectedMatrix = undefined
       this.rows = []
       this.create = false
       this.show = false
     },
+
     createRow () {
       return new Promise((resolve, reject) => {
         if (window.confirm('Are you sure you want to add this otu to this matrix?')) {
           const promises = []
 
           if (!this.otuSelected) {
-            promises.push(CreateOTU(this.taxonNameId).then(response => {
+            promises.push(Otu.create({ otu: { taxon_name_id: this.taxonNameId } }).then(response => {
               this.otuSelected = response.body.id
             }))
           }
@@ -171,8 +185,8 @@ export default {
               otu_id: this.otuSelected,
               type: 'ObservationMatrixRowItem::Single::Otu'
             }
-            CreateObservationMatrixRow(data).then(response => {
-              GetObservationRow({ otu_id: this.otuSelected }).then(response => {
+            ObservationMatrixRowItem.create({ observation_matrix_row_item: data }).then(() => {
+              ObservationMatrixRow.where({ otu_id: this.otuSelected }).then(response => {
                 this.rows = response.body
                 resolve(response)
               })
@@ -181,27 +195,34 @@ export default {
         }
       })
     },
+
     setMatrix (id) {
-      GetObservationMatrix(id).then(response => {
+      ObservationMatrix.find(id).then(response => {
         this.selectedMatrix = response.body
         this.loadMatrix(this.selectedMatrix)
       })
     },
+
     openMatrixRowCoder () {
       if (this.alreadyInCurrentMatrix.length) {
         window.open(`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${this.alreadyInCurrentMatrix[0].id}`, '_blank')
+        this.show = false
       } else {
         this.createRow().then(() => {
           window.open(`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${this.alreadyInCurrentMatrix[0].id}`, '_blank')
+          this.show = false
         })
       }
     },
+
     openImageMatrix () {
       if (this.alreadyInCurrentMatrix.length) {
-        window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_id=${this.alreadyInCurrentMatrix[0].id}&row_position=${this.alreadyInCurrentMatrix[0].position}`, '_blank')
+        window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_filter=${this.alreadyInCurrentMatrix[0].id}`, '_blank')
+        this.show = false
       } else {
         this.createRow().then(() => {
-          window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_id=${this.alreadyInCurrentMatrix[0].id}&row_position=${this.alreadyInCurrentMatrix[0].position}`, '_blank')
+          window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_filter=${this.alreadyInCurrentMatrix[0].id}`, '_blank')
+          this.show = false
         })
       }
     }
@@ -210,11 +231,11 @@ export default {
 </script>
 
 <style scoped>
-  /deep/ .modal-body {
+  :deep(.modal-body) {
     max-height: 80vh;
     overflow-y: scroll;
   }
-  /deep/ .modal-container {
+  :deep(.modal-container) {
     width: 800px;
   }
 </style>

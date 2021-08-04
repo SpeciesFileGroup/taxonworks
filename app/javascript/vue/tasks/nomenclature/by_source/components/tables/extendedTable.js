@@ -7,16 +7,19 @@ export default {
       require: true
     }
   },
+
   data () {
     return {
       ascending: false
     }
   },
+
   methods: {
     sortTable (sortProperty) {
       this.list = SortArray(sortProperty, this.list, this.ascending)
       this.ascending = !this.ascending
     },
+
     sortPages () {
       this.list.sort((a, b) => {
         a = a.pages ? a.pages.match(/\d+/g).map(item => Number(item)) : []
@@ -27,6 +30,7 @@ export default {
       })
       this.ascending = !this.ascending
     },
+
     removeCitation (citation) {
       const index = this.list.findIndex((item) => { return citation.id == item.id })
       if (index > -1) {

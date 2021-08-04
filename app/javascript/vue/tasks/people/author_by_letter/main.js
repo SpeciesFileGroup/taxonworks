@@ -1,17 +1,13 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from './app.vue'
 
 function init() {
-  new Vue({
-    el: '#author_by_letter',
-    render: function (createElement) {
-      return createElement(App)
-    }
-  })
+  const app = createApp(App)
+  app.mount('#author_by_letter')
 }
 
-document.addEventListener('turbolinks:load', (event) => {
+document.addEventListener('turbolinks:load', () => {
   if (document.querySelector('#author_by_letter')) {
     init()
   }
-});
+})

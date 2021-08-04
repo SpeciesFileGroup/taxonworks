@@ -54,10 +54,10 @@
 
 <script>
 
-import { createLoanItem } from '../request/resources'
+import { LoanItem } from 'routes/endpoints'
 import { MutationNames } from '../store/mutations/mutations'
 
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 
 export default {
   components: { Autocomplete },
@@ -126,7 +126,7 @@ export default {
         total: this.isTypeOtu ? this.total : undefined
       }
 
-      createLoanItem({ loan_item: data }).then(response => {
+      LoanItem.create({ loan_item: data }).then(response => {
         this.$store.commit(MutationNames.AddLoanItem, response.body)
         TW.workbench.alert.create('Loan item was successfully created.', 'notice')
       }).finally(() => {

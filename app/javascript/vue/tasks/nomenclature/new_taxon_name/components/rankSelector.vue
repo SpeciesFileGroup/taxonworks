@@ -4,45 +4,49 @@
       class="transparent-modal"
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Ranks</h3>
-      <div slot="body">
-        <ul
-          class="tree-status"
-          v-for="(group) in Object.keys(this.ranks)"
-          v-if="!isMajor(rankGroup, group)">
-          <li v-for="(child) in (ranks[group])">
-            <button
-              type="button"
-              class="normal-input button button-default"
-              name="rankSelected"
-              @click="rankClass = child.rank_class, showModal = false"
-              :value="child.rank_class">
-              {{ child.name }}
-            </button>
-          </li>
-        </ul>
-      </div>
+      <template #header>
+        <h3>Ranks</h3>
+      </template>
+      <template #body>
+        <template v-for="(group) in Object.keys(this.ranks)">
+          <ul
+            class="tree-status"
+            v-if="!isMajor(rankGroup, group)">
+            <li v-for="(child) in (ranks[group])">
+              <button
+                type="button"
+                class="normal-input button button-default"
+                name="rankSelected"
+                @click="rankClass = child.rank_class, showModal = false"
+                :value="child.rank_class">
+                {{ child.name }}
+              </button>
+            </li>
+          </ul>
+        </template>
+      </template>
     </modal>
     <div class="field ranks-list">
       <h4>Rank</h4>
-      <ul
-        class="no_bullet"
-        v-for="(group) in Object.keys(this.ranks)"
-        v-if="!isMajor(rankGroup, group)">
-        <li
-          v-for="(child) in (ranks[group])"
-          v-if="checkDisplay(child)">
-          <label class="capitalize">
-            <input
-              type="radio"
-              name="rankSelected"
-              v-model="rankClass"
-              :checked="child.rank_class == rankClass"
-              :value="child.rank_class">
-            {{ child.name }}
-          </label>
-        </li>
-      </ul>
+      <template v-for="(group) in Object.keys(this.ranks)">
+        <ul
+          class="no_bullet"
+          v-if="!isMajor(rankGroup, group)">
+          <template v-for="(child) in (ranks[group])">
+            <li v-if="checkDisplay(child)">
+              <label class="capitalize">
+                <input
+                  type="radio"
+                  name="rankSelected"
+                  v-model="rankClass"
+                  :checked="child.rank_class == rankClass"
+                  :value="child.rank_class">
+                {{ child.name }}
+              </label>
+            </li>
+          </template>
+        </ul>
+      </template>
       <button
         type="button"
         class="button normal-input button-default"
@@ -53,11 +57,11 @@
 </template>
 <script>
 
-import Modal from 'components/modal.vue'
+import Modal from 'components/ui/Modal.vue'
 import childOfParent from '../helpers/childOfParent'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { GetPredictedRank } from '../request/resources'
+import { TaxonName } from 'routes/endpoints'
 
 export default {
   components: {
@@ -89,7 +93,7 @@ export default {
       return this.$store.getters[GetterNames.GetTaxonName]
     }
   },
-  data: function () {
+  data () {
     return {
       childOfParent: childOfParent,
       showModal: false,
@@ -98,26 +102,17 @@ export default {
     }
   },
   watch: {
-    ranks: {
-      handler: function (val, oldVal) {
-        //this.refresh()
-      },
-      deep: true,
-      immediate: true
-    },
     parent: {
-      handler: function (newVal, oldVal) {
+      handler (newVal, oldVal) {
         if (oldVal) {
           if (!this.taxon.id) {
             this.rankClass = undefined
           }
         }
         if (newVal && !this.taxon.id) {
-          GetPredictedRank(newVal.id, this.taxon.name).then(response => {
+          TaxonName.predictedRank(newVal.id, this.taxon.name).then(response => {
             if (response.body.predicted_rank.length) {
               this.rankClass = response.body.predicted_rank
-            } else {
-              //this.refresh()
             }
           })
         }
@@ -132,7 +127,7 @@ export default {
 
           const that = this
           this.timer = setTimeout(() => {
-            GetPredictedRank(that.parent.id, that.taxon.name).then(response => {
+            TaxonName.predictedRank(that.parent.id, that.taxon.name).then(response => {
               if (response.body.predicted_rank.length) {
                 that.rankClass = response.body.predicted_rank
               }
@@ -144,8 +139,8 @@ export default {
     }
   },
   methods: {
-    refresh: function () {
-      if (this.rankClass == undefined && !this.taxon.id) {
+    refresh () {
+      if (!this.rankClass && !this.taxon.id) {
         if (this.rankGroup) {
           this.ranks[this.childOfParent[this.rankGroup]].find(item => {
             if (this.defaultRanks.indexOf(item.name) >= 0) {
@@ -155,17 +150,21 @@ export default {
         }
       }
     },
-    isMajor: function (groupName, findGroup) {
+
+    isMajor (groupName, findGroup) {
       return (Object.keys(this.ranks).indexOf(groupName) > Object.keys(this.ranks).indexOf(findGroup))
     },
-    checkSameRank: function (rankRadio, rank) {
-      let rankSplitted = rankRadio.split('::')
-      return (rank == rankSplitted[rankSplitted.length - 1])
+
+    checkSameRank (rankRadio, rank) {
+      const rankSplitted = rankRadio.split('::')
+      return (rank === rankSplitted[rankSplitted.length - 1])
     },
-    checkDisplay: function (child) {
-      return ((this.rankClass == child.rank_class) || ((this.taxon.id == undefined) && (child.typical_use)))
+
+    checkDisplay (child) {
+      return ((this.rankClass === child.rank_class) || ((!this.taxon.id) && (child.typical_use)))
     },
-    existRanks: function () {
+
+    existRanks () {
       return Object.keys(this.ranks).length
     }
   }

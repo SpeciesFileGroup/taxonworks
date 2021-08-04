@@ -65,6 +65,9 @@ export default {
     },
     tripCode () {
       return this.$store.getters[GetterNames.GetIdentifier]
+    },
+    georeferences () {
+      return [].concat(this.$store.getters[GetterNames.GetGeoreferences], this.$store.getters[GetterNames.GetQueueGeoreferences])
     }
   },
   methods: {
@@ -72,10 +75,13 @@ export default {
       this.label.text = this.collectingEvent.verbatim_label
     },
     generateVerbatimLabel () {
-      return this.componentsOrder.componentVerbatim.map(componentName => this.collectingEvent[verbatimProperties[componentName]]).filter(item => item)
+      return this.componentsOrder.componentVerbatim.map(componentName =>
+        typeof verbatimProperties[componentName] !== 'function'
+          ? this.collectingEvent[verbatimProperties[componentName]]
+          : verbatimProperties[componentName](this.collectingEvent)).filter(item => item)
     },
     generateParsedLabel () {
-      return this.componentsOrder.componentParse.map(componentName => parsedProperties[componentName]).filter(func => func).map(func => func(Object.assign({}, { ce: this.collectingEvent, tripCode: this.tripCode })))
+      return this.componentsOrder.componentParse.map(componentName => parsedProperties[componentName]).filter(func => func).map(func => func(Object.assign({}, { ce: this.collectingEvent, tripCode: this.tripCode, georeferences: this.georeferences })))
     },
     generateLabel () {
       this.label.text = [].concat(this.generateVerbatimLabel(), this.generateParsedLabel().filter(label => label)).join('\n')

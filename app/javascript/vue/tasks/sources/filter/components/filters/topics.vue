@@ -23,33 +23,37 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import DisplayList from 'components/displayList'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { GetKeyword } from '../../request/resources'
-import ajaxCall from 'helpers/ajaxCall'
+import { ControlledVocabularyTerm } from 'routes/endpoints'
 
 export default {
   components: {
     SmartSelector,
     DisplayList
   },
+
   props: {
-    value: {
+    modelValue: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     params: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       topics: [],
@@ -57,24 +61,30 @@ export default {
     }
   },
   watch: {
-    value (newVal, oldVal) {
+    modelValue (newVal, oldVal) {
       if (!newVal.length && oldVal.length) {
         this.topics = []
       }
     },
+
     topics: {
       handler (newVal) {
-        this.params = this.topics.map(topic => { return topic.id })
+        this.params = this.topics.map(topic => topic.id)
       },
       deep: true
     }
   },
+
   mounted () {
     const urlParams = URLParamsToJSON(location.href)
-    this.loadTags('Topic')
+
+    ControlledVocabularyTerm.where({ type: ['Topic'] }).then(response => {
+      this.allTopics = { all: response.body }
+    })
+
     if (urlParams.topic_ids) {
       urlParams.topic_ids.forEach(id => {
-        GetKeyword(id).then(response => {
+        ControlledVocabularyTerm.find(id).then(response => {
           this.addTopic(response.body)
         })
       })
@@ -86,19 +96,15 @@ export default {
         this.topics.push(topic)
       }
     },
+
     removeTopic (index) {
       this.topics.splice(index, 1)
-    },
-    loadTags (type) {
-      ajaxCall('get', `/controlled_vocabulary_terms.json?type[]=${type}`).then(response => {
-        this.allTopics = { all: response.body }
-      })
     }
   }
 }
 </script>
 <style scoped>
-  /deep/ .vue-autocomplete-input {
+  :deep(.vue-autocomplete-input) {
     width: 100%
   }
 </style>

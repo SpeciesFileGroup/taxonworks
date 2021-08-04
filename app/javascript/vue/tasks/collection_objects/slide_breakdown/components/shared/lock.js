@@ -1,12 +1,11 @@
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 
-import LockComponent from 'components/lock'
+import LockComponent from 'components/ui/VLock/index.vue'
 
 export default {
-  components: {
-    LockComponent
-  },
+  components: { LockComponent },
+
   computed: {
     lock: {
       get () {

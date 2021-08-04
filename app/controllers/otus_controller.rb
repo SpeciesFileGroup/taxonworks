@@ -92,20 +92,12 @@ class OtusController < ApplicationController
   def destroy
     @otu.destroy
     respond_to do |format|
-      format.html { redirect_to otus_url }
-      format.json { head :no_content }
-    end
-  end
-
-  def destroy
-    @otu.destroy
-    respond_to do |format|
       if @otu.destroyed?
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Otu was successfully destroyed.')}
-        format.json {head :no_content}
+        format.html { destroy_redirect @otu, notice: 'Otu was successfully destroyed.' }
+        format.json { head :no_content}
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Otu was not destroyed, ' + @otu.errors.full_messages.join('; '))}
-        format.json {render json: @otu.errors, status: :unprocessable_entity}
+        format.html { destroy_redirect @otu, notice: 'Otu was not destroyed, ' + @otu.errors.full_messages.join('; ') }
+        format.json { render json: @otu.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -118,7 +110,7 @@ class OtusController < ApplicationController
   def search
     if params[:id].blank?
       redirect_to(otus_path,
-                  notice: 'You must select an item from the list with a click or tab press before clicking show.')
+                  alert: 'You must select an item from the list with a click or tab press before clicking show.')
     else
       redirect_to otu_path(params[:id])
     end

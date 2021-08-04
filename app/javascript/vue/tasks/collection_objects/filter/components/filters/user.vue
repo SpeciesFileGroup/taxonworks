@@ -18,7 +18,7 @@
         </option>
       </select>
     </div>
-    <h3>Date range</h3>
+    <h3>Target</h3>
     <div class="field">
       <ul class="no_bullets">
         <li
@@ -34,11 +34,12 @@
         </li>
       </ul>
     </div>
+    <h3>Date range</h3>
     <div class="horizontal-left-content">
       <div class="field separate-right">
         <label>Start date:</label>
         <br>
-        <input 
+        <input
           type="date"
           class="date-input"
           v-model="user.user_date_start">
@@ -67,43 +68,50 @@
 
 <script>
 
-import { GetUsers } from '../../request/resources'
+import { ProjectMember } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true
     }
   },
+
   computed: {
     user: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     },
     startDate () {
       return this.user.user_date_start
     }
   },
+
+  emits: [
+    'update:modelValue',
+    'onUserslist'
+  ],
+
   data () {
     return {
       users: [],
       options: [
         {
-          label: '--None--',
+          label: 'Both',
           value: undefined
         },
         {
-          label: 'created at',
+          label: 'Created at',
           value: 'created'
         },
         {
-          label: 'updated',
+          label: 'Updated at',
           value: 'updated'
         }
       ]
@@ -117,7 +125,7 @@ export default {
     }
   },
   mounted () {
-    GetUsers().then(response => {
+    ProjectMember.all().then(response => {
       this.users = response.body
       this.$emit('onUserslist', this.users)
       this.users.unshift({ user: { name: '--none--', id: undefined } })

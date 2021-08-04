@@ -17,6 +17,11 @@ module Export::Coldp::Files::Taxon
     lifezone: 'https://api.catalogue.life/datapackage#Taxon.lifezone',                       # from https://api.catalogue.life/vocab/lifezone
   }
 
+  SKIPPED_RANKS = %w{
+    NomenclaturalRank::Iczn::SpeciesGroup::Superspecies
+    NomenclaturalRank::Iczn::SpeciesGroup::Supersuperspecies
+  }
+
   # @param predicate [:symbol]
   #   a key from IRI_MAP
   def self.predicate_value(otu, predicate)
@@ -80,9 +85,13 @@ module Export::Coldp::Files::Taxon
     # API or public interface
   end
 
-  # TODO: flag public
+  # TODO: flag/exclude ! is_public
   def self.remarks(otu)
-    otu.notes.pluck(:text).join('|')
+    if otu.notes.load.any?
+      otu.notes.pluck(:text).join('|')
+    else
+      nil
+    end
   end
 
   # "supporting the taxonomic concept"
@@ -93,7 +102,14 @@ module Export::Coldp::Files::Taxon
     nil
   end
 
-  def self.generate(otus, root_otu_id = nil, reference_csv = nil )
+  def self.generate(otus, root_otu_id = nil, reference_csv = nil, prefer_unlabelled_otus: true)
+
+    # Until we have RC5 articulations we are simplifying handling the fact
+    # that one taxon name can be used for many OTUs. Track to see that
+    # an OTU with a given taxon name does not already exist
+    #   `taxon_name_id: nil`  - uniquify via Ruby hash keys
+    observed_taxon_name_ids = { }
+
     CSV.generate(col_sep: "\t") do |csv|
 
       csv << %w{
@@ -115,35 +131,43 @@ module Export::Coldp::Files::Taxon
       }
 
       otus.each do |o|
-        next unless o.taxon_name && o.taxon_name.is_valid?
+        # !! When a name is a synonmy (combination), but that combination has no OTU
+        # !! then the parent of the name in the taxon table is nil
+        # !! Handle this edge case (probably resolved now)
 
-        # TODO: Use o.coordinate_otus to summarize accross different instances of the OTU ?
+        # TODO: alter way parent is set to conform to CoLDP status
+        #   For OTUs with combinations we might have to change the parenthood?!
+
+        parent_id = nil
+        if root_otu_id != o.id
+          if pid = o.parent_otu_id(skip_ranks: SKIPPED_RANKS, prefer_unlabelled_otus: prefer_unlabelled_otus)
+            parent_id = pid
+          else
+            puts 'WARNING no parent!!'
+            # there is no OTU parent for the hierarchy, at present we just flat skip this OTU
+            # Curators can use the create OTUs for valid ids to resolve this data issue
+            next
+          end
+        end
+
+        # TODO: This was excluding OTUs that were being excluded downstream previously
+        # This should never happen now since parent ambiguity is caught above!
+        # can be removed in theory
+        # TODO: remove once RC5 better modelled
+        next if observed_taxon_name_ids[o.taxon_name_id]
+        observed_taxon_name_ids[o.taxon_name_id] = nil
+
+        # TODO: Use o.coordinate_otus to summarize accross different instances of the OTU
 
         sources = o.sources
         source = o.source
 
-        # !! When a name is a synonmy (combination), but that combination has no OTU
-        # !! then the parent of the name in the taxon table is nil
-        # !! Handle this edge case
-
-        # TODO: alter way parent is set to conform to CoLDP status
-        # Consider:
-        #    OTUs/ranks are excluded :
-        # Need the next highest valid parent not in this list!!
-        # %w{
-        #   NomenclaturalRank::Iczn::SpeciesGroup::Supersuperspecies
-        #   NomenclaturalRank::Iczn::SpeciesGroup::Superspecies
-        # }
-        #
-        # Also:
-        #   For OTUs with combinations we might have to change the parenthood?!
-
-        parent_id = (root_otu_id == o.id ? nil : o.parent_otu&.id )
+        parent_id = (root_otu_id == o.id ? nil : parent_id )
 
         csv << [
-          o.id,                                      # ID
-          parent_id,                                 # parentID
-          o.taxon_name&.id,                          # nameID
+          o.id,                                      # ID (Taxon)
+          parent_id,                                 # parentID (Taxon)
+          o.taxon_name.id,                           # nameID (Name)
           provisional(o),                            # provisional
           according_to_id(o),                        # accordingToID
           scrutinizer(o),                            # scrutinizer

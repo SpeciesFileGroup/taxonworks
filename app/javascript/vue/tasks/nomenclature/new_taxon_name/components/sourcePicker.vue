@@ -4,12 +4,10 @@
     v-help.section.author.container
     :spinner="!taxon.id"
   >
-    <h3 slot="header">
-      Author
-    </h3>
-    <div
-      slot="body"
-    >
+    <template #header>
+      <h3>Author</h3>
+    </template>
+    <template #body>
       <div class="separate-bottom">
         <div class="switch-radio">
           <input
@@ -78,21 +76,21 @@
           </label>
         </div>
       </div>
-      <div v-show="show == 'source' && taxon.id">
+      <div v-if="show == 'source' && taxon.id">
         <div class="horizontal-left-content">
           <autocomplete
             url="/sources/autocomplete"
             min="3"
-            :autofocus="true"
+            autofocus
             param="term"
             label="label_html"
             placeholder="Type for search..."
             display="label"
-            :clear-after="true"
+            clear-after
             @getItem="setSource($event.id)"
           />
           <default-element
-            v-if="!citation"
+            class="margin-small-left"
             label="source"
             type="Source"
             section="Sources"
@@ -100,7 +98,7 @@
           />
         </div>
         <hr>
-        <div v-if="citation != undefined">
+        <div v-if="citation">
           <div class="flex-separate middle">
             <p>
               <span
@@ -108,7 +106,6 @@
                 v-html="citation.source.object_tag"
               />
               <soft-validation
-                class="margin-small-left"
                 :validate-object="citation"
                 :global-id="citation.global_id"/>
             </p>
@@ -169,7 +166,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </template>
   </block-layout>
 </template>
 
@@ -183,12 +180,12 @@ import { ActionNames } from '../store/actions/actions'
 import VerbatimAuthor from './verbatimAuthor.vue'
 import VerbatimYear from './verbatimYear.vue'
 import CitationPages from './citationPages.vue'
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import RolePicker from 'components/role_picker.vue'
 import DefaultElement from 'components/getDefaultPin.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/navigation/radial'
-import BlockLayout from 'components/blockLayout'
+import BlockLayout from 'components/layout/BlockLayout'
 import SoftValidation from 'components/soft_validations/objectValidation.vue'
 
 export default {
@@ -221,19 +218,18 @@ export default {
     isAlreadyClone () {
       if (this.citation.source.author_roles.length === 0) return true
 
-      const authorsId = this.citation.source.author_roles.map(author => { return Number(author.person.id) })
-      const personsIds = this.roles.map(role => { return role.person.id })
+      const authorsId = this.citation.source.author_roles.map(author => Number(author.person.id))
+      const personsIds = this.roles.map(role => role.person.id)
 
-      return authorsId.every(id => {
-        return personsIds.includes(id)
-      })
+      return authorsId.every(id => personsIds.includes(id))
     },
     roles: {
       get () {
-        if (this.$store.getters[GetterNames.GetRoles] == undefined) return []
-        return this.$store.getters[GetterNames.GetRoles].sort((a, b) => {
-          return (a.position - b.position)
-        })
+        const roles = this.$store.getters[GetterNames.GetRoles]
+
+        return roles
+          ? roles.sort((a, b) => a.position - b.position)
+          : []
       },
       set (value) {
         this.$store.commit(MutationNames.SetRoles, value)

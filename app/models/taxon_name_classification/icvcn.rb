@@ -3,7 +3,7 @@ class TaxonNameClassification::Icvcn < TaxonNameClassification
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000111'.freeze
 
   def self.applicable_ranks
-    ICTV
+    ICVCN
   end
 
   def self.disjoint_taxon_name_classes

@@ -16,9 +16,9 @@
             Match
           </button>
           <label>
-          <input
-            type="checkbox"
-            v-model="exact">
+            <input
+              type="checkbox"
+              v-model="exact">
             Exact match
           </label>
         </div>
@@ -40,11 +40,12 @@
             </li>
           </ul>
         </navbar-component>
-        <template v-for="(match, key) in matches">
+        <template
+          v-for="(match, key) in matches"
+          :key="key">
           <line-component
             v-if="filterView(match)"
             class="margin-small-bottom"
-            :key="key"
             :name="key"
             :records="match"/>
         </template>
@@ -57,9 +58,9 @@
 
 import InputComponent from './components/InputComponent'
 import LineComponent from './components/LineComponent'
-import { GetTaxonName } from './request/resources'
 import SpinnerComponent from 'components/spinner'
-import NavbarComponent from 'components/navBar'
+import NavbarComponent from 'components/layout/NavBar'
+import { TaxonName } from 'routes/endpoints'
 
 export default {
   components: {
@@ -68,6 +69,7 @@ export default {
     SpinnerComponent,
     NavbarComponent
   },
+
   data () {
     return {
       lines: [],
@@ -79,38 +81,42 @@ export default {
       matches: {}
     }
   },
+
   methods: {
     GetMatches (position) {
-        let promises = []
+      const promises = []
 
-        for(let i = 0; i < this.maxPerCall; i++) {
-          if(position < this.lines.length) {
-            promises.push(new Promise((resolve, reject) => {
-              let name = this.lines[position]
-              GetTaxonName(name, this.exact).then(response => {
-                this.$set(this.matches, name, response.body)
-                resolve()
-              })
-            }))
-            position++
-          }
-          
+      for (let i = 0; i < this.maxPerCall; i++) {
+        if (position < this.lines.length) {
+          promises.push(new Promise((resolve, reject) => {
+            const name = this.lines[position]
+
+            TaxonName.where({ name: name, exact: this.exact }).then(response => {
+              this.matches[name] = response.body
+              resolve()
+            })
+          }))
+          position++
         }
-        Promise.all(promises).then(response => {
-          if(position < this.lines.length)
-            this.GetMatches(position)
-          else {
-            this.isLoading = false
-          }
-        })
+      }
+
+      Promise.all(promises).then(() => {
+        if (position < this.lines.length) {
+          this.GetMatches(position)
+        } else {
+          this.isLoading = false
+        }
+      })
     },
+
     processList () {
       this.matches = {}
       this.isLoading = true
       this.GetMatches(0)
     },
+
     filterView (record) {
-      switch(this.filter) {
+      switch (this.filter) {
         case 'matches':
           return record.length
         case 'unmatched':

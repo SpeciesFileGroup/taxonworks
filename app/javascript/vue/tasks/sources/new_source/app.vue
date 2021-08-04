@@ -35,6 +35,7 @@
           <span v-else>New record</span>
           <template v-if="source.id">
             <pin-component
+              class="margin-medium-left"
               :object-id="source.id"
               type="Source"/>
             <radial-annotator :global-id="source.global_id"/>
@@ -44,15 +45,15 @@
               :id="source.id"/>
           </template>
         </div>
-        <div class="horizontal-right-content">
+        <div
+          class="horizontal-right-content"
+          v-hotkey="shortcuts">
           <span
             v-if="unsave"
             class="medium-icon margin-small-right"
             title="You have unsaved changes."
             data-icon="warning"/>
           <button
-            v-shortkey="[getMacKey(), 's']"
-            @shortkey="saveSource"
             @click="saveSource"
             :disabled="source.type === 'Source::Bibtex' && !source.bibtex_type"
             class="button normal-input button-submit button-size separate-right separate-left"
@@ -61,20 +62,11 @@
           </button>
           <button
             v-if="source.type === 'Source::Verbatim' && source.id"
-            class="button normal-input button-submit button-size margin-small-right"
             type="button"
             @click="convert">
             To BibTeX
           </button>
-          <button
-            :disabled="!source.id"
-            v-shortkey="[getMacKey(), 'c']"
-            @shortkey="cloneSource"
-            @click="cloneSource"
-            class="button normal-input button-submit button-size"
-            type="button">
-            Clone
-          </button>
+          <clone-source/>
           <button
             v-help.section.navBar.crossRef
             class="button normal-input button-default button-size separate-left"
@@ -95,8 +87,6 @@
             Recent
           </button>
           <button
-            v-shortkey="[getMacKey(), 'n']"
-            @shortkey="reset"
             @click="reset"
             class="button normal-input button-default button-size separate-left"
             type="button">
@@ -110,8 +100,10 @@
       v-if="showRecent"
       @close="showRecent = false"/>
     <div class="horizontal-left-content align-start">
-      <component class="full_width" :is="section"/>
-      <right-section class="separate-left"/>
+      <div class="full_width">
+        <component :is="section"/>
+      </div>
+      <right-section class="margin-medium-left"/>
     </div>
     <cross-ref
       v-if="showModal"
@@ -140,24 +132,27 @@ import Bibtex from './components/bibtex/main'
 import Human from './components/person/main'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial'
-import GetMacKey from 'helpers/getMacKey'
 import AddSource from 'components/addToProjectSource'
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
+import CloneSource from './components/cloneSource'
 
-import PinComponent from 'components/pin'
+import PinComponent from 'components/ui/Pinboard/VPin.vue'
 
-import { GetUserPreferences } from './request/resources'
-
+import { User } from 'routes/endpoints'
 import { GetterNames } from './store/getters/getters'
 import { ActionNames } from './store/actions/actions'
 import { MutationNames } from './store/mutations/mutations'
 
 import RightSection from './components/rightSection'
-import NavBar from 'components/navBar'
+import NavBar from 'components/layout/NavBar'
+import platformKey from 'helpers/getMacKey'
 
 export default {
+  name: 'NewSource',
+
   components: {
     Autocomplete,
+    CloneSource,
     RadialAnnotator,
     RadialObject,
     PinComponent,
@@ -173,14 +168,26 @@ export default {
     RecentComponent,
     SpinnerComponent
   },
+
   computed: {
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+s`] = this.saveSource
+      keys[`${platformKey()}+n`] = this.reset
+
+      return keys
+    },
+
     section () {
       const type = this.$store.getters[GetterNames.GetType]
       return type ? type.split('::')[1] : undefined
     },
+
     source () {
       return this.$store.getters[GetterNames.GetSource]
     },
+
     settings: {
       get () {
         return this.$store.getters[GetterNames.GetSettings]
@@ -189,11 +196,13 @@ export default {
         this.$store.commit(MutationNames.SetSettings, value)
       }
     },
+
     unsave() {
-      let settings = this.$store.getters[GetterNames.GetSettings]
+      const settings = this.$store.getters[GetterNames.GetSettings]
       return settings.lastSave < settings.lastEdit
     }
   },
+
   data () {
     return {
       showModal: false,
@@ -201,6 +210,7 @@ export default {
       showRecent: false
     }
   },
+
   watch: {
     source: {
       handler (newVal, oldVal) {
@@ -211,10 +221,11 @@ export default {
       deep: true
     }
   },
+
   mounted () {
-    TW.workbench.keyboard.createLegend(`${this.getMacKey()}+s`, 'Save', 'New source')
-    TW.workbench.keyboard.createLegend(`${this.getMacKey()}+n`, 'New', 'New source')
-    TW.workbench.keyboard.createLegend(`${this.getMacKey()}+c`, 'Clone source', 'New source')
+    TW.workbench.keyboard.createLegend(`${platformKey()}+s`, 'Save', 'New source')
+    TW.workbench.keyboard.createLegend(`${platformKey()}+n`, 'New', 'New source')
+    TW.workbench.keyboard.createLegend(`${platformKey()}+c`, 'Clone source', 'New source')
 
     const urlParams = new URLSearchParams(window.location.search)
     const sourceId = urlParams.get('source_id')
@@ -223,10 +234,11 @@ export default {
       this.$store.dispatch(ActionNames.LoadSource, sourceId)
     }
 
-    GetUserPreferences().then(response => {
+    User.preferences().then(response => {
       this.$store.commit(MutationNames.SetPreferences, response.body)
     })
   },
+
   methods: {
     reset () {
       this.$store.dispatch(ActionNames.ResetSource)
@@ -243,8 +255,7 @@ export default {
     },
     loadSource (sourceId) {
       this.$store.dispatch(ActionNames.LoadSource, sourceId)
-    },
-    getMacKey: GetMacKey
+    }
   }
 }
 </script>

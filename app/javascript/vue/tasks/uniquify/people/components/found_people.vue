@@ -37,8 +37,10 @@
         </thead>
         <tbody>
           <template v-if="expanded">
-            <template v-for="person in foundPeople">
-              <tr :key="person.id">
+            <template
+              v-for="person in foundPeople"
+              :key="person.id">
+              <tr>
                 <td>
                   <button
                     v-if="person.id != selected['id']"
@@ -86,7 +88,7 @@
               <span class="feedback feedback-secondary feedback-thin line-nowrap">{{ yearValue(selectedPerson.year_active_start) }} - {{ yearValue(selected.year_active_end) }}</span>
             </td>
             <td>
-              <span class="feedback feedback-thin feedback-primary">{{ selected.roles ? selected.roles.length : '?' }}</span>
+              <span class="feedback feedback-thin feedback-primary">{{ selected.roles ? selected.roles.length : selected.usedCount || '?' }}</span>
             </td>
             <td>{{ getRoles(selected) }}</td>
           </tr>
@@ -97,23 +99,24 @@
 </template>
 <script>
 
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import DefaultPin from 'components/getDefaultPin.vue'
-import { GetPeople } from '../request/resources'
+import { People } from 'routes/endpoints'
 
 export default {
   components: {
     Autocomplete,
     DefaultPin
   },
+
   props: {
-    value: {
+    modelValue: {
       type: Object,
       default: undefined
     },
     foundPeople: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     },
     displayCount: {
       type: Boolean,
@@ -124,47 +127,66 @@ export default {
       default: true
     }
   },
+
+  emits: [
+    'update:modelValue',
+    'addToList',
+    'expand'
+  ],
+
   computed: {
     selectedPerson: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
-  data() {
+
+  data () {
     return {
       selected: {}
     }
   },
+
   methods: {
-    removeFromList(personID) {
-      const index = this.foundPeople.findIndex(item => {
-        return item.id === personID
-      })
+    removeFromList (personID) {
+      const index = this.foundPeople.findIndex(item => item.id === personID)
 
       if (index > -1) {
         this.foundPeople.splice(index, 1)
       }
     },
+
     async addToList (person) {
-      person = await this.selectPerson(person)
-      this.$emit('addToList', person)
-      this.selected = person
+      const personObj = await this.selectPerson(person)
+
+      if (person?.label_html) {
+        let element = document.createElement('span')
+        element.innerHTML = person.label_html
+        element = element.querySelector('[data-count]')
+        personObj.usedCount = element?.getAttribute('data-count')
+      }
+
+      this.$emit('addToList', personObj)
+      this.selected = personObj
     },
+
     async selectPerson (person) {
       this.selected = person
-      return GetPeople(person.id).then(response => {
+      return People.find(person.id).then(response => {
         this.selectedPerson = response.body
         this.$emit('expand', false)
         return response.body
       })
     },
+
     getRoles (person) {
       return person.roles ? [...new Set(person.roles.map(r => r.role_object_type))].join(', ') : '?'
     },
+
     yearValue (value) {
       return value || '?'
     }

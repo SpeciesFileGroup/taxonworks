@@ -13,6 +13,10 @@
         display: nil,
         size: 60} %>
     </div>
+    <div class="field">
+      <%= check_box_tag 'prefer_unlabelled_otus' %>
+      <%= label_tag 'prefer_unlabelled_otus', 'On taxon name with multiple OTUs conflict narrow selection to unlabelled ones.' %>
+    </div>
 
     <%= submit_tag :Download, class: ['normal-input', :button, 'button-default'] -%>
   <% end %>

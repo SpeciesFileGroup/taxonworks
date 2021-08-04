@@ -1,7 +1,7 @@
 <template>
   <div>
     <button
-      class="button button-default"
+      class="button button-default normal-input"
       type="button"
       @click="showModal = true"
       :disabled="!compare.length">
@@ -10,8 +10,10 @@
     <modal-component
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Compare collection objects</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Compare collection objects</h3>
+      </template>
+      <template #body>
         <switch-component
           v-model="view"
           :options="tabs"
@@ -38,7 +40,7 @@
               <td v-html="renderType[0][key]"/>
               <td v-html="renderType[1][key]"/>
             </tr>
-            <tr></tr>
+            <tr />
           </tbody>
           <thead>
             <tr>
@@ -56,7 +58,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(key, index) in ceProperties"
+            <tr
+              v-for="(key, index) in ceProperties"
               :key="key"
               class="contextMenuCells"
               :class="{ even: index % 2 }">
@@ -66,17 +69,18 @@
             </tr>
           </tbody>
         </table>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import SwitchComponent from 'components/switch'
 
-import { GetCollectingEvent, GetDWC } from '../request/resources'
+import { GetDWC } from '../request/resources'
+import { CollectingEvent } from 'routes/endpoints'
 
 const TABS_TYPE = {
   DETAILS: 'details',
@@ -88,17 +92,20 @@ export default {
     ModalComponent,
     SwitchComponent
   },
+
   props: {
     compare: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
+
   computed: {
-    renderType() {
+    renderType () {
       return this.view === TABS_TYPE.DWC ? this.dwcTable : this.compare
     }
   },
+
   data () {
     return {
       showModal: false,
@@ -109,6 +116,7 @@ export default {
       dwcTable: {}
     }
   },
+
   watch: {
     showModal(newVal) {
       if (newVal) {
@@ -117,32 +125,34 @@ export default {
       }
     }
   },
+
   methods: {
     getCEs() {
       const ceId = this.compare[0]['collecting_event_id']
       const ceId2 = this.compare[1]['collecting_event_id']
 
       if(ceId)
-        GetCollectingEvent(ceId).then(response => {
+        CollectingEvent.find(ceId).then(response => {
           this.compareCE[0] = response.body
           this.ceProperties = Object.keys(response.body)
         })
       if(ceId2)
-        GetCollectingEvent(ceId2).then(response => {
+        CollectingEvent.find(ceId2).then(response => {
           this.compareCE[1] = response.body
           this.ceProperties = Object.keys(response.body)
         })
     },
+
     LoadDWC () {
-      GetDWC(this.compare[0].id).then(response => { this.$set(this.dwcTable, 0, response.body) })
-      GetDWC(this.compare[1].id).then(response => { this.$set(this.dwcTable, 1, response.body) })
+      GetDWC(this.compare[0].id).then(response => { this.dwcTable[0] = response.body })
+      GetDWC(this.compare[1].id).then(response => { this.dwcTable[1] = response.body })
     }
   }
 }
 </script>
 <style scoped>
 
-/deep/ .modal-container {
+:deep(.modal-container) {
   width: 1024px;
   overflow-y: scroll;
   max-height: 80vh;

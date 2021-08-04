@@ -7,30 +7,33 @@
     <modal-component
       v-if="showModal"
       @close="setModalView(false)"
-      :containerStyle="{ width: '800px' }">
-      <h3 slot="header">Parse collection object buffered data</h3>
-      <div slot="body">
+      :container-style="{ width: '800px' }">
+      <template #header>
+        <h3>Parse collection object buffered data</h3>
+      </template>
+      <template #body>
         <smart-selector
           model="collection_objects"
           target="CollectingEvent"
           @selected="parseData"
         />
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
 
 <script>
 
-import ModalComponent from 'components/modal'
-import SmartSelector from 'components/smartSelector'
-import { ParseVerbatim } from '../request/resources'
+import ModalComponent from 'components/ui/Modal'
+import SmartSelector from 'components/ui/SmartSelector'
+import { CollectingEvent } from 'routes/endpoints'
 
 export default {
   components: {
     ModalComponent,
     SmartSelector
   },
+
   data () {
     return {
       collectionObject: undefined,
@@ -38,12 +41,16 @@ export default {
       showModal: false
     }
   },
+
+  emits: ['onParse'],
+
   methods: {
     setCollectionObject (co) {
       this.collectionObject = co
     },
+
     parseData (co) {
-      ParseVerbatim(co.buffered_collecting_event).then(response => {
+      CollectingEvent.parseVerbatimLabel({ verbatim_label: co.buffered_collecting_event }).then(response => {
         if (response.body) {
           this.parsableData = response.body
 
@@ -59,6 +66,7 @@ export default {
         }
       })
     },
+
     setModalView (value) {
       this.showModal = value
     }

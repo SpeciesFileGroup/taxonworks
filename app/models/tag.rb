@@ -1,4 +1,5 @@
-# A Tag links a ControlledVocabularyTerm::Keyword to a Data object.
+# A Tag links a ControlledVocabularyTerm::Keyword to a Data object. They are in essence a way to informally group data
+# for future operation.  See also DataAttribute Predicates.
 #
 # @!attribute keyword_id
 #   @return [Integer]
@@ -28,12 +29,11 @@ class Tag < ApplicationRecord
   
   # Tags can not be cited.
   include Housekeeping
-  include Shared::IsData
   include Shared::AttributeAnnotations
+  include Shared::IsData
 
   include Shared::MatrixHooks::Dynamic # Must preceed Tag::MatrixHooks
   include Tag::MatrixHooks # Must come after Shared::MatrixHooks::Dynamic 
-
 
   include Shared::PolymorphicAnnotator
   polymorphic_annotates(:tag_object)

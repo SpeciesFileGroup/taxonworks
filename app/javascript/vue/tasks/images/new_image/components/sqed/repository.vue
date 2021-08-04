@@ -1,29 +1,27 @@
 <template>
-  <fieldset>
+  <fieldset class="fieldset">
     <legend>Repository</legend>
-    <div class="horizontal-left-content">
-      <autocomplete
-        class="margin-small-right"
-        url="/repositories/autocomplete"
-        param="term"
-        placeholder="Search a repository"
-        label="label"
-        :clear-after="true"
-        @getItem="setRepository"/>
-      <default-pin
-        class="button-circle margin-small-left"
-        type="Repository"
-        @getItem="setRepository({ id: $event.id, label: $event.label })"
-        section="Repositories"/>
+    <div class="horizontal-left-content align-start separate-bottom align-start">
+      <smart-selector
+        class="full_width margin-small-right"
+        ref="smartSelector"
+        model="repositories"
+        target="CollectionObject"
+        klass="CollectionObject"
+        pin-section="Repositories"
+        pin-type="Repository"
+        v-model="repository"/>
+      <lock-component v-model="settings.lock.repository"/>
     </div>
-    <p 
-      v-if="label"
-      class="horizontal-left-content middle">
-      <span v-html="label"/>
-      <span
-        class="circle-button btn-undo button-default"
-        @click="removeRepository"/>
-    </p>
+    <template v-if="repository">
+      <div class="middle separate-top">
+        <span data-icon="ok"/>
+        <span class="separate-right"> {{ repository.name }}</span>
+        <span
+          class="circle-button button-default btn-undo"
+          @click="setRepository()"/>
+      </div>
+    </template>
   </fieldset>
 </template>
 
@@ -31,37 +29,38 @@
 
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
-import Autocomplete from 'components/autocomplete'
-import DefaultPin from 'components/getDefaultPin.vue'
+import SmartSelector from 'components/ui/SmartSelector'
+import LockComponent from 'components/ui/VLock/index.vue'
 
 export default {
   components: {
-    Autocomplete,
-    DefaultPin
+    SmartSelector,
+    LockComponent
   },
+
   computed: {
-    collectionObject: {
+    repository: {
       get () {
-        return this.$store.getters[GetterNames.GetCollectionObject]
+        return this.$store.getters[GetterNames.GetRepository]
       },
-      set(newVal) {
-        this.$store.commit(MutationNames.SetCollectionObject, value)
+      set (value) {
+        this.$store.commit(MutationNames.SetRepository, value)
+      }
+    },
+
+    settings: {
+      get () {
+        return this.$store.getters[GetterNames.GetSettings]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSettings, value)
       }
     }
   },
-  data () {
-    return {
-      label: undefined
-    }
-  },
+
   methods: {
-    setRepository(repository) {
-      this.label = repository.label
-      this.collectionObject.repository_id = repository.id
-    },
-    removeRepository () {
-      this.label = undefined
-      this.collectionObject.repository_id = undefined
+    setRepository (repository) {
+      this.repository = repository
     }
   }
 }

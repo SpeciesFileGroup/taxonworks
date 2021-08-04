@@ -3,9 +3,10 @@
     anchor="classification"
     :warning="checkValidation"
     :spinner="!taxon.id">
-    <h3 slot="header">Classification</h3>
-    <div
-      slot="body">
+    <template #header>
+      <h3>Classification</h3>
+    </template>
+    <template #body>
       <div v-if="editMode">
         <p class="inline">
           <span class="separate-right">Editing relationship: </span>
@@ -18,8 +19,7 @@
       </div>
       <div v-if="!taxonRelation">
         <div
-          class="horizontal-left-content"
-          slot="body">
+          class="horizontal-left-content">
           <autocomplete
             url="/taxon_names/autocomplete"
             label="label_html"
@@ -72,7 +72,7 @@
         @edit="editRelationship"
         :list="GetRelationshipsCreated"
         :display="['subject_status_tag', { link: '/tasks/nomenclature/browse?taxon_name_id=', label: 'object_object_tag', param: 'object_taxon_name_id'}]"/>
-    </div>
+    </template>
   </block-layout>
 </template>
 <script>
@@ -80,9 +80,9 @@
 import { ActionNames } from '../store/actions/actions'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import BlockLayout from 'components/blockLayout'
+import BlockLayout from'components/layout/BlockLayout'
 import ListEntrys from './listEntrys.vue'
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 
 export default {
   components: {
@@ -112,7 +112,7 @@ export default {
       return this.$store.getters[GetterNames.GetSoftValidation].taxonRelationshipList.list
     },
     checkValidation () {
-      return !!this.softValidation.filter(item => this.GetRelationshipsCreated.find(created => created.id === item.validations.instance.id)).length
+      return !!this.softValidation.filter(item => this.GetRelationshipsCreated.find(created => created.id === item.instance.id)).length
     },
     nomenclaturalCode () {
       return this.$store.getters[GetterNames.GetNomenclaturalCode]

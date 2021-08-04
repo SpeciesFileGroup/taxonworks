@@ -26,7 +26,7 @@
         </li>
       </ul>
     </div>
-    <nav-bar>
+    <nav-bar v-hotkey="shortcuts">
       <div class="flex-separate full_width">
         <div class="middle margin-small-left">
           <template v-if="collectingEvent.id">
@@ -71,16 +71,12 @@
               Clone
             </button>
             <button
-              v-shortkey="[getOSKey(), 's']"
-              @shortkey="saveCollectingEvent"
               @click="saveCollectingEvent"
               class="button normal-input button-submit button-size margin-small-right"
               type="button">
               Save
             </button>
             <button
-              v-shortkey="[getOSKey(), 'n']"
-              @shortkey="reset"
               @click="reset"
               class="button normal-input button-default button-size"
               type="button">
@@ -98,7 +94,6 @@
       <collecting-event-form
         v-model="collectingEvent"
         :sortable="settings.sortable"
-        :soft-validation="validation"
         class="full_width" />
       <div class="margin-medium-left">
         <div class="panel content">
@@ -119,8 +114,7 @@
           </div>
         </div>
         <right-section
-          :value="collectingEvent"
-          :soft-validation="validation"
+          v-model="collectingEvent"
           @select="loadCollectingEvent($event.id)"
         />
       </div>
@@ -131,18 +125,18 @@
 <script>
 
 import { RouteNames } from 'routes/routes'
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 
 import RecentComponent from './components/Recent'
 
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial'
-import GetOSKey from 'helpers/getMacKey'
+import platformKey from 'helpers/getMacKey'
 import SetParam from 'helpers/setParam'
 
-import PinComponent from 'components/pin'
+import PinComponent from 'components/ui/Pinboard/VPin.vue'
 import RightSection from './components/RightSection'
-import NavBar from 'components/navBar'
+import NavBar from 'components/layout/NavBar'
 import ParseData from './components/parseData'
 
 import CollectingEventForm from './components/CollectingEventForm'
@@ -154,7 +148,7 @@ import { ActionNames } from './store/actions/actions'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 
-import { GetCollectionObject } from './request/resources'
+import { CollectionObject } from 'routes/endpoints'
 
 export default {
   components: {
@@ -171,7 +165,17 @@ export default {
     NavigateComponent,
     SpinnerComponent
   },
+
   computed: {
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+s`] = this.saveCollectingEvent
+      keys[`${platformKey()}+n`] = this.reset
+
+      return keys
+    },
+
     collectingEvent: {
       get () {
         return this.$store.getters[GetterNames.GetCollectingEvent]
@@ -190,15 +194,16 @@ export default {
       return this.$store.getters[GetterNames.GetSettings].isSaving
     }
   },
+
   data () {
     return {
       settings: {
         sortable: false
       },
-      showRecent: false,
-      validation: []
+      showRecent: false
     }
   },
+
   watch: {
     collectingEvent: {
       handler (newVal) {
@@ -207,18 +212,19 @@ export default {
       deep: true
     }
   },
-  mounted () {
-    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+s`, 'Save', 'New collecting event')
-    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+n`, 'New', 'New collecting event')
 
+  mounted () {
     const urlParams = new URLSearchParams(window.location.search)
     const collectingEventId = urlParams.get('collecting_event_id')
     const collectionObjectId = urlParams.get('collection_object_id')
 
+    TW.workbench.keyboard.createLegend(`${platformKey()}+s`, 'Save', 'New collecting event')
+    TW.workbench.keyboard.createLegend(`${platformKey()}+n`, 'New', 'New collecting event')
+
     if (/^\d+$/.test(collectingEventId)) {
       this.loadCollectingEvent(collectingEventId)
     } else if (/^\d+$/.test(collectionObjectId)) {
-      GetCollectionObject(collectionObjectId).then(response => {
+      CollectionObject.find(collectionObjectId).then(response => {
         const ceId = response.body.collecting_event_id
         if (ceId) {
           this.loadCollectingEvent(ceId)
@@ -226,6 +232,7 @@ export default {
       })
     }
   },
+
   methods: {
     cloneCE () {
       this.$store.dispatch(ActionNames.CloneCollectingEvent)
@@ -247,8 +254,7 @@ export default {
     },
     openComprehensive () {
       window.open(`${RouteNames.DigitizeTask}?collecting_event_id=${this.collectingEvent.id}`, '_self')
-    },
-    getOSKey: GetOSKey
+    }
   }
 }
 </script>
@@ -257,7 +263,4 @@ export default {
     width: 100px;
   }
 
-  /deep/ .vue-autocomplete {
-    width: 600px;
-  }
 </style>

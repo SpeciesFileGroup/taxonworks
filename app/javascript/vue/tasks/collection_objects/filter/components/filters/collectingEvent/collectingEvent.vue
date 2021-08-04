@@ -1,12 +1,12 @@
 <template>
   <div>
     <h3>Collecting Event</h3>
-    <h3>Date range</h3>
+    <h4>Date range</h4>
     <div class="horizontal-left-content">
       <div class="field separate-right">
         <label>Start date</label>
         <br>
-        <input 
+        <input
           type="date"
           v-model="cEvent.start_date">
       </div>
@@ -14,7 +14,7 @@
       <div class="field">
         <label>End date</label>
         <br>
-        <input 
+        <input
           type="date"
           v-model="cEvent.end_date">
       </div>
@@ -28,7 +28,7 @@
       </label>
     </div>
     <div class="field">
-      <h3>Select collecting events</h3>
+      <h4>Select collecting events</h4>
       <smart-selector
         model="collecting_events"
         klass="CollectionObject"
@@ -47,8 +47,9 @@
         </li>
       </ul>
     </div>
-    <add-field 
+    <add-field
       ref="fields"
+      :list="cEvent.fields"
       @fields="cEvent.fields = $event"/>
   </div>
 </template>
@@ -56,31 +57,36 @@
 <script>
 
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import AddField from './addFields'
-import { GetCollectingEvents } from '../../../request/resources'
+import { CollectingEvent } from 'routes/endpoints'
 
 export default {
   components: {
     SmartSelector,
     AddField
   },
+
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     cEvent: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   watch: {
     cEvent: {
       handler (newVal) {
@@ -91,16 +97,18 @@ export default {
       deep: true
     }
   },
+
   data () {
     return {
       collectingEvents: []
     }
   },
-  mounted () {
+
+  created () {
     const urlParams = URLParamsToJSON(location.href)
     if (urlParams.collecting_event_ids) {
       urlParams.collecting_event_ids.forEach(id => {
-        GetCollectingEvents(id).then(response => {
+        CollectingEvent.find(id).then(response => {
           this.addCe(response.body)
         })
       })
@@ -109,12 +117,14 @@ export default {
     this.cEvent.end_date = urlParams.end_date
     this.cEvent.partial_overlap_dates = urlParams.partial_overlap_dates
   },
+
   methods: {
     addCe (ce) {
       if (this.cEvent.collecting_event_ids.includes(ce.id)) return
       this.cEvent.collecting_event_ids.push(ce.id)
       this.collectingEvents.push(ce)
     },
+
     removeCe (index) {
       this.cEvent.collecting_event_ids.splice(index, 1)
       this.collectingEvents.splice(index, 1)
@@ -123,7 +133,7 @@ export default {
 }
 </script>
 <style scoped>
-  /deep/ .vue-autocomplete-input {
+  :deep(.vue-autocomplete-input) {
     width: 100%
   }
 </style>

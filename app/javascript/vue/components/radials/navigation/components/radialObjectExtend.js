@@ -4,49 +4,56 @@ const vueRadialObject = {
       type: String,
       required: true
     },
+
     metadata: {
       type: Object,
       required: true
     },
+
     globalId: {
       type: String,
       required: true
     }
   },
-  data: function () {
+
+  emits: ['updateCount'],
+
+  data () {
     return {
       list: [],
       urlList: undefined
     }
   },
-  mounted: function () {
-    let that = this
-    this.getList((typeof this.urlList == 'undefined') ? `/${this.metadata.recent_url}&per=20` : this.urlList).then(response => {
-      that.list = response.body
+
+  mounted () {
+    this.getList((typeof this.urlList === 'undefined') ? `/${this.metadata.recent_url}&per=20` : this.urlList).then(response => {
+      this.list = response.body
     })
   },
+
   watch: {
     list: {
-      handler: function () {
+      handler () {
         this.updateCount()
       }
     }
   },
+
   methods: {
     removeFromList (id) {
-      let position = this.list.findIndex(function (element) {
-        return element.id == id
-      })
+      const position = this.list.findIndex(element => element.id == id)
 
       if (position > -1) {
         this.list.splice(position, 1)
       }
     },
+
     removeItem (item) {
       this.destroy(`/${this.type}/${item.id}`, item).then(response => {
         this.removeFromList(item.id)
       })
     },
+
     updateCount () {
       this.$emit('updateCount', this.list.length)
     }

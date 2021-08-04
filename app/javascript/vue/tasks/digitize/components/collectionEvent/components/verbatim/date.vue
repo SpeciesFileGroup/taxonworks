@@ -15,10 +15,10 @@ import { MutationNames } from '../../../../store/mutations/mutations'
 export default {
   computed: {
     date: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetCollectionEvent].verbatim_date
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetCollectionEventDate, value)
       }
     }

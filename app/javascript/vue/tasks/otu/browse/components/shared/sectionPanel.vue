@@ -47,11 +47,7 @@ export default {
   components: {
     SpinnerComponent
   },
-  computed: {
-    linkName () {
-      return this.name ? this.name : this.title
-    }
-  },
+
   props: {
     title: {
       type: String,
@@ -74,6 +70,15 @@ export default {
       default: false
     }
   },
+
+  emits: ['menu'],
+
+  computed: {
+    linkName () {
+      return this.name || this.title
+    }
+  },
+
   data () {
     return {
       hidden: false

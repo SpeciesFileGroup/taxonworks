@@ -10,7 +10,6 @@ Capybara.default_max_wait_time = 30
 # test:
 #   selenium:                                          # defaults to firefox, without
 #     browser: 'firefox'                               # or chrome
-#     marionette: true                                 # only possible when test_browser is 'firefox', and https://github.com/mozilla/geckodriver/releases
 #     firefox_binary_path: ''                          #  '/Applications/FirefoxDeveloperEdition.app/Contents/MacOS/firefox'
 #     chromedriver_path: '/usr/local/bin/chromedriver' # only possible when test_browser is 'chrome'
 
@@ -26,6 +25,7 @@ Capybara.register_driver :selenium do |app|
 
 
   when 'chrome'
+    require 'webdrivers/chromedriver'
 
    # !! Untested !!
 
@@ -50,6 +50,7 @@ Capybara.register_driver :selenium do |app|
 
 
   when 'firefox'
+    require 'webdrivers/geckodriver'
     # https://github.com/SeleniumHQ/selenium/wiki/Ruby-Bindings#Tweaking_Firefox_preferences.md
     #
     # update config/application_settings test should look _LIKE_ (YRMV):
@@ -58,9 +59,6 @@ Capybara.register_driver :selenium do |app|
     #    selenium:
     #      browser: 'firefox'
     #      firefox_binary_path: '/usr/local/bin/firefox/Firefox.app/Contents/MacOS/firefox'
-
-    geckodriver = which('geckodriver')
-    raise Rainbow('Please install geckodriver to run browser tests.').purple if geckodriver.blank?
 
     p = Settings.selenium_settings[:firefox_binary_path]
     if p

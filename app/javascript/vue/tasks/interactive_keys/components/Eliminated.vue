@@ -22,14 +22,15 @@ import RowComponent from './Row'
 
 export default {
   mixins: [ExtendResult],
-  components: {
-    RowComponent
-  },
+
+  components: { RowComponent },
+
   computed: {
     eliminated () {
       return this.observationMatrix ? this.observationMatrix.eliminated : []
     }
   },
+
   data () {
     return {
       showModal: false

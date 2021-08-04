@@ -9,8 +9,10 @@
     <modal-component
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Collecting events match</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Collecting events match</h3>
+      </template>
+      <template #body>
         <i>As edited this Collecting Event is invalid: a matching verbatim label has been found.</i>
         <table class="full_width">
           <thead>
@@ -23,7 +25,7 @@
             <tr
               v-for="item in CEFounded"
               :key="item.id">
-              <td v-html="item.object_tag">
+              <td v-html="item.object_tag"/>
               <td class="horizontal-right-content">
                 <span
                   class="button btn-edit circle-button button-default"
@@ -32,7 +34,7 @@
             </tr>
           </tbody>
         </table>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
@@ -41,21 +43,22 @@
 
 import { GetterNames } from '../../../../store/getters/getters'
 import { MutationNames } from '../../../../store/mutations/mutations'
+import { CollectingEvent } from 'routes/endpoints'
 import CloneLabel from './cloneLabel'
-import { GetCEMd5Label } from '../../../../request/resources'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 
 export default {
   components: {
     CloneLabel,
     ModalComponent
   },
+
   computed: {
     label: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetCollectionEvent].verbatim_label
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetCollectionEventLabel, value)
       }
     },
@@ -63,25 +66,31 @@ export default {
       return this.$store.getters[GetterNames.GetCollectionEvent]
     }
   },
+
   data () {
     return {
       showModal: false,
       CEFounded: []
     }
   },
+
   methods: {
     searchCE () {
       if (this.label) {
-        GetCEMd5Label(this.label).then(response => {
+        CollectingEvent.where({
+          md5_verbatim_label: true,
+          in_labels: this.label
+        }).then(response => {
           if (response.body.length) {
             this.CEFounded = response.body
-            if (!response.body.find(item => { return item.id === this.collectingEvent.id })) {
+            if (!response.body.find(item => item.id === this.collectingEvent.id)) {
               this.showModal = true
             }
           }
         })
       }
     },
+
     loadCE (ce) {
       this.$store.commit(MutationNames.SetCollectionEvent, ce)
       this.showModal = false
@@ -90,7 +99,7 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-  /deep/ .modal-container {
+  :deep(.modal-container) {
     max-width: 500px;
   }
 </style>

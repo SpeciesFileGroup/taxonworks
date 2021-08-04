@@ -63,7 +63,7 @@ RSpec.describe Descriptor::Gene, type: :model, group: [:descriptor, :observation
 
   context 'given some sequences' do
     let(:specimen) { FactoryBot.create(:valid_specimen) }
-    let(:extract) { specimen.derived_extracts.create!(quantity_value: 42, quantity_unit: 'kg', year_made: 2012, day_made: 2, month_made: 3) } 
+    let(:extract) { specimen.derived_extracts.create!(year_made: 2012, day_made: 2, month_made: 3) } 
     let!(:target_sequence1) { extract.derived_sequences.create!(
       sequence: 'ACGT', 
       sequence_type: 'DNA',

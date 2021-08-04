@@ -1,6 +1,6 @@
 import ActionNames from './actionNames'
 import { MutationNames } from '../mutations/mutations'
-import { GetTaxonNames } from '../../request/resources'
+import { TaxonName } from 'routes/endpoints'
 
 export default ({ dispatch, commit, state }, otus) => {
   function loadOtuInformation (otu) {
@@ -21,9 +21,11 @@ export default ({ dispatch, commit, state }, otus) => {
   if (state.currentOtu.taxon_name_id) {
     dispatch(ActionNames.LoadTaxonName, state.currentOtu.taxon_name_id)
   }
-  GetTaxonNames({ taxon_name_id: [...new Set(otus.map(otu => otu.taxon_name_id))] }).then(response => {
+  TaxonName.where({ taxon_name_id: [...new Set(otus.map(otu => otu.taxon_name_id))] }).then(response => {
     commit(MutationNames.SetTaxonNames, response.body)
   })
+
+  dispatch(ActionNames.LoadObservationDepictions, otus)
   dispatch(ActionNames.LoadDescendants, state.currentOtu)
   dispatch(ActionNames.LoadAssertedDistributions, state.otus.map(otu => otu.id))
   dispatch(ActionNames.LoadPreferences)

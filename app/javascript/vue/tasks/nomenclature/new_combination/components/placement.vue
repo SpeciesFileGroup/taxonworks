@@ -9,7 +9,7 @@
 </template>
 <script>
 
-import { CreatePlacement } from '../request/resources'
+import { TaxonName } from 'routes/endpoints'
 
 export default {
   props: {
@@ -18,6 +18,9 @@ export default {
       required: true
     }
   },
+
+  emits: ['created'],
+
   computed: {
     parentName () {
       if (!this.parent) return
@@ -42,7 +45,9 @@ export default {
   mounted () {
     this.orderRanks()
     this.taxon = this.protonyms[0].taxon
-    this.parent = this.protonyms[1].taxon
+    if (this.protonyms[1]) {
+      this.parent = this.protonyms[1].taxon
+    }
   },
   methods: {
     create () {
@@ -52,7 +57,7 @@ export default {
           parent_id: this.parent.id
         }
       }
-      CreatePlacement(this.taxon.id, data).then(response => {
+      TaxonName.update(this.taxon.id, data).then(response => {
         TW.workbench.alert.create(`Updated parent of ${response.body.name} to ${response.body.parent.name}`, 'notice')
         this.$emit('created', response.body)
       })
@@ -65,8 +70,9 @@ export default {
       })
     },
     mapOrder (array, order, key) {
-      array.sort( function (a, b) {
-        var A = a[key], B = b[key]
+      array.sort((a, b) => {
+        const A = a[key]
+        const B = b[key]
         if (order.indexOf(A) > order.indexOf(B)) {
           return 1
         } else {

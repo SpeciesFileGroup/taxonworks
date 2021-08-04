@@ -14,8 +14,7 @@
     </div>
     <div>
       <div
-        v-shortkey="[getOSKey(), 't']"
-        @shortkey="switchTaxonNameTask()"
+        v-hotkey="shortcuts"
         class="align-start">
         <div class="ccenter item separate-right">
           <name-section
@@ -48,7 +47,7 @@ import spinner from 'components/spinner.vue'
 
 import ActionNames from './store/actions/actionNames'
 import { GetterNames } from './store/getters/getters'
-import GetOSKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getMacKey.js'
 
 import setParamsId from './helpers/setParamsId'
 
@@ -73,14 +72,21 @@ export default {
     },
     isNew () {
       return this.$store.getters[GetterNames.GetTypeMaterial].id ? 'Edit' : 'New'
+    },
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+t`] = this.switchTaxonNameTask
+
+      return keys
     }
   },
   mounted: function () {
     this.loadTaxonTypes()
-    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+t`, 'Go to new taxon name task', 'New type material')
-    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+o`, 'Go to browse OTU', 'New type material')
-    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+e`, 'Go to comprehensive specimen digitization', 'New type material')
-    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+b`, 'Go to browse nomenclature', 'New type material')
+    TW.workbench.keyboard.createLegend(`${platformKey()}+t`, 'Go to new taxon name task', 'New type material')
+    TW.workbench.keyboard.createLegend(`${platformKey()}+o`, 'Go to browse OTU', 'New type material')
+    TW.workbench.keyboard.createLegend(`${platformKey()}+e`, 'Go to comprehensive specimen digitization', 'New type material')
+    TW.workbench.keyboard.createLegend(`${platformKey()}+b`, 'Go to browse nomenclature', 'New type material')
   },
   watch: {
     taxon (newVal) {
@@ -112,23 +118,22 @@ export default {
       }
     },
     loadType (list, typeId) {
-      let findType = list.find((type) => {
-        return type.id == typeId
-      })
+      const findType = list.find((type) => type.id === typeId)
+
       if (findType) {
         this.$store.dispatch(ActionNames.LoadTypeMaterial, findType)
       }
     },
     switchTaxonNameTask () {
-      let urlParams = new URLSearchParams(window.location.search)
-      let taxonId = urlParams.get('taxon_name_id')
+      const urlParams = new URLSearchParams(window.location.search)
+      const taxonId = urlParams.get('taxon_name_id')
+
       if (taxonId) {
         window.open(`/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxonId}`, '_self')
       } else {
         window.open('/tasks/nomenclature/new_taxon_name', '_self')
       }
-    },
-    getOSKey: GetOSKey
+    }
   }
 }
 

@@ -292,10 +292,27 @@ class CollectingEvent < ApplicationRecord
             unless: -> { end_date_year.nil? || end_date_month.nil? }
 
   validates :start_date_day, date_day: {year_sym: :start_date_year, month_sym: :start_date_month},
-            unless: -> { start_date_year.nil? || start_date_month.nil? }
+    unless: -> { start_date_year.nil? || start_date_month.nil? }
 
-  soft_validate(:sv_minimally_check_for_a_label)
-  soft_validate(:sv_georeference_matches_verbatim, set: :georeference, has_fix: false)
+  soft_validate(:sv_minimally_check_for_a_label,
+                set: :minimally_check_for_a_label,
+                name: 'Minimally check for a label',
+                description: 'At least one label type, or field notes, should be provided')
+
+  soft_validate(:sv_missing_georeference,
+                set: :georeference,
+                name: 'Missing georeference',
+                description: 'Georeference is missing')
+
+  soft_validate(:sv_georeference_matches_verbatim,
+                set: :georeference,
+                name: 'Georeference matches verbatim',
+                description: 'Georeference matches verbatim latitude and longitude')
+
+  soft_validate(:sv_missing_geographic_area,
+                set: :georeference,
+                name: 'Missing geographic area',
+                description: 'Georaphic area is missing')
 
   # @param [String]
   def verbatim_label=(value)
@@ -524,14 +541,14 @@ class CollectingEvent < ApplicationRecord
     begin
       CollectingEvent.transaction do
         vg_attributes = {collecting_event_id: id.to_s, no_cached: no_cached}
-        vg_attributes.merge!(by: self.creator.id, project_id: self.project_id) if reference_self
+        vg_attributes.merge!(by: creator.id, project_id: project_id) if reference_self
         a = Georeference::VerbatimData.new(vg_attributes)
         if a.valid?
           a.save
         end
         return a
       end
-    rescue
+    rescue ActiveRecord::RecordInvalid # TODO: rescue only something!!
       raise
     end
     false
@@ -1066,13 +1083,13 @@ class CollectingEvent < ApplicationRecord
   end
 
   def level2_name
-    return cached_level0_name if cached_level0_name
-    cache_geographic_names[:state]
+    return cached_level2_name if cached_level2_name
+    cache_geographic_names[:county]
   end
 
   def cached_level0_name
     return cached_level0_name if cached_level0_name
-    cache_geographic_names[:state]
+    cache_geographic_names[:country]
   end
 
   # @return [CollectingEvent]
@@ -1150,21 +1167,27 @@ class CollectingEvent < ApplicationRecord
     errors.add(:maximum_elevation, 'Maximum elevation is lower than minimum elevation.') if !minimum_elevation.blank? && !maximum_elevation.blank? && maximum_elevation < minimum_elevation
   end
 
+  def sv_missing_georeference
+    soft_validations.add(:base, 'Georeference is missing') unless georeferences.any?
+  end
+
   def sv_georeference_matches_verbatim
     if a = georeferences.where(type: 'Georeference::VerbatimData').first
       d_lat = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude).to_f
       d_long = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude).to_f
       if (a.latitude.to_f !=  d_lat)
-        soft_validations.add(
-          :base,
-        "Verbatim latitude #{verbatim_latitude}: (#{d_lat}) and point geoference latitude #{a.latitude} do not match")
+        soft_validations.add(:base,
+          "Verbatim latitude #{verbatim_latitude}: (#{d_lat}) and point geoference latitude #{a.latitude} do not match")
       end
       if (a.longitude.to_f != d_long)
-        soft_validations.add(
-            :base,
-            "Verbatim longitude #{verbatim_longitude}: (#{d_long}) and point geoference longitude #{a.longitude} do not match")
+        soft_validations.add(:base,
+          "Verbatim longitude #{verbatim_longitude}: (#{d_long}) and point geoference longitude #{a.longitude} do not match")
       end
     end
+  end
+
+  def sv_missing_geographic_area
+    soft_validations.add(:geographic_area_id, 'Geographic area is missing') if geographic_area_id.nil? && !georeferences.any?
   end
 
   def sv_minimally_check_for_a_label

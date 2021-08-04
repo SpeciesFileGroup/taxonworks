@@ -42,7 +42,7 @@
             @click="loadRankTable">
             Search
           </button>
-          <taxon-name v-if="Object.keys(rankList).length"/>
+          <taxon-name-component v-if="Object.keys(rankList).length"/>
           <ranks-filter
             title="Count columns"
             :taxon-name="taxon"
@@ -76,13 +76,12 @@
 
 import RankTable from './components/table'
 import JsonBar from './components/headerBar'
-import TaxonName from './components/filters/taxonName'
+import TaxonNameComponent from './components/filters/taxonName'
 import RanksFilter from './components/filters/ranks'
 import CombinationsFilter from './components/filters/combinations'
 import SpinnerComponent from 'components/spinner'
 
-import { GetRanksTable } from './request/resources'
-
+import { TaxonName } from 'routes/endpoints'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 
@@ -90,11 +89,12 @@ export default {
   components: {
     SpinnerComponent,
     RanksFilter,
-    TaxonName,
+    TaxonNameComponent,
     CombinationsFilter,
     RankTable,
     JsonBar
   },
+
   computed: {
     rankTable: {
       get () {
@@ -104,16 +104,20 @@ export default {
         this.$store.commit(MutationNames.SetRankTable, value)
       }
     },
+
     combinations () {
       return this.$store.getters[GetterNames.GetCombinations]
     },
+
     rankList () {
       return this.$store.getters[GetterNames.GetRanks]
     },
+
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
     }
   },
+
   data () {
     return {
       activeFilter: true,
@@ -127,21 +131,8 @@ export default {
       halt: false
     }
   },
+
   watch: {
-    rankData: {
-      handler (newVal) {
-        //this.loadRankTable()
-      },
-      deep: true
-    },
-    ranks: {
-      handler (newVal, oldVal) {
-        if (newVal.length) {
-          //this.loadRankTable()
-        }
-      },
-      deep: true
-    },
     rankTable: {
       handler (newVal) {
         if (newVal.data.length === this.limit) {
@@ -149,11 +140,6 @@ export default {
         }
       },
       deep: true
-    },
-    combinations (newVal) {
-      if (this.taxon) {
-        //this.loadRankTable()
-      }
     },
     taxon (newVal) {
       this.halt = true
@@ -163,10 +149,12 @@ export default {
       this.rankData.push(newVal.rank)
     }
   },
+
   methods: {
     resetTask () {
       this.list = []
     },
+
     loadRankTable () {
       const params = {
         ancestor_id: this.taxon.id,
@@ -178,21 +166,20 @@ export default {
         limit: this.limit
       }
       this.isLoading = true
-      GetRanksTable(this.taxon.id, params).then(response => {
+      TaxonName.rankTable(params).then(response => {
         this.jsonUrl = response.request.responseURL
         this.rankTable = response.body
-        this.isLoading = false
-      }, () => {
+      }).finally(() => {
         this.isLoading = false
       })
     },
+
     orderRanks (list) {
-      let rankNames = [...new Set(this.getRankNames(this.rankList))]
-      let ranksOrder = rankNames.filter(rank => {
-        return list.includes(rank)
-      })
-      return ranksOrder
+      const rankNames = [...new Set(this.getRankNames(this.rankList))]
+
+      return rankNames.filter(rank => list.includes(rank))
     },
+
     getRankNames (list, nameList = []) {
       for (var key in list) {
         if (typeof list[key] === 'object') {
@@ -216,7 +203,7 @@ export default {
     .filter {
       min-width: 300px;
     }
-    /deep/ .vue-autocomplete-input {
+    :deep(.vue-autocomplete-input) {
       width: 100%;
     }
   }

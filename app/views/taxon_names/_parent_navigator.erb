@@ -25,7 +25,7 @@
     <% taxon_name.ancestor_protonyms.each do |p| -%>
       <li data-valid-toggle="<%= p.is_valid? ? 'valid' : 'invalid' -%>">
         <p> 
-        <%= link_to(taxon_name_tag(p), send(target, {id: p.id, taxon_name_id: p.id})) -%>
+        <%= link_to(taxon_name_tag(p), send(target, {taxon_name_id: p.id})) -%>
         <span>
           <%= p.cached_author_year -%>
         </span>
@@ -47,7 +47,7 @@
     <% taxon_name.children.order(:name).where(type: 'Protonym').each do |p| -%>
       <li data-valid-toggle="<%= p.is_valid? ? 'valid' : 'invalid' -%>">
         <p>
-        <%= link_to(taxon_name_tag(p), send(target, {id: p.id, taxon_name_id: p.id})) -%>
+        <%= link_to(taxon_name_tag(p), send(target, {taxon_name_id: p.id})) -%>
         <span><%= p.cached_author_year -%></span>
         <% v = p.descendants.that_is_valid.count -%>
         <% iv = p.descendants.that_is_invalid.count -%>

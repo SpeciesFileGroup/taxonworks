@@ -44,7 +44,7 @@ describe Georeference::GeoLocate, type: :model, group: [:geo] do
     drawn_point_with_polygon_and_uncertainty: '41.449859|-98.220691|9100|' \
     '41.53125216994986,-98.32855566566684,' \
     '41.53125216994986,-98.11282633433316,' \
-    '41.368465830050134,-98.11282633433316,' \
+    '41.36846583005013,-98.11282633433316,' \
     '41.53125216994986,-98.32855566566684',
     georeferenced_point_no_polygon: '52.65|-106.333333|3036|Unavailable'
   }
@@ -64,7 +64,7 @@ describe Georeference::GeoLocate, type: :model, group: [:geo] do
       expect(Georeference::GeoLocate
         .parse_iframe_result(iframe_example_values[:drawn_point_with_polygon_and_uncertainty]))
         .to eq(['41.449859', '-98.220691', '9100',
-                [["-98.32855566566684", "41.53125216994986"], ["-98.11282633433316", "41.368465830050134"],
+                [["-98.32855566566684", "41.53125216994986"], ["-98.11282633433316", "41.36846583005013"],
                  ["-98.11282633433316", "41.53125216994986"], ["-98.32855566566684", "41.53125216994986"]]])
     end
   end

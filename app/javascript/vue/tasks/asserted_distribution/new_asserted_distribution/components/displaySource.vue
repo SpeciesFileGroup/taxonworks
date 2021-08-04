@@ -6,7 +6,9 @@
       target="blank"
       @mouseover="showSource = true"
       @mouseout="showSource = false"/>
-    <div v-if="showSource" class="source-information panel content">
+    <div
+      v-if="showSource"
+      class="source-information panel content">
       <span v-html="source.object_tag"/>
     </div>
   </div>

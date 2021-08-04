@@ -15,10 +15,7 @@ module Shared::IsData::Pinnable
   #   whether the object is pinned by the user 
   def pinned?(user, project_id)
     if pinboard_items.loaded?
-      pinboard_items.each do |i|
-        return true if i.project_id == project_id && i.user_id == user.id
-      end
-      return false
+      !!pinboard_items.detect { |i| i.project_id == project_id && i.user_id == user.id }
     else
       user && user.pinboard_items.where(project_id: project_id).for_object(self.metamorphosize).any?
     end
@@ -29,12 +26,9 @@ module Shared::IsData::Pinnable
   def pinboard_item_for(user)
     return nil unless user
     if pinboard_items.loaded?
-      pinboard_items.each do |i|
-        return i if pinboard_item.user_id = user.id  # i.project_id == project_id && i.user_id == user.id
-      end
-      return nil
+      pinboard_items.detect { |i| i.user_id == user.id }
     else
-      return pinboard_items.where(user_id: user.id).for_object(self.metamorphosize).first
+      pinboard_items.where(user_id: user.id).for_object(self.metamorphosize).first
     end
   end
 

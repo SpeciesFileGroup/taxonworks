@@ -5,7 +5,7 @@
     tag="ul">
     <li
       v-for="(item, index) in list"
-      :key="setKey ? item[setKey] : item.hasOwnProperty('id') ? item.id : JSON.stringify(item)"
+      :key="setKey ? item[setKey] : item.id || JSON.stringify(item)"
       class="list-complete-item flex-separate middle"
       :class="{ 'highlight': checkHighlight(item) }">
       <span>
@@ -40,6 +40,7 @@
         <span
           v-if="remove"
           class="circle-button btn-delete"
+          :class="{ 'button-default': softDelete }"
           @click="deleteItem(item, index)">Remove
         </span>
       </div>
@@ -57,6 +58,7 @@ export default {
     RadialAnnotator,
     SoftValidation
   },
+
   props: {
     list: {
       type: Array,
@@ -101,12 +103,20 @@ export default {
     validations: {
       type: Boolean,
       default: false
+    },
+    softDelete: {
+      type: Boolean,
+      default: false
     }
   },
-  beforeCreate() {
+
+  emits: ['delete', 'deleteIndex'],
+
+  beforeCreate () {
     this.$options.components['RadialAnnotator'] = RadialAnnotator
     this.$options.components['RadialObject'] = RadialObject
   },
+
   methods: {
     displayName (item) {
       if (!this.label) return item
@@ -120,6 +130,7 @@ export default {
         return tmp
       }
     },
+
     checkHighlight (item) {
       if (this.highlight) {
         if (this.highlight.key) {
@@ -130,7 +141,8 @@ export default {
       }
       return false
     },
-    deleteItem(item, index) {
+
+    deleteItem (item, index) {
       if(this.deleteWarning) {
         if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
           this.$emit('delete', item)
@@ -142,7 +154,7 @@ export default {
         this.$emit('deleteIndex', index)
       }
     },
-    getPropertyValue(item, stringPath) {
+    getPropertyValue (item, stringPath) {
       let keys = stringPath.split('.')
       if(keys.length === 1) {
         return item[stringPath]
@@ -183,7 +195,7 @@ export default {
   }
 
   .table-entrys-list {
-    overflow-y: scroll;
+    overflow-y: auto;
     padding: 0px;
     position: relative;
 

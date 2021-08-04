@@ -1,15 +1,12 @@
-import Vue from 'vue'
-import App from './app.vue'
+import { createApp } from 'vue'
 import { newStore } from './store/store'
+import App from './app.vue'
 
 function init () {
-  new Vue({
-    el: '#vue-task-observation-dashboard',
-    store: newStore(),
-    render: function (createElement) {
-      return createElement(App)
-    }
-  })
+  const app = createApp(App)
+
+  app.use(newStore())
+  app.mount('#vue-task-observation-dashboard')
 }
 
 document.addEventListener('turbolinks:load', () => {

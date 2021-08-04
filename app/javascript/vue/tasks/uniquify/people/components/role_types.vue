@@ -18,31 +18,36 @@
 
 <script>
 
-import { GetRoleTypes } from '../request/resources'
+import { People } from 'routes/endpoints'
 
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Array,
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     selected: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
-  mounted () {
-    GetRoleTypes().then(response => {
+
+  created () {
+    People.roleTypes().then(response => {
       this.roleTypes = response.body
     })
   },
-  data() {
+
+  data () {
     return {
       roleTypes: {}
     }

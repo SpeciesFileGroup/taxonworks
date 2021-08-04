@@ -2,7 +2,6 @@ module CollectingEventsHelper
 
   def collecting_event_tag(collecting_event)
     return nil if collecting_event.nil?
-
     if a = [ collecting_event.verbatim_label,
         collecting_event.print_label,
         collecting_event.document_label ].compact.first
@@ -19,21 +18,23 @@ module CollectingEventsHelper
       collecting_event_verbatim_locality_tag(collecting_event),
       collecting_event_dates_tag(collecting_event),
       collecting_event_collectors_tag(collecting_event),
-      collecting_event_coordinates_tag(collecting_event),
+      collecting_event_verbatim_coordinates_tag(collecting_event),
+     # collecting_event_coordinates_tag(collecting_event), # this is very slow
       collecting_event_method_habitat_tag(collecting_event),
       collecting_event_uses_tag(collecting_event)
     ].compact.join(join_string).html_safe
   end
 
- def collecting_event_uses_tag(collecting_event)
+  def collecting_event_uses_tag(collecting_event)
     return nil if collecting_event.nil?
     if collecting_event.collection_objects.any?
       content_tag(:span, 'Uses: ' + collecting_event.collection_objects.count.to_s, class: [ :feedback, 'feedback-thin', 'feedback-secondary' ])
     else
       nil
     end
- end
+  end
 
+  # TODO: unify
   def collecting_event_identifiers_tag(collecting_event)
     return nil if collecting_event.nil?
     if i = collecting_event.identifiers.load.first
@@ -74,10 +75,17 @@ module CollectingEventsHelper
     a
   end
 
+  # Slow, but accurate
   def collecting_event_coordinates_tag(collecting_event)
     return nil if collecting_event.nil? || collecting_event.map_center_method.nil?
     c = collecting_event.map_center
     content_tag(:span, [c.x.round(4), c.y.round(4)].join('&nbsp;&#8212;&nbsp;').html_safe)
+  end
+
+  # Fast, but limited
+  def collecting_event_verbatim_coordinates_tag(collecting_event)
+    return nil if collecting_event.nil? || collecting_event.latitude.blank?
+    content_tag(:span, [collecting_event.latitude, collecting_event.longitude].join(';').html_safe)
   end
 
   def collecting_event_dates_tag(collecting_event)
@@ -88,7 +96,7 @@ module CollectingEventsHelper
 
     a << '&nbsp;'.html_safe + content_tag(:span, collecting_event.verbatim_date, class: [
       :feedback, 'feedback-thin', 'feedback-secondary' ]) if collecting_event.verbatim_date
-    a.html_safe
+      a.html_safe
   end
 
   def collecting_event_verbatim_locality_tag(collecting_event)
@@ -188,8 +196,6 @@ module CollectingEventsHelper
   end
 
   def collecting_event_next_by_start_date(collecting_event)
-
-
   end
 
 

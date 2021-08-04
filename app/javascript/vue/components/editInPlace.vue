@@ -19,31 +19,39 @@
 <script>
 export default {
   props: {
-    value: {
+    modelValue: {
       type: String,
     },
+
     legend: {
       type: String,
       default: 'Click to edit'
     }
   },
+
+  emits: [
+    'update:modelValue',
+    'end'
+  ],
+
   computed: {
     inputField: {
       get() {
-        return this.value
+        return this.modelValue
       },
       set(value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     },
-    displayLabel() {
-      return (this.value ? this.value : this.legend)
+    displayLabel () {
+      return this.modelValue ? this.modelValue : this.legend
     }
   },
+
   watch: {
     editing(newVal) {
       if(newVal) {
-        this.$nextTick(()=> {
+        this.$nextTick(() => {
           this.$refs.inputtext.focus()
         })
       }
@@ -52,13 +60,14 @@ export default {
       }
     }
   },
-  data() {
+
+  data () {
     return {
       editing: false,
     }
   },
   methods: {
-    setEdit(value) {
+    setEdit (value) {
       this.editing = value
     }
   }

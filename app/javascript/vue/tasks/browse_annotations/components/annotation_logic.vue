@@ -4,7 +4,7 @@
       <li v-for="option in options">
         <label @click="selectLogic(option)">
           <input
-            :checked="value === option"
+            :checked="modelValue === option"
             name="annotation-logic"
             type="radio"
             :value="option">
@@ -18,21 +18,25 @@
 </template>
 
 <script>
-  export default {
-    props: {
-      value: {
-        type: String,
-      }
-    },
-    data: function () {
-      return {
-        options: ['replace', 'append']
-      }
-    },
-    methods: {
-      selectLogic(type) {
-        this.$emit('input', type)
-      }
+export default {
+  props: {
+    modelValue: {
+      type: String
+    }
+  },
+
+  emits: ['update:modelValue'],
+
+  data () {
+    return {
+      options: ['replace', 'append']
+    }
+  },
+
+  methods: {
+    selectLogic (type) {
+      this.$emit('update:modelValue', type)
     }
   }
+}
 </script>

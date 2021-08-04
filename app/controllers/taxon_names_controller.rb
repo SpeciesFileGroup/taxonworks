@@ -13,7 +13,7 @@ class TaxonNamesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
+        @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 50)
       }
     end
   end
@@ -70,18 +70,18 @@ class TaxonNamesController < ApplicationController
     @taxon_name.destroy
     respond_to do |format|
       if @taxon_name.destroyed?
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'TaxonName was successfully destroyed.')}
-        format.json {head :no_content}
+        format.html { destroy_redirect @taxon_name, notice: 'TaxonName was successfully destroyed.' }
+        format.json { head :no_content }
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'TaxonName was not destroyed, ' + @taxon_name.errors.full_messages.join('; '))}
-        format.json {render json: @taxon_name.errors, status: :unprocessable_entity}
+        format.html { destroy_redirect @taxon_name, notice: 'TaxonName was not destroyed, ' + @taxon_name.errors.full_messages.join('; ') }
+        format.json { render json: @taxon_name.errors, status: :unprocessable_entity }
       end
     end
   end
 
   def search
     if params[:id].blank?
-      redirect_to taxon_names_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to taxon_names_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to taxon_name_path(params[:id])
     end
@@ -289,9 +289,11 @@ class TaxonNamesController < ApplicationController
       :name,
       :nomenclature_code,
       :nomenclature_group, # !! different than autocomplete
+      :not_specified,
       :otus,
       :page,
       :per,
+      :taxon_name_author_ids_or,
       :taxon_name_type,
       :type_metadata,
       :updated_since,
@@ -304,6 +306,7 @@ class TaxonNamesController < ApplicationController
       keyword_id_and: [],
       keyword_id_or: [],
       parent_id: [],
+      taxon_name_author_ids: [],
       taxon_name_classification: [],
       taxon_name_id: [],
       taxon_name_relationship: [],
@@ -328,6 +331,7 @@ class TaxonNamesController < ApplicationController
       :nomenclature_code,
       :nomenclature_group, # !! different than autocomplete
       :otus,
+      :not_specified,
 #     :page, # TODO: yes or no?
 #     :per,
       :taxon_name_type,

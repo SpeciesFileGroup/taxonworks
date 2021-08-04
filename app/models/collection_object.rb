@@ -83,12 +83,11 @@ class CollectionObject < ApplicationRecord
   include CollectionObject::BiologicalExtensions
 
   ignore_whitespace_on(:buffered_collecting_event, :buffered_determinations, :buffered_other_labels)
-  is_origin_for 'CollectionObject', 'Extract', 'AssertedDistribution'
 
   CO_OTU_HEADERS      = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
   BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}.freeze
 
-  GRAPH_ENTRY_POINTS = [:biological_associations, :data_attributes, :taxon_determinations, :biocuration_classifications, :collecting_event, :origin_relationships]
+  GRAPH_ENTRY_POINTS = [:biological_associations, :data_attributes, :taxon_determinations, :biocuration_classifications, :collecting_event, :origin_relationships, :extracts]
 
   # Identifier delegations
   delegate :cached, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
@@ -109,8 +108,10 @@ class CollectionObject < ApplicationRecord
   has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object, dependent: :destroy
   has_one :deaccession_recipient, through: :deaccession_recipient_role, source: :person
 
+  # TODO: Deprecate these models.  Semantics also confuse with origin relationship.
   has_many :derived_collection_objects, inverse_of: :collection_object, dependent: :restrict_with_error
   has_many :collection_object_observations, through: :derived_collection_objects, inverse_of: :collection_objects
+
   has_many :sqed_depictions, through: :depictions, dependent: :restrict_with_error
 
   belongs_to :collecting_event, inverse_of: :collection_objects
@@ -135,11 +136,21 @@ class CollectionObject < ApplicationRecord
 
   before_validation :assign_type_if_total_or_ranged_lot_category_id_provided
 
-  soft_validate(:sv_missing_accession_fields, set: :missing_accession_fields)
-  soft_validate(:sv_missing_deaccession_fields, set: :missing_deaccession_fields)
+  soft_validate(:sv_missing_accession_fields,
+                set: :missing_accession_fields,
+                name: 'Missing accession fields',
+                description: 'Name or Provider are not selected')
+
+  soft_validate(:sv_missing_deaccession_fields,
+                set: :missing_deaccession_fields,
+                name: 'Missing deaccesson fields',
+                description: 'Date, recipient, or reason are not specified')
 
   scope :with_sequence_name, ->(name) { joins(sequence_join_hack_sql).where(sequences: {name: name}) }
   scope :via_descriptor, ->(descriptor) { joins(sequence_join_hack_sql).where(sequences: {id: descriptor.sequences}) }
+
+  has_many :extracts, through: :origin_relationships, source: :new_object, source_type: 'Extract'
+  has_many :sequences, through: :extracts
 
   # This is a hack, maybe related to a Rails 5.1 bug.
   # It returns the SQL that works in 5.0/4.2 that
@@ -526,6 +537,7 @@ class CollectionObject < ApplicationRecord
     retval
   end
 
+  # TODO: move to filter
   # @param [Hash] search_start_date string in form 'yyyy-mm-dd'
   # @param [Hash] search_end_date string in form 'yyyy-mm-dd'
   # @param [Hash] partial_overlap 'on' or 'off'
@@ -637,6 +649,10 @@ class CollectionObject < ApplicationRecord
     soft_validations.add(:deaccession_reason, 'Reason is is not defined') if self.deaccession_reason.blank? && self.deaccession_recipient && self.deaccessioned_at
   end
 
+  def sv_missing_determination
+    # see biological_collection_object
+  end
+
   def sv_missing_collecting_event
     # see biological_collection_object
   end
@@ -647,6 +663,10 @@ class CollectionObject < ApplicationRecord
 
   def sv_missing_repository
     # WHY? -  see biological_collection_object
+  end
+
+  def sv_missing_biocuration_classification
+    # see biological_collection_object
   end
 
   protected

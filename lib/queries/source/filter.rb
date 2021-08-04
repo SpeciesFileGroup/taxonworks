@@ -110,7 +110,7 @@ module Queries
       # @param [Hash] params
       def initialize(params)
         @query_string = params[:query_term]
-        
+
         @author = params[:author]
         @author_ids = params[:author_ids] || []
 
@@ -156,7 +156,7 @@ module Queries
       def project_sources_table
         ::ProjectSource.arel_table
       end
- 
+
       def base_query
         ::Source.select('sources.*')
       end
@@ -230,7 +230,7 @@ module Queries
             a[:id].eq(c[:role_object_id])
           .and(c[:role_object_type].eq('Source'))
           .and(c[:type].eq('SourceAuthor'))
-        )
+          )
 
         e = c[:id].not_eq(nil)
         f = c[:person_id].eq_any(author_ids)
@@ -238,7 +238,7 @@ module Queries
         b = b.where(e.and(f))
         b = b.group(a['id'])
         b = b.having(a['id'].count.eq(author_ids.length)) unless author_ids_or
-        b = b.as('z1_')
+        b = b.as('aut_z1_')
 
         ::Source.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
       end
@@ -366,7 +366,7 @@ module Queries
           identifier_facet,
           identifier_namespace_facet,
           created_updated_facet, # See Queries::Concerns::Users
-          empty_fields_facet, # See Queries::Concerns::Empty
+          empty_fields_facet,    # See Queries::Concerns::Empty
           not_empty_fields_facet,
         ].compact
 

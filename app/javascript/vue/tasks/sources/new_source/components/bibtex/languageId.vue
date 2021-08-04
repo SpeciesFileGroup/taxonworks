@@ -13,7 +13,7 @@
             :filter-ids="languageId"
             @selected="setSelected"/>
           <lock-component
-            class="circle-button-margin"
+            class="margin-small-left"
             v-model="settings.lock.language_id"/>
         </div>
         <div
@@ -35,11 +35,9 @@
 
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
-
-import LockComponent from 'components/lock'
-import SmartSelector from 'components/smartSelector'
-
-import AjaxCall from 'helpers/ajaxCall'
+import { Language } from 'routes/endpoints'
+import LockComponent from 'components/ui/VLock/index.vue'
+import SmartSelector from 'components/ui/SmartSelector'
 
 export default {
   components: {
@@ -77,10 +75,10 @@ export default {
   },
   watch: {
     source: {
-      handler(newVal, oldVal) {
-        if(newVal && newVal.language_id) {
-          if(!oldVal || oldVal.language_id != newVal.language_id) {
-            AjaxCall('get', `/languages/${newVal.language_id}`).then(response => {
+      handler (newVal, oldVal) {
+        if (newVal && newVal.language_id) {
+          if (!oldVal || oldVal.language_id !== newVal.language_id) {
+            Language.find(newVal.language_id).then(response => {
               this.selected = response.body
             })
           }

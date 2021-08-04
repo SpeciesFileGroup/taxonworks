@@ -16,7 +16,7 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 
 export default {
   components: {
@@ -27,44 +27,48 @@ export default {
       type: Object,
       required: true
     },
+
     objectId: {
       required: true,
-      validator(value) {
+      validator (value) {
         return value === undefined || typeof value === 'string' || typeof value === 'number'
       }
     },
+
     objectType: {
       type: String,
       required: true
     },
+
     existing: {
       type: Object,
       required: false
     }
   },
-  data() {
+
+  emits: ['onUpdate'],
+
+  data () {
     return {
-      data_attribute: this.newDataAttribute() 
+      data_attribute: this.newDataAttribute()
     }
   },
+
   watch: {
-    existing(newVal) {
-      if(newVal) {
-        this.data_attribute = newVal
-      }
-      else {
-        this.data_attribute = this.newDataAttribute()
-      }
+    existing (newVal) {
+      this.data_attribute = newVal || this.newDataAttribute()
     },
+
     data_attribute: {
-      handler(newVal) {
+      handler () {
         this.updatePredicate()
       },
       deep: true
     }
   },
+
   methods: {
-    newDataAttribute() {
+    newDataAttribute () {
       return {
         type: 'InternalAttribute',
         controlled_vocabulary_term_id: this.predicateObject.id,
@@ -73,19 +77,18 @@ export default {
         value: this.value
       }
     },
-    updatePredicate() {
+
+    updatePredicate () {
       let data
 
-      if(this.data_attribute.value.length == 0 && this.data_attribute.hasOwnProperty('id')) {
+      if (!this.data_attribute?.value?.length && this.data_attribute?.id) {
         data = {
           id: this.data_attribute.id,
           _destroy: true
         }
-      }
-      else {
+      } else {
         data = this.data_attribute
       }
-      
       this.$emit('onUpdate', data)
     }
   }

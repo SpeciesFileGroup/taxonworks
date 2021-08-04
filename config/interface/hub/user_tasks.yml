@@ -622,6 +622,15 @@ export_taxonworks_project_task:
   categories:
   status: prototype
   description: 'Generate a downloadable copy of the database with data from this project and community data (Sources, People, Repositories, etc.)'
+new_extract_task:
+  hub: true
+  name: 'New extract'
+  related:
+  categories:
+    - dna
+    - new
+  status: prototype
+  description: 'Create new extracts, e.g. for DNA purposes.'
 content_by_nomenclature_task:
   hub: true
   name: 'Content by nomenclature ("Brock")'

@@ -2,9 +2,9 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary19
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000292'.freeze
 
-  soft_validate(:sv_year_of_description, set: :specific_relationship, has_fix: false)
-  soft_validate(:sv_source_not_selected, set: :specific_relationship, has_fix: false)
-  soft_validate(:sv_source_after_1960, set: :specific_relationship, has_fix: false)
+  soft_validate(:sv_year_of_description, set: :specific_relationship)
+  soft_validate(:sv_source_not_selected, set: :specific_relationship)
+  soft_validate(:sv_source_after_1960, set: :specific_relationship)
 
 
   def self.disjoint_taxon_name_relationships

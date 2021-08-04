@@ -1,84 +1,116 @@
-require 'rails_helper'
-require 'lib/soft_validation_helpers'
+require_relative 'soft_validation_helpers'
 
-describe 'SoftValidation', group: :soft_validation do
+describe 'SoftValidation', group: [:soft_validation] do
+
+  context 'subclass overiding methods' do
+    before do
+      OtherSofty.define_method(:my_sv) do
+        2
+      end
+
+      Softy.define_method(:my_sv) do
+        1
+      end
+
+      Softy.soft_validate(:my_sv, name: 'Check for cheeze')
+      OtherSofty.soft_validate(:my_sv, name: 'Check for cheeze with microscope')
+    end
+
+    after :all do  
+      Softy.send(:reset_soft_validation!)
+      OtherSofty.send(:reset_soft_validation!)
+      OtherOtherSofty.send(:reset_soft_validation!)
+    end
+
+    specify 'subclass overrides 1' do
+      expect(Softy.soft_validation_methods[:my_sv].name).to eq('Check for cheeze')
+    end
+
+    specify 'subclass overrides 2' do
+      expect(OtherSofty.soft_validation_methods[:my_sv].name).to eq('Check for cheeze with microscope')
+    end
+
+    specify 'subclass does not override 3' do
+      expect(OtherOtherSofty.soft_validation_methods[:my_sv].name).to eq('Check for cheeze')
+    end
+  end
 
   context 'extended class methods' do
-
     specify '.has_self_soft_validations?' do
       expect(Softy.has_self_soft_validations?).to be_falsey
     end
 
     specify '.soft_validation_methods' do
-      expect(Softy.soft_validation_methods).to eq('Softy' => {})
+      expect(Softy.soft_validation_methods).to eq({})
     end
 
-    context 'accessing soft_validations' do
       specify '.soft_validators() returns individual methods from soft_validation_methods' do
         expect(Softy.soft_validators).to eq([])
       end
-    end
 
-    context 'describing soft_validations' do
       specify '.soft_validation_descriptions returns name and description pairs' do
         expect(Softy.soft_validation_descriptions).to eq({})
       end
-    end
 
     context 'adding soft validations' do
-      before(:each) {
-        Softy.reset_soft_validation!
-      }
+      before(:each) { Softy.send(:reset_soft_validation!) }
 
-      specify 'basic use: soft_validate(:method)' do
-        expect(Softy.soft_validate(:haz_cheezburgers?)).to be_truthy
-        expect(Softy.soft_validation_methods['Softy'].keys).to contain_exactly(:haz_cheezburgers?)
+      specify 'basic use: soft_validate(:method) 1' do
+        Softy.soft_validate(:haz_cheezburgers?)
+        expect(Softy.soft_validation_methods.keys).to contain_exactly(:haz_cheezburgers?)
       end
 
-      specify 'assigment to a named set of validations: soft_validate(:method, set: :set_name)' do
-        expect(Softy.soft_validate(:needs_moar_cheez?, set: :cheezy)).to be_truthy
-        expect(Softy.soft_validation_sets['Softy'][:all]).to contain_exactly(:needs_moar_cheez?)
+      specify '#soft_validation_methods_on_self' do
+        Softy.soft_validate(:haz_cheezburgers?)
+        expect(Softy.soft_validation_methods_on_self).to contain_exactly(:haz_cheezburgers?)
+      end
+
+      specify 'can be assigned to a set' do
+        Softy.soft_validate(:needs_moar_cheez?, set: :cheezy)
         expect(Softy.soft_validation_sets['Softy'][:cheezy]).to contain_exactly(:needs_moar_cheez?)
       end
 
-      specify 'assigment with name, description, resolution' do
-        expect(Softy.soft_validate(:needs_moar_cheez?, name: 'Check for cheeze', description: 'Open bun, look for cheeze.', resolution: [:root_path])).to be_truthy
-        expect(Softy.soft_validation_methods['Softy'][:needs_moar_cheez?].name).to eq('Check for cheeze') 
-        expect(Softy.soft_validation_methods['Softy'][:needs_moar_cheez?].description).to eq('Open bun, look for cheeze.') 
-        expect(Softy.soft_validation_methods['Softy'][:needs_moar_cheez?].resolution).to contain_exactly(:root_path) 
+      specify 'can be assigned a description' do
+        d = 'Open bun, look for cheeze.'
+        Softy.soft_validate(:needs_moar_cheez?, name: 'Check for cheeze', description: d )
+        expect(Softy.soft_validation_methods[:needs_moar_cheez?].description).to eq(d)
       end
 
-      specify 'assignment with name, fixable' do
-        expect(Softy.soft_validate(:needs_moar_cheez?, name: 'Check for cheeze', has_fix: false)).to be_truthy
-        expect(Softy.soft_validation_methods['Softy'][:needs_moar_cheez?].has_fix).to eq(false) 
-        expect(Softy.soft_validation_methods['Softy'][:needs_moar_cheez?].fixable?).to eq(false) 
+      specify 'can be assigned a resolution (path)' do
+        Softy.soft_validate(:needs_moar_cheez?, name: 'Check for cheeze', resolution: [:root_path])
+        expect(Softy.soft_validation_methods[:needs_moar_cheez?].resolution).to contain_exactly(:root_path)
+      end
+
+      specify 'can be asigned a fix' do
+        Softy.soft_validate(:needs_moar_cheez?, name: 'Check for cheeze', fix: :my_fix)
+        expect(Softy.soft_validation_methods[:needs_moar_cheez?].fixable?).to eq(true)
       end
     end
 
-    context 'fixable methods' do
-      before(:each) {
-        Softy.reset_soft_validation!
-        expect(Softy.soft_validate(:needs_moar_cheez?, name: 'Check for cheeze')).to be_truthy
-        expect(Softy.soft_validate(:needs_less_cheez?, name: 'Too much cheeze', has_fix: false)).to be_truthy
-      }
+    context '#fix and :fixable' do
+      before(:each) do
+        Softy.send(:reset_soft_validation!)
+        Softy.soft_validate(:needs_moar_cheez?, name: 'Check for cheeze')
+        Softy.soft_validate(:needs_less_cheez?, name: 'Too much cheeze', fix: :remove_cheeze)
+      end
 
       specify '.soft_validators default are all' do
-        expect(Softy.soft_validators).to contain_exactly(:needs_moar_cheez?, :needs_less_cheez?) 
+        expect(Softy.soft_validators).to contain_exactly(:needs_moar_cheez?, :needs_less_cheez?)
       end
 
       specify '.soft_validators, fixable_only' do
-        expect(Softy.soft_validators(fixable_only: true)).to contain_exactly(:needs_moar_cheez?) 
+        expect(Softy.soft_validators(fixable: true)).to contain_exactly(:needs_less_cheez?)
       end
 
       specify '.soft_validators false is all' do
-        expect(Softy.soft_validators(fixable_only: false)).to contain_exactly(:needs_moar_cheez?, :needs_less_cheez?) 
+        expect(Softy.soft_validators(fixable: false)).to contain_exactly(:needs_moar_cheez?, :needs_less_cheez?)
       end
     end
 
     context 'soft_validations between classes' do
       before(:each) {
-        Softy.reset_soft_validation!
-        OtherSofty.reset_soft_validation!
+        Softy.send(:reset_soft_validation!)
+        OtherSofty.send(:reset_soft_validation!)
       }
 
       specify 'methods assigned to parent are available to child' do
@@ -88,7 +120,7 @@ describe 'SoftValidation', group: :soft_validation do
 
       specify 'methods assigned to child are not merged with parents' do
         OtherSofty.soft_validate(:haz_cheezburgers?)
-        expect(Softy.soft_validation_sets['Softy'][:all]).to contain_exactly()
+        expect(Softy.soft_validation_sets['Softy'][:default]).to contain_exactly()
       end
 
       context 'accessed via soft_validators' do
@@ -104,15 +136,6 @@ describe 'SoftValidation', group: :soft_validation do
           expect(OtherSofty.soft_validators).to contain_exactly(:haz_cheezburgers?)
         end
       end
-
-      # specify 'methods assigned to one class are not available to another' do
-      #   expect(Softy.soft_validate(:haz_cheezburgers?)).to be_truthy
-      #   expect(Softy.soft_validation_methods[:all]).to eq([:haz_cheezburgers?])
-      #   expect(OtherSofty.soft_validation_methods[:all]).to eq([])
-      #   expect(OtherSofty.soft_validate(:foo)).to be_truthy
-      #   expect(OtherSofty.soft_validation_methods[:all]).to eq([:foo])
-      #   expect(Softy.soft_validation_methods[:all]).to eq([:haz_cheezburgers?])
-      # end
     end
   end
 
@@ -136,53 +159,59 @@ describe 'SoftValidation', group: :soft_validation do
     end
   end
 
+  specify '.reset_soft_validation' do
+    Softy.soft_validate(:just_bun?)
+    Softy.send(:reset_soft_validation!)
+    expect(Softy.soft_validation_sets).to eq( 'Softy' => {default: []})
+    expect(Softy.soft_validation_methods).to eq( {} )
+  end
+
   context 'example usage' do
-    before { Softy.reset_soft_validation! }
+    before { Softy.send(:reset_soft_validation!) }
 
-    context 'with a validation that has resolution' do
-      before do 
-        Softy.soft_validate(:just_bun?, resolution: [:root_path])
-        Softy.soft_validate(:needs_moar_cheez?)
-      end 
-
+    context 'with a validation instance that is resolvable' do
+      before { Softy.soft_validate(:you_do_it?, resolution: [:root_path]) }
       let(:softy) {Softy.new}
-
-      specify 'soft_validations#resolution_for()' do
-        expect(softy.soft_validations.resolution_for(:just_bun?)).to contain_exactly(:root_path)
+      specify 'after validation resolution is available' do
+        softy.soft_validate
+          expect(softy.soft_validations.soft_validations.first.resolution).to contain_exactly(:root_path)
+        end
       end
 
-      specify 'soft_validations#resolution_for()' do
-        expect(softy.soft_validations.resolution_for(:needs_moar_cheez?)).to contain_exactly()
+    context 'with a validation instance that is fixable' do
+      before { Softy.soft_validate(:you_do_it?, fix: :my_fix) }
+      let(:softy) {Softy.new}
+
+      specify 'after validation fix is available' do
+        softy.soft_validate
+        expect(softy.soft_validations.soft_validations.first.fix).to eq(:my_fix)
       end
     end
 
-    context 'with a validation instance that is resolvable' do
-      before {
-        Softy.soft_validate(:you_do_it?, resolution: [:root_path])
-      }
-
+    context 'with a validation instance that has description' do
+      before { Softy.soft_validate(:you_do_it?, fix: :my_fix, description: 'my description') }
       let(:softy) {Softy.new}
 
-      context 'after validation' do
-        before { softy.soft_validate }
-
-        specify 'resolution is possible' do
-          expect(softy.soft_validations.soft_validations.first.resolution).to contain_exactly(:root_path)
-        end
+      specify 'after validation description is available' do
+        softy.soft_validate
+        expect(softy.soft_validations.soft_validations.first.description).to eq('my description')
       end
     end
 
     context 'with a couple of validations' do
-      before do 
-        # Stub the validation methods 
+      before do
         Softy.soft_validate(:needs_moar_cheez?, set: :cheezy)
-        Softy.soft_validate(:haz_cheezburgers?)
-      end 
+        Softy.soft_validate(:haz_cheezburgers?, fix: :cook_cheezburgers)
+      end
 
       let(:softy) {Softy.new}
 
       specify '.has_self_soft_validations?' do
         expect(Softy.has_self_soft_validations?).to be_truthy
+      end
+
+      specify 'softy.soft_valid?' do
+        expect(softy.soft_valid?).to be_falsey
       end
 
       specify 'softy.soft_valid?' do
@@ -203,39 +232,46 @@ describe 'SoftValidation', group: :soft_validation do
         }
 
         specify 'softy.soft_validations' do
-          expect(softy.soft_validations.class).to eq(SoftValidation::SoftValidations)
+          expect(softy.soft_validations.class).to eq(::SoftValidation::SoftValidations)
         end
 
-        specify '#fixes_run?' do
-          expect(softy.soft_validations.fixes_run?).to be_falsey
+        specify '#fixes_run? 1' do
+          expect(softy.soft_validations.fixes_run?).to eq(false)
         end
 
-        specify 'softy.fix_soft_validations(:some_bad_value)' do
-          expect{softy.fix_soft_validations(:some_bad_value)}.to raise_error(RuntimeError, /invalid scope/)
-        end
-
-        specify 'softy.fix_soft_validations' do
+        specify '#on' do
           expect(softy.soft_validations.on(:mohr).size).to eq(1)
+        end
+
+        specify '#fix_soft_validations' do
           expect(softy.fix_soft_validations).to be_truthy
-          expect(softy.soft_validations.fixes_run?).to eq(:automatic)
-          expect(softy.soft_validations.fix_messages).to eq(base: ['no longer hungry, cooked a cheezeburger'], mohr: ['fix not run, no automatic fix available'])
-
-          # TODO: Move out  
-          expect(softy.soft_validations.on(:mohr).size).to eq(1)
-          expect(softy.soft_validations.messages).to eq(['hungry (for cheez)!', 'hungry!'] ) 
-          expect(softy.soft_validations.messages_on(:mohr)).to eq(['hungry (for cheez)!'] ) 
         end
 
-        specify 'softy.fix_soft_validations(:requested)' do
-          expect(softy.soft_validations.on(:mohr).size).to eq(1)
-          expect(softy.fix_soft_validations(:requested)).to be_truthy
-          expect(softy.soft_validations.fixes_run?).to eq(:requested) 
-          expect(softy.soft_validations.fix_messages).to eq(mohr: ['fix not run, no automatic fix available'], base: ['fix available, but not triggered'])
+        specify '#fixes_run? 2' do
+          softy.fix_soft_validations
+          expect(softy.soft_validations.fixes_run?).to eq(true)
         end
+
+        specify '#fix_messages' do
+          softy.fix_soft_validations
+          expect(softy.soft_validations.fix_messages).to eq({:base=>["'hungry!' was fixed (no result message provided)"], :mohr=>["no fix available"]})
+        end
+
+        specify '#messages' do
+          softy.fix_soft_validations
+          expect(softy.soft_validations.messages).to contain_exactly('hungry (for cheez)!', 'hungry!' )
+        end
+
+        specify '#messages_on' do
+          softy.fix_soft_validations
+          expect(softy.soft_validations.messages_on(:mohr)).to eq(['hungry (for cheez)!'] )
+        end
+
+        #  specify 'softy.fix_soft_validations(:requested) 4' do
+        #    expect(softy.soft_validations.fix_messages).to eq(mohr: ['no fix available'], base: ['fix available, but not triggered']) # flagged
+        #  end
 
       end
     end
   end
 end
-
-

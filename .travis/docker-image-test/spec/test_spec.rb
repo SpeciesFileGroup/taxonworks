@@ -1,6 +1,6 @@
 # Loosely based on http://elementalselenium.com/tips/67-broken-images
 require 'browsermob/proxy'
-require 'selenium-webdriver'
+require 'webdrivers/geckodriver'
 require 'rspec/expectations'
 require 'capybara/rspec'
 

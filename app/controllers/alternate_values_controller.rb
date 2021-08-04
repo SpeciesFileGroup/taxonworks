@@ -2,6 +2,7 @@ class AlternateValuesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_alternate_value, only: [:update, :destroy]
+  after_action -> { set_pagination_headers(:alternate_values) }, only: [:index, :api_index ], if: :json_request?
 
   # GET /alternate_values
   # GET /alternate_values.json
@@ -59,7 +60,7 @@ class AlternateValuesController < ApplicationController
   def destroy
     @alternate_value.destroy
     respond_to do |format|
-      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Alternate value was successfully destroyed.')}
+      format.html { destroy_redirect @alternate_value, notice: 'Alternate value was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
@@ -71,7 +72,7 @@ class AlternateValuesController < ApplicationController
   # GET /alternate_values/search
   def search
     if params[:id].blank?
-      redirect_to alternate_values_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to alternate_values_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       altval = AlternateValue.find_by_id(params[:id]).metamorphosize
       redirect_to url_for(altval.alternate_value_object.metamorphosize)

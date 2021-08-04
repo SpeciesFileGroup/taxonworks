@@ -74,9 +74,6 @@ describe Combination, type: :model, group: :nomenclature do
       expect(c.valid?).to be_falsey
     end
 
-    # TODO @proceps you used `vite`, I assume because you wanted a harder test- this requires
-    # *WAY* more checking, not sure its worthwhile, I simplified the test to be verbatim == verbatim
-    # c = Combination.new(genus: genus, species: species, verbatim_name: "Erythroneura vite")
     specify 'uniqueness including original combination different name' do
       species.update(original_genus: genus, original_species: species)
       c = Combination.new(genus: genus, species: species, verbatim_name: "Erythroneura viti")
@@ -311,7 +308,9 @@ describe Combination, type: :model, group: :nomenclature do
     specify 'chached_valid_taxon_name_id for Combination' do
       combination.update(genus: genus, species: species)
       expect(species.cached_valid_taxon_name_id).to eq(species.id)
+      expect(species.cached_is_valid).to be_truthy
       expect(combination.cached_valid_taxon_name_id).to eq(species.id)
+      expect(combination.cached_is_valid).to be_falsey
     end
   end
 
@@ -329,7 +328,7 @@ describe Combination, type: :model, group: :nomenclature do
     end
 
     specify 'missing source and year' do
-      combination.soft_validate(:missing_fields)
+      combination.soft_validate(only_sets: :missing_fields)
       expect(combination.soft_validations.messages_on(:base).empty?).to be_falsey
       expect(combination.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
     end
@@ -337,26 +336,26 @@ describe Combination, type: :model, group: :nomenclature do
     specify 'year of combination and year of source do not match' do
       combination.source = source_older_than_combination  # 1940
       combination.year_of_publication = 1950
-      combination.soft_validate(:dates)
+      combination.soft_validate(only_sets: :dates)
       expect(combination.soft_validations.messages_on(:year_of_publication).count).to eq(1)
     end
 
     specify 'source.year_of_publication can not be older than protonym nomenclature dates' do
       combination.source = source_older_than_combination  # 1940
       combination.genus = genus    # 1950
-      combination.soft_validate(:dates)
+      combination.soft_validate(only_sets: :dates)
        expect(combination.soft_validations.messages_on(:base).count).to eq(1)
     end
 
     specify 'year_of_publication can not be older than protonym nomenclature_dates' do
       basic_combination.update(year_of_publication: 1940)
-      basic_combination.soft_validate(:dates)
+      basic_combination.soft_validate(only_sets: :dates)
       expect(basic_combination.soft_validations.messages_on(:year_of_publication).count).to eq(1)
     end
 
     specify 'incomplete combination' do
       combination.update(subgenus: genus, subspecies: species)
-      combination.soft_validate(:incomplete_combination)
+      combination.soft_validate(only_sets: :incomplete_combination)
       expect(combination.soft_validations.messages_on(:base).count).to eq(2)
     end
   end

@@ -1,6 +1,9 @@
 export default () => {
   return {
-    NomenclatureHistory: { title: 'Timeline', status: 'stable' },
+    NomenclatureHistory: {
+      title: 'Timeline',
+      status: 'stable'
+    },
     Descendants: {
       title: 'Descendants',
       status: 'prototype',
@@ -30,6 +33,10 @@ export default () => {
       status: 'prototype',
       otu: true,
       rankGroup: ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup']
+    },
+    DescriptionComponent: {
+      title: 'Description',
+      status: 'prototype'
     },
     ContentComponent: {
       title: 'Content',

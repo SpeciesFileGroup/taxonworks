@@ -57,8 +57,8 @@
 #
 class Combination < TaxonName
 
-  # The ranks that can be used to build combinations. ! TODO:  family group names  ?
-  APPLICABLE_RANKS = %w{family subfamily tribe subtribe genus subgenus section subsection
+  # The ranks that can be used to build combinations.  
+  APPLICABLE_RANKS = %w{genus subgenus section subsection
                         series subseries species subspecies variety subvariety form subform}.freeze
 
   before_validation :set_parent
@@ -160,12 +160,38 @@ class Combination < TaxonName
   validate :composition, unless: Proc.new {|a| disable_combination_relationship_check == true || a.errors.full_messages.include?('Combination exists.') }
   validates :rank_class, absence: true
 
-  soft_validate(:sv_combination_duplicates, set: :combination_duplicates, has_fix: false)
-  soft_validate(:sv_year_of_publication_matches_source, set: :dates, has_fix: false)
-  soft_validate(:sv_year_of_publication_not_older_than_protonyms, set: :dates, has_fix: false)
-  soft_validate(:sv_source_not_older_than_protonyms, set: :dates, has_fix: false)
+  soft_validate(
+    :sv_combination_duplicates,
+    set: :combination_duplicates,
+    name: 'Duplicate combination',
+    description: 'Combination is a duplicate' )
 
-# @return [Protonym Scope]
+  soft_validate(
+    :sv_year_of_publication_matches_source,
+    set: :dates,
+    name: 'Year of publication does not match the source',
+    description: 'The published date of the combination is not the same as provided by the original publication' )
+
+  soft_validate(
+    :sv_year_of_publication_not_older_than_protonyms,
+    set: :dates,
+    name: 'Varbatim year in combination older than in protonyms',
+    description: 'The varbatim year in combination is older than in protonyms in the combination' )
+
+  soft_validate(
+    :sv_source_not_older_than_protonyms,
+    set: :dates,
+    name: 'Combination older than protonyms',
+    description: 'The combination is older than protonyms in the combination' )
+
+  soft_validate(
+    :sv_combination_linked_to_valid_name,
+    set: :combination_linked_to_valid_name,
+    fix: :sv_fix_combination_parent_update,
+    name: 'Combination has valid parent',
+    description: 'The combination should have the same parent as protonym' )
+
+  # @return [Protonym Scope]
   # @params protonym_ids [Hash] like `{genus: 4, species: 5}`
   #   the absence of _id in the keys in part reflects integration with Biodiversity gem
   #   AHA from http://stackoverflow.com/questions/28568205/rails-4-arel-join-on-subquery
@@ -375,11 +401,6 @@ class Combination < TaxonName
     protonyms_by_rank.values.last
   end
 
-  def get_author_and_year
-    ay = iczn_author_and_year
-    ay.blank? ? nil : ay
-  end
-
   # @return [Array of TaxonNames, nil]
   #   return the component names for this combination prior to it being saved
   def protonyms_by_association
@@ -394,7 +415,6 @@ class Combination < TaxonName
     end
   end
 
-  # TODO: this is a TaxonName level validation, it doesn't belong here
   def sv_year_of_publication_matches_source
     source_year = source.nomenclature_year if source
     if year_of_publication && source_year
@@ -419,6 +439,45 @@ class Combination < TaxonName
   def sv_combination_duplicates
     duplicate = Combination.not_self(self).where(cached: cached)
     soft_validations.add(:base, 'Combination is a duplicate') unless duplicate.empty?
+  end
+
+  def sv_combination_linked_to_valid_name
+    check = protonyms.first
+    if parent_id && check && check.parent_id && parent_id != check.parent_id
+      soft_validations.add(:base, "Combination #{cached_html_name_and_author_year} should have the same parent and rank with  #{check.cached_html_name_and_author_year}",
+                           success_message: 'The parent was updated', failure_message:  'The parent was not updated')
+    end
+  end
+
+  def sv_fix_combination_parent_update
+    check = protonyms.first
+    if parent_id && check && check.parent_id && parent_id != check.parent_id
+      begin
+        TaxonName.transaction do
+          update_column(:parent_id, check.parent_id)
+          return true
+        end
+      rescue
+      end
+    end
+    false
+  end
+
+  def sv_cached_names
+    is_cached = true
+    is_cached = false if cached_author_year != get_author_and_year
+
+    if  is_cached && (
+        cached_is_valid.nil? ||
+        cached_html != get_full_name_html ||
+        cached_nomenclature_date != nomenclature_date)
+      is_cached = false
+    end
+
+    soft_validations.add(
+      :base, 'Cached values should be updated',
+      success_message: 'Cached values were updated',
+      failure_message:  'Failed to update cached values') if !is_cached
   end
 
   def set_parent

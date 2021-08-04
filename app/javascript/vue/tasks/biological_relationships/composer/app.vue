@@ -4,8 +4,8 @@
     <div class="flex-separate">
       <biological-relationships
         class="tables-relationship-properties"
-        ref="biological" 
-      @selected="setBiologicalRelationship"/>
+        ref="biological"
+        @selected="setBiologicalRelationship"/>
       <div class="margin-medium-left margin-medium-right ">
         <edit-component
           class="full_width"
@@ -23,23 +23,25 @@ import BiologicalRelationships from './components/BiologicalRelationships/Main'
 import PropertiesComponent from './components/Properties/Main'
 import EditComponent from './components/Edit/Main'
 
-
 export default {
   components: {
     BiologicalRelationships,
     EditComponent,
-    PropertiesComponent,
+    PropertiesComponent
   },
+
   data () {
     return {
       selected: undefined
     }
   },
+
   methods: {
     setBiologicalRelationship (value) {
       this.selected = value
     },
-    addRelationship(item) {
+
+    addRelationship (item) {
       this.$refs.biological.addRelationship(item)
     }
   }

@@ -61,17 +61,16 @@ class ControlledVocabularyTermsController < ApplicationController
 
   # DELETE /controlled_vocabulary_terms/1.json
   def destroy
-    redirect_url = (request.env['HTTP_REFERER'].include?(controlled_vocabulary_term_path(@controlled_vocabulary_term.metamorphosize)) ? controlled_vocabulary_terms_url : :back)
     @controlled_vocabulary_term.destroy
     respond_to do |format|
-      format.html { redirect_to redirect_url }
+      format.html { destroy_redirect @controlled_vocabulary_term }
       format.json { head :no_content }
     end
   end
 
   def search
     if params[:id].blank?
-      redirect_to controlled_vocabulary_term_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to controlled_vocabulary_term_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to controlled_vocabulary_term_path(params[:id])
     end

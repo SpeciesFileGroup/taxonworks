@@ -34,6 +34,7 @@ resources :asserted_distributions do
     post :preview_simple_batch_load # should be get
     post :create_simple_batch_load
   end
+  resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
 
 resources :biocuration_classifications, only: [:create, :update, :destroy] do
@@ -102,6 +103,7 @@ resources :collection_objects do
     get 'containerize'
     get 'dwca', defaults: {format: :json}
     get 'metadata_badge', defaults: {format: :json}
+    get :navigation, defaults: {format: :json}
   end
 
   collection do
@@ -116,6 +118,8 @@ resources :collection_objects do
     get :select_options, defaults: {format: :json}
     get :preview, defaults: {format: :json}
   end
+
+  resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
 match 'collection_objects/by_identifier/:identifier', to: 'collection_objects#by_identifier', via: :get
 
@@ -235,6 +239,11 @@ end
 
 resources :extracts do
   concerns [:data_routes]
+  collection do
+    get :select_options, defaults: {format: :json}
+  end
+
+  resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
 
 resources :geographic_areas, only: [:index, :show] do
@@ -359,6 +368,7 @@ resources :namespaces do
 end
 
 match 'observation_matrices/row/', to: 'observation_matrices#row', via: :get, method: :json
+match 'observation_matrices/column/', to: 'observation_matrices#column', via: :get, method: :json
 resources :observation_matrices do
   concerns [:data_routes]
 
@@ -371,6 +381,7 @@ resources :observation_matrices do
     get :nexml, defaults: {format: :rdf}
     get :tnt
     get :nexus
+    get :otu_contents
     #  get :csv
     #  get :biom
 
@@ -378,6 +389,9 @@ resources :observation_matrices do
     get :reorder_columns, defaults: {format: :json}
   end
 
+  collection do
+    get :otus_used_in_matrices, {format: :json}
+  end
 end
 
 resources :observation_matrix_columns, only: [:index, :show] do
@@ -521,6 +535,9 @@ end
 
 resources :protocols do
   concerns [:data_routes]
+  collection do
+    get :select_options, defaults: {format: :json}
+  end
 end
 
 resources :protocol_relationships do
@@ -564,6 +581,8 @@ resources :sequences do
     post :preview_primers_batch_load
     post :create_primers_batch_load
   end
+
+  resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
 
 resources :sequence_relationships do
@@ -594,6 +613,8 @@ resources :sources do
   member do
     post :clone
   end
+
+  resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
 
 resources :sqed_depictions, only: [:update] do

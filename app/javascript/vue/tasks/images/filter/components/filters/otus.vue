@@ -27,30 +27,36 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
-import { GetOtu } from '../../request/resources.js'
+import Autocomplete from 'components/ui/Autocomplete'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
+import { Otu } from 'routes/endpoints'
 
 export default {
   components: {
     Autocomplete
   },
+
   props: {
-    value: {
+    modelValue: {
       type: Array,
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
+
   data () {
     return {
       otusStore: []
     }
   },
+
   watch: {
     otusStore (newVal) {
-      this.$emit('input', newVal.map(otu => otu.id))
+      this.$emit('update:modelValue', newVal.map(otu => otu.id))
     }
   },
+
   created () {
     const params = URLParamsToJSON(location.href)
     if (params.otu_id) {
@@ -59,19 +65,16 @@ export default {
       })
     }
   },
+
   methods: {
     removeOtu (index) {
       this.otusStore.splice(index, 1)
     },
     addOtu (id) {
-      GetOtu(id).then(({ body }) => {
+      Otu.find(id).then(({ body }) => {
         this.otusStore.push(body)
       })
     }
   }
 }
 </script>
-
-<style>
-
-</style>

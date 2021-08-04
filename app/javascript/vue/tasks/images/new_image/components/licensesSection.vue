@@ -20,35 +20,36 @@
 
 <script>
 
-import { GetLicenses } from '../request/resources.js'
+import { Attribution } from 'routes/endpoints'
 import { GetterNames } from '../store/getters/getters.js'
 import { MutationNames } from '../store/mutations/mutations.js'
 
 export default {
   computed: {
     license: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetLicense]
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetLicense, value)
       }
     }
   },
-  data() {
+
+  data () {
     return {
       licenses: []
     }
   },
-  mounted() {
-    GetLicenses().then(response => {
-      this.licenses = Object.keys(response.body).map((key) => {
-        let license = response.body[key]
-        return { 
+
+  created () {
+    Attribution.licenses().then(({ body }) => {
+      this.licenses = Object.keys(body).map((key) =>
+        ({
           key: key,
-          label: license
-        }
-      })
+          label: body[key]
+        })
+      )
       this.licenses.push({
         label: '-- None --',
         key: null
@@ -57,6 +58,7 @@ export default {
   }
 }
 </script>
+
 <style scoped>
   li {
     margin-bottom: 4px;

@@ -19,16 +19,28 @@
     }
   }
 
+  #taxonworks_left {
+    flex-grow: 1;
+    line-height: $font_small;
+
+    a {
+      color: white;
+      text-decoration: none;
+    }
+  }
+
   #taxonworks_version {
     color: White;
     font-size: $font_small;
-    line-height: $font_small;
     text-decoration: none;
     padding: 0;
   }
 
   #session_nav {
     flex-grow: 0;
+  }
+
+  .horizontal_navbar {
     a {
       padding: 0px;
       color: #FFF;
@@ -40,10 +52,7 @@
 }
 
 #header_bar.sandbox {
-  background-color: $color-primary-0;
-  #session_nav a {
-    color: $color-secondary-2-4;
-  }
+  background-color: #4a4564;
 
   #taxonworks a {
     color: $default_text;

@@ -1,30 +1,33 @@
 import { MutationNames } from '../mutations/mutations'
-import { CreateContainerItem, UpdateIdentifier } from '../../request/resources'
-import Vue from 'vue'
+import { Identifier, ContainerItem, CollectionObject } from 'routes/endpoints'
 
-export default function ({ commit, state, dispatch }, coObject) {
-  return new Promise((resolve, reject) => {
-    if(state.container && !state.containerItems.find(item => {
-      return (item.contained_object_id == state.collection_object.id)
-    })) {
-      let item = { 
+export default ({ commit, state }) =>
+  new Promise((resolve, reject) => {
+    if (state.container && !state.containerItems.find(item => item.contained_object_id === state.collection_object.id)) {
+      const item = {
         container_id: state.container.id,
         global_entity: state.collection_object.global_id
       }
-      CreateContainerItem(item).then(response => {
-        commit(MutationNames.AddContainerItem, response.body)
-        if(state.containerItems.length === 1 && state.identifiers.length) {
-          let identifier = {
+
+      ContainerItem.create({ container_item: item }).then(({ body }) => {
+        commit(MutationNames.AddContainerItem, body)
+        if (state.containerItems.length === 1 && state.identifiers.length) {
+          const identifier = {
             id: state.identifiers[0].id,
             identifier_object_type: 'Container',
             identifier_object_id: state.container.id
           }
-          UpdateIdentifier(identifier).then(response => {
-            Vue.set(state.identifiers, 0, response.body)
+
+          Identifier.update(identifier.id, { identifier }).then(response => {
+            state.identifiers[0] = response.body
           })
         }
-        return resolve(response.body)
+        if (state.collection_object.id === body.contained_object_id) {
+          CollectionObject.find(body.contained_object_id).then(response => {
+            commit(MutationNames.SetCollectionObject, response.body)
+          })
+        }
+        return resolve(body)
       })
     }
   })
-}

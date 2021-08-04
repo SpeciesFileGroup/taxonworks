@@ -17,7 +17,7 @@ class IdentifiersController < ApplicationController
       }
     end
   end
- 
+
   # GET /identifers/1
   def show
   end
@@ -68,7 +68,7 @@ class IdentifiersController < ApplicationController
   def destroy
     @identifier.destroy
     respond_to do |format|
-      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Identifier was successfully destroyed.')}
+      format.html { destroy_redirect @identifier, notice: 'Identifier was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
@@ -82,7 +82,7 @@ class IdentifiersController < ApplicationController
     if @identifier = Identifier.find(params[:id])
       redirect_to url_for(@identifier.identifier_object.metamorphosize)
     else
-      redirect_to identifier_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to identifier_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     end
   end
 
@@ -131,15 +131,15 @@ class IdentifiersController < ApplicationController
     params.permit(
       :query_string,
       :identifier,
-      :namespace_id,
-      :namespace_short_name,
-      :namespace_name,
-      :identifier_object_type,
       :identifier_object_id,
-      :type,
+      :identifier_object_type,
+      :namespace_id,
+      :namespace_name,
+      :namespace_short_name,
       :object_global_id,
-      identifier_object_ids: [],
-      identifier_object_types: [],
+      :type,
+      identifier_object_id: [],
+      identifier_object_type: [],
     )
   end
 
@@ -151,7 +151,7 @@ class IdentifiersController < ApplicationController
   end
 
   def autocomplete_params
-    params.permit(identifier_object_types: []).to_h.symbolize_keys.merge(project_id: sessions_current_project_id) # :exact
+    params.permit(identifier_object_type: []).to_h.symbolize_keys.merge(project_id: sessions_current_project_id) # :exact
   end
 
 end

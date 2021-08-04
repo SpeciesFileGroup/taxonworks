@@ -160,8 +160,8 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
     # 2   0   1   0   1-2   2 false
     # 0   2   0   1   1-3   3 true
     # 1   1   1   0   2-3   4 false
-    # 1   0   0   1   1-2   1 true
-    # 0   2   1   0   1     2 true
+    # 2   0   0   1   1-2   1 true
+    # 0   2   1   0   1     2 #true
 
     let!(:o1 ) {Observation::Qualitative.create!(descriptor: descriptor1, otu: otu1, character_state: cs1) }
     let!(:o1a) {Observation::Qualitative.create!(descriptor: descriptor1, otu: otu1, character_state: cs2) }
@@ -461,6 +461,52 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
         selected_descriptors: descriptor7.id.to_s + ':false')
       expect(ik.remaining.count).to eq(4)
       expect(ik.eliminated.count).to eq(6)
+    end
+
+    specify 'otu_description 1' do
+      description =  Catalog::DescriptionFromObservationMatrix.new(
+        observation_matrix_id: observation_matrix.id,
+        project_id: observation_matrix.project_id,
+        otu_id: otu4.id)
+      expect(description.generated_description).to eq('Descriptor 1 State1. Descriptor 2 State6. Descriptor 5 3–4. Descriptor 6 4. Descriptor 7 absent.')
+    end
+
+    specify 'otu_description 2' do
+      description =  Catalog::DescriptionFromObservationMatrix.new(
+        project_id: observation_matrix.project_id,
+        otu_id: otu4.id)
+      expect(description.generated_description).to eq('Descriptor 1 State1. Descriptor 2 State6. Descriptor 5 3–4. Descriptor 6 4. Descriptor 7 absent.')
+    end
+
+    specify 'otu_diagnosis 1' do
+      description =  Catalog::DescriptionFromObservationMatrix.new(
+        observation_matrix_id: observation_matrix.id,
+        project_id: observation_matrix.project_id,
+        otu_id: otu5.id)
+      expect(description.generated_diagnosis).to eq('Descriptor 6 1. Descriptor 2 State5.')
+      expect(description.similar_objects.first[:otu_id]).to eq(otu1.id)
+      expect(description.similar_objects.first[:similarities]).to eq(6)
+    end
+
+    specify 'otu_diagnosis 2' do
+      row = r1.find_or_build_row(r1.row_objects.first)
+      description =  Catalog::DescriptionFromObservationMatrix.new(observation_matrix_row_id: row.id)
+      #expect(description.similar_objects.first[:otu_id]).to eq(otu5.id)
+      expect(description.similar_objects.first[:similarities]).to eq(6)
+    end
+
+    specify 'soft_validate row 1' do
+      row = r1.find_or_build_row(r1.row_objects.first)
+      row.soft_validate(only_sets: :cannot_be_separated)
+      expect(row.soft_validations.messages_on(:base).empty?).to be_truthy
+    end
+
+    specify 'soft_validate row 2' do
+      otu11 = Otu.create!(name: 'b11')
+      r11 = ObservationMatrixRowItem::Single::Otu.create!(otu: otu11, observation_matrix: observation_matrix)
+      row = r11.find_or_build_row(r11.row_objects.first)
+      row.soft_validate(only_sets: :cannot_be_separated)
+      expect(row.soft_validations.messages_on(:base).count).to eq(1)
     end
 
   end

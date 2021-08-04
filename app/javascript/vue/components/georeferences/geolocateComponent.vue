@@ -6,18 +6,19 @@
     <modal-component
       v-if="show"
       @close="show = false">
-      <h3 slot="header">GEOLocate</h3>
-      <div slot="body">
+      <template #header>
+        <h3>GEOLocate</h3>
+      </template>
+      <template #body>
         <div class="field">
           <label>Coordinates:</label>
           <textarea
             class="full_width"
             rows="5"
-            v-model="iframe_response">
-          </textarea>
+            v-model="iframe_response"/>
         </div>
-      </div>
-      <div slot="footer">
+      </template>
+      <template #footer>
         <button
           type="button"
           class="normal-input button button-submit"
@@ -25,31 +26,33 @@
           @click="createShape">
           Add
         </button>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
 
 <script>
 
-import ModalComponent from 'components/modal'
-import convertDMS from 'helpers/parseDMS.js'
+import ModalComponent from 'components/ui/Modal'
 
 export default {
-  components: {
-    ModalComponent
-  },
+  components: { ModalComponent },
+
+  emits: ['create'],
+
   computed: {
     validateFields () {
       return this.iframe_response
     }
   },
+
   data () {
     return {
       show: false,
       iframe_response: undefined
     }
   },
+
   methods: {
     createShape () {
       this.$emit('create', this.iframe_response)
@@ -61,7 +64,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  /deep/ .modal-container {
+  :deep(.modal-container) {
     max-width: 500px;
   }
 </style>

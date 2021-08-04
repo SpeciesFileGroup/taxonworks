@@ -42,7 +42,7 @@ class BiocurationClassificationsController < ApplicationController
   def destroy
     @biocuration_classification.destroy
     respond_to do |format|
-      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Biocuration classification was successfully destroyed.')}
+      format.html { destroy_redirect @biocuration_classification, notice: 'Biocuration classification was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

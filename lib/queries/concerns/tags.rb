@@ -58,7 +58,6 @@ module Queries::Concerns::Tags
   def keyword_id_facet
     return nil if keyword_id_or.empty? && keyword_id_and.empty?
     k = table.name.classify.safe_constantize
-    
 
     a = matching_keyword_id_or
     b = matching_keyword_id_and

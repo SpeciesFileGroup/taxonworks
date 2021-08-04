@@ -1,14 +1,22 @@
-<div id="validation-panel" class="panel fullSize content separate-left separate-bottom">
-  <%= render(partial: '/shared/data/all/show/soft_validation', locals: { object: @taxon_name }) -%> 
+<div id="vue-browse-validation-panel"></div>
+<div class="d-none">
 
-  <%= content_tag(:h3, 'Relationships') if @taxon_name.taxon_name_relationships.any? %>
-  <% @taxon_name.taxon_name_relationships.each do |relationship| %>
-    <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: { object: relationship }) -%>  
-  <% end %>
+  <div id="taxon-validations">
+    <%= render(partial: '/shared/data/all/show/soft_validation', locals: { object: @taxon_name }) -%> 
+  </div>
 
-  <%= content_tag(:h3, 'Status') if @taxon_name.taxon_name_classifications.any? %>
-  <% @taxon_name.taxon_name_classifications.each do |classification| %>
-    <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: { object: classification }) -%>  
-  <% end %> 
+  <div id="relationships-validations">
+    <%= content_tag(:h3, 'Relationships') if @taxon_name.taxon_name_relationships.any? %>
+    <% @taxon_name.taxon_name_relationships.each do |relationship| %>
+      <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: { object: relationship }) -%>  
+    <% end %>
+  </div>
+
+  <div id="status-validations">
+    <%= content_tag(:h3, 'Status') if @taxon_name.taxon_name_classifications.any? %>
+    <% @taxon_name.taxon_name_classifications.each do |classification| %>
+      <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: { object: classification }) -%>  
+    <% end %>
+  </div>
 </div>
 

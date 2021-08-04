@@ -51,17 +51,19 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 import extendCE from '../mixins/extendCE'
-import { GetNamespace, RemoveIdentifier } from '../../request/resources'
+import { Namespace, Identifier } from 'routes/endpoints'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 
 export default {
   mixins: [extendCE],
+
   components: {
     SmartSelector
   },
+
   computed: {
     tripCode: {
       get () {
@@ -75,31 +77,36 @@ export default {
       return this.tripCode.namespace_id
     }
   },
+
   data () {
     return {
       namespace: undefined,
     }
   },
+
   watch: {
     namespace_id (newVal) {
       if (newVal) {
-        GetNamespace(newVal).then(response => {
+        Namespace.find(newVal).then(response => {
           this.namespace = response.body
         })
       }
     }
   },
+
   methods: {
     setNamespace (namespace) {
       this.tripCode.namespace_id = namespace.id
     },
+
     unsetIdentifier () {
       this.tripCode.namespace_id = undefined
       this.tripCode.identifier = undefined
       this.namespace = undefined
     },
+
     removeIdentifier () {
-      RemoveIdentifier(this.tripCode.id).then(() => {
+      Identifier.destroy(this.tripCode.id).then(() => {
         this.unsetIdentifier()
       })
     }

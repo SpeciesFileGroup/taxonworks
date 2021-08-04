@@ -34,7 +34,7 @@
 
 <script>
 
-import { GetBiologicalAssociations } from '../../request/resource'
+import { BiologicalRelationship } from 'routes/endpoints'
 
 export default {
   props: {
@@ -51,29 +51,23 @@ export default {
       default: undefined
     }
   },
+
   data () {
     return {
       list: []
     }
   },
+
   watch: {
     biologicalRelationship (newVal) {
-      if(newVal) {
-        GetBiologicalAssociations(newVal.id).then(response => {
+      if (newVal) {
+        BiologicalRelationship.find(newVal.id).then(response => {
           this.list = response.body
         })
-      }
-      else {
+      } else {
         this.list = []
       }
     }
-  },
-  methods: {
-
   }
 }
 </script>
-
-<style>
-
-</style>

@@ -91,7 +91,7 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import RolePicker from 'components/role_picker'
 import CreatePerson from '../../helpers/CreatePerson'
 
@@ -102,11 +102,13 @@ import SharedComponent from '../shared/lock.js'
 
 export default {
   mixins: [SharedComponent],
+
   components: {
     ListComponent,
     SmartSelector,
     RolePicker
   },
+
   computed: {
     collectionObject: {
       get () {
@@ -117,15 +119,18 @@ export default {
       }
     }
   },
+
   data () {
     return {
       taxon_determination: undefined,
       selectedOtu: undefined
     }
   },
+
   created () {
     this.resetDetermination()
   },
+
   methods: {
     setActualDate () {
       const today = new Date()
@@ -133,24 +138,26 @@ export default {
       this.taxon_determination.month_made = today.getMonth() + 1
       this.taxon_determination.year_made = today.getFullYear()
     },
+
     roleExist (id) {
-      return (!!this.taxon_determination.roles_attributes.find((role) => {
-        return !role.hasOwnProperty('_destroy') && role.hasOwnProperty('person_id') && role.person_id == id
-      }))
+      return (!!this.taxon_determination.roles_attributes.find(role => !role.hasOwnProperty('_destroy') && role.hasOwnProperty('person_id') && role.person_id == id))
     },
+
     addRole (role) {
       if (!this.roleExist(role.id)) {
         this.taxon_determination.roles_attributes.push(CreatePerson(role, 'Determiner'))
       }
     },
+
     addDetermination () {
-      if (this.collectionObject.taxon_determinations_attributes.find((determination) => { return determination.otu_id == this.taxon_determination.otu_id })) { return }
+      if (this.collectionObject.taxon_determinations_attributes.find((determination) => determination.otu_id == this.taxon_determination.otu_id)) { return }
       this.taxon_determination.object_tag = this.selectedOtu.object_tag
       this.collectionObject.taxon_determinations_attributes.push(this.taxon_determination)
       this.selectedOtu = undefined
 
       this.resetDetermination()
     },
+
     resetDetermination () {
       this.taxon_determination = {
         otu_id: undefined,
@@ -160,14 +167,14 @@ export default {
         roles_attributes: []
       }
     },
+
     setOtu (otu) {
       this.taxon_determination.otu_id = otu.id
       this.selectedOtu = otu
     },
+
     removeTaxonDetermination (determination) {
-      const index = this.collectionObject.taxon_determinations_attributes.findIndex(item => {
-        return JSON.stringify(item) === JSON.stringify(determination)
-      })
+      const index = this.collectionObject.taxon_determinations_attributes.findIndex(item => JSON.stringify(item) === JSON.stringify(determination))
 
       this.collectionObject.taxon_determinations_attributes.splice(index, 1)
     }

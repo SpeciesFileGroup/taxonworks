@@ -274,6 +274,15 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     let(:s1) { Protonym.create!(name: 'aus', parent: root, rank_class: Ranks.lookup(:iczn, :species)) }
     let(:s2) { Protonym.create!(name: 'aus', parent: s1, rank_class: Ranks.lookup(:iczn, :subspecies)) }
 
+    specify 'list_of_coordinated_names' do
+      g3 = Protonym.create!(name: 'Aus', parent: g1, rank_class: Ranks.lookup(:iczn, :subgenus))
+      c1 = TaxonNameClassification::Iczn::Unavailable::NomenNudum.create!(taxon_name: g3)
+      expect(g3.cached_is_valid).to be_falsey
+      expect(g3.list_of_coordinated_names.count).to eq(0)
+      expect(g2.list_of_coordinated_names.count).to eq(1)
+      expect(g1.list_of_coordinated_names.count).to eq(1)
+    end
+
     specify '#nominotypical_sub_of? 1' do
       expect(g1.nominotypical_sub_of?(g2)).to be_falsey
     end
@@ -290,7 +299,6 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       expect(s2.nominotypical_sub_of?(s1)).to be_truthy
     end
   end
-
 
   context 'citation' do
     let!(:g1) { Protonym.create!(name: 'Aus', parent: root, rank_class: Ranks.lookup(:iczn, :genus)) }
@@ -311,6 +319,62 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         expect(g1.update(origin_citation_attributes: { source_id: v.id })).to be_falsey
       end
     end
+  end
+
+  context 'predict three name forms' do
+    use_cases = {
+        'albus'     => 'albus|alba|album',
+        'alba'      => 'albus|alba|album',
+        'album'     => 'albus|alba|album',
+        'niger'     => 'niger|nigra|nigrum',
+        'nigra'     => 'niger|nigra|nigrum',
+        'nigrum'    => 'niger|nigra|nigrum',
+        'viridis'   => 'viridis|viridis|viride',
+        'viride'    => 'viridis|viridis|viride',
+        'major'     => 'major|major|majus',
+        'majus'     => 'major|major|majus',
+        'minor'     => 'minor|minor|minus',
+        'minus'     => 'minor|minor|minus',
+        'bicolor'   => 'bicolor|bicolor|bicolor',
+        'bicoloris' => 'bicoloris|bicoloris|bicoloris',
+        'acer'      => 'acer|acris|acre',
+        'acris'     => 'acer|acris|acre',
+        'acre'      => 'acer|acris|acre',
+        'cefera'    => 'cefer|cefera|ceferum',
+        'ceferum'   => 'cefer|cefera|ceferum',
+        'cegera'    => 'ceger|cegera|cegerum',
+        'cegerum'   => 'ceger|cegera|cegerum',
+        'glaber'    => 'glaber|glabra|glabrum',
+        'glabra'    => 'glaber|glabra|glabrum',
+        'glabrum'   => 'glaber|glabra|glabrum',
+        'ater'      => 'ater|atra|atrum',
+        'atra'      => 'ater|atra|atrum',
+        'atrum'     => 'ater|atra|atrum',
+        'pedestris' => 'pedester|pedestris|pedestre',
+        'mirus'     => 'mirus|mira|mirum',
+        'mira'      => 'mirus|mira|mirum',
+        'mirum'     => 'mirus|mira|mirum',
+        'integer'   => 'integer|integra|integrum',
+        'integra'   => 'integer|integra|integrum',
+        'integrum'  => 'integer|integra|integrum',
+        'asper'     => 'asper|aspera|asperum',
+        'aspera'    => 'asper|aspera|asperum',
+        'asperum'   => 'asper|aspera|asperum',
+    }
+
+    @entry = 0
+
+    use_cases.each { |name, result|
+      @entry += 1
+      specify "case #{@entry}: '#{name}' should yield #{result}" do
+        t = FactoryBot.build(:relationship_species, name: name, parent: nil)
+        forms = t.predict_three_forms
+        u = forms[:masculine_name].to_s + '|' +
+            forms[:feminine_name].to_s + '|' +
+            forms[:neuter_name].to_s
+        expect(u).to eq(result)
+      end
+    }
   end
 
 end

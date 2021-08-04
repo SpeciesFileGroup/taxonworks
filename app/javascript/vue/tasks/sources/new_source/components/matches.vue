@@ -19,7 +19,7 @@
 
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import AjaxCall from 'helpers/ajaxCall'
+import { Source } from 'routes/endpoints'
 import DisplayList from 'components/displayList'
 import SpinnerComponent from 'components/spinner'
 
@@ -81,22 +81,19 @@ export default {
   methods: {
     getRecent () {
       this.searching = true
-      AjaxCall('get', `/sources?query_term=${this.source.title}&per=5`).then(response => {
-        if(this.source.id) {
-          let index = response.body.findIndex(item => { return item.id === this.source.id })
-          if(index > -1) {
+      Source.where({ query_term: this.source.title, per: 5 }).then(response => {
+        if (this.source.id) {
+          const index = response.body.findIndex(item => item.id === this.source.id)
+
+          if (index > -1) {
             response.body.splice(index, 1)
           }
         }
         this.founded = response.body
+      }).finally(() => {
         this.searching = false
-      }, () => { this.searching = false })
+      })
     }
   }
 }
 </script>
-<style scoped>
-  .matches-panel {
-    min-height: 500px;
-  }
-</style>

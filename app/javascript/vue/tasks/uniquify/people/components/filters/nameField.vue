@@ -29,26 +29,32 @@ export default {
       type: String,
       required: true
     },
-    value: {
+
+    modelValue: {
       type: Object,
       required: true
     },
+
     param: {
       type: String,
       required: true
     },
+
     disabled: {
       type: Boolean,
       default: false
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     params: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   }

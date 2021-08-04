@@ -3,11 +3,18 @@ module ExtractsHelper
   # TODO: reference identifiers/origin objects etc.
   def extract_tag(extract)
     return nil if extract.nil?
-    if a = simple_identifier_list_tag(extract)
-      return a
+    e = []
+
+    if extract.old_objects.any?
+      e.push ' from: '
+      e.push extract.old_objects.collect{|o| object_link(o) } 
     else
-      extract.verbatim_anatomical_origin || extract.id.to_s
+      "#{extract.id} (no origin)"
     end
+
+    e.push "Extract " + extract.id.to_s if e.empty?
+
+    e.join.html_safe 
   end
 
   def extract_link(extract)
@@ -18,4 +25,5 @@ module ExtractsHelper
   def extracts_search_form
     render('/extracts/quick_search_form')
   end
+
 end

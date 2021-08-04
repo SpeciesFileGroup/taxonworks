@@ -10,17 +10,16 @@
         <draggable
           class="full_width"
           v-model="componentsOrder[key]"
-          :key="key"
+          :item-key="element => element"
           @end="updatePreferences"
           :disabled="!sortable">
-          <component
-            class="separate-bottom"
-            v-for="(componentName) in column"
-            v-model="collectingEvent"
-            :components-order="componentsOrder"
-            :soft-validation="softValidation"
-            :key="componentName"
-            :is="componentName"/>
+          <template #item="{ element }">
+            <component
+              class="separate-bottom"
+              v-model="collectingEvent"
+              :components-order="componentsOrder"
+              :is="element"/>
+          </template>
         </draggable>
       </div>
     </div>
@@ -30,10 +29,7 @@
 <script>
 
 import Draggable from 'vuedraggable'
-import {
-  GetUserPreferences,
-  UpdateUserPreferences
-} from '../request/resources.js'
+import { User } from 'routes/endpoints'
 
 import {
   ComponentMap,
@@ -47,38 +43,40 @@ export default {
     Draggable,
     ...VueComponents
   },
+
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true
     },
+
     sortable: {
       type: Boolean,
       default: false
-    },
-    softValidation: {
-      type: Array,
-      default: () => []
     }
   },
+
   computed: {
     lastColumn () {
       return Object.keys(this.componentsOrder).length - 1
     },
+
     collectingEvent: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     },
+
     collectingEventId: {
       get () {
         return this.collectingEvent.id
       }
     }
   },
+
   watch: {
     preferences: {
       handler () {
@@ -90,6 +88,7 @@ export default {
       deep: true
     }
   },
+
   data () {
     return {
       componentsOrder: {
@@ -105,14 +104,16 @@ export default {
       keyStorage: 'tasks::collectingEvent::componentsOrder'
     }
   },
+
   created () {
-    GetUserPreferences().then(response => {
+    User.preferences().then(response => {
       this.preferences = response.body
     })
   },
+
   methods: {
     updatePreferences () {
-      UpdateUserPreferences(this.preferences.id, { [this.keyStorage]: this.componentsOrder }).then(response => {
+      User.update(this.preferences.id, { user: { layout: { [this.keyStorage]: this.componentsOrder } } }).then(response => {
         this.preferences.layout = response.body.preferences
         this.componentsOrder = response.body.preferences.layout[this.keyStorage]
       })

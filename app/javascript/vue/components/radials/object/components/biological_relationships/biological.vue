@@ -23,14 +23,16 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import CRUD from '../../request/crud.js'
 
 export default {
   mixins: [CRUD],
-  components: {
-    SmartSelector
-  },
+
+  components: { SmartSelector },
+
+  emits: ['select'],
+
   data () {
     return {
       list: {
@@ -38,9 +40,11 @@ export default {
       }
     }
   },
+
   created () {
     this.loadTabList()
   },
+
   methods: {
     loadTabList () {
       this.getList('/biological_relationships.json').then(response => {

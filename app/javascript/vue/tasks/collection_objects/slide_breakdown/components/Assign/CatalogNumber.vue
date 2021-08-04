@@ -56,7 +56,7 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 import SharedComponent from '../shared/lock.js'
@@ -85,7 +85,7 @@ export default {
     },
     incremented () {
       if(!this.identifier.identifier) return undefined
-      
+
       let inc = 0
 
       this.sledImage.metadata.forEach(item => {

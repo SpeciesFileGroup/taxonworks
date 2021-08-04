@@ -3,11 +3,10 @@
     :warning="checkValidation"
     anchor="status"
     :spinner="!taxon.id">
-    <h3 slot="header">
-      Status
-    </h3>
-    <div
-      slot="body">
+    <template #header>
+      <h3>Status</h3>
+    </template>
+    <template #body>
       <tree-display
         v-if="taxon.id"
         :tree-list="treeList"
@@ -70,7 +69,7 @@
         :edit="true"
         :list="getStatusCreated"
         :display="['object_tag']"/>
-    </div>
+    </template>
   </block-layout>
 </template>
 
@@ -81,8 +80,8 @@ import { MutationNames } from '../store/mutations/mutations'
 import TreeDisplay from './treeDisplay.vue'
 import ListEntrys from './listEntrys.vue'
 import ListCommon from './commonList.vue'
-import Autocomplete from 'components/autocomplete.vue'
-import BlockLayout from 'components/blockLayout'
+import Autocomplete from 'components/ui/Autocomplete.vue'
+import BlockLayout from 'components/layout/BlockLayout'
 import SwitchComponent from 'components/switch'
 
 export default {
@@ -94,6 +93,7 @@ export default {
     SwitchComponent,
     BlockLayout
   },
+
   computed: {
     treeList () {
       return this.$store.getters[GetterNames.GetStatusList]
@@ -103,6 +103,9 @@ export default {
     },
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
+    },
+    taxonRank () {
+      return this.$store.getters[GetterNames.GetRankClass]
     },
     nomenclaturalCode () {
       return this.$store.getters[GetterNames.GetNomenclaturalCode]
@@ -114,15 +117,14 @@ export default {
       return this.$store.getters[GetterNames.GetSoftValidation].taxonStatusList.list
     },
     checkValidation () {
-      return !!this.softValidation.filter(item => this.getStatusCreated.find(created => created.id === item.validations.instance.id)).length
+      return !!this.softValidation.filter(item => this.getStatusCreated.find(created => created.id === item.instance.id)).length
     },
     getStatusCreated () {
-      return this.$store.getters[GetterNames.GetTaxonStatusList].filter(function (item) {
-        return (item.type.split('::')[1] != 'Latinized')
-      })
+      return this.$store.getters[GetterNames.GetTaxonStatusList].filter((item) => item.type.split('::')[1] !== 'Latinized')
     }
   },
-  data: function () {
+
+  data () {
     return {
       tabs: ['Common', 'Advanced', 'Show all'],
       view: 'Common',
@@ -132,38 +134,53 @@ export default {
       editStatus: undefined
     }
   },
+
   watch: {
+    taxonRank: {
+      handler (newVal) {
+        if (newVal) {
+          this.refresh()
+        }
+      }
+    },
+
     parent: {
-      handler: function (newVal) {
+      handler (newVal) {
         if (newVal == null) return true
         this.refresh()
       },
       immediate: true
     },
+
     view (newVal) {
       if (newVal === 'Show all') {
         this.activeModal(true)
       }
     }
   },
+
   methods: {
-    makeLists: function () {
+    makeLists () {
       return {
         tree: undefined,
         commonList: [],
         allList: []
       }
     },
-    loadTaxonStatus: function () {
+
+    loadTaxonStatus () {
       this.$store.dispatch(ActionNames.LoadTaxonStatus, this.taxon.id)
     },
-    setCitation: function (item) {
+
+    setCitation (item) {
       this.$store.dispatch(ActionNames.UpdateClassification, item)
     },
-    removeStatus: function (item) {
+
+    removeStatus (item) {
       this.$store.dispatch(ActionNames.RemoveTaxonStatus, item)
     },
-    addEntry: function (item) {
+
+    addEntry (item) {
       if(this.editStatus) {
         item.id = this.editStatus.id
         this.$store.dispatch(ActionNames.UpdateTaxonStatus, item).then(() => {
@@ -177,11 +194,13 @@ export default {
         })
       }
     },
-    activeModal: function (value) {
+
+    activeModal (value) {
       this.$store.commit(MutationNames.SetModalStatus, value)
     },
-    refresh: function () {
-      let copyList = Object.assign({}, this.treeList[this.nomenclaturalCode])
+
+    refresh () {
+      const copyList = JSON.parse(JSON.stringify(this.treeList[this.nomenclaturalCode] || {}))
 
       this.objectLists = Object.assign({}, this.makeLists())
       this.objectLists.tree = Object.assign({}, copyList.tree)
@@ -194,12 +213,12 @@ export default {
         this.objectLists.commonList = resolve
       })
     },
+
     getStatusListForThisRank (list, findStatus) {
       return new Promise(function (resolve, reject) {
-        var
-          newList = []
+        const newList = []
         for (var key in list) {
-          var t = list[key].applicable_ranks
+          const t = list[key].applicable_ranks
           t.find(function (item) {
             if (item == findStatus) {
               newList.push(list[key])
@@ -210,19 +229,16 @@ export default {
         resolve(newList)
       })
     },
+
     getTreeListForThisRank (list, ranksList, filteredList) {
       for (var key in list) {
-        Object.defineProperty(list[key], 'name', { value: ranksList[key].name })
-        Object.defineProperty(list[key], 'type', { value: ranksList[key].type })
+        Object.defineProperty(list[key], 'name', { writable: true, value: ranksList[key].name })
+        Object.defineProperty(list[key], 'type', { writable: true, value: ranksList[key].type })
 
-        if (filteredList.find(function (item) {
-          if (item.type == key) {
-            return true
-          }
-        })) {
-          Object.defineProperty(list[key], 'disabled', { value: false, configurable: true })
+        if (filteredList.find((item) => item.type === key)) {
+          Object.defineProperty(list[key], 'disabled', { writable: true, value: false, configurable: true })
         } else {
-          Object.defineProperty(list[key], 'disabled', { value: true, configurable: true })
+          Object.defineProperty(list[key], 'disabled', { writable: true, value: true, configurable: true })
         }
         this.getTreeListForThisRank(list[key], ranksList, filteredList)
       }

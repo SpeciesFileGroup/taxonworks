@@ -2,7 +2,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary < TaxonNameRel
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000290'.freeze
 
-  soft_validate(:sv_same_original_genus, set: :specific_relationship, has_fix: false)
+  soft_validate(:sv_same_original_genus, set: :specific_relationship)
 
   # left_side
   def self.valid_subject_ranks
@@ -53,6 +53,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary < TaxonNameRel
       soft_validations.add(:type, "Primary homonyms #{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} should have the same original genus")
     end
   end
+
   def sv_not_specific_relationship
     true
   end

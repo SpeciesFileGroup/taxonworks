@@ -70,20 +70,20 @@ export default {
       }
     },
     splitGroups() {
-      let that = this
       this.biocurationsGroups.forEach((item, index) => {
-        this.getList(`/tags.json?keyword_id=${item.id}`).then(response =>{
-          let tmpArray = []
+        this.getList(`/tags.json?keyword_id=${item.id}`).then(response => {
+          const tmpArray = []
+
           response.body.forEach(item => {
-            that.biocutarionsType.forEach(itemClass => {
-              if(itemClass.id == item.tag_object_id) {
+            this.biocutarionsType.forEach(itemClass => {
+              if(itemClass.id === item.tag_object_id) {
                 tmpArray.push(itemClass)
                 return
               }
             })
           })
-          that.$set(that.biocurationsGroups[index], 'list', tmpArray)
-        })         
+          this.biocurationsGroups[index]['list'] = tmpArray
+        })
       })
     }
   }

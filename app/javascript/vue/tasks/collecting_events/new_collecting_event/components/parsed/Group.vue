@@ -61,7 +61,7 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import extendCE from '../mixins/extendCE'
 
 export default {

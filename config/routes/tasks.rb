@@ -1,4 +1,10 @@
 scope :tasks do
+  scope :extracts do
+    scope :new_extract, controller: 'tasks/extracts/new_extract' do
+      get '/', action: :index, as: 'new_extract_task'
+    end
+  end
+
   scope :asserted_distributions do
     scope :basic_endemism, controller: 'tasks/asserted_distributions/basic_endemism' do
       get '/', action: :index, as: 'asserted_distributions_basic_endemism_task'
@@ -369,6 +375,10 @@ scope :tasks do
     scope :row_coder, controller: 'tasks/observation_matrices/row_coder' do
       get 'index', as: 'index_row_coder_task'
       get 'set', as: 'set_row_coder_task'
+    end
+
+    scope :description_from_observation_matrix, controller: 'tasks/observation_matrices/description_from_observation_matrix' do
+      get 'description', action: :description, defaults: {format: :json}
     end
 
     scope :interactive_key, controller: 'tasks/observation_matrices/interactive_key' do

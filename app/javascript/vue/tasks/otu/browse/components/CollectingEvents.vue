@@ -4,14 +4,16 @@
     :title="title"
     :spinner="isLoading">
     <ul>
-      <li
+      <template
         v-for="(item, index) in collectingEvents"
-        :key="item.id"
-        v-if="index < max || showAll">
-        <a
-          :href="`/collecting_events/${item.id}`"
-          v-html="item.object_tag"/>
-      </li>
+        :key="item.id">
+        <li
+          v-if="index < max || showAll">
+          <a
+            :href="`/collecting_events/${item.id}`"
+            v-html="item.object_tag"/>
+        </li>
+      </template>
     </ul>
     <template v-if="collectingEvents.length > max">
       <a
@@ -54,7 +56,8 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters[GetterNames.GetLoadState].distribution
+      const loadState = this.$store.getters[GetterNames.GetLoadState]
+      return loadState.distribution && loadState.descendantsDistribution
     },
     collectingEvents: {
       get () {

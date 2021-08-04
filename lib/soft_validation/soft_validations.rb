@@ -1,69 +1,63 @@
-
 module SoftValidation
 
-  # A SoftValidations instance contains a set of SoftValidations
-  # and some code that tracks whether those validations have
-  # been fixed, etc.
-  #
-  # @!attribute soft_validations
-  #   @return [Array]
-  #   the set of SoftValidations (i.e. problems with a record/instance)
-  # @!attribute instance
-  #   the object being validated, an instance of an ActiveRecord model
-  # @!attribute validated
-  #   @return [Boolean]
-  #   True if the soft validations methods have been called.
-  # @!attribute fixed
-  #   @return [Symbol]
-  #   True if fix() has been called. Note that this does not imply that all SoftValidations have been fixed!
+  # A SoftValidations instance contains a set of SoftValidation(s).
+  # It tracks whether the validations (set) have been run and fixed.
   class SoftValidations
-    attr_accessor :soft_validations, :instance, :validated, :fixes_run
+
+    # @!attribute soft_validations
+    #   @return [Array]
+    #   the set of SoftValidations (i.e. problems with a record/instance)
+    attr_accessor :soft_validations
+
+    # @!attribute validated
+    #   @return [Boolean]
+    #   True if the soft validations methods have been called.
+    attr_accessor :validated
+    
+    attr_accessor :fixes_run
+
+    # @!attribute instance
+    #   the object being validated, an instance of an ActiveRecord model
+    attr_writer :instance
 
     # @param[ActiveRecord] a instance of some ActiveRecord model
     def initialize(instance)
       @validated = false
       @fixes_run = false
-      @instance = instance # Klass from here
+      @instance = instance # Klass from here <- stupid
       @soft_validations = []
     end
 
-    # @param [Symbol] attribute a column attribute or :base
-    # @param [String] message a message describing the soft validation to the user, i.e. what has gone wrong
-    # @param [Hash{fix: :method_name, success_message: String, failure_message: String }] options the method identified by :fix should fully resolve the SoftValidation.
-    def add(attribute, message,  options = {})
-      raise SoftValidationError, "can not add soft validation to [#{attribute}] - not a column name or 'base'" if !(['base'] + instance.class.column_names).include?(attribute.to_s)
-      raise SoftValidationError, 'invalid :fix_trigger' if !options[:fix_trigger].blank? && ![:all, :automatic, :requested].include?(options[:fix_trigger])
-      return false if attribute.nil? || message.nil? || message.length == 0
-      return false if (options[:success_message] || options[:failure_message]) && !options[:fix]
+    # Add a soft validation to a data instance.
+    # 
+    # @param attribute [Symbol]
+    #   a column attribute or :base
+    # @param message [String]
+    #   a message describing the soft validation to the user, i.e. what has gone wrong
+    # @param options [Hash]
+    #   legal keys are :failure_message and :success_message
+    def add(attribute, message, options = {})
+      # this is impossible to test.
+      method = caller[0][/`(block\ in\ )*([^']*)'/, 2].to_sym # janky, the caller of this method, that is the method referenced in `soft_validate()`, used to get the fix for this Instance added
 
-      options[:attribute] = attribute
-      options[:message] = message
+      raise SoftValidationError, "can not add soft validation to [#{attribute}] - not a column name or 'base'" if !(['base'] + @instance.class.column_names).include?(attribute.to_s)
+      raise SoftValidationError, 'no :attribute or message provided to soft validation' if attribute.nil? || message.nil? || message.length == 0
 
-      options[:resolution] = resolution_for(options[:resolution_with])
-      options.delete(:resolution_with)
+      options.merge!(
+        method_instance: @instance.class.soft_validation_methods[method], # inspected to expose method values
+        attribute: attribute,
+        message: message,
+      )
 
-      sv = SoftValidation.new(options)
-      sv.fix_trigger ||= :automatic
+      sv = ::SoftValidation::SoftValidation.new(options)
 
       @soft_validations << sv
     end
-
-    #  def soft_validations(scope = :all)
-    #    set = ( scope == :all ? [:automatic, :requested] : [scope] )
-    #    @soft_validations.select{|v| set.include?(v.fix_trigger)}
-    #  end
 
     # @return [Boolean]
     #   soft validations have been run
     def validated?
       @validated
-    end
-
-    # @param [Symbol, String] method
-    # @return [Array]
-    def resolution_for(method)
-      return [] if method.nil?
-      self.instance.class.soft_validation_methods[self.instance.class.name][method].resolution
     end
 
     # @return [Boolean]
@@ -85,7 +79,7 @@ module SoftValidation
       if fixes_run?
         soft_validations.each do |v|
           messages[v.attribute] ||= []
-          messages[v.attribute] << (v.result_message)
+          messages[v.attribute].push << v.result_message
         end
       end
       messages
@@ -114,5 +108,3 @@ module SoftValidation
   end
 
 end
-
-

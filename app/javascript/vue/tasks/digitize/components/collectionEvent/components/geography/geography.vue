@@ -35,10 +35,10 @@
         v-if="showModal"
         @close="showModal = false"
       >
-        <h3 slot="header">
-          Select geographic area
-        </h3>
-        <div slot="body">
+        <template #header>
+          <h3>Select geographic area</h3>
+        </template>
+        <template #body>
           <ul class="no_bullets">
             <li
               class="separate-bottom"
@@ -55,7 +55,7 @@
               </label>
             </li>
           </ul>
-        </div>
+        </template>
       </modal-component>
     </template>
     <template v-if="selected">
@@ -73,21 +73,23 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 import { GetterNames } from '../../../../store/getters/getters.js'
 import { MutationNames } from '../../../../store/mutations/mutations.js'
-import { GetGeographicAreaByCoords, GetGeographicArea } from '../../../../request/resources.js'
+import { GeographicArea } from 'routes/endpoints'
 
 import convertDMS from '../../../../helpers/parseDMS.js'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import refreshSmartSelector from '../../../shared/refreshSmartSelector'
 
 export default {
   mixins: [refreshSmartSelector],
+
   components: {
     SmartSelector,
     ModalComponent
   },
+
   computed: {
     geographicArea: {
       get () {
@@ -109,6 +111,7 @@ export default {
       }
     }
   },
+
   data () {
     return {
       moreOptions: ['search'],
@@ -123,29 +126,30 @@ export default {
       geoId: undefined
     }
   },
+
   watch: {
     collectingEvent: {
-      handler (newVal, oldVal) {
+      handler (newVal) {
         if (this.geoId && newVal && newVal.geographic_area_id === this.geoId) return
         this.geoId = newVal.geographic_area_id
         if (newVal.geographic_area_id) {
-          GetGeographicArea(newVal.geographic_area_id).then(response => {
+          GeographicArea.find(newVal.geographic_area_id, { geo_json: true }).then(response => {
             this.selectGeographicArea(response.body)
             this.geographicAreaShape = response.body
           })
         } else {
           this.selected = undefined
           if (convertDMS(newVal.verbatim_latitude) && convertDMS(newVal.verbatim_longitude)) {
-            const that = this
             clearTimeout(this.ajaxCall)
-            this.ajaxCall = setTimeout(() => { that.getByCoords(convertDMS(newVal.verbatim_latitude), convertDMS(newVal.verbatim_longitude)) }, this.delay)
+            this.ajaxCall = setTimeout(() => {
+              this.getByCoords(convertDMS(newVal.verbatim_latitude), convertDMS(newVal.verbatim_longitude))
+            }, this.delay)
           }
         }
       }
-    },
-    deep: true,
-    immediate: true
+    }
   },
+
   methods: {
     clearSelection () {
       this.selected = undefined
@@ -157,7 +161,7 @@ export default {
       this.geographicArea = item.id
     },
     getByCoords (lat, long) {
-      GetGeographicAreaByCoords(lat, long).then(response => {
+      GeographicArea.coordinates({ latitude: lat, longitude: long }).then(response => {
         this.areasByCoors = response.body
       })
     }

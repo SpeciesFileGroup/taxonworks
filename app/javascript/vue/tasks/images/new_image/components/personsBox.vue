@@ -25,7 +25,7 @@
 
 import SmartSelector from 'components/switch'
 import RolePicker from 'components/role_picker'
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 
 export default {
   components: {
@@ -33,44 +33,50 @@ export default {
     RolePicker,
     Autocomplete
   },
+
   props: {
     title: {
       type: String,
       required: true
     },
     roleType: {
-      type:String,
+      type: String,
       required: true
     },
     options: {
       type: Array,
-      default: () => { return ['someone else', 'an organization'] }
+      default: () => ['someone else', 'an organization']
     },
-    value: {
+    modelValue: {
       type: Array,
       required: true
     }
   },
-  data() {
+
+  emits: ['update:modelValue'],
+
+  data () {
     return {
       view: 'someone else',
       roles_attributes: []
     }
   },
+
   watch: {
     roles_attributes: {
-      handler(newVal) {
-        this.$emit('input', newVal)
-      }, 
+      handler (newVal) {
+        this.$emit('update:modelValue', newVal)
+      },
       deep: true
     },
-    value: {
+    modelValue: {
       handler(newVal) {
         this.roles_attributes = newVal
       },
       deep: true
     }
   },
+
   methods: {
     setOrganization(organization) {
       this.roles_attributes = [{

@@ -6,49 +6,48 @@
         v-if="display"
         :container-style="{ backgroundColor: 'transparent', boxShadow: 'none' }"
         @close="closeModal()">
-        <h3
-          slot="header"
-          class="flex-separate">
-          <span v-html="title" />
-          <span
-            v-if="metadata"
-            class="separate-right">
-            {{ metadata.object_type }}
-          </span>
-        </h3>
-        <div
-          slot="body"
-          class="flex-separate">
-          <spinner v-if="!menuCreated" />
-          <div class="radial-annotator-menu">
-            <div>
-              <radial-menu
-                v-if="menuCreated"
-                :menu="menuOptions"
-                :circle-style="pinStyle"
-                @selected="selectComponent"
-                width="400"
-                height="400"/>
+        <template #header>
+          <h3 class="flex-separate">
+            <span v-html="title" />
+            <span
+              v-if="metadata"
+              class="separate-right">
+              {{ metadata.object_type }}
+            </span>
+          </h3>
+        </template>
+        <template #body>
+          <div
+            class="flex-separate">
+            <spinner v-if="!menuCreated" />
+            <div class="radial-annotator-menu">
+              <div>
+                <radial-menu
+                  v-if="menuCreated"
+                  :options="menuOptions"
+                  @onClick="selectComponent"/>
+              </div>
+            </div>
+            <div
+              class="radial-annotator-template panel"
+              :style="{ 'max-height': windowHeight(), 'min-height': windowHeight() }"
+              v-if="currentAnnotator">
+              <h2 class="capitalize view-title">
+                {{ currentAnnotator.replace("_"," ") }}
+              </h2>
+              <component
+                v-if="metadataLoaded"
+                class="radial-annotator-container"
+                :is="(currentAnnotator ? currentAnnotator + 'Annotator' : undefined)"
+                :type="currentAnnotator"
+                :url="url"
+                :metadata="metadata"
+                :global-id="globalId"
+                :object-type="metadata.object_type"
+                @updateCount="setTotal"/>
             </div>
           </div>
-          <div
-            class="radial-annotator-template panel"
-            :style="{ 'max-height': windowHeight(), 'min-height': windowHeight() }"
-            v-if="currentAnnotator">
-            <h2 class="capitalize view-title">
-              {{ currentAnnotator.replace("_"," ") }}
-            </h2>
-            <component
-              class="radial-annotator-container"
-              :is="(currentAnnotator ? currentAnnotator + 'Annotator' : undefined)"
-              :type="currentAnnotator"
-              :url="url"
-              :metadata="metadata"
-              :global-id="globalId"
-              :object-type="metadata.object_type"
-              @updateCount="setTotal"/>
-          </div>
-        </div>
+        </template>
       </modal>
       <span
         v-if="showBottom"
@@ -74,8 +73,8 @@
 </template>
 <script>
 
-import radialMenu from 'components/radialMenu.vue'
-import modal from 'components/modal.vue'
+import RadialMenu from 'components/radials/RadialMenu.vue'
+import modal from 'components/ui/Modal.vue'
 import spinner from 'components/spinner.vue'
 
 import CRUD from './request/crud'
@@ -100,7 +99,7 @@ export default {
   mixins: [CRUD],
   name: 'RadialAnnotator',
   components: {
-    radialMenu,
+    RadialMenu,
     modal,
     spinner,
     notesAnnotator,
@@ -160,7 +159,7 @@ export default {
       default: false
     }
   },
-  data: function () {
+  data () {
     return {
       currentAnnotator: undefined,
       display: false,
@@ -168,7 +167,6 @@ export default {
       globalIdSaved: undefined,
       metadata: undefined,
       title: 'Radial annotator',
-      menuOptions: [],
       defaultTag: undefined,
       tagCreated: false,
       showContextMenu: false
@@ -178,9 +176,59 @@ export default {
     metadataLoaded () {
       return (this.globalId === this.globalIdSaved && this.menuCreated && !this.reload)
     },
+
     menuCreated () {
-      return this.menuOptions.length > 0
+      return this.metadata?.endpoints
     },
+
+    menuOptions () {
+      const endpoints = this.metadata.endpoints || {}
+
+      const slices = Object.entries(endpoints).map(([annotator, { total }]) => ({
+        name: annotator,
+        label: (annotator.charAt(0).toUpperCase() + annotator.slice(1)).replace('_', ' '),
+        innerPosition: 1.7,
+        svgAttributes: {
+          fill: this.currentAnnotator === annotator ? '#8F8F8F' : undefined
+        },
+        slices: total
+          ? [{
+              label: total.toString(),
+              size: 26,
+              svgAttributes: {
+                fill: '#006ebf',
+                color: '#FFFFFF'
+              }
+            }]
+          : [],
+        icon: Icons[annotator]
+          ? {
+              url: Icons[annotator],
+              width: '20',
+              height: '20'
+            }
+          : undefined
+      }))
+
+      return {
+        width: 400,
+        height: 400,
+        sliceSize: 120,
+        centerSize: 34,
+        margin: 2,
+        middleButton: this.middleButton,
+        css: {
+          class: 'svg-radial-annotator'
+        },
+        svgAttributes: {
+          fontSize: 11,
+          fill: '#FFFFFF',
+          textAnchor: 'middle'
+        },
+        slices: slices
+      }
+    },
+
     metadataCount () {
       if (this.metadata) {
         let totalCounts = 0
@@ -197,14 +245,20 @@ export default {
     isTagged () {
       return this.tagCreated
     },
-    pinStyle () {
+    middleButton () {
       return {
+        name: 'circleButton',
+        radius: 30,
         icon: {
           url: Icons.tags,
           width: '20',
           height: '20'
         },
-        background: this.getDefault() ? (this.isTagged ? '#F44336' : '#9ccc65') : '#CACACA',
+        svgAttributes: {
+          fontSize: 11,
+          fill: this.getDefault() ? (this.isTagged ? '#F44336' : '#9ccc65') : '#CACACA',
+          style: 'cursor: pointer'
+        },
         backgroundHover: this.getDefault() ? (this.isTagged ? '#CE3430' : '#81a553') : '#CACACA'
       }
     }
@@ -212,12 +266,12 @@ export default {
   watch: {
     metadataLoaded () {
       if (this.defaultView) {
-        this.currentAnnotator = this.defaultView ? (this.isComponentExist(this.defaultView) ? this.defaultView : undefined) : undefined
+        this.currentAnnotator = this.isComponentExist(this.defaultView)
       }
     },
     display (newVal) {
       if (newVal && this.metadataLoaded) {
-        this.currentAnnotator = this.defaultView ? (this.isComponentExist(this.defaultView) ? this.defaultView : undefined) : undefined
+        this.currentAnnotator = this.isComponentExist(this.defaultView)
       }
     }
   },
@@ -228,7 +282,7 @@ export default {
   },
   methods: {
     isComponentExist (componentName) {
-      return this.$options.components[componentName] ? true : false
+      return this.$options.components[`${componentName}Annotator`] ? componentName : undefined
     },
     loadContextMenu () {
       this.showContextMenu = true
@@ -256,14 +310,14 @@ export default {
         }
       })
     },
-    selectComponent (event) {
-      if (event === 'circleButton') {
-        if(this.getDefault()) {
+    selectComponent ({ name }) {
+      if (name === 'circleButton') {
+        if (this.getDefault()) {
           this.isTagged ? this.deleteTag() : this.createTag()
         }
       }
       else {
-        this.currentAnnotator = event
+        this.currentAnnotator = name
       }
     },
     closeModal: function () {
@@ -284,36 +338,14 @@ export default {
       this.getList(`/${this.type}/${encodeURIComponent(this.globalId)}/metadata`).then(response => {
         that.metadata = response.body
         that.title = response.body.object_tag
-        that.menuOptions = that.createMenuOptions(response.body.endpoints)
         that.url = response.body.url
       })
     },
-    createMenuOptions: function (annotators) {
-      const menu = []
-
-      for (var key in annotators) {
-        menu.push({
-          label: (key.charAt(0).toUpperCase() + key.slice(1)).replace('_', ' '),
-          total: annotators[key].total,
-          event: key,
-          icon: {
-            url: Icons[key],
-            width: '20',
-            height: '20'
-          }
-        })
-      }
-      return menu
-    },
     setTotal (total) {
-      var that = this
-      const position = this.menuOptions.findIndex(function (element) {
-        return element.event == that.currentAnnotator
-      })
-      this.menuOptions[position].total = total
+      this.metadata.endpoints[this.currentAnnotator].total = total
     },
     eventClose: function () {
-      const event = new CustomEvent('annotator:close', {
+      const event = new CustomEvent('radialAnnotator:close', {
         detail: {
           metadata: this.metadata
         }
@@ -351,7 +383,12 @@ export default {
 }
 </script>
 <style lang="scss">
-
+  .svg-radial-annotator {
+    g:hover {
+      cursor: pointer;
+      opacity: 0.9;
+    }
+  }
   .radial-annotator {
     position: relative;
 
@@ -359,13 +396,16 @@ export default {
       top: 30px;
       right: 20px;
     }
+
     .modal-mask {
       background-color: rgba(0, 0, 0, 0.7);
     }
+
     .modal-container {
       min-width: 1024px;
       width: 1200px;
     }
+
     .radial-annotator-template {
       border-radius: 3px;
       background: #FFFFFF;
@@ -374,6 +414,7 @@ export default {
       max-width: 100%;
       min-height: 600px;
     }
+
     .radial-annotator-container {
       display: flex;
       height: 600px;
@@ -381,18 +422,26 @@ export default {
       overflow-y: scroll;
       position: relative;
     }
+
+    .radial-annotator-inner-modal {
+      height: 700px;
+    }
+
     .radial-annotator-menu {
       padding-top: 1em;
       padding-bottom: 1em;
       width: 700px;
       min-height: 650px;
     }
+
     .annotator-buttons-list {
       overflow-y: scroll;
     }
+
     .save-annotator-button {
       width: 100px;
     }
+
     .circle-count {
       bottom: -6px;
     }

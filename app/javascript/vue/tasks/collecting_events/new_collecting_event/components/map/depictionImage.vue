@@ -4,8 +4,10 @@
       v-if="viewMode"
       @close="checkEdit"
       :container-style="{ width: ((fullSizeImage ? depiction.image.width : depiction.image.alternatives.medium.width) + 'px')}">
-      <h3 slot="header">View</h3>
-      <div slot="body">
+      <template #header>
+        <h3>View</h3>
+      </template>
+      <template #body>
         <template>
           <div class="img-box">
             <img
@@ -52,20 +54,20 @@
             @click="deleteDepiction"
             class="normal-input button button-delete">Delete</button>
         </div>
-      </div>
+      </template>
     </modal>
     <img
       class="img-thumb"
       @click="viewMode = true"
-      :src="depiction.svg_view_box != null ? 
-        getImageUrl(depiction.image.id, depiction.svg_view_box, 100, 100) : 
+      :src="depiction.svg_view_box != null ?
+        getImageUrl(depiction.image.id, depiction.svg_view_box, 100, 100) :
         depiction.image.alternatives.thumb.image_file_url">
   </div>
 </template>
 <script>
 
-import Modal from 'components/modal.vue'
-import { UpdateDepiction } from '../../request/resources'
+import { Depiction } from 'routes/endpoints'
+import Modal from 'components/ui/Modal.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 
 export default {
@@ -101,13 +103,12 @@ export default {
   },
   methods: {
     updateDepiction () {
-      let depiction = {
-        depiction: {
-          caption: this.depiction.caption,
-          figure_label: this.depiction.figure_label
-        }
+      const depiction = {
+        caption: this.depiction.caption,
+        figure_label: this.depiction.figure_label
       }
-      UpdateDepiction(this.depiction.id, depiction).then(response => {
+
+      Depiction.update(this.depiction.id, { depiction }).then(response => {
         TW.workbench.alert.create('Depiction was successfully updated.', 'notice')
         this.editing = false
       })

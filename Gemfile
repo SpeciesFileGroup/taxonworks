@@ -22,14 +22,14 @@ gem 'rubyzip', '~> 2.3.0'
 gem 'daemons', '~> 1.3.1'
 gem 'tzinfo-data', '~> 1.2019' # , '>= 1.2019.3'
 gem 'psych', '~> 3.1.0'
-gem 'rmagick', '~> 4.0'
+gem 'rmagick', '~> 4.2', '>= 4.2.2'
 
 # Geo
 gem 'ffi-geos', '~> 2.1.0'
 # gem 'rgeo-shapefile', '~> 0.4.2'  # deprecated? not compatible- perhaps only used in
 gem 'rgeo', '~> 2.2'
 gem 'rgeo-geojson', '~> 2.1', '>= 2.1.1'
-gem 'rgeo-proj4', '~> 2.0'
+gem 'rgeo-proj4', '~> 3.0', '>= 3.0.1'
 gem 'postgresql_cursor', '~> 0.6.1'
 
 # translate for geo
@@ -54,6 +54,7 @@ gem 'modularity', '~> 2.0.1' # Used!?
 gem 'paperclip', '~> 6.1.0'
 gem 'paperclip-meta', '~> 3.0'
 gem 'shortener', '~> 0.8.0'
+gem 'rails_or', '~> 1.1.8'
 
 # javascript
 gem 'sprockets-rails', '~> 3.2.0'
@@ -124,8 +125,7 @@ group :test, :development do
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 5.1', '>= 5.1.1'
-  gem 'selenium-webdriver', '~> 3.141'
-  gem 'geckodriver-helper', github: 'LocoDelAssembly/geckodriver-helper'
+  gem 'webdrivers', '~> 4.5', require: false
   gem 'prawn', '~> 2.2.2'
 end
 
@@ -154,7 +154,7 @@ end
 
 group :test do
   gem 'rspec', '~> 3.6'
-  gem 'codecov', '~> 0.3.0'
+  gem 'codecov', '~> 0.5.1'
   gem 'simplecov', :require => false
   gem 'capybara', '~> 3.18'
   gem 'timecop', '~> 0.9.1'

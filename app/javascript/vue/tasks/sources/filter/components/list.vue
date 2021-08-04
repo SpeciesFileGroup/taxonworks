@@ -14,7 +14,7 @@
             class="capitalize"
             v-for="item in sort"
             @click="sortTable(item)">
-            {{item}}
+            {{ item }}
           </th>
           <th>In project</th>
           <th></th>
@@ -81,7 +81,8 @@ import RadialAnnotator from 'components/radials/annotator/annotator'
 import TagAll from 'tasks/collection_objects/filter/components/tagAll'
 import PdfButton from 'components/pdfButton'
 import AddToProject from 'components/addToProjectSource'
-import PinComponent from 'components/pin.vue'
+import PinComponent from 'components/ui/Pinboard/VPin.vue'
+import { sortArray } from 'helpers/arrays.js'
 
 export default {
   components: {
@@ -92,41 +93,45 @@ export default {
     AddToProject,
     PinComponent
   },
+
   props: {
     list: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     },
-    value: {
+
+    modelValue: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
+
+  emits: [
+    'update:modelValue',
+    'onSort'
+  ],
+
   computed: {
     ids: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       ascending: false,
       sort: ['id', 'cached', 'year', 'type', 'documents']
     }
   },
+
   methods: {
     sortTable (sortProperty) {
-      this.list.sort((a, b) => {
-        if (a[sortProperty].toLowerCase() < b[sortProperty].toLowerCase())
-          return (this.ascending ? -1 : 1)
-        if (a[sortProperty].toLowerCase() > b[sortProperty].toLowerCase())
-          return (this.ascending ? 1 : -1)
-        return 0
-      })
+      this.$emit('onSort', sortArray(this.list, sortProperty, this.ascending))
       this.ascending = !this.ascending
     }
   }
