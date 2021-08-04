@@ -25,7 +25,7 @@ class DatasetRecordField < ApplicationRecord
   end
 
   def self.with_prefix_value(prefix)
-    where(indexed_column_value(prefix).matches("#{sanitize_sql_like(prefix)}%")
+    where(indexed_column_value(prefix).matches("#{sanitize_sql_like(prefix)}%"))
   end
 
   def self.with_record_class(record_class)
