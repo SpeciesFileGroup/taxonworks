@@ -909,6 +909,13 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
   def append_data_attribute(attributes, attribute)
     predicate = Predicate.find_by(uri: attribute[:uri], project: self.project)
+
+    # If the predicate doesn't have a saved uri, try searching by the predicate name
+    # attribute[:uri] is just whatever comes after TW:DataAttribute:CollectionObject: so it may be a name, not uri
+    if predicate.nil?
+      predicate = Predicate.find_by("lower(name) = lower(?)", attribute[:uri])  # case-insensitive search since uri is lowercase
+    end
+
     value = get_field_value(attribute[:field])
     if value
       raise DarwinCore::InvalidData.new({ attribute[:field] => ["Predicate with #{attribute[:uri]} URI not found"] }) unless predicate
@@ -927,7 +934,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     get_tw_fields_for('CollectionObject').each do |attribute|
       value = get_field_value(attribute[:field])
-      if value 
+      if value
         if !ACCEPTED_ATTRIBUTES[:CollectionObject].include?(attribute[:name])
           raise DarwinCore::InvalidData.new({ attribute[:field] => ["#{attribute[:name]} is not a valid CollectionObject attribute"] })
         end
