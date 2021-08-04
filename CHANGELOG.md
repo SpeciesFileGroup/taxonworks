@@ -33,11 +33,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Keyboard shortcuts code, replaced jQuery with vanilla JS
 - Pinboard code, replaced jQuery with vanilla JS
 - Annotations code, replaced jQuery with vanilla JS
+- Dropzone timeout [#2384]
 
 [#2370]: https://github.com/SpeciesFileGroup/taxonworks/issues/2370
 [#2371]: https://github.com/SpeciesFileGroup/taxonworks/issues/2371
 [#2373]: https://github.com/SpeciesFileGroup/taxonworks/issues/2373
 [#2375]: https://github.com/SpeciesFileGroup/taxonworks/issues/2375
+[#2384]: https://github.com/SpeciesFileGroup/taxonworks/issues/2384
 
 ## [0.19.2] - 2021-07-27
 
