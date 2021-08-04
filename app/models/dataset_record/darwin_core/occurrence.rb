@@ -121,7 +121,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           end
         end
 
-        Identifier::Local::Import.create!(
+        Identifier::Local::Import::Dwc.create!(
           namespace: import_dataset.get_core_record_identifier_namespace,
           identifier_object: specimen,
           identifier: get_field_value(:occurrenceID)
@@ -927,10 +927,12 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     get_tw_fields_for('CollectionObject').each do |attribute|
       value = get_field_value(attribute[:field])
-      if value && !ACCEPTED_ATTRIBUTES[:CollectionObject].include?(attribute[:name])
-        raise DarwinCore::InvalidData.new({ attribute[:field] => ["#{attribute[:name]} is not a valid CollectionObject attribute"] })
+      if value 
+        if !ACCEPTED_ATTRIBUTES[:CollectionObject].include?(attribute[:name])
+          raise DarwinCore::InvalidData.new({ attribute[:field] => ["#{attribute[:name]} is not a valid CollectionObject attribute"] })
+        end
+        attributes[attribute[:name]] = value
       end
-      attributes[attribute[:name]] = value
     end
 
     {
@@ -944,11 +946,12 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     get_tw_fields_for('CollectingEvent').each do |attribute|
       value = get_field_value(attribute[:field])
-      if value && !COLLECTING_EVENT_ATTRIBUTES.include?(attribute[:name])
-        raise DarwinCore::InvalidData.new({ attribute[:field] => ["#{attribute[:name]} is not a valid CollectingEvent attribute"] })
+      if value
+        if !ACCEPTED_ATTRIBUTES[:CollectingEvent].include?(attribute[:name])
+          raise DarwinCore::InvalidData.new({ attribute[:field] => ["#{attribute[:name]} is not a valid CollectingEvent attribute"] })
+        end
+        attributes[attribute[:name]] = value
       end
-      attributes[attribute[:name]] = value
-
     end
 
     {
