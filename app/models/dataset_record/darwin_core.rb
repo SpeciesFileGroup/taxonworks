@@ -24,7 +24,7 @@ class DatasetRecord::DarwinCore < DatasetRecord
     .select { |f| f.is_a?(String) }
     .map do |field|
       /(TW:DataAttribute:#{Regexp.escape(subject_class)}:).+/i =~ field
-      {field: field, uri: field.sub($1, '')} if $1
+      {field: field, selector: field.sub($1, '')} if $1
     end
     .reject(&:nil?)
   end

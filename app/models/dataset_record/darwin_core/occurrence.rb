@@ -908,10 +908,16 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   end
 
   def append_data_attribute(attributes, attribute)
-    predicate = Predicate.find_by(uri: attribute[:uri], project: self.project)
+    predicate = Predicate.find_by(uri: attribute[:selector], project: self.project)
+    predicate ||= Predicate.with_project_id(project.id).find_by(
+      Predicate.arel_table[:name].lower.eq(
+        Arel::Nodes::NamedFunction.new("LOWER", Arel::Nodes.build_quoted(attribute[:selector])) # Downcasing at Postgres just in case rules are different
+      )
+    )
+
     value = get_field_value(attribute[:field])
     if value
-      raise DarwinCore::InvalidData.new({ attribute[:field] => ["Predicate with #{attribute[:uri]} URI not found"] }) unless predicate
+      raise DarwinCore::InvalidData.new({ attribute[:field] => ["Predicate with #{attribute[:selector]} URI or name not found"] }) unless predicate
       attributes << {
         type: 'InternalAttribute',
         predicate: predicate,
@@ -957,19 +963,6 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     {
       collecting_event: attributes
     }
-  end
-
-  def append_attribute(attributes, attribute)
-    predicate = Predicate.find_by(uri: attribute[:uri], project: self.project)
-    value = get_field_value(attribute[:field])
-    if value
-      raise DarwinCore::InvalidData.new({ attribute[:field] => ["Predicate with #{attribute[:uri]} URI not found"] }) unless predicate
-      attributes << {
-        type: 'InternalAttribute',
-        predicate: predicate,
-        value: value
-      }
-    end
   end
 
   def append_dwc_attribute(attributes, predicate, value)
