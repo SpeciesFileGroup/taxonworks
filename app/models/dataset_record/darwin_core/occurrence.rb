@@ -910,9 +910,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   def append_data_attribute(attributes, attribute)
     predicate = Predicate.find_by(uri: attribute[:selector], project: self.project)
     predicate ||= Predicate.with_project_id(project.id).find_by(
-      Predicate.arel_table[:name].lower.eq(
-        Arel::Nodes::NamedFunction.new("LOWER", Arel::Nodes.build_quoted(attribute[:selector])) # Downcasing at Postgres just in case rules are different
-      )
+      Predicate.arel_table[:name].matches(sanitize_sql_like(attribute[:selector]))
     )
 
     value = get_field_value(attribute[:field])
