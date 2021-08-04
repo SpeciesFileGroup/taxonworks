@@ -12,7 +12,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Cancel function for http requests
 
 ### Fixed
-- Updated sorting for people. People used in the same project are prioritized
+- Updated sorting for sources in autocomplete. Sources used in the same project are prioritized
+- Updated sorting for people in autocomplete. People used in the same project are prioritized
 - Autocomplete in Interactive key task
 - Copy and clone option in Matrix Row Coder
 - Edit biological associations form, broken HTML and fields incorrectly mapped [#2370]
