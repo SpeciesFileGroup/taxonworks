@@ -70,10 +70,7 @@ export default {
     lastSave: {
       handler (newVal) {
         if (newVal && this.collectingEvent.id) {
-          SoftValidation.find(this.collectingEvent.global_id).then(response => {
-            const validations = response.body
-            this.validations = validations.soft_validations.lenght ? { collectingEvent: { list: validations, title: 'Collecting event' } } : {}
-          })
+          this.loadSoftValidation(this.collectingEvent.global_id)
         }
       },
       deep: true,
@@ -81,14 +78,20 @@ export default {
     },
 
     collectingEvent (newVal, oldVal) {
-      if (newVal.id && newVal.id != oldVal.id) {
-        SoftValidation.find(this.collectingEvent.global_id).then(response => {
-          const validations = response.body
-          this.validations = validations.soft_validations.lenght ? { collectingEvent: { list: validations, title: 'Collecting event' } } : {}
-        })
+      if (newVal.id && newVal.id !== oldVal.id) {
+        this.loadSoftValidation(this.collectingEvent.global_id)
       } else if (!newVal.id) {
         this.validations = {}
       }
+    }
+  },
+
+  methods: {
+    loadSoftValidation (globalId) {
+      SoftValidation.find(globalId).then(response => {
+        const validations = response.body
+        this.validations = { collectingEvent: { list: [validations], title: 'Collecting event' } }
+      })
     }
   }
 }

@@ -14,7 +14,12 @@ module SourcesHelper
       s = source.cached + ' '
     end
 
-    if source.is_in_project?(sessions_current_project_id)
+    if source.respond_to?(:in_project_id) && source.in_project_id == sessions_current_project_id
+      s += ' ' + content_tag(:span, 'in', class: [:feedback, 'feedback-primary', 'feedback-thin'])
+      c = source.use_count
+      s += ' ' + ( c > 0 ? content_tag(:span, "#{c.to_s}&nbsp;#{'citations'.pluralize(c)}".html_safe, class: [:feedback, 'feedback-secondary', 'feedback-thin']) : '' )
+      s += ' ' + content_tag(:span, 'doc/pdf', class: [:feedback, 'feedback-success', 'feedback-thin']) if source.documentation.where(project_id: sessions_current_project_id).any?
+    elsif source.is_in_project?(sessions_current_project_id)
       s += ' ' + content_tag(:span, 'in', class: [:feedback, 'feedback-primary', 'feedback-thin']) 
       c = source.citations.where(project_id: sessions_current_project_id).count
       s += ' ' + ( c > 0 ? content_tag(:span, "#{c.to_s}&nbsp;#{'citations'.pluralize(c)}".html_safe, class: [:feedback, 'feedback-secondary', 'feedback-thin']) : '' )

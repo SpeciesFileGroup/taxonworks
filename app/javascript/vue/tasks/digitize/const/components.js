@@ -80,7 +80,7 @@ const VueComponents = {
   [ComponentParse.Time]: Time,
   [ComponentParse.TripCode]: TripCode,
   [ComponentParse.Predicates]: Predicates,
-  [ComponentMap.SoftValidationComponent]: SoftValidation,
+  [ComponentMap.SoftValidation]: SoftValidation,
   [ComponentMap.PrintLabel]: PrintLabel,
   [ComponentMap.Map]: MapComponent,
   [ComponentMap.Depictions]: Depictions

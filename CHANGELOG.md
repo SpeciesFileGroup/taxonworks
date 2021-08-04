@@ -1,4 +1,4 @@
-W# Changelog
+# Changelog
 
 All (hopefully) notable changes to this project will be documented in this file.
 
@@ -12,6 +12,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Cancel function for http requests
 
 ### Fixed
+- Updated sorting for sources in autocomplete. Sources used in the same project are prioritized
+- Updated sorting for people in autocomplete. People used in the same project are prioritized
 - Autocomplete in Interactive key task
 - Copy and clone option in Matrix Row Coder
 - Edit biological associations form, broken HTML and fields incorrectly mapped [#2370]
@@ -23,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing citation and soft validation icons in New asserted distribution task
 - Typo preventing labels listings from working
 - Refresh summary in data view after use radial annotator
+- Collecting event soft validation in comprehensive task [#2091]
 
 ### Changed
 - sort property, `name` to `cached` in Filter nomenclature [#2372]
@@ -31,11 +34,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Keyboard shortcuts code, replaced jQuery with vanilla JS
 - Pinboard code, replaced jQuery with vanilla JS
 - Annotations code, replaced jQuery with vanilla JS
+- Dropzone timeout [#2384]
 
 [#2370]: https://github.com/SpeciesFileGroup/taxonworks/issues/2370
 [#2371]: https://github.com/SpeciesFileGroup/taxonworks/issues/2371
 [#2373]: https://github.com/SpeciesFileGroup/taxonworks/issues/2373
 [#2375]: https://github.com/SpeciesFileGroup/taxonworks/issues/2375
+[#2384]: https://github.com/SpeciesFileGroup/taxonworks/issues/2384
+[#2091]: https://github.com/SpeciesFileGroup/taxonworks/issues/2391
 
 ## [0.19.2] - 2021-07-27
 
