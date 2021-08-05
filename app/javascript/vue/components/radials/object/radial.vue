@@ -90,7 +90,7 @@ import { Tag } from 'routes/endpoints'
 export default {
   mixins: [CRUD],
 
-  name: 'RadialAnnotator',
+  name: 'RadialObject',
 
   components: {
     RadialMenu,
