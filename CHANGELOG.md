@@ -35,12 +35,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Pinboard code, replaced jQuery with vanilla JS
 - Annotations code, replaced jQuery with vanilla JS
 - Dropzone timeout [#2384]
+- Edit link redirect to new collecting event task [#2387]
 
 [#2370]: https://github.com/SpeciesFileGroup/taxonworks/issues/2370
 [#2371]: https://github.com/SpeciesFileGroup/taxonworks/issues/2371
 [#2373]: https://github.com/SpeciesFileGroup/taxonworks/issues/2373
 [#2375]: https://github.com/SpeciesFileGroup/taxonworks/issues/2375
 [#2384]: https://github.com/SpeciesFileGroup/taxonworks/issues/2384
+[#2387]: https://github.com/SpeciesFileGroup/taxonworks/issues/2387
 [#2091]: https://github.com/SpeciesFileGroup/taxonworks/issues/2391
 
 ## [0.19.2] - 2021-07-27
