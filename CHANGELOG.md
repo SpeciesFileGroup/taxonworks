@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Add
 - Pdf icon in citation by source
 - Cancel function for http requests
+- Edit mode for contents in Quick forms [#2385]
 
 ### Fixed
 - Updated sorting for sources in autocomplete. Sources used in the same project are prioritized
