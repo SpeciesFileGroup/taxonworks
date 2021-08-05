@@ -37,6 +37,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Annotations code, replaced jQuery with vanilla JS
 - Dropzone timeout [#2384]
 - Edit link redirect to new collecting event task [#2387]
+- Edit link redirect to comprehensive specimen digitization [#2394]
 
 [#2370]: https://github.com/SpeciesFileGroup/taxonworks/issues/2370
 [#2371]: https://github.com/SpeciesFileGroup/taxonworks/issues/2371
@@ -45,7 +46,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2384]: https://github.com/SpeciesFileGroup/taxonworks/issues/2384
 [#2385]: https://github.com/SpeciesFileGroup/taxonworks/issues/2385
 [#2387]: https://github.com/SpeciesFileGroup/taxonworks/issues/2387
-[#2091]: https://github.com/SpeciesFileGroup/taxonworks/issues/2391
+[#2391]: https://github.com/SpeciesFileGroup/taxonworks/issues/2391
+[#2394]: https://github.com/SpeciesFileGroup/taxonworks/issues/2394
 
 ## [0.19.2] - 2021-07-27
 
