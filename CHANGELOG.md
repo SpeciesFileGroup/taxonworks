@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Edit mode for contents in Quick forms [#2385]
 
 ### Fixed
+- 
 - Updated sorting for sources in autocomplete. Sources used in the same project are prioritized
 - Updated sorting for people in autocomplete. People used in the same project are prioritized
 - Autocomplete in Interactive key task
