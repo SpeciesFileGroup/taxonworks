@@ -1,6 +1,7 @@
 import ActionNames from './actionNames'
 
 import addToContainer from './AddToContainer'
+import getCOCitations from './getCOCitations'
 import getCollectionEvent from './getCollectionEvent'
 import getCollectionObject from './getCollectionObject'
 import getIdentifier from './getIdentifier'
@@ -10,9 +11,10 @@ import getNamespace from './getNamespace'
 import getTaxon from './getTaxon'
 import getTaxonDeterminations from './getTaxonDeterminations'
 import getTypeMaterial from './getTypeMaterial'
+import loadBiologicalAssociations from './loadBiologicalAssociations'
 import loadContainer from './loadContainer'
 import loadDigitalization from './loadDigitalization'
-import getCOCitations from './getCOCitations'
+import loadSoftValidations from './loadSoftValidations'
 import newCollectionEvent from './newCollectionEvent'
 import newCollectionObject from './newCollectionObject'
 import newIdentifier from './newIdentifier'
@@ -77,7 +79,9 @@ const ActionFunctions = {
   [ActionNames.SaveDigitalization]: saveDigitalization,
   [ActionNames.SaveIdentifier]: saveIdentifier,
   [ActionNames.SaveLabel]: saveLabel,
-  [ActionNames.SaveTypeMaterial]: saveTypeMaterial
+  [ActionNames.SaveTypeMaterial]: saveTypeMaterial,
+  [ActionNames.LoadSoftValidations]: loadSoftValidations,
+  [ActionNames.LoadBiologicalAssociations]: loadBiologicalAssociations
 }
 
 export {

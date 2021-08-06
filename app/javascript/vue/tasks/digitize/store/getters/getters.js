@@ -30,6 +30,8 @@ import getCollectingEventIdentifier from './getCollectingEventIdentifier'
 import getGeographicArea from './getGeographicArea'
 import getProjectPreferences from './getProjectPreferences'
 import getLastSave from './getLastSave'
+import getSoftValidations from './getSoftValidations'
+import getBiologicalAssociations from './getBiologicalAssociations'
 
 const GetterNames = {
   IsSaving: 'isSaving',
@@ -63,7 +65,9 @@ const GetterNames = {
   GetSubsequentialUses: 'getSubsequentialUses',
   GetTmpData: 'getTmpData',
   GetProjectPreferences: 'getProjectPreferences',
-  GetLastSave: 'getLastSave'
+  GetLastSave: 'getLastSave',
+  GetSoftValidations: 'getSoftValidations',
+  GetBiologicalAssociations: 'getBiologicalAssociations'
 }
 
 const GetterFunctions = {
@@ -98,7 +102,9 @@ const GetterFunctions = {
   [GetterNames.GetSubsequentialUses]: getSubsequentialUses,
   [GetterNames.GetTmpData]: getTmpData,
   [GetterNames.GetProjectPreferences]: getProjectPreferences,
-  [GetterNames.GetLastSave]: getLastSave
+  [GetterNames.GetLastSave]: getLastSave,
+  [GetterNames.GetSoftValidations]: getSoftValidations,
+  [GetterNames.GetBiologicalAssociations]: getBiologicalAssociations
 }
 
 export {

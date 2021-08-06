@@ -133,18 +133,22 @@ export default {
     TableList,
     LockComponent
   },
+
   computed: {
     validateFields() {
       return this.biologicalRelationship && this.biologicalRelation
     },
+
     displayRelated() {
       return this.biologicalRelation
         ? (this.biologicalRelation?.object_tag || this.biologicalRelation.label_html)
         : undefined
     },
+
     collectionObject() {
       return this.$store.getters[GetterNames.GetCollectionObject]
     },
+
     settings: {
       get () {
         return this.$store.getters[GetterNames.GetSettings]
@@ -152,11 +156,20 @@ export default {
       set () {
         this.$store.commit(MutationNames.SetSettings, value)
       }
+    },
+
+    list: {
+      get () {
+        return this.$store.getters[GetterNames.GetBiologicalAssociations]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetBiologicalAssociations, value)
+      }
     }
   },
-  data() {
+
+  data () {
     return {
-      list: [],
       biologicalRelationship: undefined,
       biologicalRelation: undefined,
       citation: undefined,
@@ -164,21 +177,17 @@ export default {
       flip: false,
     }
   },
+
   watch: {
     collectionObject (newVal) {
-      if (newVal.id) {
-        BiologicalAssociation.where({ subject_global_id: newVal.global_id }).then(response => {
-          this.list = response.body
-          this.processQueue()
-        })
-      }
       if (!this.settings.locked.biological_association.relationship)
         this.biologicalRelationship = undefined
       if (!this.settings.locked.biological_association.related) {
         this.biologicalRelation = undefined
       }
-    },
+    }
   },
+
   methods: {
     addAssociation () {
       const data = {
@@ -193,6 +202,7 @@ export default {
       this.$refs.citation.cleanCitation()
       this.processQueue()
     },
+
     createAssociationObject(data) {
       return {
         biological_relationship_id: data.biologicalRelationship.id,
@@ -202,7 +212,8 @@ export default {
         origin_citation_attributes: data.citation
       }
     },
-    processQueue() {
+
+    processQueue () {
       if(!this.collectionObject.id) return
       this.queueAssociations.forEach(item => {
         BiologicalAssociation.create({ biological_association: this.createAssociationObject(item) }).then(response => {
@@ -211,11 +222,13 @@ export default {
       })
       this.queueAssociations = []
     },
+
     removeBiologicalRelationship(biologicalRelationship) {
       BiologicalAssociation.destroy(biologicalRelationship.id).then(() => {
         this.list.splice(this.list.findIndex((item) => item.id === biologicalRelationship.id), 1)
       })
     },
+
     removeFromQueue (index) {
       this.queueAssociations.splice(index, 1)
     }

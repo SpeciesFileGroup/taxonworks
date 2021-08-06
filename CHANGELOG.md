@@ -7,13 +7,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-### Add
+### Added
 - Added soft-validation for loan if no docummentation
 - Added validation on 5 date fields in the loan, setting the priority of events.
 - Added search on alternative title in the Sorce autocomplete
 - Pdf icon in citation by source
 - Cancel function for http requests
 - Edit mode for contents in Quick forms [#2385]
+- Soft validation for collection object, type material, biological association and taxon determinations in comprehensive task [#2396]
 
 ### Fixed
 - Updated sorting for sources in autocomplete. Sources used in the same project are prioritized

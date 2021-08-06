@@ -119,10 +119,15 @@ import setTaxonDeterminationMonth from './TaxonDetermination/setTaxonDeterminati
 import setTaxonDeterminationDay from './TaxonDetermination/setTaxonDeterminationDay'
 import setTaxonDeterminationRoles from './TaxonDetermination/setTaxonDeterminationRoles'
 
+import setSoftValidations from './setSoftValidations'
+import setBiologicalAssociations from './setBiologicalAssociations'
+
 import setTmpDataOtu from './tmpData/setTmpDataOtu'
 import setProjectPreferences from './setProjectPreferences'
 
 const MutationNames = {
+
+  SetBiologicalAssociations: 'setBiologicalAssociations',
 
   SetGeographicArea: 'setGeographicArea',
   SetTmpDataOtu: 'setTmpDataOtu',
@@ -245,10 +250,13 @@ const MutationNames = {
   SetCollectionObjectRepositoryId: 'setCollectionObjectRepositoryId',
   SetCollectionObjectTotal: 'setCollectionObjectTotal',
   SetProjectPreferences: 'setProjectPreferences',
-  SetComponentsOrder: 'setComponentsOrder'
+  SetComponentsOrder: 'setComponentsOrder',
+
+  SetSoftValidations: 'setSoftValidations'
 }
 
 const MutationFunctions = {
+  [MutationNames.SetBiologicalAssociations]: setBiologicalAssociations,
   [MutationNames.SetProjectPreferences]: setProjectPreferences,
   [MutationNames.SetGeographicArea]: setGeographicArea,
   [MutationNames.SetTmpDataOtu]: setTmpDataOtu,
@@ -366,6 +374,7 @@ const MutationFunctions = {
   [MutationNames.SetCollectionObjectRepositoryId]: setCollectionObjectRepositoryId,
   [MutationNames.SetCollectionObjectTotal]: setCollectionObjectTotal,
   [MutationNames.SetComponentsOrder]: setComponentsOrder,
+  [MutationNames.SetSoftValidations]: setSoftValidations,
 
   [MutationNames.SetLabel]: setLabel,
   [MutationNames.SetLabelText]: setLabelText,
