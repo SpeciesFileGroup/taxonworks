@@ -32,8 +32,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Collecting event soft validation in comprehensive task [#2091]
 
 ### Changed
-- sort property, `name` to `cached` in Filter nomenclature [#2372]
-- replaced property `verbatim_author` to `cached_author_year` for csv download [#2373]
+- Sort property, `name` to `cached` in Filter nomenclature [#2372]
+- Replaced property `verbatim_author` to `cached_author_year` for csv download [#2373]
 - Refactor notification code, replaced jQuery for js vanilla
 - Keyboard shortcuts code, replaced jQuery with vanilla JS
 - Pinboard code, replaced jQuery with vanilla JS
@@ -42,8 +42,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Edit link redirect to new collecting event task [#2387]
 - Edit link redirect to comprehensive specimen digitization [#2394]
 
+
+[#2091]: https://github.com/SpeciesFileGroup/taxonworks/issues/2091
 [#2370]: https://github.com/SpeciesFileGroup/taxonworks/issues/2370
 [#2371]: https://github.com/SpeciesFileGroup/taxonworks/issues/2371
+[#2372]: https://github.com/SpeciesFileGroup/taxonworks/issues/2372
 [#2373]: https://github.com/SpeciesFileGroup/taxonworks/issues/2373
 [#2375]: https://github.com/SpeciesFileGroup/taxonworks/issues/2375
 [#2384]: https://github.com/SpeciesFileGroup/taxonworks/issues/2384
