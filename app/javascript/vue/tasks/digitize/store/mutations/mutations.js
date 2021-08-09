@@ -1,4 +1,5 @@
 import setGeographicArea from './setGeographicArea'
+import setGeoreferences from './setGeoreferences'
 import setSubsequentialUses from './setSubsequentialUses'
 
 import setLocked from './setLocked'
@@ -130,6 +131,7 @@ const MutationNames = {
   SetBiologicalAssociations: 'setBiologicalAssociations',
 
   SetGeographicArea: 'setGeographicArea',
+  SetGeoreferences: 'setGeoreferences',
   SetTmpDataOtu: 'setTmpDataOtu',
   SetSubsequentialUses: 'setSubsequentialUses',
 
@@ -259,6 +261,7 @@ const MutationFunctions = {
   [MutationNames.SetBiologicalAssociations]: setBiologicalAssociations,
   [MutationNames.SetProjectPreferences]: setProjectPreferences,
   [MutationNames.SetGeographicArea]: setGeographicArea,
+  [MutationNames.SetGeoreferences]: setGeoreferences,
   [MutationNames.SetTmpDataOtu]: setTmpDataOtu,
   [MutationNames.SetSubsequentialUses]: setSubsequentialUses,
 

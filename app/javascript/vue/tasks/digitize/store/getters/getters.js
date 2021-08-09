@@ -32,6 +32,7 @@ import getProjectPreferences from './getProjectPreferences'
 import getLastSave from './getLastSave'
 import getSoftValidations from './getSoftValidations'
 import getBiologicalAssociations from './getBiologicalAssociations'
+import getGeoreferences from './getGeoreferences'
 
 const GetterNames = {
   IsSaving: 'isSaving',
@@ -67,7 +68,8 @@ const GetterNames = {
   GetProjectPreferences: 'getProjectPreferences',
   GetLastSave: 'getLastSave',
   GetSoftValidations: 'getSoftValidations',
-  GetBiologicalAssociations: 'getBiologicalAssociations'
+  GetBiologicalAssociations: 'getBiologicalAssociations',
+  GetGeoreferences: 'getGeoreferences'
 }
 
 const GetterFunctions = {
@@ -104,7 +106,8 @@ const GetterFunctions = {
   [GetterNames.GetProjectPreferences]: getProjectPreferences,
   [GetterNames.GetLastSave]: getLastSave,
   [GetterNames.GetSoftValidations]: getSoftValidations,
-  [GetterNames.GetBiologicalAssociations]: getBiologicalAssociations
+  [GetterNames.GetBiologicalAssociations]: getBiologicalAssociations,
+  [GetterNames.GetGeoreferences]: getGeoreferences
 }
 
 export {

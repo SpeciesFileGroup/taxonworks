@@ -10,6 +10,7 @@ const ActionNames = {
   GetTaxon: 'getTaxon',
   GetTaxonDeterminations: 'getTaxonDeterminations',
   GetTypeMaterial: 'getTypeMaterial',
+  LoadGeoreferences: 'loadGeoreferences',
   LoadBiologicalAssociations: 'loadBiologicalAssociations',
   LoadContainer: 'loadContainer',
   LoadDigitalization: 'loadDigitalization',

@@ -77,6 +77,7 @@ function makeInitialState () {
     depictions: [],
     determinations: [],
     identifiers: [],
+    georeferences: [],
     materialTypes: [],
     namespaceSelected: '',
     preferences: {},

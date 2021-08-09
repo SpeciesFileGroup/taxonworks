@@ -8,7 +8,8 @@ export default ({ commit, state }) => {
     collection_event,
     taxon_determinations,
     materialTypes,
-    biologicalAssociations
+    biologicalAssociations,
+    georeferences
   } = state
 
   promises.push(SoftValidation.find(collection_object.global_id))
@@ -27,6 +28,10 @@ export default ({ commit, state }) => {
 
   biologicalAssociations.forEach(biologicalAssociation => {
     promises.push(SoftValidation.find(biologicalAssociation.global_id))
+  })
+
+  georeferences.forEach(georeference => {
+    promises.push(SoftValidation.find(georeference.global_id))
   })
 
   Promise.all(promises).then(responses => {

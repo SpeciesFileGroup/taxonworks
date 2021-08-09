@@ -15,6 +15,7 @@ import loadBiologicalAssociations from './loadBiologicalAssociations'
 import loadContainer from './loadContainer'
 import loadDigitalization from './loadDigitalization'
 import loadSoftValidations from './loadSoftValidations'
+import loadGeoreferences from './loadGeoreferences'
 import newCollectionEvent from './newCollectionEvent'
 import newCollectionObject from './newCollectionObject'
 import newIdentifier from './newIdentifier'
@@ -81,7 +82,8 @@ const ActionFunctions = {
   [ActionNames.SaveLabel]: saveLabel,
   [ActionNames.SaveTypeMaterial]: saveTypeMaterial,
   [ActionNames.LoadSoftValidations]: loadSoftValidations,
-  [ActionNames.LoadBiologicalAssociations]: loadBiologicalAssociations
+  [ActionNames.LoadBiologicalAssociations]: loadBiologicalAssociations,
+  [ActionNames.LoadGeoreferences]: loadGeoreferences
 }
 
 export {

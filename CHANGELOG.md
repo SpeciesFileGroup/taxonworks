@@ -14,7 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Pdf icon in citation by source
 - Cancel function for http requests
 - Edit mode for contents in Quick forms [#2385]
-- Soft validation for collection object, type material, biological association and taxon determinations in comprehensive task [#2396]
+- Soft validation for collection object, type material, biological association, georeferences and taxon determinations in comprehensive task [#2396]
 
 ### Fixed
 - Updated sorting for sources in autocomplete. Sources used in the same project are prioritized
