@@ -90,7 +90,7 @@ import { Tag } from 'routes/endpoints'
 export default {
   mixins: [CRUD],
 
-  name: 'RadialAnnotator',
+  name: 'RadialObject',
 
   components: {
     RadialMenu,
@@ -330,7 +330,7 @@ export default {
     },
 
     eventClose () {
-      const event = new CustomEvent('annotator:close', {
+      const event = new CustomEvent('radialObject:close', {
         detail: {
           metadata: this.metadata
         }

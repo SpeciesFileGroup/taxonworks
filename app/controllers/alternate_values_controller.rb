@@ -72,7 +72,7 @@ class AlternateValuesController < ApplicationController
   # GET /alternate_values/search
   def search
     if params[:id].blank?
-      redirect_to alternate_values_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to alternate_values_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       altval = AlternateValue.find_by_id(params[:id]).metamorphosize
       redirect_to url_for(altval.alternate_value_object.metamorphosize)

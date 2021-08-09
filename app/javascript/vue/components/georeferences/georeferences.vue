@@ -37,10 +37,11 @@
         v-if="show"
         :height="height"
         :width="width"
-        :geojson="shapes['features']"
+        :geojson="shapes"
         :lat="lat"
         :lng="lng"
-        :zoom="zoom"
+        :zoom="5"
+        :zoom-bounds="5"
         fit-bounds
         resize
         draw-controls
@@ -94,49 +95,65 @@ export default {
     GeolocateComponent,
     WtkComponent
   },
+
   props: {
+    modelValue: {
+      type: Array,
+      required: true
+    },
+
     collectingEventId: {
       type: [String, Number],
       default: undefined,
     },
+
     height: {
       type: String,
       default: '500px'
     },
+
     width: {
       type: String,
       default: 'auto'
     },
+
     lat: {
       type: Number,
       required: false,
       default: 0
     },
+
     lng: {
       type: Number,
       required: false,
       default: 0
     },
+
     geolocationUncertainty: {
       type: [String, Number],
       default: undefined
     },
+
     verbatimLng: {
       type: [Number, String],
       default: 0
     },
+
     verbatimLat: {
       type: [Number, String],
       default: 0
     },
+
     zoom: {
       type: Number,
       default: 1
     },
+
     show: {
       type: Boolean,
       default: true
     },
+
     geographicArea: {
       type: Object,
       default: undefined
@@ -146,39 +163,41 @@ export default {
   emits: [
     'updated',
     'created',
-    'onGeoreferences'
+    'onGeoreferences',
+    'update:modelValue'
   ],
 
   computed: {
     verbatimGeoreferenceAlreadyCreated () {
       return this.georeferences.find(item => item.type === 'Georeference::VerbatimData')
+    },
+
+    georeferences: {
+      get () {
+        return this.modelValue
+      },
+
+      set (value) {
+        this.$emit('update:modelValue', value)
+      }
     }
   },
+
   data () {
     return {
       showSpinner: false,
       selectedGeoreference: undefined,
-      georeferences: [],
-      shapes: {
-        type: "FeatureCollection",
-        features: []
-      },
+      shapes: [],
       creatingShape: false
     }
   },
+
   watch: {
-    collectingEventId: {
-      handler (newVal) {
-        if (newVal) {
-          this.getGeoreferences()
-        }
-      },
-      immediate: true
-    },
     show () {
-      this.getGeoreferences()
+      this.populateShapes()
     }
   },
+
   methods: {
     updateRadius (shape) {
       const georeference = {
@@ -189,7 +208,6 @@ export default {
 
       Georeference.update(shape.id, { georeference }).then(response => {
         this.$emit('updated', response.body)
-        this.getGeoreferences()
       }).finally(() => {
         this.showSpinner = false
       })
@@ -254,24 +272,16 @@ export default {
       })
     },
 
-    getGeoreferences() {
-      Georeference.where({ collecting_event_id: this.collectingEventId }).then(response => {
-        this.georeferences = response.body
-        this.populateShapes()
-        this.$emit('onGeoreferences', this.georeferences)
-      })
-    },
-
-    populateShapes() {
-      this.shapes.features = []
-      if(this.geographicArea) {
-        this.shapes.features.unshift(this.geographicArea)
+    populateShapes () {
+      this.shapes = []
+      if (this.geographicArea) {
+        this.shapes.unshift(this.geographicArea)
       }
       this.georeferences.forEach(geo => {
         if (geo.error_radius != null) {
           geo.geo_json.properties.radius = geo.error_radius
         }
-        this.shapes.features.push(geo.geo_json)
+        this.shapes.push(geo.geo_json)
       })
     },
 
@@ -315,7 +325,7 @@ export default {
 
     createGEOLocate (iframe_data) {
       this.showSpinner = true
-      Georeference.create({ 
+      Georeference.create({
         georeference: {
           iframe_response: iframe_data,
           collecting_event_id: this.collectingEventId,

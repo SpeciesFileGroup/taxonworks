@@ -75,7 +75,7 @@ class CollectionProfilesController < ApplicationController
 
   def search
     if params[:id].blank?
-      redirect_to collection_profiles_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to collection_profiles_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to collection_profile_path(params[:id])
     end

@@ -40,5 +40,4 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Basionym < Ta
     :reverse
   end
 
-
 end

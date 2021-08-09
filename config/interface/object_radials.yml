@@ -129,6 +129,12 @@ Source:
   home: new_source_task
   config:
     recent: true
+TaxonDetermination:
+  tasks:
+    - comprehensive_collection_object_task
+  home: comprehensive_collection_object_task
+  config:
+    recent: true
 TaxonName:
   tasks:
     - browse_nomenclature_task

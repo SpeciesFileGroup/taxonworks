@@ -15,7 +15,7 @@ module Queries
 
       # @return [Scope]
       def base_query
-        ::Source.select('sources.*')
+        ::Source #.select('sources.*')
       end
 
       # @return [ActiveRecord::Relation]
@@ -58,6 +58,14 @@ module Queries
       def autocomplete_start_of_title
         a = table[:title].matches(query_string + '%')
         base_query.where(a.to_sql).limit(5)
+      end
+
+      # @return [ActiveRecord::Relation]
+      #   title matches wildcard on alternate
+      def autocomplete_wildcard_of_title_alternate
+        base_query.joins(:alternate_values).
+          where("alternate_values.alternate_value_object_attribute = 'title' AND alternate_values.value ILIKE ?", '%' + query_string + '%').
+          limit(5)
       end
 
       # @return [ActiveRecord::Relation]
@@ -178,14 +186,23 @@ module Queries
           autocomplete_identifier_cached_like,
           autocomplete_ordered_wildcard_pieces_in_cached,
           autocomplete_cached_wildcard_anywhere,
-          autocomplete_start_of_title
+          autocomplete_start_of_title,
+          autocomplete_wildcard_of_title_alternate
         ]
 
         queries.compact!
 
         updated_queries = []
         queries.each_with_index do |q ,i|
-          a = q.joins(:project_sources).where(member_of_project_id.to_sql) if project_id && limit_to_project
+          if project_id && limit_to_project
+            a = q.joins(:project_sources).where(member_of_project_id.to_sql)
+          else
+            a = q.left_outer_joins(:citations)
+                 .select('sources.*, COUNT(citations.id) AS use_count, MAX(citations.project_id) AS in_project_id')
+                 .where('citations.project_id = ? OR citations.project_id IS NULL', Current.project_id)
+                 .group('sources.id')
+                 .order('in_project_id, use_count DESC')
+          end
           a ||= q
           updated_queries[i] = a
         end
