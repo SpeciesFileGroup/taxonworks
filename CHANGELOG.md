@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Cancel function for http requests
 - Edit mode for contents in Quick forms [#2385]
 - Soft validation for collection object, type material, biological association, georeferences and taxon determinations in comprehensive task [#2396]
+- Pinned icon for images in radial annotator [#1919]
 
 ### Fixed
 - Updated sorting for sources in autocomplete. Sources used in the same project are prioritized
@@ -44,6 +45,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Edit link redirect to comprehensive specimen digitization [#2394]
 
 
+[#1919]: https://github.com/SpeciesFileGroup/taxonworks/issues/1919
 [#2091]: https://github.com/SpeciesFileGroup/taxonworks/issues/2091
 [#2370]: https://github.com/SpeciesFileGroup/taxonworks/issues/2370
 [#2371]: https://github.com/SpeciesFileGroup/taxonworks/issues/2371
