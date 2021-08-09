@@ -32,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Typo preventing labels listings from working
 - Refresh summary in data view after use radial annotator
 - Collecting event soft validation in comprehensive task [#2091]
+- Missing param for BibTex [#2397]
 
 ### Changed
 - Sort property, `name` to `cached` in Filter nomenclature [#2372]
@@ -57,6 +58,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2387]: https://github.com/SpeciesFileGroup/taxonworks/issues/2387
 [#2391]: https://github.com/SpeciesFileGroup/taxonworks/issues/2391
 [#2394]: https://github.com/SpeciesFileGroup/taxonworks/issues/2394
+[#2397]: https://github.com/SpeciesFileGroup/taxonworks/issues/2397
 
 ## [0.19.2] - 2021-07-27
 
