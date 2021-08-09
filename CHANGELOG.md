@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Pinned icon for images in radial annotator [#1919]
 
 ### Fixed
+- Biological association link_tag entities not metamorphosized [#2392]
 - Updated sorting for sources in autocomplete. Sources used in the same project are prioritized
 - Updated sorting for people in autocomplete. People used in the same project are prioritized
 - Autocomplete in Interactive key task
@@ -35,6 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing param for BibTex [#2397]
 
 ### Changed
+- Biological association links now link to subject, association (click middle) and object
 - Sort property, `name` to `cached` in Filter nomenclature [#2372]
 - Replaced property `verbatim_author` to `cached_author_year` for csv download [#2373]
 - Refactor notification code, replaced jQuery for js vanilla
@@ -45,7 +47,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Edit link redirect to new collecting event task [#2387]
 - Edit link redirect to comprehensive specimen digitization [#2394]
 
-
+[#2392]: https://github.com/SpeciesFileGroup/taxonworks/issues/2392
 [#1919]: https://github.com/SpeciesFileGroup/taxonworks/issues/1919
 [#2091]: https://github.com/SpeciesFileGroup/taxonworks/issues/2091
 [#2370]: https://github.com/SpeciesFileGroup/taxonworks/issues/2370
