@@ -374,7 +374,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # occurrenceID: [Mapped in import method]
 
     # catalogNumber: [catalog_number.identifier]
-    set_hash_val(res[:catalog_number], :identifier, get_field_value(:catalogNumber))
+    set_hash_val(res[:catalog_number], :identifier, get_field_value(:catalogNumber).clone)
 
     # recordNumber: [Not mapped]
 
@@ -931,7 +931,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     get_tw_fields_for('CollectionObject').each do |attribute|
       value = get_field_value(attribute[:field])
-      if value 
+      if value
         if !ACCEPTED_ATTRIBUTES[:CollectionObject].include?(attribute[:name])
           raise DarwinCore::InvalidData.new({ attribute[:field] => ["#{attribute[:name]} is not a valid CollectionObject attribute"] })
         end
