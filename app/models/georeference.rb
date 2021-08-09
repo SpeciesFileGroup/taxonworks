@@ -64,6 +64,7 @@
 #
 class Georeference < ApplicationRecord
   include Housekeeping
+  include SoftValidation
   include Shared::Notes
   include Shared::Tags
   include Shared::Citations

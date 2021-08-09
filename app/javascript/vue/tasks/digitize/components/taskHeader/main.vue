@@ -66,7 +66,10 @@
           size="small"
           inertia
           arrow
-          :content="`<p>You have unsaved changes.</p>`">
+        >
+          <template #content>
+            <p>You have unsaved changes.</p>
+          </template>
           <div
             class="medium-icon separate-right"
             data-icon="warning"/>

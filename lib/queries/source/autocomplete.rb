@@ -61,6 +61,14 @@ module Queries
       end
 
       # @return [ActiveRecord::Relation]
+      #   title matches wildcard on alternate
+      def autocomplete_wildcard_of_title_alternate
+        base_query.joins(:alternate_values).
+          where("alternate_values.alternate_value_object_attribute = 'title' AND alternate_values.value ILIKE ?", '%' + query_string + '%').
+          limit(5)
+      end
+
+      # @return [ActiveRecord::Relation]
       #   author matches partial string
       def autocomplete_wildcard_pieces_and_year
         a = match_ordered_wildcard_pieces_in_cached
@@ -178,7 +186,8 @@ module Queries
           autocomplete_identifier_cached_like,
           autocomplete_ordered_wildcard_pieces_in_cached,
           autocomplete_cached_wildcard_anywhere,
-          autocomplete_start_of_title
+          autocomplete_start_of_title,
+          autocomplete_wildcard_of_title_alternate
         ]
 
         queries.compact!

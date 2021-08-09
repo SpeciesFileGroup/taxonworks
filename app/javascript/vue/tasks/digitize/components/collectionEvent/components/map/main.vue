@@ -8,7 +8,7 @@
       <template #item="{ element }">
         <component
           class="separate-bottom"
-          :validations="validations"
+          :validations="softValidations"
           :is="element"/>
       </template>
     </draggable>
@@ -20,7 +20,6 @@
 import Draggable from 'vuedraggable'
 import sortComponent from '../../../shared/sortComponenets.vue'
 
-import { SoftValidation } from 'routes/endpoints'
 import { GetterNames } from '../../../../store/getters/getters'
 import { MutationNames } from '../../../../store/mutations/mutations'
 import {
@@ -55,6 +54,10 @@ export default {
 
     collectingEvent () {
       return this.$store.getters[GetterNames.GetCollectionEvent]
+    },
+
+    softValidations () {
+      return this.$store.getters[GetterNames.GetSoftValidations]
     }
   },
 
@@ -63,35 +66,6 @@ export default {
       keyStorage: 'tasks::digitize::mapOrder',
       componentsSection: 'ComponentMap',
       validations: {}
-    }
-  },
-
-  watch: {
-    lastSave: {
-      handler (newVal) {
-        if (newVal && this.collectingEvent.id) {
-          this.loadSoftValidation(this.collectingEvent.global_id)
-        }
-      },
-      deep: true,
-      immediate: true
-    },
-
-    collectingEvent (newVal, oldVal) {
-      if (newVal.id && newVal.id !== oldVal.id) {
-        this.loadSoftValidation(this.collectingEvent.global_id)
-      } else if (!newVal.id) {
-        this.validations = {}
-      }
-    }
-  },
-
-  methods: {
-    loadSoftValidation (globalId) {
-      SoftValidation.find(globalId).then(response => {
-        const validations = response.body
-        this.validations = { collectingEvent: { list: [validations], title: 'Collecting event' } }
-      })
     }
   }
 }

@@ -52,8 +52,8 @@ const ComponentParse = {
 }
 
 const ComponentMap = {
-  SoftValidation: 'SoftValidation',
   Map: 'Map',
+  SoftValidation: 'SoftValidation',
   PrintLabel: 'PrintLabel',
   Depictions: 'Depictions'
 }
