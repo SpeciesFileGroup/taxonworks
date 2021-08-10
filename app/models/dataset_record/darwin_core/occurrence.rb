@@ -298,11 +298,14 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     hsh
   end
 
-  # Removes the namespace short name and delimiter from start of string if present
-  # @param [String] identifier_id
+  # Remove the namespace short name and delimiter from start of string.
+  #
+  # If the namespace has a verbatim_short_name, that is removed instead of the short_name.
+  # The delimiter is only removed if the short_name was found in the identifier.
+  # @param [String] identifier_str
   # @param [Namespace] namespace
-  def delete_namespace_prefix(identifier_id, namespace)
-    identifier_id&.delete_prefix!(namespace.verbatim_short_name || namespace.short_name)&.delete_prefix!(namespace.delimiter || '') if namespace
+  def delete_namespace_prefix(identifier_str, namespace)
+    identifier_str&.delete_prefix!(namespace.verbatim_short_name || namespace.short_name)&.delete_prefix!(namespace.delimiter || '') if namespace
   end
 
   def parse_record_level_class
