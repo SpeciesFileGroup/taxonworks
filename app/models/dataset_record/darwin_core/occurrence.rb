@@ -102,7 +102,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
         if attributes[:catalog_number]
           namespace = attributes.dig(:catalog_number, :namespace)
-          attributes.dig(:catalog_number, :identifier)&.delete_prefix!(namespace.verbatim_short_name || namespace.short_name)&.delete_prefix!(namespace.delimiter || '') if namespace
+          delete_namespace_prefix!(attributes.dig(:catalog_number, :identifier), namespace)
 
           identifier = Identifier::Local::CatalogNumber
                       .create_with(identifier_object: specimen)
@@ -153,7 +153,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
             identifier_attributes[:namespace] = namespace
 
-            event_id&.delete_prefix!(namespace.verbatim_short_name || namespace.short_name)&.delete_prefix!(namespace.delimiter)
+            delete_namespace_prefix!(event_id, namespace)
           end
 
           collecting_event = identifier_type.find_by(identifier_attributes)&.identifier_object
@@ -296,6 +296,16 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       hsh.delete(key) if hsh[key].nil? || hsh[key] == {}
     end
     hsh
+  end
+
+  # Remove the namespace short name and delimiter from start of string.
+  #
+  # If the namespace has a verbatim_short_name, that is removed instead of the short_name.
+  # The delimiter is only removed if the short_name was found in the identifier.
+  # @param [String] identifier_str
+  # @param [Namespace] namespace
+  def delete_namespace_prefix!(identifier_str, namespace)
+    identifier_str&.delete_prefix!(namespace.verbatim_short_name || namespace.short_name)&.delete_prefix!(namespace.delimiter || '') if namespace
   end
 
   def parse_record_level_class
