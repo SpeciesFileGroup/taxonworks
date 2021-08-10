@@ -35,6 +35,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Collecting event soft validation in comprehensive task [#2091]
 - Missing param for BibTex [#2397]
 - Citation source not added to project if already in another project
+- Incorrect TypeMaterial type type validation for ICN [#2378]
 
 ### Changed
 - Biological association links now link to subject, association (click middle) and object
@@ -58,6 +59,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2372]: https://github.com/SpeciesFileGroup/taxonworks/issues/2372
 [#2373]: https://github.com/SpeciesFileGroup/taxonworks/issues/2373
 [#2375]: https://github.com/SpeciesFileGroup/taxonworks/issues/2375
+[#2378]: https://github.com/SpeciesFileGroup/taxonworks/pull/2378
 [#2384]: https://github.com/SpeciesFileGroup/taxonworks/issues/2384
 [#2385]: https://github.com/SpeciesFileGroup/taxonworks/issues/2385
 [#2387]: https://github.com/SpeciesFileGroup/taxonworks/issues/2387
