@@ -34,6 +34,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Refresh summary in data view after use radial annotator
 - Collecting event soft validation in comprehensive task [#2091]
 - Missing param for BibTex [#2397]
+- Citation source not added to project if already in another project
 
 ### Changed
 - Biological association links now link to subject, association (click middle) and object
@@ -46,7 +47,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Dropzone timeout [#2384]
 - Edit link redirect to new collecting event task [#2387]
 - Edit link redirect to comprehensive specimen digitization [#2394]
+- Add source to project when tagged [#1436]
 
+[#1436]: https://github.com/SpeciesFileGroup/taxonworks/issues/1436
 [#2392]: https://github.com/SpeciesFileGroup/taxonworks/issues/2392
 [#1919]: https://github.com/SpeciesFileGroup/taxonworks/issues/1919
 [#2091]: https://github.com/SpeciesFileGroup/taxonworks/issues/2091
