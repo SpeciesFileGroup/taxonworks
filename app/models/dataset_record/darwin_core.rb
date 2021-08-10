@@ -16,7 +16,7 @@ class DatasetRecord::DarwinCore < DatasetRecord
     value = data_fields[index] if index
     normalize_value!(value)
 
-    value unless value.blank?
+    value.clone unless value.blank?
   end
 
   def get_tw_data_attribute_fields_for(subject_class)

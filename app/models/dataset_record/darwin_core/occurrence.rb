@@ -931,7 +931,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     get_tw_fields_for('CollectionObject').each do |attribute|
       value = get_field_value(attribute[:field])
-      if value 
+      if value
         if !ACCEPTED_ATTRIBUTES[:CollectionObject].include?(attribute[:name])
           raise DarwinCore::InvalidData.new({ attribute[:field] => ["#{attribute[:name]} is not a valid CollectionObject attribute"] })
         end
