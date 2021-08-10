@@ -304,7 +304,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   # The delimiter is only removed if the short_name was found in the identifier.
   # @param [String] identifier_str
   # @param [Namespace] namespace
-  def delete_namespace_prefix(identifier_str, namespace)
+  def delete_namespace_prefix!(identifier_str, namespace)
     identifier_str&.delete_prefix!(namespace.verbatim_short_name || namespace.short_name)&.delete_prefix!(namespace.delimiter || '') if namespace
   end
 
