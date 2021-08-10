@@ -49,6 +49,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Edit link redirect to new collecting event task [#2387]
 - Edit link redirect to comprehensive specimen digitization [#2394]
 - Add source to project when tagged [#1436]
+- Updated Ruby gems and Node packages
 
 [#1436]: https://github.com/SpeciesFileGroup/taxonworks/issues/1436
 [#2392]: https://github.com/SpeciesFileGroup/taxonworks/issues/2392
