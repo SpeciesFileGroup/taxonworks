@@ -102,7 +102,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
         if attributes[:catalog_number]
           namespace = attributes.dig(:catalog_number, :namespace)
-          delete_namespace_prefix(attributes.dig(:catalog_number, :identifier), namespace)
+          delete_namespace_prefix!(attributes.dig(:catalog_number, :identifier), namespace)
 
           identifier = Identifier::Local::CatalogNumber
                       .create_with(identifier_object: specimen)
@@ -153,7 +153,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
             identifier_attributes[:namespace] = namespace
 
-            delete_namespace_prefix(event_id, namespace)
+            delete_namespace_prefix!(event_id, namespace)
           end
 
           collecting_event = identifier_type.find_by(identifier_attributes)&.identifier_object
