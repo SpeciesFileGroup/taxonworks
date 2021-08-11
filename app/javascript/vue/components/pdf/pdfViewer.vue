@@ -80,6 +80,8 @@
 
 import PdfViewer from './components/pdfComponent'
 import ResizeHandle from '../resizeHandle'
+import IndexedDBStorage from 'storage/indexddb.js'
+import { blobToArrayBuffer } from 'helpers/files.js'
 
 export default {
   name: 'PdfSlideout',
@@ -127,8 +129,9 @@ export default {
     }
   },
 
-  mounted() {
-    this.eventsListens()
+  mounted () {
+    this.eventListeners()
+    this.isOpenInStorage()
   },
 
   unmounted () {
@@ -137,13 +140,7 @@ export default {
   },
 
   watch: {
-    show (s) {
-      if (s) {
-        this.getPdf()
-      }
-    },
-
-    page(p) {
+    page (p) {
       if (this.noTrigger) {
         this.noTrigger = false
       }
@@ -158,12 +155,29 @@ export default {
       }
     },
 
-    textCopy(newVal) {
+    textCopy (newVal) {
       document.querySelector('[data-panel-name="pinboard"]').setAttribute('data-clipboard', newVal)
+    },
+
+    async viewerActive (newVal) {
+      const pdfStored = await IndexedDBStorage.get('Pdf', this.getUserAndProjectIds())
+
+      if (pdfStored) {
+        pdfStored.isOpen = newVal
+        IndexedDBStorage.put('Pdf', pdfStored)
+      }
     }
   },
 
   methods: {
+    async isOpenInStorage () {
+      const pdfStored = await IndexedDBStorage.get('Pdf', this.getUserAndProjectIds())
+
+      if (pdfStored?.isOpen) {
+        this.getPdf(pdfStored.url)
+        this.openPanel()
+      }
+    },
     setWidth (style) {
       this.width = style
     },
@@ -172,14 +186,26 @@ export default {
       this.showPage = Number(this.page) + Number(value)
     },
 
-    setScale(value) {
+    setScale (value) {
       this.scale = this.scale + value
     },
 
-    getPdf (url) {
+    async getPdf (url) {
+      const pdfStored = await IndexedDBStorage.get('Pdf', this.getUserAndProjectIds())
+      const isAlreadyStored = pdfStored?.url === url
+      const pdfBuffer = isAlreadyStored
+        ? pdfStored.pdfBuffer
+        : await this.downloadPdf(url)
+
       this.documentUrl = url
-      this.pdfdata = PdfViewer.createLoadingTask(url)
       this.loadingPdf = true
+
+      if (!isAlreadyStored) {
+        this.savePdfInStorage(url, pdfBuffer, true)
+      }
+
+      this.pdfdata = PdfViewer.createLoadingTask({ data: pdfBuffer })
+
       this.pdfdata.then(pdf => {
         this.loadingPdf = false
         this.numPages = pdf.numPages
@@ -212,6 +238,22 @@ export default {
       return obj.offsetTop
     },
 
+    getUserAndProjectIds () {
+      const userId = document.querySelector('[data-current-user-id]').getAttribute('data-current-user-id')
+      const projectId = document.querySelector('[data-project-id]').getAttribute('data-project-id')
+
+      return `${userId}-${projectId}`
+    },
+
+    savePdfInStorage (url, pdfBuffer, isOpen) {
+      IndexedDBStorage.put('Pdf', {
+        userAndProjectId: this.getUserAndProjectIds(),
+        url,
+        pdfBuffer,
+        isOpen
+      })
+    },
+
     openPanel () {
       this.viewerActive = true
       document.querySelector('[data-panel-name="pinboard"]').classList.remove("slice-panel-show")
@@ -220,7 +262,7 @@ export default {
       document.querySelector('[data-panel-name="pdfviewer"]').classList.add("slice-panel-show")
     },
 
-    eventsListens () {
+    eventListeners () {
       this.channel.onmessage = (event) => {
         this.loadPDF({ detail: event.data })
         this.openPanel()
@@ -248,10 +290,10 @@ export default {
       // Events
       //Copy text to input or textarea
 
-      document.body.addEventListener("click", event => {
+      document.body.addEventListener('click', event => {
         const name = event.target.nodeName
 
-        if (name == "INPUT" || name == "TEXTAREA") {
+        if (name === 'INPUT' || name === 'TEXTAREA') {
           if (this.viewerActive) {
             if (event.target.selectionStart === event.target.selectionEnd) {
               this.cursorPosition = event.target.selectionStart
@@ -267,7 +309,7 @@ export default {
       document.addEventListener('dblclick', event => {
         const name = event.target.nodeName
 
-        if (name === "INPUT" || name === "TEXTAREA") {
+        if (name === 'INPUT' || name === 'TEXTAREA') {
           if (this.viewerActive) {
             const inputText = event.target.value
             event.target.value = insertStringInPosition(inputText, this.textCopy, this.cursorPosition);
@@ -292,6 +334,21 @@ export default {
       this.sourceId = event.detail.sourceId
       this.$nextTick(() => {
         this.getPdf(event.detail.url)
+      })
+    },
+
+    downloadPdf (url) {
+      return new Promise((resolve, reject) => {
+        fetch(url)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok')
+            }
+            return response.blob()
+          })
+          .then(async blobObject => {
+            resolve(await blobToArrayBuffer(blobObject))
+          })
       })
     }
   }
