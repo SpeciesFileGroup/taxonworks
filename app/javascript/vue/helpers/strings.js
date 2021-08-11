@@ -17,9 +17,14 @@ function replaceAt (index, string, newString) {
     : string
 }
 
+function stringInline (text) {
+  return text.replace(/\s+|\n|\r/g, ' ').trim()
+}
+
 export {
   capitalize,
   shorten,
   toSnakeCase,
-  replaceAt
+  replaceAt,
+  stringInline
 }

@@ -22,20 +22,20 @@
             v-html="item.otu.object_tag"/>
         </td>
         <td v-html="item.geographic_area.name"/>
-        <template>
-          <td v-if="item.citations.length > 1">
-            <citation-count :citations="item.citations"/>
-          </td>
-          <td v-else>
+        <td v-if="item.citations.length > 1">
+          <citation-count :citations="item.citations"/>
+        </td>
+        <td v-else>
+          <div class="middle">
             <a
+              class="margin-small-right"
               target="blank"
               :href="nomenclatureBySourceRoute(item.citations[0].source.id)"
               v-html="item.citations[0].citation_source_body"/>
             <soft-validation
-              class="margin-small-left"
               :global-id="item.global_id"/>
-          </td>
-        </template>
+          </div>
+        </td>
         <td>
           <span 
             class="button circle-button btn-delete"

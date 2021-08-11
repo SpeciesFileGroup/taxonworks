@@ -50,6 +50,8 @@ class Tag < ApplicationRecord
 
   accepts_nested_attributes_for :keyword, reject_if: :reject_keyword # , allow_destroy: true
 
+  after_create :add_source_to_project, if: Proc.new { |tag| tag.tag_object.is_a?(Source) }
+
   def self.tag_objects(objects, keyword_id = nil)
     return nil if keyword_id.nil? or objects.empty?
     objects.each do |o|
@@ -136,6 +138,10 @@ class Tag < ApplicationRecord
 
   def reject_keyword(attributed)
     attributed['name'].blank? || attributed['definition'].blank?
+  end
+
+  def add_source_to_project
+    !!ProjectSource.find_or_create_by(project: project, source: tag_object)
   end
 
 end

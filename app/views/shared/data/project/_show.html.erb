@@ -47,7 +47,7 @@
         </div> 
 
         <div class="navigation-controls">
-          <%= edit_object_link(object) -%>
+          <%= content_for?(:edit) ? yield(:edit) : edit_object_link(object) %>
           <%= destroy_object_link(object) %>
 
           <div id="show_tasks_dropdown" class="navigation-item menu-drop">

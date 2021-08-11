@@ -16,23 +16,16 @@
           placeholder="Select a source"
           param="term"
         />
-        <template>
-          <default-element
-            v-if="!citation.source_id"
-            class="separate-left"
-            label="source"
-            type="Source"
-            @getItem="setSource"
-            section="Sources"
-          />
-          <span
-            v-else
-            @click="cleanCitation"
-            class="separate-left"
-            data-icon="reset"
-          />
-          <lock-component v-model="lock" />
-        </template>
+        <default-element
+          class="margin-small-left"
+          label="source"
+          type="Source"
+          @getItem="setSource"
+          section="Sources"
+        />
+        <lock-component
+          class="margin-small-left"
+          v-model="lock" />
       </div>
       <div class="margin-small-top">
         <span

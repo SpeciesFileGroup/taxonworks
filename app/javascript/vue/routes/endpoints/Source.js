@@ -3,6 +3,7 @@ import AjaxCall from 'helpers/ajaxCall'
 
 const model = 'sources'
 const permitParams = {
+  bibtex_input: String,
   source: {
     serial_id: Number,
     address: String,

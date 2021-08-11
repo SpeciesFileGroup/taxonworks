@@ -1,4 +1,4 @@
-W# Changelog
+# Changelog
 
 All (hopefully) notable changes to this project will be documented in this file.
 
@@ -8,6 +8,69 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 \-
+
+## [0.19.3] - 2021-08-10
+
+### Added
+- Added soft-validation for loan if no docummentation
+- Added validation on 5 date fields in the loan, setting the priority of events.
+- Added search on alternative title in the Sorce autocomplete
+- Pdf icon in citation by source
+- Cancel function for http requests
+- Edit mode for contents in Quick forms [#2385]
+- Soft validation for collection object, type material, biological association, georeferences and taxon determinations in comprehensive task [#2396]
+- Pinned icon for images in radial annotator [#1919]
+
+### Fixed
+- Biological association link_tag entities not metamorphosized [#2392]
+- Updated sorting for sources in autocomplete. Sources used in the same project are prioritized
+- Updated sorting for people in autocomplete. People used in the same project are prioritized
+- Autocomplete in Interactive key task
+- Copy and clone option in Matrix Row Coder
+- Edit biological associations form, broken HTML and fields incorrectly mapped [#2370]
+- Hidden pin and lock icons in asserted distribution quick form
+- biological_association_link helper
+- Confidence button
+- Dynamic rows/columns are not destroyable [#2375]
+- Asserted distribution edit view [#2371]
+- Missing citation and soft validation icons in New asserted distribution task
+- Typo preventing labels listings from working
+- Refresh summary in data view after use radial annotator
+- Collecting event soft validation in comprehensive task [#2091]
+- Missing param for BibTex [#2397]
+- Citation source not added to project if already in another project
+- Incorrect TypeMaterial type type validation for ICN [#2378]
+
+### Changed
+- Biological association links now link to subject, association (click middle) and object
+- Sort property, `name` to `cached` in Filter nomenclature [#2372]
+- Replaced property `verbatim_author` to `cached_author_year` for csv download [#2373]
+- Refactor notification code, replaced jQuery for js vanilla
+- Keyboard shortcuts code, replaced jQuery with vanilla JS
+- Pinboard code, replaced jQuery with vanilla JS
+- Annotations code, replaced jQuery with vanilla JS
+- Dropzone timeout [#2384]
+- Edit link redirect to new collecting event task [#2387]
+- Edit link redirect to comprehensive specimen digitization [#2394]
+- Add source to project when tagged [#1436]
+- Updated Ruby gems and Node packages
+
+[#1436]: https://github.com/SpeciesFileGroup/taxonworks/issues/1436
+[#2392]: https://github.com/SpeciesFileGroup/taxonworks/issues/2392
+[#1919]: https://github.com/SpeciesFileGroup/taxonworks/issues/1919
+[#2091]: https://github.com/SpeciesFileGroup/taxonworks/issues/2091
+[#2370]: https://github.com/SpeciesFileGroup/taxonworks/issues/2370
+[#2371]: https://github.com/SpeciesFileGroup/taxonworks/issues/2371
+[#2372]: https://github.com/SpeciesFileGroup/taxonworks/issues/2372
+[#2373]: https://github.com/SpeciesFileGroup/taxonworks/issues/2373
+[#2375]: https://github.com/SpeciesFileGroup/taxonworks/issues/2375
+[#2378]: https://github.com/SpeciesFileGroup/taxonworks/pull/2378
+[#2384]: https://github.com/SpeciesFileGroup/taxonworks/issues/2384
+[#2385]: https://github.com/SpeciesFileGroup/taxonworks/issues/2385
+[#2387]: https://github.com/SpeciesFileGroup/taxonworks/issues/2387
+[#2391]: https://github.com/SpeciesFileGroup/taxonworks/issues/2391
+[#2394]: https://github.com/SpeciesFileGroup/taxonworks/issues/2394
+[#2397]: https://github.com/SpeciesFileGroup/taxonworks/issues/2397
 
 ## [0.19.2] - 2021-07-27
 
@@ -1428,7 +1491,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.3...development
+[0.19.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.2...v0.19.3
 [0.19.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.1...v0.19.2
 [0.19.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.0...v0.19.1
 [0.19.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.18.1...v0.19.0

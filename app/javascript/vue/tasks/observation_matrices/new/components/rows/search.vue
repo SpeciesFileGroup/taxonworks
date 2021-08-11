@@ -1,35 +1,35 @@
 <template>
   <div>
     <p>Select</p>
-    <div class="flex-wrap">
-      <template
-        v-for="item, key in autocomplete_type"
-        class="field">
-        <label class="label-flex">
+    <ul class="context-menu no_bullets">
+      <li
+        v-for="(item, key) in typeLabels"
+        :key="key">
+        <label>
           <input
             type="radio"
             v-model="type"
             name="autocomplete_type"
             :value="key"
-            checked>
-          {{ key }}
+          >
+          {{ item }}
         </label>
-      </template>
-      <div class="field">
-        <otu-picker
-          v-if="isOtuType"
-          clear-after
-          @getItem="createRowItem($event.id)"/>
-        <autocomplete
-          v-else
-          min="2"
-          :placeholder="`Select a ${type}`"
-          label="label_html"
-          :clear-after="true"
-          @getItem="createRowItem($event.id)"
-          :url="autocomplete_type[type]"
-          param="term"/>
-      </div>
+      </li>
+    </ul>
+    <div class="field margin-medium-top">
+      <otu-picker
+        v-if="isOtuType"
+        clear-after
+        @getItem="createRowItem($event.id)"/>
+      <autocomplete
+        v-else
+        min="2"
+        :placeholder="`Select a ${type}`"
+        label="label_html"
+        :clear-after="true"
+        @getItem="createRowItem($event.id)"
+        :url="autocomplete_type[type]"
+        param="term"/>
     </div>
   </div>
 </template>
@@ -60,9 +60,13 @@ export default {
 
   data () {
     return {
+      typeLabels: {
+        Otu: 'OTU',
+        CollectionObject: 'Collection object'
+      },
       autocomplete_type: {
         Otu: '/otus/autocomplete',
-        CollectionObject: '/collection_objects/autocomplete',
+        CollectionObject: '/collection_objects/autocomplete'
       },
       types: ObservationTypes.Row,
       type: 'Otu'

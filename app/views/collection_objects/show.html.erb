@@ -11,6 +11,10 @@
   <%= content_tag(:li, add_or_move_to_container_link(@collection_object)) %>
 <% end %>
 
+<%= content_for :edit do -%>
+  <%= link_to(content_tag(:span, 'Edit', 'data-icon' => 'edit', class: 'small-icon'), comprehensive_collection_object_task_path(collection_object_id: @collection_object.id), class: 'navigation-item') %>
+<% end %>
+
 <%= content_for :associated do -%>
   <p> See <%= link_to('Browse collection object', browse_collection_objects_task_path(collection_object_id: @collection_object.id)) -%>. <p>
 <% end %>

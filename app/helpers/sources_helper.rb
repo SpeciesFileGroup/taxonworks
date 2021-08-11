@@ -14,7 +14,12 @@ module SourcesHelper
       s = source.cached + ' '
     end
 
-    if source.is_in_project?(sessions_current_project_id)
+    if source.respond_to?(:in_project_id) && source.in_project_id == sessions_current_project_id
+      s += ' ' + content_tag(:span, 'in', class: [:feedback, 'feedback-primary', 'feedback-thin'])
+      c = source.use_count
+      s += ' ' + ( c > 0 ? content_tag(:span, "#{c.to_s}&nbsp;#{'citations'.pluralize(c)}".html_safe, class: [:feedback, 'feedback-secondary', 'feedback-thin']) : '' )
+      s += ' ' + content_tag(:span, 'doc/pdf', class: [:feedback, 'feedback-success', 'feedback-thin']) if source.documentation.where(project_id: sessions_current_project_id).any?
+    elsif source.is_in_project?(sessions_current_project_id)
       s += ' ' + content_tag(:span, 'in', class: [:feedback, 'feedback-primary', 'feedback-thin']) 
       c = source.citations.where(project_id: sessions_current_project_id).count
       s += ' ' + ( c > 0 ? content_tag(:span, "#{c.to_s}&nbsp;#{'citations'.pluralize(c)}".html_safe, class: [:feedback, 'feedback-secondary', 'feedback-thin']) : '' )
@@ -46,6 +51,11 @@ module SourcesHelper
   def source_link(source)
     return nil if source.nil?
     link_to(source_tag(source).html_safe, source.metamorphosize )
+  end
+
+  def history_link(source)
+    content_tag(:em, ' in ') + link_to(content_tag(:span, source_author_year_tag(source), title: source.cached, class: :history__in), send(:nomenclature_by_source_task_path, source_id: source.id) )
+    #        return content_tag(:span,  content_tag(:em, ' in ') + b, class: [:history__in])
   end
 
   def short_sources_tag(sources)

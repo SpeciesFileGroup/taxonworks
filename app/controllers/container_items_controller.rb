@@ -60,7 +60,7 @@ class ContainerItemsController < ApplicationController
 
   def search
     if params[:id].blank?
-      redirect_to container_items_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to container_items_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to container_item_path(params[:id])
     end

@@ -43,10 +43,13 @@
             <div class="horizontal-right-content margin-small-top">
               <pin-object
                 v-if="taxon.id"
+                class="circle-button"
                 :pin-object="taxon['pinboard_item']"
                 :object-id="taxon.id"
-                :type="taxon.base_class"/>
-              <default-confidence :global-id="taxon.global_id"/>
+                type="TaxonName"/>
+              <default-confidence
+                class="circle-button"
+                :global-id="taxon.global_id"/>
               <span
                 v-if="taxon.id"
                 @click="showModal = true"

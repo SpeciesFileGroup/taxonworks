@@ -55,6 +55,8 @@ import platformKey from 'helpers/getMacKey.js'
 import { shorten } from 'helpers/strings.js'
 
 export default {
+  name: 'PinboardNavigator',
+
   components: { ModalComponent },
 
   computed: {

@@ -29,6 +29,8 @@
 import { ProjectMember } from 'routes/endpoints'
 
 export default {
+  name: 'Clipboard',
+
   computed: {
     actionKey () {
       return (navigator.platform.indexOf('Mac') > -1 ? 'Control' : 'Alt')

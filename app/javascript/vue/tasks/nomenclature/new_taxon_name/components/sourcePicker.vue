@@ -76,7 +76,7 @@
           </label>
         </div>
       </div>
-      <div v-show="show == 'source' && taxon.id">
+      <div v-if="show == 'source' && taxon.id">
         <div class="horizontal-left-content">
           <autocomplete
             url="/sources/autocomplete"
@@ -90,7 +90,6 @@
             @getItem="setSource($event.id)"
           />
           <default-element
-            v-if="!citation"
             class="margin-small-left"
             label="source"
             type="Source"
@@ -99,7 +98,7 @@
           />
         </div>
         <hr>
-        <div v-if="citation != undefined">
+        <div v-if="citation">
           <div class="flex-separate middle">
             <p>
               <span
@@ -107,7 +106,6 @@
                 v-html="citation.source.object_tag"
               />
               <soft-validation
-                class="margin-small-left"
                 :validate-object="citation"
                 :global-id="citation.global_id"/>
             </p>

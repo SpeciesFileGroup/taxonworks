@@ -78,7 +78,7 @@ class ContentsController < ApplicationController
   def search
     if params[:id].blank?
       redirect_to content_path,
-        notice: 'You must select an item from the list with a click or tab press before clicking show.'
+        alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to content_path(params[:id])
     end

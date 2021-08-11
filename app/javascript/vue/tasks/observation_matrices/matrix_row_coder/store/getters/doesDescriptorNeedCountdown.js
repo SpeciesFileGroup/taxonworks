@@ -1,3 +1,2 @@
-export default function (state) {
-  return descriptorId => state.descriptors.find(d => d.id === descriptorId).needsCountdown
-};
+export default state =>
+  descriptorId => state.descriptors.find(d => d.id === descriptorId)?.needsCountdown

@@ -345,7 +345,7 @@ export default {
       this.metadata.endpoints[this.currentAnnotator].total = total
     },
     eventClose: function () {
-      const event = new CustomEvent('annotator:close', {
+      const event = new CustomEvent('radialAnnotator:close', {
         detail: {
           metadata: this.metadata
         }

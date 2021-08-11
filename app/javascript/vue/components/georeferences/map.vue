@@ -132,10 +132,7 @@ export default {
           attribution: 'Google',
           maxZoom: 18
         })
-      },
-      layers: [],
-      highlightRow: undefined,
-      restoreRow: undefined
+      }
     }
   },
 
@@ -152,7 +149,7 @@ export default {
 
   watch: {
     geojson: {
-      handler (newVal) { 
+      handler (newVal) {
         this.drawnItems.clearLayers()
         this.geographicArea.clearLayers()
         this.geoJSON(newVal)
@@ -163,6 +160,7 @@ export default {
       this.mapObject.setZoom(newVal)
     }
   },
+
   mounted () {
     this.mapObject = L.map(this.$el, {
       center: this.center,
@@ -295,7 +293,7 @@ export default {
           return this.randomShapeStyle(index)
         },
         filter: (feature) => {
-          if (feature.properties.hasOwnProperty('geographic_area')) {
+          if (feature.properties?.geographic_area) {
             this.geographicArea.addLayer(L.GeoJSON.geometryToLayer(feature, Object.assign({}, feature.properties?.is_absent ? this.stripeShapeStyle(index) : this.randomShapeStyle(index), { pmIgnore: true })))
             return false
           }
