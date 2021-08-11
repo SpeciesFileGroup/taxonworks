@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.19.3] - 2021-08-10
+
 ### Added
 - Added soft-validation for loan if no docummentation
 - Added validation on 5 date fields in the loan, setting the priority of events.
@@ -34,6 +38,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Refresh summary in data view after use radial annotator
 - Collecting event soft validation in comprehensive task [#2091]
 - Missing param for BibTex [#2397]
+- Citation source not added to project if already in another project
+- Incorrect TypeMaterial type type validation for ICN [#2378]
 
 ### Changed
 - Biological association links now link to subject, association (click middle) and object
@@ -46,7 +52,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Dropzone timeout [#2384]
 - Edit link redirect to new collecting event task [#2387]
 - Edit link redirect to comprehensive specimen digitization [#2394]
+- Add source to project when tagged [#1436]
+- Updated Ruby gems and Node packages
 
+[#1436]: https://github.com/SpeciesFileGroup/taxonworks/issues/1436
 [#2392]: https://github.com/SpeciesFileGroup/taxonworks/issues/2392
 [#1919]: https://github.com/SpeciesFileGroup/taxonworks/issues/1919
 [#2091]: https://github.com/SpeciesFileGroup/taxonworks/issues/2091
@@ -55,6 +64,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2372]: https://github.com/SpeciesFileGroup/taxonworks/issues/2372
 [#2373]: https://github.com/SpeciesFileGroup/taxonworks/issues/2373
 [#2375]: https://github.com/SpeciesFileGroup/taxonworks/issues/2375
+[#2378]: https://github.com/SpeciesFileGroup/taxonworks/pull/2378
 [#2384]: https://github.com/SpeciesFileGroup/taxonworks/issues/2384
 [#2385]: https://github.com/SpeciesFileGroup/taxonworks/issues/2385
 [#2387]: https://github.com/SpeciesFileGroup/taxonworks/issues/2387
@@ -1481,7 +1491,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.3...development
+[0.19.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.2...v0.19.3
 [0.19.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.1...v0.19.2
 [0.19.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.0...v0.19.1
 [0.19.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.18.1...v0.19.0
