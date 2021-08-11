@@ -132,11 +132,17 @@ export default {
   mounted () {
     this.eventListeners()
     this.isOpenInStorage()
+
+    document.addEventListener('turbolinks:load', _ => {
+      document.removeEventListener(this.eventLoadPDFName, this.handlePdfLoadEvent)
+      this.channel.close()
+    })
   },
 
   unmounted () {
     document.removeEventListener('mouseover', this.loadPDF)
     this.channel.close()
+    this.pdfdata?.destroy()
   },
 
   watch: {
@@ -256,10 +262,8 @@ export default {
 
     openPanel () {
       this.viewerActive = true
-      document.querySelector('[data-panel-name="pinboard"]').classList.remove("slice-panel-show")
-      document.querySelector('[data-panel-name="pinboard"]').classList.add("slice-panel-hide")
-      document.querySelector('[data-panel-name="pdfviewer"]').classList.remove("slice-panel-hide")
-      document.querySelector('[data-panel-name="pdfviewer"]').classList.add("slice-panel-show")
+      TW.views.shared.slideout.closePanel('pinboard')
+      TW.views.shared.slideout.openPanel('pdfviewer')
     },
 
     eventListeners () {
@@ -268,12 +272,7 @@ export default {
         this.openPanel()
       }
 
-      document.addEventListener(this.eventLoadPDFName, event => {
-        const { detail } = event
-        this.channel.postMessage(detail)
-        this.loadPDF(event)
-        this.openPanel()
-      })
+      document.addEventListener(this.eventLoadPDFName, this.handlePdfLoadEvent)
 
       document.addEventListener('onSlidePanelClose', event => {
         if (event.detail.name === 'pdfviewer') {
@@ -283,8 +282,9 @@ export default {
       })
 
       document.addEventListener('onSlidePanelOpen', event => {
-        if (event.detail.name === 'pdfviewer')
+        if (event.detail.name === 'pdfviewer') {
           this.viewerActive = true
+        }
       })
 
       // Events
@@ -317,6 +317,15 @@ export default {
         }
       })
     },
+
+    handlePdfLoadEvent (event) {
+      const { detail } = event
+
+      this.channel.postMessage(detail)
+      this.loadPDF(event)
+      this.openPanel()
+    },
+
     getSelectedText () {
       if (window.getSelection) {
         return window.getSelection().toString()
