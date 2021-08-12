@@ -16,9 +16,11 @@ Object.assign(TW.views.shared.slideout, {
   fillButtonTooltip () {
     document.querySelectorAll('.slide-panel').forEach(element => {
       const descriptionElement = element.querySelector('.slide-panel-description')
-      const panelHeader = element.querySelector('.slide-panel-header').textContent
+      const panelHeader = element.querySelector('.slide-panel-header')
 
-      descriptionElement.textContent = panelHeader
+      if (descriptionElement && panelHeader) {
+        descriptionElement.textContent = panelHeader.textContent
+      }
     })
   },
 
