@@ -267,7 +267,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   end
 
   def parse_iso_date(field_name)
-    get_field_value(field_name)&.split('/', 2)&.map do |date|
+    abbreviated_end_date = false
+    dates = get_field_value(field_name)&.split('/', 2)&.map.with_index do |date, index|
       if date
         named_captures = date.match(%r{^
           (?<year>[0-9]{4})(-(?<month>[0-9]{1,2}))?(-(?<day>[0-9]{1,2}))?  # Date in these formats: YYYY | YYYY-M(M)? | YYYY-M(M)?-D(D)?
@@ -275,6 +276,23 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             T(?<hour>[0-9]{2}):(?<minute>[0-9]{2}):(?<second>[0-9]{2})(Z)? # Optional time, only THH:MM:SS(Z)? allowed.
           )?
         $}x)&.named_captures&.transform_values! { |v| v&.to_i } # Not (&:to_i) because it would replace nil with 0
+
+        # ISO8601 spec allows skipping duplicate elements in end value, eg
+        # 2008-02-15/03-14 == 2008-02-15/2008-03-14
+        # 2007-12-14/16 == 2007-12-14/2007-12-16
+        if !named_captures && index == 1
+          named_captures = date.match(%r{^
+          ((?<month>[0-9]{1,2})-)?    # Only match month if hyphen is present, otherwise it's probably day
+          (?<day>[0-9]{1,2})?
+          (   # Technically it's legal to provide minute and second if the hour is the same, but that means rewriting the whole parser to identify the lowest order value provided in the start date
+            T?
+            (?<hour>[0-9]{2}):(?<minute>[0-9]{2})   # Must capture hour and minute together with colon
+            (:(?<second>[0-9]{2}))?
+            Z?
+          )?
+        $}x)&.named_captures&.transform_values! { |v| v&.to_i }
+          abbreviated_end_date = true
+        end
 
         raise DarwinCore::InvalidData.new(
           { "#{field_name}":
@@ -285,6 +303,17 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         OpenStruct.new(named_captures)
       end
     end
+
+    # Add missing values to end date
+    if abbreviated_end_date
+      dates[0].each_pair.each do |name, value|
+        if !value.nil? && dates[1][name].nil?
+          dates[1][name.to_s] = value   # must use to_s otherwise name is treated as a literal
+        end
+      end
+    end
+
+    dates
   end
 
   def set_hash_val(hsh, key, value)
