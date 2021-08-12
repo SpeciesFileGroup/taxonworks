@@ -7,7 +7,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- Geographic areas not scoped in Georeferences pane until georeference added [#2408]
+- Georeference from previous collecting event shows up on new collecting event [#2411]
+
+[#2408]: https://github.com/SpeciesFileGroup/taxonworks/issues/2408
+[#2411]: https://github.com/SpeciesFileGroup/taxonworks/issues/2411
 
 ## [0.19.3] - 2021-08-10
 

@@ -1,4 +1,5 @@
 import ActionNames from './actionNames'
+
 export default ({ dispatch, state }) => {
   dispatch(ActionNames.NewCollectionEvent)
   dispatch(ActionNames.NewCollectionObject)
@@ -7,13 +8,14 @@ export default ({ dispatch, state }) => {
   dispatch(ActionNames.NewTaxonDetermination)
   dispatch(ActionNames.NewLabel)
 
-  state.materialTypes = []
-  state.determinations = []
+  state.collection_objects = []
   state.container = undefined
   state.containerItems = []
-  state.collection_objects = []
   state.depictions = []
+  state.determinations = []
+  state.georeferences = []
   state.identifiers = []
+  state.materialTypes = []
   state.preparation_type_id = undefined
   state.taxon_determinations = []
 }
