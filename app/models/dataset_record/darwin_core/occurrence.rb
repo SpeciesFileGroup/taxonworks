@@ -267,8 +267,12 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   end
 
   def parse_iso_date(field_name)
+    parse_iso_date_str(get_field_value(field_name))
+  end
+
+  def parse_iso_date_str(date_str)
     abbreviated_end_date = false
-    dates = get_field_value(field_name)&.split('/', 2)&.map.with_index do |date, index|
+    dates = date_str&.split('/', 2)&.map.with_index do |date, index|
       if date
         named_captures = date.match(%r{^
           (?<year>[0-9]{4})(-(?<month>[0-9]{1,2}))?(-(?<day>[0-9]{1,2}))?  # Date in these formats: YYYY | YYYY-M(M)? | YYYY-M(M)?-D(D)?
