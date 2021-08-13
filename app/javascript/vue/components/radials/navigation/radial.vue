@@ -71,6 +71,8 @@ import RecentComponent from './components/recent.vue'
 import DestroyConfirmation from './components/DestroyConfirmation'
 import all_tasksComponent from './components/allTasks.vue'
 
+import { PinboardItem } from 'routes/endpoints'
+
 const DEFAULT_OPTIONS = {
   New: 'New',
   Edit: 'Edit',
@@ -289,7 +291,7 @@ export default {
         case DEFAULT_OPTIONS.Destroy:
           this.showDestroyModal = true
           break
-        case 'alltasks':
+        case DEFAULT_OPTIONS.AllTasks:
           this.currentView = 'all_tasks'
           break
       }
@@ -355,22 +357,21 @@ export default {
     },
 
     createPin () {
-      const pinItem = {
-        pinboard_item: {
-          pinned_object_id: this.metadata.id,
-          pinned_object_type: this.metadata.type,
-          is_inserted: true
-        }
+      const pinboard_item = {
+        pinned_object_id: this.metadata.id,
+        pinned_object_type: this.metadata.type,
+        is_inserted: true
       }
-      this.create('/pinboard_items', pinItem).then(response => {
-        this.metadata['pinboard_item'] = { id: response.body.id }
-        TW.workbench.pinboard.addToPinboard(response.body)
+
+      PinboardItem.create({ pinboard_item }).then(({ body }) => {
+        this.metadata.pinboard_item = { id: body.id }
+        TW.workbench.pinboard.addToPinboard(body)
         TW.workbench.alert.create('Pinboard item was successfully created.', 'notice')
       })
     },
 
     destroyPin () {
-      this.destroy(`/pinboard_items/${this.metadata.pinboard_item.id}`, { _destroy: true }).then(response => {
+      PinboardItem.destroy(this.metadata.pinboard_item.id).then(_ => {
         TW.workbench.alert.create('Pinboard item was successfully destroyed.', 'notice')
         TW.workbench.pinboard.removeItem(this.metadata.pinboard_item.id)
         delete this.metadata.pinboard_item
@@ -379,7 +380,7 @@ export default {
 
     destroyObject () {
       this.showDestroyModal = false
-      this.destroy(`${this.metadata.resource_path}.json`).then((response) => {
+      this.destroy(`${this.metadata.resource_path}.json`).then(_ => {
         TW.workbench.alert.create(`${this.metadata.type} was successfully destroyed.`, 'notice')
         if (this.globalId === this.metadata.globalId) {
           this.eventDestroy()
