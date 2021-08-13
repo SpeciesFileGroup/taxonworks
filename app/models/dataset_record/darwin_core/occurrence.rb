@@ -267,57 +267,73 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   end
 
   def parse_iso_date(field_name)
-    parse_iso_date_str(get_field_value(field_name))
+    value = get_field_value(field_name)
+
+    if value.nil?
+      return nil
+    end
+
+    begin
+      parse_iso_date_str(get_field_value(field_name))
+    rescue DarwinCore::InvalidData
+      raise DarwinCore::InvalidData.new(
+        { "#{field_name}":
+            ["Invalid date. Please make sure it conforms to ISO 8601 date format (yyyy-mm-ddThh:mm:ss). If expressing interval separate dates with '/'. Examples: 1972-05; 1983-10-25; 2020-09-22T15:30; 2020-11-30/2020-12-04"]
+        }
+      ) unless named_captures
+      end
   end
 
+  # @param [String] date_str
+  # @return [Array<OpenStruct>]
   def parse_iso_date_str(date_str)
-    abbreviated_end_date = false
-    dates = date_str&.split('/', 2)&.map.with_index do |date, index|
-      if date
-        named_captures = date.match(%r{^
+
+    full_pattern = %r{^
           (?<year>[0-9]{4})(-(?<month>[0-9]{1,2}))?(-(?<day>[0-9]{1,2}))?  # Date in these formats: YYYY | YYYY-M(M)? | YYYY-M(M)?-D(D)?
           (
             T(?<hour>[0-9]{2}):(?<minute>[0-9]{2}):(?<second>[0-9]{2})(Z)? # Optional time, only THH:MM:SS(Z)? allowed.
           )?
-        $}x)&.named_captures&.transform_values! { |v| v&.to_i } # Not (&:to_i) because it would replace nil with 0
+        $}x.freeze
 
-        # ISO8601 spec allows skipping duplicate elements in end value, eg
-        # 2008-02-15/03-14 == 2008-02-15/2008-03-14
-        # 2007-12-14/16 == 2007-12-14/2007-12-16
-        if !named_captures && index == 1
-          named_captures = date.match(%r{^
-          ((?<month>[0-9]{1,2})-)?    # Only match month if hyphen is present, otherwise it's probably day
-          (?<day>[0-9]{1,2})?
-          (   # Technically it's legal to provide minute and second if the hour is the same, but that means rewriting the whole parser to identify the lowest order value provided in the start date
-            T?
-            (?<hour>[0-9]{2}):(?<minute>[0-9]{2})   # Must capture hour and minute together with colon
-            (:(?<second>[0-9]{2}))?
-            Z?
-          )?
-        $}x)&.named_captures&.transform_values! { |v| v&.to_i }
-          abbreviated_end_date = true
-        end
+    if date_str.include? "/"
+      first_date_str, second_date_str = date_str.split('/', 2)
 
-        raise DarwinCore::InvalidData.new(
-          { "#{field_name}":
+      first_date_hash = first_date_str.match(full_pattern)&.named_captures&.transform_values! { |v| v&.to_i }
+      raise DarwinCore::InvalidData.new(
+        { "#{date_str}":
             ["Invalid date. Please make sure it conforms to ISO 8601 date format (yyyy-mm-ddThh:mm:ss). If expressing interval separate dates with '/'. Examples: 1972-05; 1983-10-25; 2020-09-22T15:30; 2020-11-30/2020-12-04"]
-          }
-        ) unless named_captures
+        }
+      ) unless first_date_hash
 
-        OpenStruct.new(named_captures)
-      end
+      # Split date on separators, then work backwards inserting numbers for non-null values from first date
+      second_date_values = second_date_str.split(/[-T:Z]/).map { |x| x.to_i }
+
+
+      # keep non-nil values in first date string
+      present_date_hash = first_date_hash.reject { |_,v| v.nil? }
+
+      # Sort the keys present in the first date, smallest increment first
+      date_order = [:second, :minute, :hour, :day, :month, :year]
+      present_keys = present_date_hash.sort_by {|key, _| date_order.index(key.to_sym)}.map{|pair| pair[0]}
+
+      # zip keys with values from second date and drop the extra keys
+      new_values = present_keys.zip(second_date_values.reverse).to_h.reject { |_,v| v.nil? }
+
+      # make new date from first, updating with values from second
+      second_date_hsh = first_date_hash.clone.update(new_values)
+
+      [OpenStruct.new(first_date_hash), OpenStruct.new(second_date_hsh)]
+
+    else
+      named_captures = date_str.match(full_pattern)&.named_captures&.transform_values! { |v| v&.to_i } # Not (&:to_i) because it would replace nil with 0
+
+      raise DarwinCore::InvalidData.new(
+        { "#{date_str}":
+            ["Invalid date. Please make sure it conforms to ISO 8601 date format (yyyy-mm-ddThh:mm:ss). If expressing interval separate dates with '/'. Examples: 1972-05; 1983-10-25; 2020-09-22T15:30; 2020-11-30/2020-12-04"]
+        }
+      ) unless named_captures
+      [OpenStruct.new(named_captures), nil]
     end
-
-    # Add missing values to end date
-    if abbreviated_end_date
-      dates[0].each_pair.each do |name, value|
-        if !value.nil? && dates[1][name].nil?
-          dates[1][name.to_s] = value   # must use to_s otherwise name is treated as a literal
-        end
-      end
-    end
-
-    dates
   end
 
   def set_hash_val(hsh, key, value)
