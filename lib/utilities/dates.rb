@@ -313,6 +313,55 @@ module Utilities::Dates
     [h, m, s].compact.join(':')
   end
 
+  # Parse an ISO-8601 date string or interval of format yyyy-mm-dd or yyyy-mm-dd/yyyy-mm-dd
+  #
+  # Also supports abbreviated end dates, like yyyy-mm-dd/dd or yyyy-mm-dd/mm-dd
+  #
+  # @param [String] date_str
+  # @return [Array<OpenStruct>]
+  def self.parse_iso_date_str(date_str)
+
+    full_pattern = %r{^
+          (?<year>[0-9]{4})(-(?<month>[0-9]{1,2}))?(-(?<day>[0-9]{1,2}))?  # Date in these formats: YYYY | YYYY-M(M)? | YYYY-M(M)?-D(D)?
+          (
+            T(?<hour>[0-9]{2}):(?<minute>[0-9]{2}):(?<second>[0-9]{2})(Z)? # Optional time, only THH:MM:SS(Z)? allowed.
+          )?
+        $}x.freeze
+
+    if date_str.include? "/"
+      first_date_str, second_date_str = date_str.split('/', 2)
+
+      first_date_hash = first_date_str.match(full_pattern)&.named_captures&.transform_values! { |v| v&.to_i }
+
+      return nil unless first_date_hash
+
+      # Split date on separators, then work backwards inserting numbers for non-null values from first date
+      second_date_values = second_date_str.split(/[-T:Z]/).map { |x| x.to_i }
+
+
+      # keep non-nil values in first date string
+      present_date_hash = first_date_hash.reject { |_,v| v.nil? }
+
+      # Sort the keys present in the first date, smallest increment first
+      date_order = [:second, :minute, :hour, :day, :month, :year]
+      present_keys = present_date_hash.sort_by {|key, _| date_order.index(key.to_sym)}.map{|pair| pair[0]}
+
+      # zip keys with values from second date and drop the extra keys
+      new_values = present_keys.zip(second_date_values.reverse).to_h.reject { |_,v| v.nil? }
+
+      # make new date from first, updating with values from second
+      second_date_hsh = first_date_hash.clone.update(new_values)
+
+      [OpenStruct.new(first_date_hash), OpenStruct.new(second_date_hsh)]
+
+    else
+      named_captures = date_str.match(full_pattern)&.named_captures&.transform_values! { |v| v&.to_i } # Not (&:to_i) because it would replace nil with 0
+
+      return nil unless named_captures
+      [OpenStruct.new(named_captures)]
+    end
+  end
+
   private
 
   # @param [String] sql
