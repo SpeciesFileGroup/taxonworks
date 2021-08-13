@@ -20,9 +20,7 @@
           <td class="word-keep-all">{{ isTmpWkt(item) || isTempGeolocate(item) ? '' : getGeoJsonType(item) }}</td>
           <td>{{ getCoordinatesByType(item) }}</td>
           <td class="line-nowrap">
-            <edit-in-place
-              v-model="item.error_radius"
-              @end="$emit('updateGeo', item)"/>
+            <edit-in-place v-model="item.error_radius"/>
           </td>
           <td class="word-keep-all">{{ item.type }}</td>
           <td class="vue-table-options">

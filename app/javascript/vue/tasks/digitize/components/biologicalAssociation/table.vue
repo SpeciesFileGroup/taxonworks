@@ -16,17 +16,19 @@
           v-for="(item, index) in list"
           :key="item.id">
           <tr
-            v-if="item.hasOwnProperty('id')"
+            v-if="item.id"
             class="list-complete-item">
             <td v-html="item.biological_relationship.name"/>
             <td v-html="item.object.object_tag"/>
             <td v-html="getCitationString(item)"/>
-            <td class="vue-table-options">
-              <radial-annotator :global-id="item.global_id"/>
-              <span
-                class="circle-button btn-delete"
-                @click="deleteItem(item)">Remove
-              </span>
+            <td>
+              <div class="middle horizontal-right-content">
+                <radial-annotator :global-id="item.global_id"/>
+                <span
+                  class="circle-button btn-delete"
+                  @click="deleteItem(index)">Remove
+                </span>
+              </div>
             </td>
           </tr>
           <tr v-else>
@@ -34,10 +36,12 @@
             <td v-html="item.biologicalRelation.object_tag"/>
             <td v-html="getCitationString(item)"/>
             <td>
-              <span
-                class="circle-button btn-delete btn-default"
-                @click="$emit('delete', index)">Remove
-              </span>
+              <div class="horizontal-right-content middle">
+                <span
+                  class="circle-button btn-delete btn-default"
+                  @click="$emit('delete', index)">Remove
+                </span>
+              </div>
             </td>
           </tr>
         </template>
@@ -50,9 +54,7 @@
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 
 export default {
-  components: {
-    RadialAnnotator
-  },
+  components: { RadialAnnotator },
 
   props: {
     list: {
@@ -68,20 +70,21 @@ export default {
   },
 
   methods: {
-    deleteItem(item) {
-      if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+    deleteItem (item) {
+      if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
         this.$emit('delete', item)
       }
     },
+
     getCitationString(object) {
-      if(object.hasOwnProperty('citation') && object.citation) {
+      if (object?.citation) {
         return object.citation.label
-      }
-      if(object.hasOwnProperty('origin_citation')) {
-        let citation = object.origin_citation.source.cached_author_string
-        if(object.origin_citation.source.hasOwnProperty('year'))
-          citation = citation + ', ' + object.origin_citation.source.year
-        return citation
+      } else if(object.hasOwnProperty('origin_citation')) {
+        const citation = object.origin_citation.source.cached_author_string
+
+        return object.origin_citation.source.hasOwnProperty('year')
+          ? `${citation}, ${object.origin_citation.source.year}`
+          : citation
       }
       return ''
     }

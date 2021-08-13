@@ -41,6 +41,7 @@ import saveDigitalization from './saveDigitalization'
 import saveIdentifier from './saveIdentifier'
 import saveLabel from './saveLabel'
 import saveTypeMaterial from './saveTypeMaterial'
+import saveBiologicalAssociations from './saveBiologicalAssociations'
 
 const ActionFunctions = {
   [ActionNames.AddToContainer]: addToContainer,
@@ -81,6 +82,7 @@ const ActionFunctions = {
   [ActionNames.SaveIdentifier]: saveIdentifier,
   [ActionNames.SaveLabel]: saveLabel,
   [ActionNames.SaveTypeMaterial]: saveTypeMaterial,
+  [ActionNames.SaveBiologicalAssociations]: saveBiologicalAssociations,
   [ActionNames.LoadSoftValidations]: loadSoftValidations,
   [ActionNames.LoadBiologicalAssociations]: loadBiologicalAssociations,
   [ActionNames.LoadGeoreferences]: loadGeoreferences
