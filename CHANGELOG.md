@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Geographic areas not scoped in Georeferences pane until georeference added [#2408]
 - Georeference from previous collecting event shows up on new collecting event [#2411]
 - Fix biological associations in comprehensive form
+- Removed events for links in radial navigation [#2412]
 
 ### Added
 
