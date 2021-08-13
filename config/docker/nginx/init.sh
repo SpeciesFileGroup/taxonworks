@@ -22,8 +22,4 @@ chmod 0600 /root/.pgpass
 
 bundle exec rake tw:production:deploy:update_database database_user=$POSTGRES_USER database_host=$POSTGRES_HOST
 
-### DEBUG
-chown 9999:9999 /app/log/active_record.production.log*
-###
-
 touch tmp/init_complete

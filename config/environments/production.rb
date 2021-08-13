@@ -88,11 +88,6 @@ TaxonWorks::Application.configure do
 
   # Load local settings
   Settings.load_from_settings_file(config, :production)
-
-  ###############
-  #### DEBUG ####
-  ###############
-  ActiveRecord::Base.logger = Logger.new(Rails.root.join('log/active_record.production.log'), 8, 128*1024**2, level: Logger::DEBUG) # Max 1G of logs in 128M chunks
   
   require 'taxonworks'
   require 'taxonworks_autoload'
