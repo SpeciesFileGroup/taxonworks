@@ -219,6 +219,10 @@ export default {
   },
 
   mounted () {
+    document.addEventListener('turbolinks:load', _ => {
+      this.internalSrc?.destroy()
+      this.pdfViewer?.destroy()
+    })
     this.loadPdf()
   }
 }

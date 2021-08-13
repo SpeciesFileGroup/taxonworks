@@ -2,24 +2,14 @@ $header-color: #00796B;
 $category-header-color: #004D40;
 $default-padding: 2em;
 
-@keyframes show-slidepanel {
-  from { right: -400px; }
-  to { right: 0px; }
-}
-
-@keyframes hide-slidepanel {
-  from { right: 0px; }
-  to { right: -400px; }
-}
-
 .slide-panel {
   z-index: 1000;
   right: -400px;
   top: 0px;
   position: fixed;
+  transition: all 0.5s ease;
   width: 400px;
   height: 100vh;
-  animation-timing-function: ease;
   background-color: #FFF;
   font-weight: 300;
   
@@ -76,7 +66,7 @@ $default-padding: 2em;
     height: 55px;
     position: absolute;
     cursor: pointer;
-    left: -14px;
+    left: -27px;
     top: 50vh;
     border-radius: 50%;
     background-color: $category-header-color;
@@ -85,14 +75,15 @@ $default-padding: 2em;
     background-position: center;
     background-size: 25px;
     box-shadow: 0px 1px 2px 0px #444;
-    transition: all 0.3s ease;
+    transition: background-size 0.5s ease, opacity 0.3s ease;
   }
 
   .slide-panel-circle-icon:hover {
     opacity: 1;
     background-size: 30px;
-    left: -27px;
+    transition: background-size 0.3s ease, opacity 0.3s ease;
   }
+
   .slide-panel-description {
     @include arrow-box-right(50%);
     display: none;
@@ -113,20 +104,10 @@ $default-padding: 2em;
 
 }
 
-.slice-panel-show {
-  z-index:1001;
-  animation-name: show-slidepanel;
-  animation-duration: 0.5s;
-  animation-fill-mode: forwards;
-  .slide-panel-circle-icon { 
-    left: -27px;
-  }
-}
-
-.slice-panel-hide {
-  animation-name: hide-slidepanel;
-  animation-duration: 0.5s;
-  animation-fill-mode: forwards;
+.slide-panel-show {
+  z-index:2103;
+  right: 0px;
+  transition: right 0.5s ease;
 }
 
 [data-panel-open="true"] .slide-panel-circle-icon {

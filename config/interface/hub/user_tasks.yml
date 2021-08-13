@@ -644,3 +644,10 @@ new_extract_task:
     - new
   status: prototype
   description: 'Create new extracts, e.g. for DNA purposes.'
+content_by_nomenclature_task:
+  hub: true
+  name: 'Content by nomenclature ("Brock")'
+  related:
+  categories:
+  status: prototype
+  description: 'Report a content block in a taxon name table.'

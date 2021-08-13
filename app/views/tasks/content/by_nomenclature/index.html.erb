@@ -1,0 +1,42 @@
+
+
+<% @taxon_names = TaxonName.that_is_valid.with_base_of_rank_class("NomenclaturalRank::Iczn::SpeciesGroup::S").joins(:descendant_hierarchies).where(project_id: sessions_current_project_id).order(:generations, :cached).uniq %>
+
+<% @topic = Topic.where(project_id: sessions_current_project_id).first -%>
+<% @rowcount = 1 %>
+<h2>Topic: <%= @topic.name -%> </h2>
+
+<table>
+  <tr>
+    <td> Row</td>
+    <td> Order </td>
+    <td> Family </td>
+    <td> Subfamily </td>
+    <td> Tribe
+    <td> Name
+    <td> Author year </td>
+
+    <td> Distribution text </td>
+  </tr>
+
+
+
+<% @taxon_names.each do |n| -%>
+<% if !((n.ancestor_at_rank(:family)&.cached).blank?) -%>
+  <tr>
+    <td> <%= @rowcount -%> </td>
+    <td> <%= n.ancestor_at_rank(:order)&.cached -%> </td>
+    <td> <%= n.ancestor_at_rank(:family)&.cached -%> </td>
+    <td> <%= n.ancestor_at_rank(:subfamily)&.cached -%> </td>
+    <td> <%= n.ancestor_at_rank(:tribe)&.cached -%> </td>
+    <td> <%= n.cached -%> </td>
+    <td> <%= n.cached_author_year -%> </td>
+
+    <td> <%= n.otus&.first&.contents&.where(topic_id: 4)&.first&.text %> </td>
+  </tr>
+
+<% @rowcount = @rowcount + 1 %>
+    <% end -%>
+  <% end -%>
+</table>
+
