@@ -29,6 +29,7 @@ const ActionNames = {
   RemoveTaxonDetermination: 'removeTaxonDetermination',
   RemoveTypeMaterial: 'removeTypeMaterial',
   ResetWithDefault: 'resetWithDefault',
+  SaveBiologicalAssociations: 'saveBiologicalAssociation',
   SaveCOCitations: 'saveCOCitations',
   SaveCollectionEvent: 'saveCollectionEvent',
   SaveCollectionObject: 'saveCollectionObject',

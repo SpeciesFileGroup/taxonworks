@@ -36,7 +36,7 @@ class TypeMaterial < ApplicationRecord
   include SoftValidation
 
   # Keys are valid values for type_type, values are
-  # required Class for BiologicalCollectionObject 
+  # required Class for BiologicalCollectionObject
   ICZN_TYPES = {
     'holotype' =>  Specimen,
     'paratype' => Specimen,
@@ -98,7 +98,7 @@ class TypeMaterial < ApplicationRecord
     when :iczn
       ICZN_TYPES.keys.include?(type_type)
     when :icn
-      ICZN_TYPES.keys.include?(type_type)
+      ICN_TYPES.keys.include?(type_type)
     else
       false
     end
