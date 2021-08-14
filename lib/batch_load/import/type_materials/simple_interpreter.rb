@@ -24,13 +24,17 @@ module BatchLoad
           protonym = TaxonName.find_by_cached(row['protonym'])
           type_type = row['type_type'].downcase
 
+          type_hash = { protonym: protonym,
+                        collection_object: collection_identifier&.identifier_object,
+                        type_type: type_type }
           # next if (collection_identifier.nil? or protonym.nil?)
 
-          type_material = TypeMaterial.new({
-                                             protonym: protonym,
-                                             collection_object: collection_identifier&.identifier_object,
-                                             type_type: type_type,
-                                           })
+          # if the type material already exists, then don't create it again.
+          # otherwise, create the new object but don't save it to the database yet.
+          if (type_material = TypeMaterial.find_by(type_hash)).nil?
+            type_material = TypeMaterial.new(type_hash)
+          end
+
           parse_result.objects[:type_materials].push type_material
           @total_data_lines += 1 if type_material.present?
           # rescue TODO: THIS IS A GENERATED STUB, it does not function
