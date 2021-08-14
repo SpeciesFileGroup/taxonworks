@@ -212,6 +212,7 @@ describe Utilities::Dates, group: [:collecting_events, :dates] do
     end
 
     context "ISO8601 parsing" do
+      #noinspection RubyUnusedLocalVariable
       date_fields = [:year, :month, :day, :hour, :minute, :second]
 
       context "ISO8601 single date parsing" do

@@ -266,8 +266,14 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     end
   end
 
-  # Parse the
-  # @param [String] field_name
+  # Parse an iso date string from the specified column name
+  #
+  # The date may be a single date, or an interval of two dates separated by a slash.
+  # The second date may omit higher-order elements that are the same as the first date.
+  # See https://en.wikipedia.org/wiki/ISO_8601#Time_intervals for more information.
+  #
+  # @param [String] field_name The column name to get the date string from
+  # @return [Array<OpenStruct>] A list of one or two date structs (with year, month, day, hour, minute, second values)
   def parse_iso_date(field_name)
     value = get_field_value(field_name)
 
