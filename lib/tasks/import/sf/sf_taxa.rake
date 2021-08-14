@@ -796,7 +796,6 @@ namespace :tw do
 
             project_id = get_tw_project_id[row['FileID']]
 
-
             # Note: sf_ref_id can be 0
 
             if (22..44).include?(sf_rank_id.to_i)
@@ -880,6 +879,7 @@ namespace :tw do
 
             name_status = row['NameStatus']
             status_flags = row['StatusFlags']
+            distribution_text = row['Distribution'] || ''
 
             if get_otu_sf_above_id[sf_taxon_name_id] # temporary, create OTU, not TaxonName; create citation, too
               if row['NameStatus'] == '7' && !get_taxon_name_otu_id[row['TaxonNameID']].blank?
@@ -938,7 +938,6 @@ namespace :tw do
                 ) unless row['NameStatus'] == '7' # Value ignored per docs: http://help.speciesfile.org/index.php/Taxa
 
                 # distribution text for otu only
-                distribution_text = row['Distribution'] || ''
                 logger.info "Distribution: Working with SF.TaxonNameID = '#{row['TaxonNameID']}', otu_id = '#{otu.id}, SF.FileID = '#{row['FileID']}', distribution_text = '#{distribution_text}' \n"
 
                 if distribution_text.present?
