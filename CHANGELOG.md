@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.19.4] - 2021-08-13
+
 ### Fixed
 
 - Geographic areas not scoped in Georeferences pane until georeference added [#2408]
@@ -20,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#2408]: https://github.com/SpeciesFileGroup/taxonworks/issues/2408
 [#2411]: https://github.com/SpeciesFileGroup/taxonworks/issues/2411
+[#2412]: https://github.com/SpeciesFileGroup/taxonworks/issues/2412
 
 ## [0.19.3] - 2021-08-10
 
@@ -1503,7 +1508,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.3...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.4...development
+[0.19.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.4...v0.19.4
 [0.19.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.2...v0.19.3
 [0.19.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.1...v0.19.2
 [0.19.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.0...v0.19.1
