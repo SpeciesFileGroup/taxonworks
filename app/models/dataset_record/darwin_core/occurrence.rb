@@ -273,7 +273,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     return nil if value.nil?
 
-    result = Utilities::Dates.parse_iso_date_str(get_field_value(field_name))
+    result = Utilities::Dates.parse_iso_date_str(value)
     if result.nil?
       raise DarwinCore::InvalidData.new(
         {
