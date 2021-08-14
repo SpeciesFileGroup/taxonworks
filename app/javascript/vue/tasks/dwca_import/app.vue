@@ -121,12 +121,15 @@ export default {
         width: 200px;
       }
     }
+
+    .modal-mask {
+      z-index: 2102;
+    }
+
+    .dwc-table-help {
+      color: #000000 !important;
+      font-weight: normal;
+    }
   }
-  .modal-mask {
-    z-index: 2102;
-  }
-  .dwc-table-help {
-    color: #000000 !important;
-    font-weight: normal;
-  }
+
 </style>
