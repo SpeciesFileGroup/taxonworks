@@ -97,7 +97,7 @@ RSpec.describe DatasetRecordsController, type: :controller do
       it "updates the requested dataset_record" do
         put :update, params: {import_dataset_id: dataset_record.import_dataset.to_param, id: dataset_record.to_param, data_fields: new_attributes, format: 'json'}, session: valid_session
         dataset_record.reload
-        expect(dataset_record.data_fields.first["value"]).to eq "test"
+        expect(dataset_record.data_fields.first).to eq "test"
       end
     end
 
