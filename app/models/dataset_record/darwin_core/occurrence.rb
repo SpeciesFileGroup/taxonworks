@@ -266,21 +266,23 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     end
   end
 
+  # Parse the
+  # @param [String] field_name
   def parse_iso_date(field_name)
     value = get_field_value(field_name)
 
-    if value.nil?
-      return nil
-    end
+    return nil if value.nil?
 
     result = Utilities::Dates.parse_iso_date_str(get_field_value(field_name))
     if result.nil?
       raise DarwinCore::InvalidData.new(
-        { "#{field_name}":
+        {
+          "#{field_name}":
             ["Invalid date. Please make sure it conforms to ISO 8601 date format (yyyy-mm-ddThh:mm:ss). If expressing interval separate result with '/'. Examples: 1972-05; 1983-10-25; 2020-09-22T15:30; 2020-11-30/2020-12-04"]
         }
       )
     end
+    result
   end
 
   def set_hash_val(hsh, key, value)
