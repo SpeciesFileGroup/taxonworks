@@ -313,12 +313,14 @@ module Utilities::Dates
     [h, m, s].compact.join(':')
   end
 
-  # Parse an ISO-8601 date string or interval of format yyyy-mm-dd or yyyy-mm-dd/yyyy-mm-dd
+  # Parse an ISO-8601 date string or interval into an array of OpenStructs objects
   #
-  # Also supports abbreviated end dates, like yyyy-mm-dd/dd or yyyy-mm-dd/mm-dd
+  # The format may be yyyy-mm-dd or yyyy-mm-dd/yyyy-mm-dd.
+  # The second date may omit higher-order elements that are the same as the first date, like yyyy-mm-dd/dd or yyyy-mm-dd/mm-dd
+  # See https://en.wikipedia.org/wiki/ISO_8601#Time_intervals for more details.
   #
-  # @param [String] date_str
-  # @return [Array<OpenStruct>]
+  # @param [String] date_str The date string to parse
+  # @return [Array<OpenStruct>] Array of Date objects, with year, mmonth, day, hour, minute, and second properties
   def self.parse_iso_date_str(date_str)
 
     full_pattern = %r{^
