@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Add
+
+- Content smart selector
+
 ### Fixed
 
 - Create georeference from verbatim does not take uncertainty into account [#2421]
