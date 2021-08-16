@@ -1,5 +1,7 @@
-require: rubocop-rails
-require: rubocop-faker
+require:
+  - rubocop-rails
+  - rubocop-faker
+  - rubocop-performance
 
 # inherit_from: .rubocop_todo.yml
 
@@ -69,7 +71,7 @@ Metrics/BlockNesting:
 Lint/ReturnInVoidContext:
   Enabled: true
 
-Lint/StringConversionInInterpolation:
+Lint/RedundantStringCoercion:
   Enabled: true
 
 Lint/UselessAccessModifier:
