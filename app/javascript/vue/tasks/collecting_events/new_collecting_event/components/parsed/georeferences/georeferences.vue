@@ -234,14 +234,16 @@ export default {
     georeferences: {
       handler() {
         this.populateShapes()
-      }
+      },
+      deep: true
     },
     queueGeoreferences: {
       handler (newVal) {
         if (newVal.length && this.collectingEventId) {
           this.$store.dispatch(ActionNames.ProcessGeoreferenceQueue)
         }
-      }
+      },
+      deep: true
     },
     geographicArea: {
       handler () {
@@ -316,7 +318,7 @@ export default {
         geographic_item_attributes: { shape: JSON.stringify(shape) },
         collecting_event_id: this.collectingEventId,
         type: GeoreferenceTypes.Verbatim,
-        error_radius: this.geolocationUncertainty
+        error_radius: this.collectingEvent.verbatim_geolocation_uncertainty
       })
     },
     addToQueue (data) {

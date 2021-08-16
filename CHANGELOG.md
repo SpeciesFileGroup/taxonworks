@@ -7,7 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- Create georeference from verbatim does not take uncertainty into account [#2421]
+
+[#2421]: https://github.com/SpeciesFileGroup/taxonworks/issues/2421
 
 ## [0.19.4] - 2021-08-13
 
