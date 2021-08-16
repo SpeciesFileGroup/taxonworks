@@ -1,3 +1,1 @@
-export default function (state) {
-  return state.citations
-}
+export default state => state.citations

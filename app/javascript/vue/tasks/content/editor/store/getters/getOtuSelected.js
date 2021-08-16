@@ -1,3 +1,1 @@
-export default function (state) {
-  return state.selected.otu
-}
+export default state => state.selected.otu

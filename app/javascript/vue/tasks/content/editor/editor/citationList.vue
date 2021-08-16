@@ -4,10 +4,12 @@
       <li
         class="flex-separate middle"
         v-for="(item, index) in citations"
-        :key="item.id">{{ item.source.author_year }}
+        :key="item.id">
+        {{ item.source.author_year }}
         <div
           @click="removeItem(index, item)"
-          class="circle-button btn-delete">Remove
+          class="circle-button btn-delete">
+          Remove
         </div>
       </li>
     </ul>
@@ -32,9 +34,10 @@ export default {
       return this.$store.getters[GetterNames.PanelCitations]
     }
   },
+
   watch: {
     content (val, oldVal) {
-      if (val != undefined) {
+      if (val) {
         if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
           this.loadContent()
         }
@@ -43,12 +46,14 @@ export default {
       }
     }
   },
+
   methods: {
     removeItem (index, item) {
       Citation.destroy(item.id).then(() => {
         this.$store.commit(MutationNames.RemoveCitation, index)
       })
     },
+
     loadContent () {
       Content.citations(this.content.id).then(response => {
         this.$store.commit(MutationNames.SetCitationList, response.body)
