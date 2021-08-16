@@ -19,7 +19,7 @@
       </template>
       <a
         v-else
-        href="/controlled_vocabulary_terms/new">Create a term (Predicate)
+        href="/tasks/projects/preferences/index">Select visible predicates
       </a>
     </fieldset>
   </div>
