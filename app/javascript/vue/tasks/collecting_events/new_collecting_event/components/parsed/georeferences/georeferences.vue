@@ -96,13 +96,13 @@
             v-if="collectingEventId"
             :list="georeferences"
             @delete="removeGeoreference"
-            @updateGeo="updateRadius"
+            @update="updateRadius"
             label="object_tag"/>
           <display-list
             v-else
             :list="queueGeoreferences"
             @delete="removeGeoreference"
-            @updateGeo="updateRadius"
+            @update="updateRadius"
             label="object_tag"/>
         </div>
       </template>
@@ -182,7 +182,7 @@ export default {
       return this.verbatimGeoreferenceAlreadyCreated ? truncateDecimal((this.verbatimGeoreferenceAlreadyCreated.geo_json ? this.verbatimGeoreferenceAlreadyCreated.geo_json.properties.radius : JSON.parse(this.verbatimGeoreferenceAlreadyCreated.geographic_item_attributes.shape).error_radius), 6) : undefined
     },
     verbatimGeoreferenceAlreadyCreated () {
-      return [].concat(this.georeferences, this.queueGeoreferences).find(item => { return item.type === GeoreferenceTypes.Verbatim || item.type === GeoreferenceTypes.Exif })
+      return [].concat(this.georeferences, this.queueGeoreferences).find(item => item.type === GeoreferenceTypes.Verbatim || item.type === GeoreferenceTypes.Exif)
     },
     mapGeoreferences () {
       return [].concat(this.shapes.features, this.queueGeoreferences.filter(item => (item.type !== GeoreferenceTypes.Wkt && item.type !== GeoreferenceTypes.Geolocate) && item?.geographic_item_attributes?.shape).map(item => JSON.parse(item?.geographic_item_attributes?.shape)))
@@ -232,7 +232,7 @@ export default {
 
   watch: {
     georeferences: {
-      handler() {
+      handler () {
         this.populateShapes()
       },
       deep: true

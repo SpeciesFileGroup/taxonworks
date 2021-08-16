@@ -10,7 +10,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Create georeference from verbatim does not take uncertainty into account [#2421]
+- Cannot edit Georeference uncertainty in New collecting event task [#2420]
 
+[#2420]: https://github.com/SpeciesFileGroup/taxonworks/issues/2420
 [#2421]: https://github.com/SpeciesFileGroup/taxonworks/issues/2421
 
 ## [0.19.4] - 2021-08-13
