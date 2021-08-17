@@ -14,12 +14,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - Replaced panels with modals in Content editor task
+- Soft validation panel in new type specimen task
 
 ### Fixed
 
 - Create georeference from verbatim does not take uncertainty into account [#2421]
 - Cannot edit Georeference uncertainty in New collecting event task [#2420]
 - Georeference edit/delete button does not show up immediately on creation [#2422]
+- Unable to create a type specimen with an existing collection object
+- Catalog number is not updating after selecting another type specimen
+
 
 [#2420]: https://github.com/SpeciesFileGroup/taxonworks/issues/2420
 [#2421]: https://github.com/SpeciesFileGroup/taxonworks/issues/2421

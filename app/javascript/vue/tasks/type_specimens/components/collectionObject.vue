@@ -37,7 +37,10 @@
           <option
             class="full_width"
             v-for="item in types"
-            :value="item.id">{{ item.name }}</option>
+            :key="item.id"
+            :value="item.id">
+            {{ item.name }}
+          </option>
         </select>
       </div>
     </div>
@@ -46,7 +49,6 @@
         <legend>Repository</legend>
         <smart-selector
           class="full_width"
-          ref="smartSelector"
           model="repositories"
           target="CollectionObject"
           klass="CollectionObject"
@@ -97,13 +99,16 @@ export default {
     ToggleSwitch,
     SmartSelector
   },
+
   computed: {
     typeMaterial () {
       return this.$store.getters[GetterNames.GetTypeMaterial]
     },
+
     biologicalId () {
       return this.$store.getters[GetterNames.GetBiologicalId]
     },
+
     repositoryId: {
       get () {
         return this.$store.getters[GetterNames.GetCollectionObject].repository_id
@@ -112,6 +117,7 @@ export default {
         this.$store.commit(MutationNames.SetCollectionObjectRepositoryId, value)
       }
     },
+
     bufferedDeterminations: {
       get () {
         return this.$store.getters[GetterNames.GetCollectionObjectBufferedDeterminations]
@@ -120,6 +126,7 @@ export default {
         this.$store.commit(MutationNames.SetCollectionObjectBufferedDeterminations, value)
       }
     },
+
     bufferedEvent: {
       get () {
         return this.$store.getters[GetterNames.GetCollectionObjectBufferedEvent]
@@ -128,6 +135,7 @@ export default {
         this.$store.commit(MutationNames.SetCollectionObjectBufferedEvent, value)
       }
     },
+
     bufferedLabels: {
       get () {
         return this.$store.getters[GetterNames.GetCollectionObjectBufferedLabels]
@@ -136,6 +144,7 @@ export default {
         this.$store.commit(MutationNames.SetCollectionObjectBufferedLabels, value)
       }
     },
+
     eventId: {
       get () {
         return this.$store.getters[GetterNames.GetCollectionObjectCollectionEventId]
@@ -144,6 +153,7 @@ export default {
         this.$store.commit(MutationNames.SetCollectionObjectEventId, value)
       }
     },
+
     preparationId: {
       get () {
         return this.$store.getters[GetterNames.GetCollectionObjectPreparationId]
@@ -152,6 +162,7 @@ export default {
         this.$store.commit(MutationNames.SetCollectionObjectPreparationId, value)
       }
     },
+
     total: {
       get () {
         return this.$store.getters[GetterNames.GetCollectionObjectTotal]
@@ -161,13 +172,15 @@ export default {
       }
     }
   },
-  data: function () {
+
+  data () {
     return {
       types: [],
       labelRepository: undefined,
       labelEvent: undefined
     }
   },
+
   watch: {
     biologicalId: {
       handler (newVal) {
@@ -176,6 +189,7 @@ export default {
         }
       }
     },
+
     repositoryId: {
       handler (newVal) {
         if(!newVal) {
@@ -185,21 +199,21 @@ export default {
       deep: true
     }
   },
-  mounted: function () {
+
+  mounted () {
     this.updateLabels()
     PreparationType.all().then(response => {
       this.types = response.body
     })
   },
+
   methods: {
     updateLabels () {
       this.labelRepository = this.labelEvent = undefined
       this.setEventLabel(this.eventId)
       this.setRepositoryLabel(this.repositoryId)
     },
-    sendEvent () {
-      this.$emit('send')
-    },
+
     setEventLabel (id) {
       if (id) {
         CollectingEvent.find(id).then(response => {
@@ -207,6 +221,7 @@ export default {
         })
       }
     },
+
     setRepositoryLabel (id) {
       if (id) {
         Repository.find(id).then(response => {
@@ -214,10 +229,12 @@ export default {
         })
       }
     },
+
     setRepository (repository) {
       this.labelRepository = repository.name
       this.repositoryId = repository.id
     },
+
     unsetRepository () {
       this.labelRepository = null
       this.repositoryId = null

@@ -9,8 +9,11 @@
     <div class="body">
       <div>
         <ul class="no_bullets">
-          <li v-for="error in errors">
-            <span data-icon="warning"/><span v-html="error.message"/>
+          <li
+            v-for="(error, key) in errors"
+            :key="key">
+            <span data-icon="warning" />
+            <span v-html="error.message" />
           </li>
         </ul>
       </div>
@@ -30,6 +33,7 @@ export default {
   }
 }
 </script>
+
 <style lang="scss">
   .soft-validation-box-type.validation-warning {
     border-left: 4px solid #ff8c00;

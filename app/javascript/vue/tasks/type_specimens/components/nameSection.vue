@@ -33,7 +33,7 @@
 
 <script>
 
-import Expand from './expand.vue'
+import Expand from 'components/expand.vue'
 import Autocomplete from 'components/ui/Autocomplete.vue'
 import DisplayList from 'components/displayList.vue'
 
