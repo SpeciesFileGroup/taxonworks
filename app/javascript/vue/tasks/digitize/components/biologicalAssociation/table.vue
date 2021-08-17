@@ -6,7 +6,11 @@
           <th>Relationship</th>
           <th>Related</th>
           <th>Citation</th>
-          <th></th>
+          <th>
+            <div class="horizontal-right-content">
+              <lock-component v-model="settings.locked.biologicalAssociations" />
+            </div>
+          </th>
         </tr>
       </thead>
       <transition-group
@@ -15,31 +19,20 @@
         <template
           v-for="(item, index) in list"
           :key="item.id">
-          <tr
-            v-if="item.id"
-            class="list-complete-item">
+          <tr class="list-complete-item">
             <td v-html="item.biological_relationship.name"/>
             <td v-html="item.object.object_tag"/>
             <td v-html="getCitationString(item)"/>
             <td>
               <div class="middle horizontal-right-content">
-                <radial-annotator :global-id="item.global_id"/>
+                <radial-annotator
+                  v-if="item.global_id"
+                  :global-id="item.global_id"/>
                 <span
                   class="circle-button btn-delete"
-                  @click="deleteItem(index)">Remove
-                </span>
-              </div>
-            </td>
-          </tr>
-          <tr v-else>
-            <td v-html="item.biologicalRelationship.name"/>
-            <td v-html="item.biologicalRelation.object_tag"/>
-            <td v-html="getCitationString(item)"/>
-            <td>
-              <div class="horizontal-right-content middle">
-                <span
-                  class="circle-button btn-delete button-default"
-                  @click="$emit('delete', index)">Remove
+                  :class="{ 'button-default': !item.id }"
+                  @click="deleteItem(index)">
+                  Remove
                 </span>
               </div>
             </td>
@@ -52,26 +45,48 @@
 <script>
 
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import LockComponent from 'components/ui/VLock/index.vue'
+import { GetterNames } from '../../store/getters/getters'
+import { MutationNames } from '../../store/mutations/mutations'
 
 export default {
-  components: { RadialAnnotator },
+  components: {
+    RadialAnnotator,
+    LockComponent
+  },
 
   props: {
     list: {
       type: Array,
       default: () => []
+    },
+
+    lock: {
+      type: Boolean,
+      required: true
     }
   },
 
   emits: ['delete'],
 
-  mounted () {
-    this.$options.components['RadialAnnotator'] = RadialAnnotator
+  computed: {
+    settings: {
+      get () {
+        return this.$store.getters[GetterNames.GetSettings]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSettings, value)
+      }
+    }
   },
 
   methods: {
     deleteItem (item) {
-      if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
+      if (item.id) {
+        if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
+          this.$emit('delete', item)
+        }
+      } else {
         this.$emit('delete', item)
       }
     },
