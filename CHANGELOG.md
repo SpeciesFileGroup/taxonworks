@@ -24,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Unable to create a type specimen with an existing collection object
 - Catalog number is not updating after selecting another type specimen
 - Duplicate verbatim georeference on generate label in New collecting event and comprehensive tasks [#2427]
+- Biological association list persist after save and create a new collection object in comprehensive task
 
 
 [#2420]: https://github.com/SpeciesFileGroup/taxonworks/issues/2420

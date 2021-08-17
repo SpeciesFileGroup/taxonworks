@@ -18,4 +18,5 @@ export default ({ dispatch, state }) => {
   state.materialTypes = []
   state.preparation_type_id = undefined
   state.taxon_determinations = []
+  state.biologicalAssociations = []
 }

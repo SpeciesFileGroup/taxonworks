@@ -38,7 +38,7 @@
             <td>
               <div class="horizontal-right-content middle">
                 <span
-                  class="circle-button btn-delete btn-default"
+                  class="circle-button btn-delete button-default"
                   @click="$emit('delete', index)">Remove
                 </span>
               </div>
