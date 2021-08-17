@@ -7,7 +7,7 @@ export default state => {
     COTypes
   } = state
 
-  history.pushState(null, null, '/tasks/accessions/comprehensive')
+  history.replaceState(null, null, '/tasks/accessions/comprehensive')
   state = Object.assign(state, makeInitialState())
   state.preferences = preferences
   state.project_preferences = project_preferences

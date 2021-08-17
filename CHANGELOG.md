@@ -25,11 +25,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Catalog number is not updating after selecting another type specimen
 - Duplicate verbatim georeference on generate label in New collecting event and comprehensive tasks [#2427]
 - Biological association list persist after save and create a new collection object in comprehensive task
-
+- Comprehensive specimen task reset button adds false history entry in browser [#2432]
 
 [#2420]: https://github.com/SpeciesFileGroup/taxonworks/issues/2420
 [#2421]: https://github.com/SpeciesFileGroup/taxonworks/issues/2421
 [#2422]: https://github.com/SpeciesFileGroup/taxonworks/issues/2422
+[#2432]: https://github.com/SpeciesFileGroup/taxonworks/issues/2432
 
 ## [0.19.4] - 2021-08-13
 

@@ -15,7 +15,7 @@ export default ({ commit, state }) => {
     ? state.coCitations.map(citation => ({ ...citation, id: undefined }))
     : []
 
-  history.pushState(null, null, '/tasks/accessions/comprehensive')
+  history.replaceState(null, null, '/tasks/accessions/comprehensive')
   commit(MutationNames.SetCollectionObject, newCO)
   commit(MutationNames.NewTypeMaterial)
 }
