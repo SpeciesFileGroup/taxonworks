@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Georeference edit/delete button does not show up immediately on creation [#2422]
 - Unable to create a type specimen with an existing collection object
 - Catalog number is not updating after selecting another type specimen
+- Duplicate verbatim georeference on generate label in New collecting event and comprehensive tasks [#2427]
 
 
 [#2420]: https://github.com/SpeciesFileGroup/taxonworks/issues/2420
