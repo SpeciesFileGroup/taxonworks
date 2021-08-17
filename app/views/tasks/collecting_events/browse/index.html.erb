@@ -43,7 +43,7 @@
         </div>
 
         <div class="navigation-controls">
-          <%= link_to('Edit', edit_collecting_event_path(  @collecting_event ), class: 'navigation-item') -%>
+          <%= link_to('Edit (Task)', new_collecting_event_task_path(collecting_event_id: @collecting_event.id), class: 'navigation-item') -%>
         </div>
 
         <div class="navigation-controls">
