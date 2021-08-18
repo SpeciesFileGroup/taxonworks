@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Keyboard shortcuts modal reopens when closing help [#2436]
 - Title attribute contains html tags on citations in browse OTU
 - Increment identifier in CO editor keeps number of leading zeros, changing length of number [#2435]
+- Collecting event lock in comprehensive task
 
 [#2435]: https://github.com/SpeciesFileGroup/taxonworks/issues/2435
 [#2436]: https://github.com/SpeciesFileGroup/taxonworks/issues/2436
