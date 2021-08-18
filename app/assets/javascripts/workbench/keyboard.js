@@ -164,14 +164,18 @@ Object.assign(TW.workbench.keyboard, {
     sectionElement.append(this.addRowShortcut(shortcutKey, shortcutDescription))
   },
 
-  toggleViewPanel () {
-    this.keyShortcutsPanel.classList.toggle('active')
+  openViewPanel () {
+    this.keyShortcutsPanel.classList.add('active')
+  },
+
+  closeViewPanel () {
+    this.keyShortcutsPanel.classList.remove('active')
   },
 
   handleEvents () {
-    this.legendLink.addEventListener('click', this.toggleViewPanel.bind(this))
-    this.btnClose.addEventListener('click', this.toggleViewPanel.bind(this))
-    this.helpBackground.addEventListener('click', this.toggleViewPanel.bind(this))
+    this.legendLink.addEventListener('click', this.openViewPanel.bind(this))
+    this.btnClose.addEventListener('click', this.closeViewPanel.bind(this))
+    this.helpBackground.addEventListener('click', this.closeViewPanel.bind(this))
   }
 })
 

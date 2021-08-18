@@ -7,9 +7,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- Keyboard shortcuts modal reopens when closing help [#2436]
 
 ## [0.19.5] - 2021-08-18
+
+[#2436]: https://github.com/SpeciesFileGroup/taxonworks/issues/2436
 
 ### Added
 
