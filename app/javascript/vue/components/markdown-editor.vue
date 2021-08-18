@@ -16,7 +16,7 @@ import EasyMDE from 'easymde'
 import DOMPurify from 'dompurify'
 import 'easymde/dist/easymde.min.css'
 import CustomLinks from './markdown/customLinks.vue'
-import GetOSKey from 'helpers/getMacKey.js'
+import GetOSKey from 'helpers/getPlatformKey.js'
 
 export default {
   components: { CustomLinks },

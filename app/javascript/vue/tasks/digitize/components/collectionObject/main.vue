@@ -121,7 +121,7 @@ import RadialNavigation from 'components/radials/navigation/radial.vue'
 import RadialObject from 'components/radials/object/radial.vue'
 import PredicatesComponent from 'components/custom_attributes/predicates/predicates'
 import DefaultTag from 'components/defaultTag.vue'
-import platformKey from 'helpers/getMacKey'
+import platformKey from 'helpers/getPlatformKey'
 
 import { GetCollectionObjectDepictions } from '../../request/resources.js'
 import { Depiction, User } from 'routes/endpoints'

@@ -12,7 +12,7 @@
 <script>
 
 import { Combination } from 'routes/endpoints'
-import platformKey from 'helpers/getMacKey'
+import platformKey from 'helpers/getPlatformKey'
 
 export default {
   props: {

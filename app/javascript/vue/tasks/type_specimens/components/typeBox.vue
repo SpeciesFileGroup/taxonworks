@@ -85,7 +85,7 @@ import { GetterNames } from '../store/getters/getters'
 import ActionNames from '../store/actions/actionNames'
 import PinComponent from 'components/ui/Pinboard/VPin.vue'
 import OtuRadial from 'components/otu/otu.vue'
-import platformKey from 'helpers/getMacKey'
+import platformKey from 'helpers/getPlatformKey'
 import { RouteNames } from 'routes/routes'
 
 export default {

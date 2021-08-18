@@ -28,7 +28,7 @@ function makeInitialState () {
         biocuration: false,
         biologicalAssociations: false,
         coCitations: false,
-        collection_event: false,
+        collecting_event: false,
         collection_object: {
           buffered_collecting_event: false,
           buffered_determinations: false,
