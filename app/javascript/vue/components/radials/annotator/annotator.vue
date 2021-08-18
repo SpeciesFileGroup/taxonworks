@@ -24,7 +24,6 @@
               <div>
                 <radial-menu
                   v-if="menuCreated"
-                  ref="radialMenu"
                   :options="menuOptions"
                   @onClick="selectComponent"/>
               </div>
@@ -348,6 +347,7 @@ export default {
     closeModal () {
       this.display = false
       this.$emit('close')
+      this.eventClose()
       this.removeListener()
     },
 
@@ -376,6 +376,15 @@ export default {
 
     eventOpen () {
       const event = new CustomEvent('radialAnnotator:open', {
+        detail: {
+          metadata: this.metadata
+        }
+      })
+      document.dispatchEvent(event)
+    },
+
+    eventClose () {
+      const event = new CustomEvent('radialAnnotator:close', {
         detail: {
           metadata: this.metadata
         }
