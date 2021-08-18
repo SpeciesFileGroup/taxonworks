@@ -24,11 +24,13 @@ class NamespacesController < ApplicationController
 
   # GET /namespaces/new
   def new
-    @namespace = Namespace.new
+    redirect_to new_namespace_task_path
+    # @namespace = Namespace.new
   end
 
   # GET /namespaces/1/edit
   def edit
+    redirect_to new_namespace_task_path(namespace_id: @namespace.to_param)
   end
 
   # POST /namespaces

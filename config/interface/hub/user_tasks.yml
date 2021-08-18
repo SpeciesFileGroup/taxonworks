@@ -642,6 +642,11 @@ new_namespace_task:
   hub: true
   name: 'New namespace'
   related:
+    - collection_object
+    - collecting_event
   categories:
+    - new
+    - collection_object
+    - collecting_event
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Create new Namespaces, used in identifiers.'
