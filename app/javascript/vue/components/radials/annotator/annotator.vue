@@ -24,6 +24,7 @@
               <div>
                 <radial-menu
                   v-if="menuCreated"
+                  ref="radialMenu"
                   :options="menuOptions"
                   @onClick="selectComponent"/>
               </div>
@@ -93,12 +94,13 @@ import attributionAnnotator from './components/attribution/main.vue'
 
 import ContextMenu from './components/contextMenu'
 import Icons from './images/icons.js'
+import shortcutsMixin from '../mixins/shortcuts'
 import { Tag } from 'routes/endpoints'
 
 const MIDDLE_RADIAL_BUTTON = 'circleButton'
 
 export default {
-  mixins: [CRUD],
+  mixins: [CRUD, shortcutsMixin],
 
   name: 'RadialAnnotator',
 
@@ -183,7 +185,8 @@ export default {
       metadata: undefined,
       title: 'Radial annotator',
       defaultTag: undefined,
-      showContextMenu: false
+      showContextMenu: false,
+      listenerId: undefined
     }
   },
 
@@ -344,25 +347,26 @@ export default {
 
     closeModal () {
       this.display = false
-      this.eventClose()
       this.$emit('close')
+      this.removeListener()
     },
 
-    displayAnnotator () {
+    async displayAnnotator () {
       this.display = true
-      this.loadMetadata()
+      await this.loadMetadata()
       this.alreadyTagged()
+      this.eventOpen()
+      this.setShortcutsEvent()
     },
 
-    loadMetadata () {
-      if (this.globalId == this.globalIdSaved && this.menuCreated && !this.reload) return
+    async loadMetadata () {
+      if (this.globalId === this.globalIdSaved && this.menuCreated && !this.reload) return
       this.globalIdSaved = this.globalId
 
-      const that = this
-      this.getList(`/${this.type}/${encodeURIComponent(this.globalId)}/metadata`).then(({ body }) => {
-        that.metadata = body
-        that.title = body.object_tag
-        that.url = body.url
+      return this.getList(`/${this.type}/${encodeURIComponent(this.globalId)}/metadata`).then(({ body }) => {
+        this.metadata = body
+        this.title = body.object_tag
+        this.url = body.url
       })
     },
 
@@ -370,8 +374,8 @@ export default {
       this.metadata.endpoints[this.currentAnnotator].total = total
     },
 
-    eventClose () {
-      const event = new CustomEvent('radialAnnotator:close', {
+    eventOpen () {
+      const event = new CustomEvent('radialAnnotator:open', {
         detail: {
           metadata: this.metadata
         }

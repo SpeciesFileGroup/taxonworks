@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Content smart selector
 - Biological association list lock button in comprehensive task
+- Dynamic shortcuts for radial annotator and radial object. Shortcut is the first letter of the slice
 
 ### Changed
 
@@ -18,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Soft validation panel in new type specimen task
 - Replaced create predicate with link to project attributes customization page in custom attributes section [#2426]
 - Editing from Browse Collecting Event now redirects to Collecting Event task.
+
 ### Fixed
 
 - Create georeference from verbatim does not take uncertainty into account [#2421]
