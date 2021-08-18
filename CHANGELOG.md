@@ -16,7 +16,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Replaced panels with modals in Content editor task
 - Soft validation panel in new type specimen task
-
+- Replaced create predicate with link to project attributes customization page in custom attributes section [#2426]
+- Editing from Browse Collecting Event now redirects to Collecting Event task.
 ### Fixed
 
 - Create georeference from verbatim does not take uncertainty into account [#2421]
@@ -27,10 +28,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Duplicate verbatim georeference on generate label in New collecting event and comprehensive tasks [#2427]
 - Biological association list persist after save and create a new collection object in comprehensive task
 - Comprehensive specimen task reset button adds false history entry in browser [#2432]
+- Whitespace chars in label preventing georefs to be properly parsed [#2415]
+- Rubocop broken settings
+- Extra semicolon in collecting event label when verbatim locality is blank
 
+[#2415]: https://github.com/SpeciesFileGroup/taxonworks/issues/2415
 [#2420]: https://github.com/SpeciesFileGroup/taxonworks/issues/2420
 [#2421]: https://github.com/SpeciesFileGroup/taxonworks/issues/2421
 [#2422]: https://github.com/SpeciesFileGroup/taxonworks/issues/2422
+[#2426]: https://github.com/SpeciesFileGroup/taxonworks/issues/2426
 [#2432]: https://github.com/SpeciesFileGroup/taxonworks/issues/2432
 
 ## [0.19.4] - 2021-08-13
