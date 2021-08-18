@@ -83,14 +83,17 @@ import observation_matricesAnnotator from './components/observation_matrices/mai
 import collecting_eventAnnotator from './components/collecting_event/main.vue'
 import origin_relationshipsAnnotator from './components/origin_relationship/main'
 import extractsAnnotator from './components/extract/Main.vue'
+import shortcutsMixin from '../mixins/shortcuts'
 
 import Icons from './images/icons.js'
 import { Tag } from 'routes/endpoints'
 
-export default {
-  mixins: [CRUD],
+const MIDDLE_RADIAL_BUTTON = 'circleButton'
 
-  name: 'RadialAnnotator',
+export default {
+  mixins: [CRUD, shortcutsMixin],
+
+  name: 'RadialObject',
 
   components: {
     RadialMenu,
@@ -161,7 +164,6 @@ export default {
       metadata: undefined,
       title: 'Otu radial',
       defaultTag: undefined,
-      tagCreated: false,
       hardcodeSections: [
         {
           section: 'observation_matrices',
@@ -239,12 +241,12 @@ export default {
     },
 
     isTagged () {
-      return this.tagCreated
+      return this.defaultTag
     },
 
     middleButton () {
       return {
-        name: 'circleButton',
+        name: MIDDLE_RADIAL_BUTTON,
         radius: 30,
         icon: {
           url: Icons.tags,
@@ -272,30 +274,26 @@ export default {
 
     alreadyTagged () {
       const keyId = this.getDefault()
-      if( !keyId) return
+      if (!keyId) return
 
-      let params = {
+      const params = {
         global_id: this.globalId,
         keyword_id: keyId
       }
-      this.getList('/tags/exists', { params: params }).then(response => {
-        if(response.body) {
-          this.defaultTag = response.body
-          this.tagCreated = true
-        }
-        else {
-          this.tagCreated = false
-        }
+
+      Tag.exists(params).then(response => {
+        this.defaultTag = response.body
       })
     },
 
     selectComponent ({ name }) {
-      if (name === 'circleButton') {
+      if (name === MIDDLE_RADIAL_BUTTON) {
         if (this.getDefault()) {
-          this.isTagged ? this.deleteTag() : this.createTag()
+          this.isTagged
+            ? this.deleteTag()
+            : this.createTag()
         }
-      }
-      else {
+      } else {
         this.currentAnnotator = name
       }
     },
@@ -304,20 +302,22 @@ export default {
       this.display = false
       this.eventClose()
       this.$emit('close')
+      this.removeListener()
     },
 
-    displayAnnotator () {
+    async displayAnnotator () {
       this.display = true
       this.currentAnnotator = undefined
-      this.loadMetadata()
+      await this.loadMetadata()
       this.alreadyTagged()
+      this.setShortcutsEvent()
     },
 
-    loadMetadata () {
-      if (this.globalId == this.globalIdSaved && this.menuCreated && !this.reload) return
+    async loadMetadata () {
+      if (this.globalId === this.globalIdSaved && this.menuCreated && !this.reload) return
       this.globalIdSaved = this.globalId
 
-      this.getList(`/${this.type}/${encodeURIComponent(this.globalId)}/metadata`).then(response => {
+      return this.getList(`/${this.type}/${encodeURIComponent(this.globalId)}/metadata`).then(response => {
         this.metadata = response.body
         this.metadata.endpoints = Object.assign({}, this.metadata.endpoints, ...this.addHardcodeSections(response.body.object_type))
         this.title = response.body.object_tag
@@ -350,14 +350,12 @@ export default {
 
       Tag.create({ tag }).then(response => {
         this.defaultTag = response.body
-        this.tagCreated = true
         TW.workbench.alert.create('Tag item was successfully created.', 'notice')
       })
     },
 
     deleteTag () {
-      Tag.destroy(`/tags/${this.defaultTag.id}`).then(response => {
-        this.tagCreated = false
+      Tag.destroy(this.defaultTag.id).then(_ => {
         this.defaultTag = undefined
         TW.workbench.alert.create('Tag item was successfully destroyed.', 'notice')
       })

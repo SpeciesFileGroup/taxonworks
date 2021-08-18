@@ -124,12 +124,3 @@ export default {
   }
 }
 </script>
-<style lang="scss">
-.radial-annotator {
-  .data_attribute_annotator {
-    button {
-      min-width: 100px;
-    }
-  }
-}
-</style>

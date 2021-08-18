@@ -99,7 +99,7 @@ import BlockLayout from 'components/layout/BlockLayout.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import VIcon from 'components/ui/VIcon/index'
-import platformKey from 'helpers/getMacKey'
+import platformKey from 'helpers/getPlatformKey'
 
 export default {
   components: {

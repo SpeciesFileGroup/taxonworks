@@ -97,7 +97,7 @@ import TableComponent from './components/table'
 import LockComponent from 'components/ui/VLock/index.vue'
 import SpinnerComponent from 'components/spinner'
 import NavBarComponent from 'components/layout/NavBar'
-import platformKey from 'helpers/getMacKey'
+import platformKey from 'helpers/getPlatformKey'
 
 import { Source, AssertedDistribution } from 'routes/endpoints'
 

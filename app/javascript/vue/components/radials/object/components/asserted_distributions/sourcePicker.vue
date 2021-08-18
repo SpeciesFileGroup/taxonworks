@@ -17,18 +17,11 @@
           param="term"
         />
         <default-element
-          v-if="!citation.source_id"
           class="margin-small-left"
           label="source"
           type="Source"
           @getItem="setSource"
           section="Sources"
-        />
-        <span
-          v-else
-          @click="cleanCitation"
-          class="separate-left"
-          data-icon="reset"
         />
         <lock-component
           class="margin-small-left"

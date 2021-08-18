@@ -129,7 +129,7 @@ import PaginationComponent from 'components/pagination'
 import GetPagination from 'helpers/getPagination'
 import BibtexButton from './components/bibtex'
 import BibliographyButton from './components/bibliography.vue'
-import PlatformKey from 'helpers/getMacKey'
+import PlatformKey from 'helpers/getPlatformKey'
 
 export default {
   components: {

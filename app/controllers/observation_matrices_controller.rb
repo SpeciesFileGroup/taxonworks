@@ -189,6 +189,7 @@ class ObservationMatricesController < ApplicationController
       include_otus: 'true',
       include_collection_objects: 'true',
       include_descriptors: 'true',
+      include_otu_depictions: 'true',
       include_matrix: 'true', 
       include_trees: 'false',
       rdf: false }.merge!(

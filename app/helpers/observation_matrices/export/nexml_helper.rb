@@ -175,6 +175,39 @@ module ObservationMatrices::Export::NexmlHelper
     return opt[:target]
   end
 
+  def nexml_otu_depictions(options = {})
+    opt = {target:  '', descriptors: []}.merge!(options)
+    xml = Builder::XmlMarkup.new(target: opt[:target])
+    m = opt[:observation_matrix]
+    otus = m.otus
+    im =  ImageMatrix.new(
+      project_id: m.project_id,
+      otu_filter: m.otus.pluck(:id).join('|'))
+    descriptors = im.list_of_descriptors.values
+    row_hash = m.observation_matrix_rows.map{|i| [i.otu_id, i.id]}.to_h
+
+    xml.otu_depictions do |d|
+      im.depiction_matrix.each do |object|
+        object[1][:depictions].each_with_index do |depictions, index|
+          depictions.each do |depiction|
+
+            xml.meta(
+              'xsi:type' => 'ResourceMeta',
+              'rel' => 'foaf:depiction',
+              'about' => "row_#{row_hash[object[1][:otu_id].to_i].to_s}",
+              'href' => root_url + im.image_hash[depiction[:image_id]][:original_url],
+              'object' => object[1][:object].otu_name,
+              'description' => descriptors[index][:name],
+              'label' => depiction[:figure_label],
+              'citation' => depiction[:source_cached]
+            )
+          end
+        end
+      end
+    end
+    return opt[:target]
+  end
+
   def nexml_otus(options = {})
     opt = {target: ''}.merge!(options)
     xml = Builder::XmlMarkup.new(target: opt[:target])

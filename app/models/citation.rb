@@ -103,10 +103,7 @@ class Citation < ApplicationRecord
   protected
 
   def add_source_to_project
-    if !ProjectSource.where(source: source).any?
-      ProjectSource.create(project: project, source: source)
-    end
-    true
+    !!ProjectSource.find_or_create_by(project: project, source: source)
   end
 
   def reject_citation_topics(attributed)

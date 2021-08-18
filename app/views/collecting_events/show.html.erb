@@ -5,6 +5,10 @@
   </ul>
 <% end %>
 
+<%= content_for :edit do 
+  link_to(content_tag(:span, 'Edit', 'data-icon' => 'edit', class: 'small-icon'), new_collecting_event_task_path(collecting_event_id: @collecting_event.id), class: 'navigation-item')
+end %>
+
 <%= content_for :associated do %>
   <% if @collecting_event.georeferences.any? %>
     <h3>Georeferences</h3>

@@ -33,9 +33,9 @@ describe 'Task - Comprehensive digitization', type: :feature, group: :collection
           fill_in('namespace-autocomplete', with: 'INHS')
 
           # TODO: Improve this. Possibly adding more HTML to easily identify fields.
-          catalog_number = find('div.separate-right', text: 'Catalog number')
+          catalog_number = find('#namespace-autocomplete').find(:xpath, '..')
           catalog_number.find('li', text: 'INHS').hover.click
-          catalog_number.fill_in("identifier-field", with: '1234')
+          fill_in(id: "identifier-field", with: '1234')
 
           click_button 'Save'
 

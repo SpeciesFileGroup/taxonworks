@@ -1,11 +1,12 @@
 <template>
   <div :class="{ disabled : contents.length == 0 }">
     <div
-      @click="showModal = true && contents.length > 0"
+      @click="showModal = contents.length > 0"
       class="item flex-wrap-column middle menu-button">
       <span
         data-icon="clone"
-        class="big-icon"/>
+        class="big-icon"
+      />
       <span class="tiny_space">Clone</span>
     </div>
     <modal
@@ -19,6 +20,7 @@
         <ul class="no_bullets">
           <li
             v-for="item in contents"
+            :key="item.id"
             @click="cloneCitation(item.text)">
             <span data-icon="show">
               <div class="clone-content-text">{{ item.text }}</div>
@@ -71,7 +73,7 @@ export default {
 
   watch: {
     content (val, oldVal) {
-      if (val != undefined) {
+      if (val) {
         if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
           this.loadContent()
         }
@@ -89,6 +91,7 @@ export default {
         this.contents = response.body.filter(c => c.id !== this.content.id)
       })
     },
+
     cloneCitation (text) {
       this.$emit('addCloneCitation', text)
       this.showModal = false

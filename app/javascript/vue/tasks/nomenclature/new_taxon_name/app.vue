@@ -89,7 +89,7 @@ import ManagesynonymySection from './components/manageSynonym'
 import ClassificationSection from './components/classification.vue'
 import SoftValidation from 'components/soft_validations/panel.vue'
 import Spinner from 'components/spinner.vue'
-import platformKey from 'helpers/getMacKey'
+import platformKey from 'helpers/getPlatformKey'
 
 import { convertType } from 'helpers/types.js'
 import { GetterNames } from './store/getters/getters'

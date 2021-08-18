@@ -678,7 +678,7 @@ module Utilities::Dates
   # date from the label parsed to elements
   def self.date_regex_from_verbatim_label(text)
     return nil if text.blank?
-    text = ' ' + text.downcase + ' '
+    text = ' ' + text.downcase.squish + ' '
 
     date = {}
     # June 27 1946 - July 1 1947

@@ -45,6 +45,7 @@ class TaxonDetermination < ApplicationRecord
   include Shared::HasRoles
   include Shared::Depictions
   include Shared::IsData
+  include SoftValidation
   ignore_whitespace_on(:print_label)
 
   belongs_to :otu, inverse_of: :taxon_determinations

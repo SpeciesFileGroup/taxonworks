@@ -92,12 +92,17 @@ import protocol_relationshipsAnnotator from './components/protocol_annotator.vue
 import attributionAnnotator from './components/attribution/main.vue'
 
 import ContextMenu from './components/contextMenu'
-
 import Icons from './images/icons.js'
+import shortcutsMixin from '../mixins/shortcuts'
+import { Tag } from 'routes/endpoints'
+
+const MIDDLE_RADIAL_BUTTON = 'circleButton'
 
 export default {
-  mixins: [CRUD],
+  mixins: [CRUD, shortcutsMixin],
+
   name: 'RadialAnnotator',
+
   components: {
     RadialMenu,
     modal,
@@ -115,50 +120,61 @@ export default {
     attributionAnnotator,
     ContextMenu
   },
+
+  emits: ['close'],
+
   props: {
     reload: {
       type: Boolean,
       default: false
     },
+
     globalId: {
       type: String,
       required: true
     },
+
     showBottom: {
       type: Boolean,
       default: true
     },
+
     buttonClass: {
       type: String,
       default: 'btn-radial'
     },
+
     buttonTitle: {
       type: String,
       default: 'Radial annotator'
     },
+
     showCount: {
       type: Boolean,
       default: false
     },
+
     defaultView: {
       type: String,
       default: undefined
     },
+
     components: {
       type: Object,
-      default: () => {
-        return {}
-      }
+      default: () => ({})
     },
+
     type: {
       type: String,
       default: 'annotations'
     },
+
     pulse: {
       type: Boolean,
       default: false
     }
   },
+
   data () {
     return {
       currentAnnotator: undefined,
@@ -168,10 +184,11 @@ export default {
       metadata: undefined,
       title: 'Radial annotator',
       defaultTag: undefined,
-      tagCreated: false,
-      showContextMenu: false
+      showContextMenu: false,
+      listenerId: undefined
     }
   },
+
   computed: {
     metadataLoaded () {
       return (this.globalId === this.globalIdSaved && this.menuCreated && !this.reload)
@@ -242,12 +259,14 @@ export default {
       }
       return undefined
     },
+
     isTagged () {
-      return this.tagCreated
+      return !!this.defaultTag
     },
+
     middleButton () {
       return {
-        name: 'circleButton',
+        name: MIDDLE_RADIAL_BUTTON,
         radius: 30,
         icon: {
           url: Icons.tags,
@@ -263,88 +282,108 @@ export default {
       }
     }
   },
+
   watch: {
     metadataLoaded () {
       if (this.defaultView) {
         this.currentAnnotator = this.isComponentExist(this.defaultView)
       }
     },
+
     display (newVal) {
       if (newVal && this.metadataLoaded) {
         this.currentAnnotator = this.isComponentExist(this.defaultView)
       }
     }
   },
+
   mounted () {
     if (this.showCount) {
       this.loadMetadata()
     }
   },
+
   methods: {
     isComponentExist (componentName) {
       return this.$options.components[`${componentName}Annotator`] ? componentName : undefined
     },
+
     loadContextMenu () {
       this.showContextMenu = true
       this.loadMetadata()
     },
+
     getDefault () {
       const defaultTag = document.querySelector('[data-pinboard-section="Keywords"] [data-insert="true"]')
       return defaultTag ? defaultTag.getAttribute('data-pinboard-object-id') : undefined
     },
-    alreadyTagged: function() {
-      const keyId = this.getDefault()
-      if( !keyId) return
 
-      let params = {
+    alreadyTagged () {
+      const keyId = this.getDefault()
+      if (!keyId) return
+
+      const params = {
         global_id: this.globalId,
         keyword_id: keyId
       }
-      this.getList('/tags/exists', { params: params }).then(response => {
-        if(response.body) {
-          this.defaultTag = response.body
-          this.tagCreated = true
-        }
-        else {
-          this.tagCreated = false
-        }
+
+      Tag.exists(params).then(({ body }) => {
+        this.defaultTag = body
       })
     },
+
     selectComponent ({ name }) {
-      if (name === 'circleButton') {
+      if (name === MIDDLE_RADIAL_BUTTON) {
         if (this.getDefault()) {
-          this.isTagged ? this.deleteTag() : this.createTag()
+          this.isTagged
+            ? this.deleteTag()
+            : this.createTag()
         }
-      }
-      else {
+      } else {
         this.currentAnnotator = name
       }
     },
-    closeModal: function () {
+
+    closeModal () {
       this.display = false
-      this.eventClose()
       this.$emit('close')
+      this.eventClose()
+      this.removeListener()
     },
-    displayAnnotator: function () {
+
+    async displayAnnotator () {
       this.display = true
-      this.loadMetadata()
+      await this.loadMetadata()
       this.alreadyTagged()
+      this.eventOpen()
+      this.setShortcutsEvent()
     },
-    loadMetadata: function () {
-      if (this.globalId == this.globalIdSaved && this.menuCreated && !this.reload) return
+
+    async loadMetadata () {
+      if (this.globalId === this.globalIdSaved && this.menuCreated && !this.reload) return
       this.globalIdSaved = this.globalId
 
-      const that = this
-      this.getList(`/${this.type}/${encodeURIComponent(this.globalId)}/metadata`).then(response => {
-        that.metadata = response.body
-        that.title = response.body.object_tag
-        that.url = response.body.url
+      return this.getList(`/${this.type}/${encodeURIComponent(this.globalId)}/metadata`).then(({ body }) => {
+        this.metadata = body
+        this.title = body.object_tag
+        this.url = body.url
       })
     },
+
     setTotal (total) {
       this.metadata.endpoints[this.currentAnnotator].total = total
     },
-    eventClose: function () {
+
+    eventOpen () {
+      const event = new CustomEvent('radialAnnotator:open', {
+        detail: {
+          metadata: this.metadata
+        }
+      })
+      document.dispatchEvent(event)
+    },
+
+    eventClose () {
       const event = new CustomEvent('radialAnnotator:close', {
         detail: {
           metadata: this.metadata
@@ -352,29 +391,25 @@ export default {
       })
       document.dispatchEvent(event)
     },
+
     windowHeight () {
       return ((window.innerHeight - 100) > 650 ? 650 : window.innerHeight - 100) + 'px !important'
     },
-    createTag: function () {
-      let tagItem = {
-        tag: {
-          keyword_id: this.getDefault(),
-          annotated_global_entity: this.globalId
-        }
+
+    createTag () {
+      const tag = {
+        keyword_id: this.getDefault(),
+        annotated_global_entity: this.globalId
       }
-      this.create('/tags', tagItem).then(response => {
+
+      Tag.create({ tag }).then(response => {
         this.defaultTag = response.body
-        this.tagCreated = true
         TW.workbench.alert.create('Tag item was successfully created.', 'notice')
       })
     },
-    deleteTag: function () {
-      let tag = {
-        annotated_global_entity: this.globalId,
-        _destroy: true
-      }
-      this.destroy(`/tags/${this.defaultTag.id}`, { tag: tag }).then(response => {
-        this.tagCreated = false
+
+    deleteTag () {
+      Tag.destroy(this.defaultTag.id).then(_ => {
         this.defaultTag = undefined
         TW.workbench.alert.create('Tag item was successfully destroyed.', 'notice')
       })

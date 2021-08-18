@@ -1,3 +1,3 @@
-export default function (state, newTopic) {
+export default (state, newTopic) => {
   state.selected.topic = newTopic
 }

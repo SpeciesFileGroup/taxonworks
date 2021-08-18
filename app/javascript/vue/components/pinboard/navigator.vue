@@ -51,7 +51,7 @@
 
 import ModalComponent from 'components/ui/Modal'
 import Shortcuts from './const/shortcuts.js'
-import platformKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getPlatformKey.js'
 import { shorten } from 'helpers/strings.js'
 
 export default {

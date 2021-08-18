@@ -41,7 +41,9 @@
       <identifier-component
         class="margin-large-bottom"
         v-model="params.identifier"/>
-      <preparation-types v-model="params.preparation_type_id"/>
+      <preparation-types
+        class="margin-large-bottom"
+        v-model="params.preparation_type_id"/>
       <biocurations-component
         class="margin-large-bottom"
         v-model="params.biocurations.biocuration_class_ids"/>
@@ -103,7 +105,7 @@ import PreparationTypes from './filters/preparationTypes'
 import CollectorsComponent from './filters/shared/people'
 
 import SpinnerComponent from 'components/spinner'
-import platformKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getPlatformKey.js'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { CollectionObject } from 'routes/endpoints'
 

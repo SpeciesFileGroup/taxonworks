@@ -103,7 +103,7 @@ import RadialObject from 'components/radials/navigation/radial.vue'
 import PinComponent from 'components/ui/Pinboard/VPin.vue'
 import makeCollectingEvent from '../../const/collectingEvent.js'
 import refreshSmartSelector from '../shared/refreshSmartSelector'
-import platformKey from 'helpers/getMacKey'
+import platformKey from 'helpers/getPlatformKey'
 
 export default {
   mixins: [refreshSmartSelector],
@@ -181,6 +181,7 @@ export default {
     setCollectingEvent (ce) {
       this.$store.commit(MutationNames.SetCollectionEvent, Object.assign(makeCollectingEvent(), ce))
       this.$store.dispatch(ActionNames.GetLabels, ce.id)
+      this.$store.dispatch(ActionNames.LoadGeoreferences, ce.id)
     },
     cleanCollectionEvent () {
       this.$store.dispatch(ActionNames.NewCollectionEvent)
