@@ -31,7 +31,7 @@
 import { GetterNames } from '../store/getters/getters'
 import { RouteNames } from 'routes/routes'
 import Modal from 'components/ui/Modal.vue'
-import PlatformKey from 'helpers/getMacKey'
+import PlatformKey from 'helpers/getPlatformKey'
 
 export default {
   components: {
@@ -75,13 +75,15 @@ export default {
   },
 
   methods: {
-    reloadPage() {
+    reloadPage () {
       window.location.href = this.url
       this.url = RouteNames.NewTaxonName
     },
+
     loadWithParent() {
       return ((this.getParent && this.getParent.hasOwnProperty('id')) ? `${RouteNames.NewTaxonName}?parent_id=${this.getParent.id}` : RouteNames.NewTaxonName)
     },
+
     createNew (newUrl = this.url) {
       this.url = newUrl
       if (this.unsavedChanges) {
@@ -90,14 +92,13 @@ export default {
         this.reloadPage()
       }
     },
+
     createNewWithChild() {
       this.createNew((this.getTaxon.id ? `${RouteNames.NewTaxonName}?parent_id=${this.getTaxon.id}` : RouteNames.NewTaxonName))
     },
+
     createNewWithParent() {
       this.createNew((this.getParent && this.getParent.hasOwnProperty('id') ? `${RouteNames.NewTaxonName}?parent_id=${this.getParent.id}` : RouteNames.NewTaxonName))
-    },
-    getMacKey: function () {
-      return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
     }
   }
 }

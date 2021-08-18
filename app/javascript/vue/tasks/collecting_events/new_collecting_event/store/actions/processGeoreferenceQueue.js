@@ -2,6 +2,8 @@ import { Georeference } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
 export default async ({ state: { collectingEvent, queueGeoreferences }, commit }) => {
+  if(!collectingEvent.id) return
+
   const promises = []
 
   queueGeoreferences.forEach(georeference => {

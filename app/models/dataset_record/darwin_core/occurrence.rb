@@ -88,6 +88,11 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         append_dwc_attributes(dwc_data_attributes['CollectionObject'], attributes[:specimen])
         append_dwc_attributes(dwc_data_attributes['CollectingEvent'], attributes[:collecting_event])
 
+        set_hash_val(attributes[:specimen], :biocuration_classifications,
+          (parse_biocuration_group_fields.dig(:specimen, :biocuration_classifications) || []) +
+          (attributes.dig(:specimen, :biocuration_classifications) || [])
+        )
+
         specimen = Specimen.create!({
           no_dwc_occurrence: true
         }.merge!(attributes[:specimen]))
@@ -936,6 +941,40 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     end
   end
 
+  def parse_biocuration_group_fields
+    {
+      specimen: {
+        biocuration_classifications: get_tw_biocuration_groups
+          .map { |g| parse_biocuration_group_field(g) }
+          .reject(&:nil?)
+      }
+    }
+  end
+
+  def parse_biocuration_group_field(group)
+    biocuration_group = BiocurationGroup.find_by(uri: group[:selector], project: self.project)
+    biocuration_group ||= BiocurationGroup.with_project_id(project.id).find_by(
+      BiocurationGroup.arel_table[:name].matches(ApplicationRecord.sanitize_sql_like(group[:selector]))
+    )
+
+    value = get_field_value(group[:field])
+    if value
+      raise DarwinCore::InvalidData.new({ group[:field] => ["Biocuration group with '#{group[:selector]}' URI or name not found"] }) unless biocuration_group
+
+      biocuration_class = BiocurationClass.with_project_id(project.id).joins(:tags).merge(
+        Tag.where(keyword: biocuration_group)
+      ).find_by(uri: value)
+      biocuration_class ||= BiocurationClass.with_project_id(project.id).joins(:tags).merge(
+        Tag.where(keyword: biocuration_group)
+      ).find_by(
+        BiocurationClass.arel_table[:name].matches(ApplicationRecord.sanitize_sql_like(value))
+      )
+
+      raise DarwinCore::InvalidData.new({ group[:field] => ["Biocuration class with '#{value}' URI or name not found"] }) unless biocuration_class
+
+      BiocurationClassification.new(biocuration_class: biocuration_class)
+    end
+  end
 
   def parse_tw_collection_object_attributes
 

@@ -39,6 +39,16 @@ class DatasetRecord::DarwinCore < DatasetRecord
     .reject(&:nil?)
   end
 
+  def get_tw_biocuration_groups
+    get_fields_mapping.keys
+    .select { |f| f.is_a?(String) }
+    .map do |field|
+      /(TW:BiocurationGroup:).+/i =~ field
+      {field: field, selector: field.sub($1, '')} if $1
+    end
+    .reject(&:nil?)
+  end
+
   private
 
   # Re-implemented method from DatasetRecord

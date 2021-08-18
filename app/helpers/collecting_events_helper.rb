@@ -100,7 +100,7 @@ module CollectingEventsHelper
   end
 
   def collecting_event_verbatim_locality_tag(collecting_event)
-    return nil unless !(collecting_event&.verbatim_locality&.blank?)
+    return nil unless collecting_event&.verbatim_locality&.present?
     content_tag(:span, collecting_event.verbatim_locality)
   end
 

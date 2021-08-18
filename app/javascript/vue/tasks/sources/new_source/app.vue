@@ -145,7 +145,7 @@ import { MutationNames } from './store/mutations/mutations'
 
 import RightSection from './components/rightSection'
 import NavBar from 'components/layout/NavBar'
-import platformKey from 'helpers/getMacKey'
+import platformKey from 'helpers/getPlatformKey'
 
 export default {
   name: 'NewSource',

@@ -12,7 +12,7 @@
 
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
-import platformKey from 'helpers/getMacKey'
+import platformKey from 'helpers/getPlatformKey'
 
 export default {
   computed: {

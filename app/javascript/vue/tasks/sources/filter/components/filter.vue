@@ -63,7 +63,7 @@
 
 import TitleComponent from './filters/title'
 import SpinnerComponent from 'components/spinner'
-import platformKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getPlatformKey.js'
 import AuthorsComponent from './filters/authors'
 import DateComponent from './filters/date'
 import TagsComponent from './filters/tags'

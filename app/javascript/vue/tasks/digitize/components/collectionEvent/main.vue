@@ -103,7 +103,7 @@ import RadialObject from 'components/radials/navigation/radial.vue'
 import PinComponent from 'components/ui/Pinboard/VPin.vue'
 import makeCollectingEvent from '../../const/collectingEvent.js'
 import refreshSmartSelector from '../shared/refreshSmartSelector'
-import platformKey from 'helpers/getMacKey'
+import platformKey from 'helpers/getPlatformKey'
 
 export default {
   mixins: [refreshSmartSelector],
