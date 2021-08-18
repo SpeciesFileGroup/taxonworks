@@ -1,3 +1,3 @@
-export default function (state, newOtu) {
+export default (state, newOtu) => {
   state.selected.otu = newOtu
 }

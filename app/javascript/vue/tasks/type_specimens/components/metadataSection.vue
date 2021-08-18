@@ -94,7 +94,7 @@
 
 <script>
 
-import Expand from './expand.vue'
+import Expand from 'components/expand.vue'
 import SmartSelector from 'components/ui/SmartSelector'
 import Spinner from 'components/spinner.vue'
 import SoftValidation from 'components/soft_validations/objectValidation.vue'

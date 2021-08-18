@@ -12,7 +12,7 @@ module Utilities::Elevation
   end
 
   def self.elevation_regex_from_verbatim_label(text)
-    text = ' ' + text.downcase + ' '
+    text = ' ' + text.downcase.squish + ' '
     elevation = {}
 
     if matchdata1 = text.match(/\D(\d*,?\d+)\s?[-–]\s?(\d*,?\d+) ?(m|ft|feet|meters)\.?\W/)

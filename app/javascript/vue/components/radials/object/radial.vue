@@ -83,6 +83,7 @@ import observation_matricesAnnotator from './components/observation_matrices/mai
 import collecting_eventAnnotator from './components/collecting_event/main.vue'
 import origin_relationshipsAnnotator from './components/origin_relationship/main'
 import extractsAnnotator from './components/extract/Main.vue'
+import shortcutsMixin from '../mixins/shortcuts'
 
 import Icons from './images/icons.js'
 import { Tag } from 'routes/endpoints'
@@ -90,7 +91,7 @@ import { Tag } from 'routes/endpoints'
 const MIDDLE_RADIAL_BUTTON = 'circleButton'
 
 export default {
-  mixins: [CRUD],
+  mixins: [CRUD, shortcutsMixin],
 
   name: 'RadialObject',
 
@@ -301,20 +302,22 @@ export default {
       this.display = false
       this.eventClose()
       this.$emit('close')
+      this.removeListener()
     },
 
-    displayAnnotator () {
+    async displayAnnotator () {
       this.display = true
       this.currentAnnotator = undefined
-      this.loadMetadata()
+      await this.loadMetadata()
       this.alreadyTagged()
+      this.setShortcutsEvent()
     },
 
-    loadMetadata () {
+    async loadMetadata () {
       if (this.globalId === this.globalIdSaved && this.menuCreated && !this.reload) return
       this.globalIdSaved = this.globalId
 
-      this.getList(`/${this.type}/${encodeURIComponent(this.globalId)}/metadata`).then(response => {
+      return this.getList(`/${this.type}/${encodeURIComponent(this.globalId)}/metadata`).then(response => {
         this.metadata = response.body
         this.metadata.endpoints = Object.assign({}, this.metadata.endpoints, ...this.addHardcodeSections(response.body.object_type))
         this.title = response.body.object_tag

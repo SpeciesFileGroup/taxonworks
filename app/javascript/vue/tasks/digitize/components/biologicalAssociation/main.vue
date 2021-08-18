@@ -184,8 +184,8 @@ export default {
   methods: {
     addAssociation () {
       const data = {
-        biologicalRelationship: this.biologicalRelationship,
-        biologicalRelation: this.biologicalRelation,
+        biological_relationship: this.biologicalRelationship,
+        object: this.biologicalRelation,
         biological_relationship_id: this.biologicalRelationship.id,
         biological_association_object_id: this.biologicalRelation.id,
         biological_association_object_type: this.biologicalRelation.type,

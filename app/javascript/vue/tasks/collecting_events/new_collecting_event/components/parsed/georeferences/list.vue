@@ -20,7 +20,9 @@
           <td class="word-keep-all">{{ isTmpWkt(item) || isTempGeolocate(item) ? '' : getGeoJsonType(item) }}</td>
           <td>{{ getCoordinatesByType(item) }}</td>
           <td class="line-nowrap">
-            <edit-in-place v-model="item.error_radius"/>
+            <edit-in-place
+              v-model="item.error_radius"
+              @end="$emit('update', item)"/>
           </td>
           <td class="word-keep-all">{{ item.type }}</td>
           <td class="vue-table-options">
@@ -52,15 +54,11 @@ export default {
   props: {
     list: {
       type: Array,
-      default: () => {
-        return []
-      }
+      default: () => []
     },
     header: {
       type: Array,
-      default: () => {
-        return []
-      }
+      default: () => []
     },
     destroy: {
       type: Boolean,
@@ -79,13 +77,17 @@ export default {
       default: false
     }
   },
+
+  emits: ['delete', 'update'],
+
   mounted () {
     this.$options.components['RadialAnnotator'] = RadialAnnotator
   },
+
   methods: {
     deleteItem (item) {
       if (this.deleteWarning) {
-        if (window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+        if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
           this.$emit('delete', item)
         }
       } else {

@@ -59,5 +59,11 @@ FactoryBot.define do
       verbatim_longitude { '-88.204517' }
     end
 
+    factory :collecting_event_without_verbatim_locality do
+      verbatim_latitude { '40.116402' }
+      verbatim_longitude { '-88.243386' }
+      verbatim_elevation { '735' }
+    end
+
   end
 end

@@ -9,6 +9,42 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.19.5] - 2021-08-18
+
+### Added
+
+- Content smart selector
+- Biological association list lock button in comprehensive task
+- Dynamic shortcuts for radial annotator and radial object. Shortcut is the first letter of the slice
+
+### Changed
+
+- Replaced panels with modals in Content editor task
+- Soft validation panel in new type specimen task
+- Replaced create predicate with link to project attributes customization page in custom attributes section [#2426]
+- Editing from Browse Collecting Event now redirects to Collecting Event task.
+
+### Fixed
+
+- Create georeference from verbatim does not take uncertainty into account [#2421]
+- Cannot edit Georeference uncertainty in New collecting event task [#2420]
+- Georeference edit/delete button does not show up immediately on creation [#2422]
+- Unable to create a type specimen with an existing collection object
+- Catalog number is not updating after selecting another type specimen
+- Duplicate verbatim georeference on generate label in New collecting event and comprehensive tasks [#2427]
+- Biological association list persist after save and create a new collection object in comprehensive task
+- Comprehensive specimen task reset button adds false history entry in browser [#2432]
+- Whitespace chars in label preventing georefs to be properly parsed [#2415]
+- Rubocop broken settings
+- Extra semicolon in collecting event label when verbatim locality is blank
+
+[#2415]: https://github.com/SpeciesFileGroup/taxonworks/issues/2415
+[#2420]: https://github.com/SpeciesFileGroup/taxonworks/issues/2420
+[#2421]: https://github.com/SpeciesFileGroup/taxonworks/issues/2421
+[#2422]: https://github.com/SpeciesFileGroup/taxonworks/issues/2422
+[#2426]: https://github.com/SpeciesFileGroup/taxonworks/issues/2426
+[#2432]: https://github.com/SpeciesFileGroup/taxonworks/issues/2432
+
 ## [0.19.4] - 2021-08-13
 
 ### Fixed
@@ -71,6 +107,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Edit link redirect to comprehensive specimen digitization [#2394]
 - Add source to project when tagged [#1436]
 - Updated Ruby gems and Node packages
+- Updated ruby gems
 
 [#1436]: https://github.com/SpeciesFileGroup/taxonworks/issues/1436
 [#2392]: https://github.com/SpeciesFileGroup/taxonworks/issues/2392
@@ -1508,8 +1545,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.4...development
-[0.19.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.4...v0.19.4
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.5...development
+[0.19.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.4...v0.19.5
+[0.19.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.3...v0.19.4
 [0.19.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.2...v0.19.3
 [0.19.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.1...v0.19.2
 [0.19.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.0...v0.19.1

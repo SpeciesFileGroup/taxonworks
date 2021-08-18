@@ -2,7 +2,7 @@
 
 <% @taxon_names = TaxonName.that_is_valid.with_base_of_rank_class("NomenclaturalRank::Iczn::SpeciesGroup::S").joins(:descendant_hierarchies).where(project_id: sessions_current_project_id).order(:generations, :cached).uniq %>
 
-<% @topic = Topic.where(project_id: sessions_current_project_id).first -%>
+<% @topic = Topic.with_project_id(sessions_current_project_id).find_by(name: 'Distribution text') # TODO: Consider assigning URI to this topic to better identify it -%>
 <% @rowcount = 1 %>
 <h2>Topic: <%= @topic.name -%> </h2>
 
@@ -32,7 +32,7 @@
     <td> <%= n.cached -%> </td>
     <td> <%= n.cached_author_year -%> </td>
 
-    <td> <%= n.otus&.first&.contents&.where(topic_id: 4)&.first&.text %> </td>
+    <td> <%= Content.find_by(topic: @topic, otu: n.otus)&.text %> </td>
   </tr>
 
 <% @rowcount = @rowcount + 1 %>

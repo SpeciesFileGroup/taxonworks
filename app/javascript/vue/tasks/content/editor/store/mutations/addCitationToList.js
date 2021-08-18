@@ -1,3 +1,3 @@
-export default function (state, citation) {
+export default (state, citation) => {
   state.citations.push(citation)
 }

@@ -88,4 +88,20 @@ class Content < ApplicationRecord
   def self.find_for_autocomplete(params)
     where('text ILIKE ? OR text ILIKE ?', "#{params[:term]}%", "%#{params[:term]}%")
   end
+
+  def self.used_recently(user_id, project_id)
+    Content.touched_by(user_id).where(project_id: project_id).order(updated_at: :desc).limit(6).to_a
+  end
+
+  def self.select_optimized(user_id, project_id)
+    r = used_recently(user_id, project_id)
+
+    h = {
+      quick: Content.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a,
+      pinboard: Content.pinned_by(user_id).where(project_id: project_id).to_a,
+      recent: used_recently(user_id, project_id)
+    }
+
+    h
+  end
 end

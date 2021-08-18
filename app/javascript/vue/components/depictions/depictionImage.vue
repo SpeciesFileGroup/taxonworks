@@ -9,11 +9,9 @@
       <template #body>
         <div class="horizontal-left-content align-start">
           <div class="full_width">
-            <template>
-              <img
-                class="img-maxsize"
-                :src="depiction.image.image_file_url">
-            </template>
+            <img
+              class="img-maxsize"
+              :src="depiction.image.image_file_url">
             <div class="horizontal-left-content">
               <radial-annotator :global-id="depiction.image.global_id"/>
               Annotate image

@@ -26,6 +26,7 @@ function makeInitialState () {
       saving: false,
       locked: {
         biocuration: false,
+        biologicalAssociations: false,
         coCitations: false,
         collection_event: false,
         collection_object: {

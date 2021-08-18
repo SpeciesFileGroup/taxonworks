@@ -96,13 +96,13 @@
             v-if="collectingEventId"
             :list="georeferences"
             @delete="removeGeoreference"
-            @updateGeo="updateRadius"
+            @update="updateRadius"
             label="object_tag"/>
           <display-list
             v-else
             :list="queueGeoreferences"
             @delete="removeGeoreference"
-            @updateGeo="updateRadius"
+            @update="updateRadius"
             label="object_tag"/>
         </div>
       </template>
@@ -182,7 +182,7 @@ export default {
       return this.verbatimGeoreferenceAlreadyCreated ? truncateDecimal((this.verbatimGeoreferenceAlreadyCreated.geo_json ? this.verbatimGeoreferenceAlreadyCreated.geo_json.properties.radius : JSON.parse(this.verbatimGeoreferenceAlreadyCreated.geographic_item_attributes.shape).error_radius), 6) : undefined
     },
     verbatimGeoreferenceAlreadyCreated () {
-      return [].concat(this.georeferences, this.queueGeoreferences).find(item => { return item.type === GeoreferenceTypes.Verbatim || item.type === GeoreferenceTypes.Exif })
+      return [].concat(this.georeferences, this.queueGeoreferences).find(item => item.type === GeoreferenceTypes.Verbatim || item.type === GeoreferenceTypes.Exif)
     },
     mapGeoreferences () {
       return [].concat(this.shapes.features, this.queueGeoreferences.filter(item => (item.type !== GeoreferenceTypes.Wkt && item.type !== GeoreferenceTypes.Geolocate) && item?.geographic_item_attributes?.shape).map(item => JSON.parse(item?.geographic_item_attributes?.shape)))
@@ -232,17 +232,12 @@ export default {
 
   watch: {
     georeferences: {
-      handler() {
+      handler () {
         this.populateShapes()
-      }
+      },
+      deep: true
     },
-    queueGeoreferences: {
-      handler (newVal) {
-        if (newVal.length && this.collectingEventId) {
-          this.$store.dispatch(ActionNames.ProcessGeoreferenceQueue)
-        }
-      }
-    },
+
     geographicArea: {
       handler () {
         this.populateShapes()
@@ -262,23 +257,31 @@ export default {
         this.queueGeoreferences[index].error_radius = geo.error_radius
       }
     },
+
     addGeoreference (shape) {
+      console.log("entra")
       this.queueGeoreferences.push({
         tmpId: Math.random().toString(36).substr(2, 5),
         geographic_item_attributes: { shape: JSON.stringify(shape) },
-        error_radius: shape.properties?.radius ? shape.properties.radius : undefined,
+        error_radius: shape.properties?.radius,
         type: GeoreferenceTypes.Leaflet
       })
+
+      this.$store.dispatch(ActionNames.ProcessGeoreferenceQueue)
     },
+
     updateGeoreference (shape) {
-      this.$store.commit(MutationNames.AddGeoreferenceToQueue, {
+      this.addToQueue({
         id: shape.properties.georeference.id,
-        error_radius: (shape.properties.hasOwnProperty('radius') ? shape.properties.radius : undefined),
+        error_radius: shape.properties?.radius,
         geographic_item_attributes: { shape: JSON.stringify(shape) },
         collecting_event_id: this.collectingEventId,
         type: GeoreferenceTypes.Leaflet
       })
+
+      this.$store.dispatch(ActionNames.ProcessGeoreferenceQueue)
     },
+
     populateShapes () {
       this.shapes.features = []
       if(this.geographicArea) {
@@ -291,6 +294,7 @@ export default {
         this.shapes.features.push(geo.geo_json)
       })
     },
+
     removeGeoreference (geo) {
       const index = geo.id ? this.georeferences.findIndex(item => item.id === geo.id) : this.queueGeoreferences.findIndex(item => item.tmpId === geo.tmpId)
       if (geo.id) {
@@ -303,6 +307,7 @@ export default {
         this.queueGeoreferences.splice(index, 1)
       }
     },
+
     createVerbatimShape () {
       const shape = {
         type: 'Feature',
@@ -312,13 +317,17 @@ export default {
           coordinates: [convertDMS(this.verbatimLng), convertDMS(this.verbatimLat)]
         }
       }
-      this.$store.commit(MutationNames.AddGeoreferenceToQueue, {
+
+      this.addToQueue({
         geographic_item_attributes: { shape: JSON.stringify(shape) },
         collecting_event_id: this.collectingEventId,
         type: GeoreferenceTypes.Verbatim,
-        error_radius: this.geolocationUncertainty
+        error_radius: this.collectingEvent.verbatim_geolocation_uncertainty
       })
+
+      this.$store.dispatch(ActionNames.ProcessGeoreferenceQueue)
     },
+
     addToQueue (data) {
       this.$store.commit(MutationNames.AddGeoreferenceToQueue, data)
     }
