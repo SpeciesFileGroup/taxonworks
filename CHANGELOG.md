@@ -13,10 +13,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Title attribute contains html tags on citations in browse OTU
 - Increment identifier in CO editor keeps number of leading zeros, changing length of number [#2435]
 
-## [0.19.5] - 2021-08-18
-
 [#2435]: https://github.com/SpeciesFileGroup/taxonworks/issues/2435
 [#2436]: https://github.com/SpeciesFileGroup/taxonworks/issues/2436
+
+## [0.19.5] - 2021-08-18
 
 ### Added
 
