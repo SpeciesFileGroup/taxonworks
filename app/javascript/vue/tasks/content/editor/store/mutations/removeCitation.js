@@ -1,3 +1,3 @@
-export default function (state, index) {
+export default (state, index) => {
   state.citations.splice(index, 1)
 }

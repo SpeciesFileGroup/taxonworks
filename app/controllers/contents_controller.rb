@@ -84,6 +84,10 @@ class ContentsController < ApplicationController
     end
   end
 
+  def select_options
+    @contents = Content.select_optimized(sessions_current_user_id, sessions_current_project_id)
+  end
+
   def autocomplete
     @contents = Content.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
     data = @contents.collect do |t|

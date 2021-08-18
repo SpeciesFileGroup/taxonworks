@@ -2,7 +2,8 @@
   <div>
     <button
       @click="openWindow"
-      class="button button-default normal-input">New
+      class="button button-default normal-input">
+      Create new
     </button>
     <modal
       v-if="showModal"
@@ -18,15 +19,15 @@
           <div class="field flex-separate">
             <input
               type="text"
-              v-model="topic.controlled_vocabulary_term.name"
+              v-model="topic.name"
               placeholder="Name">
             <input
               type="color"
-              v-model="topic.controlled_vocabulary_term.css_color">
+              v-model="topic.css_color">
           </div>
           <div class="field">
             <textarea
-              v-model="topic.controlled_vocabulary_term.definition"
+              v-model="topic.definition"
               placeholder="Definition"/>
           </div>
         </form>
@@ -35,10 +36,10 @@
         <div
           class="flex-separate">
           <input
-            class="button normal-input"
+            class="button normal-input button-submit"
             type="submit"
             @click.prevent="createNewTopic"
-            :disabled="((topic.controlled_vocabulary_term.name.length < 2) || (topic.controlled_vocabulary_term.definition.length < 2)) ? true : false"
+            :disabled="(topic.name.length < 2) || (topic.definition.length < 20)"
             value="Create">
         </div>
       </template>
@@ -47,39 +48,42 @@
 </template>
 
 <script>
-import { MutationNames } from '../store/mutations/mutations'
+
 import { ControlledVocabularyTerm } from 'routes/endpoints'
 import Modal from 'components/ui/Modal.vue'
 
 export default {
   components: { Modal },
 
+  emits: ['onCreate'],
+
   data () {
     return {
       showModal: false,
-      topic: {
-        controlled_vocabulary_term: {
-          name: '',
-          definition: '',
-          type: 'Topic'
-        }
-      }
+      topic: this.newTopic()
     }
   },
 
   methods: {
     openWindow () {
-      this.topic.controlled_vocabulary_term.name = ''
-      this.topic.controlled_vocabulary_term.definition = ''
+      this.topic = this.newTopic()
       this.showModal = true
     },
+
     createNewTopic () {
-      ControlledVocabularyTerm.create(this.topic).then(({ body }) => {
+      ControlledVocabularyTerm.create({ controlled_vocabulary_term: this.topic }).then(({ body }) => {
         TW.workbench.alert.create(`${body.name} was successfully created.`, 'notice')
-        this.$parent.topics.push(body)
-        this.$store.commit(MutationNames.AddToRecentTopics, body)
+        this.$emit('onCreate', body)
       })
       this.showModal = false
+    },
+
+    newTopic () {
+      return {
+        name: '',
+        definition: '',
+        type: 'Topic'
+      }
     }
   }
 }

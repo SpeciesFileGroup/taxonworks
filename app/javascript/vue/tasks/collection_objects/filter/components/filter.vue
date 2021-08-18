@@ -103,7 +103,7 @@ import PreparationTypes from './filters/preparationTypes'
 import CollectorsComponent from './filters/shared/people'
 
 import SpinnerComponent from 'components/spinner'
-import platformKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getPlatformKey.js'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { CollectionObject } from 'routes/endpoints'
 

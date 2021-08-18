@@ -55,7 +55,7 @@ import { MutationNames } from './store/mutations/mutations.js'
 import { ActionNames } from './store/actions/actions.js'
 import { GetterNames } from './store/getters/getters.js'
 import SpinnerComponent from 'components/spinner.vue'
-import platformKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getPlatformKey.js'
 import Draggable from 'vuedraggable'
 
 export default {

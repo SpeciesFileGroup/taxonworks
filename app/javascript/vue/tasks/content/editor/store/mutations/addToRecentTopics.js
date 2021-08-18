@@ -1,3 +1,3 @@
-export default function (state, item) {
+export default (state, item) => {
   state.recent.topics.unshift(item)
 }
