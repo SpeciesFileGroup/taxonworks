@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.19.5] - 2021-08-18
+
 ### Added
 
 - Content smart selector
@@ -1541,8 +1545,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.4...development
-[0.19.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.4...v0.19.4
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.5...development
+[0.19.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.4...v0.19.5
+[0.19.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.3...v0.19.4
 [0.19.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.2...v0.19.3
 [0.19.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.1...v0.19.2
 [0.19.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.0...v0.19.1
