@@ -6,12 +6,14 @@
         <label>Name</label>
         <input
           v-model="namespace.name"
+          id="namespace_name"
           type="text">
       </div>
       <div class="field label-above">
         <label>Short name</label>
         <input
           v-model="namespace.short_name"
+          id="namespace_short_name"
           type="text">
       </div>
       <div class="field label-above">
