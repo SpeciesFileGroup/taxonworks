@@ -1,10 +1,9 @@
 <template>
   <div class="field">
     <label>Delimiter</label>
-    <p>preview: {{ getDelimiterPreview() }}</p>
     <ul class="no_bullets">
       <li
-        v-for="(value, key) in options"
+        v-for="(value, key) in Types"
         :key="value">
         <label>
           <input
@@ -38,55 +37,29 @@
   </div>
 </template>
 
-<script>
+<script setup>
 
-import { computed } from 'vue'
+import { computed, defineProps, defineEmits } from 'vue'
+import Types from '../../const/types'
 
-const options = {
-  SingleWhitespace: '',
-  None: 'NONE'
-}
-
-export default {
-  props: {
-    modelValue: {
-      type: String,
-      default: undefined
-    }
-  },
-
-  emits: ['update:modelValue'],
-
-  setup (props, { emit }) {
-    const isCustomDelimiter = computed(() => !Object.values(options).includes(delimiter.value) || delimiter.value === undefined)
-    const delimiter = computed({
-      get () {
-        return props.modelValue
-      },
-      set (value) {
-        emit('update:modelValue', value)
-      }
-    })
-
-    const getDelimiterPreview = () => {
-      const shortName = props.shortName || '<short_name>'
-
-      if (delimiter.value === options.SingleWhitespace) {
-        return `${shortName} 123`
-      }
-      if (delimiter.value === options.None) {
-        return `${shortName}123`
-      } else {
-        return `${shortName}${delimiter.value || ''}123`
-      }
-    }
-
-    return {
-      getDelimiterPreview,
-      isCustomDelimiter,
-      delimiter,
-      options
-    }
+const props = defineProps({
+  modelValue: {
+    type: String,
+    default: undefined
   }
-}
+})
+
+const emit = defineEmits(['update:modelValue'])
+
+const delimiter = computed({
+  get () {
+    return props.modelValue
+  },
+  set (value) {
+    emit('update:modelValue', value)
+  }
+})
+
+const isCustomDelimiter = computed(() => !Object.values(Types).includes(delimiter.value) || delimiter.value === undefined)
+
 </script>

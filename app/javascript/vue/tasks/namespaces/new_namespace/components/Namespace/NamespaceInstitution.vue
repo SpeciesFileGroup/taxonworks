@@ -10,41 +10,30 @@
   </div>
 </template>
 
-<script>
+<script setup>
 
-import Autocomplete from 'components/ui/Autocomplete'
-import { computed } from 'vue'
+import { computed, defineProps, defineEmits } from 'vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 
-export default {
-  components: { Autocomplete },
-
-  props: {
-    modelValue: {
-      type: String,
-      default: undefined
-    }
-  },
-
-  emits: ['update:modelValue'],
-
-  setup (props, { emit }) {
-    const institution = computed({
-      get () {
-        return props.modelValue
-      },
-      set (value) {
-        emit('update:modelValue', value)
-      }
-    })
-
-    const setInstitution = ({ label }) => {
-      institution.value = label
-    }
-
-    return {
-      setInstitution,
-      institution
-    }
+const props = defineProps({
+  modelValue: {
+    type: String,
+    default: undefined
   }
+})
+
+const emit = defineEmits(['update:modelValue'])
+
+const institution = computed({
+  get () {
+    return props.modelValue
+  },
+  set (value) {
+    emit('update:modelValue', value)
+  }
+})
+
+const setInstitution = ({ label }) => {
+  institution.value = label
 }
 </script>

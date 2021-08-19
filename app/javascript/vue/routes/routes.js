@@ -17,7 +17,7 @@ const RouteNames = {
   PrintLabel: '/tasks/labels/print_labels',
   TypeMaterial: '/tasks/type_material/edit_type_material',
   NewExtract: '/tasks/extracts/new_extract',
-  NewNamespace: '/tasks/namespaces/new_namespace/index'
+  NewNamespace: '/tasks/namespaces/new_namespace'
 }
 
 export {

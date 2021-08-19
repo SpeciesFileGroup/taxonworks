@@ -18,46 +18,37 @@
   </div>
 </template>
 
-<script>
+<script setup>
 
-import { watch, ref } from 'vue'
+import { watch, ref, defineEmits, defineProps } from 'vue'
 import { Namespace } from 'routes/endpoints'
 
-export default {
-  props: {
-    name: {
-      type: String,
-      required: true
-    }
-  },
-
-  emits: ['onSelect'],
-
-  setup (props, { emit }) {
-    const delay = 1000
-    const matches = ref([])
-    let requestTimeout
-
-    watch(() => props.name, (currentValue) => {
-      clearTimeout(requestTimeout)
-
-      requestTimeout = setTimeout(async () => {
-        matches.value = currentValue.trim()
-          ? (await Namespace.autocomplete({ term: currentValue })).body
-          : []
-      }, delay)
-    })
-
-    function getNamespace (id) {
-      Namespace.find(id).then(({ body }) => {
-        emit('onSelect', body)
-      })
-    }
-
-    return {
-      matches,
-      getNamespace
-    }
+const props = defineProps({
+  name: {
+    type: String,
+    required: true
   }
+})
+
+const emit = defineEmits(['onSelect'])
+const delay = 1000
+const matches = ref([])
+let requestTimeout
+
+watch(() => props.name, (currentValue) => {
+  clearTimeout(requestTimeout)
+
+  requestTimeout = setTimeout(async () => {
+    matches.value = currentValue.trim()
+      ? (await Namespace.autocomplete({ term: currentValue })).body
+      : []
+  }, delay)
+})
+
+const getNamespace = (id) => {
+  Namespace.find(id).then(({ body }) => {
+    emit('onSelect', body)
+  })
 }
+
 </script>
