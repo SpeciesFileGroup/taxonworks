@@ -6,6 +6,12 @@ scope :tasks do
     post 'set_import_settings'
   end
 
+  scope :namespaces do
+    scope :new_namespace, controller: 'tasks/namespaces/new_namespace' do
+      get '/', action: :index, as: 'new_namespace_task'
+    end
+  end
+
   scope :extracts do
     scope :new_extract, controller: 'tasks/extracts/new_extract' do
       get '/', action: :index, as: 'new_extract_task'

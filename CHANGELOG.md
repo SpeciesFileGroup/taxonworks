@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- New namespace task [#1891]
+
 ### Fixed
 
 - Keyboard shortcuts modal reopens when closing help [#2436]
@@ -14,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Increment identifier in CO editor keeps number of leading zeros, changing length of number [#2435]
 - Collecting event lock in comprehensive task
 
+[#1891]: https://github.com/SpeciesFileGroup/taxonworks/issues/1891
 [#2435]: https://github.com/SpeciesFileGroup/taxonworks/issues/2435
 [#2436]: https://github.com/SpeciesFileGroup/taxonworks/issues/2436
 
@@ -137,6 +142,28 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2391]: https://github.com/SpeciesFileGroup/taxonworks/issues/2391
 [#2394]: https://github.com/SpeciesFileGroup/taxonworks/issues/2394
 [#2397]: https://github.com/SpeciesFileGroup/taxonworks/issues/2397
+
+## [0.19.2] - 2021-07-27
+
+### Added
+- OriginRelationship display in Browse collection object [#2362]
+- Accession/Deaccession section in Collection object match task [#2353]
+- Similar objects section in MRC
+- Soft validation in Edit/new matrix task
+- Update download form [#2335]
+- Check and question icons
+
+### Changed
+- Upgraded from Ruby version 2.7.3 to 2.7.4
+- Updated ruby gems
+- Object validation component
+
+### Fixed
+- Autocomplete in Interactive key task
+- Copy and clone option in Matrix Row Coder
+- Edit biological associations form [#2370]
+
+[#2370]: https://github.com/SpeciesFileGroup/taxonworks/issues/2370
 
 ## [0.19.2] - 2021-07-27
 

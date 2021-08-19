@@ -1,7 +1,9 @@
-function objectToParams (URLParams, objectParmas) {
-  Object.keys(objectParmas).forEach(key => {
-    if (objectParmas[key]) {
-      URLParams.set(key, objectParmas[key])
+import { isObject } from './objects.js'
+
+function objectToParams (URLParams, objectParams) {
+  Object.keys(objectParams).forEach(key => {
+    if (objectParams[key]) {
+      URLParams.set(key, objectParams[key])
     } else {
       URLParams.delete(key)
     }
@@ -9,8 +11,15 @@ function objectToParams (URLParams, objectParmas) {
   return URLParams
 }
 
-export default function (url, param, value = undefined) {
+function areEqual (URLParams, objectParams, value) {
+  return isObject(objectParams)
+    ? Object.entries(objectParams).every(([param, paramValue]) => URLParams.get(param) == paramValue)
+    : URLParams.get(objectParams) == value
+}
+
+export default (url, param, value = undefined) => {
   let urlParams = new URLSearchParams(window.location.search)
+  const sameValue = areEqual(urlParams, param, value)
 
   if (typeof param === 'object') {
     urlParams = objectToParams(urlParams, param)
@@ -22,6 +31,13 @@ export default function (url, param, value = undefined) {
     }
   }
   const paramsString = urlParams.toString()
+  const urlString = paramsString.length
+    ? `${url}?${urlParams.toString()}`
+    : url
 
-  history.pushState(null, null, (paramsString.length ? `${url}?${urlParams.toString()}` : url))
+  if (sameValue) {
+    history.replaceState(null, null, urlString)
+  } else {
+    history.pushState(null, null, urlString)
+  }
 }
