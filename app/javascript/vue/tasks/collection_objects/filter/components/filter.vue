@@ -41,7 +41,9 @@
       <identifier-component
         class="margin-large-bottom"
         v-model="params.identifier"/>
-      <preparation-types v-model="params.preparation_type_id"/>
+      <preparation-types
+        class="margin-large-bottom"
+        v-model="params.preparation_type_id"/>
       <biocurations-component
         class="margin-large-bottom"
         v-model="params.biocurations.biocuration_class_ids"/>

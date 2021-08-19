@@ -1,9 +1,0 @@
-FROM mdillon/postgis:10
-
-ENV POSTGRES_HOST_AUTH_METHOD=trust
-
-RUN {\
-  echo "psql -U postgres -c 'CREATE ROLE travis SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;' && \
-        psql -U postgres -c 'CREATE DATABASE travis;' && \
-        psql -U travis -c 'CREATE EXTENSION postgis; CREATE EXTENSION postgis_topology;'"; \
-} > /docker-entrypoint-initdb.d/travis.sh

@@ -17,6 +17,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2435]: https://github.com/SpeciesFileGroup/taxonworks/issues/2435
 [#2436]: https://github.com/SpeciesFileGroup/taxonworks/issues/2436
 
+### Changed
+
+- Removed deprecated Travis CI files.
+
 ## [0.19.5] - 2021-08-18
 
 ### Added
