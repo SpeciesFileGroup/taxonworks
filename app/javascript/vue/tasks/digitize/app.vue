@@ -7,7 +7,7 @@
       <h1>Comprehensive specimen digitization</h1>
       <ul class="context-menu">
         <li>
-          <label>
+          <label v-help.sections.global.reorderFields>
             <input
               type="checkbox"
               v-model="settings.sortable">
