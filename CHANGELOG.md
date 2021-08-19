@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- New namespace task [#1891]
+
 ### Fixed
 
 - Keyboard shortcuts modal reopens when closing help [#2436]
@@ -14,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Increment identifier in CO editor keeps number of leading zeros, changing length of number [#2435]
 - Collecting event lock in comprehensive task
 
+[#1891]: https://github.com/SpeciesFileGroup/taxonworks/issues/1891
 [#2435]: https://github.com/SpeciesFileGroup/taxonworks/issues/2435
 [#2436]: https://github.com/SpeciesFileGroup/taxonworks/issues/2436
 
