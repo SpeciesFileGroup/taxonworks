@@ -38,7 +38,9 @@ export default (model, permitParams) => ({
 
   update: (id, data, config) => AjaxCall('patch', `/${model}/${id}.json`, filterParams(data, permitParams), config),
 
-  where: (params, config) => AjaxCall('get', `/${model}.json`, { params }, config)
+  where: (params, config) => AjaxCall('get', `/${model}.json`, { params }, config),
+
+  autocomplete: (params, config) => AjaxCall('get', `/${model}/autocomplete`, { params }, config)
 })
 
 export {

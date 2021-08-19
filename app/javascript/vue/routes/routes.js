@@ -17,7 +17,8 @@ const RouteNames = {
   ObservationMatricesHub: '/tasks/observation_matrices/observation_matrix_hub',
   PrintLabel: '/tasks/labels/print_labels',
   TypeMaterial: '/tasks/type_material/edit_type_material',
-  NewExtract: '/tasks/extracts/new_extract'
+  NewExtract: '/tasks/extracts/new_extract',
+  NewNamespace: '/tasks/namespaces/new_namespace'
 }
 
 export {
