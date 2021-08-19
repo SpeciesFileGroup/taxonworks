@@ -54,7 +54,7 @@ describe NamespacesController, type: :controller do
   describe 'GET new' do
     it 'assigns a new namespace as @namespace' do
       get :new, params: {}, session: valid_session
-      expect(assigns(:namespace)).to be_a_new(Namespace)
+      expect(response).to redirect_to(new_namespace_task_path)
     end
   end
 

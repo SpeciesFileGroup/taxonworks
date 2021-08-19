@@ -154,6 +154,28 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Object validation component
 
 ### Fixed
+- Autocomplete in Interactive key task
+- Copy and clone option in Matrix Row Coder
+- Edit biological associations form [#2370]
+
+[#2370]: https://github.com/SpeciesFileGroup/taxonworks/issues/2370
+
+## [0.19.2] - 2021-07-27
+
+### Added
+- OriginRelationship display in Browse collection object [#2362]
+- Accession/Deaccession section in Collection object match task [#2353]
+- Similar objects section in MRC
+- Soft validation in Edit/new matrix task
+- Update download form [#2335]
+- Check and question icons
+
+### Changed
+- Upgraded from Ruby version 2.7.3 to 2.7.4
+- Updated ruby gems
+- Object validation component
+
+### Fixed
 - Help plugin
 - Original relationships in Collection object quick form
 - CO Quick forms in comprehensive specimen digitization [#2354]
