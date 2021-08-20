@@ -55,7 +55,7 @@
               <input
                 v-model="settings.softValidations"
                 type="checkbox">
-              Soft validations
+              Validation
             </label>
           </li>
           <li>
@@ -127,6 +127,8 @@ import { ActionNames } from './store/actions/actions'
 import { RouteNames } from 'routes/routes'
 
 export default {
+  name: 'NewObservationMatrix',
+
   components: {
     NewMatrix,
     RowsFixed,

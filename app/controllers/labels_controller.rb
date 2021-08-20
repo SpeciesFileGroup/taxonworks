@@ -32,7 +32,7 @@ class LabelsController < ApplicationController
   end
 
   def list
-    @labels = Label.wher(project_id: sessions_current_project_id).page(params[:page])
+    @labels = Label.where(project_id: sessions_current_project_id).page(params[:page])
   end
 
   # POST /labels

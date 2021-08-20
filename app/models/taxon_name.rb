@@ -1250,13 +1250,16 @@ class TaxonName < ApplicationRecord
     ay = nil
 
     basionym = TaxonNameRelationship.where_subject_is_taxon_name(taxon).
-    with_type_string('TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Basionym').first
+      with_type_string('TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Basionym').first
     if basionym.nil?
       basionym = TaxonNameRelationship.where_object_is_taxon_name(taxon).
         with_type_string('TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Basionym').first
     end
-    b_sub = basionym.nil? ? nil : basionym.subject_taxon_name
 
+    b_sub = basionym.nil? ? nil : basionym.subject_taxon_name
+    if b_sub.nil? && taxon.is_combination?
+      b_sub = taxon.finest_protonym
+    end
 
     misapplication = TaxonNameRelationship.where_subject_is_taxon_name(taxon).
       with_type_string('TaxonNameRelationship::Icn::Unaccepting::Misapplication')

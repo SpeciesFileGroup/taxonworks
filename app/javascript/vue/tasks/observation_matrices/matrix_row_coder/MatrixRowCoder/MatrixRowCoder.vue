@@ -108,12 +108,12 @@ export default {
       const top = document.querySelector(`[data-descriptor-id="${descriptorId}"]`).getBoundingClientRect().top
       window.scrollTo(0, top)
     },
-    observationsCount(descriptorId) {
+    observationsCount (descriptorId) {
       return this.$store.getters[GetterNames.GetObservationsFor](descriptorId).find((item) => {
         return item.id != null
       })
     },
-    loadMatrixRow(matrixRow) {
+    loadMatrixRow (matrixRow) {
       this.$store.commit(MutationNames.ResetState)
       this.setApiValues()
       this.isLoading = true
@@ -133,9 +133,7 @@ export default {
     },
     cloneScorings(args) {
       this.isLoading = true
-      this.$store.dispatch(ActionNames.CreateClone, args).then(() => {
-        this.isLoading = false
-      }, () => {
+      this.$store.dispatch(ActionNames.CreateClone, args).finally(() => {
         this.isLoading = false
       })
     },

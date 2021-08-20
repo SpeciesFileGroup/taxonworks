@@ -25,21 +25,24 @@ export default ({ commit, dispatch, state }, coId) =>
 
       if (coObject.collecting_event_id) {
         promises.push(dispatch(ActionNames.GetCollectionEvent, coObject.collecting_event_id))
+        promises.push(dispatch(ActionNames.LoadGeoreferences, coObject.collecting_event_id))
       }
 
       promises.push(dispatch(ActionNames.GetTypeMaterial, coId))
       promises.push(dispatch(ActionNames.GetCOCitations, coId))
       promises.push(dispatch(ActionNames.GetLabels, coObject.collecting_event_id))
       promises.push(dispatch(ActionNames.GetTaxonDeterminations, coId))
+      promises.push(dispatch(ActionNames.LoadBiologicalAssociations))
       commit(MutationNames.AddCollectionObject, coObject)
 
       Promise.allSettled(promises).then(() => {
-        state.settings.loading = false
+        dispatch(ActionNames.LoadSoftValidations)
         state.settings.lastChange = 0
         resolve()
       })
-    }, error => {
-      state.settings.loading = false
+    }).catch(error => {
       reject(error)
+    }).finally(() => {
+      state.settings.loading = false
     })
   })

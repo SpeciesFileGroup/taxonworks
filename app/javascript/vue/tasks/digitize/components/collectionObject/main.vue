@@ -16,55 +16,46 @@
         </div>
       </template>
       <template #body>
-        <div
-          class="horizontal-left-content align-start flexbox">
-          <div class="separate-right">
-            <catalogue-number/>
+        <div id="collection-object-form">
+          <catalogue-number />
+          <repository-component />
+          <preparation-type />
+          <div class="row-item">
+            <h2 class="horizontal-left-content">
+              Buffered
+              <expand-component
+                class="margin-small-left"
+                v-model="showBuffered"
+                @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showBuffered', $event)"
+              />
+            </h2>
+            <div
+              v-if="showBuffered"
+              class="horizontal-right-content">
+              <buffered-component
+                class="separate-top separate-right"/>
+            </div>
           </div>
-          <div class="separate-left separate-right">
-            <repository-component/>
+          <div class="row-item">
+            <h2 class="horizontal-left-content">
+              Depictions
+              <expand-component
+                class="margin-small-left"
+                v-model="showDepictions"
+                @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showDepictions', $event)"
+              />
+            </h2>
+            <depictions-component
+              v-if="showDepictions"
+              :object-value="collectionObject"
+              :get-depictions="GetCollectionObjectDepictions"
+              object-type="CollectionObject"
+              @create="createDepictionForAll"
+              @delete="removeAllDepictionsByImageId"
+              default-message="Drop images or click here<br> to add collection object figures"
+              action-save="SaveCollectionObject"/>
           </div>
-          <div class="separate-left separate-right">
-            <preparation-type/>
-          </div>
-        </div>
-        <div>
-          <h2 class="horizontal-left-content">
-            Buffered
-            <expand-component
-              class="margin-small-left"
-              v-model="showBuffered"
-              @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showBuffered', $event)"
-            />
-          </h2>
-          <div
-            v-if="showBuffered"
-            class="horizontal-right-content">
-            <buffered-component
-              class="separate-top separate-right"/>
-          </div>
-        </div>
-        <div>
-          <h2 class="horizontal-left-content">
-            Depictions
-            <expand-component
-              class="margin-small-left"
-              v-model="showDepictions"
-              @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showDepictions', $event)"
-            />
-          </h2>
-          <depictions-component
-            v-if="showDepictions"
-            :object-value="collectionObject"
-            :get-depictions="GetCollectionObjectDepictions"
-            object-type="CollectionObject"
-            @create="createDepictionForAll"
-            @delete="removeAllDepictionsByImageId"
-            default-message="Drop images or click here<br> to add collection object figures"
-            action-save="SaveCollectionObject"/>
-        </div>
-        <div>
-          <div class="full_width">
+          <div class="row-item">
             <h2 class="horizontal-left-content">
               Citations
               <expand-component
@@ -73,11 +64,9 @@
                 @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showCitations', $event)"
               />
             </h2>
-            <citation-component
-              v-if="showCitations"
-              class="full_width"/>
+            <citation-component v-if="showCitations" />
           </div>
-          <div class="full_width">
+          <div class="row-item">
             <h2 class="horizontal-left-content">
               Attributes
               <expand-component
@@ -313,3 +302,15 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+  #collection-object-form {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5em;
+  }
+
+  .row-item {
+    grid-column: 1 / 4
+  }
+</style>

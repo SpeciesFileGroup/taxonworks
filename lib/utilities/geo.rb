@@ -565,12 +565,13 @@ To add a new (discovered) symbol:
     # coordinates from the label parsed to elements
     def self.coordinates_regex_from_verbatim_label(text)
       return nil if text.blank?
-      text = ' ' + text + ' '
-      text.gsub("''", '"')
+      text = text.gsub("''", '"')
           .gsub("´´", '"')
           .gsub("ʹʹ", '"')
           .gsub("ʼʼ", '"')
           .gsub("ˊˊ", '"')
+          .squish
+      text = ' ' + text + ' '
 
       coordinates = {}
 

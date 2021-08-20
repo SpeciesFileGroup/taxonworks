@@ -60,7 +60,7 @@ export default {
     },
     timeout: {
       type: Number,
-      default: 0
+      default: 1800000
     },
     language: {
       type: Object,
@@ -159,7 +159,12 @@ export default {
         dictResponseError: this.language.dictResponseError
       })
     } else {
-      this.dropzone = new Dropzone(element, Object.assign({}, { maxFilesize: this.maxFileSizeInMB }, this.dropzoneOptions))
+      const defaultConfiguration = { 
+        maxFilesize: this.maxFileSizeInMB,
+        timeout: this.timeout
+      }
+
+      this.dropzone = new Dropzone(element, Object.assign({}, defaultConfiguration, this.dropzoneOptions))
     }
     // Handle the dropzone events
     const vm = this

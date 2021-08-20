@@ -32,7 +32,7 @@ describe Queries::Person::Autocomplete, type: :model, group: :people do
   end
 
   specify '#normalize 1' do
-    expect(query.normalize('Smith,Sarah')).to eq('Smith, Sarah')
+    expect(query.normalize('Smith, Sarah')).to eq('Smith, Sarah')
   end
 
   specify '#normalize 1' do
@@ -41,8 +41,8 @@ describe Queries::Person::Autocomplete, type: :model, group: :people do
   end
 
   specify '#autocomplete_exact_match 1' do
-    query.terms = 'Smith'
-    expect(query.autocomplete_exact_match.map(&:id).first).to eq(p1.id)
+    query.terms = 'Tártero, Jorgé'
+    expect(query.autocomplete_exact_match.map(&:id).first).to eq(p5.id)
   end
 
   specify '#autocomplete_exact_match 2' do

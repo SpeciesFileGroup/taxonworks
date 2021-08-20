@@ -9,6 +9,7 @@ import { CollectingEvent } from './CollectingEvents'
 import { CollectionObject } from './CollectionObject'
 import { Combination } from './Combination'
 import { CommonName } from './CommonName'
+import { Confidence } from './Confidence'
 import { Container } from './Container'
 import { ContainerItem } from './ContainerItem'
 import { Content } from './Content'
@@ -70,6 +71,7 @@ export {
   CollectionObject,
   Combination,
   CommonName,
+  Confidence,
   Container,
   ContainerItem,
   Content,

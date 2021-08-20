@@ -3,7 +3,8 @@
     class="horizontal-left-content"
     v-if="panelFigures && content">
     <draggable
-      v-model="depictions" :options="{ filter:'.dropzone-card', handle: '.card-handle' }"
+      v-model="depictions"
+      :options="{ filter:'.dropzone-card', handle: '.card-handle' }"
       @start="drag=true"
       @end="drag=false, updatePosition()"
       class="item item1 column-medium flex-wrap-row"
@@ -34,6 +35,12 @@ import { MutationNames } from '../store/mutations/mutations'
 import { Content, Depiction } from 'routes/endpoints'
 
 export default {
+  components: {
+    Draggable: Draggable,
+    Dropzone,
+    FigureItem
+  },
+
   computed: {
     content () {
       return this.$store.getters[GetterNames.GetContentSelected]
@@ -52,11 +59,7 @@ export default {
       }
     }
   },
-  components: {
-    Draggable: Draggable,
-    Dropzone,
-    FigureItem
-  },
+
   data () {
     return {
       drag: false,
@@ -74,7 +77,7 @@ export default {
 
   watch: {
     content (val, oldVal) {
-      if (val != undefined) {
+      if (val) {
         if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
           this.loadContent()
         }

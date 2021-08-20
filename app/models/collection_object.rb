@@ -136,8 +136,15 @@ class CollectionObject < ApplicationRecord
 
   before_validation :assign_type_if_total_or_ranged_lot_category_id_provided
 
-  soft_validate(:sv_missing_accession_fields, set: :missing_accession_fields)
-  soft_validate(:sv_missing_deaccession_fields, set: :missing_deaccession_fields)
+  soft_validate(:sv_missing_accession_fields,
+                set: :missing_accession_fields,
+                name: 'Missing accession fields',
+                description: 'Name or Provider are not selected')
+
+  soft_validate(:sv_missing_deaccession_fields,
+                set: :missing_deaccession_fields,
+                name: 'Missing deaccesson fields',
+                description: 'Date, recipient, or reason are not specified')
 
   scope :with_sequence_name, ->(name) { joins(sequence_join_hack_sql).where(sequences: {name: name}) }
   scope :via_descriptor, ->(descriptor) { joins(sequence_join_hack_sql).where(sequences: {id: descriptor.sequences}) }
@@ -642,6 +649,10 @@ class CollectionObject < ApplicationRecord
     soft_validations.add(:deaccession_reason, 'Reason is is not defined') if self.deaccession_reason.blank? && self.deaccession_recipient && self.deaccessioned_at
   end
 
+  def sv_missing_determination
+    # see biological_collection_object
+  end
+
   def sv_missing_collecting_event
     # see biological_collection_object
   end
@@ -652,6 +663,10 @@ class CollectionObject < ApplicationRecord
 
   def sv_missing_repository
     # WHY? -  see biological_collection_object
+  end
+
+  def sv_missing_biocuration_classification
+    # see biological_collection_object
   end
 
   protected

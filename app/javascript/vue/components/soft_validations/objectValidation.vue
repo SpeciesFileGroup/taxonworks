@@ -85,7 +85,8 @@ export default {
     return {
       validations: [],
       showModal: false,
-      isLoading: false
+      isLoading: false,
+      cancelRequest: undefined
     }
   },
 
@@ -107,15 +108,21 @@ export default {
   methods: {
     getSoftValidation () {
       this.isLoading = true
-      SoftValidation.find(this.globalId).then(response => {
+      SoftValidation.find(this.globalId, { cancelRequest: (c) => { this.cancelRequest = c } }).then(response => {
         this.validations = response.body.soft_validations.map(validation => validation.message)
-        this.isLoading = false
-      })
+      }).catch(_ => {})
+        .finally(() => {
+          this.isLoading = false
+        })
     },
 
     setModalView (value) {
       this.showModal = value
     }
+  },
+
+  beforeUnmount () {
+    this.cancelRequest()
   }
 }
 </script>

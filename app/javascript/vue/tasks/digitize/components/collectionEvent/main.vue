@@ -181,6 +181,7 @@ export default {
     setCollectingEvent (ce) {
       this.$store.commit(MutationNames.SetCollectionEvent, Object.assign(makeCollectingEvent(), ce))
       this.$store.dispatch(ActionNames.GetLabels, ce.id)
+      this.$store.dispatch(ActionNames.LoadGeoreferences, ce.id)
     },
     cleanCollectionEvent () {
       this.$store.dispatch(ActionNames.NewCollectionEvent)

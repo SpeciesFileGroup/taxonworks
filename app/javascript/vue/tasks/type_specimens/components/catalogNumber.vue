@@ -27,8 +27,9 @@
             type="text"
             @input="checkIdentifier"
             v-model="identifier.identifier">
-          <span
-            class="margin-small-left">Namespace and identifier needs to be set to be saved.</span>
+          <span class="margin-small-left">
+            Namespace and identifier needs to be set to be saved.
+          </span>
         </div>
         <span
           v-if="!namespace && identifier && identifier.length"
@@ -49,18 +50,17 @@
 
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import { Identifier, Namespace } from 'routes/endpoints'
-
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 
 export default {
-  components: {
-    SmartSelector
-  },
+  components: { SmartSelector },
+
   computed: {
     collectionObject () {
       return this.$store.getters[GetterNames.GetCollectionObject]
     },
+
     identifier: {
       get () {
         return this.$store.getters[GetterNames.GetIdentifier]
@@ -69,9 +69,11 @@ export default {
         this.$store.commit(MutationNames.SetIdentifier, value)
       }
     },
+
     isIdentifierDataSet () {
       return this.identifier.identifier && this.identifier.namespace_id
     },
+
     settings: {
       get () {
         return this.$store.getters[GetterNames.GetSettings]
@@ -81,6 +83,7 @@ export default {
       }
     }
   },
+
   data () {
     return {
       existingIdentifier: undefined,
@@ -89,10 +92,12 @@ export default {
       namespace: undefined
     }
   },
+
   watch: {
     existingIdentifier (newVal) {
       this.settings.saveIdentifier = !newVal
     },
+
     identifier: {
       handler (newVal, oldVal) {
         if (newVal.namespace_id) {
@@ -108,6 +113,7 @@ export default {
       deep: true
     }
   },
+
   methods: {
     checkIdentifier () {
       if (this.saveRequest) {
@@ -125,10 +131,12 @@ export default {
         }, this.delay)
       }
     },
+
     setNamespace (namespace) {
       this.namespace = namespace
       this.identifier.namespace_id = namespace.id
     },
+
     removeNamespace () {
       this.namespace = undefined
       this.identifier.namespace_id = undefined

@@ -82,17 +82,18 @@ export default {
     this.GetParams()
   },
   methods: {
-    GetParams() {
-      let urlParams = new URLSearchParams(window.location.search)
-      let rowId = urlParams.get('observation_matrix_row_id')
+    GetParams () {
+      const urlParams = new URLSearchParams(window.location.search)
+      const rowId = urlParams.get('observation_matrix_row_id')
 
       if ((/^\d+$/).test(rowId)) {
         this.initializeData.rowId = Number(rowId)
         this.loadMatrix()
       }
     },
-    getMatrix() {
-      let request = new MatrixRowCoderRequest()
+    getMatrix () {
+      const request = new MatrixRowCoderRequest()
+
       request.setApi({
         apiBase: this.initializeData.apiBase,
         apiParams: this.initializeData.apiParams

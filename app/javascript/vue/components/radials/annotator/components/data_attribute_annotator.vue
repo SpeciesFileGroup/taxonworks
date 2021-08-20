@@ -166,10 +166,6 @@ export default {
 <style lang="scss">
 .radial-annotator {
   .data_attribute_annotator {
-    button {
-      min-width: 100px;
-    }
-
     textarea {
       padding-top: 14px;
       padding-bottom: 14px;

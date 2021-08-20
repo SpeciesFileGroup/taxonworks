@@ -41,12 +41,12 @@
               <td>{{ item.dwc_attributes.family }}</td>
               <td>{{ item.dwc_attributes.genus }}</td>
               <td>{{ item.dwc_attributes.scientificName }}</td>
-              <template>
-                <td 
-                  v-if="item.identifier_from_container"
-                  v-html="item.object_tag"/>
-                <td v-else>{{ item.dwc_attributes.catalogNumber}}</td>
-              </template>
+              <td
+                v-if="item.identifier_from_container"
+                v-html="item.object_tag"/>
+              <td v-else>
+                {{ item.dwc_attributes.catalogNumber }}
+              </td>
               <td>{{ item.biocuration }}</td>
               <td>{{ item.dwc_attributes.country }}</td>
               <td>{{ item.dwc_attributes.stateProvince }}</td>

@@ -290,6 +290,7 @@ class ImageMatrix
           (@otu_id_filter_array && @otu_id_filter_array.include?(r_value[:otu_id]))
         h[r_key] = {object: r_value[:object_at_rank],
                     row_id: r_value[:object].id,
+                    otu_id: r_value[:otu_id],
                     depictions: Array.new(descriptors_count) {Array.new},
                     } if h[r_key].nil?
       end

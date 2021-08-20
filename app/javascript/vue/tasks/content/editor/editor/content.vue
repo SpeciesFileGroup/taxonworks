@@ -1,6 +1,6 @@
 <template>
   <div
-    class="panel"
+    class="panel content"
     id="panel-editor">
     <div class="flexbox">
       <div class="left">
@@ -22,8 +22,9 @@
               v-if="otu"
               :otu="otu"
               class="separate-options"
-              :redirect="true"/>
-            <radial-object 
+              redirect
+            />
+            <radial-object
               v-if="otu"
               :global-id="otu.global_id"/>
             <select-topic-otu class="separate-left"/>
@@ -54,13 +55,14 @@
         </div>
         <div class="compare-toolbar middle">
           <button
-            class="button button-close"
+            class="button normal-input button-default"
             @click="compareContent = undefined">Close compare
           </button>
         </div>
         <div
           class="compare"
-          @mouseup="copyCompareContent">{{ compareContent.text }}
+          @mouseup="copyCompareContent">
+          {{ compareContent.text }}
         </div>
       </div>
     </div>
@@ -125,29 +127,7 @@ export default {
     RadialObject,
     OtuButton
   },
-  computed: {
-    topic () {
-      return this.$store.getters[GetterNames.GetTopicSelected]
-    },
-    otu () {
-      return this.$store.getters[GetterNames.GetOtuSelected]
-    },
-    content () {
-      return this.$store.getters[GetterNames.GetContentSelected]
-    },
-    disabled () {
-      return (this.topic === undefined || this.otu === undefined)
-    },
-    citations () {
-      return this.$store.getters[GetterNames.GetCitationsList]
-    },
-    activeCitations () {
-      return this.$store.getters[GetterNames.PanelCitations]
-    },
-    activeFigures () {
-      return this.$store.getters[GetterNames.PanelFigures]
-    }
-  },
+
   data () {
     return {
       autosave: 0,
@@ -167,18 +147,51 @@ export default {
 
     }
   },
+
+  computed: {
+    topic () {
+      return this.$store.getters[GetterNames.GetTopicSelected]
+    },
+
+    otu () {
+      return this.$store.getters[GetterNames.GetOtuSelected]
+    },
+
+    content () {
+      return this.$store.getters[GetterNames.GetContentSelected]
+    },
+
+    disabled () {
+      return !this.topic || !this.otu
+    },
+
+    citations () {
+      return this.$store.getters[GetterNames.GetCitationsList]
+    },
+
+    activeCitations () {
+      return this.$store.getters[GetterNames.PanelCitations]
+    },
+
+    activeFigures () {
+      return this.$store.getters[GetterNames.PanelFigures]
+    }
+  },
+
   watch: {
     otu (val, oldVal) {
       if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
         this.loadContent()
       }
     },
+
     topic (val, oldVal) {
       if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
         this.loadContent()
       }
     }
   },
+
   methods: {
     initContent () {
       return {
@@ -188,20 +201,25 @@ export default {
         text: ''
       }
     },
+
     addClone (text) {
       this.record.content.text += text
       this.autoSave()
     },
+
     showCompare (content) {
       this.compareContent = content
       this.preview = false
     },
+
     ChangeStateFigures () {
       this.$store.commit(MutationNames.ChangeStateFigures)
     },
+
     ChangeStateCitations () {
       this.$store.commit(MutationNames.ChangeStateCitations)
     },
+
     existCitation (citation) {
       return this.$store.getters[GetterNames.GetCitationsBySource](citation.source_id).length
     },
@@ -223,7 +241,6 @@ export default {
       if (this.newRecord) {
         if (!this.record.content.id) {
           Content.find(this.record.content.id).then(response => {
-            this.$store.commit(MutationNames.AddToRecentContents, response.body)
             this.record.content.id = response.body.id
             this.newRecord = false
             this.createCitation()
@@ -253,6 +270,7 @@ export default {
         this.$store.commit(MutationNames.AddCitationToList, response.body)
       })
     },
+
     handleInput () {
       if (this.firstInput) {
         this.firstInput = false
@@ -260,6 +278,7 @@ export default {
         this.autoSave()
       }
     },
+
     resetAutoSave () {
       clearTimeout(this.autosave)
       this.autosave = null
@@ -277,16 +296,13 @@ export default {
     update () {
       this.resetAutoSave()
 
-      if ((this.disabled) || (this.record.content.text === '')) return
+      if (this.disabled || (this.record.content.text === '')) return
 
       if (this.record.content.id) {
-        Content.update(this.record.content.id, this.record).then(response => {
-          this.$store.commit(MutationNames.AddToRecentContents, response.body)
-        })
+        Content.update(this.record.content.id, this.record)
       } else {
         Content.create(this.record).then(response => {
           this.record.content.id = response.body.id
-          this.$store.commit(MutationNames.AddToRecentContents, response.body)
           this.$store.commit(MutationNames.SetContentSelected, response.body)
         })
       }

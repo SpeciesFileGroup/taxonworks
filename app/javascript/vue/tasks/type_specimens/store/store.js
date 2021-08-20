@@ -10,7 +10,6 @@ function makeInitialState () {
     settings: {
       loading: false,
       saving: false,
-      materialTab: 'new',
       saveIdentifier: false
     },
     taxon_name: undefined,

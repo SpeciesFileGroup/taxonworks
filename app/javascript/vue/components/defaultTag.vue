@@ -2,44 +2,23 @@
 <template>
   <div v-if="keyId">
     <tippy
-      v-if="!created"
       animation="scale"
       placement="bottom"
       size="small"
       inertia
       arrow
     >
-      <template #trigger>
-        <p>Create tag: {{ getDefaultElement().firstChild.firstChild.textContent }}.{{ showCount ? `<br>Used already on ${countTag} ${countTag > 200 ? 'or more' : '' } objects` : ''}}</p>
+      <template #content>
+        <p>{{ created ? 'Remove' : 'Create' }} tag: {{ getDefaultElement().firstChild.firstChild.textContent }}.
+          <br>
+          {{ showCount ? `Used already on ${countTag} ${countTag > 200 ? 'or more' : '' } objects` : ''}}
+        </p>
       </template>
-      <v-btn
-        @click="createTag()"
-        circle
-        color="create"
-      >
-        <v-icon
-          color="white"
-          name="label"
-          x-small
-        />
-      </v-btn>
-    </tippy>
 
-    <tippy
-      v-else
-      animation="scale"
-      placement="bottom"
-      size="small"
-      :inertia="true"
-      :arrow="true"
-    >
-      <template #trigger>
-        <p>Remove tag: {{ getDefaultElement().firstChild.firstChild.textContent }}.{{ showCount ? `<br>Used already on ${countTag} ${countTag > 200 ? 'or more' : '' } objects` : ''}}</p>
-      </template>
       <v-btn
-        @click="deleteTag()"
         circle
-        color="destroy"
+        :color="created ? 'destroy' : 'create'"
+        @click="created ? deleteTag() : createTag()"
       >
         <v-icon
           color="white"
@@ -49,14 +28,21 @@
       </v-btn>
     </tippy>
   </div>
-  <div
+  <v-btn
     v-else
-    class="btn-tag circle-button btn-disabled"/>
+    circle
+    color="disabled"
+  >
+    <v-icon
+      color="white"
+      name="label"
+      x-small
+    />
+  </v-btn>
 </template>
 
 <script>
 
-import AjaxCall from 'helpers/ajaxCall'
 import { Tippy } from 'vue-tippy'
 import { Tag } from 'routes/endpoints'
 import VBtn from 'components/ui/VBtn/index.vue'
@@ -135,7 +121,7 @@ export default {
         global_id: this.globalId,
         keyword_id: this.keyId
       }
-      AjaxCall('get', '/tags/exists', { params: params }).then(response => {
+      Tag.exists(params).then(response => {
         this.created = !!response.body
         this.tagItem = response.body
       })

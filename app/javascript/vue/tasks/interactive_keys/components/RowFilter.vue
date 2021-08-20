@@ -93,6 +93,7 @@ import ModalComponent from 'components/ui/Modal'
 import ExtendResult from './extendResult'
 import RanksList from '../const/ranks'
 import ButtonImageMatrix from 'tasks/observation_matrices/dashboard/components/buttonImageMatrix.vue'
+import scrollToTop from '../utils/scrollToTop.js'
 import { MutationNames } from '../store/mutations/mutations'
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
@@ -153,7 +154,7 @@ export default {
 
     LoadObservationMatrix () {
       this.$store.dispatch(ActionNames.LoadObservationMatrix, this.observationMatrix.observation_matrix_id)
-      document.querySelector('.descriptors-view div').scrollIntoView(0)
+      scrollToTop()
     },
 
     selectAll () {

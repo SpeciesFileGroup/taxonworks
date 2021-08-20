@@ -16,18 +16,20 @@ export default ({ commit, dispatch, state }) =>
         promises.push(dispatch(ActionNames.SaveCOCitations))
         promises.push(dispatch(ActionNames.SaveIdentifier, coCreated.id))
         promises.push(dispatch(ActionNames.SaveDeterminations))
+        promises.push(dispatch(ActionNames.SaveBiologicalAssociations))
 
-        Promise.all(promises).then(() => {
-          state.settings.saving = false
+        Promise.allSettled(promises).then(_ => {
           state.settings.lastSave = Date.now()
+
+          dispatch(ActionNames.LoadSoftValidations)
 
           TW.workbench.alert.create('All records were successfully saved.', 'notice')
           resolve(true)
-        }, () => {
+        }).finally(() => {
           state.settings.saving = false
         })
       })
-    }, () => {
+    }).catch(_ => {
       state.settings.saving = false
     })
   })

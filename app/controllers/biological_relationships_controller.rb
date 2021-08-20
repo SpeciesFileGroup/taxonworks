@@ -77,7 +77,7 @@ class BiologicalRelationshipsController < ApplicationController
 
   def search
     if params[:id].blank?
-      redirect_to biological_relationships_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to biological_relationships_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to biological_relationship_path(params[:id])
     end
