@@ -28,11 +28,31 @@ describe 'Elevation', group: :collecting_event do
     }
   end
 
+  context "use cases with precision in elevation_regex_from_verbatim_label" do
+    use_cases = {
+      'text, 1250m +/- 10m. text' => '1250/10/m',
+      'text, 200 feet +/- 15 feet' => '60.96/4.57/m',   # explicit unit conversion of precision
+      'text, 150 ft. +/- 10. text' => '45.72/3.05/m',   # implicit unit conversion
+      'text, 345m ± 15 text' => '345/15/m'
+
+    }
+
+    @entry = 0
+
+    use_cases.each { |co_ordinate, result|
+      @entry += 1
+      specify "case #{@entry}: '#{co_ordinate}' should yield #{result}" do
+        use_case = Utilities::Elevation.elevation_regex_from_verbatim_label(co_ordinate)
+        u = use_case[:minimum_elevation].to_s + '/' + use_case[:elevation_precision].to_s + '/' + use_case[:units].to_s
+
+        expect(u).to eq(result)
+      end
+    }
+  end
+
   context 'invalid verbatim elevation tests' do
     specify "should return empty hash if no numbers found" do
       expect(Utilities::Elevation.elevation_regex_from_verbatim_label("only text here!")).to be_empty
-
     end
-
   end
 end
