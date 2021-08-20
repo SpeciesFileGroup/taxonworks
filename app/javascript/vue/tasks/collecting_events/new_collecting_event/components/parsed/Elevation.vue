@@ -56,7 +56,7 @@ export default {
       units: [
         {
           label: 'Meters',
-          value: undefined
+          value: 'm'
         },
         {
           label: 'Feet',
