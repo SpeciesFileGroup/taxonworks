@@ -36,14 +36,23 @@ module Utilities::Elevation
       elevation[:maximum_elevation] = elevation[:maximum_elevation].gsub(',', '') if elevation[:maximum_elevation]
 
       if elevation[:units].to_s == 'ft'
-        elevation[:minimum_elevation] = (elevation[:minimum_elevation].to_f * 0.3048).round(2).to_s if elevation[:minimum_elevation]
-        elevation[:maximum_elevation] = (elevation[:maximum_elevation].to_f * 0.3048).round(2).to_s if elevation[:maximum_elevation]
-        elevation[:elevation_precision] = (elevation[:elevation_precision].to_f * 0.3048).round(2).to_s if elevation[:elevation_precision]
+        convert_to_meters!(elevation, :minimum_elevation)
+        convert_to_meters!(elevation, :maximum_elevation)
+        convert_to_meters!(elevation, :elevation_precision)
         elevation[:units] = 'm'
       end
       return elevation
     else
       return {}
     end
+  end
+
+  private
+
+  # Converts the value in a hash from feet to meters
+  # @param [Hash] hsh
+  # @param [Symbol] key
+  def self.convert_to_meters!(hsh, key)
+    hsh[key] = (hsh[key].to_f * 0.3048).round(2).to_s if hsh[key]
   end
 end
