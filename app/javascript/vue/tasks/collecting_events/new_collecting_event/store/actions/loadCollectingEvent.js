@@ -10,6 +10,8 @@ export default ({ state, dispatch, commit }, ceId) => {
   CollectingEvent.find(ceId).then(async response => {
     const collectingEvent = response.body
 
+    if (collectingEvent.units === undefined) collectingEvent.units = 'm'
+
     collectingEvent.roles_attributes = collectingEvent.collector_roles || []
     commit(MutationNames.SetCollectingEvent, collectingEvent)
     await dispatch(ActionNames.LoadGeoreferences, ceId)
