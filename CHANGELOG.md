@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - New namespace task [#1891]
 - Taxon determination list lock button in comprehensive task [#2088] [#2443]
+- Add elevation accuracy parsing for verbatim labels [#2448]
 
 ### Changed
 
@@ -28,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Increment identifier in CO editor keeps number of leading zeros, changing length of number [#2435]
 - Collecting event lock in comprehensive task
 - Georeferences are not locked with collecting event [#2449]
+- Elevation not being parsed from labels properly [#2447]
 
 
 [#2088]: https://github.com/SpeciesFileGroup/taxonworks/issues/2088
@@ -36,6 +38,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2436]: https://github.com/SpeciesFileGroup/taxonworks/issues/2436
 [#2442]: https://github.com/SpeciesFileGroup/taxonworks/pull/2442
 [#2443]: https://github.com/SpeciesFileGroup/taxonworks/issues/2443
+[#2447]: https://github.com/SpeciesFileGroup/taxonworks/pull/2447
+[#2448]: https://github.com/SpeciesFileGroup/taxonworks/pull/2448
 [#2449]: https://github.com/SpeciesFileGroup/taxonworks/issues/2443
 
 
