@@ -88,7 +88,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         append_dwc_attributes(dwc_data_attributes['CollectionObject'], attributes[:specimen])
         append_dwc_attributes(dwc_data_attributes['CollectingEvent'], attributes[:collecting_event])
 
-        set_hash_val(attributes[:specimen], :biocuration_classifications,
+        Utilities::Hashes::set_unless_nil(attributes[:specimen], :biocuration_classifications,
           (parse_biocuration_group_fields.dig(:specimen, :biocuration_classifications) || []) +
           (attributes.dig(:specimen, :biocuration_classifications) || [])
         )
@@ -294,10 +294,6 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     result
   end
 
-  def set_hash_val(hsh, key, value)
-    hsh[key] = value unless value.nil?
-  end
-
   # Remove the namespace short name and delimiter from start of string.
   #
   # If the namespace has a verbatim_short_name, that is removed instead of the short_name.
@@ -342,19 +338,19 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     if institution_code
       repository = Repository.find_by(acronym: institution_code)
       raise DarwinCore::InvalidData.new({ "institutionCode": ["Unknown #{institution_code} repository. If valid please register it using '#{institution_code}' as acronym."] }) unless repository
-      set_hash_val(res[:specimen], :repository, repository)
+      Utilities::Hashes::set_unless_nil(res[:specimen], :repository, repository)
     end
 
     # collectionCode: [catalog_number.namespace]
         # collection_code = get_field_value(:collectionCode)
-        # set_hash_val(res[:catalog_number], :namespace, Namespace.create_with({
+        # Utilities::Hashes::set_unless_nil(res[:catalog_number], :namespace, Namespace.create_with({
         #     name: "#{institution_code}-#{collection_code} [CREATED FROM DWC-A IMPORT IN #{project.name} PROJECT]",
         #     delimiter: '-'
         # }).find_or_create_by!(short_name: "#{institution_code}-#{collection_code}")) if collection_code
     namespace_id = self.import_dataset.get_catalog_number_namespace(institution_code, get_field_value(:collectionCode))
     if namespace_id
-      set_hash_val(res[:catalog_number], :namespace, Namespace.find(namespace_id))
-      set_hash_val(res[:catalog_number], :project, self.project)
+      Utilities::Hashes::set_unless_nil(res[:catalog_number], :namespace, Namespace.find(namespace_id))
+      Utilities::Hashes::set_unless_nil(res[:catalog_number], :project, self.project)
     end
 
     # datasetName: [Not mapped]
@@ -384,16 +380,16 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # occurrenceID: [Mapped in import method]
 
     # catalogNumber: [catalog_number.identifier]
-    set_hash_val(res[:catalog_number], :identifier, get_field_value(:catalogNumber))
+    Utilities::Hashes::set_unless_nil(res[:catalog_number], :identifier, get_field_value(:catalogNumber))
 
     # recordNumber: [Not mapped]
 
     # recordedBy: [collecting_event.collectors and collecting_event.verbatim_collectors]
-    set_hash_val(res[:collecting_event], :collectors, (parse_people(:recordedBy) rescue nil))
-    set_hash_val(res[:collecting_event], :verbatim_collectors, get_field_value(:recordedBy))
+    Utilities::Hashes::set_unless_nil(res[:collecting_event], :collectors, (parse_people(:recordedBy) rescue nil))
+    Utilities::Hashes::set_unless_nil(res[:collecting_event], :verbatim_collectors, get_field_value(:recordedBy))
 
     # individualCount: [specimen.total]
-    set_hash_val(res[:specimen], :total, get_field_value(:individualCount) || 1)
+    Utilities::Hashes::set_unless_nil(res[:specimen], :total, get_field_value(:individualCount) || 1)
 
     # organismQuantity: [Not mapped. Check relation with invidivialCount]
 
@@ -414,7 +410,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         sex = sex_biocuration
       end
 
-      set_hash_val(res[:specimen], :biocuration_classifications, [BiocurationClassification.new(biocuration_class: sex_biocuration)])
+      Utilities::Hashes::set_unless_nil(res[:specimen], :biocuration_classifications, [BiocurationClassification.new(biocuration_class: sex_biocuration)])
     end
 
     # lifeStage: [Not mapped]
@@ -440,7 +436,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         "preparations": ["Unknown preparation \"#{preparation_name}\". If it is correct please add it to preparation types and retry."]
       }) unless preparation_type
 
-      set_hash_val(res[:specimen], :preparation_type, preparation_type)
+      Utilities::Hashes::set_unless_nil(res[:specimen], :preparation_type, preparation_type)
     end
 
     Utilities::Hashes::delete_nil_and_empty_hash_values(res)
@@ -459,7 +455,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # occurrenceRemarks: [specimen note]
     note = get_field_value(:occurrenceRemarks)
-    set_hash_val(res[:specimen], :notes_attributes, [{text: note}]) if note
+    Utilities::Hashes::set_unless_nil(res[:specimen], :notes_attributes, [{text: note}]) if note
 
     res
   end
@@ -472,7 +468,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # parentEventID: [Not mapped]
 
     # fieldNumber: verbatim_trip_identifier
-    set_hash_val(collecting_event, :verbatim_trip_identifier, get_field_value(:fieldNumber))
+    Utilities::Hashes::set_unless_nil(collecting_event, :verbatim_trip_identifier, get_field_value(:fieldNumber))
 
     start_date, end_date = parse_iso_date(:eventDate)
 
@@ -506,15 +502,15 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     end
 
     # eventDate | (year+month+day) | (year+startDayOfYear): start_date_*
-    set_hash_val(collecting_event, :start_date_year, year)
-    set_hash_val(collecting_event, :start_date_month, month)
-    set_hash_val(collecting_event, :start_date_day, day)
+    Utilities::Hashes::set_unless_nil(collecting_event, :start_date_year, year)
+    Utilities::Hashes::set_unless_nil(collecting_event, :start_date_month, month)
+    Utilities::Hashes::set_unless_nil(collecting_event, :start_date_day, day)
 
     # eventTime: time_start_*
     /(?<hour>\d+)(:(?<minute>\d+))?(:(?<second>\d+))?/ =~ get_field_value(:eventTime)
-    set_hash_val(collecting_event, :time_start_hour, hour)
-    set_hash_val(collecting_event, :time_start_minute, minute)
-    set_hash_val(collecting_event, :time_start_second, second)
+    Utilities::Hashes::set_unless_nil(collecting_event, :time_start_hour, hour)
+    Utilities::Hashes::set_unless_nil(collecting_event, :time_start_minute, minute)
+    Utilities::Hashes::set_unless_nil(collecting_event, :time_start_second, second)
 
     endDayOfYear = get_integer_field_value(:endDayOfYear)
 
@@ -538,18 +534,18 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       day = end_date&.day
     end
 
-    set_hash_val(collecting_event, :end_date_year, year)
-    set_hash_val(collecting_event, :end_date_month, month)
-    set_hash_val(collecting_event, :end_date_day, day)
+    Utilities::Hashes::set_unless_nil(collecting_event, :end_date_year, year)
+    Utilities::Hashes::set_unless_nil(collecting_event, :end_date_month, month)
+    Utilities::Hashes::set_unless_nil(collecting_event, :end_date_day, day)
 
     # verbatimEventDate: verbatim_date
-    set_hash_val(collecting_event, :verbatim_date, get_field_value(:verbatimEventDate))
+    Utilities::Hashes::set_unless_nil(collecting_event, :verbatim_date, get_field_value(:verbatimEventDate))
 
     # habitat: verbatim_habitat
-    set_hash_val(collecting_event, :verbatim_habitat, get_field_value(:habitat))
+    Utilities::Hashes::set_unless_nil(collecting_event, :verbatim_habitat, get_field_value(:habitat))
 
     # samplingProtocol: verbatim_method
-    set_hash_val(collecting_event, :verbatim_method, get_field_value(:samplingProtocol))
+    Utilities::Hashes::set_unless_nil(collecting_event, :verbatim_method, get_field_value(:samplingProtocol))
 
     # sampleSizeValue: [Not mapped]
 
@@ -558,11 +554,11 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # samplingEffort: [Not mapped]
 
     # fieldNotes: field_notes
-    set_hash_val(collecting_event, :field_notes, get_field_value(:fieldNotes))
+    Utilities::Hashes::set_unless_nil(collecting_event, :field_notes, get_field_value(:fieldNotes))
 
     # eventRemarks: [collecting event note]
     note = get_field_value(:eventRemarks)
-    set_hash_val(collecting_event, :notes_attributes, [{text: note}]) if note
+    Utilities::Hashes::set_unless_nil(collecting_event, :notes_attributes, [{text: note}]) if note
 
     { collecting_event: collecting_event }
   end
@@ -597,16 +593,16 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # locality: [Not mapped]
 
     # verbatimLocality: [verbatim_locality]
-    set_hash_val(collecting_event, :verbatim_locality, get_field_value(:verbatimLocality))
+    Utilities::Hashes::set_unless_nil(collecting_event, :verbatim_locality, get_field_value(:verbatimLocality))
 
     # minimumElevationInMeters: [Not mapped]
-    set_hash_val(collecting_event, :minimum_elevation, get_field_value(:minimumElevationInMeters))
+    Utilities::Hashes::set_unless_nil(collecting_event, :minimum_elevation, get_field_value(:minimumElevationInMeters))
 
     # maximumElevationInMeters: [Not mapped]
-    set_hash_val(collecting_event, :maximum_elevation, get_field_value(:maximumElevationInMeters))
+    Utilities::Hashes::set_unless_nil(collecting_event, :maximum_elevation, get_field_value(:maximumElevationInMeters))
 
     # verbatimElevation: [Not mapped]
-    set_hash_val(collecting_event, :verbatim_elevation, get_field_value(:verbatimElevation))
+    Utilities::Hashes::set_unless_nil(collecting_event, :verbatim_elevation, get_field_value(:verbatimElevation))
 
     # minimumDepthInMeters: [Not mapped. REVISIT]
 
@@ -623,16 +619,16 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # locationRemarks: [Not mapped. REVISIT]
 
     # decimalLatitude: [verbatim_latitude]
-    set_hash_val(collecting_event, :verbatim_latitude, get_field_value(:decimalLatitude))
+    Utilities::Hashes::set_unless_nil(collecting_event, :verbatim_latitude, get_field_value(:decimalLatitude))
 
     # decimalLongitude: [verbatim_longitude]
-    set_hash_val(collecting_event, :verbatim_longitude, get_field_value(:decimalLongitude))
+    Utilities::Hashes::set_unless_nil(collecting_event, :verbatim_longitude, get_field_value(:decimalLongitude))
 
     # geodeticDatum: [verbatim_datum]
-    set_hash_val(collecting_event, :verbatim_datum, get_field_value(:geodeticDatum))
+    Utilities::Hashes::set_unless_nil(collecting_event, :verbatim_datum, get_field_value(:geodeticDatum))
 
     # coordinateUncertaintyInMeters: [verbatim_geolocation_uncertainty]
-    set_hash_val(collecting_event, :verbatim_geolocation_uncertainty, get_field_value(:coordinateUncertaintyInMeters)&.send(:+, 'm'))
+    Utilities::Hashes::set_unless_nil(collecting_event, :verbatim_geolocation_uncertainty, get_field_value(:coordinateUncertaintyInMeters)&.send(:+, 'm'))
 
     # coordinatePrecision: [Not mapped. Fail import if claimed precision is incorrect? Round to precision?]
 
@@ -692,7 +688,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     } if scientific_name && type_scientific_name&.delete_prefix!(scientific_name)&.match(/^\W*$/)
 
     # identifiedBy: determiners of taxon determination
-    set_hash_val(taxon_determination, :determiners, parse_people(:identifiedBy))
+    Utilities::Hashes::set_unless_nil(taxon_determination, :determiners, parse_people(:identifiedBy))
 
     # dateIdentified: {year,month,day}_made of taxon determination
     start_date, end_date = parse_iso_date(:dateIdentified)
@@ -700,9 +696,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     raise DarwinCore::InvalidData.new({ "dateIdentified": ["Date range for taxon determination is not supported."] }) if end_date
 
     if start_date
-      set_hash_val(taxon_determination, :year_made, start_date.year)
-      set_hash_val(taxon_determination, :month_made, start_date.month)
-      set_hash_val(taxon_determination, :day_made, start_date.day)
+      Utilities::Hashes::set_unless_nil(taxon_determination, :year_made, start_date.year)
+      Utilities::Hashes::set_unless_nil(taxon_determination, :month_made, start_date.month)
+      Utilities::Hashes::set_unless_nil(taxon_determination, :day_made, start_date.day)
     end
 
     # identificationReferences: [Not mapped. Can they be imported as citations without breaking semantics?]
