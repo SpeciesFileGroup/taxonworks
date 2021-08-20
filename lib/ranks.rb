@@ -26,7 +26,7 @@ module Ranks
       when :icnp
         ::ICNP_LOOKUP[r]
       when :icvcn
-        ::ICTV_LOOKUP[r]
+        ::ICVCN_LOOKUP[r]
       when :icn
         ::ICN_LOOKUP[r]
       else

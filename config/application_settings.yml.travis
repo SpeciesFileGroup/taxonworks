@@ -1,3 +1,0 @@
-test:
-  selenium:
-    headless: true

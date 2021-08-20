@@ -61,7 +61,7 @@
               :id="i"
               :page="i"
               :scale="scale">
-              <template slot="loading">
+              <template #loading>
                 Loading content here...
               </template>
             </pdf-viewer>
@@ -80,26 +80,33 @@
 
 import PdfViewer from './components/pdfComponent'
 import ResizeHandle from '../resizeHandle'
+import IndexedDBStorage from 'storage/indexddb.js'
+import { blobToArrayBuffer } from 'helpers/files.js'
 
 export default {
+  name: 'PdfSlideout',
+
   components: {
     PdfViewer,
     ResizeHandle
   },
+
   computed: {
-    styleWidth() {
-      return this.width != 400 ? { width: `${this.width}px` } : undefined
+    styleWidth () {
+      return this.width !== 400 ? { width: `${this.width}px` } : undefined
     },
+
     showPage: {
-      get() {
+      get () {
         return this.displayPage
       },
-      set(value) {
+      set (value) {
         this.displayPage = Number(value)
         this.page = Number(value)
       }
     }
   },
+
   data () {
     return {
       displayPage: 1,
@@ -121,144 +128,204 @@ export default {
       channel: new BroadcastChannel('tw-pdf')
     }
   },
-  mounted() {
-    this.eventsListens()
+
+  mounted () {
+    this.eventListeners()
+    this.isOpenInStorage()
+
+    document.addEventListener('turbolinks:load', _ => {
+      document.removeEventListener(this.eventLoadPDFName, this.handlePdfLoadEvent)
+      this.channel.close()
+    })
   },
-  destroyed() {
-    document.removeEventListener("mouseover", this.loadPDF)
+
+  unmounted () {
+    document.removeEventListener('mouseover', this.loadPDF)
     this.channel.close()
+    this.pdfdata?.destroy()
   },
+
   watch: {
-    show(s) {
-      if (s) {
-        this.getPdf()
-      }
-    },
-    page(p) {
-      if(this.noTrigger) {
+    page (p) {
+      if (this.noTrigger) {
         this.noTrigger = false
       }
       else {
-        if(p > 0 && p <= this.numPages) {
-          let containerPosition = Math.abs(document.querySelector('#viewer').getBoundingClientRect().y) + 120
-          if ((containerPosition <= this.findPos(document.getElementById(p)) || p == 1) || (document.getElementById(p + 1) && containerPosition >= this.findPos(document.getElementById(p + 1)))) {
+        if (p > 0 && p <= this.numPages) {
+          const containerPosition = Math.abs(document.querySelector('#viewer').getBoundingClientRect().y) + 120
+
+          if ((containerPosition <= this.findPos(document.getElementById(p)) || p === 1) || (document.getElementById(p + 1) && containerPosition >= this.findPos(document.getElementById(p + 1)))) {
             document.getElementById(p).scrollIntoView()
           }
         }
       }
     },
-    textCopy(newVal) {
+
+    textCopy (newVal) {
       document.querySelector('[data-panel-name="pinboard"]').setAttribute('data-clipboard', newVal)
+    },
+
+    async viewerActive (newVal) {
+      const pdfStored = await IndexedDBStorage.get('Pdf', this.getUserAndProjectIds())
+
+      if (pdfStored) {
+        pdfStored.isOpen = newVal
+        IndexedDBStorage.put('Pdf', pdfStored)
+      }
     }
   },
+
   methods: {
-    setWidth(style) {
+    async isOpenInStorage () {
+      const pdfStored = await IndexedDBStorage.get('Pdf', this.getUserAndProjectIds())
+
+      if (pdfStored?.isOpen) {
+        this.getPdf(pdfStored.url)
+        this.openPanel()
+      }
+    },
+    setWidth (style) {
       this.width = style
     },
-    setPage(value) {
+
+    setPage (value) {
       this.showPage = Number(this.page) + Number(value)
     },
-    setScale(value) {
+
+    setScale (value) {
       this.scale = this.scale + value
     },
-    getPdf (url) {
-      var self = this
 
-      self.documentUrl = url
-      self.pdfdata = PdfViewer.createLoadingTask(url)
+    async getPdf (url) {
+      const pdfStored = await IndexedDBStorage.get('Pdf', this.getUserAndProjectIds())
+      const isAlreadyStored = pdfStored?.url === url
+      const pdfBuffer = isAlreadyStored
+        ? pdfStored.pdfBuffer
+        : await this.downloadPdf(url)
+
+      this.documentUrl = url
       this.loadingPdf = true
-      self.pdfdata.then(pdf => {
+
+      if (!isAlreadyStored) {
+        this.savePdfInStorage(url, pdfBuffer, true)
+      }
+
+      this.pdfdata = PdfViewer.createLoadingTask({ data: pdfBuffer })
+
+      this.pdfdata.then(pdf => {
         this.loadingPdf = false
-        self.numPages = pdf.numPages
+        this.numPages = pdf.numPages
         document.querySelector('#pdfViewerContainer').onscroll = (event) => {
           changePage(event)
         }
 
-        function changePage (event) {
-          var i = 1
-          var count = Number(pdf.numPages)
-          if(count > 1) {
-            let containerPosition = Math.abs(document.querySelector('#viewer').getBoundingClientRect().y) + 120
+        const changePage = (event) => {
+          const count = Number(pdf.numPages)
+          let i = 1
+
+          if (count > 1) {
+            const containerPosition = Math.abs(document.querySelector('#viewer').getBoundingClientRect().y) + 120
 
             do {
-              if (containerPosition >= self.findPos(document.getElementById(i)) && containerPosition <= self.findPos(document.getElementById(i + 1))) {
-                self.displayPage = i
+              if (containerPosition >= this.findPos(document.getElementById(i)) && containerPosition <= this.findPos(document.getElementById(i + 1))) {
+                this.displayPage = i
               }
               i++
             } while (i < count)
-            if (containerPosition >= self.findPos(document.getElementById(i))) {
-              self.displayPage = i
+            if (containerPosition >= this.findPos(document.getElementById(i))) {
+              this.displayPage = i
             }
           }
         }
       })
     },
+
     findPos (obj) {
       return obj.offsetTop
     },
+
+    getUserAndProjectIds () {
+      const userId = document.querySelector('[data-current-user-id]').getAttribute('data-current-user-id')
+      const projectId = document.querySelector('[data-project-id]').getAttribute('data-project-id')
+
+      return `${userId}-${projectId}`
+    },
+
+    savePdfInStorage (url, pdfBuffer, isOpen) {
+      IndexedDBStorage.put('Pdf', {
+        userAndProjectId: this.getUserAndProjectIds(),
+        url,
+        pdfBuffer,
+        isOpen
+      })
+    },
+
     openPanel () {
       this.viewerActive = true
-      document.querySelector('[data-panel-name="pinboard"]').classList.remove("slice-panel-show")
-      document.querySelector('[data-panel-name="pinboard"]').classList.add("slice-panel-hide")
-      document.querySelector('[data-panel-name="pdfviewer"]').classList.remove("slice-panel-hide")
-      document.querySelector('[data-panel-name="pdfviewer"]').classList.add("slice-panel-show")
+      TW.views.shared.slideout.closePanel('pinboard')
+      TW.views.shared.slideout.openPanel('pdfviewer')
     },
-    eventsListens () {
-      const that = this
 
+    eventListeners () {
       this.channel.onmessage = (event) => {
         this.loadPDF({ detail: event.data })
         this.openPanel()
       }
 
-      document.addEventListener(this.eventLoadPDFName, (event) => {
-        const { detail } = event
-        this.channel.postMessage(detail)
-        this.loadPDF(event)
-        this.openPanel()
-      })
+      document.addEventListener(this.eventLoadPDFName, this.handlePdfLoadEvent)
 
-      document.addEventListener('onSlidePanelClose', (event) => {
-        if(event.detail.name == 'pdfviewer') {
+      document.addEventListener('onSlidePanelClose', event => {
+        if (event.detail.name === 'pdfviewer') {
           this.setWidth(400)
-          that.viewerActive = false
+          this.viewerActive = false
         }
       })
 
-      document.addEventListener('onSlidePanelOpen', (event) => {
-        if(event.detail.name == 'pdfviewer')
-          that.viewerActive = true
+      document.addEventListener('onSlidePanelOpen', event => {
+        if (event.detail.name === 'pdfviewer') {
+          this.viewerActive = true
+        }
       })
-
 
       // Events
       //Copy text to input or textarea
 
-      document.body.addEventListener("click", function (event) {
-        let name = event.target.nodeName
-        if (name == "INPUT" || name == "TEXTAREA") {
-          if (that.viewerActive) {
+      document.body.addEventListener('click', event => {
+        const name = event.target.nodeName
+
+        if (name === 'INPUT' || name === 'TEXTAREA') {
+          if (this.viewerActive) {
             if (event.target.selectionStart === event.target.selectionEnd) {
-              that.cursorPosition = event.target.selectionStart;
+              this.cursorPosition = event.target.selectionStart
             }
           }
         }
       })
 
       document.querySelector('#viewer').addEventListener('mouseup', () => {
-        that.textCopy = that.getSelectedText()
+        this.textCopy = this.getSelectedText()
       })
 
-      document.addEventListener('dblclick', (event) => {
-        let name = event.target.nodeName
-        if (name == "INPUT" || name == "TEXTAREA") {
-          if (that.viewerActive) {
-            let inputText = event.target.value
-            event.target.value = insertStringInPosition(inputText, that.textCopy, that.cursorPosition);
+      document.addEventListener('dblclick', event => {
+        const name = event.target.nodeName
+
+        if (name === 'INPUT' || name === 'TEXTAREA') {
+          if (this.viewerActive) {
+            const inputText = event.target.value
+            event.target.value = insertStringInPosition(inputText, this.textCopy, this.cursorPosition);
           }
         }
       })
     },
+
+    handlePdfLoadEvent (event) {
+      const { detail } = event
+
+      this.channel.postMessage(detail)
+      this.loadPDF(event)
+      this.openPanel()
+    },
+
     getSelectedText () {
       if (window.getSelection) {
         return window.getSelection().toString()
@@ -267,6 +334,7 @@ export default {
       }
       return ''
     },
+
     loadPDF (event) {
       if (this.loadingPdf) return
       this.showPage = 1
@@ -276,8 +344,22 @@ export default {
       this.$nextTick(() => {
         this.getPdf(event.detail.url)
       })
+    },
+
+    downloadPdf (url) {
+      return new Promise((resolve, reject) => {
+        fetch(url)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok')
+            }
+            return response.blob()
+          })
+          .then(async blobObject => {
+            resolve(await blobToArrayBuffer(blobObject))
+          })
+      })
     }
   }
 }
 </script>
-

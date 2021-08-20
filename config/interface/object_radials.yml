@@ -35,6 +35,7 @@ Combination:
     - otu_distribution_data_task
   edit: new_combination_task
   new: new_combination_task
+  home: browse_nomenclature_task
   destroyed_redirect: browse_nomenclature_task 
   config:
     recent: true
@@ -51,6 +52,7 @@ CollectionObject:
     recent: true
   edit: comprehensive_collection_object_task
   new: comprehensive_collection_object_task
+  home: comprehensive_collection_object_task
 CollectingEvent:
   tasks:
     - browse_collecting_events_task
@@ -61,11 +63,13 @@ CollectingEvent:
     recent: true
   edit: new_collecting_event_task
   new: new_collecting_event_task
+  home: new_collecting_event_task
 Descriptor:
   tasks:
     - observation_matrices_hub_task
   new: new_descriptor_task
   edit: new_descriptor_task
+  home: new_descriptor_task
 Document:
   tasks:
     - gnfinder_task
@@ -105,6 +109,7 @@ Otu:
     - cite_otus_task
     - index_browse_asserted_distributions_task 
     - otu_distribution_data_task
+  home: browse_otus_task
   config:
     recent: true
 Person:
@@ -121,6 +126,13 @@ Source:
     - gnfinder_task
   new: new_source_task
   edit: new_source_task
+  home: new_source_task
+  config:
+    recent: true
+TaxonDetermination:
+  tasks:
+    - comprehensive_collection_object_task
+  home: comprehensive_collection_object_task
   config:
     recent: true
 TaxonName:
@@ -137,5 +149,6 @@ TaxonName:
     - asserted_distributions_basic_endemism_task
   edit: new_taxon_name_task
   new: new_taxon_name_task
+  home: browse_nomenclature_task
   config:
     recent: true

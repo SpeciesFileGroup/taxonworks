@@ -19,10 +19,11 @@ import { GetterNames } from '../../store/getters/getters'
 
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Number,
       default: undefined
     },
+
     languageList: {
       type: Array,
       default: () => []
@@ -32,10 +33,10 @@ export default {
   computed: {
     languageSelected: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     },
 

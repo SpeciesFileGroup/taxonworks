@@ -1,4 +1,5 @@
 import setGeographicArea from './setGeographicArea'
+import setGeoreferences from './setGeoreferences'
 import setSubsequentialUses from './setSubsequentialUses'
 
 import setLocked from './setLocked'
@@ -7,6 +8,7 @@ import lockAll from './lockAll'
 import setSettings from './setSettings'
 import setContainer from './Container/SetContainer'
 import addContainerItem from './Container/AddContainerItem'
+import removeContainerItem from './Container/removeContainerItem'
 import setPreferences from './setPreferences'
 import setPreparationType from './setPreparationType'
 
@@ -23,6 +25,7 @@ import removeBiocuration from './removeBiocuration'
 import setLabel from './Label/setLabel'
 import setLabelText from './Label/setLabelText'
 import setLabelTotal from './Label/setLabelTotal'
+import setComponentsOrder from './setComponentsOrder'
 
 import setCollectionObjects from './CollectionObject/setCollectionObjects'
 import setCollectionObjectDataAttributes from './CollectionObject/setCollectionObjectDataAttributes'
@@ -43,6 +46,7 @@ import setCollectionObjectPreparationId from './CollectionObject/setCollectionOb
 import setCollectionObjectRangeLotId from './CollectionObject/setCollectionObjectRangeLotId'
 import setCollectionObjectRepositoryId from './CollectionObject/setCollectionObjectRepositoryId'
 import setCollectionObjectTotal from './CollectionObject/setCollectionObjectTotal'
+import setCOCitations from './setCOCitations'
 
 import setCollectionEvent from './CollectionEvent/setCollectionEvent'
 import setCollectionEventDataAttributes from './CollectionEvent/setCollectionEventDataAttributes'
@@ -116,21 +120,28 @@ import setTaxonDeterminationMonth from './TaxonDetermination/setTaxonDeterminati
 import setTaxonDeterminationDay from './TaxonDetermination/setTaxonDeterminationDay'
 import setTaxonDeterminationRoles from './TaxonDetermination/setTaxonDeterminationRoles'
 
+import setSoftValidations from './setSoftValidations'
+import setBiologicalAssociations from './setBiologicalAssociations'
+
 import setTmpDataOtu from './tmpData/setTmpDataOtu'
 import setProjectPreferences from './setProjectPreferences'
 
 const MutationNames = {
 
+  SetBiologicalAssociations: 'setBiologicalAssociations',
+
   SetGeographicArea: 'setGeographicArea',
+  SetGeoreferences: 'setGeoreferences',
   SetTmpDataOtu: 'setTmpDataOtu',
   SetSubsequentialUses: 'setSubsequentialUses',
 
   SetLocked: 'setLocked',
   LockAll: 'lockAll',
   SetSettings: 'setSettings',
-  
+
   SetContainer: 'setContainer',
   AddContainerItem: 'addContainerItem',
+  RemoveContainerItem: 'removeContainerItem',
   SetPreferences: 'setPreferences',
 
   ResetStore: 'resetStore',
@@ -220,6 +231,7 @@ const MutationNames = {
   SetCollectionEventRoles: 'setCollectionEventRoles',
   SetCollectionEventIdentifier: 'setCollectionEventIdentifier',
 
+  SetCOCitations: 'setCOCitations',
   SetCollectionObjectDataAttributes: 'setCollectionObjectDataAttributes',
   SetCollectionObjectTypes: 'setCollectionObjectTypes',
   SetCollectionObject: 'setCollectionObject',
@@ -239,12 +251,17 @@ const MutationNames = {
   SetCollectionObjectRangeLotId: 'setCollectionObjectRangeLotId',
   SetCollectionObjectRepositoryId: 'setCollectionObjectRepositoryId',
   SetCollectionObjectTotal: 'setCollectionObjectTotal',
-  SetProjectPreferences: 'setProjectPreferences'
+  SetProjectPreferences: 'setProjectPreferences',
+  SetComponentsOrder: 'setComponentsOrder',
+
+  SetSoftValidations: 'setSoftValidations'
 }
 
 const MutationFunctions = {
+  [MutationNames.SetBiologicalAssociations]: setBiologicalAssociations,
   [MutationNames.SetProjectPreferences]: setProjectPreferences,
   [MutationNames.SetGeographicArea]: setGeographicArea,
+  [MutationNames.SetGeoreferences]: setGeoreferences,
   [MutationNames.SetTmpDataOtu]: setTmpDataOtu,
   [MutationNames.SetSubsequentialUses]: setSubsequentialUses,
 
@@ -254,6 +271,7 @@ const MutationFunctions = {
 
   [MutationNames.SetContainer]: setContainer,
   [MutationNames.AddContainerItem]: addContainerItem,
+  [MutationNames.RemoveContainerItem]: removeContainerItem,
   [MutationNames.SetPreferences]: setPreferences,
 
   [MutationNames.SetPreparationType]: setPreparationType,
@@ -338,6 +356,7 @@ const MutationFunctions = {
   [MutationNames.SetCollectionEventRoles]: setCollectionEventRoles,
   [MutationNames.SetCollectionEventIdentifier]: setCollectionEventIdentifier,
 
+  [MutationNames.SetCOCitations]: setCOCitations,
   [MutationNames.SetCollectionObject]: setCollectionObject,
   [MutationNames.SetCollectionObjectDataAttributes]: setCollectionObjectDataAttributes,
   [MutationNames.SetCollectionObjectTypes]: setCollectionObjectTypes,
@@ -357,6 +376,8 @@ const MutationFunctions = {
   [MutationNames.SetCollectionObjectRangeLotId]: setCollectionObjectRangeLotId,
   [MutationNames.SetCollectionObjectRepositoryId]: setCollectionObjectRepositoryId,
   [MutationNames.SetCollectionObjectTotal]: setCollectionObjectTotal,
+  [MutationNames.SetComponentsOrder]: setComponentsOrder,
+  [MutationNames.SetSoftValidations]: setSoftValidations,
 
   [MutationNames.SetLabel]: setLabel,
   [MutationNames.SetLabelText]: setLabelText,

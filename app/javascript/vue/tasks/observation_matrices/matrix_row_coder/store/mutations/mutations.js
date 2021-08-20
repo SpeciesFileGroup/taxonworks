@@ -1,3 +1,4 @@
+import setDescription from './setDescription'
 import setDescriptors from './setDescriptors'
 import setFreeTextValue from './setFreeTextValue'
 import setTaxonTitle from './setTaxonTitle'
@@ -34,6 +35,7 @@ import resetState from './resetState'
 import setUnits from './setUnits'
 
 export const MutationNames = {
+  SetDescription: 'setDescription',
   SetDescriptors: 'setDescriptors',
   SetTaxonTitle: 'setTaxonTitle',
   SetTaxonId: 'setTaxonId',
@@ -72,6 +74,7 @@ export const MutationNames = {
 
 export const MutationFunctions = {
   [MutationNames.ResetState]: resetState,
+  [MutationNames.SetDescription]: setDescription,
   [MutationNames.SetDescriptors]: setDescriptors,
   [MutationNames.SetTaxonTitle]: setTaxonTitle,
   [MutationNames.SetTaxonId]: setTaxonId,

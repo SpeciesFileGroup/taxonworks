@@ -2,10 +2,9 @@
   <button
     type="button"
     ref="saveButton"
-    :disabled="!validateCreate()"
-    v-shortkey="[OSKey(), 's']"
-    @shortkey="save()"
     class="button normal-input button-submit create-new-combination"
+    v-hotkey="shortcuts"
+    :disabled="!validateCreate()"
     @click="save()">
     {{ (newCombination.hasOwnProperty('id') ? 'Update' : 'Create') }}
   </button>
@@ -13,7 +12,7 @@
 <script>
 
 import { Combination } from 'routes/endpoints'
-import OSKey from 'helpers/getMacKey'
+import platformKey from 'helpers/getPlatformKey'
 
 export default {
   props: {
@@ -22,8 +21,23 @@ export default {
       required: true
     }
   },
+
+  emits: [
+    'processing',
+    'save',
+    'success'
+  ],
+
+  computed: {
+    shortcuts () {
+      const keys = {}
+      keys[`${platformKey()}+s`] = this.save
+
+      return keys
+    }
+  },
+
   methods: {
-    OSKey,
 
     validateCreate () {
       return this.newCombination.protonyms.genus

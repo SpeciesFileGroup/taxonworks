@@ -78,6 +78,7 @@ import LanguageComponent from './Filters/Language'
 import EliminateUnknowns from './Filters/EliminateUnknowns'
 import RefreshComponent from './Filters/Refresh'
 import KeywordsComponent from './Filters/Keywords'
+import scrollToTop from '../utils/scrollToTop.js'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
@@ -94,6 +95,7 @@ export default {
     SortingComponent,
     RefreshComponent
   },
+
   computed: {
     observationMatrix () {
       return this.$store.getters[GetterNames.GetObservationMatrix]
@@ -125,6 +127,7 @@ export default {
       }
     }
   },
+
   data () {
     return {
       layouts: {
@@ -133,27 +136,31 @@ export default {
       }
     }
   },
+
   methods: {
     setLayout (layout) {
       this.settings.gridLayout = this.layouts[layout]
     },
+
     loadMatrix (id) {
-      if (!this.observationMatrix || id !== this.observationMatrix.observation_matrix_id) {
+      if (!this.observationMatrix || id !== this.observationMatrix?.observation_matrix_id) {
         SetParam('/tasks/observation_matrices/interactive_key', 'observation_matrix_id', id)
       }
       this.$store.commit(MutationNames.SetDescriptorsFilter, {})
       this.$store.dispatch(ActionNames.LoadObservationMatrix, id)
-      document.querySelector('.descriptors-view div').scrollIntoView(0)
+      scrollToTop()
     },
+
     proceed (id) {
       this.$store.dispatch(ActionNames.LoadObservationMatrix, id)
-      document.querySelector('.descriptors-view div').scrollIntoView(0)
+      scrollToTop()
     },
+
     resetView () {
       this.$store.commit(MutationNames.SetDescriptorsFilter, {})
       this.$store.commit(MutationNames.SetRowFilter, [])
       this.$store.dispatch(ActionNames.LoadObservationMatrix, this.observationMatrix.observation_matrix_id)
-      document.querySelector('.descriptors-view div').scrollIntoView(0)
+      scrollToTop()
     }
   }
 }

@@ -179,6 +179,9 @@ end
 
 resources :contents do
   concerns [:data_routes]
+  collection do
+    get :select_options, defaults: {format: :json}
+  end
 end
 
 resources :controlled_vocabulary_terms do
@@ -374,6 +377,7 @@ resources :namespaces do
 end
 
 match 'observation_matrices/row/', to: 'observation_matrices#row', via: :get, method: :json
+match 'observation_matrices/column/', to: 'observation_matrices#column', via: :get, method: :json
 resources :observation_matrices do
   concerns [:data_routes]
 
@@ -386,6 +390,7 @@ resources :observation_matrices do
     get :nexml, defaults: {format: :rdf}
     get :tnt
     get :nexus
+    get :otu_contents
     #  get :csv
     #  get :biom
 
@@ -393,6 +398,9 @@ resources :observation_matrices do
     get :reorder_columns, defaults: {format: :json}
   end
 
+  collection do
+    get :otus_used_in_matrices, {format: :json}
+  end
 end
 
 resources :observation_matrix_columns, only: [:index, :show] do

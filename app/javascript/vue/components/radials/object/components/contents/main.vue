@@ -1,53 +1,68 @@
 <template>
   <div class="content_annotator">
+    <h3
+      v-if="content.id"
+      v-html="content.object_tag"/>
+    <h3 v-else>New record</h3>
     <smart-selector
-      name="topic"
-      :options="Object.keys(options)"
-      v-model="view"/>
-    <div class="separate-bottom">
-      <template v-if="options['all'] && options['all'].length">
-        <topic-item
-          v-for="item in options[view]"
-          v-if="!topicAlreadyCreated(item)"
-          :class="{ 'button-data' : content.topic_id != item.id }"
-          :key="item.id"
-          :topic="item"
-          @select="content.topic_id = $event.id"/>
-      </template>
-      <template v-else>
+      class="full_width margin-small-bottom"
+      ref="smartSelector"
+      :autocomplete-params="{'type[]' : 'Topic'}"
+      get-url="/controlled_vocabulary_terms/"
+      model="keywords"
+      target="Otu"
+      klass="Otu"
+      :add-tabs="['all']"
+      pin-section="Topic"
+      buttons
+      inline
+      label="name"
+      pin-type="BiologicalRelationship"
+      @selected="setTopic"
+    >
+      <template #all>
         <a
+          v-if="!allTopics.length"
           target="blank"
           href="/controlled_vocabulary_terms/new">
-          Create a topic first. 
+          Create a topic first.
         </a>
+        <topic-item
+          v-for="item in topicsAvailable"
+          :key="item.id"
+          :topic="item"
+          :class="{ 'btn-data': content.topic_id !== item.id }"
+          @select="setTopic"
+        />
       </template>
-    </div>
-    <div class="separate-bottom">
-      <textarea
-        v-model="content.text"
-        placeholder="Text..."/>
-    </div>
-    <div>
+    </smart-selector>
+    <markdown-editor
+      v-model="content.text"
+      :configs="config"
+    />
+    <div class="margin-small-top margin-small-bottom">
       <button
         type="button"
         :disabled="!validate"
-        class="button normal-input button-submit"
-        @click="createNew">
-        Create
+        class="button normal-input button-submit margin-small-right"
+        @click="saveContent">
+        Save
+      </button>
+      <button
+        type="button"
+        class="button normal-input button-default"
+        @click="setContent(newContent())">
+        New
       </button>
     </div>
     <table-list
       :header="['Text', 'Topic', '']"
       :attributes="['text', ['topic', 'name']]"
       :list="shortList"
+      edit
       @delete="removeItem"
-      class="list">
-      <template v-slot:options="slotProps">
-        <a
-          class="circle-button btn-edit"
-          :href="`/tasks/content/editor/index?otu_id=${slotProps.item.otu_id}&topic_id=${slotProps.item.topic_id}`"></a>
-      </template>
-    </table-list>
+      @edit="setContent"
+      class="list"/>
   </div>
 </template>
 
@@ -55,47 +70,74 @@
 
 import CRUD from '../../request/crud.js'
 import annotatorExtend from '../../components/annotatorExtend.js'
-import SmartSelector from 'components/switch.vue'
 import TopicItem from '../citations/topicItem.vue'
 import TableList from 'components/table_list.vue'
+import MarkdownEditor from 'components/markdown-editor.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 import { shorten } from 'helpers/strings.js'
+import { ControlledVocabularyTerm, Content } from 'routes/endpoints'
 
 export default {
+  name: 'QuickContentForm',
+
   mixins: [CRUD, annotatorExtend],
+
   components: {
     SmartSelector,
+    MarkdownEditor,
     TopicItem,
     TableList
   },
-  computed: {
-    validate () {
-      return (this.content.text.length > 1 && this.content.topic_id != undefined)
-    },
-    shortList () {
-      return this.list.map(content => {
-        content.text = shorten(content.text, 150)
-        return content
-      })
-    }
-  },
-  data() {
+
+  data () {
     return {
       view: '',
       options: [],
-      content: this.newContent()
+      content: this.newContent(),
+      config: {
+        status: false,
+        spellChecker: false
+      },
+      allTopics: []
     }
   },
-  mounted() {
-    this.loadTabList('Topic')
+
+  computed: {
+    validate () {
+      return this.content.text.length > 1 && this.content.topic_id
+    },
+
+    shortList () {
+      return this.list.map(content => ({
+        ...content,
+        text: shorten(content.text, 150)
+      }))
+    },
+
+    topicsAvailable () {
+      return this.allTopics.filter(topic => !this.list.find(item => item.topic_id === topic.id))
+    }
   },
+
+  async created () {
+    this.allTopics = (await ControlledVocabularyTerm.where({ type: ['Topic'] })).body
+  },
+
   methods: {
-    createNew() {
-      this.create('/contents', { content: this.content }).then(response => {
-        this.list.push(response.body)
+    saveContent () {
+      const content = this.content
+      const saveRecord = this.content.id
+        ? Content.update(content.id, { content })
+        : Content.create({ content })
+
+      saveRecord.then(response => {
+        this.addRecord(response.body)
+        TW.workbench.alert.create('Content was successfully saved.', 'notice')
         this.content = this.newContent()
       })
     },
-    newContent() {
+
+    newContent () {
       return {
         text: '',
         topic_id: undefined,
@@ -103,55 +145,24 @@ export default {
         type: this.objectType
       }
     },
-    topicAlreadyCreated(topic) {
-      return this.list.find(item => { return topic.id == item.topic_id })
+
+    setTopic (topic) {
+      this.content.topic_id = topic.id
     },
-    setViewWithTopics(listView) {
-      let keys = Object.keys(listView)
-      let that = this
 
-      keys.some(function(key) {
-        if(listView[key].find(item => { return !that.topicAlreadyCreated(item) })) {
-          that.view = key
-          return true
-        }
-      })
+    addRecord (record) {
+      const index = this.list.findIndex(item => item.id === record.id)
+
+      if (index > -1) {
+        this.list[index] = record
+      } else {
+        this.list.push(record)
+      }
     },
-    loadTabList (type) {
-      let tabList
-      let allList
-      let promises = []
-      let that = this
 
-      promises.push(this.getList(`/topics/select_options?klass=${this.objectType}&target=Citation`).then(response => {
-        tabList = response.body
-      }))
-      promises.push(this.getList(`/controlled_vocabulary_terms.json?type[]=${type}`).then(response => {
-        allList = response.body
-      }))
-
-      Promise.all(promises).then(() => {
-        tabList['all'] = allList
-        Object.keys(tabList).forEach(key => (!tabList[key].length) && delete tabList[key])
-        that.options = tabList
-        that.setViewWithTopics(tabList);
-      })
+    setContent (content) {
+      this.content = content
     }
   }
 }
 </script>
-<style lang="scss">
-.radial-annotator {
-  .content_annotator {
-		button {
-			min-width: 100px;
-		}
-		textarea {
-			padding-top: 14px;
-			padding-bottom: 14px;
-			width: 100%;
-			height: 100px;
-		}
-  }
-}
-</style>

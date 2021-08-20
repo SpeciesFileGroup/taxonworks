@@ -1,9 +1,9 @@
-import { RemoveColumn } from '../../request/resources'
+import { ObservationMatrixColumnItem } from 'routes/endpoints'
 import ActionNames from '../actions/actionNames'
 
-export default function ({ commit, state, dispatch }, id) {
-  return new Promise((resolve, reject) => {
-    return RemoveColumn(id).then(response => {
+export default ({ state, dispatch }, id) =>
+  new Promise((resolve, reject) => {
+    return ObservationMatrixColumnItem.destroy(id).then(response => {
       dispatch(ActionNames.GetMatrixObservationColumns, state.matrix.id)
       dispatch(ActionNames.GetMatrixObservationColumnsDynamic, state.matrix.id)
       return resolve(response)
@@ -11,4 +11,3 @@ export default function ({ commit, state, dispatch }, id) {
       return reject(response)
     })
   })
-}

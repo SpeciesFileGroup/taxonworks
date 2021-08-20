@@ -37,32 +37,38 @@
 <script>
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true
     },
+
     collectingEvent: {
       type: Object,
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     label: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     },
+
     isEmpty () {
       return !this.collectingEvent?.verbatim_label
     }
   },
+
   methods: {
     copyLabel () {
       this.label.text = this.collectingEvent.verbatim_label
-    },
+    }
   }
 }
 </script>

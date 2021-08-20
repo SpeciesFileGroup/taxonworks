@@ -1,4 +1,5 @@
 const ActionNames = {
+  RequestDescription: 'requestDescription',
   RequestMatrixRow: 'requestMatrixRow',
   RequestConfidenceLevels: 'requestConfidenceLevels',
   RequestObservations: 'requestObservation',

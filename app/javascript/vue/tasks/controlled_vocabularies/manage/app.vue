@@ -34,13 +34,13 @@
               <label>Definition</label>
               <textarea
                 class="full_width"
-                placeholder="Definition (minimum length 20 characters)"
+                :placeholder="`Definition (minimum length ${definitionLength} characters)`"
                 rows="5"
-                v-model="controlled_vocabulary_term.definition">
-              </textarea>
+                v-model="controlled_vocabulary_term.definition"
+              />
             </div>
             <div class="field">
-              <label>CSS Color</label>
+              <label>Label color</label>
               <input
                 type="color"
                 v-model="controlled_vocabulary_term.css_color">
@@ -109,7 +109,7 @@ export default {
     },
 
     validateData () {
-      return (this.controlled_vocabulary_term.name.length > 0 && this.controlled_vocabulary_term.definition.length >= 20)
+      return (this.controlled_vocabulary_term.name.length > 0 && this.controlled_vocabulary_term.definition.length >= this.definitionLength)
     },
 
     globalId () {
@@ -123,7 +123,8 @@ export default {
       controlled_vocabulary_term: CONTROLLED_VOCABULARY_TERM(),
       isSaving: false,
       view: 'Keyword',
-      linkFor: ['BiocurationClass', 'BiocurationGroup']
+      linkFor: ['BiocurationClass', 'BiocurationGroup'],
+      definitionLength: 20
     }
   },
 

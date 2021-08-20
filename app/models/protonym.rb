@@ -104,7 +104,7 @@ class Protonym < TaxonName
     end
   end
 
-  # TODO: this is not really needed
+  # TODO: remove
   scope :named, -> (name) {where(name: name)}
 
   scope :with_name_in_array, -> (array) {where(name: array) }
@@ -218,11 +218,11 @@ class Protonym < TaxonName
 #        if !search_name.nil? && r.empty?
         if !search_name.nil? && is_available?
           list = Protonym
-            .that_is_valid
             .ancestors_and_descendants_of(self)
-            .not_self(self)
             .with_rank_class_including(search_rank)
             .where(name: search_name)
+            .not_self(self)
+            .that_is_valid
         else
           list = []
         end
@@ -255,26 +255,6 @@ class Protonym < TaxonName
     else
       self
     end
-  end
-
-  # @return [String, nil]
-  # TODO: not true, *has* parens?!
-  #   a string, without parenthesis, that includes author and year
-  def get_author_and_year
-    # times_called
-    case rank_class.try(:nomenclatural_code)
-      when :iczn
-        ay = iczn_author_and_year
-      when :icvcn
-        ay = icn_author_and_year
-      when :icnp
-        ay = icn_author_and_year
-      when :icn
-        ay = icn_author_and_year
-      else
-        ay = ([author_string] + [year_integer]).compact.join(' ')
-    end
-    ay.blank? ? nil : ay
   end
 
   # This method is currently only used for setting cached_primary_homonym
@@ -468,9 +448,6 @@ class Protonym < TaxonName
 
   def is_latin?
     !NOT_LATIN.match(name) || has_latinized_exceptions?
-  end
-
-  def is_homonym_or_suppressed?
   end
 
   # @return [Boolean]
@@ -678,7 +655,7 @@ class Protonym < TaxonName
     return nil if e.none?
 
     # Weird, why?
-    # DD: in ICTV the species name is "Potato spindle tuber viroid", the genus name is only used for classification...
+    # DD: in ICVCN the species name is "Potato spindle tuber viroid", the genus name is only used for classification...
     #
     # @proceps: then we should exclude or alter elements before we get to this point, not here, so that the renderer still works, exceptions at this point are bad
     # and this didn't do what you think it did, it's was returning an Array of two things
@@ -957,6 +934,7 @@ class Protonym < TaxonName
         cached_original_combination != get_original_combination ||
         cached_original_combination_html != get_original_combination_html ||
         cached_primary_homonym != get_genus_species(:original, :self) ||
+        cached_nomenclature_date != nomenclature_date ||
         cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
         rank_string =~ /Species/ &&
             (cached_secondary_homonym != get_genus_species(:current, :self) ||

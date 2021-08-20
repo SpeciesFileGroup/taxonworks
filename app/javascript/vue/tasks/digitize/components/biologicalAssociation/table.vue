@@ -6,39 +6,35 @@
           <th>Relationship</th>
           <th>Related</th>
           <th>Citation</th>
-          <th></th>
+          <th>
+            <div class="horizontal-right-content">
+              <lock-component v-model="settings.locked.biologicalAssociations" />
+            </div>
+          </th>
         </tr>
       </thead>
       <transition-group
         name="list-complete"
         tag="tbody">
-        <template v-for="(item, index) in list">
-          <tr
-            v-if="item.hasOwnProperty('id')"
-            :key="item.id"
-            class="list-complete-item">
+        <template
+          v-for="(item, index) in list"
+          :key="item.id">
+          <tr class="list-complete-item">
             <td v-html="item.biological_relationship.name"/>
             <td v-html="item.object.object_tag"/>
             <td v-html="getCitationString(item)"/>
-            <td class="vue-table-options">
-              <radial-annotator :global-id="item.global_id"/>
-              <span
-                class="circle-button btn-delete"
-                @click="deleteItem(item)">Remove
-              </span>
-            </td>
-          </tr>
-          <tr
-            v-else
-            :key="`${item.biologicalRelationship.id}${item.biologicalRelation.id}`">
-            <td v-html="item.biologicalRelationship.name"/>
-            <td v-html="item.biologicalRelation.object_tag"/>
-            <td v-html="getCitationString(item)"/>
             <td>
-              <span
-                class="circle-button btn-delete btn-default"
-                @click="$emit('delete', index)">Remove
-              </span>
+              <div class="middle horizontal-right-content">
+                <radial-annotator
+                  v-if="item.global_id"
+                  :global-id="item.global_id"/>
+                <span
+                  class="circle-button btn-delete"
+                  :class="{ 'button-default': !item.id }"
+                  @click="deleteItem(index)">
+                  Remove
+                </span>
+              </div>
             </td>
           </tr>
         </template>
@@ -48,46 +44,70 @@
 </template>
 <script>
 
-  import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import LockComponent from 'components/ui/VLock/index.vue'
+import { GetterNames } from '../../store/getters/getters'
+import { MutationNames } from '../../store/mutations/mutations'
 
-  export default {
-    components: {
-      RadialAnnotator
+export default {
+  components: {
+    RadialAnnotator,
+    LockComponent
+  },
+
+  props: {
+    list: {
+      type: Array,
+      default: () => []
     },
-    props: {
-      list: {
-        type: Array,
-        default: () => {
-          return []
-        }
-      }
-    },
-    mounted() {
-      this.$options.components['RadialAnnotator'] = RadialAnnotator
-    },
-    methods: {
-      deleteItem(item) {
-        if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
-          this.$emit('delete', item)
-        }
+
+    lock: {
+      type: Boolean,
+      required: true
+    }
+  },
+
+  emits: ['delete'],
+
+  computed: {
+    settings: {
+      get () {
+        return this.$store.getters[GetterNames.GetSettings]
       },
-      getCitationString(object) {
-        if(object.hasOwnProperty('citation') && object.citation) {
-          return object.citation.label
-        }
-        if(object.hasOwnProperty('origin_citation')) {
-          let citation = object.origin_citation.source.cached_author_string
-          if(object.origin_citation.source.hasOwnProperty('year'))
-            citation = citation + ', ' + object.origin_citation.source.year
-          return citation
-        }
-        return ''
+      set (value) {
+        this.$store.commit(MutationNames.SetSettings, value)
       }
     }
+  },
+
+  methods: {
+    deleteItem (item) {
+      if (item.id) {
+        if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
+          this.$emit('delete', item)
+        }
+      } else {
+        this.$emit('delete', item)
+      }
+    },
+
+    getCitationString(object) {
+      if (object?.citation) {
+        return object.citation.label
+      } else if(object.hasOwnProperty('origin_citation')) {
+        const citation = object.origin_citation.source.cached_author_string
+
+        return object.origin_citation.source.hasOwnProperty('year')
+          ? `${citation}, ${object.origin_citation.source.year}`
+          : citation
+      }
+      return ''
+    }
   }
+}
 </script>
 <style lang="scss" scoped>
-  ::v-deep .otu_tag_taxon_name {
+  :deep(.otu_tag_taxon_name) {
     white-space: normal !important;
   }
 </style>

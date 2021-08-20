@@ -73,23 +73,6 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
     end
   end
 
-  class IncorrectOriginalSpelling < TaxonNameClassification::Iczn::Unavailable
-
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000217'.freeze
-
-    extend InnerClass
-
-    # LABEL = 'incorrect original spelling (ICZN)'
-
-    def self.gbif_status
-      'negatum'
-    end
-
-    def sv_not_specific_classes
-      true
-    end
-  end
-
   class LessThanTwoLetters < TaxonNameClassification::Iczn::Unavailable
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000210'.freeze

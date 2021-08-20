@@ -1,3 +1,1 @@
-export default function (state) {
-  return state.depictions
-}
+export default state => state.depictions

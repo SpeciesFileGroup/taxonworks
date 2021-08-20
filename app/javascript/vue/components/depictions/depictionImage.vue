@@ -3,60 +3,60 @@
     <modal
       v-if="viewMode"
       @close="viewMode = false">
-      <h3 slot="header">View</h3>
-      <div
-        slot="body"
-        class="horizontal-left-content align-start">
-        <div class="full_width">
-          <template>
+      <template #header>
+        <h3>View</h3>
+      </template>
+      <template #body>
+        <div class="horizontal-left-content align-start">
+          <div class="full_width">
             <img
               class="img-maxsize"
               :src="depiction.image.image_file_url">
-          </template>
-          <div class="horizontal-left-content">
-            <radial-annotator :global-id="depiction.image.global_id"/>
-            Annotate image
-            <radial-navigation :global-id="depiction.image.global_id"/>
-            Navigate image
+            <div class="horizontal-left-content">
+              <radial-annotator :global-id="depiction.image.global_id"/>
+              Annotate image
+              <radial-navigation :global-id="depiction.image.global_id"/>
+              Navigate image
+            </div>
           </div>
-        </div>
-        <div class="margin-medium-left full_width">
-          <h3>Image depicts a {{ depiction.depiction_object_type }}</h3>
-          <div class="field separate-top label-above">
-            <label>Figure label</label>
-            <input
-              v-model="depiction.figure_label"
-              type="text"
-              placeholder="Label">
-          </div>
-          <div class="field separate-bottom label-above">
-            <label>Caption</label>
-            <markdown-editor
-              v-model="depiction.caption"
-              :configs="config"
-              ref="etymologyText"/>
-          </div>
-          <div class="margin-small-bottom">
-            <label>
+          <div class="margin-medium-left full_width">
+            <h3>Image depicts a {{ depiction.depiction_object_type }}</h3>
+            <div class="field separate-top label-above">
+              <label>Figure label</label>
               <input
-                v-model="depiction.is_metadata_depiction"
-                type="checkbox">
-              Is metadata
-            </label>
-          </div>
-          <div class="flex-separate">
-            <button
-              type="button"
-              @click="updateDepiction"
-              class="normal-input button button-submit">Save
-            </button>
-            <button
-              type="button"
-              @click="deleteDepiction"
-              class="normal-input button button-delete">Delete</button>
+                v-model="depiction.figure_label"
+                type="text"
+                placeholder="Label">
+            </div>
+            <div class="field separate-bottom label-above">
+              <label>Caption</label>
+              <markdown-editor
+                v-model="depiction.caption"
+                :configs="config"
+                ref="etymologyText"/>
+            </div>
+            <div class="margin-small-bottom">
+              <label>
+                <input
+                  v-model="depiction.is_metadata_depiction"
+                  type="checkbox">
+                Is metadata
+              </label>
+            </div>
+            <div class="flex-separate">
+              <button
+                type="button"
+                @click="updateDepiction"
+                class="normal-input button button-submit">Save
+              </button>
+              <button
+                type="button"
+                @click="deleteDepiction"
+                class="normal-input button button-delete">Delete</button>
+            </div>
           </div>
         </div>
-      </div>
+      </template>
     </modal>
     <img
       class="img-thumb"
@@ -76,17 +76,15 @@
 </template>
 <script>
 
+import { Depiction } from 'routes/endpoints'
 import Modal from 'components/ui/Modal.vue'
-import { UpdateDepiction } from './request/resources'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialNavigation from 'components/radials/navigation/radial'
-import SwitchComponent from 'components/switch'
 import MarkdownEditor from 'components/markdown-editor.vue'
 
 const Tabs = {
   MARKDOWN: 'markdown',
   CAPTION: 'caption'
-
 }
 
 export default {
@@ -94,16 +92,19 @@ export default {
     Modal,
     RadialAnnotator,
     RadialNavigation,
-    SwitchComponent,
     MarkdownEditor
   },
+
   props: {
     depiction: {
       type: Object,
       required: true
     }
   },
-  data: function () {
+
+  emits: ['delete'],
+
+  data () {
     return {
       fullSizeImage: false,
       viewMode: false,
@@ -115,6 +116,7 @@ export default {
       }
     }
   },
+
   methods: {
     updateDepiction () {
       const depiction = {
@@ -122,10 +124,12 @@ export default {
         figure_label: this.depiction.figure_label,
         is_metadata_depiction: this.depiction.is_metadata_depiction
       }
-      UpdateDepiction(this.depiction.id, { depiction: depiction }).then(response => {
+
+      Depiction.update(this.depiction.id, { depiction }).then(_ => {
         TW.workbench.alert.create('Depiction was successfully updated.', 'notice')
       })
     },
+
     deleteDepiction () {
       this.$emit('delete', this.depiction)
     }

@@ -2,17 +2,18 @@
   <div v-if="taxonName">
     <h2>{{ title }}</h2>
     <template
-      v-for="(group, key, index) in ranks[taxonName.nomenclatural_code]">
+      v-for="(group, key, index) in ranks[taxonName.nomenclatural_code]"
+      :key="key">
       <div
         v-if="index >= rankGroup.groupIndex"
-        class="separate-top capitalize"
-        :key="key">
+        class="separate-top capitalize">
         <ul class="no_bullets">
-          <template v-for="(rank, rIndex) in group">
+          <template
+            v-for="(rank, rIndex) in group"
+            :key="rank.name">
             <template
               v-if="!(index == rankGroup.groupIndex && rankGroup.rankIndex > rIndex)">
               <li
-                :key="rank.name"
                 v-if="(typicalUse ? (rank.typical_use) : true)">
                 <label>
                   <input
@@ -52,20 +53,24 @@ export default {
       type: Object,
       default: undefined
     },
-    value: {
+    modelValue: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     ranksSelected: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     },
+
     ranks: {
       get () {
         return this.$store.getters[GetterNames.GetRanks]
@@ -74,21 +79,26 @@ export default {
         this.$store.commit(MutationNames.SetRanks, value)
       }
     },
+
     rankGroup () {
       const groups = this.ranks[this.taxonName.nomenclatural_code]
       let group
       let rankIndex
+
       for (const groupKey in groups) {
-        const index = groups[groupKey].findIndex(item => {
-          return item.name === this.taxonName.rank
-        })
+        const index = groups[groupKey].findIndex(item => item.name === this.taxonName.rank)
+
         if (index >= 0) {
           rankIndex = index
           group = groupKey
           break
         }
       }
-      return { group: group, groupIndex: Object.keys(groups).findIndex(item => { return item === group }), rankIndex: rankIndex }
+      return {
+        group: group,
+        groupIndex: Object.keys(groups).findIndex(item => item === group),
+        rankIndex: rankIndex
+      }
     }
   },
   data () {

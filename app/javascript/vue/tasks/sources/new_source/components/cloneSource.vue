@@ -4,16 +4,17 @@
       type="button"
       class="button normal-input button-submit button-size"
       :disabled="!source.id"
-      v-shortkey="[getOSKey, 'c']"
-      @shortkey="showModal = true"
+      v-hotkey="shortcuts"
       @click="showModal = true">
       Clone
     </button>
     <modal-component
       v-show="showModal"
       @close="showModal = false">
-      <h3 slot="header">Clone source</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Clone source</h3>
+      </template>
+      <template #body>
         <p>
           This will clone the current source.
         </p>
@@ -25,8 +26,8 @@
           @keypress.enter.prevent="cloneSource()"
           ref="inputtext"
           :placeholder="`Write ${checkWord} to continue`">
-      </div>
-      <div slot="footer">
+      </template>
+      <template #footer>
         <button
           type="button"
           class="button normal-input button-submit button-size"
@@ -34,7 +35,7 @@
           @click="cloneSource()">
           Clone
         </button>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
@@ -44,20 +45,28 @@
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 import ModalComponent from 'components/ui/Modal.vue'
+import platformKey from 'helpers/getPlatformKey'
 
 export default {
   components: {
     ModalComponent
   },
+
   computed: {
     source () {
       return this.$store.getters[GetterNames.GetSource]
     },
+
     isWordTyped () {
       return this.inputValue.toUpperCase() === this.checkWord
     },
-    getOSKey () {
-      return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
+
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+c`] = this.openModal
+
+      return keys
     }
   },
 
@@ -82,6 +91,10 @@ export default {
   },
 
   methods: {
+    openModal () {
+      this.showModal = true
+    },
+
     cloneSource () {
       if (!this.isWordTyped) return
       this.$store.dispatch(ActionNames.CloneSource)

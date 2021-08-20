@@ -37,23 +37,28 @@ import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     taxon: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   mounted () {
     const params = URLParamsToJSON(location.href)
+
     this.taxon.name = params.name
     this.taxon.author = params.author
     this.taxon.year = params.year

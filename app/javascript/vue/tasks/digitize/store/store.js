@@ -1,34 +1,42 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-
+import { createStore } from 'vuex'
 import { GetterFunctions } from './getters/getters'
 import { MutationFunctions } from './mutations/mutations'
 import { ActionFunctions } from './actions/actions'
-import ceInit from '../const/collectingEvent'
-
-Vue.use(Vuex)
+import {
+  ComponentMap,
+  ComponentParse,
+  ComponentVerbatim
+} from '../const/components'
+import makeCollectingEvent from '../const/collectingEvent'
+import makeCollectionObject from '../const/collectionObject'
+import makeTypeMaterial from '../const/typeMaterial'
+import makeLabel from '../const/label'
+import makeIdentifier from '../const/identifier'
+import makeTaxonDetermination from '../const/taxonDetermination'
 
 function makeInitialState () {
   return {
     settings: {
-      saving: false,
-      loading: false,
       increment: false,
-      lastSave: 0,
-      lastChange: 0,
-      saveIdentifier: true,
       isLocked: false,
+      lastChange: 0,
+      lastSave: 0,
+      loading: false,
+      saveIdentifier: true,
+      saving: false,
       locked: {
         biocuration: false,
-        identifier: false,
+        biologicalAssociations: false,
+        coCitations: false,
         collecting_event: false,
         collection_object: {
-          buffered_determinations: false,
           buffered_collecting_event: false,
+          buffered_determinations: false,
           buffered_other_labels: false,
-          repository_id: false,
-          preparation_type_id: false
+          preparation_type_id: false,
+          repository_id: false
         },
+        identifier: false,
         taxon_determination: {
           otu_id: false,
           year_made: false,
@@ -44,85 +52,56 @@ function makeInitialState () {
       },
       sortable: false
     },
-    taxon_determination: {
-      biological_collection_object_id: undefined,
-      otu_id: undefined,
-      year_made: undefined,
-      month_made: undefined,
-      day_made: undefined,
-      roles_attributes: [],
-    },
-    identifier: {
-      id: undefined,
-      namespace_id: undefined,
-      type: 'Identifier::Local::CatalogNumber',
-      identifier_object_id: undefined,
-      identifier_object_type: 'CollectionObject',
-      identifier: undefined
-    },
+    taxon_determination: makeTaxonDetermination(),
+    identifier: makeIdentifier(),
     collectingEventIdentifier: {
       id: undefined,
       namespace_id: undefined,
       type: 'Identifier::Local::TripCode',
       identifier: undefined
     },
-    collection_object: {
-      id: undefined,
-      global_id: undefined,
-      total: 1,
-      preparation_type_id: null,
-      repository_id: undefined,
-      ranged_lot_category_id: undefined,
-      collecting_event_id: undefined,
-      buffered_collecting_event: undefined,
-      buffered_determinations: undefined,
-      buffered_other_labels: undefined,
-      deaccessioned_at: undefined,
-      deaccession_reason: undefined,
-      contained_in: undefined
-    },
-    collection_event: ceInit(),
-    type_material: {
-      id: undefined,
-      global_id: undefined,
-      protonym_id: undefined,
-      taxon: undefined,
-      collection_object_id: undefined,
-      type_type: undefined,
-      collection_object: undefined,
-      origin_citation_attributes: undefined
-    },
-    label: {
-      id: undefined,
-      text: undefined,
-      total: undefined,
-      label_object_id: undefined, 
-      label_object_type: "CollectingEvent"
-    },
+    coCitations: [],
+    collection_event: makeCollectingEvent(),
+    collection_object: makeCollectionObject(),
     geographicArea: undefined,
+    label: makeLabel(),
+    type_material: makeTypeMaterial(),
     tmpData: {
       otu: undefined
     },
-    subsequentialUses: 0,
-    identifiers: [],
-    materialTypes: [],
-    determinations: [],
-    preferences: {},
-    project_preferences: undefined,
-    container: undefined,
-    containerItems: [],
-    collection_objects: [],
-    depictions: [],
     COTypes: [],
     biocurations: [],
+    biologicalAssociations: [],
+    collection_objects: [],
+    container: undefined,
+    containerItems: [],
+    depictions: [],
+    determinations: [],
+    identifiers: [],
+    georeferences: [],
+    materialTypes: [],
+    namespaceSelected: '',
+    preferences: {},
     preparation_type_id: undefined,
+    project_preferences: undefined,
+    softValidations: [],
+    subsequentialUses: 0,
     taxon_determinations: [],
-    namespaceSelected: ''
+    componentsOrder: {
+      leftColumn: [
+        'TaxonDeterminationLayout',
+        'BiologicalAssociation',
+        'TypeMaterial'
+      ],
+      ComponentParse: Object.values(ComponentParse),
+      ComponentVerbatim: Object.values(ComponentVerbatim),
+      ComponentMap: Object.values(ComponentMap)
+    }
   }
 }
 
 function newStore () {
-  return new Vuex.Store({
+  return createStore({
     state: makeInitialState(),
     getters: GetterFunctions,
     mutations: MutationFunctions,

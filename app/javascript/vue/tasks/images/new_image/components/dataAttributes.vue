@@ -63,7 +63,6 @@
 
 <script>
 
-import SmartSelector from 'components/ui/SmartSelector'
 import Autocomplete from 'components/ui/Autocomplete'
 import TableList from 'components/table_list'
 import SwitchComponent from 'components/switch'
@@ -73,13 +72,13 @@ import AjaxCall from 'helpers/ajaxCall.js'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 
-export default { 
+export default {
   components: {
-    SmartSelector,
     SwitchComponent,
     TableList,
     Autocomplete
   },
+
   computed: {
     dataAttributes: {
       get () {
@@ -93,6 +92,7 @@ export default {
       return this.dataAttribute.controlled_vocabulary_term_id && this.dataAttribute.value
     }
   },
+
   data () {
     return {
       tabs: ['all', 'search'],
@@ -103,54 +103,49 @@ export default {
       selected: undefined
     }
   },
+
   mounted () {
     this.loadTabList()
   },
-  methods: {
-    addDataAttribute (attr) {
 
-    },
+  methods: {
     loadTabList () {
+      const promises = []
       let tabList
       let allList
-      let promises = []
-      let that = this
 
-      promises.push(AjaxCall('get', `/predicates/select_options?klass=CollectionObject`).then(response => {
+      promises.push(AjaxCall('get', '/predicates/select_options?klass=CollectionObject').then(response => {
         tabList = response.body
       }))
-      promises.push(AjaxCall('get', `/controlled_vocabulary_terms.json?type[]=Predicate`).then(response => {
+      promises.push(AjaxCall('get', '/controlled_vocabulary_terms.json?type[]=Predicate').then(response => {
         allList = response.body
       }))
 
       Promise.all(promises).then(() => {
         tabList['all'] = allList
-        that.lists = tabList
+        this.lists = tabList
       })
     },
+
     newDataAttribute () {
       return {
         label: undefined,
         controlled_vocabulary_term_id: undefined,
-        type: 'InternalAttribute', 
+        type: 'InternalAttribute',
         value: undefined
       }
     },
+
     addDataAttribute () {
       this.$store.commit(MutationNames.AddDataAttribute, this.dataAttribute)
       this.dataAttribute = this.newDataAttribute()
     },
+
     setDataAttribute (id, label) {
       this.selected = label
       this.dataAttribute.label = label
-      this.dataAttribute.controlled_vocabulary_term_id = id    
-    },
-    removeDataAttribute(attr) {
-
+      this.dataAttribute.controlled_vocabulary_term_id = id
     }
   }
 }
 </script>
-
-<style>
-</style>

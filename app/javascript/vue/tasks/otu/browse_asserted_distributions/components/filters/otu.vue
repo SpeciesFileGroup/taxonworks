@@ -7,7 +7,7 @@
       param="term"
       label="label_html"
       :clear-after="true"
-      @getItem="$emit('input', $event.id)"/>
+      @getItem="$emit('update:modelValue', $event.id)"/>
   </div>
 </template>
 
@@ -21,19 +21,22 @@ export default {
     Autocomplete
   },
   props: {
-    value: {
+    modelValue: {
       type: [String, Number],
       default: undefined
-    },
+    }
   },
-  data () { 
+
+  data () {
     return {
       otu: undefined
     }
   },
+
   mounted () {
     this.GetParams()
   },
+
   methods: {
     GetParams () {
       const urlParams = new URLSearchParams(window.location.search)
@@ -43,10 +46,11 @@ export default {
         this.loadOtu(otuId)
       }
     },
+
     loadOtu (id) {
       Otu.find(id).then(response => {
         this.otu = response.body
-        this.$emit('input', id)
+        this.$emit('update:modelValue', id)
       })
     }
   }

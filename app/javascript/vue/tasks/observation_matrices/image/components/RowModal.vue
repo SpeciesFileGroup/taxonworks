@@ -1,8 +1,10 @@
 <template>
   <modal-component @close="$emit('close', true)">
     <spinner-component v-if="saving"/>
-    <h3 slot="header">Create new row</h3>
-    <div slot="body">
+    <template #header>
+      <h3>Create new row</h3>
+    </template>
+    <template #body>
       <ul class="no_bullets">
         <li
           v-for="item in types"
@@ -21,7 +23,7 @@
         v-if="type.label === 'Otu'">
         <otu-picker @getItem="createRow"/>
       </div>
-    </div>
+    </template>
   </modal-component>
 </template>
 
@@ -45,6 +47,8 @@ export default {
       required: true
     }
   },
+
+  emits: ['create'],
 
   data () {
     return {

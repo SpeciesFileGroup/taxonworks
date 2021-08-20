@@ -1,145 +1,189 @@
 /*
 Keyboard shortcuts
 
-
 Use TW.workbench.keyboard.createShortcut(key, description, section, func) to create a shortcut.
 
-Create: 
+Create:
 createShortcut("left", "Move to left", "Lists", function() { do something });
 
-Result: 
+Result:
 <span data-shortcut-key="left" data-shortcut-description="Move to left" data-shortcut-section="Lists"></div>
 
 */
 
-var TW = TW || {};
-TW.workbench = TW.workbench || {};
-TW.workbench.keyboard = TW.workbench.keyboard || {};
+var TW = TW || {}
+TW.workbench = TW.workbench || {}
+TW.workbench.keyboard = TW.workbench.keyboard || {}
 
 Object.assign(TW.workbench.keyboard, {
 
-	init_keyShortcuts: function() {
+  keyCode: ['UP', 'DOWN', 'LEFT', 'RIGHT', 'COMMAND'],
+  keyCodeReplace: ['↑', '↓', '←', '→', '⌘'],
 
-		var 
+  init_keyShortcuts () {
+    this.keyShortcutElement = this.createTable()
+    this.btnClose = this.keyShortcutElement.querySelector('.close')
+    this.legendLink = this.keyShortcutElement.querySelector('.legend')
+    this.helpBackground = document.querySelector('.help-background-active')
+    this.keyShortcutsPanel = this.keyShortcutElement.querySelector('.panel')
 
-		keyCode = [ "UP", "DOWN", "LEFT", "RIGHT", "COMMAND" ],
-		keyCodeReplace = [ "↑", "↓", "←", "→", "⌘" ],
+    document.body.append(this.keyShortcutElement)
+    this.generalShortcuts()
+    this.fillTable()
+    this.handleEvents()
+  },
 
-		generalShortcuts = '<thead> \
-								<th></th> \
-								<th> \
-									General shortcuts \
-								</th> \
-							</thead> \
-							<tbody data-shortcut-section="General shortcuts"> \
-								<tr> \
-									<td><div class="key">'+ (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') +'+h</div></td> \
-									<td>Go to hub</td> \
-								</tr> \
-								<tr> \
-									<td><div class="key">alt+shft+?</div></td> \
-									<td>Show/hide help</td> \
-								</tr> \
-							<tbody>';	
+  generalShortcuts () {
+    const platformKey = (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
 
+    this.createLegend(`${platformKey}+h`, 'Go to hub', 'General shortcuts', true)
+    this.createLegend(`${platformKey}+?`, 'Show/hide help', 'General shortcuts', true)
+  },
 
-		$('body').append('<div id="keyShortcuts"> \
-							<a class="legend">Keyboard shortcuts available</a> \
-							<div class="keyboard-background-active"></div> \
-								<div class="panel"> \
-									<div class="header"> \
-										<span class="title">Keyboard shortcuts</span> \
-										<div data-icon="close" class="close small-icon"></div> \
-									</div> \
-									<div class="list content"> \
-										<div class="item default-shortcuts"> \
-											<table> \
-											' + generalShortcuts + '\
-											</table> \
-										</div> \
-										<div class="item page-shortcuts"> \
-											<table> \
-											</table> \
-										</div> \
-									</div> \
-								</div> \
-							</div> \
-						</div> \
-						');
+  createTable () {
+    const divContainer = document.createElement('div')
 
-		this.createTable();
-		this.handleEvents();
-	},
+    divContainer.id = 'keyShortcuts'
+    divContainer.innerHTML = `
+    <a class="legend">Keyboard shortcuts available</a>
+      <div class="panel">
+        <div class="header">
+          <span class="title">Keyboard shortcuts</span>
+          <div data-icon="close" class="close small-icon"></div>
+        </div>
+        <div class="list content">
+          <div class="item page-default">
+            <table></table>
+          </div>
+          <div class="item page-shortcuts">
+            <table>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>`
 
+    return divContainer
+  },
 
-	createShortcut: function(key, description, section, func) {
-		function customFunction(event) {
-			event.preventDefault();
-			func(event);
-		}
-  		Mousetrap.bind(key, customFunction);
-		$('body').append('<span style="display;hidden" data-shortcut-key="'+ key +'" data-shortcut-description="'+ description +'" data-shortcut-section="'+ section +'"></span>');
-	},
+  createShortcut (key, description, section, func, isLeft = false) {
+    const legendElement = this.createLegendElement(key, description, section, isLeft)
 
-	createLegend: function(key, description, section) {
-		$('body').append('<span style="display;hidden" data-shortcut-key="'+ key +'" data-shortcut-description="'+ description +'" data-shortcut-section="'+ section +'"></span>');
-		this.addNewShortcut('[data-shortcut-key="'+ key +'"]')
-	},
-		
+    function customFunction (event) {
+      event.preventDefault()
+      func(event)
+    }
 
-	createTable: function() {
-		$('[data-shortcut-key]').each(function() {
-			TW.workbench.keyboard.addNewShortcut(TW.workbench.keyboard.checkReplaceKeyCode(this));
-		});
-	},
+  	Mousetrap.bind(key, customFunction)
+    document.body.append(legendElement)
+  },
 
-	checkReplaceKeyCode: function(keyShortcut) {
-		var
-			find = $.inArray($(keyShortcut).attr('data-shortcut-key').toUpperCase(),TW.workbench.keyboard.keyCode);
-		
-		if(find > -1) {
-			$(keyShortcut).attr('data-shortcut-key',TW.workbench.keyboard.keyCodeReplace[find]);
-		}
-		return keyShortcut;
-	},
+  createLegendElement: (key, description, section, isLeft = false) => {
+    const legendElement = document.createElement('span')
 
-	addNewShortcut: function(shortcut) {
+    legendElement.style.display = 'hidden'
+    legendElement.setAttribute('data-shortcut-key', key)
+    legendElement.setAttribute('data-shortcut-description', description)
+    legendElement.setAttribute('data-shortcut-section', section)
+    legendElement.setAttribute('data-shortcut-left', isLeft)
 
-		var
-			section = $(shortcut).attr('data-shortcut-section');
+    return legendElement
+  },
 
-		if($('#keyShortcuts .list table tbody[data-shortcut-section="'+section+'"]').length == 0) {
-			$('#keyShortcuts .list .page-shortcuts table').append('<thead><th></th><th>'+ section +'</th></thead><tbody data-shortcut-section="'+ section +'"></tbody>');
-		}
-		$('#keyShortcuts .list table tbody[data-shortcut-section="'+section+'"]').append('<tr><td><div class="key">'+ $(shortcut).attr('data-shortcut-key') +' </div></td><td>'+ $(shortcut).attr('data-shortcut-description')+'</td></tr>');
-	},		
+  createLegend (key, description, section, isLeft = false) {
+    const legendElement = this.createLegendElement(key, description, section, isLeft)
 
-	hideShortcuts: function() {
-		$('#keyShortcuts .keyboard-background-active').fadeOut();
-		$('#keyShortcuts .panel').fadeOut();
-	},
+    document.body.append(legendElement)
+    this.addNewShortcut(legendElement)
+  },
 
-	handleEvents: function() {
-		$('#keyShortcuts').on("click", ".legend", function() {
-			$('#keyShortcuts .keyboard-background-active').fadeIn();
-			$('#keyShortcuts .panel').fadeIn();
-		});
+  fillTable () {
+    document.querySelectorAll('[data-shortcut-key]').forEach(element => {
+      TW.workbench.keyboard.addNewShortcut(TW.workbench.keyboard.checkReplaceKeyCode(element))
+    })
+  },
 
-		$('#keyShortcuts').on("click", ".keyboard-background-active", function() {
-			TW.workbench.keyboard.hideShortcuts();
-		});		
+  checkReplaceKeyCode (element) {
+    const shortcut = element.getAttribute('data-shortcut-key').toUpperCase()
+    const index = TW.workbench.keyboard.keyCode.findIndex(item => item === shortcut)
 
-		$('#keyShortcuts').on("click", ".close", function() {
-			TW.workbench.keyboard.hideShortcuts();
-		});	
-	}	
-});
+    if (index > -1) {
+      element.setAttribute('data-shortcut-key', TW.workbench.keyboard.keyCodeReplace[index])
+    }
+    return element
+  },
 
-$(document).on('turbolinks:load', function() {
-	if($("[data-shortcut-key]").length) {
-	  	if (!$("[data-help]").length) {
-		    TW.workbench.help.init_helpSystem();
-	  	}
-	    TW.workbench.keyboard.init_keyShortcuts();	
-	}
-});
+  createSection (name) {
+    const theadElement = document.createElement('thead')
+    const tbodyElement = document.createElement('tbody')
+    const columnName = document.createElement('th')
+
+    columnName.textContent = name
+    tbodyElement.setAttribute('data-shortcut-section', name)
+
+    theadElement.append(document.createElement('th'))
+    theadElement.append(columnName)
+
+    return [theadElement, tbodyElement]
+  },
+
+  addRowShortcut (shortcutKey, description) {
+    const rowElement = document.createElement('tr');
+    const shortcutColumn = document.createElement('td');
+    const descriptionColumn = document.createElement('td');
+    const keyDiv = document.createElement('div');
+
+    keyDiv.classList.add('key');
+    keyDiv.textContent = shortcutKey;
+    descriptionColumn.textContent = description;
+
+    shortcutColumn.append(keyDiv);
+    rowElement.append(shortcutColumn);
+    rowElement.append(descriptionColumn);
+
+    return rowElement
+  },
+
+  addNewShortcut (element) {
+    const sectionName = element.getAttribute('data-shortcut-section')
+    const shortcutKey = element.getAttribute('data-shortcut-key')
+    const shortcutDescription = element.getAttribute('data-shortcut-description')
+    const isLeftTable = element.getAttribute('data-shortcut-left') === 'true'
+    const queryString = `.list table tbody[data-shortcut-section="${sectionName}"`
+    const tableClass = isLeftTable
+      ? '.page-default'
+      : '.page-shortcuts'
+
+    let sectionElement = this.keyShortcutElement.querySelector(queryString)
+
+    if (!sectionElement) {
+      this.keyShortcutElement.querySelector(`.list ${tableClass} table`).append(...this.createSection(sectionName))
+      sectionElement = this.keyShortcutElement.querySelector(queryString)
+    }
+
+    sectionElement.append(this.addRowShortcut(shortcutKey, shortcutDescription))
+  },
+
+  openViewPanel () {
+    this.keyShortcutsPanel.classList.add('active')
+  },
+
+  closeViewPanel () {
+    this.keyShortcutsPanel.classList.remove('active')
+  },
+
+  handleEvents () {
+    this.legendLink.addEventListener('click', this.openViewPanel.bind(this))
+    this.btnClose.addEventListener('click', this.closeViewPanel.bind(this))
+    this.helpBackground.addEventListener('click', this.closeViewPanel.bind(this))
+  }
+})
+
+document.addEventListener('turbolinks:load', () => {
+  if (document.querySelectorAll('[data-shortcut-key]').length) {
+    if (!document.querySelectorAll('[data-help]').length) {
+      TW.workbench.help.init_helpSystem()
+    }
+    TW.workbench.keyboard.init_keyShortcuts()
+  }
+})

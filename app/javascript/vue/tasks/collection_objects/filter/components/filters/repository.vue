@@ -2,7 +2,6 @@
   <div>
     <h3>Repository</h3>
     <smart-selector
-      class="margin-medium-top"
       model="repositories"
       klass="CollectionObject"
       pin-section="Repositories"
@@ -26,25 +25,28 @@ import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { Repository } from 'routes/endpoints'
 
 export default {
-  components: {
-    SmartSelector
-  },
+  components: { SmartSelector },
+
   props: {
-    value: {
+    modelValue: {
       type: [Number, String],
       default: undefined
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     repository: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   watch: {
     repository: {
       handler (newVal) {
@@ -55,11 +57,13 @@ export default {
       deep: true
     }
   },
+
   data () {
     return {
       repositorySelected: undefined
     }
   },
+
   mounted () {
     const urlParams = URLParamsToJSON(location.href)
     this.repository = urlParams.repository_id
@@ -83,7 +87,7 @@ export default {
 </script>
 
 <style scoped>
-  ::v-deep .vue-autocomplete-input {
+  :deep(.vue-autocomplete-input) {
     width: 100%
   }
 </style>

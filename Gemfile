@@ -54,6 +54,7 @@ gem 'modularity', '~> 2.0.1' # Used!?
 gem 'paperclip', '~> 6.1.0'
 gem 'paperclip-meta', '~> 3.0'
 gem 'shortener', '~> 0.8.0'
+gem 'rails_or', '~> 1.1.8'
 
 # javascript
 gem 'sprockets-rails', '~> 3.2.0'
@@ -115,8 +116,8 @@ gem 'chunky_png', '~> 1.3.11'
 gem 'namecase', '~> 2.0'
 gem 'zaru', '~> 0.3.0'
 
-# www 
-gem 'wikidata-client', '~> 0.0.12', require: 'wikidata' 
+# www
+gem 'wikidata-client', '~> 0.0.12', require: 'wikidata'
 
 group :test, :development do
   gem 'faker', '~> 2.10'
@@ -143,6 +144,7 @@ group :development do
   gem 'rubocop-rails', '~> 2.4'
   gem 'rubocop-rspec', '~>1.38'
   gem 'rubocop-faker', '~> 0.2.0'
+  gem 'rubocop-performance', '~> 1.10.2'
   gem 'brakeman', '~> 4.6', '>= 4.6.1', require: false
   gem 'seedbank', '~> 0.5.0'
 end

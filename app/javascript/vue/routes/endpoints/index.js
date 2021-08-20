@@ -8,20 +8,25 @@ import { CitationTopic } from './CitationTopic'
 import { CollectingEvent } from './CollectingEvents'
 import { CollectionObject } from './CollectionObject'
 import { Combination } from './Combination'
+import { CommonName } from './CommonName'
+import { Confidence } from './Confidence'
 import { Container } from './Container'
 import { ContainerItem } from './ContainerItem'
 import { Content } from './Content'
 import { ControlledVocabularyTerm } from './ControlledVocabularyTerm'
+import { DataAttribute } from './DataAttribute'
 import { Depiction } from './Depiction'
 import { Descriptor } from './Descriptor'
 import { Document } from './Document'
 import { Documentation } from './Documentation'
+import { Download } from './Download'
 import { Extract } from './Extract'
 import { GeographicArea } from './GeographicArea'
 import { Georeference } from './Georeference'
 import { Identifier } from './Identifier'
 import { Image } from './Image'
 import { Label } from './Label'
+import { Language } from './Language'
 import { Loan } from './Loan'
 import { LoanItem } from './LoanItem'
 import { Namespace } from './Namespace'
@@ -38,6 +43,7 @@ import { PinboardItem } from './PinboardItem'
 import { PreparationType } from './PreparationType'
 import { Project } from './Project'
 import { ProjectMember } from './ProjectMember'
+import { ProjectSource } from './ProjectSource'
 import { ProtocolRelationship } from './ProtocolRelationship'
 import { Repository } from './Repository'
 import { Serial } from './Serial'
@@ -64,20 +70,25 @@ export {
   CollectingEvent,
   CollectionObject,
   Combination,
+  CommonName,
+  Confidence,
   Container,
   ContainerItem,
   Content,
   ControlledVocabularyTerm,
+  DataAttribute,
   Depiction,
   Descriptor,
   Document,
   Documentation,
+  Download,
   Extract,
   GeographicArea,
   Georeference,
   Identifier,
   Image,
   Label,
+  Language,
   Loan,
   LoanItem,
   Namespace,
@@ -94,6 +105,7 @@ export {
   PreparationType,
   Project,
   ProjectMember,
+  ProjectSource,
   ProtocolRelationship,
   Repository,
   Serial,

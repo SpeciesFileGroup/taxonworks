@@ -58,30 +58,37 @@ export default {
     DefaultElement,
     Autocomplete
   },
+
   props: {
     globalId: {
       type: String,
       required: true
     }
   },
+
+  emits: ['create'],
+
   computed: {
     validateFields () {
       return this.citation.source_id
     }
   },
+
   data () {
     return {
       citation: this.newCitation()
     }
   },
+
   watch: {
     citation: {
-      handler (newVal) {
+      handler () {
         this.sendCitation()
       },
       deep: true
     }
   },
+
   methods: {
     newCitation () {
       return {
@@ -91,14 +98,17 @@ export default {
         pages: undefined
       }
     },
+
     sendCitation () {
       if (this.validateFields) {
         this.$emit('create', this.citation)
       }
     },
+
     cleanCitation () {
       this.citation = this.newCitation()
     },
+
     setCitation (item) {
       this.citation.label = item.label
       this.citation.source_id = item.id

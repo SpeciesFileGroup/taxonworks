@@ -9,21 +9,24 @@
       <h1 class="matrix-row-coder__title" v-html="title"/>
     </div>
     <div>
-      <div class="flex-separate">
-        <div class="align-start">
-          <ul
-            class="matrix-row-coder__descriptor-menu flex-wrap-column"
-            v-for="descriptorGroup in descriptors.chunk(Math.ceil(descriptors.length/3))">
-            <li v-for="descriptor in descriptorGroup">
-              <div>
-                <a
-                  class="matrix-row-coder__descriptor-item"
-                  :data-icon="observationsCount(descriptor.id) ? 'ok' : false"
-                  @click="zoomDescriptor(descriptor.id)"
-                  v-html="descriptor.title"/>
-              </div>
-            </li>
-          </ul>
+      <div class="flex-separate margin-medium-bottom">
+        <div>
+          <div class="align-start">
+            <ul
+              class="matrix-row-coder__descriptor-menu flex-wrap-column"
+              v-for="descriptorGroup in descriptors.chunk(Math.ceil(descriptors.length/3))">
+              <li v-for="descriptor in descriptorGroup">
+                <div>
+                  <a
+                    class="matrix-row-coder__descriptor-item"
+                    :data-icon="observationsCount(descriptor.id) ? 'ok' : false"
+                    @click="zoomDescriptor(descriptor.id)"
+                    v-html="descriptor.title"/>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <description-main/>
         </div>
         <div>
           <destroy-all-observations
@@ -34,13 +37,14 @@
         </div>
       </div>
     </div>
+
     <ul class="matrix-row-coder__descriptor-list no_bullets">
       <li
         class="matrix-row-coder__descriptor-container"
         v-for="(descriptor, index) in descriptors"
         :key="descriptor.id"
         :data-descriptor-id="descriptor.id">
-        <div
+        <component
           :is="descriptor.componentName"
           :index="(index+1)"
           :descriptor="descriptor"/>
@@ -65,6 +69,7 @@ import MediaDescriptor from './MediaDescriptor/MediaDescriptor.vue'
 import Spinner from 'components/spinner'
 import CloneScoring from './Clone/Clone'
 import DestroyAllObservations from './ObservationRow/destroyObservationRow'
+import DescriptionMain from './Description/DescriptionMain.vue'
 
 const computed = mapState({
   title: state => state.taxonTitle,
@@ -79,7 +84,7 @@ export default {
     })
     this.$store.dispatch(ActionNames.RequestUnits)
   },
-  data() {
+  data () {
     return {
       isLoading: false
     }
@@ -93,7 +98,7 @@ export default {
   },
   computed,
   methods: {
-    setApiValues() {
+    setApiValues () {
       this.$store.state.request.setApi({
         apiBase: this.$props.apiBase,
         apiParams: this.$props.apiParams
@@ -103,21 +108,22 @@ export default {
       const top = document.querySelector(`[data-descriptor-id="${descriptorId}"]`).getBoundingClientRect().top
       window.scrollTo(0, top)
     },
-    observationsCount(descriptorId) {
+    observationsCount (descriptorId) {
       return this.$store.getters[GetterNames.GetObservationsFor](descriptorId).find((item) => {
         return item.id != null
       })
     },
-    loadMatrixRow(matrixRow) {
+    loadMatrixRow (matrixRow) {
       this.$store.commit(MutationNames.ResetState)
       this.setApiValues()
       this.isLoading = true
       this.$store.dispatch(ActionNames.RequestMatrixRow, matrixRow).then(() => {
         this.isLoading = false
       })
-      this.$store.dispatch(ActionNames.RequestConfidenceLevels)      
+      this.$store.dispatch(ActionNames.RequestDescription, matrixRow.rowId)
+      this.$store.dispatch(ActionNames.RequestConfidenceLevels)
     },
-    destroyAllObservations() {
+    destroyAllObservations () {
       this.$store.dispatch(ActionNames.RemoveObservationsRow, this.rowId).then(() => {
         this.loadMatrixRow({
           rowId: this.rowId,
@@ -127,9 +133,7 @@ export default {
     },
     cloneScorings(args) {
       this.isLoading = true
-      this.$store.dispatch(ActionNames.CreateClone, args).then(() => {
-        this.isLoading = false
-      }, () => {
+      this.$store.dispatch(ActionNames.CreateClone, args).finally(() => {
         this.isLoading = false
       })
     },
@@ -155,7 +159,8 @@ export default {
     SampleDescriptor,
     MediaDescriptor,
     Spinner,
-    DestroyAllObservations
+    DestroyAllObservations,
+    DescriptionMain
   }
 }
 </script>

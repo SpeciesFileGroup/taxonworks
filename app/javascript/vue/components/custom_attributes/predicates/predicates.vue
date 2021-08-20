@@ -19,7 +19,7 @@
       </template>
       <a
         v-else
-        href="/controlled_vocabulary_terms/new">Create a term (Predicate)
+        href="/tasks/projects/preferences/index">Select visible predicates
       </a>
     </fieldset>
   </div>
@@ -29,7 +29,11 @@
 
 import SpinnerComponent from 'components/spinner'
 import PredicateRow from './components/predicateRow'
-import { GetPredicates, GetPredicatesCreated, GetProjectPreferences } from './request/resources.js'
+import {
+  Project,
+  ControlledVocabularyTerm,
+  DataAttribute
+} from 'routes/endpoints'
 
 export default {
   components: {
@@ -41,19 +45,25 @@ export default {
       type: String,
       required: true
     },
+
     objectId: {
       required: true
     },
+
     objectType: {
       type: String,
       required: true
     },
+
     modelPreferences: {
       type: Array,
       required: false
     }
   },
-  data() {
+
+  emits: ['onUpdate'],
+
+  data () {
     return {
       loading: true,
       createdList: [],
@@ -63,11 +73,16 @@ export default {
       predicatesList: []
     }
   },
+
   watch: {
     objectId (newVal) {
       if (newVal && this.objectType) {
         this.loading = true
-        GetPredicatesCreated(this.objectType, this.objectId).then(response => {
+        DataAttribute.where({
+          attribute_subject_type: this.objectType,
+          attribute_subject_id: this.objectId,
+          type: 'InternalAttribute'
+        }).then(response => {
           this.createdList = response.body
           this.loading = false
         })
@@ -76,24 +91,27 @@ export default {
       }
     }
   },
+
   created () {
     this.loadPreferences()
   },
+
   methods: {
     loadPreferences () {
       if (this.modelPreferences?.length) {
         this.loadPredicates(this.modelPreferences)
       } else {
-        GetProjectPreferences().then(response => {
+        Project.preferences().then(response => {
           this.modelPreferencesIds = response.body.model_predicate_sets[this.model]
           this.loadPredicates(this.modelPreferencesIds)
         })
       }
     },
+
     loadPredicates (ids) {
       const promises = []
       if (ids?.length) {
-        promises.push(GetPredicates(ids).then(response => {
+        promises.push(ControlledVocabularyTerm.where({ type: ['Predicate'], id: ids }).then(response => {
           this.predicatesList = response.body
         }))
       } else {
@@ -101,7 +119,11 @@ export default {
       }
 
       if (this.objectId) {
-        promises.push(GetPredicatesCreated(this.objectType, this.objectId).then(response => {
+        promises.push(DataAttribute.where({
+          attribute_subject_type: this.objectType,
+          attribute_subject_id: this.objectId,
+          type: 'InternalAttribute'
+        }).then(response => {
           this.createdList = response.body
         }))
       }
@@ -110,14 +132,16 @@ export default {
         this.loading = false
       })
     },
+
     findExisting (id) {
       return this.createdList.find(item => item.controlled_vocabulary_term_id === id)
     },
+
     addDataAttribute (dataAttribute) {
       const index = this.data_attributes.findIndex(item => item.controlled_vocabulary_term_id === dataAttribute.controlled_vocabulary_term_id)
 
       if (index > -1) {
-        this.$set(this.data_attributes, index, dataAttribute)
+        this.data_attributes[index] = dataAttribute
       } else {
         this.data_attributes.push(dataAttribute)
       }

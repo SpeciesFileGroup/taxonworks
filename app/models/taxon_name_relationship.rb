@@ -79,6 +79,7 @@ class TaxonNameRelationship < ApplicationRecord
       :validate_rank_group
   end
 
+  # TODO: isolate to an include file sensu protonym
   soft_validate(
     :sv_validate_required_relationships,
     set: :validate_required_relationships,
@@ -339,7 +340,7 @@ class TaxonNameRelationship < ApplicationRecord
 
   def validate_subject_and_object_share_code
     if object_taxon_name.type  == 'Protonym' && subject_taxon_name.type == 'Protonym'
-      errors.add(:object_taxon_name_id, 'The related taxon is not in the same monenclatural group (ICZN, ICN, ICNP, ICTV') if subject_taxon_name.rank_class.try(:nomenclatural_code) != object_taxon_name.rank_class.try(:nomenclatural_code)
+      errors.add(:object_taxon_name_id, 'The related taxon is not in the same monenclatural group (ICZN, ICN, ICNP, ICVCN') if subject_taxon_name.rank_class.try(:nomenclatural_code) != object_taxon_name.rank_class.try(:nomenclatural_code)
     end
   end
 
@@ -425,13 +426,17 @@ class TaxonNameRelationship < ApplicationRecord
 
           t.send(:set_cached)
 
-          if type_name =~/OriginalCombination/ 
+          if type_name =~/(OriginalCombination)/
             t.update_columns(
               cached_original_combination: t.get_original_combination,
               cached_original_combination_html: t.get_original_combination_html,
+              cached_author_year: t.get_author_and_year,
             )
           end
-
+        elsif type_name =~/(Basionym)/
+          TaxonName.where(cached_valid_taxon_name_id: object_taxon_name.cached_valid_taxon_name_id).each do |t|
+            t.update_column(:cached_author_year, t.get_author_and_year)
+          end
         elsif type_name =~/TaxonNameRelationship::Hybrid/ # TODO: move to Hybrid
           t = object_taxon_name
           n = t.get_full_name
@@ -488,7 +493,7 @@ class TaxonNameRelationship < ApplicationRecord
 
       end
 
-    # no point in rescuing and not returning somthing
+    # no point in rescuing and not returning something
     rescue ActiveRecord::RecordInvalid
       raise
     end

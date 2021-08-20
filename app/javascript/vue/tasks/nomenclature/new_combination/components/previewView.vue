@@ -27,7 +27,7 @@
       <edit-in-place
         legend="Click to edit verbatim"
         v-model="verbatimField"/>
-      <tippy-component
+      <tippy
         v-if="verbatimField"
         animation="scale"
         placement="bottom"
@@ -35,30 +35,29 @@
         inertia
         arrow
         content="Verbatim representations are for display purposes only, only use them as a last resort. Legitimate reasons may include gender agreement errors. You should likely create a new name and treat it as a misspelling or low level synonym. Creating a new name gives you more power and flexibility in downstream search and display. Do NOT use this to include comon, or temporary names whose use was not intended to be governed by a code of nomenclature">
-        <template slot="trigger">
-          <v-icon
-            class="margin-small-left"
-            name="attention"
-            color="attention"
-            small
-          />
-        </template>
-      </tippy-component>
+        <v-icon
+          class="margin-small-left"
+          name="attention"
+          color="attention"
+          small
+        />
+      </tippy>
     </h3>
   </div>
 </template>
 <script>
 
 import EditInPlace from 'components/editInPlace.vue'
-import { TippyComponent } from 'vue-tippy'
+import { Tippy } from 'vue-tippy'
 import VIcon from 'components/ui/VIcon/index.vue'
 
 export default {
   components: {
-    TippyComponent,
+    Tippy,
     EditInPlace,
     VIcon
   },
+
   props: {
     combination: {
       type: Object,
@@ -69,24 +68,28 @@ export default {
       default: false
     }
   },
+
+  emits: ['onVerbatimChange'],
+
   data () {
     return {
       verbatimField: ''
     }
   },
+
   watch: {
     verbatimField (newVal) {
       this.$emit('onVerbatimChange', newVal)
     }
   },
+
   mounted () {
     this.verbatimField = this.combination.verbatim_name
   },
+
   methods: {
     searchLastExistingRank (combination) {
-      return combination[Object.keys(combination).find((key) => {
-        return combination[key]
-      })]
+      return combination[Object.keys(combination).find(key => combination[key])]
     },
     showAuthorCitation (taxon) {
       return taxon?.origin_citation?.citation_source_body || undefined

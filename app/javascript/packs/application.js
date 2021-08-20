@@ -10,9 +10,10 @@
 import 'core-js/stable'
 import 'regenerator-runtime/runtime'
 // Styles
-require('leaflet/dist/leaflet.css')
+import 'leaflet/dist/leaflet.css'
+import 'tippy.js/dist/tippy.css'
 
-require('../vue/config.js')
+/* require('../vue/config.js') */
 require('../vue/tasks/citations/otus/main.js')
 require('../vue/tasks/content/editor/main.js')
 require('../vue/tasks/nomenclature/new_taxon_name/main.js')
@@ -66,3 +67,5 @@ require('../vue/tasks/sources/filter/main.js')
 require('../vue/tasks/collecting_events/new_collecting_event/main.js')
 require('../vue/tasks/interactive_keys/main.js')
 require('../vue/tasks/extracts/new_extract/main.js')
+require('../vue/tasks/namespaces/new_namespace/main.js')
+require('../vue/data/downloads/index.js')

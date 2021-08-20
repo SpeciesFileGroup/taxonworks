@@ -3,7 +3,6 @@
     <transition
       name="countdown-animation-bar"
       @after-enter="emitSave">
-
       <div
         v-if="isCountingDown"
         class="bar"/>
@@ -13,37 +12,39 @@
       v-if="!isCountingDown"
       class="bar"
       :class="{ 'saving': isSaving, 'saved-at-least-once': savedAtLeastOnce }"/>
-
   </div>
 </template>
 
 <script>
-  export default {
-    props: {
-      value: {
-        type: String,
-        required: true
-      }
-    },
-    data() {
-      return {
-        isCountingDown: false,
-        isSaving: false,
-        savedAtLeastOnce: false,
-      }
-    },
-    watch: {
-      value() {
-        this.isCountingDown = true
-      }
-    },
-    methods: {
-      emitSave() {
-        this.isCountingDown = false
-        this.$emit('save', true)
-      }
+export default {
+  props: {
+    value: {
+      type: String,
+      required: true
+    }
+  },
+
+  data () {
+    return {
+      isCountingDown: false,
+      isSaving: false,
+      savedAtLeastOnce: false,
+    }
+  },
+
+  watch: {
+    value () {
+      this.isCountingDown = true
+    }
+  },
+
+  methods: {
+    emitSave () {
+      this.isCountingDown = false
+      this.$emit('save', true)
     }
   }
+}
 </script>
 <style lang="scss">
   .save-countdown {

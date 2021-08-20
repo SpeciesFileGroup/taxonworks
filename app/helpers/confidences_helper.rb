@@ -38,12 +38,11 @@ module ConfidencesHelper
   end
 
   def confidence_default_icon(object)
-    content_tag(:span, '', data: {
+    content_tag(:div, '', data: {
       'confidence-default' => 'true',
       'confidence-object-global-id' => object.to_global_id.to_s,
       'default-confidenced-id' => is_default_confidenced?(object), 
-      'inserted-confidence-level-count' => inserted_confidence_level_count  }, 
-      class: [:default_confidence_widget, 'circle-button', 'btn-disabled'])
+      'inserted-confidence-level-count' => inserted_confidence_level_count  })
   end
 
   # @return [Integer, false]

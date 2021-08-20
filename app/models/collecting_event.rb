@@ -292,8 +292,25 @@ class CollectingEvent < ApplicationRecord
   validates :start_date_day, date_day: {year_sym: :start_date_year, month_sym: :start_date_month},
     unless: -> { start_date_year.nil? || start_date_month.nil? }
 
-  soft_validate(:sv_minimally_check_for_a_label)
-  soft_validate(:sv_georeference_matches_verbatim, set: :georeference)
+  soft_validate(:sv_minimally_check_for_a_label,
+                set: :minimally_check_for_a_label,
+                name: 'Minimally check for a label',
+                description: 'At least one label type, or field notes, should be provided')
+
+  soft_validate(:sv_missing_georeference,
+                set: :georeference,
+                name: 'Missing georeference',
+                description: 'Georeference is missing')
+
+  soft_validate(:sv_georeference_matches_verbatim,
+                set: :georeference,
+                name: 'Georeference matches verbatim',
+                description: 'Georeference matches verbatim latitude and longitude')
+
+  soft_validate(:sv_missing_geographic_area,
+                set: :georeference,
+                name: 'Missing geographic area',
+                description: 'Georaphic area is missing')
 
   # @param [String]
   def verbatim_label=(value)
@@ -1040,21 +1057,27 @@ class CollectingEvent < ApplicationRecord
     errors.add(:maximum_elevation, 'Maximum elevation is lower than minimum elevation.') if !minimum_elevation.blank? && !maximum_elevation.blank? && maximum_elevation < minimum_elevation
   end
 
+  def sv_missing_georeference
+    soft_validations.add(:base, 'Georeference is missing') unless georeferences.any?
+  end
+
   def sv_georeference_matches_verbatim
     if a = georeferences.where(type: 'Georeference::VerbatimData').first
       d_lat = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude).to_f
       d_long = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude).to_f
       if (a.latitude.to_f !=  d_lat)
-        soft_validations.add(
-          :base,
+        soft_validations.add(:base,
           "Verbatim latitude #{verbatim_latitude}: (#{d_lat}) and point geoference latitude #{a.latitude} do not match")
       end
       if (a.longitude.to_f != d_long)
-        soft_validations.add(
-          :base,
+        soft_validations.add(:base,
           "Verbatim longitude #{verbatim_longitude}: (#{d_long}) and point geoference longitude #{a.longitude} do not match")
       end
     end
+  end
+
+  def sv_missing_geographic_area
+    soft_validations.add(:geographic_area_id, 'Geographic area is missing') if geographic_area_id.nil? && !georeferences.any?
   end
 
   def sv_minimally_check_for_a_label

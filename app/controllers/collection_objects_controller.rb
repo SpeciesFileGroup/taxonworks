@@ -192,18 +192,10 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_object/search
   def search
     if params[:id].blank?
-      redirect_to collection_object_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to collection_object_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to collection_object_path(params[:id])
     end
-  end
-
-  def autocomplete
-    @collection_objects =
-      Queries::CollectionObject::Autocomplete.new(
-        params[:term],
-        project_id: sessions_current_project_id
-      ).autocomplete
   end
 
   # GET /collection_objects/download
@@ -304,11 +296,13 @@ class CollectionObjectsController < ApplicationController
   end
 
   def autocomplete
-    @collection_objects = Queries::CollectionObject::Autocomplete.new(
-      params[:term],
-      project_id: sessions_current_project_id
-    ).autocomplete
+    @collection_objects =
+      Queries::CollectionObject::Autocomplete.new(
+        params[:term],
+        project_id: sessions_current_project_id
+      ).autocomplete
   end
+
 
   # GET /api/v1/collection_objects
   def api_index
@@ -370,6 +364,7 @@ class CollectionObjectsController < ApplicationController
       :buffered_collecting_event, :buffered_determinations,
       :buffered_other_labels, :accessioned_at, :deaccessioned_at, :deaccession_reason,
       :contained_in,
+      :taxon_determination_id,
       collecting_event_attributes: [],  # needs to be filled out!
       data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :value ],
       tags_attributes: [:id, :_destroy, :keyword_id],
@@ -450,6 +445,7 @@ class CollectionObjectsController < ApplicationController
       :sled_image_id,
       :spatial_geographic_areas,
       :start_date,  # CE filter
+      :taxon_determination_id,
       :taxon_determinations,
       :type_material,
       :type_specimen_taxon_name_id,
@@ -467,7 +463,7 @@ class CollectionObjectsController < ApplicationController
       collecting_event_ids: [],
       collector_ids: [], #
       determiner_id: [],
-      geographic_area_ids: [],
+      geographic_area_id: [],
       is_type: [],
       keyword_id_and: [],
       keyword_id_or: [],
@@ -545,7 +541,7 @@ class CollectionObjectsController < ApplicationController
       collecting_event_ids: [],
       collector_ids: [],
       determiner_id: [],
-      geographic_area_ids: [], # CE filter
+      geographic_area_id: [], # CE filter
       is_type: [],
       keyword_id_and: [],
       keyword_id_or: [],

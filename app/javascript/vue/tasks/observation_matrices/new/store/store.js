@@ -1,18 +1,15 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-
+import { createStore } from 'vuex'
 import { GetterFunctions } from './getters/getters'
 import { MutationFunctions } from './mutations/mutations'
 import { ActionFunctions } from './actions/actions'
-
-Vue.use(Vuex)
 
 function makeInitialState () {
   return {
     settings: {
       loadingRows: false,
       loadingColumns: false,
-      sortable: false
+      sortable: false,
+      softValidations: false
     },
     configParams: {
       per: 500
@@ -35,7 +32,7 @@ function makeInitialState () {
 }
 
 function newStore () {
-  return new Vuex.Store({
+  return createStore({
     state: makeInitialState(),
     getters: GetterFunctions,
     mutations: MutationFunctions,

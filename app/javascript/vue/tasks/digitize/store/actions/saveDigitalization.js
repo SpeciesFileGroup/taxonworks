@@ -1,30 +1,35 @@
 import ActionNames from './actionNames'
 import { MutationNames } from '../mutations/mutations'
 
-export default function ({ commit, dispatch, state }) {
-  return new Promise((resolve, reject) => {
+export default ({ commit, dispatch, state }) =>
+  new Promise((resolve, reject) => {
     state.settings.saving = true
     dispatch(ActionNames.SaveCollectionEvent).then(() => {
       dispatch(ActionNames.SaveLabel)
       dispatch(ActionNames.SaveCollectionObject, state.collection_object).then((coCreated) => {
+        const promises = []
+
         commit(MutationNames.SetCollectionObject, coCreated)
         commit(MutationNames.AddCollectionObject, coCreated)
-        let promises = []
+
         promises.push(dispatch(ActionNames.SaveTypeMaterial))
-        promises.push(dispatch(ActionNames.SaveIdentifier))
+        promises.push(dispatch(ActionNames.SaveCOCitations))
+        promises.push(dispatch(ActionNames.SaveIdentifier, coCreated.id))
         promises.push(dispatch(ActionNames.SaveDeterminations))
-        Promise.all(promises).then(() => {
-          state.settings.saving = false
+        promises.push(dispatch(ActionNames.SaveBiologicalAssociations))
+
+        Promise.allSettled(promises).then(_ => {
           state.settings.lastSave = Date.now()
+
+          dispatch(ActionNames.LoadSoftValidations)
+
           TW.workbench.alert.create('All records were successfully saved.', 'notice')
           resolve(true)
-        }, () => {
-          // TW.workbench.alert.create('There was an error trying to save.', 'alert')
+        }).finally(() => {
           state.settings.saving = false
         })
       })
-    }, () => {
+    }).catch(_ => {
       state.settings.saving = false
     })
   })
-}

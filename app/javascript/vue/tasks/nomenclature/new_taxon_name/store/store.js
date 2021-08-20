@@ -1,11 +1,7 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-
+import { createStore } from 'vuex'
 import { GetterFunctions } from './getters/getters'
 import { MutationFunctions } from './mutations/mutations'
 import { ActionFunctions } from './actions/actions'
-
-Vue.use(Vuex)
 
 function makeInitialState () {
   return {
@@ -57,7 +53,7 @@ function makeInitialState () {
       original_combination: {
         title: 'Original combination',
         list: [],
-        transform: (value) => { return Object.values(value) }
+        transform: (value) => Object.values(value)
       }
     },
     hardValidation: undefined,
@@ -73,7 +69,7 @@ function makeInitialState () {
 }
 
 function newStore () {
-  return new Vuex.Store({
+  return createStore({
     state: makeInitialState(),
     getters: GetterFunctions,
     mutations: MutationFunctions,

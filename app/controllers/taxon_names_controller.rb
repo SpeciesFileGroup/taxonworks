@@ -81,7 +81,7 @@ class TaxonNamesController < ApplicationController
 
   def search
     if params[:id].blank?
-      redirect_to taxon_names_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to taxon_names_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to taxon_name_path(params[:id])
     end
@@ -293,6 +293,7 @@ class TaxonNamesController < ApplicationController
       :otus,
       :page,
       :per,
+      :taxon_name_author_ids_or,
       :taxon_name_type,
       :type_metadata,
       :updated_since,
@@ -305,6 +306,7 @@ class TaxonNamesController < ApplicationController
       keyword_id_and: [],
       keyword_id_or: [],
       parent_id: [],
+      taxon_name_author_ids: [],
       taxon_name_classification: [],
       taxon_name_id: [],
       taxon_name_relationship: [],

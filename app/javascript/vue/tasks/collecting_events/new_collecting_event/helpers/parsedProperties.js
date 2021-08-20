@@ -1,6 +1,7 @@
 import { romanNumbers } from './romanNumbers'
 import DOMPurify from 'dompurify'
 import { truncateDecimal } from 'helpers/math.js'
+import georeferenceTypes from '../const/georeferenceTypes'
 
 export const parsedProperties = {
   GeographicArea: ({ ce }) => ce.geographicArea?.name,
@@ -41,8 +42,8 @@ export const parsedProperties = {
 
   TripCode: ({ ce, tripCode }) => DOMPurify.sanitize(tripCode.object_tag, { FORBID_TAGS: ['span'], KEEP_CONTENT: true }),
 
-  Georeferences: ({ georeferences }) => georeferences
-    .filter(geo => geo?.geo_json?.geometry?.type === 'Point')
+  Georeferences: ({ georeferences }) => (georeferences || [])
+    .filter(geo => geo?.geo_json?.geometry?.type === 'Point' && geo.type !== georeferenceTypes.Verbatim)
     .map(geo => `${truncateDecimal(geo.geo_json.geometry.coordinates[1], 6)}, ${truncateDecimal(geo.geo_json.geometry.coordinates[0], 6)}`)
     .join('\n')
 }

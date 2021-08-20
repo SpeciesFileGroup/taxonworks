@@ -30,7 +30,7 @@ class InteractiveKey
 
   # @!otu_filter
   #   @return [String or null]
-  # Optional attribute to provide a list of rowIDs to limit the set "otu_filter=1|5|10"
+  # Optional attribute to provide a list of otuIDs to limit the set "otu_filter=1|5|10"
   attr_accessor :otu_filter
 
   # @!sorting
@@ -196,15 +196,11 @@ class InteractiveKey
     @descriptors_with_filter = nil
   end
 
-  def observation_matrix
-    ObservationMatrix.where(id: @observation_matrix_id, project_id: @project_id).first
-  end
-
   def descriptors
     if @sorting == 'weighted'
-      observation_matrix.descriptors.not_weight_zero.order('descriptors.weight DESC, descriptors.position')
+      @observation_matrix.descriptors.not_weight_zero.order('descriptors.weight DESC, descriptors.position')
     else
-      observation_matrix.descriptors.not_weight_zero.order(:position)
+      @observation_matrix.descriptors.not_weight_zero.order(:position)
     end
   end
 
@@ -241,11 +237,6 @@ class InteractiveKey
     end
   end
 
-  # This doesn't return rows, it re-orders them in *database*
-  def rows
-    observation_matrix.reorder_rows(by = 'nomenclature')
-  end
-
   def row_filter_array
     @row_filter.blank? ? nil : row_filter.to_s.split('|').map(&:to_i)
   end
@@ -255,7 +246,7 @@ class InteractiveKey
   end
 
   def get_rows_with_filter
-    observation_matrix.observation_matrix_rows.order(:position)
+    @observation_matrix.observation_matrix_rows.order(:position)
   end
 
   ## row_hash: {otu_collection_object: {:object,           ### (collection_object or OTU)
@@ -304,9 +295,9 @@ class InteractiveKey
       h[d.id][:status] = 'useless' ### 'used', 'useful', 'useless'
       h[d.id][:status] = 'used' if @selected_descriptors_hash[d.id]
     end
-    t = "'Observation::Continuous', 'Observation::PresenceAbsence', 'Observation::Qualitative', 'Observation::Sample'"
+    t = ['Observation::Continuous', 'Observation::PresenceAbsence', 'Observation::Qualitative', 'Observation::Sample']
 
-    @observation_matrix.observations.where('"observations"."type" IN (' + t + ')').each do |o|
+    @observation_matrix.observations.where('"observations"."type" IN (?)', t).each do |o|
       if h[o.descriptor_id]
         otu_collection_object = o.otu_id.to_s + '|' + o.collection_object_id.to_s
         h[o.descriptor_id][:observations][otu_collection_object] = [] if h[o.descriptor_id][:observations][otu_collection_object].nil? #??????

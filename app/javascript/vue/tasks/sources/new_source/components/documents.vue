@@ -38,8 +38,13 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in list">
-            <td><span v-html="item.document.object_tag" /></td>
+          <tr
+            v-for="item in list"
+            :key="item.id"
+            class="contextMenuCells">
+            <td class="full_width"><span
+              class="word_break"
+              v-html="item.document.object_tag" /></td>
             <td>
               <input
                 type="checkbox"
@@ -49,9 +54,20 @@
             </td>
             <td>{{ item.updated_at }}</td>
             <td>
-              <div class="horizontal-right-content">
+              <div class="flex-wrap-row">
                 <radial-annotator :global-id="item.global_id"/>
                 <pdf-button :pdf="item.document"/>
+                <v-btn
+                  circle
+                  class="circle-button"
+                  color="primary"
+                  :download="item.document.object_tag"
+                  :href="item.document.file_url">
+                  <v-icon
+                    color="white"
+                    x-small
+                    name="download"/>
+                </v-btn>
                 <span
                   class="button circle-button btn-delete"
                   @click="removeDocumentation(item)"/>
@@ -71,6 +87,8 @@ import RadialAnnotator from 'components/radials/annotator/annotator'
 import SwitchComponent from 'components/switch'
 import PickComponent from './documents/pick'
 import DropComponent from './documents/drop.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
+import VBtn from 'components/ui/VBtn/index.vue'
 
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
@@ -83,7 +101,9 @@ export default {
     RadialAnnotator,
     SwitchComponent,
     DropComponent,
-    SpinnerComponent
+    SpinnerComponent,
+    VIcon,
+    VBtn
   },
 
   data () {
@@ -98,6 +118,7 @@ export default {
     componentView () {
       return `${this.display}Component`
     },
+
     source: {
       get () {
         return this.$store.getters[GetterNames.GetSource]
@@ -120,6 +141,7 @@ export default {
       }
       this.$store.dispatch(ActionNames.SaveDocumentation, data)
     },
+
     removeDocumentation (documentation) {
       if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
         this.$store.dispatch(ActionNames.RemoveDocumentation, documentation)

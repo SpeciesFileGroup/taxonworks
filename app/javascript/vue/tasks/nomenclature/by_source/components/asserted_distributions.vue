@@ -19,44 +19,55 @@
 
 import TableComponent from './tables/table.vue'
 import SpinnerComponent from 'components/spinner.vue'
-import AjaxCall from 'helpers/ajaxCall'
+import { Citation } from 'routes/endpoints'
 
-  export default {
-    components: {
-      TableComponent,
-      SpinnerComponent
-    },
-    props: {
-      sourceID: {
-        type: String,
-        default: undefined
-      },
-    },
-    data() {
-      return {
-        asserted_distributions_cites_list: [],
-        showSpinner: false
+export default {
+  components: {
+    TableComponent,
+    SpinnerComponent
+  },
+
+  props: {
+    sourceID: {
+      type: String,
+      default: undefined
+    }
+  },
+
+  emits: ['summarize'],
+
+  data () {
+    return {
+      asserted_distributions_cites_list: [],
+      showSpinner: false
+    }
+  },
+
+  watch: {
+    sourceID () {
+      this.getCites()
+    }
+  },
+
+  methods: {
+    getCites () {
+      const params = {
+        citation_object_type: 'AssertedDistribution',
+        source_id: this.sourceID
       }
+
+      this.showSpinner = true
+      Citation.where(params).then(response => {
+        this.asserted_distributions_cites_list = response.body
+        this.showSpinner = false
+      })
     },
-    watch: {
-      sourceID() {
-        this.getCites();
-      }
-    },
-    methods: {
-      getCites() {
-        this.showSpinner = true
-        AjaxCall('get', '/citations.json?citation_object_type=AssertedDistribution&source_id=' + this.sourceID).then(response => {
-          this.asserted_distributions_cites_list = response.body
-          this.showSpinner = false
-        })
-      },
-      summarize() {
-        this.$emit('summarize', {
-          type: 'asserted_distribution_ids',
-          list: this.asserted_distributions_cites_list
-        })
-      }
-    },
-  }
+    summarize () {
+      this.$emit('summarize', {
+        type: 'asserted_distribution_ids',
+        list: this.asserted_distributions_cites_list
+      })
+    }
+  },
+}
 </script>

@@ -1,28 +1,19 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from './app.vue'
 
-  function init(element) {
-    let id = `radial-object-${(Math.random().toString(36).substr(2, 5))}`
-    let globalId = element.getAttribute('data-global-id')
-
-    if (globalId) {
-      element.setAttribute('id', id)
-
-      new Vue({
-        el: `#${id}`,
-        render: function (createElement) {
-          return createElement(App, {
-            props: {
-              id: id,
-              globalId: globalId
-            }
-          })
-        }
-      })
-    }
+function init(element) {
+  const id = `radial-object-${(Math.random().toString(36).substr(2, 5))}`
+  const globalId = element.getAttribute('data-global-id')
+  const props = {
+    id: id,
+    globalId: globalId
   }
+  const app = createApp(App, props)
 
-document.addEventListener('turbolinks:load', (event) => {
+  app.mount(element)
+}
+
+document.addEventListener('turbolinks:load', () => {
   if (document.querySelector('[data-radial-object="true"]')) {
     document.querySelectorAll('[data-radial-object="true"]').forEach((element) => {
       init(element)

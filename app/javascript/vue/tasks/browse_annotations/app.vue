@@ -2,7 +2,7 @@
   <div>
     <div class="flex-separate middle">
       <h1>Browse Annotations</h1>
-      <span 
+      <span
         @click="resetApp"
         class="reload-app"
         data-icon="reset">Reset
@@ -10,7 +10,7 @@
     </div>
     <spinner
       v-if="isLoading"
-      :full-screen="true"
+      full-screen
       legend="Loading..."
       :logo-size="{ width: '100px', height: '100px'}"/>
     <div class="flexbox">
@@ -30,8 +30,7 @@
           v-model="filter.selected_for"
           :select-options-url="filter.annotation_type.select_options_url"
           :all-select-option-url="filter.annotation_type.all_select_option_url"
-          :on-model="filter.model"
-          @selected_for="filter.selected_for = $event"/>
+          :on-model="filter.model"/>
       </div>
       <div class="annotation_by separate-right separate-left">
         <h2>By</h2>
@@ -173,7 +172,7 @@ export default {
         per: this.per,
         page
       }
-      params[this.for[this.filter.annotation_type.type]] = Object.values(this.filter.selected_for).map(item => item.id)
+      params[this.for[this.filter.annotation_type.type]] = this.filter.selected_for
       this.isLoading = true
 
       AjaxCall('get', `/${this.filter.annotation_type.type}.json`, { params: params }).then(response => {
@@ -218,7 +217,7 @@ export default {
         },
         annotation_logic: 'replace',
         selected_type: undefined,
-        selected_for: {},
+        selected_for: [],
         selected_by: {},
         model: undefined,
         result: 'initial result'

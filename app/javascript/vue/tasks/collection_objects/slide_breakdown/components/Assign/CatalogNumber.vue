@@ -85,7 +85,7 @@ export default {
     },
     incremented () {
       if(!this.identifier.identifier) return undefined
-      
+
       let inc = 0
 
       this.sledImage.metadata.forEach(item => {

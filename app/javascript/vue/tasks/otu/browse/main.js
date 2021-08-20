@@ -1,30 +1,24 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
+import { newStore } from './store/store'
 import App from './app.vue'
-import vueShortkey from 'vue-shortkey'
+import hotkey from 'plugins/v-hotkey'
 import HelpSystem from 'plugins/help/help'
 import en from './lang/en.js'
 
-import { newStore } from './store/store'
-
 function init () {
-  Vue.use(HelpSystem, {
+  const app = createApp(App)
+  app.directive('hotkey', hotkey)
+  app.use(HelpSystem, {
     languages: {
       en: en
     }
   })
-  Vue.use(vueShortkey)
-
-  new Vue({
-    el: '#vue-task-otu-browse',
-    store: newStore(),
-    render: function (createElement) {
-      return createElement(App)
-    }
-  })
+  app.use(newStore())
+  app.mount('#vue-task-otu-browse')
 }
 
-$(document).on('turbolinks:load', function () {
-  if ($('#vue-task-otu-browse').length) {
+document.addEventListener('turbolinks:load', () => {
+  if (document.querySelector('#vue-task-otu-browse')) {
     init()
   }
 })

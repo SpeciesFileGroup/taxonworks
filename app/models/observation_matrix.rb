@@ -26,6 +26,8 @@ class ObservationMatrix < ApplicationRecord
   # TODO: restrict these- you can not directly create these!
   has_many :descriptors, through: :observation_matrix_columns, inverse_of: :observation_matrices
 
+  scope :with_otu_id_array, ->  (otu_id_array) { joins('LEFT OUTER JOIN "observation_matrix_rows" ON "observation_matrix_rows"."observation_matrix_id" = "observation_matrices"."id"').where("otu_id in (?)", otu_id_array) }
+
   def qualitative_descriptors
     descriptors.where(type: 'Descriptor::Qualitative')
   end 
@@ -58,6 +60,10 @@ class ObservationMatrix < ApplicationRecord
   # !! Note order() is applied !!
   def symbol_descriptors
     descriptors.where(type: ['Descriptor::PresenceAbsence', 'Descriptor::Qualitative']).order('observation_matrix_columns.position')
+  end
+
+  def character_states
+    CharacterState.joins(descriptor: [:observation_matrices]).merge(descriptors)
   end
 
   def cell_count
@@ -222,5 +228,4 @@ class ObservationMatrix < ApplicationRecord
     observations.each {|o| h[o.descriptor_id][o.observation_object_global_id].push(o) }
     h
   end
-
 end

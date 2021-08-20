@@ -1,8 +1,7 @@
 <template>
   <div id="new_taxon_name_task">
     <div
-      v-shortkey="[getOSKey, 'f']"
-      @shortkey="focusSearch"
+      v-hotkey="shortcuts"
       class="flex-separate middle">
       <h1>{{ (getTaxon.id ? 'Edit' : 'New') }} taxon name</h1>
       <div class="horizontal-right-content middle">
@@ -31,15 +30,16 @@
       <div class="flexbox horizontal-center-content align-start">
         <div class="ccenter item">
           <spinner
-            :full-screen="true"
+            full-screen
             :legend="(loading ? 'Loading...' : 'Saving changes...')"
             :logo-size="{ width: '100px', height: '100px'}"
             v-if="loading"/>
-          <template v-for="(visibleSection, componentName) in menu">
+          <template
+            v-for="(visibleSection, componentName) in menu"
+            :key="componentName">
             <component
               v-if="visibleSection"
               class="margin-medium-bottom"
-              :key="componentName"
               :is="`${componentName.replace(' ', '')}Section`"/>
           </template>
         </div>
@@ -89,7 +89,7 @@ import ManagesynonymySection from './components/manageSynonym'
 import ClassificationSection from './components/classification.vue'
 import SoftValidation from 'components/soft_validations/panel.vue'
 import Spinner from 'components/spinner.vue'
-import getOSKey from 'helpers/getMacKey'
+import platformKey from 'helpers/getPlatformKey'
 
 import { convertType } from 'helpers/types.js'
 import { GetterNames } from './store/getters/getters'
@@ -97,30 +97,36 @@ import { MutationNames } from './store/mutations/mutations'
 import { ActionNames } from './store/actions/actions'
 
 export default {
+  name: 'NewTaxonName',
+
   components: {
-    Autocomplete,
-    Spinner,
-    NavHeader,
-    TaxonNameBox,
-    CheckChanges,
-    EtymologySection,
     AuthorSection,
-    StatusSection,
-    RelationshipSection,
+    Autocomplete,
     BasicinformationSection,
-    SoftValidation,
-    ManagesynonymySection,
-    OriginalcombinationSection,
-    TypeSection,
+    CheckChanges,
+    ClassificationSection,
+    EtymologySection,
     GenderSection,
-    ClassificationSection
+    ManagesynonymySection,
+    NavHeader,
+    OriginalcombinationSection,
+    RelationshipSection,
+    SoftValidation,
+    Spinner,
+    StatusSection,
+    TaxonNameBox,
+    TypeSection
   },
   computed: {
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+f`] = this.focusSearch
+
+      return keys
+    },
     validations () {
       return this.$store.getters[GetterNames.GetSoftValidation]
-    },
-    getOSKey () {
-      return getOSKey()
     },
     getTaxon () {
       return this.$store.getters[GetterNames.GetTaxon]
@@ -162,7 +168,6 @@ export default {
     }
   },
   mounted () {
-    const that = this
     const urlParams = new URLSearchParams(window.location.search)
     let taxonId = urlParams.get('taxon_name_id')
     const value = convertType(sessionStorage.getItem('task::newtaxonname::autosave'))
@@ -177,17 +182,18 @@ export default {
 
     window.addEventListener('scroll', this.scrollBox)
 
-    this.initLoad().then(function () {
+    this.initLoad().then(() => {
       if (/^\d+$/.test(taxonId)) {
-        that.$store.dispatch(ActionNames.LoadTaxonName, taxonId).then(function () {
-          that.$store.dispatch(ActionNames.LoadTaxonStatus, taxonId)
-          that.$store.dispatch(ActionNames.LoadTaxonRelationships, taxonId)
-          that.loading = false
+        this.$store.dispatch(ActionNames.LoadTaxonName, taxonId).then(() => {
+          this.$store.dispatch(ActionNames.LoadTaxonStatus, taxonId)
+          this.$store.dispatch(ActionNames.LoadTaxonRelationships, taxonId)
+          this.$store.dispatch(ActionNames.LoadOriginalCombination, taxonId)
+          this.loading = false
         }, () => {
-          that.loading = false
+          this.loading = false
         })
       } else {
-        that.loading = false
+        this.loading = false
       }
     })
 
@@ -212,17 +218,15 @@ export default {
       }
     },
     addShortcutsDescription () {
-      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+d`, 'Create a child of this taxon name', 'New taxon name')
-      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+e`, 'Go to comprehensive specimen digitization', 'New taxon name')
-      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+f`, 'Move focus to search', 'New taxon name')
-      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+l`, 'Clone this taxon name', 'New taxon name')
-      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+n`, 'Create a new taxon name', 'New taxon name')
-      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+p`, 'Create a new taxon name with the same parent', 'New taxon name')
-      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+s`, 'Save taxon name changes', 'New taxon name')
+      TW.workbench.keyboard.createLegend(`${platformKey()}+d`, 'Create a child of this taxon name', 'New taxon name')
+      TW.workbench.keyboard.createLegend(`${platformKey()}+e`, 'Go to comprehensive specimen digitization', 'New taxon name')
+      TW.workbench.keyboard.createLegend(`${platformKey()}+f`, 'Move focus to search', 'New taxon name')
+      TW.workbench.keyboard.createLegend(`${platformKey()}+l`, 'Clone this taxon name', 'New taxon name')
+      TW.workbench.keyboard.createLegend(`${platformKey()}+n`, 'Create a new taxon name', 'New taxon name')
+      TW.workbench.keyboard.createLegend(`${platformKey()}+p`, 'Create a new taxon name with the same parent', 'New taxon name')
+      TW.workbench.keyboard.createLegend(`${platformKey()}+s`, 'Save taxon name changes', 'New taxon name')
     },
-    getMacKey: function () {
-      return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
-    },
+
     isMinor: function () {
       let element = document.querySelector('#cright-panel')
       let navBar = document.querySelector('#taxonNavBar')

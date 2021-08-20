@@ -35,8 +35,11 @@ class Catalog::CollectionObject < ::Catalog
     :digital_record_created_by,
     :digital_record_updated_by,
     :biologically_associated,
+    :became_origin_of,
+    :originated_from
   ].freeze
 
+  # Group the events so that they can be toggled
   FILTER_MAP = {
     born: :life,
     died: :life, 
@@ -67,6 +70,8 @@ class Catalog::CollectionObject < ::Catalog
     collecting_event_metadata_depicted: :images,
     collection_site_imaged: :collecting_event,  
     biologically_associated: :biology,
+    became_origin_of: :lab,
+    originated_from: :lab,
   }.freeze
 
   # rubocop:disable Metrics/MethodLength
@@ -80,6 +85,20 @@ class Catalog::CollectionObject < ::Catalog
 
     data.items << Catalog::CollectionObject::EntryItem.new(type: :digital_record_created_by, object: o.creator, start_date: o.created_at.to_time)
     data.items << Catalog::CollectionObject::EntryItem.new(type: :digital_record_updated_by, object: o.updater, start_date: o.updated_at.to_time)
+
+    o.origin_relationships.each do |a|
+      data.items << Catalog::CollectionObject::EntryItem.new(
+        type: :became_origin_of,
+        object: a,
+        start_date: a.created_at )
+    end
+
+    o.related_origin_relationships.each do |a|
+      data.items << Catalog::CollectionObject::EntryItem.new(
+        type: :originated_from,
+        object: a,
+        start_date: a.created_at )
+    end
 
     o.all_biological_associations.each do |a|
       data.items << Catalog::CollectionObject::EntryItem.new(

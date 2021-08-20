@@ -36,7 +36,7 @@ class AssertedDistributionsController < ApplicationController
 
   # GET /asserted_distributions/1/edit
   def edit
-    @asserted_distribution.origin_citation.source = Source.new if !@asserted_distribution.origin_citation.source
+    @asserted_distribution.source = Source.new if !@asserted_distribution.source
   end
 
   # POST /asserted_distributions
@@ -91,7 +91,7 @@ class AssertedDistributionsController < ApplicationController
   # TODO: deprecate
   def search
     if params[:id].blank?
-      redirect_to asserted_distributions_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to asserted_distributions_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to asserted_distribution_path(params[:id])
     end

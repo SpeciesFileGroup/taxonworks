@@ -1,12 +1,9 @@
-export default function (state, content) {
-  var position = state.recent.contents.findIndex(item => {
-    if (content.id === item.id) {
-      return true
-    }
-  })
-  if (position < 0) {
+export default (state, content) => {
+  const index = state.recent.contents.findIndex(item => content.id === item.id)
+
+  if (index < 0) {
     state.recent.contents.unshift(content)
   } else {
-    state.recent.contents.unshift(state.recent.contents.splice(position, 1)[0])
+    state.recent.contents.unshift(state.recent.contents.splice(index, 1)[0])
   }
 }

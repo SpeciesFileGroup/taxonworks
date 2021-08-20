@@ -181,6 +181,7 @@ export default {
       this.$refs.filterComponent.params.settings.per = newVal
       this.loadPage(1)
     },
+
     list (newVal) {
       this.loadGeoreferences(newVal)
     }
@@ -189,7 +190,7 @@ export default {
   methods: {
     resetTask () {
       this.alreadySearch = false
-      this.list = {}
+      this.list = []
       this.urlRequest = ''
       this.pagination = undefined
       history.pushState(null, null, '/tasks/collecting_events/filter')
@@ -214,7 +215,7 @@ export default {
       this.$refs.filterComponent.loadPage(event.page)
     },
 
-    async loadGeoreferences (list) {
+    async loadGeoreferences (list = []) {
       const idLists = chunkArray(list.map(ce => ce.id), CHUNK_ARRAY_SIZE)
       const promises = []
 
@@ -235,7 +236,7 @@ export default {
 
     setCEWithGeoreferences () {
       this.list.forEach((ce, index) => {
-        this.$set(this.list[index], 'georeferencesCount', this.georeferences.filter(item => item.collecting_event_id === ce.id).length)
+        this.list[index]['georeferencesCount'] = this.georeferences.filter(item => item.collecting_event_id === ce.id).length
       })
     },
 

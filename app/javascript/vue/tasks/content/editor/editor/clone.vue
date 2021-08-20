@@ -1,22 +1,26 @@
 <template>
   <div :class="{ disabled : contents.length == 0 }">
     <div
-      @click="showModal = true && contents.length > 0"
+      @click="showModal = contents.length > 0"
       class="item flex-wrap-column middle menu-button">
       <span
         data-icon="clone"
-        class="big-icon"/>
+        class="big-icon"
+      />
       <span class="tiny_space">Clone</span>
     </div>
     <modal
       v-if="showModal"
       id="clone-modal"
       @close="showModal = false">
-      <h3 slot="header">Clone</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Clone</h3>
+      </template>
+      <template #body>
         <ul class="no_bullets">
           <li
             v-for="item in contents"
+            :key="item.id"
             @click="cloneCitation(item.text)">
             <span data-icon="show">
               <div class="clone-content-text">{{ item.text }}</div>
@@ -24,7 +28,7 @@
             <span v-html="item.object_tag"/>
           </li>
         </ul>
-      </div>
+      </template>
     </modal>
   </div>
 </template>
@@ -36,33 +40,40 @@ import { Content } from 'routes/endpoints'
 import Modal from 'components/ui/Modal.vue'
 
 export default {
-  components: {
-    Modal
-  },
+  name: 'CloneConent',
+
+  components: { Modal },
+
+  emits: ['addCloneCitation'],
+
   data () {
     return {
       contents: [],
       showModal: false
     }
   },
-  name: 'CloneConent',
+
   computed: {
     disabled () {
-      return (this.$store.getters[GetterNames.GetContentSelected] == undefined)
+      return !this.$store.getters[GetterNames.GetContentSelected]
     },
+
     topic () {
       return this.$store.getters[GetterNames.GetTopicSelected]
     },
+
     content () {
       return this.$store.getters[GetterNames.GetContentSelected]
     },
+
     otu () {
       return this.$store.getters[GetterNames.GetOtuSelected]
     }
   },
+
   watch: {
     content (val, oldVal) {
-      if (val != undefined) {
+      if (val) {
         if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
           this.loadContent()
         }
@@ -71,6 +82,7 @@ export default {
       }
     }
   },
+
   methods: {
     loadContent () {
       if (this.disabled) return
@@ -79,7 +91,8 @@ export default {
         this.contents = response.body.filter(c => c.id !== this.content.id)
       })
     },
-    cloneCitation: function (text) {
+
+    cloneCitation (text) {
       this.$emit('addCloneCitation', text)
       this.showModal = false
     }

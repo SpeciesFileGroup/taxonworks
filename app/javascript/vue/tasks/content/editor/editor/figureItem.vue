@@ -9,7 +9,8 @@
         @click="deleteDepiction()"/>
       <div
         :class="{ 'button-submit' : edit, 'button-default' : !edit }"
-        class="circle-button figures-edit" @click="editChange()"/>
+        class="circle-button figures-edit"
+        @click="editChange()"/>
       <input
         class="figures-label horizontal-center-content middle"
         v-if="edit"
@@ -17,13 +18,16 @@
         v-model="depiction.figure_label">
       <div
         class="figures-label horizontal-center-content middle"
-        v-else> {{ depiction.figure_label }}
+        v-else
+      >
+        {{ depiction.figure_label }}
       </div>
     </div>
     <div class="figures-body">
       <textarea
+        v-if="edit"
         v-model="depiction.caption"
-        v-if="edit"/>
+      />
       <span v-else>{{ depiction.caption }}</span>
     </div>
   </div>
@@ -34,34 +38,46 @@ import { MutationNames } from '../store/mutations/mutations'
 import { Depiction } from 'routes/endpoints'
 
 export default {
-  props: ['figure'],
   name: 'FigureItem',
-  data: function () {
+
+  props: {
+    figure: {
+      type: Object,
+      required: true
+    }
+  },
+
+  data () {
     return {
       depiction: undefined,
       edit: false
     }
   },
+
   watch: {
     figure (newVal) {
       this.depiction = newVal
     }
   },
+
   created () {
     this.depiction = this.figure
   },
+
   methods: {
     deleteDepiction () {
       Depiction.destroy(this.depiction.id).then(() => {
         this.$store.commit(MutationNames.RemoveDepiction, this.depiction)
       })
     },
+
     editChange () {
       if (this.edit) {
         this.update()
       }
       this.edit = !this.edit
     },
+
     update () {
       const depiction = {
         caption: this.depiction.caption,

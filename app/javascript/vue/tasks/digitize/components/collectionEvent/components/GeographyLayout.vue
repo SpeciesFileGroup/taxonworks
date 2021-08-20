@@ -4,46 +4,36 @@
     <draggable
       v-model="componentsOrder"
       :disabled="!settings.sortable"
+      :item-key="item => item"
       @end="updatePreferences">
-      <component
-        class="separate-bottom"
-        v-for="componentName in componentsOrder"
-        :key="componentName"
-        :is="componentName"/>
+      <template #item="{ element }">
+        <component
+          class="separate-bottom"
+          :is="element"/>
+      </template>
     </draggable>
   </div>
 </template>
 <script>
 
 import Draggable from 'vuedraggable'
-
-import Geography from './geography/geography.vue'
-import Georeferences from './geography/georeferences.vue'
-import Elevation from './geography/elevation.vue'
-import Dates from './geography/dates.vue'
-import Times from './geography/times.vue'
-import Group from './geography/group.vue'
-import Collectors from './geography/collectors.vue'
-import Predicates from './geography/predicates.vue'
 import sortComponent from '../../shared/sortComponenets.vue'
-import TripCode from './geography/tripCode.vue'
 
 import { GetterNames } from '../../../store/getters/getters'
 import { MutationNames } from '../../../store/mutations/mutations'
+import {
+  ComponentParse,
+  VueComponents
+} from '../../../const/components'
+
+const componentNames = Object.values(ComponentParse)
+const ParseComponents = Object.fromEntries(componentNames.map(componentName => [componentName, VueComponents[componentName]]))
 
 export default {
   mixins: [sortComponent],
   components: {
     Draggable,
-    Georeferences,
-    Collectors,
-    Geography,
-    Elevation,
-    Dates,
-    Times,
-    Group,
-    Predicates,
-    TripCode
+    ...ParseComponents
   },
   computed: {
     settings: {
@@ -57,8 +47,8 @@ export default {
   },
   data () {
     return {
-      componentsOrder: ['Geography', 'Georeferences', 'Elevation', 'Dates', 'Times', 'Collectors', 'TripCode', 'Group', 'Predicates'],
-      keyStorage: 'tasks::digitize::GeographyOrder'
+      keyStorage: 'tasks::digitize::GeographyOrder',
+      componentsSection: 'ComponentParse'
     }
   }
 }

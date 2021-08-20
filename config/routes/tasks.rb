@@ -1,4 +1,10 @@
 scope :tasks do
+  scope :namespaces do
+    scope :new_namespace, controller: 'tasks/namespaces/new_namespace' do
+      get '/', action: :index, as: 'new_namespace_task'
+    end
+  end
+
   scope :extracts do
     scope :new_extract, controller: 'tasks/extracts/new_extract' do
       get '/', action: :index, as: 'new_extract_task'
@@ -68,6 +74,10 @@ scope :tasks do
   end
 
   scope :content do
+      scope :by_nomenclature, controller: 'tasks/content/by_nomenclature' do
+        get '/', action: :index, as: 'content_by_nomenclature_task'
+      end
+
     scope :editor, controller: 'tasks/content/editor' do
       get 'index', as: 'index_editor_task'
       get 'recent_topics', as: 'content_editor_recent_topics_task'
@@ -378,6 +388,10 @@ scope :tasks do
     scope :row_coder, controller: 'tasks/observation_matrices/row_coder' do
       get 'index', as: 'index_row_coder_task'
       get 'set', as: 'set_row_coder_task'
+    end
+
+    scope :description_from_observation_matrix, controller: 'tasks/observation_matrices/description_from_observation_matrix' do
+      get 'description', action: :description, defaults: {format: :json}
     end
 
     scope :interactive_key, controller: 'tasks/observation_matrices/interactive_key' do

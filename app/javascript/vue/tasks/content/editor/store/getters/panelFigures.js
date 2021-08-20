@@ -1,3 +1,1 @@
-export default function (state) {
-  return state.panels.figures
-}
+export default state => state.panels.figures

@@ -9,11 +9,12 @@
         <b v-html="item.object.object_tag" />
       </p>
 
-      <template v-for="(object, key) in item.totals">
+      <template
+        v-for="(object, key) in item.totals"
+        :key="key">
         <div
           v-if="object"
           class="tag_list"
-          :key="key"
         >
           <span class="capitalize tag_label">{{ key }}</span>
           <span class="tag_total">{{ object }}</span>

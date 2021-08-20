@@ -1,16 +1,11 @@
-import Vue from 'vue'
-import App from './app.vue'
+import { createApp } from 'vue'
 import { newStore } from './store/store.js'
+import App from './app.vue'
 
 function init() {
-  var store = newStore()
-  new Vue({
-    store,
-    el: '#vue_new_matrix_task',
-    render: function (createElement) {
-      return createElement(App)
-    }
-  })
+  const app = createApp(App)
+  app.use(newStore())
+  app.mount('#vue_new_matrix_task')
 }
 
 document.addEventListener('turbolinks:load', (event) => {

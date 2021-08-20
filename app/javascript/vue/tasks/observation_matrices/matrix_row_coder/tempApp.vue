@@ -56,7 +56,7 @@
 </template>
 <script>
 
-import Vue from 'vue'
+import { createApp } from 'vue'
 import MatrixRowCoder from './MatrixRowCoder/MatrixRowCoder.vue'
 import MatrixRowCoderRequest from './request/MatrixRowCoderRequest'
 import SetParam from 'helpers/setParam'
@@ -74,24 +74,26 @@ export default {
           token: ''
         }
       },
-      matrixRow: undefined
+      matrixRow: undefined,
+      app: undefined
     }
   },
   mounted() {
     this.GetParams()
   },
   methods: {
-    GetParams() {
-      let urlParams = new URLSearchParams(window.location.search)
-      let rowId = urlParams.get('observation_matrix_row_id')
+    GetParams () {
+      const urlParams = new URLSearchParams(window.location.search)
+      const rowId = urlParams.get('observation_matrix_row_id')
 
       if ((/^\d+$/).test(rowId)) {
         this.initializeData.rowId = Number(rowId)
         this.loadMatrix()
       }
     },
-    getMatrix() {
-      let request = new MatrixRowCoderRequest()
+    getMatrix () {
+      const request = new MatrixRowCoderRequest()
+
       request.setApi({
         apiBase: this.initializeData.apiBase,
         apiParams: this.initializeData.apiParams
@@ -101,18 +103,15 @@ export default {
       })
     },
     loadMatrix () {
-      var props = this.initializeData
+      const props = this.initializeData
       const store = newStore(new MatrixRowCoderRequest())
+      this.app = createApp(MatrixRowCoder,
+        props
+      )
+      this.app.use(store)
+      this.app.mount('#matrix_row_coder')
+
       SetParam('/tasks/observation_matrices/row_coder/index', 'observation_matrix_row_id', props.rowId)
-      new Vue({
-        el: '#matrix_row_coder',
-        store,
-        render: function (createElement) {
-          return createElement(MatrixRowCoder, {
-            props
-          })
-        }
-      })
       this.getMatrix()
     }
   }

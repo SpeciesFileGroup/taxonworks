@@ -1,7 +1,7 @@
 import baseCRUD from './base'
 
 const permitParams = {
-  identifier: {
+  label: {
     text: String,
     total: Number,
     style: String,

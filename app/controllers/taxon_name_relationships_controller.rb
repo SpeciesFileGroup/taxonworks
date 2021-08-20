@@ -87,7 +87,7 @@ class TaxonNameRelationshipsController < ApplicationController
   def search
     if params[:id].blank?
       redirect_to taxon_name_relationship_path,
-                  notice: 'You must select an item from the list with a click or tab press before clicking show.'
+                  alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to taxon_name_relationship_path(params[:id])
     end
@@ -140,27 +140,31 @@ class TaxonNameRelationshipsController < ApplicationController
 
   def api_params
     params.permit(
-      :taxon_name_id,
+      :object_taxon_name_id,
       :subject_taxon_name_id,
-      :object_taxon_name_id, 
-      taxon_name_id: [],
+      :taxon_name_id,
+      :taxon_name_relationship_set,
+      :taxon_name_relationship_type,
+      object_taxon_name_id: [],
       subject_taxon_name_id: [],
-      object_taxon_name_id: [], 
-      taxon_name_relationship_type: [],
-      taxon_name_relationship_set: []
+      taxon_name_id: [],
+      taxon_name_relationship_set: [],
+      taxon_name_relationship_type: []
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
   def filter_params
     params.permit(
-      :taxon_name_id,
+      :object_taxon_name_id,
       :subject_taxon_name_id,
-      :object_taxon_name_id, 
-      taxon_name_id: [],
+      :taxon_name_id,
+      :taxon_name_relationship_set,
+      :taxon_name_relationship_type,
+      object_taxon_name_id: [],
       subject_taxon_name_id: [],
-      object_taxon_name_id: [], 
+      taxon_name_id: [],
+      taxon_name_relationship_set: [],
       taxon_name_relationship_type: [],
-      taxon_name_relationship_set: []
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 

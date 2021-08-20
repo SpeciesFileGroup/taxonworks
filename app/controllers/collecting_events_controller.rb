@@ -112,7 +112,7 @@ class CollectingEventsController < ApplicationController
   # GET /collecting_events/search
   def search
     if params[:id].blank?
-      redirect_to collecting_event_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to collecting_event_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to collecting_event_path(params[:id])
     end
@@ -318,6 +318,7 @@ class CollectingEventsController < ApplicationController
       :spatial_geographic_areas,
       :start_date, # used in date range
       :wkt,
+      collecting_event_wildcards: [],
       collector_id: [],
       geographic_area_id: [],
       keyword_id_and: [],

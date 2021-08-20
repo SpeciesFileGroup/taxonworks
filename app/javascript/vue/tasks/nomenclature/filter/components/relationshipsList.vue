@@ -31,9 +31,15 @@ export default {
   props: {
     list: {
       type: Array,
-      default: () => { return [] }
-    },
+      default: () => []
+    }
   },
+
+  emits: [
+    'delete',
+    'flip'
+  ],
+
   methods: {
     deleteItem(key) {
       this.$emit('delete', key)

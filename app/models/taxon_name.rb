@@ -246,14 +246,14 @@ class TaxonName < ApplicationRecord
 
   has_many :classified_as_unavailable_or_invalid, -> { where type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID }, class_name: 'TaxonNameClassification'
 
-  scope :with_same_cached_valid_id, -> { where('taxon_names.id = taxon_names.cached_valid_taxon_name_id') }
-  scope :with_different_cached_valid_id, -> { where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') } # This doesn't catch all invalid names.  Those with classifications only are missed !$#!@#
+  scope :with_same_cached_valid_id, -> { where(arel_table[:id].eq(arel_table[:cached_valid_taxon_name_id])) }
+  scope :with_different_cached_valid_id, -> { where(arel_table[:id].not_eq(arel_table[:cached_valid_taxon_name_id])) } # This doesn't catch all invalid names.  Those with classifications only are missed !$#!@#
 
   scope :that_is_valid, -> {where(cached_is_valid: true) }
   scope :that_is_invalid, -> {where(cached_is_valid: false) }
 
   def self.calculated_invalid
-    a = TaxonName.where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') # that_is_invalid
+    a = TaxonName.with_different_cached_valid_id # that_is_invalid
     b = TaxonName.joins(:taxon_name_classifications).where(taxon_name_classifications: {type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID }) # - 16115
     TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
   end
@@ -261,7 +261,7 @@ class TaxonName < ApplicationRecord
   def self.calculated_valid
     # Alt format: TaxonName.that_is_valid.left_joins(:classified_as_unavailable_or_invalid).merge(TaxonNameClassification.where(id: nil))
     TaxonName
-      .where('taxon_names.id = taxon_names.cached_valid_taxon_name_id')
+      .with_same_cached_valid_id
       .where.not(
         id: TaxonNameClassification.select(:taxon_name_id).where(type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID)
       )
@@ -640,6 +640,22 @@ class TaxonName < ApplicationRecord
     end
   end
 
+  # @return [array]
+  # returns array of hashes for history of taxon. Could be used for catalogue construction
+  def nomeclatural_history
+    history = []
+    TaxonName.where(cached_valid_taxon_name_id: self.id).order(:cached_nomenclature_date).each do |t|
+      item = {}
+      source_author_string = t.is_combination? ? [t.origin_citation&.source&.authority_name, t.origin_citation&.source&.year].join(', ') : nil
+      source_author_string = ' in ' + source_author_string unless source_author_string.nil?
+      item[:name] = t.is_combination? ? t.cached_html : t.cached_original_combination_html
+      item[:author_year] = t.is_combination? ? t.cached_author_year + source_author_string : t.original_author_year
+      item[:statuses] = t.combined_statuses
+      history.append(item)
+    end
+    return history
+  end
+
   # @return [Class, nil]
   #   gender of a genus as class
   def gender_class
@@ -683,7 +699,7 @@ class TaxonName < ApplicationRecord
 
   # @return [Scope]
   def taxon_name_classifications_for_statuses
-    taxon_name_classifications.with_type_array(ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICN_TAXON_NAME_CLASSIFICATION_NAMES + ICNP_TAXON_NAME_CLASSIFICATION_NAMES + ICTV_TAXON_NAME_CLASSIFICATION_NAMES)
+    taxon_name_classifications.with_type_array(ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICN_TAXON_NAME_CLASSIFICATION_NAMES + ICNP_TAXON_NAME_CLASSIFICATION_NAMES + ICVCN_TAXON_NAME_CLASSIFICATION_NAMES)
   end
 
   # @return [Array of String]
@@ -715,6 +731,12 @@ class TaxonName < ApplicationRecord
   #   combination of cached_html and cached_author_year.
   def cached_html_name_and_author_year
     [cached_html, cached_author_year].compact.join(' ')
+  end
+
+  # @return [String]
+  #   combination of cached_original_combination_html and original_author_year.
+  def cached_html_original_name_and_author_year
+    [cached_original_combination_html, original_author_year].compact.join(' ')
   end
 
   # @return [String] combination of cached and cached_author_year.
@@ -1201,27 +1223,62 @@ class TaxonName < ApplicationRecord
 
   # return [String]
   #   the author and year of the name, adds parenthesis where asserted
-  #   abstract, see Protonym and Combination
   def get_author_and_year
-    true
+    if self.type == 'Combination'
+      c = protonyms_by_rank
+      return nil if c.empty?
+      taxon = c[c.keys.last]
+    else
+      taxon = self
+    end
+
+    case taxon.rank_class.try(:nomenclatural_code)
+    when :iczn
+      ay = iczn_author_and_year(taxon)
+    when :icvcn
+      ay = icn_author_and_year(taxon)
+    when :icnp
+      ay = icn_author_and_year(taxon)
+    when :icn
+      ay = icn_author_and_year(taxon)
+    else
+      ay = ([author_string] + [year_integer]).compact.join(' ')
+    end
+    ay.blank? ? nil : ay
   end
 
-  def icn_author_and_year
+  def icn_author_and_year(taxon)
     ay = nil
 
-    basionym = TaxonNameRelationship.where_object_is_taxon_name(self).
-      with_type_string('TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym')
-    b_sub = basionym.empty? ? nil : basionym.first.subject_taxon_name
+    basionym = TaxonNameRelationship.where_subject_is_taxon_name(taxon).
+      with_type_string('TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Basionym').first
+    if basionym.nil?
+      basionym = TaxonNameRelationship.where_object_is_taxon_name(taxon).
+        with_type_string('TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Basionym').first
+    end
 
-    misapplication = TaxonNameRelationship.where_subject_is_taxon_name(self).
+    b_sub = basionym.nil? ? nil : basionym.subject_taxon_name
+    if b_sub.nil? && taxon.is_combination?
+      b_sub = taxon.finest_protonym
+    end
+
+    misapplication = TaxonNameRelationship.where_subject_is_taxon_name(taxon).
       with_type_string('TaxonNameRelationship::Icn::Unaccepting::Misapplication')
+    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(taxon).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING)
     m_obj = misapplication.empty? ? nil : misapplication.first.object_taxon_name
 
-    t  = [self.author_string]
-    t  += ['(' + self.year_integer.to_s + ')'] unless self.year_integer.nil?
-    ay = t.compact.join(' ')
+    mobj = misspelling.empty? ? nil : misspelling.first.object_taxon_name
+    if !mobj.blank?
+      ay = mobj.try(:author_string)
+    else
+      ay = self.try(:author_string)
+    end
 
-    unless basionym.empty? || b_sub.author_string.blank?
+    #t  = [self.author_string]
+    #t  += ['(' + self.year_integer.to_s + ')'] unless self.year_integer.nil?
+    #ay = t.compact.join(' ')
+
+    if !basionym.nil? && !b_sub.author_string.blank? && b_sub.id != self.id
       ay = '(' + b_sub.author_string + ') ' + ay
     end
 
@@ -1236,20 +1293,12 @@ class TaxonName < ApplicationRecord
 
   # @return [String, nil]
   #   the authors, and year, with parentheses as inferred by the data
-  def iczn_author_and_year
+  def iczn_author_and_year(taxon)
     ay = nil
     p = nil
 
-    if self.type == 'Combination'
-      c = protonyms_by_rank
-      return nil if c.empty?
-      taxon = c[c.keys.last]
-    else
-      taxon = self
-    end
-
     misapplication = TaxonNameRelationship.where_subject_is_taxon_name(taxon).with_type_string('TaxonNameRelationship::Iczn::Invalidating::Misapplication')
-    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(taxon).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
+    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(taxon).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING)
 
     mobj = misspelling.empty? ? nil : misspelling.first.object_taxon_name
     unless mobj.blank?
@@ -1574,7 +1623,7 @@ class TaxonName < ApplicationRecord
   def sv_fix_cached_names
     begin
       TaxonName.transaction do
-        self.save
+        self.set_cached
         return true
       end
     rescue

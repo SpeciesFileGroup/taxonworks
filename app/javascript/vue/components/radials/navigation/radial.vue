@@ -5,47 +5,47 @@
         v-if="display"
         :container-style="{ backgroundColor: 'transparent', boxShadow: 'none' }"
         @close="closeModal()">
-        <h3
-          slot="header"
-          class="flex-separate">
-          <span v-html="title" />
-          <span
-            v-if="metadata"
-            class="separate-right"> {{ metadata.type }}</span>
-        </h3>
-        <div
-          slot="body"
-          class="flex-separate">
-          <spinner v-if="loading" />
-          <div class="radial-annotator-menu">
-            <div>
-              <radial-menu
-                v-if="menuCreated"
-                :options="menuOptions"
-                @onClick="selectedRadialOption"/>
+        <template #header>
+          <h3 class="flex-separate">
+            <span v-html="title" />
+            <span
+              v-if="metadata"
+              class="separate-right"> {{ metadata.type }}</span>
+          </h3>
+        </template>
+        <template #body>
+          <div class="flex-separate">
+            <spinner v-if="loading" />
+            <div class="radial-annotator-menu">
+              <div>
+                <radial-menu
+                  v-if="menuCreated"
+                  :options="menuOptions"
+                  @onClick="selectedRadialOption"/>
+              </div>
             </div>
+            <div
+              class="radial-annotator-template panel"
+              :style="{ 'max-height': windowHeight(), 'min-height': windowHeight() }"
+              v-if="currentView">
+              <h2 class="capitalize view-title">
+                {{ currentView.replace("_"," ") }}
+              </h2>
+              <component
+                class="radial-annotator-container"
+                :is="(currentView ? currentView + 'Component' : undefined)"
+                :type="currentView"
+                :metadata="metadata"
+                :global-id="globalId"
+                @onSelectedGlobalId="loadMetadata"
+                @updateCount="setTotal"/>
+            </div>
+            <destroy-confirmation
+              v-if="showDestroyModal"
+              @close="showDestroyModal = false"
+              @confirm="destroyObject"/>
           </div>
-          <div
-            class="radial-annotator-template panel"
-            :style="{ 'max-height': windowHeight(), 'min-height': windowHeight() }"
-            v-if="currentView">
-            <h2 class="capitalize view-title">
-              {{ currentView.replace("_"," ") }}
-            </h2>
-            <component
-              class="radial-annotator-container"
-              :is="(currentView ? currentView + 'Component' : undefined)"
-              :type="currentView"
-              :metadata="metadata"
-              :global-id="globalId"
-              @onSelectedGlobalId="loadMetadata"
-              @updateCount="setTotal"/>
-          </div>
-          <destroy-confirmation
-            v-if="showDestroyModal"
-            @close="showDestroyModal = false"
-            @confirm="destroyObject"/>
-        </div>
+        </template>
       </modal>
       <span
         v-if="showBottom"
@@ -71,12 +71,19 @@ import RecentComponent from './components/recent.vue'
 import DestroyConfirmation from './components/DestroyConfirmation'
 import all_tasksComponent from './components/allTasks.vue'
 
-const defaultOptions = {
+import { PinboardItem } from 'routes/endpoints'
+
+const DEFAULT_OPTIONS = {
   New: 'New',
   Edit: 'Edit',
   Destroy: 'Destroy',
   Recent: 'Recent',
   Show: 'Show'
+}
+
+const CUSTOM_OPTIONS = {
+  AllTasks: 'allTasks',
+  CircleButton: 'circleButton'
 }
 
 export default {
@@ -90,42 +97,50 @@ export default {
     Spinner,
     DestroyConfirmation
   },
+
   props: {
     reload: {
       type: Boolean,
       default: false
     },
+
     globalId: {
       type: String,
       required: true
     },
+
     showBottom: {
       type: Boolean,
       default: true
     },
+
     buttonClass: {
       type: String,
       default: 'btn-radial-object'
     },
+
     buttonTitle: {
       type: String,
       default: 'Navigate radial'
     },
+
     maxTaskInPie: {
       type: Number,
       default: 4
     },
+
     components: {
       type: Object,
-      default: () => {
-        return {}
-      }
+      default: () => ({})
     },
+
     filterOptions: {
       type: [String, Array],
-      default: () => { return [] }
+      default: () => []
     }
   },
+
+  emits: ['close'],
 
   computed: {
     menuOptions () {
@@ -156,7 +171,7 @@ export default {
       }
 
       if (this.metadata?.recent_url) {
-        taskSlices.push(this.addSlice(defaultOptions.Recent,
+        taskSlices.push(this.addSlice(DEFAULT_OPTIONS.Recent,
           this.recentTotal
             ? {
                 slices: [{
@@ -193,24 +208,28 @@ export default {
         slices: slices
       }
     },
+
     defaultSlices () {
       const filterOptions = this.filterOptions
 
       if (!this.metadata.destroy) {
-        filterOptions.push(this.addSlice(defaultOptions.Destroy))
+        filterOptions.push(this.addSlice(DEFAULT_OPTIONS.Destroy))
       }
 
       return this.defaultSlicesTypes.filter(type => !filterOptions.includes(type)).map(type => this.addSlice(type, { link: this.defaultLinks()[type] }))
     },
+
     menuCreated () {
       return this.metadata
     },
+
     isPinned () {
-      return this.metadata['pinboard_item']
+      return this.metadata?.pinboard_item
     },
+
     middleButton () {
       return {
-        name: 'circleButton',
+        name: CUSTOM_OPTIONS.CircleButton,
         radius: 30,
         icon: {
           url: Icons.Pin,
@@ -231,16 +250,15 @@ export default {
       display: false,
       globalIdSaved: undefined,
       metadata: undefined,
-      title: 'Radial object',
+      title: 'Radial navigation',
       deleted: false,
       showDestroyModal: false,
       recentTotal: 0,
-      customOptions: ['alltasks', 'circleButton'],
       defaultSlicesTypes: [
-        defaultOptions.New,
-        defaultOptions.Destroy,
-        defaultOptions.Edit,
-        defaultOptions.Show
+        DEFAULT_OPTIONS.New,
+        DEFAULT_OPTIONS.Destroy,
+        DEFAULT_OPTIONS.Edit,
+        DEFAULT_OPTIONS.Show
       ]
     }
   },
@@ -259,51 +277,46 @@ export default {
         ...attr
       }
     },
+
     selectedRadialOption ({ name }) {
-      if (Object.keys(defaultOptions).includes(name) || this.customOptions.includes(name)) {
-        this.currentView = undefined
-        switch (name) {
-          case 'circleButton':
-            this.isPinned ? this.destroyPin() : this.createPin()
-            break
-          case defaultOptions.Recent:
-            this.currentView = 'Recent'
-            break
-          case defaultOptions.Edit:
-            window.open(this.metadata['edit'] ? this.metadata.edit : `${this.metadata.resource_path}/edit`)
-            break
-          case defaultOptions.New:
-            window.open(this.metadata['new'] ? this.metadata.new : `${this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf('/'))}/new`)
-            break
-          case defaultOptions.Show:
-            window.open(this.metadata.resource_path)
-            break
-          case defaultOptions.Destroy:
-            this.showDestroyModal = true
-            break
-          case 'alltasks':
-            this.currentView = 'all_tasks'
-            break
-        }
+      switch (name) {
+        case CUSTOM_OPTIONS.CircleButton:
+          this.isPinned
+            ? this.destroyPin()
+            : this.createPin()
+          break
+        case DEFAULT_OPTIONS.Recent:
+          this.currentView = 'Recent'
+          break
+        case DEFAULT_OPTIONS.Destroy:
+          this.showDestroyModal = true
+          break
+        case DEFAULT_OPTIONS.AllTasks:
+          this.currentView = 'all_tasks'
+          break
       }
     },
+
     defaultLinks () {
       return {
-        [defaultOptions.Edit]: this.metadata?.edit || `${this.metadata.resource_path}/edit`,
-        [defaultOptions.New]: this.metadata?.new || `${this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf('/'))}/new`,
-        [defaultOptions.Show]: this.metadata.resource_path
+        [DEFAULT_OPTIONS.Edit]: this.metadata?.edit || `${this.metadata.resource_path}/edit`,
+        [DEFAULT_OPTIONS.New]: this.metadata?.new || `${this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf('/'))}/new`,
+        [DEFAULT_OPTIONS.Show]: this.metadata.resource_path
       }
     },
+
     closeModal () {
       this.display = false
       this.eventClose()
       this.$emit('close')
     },
+
     displayRadialObject () {
       this.display = true
       this.currentView = undefined
       this.loadMetadata(this.globalId)
     },
+
     loadMetadata (globalId) {
       if (globalId == this.globalIdSaved && this.menuCreated && !this.reload) return
       this.globalIdSaved = globalId
@@ -316,9 +329,11 @@ export default {
         this.loading = false
       })
     },
+
     setTotal (total) {
       this.recentTotal = total
     },
+
     eventClose () {
       const event = new CustomEvent('radialObject:close', {
         detail: {
@@ -327,6 +342,7 @@ export default {
       })
       document.dispatchEvent(event)
     },
+
     eventDestroy () {
       const event = new CustomEvent('radialObject:destroy', {
         detail: {
@@ -335,33 +351,36 @@ export default {
       })
       document.dispatchEvent(event)
     },
+
     windowHeight () {
       return ((window.innerHeight - 100) > 650 ? 650 : window.innerHeight - 100) + 'px !important'
     },
+
     createPin () {
-      const pinItem = {
-        pinboard_item: {
-          pinned_object_id: this.metadata.id,
-          pinned_object_type: this.metadata.type,
-          is_inserted: true
-        }
+      const pinboard_item = {
+        pinned_object_id: this.metadata.id,
+        pinned_object_type: this.metadata.type,
+        is_inserted: true
       }
-      this.create('/pinboard_items', pinItem).then(response => {
-        this.$set(this.metadata, 'pinboard_item', { id: response.body.id })
-        TW.workbench.pinboard.addToPinboard(response.body)
+
+      PinboardItem.create({ pinboard_item }).then(({ body }) => {
+        this.metadata.pinboard_item = { id: body.id }
+        TW.workbench.pinboard.addToPinboard(body)
         TW.workbench.alert.create('Pinboard item was successfully created.', 'notice')
       })
     },
-    destroyPin: function () {
-      this.destroy(`/pinboard_items/${this.metadata.pinboard_item.id}`, { _destroy: true }).then(response => {
+
+    destroyPin () {
+      PinboardItem.destroy(this.metadata.pinboard_item.id).then(_ => {
         TW.workbench.alert.create('Pinboard item was successfully destroyed.', 'notice')
         TW.workbench.pinboard.removeItem(this.metadata.pinboard_item.id)
-        this.$delete(this.metadata, 'pinboard_item')
+        delete this.metadata.pinboard_item
       })
     },
+
     destroyObject () {
       this.showDestroyModal = false
-      this.destroy(`${this.metadata.resource_path}.json`).then((response) => {
+      this.destroy(`${this.metadata.resource_path}.json`).then(_ => {
         TW.workbench.alert.create(`${this.metadata.type} was successfully destroyed.`, 'notice')
         if (this.globalId === this.metadata.globalId) {
           this.eventDestroy()

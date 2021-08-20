@@ -14,7 +14,7 @@ export default {
   props: {
     id: {
       type: String,
-      required: true
+      default: undefined
     },
     url: {
       type: String,
@@ -60,7 +60,7 @@ export default {
     },
     timeout: {
       type: Number,
-      default: 0
+      default: 1800000
     },
     language: {
       type: Object,
@@ -129,8 +129,10 @@ export default {
     if (this.$isServer) {
       return
     }
-    Dropzone.autoDiscover = false
     const element = this.id ? document.getElementById(this.id) : this.$el
+
+    Dropzone.autoDiscover = false
+
     if (!this.useCustomDropzoneOptions) {
       this.dropzone = new Dropzone(element, {
         clickable: this.clickable,
@@ -157,7 +159,12 @@ export default {
         dictResponseError: this.language.dictResponseError
       })
     } else {
-      this.dropzone = new Dropzone(element, Object.assign({}, { maxFilesize: this.maxFileSizeInMB }, this.dropzoneOptions))
+      const defaultConfiguration = { 
+        maxFilesize: this.maxFileSizeInMB,
+        timeout: this.timeout
+      }
+
+      this.dropzone = new Dropzone(element, Object.assign({}, defaultConfiguration, this.dropzoneOptions))
     }
     // Handle the dropzone events
     const vm = this
@@ -192,7 +199,7 @@ export default {
       vm.$emit('vdropzone-queue-complete', file, xhr, formData)
     })
   },
-  beforeDestroy () {
+  beforeUnmount () {
     this.dropzone.destroy()
   }
 }

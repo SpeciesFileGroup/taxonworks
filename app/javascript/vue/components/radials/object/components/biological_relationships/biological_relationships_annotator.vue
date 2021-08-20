@@ -1,78 +1,74 @@
 <template>
   <div class="biological_relationships_annotator">
     <div class="separate-bottom">
-      <template>
-        <template v-if="edit">
-          <div class="flex-separate">
-            <h3>Edit mode</h3>
-            <button
-              type="button"
-              class="button button-default"
-              @click="reset">
-              Cancel
-            </button>
-          </div>
-          <br>
-        </template>
-        <h3 v-html="metadata.object_tag"/>
-        <h3 v-if="biologicalRelationship" class="relationship-title middle">
-          <template v-if="flip">
-            <span
-              v-for="item in biologicalRelationship.object_biological_properties"
-              :key="item.id"
-              class="separate-right background-info"
-              v-html="item.name"/>
-            <span
-              v-html="biologicalRelationship.inverted_name"/>
-            <span 
-              v-for="item in biologicalRelationship.subject_biological_properties"
-              :key="item.id"
-              class="separate-left background-info"
-              v-html="item.name"/>
-          </template>
-          <template v-else>
-            <span 
-              v-for="item in biologicalRelationship.subject_biological_properties"
-              :key="item.id"
-              class="separate-right background-info"
-              v-html="item.name"/>
-            <span>{{ (biologicalRelationship.hasOwnProperty('label') ? biologicalRelationship.label : biologicalRelationship.name) }}</span>
-            <span 
-              v-for="item in biologicalRelationship.object_biological_properties"
-              :key="item.id"
-              class="separate-left background-info"
-              v-html="item.name"/>
-          </template>
+      <template v-if="edit">
+        <div class="flex-separate">
+          <h3>Edit mode</h3>
           <button
-            v-if="biologicalRelationship.inverted_name"
-            class="separate-left button button-default flip-button"
             type="button"
-            @click="flip = !flip">
-            Flip
+            class="button button-default"
+            @click="reset">
+            Cancel
           </button>
-          <span
-            @click="biologicalRelationship = undefined; flip = false"
-            class="margin-small-left button button-default circle-button btn-undo"/>
-          <lock-component v-model="lockRelationship"/>
-        </h3>
-        <h3
-          class="subtle relationship-title"
-          v-else>Choose relationship</h3>
+        </div>
+        <br>
       </template>
+      <h3 v-html="metadata.object_tag"/>
+      <h3 v-if="biologicalRelationship" class="relationship-title middle">
+        <template v-if="flip">
+          <span
+            v-for="item in biologicalRelationship.object_biological_properties"
+            :key="item.id"
+            class="separate-right background-info"
+            v-html="item.name"/>
+          <span
+            v-html="biologicalRelationship.inverted_name"/>
+          <span 
+            v-for="item in biologicalRelationship.subject_biological_properties"
+            :key="item.id"
+            class="separate-left background-info"
+            v-html="item.name"/>
+        </template>
+        <template v-else>
+          <span 
+            v-for="item in biologicalRelationship.subject_biological_properties"
+            :key="item.id"
+            class="separate-right background-info"
+            v-html="item.name"/>
+          <span>{{ (biologicalRelationship.hasOwnProperty('label') ? biologicalRelationship.label : biologicalRelationship.name) }}</span>
+          <span 
+            v-for="item in biologicalRelationship.object_biological_properties"
+            :key="item.id"
+            class="separate-left background-info"
+            v-html="item.name"/>
+        </template>
+        <button
+          v-if="biologicalRelationship.inverted_name"
+          class="separate-left button button-default flip-button"
+          type="button"
+          @click="flip = !flip">
+          Flip
+        </button>
+        <span
+          @click="biologicalRelationship = undefined; flip = false"
+          class="margin-small-left button button-default circle-button btn-undo"/>
+        <lock-component v-model="lockRelationship"/>
+      </h3>
+      <h3
+        class="subtle relationship-title"
+        v-else>Choose relationship</h3>
 
-      <template>
-        <h3
-          v-if="biologicalRelation"
-          class="relation-title middle">
-          <span v-html="displayRelated"/>
-          <span
-            @click="biologicalRelation = undefined"
-            class="margin-small-left button button-default circle-button btn-undo"/>
-        </h3>
-        <h3
-          v-else
-          class="subtle relation-title">Choose related OTU/collection object</h3>
-      </template>
+      <h3
+        v-if="biologicalRelation"
+        class="relation-title middle">
+        <span v-html="displayRelated"/>
+        <span
+          @click="biologicalRelation = undefined"
+          class="margin-small-left button button-default circle-button btn-undo"/>
+      </h3>
+      <h3
+        v-else
+        class="subtle relation-title">Choose related OTU/collection object</h3>
     </div>
 
     <biological
@@ -193,9 +189,11 @@ export default {
       }
       if (this.alreadyExist) {
         this.update(`/biological_associations/${this.alreadyExist.id}.json`, { biological_association: data }).then(response => {
+          const index = this.list.findIndex(item => item.id === response.body.id)
+
           this.reset()
           TW.workbench.alert.create('Citation was successfully added to biological association.', 'notice')
-          this.$set(this.list, this.list.findIndex(item => item.id === response.body.id), response.body)
+          this.list[index] = response.body
         })
       } else {
         this.create('/biological_associations.json', { biological_association: data }).then(response => {
@@ -206,7 +204,7 @@ export default {
       }
     },
     updateAssociation () {
-      let data = {
+      const data = {
         id: this.edit.id,
         biological_relationship_id: this.biologicalRelationship.id,
         object_global_id: (this.flip ? this.globalId : this.biologicalRelation.global_id),
@@ -218,11 +216,11 @@ export default {
       }
 
       this.update(`/biological_associations/${data.id}.json`, { biological_association: data }).then(response => {
+        const index = this.list.findIndex(item => item.id === response.body.id)
+
         this.reset()
+        this.list[index] = response.body
         TW.workbench.alert.create('Biological association was successfully updated.', 'notice')
-        this.$set(this.list, this.list.findIndex(item => {
-          return item.id === response.body.id
-        }), response.body)
       })
     },
     editBiologicalRelationship (bioRelation) {

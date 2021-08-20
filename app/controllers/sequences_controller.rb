@@ -70,7 +70,7 @@ class SequencesController < ApplicationController
 
   def search
     if params[:id].blank?
-      redirect_to sequences_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to sequences_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to sequence_path(params[:id])
     end

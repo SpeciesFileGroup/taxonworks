@@ -1,13 +1,13 @@
 <template>
   <v-btn
-    v-if="getDefault"
+    v-if="!!getDefault"
     circle
     color="primary"
     title="Use default pinned"
     @click="sendDefault"
   >
     <v-icon
-      x-small
+      small
       color="white"
       name="pin"
     />
@@ -41,6 +41,12 @@ export default {
     }
   },
 
+  emits: [
+    'getId',
+    'getLabel',
+    'getItem'
+  ],
+
   data () {
     return {
       getDefault: undefined,
@@ -53,7 +59,7 @@ export default {
     document.addEventListener('pinboard:insert', this.handleEvent)
   },
 
-  destroyed () {
+  unmounted () {
     document.removeEventListener('pinboard:insert', this.handleEvent)
   },
 

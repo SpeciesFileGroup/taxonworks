@@ -29,8 +29,7 @@
 
 <script>
 
-import { GetDepictions, DestroyDepiction } from './request/resources'
-
+import { Depiction } from 'routes/endpoints'
 import Dropzone from 'components/dropzone.vue'
 import Spinner from 'components/spinner.vue'
 import DepictionImage from './depictionImage.vue'
@@ -40,15 +39,8 @@ export default {
     DepictionImage,
     Dropzone,
     Spinner
-  }, /*
-  computed: {
-    getTypeMaterial () {
-      return this.$store.getters[GetterNames.GetTypeMaterial]
-    },
-    getImages () {
-      return this.$store.getters[GetterNames.GetTypeMaterial].collection_object.images
-    }
-  },*/
+  },
+
   props: {
     objectId: {
       type: [String, Number],
@@ -59,7 +51,10 @@ export default {
       required: true
     }
   },
-  data: function () {
+
+  emits: ['created'],
+
+  data () {
     return {
       creatingType: false,
       displayBody: true,
@@ -80,7 +75,7 @@ export default {
     getTypeMaterial (newVal, oldVal) {
       if (newVal.id && (newVal.id != oldVal.id)) {
         this.$refs.depiction.setOption('autoProcessQueue', true)
-        GetDepictions(newVal.collection_object.id).then(response => {
+        Depiction.find(newVal.collection_object.id).then(response => {
           this.figuresList = response
         })
       } else {
@@ -90,36 +85,28 @@ export default {
     }
   },
   methods: {
-    'success': function (file, response) {
+    success (file, response) {
       this.figuresList.push(response)
       this.$refs.depiction.removeFile(file)
-      this.$emit('created',response)
+      this.$emit('created', response)
     },
-    'sending': function (file, xhr, formData) {
+
+    sending (file, xhr, formData) {
       formData.append('depiction[depiction_object_id]', this.objectId)
       formData.append('depiction[depiction_object_type]', this.objectType)
     },
-    'addedfile': function () {
+
+    addedfile () {
       if (!this.getTypeMaterial.id && !this.creatingType) {
         this.creatingType = true
-       /* this.$store.dispatch(ActionNames.CreateTypeMaterial).then((response) => {
-          var that = this
-          setTimeout(function () {
-            that.$refs.depiction.setOption('autoProcessQueue', true)
-            that.$refs.depiction.processQueue()
-            that.creatingType = false
-          }, 500)
-        }, () => {
-          this.creatingType = false
-        })
-        */
       }
     },
+
     removeDepiction (depiction) {
-      if (window.confirm(`Are you sure want to proceed?`)) {
-        DestroyDepiction(depiction.id).then(response => {
+      if (window.confirm('Are you sure want to proceed?')) {
+        Depiction.destroy(depiction.id).then(_ => {
           TW.workbench.alert.create('Depiction was successfully deleted.', 'notice')
-          this.figuresList.splice(this.figuresList.findIndex((figure) => { return figure.id == depiction.id }), 1)
+          this.figuresList.splice(this.figuresList.findIndex(figure => figure.id === depiction.id), 1)
         })
       }
     }

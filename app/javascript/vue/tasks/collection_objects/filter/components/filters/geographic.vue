@@ -72,22 +72,27 @@ export default {
     Autocomplete,
     GeoreferenceMap
   },
+
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     geographic: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       view: 'area',
@@ -96,6 +101,7 @@ export default {
       geojson: []
     }
   },
+
   watch: {
     geojson: {
       handler (newVal) {
@@ -114,11 +120,13 @@ export default {
       },
       deep: true
     },
+
     geographic: {
       handler (newVal, oldVal) {
         if (!newVal?.geo_json?.length && oldVal?.geo_json?.length) {
           this.geojson = []
         }
+
         if (!newVal.geographic_area_id.length) {
           this.geographic_areas = []
         }
@@ -126,6 +134,7 @@ export default {
       deep: true
     }
   },
+
   mounted () {
     const urlParams = URLParamsToJSON(location.href)
     if (Object.keys(urlParams).length) {
@@ -140,14 +149,17 @@ export default {
       this.geographic.spatial_geographic_areas = urlParams.spatial_geographic_areas
     }
   },
+
   methods: {
     addShape (shape) {
       this.geojson = [shape]
     },
+
     removeGeoArea (index) {
       this.geographic.geographic_area_id.splice(index, 1)
       this.geographic_areas.splice(index, 1)
     },
+
     addGeoArea (id) {
       GeographicArea.find(id).then(response => {
         this.geographic.geo_json = undefined
@@ -156,6 +168,7 @@ export default {
         this.geographic_areas.push(response.body)
       })
     },
+
     convertGeoJSONParam (urlParams) {
       const geojson = urlParams.geo_json
       return {
@@ -173,7 +186,7 @@ export default {
 }
 </script>
 <style scoped>
-  ::v-deep .vue-autocomplete-input {
+  :deep(.vue-autocomplete-input) {
     width: 100%
   }
 </style>

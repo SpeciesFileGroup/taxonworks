@@ -1,4 +1,5 @@
-# A Tag links a ControlledVocabularyTerm::Keyword to a Data object.
+# A Tag links a ControlledVocabularyTerm::Keyword to a Data object. They are in essence a way to informally group data
+# for future operation.  See also DataAttribute Predicates.
 #
 # @!attribute keyword_id
 #   @return [Integer]
@@ -28,12 +29,11 @@ class Tag < ApplicationRecord
   
   # Tags can not be cited.
   include Housekeeping
-  include Shared::IsData
   include Shared::AttributeAnnotations
+  include Shared::IsData
 
   include Shared::MatrixHooks::Dynamic # Must preceed Tag::MatrixHooks
   include Tag::MatrixHooks # Must come after Shared::MatrixHooks::Dynamic 
-
 
   include Shared::PolymorphicAnnotator
   polymorphic_annotates(:tag_object)
@@ -49,6 +49,8 @@ class Tag < ApplicationRecord
   validates_uniqueness_of :keyword_id, scope: [:tag_object_id, :tag_object_type]
 
   accepts_nested_attributes_for :keyword, reject_if: :reject_keyword # , allow_destroy: true
+
+  after_create :add_source_to_project, if: Proc.new { |tag| tag.tag_object.is_a?(Source) }
 
   def self.tag_objects(objects, keyword_id = nil)
     return nil if keyword_id.nil? or objects.empty?
@@ -136,6 +138,10 @@ class Tag < ApplicationRecord
 
   def reject_keyword(attributed)
     attributed['name'].blank? || attributed['definition'].blank?
+  end
+
+  def add_source_to_project
+    !!ProjectSource.find_or_create_by(project: project, source: tag_object)
   end
 
 end

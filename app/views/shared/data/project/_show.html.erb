@@ -47,7 +47,7 @@
         </div> 
 
         <div class="navigation-controls">
-          <%= edit_object_link(object) -%>
+          <%= content_for?(:edit) ? yield(:edit) : edit_object_link(object) %>
           <%= destroy_object_link(object) %>
 
           <div id="show_tasks_dropdown" class="navigation-item menu-drop">
@@ -99,9 +99,11 @@
               </div>
             </div>
 
-            <div id="validation-panel" class="panel separate-bottom d-none">
-              <div class="content">
-                <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
+            <div id="vue-validation-panel">
+              <div id="data-validation-panel" class="panel separate-bottom d-none">
+                <div class="content">
+                  <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
+                </div>
               </div>
             </div>
 

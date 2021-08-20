@@ -23,7 +23,7 @@ import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Object,
       default: undefined
     },
@@ -32,16 +32,20 @@ export default {
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     optionValue: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       options: [
@@ -69,6 +73,7 @@ export default {
       ]
     }
   },
+
   mounted () {
     const params = URLParamsToJSON(location.href)
     this.optionValue = {

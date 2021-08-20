@@ -87,6 +87,7 @@ import PaginationCount from 'components/pagination/PaginationCount'
 import GetPagination from 'helpers/getPagination'
 
 export default {
+  name: 'FilterNomenclature',
   components: {
     FilterComponent,
     ListComponent,
@@ -123,7 +124,7 @@ export default {
     loadList(newList) {
       if(this.append) {
         let concat = newList.concat(this.list)
-              
+
         concat = concat.filter((item, index, self) =>
           index === self.findIndex((i) => (
             i.id === item.id

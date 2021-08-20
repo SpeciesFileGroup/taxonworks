@@ -15,7 +15,7 @@
         @getId="getNewSource"
         type="Source"/>
     </div>
-    <span
+    <div
       v-if="source"
       class="source-text horizontal-left-content">
       <span>
@@ -25,16 +25,21 @@
       <radial-object :global-id="source.global_id"/>
       <radial-annotator :global-id="source.global_id"/>
       <pin-component
+        class="circle-button"
         v-if="source.id"
         :object-id="source.id"
         :type="source.base_class"/>
-      <a
+      <template 
         v-for="document in source.documents"
-        class="circle-button btn-download"
-        :download="document.document_file_file_name"
-        :title="document.document_file_file_name"
-        :href="document.document_file"></a>
-    </span>
+        :key="document.id">
+        <a
+          class="circle-button btn-download"
+          :download="document.document_file_file_name"
+          :title="document.document_file_file_name"
+          :href="document.document_file"></a>
+        <pdf-button :pdf="document"/>
+      </template>
+    </div>
     <ul
       v-if="source && source.author_roles.length"
       class="no_bullets">
@@ -50,58 +55,69 @@
 </template>
 <script>
 
-  import Autocomplete from 'components/ui/Autocomplete';
-  import RadialAnnotator from 'components/radials/annotator/annotator.vue';
-  import PinComponent from 'components/ui/Pinboard/VPin.vue'
-  import RadialObject from 'components/radials/navigation/radial.vue'
-  import DefaultSource from 'components/getDefaultPin'
-  import AjaxCall from 'helpers/ajaxCall'
+import Autocomplete from 'components/ui/Autocomplete';
+import RadialAnnotator from 'components/radials/annotator/annotator.vue';
+import PinComponent from 'components/ui/Pinboard/VPin.vue'
+import RadialObject from 'components/radials/navigation/radial.vue'
+import DefaultSource from 'components/getDefaultPin'
+import AjaxCall from 'helpers/ajaxCall'
+import PdfButton from 'components/pdfButton.vue'
+import { Source } from 'routes/endpoints'
 
-  export default {
-    components: {
-      Autocomplete,
-      RadialAnnotator,
-      RadialObject,
-      PinComponent,
-      DefaultSource
-    },
-    data() {
-      return {
-        source: undefined,
-        sourceID: undefined,
-      }
-    },
+export default {
+  components: {
+    Autocomplete,
+    RadialAnnotator,
+    RadialObject,
+    PinComponent,
+    DefaultSource,
+    PdfButton
+  },
+
+  data () {
+    return {
+      source: undefined,
+      sourceID: undefined,
+    }
+  },
+
+  $emit: ['sourceID'],
+
   methods: {
-    getSource() {
+    getSource () {
       if (this.sourceID) {
-        AjaxCall('get', `/sources/${this.sourceID}.json`).then(response => {
+        Source.find(this.sourceID).then(response => {
           this.source = response.body
           history.pushState(null, null, `/tasks/nomenclature/by_source?source_id=${this.source.id}`)
           this.$emit('sourceID', this.sourceID);
         })
       }
     },
-    getNewSource(id) {
+
+    getNewSource (id) {
       this.sourceID = id.toString()
       this.getSource()
       this.$emit('sourceID', this.sourceID);  // since we avoided the AJAX
     },
-    getSelectOptions(onModel) {
-      AjaxCall('get', this.selectOptionsUrl, {params: {klass: this.onModel}}).then(response => {
-        this.tabs = Object.keys(response.body);
-        this.list = response.body;
+
+    getSelectOptions (onModel) {
+      AjaxCall('get', this.selectOptionsUrl, { params: { klass: this.onModel } }).then(response => {
+        this.tabs = Object.keys(response.body)
+        this.list = response.body
+
         AjaxCall('get', this.allSelectOptionUrl).then(response => {
-          if(response.body.length) {
+          if (response.body.length) {
             this.moreOptions = ['all']
           }
-          this.$set(this.list, 'all', response.body);
+          this.list['all'] = response.body
         })
       })
     }
   },
-  mounted() {
-    let urlParams = new URLSearchParams(window.location.search)
-    let sourceId = urlParams.get('source_id')
+
+  created () {
+    const urlParams = new URLSearchParams(window.location.search)
+    const sourceId = urlParams.get('source_id')
 
     if (/^\d+$/.test(sourceId)) {
       this.sourceID = sourceId
