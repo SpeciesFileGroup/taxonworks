@@ -11,7 +11,7 @@
           :id="field.id"
           type="text"
           :ref="el => { if (el) fieldsRef[index] = el }"
-          :maxlength="field.maxLenght"
+          :maxlength="field.maxLength"
           v-model="collectingEvent[field.property]"
           @input="autoAdvance(index)">
       </div>
@@ -56,11 +56,11 @@ export default {
   methods: {
     autoAdvance (index) {
       const element = this.fieldsRef[index]
-      const maxLenght = element.getAttribute('maxlength')
+      const maxLength = element.getAttribute('maxlength')
 
       index++
 
-      if (element.value.length === Number(maxLenght) && this.fieldsRef.length > index) {
+      if (element.value.length === Number(maxLength) && this.fieldsRef.length > index) {
         this.fieldsRef[index].focus()
       }
     }

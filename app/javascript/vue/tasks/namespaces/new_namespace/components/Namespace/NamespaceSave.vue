@@ -9,7 +9,6 @@
 
 <script setup>
 
-import { defineProps, defineEmits } from 'vue'
 import { Namespace } from 'routes/endpoints'
 import VBtn from 'components/ui/VBtn/index.vue'
 
