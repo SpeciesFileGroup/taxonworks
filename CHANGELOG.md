@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - Date fields order in comprehensive task
+- Auto advance date fields in comprehensive task
 
 ### Fixed
 - Source autocomplete exact ID was not prioritized and/or skipped
