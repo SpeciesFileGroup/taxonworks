@@ -30,10 +30,18 @@ module Utilities::Hashes
     end
   end
 
+  # Sets value at key in hsh iff value is not nil
+  # @param [Hash] hsh
+  # @param [Object] key
+  # @param [Object] value
+  def self.set_unless_nil(hsh, key, value)
+    hsh[key] = value unless value.nil?
+  end  
+  
   # Delete all nil and empty hashes values
   # @param [Hash] hsh
   # @return [Hash]
-  def delete_nil_and_empty_hash_values(hsh)
+  def self.delete_nil_and_empty_hash_values(hsh)
     hsh.each do |key, value|
       hsh.delete(key) if hsh[key].nil? || hsh[key] == {}
     end

@@ -318,7 +318,7 @@ module Queries
     # @return [ActiveRecord::Relation]
     def autocomplete_ordered_wildcard_pieces_in_cached
       return nil if no_terms?
-      base_query.where(match_ordered_wildcard_pieces_in_cached.to_sql).limit(5)
+      base_query.where(match_ordered_wildcard_pieces_in_cached.to_sql)
     end
 
     # @return [ActiveRecord::Relation]
@@ -326,7 +326,7 @@ module Queries
     def autocomplete_cached_wildcard_anywhere
       a = match_wildcard_in_cached
       return nil if a.nil?
-      base_query.where(a.to_sql).limit(20)
+      base_query.where(a.to_sql)
     end
 
     # @return [ActiveRecord::Relation]
