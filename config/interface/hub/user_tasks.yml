@@ -597,7 +597,6 @@ gnfinder_task:
     - nomenclature
   status: prototype
   description: 'Show all names in a document.'
-
 index_dwca_import_task:
   hub: true
   name: 'Darwin Core Archive (DwC-A) import'
@@ -608,7 +607,6 @@ index_dwca_import_task:
     - collection_object
   status: prototype
   description: 'Import Darwin Core Archive data into project.'
-
 new_collecting_event_task:
   hub: true
   name: 'New collecting event'
@@ -618,7 +616,6 @@ new_collecting_event_task:
     - new
   status: prototype
   description: 'Create a new collecting event.  Quickly add collection objects to the collecting event.  Generate labels and specimen barcodes. Navigate between collecting events with similar properties.'
-
 filter_images_task:
   hub: true
   name: 'Filter images task'

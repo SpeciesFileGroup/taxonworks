@@ -29,4 +29,14 @@ module Utilities::Hashes
       h
     end
   end
+
+  # Delete all nil and empty hashes values
+  # @param [Hash] hsh
+  # @return [Hash]
+  def delete_nil_and_empty_hash_values(hsh)
+    hsh.each do |key, value|
+      hsh.delete(key) if hsh[key].nil? || hsh[key] == {}
+    end
+    hsh
+  end
 end

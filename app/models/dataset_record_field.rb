@@ -6,7 +6,7 @@ class DatasetRecordField < ApplicationRecord
   has_one :import_dataset # To speed up queries, normally should be get from dataset_record
   has_one :project # Security purposes only (avoid leaks)
 
-  VALUE_INDEX_LIMIT = 1000
+  VALUE_INDEX_LIMIT = 1000 # Maximum length for value to be searched via index, larger values use other index that require full scan on import dataset
 
   def dataset_record_type
     DatasetRecordField.decode_record_type(self.encoded_dataset_record_type)

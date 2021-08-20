@@ -110,8 +110,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           delete_namespace_prefix!(attributes.dig(:catalog_number, :identifier), namespace)
 
           identifier = Identifier::Local::CatalogNumber
-                      .create_with(identifier_object: specimen)
-                      .find_or_create_by!(attributes[:catalog_number])
+            .create_with(identifier_object: specimen)
+            .find_or_create_by!(attributes[:catalog_number])
           object = identifier.identifier_object
 
           unless object == specimen
@@ -298,13 +298,6 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     hsh[key] = value unless value.nil?
   end
 
-  def clear_empty_sub_hashes(hsh)
-    hsh.each do |key, value|
-      hsh.delete(key) if hsh[key].nil? || hsh[key] == {}
-    end
-    hsh
-  end
-
   # Remove the namespace short name and delimiter from start of string.
   #
   # If the namespace has a verbatim_short_name, that is removed instead of the short_name.
@@ -378,7 +371,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # dynamicProperties: [Not mapped. Could be ImportAttribute?]
 
-    clear_empty_sub_hashes(res)
+    Utilities::Hashes::delete_nil_and_empty_hash_values(res)
   end
 
   def parse_occurrence_class
@@ -410,7 +403,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     sex = get_field_value(:sex)
     if sex
       raise DarwinCore::InvalidData.new({ "sex": ["Only single-word controlled vocabulary supported at this time."] }) if sex =~ /\s/
-      group   = BiocurationGroup.with_project_id(Current.project_id).where('name ILIKE ?', 'sex').first
+      group   = BiocurationGroup.where(project_id: Current.project_id).where('name ILIKE ?', 'sex').first
       group ||= BiocurationGroup.create!(name: 'Sex', definition: 'The sex of the individual(s) [CREATED FROM DWC-A IMPORT]')
       # TODO: BiocurationGroup.biocuration_classes not returning AR relation
       sex_biocuration = group.biocuration_classes.detect { |c| c.name.casecmp(sex) == 0 }
@@ -450,7 +443,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       set_hash_val(res[:specimen], :preparation_type, preparation_type)
     end
 
-    clear_empty_sub_hashes(res)
+    Utilities::Hashes::delete_nil_and_empty_hash_values(res)
 
     # disposition: [Not mapped]
 
@@ -798,12 +791,6 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     parse_details = parse_results[:details]
     parse_details = (parse_details&.keys - PARSE_DETAILS_KEYS).empty? ? parse_details.values.first : nil if parse_details
 
-    # raise DarwinCore::InvalidData.new({
-    #   "scientificName": parse_results[:qualityWarnings] ?
-    #     parse_results[:qualityWarnings].map { |q| q[:warning] } :
-    #     ["Unable to parse scientific name. Please make sure it is correctly spelled."]
-    # }) unless (1..3).include?(parse_results[:quality]) && parse_details
-
     unless (1..3).include?(parse_results[:quality]) && parse_details
       parse_details = parse_results[:details]&.values&.first
       otu_attributes = {name: get_field_value(:scientificName)}
@@ -926,7 +913,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
   def append_data_attribute(attributes, attribute)
     predicate = Predicate.find_by(uri: attribute[:selector], project: self.project)
-    predicate ||= Predicate.with_project_id(project.id).find_by(
+    predicate ||= Predicate.where(project: project).find_by(
       Predicate.arel_table[:name].matches(ApplicationRecord.sanitize_sql_like(attribute[:selector]))
     )
 
@@ -953,7 +940,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
   def parse_biocuration_group_field(group)
     biocuration_group = BiocurationGroup.find_by(uri: group[:selector], project: self.project)
-    biocuration_group ||= BiocurationGroup.with_project_id(project.id).find_by(
+    biocuration_group ||= BiocurationGroup.where(project: project).find_by(
       BiocurationGroup.arel_table[:name].matches(ApplicationRecord.sanitize_sql_like(group[:selector]))
     )
 
@@ -961,10 +948,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     if value
       raise DarwinCore::InvalidData.new({ group[:field] => ["Biocuration group with '#{group[:selector]}' URI or name not found"] }) unless biocuration_group
 
-      biocuration_class = BiocurationClass.with_project_id(project.id).joins(:tags).merge(
+      biocuration_class = BiocurationClass.where(project: project).joins(:tags).merge(
         Tag.where(keyword: biocuration_group)
       ).find_by(uri: value)
-      biocuration_class ||= BiocurationClass.with_project_id(project.id).joins(:tags).merge(
+      biocuration_class ||= BiocurationClass.where(project: project).joins(:tags).merge(
         Tag.where(keyword: biocuration_group)
       ).find_by(
         BiocurationClass.arel_table[:name].matches(ApplicationRecord.sanitize_sql_like(value))
