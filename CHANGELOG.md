@@ -12,19 +12,20 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New namespace task [#1891]
 
 ### Fixed
-
+- Source autocomplete exact ID was not prioritized and/or skipped
 - Keyboard shortcuts modal reopens when closing help [#2436]
 - Title attribute contains html tags on citations in browse OTU
 - Increment identifier in CO editor keeps number of leading zeros, changing length of number [#2435]
 - Collecting event lock in comprehensive task
 
+### Changed
+- Modified behaviour of Source autocomplete and pattern for limiting results
+- Removed deprecated Travis CI files.
+
 [#1891]: https://github.com/SpeciesFileGroup/taxonworks/issues/1891
 [#2435]: https://github.com/SpeciesFileGroup/taxonworks/issues/2435
 [#2436]: https://github.com/SpeciesFileGroup/taxonworks/issues/2436
 
-### Changed
-
-- Removed deprecated Travis CI files.
 
 ## [0.19.5] - 2021-08-18
 
