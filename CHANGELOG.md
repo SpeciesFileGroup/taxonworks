@@ -17,6 +17,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Date fields order in comprehensive task
 - Auto advance date fields in comprehensive task
 - Changed checkbox label `sortable fields` to `reorder fields` [#2442]
+- Modified behaviour of Source autocomplete and pattern for limiting results
+- Removed deprecated Travis CI files.
 
 ### Fixed
 
@@ -27,9 +29,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Collecting event lock in comprehensive task
 - Georeferences are not locked with collecting event [#2449]
 
-### Changed
-- Modified behaviour of Source autocomplete and pattern for limiting results
-- Removed deprecated Travis CI files.
 
 [#2088]: https://github.com/SpeciesFileGroup/taxonworks/issues/2088
 [#1891]: https://github.com/SpeciesFileGroup/taxonworks/issues/1891
