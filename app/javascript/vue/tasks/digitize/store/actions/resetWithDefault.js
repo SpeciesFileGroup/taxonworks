@@ -19,8 +19,10 @@ export default ({ dispatch, state }) => {
   state.identifiers = []
   state.materialTypes = []
   state.preparation_type_id = undefined
-  state.taxon_determinations = []
   state.biologicalAssociations = locked.biologicalAssociations
-    ? state.biologicalAssociations.map(item => ({...item, id: undefined, global_id: undefined }))
+    ? state.biologicalAssociations.map(item => ({ ...item, id: undefined, global_id: undefined }))
+    : []
+  state.taxon_determinations = locked.taxonDeterminations
+    ? state.taxon_determinations.map((item, index) => ({ ...item, id: undefined, global_id: undefined, position: undefined }))
     : []
 }

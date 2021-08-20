@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - New namespace task [#1891]
+- Taxon determination list lock button in comprehensive task [#2088] [#2443]
 
 ### Changed
 
@@ -27,9 +28,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Modified behaviour of Source autocomplete and pattern for limiting results
 - Removed deprecated Travis CI files.
 
+[#2088]: https://github.com/SpeciesFileGroup/taxonworks/issues/2088
 [#1891]: https://github.com/SpeciesFileGroup/taxonworks/issues/1891
 [#2435]: https://github.com/SpeciesFileGroup/taxonworks/issues/2435
 [#2436]: https://github.com/SpeciesFileGroup/taxonworks/issues/2436
+[#2443]: https://github.com/SpeciesFileGroup/taxonworks/issues/2443
 
 
 ## [0.19.5] - 2021-08-18
