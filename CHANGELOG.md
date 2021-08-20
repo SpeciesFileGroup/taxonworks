@@ -11,6 +11,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - New namespace task [#1891]
 
+### Changed
+
+- Date fields order in comprehensive task
+
 ### Fixed
 - Source autocomplete exact ID was not prioritized and/or skipped
 - Keyboard shortcuts modal reopens when closing help [#2436]
