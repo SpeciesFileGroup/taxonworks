@@ -9,7 +9,10 @@ describe 'Elevation', group: :collecting_event do
         'text, 10-20 ft., text'  => '3.05/6.1/m',
         'text, 25m text'      => '25//m',
         'text, 1,025m text'      => '1025//m',
-        'text, 1,000 - 2,000 ft. text'      => '304.8/609.6/m'
+        'text, 1,000 - 2,000 ft. text'      => '304.8/609.6/m',
+        'approx. 1500 meters' => '1500//m',
+        'text, 100 feet and more text' => '30.48//m',
+        'text, 100 feet. And more text' => '30.48//m'
     }
 
     @entry = 0
@@ -23,5 +26,13 @@ describe 'Elevation', group: :collecting_event do
         expect(u).to eq(result)
       end
     }
+  end
+
+  context 'invalid verbatim elevation tests' do
+    specify "should return empty hash if no numbers found" do
+      expect(Utilities::Elevation.elevation_regex_from_verbatim_label("only text here!")).to be_empty
+
+    end
+
   end
 end

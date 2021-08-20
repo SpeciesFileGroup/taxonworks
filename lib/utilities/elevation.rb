@@ -15,7 +15,7 @@ module Utilities::Elevation
     text = ' ' + text.downcase.squish + ' '
     elevation = {}
 
-    if matchdata1 = text.match(/\D(\d*,?\d+)\s?[-–]\s?(\d*,?\d+) ?(m|ft|feet|meters)\.?\W/)
+    if (matchdata1 = text.match(/\D(\d*,?\d+)\s?[-–]\s?(\d*,?\d+) ?(m|ft|feet|meters)\.?\W/))
       elevation[:verbatim_elevation] = matchdata1[0].strip
       elevation[:minimum_elevation] = matchdata1[1]
       elevation[:maximum_elevation] = matchdata1[2]
@@ -28,9 +28,9 @@ module Utilities::Elevation
 
     if elevation[:units]
       elevation[:units] = elevation[:units].gsub('feet', 'ft')
-                              .gsub('meeters', 'm')
+                              .gsub('meters', 'm')
                               .gsub('.', '')
-      elevation[:verbatim_elevation] = elevation[:verbatim_elevation][0..-2] if elevation[:verbatim_elevation] =~ /[;,:\)\.\/]$/
+      elevation[:verbatim_elevation] = elevation[:verbatim_elevation][0..-2] if elevation[:verbatim_elevation] =~ /[;,:).\/]$/
       elevation[:minimum_elevation] = elevation[:minimum_elevation].gsub(',', '') if elevation[:minimum_elevation]
       elevation[:maximum_elevation] = elevation[:maximum_elevation].gsub(',', '') if elevation[:maximum_elevation]
 
