@@ -26,6 +26,8 @@ class DatasetRecord < ApplicationRecord
     DatasetRecordField.where(dataset_record: self)
   end
 
+  # Sets up internal representation of data fields with field data, skipping those fields that are blank for performance and space-efficiency reasons.
+  # @param field_data [Array] ordered list of values, each value representing a cell/field of the record.
   def initialize_data_fields(field_data)
     @data_fields = []
     field_data.each_with_index do |value, index|
@@ -58,7 +60,7 @@ class DatasetRecord < ApplicationRecord
         data_field_changed(index, value)
         @data_field_changed[index] = true
       rescue
-        self.data_fields[index] = value
+        self.data_fields[index] = old
         raise
       end
     end

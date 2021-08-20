@@ -59,7 +59,7 @@ class DatasetRecordsController < ApplicationController
   def autocomplete_data_fields
     render json: {} and return if params[:field].blank? || params[:value].blank?
 
-    import_dataset = ImportDataset.with_project_id(sessions_current_project_id).find(params[:import_dataset_id])
+    import_dataset = ImportDataset.where(project_id: sessions_current_project_id).find(params[:import_dataset_id])
 
     values = import_dataset.core_records_fields.where(dataset_record: filtered_records)
       .at(params[:field].to_i).with_prefix_value(params[:value])
@@ -83,7 +83,10 @@ class DatasetRecordsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_dataset_record
-      @dataset_record = DatasetRecord.with_project_id(sessions_current_project_id).where(import_dataset_id: params[:import_dataset_id]).find(params[:id])
+      @dataset_record = DatasetRecord.where(
+        project_id: sessions_current_project_id,
+        import_dataset_id: params[:import_dataset_id]
+      ).find(params[:id])
     end
 
     # Only allow a list of trusted parameters through.
@@ -92,7 +95,7 @@ class DatasetRecordsController < ApplicationController
     end
 
     def filtered_records
-      import_dataset = ImportDataset.with_project_id(sessions_current_project_id).find(params[:import_dataset_id])
+      import_dataset = ImportDataset.where(project_id: sessions_current_project_id).find(params[:import_dataset_id])
 
       dataset_records = import_dataset.core_records
       params[:filter]&.each do |key, value|
