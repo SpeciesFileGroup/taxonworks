@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Date fields order in comprehensive task
 - Auto advance date fields in comprehensive task
+- Changed checkbox label `sortable fields` to `reorder fields` [#2442]
 
 ### Fixed
 
@@ -34,8 +35,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1891]: https://github.com/SpeciesFileGroup/taxonworks/issues/1891
 [#2435]: https://github.com/SpeciesFileGroup/taxonworks/issues/2435
 [#2436]: https://github.com/SpeciesFileGroup/taxonworks/issues/2436
+[#2442]: https://github.com/SpeciesFileGroup/taxonworks/pull/2442
 [#2443]: https://github.com/SpeciesFileGroup/taxonworks/issues/2443
 [#2449]: https://github.com/SpeciesFileGroup/taxonworks/issues/2443
+
 
 ## [0.19.5] - 2021-08-18
 
