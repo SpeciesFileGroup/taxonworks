@@ -51,7 +51,7 @@ import extendCE from '../mixins/extendCE'
 
 export default {
   mixins: [extendCE],
-  data() {
+  data () {
     return {
       units: [
         {
