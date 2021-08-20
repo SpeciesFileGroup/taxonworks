@@ -61,34 +61,34 @@ export default {
           id: 'start-date-year',
           label: 'Year',
           property: 'start_date_year',
-          maxLenght: 4
+          maxLength: 4
         },
         {
           label: 'Month',
           property: 'start_date_month',
-          maxLenght: 2
+          maxLength: 2
         },
         {
           label: 'Day',
           property: 'start_date_day',
-          maxLenght: 2
+          maxLength: 2
         }
       ],
       fieldEnd: [
         {
           label: 'Year',
           property: 'end_date_year',
-          maxLenght: 4
+          maxLength: 4
         },
         {
           label: 'Month',
           property: 'end_date_month',
-          maxLenght: 2
+          maxLength: 2
         },
         {
           label: 'Day',
           property: 'end_date_day',
-          maxLenght: 2
+          maxLength: 2
         }
       ]
     }
