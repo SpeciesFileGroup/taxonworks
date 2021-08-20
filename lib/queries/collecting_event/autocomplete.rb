@@ -96,7 +96,7 @@ module Queries
           autocomplete_verbatim_locality_wildcard_end,
           autocomplete_verbatim_locality_wildcard_end_starting_year,
 
-          autocomplete_cached_wildcard_anywhere,
+          autocomplete_cached_wildcard_anywhere&.limit(20),
         ]
 
         queries.compact!
