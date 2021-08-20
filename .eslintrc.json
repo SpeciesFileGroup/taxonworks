@@ -15,6 +15,8 @@
   },
   "globals": {
     "TW": "true",
-    "jquery": "true"
+    "jquery": "true",
+    "defineEmits": true,
+    "defineProps": true
   }
 }

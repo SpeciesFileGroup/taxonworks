@@ -27,6 +27,7 @@ function makeInitialState () {
       locked: {
         biocuration: false,
         biologicalAssociations: false,
+        taxonDeterminations: false,
         coCitations: false,
         collecting_event: false,
         collection_object: {
