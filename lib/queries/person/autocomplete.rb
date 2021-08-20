@@ -106,8 +106,8 @@ module Queries
           autocomplete_exact_last_name_match,
           autocomplete_alternate_values_last_name,
           autocomplete_alternate_values_first_name,
-          autocomplete_ordered_wildcard_pieces_in_cached,
-          autocomplete_cached_wildcard_anywhere, # in Queries::Query
+          autocomplete_ordered_wildcard_pieces_in_cached&.limit(5),
+          autocomplete_cached_wildcard_anywhere&.limit(20), # in Queries::Query
           autocomplete_cached
         ]
 

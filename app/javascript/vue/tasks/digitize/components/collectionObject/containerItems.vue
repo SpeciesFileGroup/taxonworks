@@ -21,7 +21,7 @@ import TableCollectionObjects from '../collectionObject/tableCollectionObjects'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions'
-import platformKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getPlatformKey.js'
 
 export default {
   components: { TableCollectionObjects },

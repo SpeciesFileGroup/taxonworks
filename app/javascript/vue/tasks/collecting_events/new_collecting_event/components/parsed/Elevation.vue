@@ -51,12 +51,12 @@ import extendCE from '../mixins/extendCE'
 
 export default {
   mixins: [extendCE],
-  data() {
+  data () {
     return {
       units: [
         {
           label: 'Meters',
-          value: undefined
+          value: 'm'
         },
         {
           label: 'Feet',

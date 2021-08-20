@@ -55,7 +55,7 @@
 <script>
 
 import SpinnerComponent from 'components/spinner'
-import platformKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getPlatformKey.js'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
 import BiocurationsComponent from 'tasks/collection_objects/filter/components/filters/biocurations'
 import TagsComponent from 'tasks/sources/filter/components/filters/tags'

@@ -9,6 +9,44 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.19.6] - 2021-08-20
+
+### Added
+
+- New namespace task [#1891]
+- Taxon determination list lock button in comprehensive task [#2088] [#2443]
+- Add elevation accuracy parsing for verbatim labels [#2448]
+
+### Changed
+
+- Date fields order in comprehensive task
+- Auto advance date fields in comprehensive task
+- Changed checkbox label `sortable fields` to `reorder fields` [#2442]
+- Modified behaviour of Source autocomplete and pattern for limiting results
+- Removed deprecated Travis CI files.
+
+### Fixed
+
+- Source autocomplete exact ID was not prioritized and/or skipped
+- Keyboard shortcuts modal reopens when closing help [#2436]
+- Title attribute contains html tags on citations in browse OTU
+- Increment identifier in CO editor keeps number of leading zeros, changing length of number [#2435]
+- Collecting event lock in comprehensive task
+- Georeferences are not locked with collecting event [#2449]
+- Elevation not being parsed from labels properly [#2447]
+
+
+[#2088]: https://github.com/SpeciesFileGroup/taxonworks/issues/2088
+[#1891]: https://github.com/SpeciesFileGroup/taxonworks/issues/1891
+[#2435]: https://github.com/SpeciesFileGroup/taxonworks/issues/2435
+[#2436]: https://github.com/SpeciesFileGroup/taxonworks/issues/2436
+[#2442]: https://github.com/SpeciesFileGroup/taxonworks/pull/2442
+[#2443]: https://github.com/SpeciesFileGroup/taxonworks/issues/2443
+[#2447]: https://github.com/SpeciesFileGroup/taxonworks/pull/2447
+[#2448]: https://github.com/SpeciesFileGroup/taxonworks/pull/2448
+[#2449]: https://github.com/SpeciesFileGroup/taxonworks/issues/2443
+
+
 ## [0.19.5] - 2021-08-18
 
 ### Added
@@ -125,6 +163,28 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2391]: https://github.com/SpeciesFileGroup/taxonworks/issues/2391
 [#2394]: https://github.com/SpeciesFileGroup/taxonworks/issues/2394
 [#2397]: https://github.com/SpeciesFileGroup/taxonworks/issues/2397
+
+## [0.19.2] - 2021-07-27
+
+### Added
+- OriginRelationship display in Browse collection object [#2362]
+- Accession/Deaccession section in Collection object match task [#2353]
+- Similar objects section in MRC
+- Soft validation in Edit/new matrix task
+- Update download form [#2335]
+- Check and question icons
+
+### Changed
+- Upgraded from Ruby version 2.7.3 to 2.7.4
+- Updated ruby gems
+- Object validation component
+
+### Fixed
+- Autocomplete in Interactive key task
+- Copy and clone option in Matrix Row Coder
+- Edit biological associations form [#2370]
+
+[#2370]: https://github.com/SpeciesFileGroup/taxonworks/issues/2370
 
 ## [0.19.2] - 2021-07-27
 
@@ -1545,7 +1605,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.5...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.6...development
+[0.19.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.5...v0.19.6
 [0.19.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.4...v0.19.5
 [0.19.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.3...v0.19.4
 [0.19.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.2...v0.19.3

@@ -88,7 +88,7 @@ import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
 import PaginationComponent from 'components/pagination'
 import GetPagination from 'helpers/getPagination'
-import PlatformKey from 'helpers/getMacKey'
+import PlatformKey from 'helpers/getPlatformKey'
 
 export default {
   components: {

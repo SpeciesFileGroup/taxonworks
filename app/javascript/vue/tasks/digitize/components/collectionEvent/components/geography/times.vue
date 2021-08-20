@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      <label class="separate-bottom"><b>Start time</b></label>
+      <label><b>Start time</b></label>
       <div class="horizontal-left-content separate-bottom">
         <div class="separate-right">
           <label>Hour</label>
@@ -30,7 +30,7 @@
       </div>
     </div>
     <div>
-      <label class="separate-bottom"><b>End time</b></label>
+      <label><b>End time</b></label>
       <div class="horizontal-left-content separate-bottom">
         <div class="separate-right">
           <label>Hour</label>

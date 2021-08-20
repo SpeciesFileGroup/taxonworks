@@ -40,7 +40,7 @@ export default () => {
     max_ma: undefined,
     min_ma: undefined,
     field_notes: undefined,
-    units: undefined,
+    units: 'm',
     roles_attributes: [],
     identifiers_attributes: []
   }

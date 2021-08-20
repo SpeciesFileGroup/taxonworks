@@ -7,11 +7,11 @@
       <h1>Comprehensive specimen digitization</h1>
       <ul class="context-menu">
         <li>
-          <label>
+          <label v-help.sections.global.reorderFields>
             <input
               type="checkbox"
               v-model="settings.sortable">
-            Sortable fields
+            Reorder fields
           </label>
         </li>
       </ul>
@@ -55,7 +55,7 @@ import { MutationNames } from './store/mutations/mutations.js'
 import { ActionNames } from './store/actions/actions.js'
 import { GetterNames } from './store/getters/getters.js'
 import SpinnerComponent from 'components/spinner.vue'
-import platformKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getPlatformKey.js'
 import Draggable from 'vuedraggable'
 
 export default {

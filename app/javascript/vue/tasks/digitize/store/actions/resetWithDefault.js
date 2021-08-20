@@ -15,12 +15,18 @@ export default ({ dispatch, state }) => {
   state.containerItems = []
   state.depictions = []
   state.determinations = []
-  state.georeferences = []
   state.identifiers = []
   state.materialTypes = []
   state.preparation_type_id = undefined
-  state.taxon_determinations = []
+
+  if (!locked.collecting_event) {
+    state.georeferences = []
+  }
+
   state.biologicalAssociations = locked.biologicalAssociations
-    ? state.biologicalAssociations.map(item => ({...item, id: undefined, global_id: undefined }))
+    ? state.biologicalAssociations.map(item => ({ ...item, id: undefined, global_id: undefined }))
+    : []
+  state.taxon_determinations = locked.taxonDeterminations
+    ? state.taxon_determinations.map((item, index) => ({ ...item, id: undefined, global_id: undefined, position: undefined }))
     : []
 }
