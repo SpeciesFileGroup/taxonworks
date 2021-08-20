@@ -15,10 +15,14 @@ export default ({ dispatch, state }) => {
   state.containerItems = []
   state.depictions = []
   state.determinations = []
-  state.georeferences = []
   state.identifiers = []
   state.materialTypes = []
   state.preparation_type_id = undefined
+
+  if (!locked.collecting_event) {
+    state.georeferences = []
+  }
+
   state.biologicalAssociations = locked.biologicalAssociations
     ? state.biologicalAssociations.map(item => ({ ...item, id: undefined, global_id: undefined }))
     : []

@@ -18,11 +18,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Auto advance date fields in comprehensive task
 
 ### Fixed
+
 - Source autocomplete exact ID was not prioritized and/or skipped
 - Keyboard shortcuts modal reopens when closing help [#2436]
 - Title attribute contains html tags on citations in browse OTU
 - Increment identifier in CO editor keeps number of leading zeros, changing length of number [#2435]
 - Collecting event lock in comprehensive task
+- Georeferences are not locked with collecting event [#2449]
 
 ### Changed
 - Modified behaviour of Source autocomplete and pattern for limiting results
@@ -33,7 +35,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2435]: https://github.com/SpeciesFileGroup/taxonworks/issues/2435
 [#2436]: https://github.com/SpeciesFileGroup/taxonworks/issues/2436
 [#2443]: https://github.com/SpeciesFileGroup/taxonworks/issues/2443
-
+[#2449]: https://github.com/SpeciesFileGroup/taxonworks/issues/2443
 
 ## [0.19.5] - 2021-08-18
 
