@@ -40,9 +40,10 @@ module Utilities::Strings
   end
 
   # @param [String] string
-  # @return [String]
+  # @return [String, Boolean]
   #   increments the *first* integer encountered in the string, wrapping it
-  #   in *only* the immediate non integer strings before and after (see tests)
+  #   in *only* the immediate non integer strings before and after (see tests).
+  #   Returns false if no number is found
   def self.increment_contained_integer(string)
     string =~ /([^\d]*)(\d+)([^\d]*)/
     a, b, c = $1, $2, $3
@@ -130,7 +131,9 @@ module Utilities::Strings
     string.match(/\d{4}([a-zAZ]+)/).to_a.last
   end
 
-  # @return [Array]
+  # Get numbers separated by spaces from a string
+  # @param [String] string
+  # @return [Array<String>]
   #   of strings representing integers
   def self.integers(string)
     return [] if string.nil? || string.length == 0
@@ -138,7 +141,7 @@ module Utilities::Strings
   end
 
   # @return [Boolean]
-  #   true if the query string only contains integers
+  #   true if the query string only contains integers separated by whitespace
   def self.only_integers?(string)
     !(string =~ /[^\d\s]/i) && !integers(string).empty?
   end
