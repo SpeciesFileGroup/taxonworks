@@ -1,3 +1,1 @@
-export default function(state) {
-  return state.collection_objects
-}
+export default state => state.collection_objects

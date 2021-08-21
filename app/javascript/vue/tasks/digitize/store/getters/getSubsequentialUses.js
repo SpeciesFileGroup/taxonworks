@@ -1,3 +1,1 @@
-export default function(state) {
-  return state.subsequentialUses
-}
+export default state => state.subsequentialUses

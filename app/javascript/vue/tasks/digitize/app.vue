@@ -37,7 +37,7 @@
             :is="element"/>
         </template>
       </draggable>
-      <collection-event-layout class="separate-left item ce-section"/>
+      <collecting-event-layout class="separate-left item ce-section"/>
     </div>
   </div>
 </template>
@@ -46,7 +46,7 @@
 import TaskHeader from './components/taskHeader/main.vue'
 import CollectionObject from './components/collectionObject/main.vue'
 import TaxonDeterminationLayout from './components/taxonDetermination/main.vue'
-import CollectionEventLayout from './components/collectionEvent/main.vue'
+import CollectingEventLayout from './components/collectingEvent/main.vue'
 import TypeMaterial from './components/typeMaterial/typeMaterial.vue'
 import BiologicalAssociation from './components/biologicalAssociation/main.vue'
 import SortComponent from './components/shared/sortComponenets.vue'
@@ -69,7 +69,7 @@ export default {
     TypeMaterial,
     TaxonDeterminationLayout,
     BiologicalAssociation,
-    CollectionEventLayout,
+    CollectingEventLayout,
     SpinnerComponent,
     Draggable
   },
@@ -127,7 +127,7 @@ export default {
     else if (/^\d+$/.test(coIdParam)) {
       this.$store.dispatch(ActionNames.LoadDigitalization, coIdParam)
     } else if (/^\d+$/.test(ceIdParam)) {
-      this.$store.dispatch(ActionNames.GetCollectionEvent, ceIdParam)
+      this.$store.dispatch(ActionNames.GetCollectingEvent, ceIdParam)
     }
   },
 

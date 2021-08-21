@@ -31,7 +31,7 @@
               class="margin-small-top margin-small-left"
               href="/namespaces/new">New</a>
           </div>
-          <template v-if="namespace">
+          <template v-if="identifier.namespace_id">
             <div class="middle separate-top">
               <span data-icon="ok" />
               <p
@@ -40,7 +40,7 @@
               />
               <span
                 class="circle-button button-default btn-undo"
-                @click="namespace = undefined"
+                @click="identifier.namespace_id = undefined"
               />
             </div>
           </template>
@@ -56,7 +56,7 @@
             :class="{ 'validate-identifier': existingIdentifier }"
             type="text"
             @input="checkIdentifier"
-            v-model="identifier"
+            v-model="identifier.identifier"
           >
           <label>
             <input
@@ -66,14 +66,14 @@
             Increment
           </label>
           <validate-component
-            v-if="namespace"
+            v-if="identifier.namespace_id"
             class="separate-left"
             :show-message="checkValidation"
             legend="Namespace and identifier needs to be set to be saved."
           />
         </div>
         <span
-          v-if="!namespace && identifier && identifier.length"
+          v-if="!identifier.namespace_id && identifier.identifier && identifier.identifier.length"
           style="color: red"
         >Namespace is needed.</span>
         <template v-if="existingIdentifier">
@@ -113,9 +113,11 @@ export default {
     collectionObject () {
       return this.$store.getters[GetterNames.GetCollectionObject]
     },
+
     identifiers () {
       return this.$store.getters[GetterNames.GetIdentifiers]
     },
+
     locked: {
       get () {
         return this.$store.getters[GetterNames.GetLocked]
@@ -124,6 +126,7 @@ export default {
         this.$store.commit([MutationNames.SetLocked, value])
       }
     },
+
     settings: {
       get () {
         return this.$store.getters[GetterNames.GetSettings]
@@ -132,25 +135,20 @@ export default {
         this.$store.commit(MutationNames.SetSettings, value)
       }
     },
-    namespace: {
-      get () {
-        return this.$store.getters[GetterNames.GetIdentifier].namespace_id
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetIdentifierNamespaceId, value)
-      }
-    },
+
     identifier: {
       get () {
-        return this.$store.getters[GetterNames.GetIdentifier].identifier
+        return this.$store.getters[GetterNames.GetIdentifier]
       },
       set (value) {
-        return this.$store.commit(MutationNames.SetIdentifierIdentifier, value)
+        return this.$store.commit(MutationNames.SetIdentifier, value)
       }
     },
+
     checkValidation () {
-      return !validateIdentifier({ namespace_id: this.namespace, identifier: this.identifier })
+      return !validateIdentifier({ namespace_id: this.identifier.namespace_id, identifier: this.identifier.identifier })
     },
+
     namespaceSelected: {
       get () {
         return this.$store.getters[GetterNames.GetNamespaceSelected]
@@ -174,18 +172,18 @@ export default {
   },
   methods: {
     increment () {
-      this.identifier = incrementIdentifier(this.identifier)
+      this.identifier.identifier = incrementIdentifier(this.identifier.identifier)
     },
     checkIdentifier () {
       if (this.saveRequest) {
         clearTimeout(this.saveRequest)
       }
-      if (this.identifier) {
+      if (this.identifier.identifier) {
         this.saveRequest = setTimeout(() => {
           Identifier.where({
             type: 'Identifier::Local::CatalogNumber',
-            namespace_id: this.namespace,
-            identifier: this.identifier
+            namespace_id: this.identifier.namespace_id,
+            identifier: this.identifier.identifier
           }).then(response => {
             this.existingIdentifier = (response.body.length > 0 ? response.body[0] : undefined)
           })
@@ -193,7 +191,7 @@ export default {
       }
     },
     setNamespace (namespace) {
-      this.namespace = namespace.id
+      this.identifier.namespace_id = namespace.id
       this.namespaceSelected = namespace.name
       this.checkIdentifier()
     }

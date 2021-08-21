@@ -24,7 +24,7 @@ export default ({ commit, dispatch, state }, coId) =>
       })
 
       if (coObject.collecting_event_id) {
-        promises.push(dispatch(ActionNames.GetCollectionEvent, coObject.collecting_event_id))
+        promises.push(dispatch(ActionNames.GetCollectingEvent, coObject.collecting_event_id))
         promises.push(dispatch(ActionNames.LoadGeoreferences, coObject.collecting_event_id))
       }
 

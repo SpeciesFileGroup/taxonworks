@@ -1,21 +1,23 @@
 <template>
-  <div class="separate-right">
+  <div>
     <label>{{ title }}</label>
     <br>
     <div class="horizontal-left-content align-start">
       <textarea
         class="full_width separate-right"
         v-model="inputText"
-        rows="5"/>
+        rows="5"
+      />
       <div>
         <lock-component
-          v-model="locked"/>
-        <button
+          v-model="locked"
+          class="margin-small-bottom"/>
+        <v-btn
           type="button"
-          @click="bufferedDetermination = setInline(bufferedDetermination)"
-          class="button button-default margin-small-top">
+          @click="setInline(inputText)"
+          color="primary">
           Trim
-        </button>
+        </v-btn>
       </div>
     </div>
   </div>
@@ -24,15 +26,19 @@
 <script>
 
 import LockComponent from 'components/ui/VLock/index.vue'
+import VBtn from 'components/ui/VBtn/index.vue'
 import { stringInline } from 'helpers/strings'
 
 export default {
-  components: { LockComponent },
+  components: {
+    LockComponent,
+    VBtn
+  },
 
   props: {
     modelValue: {
       type: String,
-      required: true
+      default: undefined
     },
 
     title: {

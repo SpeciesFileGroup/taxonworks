@@ -31,7 +31,7 @@
             <p v-html="otuSelected"/>
             <span
               class="circle-button button-default btn-undo"
-              @click="otuId = undefined; otuSelected = undefined"/>
+              @click="taxonDetermination.otu_id = undefined; otuSelected = undefined"/>
           </div>
         </fieldset>
         <fieldset>
@@ -56,14 +56,14 @@
                   hidden-list
                   ref="rolepicker"
                   role-type="Determiner"
-                  v-model="roles"/>
+                  v-model="taxonDetermination.roles_attributes"/>
               </template>
               <role-picker
                 class="role-picker"
                 :autofocus="false"
                 :create-form="false"
                 role-type="Determiner"
-                v-model="roles"/>
+                v-model="taxonDetermination.roles_attributes"/>
             </smart-selector>
             <lock-component
               class="margin-small-left"
@@ -75,19 +75,19 @@
             <label>Day</label>
             <input
               type="number"
-              v-model="day">
+              v-model="taxonDetermination.day_made">
           </div>
           <div class="separate-right separate-left">
             <label>Month</label>
             <input
               type="number"
-              v-model="month">
+              v-model="taxonDetermination.month_made">
           </div>
           <div class="separate-right">
             <label>Year</label>
             <input
               type="number"
-              v-model="year">
+              v-model="taxonDetermination.year_made">
           </div>
           <div>
             <label>&nbsp</label>
@@ -106,7 +106,7 @@
           <button
             type="button"
             id="determination-add-button"
-            :disabled="!otuId"
+            :disabled="!taxonDetermination.otu_id"
             class="button normal-input button-submit"
             @click="addDetermination">
             {{ taxonDetermination.id ? 'Set' : 'Add' }}
@@ -195,7 +195,7 @@ export default {
   },
 
   computed: {
-    collectionObject() {
+    collectionObject () {
       return this.$store.getters[GetterNames.GetCollectionObject]
     },
 
@@ -221,54 +221,13 @@ export default {
       get () {
         return this.$store.getters[GetterNames.GetLocked]
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetLocked, value)
       }
     },
 
-    otuId: {
-      get () {
-        return this.$store.getters[GetterNames.GetTaxonDetermination].otu_id
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetTaxonDeterminationOtuId, value)
-      }
-    },
-
-    day: {
-      get () {
-        return this.$store.getters[GetterNames.GetTaxonDetermination].day_made
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetTaxonDeterminationDay, value)
-      }
-    },
-
-    month: {
-      get () {
-        return this.$store.getters[GetterNames.GetTaxonDetermination].month_made
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetTaxonDeterminationMonth, value)
-      }
-    },
-
-    year: {
-      get () {
-        return this.$store.getters[GetterNames.GetTaxonDetermination].year_made
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetTaxonDeterminationYear, value)
-      }
-    },
-
-    roles: {
-      get () {
-        return this.$store.getters[GetterNames.GetTaxonDetermination].roles_attributes
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetTaxonDeterminationRoles, value)
-      }
+    otuId () {
+      return this.$store.getters[GetterNames.GetTaxonDetermination].otu_id
     },
 
     list: {
@@ -293,7 +252,7 @@ export default {
   },
 
   watch: {
-    collectionObject (newVal) {
+    collectionObject () {
       this.$refs.rolepicker.reset()
     },
 
@@ -303,14 +262,13 @@ export default {
           this.otuSelected = response.body.object_tag
           this.otu = response.body
         })
-      }
-      else {
+      } else {
         this.otu = undefined
         this.otuSelected = undefined
       }
     },
 
-    lastSave (newVal) {
+    lastSave () {
       this.$refs.smartSelector.refresh()
       this.$refs.determinerSmartSelector.refresh()
     }
@@ -322,7 +280,7 @@ export default {
     const taxonId = urlParams.get('taxon_name_id')
 
     if (/^\d+$/.test(otuId)) {
-      this.otuId = otuId
+      this.taxonDetermination.otu_id = otuId
     }
     if (/^\d+$/.test(taxonId)) {
       TaxonName.otus(taxonId).then(response => {
@@ -343,12 +301,12 @@ export default {
 
   methods: {
     roleExist (id) {
-      return !!this.roles.find((role) => !role.hasOwnProperty('_destroy') && role.person_id === id)
+      return !!this.taxonDetermination.roles_attributes.find(role => !role.hasOwnProperty('_destroy') && role.person_id === id)
     },
 
     addRole (role) {
       if (!this.roleExist(role.id)) {
-        this.roles.push(CreatePerson(role, 'Determiner'))
+        this.taxonDetermination.roles_attributes.push(CreatePerson(role, 'Determiner'))
       }
     },
 
@@ -370,9 +328,9 @@ export default {
 
     setActualDate () {
       const today = new Date()
-      this.day = today.getDate()
-      this.month = today.getMonth() + 1
-      this.year = today.getFullYear()
+      this.taxonDetermination.day_made = today.getDate()
+      this.taxonDetermination.month_made = today.getMonth() + 1
+      this.taxonDetermination.year_made = today.getFullYear()
     },
 
     updatePosition () {
@@ -382,7 +340,7 @@ export default {
     },
 
     setOtu (otu) {
-      this.otuId = otu.id
+      this.taxonDetermination.otu_id = otu.id
       this.otuSelected = otu.object_tag
     },
 
