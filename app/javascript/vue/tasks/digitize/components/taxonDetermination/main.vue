@@ -72,10 +72,10 @@
         </fieldset>
         <div class="horizontal-left-content date-fields separate-bottom separate-top">
           <div class="separate-left">
-            <label>Day</label>
+            <label>Year</label>
             <input
               type="number"
-              v-model="taxonDetermination.day_made">
+              v-model="taxonDetermination.year_made">
           </div>
           <div class="separate-right separate-left">
             <label>Month</label>
@@ -84,13 +84,13 @@
               v-model="taxonDetermination.month_made">
           </div>
           <div class="separate-right">
-            <label>Year</label>
+            <label>Day</label>
             <input
               type="number"
-              v-model="taxonDetermination.year_made">
+              v-model="taxonDetermination.day_made">
           </div>
           <div>
-            <label>&nbsp</label>
+            <label>&nbsp;</label>
             <div class="align-start">
               <button
                 type="button"

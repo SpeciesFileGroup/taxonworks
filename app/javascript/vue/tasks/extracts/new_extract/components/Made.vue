@@ -6,11 +6,11 @@
     <template #body>
       <div class="horizontal-left-content align-end">
         <div class="label-above margin-small-right">
-          <label>Day</label>
+          <label>Year</label>
           <input
             type="text"
             class="input-xsmall-width"
-            v-model="extract.day_made">
+            v-model="extract.year_made">
         </div>
         <div class="label-above margin-small-right">
           <label>Month</label>
@@ -20,11 +20,11 @@
             v-model="extract.month_made">
         </div>
         <div class="label-above">
-          <label>Year</label>
+          <label>Day</label>
           <input
             type="text"
             class="input-xsmall-width"
-            v-model="extract.year_made">
+            v-model="extract.day_made">
         </div>
         <div class="horizontal-left-content align-end margin-small-left">
           <button

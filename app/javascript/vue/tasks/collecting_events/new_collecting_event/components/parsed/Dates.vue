@@ -4,12 +4,12 @@
       <label class="separate-bottom"><b>Start date</b></label>
       <div class="horizontal-left-content separate-bottom">
         <div class="label-above">
-          <label>Day</label>
+          <label>Year</label>
           <input
             type="text"
             class="input-xsmall-width"
-            maxlength="2"
-            v-model="collectingEvent.start_date_day">
+            maxlength="4"
+            v-model="collectingEvent.start_date_year">
         </div>
         <div class="separate-left separate-right label-above">
           <label>Month</label>
@@ -20,13 +20,13 @@
             v-model="collectingEvent.start_date_month">
         </div>
         <div class="separate-right label-above">
-          <label>Year</label>
+          <label>Day</label>
           <input
             id="start-date-year"
             class="input-xsmall-width"
             type="text"
-            maxlength="4"
-            v-model="collectingEvent.start_date_year">
+            maxlength="2"
+            v-model="collectingEvent.start_date_day">
         </div>
         <div class="label-above">
           <label>&nbsp</label>
@@ -45,12 +45,12 @@
       <label class="separate-bottom"><b>End date</b></label>
       <div class="horizontal-left-content separate-bottom">
         <div class="label-above">
-          <label>Day</label>
+          <label>Year</label>
           <input
             type="text"
             class="input-xsmall-width"
-            maxlength="2"
-            v-model="collectingEvent.end_date_day">
+            maxlength="4"
+            v-model="collectingEvent.end_date_year">
         </div>
         <div class="separate-left separate-right label-above">
           <label>Month</label>
@@ -61,15 +61,15 @@
             v-model="collectingEvent.end_date_month">
         </div>
         <div class="separate-right label-above">
-          <label>Year</label>
+          <label>Day</label>
           <input
             type="text"
             class="input-xsmall-width"
-            maxlength="4"
-            v-model="collectingEvent.end_date_year">
+            maxlength="2"
+            v-model="collectingEvent.end_date_day">
         </div>
         <div class="label-above">
-          <label>&nbsp</label>
+          <label>&nbsp;</label>
           <button
             type="button"
             class="button normal-input button-default"
