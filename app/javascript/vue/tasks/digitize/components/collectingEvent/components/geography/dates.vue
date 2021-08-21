@@ -2,8 +2,9 @@
   <div>
     <div class="horizontal-left-content align-end margin-small-bottom">
       <date-fields
-        title="Start date"
-        :fields="fieldStart"
+        v-model:year="collectingEvent.start_date_year"
+        v-model:month="collectingEvent.start_date_month"
+        v-model:day="collectingEvent.start_date_day"
       />
       <button
         type="button"
@@ -20,8 +21,9 @@
     </div>
     <div class="horizontal-left-content align-end">
       <date-fields
-        title="Start date"
-        :fields="fieldEnd"
+        v-model:year="collectingEvent.end_date_year"
+        v-model:month="collectingEvent.end_date_month"
+        v-model:day="collectingEvent.end_date_day"
       />
       <button
         type="button"
@@ -35,7 +37,7 @@
 
 <script>
 
-import DateFields from './Date/DateFields.vue'
+import DateFields from 'components/ui/Date/DateFields.vue'
 import extendCE from '../../mixins/extendCE.js'
 
 export default {
@@ -43,48 +45,8 @@ export default {
 
   components: { DateFields },
 
-  data () {
-    return {
-      fieldStart: [
-        {
-          id: 'start-date-year',
-          label: 'Year',
-          property: 'start_date_year',
-          maxLength: 4
-        },
-        {
-          label: 'Month',
-          property: 'start_date_month',
-          maxLength: 2
-        },
-        {
-          label: 'Day',
-          property: 'start_date_day',
-          maxLength: 2
-        }
-      ],
-      fieldEnd: [
-        {
-          label: 'Year',
-          property: 'end_date_year',
-          maxLength: 4
-        },
-        {
-          label: 'Month',
-          property: 'end_date_month',
-          maxLength: 2
-        },
-        {
-          label: 'Day',
-          property: 'end_date_day',
-          maxLength: 2
-        }
-      ]
-    }
-  },
-
   methods: {
-    setActualDateForStart() {
+    setActualDateForStart () {
       const today = new Date()
 
       this.collectingEvent.start_date_day = today.getDate()
@@ -92,7 +54,7 @@ export default {
       this.collectingEvent.start_date_year = today.getFullYear()
     },
 
-    setActualDateForEnd() {
+    setActualDateForEnd () {
       const today = new Date()
 
       this.collectingEvent.end_date_day = today.getDate()

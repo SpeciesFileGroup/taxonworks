@@ -7,7 +7,7 @@
     <button
       v-if="!verbatimGeoreferenceAlreadyCreated"
       type="button"
-      class="button normal-input button-submit"
+      class="button normal-input button-submit margin-small-left"
       :disabled="!verbatimLat && !verbatimLat"
       @click="createVerbatimShape">
       Create georeference from verbatim

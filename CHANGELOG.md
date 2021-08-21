@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Add
+
+- Generic date field component [#2451]
+
 ### Changed
 
 - Reorder date fields in comprehensive, extract and new collecting event tasks [#2450]
@@ -18,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Trip code fields are empty after save.
 
 [#2450]: https://github.com/SpeciesFileGroup/taxonworks/pull/2450
+[#2451]: https://github.com/SpeciesFileGroup/taxonworks/issues/2451
 
 ## [0.19.6] - 2021-08-20
 

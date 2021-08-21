@@ -5,27 +5,11 @@
     </template>
     <template #body>
       <div class="horizontal-left-content align-end">
-        <div class="label-above margin-small-right">
-          <label>Year</label>
-          <input
-            type="text"
-            class="input-xsmall-width"
-            v-model="extract.year_made">
-        </div>
-        <div class="label-above margin-small-right">
-          <label>Month</label>
-          <input
-            type="text"
-            class="input-xsmall-width"
-            v-model="extract.month_made">
-        </div>
-        <div class="label-above">
-          <label>Day</label>
-          <input
-            type="text"
-            class="input-xsmall-width"
-            v-model="extract.day_made">
-        </div>
+        <date-fields
+          v-model:year="extract.year_made"
+          v-model:month="extract.month_made"
+          v-model:day="extract.day_made"
+        />
         <div class="horizontal-left-content align-end margin-small-left">
           <button
             type="button"
@@ -53,13 +37,15 @@
 import LockComponent from 'components/ui/VLock/index.vue'
 import componentExtend from './mixins/componentExtend'
 import BlockLayout from 'components/layout/BlockLayout'
+import DateFields from 'components/ui/Date/DateFields.vue'
 
 export default {
   mixins: [componentExtend],
 
   components: {
     LockComponent,
-    BlockLayout
+    BlockLayout,
+    DateFields
   },
 
   methods: {

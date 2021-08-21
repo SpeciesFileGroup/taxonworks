@@ -70,37 +70,19 @@
               v-model="locked.taxon_determination.roles_attributes"/>
           </div>
         </fieldset>
-        <div class="horizontal-left-content date-fields separate-bottom separate-top">
-          <div class="separate-left">
-            <label>Year</label>
-            <input
-              type="number"
-              v-model="taxonDetermination.year_made">
-          </div>
-          <div class="separate-right separate-left">
-            <label>Month</label>
-            <input
-              type="number"
-              v-model="taxonDetermination.month_made">
-          </div>
-          <div class="separate-right">
-            <label>Day</label>
-            <input
-              type="number"
-              v-model="taxonDetermination.day_made">
-          </div>
-          <div>
-            <label>&nbsp;</label>
-            <div class="align-start">
-              <button
-                type="button"
-                class="button normal-input button-default separate-left separate-right"
-                @click="setActualDate">
-                Now
-              </button>
-              <lock-component v-model="locked.taxon_determination.dates"/>
-            </div>
-          </div>
+        <div class="horizontal-left-content date-fields separate-bottom separate-top align-end">
+          <date-fields
+            v-model:year="taxonDetermination.year_made"
+            v-model:month="taxonDetermination.month_made"
+            v-model:day="taxonDetermination.day_made"
+          />
+          <button
+            type="button"
+            class="button normal-input button-default separate-left separate-right"
+            @click="setActualDate">
+            Now
+          </button>
+          <lock-component v-model="locked.taxon_determination.dates"/>
         </div>
         <div class="margin-small-bottom">
           <button
@@ -183,6 +165,7 @@ import CreatePerson from '../../helpers/createPerson.js'
 import LockComponent from 'components/ui/VLock/index.vue'
 import Draggable from 'vuedraggable'
 import RadialAnnotator from 'components/radials/annotator/annotator'
+import DateFields from 'components/ui/Date/DateFields.vue'
 
 export default {
   components: {
@@ -191,7 +174,8 @@ export default {
     BlockLayout,
     LockComponent,
     Draggable,
-    RadialAnnotator
+    RadialAnnotator,
+    DateFields
   },
 
   computed: {
@@ -382,11 +366,6 @@ export default {
     }
     li label {
       display: inline;
-    }
-    .date-fields {
-      input {
-        max-width: 80px;
-      }
     }
     .role-picker {
       .vue-autocomplete-input {
