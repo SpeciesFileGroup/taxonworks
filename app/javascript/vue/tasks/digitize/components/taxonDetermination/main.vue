@@ -72,10 +72,10 @@
         </fieldset>
         <div class="horizontal-left-content date-fields separate-bottom separate-top">
           <div class="separate-left">
-            <label>Day</label>
+            <label>Year</label>
             <input
               type="number"
-              v-model="day">
+              v-model="year">
           </div>
           <div class="separate-right separate-left">
             <label>Month</label>
@@ -84,13 +84,13 @@
               v-model="month">
           </div>
           <div class="separate-right">
-            <label>Year</label>
+            <label>Day</label>
             <input
               type="number"
-              v-model="year">
+              v-model="day">
           </div>
           <div>
-            <label>&nbsp</label>
+            <label>&nbsp;</label>
             <div class="align-start">
               <button
                 type="button"
@@ -195,7 +195,7 @@ export default {
   },
 
   computed: {
-    collectionObject() {
+    collectionObject () {
       return this.$store.getters[GetterNames.GetCollectionObject]
     },
 
@@ -221,7 +221,7 @@ export default {
       get () {
         return this.$store.getters[GetterNames.GetLocked]
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetLocked, value)
       }
     },
@@ -239,7 +239,7 @@ export default {
       get () {
         return this.$store.getters[GetterNames.GetTaxonDetermination].day_made
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetTaxonDeterminationDay, value)
       }
     },
@@ -248,7 +248,7 @@ export default {
       get () {
         return this.$store.getters[GetterNames.GetTaxonDetermination].month_made
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetTaxonDeterminationMonth, value)
       }
     },
@@ -257,7 +257,7 @@ export default {
       get () {
         return this.$store.getters[GetterNames.GetTaxonDetermination].year_made
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetTaxonDeterminationYear, value)
       }
     },
@@ -266,7 +266,7 @@ export default {
       get () {
         return this.$store.getters[GetterNames.GetTaxonDetermination].roles_attributes
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetTaxonDeterminationRoles, value)
       }
     },
@@ -303,8 +303,7 @@ export default {
           this.otuSelected = response.body.object_tag
           this.otu = response.body
         })
-      }
-      else {
+      } else {
         this.otu = undefined
         this.otuSelected = undefined
       }
