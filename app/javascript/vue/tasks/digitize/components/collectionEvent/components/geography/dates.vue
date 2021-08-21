@@ -3,20 +3,6 @@
     <div>
       <label class="separate-bottom"><b>Start date</b></label>
       <div class="horizontal-left-content separate-bottom">
-        <div class="separate-left">
-          <label>Day</label>
-          <input
-            type="text"
-            maxlength="2"
-            v-model="startDay">
-        </div>
-        <div class="separate-left separate-right">
-          <label>Month</label>
-          <input
-            type="text"
-            maxlength="2"
-            v-model="startMonth">
-        </div>
         <div class="separate-right">
           <label>Year</label>
           <input
@@ -24,6 +10,20 @@
             type="text"
             maxlength="4"
             v-model="startYear">
+        </div>
+        <div class="separate-right">
+          <label>Month</label>
+          <input
+            type="text"
+            maxlength="2"
+            v-model="startMonth">
+        </div>
+        <div class="separate-right">
+          <label>Day</label>
+          <input
+            type="text"
+            maxlength="2"
+            v-model="startDay">
         </div>
         <div>
           <label>&nbsp</label>
@@ -45,20 +45,6 @@
     <div>
       <label class="separate-bottom"><b>End date</b></label>
       <div class="horizontal-left-content separate-bottom">
-        <div class="separate-left">
-          <label>Day</label>
-          <input
-            type="text"
-            maxlength="2"
-            v-model="endDay">
-        </div>
-        <div class="separate-left separate-right">
-          <label>Month</label>
-          <input
-            type="text"
-            maxlength="2"
-            v-model="endMonth">
-        </div>
         <div class="separate-right">
           <label>Year</label>
           <input
@@ -66,6 +52,21 @@
             maxlength="4"
             v-model="endYear">
         </div>
+        <div class="separate-right">
+          <label>Month</label>
+          <input
+            type="text"
+            maxlength="2"
+            v-model="endMonth">
+        </div>
+        <div class="separate-right">
+          <label>Day</label>
+          <input
+            type="text"
+            maxlength="2"
+            v-model="endDay">
+        </div>
+
         <div>
           <label>&nbsp</label>
           <button
