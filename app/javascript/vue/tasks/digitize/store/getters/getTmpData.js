@@ -1,3 +1,1 @@
-export default function(state) {
-  return state.tmpData
-}
+export default state => state.tmpData

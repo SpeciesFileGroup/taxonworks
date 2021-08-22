@@ -12,7 +12,7 @@ export default async ({ state, commit, dispatch }) => {
       const elevationValue = Number(collectingEvent[key])
       collectingEvent[key] = elevationValue > 0 ? elevationValue / 3.281 : undefined
     })
-    collectingEvent.units = undefined
+    collectingEvent.units = 'm'
   }
 
   state.settings.isSaving = true

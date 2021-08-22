@@ -30,9 +30,11 @@ export default {
     collectionObject () {
       return this.$store.getters[GetterNames.GetCollectionObject]
     },
+
     collectionObjects () {
       return this.$store.getters[GetterNames.GetCollectionObjects]
     },
+
     shortcuts () {
       const keys = {}
 
@@ -49,6 +51,7 @@ export default {
       this.$store.commit(MutationNames.NewTaxonDetermination)
       this.$store.commit(MutationNames.SetTaxonDeterminations, [])
     },
+
     addToContainer () {
       if (!this.collectionObjects.length) return
       this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {

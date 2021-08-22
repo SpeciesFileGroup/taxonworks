@@ -1,3 +1,1 @@
-export default function(state) {
-  return state.project_preferences
-}
+export default state => state.project_preferences

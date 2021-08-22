@@ -20,7 +20,7 @@
 
 <script setup>
 
-import { watch, ref, defineEmits, defineProps } from 'vue'
+import { watch, ref } from 'vue'
 import { Namespace } from 'routes/endpoints'
 
 const props = defineProps({

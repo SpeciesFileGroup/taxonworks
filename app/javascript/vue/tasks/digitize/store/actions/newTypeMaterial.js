@@ -1,6 +1,6 @@
 import newTypeMaterial from '../../const/typeMaterial'
 import { MutationNames } from '../mutations/mutations'
 
-export default function({ commit }) {
+export default ({ commit }) => {
   commit(MutationNames.SetTypeMaterial, newTypeMaterial())
 }
