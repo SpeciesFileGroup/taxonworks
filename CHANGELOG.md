@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - New namespace task [#1891]
+- Protonym `verbatim_author` can not contain digits (like years) [#2452]
 
 ### Changed
 
@@ -26,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Modified behaviour of Source autocomplete and pattern for limiting results
 - Removed deprecated Travis CI files.
 
+[#2452]: https://github.com/SpeciesFileGroup/taxonworks/issues/2452
 [#1891]: https://github.com/SpeciesFileGroup/taxonworks/issues/1891
 [#2435]: https://github.com/SpeciesFileGroup/taxonworks/issues/2435
 [#2436]: https://github.com/SpeciesFileGroup/taxonworks/issues/2436

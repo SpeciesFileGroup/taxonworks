@@ -22,11 +22,16 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
   let(:protonym) { Protonym.new }
   let(:root) { Protonym.where(name: 'Root').first  }
-
+ 
   context 'validation' do
-    before { protonym.valid? }
 
-    context 'rank_class' do
+    specify '#verbatim_author' do
+      protonym.verbatim_author = 'Smith, 1920'
+      protonym.valid?
+      expect(protonym.errors.messages[:verbatim_author]).to_not be_empty
+    end
+
+    context '#rank_class' do
       specify 'is valid when a NomenclaturalRank subclass' do
         protonym.rank_class = Ranks.lookup(:iczn, 'order')
         protonym.name = 'Aaa'
@@ -66,7 +71,8 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     end
 
     specify 'name' do
-      expect(protonym.errors.include?(:name)).to be_truthy
+        protonym.valid?
+        expect(protonym.errors.include?(:name)).to be_truthy
     end
 
     context 'latinization requires' do 
