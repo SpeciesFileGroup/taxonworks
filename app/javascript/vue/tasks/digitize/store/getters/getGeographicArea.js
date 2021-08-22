@@ -1,3 +1,1 @@
-export default function(state) {
-  return state.geographicArea
-}
+export default state => state.geographicArea

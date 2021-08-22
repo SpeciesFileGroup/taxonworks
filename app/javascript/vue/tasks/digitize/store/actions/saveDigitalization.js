@@ -4,7 +4,7 @@ import { MutationNames } from '../mutations/mutations'
 export default ({ commit, dispatch, state }) =>
   new Promise((resolve, reject) => {
     state.settings.saving = true
-    dispatch(ActionNames.SaveCollectionEvent).then(() => {
+    dispatch(ActionNames.SaveCollectingEvent).then(() => {
       dispatch(ActionNames.SaveLabel)
       dispatch(ActionNames.SaveCollectionObject, state.collection_object).then((coCreated) => {
         const promises = []

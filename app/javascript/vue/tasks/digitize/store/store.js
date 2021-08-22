@@ -13,9 +13,10 @@ import makeTypeMaterial from '../const/typeMaterial'
 import makeLabel from '../const/label'
 import makeIdentifier from '../const/identifier'
 import makeTaxonDetermination from '../const/taxonDetermination'
+import { reactive } from 'vue'
 
 function makeInitialState () {
-  return {
+  return reactive({
     settings: {
       increment: false,
       isLocked: false,
@@ -27,6 +28,7 @@ function makeInitialState () {
       locked: {
         biocuration: false,
         biologicalAssociations: false,
+        taxonDeterminations: false,
         coCitations: false,
         collecting_event: false,
         collection_object: {
@@ -61,7 +63,7 @@ function makeInitialState () {
       identifier: undefined
     },
     coCitations: [],
-    collection_event: makeCollectingEvent(),
+    collecting_event: makeCollectingEvent(),
     collection_object: makeCollectionObject(),
     geographicArea: undefined,
     label: makeLabel(),
@@ -69,7 +71,6 @@ function makeInitialState () {
     tmpData: {
       otu: undefined
     },
-    COTypes: [],
     biocurations: [],
     biologicalAssociations: [],
     collection_objects: [],
@@ -97,7 +98,7 @@ function makeInitialState () {
       ComponentVerbatim: Object.values(ComponentVerbatim),
       ComponentMap: Object.values(ComponentMap)
     }
-  }
+  })
 }
 
 function newStore () {

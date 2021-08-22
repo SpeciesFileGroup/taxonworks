@@ -36,40 +36,19 @@
         v-model="taxon_determination.roles_attributes"
       />
     </smart-selector>
-    <div class="horizontal-left-content date-fields separate-bottom separate-top">
-      <div class="separate-right">
-        <label>Year</label>
-        <input
-          type="text"
-          v-model="taxon_determination.year_made"
-        >
-      </div>
-      <div class="separate-right separate-left">
-        <label>Month</label>
-        <input
-          type="text"
-          v-model="taxon_determination.month_made"
-        >
-      </div>
-      <div class="separate-left">
-        <label>Day</label>
-        <input
-          type="text"
-          v-model="taxon_determination.day_made"
-        >
-      </div>
-      <div>
-        <label>&nbsp</label>
-        <div class="align-start">
-          <button
-            type="button"
-            class="button normal-input button-default separate-left separate-right"
-            @click="setActualDate"
-          >
-            Now
-          </button>
-        </div>
-      </div>
+    <div class="horizontal-left-content date-fields separate-bottom separate-top align-end">
+      <date-fields
+        v-model:year="taxon_determination.year_made"
+        v-model:month="taxon_determination.month_made"
+        v-model:day="taxon_determination.day_made"
+      />
+      <button
+        type="button"
+        class="button normal-input button-default separate-left separate-right"
+        @click="setActualDate"
+      >
+        Now
+      </button>
     </div>
     <button
       type="button"
@@ -94,6 +73,7 @@
 import SmartSelector from 'components/ui/SmartSelector'
 import RolePicker from 'components/role_picker'
 import CreatePerson from '../../helpers/CreatePerson'
+import DateFields from 'components/ui/Date/DateFields.vue'
 
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
@@ -106,7 +86,8 @@ export default {
   components: {
     ListComponent,
     SmartSelector,
-    RolePicker
+    RolePicker,
+    DateFields
   },
 
   computed: {

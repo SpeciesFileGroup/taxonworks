@@ -39,7 +39,7 @@
 
 <script setup>
 
-import { computed, defineProps, defineEmits } from 'vue'
+import { computed } from 'vue'
 import Types from '../../const/types'
 
 const props = defineProps({

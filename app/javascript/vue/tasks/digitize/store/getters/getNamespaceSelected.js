@@ -1,3 +1,1 @@
-export default function(state) {
-  return state.namespaceSelected
-}
+export default state => state.namespaceSelected

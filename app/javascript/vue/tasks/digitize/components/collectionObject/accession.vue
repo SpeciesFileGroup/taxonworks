@@ -60,9 +60,7 @@ import ModalComponent from 'components/ui/Modal'
 import { ActionNames } from '../../store/actions/actions'
 
 export default {
-  components: {
-    ModalComponent
-  },
+  components: { ModalComponent },
 
   props: {
     collectionObject: {
@@ -85,11 +83,13 @@ export default {
         this.unsaved = false
       })
     },
+
     checkUnsaved () {
       if (this.unsaved && window.confirm('You have unsaved changes. Do you want to save it?')) {
         this.saveAccession()
       }
     },
+
     setModalState (value) {
       this.checkUnsaved()
       this.showModal = value

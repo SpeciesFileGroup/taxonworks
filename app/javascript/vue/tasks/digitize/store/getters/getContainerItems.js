@@ -1,3 +1,1 @@
-export default function(state) {
-  return state.containerItems
-}
+export default state => state.containerItems
