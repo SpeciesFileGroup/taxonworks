@@ -37,7 +37,8 @@ class Protonym < TaxonName
     :new_parent_taxon_name,
     :name_is_latinized,
     :name_is_valid_format,
-    :verbatim_author_without_digits
+    :verbatim_author_without_digits,
+    :verbatim_author_with_closed_parens_when_present
 
   after_create :create_otu, if: -> {self.also_create_otu}
 
@@ -871,6 +872,13 @@ class Protonym < TaxonName
 
   def verbatim_author_without_digits
     errors.add(:verbatim_author, 'Verbatim author may not contain digits, a year may be present') if verbatim_author =~ /\d/ 
+  end
+
+  def verbatim_author_with_closed_parens_when_present
+    if verbatim_author.present?
+      # Regex matches two possible, both params, or no params at start/end
+      errors.add(:verbatim_author, 'Verbatim author is missing a parenthesis') unless verbatim_author =~ /\A\([^()]+\)\z|\A[^()]+\z/
+    end
   end
 
   def name_is_valid_format

@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Add
 
+- Protonym `verbatim_author` parens should be properly closed when present [#2453]
 - Protonym `verbatim_author` can not contain digits (like years) [#2452]
 - Generic date field component [#2451]
 
@@ -22,6 +23,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Trim buttons in comprehensive task
 - Trip code fields are empty after save.
 
+
+[#2453]: https://github.com/SpeciesFileGroup/taxonworks/issues/2453
 [#2452]: https://github.com/SpeciesFileGroup/taxonworks/issues/2452
 [#2450]: https://github.com/SpeciesFileGroup/taxonworks/pull/2450
 [#2451]: https://github.com/SpeciesFileGroup/taxonworks/issues/2451

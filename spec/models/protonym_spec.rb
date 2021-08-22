@@ -25,8 +25,32 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
  
   context 'validation' do
 
-    specify '#verbatim_author' do
+    specify '#verbatim_author without digits' do
       protonym.verbatim_author = 'Smith, 1920'
+      protonym.valid?
+      expect(protonym.errors.messages[:verbatim_author]).to_not be_empty
+    end
+
+    specify '#verbatim_author parens 1' do
+      protonym.verbatim_author = '(Smith)'
+      protonym.valid?
+      expect(protonym.errors.messages[:verbatim_author]).to be_empty
+    end
+
+    specify '#verbatim_author parens 2' do
+      protonym.verbatim_author = '(Smith'
+      protonym.valid?
+      expect(protonym.errors.messages[:verbatim_author]).to_not be_empty
+    end
+
+    specify '#verbatim_author parens 3' do
+      protonym.verbatim_author = 'Smith)'
+      protonym.valid?
+      expect(protonym.errors.messages[:verbatim_author]).to_not be_empty
+    end
+
+    specify '#verbatim_author parens 4' do
+      protonym.verbatim_author = 'Smi)th'
       protonym.valid?
       expect(protonym.errors.messages[:verbatim_author]).to_not be_empty
     end
