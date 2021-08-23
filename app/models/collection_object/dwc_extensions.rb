@@ -209,7 +209,7 @@ module CollectionObject::DwcExtensions
 
   def dwc_verbatim_coordinates
     return nil unless collecting_event
-    [collecting_event.verbatim_latitude, collecting_event.verbatim_latitude].compact.join(' ').presence
+    [collecting_event.verbatim_latitude, collecting_event.verbatim_longitude].compact.join(' ').presence
   end
 
   def dwc_verbatim_elevation
