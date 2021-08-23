@@ -118,6 +118,7 @@ import PredicatesComponent from 'components/custom_attributes/predicates/predica
 import DefaultTag from 'components/defaultTag.vue'
 import platformKey from 'helpers/getPlatformKey'
 import { Depiction, User, CollectionObject } from 'routes/endpoints'
+import { COLLECTION_OBJECT } from 'constants/index.js'
 
 export default {
   components: {
@@ -273,7 +274,7 @@ export default {
     saveDepiction (coId, depiction) {
       const data = {
         depiction_object_id: coId,
-        depiction_object_type: 'CollectionObject',
+        depiction_object_type: COLLECTION_OBJECT,
         image_id: depiction.image_id
       }
       Depiction.create({ depiction: data }).then(response => {

@@ -51,8 +51,9 @@
 <script>
 
 import SmartSelector from 'components/ui/SmartSelector.vue'
-import makeCitationObject from '../../../const/citation'
+import makeCitationObject from 'factory/Citation.js'
 import VLock from 'components/ui/VLock'
+import { COLLECTION_OBJECT } from 'constants/index.js'
 
 export default {
   components: {
@@ -91,7 +92,7 @@ export default {
   methods: {
     saveCitation () {
       this.$emit('onAdd', {
-        ...makeCitationObject(),
+        ...makeCitationObject(COLLECTION_OBJECT),
         citation_source_body: this.source.cached,
         pages: this.pages,
         source_id: this.source.id,

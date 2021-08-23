@@ -1,7 +1,7 @@
-import taxonDetermination from '../../../const/taxonDetermination'
+import makeTaxonDetermination from 'factory/TaxonDetermination.js'
 
-export default (state, value) => {
-  const newDetermination = taxonDetermination()
+export default (state, _) => {
+  const newDetermination = makeTaxonDetermination()
   newDetermination.otu_id = state.settings.locked.taxon_determination.otu_id ? state.taxon_determination.otu_id : undefined
   newDetermination.roles_attributes = state.settings.locked.taxon_determination.roles_attributes ? state.taxon_determination.roles_attributes : []
   if (state.settings.locked.taxon_determination.dates) {

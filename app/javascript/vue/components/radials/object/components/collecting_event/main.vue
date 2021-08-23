@@ -58,11 +58,16 @@ import TableList from 'components/table_list'
 import CeSection from './ceSection'
 import TextComponent from './label/TextLabel'
 import QRCodeComponent from './label/QRCode'
+import {
+  LABEL,
+  LABEL_QR_CODE,
+  LABEL_CODE_128
+} from 'constants/index.js'
 
 const LabelTypes = {
-  Label: 'Text',
-  'Label::QrCode': 'QRCode',
-  'Label::Code128': 'Barcode'
+  [LABEL]: 'Text',
+  [LABEL_QR_CODE]: 'QRCode',
+  [LABEL_CODE_128]: 'Barcode'
 }
 
 export default {

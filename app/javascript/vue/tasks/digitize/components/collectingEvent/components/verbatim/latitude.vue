@@ -17,7 +17,7 @@
 <script>
 
 import { GetterNames } from '../../../../store/getters/getters'
-import convertDMS from '../../../../helpers/parseDMS.js'
+import convertDMS from 'helpers/parseDMS.js'
 import { parseCoordinateCharacters } from 'helpers/georeferences'
 import extendCE from '../../mixins/extendCE.js'
 

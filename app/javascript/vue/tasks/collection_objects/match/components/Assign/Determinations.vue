@@ -128,7 +128,7 @@ export default {
     },
 
     addDetermination() {
-      if (this.taxon_determinations.find((determination) => determination.otu_id === this.taxon_determination.otu_id )) { return }
+      if (this.taxon_determinations.find((determination) => determination.otu_id === this.taxon_determination.otu_id)) { return }
       this.taxon_determination.object_tag = this.selectedOtu.object_tag
       this.taxon_determinations.push(this.taxon_determination)
       this.selectedOtu = undefined

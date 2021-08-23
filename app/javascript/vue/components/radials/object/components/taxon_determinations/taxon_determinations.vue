@@ -33,7 +33,7 @@
           @selected="addRole">
           <role-picker
             class="margin-medium-top"
-            roleType="Determiner"
+            role-type="Determiner"
             v-model="taxon_determination.roles_attributes"/>
         </smart-selector>
       </fieldset>
@@ -74,26 +74,32 @@ import SmartSelector from 'components/ui/SmartSelector'
 import CRUD from '../../request/crud.js'
 import AnnotatorExtend from '../annotatorExtend.js'
 import DateFields from 'components/ui/Date/DateFields.vue'
+import { TaxonDetermination } from 'routes/endpoints'
+import { ROLE_DETERMINER } from 'constants/index.js'
 
 export default {
   mixins: [CRUD, AnnotatorExtend],
+
   components: {
     SmartSelector,
     RolePicker,
     DisplayList,
     DateFields
   },
+
   data () {
     return {
       taxon_determination: this.newDetermination(),
       selectedOtu: undefined
     }
   },
+
   methods: {
     setOtu (otu) {
       this.taxon_determination.otu_id = otu.id
       this.selectedOtu = otu
     },
+
     newDetermination () {
       return {
         biological_collection_object_id: this.metadata.object_id,
@@ -104,6 +110,7 @@ export default {
         roles_attributes: [],
       }
     },
+
     createPerson (person, roleType) {
       return {
         first_name: person.first_name,
@@ -112,31 +119,39 @@ export default {
         type: roleType
       }
     },
-    roleExist(id) {
-      return (this.taxon_determination.roles_attributes.find((role) => {
-        return !role.hasOwnProperty('_destroy') && role.person_id == id
-      }) ? true : false)
+
+    roleExist (id) {
+      return (this.taxon_determination.roles_attributes.find((role) => !role?._destroy && role.person_id === id))
     },
-    addRole(role) {
-      if(!this.roleExist(role.id)) {
-        this.taxon_determination.roles_attributes.push(this.createPerson(role, 'Determiner'))
+
+    addRole (role) {
+      if (!this.roleExist(role.id)) {
+        this.taxon_determination.roles_attributes.push(this.createPerson(role, ROLE_DETERMINER))
       }
     },
-    addDetermination() {
-      if(this.list.find((determination) => { return determination.otu_id === this.taxonDetermination.otu_id && (determination.year_made === this.year) })) { return }
-      
-      this.create(`/taxon_determinations.json`, { taxon_determination: this.taxon_determination }).then(response => {
+
+    addDetermination () {
+      if (
+        this.list.find(determination =>
+          determination.otu_id === this.taxonDetermination.otu_id &&
+          determination.year_made === this.year)
+      ) { return }
+
+      TaxonDetermination.create({ taxon_determination: this.taxon_determination }).then(response => {
         TW.workbench.alert.create('Taxon determination was successfully created.', 'notice')
         this.list.push(response.body)
       })
     },
-    removeTaxonDetermination(determination) {
-      this.removeItem(determination).then(response => {
-        TW.workbench.alert.create('Taxon determination was successfully destroyed.', 'notice')        
+
+    removeTaxonDetermination (determination) {
+      this.removeItem(determination).then(_ => {
+        TW.workbench.alert.create('Taxon determination was successfully destroyed.', 'notice')
       })
     },
-    setActualDate() {
-      let today = new Date()
+
+    setActualDate () {
+      const today = new Date()
+
       this.taxon_determination.day_made = today.getDate()
       this.taxon_determination.month_made = today.getMonth() + 1
       this.taxon_determination.year_made = today.getFullYear()

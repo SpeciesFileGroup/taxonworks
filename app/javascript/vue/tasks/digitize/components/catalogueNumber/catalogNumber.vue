@@ -95,6 +95,7 @@
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { Identifier } from 'routes/endpoints'
+import { IDENTIFIER_LOCAL_CATALOG_NUMBER } from 'constants/index.js'
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import validateComponent from '../shared/validate.vue'
 import validateIdentifier from '../../validations/namespace.js'
@@ -181,7 +182,7 @@ export default {
       if (this.identifier.identifier) {
         this.saveRequest = setTimeout(() => {
           Identifier.where({
-            type: 'Identifier::Local::CatalogNumber',
+            type: IDENTIFIER_LOCAL_CATALOG_NUMBER,
             namespace_id: this.identifier.namespace_id,
             identifier: this.identifier.identifier
           }).then(response => {
