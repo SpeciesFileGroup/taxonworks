@@ -13,6 +13,22 @@ describe Utilities::Strings do
 
   specify '.alphabetic_strings 2' do
     expect(l.alphabetic_strings('a b2 2a a2a')).to contain_exactly('a')
+    end
+
+  specify '.alphabetic_strings should not have empty elements with multiple adjacent separator characters' do
+    expect(l.alphabetic_strings('abc, 1')).to contain_exactly('abc')
+  end
+
+  specify '.alphabetic_strings should split ' do
+    expect(l.alphabetic_strings("who's there?")).to contain_exactly('who', 's', 'there')
+  end
+
+  specify '.alphabetic_strings should not split on underscore' do
+    expect(l.alphabetic_strings("underscored_word other word")).to contain_exactly('underscored_word', 'other', 'word')
+  end
+
+  specify '.alphabetic_strings should split on accent characters' do
+    expect(l.alphabetic_strings("Hernán")).to contain_exactly('Hern', 'n')
   end
 
   specify '.random_string' do

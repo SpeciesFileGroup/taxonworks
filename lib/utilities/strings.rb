@@ -99,10 +99,10 @@ module Utilities::Strings
 
   # @param string [String]
   # @return [Array]
-  #   whitespace split, then any string containing a digit eliminated
+  #   whitespace and special character split, then any string containing a digit eliminated
   def self.alphabetic_strings(string)
     return [] if string.nil? || string.length == 0
-    string.split(/\W/).select{|b| !(b =~ /\d/) }
+    string.split(/\W/).select{|b| !(b =~ /\d/) }.reject { |b| b.empty? }
   end
 
 
@@ -111,7 +111,7 @@ module Utilities::Strings
   #   !! this is a bad sign, you should know your encoding *before* it gets to needing this
   def self.encode_with_utf8(string)
     return false if string.nil?
-    if Encoding.compatible?('test'.encode(Encoding::UTF_8), string) 
+    if Encoding.compatible?('test'.encode(Encoding::UTF_8), string)
       string.force_encoding(Encoding::UTF_8)
     else
       false
