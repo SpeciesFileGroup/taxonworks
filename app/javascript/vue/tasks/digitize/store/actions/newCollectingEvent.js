@@ -1,10 +1,14 @@
+import {
+  COLLECTING_EVENT,
+  IDENTIFIER_LOCAL_TRIP_CODE
+} from 'constants/index.js'
 import { MutationNames } from '../mutations/mutations'
-import newCollectingEvent from '../../const/collectingEvent'
-import identifierCE from '../../const/identifierCE'
+import makeCollectingEvent from 'factory/CollectingEvent.js'
+import makeIdentifier from 'factory/Identifier.js'
 
-export default function ({ commit, state }) {
-  commit(MutationNames.SetCollectingEventIdentifier, identifierCE())
-  if(!state.settings.locked.collecting_event) {
-    commit(MutationNames.SetCollectingEvent, newCollectingEvent())
+export default ({ commit, state }) => {
+  commit(MutationNames.SetCollectingEventIdentifier, makeIdentifier(IDENTIFIER_LOCAL_TRIP_CODE, COLLECTING_EVENT))
+  if (!state.settings.locked.collecting_event) {
+    commit(MutationNames.SetCollectingEvent, makeCollectingEvent())
   }
 }

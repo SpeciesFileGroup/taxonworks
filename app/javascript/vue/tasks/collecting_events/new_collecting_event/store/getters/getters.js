@@ -6,6 +6,7 @@ import getQueueGeoreferences from './getQueueGeoreferences'
 import getGeographicArea from './getGeographicArea'
 import getSettings from './getSettings'
 import getSoftValidations from './getSoftValidations'
+import getUnit from './getUnit'
 import isUnsaved from './isUnsaved'
 
 const GetterNames = {
@@ -17,6 +18,7 @@ const GetterNames = {
   GetQueueGeoreferences: 'getQueueGeoreferences',
   GetSettings: 'getSetting',
   GetSoftValidations: 'getSoftValidations',
+  GetUnit: 'getUnit',
   IsUnsaved: 'isUnsaved'
 }
 
@@ -29,6 +31,7 @@ const GetterFunctions = {
   [GetterNames.GetSettings]: getSettings,
   [GetterNames.GetQueueGeoreferences]: getQueueGeoreferences,
   [GetterNames.GetSoftValidations]: getSoftValidations,
+  [GetterNames.GetUnit]: getUnit,
   [GetterNames.IsUnsaved]: isUnsaved
 }
 

@@ -1,3 +1,9 @@
+import {
+  COLLECTION_OBJECT,
+  COLLECTING_EVENT,
+  IDENTIFIER_LOCAL_CATALOG_NUMBER,
+  IDENTIFIER_LOCAL_TRIP_CODE
+} from 'constants/index.js'
 import { createStore } from 'vuex'
 import { GetterFunctions } from './getters/getters'
 import { MutationFunctions } from './mutations/mutations'
@@ -7,12 +13,12 @@ import {
   ComponentParse,
   ComponentVerbatim
 } from '../const/components'
-import makeCollectingEvent from '../const/collectingEvent'
-import makeCollectionObject from '../const/collectionObject'
-import makeTypeMaterial from '../const/typeMaterial'
-import makeLabel from '../const/label'
-import makeIdentifier from '../const/identifier'
-import makeTaxonDetermination from '../const/taxonDetermination'
+import makeCollectingEvent from 'factory/CollectingEvent.js'
+import makeCollectionObject from 'factory/CollectionObject.js'
+import makeTypeMaterial from 'factory/TypeMaterial.js'
+import makeLabel from 'factory/Label.js'
+import makeIdentifier from 'factory/Identifier.js'
+import makeTaxonDetermination from 'factory/TaxonDetermination.js'
 import { reactive } from 'vue'
 
 function makeInitialState () {
@@ -55,18 +61,13 @@ function makeInitialState () {
       sortable: false
     },
     taxon_determination: makeTaxonDetermination(),
-    identifier: makeIdentifier(),
-    collectingEventIdentifier: {
-      id: undefined,
-      namespace_id: undefined,
-      type: 'Identifier::Local::TripCode',
-      identifier: undefined
-    },
+    identifier: makeIdentifier(IDENTIFIER_LOCAL_CATALOG_NUMBER, COLLECTION_OBJECT),
+    collectingEventIdentifier: makeIdentifier(IDENTIFIER_LOCAL_TRIP_CODE, COLLECTING_EVENT),
     coCitations: [],
     collecting_event: makeCollectingEvent(),
     collection_object: makeCollectionObject(),
     geographicArea: undefined,
-    label: makeLabel(),
+    label: makeLabel(COLLECTING_EVENT),
     type_material: makeTypeMaterial(),
     tmpData: {
       otu: undefined

@@ -1,0 +1,5 @@
+export const GEOREFERENCE_EXIF = 'Georeference::Exif'
+export const GEOREFERENCE_GEOLOCATE = 'Georeference::GeoLocate'
+export const GEOREFERENCE_LEAFLET = 'Georeference::Leaflet'
+export const GEOREFERENCE_VERBATIM = 'Georeference::VerbatimData'
+export const GEOREFERENCE_WKT = 'Georeference::Wkt'

@@ -37,14 +37,17 @@ import extendCE from '../mixins/extendCE.js'
 
 export default {
   mixins: [extendCE],
+
   components: {
     SmartSelector,
     RolePicker
   },
+
   methods: {
     roleExist (id) {
       this.collectingEvent.roles_attributes.find(role => !role?._destroy && role.person_id === id)
     },
+
     addRole (role) {
       if (!this.roleExist(role.id)) {
         this.$refs.rolepicker.addCreatedPerson({ object_id: role.id, label: role.cached })
