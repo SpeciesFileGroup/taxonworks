@@ -29,10 +29,7 @@ export default {
     },
 
     objectId: {
-      required: true,
-      validator (value) {
-        return value === undefined || typeof value === 'string' || typeof value === 'number'
-      }
+      type: [String, Number]
     },
 
     objectType: {

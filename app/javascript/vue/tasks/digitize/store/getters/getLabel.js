@@ -1,3 +1,1 @@
-export default function(state) {
-  return state.label
-}
+export default state => state.label

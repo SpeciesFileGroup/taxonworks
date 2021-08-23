@@ -29,12 +29,7 @@
                 @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showBuffered', $event)"
               />
             </h2>
-            <div
-              v-if="showBuffered"
-              class="horizontal-right-content">
-              <buffered-component
-                class="separate-top separate-right"/>
-            </div>
+            <buffered-component v-if="showBuffered"/>
           </div>
           <div class="row-item">
             <h2 class="horizontal-left-content">
@@ -122,9 +117,7 @@ import RadialObject from 'components/radials/object/radial.vue'
 import PredicatesComponent from 'components/custom_attributes/predicates/predicates'
 import DefaultTag from 'components/defaultTag.vue'
 import platformKey from 'helpers/getPlatformKey'
-
-import { GetCollectionObjectDepictions } from '../../request/resources.js'
-import { Depiction, User } from 'routes/endpoints'
+import { Depiction, User, CollectionObject } from 'routes/endpoints'
 
 export default {
   components: {
@@ -158,8 +151,13 @@ export default {
       return this.$store.getters[GetterNames.GetProjectPreferences]
     },
 
-    collectionObject () {
-      return this.$store.getters[GetterNames.GetCollectionObject]
+    collectionObject: {
+      get () {
+        return this.$store.getters[GetterNames.GetCollectionObject]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetCollectionObject, value)
+      }
     },
 
     collectionObjects() {
@@ -175,15 +173,6 @@ export default {
       }
     },
 
-    total: {
-      get() {
-        return this.$store.getters[GetterNames.GetCollectionObject].total
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetCollectionObjectTotal, value)
-      }
-    },
-
     shortcuts () {
       const keys = {}
 
@@ -192,7 +181,8 @@ export default {
       return keys
     }
   },
-  data() {
+
+  data () {
     return {
       types: [],
       labelRepository: undefined,
@@ -201,7 +191,7 @@ export default {
       showBuffered: true,
       showCitations: true,
       showDepictions: true,
-      GetCollectionObjectDepictions
+      GetCollectionObjectDepictions: CollectionObject.depictions
     }
   },
   watch: {
@@ -231,24 +221,28 @@ export default {
   },
   methods: {
     setAttributes (value) {
-      this.$store.commit(MutationNames.SetCollectionObjectDataAttributes, value)
+      this.collectionObject.data_attributes_attributes = value
     },
+
     updatePreferences (key, value) {
       User.update(this.preferences.id, { user: { layout: { [key]: value } } }).then(response => {
         this.preferences.layout = response.body.preferences.layout
       })
     },
+
     newDigitalization () {
       this.$store.dispatch(ActionNames.NewCollectionObject)
       this.$store.dispatch(ActionNames.NewIdentifier)
       this.$store.commit(MutationNames.NewTaxonDetermination)
       this.$store.commit(MutationNames.SetTaxonDeterminations, [])
     },
+
     saveCollectionObject() {
       this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
         this.$store.commit(MutationNames.SetTaxonDeterminations, [])
       })
     },
+
     saveAndNew() {
       this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
         setTimeout(() => {
@@ -256,11 +250,13 @@ export default {
         }, 500)
       })
     },
-    cloneDepictions(co) {
+
+    cloneDepictions (co) {
       const unique = new Set()
       const depictionsRemovedDuplicate = this.depictions.filter(depiction => {
-        let key = depiction.image_id,
-          isNew = !unique.has(key)
+        const key = depiction.image_id
+        const isNew = !unique.has(key)
+
         if (isNew) unique.add(key)
         return isNew
       })
@@ -273,7 +269,8 @@ export default {
         }
       })
     },
-    saveDepiction(coId, depiction) {
+
+    saveDepiction (coId, depiction) {
       const data = {
         depiction_object_id: coId,
         depiction_object_type: 'CollectionObject',
@@ -283,6 +280,7 @@ export default {
         this.depictions.push(response.body)
       })
     },
+
     createDepictionForAll(depiction) {
       const coIds = this.collectionObjects.map((co) => co.id).filter(id => this.collectionObject.id !== id)
 
@@ -291,9 +289,11 @@ export default {
         this.saveDepiction(id, depiction)
       })
     },
+
     removeAllDepictionsByImageId(depiction) {
       this.$store.dispatch(ActionNames.RemoveDepictionsByImageId, depiction)
     },
+
     openBrowse () {
       if (this.collectionObject.id) {
         window.open(`/tasks/collection_objects/browse?collection_object_id=${this.collectionObject.id}`, '_self')

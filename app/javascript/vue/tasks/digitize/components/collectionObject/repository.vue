@@ -17,13 +17,13 @@
           class="margin-small-left"
           v-model="locked.collection_object.repository_id"/>
       </div>
-      <template v-if="repository">
+      <template v-if="repositoryId">
         <div class="middle separate-top">
           <span data-icon="ok"/>
           <span class="separate-right"> {{ repositorySelected }}</span>
           <span
             class="circle-button button-default btn-undo"
-            @click="repository = null"/>
+            @click="collectionObject.repository_id = null"/>
         </div>
       </template>
     </fieldset>
@@ -39,55 +39,57 @@ import { Repository } from 'routes/endpoints'
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import refreshSmartSelector from '../shared/refreshSmartSelector'
+import extendCO from './mixins/extendCO.js'
 
 export default {
-  mixins: [refreshSmartSelector],
+  mixins: [refreshSmartSelector, extendCO],
+
   components: {
     SmartSelector,
     LockComponent
   },
+
+  data () {
+    return {
+      repositorySelected: undefined
+    }
+  },
+
   computed: {
     locked: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetLocked]
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetLocked, value)
       }
     },
-    collectionObject() {
-      return this.$store.getters[GetterNames.GetCollectionObject]
-    },
-    repository: {
-      get() {
+
+    repositoryId: {
+      get () {
         return this.$store.getters[GetterNames.GetCollectionObject].repository_id
-      },
-      set(value) {
-        return this.$store.commit(MutationNames.SetCollectionObjectRepositoryId, value)
       }
     }
   },
+
   watch: {
-    repository(newVal, oldVal) {
+    repositoryId (newVal) {
       if (newVal) {
         Repository.find(newVal).then(response => {
           this.setRepository(response.body)
         })
       }
     },
-    collectionObject(newVal, oldVal) {
+
+    collectionObject (newVal, oldVal) {
       if (!newVal.id || newVal.id === oldVal.id) return
       this.$refs.smartSelector.refresh()
     }
   },
-  data () {
-    return {
-      repositorySelected: undefined
-    }
-  },
+
   methods: {
-    setRepository(repository) {
-      this.repository = repository.id
+    setRepository (repository) {
+      this.collectionObject.repository_id = repository.id
       this.repositorySelected = repository.object_tag
     }
   }

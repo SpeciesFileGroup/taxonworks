@@ -74,7 +74,7 @@ export default {
   computed: {
     lockCOs: {
       get () {
-        return this.lockValue
+        return this.lock
       },
       set (value) {
         this.$emit('update:lock', value)

@@ -1,3 +1,1 @@
-export default function(state) {
-  return state.settings.loading
-}
+export default state => state.settings.loading

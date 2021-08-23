@@ -37,36 +37,18 @@
             v-model="taxon_determination.roles_attributes"/>
         </smart-selector>
       </fieldset>
-      <div class="horizontal-left-content date-fields separate-bottom separate-top">
-        <div class="separate-right">
-          <label>Year</label>
-          <input
-            type="number"
-            v-model="taxon_determination.year_made">
-        </div>
-        <div class="separate-right separate-left">
-          <label>Month</label>
-          <input
-            type="number"
-            v-model="taxon_determination.month_made">
-        </div>
-        <div class="separate-left">
-          <label>Day</label>
-          <input
-            type="number"
-            v-model="taxon_determination.day_made">
-        </div>
-        <div>
-          <label>&nbsp</label>
-          <div class="align-start">
-            <button
-              type="button"
-              class="button normal-input button-default separate-left separate-right"
-              @click="setActualDate">
-              Now
-            </button>
-          </div>
-        </div>
+      <div class="horizontal-left-content date-fields separate-bottom separate-top align-end">
+        <date-fields
+          v-model:year="taxon_determination.year_made"
+          v-model:month="taxon_determination.month_made"
+          v-model:day="taxon_determination.day_made"
+        />
+        <button
+          type="button"
+          class="button normal-input button-default separate-left separate-right"
+          @click="setActualDate">
+          Now
+        </button>
       </div>
       <button
         type="button"
@@ -91,13 +73,15 @@ import DisplayList from 'components/displayList.vue'
 import SmartSelector from 'components/ui/SmartSelector'
 import CRUD from '../../request/crud.js'
 import AnnotatorExtend from '../annotatorExtend.js'
+import DateFields from 'components/ui/Date/DateFields.vue'
 
 export default {
   mixins: [CRUD, AnnotatorExtend],
   components: {
     SmartSelector,
     RolePicker,
-    DisplayList
+    DisplayList,
+    DateFields
   },
   data () {
     return {

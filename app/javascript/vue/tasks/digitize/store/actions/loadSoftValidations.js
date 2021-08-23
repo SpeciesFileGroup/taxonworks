@@ -5,7 +5,7 @@ export default ({ commit, state }) => {
   const promises = []
   const {
     collection_object,
-    collection_event,
+    collecting_event,
     taxon_determinations,
     materialTypes,
     biologicalAssociations,
@@ -14,8 +14,8 @@ export default ({ commit, state }) => {
 
   promises.push(SoftValidation.find(collection_object.global_id))
 
-  if (collection_event.global_id) {
-    promises.push(SoftValidation.find(collection_event.global_id))
+  if (collecting_event.global_id) {
+    promises.push(SoftValidation.find(collecting_event.global_id))
   }
 
   taxon_determinations.forEach(determination => {

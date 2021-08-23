@@ -49,16 +49,16 @@
             class="horizontal-left-content"
             v-if="taxonSelected">
             <a
-              :href="`/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxon.id}`"
-              v-html="taxon.object_tag"
+              :href="`/tasks/nomenclature/new_taxon_name?taxon_name_id=${typeMaterial.taxon.id}`"
+              v-html="typeMaterial.taxon.object_tag"
             />
             <button
               type="button"
               class="button circle-button btn-undo button-default"
-              @click="taxon = undefined"/>
+              @click="typeMaterial.taxon = undefined"/>
           </div>
         </fieldset>
-        <type-selector v-model="type"/>
+        <type-selector v-model="typeMaterial.type_type"/>
         <fieldset>
           <legend>Source</legend>
           <smart-selector
@@ -126,15 +126,6 @@ export default {
       return otu?.taxon_name_id
     },
 
-    type: {
-      get () {
-        return this.$store.getters[GetterNames.GetTypeMaterial].type_type
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetTypeMaterialType, value)
-      }
-    },
-
     typeMaterial: {
       get () {
         return this.$store.getters[GetterNames.GetTypeMaterial]
@@ -148,27 +139,10 @@ export default {
       return this.$store.getters[GetterNames.GetTypeMaterials]
     },
 
-    taxon: {
-      get () {
-        return this.$store.getters[GetterNames.GetTypeMaterial].taxon
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetTypeMaterialTaxon, value)
-      }
-    },
-
     taxonSelected () {
-      return this.taxon
+      return this.typeMaterial.taxon
     },
 
-    citation: {
-      get () {
-        return this.$store.getters[GetterNames.GetTypeMaterial].origin_citation_attributes
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetTypeMaterialCitation, value)
-      }
-    },
     lastSave () {
       return this.$store.getters[GetterNames.GetLastSave]
     }
@@ -188,7 +162,7 @@ export default {
   watch: {
     origin_citation_attributes: {
       handler (newVal) {
-        this.citation = newVal
+        this.typeMaterial.origin_citation_attributes = newVal
       },
       deep: true
     },
@@ -258,7 +232,7 @@ export default {
 
       this.typeMaterial.id = id
       this.selectTaxon(protonym_id)
-      this.type = type_type
+      this.typeMaterial.type_type = type_type
       this.editMode = true
     }
   }

@@ -48,16 +48,16 @@ export default {
 
   computed: {
     locked: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetLocked]
       },
-      set(value) {
+      set (value) {
         this.$store.commit([MutationNames.SetLocked, value])
       }
     }
   },
 
-  data() {
+  data () {
     return {
       addQueue: [],
       createdBiocutarions: [],
@@ -89,6 +89,7 @@ export default {
       },
       immediate: true
     },
+
     addQueue: {
       handler () {
         if (this.biologicalId && this.addQueue.length) {
