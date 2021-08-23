@@ -28,7 +28,7 @@ module CollectionObject::DwcExtensions
     otherCatalogNumbers: :dwc_other_catalog_numbers,
     preparations: :dwc_preparations,
     previousIdentifications: :dwc_previous_identifications,
-    recordedBy: :dwc_recorded_by,  
+    recordedBy: :dwc_recorded_by,
     recordedByID: :dwc_recorded_by_id,
     samplingProtocol: :dwc_sampling_protocol,
     scientificName: :dwc_scientific_name,
@@ -42,7 +42,7 @@ module CollectionObject::DwcExtensions
     verbatimEventDate: :dwc_verbatim_event_date,
     verbatimLocality: :dwc_verbatim_locality,
     waterBody: :dwc_water_body,
-    
+
     # Georeference "Interface'
     verbatimCoordinates: :dwc_verbatim_coordinates,
     verbatimLatitude: :dwc_verbatim_latitude,
@@ -64,8 +64,8 @@ module CollectionObject::DwcExtensions
     # TODO: move to a proper extensions
     associatedMedia: :dwc_associated_media
 
-    # -- Core taxon? -- 
-    # nomenclaturalCode 
+    # -- Core taxon? --
+    # nomenclaturalCode
     # scientificName
     # taxonmicStatus NOT DONE
     # scientificNameAuthorship
@@ -87,10 +87,10 @@ module CollectionObject::DwcExtensions
   end
 
   # @return [Hash]
-  #   
+  #
   def set_georeference_attributes
     case collecting_event&.dwc_georeference_source
-    when :georeference 
+    when :georeference
       collecting_event.preferred_georeference.dwc_georeference_attributes
     when :verbatim
       h = collecting_event.dwc_georeference_attributes
@@ -99,8 +99,8 @@ module CollectionObject::DwcExtensions
         h[:georeferencedBy] = User.find(a).name
       end
 
-      # verbatim_longitude could technically be different, but... 
-      h[:georeferencedDate] = collecting_event&.attribute_updated(:verbatim_latitude) 
+      # verbatim_longitude could technically be different, but...
+      h[:georeferencedDate] = collecting_event&.attribute_updated(:verbatim_latitude)
 
       h
 
@@ -111,19 +111,19 @@ module CollectionObject::DwcExtensions
         h[:georeferencedBy] = User.find(a).name
       end
 
-      h[:georeferencedDate] = collecting_event&.attribute_updated(:geographic_area_id) 
+      h[:georeferencedDate] = collecting_event&.attribute_updated(:geographic_area_id)
 
       h
-    else 
+    else
       {}
-    end 
+    end
   end
 
   # https://dwc.tdwg.org/terms/#dwc:associatedMedia
   def dwc_associated_media
     images.collect{|i| i.image_file.url }.join(DELIMITER)
   end
- 
+
   def dwc_georeference_sources
     georeference_attributes[:georeferenceSources]
   end
@@ -185,7 +185,7 @@ module CollectionObject::DwcExtensions
 
   def dwc_water_body
     return nil unless collecting_event
-    collecting_event.internal_attributes.includes(:predicate) 
+    collecting_event.internal_attributes.includes(:predicate)
       .where(
         controlled_vocabulary_terms: {uri: DWC_ATTRIBUTE_URIS[:waterBody] })
       .pluck(:value)&.join(', ').presence
@@ -269,7 +269,7 @@ module CollectionObject::DwcExtensions
 
   # @params reset [Boolean]
   # @return [Hash]
-  # 
+  #
   # Using `.reload` will not reset taxonomy!
   def taxonomy(reset = false)
     if reset
@@ -310,20 +310,20 @@ module CollectionObject::DwcExtensions
   # Definition: A list (concatenated and separated) of names of people, groups, or organizations responsible for recording the original Occurrence. The primary collector or observer, especially one who applies a personal identifier (recordNumber), should be listed first.
   #
   # This is, frankly, a worthless field. Currently populated with Determiners, ordered by preferred, then historical, then collectors tossed in for good measure. Maybe we can add the
-  # people who digitally captured all the different components of the graph too. 
+  # people who digitally captured all the different components of the graph too.
   def dwc_recorded_by
     # TODO: raw SQL this mess?
-    ( determiners.includes(:roles).order('taxon_determinations.position, roles.position').to_a + 
-     (collecting_event ? collecting_event&.collectors.includes(:roles).order('roles.position').to_a : [])) 
+    ( determiners.includes(:roles).order('taxon_determinations.position, roles.position').to_a +
+     (collecting_event ? collecting_event&.collectors.includes(:roles).order('roles.position').to_a : []))
       .uniq.map(&:cached).join(DELIMITER).presence
-  end 
+  end
 
   def dwc_recorded_by_id
     # TODO: raw SQL this mess?
-    ( determiners.includes(:roles).order('taxon_determinations.position, roles.position').to_a + 
-     (collecting_event ? collecting_event&.collectors.includes(:roles).order('roles.position').to_a : [])) 
-      .uniq.map(&:orcid).join(DELIMITER).presence
-  end 
+    ( determiners.includes(:roles).order('taxon_determinations.position, roles.position').to_a +
+     (collecting_event ? collecting_event&.collectors.includes(:roles).order('roles.position').to_a : []))
+      .uniq.map(&:orcid).compact.join(DELIMITER).presence
+  end
 
   def dwc_identified_by
     # TaxonWorks allows for groups of determiners to collaborate on a single determination if they collectively came to a conclusion.
@@ -441,9 +441,9 @@ module CollectionObject::DwcExtensions
   def set_taxonomy
     c = self.current_taxon_name
     # If we have no name, see if there is a Type reference and use it as proxy
-    c ||= type_materials.primary.first&.protonym 
+    c ||= type_materials.primary.first&.protonym
 
-    if c 
+    if c
       @taxonomy = c.full_name_hash
       # Check for required 'Kingdom'
       if @taxonomy['kingdom'].blank?
