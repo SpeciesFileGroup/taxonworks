@@ -1,0 +1,7 @@
+export const DESCRIPTOR_QUALITATIVE = 'Descriptor::Qualitative'
+export const DESCRIPTOR_PRESENCE_ABSENCE = 'Descriptor::PresenceAbsence'
+export const DESCRIPTOR_CONTINUOUS = 'Descriptor::Continuous'
+export const DESCRIPTOR_SAMPLE = 'Descriptor::Sample'
+export const DESCRIPTOR_GENE = 'Descriptor::Gene'
+export const DESCRIPTOR_WORKING = 'Descriptor::Working'
+export const DESCRIPTOR_MEDIA = 'Descriptor::Media'

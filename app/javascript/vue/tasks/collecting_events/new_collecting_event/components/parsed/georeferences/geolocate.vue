@@ -34,7 +34,7 @@
 <script>
 
 import ModalComponent from 'components/ui/Modal'
-import GeoreferenceTypes from '../../../const/georeferenceTypes'
+import { GEOREFERENCE_GEOLOCATE } from 'constants/index.js'
 
 export default {
   components: { ModalComponent },
@@ -59,7 +59,7 @@ export default {
       this.$emit('create', {
         tmpId: Math.random().toString(36).substr(2, 5),
         iframe_response: this.iframe_response,
-        type: GeoreferenceTypes.Geolocate
+        type: GEOREFERENCE_GEOLOCATE
       })
       this.iframe_response = undefined
       this.show = false

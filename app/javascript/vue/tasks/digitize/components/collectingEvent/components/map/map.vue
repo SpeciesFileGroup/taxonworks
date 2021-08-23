@@ -36,7 +36,7 @@
 
 import { GetterNames } from '../../../../store/getters/getters.js'
 import L from 'leaflet'
-import convertDMS from '../../../../helpers/parseDMS.js'
+import convertDMS from 'helpers/parseDMS.js'
 import iconRetina from 'leaflet/dist/images/marker-icon-2x.png'
 import iconUrl from 'leaflet/dist/images/marker-icon.png'
 import shadowUrl from 'leaflet/dist/images/marker-shadow.png'

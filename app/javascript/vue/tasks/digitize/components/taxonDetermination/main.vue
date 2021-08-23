@@ -157,11 +157,12 @@ import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions'
 import { Otu, TaxonName } from 'routes/endpoints'
 import { RouteNames } from 'routes/routes'
+import { ROLE_DETERMINER } from 'constants/index.js'
 
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import RolePicker from 'components/role_picker.vue'
 import BlockLayout from 'components/layout/BlockLayout.vue'
-import CreatePerson from '../../helpers/createPerson.js'
+import makePerson from 'factory/Person.js'
 import LockComponent from 'components/ui/VLock/index.vue'
 import Draggable from 'vuedraggable'
 import RadialAnnotator from 'components/radials/annotator/annotator'
@@ -290,7 +291,13 @@ export default {
 
     addRole (role) {
       if (!this.roleExist(role.id)) {
-        this.taxonDetermination.roles_attributes.push(CreatePerson(role, 'Determiner'))
+        this.taxonDetermination.roles_attributes.push(
+          makePerson(
+            role.first_name,
+            role.last_name,
+            role.id,
+            ROLE_DETERMINER
+          ))
       }
     },
 

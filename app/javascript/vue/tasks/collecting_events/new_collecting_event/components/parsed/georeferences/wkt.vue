@@ -33,7 +33,7 @@
 <script>
 
 import ModalComponent from 'components/ui/Modal'
-import GeoreferenceTypes from '../../../const/georeferenceTypes'
+import { GEOREFERENCE_WKT } from 'constants/index.js'
 
 export default {
   components: { ModalComponent },
@@ -52,7 +52,7 @@ export default {
       this.$emit('create', {
         tmpId: Math.random().toString(36).substr(2, 5),
         wkt: this.wkt,
-        type: GeoreferenceTypes.Wkt
+        type: GEOREFERENCE_WKT
       })
       this.show = false
     },

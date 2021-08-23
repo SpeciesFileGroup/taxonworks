@@ -1,10 +1,11 @@
+import { IDENTIFIER_LOCAL_TRIP_CODE } from 'constants/index.js'
 import { Identifier } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 import { copyObjectByProperties } from 'helpers/objects'
-import makeIdentifier from '../../const/makeTripIdentifier'
+import makeIdentifier from 'factory/Identifier.js'
 
 export default async ({ state: { collectingEvent, tripCode }, commit }) => {
-  const newIdentifier = makeIdentifier()
+  const newIdentifier = makeIdentifier(IDENTIFIER_LOCAL_TRIP_CODE, 'CollectingEvent')
 
   if (tripCode.namespace_id && tripCode.identifier) {
     const data = copyObjectByProperties(tripCode, newIdentifier)

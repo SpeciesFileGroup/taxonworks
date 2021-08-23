@@ -119,7 +119,11 @@ import ManuallyComponent from 'components/georeferences/manuallyComponent'
 import GeolocateComponent from 'components/georeferences/geolocateComponent'
 import WtkComponent from 'tasks/collecting_events/new_collecting_event/components/parsed/georeferences/wkt.vue'
 import { Georeference } from 'routes/endpoints'
-
+import {
+  GEOREFERENCE_GEOLOCATE,
+  GEOREFERENCE_LEAFLET,
+  GEOREFERENCE_VERBATIM
+} from 'constants/index.js'
 import { truncateDecimal } from 'helpers/math.js'
 import convertDMS from 'helpers/parseDMS.js'
 
@@ -181,7 +185,7 @@ export default {
     },
 
     verbatimGeoreferenceAlreadyCreated () {
-      return this.georeferences.find(item => item.type === 'Georeference::VerbatimData')
+      return this.georeferences.find(item => item.type === GEOREFERENCE_VERBATIM)
     },
 
     georeferences: {
@@ -270,7 +274,7 @@ export default {
         geographic_item_attributes: { shape: JSON.stringify(shape) },
         error_radius: shape.properties?.radius,
         collecting_event_id: this.collectingEvent.id,
-        type: 'Georeference::Leaflet'
+        type: GEOREFERENCE_LEAFLET
       }
 
       this.isLoading = true
@@ -290,7 +294,7 @@ export default {
         error_radius: shape.properties?.radius,
         geographic_item_attributes: { shape: JSON.stringify(shape) },
         collecting_event_id: this.collectingEvent.id,
-        type: 'Georeference::Leaflet'
+        type: GEOREFERENCE_LEAFLET
       }
 
       this.isLoading = true
@@ -339,7 +343,7 @@ export default {
       const georeference = {
         geographic_item_attributes: { shape: JSON.stringify(shape) },
         collecting_event_id: this.collectingEvent.id,
-        type: 'Georeference::VerbatimData',
+        type: GEOREFERENCE_VERBATIM,
         error_radius: this.geolocationUncertainty
       }
       this.isLoading = true
@@ -360,7 +364,7 @@ export default {
         georeference: {
           iframe_response: iframe_data,
           collecting_event_id: this.collectingEvent.id,
-          type: 'Georeference::GeoLocate'
+          type: GEOREFERENCE_GEOLOCATE
         }
       }).then(response => {
         this.georeferences.push(response.body)

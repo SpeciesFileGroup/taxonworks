@@ -100,12 +100,14 @@
 <script>
 
 import { RouteNames } from 'routes/routes'
+import { ROLE_DETERMINER } from 'constants/index.js'
 
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import RolePicker from 'components/role_picker.vue'
-import CreatePerson from 'tasks/digitize/helpers/createPerson.js'
+import makePerson from 'factory/Person'
 import Draggable from 'vuedraggable'
 import DateFields from 'components/ui/Date/DateFields.vue'
+import makeTaxonDetermination from 'factory/TaxonDetermination.js'
 
 export default {
   components: {
@@ -137,7 +139,7 @@ export default {
 
   data () {
     return {
-      taxonDetermination: this.newDetermination()
+      taxonDetermination: this.makeTaxonDetermination()
     }
   },
 
@@ -148,13 +150,20 @@ export default {
 
     addRole (role) {
       if (!this.roleExist(role.id)) {
-        this.taxonDetermination.roles_attributes.push(CreatePerson(role, 'Determiner'))
+        this.taxonDetermination.roles_attributes.push(
+          makePerson(
+            role.first_name,
+            role.last_name,
+            role.id,
+            ROLE_DETERMINER
+          )
+        )
       }
     },
 
     addDetermination () {
       this.list.push(this.taxonDetermination)
-      this.taxonDetermination = this.newDetermination()
+      this.taxonDetermination = this.makeTaxonDetermination()
     },
 
     setActualDate () {
@@ -194,17 +203,7 @@ export default {
       this.list.splice(index, 1)
     },
 
-    newDetermination () {
-      return {
-        biological_collection_object_id: undefined,
-        otu_id: undefined,
-        year_made: undefined,
-        month_made: undefined,
-        day_made: undefined,
-        position: undefined,
-        roles_attributes: []
-      }
-    }
+    makeTaxonDetermination
   }
 }
 </script>
