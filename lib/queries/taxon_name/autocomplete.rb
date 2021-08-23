@@ -372,6 +372,8 @@ module Queries
       def authorship
         parsed_authorship = Biodiversity::Parser.parse(query_string).dig(:authorship)
 
+        return nil if parsed_authorship.nil?
+
         result = parsed_authorship[:normalized]
 
         if (year = parsed_authorship[:year])   # Add a comma between author and year if present
