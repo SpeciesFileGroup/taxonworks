@@ -284,7 +284,7 @@ module Queries
           autocomplete_exact_id,
           autocomplete_exact_cached,
           autocomplete_exact_cached_original_combination,
-          autocomplete_identifier_cached_exact, 
+          autocomplete_identifier_cached_exact,
           autocomplete_exact_name_and_year,
           autocomplete_identifier_identifier_exact,
           autocomplete_top_name,
@@ -321,7 +321,7 @@ module Queries
           result += a.to_a
           break if result.count > 19
         end
-        
+
         result.uniq!
         result[0..19]
       end
@@ -366,10 +366,20 @@ module Queries
         table[:cached_author_year].matches_any(terms)
       end
 
+      # Parse the query_string for taxon name + authorship information, returns author name (and year) if present
+      # @note If year is present, inserts a comma between author and year (as per ICZN convention)
       # @return [String]
       def authorship
-        ::Biodiversity::Parser.parse(query_string).dig(:authorship, :normalized)
+        parsed_authorship = Biodiversity::Parser.parse(query_string).dig(:authorship)
+
+        result = parsed_authorship[:normalized]
+
+        if (year = parsed_authorship[:year])   # Add a comma between author and year if present
+          result.gsub!(/ #{year}/, ", #{year}")
+        end
+        result
       end
+
 
       # Note this overwrites the commonly used Geo parent/child!
       # def parent_child_where
