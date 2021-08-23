@@ -96,7 +96,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         expect(variety.cached_author_year).to eq('(Linnaeus) McAtee')
       end
 
-      specify 'ICN author' do
+      xspecify 'ICN author' do # TODO: Re-enable this after discussion with @mjy @proceps
         t = FactoryBot.create(:icn_kingdom, verbatim_author: '(Seub.) Lowden')
         expect(t.original_author_year).to eq('(Seub.) Lowden')
       end
