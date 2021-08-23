@@ -97,6 +97,11 @@ module Utilities::Strings
     last_names.to_sentence(two_words_connector: ' & ', last_word_connector: ' & ')
   end
 
+  # Splits a string on special characters, returning an array of the strings that do not contain digits.
+  #
+  # It splits on accent characters, and does not split on underscores. The method is used for building wildcard searches,
+  # so splitting on accents creates pseudo accent insensitivity in searches.
+  #
   # @param string [String]
   # @return [Array]
   #   whitespace and special character split, then any string containing a digit eliminated
