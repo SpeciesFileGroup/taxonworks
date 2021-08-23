@@ -1,6 +1,7 @@
 import { MutationNames } from '../mutations/mutations'
 import { CollectionObject } from 'routes/endpoints'
 import { ActionNames } from './actions'
+import { IDENTIFIER_LOCAL_CATALOG_NUMBER } from 'constants/index.js'
 
 export default ({ commit, dispatch, state }, id) =>
   CollectionObject.destroy(id).then(() => {
@@ -38,7 +39,7 @@ export default ({ commit, dispatch, state }, id) =>
             identifier: identifier.identifier,
             identifier_object_id: co.id,
             namespace_id: identifier.namespace_id,
-            type: 'Identifier::Local::CatalogNumber'
+            type: IDENTIFIER_LOCAL_CATALOG_NUMBER
           })
         }
         dispatch(ActionNames.SaveIdentifier, state.collection_objects[0].id)

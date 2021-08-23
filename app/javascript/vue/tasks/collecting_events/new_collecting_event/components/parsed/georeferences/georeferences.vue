@@ -123,11 +123,16 @@ import extendCE from '../../mixins/extendCE'
 import WktComponent from './wkt'
 import { Georeference } from 'routes/endpoints'
 import { truncateDecimal } from 'helpers/math.js'
-
-import GeoreferenceTypes from '../../../const/georeferenceTypes'
 import { GetterNames } from '../../../store/getters/getters'
 import { MutationNames } from '../../../store/mutations/mutations'
 import { ActionNames } from '../../../store/actions/actions'
+import {
+  GEOREFERENCE_GEOLOCATE,
+  GEOREFERENCE_EXIF,
+  GEOREFERENCE_VERBATIM,
+  GEOREFERENCE_WKT,
+  GEOREFERENCE_LEAFLET
+} from 'constants/index.js'
 
 export default {
   mixins: [extendCE],
@@ -182,10 +187,10 @@ export default {
       return this.verbatimGeoreferenceAlreadyCreated ? truncateDecimal((this.verbatimGeoreferenceAlreadyCreated.geo_json ? this.verbatimGeoreferenceAlreadyCreated.geo_json.properties.radius : JSON.parse(this.verbatimGeoreferenceAlreadyCreated.geographic_item_attributes.shape).error_radius), 6) : undefined
     },
     verbatimGeoreferenceAlreadyCreated () {
-      return [].concat(this.georeferences, this.queueGeoreferences).find(item => item.type === GeoreferenceTypes.Verbatim || item.type === GeoreferenceTypes.Exif)
+      return [].concat(this.georeferences, this.queueGeoreferences).find(item => item.type === GEOREFERENCE_VERBATIM || item.type === GEOREFERENCE_EXIF)
     },
     mapGeoreferences () {
-      return [].concat(this.shapes.features, this.queueGeoreferences.filter(item => (item.type !== GeoreferenceTypes.Wkt && item.type !== GeoreferenceTypes.Geolocate) && item?.geographic_item_attributes?.shape).map(item => JSON.parse(item?.geographic_item_attributes?.shape)))
+      return [].concat(this.shapes.features, this.queueGeoreferences.filter(item => (item.type !== GEOREFERENCE_WKT && item.type !== GEOREFERENCE_GEOLOCATE) && item?.geographic_item_attributes?.shape).map(item => JSON.parse(item?.geographic_item_attributes?.shape)))
     },
     geojson () {
       return this.collectingEventId ? this.shapes.features : this.queueGeoreferences
@@ -264,7 +269,7 @@ export default {
         tmpId: Math.random().toString(36).substr(2, 5),
         geographic_item_attributes: { shape: JSON.stringify(shape) },
         error_radius: shape.properties?.radius,
-        type: GeoreferenceTypes.Leaflet
+        type: GEOREFERENCE_LEAFLET
       })
 
       this.$store.dispatch(ActionNames.ProcessGeoreferenceQueue)
@@ -276,7 +281,7 @@ export default {
         error_radius: shape.properties?.radius,
         geographic_item_attributes: { shape: JSON.stringify(shape) },
         collecting_event_id: this.collectingEventId,
-        type: GeoreferenceTypes.Leaflet
+        type: GEOREFERENCE_LEAFLET
       })
 
       this.$store.dispatch(ActionNames.ProcessGeoreferenceQueue)
@@ -321,7 +326,7 @@ export default {
       this.addToQueue({
         geographic_item_attributes: { shape: JSON.stringify(shape) },
         collecting_event_id: this.collectingEventId,
-        type: GeoreferenceTypes.Verbatim,
+        type: GEOREFERENCE_VERBATIM,
         error_radius: this.collectingEvent.verbatim_geolocation_uncertainty
       })
 

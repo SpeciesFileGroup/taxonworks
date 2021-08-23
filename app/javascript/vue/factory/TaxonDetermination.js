@@ -4,5 +4,5 @@ export default () => ({
   year_made: undefined,
   month_made: undefined,
   day_made: undefined,
-  roles_attributes: [],
+  roles_attributes: []
 })

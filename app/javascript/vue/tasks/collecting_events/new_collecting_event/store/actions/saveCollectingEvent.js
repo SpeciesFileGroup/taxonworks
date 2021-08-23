@@ -7,12 +7,12 @@ import SetParam from 'helpers/setParam'
 export default async ({ state, commit, dispatch }) => {
   const collectingEvent = state.collectingEvent
 
-  if (collectingEvent.units === 'ft') {
+  if (state.unit === 'ft') {
     ['minimum_elevation', 'maximum_elevation', 'elevation_precision'].forEach(key => {
       const elevationValue = Number(collectingEvent[key])
       collectingEvent[key] = elevationValue > 0 ? elevationValue / 3.281 : undefined
     })
-    collectingEvent.units = 'm'
+    commit(MutationNames.SetUnit, 'm')
   }
 
   state.settings.isSaving = true

@@ -1,6 +1,6 @@
 import { MutationNames } from '../mutations/mutations'
 import { CollectingEvent, Identifier } from 'routes/endpoints'
-import newCollectingEvent from '../../const/collectingEvent'
+import newCollectingEvent from 'factory/CollectingEvent.js'
 
 export default ({ commit, state: { collecting_event, collectingEventIdentifier } }) =>
   new Promise((resolve, reject) => {

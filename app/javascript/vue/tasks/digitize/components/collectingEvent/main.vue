@@ -88,11 +88,15 @@
 
 <script>
 
+import {
+  IDENTIFIER_LOCAL_TRIP_CODE,
+  COLLECTING_EVENT
+} from 'constants/index.js'
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions.js'
-import { CollectingEvent, CollectionObject } from 'routes/endpoints'
 import { RouteNames } from 'routes/routes'
+import { CollectingEvent, CollectionObject } from 'routes/endpoints'
 import BlockVerbatin from './components/verbatimLayout.vue'
 import BlockGeography from './components/GeographyLayout.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
@@ -102,13 +106,14 @@ import BlockLayout from 'components/layout/BlockLayout.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/navigation/radial.vue'
 import PinComponent from 'components/ui/Pinboard/VPin.vue'
-import makeCollectingEvent from '../../const/collectingEvent.js'
-import makeIdentifierCE from '../../const/identifierCE'
+import makeCollectingEvent from 'factory/CollectingEvent.js'
+import makeIdentifier from 'factory/Identifier.js'
 import refreshSmartSelector from '../shared/refreshSmartSelector'
 import platformKey from 'helpers/getPlatformKey'
 
 export default {
   mixins: [refreshSmartSelector],
+
   components: {
     BlockLayout,
     BlockVerbatin,
@@ -120,6 +125,7 @@ export default {
     BlockMap,
     LockComponent
   },
+
   computed: {
     shortcuts () {
       const keys = {}
@@ -189,7 +195,7 @@ export default {
   methods: {
     setCollectingEvent (ce) {
       this.$store.commit(MutationNames.SetCollectingEvent, Object.assign(makeCollectingEvent(), ce))
-      this.$store.commit(MutationNames.SetCollectingEventIdentifier, ce?.identifiers[0] || makeIdentifierCE())
+      this.$store.commit(MutationNames.SetCollectingEventIdentifier, ce?.identifiers[0] || makeIdentifier(IDENTIFIER_LOCAL_TRIP_CODE, COLLECTING_EVENT))
       this.$store.dispatch(ActionNames.GetLabels, ce.id)
       this.$store.dispatch(ActionNames.LoadGeoreferences, ce.id)
     },
@@ -201,7 +207,7 @@ export default {
     cloneCE () {
       CollectingEvent.clone(this.collectingEvent.id).then(response => {
         this.$store.commit(MutationNames.SetCollectingEvent, Object.assign(makeCollectingEvent(), response.body))
-        this.$store.commit(MutationNames.SetCollectingEventIdentifier, response.body?.identifiers[0] || makeIdentifierCE())
+        this.$store.commit(MutationNames.SetCollectingEventIdentifier, response.body?.identifiers[0] || makeIdentifier(IDENTIFIER_LOCAL_TRIP_CODE, COLLECTING_EVENT))
         this.$store.dispatch(ActionNames.SaveDigitalization)
       })
     },

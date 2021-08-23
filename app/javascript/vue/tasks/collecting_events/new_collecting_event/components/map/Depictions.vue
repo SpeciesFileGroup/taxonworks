@@ -54,7 +54,7 @@
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 import { CollectingEvent, Depiction } from 'routes/endpoints'
-import GeoreferenceTypes from '../../const/georeferenceTypes'
+import { GEOREFERENCE_EXIF } from 'constants/index.js'
 import Dropzone from 'components/dropzone.vue'
 import extendCE from '../mixins/extendCE.js'
 import ParseDMS from 'helpers/parseDMS.js'
@@ -171,7 +171,7 @@ export default {
             latitude: ParseDMS(this.parseEXIFCoordinate(allMetaData.GPSLatitude) + allMetaData.GPSLatitudeRef),
             longitude: ParseDMS(this.parseEXIFCoordinate(allMetaData.GPSLongitude) + allMetaData.GPSLongitudeRef)
           }
-          const geojson = addGeoreference(createGeoJSONFeature(coordinates.longitude, coordinates.latitude), GeoreferenceTypes.Exif)
+          const geojson = addGeoreference(createGeoJSONFeature(coordinates.longitude, coordinates.latitude), GEOREFERENCE_EXIF)
 
           this.coordinatesEXIF.push(geojson)
           if (this.autogeo) {

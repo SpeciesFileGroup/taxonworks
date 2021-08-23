@@ -1,4 +1,4 @@
-import makeTypeMaterial from '../../../const/typeMaterial.js'
+import makeTypeMaterial from 'factory/TypeMaterial.js'
 export default state => {
   state.type_material = makeTypeMaterial()
 }

@@ -32,7 +32,7 @@
           <li v-for="unit in units">
             <label>
               <input
-                v-model="collectingEvent.units"
+                v-model="ceUnit"
                 type="radio"
                 :value="unit.value"
                 name="elevation">
@@ -48,9 +48,23 @@
 <script>
 
 import extendCE from '../mixins/extendCE'
+import { GetterNames } from '../../store/getters/getters'
+import { MutationNames } from '../../store/mutations/mutations'
 
 export default {
   mixins: [extendCE],
+
+  computed: {
+    ceUnit: {
+      get () {
+        return this.$store.getters[GetterNames.GetUnit]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetUnit, value)
+      }
+    }
+  },
+
   data () {
     return {
       units: [
