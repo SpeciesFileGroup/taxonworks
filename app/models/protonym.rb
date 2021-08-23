@@ -875,7 +875,7 @@ class Protonym < TaxonName
   end
 
   def verbatim_author_with_closed_parens_when_present
-    if verbatim_author.present? and nomenclatural_code == :iczn
+    if verbatim_author.present? and nomenclatural_code != :icn  # workaround until basyonim field exists
       # Regex matches two possible, both params, or no params at start/end
       errors.add(:verbatim_author, 'Verbatim author is missing a parenthesis') unless verbatim_author =~ /\A\([^()]+\)\z|\A[^()]+\z/
     end
