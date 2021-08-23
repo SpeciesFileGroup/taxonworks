@@ -871,11 +871,11 @@ class Protonym < TaxonName
   end
 
   def verbatim_author_without_digits
-    errors.add(:verbatim_author, 'Verbatim author may not contain digits, a year may be present') if verbatim_author =~ /\d/ 
+    errors.add(:verbatim_author, 'Verbatim author may not contain digits, a year may be present') if verbatim_author =~ /\d/
   end
 
   def verbatim_author_with_closed_parens_when_present
-    if verbatim_author.present?
+    if verbatim_author.present? and nomenclatural_code == :iczn
       # Regex matches two possible, both params, or no params at start/end
       errors.add(:verbatim_author, 'Verbatim author is missing a parenthesis') unless verbatim_author =~ /\A\([^()]+\)\z|\A[^()]+\z/
     end
