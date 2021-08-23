@@ -1,3 +1,1 @@
-export default function(state) {
-  return state.identifier
-}
+export default state => state.identifier

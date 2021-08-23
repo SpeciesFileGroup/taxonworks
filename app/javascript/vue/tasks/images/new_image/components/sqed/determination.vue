@@ -65,40 +65,19 @@
       </div>
     </fieldset>
 
-    <div class="horizontal-left-content date-fields separate-bottom separate-top">
-      <div class="separate-right">
-        <label>Year</label>
-        <input
-          type="text"
-          v-model="taxonDetermination.year_made"
-        >
-      </div>
-      <div class="separate-right separate-left">
-        <label>Month</label>
-        <input
-          type="text"
-          v-model="taxonDetermination.month_made"
-        >
-      </div>
-      <div class="separate-left">
-        <label>Day</label>
-        <input
-          type="text"
-          v-model="taxonDetermination.day_made"
-        >
-      </div>
-      <div>
-        <label>&nbsp</label>
-        <div class="align-start">
-          <button
-            type="button"
-            class="button normal-input button-default separate-left separate-right"
-            @click="setActualDate"
-          >
-            Now
-          </button>
-        </div>
-      </div>
+    <div class="horizontal-left-content date-fields separate-bottom separate-top align-end">
+      <date-fields
+        v-model:year="taxonDetermination.year_made"
+        v-model:month="taxonDetermination.month_made"
+        v-model:day="taxonDetermination.day_made"
+      />
+      <button
+        type="button"
+        class="button normal-input button-default separate-left"
+        @click="setActualDate"
+      >
+        Now
+      </button>
     </div>
     <button
       type="button"
@@ -131,13 +110,15 @@ import DisplayList from 'components/displayList.vue'
 import CreatePerson from '../../helpers/createPerson.js'
 import makeTaxonDetermination from '../../const/makeTaxonDetermination'
 import LockComponent from 'components/ui/VLock/index.vue'
+import DateFields from 'components/ui/Date/DateFields.vue'
 
 export default {
   components: {
     SmartSelector,
     RolePicker,
     DisplayList,
-    LockComponent
+    LockComponent,
+    DateFields
   },
 
   computed: {

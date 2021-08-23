@@ -55,36 +55,18 @@
           </smart-selector>
         </div>
       </fieldset>
-      <div class="horizontal-left-content date-fields separate-bottom separate-top">
-        <div class="separate-left">
-          <label>Day</label>
-          <input
-            type="number"
-            v-model="taxonDetermination.day_made">
-        </div>
-        <div class="separate-right separate-left">
-          <label>Month</label>
-          <input
-            type="number"
-            v-model="taxonDetermination.month_made">
-        </div>
-        <div class="separate-right">
-          <label>Year</label>
-          <input
-            type="number"
-            v-model="taxonDetermination.year_made">
-        </div>
-        <div>
-          <label>&nbsp</label>
-          <div class="align-start">
-            <button
-              type="button"
-              class="button normal-input button-default separate-left separate-right"
-              @click="setActualDate">
-              Now
-            </button>
-          </div>
-        </div>
+      <div class="horizontal-left-content date-fields separate-bottom separate-top align-end">
+        <date-fields
+          v-model:year="taxonDetermination.year_made"
+          v-model:month="taxonDetermination.month_made"
+          v-model:day="taxonDetermination.day_made"
+        />
+        <button
+          type="button"
+          class="button normal-input button-default separate-left separate-right"
+          @click="setActualDate">
+          Now
+        </button>
       </div>
       <button
         type="button"
@@ -123,12 +105,14 @@ import SmartSelector from 'components/ui/SmartSelector.vue'
 import RolePicker from 'components/role_picker.vue'
 import CreatePerson from 'tasks/digitize/helpers/createPerson.js'
 import Draggable from 'vuedraggable'
+import DateFields from 'components/ui/Date/DateFields.vue'
 
 export default {
   components: {
     SmartSelector,
     RolePicker,
-    Draggable
+    Draggable,
+    DateFields
   },
 
   props: {
