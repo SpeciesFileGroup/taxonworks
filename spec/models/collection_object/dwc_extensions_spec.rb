@@ -124,42 +124,42 @@ describe CollectionObject::DwcExtensions, type: :model, group: :collection_objec
 
     specify '#dwc_verbatim_date' do
       ce.update!(verbatim_date: 'some date')
-      expect(s.dwc_verbatim_event_date).to eq('some date') 
+      expect(s.dwc_verbatim_event_date).to eq('some date')
     end
 
     specify '#dwc_verbatim_habitat' do
       ce.update!(verbatim_habitat: 'some habitat')
-      expect(s.dwc_verbatim_habitat).to eq('some habitat') 
+      expect(s.dwc_verbatim_habitat).to eq('some habitat')
     end
 
     specify '#dwc_sampling_protocol' do
       ce.update!(verbatim_method: 'some method')
-      expect(s.dwc_sampling_protocol).to eq('some method') 
+      expect(s.dwc_sampling_protocol).to eq('some method')
     end
 
     specify '#dwc_field_number' do
       i = FactoryBot.create(:valid_identifier_local, type: 'Identifier::Local::TripCode', identifier_object: ce)
-      expect(s.dwc_field_number).to eq(i.cached) 
+      expect(s.dwc_field_number).to eq(i.cached)
     end
 
     specify '#dwc_minimum_elevation_in_meters' do
       ce.update!(minimum_elevation: 123)
-      expect(s.dwc_minimum_elevation_in_meters).to eq(123) 
+      expect(s.dwc_minimum_elevation_in_meters).to eq(123)
     end
 
     specify '#dwc_maximum_elevation_in_meters' do
       ce.update!(maximum_elevation: 456)
-      expect(s.dwc_maximum_elevation_in_meters).to eq(456) 
+      expect(s.dwc_maximum_elevation_in_meters).to eq(456)
     end
 
     specify '#dwc_verbatim_elevation' do
       ce.update!(verbatim_elevation: 456)
-      expect(s.dwc_verbatim_elevation).to eq('456') 
+      expect(s.dwc_verbatim_elevation).to eq('456')
     end
 
     specify '#dwc_verbatim_coordinates' do
       ce.update!(verbatim_latitude: '90', verbatim_longitude: '90')
-      expect(s.dwc_verbatim_coordinates).to eq('90 90') 
+      expect(s.dwc_verbatim_coordinates).to eq('90 90')
     end
 
     specify '#dwc_sex' do
@@ -173,7 +173,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: :collection_objec
         biological_collection_object: s,
         biocuration_class: a)
 
-      expect(s.dwc_sex).to eq('gynandromorph') 
+      expect(s.dwc_sex).to eq('gynandromorph')
     end
 
     specify '#dwc_life_stage' do
@@ -187,7 +187,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: :collection_objec
         biological_collection_object: s,
         biocuration_class: a)
 
-      expect(s.dwc_life_stage).to eq('adult') 
+      expect(s.dwc_life_stage).to eq('adult')
     end
 
     specify '#dwc_water_body' do
@@ -202,7 +202,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: :collection_objec
         predicate: a,
         attribute_subject: ce
       )
-      expect(s.dwc_water_body).to eq('Lake Miss-again') 
+      expect(s.dwc_water_body).to eq('Lake Miss-again')
     end
 
 
@@ -246,7 +246,17 @@ describe CollectionObject::DwcExtensions, type: :model, group: :collection_objec
       a = Identifier::Local::CatalogNumber.create!(identifier: '123', identifier_object: s, namespace: FactoryBot.create(:valid_namespace) )
       b = Identifier::Local::CatalogNumber.create!(identifier: '456', identifier_object: s, namespace: FactoryBot.create(:valid_namespace) )
       c = Identifier::Local::CatalogNumber.create!(identifier: '790', identifier_object: s, namespace: FactoryBot.create(:valid_namespace) )
-      expect(s.dwc_other_catalog_numbers).to eq("#{b.cached} | #{a.cached}") 
+      expect(s.dwc_other_catalog_numbers).to eq("#{b.cached} | #{a.cached}")
+    end
+
+    specify '#dwc_associated_media' do
+      i = FactoryBot.create(:valid_depiction, depiction_object: s)
+      j = FactoryBot.create(:valid_depiction, depiction_object: s)
+      a = i.image.image_file.url
+      b = j.image.image_file.url
+
+      s.images.reload
+      expect(s.dwc_associated_media).to eq("#{a} | #{b}")
     end
 
   end

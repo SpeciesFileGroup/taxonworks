@@ -3,18 +3,40 @@ require 'rails_helper'
 describe DwcOccurrence, type: :model, group: :darwin_core do
 
   # This now creates a dwc_occurrence by default
-  let(:collection_object) { FactoryBot.create(:valid_specimen) } 
+  let(:collection_object) { FactoryBot.create(:valid_specimen) }
   let(:collecting_event) { FactoryBot.create(:valid_collecting_event) }
 
   let(:dwc_occurrence) { DwcOccurrence.new }
 
   let(:source_human) { FactoryBot.create(:valid_source_human) }
   let(:source_bibtex) { FactoryBot.create(:valid_source_bibtex) }
-  let(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution) } 
+  let(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution) }
+
+  specify '#occurrenceID' do
+    dwc_occurrence.dwc_occurrence_object = collection_object
+    expect(collection_object.occurrence_id).to eq('abc')
+  end
+
+  specify 'occurrences get proxy uuids 1' do
+    dwc_occurrence.dwc_occurrence_object = collection_object # saves the record
+    expect(collection_object.identifiers.count).to eq(1)
+  end
+
+  specify 'occurrences get proxy uuids, but not new ones' do
+    # This saves collection_object, which triggers both DwC indexing and creation of an identifier
+    # a = Identifier::Global::Uuid.create!(identifier_object: collection_object, is_generated: true)
+
+    collection_object.identifiers_attributes = [{type: 'Identifier::Global::Uuid', is_generated: true}]
+    collection_object.save!
+    a = collection_object.identifiers.first
+    expect(Identifier.count).to eq(1)
+    dwc_occurrence.dwc_occurrence_object = collection_object # saves the record
+    expect(collection_object.identifiers.first.identifier).to eq(a.identifier)
+  end
 
   context 'validation' do
     context 'with a new instance' do
-      before { dwc_occurrence.valid? } 
+      before { dwc_occurrence.valid? }
 
       # specify '#basisOfRecord is required' do
       #   expect(dwc_occurrence.errors.include?(:basisOfRecord)).to be_truthy
@@ -28,7 +50,7 @@ describe DwcOccurrence, type: :model, group: :darwin_core do
     context 'the referenced TW' do
       let(:new_dwc_occurrence) { DwcOccurrence.new }
 
-      context '#collection_object' do      
+      context '#collection_object' do
         before do
           new_dwc_occurrence.dwc_occurrence_object = collection_object
           new_dwc_occurrence.valid?
@@ -43,9 +65,9 @@ describe DwcOccurrence, type: :model, group: :darwin_core do
 
   context '#basisOfRecord, on validation ' do
     context 'when collection object is provided' do
-      before do 
-        dwc_occurrence.dwc_occurrence_object = collection_object 
-        dwc_occurrence.valid? 
+      before do
+        dwc_occurrence.dwc_occurrence_object = collection_object
+        dwc_occurrence.valid?
       end
 
       specify 'is automatically set' do
@@ -57,9 +79,9 @@ describe DwcOccurrence, type: :model, group: :darwin_core do
       before { dwc_occurrence.dwc_occurrence_object = asserted_distribution }
 
       context 'and source is person' do
-        before do 
+        before do
           dwc_occurrence.dwc_occurrence_object.source = source_human
-          dwc_occurrence.valid? 
+          dwc_occurrence.valid?
         end
 
         specify 'is set to "HumanObservation"' do
@@ -68,9 +90,9 @@ describe DwcOccurrence, type: :model, group: :darwin_core do
       end
 
       context 'and source is bibtex' do
-        before do 
+        before do
           dwc_occurrence.dwc_occurrence_object.source = source_bibtex
-          dwc_occurrence.valid? 
+          dwc_occurrence.valid?
         end
 
         specify 'is set to "Occurrence"' do
@@ -88,20 +110,19 @@ describe DwcOccurrence, type: :model, group: :darwin_core do
   specify '#stale? 2' do
     a = collection_object.get_dwc_occurrence
     a.update!(updated_at: 2.weeks.ago)
-    collecting_event.update!(updated_at: 1.week.ago) 
+    collecting_event.update!(updated_at: 1.week.ago)
     expect(a.stale?).to be_truthy
   end
 
   specify '#stale? 3' do
     a = collection_object.get_dwc_occurrence
     a.update!(updated_at: 2.weeks.ago)
-    
+
     b = TaxonDetermination.new(otu: FactoryBot.create(:valid_otu))
     collection_object.taxon_determinations << b
-    
+
     expect(a.stale?).to be_truthy
   end
-
 
   # Can't test within a transaction.
   specify '.empty_fields' do

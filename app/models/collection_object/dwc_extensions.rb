@@ -61,6 +61,9 @@ module CollectionObject::DwcExtensions
     georeferencedDate: :dwc_georeferenced_date,
     verbatimSRS: :dwc_verbatim_srs,
 
+    # TODO: move to a proper extensions
+    associatedMedia: :dwc_associated_media
+
     # -- Core taxon? -- 
     # nomenclaturalCode 
     # scientificName
@@ -70,6 +73,8 @@ module CollectionObject::DwcExtensions
     # taxonRank
     # namePublishedIn NOT DONE
   }.freeze
+
+  DELIMITER = ' | '
 
   included do
     attr_accessor :georeference_attributes
@@ -112,6 +117,11 @@ module CollectionObject::DwcExtensions
     else 
       {}
     end 
+  end
+
+  # https://dwc.tdwg.org/terms/#dwc:associatedMedia
+  def dwc_associated_media
+    images.collect{|i| i.image_file.url }.join(DELIMITER)
   end
  
   def dwc_georeference_sources
@@ -162,15 +172,15 @@ module CollectionObject::DwcExtensions
   end
 
   def dwc_other_catalog_numbers
-    i = identifiers.order(:position).to_a
+    i = identifiers.where.not('type ilike ?', 'Identifier::Global::Uuid%').order(:position).to_a
     i.shift
-    i.map(&:cached).join(' | ').presence
+    i.map(&:cached).join(DELIMITER).presence
   end
 
   def dwc_previous_identifications
     a = taxon_determinations.order(:position).to_a
     a.shift
-    a.collect{|d| ApplicationController.helpers.label_for_taxon_determination(d)}.join(' | ').presence
+    a.collect{|d| ApplicationController.helpers.label_for_taxon_determination(d)}.join(DELIMITER).presence
   end
 
   def dwc_water_body
@@ -247,7 +257,7 @@ module CollectionObject::DwcExtensions
   def dwc_type_status
     type_materials.all.collect{|t|
       ApplicationController.helpers.label_for_type_material(t)
-    }.join(' | ').presence
+    }.join(DELIMITER).presence
   end
 
   # ISO 8601:2004(E).
@@ -305,24 +315,24 @@ module CollectionObject::DwcExtensions
     # TODO: raw SQL this mess?
     ( determiners.includes(:roles).order('taxon_determinations.position, roles.position').to_a + 
      (collecting_event ? collecting_event&.collectors.includes(:roles).order('roles.position').to_a : [])) 
-      .uniq.map(&:cached).join(' | ').presence
+      .uniq.map(&:cached).join(DELIMITER).presence
   end 
 
   def dwc_recorded_by_id
     # TODO: raw SQL this mess?
     ( determiners.includes(:roles).order('taxon_determinations.position, roles.position').to_a + 
      (collecting_event ? collecting_event&.collectors.includes(:roles).order('roles.position').to_a : [])) 
-      .uniq.map(&:orcid).join(' | ').presence
+      .uniq.map(&:orcid).join(DELIMITER).presence
   end 
 
   def dwc_identified_by
     # TaxonWorks allows for groups of determiners to collaborate on a single determination if they collectively came to a conclusion.
-    current_taxon_determination&.determiners&.map(&:cached)&.join(' | ').presence
+    current_taxon_determination&.determiners&.map(&:cached)&.join(DELIMITER).presence
   end
 
   def dwc_identified_by_id
     # TaxonWorks allows for groups of determiners to collaborate on a single determination if they collectively came to a conclusion.
-    current_taxon_determination&.determiners&.map(&:orcid)&.join(' | ').presence
+    current_taxon_determination&.determiners&.map(&:orcid)&.join(DELIMITER).presence
   end
 
   def dwc_institution_code

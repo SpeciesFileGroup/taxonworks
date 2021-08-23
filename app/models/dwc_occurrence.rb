@@ -47,11 +47,29 @@ class DwcOccurrence < ApplicationRecord
   belongs_to :dwc_occurrence_object, polymorphic: true, inverse_of: :dwc_occurrence
   has_one :collecting_event, through: :dwc_occurrence_object, inverse_of: :dwc_occurrences
 
-  before_validation :set_basis_of_record
+  before_validation :generate_uuid_if_required
+  before_validation :set_metadata_attributes
+
   validates_presence_of :basisOfRecord
 
   validates :dwc_occurrence_object, presence: true
   validates_uniqueness_of :dwc_occurrence_object_id, scope: [:dwc_occurrence_object_type, :project_id]
+
+  attr_accessor :occurrence_identifier
+
+  def uuid_identifier_scope
+    dwc_occurrence_object.identifiers.where('identifiers.type like ?', 'Identifier::Global::Uuid%').order(:created_at)
+  end
+
+  def occurrence_identifier
+    @occurrence_identifier ||= uuid_identifier_scope.first
+  end
+
+  def generate_uuid_if_required
+    if !occurrence_identifier
+      @occurrence_identifier = Identifier::Global::Uuid::TaxonworksDwcOccurrence.create!(identifier_object: dwc_occurrence_object, is_generated: true)
+    end
+  end
 
   # @return [ActiveRecord::Relation]
   def self.collection_objects_join
@@ -129,8 +147,9 @@ class DwcOccurrence < ApplicationRecord
 
   protected
 
-  def set_basis_of_record
-    write_attribute(:basisOfRecord, basis)
+  def set_metadata_attributes
+    write_attribute( :basisOfRecord, basis)
+    write_attribute( :occurrenceID, occurrence_identifier.identifier)
   end
 
 end
