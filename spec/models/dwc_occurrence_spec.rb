@@ -12,6 +12,14 @@ describe DwcOccurrence, type: :model, group: :darwin_core do
   let(:source_bibtex) { FactoryBot.create(:valid_source_bibtex) }
   let(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution) }
 
+  specify 'collection_object filter merge' do
+    a = Queries::CollectionObject::Filter.new(on_loan: 'true').all
+    FactoryBot.create(:valid_loan_item, loan_item_object: collection_object)
+    c = FactoryBot.create(:valid_specimen)
+    b = DwcOccurrence.collection_objects_join.merge(a)
+    expect(b.all.count).to eq(1)
+  end
+
   specify '#occurrenceID' do
     dwc_occurrence.dwc_occurrence_object = collection_object
     expect(collection_object.occurrence_id).to eq('abc')

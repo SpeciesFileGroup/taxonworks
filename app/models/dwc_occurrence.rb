@@ -53,7 +53,8 @@ class DwcOccurrence < ApplicationRecord
   validates_presence_of :basisOfRecord
 
   validates :dwc_occurrence_object, presence: true
-  validates_uniqueness_of :dwc_occurrence_object_id, scope: [:dwc_occurrence_object_type, :project_id]
+  #  validates_uniqueness_of :dwc_occurrence_object_id, scope: [:dwc_occurrence_object_type,:project_id]
+  validates :dwc_occurrence_object_id, uniqueness: { scope: [:dwc_occurrence_object_type,:project_id] }
 
   attr_accessor :occurrence_identifier
 
@@ -71,10 +72,13 @@ class DwcOccurrence < ApplicationRecord
     end
   end
 
+  # TODO: will need similar join for AssertedDistribution, or any object
+  # that matches, consider moving to Shared
+
   # @return [ActiveRecord::Relation]
   def self.collection_objects_join
     a = arel_table
-    b = ::CollectionObject.arel_table 
+    b = ::CollectionObject.arel_table
     j = a.join(b).on(a[:dwc_occurrence_object_type].eq('CollectionObject').and(a[:dwc_occurrence_object_id].eq(b[:id])))
     joins(j.join_sources)
   end
@@ -100,11 +104,11 @@ class DwcOccurrence < ApplicationRecord
     [:id, :basisOfRecord] + CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys
   end
 
-  # @return [Array] 
+  # @return [Array]
   #   of symbols
-  # TODO: 
+  # TODO:
   def self.excluded_columns
-    ::DwcOccurrence.columns.collect{|c| c.name.to_sym} - self.target_columns 
+    ::DwcOccurrence.columns.collect{|c| c.name.to_sym} - self.target_columns
   end
 
   # @return [Scope]

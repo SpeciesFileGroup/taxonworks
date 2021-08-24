@@ -200,8 +200,8 @@ class CollectionObject < ApplicationRecord
   #   a unque list of buffered_ values observed in the collection objects passed
   def self.breakdown_buffered(collection_objects)
     collection_objects = [collection_objects] if collection_objects.class != Array
-    breakdown          = {}
-    categories         = BUFFERED_ATTRIBUTES
+    breakdown = {}
+    categories = BUFFERED_ATTRIBUTES
 
     categories.each do |c|
       breakdown[c] = []
