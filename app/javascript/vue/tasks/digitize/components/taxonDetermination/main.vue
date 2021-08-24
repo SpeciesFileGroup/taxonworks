@@ -158,6 +158,7 @@ import { ActionNames } from '../../store/actions/actions'
 import { Otu, TaxonName } from 'routes/endpoints'
 import { RouteNames } from 'routes/routes'
 import { ROLE_DETERMINER } from 'constants/index.js'
+import { findRole } from 'helpers/people/people.js'
 
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import RolePicker from 'components/role_picker.vue'
@@ -285,12 +286,8 @@ export default {
   },
 
   methods: {
-    roleExist (id) {
-      return !!this.taxonDetermination.roles_attributes.find(role => !role.hasOwnProperty('_destroy') && role.person_id === id)
-    },
-
     addRole (role) {
-      if (!this.roleExist(role.id)) {
+      if (!findRole(this.taxonDetermination.roles_attributes, role.id)) {
         this.taxonDetermination.roles_attributes.push(
           makePerson(
             role.first_name,
