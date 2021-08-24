@@ -85,7 +85,7 @@ module CollectingEventsHelper
   # Fast, but limited
   def collecting_event_verbatim_coordinates_tag(collecting_event)
     return nil if collecting_event.nil? || collecting_event.latitude.blank?
-    content_tag(:span, [collecting_event.latitude, collecting_event.longitude].join(';').html_safe)
+    content_tag(:span, [collecting_event.latitude, collecting_event.longitude].join(',&nbsp;').html_safe)
   end
 
   def collecting_event_dates_tag(collecting_event)
