@@ -117,6 +117,14 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             ).update_all(status: "Ready")
         end
       end
+    rescue DarwinCore::InvalidData => invalid
+      self.status = "Errored"
+      self.metadata["error_data"] = { messages: invalid.error_data }
+    rescue ActiveRecord::RecordInvalid => invalid
+      self.status = "Errored"
+      self.metadata["error_data"] = {
+        messages: invalid.record.errors.messages
+      }
     rescue StandardError => e
       raise if Rails.env.development?
       self.status = "Failed"
