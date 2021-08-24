@@ -8,12 +8,11 @@
         v-model:month="taxonDetermination.month_made"
         v-model:day="taxonDetermination.day_made"
       />
-      <button
-        type="button"
-        class="button normal-input button-default separate-left separate-right"
-        @click="setActualDate">
-        Now
-      </button>
+      <date-now
+        v-model:year="taxonDetermination.year_made"
+        v-model:month="taxonDetermination.month_made"
+        v-model:day="taxonDetermination.day_made"
+      />
     </div>
     <button
       type="button"
@@ -32,6 +31,7 @@ import { reactive, ref, watch } from 'vue'
 import TaxonDeterminationOtu from './TaxonDeterminationOtu.vue'
 import TaxonDeterminationDeterminer from './TaxonDeterminationDeterminer.vue'
 import DateFields from 'components/ui/Date/DateFields.vue'
+import DateNow from 'components/ui/Date/DateNow.vue'
 import makeTaxonDetermination from 'factory/TaxonDetermination.js'
 
 const emit = defineEmits(['onAdd'])
@@ -69,13 +69,6 @@ const addDetermination = () => {
 
   Object.assign(taxonDetermination, makeTaxonDetermination())
   otu.value = undefined
-}
-
-const setActualDate = () => {
-  const today = new Date()
-  taxonDetermination.day_made = today.getDate()
-  taxonDetermination.month_made = today.getMonth() + 1
-  taxonDetermination.year_made = today.getFullYear()
 }
 
 </script>

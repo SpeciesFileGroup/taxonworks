@@ -33,7 +33,7 @@
 
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import RolePicker from 'components/role_picker.vue'
-
+import { findRole } from 'helpers/people/people.js'
 import { GetterNames } from '../../../../store/getters/getters.js'
 import refreshSmartSelector from '../../../shared/refreshSmartSelector'
 import extendCE from '../../mixins/extendCE.js'
@@ -53,12 +53,8 @@ export default {
   },
 
   methods: {
-    roleExist (id) {
-      return !!this.collectingEvent.roles_attributes.find(role => !role.hasOwnProperty('_destroy') && role.person_id === id)
-    },
-
     addRole (role) {
-      if (!this.roleExist(role.id)) {
+      if (!findRole(this.collectingEvent.roles_attributes, role.id)) {
         this.$refs.rolepicker.addCreatedPerson({ object_id: role.id, label: role.cached })
       }
     }

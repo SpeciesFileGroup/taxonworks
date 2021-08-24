@@ -34,6 +34,7 @@
 
 import { computed } from 'vue'
 import { ROLE_DETERMINER } from 'constants/index.js'
+import { findRole } from 'helpers/people/people.js'
 import makePerson from 'factory/Person'
 import makeTaxonDetermination from 'factory/TaxonDetermination.js'
 import SmartSelector from 'components/ui/SmartSelector.vue'
@@ -58,10 +59,8 @@ const roles = computed({
   }
 })
 
-const roleExist = (id) => roles.value.find(role => !role?._destroy && role.person_id === id)
-
 const addRole = (role) => {
-  if (!roleExist(role.id)) {
+  if (!findRole(roles, role.id)) {
     roles.value.push(
       makePerson(
         role.first_name,
