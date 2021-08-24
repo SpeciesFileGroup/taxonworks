@@ -31,17 +31,17 @@ describe Queries::TaxonName::Autocomplete, type: :model do
   end
 
   specify '#autocomplete_exact_name_and_year 1' do
-    query.terms = 'vulnerata' 
+    query.terms = 'vulnerata'
     expect(query.autocomplete_exact_name_and_year).to eq(nil)
   end
 
   specify '#autocomplete_exact_name_and_year 2' do
-    query.terms = 'vulnerata 1800' 
+    query.terms = 'vulnerata 1800'
     expect(query.autocomplete_exact_name_and_year.all).to include(species)
   end
 
   specify '#autocomplete_exact_cached' do
-    query.terms = name 
+    query.terms = name
     expect(query.autocomplete_exact_cached.all).to include(species)
   end
 
@@ -71,17 +71,17 @@ describe Queries::TaxonName::Autocomplete, type: :model do
   end
 
   specify '#autocomplete_top_name 1' do
-    query.terms = 'vulnerata' 
+    query.terms = 'vulnerata'
     expect(query.autocomplete_top_name.first).to eq(species)
   end
 
   specify '#autocomplete_top_name 2' do
-    query.terms = 'Erasmoneura' 
-    expect(query.autocomplete_top_name.first).to eq(genus) 
+    query.terms = 'Erasmoneura'
+    expect(query.autocomplete_top_name.first).to eq(genus)
   end
 
   specify '#autocomplete_top_cached' do
-    query.terms = name 
+    query.terms = name
     expect(query.autocomplete_top_cached.first).to eq(species)
   end
 
@@ -154,6 +154,21 @@ describe Queries::TaxonName::Autocomplete, type: :model do
     specify '#authorship 3' do
       query.query_string = 'Semiotellus species 1'
       expect(query.authorship).to eq(nil)
+    end
+
+    specify "#authorship should return nil with only author + year" do
+      query.query_string = 'Buchholz (1930)'
+      expect(query.authorship).to be_nil
+    end
+
+    specify "#authorship should have comma between name and year 1" do
+      query.query_string = 'Aus bus Smith, 1900'
+      expect(query.authorship).to eq('Smith, 1900')
+    end
+
+    specify "#authorship should have comma between name and year 2" do
+      query.query_string = 'Aus bus Smith 1900'
+      expect(query.authorship).to eq('Smith, 1900')
     end
   end
 end
