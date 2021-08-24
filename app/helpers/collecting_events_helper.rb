@@ -90,13 +90,15 @@ module CollectingEventsHelper
 
   def collecting_event_dates_tag(collecting_event)
     return nil if collecting_event.nil? || !collecting_event.has_some_date?
-    s = collecting_event.date_range.join('&nbsp;&#8212;&nbsp;').html_safe
+    s = collecting_event.date_range.uniq.join('&nbsp;&#8212;&nbsp;').html_safe
     a = ''
-    a = content_tag(:span, s) if !s.blank?
+    a = tag.span(s) if s.present?
 
-    a << '&nbsp;'.html_safe + content_tag(:span, collecting_event.verbatim_date, class: [
-      :feedback, 'feedback-thin', 'feedback-secondary' ]) if collecting_event.verbatim_date
-      a.html_safe
+    if collecting_event.verbatim_date
+      a << '&nbsp;'.html_safe + tag.span(collecting_event.verbatim_date, class: [
+        :feedback, 'feedback-thin', 'feedback-secondary'])
+    end
+    a.html_safe
   end
 
   def collecting_event_verbatim_locality_tag(collecting_event)
