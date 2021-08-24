@@ -1,7 +1,7 @@
 import baseCRUD from './base'
 import AjaxCall from 'helpers/ajaxCall'
 
-const controller = 'collection_objects'
+const controller = 'confidences'
 const permitParams = {
   confidence: {
     annotated_global_entity: String,
@@ -20,7 +20,7 @@ const permitParams = {
 }
 
 export const Confidence = {
-  ...baseCRUD('confidences', permitParams),
+  ...baseCRUD(controller, permitParams),
 
   exists: (params) => AjaxCall('get', `/${controller}/exists`, { params })
 }
