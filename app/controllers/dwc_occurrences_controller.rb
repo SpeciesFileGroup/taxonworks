@@ -5,4 +5,7 @@ class DwcOccurrencesController < ApplicationController
     @dwc_occurrences = DwcOccurrence.where(project_id: sessions_current_project_id)
   end
 
+  def predicates
+  end
+
 end
