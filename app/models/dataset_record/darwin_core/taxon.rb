@@ -38,6 +38,29 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
           name = name_details.kind_of?(Array) ? name_details.first[:value] : name_details
 
           authorship = parse_results_details.dig(:authorship, :normalized) || get_field_value("scientificNameAuthorship")
+
+          author_name = nil
+
+          if nomenclature_code == :iczn
+            if (authorship_matchdata = authorship.match(/\(?(?<author>.+?),? (?<year>\d{4})?\)?/))
+
+              author_name = authorship_matchdata[:author]
+              year = authorship_matchdata[:year]
+
+              # author name should be wrapped in parentheses if the verbatim authorship was
+              if authorship.start_with?("(") and authorship.end_with?(")")
+                author_name = "(" + author_name + ")"
+              end
+            end
+
+          else  # Fall back to simple name + date parsing
+            author_name = verbatim_author(authorship)
+            year = year_of_publication(authorship)
+          end
+
+          # TODO should a year provided in namePublishedInYear overwrite the parsed value?
+          year ||= get_field_value("namePublishedInYear")
+
           rank = get_field_value("taxonRank")
           is_hybrid = metadata["is_hybrid"] # TODO: NO...
 
@@ -52,7 +75,8 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             parent: parent,
             rank_class: Ranks.lookup(nomenclature_code, rank),
             also_create_otu: false,
-            verbatim_author: authorship
+            verbatim_author: author_name,
+            year_of_publication: year
           }
 
           taxon_name = Protonym.new(protonym_attributes)
@@ -112,15 +136,35 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
   def get_parent
     import_dataset.core_records.where(id: import_dataset.core_records_fields
-      .at(get_field_mapping(:taxonID))
-      .with_value(get_field_value(:parentNameUsageID))
-      .select(:dataset_record_id)
+                                                        .at(get_field_mapping(:taxonID))
+                                                        .with_value(get_field_value(:parentNameUsageID))
+                                                        .select(:dataset_record_id)
     ).first
   end
 
   def data_field_changed(index, value)
     if index == get_field_mapping(:parentNameUsageID) && status == "NotReady"
-      self.status = "Ready" if ["Ready", "Imported"].include? get_parent&.status
+      self.status = "Ready" if %w[Ready Imported].include? get_parent&.status
     end
   end
+
+
+  # @param [String] author_year
+  # @return [String, nil]
+  def year_of_publication(author_year)
+    return nil if author_year.blank?
+    split_author_year = author_year.split(' ')
+    year = split_author_year[split_author_year.length - 1]
+    year =~ /\A\d+\z/ ? year : ''
+  end
+
+  # @param [String] author_year_string
+  # @return [String, nil]
+  def verbatim_author(author_year_string)
+    return nil if author_year_string.blank?
+    author_end_index = author_year_string.rindex(' ')
+    author_end_index ||= author_year_string.length
+    author_year_string[0...author_end_index]
+  end
+
 end
