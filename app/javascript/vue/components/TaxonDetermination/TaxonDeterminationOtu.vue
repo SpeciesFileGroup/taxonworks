@@ -18,7 +18,7 @@
     <div
       v-if="otu"
       class="horizontal-left-content">
-      <p v-html="otu"/>
+      <p v-html="otu.object_tag"/>
       <span
         class="circle-button button-default btn-undo"
         @click="otu = undefined"/>

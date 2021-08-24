@@ -35,7 +35,7 @@
             <div class="horizontal-right-content">
               <span
                 v-if="element.id"
-                @click="editTaxonDetermination(element)"
+                @click="emit('onEdit', element)"
                 class="button circle-button btn-edit"/>
               <radial-annotator
                 v-if="element.global_id"
@@ -43,7 +43,7 @@
               <span
                 class="circle-button btn-delete"
                 :class="{ 'button-default': !element.id }"
-                @click="removeTaxonDetermination(element)"/>
+                @click="emit('onDelete', element)"/>
             </div>
           </td>
         </tr>
@@ -62,26 +62,17 @@ const props = defineProps({
   list: Array
 })
 
+const emit = defineEmits([
+  'update:modelValue',
+  'onEdit',
+  'onDelete'
+])
+
 const determinationList = computed({
   get: () => props.list,
-  set: (value) => emit('update:modalValue', value)
+  set: (value) => { emit('update:modelValue', value) }
 })
 
-const authorsString = (role) => role
-  ? `by ${role?.person?.last_name || role?.last_name}`
-  : ''
-
-const dateString = ({ year_made, month_made, day_made }) => {
-  const date = [
-    year_made,
-    month_made,
-    day_made
-  ].filter(value => value).join('-')
-
-  return date
-    ? `on ${date}`
-    : ''
-}
 
 const updatePosition = () => {
   for (let i = 0; i < determinationList.value.length; i++) {

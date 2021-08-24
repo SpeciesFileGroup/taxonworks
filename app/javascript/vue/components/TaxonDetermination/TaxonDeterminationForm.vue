@@ -1,95 +1,81 @@
 <template>
   <div>
-    <h3>Determinations</h3>
-    <div id="taxon-determination-digitize">
-      <fieldset
-        class="separate-bottom">
-        <legend>OTU</legend>
-        <div class="horizontal-left-content separate-bottom align-start">
-          <smart-selector
-            class="margin-medium-bottom full_width"
-            model="otus"
-            ref="smartSelector"
-            pin-section="Otus"
-            pin-type="Otu"
-            :autocomplete="false"
-            :otu-picker="true"
-            target="TaxonDetermination"
-            @selected="setOtu"
-          />
-        </div>
-        <div
-          v-if="taxonDetermination.otu"
-          class="horizontal-left-content">
-          <p v-html="taxonDetermination.otu"/>
-          <span
-            class="circle-button button-default btn-undo"
-            @click="taxonDetermination.otu_id = undefined; taxonDetermination.otu = undefined"/>
-        </div>
-      </fieldset>
-
-      <div class="horizontal-left-content date-fields separate-bottom separate-top align-end">
-        <date-fields
-          v-model:year="taxonDetermination.year_made"
-          v-model:month="taxonDetermination.month_made"
-          v-model:day="taxonDetermination.day_made"
-        />
-        <button
-          type="button"
-          class="button normal-input button-default separate-left separate-right"
-          @click="setActualDate">
-          Now
-        </button>
-      </div>
+    <taxon-determination-otu v-model="otu"/>
+    <taxon-determination-determiner v-model="taxonDetermination.roles_attributes"/>
+    <div class="horizontal-left-content date-fields separate-bottom separate-top align-end">
+      <date-fields
+        v-model:year="taxonDetermination.year_made"
+        v-model:month="taxonDetermination.month_made"
+        v-model:day="taxonDetermination.day_made"
+      />
       <button
         type="button"
-        id="determination-add-button"
-        :disabled="!taxonDetermination.otu_id"
-        class="button normal-input button-submit separate-top"
-        @click="addDetermination">
-        Add
+        class="button normal-input button-default separate-left separate-right"
+        @click="setActualDate">
+        Now
       </button>
     </div>
+    <button
+      type="button"
+      id="determination-add-button"
+      :disabled="!taxonDetermination.otu_id"
+      class="button normal-input button-submit separate-top"
+      @click="addDetermination">
+      Add
+    </button>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { reactive, ref, watch } from 'vue'
 
+import TaxonDeterminationOtu from './TaxonDeterminationOtu.vue'
+import TaxonDeterminationDeterminer from './TaxonDeterminationDeterminer.vue'
 import DateFields from 'components/ui/Date/DateFields.vue'
 import makeTaxonDetermination from 'factory/TaxonDetermination.js'
 
-const props = defineProps({
-  modelValue: {
-    type: Array,
-    default: () => makeTaxonDetermination()
-  }
+const emit = defineEmits(['onAdd'])
+
+const taxonDetermination = reactive(makeTaxonDetermination())
+const otu = ref()
+
+watch(otu, () => {
+  taxonDetermination.otu_id = otu.value?.id
 })
 
-const emit = defineEmits([
-  'update:modelValue',
-  'onAdd'
-])
+const authorsString = author => author
+  ? author?.person?.last_name || author?.last_name
+  : ''
 
-const taxonDetermination = computed(() => ({
-  get () {
-    return props.modelValue
-  },
-  set (value) {
-    emit('update:modelValue', value)
-  }
-}))
+const dateString = ({ year_made, month_made, day_made }) => {
+  const date = [
+    year_made,
+    month_made,
+    day_made
+  ].filter(value => value).join('-')
+
+  return date
+    ? `on ${date}`
+    : ''
+}
 
 const addDetermination = () => {
-  emit('onAdd', taxonDetermination)
-  taxonDetermination.value = makeTaxonDetermination()
+  const { roles_attributes } = taxonDetermination
+
+  emit('onAdd', {
+    ...taxonDetermination,
+    object_tag: `${otu.value.object_tag} by ${roles_attributes.map(author => authorsString(author)).join('; ')} ${dateString(taxonDetermination)}`
+  })
+
+  Object.assign(taxonDetermination, makeTaxonDetermination())
+  otu.value = undefined
 }
 
 const setActualDate = () => {
   const today = new Date()
-  taxonDetermination.value.day_made = today.getDate()
-  taxonDetermination.value.month_made = today.getMonth() + 1
-  taxonDetermination.value.year_made = today.getFullYear()
+  taxonDetermination.day_made = today.getDate()
+  taxonDetermination.month_made = today.getMonth() + 1
+  taxonDetermination.year_made = today.getFullYear()
 }
 
 </script>
