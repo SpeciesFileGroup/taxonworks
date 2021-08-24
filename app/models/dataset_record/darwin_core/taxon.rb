@@ -79,6 +79,10 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             year_of_publication: year
           }
 
+          if Protonym.find_by(protonym_attributes.slice(:name, :parent, :rank_class))
+            raise DarwinCore::InvalidData.new({ "scientificName" => ["Protonym #{name} with parent #{parent.name} and author #{authorship} already exists"]})
+          end
+
           taxon_name = Protonym.new(protonym_attributes)
           taxon_name.taxon_name_classifications.build(type: TaxonNameClassification::Icn::Hybrid) if is_hybrid
           taxon_name.data_attributes.build(import_predicate: 'DwC-A import metadata', type: 'ImportAttribute', value: {
