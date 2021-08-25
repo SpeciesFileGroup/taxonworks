@@ -157,6 +157,7 @@ module Utilities::Strings
   # @param [String] authorship
   # @return [Array] [author_name, year]
   def self.parse_authorship(authorship)
+    return [] if authorship.to_s.strip.empty?
     if (authorship_matchdata = authorship.match(/\(?(?<author>.+?),? (?<year>\d{4})?\)?/))
 
       author_name = authorship_matchdata[:author]
