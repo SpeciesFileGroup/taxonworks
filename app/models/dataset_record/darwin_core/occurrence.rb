@@ -823,7 +823,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             name: parse_details[:uninomial]
           }.tap { |h| names << h }.object_id
         ] = :scientificName
-      else
+      elsif names.reverse.detect { |n| n[:name] }&.dig(:name) != parse_details[:uninomial]
         origins[
           {rank_class: nil, name: parse_details[:uninomial]}.tap { |h| names << h }.object_id
         ] = :scientificName
