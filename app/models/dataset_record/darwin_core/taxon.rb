@@ -54,8 +54,8 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             end
 
           else  # Fall back to simple name + date parsing
-            author_name = verbatim_author(authorship)
-            year = year_of_publication(authorship)
+            author_name = Utilities::Strings.verbatim_author(authorship)
+            year = Utilities::Strings.year_of_publication(authorship)
           end
 
           # TODO should a year provided in namePublishedInYear overwrite the parsed value?
@@ -158,25 +158,6 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
     if index == get_field_mapping(:parentNameUsageID) && status == "NotReady"
       self.status = "Ready" if %w[Ready Imported].include? get_parent&.status
     end
-  end
-
-
-  # @param [String] author_year
-  # @return [String, nil]
-  def year_of_publication(author_year)
-    return nil if author_year.blank?
-    split_author_year = author_year.split(' ')
-    year = split_author_year[split_author_year.length - 1]
-    year =~ /\A\d+\z/ ? year : ''
-  end
-
-  # @param [String] author_year_string
-  # @return [String, nil]
-  def verbatim_author(author_year_string)
-    return nil if author_year_string.blank?
-    author_end_index = author_year_string.rindex(' ')
-    author_end_index ||= author_year_string.length
-    author_year_string[0...author_end_index]
   end
 
 end
