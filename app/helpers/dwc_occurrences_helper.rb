@@ -13,9 +13,9 @@ module DwcOccurrencesHelper
     #
 
     a = {
-      data: {
-        total_collection_objects: data.count,
-        enumerated_objects: data.sum(:total),
+     collection_objects: {
+        record_total: data.count,
+        enumerated_total: data.sum(:total),
         freshness: {
           never: data.left_outer_joins(:dwc_occurrence).where(dwc_occurrences: {id: nil}).count,
           one_day: data.where("updated_at > ?", 1.day.ago).count,
@@ -26,8 +26,8 @@ module DwcOccurrencesHelper
       },
 
       index: { # the dwc_occurrences
-        total_occurrence_records: records.count,
-        enumerated_via_occurrence_records: records.sum(:individualCount),
+        record_total: records.count,
+        enumerated_total: records.sum(:individualCount),
         freshness: {
           one_day: records.where("updated_at > ?", 1.day.ago).count,
           one_week: records.where("updated_at > ?", 1.week.ago).count,
