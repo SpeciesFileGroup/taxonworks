@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated Ruby gems
 - Bumped database_cleaner
 - Remove Taxon determination slice from OTU quick forms(Radial object)
+- Set active author tab in New taxon name [#2461]
 
 ### Fixed
 
@@ -32,6 +33,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2452]: https://github.com/SpeciesFileGroup/taxonworks/issues/2452
 [#2450]: https://github.com/SpeciesFileGroup/taxonworks/pull/2450
 [#2451]: https://github.com/SpeciesFileGroup/taxonworks/issues/2451
+[#2461]: https://github.com/SpeciesFileGroup/taxonworks/issues/2461
 
 ## [0.19.6] - 2021-08-20
 
