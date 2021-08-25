@@ -676,7 +676,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # identificationID: [Not mapped]
 
-    # identificationQualifier: [Not mapped]
+    # identificationQualifier: [Mapped as part of otu name in parse_taxon_class]
 
     # typeStatus: [Type material only if scientific name matches scientificName and type term is recognized by TW vocabulary]
     type_status = get_field_value(:typeStatus)&.match(/(?<type>\w+)\s+OF\s+(?<scientificName>.*)/i)
@@ -717,6 +717,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
   def parse_taxon_class
     names = []
+    otu_names = []
     origins = {}
     # taxonID: [Not mapped. Usually alias of core id]
 
@@ -789,9 +790,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     unless (1..3).include?(parse_results[:quality]) && parse_details
       parse_details = parse_results[:details]&.values&.first
-      otu_attributes = {name: get_field_value(:scientificName)}
-    else
-      otu_attributes = nil
+      otu_names << get_field_value(:scientificName)
     end
 
     raise DarwinCore::InvalidData.new({
@@ -814,26 +813,39 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         {rank_class: Ranks.lookup(code, "subspecies"), name: parse_details[:infraspecies]&.map{ |d| d.dig(:value) }&.join(' ') }.tap { |h| names << h }.object_id
       ] = :scientificName
     else
-      origins[
-        {rank_class: Ranks.lookup(code, "genus"), name: parse_details[:parent]}.tap { |h| names << h }.object_id
-      ] = :scientificName if parse_details[:parent]
-      origins[
-        {
-          rank_class: /subgen/ =~ parse_details[:rank] ? Ranks.lookup(code, "subgenus") : nil,
-          name: parse_details[:uninomial]
-        }.tap { |h| names << h }.object_id
-      ] = :scientificName if parse_details[:parent]
+      if parse_details[:parent]
+        origins[
+          {rank_class: Ranks.lookup(code, "genus"), name: parse_details[:parent]}.tap { |h| names << h }.object_id
+        ] = :scientificName
+        origins[
+          {
+            rank_class: /subgen/ =~ parse_details[:rank] ? Ranks.lookup(code, "subgenus") : nil,
+            name: parse_details[:uninomial]
+          }.tap { |h| names << h }.object_id
+        ] = :scientificName
+      else
+        origins[
+          {rank_class: nil, name: parse_details[:uninomial]}.tap { |h| names << h }.object_id
+        ] = :scientificName
+      end
     end
 
     names.reject! { |v| v[:name].nil? }
-    names.last&.merge!({ otu_attributes: otu_attributes }) if otu_attributes
 
     # taxonRank: [Rank of innermost protonym]
     rank = get_field_value(:taxonRank)
-    if rank && otu_attributes.nil?
+    if rank && otu_names.empty?
       names.last[:rank_class] = Ranks.lookup(code, rank)
       raise DarwinCore::InvalidData.new({ "taxonRank": ["Unknown #{code.upcase} rank #{rank}"] }) unless names.last[:rank_class]
     end
+
+    ident_qualifier = get_field_value(:identificationQualifier)
+    if ident_qualifier =~ /^cf[\.\s]/
+      otu_names << ident_qualifier
+    else
+      otu_names << "#{get_field_value(:scientificName)} #{ident_qualifier}"
+    end unless ident_qualifier.nil?
+    names.last&.merge!({otu_attributes: {name: otu_names.join(' ')}}) unless otu_names.empty?
 
     # higherClassification: [Several protonyms with ranks determined automatically when possible. Classification lower or at genus level is ignored and extracted from scientificName instead]
     higherClassification = (
