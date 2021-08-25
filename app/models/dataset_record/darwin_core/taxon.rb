@@ -80,7 +80,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
           }
 
           if Protonym.find_by(protonym_attributes.slice(:name, :parent, :rank_class, :year_of_publication))
-            raise DarwinCore::InvalidData.new({ "scientificName" => ["Protonym #{name} with parent #{parent.name} and author #{authorship} already exists"]})
+            raise DarwinCore::InvalidData.new({ "scientificName" => ["Protonym #{name} with parent #{parent.name}, rank #{rank} and publication date #{year.to_s} already exists"]})
           end
 
           taxon_name = Protonym.new(protonym_attributes)
