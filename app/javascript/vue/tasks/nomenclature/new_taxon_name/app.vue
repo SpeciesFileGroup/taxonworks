@@ -74,7 +74,7 @@
 <script>
 import Autocomplete from 'components/ui/Autocomplete'
 import showForThisGroup from './helpers/showForThisGroup'
-import AuthorSection from './components/sourcePicker.vue'
+import AuthorSection from './components/Author/Author.vue'
 import RelationshipSection from './components/relationshipPicker.vue'
 import StatusSection from './components/statusPicker.vue'
 import NavHeader from './components/navHeader.vue'
