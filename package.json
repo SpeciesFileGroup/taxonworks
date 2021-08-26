@@ -6,6 +6,7 @@
     "@sfgrp/sled": "^1.0.1",
     "@sfgrp/svg-radial-menu": "^1.0.6",
     "axios": "^0.21.1",
+    "chart.js": "^3.5.1",
     "dompurify": "^2.3.1",
     "easymde": "^2.15.0",
     "exif-js": "^2.3.0",

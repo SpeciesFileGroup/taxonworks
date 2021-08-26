@@ -21,10 +21,18 @@ function stringInline (text) {
   return text.replace(/\s+|\n|\r/g, ' ').trim()
 }
 
+function humanize (text) {
+  return text
+    .replace(/^[\s_]+|[\s_]+$/g, '')
+    .replace(/[_\s]+/g, ' ')
+    .replace(/^[a-z]/, m => m.toUpperCase())
+}
+
 export {
   capitalize,
   shorten,
   toSnakeCase,
   replaceAt,
-  stringInline
+  stringInline,
+  humanize
 }
