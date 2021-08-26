@@ -41,4 +41,38 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     end
 
   end
+
+  context 'when importing a homonym with a replacement taxon' do
+    let(:import_dataset) {
+      ImportDataset::DarwinCore::Checklist.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/homonym.tsv'), 'text/plain'),
+        description: 'Testing'
+      ).tap { |i| i.stage }
+    }
+
+    let!(:root) { FactoryBot.create(:root_taxon_name) }
+    let!(:results) { import_dataset.import(5000, 100).concat(import_dataset.import(5000, 100)) }
+
+    it 'should create 4 imported records' do
+      expect(results.length).to eq(4)
+      expect(results.map { |row| row.status}).to all(eq('Imported'))
+    end
+
+    it 'should have three child records' do
+      # pass
+    end
+
+    it 'should have a homonym relationship' do
+      #
+    end
+
+    it 'should should have a replacement name relationship' do
+      # pass
+    end
+
+    it 'should have 3 original combinations' do   # or does the subgenus also count?
+      # pass
+    end
+
+  end
 end
