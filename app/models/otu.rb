@@ -47,7 +47,7 @@ include Otu::DwcExtensions
 
   is_origin_for 'Sequence', 'Extract'
 
-  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes, :taxon_determinations]
+  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes]
 
   belongs_to :taxon_name, inverse_of: :otus
 

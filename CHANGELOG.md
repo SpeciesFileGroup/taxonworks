@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Protonym `verbatim_author` parens should be properly closed when present [#2453]
 - Protonym `verbatim_author` can not contain digits (like years) [#2452]
 - Generic date field component [#2451]
+- New taxon determination component
 
 ### Changed
 
@@ -19,17 +20,21 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Set Vue 3 reactive vuex state in comprehensive store, removed unnecesary mutations and getters
 - Updated Ruby gems
 - Bumped database_cleaner
+- Remove Taxon determination slice from OTU quick forms(Radial object)
+- Set active author tab in New taxon name [#2461]
 
 ### Fixed
 
 - Trim buttons in comprehensive task
 - Trip code fields are empty after save.
 - Confidence button
+- spring not working on MacOS. Now RGeo/Proj is warmed up at initialization time
 
 [#2453]: https://github.com/SpeciesFileGroup/taxonworks/issues/2453
 [#2452]: https://github.com/SpeciesFileGroup/taxonworks/issues/2452
 [#2450]: https://github.com/SpeciesFileGroup/taxonworks/pull/2450
 [#2451]: https://github.com/SpeciesFileGroup/taxonworks/issues/2451
+[#2461]: https://github.com/SpeciesFileGroup/taxonworks/issues/2461
 
 ## [0.19.6] - 2021-08-20
 
