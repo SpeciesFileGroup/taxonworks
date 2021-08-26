@@ -79,18 +79,17 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             year_of_publication: year
           }
 
-          if Protonym.find_by(protonym_attributes.slice(:name, :parent, :rank_class, :year_of_publication))
-            raise DarwinCore::InvalidData.new({ "scientificName" => ["Protonym #{name} with parent #{parent.name}, rank #{rank} and publication date #{year.to_s} already exists"]})
-          end
+          taxon_name = Protonym.find_or_initialize_by(protonym_attributes.slice(:name, :parent, :rank_class, :year_of_publication))
 
-          taxon_name = Protonym.new(protonym_attributes)
-          taxon_name.taxon_name_classifications.build(type: TaxonNameClassification::Icn::Hybrid) if is_hybrid
-          taxon_name.data_attributes.build(import_predicate: 'DwC-A import metadata', type: 'ImportAttribute', value: {
-            scientificName: get_field_value("scientificName"),
-            scientificNameAuthorship: get_field_value("scientificNameAuthorship"),
-            taxonRank: get_field_value("taxonRank"),
-            metadata: metadata
-          })
+          unless taxon_name.persisted?
+            taxon_name.taxon_name_classifications.build(type: TaxonNameClassification::Icn::Hybrid) if is_hybrid
+            taxon_name.data_attributes.build(import_predicate: 'DwC-A import metadata', type: 'ImportAttribute', value: {
+              scientificName: get_field_value("scientificName"),
+              scientificNameAuthorship: get_field_value("scientificNameAuthorship"),
+              taxonRank: get_field_value("taxonRank"),
+              metadata: metadata
+            })
+          end
 
           if taxon_name.save
             self.metadata[:imported_objects] = { taxon_name: { id: taxon_name.id } }
