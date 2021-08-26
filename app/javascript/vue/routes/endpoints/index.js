@@ -20,6 +20,7 @@ import { Descriptor } from './Descriptor'
 import { Document } from './Document'
 import { Documentation } from './Documentation'
 import { Download } from './Download'
+import { DwcOcurrence } from './DwcOcurrence'
 import { Extract } from './Extract'
 import { GeographicArea } from './GeographicArea'
 import { Georeference } from './Georeference'
@@ -82,6 +83,7 @@ export {
   Document,
   Documentation,
   Download,
+  DwcOcurrence,
   Extract,
   GeographicArea,
   Georeference,
