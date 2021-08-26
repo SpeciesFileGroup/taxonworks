@@ -13,6 +13,9 @@ module Gis
                                                has_z_coordinate:        true,
                                                wkb_parser:              {support_ewkb: true},
                                                wkb_generator:           {hex_format: true, emit_ewkb_srid: true})
+
+  # Warm up RGeo/Proj before any forking may occur (solves problems with spring on Mac)
+  FACTORY.parse_wkt('POLYGON ((0 0, 1 0, 1 1, 0 1, 0 0))')
 end
 
 # RGeo::ActiveRecord::GeometryMixin.set_json_generator(:geojson)

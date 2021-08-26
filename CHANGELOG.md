@@ -28,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Trim buttons in comprehensive task
 - Trip code fields are empty after save.
 - Confidence button
+- spring not working on MacOS. Now RGeo/Proj is warmed up at initialization time
 
 [#2453]: https://github.com/SpeciesFileGroup/taxonworks/issues/2453
 [#2452]: https://github.com/SpeciesFileGroup/taxonworks/issues/2452
