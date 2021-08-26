@@ -54,8 +54,8 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             end
 
           else  # Fall back to simple name + date parsing
-            author_name = verbatim_author(authorship)
-            year = year_of_publication(authorship)
+            author_name = Utilities::Strings.verbatim_author(authorship)
+            year = Utilities::Strings.year_of_publication(authorship)
           end
 
           # TODO should a year provided in namePublishedInYear overwrite the parsed value?
@@ -78,6 +78,10 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             verbatim_author: author_name,
             year_of_publication: year
           }
+
+          if Protonym.find_by(protonym_attributes.slice(:name, :parent, :rank_class, :year_of_publication))
+            raise DarwinCore::InvalidData.new({ "scientificName" => ["Protonym #{name} with parent #{parent.name}, rank #{rank} and publication date #{year.to_s} already exists"]})
+          end
 
           taxon_name = Protonym.new(protonym_attributes)
           taxon_name.taxon_name_classifications.build(type: TaxonNameClassification::Icn::Hybrid) if is_hybrid
@@ -117,6 +121,14 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             ).update_all(status: "Ready")
         end
       end
+    rescue DarwinCore::InvalidData => invalid
+      self.status = "Errored"
+      self.metadata["error_data"] = { messages: invalid.error_data }
+    rescue ActiveRecord::RecordInvalid => invalid
+      self.status = "Errored"
+      self.metadata["error_data"] = {
+        messages: invalid.record.errors.messages
+      }
     rescue StandardError => e
       raise if Rails.env.development?
       self.status = "Failed"
@@ -146,25 +158,6 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
     if index == get_field_mapping(:parentNameUsageID) && status == "NotReady"
       self.status = "Ready" if %w[Ready Imported].include? get_parent&.status
     end
-  end
-
-
-  # @param [String] author_year
-  # @return [String, nil]
-  def year_of_publication(author_year)
-    return nil if author_year.blank?
-    split_author_year = author_year.split(' ')
-    year = split_author_year[split_author_year.length - 1]
-    year =~ /\A\d+\z/ ? year : ''
-  end
-
-  # @param [String] author_year_string
-  # @return [String, nil]
-  def verbatim_author(author_year_string)
-    return nil if author_year_string.blank?
-    author_end_index = author_year_string.rindex(' ')
-    author_end_index ||= author_year_string.length
-    author_year_string[0...author_end_index]
   end
 
 end
