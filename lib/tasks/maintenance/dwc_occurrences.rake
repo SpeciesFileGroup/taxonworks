@@ -81,7 +81,7 @@ namespace :tw do
           print "  - id: #{o.id} ---  #{i} \r\r\r\r\r"
           # print Benchmark.measure{
           begin
-            z = o.set_dwc_occurrence #}.to_s
+            z = o.set_dwc_occurrence
           rescue RGeo::Error::InvalidGeometry => e
             puts Rainbow("Error [#{o.id}] bad geometry not written. #{e}").red.bold
           #rescue => e

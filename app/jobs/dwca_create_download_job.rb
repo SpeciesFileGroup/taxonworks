@@ -6,6 +6,7 @@ class DwcaCreateDownloadJob < ApplicationJob
   #   SQL must  return a list of DwcOccurrence records
   # take a download, and a list of scopes, and save the result to the download, that's all
   # @return 
+  # # TODO: handle extension scopes
   def perform(download, core_scope: nil, extension_scopes: {biological_associations: nil})
     begin
       begin

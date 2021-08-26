@@ -244,6 +244,7 @@ resources :dwc_occurrences, only: [], defaults: {format: :json} do
   collection do
     get 'metadata'
     get 'predicates'
+    get 'status'
   end
 end
 

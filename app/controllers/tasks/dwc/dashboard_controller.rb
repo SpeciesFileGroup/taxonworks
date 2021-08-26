@@ -25,4 +25,16 @@ class Tasks::Dwc::DashboardController < ApplicationController
     redirect_to file_download_path(download)
   end
 
+  def create_index
+    if collection_object_filter_params.to_h.any?
+      metadata = ::Export::Dwca.build_index_async(CollectionObject, filtered_collection_objects)
+      render json: metadata, status: :ok
+    else
+      render json: {}, status: :unprocessable_entity
+    end
+  end
+
+  private
+
+
 end
