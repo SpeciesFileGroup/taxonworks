@@ -31,9 +31,8 @@ scope :tasks do
     scope :dashboard, controller: 'tasks/dwc/dashboard' do
       get '/', action: :index, as: 'dwc_dashboard_task'
 
-      # TODO: make these POST
-      get 'generate_download', as: 'generate_dwc_download_task'
-      get :create_index, as: 'create_dwc_index_task'
+      post 'generate_download', as: 'generate_dwc_download_task'
+      post :create_index, as: 'create_dwc_index_task'
     end
   end
 
