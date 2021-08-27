@@ -2,7 +2,13 @@ import { CollectingEvent } from 'routes/endpoints'
 import { ActionNames } from '../actions/actions'
 import { MutationNames } from '../mutations/mutations'
 import { RouteNames } from 'routes/routes'
+import { EVENT_SMART_SELECTOR_UPDATE } from 'constants/index.js'
 import SetParam from 'helpers/setParam'
+
+const updateSmartSelectors = () => {
+  const event = new CustomEvent(EVENT_SMART_SELECTOR_UPDATE)
+  document.dispatchEvent(event)
+}
 
 export default async ({ state, commit, dispatch }) => {
   const collectingEvent = state.collectingEvent
@@ -31,6 +37,7 @@ export default async ({ state, commit, dispatch }) => {
 
     SetParam(RouteNames.NewCollectingEvent, 'collecting_event_id', response.body.id)
   }).finally(() => {
+    updateSmartSelectors()
     state.settings.isSaving = false
   })
 }

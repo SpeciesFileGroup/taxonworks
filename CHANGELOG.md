@@ -30,12 +30,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Confidence button
 - spring not working on MacOS. Now RGeo/Proj is warmed up at initialization time
 - Combination preview label in New combination task
+- Smart selector is not refreshing after save [#2468]
 
 [#2453]: https://github.com/SpeciesFileGroup/taxonworks/issues/2453
 [#2452]: https://github.com/SpeciesFileGroup/taxonworks/issues/2452
 [#2450]: https://github.com/SpeciesFileGroup/taxonworks/pull/2450
 [#2451]: https://github.com/SpeciesFileGroup/taxonworks/issues/2451
 [#2461]: https://github.com/SpeciesFileGroup/taxonworks/issues/2461
+[#2468]: https://github.com/SpeciesFileGroup/taxonworks/issues/2468
 
 ## [0.19.6] - 2021-08-20
 

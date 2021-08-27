@@ -1,5 +1,11 @@
 import ActionNames from './actionNames'
 import { MutationNames } from '../mutations/mutations'
+import { EVENT_SMART_SELECTOR_UPDATE } from 'constants/index.js'
+
+const updateSmartSelectors = () => {
+  const event = new CustomEvent(EVENT_SMART_SELECTOR_UPDATE)
+  document.dispatchEvent(event)
+}
 
 export default ({ commit, dispatch, state }) =>
   new Promise((resolve, reject) => {
@@ -26,6 +32,7 @@ export default ({ commit, dispatch, state }) =>
           TW.workbench.alert.create('All records were successfully saved.', 'notice')
           resolve(true)
         }).finally(() => {
+          updateSmartSelectors()
           state.settings.saving = false
         })
       })
