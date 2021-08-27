@@ -35,11 +35,10 @@ import SmartSelector from 'components/ui/SmartSelector.vue'
 import RolePicker from 'components/role_picker.vue'
 import { findRole } from 'helpers/people/people.js'
 import { GetterNames } from '../../../../store/getters/getters.js'
-import refreshSmartSelector from '../../../shared/refreshSmartSelector'
 import extendCE from '../../mixins/extendCE.js'
 
 export default {
-  mixins: [refreshSmartSelector, extendCE],
+  mixins: [extendCE],
 
   components: {
     SmartSelector,

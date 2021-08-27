@@ -38,11 +38,10 @@ import LockComponent from 'components/ui/VLock/index.vue'
 import { Repository } from 'routes/endpoints'
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
-import refreshSmartSelector from '../shared/refreshSmartSelector'
 import extendCO from './mixins/extendCO.js'
 
 export default {
-  mixins: [refreshSmartSelector, extendCO],
+  mixins: [extendCO],
 
   components: {
     SmartSelector,
@@ -79,11 +78,6 @@ export default {
           this.setRepository(response.body)
         })
       }
-    },
-
-    collectionObject (newVal, oldVal) {
-      if (!newVal.id || newVal.id === oldVal.id) return
-      this.$refs.smartSelector.refresh()
     }
   },
 

@@ -223,10 +223,6 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetTaxonDeterminations, value)
       }
-    },
-
-    lastSave () {
-      return this.$store.getters[GetterNames.GetLastSave]
     }
   },
 
@@ -252,11 +248,6 @@ export default {
         this.otu = undefined
         this.otuSelected = undefined
       }
-    },
-
-    lastSave () {
-      this.$refs.smartSelector.refresh()
-      this.$refs.determinerSmartSelector.refresh()
     }
   },
 

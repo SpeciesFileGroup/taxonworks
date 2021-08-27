@@ -53,11 +53,8 @@ import { MutationNames } from '../../../../store/mutations/mutations.js'
 
 import validateComponent from '../../../shared/validate.vue'
 import validateIdentifier from '../../../../validations/namespace.js'
-import refreshSmartSelector from '../../../shared/refreshSmartSelector'
 
 export default {
-  mixins: [refreshSmartSelector],
-
   components: {
     validateComponent,
     SmartSelector
