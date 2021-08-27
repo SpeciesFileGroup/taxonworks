@@ -1,0 +1,12 @@
+taxonID	parentNameUsageID	parentNameUsage	acceptedNameUsageID	acceptedNameUsage	scientificName	kingdom	class	order	family	genus	subgenus	specificEpithet	infraspecificEpithet	taxonRank	scientificNameAuthorship	taxonomicStatus	originalNameUsage	originalNameUsageID	namePublishedInYear	nomenclaturalCode
+429349			429349	Formica Linnaeus, 1758	Formica	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Linnaeus, 1758	valid			1758	ICZN
+
+429156			429156	Anoplolepis Santschi, 1914	Anoplolepis	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Santschi, 1914	valid			1914	ICZN
+431001	429156	Anoplolepis Santschi, 1914	431001	Anoplolepis gracilipes (Smith, 1857)	Anoplolepis gracilipes	Animalia	Insecta	Hymenoptera	Formicidae	Anoplolepis		gracilipes		Species	(Smith, 1857)	valid	Formica gracilipes Smith, 1857	456609	1857	ICZN
+431004	429156	Anoplolepis Santschi, 1914	431004	Anoplolepis longipes (Jerdon, 1851)	Anoplolepis longipes	Animalia	Insecta	Hymenoptera	Formicidae	Anoplolepis		longipes		Species	(Jerdon, 1851)	homonym	Formica longipes Jerdon, 1851	456612	1851	ICZN
+456609	429349	Formica Linnaeus, 1758	431001	Anoplolepis gracilipes (Smith, 1857)	Formica gracilipes	Animalia	Insecta	Hymenoptera	Formicidae	Formica		gracilipes		Species	Smith, 1857	obsolete combination	Formica gracilipes Smith, 1857	456609	1857	ICZN
+456612	429349	Formica Linnaeus, 1758	431004	Anoplolepis longipes (Jerdon, 1851)	Formica longipes	Animalia	Insecta	Hymenoptera	Formicidae	Formica		longipes		Species	Jerdon, 1851	obsolete combination	Formica longipes Jerdon, 1851	456612	1851	ICZN
+
+429833			429833	Pheidole Westwood, 1839	Pheidole	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Westwood, 1839	valid			1839	ICZN
+444036	429833	Pheidole Westwood, 1839	444036	Pheidole longipes (Latreille, 1802)	Pheidole longipes	Animalia	Insecta	Hymenoptera	Formicidae	Pheidole		longipes		Species	(Latreille, 1802)	valid	Formica longipes Latreille, 1802	508616	1802	ICZN
+508616	429349	Formica Linnaeus, 1758	444036	Pheidole longipes (Latreille, 1802)	Formica longipes	Animalia	Insecta	Hymenoptera	Formicidae	Formica		longipes		Species	Latreille, 1802	obsolete combination	Formica longipes Latreille, 1802	508616	1802	ICZN
