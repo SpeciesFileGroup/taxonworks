@@ -53,7 +53,7 @@ class DwcOccurrence < ApplicationRecord
   validates_presence_of :basisOfRecord
 
   validates :dwc_occurrence_object, presence: true
-  #  validates_uniqueness_of :dwc_occurrence_object_id, scope: [:dwc_occurrence_object_type,:project_id]
+  # validates_uniqueness_of :dwc_occurrence_object_id, scope: [:dwc_occurrence_object_type,:project_id]
   validates :dwc_occurrence_object_id, uniqueness: { scope: [:dwc_occurrence_object_type,:project_id] }
 
   attr_accessor :occurrence_identifier
@@ -68,7 +68,10 @@ class DwcOccurrence < ApplicationRecord
 
   def generate_uuid_if_required
     if !occurrence_identifier
-      @occurrence_identifier = Identifier::Global::Uuid::TaxonworksDwcOccurrence.create!(identifier_object: dwc_occurrence_object, is_generated: true)
+      @occurrence_identifier = Identifier::Global::Uuid::TaxonworksDwcOccurrence.create!(
+        identifier_object: dwc_occurrence_object,
+        by: dwc_occurrence_object.creator,
+        is_generated: true)
     end
   end
 
