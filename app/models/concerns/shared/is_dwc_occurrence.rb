@@ -1,5 +1,6 @@
 # Shared code for data classes that can be serialized as DwcOccurrence records
-#
+
+
 module Shared::IsDwcOccurrence
   extend ActiveSupport::Concern
 
@@ -31,13 +32,7 @@ module Shared::IsDwcOccurrence
     end
   end
 
-  # Attributes shared by all classes
-  
-  def dwc_occurrence_id
-    identifiers.where('identifiers.type like ?', 'Identifier::Global::Uuid%').order(:postion).first&.identifier
-  end
-
-  # @return [DwcOccurrence]
+    # @return [DwcOccurrence]
   #   always touches the database
   def set_dwc_occurrence
     retried = false

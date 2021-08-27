@@ -20,9 +20,9 @@ describe DwcOccurrence, type: :model, group: :darwin_core do
     expect(b.all.count).to eq(1)
   end
 
-  specify '#occurrenceID' do
+  specify '#dwc_occurrence_id' do
     dwc_occurrence.dwc_occurrence_object = collection_object
-    expect(collection_object.occurrence_id).to eq('abc')
+    expect(collection_object.dwc_occurrence_id).to eq(collection_object.identifiers.first.identifier)
   end
 
   specify 'occurrences get proxy uuids 1' do
@@ -43,16 +43,13 @@ describe DwcOccurrence, type: :model, group: :darwin_core do
   end
 
   context 'validation' do
-    context 'with a new instance' do
-      before { dwc_occurrence.valid? }
+    # specify '#basisOfRecord is required' do
+    #   expect(dwc_occurrence.errors.include?(:basisOfRecord)).to be_truthy
+    # end
 
-      # specify '#basisOfRecord is required' do
-      #   expect(dwc_occurrence.errors.include?(:basisOfRecord)).to be_truthy
-      # end
-
-      specify '#dwc_occurrence_object is required' do
-        expect(dwc_occurrence.errors.include?(:dwc_occurrence_object)).to be_truthy
-      end
+    specify '#dwc_occurrence_object is required' do
+      dwc_occurrence.valid?
+      expect(dwc_occurrence.errors.include?(:dwc_occurrence_object)).to be_truthy
     end
 
     context 'the referenced TW' do

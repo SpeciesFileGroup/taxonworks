@@ -59,18 +59,19 @@ class DwcOccurrence < ApplicationRecord
   attr_accessor :occurrence_identifier
 
   def uuid_identifier_scope
-    dwc_occurrence_object.identifiers.where('identifiers.type like ?', 'Identifier::Global::Uuid%').order(:created_at)
+    dwc_occurrence_object&.identifiers&.where('identifiers.type like ?', 'Identifier::Global::Uuid%')&.order(:created_at)
   end
 
   def occurrence_identifier
-    @occurrence_identifier ||= uuid_identifier_scope.first
+    @occurrence_identifier ||= uuid_identifier_scope&.first
   end
 
   def generate_uuid_if_required
-    if !occurrence_identifier
+    if !occurrence_identifier && !dwc_occurrence_object.nil? # TODO: can be simplified when inverse_of/validation added to identifiers
       @occurrence_identifier = Identifier::Global::Uuid::TaxonworksDwcOccurrence.create!(
         identifier_object: dwc_occurrence_object,
-        by: dwc_occurrence_object.creator,
+        by: dwc_occurrence_object&.creator, # revisit, why required?
+        project_id: dwc_occurrence_object&.project_id, # Current.project_id,  # revisit, why required?
         is_generated: true)
     end
   end
@@ -156,7 +157,7 @@ class DwcOccurrence < ApplicationRecord
 
   def set_metadata_attributes
     write_attribute( :basisOfRecord, basis)
-    write_attribute( :occurrenceID, occurrence_identifier.identifier)
+    write_attribute( :occurrenceID, occurrence_identifier&.identifier)
   end
 
 end

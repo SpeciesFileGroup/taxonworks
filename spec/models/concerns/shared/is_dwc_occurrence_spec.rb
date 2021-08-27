@@ -61,6 +61,10 @@ end
 class TestIsDwcOccurrence < ApplicationRecord
   include FakeTable
   include Shared::IsDwcOccurrence
+
+  include Shared::Identifiers
+  include Shared::IsData
+
   include Housekeeping
 
   DWC_OCCURRENCE_MAP = {
