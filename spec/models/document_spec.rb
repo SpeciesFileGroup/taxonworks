@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe Document, type: :model, group: :documentation do
 
   let(:document) { FactoryBot.create(:valid_document) } # a 1 page pdf
-  let(:pdf) { fixture_file_upload( Spec::Support::Utilities::Files.generate_pdf(pages: 10) ) } 
+  let(:pdf) { Rack::Test::UploadedFile.new( Spec::Support::Utilities::Files.generate_pdf(pages: 10) ) } 
 
   after(:each) {
     document.destroy
@@ -58,7 +58,7 @@ RSpec.describe Document, type: :model, group: :documentation do
     context 'setting on create()' do
       let!(:d) { Document.create!(
         initialize_start_page: 99,
-        document_file: fixture_file_upload( fixture_file_upload( pdf, 'application/pdf')) 
+        document_file: Rack::Test::UploadedFile.new( Rack::Test::UploadedFile.new( pdf, 'application/pdf')) 
       )}
 
       specify 'page_map is built' do

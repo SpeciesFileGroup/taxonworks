@@ -7,9 +7,9 @@ ruby '~> 2.7.0'
 gem 'bundler', '~> 2.0'
 
 gem 'rake', '~> 13.0'
-gem 'rails', '~> 6.0'
+gem 'rails', '~> 6.1'
 gem 'pg', '~> 1.1'
-gem 'activerecord-postgis-adapter', '~> 6.0'
+gem 'activerecord-postgis-adapter', '~> 7.0'
 gem 'hiredis', '~> 0.6.1'
 gem 'redis', '~> 4.1.0'
 
@@ -17,7 +17,7 @@ gem 'redis', '~> 4.1.0'
 gem 'rdf', '~> 3.0'
 
 # System
-gem 'thor', '~> 0.20.3'
+gem 'thor', '~> 1.0'
 gem 'rubyzip', '~> 2.3.0'
 gem 'daemons', '~> 1.3.1'
 gem 'tzinfo-data', '~> 1.2019' # , '>= 1.2019.3'
@@ -48,11 +48,11 @@ gem 'closure_tree', '~> 7.0'
 
 gem 'delayed_job_active_record', '~> 4.1.3'
 gem 'validates_timeliness', '~> 4.1', '>= 4.1.1'
-gem 'paper_trail', '~> 10.3', '>= 10.3.1'
+gem 'paper_trail', '~> 12.0'
 gem 'acts_as_list', '~> 1.0'
 gem 'modularity', '~> 2.0.1' # Used!?
 gem 'paperclip', '~> 6.1.0'
-gem 'paperclip-meta', '~> 3.0'
+gem 'paperclip-meta', '~> 3.0' # TODO: kt-paperclip can be installed but because of this gem old paperclip is installed as well and deprecation warnings continue
 gem 'shortener', '~> 0.8.0'
 gem 'rails_or', '~> 1.1.8'
 
@@ -72,7 +72,7 @@ gem 'jquery-turbolinks', '~> 2.1'
 
 # BibTeX handling
 gem 'csl', '~> 1.5.0'
-gem 'bibtex-ruby', '~> 5.1.1'
+gem 'bibtex-ruby', '~> 6.0'
 gem 'citeproc-ruby', '~> 1.1.10'
 gem 'csl-styles', '~> 1.0.1.8'
 gem 'serrano', '~> 0.6.0'
@@ -84,7 +84,7 @@ gem 'chartkick', '~> 3.4'
 gem 'groupdate', '~> 4.2'
 gem 'dropzonejs-rails', '~> 0.8.1'
 gem 'kaminari', '~> 1.2.0'
-gem 'best_in_place', '~> 3.1.1'
+gem "best_in_place", git: "https://github.com/mmotherwell/best_in_place"
 gem 'redcarpet', '~> 3.4'
 gem 'sassc-rails', '~> 2.1.0'
 gem 'waxy', '~> 0.1'
@@ -121,10 +121,10 @@ gem 'wikidata-client', '~> 0.0.12', require: 'wikidata'
 
 group :test, :development do
   gem 'faker', '~> 2.10'
-  gem 'rspec-rails', '~> 4.0.0.beta2'
+  gem 'rspec-rails', '~> 5.0'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
-  gem 'factory_bot_rails', '~> 5.1', '>= 5.1.1'
+  gem 'factory_bot_rails', '~> 6.2'
   gem 'webdrivers', '~> 4.5', require: false
   gem 'prawn', '~> 2.2.2'
 end
@@ -160,7 +160,7 @@ group :test do
   gem 'capybara', '~> 3.18'
   gem 'timecop', '~> 0.9.1'
   gem 'webmock', '~> 3.8' # , '>= 3.6.2'
-  gem 'vcr', '~> 5.1'
+  gem 'vcr', '~> 6.0'
   gem 'database_cleaner', '~> 2.0'
   gem 'rails-controller-testing', '~> 1.0.2'
   gem 'os', '~> 1.0', '>= 1.0.1'

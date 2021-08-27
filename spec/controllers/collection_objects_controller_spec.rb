@@ -48,7 +48,7 @@ describe ::CollectionObjectsController, type: :controller do
             depictions_attributes: [
               {
                 image_attributes: {
-                  image_file: fixture_file_upload((Rails.root + 'spec/files/images/tiny.png'),
+                  image_file: Rack::Test::UploadedFile.new((Rails.root + 'spec/files/images/tiny.png'),
                                                   'image/png')
                 }
               }

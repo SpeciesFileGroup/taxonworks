@@ -28,7 +28,7 @@ describe ImagesController, type: :controller do
     # Image. As you add validations to Image, be sure to
     # adjust the attributes here as well.
     let(:valid_attributes) {
-      {image_file: fixture_file_upload((Rails.root + 'spec/files/images/tiny.png'), 'image/png')}
+      {image_file: Rack::Test::UploadedFile.new((Rails.root + 'spec/files/images/tiny.png'), 'image/png')}
     }
 
     let(:invalid_attributes) {
@@ -236,7 +236,7 @@ describe ImagesController, type: :controller do
 
         it 'updates the requested image' do
           image = Image.create! valid_attributes
-          put :update, params: {id: image.to_param, image: {image_file: fixture_file_upload((Rails.root + 'spec/files/images/Samsung_Phone.jpg'), 'image/jpg')}}, session: valid_session
+          put :update, params: {id: image.to_param, image: {image_file: Rack::Test::UploadedFile.new((Rails.root + 'spec/files/images/Samsung_Phone.jpg'), 'image/jpg')}}, session: valid_session
           image.reload
           expect(image.user_file_name).to eq('Samsung_Phone.jpg')
         end
