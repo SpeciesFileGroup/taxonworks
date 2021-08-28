@@ -158,9 +158,9 @@ module Utilities::Strings
   # @return [Array] [author_name, year]
   def self.parse_authorship(authorship)
     return [] if authorship.to_s.strip.empty?
-    if (authorship_matchdata = authorship.match(/\(?(?<author>.+?),? (?<year>\d{4})?\)?/))
+    if (authorship_matchdata = authorship.match(/\(?(?<author>.+),? (?<year>\d{4})?\)?/))
 
-      author_name = authorship_matchdata[:author]
+      author_name = authorship_matchdata[:author].delete_suffix(',')    # regex will grab trailing comma, temp fix
       year = authorship_matchdata[:year]
 
       # author name should be wrapped in parentheses if the verbatim authorship was
