@@ -25,6 +25,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   class ImportProtonym
     class CreateIfNotExists
       def self.execute(origins, parent, name)
+
+        existing_protonym = Protonym.find_by(name.merge({parent: parent})) || parent.descendants.find_by(name)
+        return existing_protonym unless existing_protonym.nil?
+
         Protonym.create_with(also_create_otu: true).find_or_create_by(name.merge({ parent: parent })).tap do |protonym|
           unless protonym&.persisted?
             raise DatasetRecord::DarwinCore::InvalidData.new({
@@ -39,14 +43,14 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     class MatchExisting
       def self.execute(origins, parent, name)
-        Protonym.find_by(name.merge({ parent: parent })).tap do |protonym|
-          if protonym.nil?
-            raise DatasetRecord::DarwinCore::InvalidData.new({
-              origins[name.object_id] =>
-              ["Protonym #{name[:name]} not found with that name and/or classification. Importing new names is disabled by import settings."]
-            })
-          end
-        end
+        # If there is an intermediate ancestor between parent and name, this will still find the protonym
+        protonym = Protonym.find_by(name.merge({parent: parent})) || parent.descendants.find_by(name)
+        return protonym unless protonym.nil?
+
+        raise DatasetRecord::DarwinCore::InvalidData.new({
+          origins[name.object_id] =>
+          ["Protonym #{name[:name]} not found with that name and/or classification. Importing new names is disabled by import settings."]
+        })
       end
     end
   end

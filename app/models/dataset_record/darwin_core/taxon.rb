@@ -79,7 +79,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             year_of_publication: year
           }
 
-          taxon_name = Protonym.find_or_initialize_by(protonym_attributes.slice(:name, :parent, :rank_class, :year_of_publication))
+          taxon_name = Protonym.create_with(verbatim_author: author_name).find_or_initialize_by(protonym_attributes.slice(:name, :parent, :rank_class, :year_of_publication))
 
           unless taxon_name.persisted?
             taxon_name.taxon_name_classifications.build(type: TaxonNameClassification::Icn::Hybrid) if is_hybrid
