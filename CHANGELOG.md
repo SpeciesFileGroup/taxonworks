@@ -22,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Bumped database_cleaner
 - Remove Taxon determination slice from OTU quick forms(Radial object)
 - Set active author tab in New taxon name [#2461]
+- Moved `data-project-id` to project name
 
 ### Fixed
 
