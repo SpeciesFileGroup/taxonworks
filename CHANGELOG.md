@@ -22,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Bumped database_cleaner
 - Remove Taxon determination slice from OTU quick forms(Radial object)
 - Set active author tab in New taxon name [#2461]
+- Moved `data-project-id` to project name
 
 ### Fixed
 
@@ -33,6 +34,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Smart selector is not refreshing after save [#2468]
 - Group and formation fields in comprehensive task
 - Changed date label [#2473]
+- Warning message persists when date exists in User facet [#2480]
 
 [#2453]: https://github.com/SpeciesFileGroup/taxonworks/issues/2453
 [#2452]: https://github.com/SpeciesFileGroup/taxonworks/issues/2452
@@ -41,6 +43,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2461]: https://github.com/SpeciesFileGroup/taxonworks/issues/2461
 [#2468]: https://github.com/SpeciesFileGroup/taxonworks/issues/2468
 [#2473]: https://github.com/SpeciesFileGroup/taxonworks/issues/2473
+[#2480]: https://github.com/SpeciesFileGroup/taxonworks/issues/2480
 
 ## [0.19.6] - 2021-08-20
 
