@@ -1,6 +1,11 @@
 import { MutationNames } from '../mutations/mutations'
 import { CollectingEvent, Identifier } from 'routes/endpoints'
 import newCollectingEvent from 'factory/CollectingEvent.js'
+import makeIdentifier from 'factory/Identifier'
+import {
+  COLLECTING_EVENT,
+  IDENTIFIER_LOCAL_TRIP_CODE
+} from 'constants/index.js'
 
 export default ({ commit, state: { collecting_event, collectingEventIdentifier } }) =>
   new Promise((resolve, reject) => {
@@ -10,8 +15,10 @@ export default ({ commit, state: { collecting_event, collectingEventIdentifier }
 
     const identifier = collectingEventIdentifier
 
-    if (!identifier.id && identifier.namespace_id && identifier.identifier) {
-      collecting_event.identifiers_attributes = [identifier]
+    if (!identifier.id) {
+      if (identifier.namespace_id && identifier.identifier) {
+        collecting_event.identifiers_attributes = [identifier]
+      }
     } else {
       Identifier.update(identifier.id, { identifier }).then(({ body }) => {
         commit(MutationNames.SetCollectingEventIdentifier, body)
@@ -33,7 +40,7 @@ export default ({ commit, state: { collecting_event, collectingEventIdentifier }
       commit(MutationNames.SetCollectingEvent, body)
 
       if (!identifier.id) {
-        commit(MutationNames.SetCollectingEventIdentifier, body.identifiers[0])
+        commit(MutationNames.SetCollectingEventIdentifier, body.identifiers[0] || makeIdentifier(IDENTIFIER_LOCAL_TRIP_CODE, COLLECTING_EVENT))
       }
 
       return resolve(body)

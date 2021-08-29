@@ -8,7 +8,8 @@
           min="3"
           label="name"
           nested="records"
-          @getItem="collectingEvent.group = $event"
+          :send-label="collectingEvent.group"
+          @getItem="collectingEvent.group = $event.name"
           :headers="externalHeaders"
           :add-params="{
             limit: 30,
@@ -23,8 +24,9 @@
           url="https://paleobiodb.org/data1.2/strata/auto.json"
           min="3"
           label="name"
+          :send-label="collectingEvent.formation"
           nested="records"
-          @getItem="collectingEvent.formation = $event"
+          @getItem="collectingEvent.formation = $event.name"
           :headers="externalHeaders"
           :add-params="{
             limit: 30,
