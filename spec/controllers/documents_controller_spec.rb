@@ -26,11 +26,11 @@ RSpec.describe DocumentsController, type: :controller do
   let(:pdf) { Spec::Support::Utilities::Files.generate_pdf }
 
   let(:valid_attributes) {
-    {document_file:  fixture_file_upload(pdf, 'application/pdf') }
+    {document_file:  Rack::Test::UploadedFile.new(pdf, 'application/pdf') }
   }
 
   let(:invalid_attributes) {
-    {document_file:  fixture_file_upload((Rails.root + 'spec/files/images/tiny.png'), 'image/png') }
+    {document_file:  Rack::Test::UploadedFile.new((Rails.root + 'spec/files/images/tiny.png'), 'image/png') }
   }
 
   # This should return the minimal set of values that should be in the session
@@ -110,7 +110,7 @@ RSpec.describe DocumentsController, type: :controller do
 
       it 'updates the requested document' do
         document = Document.create! valid_attributes
-        put :update, params: {id: document.to_param, document: {document_file: fixture_file_upload((Rails.root + 'spec/files/documents/tiny.txt'), 'text/plain')}}, session: valid_session
+        put :update, params: {id: document.to_param, document: {document_file: Rack::Test::UploadedFile.new((Rails.root + 'spec/files/documents/tiny.txt'), 'text/plain')}}, session: valid_session
         document.reload
         expect(document.document_file_file_name).to eq('tiny.txt')
       end

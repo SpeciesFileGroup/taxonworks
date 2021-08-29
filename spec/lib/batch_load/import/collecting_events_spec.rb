@@ -20,7 +20,7 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
   # let(:user) { User.find(1) }
   # let(:project) { Project.find(1) }
   #
-  # let(:upload_file) { fixture_file_upload(file_name) }
+  # let(:upload_file) { Rack::Test::UploadedFile.new(file_name) }
   # let(:import) {
   #   BatchLoad::Import::CollectingEvents.new(project_id: project.id, user_id: user.id, file: upload_file)
   # }

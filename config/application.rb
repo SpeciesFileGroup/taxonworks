@@ -92,5 +92,6 @@ module TaxonWorks
       end
     end
 
+    config.autoloader = :classic
   end
 end
