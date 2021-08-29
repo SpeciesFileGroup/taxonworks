@@ -101,10 +101,8 @@ import validateComponent from '../shared/validate.vue'
 import validateIdentifier from '../../validations/namespace.js'
 import incrementIdentifier from '../../helpers/incrementIdentifier.js'
 import LockComponent from 'components/ui/VLock/index.vue'
-import refreshSmartSelector from '../shared/refreshSmartSelector'
 
 export default {
-  mixins: [refreshSmartSelector],
   components: {
     validateComponent,
     LockComponent,

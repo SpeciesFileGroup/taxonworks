@@ -4,7 +4,7 @@
       Housekeeping
       <span
         class="margin-small-left"
-        v-if="!user.user_target || (!user.user_date_start && !user.user_date_end)"
+        v-if="!user.user_date_start && !user.user_date_end"
         data-icon="warning"
         title="Select a date range first to pick a date"/>
     </h3>

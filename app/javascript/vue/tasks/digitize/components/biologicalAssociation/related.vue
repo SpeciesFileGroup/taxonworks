@@ -65,13 +65,6 @@ export default {
     }
   },
 
-  watch: {
-    lastSave (newVal) {
-      this.$refs.smartSelector.refresh()
-      this.$refs.otuSmartSelector.refresh()
-    }
-  },
-
   methods: {
     sendRelated (item) {
       item.type = item.base_class

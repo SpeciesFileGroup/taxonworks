@@ -101,7 +101,7 @@ export default {
     headers: {
       required: false,
       type: Object,
-      default: () => ({})
+      default: undefined
     },
 
     nested: {
@@ -322,7 +322,8 @@ export default {
       } else {
         this.spinner = true
         AjaxCall('get', this.ajaxUrl(), {
-          requestId: this.requestId
+          requestId: this.requestId,
+          headers: this.headers
         })
           .then(({ body }) => {
             this.json = this.getNested(body, this.nested)
