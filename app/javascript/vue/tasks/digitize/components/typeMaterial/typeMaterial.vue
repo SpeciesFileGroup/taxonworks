@@ -167,10 +167,8 @@ export default {
       deep: true
     },
 
-    lastSave (newVal) {
+    lastSave () {
       this.editMode = false
-      this.$refs.smartSelector.refresh()
-      this.$refs.sourceSmartSelector.refresh()
     }
   },
 

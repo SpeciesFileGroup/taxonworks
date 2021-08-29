@@ -1,5 +1,6 @@
 <template>
   <div>
+    <b>Start date</b>
     <div class="horizontal-left-content align-end margin-small-bottom">
       <date-fields
         v-model:year="collectingEvent.start_date_year"
@@ -13,11 +14,12 @@
       />
       <button
         type="button"
-        class="button normal-input button-default"
+        class="button normal-input button-default margin-small-left"
         @click="cloneDate">
         Clone
       </button>
     </div>
+    <b>End date</b>
     <div class="horizontal-left-content align-end">
       <date-fields
         v-model:year="collectingEvent.end_date_year"
