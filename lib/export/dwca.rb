@@ -3,6 +3,14 @@ require 'dwc_archive'
 module Export
   module Dwca
 
+    # Version is a way to track dates where 
+    # the indexing changed significantly such that all
+    # or most of the index should be regenerated. 
+    # To add a version use `Time.now` via IRB
+    INDEX_VERSION = [
+      '2021-08-29 21:16:02.903688 -0500' # First major refactor
+    ]
+
     # @param record_scope [ActiveRecord::Relation]
     #   a relation that returns DwcOccurrence records
     # @return [Download]

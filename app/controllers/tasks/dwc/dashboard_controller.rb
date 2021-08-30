@@ -34,6 +34,10 @@ class Tasks::Dwc::DashboardController < ApplicationController
     end
   end
 
+  def index_versions
+    render json: ::Export::Dwca::INDEX_VERSION, status: :ok
+  end
+
   private
 
 
