@@ -187,7 +187,7 @@ module CollectionObject::DwcExtensions
     return nil unless collecting_event
     collecting_event.internal_attributes.includes(:predicate)
       .where(
-        controlled_vocabulary_terms: {uri: DWC_ATTRIBUTE_URIS[:waterBody] })
+        controlled_vocabulary_terms: {uri: ::DWC_ATTRIBUTE_URIS[:waterBody] })
       .pluck(:value)&.join(', ').presence
   end
 
@@ -195,7 +195,7 @@ module CollectionObject::DwcExtensions
   def dwc_life_stage
     biocuration_classes
       .where(
-        controlled_vocabulary_terms: {uri: DWC_ATTRIBUTE_URIS[:lifeStage] })
+        controlled_vocabulary_terms: {uri: ::DWC_ATTRIBUTE_URIS[:lifeStage] })
       .pluck(:name)&.join(', ').presence # `.presence` is a Rails extension
   end
 
@@ -203,7 +203,7 @@ module CollectionObject::DwcExtensions
   def dwc_sex
     biocuration_classes
       .where(
-        controlled_vocabulary_terms: {uri: DWC_ATTRIBUTE_URIS[:sex] })
+        controlled_vocabulary_terms: {uri: ::DWC_ATTRIBUTE_URIS[:sex] })
       .pluck(:name)&.join(', ').presence
   end
 
@@ -340,7 +340,7 @@ module CollectionObject::DwcExtensions
   end
 
   def dwc_catalog_number
-    catalog_number_cached
+    catalog_number_cached # via delegation
   end
 
   # TODO: handle ranged lots

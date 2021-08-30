@@ -1,5 +1,3 @@
-
-# NOT USED !!
 # Intent as a dictionary that ultimately lets us extend 
 # assertions beyond DWC to OWL/OBO URIs referenced in TaxonWorks Predicate (controlled vocabulary terms)
 
