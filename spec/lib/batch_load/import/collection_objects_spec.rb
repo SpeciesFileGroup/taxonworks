@@ -86,7 +86,7 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
     let(:user) { User.find(1) }
     let(:project) { Project.find(1) }
 
-    let(:upload_file) { fixture_file_upload(file_name) }
+    let(:upload_file) { Rack::Test::UploadedFile.new(file_name) }
     let(:evaluate) {
       BatchLoad::Import::CollectionObjects::new(
         project_id: project.id,
@@ -176,7 +176,7 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
     let(:user) { User.find(1) }
     let(:project) { Project.find(1) }
 
-    let(:upload_file) { fixture_file_upload(file_name) }
+    let(:upload_file) { Rack::Test::UploadedFile.new(file_name) }
     let(:import) {
       BatchLoad::Import::CollectionObjects::new(
         project_id: project.id,
