@@ -17,15 +17,15 @@ gem 'redis', '~> 4.1.0'
 gem 'rdf', '~> 3.0'
 
 # System
-gem 'thor', '~> 1.0'
+gem 'thor', '~> 1.0.0'
 gem 'rubyzip', '~> 2.3.0'
-gem 'daemons', '~> 1.3.1'
+gem 'daemons', '~> 1.4.1'
 gem 'tzinfo-data', '~> 1.2019' # , '>= 1.2019.3'
-gem 'psych', '~> 3.1.0'
+gem 'psych', '~> 4.0.0'
 gem 'rmagick', '~> 4.2', '>= 4.2.2'
 
 # Geo
-gem 'ffi-geos', '~> 2.1.0'
+gem 'ffi-geos', '~> 2.2.0'
 # gem 'rgeo-shapefile', '~> 0.4.2'  # deprecated? not compatible- perhaps only used in
 gem 'rgeo', '~> 2.2'
 gem 'rgeo-geojson', '~> 2.1', '>= 2.1.1'
@@ -47,10 +47,10 @@ gem 'bcrypt', '~> 3.1.11'
 gem 'closure_tree', '~> 7.0'
 
 gem 'delayed_job_active_record', '~> 4.1.3'
-gem 'validates_timeliness', '~> 4.1', '>= 4.1.1'
+gem 'validates_timeliness', '~> 5.0', '>= 4.1.1'
 gem 'paper_trail', '~> 12.0'
 gem 'acts_as_list', '~> 1.0'
-gem 'modularity', '~> 2.0.1' # Used!?
+gem 'modularity', '~> 3.0.0' # TODO: Used!?
 gem 'paperclip', '~> 6.1.0'
 gem 'paperclip-meta', '~> 3.0' # TODO: kt-paperclip can be installed but because of this gem old paperclip is installed as well and deprecation warnings continue
 gem 'shortener', '~> 0.8.0'
@@ -71,7 +71,7 @@ gem 'turbolinks', '~> 5.2.0'
 gem 'jquery-turbolinks', '~> 2.1'
 
 # BibTeX handling
-gem 'csl', '~> 1.5.0'
+gem 'csl', '~> 1.6.0'
 gem 'bibtex-ruby', '~> 6.0'
 gem 'citeproc-ruby', '~> 1.1.10'
 gem 'csl-styles', '~> 1.0.1.8'
@@ -80,7 +80,7 @@ gem 'serrano', '~> 0.6.0'
 gem 'pdf-reader', '~> 2.2'
 
 # UI/UX
-gem 'chartkick', '~> 3.4'
+gem 'chartkick', '~> 4.0.5'
 gem 'groupdate', '~> 4.2'
 gem 'dropzonejs-rails', '~> 0.8.1'
 gem 'kaminari', '~> 1.2.0'
@@ -105,14 +105,14 @@ gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 gem 'gnfinder', '~> 0.11.0'
 
 # Minor Utils/helpers
-gem 'amazing_print', '~> 1.2.1'
+gem 'amazing_print', '~> 1.3.0'
 gem 'indefinite_article', '~> 0.2.4'
 gem 'rainbow', '~> 3.0.0'
 gem 'term-ansicolor', '~> 1.6' # DEPRECATED
 gem 'chronic', '~> 0.10.2'
 gem 'logical_query_parser'
 gem 'logic_tools'
-gem 'chunky_png', '~> 1.3.11'
+gem 'chunky_png', '~> 1.4.0'
 gem 'namecase', '~> 2.0'
 gem 'zaru', '~> 0.3.0'
 
@@ -126,7 +126,7 @@ group :test, :development do
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 6.2'
   gem 'webdrivers', '~> 4.5', require: false
-  gem 'prawn', '~> 2.2.2'
+  gem 'prawn', '~> 2.4.0'
 end
 
 gem 'parallel_tests', group: [:development, :test]
@@ -140,22 +140,22 @@ group :development do
   gem 'guard-rspec', '~> 4.7.3', require: false
 
   gem 'web-console', '~> 4.0', '>= 4.0.1'
-  gem 'rubocop', '~> 0.76'
+  gem 'rubocop', '~> 1.20'
   gem 'rubocop-rails', '~> 2.4'
   gem 'rubocop-rspec', '~>1.38'
   gem 'rubocop-faker', '~> 0.2.0'
   gem 'rubocop-performance', '~> 1.10.2'
-  gem 'brakeman', '~> 4.6', '>= 4.6.1', require: false
+  gem 'brakeman', '~> 5.1', '>= 4.6.1', require: false
   gem 'seedbank', '~> 0.5.0'
 end
 
 group :doc do
-  gem 'sdoc', '~> 1.0', require: false
+  gem 'sdoc', '~> 2.2.0', require: false
 end
 
 group :test do
   gem 'rspec', '~> 3.6'
-  gem 'codecov', '~> 0.5.1'
+  gem 'codecov', '~> 0.6.0'
   gem 'simplecov', :require => false
   gem 'capybara', '~> 3.18'
   gem 'timecop', '~> 0.9.1'
@@ -167,6 +167,6 @@ group :test do
 end
 
 group :production do
-  gem 'execjs', '~> 2.7.0'
+  gem 'execjs', '~> 2.8.1'
   gem 'passenger', '~> 6.0.2'
 end
