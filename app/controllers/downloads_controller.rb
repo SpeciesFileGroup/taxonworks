@@ -9,8 +9,15 @@ class DownloadsController < ApplicationController
   # GET /downloads
   # GET /downloads.json
   def index
-    @recent_objects = Download.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = Download.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @downloads = Download.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+      }
+    end
   end
 
   # GET /downloads/1
