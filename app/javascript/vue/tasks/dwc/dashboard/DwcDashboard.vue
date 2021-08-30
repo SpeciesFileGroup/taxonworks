@@ -1,16 +1,18 @@
 <template>
   <h1>DwC Dashboard</h1>
-  <div>
+  <div id="dwc-dashboard">
+    <download-panel/>
     <graph-component :metadata="metadata"/>
-    <btn-reindex />
+    <reindex-panel />
   </div>
 </template>
 <script setup>
 
 import { onBeforeMount, ref } from 'vue'
 import { DwcOcurrence } from 'routes/endpoints'
-import GraphComponent from './components/Graph.vue'
-import BtnReindex from './components/Reindex.vue'
+import GraphComponent from './components/Graph/Graph.vue'
+import DownloadPanel from './components/Download/DownloadPanel.vue'
+import ReindexPanel from './components/Reindex/ReindexPanel.vue'
 
 const metadata = ref({})
 
@@ -19,3 +21,10 @@ onBeforeMount(async () => {
 })
 
 </script>
+<style>
+  #dwc-dashboard {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1em;
+  }
+</style>

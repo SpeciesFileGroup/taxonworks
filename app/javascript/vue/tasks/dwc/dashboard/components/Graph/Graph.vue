@@ -1,5 +1,6 @@
 <template>
   <div class="panel content">
+    <h2>Index freshness</h2>
     <vue-chart
       style="max-height: 500px"
       type="bar"
@@ -47,7 +48,7 @@ const chartState = reactive({
 })
 
 watch(() => props.metadata, metadata => {
-  const objects = Object.values(metadata)
+  const objects = Object.values(metadata).reverse()
   const labels = Object.keys(metadata).map(label => humanize(label))
   const datasets = DATASET_LABELS.map(({ label, property, backgroundColor }) => ({
     label,
