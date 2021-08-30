@@ -12,7 +12,7 @@ RSpec.describe PinboardItem do
   specify 'bad pinboard_item_type' do
     p = FactoryBot.create(:valid_pinboard_item)
     p.pinned_object_type = 'Foo'
-    expect {p.save!}.to raise_error NameError, 'uninitialized constant Foo'
+    expect {p.save!}.to raise_error NameError, /uninitialized constant Foo/
   end
 
   context 'associations' do
