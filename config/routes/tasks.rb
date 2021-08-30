@@ -30,9 +30,11 @@ scope :tasks do
   scope :dwc do
     scope :dashboard, controller: 'tasks/dwc/dashboard' do
       get '/', action: :index, as: 'dwc_dashboard_task'
+      get :index_versions, defaults: {format: :json}
 
       post 'generate_download', as: 'generate_dwc_download_task'
       post :create_index, as: 'create_dwc_index_task'
+    
     end
   end
 
