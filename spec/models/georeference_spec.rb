@@ -104,14 +104,14 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
           # skip 'setting error radius to some reasonable distance'
           georeference.error_radius = 10_000_000
           georeference.valid?
-          expect(georeference.errors.keys.include?(:error_radius)).to be_truthy
+          expect(georeference.errors[:error_radius]).to be_present
         end
 
         specify 'can be set to something reasonable' do
           georeference.geographic_item = GeographicItem.first
           georeference.error_radius    = 3
           georeference.valid?
-          expect(georeference.errors.keys.include?(:error_radius)).to be_falsey
+          expect(georeference.errors[:error_radius]).to_not be_present
         end
       end
 
@@ -119,13 +119,13 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
         # 8,800 meters
         georeference.error_depth = 9000
         georeference.valid?
-        expect(georeference.errors.keys.include?(:error_depth)).to be_truthy
+        expect(georeference.errors[:error_depth]).to be_truthy
       end
 
       specify '#error_depth can be set to something reasonable' do
         georeference.error_depth = 3
         georeference.valid?
-        expect(georeference.errors.keys.include?(:error_depth)).to be_falsey
+        expect(georeference.errors[:error_depth]).to_not be_present
       end
 
       context 'allowed combinations of values' do
@@ -163,8 +163,8 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
           g = Georeference::VerbatimData.new(collecting_event:      collecting_event_with_geographic_area,
                                              error_geographic_item: GeographicItem.new(polygon: poly_e1))
           g.valid?
-          expect(g.errors.keys.include?(:error_geographic_item)).to be_truthy
-          expect(g.errors.keys.include?(:collecting_event)).to be_truthy
+          expect(g.errors[:error_geographic_item]).to be_present
+          expect(g.errors[:collecting_event]).to be_present
         end
       end
 
@@ -174,8 +174,8 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
                                            error_radius:          16000,
                                            error_geographic_item: e_g_i)
         g.valid?
-        expect(g.errors.keys.include?(:error_geographic_item)).to be_truthy
-        expect(g.errors.keys.include?(:error_radius)).to be_truthy
+        expect(g.errors[:error_geographic_item]).to be_present
+        expect(g.errors[:error_radius]).to be_present
       end
 
       context 'testing geographic_item/error against geographic area provided through collecting event' do
@@ -215,8 +215,8 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
                                              error_geographic_item: e_g_i)
           g.valid?
 
-          expect(g.errors.keys.include?(:error_geographic_item)).to be_truthy
-          expect(g.errors.keys.include?(:collecting_event)).to be_truthy
+          expect(g.errors[:error_geographic_item]).to be_present
+          expect(g.errors[:collecting_event]).to be_present
         end
 
         specify 'an error is added to #geographic_item if collecting_event.geographic_area.geo_object does ' \
@@ -228,7 +228,7 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
                                              error_geographic_item: e_g_i)
           g.valid?
 
-          expect(g.errors.keys.include?(:geographic_item)).to be_truthy
+          expect(g.errors[:geographic_item]).to be_present
         end
 
         specify 'an error is added to #error_geographic_item if collecting_event.geographic_area.geo_object ' \
@@ -240,7 +240,7 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
                                              error_geographic_item: e_g_i)
           g.valid?
 
-          expect(g.errors.keys.include?(:error_geographic_item)).to be_truthy
+          expect(g.errors[:error_geographic_item]).to be_present
         end
 
         # 2c
@@ -262,7 +262,7 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
                                              error_geographic_item: gi_b2)
           g.valid?
 
-          expect(g.errors.keys.include?(:error_geographic_item)).to be_truthy
+          expect(g.errors[:error_geographic_item]).to be_present
         end
       end
     end

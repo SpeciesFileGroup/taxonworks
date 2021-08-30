@@ -580,6 +580,7 @@ class TaxonNameRelationship < ApplicationRecord
   end
 
   def sv_fix_subject_parent_update
+    res = false
     if TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM.include?(self.type_name)
       obj = self.object_taxon_name
       subj = self.subject_taxon_name
@@ -588,14 +589,14 @@ class TaxonNameRelationship < ApplicationRecord
         subj.rank_class = obj.rank_class
         begin
           TaxonName.transaction do
-            subj.save
-            return true
+            subj.save!
+            res = true
           end
         rescue
         end
       end
     end
-    false
+    res
   end
 
   def subject_invalid_statuses

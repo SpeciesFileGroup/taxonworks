@@ -1,4 +1,5 @@
 # Concept is a chronological history of the collection object
+require 'catalog'
 class Catalog::CollectionObject < ::Catalog
 
   # An arbitrary vocabulary of human-readable event names (tags)

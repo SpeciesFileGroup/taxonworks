@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Set Vue 3 reactive vuex state in comprehensive store, removed unnecesary mutations and getters
 - Updated Ruby gems
 - Bumped database_cleaner
+- Upgraded to ruby 6.1 [#2474]
 - Remove Taxon determination slice from OTU quick forms(Radial object)
 - Set active author tab in New taxon name [#2461]
 - Moved `data-project-id` to project name
@@ -43,6 +44,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2461]: https://github.com/SpeciesFileGroup/taxonworks/issues/2461
 [#2468]: https://github.com/SpeciesFileGroup/taxonworks/issues/2468
 [#2473]: https://github.com/SpeciesFileGroup/taxonworks/issues/2473
+[#2474]: https://github.com/SpeciesFileGroup/taxonworks/pull/2474
 [#2480]: https://github.com/SpeciesFileGroup/taxonworks/issues/2480
 
 ## [0.19.6] - 2021-08-20

@@ -96,7 +96,7 @@ class UsersController < ApplicationController
   # GET /password_reset
   def password_reset
     @user = User.find_by_password_reset_token(Utilities::RandomToken.digest(params[:token]))
-    render 'invalid_token.html.erb' unless @user && @user.password_reset_token_date > 1.day.ago
+    render 'invalid_token' unless @user && @user.password_reset_token_date > 1.day.ago
   end
   
   # PATCH /set_password
@@ -114,7 +114,7 @@ class UsersController < ApplicationController
       flash[:notice] = 'Password successfuly changed.'
       redirect_to root_path
     else
-      render 'password_reset.html.erb'
+      render 'password_reset'
     end
   end
 

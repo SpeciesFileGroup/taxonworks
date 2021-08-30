@@ -6,11 +6,11 @@ describe Citation, type: :model, group: [:annotators, :citations] do
   let(:source) { FactoryBot.create(:valid_source) }
   let(:topic) { FactoryBot.create(:valid_topic) }
 
-  let(:pdf) { fixture_file_upload( Spec::Support::Utilities::Files.generate_pdf(pages: 10) ) }
+  let(:pdf) { Rack::Test::UploadedFile.new( Spec::Support::Utilities::Files.generate_pdf(pages: 10) ) }
 
   context 'page links' do
     let!(:document) { Document.create!(
-      document_file: fixture_file_upload( fixture_file_upload( pdf, 'application/pdf')),
+      document_file: Rack::Test::UploadedFile.new( Rack::Test::UploadedFile.new( pdf, 'application/pdf')),
       initialize_start_page: 10
     ) }
 

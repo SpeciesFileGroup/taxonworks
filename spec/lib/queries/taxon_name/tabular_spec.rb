@@ -16,7 +16,7 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
   let(:observation_matrix) { ObservationMatrix.create!(name: 'Matrix') }
   let(:descriptor1) { Descriptor::Continuous.create!(name: 'descriptor1') }
   let(:descriptor2) { Descriptor::Media.create!(name: 'descriptor2') }
-  let(:image_file) { fixture_file_upload( Spec::Support::Utilities::Files.generate_png, 'image/png') }
+  let(:image_file) { Rack::Test::UploadedFile.new( Spec::Support::Utilities::Files.generate_png, 'image/png') }
 
   let(:query) { Queries::TaxonName::Tabular.new }
 
