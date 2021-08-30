@@ -1,5 +1,5 @@
 <template>
-  <div >
+  <div class="panel content">
     <vue-chart
       style="max-height: 500px"
       type="bar"
