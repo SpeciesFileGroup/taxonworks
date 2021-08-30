@@ -1584,6 +1584,7 @@ class TaxonName < ApplicationRecord
   end
 
   def sv_fix_parent_is_valid_name
+    res = false
     if self.parent.unavailable_or_invalid?
       new_parent = self.parent.get_valid_taxon_name
       if self.parent != new_parent
@@ -1596,13 +1597,13 @@ class TaxonName < ApplicationRecord
         begin
           TaxonName.transaction do
             self.save
-            return true
+            res = true
           end
         rescue
         end
       end
     end
-    false
+    res
   end
 
   def sv_conflicting_subordinate_taxa
@@ -1623,8 +1624,8 @@ class TaxonName < ApplicationRecord
     begin
       TaxonName.transaction do
         self.set_cached
-        return true
       end
+      true
     rescue
       false
     end
