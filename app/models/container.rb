@@ -164,7 +164,7 @@ class Container < ApplicationRecord
         ci_parent     = ContainerItem.create(contained_object: new_container)
 
         objects.each do |o|
-          return false if o.new_record?
+          raise ActiveRecord::RecordInvalid if o.new_record?
           if o.container_item.nil? # contain an uncontained objet
             ContainerItem.create(parent: ci_parent, contained_object: o)
           else # move the object if it's in a container already

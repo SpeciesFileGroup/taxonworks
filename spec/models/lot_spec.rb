@@ -9,7 +9,7 @@ describe Lot, type: :model do
 
     context 'before validation' do
       specify 'total must be > 1' do 
-        expect(lot.errors.keys).to include(:total)
+        expect(lot.errors[:total]).to be_present
       end
     end
   end

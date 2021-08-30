@@ -17,7 +17,7 @@ describe BatchLoad::Import::DWCA, type: :model do
     let(:user) { User.find(1) }
     let(:project) { Project.find(1) }
 
-    let(:upload_file) { fixture_file_upload(file_name) }
+    let(:upload_file) { Rack::Test::UploadedFile.new(file_name) }
     let(:root) { Protonym.find_or_create_by(name:       'Root',
                                             rank_class: 'NomenclaturalRank',
                                             parent_id:  nil,

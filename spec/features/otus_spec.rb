@@ -66,7 +66,7 @@ describe 'Otus', type: :feature do
     context 'batch load', js: false do
       context 'data_attributes for otus' do
         let(:file) { 'spec/files/batch/otu/da_ph_2.tsv' }
-        let(:upload_file) { fixture_file_upload(file) }
+        let(:upload_file) { Rack::Test::UploadedFile.new(file) }
 
         specify 'find right section' do
           visit batch_load_otus_path
