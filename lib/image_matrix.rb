@@ -2,6 +2,12 @@
 #
 # http://localhost:3000/tasks/observation_matrices/image_matrix/0/key?otu_filter=30947|22978|23065
 #
+#
+# @proceps: TODO: remove all `@` when getting the value from @variable in methods.  Only use `@` when setting the variable, like so:
+#  attr_accessor :foo
+#  @foo = 1
+#  foo = 1 ? true : false
+#
 class ImageMatrix
 
   ##### FILTER PARAMETERS #####
