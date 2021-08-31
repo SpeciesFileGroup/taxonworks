@@ -106,7 +106,6 @@ module ObservationMatrices::Export::NexmlHelper
           # cell representation
           opt[:descriptors].each do |d|
 
-            #  byebug if d.id == 37
             x = p.index(d.id) # opt[:descriptors].index(d)  #   .index(d)
             y = q.index(r.row_object.to_global_id)
 
@@ -132,8 +131,6 @@ module ObservationMatrices::Export::NexmlHelper
                 state = "cs_#{o.descriptor_id}_unc_#{ observations.collect{|i| i.character_state_id}.sort.join}"
               end
             end
-
-            #byebug if state == 'cs' # d.id == 37
 
             xml.cell(char: "c#{d.id}", state: state)
           end
