@@ -5,6 +5,8 @@
 #
 # !! TODO: presently does not include verbatim_geolocation_uncertainty translation into radius
 # !! See https://github.com/SpeciesFileGroup/taxonworks/issues/1770
+# @param error_radius
+#   is taken from collecting_event#verbatim_geolocation_uncertainty
 class Georeference::VerbatimData < Georeference
 
   # @param [ActionController::Parameters] params
@@ -63,7 +65,7 @@ class Georeference::VerbatimData < Georeference
   #   See respective georeferences for other implementations.
   #
   def dwc_georeference_attributes
-    { 
+    {
       verbatimLatitude: collecting_event.verbatim_latitude,
       verbatimLongitude: collecting_event.verbatim_longitude,
 
@@ -78,7 +80,7 @@ class Georeference::VerbatimData < Georeference
       georeferenceRemarks: "Derived from a instance of TaxonWorks' Georeference::VerbatimData.",
       georeferenceProtocol: 'A geospatial point translated from verbatim values recorded on human-readable media (e.g. paper specimen label, field notebook).',
       geodeticDatum: nil, # TODO: check
-      georeferenceVerificationStatus: confidences&.collect{|c| c.name}.join('; '), 
+      georeferenceVerificationStatus: confidences&.collect{|c| c.name}.join('; '),
 
       georeferencedBy: creator.name,
       georeferencedDate: created_at

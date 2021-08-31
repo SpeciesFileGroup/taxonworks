@@ -427,7 +427,7 @@ class CollectingEvent < ApplicationRecord
   # @param [Integer] project_id
   # @param [Boolean] include_values true if to include records whicgh already have verbatim lat/longs
   # @return [Scope] of matching collecting events
-  #   TODO: deprecate and move to filter 
+  #   TODO: deprecate and move to filter
   def similar_lat_longs(lat, long, project_id, piece = '', include_values = true)
     sql = '('
     sql += "verbatim_label LIKE '%#{::Utilities::Strings.escape_single_quote(lat)}%'" unless lat.blank?
@@ -444,7 +444,7 @@ class CollectingEvent < ApplicationRecord
   end
 
   # @return [Boolean]
-  #   test for minimal data 
+  #   test for minimal data
   def has_data?
     CollectingEvent.data_attributes.each do |a|
       return true unless self.send(a).blank?
@@ -979,7 +979,7 @@ class CollectingEvent < ApplicationRecord
   def geolocate_uncertainty_in_meters
     if !verbatim_geolocation_uncertainty.blank?
       begin
-        a = verbatim_geolocation_uncertainty.to_unit  
+        a = verbatim_geolocation_uncertainty.to_unit
         return a.convert_to('m').scalar if (a =~ '1 m'.to_unit)
       rescue ArgumentError
       end

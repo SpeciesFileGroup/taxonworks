@@ -69,7 +69,7 @@ class Georeference < ApplicationRecord
   include Shared::Tags
   include Shared::Citations
   include Shared::HasRoles
-  include Shared::Confidences # qualitative, not spatial 
+  include Shared::Confidences # qualitative, not spatial
   include Shared::IsData
 
   attr_accessor :iframe_response # used to pass the geolocate from Tulane through
@@ -153,9 +153,11 @@ class Georeference < ApplicationRecord
   #   a polygon representing the buffer
   def error_radius_buffer_polygon
     return nil if error_radius.nil? || geographic_item.nil?
-    sql_str = ActivRecord::Base.send(:sanitize_sql_array, ['SELECT ST_Buffer(?, ?)',
-                                                           geographic_item.geo_object.to_s,
-                                                           (error_radius / 111_319.444444444)])
+    sql_str = ActivRecord::Base.send(
+      :sanitize_sql_array,
+      ['SELECT ST_Buffer(?, ?)',
+       geographic_item.geo_object.to_s,
+       (error_radius / 111_319.444444444)])
     value = GeographicItem.connection.select_all(sql_str).first['st_buffer']
     Gis::FACTORY.parse_wkb(value)
   end
@@ -202,7 +204,7 @@ class Georeference < ApplicationRecord
 
   def self.point_type
     joins(:geographic_item).where(geographic_items: {type: 'GeographicItem::Point'})
-  end 
+  end
 
   # @param [Array] of parameters in the style of 'params'
   # @return [Scope] of selected georeferences
@@ -521,8 +523,9 @@ class Georeference < ApplicationRecord
 
   # @return [Boolean] true iff error_radius is less than 10 kilometers (6.6 miles).
   def add_error_radius
-    errors.add(:error_radius, ' must be less than 10 kilometers (6.6 miles).') if error_radius.present? &&
-      error_radius > 10_000 # 10 km
+    if error_radius.present? &&   error_radius > 10_000 # 10 km
+      errors.add(:error_radius, ' must be less than 10 kilometers (6.6 miles).') 
+    end
   end
 
   def geographic_item_present_if_error_radius_provided
