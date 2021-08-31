@@ -183,10 +183,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           }.merge(attributes[:georeference])) if collecting_event.verbatim_latitude && collecting_event.verbatim_longitude
         end
 
+        DwcOccurrenceUpsertJob.perform_later(specimen)
+
         self.metadata["imported_objects"] = { collection_object: { id: specimen.id } }
         self.status = "Imported"
-
-        DwcOccurrenceUpsertJob.perform_later(specimen)
       end
     rescue DarwinCore::InvalidData => invalid
       self.status = "Errored"
