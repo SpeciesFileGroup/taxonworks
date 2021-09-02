@@ -167,4 +167,28 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
   end
 
+  context 'when importing a combination that moved genera' do
+    let!(:import_dataset) {
+      ImportDataset::DarwinCore::Checklist.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/combination.tsv'), 'text/plain'),
+        description: 'Testing'
+      ).tap { |i| i.stage }
+    }
+
+    let!(:results) { import_dataset.import(5000, 100).concat(import_dataset.import(5000, 100)).concat(import_dataset.import(5000, 100)) }
+
+    it 'should have four protonyms' do  # Root, Camponotites, Oecophylla, kraussei
+      expect(Protonym.all.length).to eq 4
+    end
+
+    it 'should have one Combination' do
+      expect(Combination.all.length).to eq 1
+    end
+
+    it 'should have a genus taxon name relationship' do
+      expect(Combination.first.genus_taxon_name_relationship).to be_a(TaxonNameRelationship::Combination::Genus)
+    end
+
+  end
+
 end
