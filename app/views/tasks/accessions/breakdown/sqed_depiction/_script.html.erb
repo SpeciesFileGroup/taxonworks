@@ -379,14 +379,13 @@
     }
 
     function get_identifier(ocr_txt) {
-        var regex = /\d{<%= @identifier_prototype.length -%>}/;
-        var v = regex.exec(ocr_txt);
-        if (v == false) {
-            return
-        }
-        else {
-            return v[0];
-        }
+        // var regex = /\d{<%= @identifier_prototype.length -%>}/;
+        const regex = /\w*[^\s\\]\d+/
+        const result = regex.exec(ocr_txt);
+
+        return result
+            ? result[0]
+            : ''
     }
 
     <% if !@result.ocr_cached? -%>

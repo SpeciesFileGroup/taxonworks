@@ -37,6 +37,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Group and formation fields in comprehensive task
 - Changed date label [#2473]
 - Warning message persists when date exists in User facet [#2480]
+- Collection Object TODO List Task does not append right identifier number [#2486]
 
 [#2453]: https://github.com/SpeciesFileGroup/taxonworks/issues/2142
 [#2453]: https://github.com/SpeciesFileGroup/taxonworks/issues/2453
@@ -48,6 +49,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2473]: https://github.com/SpeciesFileGroup/taxonworks/issues/2473
 [#2474]: https://github.com/SpeciesFileGroup/taxonworks/pull/2474
 [#2480]: https://github.com/SpeciesFileGroup/taxonworks/issues/2480
+[#2486]: https://github.com/SpeciesFileGroup/taxonworks/issues/2486
 
 ## [0.19.6] - 2021-08-20
 
