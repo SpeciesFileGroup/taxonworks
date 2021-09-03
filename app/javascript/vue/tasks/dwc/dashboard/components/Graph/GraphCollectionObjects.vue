@@ -35,6 +35,7 @@ watch(versionsResponse, data => {
   const dates = data.map(date => date.split(' ')[0])
 
   const requests = dates.map(date => CollectionObject.where({
+    dwc_indexed: true,
     user_date_start: date,
     user_date_end: dates[0],
     per: 1
