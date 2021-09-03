@@ -1,5 +1,5 @@
 <template>
-  <div class="panel content">
+  <div class="panel content reindex__panel">
     <h2>Rebuild index</h2>
     <div class="field">
       <v-btn
@@ -64,3 +64,8 @@ const runReindex = () => {
 }
 
 </script>
+<style scoped>
+  .reindex__panel {
+    grid-column: 2 / 3
+  }
+</style>

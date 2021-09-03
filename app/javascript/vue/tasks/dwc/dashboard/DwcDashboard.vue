@@ -1,7 +1,7 @@
 <template>
   <h1>DwC Dashboard</h1>
   <div id="dwc-dashboard">
-    <download-panel/>
+    <download-panel />
     <graph-component :metadata="metadata"/>
     <reindex-panel />
   </div>
@@ -10,7 +10,7 @@
 
 import { onBeforeMount, ref } from 'vue'
 import { DwcOcurrence } from 'routes/endpoints'
-import GraphComponent from './components/Graph/Graph.vue'
+import GraphComponent from './components/Graph/GraphPanel.vue'
 import DownloadPanel from './components/Download/DownloadPanel.vue'
 import ReindexPanel from './components/Reindex/ReindexPanel.vue'
 

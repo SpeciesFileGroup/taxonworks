@@ -1,5 +1,5 @@
 <template>
-  <div class="panel content">
+  <div>
     <h2>Index freshness</h2>
     <vue-chart
       style="max-height: 500px"
@@ -12,14 +12,15 @@
 
 import { reactive, watch } from 'vue'
 import { humanize } from 'helpers/strings.js'
+import { randomHue } from 'helpers/colors.js'
 import VueChart from 'components/ui/Chart/index.vue'
 
 const DATASET_LABELS = [
-  { label: 'Never', property: 'never', backgroundColor: 'red' },
-  { label: 'One day',property: 'one_day', backgroundColor: 'blue' },
-  { label: 'One week', property: 'one_week', backgroundColor: 'green' },
-  { label: 'One month', property: 'one_month', backgroundColor: 'purple' },
-  { label: 'One year', property: 'one_year', backgroundColor: 'orange' }
+  { label: 'Never', property: 'never', backgroundColor: randomHue(0) },
+  { label: 'One day',property: 'one_day', backgroundColor: randomHue(1) },
+  { label: 'One week', property: 'one_week', backgroundColor: randomHue(2) },
+  { label: 'One month', property: 'one_month', backgroundColor: randomHue(3) },
+  { label: 'One year', property: 'one_year', backgroundColor: randomHue(4) }
 ]
 
 const props = defineProps({

@@ -1,7 +1,7 @@
 import AjaxCall from 'helpers/ajaxCall'
 
 export const DwcOcurrence = {
-  indexVersion: () => AjaxCall('get', '/dwc_occurrences/dwc/dashboard/index_versions'),
+  indexVersion: () => AjaxCall('get', '/tasks/dwc/dashboard/index_versions'),
 
   metadata: params => AjaxCall('get', '/dwc_occurrences/metadata.json', { params }),
 
