@@ -1,3 +1,4 @@
+import { AlternateValue } from './AlternateValue'
 import { AssertedDistribution } from './AssertedDistribution'
 import { Attribution } from './Attribution'
 import { BiocurationClassification } from './BiocurationClassification'
@@ -60,6 +61,7 @@ import { TypeMaterial } from './TypeMaterial'
 import { User } from './User'
 
 export {
+  AlternateValue,
   AssertedDistribution,
   Attribution,
   BiocurationClassification,
