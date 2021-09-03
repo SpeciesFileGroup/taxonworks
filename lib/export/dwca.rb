@@ -41,8 +41,8 @@ module Export
         total: record_scope.count,
         start_time: Time.now,
         sample: [
-          record_scope.order(id: :ASC).limit(1).first.to_global_id.to_s,
-          record_scope.order(id: :DESC).limit(1).first.to_global_id.to_s
+          record_scope.order(id: :ASC).limit(1).first&.to_global_id.to_s,
+          record_scope.order(id: :DESC).limit(1).first&.to_global_id.to_s
         ]
       }
 
