@@ -2,15 +2,15 @@
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
 #
-# This file is the source Rails uses to define your schema when running `rails
-# db:schema:load`. When creating a new database, `rails db:schema:load` tends to
+# This file is the source Rails uses to define your schema when running `bin/rails
+# db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
 # be faster and is potentially less error prone than running all of your
 # migrations from scratch. Old migrations may fail to apply correctly if those
 # migrations use external dependencies or application code.
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_07_27_180015) do
+ActiveRecord::Schema.define(version: 2021_09_03_181201) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -618,6 +618,7 @@ ActiveRecord::Schema.define(version: 2021_07_27_180015) do
     t.integer "updated_by_id", null: false
     t.bigint "project_id"
     t.boolean "is_public"
+    t.string "type"
     t.index ["created_by_id"], name: "index_downloads_on_created_by_id"
     t.index ["filename"], name: "index_downloads_on_filename"
     t.index ["project_id"], name: "index_downloads_on_project_id"
@@ -697,7 +698,7 @@ ActiveRecord::Schema.define(version: 2021_07_27_180015) do
     t.string "identificationRemarks"
     t.string "identificationVerificationStatus"
     t.string "identifiedBy"
-    t.string "individualCount"
+    t.integer "individualCount"
     t.string "informationWithheld"
     t.string "infraspecificEpithet"
     t.string "institutionCode"
@@ -802,6 +803,8 @@ ActiveRecord::Schema.define(version: 2021_07_27_180015) do
     t.integer "project_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string "identifiedByID"
+    t.string "recordedByID"
     t.index ["project_id"], name: "index_dwc_occurrences_on_project_id"
   end
 
@@ -906,6 +909,7 @@ ActiveRecord::Schema.define(version: 2021_07_27_180015) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.string "type", null: false
+    t.index "st_centroid(\nCASE type\n    WHEN 'GeographicItem::MultiPolygon'::text THEN (multi_polygon)::geometry\n    WHEN 'GeographicItem::Point'::text THEN (point)::geometry\n    WHEN 'GeographicItem::LineString'::text THEN (line_string)::geometry\n    WHEN 'GeographicItem::Polygon'::text THEN (polygon)::geometry\n    WHEN 'GeographicItem::MultiLineString'::text THEN (multi_line_string)::geometry\n    WHEN 'GeographicItem::MultiPoint'::text THEN (multi_point)::geometry\n    WHEN 'GeographicItem::GeometryCollection'::text THEN (geometry_collection)::geometry\n    ELSE NULL::geometry\nEND)", name: "idx_centroid", using: :gist
     t.index ["created_by_id"], name: "index_geographic_items_on_created_by_id"
     t.index ["geometry_collection"], name: "geometry_collection_gix", using: :gist
     t.index ["line_string"], name: "line_string_gix", using: :gist
@@ -1886,7 +1890,9 @@ ActiveRecord::Schema.define(version: 2021_07_27_180015) do
     t.datetime "last_seen_at"
     t.integer "time_active", default: 0
     t.json "preferences", default: {}
+    t.bigint "person_id"
     t.index ["created_by_id"], name: "index_users_on_created_by_id"
+    t.index ["person_id"], name: "index_users_on_person_id"
     t.index ["remember_token"], name: "index_users_on_remember_token"
     t.index ["updated_by_id"], name: "index_users_on_updated_by_id"
   end
@@ -2229,6 +2235,7 @@ ActiveRecord::Schema.define(version: 2021_07_27_180015) do
   add_foreign_key "type_materials", "taxon_names", column: "protonym_id", name: "type_materials_protonym_id_fkey"
   add_foreign_key "type_materials", "users", column: "created_by_id", name: "type_materials_created_by_id_fkey"
   add_foreign_key "type_materials", "users", column: "updated_by_id", name: "type_materials_updated_by_id_fkey"
+  add_foreign_key "users", "people"
   add_foreign_key "users", "users", column: "created_by_id", name: "users_created_by_id_fkey"
   add_foreign_key "users", "users", column: "updated_by_id", name: "users_updated_by_id_fkey"
 end

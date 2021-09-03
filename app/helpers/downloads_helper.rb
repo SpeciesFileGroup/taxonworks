@@ -6,7 +6,7 @@ module DownloadsHelper
 
   def download_link(download)
     return nil if download.nil?
-    link_to(download_tag(download), download)
+    link_to(download_tag(download), download.metamorphosize)
   end
 
   def download_file_api_url(download)

@@ -69,7 +69,7 @@ module Export
       )
       name = "coldp_otu_id_#{otu.id}_#{DateTime.now}.zip"
 
-      ::Download.create!(
+      ::Download::Coldp.create!(
         name: "ColDP Download for #{otu.otu_name} on #{Time.now}.",
         description: 'A zip file containing CoLDP formatted data.',
         filename: name,
@@ -80,7 +80,7 @@ module Export
     end
 
     def self.download_async(otu, request = nil, prefer_unlabelled_otus: true)
-      download = ::Download.create!(
+      download = ::Download::Coldp.create!(
         name: "ColDP Download for #{otu.otu_name} on #{Time.now}.",
         description: 'A zip file containing CoLDP formatted data.',
         filename: "coldp_otu_id_#{otu.id}_#{DateTime.now}.zip",
