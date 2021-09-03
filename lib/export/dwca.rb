@@ -37,25 +37,25 @@ module Export
     # @return hash of global_ids
     #   The last object in the recordset has been sent on response
     def self.build_index_async(klass, record_scope)
-      byebug
+      a = record_scope.order(id: :ASC).limit(1).first&.to_global_id&.to_s 
+      b = record_scope.order(id: :DESC).limit(1).first&.to_global_id&.to_s 
 
-      a = record_scope.order(id: :ASC).limit(1).first&.to_global_id&.to_s, 
-      b = record_scope.order(id: :ASC).limit(1).first&.to_global_id&.to_s, 
+      t = record_scope.count
 
       metadata = {
-        total: record_scope.count,
+        total: t,
         start_time: Time.now,
         sample: [a, b].compact
       }
 
 # CollectionObject.select('*').from('(select id, ROW_NUMBER() OVER (ORDER BY id ASC) rn from collection_objects) a').where('a.rn % ((SELECT COUNT(*) FROM collection_objects ) / 10) = 0').order(id: :asc).limit(8)
 
-      if b
+      if b && (t > 2)
 
         ids = klass
           .select('*')
-          .from("(select id, ROW_NUMBER() OVER (ORDER BY id ASC) rn from (#{record_scope.to_sql}) ) a")
-          .where("a.rn % ((SELECT COUNT(*) FROM (#{record_scope.to_sql})) / 10) = 0")
+          .from("(select id, ROW_NUMBER() OVER (ORDER BY id ASC) rn from (#{record_scope.to_sql}) b ) a")
+          .where("a.rn % ((SELECT COUNT(*) FROM (#{record_scope.to_sql}) c) / 10) = 0")
           .order(id: :asc)
           .limit(8)
           .collect{|o| o.to_global_id.to_s}
