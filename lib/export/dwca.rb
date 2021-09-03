@@ -37,26 +37,33 @@ module Export
     # @return hash of global_ids
     #   The last object in the recordset has been sent on response
     def self.build_index_async(klass, record_scope)
+      byebug
+
+      a = record_scope.order(id: :ASC).limit(1).first&.to_global_id&.to_s, 
+      b = record_scope.order(id: :ASC).limit(1).first&.to_global_id&.to_s, 
+
       metadata = {
         total: record_scope.count,
         start_time: Time.now,
-        sample: [
-          record_scope.order(id: :ASC).limit(1).first&.to_global_id.to_s,
-          record_scope.order(id: :DESC).limit(1).first&.to_global_id.to_s
-        ]
+        sample: [a, b].compact
       }
 
 # CollectionObject.select('*').from('(select id, ROW_NUMBER() OVER (ORDER BY id ASC) rn from collection_objects) a').where('a.rn % ((SELECT COUNT(*) FROM collection_objects ) / 10) = 0').order(id: :asc).limit(8)
 
-      ids = klass
-        .select('*')
-        .from("(select id, ROW_NUMBER() OVER (ORDER BY id ASC) rn from #{klass.table_name}) a")
-        .where("a.rn % ((SELECT COUNT(*) FROM #{klass.table_name}) / 10) = 0")
-        .order(id: :asc)
-        .limit(8)
-        .collect{|o| o.to_global_id.to_s}
+      if b
 
-      metadata[:sample].insert(1, *ids)
+        ids = klass
+          .select('*')
+          .from("(select id, ROW_NUMBER() OVER (ORDER BY id ASC) rn from (#{record_scope.to_sql}) ) a")
+          .where("a.rn % ((SELECT COUNT(*) FROM (#{record_scope.to_sql})) / 10) = 0")
+          .order(id: :asc)
+          .limit(8)
+          .collect{|o| o.to_global_id.to_s}
+
+        metadata[:sample].insert(1, *ids)
+
+      end
+
       ::DwcaCreateIndexJob.perform_later(klass.to_s, sql_scope: record_scope.order(:id).to_sql)
       metadata
     end
