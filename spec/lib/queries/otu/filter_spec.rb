@@ -82,6 +82,11 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     expect(q.all.map(&:id)).to contain_exactly(o1.id)
   end
 
+  specify 'Queries::BiologicalAssociation::Filter integration' do
+    a = FactoryBot.create(:valid_biological_association, biological_association_subject: o1)
+    q.biological_association_queryy.otu_id = [o1.id]
+    expect(q.all.map(&:id)).to contain_exactly(o1.id)
+  end
 
 =begin
   context 'no geo world:' do

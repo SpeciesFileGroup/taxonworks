@@ -18,7 +18,6 @@ module Queries
 
     # include Queries::Concerns::Citations
 
-
     # matching some nomenclature query
     # taxon_name_params
    
@@ -139,13 +138,12 @@ module Queries
         params.select{|a,b| collecting_event_params.include?(a.to_s) }
       )
       
-      # TODO: set collecting event params 
+      # TODO: set asserted distribution params 
       @asserted_distribution_query = Queries::AssertedDistribution::Filter.new(
         params.select{|a,b| asserted_distribution_params.include?(a.to_s) }
       )
-
  
-      # TODO: set collecting event params 
+      # TODO: set biological association params 
       @biological_association_query = Queries::BiologicalAssociation::Filter.new(
         params.select{|a,b| biological_association_params.include?(a.to_s) }
       )
