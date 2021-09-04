@@ -20,12 +20,15 @@
         {{ label }}
       </v-btn>
     </div>
+    <progress-bar :reindex="reindexRequest"/>
   </div>
 </template>
 <script setup>
 
+import { ref } from 'vue'
 import { DwcOcurrence } from 'routes/endpoints'
 import VBtn from 'components/ui/VBtn/index.vue'
+import ProgressBar from '../ProgressBar.vue'
 
 const reindex = [
   {
@@ -41,12 +44,12 @@ const reindex = [
     value: 10000
   }
 ]
-
+const reindexRequest = ref({})
 const props = defineProps({
   params: {
     type: Object,
     default: () => ({
-      geographic_area_id: [49876546]
+      geographic_area_id: [12]
     })
   }
 })
@@ -59,8 +62,8 @@ const runUnindexed = (per) => {
   })
 }
 
-const runReindex = () => {
-  DwcOcurrence.createIndex({ ...props.params })
+const runReindex = async () => {
+  reindexRequest.value = (await DwcOcurrence.createIndex({ ...props.params })).body
 }
 
 </script>

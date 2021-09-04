@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Index collection object</h2>
+    <h2>Index versions</h2>
     <vue-chart
       style="max-height: 500px"
       type="bar"
@@ -33,22 +33,21 @@ const chartState = reactive({
 
 watch(versionsResponse, data => {
   const dates = data.map(date => date.split(' ')[0])
-
-  const requests = dates.map(date => CollectionObject.where({
+  const coRequests = dates.map(date => CollectionObject.where({
     dwc_indexed: true,
     user_date_start: date,
     user_date_end: dates[0],
     per: 1
   }))
 
-  Promise.all(requests).then(responses => {
+  Promise.all(coRequests).then(responses => {
     const counts = responses.map(r => Number(r.headers['pagination-total']))
 
     chartState.data = {
       labels: dates,
       datasets: counts.map((count, index) =>
         ({
-          label: dates[index],
+          label: 'Collection object',
           data: [count],
           backgroundColor: randomHue(index + 1)
         })
