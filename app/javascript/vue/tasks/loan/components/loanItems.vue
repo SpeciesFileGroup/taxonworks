@@ -26,7 +26,6 @@ import CreateObject from './CreateObject'
 import CreateTag from './CreateTag'
 import CreatePinboard from './CreatePinboard'
 import ExpandComponent from './expand.vue'
-import SpinnerComponent from 'components/spinner.vue'
 import SwitchComponent from 'components/switch'
 import BlockLayout from 'components/layout/BlockLayout.vue'
 
@@ -42,7 +41,6 @@ export default {
     CreateTag,
     CreatePinboard,
     ExpandComponent,
-    SpinnerComponent,
     SwitchComponent,
     BlockLayout
   },
@@ -51,6 +49,7 @@ export default {
     loan () {
       return this.$store.getters[GetterNames.GetLoan]
     },
+
     componentView () {
       return `Create${this.view}`
     }

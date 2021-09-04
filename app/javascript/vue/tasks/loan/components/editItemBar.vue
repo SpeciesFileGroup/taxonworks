@@ -60,13 +60,11 @@ import { GetterNames } from '../store/getters/getters'
 import statusList from '../const/status.js'
 import expand from './expand.vue'
 import dateDetermination from './dateDetermination.vue'
-import spinner from 'components/spinner.vue'
 import BlockLayout from 'components/layout/BlockLayout.vue'
 
 export default {
   components: {
     expand,
-    spinner,
     dateDetermination,
     BlockLayout
   },
@@ -74,10 +72,6 @@ export default {
   computed: {
     list () {
       return this.$store.getters[GetterNames.GetEditLoanItems]
-    },
-
-    loan () {
-      return this.$store.getters[GetterNames.GetLoan]
     }
   },
 

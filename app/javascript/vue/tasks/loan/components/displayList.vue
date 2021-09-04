@@ -25,11 +25,6 @@
     <template
       #body
       v-if="displayBody">
-      <spinner
-        :show-spinner="false"
-        :resize="false"
-        :show-legend="false"
-        v-if="!loan.id"/>
       <table class="vue-table">
         <thead>
           <tr>
@@ -67,7 +62,6 @@ import { MutationNames } from '../store/mutations/mutations'
 import ActionNames from '../store/actions/actionNames'
 
 import BlockLayout from 'components/layout/BlockLayout.vue'
-import Spinner from 'components/spinner.vue'
 import Expand from './expand.vue'
 import RowItem from './table/row'
 
@@ -75,7 +69,6 @@ export default {
   components: {
     BlockLayout,
     RowItem,
-    Spinner,
     Expand
   },
 
@@ -83,9 +76,7 @@ export default {
     list () {
       return this.$store.getters[GetterNames.GetLoanItems]
     },
-    loan () {
-      return this.$store.getters[GetterNames.GetLoan]
-    },
+
     editLoanItems () {
       return this.$store.getters[GetterNames.GetEditLoanItems]
     }
