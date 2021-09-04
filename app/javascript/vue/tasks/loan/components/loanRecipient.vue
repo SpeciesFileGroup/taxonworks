@@ -37,7 +37,7 @@
           <button
             @click="deleteLoan()"
             type="button"
-            class="normal-input button button-delete align-end">Delete
+            class="normal-input button button-delete">Delete
           </button>
         </template>
       </modal>

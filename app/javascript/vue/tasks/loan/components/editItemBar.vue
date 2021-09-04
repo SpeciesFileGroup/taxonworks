@@ -9,11 +9,6 @@
     <template
       #body
       v-if="displayBody">
-      <spinner
-        :show-spinner="false"
-        :resize="false"
-        :show-legend="false"
-        v-if="!loan.id"/>
       <div id="loan-update-items">
         <div>
           <span><b>Loan item information</b></span>
