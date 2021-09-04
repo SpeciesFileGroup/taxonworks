@@ -1,38 +1,39 @@
 <template>
-  <div class="panel loan-box">
-    <spinner
-      :show-spinner="false"
-      :resize="false"
-      :show-legend="false"
-      v-if="!loan.id"/>
-    <div class="header flex-separate middle">
+  <block-layout>
+    <template #header>
       <h3>Loan items</h3>
+    </template>
+    <template #options>
       <div class="horizontal-left-content">
-        <template>
-          <button
-            class="button normal-input separate-right"
-            v-if="editLoanItems.length"
-            type="button"
-            @click="unselectAll()">Unselect all
-          </button>
-          <button
-            class="button normal-input separate-right"
-            v-else
-            type="button"
-            @click="selectAll()">Select all
-          </button>
-        </template>
+        <button
+          class="button normal-input separate-right button-default"
+          v-if="editLoanItems.length"
+          type="button"
+          @click="unselectAll()">Unselect all
+        </button>
+        <button
+          class="button normal-input separate-right button-default"
+          v-else
+          type="button"
+          @click="selectAll()">Select all
+        </button>
         <expand
           class="separate-left"
           v-model="displayBody"/>
       </div>
-    </div>
-    <div
-      class="body"
+    </template>
+    <template
+      #body
       v-if="displayBody">
+      <spinner
+        :show-spinner="false"
+        :resize="false"
+        :show-legend="false"
+        v-if="!loan.id"/>
       <table class="vue-table">
         <thead>
           <tr>
+            <th />
             <th>Loan item</th>
             <th>Date returned</th>
             <th>Collection object status</th>
@@ -55,8 +56,8 @@
           />
         </transition-group>
       </table>
-    </div>
-  </div>
+    </template>
+  </block-layout>
 </template>
 
 <script>
@@ -65,12 +66,14 @@ import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import ActionNames from '../store/actions/actionNames'
 
+import BlockLayout from 'components/layout/BlockLayout.vue'
 import Spinner from 'components/spinner.vue'
 import Expand from './expand.vue'
 import RowItem from './table/row'
 
 export default {
   components: {
+    BlockLayout,
     RowItem,
     Spinner,
     Expand
@@ -120,41 +123,3 @@ export default {
   }
 }
 </script>
-<style lang="scss" scoped>
-  .vue-table-container {
-    overflow-y: scroll;
-    padding: 0px;
-    position: relative;
-  }
-
-  .vue-table {
-    width: 100%;
-    .vue-table-options {
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-end;
-    }
-    tr {
-      border: 1px solid #F5F5F5;
-      cursor: default;
-    }
-
-  }
-
-  .list-complete-item {
-    justify-content: space-between;
-    transition: all 0.5s, opacity 0.2s;
-  }
-
-  .list-complete-enter, .list-complete-leave-to {
-    opacity: 0;
-    font-size: 0px;
-    border: none;
-    transform: scale(0.0);
-  }
-
-  .list-complete-leave-active {
-    width: 100%;
-    position: absolute;
-  }
-</style>

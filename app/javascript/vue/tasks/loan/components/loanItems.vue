@@ -1,28 +1,22 @@
 <template>
-  <div class="panel loan-box">
-    <spinner-component
-      v-if="!loan.id"
-      :show-legend="false"
-      :show-spinner="false"
-      :resize="false"
-    />
-    <div class="header flex-separate middle">
+  <block-layout>
+    <template #header>
       <h3>Add loan items</h3>
+    </template>
+    <template #options>
       <expand-component v-model="displayBody" />
-    </div>
-    <div
-      class="body"
-      v-if="displayBody"
-    >
-      <SwitchComponent
-        :options="typeList"
-        v-model="view"/>
-
-      <component
-        :is="componentView"
-        :loan="loan"/>
-    </div>
-  </div>
+    </template>
+    <template #body>
+      <template v-if="displayBody">
+        <SwitchComponent
+          :options="typeList"
+          v-model="view"/>
+        <component
+          :is="componentView"
+          :loan="loan"/>
+      </template>
+    </template>
+  </block-layout>
 </template>
 
 <script>
@@ -34,6 +28,7 @@ import CreatePinboard from './CreatePinboard'
 import ExpandComponent from './expand.vue'
 import SpinnerComponent from 'components/spinner.vue'
 import SwitchComponent from 'components/switch'
+import BlockLayout from 'components/layout/BlockLayout.vue'
 
 const typeList = [
   'Object',
@@ -48,8 +43,10 @@ export default {
     CreatePinboard,
     ExpandComponent,
     SpinnerComponent,
-    SwitchComponent
+    SwitchComponent,
+    BlockLayout
   },
+
   computed: {
     loan () {
       return this.$store.getters[GetterNames.GetLoan]
@@ -58,6 +55,7 @@ export default {
       return `Create${this.view}`
     }
   },
+
   data () {
     return {
       maxItemsWarning: 100,
@@ -74,11 +72,7 @@ export default {
       display: flex;
       align-items: center;
     }
-    .switch-radio {
-      label {
-        width: 100px;
-      }
-    }
+
     .tag_list {
       margin-top: 0.5em;
       align-items: center;
