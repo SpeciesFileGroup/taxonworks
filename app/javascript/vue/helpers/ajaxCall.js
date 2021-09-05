@@ -21,7 +21,22 @@ const axios = Axios.create({
 const ajaxCall = (type, url, data = {}, config = {}) => {
   const cancelFunction = config.cancelRequest || data.cancelRequest
   const requestId = config.requestId || data.requestId
-  axios.defaults.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+  const CSRFToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+  const defaultHeaders = { 'X-CSRF-Token': CSRFToken }
+
+  if (
+    type === REQUEST_TYPE.Get ||
+    type === REQUEST_TYPE.Delete) {
+    data = {
+      headers: defaultHeaders,
+      ...data
+    }
+  } else {
+    config = {
+      headers: defaultHeaders,
+      ...config
+    }
+  }
 
   if (requestId) {
     const source = CancelToken.source()

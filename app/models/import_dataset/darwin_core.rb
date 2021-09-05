@@ -211,7 +211,7 @@ class ImportDataset::DarwinCore < ImportDataset
     if id.nil? || (@core_record_identifier_namespace ||= Namespace.find_by(id: id)).nil?
       random = SecureRandom.hex(4)
       project_name = Project.find(Current.project_id).name
-      ap self.class
+
       namespace_name = "#{core_records_identifier_name} namespace for \"#{description}\" dataset in \"#{project_name}\" project [#{random}]"
 
       @core_record_identifier_namespace = Namespace.create!(

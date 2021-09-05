@@ -101,15 +101,6 @@ scope :tasks do
     end
   end
 
-  scope :import do
-    scope :dwca do
-      scope :psu_import, controller: 'tasks/import/dwca/psu_import' do
-        get 'index', as: 'psu_import_task'
-        post 'do_psu_import', as: 'do_psu_import'
-      end
-    end
-  end
-
   scope :labels do
     scope :print_labels, controller: 'tasks/labels/print_labels' do
       get '/',  as: 'print_labels_task', action: :index

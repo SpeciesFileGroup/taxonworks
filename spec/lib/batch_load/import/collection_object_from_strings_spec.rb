@@ -7,7 +7,7 @@ describe BatchLoad::Import::CollectionObjects::BufferedInterpreter, type: :model
   let(:source) { FactoryBot.create(:valid_source_verbatim) }
   let(:otu) { FactoryBot.create(:valid_otu) }
 
-  let(:upload_file) { fixture_file_upload(file_name) }
+  let(:upload_file) { Rack::Test::UploadedFile.new(file_name) }
   let(:import) { BatchLoad::Import::CollectionObjects::BufferedInterpreter.new(**params)
   }
 

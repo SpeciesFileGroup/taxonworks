@@ -9,19 +9,22 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Add
 
+- Export Observation::Media depictions as proxies for Otu depictions in NeXML [#2142]
 - Protonym `verbatim_author` parens should be properly closed when present [#2453]
 - Protonym `verbatim_author` can not contain digits (like years) [#2452]
 - Generic date field component [#2451]
 - New taxon determination component
 
 ### Changed
-
+- NeXML image URLs use shortened URLs
 - Reorder date fields in comprehensive, extract and new collecting event tasks [#2450]
 - Set Vue 3 reactive vuex state in comprehensive store, removed unnecesary mutations and getters
 - Updated Ruby gems
 - Bumped database_cleaner
+- Upgraded to ruby 6.1 [#2474]
 - Remove Taxon determination slice from OTU quick forms(Radial object)
 - Set active author tab in New taxon name [#2461]
+- Moved `data-project-id` to project name
 
 ### Fixed
 
@@ -29,12 +32,24 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Trip code fields are empty after save.
 - Confidence button
 - spring not working on MacOS. Now RGeo/Proj is warmed up at initialization time
+- Combination preview label in New combination task
+- Smart selector is not refreshing after save [#2468]
+- Group and formation fields in comprehensive task
+- Changed date label [#2473]
+- Warning message persists when date exists in User facet [#2480]
+- Collection Object TODO List Task does not append right identifier number [#2486]
 
+[#2453]: https://github.com/SpeciesFileGroup/taxonworks/issues/2142
 [#2453]: https://github.com/SpeciesFileGroup/taxonworks/issues/2453
 [#2452]: https://github.com/SpeciesFileGroup/taxonworks/issues/2452
 [#2450]: https://github.com/SpeciesFileGroup/taxonworks/pull/2450
 [#2451]: https://github.com/SpeciesFileGroup/taxonworks/issues/2451
 [#2461]: https://github.com/SpeciesFileGroup/taxonworks/issues/2461
+[#2468]: https://github.com/SpeciesFileGroup/taxonworks/issues/2468
+[#2473]: https://github.com/SpeciesFileGroup/taxonworks/issues/2473
+[#2474]: https://github.com/SpeciesFileGroup/taxonworks/pull/2474
+[#2480]: https://github.com/SpeciesFileGroup/taxonworks/issues/2480
+[#2486]: https://github.com/SpeciesFileGroup/taxonworks/issues/2486
 
 ## [0.19.6] - 2021-08-20
 

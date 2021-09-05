@@ -1265,11 +1265,11 @@ module Protonym::SoftValidationExtensions
             t.save
             t.soft_validate
             t.fix_soft_validations
-            return true
           end
         rescue ActiveRecord::RecordInvalid # naked rescue is very bad
           return false
         end
+        return true
       end
     end
 

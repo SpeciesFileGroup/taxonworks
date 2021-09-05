@@ -78,11 +78,10 @@ import { GeographicArea } from 'routes/endpoints'
 
 import convertDMS from 'helpers/parseDMS.js'
 import ModalComponent from 'components/ui/Modal'
-import refreshSmartSelector from '../../../shared/refreshSmartSelector'
 import extendCE from '../../mixins/extendCE.js'
 
 export default {
-  mixins: [refreshSmartSelector, extendCE],
+  mixins: [extendCE],
 
   components: {
     SmartSelector,

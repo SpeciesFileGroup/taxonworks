@@ -33,7 +33,7 @@ RSpec.describe DepictionsController, type: :controller, group: :images do
     {
       depiction_object_type: 'CollectionObject',
       depiction_object_id: specimen.id,
-      image_attributes: { image_file: fixture_file_upload((Rails.root + 'spec/files/images/tiny.png'), 'image/png')}
+      image_attributes: { image_file: Rack::Test::UploadedFile.new((Rails.root + 'spec/files/images/tiny.png'), 'image/png')}
     }
   }
 
@@ -41,7 +41,7 @@ RSpec.describe DepictionsController, type: :controller, group: :images do
     {
       depiction_object_type: 'CollectionObject',
       depiction_object_id: nil,
-      image_attributes: { image_file: fixture_file_upload((Rails.root + 'spec/files/images/tiny.png'), 'image/png')}
+      image_attributes: { image_file: Rack::Test::UploadedFile.new((Rails.root + 'spec/files/images/tiny.png'), 'image/png')}
     }
   }
 

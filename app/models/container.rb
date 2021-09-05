@@ -84,12 +84,12 @@ class Container < ApplicationRecord
 
   # @return [Array] of CollectionObject#id of this container's contents (no recursion)
   def collection_object_ids
-    container_items.containing_collection_objects.pluck(&:id)
+    container_items.containing_collection_objects.pluck(:id)
   end
 
   # @return [Array] of CollectionObject#id of this container's contents (recursive)
   def all_collection_object_ids
-    # all_container_items.containing_collection_objects.pluck(&:id)
+    # all_container_items.containing_collection_objects.pluck(:id)
     collection_objects.map(&:id)
   end
 
@@ -164,7 +164,7 @@ class Container < ApplicationRecord
         ci_parent     = ContainerItem.create(contained_object: new_container)
 
         objects.each do |o|
-          return false if o.new_record?
+          raise ActiveRecord::RecordInvalid if o.new_record?
           if o.container_item.nil? # contain an uncontained objet
             ContainerItem.create(parent: ci_parent, contained_object: o)
           else # move the object if it's in a container already

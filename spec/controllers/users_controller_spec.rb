@@ -265,7 +265,7 @@ describe UsersController, type: :controller do
     context 'when invalid token' do
       it 'renders invalid token template' do
         get :password_reset, params: {token: 'INVALID'}
-        expect(response).to render_template('users/invalid_token.html.erb')
+        expect(response).to render_template('users/invalid_token')
       end
     end
     
@@ -281,7 +281,7 @@ describe UsersController, type: :controller do
       it 'renders invalid token template' do
         Timecop.travel(1.day.from_now) do
           get :password_reset, params: {token: token}
-          expect(response).to render_template('users/invalid_token.html.erb')
+          expect(response).to render_template('users/invalid_token')
         end
       end
     end

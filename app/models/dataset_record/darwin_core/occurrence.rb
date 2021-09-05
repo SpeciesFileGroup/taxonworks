@@ -53,7 +53,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
   def import(dwc_data_attributes = {})
     begin
-      DatasetRecord.transaction do
+      DatasetRecord.transaction(requires_new: true) do
         self.metadata.delete("error_data")
 
         names, origins = parse_taxon_class
@@ -183,10 +183,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           }.merge(attributes[:georeference])) if collecting_event.verbatim_latitude && collecting_event.verbatim_longitude
         end
 
+        DwcOccurrenceUpsertJob.perform_later(specimen)
+
         self.metadata["imported_objects"] = { collection_object: { id: specimen.id } }
         self.status = "Imported"
-
-        DwcOccurrenceUpsertJob.perform_later(specimen)
       end
     rescue DarwinCore::InvalidData => invalid
       self.status = "Errored"
