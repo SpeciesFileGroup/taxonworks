@@ -1,9 +1,9 @@
 require 'rails_helper'
 
-describe DwcOccurrence, type: :model, group: :darwin_core do
+describe DwcOccurrence, type: :model, group: [:darwin_core] do
 
   # This now creates a dwc_occurrence by default
-  let(:collection_object) { FactoryBot.create(:valid_specimen) }
+  let(:collection_object) { FactoryBot.create(:valid_specimen, no_dwc_occurrence: false) }
   let(:collecting_event) { FactoryBot.create(:valid_collecting_event) }
 
   let(:dwc_occurrence) { DwcOccurrence.new }
@@ -15,7 +15,10 @@ describe DwcOccurrence, type: :model, group: :darwin_core do
   specify 'collection_object filter merge' do
     a = Queries::CollectionObject::Filter.new(on_loan: 'true').all
     FactoryBot.create(:valid_loan_item, loan_item_object: collection_object)
-    c = FactoryBot.create(:valid_specimen)
+
+    # A canary, shouldn't be present since not on loan
+    c = FactoryBot.create(:valid_specimen, no_dwc_occurrence: false)
+    
     b = DwcOccurrence.collection_objects_join.merge(a)
     expect(b.all.count).to eq(1)
   end
