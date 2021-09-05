@@ -25,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Remove Taxon determination slice from OTU quick forms(Radial object)
 - Set active author tab in New taxon name [#2461]
 - Moved `data-project-id` to project name
+- Moved collection object soft validations in comprehensive task [#2491]
 
 ### Fixed
 
@@ -53,6 +54,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2474]: https://github.com/SpeciesFileGroup/taxonworks/pull/2474
 [#2480]: https://github.com/SpeciesFileGroup/taxonworks/issues/2480
 [#2486]: https://github.com/SpeciesFileGroup/taxonworks/issues/2486
+[#2491]: https://github.com/SpeciesFileGroup/taxonworks/issues/2491
 [#2492]: https://github.com/SpeciesFileGroup/taxonworks/issues/2492
 [#2493]: https://github.com/SpeciesFileGroup/taxonworks/issues/2493
 [#2495]: https://github.com/SpeciesFileGroup/taxonworks/issues/2495

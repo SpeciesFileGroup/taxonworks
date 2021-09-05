@@ -57,7 +57,9 @@ export default {
     },
 
     softValidations () {
-      return this.$store.getters[GetterNames.GetSoftValidations]
+      const { CollectingEvent } = { ...this.$store.getters[GetterNames.GetSoftValidations] }
+
+      return CollectingEvent ? { CollectingEvent } : {}
     }
   },
 
