@@ -25,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Remove Taxon determination slice from OTU quick forms(Radial object)
 - Set active author tab in New taxon name [#2461]
 - Moved `data-project-id` to project name
+- Moved collection object soft validations in comprehensive task [#2491]
 
 ### Fixed
 
@@ -38,6 +39,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Changed date label [#2473]
 - Warning message persists when date exists in User facet [#2480]
 - Collection Object TODO List Task does not append right identifier number [#2486]
+- Loan item checkboxes reset when loan items "Updated" [#2492]
+- Loan item "select/deselect all" buttons missing after vue 3 migration [#2493]
+- Checkbox unbinding is not synced with update in Loan task [#2495]
 
 [#2453]: https://github.com/SpeciesFileGroup/taxonworks/issues/2142
 [#2453]: https://github.com/SpeciesFileGroup/taxonworks/issues/2453
@@ -50,6 +54,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2474]: https://github.com/SpeciesFileGroup/taxonworks/pull/2474
 [#2480]: https://github.com/SpeciesFileGroup/taxonworks/issues/2480
 [#2486]: https://github.com/SpeciesFileGroup/taxonworks/issues/2486
+[#2491]: https://github.com/SpeciesFileGroup/taxonworks/issues/2491
+[#2492]: https://github.com/SpeciesFileGroup/taxonworks/issues/2492
+[#2493]: https://github.com/SpeciesFileGroup/taxonworks/issues/2493
+[#2495]: https://github.com/SpeciesFileGroup/taxonworks/issues/2495
 
 ## [0.19.6] - 2021-08-20
 

@@ -19,20 +19,23 @@
               :autocomplete="false"
               :otu-picker="true"
               target="TaxonDetermination"
+              v-model="otuSelected"
               @selected="setOtu"
             />
             <lock-component
               class="margin-small-left"
               v-model="locked.taxon_determination.otu_id"/>
           </div>
-          <div
-            v-show="otuSelected"
-            class="horizontal-left-content">
-            <p v-html="otuSelected"/>
-            <span
-              class="circle-button button-default btn-undo"
-              @click="taxonDetermination.otu_id = undefined; otuSelected = undefined"/>
-          </div>
+          <template v-if="otuSelected">
+            <hr>
+            <div
+              class="horizontal-left-content">
+              <p v-html="otuSelected.object_tag"/>
+              <span
+                class="circle-button button-default btn-undo"
+                @click="taxonDetermination.otu_id = undefined; otuSelected = undefined"/>
+            </div>
+          </template>
         </fieldset>
         <fieldset>
           <legend>Determiner</legend>
@@ -241,7 +244,7 @@ export default {
     otuId (newVal) {
       if (newVal) {
         Otu.find(newVal).then(response => {
-          this.otuSelected = response.body.object_tag
+          this.otuSelected = response.body
           this.otu = response.body
         })
       } else {
@@ -320,7 +323,6 @@ export default {
 
     setOtu (otu) {
       this.taxonDetermination.otu_id = otu.id
-      this.otuSelected = otu.object_tag
     },
 
     editTaxonDetermination (item) {
