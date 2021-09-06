@@ -359,7 +359,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # basisOfRecord: [Check it is 'PreservedSpecimen']
     basis = get_field_value(:basisOfRecord) || 'PreservedSpecimen'
-    raise DarwinCore::InvalidData.new({ 'type' => ["Only 'PreservedSpecimen' or empty allowed"] }) unless "PreservedSpecimen".casecmp(basis) == 0
+    raise DarwinCore::InvalidData.new({ 'basisOfRecord' => ["Only 'PreservedSpecimen' or empty allowed"] }) unless "PreservedSpecimen".casecmp(basis) == 0
 
     # informationWithheld: [Not mapped]
 
@@ -628,7 +628,11 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     Utilities::Hashes::set_unless_nil(collecting_event, :verbatim_datum, get_field_value(:geodeticDatum))
 
     # coordinateUncertaintyInMeters: [verbatim_geolocation_uncertainty]
-    Utilities::Hashes::set_unless_nil(collecting_event, :verbatim_geolocation_uncertainty, get_field_value(:coordinateUncertaintyInMeters)&.send(:+, 'm'))
+    uncertainty = get_field_value(:coordinateUncertaintyInMeters)
+    unless uncertainty.nil? || uncertainty =~ /\A[+-]?\d+\z/
+      raise DarwinCore::InvalidData.new({ "coordinateUncertaintyInMeters": ["Non-integer value"] })
+    end
+    Utilities::Hashes::set_unless_nil(collecting_event, :verbatim_geolocation_uncertainty, uncertainty&.send(:+, 'm'))
 
     # coordinatePrecision: [Not mapped. Fail import if claimed precision is incorrect? Round to precision?]
 
@@ -748,7 +752,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # namePublishedInYear: [Not mapped]
 
     # nomenclaturalCode: [Selects nomenclature code to pick ranks from]
-    code = get_field_value(:nomenclaturalCode)&.downcase&.to_sym || :iczn
+    code =
+      get_field_value(:nomenclaturalCode)&.downcase&.to_sym ||
+      import_dataset.metadata['nomenclatural_code']&.downcase&.to_sym ||
+      :iczn
 
     # kingdom: [Kingdom protonym]
     origins[
