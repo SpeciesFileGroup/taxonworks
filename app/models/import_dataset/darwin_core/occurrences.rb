@@ -46,7 +46,6 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
       metadata.merge({
         core_headers: headers[:core],
         extensions_headers: headers[:extensions],
-        nomenclature_code: "ICZN",
         catalog_numbers_namespaces: []
       })
     )

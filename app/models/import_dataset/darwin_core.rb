@@ -13,7 +13,6 @@ class ImportDataset::DarwinCore < ImportDataset
 
     self.metadata = {
       core_headers: [],
-      nomenclature_code: nil,
       namespaces: {
         core: nil,
         eventID: nil
@@ -286,6 +285,10 @@ class ImportDataset::DarwinCore < ImportDataset
     end
 
     return records
+  end
+
+  def default_nomenclatural_code
+    self.metadata.dig("import_settings", "nomenclatural_code")&.downcase&.to_sym || :iczn
   end
 
   private
