@@ -1,13 +1,14 @@
 <template>
   <spinner-component
-    v-if="false"
+    v-if="finished"
     full-screen
+    :legend="message"
   />
 </template>
 <script setup>
 
 import { computed, ref, watch } from 'vue'
-import { CollectionObject } from 'routes/endpoints'
+import { DwcOcurrence } from 'routes/endpoints'
 import SpinnerComponent from 'components/spinner.vue'
 
 const CALL_DELAY = 5000
@@ -18,36 +19,36 @@ const props = defineProps({
     required: true
   }
 })
-let checkSample
 let sampleDate
 let timeout
 
-const finished = computed(() => !samplesUpdated.value.length)
+const finished = computed(() => samplesUpdated.value.length)
+
+const message = computed(() => `${(props.reindex.sample?.length - samplesUpdated.value.length) * 10}% completed`)
+
+const getTime = date => (new Date(date)).getTime()
+
 const checkSamplesUpdate = () => {
-  const coRequests = samplesUpdated.value.map(global_id => 
-    CollectionObject.where({
-      object_global_id: encodeURIComponent(global_id)
-    })
+  const coRequests = samplesUpdated.value.map(globalId =>
+    DwcOcurrence.status({ object_global_id: globalId })
   )
 
   Promise.all(coRequests).then(responses => {
-    const collectionObjects = responses.map(({ body }) => body)
+    const dwcOcurrenceRows = responses.map(({ body }) => body)
 
-    samplesUpdated.value = collectionObjects.filter(co => {
-      const updateDate = new Date(co.updated_at).getTime()
-
-      return sampleDate > updateDate
-    })
+    samplesUpdated.value = dwcOcurrenceRows
+      .filter(row => sampleDate > getTime(row.updated_at))
+      .map(item => item.object)
 
     if (samplesUpdated.value.length) {
-      timeout = setTimeout(checkSamplesUpdate(), CALL_DELAY)
+      timeout = setTimeout(() => { checkSamplesUpdate() }, CALL_DELAY)
     }
   })
 }
 
 watch(() => props.reindex, reindex => {
-  samplesUpdated.value = reindex.samples
-  sampleDate = new Date(reindex.start_time)
+  samplesUpdated.value = reindex.sample
+  sampleDate = getTime(reindex.start_time)
 
   checkSamplesUpdate()
 })

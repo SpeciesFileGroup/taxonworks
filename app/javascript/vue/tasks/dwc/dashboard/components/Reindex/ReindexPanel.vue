@@ -54,12 +54,12 @@ const props = defineProps({
   }
 })
 
-const runUnindexed = (per) => {
-  DwcOcurrence.createIndex({
+const runUnindexed = async per => {
+  reindexRequest.value = (await DwcOcurrence.createIndex({
     ...props.params,
     dwc_indexed: false,
     per
-  })
+  })).body
 }
 
 const runReindex = async () => {
