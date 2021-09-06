@@ -56,16 +56,19 @@
         </ul>
       </template>
     </modal-component>
-    <div
-      v-if="selected"
-      class="middle separate-top">
-      <span data-icon="ok" />
-      <span class="separate-right"> {{ (selected['label'] ? selected.label : selected.name) }}</span>
-      <span
-        class="circle-button button-default btn-undo"
-        @click="clearSelection"
-      />
-    </div>
+    <template v-if="selected">
+      <hr>
+      <div class="middle flex-separate">
+        <p>
+          <span data-icon="ok" />
+          <span class="separate-right"> {{ (selected['label'] ? selected.label : selected.name) }}</span>
+        </p>
+        <span
+          class="circle-button button-default btn-undo"
+          @click="clearSelection"
+        />
+      </div>
+    </template>
   </fieldset>
 </template>
 

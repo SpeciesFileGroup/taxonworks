@@ -45,18 +45,19 @@
             pin-type="TaxonName"
             @selected="selectTaxon($event.id)"
           />
-          <div
-            class="horizontal-left-content"
-            v-if="taxonSelected">
-            <a
-              :href="`/tasks/nomenclature/new_taxon_name?taxon_name_id=${typeMaterial.taxon.id}`"
-              v-html="typeMaterial.taxon.object_tag"
-            />
-            <button
-              type="button"
-              class="button circle-button btn-undo button-default"
-              @click="typeMaterial.taxon = undefined"/>
-          </div>
+          <template v-if="taxonSelected">
+            <hr>
+            <div class="flex-separate middle">
+              <a
+                :href="`/tasks/nomenclature/new_taxon_name?taxon_name_id=${typeMaterial.taxon.id}`"
+                v-html="typeMaterial.taxon.object_tag"
+              />
+              <button
+                type="button"
+                class="button circle-button btn-undo button-default"
+                @click="typeMaterial.taxon = undefined"/>
+            </div>
+          </template>
         </fieldset>
         <type-selector v-model="typeMaterial.type_type"/>
         <fieldset>
