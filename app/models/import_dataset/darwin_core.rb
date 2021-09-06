@@ -203,7 +203,7 @@ class ImportDataset::DarwinCore < ImportDataset
   def set_import_settings(import_settings)
     metadata["import_settings"] ||= {}
     import_settings.each { |k, v| metadata["import_settings"].merge!({k => v}) }
-    save!
+
     metadata["import_settings"]
   end
 
@@ -228,6 +228,10 @@ class ImportDataset::DarwinCore < ImportDataset
     end
 
     @core_record_identifier_namespace
+  end
+
+  def default_nomenclatural_code
+    self.metadata.dig("import_settings", "nomenclatural_code")&.downcase&.to_sym || :iczn
   end
 
   protected
@@ -288,10 +292,6 @@ class ImportDataset::DarwinCore < ImportDataset
     end
 
     return records
-  end
-
-  def default_nomenclatural_code
-    self.metadata.dig("import_settings", "nomenclatural_code")&.downcase&.to_sym || :iczn
   end
 
   private
