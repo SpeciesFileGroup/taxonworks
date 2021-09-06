@@ -18,6 +18,8 @@ class ImportDataset::DarwinCore < ImportDataset
         eventID: nil
       }
     }
+
+    set_import_settings(params[:import_settings])
   end
 
   def core_records_fields

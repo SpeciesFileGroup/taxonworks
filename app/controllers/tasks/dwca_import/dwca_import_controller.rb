@@ -20,7 +20,11 @@ class Tasks::DwcaImport::DwcaImportController < ApplicationController
 
   # POST
   def set_import_settings
-    render json: ImportDataset::DarwinCore::Occurrences.find(params[:import_dataset_id]).set_import_settings(params[:import_settings])
+    import_dataset = ImportDataset::DarwinCore::Occurrences.find(params[:import_dataset_id])
+    settings = import_dataset.set_import_settings(params[:import_settings])
+    import_dataset.save!
+
+    render json: settings
   end
 
   # POST
