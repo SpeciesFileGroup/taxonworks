@@ -108,6 +108,8 @@ module Queries
       # @return [Boolen, nil]
       attr_accessor :recent
 
+      attr_accessor :object_global_id
+
       # @return [True, False, nil]
       #   true - has repository_id
       #   false - does not have repository_id
@@ -212,6 +214,7 @@ module Queries
         @is_type = params[:is_type] || []
         @loaned = boolean_param(params, :loaned)
         @never_loaned = boolean_param(params, :never_loaned)
+        @object_global_id = params[:object_global_id]
         @on_loan =  boolean_param(params, :on_loan)
         @otu_descendants = boolean_param(params, :otu_descendants)
         @otu_ids = params[:otu_ids] || []
@@ -325,6 +328,19 @@ module Queries
           ::CollectionObject.left_outer_joins(:georeferences)
             .where(georeferences: {id: nil})
             .distinct
+        end
+      end
+
+      def object_global_id_facet
+        return nil if object_global_id.nil?
+
+        if o = GlobalID::Locator.locate(object_global_id)
+          k = o.class.name
+          id = o.id 
+
+          table[:id].eq(id).and(table[:type].eq(k))
+        else
+          nil
         end
       end
 
@@ -500,7 +516,8 @@ module Queries
           collecting_event_ids_facet,
           preparation_type_id_facet,
           type_facet,
-          repository_id_facet
+          repository_id_facet,
+          object_global_id_facet
         ]
         clauses.compact!
         clauses

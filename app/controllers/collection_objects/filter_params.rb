@@ -42,6 +42,7 @@ module CollectionObjects::FilterParams
       :md5_verbatim_label,
       :namespace_id,
       :never_loaned,
+      :object_global_id,
       :on_loan,
       :partial_overlap_dates,
       :preparation_type_id,
