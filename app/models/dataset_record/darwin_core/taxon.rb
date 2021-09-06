@@ -17,7 +17,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
         self.metadata.delete("error_data")
 
         unless metadata["is_synonym"]
-          nomenclature_code = (get_field_value("nomenclaturalCode") || import_dataset.metadata["nomenclature_code"]).downcase.to_sym
+          nomenclature_code = get_field_value("nomenclaturalCode")&.downcase&.to_sym || import_dataset.default_nomenclatural_code
           parse_results_details = Biodiversity::Parser.parse(get_field_value("scientificName") || "")[:details]&.values&.first
 
           parse_results = Biodiversity::Parser.parse(get_field_value(:scientificName) || "")

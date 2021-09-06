@@ -752,10 +752,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # namePublishedInYear: [Not mapped]
 
     # nomenclaturalCode: [Selects nomenclature code to pick ranks from]
-    code =
-      get_field_value(:nomenclaturalCode)&.downcase&.to_sym ||
-      import_dataset.metadata['nomenclatural_code']&.downcase&.to_sym ||
-      :iczn
+    code = get_field_value(:nomenclaturalCode)&.downcase&.to_sym || import_dataset.default_nomenclatural_code
 
     # kingdom: [Kingdom protonym]
     origins[

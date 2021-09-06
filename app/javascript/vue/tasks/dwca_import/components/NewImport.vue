@@ -1,47 +1,72 @@
 <template>
-  <div>
-    <spinner-component
-      full-screen
-      legend="Uploading import..."
-      v-if="isUploading"/>
-    <div class="field label-above">
-      <label>Description</label>
-      <input
-        type="text"
-        v-model="description">
-    </div>
-    <div>
+  <block-layout
+    :warning="!validate">
+    <template #header>
+      <h3>New import</h3>
+    </template>
+    <template #body>
       <spinner-component
-        :show-spinner="false"
-        legend="Fill description field first"
-        v-if="!validate"/>
-      <dropzone
-        class="dropzone-card"
-        v-help.section.import.dropzone
-        @vdropzone-success="success"
-        @vdropzone-sending="sending"
-        @vdropzone-queue-complete="completeQueue"
-        @vdropzone-error="error"
-        ref="dwcDropzone"
-        id="dropzone-dropzone"
-        url="/import_datasets.json"
-        :use-custom-dropzone-options="true"
-        :dropzone-options="dropzone"/>
-    </div>
-  </div>
+        full-screen
+        legend="Uploading import..."
+        v-if="isUploading"/>
+      <div class="horizontal-left-content">
+        <div class="field label-above">
+          <label>Description</label>
+          <input
+            type="text"
+            v-model="description">
+        </div>
+        <div class="field label-above margin-small-left">
+          <label>Nomenclature code: </label>
+          <select v-model="nomenclatureCode">
+            <option
+              v-for="code in codes"
+              :key="code"
+              :value="code"
+            >
+              {{ code.toUpperCase() }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <spinner-component
+          :show-spinner="false"
+          legend="Fill description field first"
+          v-if="!validate"/>
+        <dropzone
+          class="dropzone-card"
+          v-help.section.import.dropzone
+          @vdropzone-success="success"
+          @vdropzone-sending="sending"
+          @vdropzone-queue-complete="completeQueue"
+          @vdropzone-error="error"
+          ref="dwcDropzone"
+          id="dropzone-dropzone"
+          url="/import_datasets.json"
+          :use-custom-dropzone-options="true"
+          :dropzone-options="dropzone"/>
+      </div>
+    </template>
+  </block-layout>
 </template>
 
 <script>
 
 import Dropzone from 'components/dropzone'
 import SpinnerComponent from 'components/spinner'
+import CODES from '../const/nomenclatureCodes.js'
 import { capitalize } from 'helpers/strings'
+import BlockLayout from 'components/layout/BlockLayout.vue'
 
 export default {
   components: {
     Dropzone,
-    SpinnerComponent
+    SpinnerComponent,
+    BlockLayout
   },
+
+  emits: ['onCreate'],
 
   computed: {
     validate () {
@@ -51,6 +76,8 @@ export default {
 
   data () {
     return {
+      codes: Object.values(CODES),
+      nomenclatureCode: CODES.ICZN,
       description: '',
       isUploading: false,
       dropzone: {
@@ -78,6 +105,7 @@ export default {
     sending (file, xhr, formData) {
       this.isUploading = true
       formData.append('import_dataset[description]', this.description)
+      formData.append('import_dataset[import_settings][nomenclatural_code]', this.nomenclatureCode)
     },
 
     completeQueue (file, response) {
@@ -88,9 +116,14 @@ export default {
       if (typeof error === 'string') {
         TW.workbench.alert.create(`<span data-icon="warning">${error}</span>`, 'error')
       } else {
-        TW.workbench.alert.create(Object.keys(error).map(key => {
-          return `<span data-icon="warning">${key}:</span> <ul><li>${Array.isArray(error[key]) ? error[key].map(line => capitalize(line)).join('</li><li>') : error[key]}</li></ul>`
-        }).join(''), 'error')
+        TW.workbench.alert.create(Object.keys(error).map(key => `
+        <span data-icon="warning">${key}:</span>
+        <ul>
+          <li>${Array.isArray(error[key])
+            ? error[key].map(line => capitalize(line)).join('</li><li>')
+            : error[key]}
+          </li>
+        </ul>`).join(''), 'error')
       }
       this.isUploading = false
       this.$refs.dwcDropzone.dropzone.removeFile(file)

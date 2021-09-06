@@ -18,8 +18,13 @@
       </template>
       <template #body>
         <div>
-          <div><containerize-checkbox/></div>
-          <div><restrict-to-nomenclature-checkbox/></div>
+          <nomenclature-code class="margin-medium-bottom"/>
+
+          <div class="field">
+            <containerize-checkbox />
+            <restrict-to-nomenclature-checkbox />
+          </div>
+
           <h3>Catalog number namespace mapping</h3>
           <table class="full_width">
             <thead>
@@ -55,13 +60,15 @@ import ModalComponent from 'components/ui/Modal'
 import RowComponent from './Row'
 import ContainerizeCheckbox from './Containerize'
 import RestrictToNomenclatureCheckbox from './RestrictToNomenclature'
+import NomenclatureCode from './NomenclatureCode.vue'
 
 export default {
   components: {
     ContainerizeCheckbox,
     RestrictToNomenclatureCheckbox,
     ModalComponent,
-    RowComponent
+    RowComponent,
+    NomenclatureCode
   },
 
   computed: {
