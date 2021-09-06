@@ -18,11 +18,7 @@
 import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
 import { UpdateImportSettings } from '../../request/resources'
-
-const CODES = {
-  ICZN: 'iczn',
-  ICN: 'icn'
-}
+import CODES from '../../const/nomenclatureCodes.js'
 
 export default {
   data () {
@@ -34,13 +30,13 @@ export default {
   computed: {
     nomenclatureCode: {
       get () {
-        return this.$store.getters[GetterNames.GetDataset].metadata?.import_settings?.nomenclature_code || CODES.ICZN
+        return this.$store.getters[GetterNames.GetDataset].metadata?.import_settings?.nomenclatural_code || CODES.ICZN
       },
       set (value) {
         UpdateImportSettings({
           import_dataset_id: this.dataset.id,
           import_settings: {
-            nomenclature_code: value
+            nomenclatural_code: value
           }
         }).then(response => {
           this.$store.dispatch(ActionNames.LoadDataset, this.dataset.id)

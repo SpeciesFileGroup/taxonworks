@@ -95,6 +95,11 @@ class ImportDatasetsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def import_dataset_params
-      params.require(:import_dataset).permit(:source, :description, :import_settings)
+      params.require(:import_dataset).permit(
+        :source,
+        :description,
+        import_settings: [
+          :nomenclatural_code
+        ])
     end
 end
