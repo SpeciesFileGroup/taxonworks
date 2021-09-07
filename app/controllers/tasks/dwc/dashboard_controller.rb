@@ -24,7 +24,6 @@ class Tasks::Dwc::DashboardController < ApplicationController
 
     @download = ::Export::Dwca.download_async(a, request.url)
     render '/downloads/show' 
-    # redirect_to file_download_path(download)
   end
 
   def create_index
@@ -41,6 +40,5 @@ class Tasks::Dwc::DashboardController < ApplicationController
   end
 
   private
-
 
 end

@@ -11,9 +11,9 @@ class DwcOccurrencesController < ApplicationController
   def status
     if @object = GlobalID::Locator.locate(params[:object_global_id])
       render json: {
-        id: @object.dwc_occurrence.id,
         object: params[:object_global_id],
-        updated_at:  @object.dwc_occurrence.updated_at
+        id: @object.dwc_occurrence&.id,
+        updated_at:  @object.dwc_occurrence&.updated_at
       }
     else
       render json: {}, status: :unprocessable_entity
