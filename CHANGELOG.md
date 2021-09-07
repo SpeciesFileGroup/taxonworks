@@ -16,6 +16,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New taxon determination component
 
 ### Changed
+
+- Destroying a loanable object destroys corresponding LoanItems automatically [#2319]
 - NeXML image URLs use shortened URLs
 - Reorder date fields in comprehensive, extract and new collecting event tasks [#2450]
 - Set Vue 3 reactive vuex state in comprehensive store, removed unnecesary mutations and getters
@@ -43,6 +45,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loan item "select/deselect all" buttons missing after vue 3 migration [#2493]
 - Checkbox unbinding is not synced with update in Loan task [#2495]
 
+[#2319]: https://github.com/SpeciesFileGroup/taxonworks/issues/2319
 [#2453]: https://github.com/SpeciesFileGroup/taxonworks/issues/2142
 [#2453]: https://github.com/SpeciesFileGroup/taxonworks/issues/2453
 [#2452]: https://github.com/SpeciesFileGroup/taxonworks/issues/2452

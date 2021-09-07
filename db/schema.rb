@@ -2,8 +2,8 @@
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
 #
-# This file is the source Rails uses to define your schema when running `rails
-# db:schema:load`. When creating a new database, `rails db:schema:load` tends to
+# This file is the source Rails uses to define your schema when running `bin/rails
+# db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
 # be faster and is potentially less error prone than running all of your
 # migrations from scratch. Old migrations may fail to apply correctly if those
 # migrations use external dependencies or application code.
@@ -1014,7 +1014,7 @@ ActiveRecord::Schema.define(version: 2021_07_27_180015) do
     t.datetime "updated_at", null: false
     t.string "type"
     t.index ["created_by_id"], name: "labels_created_by_id_index"
-    t.index ["label_object_type", "label_object_id"], name: "index_labels_on_label_object_type_and_label_object_id"
+    t.index ["label_object_type", "label_object_id"], name: "index_labels_on_label_object"
     t.index ["project_id"], name: "index_labels_on_project_id"
     t.index ["updated_by_id"], name: "labels_updated_by_id_index"
   end
@@ -1272,8 +1272,8 @@ ActiveRecord::Schema.define(version: 2021_07_27_180015) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["created_by_id"], name: "index_origin_relationships_on_created_by_id"
-    t.index ["new_object_type", "new_object_id"], name: "index_origin_relationships_on_new_object_type_and_new_object_id"
-    t.index ["old_object_type", "old_object_id"], name: "index_origin_relationships_on_old_object_type_and_old_object_id"
+    t.index ["new_object_type", "new_object_id"], name: "index_origin_relationships_on_new_object"
+    t.index ["old_object_type", "old_object_id"], name: "index_origin_relationships_on_old_object"
     t.index ["project_id"], name: "index_origin_relationships_on_project_id"
     t.index ["updated_by_id"], name: "index_origin_relationships_on_updated_by_id"
   end
@@ -1358,7 +1358,7 @@ ActiveRecord::Schema.define(version: 2021_07_27_180015) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["created_by_id"], name: "index_pinboard_items_on_created_by_id"
-    t.index ["pinned_object_type", "pinned_object_id"], name: "index_pinboard_items_on_pinned_object_type_and_pinned_object_id"
+    t.index ["pinned_object_type", "pinned_object_id"], name: "index_pinboard_items_on_pinned_object"
     t.index ["position"], name: "index_pinboard_items_on_position"
     t.index ["project_id"], name: "index_pinboard_items_on_project_id"
     t.index ["updated_by_id"], name: "index_pinboard_items_on_updated_by_id"

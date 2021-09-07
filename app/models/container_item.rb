@@ -130,7 +130,6 @@ class ContainerItem < ApplicationRecord
       end
     end
 
-
     # self.parent.save! if !self.parent.new_record?
     # save! unless new_record?
   end
