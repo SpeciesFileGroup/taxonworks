@@ -9,7 +9,7 @@ class ImportDataset::DarwinCore < ImportDataset
   OCCURRENCES_ROW_TYPE = "http://rs.tdwg.org/dwc/terms/Occurrence"
 
   def initialize(params)
-    import_settings = params.delete(:import_settings)
+    import_settings = params&.delete(:import_settings)
     super(params)
 
     self.metadata = {
