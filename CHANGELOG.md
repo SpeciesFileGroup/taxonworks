@@ -32,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- CollectionObject filter type material facet bug
 - Trim buttons in comprehensive task
 - Trip code fields are empty after save.
 - Confidence button
