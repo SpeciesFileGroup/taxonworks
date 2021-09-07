@@ -2,14 +2,18 @@
   <tr
     class="list-complete-item">
     <td>
-      <label class="list-item">
-        <input
-          type="checkbox"
-          :value="item"
-          v-model="editLoanItems"
-        >
-        <span v-html="item.loan_item_object_tag"/>
-      </label>
+      <input
+        type="checkbox"
+        :value="{
+          id: item.id,
+          loan_item_object_type: item.loan_item_object_type,
+          loan_item_object_id: item.loan_item_object_id
+        }"
+        v-model="editLoanItems"
+      >
+    </td>
+    <td>
+      <span v-html="item.loan_item_object_tag"/>
     </td>
     <td>
       <input
@@ -73,6 +77,11 @@ export default {
       required: true
     }
   },
+
+  emits: [
+    'onDelete',
+    'onUpdate'
+  ],
 
   data () {
     return {

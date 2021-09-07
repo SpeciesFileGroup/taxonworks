@@ -1,10 +1,12 @@
 <template>
-  <label>
-    <input
-      type="checkbox"
-      v-model="containerize">
-    Containerize specimen with existing ones when catalog number already exists
-  </label>
+  <div class="label-above">
+    <label>
+      <input
+        type="checkbox"
+        v-model="containerize">
+      Containerize specimen with existing ones when catalog number already exists
+    </label>
+  </div>
 </template>
 
 <script>

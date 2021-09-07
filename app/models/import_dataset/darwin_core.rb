@@ -9,16 +9,18 @@ class ImportDataset::DarwinCore < ImportDataset
   OCCURRENCES_ROW_TYPE = "http://rs.tdwg.org/dwc/terms/Occurrence"
 
   def initialize(params)
+    import_settings = params&.delete(:import_settings)
     super(params)
 
     self.metadata = {
       core_headers: [],
-      nomenclature_code: nil,
       namespaces: {
         core: nil,
         eventID: nil
       }
     }
+
+    set_import_settings(import_settings || {})
   end
 
   def core_records_fields
@@ -201,7 +203,7 @@ class ImportDataset::DarwinCore < ImportDataset
   def set_import_settings(import_settings)
     metadata["import_settings"] ||= {}
     import_settings.each { |k, v| metadata["import_settings"].merge!({k => v}) }
-    save!
+
     metadata["import_settings"]
   end
 
@@ -226,6 +228,10 @@ class ImportDataset::DarwinCore < ImportDataset
     end
 
     @core_record_identifier_namespace
+  end
+
+  def default_nomenclatural_code
+    self.metadata.dig("import_settings", "nomenclatural_code")&.downcase&.to_sym || :iczn
   end
 
   protected
