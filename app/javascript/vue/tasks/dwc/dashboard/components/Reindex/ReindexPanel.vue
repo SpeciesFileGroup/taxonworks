@@ -34,6 +34,11 @@ import ProgressBar from '../ProgressBar.vue'
 
 const reindex = [
   {
+    label: '10',
+    value: 10
+  },
+
+  {
     label: '1k',
     value: 1000
   },
