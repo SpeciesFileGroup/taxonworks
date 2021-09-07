@@ -6,6 +6,7 @@ class Tasks::Dwc::DashboardController < ApplicationController
   def index
   end
 
+  # /tasks/dwc/dashboard/generate_download.json
   # !! Run rails jobs:work in the terminal to complete builds
   def generate_download
     # TODO: to support scoping by other filters
@@ -21,8 +22,9 @@ class Tasks::Dwc::DashboardController < ApplicationController
       a ||= DwcOccurrence.where(project_id: sessions_current_project_id).all
     end
 
-    download = ::Export::Dwca.download_async(a, request.url)
-    redirect_to file_download_path(download)
+    @download = ::Export::Dwca.download_async(a, request.url)
+    render '/downloads/show' 
+    # redirect_to file_download_path(download)
   end
 
   def create_index
