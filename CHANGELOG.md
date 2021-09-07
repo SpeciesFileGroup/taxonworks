@@ -8,7 +8,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Add
-
 - Export Observation::Media depictions as proxies for Otu depictions in NeXML [#2142]
 - Protonym `verbatim_author` parens should be properly closed when present [#2453]
 - Protonym `verbatim_author` can not contain digits (like years) [#2452]
@@ -17,7 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Smart selectors in asserted distribution and biological association quick forms.
 
 ### Changed
-
+- Cleaned up taxon name navigator appearance
 - Destroying a loanable object destroys corresponding LoanItems automatically [#2319]
 - NeXML image URLs use shortened URLs
 - Reorder date fields in comprehensive, extract and new collecting event tasks [#2450]
