@@ -14,8 +14,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Protonym `verbatim_author` can not contain digits (like years) [#2452]
 - Generic date field component [#2451]
 - New taxon determination component
+- Smart selectors in asserted distribution and biological association quick forms.
 
 ### Changed
+
+- Destroying a loanable object destroys corresponding LoanItems automatically [#2319]
 - NeXML image URLs use shortened URLs
 - Reorder date fields in comprehensive, extract and new collecting event tasks [#2450]
 - Set Vue 3 reactive vuex state in comprehensive store, removed unnecesary mutations and getters
@@ -25,9 +28,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Remove Taxon determination slice from OTU quick forms(Radial object)
 - Set active author tab in New taxon name [#2461]
 - Moved `data-project-id` to project name
+- Moved collection object soft validations in comprehensive task [#2491]
 
 ### Fixed
 
+- CollectionObject filter type material facet bug
 - Trim buttons in comprehensive task
 - Trip code fields are empty after save.
 - Confidence button
@@ -41,7 +46,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loan item checkboxes reset when loan items "Updated" [#2492]
 - Loan item "select/deselect all" buttons missing after vue 3 migration [#2493]
 - Checkbox unbinding is not synced with update in Loan task [#2495]
+- Filter collection objects shortcuts
 
+[#2319]: https://github.com/SpeciesFileGroup/taxonworks/issues/2319
 [#2453]: https://github.com/SpeciesFileGroup/taxonworks/issues/2142
 [#2453]: https://github.com/SpeciesFileGroup/taxonworks/issues/2453
 [#2452]: https://github.com/SpeciesFileGroup/taxonworks/issues/2452
@@ -53,6 +60,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2474]: https://github.com/SpeciesFileGroup/taxonworks/pull/2474
 [#2480]: https://github.com/SpeciesFileGroup/taxonworks/issues/2480
 [#2486]: https://github.com/SpeciesFileGroup/taxonworks/issues/2486
+[#2491]: https://github.com/SpeciesFileGroup/taxonworks/issues/2491
 [#2492]: https://github.com/SpeciesFileGroup/taxonworks/issues/2492
 [#2493]: https://github.com/SpeciesFileGroup/taxonworks/issues/2493
 [#2495]: https://github.com/SpeciesFileGroup/taxonworks/issues/2495

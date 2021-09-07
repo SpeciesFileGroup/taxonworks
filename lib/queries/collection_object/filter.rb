@@ -622,7 +622,7 @@ module Queries
           ::CollectionObject.joins(:type_designations).distinct
         else
           ::CollectionObject.left_outer_joins(:type_designations)
-            .where(type_material: {id: nil})
+            .where(type_materials: {id: nil})
             .distinct
         end
       end

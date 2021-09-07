@@ -1,5 +1,7 @@
 <template>
-  <div class="panel vue-filter-container">
+  <div
+    class="panel vue-filter-container"
+    v-hotkey="shortcuts">
     <div class="flex-separate content middle action-line">
       <span>Filter</span>
       <button

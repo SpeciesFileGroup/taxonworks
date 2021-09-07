@@ -17,11 +17,11 @@
       </template>
       <template #body>
         <div id="collection-object-form">
-          <catalogue-number />
-          <repository-component />
-          <preparation-type />
-          <div class="row-item">
-            <h2 class="horizontal-left-content">
+          <catalogue-number class="panel content"/>
+          <repository-component class="panel content" />
+          <preparation-type class="panel content" />
+          <div class="row-item panel content">
+            <h2 class="flex-separate">
               Buffered
               <expand-component
                 class="margin-small-left"
@@ -29,29 +29,39 @@
                 @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showBuffered', $event)"
               />
             </h2>
-            <buffered-component v-if="showBuffered"/>
+            <buffered-component
+              v-if="showBuffered"
+              class="field"/>
           </div>
           <div class="row-item">
-            <h2 class="horizontal-left-content">
-              Depictions
-              <expand-component
-                class="margin-small-left"
-                v-model="showDepictions"
-                @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showDepictions', $event)"
+            <div class="depict-validation-row">
+              <div class="panel content column-depictions">
+                <h2 class="flex-separate">
+                  Depictions
+                  <expand-component
+                    class="margin-small-left"
+                    v-model="showDepictions"
+                    @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showDepictions', $event)"
+                  />
+                </h2>
+                <depictions-component
+                  v-if="showDepictions"
+                  :object-value="collectionObject"
+                  :get-depictions="GetCollectionObjectDepictions"
+                  object-type="CollectionObject"
+                  @create="createDepictionForAll"
+                  @delete="removeAllDepictionsByImageId"
+                  default-message="Drop images or click here<br> to add collection object figures"
+                  action-save="SaveCollectionObject"/>
+              </div>
+              <soft-validations
+                class="column-validation"
+                :validations="validations"
               />
-            </h2>
-            <depictions-component
-              v-if="showDepictions"
-              :object-value="collectionObject"
-              :get-depictions="GetCollectionObjectDepictions"
-              object-type="CollectionObject"
-              @create="createDepictionForAll"
-              @delete="removeAllDepictionsByImageId"
-              default-message="Drop images or click here<br> to add collection object figures"
-              action-save="SaveCollectionObject"/>
+            </div>
           </div>
-          <div class="row-item">
-            <h2 class="horizontal-left-content">
+          <div class="panel content column-citations">
+            <h2 class="flex-separate">
               Citations
               <expand-component
                 class="margin-small-left"
@@ -59,10 +69,10 @@
                 @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showCitations', $event)"
               />
             </h2>
-            <citation-component v-if="showCitations" />
+            <citation-component v-if="showCitations"/>
           </div>
-          <div class="row-item">
-            <h2 class="horizontal-left-content">
+          <div class="panel content column-attribute">
+            <h2 class="flex-separate">
               Attributes
               <expand-component
                 class="margin-small-left"
@@ -89,8 +99,8 @@
               />
             </div>
           </div>
+          <container-items class="row-item"/>
         </div>
-        <container-items/>
       </template>
     </block-layout>
   </div>
@@ -117,6 +127,7 @@ import RadialObject from 'components/radials/object/radial.vue'
 import PredicatesComponent from 'components/custom_attributes/predicates/predicates'
 import DefaultTag from 'components/defaultTag.vue'
 import platformKey from 'helpers/getPlatformKey'
+import SoftValidations from 'components/soft_validations/panel.vue'
 import { Depiction, User, CollectionObject } from 'routes/endpoints'
 import { COLLECTION_OBJECT } from 'constants/index.js'
 
@@ -136,7 +147,8 @@ export default {
     RadialObject,
     DefaultTag,
     ExpandComponent,
-    RadialNavigation
+    RadialNavigation,
+    SoftValidations
   },
   computed: {
     preferences: {
@@ -180,6 +192,14 @@ export default {
       keys[`${platformKey()}+e`] = this.openBrowse
 
       return keys
+    },
+
+    validations () {
+      const { Specimen } = this.$store.getters[GetterNames.GetSoftValidations]
+
+      return Specimen
+        ? { Specimen }
+        : {}
     }
   },
 
@@ -311,7 +331,28 @@ export default {
     gap: 0.5em;
   }
 
+  .depict-validation-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.5em;
+  }
+
+  .column-validation {
+    grid-column: 3 / 4;
+  }
+  .column-depictions {
+    grid-column: 1 / 3;
+  }
+  .row-1-3 {
+    grid-column: 1 / 3;
+  }
   .row-item {
-    grid-column: 1 / 4
+    grid-column: 1 / 4;
+  }
+  .column-attribute {
+    grid-column: 3 / 4;
+  }
+  .column-citations {
+    grid-column: 1 / 3;
   }
 </style>
