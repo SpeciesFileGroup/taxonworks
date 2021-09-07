@@ -40,11 +40,20 @@
         <h3>Soft validation</h3>
       </template>
       <template #body>
-        <ul class="no_bullets soft_validation list">
+        <ul class="no_bullets">
           <li
             v-for="(validation, index) in validations"
             :key="index">
-            <span v-html="validation"/>
+            <span>
+              <v-icon
+                small
+                name="attention"
+                color="attention"
+              />
+              <span
+                class="margin-small-left"
+                v-html="validation"/>
+            </span>
           </li>
         </ul>
       </template>

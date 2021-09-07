@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Protonym `verbatim_author` can not contain digits (like years) [#2452]
 - Generic date field component [#2451]
 - New taxon determination component
+- Smart selectors in asserted distribution and biological association quick forms.
 
 ### Changed
 
