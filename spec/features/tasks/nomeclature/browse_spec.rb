@@ -8,8 +8,6 @@ describe 'Browse nomenclature task', type: :feature, group: :nomenclature do
     context 'when I visit the task page', js: true do
       let!(:root) { @project.send(:create_root_taxon_name) }
       let!(:genus) { Protonym.create!(by: @user, project: @project, parent: root, name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus)) }
-      let!(:genus_synonym) { Protonym.create!(by: @user, project: @project, parent: root, name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus)) }
-      let!(:tnr1) { TaxonNameRelationship.create!({by: @user, project: @project, subject_taxon_name: genus_synonym, object_taxon_name: genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym'}) }
 
       before { visit browse_nomenclature_task_path(taxon_name_id: genus.id) }
 
@@ -25,6 +23,8 @@ describe 'Browse nomenclature task', type: :feature, group: :nomenclature do
       end
 
       context 'inside the taxon name hierarchy list' do
+        let!(:genus_synonym) { Protonym.create!(by: @user, project: @project, parent: root, name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus)) }
+        let!(:tnr1) { TaxonNameRelationship.create!({by: @user, project: @project, subject_taxon_name: genus_synonym, object_taxon_name: genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym'}) }
 
         before(:each) do
           @hierarchy = page.find_by_id('show_taxon_name_hierarchy')
