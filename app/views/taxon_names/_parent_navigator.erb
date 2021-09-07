@@ -24,8 +24,8 @@
   <ul>
     <% taxon_name.ancestor_protonyms.each do |p| -%>
       <li data-valid-toggle="<%= p.is_valid? ? 'valid' : 'invalid' -%>">
-        <p>
-        <%= link_to(taxon_name_tag(p), send(target, {id: p.id})) -%>
+        <p> 
+        <%= link_to(taxon_name_tag(p), send(target, {id: p.id, taxon_name_id: p.id})) -%>
         <span>
           <%= p.cached_author_year -%>
         </span>
@@ -35,7 +35,7 @@
 
     <li class="selected">
       <%= image_tag('arrow-right.svg') %>
-      <p>
+      <p> 
       <%= taxon_name_tag(taxon_name) -%>
       <span>
         <%= taxon_name.cached_author_year -%>
@@ -47,13 +47,13 @@
     <% taxon_name.children.order(:name).where(type: 'Protonym').each do |p| -%>
       <li data-valid-toggle="<%= p.is_valid? ? 'valid' : 'invalid' -%>">
         <p>
-        <%= link_to(taxon_name_tag(p), send(target, {id: p.id})) -%>
+        <%= link_to(taxon_name_tag(p), send(target, {id: p.id, taxon_name_id: p.id})) -%>
         <span><%= p.cached_author_year -%></span>
         <% v = p.descendants.that_is_valid.count -%>
         <% iv = p.descendants.that_is_invalid.count -%>
         <%= content_tag(:span, v, class: [:feedback, 'feedback-thin', 'feedback-primary']) if v > 0  %>
         <%= content_tag(:span, iv, class: [:feedback, 'feedback-thin', 'feedback-secondary']) if iv > 0  %>
-        </p>
+        </p> 
       </li>
     <% end %>
   </ul>
