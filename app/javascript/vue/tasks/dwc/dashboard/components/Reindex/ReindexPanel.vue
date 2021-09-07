@@ -1,26 +1,28 @@
 <template>
-  <div class="panel content reindex__panel">
-    <h2>Rebuild index</h2>
-    <div class="field">
-      <v-btn
-        color="create"
-        medium
-        @click="runReindex">
-        1 year
-      </v-btn>
-    </div>
-    <div class="field label-above">
-      <v-btn
-        v-for="({ label, value }) in reindex"
-        :key="label"
-        class="margin-small-right"
-        color="create"
-        medium
-        @click="runUnindexed(value)">
-        {{ label }}
-      </v-btn>
-    </div>
+  <div class="panel reindex__panel">
     <progress-bar :reindex="reindexRequest"/>
+    <div class="content">
+      <h2>Rebuild index</h2>
+      <div class="field">
+        <v-btn
+          color="create"
+          medium
+          @click="runReindex">
+          1 year
+        </v-btn>
+      </div>
+      <div class="field label-above">
+        <v-btn
+          v-for="({ label, value }) in reindex"
+          :key="label"
+          class="margin-small-right"
+          color="create"
+          medium
+          @click="runUnindexed(value)">
+          {{ label }}
+        </v-btn>
+      </div>
+    </div>
   </div>
 </template>
 <script setup>
@@ -48,9 +50,7 @@ const reindexRequest = ref({})
 const props = defineProps({
   params: {
     type: Object,
-    default: () => ({
-      geographic_area_id: [12]
-    })
+    default: () => ({})
   }
 })
 

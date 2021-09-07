@@ -1,19 +1,1 @@
 <div id="vue-dwc-dashboard"></div>
-<div> 
-  <%= form_tag(generate_dwc_download_task_path, method: :get) do %>
-    <p> Generate a DwC-Arcive Zip file for the complete set of Occurrences. </p>
-
-    <%= submit_tag :Download, class: ['normal-input', :button, 'button-default'] -%>
-  <% end %>
-
-  <%= form_tag(generate_dwc_download_task_path, method: :get) do %>
-    <p> Test Params </p>
-
-    <%= hidden_field_tag('on_loan', true) -%>
-    <%= hidden_field_tag('per', 10) -%>
-    <%= submit_tag :Download, class: ['normal-input', :button, 'button-default'] -%>
-  <% end %>
-
-</div>
-
-

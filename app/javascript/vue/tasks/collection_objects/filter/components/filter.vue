@@ -217,7 +217,7 @@ export default {
         this.DWCACount = 0
         if (response.body.data.length) {
           this.result = response.body.data
-          this.DWCASearch = response.body.data.filter(item => { return !this.isIndexed(item)})
+          this.DWCASearch = response.body.data.filter(item => !this.isIndexed(item))
           if (this.DWCASearch.length) {
             this.getDWCATable(this.DWCASearch)
           } else {
@@ -347,7 +347,7 @@ export default {
       return date.toISOString().slice(0, 10)
     },
 
-    filterEmptyParams(object) {
+    filterEmptyParams (object) {
       const keys = Object.keys(object)
       keys.forEach(key => {
         if (object[key] === '') {

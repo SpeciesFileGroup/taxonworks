@@ -1,7 +1,6 @@
 <template>
   <spinner-component
-    v-if="finished"
-    full-screen
+    v-if="reindexFinished"
     :legend="message"
   />
 </template>
@@ -22,11 +21,11 @@ const props = defineProps({
 let sampleDate
 let timeout
 
-const finished = computed(() => samplesUpdated.value.length)
+const reindexFinished = computed(() => samplesUpdated.value.length)
 
-const message = computed(() => `${(props.reindex.sample?.length - samplesUpdated.value.length) * 10}% completed`)
+const message = computed(() => `Reindexing... ${100 - ((samplesUpdated.value.length * 100) / props.reindex.sample?.length)}% completed`)
 
-const getTime = date => (new Date(date)).getTime()
+const getTime = date => new Date(date).getTime()
 
 const checkSamplesUpdate = () => {
   const coRequests = samplesUpdated.value.map(globalId =>

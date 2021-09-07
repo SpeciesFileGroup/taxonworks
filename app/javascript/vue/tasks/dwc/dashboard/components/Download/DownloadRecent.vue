@@ -24,8 +24,14 @@
           <v-btn
             color="primary"
             medium
-            :href="item.url">
-            Download
+            :disabled="!item.ready"
+            @click="downloadFile(item.file_url)"
+          >
+            {{
+              item.ready
+                ? 'Download'
+                : 'Processing...'
+            }}
           </v-btn>
         </td>
       </tr>
@@ -33,16 +39,52 @@
   </table>
 </template>
 <script setup>
-import { ref, onBeforeMount } from 'vue'
+
+import { watch } from 'vue'
 import { Download } from 'routes/endpoints'
 import { humanize } from 'helpers/strings'
 import VBtn from 'components/ui/VBtn/index.vue'
 
 const PROPERTIES = ['name', 'description', 'expires', 'times_downloaded']
-const list = ref([])
+const CALL_DELAY = 5000
 
-onBeforeMount(async () => {
-  list.value = (await Download.all()).body
+const props = defineProps({
+  list: {
+    type: Array,
+    required: true
+  }
 })
+
+const emit = defineEmits(['onUpdate'])
+
+let timeout
+
+const refreshDownloadList = () => {
+  const downloadProcessing = props.list
+    .filter(item => !item.ready)
+    .map(item => Download.find(item.id))
+
+  Promise.all(downloadProcessing).then(responses => {
+    const downloadRecords = responses.map(({ body }) => body)
+    const downloadReady = downloadRecords.filter( item => item.ready)
+
+    downloadReady.forEach((record, index) => {
+      if (record.ready) {
+        emit('onUpdate', { index, record })
+      }
+    })
+
+    if (downloadRecords.length !== downloadReady.length) {
+      clearTimeout(timeout)
+      timeout = setTimeout(() => refreshDownloadList(), CALL_DELAY)
+    }
+  })
+}
+
+const downloadFile = (url) => { window.open(url) }
+
+watch(() => props.list, () => {
+  refreshDownloadList()
+}, { deep: true })
 
 </script>
