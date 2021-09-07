@@ -66,7 +66,7 @@ const refreshDownloadList = () => {
 
   Promise.all(downloadProcessing).then(responses => {
     const downloadRecords = responses.map(({ body }) => body)
-    const downloadReady = downloadRecords.filter( item => item.ready)
+    const downloadReady = downloadRecords.filter(item => item.ready)
 
     downloadReady.forEach((record, index) => {
       if (record.ready) {
