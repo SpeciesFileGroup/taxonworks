@@ -60,13 +60,13 @@ const emit = defineEmits(['onUpdate'])
 let timeout
 
 const refreshDownloadList = () => {
-  const downloadProcessing = props.list
+  const requestDownloadProcessing = props.list
     .filter(item => !item.ready)
     .map(item => Download.find(item.id))
 
-  Promise.all(downloadProcessing).then(responses => {
+  Promise.all(requestDownloadProcessing).then(responses => {
     const downloadRecords = responses.map(({ body }) => body)
-    const downloadReady = downloadRecords.filter( item => item.ready)
+    const downloadReady = downloadRecords.filter(item => item.ready)
 
     downloadReady.forEach((record, index) => {
       if (record.ready) {
