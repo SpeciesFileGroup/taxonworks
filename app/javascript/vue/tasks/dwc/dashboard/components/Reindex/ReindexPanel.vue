@@ -23,6 +23,7 @@
         </v-btn>
       </div>
     </div>
+    <timer/>
   </div>
 </template>
 <script setup>

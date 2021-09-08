@@ -4,12 +4,20 @@ class CountDown {
 
     this.onRender = onRender
     this.onComplete = onComplete
+    this.isPaused = false
+  }
+
+  parseDate (date) {
+    return date instanceof Date
+      ? date
+      : new Date(date)
   }
 
   setExpiredDate (startDate, expiredDate) {
-    const currentTime = startDate.getTime()
+    const currentTime = this.parseDate(startDate).getTime()
 
-    this.timeRemaining = expiredDate.getTime() - currentTime
+    clearInterval(this.intervalId)
+    this.timeRemaining = this.parseDate(expiredDate).getTime() - currentTime
 
     this.timeRemaining <= 0
       ? this.complete()
@@ -40,16 +48,26 @@ class CountDown {
   start () {
     this.update()
 
-    const intervalId = setInterval(() => {
-      this.timeRemaining -= 1000
+    this.intervalId = setInterval(() => {
+      if (!this.isPaused) {
+        this.timeRemaining -= 1000
 
-      if (this.timeRemaining < 0) {
-        this.complete()
-        clearInterval(intervalId)
-      } else {
-        this.update()
+        if (this.timeRemaining < 0) {
+          this.complete()
+          clearInterval(this.intervalId)
+        } else {
+          this.update()
+        }
       }
     }, 1000)
+  }
+
+  stop () {
+    this.timeRemaining = -1
+  }
+
+  pause () {
+    this.isPaused = true
   }
 }
 

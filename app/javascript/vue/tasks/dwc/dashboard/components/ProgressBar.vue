@@ -2,13 +2,21 @@
   <spinner-component
     v-if="reindexFinished"
     :legend="message"
-  />
+    :show-legend="false"
+  >
+    Reindexing... {{ percentComplete }}% completed. Estimated time:
+    <CountDown
+      :start-date="sampleDate"
+      :end-date="lastTime"
+    />
+  </spinner-component>
 </template>
 <script setup>
 
 import { computed, ref, watch } from 'vue'
 import { DwcOcurrence } from 'routes/endpoints'
 import SpinnerComponent from 'components/spinner.vue'
+import CountDown from './Countdown/CountDown.vue'
 
 const CALL_DELAY = 5000
 const samplesUpdated = ref([])
@@ -19,35 +27,47 @@ const props = defineProps({
   }
 })
 let sampleDate
-let timeout
+let timeoutId
+let previousDate = 0
 
+const lastTime = ref(0)
 const reindexFinished = computed(() => samplesUpdated.value.length)
-
-const message = computed(() => `Reindexing... ${100 - ((samplesUpdated.value.length * 100) / props.reindex.sample?.length)}% completed`)
-
-const getTime = date => new Date(date).getTime()
+const percentComplete = computed(() => 100 - ((samplesUpdated.value.length * 100) / props.reindex.sample?.length))
 
 const checkSamplesUpdate = () => {
-  const coRequests = samplesUpdated.value.map(globalId =>
-    DwcOcurrence.status({ object_global_id: globalId })
-  )
+  if (samplesUpdated.value.length) {
+    const sampleGlobalId = samplesUpdated.value[0]
 
-  Promise.all(coRequests).then(responses => {
-    const dwcOcurrenceRows = responses.map(({ body }) => body)
+    DwcOcurrence.status({ object_global_id: sampleGlobalId }).then(({ body }) => {
+      const updateTime = new Date(body.updated_at).getTime()
 
-    samplesUpdated.value = dwcOcurrenceRows
-      .filter(row => sampleDate > getTime(row.updated_at))
-      .map(item => item.object)
+      if (sampleDate < updateTime) {
+        samplesUpdated.value.splice(0, 1)
+        updateCountdown(updateTime)
+      }
 
-    if (samplesUpdated.value.length) {
-      timeout = setTimeout(() => { checkSamplesUpdate() }, CALL_DELAY)
-    }
-  })
+      if (samplesUpdated.value.length) {
+        timeoutId = setTimeout(() => { checkSamplesUpdate() }, CALL_DELAY)
+      }
+    })
+  }
+}
+
+const updateCountdown = (updateTime) => {
+  lastTime.value = calculateEstimatedTime(updateTime)
+  previousDate = updateTime
+}
+
+const calculateEstimatedTime = (updatedDate) => {
+  const timeDiff = updatedDate - (previousDate || sampleDate) + CALL_DELAY
+
+  return sampleDate + (timeDiff * samplesUpdated.value.length)
 }
 
 watch(() => props.reindex, reindex => {
-  samplesUpdated.value = reindex.sample
-  sampleDate = getTime(reindex.start_time)
+  previousDate = 0
+  sampleDate = new Date(reindex.start_time).getTime()
+  samplesUpdated.value = reindex.sample.slice()
 
   checkSamplesUpdate()
 })
