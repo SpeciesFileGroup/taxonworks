@@ -16,7 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Smart selectors in asserted distribution and biological association quick forms.
 
 ### Changed
-- Cleaned up taxon name navigator appearance
+- Cleaned up taxon name navigator appearance 
 - Destroying a loanable object destroys corresponding LoanItems automatically [#2319]
 - NeXML image URLs use shortened URLs
 - Reorder date fields in comprehensive, extract and new collecting event tasks [#2450]
@@ -30,7 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Moved collection object soft validations in comprehensive task [#2491]
 
 ### Fixed
-
+- Tazon name hierarchical navigation broken [#2487]
 - CollectionObject filter type material facet bug
 - Trim buttons in comprehensive task
 - Trip code fields are empty after save.
@@ -47,6 +47,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Checkbox unbinding is not synced with update in Loan task [#2495]
 - Filter collection objects shortcuts
 
+
+[#2487]: https://github.com/SpeciesFileGroup/taxonworks/issues/2487
 [#2319]: https://github.com/SpeciesFileGroup/taxonworks/issues/2319
 [#2453]: https://github.com/SpeciesFileGroup/taxonworks/issues/2142
 [#2453]: https://github.com/SpeciesFileGroup/taxonworks/issues/2453
