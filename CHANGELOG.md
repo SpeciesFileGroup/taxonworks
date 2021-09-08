@@ -8,14 +8,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Add
-
 - Export Observation::Media depictions as proxies for Otu depictions in NeXML [#2142]
 - Protonym `verbatim_author` parens should be properly closed when present [#2453]
 - Protonym `verbatim_author` can not contain digits (like years) [#2452]
 - Generic date field component [#2451]
 - New taxon determination component
+- Smart selectors in asserted distribution and biological association quick forms.
 
 ### Changed
+- Cleaned up taxon name navigator appearance 
+- Destroying a loanable object destroys corresponding LoanItems automatically [#2319]
 - NeXML image URLs use shortened URLs
 - Reorder date fields in comprehensive, extract and new collecting event tasks [#2450]
 - Set Vue 3 reactive vuex state in comprehensive store, removed unnecesary mutations and getters
@@ -28,7 +30,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Moved collection object soft validations in comprehensive task [#2491]
 
 ### Fixed
-
+- Tazon name hierarchical navigation broken [#2487]
+- CollectionObject filter type material facet bug
 - Trim buttons in comprehensive task
 - Trip code fields are empty after save.
 - Confidence button
@@ -42,7 +45,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loan item checkboxes reset when loan items "Updated" [#2492]
 - Loan item "select/deselect all" buttons missing after vue 3 migration [#2493]
 - Checkbox unbinding is not synced with update in Loan task [#2495]
+- Filter collection objects shortcuts
+- Fix identifier update in new type specimen task
 
+
+[#2487]: https://github.com/SpeciesFileGroup/taxonworks/issues/2487
+[#2319]: https://github.com/SpeciesFileGroup/taxonworks/issues/2319
 [#2453]: https://github.com/SpeciesFileGroup/taxonworks/issues/2142
 [#2453]: https://github.com/SpeciesFileGroup/taxonworks/issues/2453
 [#2452]: https://github.com/SpeciesFileGroup/taxonworks/issues/2452

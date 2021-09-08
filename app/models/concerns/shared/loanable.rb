@@ -7,7 +7,7 @@ module Shared::Loanable
     has_one :loan_item, -> {where('date_returned is null')}, as: :loan_item_object
     has_one :loan, through: 'loan_item'
 
-    has_many :loan_items, as: :loan_item_object
+    has_many :loan_items, as: :loan_item_object, dependent: :destroy
     has_many :loans, through: :loan_items
   end
 

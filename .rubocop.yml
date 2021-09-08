@@ -8,7 +8,7 @@ require:
 # Documentation: http://www.rubydoc.info/gems/rubocop
 
 AllCops:
-  TargetRubyVersion: 2.4
+  TargetRubyVersion: 2.7
   DisabledByDefault: true
   MaxFilesInCache: 8000 # Limit growth of cache
   Exclude:
@@ -40,7 +40,7 @@ Style/HashSyntax:
   EnforcedStyle: ruby19
 #  AutoCorrect: false
 
-Metrics/LineLength:
+Layout/LineLength:
   Enabled: false
   Max: 120
   AllowHeredoc: true
