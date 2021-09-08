@@ -181,7 +181,18 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       ).tap { |i| i.stage }
     }
 
-    let!(:results) { import_dataset.import(5000, 100).concat(import_dataset.import(5000, 100)).concat(import_dataset.import(5000, 100)) }
+    let(:combination_parent_id) { results[0].metadata.dig('imported_objects', 'taxon_name', 'id') }
+    let(:current_parent_id) { results[1].metadata.dig('imported_objects', 'taxon_name', 'id') }
+    let(:combination_id) { results[2].metadata.dig('imported_objects', 'taxon_name', 'id') }
+    let(:valid_id) { results[3].metadata.dig('imported_objects', 'taxon_name', 'id') }
+
+    let!(:results) {
+      results = []
+      4.times do |_|
+        results.concat import_dataset.import(5000, 100)
+      results
+    end
+    }
 
     it 'should have four protonyms' do  # Root, Camponotites, Oecophylla, kraussei
       expect(Protonym.all.length).to eq 4
@@ -189,6 +200,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
     it 'should have one Combination' do
       expect(Combination.all.length).to eq 1
+      expect(TaxonName.find_by_cached('Camponotites kraussei')).to be_a Combination
     end
 
     it 'should have a genus taxon name relationship' do
