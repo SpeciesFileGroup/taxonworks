@@ -46,6 +46,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loan item "select/deselect all" buttons missing after vue 3 migration [#2493]
 - Checkbox unbinding is not synced with update in Loan task [#2495]
 - Filter collection objects shortcuts
+- Fix identifier update in new type specimen task
 
 
 [#2487]: https://github.com/SpeciesFileGroup/taxonworks/issues/2487

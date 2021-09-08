@@ -36,7 +36,7 @@ const GetterNames = {
   GetCollectionObjectPreparationId: 'getCollectionObjectPreparationId',
   GetCollectionObjectTotal: 'getCollectionObjectTotal',
   GetSoftValidation: 'getSoftValidation',
-  GetIdentifer: 'getIdentifier'
+  GetIdentifier: 'getIdentifier'
 }
 
 const GetterFunctions = {
