@@ -75,19 +75,19 @@ class Georeference < ApplicationRecord
 
   acts_as_list scope: [:collecting_event_id]
 
-  belongs_to :error_geographic_item, class_name: 'GeographicItem', foreign_key: :error_geographic_item_id, inverse_of: :georeferences_through_error_geographic_item
   belongs_to :collecting_event, inverse_of: :georeferences
+  belongs_to :error_geographic_item, class_name: 'GeographicItem', foreign_key: :error_geographic_item_id, inverse_of: :georeferences_through_error_geographic_item
   belongs_to :geographic_item, inverse_of: :georeferences
 
   has_many :collection_objects, through: :collecting_event, inverse_of: :georeferences
 
   has_many :georeferencer_roles, -> { order('roles.position ASC') },
-           class_name: 'Georeferencer',
-           as: :role_object, validate: true
-  
+    class_name: 'Georeferencer',
+    as: :role_object, validate: true
+
   has_many :georeferencers, -> { order('roles.position ASC') },
-           through: :georeferencer_roles,
-           source: :person, validate: true
+    through: :georeferencer_roles,
+    source: :person, validate: true
 
   validates :collecting_event, presence: true
   validates :collecting_event_id, uniqueness: {scope: [:type, :geographic_item_id, :project_id]}
@@ -102,7 +102,7 @@ class Georeference < ApplicationRecord
   validate :add_obj_inside_area
   validate :add_obj_inside_err_geo_item
   validate :add_obj_inside_err_radius
- validate :geographic_item_present_if_error_radius_provided
+  validate :geographic_item_present_if_error_radius_provided
 
   # validate :add_error_geo_item_inside_area
 
@@ -137,10 +137,10 @@ class Georeference < ApplicationRecord
       unless geographic_item.nil?
         if geographic_item.geo_object_type
           case geographic_item.geo_object_type
-            when :point
-              retval = Utilities::Geo.error_box_for_point(geographic_item.geo_object, error_radius)
-            when :polygon, :multi_polygon
-              retval = geographic_item.geo_object
+          when :point
+            retval = Utilities::Geo.error_box_for_point(geographic_item.geo_object, error_radius)
+          when :polygon, :multi_polygon
+            retval = geographic_item.geo_object
           end
         end
       end
@@ -152,9 +152,10 @@ class Georeference < ApplicationRecord
   #   a polygon representing the buffer
   def error_radius_buffer_polygon
     return nil if error_radius.nil? || geographic_item.nil?
-    sql_str = ActivRecord::Base.send(:sanitize_sql_array, ['SELECT ST_Buffer(?, ?)',
-                                                           geographic_item.geo_object.to_s,
-                                                           (error_radius / 111_319.444444444)])
+    sql_str = ActivRecord::Base.send(
+      :sanitize_sql_array, ['SELECT ST_Buffer(?, ?)',
+                            geographic_item.geo_object.to_s,
+                            (error_radius / 111_319.444444444)])
     value = GeographicItem.connection.select_all(sql_str).first['st_buffer']
     Gis::FACTORY.parse_wkb(value)
   end
@@ -217,7 +218,7 @@ class Georeference < ApplicationRecord
     # sanitize_sql_array(["name=:name and group_id=:group_id", name: "foo'bar", group_id: 4])
     # => "name='foo''bar' and group_id=4"
     q1 = "ST_Distance(#{GeographicItem::GEOGRAPHY_SQL}, " \
-            "(#{GeographicItem.select_geography_sql(geographic_item_id)})) < #{distance}"
+      "(#{GeographicItem.select_geography_sql(geographic_item_id)})) < #{distance}"
     # q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance(?, (?)) < ?',
     #                                                    GeographicItem::GEOGRAPHY_SQL,
     #                                                    GeographicItem.select_geography_sql(geographic_item_id),
@@ -395,7 +396,7 @@ class Georeference < ApplicationRecord
         if error_geographic_item.geo_object # is NOT false
           unless collecting_event.geographic_area.nil?
             retval = collecting_event.geographic_area.default_geographic_item
-                       .contains?(error_geographic_item.geo_object)
+              .contains?(error_geographic_item.geo_object)
           end
         end
       end
@@ -413,7 +414,7 @@ class Georeference < ApplicationRecord
         if error_geographic_item.geo_object.present?
           if collecting_event.geographic_area.present?
             retval = collecting_event.geographic_area.default_geographic_item
-                       .intersects?(error_geographic_item.geo_object)
+              .intersects?(error_geographic_item.geo_object)
           end
         end
       end
@@ -437,28 +438,15 @@ class Georeference < ApplicationRecord
     retval
   end
 
-  # # @return [Boolean] true if error_box is completely contained in
-  # # collecting_event.geographic_area.default_geographic_item
-  # def check_error_radius_inside_area
-  #   # case 4
-  #   retval = true
-  #   if collecting_event
-  #     eb = self.error_box
-  #     gi = collecting_event.default_area_geographic_item
-  #     if eb && gi
-  #       retval = gi.contains?(eb)
-  #     end
-  #   end
-  #   retval
-  # end
-
   # @return [Boolean] true iff collecting_event contains georeference geographic_item.
   def add_obj_inside_area
     unless check_obj_inside_area
-      errors.add(:geographic_item,
-                 'for georeference is not contained in the geographic area bound to the collecting event')
-      errors.add(:collecting_event,
-                 'is assigned a geographic area which does not contain the supplied georeference/geographic item')
+      errors.add(
+        :geographic_item,
+        'for georeference is not contained in the geographic area bound to the collecting event')
+      errors.add(
+        :collecting_event,
+        'is assigned a geographic area which does not contain the supplied georeference/geographic item')
     end
   end
 
@@ -522,12 +510,13 @@ class Georeference < ApplicationRecord
 
   def geographic_item_present_if_error_radius_provided
     if !error_radius.blank? &&
-      geographic_item_id.blank? && # provide existing
-      geographic_item.blank? # provide new
+        geographic_item_id.blank? && # provide existing
+        geographic_item.blank? # provide new
       errors.add(:error_radius, 'can only be provided when geographic item is provided')
     end
   end
 
+  # TODO: Should be in lib/utilities/geo.rb.
   # @param [Double] from_lat_
   # @param [Double] from_lon_
   # @param [Double] to_lat_
