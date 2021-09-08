@@ -44,14 +44,15 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
     core_records = records[:core].each_with_index.map do |record, index|
       records_lut[record["taxonID"]] = {
         index: index,
-        type: nil,    # will be protonym or combination
+        type: nil, # will be protonym or combination
         dependencies: [],
         dependants: [],
         synonyms: [],
-        synonym_of: nil,    # index of current/valid name
+        synonym_of: nil, # index of current/valid name
         is_hybrid: nil,
         is_synonym: nil,
-        original_combination: nil,  # taxonID of original combination
+        original_combination: nil, # taxonID of original combination
+        protonym_taxon_id: nil,
         parent: record["parentNameUsageID"],
         src_data: record
       }
@@ -68,6 +69,7 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
 
     #
     # Create original combination relationship for each key in original_combination_groups
+    # The protonym should be dependent on the parent of the original combination if it's a subsequent combination
 
 
 
@@ -117,18 +119,28 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
 
         current_record[:type] = :protonym
         current_record[:dependants].concat name_items.reject { |i| i == current_item }
+        current_record[:protonym_taxon_id] = current_record[:src_data]['taxonID']
 
-        current_record[:original_combination] = current_record[:src_data]['taxonID']
+        current_record[:original_combination] = current_record[:src_data]['originalNameUsageID']
 
         # make other names combinations, dependants of current name
         name_items.reject { |i| i == current_item }.each do |index|
           core_records[index][:type] = :combination
           core_records[index][:dependencies] << current_item
+          core_records[index][:protonym_taxon_id] = current_record[:src_data]['taxonID']
         end
+
+        # make protonym depend on original combination's parent, if protonym is not the original combination
+        if current_record[:index] != oc_index
+          current_record[:dependencies] << records_lut[core_records[oc_index][:parent]][:index]
+          records_lut[core_records[oc_index][:parent]][:dependants] << current_record[:index]
+        end
+
       else  # if original combination is only name, make it the protonym
         # TODO is it better to replace name_items.first with oc_index?
         core_records[name_items.first][:type] = :protonym
         core_records[name_items.first][:original_combination] = core_records[name_items.first][:src_data]['taxonID']
+        core_records[name_items.first][:protonym_taxon_id] = core_records[name_items.first][:src_data]['taxonID']
       end
     end
 
@@ -184,8 +196,8 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
 
     # replace dependencies and dependants index values with taxonID values
     core_records.each do |record|
-      record[:dependants].map! {|i| core_records[i][:src_data]["taxonID"]}
-      record[:dependencies].map! {|i| core_records[i][:src_data]["taxonID"]}
+      record[:dependants].map! {|i| core_records[i][:src_data]["taxonID"]}.uniq!
+      record[:dependencies].map! {|i| core_records[i][:src_data]["taxonID"]}.uniq!
     end
 
     # create new dataset record for each row and mark items as ready

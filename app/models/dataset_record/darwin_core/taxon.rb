@@ -44,7 +44,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
         if nomenclature_code == :iczn
           if (authorship_matchdata = authorship.match(/\(?(?<author>.+?),? (?<year>\d{4})?\)?/))
 
-            author_name = authorship_matchdata[:author]
+            author_name = authorship_matchdata[:author].delete_suffix(',')
             year = authorship_matchdata[:year]
 
             # author name should be wrapped in parentheses if the verbatim authorship was
@@ -62,6 +62,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
         # TODO should a year provided in namePublishedInYear overwrite the parsed value?
         year ||= get_field_value("namePublishedInYear")
 
+        # TODO validate that rank is a real rank, otherwise Combination will crash on find_or_initialize_by
         rank = get_field_value("taxonRank")
         is_hybrid = metadata["is_hybrid"] # TODO: NO...
 
@@ -81,7 +82,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             year_of_publication: year
           }
 
-          taxon_name = Protonym.find_or_initialize_by(protonym_attributes.slice(:name, :parent, :rank_class, :year_of_publication))
+          taxon_name = Protonym.create_with(verbatim_author: author_name, project: project).find_or_initialize_by(protonym_attributes.slice(:name, :parent, :rank_class, :year_of_publication))
 
           unless taxon_name.persisted?
             taxon_name.taxon_name_classifications.build(type: TaxonNameClassification::Icn::Hybrid) if is_hybrid
@@ -150,10 +151,11 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
         elsif metadata['type'] == 'combination'
 
-          # get protonym by searching on the original combination
-          current_name_record = find_by_taxonID(get_field_value(:originalNameUsageID))
+          # get protonym from staging metadata
+          protonym_record = find_by_taxonID(metadata['protonym_taxon_id'])
+          # current_name_record = find_by_taxonID(get_field_value(:originalNameUsageID))
 
-          current_name = Protonym.find(current_name_record.metadata["imported_objects"]["taxon_name"]["id"])
+          current_name = Protonym.find(protonym_record.metadata["imported_objects"]["taxon_name"]["id"])
 
           # if lowest_name.length == 0
           #   raise DarwinCore::InvalidData.new(
@@ -176,10 +178,15 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
           combination_attributes = {
             **parent_elements,
-            rank => current_name
+            rank.downcase => current_name
           }
 
-          taxon_name = Combination.find_or_initialize_by(combination_attributes)
+          # Can't use find_or_initialize_by because of dynamic parameters, causes query to fail because ranks are not columns in db
+          # => PG::UndefinedTable: ERROR:  missing FROM-clause entry for table "genus"
+          # LINE 1: ..."taxon_names" WHERE "taxon_names"."type" = $1 AND "genus"."i...
+
+          taxon_name = Combination.find_by_protonym_ids(**combination_attributes.transform_values { |v| v.id })
+          taxon_name = Combination.new(combination_attributes) if taxon_name.empty?
 
         else
           raise DarwinCore::InvalidData.new({ "originalNameUsageID": ["Could not determine if name is protonym or combination"] })
