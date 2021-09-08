@@ -174,7 +174,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context 'when importing a combination that moved genera' do
-    let!(:import_dataset) {
+    let(:import_dataset) {
       ImportDataset::DarwinCore::Checklist.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/combination.tsv'), 'text/plain'),
         description: 'Testing'
