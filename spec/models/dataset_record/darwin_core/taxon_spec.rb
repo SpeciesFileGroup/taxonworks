@@ -39,6 +39,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     end
 
     it 'saves DwC-A import metadata as a data attribute' do
+      pending
     end
 
   end
@@ -51,7 +52,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       ).tap { |i| i.stage }
     }
 
-    let!(:results) { import_dataset.import(5000, 100).concat(import_dataset.import(5000, 100)) }
+    let!(:results) { import_dataset.import(5000, 100).concat(import_dataset.import(5000, 100)).concat(import_dataset.import(5000, 100)) }
 
     it 'should create 4 imported records' do
       expect(results.length).to eq(4)
@@ -59,20 +60,19 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     end
 
     it 'should have three child records' do
-      # pass
+      expect(TaxonName.find_by_name("Tanaemyrmex").descendant_protonyms.length).to eq 3
     end
 
     it 'should have a homonym relationship' do
-      #
+      expect(TaxonNameClassification.find_by_taxon_name_id(TaxonName.find_by(name: 'barbatus', year_of_publication: 1926)).type).to eq('TaxonNameClassification::Iczn::Available::Invalid::Homonym')
     end
 
     it 'should should have a replacement name relationship' do
-      # pass
+      pending "if we can derive this data from DwC spec"
     end
 
-    it 'should have 3 original combinations' do
-      # or does the subgenus also count?
-      # pass
+    it 'should have 4 original combination relationships' do
+      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 4
     end
 
   end
@@ -90,10 +90,10 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     let(:synonym_parent_id) { results[2].metadata.dig('imported_objects', 'taxon_name', 'id') }
     let(:synonym_id) { results[3].metadata.dig('imported_objects', 'taxon_name', 'id') }
 
-    let!(:results) { import_dataset.import(5000, 100).concat(import_dataset.import(5000, 100)) }
+    let!(:results) { import_dataset.import(5000, 100).concat(import_dataset.import(5000, 100)).concat(import_dataset.import(5000, 100)) }
 
-    it 'should create 3 records' do
-      expect(results.length).to eq(3)
+    it 'should create 4 records' do
+      expect(results.length).to eq(4)
       expect(results.map { |row| row.status }).to all(eq('Imported'))
     end
 
@@ -104,7 +104,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     end
 
     it 'should have four original combinations' do
-      # pass
+      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 4
     end
 
     it 'the synonym should be cached invalid' do
@@ -144,6 +144,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     end
 
     it 'should have 5 valid taxon names' do
+      pending
     end
 
     it 'Pheidole longipes author name should be the same as Formica longipes but in parentheses' do
@@ -155,14 +156,19 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     end
 
     it 'Anoplolepis longipes should be a homonym of Pheidole longipes' do
+      pending
     end
 
-    it 'Formica longipes Jerdon, 1851 should have a replacement of Anoplolepis gracilipes'
+    it 'Formica longipes Jerdon, 1851 should have a replacement of Anoplolepis gracilipes' do
+      pending
+    end
 
     it 'Pheidole longipes cached original combination should be Formica longipes' do
+      pending
     end
 
     it 'Anoplolepis longipes valid taxon should be Anoplolepis gracilipes' do
+      pending
     end
 
   end

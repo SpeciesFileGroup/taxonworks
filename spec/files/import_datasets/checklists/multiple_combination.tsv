@@ -1,0 +1,12 @@
+taxonID	parentNameUsageID	parentNameUsage	acceptedNameUsageID	acceptedNameUsage	scientificName	kingdom	class	order	family	genus	subgenus	specificEpithet	infraspecificEpithet	taxonRank	scientificNameAuthorship	taxonomicStatus	originalNameUsage	originalNameUsageID	namePublishedInYear	nomenclaturalCode
+
+429349			429349	Formica Linnaeus, 1758	Formica	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Linnaeus, 1758	valid			1758	ICZN
+
+437854	429349	Formica Linnaeus, 1758	437856	Formica truncorum Fabricius, 1804	Formica truncicola	Animalia	Insecta	Hymenoptera	Formicidae	Formica		truncicola		Species	Nylander, 1846	synonym	Formica truncicola Nylander, 1846	437854	1846	ICZN
+437856	429349	Formica Linnaeus, 1758	437856	Formica truncorum Fabricius, 1804	Formica truncorum	Animalia	Insecta	Hymenoptera	Formicidae	Formica		truncorum		Species	Fabricius, 1804	valid	Formica truncorum Fabricius, 1804	437856	1804	ICZN
+
+437754	429349	Formica Linnaeus, 1758	437754	Formica rufa Linnaeus, 1761	Formica rufa	Animalia	Insecta	Hymenoptera	Formicidae	Formica		rufa		Species	Linnaeus, 1761	valid	Formica rufa Linnaeus, 1761	437754	1761	ICZN
+
+437537	429349	Formica Linnaeus, 1758	437537	Formica integra Nylander, 1856	Formica integra	Animalia	Insecta	Hymenoptera	Formicidae	Formica		integra		Species	Nylander, 1856	valid	Formica integra Nylander, 1856	437537	1856	ICZN
+509996	437854	Formica truncicola Nylander, 1846	437537	Formica integra Nylander, 1856	Formica truncicola integra	Animalia	Insecta	Hymenoptera	Formicidae	Formica		truncicola	integra	Subspecies	Nylander, 1856	obsolete combination	Formica integra Nylander, 1856	437537	1856	ICZN
+510248	437754	Formica rufa Linnaeus, 1761	437537	Formica integra Nylander, 1856	Formica rufa integra	Animalia	Insecta	Hymenoptera	Formicidae	Formica		rufa	integra	Subspecies	Nylander, 1856	obsolete combination	Formica integra Nylander, 1856	437537	1856	ICZN
