@@ -3,7 +3,7 @@ import ActionNames from './actionNames'
 export default ({ dispatch, state }) => {
   const { locked } = state.settings
 
-  dispatch(ActionNames.NewCollectionEvent)
+  dispatch(ActionNames.NewCollectingEvent)
   dispatch(ActionNames.NewCollectionObject)
   dispatch(ActionNames.NewTypeMaterial)
   dispatch(ActionNames.NewIdentifier)

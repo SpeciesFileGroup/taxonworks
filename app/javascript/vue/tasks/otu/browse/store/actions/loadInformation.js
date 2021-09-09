@@ -27,7 +27,6 @@ export default ({ dispatch, commit, state }, otus) => {
 
   dispatch(ActionNames.LoadObservationDepictions, otus)
   dispatch(ActionNames.LoadDescendants, state.currentOtu)
-  dispatch(ActionNames.LoadAssertedDistributions, state.otus.map(otu => otu.id))
   dispatch(ActionNames.LoadPreferences)
 
   async function processArray(array) {
@@ -38,4 +37,5 @@ export default ({ dispatch, commit, state }, otus) => {
     state.loadState.assertedDistribution = false
   }
   processArray(otus)
+  dispatch(ActionNames.LoadAssertedDistributions, state.otus.map(otu => otu.id))
 }

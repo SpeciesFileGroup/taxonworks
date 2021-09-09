@@ -8,7 +8,7 @@
           <th class="word-keep-all">Coordinates</th>
           <th class="word-keep-all line-nowrap">Error radius</th>
           <th class="word-keep-all">Type</th>
-          <th></th>
+          <th />
         </tr>
       </thead>
       <tbody>
@@ -44,7 +44,10 @@
 
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import EditInPlace from 'components/editInPlace'
-import GeoreferenceTypes from '../../../const/georeferenceTypes'
+import {
+  GEOREFERENCE_GEOLOCATE,
+  GEOREFERENCE_WKT
+} from 'constants/index.js'
 
 export default {
   components: {
@@ -104,10 +107,10 @@ export default {
       return this.geojsonObject(object).geometry.type
     },
     isTmpWkt (object) {
-      return object.type === GeoreferenceTypes.Wkt && object.tmpId
+      return object.type === GEOREFERENCE_WKT && object.tmpId
     },
     isTempGeolocate (object) {
-      return object.type === GeoreferenceTypes.Geolocate && object.tmpId
+      return object.type === GEOREFERENCE_GEOLOCATE && object.tmpId
     },
     getCoordinatesByType (object) {
       if (this.isTmpWkt(object)) {

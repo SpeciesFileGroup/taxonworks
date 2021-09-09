@@ -96,12 +96,15 @@ export default {
     geographicAreaId () {
       return this.collectingEvent.geographic_area_id
     },
+
     verbatimLatitude () {
       return this.collectingEvent.verbatim_latitude
     },
+
     verbatimLongitude () {
       return this.collectingEvent.verbatim_longitude
     },
+
     geographicArea () {
       return this.$store.getters[GetterNames.GetGeographicArea]
     }

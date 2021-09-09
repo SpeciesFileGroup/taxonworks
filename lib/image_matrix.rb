@@ -2,6 +2,12 @@
 #
 # http://localhost:3000/tasks/observation_matrices/image_matrix/0/key?otu_filter=30947|22978|23065
 #
+#
+# @proceps: TODO: remove all `@` when getting the value from @variable in methods.  Only use `@` when setting the variable, like so:
+#  attr_accessor :foo
+#  @foo = 1
+#  foo = 1 ? true : false
+#
 class ImageMatrix
 
   ##### FILTER PARAMETERS #####
@@ -130,13 +136,13 @@ class ImageMatrix
   attr_accessor :list_of_image_ids
 
   def initialize(
-      observation_matrix_id: nil,
-      project_id: nil,
-      language_id: nil,
-      keyword_ids: nil,
-      row_filter: nil,
-      otu_filter: nil,
-      identified_to_rank: nil)
+    observation_matrix_id: nil,
+    project_id: nil,
+    language_id: nil,
+    keyword_ids: nil,
+    row_filter: nil,
+    otu_filter: nil,
+    identified_to_rank: nil)
 
     @observation_matrix_id = observation_matrix_id
     @project_id = project_id
@@ -152,7 +158,10 @@ class ImageMatrix
     @rows_with_filter = get_rows_with_filter
     @identified_to_rank = identified_to_rank
     @row_hash = row_hash_initiate
+ 
+ 
     @descriptors_with_filter = descriptors_with_keywords
+  
     @descriptor_available_languages = descriptor_available_languages_list
     @language_to_use = language_to_use
     ###main_logic
@@ -164,7 +173,8 @@ class ImageMatrix
     @row_hash = nil
     @rows_with_filter = []
     @list_of_image_ids = nil
-    @descriptors_with_filter = nil
+
+    @descriptors_with_filter = nil #!?@#
   end
 
   def find_observation_matrix
@@ -180,8 +190,8 @@ class ImageMatrix
     return nil if @descriptors_with_filter.nil?
     descriptor_ids = @descriptors_with_filter.collect{|i| i.id}
     languages = Language.joins(:alternate_value_translations)
-                    .where(alternate_values: {alternate_value_object_type: 'Descriptor', type: 'AlternateValue::Translation'})
-                    .where('alternate_values.alternate_value_object_id IN (?)', descriptor_ids ).order('languages.english_name').distinct.to_a
+      .where(alternate_values: {alternate_value_object_type: 'Descriptor', type: 'AlternateValue::Translation'})
+      .where('alternate_values.alternate_value_object_id IN (?)', descriptor_ids ).order('languages.english_name').distinct.to_a
     unless languages.empty?
       languages = Language.where(english_name: 'English').to_a + languages
     end
@@ -199,8 +209,8 @@ class ImageMatrix
     return nil if descriptors.nil?
     descriptor_ids = descriptors.pluck(:id)
     tags = Keyword.joins(:tags)
-               .where(tags: {tag_object_type: 'Descriptor'})
-               .where('tags.tag_object_id IN (?)', descriptor_ids ).order('name').distinct.to_a
+      .where(tags: {tag_object_type: 'Descriptor'})
+      .where('tags.tag_object_id IN (?)', descriptor_ids ).order('name').distinct.to_a
   end
 
   def descriptors_with_keywords
@@ -241,10 +251,10 @@ class ImageMatrix
     end
     rows.each do |r|
       case r.class.to_s
-        when 'Otu'
-          otu_collection_object = r.id.to_s + '|'
-        when 'ObservationMatrixRow'
-          otu_collection_object = r.otu_id.to_s + '|' + r.collection_object_id.to_s
+      when 'Otu'
+        otu_collection_object = r.id.to_s + '|'
+      when 'ObservationMatrixRow'
+        otu_collection_object = r.otu_id.to_s + '|' + r.collection_object_id.to_s
       end
       h[otu_collection_object] = {}
       h[otu_collection_object][:object] = r
@@ -292,7 +302,7 @@ class ImageMatrix
                     row_id: r_value[:object].id,
                     otu_id: r_value[:otu_id],
                     depictions: Array.new(descriptors_count) {Array.new},
-                    } if h[r_key].nil?
+        } if h[r_key].nil?
       end
     end
 
@@ -309,14 +319,14 @@ class ImageMatrix
   end
 
   def observation_depictions_from_otu_filter
-      Depiction.select('depictions.*, observations.descriptor_id, observations.otu_id, observations.collection_object_id, sources.id AS source_id, sources.cached_author_string, sources.year, sources.cached AS source_cached')
-          .joins("INNER JOIN observations ON observations.id = depictions.depiction_object_id")
-          .joins("INNER JOIN images ON depictions.image_id = images.id")
-          .joins("LEFT OUTER JOIN citations ON citations.citation_object_id = images.id AND citations.citation_object_type = 'Image' AND citations.is_original IS TRUE")
-          .joins("LEFT OUTER JOIN sources ON citations.source_id = sources.id")
-          .where("observations.type = 'Observation::Media' AND observations.otu_id IN (?)", @otu_id_filter_array)
-          .where('observations.project_id = (?)', @project_id)
-          .order('depictions.position')
+    Depiction.select('depictions.*, observations.descriptor_id, observations.otu_id, observations.collection_object_id, sources.id AS source_id, sources.cached_author_string, sources.year, sources.cached AS source_cached')
+      .joins("INNER JOIN observations ON observations.id = depictions.depiction_object_id")
+      .joins("INNER JOIN images ON depictions.image_id = images.id")
+      .joins("LEFT OUTER JOIN citations ON citations.citation_object_id = images.id AND citations.citation_object_type = 'Image' AND citations.is_original IS TRUE")
+      .joins("LEFT OUTER JOIN sources ON citations.source_id = sources.id")
+      .where("observations.type = 'Observation::Media' AND observations.otu_id IN (?)", @otu_id_filter_array)
+      .where('observations.project_id = (?)', @project_id)
+      .order('depictions.position')
   end
 
   # returns {123: ['1', '3'], 125: ['3', '5'], 135: ['2'], 136: ['true'], 140: ['5-10']}
@@ -351,11 +361,11 @@ class ImageMatrix
   end
 
   def build_image_hash
-#    if !@otu_filter.blank? || !@row_filter.blank?
-#      img_ids = observation_depictions_from_otu_filter.pluck(:image_id).uniq
-#    else
-#      img_ids = @observation_matrix.observation_depictions.pluck(:image_id).uniq
-#    end
+    #    if !@otu_filter.blank? || !@row_filter.blank?
+    #      img_ids = observation_depictions_from_otu_filter.pluck(:image_id).uniq
+    #    else
+    #      img_ids = @observation_matrix.observation_depictions.pluck(:image_id).uniq
+    #    end
     h = {}
     #imgs = Image.where('id IN (?)', img_ids )
     imgs = Image.where('id IN (?)', @list_of_image_ids )

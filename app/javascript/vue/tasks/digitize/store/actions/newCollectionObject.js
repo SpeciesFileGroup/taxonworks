@@ -1,9 +1,9 @@
 import { MutationNames } from '../mutations/mutations'
-import newCollectionObject from '../../const/collectionObject'
+import makeCollectionObject from 'factory/CollectionObject'
 
 export default ({ commit, state }) => {
   const lockSettings = state.settings.locked
-  const newCO = newCollectionObject()
+  const newCO = makeCollectionObject()
   const lockedCO = lockSettings.collection_object
   const keys = Object.keys(lockedCO)
 

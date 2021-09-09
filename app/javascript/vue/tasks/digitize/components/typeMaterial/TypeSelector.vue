@@ -1,6 +1,6 @@
 <template>
   <div class="separate-bottom">
-    <p>Type type</p>
+    <p>Type</p>
     <ul class="no_bullets">
       <template
         v-for="(item, key) in typeList"

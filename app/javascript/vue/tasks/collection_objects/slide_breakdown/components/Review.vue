@@ -32,7 +32,7 @@
             :key="item.id"
             class="contextMenuCells"
             :class="{ 'even': (index % 2 == 0) }"
-            @click="sendCO(item)">
+          >
             <td>
               <radial-annotator :global-id="item.global_id"/>
             </td>
@@ -48,12 +48,10 @@
             <td>{{ item.dwc_attributes.family }}</td>
             <td>{{ item.dwc_attributes.genus }}</td>
             <td>{{ item.dwc_attributes.scientificName }}</td>
-            <template>
-              <td 
-                v-if="item.identifier_from_container"
-                v-html="item.object_tag"/>
-              <td v-else>{{ item.dwc_attributes.catalogNumber}}</td>
-            </template>
+            <td
+              v-if="item.identifier_from_container"
+              v-html="item.object_tag"/>
+            <td v-else>{{ item.dwc_attributes.catalogNumber}}</td>
             <td>{{ item.biocuration }}</td>
             <td>{{ item.dwc_attributes.country }}</td>
             <td>{{ item.dwc_attributes.stateProvince }}</td>
@@ -103,9 +101,8 @@ export default {
     if (this.sledImage.id) {
       this.isLoading = true
       Report(this.sledImage.id).then(response => {
-        this.isLoading = false
         this.list = response.body
-      }, () => {
+      }).finally(_ => {
         this.isLoading = false
       })
     }

@@ -12,18 +12,22 @@
           klass="CollectionObject"
           pin-section="Repositories"
           pin-type="Repository"
+          v-model="repositorySelected"
           @selected="setRepository"/>
         <lock-component
           class="margin-small-left"
           v-model="locked.collection_object.repository_id"/>
       </div>
-      <template v-if="repository">
-        <div class="middle separate-top">
-          <span data-icon="ok"/>
-          <span class="separate-right"> {{ repositorySelected }}</span>
+      <template v-if="repositorySelected">
+        <hr>
+        <div class="middle flex-separate">
+          <p>
+            <span data-icon="ok"/>
+            <span v-html="repositorySelected.object_tag"/>
+          </p>
           <span
             class="circle-button button-default btn-undo"
-            @click="repository = null"/>
+            @click="setRepository(null)"/>
         </div>
       </template>
     </fieldset>
@@ -38,59 +42,54 @@ import LockComponent from 'components/ui/VLock/index.vue'
 import { Repository } from 'routes/endpoints'
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
-import refreshSmartSelector from '../shared/refreshSmartSelector'
+import extendCO from './mixins/extendCO.js'
 
 export default {
-  mixins: [refreshSmartSelector],
+  mixins: [extendCO],
+
   components: {
     SmartSelector,
     LockComponent
   },
-  computed: {
-    locked: {
-      get() {
-        return this.$store.getters[GetterNames.GetLocked]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetLocked, value)
-      }
-    },
-    collectionObject() {
-      return this.$store.getters[GetterNames.GetCollectionObject]
-    },
-    repository: {
-      get() {
-        return this.$store.getters[GetterNames.GetCollectionObject].repository_id
-      },
-      set(value) {
-        return this.$store.commit(MutationNames.SetCollectionObjectRepositoryId, value)
-      }
-    }
-  },
-  watch: {
-    repository(newVal, oldVal) {
-      if (newVal) {
-        Repository.find(newVal).then(response => {
-          this.setRepository(response.body)
-        })
-      }
-    },
-    collectionObject(newVal, oldVal) {
-      if (!newVal.id || newVal.id === oldVal.id) return
-      this.$refs.smartSelector.refresh()
-    }
-  },
+
   data () {
     return {
       repositorySelected: undefined
     }
   },
+
+  computed: {
+    locked: {
+      get () {
+        return this.$store.getters[GetterNames.GetLocked]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetLocked, value)
+      }
+    },
+
+    repositoryId: {
+      get () {
+        return this.$store.getters[GetterNames.GetCollectionObject].repository_id
+      }
+    }
+  },
+
+  watch: {
+    repositoryId (newVal) {
+      if (newVal) {
+        Repository.find(newVal).then(response => {
+          this.setRepository(response.body)
+        })
+      }
+    }
+  },
+
   methods: {
-    setRepository(repository) {
-      this.repository = repository.id
-      this.repositorySelected = repository.object_tag
+    setRepository (repository) {
+      this.repositorySelected = repository
+      this.collectionObject.repository_id = repository?.id
     }
   }
 }
 </script>
-

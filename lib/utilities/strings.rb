@@ -40,9 +40,10 @@ module Utilities::Strings
   end
 
   # @param [String] string
-  # @return [String]
+  # @return [String, Boolean]
   #   increments the *first* integer encountered in the string, wrapping it
-  #   in *only* the immediate non integer strings before and after (see tests)
+  #   in *only* the immediate non integer strings before and after (see tests).
+  #   Returns false if no number is found
   def self.increment_contained_integer(string)
     string =~ /([^\d]*)(\d+)([^\d]*)/
     a, b, c = $1, $2, $3
@@ -96,12 +97,17 @@ module Utilities::Strings
     last_names.to_sentence(two_words_connector: ' & ', last_word_connector: ' & ')
   end
 
+  # Splits a string on special characters, returning an array of the strings that do not contain digits.
+  #
+  # It splits on accent characters, and does not split on underscores. The method is used for building wildcard searches,
+  # so splitting on accents creates pseudo accent insensitivity in searches.
+  #
   # @param string [String]
   # @return [Array]
-  #   whitespace split, then any string containing a digit eliminated
+  #   whitespace and special character split, then any string containing a digit eliminated
   def self.alphabetic_strings(string)
     return [] if string.nil? || string.length == 0
-    string.split(/\W/).select{|b| !(b =~ /\d/) }
+    string.split(/\W/).select{|b| !(b =~ /\d/) }.reject { |b| b.empty? }
   end
 
 
@@ -110,7 +116,7 @@ module Utilities::Strings
   #   !! this is a bad sign, you should know your encoding *before* it gets to needing this
   def self.encode_with_utf8(string)
     return false if string.nil?
-    if Encoding.compatible?('test'.encode(Encoding::UTF_8), string) 
+    if Encoding.compatible?('test'.encode(Encoding::UTF_8), string)
       string.force_encoding(Encoding::UTF_8)
     else
       false
@@ -130,7 +136,9 @@ module Utilities::Strings
     string.match(/\d{4}([a-zAZ]+)/).to_a.last
   end
 
-  # @return [Array]
+  # Get numbers separated by spaces from a string
+  # @param [String] string
+  # @return [Array<String>]
   #   of strings representing integers
   def self.integers(string)
     return [] if string.nil? || string.length == 0
@@ -138,7 +146,7 @@ module Utilities::Strings
   end
 
   # @return [Boolean]
-  #   true if the query string only contains integers
+  #   true if the query string only contains integers separated by whitespace
   def self.only_integers?(string)
     !(string =~ /[^\d\s]/i) && !integers(string).empty?
   end

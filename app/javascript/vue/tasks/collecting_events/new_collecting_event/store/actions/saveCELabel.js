@@ -1,10 +1,11 @@
+import { IDENTIFIER_LOCAL_TRIP_CODE } from 'constants/index.js'
 import { Label } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 import { copyObjectByProperties } from 'helpers/objects'
-import makeLabel from '../../const/makeLabel'
+import makeLabel from 'factory/Label.js'
 
 export default async ({ commit, state }) => {
-  const newLabel = makeLabel()
+  const newLabel = makeLabel(IDENTIFIER_LOCAL_TRIP_CODE, 'CollectingEvent')
   const label = state.ceLabel
 
   if (label.text.length && label.total) {

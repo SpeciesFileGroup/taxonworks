@@ -125,7 +125,7 @@ export default {
       return this.$store.getters[GetterNames.GetCollectionObject]
     },
     collectingEvent() {
-      return this.$store.getters[GetterNames.GetCollectionEvent]
+      return this.$store.getters[GetterNames.GetCollectingEvent]
     },
     settings: {
       get () {

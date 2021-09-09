@@ -5,7 +5,7 @@ import SetParam from 'helpers/setParam'
 export default ({ commit, state }, co) =>
   new Promise((resolve, reject) => {
     const collection_object = co
-    collection_object.collecting_event_id = state.collection_event.id
+    collection_object.collecting_event_id = state.collecting_event.id
 
     if (collection_object.id) {
       CollectionObject.update(co.id, { collection_object }).then(response => {

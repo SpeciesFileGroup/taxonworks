@@ -59,11 +59,6 @@ export default {
     list: {
       type: Array,
       default: () => []
-    },
-
-    lock: {
-      type: Boolean,
-      required: true
     }
   },
 
@@ -94,7 +89,7 @@ export default {
     getCitationString(object) {
       if (object?.citation) {
         return object.citation.label
-      } else if(object.hasOwnProperty('origin_citation')) {
+      } else if (object.hasOwnProperty('origin_citation')) {
         const citation = object.origin_citation.source.cached_author_string
 
         return object.origin_citation.source.hasOwnProperty('year')

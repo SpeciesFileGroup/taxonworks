@@ -1,9 +1,9 @@
 import { BiologicalAssociation } from 'routes/endpoints'
 
-export default ({ commit, state: { biologicalAssociations, collection_object } }) => {
-  const promises = []
+export default ({ commit, state: { biologicalAssociations, collection_object } }) =>
+  new Promise((resolve, reject) => {
+    const promises = []
 
-  return new Promise((resolve, reject) => {
     biologicalAssociations.forEach((item, index) => {
       if (!item.id) {
         const biological_association = {
@@ -21,4 +21,3 @@ export default ({ commit, state: { biologicalAssociations, collection_object } }
       resolve(responses)
     })
   })
-}

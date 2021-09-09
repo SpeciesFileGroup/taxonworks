@@ -17,11 +17,11 @@
       </template>
       <template #body>
         <div id="collection-object-form">
-          <catalogue-number />
-          <repository-component />
-          <preparation-type />
-          <div class="row-item">
-            <h2 class="horizontal-left-content">
+          <catalogue-number class="panel content"/>
+          <repository-component class="panel content" />
+          <preparation-type class="panel content" />
+          <div class="row-item panel content">
+            <h2 class="flex-separate">
               Buffered
               <expand-component
                 class="margin-small-left"
@@ -29,34 +29,39 @@
                 @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showBuffered', $event)"
               />
             </h2>
-            <div
+            <buffered-component
               v-if="showBuffered"
-              class="horizontal-right-content">
-              <buffered-component
-                class="separate-top separate-right"/>
+              class="field"/>
+          </div>
+          <div class="row-item">
+            <div class="depict-validation-row">
+              <div class="panel content column-depictions">
+                <h2 class="flex-separate">
+                  Depictions
+                  <expand-component
+                    class="margin-small-left"
+                    v-model="showDepictions"
+                    @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showDepictions', $event)"
+                  />
+                </h2>
+                <depictions-component
+                  v-if="showDepictions"
+                  :object-value="collectionObject"
+                  :get-depictions="GetCollectionObjectDepictions"
+                  object-type="CollectionObject"
+                  @create="createDepictionForAll"
+                  @delete="removeAllDepictionsByImageId"
+                  default-message="Drop images or click here<br> to add collection object figures"
+                  action-save="SaveCollectionObject"/>
+              </div>
+              <soft-validations
+                class="column-validation"
+                :validations="validations"
+              />
             </div>
           </div>
-          <div class="row-item">
-            <h2 class="horizontal-left-content">
-              Depictions
-              <expand-component
-                class="margin-small-left"
-                v-model="showDepictions"
-                @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showDepictions', $event)"
-              />
-            </h2>
-            <depictions-component
-              v-if="showDepictions"
-              :object-value="collectionObject"
-              :get-depictions="GetCollectionObjectDepictions"
-              object-type="CollectionObject"
-              @create="createDepictionForAll"
-              @delete="removeAllDepictionsByImageId"
-              default-message="Drop images or click here<br> to add collection object figures"
-              action-save="SaveCollectionObject"/>
-          </div>
-          <div class="row-item">
-            <h2 class="horizontal-left-content">
+          <div class="panel content column-citations">
+            <h2 class="flex-separate">
               Citations
               <expand-component
                 class="margin-small-left"
@@ -64,10 +69,10 @@
                 @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showCitations', $event)"
               />
             </h2>
-            <citation-component v-if="showCitations" />
+            <citation-component v-if="showCitations"/>
           </div>
-          <div class="row-item">
-            <h2 class="horizontal-left-content">
+          <div class="panel content column-attribute">
+            <h2 class="flex-separate">
               Attributes
               <expand-component
                 class="margin-small-left"
@@ -94,8 +99,8 @@
               />
             </div>
           </div>
+          <container-items class="row-item"/>
         </div>
-        <container-items/>
       </template>
     </block-layout>
   </div>
@@ -122,9 +127,9 @@ import RadialObject from 'components/radials/object/radial.vue'
 import PredicatesComponent from 'components/custom_attributes/predicates/predicates'
 import DefaultTag from 'components/defaultTag.vue'
 import platformKey from 'helpers/getPlatformKey'
-
-import { GetCollectionObjectDepictions } from '../../request/resources.js'
-import { Depiction, User } from 'routes/endpoints'
+import SoftValidations from 'components/soft_validations/panel.vue'
+import { Depiction, User, CollectionObject } from 'routes/endpoints'
+import { COLLECTION_OBJECT } from 'constants/index.js'
 
 export default {
   components: {
@@ -142,7 +147,8 @@ export default {
     RadialObject,
     DefaultTag,
     ExpandComponent,
-    RadialNavigation
+    RadialNavigation,
+    SoftValidations
   },
   computed: {
     preferences: {
@@ -158,8 +164,13 @@ export default {
       return this.$store.getters[GetterNames.GetProjectPreferences]
     },
 
-    collectionObject () {
-      return this.$store.getters[GetterNames.GetCollectionObject]
+    collectionObject: {
+      get () {
+        return this.$store.getters[GetterNames.GetCollectionObject]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetCollectionObject, value)
+      }
     },
 
     collectionObjects() {
@@ -175,24 +186,24 @@ export default {
       }
     },
 
-    total: {
-      get() {
-        return this.$store.getters[GetterNames.GetCollectionObject].total
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetCollectionObjectTotal, value)
-      }
-    },
-
     shortcuts () {
       const keys = {}
 
       keys[`${platformKey()}+e`] = this.openBrowse
 
       return keys
+    },
+
+    validations () {
+      const { Specimen } = this.$store.getters[GetterNames.GetSoftValidations]
+
+      return Specimen
+        ? { Specimen }
+        : {}
     }
   },
-  data() {
+
+  data () {
     return {
       types: [],
       labelRepository: undefined,
@@ -201,7 +212,7 @@ export default {
       showBuffered: true,
       showCitations: true,
       showDepictions: true,
-      GetCollectionObjectDepictions
+      GetCollectionObjectDepictions: CollectionObject.depictions
     }
   },
   watch: {
@@ -231,24 +242,28 @@ export default {
   },
   methods: {
     setAttributes (value) {
-      this.$store.commit(MutationNames.SetCollectionObjectDataAttributes, value)
+      this.collectionObject.data_attributes_attributes = value
     },
+
     updatePreferences (key, value) {
       User.update(this.preferences.id, { user: { layout: { [key]: value } } }).then(response => {
         this.preferences.layout = response.body.preferences.layout
       })
     },
+
     newDigitalization () {
       this.$store.dispatch(ActionNames.NewCollectionObject)
       this.$store.dispatch(ActionNames.NewIdentifier)
       this.$store.commit(MutationNames.NewTaxonDetermination)
       this.$store.commit(MutationNames.SetTaxonDeterminations, [])
     },
+
     saveCollectionObject() {
       this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
         this.$store.commit(MutationNames.SetTaxonDeterminations, [])
       })
     },
+
     saveAndNew() {
       this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
         setTimeout(() => {
@@ -256,11 +271,13 @@ export default {
         }, 500)
       })
     },
-    cloneDepictions(co) {
+
+    cloneDepictions (co) {
       const unique = new Set()
       const depictionsRemovedDuplicate = this.depictions.filter(depiction => {
-        let key = depiction.image_id,
-          isNew = !unique.has(key)
+        const key = depiction.image_id
+        const isNew = !unique.has(key)
+
         if (isNew) unique.add(key)
         return isNew
       })
@@ -273,16 +290,18 @@ export default {
         }
       })
     },
-    saveDepiction(coId, depiction) {
+
+    saveDepiction (coId, depiction) {
       const data = {
         depiction_object_id: coId,
-        depiction_object_type: 'CollectionObject',
+        depiction_object_type: COLLECTION_OBJECT,
         image_id: depiction.image_id
       }
       Depiction.create({ depiction: data }).then(response => {
         this.depictions.push(response.body)
       })
     },
+
     createDepictionForAll(depiction) {
       const coIds = this.collectionObjects.map((co) => co.id).filter(id => this.collectionObject.id !== id)
 
@@ -291,9 +310,11 @@ export default {
         this.saveDepiction(id, depiction)
       })
     },
+
     removeAllDepictionsByImageId(depiction) {
       this.$store.dispatch(ActionNames.RemoveDepictionsByImageId, depiction)
     },
+
     openBrowse () {
       if (this.collectionObject.id) {
         window.open(`/tasks/collection_objects/browse?collection_object_id=${this.collectionObject.id}`, '_self')
@@ -310,7 +331,28 @@ export default {
     gap: 0.5em;
   }
 
+  .depict-validation-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.5em;
+  }
+
+  .column-validation {
+    grid-column: 3 / 4;
+  }
+  .column-depictions {
+    grid-column: 1 / 3;
+  }
+  .row-1-3 {
+    grid-column: 1 / 3;
+  }
   .row-item {
-    grid-column: 1 / 4
+    grid-column: 1 / 4;
+  }
+  .column-attribute {
+    grid-column: 3 / 4;
+  }
+  .column-citations {
+    grid-column: 1 / 3;
   }
 </style>

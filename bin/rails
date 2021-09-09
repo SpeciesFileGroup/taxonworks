@@ -1,19 +1,4 @@
 #!/usr/bin/env ruby
-
-# Uncomment if you want to see the order of includes, TODO: put behind an ENV variable
-# files = []
-# tp = TracePoint.new(:line) do |tp|
-#   if tp.path =~ /taxonworks/
-#     unless files.include? tp.path
-#     puts "#{tp.path}".inspect
-#     files.push(tp.path)
-#     end
-#   end
-# end
-# tp.enable
-
-
-APP_PATH = File.expand_path('../../config/application',  __FILE__)
-require_relative '../config/boot'
-require 'rails/commands'
-
+APP_PATH = File.expand_path('../config/application', __dir__)
+require_relative "../config/boot"
+require "rails/commands"

@@ -19,20 +19,22 @@
           <td v-html="item.biological_association_object_id === metadata.object_id ? item.biological_relationship.inverted_name : item.biological_relationship.name"/>
           <td v-html="getSubjectOrObject(item)"/>
           <td>{{ item.biological_association_object_id === metadata.object_id }}</td>
-          <td class="vue-table-options">
-            <citation-count
-              :object="item"
-              :values="item.citations"
-              target="biological_associations"
-            />
-            <span
-              class="circle-button btn-edit"
-              @click="$emit('edit', item)"/>
-            <radial-annotator :global-id="item.global_id"/>
-            <span
-              class="circle-button btn-delete"
-              @click="deleteItem(item)">Remove
-            </span>
+          <td>
+            <div class="vue-table-options">
+              <citation-count
+                :object="item"
+                :values="item.citations"
+                target="biological_associations"
+              />
+              <span
+                class="circle-button btn-edit"
+                @click="$emit('edit', item)"/>
+              <radial-annotator :global-id="item.global_id"/>
+              <span
+                class="circle-button btn-delete"
+                @click="deleteItem(item)">Remove
+              </span>
+            </div>
           </td>
         </tr>
       </transition-group>
@@ -66,23 +68,16 @@ export default {
     'edit'
   ],
 
-  mounted () {
-    this.$options.components['RadialAnnotator'] = RadialAnnotator
-  },
-
   methods: {
     deleteItem (item) {
-      if (window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+      if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
         this.$emit('delete', item)
       }
     },
     getSubjectOrObject (item) {
-      if(item.biological_association_object_id == this.metadata.object_id) {
-        return item.subject.object_tag
-      }
-      else {
-        return item.object.object_tag
-      }
+      return item.biological_association_object_id === this.metadata.object_id
+        ? item.subject.object_tag
+        : item.object.object_tag
     },
     getCitationString (object) {
       if (object.hasOwnProperty('origin_citation')) {

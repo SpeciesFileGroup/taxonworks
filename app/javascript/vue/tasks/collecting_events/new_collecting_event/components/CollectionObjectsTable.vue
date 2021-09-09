@@ -115,7 +115,7 @@
                   <th>ID</th>
                   <th>Identifier</th>
                   <th>Determination</th>
-                  <th></th>
+                  <th />
                 </tr>
               </thead>
               <tbody>
@@ -147,6 +147,7 @@
 
 <script>
 
+import { IDENTIFIER_LOCAL_TRIP_CODE } from 'constants/index.js'
 import BiocurationComponent from './Biocuration'
 import PreparationTypes from './PreparationTypes'
 import ModalComponent from 'components/ui/Modal'
@@ -242,7 +243,7 @@ export default {
             ? [{
                 identifier: identifier.identifier,
                 namespace_id: identifier.namespace.id,
-                type: 'Identifier::Local::CatalogNumber',
+                type: IDENTIFIER_LOCAL_TRIP_CODE,
                 labels_attributes: this.labelType
                   ? [{
                       text_method: 'build_cached',

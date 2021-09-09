@@ -1,3 +1,3 @@
-export default function(state, value) {
+export default (state, value) => {
   state.taxon_determination = value
 }

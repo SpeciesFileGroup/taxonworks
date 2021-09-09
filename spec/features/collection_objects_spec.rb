@@ -47,7 +47,7 @@ describe 'CollectionObjects', type: :feature do
     context 'batch load', js: true do
       context 'collection objects from buffered strings' do
         let(:file) { 'spec/files/batch/collection_object/co_from_strings.tsv' }
-        let(:upload_file) { fixture_file_upload(file) }
+        let(:upload_file) { Rack::Test::UploadedFile.new(file) }
 
         specify 'find right section' do
           visit batch_load_collection_objects_path
