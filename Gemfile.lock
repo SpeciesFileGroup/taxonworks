@@ -16,6 +16,18 @@ GIT
       rake
 
 GIT
+  remote: https://github.com/LocoDelAssembly/paperclip.git
+  revision: 3fbe73af54b2224084264e8b8cd8e887c873252d
+  branch: migration-fix
+  specs:
+    paperclip (6.1.0)
+      activemodel (>= 4.2.0)
+      activesupport (>= 4.2.0)
+      mime-types
+      mimemagic (~> 0.3.0)
+      terrapin (~> 0.6.0)
+
+GIT
   remote: https://github.com/LocoDelAssembly/taxonifi.git
   revision: 95be74d6b79377ca4980d1d923a612d736003bf7
   branch: ruby3
@@ -299,12 +311,6 @@ GEM
     paper_trail (12.1.0)
       activerecord (>= 5.2)
       request_store (~> 1.1)
-    paperclip (6.1.0)
-      activemodel (>= 4.2.0)
-      activesupport (>= 4.2.0)
-      mime-types
-      mimemagic (~> 0.3.0)
-      terrapin (~> 0.6.0)
     paperclip-meta (3.1.0)
       paperclip (>= 5.0)
     parallel (1.20.1)
@@ -624,7 +630,7 @@ DEPENDENCIES
   namecase (~> 2.0)
   os (~> 1.0, >= 1.0.1)
   paper_trail (~> 12.0)
-  paperclip (~> 6.1.0)
+  paperclip!
   paperclip-meta (~> 3.0)
   parallel_tests
   passenger (~> 6.0.2)
@@ -693,4 +699,4 @@ RUBY VERSION
    ruby 3.0.1p64
 
 BUNDLED WITH
-   2.2.15
+   2.2.22
