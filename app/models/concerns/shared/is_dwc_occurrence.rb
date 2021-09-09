@@ -1,6 +1,5 @@
 # Shared code for data classes that can be serialized as DwcOccurrence records
-
-
+#
 module Shared::IsDwcOccurrence
   extend ActiveSupport::Concern
 
@@ -32,13 +31,14 @@ module Shared::IsDwcOccurrence
     end
   end
 
-    # @return [DwcOccurrence]
+  # @return [DwcOccurrence]
   #   always touches the database
   def set_dwc_occurrence
     retried = false
     begin
       if dwc_occurrence_persisted?
         dwc_occurrence.update_columns(dwc_occurrence_attributes)
+        dwc_occurrence.touch(:updated_at)
       else
         create_dwc_occurrence!(dwc_occurrence_attributes)
       end
@@ -66,7 +66,7 @@ module Shared::IsDwcOccurrence
     a[:created_by_id] = created_by_id
     a[:updated_by_id] = updated_by_id
 
-    a[:updated_at] = Time.now
+    a[:updated_at] = Time.now # not applied via this key, but kept for reference, see `touch` in `set_dwc_occurrenc`
     a
   end
 
