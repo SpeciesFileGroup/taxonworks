@@ -59,7 +59,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       expect(results.map { |row| row.status }).to all(eq('Imported'))
     end
 
-    it 'should have three child records' do
+    it 'should have three child protonym records' do
       expect(TaxonName.find_by_name("Tanaemyrmex").descendant_protonyms.length).to eq 3
     end
 
@@ -73,6 +73,10 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
     it 'should have 4 original combination relationships' do
       expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 4
+    end
+
+    it 'should have Baroni Urbani as the author of the replacement species' do
+      expect(TaxonName.find_by_name("barbosus").cached_author_year).to eq('Baroni Urbani, 1971')
     end
 
   end
@@ -183,15 +187,15 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
     let(:combination_parent_id) { results[0].metadata.dig('imported_objects', 'taxon_name', 'id') }
     let(:current_parent_id) { results[1].metadata.dig('imported_objects', 'taxon_name', 'id') }
-    let(:combination_id) { results[2].metadata.dig('imported_objects', 'taxon_name', 'id') }
-    let(:valid_id) { results[3].metadata.dig('imported_objects', 'taxon_name', 'id') }
+    let(:valid_id) { results[2].metadata.dig('imported_objects', 'taxon_name', 'id') }
+    let(:combination_id) { results[3].metadata.dig('imported_objects', 'taxon_name', 'id') }
 
     let!(:results) {
       results = []
-      4.times do |_|
+      4.times { |_|
         results.concat import_dataset.import(5000, 100)
+      }
       results
-    end
     }
 
     it 'should have four protonyms' do  # Root, Camponotites, Oecophylla, kraussei
@@ -207,6 +211,56 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       expect(Combination.first.genus_taxon_name_relationship).to be_a(TaxonNameRelationship::Combination::Genus)
     end
 
+    it 'should have the proper author' do
+      expect(TaxonName.find_by_cached('Oecophylla kraussei').cached_author_year).to eq '(Dlussky & Rasnitsyn, 1999)'
+    end
+
+    it 'searching for original combination should return current name' do
+      expect(TaxonName.find_by_cached_original_combination('Camponotites kraussei').id).to eq(valid_id)
+    end
+
+    it 'searching for the protonym kraussei should return valid name' do
+      expect(Protonym.find_by_name('kraussei')).to be_is_valid
+    end
+
   end
+
+  context 'when importing a subspecies' do
+    let(:import_dataset) {
+      ImportDataset::DarwinCore::Checklist.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/subspecies.tsv'), 'text/plain'),
+        description: 'Testing'
+      ).tap { |i| i.stage }
+    }
+
+    let!(:results) {
+      results = []
+      3.times { |_|
+        results.concat import_dataset.import(5000, 100)
+      }
+      results
+    }
+
+    let(:genus_id) { results[0].metadata.dig('imported_objects', 'taxon_name', 'id') }
+    let(:species_id) { results[1].metadata.dig('imported_objects', 'taxon_name', 'id') }
+    let(:subspecies_id) { results[2].metadata.dig('imported_objects', 'taxon_name', 'id') }
+
+    it 'should have three protonyms' do
+      expect(Protonym.all.length).to eq 4
+    end
+
+    it 'should have an original genus relationship between genus and subspecies' do
+      expect(TaxonNameRelationship.find_by({ subject_taxon_name: genus_id, object_taxon_name: subspecies_id }).type_name).to eq('TaxonNameRelationship::OriginalCombination::OriginalGenus')
+    end
+
+    it 'should have an original species relationship between species and subspecies' do
+      expect(TaxonNameRelationship.find_by({ subject_taxon_name: species_id, object_taxon_name: subspecies_id }).type_name).to eq('TaxonNameRelationship::OriginalCombination::OriginalSubspecies')
+    end
+
+    it 'should have an original genus relationship between genus and species' do
+      expect(TaxonNameRelationship.find_by({ subject_taxon_name: genus_id, object_taxon_name: species_id }).type_name).to eq('TaxonNameRelationship::OriginalCombination::OriginalGenus')
+    end
+  end
+
 
 end
