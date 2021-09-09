@@ -46,6 +46,7 @@ import SwitchComponent from 'components/switch.vue'
 import extendSection from './shared/extendSections'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
+import { getUnique } from 'helpers/arrays.js'
 
 export default {
   mixins: [extendSection],
@@ -78,7 +79,9 @@ export default {
     },
     assertedDistributions () {
       const ADs = this.$store.getters[GetterNames.GetAssertedDistributions]
-      return ADs.map(item => { 
+      const uniqueADs = getUnique(ADs, 'geographic_area_id')
+
+      return uniqueADs.map(item => {
         let shape = item.geographic_area.shape
         shape.properties.is_absent = item.is_absent
 
@@ -141,8 +144,7 @@ export default {
       })
     },
     getCollectionObjectByGeoId (georeference) {
-
-      return this.collectionObjects.filter(co => { return co.collecting_event_id === this.getCEByGeo(georeference).id })
+      return this.collectionObjects.filter(co => co.collecting_event_id === this.getCEByGeo(georeference).id)
     },
     composePopup (geo) {
       const ce = this.getCEByGeo(geo)

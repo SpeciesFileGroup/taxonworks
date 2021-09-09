@@ -17,7 +17,11 @@ import 'leaflet.pattern/src/PatternShape'
 import 'leaflet.pattern/src/PatternShape.SVG'
 import 'leaflet.pattern/src/PatternPath'
 import 'leaflet.pattern/src/PatternCircle'
+
 import { Icon } from 'components/georeferences/icons'
+let drawnItems
+let mapObject
+let geographicArea
 
 export default {
   props: {
@@ -114,15 +118,19 @@ export default {
       default: undefined
     }
   },
+
+  emits: [
+    'geoJsonLayerCreated',
+    'geoJsonLayersEdited',
+    'geojson',
+    'shapeCreated',
+    'shapesEdited'
+  ],
+
   data () {
     return {
-      mapSize: undefined,
       observeMap: undefined,
       mapId: Math.random().toString(36).substring(7),
-      mapObject: undefined,
-      drawnItems: undefined,
-      geographicArea: undefined,
-      drawControl: undefined,
       tiles: {
         osm: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
@@ -150,29 +158,31 @@ export default {
   watch: {
     geojson: {
       handler (newVal) {
-        this.drawnItems.clearLayers()
-        this.geographicArea.clearLayers()
+        drawnItems.clearLayers()
+        geographicArea.clearLayers()
         this.geoJSON(newVal)
       },
       deep: true
     },
     zoom (newVal) {
-      this.mapObject.setZoom(newVal)
+      mapObject.setZoom(newVal)
     }
   },
 
   mounted () {
-    this.mapObject = L.map(this.$el, {
+    mapObject = L.map(this.$el, {
       center: this.center,
       zoom: this.zoom
     })
-    this.drawnItems = new L.FeatureGroup()
-    this.geographicArea = new L.FeatureGroup()
-    this.mapObject.addLayer(this.drawnItems)
-    this.mapObject.addLayer(this.geographicArea)
+
+    drawnItems = new L.FeatureGroup()
+    geographicArea = new L.FeatureGroup()
+    mapObject.addLayer(drawnItems)
+    mapObject.addLayer(geographicArea)
 
     this.addDrawControllers()
     this.handleEvents()
+
     if (this.geojson.length) {
       this.geoJSON(this.geojson)
     }
@@ -181,15 +191,14 @@ export default {
     }
   },
   methods: {
-    resizeMap (width) {
-      const bounds = this.drawnItems.getBounds()
+    resizeMap () {
+      const bounds = drawnItems.getBounds()
 
-      this.mapSize = width
-      this.mapObject.invalidateSize()
+      mapObject.invalidateSize()
 
       this.$nextTick(() => {
         if (Object.keys(bounds).length && this.fitBounds) {
-          this.mapObject.fitBounds(bounds, this.fitBoundsOptions)
+          mapObject.fitBounds(bounds, this.fitBoundsOptions)
         }
       })
     },
@@ -201,24 +210,27 @@ export default {
       })
       this.observeMap.observe(this.$el)
     },
+
     unmounted () {
       this.observeMap.disconnect()
     },
+
     clearFound () {
-      this.drawnItems.clearLayers()
-      this.geographicArea.clearLayers()
+      drawnItems.clearLayers()
+      geographicArea.clearLayers()
     },
+
     addDrawControllers () {
-      this.tiles.osm.addTo(this.mapObject)
+      this.tiles.osm.addTo(mapObject)
       if (this.tilesSelection) {
         L.control.layers({
           OSM: this.tiles.osm,
           Google: this.tiles.google
-        }, { 'Draw layers': this.drawnItems }, { position: 'topleft', collapsed: false }).addTo(this.mapObject)
+        }, { 'Draw layers': drawnItems }, { position: 'topleft', collapsed: false }).addTo(mapObject)
       }
 
       if (this.drawControls) {
-        this.mapObject.pm.addControls({
+        mapObject.pm.addControls({
           position: 'topleft',
           drawCircle: this.drawCircle,
           drawCircleMarker: this.drawCircleMarker,
@@ -234,41 +246,47 @@ export default {
       }
     },
     handleEvents () {
-      const that = this
-      this.mapObject.on('pm:create', (e) => {
-        var layer = e.layer
-        var geoJsonLayer = this.convertGeoJSONWithPointRadius(layer)
+      mapObject.on('pm:create', e => {
+        const layer = e.layer
+        const geoJsonLayer = this.convertGeoJSONWithPointRadius(layer)
 
         if (e.layerType === 'circle') {
           geoJsonLayer.properties.radius = layer.getRadius()
         }
-        that.$emit('shapeCreated', layer)
-        that.$emit('geoJsonLayerCreated', geoJsonLayer)
-        that.mapObject.removeLayer(layer)
-        that.drawnItems.removeLayer(layer)
+
+        this.$emit('shapeCreated', layer)
+        this.$emit('geoJsonLayerCreated', geoJsonLayer)
+        mapObject.removeLayer(layer)
+        drawnItems.removeLayer(layer)
       })
-      this.mapObject.on('pm:remove', (e) => {
-        let geoArray = []
-        Object.keys(this.drawnItems.getLayers()[0]._layers).forEach((layerId) => {
+
+      mapObject.on('pm:remove', e => {
+        const geoArray = []
+        const layers = Object.keys(drawnItems.getLayers()[0]._layers)
+
+        layers.forEach(layerId => {
           if (Number(layerId) !== Number(e.layer._leaflet_id)) {
-            if (this.drawnItems.getLayers()[0]._layers[layerId]) {
-              geoArray.push(this.convertGeoJSONWithPointRadius(this.drawnItems.getLayers()[0]._layers[layerId]))
+            if (drawnItems.getLayers()[0]._layers[layerId]) {
+              geoArray.push(this.convertGeoJSONWithPointRadius(drawnItems.getLayers()[0]._layers[layerId]))
             }
           }
         })
         this.$emit('geojson', geoArray)
       })
     },
+
     removeLayers () {
-      this.drawnItems.clearLayers()
-      this.geographicArea.clearLayers()
+      drawnItems.clearLayers()
+      geographicArea.clearLayers()
     },
+
     editedLayer (e) {
-      var layer = e.target
+      const layer = e.target
 
       this.$emit('shapesEdited', layer)
       this.$emit('geoJsonLayersEdited', this.convertGeoJSONWithPointRadius(layer))
     },
+
     convertGeoJSONWithPointRadius (layer) {
       const layerJson = layer.toGeoJSON()
       if (typeof layer.getRadius === 'function') {
@@ -277,24 +295,27 @@ export default {
 
       return layerJson
     },
+
     addJsonCircle (layer) {
       return L.circle([layer.geometry.coordinates[1], layer.geometry.coordinates[0]], Number(layer.properties.radius))
     },
+
     geoJSON (geoJsonFeatures) {
       if (!Array.isArray(geoJsonFeatures) || geoJsonFeatures.length === 0) return
       this.addGeoJsonLayer(geoJsonFeatures)
     },
+
     addGeoJsonLayer (geoJsonLayers) {
       let index = -1
 
       L.geoJson(geoJsonLayers, {
-        style: (feature) => {
+        style: (_) => {
           index = index + 1
           return this.randomShapeStyle(index)
         },
         filter: (feature) => {
           if (feature.properties?.geographic_area) {
-            this.geographicArea.addLayer(L.GeoJSON.geometryToLayer(feature, Object.assign({}, feature.properties?.is_absent ? this.stripeShapeStyle(index) : this.randomShapeStyle(index), { pmIgnore: true })))
+            geographicArea.addLayer(L.GeoJSON.geometryToLayer(feature, Object.assign({}, feature.properties?.is_absent ? this.stripeShapeStyle(index) : this.randomShapeStyle(index), { pmIgnore: true })))
             return false
           }
           return true
@@ -310,14 +331,14 @@ export default {
 
           return shape
         }
-      }).addTo(this.drawnItems)
+      }).addTo(drawnItems)
 
       if (this.fitBounds) {
-        if (this.getLayersCount(this.drawnItems)) {
-          this.mapObject.fitBounds([].concat(this.drawnItems.getBounds()), this.fitBoundsOptions)
+        if (this.getLayersCount(drawnItems)) {
+          mapObject.fitBounds([].concat(drawnItems.getBounds()), this.fitBoundsOptions)
         } else {
-          this.mapObject.fitBounds(this.geographicArea.getLayers().length
-            ? this.geographicArea.getBounds()
+          mapObject.fitBounds(geographicArea.getLayers().length
+            ? geographicArea.getBounds()
             : [0, 0]
           , this.fitBoundsOptions)
         }
@@ -365,7 +386,7 @@ export default {
     },
     stripeShapeStyle (index) {
       const color = this.generateHue(index)
-      let stripes = new L.StripePattern({
+      const stripes = new L.StripePattern({
         patternContentUnits: 'objectBoundingBox',
         patternUnits: 'objectBoundingBox',
         weight: 0.05,
@@ -377,9 +398,10 @@ export default {
         spaceColor: color,
         spaceOpacity: 0.2
       })
-      stripes.addTo(this.mapObject)
+
+      stripes.addTo(mapObject)
       return {
-        color: color,
+        color,
         weight: 2,
         dashArray: '',
         fillOpacity: 1,
@@ -401,9 +423,9 @@ export default {
       const layer = e.target
       if (this.fitBounds) {
         if (layer instanceof L.Marker || layer instanceof L.Circle) {
-          this.mapObject.fitBounds([layer.getLatLng()], this.fitBoundsOptions)
+          mapObject.fitBounds([layer.getLatLng()], this.fitBoundsOptions)
         } else {
-          this.mapObject.fitBounds(e.target.getBounds(), this.fitBoundsOptions)
+          mapObject.fitBounds(e.target.getBounds(), this.fitBoundsOptions)
         }
       }
     }
