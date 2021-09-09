@@ -7,6 +7,24 @@ GIT
       ffi (~> 1.14)
 
 GIT
+  remote: https://github.com/LocoDelAssembly/dwc-archive.git
+  revision: 86fa4e19cc8522ec0208eb847ad319c88c88f43c
+  branch: overhaul
+  specs:
+    dwc-archive (1.1.4)
+      biodiversity (~> 5.3.0)
+      nokogiri (~> 1.11)
+
+GIT
+  remote: https://github.com/LocoDelAssembly/gnfinder.git
+  revision: a0636c2ac68b6428b389b7c8e0c7f6d6e7aa0168
+  branch: ruby3
+  specs:
+    gnfinder (0.11.0)
+      grpc (~> 1.28)
+      grpc-tools (~> 1.28)
+
+GIT
   remote: https://github.com/LocoDelAssembly/gpx.git
   revision: 2c152771740b3ec85ba743243fbfd3a417c64cb3
   branch: ruby3
@@ -17,7 +35,7 @@ GIT
 
 GIT
   remote: https://github.com/LocoDelAssembly/paperclip.git
-  revision: 3fbe73af54b2224084264e8b8cd8e887c873252d
+  revision: 3840d5a63b1a85fb99bfc7c569d132af12a077a1
   branch: migration-fix
   specs:
     paperclip (6.1.0)
@@ -193,9 +211,6 @@ GEM
     docile (1.4.0)
     dropzonejs-rails (0.8.5)
       rails (> 3.1)
-    dwc-archive (1.1.2)
-      biodiversity (~> 5)
-      nokogiri (~> 1.11)
     erubi (1.10.0)
     exception_notification (4.4.3)
       actionmailer (>= 4.0, < 7)
@@ -219,8 +234,15 @@ GEM
     formatador (0.3.0)
     globalid (0.5.2)
       activesupport (>= 5.0)
+    google-protobuf (3.17.3)
+    googleapis-common-protos-types (1.2.0)
+      google-protobuf (~> 3.14)
     groupdate (4.3.0)
       activesupport (>= 5)
+    grpc (1.40.0)
+      google-protobuf (~> 3.15)
+      googleapis-common-protos-types (~> 1.0)
+    grpc-tools (1.40.0)
     guard (2.18.0)
       formatador (>= 0.2.4)
       listen (>= 2.7, < 4.0)
@@ -455,7 +477,7 @@ GEM
     rubocop-performance (1.10.2)
       rubocop (>= 0.90.0, < 2.0)
       rubocop-ast (>= 0.4.0)
-    rubocop-rails (2.11.3)
+    rubocop-rails (2.12.0)
       activesupport (>= 4.2.0)
       rack (>= 1.1)
       rubocop (>= 1.7.0, < 2.0)
@@ -496,7 +518,7 @@ GEM
       simplecov_json_formatter (~> 0.1)
     simplecov-html (0.12.3)
     simplecov_json_formatter (0.1.3)
-    spring (2.1.1)
+    spring (3.0.0)
     spring-commands-rspec (1.0.4)
       spring (>= 0.9.1)
     sprockets (3.7.2)
@@ -609,12 +631,13 @@ DEPENDENCIES
   database_cleaner (~> 2.0)
   delayed_job_active_record (~> 4.1.3)
   dropzonejs-rails (~> 0.8.1)
-  dwc-archive (~> 1.1, >= 1.1.2)
+  dwc-archive!
   exception_notification (~> 4.4)
   execjs (~> 2.8.1)
   factory_bot_rails (~> 6.2)
   faker (~> 2.10)
   ffi-geos (~> 2.2.0)
+  gnfinder!
   gpx!
   groupdate (~> 4.2)
   guard-rspec (~> 4.7.3)

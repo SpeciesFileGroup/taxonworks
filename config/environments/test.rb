@@ -57,6 +57,8 @@ TaxonWorks::Application.configure do
   Settings.load_test_defaults(config)
   Settings.load_from_settings_file(config, :test)
 
+  Settings.load_mail_domain(config, 'example.com')
+
   require 'taxonworks'
   require 'taxonworks_autoload'
 

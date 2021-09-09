@@ -145,7 +145,7 @@ class SourcesController < ApplicationController
     @term = params.require(:term) 
     @sources = Queries::Source::Autocomplete.new(
       @term,
-      autocomplete_params
+      **autocomplete_params
     ).autocomplete
   end
 

@@ -99,12 +99,12 @@ gem 'barby', '~> 0.6.8'
 #gem 'taxonifi', '~> 0.5.5'
 gem 'taxonifi', github: 'LocoDelAssembly/taxonifi', branch: 'ruby3'
 gem 'sqed', '0.6.0'
-gem 'dwc-archive', '~> 1.1', '>= 1.1.2'
+gem 'dwc-archive', github: 'LocoDelAssembly/dwc-archive', branch: 'overhaul' # '~> 5.1', '>= 5.1.1' # '~> 1.1', '>= 1.1.2'
 gem 'biodiversity', github: 'GlobalNamesArchitecture/biodiversity', branch: 'pipe_approach' # '~> 5.1', '>= 5.1.1'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 
 # Global Names
-#gem 'gnfinder', '~> 0.11.0'
+gem 'gnfinder', github: 'LocoDelAssembly/gnfinder', branch: 'ruby3' # '~> 0.11.0'
 
 # Minor Utils/helpers
 gem 'amazing_print', '~> 1.3.0'
