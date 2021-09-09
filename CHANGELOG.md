@@ -9,8 +9,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Include project's name in CoLDP exports filename [#2509]
+- Implemented STI for downloads [#2498]
 
 [#2509]: https://github.com/SpeciesFileGroup/taxonworks/issues/2509
+[#2498]: https://github.com/SpeciesFileGroup/taxonworks/pull/2498
 
 ## [0.19.7] - 2021-09-09
 
