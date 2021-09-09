@@ -7,8 +7,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-### Add
+\-
 
+## [0.19.7] - 2021-09-09
+
+### Add
+- Add link to new type specimen task from type material form
 - Export Observation::Media depictions as proxies for Otu depictions in NeXML [#2142]
 - Protonym `verbatim_author` parens should be properly closed when present [#2453]
 - Protonym `verbatim_author` can not contain digits (like years) [#2452]
@@ -17,21 +21,22 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Smart selectors in asserted distribution and biological association quick forms.
 
 ### Changed
-
+- Cleaned up taxon name navigator appearance 
 - Destroying a loanable object destroys corresponding LoanItems automatically [#2319]
 - NeXML image URLs use shortened URLs
 - Reorder date fields in comprehensive, extract and new collecting event tasks [#2450]
 - Set Vue 3 reactive vuex state in comprehensive store, removed unnecesary mutations and getters
-- Updated Ruby gems
+- Updated Ruby gems and Node packages
 - Bumped database_cleaner
 - Upgraded to ruby 6.1 [#2474]
 - Remove Taxon determination slice from OTU quick forms(Radial object)
 - Set active author tab in New taxon name [#2461]
 - Moved `data-project-id` to project name
 - Moved collection object soft validations in comprehensive task [#2491]
+- Remove reactivity in map component. Maps should render much faster now
 
 ### Fixed
-
+- Tazon name hierarchical navigation broken [#2487]
 - CollectionObject filter type material facet bug
 - Trim buttons in comprehensive task
 - Trip code fields are empty after save.
@@ -47,9 +52,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loan item "select/deselect all" buttons missing after vue 3 migration [#2493]
 - Checkbox unbinding is not synced with update in Loan task [#2495]
 - Filter collection objects shortcuts
+- Fix identifier update in new type specimen task
+- Radial menus are inheriting CSS properties in some cases [#2505]
 
+[#2487]: https://github.com/SpeciesFileGroup/taxonworks/issues/2487
 [#2319]: https://github.com/SpeciesFileGroup/taxonworks/issues/2319
-[#2453]: https://github.com/SpeciesFileGroup/taxonworks/issues/2142
+[#2142]: https://github.com/SpeciesFileGroup/taxonworks/issues/2142
 [#2453]: https://github.com/SpeciesFileGroup/taxonworks/issues/2453
 [#2452]: https://github.com/SpeciesFileGroup/taxonworks/issues/2452
 [#2450]: https://github.com/SpeciesFileGroup/taxonworks/pull/2450
@@ -64,6 +72,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2492]: https://github.com/SpeciesFileGroup/taxonworks/issues/2492
 [#2493]: https://github.com/SpeciesFileGroup/taxonworks/issues/2493
 [#2495]: https://github.com/SpeciesFileGroup/taxonworks/issues/2495
+[#2505]: https://github.com/SpeciesFileGroup/taxonworks/issues/2505
 
 ## [0.19.6] - 2021-08-20
 
@@ -1671,7 +1680,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.6...development
+
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.7...development
+[0.19.7]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.6...v0.19.7
 [0.19.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.5...v0.19.6
 [0.19.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.4...v0.19.5
 [0.19.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.3...v0.19.4
