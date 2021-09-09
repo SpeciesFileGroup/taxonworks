@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'rack-cors', '~> 1.1', require: 'rack/cors'
 
-ruby '~> 2.7.0'
+ruby '~> 3.0.0'
 
 gem 'bundler', '~> 2.0'
 
@@ -33,7 +33,7 @@ gem 'rgeo-proj4', '~> 3.0', '>= 3.0.1'
 gem 'postgresql_cursor', '~> 0.6.1'
 
 # translate for geo
-gem 'gpx', '~> 1.0.0'
+gem 'gpx', github: 'LocoDelAssembly/gpx', branch: 'ruby3'
 
 # API/controllers
 gem 'jbuilder', '~> 2.7'
@@ -95,14 +95,15 @@ gem 'rqrcode', github:'mjy/rqrcode', branch: 'taxonworks'
 gem 'barby', '~> 0.6.8'
 
 # "Bio" and SFG gems
-gem 'taxonifi', '~> 0.5.5'
+#gem 'taxonifi', '~> 0.5.5'
+gem 'taxonifi', github: 'LocoDelAssembly/taxonifi', branch: 'ruby3'
 gem 'sqed', '0.6.0'
 gem 'dwc-archive', '~> 1.1', '>= 1.1.2'
 gem 'biodiversity', github: 'GlobalNamesArchitecture/biodiversity', branch: 'pipe_approach' # '~> 5.1', '>= 5.1.1'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 
 # Global Names
-gem 'gnfinder', '~> 0.11.0'
+#gem 'gnfinder', '~> 0.11.0'
 
 # Minor Utils/helpers
 gem 'amazing_print', '~> 1.3.0'
