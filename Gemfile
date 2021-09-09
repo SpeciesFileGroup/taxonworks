@@ -23,6 +23,7 @@ gem 'daemons', '~> 1.4.1'
 gem 'tzinfo-data', '~> 1.2019' # , '>= 1.2019.3'
 gem 'psych', '~> 3.0'
 gem 'rmagick', '~> 4.2', '>= 4.2.2'
+gem 'webrick', '~> 1.7'
 
 # Geo
 gem 'ffi-geos', '~> 2.2.0'
