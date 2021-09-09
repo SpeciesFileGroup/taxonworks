@@ -1,4 +1,4 @@
-FROM phusion/passenger-ruby27:latest AS base
+FROM phusion/passenger-ruby3:latest AS base
 ARG MAKE_JOBS=3
 
 # From Phusion
