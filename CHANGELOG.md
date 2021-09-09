@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.19.7] - 2021-09-09
+
 ### Add
 - Export Observation::Media depictions as proxies for Otu depictions in NeXML [#2142]
 - Protonym `verbatim_author` parens should be properly closed when present [#2453]
@@ -21,7 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - NeXML image URLs use shortened URLs
 - Reorder date fields in comprehensive, extract and new collecting event tasks [#2450]
 - Set Vue 3 reactive vuex state in comprehensive store, removed unnecesary mutations and getters
-- Updated Ruby gems
+- Updated Ruby gems and Node packages
 - Bumped database_cleaner
 - Upgraded to ruby 6.1 [#2474]
 - Remove Taxon determination slice from OTU quick forms(Radial object)
@@ -52,7 +56,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#2487]: https://github.com/SpeciesFileGroup/taxonworks/issues/2487
 [#2319]: https://github.com/SpeciesFileGroup/taxonworks/issues/2319
-[#2453]: https://github.com/SpeciesFileGroup/taxonworks/issues/2142
+[#2142]: https://github.com/SpeciesFileGroup/taxonworks/issues/2142
 [#2453]: https://github.com/SpeciesFileGroup/taxonworks/issues/2453
 [#2452]: https://github.com/SpeciesFileGroup/taxonworks/issues/2452
 [#2450]: https://github.com/SpeciesFileGroup/taxonworks/pull/2450
@@ -1675,7 +1679,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.6...development
+
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.7...development
+[0.19.7]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.6...v0.19.7
 [0.19.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.5...v0.19.6
 [0.19.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.4...v0.19.5
 [0.19.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.3...v0.19.4
