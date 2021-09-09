@@ -12,6 +12,7 @@ module Shared::IsData
     include Annotation
     include Scopes
     include Navigation
+    include Metamorphosize
   end
 
   module ClassMethods

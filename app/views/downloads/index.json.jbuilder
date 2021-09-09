@@ -1,3 +1,1 @@
-json.array!(@downloads) do |download|
-  json.partial! '/downloads/download', download: download
-end
+json.partial! '/downloads/attributes', collection: @downloads,  as: :download

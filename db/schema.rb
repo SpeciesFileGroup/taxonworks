@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_07_27_180015) do
+ActiveRecord::Schema.define(version: 2021_09_03_181201) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -618,6 +618,7 @@ ActiveRecord::Schema.define(version: 2021_07_27_180015) do
     t.integer "updated_by_id", null: false
     t.bigint "project_id"
     t.boolean "is_public"
+    t.string "type"
     t.index ["created_by_id"], name: "index_downloads_on_created_by_id"
     t.index ["filename"], name: "index_downloads_on_filename"
     t.index ["project_id"], name: "index_downloads_on_project_id"
