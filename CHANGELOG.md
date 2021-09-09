@@ -47,7 +47,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loan item "select/deselect all" buttons missing after vue 3 migration [#2493]
 - Checkbox unbinding is not synced with update in Loan task [#2495]
 - Filter collection objects shortcuts
-
+- Fix identifier update in new type specimen task
+- Radial menus are inheriting CSS properties in some cases [#2505]
 
 [#2487]: https://github.com/SpeciesFileGroup/taxonworks/issues/2487
 [#2319]: https://github.com/SpeciesFileGroup/taxonworks/issues/2319
@@ -66,6 +67,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2492]: https://github.com/SpeciesFileGroup/taxonworks/issues/2492
 [#2493]: https://github.com/SpeciesFileGroup/taxonworks/issues/2493
 [#2495]: https://github.com/SpeciesFileGroup/taxonworks/issues/2495
+[#2505]: https://github.com/SpeciesFileGroup/taxonworks/issues/2505
 
 ## [0.19.6] - 2021-08-20
 
