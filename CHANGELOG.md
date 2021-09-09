@@ -7,7 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Changed
+- Include project's name in CoLDP exports filename [#2509]
+
+[#2509]: https://github.com/SpeciesFileGroup/taxonworks/issues/2509
 
 ## [0.19.7] - 2021-09-09
 
