@@ -68,14 +68,15 @@ const refreshDownloadList = () => {
     const downloadRecords = responses.map(({ body }) => body)
     const downloadReady = downloadRecords.filter(item => item.ready)
 
-    downloadReady.forEach((record, index) => {
+    downloadReady.forEach(record => {
       if (record.ready) {
+        const index = props.list.findIndex(item => item.id === record.id)
+
         emit('onUpdate', { index, record })
       }
     })
 
     if (downloadRecords.length !== downloadReady.length) {
-      clearTimeout(timeout)
       timeout = setTimeout(() => refreshDownloadList(), CALL_DELAY)
     }
   })
@@ -84,6 +85,7 @@ const refreshDownloadList = () => {
 const downloadFile = (url) => { window.open(url) }
 
 watch(() => props.list, () => {
+  clearTimeout(timeout)
   refreshDownloadList()
 }, { deep: true })
 

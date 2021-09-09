@@ -29,10 +29,11 @@
 </template>
 <script setup>
 
-import DownloadRecent from './DownloadRecent.vue'
-import DownloadDateButton from './DownloadDateButton.vue'
 import { DwcOcurrence, Download } from 'routes/endpoints'
 import { ref, onBeforeMount } from 'vue'
+import { DOWNLOAD_DWC_ARCHIVE } from 'constants/index.js'
+import DownloadRecent from './DownloadRecent.vue'
+import DownloadDateButton from './DownloadDateButton.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 
 const DATE_BUTTONS = {
@@ -60,7 +61,7 @@ const setRecord = ({ index, record }) => {
 }
 
 onBeforeMount(async () => {
-  downloadList.value = (await Download.all()).body
+  downloadList.value = (await Download.where({ download_type: DOWNLOAD_DWC_ARCHIVE })).body
 })
 
 </script>
