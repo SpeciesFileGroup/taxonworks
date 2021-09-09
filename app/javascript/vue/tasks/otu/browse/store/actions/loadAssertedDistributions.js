@@ -1,9 +1,18 @@
 import { AssertedDistribution } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
+import nonReactiveStore from '../nonReactiveStore.js'
 
-export default ({ state, commit }, otusId) => new Promise((resolve, reject) => {
+export default ({ commit }, otusId) => new Promise((resolve, reject) => {
   AssertedDistribution.where({ otu_id: otusId, geo_json: true }).then(response => {
-    const assertedDistributions = response.body.sort((a, b) => {
+    const shapes = response.body.map(item => item.geographic_area.shape)
+
+    nonReactiveStore.geographicAreas = [...new Map(shapes.map(item => [item.properties.geographic_area.id, item])).values()]
+
+    const assertedDistributions = response.body.map(ad => {
+      ad.geographic_area.shape = !!ad.geographic_area.shape
+
+      return ad
+    }).sort((a, b) => {
       const compareA = a.geographic_area.name
       const compareB = b.geographic_area.name
       if (compareA < compareB) {
