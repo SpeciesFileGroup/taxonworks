@@ -1,6 +1,8 @@
 <template>
-  <div class="panel content graph-panel">
+  <div class="panel content">
     <graph-index :metadata="metadata"/>
+  </div>
+  <div class="panel content">
     <graph-collection-object />
   </div>
 </template>
@@ -17,12 +19,3 @@ const props = defineProps({
 })
 
 </script>
-
-<style>
-  .graph-panel {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1em;
-    grid-column: 2 / 4;
-  }
-</style>

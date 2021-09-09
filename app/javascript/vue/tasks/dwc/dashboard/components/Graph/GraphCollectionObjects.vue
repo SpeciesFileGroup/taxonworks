@@ -15,6 +15,11 @@ import { DwcOcurrence, CollectionObject } from 'routes/endpoints'
 import { randomHue } from 'helpers/colors.js'
 import VueChart from 'components/ui/Chart/index.vue'
 
+const DEFAULT_START_DATE = '2000-01-01'
+const DEFAULT_PARAMS = {
+  dwc_indexed: true,
+  per: 1
+}
 const versionsResponse = ref([])
 const chartState = reactive({
   data: {
@@ -23,21 +28,24 @@ const chartState = reactive({
   },
   options: {
     responsive: true,
-    scales: {
-      y: {
-        beginAtZero: true
+    plugins: {
+      legend: {
+        display: false
+      },
+      title: {
+        display: true,
+        text: 'Total collection objects'
       }
     }
   }
 })
 
 watch(versionsResponse, data => {
-  const dates = data.map(date => date.split(' ')[0])
-  const coRequests = dates.map(date => CollectionObject.where({
-    dwc_indexed: true,
-    user_date_start: date,
-    user_date_end: dates[0],
-    per: 1
+  const dates = [].concat(data.map(date => date.split(' ')[0]), [new Date().toISOString().split('T')[0]])
+  const coRequests = dates.map((date, index) => CollectionObject.where({
+    user_date_start: dates[index - 1] || DEFAULT_START_DATE,
+    user_date_end: date,
+    ...DEFAULT_PARAMS
   }))
 
   Promise.all(coRequests).then(responses => {
@@ -45,13 +53,13 @@ watch(versionsResponse, data => {
 
     chartState.data = {
       labels: dates,
-      datasets: counts.map((count, index) =>
-        ({
-          label: 'Collection object',
-          data: [count],
-          backgroundColor: randomHue(index + 1)
-        })
-      )
+      datasets: [
+        {
+          label: 'Collection objects',
+          data: counts.map(count => count),
+          backgroundColor: dates.map((_, index) => randomHue(index + 1))
+        }
+      ]
     }
   })
 })
