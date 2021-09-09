@@ -42,8 +42,9 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
         # split authorship into name and year
         if nomenclature_code == :iczn
-          if (authorship_matchdata = authorship.match(/\(?(?<author>.+?),? (?<year>\d{4})?\)?/))
+          if (authorship_matchdata = authorship.match(/\(?(?<author>.+),? (?<year>\d{4})?\)?/))
 
+            # regex will include comma, no easy way around it
             author_name = authorship_matchdata[:author].delete_suffix(',')
             year = authorship_matchdata[:year]
 
