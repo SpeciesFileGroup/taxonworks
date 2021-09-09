@@ -28,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Set active author tab in New taxon name [#2461]
 - Moved `data-project-id` to project name
 - Moved collection object soft validations in comprehensive task [#2491]
+- Remove reactivity in map component. Maps should render much faster now
 
 ### Fixed
 - Tazon name hierarchical navigation broken [#2487]
