@@ -1,4 +1,5 @@
-export * from './alternateValueTypes'
+export * from './alternateValueTypes.js'
+export * from './downloadTypes.js'
 export * from './events.js'
 export * from './identifierTypes.js'
 export * from './numbers.js'
