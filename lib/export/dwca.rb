@@ -18,7 +18,7 @@ module Export
     def self.download_async(record_scope, request = nil)
       name = "dwc-a_#{DateTime.now}.zip"
 
-      download = ::Download.create!(
+      download = ::Download::DwcArchive.create!(
         name: "DwC Archive generated at #{Time.now}.",
         description: 'A Darwin Core archive.',
         filename: name,
