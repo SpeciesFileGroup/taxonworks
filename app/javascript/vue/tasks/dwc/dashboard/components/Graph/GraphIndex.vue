@@ -10,7 +10,7 @@
 </template>
 <script setup>
 
-import { reactive, watch } from 'vue'
+import { reactive, watch, inject } from 'vue'
 import { humanize } from 'helpers/strings.js'
 import { randomHue } from 'helpers/colors.js'
 import VueChart from 'components/ui/Chart/index.vue'
@@ -30,6 +30,8 @@ const props = defineProps({
   }
 })
 
+const useState = inject('state')
+
 const chartState = reactive({
   data: {
     labels: [],
@@ -48,7 +50,7 @@ const chartState = reactive({
   }
 })
 
-watch(() => props.metadata, metadata => {
+watch(() => useState.metadata, metadata => {
   const objects = Object.values(metadata).reverse()
   const labels = Object.keys(metadata).map(label => humanize(label))
   const datasets = DATASET_LABELS.map(({ label, property, backgroundColor }) => ({

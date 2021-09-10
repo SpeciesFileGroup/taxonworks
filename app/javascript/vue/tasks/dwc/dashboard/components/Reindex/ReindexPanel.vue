@@ -1,6 +1,8 @@
 <template>
   <div class="panel reindex__panel">
-    <progress-bar :reindex="reindexRequest"/>
+    <progress-bar
+      :reindex="reindexRequest"
+      @onReady="useActions.getMetadata"/>
     <div class="content">
       <h2>Rebuild index</h2>
       <div class="field">
@@ -22,16 +24,19 @@
           {{ label }}
         </v-btn>
       </div>
+      <filter-link>
+        Re-index by collection object filter
+      </filter-link>
     </div>
-    <timer/>
   </div>
 </template>
 <script setup>
 
-import { ref } from 'vue'
+import { ref, inject } from 'vue'
 import { DwcOcurrence } from 'routes/endpoints'
 import VBtn from 'components/ui/VBtn/index.vue'
 import ProgressBar from '../ProgressBar.vue'
+import FilterLink from '../FilterLink.vue'
 
 const reindex = [
   {
@@ -52,13 +57,16 @@ const reindex = [
     value: 10000
   }
 ]
-const reindexRequest = ref({})
+
 const props = defineProps({
   params: {
     type: Object,
     default: () => ({})
   }
 })
+
+const useActions = inject('actions')
+const reindexRequest = ref({})
 
 const runUnindexed = async per => {
   reindexRequest.value = (await DwcOcurrence.createIndex({
