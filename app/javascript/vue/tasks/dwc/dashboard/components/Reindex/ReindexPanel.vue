@@ -24,6 +24,9 @@
           {{ label }}
         </v-btn>
       </div>
+      <filter-link>
+        Re-index by collection object filter
+      </filter-link>
     </div>
   </div>
 </template>
@@ -33,6 +36,7 @@ import { ref, inject } from 'vue'
 import { DwcOcurrence } from 'routes/endpoints'
 import VBtn from 'components/ui/VBtn/index.vue'
 import ProgressBar from '../ProgressBar.vue'
+import FilterLink from '../FilterLink.vue'
 
 const reindex = [
   {

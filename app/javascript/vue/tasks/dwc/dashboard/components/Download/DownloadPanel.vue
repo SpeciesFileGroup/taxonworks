@@ -22,6 +22,9 @@
         {{ label }}
       </download-date-button>
     </div>
+    <filter-link>
+      Download by collection object filter
+    </filter-link>
     <download-recent
       :list="downloadList"
       @onUpdate="setRecord"/>
@@ -35,6 +38,7 @@ import { DOWNLOAD_DWC_ARCHIVE } from 'constants/index.js'
 import DownloadRecent from './DownloadRecent.vue'
 import DownloadDateButton from './DownloadDateButton.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
+import FilterLink from '../FilterLink.vue'
 
 const DATE_BUTTONS = {
   Day: 1,

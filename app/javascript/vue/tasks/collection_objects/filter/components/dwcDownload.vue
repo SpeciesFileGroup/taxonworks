@@ -11,6 +11,7 @@
 import VBtn from 'components/ui/VBtn/index.vue'
 import { RouteNames } from 'routes/routes.js'
 import { DwcOcurrence } from 'routes/endpoints'
+import { transformObjectToParams } from 'helpers/setParam.js'
 
 const props = defineProps({
   params: {
@@ -31,7 +32,7 @@ const clearParams = (params) => {
 
 const download = () => {
   DwcOcurrence.generateDownload({ ...clearParams(props.params) }).then(_ => {
-    window.open(RouteNames.DwcDashboard)
+    window.open(`${RouteNames.DwcDashboard}?${transformObjectToParams(clearParams(props.params))}`)
   })
 }
 </script>
