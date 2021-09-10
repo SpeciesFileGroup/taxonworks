@@ -313,7 +313,7 @@ class Georeference < ApplicationRecord
 
   # @return [Hash] of names of geographic areas
   def set_cached
-    collecting_event.cache_geographic_names
+    collecting_event.send(:cache_geographic_names) # protected method
   end
 
   # validation methods
