@@ -3,9 +3,9 @@ require 'dwc_archive'
 module Export
   module Dwca
 
-    # Version is a way to track dates where 
+    # Version is a way to track dates where
     # the indexing changed significantly such that all
-    # or most of the index should be regenerated. 
+    # or most of the index should be regenerated.
     # To add a version use `Time.now` via IRB
     INDEX_VERSION = [
       '2021-08-29 21:16:02.903688 -0500' # First major refactor
@@ -27,18 +27,26 @@ module Export
       )
 
       # Note we pass a string with the record scope
-      ::DwcaCreateDownloadJob.perform_later(download, core_scope: record_scope.to_sql)
+      ::DwcaCreateDownloadJob.perform_later(download, core_scope: record_scope.order(:id).to_sql)
 
       download
     end
 
+    # @param klass [ActiveRecord class]
+    #   e.g. CollectionObject
     # When we re-index a large set of data then we run it in the background.
     # To determine when it is done we poll by the last record to be indexed.
     # @return hash of global_ids
     #   The last object in the recordset has been sent on response
     def self.build_index_async(klass, record_scope)
-      a = record_scope.order(id: :ASC).limit(1).first&.to_global_id&.to_s 
-      b = record_scope.order(id: :DESC).limit(1).first&.to_global_id&.to_s 
+      s = record_scope.order(:id)
+      ::DwcaCreateIndexJob.perform_later(klass.to_s, sql_scope: s.to_sql)
+      index_metadata(klass, s)
+    end
+
+    def self.index_metadata(klass, record_scope)
+      a = record_scope.first&.to_global_id&.to_s
+      b = record_scope.last&.to_global_id&.to_s
 
       t = record_scope.count
 
@@ -48,25 +56,24 @@ module Export
         sample: [a, b].compact
       }
 
-# CollectionObject.select('*').from('(select id, ROW_NUMBER() OVER (ORDER BY id ASC) rn from collection_objects) a').where('a.rn % ((SELECT COUNT(*) FROM collection_objects ) / 10) = 0').order(id: :asc).limit(8)
-
       if b && (t > 2)
+        max = 8
+        max = t if t < 8
 
         ids = klass
           .select('*')
-          .from("(select id, ROW_NUMBER() OVER (ORDER BY id ASC) rn from (#{record_scope.to_sql}) b ) a")
-          .where("a.rn % ((SELECT COUNT(*) FROM (#{record_scope.to_sql}) c) / 10) = 0")
-          .order(id: :asc)
-          .limit(8)
+          .from("(select id, type, ROW_NUMBER() OVER (ORDER BY id ASC) rn from (#{record_scope.to_sql}) b ) a")
+          .where("a.rn % ((SELECT COUNT(*) FROM (#{record_scope.to_sql}) c) / #{max}) = 0")
+          .limit(max)
           .collect{|o| o.to_global_id.to_s}
 
         metadata[:sample].insert(1, *ids)
-
       end
 
-      ::DwcaCreateIndexJob.perform_later(klass.to_s, sql_scope: record_scope.order(:id).to_sql)
+      metadata[:sample].uniq!
       metadata
     end
-
   end
 end
+
+# Legume data -

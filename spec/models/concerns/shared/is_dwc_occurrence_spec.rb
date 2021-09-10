@@ -31,6 +31,14 @@ describe 'IsDwcOccurrence', type: :model, group: :darwin_core do
         class_with_dwc_occurrence.set_dwc_occurrence
         expect( class_with_dwc_occurrence.dwc_occurrence.id).to eq(old_id)
       end
+
+      specify 'updating an existing #dwc_occurrence touches updated_at' do
+        a = class_with_dwc_occurrence.dwc_occurrence.updated_at
+        class_with_dwc_occurrence.set_dwc_occurrence
+
+        # More recent times are less than more distant times, the `<=>` opperator returns -1, 0, 1 respectively
+        expect( class_with_dwc_occurrence.updated_at <=> a).to eq(-1)
+      end
     end
 
     specify '#no_dwc_occurrence = true prevents creation' do
