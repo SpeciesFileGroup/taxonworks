@@ -1,8 +1,12 @@
 <template>
-  <div class="panel content">
+  <div
+    class="panel content"
+    v-help.section.freshnessIndex>
     <graph-index :metadata="metadata"/>
   </div>
-  <div class="panel content">
+  <div
+    class="panel content"
+    v-help.section.freshnessVersions>
     <graph-collection-object />
   </div>
 </template>
