@@ -62,6 +62,10 @@ module Export
       zip_file_path
     end
 
+    def self.filename(otu)
+      Zaru::sanitize!("#{Project.find(Current.project_id).name}_coldp_otu_id_#{otu.id}_#{DateTime.now}.zip").gsub(' ', '_').downcase
+    end
+
     def self.download(otu, request = nil, prefer_unlabelled_otus: true)
       file_path = ::Export::Coldp.export(
         otu.id,
@@ -72,7 +76,7 @@ module Export
       ::Download::Coldp.create!(
         name: "ColDP Download for #{otu.otu_name} on #{Time.now}.",
         description: 'A zip file containing CoLDP formatted data.',
-        filename: name,
+        filename: filename(otu),
         source_file_path: file_path,
         request: request,
         expires: 2.days.from_now
@@ -83,7 +87,7 @@ module Export
       download = ::Download::Coldp.create!(
         name: "ColDP Download for #{otu.otu_name} on #{Time.now}.",
         description: 'A zip file containing CoLDP formatted data.',
-        filename: "coldp_otu_id_#{otu.id}_#{DateTime.now}.zip",
+        filename: filename(otu),
         request: request,
         expires: 2.days.from_now
       )

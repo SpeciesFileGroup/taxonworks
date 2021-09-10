@@ -7,7 +7,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Changed
+- Include project's name in CoLDP exports filename [#2509]
+- Implemented STI for downloads [#2498]
+
+### Fixed
+- The clone button doesn't trigger update taxon name after authors were cloned [#2513]
+
+[#2509]: https://github.com/SpeciesFileGroup/taxonworks/issues/2509
+[#2498]: https://github.com/SpeciesFileGroup/taxonworks/pull/2498
 
 ## [0.19.7] - 2021-09-09
 
@@ -54,6 +62,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter collection objects shortcuts
 - Fix identifier update in new type specimen task
 - Radial menus are inheriting CSS properties in some cases [#2505]
+- Taxon determinations list in comprehensive task
 
 [#2487]: https://github.com/SpeciesFileGroup/taxonworks/issues/2487
 [#2319]: https://github.com/SpeciesFileGroup/taxonworks/issues/2319

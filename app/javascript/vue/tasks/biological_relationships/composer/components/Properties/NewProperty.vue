@@ -35,7 +35,7 @@
             type="text">
         </div>
         <div class="field label-above">
-          <label>CSS color</label>
+          <label>Label color</label>
           <input
             v-model="controlVocabularyTerm.css_color"
             type="color">
