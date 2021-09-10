@@ -1,6 +1,6 @@
 <template>
   <spinner-component
-    v-if="reindexFinished"
+    v-if="isReindexFinished"
     :legend="message"
     :show-legend="false"
   >
@@ -18,7 +18,7 @@ import { DwcOcurrence } from 'routes/endpoints'
 import SpinnerComponent from 'components/spinner.vue'
 import CountDown from './Countdown/CountDown.vue'
 
-const CALL_DELAY = 5000
+const CALL_DELAY = 1000
 const samplesUpdated = ref([])
 const props = defineProps({
   reindex: {
@@ -26,13 +26,14 @@ const props = defineProps({
     required: true
   }
 })
+const emit = defineEmits(['onReady'])
 let sampleDate
 let timeoutId
 let previousDate = 0
 
 const lastTime = ref(0)
-const reindexFinished = computed(() => samplesUpdated.value.length)
-const percentComplete = computed(() => 100 - ((samplesUpdated.value.length * 100) / props.reindex.sample?.length))
+const isReindexFinished = computed(() => !!samplesUpdated.value.length)
+const percentComplete = computed(() => Math.trunc(100 - ((samplesUpdated.value.length * 100) / props.reindex.sample?.length)))
 
 const checkSamplesUpdate = () => {
   if (samplesUpdated.value.length) {
@@ -48,6 +49,8 @@ const checkSamplesUpdate = () => {
 
       if (samplesUpdated.value.length) {
         timeoutId = setTimeout(() => { checkSamplesUpdate() }, CALL_DELAY)
+      } else {
+        emit('onReady', true)
       }
     })
   }
