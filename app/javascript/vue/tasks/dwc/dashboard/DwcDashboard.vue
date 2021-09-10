@@ -8,14 +8,14 @@
 </template>
 <script setup>
 
-import { ref, provide } from 'vue'
+import { provide } from 'vue'
 import { state, actions } from './store/index.js'
 import GraphComponent from './components/Graph/GraphPanel.vue'
 import DownloadPanel from './components/Download/DownloadPanel.vue'
 import ReindexPanel from './components/Reindex/ReindexPanel.vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
-const params = ref({})
+const params = URLParamsToJSON(location.href)
 
 provide('state', state)
 provide('actions', actions)
