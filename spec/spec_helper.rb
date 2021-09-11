@@ -157,7 +157,7 @@ RSpec.configure do |config|
 
   # Verify DB is actually cleared. Retry if it isn't.
   config.after(:each, type: :feature, js: true) do
-    sleep 0.5 # Give additional time to test server to finish up manipulating the database before attempting to clear it
+    sleep 1 # Give additional time to test server to finish up manipulating the database before attempting to clear it
     DatabaseCleaner.clean
     i = 0
     # TODO: Does this actually fixing something nowadays?
