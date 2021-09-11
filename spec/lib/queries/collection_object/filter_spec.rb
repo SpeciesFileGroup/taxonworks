@@ -536,6 +536,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       end
 
       specify '#identifier_exact 2' do
+        Identifier::Global.destroy_all # purge random dwc_occurrence based identifiers that might match
         query.identifier_exact = false
         query.identifier = '1'
         expect(query.all.pluck(:id)).to contain_exactly(co1.id)
