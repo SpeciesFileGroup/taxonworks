@@ -23,7 +23,8 @@ module Export
         description: 'A Darwin Core archive.',
         filename: name,
         request: request,
-        expires: 2.days.from_now
+        expires: 2.days.from_now,
+        total_records: record_scope.count # TODO: increment after when extensions are allowed.
       )
 
       # Note we pass a string with the record scope
@@ -34,10 +35,15 @@ module Export
 
     # @param klass [ActiveRecord class]
     #   e.g. CollectionObject
+    # @param record_scope [An ActiveRecord scope]
+    # @return Hash
+    #   total: total records to expect
+    #   start_time: the time indexing started
+    #   sample: Array of object global ids spread across 10 (or fewer) intervals of the recordset
+    #
     # When we re-index a large set of data then we run it in the background.
     # To determine when it is done we poll by the last record to be indexed.
-    # @return hash of global_ids
-    #   The last object in the recordset has been sent on response
+    #
     def self.build_index_async(klass, record_scope)
       s = record_scope.order(:id)
       ::DwcaCreateIndexJob.perform_later(klass.to_s, sql_scope: s.to_sql)
@@ -75,5 +81,3 @@ module Export
     end
   end
 end
-
-# Legume data -
