@@ -3,34 +3,26 @@
     <legend>Source</legend>
     <div class="separate-bottom">
       <div
-        class="horizontal-left-content"
+        class="horizontal-left-content align-start"
         v-show="!citation.id"
       >
-        <autocomplete
-          url="/sources/autocomplete"
-          label="label_html"
-          min="2"
-          ref="autocomplete"
-          :clear-after="true"
-          @getItem="setSource"
-          placeholder="Select a source"
-          param="term"
-        />
-        <default-element
-          class="margin-small-left"
-          label="source"
-          type="Source"
-          @getItem="setSource"
-          section="Sources"
+        <smart-selector
+          model="sources"
+          target="AssertedDistribution"
+          klass="AssertedDistribution"
+          pin-section="Sources"
+          pin-type="Source"
+          @selected="setSource"
         />
         <lock-component
           class="margin-small-left"
           v-model="lock" />
       </div>
+      <hr>
       <div class="margin-small-top">
         <span
           v-if="citation.source_id && !citation.id"
-          v-html="autocompleteLabel"
+          v-html="sourceLabel"
         />
       </div>
       <span
@@ -72,16 +64,15 @@
 </template>
 
 <script>
-import DefaultElement from 'components/getDefaultPin.vue'
-import Autocomplete from 'components/ui/Autocomplete.vue'
+
 import LockComponent from 'components/ui/VLock/index.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 import { convertType } from 'helpers/types'
 
 export default {
   components: {
-    DefaultElement,
-    Autocomplete,
-    LockComponent
+    LockComponent,
+    SmartSelector
   },
 
   props: {
@@ -104,7 +95,7 @@ export default {
 
   data () {
     return {
-      autocompleteLabel: undefined,
+      sourceLabel: undefined,
       citation: this.newCitation(),
       lock: false
     }
@@ -119,7 +110,7 @@ export default {
     },
 
     display (newVal) {
-      this.autocompleteLabel = newVal
+      this.sourceLabel = newVal
     },
 
     lock (newVal) {
@@ -137,7 +128,7 @@ export default {
     if (this.lock) {
       this.citation.source_id = convertType(sessionStorage.getItem('radialObject::source::id'))
       this.citation.pages = convertType(sessionStorage.getItem('radialObject::source::pages'))
-      this.autocompleteLabel = convertType(sessionStorage.getItem('radialObject::source::label'))
+      this.sourceLabel = convertType(sessionStorage.getItem('radialObject::source::label'))
     }
   },
 
@@ -165,9 +156,9 @@ export default {
     },
 
     cleanCitation () {
-      this.autocompleteLabel = undefined
+      this.sourceLabel = undefined
       this.citation = this.newCitation()
-      this.autocompleteLabel = ''
+      this.sourceLabel = ''
       this.$emit('create', this.citation)
     },
 
@@ -177,9 +168,9 @@ export default {
 
     setSource (source) {
       sessionStorage.setItem('radialObject::source::id', source.id)
-      sessionStorage.setItem('radialObject::source::label', source.label)
+      sessionStorage.setItem('radialObject::source::label', source.object_tag)
       this.citation.source_id = source.id
-      this.autocompleteLabel = source.label
+      this.sourceLabel = source.object_tag
     },
 
     setPage (value) {

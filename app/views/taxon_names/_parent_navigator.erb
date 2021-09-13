@@ -3,9 +3,9 @@
 </div>
 
 <div class="navigation-controls">
-  <%= previous_sibling_browse_taxon_name_link(@taxon_name) %>
+  <%= previous_sibling_browse_taxon_name_link(@taxon_name, target) %>
   <a href="/taxon_names/random" class="navigation-item" data-turbolinks="false">Random</a>
-  <%= next_sibling_browse_taxon_name_link(@taxon_name) %>
+  <%= next_sibling_browse_taxon_name_link(@taxon_name, target) %>
 </div>
 
 <div id="show_taxon_name_hierarchy" class="content">
@@ -25,7 +25,7 @@
     <% taxon_name.ancestor_protonyms.each do |p| -%>
       <li data-valid-toggle="<%= p.is_valid? ? 'valid' : 'invalid' -%>">
         <p>
-        <%= link_to(taxon_name_tag(p), send(target, {id: p.id})) -%>
+        <%= taxon_name_parent_navigator_item_link(p, target) -%>
         <span>
           <%= p.cached_author_year -%>
         </span>
@@ -47,7 +47,7 @@
     <% taxon_name.children.order(:name).where(type: 'Protonym').each do |p| -%>
       <li data-valid-toggle="<%= p.is_valid? ? 'valid' : 'invalid' -%>">
         <p>
-        <%= link_to(taxon_name_tag(p), send(target, {id: p.id})) -%>
+        <%= taxon_name_parent_navigator_item_link(p, target) -%>
         <span><%= p.cached_author_year -%></span>
         <% v = p.descendants.that_is_valid.count -%>
         <% iv = p.descendants.that_is_invalid.count -%>

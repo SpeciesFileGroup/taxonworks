@@ -80,14 +80,9 @@ export default {
           }
         }
       })
-      this.roles = authorsPerson
-      this.updateTaxonName()
-    },
 
-    updateTaxonName () {
-      if (this.isAutosaveActive) {
-        this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
-      }
+      this.roles = authorsPerson
+      this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
     },
 
     updateLastChange () {

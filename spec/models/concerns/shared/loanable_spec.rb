@@ -50,8 +50,7 @@ describe 'Loanable', type: :model, group: :loans do
 
   context 'on loan' do
     before {
-      class_with_loan.loan = loan
-      class_with_loan.save
+      class_with_loan.update(loan: loan)
     }
 
     specify '#on_loan?' do
@@ -61,6 +60,15 @@ describe 'Loanable', type: :model, group: :loans do
     specify '#loan_return_date' do
       expect(class_with_loan.loan_return_date).to eq(loan.date_return_expected)
     end
+  end
+
+  specify 'loan item destroyed' do
+    class_with_loan.save
+    class_with_loan.build_loan_item(loan: loan)
+    class_with_loan.save
+
+    class_with_loan.destroy
+    expect(class_with_loan.loan_items.count).to eq(0)
   end
 
 end

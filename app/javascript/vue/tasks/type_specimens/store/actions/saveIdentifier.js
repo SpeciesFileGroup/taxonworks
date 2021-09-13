@@ -7,7 +7,7 @@ export default ({ state, commit }) => {
     identifier.identifier_object_id = state.type_material.collection_object.id
 
     if (state.identifier.id) {
-      Identifier.update(state.identifier.id, identifier).then(response => {
+      Identifier.update(state.identifier.id, { identifier }).then(response => {
         commit(MutationNames.SetIdentifier, response.body)
         TW.workbench.alert.create('Identifier was successfully updated.', 'notice')
       })
