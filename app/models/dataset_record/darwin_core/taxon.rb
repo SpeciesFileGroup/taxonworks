@@ -118,18 +118,19 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             end
           else
 
+            # create OC with self at lowest rank
             if original_combination_types.has_key?(taxon_name.rank.downcase.to_sym)
               TaxonNameRelationship.find_or_create_by!(type: original_combination_types[rank.downcase.to_sym], subject_taxon_name: taxon_name, object_taxon_name: taxon_name)
             end
 
             unless parent == project.root_taxon_name
-              original_parent = TaxonName.find(find_by_taxonID(get_original_combination.metadata["parent"])
+              original_combination_parent = TaxonName.find(find_by_taxonID(get_original_combination.metadata["parent"])
                                                  .metadata["imported_objects"]["taxon_name"]["id"])
 
-              parent_rank = original_parent.rank
-
-              if original_combination_types.include? parent_rank&.downcase
-                TaxonNameRelationship.find_or_create_by!(type: 'TaxonNameRelationship::OriginalCombination::Original' + parent_rank&.capitalize, subject_taxon_name: original_parent, object_taxon_name: taxon_name)
+              original_combination_parent.safe_self_and_ancestors.each do |ancestor|
+                if (rank_in_type = original_combination_types[ancestor.rank.downcase.to_sym])
+                  TaxonNameRelationship.find_or_create_by!(type: rank_in_type, subject_taxon_name: ancestor, object_taxon_name: taxon_name)
+                end
               end
             end
           end
@@ -141,16 +142,17 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             synonym_classes = {
               iczn: {
                 synonym: "TaxonNameRelationship::Iczn::Invalidating::Synonym",
-                homonym: "TaxonNameRelationship::Iczn::Invalidating::Homonym",
+                homonym: "TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym",
               },
-              icnp: {
-                synonym: "TaxonNameRelationship::Icnp::Unaccepting::Synonym",
-                homonym: "TaxonNameRelationship::Icnp::Unaccepting::Homonym"
-              },
-              icn: {
-                synonym: "TaxonNameRelationship::Icn::Unaccepting::Synonym",
-                homonym: "TaxonNameRelationship::Icn::Unaccepting::Homonym"
-              }
+              # TODO support other nomenclatural codes
+              # icnp: {
+              #   synonym: "TaxonNameRelationship::Icnp::Unaccepting::Synonym",
+              #   homonym: "TaxonNameRelationship::Icnp::Unaccepting::Homonym"
+              # },
+              # icn: {
+              #   synonym: "TaxonNameRelationship::Icn::Unaccepting::Synonym",
+              #   homonym: "TaxonNameRelationship::Icn::Unaccepting::Homonym"
+              # }
             }.freeze
 
             if (status = get_field_value(:taxonomicStatus)&.downcase)
@@ -159,6 +161,12 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
               raise DarwinCore::InvalidData.new({ "taxonomicStatus": ["Couldn't find a status that matched #{status}"] }) if type.nil?
 
               TaxonNameRelationship.find_or_create_by(subject_taxon_name: taxon_name, object_taxon_name: valid_name, type: type)
+
+              # Add homonym status (if applicable)
+              if status == 'homonym'
+                TaxonNameClassification.find_or_create_by!(taxon_name: taxon_name, type: 'TaxonNameClassification::Iczn::Available::Invalid::Homonym')
+              end
+
             else
               raise DarwinCore::InvalidData.new({ "taxonomicStatus": ["No taxonomic status, but acceptedNameUsageID has different protonym"] })
             end
@@ -217,7 +225,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
           # => PG::UndefinedTable: ERROR:  missing FROM-clause entry for table "genus"
           # LINE 1: ..."taxon_names" WHERE "taxon_names"."type" = $1 AND "genus"."i...
 
-          taxon_name = Combination.find_by_protonym_ids(**combination_attributes.transform_values { |v| v.id })
+          taxon_name = Combination.matching_protonyms(**combination_attributes.transform_values { |v| v.id }).first
           taxon_name = Combination.new(combination_attributes) if taxon_name.empty?
 
         else
