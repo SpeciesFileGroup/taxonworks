@@ -55,11 +55,10 @@ import VBtn from 'components/ui/VBtn/index.vue'
 
 const CALL_DELAY = 5000
 const PROPERTIES = [
-  'name',
-  'description',
+  'created_at',
   'expires',
-  'times_downloaded',
-  'created_at'
+  'total_records',
+  'times_downloaded'
 ]
 
 const props = defineProps({
