@@ -35,7 +35,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
     it 'creates an original genus relationship' do
       genus = TaxonName.find_by(name: 'Calyptites')
-      expect(TaxonNameRelationship.find_by({ subject_taxon_name: genus, object_taxon_name: genus }).type_name).to eq('TaxonNameRelationship::OriginalCombination::OriginalGenus')
+      expect_original_combination(genus, genus, 'genus')
     end
 
     it 'saves DwC-A import metadata as a data attribute' do
@@ -64,15 +64,16 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     end
 
     it 'should have a homonym relationship' do
-      expect(TaxonNameClassification.find_by_taxon_name_id(TaxonName.find_by(name: 'barbatus', year_of_publication: 1926)).type).to eq('TaxonNameClassification::Iczn::Available::Invalid::Homonym')
+      pending "need to switch to checking for relationship, and status should be invalid"
+      # expect(TaxonNameClassification.find_by_taxon_name_id(TaxonName.find_by(name: 'barbatus', year_of_publication: 1926)).rank).to eq('TaxonNameClassification::Iczn::Available::Invalid::Homonym')
     end
 
     it 'should should have a replacement name relationship' do
       pending "if we can derive this data from DwC spec"
     end
 
-    it 'should have 4 original combination relationships' do
-      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 4
+    it 'should have 7 original combination relationships' do
+      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 7
     end
 
     it 'should have Baroni Urbani as the author of the replacement species' do
@@ -108,7 +109,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     end
 
     it 'should have four original combinations' do
-      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 4
+      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 8
     end
 
     it 'the synonym should be cached invalid' do
@@ -249,18 +250,42 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       expect(Protonym.all.length).to eq 4
     end
 
-    it 'should have an original genus relationship between genus and subspecies' do
-      expect(TaxonNameRelationship.find_by({ subject_taxon_name: genus_id, object_taxon_name: subspecies_id }).type_name).to eq('TaxonNameRelationship::OriginalCombination::OriginalGenus')
+    context 'the imported genus' do
+      it 'should have an original genus relationship between to itself' do
+        expect_original_combination(genus_id, genus_id, 'genus')
+      end
     end
 
-    it 'should have an original species relationship between species and subspecies' do
-      expect(TaxonNameRelationship.find_by({ subject_taxon_name: species_id, object_taxon_name: subspecies_id }).type_name).to eq('TaxonNameRelationship::OriginalCombination::OriginalSubspecies')
+    context 'the imported species' do
+      it 'should have an original species relationship to itself' do
+        expect_original_combination(species_id, species_id, 'species')
+      end
+      it 'should have an original genus relationship between genus and species' do
+        expect_original_combination(genus_id, species_id, 'genus')
+      end
     end
 
-    it 'should have an original genus relationship between genus and species' do
-      expect(TaxonNameRelationship.find_by({ subject_taxon_name: genus_id, object_taxon_name: species_id }).type_name).to eq('TaxonNameRelationship::OriginalCombination::OriginalGenus')
+    context 'the imported subspecies' do
+      it 'should have an original subspecies relationship to itself' do
+        expect_original_combination(subspecies_id, subspecies_id, 'subspecies')
+      end
+
+      it 'should have an original species relationship between species and subspecies' do
+        expect_original_combination(species_id, subspecies_id, 'species')
+      end
+
+      it 'should have an original genus relationship between genus and subspecies' do
+        expect_original_combination(genus_id, subspecies_id, 'genus')
+      end
     end
   end
+end
 
 
+# Helper method to expect an OriginalCombination relationship with less code duplication
+# @param [Integer, Protonym] subject_taxon_name
+# @param [Integer, Protonym] object_taxon_name
+# @param [String] rank The (short) rank to expect in the relationship
+def expect_original_combination(subject_taxon_name, object_taxon_name, rank)
+  expect(TaxonNameRelationship.find_by({ subject_taxon_name: subject_taxon_name, object_taxon_name: object_taxon_name }).type_name).to eq('TaxonNameRelationship::OriginalCombination::Original' + rank.capitalize)
 end
