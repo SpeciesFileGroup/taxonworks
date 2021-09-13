@@ -14,6 +14,9 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
     let!(:results) { import_dataset.import(5000, 100).concat(import_dataset.import(5000, 100)) }
 
+    let(:parent) { TaxonName.find(results[0].metadata.dig('imported_objects', 'taxon_name', 'id')) }
+    let(:child) { TaxonName.find(results[1].metadata.dig('imported_objects', 'taxon_name', 'id')) }
+
     it 'creates and imports two records' do
       expect(results.length).to eq(2)
       expect(results.map { |row| row.status }).to all(eq('Imported'))
@@ -38,10 +41,25 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       expect_original_combination(genus, genus, 'genus')
     end
 
-    it 'saves DwC-A import metadata as a data attribute' do
-      pending
-    end
+    context 'the saved DwC-A import metadata' do
+      let(:import_attribute) { DataAttribute.find_by_attribute_subject_id(parent.id) }
 
+      it 'should have the "DwC-A import metadata" import predicate' do
+        expect(import_attribute.import_predicate).to eq('DwC-A import metadata')
+      end
+
+      it 'should have an attribute subject type of TaxonName' do
+        expect(import_attribute.attribute_subject_type).to eq 'TaxonName'
+      end
+
+      it 'should have the correct row metadata' do
+        pending "need to convert from json string to ruby hash"
+        expect(import_attribute.value['scientificName']).to eq 'Formicidae'
+        expect(import_attribute.value['scientificNameAuthorship']).to eq 'Latreille, 1809'
+        expect(import_attribute.value['taxonRank']).to eq 'genus'
+      end
+
+    end
   end
 
   context 'when importing a homonym with a replacement taxon' do
@@ -52,28 +70,49 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       ).tap { |i| i.stage }
     }
 
-    let!(:results) { import_dataset.import(5000, 100).concat(import_dataset.import(5000, 100)).concat(import_dataset.import(5000, 100)) }
+    let!(:results) {
+      results = []
+      4.times { |_|
+        results.concat import_dataset.import(5000, 100)
+      }
+      results
+    }
 
-    it 'should create 4 imported records' do
-      expect(results.length).to eq(4)
+
+    let(:senior_homonym) { TaxonName.find_by(name: 'barbatus', year_of_publication: 1863) }
+    let(:junior_homonym) { TaxonName.find_by(name: 'barbatus', year_of_publication: 1926) }
+    let(:replacement_name) { TaxonName.find_by_cached('Camponotus barbosus') }
+
+    it 'should create 5 imported records' do
+      expect(results.length).to eq(5)
       expect(results.map { |row| row.status }).to all(eq('Imported'))
     end
 
-    it 'should have three child protonym records' do
-      expect(TaxonName.find_by_name("Tanaemyrmex").descendant_protonyms.length).to eq 3
+    context 'the subgenus' do
+      it 'should have three child protonym records' do
+        expect(TaxonName.find_by_name("Tanaemyrmex").descendant_protonyms.length).to eq 3
+      end
+    end
+
+    it 'junior homonym should be invalid' do
+      expect(junior_homonym).to_not be_is_valid
     end
 
     it 'should have a homonym relationship' do
-      pending "need to switch to checking for relationship, and status should be invalid"
+      pending "need to switch to checking for relationship"
+      relationship = TaxonNameRelationship.find_by({subject_taxon_name: junior_homonym, object_taxon_name: senior_homonym})
+      expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Homonym')
+
       # expect(TaxonNameClassification.find_by_taxon_name_id(TaxonName.find_by(name: 'barbatus', year_of_publication: 1926)).rank).to eq('TaxonNameClassification::Iczn::Available::Invalid::Homonym')
     end
 
     it 'should should have a replacement name relationship' do
-      pending "if we can derive this data from DwC spec"
+      relationship = TaxonNameRelationship.find_by({subject_taxon_name: junior_homonym, object_taxon_name: replacement_name})
+      expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym')
     end
 
-    it 'should have 7 original combination relationships' do
-      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 7
+    it 'should have 9 original combination relationships' do
+      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 9
     end
 
     it 'should have Baroni Urbani as the author of the replacement species' do
@@ -112,16 +151,20 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 8
     end
 
-    it 'the synonym should be cached invalid' do
-      expect(TaxonName.find_by({ id: synonym_id }).cached_is_valid).to eq(false)
-    end
+    context 'the synonym TaxonName' do
+      let(:synonym) {TaxonName.find_by({ id: synonym_id })}
 
-    it 'the synonym should have cached valid taxon id' do
-      expect(TaxonName.find_by({ id: synonym_id }).cached_valid_taxon_name_id).to eq(valid_id)
-    end
+      it 'should be cached invalid' do
+        expect(synonym.cached_is_valid).to be false
+      end
 
-    it "the synonym's parent should be Apterostigma wasmannii" do
-      expect(TaxonName.find_by({ id: synonym_id }).parent.id).to eq(synonym_parent_id)
+      it 'the synonym should have cached valid taxon id' do
+        expect(synonym.cached_valid_taxon_name_id).to eq valid_id
+      end
+
+      it "the synonym's parent should be Apterostigma wasmannii" do
+        expect(synonym.parent.id).to eq synonym_parent_id
+      end
     end
 
   end
