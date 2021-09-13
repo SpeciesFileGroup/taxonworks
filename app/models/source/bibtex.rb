@@ -41,11 +41,7 @@ require 'namecase'
 #   We do not track stated_month or stated_day if they are present in addition to actual month and actual day.
 #
 #   BibTeX has month.
-#
 #   BibTeX does not have day.
-#
-# TW will add all non-standard or housekeeping attributes to the bibliography even though
-# the data may be ignored.
 #
 # @author Elizabeth Frank <eef@illinois.edu> INHS University of IL
 # @author Matt Yoder
@@ -272,7 +268,7 @@ require 'namecase'
 #
 # @!attribute language_id
 #   @return [Integer]
-#     language, from a controlled vocabulary 
+#     language, from a controlled vocabulary
 #
 # @!attribute translator
 #   @return [String]
@@ -289,7 +285,7 @@ require 'namecase'
 #
 # @!attribute author
 #   @return [String, nil] author names preferably rendered in BibTeX format,
-#   "Last name, FirstName MiddleName". FirstName and MiddleName can be initials. 
+#   "Last name, FirstName MiddleName". FirstName and MiddleName can be initials.
 #   Additional authors are joined with ` and `. All names before the
 #   comma are treated as a single last name.
 #
@@ -304,6 +300,9 @@ require 'namecase'
 #   See also `cached_author_string`
 #
 class Source::Bibtex < Source
+
+  # Type will change
+  DEFAULT_CSL_STYLE = 'zootaxa'
 
   attr_accessor :authors_to_create
 
@@ -482,8 +481,11 @@ class Source::Bibtex < Source
     [cached_author_string, year].compact.join(', ')
   end
 
+  # TODO: Not used
+  #
   # Modified from build, the issues with polymorphic has_many and build
-  # are more than we want to tackle right now
+  # are more than we want to tackle right now.
+  #
   # @return [Array, Boolean] of names, or false
   def create_related_people_and_roles
     return false if !self.valid? ||
@@ -643,7 +645,7 @@ class Source::Bibtex < Source
 
   # @return [Boolean]
   # is there a bibtex author or author roles?
-  def has_authors? 
+  def has_authors?
     return true if !author.blank?
     return false if new_record?
     # self exists in the db
@@ -668,7 +670,7 @@ class Source::Bibtex < Source
   # @return [Boolean]
   def has_some_year? # is there a year or stated year?
     return false if year.blank? && stated_year.blank?
-    true 
+    true
   end
 
   # @return [Integer]
@@ -695,17 +697,18 @@ class Source::Bibtex < Source
 
   # rubocop:disable Metrics/MethodLength
   # @return [BibTeX::Entry]
-  #   entry equivalent to self, this should round-trip with no changes
+  #   !! Entry equivalent to self, this should round-trip with no changes.
   def to_bibtex
     b = BibTeX::Entry.new(bibtex_type: bibtex_type)
 
     ::BIBTEX_FIELDS.each do |f|
-      if (!self.send(f).blank?) && !(f == :bibtex_type)
-        b[f] = self.send(f)
+      if (!send(f).blank?) && !(f == :bibtex_type)
+        b[f] = send(f)
       end
     end
 
-    b.year = year_with_suffix if !year_suffix.blank?
+    # b.year = year_with_suffix if !year_suffix.blank?
+
     b[:keywords] = verbatim_keywords     unless verbatim_keywords.blank?
     b[:note] = concatenated_notes_string if !concatenated_notes_string.blank?
 
@@ -744,13 +747,14 @@ class Source::Bibtex < Source
     b.author = get_bibtex_names('author') if author_roles.load.any? # unless (!authors.load.any? && author.blank?)
     b.editor = get_bibtex_names('editor') if editor_roles.load.any? # unless (!editors.load.any? && editor.blank?)
 
+    # TODO: use global_id or replace with UUID or DOI if available
     b.key = id unless new_record?
     b
   end
 
   # @return [String, nil]
   #  priority is Person, string
-  #  !! Not the cached value !! 
+  #  !! Not the cached value !!
   def get_author
     a = authors.load
     if a.any?
@@ -799,16 +803,7 @@ class Source::Bibtex < Source
   #  https://github.com/citation-style-language/styles/pull/2305
   def cached_string(format = 'text')
     return nil unless (format == 'text') || (format == 'html')
-    str = render_with_style('zootaxa', format) # the current TaxonWorks default ... make a constant
-#    str = render_with_style('zookeys', format) # the current TaxonWorks default ... make a constant
-#    str = render_with_style('entomological-society-of-america', format) # the current TaxonWorks default ... make a constant
-#    str = render_with_style('florida-entomologist', format) # the current TaxonWorks default ... make a constant
-#    str = render_with_style('zoological-journal-of-the-linnean-society', format) # the current TaxonWorks default ... make a constant
-#    str = render_with_style('systematic-biology', format) # the current TaxonWorks default ... make a constant
-#    str = render_with_style('chicago-annotated-bibliography', format) # the current TaxonWorks default ... make a constant
-#    str = render_with_style('chicago-fullnote-bibliography-16th-edition', format) # the current TaxonWorks default ... make a constant
-#    str = render_with_style('chicago-library-list', format) # the current TaxonWorks default ... make a constant
-
+    str = render_with_style(DEFAULT_CSL_STYLE, format)
     str.sub('(0ADAD)', '') # citeproc renders year 0000 as (0ADAD)
   end
 

@@ -16,7 +16,7 @@ module TaxonWorks
         b
       end
 
-     # @return Array
+      # @return Array
       #   of styled sources
       def self.styled(sources = [], style_id = 'http://www.zotero.org/styles/vancouver')
         return [] unless s = ::CSL_STYLES[style_id]
