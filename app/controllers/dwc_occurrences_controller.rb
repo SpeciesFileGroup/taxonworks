@@ -20,4 +20,8 @@ class DwcOccurrencesController < ApplicationController
     end
   end
 
+  def collector_id_metadata
+    render json: helpers.collector_global_id_metadata
+  end
+
 end

@@ -1,4 +1,4 @@
-module DwcOccurrencesHelper 
+module DwcOccurrencesHelper
 
   def dwc_occurrences_metadata(dwc_occurrences = nil, project_id: nil)
     records = dwc_occurrences
@@ -36,6 +36,28 @@ module DwcOccurrencesHelper
         }
       }
     }
-
   end
+
+  def collector_global_id_metadata(dwc_occurrences = nil, project_id = nil)
+    records = dwc_occurrences
+    project_id ||= sessions_current_project_id
+
+    # Anticipate multiple sources of records in future (e.g. AssertedDistribution)
+    records ||= ::DwcOccurrence.where(project_id: project_id)
+
+    a = ::Person
+      .left_joins(:identifiers)
+      .joins(:dwc_occurrences)
+      .merge(records)
+
+    with_global_id = a.where("identifiers.type ILIKE 'Identifier::Global%'").distinct.pluck(:id, :cached)
+    without_global_id =  a.where("(identifiers.id is null) OR identifiers.type not ILIKE 'Identifier::Global%'").distinct.pluck(:id, :cached)
+
+    return {
+      without_global_id: without_global_id,
+      with_global_id: with_global_id
+    }
+  end
+
+
 end

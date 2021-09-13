@@ -245,6 +245,7 @@ resources :dwc_occurrences, only: [], defaults: {format: :json} do
     get 'metadata'
     get 'predicates'
     get 'status'
+    get 'collector_id_metadata'
   end
 end
 
