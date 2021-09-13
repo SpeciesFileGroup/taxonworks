@@ -23,13 +23,6 @@ const DATASET_LABELS = [
   { label: 'One year', property: 'one_year', backgroundColor: randomHue(4) }
 ]
 
-const props = defineProps({
-  metadata: {
-    type: Object,
-    required: true
-  }
-})
-
 const useState = inject('state')
 
 const chartState = reactive({

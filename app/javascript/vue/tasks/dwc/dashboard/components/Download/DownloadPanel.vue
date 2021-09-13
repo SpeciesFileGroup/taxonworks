@@ -32,8 +32,8 @@
 </template>
 <script setup>
 
-import { DwcOcurrence, Download, CollectionObject } from 'routes/endpoints'
-import { ref, onBeforeMount } from 'vue'
+import { DwcOcurrence, Download } from 'routes/endpoints'
+import { ref, onBeforeMount, inject, computed } from 'vue'
 import { DOWNLOAD_DWC_ARCHIVE } from 'constants/index.js'
 import DownloadRecent from './DownloadRecent.vue'
 import DownloadDateButton from './DownloadDateButton.vue'
@@ -54,8 +54,9 @@ const props = defineProps({
   }
 })
 
+const useState = inject('state')
 const downloadList = ref([])
-const downloadCount = ref()
+const downloadCount = computed(() => useState?.metadata?.index?.record_total)
 
 const download = async (downloadParams) => {
   downloadList.value.push((await DwcOcurrence.generateDownload({ ...props.params, ...downloadParams })).body)
@@ -67,7 +68,6 @@ const setRecord = ({ index, record }) => {
 
 onBeforeMount(async () => {
   downloadList.value = (await Download.where({ download_type: DOWNLOAD_DWC_ARCHIVE })).body
-  downloadCount.value = (await CollectionObject.where({ ...props.params, per: 1 })).headers['pagination-total']
 })
 
 </script>
