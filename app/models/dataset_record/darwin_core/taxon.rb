@@ -83,7 +83,8 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             year_of_publication: year
           }
 
-          taxon_name = Protonym.create_with(verbatim_author: author_name, project: project).find_or_initialize_by(protonym_attributes.slice(:name, :parent, :rank_class, :year_of_publication))
+          taxon_name = Protonym.create_with(verbatim_author: author_name, project: project)
+                               .find_or_initialize_by(protonym_attributes.slice(:name, :parent, :rank_class, :year_of_publication))
 
           unless taxon_name.persisted?
             taxon_name.taxon_name_classifications.build(type: TaxonNameClassification::Icn::Hybrid) if is_hybrid
@@ -98,14 +99,28 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
           # create original combination relationship, get parent of original combination to set as subject taxon name
 
-          original_combination_ranks = %w[genus subgenus species subspecies variety subvariety form subform]
+          original_combination_types = {
+            genus: 'TaxonNameRelationship::OriginalCombination::OriginalGenus',
+            subgenus: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus',
+            species: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies',
+            subspecies: 'TaxonNameRelationship::OriginalCombination::OriginalSubspecies',
+            variety: 'TaxonNameRelationship::OriginalCombination::OriginalVariety',
+            form: 'TaxonNameRelationship::OriginalCombination::OriginalForm'
+          }
 
           if get_field_value(:taxonID) == get_field_value(:originalNameUsageID)
-            if original_combination_ranks.include? rank.downcase
-              TaxonNameRelationship.find_or_create_by!(type: 'TaxonNameRelationship::OriginalCombination::Original' + rank.capitalize, subject_taxon_name: taxon_name, object_taxon_name: taxon_name)
-            end
+            # create relationships for genus rank and below pointing to self and parents
 
+            taxon_name.safe_self_and_ancestors.each do |ancestor|
+              if (rank_in_type = original_combination_types[ancestor.rank.downcase.to_sym])
+                TaxonNameRelationship.find_or_create_by!(type: rank_in_type, subject_taxon_name: ancestor, object_taxon_name: taxon_name)
+             end
+            end
           else
+
+            if original_combination_types.has_key?(taxon_name.rank.downcase.to_sym)
+              TaxonNameRelationship.find_or_create_by!(type: original_combination_types[rank.downcase.to_sym], subject_taxon_name: taxon_name, object_taxon_name: taxon_name)
+            end
 
             unless parent == project.root_taxon_name
               original_parent = TaxonName.find(find_by_taxonID(get_original_combination.metadata["parent"])
@@ -113,28 +128,44 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
               parent_rank = original_parent.rank
 
-              if original_combination_ranks.include? parent_rank&.downcase
+              if original_combination_types.include? parent_rank&.downcase
                 TaxonNameRelationship.find_or_create_by!(type: 'TaxonNameRelationship::OriginalCombination::Original' + parent_rank&.capitalize, subject_taxon_name: original_parent, object_taxon_name: taxon_name)
               end
             end
           end
 
-          # if taxonomicStatus is a synonym, create the relationship to acceptedNameUsageID
-          if metadata["is_synonym"]
+          # if taxonomicStatus is a synonym or homonym, create the relationship to acceptedNameUsageID
+          if metadata["has_external_accepted_name"]
             valid_name = get_taxon_name_from_taxon_id(get_field_value(:acceptedNameUsageID))
 
             synonym_classes = {
-              iczn: "TaxonNameRelationship::Iczn::Invalidating::Synonym",
-              icnp: "TaxonNameRelationship::Icnp::Unaccepting::Synonym",
-              icn: "TaxonNameRelationship::Icn::Unaccepting::Synonym"
+              iczn: {
+                synonym: "TaxonNameRelationship::Iczn::Invalidating::Synonym",
+                homonym: "TaxonNameRelationship::Iczn::Invalidating::Homonym",
+              },
+              icnp: {
+                synonym: "TaxonNameRelationship::Icnp::Unaccepting::Synonym",
+                homonym: "TaxonNameRelationship::Icnp::Unaccepting::Homonym"
+              },
+              icn: {
+                synonym: "TaxonNameRelationship::Icn::Unaccepting::Synonym",
+                homonym: "TaxonNameRelationship::Icn::Unaccepting::Homonym"
+              }
             }.freeze
 
-            TaxonNameRelationship.find_or_create_by(subject_taxon_name: taxon_name, object_taxon_name: valid_name, type: synonym_classes[nomenclature_code])
+            if (status = get_field_value(:taxonomicStatus)&.downcase)
+              type = synonym_classes[nomenclature_code][status.to_sym]
+
+              raise DarwinCore::InvalidData.new({ "taxonomicStatus": ["Couldn't find a status that matched #{status}"] }) if type.nil?
+
+              TaxonNameRelationship.find_or_create_by(subject_taxon_name: taxon_name, object_taxon_name: valid_name, type: type)
+            else
+              raise DarwinCore::InvalidData.new({ "taxonomicStatus": ["No taxonomic status, but acceptedNameUsageID has different protonym"] })
+            end
 
             # if taxonomicStatus is a homonym, invalid, unavailable, excluded, create the status
           elsif get_field_value(:taxonomicStatus) != 'valid' || get_field_value(:taxonomicStatus).nil?
             status_types = {
-              homonym: 'TaxonNameClassification::Iczn::Available::Invalid::Homonym',
               invalid: 'TaxonNameClassification::Iczn::Available::Invalid',
               unavailable: 'TaxonNameClassification::Iczn::Unavailable',
               excluded: 'TaxonNameClassification::Iczn::Unavailable::Excluded'

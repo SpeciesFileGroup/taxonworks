@@ -49,8 +49,10 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
         dependants: [],
         synonyms: [],
         synonym_of: nil, # index of current/valid name
+        replacing_valid_name: nil,  # taxonID of current/valid name, if record is a homonym or synonym
         is_hybrid: nil,
         is_synonym: nil,
+        has_external_accepted_name: nil,   # could be homonym or synonym, either way protonym is not valid. will use taxonomicStatus to determine the kind of relationship
         original_combination: nil, # taxonID of original combination
         protonym_taxon_id: nil,
         parent: record["parentNameUsageID"],
@@ -59,8 +61,8 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
     end
 
     # PROCESS OVERVIEW
-    # if current name is valid or homonym, acceptedNameUsageID will be inside the original combination group, use that row for the protonym
-    # if current name is synonym, acceptedNameUsageID won't be in the group, but use the synonym row for creating the protonym
+    # if current name is valid, acceptedNameUsageID will be inside the original combination group, use that row for the protonym
+    # if current name is synonym or homonym, acceptedNameUsageID won't be in the group, but use the synonym/homonym row for creating the protonym
     #
     # make combination relationships for other names in group
     # make other names dependent on valid name
@@ -98,7 +100,7 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
         accepted_name_index = records_lut[core_records[oc_index][:src_data]['acceptedNameUsageID']][:index]
 
         # if the accepted name is in the group, use it for creating the protonym
-        # if it's not in the group, search the statuses of the items to find most eligible name
+        # if it's not in the group, search the statuses of the items to find most eligible name (this happens with synonyms and homonyms)
         if name_items.include? accepted_name_index
           current_item = accepted_name_index
         else
@@ -108,6 +110,14 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
               break
             end
           end
+
+          core_records[current_item][:has_external_accepted_name] = true
+
+          replacement_taxon_id = core_records[current_item][:src_data]['acceptedNameUsageID']
+          core_records[current_item][:replacing_valid_name] = replacement_taxon_id
+          core_records[current_item][:dependencies] << replacement_taxon_id
+          records_lut[replacement_taxon_id][:dependants] << core_records[current_item][:src_data]['taxonID']
+
 
           # TODO handle if no names in group are marked as current / all are obsolete combinations
           if current_item.nil?
@@ -148,16 +158,16 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
     core_records.each_with_index do |record, index|
       acceptedNameUsage = records_lut[record[:src_data]["acceptedNameUsageID"]]
 
-      if acceptedNameUsage
+      unless acceptedNameUsage
         # record[:parent] = acceptedNameUsage[:parent]
         # record[:is_synonym] = acceptedNameUsage[:index] != record[:index]
-        record[:is_synonym] = record[:src_data]['taxonomicStatus'] == 'synonym'
+        #
+        # record[:is_synonym] = record[:src_data]['taxonomicStatus'] == 'synonym'
 
-        if record[:is_synonym]
-          record[:synonym_of] = acceptedNameUsage[:index]
-          acceptedNameUsage[:synonyms] << record[:index]
-        end
-      else
+        # if record[:is_synonym]
+        #   record[:synonym_of] = acceptedNameUsage[:index]
+        #   acceptedNameUsage[:synonyms] << record[:index]
+        # end
         record[:invalid] = "acceptedNameUsageID '#{record[:src_data]["acceptedNameUsageID"]}' not found"
       end
 
