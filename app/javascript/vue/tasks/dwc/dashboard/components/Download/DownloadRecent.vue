@@ -8,17 +8,25 @@
           :key="header">
           {{ humanize(header) }}
         </th>
+        <th>Is public</th>
         <th></th>
       </tr>
     </thead>
     <tbody>
       <tr
-        v-for="item in list"
+        v-for="(item, index) in list"
         :key="item.id">
         <td
           v-for="property in PROPERTIES"
           :key="property">
           {{ item[property] }}
+        </td>
+        <td>
+          <input
+            type="checkbox"
+            :checked="item.is_public"
+            @click="setIsPublic(item, index)"
+          >
         </td>
         <td>
           <v-btn
@@ -45,8 +53,14 @@ import { Download } from 'routes/endpoints'
 import { humanize } from 'helpers/strings'
 import VBtn from 'components/ui/VBtn/index.vue'
 
-const PROPERTIES = ['name', 'description', 'expires', 'times_downloaded']
 const CALL_DELAY = 5000
+const PROPERTIES = [
+  'name',
+  'description',
+  'expires',
+  'times_downloaded',
+  'created_at'
+]
 
 const props = defineProps({
   list: {
@@ -79,6 +93,20 @@ const refreshDownloadList = () => {
     if (downloadRecords.length !== downloadReady.length) {
       timeout = setTimeout(() => refreshDownloadList(), CALL_DELAY)
     }
+  })
+}
+
+const setIsPublic = ({ id, is_public }, index) => {
+  const download = {
+    id,
+    is_public: !is_public
+  }
+
+  Download.update(id, { download }).then(({ body }) => {
+    emit('onUpdate', {
+      index,
+      record: body
+    })
   })
 }
 
