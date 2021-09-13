@@ -3,7 +3,7 @@ taxonID	parentNameUsageID	parentNameUsage	acceptedNameUsageID	acceptedNameUsage	
 
 429156			429156	Anoplolepis Santschi, 1914	Anoplolepis	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Santschi, 1914	valid			1914	ICZN
 431001	429156	Anoplolepis Santschi, 1914	431001	Anoplolepis gracilipes (Smith, 1857)	Anoplolepis gracilipes	Animalia	Insecta	Hymenoptera	Formicidae	Anoplolepis		gracilipes		Species	(Smith, 1857)	valid	Formica gracilipes Smith, 1857	456609	1857	ICZN
-431004	429156	Anoplolepis Santschi, 1914	431004	Anoplolepis longipes (Jerdon, 1851)	Anoplolepis longipes	Animalia	Insecta	Hymenoptera	Formicidae	Anoplolepis		longipes		Species	(Jerdon, 1851)	homonym	Formica longipes Jerdon, 1851	456612	1851	ICZN
+431004	429156	Anoplolepis Santschi, 1914	431001	Anoplolepis gracilipes (Smith, 1857)	Anoplolepis longipes	Animalia	Insecta	Hymenoptera	Formicidae	Anoplolepis		longipes		Species	(Jerdon, 1851)	homonym	Formica longipes Jerdon, 1851	456612	1851	ICZN
 456609	429349	Formica Linnaeus, 1758	431001	Anoplolepis gracilipes (Smith, 1857)	Formica gracilipes	Animalia	Insecta	Hymenoptera	Formicidae	Formica		gracilipes		Species	Smith, 1857	obsolete combination	Formica gracilipes Smith, 1857	456609	1857	ICZN
 456612	429349	Formica Linnaeus, 1758	431004	Anoplolepis longipes (Jerdon, 1851)	Formica longipes	Animalia	Insecta	Hymenoptera	Formicidae	Formica		longipes		Species	Jerdon, 1851	obsolete combination	Formica longipes Jerdon, 1851	456612	1851	ICZN
 
