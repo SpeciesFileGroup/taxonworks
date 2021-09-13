@@ -1,0 +1,24 @@
+<%= render("/shared/data/all/list/list_header", objects: @import_datasets) -%>
+
+<table class="tablesorter">
+  <thead>
+    <tr>
+    <%= fancy_th_tag(name: 'Status') -%>
+    <%= fancy_th_tag(name: 'Description') -%> 
+    <%= fancy_th_tag(name: 'Updated at') -%> 
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @import_datasets.each do |import_dataset| %>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= import_dataset.status %></td>
+          <td><%= import_dataset.description %></td>
+          <td><%= import_dataset.source_updated_at %></td>
+          <%= fancy_metadata_cells_tag(import_dataset) -%>
+      <% end %>
+  <% end %>
+  </tbody>
+</table>

@@ -259,17 +259,6 @@ dates_index_task:
     - collecting_event
   status: prototype
   description: "Parse the collecting_events table's verbatim label for possible date combinations."
-psu_import_task:
-  hub: true
-  name: 'Import Penn State DWCA'
-  related:
-    - collecting_events
-    - collection_objects
-  categories:
-    - collecting_event
-    - collection_object
-  status: prototype
-  description: 'Import a DWCA file from Penn State.'
 overdue_loans_task:
   hub: true
   name: 'Overdue loans'
@@ -597,6 +586,16 @@ gnfinder_task:
     - nomenclature
   status: prototype
   description: 'Show all names in a document.'
+index_dwca_import_task:
+  hub: true
+  name: 'Darwin Core Archive (DwC-A) import'
+  related:
+  categories:
+    - nomenclature
+    - collecting_event
+    - collection_object
+  status: prototype
+  description: 'Import Darwin Core Archive data into project.'
 new_collecting_event_task:
   hub: true
   name: 'New collecting event'
