@@ -115,8 +115,8 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
 
           replacement_taxon_id = core_records[current_item][:src_data]['acceptedNameUsageID']
           core_records[current_item][:replacing_valid_name] = replacement_taxon_id
-          core_records[current_item][:dependencies] << replacement_taxon_id
-          records_lut[replacement_taxon_id][:dependants] << core_records[current_item][:src_data]['taxonID']
+          core_records[current_item][:dependencies] << records_lut[replacement_taxon_id][:index]
+          records_lut[replacement_taxon_id][:dependants] << current_item
 
 
           # TODO handle if no names in group are marked as current / all are obsolete combinations
@@ -148,9 +148,20 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
 
       else  # if original combination is only name, make it the protonym
         # TODO is it better to replace name_items.first with oc_index?
-        core_records[name_items.first][:type] = :protonym
-        core_records[name_items.first][:original_combination] = core_records[name_items.first][:src_data]['taxonID']
-        core_records[name_items.first][:protonym_taxon_id] = core_records[name_items.first][:src_data]['taxonID']
+        current_record = core_records[name_items.first]
+        current_record[:type] = :protonym
+        current_record[:original_combination] = current_record[:src_data]['taxonID']
+        current_record[:protonym_taxon_id] = current_record[:src_data]['taxonID']
+
+        # see if protonym is synonym (or even homonym?), and set replacing_valid_name if so
+        if current_record[:src_data]['acceptedNameUsageID'] != current_record[:src_data]['taxonID']
+          replacement_taxon_id = current_record[:src_data]['acceptedNameUsageID']
+          current_record[:replacing_valid_name] = replacement_taxon_id
+          current_record[:has_external_accepted_name] = true
+          current_record[:dependencies] << records_lut[replacement_taxon_id][:index]
+          records_lut[replacement_taxon_id][:dependants] << current_record[:index]
+        end
+
       end
     end
 
@@ -198,9 +209,9 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
       # end
 
       unless record[:parent].nil?
-        parent = records_lut[record[:parent]][:index]
-        record[:dependencies] << parent
-        core_records[parent][:dependants] << record[:index]
+        parent_index = records_lut[record[:parent]][:index]
+        record[:dependencies] << parent_index
+        core_records[parent_index][:dependants] << record[:index]
       end
     end
 
