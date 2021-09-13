@@ -34,4 +34,4 @@ otu = Otu.create!(
 )
 
 # Verify we don't run all queues
-# ShouldNotRunJob.perform_later(otu) # We'll start allowing all queues to run.
+ShouldNotRunJob.perform_later(otu)

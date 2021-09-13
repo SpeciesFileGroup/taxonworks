@@ -31,7 +31,6 @@
       <template #body>
         <div
           :style="{
-            width: width,
             maxHeight: '80vh',
             overflowY: 'scroll'
           }">
