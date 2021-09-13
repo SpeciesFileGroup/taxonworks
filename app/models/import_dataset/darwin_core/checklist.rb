@@ -80,6 +80,7 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
 
     core_records.each_with_index do |record, index|
 
+      # TODO handle when originalNameUsageID is not present
       oc_index = records_lut[record[:src_data]["originalNameUsageID"]][:index]
 
       original_combination_groups[oc_index] ||= []

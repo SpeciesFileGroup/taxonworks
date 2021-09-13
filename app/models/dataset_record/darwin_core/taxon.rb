@@ -160,7 +160,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
               raise DarwinCore::InvalidData.new({ "taxonomicStatus": ["Couldn't find a status that matched #{status}"] }) if type.nil?
 
-              TaxonNameRelationship.find_or_create_by(subject_taxon_name: taxon_name, object_taxon_name: valid_name, type: type)
+              TaxonNameRelationship.find_or_create_by!(subject_taxon_name: taxon_name, object_taxon_name: valid_name, type: type)
 
               # Add homonym status (if applicable)
               if status == 'homonym'

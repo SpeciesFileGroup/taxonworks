@@ -81,7 +81,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
     let(:senior_homonym) { TaxonName.find_by(name: 'barbatus', year_of_publication: 1863) }
     let(:junior_homonym) { TaxonName.find_by(name: 'barbatus', year_of_publication: 1926) }
-    let(:replacement_name) { TaxonName.find_by_cached('Camponotus barbosus') }
+    let(:replacement_name) { TaxonName.find_by_cached('Camponotus (Tanaemyrmex) barbosus') }
 
     it 'should create 5 imported records' do
       expect(results.length).to eq(5)
@@ -134,7 +134,14 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     let(:synonym_parent_id) { results[2].metadata.dig('imported_objects', 'taxon_name', 'id') }
     let(:synonym_id) { results[3].metadata.dig('imported_objects', 'taxon_name', 'id') }
 
-    let!(:results) { import_dataset.import(5000, 100).concat(import_dataset.import(5000, 100)).concat(import_dataset.import(5000, 100)) }
+    let!(:results) {
+      results = []
+      3.times { |_|
+        results.concat import_dataset.import(5000, 100)
+      }
+      results
+    }
+
 
     it 'should create 4 records' do
       expect(results.length).to eq(4)
