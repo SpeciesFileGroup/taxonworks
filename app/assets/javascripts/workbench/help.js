@@ -16,6 +16,7 @@ TW.workbench.help = TW.workbench.help || {};
 Object.assign(TW.workbench.help, {
 
 	init_helpSystem: function () {
+		var timeOut = undefined
 		firstClick = true;
 		helpLoaded = false,
 
@@ -35,16 +36,36 @@ Object.assign(TW.workbench.help, {
 						position = $(this).offset();
 
 					$('.help-legend').empty();
-					$('.help-legend').css("left", position.left + "px");
-					$('.help-legend').css("top", (position.top + $(this).height()) + "px");
-					$('.help-legend').show(100);
-					$('.help-legend').append('<span>' + $(this).parent().attr("data-help") + '</span>');
-					TW.workbench.help.hideAllExcept($(this).attr("data-bubble-id"));
+					$('.help-legend').css({ "top": (position.top + $(this).height()) + "px", maxWidth: '' });
+					$('.help-legend').show();
+					$('.help-legend').html($(this).parent().attr("data-help"));
+
+					var containerLegend = $('.help-legend').width()
+					var distanceRight = $(window).width() - position.left
+
+				if(containerLegend > distanceRight) {
+					$('.help-legend').addClass('tooltip-help-legend-right');
+					$('.help-legend').removeClass('tooltip-help-legend-left');
+					$('.help-legend').css({
+						left: '',
+						right: distanceRight - $(this).width() + 'px',
+						maxWidth: $(window).width() - distanceRight + 'px'
+					})
+				} else {
+					$('.help-legend').removeClass('tooltip-help-legend-right');
+					$('.help-legend').addClass('tooltip-help-legend-left');
+					$('.help-legend').css({
+						left: position.left + 'px',
+						right: ''
+					});
+				}
+				TW.workbench.help.hideAllExcept($(this).attr("data-bubble-id"));
 				}
 			},
 			mouseleave: function () {
 				$('.help-legend').empty();
-				$('.help-legend').hide(100);
+				$('.help-legend').hide();
+				$('.help-legend').css('max-width', '');
 				TW.workbench.help.showAll('.help-bubble-tip');
 			}
 		}, ".help-bubble-tip");
@@ -115,13 +136,13 @@ Object.assign(TW.workbench.help, {
 	hideAllExcept: function (value) {
 		$('.help-bubble-tip').each(function (i) {
 			if ($(this).attr('data-bubble-id') != value) {
-				$(this).fadeOut(250);
+				$(this).addClass('help-bubble-tip-hidden');
 			}
 		})
 	},
 
 	showAll: function (className) {
-		$(className).fadeIn(250);
+		$(className).removeClass('help-bubble-tip-hidden');
 	},
 
 });

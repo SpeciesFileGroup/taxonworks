@@ -15,6 +15,7 @@
     "leaflet.pattern": "^0.1.0",
     "parse-dms": "0.0.3",
     "pdfjs-dist": "2.3.200",
+    "qs": "^6.9.4",
     "v-hotkey": "^0.9.0",
     "vue": "^3.2.11",
     "vue-hotkeys": "0.0.1",

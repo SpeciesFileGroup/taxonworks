@@ -23,7 +23,7 @@ module Utilities::Strings
 
   # @param [String] string
   # @return [String, nil]
-  #   strips pre/post fixed space and condenses internal spaces, but returns nil (not empty string) if nothing is left
+  #  strips pre/post fixed space and condenses internal spaces, but returns nil (not empty string) if nothing is left
   def self.nil_squish_strip(string)
     a = string.dup
     if !a.nil?
@@ -50,7 +50,7 @@ module Utilities::Strings
     string =~ /([^\d]*)(\d+)([^\d]*)/
     a, b, c = $1, $2, $3
     return false if b.nil?
-    [a,(b.to_i + 1), c].compact.join
+    [a, (b.to_i + 1), c].compact.join
   end
 
   # Adds a second single quote to escape apostrophe in SQL query strings
@@ -82,11 +82,11 @@ module Utilities::Strings
     a.to_s.gsub(/\n|\t/, ' ')
   end
 
+  #   return nil if content.nil?, else wrap and return string if provided
   # @param [String] pre
   # @param [String] content
   # @param [String] post
   # @return [String]
-  #   nil if content.nil?, else wrap and return string if provided
   def self.nil_wrap(pre = nil, content = nil, post = nil)
     return nil if content.blank?
     [pre, content, post].compact.join.html_safe
@@ -110,9 +110,8 @@ module Utilities::Strings
   #   whitespace and special character split, then any string containing a digit eliminated
   def self.alphabetic_strings(string)
     return [] if string.nil? || string.length == 0
-    string.split(/\W/).select{|b| !(b =~ /\d/) }.reject { |b| b.empty? }
+    string.split(/\W/).select { |b| !(b =~ /\d/) }.reject { |b| b.empty? }
   end
-
 
   # @param string [String]
   # @return [String, false]
@@ -145,13 +144,59 @@ module Utilities::Strings
   #   of strings representing integers
   def self.integers(string)
     return [] if string.nil? || string.length == 0
-    string.split(/\s+/).select{|t| is_i?(t)}
+    string.split(/\s+/).select { |t| is_i?(t) }
   end
 
   # @return [Boolean]
   #   true if the query string only contains integers separated by whitespace
   def self.only_integers?(string)
     !(string =~ /[^\d\s]/i) && !integers(string).empty?
+  end
+
+  # Parse a scientificAuthorship field to extract author and year information.
+  #
+  # If the format matches ICZN, adds parentheses around author name (if detected)
+  # @param [String] authorship
+  # @return [Array] [author_name, year]
+  def self.parse_authorship(authorship)
+    return [] if authorship.to_s.strip.empty?
+    if (authorship_matchdata = authorship.match(/\(?(?<author>.+?),? (?<year>\d{4})?\)?/))
+
+      author_name = authorship_matchdata[:author]
+      year = authorship_matchdata[:year]
+
+      # author name should be wrapped in parentheses if the verbatim authorship was
+      if authorship.start_with?('(') and authorship.end_with?(')')
+        author_name = '(' + author_name + ')'
+      end
+
+    else
+      # Fall back to simple name + date parsing
+      author_name = verbatim_author(authorship)
+      year = year_of_publication(authorship)
+    end
+
+    [author_name, year]
+  end
+
+  # @param [String] author_year
+  # @return [String, nil]
+  def self.year_of_publication(author_year)
+    return nil if author_year.to_s.strip.empty?   # alternative to .blank?
+    split_author_year = author_year.split(' ')
+    year = split_author_year[split_author_year.length - 1]
+    # try matching last element first, otherwise scan entire string for year
+    # Maybe we don't need regex match and can use years(author_year) exclusively?
+    year =~ /\A\d+\z/ ? year : years(author_year).last.to_s
+  end
+
+  # @param [String] author_year_string
+  # @return [String, nil]
+  def self.verbatim_author(author_year_string)
+    return nil if author_year_string.to_s.strip.empty?  # alternative to .blank?
+    author_end_index = author_year_string.rindex(' ')
+    author_end_index ||= author_year_string.length
+    author_year_string[0...author_end_index]
   end
 
 end

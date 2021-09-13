@@ -1,4 +1,11 @@
 scope :tasks do
+  scope :dwca_import, controller: 'tasks/dwca_import/dwca_import' do
+    get :index, as: 'index_dwca_import_task'
+    post 'upload'
+    post 'update_catalog_number_namespace'
+    post 'set_import_settings'
+  end
+
   scope :namespaces do
     scope :new_namespace, controller: 'tasks/namespaces/new_namespace' do
       get '/', action: :index, as: 'new_namespace_task'
@@ -101,15 +108,6 @@ scope :tasks do
 
     scope :new_image, controller: 'tasks/images/new_image' do
       get :index, as: 'index_new_image_task'
-    end
-  end
-
-  scope :import do
-    scope :dwca do
-      scope :psu_import, controller: 'tasks/import/dwca/psu_import' do
-        get 'index', as: 'psu_import_task'
-        post 'do_psu_import', as: 'do_psu_import'
-      end
     end
   end
 

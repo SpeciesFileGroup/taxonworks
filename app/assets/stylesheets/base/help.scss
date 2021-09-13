@@ -3,7 +3,7 @@
   position: fixed;
   z-index: 2102;
   top: calc(50vh + 130px);
-  right: -27px;
+  right: -40px;
   width: 55px;
   height: 55px;
   opacity: 0.4;
@@ -25,6 +25,7 @@
 
 .help-button:hover {
   opacity: 1;
+  right: -27px;
   background-size: 40px;
   transition: background-size 0.3s ease, opacity 0.3s ease, right 0.5s ease;
 
@@ -75,7 +76,6 @@
 }
 
 .help-legend {
-  @include arrow-box-top(15px);
   border-radius: 2px;
   padding: $standard_padding*0.5;
   padding-left: $standard_padding;
@@ -88,6 +88,14 @@
   display: none;
   font-weight: 300;
   font-size: $font_small;
+}
+
+.tooltip-help-legend-left {
+  @include arrow-box-top(15px);
+}
+
+.tooltip-help-legend-right {
+  @include arrow-box-top-right(15px);
 }
 
 .help-button-description {
@@ -107,6 +115,11 @@
   border-radius: 3px;
 }
 
+.help-bubble-tip-hidden {
+  opacity: 0 !important;
+  transition: all 0.1s ease;
+}
+
 .help-bubble-tip {
   display: flex;
   cursor: pointer;
@@ -123,7 +136,7 @@
   font-weight: 300;
   box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.2);
   opacity: 0.8;
-  transition: transform 0.1s ease;
+  transition: all 0.1s ease;
   z-index: 9999;
 }
 
