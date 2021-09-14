@@ -4,6 +4,7 @@
     <download-panel :params="params" />
     <graph-component />
     <reindex-panel :params="params" />
+    <collector-table />
   </div>
 </template>
 <script setup>
@@ -14,6 +15,7 @@ import GraphComponent from './components/Graph/GraphPanel.vue'
 import DownloadPanel from './components/Download/DownloadPanel.vue'
 import ReindexPanel from './components/Reindex/ReindexPanel.vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
+import CollectorTable from './components/Collector/CollectorTable.vue'
 
 const params = URLParamsToJSON(location.href)
 

@@ -9,5 +9,7 @@ export const DwcOcurrence = {
 
   generateDownload: params => AjaxCall('post', '/tasks/dwc/dashboard/generate_download.json', params),
 
-  createIndex: params => AjaxCall('post', '/tasks/dwc/dashboard/create_index', params)
+  createIndex: params => AjaxCall('post', '/tasks/dwc/dashboard/create_index', params),
+
+  collectorMetadata: () => AjaxCall('get', '/dwc_occurrences/collector_id_metadata')
 }
