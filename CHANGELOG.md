@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Fixed
+- method update [#2504]
 - Taxon determinations list in comprehensive task
 - The clone button doesn't trigger update taxon name after authors were cloned [#2513]
 - Georeference count in new collecting event task [#2519]

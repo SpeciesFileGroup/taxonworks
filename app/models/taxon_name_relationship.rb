@@ -291,11 +291,9 @@ class TaxonNameRelationship < ApplicationRecord
     write_attribute(:type, value.to_s)
   end
 
-  # @return [TaxonNameRelationship, String]
-  #    the type as a class, if legal, else a string  ! Strangeish
   def type_class
     r = read_attribute(:type).to_s
-    TAXON_NAME_RELATIONSHIP_NAMES.include?(r) ? r.safe_constantize : r
+    TAXON_NAME_RELATIONSHIP_NAMES.include?(r) ? r.safe_constantize : nil
   end
 
   # @return [String, nil]
