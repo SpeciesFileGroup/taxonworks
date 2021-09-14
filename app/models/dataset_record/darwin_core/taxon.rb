@@ -226,7 +226,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
           # LINE 1: ..."taxon_names" WHERE "taxon_names"."type" = $1 AND "genus"."i...
 
           taxon_name = Combination.matching_protonyms(**combination_attributes.transform_values { |v| v.id }).first
-          taxon_name = Combination.new(combination_attributes) if taxon_name.empty?
+          taxon_name = Combination.new(combination_attributes) if taxon_name.nil?
 
         else
           raise DarwinCore::InvalidData.new({ "originalNameUsageID": ["Could not determine if name is protonym or combination"] })
