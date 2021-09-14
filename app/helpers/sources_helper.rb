@@ -1,10 +1,12 @@
 module SourcesHelper
 
+  # TODO: extend with autocomplete-like extensions.
   def source_tag(source)
     return nil if source.nil?
     source.cached ? sanitize(source.cached, tags: ['i']).html_safe : (source.new_record? ? nil : 'ERROR - Source cache not set, please notify admin.')
   end
 
+  # TODO: Add language via language_id info
   def sources_autocomplete_tag(source, term)
     return nil if source.nil?
 

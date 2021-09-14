@@ -7,15 +7,23 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Custom .csl support for BibTeX reference formating (see .csl styles at bottom of select list). New .cls submitted via issue tracker and integrated to source.
+- New .csl style 'world_chalcidoidea_book.csl"
+- Verbatim value handling (use "{your value}")  for fields otherwise processed in BibTeX sources (e.g. author)
+
 ### Fixed
 - Taxon determinations list in comprehensive task
 - The clone button doesn't trigger update taxon name after authors were cloned [#2513]
 - Georeference count in new collecting event task [#2519]
 
 ### Changed
+- Year letter is no longer appended to year in BibTeX exports
 - Include project's name in CoLDP exports filename [#2509]
 - Implemented STI for downloads [#2498]
 
+[#2084]: https://github.com/SpeciesFileGroup/taxonworks/issues/2084
+[#1943]: https://github.com/SpeciesFileGroup/taxonworks/issues/1943
 [#2509]: https://github.com/SpeciesFileGroup/taxonworks/issues/2509
 [#2498]: https://github.com/SpeciesFileGroup/taxonworks/pull/2498
 [#2519]: https://github.com/SpeciesFileGroup/taxonworks/pull/2519
