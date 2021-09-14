@@ -707,7 +707,7 @@ class Source::Bibtex < Source
       end
     end
 
-    # b.year = year_with_suffix if !year_suffix.blank?
+    b.year = year_with_suffix if !year_suffix.blank?
 
     b[:keywords] = verbatim_keywords     unless verbatim_keywords.blank?
     b[:note] = concatenated_notes_string if !concatenated_notes_string.blank?
