@@ -73,7 +73,11 @@
               :options="{ fields: csvFields }"/>
             <dwc-download
               class="margin-small-left"
+              :params="$refs.filterComponent.parseParams"/>
+            <dwc-reindex
+              class="margin-small-left"
               :params="$refs.filterComponent.parseParams"
+              :total="pagination.total"
             />
           </div>
         </div>
@@ -110,6 +114,7 @@ import PaginationComponent from 'components/pagination'
 import PaginationCount from 'components/pagination/PaginationCount'
 import GetPagination from 'helpers/getPagination'
 import DwcDownload from './components/dwcDownload.vue'
+import DwcReindex from './components/dwcReindex.vue'
 
 export default {
   components: {
@@ -118,7 +123,8 @@ export default {
     ListComponent,
     CsvButton,
     PaginationCount,
-    DwcDownload
+    DwcDownload,
+    DwcReindex
   },
 
   computed: {
