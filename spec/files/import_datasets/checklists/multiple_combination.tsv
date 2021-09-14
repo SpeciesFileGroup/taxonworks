@@ -1,12 +1,7 @@
 taxonID	parentNameUsageID	parentNameUsage	acceptedNameUsageID	acceptedNameUsage	scientificName	kingdom	class	order	family	genus	subgenus	specificEpithet	infraspecificEpithet	taxonRank	scientificNameAuthorship	taxonomicStatus	originalNameUsage	originalNameUsageID	namePublishedInYear	nomenclaturalCode
-
-429349			429349	Formica Linnaeus, 1758	Formica	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Linnaeus, 1758	valid			1758	ICZN
-
-437854	429349	Formica Linnaeus, 1758	437856	Formica truncorum Fabricius, 1804	Formica truncicola	Animalia	Insecta	Hymenoptera	Formicidae	Formica		truncicola		Species	Nylander, 1846	synonym	Formica truncicola Nylander, 1846	437854	1846	ICZN
-437856	429349	Formica Linnaeus, 1758	437856	Formica truncorum Fabricius, 1804	Formica truncorum	Animalia	Insecta	Hymenoptera	Formicidae	Formica		truncorum		Species	Fabricius, 1804	valid	Formica truncorum Fabricius, 1804	437856	1804	ICZN
-
-437754	429349	Formica Linnaeus, 1758	437754	Formica rufa Linnaeus, 1761	Formica rufa	Animalia	Insecta	Hymenoptera	Formicidae	Formica		rufa		Species	Linnaeus, 1761	valid	Formica rufa Linnaeus, 1761	437754	1761	ICZN
-
-437537	429349	Formica Linnaeus, 1758	437537	Formica integra Nylander, 1856	Formica integra	Animalia	Insecta	Hymenoptera	Formicidae	Formica		integra		Species	Nylander, 1856	valid	Formica integra Nylander, 1856	437537	1856	ICZN
-509996	437854	Formica truncicola Nylander, 1846	437537	Formica integra Nylander, 1856	Formica truncicola integra	Animalia	Insecta	Hymenoptera	Formicidae	Formica		truncicola	integra	Subspecies	Nylander, 1856	obsolete combination	Formica integra Nylander, 1856	437537	1856	ICZN
-510248	437754	Formica rufa Linnaeus, 1761	437537	Formica integra Nylander, 1856	Formica rufa integra	Animalia	Insecta	Hymenoptera	Formicidae	Formica		rufa	integra	Subspecies	Nylander, 1856	obsolete combination	Formica integra Nylander, 1856	437537	1856	ICZN
+429073			429073	Arnoldius Dubovikoff, 2005	Arnoldius	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Dubovikoff, 2005	valid	Arnoldius Dubovikoff, 2005	429073	2005	ICZN
+429122			429122	Tapinoma Foerster, 1850	Tapinoma	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Foerster, 1850	valid	Tapinoma Foerster, 1850	429122	1850	ICZN
+429074			429074	Bothriomyrmex Emery, 1869	Bothriomyrmex	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Emery, 1869	valid	Bothriomyrmex Emery, 1869	429074	1869	ICZN
+431406	429073	Arnoldius Dubovikoff, 2005	431406	Arnoldius pusillus (Mayr, 1876)	Arnoldius pusillus	Animalia	Insecta	Hymenoptera	Formicidae	Arnoldius		pusillus		Species	(Mayr, 1876)	valid	Tapinoma pusillum Mayr, 1876	456676	1876	ICZN
+456676	429122	Tapinoma Foerster, 1850	431406	Arnoldius pusillus (Mayr, 1876)	Tapinoma pusillum	Animalia	Insecta	Hymenoptera	Formicidae	Tapinoma		pusillum		Species	Mayr, 1876	obsolete combination	Tapinoma pusillum Mayr, 1876	456676	1876	ICZN
+483958	429074	Bothriomyrmex Emery, 1869	431406	Arnoldius pusillus (Mayr, 1876)	Bothriomyrmex pusillus	Animalia	Insecta	Hymenoptera	Formicidae	Bothriomyrmex		pusillus		Species	(Mayr, 1876)	obsolete combination	Tapinoma pusillum Mayr, 1876	456676	1876	ICZN

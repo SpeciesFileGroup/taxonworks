@@ -364,6 +364,45 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     end
   end
 
+  context 'when importing a file with three names for one protonym' do
+    before :all do
+      DatabaseCleaner.start
+      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/multiple_combination.tsv'), 'text/plain'),
+        description: 'parent_child'
+      ).tap { |i| i.stage }
+
+      4.times { |_|
+        import_dataset.import(5000, 100)
+      }
+    end
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:combination) { TaxonName.find_by_cached('Tapinoma pusillum') }
+    let(:valid) { TaxonName.find_by_name('Arnoldius pusillus') }
+
+    it 'creates and imports six records' do
+      verify_all_records_imported(6)
+      # expect(ImportDataset::DarwinCore::Checklist.first.status)
+    end
+
+    it 'should have one combination' do
+      expect(Combination.all.length).to eq 1
+      expect(TaxonName.find_by_cached('Bothriomyrmex pusillus')).to be_a Combination
+    end
+
+    it 'Tapinoma pusillum should be the original combination for the Bothriomyrmex pusillus' do
+
+    end
+
+    it 'should have a genus taxon name relationship' do
+      expect(Combination.first.genus_taxon_name_relationship).to be_a(TaxonNameRelationship::Combination::Genus)
+    end
+
+  end
 end
 
 # Helper method to expect an OriginalCombination relationship with less code duplication
