@@ -98,12 +98,8 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       expect(junior_homonym).to_not be_is_valid
     end
 
-    it 'should have a homonym relationship' do
-      pending "need to switch to checking for relationship"
-      relationship = TaxonNameRelationship.find_by({subject_taxon_name: junior_homonym, object_taxon_name: senior_homonym})
-      expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Homonym')
-
-      # expect(TaxonNameClassification.find_by_taxon_name_id(TaxonName.find_by(name: 'barbatus', year_of_publication: 1926)).rank).to eq('TaxonNameClassification::Iczn::Available::Invalid::Homonym')
+    it 'should have a homonym status' do
+      expect(TaxonNameClassification.find_by_taxon_name_id(TaxonName.find_by(name: 'barbatus', year_of_publication: 1926)).type).to eq('TaxonNameClassification::Iczn::Available::Invalid::Homonym')
     end
 
     it 'should should have a replacement name relationship' do
@@ -134,6 +130,8 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     let(:synonym_parent_id) { results[2].metadata.dig('imported_objects', 'taxon_name', 'id') }
     let(:synonym_id) { results[3].metadata.dig('imported_objects', 'taxon_name', 'id') }
 
+    let(:synonym) {TaxonName.find_by({ id: synonym_id })}
+
     let!(:results) {
       results = []
       3.times { |_|
@@ -148,32 +146,25 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       expect(results.map { |row| row.status }).to all(eq('Imported'))
     end
 
-    it 'should have a synonym relationship ' do
+    it 'relationship tests' do
+      # should have a synonym relationship
       relationship = TaxonNameRelationship.find_by(subject_taxon_name_id: synonym_id, object_taxon_name_id: valid_id)
-
       expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym')
-    end
 
-    it 'should have four original combinations' do
+      # should have 8 original combinations
       expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 8
     end
 
-    context 'the synonym TaxonName' do
-      let(:synonym) {TaxonName.find_by({ id: synonym_id })}
+    it 'synonym TaxonName tests' do
+      # it should be invalid
+      expect(synonym.cached_is_valid).to be false
 
-      it 'should be cached invalid' do
-        expect(synonym.cached_is_valid).to be false
-      end
+      # The synonym should have a cached valid taxon id
+      expect(synonym.cached_valid_taxon_name_id).to eq valid_id
 
-      it 'the synonym should have cached valid taxon id' do
-        expect(synonym.cached_valid_taxon_name_id).to eq valid_id
-      end
-
-      it "the synonym's parent should be Apterostigma wasmannii" do
-        expect(synonym.parent.id).to eq synonym_parent_id
-      end
+      # the synonym's parent should be Apterostigma wasmannii
+      expect(synonym.parent.id).to eq synonym_parent_id
     end
-
   end
 
   context 'when importing homonyms that are moved to another genus' do
@@ -249,12 +240,17 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       results
     }
 
+    it 'all records should import without error' do
+      expect(results.length).to eq(4)
+      expect(results.map { |row| row.status }).to all(eq('Imported'))
+    end
+
     it 'should have four protonyms' do  # Root, Camponotites, Oecophylla, kraussei
       expect(Protonym.all.length).to eq 4
     end
 
-    it 'should have one Combination' do
-      expect(Combination.all.length).to eq 1
+    it 'should not have a Combination separate from original combination' do
+      expect(Combination.all.length).to eq 0
       expect(TaxonName.find_by_cached('Camponotites kraussei')).to be_a Combination
     end
 
