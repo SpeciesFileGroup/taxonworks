@@ -113,6 +113,7 @@ class TaxonNameRelationship < ApplicationRecord
   soft_validate(
     :sv_objective_synonym_relationship,
     set: :objective_synonym_relationship,
+    fix: :sv_fix_objective_synonym_relationship,
     name: 'Objective synonym relationship',
     description: 'Objective synonyms should have the same type' )
 
@@ -290,11 +291,9 @@ class TaxonNameRelationship < ApplicationRecord
     write_attribute(:type, value.to_s)
   end
 
-  # @return [TaxonNameRelationship, String]
-  #    the type as a class, if legal, else a string  ! Strangeish
   def type_class
     r = read_attribute(:type).to_s
-    TAXON_NAME_RELATIONSHIP_NAMES.include?(r) ? r.safe_constantize : r
+    TAXON_NAME_RELATIONSHIP_NAMES.include?(r) ? r.safe_constantize : nil
   end
 
   # @return [String, nil]
