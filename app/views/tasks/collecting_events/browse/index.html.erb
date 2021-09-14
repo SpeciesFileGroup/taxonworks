@@ -28,6 +28,9 @@
           <li><%= confidence_default_icon(@collecting_event) %></li>
           <li><%= tag_default_icon(@collecting_event) %></li>
           <li><%= pin_item_to_pinboard_link(@collecting_event, sessions_current_user) %></li>
+          <li>
+            <a class="circle-button btn-edit edit-taxon-name" href="<%= new_collecting_event_task_path(collecting_event_id: @collecting_event.id) %>"></a>
+          </li>
           <li><%= radial_navigation_tag(@collecting_event) %></li>
         </ul>
       </span>
