@@ -12,6 +12,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - The clone button doesn't trigger update taxon name after authors were cloned [#2513]
 - Georeference count in new collecting event task [#2519]
 
+### Add
+- Soft_validation fix. Objective synonyms should share the same type.
+
 ### Changed
 - Include project's name in CoLDP exports filename [#2509]
 - Implemented STI for downloads [#2498]

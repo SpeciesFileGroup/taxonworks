@@ -113,6 +113,7 @@ class TaxonNameRelationship < ApplicationRecord
   soft_validate(
     :sv_objective_synonym_relationship,
     set: :objective_synonym_relationship,
+    fix: :sv_fix_objective_synonym_relationship,
     name: 'Objective synonym relationship',
     description: 'Objective synonyms should have the same type' )
 
