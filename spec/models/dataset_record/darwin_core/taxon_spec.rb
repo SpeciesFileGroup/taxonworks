@@ -4,8 +4,8 @@ require 'database_cleaner/active_record'
 describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
   before :all do
-    FactoryBot.create(:root_taxon_name)
     DatabaseCleaner.start
+    FactoryBot.create(:root_taxon_name)
   end
 
   after(:all) do
