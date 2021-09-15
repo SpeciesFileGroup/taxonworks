@@ -5,14 +5,6 @@
       @onReady="useActions.getMetadata"/>
     <div class="content">
       <h2>Rebuild index</h2>
-      <div class="field">
-        <v-btn
-          color="create"
-          medium
-          @click="runReindex">
-          1 year
-        </v-btn>
-      </div>
       <div class="field label-above">
         <v-btn
           v-for="({ label, value }) in reindex"
@@ -74,10 +66,6 @@ const runUnindexed = async per => {
     dwc_indexed: false,
     per
   })).body
-}
-
-const runReindex = async () => {
-  reindexRequest.value = (await DwcOcurrence.createIndex({ ...props.params })).body
 }
 
 </script>

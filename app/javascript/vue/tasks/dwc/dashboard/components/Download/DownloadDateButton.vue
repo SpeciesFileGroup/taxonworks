@@ -2,6 +2,7 @@
   <v-btn
     color="create"
     medium
+    :disabled="!count"
     @click="handleClick">
     {{ label }} ({{ count }})
   </v-btn>
