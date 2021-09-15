@@ -286,14 +286,14 @@ class TaxonNameClassification < ApplicationRecord
   def sv_proper_year
     y = self.taxon_name.year_of_publication
     if !y.nil? && (y > self.type_class.code_applicability_end_year || y < self.type_class.code_applicability_start_year)
-      soft_validations.add(:type, "The status '#{self.type_class.classification_label}' is unapplicable to the taxon #{self.taxon_name.cached_html} published in the year #{y}")
+      soft_validations.add(:type, "The status '#{self.classification_label}' is unapplicable to the taxon #{self.taxon_name.cached_html} published in the year #{y}")
     end
   end
 
   def sv_validate_disjoint_classes
     classifications = TaxonNameClassification.where_taxon_name(self.taxon_name).not_self(self)
     classifications.each  do |i|
-      soft_validations.add(:type, "The status  '#{self.type_class.classification_label}' conflicting with another status: '#{i.type_class.classification_label}'") if self.type_class.disjoint_taxon_name_classes.include?(i.type_name)
+      soft_validations.add(:type, "The status  '#{self.classification_label}' conflicting with another status: '#{i.classification_label}'") if self.type_class.disjoint_taxon_name_classes.include?(i.type_name)
     end
   end
 
