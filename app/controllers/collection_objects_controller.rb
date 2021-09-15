@@ -61,13 +61,13 @@ class CollectionObjectsController < ApplicationController
     ActiveRecord::Base.connection_pool.with_connection do
       o = CollectionObject.find(params[:id])
       if params[:rebuild] == 'true'
-        # get does not rebuild
+        # get does not rebuild, but does set if it doesn't exist
         o.set_dwc_occurrence
       else
         o.get_dwc_occurrence
       end
+      render json: o.dwc_occurrence_attribute_values
     end
-    render json: o.dwc_occurrence_attribute_values
   end
 
   # GET /collection_objects/123/dwc_verbose
