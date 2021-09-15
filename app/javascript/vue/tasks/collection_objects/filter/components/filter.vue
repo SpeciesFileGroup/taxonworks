@@ -378,17 +378,24 @@ export default {
 
     getDWCA (ids) {
       if (ids.length) {
+        const failedRequestIds = []
         const idArray = ids.shift(0)
         const promises = idArray.map(id => CollectionObject.dwc(id).then(response => {
           const index = this.coList.data.findIndex(item => item[0] === id)
 
           this.DWCACount++
           this.coList.data[index] = response.body
+        }, _ => {
+          failedRequestIds.push(id)
         }))
 
         this.loadingDWCA = true
 
         Promise.allSettled(promises).then(_ => {
+          if (failedRequestIds.length) {
+            ids.push(failedRequestIds)
+          }
+
           this.$emit('result', { column_headers: this.coList.column_headers, data: this.result })
           this.getDWCA(ids)
         })
