@@ -494,7 +494,7 @@ class Source::Bibtex < Source
       self.roles.count > 0
 
     bibtex = to_bibtex
-    namecase_bibtex_entry(bibtex)
+    ::TaxonWorks::Vendor::BibtexRuby.namecase_bibtex_entry(bibtex)
 
     begin
       Role.transaction do
@@ -696,20 +696,21 @@ class Source::Bibtex < Source
   end
 
   # rubocop:disable Metrics/MethodLength
-  # @return [BibTeX::Entry]
+  # @return [BibTeX::Entry, false]
   #   !! Entry equivalent to self, this should round-trip with no changes.
   def to_bibtex
+    return false if bibtex_type.nil?
     b = BibTeX::Entry.new(bibtex_type: bibtex_type)
 
     ::BIBTEX_FIELDS.each do |f|
-      if (!send(f).blank?) && !(f == :bibtex_type)
-        b[f] = send(f)
+      next if f == :bibtex_type
+      v = send(f)
+      if !v.blank?
+        b[f] = v
       end
     end
 
-    # b.year = year_with_suffix if !year_suffix.blank?
-
-    b[:keywords] = verbatim_keywords     unless verbatim_keywords.blank?
+    b[:keywords] = verbatim_keywords unless verbatim_keywords.blank?
     b[:note] = concatenated_notes_string if !concatenated_notes_string.blank?
 
     unless serial.nil?
@@ -752,6 +753,25 @@ class Source::Bibtex < Source
     b
   end
 
+  # @return Hash
+  #   a to_citeproc with values updated for literal
+  #   handling via `{}` in TaxonWorks
+  def to_citeproc(normalize_names = true)
+    b = to_bibtex
+    ::TaxonWorks::Vendor::BibtexRuby.namecase_bibtex_entry(b) if normalize_names
+
+    a = b.to_citeproc
+
+    ::BIBTEX_FIELDS.each do |f|
+      next if f == :bibtex_type
+      v = send(f)
+      if !v.blank? && (v =~ /\A{(.*)}\z/)
+        a[f.to_s] = {literal: $1}
+      end
+    end
+    a
+  end
+
   # @return [String, nil]
   #  priority is Person, string
   #  !! Not the cached value !!
@@ -762,18 +782,6 @@ class Source::Bibtex < Source
     else
       author.blank? ? nil : author
     end
-  end
-
-  # Namecase all elements of all names
-  def namecase_bibtex_entry(bibtex_entry)
-    bibtex_entry.parse_names
-    bibtex_entry.names.each do |n|
-      n.first = NameCase(n.first) if n.first
-      n.last = NameCase(n.last) if n.last
-      n.prefix = NameCase(n.prefix) if n.prefix
-      n.suffix = NameCase(n.suffix) if n.suffix
-    end
-    true
   end
 
   # @return [BibTex::Bibliography]
@@ -787,10 +795,11 @@ class Source::Bibtex < Source
   # @return [String]
   #   this source, rendered in the provided CSL style, as text
   def render_with_style(style = 'vancouver', format = 'text', normalize_names = true)
-    cp = CiteProc::Processor.new(style: style, format: format)
-    b = bibtex_bibliography
-    namecase_bibtex_entry(b) if normalize_names
-    cp.import(b.to_citeproc)
+    s = ::TaxonWorks::Vendor::BibtexRuby.get_style(style)
+    cp = CiteProc::Processor.new(style: s, format: format)
+    b = to_bibtex
+    ::TaxonWorks::Vendor::BibtexRuby.namecase_bibtex_entry(b) if normalize_names
+    cp.import( [to_citeproc(normalize_names)] )
     cp.render(:bibliography, id: cp.items.keys.first).first.strip
   end
 
@@ -798,9 +807,6 @@ class Source::Bibtex < Source
   # @return [String]
   #   a full representation, using bibtex
   # String must be length > 0
-  #
-  # There (was) a problem with the zootaxa format and letters!
-  #  https://github.com/citation-style-language/styles/pull/2305
   def cached_string(format = 'text')
     return nil unless (format == 'text') || (format == 'html')
     str = render_with_style(DEFAULT_CSL_STYLE, format)
@@ -818,7 +824,7 @@ class Source::Bibtex < Source
         return nil
       else
         b = to_bibtex
-        namecase_bibtex_entry(b)
+        ::TaxonWorks::Vendor::BibtexRuby.namecase_bibtex_entry(b)
         return Utilities::Strings.authorship_sentence(b.author.tokens.collect{ |t| t.last })
       end
     else # use normalized records
@@ -871,6 +877,8 @@ class Source::Bibtex < Source
     end
   end
 
+  # TODO: Replace with taxonworks.csl.  Move unsupported fields to
+  # wrappers in vue rendering.
   # set cached values and copies active record relations into bibtex values
   # @return [Ignored]
   def set_cached
@@ -880,7 +888,8 @@ class Source::Bibtex < Source
       attributes_to_update[:author] = get_bibtex_names('author') if authors.reload.size > 0
       attributes_to_update[:editor] = get_bibtex_names('editor') if editors.reload.size > 0
 
-      c = cached_string('html')
+      c = cached_string('html') # preserves our convention of <i>
+
       if bibtex_type == 'book' && !pages.blank?
         if pages.to_i.to_s == pages
           c = c + " #{pages} pp."
@@ -888,11 +897,12 @@ class Source::Bibtex < Source
           c = c + " #{pages}"
         end
       end
+
       n = []
       n += [stated_year.to_s] if stated_year && year && stated_year != year
-
       n += ['in ' + Language.find(language_id).english_name.to_s] if language_id
       n += [note.to_s] if note
+
       c = c + " [#{n.join(', ')}]" unless n.empty?
 
       attributes_to_update.merge!(

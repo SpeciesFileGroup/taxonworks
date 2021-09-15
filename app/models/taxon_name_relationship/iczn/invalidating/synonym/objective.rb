@@ -36,6 +36,42 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective < TaxonNameR
     end
   end
 
+  def sv_fix_objective_synonym_relationship
+    fixed = false
+    s = self.subject_taxon_name
+    o = self.object_taxon_name
+    if s.get_primary_type.empty?
+      t2 = s
+      t1 = o
+    elsif o.get_primary_type.empty?
+      t2 = o
+      t1 = s
+    else
+      return false
+    end
+
+      types2 = t1.get_primary_type
+      if !types2.empty?
+        new_type_material = []
+        types2.each do |t|
+          new_type_material.push({type_type: t.type_type, protonym_id: t2.id, collection_object_id: t.collection_object_id, source: t.source})
+        end
+        t2.type_materials.build(new_type_material)
+        fixed = true
+      end
+
+    if fixed
+      begin
+        Protonym.transaction do
+          t2.save
+        end
+        return true
+      rescue
+        return false
+      end
+    end
+  end
+
   def sv_not_specific_relationship
     true
   end

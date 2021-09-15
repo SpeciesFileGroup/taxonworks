@@ -3,8 +3,9 @@ require 'rails_helper'
 describe Source::Bibtex, type: :model, group: :sources do
 
   # TODO: shouldn't be needed ultimately
-  after(:all) { Source.destroy_all }
+  # after(:all) { Source.destroy_all }
 
+  # TODO: this should follow pattern { Source::Bibtex.new }
   let(:bibtex) { FactoryBot.build(:source_bibtex) }
 
   let(:gem_bibtex_entry1) {
@@ -22,6 +23,12 @@ describe Source::Bibtex, type: :model, group: :sources do
   let(:gem_bibtex_bibliography) {
     BibTeX.open(Rails.root + 'spec/files/bibtex/Taenionema.bib')
   }
+
+  specify '#year_with_suffix' do
+    subject.year = '1922'
+    subject.year_suffix = 'c'
+    expect(subject.year_with_suffix).to eq('1922c')
+  end
 
   context '#clone' do
     before do
@@ -362,14 +369,14 @@ describe Source::Bibtex, type: :model, group: :sources do
 
     specify 'must have one of the following fields: :author, :booktitle, :editor, :journal,
       :title, :year, :url, :stated_year' do
-      error_message = 'Missing core data. A TaxonWorks source must have one of the following: author, editor, booktitle, title, url, journal, year, or stated year'
-      local_src     = Source::Bibtex.new()
-      expect(local_src.valid?).to be_falsey
-      expect(local_src.errors.messages[:base]).to include error_message
-      local_src.title = 'Test book'
-      local_src.valid?
-      expect(local_src.errors.full_messages.include?(error_message)).to be_falsey
-    end
+        error_message = 'Missing core data. A TaxonWorks source must have one of the following: author, editor, booktitle, title, url, journal, year, or stated year'
+        local_src     = Source::Bibtex.new()
+        expect(local_src.valid?).to be_falsey
+        expect(local_src.errors.messages[:base]).to include error_message
+        local_src.title = 'Test book'
+        local_src.valid?
+        expect(local_src.errors.full_messages.include?(error_message)).to be_falsey
+      end
 
     context 'test date related fields' do
       let(:source_bibtex) { FactoryBot.build(:valid_source_bibtex) }
@@ -924,23 +931,19 @@ describe Source::Bibtex, type: :model, group: :sources do
       context 'Must facilitate letter annotations on year' do
         specify 'correctly generates year suffix from BibTeX entry' do
           bibtex_entry_year = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James', year: '1921b')
-          src               = Source::Bibtex.new_from_bibtex(bibtex_entry_year)
+          src = Source::Bibtex.new_from_bibtex(bibtex_entry_year)
           expect(src.year.to_s).to eq('1921') # year is an int by default
           expect(src.year_suffix).to eq('b')
-          expect(src.year_with_suffix).to eq('1921b')
         end
 
-        specify 'correctly converts year suffix to BibTeX entry' do
-          src = FactoryBot.create(:valid_source_bibtex)
-          src[:year] = '1922'
-          src[:year_suffix] = 'c'
-          expect(src.year_with_suffix).to eq('1922c')
-          bibtex_entry = src.to_bibtex
-          expect(bibtex_entry[:year]).to eq('1922c')
+        specify 'does not convert year suffix to BibTeX entry' do
+          subject.year = '1922'
+          subject.year_suffix = 'c'
+          subject.bibtex_type = 'article'
+          bibtex_entry = subject.to_bibtex
+          expect(bibtex_entry[:year]).to eq('1922')
         end
       end
-
-
     end
 
     context 'associations' do
@@ -1111,7 +1114,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       end
     end
   end
-  
+
   context 'nested attributes' do
     let(:person1) { Person::Unvetted.create!(last_name: 'un') }
     let(:person2) { Person::Unvetted.create!(last_name: 'deux') }
@@ -1207,7 +1210,7 @@ describe Source::Bibtex, type: :model, group: :sources do
         specify 'update updates position' do
           expect(b.authors.reload.count).to eq(3)
           expect(b.authority_name).to eq('Un, Deux & Trois')
-          
+
           b.update(params)
 
           expect(b.authors.reload.count).to eq(2)
@@ -1235,4 +1238,4 @@ describe Source::Bibtex, type: :model, group: :sources do
     end
   end
 
-end
+  end
