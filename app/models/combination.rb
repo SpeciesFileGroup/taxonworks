@@ -57,7 +57,7 @@
 #
 class Combination < TaxonName
 
-  # The ranks that can be used to build combinations.  
+  # The ranks that can be used to build combinations.
   APPLICABLE_RANKS = %w{genus subgenus section subsection
                         series subseries species subspecies variety subvariety form subform}.freeze
 
@@ -200,30 +200,31 @@ class Combination < TaxonName
     protonym_ids.compact!
     return Protonym.none if !protonym_ids.keys.any?
 
-    s  = Protonym.arel_table
-    sr = TaxonNameRelationship.arel_table
+    protonym  = Protonym.arel_table
+    tn_relationship = TaxonNameRelationship.arel_table
 
-    j = s.alias('j') # required for group/having purposes
+    protonym_alias = protonym.alias('j') # required for group/having purposes
 
-    b = s.project(j[Arel.star]).from(j)
-      .join(sr)
-      .on(sr['object_taxon_name_id'].eq(j['id']))
+    b = protonym.project(protonym_alias[Arel.star]).from(protonym_alias)
+      .join(tn_relationship)
+      .on(tn_relationship['object_taxon_name_id'].eq(protonym_alias['id']),
+          tn_relationship['type'].matches("TaxonNameRelationship::OriginalCombination::%"))
 
     # Build an aliased join for each set of attributes
     protonym_ids.each do |rank, id|
-      sr_a = sr.alias("b_#{rank}")
+      sr_a = tn_relationship.alias("b_#{rank}")
       b = b.join(sr_a).on(
-        sr_a['object_taxon_name_id'].eq(j['id']),
+        sr_a['object_taxon_name_id'].eq(protonym_alias['id']),
         sr_a['type'].eq("TaxonNameRelationship::OriginalCombination::Original#{rank.capitalize}"),
         sr_a['subject_taxon_name_id'].eq(id)
       )
     end
 
-    b = b.group(j['id']).having(sr['object_taxon_name_id'].count.eq(protonym_ids.count))
+    b = b.group(protonym_alias['id']).having(tn_relationship['object_taxon_name_id'].count.eq(protonym_ids.count))
 
     b = b.as('join_alias')
 
-    Protonym.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(s['id']))))
+    Protonym.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(protonym['id']))))
   end
 
   # @return [Protonym Scope] hmmm- a Protonym class method?!
