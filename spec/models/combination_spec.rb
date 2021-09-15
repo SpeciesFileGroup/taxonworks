@@ -218,7 +218,7 @@ describe Combination, type: :model, group: :nomenclature do
       species.update(original_genus: genus, original_species: species)
 
       expect(TaxonNameRelationship.where_object_is_taxon_name(species).count).to eq 2
-      expect(Combination.matching_protonyms(nil, genus: genus2.id, species: species.id).to_a).to contain_exactly(species)
+      expect(Combination.matching_protonyms(nil, genus: genus.id, species: species.id).to_a).to contain_exactly(species)
     end
   end
 
