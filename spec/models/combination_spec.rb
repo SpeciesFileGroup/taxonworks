@@ -5,6 +5,7 @@ describe Combination, type: :model, group: :nomenclature do
   let(:source_older_than_combination) { FactoryBot.build(:valid_source_bibtex, year: 1940, author: 'Dmitriev') }
   let(:family) { FactoryBot.create(:relationship_family, name: 'Aidae', year_of_publication: 2000) }
   let(:genus ) {FactoryBot.create(:relationship_genus, parent: family, year_of_publication: 1950)}
+  let(:genus2 ) {FactoryBot.create(:relationship_genus, name: 'Hypoclinea', parent: family, year_of_publication: 1950)}
   let(:subgenus ) {FactoryBot.create(:iczn_subgenus, parent: genus, year_of_publication: 1950)}
   let(:species) { FactoryBot.create(:relationship_species, parent: genus, year_of_publication: 1951)  }
   let(:species2) { FactoryBot.create(:relationship_species, name: 'comes', parent: genus, year_of_publication: 1952) }
@@ -200,6 +201,24 @@ describe Combination, type: :model, group: :nomenclature do
     specify '.matching_protonyms 5' do
       species.update(original_genus: genus, original_subgenus: genus, original_species: species)
       expect(Combination.matching_protonyms(nil, genus: genus.id, subgenus: nil, species: species.id, subspecies: nil).to_a).to contain_exactly()
+    end
+
+    specify '.matching_protonyms 6' do
+      species.update(original_genus: genus, original_species: species)
+
+      # make species the object of another TaxonNameRelationship
+      TaxonNameRelationship.create!(subject_taxon_name: species2, object_taxon_name: species, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+
+      expect(TaxonNameRelationship.where_object_is_taxon_name(species).count).to eq 3
+
+      expect(Combination.matching_protonyms(nil, genus: genus.id, species: species.id).to_a).to contain_exactly(species)
+    end
+
+    specify '.matching_protonyms 7' do  # same test as above, without extra relationship
+      species.update(original_genus: genus, original_species: species)
+
+      expect(TaxonNameRelationship.where_object_is_taxon_name(species).count).to eq 2
+      expect(Combination.matching_protonyms(nil, genus: genus2.id, species: species.id).to_a).to contain_exactly(species)
     end
   end
 
