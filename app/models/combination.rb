@@ -208,7 +208,7 @@ class Combination < TaxonName
     b = protonym.project(protonym_alias[Arel.star]).from(protonym_alias)
       .join(tn_relationship)
       .on(tn_relationship['object_taxon_name_id'].eq(protonym_alias['id']),
-          tn_relationship['type'].matches("TaxonNameRelationship::OriginalCombination::%"))
+          tn_relationship['type'].matches('TaxonNameRelationship::OriginalCombination::%'))
 
     # Build an aliased join for each set of attributes
     protonym_ids.each do |rank, id|
