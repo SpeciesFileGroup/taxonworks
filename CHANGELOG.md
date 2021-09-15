@@ -24,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Soft_validation fix. Objective synonyms should share the same type.
 
 ### Changed
+- Status name 'not for nomenclature' changed to 'not in published work'
 - Year letter is no longer appended to year in BibTeX exports
 - Include project's name in CoLDP exports filename [#2509]
 - Implemented STI for downloads [#2498]
