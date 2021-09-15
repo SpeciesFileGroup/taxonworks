@@ -25,6 +25,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   class ImportProtonym
     class CreateIfNotExists
       def self.execute(origins, parent, name)
+        name.delete(:rank_class) if name[:rank_class].nil?
         Protonym.create_with(also_create_otu: true).find_or_create_by(name.merge({ parent: parent })).tap do |protonym|
           unless protonym&.persisted?
             raise DatasetRecord::DarwinCore::InvalidData.new({
@@ -63,7 +64,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         innermost_protonym = names.inject(project.root_taxon_name) do |parent, name|
           otu_attributes = name.delete(:otu_attributes)
 
-          unless name[:rank_class] || otu_attributes.nil?
+          unless name[:rank_class] || otu_attributes.present?
             name[:rank_class] = parent.predicted_child_rank(name[:name])&.to_s
             name.delete(:rank_class) unless name[:rank_class] && /::FamilyGroup::/ =~ name[:rank_class]
           end
