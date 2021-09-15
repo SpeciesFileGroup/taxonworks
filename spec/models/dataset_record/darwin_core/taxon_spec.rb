@@ -219,20 +219,12 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       expect(Combination.all.length).to eq 0
     end
 
-    it 'should have 4 original species relationships' do
-      expect(TaxonNameRelationship.where(type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies').count).to eq 4
+    it 'should have 4 original species relationships' do    # Anoplolepis longipes, Anoplolepis gracilipes, Pheidole longipes
+      expect(TaxonNameRelationship.where(type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies').count).to eq 3
     end
 
     it 'should have 5 valid taxon names' do # "Root", "Formica", "Anoplolepis", "Pheidole", "Anoplolepis gracilipes", "Pheidole longipes"
       expect(TaxonName.that_is_valid.count).to eq 6
-    end
-
-    it 'Pheidole longipes author name should be the same as Formica longipes but in parentheses' do
-
-      parent_author_year = TaxonName.find_by({ cached: 'Pheidole longipes' }).parent.cached_author_year
-      pheidole_author_year = TaxonName.find_by({ cached: 'Pheidole longipes' }).cached_author_year
-
-      expect('(' + parent_author_year + ')').to eq(pheidole_author_year)
     end
 
     it 'Anoplolepis longipes should have homonym status' do
@@ -243,7 +235,6 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     end
 
     it 'Formica longipes Jerdon, 1851 should have a replacement of Anoplolepis gracilipes' do
-      pending
       longipes_jerdon = TaxonName.find_by(name: 'longipes', year_of_publication: 1851)
       relationship = TaxonNameRelationship.find_by({ subject_taxon_name: longipes_jerdon,
                                                      object_taxon_name: TaxonName.find_by_cached('Anoplolepis gracilipes') })
@@ -252,12 +243,10 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
     it 'Pheidole longipes cached original combination should be Formica longipes' do
       expect(TaxonName.find_by_cached('Pheidole longipes').cached_original_combination).to eq 'Formica longipes'
-      pending
     end
 
     it 'Anoplolepis longipes valid taxon should be Anoplolepis gracilipes' do
       expect(TaxonName.find_by_cached('Anoplolepis longipes').cached_valid_taxon_name_id).to eq TaxonName.find_by_cached('Anoplolepis gracilipes').id
-      pending
     end
 
   end
