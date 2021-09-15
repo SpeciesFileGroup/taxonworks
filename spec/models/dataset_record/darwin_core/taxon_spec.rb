@@ -19,7 +19,6 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/parent_child.tsv'), 'text/plain'),
         description: 'parent_child'
       ).tap { |i| i.stage }
-      
 
       2.times { |_|
         import_dataset.import(5000, 100)
@@ -82,12 +81,10 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   context 'when importing a homonym with a replacement taxon' do
     before :all do
       DatabaseCleaner.start
-      # DatabaseCleaner.clean
       import_dataset = ImportDataset::DarwinCore::Checklist.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/homonym.tsv'), 'text/plain'),
         description: 'homonym'
       ).tap { |i| i.stage }
-
 
       4.times { |_|
         import_dataset.import(5000, 100)
@@ -144,7 +141,6 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
         description: 'synonym'
       ).tap { |i| i.stage }
 
-
       3.times { |_|
         import_dataset.import(5000, 100)
       }
@@ -189,13 +185,11 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
   context 'when importing homonyms that are moved to another genus' do
     before :all do
-      # DatabaseCleaner.clean
       DatabaseCleaner.start
       import_dataset = ImportDataset::DarwinCore::Checklist.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/moved_homonym.tsv'), 'text/plain'),
         description: 'moved_homonym'
       ).tap { |i| i.stage }
-
 
       4.times { |_|
         import_dataset.import(5000, 100)
@@ -220,13 +214,17 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       expect(Protonym.all.length).to eq 7
     end
 
-    it 'should have 3 combinations' do
+    it 'should not have combinations besides original combinations' do
       # Pheidole longipes, Anoplolepis longipes, Anoplolepis gracilipes
-      expect(Combination.all.length).to eq 3
+      expect(Combination.all.length).to eq 0
     end
 
-    it 'should have 5 valid taxon names' do
-      pending
+    it 'should have 4 original species relationships' do
+      expect(TaxonNameRelationship.where(type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies').count).to eq 4
+    end
+
+    it 'should have 5 valid taxon names' do # "Root", "Formica", "Anoplolepis", "Pheidole", "Anoplolepis gracilipes", "Pheidole longipes"
+      expect(TaxonName.that_is_valid.count).to eq 6
     end
 
     it 'Pheidole longipes author name should be the same as Formica longipes but in parentheses' do
@@ -237,19 +235,28 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       expect('(' + parent_author_year + ')').to eq(pheidole_author_year)
     end
 
-    it 'Anoplolepis longipes should be a homonym of Pheidole longipes' do
-      pending
+    it 'Anoplolepis longipes should have homonym status' do
+      expect(TaxonNameClassification.find_by_taxon_name_id(TaxonName.find_by(name: 'longipes', year_of_publication: 1851)).type).to eq('TaxonNameClassification::Iczn::Available::Invalid::Homonym')
+    end
+
+    it 'Anoplolepis longipes should be a homonym of Pheidole longipes', :skip do
     end
 
     it 'Formica longipes Jerdon, 1851 should have a replacement of Anoplolepis gracilipes' do
       pending
+      longipes_jerdon = TaxonName.find_by(name: 'longipes', year_of_publication: 1851)
+      relationship = TaxonNameRelationship.find_by({ subject_taxon_name: longipes_jerdon,
+                                                     object_taxon_name: TaxonName.find_by_cached('Anoplolepis gracilipes') })
+      expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym')
     end
 
     it 'Pheidole longipes cached original combination should be Formica longipes' do
+      expect(TaxonName.find_by_cached('Pheidole longipes').cached_original_combination).to eq 'Formica longipes'
       pending
     end
 
     it 'Anoplolepis longipes valid taxon should be Anoplolepis gracilipes' do
+      expect(TaxonName.find_by_cached('Anoplolepis longipes').cached_valid_taxon_name_id).to eq TaxonName.find_by_cached('Anoplolepis gracilipes').id
       pending
     end
 
@@ -262,7 +269,6 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/combination.tsv'), 'text/plain'),
         description: 'combination'
       ).tap { |i| i.stage }
-
 
       4.times { |_|
         import_dataset.import(5000, 100)
@@ -290,10 +296,6 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       # expect(TaxonName.find_by_cached('Camponotites kraussei')).to be_a Combination
     end
 
-    it 'should have a genus taxon name relationship' do
-      expect(Combination.first.genus_taxon_name_relationship).to be_a(TaxonNameRelationship::Combination::Genus)
-    end
-
     it 'should have the proper author' do
       expect(TaxonName.find_by_cached('Oecophylla kraussei').cached_author_year).to eq '(Dlussky & Rasnitsyn, 1999)'
     end
@@ -310,7 +312,6 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
   context 'when importing a subspecies' do
     before :all do
-      # DatabaseCleaner.clean
       DatabaseCleaner.start
       import_dataset = ImportDataset::DarwinCore::Checklist.create!(
         source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/subspecies.tsv'), 'text/plain'),
