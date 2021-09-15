@@ -5,6 +5,7 @@
       <v-btn
         color="create"
         medium
+        :disabled="!downloadCount"
         @click="download()">
         All ({{ downloadCount }})
       </v-btn>
