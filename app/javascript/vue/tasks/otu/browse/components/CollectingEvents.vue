@@ -81,14 +81,14 @@ const isLoading = computed(() => {
   return loadState.distribution && loadState.descendantsDistribution
 })
 
-const collectingEvents = computed(() => ({
+const collectingEvents = computed({
   get () {
     return store.getters[GetterNames.GetCollectingEvents]
   },
   set (value) {
     store.commit(MutationNames.SetCollectingEvents, value)
   }
-}))
+})
 
 const assertedDistributions = computed(() => {
   const ADs = store.getters[GetterNames.GetAssertedDistributions]
