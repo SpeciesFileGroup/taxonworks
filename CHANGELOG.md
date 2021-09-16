@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Custom .csl support for BibTeX reference formating (see .csl styles at bottom of select list). New .cls submitted via issue tracker and integrated to source.
 - New .csl style 'world_chalcidoidea_book.csl"
 - Verbatim value handling (use "{your value}")  for fields otherwise processed in BibTeX sources (e.g. author)
+- Soft_validation fix. Objective synonyms should share the same type.
 
 ### Fixed
 - match combination when protonym have synonym relationship [#2525]
@@ -24,14 +25,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Geographic area counts as georeference. Soft validations are sometimes loaded before saving georeferences [#2519]
 - `import_dataset_id` parameter persist on after resetState in DwC Importer [#2529]
 
-### Add
-- Soft_validation fix. Objective synonyms should share the same type.
-
 ### Changed
 - Status name 'not for nomenclature' changed to 'not in published work'
 - Year letter is no longer appended to year in BibTeX exports
 - Include project's name in CoLDP exports filename [#2509]
-- Implemented STI for downloads [#2498]
+- Implemented STI for downloads [#2498]\
+- Upgraded gnfinder gem that makes use of new REST API
 
 [#2084]: https://github.com/SpeciesFileGroup/taxonworks/issues/2084
 [#1943]: https://github.com/SpeciesFileGroup/taxonworks/issues/1943

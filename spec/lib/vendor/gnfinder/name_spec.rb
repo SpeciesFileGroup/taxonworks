@@ -7,8 +7,8 @@ describe Vendor::Gnfinder::Name, type: [:model]  do
   let(:monomial_string) { 'The ACRIDIDAE of the World' }
   let(:binomial_string) { 'Turripria woldai sp. nov. is the same as Turripria woldaii' }
 
-  let(:gnfinder_monomial) { finder.find_names(monomial_string, verification: true, tokens_around: 3).names.first }
-  let(:gnfinder_binomial) { finder.find_names(binomial_string, verification: true, tokens_around: 3).names.first }
+  let(:gnfinder_monomial) { finder.find_names(monomial_string, verification: true, words_around: 3).names.first }
+  let(:gnfinder_binomial) { finder.find_names(binomial_string, verification: true, words_around: 3).names.first }
 
   let(:mn) { ::Vendor::Gnfinder::Name.new(gnfinder_monomial) }
   let(:bn) { ::Vendor::Gnfinder::Name.new(gnfinder_binomial) }
@@ -30,11 +30,11 @@ describe Vendor::Gnfinder::Name, type: [:model]  do
     end
 
     specify '#words_start' do
-      expect(n.offset_start).to eq(4)
+      expect(n.start).to eq(4)
     end
 
     specify '#words_end' do
-      expect(n.offset_end).to eq(13)
+      expect(n.end).to eq(13)
     end
 
     specify '#words_before' do
@@ -47,15 +47,15 @@ describe Vendor::Gnfinder::Name, type: [:model]  do
   end
 
   specify '#classification_path' do
-    expect(mn.classification_path).to contain_exactly("Acrididae", "Acridoidea", "Animalia", "Arthropoda", "Insecta", "Orthoptera")
+    expect(mn.classification_path).to contain_exactly("Biota", "Acrididae", "Acridoidea", "Animalia", "Arthropoda", "Insecta", "Orthoptera")
   end
 
   specify '#classification_rank' do
-    expect(mn.classification_rank).to contain_exactly("class", "family", "kingdom", "order", "phylum", "superfamily")
+    expect(mn.classification_rank).to contain_exactly("unranked", "class", "family", "kingdom", "order", "phylum", "superfamily")
   end
 
-  specify '#data_source_title' do
-    expect(mn.best_result.data_source_title).to eq('Catalogue of Life')
+  specify '#data_source_title_short' do
+    expect(mn.best_result.data_source_title_short).to eq('Catalogue of Life')
   end
 
   specify '#protonym_name 1' do
