@@ -81,6 +81,11 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
     core_records.each_with_index do |record, index|
 
       # TODO handle when originalNameUsageID is not present
+
+      if records_lut[record[:src_data]["originalNameUsageID"]].nil?
+        record[:invalid] = 'originalNameUsageID not found in dataset'
+        next
+      end
       oc_index = records_lut[record[:src_data]["originalNameUsageID"]][:index]
 
       original_combination_groups[oc_index] ||= []
@@ -92,6 +97,14 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
 
     # make combinations dependent on the protonym of each OC group
     original_combination_groups.each do |oc_index, name_items|
+
+      if records_lut[core_records[oc_index][:src_data]['acceptedNameUsageID']].nil?
+        name_items.each do |i|
+          core_records[i][:invalid] = 'acceptedNameUsageID not found in dataset'
+        end
+        next
+      end
+
       if name_items.size > 1
         # find the valid name of the group, first by seeing if acceptedNameUsageID is in group, otherwise check against list of known current statuses
         current_item = nil
@@ -190,29 +203,19 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
       record[:is_hybrid] = !!parse_results[:hybrid]
 
       # set type as combination or protonym based on authorship being in parentheses
-      if not parse_results[:details]
+      unless parse_results[:details]
         record[:type] = :unknown
         record[:invalid] = "Name could not be parsed"
-
-        # TODO commenting this out for now, maybe oc grouping method is insufficient?
-      # elsif (parse_results.dig(:authorship, :normalized) || record.dig(:src_data, "scientificNameAuthorship") || "")[0] == "("
-      #   record[:type] = :combination
-      # else
-      #   record[:type] = :protonym
       end
 
-      # TODO I think oc grouping can do this
-      # case record[:type]
-      # when :protonym
-      #   record[:originalCombination] = record[:index]
-      # when :combination
-      #   #***FIND ORIGINAL COMBINATION
-      # end
-
       unless record[:parent].nil?
-        parent_index = records_lut[record[:parent]][:index]
-        record[:dependencies] << parent_index
-        core_records[parent_index][:dependants] << record[:index]
+        if records_lut[record[:parent]]
+          parent_index = records_lut[record[:parent]][:index]
+          record[:dependencies] << parent_index
+          core_records[parent_index][:dependants] << record[:index]
+        else
+          record[:invalid] = 'parentNameUsageID not found in dataset'
+        end
       end
     end
 
