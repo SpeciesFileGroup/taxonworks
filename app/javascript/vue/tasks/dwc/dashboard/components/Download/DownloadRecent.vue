@@ -1,5 +1,5 @@
 <template>
-  <h2>Recent downloads</h2>
+  <h2>Recently created DwC Archives</h2>
   <table>
     <thead>
       <tr>

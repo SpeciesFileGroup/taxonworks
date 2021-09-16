@@ -23,7 +23,7 @@ class Tasks::Dwc::DashboardController < ApplicationController
     end
 
     @download = ::Export::Dwca.download_async(a, request.url)
-    render '/downloads/show' 
+    render '/downloads/show'
   end
 
   def create_index

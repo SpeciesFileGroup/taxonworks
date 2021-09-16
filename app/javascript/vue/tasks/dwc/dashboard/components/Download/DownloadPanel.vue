@@ -1,7 +1,7 @@
 <template>
   <div class="panel content">
-    <h2>Download</h2>
-    <span>Includes only records stored as DwC occurrences.</span>
+    <h2>Download Darwin Core Archive</h2>
+    <i>Includes only records stored as DwC occurrences.</i>
     <div class="field label-above margin-medium-top">
       <v-btn
         color="create"
@@ -25,8 +25,11 @@
       </download-date-button>
     </div>
     <filter-link>
-      Download by collection object filter
+      Create DwC Archive by filtered collection object result
     </filter-link>
+  </div>
+
+  <div class="panel content">
     <download-recent
       :list="downloadList"
       @onUpdate="setRecord"/>

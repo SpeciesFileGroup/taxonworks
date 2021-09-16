@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Index freshness</h2>
+    <h2>DwC occurrence record freshness</h2>
     <vue-chart
       style="max-height: 500px"
       type="bar"

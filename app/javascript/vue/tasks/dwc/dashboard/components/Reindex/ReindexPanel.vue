@@ -4,7 +4,7 @@
       :reindex="reindexRequest"
       @onReady="useActions.getMetadata"/>
     <div class="content">
-      <h2>Rebuild DwC occurrence record</h2>
+      <h2>Build DwC occurrence records</h2>
       <div class="field label-above">
         <v-btn
           v-for="({ label, value }) in reindex"
@@ -17,7 +17,7 @@
         </v-btn>
       </div>
       <filter-link>
-        Re-index by collection object filter
+        Build (or rebuild) occurrence records by filtered collection object result
       </filter-link>
     </div>
   </div>

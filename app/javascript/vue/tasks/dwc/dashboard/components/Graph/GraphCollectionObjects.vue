@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Index versions</h2>
+    <h2>DwC occurrence record version</h2>
     <vue-chart
       style="max-height: 500px"
       type="bar"

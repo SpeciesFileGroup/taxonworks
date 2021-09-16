@@ -48,6 +48,7 @@ module DwcOccurrencesHelper
     a = ::Person
       .left_joins(:identifiers)
       .joins(:dwc_occurrences)
+      .order(:cached)
       .merge(records)
 
     with_global_id = a.where("identifiers.type ILIKE 'Identifier::Global%'").distinct.pluck(:id, :cached)

@@ -4,7 +4,7 @@ module CollectionObjects::FilterParams
 
   def filtered_collection_objects
     # !! Do not add order() here, it breaks DwC integration
-    Queries::CollectionObject::Filter.
+    ::Queries::CollectionObject::Filter.
       new(collection_object_filter_params).all.where(project_id: sessions_current_project_id).
       page(params[:page]).per(params[:per] || 500)
   end
@@ -12,7 +12,7 @@ module CollectionObjects::FilterParams
   def collection_object_filter_params
     a = params.permit(
       :recent,
-      Queries::CollectingEvent::Filter::ATTRIBUTES,
+      ::Queries::CollectingEvent::Filter::ATTRIBUTES,
       :ancestor_id,
       :buffered_collecting_event,
       :buffered_determinations,
@@ -92,7 +92,7 @@ module CollectionObjects::FilterParams
   def collection_object_api_params
     a = params.permit(
       :recent,
-      Queries::CollectingEvent::Filter::ATTRIBUTES,
+      ::Queries::CollectingEvent::Filter::ATTRIBUTES,
       :ancestor_id,
       :buffered_collecting_event,
       :buffered_determinations,

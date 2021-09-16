@@ -74,6 +74,10 @@ module CollectionObject::DwcExtensions
     # namePublishedIn NOT DONE
   }.freeze
 
+  VIEW_EXCLUSIONS = [
+    :footprintWKT
+  ]
+
   DELIMITER = ' | '
 
   included do

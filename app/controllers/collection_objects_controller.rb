@@ -50,8 +50,10 @@ class CollectionObjectsController < ApplicationController
     objects = filtered_collection_objects.order('collection_objects.id').includes(:dwc_occurrence).all
     assign_pagination(objects)
 
-    @objects = objects.pluck(*::CollectionObject.dwc_attribute_vector)
-    @klass = ::CollectionObject
+    # Default to *exclude* some big fields, like geo spatial wkt
+    mode = params[:mode] || :view
+    @objects = objects.pluck(*::CollectionObject.dwc_attribute_vector(mode))
+    @headers = ::CollectionObject.dwc_attribute_vector_names(mode)
     render '/dwc_occurrences/dwc_index'
   end
 
@@ -66,7 +68,10 @@ class CollectionObjectsController < ApplicationController
       else
         o.get_dwc_occurrence
       end
-      render json: o.dwc_occurrence_attribute_values
+
+      # Default to *exclude* some fields that include large text, like geospatial
+      mode = params[:mode] || :view
+      render json: o.dwc_occurrence_attribute_values(mode)
     end
   end
 

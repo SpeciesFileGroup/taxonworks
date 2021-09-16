@@ -19,15 +19,21 @@ module Shared::IsDwcOccurrence
   end
 
   module ClassMethods
-    def dwc_attribute_vector
+
+    def dwc_attribute_vector(mode = :all)
       t = ::DwcOccurrence.arel_table
       s = self.arel_table
       k = self::DwcExtensions::DWC_OCCURRENCE_MAP.keys.sort
+
+      if mode.to_sym == :view
+        k = k - self::DwcExtensions::VIEW_EXCLUSIONS
+      end
+
       [ s[:id], t[:id], t[:dwc_occurrence_object_type], *k.collect{|a| t[a]} ]
     end
 
-    def dwc_attribute_vector_names
-      ["#{self.name.tableize}_id", 'dwc_occurrence_id'] + dwc_attribute_vector[2..-1].collect{|a| a.name}
+    def dwc_attribute_vector_names(mode = :all)
+      ["#{self.name.tableize}_id", 'dwc_occurrence_id'] + dwc_attribute_vector(mode)[2..-1].collect{|a| a.name}
     end
   end
 
@@ -72,8 +78,9 @@ module Shared::IsDwcOccurrence
 
   # @return [Array]
   #   an array of the values presently computed for this occurrence
-  def dwc_occurrence_attribute_values
-    [id, dwc_occurrence.id] + self.class.dwc_attribute_vector[2..-1].collect{|a| a.name}.collect{|f| dwc_occurrence.send(f) }
+  def dwc_occurrence_attribute_values(mode = :all)
+    a =
+    [id, dwc_occurrence.id] + self.class.dwc_attribute_vector(mode)[2..-1].collect{|a| a.name}.collect{|f| dwc_occurrence.send(f) }
   end
 
   # @return [DwcOccurrence]
