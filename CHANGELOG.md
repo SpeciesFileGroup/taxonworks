@@ -8,11 +8,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Added soft validation of cached values with fix.
 - Custom .csl support for BibTeX reference formating (see .csl styles at bottom of select list). New .cls submitted via issue tracker and integrated to source.
 - New .csl style 'world_chalcidoidea_book.csl"
 - Verbatim value handling (use "{your value}")  for fields otherwise processed in BibTeX sources (e.g. author)
 
 ### Fixed
+- match combination when protonym have synonym relationship [#2525]
 - method update [#2504]
 - Taxon determinations list in comprehensive task
 - The clone button doesn't trigger update taxon name after authors were cloned [#2513]
@@ -24,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Soft_validation fix. Objective synonyms should share the same type.
 
 ### Changed
+- Status name 'not for nomenclature' changed to 'not in published work'
 - Year letter is no longer appended to year in BibTeX exports
 - Include project's name in CoLDP exports filename [#2509]
 - Implemented STI for downloads [#2498]

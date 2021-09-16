@@ -710,8 +710,6 @@ class Source::Bibtex < Source
       end
     end
 
-    b.year = year_with_suffix if !year_suffix.blank?
-
     b[:keywords] = verbatim_keywords unless verbatim_keywords.blank?
     b[:note] = concatenated_notes_string if !concatenated_notes_string.blank?
 
@@ -886,10 +884,19 @@ class Source::Bibtex < Source
   def set_cached
     if errors.empty?
       attributes_to_update = {}
-
       attributes_to_update[:author] = get_bibtex_names('author') if authors.reload.size > 0
       attributes_to_update[:editor] = get_bibtex_names('editor') if editors.reload.size > 0
+      attributes_to_update.merge!(
+        cached: get_cached,
+        cached_nomenclature_date: nomenclature_date,
+        cached_author_string: authority_name(false)
+      )
+      update_columns(attributes_to_update)
+    end
+  end
 
+  def get_cached
+    if errors.empty?
       c = cached_string('html') # preserves our convention of <i>
 
       if bibtex_type == 'book' && !pages.blank?
@@ -906,15 +913,9 @@ class Source::Bibtex < Source
       n += [note.to_s] if note
 
       c = c + " [#{n.join(', ')}]" unless n.empty?
-
-      attributes_to_update.merge!(
-        cached: c,
-        cached_nomenclature_date: nomenclature_date,
-        cached_author_string: authority_name(false)
-      )
-
-      update_columns(attributes_to_update)
+      return c
     end
+    nil
   end
 
   #region hard validations
@@ -941,5 +942,21 @@ class Source::Bibtex < Source
     end
   end
 
+  def sv_cached_names # this cannot be moved to soft_validation_extensions
+    is_cached = true
+
+    if author.to_s != get_bibtex_names('author') ||
+        editor.to_s != get_bibtex_names('editor') ||
+        cached != get_cached ||
+        cached_nomenclature_date != nomenclature_date ||
+        cached_author_string.to_s != authority_name(false)
+      is_cached = false
+    end
+
+    soft_validations.add(
+      :base, 'Cached values should be updated',
+      success_message: 'Cached values were updated',
+      failure_message:  'Failed to update cached values') if !is_cached
+  end
 end
 
