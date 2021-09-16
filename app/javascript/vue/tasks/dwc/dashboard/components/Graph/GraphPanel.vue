@@ -1,11 +1,13 @@
 <template>
   <div
+    style="min-width: 0"
     class="panel content"
     v-help.section.freshnessIndex>
     <spinner-component v-if="useState.isLoadingMetadata"/>
     <graph-index :metadata="metadata"/>
   </div>
   <div
+    style="min-width: 0"
     class="panel content"
     v-help.section.freshnessVersions>
     <spinner-component v-if="useState.isLoadingMetadata"/>

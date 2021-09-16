@@ -1,7 +1,8 @@
 <template>
   <div class="panel content">
     <h2>Download</h2>
-    <div class="field label-above">
+    <span>Includes only records stored as DwC occurrences.</span>
+    <div class="field label-above margin-medium-top">
       <v-btn
         color="create"
         medium

@@ -4,7 +4,7 @@
       :reindex="reindexRequest"
       @onReady="useActions.getMetadata"/>
     <div class="content">
-      <h2>Rebuild index</h2>
+      <h2>Rebuild DwC occurrence record</h2>
       <div class="field label-above">
         <v-btn
           v-for="({ label, value }) in reindex"
