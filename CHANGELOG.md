@@ -22,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Georeference count in new collecting event task [#2519]
 - Autofocus in New taxon name task [#2523]
 - Geographic area counts as georeference. Soft validations are sometimes loaded before saving georeferences [#2519]
+- `import_dataset_id` parameter persist on after resetState in DwC Importer [#2529]
 
 ### Add
 - Soft_validation fix. Objective synonyms should share the same type.
@@ -39,6 +40,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2519]: https://github.com/SpeciesFileGroup/taxonworks/pull/2519
 [#2523]: https://github.com/SpeciesFileGroup/taxonworks/pull/2523
 [#2519]: https://github.com/SpeciesFileGroup/taxonworks/pull/2519
+[#2529]: https://github.com/SpeciesFileGroup/taxonworks/pull/2529
 
 ## [0.19.7] - 2021-09-09
 
