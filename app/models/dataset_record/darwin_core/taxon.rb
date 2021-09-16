@@ -7,36 +7,36 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
     %i{genus species infraspecies},
     %i{genus subgenus species},
     %i{genus subgenus species infraspecies}
-  ]
+  ].freeze
 
-  PARSE_DETAILS_KEYS = %i(uninomial genus species infraspecies)
+  PARSE_DETAILS_KEYS = %i(uninomial genus species infraspecies).freeze
 
   def import(dwc_data_attributes = {})
     begin
       DatasetRecord.transaction do
-        self.metadata.delete("error_data")
+        self.metadata.delete('error_data')
 
-        nomenclature_code = get_field_value("nomenclaturalCode")&.downcase&.to_sym || import_dataset.default_nomenclatural_code
-        parse_results_details = Biodiversity::Parser.parse(get_field_value("scientificName") || "")[:details]&.values&.first
+        nomenclature_code = get_field_value('nomenclaturalCode')&.downcase&.to_sym || import_dataset.default_nomenclatural_code
+        parse_results_details = Biodiversity::Parser.parse(get_field_value('scientificName') || '')[:details]&.values&.first
 
-        parse_results = Biodiversity::Parser.parse(get_field_value(:scientificName) || "")
+        parse_results = Biodiversity::Parser.parse(get_field_value(:scientificName) || '')
         parse_results_details = parse_results[:details]
-        parse_results_details = (parse_results_details&.keys - PARSE_DETAILS_KEYS).empty? ? parse_results_details.values.first : nil if parse_results_details
+        parse_results_details = (parse_results_details.keys - PARSE_DETAILS_KEYS).empty? ? parse_results_details.values.first : nil if parse_results_details
 
         raise DarwinCore::InvalidData.new({
                                             "scientificName": parse_results[:qualityWarnings] ?
                                                                 parse_results[:qualityWarnings].map { |q| q[:warning] } :
-                                                                ["Unable to parse scientific name. Please make sure it is correctly spelled."]
+                                                                ['Unable to parse scientific name. Please make sure it is correctly spelled.']
                                           }) unless (1..3).include?(parse_results[:quality]) && parse_results_details
 
-        raise "UNKNOWN NAME DETAILS COMBINATION" unless KNOWN_KEYS_COMBINATIONS.include?(parse_results_details.keys - [:authorship])
+        raise 'UNKNOWN NAME DETAILS COMBINATION' unless KNOWN_KEYS_COMBINATIONS.include?(parse_results_details.keys - [:authorship])
 
         name_key = parse_results_details[:uninomial] ? :uninomial : (parse_results_details.keys - [:authorship]).last
         name_details = parse_results_details[name_key]
 
         name = name_details.kind_of?(Array) ? name_details.first[:value] : name_details
 
-        authorship = parse_results_details.dig(:authorship, :normalized) || get_field_value("scientificNameAuthorship")
+        authorship = parse_results_details.dig(:authorship, :normalized) || get_field_value('scientificNameAuthorship')
 
         author_name = nil
 
@@ -49,8 +49,8 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             year = authorship_matchdata[:year]
 
             # author name should be wrapped in parentheses if the verbatim authorship was
-            if authorship.start_with?("(") and authorship.end_with?(")")
-              author_name = "(" + author_name + ")"
+            if authorship.start_with?('(') and authorship.end_with?(')')
+              author_name = '(' + author_name + ')'
             end
           end
 
@@ -61,16 +61,16 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
         end
 
         # TODO should a year provided in namePublishedInYear overwrite the parsed value?
-        year ||= get_field_value("namePublishedInYear")
+        year ||= get_field_value('namePublishedInYear')
 
         # TODO validate that rank is a real rank, otherwise Combination will crash on find_or_initialize_by
-        rank = get_field_value("taxonRank")
-        is_hybrid = metadata["is_hybrid"] # TODO: NO...
+        rank = get_field_value('taxonRank')
+        is_hybrid = metadata['is_hybrid'] # TODO: NO...
 
-        if metadata["parent"].nil?
+        if metadata['parent'].nil?
           parent = project.root_taxon_name
         else
-          parent = TaxonName.find(get_parent.metadata["imported_objects"]["taxon_name"]["id"])
+          parent = TaxonName.find(get_parent.metadata['imported_objects']['taxon_name']['id'])
         end
 
         if metadata['type'] == 'protonym'
@@ -89,9 +89,9 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
           unless taxon_name.persisted?
             taxon_name.taxon_name_classifications.build(type: TaxonNameClassification::Icn::Hybrid) if is_hybrid
             taxon_name.data_attributes.build(import_predicate: 'DwC-A import metadata', type: 'ImportAttribute', value: {
-              scientificName: get_field_value("scientificName"),
-              scientificNameAuthorship: get_field_value("scientificNameAuthorship"),
-              taxonRank: get_field_value("taxonRank"),
+              scientificName: get_field_value('scientificName'),
+              scientificNameAuthorship: get_field_value('scientificNameAuthorship'),
+              taxonRank: get_field_value('taxonRank'),
               metadata: metadata
             })
 
@@ -113,8 +113,9 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
             taxon_name.safe_self_and_ancestors.each do |ancestor|
               if (rank_in_type = original_combination_types[ancestor.rank.downcase.to_sym])
+                # taxon_name.related_taxon_name_relationships.find_or_initialize_by(type: rank_in_type, subject_taxon_name: ancestor)
                 TaxonNameRelationship.find_or_create_by!(type: rank_in_type, subject_taxon_name: ancestor, object_taxon_name: taxon_name)
-             end
+              end
             end
           else
 
@@ -124,8 +125,8 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             end
 
             unless parent == project.root_taxon_name
-              original_combination_parent = TaxonName.find(find_by_taxonID(get_original_combination.metadata["parent"])
-                                                 .metadata["imported_objects"]["taxon_name"]["id"])
+              original_combination_parent = TaxonName.find(find_by_taxonID(get_original_combination.metadata['parent'])
+                                                 .metadata['imported_objects']['taxon_name']['id'])
 
               original_combination_parent.safe_self_and_ancestors.each do |ancestor|
                 if (rank_in_type = original_combination_types[ancestor.rank.downcase.to_sym])
@@ -136,13 +137,13 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
           end
 
           # if taxonomicStatus is a synonym or homonym, create the relationship to acceptedNameUsageID
-          if metadata["has_external_accepted_name"]
+          if metadata['has_external_accepted_name']
             valid_name = get_taxon_name_from_taxon_id(get_field_value(:acceptedNameUsageID))
 
             synonym_classes = {
               iczn: {
-                synonym: "TaxonNameRelationship::Iczn::Invalidating::Synonym",
-                homonym: "TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym",
+                synonym: 'TaxonNameRelationship::Iczn::Invalidating::Synonym',
+                homonym: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym',
               },
               # TODO support other nomenclatural codes
               # icnp: {
@@ -168,7 +169,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
               end
 
             else
-              raise DarwinCore::InvalidData.new({ "taxonomicStatus": ["No taxonomic status, but acceptedNameUsageID has different protonym"] })
+              raise DarwinCore::InvalidData.new({ "taxonomicStatus": ['No taxonomic status, but acceptedNameUsageID has different protonym'] })
             end
 
             # if taxonomicStatus is a homonym, invalid, unavailable, excluded, create the status
@@ -195,7 +196,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
           protonym_record = find_by_taxonID(metadata['protonym_taxon_id'])
           # current_name_record = find_by_taxonID(get_field_value(:originalNameUsageID))
 
-          current_name = Protonym.find(protonym_record.metadata["imported_objects"]["taxon_name"]["id"])
+          current_name = Protonym.find(protonym_record.metadata['imported_objects']['taxon_name']['id'])
 
           # because Combination uses named arguments, we need to get the ranks of the parent names to create the combination
           if parent.is_a?(Combination)
@@ -217,15 +218,15 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
           taxon_name = Combination.new(combination_attributes) if taxon_name.nil?
 
         else
-          raise DarwinCore::InvalidData.new({ "originalNameUsageID": ["Could not determine if name is protonym or combination"] })
+          raise DarwinCore::InvalidData.new({ "originalNameUsageID": ['Could not determine if name is protonym or combination'] })
         end
 
         if taxon_name.save
           # TODO add relationships and combinations to this hash
           self.metadata[:imported_objects] = { taxon_name: { id: taxon_name.id } }
-          self.status = "Imported"
+          self.status = 'Imported'
         else
-          self.status = "Errored"
+          self.status = 'Errored'
           self.metadata[:error_data] = {
             messages: taxon_name.errors.messages
           }
@@ -233,7 +234,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
         save!
 
-        if self.status == "Imported"
+        if self.status == 'Imported'
           # loop over dependants, see if all other dependencies are met, if so mark them as ready
           metadata['dependants'].each do |dependant_taxonID|
             if dependencies_imported?(dependant_taxonID)
@@ -247,16 +248,16 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
         end
       end
     rescue DarwinCore::InvalidData => invalid
-      self.status = "Errored"
-      self.metadata["error_data"] = { messages: invalid.error_data }
+      self.status = 'Errored'
+      self.metadata['error_data'] = { messages: invalid.error_data }
     rescue ActiveRecord::RecordInvalid => invalid
-      self.status = "Errored"
-      self.metadata["error_data"] = {
+      self.status = 'Errored'
+      self.metadata['error_data'] = {
         messages: invalid.record.errors.messages
       }
     rescue StandardError => e
       raise if Rails.env.development?
-      self.status = "Failed"
+      self.status = 'Failed'
       self.metadata[:error_data] = {
         exception: {
           message: e.message,
@@ -325,11 +326,11 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
   end
 
-  # TODO fix ready check for dependencies
+  # TODO add restage button/trigger when relevant fields change. Changing an id here means recalculating dependencies
   def data_field_changed(index, value)
-    if index == get_field_mapping(:parentNameUsageID) && status == "NotReady"
-      self.status = "Ready" if %w[Ready Imported].include? get_parent&.status
-    end
+    # if index == get_field_mapping(:parentNameUsageID) && status == "NotReady"
+    #   self.status = "Ready" if %w[Ready Imported].include? get_parent&.status
+    # end
   end
 
 end

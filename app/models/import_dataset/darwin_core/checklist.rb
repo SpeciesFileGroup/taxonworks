@@ -35,14 +35,14 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
       extensions_headers: headers[:extensions]
     })
 
-    parse_results_ary = Biodiversity::Parser.parse_ary(records[:core].map { |r| r["scientificName"] || "" })
+    parse_results_ary = Biodiversity::Parser.parse_ary(records[:core].map { |r| r['scientificName'] || '' })
 
     # hash of taxonID, record metadata
     records_lut = { }
 
     # hash of row index, record metadata
     core_records = records[:core].each_with_index.map do |record, index|
-      records_lut[record["taxonID"]] = {
+      records_lut[record['taxonID']] = {
         index: index,
         type: nil, # will be protonym or combination
         dependencies: [],
@@ -55,7 +55,7 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
         has_external_accepted_name: nil,   # could be homonym or synonym, either way protonym is not valid. will use taxonomicStatus to determine the kind of relationship
         original_combination: nil, # taxonID of original combination
         protonym_taxon_id: nil,
-        parent: record["parentNameUsageID"],
+        parent: record['parentNameUsageID'],
         src_data: record
       }
     end
@@ -185,18 +185,10 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
 
 
     core_records.each_with_index do |record, index|
-      acceptedNameUsage = records_lut[record[:src_data]["acceptedNameUsageID"]]
+      accepted_name_usage = records_lut[record[:src_data]['acceptedNameUsageID']]
 
-      unless acceptedNameUsage
-        # record[:parent] = acceptedNameUsage[:parent]
-        # record[:is_synonym] = acceptedNameUsage[:index] != record[:index]
-        #
-        # record[:is_synonym] = record[:src_data]['taxonomicStatus'] == 'synonym'
-
-        # if record[:is_synonym]
-        #   record[:synonym_of] = acceptedNameUsage[:index]
-        #   acceptedNameUsage[:synonyms] << record[:index]
-        # end
+      unless accepted_name_usage
+        # TODO are we already checking this higher up?
         add_error_message(record, :acceptedNameUsageID, "acceptedNameUsageID '#{record[:src_data]["acceptedNameUsageID"]}' not found")
       end
 
@@ -225,15 +217,14 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
 
     # replace dependencies and dependants index values with taxonID values
     core_records.each do |record|
-      record[:dependants].map! {|i| core_records[i][:src_data]["taxonID"]}.uniq!
-      record[:dependencies].map! {|i| core_records[i][:src_data]["taxonID"]}.uniq!
+      record[:dependants].map! {|i| core_records[i][:src_data]['taxonID']}.uniq!
+      record[:dependencies].map! {|i| core_records[i][:src_data]['taxonID']}.uniq!
     end
 
     # create new dataset record for each row and mark items as ready
     core_records.each do |record|
       dwc_taxon = DatasetRecord::DarwinCore::Taxon.new(import_dataset: self)
-      dwc_taxon.initialize_data_fields(record[:src_data].map { |k, v| v })
-      # dwc_taxon.status = !record[:invalid] && !record[:is_synonym] && record[:parent].nil? ? "Ready" : "NotReady"
+      dwc_taxon.initialize_data_fields(record[:src_data].map { |_, v| v })
       dwc_taxon.status = !record[:error_data] && record[:dependencies] == [] && record[:parent].nil? ? 'Ready' : 'NotReady'
       record.delete(:src_data)
       dwc_taxon.metadata = record
@@ -241,12 +232,12 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
       dwc_taxon.save!
     end
 
-    records[:extensions].each do |extension_type, records|
-      records.each do |record|
+    records[:extensions].each do |extension_type, extension_records|
+      extension_records.each do |record|
         dwc_extension = DatasetRecord::DarwinCore::Extension.new(import_dataset: self)
-        dwc_extension.initialize_data_fields(record.map { |k, v| v })
-        dwc_extension.status = "Unsupported"
-        dwc_extension.metadata = { "type" => extension_type }
+        dwc_extension.initialize_data_fields(record.map { |_, v| v })
+        dwc_extension.status = 'Unsupported'
+        dwc_extension.metadata = { type: extension_type }
 
         dwc_extension.save!
       end
@@ -257,7 +248,7 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
   private
 
   # @param [String, Symbol] column_name
-  # @param [Hash{Symbol -> Any}] record: The record hash to add the error message to
+  # @param [Hash] record: The record hash to add the error message to
   # @param [String] message
   def add_error_message(record, column_name, message)
     record[:error_data] ||= {messages: {}}

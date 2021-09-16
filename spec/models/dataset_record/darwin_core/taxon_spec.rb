@@ -29,8 +29,8 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       DatabaseCleaner.clean
     end
 
-    let(:parent) { TaxonName.find_by_name('Formicidae') }
-    let(:child) { TaxonName.find_by_name('Calyptites') }
+    let(:parent) { TaxonName.find_by(name: 'Formicidae') }
+    let(:child) { TaxonName.find_by(name: 'Calyptites') }
     let(:results) {}
 
     it 'creates and imports two records' do
@@ -58,7 +58,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     end
 
     context 'the saved DwC-A import metadata' do
-      let(:import_attribute) { DataAttribute.find_by_attribute_subject_id(parent.id) }
+      let(:import_attribute) { DataAttribute.find_by(attribute_subject_id: parent.id) }
 
       it 'should have the "DwC-A import metadata" import predicate' do
         expect(import_attribute.import_predicate).to eq('DwC-A import metadata')
@@ -69,7 +69,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       end
 
       it 'should have the correct row metadata' do
-        pending "need to convert from json string to ruby hash"
+        pending 'need to convert from json string to ruby hash'
         expect(import_attribute.value['scientificName']).to eq 'Formicidae'
         expect(import_attribute.value['scientificNameAuthorship']).to eq 'Latreille, 1809'
         expect(import_attribute.value['taxonRank']).to eq 'genus'
@@ -97,7 +97,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
     let(:senior_homonym) { TaxonName.find_by(name: 'barbatus', year_of_publication: 1863) }
     let(:junior_homonym) { TaxonName.find_by(name: 'barbatus', year_of_publication: 1926) }
-    let(:replacement_name) { TaxonName.find_by_cached('Camponotus (Tanaemyrmex) barbosus') }
+    let(:replacement_name) { TaxonName.find_by(cached: 'Camponotus (Tanaemyrmex) barbosus') }
 
     it 'should create 5 imported records' do
       expect(DatasetRecord.all.count).to eq(5)
@@ -106,7 +106,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
     context 'the subgenus' do
       it 'should have three child protonym records' do
-        expect(TaxonName.find_by_name("Tanaemyrmex").descendant_protonyms.length).to eq 3
+        expect(TaxonName.find_by(name: 'Tanaemyrmex').descendant_protonyms.length).to eq 3
       end
     end
 
@@ -115,7 +115,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     end
 
     it 'should have a homonym status' do
-      expect(TaxonNameClassification.find_by_taxon_name_id(TaxonName.find_by(name: 'barbatus', year_of_publication: 1926)).type).to eq('TaxonNameClassification::Iczn::Available::Invalid::Homonym')
+      expect(TaxonNameClassification.find_by(taxon_name_id: TaxonName.find_by(name: 'barbatus', year_of_publication: 1926)).type).to eq('TaxonNameClassification::Iczn::Available::Invalid::Homonym')
     end
 
     it 'should should have a replacement name relationship' do
@@ -128,7 +128,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     end
 
     it 'should have Baroni Urbani as the author of the replacement species' do
-      expect(TaxonName.find_by_name("barbosus").cached_author_year).to eq('Baroni Urbani, 1971')
+      expect(TaxonName.find_by(name: 'barbosus').cached_author_year).to eq('Baroni Urbani, 1971')
     end
 
   end
@@ -151,7 +151,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     end
 
     let(:parent) { TaxonName.find_by(name: 'Apterostigma') }
-    let(:valid) { TaxonName.find_by_cached('Apterostigma auriculatum') }
+    let(:valid) { TaxonName.find_by(cached: 'Apterostigma auriculatum') }
     let(:synonym) { TaxonName.find_by({ name: 'icta' }) }
     let(:synonym_parent) { TaxonName.find_by({ name: 'wasmannii' }) }
 
@@ -228,7 +228,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     end
 
     it 'Anoplolepis longipes should have homonym status' do
-      expect(TaxonNameClassification.find_by_taxon_name_id(TaxonName.find_by(name: 'longipes', year_of_publication: 1851)).type).to eq('TaxonNameClassification::Iczn::Available::Invalid::Homonym')
+      expect(TaxonNameClassification.find_by(taxon_name_id: TaxonName.find_by(name: 'longipes', year_of_publication: 1851)).type).to eq('TaxonNameClassification::Iczn::Available::Invalid::Homonym')
     end
 
     it 'Anoplolepis longipes should be a homonym of Pheidole longipes', :skip do
@@ -237,16 +237,16 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     it 'Formica longipes Jerdon, 1851 should have a replacement of Anoplolepis gracilipes' do
       longipes_jerdon = TaxonName.find_by(name: 'longipes', year_of_publication: 1851)
       relationship = TaxonNameRelationship.find_by({ subject_taxon_name: longipes_jerdon,
-                                                     object_taxon_name: TaxonName.find_by_cached('Anoplolepis gracilipes') })
+                                                     object_taxon_name: TaxonName.find_by(cached: 'Anoplolepis gracilipes') })
       expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym')
     end
 
     it 'Pheidole longipes cached original combination should be Formica longipes' do
-      expect(TaxonName.find_by_cached('Pheidole longipes').cached_original_combination).to eq 'Formica longipes'
+      expect(TaxonName.find_by(cached: 'Pheidole longipes').cached_original_combination).to eq 'Formica longipes'
     end
 
     it 'Anoplolepis longipes valid taxon should be Anoplolepis gracilipes' do
-      expect(TaxonName.find_by_cached('Anoplolepis longipes').cached_valid_taxon_name_id).to eq TaxonName.find_by_cached('Anoplolepis gracilipes').id
+      expect(TaxonName.find_by(cached: 'Anoplolepis longipes').cached_valid_taxon_name_id).to eq TaxonName.find_by(cached: 'Anoplolepis gracilipes').id
     end
 
   end
@@ -286,15 +286,15 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     end
 
     it 'should have the proper author' do
-      expect(TaxonName.find_by_cached('Oecophylla kraussei').cached_author_year).to eq '(Dlussky & Rasnitsyn, 1999)'
+      expect(TaxonName.find_by(cached: 'Oecophylla kraussei').cached_author_year).to eq '(Dlussky & Rasnitsyn, 1999)'
     end
 
     it 'searching for original combination should return current name' do
-      expect(TaxonName.find_by_cached_original_combination('Camponotites kraussei').id).to eq(valid.id)
+      expect(TaxonName.find_by(cached_original_combination: 'Camponotites kraussei').id).to eq(valid.id)
     end
 
     it 'searching for the protonym kraussei should return valid name' do
-      expect(Protonym.find_by_name('kraussei')).to be_is_valid
+      expect(Protonym.find_by(name: 'kraussei')).to be_is_valid
     end
 
   end
@@ -316,9 +316,9 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       DatabaseCleaner.clean
     end
 
-    let(:genus_id) { Protonym.find_by_rank_class(Ranks.lookup(:iczn, :genus)) }
-    let(:species_id) { Protonym.find_by_rank_class(Ranks.lookup(:iczn, :species)) }
-    let(:subspecies_id) { Protonym.find_by_rank_class(Ranks.lookup(:iczn, :subspecies)) }
+    let(:genus_id) { Protonym.find_by(rank_class: Ranks.lookup(:iczn, :genus)) }
+    let(:species_id) { Protonym.find_by(rank_class: Ranks.lookup(:iczn, :species)) }
+    let(:subspecies_id) { Protonym.find_by(rank_class: Ranks.lookup(:iczn, :subspecies)) }
 
     it 'should have three protonyms' do
       expect(Protonym.all.length).to eq 4
@@ -371,17 +371,16 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       DatabaseCleaner.clean
     end
 
-    let(:combination) { TaxonName.find_by_cached('Tapinoma pusillum') }
-    let(:valid) { TaxonName.find_by_name('Arnoldius pusillus') }
+    let(:combination) { TaxonName.find_by(cached: 'Tapinoma pusillum') }
+    let(:valid) { TaxonName.find_by(name: 'Arnoldius pusillus') }
 
     it 'creates and imports six records' do
       verify_all_records_imported(6)
-      # expect(ImportDataset::DarwinCore::Checklist.first.status)
     end
 
     it 'should have one combination' do
       expect(Combination.all.length).to eq 1
-      expect(TaxonName.find_by_cached('Bothriomyrmex pusillus')).to be_a Combination
+      expect(TaxonName.find_by(cached: 'Bothriomyrmex pusillus')).to be_a Combination
     end
 
     it 'Tapinoma pusillum should be the original combination for the Bothriomyrmex pusillus' do
