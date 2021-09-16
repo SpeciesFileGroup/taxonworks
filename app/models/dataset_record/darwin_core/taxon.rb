@@ -158,13 +158,13 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             if (status = get_field_value(:taxonomicStatus)&.downcase)
               type = synonym_classes[nomenclature_code][status.to_sym]
 
-              raise DarwinCore::InvalidData.new({ "taxonomicStatus": ["Couldn't find a status that matched #{status}"] }) if type.nil?
+              raise DarwinCore::InvalidData.new({ "taxonomicStatus": ["Status #{status} did not match synonym, homonym, invalid, unavailable, excluded"] }) if type.nil?
 
-              TaxonNameRelationship.find_or_create_by!(subject_taxon_name: taxon_name, object_taxon_name: valid_name, type: type)
+              taxon_name.taxon_name_relationships.find_or_initialize_by(object_taxon_name: valid_name, type: type)
 
               # Add homonym status (if applicable)
               if status == 'homonym'
-                TaxonNameClassification.find_or_create_by!(taxon_name: taxon_name, type: 'TaxonNameClassification::Iczn::Available::Invalid::Homonym')
+                taxon_name.taxon_name_classifications.find_or_initialize_by(type: 'TaxonNameClassification::Iczn::Available::Invalid::Homonym')
               end
 
             else
@@ -185,7 +185,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
               raise DarwinCore::InvalidData.new({ "taxonomicStatus": ["Couldn't find a status that matched #{status}"] }) if type.nil?
 
-              TaxonNameClassification.find_or_create_by!(taxon_name: taxon_name, type: type)
+              taxon_name.taxon_name_classifications.find_or_initialize_by(type: type)
             end
           end
 
@@ -196,18 +196,6 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
           # current_name_record = find_by_taxonID(get_field_value(:originalNameUsageID))
 
           current_name = Protonym.find(protonym_record.metadata["imported_objects"]["taxon_name"]["id"])
-
-          # if lowest_name.length == 0
-          #   raise DarwinCore::InvalidData.new(
-          #     { "scientificName": ["No protonym matches for #{name} #{protonym_author} #{year}"]
-          #     })
-          #
-          # elsif lowest_name.length > 1
-          #   raise DarwinCore::InvalidData.new(
-          #     { "scientificName":
-          #         ["Multiple protonym matches for  #{name} #{protonym_author} #{year}: #{lowest_name.map { |p| p.id }.join(' ,')}"]
-          #     })
-          # end
 
           # because Combination uses named arguments, we need to get the ranks of the parent names to create the combination
           if parent.is_a?(Combination)
