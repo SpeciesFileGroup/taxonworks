@@ -250,7 +250,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
           metadata['dependants'].each do |dependant_taxonID|
 
-            dependent = import_dataset.core_records.where(id: import_dataset.core_records_fields
+            dependent = DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
                                                                             .at(get_field_mapping(:taxonID))
                                                                             .where(value: dependant_taxonID)
                                                                             .select(:dataset_record_id)
@@ -258,7 +258,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
             dependency_taxon_ids = dependent.metadata["dependencies"]
 
-            dependencies = import_dataset.core_records.where(id: import_dataset.core_records_fields
+            dependencies = DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
                                                                                .at(get_field_mapping(:taxonID))
                                                                                .where(value: dependency_taxon_ids.map { |d| d.to_s })
                                                                                .select(:dataset_record_id)
@@ -305,7 +305,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
   private
 
   def get_parent
-    import_dataset.core_records.where(id: import_dataset.core_records_fields
+    DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
                                                         .at(get_field_mapping(:taxonID))
                                                         .with_value(get_field_value(:parentNameUsageID))
                                                         .select(:dataset_record_id)
@@ -313,7 +313,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
   end
 
   def get_original_combination
-    import_dataset.core_records.where(id: import_dataset.core_records_fields
+    DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
                                                         .at(get_field_mapping(:taxonID))
                                                         .with_value(get_field_value(:originalNameUsageID))
                                                         .select(:dataset_record_id)
@@ -321,7 +321,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
   end
 
   def find_by_taxonID(taxon_id)
-    import_dataset.core_records.where(id: import_dataset.core_records_fields
+    DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
                                                         .at(get_field_mapping(:taxonID))
                                                         .with_value(taxon_id.to_s)
                                                         .select(:dataset_record_id)
