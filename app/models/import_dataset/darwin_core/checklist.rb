@@ -82,11 +82,15 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
 
       # TODO handle when originalNameUsageID is not present
 
-      if records_lut[record[:src_data]["originalNameUsageID"]].nil?
-        record[:invalid] = 'originalNameUsageID not found in dataset'
+      if record[:src_data]['originalNameUsageID'].blank?
+        add_error_message(record, :originalNameUsageID, 'originalNameUsageID must not be blank')
+      end
+
+      if records_lut[record[:src_data]['originalNameUsageID']].nil?
+        add_error_message(record, :originalNameUsageID, 'originalNameUsageID not found in dataset')
         next
       end
-      oc_index = records_lut[record[:src_data]["originalNameUsageID"]][:index]
+      oc_index = records_lut[record[:src_data]['originalNameUsageID']][:index]
 
       original_combination_groups[oc_index] ||= []
       original_combination_groups[oc_index] << index
@@ -100,7 +104,7 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
 
       if records_lut[core_records[oc_index][:src_data]['acceptedNameUsageID']].nil?
         name_items.each do |i|
-          core_records[i][:invalid] = 'acceptedNameUsageID not found in dataset'
+          add_error_message(core_records[i], :acceptedNameUsageID, 'acceptedNameUsageID not found in dataset')
         end
         next
       end
@@ -193,7 +197,7 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
         #   record[:synonym_of] = acceptedNameUsage[:index]
         #   acceptedNameUsage[:synonyms] << record[:index]
         # end
-        record[:invalid] = "acceptedNameUsageID '#{record[:src_data]["acceptedNameUsageID"]}' not found"
+        add_error_message(record, :acceptedNameUsageID, "acceptedNameUsageID '#{record[:src_data]["acceptedNameUsageID"]}' not found")
       end
 
       record[:parent] = nil if record[:parent].blank?
@@ -205,7 +209,7 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
       # set type as combination or protonym based on authorship being in parentheses
       unless parse_results[:details]
         record[:type] = :unknown
-        record[:invalid] = "Name could not be parsed"
+        add_error_message(record, :scientificName, "Scientific name #{record[:src_data][:scientificName]} could not be parsed" )
       end
 
       unless record[:parent].nil?
@@ -214,7 +218,7 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
           record[:dependencies] << parent_index
           core_records[parent_index][:dependants] << record[:index]
         else
-          record[:invalid] = 'parentNameUsageID not found in dataset'
+          add_error_message(record, :parentNameUsageID, 'parentNameUsageID not found in dataset')
         end
       end
     end
@@ -230,7 +234,7 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
       dwc_taxon = DatasetRecord::DarwinCore::Taxon.new(import_dataset: self)
       dwc_taxon.initialize_data_fields(record[:src_data].map { |k, v| v })
       # dwc_taxon.status = !record[:invalid] && !record[:is_synonym] && record[:parent].nil? ? "Ready" : "NotReady"
-      dwc_taxon.status = !record[:invalid] && record[:dependencies] == [] && record[:parent].nil? ? "Ready" : "NotReady"
+      dwc_taxon.status = !record[:error_data] && record[:dependencies] == [] && record[:parent].nil? ? 'Ready' : 'NotReady'
       record.delete(:src_data)
       dwc_taxon.metadata = record
 
@@ -248,6 +252,21 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
       end
     end
 
+  end
+
+  private
+
+  # @param [String, Symbol] column_name
+  # @param [Hash{Symbol -> Any}] record: The record hash to add the error message to
+  # @param [String] message
+  def add_error_message(record, column_name, message)
+    record[:error_data] ||= {messages: {}}
+
+    if (arry = record.dig(:error_data, :messages, column_name.to_sym))
+      arry << message
+    else
+      record[:error_data][:messages][column_name.to_sym] = [message]
+    end
   end
 
 end
