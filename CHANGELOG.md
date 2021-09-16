@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Added project_source as a preferred for source autocomplete
 - Added soft validation of cached values with fix.
 - Custom .csl support for BibTeX reference formating (see .csl styles at bottom of select list). New .cls submitted via issue tracker and integrated to source.
 - New .csl style 'world_chalcidoidea_book.csl"

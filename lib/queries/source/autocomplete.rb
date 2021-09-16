@@ -205,15 +205,17 @@ module Queries
 
           if project_id && limit_to_project
             a = q.joins(:project_sources).where(member_of_project_id.to_sql)
+          elsif member_of_project_id
+            a = q.left_outer_joins(:project_sources).where(member_of_project_id.to_sql)
           end
 
           # order results by number of times used
           if scope
-            a = q.left_outer_joins(:citations)
-              .select('sources.*, COUNT(citations.id) AS use_count, MAX(citations.project_id) AS in_project_id')
+            a = a.left_outer_joins(:citations)
+              .select('sources.*, COUNT(citations.id) AS use_count, MAX(citations.project_id) AS in_project_id, project_sources.id AS project_source_id')
               .where('citations.project_id = ? OR citations.project_id IS NULL', project_id)
-              .group('sources.id')
-              .order('in_project_id, use_count DESC')
+              .group('sources.id, project_sources.id')
+              .order('in_project_id, use_count DESC, project_source_id')
           end
 
           a ||= q
