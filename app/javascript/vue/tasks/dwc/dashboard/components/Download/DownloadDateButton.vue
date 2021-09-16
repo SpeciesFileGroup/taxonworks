@@ -45,7 +45,8 @@ onBeforeMount(async () => {
     {
       ...props.params,
       user_date_end: getPastDateByDays(0),
-      user_date_start: getPastDateByDays(Number(props.days))
+      user_date_start: getPastDateByDays(Number(props.days)),
+      per: 1
     }
   )).headers['pagination-total']
 })
