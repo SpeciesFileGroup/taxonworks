@@ -7,14 +7,6 @@ GIT
       ffi (~> 1.14)
 
 GIT
-  remote: https://github.com/GlobalNamesArchitecture/gnfinder.git
-  revision: 11dc80f32baca255b34b4c04855c57cb98fcebfa
-  tag: v0.15.4.1
-  specs:
-    gnfinder (0.15.4.1)
-      rest-client (~> 2.1)
-
-GIT
   remote: https://github.com/LocoDelAssembly/dwc-archive.git
   revision: 86fa4e19cc8522ec0208eb847ad319c88c88f43c
   branch: overhaul
@@ -209,6 +201,8 @@ GEM
     formatador (0.3.0)
     globalid (0.5.2)
       activesupport (>= 5.0)
+    gnfinder (0.15.4.1)
+      rest-client (~> 2.1)
     gpx (1.0.0)
       nokogiri (~> 1.7)
       rake
@@ -638,7 +632,7 @@ DEPENDENCIES
   factory_bot_rails (~> 6.2)
   faker (~> 2.10)
   ffi-geos (~> 2.2.0)
-  gnfinder!
+  gnfinder (~> 0.15.4)
   gpx (~> 1.0.0)
   groupdate (~> 4.2)
   guard-rspec (~> 4.7.3)
