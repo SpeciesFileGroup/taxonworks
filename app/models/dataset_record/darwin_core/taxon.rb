@@ -235,35 +235,15 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
         if self.status == "Imported"
           # loop over dependants, see if all other dependencies are met, if so mark them as ready
-
           metadata['dependants'].each do |dependant_taxonID|
-
-            dependent = DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
-                                                                            .at(get_field_mapping(:taxonID))
-                                                                            .where(value: dependant_taxonID)
-                                                                            .select(:dataset_record_id)
-            ).first
-
-            dependency_taxon_ids = dependent.metadata["dependencies"]
-
-            dependencies = DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
-                                                                               .at(get_field_mapping(:taxonID))
-                                                                               .where(value: dependency_taxon_ids.map { |d| d.to_s })
-                                                                               .select(:dataset_record_id)
-            )
-
-            if dependencies.all? { |d| d[:status] == "Imported" }
-              dependent.update(status: "Ready")
+            if dependencies_imported?(dependant_taxonID)
+              DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
+                                                                       .at(get_field_mapping(:taxonID))
+                                                                       .where(value: dependant_taxonID)
+                                                                       .select(:dataset_record_id)
+              ).first.update!(status: 'Ready')
             end
-
           end
-
-          # import_dataset.core_records.where(status: "NotReady")
-          #   .where(id: import_dataset.core_records_fields
-          #     .at([get_field_mapping(:parentNameUsageID), get_field_mapping(:acceptedNameUsageID)])
-          #     .with_value(taxon_id)
-          #     .select(:dataset_record_id)
-          #   ).update_all(status: "Ready")
         end
       end
     rescue DarwinCore::InvalidData => invalid
@@ -292,32 +272,57 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
   private
 
+  # @return [DatasetRecord::DarwinCore::Taxon, Array<DatasetRecord::DarwinCore::Taxon>]
   def get_parent
     DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
-                                                        .at(get_field_mapping(:taxonID))
-                                                        .with_value(get_field_value(:parentNameUsageID))
-                                                        .select(:dataset_record_id)
+                                                             .at(get_field_mapping(:taxonID))
+                                                             .with_value(get_field_value(:parentNameUsageID))
+                                                             .select(:dataset_record_id)
     ).first
   end
 
+  # @return [DatasetRecord::DarwinCore::Taxon, Array<DatasetRecord::DarwinCore::Taxon>]
   def get_original_combination
     DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
-                                                        .at(get_field_mapping(:taxonID))
-                                                        .with_value(get_field_value(:originalNameUsageID))
-                                                        .select(:dataset_record_id)
+                                                             .at(get_field_mapping(:taxonID))
+                                                             .with_value(get_field_value(:originalNameUsageID))
+                                                             .select(:dataset_record_id)
     ).first
   end
 
+  # @return [DatasetRecord::DarwinCore::Taxon, Array<DatasetRecord::DarwinCore::Taxon>]
   def find_by_taxonID(taxon_id)
     DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
-                                                        .at(get_field_mapping(:taxonID))
-                                                        .with_value(taxon_id.to_s)
-                                                        .select(:dataset_record_id)
+                                                             .at(get_field_mapping(:taxonID))
+                                                             .with_value(taxon_id.to_s)
+                                                             .select(:dataset_record_id)
     ).first
   end
 
+  # @return [TaxonName]
   def get_taxon_name_from_taxon_id(taxon_id)
-    TaxonName.find(find_by_taxonID(taxon_id).metadata["imported_objects"]["taxon_name"]["id"])
+    TaxonName.find(DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
+                                                                            .at(get_field_mapping(:taxonID))
+                                                                            .with_value(taxon_id.to_s)
+                                                                            .select(:dataset_record_id)
+    ).pick(:metadata)['imported_objects']['taxon_name']['id'])
+  end
+
+  # Check if all dependencies of a taxonID are imported
+  def dependencies_imported?(taxon_id)
+    dependency_taxon_ids = DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
+                                                                         .at(get_field_mapping(:taxonID))
+                                                                         .with_value(taxon_id.to_s)
+                                                                         .select(:dataset_record_id)
+    ).pick(:metadata)['dependencies']
+
+    DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
+                                                                            .at(get_field_mapping(:taxonID))
+                                                                            .with_values(dependency_taxon_ids.map { |d| d.to_s })
+                                                                            .select(:dataset_record_id)
+    ).where(status: 'Imported').count == dependency_taxon_ids.length
+
+
   end
 
   # TODO fix ready check for dependencies
