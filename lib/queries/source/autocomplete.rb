@@ -206,7 +206,7 @@ module Queries
           if project_id && limit_to_project
             a = a.joins(:project_sources).where(member_of_project_id.to_sql)
           elsif member_of_project_id
-            a = a.left_outer_joins(:project_sources).where(member_of_project_id.to_sql)
+            a = a.left_outer_joins(:project_sources).where(project_sources_table[:project_id].eq(nil).or(member_of_project_id).to_sql)
           end
 
           # order results by number of times used
