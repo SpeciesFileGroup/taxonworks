@@ -295,6 +295,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
           backtrace: e.backtrace
         }
       }
+    ensure
       save!
     end
 
