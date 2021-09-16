@@ -201,12 +201,12 @@ module Queries
         result = []
 
         queries.each do |q, scope|
-          a = nil
+          a = q
 
           if project_id && limit_to_project
-            a = q.joins(:project_sources).where(member_of_project_id.to_sql)
+            a = a.joins(:project_sources).where(member_of_project_id.to_sql)
           elsif member_of_project_id
-            a = q.left_outer_joins(:project_sources).where(member_of_project_id.to_sql)
+            a = a.left_outer_joins(:project_sources).where(member_of_project_id.to_sql)
           end
 
           # order results by number of times used
