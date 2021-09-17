@@ -108,7 +108,7 @@ const setIsPublic = ({ id, is_public }, index) => {
 
 const downloadFile = (url) => { window.open(url) }
 
-watch(useState.downloadList, () => {
+watch(() => useState.downloadList, () => {
   clearTimeout(timeout)
   refreshDownloadList()
 }, { deep: true })
