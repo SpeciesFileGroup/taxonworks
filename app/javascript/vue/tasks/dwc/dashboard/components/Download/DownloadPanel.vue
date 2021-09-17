@@ -56,7 +56,7 @@ const useState = inject('state')
 const downloadCount = computed(() => useState?.metadata?.index?.record_total)
 
 const download = async (downloadParams) => {
-  useAction.addDownloadRecord((await DwcOcurrence.generateDownload({ ...props.params, ...downloadParams })).body)
+  useAction.addDownloadRecord((await DwcOcurrence.generateDownload({ ...props.params, ...downloadParams, dwc_indexed: true })).body)
 }
 
 </script>
