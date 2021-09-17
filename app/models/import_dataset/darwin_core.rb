@@ -137,7 +137,7 @@ class ImportDataset::DarwinCore < ImportDataset
       end
       records = records.where(id: start_id..) if start_id
 
-      records = core_records.where(id: record_id) if record_id
+      records = core_records.where(id: record_id, status: status) if record_id
 
       records = records.all
       start_time = Time.now - lock_time

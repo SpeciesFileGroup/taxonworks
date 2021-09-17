@@ -49,6 +49,12 @@ class DatasetRecord::DarwinCore < DatasetRecord
       .reject(&:nil?)
   end
 
+  def import(dwc_data_attributes = {})
+    raise DatasetRecord::DarwinCore::InvalidData.new(
+      {status: ["Import attempted with '#{status}' status"]}
+    ) if %w{NotReady Imported Unsupported}.include?(status)
+  end
+
   private
 
   # Re-implemented method from DatasetRecord
