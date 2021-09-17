@@ -108,13 +108,20 @@ const setIsPublic = ({ id, is_public }, index) => {
 
 const downloadFile = (url) => { window.open(url) }
 
+const sortByDate = (list) => list.sort((a, b) => {
+  const dateA = new Date(a.created_at).getTime()
+  const dateB = new Date(b.created_at).getTime()
+
+  return dateB - dateA
+})
+
 watch(() => useState.downloadList, () => {
   clearTimeout(timeout)
   refreshDownloadList()
 }, { deep: true })
 
 onBeforeMount(async () => {
-  useState.downloadList = (await Download.where({ download_type: DOWNLOAD_DWC_ARCHIVE })).body
+  useState.downloadList = sortByDate((await Download.where({ download_type: DOWNLOAD_DWC_ARCHIVE })).body)
 })
 
 </script>

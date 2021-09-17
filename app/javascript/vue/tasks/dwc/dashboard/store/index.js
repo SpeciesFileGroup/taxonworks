@@ -18,7 +18,7 @@ const setDownloadRecord = async ({ index, record }) => {
 }
 
 const addDownloadRecord = (record) => {
-  state.downloadList.push(record)
+  state.downloadList.unshift(record)
 }
 
 const actions = {
