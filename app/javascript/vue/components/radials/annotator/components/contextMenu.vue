@@ -119,7 +119,7 @@ export default {
 
   .context-menu {
     box-sizing: border-box;
-    transform: translateX(calc(-50%+24px));
+    transform: translateX(calc(-50% + 24px));
     z-index: 999;
     position: absolute;
     background-color: white;

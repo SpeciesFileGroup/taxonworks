@@ -229,7 +229,7 @@ export default {
   .fixed-bar {
     position: fixed;
     top:0px;
-    width: calc(100%-52px);
+    width: calc(100% - 52px);
     z-index:200;
   }
 </style>
