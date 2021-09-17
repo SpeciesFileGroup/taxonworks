@@ -53,6 +53,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   end
 
   def import(dwc_data_attributes = {})
+    super
     begin
       DatasetRecord.transaction(requires_new: true) do
         self.metadata.delete("error_data")

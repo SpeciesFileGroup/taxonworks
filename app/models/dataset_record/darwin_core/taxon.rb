@@ -12,6 +12,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
   PARSE_DETAILS_KEYS = %i(uninomial genus species infraspecies)
 
   def import(dwc_data_attributes = {})
+    super
     begin
       DatasetRecord.transaction do
         self.metadata.delete("error_data")
