@@ -36,6 +36,7 @@ const count = ref()
 
 const handleClick = () => {
   emit('onDate', {
+    user_date_end: getPastDateByDays(0),
     user_date_start: getPastDateByDays(Number(props.days)),
     per: count.value
   })
