@@ -7,5 +7,5 @@ export default ({ commit }) => {
   const initState = makeInitialState()
 
   commit(MutationNames.SetState, initState)
-  SetParam(RouteNames.DwcImport)
+  SetParam(RouteNames.DwcImport, 'import_dataset_id')
 }
