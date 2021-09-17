@@ -28,7 +28,7 @@ module Export
       )
 
       # Note we pass a string with the record scope
-      ::DwcaCreateDownloadJob.perform_later(download, core_scope: record_scope.order(:id).to_sql)
+      ::DwcaCreateDownloadJob.perform_later(download, core_scope: record_scope.order('collection_objects.id').to_sql)
 
       download
     end

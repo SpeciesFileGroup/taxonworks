@@ -41,7 +41,7 @@ module Export::Dwca
     end
 
     def total
-      @total ||= core_scope.count
+      @total ||= core_scope.size
     end
 
     # @return [CSV]
