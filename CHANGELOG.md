@@ -24,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Autofocus in New taxon name task [#2523]
 - Geographic area counts as georeference. Soft validations are sometimes loaded before saving georeferences [#2519]
 - `import_dataset_id` parameter persist on after resetState in DwC Importer [#2529]
+- Updated Ruby gems and Node packages
 
 ### Changed
 - Status name 'not for nomenclature' changed to 'not in published work'
