@@ -1,54 +1,57 @@
 <template>
-  <h2>Recently created DwC Archives</h2>
-  <table>
-    <thead>
-      <tr>
-        <th
-          v-for="header in PROPERTIES"
-          :key="header">
-          {{ humanize(header) }}
-        </th>
-        <th>Is public</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr
-        v-for="(item, index) in list"
-        :key="item.id">
-        <td
-          v-for="property in PROPERTIES"
-          :key="property">
-          {{ item[property] }}
-        </td>
-        <td>
-          <input
-            type="checkbox"
-            :checked="item.is_public"
-            @click="setIsPublic(item, index)"
-          >
-        </td>
-        <td>
-          <v-btn
-            color="primary"
-            medium
-            :disabled="!item.ready"
-            @click="downloadFile(item.file_url)"
-          >
-            {{
-              item.ready
-                ? 'Download'
-                : 'Processing...'
-            }}
-          </v-btn>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="panel content">
+    <h2>Recently created DwC Archives</h2>
+    <table>
+      <thead>
+        <tr>
+          <th
+            v-for="header in PROPERTIES"
+            :key="header">
+            {{ humanize(header) }}
+          </th>
+          <th>Is public</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="(item, index) in useState.downloadList"
+          :key="item.id">
+          <td
+            v-for="property in PROPERTIES"
+            :key="property">
+            {{ item[property] }}
+          </td>
+          <td>
+            <input
+              type="checkbox"
+              :checked="item.is_public"
+              @click="setIsPublic(item, index)"
+            >
+          </td>
+          <td>
+            <v-btn
+              color="primary"
+              medium
+              :disabled="!item.ready"
+              @click="downloadFile(item.file_url)"
+            >
+              {{
+                item.ready
+                  ? 'Download'
+                  : 'Processing...'
+              }}
+            </v-btn>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
 <script setup>
 
-import { watch } from 'vue'
+import { inject, onBeforeMount, watch } from 'vue'
+import { DOWNLOAD_DWC_ARCHIVE } from 'constants/index.js'
 import { Download } from 'routes/endpoints'
 import { humanize } from 'helpers/strings'
 import VBtn from 'components/ui/VBtn/index.vue'
@@ -61,19 +64,14 @@ const PROPERTIES = [
   'times_downloaded'
 ]
 
-const props = defineProps({
-  list: {
-    type: Array,
-    required: true
-  }
-})
-
 const emit = defineEmits(['onUpdate'])
+const useState = inject('state')
+const useAction = inject('actions')
 
 let timeout
 
 const refreshDownloadList = () => {
-  const requestDownloadProcessing = props.list
+  const requestDownloadProcessing = useState.downloadList
     .filter(item => !item.ready)
     .map(item => Download.find(item.id))
 
@@ -83,9 +81,8 @@ const refreshDownloadList = () => {
 
     downloadReady.forEach(record => {
       if (record.ready) {
-        const index = props.list.findIndex(item => item.id === record.id)
-
-        emit('onUpdate', { index, record })
+        const index = useState.downloadList.findIndex(item => item.id === record.id)
+        useAction.setDownloadRecord({ index, record })
       }
     })
 
@@ -102,7 +99,7 @@ const setIsPublic = ({ id, is_public }, index) => {
   }
 
   Download.update(id, { download }).then(({ body }) => {
-    emit('onUpdate', {
+    useAction.setDownloadRecord({
       index,
       record: body
     })
@@ -111,9 +108,13 @@ const setIsPublic = ({ id, is_public }, index) => {
 
 const downloadFile = (url) => { window.open(url) }
 
-watch(() => props.list, () => {
+watch(useState.downloadList, () => {
   clearTimeout(timeout)
   refreshDownloadList()
 }, { deep: true })
+
+onBeforeMount(async () => {
+  useState.downloadList = (await Download.where({ download_type: DOWNLOAD_DWC_ARCHIVE })).body
+})
 
 </script>

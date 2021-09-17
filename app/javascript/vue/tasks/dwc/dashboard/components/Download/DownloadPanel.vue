@@ -7,7 +7,7 @@
         color="create"
         medium
         :disabled="!downloadCount"
-        @click="download()">
+        @click="download({ per: downloadCount })">
         All ({{ downloadCount }})
       </v-btn>
     </div>
@@ -28,19 +28,11 @@
       Create DwC Archive by filtered collection object result
     </filter-link>
   </div>
-
-  <div class="panel content">
-    <download-recent
-      :list="downloadList"
-      @onUpdate="setRecord"/>
-  </div>
 </template>
 <script setup>
 
-import { DwcOcurrence, Download } from 'routes/endpoints'
-import { ref, onBeforeMount, inject, computed } from 'vue'
-import { DOWNLOAD_DWC_ARCHIVE } from 'constants/index.js'
-import DownloadRecent from './DownloadRecent.vue'
+import { DwcOcurrence } from 'routes/endpoints'
+import { inject, computed } from 'vue'
 import DownloadDateButton from './DownloadDateButton.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import FilterLink from '../FilterLink.vue'
@@ -59,20 +51,12 @@ const props = defineProps({
   }
 })
 
+const useAction = inject('actions')
 const useState = inject('state')
-const downloadList = ref([])
 const downloadCount = computed(() => useState?.metadata?.index?.record_total)
 
 const download = async (downloadParams) => {
-  downloadList.value.push((await DwcOcurrence.generateDownload({ ...props.params, ...downloadParams })).body)
+  useAction.addDownloadRecord((await DwcOcurrence.generateDownload({ ...props.params, ...downloadParams })).body)
 }
-
-const setRecord = ({ index, record }) => {
-  downloadList.value[index] = record
-}
-
-onBeforeMount(async () => {
-  downloadList.value = (await Download.where({ download_type: DOWNLOAD_DWC_ARCHIVE })).body
-})
 
 </script>

@@ -3,6 +3,7 @@
   <div id="dwc-dashboard">
     <download-panel :params="params" />
     <graph-component />
+    <download-recent />
     <reindex-panel :params="params" />
     <collector-table />
   </div>
@@ -16,6 +17,7 @@ import DownloadPanel from './components/Download/DownloadPanel.vue'
 import ReindexPanel from './components/Reindex/ReindexPanel.vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import CollectorTable from './components/Collector/CollectorTable.vue'
+import DownloadRecent from './components/Download/DownloadRecent.vue'
 
 const params = URLParamsToJSON(location.href)
 

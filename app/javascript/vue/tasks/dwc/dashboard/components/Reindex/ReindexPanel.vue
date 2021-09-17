@@ -1,5 +1,5 @@
 <template>
-  <div class="panel reindex__panel">
+  <div class="panel">
     <progress-bar
       :reindex="reindexRequest"
       @onReady="useActions.getMetadata"/>
@@ -69,8 +69,4 @@ const runUnindexed = async per => {
 }
 
 </script>
-<style scoped>
-  .reindex__panel {
-    grid-column: 2 / 3
-  }
-</style>
+

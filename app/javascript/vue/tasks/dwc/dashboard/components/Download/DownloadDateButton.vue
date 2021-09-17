@@ -36,12 +36,13 @@ const count = ref()
 
 const handleClick = () => {
   emit('onDate', {
-    user_date_start: getPastDateByDays(Number(props.days))
+    user_date_start: getPastDateByDays(Number(props.days)),
+    per: count.value
   })
 }
 
 onBeforeMount(async () => {
-  count.value = (await CollectionObject.where(
+  const total = (await CollectionObject.where(
     {
       ...props.params,
       user_date_end: getPastDateByDays(0),
@@ -49,6 +50,8 @@ onBeforeMount(async () => {
       per: 1
     }
   )).headers['pagination-total']
+
+  count.value = Number(total)
 })
 
 </script>

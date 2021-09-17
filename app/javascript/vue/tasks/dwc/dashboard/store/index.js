@@ -3,7 +3,8 @@ import { DwcOcurrence } from 'routes/endpoints'
 
 const state = reactive({
   metadata: undefined,
-  isLoadingMetadata: false
+  isLoadingMetadata: false,
+  downloadList: []
 })
 
 const getMetadata = async () => {
@@ -12,8 +13,18 @@ const getMetadata = async () => {
   state.isLoadingMetadata = false
 }
 
+const setDownloadRecord = async ({ index, record }) => {
+  state.downloadList[index] = record
+}
+
+const addDownloadRecord = (record) => {
+  state.downloadList.push(record)
+}
+
 const actions = {
-  getMetadata
+  addDownloadRecord,
+  getMetadata,
+  setDownloadRecord
 }
 
 export {
