@@ -15,7 +15,7 @@ module Shared::IsDwcOccurrence
     after_save :set_dwc_occurrence, unless: -> { no_dwc_occurrence }
 
     scope :dwc_indexed, -> {joins(:dwc_occurrence)}
-    scope :dwc_not_indexed, -> { includes(:dwc_occurrence).where(dwc_occurrences: {id: nil}) }
+    scope :dwc_not_indexed, -> { where.missing(:dwc_occurrence) }
   end
 
   module ClassMethods
@@ -79,7 +79,6 @@ module Shared::IsDwcOccurrence
   # @return [Array]
   #   an array of the values presently computed for this occurrence
   def dwc_occurrence_attribute_values(mode = :all)
-    a =
     [id, dwc_occurrence.id] + self.class.dwc_attribute_vector(mode)[2..-1].collect{|a| a.name}.collect{|f| dwc_occurrence.send(f) }
   end
 

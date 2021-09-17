@@ -131,23 +131,24 @@ class CollectionObject < ApplicationRecord
 
   accepts_nested_attributes_for :collecting_event, allow_destroy: true, reject_if: :reject_collecting_event
 
+  before_validation :assign_type_if_total_or_ranged_lot_category_id_provided
+
   validates_presence_of :type
   validate :check_that_either_total_or_ranged_lot_category_id_is_present
   validate :check_that_both_of_category_and_total_are_not_present
-
   validate :collecting_event_belongs_to_project
 
-  before_validation :assign_type_if_total_or_ranged_lot_category_id_provided
+  soft_validate(
+    :sv_missing_accession_fields,
+    set: :missing_accession_fields,
+    name: 'Missing accession fields',
+    description: 'Name or Provider are not selected')
 
-  soft_validate(:sv_missing_accession_fields,
-                set: :missing_accession_fields,
-                name: 'Missing accession fields',
-                description: 'Name or Provider are not selected')
-
-  soft_validate(:sv_missing_deaccession_fields,
-                set: :missing_deaccession_fields,
-                name: 'Missing deaccesson fields',
-                description: 'Date, recipient, or reason are not specified')
+  soft_validate(
+    :sv_missing_deaccession_fields,
+    set: :missing_deaccession_fields,
+    name: 'Missing deaccesson fields',
+    description: 'Date, recipient, or reason are not specified')
 
   scope :with_sequence_name, ->(name) { joins(sequence_join_hack_sql).where(sequences: {name: name}) }
   scope :via_descriptor, ->(descriptor) { joins(sequence_join_hack_sql).where(sequences: {id: descriptor.sequences}) }

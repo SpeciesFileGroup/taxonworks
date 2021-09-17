@@ -727,7 +727,7 @@ ActiveRecord::Schema.define(version: 2021_09_12_175201) do
     t.string "identificationRemarks"
     t.string "identificationVerificationStatus"
     t.string "identifiedBy"
-    t.string "individualCount"
+    t.integer "individualCount"
     t.string "informationWithheld"
     t.string "infraspecificEpithet"
     t.string "institutionCode"
@@ -832,6 +832,8 @@ ActiveRecord::Schema.define(version: 2021_09_12_175201) do
     t.integer "project_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string "identifiedByID"
+    t.string "recordedByID"
     t.index ["project_id"], name: "index_dwc_occurrences_on_project_id"
   end
 
@@ -936,6 +938,7 @@ ActiveRecord::Schema.define(version: 2021_09_12_175201) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.string "type", null: false
+    t.index "st_centroid(\nCASE type\n    WHEN 'GeographicItem::MultiPolygon'::text THEN (multi_polygon)::geometry\n    WHEN 'GeographicItem::Point'::text THEN (point)::geometry\n    WHEN 'GeographicItem::LineString'::text THEN (line_string)::geometry\n    WHEN 'GeographicItem::Polygon'::text THEN (polygon)::geometry\n    WHEN 'GeographicItem::MultiLineString'::text THEN (multi_line_string)::geometry\n    WHEN 'GeographicItem::MultiPoint'::text THEN (multi_point)::geometry\n    WHEN 'GeographicItem::GeometryCollection'::text THEN (geometry_collection)::geometry\n    ELSE NULL::geometry\nEND)", name: "idx_centroid", using: :gist
     t.index ["created_by_id"], name: "index_geographic_items_on_created_by_id"
     t.index ["geometry_collection"], name: "geometry_collection_gix", using: :gist
     t.index ["line_string"], name: "line_string_gix", using: :gist
@@ -1063,7 +1066,7 @@ ActiveRecord::Schema.define(version: 2021_09_12_175201) do
     t.datetime "updated_at", null: false
     t.string "type"
     t.index ["created_by_id"], name: "labels_created_by_id_index"
-    t.index ["label_object_type", "label_object_id"], name: "index_labels_on_label_object_type_and_label_object_id"
+    t.index ["label_object_type", "label_object_id"], name: "index_labels_on_label_object"
     t.index ["project_id"], name: "index_labels_on_project_id"
     t.index ["updated_by_id"], name: "labels_updated_by_id_index"
   end
@@ -1321,8 +1324,8 @@ ActiveRecord::Schema.define(version: 2021_09_12_175201) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["created_by_id"], name: "index_origin_relationships_on_created_by_id"
-    t.index ["new_object_type", "new_object_id"], name: "index_origin_relationships_on_new_object_type_and_new_object_id"
-    t.index ["old_object_type", "old_object_id"], name: "index_origin_relationships_on_old_object_type_and_old_object_id"
+    t.index ["new_object_type", "new_object_id"], name: "index_origin_relationships_on_new_object"
+    t.index ["old_object_type", "old_object_id"], name: "index_origin_relationships_on_old_object"
     t.index ["project_id"], name: "index_origin_relationships_on_project_id"
     t.index ["updated_by_id"], name: "index_origin_relationships_on_updated_by_id"
   end
@@ -1407,7 +1410,7 @@ ActiveRecord::Schema.define(version: 2021_09_12_175201) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["created_by_id"], name: "index_pinboard_items_on_created_by_id"
-    t.index ["pinned_object_type", "pinned_object_id"], name: "index_pinboard_items_on_pinned_object_type_and_pinned_object_id"
+    t.index ["pinned_object_type", "pinned_object_id"], name: "index_pinboard_items_on_pinned_object"
     t.index ["position"], name: "index_pinboard_items_on_position"
     t.index ["project_id"], name: "index_pinboard_items_on_project_id"
     t.index ["updated_by_id"], name: "index_pinboard_items_on_updated_by_id"
@@ -1935,7 +1938,9 @@ ActiveRecord::Schema.define(version: 2021_09_12_175201) do
     t.datetime "last_seen_at"
     t.integer "time_active", default: 0
     t.json "preferences", default: {}
+    t.bigint "person_id"
     t.index ["created_by_id"], name: "index_users_on_created_by_id"
+    t.index ["person_id"], name: "index_users_on_person_id"
     t.index ["remember_token"], name: "index_users_on_remember_token"
     t.index ["updated_by_id"], name: "index_users_on_updated_by_id"
   end
@@ -2284,6 +2289,7 @@ ActiveRecord::Schema.define(version: 2021_09_12_175201) do
   add_foreign_key "type_materials", "taxon_names", column: "protonym_id", name: "type_materials_protonym_id_fkey"
   add_foreign_key "type_materials", "users", column: "created_by_id", name: "type_materials_created_by_id_fkey"
   add_foreign_key "type_materials", "users", column: "updated_by_id", name: "type_materials_updated_by_id_fkey"
+  add_foreign_key "users", "people"
   add_foreign_key "users", "users", column: "created_by_id", name: "users_created_by_id_fkey"
   add_foreign_key "users", "users", column: "updated_by_id", name: "users_updated_by_id_fkey"
 end

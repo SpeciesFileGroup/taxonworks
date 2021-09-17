@@ -53,7 +53,6 @@ class DwcOccurrence < ApplicationRecord
   validates_presence_of :basisOfRecord
 
   validates :dwc_occurrence_object, presence: true
-  # validates_uniqueness_of :dwc_occurrence_object_id, scope: [:dwc_occurrence_object_type,:project_id]
   validates :dwc_occurrence_object_id, uniqueness: { scope: [:dwc_occurrence_object_type,:project_id] }
 
   attr_accessor :occurrence_identifier

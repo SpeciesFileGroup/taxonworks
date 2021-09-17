@@ -24,7 +24,7 @@ module Export
         filename: name,
         request: request,
         expires: 2.days.from_now,
-        total_records: record_scope.count # TODO: increment after when extensions are allowed.
+        total_records: record_scope.size # Was haveing problems with count() TODO: increment after when extensions are allowed.
       )
 
       # Note we pass a string with the record scope
@@ -54,7 +54,7 @@ module Export
       a = record_scope.first&.to_global_id&.to_s
       b = record_scope.last&.to_global_id&.to_s
 
-      t = record_scope.count
+      t = record_scope.size # was haveing problems with count
 
       metadata = {
         total: t,

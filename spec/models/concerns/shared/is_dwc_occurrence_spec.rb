@@ -6,6 +6,21 @@ describe 'IsDwcOccurrence', type: :model, group: :darwin_core do
   let(:collection_object) { FactoryBot.create(:valid_specimen) }
   let(:dwc_occurrence) {class_with_dwc_occurrence.dwc_occurrence}
 
+  specify '.dwc_not_indexed' do
+    TestIsDwcOccurrence.create!(no_dwc_occurrence: true)
+    expect(TestIsDwcOccurrence.dwc_not_indexed.all.count).to eq(1)
+  end
+
+  specify '.dwc_not_indexed' do
+    TestIsDwcOccurrence.create!(no_dwc_occurrence: false)
+    expect(TestIsDwcOccurrence.dwc_not_indexed.all.count).to eq(0)
+  end
+
+  specify '.dwc_indexed' do
+    TestIsDwcOccurrence.create!
+    expect(TestIsDwcOccurrence.dwc_indexed.count).to eq(1)
+  end
+
   specify 'has one #dwc_occurrence' do
     expect(class_with_dwc_occurrence).to respond_to(:dwc_occurrence)
   end

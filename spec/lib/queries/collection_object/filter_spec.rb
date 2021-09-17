@@ -447,6 +447,14 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       expect(query.all.pluck(:id)).to contain_exactly()
     end
 
+    specify '#dwc_indexed + date' do
+      co1.set_dwc_occurrence
+      query.dwc_indexed = true
+      query.user_date_end = 1.day.ago.to_date.to_s
+      query.user_date_start = 2.day.ago.to_date.to_s
+      expect(query.all.pluck(:id)).to contain_exactly()
+    end
+
     context 'loans' do
       let!(:li1) { FactoryBot.create(:valid_loan_item, loan_item_object: co1) }
 
