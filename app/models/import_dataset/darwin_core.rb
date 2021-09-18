@@ -118,7 +118,7 @@ class ImportDataset::DarwinCore < ImportDataset
   # @param [Integer] record_id
   #   Indicates the record to be imported (default none). When used filters are ignored.
   # Returns the updated dataset records. Do not call if there are changes that have not been persisted
-  def import(max_time, max_records, retry_errored: nil, filters: nil, record_id: nil)
+  def import(max_time, max_records, retry_errored: false, filters: nil, record_id: nil)
     imported = []
 
     lock_time = Time.now
@@ -137,7 +137,7 @@ class ImportDataset::DarwinCore < ImportDataset
       end
       records = records.where(id: start_id..) if start_id
 
-      records = core_records.where(id: record_id, status: status) if record_id
+      records = core_records.where(id: record_id, status: %w{Ready Errored}) if record_id
 
       records = records.all
       start_time = Time.now - lock_time
