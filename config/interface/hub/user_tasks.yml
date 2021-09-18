@@ -513,7 +513,7 @@ biological_relationship_composer_task:
   categories:
     - biology
   status: prototype
-  description: 'Define and add properties to biological relationships, e.g. things like "host/paraiste".'
+  description: 'Define and add properties to biological relationships, e.g. things like "host/parasite".'
 grid_digitize_task:
   hub: true
   name: 'Grid digitizer'
