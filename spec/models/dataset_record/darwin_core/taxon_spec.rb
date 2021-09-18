@@ -392,6 +392,45 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     end
 
   end
+
+  context 'when importing a file with three names for one protonym' do
+    before :all do
+      DatabaseCleaner.start
+      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/genus_synonyms.tsv'), 'text/plain'),
+        description: 'parent_child'
+      ).tap { |i| i.stage }
+
+      4.times { |_|
+        import_dataset.import(5000, 100)
+      }
+    end
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:valid) { TaxonName.find_by(name: 'Acropyga') }
+
+    it 'creates and imports six records' do
+      verify_all_records_imported(6)
+    end
+
+    it 'the valid genus should have three synonyms' do
+      expect(TaxonNameRelationship.where_object_is_taxon_name(valid).where(type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym').count).to eq 3
+    end
+
+    it 'all should have the same valid id' do
+      expect(TaxonName.where(cached_valid_taxon_name_id: valid.id).count).to eq 6
+    end
+
+  end
+
+  # TODO test missing parent
+  #
+  # TODO test protonym is unavailable --- set classification on unsaved TaxonName
+  #
+  # TODO test importing multiple times
 end
 
 # Helper method to expect an OriginalCombination relationship with less code duplication

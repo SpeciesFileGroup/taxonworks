@@ -114,7 +114,6 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
             taxon_name.safe_self_and_ancestors.each do |ancestor|
               if (rank_in_type = original_combination_types[ancestor.rank.downcase.to_sym])
-                # taxon_name.related_taxon_name_relationships.find_or_initialize_by(type: rank_in_type, subject_taxon_name: ancestor)
                 TaxonNameRelationship.find_or_create_by!(type: rank_in_type, subject_taxon_name: ancestor, object_taxon_name: taxon_name)
               end
             end
