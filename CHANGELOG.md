@@ -32,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Include project's name in CoLDP exports filename [#2509]
 - Implemented STI for downloads [#2498]\
 - Upgraded gnfinder gem that makes use of new REST API
+- Refactor help code, replaced jQuery for js vanilla
 
 [#2084]: https://github.com/SpeciesFileGroup/taxonworks/issues/2084
 [#1943]: https://github.com/SpeciesFileGroup/taxonworks/issues/1943

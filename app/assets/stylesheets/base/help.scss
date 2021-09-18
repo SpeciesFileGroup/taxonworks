@@ -58,7 +58,7 @@
   }
 }
 
-.help-background-active {
+.help-background {
   display: none;
   background: #444;
   opacity: 0.7;
@@ -68,6 +68,10 @@
   top: 0px;
   left: 0px;
   z-index: 2100;
+
+  &__active {
+    display: block;
+  }
 }
 
 .help-tip {
@@ -76,6 +80,7 @@
 }
 
 .help-legend {
+  display: none;
   border-radius: 2px;
   padding: $standard_padding*0.5;
   padding-left: $standard_padding;
@@ -88,6 +93,10 @@
   display: none;
   font-weight: 300;
   font-size: $font_small;
+
+  &__active {
+    display: block;
+  }
 }
 
 .tooltip-help-legend-left {
@@ -121,7 +130,7 @@
 }
 
 .help-bubble-tip {
-  display: flex;
+  display: none;
   cursor: pointer;
   justify-content: center;
   align-items: center;
@@ -138,6 +147,10 @@
   opacity: 0.8;
   transition: all 0.1s ease;
   z-index: 9999;
+
+  &__active {
+    display: flex;
+  }
 }
 
 .help-bubble-tip:hover {
