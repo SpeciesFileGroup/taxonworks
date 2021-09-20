@@ -73,7 +73,8 @@
               :options="{ fields: csvFields }"/>
             <dwc-download
               class="margin-small-left"
-              :params="$refs.filterComponent.parseParams"/>
+              :params="$refs.filterComponent.parseParams"
+              :total="pagination.total"/>
             <dwc-reindex
               class="margin-small-left"
               :params="$refs.filterComponent.parseParams"

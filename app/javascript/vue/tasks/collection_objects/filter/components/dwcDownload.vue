@@ -17,22 +17,29 @@ const props = defineProps({
   params: {
     type: Object,
     required: true
+  },
+
+  total: {
+    type: Number,
+    required: true
   }
 })
 
-const clearParams = (params) => {
+const getFilterParams = params => {
   const entries = Object.entries(params).filter(([key, value]) => !Array.isArray(value) || value.length)
   const data = Object.fromEntries(entries)
 
-  delete data.per
+  data.per = props.total
   delete data.page
 
   return data
 }
 
 const download = () => {
-  DwcOcurrence.generateDownload({ ...clearParams(props.params) }).then(_ => {
-    window.open(`${RouteNames.DwcDashboard}?${transformObjectToParams(clearParams(props.params))}`)
+  const downloadParams = getFilterParams(props.params)
+
+  DwcOcurrence.generateDownload({ ...downloadParams }).then(_ => {
+    window.open(`${RouteNames.DwcDashboard}?${transformObjectToParams(downloadParams)}`)
   })
 }
 </script>
