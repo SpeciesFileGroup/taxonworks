@@ -57,27 +57,8 @@ class DwcOccurrence < ApplicationRecord
 
   attr_accessor :occurrence_identifier
 
-  def uuid_identifier_scope
-    dwc_occurrence_object&.identifiers&.where('identifiers.type like ?', 'Identifier::Global::Uuid%')&.order(:created_at)
-  end
-
-  def occurrence_identifier
-    @occurrence_identifier ||= uuid_identifier_scope&.first
-  end
-
-  def generate_uuid_if_required
-    if !occurrence_identifier && !dwc_occurrence_object.nil? # TODO: can be simplified when inverse_of/validation added to identifiers
-      @occurrence_identifier = Identifier::Global::Uuid::TaxonworksDwcOccurrence.create!(
-        identifier_object: dwc_occurrence_object,
-        by: dwc_occurrence_object&.creator, # revisit, why required?
-        project_id: dwc_occurrence_object&.project_id, # Current.project_id,  # revisit, why required?
-        is_generated: true)
-    end
-  end
-
   # TODO: will need similar join for AssertedDistribution, or any object
   # that matches, consider moving to Shared
-
   # @return [ActiveRecord::Relation]
   def self.collection_objects_join
     a = arel_table
@@ -86,7 +67,15 @@ class DwcOccurrence < ApplicationRecord
     joins(j.join_sources)
   end
 
- # @return [Array]
+  # Return scopes by a collection object filter
+  def self.by_collection_object_filter(filter_scope: nil, project_id: nil)
+    return DwcOccurrence.none if project_id.nil? || filter_scope.nil?
+    self.collection_objects_join
+      .where( project_id: project_id)
+      .where(filter_scope.arel.exists)
+  end
+
+  # @return [Array]
   #   of column names as symbols that are blank in *ALL* projects (not just this one)
   def self.empty_fields
     empty_in_all_projects =  ActiveRecord::Base.connection.execute("select attname
@@ -109,7 +98,6 @@ class DwcOccurrence < ApplicationRecord
 
   # @return [Array]
   #   of symbols
-  # TODO:
   def self.excluded_columns
     ::DwcOccurrence.columns.collect{|c| c.name.to_sym} - self.target_columns
   end
@@ -133,6 +121,24 @@ class DwcOccurrence < ApplicationRecord
       end
     end
     'Undefined'
+  end
+
+  def uuid_identifier_scope
+    dwc_occurrence_object&.identifiers&.where('identifiers.type like ?', 'Identifier::Global::Uuid%')&.order(:created_at)
+  end
+
+  def occurrence_identifier
+    @occurrence_identifier ||= uuid_identifier_scope&.first
+  end
+
+  def generate_uuid_if_required
+    if !occurrence_identifier && !dwc_occurrence_object.nil? # TODO: can be simplified when inverse_of/validation added to identifiers
+      @occurrence_identifier = Identifier::Global::Uuid::TaxonworksDwcOccurrence.create!(
+        identifier_object: dwc_occurrence_object,
+        by: dwc_occurrence_object&.creator, # revisit, why required?
+        project_id: dwc_occurrence_object&.project_id, # Current.project_id,  # revisit, why required?
+        is_generated: true)
+    end
   end
 
   # Is a spot check not a join/query based check.

@@ -14,10 +14,9 @@ class Tasks::Dwc::DashboardController < ApplicationController
     # e.g. collection_object[param]
     a = nil
     if collection_object_filter_params.to_h.any?
-      a = DwcOccurrence
-        .collection_objects_join
-        .where(project_id: sessions_current_project_id)
-        .merge(filtered_collection_objects)
+      a = DwcOccurrence.by_collection_object_filter(
+        filter_scope: filtered_collection_objects,
+        project_id: sessions_current_project_id)
     else
       a ||= DwcOccurrence.where(project_id: sessions_current_project_id).all
     end

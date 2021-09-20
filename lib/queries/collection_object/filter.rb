@@ -588,6 +588,7 @@ module Queries
           q = ::CollectionObject.all
         end
 
+        # TODO: needs to go, orders mess with chaining.
         q = q.order(updated_at: :desc) if recent
         q
       end

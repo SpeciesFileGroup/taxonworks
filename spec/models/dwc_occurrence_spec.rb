@@ -12,6 +12,17 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
   let(:source_bibtex) { FactoryBot.create(:valid_source_bibtex) }
   let(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution) }
 
+  specify '.by_collection_object_filter 1' do
+    3.times { Specimen.create }
+    f = ::Queries::CollectionObject::Filter.new(user_date_start: Time.now.to_date.to_s).all # Note the .all
+    a = DwcOccurrence.by_collection_object_filter(
+      filter_scope: f,
+      project_id: Current.project_id
+    )
+
+    expect(a.first.basisOfRecord).to eq('PreservedSpecimen')
+  end
+
   specify 'collection_object filter merge' do
     a = Queries::CollectionObject::Filter.new(on_loan: 'true').all
     FactoryBot.create(:valid_loan_item, loan_item_object: collection_object)

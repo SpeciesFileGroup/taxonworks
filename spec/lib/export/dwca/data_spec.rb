@@ -1,11 +1,11 @@
 require 'rails_helper'
 require 'export/dwca/data'
 
-describe Export::Dwca::Data, type: :model do 
+describe Export::Dwca::Data, type: :model, group: :darwin_core do
   let(:scope) { ::DwcOccurrence.all }
 
   specify 'initializing without a scope raises' do
-    expect {Export::Dwca::Data.new()}.to raise_error ArgumentError 
+    expect {Export::Dwca::Data.new()}.to raise_error ArgumentError
   end
 
   specify 'initializing with a DwcOccurrence scope succeeds' do
@@ -16,15 +16,15 @@ describe Export::Dwca::Data, type: :model do
     let(:data) { Export::Dwca::Data.new(core_scope: scope) }
 
     specify '#csv returns csv String' do
-      expect(data.csv).to be_kind_of( String ) 
+      expect(data.csv).to be_kind_of( String )
     end
 
     context 'with some occurrence records created' do
-      before do 
-        5.times do 
-          f = FactoryBot.create(:valid_specimen) 
+      before do
+        5.times do
+          f = FactoryBot.create(:valid_specimen)
           f.get_dwc_occurrence
-        end 
+        end
       end
 
       after do
@@ -32,7 +32,7 @@ describe Export::Dwca::Data, type: :model do
       end
 
       let(:csv) { CSV.parse(data.csv, headers: true, col_sep: "\t") }
-      let(:headers) { ['basisOfRecord', 'individualCount' ] }  
+      let(:headers) { ['basisOfRecord', 'individualCount' ] }
 
       context 'various scopes' do
         specify 'with .where clauses' do
@@ -63,11 +63,11 @@ describe Export::Dwca::Data, type: :model do
       end
 
       specify 'generated headers are restricted to data' do
-        expect(csv.headers).to contain_exactly('id', 'basisOfRecord', 'individualCount') 
+        expect(csv.headers).to contain_exactly('id', 'basisOfRecord', 'individualCount')
       end
 
       specify '#csv_headers can be returned, and exclude id' do
-        expect(data.csv_headers).to contain_exactly(*headers) 
+        expect(data.csv_headers).to contain_exactly(*headers)
       end
 
       context 'files' do
@@ -84,7 +84,7 @@ describe Export::Dwca::Data, type: :model do
         end
 
         specify '#zipfile is a Tempfile' do
-          expect(data.zipfile).to be_kind_of(Tempfile) 
+          expect(data.zipfile).to be_kind_of(Tempfile)
         end
 
         specify '#package_download packages' do
@@ -97,7 +97,6 @@ describe Export::Dwca::Data, type: :model do
           data.package_download(d)
           expect(File.exist?(d.file_path)).to be_truthy
         end
-
       end
 
       # TODO: actually check tempfile directory

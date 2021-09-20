@@ -3,6 +3,13 @@
 module Shared::IsDwcOccurrence
   extend ActiveSupport::Concern
 
+  # These probably belong in a global helper
+  DWC_DELIMITER = ' | '
+
+  VIEW_EXCLUSIONS = [
+    :footprintWKT
+  ]
+
   included do
     delegate :persisted?, to: :dwc_occurrence, prefix: :dwc_occurrence, allow_nil: true
 
@@ -20,13 +27,15 @@ module Shared::IsDwcOccurrence
 
   module ClassMethods
 
+    # @return Array of Arel::Attributes::Attribute
     def dwc_attribute_vector(mode = :all)
       t = ::DwcOccurrence.arel_table
       s = self.arel_table
-      k = self::DwcExtensions::DWC_OCCURRENCE_MAP.keys.sort
+
+      k = self::DWC_OCCURRENCE_MAP.keys.sort
 
       if mode.to_sym == :view
-        k = k - self::DwcExtensions::VIEW_EXCLUSIONS
+        k = k - self::VIEW_EXCLUSIONS
       end
 
       [ s[:id], t[:id], t[:dwc_occurrence_object_type], *k.collect{|a| t[a]} ]

@@ -2,85 +2,81 @@ module CollectionObject::DwcExtensions
 
   extend ActiveSupport::Concern
 
-  # A current list of mappable values
-  DWC_OCCURRENCE_MAP = {
-    catalogNumber: :dwc_catalog_number,
-    country: :dwc_country,
-    county: :dwc_county,
-    dateIdentified: :dwc_date_identified,
-    eventDate: :dwc_event_date,
-    eventTime: :dwc_event_time,
-    family: :dwc_family,
-    fieldNumber: :dwc_field_number,
-    genus: :dwc_genus,
-    habitat: :dwc_verbatim_habitat,
-    identifiedBy: :dwc_identified_by,
-    identifiedByID: :dwc_identified_by_id,
-    individualCount: :dwc_individual_count,
-    infraspecificEpithet: :dwc_infraspecific_epithet,
-    institutionCode: :dwc_institution_code,
-    institutionID: :dwc_institution_id,
-    kingdom: :dwc_kingdom,
-    lifeStage: :dwc_life_stage,
-    maximumElevationInMeters: :dwc_maximum_elevation_in_meters,
-    minimumElevationInMeters: :dwc_minimum_elevation_in_meters,
-    nomenclaturalCode: :dwc_nomenclatural_code,
-    otherCatalogNumbers: :dwc_other_catalog_numbers,
-    preparations: :dwc_preparations,
-    previousIdentifications: :dwc_previous_identifications,
-    recordedBy: :dwc_recorded_by,
-    recordedByID: :dwc_recorded_by_id,
-    samplingProtocol: :dwc_sampling_protocol,
-    scientificName: :dwc_scientific_name,
-    scientificNameAuthorship: :dwc_taxon_name_authorship,
-    sex: :dwc_sex,
-    specificEpithet: :dwc_specific_epithet,
-    stateProvince: :dwc_state_province,
-    taxonRank: :dwc_taxon_rank,
-    typeStatus: :dwc_type_status,
-    verbatimElevation: :dwc_verbatim_elevation,
-    verbatimEventDate: :dwc_verbatim_event_date,
-    verbatimLocality: :dwc_verbatim_locality,
-    waterBody: :dwc_water_body,
-
-    # Georeference "Interface'
-    verbatimCoordinates: :dwc_verbatim_coordinates,
-    verbatimLatitude: :dwc_verbatim_latitude,
-    verbatimLongitude: :dwc_verbatim_longitude,
-    decimalLatitude: :dwc_latitude,
-    decimalLongitude: :dwc_longitude,
-
-    footprintWKT: :dwc_footprint_wkt,
-
-    coordinateUncertaintyInMeters: :dwc_coordinate_uncertainty_in_meters,
-    geodeticDatum: :dwc_geodetic_datum,
-    georeferenceProtocol: :dwc_georeference_protocol,
-    georeferenceRemarks: :dwc_georeference_remarks,
-    georeferenceSources: :dwc_georeference_sources,
-    georeferencedBy: :dwc_georeferenced_by,
-    georeferencedDate: :dwc_georeferenced_date,
-    verbatimSRS: :dwc_verbatim_srs,
-
-    # TODO: move to a proper extensions
-    associatedMedia: :dwc_associated_media
-
-    # -- Core taxon? --
-    # nomenclaturalCode
-    # scientificName
-    # taxonmicStatus NOT DONE
-    # scientificNameAuthorship
-    # scientificNameID  NOT DONE
-    # taxonRank
-    # namePublishedIn NOT DONE
-  }.freeze
-
-  VIEW_EXCLUSIONS = [
-    :footprintWKT
-  ]
-
-  DELIMITER = ' | '
-
   included do
+
+    # A current list of mappable values
+    DWC_OCCURRENCE_MAP = {
+      catalogNumber: :dwc_catalog_number,
+      country: :dwc_country,
+      county: :dwc_county,
+      dateIdentified: :dwc_date_identified,
+      eventDate: :dwc_event_date,
+      eventTime: :dwc_event_time,
+      family: :dwc_family,
+      fieldNumber: :dwc_field_number,
+      genus: :dwc_genus,
+      habitat: :dwc_verbatim_habitat,
+      identifiedBy: :dwc_identified_by,
+      identifiedByID: :dwc_identified_by_id,
+      individualCount: :dwc_individual_count,
+      infraspecificEpithet: :dwc_infraspecific_epithet,
+      institutionCode: :dwc_institution_code,
+      institutionID: :dwc_institution_id,
+      kingdom: :dwc_kingdom,
+      lifeStage: :dwc_life_stage,
+      maximumElevationInMeters: :dwc_maximum_elevation_in_meters,
+      minimumElevationInMeters: :dwc_minimum_elevation_in_meters,
+      nomenclaturalCode: :dwc_nomenclatural_code,
+      otherCatalogNumbers: :dwc_other_catalog_numbers,
+      preparations: :dwc_preparations,
+      previousIdentifications: :dwc_previous_identifications,
+      recordedBy: :dwc_recorded_by,
+      recordedByID: :dwc_recorded_by_id,
+      samplingProtocol: :dwc_sampling_protocol,
+      scientificName: :dwc_scientific_name,
+      scientificNameAuthorship: :dwc_taxon_name_authorship,
+      sex: :dwc_sex,
+      specificEpithet: :dwc_specific_epithet,
+      stateProvince: :dwc_state_province,
+      taxonRank: :dwc_taxon_rank,
+      typeStatus: :dwc_type_status,
+      verbatimElevation: :dwc_verbatim_elevation,
+      verbatimEventDate: :dwc_verbatim_event_date,
+      verbatimLocality: :dwc_verbatim_locality,
+      waterBody: :dwc_water_body,
+
+      # Georeference "Interface'
+      verbatimCoordinates: :dwc_verbatim_coordinates,
+      verbatimLatitude: :dwc_verbatim_latitude,
+      verbatimLongitude: :dwc_verbatim_longitude,
+      decimalLatitude: :dwc_latitude,
+      decimalLongitude: :dwc_longitude,
+
+      footprintWKT: :dwc_footprint_wkt,
+
+      coordinateUncertaintyInMeters: :dwc_coordinate_uncertainty_in_meters,
+      geodeticDatum: :dwc_geodetic_datum,
+      georeferenceProtocol: :dwc_georeference_protocol,
+      georeferenceRemarks: :dwc_georeference_remarks,
+      georeferenceSources: :dwc_georeference_sources,
+      georeferencedBy: :dwc_georeferenced_by,
+      georeferencedDate: :dwc_georeferenced_date,
+      verbatimSRS: :dwc_verbatim_srs,
+
+      # TODO: move to a proper extensions
+      associatedMedia: :dwc_associated_media
+
+      # -- Core taxon? --
+      # nomenclaturalCode
+      # scientificName
+      # taxonmicStatus NOT DONE
+      # scientificNameAuthorship
+      # scientificNameID  NOT DONE
+      # taxonRank
+      # namePublishedIn NOT DONE
+    }.freeze
+
+
     attr_accessor :georeference_attributes
 
     # @return [Hash]
@@ -125,7 +121,7 @@ module CollectionObject::DwcExtensions
 
   # https://dwc.tdwg.org/terms/#dwc:associatedMedia
   def dwc_associated_media
-    images.collect{|i| i.image_file.url }.join(DELIMITER)
+    images.collect{|i| i.image_file.url }.join(CollectionObject::DWC_DELIMITER)
   end
 
   def dwc_georeference_sources
@@ -178,13 +174,13 @@ module CollectionObject::DwcExtensions
   def dwc_other_catalog_numbers
     i = identifiers.where.not('type ilike ?', 'Identifier::Global::Uuid%').order(:position).to_a
     i.shift
-    i.map(&:cached).join(DELIMITER).presence
+    i.map(&:cached).join(CollectionObject::DWC_DELIMITER).presence
   end
 
   def dwc_previous_identifications
     a = taxon_determinations.order(:position).to_a
     a.shift
-    a.collect{|d| ApplicationController.helpers.label_for_taxon_determination(d)}.join(DELIMITER).presence
+    a.collect{|d| ApplicationController.helpers.label_for_taxon_determination(d)}.join(CollectionObject::DWC_DELIMITER).presence
   end
 
   def dwc_water_body
@@ -261,7 +257,7 @@ module CollectionObject::DwcExtensions
   def dwc_type_status
     type_materials.all.collect{|t|
       ApplicationController.helpers.label_for_type_material(t)
-    }.join(DELIMITER).presence
+    }.join(CollectionObject::DWC_DELIMITER).presence
   end
 
   # ISO 8601:2004(E).
@@ -280,8 +276,8 @@ module CollectionObject::DwcExtensions
       reload
       @taxonomy = set_taxonomy
     else
-    @taxonomy ||= set_taxonomy
-  end
+      @taxonomy ||= set_taxonomy
+    end
   end
 
   def dwc_kingdom
@@ -319,24 +315,24 @@ module CollectionObject::DwcExtensions
     # TODO: raw SQL this mess?
     ( determiners.includes(:roles).order('taxon_determinations.position, roles.position').to_a +
      (collecting_event ? collecting_event&.collectors.includes(:roles).order('roles.position').to_a : []))
-      .uniq.map(&:cached).join(DELIMITER).presence
+      .uniq.map(&:cached).join(CollectionObject::DWC_DELIMITER).presence
   end
 
   def dwc_recorded_by_id
     # TODO: raw SQL this mess?
     ( determiners.includes(:roles).order('taxon_determinations.position, roles.position').to_a +
      (collecting_event ? collecting_event&.collectors.includes(:roles).order('roles.position').to_a : []))
-      .uniq.map(&:orcid).compact.join(DELIMITER).presence
+      .uniq.map(&:orcid).compact.join(CollectionObject::DWC_DELIMITER).presence
   end
 
   def dwc_identified_by
     # TaxonWorks allows for groups of determiners to collaborate on a single determination if they collectively came to a conclusion.
-    current_taxon_determination&.determiners&.map(&:cached)&.join(DELIMITER).presence
+    current_taxon_determination&.determiners&.map(&:cached)&.join(CollectionObject::DWC_DELIMITER).presence
   end
 
   def dwc_identified_by_id
     # TaxonWorks allows for groups of determiners to collaborate on a single determination if they collectively came to a conclusion.
-    current_taxon_determination&.determiners&.map(&:orcid)&.join(DELIMITER).presence
+    current_taxon_determination&.determiners&.map(&:orcid)&.join(CollectionObject::DWC_DELIMITER).presence
   end
 
   def dwc_institution_code
@@ -392,12 +388,12 @@ module CollectionObject::DwcExtensions
 
     %w{start_time end_time}
       .map { |t| %w{hour minute second}
-        .map { |p| collecting_event["#{t}_#{p}"] }
-        .map { |p| "%02d" % p if p } # At least two digits
+      .map { |p| collecting_event["#{t}_#{p}"] }
+      .map { |p| "%02d" % p if p } # At least two digits
       }
-      .map { |t| t.compact.join(':') }
-      .reject(&:blank?)
-      .join("/").presence
+        .map { |t| t.compact.join(':') }
+        .reject(&:blank?)
+        .join("/").presence
   end
 
   def dwc_event_date
@@ -405,12 +401,12 @@ module CollectionObject::DwcExtensions
 
     %w{start_date end_date}
       .map { |d| %w{year month day}
-        .map { |p| collecting_event["#{d}_#{p}"] }
-        .map { |p| "%02d" % p if p } # At least two digits
+      .map { |p| collecting_event["#{d}_#{p}"] }
+      .map { |p| "%02d" % p if p } # At least two digits
       }
-      .map { |d| d.compact.join('-') }
-      .reject(&:blank?)
-      .join("/").presence
+        .map { |d| d.compact.join('-') }
+        .reject(&:blank?)
+        .join("/").presence
   end
 
   def dwc_preparations
