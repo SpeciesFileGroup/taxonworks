@@ -1,5 +1,5 @@
 <template>
-  <div id="vue-task-dwca-import-new">
+  <div>
     <spinner-component
       :full-screen="true"
       legend="Loading records..."
@@ -125,11 +125,13 @@ export default {
     .modal-mask {
       z-index: 2102;
     }
+  }
 
-    .dwc-table-help {
-      color: #000000 !important;
-      font-weight: normal;
+  .dwc-table-help {
+    td {
+      color: initial;
     }
+    font-weight: normal;
   }
 
 </style>

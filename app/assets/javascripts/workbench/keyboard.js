@@ -24,7 +24,7 @@ Object.assign(TW.workbench.keyboard, {
     this.keyShortcutElement = this.createTable()
     this.btnClose = this.keyShortcutElement.querySelector('.close')
     this.legendLink = this.keyShortcutElement.querySelector('.legend')
-    this.helpBackground = document.querySelector('.help-background-active')
+    this.helpBackground = document.querySelector('.help-background')
     this.keyShortcutsPanel = this.keyShortcutElement.querySelector('.panel')
 
     document.body.append(this.keyShortcutElement)
@@ -182,7 +182,7 @@ Object.assign(TW.workbench.keyboard, {
 document.addEventListener('turbolinks:load', () => {
   if (document.querySelectorAll('[data-shortcut-key]').length) {
     if (!document.querySelectorAll('[data-help]').length) {
-      TW.workbench.help.init_helpSystem()
+      TW.workbench.help.init()
     }
     TW.workbench.keyboard.init_keyShortcuts()
   }
