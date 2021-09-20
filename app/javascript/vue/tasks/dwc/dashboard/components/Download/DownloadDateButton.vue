@@ -23,11 +23,6 @@ const props = defineProps({
   days: {
     type: [String, Number],
     required: true
-  },
-
-  params: {
-    type: Object,
-    default: () => ({})
   }
 })
 
@@ -45,7 +40,6 @@ const handleClick = () => {
 onBeforeMount(async () => {
   const total = (await CollectionObject.where(
     {
-      ...props.params,
       user_date_end: getPastDateByDays(0),
       user_date_start: getPastDateByDays(Number(props.days)),
       per: 1

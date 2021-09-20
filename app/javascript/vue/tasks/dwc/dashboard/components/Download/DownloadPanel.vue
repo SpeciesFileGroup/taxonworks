@@ -44,19 +44,12 @@ const DATE_BUTTONS = {
   Year: 365
 }
 
-const props = defineProps({
-  params: {
-    type: Object,
-    default: () => ({})
-  }
-})
-
 const useAction = inject('actions')
 const useState = inject('state')
 const downloadCount = computed(() => useState?.metadata?.index?.record_total)
 
-const download = async (downloadParams) => {
-  useAction.addDownloadRecord((await DwcOcurrence.generateDownload({ ...props.params, ...downloadParams, dwc_indexed: true })).body)
+const download = async downloadParams => {
+  useAction.addDownloadRecord((await DwcOcurrence.generateDownload({ ...downloadParams, dwc_indexed: true })).body)
 }
 
 </script>
