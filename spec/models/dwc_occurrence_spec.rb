@@ -23,6 +23,18 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
     expect(a.first.basisOfRecord).to eq('PreservedSpecimen')
   end
 
+  specify '.by_collection_object_filter 2' do
+    Specimen.create(created_at: 2.days.ago)
+    3.times { Specimen.create }
+    f = ::Queries::CollectionObject::Filter.new(user_date_start: Time.now.to_date.to_s).all
+    a = DwcOccurrence.by_collection_object_filter(
+      filter_scope: f,
+      project_id: Current.project_id
+    )
+
+    expect(a.size).to eq(3)
+  end
+
   specify 'collection_object filter merge' do
     a = Queries::CollectionObject::Filter.new(on_loan: 'true').all
     FactoryBot.create(:valid_loan_item, loan_item_object: collection_object)

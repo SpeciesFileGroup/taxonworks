@@ -71,8 +71,8 @@ class DwcOccurrence < ApplicationRecord
   def self.by_collection_object_filter(filter_scope: nil, project_id: nil)
     return DwcOccurrence.none if project_id.nil? || filter_scope.nil?
     self.collection_objects_join
-      .where( project_id: project_id)
-      .where(filter_scope.arel.exists)
+      .where("dwc_occurrences.project_id = ?", project_id)
+      .where(filter_scope.exists)
   end
 
   # @return [Array]
