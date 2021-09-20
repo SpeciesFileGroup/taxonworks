@@ -24,7 +24,7 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
   end
 
   specify '.by_collection_object_filter 2' do
-    Specimen.create(created_at: 2.days.ago)
+    Specimen.create(created_at: 2.days.ago, updated_at: 2.days.ago)
     3.times { Specimen.create }
     f = ::Queries::CollectionObject::Filter.new(user_date_start: Time.now.to_date.to_s).all
     a = DwcOccurrence.by_collection_object_filter(

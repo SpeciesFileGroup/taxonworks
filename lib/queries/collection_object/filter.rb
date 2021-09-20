@@ -678,7 +678,6 @@ module Queries
         ::CollectionObject.joins(q.join_sources).where(z)
       end
 
-
       # TODO: is this used?
       # @return [Scope]
       #  def geographic_area_scope
@@ -692,8 +691,6 @@ module Queries
       #    ::CollectionObject.joins(:geographic_items)
       #      .where(::GeographicItem.contained_by_where_sql(target_geographic_item_ids))
       #  end
-
-
     end
 
   end

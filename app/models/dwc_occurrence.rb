@@ -70,9 +70,16 @@ class DwcOccurrence < ApplicationRecord
   # Return scopes by a collection object filter
   def self.by_collection_object_filter(filter_scope: nil, project_id: nil)
     return DwcOccurrence.none if project_id.nil? || filter_scope.nil?
-    self.collection_objects_join
+
+    c = ::CollectionObject.arel_table
+    d = arel_table
+
+    k = ::CollectionObject.select('coscope.id').from( '(' + filter_scope.to_sql + ') as coscope ' )
+
+    a = self.collection_objects_join
       .where("dwc_occurrences.project_id = ?", project_id)
-      .where(filter_scope.arel.exists)
+      .where(dwc_occurrence_object_id: k)
+    a
   end
 
   # @return [Array]
