@@ -74,6 +74,7 @@ class DwcOccurrence < ApplicationRecord
     c = ::CollectionObject.arel_table
     d = arel_table
 
+    # TODO: hackish
     k = ::CollectionObject.select('coscope.id').from( '(' + filter_scope.to_sql + ') as coscope ' )
 
     a = self.collection_objects_join
