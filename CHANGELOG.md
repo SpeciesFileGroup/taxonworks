@@ -25,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Geographic area counts as georeference. Soft validations are sometimes loaded before saving georeferences [#2519]
 - `import_dataset_id` parameter persist on after resetState in DwC Importer [#2529]
 - Updated Ruby gems and Node packages
+- In project button [#2530]
 
 ### Changed
 - Status name 'not for nomenclature' changed to 'not in published work'
@@ -42,6 +43,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2523]: https://github.com/SpeciesFileGroup/taxonworks/pull/2523
 [#2519]: https://github.com/SpeciesFileGroup/taxonworks/pull/2519
 [#2529]: https://github.com/SpeciesFileGroup/taxonworks/pull/2529
+[#2530]: https://github.com/SpeciesFileGroup/taxonworks/pull/2530
 
 ## [0.19.7] - 2021-09-09
 
