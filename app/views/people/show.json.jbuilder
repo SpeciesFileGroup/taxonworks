@@ -1,2 +1,2 @@
-json.partial! '/people/base_attributes', person: @person
+json.partial! '/people/attributes', person: @person
 
