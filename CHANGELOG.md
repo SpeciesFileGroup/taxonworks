@@ -8,16 +8,17 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-- Added project_source as a preferred for source autocomplete
-- Added soft validation of cached values with fix.
+- `&extend[]` and `&embed[]` helper methods for REST responses [#2532]
+- Soft validation of cached values with fix {@proceps FOR WHAT}
 - Custom .csl support for BibTeX reference formating (see .csl styles at bottom of select list). New .cls submitted via issue tracker and integrated to source.
 - New .csl style 'world_chalcidoidea_book.csl"
 - Verbatim value handling (use "{your value}")  for fields otherwise processed in BibTeX sources (e.g. author)
 - Soft_validation fix. Objective synonyms should share the same type.
 
 ### Fixed
-- match combination when protonym have synonym relationship [#2525]
-- method update [#2504]
+- Uniquify people slow when many roles present [#2528]
+- Match combination when protonym has synonym relationships [#2525]
+- TaxonNameRelationsip `type_method` returns nil properly on unmatched types [#2504]
 - Taxon determinations list in comprehensive task
 - The clone button doesn't trigger update taxon name after authors were cloned [#2513]
 - Georeference count in new collecting event task [#2519]
@@ -28,6 +29,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - In project button [#2530]
 
 ### Changed
+- Removed `label_html` from `/people` responses
+- `/people` JSON param from `&include_roles=true` to `&extend[]=roles` 
+- Prefer project sources in source autocomplete
 - Status name 'not for nomenclature' changed to 'not in published work'
 - Year letter is no longer appended to year in BibTeX exports
 - Include project's name in CoLDP exports filename [#2509]
@@ -35,6 +39,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Upgraded gnfinder gem that makes use of new REST API
 - Refactor help code, replaced jQuery for js vanilla
 
+[#2532]: https://github.com/SpeciesFileGroup/taxonworks/issues/2532
+[#2528]: https://github.com/SpeciesFileGroup/taxonworks/issues/2528
 [#2084]: https://github.com/SpeciesFileGroup/taxonworks/issues/2084
 [#1943]: https://github.com/SpeciesFileGroup/taxonworks/issues/1943
 [#2509]: https://github.com/SpeciesFileGroup/taxonworks/issues/2509
