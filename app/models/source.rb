@@ -302,7 +302,7 @@ class Source < ApplicationRecord
 
     Source.joins(
       Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['source_id'].eq(p['id'])))
-    ).select(:id).distinct.pluck(:source_id)
+    ).select(:id).distinct.pluck(:id)
   end
 
   # @params target [String] a citable model name
