@@ -302,8 +302,7 @@ require 'namecase'
 class Source::Bibtex < Source
 
   # Type will change
-  DEFAULT_CSL_STYLE = 'taxonworks'
-  #DEFAULT_CSL_STYLE = 'zootaxa'
+  DEFAULT_CSL_STYLE = 'zootaxa'
 
   attr_accessor :authors_to_create
 
@@ -712,7 +711,7 @@ class Source::Bibtex < Source
     end
 
     b[:keywords] = verbatim_keywords unless verbatim_keywords.blank?
-    b[:note] = concatenated_notes_string unless concatenated_notes_string.blank?
+    b[:note] = concatenated_notes_string if !concatenated_notes_string.blank?
 
     unless serial.nil?
       b[:journal] = serial.name
@@ -767,14 +766,9 @@ class Source::Bibtex < Source
       next if f == :bibtex_type
       v = send(f)
       if !v.blank? && (v =~ /\A{(.*)}\z/)
-        a[f.to_s.gsub('_', '-')] = {literal: $1}
+        a[f.to_s] = {literal: $1}
       end
     end
-    a['year-suffix'] = year_suffix unless year_suffix.blank?
-    a['original-date'] = {"date-parts" => [[ stated_year ]]} unless stated_year.blank?
-    a['language'] = Language.find(language_id).english_name.to_s unless language_id.nil?
-    a['translated-title'] = alternate_values.where(type: "AlternateValue::Translation", alternate_value_object_attribute: 'title').pluck(:value).first
-    a['note'] = note unless note.blank?
     a
   end
 
@@ -912,6 +906,13 @@ class Source::Bibtex < Source
           c = c + " #{pages}"
         end
       end
+
+      n = []
+      n += [stated_year.to_s] if stated_year && year && stated_year != year
+      n += ['in ' + Language.find(language_id).english_name.to_s] if language_id
+      n += [note.to_s] if note
+
+      c = c + " [#{n.join(', ')}]" unless n.empty?
       return c
     end
     nil

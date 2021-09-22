@@ -576,7 +576,7 @@ To add a new (discovered) symbol:
       coordinates = {}
 
       #  pattern: 42°5'18.1"S88°11'43.3"W
-      if matchdata1 = text.match(/\D(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹ΄′ʼ’ˊ‘] ?(\d+[\.|,]\d+|\d+) ?[ "ʺ″”ˮ'´ʹ′΄ʼ’ˊ‘]['´ʹ′΄ʼ’ˊ‘]? ?([nN]|[sS])[\.,–;]? ?(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹ′΄ʼ’ˊ‘]\ ?(\d+[\.|,]\d+|\d+) ?[ "ʺ″”ˮ'´ʹ′΄ʼ’ˊ‘]['´ʹ′΄ʼ’ˊ‘]? ?([wW]|[eE])\W/)
+      if matchdata1 = text.match(/\D(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹ΄′ʼ’ˊ‘] ?(\d+[\.|,]\d+|\d+) ?[ "ʺ″”ˮ'´ʹ′΄ʼ’ˊ‘]['´ʹ′΄ʼ’ˊ‘]? ?([nN]|[sS])[\.,;]? ?(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹ′΄ʼ’ˊ‘]\ ?(\d+[\.|,]\d+|\d+) ?[ "ʺ″”ˮ'´ʹ′΄ʼ’ˊ‘]['´ʹ′΄ʼ’ˊ‘]? ?([wW]|[eE])\W/)
         coordinates[:lat_deg] = matchdata1[1]
         coordinates[:lat_min] = matchdata1[2]
         coordinates[:lat_sec] = matchdata1[3]
@@ -586,7 +586,7 @@ To add a new (discovered) symbol:
         coordinates[:long_sec] = matchdata1[7]
         coordinates[:long_we]  = matchdata1[8]
         # pattern: S42°5'18.1"W88°11'43.3"
-      elsif matchdata2 = text.match(/\W([nN]|[sS])\.? ?(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹ′΄ʼ’ˊ‘] ?(\d+[\.|,]\d+|\d+) ?[ "ʺ″”ˮ'´ʹ′΄ʼ’ˊ‘]['´ʹ′΄ʼ’ˊ‘]?[\.,–;]? ?([wW]|[eE])\.? ?(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹ′΄ʼ’ˊ‘] ?(\d+[\.|,]\d+|\d+) ?[ "ʺ″”ˮ'´ʹ′΄ʼ’ˊ‘]?['´ʹ′΄ʼ’ˊ‘]?\D/)
+      elsif matchdata2 = text.match(/\W([nN]|[sS])\.? ?(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹ′΄ʼ’ˊ‘] ?(\d+[\.|,]\d+|\d+) ?[ "ʺ″”ˮ'´ʹ′΄ʼ’ˊ‘]['´ʹ′΄ʼ’ˊ‘]?[\.,;]? ?([wW]|[eE])\.? ?(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹ′΄ʼ’ˊ‘] ?(\d+[\.|,]\d+|\d+) ?[ "ʺ″”ˮ'´ʹ′΄ʼ’ˊ‘]?['´ʹ′΄ʼ’ˊ‘]?\D/)
         coordinates[:lat_deg] = matchdata2[2]
         coordinates[:lat_min] = matchdata2[3]
         coordinates[:lat_sec] = matchdata2[4]

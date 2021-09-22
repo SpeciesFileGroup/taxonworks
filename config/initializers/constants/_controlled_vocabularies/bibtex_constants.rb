@@ -31,7 +31,6 @@ BIBTEX_FIELDS = [
   :copyright,
   :language,
   :stated_year,
-  :year_suffix,
   :bibtex_type
 ].freeze
 
