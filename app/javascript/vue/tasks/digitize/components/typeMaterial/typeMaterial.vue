@@ -68,6 +68,7 @@
             klass="TypeMaterial"
             pin-section="Sources"
             pin-type="Source"
+            label="cached"
             @selected="selectSource"
           />
           <div

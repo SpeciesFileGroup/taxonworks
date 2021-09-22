@@ -7,6 +7,7 @@
           class="separate-bottom"
           model="sources"
           klass="Depiction"
+          label="cached"
           @selected="setSource"/>
         <template v-if="source">
           <hr>

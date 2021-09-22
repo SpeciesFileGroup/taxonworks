@@ -241,7 +241,8 @@ export default {
         },
         settings: {
           per: 500,
-          page: 1
+          page: 1,
+          extend: ['parent']
         }
       }
     },

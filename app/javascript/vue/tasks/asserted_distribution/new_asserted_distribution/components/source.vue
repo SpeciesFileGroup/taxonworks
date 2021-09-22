@@ -8,6 +8,7 @@
       ref="smartSelector"
       pin-section="Sources"
       pin-type="Source"
+      label="cached"
       v-model="assertedDistribution.citation.source">
       <template #footer>
         <div>
