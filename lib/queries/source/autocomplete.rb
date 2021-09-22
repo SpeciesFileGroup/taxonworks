@@ -212,12 +212,11 @@ module Queries
           # order results by number of times used
           if scope
             a = a.left_outer_joins(:citations)
-              .select('sources.*, COUNT(citations.id) AS use_count, MAX(citations.project_id) AS in_project_id, project_sources.id AS project_source_id')
+              .select('sources.*, COUNT(citations.id) AS use_count, MAX(citations.project_id) AS in_project_id, MAX(project_sources.id) AS project_source_id')
               .where('citations.project_id = ? OR citations.project_id IS NULL', project_id)
-              .group('sources.id, project_sources.id')
+              .group('sources.id')
               .order('in_project_id, use_count DESC, project_source_id')
           end
-
           a ||= q
 
           result += a.to_a
