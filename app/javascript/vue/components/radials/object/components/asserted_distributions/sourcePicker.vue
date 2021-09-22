@@ -152,7 +152,6 @@ export default {
     },
 
     cleanInput () {
-      this.$refs.autocomplete.cleanInput()
       this.cleanCitation()
     },
 

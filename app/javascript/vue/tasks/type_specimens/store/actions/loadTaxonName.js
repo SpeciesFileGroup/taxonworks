@@ -1,8 +1,8 @@
 import { MutationNames } from '../mutations/mutations'
 import { TaxonName } from 'routes/endpoints'
 
-export default function ({ commit }, id) {
-  return new Promise((resolve, reject) => {
+export default ({ commit }, id) =>
+  new Promise((resolve, reject) => {
     commit(MutationNames.SetLoading, true)
     TaxonName.find(id).then(response => {
       commit(MutationNames.SetProtonymId, id)
@@ -13,4 +13,3 @@ export default function ({ commit }, id) {
       return reject(error)
     })
   })
-};

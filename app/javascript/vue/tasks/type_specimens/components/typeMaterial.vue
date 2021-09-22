@@ -177,7 +177,7 @@ export default {
     updateTypeMaterial () {
       const typeMaterial = this.$store.getters[GetterNames.GetTypeMaterial]
 
-      this.$store.dispatch(ActionNames.UpdateTypeSpecimen, { type_material: typeMaterial })
+      this.$store.dispatch(ActionNames.UpdateTypeSpecimen, typeMaterial)
     },
 
     setCollectionObject (collectionObject) {
