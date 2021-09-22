@@ -11,10 +11,8 @@ if extend_response_with('level_names')
   json.level2_name geographic_area.level2&.name
 end
 
-if extend_response_with('geo_json')
-  if params[:geo_json] 
-    json.shape geographic_area.to_geo_json_feature
-  end
+if embed_response_with('shape')
+  json.shape geographic_area.to_geo_json_feature
 end
 
 if extend_response_with('geographic_area_type')
