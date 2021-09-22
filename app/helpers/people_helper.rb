@@ -53,24 +53,25 @@ module PeopleHelper
   end
 
   def person_used_tag(person)
+    # Use count is SQL based attribute
     if person.respond_to?(:use_count)
       a = ''
       if person.use_count == 0
         a += content_tag(:span, 'unused', class: [:feedback, 'feedback-thin', 'feedback-danger'] )
       elsif person.use_count > 0
         a = a + content_tag(:span, "#{person.use_count} #{"use".pluralize(person.use_count)}", class: [:feedback, 'feedback-thin', 'feedback-primary'], data: {count: person.use_count}) + ' '
-        a = a + content_tag(:span, "#{person.roles.pluck(:type).uniq.collect{|r| r.constantize.human_name}.join(', ')}", class: [:feedback, 'feedback-thin', 'feedback-secondary'] )
+        a = a + content_tag(:span, "#{person.roles.select(:type).distinct.pluck(:type).map(&:safe_constantize).collect{|r| r.human_name}.join(', ')}", class: [:feedback, 'feedback-thin', 'feedback-secondary'] )
       else
         ''
       end
     else
-      t = person.roles.load
+      t = person.roles #.load
       a = ''
       if t.count == 0
         a += content_tag(:span, 'unused', class: [:feedback, 'feedback-thin', 'feedback-danger'] )
       elsif t.count > 0
         a = a + content_tag(:span, "#{person.roles.size} #{"use".pluralize(t)}", class: [:feedback, 'feedback-thin', 'feedback-primary'], data: {count: t.count}) + ' '
-        a = a + content_tag(:span, "#{person.roles.collect{|r| r.class.human_name}.uniq.join(', ')}", class: [:feedback, 'feedback-thin', 'feedback-secondary'] )
+        a = a + content_tag(:span, "#{person.roles.select(:type).distinct.pluck(:type).map(&:safe_constantize).collect{|r| r.human_name}.join(', ')}", class: [:feedback, 'feedback-thin', 'feedback-secondary'] )
       else
         ''
       end
