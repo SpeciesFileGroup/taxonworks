@@ -1417,26 +1417,27 @@ class TaxonName < ApplicationRecord
       .order('taxon_names.updated_at DESC') ## needs optimisation. Does not sort by TNR date
   end
 
-  # @return [Array]
+    # @return [Array]
   #   !! not a scope
-  def self.used_recently(user_id, project_id)
-
+  def self.used_recently(user_id, project_id, target = nil)
+    klass = (target == 'TypeMaterial' ? Protonym : TaxonName)
     # !! If cached of one name is nill the raises an ArgumentError
     a = [
-      TaxonName.touched_by(user_id).where(project_id: project_id).order(updated_at: :desc).limit(6).to_a,
+      klass.touched_by(user_id).where(project_id: project_id).order(updated_at: :desc).limit(6).to_a,
       used_recently_in_classifications(user_id, project_id).limit(6).to_a,
       used_recently_in_relationships(user_id, project_id).limit(6).to_a
     ].flatten.compact.uniq.sort{|a,b| a.cached <=> b.cached}
   end
 
   # @return [Hash]
-  def self.select_optimized(user_id, project_id)
+  def self.select_optimized(user_id, project_id, target = nil)
+    klass = (target == 'TypeMaterial' ? Protonym : TaxonName)
     h = {
-      recent: TaxonName.used_recently(user_id, project_id),
-      pinboard: TaxonName.pinned_by(user_id).pinned_in_project(project_id).to_a
+      recent: klass.used_recently(user_id, project_id, klass.name),
+      pinboard: klass.pinned_by(user_id).pinned_in_project(project_id).to_a
     }
 
-    h[:quick] = (TaxonName.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a + h[:recent][0..3]).uniq
+    h[:quick] = (klass.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a + h[:recent][0..3]).uniq
     h
   end
 
