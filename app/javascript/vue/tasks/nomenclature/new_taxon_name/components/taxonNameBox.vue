@@ -44,7 +44,6 @@
               <pin-object
                 v-if="taxon.id"
                 class="circle-button"
-                :pin-object="taxon['pinboard_item']"
                 :object-id="taxon.id"
                 type="TaxonName"/>
               <default-confidence

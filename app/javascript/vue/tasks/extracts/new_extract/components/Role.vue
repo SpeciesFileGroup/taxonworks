@@ -10,6 +10,7 @@
         :autocomplete-params="{
           roles: ['Extractor']
         }"
+        label="cached"
         @selected="addRole"
       />
       <role-picker

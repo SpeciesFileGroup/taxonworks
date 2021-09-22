@@ -25,6 +25,7 @@
           ref="smartSelector"
           pin-section="Sources"
           pin-type="Source"
+          label="cached"
           @selected="setSource"
           v-model="source">
           <template #footer>

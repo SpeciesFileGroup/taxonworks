@@ -9,6 +9,7 @@
         target="CollectionObject"
         pin-section="Sources"
         pin-type="Source"
+        label="cached"
         v-model="source"
       />
       <v-lock

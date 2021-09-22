@@ -9,6 +9,7 @@
           klass="BiologicalAssociation"
           pin-section="Sources"
           pin-type="Source"
+          label="cached"
           @selected="setSource"
         />
         <lock-component
