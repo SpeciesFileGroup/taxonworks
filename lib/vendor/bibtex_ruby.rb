@@ -37,8 +37,8 @@ module TaxonWorks
         bibtex_entry.names.each do |n|
           n.first = NameCase(n.first) if n.first
           n.last = NameCase(n.last) if n.last
-          n.prefix = NameCase(n.prefix) if n.prefix
-          n.suffix = NameCase(n.suffix) if n.suffix
+          #n.prefix = NameCase(n.prefix) if n.prefix
+          #n.suffix = NameCase(n.suffix) if n.suffix
         end
         bibtex_entry
       end
