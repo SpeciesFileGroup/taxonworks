@@ -1,14 +1,12 @@
 json.partial! '/taxon_names/base_attributes', taxon_name: taxon_name
 json.partial! '/shared/data/all/metadata', object: taxon_name, klass: 'TaxonName'
 
-# TODO, likely rename
-json.name_string taxon_name_name_string(taxon_name)
 json.original_combination full_original_taxon_name_tag(taxon_name) # contains HTML
 
 if extend_response_with('parent')
   if taxon_name.parent
     json.parent do |parent|
-      json.partial! '/taxon_names/base_attributes', taxon_name: taxon_name.parent
+      json.partial! '/shared/data/all/metadata', object: taxon_name.parent, klass: 'TaxonName', extensions: false 
     end
   end
 end
@@ -17,8 +15,8 @@ if extend_response_with('otus')
   if taxon_name.otus
     json.otus do
       json.array!(taxon_name.otus) do |otu|
-        json.id otu.id
-        json.name otu.name if otu.name
+        json.extract! otu, :id, :name 
+        json.partial! '/shared/data/all/metadata', object: otu, klass: 'Otu', extensions: false 
       end
     end
   end
