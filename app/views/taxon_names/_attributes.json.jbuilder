@@ -37,7 +37,6 @@ if extend_response_with('roles')
   end 
 end
 
-
 if extend_response_with('ancestor_ids')
   json.ancestor_ids do
     json.array! taxon_name.ancestors.pluck(:id, :rank_class)

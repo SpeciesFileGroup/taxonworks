@@ -1,5 +1,5 @@
 json.partial! '/taxon_names/base_attributes', taxon_name: combination
-json.partial! '/shared/data/all/metadata', object: source, klass: 'Combination'
+json.partial! '/shared/data/all/metadata', object: combination, klass: 'Combination'
 
 if extend_response_with('protonyms')
   json.protonyms do
