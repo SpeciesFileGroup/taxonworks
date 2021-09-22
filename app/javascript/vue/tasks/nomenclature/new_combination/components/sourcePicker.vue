@@ -32,7 +32,7 @@
             <div>
               <span
                 v-if="source"
-                v-html="source.object_tag"/>
+                v-html="source.cached"/>
               <input
                 type="text"
                 @input="sendCitation"

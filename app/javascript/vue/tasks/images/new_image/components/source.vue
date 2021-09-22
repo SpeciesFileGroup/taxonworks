@@ -12,7 +12,7 @@
         <template v-if="source">
           <hr>
           <div class="middle">
-            <span v-html="source.object_tag"/>
+            <span v-html="source.cached"/>
             <span
               @click="removeSource"
               class="circle-button button-default btn-undo"/>

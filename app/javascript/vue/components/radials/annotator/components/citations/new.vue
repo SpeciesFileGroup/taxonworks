@@ -17,7 +17,7 @@
             v-if="source"
             class="horizontal-left-content margin-medium-bottom margin-medium-top">
             <span
-              v-html="source.object_tag"/>
+              v-html="source.cached"/>
             <span
               class="button circle-button btn-delete button-default"
               @click="unsetSource"/>

@@ -14,4 +14,4 @@ export default ({ dispatch, commit }, type_material) => {
     dispatch(ActionNames.LoadSoftValidations)
     commit(MutationNames.SetSaving, false)
   })
-};
+}

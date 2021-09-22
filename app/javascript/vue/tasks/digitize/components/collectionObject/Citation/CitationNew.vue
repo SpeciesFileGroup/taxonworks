@@ -19,7 +19,7 @@
     <div
       v-if="source"
       class="field horizontal-left-content middle">
-      <span v-html="source.object_tag"/>
+      <span v-html="source.cached"/>
       <button
         type="button"
         class="button circle-button btn-undo button-default"

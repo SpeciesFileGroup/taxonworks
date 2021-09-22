@@ -11,7 +11,7 @@ export default ({ commit, state: { biologicalAssociations, collection_object } }
           subject_global_id: collection_object.global_id
         }
 
-        BiologicalAssociation.create({ biological_association }).then(response => {
+        BiologicalAssociation.create({ biological_association, extend: ['origin_citation'] }).then(response => {
           biologicalAssociations[index] = response.body
         })
       }

@@ -35,13 +35,13 @@ const filterParams = (params, allowParams) => {
 export default (model, permitParams) => ({
   all: params => AjaxCall('get', `/${model}.json`, { params }),
 
-  create: (data, config) => AjaxCall('post', `/${model}.json`, filterParams(data, permitParams), config),
+  create: (data, config) => AjaxCall('post', `/${model}.json`, filterParams(data, { ...BASE_PARAMS, ...permitParams }), config),
 
   destroy: id => AjaxCall('delete', `/${model}/${id}.json`),
 
   find: (id, params, config) => AjaxCall('get', `/${model}/${id}.json`, { params }, config),
 
-  update: (id, data, config) => AjaxCall('patch', `/${model}/${id}.json`, filterParams(data, Object.assign({}, BASE_PARAMS, permitParams)), config),
+  update: (id, data, config) => AjaxCall('patch', `/${model}/${id}.json`, filterParams(data, { ...BASE_PARAMS, ...permitParams }), config),
 
   where: (params, config) => AjaxCall('get', `/${model}.json`, { params }, config),
 
