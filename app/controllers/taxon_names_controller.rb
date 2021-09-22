@@ -148,7 +148,11 @@ class TaxonNamesController < ApplicationController
 
   # GET /taxon_names/select_options
   def select_options
-    @taxon_names = TaxonName.select_optimized(sessions_current_user_id, sessions_current_project_id)
+    @taxon_names = TaxonName.select_optimized(
+      sessions_current_user_id,
+      sessions_current_project_id,
+      target: params[:target]
+    )
   end
 
   def preview_simple_batch_load
