@@ -5,9 +5,9 @@ json.base_class object.class.base_class.name
 json.url_for url_for(only_path: false, format: :json)
 json.object_url url_for(metamorphosize_if(object))
 
-extended ||= true
+extensions ||= true
 
-if !extended
+if !extensions
   if extend_response_with('pinboard_item')
     json.partial! '/pinboard_items/pinned', object: object
   end
