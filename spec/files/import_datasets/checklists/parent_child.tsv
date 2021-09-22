@@ -1,0 +1,3 @@
+taxonID	parentNameUsageID	parentNameUsage	acceptedNameUsageID	acceptedNameUsage	scientificName	kingdom	class	order	family	genus	subgenus	specificEpithet	infraspecificEpithet	taxonRank	scientificNameAuthorship	taxonomicStatus	originalNameUsage	originalNameUsageID	namePublishedInYear	nomenclaturalCode
+429011			429011	Formicidae Latreille, 1809	Formicidae	Animalia	Insecta	Hymenoptera	Formicidae					Family	Latreille, 1809	valid		429011	1809	ICZN
+429012	429011	Formicidae Latreille, 1809	429012	Calyptites Scudder, 1877	Calyptites	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Scudder, 1877	valid		429012	1877	ICZN

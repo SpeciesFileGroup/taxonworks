@@ -1,0 +1,7 @@
+taxonID	parentNameUsageID	parentNameUsage	acceptedNameUsageID	acceptedNameUsage	scientificName	kingdom	class	order	family	genus	subgenus	specificEpithet	infraspecificEpithet	taxonRank	scientificNameAuthorship	taxonomicStatus	originalNameUsage	originalNameUsageID	namePublishedInYear	nomenclaturalCode
+429152			429152	Acropyga Roger, 1862	Acropyga	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Roger, 1862	valid	Acropyga Roger, 1862	429152	1862	ICZN
+429153			429152	Acropyga Roger, 1862	Rhizomyrma	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Forel, 1893	synonym	Rhizomyrma Forel, 1893	429153	1893	ICZN
+429154			429152	Acropyga Roger, 1862	Atopodon	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Forel, 1912	synonym	Atopodon Forel, 1912	429154	1912	ICZN
+429155			429152	Acropyga Roger, 1862	Malacomyrma	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Emery, 1922	synonym	Malacomyrma Emery, 1922	429155	1922	ICZN
+508756	429152	Acropyga Roger, 1862	429152	Acropyga Roger, 1862	Acropyga (Rhizomyrma)	Animalia	Insecta	Hymenoptera	Formicidae	Acropyga				Subgenus	Forel, 1893	obsolete combination	Rhizomyrma Forel, 1893	429153	1893	ICZN
+509120	429152	Acropyga Roger, 1862	429152	Acropyga Roger, 1862	Acropyga (Malacomyrma)	Animalia	Insecta	Hymenoptera	Formicidae	Acropyga				Subgenus	Emery, 1922	obsolete combination	Malacomyrma Emery, 1922	429155	1922	ICZN
