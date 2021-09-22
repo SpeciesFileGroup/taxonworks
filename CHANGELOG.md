@@ -8,7 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-- new .csl styl 'taxonworks.csl'
+- new .csl styl 'taxonworks.csl' which will be used as a default style for bibliography
 - `&extend[]` and `&embed[]` helper methods for REST responses [#2532]
 - Soft validation of cached values with fix {@proceps FOR WHAT}
 - Custom .csl support for BibTeX reference formating (see .csl styles at bottom of select list). New .cls submitted via issue tracker and integrated to source.
