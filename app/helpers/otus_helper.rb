@@ -2,9 +2,24 @@ module OtusHelper
 
   def otu_tag(otu)
     return nil if otu.nil?
-    a = otu_tag_elements(otu)
-    a.push taxon_name_type_short_tag(otu.taxon_name)
-    content_tag(:span, a.compact.join(' ').html_safe, class: :otu_tag)
+    a = []
+    a.push(content_tag(:span, otu.name, class: :otu_name))  if !otu.name.blank?
+
+    if otu.taxon_name
+      a.push "in" if !otu.name.blank?
+
+      b = [ content_tag(:span, full_original_taxon_name_tag(otu.taxon_name), class: :otu_written) ]
+
+      if !otu.taxon_name.is_valid?
+        b.push 'now'
+        b.push content_tag(:span, full_taxon_name_tag(otu.taxon_name.valid_taxon_name), class: :otu_current)
+      end
+
+      a.push content_tag(:span, b.join(' ').html_safe, class: :otu_taxon_name)
+      a.push taxon_name_type_short_tag(otu.taxon_name).html_safe
+    end
+   
+    content_tag(:span, a.flatten.compact.join(' ').html_safe, class: :otu_tag)
   end
 
   def otu_tag_elements(otu)
