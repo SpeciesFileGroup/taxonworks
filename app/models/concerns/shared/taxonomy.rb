@@ -46,10 +46,13 @@ module Shared::Taxonomy
               @taxonomy['kingdom'] = a.name
             else
 
+              # TODO: re-add when dwc_fields merged
               # Very edge case for single kingom nomenclatures (almost none)
-              if c.rank_class::KINGDOM.size == 1
-                @taxonomy['kingdom'] = c.rank_class::KINGDOM.first
-              end
+              # if c.rank_class::KINGDOM.size == 1
+              #   @taxonomy['kingdom'] = c.rank_class::KINGDOM.first
+              # end
+
+
             end
           end
         end
