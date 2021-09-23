@@ -1066,7 +1066,7 @@ ActiveRecord::Schema.define(version: 2021_09_12_175201) do
     t.datetime "updated_at", null: false
     t.string "type"
     t.index ["created_by_id"], name: "labels_created_by_id_index"
-    t.index ["label_object_type", "label_object_id"], name: "index_labels_on_label_object"
+    t.index ["label_object_type", "label_object_id"], name: "index_labels_on_label_object_type_and_label_object_id"
     t.index ["project_id"], name: "index_labels_on_project_id"
     t.index ["updated_by_id"], name: "labels_updated_by_id_index"
   end
@@ -1324,8 +1324,8 @@ ActiveRecord::Schema.define(version: 2021_09_12_175201) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["created_by_id"], name: "index_origin_relationships_on_created_by_id"
-    t.index ["new_object_type", "new_object_id"], name: "index_origin_relationships_on_new_object"
-    t.index ["old_object_type", "old_object_id"], name: "index_origin_relationships_on_old_object"
+    t.index ["new_object_type", "new_object_id"], name: "index_origin_relationships_on_new_object_type_and_new_object_id"
+    t.index ["old_object_type", "old_object_id"], name: "index_origin_relationships_on_old_object_type_and_old_object_id"
     t.index ["project_id"], name: "index_origin_relationships_on_project_id"
     t.index ["updated_by_id"], name: "index_origin_relationships_on_updated_by_id"
   end
@@ -1410,7 +1410,7 @@ ActiveRecord::Schema.define(version: 2021_09_12_175201) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["created_by_id"], name: "index_pinboard_items_on_created_by_id"
-    t.index ["pinned_object_type", "pinned_object_id"], name: "index_pinboard_items_on_pinned_object"
+    t.index ["pinned_object_type", "pinned_object_id"], name: "index_pinboard_items_on_pinned_object_type_and_pinned_object_id"
     t.index ["position"], name: "index_pinboard_items_on_position"
     t.index ["project_id"], name: "index_pinboard_items_on_project_id"
     t.index ["updated_by_id"], name: "index_pinboard_items_on_updated_by_id"

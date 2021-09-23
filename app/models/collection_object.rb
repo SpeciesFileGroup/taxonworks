@@ -80,6 +80,7 @@ class CollectionObject < ApplicationRecord
   
   include CollectionObject::BiologicalExtensions
 
+  include CollectionObject::Taxonomy # at present must be before IsDwcOccurence
   include Shared::IsDwcOccurrence
   include CollectionObject::DwcExtensions
 
