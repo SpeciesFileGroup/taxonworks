@@ -1,7 +1,7 @@
 json.extract! citation, :id, :citation_object_id, :citation_object_type, :source_id, :pages, :is_original,
-  :created_by_id, :updated_by_id, :project_id
+:created_by_id, :updated_by_id, :project_id
 
-json.partial! '/shared/data/all/metadata', object: citation
+json.partial! '/shared/data/all/metadata', object: citation, extensions: false
 
 json.citation_source_body citation_source_body(citation)
 

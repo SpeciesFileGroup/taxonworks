@@ -5,7 +5,7 @@ json.base_class object.class.base_class.name
 json.url_for url_for(only_path: false, format: :json)
 json.object_url url_for(metamorphosize_if(object))
 
-extensions ||= true
+extensions = true if extensions.nil?
 
 # This allows us to prevent cascading extensions when we use `&extend[]`
 if extensions
