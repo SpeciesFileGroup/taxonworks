@@ -158,7 +158,7 @@ describe Source::Bibtex, type: :model, group: :sources do
                                     author = "D\'{e}coret, X{\ae}vier and Victor, Paul {\'E}mile",
                                     editor = "Simon {"}the {saint"} Templar",
                                     publisher = "@ sign publishing",
-                                    journal = "{Bib}TeX Journal of \{funny\} ch\'{a}r{\aa}cter{\$}",
+                                    journal = "{Bib}TeX Journal of \{funny\} Ch\'{a}r{\aa}cter{\$}",
                                     year = {2003}})
 
         a = BibTeX::Bibliography.parse(citation_string, filter: :latex)
@@ -166,8 +166,8 @@ describe Source::Bibtex, type: :model, group: :sources do
         src = Source::Bibtex.new_from_bibtex(entry)
         expect(src.save!).to be_truthy
 
-        expect(src.cached_string('text')).to eq('Décoret, X. & Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users. BibTeX Journal of {Funny} Cháråcter$.')
-        expect(src.cached_string('html')).to eq('Décoret, X. &amp; Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users. <i>BibTeX Journal of {Funny} Cháråcter$</i>.')
+        expect(src.cached_string('text')).to eq('Décoret, X. & Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users. BibTeX Journal of {funny} Cháråcter$.')
+        expect(src.cached_string('html')).to eq('Décoret, X. &amp; Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users. <i>BibTeX Journal of {funny} Cháråcter$</i>.')
 
         # Note this was the original check (lower case editor in double quotes... seems like a massive edge case, so presently not allowing so that we can cleanup capitalization in general) 
         # expect(src.cached_string('text')).to eq('Décoret, X. & Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "the saint" Templar (Ed). BibTeX journal of {funny} cháråcter$.')
@@ -979,9 +979,9 @@ describe Source::Bibtex, type: :model, group: :sources do
           specify 'stated_year' do
             src1 = FactoryBot.create(:soft_valid_bibtex_source_article)
             src1.update(stated_year: '1699')
-            expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. <i>Journal of Test Articles</i>. [1699]')
+            expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. <i>Journal of Test Articles</i>. [1699].')
             src1.update(volume: '25')
-            expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. <i>Journal of Test Articles</i>, 25. [1699]')
+            expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. <i>Journal of Test Articles</i>, 25. [1699].')
           end
 
         end
