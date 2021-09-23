@@ -24,9 +24,10 @@ module Shared::Taxonomy
       c = case self.class.base_class.name
           when 'CollectionObject'
             a = current_taxon_name
+            
             # If we have no name, see if there is a Type reference and use it as proxy
-            a ||= type_materials.primary.first&.protonym
-            a
+            # !! Careful/TODO this is an arbitrary choice, technically can be only one primary, but not restricted in DB yet
+            a ||= type_designations.primary.first&.protonym
           when 'Otu'
             taxon_name.valid_taxon_name
           end
