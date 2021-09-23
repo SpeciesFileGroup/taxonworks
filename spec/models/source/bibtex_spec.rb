@@ -158,7 +158,7 @@ describe Source::Bibtex, type: :model, group: :sources do
                                     author = "D\'{e}coret, X{\ae}vier and Victor, Paul {\'E}mile",
                                     editor = "Simon {"}the {saint"} Templar",
                                     publisher = "@ sign publishing",
-                                    journal = "{Bib}TeX journal of \{funny\} ch\'{a}r{\aa}cter{\$}",
+                                    journal = "{Bib}TeX Journal of \{funny\} ch\'{a}r{\aa}cter{\$}",
                                     year = {2003}})
 
         a = BibTeX::Bibliography.parse(citation_string, filter: :latex)

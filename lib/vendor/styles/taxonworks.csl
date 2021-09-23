@@ -574,8 +574,9 @@
   <macro name="title-and-descriptions">
     <choose>
       <if variable="title">
-        <group delimiter=" " suffix=".">
+        <group delimiter=". " suffix=".">
           <text macro="title"/>
+          <text macro="secondary-contributors"/>
           <text macro="parenthetical"/>
           <text macro="bracketed"/>
         </group>
@@ -702,7 +703,7 @@
   </macro>
   <macro name="parenthetical">
     <!-- (Secondary contributors; Database location; Genre no. 123; Report Series 123, Version, Edition, Volume, Page) -->
-    <group prefix="(" suffix=")">
+    <group>
       <choose>
         <if type="patent">
           <!-- authority: U.S. ; genre: patent ; number: 123,445 -->
@@ -727,7 +728,7 @@
         <else-if type="post webpage" match="any">
           <!-- For post webpage, container-title is treated as publisher -->
           <group delimiter="; ">
-            <text macro="secondary-contributors"/>
+            <text macro="publisher"/>
             <text macro="database-location"/>
             <text macro="number"/>
             <text macro="locators-booklike"/>
@@ -735,7 +736,6 @@
         </else-if>
         <else-if variable="container-title">
           <group delimiter="; ">
-            <text macro="secondary-contributors"/>
             <choose>
               <if type="broadcast graphic map motion_picture song" match="any">
                 <!-- For audiovisual media, number information comes after title, not container-title -->
@@ -746,7 +746,7 @@
         </else-if>
         <else>
           <group delimiter="; ">
-            <text macro="secondary-contributors"/>
+            <text macro="publisher"/>
             <text macro="database-location"/>
             <text macro="number"/>
             <text macro="locators-booklike"/>
@@ -758,12 +758,13 @@
   <macro name="parenthetical-container">
     <choose>
       <if variable="container-title" match="any">
-        <group prefix="(" suffix=")">
-          <group delimiter="; ">
+        <group>
+          <group delimiter=". ">
             <text macro="database-location"/>
             <choose>
               <if type="broadcast graphic map motion_picture song" match="none">
                 <!-- For audiovisual media, number information comes after title, not container-title -->
+                <text macro="publisher"/>
                 <text macro="number"/>
               </if>
             </choose>
@@ -776,7 +777,7 @@
   <macro name="bracketed">
     <!-- [Descriptive information] -->
     <!-- If there is a number, genre is already printed in macro="number" -->
-    <group prefix="[" suffix="]">
+    <group suffix=".">
       <choose>
         <if variable="reviewed-author reviewed-title" type="review review-book" match="any">
           <!-- Reviewed item -->
@@ -834,7 +835,7 @@
           <group delimiter="; ">
             <choose>
               <if variable="number" match="none">
-                <group delimiter=", ">
+                <group delimiter=". ">
                   <text variable="genre" text-case="capitalize-first"/>
                   <choose>
                     <if variable="archive DOI URL" match="any">
@@ -1150,7 +1151,7 @@
                 </names>
                 <names variable="editor translator" delimiter="; ">
                   <name and="symbol" initialize-with="." delimiter=", "/>
-                  <label form="short" prefix=", " text-case="title"/>
+                  <label form="short" prefix=" (" suffix=")" text-case="title"/>
                 </names>
               </group>
             </if>
@@ -1464,7 +1465,7 @@
       <if variable="container-title" match="any">
         <group delimiter=" ">
           <text term="in" text-case="capitalize-first"/>
-          <group delimiter=", ">
+          <group delimiter=". ">
             <names variable="editor translator" delimiter=", &amp; ">
               <!-- Change to editortranslator and move editor to substitute as that becomes available -->
               <name and="symbol" initialize-with="." delimiter=", "/>
@@ -1475,7 +1476,7 @@
                 <names variable="container-author"/>
               </substitute>
             </names>
-            <group delimiter=": " font-style="italic">
+            <group delimiter=": " font-style="italic" suffix=".">
               <text variable="container-title"/>
               <!-- Replace with volume-title as that becomes available -->
               <choose>
@@ -1488,8 +1489,8 @@
               </choose>
             </group>
           </group>
-          <text macro="parenthetical-container"/>
-          <text macro="bracketed-container"/>
+          <text macro="parenthetical-container" suffix="."/>
+          <text macro="bracketed-container" suffix="."/>
         </group>
       </if>
     </choose>
@@ -1905,11 +1906,10 @@
               <text macro="author-bib"/>
               <text macro="date-bib"/>
               <text macro="title-and-descriptions"/>
-              <text macro="container"/>
+              <text macro="container" suffix="."/>
               <text macro="event"/>
-              <text macro="publisher"/>
+              <text macro="note-container"/>
             </group>
-            <text macro="note-container"/>
             <text macro="access"/>
             <text macro="publication-history"/>
           </group>
