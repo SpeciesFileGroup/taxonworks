@@ -1425,7 +1425,7 @@
   <macro name="container-periodical">
     <group delimiter=". ">
       <group delimiter=", ">
-        <text variable="container-title" font-style="italic" text-case="title"/>
+        <text variable="container-title" font-style="italic"/> <!-- was  text-case="title" -->
         <choose>
           <if variable="volume">
             <group>
