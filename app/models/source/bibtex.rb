@@ -767,7 +767,7 @@ class Source::Bibtex < Source
       next if f == :bibtex_type
       v = send(f)
       if !v.blank? && (v =~ /\A{(.*)}\z/)
-        a[f.to_s.gsub('_', '-')] = {literal: $1}
+        a[f.to_s] = {literal: $1}
       end
     end
     a['year-suffix'] = year_suffix unless year_suffix.blank?
