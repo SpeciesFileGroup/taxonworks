@@ -3,7 +3,7 @@ import { MutationNames } from '../mutations/mutations'
 import nonReactiveStore from '../nonReactiveStore.js'
 
 export default ({ commit }, otusId) => new Promise((resolve, reject) => {
-  AssertedDistribution.where({ otu_id: otusId, embed: ['shape'] }).then(response => {
+  AssertedDistribution.where({ otu_id: otusId, embed: ['shape', 'geographic_area'], extend: ['geographic_area_type', 'level_names'] }).then(response => {
     const shapes = response.body.map(item => item.geographic_area.shape)
 
     nonReactiveStore.geographicAreas = [...new Map(shapes.map(item => [item.properties.geographic_area.id, item])).values()]

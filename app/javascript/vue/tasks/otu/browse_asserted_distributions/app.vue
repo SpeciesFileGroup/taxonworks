@@ -102,7 +102,10 @@ export default {
 
   methods: {
     searchDistribution (otu) {
-      AssertedDistribution.where({ otu_id: otu.id }).then(response => {
+      AssertedDistribution.where({
+        otu_id: otu.id,
+        embed: ['shape', 'geographic_area']
+      }).then(response => {
         this.assertedDistribution = response.body
       })
     },

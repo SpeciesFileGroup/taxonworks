@@ -52,7 +52,7 @@ export default {
   methods: {
     getCites() {
       const params = {
-        verbose_object: true,
+        verbose_citation_object: true,
         citation_object_type: 'TaxonNameClassification',
         source_id: this.sourceID
       }
