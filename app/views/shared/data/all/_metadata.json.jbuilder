@@ -7,6 +7,7 @@ json.object_url url_for(metamorphosize_if(object))
 
 extensions ||= true
 
+# This allows us to prevent cascading extensions when we use `&extend[]`
 if extensions
   if extend_response_with('pinboard_item')
     json.partial! '/pinboard_items/pinned', object: object
@@ -23,6 +24,12 @@ if extensions
           json.partial! '/sources/base_attributes', source: object.origin_citation.source
         end
       end
+    end
+  end
+
+  if extend_response_with('citations')
+    json.citations do
+      json.array! object.citations, partial: '/citations/attributes', as: :citation # .reload removed
     end
   end
 end

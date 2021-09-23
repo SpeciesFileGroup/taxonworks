@@ -17,7 +17,6 @@ if extend_response_with('subject')
   end
 end
 
-
 if extend_response_with('object')
   json.object do
     json.partial! '/shared/data/all/metadata', object: biological_association.biological_association_object, extensions: false
@@ -28,8 +27,3 @@ if extend_response_with('object')
   end
 end
 
-if extend_response_with('citations')
-  json.citations do
-    json.array! biological_association.citations.reload, partial: '/citations/attributes', as: :citation
-  end
-end
