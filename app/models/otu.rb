@@ -1,7 +1,7 @@
 # An Otu (loosely, operational taxonomic unit) can be thought of as a unit of study.  In most cases an otu is a taxon.
 #
 # An Otu is defined by its underlying data and may be labeled with a name (TaxonName). Otus are used to represent rows
-# in matrices, taxon pages, individuals or populations, or arbitrary clusters of organisms (e.g. 'unsorted specimens in this container').
+# in matrices, taxon eages, individuals or populations, or arbitrary clusters of organisms (e.g. 'unsorted specimens in this container').
 # Otus are a primary unit of work in TaxonWorks.
 #
 # OTU is labeled with a name, either arbitrarily given or specifically linked to a taxon_name_id.
@@ -37,6 +37,8 @@ class Otu < ApplicationRecord
   include Shared::BiologicalAssociations
   include Shared::HasPapertrail
   include Shared::OriginRelationship
+
+  include Shared::Taxonomy
 
   include Shared::MatrixHooks::Member
   include Otu::MatrixHooks

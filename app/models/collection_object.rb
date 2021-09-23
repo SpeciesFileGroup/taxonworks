@@ -80,6 +80,7 @@ class CollectionObject < ApplicationRecord
   include Shared::IsDwcOccurrence
   include CollectionObject::DwcExtensions
 
+  include Shared::Taxonomy
   include CollectionObject::BiologicalExtensions
 
   ignore_whitespace_on(:buffered_collecting_event, :buffered_determinations, :buffered_other_labels)
