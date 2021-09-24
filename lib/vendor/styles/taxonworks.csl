@@ -4,8 +4,8 @@
     <!-- 'taxonworks.csl' is based on 'apa.csl' -->
     <title>TaxonWorks</title>
     <title-short>TW</title-short>
-    <id>http://www.zotero.org/styles/tw</id>
-    <link href="http://www.zotero.org/styles/tw" rel="self"/>
+    <id>taxonworks</id>
+    <link href="https://raw.githubusercontent.com/SpeciesFileGroup/taxonworks/master/lib/vendor/styles/taxonworks.csl" rel="self"/>
     <link href="http://www.zotero.org/styles/apa-6th-edition" rel="template"/>
     <link href="https://taxonworks.org" rel="documentation"/>
     <author>
