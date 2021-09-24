@@ -203,19 +203,18 @@ module Queries
         queries.each do |q, scope|
           a = q
 
+          # Limit autocomplete to ONLY project sources if limit_to_project == true
           if project_id && limit_to_project
             a = a.joins(:project_sources).where(member_of_project_id.to_sql)
-          elsif member_of_project_id
-            a = a.left_outer_joins(:project_sources).where(project_sources_table[:project_id].eq(nil).or(member_of_project_id).to_sql)
           end
 
-          # order results by number of times used
-          if scope
+          # Order results by number of times used *in this project*
+          if project_id && scope
             a = a.left_outer_joins(:citations)
-              .select('sources.*, COUNT(citations.id) AS use_count, MAX(citations.project_id) AS in_project_id, MAX(project_sources.id) AS project_source_id')
+              .select('sources.*, COUNT(citations.id) AS use_count, NULLIF(citations.project_id, NULL) as in_project')
               .where('citations.project_id = ? OR citations.project_id IS NULL', project_id)
-              .group('sources.id')
-              .order('in_project_id, use_count DESC, project_source_id')
+              .group('sources.id, citations.project_id')
+              .order('use_count DESC')
           end
           a ||= q
 

@@ -770,6 +770,7 @@ class Source::Bibtex < Source
         a[f.to_s] = {literal: $1}
       end
     end
+
     a['year-suffix'] = year_suffix unless year_suffix.blank?
     a['original-date'] = {"date-parts" => [[ stated_year ]]} unless stated_year.blank?
     a['language'] = Language.find(language_id).english_name.to_s unless language_id.nil?
