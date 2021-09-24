@@ -3,6 +3,5 @@ json.extract! biological_relationship_type, :id, :biological_property_id, :biolo
 if extend_response_with('biological_property')
   json.biological_property do
     json.partial! '/shared/data/all/metadata', object: biological_relationship_type.biological_property, extensions: false
-    # json.partial! '/controlled_vocabulary_terms/attributes', object: biological_relationship_type.biological_property
   end
 end

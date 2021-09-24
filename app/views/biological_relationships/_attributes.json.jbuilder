@@ -7,7 +7,7 @@ if extend_response_with('subject_biological_relationship_types')
   end
 end
 
-if extend_response_with('subject_biological_relationship_types')
+if extend_response_with('object_biological_relationship_types')
   json.object_biological_relationship_types(biological_relationship.object_biological_relationship_types) do |p|
     json.partial! '/biological_relationship_types/attributes', biological_relationship_type: p
   end
