@@ -338,8 +338,11 @@ module Utilities::Dates
       return nil unless first_date_hash
 
       # Split date on separators, then work backwards inserting numbers for non-null values from first date
-      second_date_values = second_date_str.split(/[-T:Z]/).map { |x| x.to_i }
-
+      begin
+        second_date_values = second_date_str.split(/[-T:Z]/).map { |x| ap x; Integer(x, 10) }
+      rescue
+        return nil
+      end
 
       # keep non-nil values in first date string
       present_date_hash = first_date_hash.reject { |_,v| v.nil? }
