@@ -243,6 +243,11 @@ describe Utilities::Dates, group: [:collecting_events, :dates] do
       end
 
       context "ISO8601 interval parsing" do
+        specify "should return nil on invalid range format" do
+          date = Utilities::Dates.parse_iso_date_str("2013/02/26-2013/02/26")
+          expect(date).to be_nil
+        end
+
         specify "should return nil on invalid interval" do
           date = Utilities::Dates.parse_iso_date_str("January 2018/March 2018")
           expect(date).to be_nil
