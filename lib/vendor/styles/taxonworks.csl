@@ -1581,7 +1581,7 @@
               </group>
             </if>
           </choose>
-          <text variable="URL"/>
+          <text variable="URL" prefix="Available from "/>
         </group>
       </else-if>
     </choose>
@@ -1902,7 +1902,7 @@
         </if>
         <else>
           <group delimiter=" ">
-            <group delimiter=" " suffix=".">
+            <group delimiter=" ">
               <text macro="author-bib"/>
               <text macro="date-bib"/>
               <text macro="title-and-descriptions"/>

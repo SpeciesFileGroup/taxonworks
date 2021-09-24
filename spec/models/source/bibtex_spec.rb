@@ -187,13 +187,13 @@ describe Source::Bibtex, type: :model, group: :sources do
         a = BibTeX::Bibliography.parse(citation_string, filter: :latex)
         entry = a.first
         src = Source::Bibtex.new_from_bibtex(entry)
-        expect(src.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution. http://dx.doi.org/10.5962/bhl.title.1086')
+        expect(src.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution. Available from http://dx.doi.org/10.5962/bhl.title.1086')
       end
 
       # input = 'Grubbs; Baumann & DeWalt. 2014. A review of the Nearctic genus Prostoia (Ricker) (Plecoptera: Nemouridae), with the description of a new species and a surprising range extension for P. hallasi Kondratieff and Kirchner. Zookeys. '
       specify 'Strings are output properly 3' do
         citation_string = "@article{Grubbs_2014,
-            doi = {10.3897/zookeys.401.7299},
+            doi = {10.3897/zookeys.401.7298},
             url = {http://dx.doi.org/10.3897/zookeys.401.7299},
             year = 2014,
             month = {apr},
@@ -207,7 +207,7 @@ describe Source::Bibtex, type: :model, group: :sources do
         a = BibTeX::Bibliography.parse(citation_string, filter: :latex)
         entry = a.first
         src = Source::Bibtex.new_from_bibtex(entry)
-        expect(src.cached_string('html')).to eq('Grubbs, S., Baumann, R., DeWalt, R. &amp; Tweddale, T. (2014) A review of the Nearctic genus Prostoia (Ricker) (Plecoptera, Nemouridae), with the description of a new species and a surprising range extension for P. hallasi Kondratieff &amp; Kirchner. <i>ZooKeys</i>, 401, 11–30. http://dx.doi.org/10.3897/zookeys.401.7299')
+        expect(src.cached_string('html')).to eq('Grubbs, S., Baumann, R., DeWalt, R. &amp; Tweddale, T. (2014) A review of the Nearctic genus Prostoia (Ricker) (Plecoptera, Nemouridae), with the description of a new species and a surprising range extension for P. hallasi Kondratieff &amp; Kirchner. <i>ZooKeys</i>, 401, 11–30. Available from http://dx.doi.org/10.3897/zookeys.401.7299')
       end
     end
 
@@ -979,9 +979,9 @@ describe Source::Bibtex, type: :model, group: :sources do
           specify 'stated_year' do
             src1 = FactoryBot.create(:soft_valid_bibtex_source_article)
             src1.update(stated_year: '1699')
-            expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. <i>Journal of Test Articles</i>. [1699].')
+            expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. <i>Journal of Test Articles</i>. [1699]')
             src1.update(volume: '25')
-            expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. <i>Journal of Test Articles</i>, 25. [1699].')
+            expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. <i>Journal of Test Articles</i>, 25. [1699]')
           end
 
         end
