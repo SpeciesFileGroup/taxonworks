@@ -4,8 +4,7 @@ json.extract! geographic_area, :id, :name, :level0_id, :level1_id, :level2_id,
   :tdwgID, :data_origin,
   :created_by_id, :updated_by_id, :created_at, :updated_at
 
-
-if extend_response_with('level_names')
+if embed_response_with('level_names')
   json.level0_name geographic_area.level0&.name
   json.level1_name geographic_area.level1&.name
   json.level2_name geographic_area.level2&.name

@@ -11,7 +11,6 @@ end
 
 if extend_response_with('geographic_area')
   json.geographic_area do
-    json.partial! '/shared/data/all/metadata', object: asserted_distribution.geographic_area, klass: 'GeographicArea', extensions: false
-   # json.partial! '/geographic_areas/attributes', geographic_area: asserted_distribution.geographic_area
+    json.partial! '/geographic_areas/attributes', geographic_area: asserted_distribution.geographic_area
   end
 end
