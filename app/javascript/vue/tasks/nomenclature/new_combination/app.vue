@@ -81,7 +81,7 @@ export default {
       const keys = Object.keys(combination.protonyms)
 
       this.accept_taxon_name_ids = keys.map(key => combination.protonyms[key].id)
-      this.$refs.combination.editCombination(combination.name_string, combination)
+      this.$refs.combination.editCombination(combination.object_label, combination)
       this.$refs.inputSearch.disabledButton(true)
     },
 
