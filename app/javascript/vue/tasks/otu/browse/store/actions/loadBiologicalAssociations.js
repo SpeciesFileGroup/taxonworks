@@ -6,7 +6,8 @@ const extend = [
   'object',
   'subject',
   'biological_relationship',
-  'source'
+  'source',
+  'family_names'
 ]
 
 export default ({ state, commit }, globalId) =>
