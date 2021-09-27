@@ -27,7 +27,7 @@ json.extract! collecting_event, :id,
 
 json.partial! '/shared/data/all/metadata', object: collecting_event
 
-if extend_response_with('otus')
+if extend_response_with('roles')
   if collecting_event.collector_roles.any?
     json.collector_roles do
       json.array! collecting_event.collector_roles.each do |role|
