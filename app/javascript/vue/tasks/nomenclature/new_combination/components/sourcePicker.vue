@@ -5,7 +5,7 @@
       <template v-if="title">
         <a
           :href="`/sources/${origin_citation.source.id}/edit`"
-          v-html="origin_citation.source.object_tag"/>
+          v-html="origin_citation.source.cached"/>
         <div class="horizontal-left-content">
           <input
             type="text"
@@ -79,7 +79,7 @@ export default {
         if (newVal) {
           this.pages = this.origin_citation.pages
           this.id = this.origin_citation.id
-          this.title = this.origin_citation.source.object_tag
+          this.title = this.origin_citation.source.cached
           this.sourceId = this.origin_citation.source_id
         }
       },

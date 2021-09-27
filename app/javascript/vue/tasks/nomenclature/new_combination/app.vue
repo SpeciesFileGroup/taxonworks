@@ -59,7 +59,7 @@ export default {
   created () {
     this.loadCombination()
 
-    Combination.all({ extend: ['protonyms', 'placement', 'metadata'] }).then(response => {
+    Combination.all({ extend: ['protonyms', 'placement', 'metadata', 'citations', 'origin_citation', 'source'], embed: ['source'] }).then(response => {
       this.combinations = response.body
     })
 
