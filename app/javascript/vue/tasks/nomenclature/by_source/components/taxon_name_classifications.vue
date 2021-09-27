@@ -20,6 +20,7 @@
 
 import TableComponent from './tables/classification_table.vue'
 import SpinnerComponent from 'components/spinner.vue'
+import extend from '../const/extendRequest.js'
 import { Citation } from 'routes/endpoints'
 
 export default {
@@ -54,7 +55,8 @@ export default {
       const params = {
         verbose_citation_object: true,
         citation_object_type: 'TaxonNameClassification',
-        source_id: this.sourceID
+        source_id: this.sourceID,
+        extend
       }
 
       this.showSpinner = true
