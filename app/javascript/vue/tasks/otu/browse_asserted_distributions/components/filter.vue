@@ -80,7 +80,8 @@ export default {
       return {
         base: {
           otu_id: undefined,
-          embed: ['shape', 'geographic_area']
+          embed: ['shape'],
+          extend: ['geographic_area']
         }
       }
     },
