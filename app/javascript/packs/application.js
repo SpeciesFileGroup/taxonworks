@@ -71,4 +71,4 @@ require('../vue/tasks/namespaces/new_namespace/main.js')
 require('../vue/data/downloads/index.js')
 require('../vue/tasks/dwca_import/main.js')
 require('../vue/tasks/dwc/dashboard/index.js')
-
+require('../vue/tasks/administration/data/index.js')
