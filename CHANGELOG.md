@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Soft_validation fix. Objective synonyms should share the same type.
 
 ### Fixed
+- Add missing original citation to synonym names in CoLDP export [#2543] 
 - Uniquify people slow when many roles present [#2528]
 - Match combination when protonym has synonym relationships [#2525]
 - TaxonNameRelationsip `type_method` returns nil properly on unmatched types [#2504]
@@ -45,6 +46,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Upgraded gnfinder gem that makes use of new REST API
 - Refactor help code, replaced jQuery for js vanilla
 
+[#2543]: https://github.com/SpeciesFileGroup/taxonworks/issues/2543
 [#2532]: https://github.com/SpeciesFileGroup/taxonworks/issues/2532
 [#2528]: https://github.com/SpeciesFileGroup/taxonworks/issues/2528
 [#2084]: https://github.com/SpeciesFileGroup/taxonworks/issues/2084
