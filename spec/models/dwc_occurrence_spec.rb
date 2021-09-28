@@ -12,6 +12,35 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
   let(:source_bibtex) { FactoryBot.create(:valid_source_bibtex) }
   let(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution) }
 
+  specify 'extending predicates' do
+    s1 = Specimen.create
+    s2 = Specimen.create
+    s3 = Specimen.create
+
+    p1 = FactoryBot.create(:valid_predicate)
+    p2 = FactoryBot.create(:valid_predicate)
+    d1 = InternalAttribute.create!( attribute_subject: s1, predicate: p1, value: 1)
+    d2 = InternalAttribute.create!( attribute_subject: s2, predicate: p1, value: 2)
+
+#   a = DwcOccurrence.collection_object_join
+#     .left_outer_join(collection_objects: [:data_attributes])
+#     .where(data_attributes: nil).
+#     .or.where(data_attributes:
+#     .select("controlled_vocabulary_terms.name")
+#     .group('dwc_occurrences.id, controlled_vocabulary_terms.id')
+
+    b = Predicate.joins(:internal_attributes)
+      .where(data_attributes: { data_attribute_object_type: ['CollectionObject']})
+      .select(:id, :name)
+
+    c = InternalAttribute.select('t.*').from("CROSSTAB ('#{b.to_sql}') as t (pid, pname)")
+
+    byebug
+
+    expect(true).to eq(false)
+
+  end
+
   specify '.by_collection_object_filter 1' do
     3.times { Specimen.create }
     f = ::Queries::CollectionObject::Filter.new(user_date_start: Time.now.to_date.to_s).all # Note the .all

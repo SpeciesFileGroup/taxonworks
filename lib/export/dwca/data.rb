@@ -17,6 +17,8 @@ module Export::Dwca
   # Always use the ensure/data.cleanup pattern!
   #
   class Data
+
+    # 
     attr_accessor :data
 
     attr_accessor :eml
@@ -33,8 +35,9 @@ module Export::Dwca
 
     attr_reader :filename
 
+
     # @param [Hash] args
-    def initialize(core_scope: nil, extension_scopes: {} )
+    def initialize(core_scope: nil, extension_scopes: {}, predicate_extensions: [] )
       # raise ArgumentError, 'must pass a core_scope' if !record_core_scope.kind_of?( ActiveRecord::Relation )
       @core_scope = get_scope(core_scope)
       @biological_extension_scope = extension_scopes[:biological_extension_scope] #  = get_scope(core_scope)
