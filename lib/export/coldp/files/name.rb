@@ -82,7 +82,7 @@ module Export::Coldp::Files::Name
     uninomial = nil
 
     if rank == :genus
-      uninomial =  e[:genus][1]
+      uninomial = e[:genus][1]
 
     else
       if e[:genus]
