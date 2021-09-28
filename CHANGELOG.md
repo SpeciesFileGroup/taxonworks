@@ -27,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `import_dataset_id` parameter persist on after resetState in DwC Importer [#2529]
 - Updated Ruby gems and Node packages
 - In project button [#2530]
+- View image matrix is passing wrong ids [#2537]
 
 ### Changed
 - Removed `label_html` from `/people` responses
