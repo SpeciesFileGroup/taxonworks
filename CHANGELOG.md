@@ -8,6 +8,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Rake task to rebuild source cached
+- New .csl styl 'taxonworks.csl' used as the default style for displaying sources
+- New specs for rendering Source citations
 - `&extend[]` and `&embed[]` helper methods for REST responses [#2532]
 - Soft validation of cached values with fix {@proceps FOR WHAT}
 - Custom .csl support for BibTeX reference formating (see .csl styles at bottom of select list). New .cls submitted via issue tracker and integrated to source.
@@ -27,8 +30,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `import_dataset_id` parameter persist on after resetState in DwC Importer [#2529]
 - Updated Ruby gems and Node packages
 - In project button [#2530]
+- View image matrix is passing wrong ids [#2537]
 
 ### Changed
+- Tweak geo coordinate matching on verbatim labels
+- Year suffix, stated year, language, translated title and notes added to bibliography rendering via `to_citeproc`
 - Removed `label_html` from `/people` responses
 - `/people` JSON param from `&include_roles=true` to `&extend[]=roles` 
 - Prefer project sources in source autocomplete

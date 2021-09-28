@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'export/dwca/gbif_profile/core_taxon'
 
 describe "TaxonWorks to GBIF's DwC-A profile core file mapping" do
-  let (:citation) { 'Defaut (2006) Révision préliminaire des Oedipoda ouest-paléarctiques (Caelifera, Acrididae, Oedipodinae). <i>Matériaux Orthoptériques et Entomocénotiques</i> 11, 23–48.' }
+  let (:citation) { 'Defaut (2006) Révision préliminaire des Oedipoda ouest-paléarctiques (Caelifera, Acrididae, Oedipodinae). <i>Matériaux Orthoptériques et Entomocénotiques</i>, 11, 23–48.' }
 
   let(:core) {
     ProjectsAndUsers.spin_up_projects_users_and_housekeeping
