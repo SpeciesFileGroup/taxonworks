@@ -16,7 +16,8 @@ module SourcesHelper
       s = source.cached + ' '
     end
 
-    if source.respond_to?(:in_project_id) && source.in_project_id == sessions_current_project_id
+    # In project is the project_if if present in this project see lib/queries/source/autocomplete
+    if source.respond_to?(:in_project) && !source.in_project.nil?
       s += ' ' + content_tag(:span, 'in', class: [:feedback, 'feedback-primary', 'feedback-thin'])
       c = source.use_count
       s += ' ' + ( c > 0 ? content_tag(:span, "#{c.to_s}&nbsp;#{'citations'.pluralize(c)}".html_safe, class: [:feedback, 'feedback-secondary', 'feedback-thin']) : '' )
