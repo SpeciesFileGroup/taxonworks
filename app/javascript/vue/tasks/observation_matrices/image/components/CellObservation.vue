@@ -200,7 +200,7 @@ export default {
       }
     },
 
-    updateDepiction (event, observationId) {
+    async updateDepiction (event, observationId) {
       const depiction = {
         id: this.depictionMoved.id,
         depiction_object_id: observationId || this.observationId,
@@ -211,15 +211,16 @@ export default {
         depictions_attributes: [depiction]
       }
 
+      this.$store.commit(MutationNames.SetIsSaving, true)
+
       if (observation.id) {
-        Observation.update(observation.id, { observation }).then(({ body }) => {
+        await Observation.update(observation.id, { observation }).then(({ body }) => {
           if (!body.depictions.find(d => d.depiction_object_id === this.observationMoved)) {
             Observation.destroy(body.id)
           }
         })
       }
 
-      this.$store.commit(MutationNames.SetIsSaving, true)
       Depiction.update(depiction.id, { depiction }).then(({ body }) => {
         this.$emit('addDepiction', body)
         this.depictionMoved = undefined

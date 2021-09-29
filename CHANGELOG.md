@@ -32,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated Ruby gems and Node packages
 - In project button [#2530]
 - View image matrix is passing wrong ids [#2537]
+- Observations with depictions sometimes are removed after move a depiction [#2549]
 
 ### Changed
 - Tweak geo coordinate matching on verbatim labels
