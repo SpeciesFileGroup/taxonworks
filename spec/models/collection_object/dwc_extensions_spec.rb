@@ -11,6 +11,11 @@ describe CollectionObject::DwcExtensions, type: :model, group: :collection_objec
 
     # Rough tests to detect infinite recursion
 
+
+    specify '#dwc_latitude' do
+      expect(s.dwc_latitude).to eq('2010')
+    end
+
     specify '#dwc_event_date 1' do
       expect(s.dwc_event_date).to eq('2010')
     end
@@ -31,7 +36,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: :collection_objec
         end_date_month: 1,
         end_date_day: 1
       )
-      expect(s.dwc_event_date).to eq('2010/01/02-')
+      expect(s.dwc_event_date).to eq('2010/01/02-2011/01/01')
     end
 
     specify 'exists after create' do
