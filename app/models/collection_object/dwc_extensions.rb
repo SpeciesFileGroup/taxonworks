@@ -389,9 +389,9 @@ module CollectionObject::DwcExtensions
       .map { |p| collecting_event["#{d}_#{p}"] }
       .map { |p| "%02d" % p if p } # At least two digits
       }
-        .map { |d| d.compact.join('-') }
+        .map { |d| d.compact.join('/') }
         .reject(&:blank?)
-        .join("/").presence
+        .join("-").presence
   end
 
   def dwc_preparations

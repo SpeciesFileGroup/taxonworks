@@ -13,6 +13,9 @@ module DwcOccurrencesHelper
     #
 
     a = {
+     health: {
+       'Kingdom rank present': TaxonName.where(project_id: project_id).with_rank_class_including('Kingdom').any? 
+     },
      collection_objects: {
         record_total: data.count,
         enumerated_total: data.sum(:total),
