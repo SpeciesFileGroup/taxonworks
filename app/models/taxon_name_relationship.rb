@@ -290,11 +290,9 @@ class TaxonNameRelationship < ApplicationRecord
     write_attribute(:type, value.to_s)
   end
 
-  # @return [TaxonNameRelationship, String]
-  #    the type as a class, if legal, else a string  ! Strangeish
   def type_class
     r = read_attribute(:type).to_s
-    TAXON_NAME_RELATIONSHIP_NAMES.include?(r) ? r.safe_constantize : r
+    TAXON_NAME_RELATIONSHIP_NAMES.include?(r) ? r.safe_constantize : nil
   end
 
   # @return [String, nil]
@@ -323,7 +321,7 @@ class TaxonNameRelationship < ApplicationRecord
   end
 
   def validate_type
-    unless TAXON_NAME_RELATIONSHIP_NAMES.include?(type)
+    unless self.type_class.valid_object_ranks.include?(object_taxon_name.rank_string)
       errors.add(:type, "'#{type}' is not a valid taxon name relationship")
     end
 
@@ -414,7 +412,7 @@ class TaxonNameRelationship < ApplicationRecord
     else
       errors.add(:object_taxon_name_id, 'Not a Protonym') if object_taxon_name.type == 'Combination'
     end
-    errors.add(:subject_taxon_name_id, 'Not a Protonym') if subject_taxon_name.type == 'Combination'
+    errors.add(:subject_taxon_name_id, 'Not a Protonym') if subject_taxon_name.type == 'Combination' && self.type != 'TaxonNameRelationship::CurrentCombination'
   end
 
   # TODO: Isolate to individual classes per type

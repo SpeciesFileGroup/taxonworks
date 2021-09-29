@@ -591,12 +591,12 @@ class TaxonName < ApplicationRecord
     return verbatim_author if !verbatim_author.nil?
     if taxon_name_authors.any?
       if !source.nil? && source.authors.collect{|i| i.id} == taxon_name_authors.pluck(:id).to_a
-        return source.authority_name if !source.nil?
+        return source.authority_name unless source.nil?
       else
         return Utilities::Strings.authorship_sentence( taxon_name_authors.pluck(:last_name) )
       end
     end
-    return source.authority_name if !source.nil?
+    return source.authority_name unless source.nil?
     nil
   end
 
@@ -750,7 +750,12 @@ class TaxonName < ApplicationRecord
   def original_author_year
     if nomenclatural_code == :iczn
       cached_author_year&.gsub(/^\(|\)/, '')
-     #cached_author_year&.gsub(/^\(|\)$/, '')
+    elsif nomenclatural_code == :icn && cached_author_year
+      if matchdata1 = cached_author_year.match(/(\(.*\))/)
+        matchdata1[1].gsub(/^\(|\)/, '')
+      else
+        nil
+      end
     else
       cached_author_year
     end
@@ -1249,6 +1254,28 @@ class TaxonName < ApplicationRecord
   def icn_author_and_year(taxon)
     ay = nil
 
+    misapplication = TaxonNameRelationship.where_subject_is_taxon_name(taxon).with_type_string('TaxonNameRelationship::Icn::Unaccepting::Misapplication')
+    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(taxon).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING)
+    m_obj = misapplication.empty? ? nil : misapplication.first.object_taxon_name
+    mobj = misspelling.empty? ? taxon : misspelling.first.object_taxon_name
+    ay = mobj.try(:author_string) # author string for basionym
+    current_combination = TaxonNameRelationship.where_object_is_taxon_name(mobj).with_type_string('TaxonNameRelationship::CurrentCombination')
+    cc = current_combination.empty? ? self : current_combination.first.subject_taxon_name
+
+    if !self.author_string.blank? && mobj.id != cc.id
+      ay = '(' + ay + ') ' + cc.try(:author_string)
+    end
+
+    if !misapplication.empty? && !m_obj.author_string.blank?
+      ay += ' non ' + m_obj.author_string
+    end
+
+    ay.blank? ? nil : ay
+  end
+
+  def icn_author_and_year_old_code(taxon)
+    ay = nil
+
     basionym = TaxonNameRelationship.where_subject_is_taxon_name(taxon).
       with_type_string('TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Basionym').first
     if basionym.nil?
@@ -1261,8 +1288,7 @@ class TaxonName < ApplicationRecord
       b_sub = taxon.finest_protonym
     end
 
-    misapplication = TaxonNameRelationship.where_subject_is_taxon_name(taxon).
-      with_type_string('TaxonNameRelationship::Icn::Unaccepting::Misapplication')
+    misapplication = TaxonNameRelationship.where_subject_is_taxon_name(taxon).with_type_string('TaxonNameRelationship::Icn::Unaccepting::Misapplication')
     misspelling = TaxonNameRelationship.where_subject_is_taxon_name(taxon).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING)
     m_obj = misapplication.empty? ? nil : misapplication.first.object_taxon_name
 
