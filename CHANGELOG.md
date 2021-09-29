@@ -32,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated Ruby gems and Node packages
 - In project button [#2530]
 - View image matrix is passing wrong ids [#2537]
+- Observations with depictions sometimes are removed after move a depiction [#2549]
 
 ### Changed
 - Tweak geo coordinate matching on verbatim labels
@@ -58,6 +59,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2519]: https://github.com/SpeciesFileGroup/taxonworks/pull/2519
 [#2529]: https://github.com/SpeciesFileGroup/taxonworks/pull/2529
 [#2530]: https://github.com/SpeciesFileGroup/taxonworks/pull/2530
+[#2549]: https://github.com/SpeciesFileGroup/taxonworks/pull/2549
 
 ## [0.19.7] - 2021-09-09
 
