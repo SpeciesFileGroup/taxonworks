@@ -4,6 +4,7 @@
     <download-panel :params="params" />
     <graph-component />
     <download-recent />
+    <healt-panel />
     <collector-table />
   </div>
 </template>
@@ -13,7 +14,7 @@ import { provide } from 'vue'
 import { state, actions } from './store/index.js'
 import GraphComponent from './components/Graph/GraphPanel.vue'
 import DownloadPanel from './components/Download/DownloadPanel.vue'
-import ReindexPanel from './components/Reindex/ReindexPanel.vue'
+import HealtPanel from './components/Health/HealthPanel.vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import CollectorTable from './components/Collector/CollectorTable.vue'
 import DownloadRecent from './components/Download/DownloadRecent.vue'

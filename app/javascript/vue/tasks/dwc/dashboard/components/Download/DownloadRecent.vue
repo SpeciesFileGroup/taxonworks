@@ -1,5 +1,5 @@
 <template>
-  <div class="panel content download-table">
+  <div class="panel content">
     <h2>Recently created DwC Archives</h2>
     <table>
       <thead>
@@ -130,8 +130,3 @@ onBeforeMount(async () => {
 })
 
 </script>
-<style scoped>
-  .download-table {
-    grid-column: 1/3;
-  }
-</style>
