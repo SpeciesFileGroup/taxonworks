@@ -56,6 +56,7 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
   end
 
   # @return [Hash]
+  #   like { genus: [nil, 'Aus'] ... }
   #   the elements of the original combination name for this instance
   #   TODO: reconcile this with <>_name_elements for other combinations.
   #   TODO: reconcile this format with that of full_name_hash
