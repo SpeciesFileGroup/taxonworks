@@ -4,7 +4,6 @@
     <download-panel :params="params" />
     <graph-component />
     <download-recent />
-    <reindex-panel :params="params" />
     <collector-table />
   </div>
 </template>

@@ -92,11 +92,10 @@ describe 'CollectionObjects', type: :feature do
                 end
 
                 specify 'source' do
-                  s = FactoryBot.create(:valid_source, by: @user) 
-
+                  s = FactoryBot.create(:valid_source, by: @user)
                   fill_autocomplete('source_id_for_specimen_batchload', with: s.cached, select: s.id)
                   click_button('buf_preview')
-                  expect(page).to have_content("Using '#{s.cached}' as source.")
+                  expect(page).to have_content("Using '#{s.cached.gsub('<i>','').gsub('</i>', '')}' as source.")
                 end
               end
             end
