@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New .csl style 'world_chalcidoidea_book.csl"
 - Verbatim value handling (use "{your value}")  for fields otherwise processed in BibTeX sources (e.g. author)
 - Soft_validation fix. Objective synonyms should share the same type.
+- Add `Download`, `Full size` and `Radial navigation` buttons in Image viewer [#2423]
 
 ### Fixed
 - Add missing original citation to synonym names in CoLDP export [#2543] 
@@ -60,6 +61,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2529]: https://github.com/SpeciesFileGroup/taxonworks/pull/2529
 [#2530]: https://github.com/SpeciesFileGroup/taxonworks/pull/2530
 [#2549]: https://github.com/SpeciesFileGroup/taxonworks/pull/2549
+[#2423]: https://github.com/SpeciesFileGroup/taxonworks/pull/2523
 
 ## [0.19.7] - 2021-09-09
 
