@@ -357,6 +357,10 @@ scope :tasks do
   end
 
   scope :observation_matrices do
+      scope :matrix_column_coder, controller: 'tasks/observation_matrices/matrix_column_coder' do
+        get :index, as: 'index_matrix_column_coder_task'
+      end
+
     scope :dashboard, controller: 'tasks/observation_matrices/dashboard' do
       get '', as: 'observation_matrices_dashboard_task', action: :index
     end

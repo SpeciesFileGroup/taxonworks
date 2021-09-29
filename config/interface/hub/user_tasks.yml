@@ -649,3 +649,11 @@ new_namespace_task:
     - collecting_event
   status: prototype
   description: 'Create new Namespaces, used in identifiers.'
+
+index_matrix_column_coder_task:
+  hub: true
+  name: 'Matrix column coder'
+  related:
+  categories:
+  status: prototype
+  description: 'Code a matrix column'

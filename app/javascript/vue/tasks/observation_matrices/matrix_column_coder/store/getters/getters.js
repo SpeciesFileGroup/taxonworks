@@ -7,7 +7,7 @@ const GetterNames = {
   GetCollectionObjects: 'getCollectionObjects',
   GetObservationMatrix: 'getObservationMatrix',
   GetObservations: 'getObservations',
-  GetOtus: 'getOtus',
+  GetOtus: 'getOtus'
 }
 
 const GetterFunctions = {
@@ -15,4 +15,9 @@ const GetterFunctions = {
   [GetterNames.GetObservationMatrix]: getObservationMatrix,
   [GetterNames.GetObservations]: getObservations,
   [GetterNames.GetOtus]: getOtus
+}
+
+export {
+  GetterNames,
+  GetterFunctions
 }
