@@ -22,12 +22,7 @@
   <div class="item item2" id="session_nav">
     <ul class='horizontal_navbar'> 
       <%= session_header_links.collect{|l| content_tag(:li, l)}.join.html_safe -%> 
-      <li>
-      <%= content_tag(:span, sessions_current_user.name, class: 'subtle', data: { 
-        is_administrator: sessions_current_user.is_administrator,
-        current_user_id: sessions_current_user.id 
-        })-%>
-      </li>
+      <li><%= content_tag(:span, sessions_current_user.name, class: 'subtle')-%></li>
     </ul>
   </div>
 </div>
