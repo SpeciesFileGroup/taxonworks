@@ -32,7 +32,7 @@
         :list="depictions"
         @add="movedDepiction"
         @choose="setObservationDragged"
-        @remove="removeFromList">
+      >
         <template #item="{ element }">
           <div class="drag-container">
             <image-viewer
@@ -179,10 +179,6 @@ export default {
   },
 
   methods: {
-    removeFromList (event) {
-      this.$emit('removeDepiction', event.oldIndex)
-    },
-
     movedDepiction (event) {
       if (this.depictions.length === 1) {
         const observation = {
@@ -227,7 +223,6 @@ export default {
         this.observationMoved = undefined
         this.$store.commit(MutationNames.SetIsSaving, false)
       })
-      event.item.remove()
     },
 
     setObservationDragged (event) {
