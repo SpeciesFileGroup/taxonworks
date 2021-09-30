@@ -304,7 +304,7 @@ class GeographicArea < ApplicationRecord
 
   # @return [GeographicItem, nil]
   #   a "preferred" geographic item for this geographic area, where preference
-  #   is based on an ordering of source gazeteers, the order being
+  #     is based on an ordering of source gazeteers, the order being
   #   1) Natural Earth Countries
   #   2) Natural Earth States
   #   3) GADM
@@ -316,7 +316,7 @@ class GeographicArea < ApplicationRecord
 
   # @return [GeographicAreasGeographicItem, nil]
   def default_geographic_area_geographic_item
-    geographic_areas_geographic_items.merge(::GeographicAreasGeographicItem.default_geographic_item_data).first
+    GeographicAreasGeographicItem.where(geographic_area_id: id).default_geographic_item_data.first
   end
 
   # rubocop:disable Style/StringHashKeys

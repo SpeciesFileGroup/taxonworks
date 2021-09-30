@@ -51,7 +51,6 @@ module CollectionObject::DwcExtensions
       verbatimLongitude: :dwc_verbatim_longitude,
       decimalLatitude: :dwc_latitude,
       decimalLongitude: :dwc_longitude,
-
       footprintWKT: :dwc_footprint_wkt,
 
       coordinateUncertaintyInMeters: :dwc_coordinate_uncertainty_in_meters,
@@ -144,18 +143,18 @@ module CollectionObject::DwcExtensions
     georeference_attributes[:georeferencedDate]
   end
 
+  def dwc_geodetic_datum
+    georeference_attributes[:geodeticDatum]
+  end
+
+  def dwc_verbatim_srs
+    georeference_attributes[:dwcVerbatimSrs]
+  end
+
   # georeferenceDate
   # technically could look at papertrail to see when geographic_area_id appeared
   def dwc_georeferenced_date
     collecting_event&.attribute_updated(:geographic_area_id)
-  end
-
-  def dwc_geodetic_datum
-    georeference_attributes[:geodetic_datum]
-  end
-
-  def dwc_verbatim_srs
-    georeference_attributes[:dwc_verbatim_srs]
   end
 
   # TODO: extend to Georeferences when we understand how to describe spatial uncertainty
@@ -353,11 +352,11 @@ module CollectionObject::DwcExtensions
   end
 
   def dwc_latitude
-    collecting_event_map_center.try(:y)
+    georeference_attributes[:dwcLatitude]
   end
 
   def dwc_longitude
-    collecting_event_map_center.try(:x)
+    georeference_attributes[:dwcLongitude]
   end
 
   def dwc_verbatim_locality

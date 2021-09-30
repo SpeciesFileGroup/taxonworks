@@ -59,32 +59,23 @@ class Georeference::VerbatimData < Georeference
     end
   end
 
-
-  # @return [Hash]
-  #   The interface to DwC for verbatim values only on the CE.
-  #   See respective georeferences for other implementations.
-  #
   def dwc_georeference_attributes
-    {
+    h = {}
+    super(h)
+    h.merge!(
       verbatimLatitude: collecting_event.verbatim_latitude,
       verbatimLongitude: collecting_event.verbatim_longitude,
 
       coordinateUncertaintyInMeters: error_radius, # See #1770
 
-      decimalLatitude: geographic_item.to_a.first,
-      decimalLongitude: geographic_item.to_a.last,
-
-      footprintWKT: geographic_item.geo_object.to_s,
-
       georeferenceSources: "Physical collection object.",
       georeferenceRemarks: "Derived from a instance of TaxonWorks' Georeference::VerbatimData.",
       georeferenceProtocol: 'A geospatial point translated from verbatim values recorded on human-readable media (e.g. paper specimen label, field notebook).',
-      geodeticDatum: nil, # TODO: check
-      georeferenceVerificationStatus: confidences&.collect{|c| c.name}.join('; '),
-
-      georeferencedBy: creator.name,
-      georeferencedDate: created_at
-    }
+      geodeticDatum: nil  # TODO: check
+    )
+    h
   end
+
+
 
 end

@@ -6,15 +6,11 @@ module GeographicArea::DwcSerialization
   end
 
   # @return [Hash]
-  #   The interface to DWC for verbatim values only on the CE.
-  #   See respective georeferences for other implementations.
-  #   See GeographicArea for centroids/areas.
-  #
-  # Serialization checks for this GeographicArea to have shape 
-  # have already been done prior to this call. 
+  #   The interface to DwcOccurence records with georeferencing based on a GeographicArea
   def dwc_georeference_attributes
-    { geodeticDatum: nil,    
-      footprintWKT: default_geographic_area_geographic_item.geographic_item.geo_object.to_s,
+    o = default_geographic_area_geographic_item
+    { geodeticDatum: nil,
+      footprintWKT: o&.geographic_item&.to_wkt,
       footprintSRS: Gis::FACTORY.srid.to_s,
       # footprintSpatialFit
 
@@ -22,13 +18,8 @@ module GeographicArea::DwcSerialization
 
       georeferenceRemarks: 'Derived from a geographic area gazeteer.',
       georeferenceVerificationStatus: 'Maximum of second level geopolitical subdivision only.',
-      georeferenceSources: dwc_georeference_sources,
+      georeferenceSources: o&.data_origin,
     }
-  end
-
-  # georeferenceSources
-  def dwc_georeference_sources
-    default_geographic_area_geographic_item&.data_origin
   end
 
 end
