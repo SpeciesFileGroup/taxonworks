@@ -1,5 +1,9 @@
 require 'dwc_archive'
 
+# Library to create DwcA archives from TaxonWorks data.
+#
+# !! If changes are made to this or related Dwc files you should update the INDEX_VERSION constant.
+#
 module Export
   module Dwca
 
@@ -63,8 +67,8 @@ module Export
       }
 
       if b && (t > 2)
-        max = 8
-        max = t if t < 8
+        max = 9
+        max = t if t < 9
 
         ids = klass
           .select('*')
