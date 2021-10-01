@@ -8,14 +8,16 @@ import CountDown from './countdown.js'
 
 const props = defineProps({
   startDate: {
-    type: Date,
+    type: [Date, Number],
     default: () => new Date()
   },
   endDate: {
-    type: Date,
+    type: [Date, Number],
     required: true
   }
 })
+
+const emit = defineEmits(['onComplete'])
 
 const seconds = ref(0)
 const minutes = ref(0)
@@ -30,7 +32,10 @@ const updateTime = (time) => {
 
 const twoDigits = (number) => (number).toLocaleString(undefined, { minimumIntegerDigits: 2 })
 
-const countdown = new CountDown(0, 0, updateTime)
+const onComplete = () => {
+  emit('onComplete', true)
+}
+const countdown = new CountDown(0, 0, updateTime, onComplete)
 
 watch([() => props.startDate, () => props.endDate], () => {
   if (props.startDate && props.endDate) {
