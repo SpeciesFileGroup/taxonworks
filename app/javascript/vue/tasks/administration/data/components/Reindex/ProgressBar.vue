@@ -36,7 +36,7 @@ const isReindexFinished = computed(() => !!samplesToUpdate.value.length)
 const percentComplete = computed(() => {
   const totalSamples = props.reindex.sample.length
   const totalRecords = props.reindex.total
-  const totalPerSample = totalRecords / (totalSamples - 1)
+  const totalPerSample = totalRecords / (totalSamples - (totalSamples % 10))
 
   const updatedSamples = totalSamples - samplesToUpdate.value.length
   const sampleRecords = totalPerSample * (updatedSamples - 1)
