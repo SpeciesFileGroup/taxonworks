@@ -74,7 +74,7 @@ jobs:
             })
           }
 
-          let suite, attempts = 15
+          let suite, attempts = 20
           do {
             core.info(`Checking suite completed successfully (${attempts} remaining). [check_suite_id = ${suiteId}]`)
             suite = (

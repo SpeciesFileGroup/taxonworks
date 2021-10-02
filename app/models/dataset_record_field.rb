@@ -24,6 +24,17 @@ class DatasetRecordField < ApplicationRecord
     where(indexed_column_value(value).eq(value))
   end
 
+  # Messy way of passing array of values for indexed_column_value
+  # @param [Array] values
+  def self.with_values(values)
+    if values.all? { |value| !value.nil? && value.length < VALUE_INDEX_LIMIT}
+      where(indexed_column_value(values.first).in(values))
+    else
+      where(value: values)
+    end
+
+  end
+
   def self.with_prefix_value(prefix)
     where(indexed_column_value(prefix).matches("#{sanitize_sql_like(prefix)}%"))
   end
