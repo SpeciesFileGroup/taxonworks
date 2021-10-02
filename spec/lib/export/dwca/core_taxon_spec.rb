@@ -40,7 +40,7 @@ describe "TaxonWorks to GBIF's DwC-A profile core file mapping" do
     ProjectsAndUsers.clean_slate
   }
 
-  context 'When name is governed by ICZN' do
+  xcontext 'When name is governed by ICZN' do
 
     specify 'nomenclaturalCode' do
       expect(core.nomenclaturalCode).to eq('ICZN')
