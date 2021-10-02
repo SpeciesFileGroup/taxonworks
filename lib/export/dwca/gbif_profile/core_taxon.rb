@@ -1,6 +1,6 @@
 # Core Taxon class
 # Repository URL: http://rs.gbif.org/core/dwc_taxon.xml
-
+# Not yet used
 module Export::Dwca::GbifProfile
 
   class CoreTaxon
@@ -15,7 +15,7 @@ module Export::Dwca::GbifProfile
     #
     # Examples: 101; “8fa58e08-08de-4ac1-b69c-1235340b7001;
     attr_accessor :taxonID # [USED IN SF]
-    
+
     # acceptedNameUsageID (http://rs.tdwg.org/dwc/terms/acceptedNameUsageID)
     #
     # @return [String]
@@ -25,7 +25,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: 8fa58e08-08de-4ac1-b69c-1235340b7001
     attr_accessor :acceptedNameUsageID # [USED IN SF]
-    
+
     # acceptedNameUsage (http://rs.tdwg.org/dwc/terms/acceptedNameUsage)
     #
     # @return [String]
@@ -79,7 +79,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: "Pinus abies", "Gasterosteus saltatrix Linnaeus 1768"
     attr_accessor :originalNameUsage
-    
+
     # nameAccordingTo (http://rs.tdwg.org/dwc/terms/nameAccordingTo)
     #
     # @return [String]
@@ -90,7 +90,7 @@ module Export::Dwca::GbifProfile
     # online source or experts should be given.
     #
     # Example: "Werner Greuter 2008; Lilljeborg 1861, Upsala Univ.
-    # Arsskrift, Math. Naturvet., pp. 4, 5", "McCranie, J. R., D. B. Wake, 
+    # Arsskrift, Math. Naturvet., pp. 4, 5", "McCranie, J. R., D. B. Wake,
     # and L. D. Wilson. 1996. The taxonomic status of Bolitoglossa schmidti,
     # with comments on the biology of the Mesoamerican salamander
     # Bolitoglossa dofleini (Caudata: Plethodontidae). Carib. J. Sci. 32:395-
@@ -126,7 +126,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: http://hdl.handle.net/10199/7
     attr_accessor :namePublishedInID
-    
+
     # scientificName (http://rs.tdwg.org/dwc/terms/scientificName)
     #
     # @return [String]
@@ -147,7 +147,7 @@ module Export::Dwca::GbifProfile
     # nomenclatural record.
     # Example: “urn:lsid:ipni.org:names:37829-1:1.3”
     attr_accessor :scientificNameID # [USED IN SF]
-    
+
     # scientificNameAuthorship (http://rs.tdwg.org/dwc/terms/scientificNameAuthorship)
     #
     # @return [String]
@@ -159,7 +159,7 @@ module Export::Dwca::GbifProfile
     # Example: "(Torr.) J.T. Howell", "(Martinovsk ) Tzvelev", "(Linnaeus
     # 1768)"
     attr_accessor :scientificNameAuthorship # [USED IN SF]
-    
+
     # higherClassification (http://rs.tdwg.org/dwc/terms/higherClassification)
     #
     # @return [String]
@@ -182,7 +182,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: "Animalia", "Plantae"
     attr_accessor :kingdom
-    
+
     # phylum (http://rs.tdwg.org/dwc/terms/phylum)
     #
     # @return [String]
@@ -190,7 +190,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: "Chordata" (phylum), "Bryophyta" (division)
     attr_accessor :phylum
-    
+
     # (klass) class (http://rs.tdwg.org/dwc/terms/class)
     #
     # @return [String]
@@ -206,7 +206,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: "Carnivora", "Monocleales"
     attr_accessor :order
-    
+
     # family (http://rs.tdwg.org/dwc/terms/family)
     #
     # @return [String]
@@ -214,7 +214,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: "Felidae", "Monocleaceae"
     attr_accessor :family
-    
+
     # genus (http://rs.tdwg.org/dwc/terms/genus)
     #
     # @return [String]
@@ -222,7 +222,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: "Puma", "Monoclea"
     attr_accessor :genus
-    
+
     # subgenus (http://rs.tdwg.org/dwc/terms/subgenus)
     #
     # @return [String]
@@ -240,7 +240,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: "concolor", "gottschei"
     attr_accessor :specificEpithet
-    
+
     # infraspecificEpithet (http://rs.tdwg.org/dwc/terms/infraspecificEpithet)
     #
     # @return [String]
@@ -249,7 +249,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: "concolor", "oxyadenia", "sayi"
     attr_accessor :infraspecificEpithet
-    
+
     # taxonRank (http://rs.tdwg.org/dwc/terms/taxonRank)
     #
     # @return [String]
@@ -270,8 +270,8 @@ module Export::Dwca::GbifProfile
     # Example: "Agamospecies", "sub-lesus", "prole", "apomict", "nothogrex",
     # "sp.", "subsp.", "var."
     attr_accessor :verbatimTaxonRank
-    
-    # @!attribute vernacularName 
+
+    # @!attribute vernacularName
     # vernacularName (http://rs.tdwg.org/dwc/terms/vernacularName)
     #
     # @raise [NoMethodError] (This information is provided in the vernaculars extension)
@@ -280,7 +280,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: "Andean Condor", "Condor Andino", "American Eagle",
     # "Gänsegeier"
-    
+
     # nomenclaturalCode (http://rs.tdwg.org/dwc/terms/nomenclaturalCode)
     #
     # @return [String]
@@ -291,7 +291,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: ICBN; ICZN
     attr_accessor :nomenclaturalCode # [USED IN SF (in meta.xml)]
-    
+
     # taxonomicStatus (http://rs.tdwg.org/dwc/terms/taxonomicStatus)
     #
     # @return [String]
@@ -335,7 +335,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: “2009-08-21”
     attr_accessor :modified # [USED IN SF]
-    
+
     # language (http://purl.org/dc/terms/language)
     #
     # @return [String]
@@ -344,7 +344,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: "eng"
     attr_accessor :language
-    
+
     # rights (http://purl.org/dc/terms/rights)
     #
     # @return [String]
@@ -355,7 +355,7 @@ module Export::Dwca::GbifProfile
     # Example: "Content licensed under Creative Commons Attribution 3.0
     # United States License", "CC BY-SA"
     attr_accessor :rights
-    
+
     # rightsHolder (http://purl.org/dc/terms/rightsHolder)
     #
     # @return [String]
@@ -385,7 +385,7 @@ module Export::Dwca::GbifProfile
     # Example: “van Soest, R. (2009). Leucandra fistulosa (Johnston, 1842).
     # In: Van Soest, R.W.M, Boury-Esnault, N., Hooper, J.N.A., Rützler, K,
     # de Voogd, N.J., Alvarez, B., Hajdu, E., Pisera, A.B., Vacelet, J.
-    # Manconi, R., Schoenberg, C., Janussen, D., Tabachnick, K.R., 
+    # Manconi, R., Schoenberg, C., Janussen, D., Tabachnick, K.R.,
     # Klautau, M. (Eds) (2009). World Porifera database”
     attr_accessor :bibliographicCitation
 
@@ -396,7 +396,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: “hybrid parents information available”
     attr_accessor :informationWithheld
-    
+
     # datasetID (http://rs.tdwg.org/dwc/terms/datasetID)
     #
     # @return [String]
@@ -405,7 +405,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: “13”
     attr_accessor :datasetID
-    
+
     # datasetName (http://rs.tdwg.org/dwc/terms/datasetName)
     #
     # @return [String]
@@ -413,7 +413,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: "World Register of Marine Species" "Fauna Europaea"
     attr_accessor :datasetName
-    
+
     # source (http://purl.org/dc/terms/source)
     #
     # @return [String]
@@ -426,5 +426,4 @@ module Export::Dwca::GbifProfile
     attr_accessor :source
 
   end
-  
 end

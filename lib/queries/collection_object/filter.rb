@@ -1,3 +1,4 @@
+require 'queries/collecting_event/filter'
 module Queries
   module CollectionObject
 
@@ -186,9 +187,9 @@ module Queries
 
         # Only CollectingEvent fields are permitted now.
         # (Perhaps) TODO: allow concern attributes nested inside as well, e.g. show me all COs with this Tag on CE.
-        collecting_event_params = Queries::CollectingEvent::Filter::ATTRIBUTES + Queries::CollectingEvent::Filter::PARAMS
+        collecting_event_params = ::Queries::CollectingEvent::Filter::ATTRIBUTES + ::Queries::CollectingEvent::Filter::PARAMS
 
-        @collecting_event_query = Queries::CollectingEvent::Filter.new(
+        @collecting_event_query = ::Queries::CollectingEvent::Filter.new(
           params.select{|a,b| collecting_event_params.include?(a.to_s) }
         )
 
@@ -336,7 +337,7 @@ module Queries
 
         if o = GlobalID::Locator.locate(object_global_id)
           k = o.class.name
-          id = o.id 
+          id = o.id
 
           table[:id].eq(id).and(table[:type].eq(k))
         else
