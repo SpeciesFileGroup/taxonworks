@@ -3,7 +3,16 @@ name: deliver
 on:
   push:
     branches:
-      - dwc_fields
+      - development
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-*'
+  pull_request:
+    branches:
+      - development
+  schedule:
+    - cron: '0 0 * * *'
+
 jobs:
   deliver:
     if: |
@@ -45,6 +54,42 @@ jobs:
     - name: Run image tests
       run: .github/docker-tests/test.sh
 
+    - name: Wait build workflow to complete successfully
+      if: ${{ github.event_name != 'pull_request' }}
+      uses: actions/github-script@v3
+      with:
+        script: |
+          const suiteId = (
+            await github.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: process.env.REF_SHA,
+              check_name: 'build (0)'
+            })
+          ).data.check_runs[0].check_suite.id
+
+          const oneMinute = () => {
+            return new Promise(resolve => {
+              setTimeout(() => resolve(true), 60000)
+            })
+          }
+
+          let suite, attempts = 20
+          do {
+            core.info(`Checking suite completed successfully (${attempts} remaining). [check_suite_id = ${suiteId}]`)
+            suite = (
+              await github.checks.getSuite({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                check_suite_id: suiteId
+              })
+            ).data
+          } while(attempts-- && suite.status !== 'completed' && await oneMinute())
+
+          if (suite.conclusion !== 'success') {
+            core.setFailed(`Build workflow did not complete successfully. [status = '${suite.status}'; conclusion = '${suite.conclusion}']`);
+          }
+
     - name: Login to DockerHub
       if: ${{ github.event_name != 'pull_request' }}
       uses: docker/login-action@v1
@@ -52,10 +97,18 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+    - name: Get tag for docker image
+      id: docker_tag
+      uses: actions/github-script@v3
+      with:
+        result-encoding: string
+        script: |
+          return context.ref.startsWith('refs/tags/v') ? context.ref.replace('refs/tags/v', '') : 'latest'
+
     - name: Push image to DockerHub
       if: ${{ github.event_name != 'pull_request' }}
       env:
-        DOCKER_TAG: 'dwc-fields'
+        DOCKER_TAG: '${{steps.docker_tag.outputs.result}}'
       run: |
         docker tag sfgrp/taxonworks:latest sfgrp/taxonworks:$DOCKER_TAG
         docker push sfgrp/taxonworks:$DOCKER_TAG
