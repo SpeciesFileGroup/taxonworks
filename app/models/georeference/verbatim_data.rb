@@ -66,7 +66,7 @@ class Georeference::VerbatimData < Georeference
       verbatimLatitude: collecting_event.verbatim_latitude,
       verbatimLongitude: collecting_event.verbatim_longitude,
 
-      coordinateUncertaintyInMeters: error_radius, # See #1770
+      coordinateUncertaintyInMeters: error_radius,
 
       georeferenceSources: "Physical collection object.",
       georeferenceRemarks: "Derived from a instance of TaxonWorks' Georeference::VerbatimData.",

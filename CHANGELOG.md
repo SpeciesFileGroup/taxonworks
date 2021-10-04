@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Task `DwC Dashboard` facilitating DwCA download, metadata reporting, and "health" checks [#1467]
 - Rake task to rebuild source cached
 - New .csl styl 'taxonworks.csl' used as the default style for displaying sources
 - New specs for rendering Source citations
@@ -20,7 +21,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Add `Download`, `Full size` and `Radial navigation` buttons in Image viewer [#2423]
 - Updated framework for producing and downloading DwC Archives (DwCA) [#1775] [#1303]
 - Increased from 21 to 53 the number of fields referenced in the (DwCA) dump [#1269] [#1230]
-- Task `DwC Dashboard` facilitating DwCA download, metadata reporting, and "health" checks [#1467]
 - Endpoint `/tasks/dwc/dashboard/index_versions` returns the dates at which DwcOccurrence indexing was modified. !! TODO: update date of merge.
 - Endpoint `/dwc_occurrences/metadata`, for stats on the state of DwcOccurrence index
 - Endpoint `/dwc_occurrencs/predicates` to return a list of Predicates used on CollectionObjects and CollectingEvents
@@ -45,7 +45,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Auto-generation of UUIDs for instances that don't have global identifiers during DwCOccurrence record building [#2186]
 - Pattern for isolating modules that aid DwC serialization per class of data
 - Optimized `to_wkt` to quickly return well-known-text for geo-shapes (in part, [#2526])
-- Georeferences can have Confidences assigned to them
+- Georeferences can have Confidences assigned to them [#1772]
 - New subclass of UUID `Identifier::Global::Uuid::TaxonworksDwcOccurrence`
 - Clarified, via`georeferenceSources` and `georefernceProtocol` why there are many decimal points in DwC latitude/longitude referencing fields [#915] [#1175]
 
@@ -110,6 +110,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1775]: https://github.com/SpeciesFileGroup/taxonworks/issues/1775
 [#2186]: https://github.com/SpeciesFileGroup/taxonworks/issues/2186
 [#2526]: https://github.com/SpeciesFileGroup/taxonworks/issues/2526
+[#1772]: https://github.com/SpeciesFileGroup/taxonworks/issues/1772
 
 ## [0.19.7] - 2021-09-09
 
