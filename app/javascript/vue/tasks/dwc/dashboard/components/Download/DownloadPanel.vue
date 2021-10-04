@@ -49,7 +49,7 @@ const useAction = inject('actions')
 const useState = inject('state')
 const downloadCount = computed(() => useState?.metadata?.index?.record_total)
 
-const getTotal = date => useState?.metadata?.index[`one_${date}`]
+const getTotal = date => useState?.metadata?.index.freshness[`one_${date}`]
 
 const download = async downloadParams => {
   useAction.addDownloadRecord((await DwcOcurrence.generateDownload({ ...downloadParams, dwc_indexed: true })).body)
