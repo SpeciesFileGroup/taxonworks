@@ -29,6 +29,7 @@
               min="2"
               clear-after
               :add-params="{ type: 'Protonym', 'nomenclature_group[]': nomenclatureGroup }"
+              :disabled="disabled"
               @getItem="setTaxon(index, $event)"
               param="term"/>
             <v-btn
@@ -47,7 +48,7 @@
             v-else>
             <div>
               <span class="vue-autocomplete-input normal-input combination middle">
-                <span v-html="element.taxon.label"/>
+                <span v-html="element.taxon.object_label"/>
               </span>
             </div>
             <v-btn
@@ -63,7 +64,7 @@
             <radial-annotator :global-id="element.taxon.global_id"/>
             <span
               class="circle-button btn-delete"
-              @click="removeTaxonFromCombination(element)"/>
+              @click="removeTaxonFromCombination(index)"/>
           </div>
         </template>
       </draggable>
@@ -78,7 +79,8 @@ import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import Autocomplete from 'components/ui/Autocomplete.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
-import { ref, watch, computed, onBeforeMount } from 'vue'
+import { ref, watch, computed } from 'vue'
+import { TaxonName } from 'routes/endpoints'
 
 const props = defineProps({
   options: {
@@ -99,6 +101,11 @@ const props = defineProps({
   modelValue: {
     type: Object,
     default: () => ({})
+  },
+
+  disabled: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -111,19 +118,30 @@ const combination = computed({
 })
 
 const setTaxon = (index, taxon) => {
-  const rank = props.rankGroup[index]
-
-  taxonList.value[index].taxon = taxon
+  TaxonName.find(taxon.id).then(({ body }) => {
+    taxonList.value[index].taxon = body
+  })
 }
 
-const updateOrder = (element, index) => {
-  console.log()
+const updateOrder = () => {
+  props.rankGroup.forEach((rank, index) => {
+    taxonList.value[index].rank = rank
+  })
 }
 
-const removeTaxonFromCombination = () => {}
+const removeTaxonFromCombination = (index) => {
+  taxonList.value[index].taxon = null
+}
 
-onBeforeMount(() => {
+watch(() => props.combination, () => {
   taxonList.value = props.rankGroup.map(rank => ({ rank, taxon: combination[rank] }))
-})
+}, { immediate: true })
+
+watch(() => taxonList.value, () => {
+  updateOrder()
+  Object.assign(combination.value,
+    ...taxonList.value.map(({ rank, taxon }) => ({ [rank]: taxon }))
+  )
+}, { deep: true })
 
 </script>

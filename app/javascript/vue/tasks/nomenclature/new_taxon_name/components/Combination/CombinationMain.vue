@@ -15,11 +15,16 @@
           animation: 150,
           group: {
             name: 'subsequentCombination',
-            put: true,
+            put: isGenus,
             pull: false
           },
           filter: '.item-filter'
         }"
+        @update="updateCombination"
+      />
+      <display-list
+        :list="combinationList"
+        label="cached_html"
       />
     </template>
   </block-layout>
@@ -27,15 +32,14 @@
 
 <script setup>
 
-import {
-  ref,
-  computed,
-  watch
-} from 'vue'
+import { ref, computed, watch } from 'vue'
+import { useStore } from 'vuex'
+import { Combination } from 'routes/endpoints'
+import { GetterNames } from '../../store/getters/getters.js'
+import DisplayList from 'components/displayList.vue'
 
 import BlockLayout from 'components/layout/BlockLayout.vue'
 import CombinationRank from './CombinationRank.vue'
-import { Combination } from 'routes/endpoints'
 
 const RANK_LIST = {
   genusGroup: [
@@ -50,21 +54,26 @@ const RANK_LIST = {
   ]
 }
 
-const combination = ref({
-  genus: undefined,
-  subgenus: undefined,
-  species: undefined,
-  subspecies: undefined,
-  variety: undefined,
-  form: undefined
-})
+const store = useStore()
+const combination = ref({})
+const taxonId = computed(() => store.getters[GetterNames.GetTaxon].id)
+const isGenus = computed(() => store.getters[GetterNames.GetTaxon].rank_string.includes('GenusGroup'))
+const combinationList = ref([])
 
-const makeCombination = data => Object.fromEntries(Object.entries(data).map(([rank, value]) => [`${rank}_id`, value]))
+const saveCombination = data => {
+  const combination = {
+    ...makeCombination(data)
+  }
 
-const createCombination = data => {
-  const combination = makeCombination(data)
+  console.log(combination)
 
   Combination.create({ combination })
 }
+
+watch(() => taxonId.value, () => {
+  Combination.where({ protonym_id: taxonId.value }).then(({ body }) => {
+    combination.value = body
+  })
+})
 
 </script>

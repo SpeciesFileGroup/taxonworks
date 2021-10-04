@@ -9,6 +9,7 @@ import updateTaxonName from './updateTaxonName'
 import removeTaxonStatus from './removeTaxonStatus'
 import removeTaxonRelationship from './removeTaxonRelationship'
 import removeOriginalCombination from './removeOriginalCombination'
+import loadCombinations from './loadCombinations'
 import loadSoftValidation from './loadSoftValidation'
 import loadTaxonName from './loadTaxonName'
 import loadTaxonRelationships from './loadTaxonRelationships'
@@ -37,6 +38,7 @@ const ActionNames = {
   RemoveTaxonStatus: 'removeTaxonStatus',
   RemoveTaxonRelationship: 'removeTaxonRelationship',
   RemoveOriginalCombination: 'removeOriginalCombination',
+  LoadCombinations: 'loadCombinations',
   LoadSoftValidation: 'loadSoftValidation',
   LoadTaxonName: 'loadTaxonName',
   LoadTaxonRelationships: 'loadTaxonRelationships',
@@ -55,6 +57,7 @@ const ActionNames = {
 }
 
 const ActionFunctions = {
+  [ActionNames.LoadCombinations]: loadCombinations,
   [ActionNames.LoadSoftValidation]: loadSoftValidation,
   [ActionNames.LoadTaxonName]: loadTaxonName,
   [ActionNames.LoadRanks]: loadRanks,

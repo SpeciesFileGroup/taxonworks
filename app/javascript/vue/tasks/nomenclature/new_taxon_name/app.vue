@@ -191,8 +191,8 @@ export default {
           this.$store.dispatch(ActionNames.LoadTaxonStatus, taxonId)
           this.$store.dispatch(ActionNames.LoadTaxonRelationships, taxonId)
           this.$store.dispatch(ActionNames.LoadOriginalCombination, taxonId)
-          this.loading = false
-        }, () => {
+          this.$store.dispatch(ActionNames.LoadCombinations, taxonId)
+        }).finally(() => {
           this.loading = false
         })
       } else {
