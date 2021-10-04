@@ -23,6 +23,7 @@
               klass="CollectionObject"
               pin-section="Namespaces"
               pin-type="Namespace"
+              v-model="namespaceSelected"
               @selected="setNamespace"/>
             <lock-component
               class="margin-small-left"
@@ -32,15 +33,15 @@
               href="/namespaces/new">New</a>
           </div>
           <template v-if="identifier.namespace_id">
-            <div class="middle separate-top">
-              <span data-icon="ok" />
-              <p
-                class="separate-right"
-                v-html="namespaceSelected"
-              />
+            <hr>
+            <div class="middle flex-separate">
+              <p class="separate-right">
+                <span data-icon="ok"/>
+                <span v-html="namespaceSelected.name"/>
+              </p>
               <span
                 class="circle-button button-default btn-undo"
-                @click="identifier.namespace_id = undefined"
+                @click="unsetNamespace"
               />
             </div>
           </template>
@@ -101,10 +102,8 @@ import validateComponent from '../shared/validate.vue'
 import validateIdentifier from '../../validations/namespace.js'
 import incrementIdentifier from '../../helpers/incrementIdentifier.js'
 import LockComponent from 'components/ui/VLock/index.vue'
-import refreshSmartSelector from '../shared/refreshSmartSelector'
 
 export default {
-  mixins: [refreshSmartSelector],
   components: {
     validateComponent,
     LockComponent,
@@ -193,8 +192,11 @@ export default {
     },
     setNamespace (namespace) {
       this.identifier.namespace_id = namespace.id
-      this.namespaceSelected = namespace.name
       this.checkIdentifier()
+    },
+    unsetNamespace () {
+      this.identifier.namespace_id = undefined
+      this.namespaceSelected = undefined
     }
   }
 }

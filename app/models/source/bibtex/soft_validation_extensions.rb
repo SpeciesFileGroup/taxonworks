@@ -204,6 +204,5 @@ module Source::Bibtex::SoftValidationExtensions
     def sv_missing_roles
       soft_validations.add(:base, 'Author roles are not selected.') if author_roles.empty?
     end
-
   end
 end

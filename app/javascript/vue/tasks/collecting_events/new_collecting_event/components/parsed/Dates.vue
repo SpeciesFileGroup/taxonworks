@@ -8,12 +8,11 @@
           v-model:month="collectingEvent.start_date_month"
           v-model:day="collectingEvent.start_date_day"
         />
-        <button
-          type="button"
-          class="button normal-input button-default separate-right"
-          @click="setActualDateForStart">
-          Now
-        </button>
+        <date-now
+          v-model:year="collectingEvent.start_date_year"
+          v-model:month="collectingEvent.start_date_month"
+          v-model:day="collectingEvent.start_date_day"
+        />
       </div>
     </div>
     <div>
@@ -24,12 +23,11 @@
           v-model:month="collectingEvent.end_date_month"
           v-model:day="collectingEvent.end_date_day"
         />
-        <button
-          type="button"
-          class="button normal-input button-default"
-          @click="setActualDateForEnd">
-          Now
-        </button>
+        <date-now
+          v-model:year="collectingEvent.end_date_year"
+          v-model:month="collectingEvent.end_date_month"
+          v-model:day="collectingEvent.end_date_day"
+        />
         <button
           type="button"
           class="button normal-input button-default margin-small-left"
@@ -45,27 +43,17 @@
 
 import extendCE from '../mixins/extendCE'
 import DateFields from 'components/ui/Date/DateFields.vue'
+import DateNow from 'components/ui/Date/DateNow.vue'
 
 export default {
   mixins: [extendCE],
 
-  components: { DateFields },
+  components: {
+    DateFields,
+    DateNow
+  },
 
   methods: {
-    setActualDateForStart () {
-      const today = new Date()
-      this.collectingEvent.start_date_day = today.getDate()
-      this.collectingEvent.start_date_month = today.getMonth() + 1
-      this.collectingEvent.start_date_year = today.getFullYear()
-    },
-
-    setActualDateForEnd () {
-      const today = new Date()
-      this.collectingEvent.end_date_day = today.getDate()
-      this.collectingEvent.end_date_month = today.getMonth() + 1
-      this.collectingEvent.end_date_year = today.getFullYear()
-    },
-
     cloneDate () {
       this.collectingEvent.end_date_day = this.collectingEvent.start_date_day
       this.collectingEvent.end_date_month = this.collectingEvent.start_date_month

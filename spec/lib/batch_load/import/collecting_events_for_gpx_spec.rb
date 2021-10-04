@@ -3,7 +3,7 @@ require 'rails_helper'
 describe BatchLoad::Import::CollectingEvents::GpxInterpreter, type: :model, group: [:geo, :collecting_events] do
 
   let(:file_name) { 'spec/files/batch/collecting_event/test.gpx' }
-  let(:upload_file) { fixture_file_upload(file_name) }
+  let(:upload_file) { Rack::Test::UploadedFile.new(file_name) }
 
   let(:user) { User.find(1) }
   let(:project) { Project.find(1) }

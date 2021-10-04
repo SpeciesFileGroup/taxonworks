@@ -26,7 +26,8 @@ import SmartSelector from 'components/ui/SmartSelector.vue'
 import componentExtend from './mixins/componentExtend'
 import RolePicker from 'components/role_picker'
 import BlockLayout from 'components/layout/BlockLayout'
-import { CreatePerson } from 'helpers/persons/createPerson'
+import makePerson from 'factory/Person'
+import { findRole } from 'helpers/people/people.js'
 
 export default {
   mixins: [componentExtend],
@@ -38,13 +39,15 @@ export default {
   },
 
   methods: {
-    roleExist (id) {
-      return this.extract.roles_attributes.find(role => !role?._destroy && role.person_id === id)
-    },
-
     addRole (role) {
-      if (!this.roleExist(role.id)) {
-        this.extract.roles_attributes.push(CreatePerson(role, 'Extractor'))
+      if (!findRole(this.extract.roles_attributes, role.id)) {
+        this.extract.roles_attributes.push(
+          makePerson(
+            role.first_name,
+            role.last_name,
+            role.person_id,
+            'Extractor'
+          ))
       }
     }
   }

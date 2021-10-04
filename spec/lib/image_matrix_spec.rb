@@ -30,7 +30,7 @@ describe ImageMatrix, type: :model, group: :observation_matrix do
     let!(:o1 ) {Observation::Media.create!(descriptor: descriptor1, otu: otu1) }
     let!(:o2 ) {Observation::Media.create!(descriptor: descriptor2, otu: otu2) }
 
-    let(:image_file) { fixture_file_upload( Spec::Support::Utilities::Files.generate_png, 'image/png') }
+    let(:image_file) { Rack::Test::UploadedFile.new( Spec::Support::Utilities::Files.generate_png, 'image/png') }
     let(:source) { FactoryBot.create(:valid_source) }
     let!(:depiction1) { Depiction.create!(image_attributes: {image_file: image_file}, depiction_object: o1) }
     let!(:depiction2) { Depiction.create!(image_attributes: {image_file: image_file}, depiction_object: o2) }

@@ -1,5 +1,5 @@
 <template>
-  <div class="horizontal-left-content">
+  <div class="horizontal-left-content align-end">
     <div
       v-for="(field, index) in fields"
       :key="field.property"
@@ -9,7 +9,7 @@
       </label>
       <input
         type="text"
-        :class="[`input-date-${field.property}`,'input-date']"
+        :class="[`input-date-${field.property}`, 'input-date']"
         :ref="el => { if (el) fieldsRef[index] = el }"
         :maxlength="field.maxLength"
         :value="props[field.property]"

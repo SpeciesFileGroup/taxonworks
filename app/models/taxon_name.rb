@@ -1610,6 +1610,7 @@ class TaxonName < ApplicationRecord
   end
 
   def sv_fix_parent_is_valid_name
+    res = false
     if self.parent.unavailable_or_invalid?
       new_parent = self.parent.get_valid_taxon_name
       if self.parent != new_parent
@@ -1622,13 +1623,13 @@ class TaxonName < ApplicationRecord
         begin
           TaxonName.transaction do
             self.save
-            return true
+            res = true
           end
         rescue
         end
       end
     end
-    false
+    res
   end
 
   def sv_conflicting_subordinate_taxa
@@ -1639,7 +1640,7 @@ class TaxonName < ApplicationRecord
       unless Protonym.with_parent_taxon_name(self).without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).empty?
         compare.each do |i|
           # taxon is unavailable or invalid, but has valid children
-          soft_validations.add(:base, "Taxon has a status ('#{i.demodulize.underscore.humanize.downcase}') conflicting with presence of subordinate taxa")
+          soft_validations.add(:base, "Taxon has a status ('#{i.safe_constantize.label}') conflicting with presence of subordinate taxa")
         end
       end
     end
@@ -1649,8 +1650,8 @@ class TaxonName < ApplicationRecord
     begin
       TaxonName.transaction do
         self.set_cached
-        return true
       end
+      true
     rescue
       false
     end

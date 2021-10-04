@@ -201,6 +201,13 @@ describe Combination, type: :model, group: :nomenclature do
       species.update(original_genus: genus, original_subgenus: genus, original_species: species)
       expect(Combination.matching_protonyms(nil, genus: genus.id, subgenus: nil, species: species.id, subspecies: nil).to_a).to contain_exactly()
     end
+
+    specify '.matching_protonyms 6' do
+      species.update(original_genus: genus, original_species: species)
+      species2.update(original_genus: genus, original_species: species, original_subspecies: species2)
+      tr = TaxonNameRelationship.create(subject_taxon_name: species2, object_taxon_name: species, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+      expect(Combination.matching_protonyms(nil, genus: genus.id, species: species.id).to_a).to contain_exactly(species)
+    end
   end
 
   context 'instance methods' do
@@ -440,7 +447,6 @@ describe Combination, type: :model, group: :nomenclature do
           expect(stubs[5].type).to eq('TaxonNameRelationship::Combination::Form')
         end
       end
-
     end
   end
 

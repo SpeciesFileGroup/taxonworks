@@ -228,7 +228,14 @@ class Source < ApplicationRecord
 
   accepts_nested_attributes_for :project_sources, reject_if: :reject_project_sources
 
-  # Redirect type here
+  soft_validate(
+    :sv_cached_names,
+    set: :cached_names,
+    fix: :sv_fix_cached_names,
+    name: 'Cached names',
+    description: 'Check if cached values need to be updated' )
+
+    # Redirect type here
   # @param [String] file
   # @return [[Array, message]]
   #   TODO: return a more informative response?
@@ -298,7 +305,7 @@ class Source < ApplicationRecord
     ).pluck(:source_id).uniq
   end
 
-  # @params target [String] a citable model name
+    # @params target [String] a citable model name
   # @return [Hash] sources optimized for user selection
   def self.select_optimized(user_id, project_id, target = 'TaxonName')
     r = used_recently(user_id, project_id, target)
@@ -373,11 +380,29 @@ class Source < ApplicationRecord
   def set_cached
   end
 
-  # @param [Hash] attributed
+    #set in subclasses
+  def get_cached
+  end
+
+    # @param [Hash] attributed
   # @return [Boolean]
   def reject_project_sources(attributed)
     return true if attributed['project_id'].blank?
     return true if ProjectSource.where(project_id: attributed['project_id'], source_id: id).any?
   end
- 
+
+  def sv_cached_names
+    true # see validation in subclasses
+  end
+
+  def sv_fix_cached_names
+    begin
+      TaxonName.transaction do
+        self.set_cached
+      end
+      true
+    rescue
+      false
+    end
+  end
 end

@@ -1,0 +1,4 @@
+taxonID	parentNameUsageID	parentNameUsage	acceptedNameUsageID	acceptedNameUsage	scientificName	kingdom	class	order	family	genus	subgenus	specificEpithet	infraspecificEpithet	taxonRank	scientificNameAuthorship	taxonomicStatus	originalNameUsage	originalNameUsageID	namePublishedInYear	nomenclaturalCode
+429122			429122	Tapinoma Foerster, 1850	Tapinoma	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Foerster, 1850	valid	Tapinoma Foerster, 1850	429122	1850	ICZN
+449352	429122	Tapinoma Foerster, 1850	449352	Tapinoma ramulorum Emery, 1896	Tapinoma ramulorum	Animalia	Insecta	Hymenoptera	Formicidae	Tapinoma		ramulorum		Species	Emery, 1896	valid	Tapinoma ramulorum Emery, 1896	449352	1896	ICZN
+449374	449352	Tapinoma ramulorum Emery, 1896	449374	Tapinoma ramulorum toltecum Wheeler, 1934	Tapinoma ramulorum toltecum	Animalia	Insecta	Hymenoptera	Formicidae	Tapinoma		ramulorum	toltecum	Subspecies	Wheeler, 1934	valid	Tapinoma ramulorum toltecum Wheeler, 1934	449374	1934	ICZN

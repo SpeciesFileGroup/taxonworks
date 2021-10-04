@@ -19,20 +19,23 @@
               :autocomplete="false"
               :otu-picker="true"
               target="TaxonDetermination"
+              v-model="otuSelected"
               @selected="setOtu"
             />
             <lock-component
               class="margin-small-left"
               v-model="locked.taxon_determination.otu_id"/>
           </div>
-          <div
-            v-show="otuSelected"
-            class="horizontal-left-content">
-            <p v-html="otuSelected"/>
-            <span
-              class="circle-button button-default btn-undo"
-              @click="taxonDetermination.otu_id = undefined; otuSelected = undefined"/>
-          </div>
+          <template v-if="otuSelected">
+            <hr>
+            <div
+              class="horizontal-left-content">
+              <p v-html="otuSelected.object_tag"/>
+              <span
+                class="circle-button button-default btn-undo"
+                @click="taxonDetermination.otu_id = undefined; otuSelected = undefined"/>
+            </div>
+          </template>
         </fieldset>
         <fieldset>
           <legend>Determiner</legend>
@@ -158,6 +161,7 @@ import { ActionNames } from '../../store/actions/actions'
 import { Otu, TaxonName } from 'routes/endpoints'
 import { RouteNames } from 'routes/routes'
 import { ROLE_DETERMINER } from 'constants/index.js'
+import { findRole } from 'helpers/people/people.js'
 
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import RolePicker from 'components/role_picker.vue'
@@ -222,10 +226,6 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetTaxonDeterminations, value)
       }
-    },
-
-    lastSave () {
-      return this.$store.getters[GetterNames.GetLastSave]
     }
   },
 
@@ -244,18 +244,13 @@ export default {
     otuId (newVal) {
       if (newVal) {
         Otu.find(newVal).then(response => {
-          this.otuSelected = response.body.object_tag
+          this.otuSelected = response.body
           this.otu = response.body
         })
       } else {
         this.otu = undefined
         this.otuSelected = undefined
       }
-    },
-
-    lastSave () {
-      this.$refs.smartSelector.refresh()
-      this.$refs.determinerSmartSelector.refresh()
     }
   },
 
@@ -285,12 +280,8 @@ export default {
   },
 
   methods: {
-    roleExist (id) {
-      return !!this.taxonDetermination.roles_attributes.find(role => !role.hasOwnProperty('_destroy') && role.person_id === id)
-    },
-
     addRole (role) {
-      if (!this.roleExist(role.id)) {
+      if (!findRole(this.taxonDetermination.roles_attributes, role.id)) {
         this.taxonDetermination.roles_attributes.push(
           makePerson(
             role.first_name,
@@ -308,7 +299,7 @@ export default {
     addDetermination () {
       if (!this.taxonDetermination.id && this.list.find(determination => determination.otu_id === this.taxonDetermination.otu_id && determination.year_made === this.year)) { return }
 
-      this.taxonDetermination.object_tag = `${this.otuSelected} ${this.authorsString()} ${this.dateString()}`
+      this.taxonDetermination.object_tag = `${this.otuSelected.object_tag} ${this.authorsString()} ${this.dateString()}`
       this.$store.commit(MutationNames.AddTaxonDetermination, this.taxonDetermination)
       this.$store.commit(MutationNames.NewTaxonDetermination)
     },
@@ -332,7 +323,6 @@ export default {
 
     setOtu (otu) {
       this.taxonDetermination.otu_id = otu.id
-      this.otuSelected = otu.object_tag
     },
 
     editTaxonDetermination (item) {

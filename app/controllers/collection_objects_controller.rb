@@ -49,7 +49,7 @@ class CollectionObjectsController < ApplicationController
     objects = filtered_collection_objects.includes(:dwc_occurrence).all
     assign_pagination(objects)
 
-    @objects = objects.pluck( ::CollectionObject.dwc_attribute_vector  )
+    @objects = objects.pluck(*::CollectionObject.dwc_attribute_vector)
     @klass = ::CollectionObject
     render '/dwc_occurrences/dwc_index'
   end

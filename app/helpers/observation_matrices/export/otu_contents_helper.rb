@@ -108,6 +108,7 @@ module ObservationMatrices::Export::OtuContentsHelper
             depictions.each do |depiction|
               list += "<span class='tw_depiction'><br>\n"
               image_url = tw_url + im.image_hash[depiction[:image_id]][:original_url]
+              #image_url = ::ApplicationController.helpers.short_url(im.image_hash[depiction[:image_id]][:original_url])
               list += "<img class='tw_image' src='#{image_url}'><br>\n"
               list += "<b>Object:</b> #{object[1][:object].otu_name}<br>\n" unless object[1][:object].otu_name.blank?
               list += "<b>Description:</b> #{descriptors[index][:name]}<br>\n" unless descriptors[index].blank?

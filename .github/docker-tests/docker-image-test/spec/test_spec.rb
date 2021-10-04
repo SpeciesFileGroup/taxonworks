@@ -84,6 +84,15 @@ describe "Docker image test", js: true do
     end
   end
 
+  context 'when uploading a DwC-A' do
+    before(:each) do
+      click_on 'test_project'
+    end
+
+    xit 'stages asynchronously' do
+    end
+  end
+
   context 'when using Biodiversity' do
     before(:each) do
       click_on 'test_project'

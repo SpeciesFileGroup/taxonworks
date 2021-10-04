@@ -51,7 +51,7 @@
                               c-3.4,3.3-7.5,5.8-11.9,7.5c5.8-1.6,11.1-4.5,15.4-8.6c1.4-1.3,2.6-2.7,3.8-4.2c49.6-20.7,73-77.7,52.4-127.3
                               C183.1,50.4,177.7,41.6,171,33.8z"/>
         </svg>
-        <span v-if="showLegend" :style="legendStyle"> {{ legend }} </span>
+        <span v-if="showLegend" :style="legendStyle" v-html="legend"/>
       </div>
     </div>
   </transition>

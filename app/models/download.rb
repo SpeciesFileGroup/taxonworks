@@ -28,12 +28,13 @@
 #   @return [Integer]
 #   the project ID
 #
-# @!attribute is_boolean 
+# @!attribute is_boolean
 #   @return [Boolean, nil]
-#     whether the Download should be shared on the API 
+#     whether the Download should be shared on the API
 #
 class Download < ApplicationRecord
   include Housekeeping
+  include Shared::IsData::Metamorphosize
 
   default_scope { where('expires >= ?', Time.now) }
 
@@ -43,6 +44,7 @@ class Download < ApplicationRecord
   validates_presence_of :name
   validates_presence_of :filename
   validates_presence_of :expires
+  validates_presence_of :type
 
   # Gets the downloads storage path
   def self.storage_path
@@ -98,3 +100,10 @@ class Download < ApplicationRecord
     FileUtils.cp(@source_file_path, file_path) if @source_file_path
   end
 end
+
+require_dependency 'download/basic_nomenclature'
+require_dependency 'download/bibtex'
+require_dependency 'download/coldp'
+require_dependency 'download/dwc_archive'
+require_dependency 'download/sql_project_dump'
+require_dependency 'download/text'

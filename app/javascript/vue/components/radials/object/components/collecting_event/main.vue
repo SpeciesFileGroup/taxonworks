@@ -28,7 +28,8 @@
         :identifier="identifier"
         v-model="label"/>
       <button
-        class="normal-input button button-submit"
+        class="normal-input button button-submit margin-small-right"
+        :disabled="!label.total"
         @click="saveLabel">
         {{ label.id ? 'Update' : 'Create' }}
       </button>
@@ -61,8 +62,17 @@ import QRCodeComponent from './label/QRCode'
 import {
   LABEL,
   LABEL_QR_CODE,
-  LABEL_CODE_128
+  LABEL_CODE_128,
+  IDENTIFIER_LOCAL_CATALOG_NUMBER,
+  COLLECTION_OBJECT,
+  COLLECTING_EVENT
 } from 'constants/index.js'
+import {
+  Label,
+  Identifier,
+  CollectionObject,
+  CollectingEvent
+} from 'routes/endpoints'
 
 const LabelTypes = {
   [LABEL]: 'Text',
@@ -72,6 +82,7 @@ const LabelTypes = {
 
 export default {
   mixins: [CRUD, annotatorExtend],
+
   components: {
     BarcodeComponent: QRCodeComponent,
     CeSection,
@@ -79,12 +90,13 @@ export default {
     TextComponent,
     QRCodeComponent
   },
-  computed: {
 
+  computed: {
     componentName () {
       return `${LabelTypes[this.label.type]}Component`
     }
   },
+
   data () {
     return {
       loadOnMounted: false,
@@ -95,80 +107,83 @@ export default {
       labelTypes: LabelTypes
     }
   },
+
   watch: {
     async collectingEvent (newVal) {
-      if (newVal) {
-        this.labels = (await this.getList('/labels.json', {
-          params: {
+      this.labels = newVal
+        ? (await Label.where({
             label_object_id: newVal.id,
-            label_object_type: 'CollectingEvent'
-          }
-        })).body
-      } else {
-        this.labels = []
-      }
+            label_object_type: COLLECTING_EVENT
+          })).body
+        : []
     }
   },
-  async created () {
-    const ceId = (await (this.getList(`/collection_objects/${this.metadata.object_id}.json`))).body.collecting_event_id
 
-    this.getList('/identifiers.json', {
-      params: {
-        identifier_object_id: this.metadata.object_id,
-        identifier_object_type: 'CollectionObject',
-        type: 'Identifier::Local::CatalogNumber'
-      }
+  async created () {
+    const ceId = (await CollectionObject.find(this.metadata.object_id)).body.collecting_event_id
+
+    Identifier.where({
+      identifier_object_id: this.metadata.object_id,
+      identifier_object_type: COLLECTION_OBJECT,
+      type: IDENTIFIER_LOCAL_CATALOG_NUMBER
     }).then(response => {
       this.identifier = response.body[0]
     })
 
     if (ceId) {
-      this.collectingEvent = (await this.getList(`/collecting_events/${ceId}.json`)).body
+      this.collectingEvent = (await CollectingEvent.find(ceId)).body
     }
 
     this.resetLabel()
   },
+
   methods: {
     resetLabel () {
       this.label = {
         total: undefined,
         text: undefined,
-        type: 'Label'
+        type: LABEL
       }
     },
+
     saveLabel () {
-      const ceData = {
+      const label = {
+        ...this.label,
         label_object_id: this.collectingEvent.id,
-        label_object_type: 'CollectingEvent'
+        label_object_type: COLLECTING_EVENT
       }
 
-      if (this.label?.id) {
-        this.update(`/labels/${this.label.id}.json`, { label: Object.assign({}, this.label, ceData) }).then(response => {
-          const updatedLabel = response.body
-          const index = this.labels.findIndex(item => item.id === updatedLabel.id)
+      const saveRequest = label.id
+        ? Label.update(label.id, { label })
+        : Label.create({ label })
 
-          this.labels[index] = updatedLabel
-          TW.workbench.alert.create('Label was successfully updated.', 'notice')
-        })
-      } else {
-        this.create('/labels.json', { label: Object.assign({}, this.label, ceData) }).then(response => {
-          this.labels.unshift(response.body)
-          TW.workbench.alert.create('Label was successfully created.', 'notice')
-        })
-      }
+      saveRequest.then(({ body }) => {
+        if (label.id) {
+          const index = this.labels.findIndex(item => item.id === body.id)
+
+          this.labels[index] = body
+        } else {
+          this.labels.unshift(body)
+        }
+
+        TW.workbench.alert.create('Label was successfully saved.', 'notice')
+      })
     },
-    setLabel(label) {
+
+    setLabel (label) {
       this.label = label
     },
+
     removeLabel (label) {
-      this.destroy(`/labels/${label.id}.json`).then(() => {
+      Label.destroy(label.id).then(() => {
         const index = this.labels.findIndex(item => item.id === label.id)
 
         this.labels.splice(index, 1)
       })
     },
+
     addCollectingEvent (ce) {
-      this.update(`/collection_objects/${this.metadata.object_id}`, { collection_object: { collecting_event_id: ce.id || null } }).then(response => {
+      CollectionObject.update(this.metadata.object_id, { collection_object: { collecting_event_id: ce.id || null } }).then(_ => {
         this.collectingEvent = ce.id ? ce : undefined
       })
     }

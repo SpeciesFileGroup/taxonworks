@@ -14,12 +14,13 @@
         />
       </div>
       <template v-if="identifier.namespace_id">
-        <div class="middle separate-top">
-          <span data-icon="ok" />
+        <hr>
+        <div class="middle flex-separate">
           <p
-            class="separate-right"
-            v-html="namespaceSelected ? namespaceSelected : identifier.cached"
-          />
+            class="separate-right">
+            <span data-icon="ok" />
+            <span v-html="namespaceSelected ? namespaceSelected : identifier.cached"/>
+          </p>
           <span
             class="circle-button button-default btn-undo"
             @click="identifier.namespace_id = undefined"
@@ -53,11 +54,8 @@ import { MutationNames } from '../../../../store/mutations/mutations.js'
 
 import validateComponent from '../../../shared/validate.vue'
 import validateIdentifier from '../../../../validations/namespace.js'
-import refreshSmartSelector from '../../../shared/refreshSmartSelector'
 
 export default {
-  mixins: [refreshSmartSelector],
-
   components: {
     validateComponent,
     SmartSelector

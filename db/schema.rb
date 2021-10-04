@@ -2,15 +2,15 @@
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
 #
-# This file is the source Rails uses to define your schema when running `rails
-# db:schema:load`. When creating a new database, `rails db:schema:load` tends to
+# This file is the source Rails uses to define your schema when running `bin/rails
+# db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
 # be faster and is potentially less error prone than running all of your
 # migrations from scratch. Old migrations may fail to apply correctly if those
 # migrations use external dependencies or application code.
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_07_27_180015) do
+ActiveRecord::Schema.define(version: 2021_09_12_175201) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -488,6 +488,34 @@ ActiveRecord::Schema.define(version: 2021_07_27_180015) do
     t.index ["updated_by_id"], name: "index_data_attributes_on_updated_by_id"
   end
 
+  create_table "dataset_record_fields", force: :cascade do |t|
+    t.integer "position", null: false
+    t.string "value", null: false
+    t.integer "encoded_dataset_record_type", null: false
+    t.integer "project_id", null: false
+    t.integer "import_dataset_id", null: false
+    t.bigint "dataset_record_id", null: false
+    t.index "import_dataset_id, encoded_dataset_record_type, \"position\", substr((value)::text, 1, 1000), dataset_record_id", name: "index_dataset_record_fields_for_filters", unique: true
+    t.index ["dataset_record_id", "position"], name: "index_dataset_record_fields_on_dataset_record_id_and_position", unique: true
+  end
+
+  create_table "dataset_records", force: :cascade do |t|
+    t.string "type", null: false
+    t.string "status", null: false
+    t.jsonb "metadata"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.bigint "project_id"
+    t.bigint "import_dataset_id"
+    t.index ["created_by_id"], name: "index_dataset_records_on_created_by_id"
+    t.index ["import_dataset_id", "type", "id"], name: "index_dataset_records_on_import_dataset_id_and_type_and_id"
+    t.index ["import_dataset_id"], name: "index_dataset_records_on_import_dataset_id"
+    t.index ["project_id"], name: "index_dataset_records_on_project_id"
+    t.index ["updated_by_id"], name: "index_dataset_records_on_updated_by_id"
+  end
+
   create_table "delayed_jobs", id: :serial, force: :cascade do |t|
     t.integer "priority", default: 0, null: false
     t.integer "attempts", default: 0, null: false
@@ -618,6 +646,8 @@ ActiveRecord::Schema.define(version: 2021_07_27_180015) do
     t.integer "updated_by_id", null: false
     t.bigint "project_id"
     t.boolean "is_public"
+    t.string "type"
+    t.integer "total_records"
     t.index ["created_by_id"], name: "index_downloads_on_created_by_id"
     t.index ["filename"], name: "index_downloads_on_filename"
     t.index ["project_id"], name: "index_downloads_on_project_id"
@@ -989,6 +1019,25 @@ ActiveRecord::Schema.define(version: 2021_07_27_180015) do
     t.index ["image_file_content_type"], name: "index_images_on_image_file_content_type"
     t.index ["project_id"], name: "index_images_on_project_id"
     t.index ["updated_by_id"], name: "index_images_on_updated_by_id"
+  end
+
+  create_table "import_datasets", force: :cascade do |t|
+    t.string "type", null: false
+    t.string "status", null: false
+    t.string "description", null: false
+    t.jsonb "metadata"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.bigint "project_id"
+    t.string "source_file_name"
+    t.string "source_content_type"
+    t.bigint "source_file_size"
+    t.datetime "source_updated_at"
+    t.index ["created_by_id"], name: "index_import_datasets_on_created_by_id"
+    t.index ["project_id"], name: "index_import_datasets_on_project_id"
+    t.index ["updated_by_id"], name: "index_import_datasets_on_updated_by_id"
   end
 
   create_table "imports", id: :serial, force: :cascade do |t|
@@ -2006,6 +2055,11 @@ ActiveRecord::Schema.define(version: 2021_07_27_180015) do
   add_foreign_key "data_attributes", "projects", name: "data_attributes_project_id_fkey"
   add_foreign_key "data_attributes", "users", column: "created_by_id", name: "data_attributes_created_by_id_fkey"
   add_foreign_key "data_attributes", "users", column: "updated_by_id", name: "data_attributes_updated_by_id_fkey"
+  add_foreign_key "dataset_record_fields", "dataset_records"
+  add_foreign_key "dataset_record_fields", "import_datasets"
+  add_foreign_key "dataset_record_fields", "projects"
+  add_foreign_key "dataset_records", "import_datasets"
+  add_foreign_key "dataset_records", "projects"
   add_foreign_key "depictions", "sled_images"
   add_foreign_key "descriptors", "projects"
   add_foreign_key "descriptors", "users", column: "created_by_id"
@@ -2057,6 +2111,7 @@ ActiveRecord::Schema.define(version: 2021_07_27_180015) do
   add_foreign_key "images", "projects", name: "images_project_id_fkey"
   add_foreign_key "images", "users", column: "created_by_id", name: "images_created_by_id_fkey"
   add_foreign_key "images", "users", column: "updated_by_id", name: "images_updated_by_id_fkey"
+  add_foreign_key "import_datasets", "projects"
   add_foreign_key "labels", "projects"
   add_foreign_key "labels", "users", column: "created_by_id", name: "labels_created_by_id_fk"
   add_foreign_key "labels", "users", column: "updated_by_id", name: "labels_updated_by_id_fk"
