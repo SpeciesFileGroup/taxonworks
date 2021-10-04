@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Identifiable', type: :model do
+describe 'Identifiable', type: :model, group: [:identifiers] do
   let(:identifiable_instance) {TestIdentifiable.new}
   let(:identifiable_class) {TestIdentifiable}
 

@@ -683,9 +683,10 @@ shared_context 'stuff for complex geo tests' do
   let(:box_l2) { RSPEC_GEO_FACTORY.polygon(list_box_l2) }
   let(:box_r2) { RSPEC_GEO_FACTORY.polygon(list_box_r2) }
 
-  let(:new_box_a) { FactoryBot.create(:geographic_item_multi_polygon,
-                                      multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([box_a]),
-                                      by: geo_user) }
+  let(:new_box_a) { FactoryBot.create(
+    :geographic_item_multi_polygon,
+    multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([box_a]),
+    by: geo_user) }
 
   let(:new_sub_box_a) { FactoryBot.create(:geographic_item_multi_polygon,
                                           multi_polygon: RSPEC_GEO_FACTORY.multi_polygon([sub_box_a]),
@@ -769,7 +770,7 @@ shared_context 'stuff for complex geo tests' do
       iso_3166_a2: nil,
       parent: area_e,
       by: geo_user,
-      geographic_areas_geographic_items_attributes: [{geographic_item: new_box_a }])
+      geographic_areas_geographic_items_attributes: [{geographic_item: new_box_a }]) # NOTE: data_origin nil
   }
 
   let(:sub_area_a) {
@@ -1268,23 +1269,25 @@ shared_context 'stuff for complex geo tests' do
 
   # real world objects
   let(:ga_data_origin) { 'Test Data' }
-  let(:parent_earth) { GeographicArea.create!(name: 'Earth',
-                                              parent_id: nil,
-                                              level0_id: nil,
-                                              geographic_area_type: planet_gat,
-                                              data_origin: ga_data_origin,
-                                              by: geo_user)
+  let(:parent_earth) { GeographicArea.create!(
+    name: 'Earth',
+    parent_id: nil,
+    level0_id: nil,
+    geographic_area_type: planet_gat,
+    data_origin: ga_data_origin,
+    by: geo_user)
   }
 
   let(:parent_country) {
-    ga = GeographicArea.create!(name: 'United States of America',
-                                iso_3166_a3: 'USA',
-                                iso_3166_a2: 'US',
-                                parent: parent_earth,
-                                geographic_area_type: country_gat,
-                                data_origin: ga_data_origin,
-                                by: geo_user
-                               )
+    ga = GeographicArea.create!(
+      name: 'United States of America',
+      iso_3166_a3: 'USA',
+      iso_3166_a2: 'US',
+      parent: parent_earth,
+      geographic_area_type: country_gat,
+      data_origin: ga_data_origin,
+      by: geo_user
+    )
   ga.level0 = ga
   ga.save!
   ga

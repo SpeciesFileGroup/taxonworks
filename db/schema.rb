@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_09_12_175201) do
+ActiveRecord::Schema.define(version: 2021_09_30_143720) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -727,7 +727,7 @@ ActiveRecord::Schema.define(version: 2021_09_12_175201) do
     t.string "identificationRemarks"
     t.string "identificationVerificationStatus"
     t.string "identifiedBy"
-    t.string "individualCount"
+    t.integer "individualCount"
     t.string "informationWithheld"
     t.string "infraspecificEpithet"
     t.string "institutionCode"
@@ -832,6 +832,9 @@ ActiveRecord::Schema.define(version: 2021_09_12_175201) do
     t.integer "project_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string "identifiedByID"
+    t.string "recordedByID"
+    t.index ["dwc_occurrence_object_id", "dwc_occurrence_object_type"], name: "dwc_occurrences_object_index"
     t.index ["project_id"], name: "index_dwc_occurrences_on_project_id"
   end
 
@@ -919,6 +922,7 @@ ActiveRecord::Schema.define(version: 2021_09_12_175201) do
     t.string "date_valid_to"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["data_origin"], name: "index_geographic_areas_geographic_items_on_data_origin"
     t.index ["geographic_area_id"], name: "index_geographic_areas_geographic_items_on_geographic_area_id"
     t.index ["geographic_item_id"], name: "index_geographic_areas_geographic_items_on_geographic_item_id"
   end
@@ -936,6 +940,7 @@ ActiveRecord::Schema.define(version: 2021_09_12_175201) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.string "type", null: false
+    t.index "st_centroid(\nCASE type\n    WHEN 'GeographicItem::MultiPolygon'::text THEN (multi_polygon)::geometry\n    WHEN 'GeographicItem::Point'::text THEN (point)::geometry\n    WHEN 'GeographicItem::LineString'::text THEN (line_string)::geometry\n    WHEN 'GeographicItem::Polygon'::text THEN (polygon)::geometry\n    WHEN 'GeographicItem::MultiLineString'::text THEN (multi_line_string)::geometry\n    WHEN 'GeographicItem::MultiPoint'::text THEN (multi_point)::geometry\n    WHEN 'GeographicItem::GeometryCollection'::text THEN (geometry_collection)::geometry\n    ELSE NULL::geometry\nEND)", name: "idx_centroid", using: :gist
     t.index ["created_by_id"], name: "index_geographic_items_on_created_by_id"
     t.index ["geometry_collection"], name: "geometry_collection_gix", using: :gist
     t.index ["line_string"], name: "line_string_gix", using: :gist
@@ -1935,7 +1940,9 @@ ActiveRecord::Schema.define(version: 2021_09_12_175201) do
     t.datetime "last_seen_at"
     t.integer "time_active", default: 0
     t.json "preferences", default: {}
+    t.bigint "person_id"
     t.index ["created_by_id"], name: "index_users_on_created_by_id"
+    t.index ["person_id"], name: "index_users_on_person_id"
     t.index ["remember_token"], name: "index_users_on_remember_token"
     t.index ["updated_by_id"], name: "index_users_on_updated_by_id"
   end
@@ -2284,6 +2291,7 @@ ActiveRecord::Schema.define(version: 2021_09_12_175201) do
   add_foreign_key "type_materials", "taxon_names", column: "protonym_id", name: "type_materials_protonym_id_fkey"
   add_foreign_key "type_materials", "users", column: "created_by_id", name: "type_materials_created_by_id_fkey"
   add_foreign_key "type_materials", "users", column: "updated_by_id", name: "type_materials_updated_by_id_fkey"
+  add_foreign_key "users", "people"
   add_foreign_key "users", "users", column: "created_by_id", name: "users_created_by_id_fkey"
   add_foreign_key "users", "users", column: "updated_by_id", name: "users_updated_by_id_fkey"
 end

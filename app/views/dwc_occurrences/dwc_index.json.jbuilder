@@ -1,5 +1,5 @@
 json.column_headers do
-  json.array! @klass.dwc_attribute_vector_names
+  json.array! @headers
 end
 
 json.data do

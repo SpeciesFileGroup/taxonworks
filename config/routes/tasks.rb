@@ -34,6 +34,16 @@ scope :tasks do
     end
   end
 
+  scope :dwc do
+    scope :dashboard, controller: 'tasks/dwc/dashboard' do
+      get '/', action: :index, as: 'dwc_dashboard_task'
+      get :index_versions, defaults: {format: :json}
+
+      post 'generate_download', as: 'generate_dwc_download_task', defaults: {format: :json}
+      post :create_index, as: 'create_dwc_index_task', defaults: {format: :json}
+    end
+  end
+
   scope :exports do
       scope :taxonworks_project, controller: 'tasks/exports/taxonworks_project' do
         get '/', action: :index, as: 'export_taxonworks_project_task'

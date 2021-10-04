@@ -1,8 +1,14 @@
-# Verbatim data definition...
+# The Georeference that is derived exclusively from verbatim_latitude/longitude and  fields in a CollectingEvent.
 #
+# While it might be concievable that verbatim data are WKT shapes not points, we assume they are for now.
+#
+#
+# !! TODO: presently does not include verbatim_geolocation_uncertainty translation into radius
+# !! See https://github.com/SpeciesFileGroup/taxonworks/issues/1770
+# @param error_radius
+#   is taken from collecting_event#verbatim_geolocation_uncertainty
 class Georeference::VerbatimData < Georeference
 
-  # rubocop:disable Metrics/MethodLength
   # @param [ActionController::Parameters] params
   def initialize(params = {})
     super
@@ -11,10 +17,10 @@ class Georeference::VerbatimData < Georeference
     self.is_undefined_z = false # and delta_z is zero, or ignored
 
     unless collecting_event.nil? || geographic_item
-
       # value from collecting_event is normalised to meters
       z1 = collecting_event.minimum_elevation
       z2 = collecting_event.maximum_elevation
+
       if z1.blank?
         # no valid elevation provided
         self.is_undefined_z = true
@@ -27,33 +33,49 @@ class Georeference::VerbatimData < Georeference
           delta_z = z1
         else
           # we have full range data, so elevation is (top - bottom) / 2
-          #z2               = z2.to_f
-          delta_z          = z1 + ((z2 - z1) * 0.5)
+          delta_z = z1 + ((z2 - z1) * 0.5)
           # and show calculated median
           self.is_median_z = true
         end
       end
 
-      point      = collecting_event.verbatim_map_center(delta_z)
+      point = collecting_event.verbatim_map_center(delta_z) # hmm
+
       attributes = {point: point}
       attributes[:by] = self.by if self.by
 
       if point.nil?
         test_grs = []
       else
-        test_grs = GeographicItem::Point
-                     .where("point = ST_GeographyFromText('POINT(? ? ?)')", point.x, point.y, point.z)
-                     # .where(['ST_Z(point::geometry) = ?', point.z])
+        test_grs = GeographicItem::Point.where("point = ST_GeographyFromText('POINT(? ? ?)')", point.x, point.y, point.z)
       end
 
       if test_grs.empty?
         test_grs = [GeographicItem.new(attributes)]
       end
 
+      self.error_radius = collecting_event.geolocate_uncertainty_in_meters
       self.geographic_item = test_grs.first
     end
-
-    # geographic_item
   end
-  # rubocop:enable Metrics/MethodLength
+
+  def dwc_georeference_attributes
+    h = {}
+    super(h)
+    h.merge!(
+      verbatimLatitude: collecting_event.verbatim_latitude,
+      verbatimLongitude: collecting_event.verbatim_longitude,
+
+      coordinateUncertaintyInMeters: error_radius, # See #1770
+
+      georeferenceSources: "Physical collection object.",
+      georeferenceRemarks: "Derived from a instance of TaxonWorks' Georeference::VerbatimData.",
+      georeferenceProtocol: 'A geospatial point translated from verbatim values recorded on human-readable media (e.g. paper specimen label, field notebook).',
+      geodeticDatum: nil  # TODO: check
+    )
+    h
+  end
+
+
+
 end

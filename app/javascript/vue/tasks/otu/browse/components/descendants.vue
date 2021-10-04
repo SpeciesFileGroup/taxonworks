@@ -62,7 +62,7 @@ export default {
   },
   computed: {
     childOfCurrentName () {
-      return (this.onlyChildrens ? this.children.filter(child => { return this.otu.taxon_name_id === child.parent_id }) : this.children).sort(function (a, b) {
+      return (this.onlyChildrens ? this.children.filter(child => this.otu.taxon_name_id === child.parent_id) : this.children).sort((a, b) => {
         if (a.cached > b.cached) {
           return 1
         }
