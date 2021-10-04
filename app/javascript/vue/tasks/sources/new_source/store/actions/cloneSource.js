@@ -3,7 +3,7 @@ import { MutationNames } from '../../store/mutations/mutations'
 import setParam from 'helpers/setParam'
 
 export default ({ state, commit }) => {
-  Source.clone(state.source.id).then(response => {
+  Source.clone(state.source.id, { extend: ['roles'] }).then(response => {
     const source = response.body
 
     const authors = source.author_roles

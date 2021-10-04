@@ -101,6 +101,13 @@ import platformKey from 'helpers/getPlatformKey'
 
 import { Source, AssertedDistribution } from 'routes/endpoints'
 
+const extend = [
+  'citations',
+  'geographic_area',
+  'otu',
+  'source'
+]
+
 export default {
   components: {
     SourceComponent,
@@ -143,7 +150,7 @@ export default {
   },
 
   created () {
-    AssertedDistribution.where({ recent: true, per: 15 }).then(response => {
+    AssertedDistribution.where({ recent: true, per: 15, extend }).then(response => {
       this.list = response.body
       this.loading = false
     })
@@ -203,7 +210,8 @@ export default {
         assertedDistribution.citations_attributes[0].id = undefined
         AssertedDistribution.where({
           otu_id: assertedDistribution.otu_id,
-          geographic_area_id: assertedDistribution.geographic_area_id
+          geographic_area_id: assertedDistribution.geographic_area_id,
+          extend
         }).then(response => {
           if (response.body.length) {
             assertedDistribution.id = response.body[0].id
@@ -216,7 +224,7 @@ export default {
     },
 
     createRecord (asserted_distribution) {
-      AssertedDistribution.create({ asserted_distribution }).then(response => {
+      AssertedDistribution.create({ asserted_distribution, extend }).then(response => {
         this.list.unshift(response.body)
         TW.workbench.alert.create('Asserted distribution was successfully created.', 'notice')
         this.refreshSmarts()
@@ -225,7 +233,7 @@ export default {
     },
 
     updateRecord (asserted_distribution) {
-      AssertedDistribution.update(asserted_distribution.id, { asserted_distribution }).then(response => {
+      AssertedDistribution.update(asserted_distribution.id, { asserted_distribution, extend }).then(response => {
         const index = this.list.findIndex(item => item.id === response.body.id)
 
         this.list[index] = response.body

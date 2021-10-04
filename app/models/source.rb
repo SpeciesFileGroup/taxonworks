@@ -302,10 +302,10 @@ class Source < ApplicationRecord
 
     Source.joins(
       Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['source_id'].eq(p['id'])))
-    ).pluck(:source_id).uniq
+    ).select(:id).distinct.pluck(:id)
   end
 
-    # @params target [String] a citable model name
+  # @params target [String] a citable model name
   # @return [Hash] sources optimized for user selection
   def self.select_optimized(user_id, project_id, target = 'TaxonName')
     r = used_recently(user_id, project_id, target)
@@ -317,17 +317,17 @@ class Source < ApplicationRecord
 
     if r.empty?
       h[:recent] = Source.where(created_by_id: user_id, updated_at: 2.hours.ago..Time.now )
-                       .order('created_at DESC')
-                       .limit(5).order(:cached).to_a
+        .order('created_at DESC')
+        .limit(5).order(:cached).to_a
       h[:quick] = Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a
     else
-        h[:recent] =
-            (Source.where(created_by_id: user_id, updated_at: 2.hours.ago..Time.now )
-                .order('created_at DESC')
-                .limit(5).order(:cached).to_a +
-            Source.where('"sources"."id" IN (?)', r.first(6) ).to_a).uniq
-        h[:quick] = ( Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a +
-        Source.where('"sources"."id" IN (?)', r.first(4) ).to_a).uniq
+      h[:recent] =
+        (Source.where(created_by_id: user_id, updated_at: 2.hours.ago..Time.now )
+        .order('created_at DESC')
+        .limit(5).order(:cached).to_a +
+      Source.where('"sources"."id" IN (?)', r.first(6) ).to_a).uniq
+      h[:quick] = ( Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a +
+                   Source.where('"sources"."id" IN (?)', r.first(4) ).to_a).uniq
     end
 
     h

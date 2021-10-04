@@ -178,7 +178,7 @@ export default {
         this.$refs.source.setFocus()
       }
 
-      this.getList(`/asserted_distributions/${item.id}.json`, { params: { geo_json: true }}).then(ad => {
+      this.getList(`/asserted_distributions/${item.id}.json`, { params: { embed: ['shape'] } }).then(ad => {
         if (this.idIndex > -1) {
           this.list[this.idIndex] = ad.body
         } else {

@@ -7,6 +7,7 @@
       @onTabSelected="view = $event"
       target="Source"
       klass="Source"
+      label="cached"
       :params="{ role_type: 'SourceAuthor' }"
       :autocomplete-params="{
         roles: ['SourceAuthor']
