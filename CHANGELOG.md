@@ -18,9 +18,39 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Verbatim value handling (use "{your value}")  for fields otherwise processed in BibTeX sources (e.g. author)
 - Soft_validation fix. Objective synonyms should share the same type.
 - Add `Download`, `Full size` and `Radial navigation` buttons in Image viewer [#2423]
+- Updated framework for producing and downloading DwC Archives (DwCA) [#1775] [#1303]
+- Increased from 21 to 53 the number of fields referenced in the (DwCA) dump [#1269] [#1230]
+- Task `DwC Dashboard` facilitating DwCA download, metadata reporting, and "health" checks [#1467]
+- Endpoint `/tasks/dwc/dashboard/index_versions` returns the dates at which DwcOccurrence indexing was modified. !! TODO: update date of merge.
+- Endpoint `/dwc_occurrences/metadata`, for stats on the state of DwcOccurrence index
+- Endpoint `/dwc_occurrencs/predicates` to return a list of Predicates used on CollectionObjects and CollectingEvents
+- Endpoint `/dwc_occurrences/status` to check whether DwcOccurrence records are up-to-date
+- Endpoint `/dwc_occurrences/collector_id_metadata` to check whether People referenced in DwcOccurences have GUIDs
+- Task on Administration panel, "Reindex", with (temporary) options to re-index small blocks of DwcOccurrence records
+- Button on CollectionObject filter to download filter result as DwC Archive [#1303]
+- User can select a corresponding Person as their data representation (facilitates Identifiers for Users) [#1486]
+- Wikidata (Q) and ORCiD support for people references in DwCA dumps
+- New fields `identifiedByID` and `recordedByID` on DwcOccurrence
+- Centroid index on GeographicItem
+- Field `total_records` on Download
+- Index on polymorphic fields of DwcIndex (e.g. faster queries to CollectionObject)
+- Index on `data_origin` for GeographicAreasGeographicItem
+- `DwcOccurrence` controller (metadata use only)
+- Identifiers for AssertedDistributions
+- Various relationships enabling the joining of DwcOccurrence directly to other classes of data (e.g. Georeferences)
+- Isolated Georeference related utilities into their own module CollectingEvent::Georeference
+- A Taxonomy module that caches classification values, used in CollectionObject, and Otu
+- Methods to return when a record attribute was updated (e.g. verbatim_locality changed), and who did it for Papertrail including classes of data
+- Methods to handle multiple classes of globally unique identifiers on DwcOccurrence records
+- Auto-generation of UUIDs for instances that don't have global identifiers during DwCOccurrence record building [#2186]
+- Pattern for isolating modules that aid DwC serialization per class of data
+- Optimized `to_wkt` to quickly return well-known-text for geo-shapes (in part, [#2526])
+- Georeferences can have Confidences assigned to them
+- New subclass of UUID `Identifier::Global::Uuid::TaxonworksDwcOccurrence`
+- Clarified, via`georeferenceSources` and `georefernceProtocol` why there are many decimal points in DwC latitude/longitude referencing fields [#915] [#1175]
 
 ### Fixed
-- Add missing original citation to synonym names in CoLDP export [#2543] 
+- Add missing original citation to synonym names in CoLDP export [#2543]
 - Uniquify people slow when many roles present [#2528]
 - Match combination when protonym has synonym relationships [#2525]
 - TaxonNameRelationsip `type_method` returns nil properly on unmatched types [#2504]
@@ -46,7 +76,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Include project's name in CoLDP exports filename [#2509]
 - Implemented STI for downloads [#2498]\
 - Upgraded gnfinder gem that makes use of new REST API
-- Refactor help code, replaced jQuery for js vanilla
+- Refactor help code
+- Unified various DwC value returning methods in their own explicitly named extensions
+- Isolated CollectionObject filter and API param handling to their own module for reference in multiple controllers
+- DwcOccurrence `individualCount` is now Integer
+- Database ConnectionTimeoutErrors now result in a 503 response rather than a raise/email-warning
+- Added various `:inverse_of` across collection objects related models
+- `DwcOccurrence#individualCount` is integer now
+- Simplified SQL for ordering GeographicArea shapes
+- Tweak validation of ORCIDid format
 
 [#2543]: https://github.com/SpeciesFileGroup/taxonworks/issues/2543
 [#2532]: https://github.com/SpeciesFileGroup/taxonworks/issues/2532
@@ -62,6 +100,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2530]: https://github.com/SpeciesFileGroup/taxonworks/pull/2530
 [#2549]: https://github.com/SpeciesFileGroup/taxonworks/pull/2549
 [#2423]: https://github.com/SpeciesFileGroup/taxonworks/pull/2523
+[#915]: https://github.com/SpeciesFileGroup/taxonworks/issues/915
+[#1175]: https://github.com/SpeciesFileGroup/taxonworks/issues/1175
+[#1230]: https://github.com/SpeciesFileGroup/taxonworks/issues/1230
+[#1269]: https://github.com/SpeciesFileGroup/taxonworks/issues/1269
+[#1303]: https://github.com/SpeciesFileGroup/taxonworks/issues/1303
+[#1467]: https://github.com/SpeciesFileGroup/taxonworks/issues/1467
+[#1486]: https://github.com/SpeciesFileGroup/taxonworks/issues/1486
+[#1775]: https://github.com/SpeciesFileGroup/taxonworks/issues/1775
+[#2186]: https://github.com/SpeciesFileGroup/taxonworks/issues/2186
+[#2526]: https://github.com/SpeciesFileGroup/taxonworks/issues/2526
 
 ## [0.19.7] - 2021-09-09
 
