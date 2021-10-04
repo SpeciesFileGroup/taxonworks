@@ -88,6 +88,7 @@ import OriginalcombinationSection from './components/pickOriginalCombination.vue
 import ManagesynonymySection from './components/manageSynonym'
 import ClassificationSection from './components/classification.vue'
 import SoftValidation from 'components/soft_validations/panel.vue'
+import SubsequentCombinationSection from './components/Combination/CombinationMain.vue'
 import Spinner from 'components/spinner.vue'
 import platformKey from 'helpers/getPlatformKey'
 
@@ -110,6 +111,7 @@ export default {
     ManagesynonymySection,
     NavHeader,
     OriginalcombinationSection,
+    SubsequentCombinationSection,
     RelationshipSection,
     SoftValidation,
     Spinner,
@@ -156,6 +158,7 @@ export default {
         'Manage synonymy': showForThisGroup(['GenusGroup', 'FamilyGroup'], this.getTaxon),
         Type: showForThisGroup(['SpeciesGroup', 'GenusGroup', 'FamilyGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon),
         'Original combination': showForThisGroup(['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon),
+        'Subsequent Combination': showForThisGroup(['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon),
         Classification: true,
         Gender: showForThisGroup(['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon),
         Etymology: showForThisGroup(['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon),

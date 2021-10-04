@@ -1,99 +1,41 @@
 <template>
   <block-layout
-    anchor="original-combination"
-    :warning="softValidation.length > 0"
-    :spinner="!taxon.id"
-    v-help.section.subsequentCombination.container>
+    anchor="original-combination">
     <template #header>
       <h3>Subsequent combination</h3>
     </template>
     <template #body>
-      <div
-        class="original-combination-picker">
-        <form class="horizontal-left-content">
-          <div class="button-current separate-right">
-            <button
-              v-if="!existOriginalCombination"
-              type="button"
-              @click="addOriginalCombination()"
-              class="normal-input button button-submit">Set as current
-            </button>
-          </div>
-          <div>
-            <draggable
-              class="flex-wrap-column"
-              v-if="!existOriginalCombination"
-              v-model="taxonOriginal"
-              item-key="id"
-              :group="{
-                name: 'combination',
-                put: isGenus,
-                pull: true
-              }"
-              :animation="150"
-              filter=".item-filter"
-            >
-              <template #item="{ element }">
-                <div
-                  class="horizontal-left-content middle item-draggable">
-                  <input
-                    type="text"
-                    class="normal-input current-taxon"
-                    :value="element.value.subject_object_tag"
-                    disabled>
-                  <span
-                    class="handle button circle-button button-submit"
-                    title="Press and hold to drag input"
-                    data-icon="w_scroll-v"/>
-                </div>
-              </template>
-            </draggable>
-          </div>
-        </form>
-        <hr>
-        <original-combination
-          class="separate-top separate-bottom"
-          v-if="!isGenus"
-          nomenclature-group="Species"
-          @processed="saveTaxonName"
-          @delete="saveTaxonName"
-          @create="saveTaxonName"
-          :disabled="!existOriginalCombination"
-          :options="{
-            animation: 150,
-            group: {
-              name: 'combination',
-              put: !isGenus,
-              pull: false
-            },
-            filter: '.item-filter'
-          }"
-          :relationships="speciesGroup"/>
-        <div class="original-combination separate-top separate-bottom">
-          <div class="flex-wrap-column rank-name-label">
-            <label class="row capitalize"/>
-          </div>
-          <div
-            v-if="existOriginalCombination"
-            class="flex-separate middle">
-            <span
-              class="original-combination-name"
-              v-html="taxon.original_combination"/>
-            <span
-              class="circle-button btn-delete"
-              @click="removeAllCombinations()"/>
-          </div>
-        </div>
-      </div>
+      <combination-rank
+        v-for="(group, groupName) in RANK_LIST"
+        :key="groupName"
+        v-model="combination"
+        :nomenclature-group="groupName"
+        :rank-group="group"
+        :options="{
+          animation: 150,
+          group: {
+            name: 'subsequentCombination',
+            put: true,
+            pull: false
+          },
+          filter: '.item-filter'
+        }"
+      />
     </template>
   </block-layout>
 </template>
 
 <script setup>
 
-import { ref, computed, watch } from 'vue'
-import Draggable from 'vuedraggable'
+import {
+  ref,
+  computed,
+  watch
+} from 'vue'
+
 import BlockLayout from 'components/layout/BlockLayout.vue'
+import CombinationRank from './CombinationRank.vue'
+import { Combination } from 'routes/endpoints'
 
 const RANK_LIST = {
   genusGroup: [
@@ -108,6 +50,21 @@ const RANK_LIST = {
   ]
 }
 
-const combination = ref({})
+const combination = ref({
+  genus: undefined,
+  subgenus: undefined,
+  species: undefined,
+  subspecies: undefined,
+  variety: undefined,
+  form: undefined
+})
+
+const makeCombination = data => Object.fromEntries(Object.entries(data).map(([rank, value]) => [`${rank}_id`, value]))
+
+const createCombination = data => {
+  const combination = makeCombination(data)
+
+  Combination.create({ combination })
+}
 
 </script>
