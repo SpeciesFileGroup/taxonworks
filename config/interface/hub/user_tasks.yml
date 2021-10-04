@@ -211,8 +211,8 @@ new_asserted_distribution_from_map_task:
     - new
 report_dwc_task:
   hub: true
-  name: 'Report DWCA table'
-  description: 'Collection objects with calculated attributes that will ultimately be exported to DWCA.'
+  name: 'Report DwC-A table'
+  description: 'Collection objects with calculated attributes that will ultimately be exported to DwC-A.'
   status: prototype
   categories:
     - collection_object
@@ -621,6 +621,14 @@ export_taxonworks_project_task:
   categories:
   status: prototype
   description: 'Generate a downloadable copy of the database with data from this project and community data (Sources, People, Repositories, etc.)'
+dwc_dashboard_task:
+  hub: true
+  name: 'DwC Dashboard'
+  description: 'Report DwC Occurrence metadata, issues, and coverage. Manage DwC-A export.'
+  status: prototype
+  categories:
+    - collection_object
+    - collecting_event
 new_extract_task:
   hub: true
   name: 'New extract'

@@ -99,6 +99,8 @@ class Person < ApplicationRecord
     in: ['Person::Vetted', 'Person::Unvetted'],
     message: '%{value} is not a validly_published type'}
 
+  has_one :user, dependent: :restrict_with_error, inverse_of: :person
+
   has_many :roles, dependent: :restrict_with_error, inverse_of: :person #, before_remove: :set_cached_for_related
 
   has_many :author_roles, class_name: 'SourceAuthor', dependent: :restrict_with_error, inverse_of: :person #, before_remove: :set_cached_for_related
@@ -118,6 +120,9 @@ class Person < ApplicationRecord
   has_many :taxon_determinations, through: :determiner_roles, source: :role_object, source_type: 'TaxonDetermination', inverse_of: :determiners
   has_many :authored_taxon_names, through: :taxon_name_author_roles, source: :role_object, source_type: 'TaxonName', inverse_of: :taxon_name_authors
   has_many :georeferences, through: :georeferencer_roles, source: :role_object, source_type: 'Georeference', inverse_of: :georeferencers
+
+  has_many :collection_objects, through: :collecting_events
+  has_many :dwc_occurrences, through: :collection_objects
 
   scope :created_before, -> (time) { where('created_at < ?', time) }
   scope :with_role, -> (role) { includes(:roles).where(roles: {type: role}) }
@@ -170,6 +175,12 @@ class Person < ApplicationRecord
   #   The person's full last name including prefix & suffix (von last Jr)
   def full_last_name
     [prefix, last_name, suffix].compact.join(' ')
+  end
+
+  # Return [String, nil]
+  #   convenience, maybe a delegate: candidate
+  def orcid
+    identifiers.where(type: 'Identifier::Global::Orcid').first&.cached
   end
 
   # @param [Integer] person_id

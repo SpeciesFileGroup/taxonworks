@@ -1,3 +1,4 @@
+require 'queries/collecting_event/filter'
 module Queries
   module CollectionObject
 
@@ -108,6 +109,8 @@ module Queries
       # @return [Boolen, nil]
       attr_accessor :recent
 
+      attr_accessor :object_global_id
+
       # @return [True, False, nil]
       #   true - has repository_id
       #   false - does not have repository_id
@@ -184,9 +187,9 @@ module Queries
 
         # Only CollectingEvent fields are permitted now.
         # (Perhaps) TODO: allow concern attributes nested inside as well, e.g. show me all COs with this Tag on CE.
-        collecting_event_params = Queries::CollectingEvent::Filter::ATTRIBUTES + Queries::CollectingEvent::Filter::PARAMS
+        collecting_event_params = ::Queries::CollectingEvent::Filter::ATTRIBUTES + ::Queries::CollectingEvent::Filter::PARAMS
 
-        @collecting_event_query = Queries::CollectingEvent::Filter.new(
+        @collecting_event_query = ::Queries::CollectingEvent::Filter.new(
           params.select{|a,b| collecting_event_params.include?(a.to_s) }
         )
 
@@ -212,6 +215,7 @@ module Queries
         @is_type = params[:is_type] || []
         @loaned = boolean_param(params, :loaned)
         @never_loaned = boolean_param(params, :never_loaned)
+        @object_global_id = params[:object_global_id]
         @on_loan =  boolean_param(params, :on_loan)
         @otu_descendants = boolean_param(params, :otu_descendants)
         @otu_ids = params[:otu_ids] || []
@@ -325,6 +329,19 @@ module Queries
           ::CollectionObject.left_outer_joins(:georeferences)
             .where(georeferences: {id: nil})
             .distinct
+        end
+      end
+
+      def object_global_id_facet
+        return nil if object_global_id.nil?
+
+        if o = GlobalID::Locator.locate(object_global_id)
+          k = o.class.name
+          id = o.id
+
+          table[:id].eq(id).and(table[:type].eq(k))
+        else
+          nil
         end
       end
 
@@ -500,7 +517,8 @@ module Queries
           collecting_event_ids_facet,
           preparation_type_id_facet,
           type_facet,
-          repository_id_facet
+          repository_id_facet,
+          object_global_id_facet
         ]
         clauses.compact!
         clauses
@@ -571,6 +589,7 @@ module Queries
           q = ::CollectionObject.all
         end
 
+        # TODO: needs to go, orders mess with chaining.
         q = q.order(updated_at: :desc) if recent
         q
       end
@@ -660,7 +679,6 @@ module Queries
         ::CollectionObject.joins(q.join_sources).where(z)
       end
 
-
       # TODO: is this used?
       # @return [Scope]
       #  def geographic_area_scope
@@ -674,8 +692,6 @@ module Queries
       #    ::CollectionObject.joins(:geographic_items)
       #      .where(::GeographicItem.contained_by_where_sql(target_geographic_item_ids))
       #  end
-
-
     end
 
   end

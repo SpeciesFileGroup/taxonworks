@@ -37,7 +37,7 @@ class Tag < ApplicationRecord
 
   include Shared::PolymorphicAnnotator
   polymorphic_annotates(:tag_object)
-  acts_as_list scope: [:tag_object_id, :tag_object_type, :keyword_id]
+  acts_as_list scope: [:tag_object_id, :tag_object_type, :keyword_id, :project_id]
 
   belongs_to :keyword, inverse_of: :tags, validate: true
   belongs_to :controlled_vocabulary_term, foreign_key: :keyword_id, inverse_of: :tags # Not all tagged subclasses are Keyword based, use this object for display.

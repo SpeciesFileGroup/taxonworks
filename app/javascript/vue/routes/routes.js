@@ -18,7 +18,9 @@ const RouteNames = {
   PrintLabel: '/tasks/labels/print_labels',
   TypeMaterial: '/tasks/type_material/edit_type_material',
   NewExtract: '/tasks/extracts/new_extract',
-  NewNamespace: '/tasks/namespaces/new_namespace'
+  NewNamespace: '/tasks/namespaces/new_namespace',
+  DwcDashboard: '/tasks/dwc/dashboard',
+  FilterCollectionObjects: '/tasks/collection_objects/filter'
 }
 
 export {

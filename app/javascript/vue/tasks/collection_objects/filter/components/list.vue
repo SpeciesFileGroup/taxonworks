@@ -104,9 +104,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  table {
-    margin-top: 0px;
-  }
+
   tr {
     height: 44px;
   }
@@ -115,5 +113,18 @@ export default {
   }
   .overflow-scroll {
     overflow: scroll;
+  }
+
+  td {
+    max-width: 80px;
+    overflow : hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  td:hover {
+    max-width : 200px;
+    text-overflow: ellipsis;
+    white-space: normal;
   }
 </style>

@@ -28,8 +28,9 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #   the verbatim author string as provided ? is not post-filled in when Source is referenced !?
 #
 # @!attribute rank_class
-#   @return [String]
-#   The TW rank of this name
+#   @param rank_class [String]
+#   @return [Class]
+#     The NOMEN based rank as a class.
 #
 # @!attribute type
 #   @return [String]

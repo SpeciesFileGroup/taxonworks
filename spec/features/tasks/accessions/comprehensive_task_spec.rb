@@ -23,7 +23,7 @@ describe 'Task - Comprehensive digitization', type: :feature, group: :collection
 
       specify 'clicking save saves' do
         click_button 'Save'
-        expect(page).to have_text('no identifier assigned')
+        expect(page).to_not have_text('New record')
       end
 
       context 'catalog numbers' do
@@ -40,7 +40,7 @@ describe 'Task - Comprehensive digitization', type: :feature, group: :collection
           click_button 'Save'
 
           expect(page).to_not have_text('New record')
-          expect(page).to_not have_text('no identifier assigned')
+          expect(page).to_not have_text('no catalog number assigned') # all records auto-get an occurrenceID
           expect(page).to have_text('INHS 1234')
         end
       end

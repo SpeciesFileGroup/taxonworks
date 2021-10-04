@@ -15,4 +15,7 @@ class AdministrationController < ApplicationController
 
   def data_health
   end
+
+  def data_reindex
+  end
 end
