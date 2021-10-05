@@ -11,16 +11,14 @@
       <div>
         <draggable
           class="flex-wrap-column"
-          v-if="!existOriginalCombination"
-          v-model="taxonOriginal"
+          :list="taxonNameList"
           item-key="id"
           :group="{
-            name: 'combination',
-            put: isGenus,
+            name: 'subsequentCombination',
+            put: false,
             pull: true
           }"
           :animation="150"
-          filter=".item-filter"
         >
           <template #item="{ element }">
             <div
@@ -51,5 +49,9 @@ import VBtn from 'components/ui/VBtn/index.vue'
 
 const store = useStore()
 const currentTaxonName = computed(() => store.getters[GetterNames.GetTaxon])
+const taxonNameList = computed(() => ({
+  rank: currentTaxonName.value,
+  value: store.getters[GetterNames.GetTaxon]
+}))
 
 </script>
