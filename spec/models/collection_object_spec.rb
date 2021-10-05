@@ -5,7 +5,6 @@ require 'support/shared_contexts/shared_geo'
 describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_objects] do
   include_context 'stuff for complex geo tests'
 
-
   context 'dwc_occurrence' do
     let(:collection_object) { CollectionObject.new() }
     specify 'saves' do
@@ -168,10 +167,10 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
           expect(collection_object.taxon_determinations.first).to be_truthy
         end
 
-        specify 'type_designations' do
-          collection_object.type_designations << FactoryBot.create(:valid_type_material)
+        specify 'type_materials' do
+          collection_object.type_materials << FactoryBot.create(:valid_type_material)
           collection_object.save!
-          expect(collection_object.type_designations.count).to eq(1)
+          expect(collection_object.type_materials.count).to eq(1)
         end
       end
     end
@@ -267,8 +266,9 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
         describe 'spanning a single year' do
           specify 'should find 2 records' do
             [co_m1, co_m1a]
-            collection_objects = CollectionObject.in_date_range(search_start_date: '1971-01-01',
-                                                                search_end_date:   '1971-12-31')
+            collection_objects = CollectionObject.in_date_range(
+              search_start_date: '1971-01-01',
+              search_end_date:   '1971-12-31')
             expect(collection_objects.map(&:collecting_event)).to contain_exactly(ce_m1, ce_m1a)
           end
         end

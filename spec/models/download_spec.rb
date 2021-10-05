@@ -106,8 +106,7 @@ RSpec.describe Download, type: :model do
         end
 
         it "is true when file is added afterwards" do
-          download_no_file.source_file_path = Rails.root.join('spec/files/downloads/Sample.zip')
-          download_no_file.save!
+          download_no_file.update!(source_file_path:  Rails.root.join('spec/files/downloads/Sample.zip'))
           expect(download_no_file.ready?).to be_truthy
         end
       end

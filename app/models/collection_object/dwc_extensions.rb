@@ -1,33 +1,271 @@
 module CollectionObject::DwcExtensions
 
-  DWC_OCCURRENCE_MAP = {
-    catalogNumber: :dwc_catalog_number,
-    family: :dwc_family,
-    genus: :dwc_genus,
-    specificEpithet: :dwc_specific_epithet,
-    scientificName: :dwc_scientific_name,
-    scientificNameAuthorship: :dwc_taxon_name_authorship,
-    country: :dwc_country,
-    stateProvince: :dwc_state_province,
-    county: :dwc_county,
-    decimalLatitude: :dwc_latitude,
-    decimalLongitude: :dwc_longitude,
-    georeferenceProtocol: :dwc_georeference_protocol,
-    verbatimLocality: :dwc_verbatim_locality,
-    nomenclaturalCode: :dwc_nomenclatural_code,
-    eventTime: :dwc_event_time,
-    eventDate: :dwc_event_date,
-    preparations: :dwc_preparations,
-    institutionCode: :dwc_institution_code,
-    institutionID: :dwc_institution_id,
-    recordedBy: :dwc_recorded_by,  
-    individualCount: :dwc_individual_count,
-  }.freeze
+  extend ActiveSupport::Concern
 
-  attr_accessor :taxonomy
+  included do
 
-  def taxonomy
-    @taxonomy ||= set_taxonomy
+    # A current list of mappable values
+    DWC_OCCURRENCE_MAP = {
+      catalogNumber: :dwc_catalog_number,
+      country: :dwc_country,
+      county: :dwc_county,
+      dateIdentified: :dwc_date_identified,
+      eventDate: :dwc_event_date,
+      eventTime: :dwc_event_time,
+      family: :dwc_family,
+      fieldNumber: :dwc_field_number,
+      genus: :dwc_genus,
+      habitat: :dwc_verbatim_habitat,
+      identifiedBy: :dwc_identified_by,
+      identifiedByID: :dwc_identified_by_id,
+      individualCount: :dwc_individual_count,
+      infraspecificEpithet: :dwc_infraspecific_epithet,
+      institutionCode: :dwc_institution_code,
+      institutionID: :dwc_institution_id,
+      kingdom: :dwc_kingdom,
+      lifeStage: :dwc_life_stage,
+      maximumElevationInMeters: :dwc_maximum_elevation_in_meters,
+      minimumElevationInMeters: :dwc_minimum_elevation_in_meters,
+      nomenclaturalCode: :dwc_nomenclatural_code,
+      otherCatalogNumbers: :dwc_other_catalog_numbers,
+      preparations: :dwc_preparations,
+      previousIdentifications: :dwc_previous_identifications,
+      recordedBy: :dwc_recorded_by,
+      recordedByID: :dwc_recorded_by_id,
+      samplingProtocol: :dwc_sampling_protocol,
+      scientificName: :dwc_scientific_name,
+      scientificNameAuthorship: :dwc_taxon_name_authorship,
+      sex: :dwc_sex,
+      specificEpithet: :dwc_specific_epithet,
+      stateProvince: :dwc_state_province,
+      taxonRank: :dwc_taxon_rank,
+      typeStatus: :dwc_type_status,
+      verbatimElevation: :dwc_verbatim_elevation,
+      verbatimEventDate: :dwc_verbatim_event_date,
+      verbatimLocality: :dwc_verbatim_locality,
+      waterBody: :dwc_water_body,
+
+      # Georeference "Interface'
+      verbatimCoordinates: :dwc_verbatim_coordinates,
+      verbatimLatitude: :dwc_verbatim_latitude,
+      verbatimLongitude: :dwc_verbatim_longitude,
+      decimalLatitude: :dwc_latitude,
+      decimalLongitude: :dwc_longitude,
+      footprintWKT: :dwc_footprint_wkt,
+
+      coordinateUncertaintyInMeters: :dwc_coordinate_uncertainty_in_meters,
+      geodeticDatum: :dwc_geodetic_datum,
+      georeferenceProtocol: :dwc_georeference_protocol,
+      georeferenceRemarks: :dwc_georeference_remarks,
+      georeferenceSources: :dwc_georeference_sources,
+      georeferencedBy: :dwc_georeferenced_by,
+      georeferencedDate: :dwc_georeferenced_date,
+      verbatimSRS: :dwc_verbatim_srs,
+
+      # TODO: move to a proper extensions
+      associatedMedia: :dwc_associated_media
+
+      # -- Core taxon? --
+      # nomenclaturalCode
+      # scientificName
+      # taxonmicStatus NOT DONE
+      # scientificNameAuthorship
+      # scientificNameID  NOT DONE
+      # taxonRank
+      # namePublishedIn NOT DONE
+    }.freeze
+
+
+    attr_accessor :georeference_attributes
+
+    # @return [Hash]
+    # getter returning georeference related attributes
+    def georeference_attributes
+      @georeference_attributes ||= set_georeference_attributes
+    end
+  end
+
+  # @return [Hash]
+  #
+  def set_georeference_attributes
+    case collecting_event&.dwc_georeference_source
+    when :georeference
+      collecting_event.preferred_georeference.dwc_georeference_attributes
+    when :verbatim
+      h = collecting_event.dwc_georeference_attributes
+
+      if a = collecting_event&.attribute_updater(:verbatim_latitude)
+        h[:georeferencedBy] = User.find(a).name
+      end
+
+      # verbatim_longitude could technically be different, but...
+      h[:georeferencedDate] = collecting_event&.attribute_updated(:verbatim_latitude)
+
+      h
+
+    when :geographic_area
+      h = collecting_event.geographic_area.dwc_georeference_attributes
+
+      if a = collecting_event&.attribute_updater(:geographic_area_id)
+        h[:georeferencedBy] = User.find(a).name
+      end
+
+      h[:georeferencedDate] = collecting_event&.attribute_updated(:geographic_area_id)
+
+      h
+    else
+      {}
+    end
+  end
+
+  # https://dwc.tdwg.org/terms/#dwc:associatedMedia
+  def dwc_associated_media
+    images.collect{|i| i.image_file.url }.join(CollectionObject::DWC_DELIMITER)
+  end
+
+  def dwc_georeference_sources
+    georeference_attributes[:georeferenceSources]
+  end
+
+  def dwc_georeference_remarks
+    georeference_attributes[:georeferenceRemarks]
+  end
+
+  def dwc_footprint_wkt
+    georeference_attributes[:footprintWKT]
+  end
+
+  def dwc_georeferenced_by
+    georeference_attributes[:georeferencedBy]
+  end
+
+  def dwc_georeferenced_date
+    georeference_attributes[:georeferencedDate]
+  end
+
+  def dwc_geodetic_datum
+    georeference_attributes[:geodeticDatum]
+  end
+
+  def dwc_verbatim_srs
+    georeference_attributes[:dwcVerbatimSrs]
+  end
+
+  # georeferenceDate
+  # technically could look at papertrail to see when geographic_area_id appeared
+  def dwc_georeferenced_date
+    collecting_event&.attribute_updated(:geographic_area_id)
+  end
+
+  # TODO: extend to Georeferences when we understand how to describe spatial uncertainty
+  def dwc_coordinate_uncertainty_in_meters
+    collecting_event&.verbatim_geolocation_uncertainty
+  end
+
+  def dwc_verbatim_latitude
+    collecting_event&.verbatim_latitude
+  end
+
+  def dwc_verbatim_longitude
+    collecting_event&.verbatim_longitude
+  end
+
+  def dwc_other_catalog_numbers
+    i = identifiers.where.not('type ilike ?', 'Identifier::Global::Uuid%').order(:position).to_a
+    i.shift
+    i.map(&:cached).join(CollectionObject::DWC_DELIMITER).presence
+  end
+
+  def dwc_previous_identifications
+    a = taxon_determinations.order(:position).to_a
+    a.shift
+    a.collect{|d| ApplicationController.helpers.label_for_taxon_determination(d)}.join(CollectionObject::DWC_DELIMITER).presence
+  end
+
+  def dwc_water_body
+    return nil unless collecting_event
+    collecting_event.internal_attributes.includes(:predicate)
+      .where(
+        controlled_vocabulary_terms: {uri: ::DWC_ATTRIBUTE_URIS[:waterBody] })
+      .pluck(:value)&.join(', ').presence
+  end
+
+  # TODO: consider CVT attributes with predicates linked to URIs
+  def dwc_life_stage
+    biocuration_classes
+      .where(
+        controlled_vocabulary_terms: {uri: ::DWC_ATTRIBUTE_URIS[:lifeStage] })
+      .pluck(:name)&.join(', ').presence # `.presence` is a Rails extension
+  end
+
+  # TODO: consider CVT attributes with predicates linked to URIs
+  def dwc_sex
+    biocuration_classes
+      .where(
+        controlled_vocabulary_terms: {uri: ::DWC_ATTRIBUTE_URIS[:sex] })
+      .pluck(:name)&.join(', ').presence
+  end
+
+  def dwc_verbatim_coordinates
+    return nil unless collecting_event
+    [collecting_event.verbatim_latitude, collecting_event.verbatim_longitude].compact.join(' ').presence
+  end
+
+  def dwc_verbatim_elevation
+    collecting_event&.verbatim_elevation
+  end
+
+  def dwc_maximum_elevation_in_meters
+    collecting_event&.maximum_elevation
+  end
+
+  def dwc_minimum_elevation_in_meters
+    collecting_event&.minimum_elevation
+  end
+
+  # TODO: Reconcile with Protocol (capital P) assignments
+  def dwc_sampling_protocol
+    collecting_event&.verbatim_method
+  end
+
+  def dwc_field_number
+    return nil unless collecting_event
+    collecting_event.identifiers.where(type: 'Identifier::Local::TripCode').first&.cached
+  end
+
+  def dwc_verbatim_habitat
+    collecting_event&.verbatim_habitat
+  end
+
+  def dwc_verbatim_event_date
+    collecting_event&.verbatim_date
+  end
+
+  def dwc_infraspecific_epithet
+    %w{variety form subspecies}.each do |n| # add more as observed
+      return taxonomy[n].last if taxonomy[n]
+    end
+    nil
+  end
+
+  def dwc_taxon_rank
+    current_taxon_name&.rank
+  end
+
+  # holotype of Ctenomys sociabilis. Pearson O. P., and M. I. Christie. 1985. Historia Natural, 5(37):388, holotype of Pinus abies | holotype of Picea abies
+  def dwc_type_status
+    type_materials.all.collect{|t|
+      ApplicationController.helpers.label_for_type_material(t)
+    }.join(CollectionObject::DWC_DELIMITER).presence
+  end
+
+  # ISO 8601:2004(E).
+  def dwc_date_identified
+    current_taxon_determination&.date
+  end
+
+  def dwc_kingdom
+    taxonomy['kingdom']
   end
 
   # http://rs.tdwg.org/dwc/terms/family
@@ -37,12 +275,12 @@ module CollectionObject::DwcExtensions
 
   # http://rs.tdwg.org/dwc/terms/genus
   def dwc_genus
-    taxonomy['genus'] && taxonomy['genus'].compact.join(' ')
+    taxonomy['genus'] && taxonomy['genus'].compact.join(' ').presence
   end
 
   # http://rs.tdwg.org/dwc/terms/species
   def dwc_specific_epithet
-    taxonomy['species'] && taxonomy['species'].compact.join(' ')
+    taxonomy['species'] && taxonomy['species'].compact.join(' ').presence
   end
 
   def dwc_scientific_name
@@ -53,10 +291,32 @@ module CollectionObject::DwcExtensions
     current_taxon_name.try(:cached_author_year)
   end
 
-  # !! lots of try now, see :delegate as a possible refactor - http://api.rubyonrails.org/classes/Module.html#method-i-delegate
-
+  # Definition: A list (concatenated and separated) of names of people, groups, or organizations responsible for recording the original Occurrence. The primary collector or observer, especially one who applies a personal identifier (recordNumber), should be listed first.
+  #
+  # This is, frankly, a worthless field. Currently populated with Determiners, ordered by preferred, then historical, then collectors tossed in for good measure. Maybe we can add the
+  # people who digitally captured all the different components of the graph too.
   def dwc_recorded_by
-    collecting_event.try(:collectors_string)
+    # TODO: raw SQL this mess?
+    ( determiners.includes(:roles).order('taxon_determinations.position, roles.position').to_a +
+     (collecting_event ? collecting_event&.collectors.includes(:roles).order('roles.position').to_a : []))
+      .uniq.map(&:cached).join(CollectionObject::DWC_DELIMITER).presence
+  end
+
+  def dwc_recorded_by_id
+    # TODO: raw SQL this mess?
+    ( determiners.includes(:roles).order('taxon_determinations.position, roles.position').to_a +
+     (collecting_event ? collecting_event&.collectors.includes(:roles).order('roles.position').to_a : []))
+      .uniq.map(&:orcid).compact.join(CollectionObject::DWC_DELIMITER).presence
+  end
+
+  def dwc_identified_by
+    # TaxonWorks allows for groups of determiners to collaborate on a single determination if they collectively came to a conclusion.
+    current_taxon_determination&.determiners&.map(&:cached)&.join(CollectionObject::DWC_DELIMITER).presence
+  end
+
+  def dwc_identified_by_id
+    # TaxonWorks allows for groups of determiners to collaborate on a single determination if they collectively came to a conclusion.
+    current_taxon_determination&.determiners&.map(&:orcid)&.join(CollectionObject::DWC_DELIMITER).presence
   end
 
   def dwc_institution_code
@@ -64,7 +324,7 @@ module CollectionObject::DwcExtensions
   end
 
   def dwc_catalog_number
-    catalog_number_cached
+    catalog_number_cached # via delegation
   end
 
   # TODO: handle ranged lots
@@ -92,11 +352,11 @@ module CollectionObject::DwcExtensions
   end
 
   def dwc_latitude
-    collecting_event_map_center.try(:y)
+    georeference_attributes[:dwcLatitude]
   end
 
   def dwc_longitude
-    collecting_event_map_center.try(:x)
+    georeference_attributes[:dwcLongitude]
   end
 
   def dwc_verbatim_locality
@@ -112,12 +372,12 @@ module CollectionObject::DwcExtensions
 
     %w{start_time end_time}
       .map { |t| %w{hour minute second}
-        .map { |p| collecting_event["#{t}_#{p}"] }
-        .map { |p| "%02d" % p if p } # At least two digits
+      .map { |p| collecting_event["#{t}_#{p}"] }
+      .map { |p| "%02d" % p if p } # At least two digits
       }
-      .map { |t| t.compact.join(':') }
-      .reject(&:blank?)
-      .join("/")
+        .map { |t| t.compact.join(':') }
+        .reject(&:blank?)
+        .join("/").presence
   end
 
   def dwc_event_date
@@ -125,12 +385,12 @@ module CollectionObject::DwcExtensions
 
     %w{start_date end_date}
       .map { |d| %w{year month day}
-        .map { |p| collecting_event["#{d}_#{p}"] }
-        .map { |p| "%02d" % p if p } # At least two digits
+      .map { |p| collecting_event["#{d}_#{p}"] }
+      .map { |p| "%02d" % p if p } # At least two digits
       }
-      .map { |d| d.compact.join('-') }
-      .reject(&:blank?)
-      .join("/")
+        .map { |d| d.compact.join('-') }
+        .reject(&:blank?)
+        .join("/").presence
   end
 
   def dwc_preparations
@@ -160,15 +420,4 @@ module CollectionObject::DwcExtensions
     end
   end
 
-  protected
-
-  def set_taxonomy
-    if self.current_taxon_name
-      @taxonomy = self.current_taxon_name.full_name_hash
-    else
-      @taxonomy ||= {}
-    end
-  end
-
 end
-

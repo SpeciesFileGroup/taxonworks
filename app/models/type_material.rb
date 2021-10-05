@@ -63,7 +63,7 @@ class TypeMaterial < ApplicationRecord
       'isosyntypes' => Lot
   }.freeze
 
-  belongs_to :collection_object, foreign_key: :collection_object_id, class_name: 'CollectionObject', inverse_of: :type_designations
+  belongs_to :collection_object, foreign_key: :collection_object_id, class_name: 'CollectionObject', inverse_of: :type_materials
   belongs_to :protonym, inverse_of: :type_materials
 
   scope :where_protonym, -> (taxon_name) { where(protonym_id: taxon_name) }

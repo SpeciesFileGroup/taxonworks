@@ -1,7 +1,7 @@
 # An Otu (loosely, operational taxonomic unit) can be thought of as a unit of study.  In most cases an otu is a taxon.
 #
 # An Otu is defined by its underlying data and may be labeled with a name (TaxonName). Otus are used to represent rows
-# in matrices, taxon eages, individuals or populations, or arbitrary clusters of organisms (e.g. 'unsorted specimens in this container').
+# in matrices, taxon pages, individuals or populations, or arbitrary clusters of organisms (e.g. 'unsorted specimens in this container').
 # Otus are a primary unit of work in TaxonWorks.
 #
 # OTU is labeled with a name, either arbitrarily given or specifically linked to a taxon_name_id.
@@ -39,6 +39,7 @@ class Otu < ApplicationRecord
   include Shared::OriginRelationship
 
   include Shared::Taxonomy
+  include Otu::DwcExtensions
 
   include Shared::MatrixHooks::Member
   include Otu::MatrixHooks
@@ -266,26 +267,6 @@ class Otu < ApplicationRecord
   #   whether or not this otu is coordinate (see coordinate_otus) with this otu
   def coordinate_with?(otu_id)
     Otu.coordinate_otus(otu_id).where(otus: {id: id}).any?
-  end
-
-  # Hernán - this is extremely hacky, I'd like to
-  # map core keys to procs, use yield:, use cached values,
-  # add logic for has_many handling (e.g. identifiers) etc.
-  # ultmately, each key maps to a proc that returns a value
-  #
-  # deprecated for new approach in CollectionObject, AssertedDistribution
-  def dwca_core
-    core = Dwca::GbifProfile::CoreTaxon.new
-
-    core.nomenclaturalCode        = (taxon_name.rank_class.nomenclatural_code.to_s.upcase)
-    core.taxonomicStatus          = (!taxon_name.is_valid? ? nil : 'accepted') # (taxon_name.unavailable_or_invalid? ? nil : 'accepted')
-    core.nomenclaturalStatus      = (taxon_name.classification_invalid_or_unavailable? ? nil : 'available') # needs tweaking
-    core.scientificName           = taxon_name.cached
-    core.scientificNameAuthorship = taxon_name.cached_author_year
-    core.scientificNameID         = taxon_name.identifiers.first.identifier
-    core.taxonRank                = taxon_name.rank
-    core.namePublishedIn          = taxon_name.source.cached
-    core
   end
 
   # TODO: Deprecate for helper method, HTML does not belong here

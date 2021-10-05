@@ -51,6 +51,8 @@ class GeographicArea < ApplicationRecord
   include Shared::IsData
   include Shared::IsApplicationData
 
+  include GeographicArea::DwcSerialization
+
   # @return class
   #   this method calls Module#module_parent
   # TODO: This method can be placed elsewhere inside this class (or even removed if not used)
@@ -142,7 +144,6 @@ class GeographicArea < ApplicationRecord
         .where(['gb.name = ?', names[2]])
     end
   }
-
 
   before_destroy :check_for_children
 
@@ -303,13 +304,19 @@ class GeographicArea < ApplicationRecord
 
   # @return [GeographicItem, nil]
   #   a "preferred" geographic item for this geographic area, where preference
-  #   is based on an ordering of source gazeteers, the order being
+  #     is based on an ordering of source gazeteers, the order being
   #   1) Natural Earth Countries
   #   2) Natural Earth States
   #   3) GADM
   #   4) everything else (at present, TDWG)
   def default_geographic_item
-    GeographicItem.default_by_geographic_area_ids([id]).first
+    default_geographic_area_geographic_item&.geographic_item
+    # GeographicItem.default_by_geographic_area_ids([id]).first
+  end
+
+  # @return [GeographicAreasGeographicItem, nil]
+  def default_geographic_area_geographic_item
+    GeographicAreasGeographicItem.where(geographic_area_id: id).default_geographic_item_data.first
   end
 
   # rubocop:disable Style/StringHashKeys

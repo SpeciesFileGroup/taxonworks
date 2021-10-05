@@ -1,13 +1,28 @@
 import { isObject } from './objects.js'
 
+function transformObjectToParams (params) {
+  const urlParams = new URLSearchParams({})
+
+  return objectToParams(urlParams, params)
+}
+
 function objectToParams (URLParams, objectParams) {
-  Object.keys(objectParams).forEach(key => {
-    if (objectParams[key]) {
-      URLParams.set(key, objectParams[key])
+  const entries = Object.entries(objectParams)
+
+  entries.forEach(([key, value]) => {
+    if (value) {
+      if (Array.isArray(value)) {
+        value.forEach(item => {
+          URLParams.append(`${key}[]`, item)
+        })
+      } else {
+        URLParams.set(key, value)
+      }
     } else {
       URLParams.delete(key)
     }
   })
+
   return URLParams
 }
 
@@ -40,4 +55,8 @@ export default (url, param, value = undefined) => {
   } else {
     history.pushState(null, null, urlString)
   }
+}
+
+export {
+  transformObjectToParams
 }

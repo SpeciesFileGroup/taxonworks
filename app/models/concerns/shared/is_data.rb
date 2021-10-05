@@ -22,6 +22,10 @@ module Shared::IsData
       self < Shared::SharedAcrossProjects ? true : false
     end
 
+    def dwc_occurrence_eligible?
+      self < Shared::IsDwcOccurrence
+    end
+
     # @return [Array] of strings of only the non-cached and non-housekeeping column names
     def data_attributes
       column_names.reject { |c| %w{id project_id created_by_id updated_by_id created_at updated_at}
@@ -107,7 +111,7 @@ module Shared::IsData
 
     self.class.reflect_on_all_associations(:has_one).each do |r|
       if is_community? # *this* object is community, others we don't care about
-        if o = t.send(r.name)
+        if o = send(r.name)
           return false if o.respond_to(:project_id) && !p.include?(o.project)
         end
       end

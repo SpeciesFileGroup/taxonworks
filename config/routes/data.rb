@@ -240,6 +240,15 @@ resources :downloads, except: [:edit, :new, :create] do
   end
 end
 
+resources :dwc_occurrences, only: [], defaults: {format: :json} do
+  collection do
+    get 'metadata'
+    get 'predicates'
+    get 'status'
+    get 'collector_id_metadata'
+  end
+end
+
 resources :extracts do
   concerns [:data_routes]
   collection do

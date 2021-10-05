@@ -29,6 +29,7 @@ class AssertedDistribution < ApplicationRecord
   include Shared::Citations
   include Shared::Confidences
   include Shared::OriginRelationship
+  include Shared::Identifiers
   include Shared::IsData
 
   include Shared::IsDwcOccurrence
