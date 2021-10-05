@@ -64,6 +64,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - In project button [#2530]
 - View image matrix is passing wrong ids [#2537]
 - Observations with depictions sometimes are removed after move a depiction [#2549]
+- Relationship facet in Filter nomenclature
 
 ### Changed
 - Tweak geo coordinate matching on verbatim labels
