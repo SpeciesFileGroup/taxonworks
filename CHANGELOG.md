@@ -71,6 +71,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - DwcOccurrence is rebuilt/refreshed each time Browse Collection Object is hit
+- `footprintWKT` is hidden in Browse CollectionOjbect [#2559]
 - Tweak geo coordinate matching on verbatim labels
 - Year suffix, stated year, language, translated title and notes added to bibliography rendering via `to_citeproc`
 - Removed `label_html` from `/people` responses
@@ -91,6 +92,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Simplified SQL for ordering GeographicArea shapes
 - Tweak validation of ORCIDid format
 
+[#2559]: https://github.com/SpeciesFileGroup/taxonworks/issues/2559
 [#2562]: https://github.com/SpeciesFileGroup/taxonworks/issues/2562
 [#2563]: https://github.com/SpeciesFileGroup/taxonworks/issues/2563
 [#2543]: https://github.com/SpeciesFileGroup/taxonworks/issues/2543
