@@ -15,10 +15,11 @@
       <label>Past</label>
       <download-date-button
         v-for="(days, label) in DATE_BUTTONS"
-        class="margin-small-right"
+        class="margin-small-right capitalize"
         :key="label"
         :label="label"
         :days="days"
+        :count="getTotal(label)"
         @onDate="download"
       >
         {{ label }}
@@ -38,15 +39,17 @@ import VBtn from 'components/ui/VBtn/index.vue'
 import FilterLink from '../FilterLink.vue'
 
 const DATE_BUTTONS = {
-  Day: 1,
-  Week: 7,
-  Month: 30,
-  Year: 365
+  day: 1,
+  week: 7,
+  month: 30,
+  year: 365
 }
 
 const useAction = inject('actions')
 const useState = inject('state')
 const downloadCount = computed(() => useState?.metadata?.index?.record_total)
+
+const getTotal = date => useState?.metadata?.index.freshness[`one_${date}`]
 
 const download = async downloadParams => {
   useAction.addDownloadRecord((await DwcOcurrence.generateDownload({ ...downloadParams, dwc_indexed: true })).body)

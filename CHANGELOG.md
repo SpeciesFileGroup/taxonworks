@@ -8,9 +8,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Task `Dwc Import` for importing DwC Archive files
 - Task `DwC Dashboard` facilitating DwCA download, metadata reporting, and "health" checks [#1467]
 - Rake task to rebuild source cached
-- New .csl styl 'taxonworks.csl' used as the default style for displaying sources
+- CSL style 'taxonworks.csl' used as the default style for displaying sources
 - New specs for rendering Source citations
 - `&extend[]` and `&embed[]` helper methods for REST responses [#2532]
 - Soft validation of cached values with fix {@proceps FOR WHAT}
@@ -48,6 +49,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Georeferences can have Confidences assigned to them [#1772]
 - New subclass of UUID `Identifier::Global::Uuid::TaxonworksDwcOccurrence`
 - Clarified, via`georeferenceSources` and `georefernceProtocol` why there are many decimal points in DwC latitude/longitude referencing fields [#915] [#1175]
+- Option to rebuild single DwcOccurrence record for CollectionObject [#2563]
+- Added helper method to log state of the DwcOccurrence record for a CollectionObject
+- Ability to show observation matrices > 10k cells in size [#1790] 
 
 ### Fixed
 - Add missing original citation to synonym names in CoLDP export [#2543]
@@ -64,8 +68,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - In project button [#2530]
 - View image matrix is passing wrong ids [#2537]
 - Observations with depictions sometimes are removed after move a depiction [#2549]
+- Relationship facet in Filter nomenclature
 
 ### Changed
+- DwcOccurrence is rebuilt/refreshed each time Browse Collection Object is hit
+- `footprintWKT` is hidden in Browse CollectionOjbect [#2559]
 - Tweak geo coordinate matching on verbatim labels
 - Year suffix, stated year, language, translated title and notes added to bibliography rendering via `to_citeproc`
 - Removed `label_html` from `/people` responses
@@ -86,6 +93,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Simplified SQL for ordering GeographicArea shapes
 - Tweak validation of ORCIDid format
 
+[#1790]: https://github.com/SpeciesFileGroup/taxonworks/issues/1790
+[#2559]: https://github.com/SpeciesFileGroup/taxonworks/issues/2559
+[#2562]: https://github.com/SpeciesFileGroup/taxonworks/issues/2562
+[#2563]: https://github.com/SpeciesFileGroup/taxonworks/issues/2563
 [#2543]: https://github.com/SpeciesFileGroup/taxonworks/issues/2543
 [#2532]: https://github.com/SpeciesFileGroup/taxonworks/issues/2532
 [#2528]: https://github.com/SpeciesFileGroup/taxonworks/issues/2528

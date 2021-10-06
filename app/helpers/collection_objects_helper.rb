@@ -4,7 +4,7 @@ module CollectionObjectsHelper
   #   a descriptor including the identifier and determination
   def collection_object_tag(collection_object)
     return nil if collection_object.nil?
-    a = [ 
+    a = [
       collection_object_deaccession_tag(collection_object),
       collection_object_identifier_tag(collection_object),
       taxon_determination_tag(collection_object.taxon_determinations.order(:position).first)

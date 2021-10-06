@@ -5,45 +5,50 @@ module CollectionObject::DwcExtensions
   included do
 
     # A current list of mappable values
+    # Even though it is a Hash it maintains key order, which is
+    # semi-useful for quick reporting.
     DWC_OCCURRENCE_MAP = {
       catalogNumber: :dwc_catalog_number,
+      otherCatalogNumbers: :dwc_other_catalog_numbers,
+      individualCount: :dwc_individual_count,
+      preparations: :dwc_preparations,
+      lifeStage: :dwc_life_stage,
+      sex: :dwc_sex,
       country: :dwc_country,
+      stateProvince: :dwc_state_province,
       county: :dwc_county,
-      dateIdentified: :dwc_date_identified,
       eventDate: :dwc_event_date,
       eventTime: :dwc_event_time,
-      family: :dwc_family,
       fieldNumber: :dwc_field_number,
-      genus: :dwc_genus,
-      habitat: :dwc_verbatim_habitat,
-      identifiedBy: :dwc_identified_by,
-      identifiedByID: :dwc_identified_by_id,
-      individualCount: :dwc_individual_count,
-      infraspecificEpithet: :dwc_infraspecific_epithet,
-      institutionCode: :dwc_institution_code,
-      institutionID: :dwc_institution_id,
-      kingdom: :dwc_kingdom,
-      lifeStage: :dwc_life_stage,
       maximumElevationInMeters: :dwc_maximum_elevation_in_meters,
       minimumElevationInMeters: :dwc_minimum_elevation_in_meters,
-      nomenclaturalCode: :dwc_nomenclatural_code,
-      otherCatalogNumbers: :dwc_other_catalog_numbers,
-      preparations: :dwc_preparations,
-      previousIdentifications: :dwc_previous_identifications,
-      recordedBy: :dwc_recorded_by,
-      recordedByID: :dwc_recorded_by_id,
       samplingProtocol: :dwc_sampling_protocol,
-      scientificName: :dwc_scientific_name,
-      scientificNameAuthorship: :dwc_taxon_name_authorship,
-      sex: :dwc_sex,
-      specificEpithet: :dwc_specific_epithet,
-      stateProvince: :dwc_state_province,
-      taxonRank: :dwc_taxon_rank,
-      typeStatus: :dwc_type_status,
+      habitat: :dwc_verbatim_habitat,
       verbatimElevation: :dwc_verbatim_elevation,
       verbatimEventDate: :dwc_verbatim_event_date,
       verbatimLocality: :dwc_verbatim_locality,
       waterBody: :dwc_water_body,
+      identifiedBy: :dwc_identified_by,
+      identifiedByID: :dwc_identified_by_id,
+      dateIdentified: :dwc_date_identified,
+      nomenclaturalCode: :dwc_nomenclatural_code,
+      kingdom: :dwc_kingdom,
+      family: :dwc_family,
+      genus: :dwc_genus,
+      specificEpithet: :dwc_specific_epithet,
+      infraspecificEpithet: :dwc_infraspecific_epithet,
+      scientificName: :dwc_scientific_name,
+      scientificNameAuthorship: :dwc_taxon_name_authorship,
+      taxonRank: :dwc_taxon_rank,
+      previousIdentifications: :dwc_previous_identifications,
+
+      typeStatus: :dwc_type_status,
+
+      institutionCode: :dwc_institution_code,
+      institutionID: :dwc_institution_id,
+
+      recordedBy: :dwc_recorded_by,
+      recordedByID: :dwc_recorded_by_id,
 
       # Georeference "Interface'
       verbatimCoordinates: :dwc_verbatim_coordinates,
@@ -120,7 +125,7 @@ module CollectionObject::DwcExtensions
 
   # https://dwc.tdwg.org/terms/#dwc:associatedMedia
   def dwc_associated_media
-    images.collect{|i| i.image_file.url }.join(CollectionObject::DWC_DELIMITER)
+    images.collect{|i| i.image_file.url }.join(CollectionObject::DWC_DELIMITER).presence
   end
 
   def dwc_georeference_sources

@@ -149,17 +149,19 @@ class DwcOccurrence < ApplicationRecord
     end
   end
 
-  # Is a spot check not a join/query based check.
   # @return [Boolean]
-  def stale?
+  #   By looking at the data, determine if a related record
+  #   has been updated since this record ws updated at
+  # !! A spot check, could be made more robust.
+  def is_stale?
     case dwc_occurrence_object_type
-
     when 'CollectionObject'
       t = [
         dwc_occurrence_object.updated_at,
         dwc_occurrence_object.collecting_event&.updated_at,
         dwc_occurrence_object&.taxon_determinations&.first&.updated_at
-      ].compact!
+      ]
+      t.compact!
       t.sort.first > (updated_at || Time.now)
     else # AssertedDistribution
       dwc_occurrence_object.updated_at > updated_at
