@@ -140,7 +140,7 @@
             <%= hidden_field_tag(:object_global_id, @collection_object.to_global_id.to_s) -%>
             <div class="actions"> <%= tag.input(type: :submit, value: 'Rebuild') -%> </div>
           <% end %>
-          <%= dwc_occurrence_health_tag(@collection_object.dwc_occurrence) -%> 
+          <%= dwc_occurrence_health_tag(@collection_object.dwc_occurrence) -%>
           <%= dwc_column(@collection_object.dwc_occurrence) -%>
         </div>
       </div>

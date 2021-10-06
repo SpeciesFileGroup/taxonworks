@@ -51,6 +51,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Clarified, via`georeferenceSources` and `georefernceProtocol` why there are many decimal points in DwC latitude/longitude referencing fields [#915] [#1175]
 - Option to rebuild single DwcOccurrence record for CollectionObject [#2563]
 - Added helper method to log state of the DwcOccurrence record for a CollectionObject
+- Ability to show observation matrices > 10k cells in size [#1790] 
 
 ### Fixed
 - Add missing original citation to synonym names in CoLDP export [#2543]
@@ -92,6 +93,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Simplified SQL for ordering GeographicArea shapes
 - Tweak validation of ORCIDid format
 
+[#1790]: https://github.com/SpeciesFileGroup/taxonworks/issues/1790
 [#2559]: https://github.com/SpeciesFileGroup/taxonworks/issues/2559
 [#2562]: https://github.com/SpeciesFileGroup/taxonworks/issues/2562
 [#2563]: https://github.com/SpeciesFileGroup/taxonworks/issues/2563
