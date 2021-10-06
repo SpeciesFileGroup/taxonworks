@@ -78,6 +78,10 @@ begin
     TAXON_NAME_RELATIONSHIP_NAMES_CLASSIFICATION = ['TaxonNameRelationship::Iczn::Validating::UncertainPlacement',
                                                     'TaxonNameRelationship::SourceClassifiedAs'].freeze
 
+    COMBINATION_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship.
+      collect_descendants_to_s(TaxonNameRelationship::Combination,
+                               TaxonNameRelationship::OriginalCombination)
+
     TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM = TaxonNameRelationship.
       collect_descendants_and_itself_to_s(TaxonNameRelationship::Iczn::Invalidating::Synonym,
                                           TaxonNameRelationship::Iczn::Invalidating::Usage,
