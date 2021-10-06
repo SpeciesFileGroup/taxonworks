@@ -41,7 +41,7 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
 
     # A canary, shouldn't be present since not on loan
     c = FactoryBot.create(:valid_specimen, no_dwc_occurrence: false)
-    
+
     b = DwcOccurrence.collection_objects_join.merge(a)
     expect(b.all.count).to eq(1)
   end
@@ -133,26 +133,26 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
     end
   end
 
-  specify '#stale? 1' do
+  specify '#is_stale? 1' do
     a = collection_object.get_dwc_occurrence
-    expect(a.stale?).to be_falsey
+    expect(a.is_stale?).to be_falsey
   end
 
-  specify '#stale? 2' do
+  specify '#is_stale? 2' do
     a = collection_object.get_dwc_occurrence
     a.update!(updated_at: 2.weeks.ago)
     collecting_event.update!(updated_at: 1.week.ago)
-    expect(a.stale?).to be_truthy
+    expect(a.is_stale?).to be_truthy
   end
 
-  specify '#stale? 3' do
+  specify '#is_stale? 3' do
     a = collection_object.get_dwc_occurrence
     a.update!(updated_at: 2.weeks.ago)
 
     b = TaxonDetermination.new(otu: FactoryBot.create(:valid_otu))
     collection_object.taxon_determinations << b
 
-    expect(a.stale?).to be_truthy
+    expect(a.is_stale?).to be_truthy
   end
 
   # Can't test within a transaction.
