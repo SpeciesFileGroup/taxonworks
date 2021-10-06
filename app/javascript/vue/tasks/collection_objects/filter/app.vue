@@ -94,6 +94,7 @@
             v-model="per"/>
         </div>
         <list-component
+          v-if="Object.keys(list).length"
           v-model="ids"
           :list="list"
           @onSort="list.data = $event"/>
