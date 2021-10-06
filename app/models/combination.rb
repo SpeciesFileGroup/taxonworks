@@ -58,8 +58,7 @@
 class Combination < TaxonName
 
   # The ranks that can be used to build combinations.  
-  APPLICABLE_RANKS = %w{genus subgenus section subsection
-                        series subseries species subspecies variety subvariety form subform}.freeze
+  APPLICABLE_RANKS = %w{genus subgenus section subsection series subseries species subspecies variety subvariety form subform}.freeze
 
   before_validation :set_parent
   validate :validate_absence_of_subject_relationships
@@ -220,7 +219,6 @@ class Combination < TaxonName
     end
 
     b = b.group(j['id']).having(sr['object_taxon_name_id'].count.eq(protonym_ids.count)).where(sr['type'].in(COMBINATION_TAXON_NAME_RELATIONSHIP_NAMES))
-
     b = b.as('join_alias')
 
     Protonym.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(s['id']))))

@@ -5,7 +5,7 @@ class TaxonNameRelationship::CurrentCombination < TaxonNameRelationship
   validate :subject_is_combination
   validate :object_is_protonym
 
-  has_one :related_taxon_name_relationship, class_name: 'TaxonNameRelationship',
+  has_one :related_taxon_name_relationship, class_name: 'TaxonNameRelationship::CurrentCombination',
            foreign_key: :object_taxon_name_id,
            inverse_of: :object_taxon_name
 
@@ -36,18 +36,17 @@ class TaxonNameRelationship::CurrentCombination < TaxonNameRelationship
     GENUS_AND_SPECIES_RANK_NAMES_ICN
   end
 
-  def self.assignment_method
-    # bus.set_as_species_in_original_combination(aus)
-    :current_combination
-  end
-
-  def self.inverse_assignment_method
-    # aus.original_combination_form = bus
-    :taxon_for_current_combination
-  end
-
   def self.assignable
     true
+  end
+
+  def self.assignment_method
+    :combination_in_current_combination
+  end
+
+  # as.
+  def self.inverse_assignment_method
+    :protonym_in_current_combination
   end
 
   protected

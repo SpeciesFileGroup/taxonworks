@@ -322,8 +322,9 @@ class TaxonNameRelationship < ApplicationRecord
   end
 
   def validate_type
-    if (type && !TAXON_NAME_RELATIONSHIP_NAMES.include?(type.to_s)) ||
-      (self.type_class && object_taxon_name && !self.type_class.valid_object_ranks.include?(object_taxon_name.rank_string))
+    if type && !TAXON_NAME_RELATIONSHIP_NAMES.include?(type.to_s)
+      errors.add(:type, "'#{type}' is not a valid taxon name relationship")
+    elsif self.type_class && object_taxon_name.class.to_s == 'Protonym' && !self.type_class.valid_object_ranks.include?(object_taxon_name.rank_string)
       errors.add(:type, "'#{type}' is not a valid taxon name relationship")
     end
 

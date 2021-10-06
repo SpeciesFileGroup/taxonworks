@@ -78,7 +78,7 @@ class Protonym < TaxonName
         has_one d.assignment_method.to_sym, through: relationship, source: :object_taxon_name
       end
 
-      if d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification)/ # |SourceClassifiedAs
+      if d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification)/
         relationships = "#{d.assignment_method}_relationships".to_sym
         # ActiveRecord::Base.send(:sanitize_sql_array, [d.name])
         has_many relationships, -> {
