@@ -99,7 +99,7 @@ class CollectingEventsController < ApplicationController
   end
 
   def list
-    @collecting_events = CollectingEvent.where(project_id: session_current_project_id).order(:id).page(params[:page])
+    @collecting_events = CollectingEvent.where(project_id: sessions_current_project_id)).order(:id).page(params[:page])
   end
 
   def attributes
