@@ -54,6 +54,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Ability to show observation matrices > 10k cells in size [#1790] 
 
 ### Fixed
+- Taxon name filter type metadata param fails [#2511]
 - Cloning a collecting event fails [#2533]
 - Modified recordedBy fields to only reference collector [#2567] [#2558]
 - Many TDWG gazeteer references will now be properly categorized into state and country labels [#2542]
@@ -97,6 +98,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Simplified SQL for ordering GeographicArea shapes
 - Tweak validation of ORCIDid format
 
+[#2511]: https://github.com/SpeciesFileGroup/taxonworks/issues/2511
 [#2558]: https://github.com/SpeciesFileGroup/taxonworks/issues/2558
 [#2533]: https://github.com/SpeciesFileGroup/taxonworks/issues/2533
 [#2567]: https://github.com/SpeciesFileGroup/taxonworks/issues/2567
