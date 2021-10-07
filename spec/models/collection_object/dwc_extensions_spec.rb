@@ -257,12 +257,12 @@ describe CollectionObject::DwcExtensions, type: :model, group: :collection_objec
         parent: root
       )
 
-      ce.update!(collectors_attributes: [{last_name: 'James', first_name: 'James'}])
+      ce.update!(collectors_attributes: [{last_name: 'Doe', first_name: 'John'}])
       TaxonDetermination.create!(biological_collection_object: s, otu: Otu.create!(taxon_name: p1), determiner_roles_attributes: [{person: p}] )
 
       s.reload
 
-      expect(s.dwc_recorded_by).to eq('Smith, Sue | James, James')
+      expect(s.dwc_recorded_by).to eq('Doe, John')
     end
 
 
