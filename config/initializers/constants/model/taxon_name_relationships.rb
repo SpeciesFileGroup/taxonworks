@@ -76,9 +76,9 @@ begin
         TaxonNameRelationship::Icnp::Unaccepting,
         TaxonNameRelationship::Icvcn::Unaccepting).freeze
 
-    TAXON_NAME_RELATIONSHIP_NAMES_CLASSIFICATION = %{
+    TAXON_NAME_RELATIONSHIP_NAMES_CLASSIFICATION = %w{
       TaxonNameRelationship::Iczn::Validating::UncertainPlacement
-      TaxonNameRelationship::SourceClassifiedAs}
+      TaxonNameRelationship::SourceClassifiedAs}.freeze
 
     COMBINATION_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship.
       collect_descendants_to_s(
