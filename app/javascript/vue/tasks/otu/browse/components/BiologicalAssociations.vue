@@ -31,7 +31,7 @@
           <td v-html="biologicalAssociation.object.object_tag"/>
           <td>
             <a v-for="citation in biologicalAssociation.citations" :key="citation.id" :href="`/tasks/nomenclature/by_source?source_id=${citation.source.id}`" :title="`${citation.source.cached}`">
-              <span v-html="`${citation.source.author_year}` + `${citation.source.year_suffix}` + (citation.pages ? `:${citation.pages}` : '')"/>&nbsp;
+              <span v-html="authorString(citation)"/>&nbsp;
             </a>
           </td>
         </tr>
@@ -163,6 +163,13 @@ export default {
       } else {
         return Array.isArray(item) ? item.find(obj => filterList === obj[property]) : filterList === item[property]
       }
+    },
+    authorString (citation) {
+      const pages = citation.pages
+        ? `:${citation.pages}`
+        : ''
+
+      return `${citation.source.author_year}${citation.source.year_suffix || ''}${pages}`
     }
   }
 }

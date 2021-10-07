@@ -81,7 +81,7 @@ module Shared::IsDwcOccurrence
     a[:created_by_id] = created_by_id
     a[:updated_by_id] = updated_by_id
 
-    a[:updated_at] = Time.now # not applied via this key, but kept for reference, see `touch` in `set_dwc_occurrenc`
+    a[:updated_at] = Time.now # not applied via this key, but kept for reference, see `touch` in `set_dwc_occurrence`
     a
   end
 

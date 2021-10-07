@@ -9,7 +9,7 @@ class CollectingEventsController < ApplicationController
   def index
     respond_to do |format|
       format.html do
-        @recent_objects = CollectingEvent.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        @recent_objects = CollectingEvent.where(project_id: sessions_current_project_id).order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       end
       format.json {
@@ -99,7 +99,7 @@ class CollectingEventsController < ApplicationController
   end
 
   def list
-    @collecting_events = CollectingEvent.with_project_id(sessions_current_project_id).order(:id).page(params[:page])
+    @collecting_events = CollectingEvent.where(project_id: sessions_current_project_id).order(:id).page(params[:page])
   end
 
   def attributes

@@ -45,8 +45,8 @@ describe 'IsDwcOccurrence', type: :model, group: :darwin_core do
         expect(class_with_dwc_occurrence.set_dwc_occurrence).to be_kind_of(DwcOccurrence)
       end
 
-      specify '#stale?' do
-        expect(class_with_dwc_occurrence.dwc_occurrence.stale?).to be_falsey
+      specify '#is_stale?' do
+        expect(class_with_dwc_occurrence.dwc_occurrence.is_stale?).to be_falsey
       end
 
       specify 'updating #dwc_occurrence uses the existing record' do
