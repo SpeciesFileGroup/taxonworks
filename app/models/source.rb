@@ -235,6 +235,12 @@ class Source < ApplicationRecord
     name: 'Cached names',
     description: 'Check if cached values need to be updated' )
 
+  soft_validate(
+    :sv_html_tags,
+    set: :html_tags,
+    name: 'html tags',
+    description: 'Check if html has both open and close tags' )
+
     # Redirect type here
   # @param [String] file
   # @return [[Array, message]]
@@ -403,6 +409,13 @@ class Source < ApplicationRecord
       true
     rescue
       false
+    end
+  end
+
+  def sv_html_tags
+    unless title.blank?
+      str = title.squish.gsub(/\<i>[^<>]*?<\/i>/, '')
+      soft_validations.add(:title, 'The title contains unmatched html tags') if str.include?('<i>') || str.include?('</i>')
     end
   end
 end
