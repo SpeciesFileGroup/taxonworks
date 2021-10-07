@@ -1264,11 +1264,11 @@ class TaxonName < ApplicationRecord
     cc = current_combination.empty? ? self : current_combination.first.subject_taxon_name
 
     if !self.author_string.blank? && mobj.id != cc.id
-      ay = '(' + ay + ') ' + cc.try(:author_string)
+      ay = '(' + ay.to_s + ') ' + cc.try(:author_string).to_s
     end
 
     if !misapplication.empty? && !m_obj.author_string.blank?
-      ay += ' non ' + m_obj.author_string
+      ay += ' non ' + m_obj.author_string.to_s
     end
 
     ay.blank? ? nil : ay
