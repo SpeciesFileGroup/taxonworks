@@ -54,6 +54,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Ability to show observation matrices > 10k cells in size [#1790] 
 
 ### Fixed
+- Removed link to self for invalid taxon names with no synonymy [#2327]
 - Add missing original citation to synonym names in CoLDP export [#2543]
 - Uniquify people slow when many roles present [#2528]
 - Match combination when protonym has synonym relationships [#2525]
@@ -93,7 +94,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Simplified SQL for ordering GeographicArea shapes
 - Tweak validation of ORCIDid format
 
-[#1790]: https://github.com/SpeciesFileGroup/taxonworks/issues/1790
+[#2327]: https://github.com/SpeciesFileGroup/taxonworks/issues/2327
 [#2559]: https://github.com/SpeciesFileGroup/taxonworks/issues/2559
 [#2562]: https://github.com/SpeciesFileGroup/taxonworks/issues/2562
 [#2563]: https://github.com/SpeciesFileGroup/taxonworks/issues/2563
