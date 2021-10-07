@@ -142,7 +142,14 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     expect(query.all.map(&:id)).to contain_exactly(genus.id)
   end
 
-  specify '#taxon_name_relationship[] 1' do
+  specify '#combination_taxon_name_id[] ' do
+    g = Protonym.create!(name: 'Era', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root)
+    a = Combination.create!(genus: g, species: species)
+    query.combination_taxon_name_id = [species.id]
+    expect(query.all.map(&:id)).to contain_exactly(a.id)
+  end
+
+  specify '#taxon_name_relationship[] 0' do
     g = Protonym.create!(name: 'Era', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root)
     a = Combination.create!(genus: g, species: species)
 
