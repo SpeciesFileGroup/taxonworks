@@ -54,9 +54,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Ability to show observation matrices > 10k cells in size [#1790] 
 
 ### Fixed
+- Cloning a collecting event fails [#2533]
 - Modified recordedBy fields to only reference collector [#2567]
-- Many TDWG gazeteer reference will now be properly categorized into state and country [#2542]
-- Removed link to self for invalid taxon names with no synonymy [#2327]
+- Many TDWG gazeteer references will now be properly categorized into state and country labels [#2542]
+- In Browse Nomenclature removed link to self for invalid taxon names with no synonymy [#2327]
 - Add missing original citation to synonym names in CoLDP export [#2543]
 - Uniquify people slow when many roles present [#2528]
 - Match combination when protonym has synonym relationships [#2525]
@@ -96,6 +97,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Simplified SQL for ordering GeographicArea shapes
 - Tweak validation of ORCIDid format
 
+[#2533]: https://github.com/SpeciesFileGroup/taxonworks/issues/2533
 [#2567]: https://github.com/SpeciesFileGroup/taxonworks/issues/2567
 [#2542]: https://github.com/SpeciesFileGroup/taxonworks/issues/2542
 [#2327]: https://github.com/SpeciesFileGroup/taxonworks/issues/2327
