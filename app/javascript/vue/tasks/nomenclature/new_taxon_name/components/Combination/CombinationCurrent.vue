@@ -4,6 +4,7 @@
     <div class="horizontal-left-content">
       <div class="button-current separate-right">
         <v-btn
+          medium
           color="create">
           Set as current
         </v-btn>
@@ -14,7 +15,7 @@
           :list="taxonNameList"
           item-key="id"
           :group="{
-            name: 'subsequentCombination',
+            name: groupName,
             put: false,
             pull: true
           }"
@@ -26,17 +27,25 @@
               <input
                 type="text"
                 class="normal-input current-taxon"
-                :value="element.value.subject_object_tag"
+                :value="element.taxon.object_label"
                 disabled>
-              <span
-                class="handle button circle-button button-submit"
+              <v-btn
+                class="margin-small-left"
+                color="create"
+                circle
                 title="Press and hold to drag input"
-                data-icon="w_scroll-v"/>
+              >
+                <v-icon
+                  name="scrollV"
+                  small
+                />
+              </v-btn>
             </div>
           </template>
         </draggable>
       </div>
     </div>
+    <hr>
   </div>
 </template>
 
@@ -45,13 +54,17 @@
 import { useStore } from 'vuex'
 import { computed } from 'vue'
 import { GetterNames } from '../../store/getters/getters.js'
+import { RANK_LIST } from '../../const/rankList.js'
+import Draggable from 'vuedraggable'
 import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
 
 const store = useStore()
 const currentTaxonName = computed(() => store.getters[GetterNames.GetTaxon])
-const taxonNameList = computed(() => ({
+const taxonNameList = computed(() => [{
   rank: currentTaxonName.value,
-  value: store.getters[GetterNames.GetTaxon]
-}))
+  taxon: store.getters[GetterNames.GetTaxon]
+}])
+const groupName = computed(() => Object.entries(RANK_LIST).find(([_, ranks]) => ranks.includes(currentTaxonName.value.rank))[0])
 
 </script>

@@ -5,6 +5,7 @@ import addTaxonRelationship from './addTaxonRelationship'
 import addOriginalCombination from './addOriginalCombination'
 import cloneTaxon from './cloneTaxon'
 import createTaxonName from './createTaxonName'
+import createCombination from './createCombination'
 import updateTaxonName from './updateTaxonName'
 import removeTaxonStatus from './removeTaxonStatus'
 import removeTaxonRelationship from './removeTaxonRelationship'
@@ -20,6 +21,7 @@ import loadRelationships from './loadRelationships'
 import loadOriginalCombination from './loadOriginalCombination'
 import changeTaxonSource from './changeTaxonSource'
 import removeSource from './removeSource'
+import removeCombination from './removeCombination'
 import updateClassification from './updateClassification'
 import updateTaxonRelationship from './updateTaxonRelationship'
 import updateTaxonStatus from './updateTaxonStatus'
@@ -34,6 +36,7 @@ const ActionNames = {
   AddOriginalCombination: 'addOriginalCombination',
   CloneTaxon: 'cloneTaxon',
   CreateTaxonName: 'createTaxonName',
+  CreateCombination: 'createCombination',
   UpdateTaxonName: 'updateTaxonName',
   RemoveTaxonStatus: 'removeTaxonStatus',
   RemoveTaxonRelationship: 'removeTaxonRelationship',
@@ -48,6 +51,7 @@ const ActionNames = {
   LoadRelationships: 'loadRelationships',
   LoadOriginalCombination: 'loadOriginalCombination',
   ChangeTaxonSource: 'changeTaxonSource',
+  RemoveCombination: 'removeCombination',
   RemoveSource: 'removeSource',
   UpdateClassification: 'updateClassification',
   UpdateTaxonRelationship: 'updateTaxonRelationship',
@@ -57,6 +61,7 @@ const ActionNames = {
 }
 
 const ActionFunctions = {
+  [ActionNames.CreateCombination]: createCombination,
   [ActionNames.LoadCombinations]: loadCombinations,
   [ActionNames.LoadSoftValidation]: loadSoftValidation,
   [ActionNames.LoadTaxonName]: loadTaxonName,
@@ -74,6 +79,7 @@ const ActionFunctions = {
   [ActionNames.CloneTaxon]: cloneTaxon,
   [ActionNames.CreateTaxonName]: createTaxonName,
   [ActionNames.UpdateTaxonName]: updateTaxonName,
+  [ActionNames.RemoveCombination]: removeCombination,
   [ActionNames.RemoveTaxonStatus]: removeTaxonStatus,
   [ActionNames.RemoveTaxonRelationship]: removeTaxonRelationship,
   [ActionNames.RemoveOriginalCombination]: removeOriginalCombination,
@@ -83,7 +89,7 @@ const ActionFunctions = {
   [ActionNames.UpdateTaxonRelationship]: updateTaxonRelationship,
   [ActionNames.UpdateTaxonStatus]: updateTaxonStatus,
   [ActionNames.UpdateTaxonType]: updateTaxonType,
-  [ActionNames.UpdateSource]: updateSource
+  [ActionNames.UpdateSource]: updateSource,
 }
 
 export {

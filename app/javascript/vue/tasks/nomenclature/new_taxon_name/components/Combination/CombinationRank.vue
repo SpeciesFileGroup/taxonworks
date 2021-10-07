@@ -13,12 +13,11 @@
         class="flex-wrap-column"
         v-model="taxonList"
         :options="options"
-        :group="options.group"
+        :group="group"
         item-key="rank"
-        @end="_"
-        @add="_"
-        @update="updateOrder"
-        @start="_">
+        @update="onUpdate"
+        @add="onAdd"
+      >
         <template #item="{ element, index }">
           <div
             class="horizontal-left-content middle"
@@ -36,6 +35,7 @@
               color="primary"
               circle
               title="Press and hold to drag input"
+              class="margin-small-left"
             >
               <v-icon
                 name="scrollV"
@@ -52,6 +52,7 @@
               </span>
             </div>
             <v-btn
+              class="margin-small-left"
               color="primary"
               circle
               title="Press and hold to drag input"
@@ -88,6 +89,11 @@ const props = defineProps({
     required: true
   },
 
+  group: {
+    type: Object,
+    required: true
+  },
+
   rankGroup: {
     type: Object,
     required: true
@@ -109,7 +115,10 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits([
+  'update:modelValue',
+  'onUpdate'
+])
 const taxonList = ref([])
 
 const combination = computed({
@@ -129,19 +138,39 @@ const updateOrder = () => {
   })
 }
 
+const checkForDuplicate = (newIndex) => {
+  if ((taxonList.value.length - 1) === newIndex) {
+    taxonList.value.splice((newIndex - 1), 1)
+    newIndex = newIndex - 1
+  }
+  taxonList.value.splice((newIndex + 1), 1)
+}
+
+const onAdd = ({ newIndex }) => {
+  checkForDuplicate(newIndex)
+  updateOrder()
+  updateCombination()
+}
+
+const onUpdate = () => {
+  updateOrder()
+  updateCombination()
+}
+
 const removeTaxonFromCombination = (index) => {
   taxonList.value[index].taxon = null
+}
+
+const updateCombination = () => {
+  Object.assign(combination.value,
+    ...taxonList.value.map(({ rank, taxon }) => ({ [rank]: taxon }))
+  )
+
+  emit('onUpdate', combination.value)
 }
 
 watch(() => props.combination, () => {
   taxonList.value = props.rankGroup.map(rank => ({ rank, taxon: combination[rank] }))
 }, { immediate: true })
-
-watch(() => taxonList.value, () => {
-  updateOrder()
-  Object.assign(combination.value,
-    ...taxonList.value.map(({ rank, taxon }) => ({ [rank]: taxon }))
-  )
-}, { deep: true })
 
 </script>
