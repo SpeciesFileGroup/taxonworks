@@ -219,7 +219,7 @@ class Combination < TaxonName
       )
     end
 
-    b = b.group(j['id']).having(sr['object_taxon_name_id'].count.eq(protonym_ids.count)).where(sr['type'].in(COMBINATION_TAXON_NAME_RELATIONSHIP_NAMES))
+    b = b.group(j['id']).having(sr['object_taxon_name_id'].count.eq(protonym_ids.count)).where(sr['type'].in(::COMBINATION_TAXON_NAME_RELATIONSHIP_NAMES))
     b = b.as('join_alias')
 
     Protonym.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(s['id']))))
