@@ -4,6 +4,7 @@ json.partial! '/shared/data/all/metadata', object: combination, klass: 'Combinat
 if extend_response_with('protonyms')
   json.protonyms do
     combination.combination_relationships.each do |r|
+      json.taxon_name_relationship_id r.id
       json.set! r.rank_name do
         json.partial! '/taxon_names/attributes', taxon_name: r.subject_taxon_name 
       end
