@@ -120,9 +120,11 @@ class Citation < ApplicationRecord
   end
 
   def update_related_cached_values
-    if citation_object_type == 'TaxonName'
-      citation_object.update_columns(cached_author_year: citation_object.get_author_and_year,
-                                     cached_nomenclature_date: citation_object.nomenclature_date)  if citation_object.persisted?
+    if is_original != @old_is_original || citation_object_id != @old_citation_object_id || source_id != @old_source_id
+      if citation_object_type == 'TaxonName'
+        citation_object.update_columns(cached_author_year: citation_object.get_author_and_year,
+                                       cached_nomenclature_date: citation_object.nomenclature_date)  if citation_object.persisted?
+      end
     end
     true
   end
