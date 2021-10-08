@@ -119,7 +119,7 @@ class Combination < TaxonName
     has_one "#{rank}_taxon_name_relationship".to_sym, -> {
       joins(:combination_relationships)
       where(taxon_name_relationships: {type: "TaxonNameRelationship::Combination::#{rank.capitalize}"}) },
-    class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
+    class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id, inverse_of: :object_taxon_name
 
     has_one rank.to_sym, -> {
       joins(:combination_relationships)
@@ -127,7 +127,8 @@ class Combination < TaxonName
     }, through: "#{rank}_taxon_name_relationship".to_sym, source: :subject_taxon_name
 
     accepts_nested_attributes_for rank.to_sym
-    accepts_nested_attributes_for "#{rank}_taxon_name_relationship"
+    
+    accepts_nested_attributes_for "#{rank}_taxon_name_relationship".to_sym, allow_destroy: true
 
     attr_accessor "#{rank}_id".to_sym
     method = "#{rank}_id"

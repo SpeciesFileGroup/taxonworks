@@ -49,6 +49,11 @@ describe Combination, type: :model, group: :nomenclature do
       expect(combination.errors.include?(:base)).to be_truthy
     end
 
+    specify 'Create by id' do
+      c = Combination.new(genus_id: genus.id, species_id: species.id)
+      expect(c.valid?).to be_truthy
+    end
+
     specify 'combinations without verbatim name must be unique' do
       basic_combination.save
       c = Combination.new(genus: genus, species: species)
@@ -294,8 +299,6 @@ describe Combination, type: :model, group: :nomenclature do
         combination.update(genus: genus, subgenus: genus, species: species, subspecies: species2)
         expect(combination.cached_html).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>) <i>vitis comes</i>')
       end
-
-
     end
 
     specify 'cached values update on changed relationship' do
