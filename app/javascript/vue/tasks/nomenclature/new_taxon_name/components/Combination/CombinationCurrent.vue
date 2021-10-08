@@ -5,7 +5,8 @@
       <div class="button-current separate-right">
         <v-btn
           medium
-          color="create">
+          color="primary"
+          @click="setCurrent">
           Set as current
         </v-btn>
       </div>
@@ -31,7 +32,7 @@
                 disabled>
               <v-btn
                 class="margin-small-left"
-                color="create"
+                color="primary"
                 circle
                 title="Press and hold to drag input"
               >
@@ -59,6 +60,8 @@ import Draggable from 'vuedraggable'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
 
+const emit = defineEmits(['onSet'])
+
 const store = useStore()
 const currentTaxonName = computed(() => store.getters[GetterNames.GetTaxon])
 const taxonNameList = computed(() => [{
@@ -66,5 +69,11 @@ const taxonNameList = computed(() => [{
   taxon: store.getters[GetterNames.GetTaxon]
 }])
 const groupName = computed(() => Object.entries(RANK_LIST).find(([_, ranks]) => ranks.includes(currentTaxonName.value.rank))[0])
+
+const setCurrent = () => {
+  emit('onSet', {
+    [currentTaxonName.value.rank]: currentTaxonName.value
+  })
+}
 
 </script>

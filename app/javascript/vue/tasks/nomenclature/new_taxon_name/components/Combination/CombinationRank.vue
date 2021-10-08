@@ -129,6 +129,7 @@ const combination = computed({
 const setTaxon = (index, taxon) => {
   TaxonName.find(taxon.id).then(({ body }) => {
     taxonList.value[index].taxon = body
+    updateCombination()
   })
 }
 
@@ -159,18 +160,19 @@ const onUpdate = () => {
 
 const removeTaxonFromCombination = (index) => {
   taxonList.value[index].taxon = null
+  updateCombination()
 }
 
 const updateCombination = () => {
-  Object.assign(combination.value,
+  combination.value = Object.assign({}, combination.value,
     ...taxonList.value.map(({ rank, taxon }) => ({ [rank]: taxon }))
   )
-
-  emit('onUpdate', combination.value)
 }
 
-watch(() => props.combination, () => {
-  taxonList.value = props.rankGroup.map(rank => ({ rank, taxon: combination[rank] }))
-}, { immediate: true })
+watch(combination, () => {
+  taxonList.value = props.rankGroup.map(rank => ({ rank, taxon: combination.value[rank] }))
+}, {
+  immediate: true
+})
 
 </script>
