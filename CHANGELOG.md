@@ -8,20 +8,21 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-- Task `Dwc Import` for importing DwC Archive files
+- Task `DwC Import` for importing DwC Archive files
 - Task `DwC Dashboard` facilitating DwCA download, metadata reporting, and "health" checks [#1467]
-- Rake task to rebuild source cached
+- Updated framework for producing and downloading DwC Archives (DwCA) [#1775] [#1303]
+- Increased from 21 to 53 the number of fields referenced in the (DwCA) dump, including `identifiedByID` and `recordedByID` [#1269] [#1230]
+- Auto-generation of UUIDs for instances that don't have global identifiers during DwCOccurrence record building [#2186]
+- Wikidata (Q) and ORCiD support for people references in DwCA dumps
+- Georeferences can have Confidences assigned to them [#1772]
 - CSL style 'taxonworks.csl' used as the default style for displaying sources
+- Custom CSL citation support for reference formating (see styles at bottom of select format list). New .cls submitted via issue tracker and integrated to source.
+- New .csl style 'world_chalcidoidea_book.csl"
+- BibTeX fields support verbatim values using "{}" for fields otherwise processed in BibTeX sources (e.g. author)
 - New specs for rendering Source citations
 - `&extend[]` and `&embed[]` helper methods for REST responses [#2532]
-- Soft validation of cached values with fix {@proceps FOR WHAT}
-- Custom .csl support for BibTeX reference formating (see .csl styles at bottom of select list). New .cls submitted via issue tracker and integrated to source.
-- New .csl style 'world_chalcidoidea_book.csl"
-- Verbatim value handling (use "{your value}")  for fields otherwise processed in BibTeX sources (e.g. author)
-- Soft_validation fix. Objective synonyms should share the same type.
+- A new soft validation option to auto fix for objective synonym that must share the same type 
 - Add `Download`, `Full size` and `Radial navigation` buttons in Image viewer [#2423]
-- Updated framework for producing and downloading DwC Archives (DwCA) [#1775] [#1303]
-- Increased from 21 to 53 the number of fields referenced in the (DwCA) dump [#1269] [#1230]
 - Endpoint `/tasks/dwc/dashboard/index_versions` returns the dates at which DwcOccurrence indexing was modified. !! TODO: update date of merge.
 - Endpoint `/dwc_occurrences/metadata`, for stats on the state of DwcOccurrence index
 - Endpoint `/dwc_occurrencs/predicates` to return a list of Predicates used on CollectionObjects and CollectingEvents
@@ -30,28 +31,23 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Task on Administration panel, "Reindex", with (temporary) options to re-index small blocks of DwcOccurrence records
 - Button on CollectionObject filter to download filter result as DwC Archive [#1303]
 - User can select a corresponding Person as their data representation (facilitates Identifiers for Users) [#1486]
-- Wikidata (Q) and ORCiD support for people references in DwCA dumps
-- New fields `identifiedByID` and `recordedByID` on DwcOccurrence
 - Centroid index on GeographicItem
 - Field `total_records` on Download
 - Index on polymorphic fields of DwcIndex (e.g. faster queries to CollectionObject)
 - Index on `data_origin` for GeographicAreasGeographicItem
-- `DwcOccurrence` controller (metadata use only)
 - Identifiers for AssertedDistributions
 - Various relationships enabling the joining of DwcOccurrence directly to other classes of data (e.g. Georeferences)
 - Isolated Georeference related utilities into their own module CollectingEvent::Georeference
 - A Taxonomy module that caches classification values, used in CollectionObject, and Otu
 - Methods to return when a record attribute was updated (e.g. verbatim_locality changed), and who did it for Papertrail including classes of data
 - Methods to handle multiple classes of globally unique identifiers on DwcOccurrence records
-- Auto-generation of UUIDs for instances that don't have global identifiers during DwCOccurrence record building [#2186]
 - Pattern for isolating modules that aid DwC serialization per class of data
 - Optimized `to_wkt` to quickly return well-known-text for geo-shapes (in part, [#2526])
-- Georeferences can have Confidences assigned to them [#1772]
 - New subclass of UUID `Identifier::Global::Uuid::TaxonworksDwcOccurrence`
 - Clarified, via`georeferenceSources` and `georefernceProtocol` why there are many decimal points in DwC latitude/longitude referencing fields [#915] [#1175]
 - Option to rebuild single DwcOccurrence record for CollectionObject [#2563]
-- Added helper method to log state of the DwcOccurrence record for a CollectionObject
 - Ability to show observation matrices > 10k cells in size [#1790] 
+- Rake task to rebuild source cached
 
 ### Fixed
 - Taxon name filter type metadata param fails [#2511]
