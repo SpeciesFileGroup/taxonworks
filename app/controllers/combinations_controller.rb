@@ -68,11 +68,13 @@ class CombinationsController < ApplicationController
   end
 
   def combination_params
+    p = Combination::APPLICABLE_RANKS.collect{ |r| "#{r}_taxon_name_relationship_attributes".to_sym => [:id, :_destroy] }
+   
     params.require(:combination).permit(
       :verbatim_name, :source_id, 
-      *Combination::APPLICABLE_RANKS.collect{|r| "#{r}_id".to_sym},
-      *Combination::APPLICABLE_RANKS.collect{|r| "#{r}_taxon_name_relationship".to_sym => [:id, :_destroy]},
+      *Combination::APPLICABLE_RANKS.collect{ |r| "#{r}_id".to_sym},
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
-    ) 
+    ).merge(p) 
   end
+
 end
