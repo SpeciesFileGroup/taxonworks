@@ -15,6 +15,7 @@
         v-model="combination"
         :nomenclature-group="groupName"
         :rank-group="group"
+        :disabled="!isCurrentTaxonInCombination"
         :options="{
           animation: 150,
           filter: '.item-filter'
@@ -25,28 +26,28 @@
           pull: false
         }"
       />
-      <div class="flex-wrap-column rank-name-label">
-        <label class="row"></label>
+      <div class="margin-medium-top">
+        <v-btn
+          class="margin-small-right"
+          color="create"
+          medium
+          :disabled="!isCurrentTaxonInCombination"
+          @click="saveCombination"
+        >
+          {{
+            currentCombination.id
+              ? 'Update'
+              : 'Create'
+          }}
+        </v-btn>
+        <v-btn
+          color="primary"
+          medium
+          @click="newCombination"
+        >
+          New
+        </v-btn>
       </div>
-      <v-btn
-        class="margin-small-right"
-        color="create"
-        medium
-        @click="saveCombination"
-      >
-        {{
-          currentCombination.id
-            ? 'Update'
-            : 'Create'
-        }}
-      </v-btn>
-      <v-btn
-        color="primary"
-        medium
-        @click="newCombination"
-      >
-        New
-      </v-btn>
       <display-list
         :list="combinationList"
         label="cached_html"
