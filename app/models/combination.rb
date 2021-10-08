@@ -127,6 +127,7 @@ class Combination < TaxonName
     }, through: "#{rank}_taxon_name_relationship".to_sym, source: :subject_taxon_name
 
     accepts_nested_attributes_for rank.to_sym
+    accepts_nested_attributes_for "#{rank}_taxon_name_relationship"
 
     attr_accessor "#{rank}_id".to_sym
     method = "#{rank}_id"

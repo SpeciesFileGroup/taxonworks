@@ -71,6 +71,7 @@ class CombinationsController < ApplicationController
     params.require(:combination).permit(
       :verbatim_name, :source_id, 
       *Combination::APPLICABLE_RANKS.collect{|r| "#{r}_id".to_sym},
+      *Combination::APPLICABLE_RANKS.collect{|r| "#{r}_taxon_name_relationship".to_sym => [:id, :_destroy]},
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
     ) 
   end
