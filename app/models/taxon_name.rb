@@ -1274,6 +1274,7 @@ class TaxonName < ApplicationRecord
     ay.blank? ? nil : ay
   end
 
+=begin
   def icn_author_and_year_old_code(taxon)
     ay = nil
 
@@ -1316,6 +1317,7 @@ class TaxonName < ApplicationRecord
 
     ay.blank? ? nil : ay
   end
+=end
 
   # @return [String, nil]
   #   the authors, and year, with parentheses as inferred by the data
