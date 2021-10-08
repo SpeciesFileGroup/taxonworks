@@ -176,7 +176,7 @@ module Queries
         @project_id = params[:project_id]
         @taxon_name_classification = params[:taxon_name_classification] || []
         @taxon_name_id = params[:taxon_name_id]
-        @combination_taxon_name_id = params[:taxon_name_id]
+        @combination_taxon_name_id = params[:combination_taxon_name_id]
         @parent_id = params[:parent_id] || []
         @sort = params[:sort]
         @taxon_name_relationship = params[:taxon_name_relationship] || []
