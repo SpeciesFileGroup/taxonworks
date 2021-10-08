@@ -74,7 +74,7 @@ class CombinationsController < ApplicationController
       :verbatim_name, :source_id, 
       *Combination::APPLICABLE_RANKS.collect{ |r| "#{r}_id".to_sym},
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
-    ).merge(p) 
+    ).to_h.merge(p) 
   end
 
 end
