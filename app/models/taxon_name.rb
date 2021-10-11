@@ -1,7 +1,7 @@
 require_dependency Rails.root.to_s + '/app/models/taxon_name_classification.rb'
 require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 
-# A taxon name (nomenclature only). See also NOMEN.
+# A taxon name (nomenclature only). See also NOMEN (https://github.com/SpeciesFileGroup/nomen).
 #
 # @!attribute name
 #   @return [String, nil]
@@ -113,7 +113,7 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 # @!attribute cached_misspelling
 #   @return [Boolean]
 #   if the name is a misspelling, stores True.
-
+# 
 # @!attribute cached_classified_as
 #   @return [String]
 #   if the name was classified in different group (e.g. a genus placed in wrong family).
