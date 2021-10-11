@@ -17,7 +17,7 @@
 
   <tbody>
   <% @loan_items.each do |loan_item| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= loan_tag(loan_item.loan) %></td>
           <td><%= loan_item.date_returned %></td>
           <td><%= loan_item.disposition %></td>

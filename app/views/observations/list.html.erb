@@ -30,7 +30,7 @@
 
   <tbody>
   <% @observations.each do |observation| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= descriptor_tag(observation.descriptor) %></td>
           <td><%= otu_tag(observation.otu) %></td>
           <td><%= collection_object_tag(observation.collection_object) %></td>

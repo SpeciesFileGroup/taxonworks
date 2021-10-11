@@ -15,7 +15,7 @@
 
   <tbody>
   <% @data_attributes.each do |data_attribute| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= data_attribute.attribute_subject_type %></td>
           <td><%= data_attribute.type %></td>
           <td><%= object_tag(data_attribute.attribute_subject) %></td>

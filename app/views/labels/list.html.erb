@@ -17,7 +17,7 @@
 
   <tbody>
     <% @labels.each do |label| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
         <td><%= label.text -%></td>
         <td><%= label.total -%></td>
         <td><%= label.style -%></td>

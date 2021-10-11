@@ -14,7 +14,7 @@
 
   <tbody>
   <% @asserted_distributions.each do |asserted_distribution| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= asserted_distribution.is_absent ? "yes" : "no" -%></td>
           <td><%= object_tag(asserted_distribution.otu) %></td>
           <td><%= object_tag(asserted_distribution.geographic_area) %></td>

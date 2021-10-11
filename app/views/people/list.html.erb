@@ -19,7 +19,7 @@
 
   <tbody>
   <% @people.each do |person| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= person.type %></td>
           <td><%= person.last_name %></td>
           <td><%= person.first_name %></td>

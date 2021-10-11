@@ -126,7 +126,7 @@ module CollectionObjectsHelper
 
   def dwc_occurrence_table_row_tag(dwc_occurrence)
     o = metamorphosize_if(dwc_occurrence.dwc_occurrence_object)
-    content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do
+    content_tag(:tr, class: :contextMenuCells) do
       [CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.collect{|k| content_tag(:td, dwc_occurrence.send(k))}.join,
        fancy_show_tag(o),
        fancy_edit_tag(o)

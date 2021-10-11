@@ -15,7 +15,7 @@
 
   <tbody>
   <% @identifiers.each do |identifier| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= identifier.identifier_object_type %></td>
           <td><%= object_tag(identifier.identifier_object.metamorphosize) %></td>
           <td><%= identifier.cached %></td>
