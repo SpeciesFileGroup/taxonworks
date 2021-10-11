@@ -1,8 +1,6 @@
 <template>
+  Welcome to your new Vue task!
 </template>
 
-<script>
-export default {
-  
-}
+<script setup>
 </script>
