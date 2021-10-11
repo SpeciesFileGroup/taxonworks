@@ -182,7 +182,7 @@ module Queries
 
       # @return [Scope]
       def autocomplete_top_cached
-        a = table[:cached].matches("#{query_string}")
+        a = table[:cached].matches("#{query_string}%")
         base_query.where(a.to_sql).limit(1)
       end
 
@@ -289,9 +289,9 @@ module Queries
           autocomplete_identifier_identifier_exact,
           autocomplete_top_name,
           autocomplete_top_cached,
-          autocomplete_top_cached_subgenus, # not tested
-          autocomplete_genus_species1(z),   # not tested
-          autocomplete_genus_species2(z),   # not tested
+          autocomplete_top_cached_subgenus,         # not tested
+          autocomplete_genus_species1(z),           # not tested
+          autocomplete_genus_species2(z),           # not tested
           autocomplete_cached_end_wildcard,
           autocomplete_identifier_cached_like,
           autocomplete_cached_name_end_wildcard,
