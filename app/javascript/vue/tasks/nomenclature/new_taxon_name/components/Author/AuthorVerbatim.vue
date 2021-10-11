@@ -9,8 +9,10 @@
     <div class="fields label-above">
       <label>Verbatim year</label>
       <input
-        type="number"
-        v-model="verbatim_year">
+        type="text"
+        v-model="verbatim_year"
+        v-number-only
+      >
     </div>
   </div>
 </template>
@@ -19,8 +21,11 @@
 
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
+import { numberOnly } from 'directives/index.js'
 
 export default {
+  directives: { numberOnly },
+
   computed: {
     verbatim_author: {
       get () {
