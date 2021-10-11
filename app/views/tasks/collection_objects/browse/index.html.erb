@@ -141,6 +141,7 @@
             <div class="actions"> <%= tag.input(type: :submit, value: 'Rebuild') -%> </div>
           <% end %>
           <%= dwc_occurrence_health_tag(@collection_object.dwc_occurrence) -%>
+          <i> Large fields (e.g. footprintWKT) are not displayed here.</i>
           <%= dwc_column(@collection_object.dwc_occurrence) -%>
         </div>
       </div>

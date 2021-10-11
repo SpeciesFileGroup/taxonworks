@@ -1,3 +1,5 @@
+require Rails.root.to_s + '/lib/queries/taxon_name/autocomplete'
+
 module Queries
 
   # See

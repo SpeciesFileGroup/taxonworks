@@ -214,6 +214,10 @@ class CollectingEvent < ApplicationRecord
   #  When true, cached values are not built
   attr_accessor :no_cached
 
+  # @return [Hash]
+  #   of known country/state/county values
+  attr_accessor :geographic_names
+
   # handle_asynchronously :update_dwc_occurrences, run_at: Proc.new { 20.seconds.from_now }
 
   # See also CollectingEvent::GeoLocate
@@ -243,7 +247,6 @@ class CollectingEvent < ApplicationRecord
 
   before_save :set_times_to_nil_if_form_provided_blank
 
-  after_save :cache_geographic_names, if: -> { !no_cached && saved_change_to_attribute?(:geographic_area_id) }
   after_save :set_cached, unless: -> { no_cached }
   after_save :update_dwc_occurrences , unless: -> { no_dwc_occurrence }
 
@@ -693,16 +696,28 @@ class CollectingEvent < ApplicationRecord
     retval
   end
 
-  # @return [Hash]
-  #   classifies this collecting event into country, state, county categories
-  def geographic_name_classification
-    # if names are stored in the database, and the the geographic_area_id has not changed
-    if has_cached_geographic_names? && !geographic_area_id_changed?
-      return cached_geographic_name_classification
-    else
+  def has_cached_geographic_names?
+    geographic_names != {}
+  end
+
+  # getter for attr :geographic_names
+  def geographic_names
+    return @geographic_names if !@geographic_names.nil?
+
+    @geographic_names ||= {
+      country: cached_level0_geographic_name,
+      state: cached_level1_geographic_name,
+      county: cached_level2_geographic_name
+    }.delete_if{|k,v| v.nil?}
+
+    # TODO: Once cached index is updated this should be removed, it is
+    # costly for records with geographic_area_id without country, state, county
+    if @geographic_names == {} && geographic_area_id
       r = get_geographic_name_classification
-      cache_geographic_names(r, true)
+      set_cached_geographic_names
     end
+
+    @geographic_names ||= {}
   end
 
   def get_geographic_name_classification
@@ -726,14 +741,6 @@ class CollectingEvent < ApplicationRecord
     end
     r ||= {}
     r
-  end
-
-  def cached_geographic_name_classification
-    h = {}
-    h[:country] = cached_level0_geographic_name if cached_level0_geographic_name
-    h[:state] = cached_level1_geographic_name if cached_level1_geographic_name
-    h[:county] = cached_level2_geographic_name if cached_level2_geographic_name
-    h
   end
 
   # @return [Symbol, nil]
@@ -925,25 +932,25 @@ class CollectingEvent < ApplicationRecord
     geographic_area.nil? ? [] : geographic_area.self_and_ancestors.where("name != 'Earth'").collect { |ga| ga.name }
   end
 
-  def level0_name
-    return cached_level0_name if cached_level0_name
-    cache_geographic_names[:country]
-  end
+ #def level0_name
+ #  return cached_level0_name if cached_level0_name
+ #  cache_geographic_names[:country]
+ #end
 
-  def level1_name
-    return cached_level1_name if cached_level1_name
-    cache_geographic_names[:state]
-  end
+ #def level1_name
+ #  return cached_level1_name if cached_level1_name
+ #  cache_geographic_names[:state]
+ #end
 
-  def level2_name
-    return cached_level2_name if cached_level2_name
-    cache_geographic_names[:county]
-  end
+ #def level2_name
+ #  return cached_level2_name if cached_level2_name
+ #  cache_geographic_names[:county]
+ #end
 
-  def cached_level0_name
-    return cached_level0_name if cached_level0_name
-    cache_geographic_names[:country]
-  end
+# def cached_level0_name
+#   return cached_level0_name if cached_level0_name
+#   cache_geographic_names[:country]
+# end
 
   # @return [CollectingEvent]
   #   the instance may not be valid!
@@ -987,22 +994,47 @@ class CollectingEvent < ApplicationRecord
     nil
   end
 
-  def has_cached_geographic_names?
-    cached_geographic_name_classification != {}
-  end
-
   protected
 
-  def cache_geographic_names(values = {}, tried = false)
+  def set_cached_geographic_names
     # prevent a second call to get if we've already tried through
-    values = get_geographic_name_classification if values.empty? && !tried
-    return {} if values.empty?
-    update_columns(
-      cached_level0_geographic_name: values[:country],
-      cached_level1_geographic_name: values[:state],
-      cached_level2_geographic_name: values[:county]
-    )
-    values
+    values = get_geographic_name_classification
+
+    if values.empty?
+      @geographic_names = {}
+    else
+      update_columns(
+        cached_level0_geographic_name: values[:country],
+        cached_level1_geographic_name: values[:state],
+        cached_level2_geographic_name: values[:county])
+
+      # Update attribute to ensure it can be used post save
+      @geographic_names = values
+      @geographic_names.delete_if{|k,v| v.nil?}
+      @geographic_names
+    end
+  end
+
+  def set_cached
+    set_cached_geographic_names if saved_change_to_attribute?(:geographic_area_id)
+
+    c = {}
+    v = [verbatim_label, print_label, document_label].compact.first
+
+    if v
+      string = v
+    else
+      name = [ geographic_names[:country], geographic_names[:state], geographic_names[:county]].compact.join(': ')
+      date = [start_date_string, end_date_string].compact.join('-')
+      place_date = [verbatim_locality, date].compact.join(', ')
+      string = [name, place_date, verbatim_collectors, verbatim_method].reject{|a| a.blank? }.join("\n")
+    end
+
+    string = "[#{id}]" if string.blank?
+
+    c[:cached] = string
+
+    update_columns(c)
   end
 
   def update_dwc_occurrences
@@ -1012,22 +1044,6 @@ class CollectingEvent < ApplicationRecord
         o.set_dwc_occurrence
       end
     end
-  end
-
-  def set_cached
-    v = [verbatim_label, print_label, document_label].compact.first
-    if v
-      string = v
-    else
-      name = cached_geographic_name_classification.values.join(': ')
-      date = [start_date_string, end_date_string].compact.join('-')
-      place_date = [verbatim_locality, date].compact.join(', ')
-      string = [name, place_date, verbatim_collectors, verbatim_method].reject{|a| a.blank? }.join("\n")
-    end
-
-    string = "[#{id}]" if string.blank?
-
-    update_columns(cached: string)
   end
 
   def set_times_to_nil_if_form_provided_blank
@@ -1066,11 +1082,13 @@ class CollectingEvent < ApplicationRecord
       d_lat = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude).to_f
       d_long = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude).to_f
       if (a.latitude.to_f !=  d_lat)
-        soft_validations.add(:base,
+        soft_validations.add(
+          :base,
           "Verbatim latitude #{verbatim_latitude}: (#{d_lat}) and point geoference latitude #{a.latitude} do not match")
       end
       if (a.longitude.to_f != d_long)
-        soft_validations.add(:base,
+        soft_validations.add(
+          :base,
           "Verbatim longitude #{verbatim_longitude}: (#{d_long}) and point geoference longitude #{a.longitude} do not match")
       end
     end
@@ -1096,6 +1114,5 @@ class CollectingEvent < ApplicationRecord
       soft_validations.add(:verbatim_geolocation_uncertainty, 'appears to be malformed, has no units?')
     end
   end
-
 
 end

@@ -800,6 +800,11 @@ class TaxonName < ApplicationRecord
     cached_is_valid
   end
 
+  # Has Classification, but no relationship describing why
+  def is_ambiguously_invalid?
+    !is_valid? && (id == cached_valid_taxon_name_id)
+  end
+
   # @return [Boolean]
   #   whether this name needs italics applied
   def is_italicized?
@@ -992,11 +997,11 @@ class TaxonName < ApplicationRecord
     set_cached_author_year
   end
 
-  def set_cached_is_valid
+  def set_cached_valid_taxon_name_id
     update_column(:cached_valid_taxon_name_id, get_valid_taxon_name.id)
   end
 
-  def set_cached_valid_taxon_name_id
+  def set_cached_is_valid
     v = is_combination? ? false : !unavailable_or_invalid?
     update_column(:cached_is_valid, v)
   end
