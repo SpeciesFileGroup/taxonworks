@@ -70,6 +70,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - View image matrix is passing wrong ids [#2537]
 - Observations with depictions sometimes are removed after move a depiction [#2549]
 - Relationship facet in Filter nomenclature
+- Verbatim year input allows alphanumeric numbers in New taxon name
 
 ### Changed
 - DwcOccurrence is rebuilt/refreshed each time Browse Collection Object is hit
