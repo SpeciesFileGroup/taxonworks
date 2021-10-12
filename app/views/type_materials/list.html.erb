@@ -14,7 +14,7 @@
 
   <tbody>
   <% @type_materials.each do |type_material| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= object_tag(type_material.collection_object) %></td>
           <td><%= type_material.type_type %></td>
           <td><%= object_tag(type_material.protonym) %></td>

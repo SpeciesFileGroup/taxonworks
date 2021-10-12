@@ -3,13 +3,12 @@
 # !! See also CollectionObject::BiologicalExtensions
 class CollectionObject::BiologicalCollectionObject < CollectionObject
     
+  is_origin_for 'Extract', 'CollectionObject::BiologicalCollectionObject'
+
+  include Shared::IsDwcOccurrence
+  include CollectionObject::DwcExtensions
+
   # !! See also CollectionObject::BiologicalExtensions, all code there technically belongs here
-
-  has_many :biocuration_classifications,  inverse_of: :biological_collection_object, dependent: :destroy
-  has_many :biocuration_classes, through: :biocuration_classifications, inverse_of: :biological_collection_objects
-
-  accepts_nested_attributes_for :biocuration_classes, allow_destroy: true
-  accepts_nested_attributes_for :biocuration_classifications, allow_destroy: true
 
   soft_validate(:sv_missing_determination,
                 set: :missing_determination,

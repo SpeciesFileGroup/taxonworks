@@ -16,23 +16,22 @@ module Vendor
   #   * Show page numbers
   module Gnfinder 
 
-    SERVER = 'finder-rpc.globalnames.org'
-    PORT = '80'
-
     def self.finder
-      ::Gnfinder::Client.new(SERVER, PORT)
+      ::Gnfinder::Client.new
     end
 
     def self.result(text, verification: true, tokens: 3, language: nil, detect_language: true, sources: [ ], project_id: [])
-      ::Vendor::Gnfinder::Result.new(
-        finder.find_names(
-          text,
-          verification: verification,
-          tokens_around: tokens,
-          sources: sources,
-          language: language,
-          detect_language: true
-        ), project_id)
+      opts = {
+        verification: verification,
+        words_around: tokens,
+        sources: sources
+      }
+      opts[:language] = 'detect' if detect_language
+      opts[:language] = language unless language.nil?
+
+      res = finder.find_names(text, opts)
+      ap res
+      ::Vendor::Gnfinder::Result.new(res, project_id)
     end
   end
 

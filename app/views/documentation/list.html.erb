@@ -13,7 +13,7 @@
 
   <tbody>
     <% @documentation.each do |documentation| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
         <td><%= documentation.documentation_object_type %></td>
         <td><%= object_tag( documentation.documentation_object ) %></td>
         <td><%= documentation.document.document_file_file_name %></td>

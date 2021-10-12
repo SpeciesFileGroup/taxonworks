@@ -13,7 +13,7 @@
 
   <tbody>
   <% @contents.each do |content| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= otu_link(content.otu) if content.respond_to?(:otu) %></td>
           <td><%= object_link(content.topic) %></td>
           <td><%= content.text %></td>

@@ -1,19 +1,27 @@
-<%= content_tag :h2, user_tag(@user) %>
-<p>
-  <%= sessions_current_user_id == @user.id ? content_tag(:span, 'You!', class: [:feedback, 'feedback-success']) :
-    content_tag(:span, 'NOT YOU!', class: [:feedback, 'feedback-danger']) -%>
-</p>
-
 <div class="flexbox">
-    <div class="item item1">
-      <%= render 'attributes' %>
-      <%= link_to 'Edit', edit_user_path(@user) %>
+  <div class="item item1">
+    <div id="attributes-panel">
+      <div class="break_words content">
+        <div class="title-section"> 
+          <h2><%= user_tag(@user) -%>
+          <%= sessions_current_user_id == @user.id ? content_tag(:span, 'You!', class: [:feedback, 'feedback-success', 'feedback-thin']) : content_tag(:span, 'NOT YOU!', class: [:feedback, 'feedback-danger', 'feedback-thin']) -%>
+          <%= link_to 'Edit', edit_user_path(@user) %>
+          </h2>
+        </div>
+
+        <div class="attributes"> 
+          <%= render 'attributes' %>
+        </div>
+      </div>
     </div>
+  </div>
 
   <div class="item item2">
     <%=  (link_to('hub', hub_path) + " for current project #{sessions_current_project.name}")  if sessions_current_project_id -%> <br/>
-      <%= link_to('dashboard', dashboard_path) -%>
+    <%= link_to('dashboard', dashboard_path) -%>
   </div>
+
+
 </div>
 
 

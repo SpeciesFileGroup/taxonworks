@@ -9,6 +9,21 @@
 </p>
 
 <p>
+  <strong>Person (you, as data):</strong>
+  <%= person_link(@user.person) %>
+</p>
+
+<p>
+  <strong>ORCiD:</strong>
+  <%= @user.orcid ? @user.orcid : content_tag(:span, 'NONE (add to person)', class: %w{feedback feedback-thin feedback-danger})  %>
+</p>
+
+<p>
+  <strong>Wikidata ID:</strong>
+  <%= @user.wikidata_id ? @user.wikidata_id : content_tag(:span, 'NONE (add to person)', class: %w{feedback feedback-thin feedback-warning})  %>
+</p>
+
+<p>
   <strong>Sign in count:</strong>
   <%= @user.sign_in_count %>
 </p>

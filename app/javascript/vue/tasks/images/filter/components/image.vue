@@ -7,10 +7,50 @@
         <h3>Image</h3>
       </template>
       <template #body>
-        <div class="horizontal-center-content">
+        <div class="flex-wrap-column middle">
           <img
-            class="img-maxsize"
+            class="img-maxsize margin-medium-bottom"
             :src="image.image_file_url">
+          <div class="square-brackets">
+            <ul class="context-menu no_bullets">
+              <li>
+                <v-btn
+                  circle
+                  color="primary"
+                  @click="openFullsize">
+                  <v-icon
+                    x-small
+                    name="expand"
+                    color="white"
+                  />
+                </v-btn>
+              </li>
+              <li>
+                <v-btn
+                  circle
+                  :href="image.image_file_url"
+                  :download="image.image_original_filename"
+                  color="primary">
+                  <v-icon
+                    x-small
+                    name="download"
+                    color="white"
+                  />
+                </v-btn>
+              </li>
+              <li>
+                <radial-annotator
+                  type="annotations"
+                  :global-id="image.global_id"
+                  @close="loadData"/>
+              </li>
+              <li>
+                <radial-navigation
+                  :global-id="image.global_id"
+                />
+              </li>
+            </ul>
+          </div>
         </div>
       </template>
     </modal-component>
@@ -34,34 +74,30 @@
   </div>
 </template>
 
-<script>
+<script setup>
 
+import { ref } from 'vue'
 import ModalComponent from 'components/ui/Modal'
 import PinComponent from 'components/ui/Pinboard/VPin.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import RadialNavigation from 'components/radials/navigation/radial.vue'
+import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
 
-export default {
-  components: {
-    ModalComponent,
-    PinComponent
-  },
-
-  props: {
-    image: {
-      type: Object,
-      required: true
-    }
-  },
-
-  data () {
-    return {
-      showModal: false
-    }
-  },
-
-  methods: {
-    setModalView(value) {
-      this.showModal = value
-    }
+const props = defineProps({
+  image: {
+    type: Object,
+    required: true
   }
+})
+
+const showModal = ref(false)
+
+const setModalView = value => {
+  showModal.value = value
+}
+
+const openFullsize = () => {
+  window.open(props.image.image_file_url, '_blank')
 }
 </script>

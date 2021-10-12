@@ -13,7 +13,7 @@
 
   <tbody>
   <% @descriptor.each do |descriptor| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= descriptor.name %></td>
           <td><%= descriptor.short_name %></td>
           <td><%= descriptor.type %></td>

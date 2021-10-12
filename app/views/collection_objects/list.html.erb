@@ -16,7 +16,7 @@
 
   <tbody>
   <% @collection_objects.each do |collection_object| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= collection_object.type %></td>
           <td><%= collection_object.total %></td>
           <td><%= object_tag(collection_object.preparation_type) %></td>

@@ -23,6 +23,8 @@ gem 'daemons', '~> 1.4.1'
 gem 'tzinfo-data', '~> 1.2019' # , '>= 1.2019.3'
 gem 'psych', '~> 3.0'
 gem 'rmagick', '~> 4.2', '>= 4.2.2'
+gem 'roo', '~> 2.8', '>= 2.8.3'
+gem 'roo-xls', '~> 1.2'
 
 # Geo
 gem 'ffi-geos', '~> 2.2.0'
@@ -97,12 +99,13 @@ gem 'barby', '~> 0.6.8'
 # "Bio" and SFG gems
 gem 'taxonifi', '~> 0.5.5'
 gem 'sqed', '0.6.0'
-gem 'dwc-archive', '~> 1.1', '>= 1.1.2'
+gem 'dwc_agent', '~> 1.5'
+gem 'dwc-archive', github: 'LocoDelAssembly/dwc-archive', branch: 'overhaul' # '~> 1.1', '>= 1.1.2'
 gem 'biodiversity', github: 'GlobalNamesArchitecture/biodiversity', branch: 'pipe_approach' # '~> 5.1', '>= 5.1.1'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 
 # Global Names
-gem 'gnfinder', '~> 0.11.0'
+gem 'gnfinder', '~> 0.15.4'
 
 # Minor Utils/helpers
 gem 'amazing_print', '~> 1.3.0'

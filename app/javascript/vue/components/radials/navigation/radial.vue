@@ -161,7 +161,10 @@ export default {
       if (Object.keys(tasks).length > this.maxTaskInPie) {
         taskSlices.push({
           label: 'All tasks',
-          name: 'alltasks',
+          name: CUSTOM_OPTIONS.AllTasks,
+          svgAttributes: {
+            class: 'slice'
+          },
           icon: {
             url: Icons.AllTasks,
             width: '20',
@@ -178,8 +181,7 @@ export default {
                   size: 26,
                   label: this.recentTotal.toString(),
                   svgAttributes: {
-                    fill: '#006ebf',
-                    color: '#FFFFFF'
+                    class: 'slice-total'
                   }
                 }]
               }
@@ -197,13 +199,12 @@ export default {
         innerPosition: 1.7,
         margin: 2,
         middleButton: this.middleButton,
-        css: {
-          class: 'svg-radial-annotator'
-        },
         svgAttributes: {
+          class: 'svg-radial-menu'
+        },
+        svgSliceAttributes: {
           fontSize: 11,
-          fill: '#FFFFFF',
-          textAnchor: 'middle'
+          class: 'slice'
         },
         slices: slices
       }
@@ -274,6 +275,9 @@ export default {
           width: '20',
           height: '20'
         },
+        svgAttributes: {
+          class: 'slice'
+        },
         ...attr
       }
     },
@@ -291,7 +295,7 @@ export default {
         case DEFAULT_OPTIONS.Destroy:
           this.showDestroyModal = true
           break
-        case DEFAULT_OPTIONS.AllTasks:
+        case CUSTOM_OPTIONS.AllTasks:
           this.currentView = 'all_tasks'
           break
       }

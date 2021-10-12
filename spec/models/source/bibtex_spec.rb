@@ -3,8 +3,9 @@ require 'rails_helper'
 describe Source::Bibtex, type: :model, group: :sources do
 
   # TODO: shouldn't be needed ultimately
-  after(:all) { Source.destroy_all }
+  # after(:all) { Source.destroy_all }
 
+  # TODO: this should follow pattern { Source::Bibtex.new }
   let(:bibtex) { FactoryBot.build(:source_bibtex) }
 
   let(:gem_bibtex_entry1) {
@@ -22,6 +23,12 @@ describe Source::Bibtex, type: :model, group: :sources do
   let(:gem_bibtex_bibliography) {
     BibTeX.open(Rails.root + 'spec/files/bibtex/Taenionema.bib')
   }
+
+  specify '#year_with_suffix' do
+    subject.year = '1922'
+    subject.year_suffix = 'c'
+    expect(subject.year_with_suffix).to eq('1922c')
+  end
 
   context '#clone' do
     before do
@@ -151,7 +158,7 @@ describe Source::Bibtex, type: :model, group: :sources do
                                     author = "D\'{e}coret, X{\ae}vier and Victor, Paul {\'E}mile",
                                     editor = "Simon {"}the {saint"} Templar",
                                     publisher = "@ sign publishing",
-                                    journal = "{Bib}TeX journal of \{funny\} ch\'{a}r{\aa}cter{\$}",
+                                    journal = "{Bib}TeX Journal of \{funny\} Ch\'{a}r{\aa}cter{\$}",
                                     year = {2003}})
 
         a = BibTeX::Bibliography.parse(citation_string, filter: :latex)
@@ -159,8 +166,8 @@ describe Source::Bibtex, type: :model, group: :sources do
         src = Source::Bibtex.new_from_bibtex(entry)
         expect(src.save!).to be_truthy
 
-        expect(src.cached_string('text')).to eq('Décoret, X. & Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "The Saint" Templar (Ed). BibTeX journal of {funny} cháråcter$.')
-        expect(src.cached_string('html')).to eq('Décoret, X. &amp; Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "The Saint" Templar (Ed). <i>BibTeX journal of {funny} cháråcter$</i>.')
+        expect(src.cached_string('text')).to eq('Décoret, X. & Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users. BibTeX Journal of {funny} Cháråcter$.')
+        expect(src.cached_string('html')).to eq('Décoret, X. &amp; Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users. <i>BibTeX Journal of {funny} Cháråcter$</i>.')
 
         # Note this was the original check (lower case editor in double quotes... seems like a massive edge case, so presently not allowing so that we can cleanup capitalization in general) 
         # expect(src.cached_string('text')).to eq('Décoret, X. & Victor, P.É. (2003) The o͡o annual meeting of BibTeX–users S. "the saint" Templar (Ed). BibTeX journal of {funny} cháråcter$.')
@@ -180,13 +187,13 @@ describe Source::Bibtex, type: :model, group: :sources do
         a = BibTeX::Bibliography.parse(citation_string, filter: :latex)
         entry = a.first
         src = Source::Bibtex.new_from_bibtex(entry)
-        expect(src.cached_string('text')).to start_with('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution. Available from: http://dx.doi.org/10.5962/bhl.title.1086')
+        expect(src.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution. Available from http://dx.doi.org/10.5962/bhl.title.1086')
       end
 
       # input = 'Grubbs; Baumann & DeWalt. 2014. A review of the Nearctic genus Prostoia (Ricker) (Plecoptera: Nemouridae), with the description of a new species and a surprising range extension for P. hallasi Kondratieff and Kirchner. Zookeys. '
       specify 'Strings are output properly 3' do
         citation_string = "@article{Grubbs_2014,
-            doi = {10.3897/zookeys.401.7299},
+            doi = {10.3897/zookeys.401.7298},
             url = {http://dx.doi.org/10.3897/zookeys.401.7299},
             year = 2014,
             month = {apr},
@@ -200,7 +207,7 @@ describe Source::Bibtex, type: :model, group: :sources do
         a = BibTeX::Bibliography.parse(citation_string, filter: :latex)
         entry = a.first
         src = Source::Bibtex.new_from_bibtex(entry)
-        expect(src.cached_string('html')).to eq('Grubbs, S., Baumann, R., DeWalt, R. &amp; Tweddale, T. (2014) A review of the Nearctic genus Prostoia (Ricker) (Plecoptera, Nemouridae), with the description of a new species and a surprising range extension for P. hallasi Kondratieff &amp; Kirchner. <i>ZooKeys</i> 401, 11–30.')
+        expect(src.cached_string('html')).to eq('Grubbs, S., Baumann, R., DeWalt, R. &amp; Tweddale, T. (2014) A review of the Nearctic genus Prostoia (Ricker) (Plecoptera, Nemouridae), with the description of a new species and a surprising range extension for P. hallasi Kondratieff &amp; Kirchner. <i>ZooKeys</i>, 401, 11–30. Available from http://dx.doi.org/10.3897/zookeys.401.7299')
       end
     end
 
@@ -362,14 +369,14 @@ describe Source::Bibtex, type: :model, group: :sources do
 
     specify 'must have one of the following fields: :author, :booktitle, :editor, :journal,
       :title, :year, :url, :stated_year' do
-      error_message = 'Missing core data. A TaxonWorks source must have one of the following: author, editor, booktitle, title, url, journal, year, or stated year'
-      local_src     = Source::Bibtex.new()
-      expect(local_src.valid?).to be_falsey
-      expect(local_src.errors.messages[:base]).to include error_message
-      local_src.title = 'Test book'
-      local_src.valid?
-      expect(local_src.errors.full_messages.include?(error_message)).to be_falsey
-    end
+        error_message = 'Missing core data. A TaxonWorks source must have one of the following: author, editor, booktitle, title, url, journal, year, or stated year'
+        local_src     = Source::Bibtex.new()
+        expect(local_src.valid?).to be_falsey
+        expect(local_src.errors.messages[:base]).to include error_message
+        local_src.title = 'Test book'
+        local_src.valid?
+        expect(local_src.errors.full_messages.include?(error_message)).to be_falsey
+      end
 
     context 'test date related fields' do
       let(:source_bibtex) { FactoryBot.build(:valid_source_bibtex) }
@@ -924,23 +931,19 @@ describe Source::Bibtex, type: :model, group: :sources do
       context 'Must facilitate letter annotations on year' do
         specify 'correctly generates year suffix from BibTeX entry' do
           bibtex_entry_year = BibTeX::Entry.new(type: :book, title: 'Foos of Bar America', author: 'Smith, James', year: '1921b')
-          src               = Source::Bibtex.new_from_bibtex(bibtex_entry_year)
+          src = Source::Bibtex.new_from_bibtex(bibtex_entry_year)
           expect(src.year.to_s).to eq('1921') # year is an int by default
           expect(src.year_suffix).to eq('b')
-          expect(src.year_with_suffix).to eq('1921b')
         end
 
-        specify 'correctly converts year suffix to BibTeX entry' do
-          src = FactoryBot.create(:valid_source_bibtex)
-          src[:year] = '1922'
-          src[:year_suffix] = 'c'
-          expect(src.year_with_suffix).to eq('1922c')
-          bibtex_entry = src.to_bibtex
-          expect(bibtex_entry[:year]).to eq('1922c')
+        specify 'does not convert year suffix to BibTeX entry' do
+          subject.year = '1922'
+          subject.year_suffix = 'c'
+          subject.bibtex_type = 'article'
+          bibtex_entry = subject.to_bibtex
+          expect(bibtex_entry[:year]).to eq('1922')
         end
       end
-
-
     end
 
     context 'associations' do
@@ -965,12 +968,12 @@ describe Source::Bibtex, type: :model, group: :sources do
 
           specify 'editors' do
             src1 = FactoryBot.create(:src_editor)
-            expect(src1.cached).to eq('Person, T. ed. (1700) I am a soft valid article. <i>Journal of Test Articles</i>.')
+            expect(src1.cached).to eq('Person, T. (Ed.) (1700) I am a soft valid article. <i>Journal of Test Articles</i>.')
             src1.editors << vp1
-            expect(src1.reload.cached).to eq('Smith ed. (1700) I am a soft valid article. <i>Journal of Test Articles</i>.')
+            expect(src1.reload.cached).to eq('Smith (Ed.) (1700) I am a soft valid article. <i>Journal of Test Articles</i>.')
 
             src1.editors << vp2
-            expect(src1.reload.cached).to eq('Smith &amp; Von Adams, J. eds. (1700) I am a soft valid article. <i>Journal of Test Articles</i>.')
+            expect(src1.reload.cached).to eq('Smith &amp; Von Adams, J. (Eds.) (1700) I am a soft valid article. <i>Journal of Test Articles</i>.')
           end
 
           specify 'stated_year' do
@@ -978,7 +981,7 @@ describe Source::Bibtex, type: :model, group: :sources do
             src1.update(stated_year: '1699')
             expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. <i>Journal of Test Articles</i>. [1699]')
             src1.update(volume: '25')
-            expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. <i>Journal of Test Articles</i> 25. [1699]')
+            expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. <i>Journal of Test Articles</i>, 25. [1699]')
           end
 
         end
@@ -1111,7 +1114,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       end
     end
   end
-  
+
   context 'nested attributes' do
     let(:person1) { Person::Unvetted.create!(last_name: 'un') }
     let(:person2) { Person::Unvetted.create!(last_name: 'deux') }
@@ -1207,7 +1210,7 @@ describe Source::Bibtex, type: :model, group: :sources do
         specify 'update updates position' do
           expect(b.authors.reload.count).to eq(3)
           expect(b.authority_name).to eq('Un, Deux & Trois')
-          
+
           b.update(params)
 
           expect(b.authors.reload.count).to eq(2)
@@ -1235,4 +1238,4 @@ describe Source::Bibtex, type: :model, group: :sources do
     end
   end
 
-end
+  end

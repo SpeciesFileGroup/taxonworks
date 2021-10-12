@@ -6,7 +6,6 @@ import getType from './getType'
 import getTypeMaterial from './getTypeMaterial'
 import getProtonymId from './getProtonymId'
 import getSettings from './getSettings'
-import getIdentifier from './getIdentifier'
 
 import getCollectionObject from './getCollectionObject'
 import getCollectionObjectBufferedDeterminations from './getCollectionObjectBufferedDeterminations'
@@ -36,7 +35,6 @@ const GetterNames = {
   GetCollectionObjectPreparationId: 'getCollectionObjectPreparationId',
   GetCollectionObjectTotal: 'getCollectionObjectTotal',
   GetSoftValidation: 'getSoftValidation',
-  GetIdentifier: 'getIdentifier'
 }
 
 const GetterFunctions = {
@@ -56,8 +54,7 @@ const GetterFunctions = {
   [GetterNames.GetCollectionObjectCollectionEventId]: getCollectionObjectCollectionEventId,
   [GetterNames.GetCollectionObjectPreparationId]: getCollectionObjectPreparationId,
   [GetterNames.GetCollectionObjectTotal]: getCollectionObjectTotal,
-  [GetterNames.GetSoftValidation]: getSoftValidation,
-  [GetterNames.GetIdentifier]: getIdentifier
+  [GetterNames.GetSoftValidation]: getSoftValidation
 }
 
 export {

@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'support/shared_contexts/shared_geo'
 
-describe Georeference, type: :model, group: [:geo, :shared_geo] do
+describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] do
   include_context 'stuff for complex geo tests'
   let(:georeference) { Georeference.new }
 
@@ -19,11 +19,13 @@ describe Georeference, type: :model, group: [:geo, :shared_geo] do
   }
 
   # this collecting event should produce a georeference.geographic_item.geo_object of 'Point(0.1 0.1 0.1)'
-  let(:collecting_event_with_geographic_area) { CollectingEvent.create(geographic_area:    g_a,
-                                                                       verbatim_locality:  'Test Event',
-                                                                       minimum_elevation:  0.1,
-                                                                       verbatim_latitude:  '0.1',
-                                                                       verbatim_longitude: '0.1')
+  let(:collecting_event_with_geographic_area) {
+    CollectingEvent.create(
+      geographic_area:    g_a,
+      verbatim_locality:  'Test Event',
+      minimum_elevation:  0.1,
+      verbatim_latitude:  '0.1',
+      verbatim_longitude: '0.1')
   }
 
   let(:collecting_event_without_geographic_area) {
@@ -160,19 +162,21 @@ describe Georeference, type: :model, group: [:geo, :shared_geo] do
       # TODO: Remove.  The georeference should assume the geographic items handle their own error checking
       context 'malformed geographic_items' do
         specify 'errors which result from badly formed error_geographic_item values' do
-          g = Georeference::VerbatimData.new(collecting_event:      collecting_event_with_geographic_area,
-                                             error_geographic_item: GeographicItem.new(polygon: poly_e1))
+          g = Georeference::VerbatimData.new(
+            collecting_event: collecting_event_with_geographic_area,
+            error_geographic_item: GeographicItem.new(polygon: poly_e1))
           g.valid?
           expect(g.errors[:error_geographic_item]).to be_present
           expect(g.errors[:collecting_event]).to be_present
         end
       end
 
-      # TODO: what does this test?  We need to resolve the meaning of error_radius
-      specify 'errors which result from badly formed error_radius values' do
-        g = Georeference::VerbatimData.new(collecting_event:      collecting_event_with_geographic_area,
-                                           error_radius:          16000,
-                                           error_geographic_item: e_g_i)
+      specify 'Georeference::VerbatimData #error_radius is limited to 10km error radius' do
+        collecting_event_with_geographic_area.update!(verbatim_geolocation_uncertainty:  '16000m')
+        g = Georeference::VerbatimData.new(
+          collecting_event: collecting_event_with_geographic_area,
+         #   error_radius: 16000, # NO - is taken from verbatim collecting event
+          error_geographic_item: e_g_i)
         g.valid?
         expect(g.errors[:error_geographic_item]).to be_present
         expect(g.errors[:error_radius]).to be_present
@@ -185,20 +189,23 @@ describe Georeference, type: :model, group: [:geo, :shared_geo] do
         let(:gi_b2) { GeographicItem.create!(polygon: shape_b_inner) }
         let(:gi_e1) { GeographicItem.create!(polygon: poly_e1) }
         let(:ga_e1) {
-          GeographicArea.create!(name:                                         'test area E1',
-                                 data_origin:                                  'Test Data',
-                                 geographic_area_type:                         g_a_t,
-                                 parent:                                       earth,
-                                 geographic_areas_geographic_items_attributes: [{geographic_item: gi_e1,
-                                                                                 data_origin:     'Test Data'}]
+          GeographicArea.create!(
+            name:                                         'test area E1',
+            data_origin:                                  'Test Data',
+            geographic_area_type:                         g_a_t,
+            parent:                                       earth,
+            geographic_areas_geographic_items_attributes: [{geographic_item: gi_e1,
+                                                            data_origin:     'Test Data'}]
           ) }
         let(:ga_b1) {
-          GeographicArea.create!(name:                                         'test area B1',
-                                 data_origin:                                  'Test Data',
-                                 geographic_area_type:                         g_a_t,
-                                 parent:                                       earth,
-                                 geographic_areas_geographic_items_attributes: [{geographic_item: gi_b1,
-                                                                                 data_origin:     'Test Data'}]
+          GeographicArea.create!(
+            name: 'test area B1',
+            data_origin: 'Test Data',
+            geographic_area_type: g_a_t,
+            parent: earth,
+            geographic_areas_geographic_items_attributes: [
+              {geographic_item: gi_b1,
+               data_origin: 'Test Data'}]
           ) }
         let(:ce_e1) { CollectingEvent.new(geographic_area: ga_e1) }
         let(:ce_b1) { CollectingEvent.new(geographic_area: ga_b1) }
@@ -210,9 +217,10 @@ describe Georeference, type: :model, group: [:geo, :shared_geo] do
 
         specify 'errors which result from badly formed collecting_event area values and error_geographic_item' do
           # error_geographic_item exists,  but is not inside ce_e1
-          g = Georeference::VerbatimData.new(collecting_event: ce_e1,
-                                             # e_g_i is test_box_1
-                                             error_geographic_item: e_g_i)
+          g = Georeference::VerbatimData.new(
+            collecting_event: ce_e1,
+            # e_g_i is test_box_1
+            error_geographic_item: e_g_i)
           g.valid?
 
           expect(g.errors[:error_geographic_item]).to be_present
@@ -220,24 +228,22 @@ describe Georeference, type: :model, group: [:geo, :shared_geo] do
         end
 
         specify 'an error is added to #geographic_item if collecting_event.geographic_area.geo_object does ' \
-                          'not contain #geographic_item' do
-          g = Georeference::VerbatimData.new(collecting_event: ce_e1,
-                                             # p0 is outside of both e_g_i and ce.geographic_area
-                                             geographic_item: p0,
-                                             # e_g_i is test_box_1
-                                             error_geographic_item: e_g_i)
-          g.valid?
+          'not contain #geographic_item' do
+            g = Georeference::VerbatimData.new(
+              collecting_event: ce_e1, # p0 is outside of both e_g_i and ce.geographic_area
+              geographic_item: p0, # e_g_i is test_box_1
+              error_geographic_item: e_g_i)
+            g.valid?
 
-          expect(g.errors[:geographic_item]).to be_present
-        end
+            expect(g.errors[:geographic_item]).to be_present
+          end
 
         specify 'an error is added to #error_geographic_item if collecting_event.geographic_area.geo_object ' \
                           'does not contain #error_geographic_item' do
-          g = Georeference::VerbatimData.new(collecting_event: ce_e1,
-                                             # p0 is outside of both e_g_i and ce.geographic_area
-                                             geographic_item: p0,
-                                             # e_g_i is test_box_1
-                                             error_geographic_item: e_g_i)
+          g = Georeference::VerbatimData.new(
+            collecting_event: ce_e1, # p0 is outside of both e_g_i and ce.geographic_area
+            geographic_item: p0, # e_g_i is test_box_1
+            error_geographic_item: e_g_i)
           g.valid?
 
           expect(g.errors[:error_geographic_item]).to be_present
@@ -253,17 +259,17 @@ describe Georeference, type: :model, group: [:geo, :shared_geo] do
 
         # case 3
         specify 'an error is added to error_geographic_item when error_radius and point geographic_item ' \
-                          'do not fully contain error_geographic_item' do
-          g = Georeference::VerbatimData.new(collecting_event: ce_b1,
-                                             # p18 is inside of both gi_b2 and ce_b1
-                                             geographic_item: p18,
-                                             error_radius:    160,
-                                             # e_g_i is test_box_1
-                                             error_geographic_item: gi_b2)
-          g.valid?
-
-          expect(g.errors[:error_geographic_item]).to be_present
-        end
+          'do not fully contain error_geographic_item' do
+            g = Georeference::GoogleMap.new(
+              collecting_event: ce_b1,
+              # p18 is inside of both gi_b2 and ce_b1
+              geographic_item: p18,
+              error_radius: 160,
+              # e_g_i is test_box_1
+              error_geographic_item: gi_b2)
+            g.valid?
+            expect(g.errors[:error_geographic_item]).to be_present
+          end
       end
     end
   end
@@ -272,8 +278,11 @@ describe Georeference, type: :model, group: [:geo, :shared_geo] do
     context '#error_box' do
       specify 'with error_radius returns a key-stone' do
         # case 2a - radius
-        georeference = Georeference::VerbatimData.new(collecting_event: collecting_event_with_geographic_area,
-                                                      error_radius:     5000)
+        collecting_event_with_geographic_area.update!(verbatim_geolocation_uncertainty: '500m')
+        georeference = Georeference::VerbatimData.new(
+          collecting_event: collecting_event_with_geographic_area
+        )
+
         # TODO: Figure out why the save of the georeference does not propagate down to the geographic_item
         # which is part of the geographic_area.
         #
@@ -282,11 +291,19 @@ describe Georeference, type: :model, group: [:geo, :shared_geo] do
         georeference.save!
         # TODO: the following expectation will not be met, under some circumstances (different math packages on
         # different operating systems), and may have to be temporarily disabled
-        expect(georeference.error_box.to_s).to eq('POLYGON ((0.055084167377640034 0.14521842774992275 0.0, ' \
-                                                            '0.14491583262235996 0.14521842774992275 0.0, ' \
-                                                            '0.14491583262235996 0.054781572250077244 0.0, ' \
-                                                            '0.055084167377640034 0.054781572250077244 0.0, ' \
-                                                            '0.055084167377640034 0.14521842774992275 0.0))')
+
+        # TODO: why did this shape change so much? Project change related?
+        # old
+        # a = 'POLYGON ((0.055084167377640034 0.14521842774992275 0.0, ' \
+        #   '0.14491583262235996 0.14521842774992275 0.0, ' \
+        #   '0.14491583262235996 0.054781572250077244 0.0, ' \
+        #   '0.055084167377640034 0.054781572250077244 0.0, ' \
+        #   '0.055084167377640034 0.14521842774992275 0.0))'
+
+        # new
+        a = 'POLYGON ((0.095508416737764 0.10452184277499228 0.0, 0.104491583262236 0.10452184277499228 0.0, 0.104491583262236 0.09547815722500773 0.0, 0.095508416737764 0.09547815722500773 0.0, 0.095508416737764 0.10452184277499228 0.0))'
+
+        expect(georeference.error_box.to_s).to eq(a)
       end
 
       specify 'with error_geographic_item returns a shape' do

@@ -14,7 +14,7 @@
 
   <tbody>
   <% @controlled_vocabulary_terms.each do |controlled_vocabulary_term| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= controlled_vocabulary_term_tag(controlled_vocabulary_term) %></td>
           <td><%= controlled_vocabulary_term.type %></td>
           <td><%= controlled_vocabulary_term.definition %></td>

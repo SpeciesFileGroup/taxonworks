@@ -1,5 +1,5 @@
-# A georeference is an assertion that some shape, as derived from some method, describes the location of
-# some collecting event.
+# A Georeference is an assertion that some shape, as derived from some method, describes the location of
+# some CollectingEvent.
 #
 # A georeference contains three components:
 #  1) A reference to a CollectingEvent (who, where, when, how)
@@ -69,11 +69,13 @@ class Georeference < ApplicationRecord
   include Shared::Tags
   include Shared::Citations
   include Shared::HasRoles
+  include Shared::DataAttributes
+  include Shared::Confidences # qualitative, not spatial
   include Shared::IsData
 
   attr_accessor :iframe_response # used to pass the geolocate from Tulane through
 
-  acts_as_list scope: [:collecting_event_id]
+  acts_as_list scope: [:collecting_event_id, :project_id]
 
   belongs_to :collecting_event, inverse_of: :georeferences
   belongs_to :error_geographic_item, class_name: 'GeographicItem', foreign_key: :error_geographic_item_id, inverse_of: :georeferences_through_error_geographic_item
@@ -114,91 +116,9 @@ class Georeference < ApplicationRecord
 
   after_save :set_cached, unless: -> { self.no_cached }
 
-  # instance methods
-
-  # @return [String, nil]
-  #   the underscored version of the type, e.g. Georeference::GoogleMap => 'google_map'
-  def method_name
-    return nil if type.blank?
-    type.demodulize.underscore
+  def self.point_type
+    joins(:geographic_item).where(geographic_items: {type: 'GeographicItem::Point'})
   end
-
-  # @return [GeographicItem, nil]
-  #   a square which represents either the bounding box of the
-  #   circle represented by the error_radius, or the bounding box of the error_geographic_item
-  #   !! We assume the radius calculation is always larger (TODO: do we?  discuss with Jim)
-  # TODO: cleanup, subclass, and calculate with SQL?
-  def error_box
-    retval = nil
-
-    if error_radius.nil?
-      retval = error_geographic_item.dup unless error_geographic_item.nil?
-    else
-      unless geographic_item.nil?
-        if geographic_item.geo_object_type
-          case geographic_item.geo_object_type
-          when :point
-            retval = Utilities::Geo.error_box_for_point(geographic_item.geo_object, error_radius)
-          when :polygon, :multi_polygon
-            retval = geographic_item.geo_object
-          end
-        end
-      end
-    end
-    retval
-  end
-
-  # @return [Rgeo::polygon, nil]
-  #   a polygon representing the buffer
-  def error_radius_buffer_polygon
-    return nil if error_radius.nil? || geographic_item.nil?
-    sql_str = ActivRecord::Base.send(
-      :sanitize_sql_array, ['SELECT ST_Buffer(?, ?)',
-                            geographic_item.geo_object.to_s,
-                            (error_radius / 111_319.444444444)])
-    value = GeographicItem.connection.select_all(sql_str).first['st_buffer']
-    Gis::FACTORY.parse_wkb(value)
-  end
-
-  # rubocop:disable Style/StringHashKeys
-  # Called by Gis::GeoJSON.feature_collection
-  # @return [Hash] formed as a GeoJSON 'Feature'
-  def to_geo_json_feature
-    to_simple_json_feature.merge(
-      'properties' => {
-        'georeference' => {
-          'id' => id,
-          'tag' => "Georeference ID = #{id}"
-        }
-      }
-    )
-  end
-
-  # @return [Float]
-  def latitude
-    geographic_item.center_coords[0]
-  end
-
-  # @return [Float]
-  def longitude
-    geographic_item.center_coords[1]
-  end
-
-  # TODO: parametrize to include gazeteer
-  #   i.e. geographic_areas_geogrpahic_items.where( gaz = 'some string')
-  # @return [JSON Feature]
-  def to_simple_json_feature
-    geometry = RGeo::GeoJSON.encode(geographic_item.geo_object)
-    {
-      'type' => 'Feature',
-      'geometry' => geometry,
-      'properties' => {}
-    }
-  end
-
-  # rubocop:enable Style/StringHashKeys
-
-  # class methods
 
   # @param [Array] of parameters in the style of 'params'
   # @return [Scope] of selected georeferences
@@ -303,11 +223,112 @@ class Georeference < ApplicationRecord
     Georeference.where(collecting_event: CollectingEvent.where(query))
   end
 
+  # @return [Hash]
+  #   The interface to DwcOccurrence writiing for Georeference based values.
+  #   See subclasses for super extensions.
+  def dwc_georeference_attributes(h = {})
+    h.merge!(
+      footprintWKT: geographic_item.to_wkt,
+      georeferenceVerificationStatus: confidences&.collect{|c| c.name}.join('; '),
+      georeferencedBy: creator.name,
+      georeferencedDate: created_at
+    )
+
+    if geographic_item.type == 'GeographicItem::Point'
+      b = geographic_item.to_a
+      h[:decimalLatitude] = b.first
+      h[:decimalLongitude] = b.last
+      h[:coordinateUncertaintyInMeters] = error_radius
+    end
+
+    h
+  end
+
+  # @return [String, nil]
+  #   the underscored version of the type, e.g. Georeference::GoogleMap => 'google_map'
+  def method_name
+    return nil if type.blank?
+    type.demodulize.underscore
+  end
+
+  # @return [GeographicItem, nil]
+  #   a square which represents either the bounding box of the
+  #   circle represented by the error_radius, or the bounding box of the error_geographic_item
+  #   !! We assume the radius calculation is always larger (TODO: do we?  discuss with Jim)
+  # TODO: cleanup, subclass, and calculate with SQL?
+  def error_box
+    retval = nil
+
+    if error_radius.nil?
+      retval = error_geographic_item.dup unless error_geographic_item.nil?
+    else
+      unless geographic_item.nil?
+        if geographic_item.geo_object_type
+          case geographic_item.geo_object_type
+          when :point
+            retval = Utilities::Geo.error_box_for_point(geographic_item.geo_object, error_radius)
+          when :polygon, :multi_polygon
+            retval = geographic_item.geo_object
+          end
+        end
+      end
+    end
+    retval
+  end
+
+  # @return [Rgeo::polygon, nil]
+  #   a polygon representing the buffer
+  def error_radius_buffer_polygon
+    return nil if error_radius.nil? || geographic_item.nil?
+    sql_str = ActivRecord::Base.send(
+      :sanitize_sql_array,
+      ['SELECT ST_Buffer(?, ?)',
+                            geographic_item.geo_object.to_s,
+                            (error_radius / 111_319.444444444)])
+    value = GeographicItem.connection.select_all(sql_str).first['st_buffer']
+    Gis::FACTORY.parse_wkb(value)
+  end
+
+  # Called by Gis::GeoJSON.feature_collection
+  # @return [Hash] formed as a GeoJSON 'Feature'
+  def to_geo_json_feature
+    to_simple_json_feature.merge(
+      'properties' => {
+        'georeference' => {
+          'id' => id,
+          'tag' => "Georeference ID = #{id}"
+        }
+      }
+    )
+  end
+
+  # @return [Float]
+  def latitude
+    geographic_item.center_coords[0]
+  end
+
+  # @return [Float]
+  def longitude
+    geographic_item.center_coords[1]
+  end
+
+  # TODO: parametrize to include gazeteer
+  #   i.e. geographic_areas_geogrpahic_items.where( gaz = 'some string')
+  # @return [JSON Feature]
+  def to_simple_json_feature
+    geometry = RGeo::GeoJSON.encode(geographic_item.geo_object)
+    {
+      'type' => 'Feature',
+      'geometry' => geometry,
+      'properties' => {}
+    }
+  end
+
   protected
 
   # @return [Hash] of names of geographic areas
   def set_cached
-    collecting_event.cache_geographic_names
+    collecting_event.send(:set_cached_geographic_names) # protected method
   end
 
   # validation methods
@@ -413,6 +434,7 @@ class Georeference < ApplicationRecord
       if error_geographic_item.present?
         if error_geographic_item.geo_object.present?
           if collecting_event.geographic_area.present?
+            # !! TODO: check fir nil case
             retval = collecting_event.geographic_area.default_geographic_item
               .intersects?(error_geographic_item.geo_object)
           end
@@ -504,8 +526,9 @@ class Georeference < ApplicationRecord
 
   # @return [Boolean] true iff error_radius is less than 10 kilometers (6.6 miles).
   def add_error_radius
-    errors.add(:error_radius, ' must be less than 10 kilometers (6.6 miles).') if error_radius.present? &&
-      error_radius > 10_000 # 10 km
+    if error_radius.present? && error_radius > 10_000 # 10 km
+      errors.add(:error_radius, ' must be less than 10 kilometers (6.6 miles).')
+    end
   end
 
   def geographic_item_present_if_error_radius_provided
@@ -532,3 +555,6 @@ class Georeference < ApplicationRecord
     DEGREES_PER_RADIAN * ::Math.atan2(y_, x_)
   end
 end
+
+Dir[Rails.root.to_s + '/app/models/georeference/**/*.rb'].each { |file| require_dependency file }
+

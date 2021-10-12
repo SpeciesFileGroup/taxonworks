@@ -13,7 +13,7 @@
 
   <tbody>
   <% @documents.each do |document| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= document.document_file_file_name %></td>
           <td><%= document.document_file_file_size %></td>
           <td><%= document.document_file_updated_at %></td>

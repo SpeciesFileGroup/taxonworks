@@ -13,7 +13,7 @@
 
   <tbody>
   <% @ranged_lot_categories.each do |ranged_lot_category| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= ranged_lot_category.name %></td>
           <td><%= ranged_lot_category.minimum_value %></td>
           <td><%= ranged_lot_category.maximum_value %></td>

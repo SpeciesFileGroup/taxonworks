@@ -33,7 +33,7 @@ module Vendor
       end
 
       def classification_rank
-        found&.verification&.best_result&.classification_rank&.split('|') || []
+        found&.verification&.best_result&.classification_ranks&.split('|') || []
       end
 
       # Verification helpers
@@ -60,7 +60,7 @@ module Vendor
       end
 
       def is_new_name?
-        [:SP_NOV, :COMB_NOV, :SUBSP_NOV].include?(found.annot_nomen_type)
+        %w{SP_NOV COMB_NOV SUBSP_NOV}.include?(found.annotation_nomen_type)
       end
 
       def protonym_name

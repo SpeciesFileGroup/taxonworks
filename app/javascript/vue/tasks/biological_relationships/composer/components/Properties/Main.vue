@@ -19,13 +19,15 @@
         @end="drag=false">
         <template #item="{ element }">
           <tr>
-            <td class="middle">
-              <span
-                @click="editProperty(element)"
-                class="button button-circle btn-edit"/>
-              <span
-                class="margin-small-left"
-                v-html="element.object_tag"/>
+            <td>
+              <div class="middle">
+                <span
+                  @click="editProperty(element)"
+                  class="button button-circle btn-edit"/>
+                <span
+                  class="margin-small-left"
+                  v-html="element.object_tag"/>
+              </div>
             </td>
           </tr>
         </template>

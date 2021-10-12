@@ -146,6 +146,8 @@ Supporting:
     status: :prototype
     related_models:
       - Document 
+  ImportDataset:
+    status: :stable
   Depiction:
     status: :prototype
     related_models:

@@ -36,7 +36,7 @@
 #     when type is OTU an arbitrary total can be provided
 #
 class LoanItem < ApplicationRecord
-  acts_as_list scope: :loan
+  acts_as_list scope: [:loan, :project_id]
 
   include Housekeeping
   include Shared::DataAttributes

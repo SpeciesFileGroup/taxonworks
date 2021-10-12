@@ -3,7 +3,7 @@
     <button
       type="button"
       class="button normal-input button-default"
-      @click="showModal = !showModal">Georeference ({{ geojson.length }})</button>
+      @click="showModal = !showModal">Georeference ({{ count }})</button>
     <button
       v-if="!verbatimGeoreferenceAlreadyCreated"
       type="button"
@@ -194,6 +194,9 @@ export default {
     },
     geojson () {
       return this.collectingEventId ? this.shapes.features : this.queueGeoreferences
+    },
+    count () {
+      return this.geojson.filter(item => !item?.properties?.geographic_area).length
     },
     verbatimLat () {
       return this.collectingEvent.verbatim_latitude
