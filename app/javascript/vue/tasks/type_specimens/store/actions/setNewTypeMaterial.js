@@ -1,5 +1,4 @@
 import { MutationNames } from '../mutations/mutations'
-import Identifier from '../../const/identifier'
 
 export default ({ commit, state }) => {
   const type_material = {
@@ -27,6 +26,5 @@ export default ({ commit, state }) => {
   }
 
   commit(MutationNames.SetTypeMaterial, type_material)
-  commit(MutationNames.SetIdentifier, Identifier())
   commit(MutationNames.SetSoftValidation, [])
 }

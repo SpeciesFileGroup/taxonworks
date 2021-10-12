@@ -97,6 +97,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Tweak validation of ORCIDid format
 - Move autocomplete and lookup keyword to CVT controller [#2571]
 - Content by nomenclature works for all topic types
+- Remove identifier section in New type specimen
 
 [#915]: https://github.com/SpeciesFileGroup/taxonworks/issues/915
 [#1175]: https://github.com/SpeciesFileGroup/taxonworks/issues/1175
