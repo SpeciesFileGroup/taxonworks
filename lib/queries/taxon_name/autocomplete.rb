@@ -190,7 +190,7 @@ module Queries
       # @return [Scope]
       def autocomplete_cached_end_wildcard
         s = query_string.delete('\\')
-        a = table[:cached].matches("#{a}%")
+        a = table[:cached].matches("#{s}%")
         base_query.where(a.to_sql).limit(20)
       end
 
