@@ -9,7 +9,6 @@ export default ({ dispatch, commit }, data) => {
     TW.workbench.alert.create('Type specimen was successfully updated.', 'notice')
     commit(MutationNames.AddTypeMaterial, response.body)
     commit(MutationNames.SetTypeMaterial, response.body)
-    dispatch(ActionNames.SaveIdentifier)
     dispatch(ActionNames.LoadSoftValidations)
     commit(MutationNames.SetSaving, false)
   })
