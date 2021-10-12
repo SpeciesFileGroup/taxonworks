@@ -10,7 +10,7 @@ module Queries
 
       # @return [Scope]
       def autocomplete 
-        return [] if query_string.strip.blank?
+        return [] if query_string&.strip.blank?
         (
           ::GeographicArea.where(id: query_string).all +
           ::GeographicArea.where(name: query_string).all +
