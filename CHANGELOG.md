@@ -15,7 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Auto-generation of UUIDs for instances that don't have global identifiers during DwCOccurrence record building [#2186]
 - Wikidata (Q) and ORCiD support for people references in DwCA dumps
 - Georeferences can have Confidences assigned to them [#1772]
-- CSL style 'taxonworks.csl' used as the default style for displaying sources
+- CSL style 'taxonworks.csl' used as the default style for displaying sources [#2517]
 - Custom CSL citation support for reference formating (see styles at bottom of select format list). New .cls submitted via issue tracker and integrated to source.
 - New .csl style 'world_chalcidoidea_book.csl"
 - BibTeX fields support verbatim values using "{}" for fields otherwise processed in BibTeX sources (e.g. author)
@@ -50,6 +50,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Rake task to rebuild source cached
 
 ### Fixed
+- Downloading formatted sources with mixed types (BibTeX/Verbatim) failed [#2512] 
 - Collection object filter type material param
 - Taxon name filter type metadata param fails [#2511]
 - Cloning a collecting event fails [#2533]
@@ -100,6 +101,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Remove identifier section in New type specimen
 - Nill strings ("\u0000") are stripped from fields before writing
 
+[#2512]: https://github.com/SpeciesFileGroup/taxonworks/issues/2512
+[#2517]: https://github.com/SpeciesFileGroup/taxonworks/issues/2517
 [#915]: https://github.com/SpeciesFileGroup/taxonworks/issues/915
 [#1175]: https://github.com/SpeciesFileGroup/taxonworks/issues/1175
 [#1230]: https://github.com/SpeciesFileGroup/taxonworks/issues/1230

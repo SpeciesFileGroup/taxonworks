@@ -55,10 +55,20 @@ module TaxonWorks
       end
 
       # @return Array
-      #   of styled sources
+      #   of styled sources. Allows and annotates non-BibTeX sources to be passed. 
       def self.styled(sources = [], style_id = 'http://www.zotero.org/styles/vancouver')
-        return [] unless s = ::CSL_STYLES[style_id]
-        sources.collect{|b| b.render_with_style(style_id) }.sort
+        return [] if ::CSL_STYLES[style_id].nil?
+        r = []
+        sources.each do |s|
+          if s.type == 'Source::Bibtex'
+            r.push s.render_with_style(style_id)
+          elsif s.type == 'Source::Verbatim'
+            r.push '!!Verbatim!!: ' + s.cached
+          else # Source::Human
+            r.push '!!People!!: ' + s.cached
+          end
+        end
+        r.sort
       end
 
       private
