@@ -109,7 +109,7 @@ module Queries
 
       # @param [Hash] params
       def initialize(params)
-        @query_string = params[:query_term].delete("\u0000") # TODO, we need to sanitize params in general.
+        @query_string = params[:query_term]&.delete("\u0000") # TODO, we need to sanitize params in general.
 
         @author = params[:author]
         @author_ids = params[:author_ids] || []
