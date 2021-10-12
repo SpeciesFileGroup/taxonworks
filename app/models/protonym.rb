@@ -144,6 +144,9 @@ class Protonym < TaxonName
   scope :is_original_name, -> { where("cached_author_year NOT ILIKE '(%'") }
   scope :is_not_original_name, -> { where("cached_author_year ILIKE '(%'") }
 
+  # Protonym.order_by_rank(RANKS) or Protonym.order_by_rank(ICZN)
+  scope :order_by_rank, -> (code) {order(Arel.sql("position(taxon_names.rank_class in '#{code}')"))}
+
   # @return [Protonym]
   #   a name ready to become the root
   def self.stub_root(project_id: nil, by: nil)
