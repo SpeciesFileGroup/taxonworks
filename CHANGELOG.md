@@ -48,6 +48,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Option to rebuild single DwcOccurrence record for CollectionObject [#2563]
 - Ability to show observation matrices > 10k cells in size [#1790] 
 - Rake task to rebuild source cached
+- Add download and radial buttons for image viewer in filter image
 
 ### Fixed
 - Downloading formatted sources with mixed types (BibTeX/Verbatim) failed [#2512] 
