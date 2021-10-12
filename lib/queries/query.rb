@@ -33,7 +33,7 @@ module Queries
 
     # @param [Hash] args
     def initialize(string, project_id: nil, **keyword_args)
-      @query_string = ::ApplicationRecord.sanitize_sql(string).delete("\u0000") # remove null bytes
+      @query_string = ::ApplicationRecord.sanitize_sql(string)&.delete("\u0000") # remove null bytes
       @options = keyword_args
       @project_id = project_id
       build_terms
