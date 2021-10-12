@@ -75,6 +75,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Relationship facet in Filter nomenclature
 - Determiner facet (param) in Filter collection objects
 - Verbatim year input allows alphanumeric numbers in New taxon name
+- Labels list renders for those linked to objects, or not
 
 ### Changed
 - Radial annotator Tag form uses a Keyword smart selector [#2564]

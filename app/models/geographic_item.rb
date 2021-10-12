@@ -1033,10 +1033,14 @@ class GeographicItem < ApplicationRecord
   # @return [RGeo instance, nil]
   #  the Rgeo shape (See http://rubydoc.info/github/dazuma/rgeo/RGeo/Feature)
   def geo_object
-    if r = geo_object_type # rubocop:disable Lint/AssignmentInCondition
-      send(r)
-    else
-      false
+    begin
+      if r = geo_object_type # rubocop:disable Lint/AssignmentInCondition
+        send(r)
+      else
+        false
+      end
+    rescue RGeo::Error::InvalidGeometry
+      return nil # TODO: we need to render proper error for this!
     end
   end
 
