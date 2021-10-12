@@ -11,7 +11,7 @@
 
   <tbody>
   <% @otu_page_layouts.each do |otu_page_layout| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= otu_page_layout.name %></td>
           <%= fancy_metadata_cells_tag(otu_page_layout) -%>
       <% end %>

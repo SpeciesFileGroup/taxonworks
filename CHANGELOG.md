@@ -50,6 +50,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Rake task to rebuild source cached
 
 ### Fixed
+- Collection object filter type material param
 - Taxon name filter type metadata param fails [#2511]
 - Cloning a collecting event fails [#2533]
 - Modified recordedBy fields to only reference collector [#2567] [#2558]
@@ -94,30 +95,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `DwcOccurrence#individualCount` is integer now
 - Simplified SQL for ordering GeographicArea shapes
 - Tweak validation of ORCIDid format
+- Move autocomplete and lookup keyword to CVT controller [#2571]
+- Content by nomenclature works for all topic types
 
-[#2511]: https://github.com/SpeciesFileGroup/taxonworks/issues/2511
-[#2558]: https://github.com/SpeciesFileGroup/taxonworks/issues/2558
-[#2533]: https://github.com/SpeciesFileGroup/taxonworks/issues/2533
-[#2567]: https://github.com/SpeciesFileGroup/taxonworks/issues/2567
-[#2542]: https://github.com/SpeciesFileGroup/taxonworks/issues/2542
-[#2327]: https://github.com/SpeciesFileGroup/taxonworks/issues/2327
-[#2559]: https://github.com/SpeciesFileGroup/taxonworks/issues/2559
-[#2562]: https://github.com/SpeciesFileGroup/taxonworks/issues/2562
-[#2563]: https://github.com/SpeciesFileGroup/taxonworks/issues/2563
-[#2543]: https://github.com/SpeciesFileGroup/taxonworks/issues/2543
-[#2532]: https://github.com/SpeciesFileGroup/taxonworks/issues/2532
-[#2528]: https://github.com/SpeciesFileGroup/taxonworks/issues/2528
-[#2084]: https://github.com/SpeciesFileGroup/taxonworks/issues/2084
-[#1943]: https://github.com/SpeciesFileGroup/taxonworks/issues/1943
-[#2509]: https://github.com/SpeciesFileGroup/taxonworks/issues/2509
-[#2498]: https://github.com/SpeciesFileGroup/taxonworks/pull/2498
-[#2519]: https://github.com/SpeciesFileGroup/taxonworks/pull/2519
-[#2523]: https://github.com/SpeciesFileGroup/taxonworks/pull/2523
-[#2519]: https://github.com/SpeciesFileGroup/taxonworks/pull/2519
-[#2529]: https://github.com/SpeciesFileGroup/taxonworks/pull/2529
-[#2530]: https://github.com/SpeciesFileGroup/taxonworks/pull/2530
-[#2549]: https://github.com/SpeciesFileGroup/taxonworks/pull/2549
-[#2423]: https://github.com/SpeciesFileGroup/taxonworks/pull/2523
 [#915]: https://github.com/SpeciesFileGroup/taxonworks/issues/915
 [#1175]: https://github.com/SpeciesFileGroup/taxonworks/issues/1175
 [#1230]: https://github.com/SpeciesFileGroup/taxonworks/issues/1230
@@ -125,10 +105,34 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1303]: https://github.com/SpeciesFileGroup/taxonworks/issues/1303
 [#1467]: https://github.com/SpeciesFileGroup/taxonworks/issues/1467
 [#1486]: https://github.com/SpeciesFileGroup/taxonworks/issues/1486
-[#1775]: https://github.com/SpeciesFileGroup/taxonworks/issues/1775
-[#2186]: https://github.com/SpeciesFileGroup/taxonworks/issues/2186
-[#2526]: https://github.com/SpeciesFileGroup/taxonworks/issues/2526
 [#1772]: https://github.com/SpeciesFileGroup/taxonworks/issues/1772
+[#1775]: https://github.com/SpeciesFileGroup/taxonworks/issues/1775
+[#1943]: https://github.com/SpeciesFileGroup/taxonworks/issues/1943
+[#2084]: https://github.com/SpeciesFileGroup/taxonworks/issues/2084
+[#2186]: https://github.com/SpeciesFileGroup/taxonworks/issues/2186
+[#2327]: https://github.com/SpeciesFileGroup/taxonworks/issues/2327
+[#2423]: https://github.com/SpeciesFileGroup/taxonworks/pull/2523
+[#2498]: https://github.com/SpeciesFileGroup/taxonworks/pull/2498
+[#2509]: https://github.com/SpeciesFileGroup/taxonworks/issues/2509
+[#2511]: https://github.com/SpeciesFileGroup/taxonworks/issues/2511
+[#2519]: https://github.com/SpeciesFileGroup/taxonworks/pull/2519
+[#2519]: https://github.com/SpeciesFileGroup/taxonworks/pull/2519
+[#2523]: https://github.com/SpeciesFileGroup/taxonworks/pull/2523
+[#2526]: https://github.com/SpeciesFileGroup/taxonworks/issues/2526
+[#2528]: https://github.com/SpeciesFileGroup/taxonworks/issues/2528
+[#2529]: https://github.com/SpeciesFileGroup/taxonworks/pull/2529
+[#2530]: https://github.com/SpeciesFileGroup/taxonworks/pull/2530
+[#2532]: https://github.com/SpeciesFileGroup/taxonworks/issues/2532
+[#2533]: https://github.com/SpeciesFileGroup/taxonworks/issues/2533
+[#2542]: https://github.com/SpeciesFileGroup/taxonworks/issues/2542
+[#2543]: https://github.com/SpeciesFileGroup/taxonworks/issues/2543
+[#2549]: https://github.com/SpeciesFileGroup/taxonworks/pull/2549
+[#2558]: https://github.com/SpeciesFileGroup/taxonworks/issues/2558
+[#2559]: https://github.com/SpeciesFileGroup/taxonworks/issues/2559
+[#2562]: https://github.com/SpeciesFileGroup/taxonworks/issues/2562
+[#2563]: https://github.com/SpeciesFileGroup/taxonworks/issues/2563
+[#2567]: https://github.com/SpeciesFileGroup/taxonworks/issues/2567
+[#2571]: https://github.com/SpeciesFileGroup/taxonworks/issues/1771
 
 ## [0.19.7] - 2021-09-09
 

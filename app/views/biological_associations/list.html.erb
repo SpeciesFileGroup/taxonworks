@@ -20,7 +20,7 @@
 
   <tbody>
   <% @biological_associations.each do |biological_association| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= object_tag(biological_association.biological_association_subject) %></td>
           <td><%= biological_association.biological_association_subject_type %></td>
 

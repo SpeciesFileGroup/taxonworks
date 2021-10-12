@@ -15,7 +15,7 @@
 
   <tbody>
     <% @sources.each do |source| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
         <td><%= source.cached.html_safe %></td>
         <td><%= source.respond_to?(:source_language) && language_tag(source.source_language) %></td>
         <td><%= source.type %></td>

@@ -12,7 +12,7 @@
 
   <tbody>
   <% @biological_associations_graphs.each do |biological_associations_graph| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= biological_associations_graph.name %></td>
           <td><%= biological_associations_graph.source %></td>
           <%= fancy_metadata_cells_tag(biological_associations_graph) -%>

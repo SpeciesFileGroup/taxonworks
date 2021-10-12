@@ -5,6 +5,13 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
   let(:query) { Queries::CollectionObject::Filter.new({}) }
 
+  specify '#type_designations' do
+    s = FactoryBot.create(:valid_type_material)
+    t = Specimen.create!
+    query.type_material = true
+    expect(query.all.pluck(:id)).to contain_exactly(s.id)
+  end
+
   specify '#buffered_collecting_event' do
     s = FactoryBot.create(:valid_specimen, buffered_collecting_event: 'A BC D')
     query.buffered_collecting_event = 'BC'

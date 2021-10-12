@@ -12,7 +12,7 @@
 
   <tbody>
     <% otus.each do |o| -%>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
         <td> <%= o.name %></td>
         <td> <%= o.taxon_name.try(:name) %></td>
         <td> <%= o.taxon_name.try(:rank) %></td>
