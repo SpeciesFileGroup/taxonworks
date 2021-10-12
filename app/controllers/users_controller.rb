@@ -127,6 +127,7 @@ class UsersController < ApplicationController
 
   def preferences
     @user = sessions_current_user
+    redirect_to hub_path and return if @user.nil?
   end
 
   def autocomplete
