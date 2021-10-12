@@ -12,7 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Task `DwC Dashboard` facilitating DwCA download, metadata reporting, and "health" checks [#1467]
 - Updated framework for producing and downloading DwC Archives (DwCA) [#1775] [#1303]
 - Increased from 21 to 53 the number of fields referenced in the (DwCA) dump, including `identifiedByID` and `recordedByID` [#1269] [#1230]
-- Auto-generation of UUIDs for instances that don't have global identifiers during DwCOccurrence record building [#2186]
+- Auto-generation of UUIDs for instances that don't have global identifiers during DwcOccurrence record building [#2186]
 - Wikidata (Q) and ORCiD support for people references in DwCA dumps
 - Georeferences can have Confidences assigned to them [#1772]
 - CSL style 'taxonworks.csl' used as the default style for displaying sources [#2517]
@@ -44,7 +44,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Pattern for isolating modules that aid DwC serialization per class of data
 - Optimized `to_wkt` to quickly return well-known-text for geo-shapes (in part, [#2526])
 - New subclass of UUID `Identifier::Global::Uuid::TaxonworksDwcOccurrence`
-- Clarified, via`georeferenceSources` and `georefernceProtocol` why there are many decimal points in DwC latitude/longitude referencing fields [#915] [#1175]
+- Clarified, via`georeferenceSources` and `georeferenceProtocol` why there are many decimal points in DwC latitude/longitude referencing fields [#915] [#1175]
 - Option to rebuild single DwcOccurrence record for CollectionObject [#2563]
 - Ability to show observation matrices > 10k cells in size [#1790] 
 - Rake task to rebuild source cached
@@ -75,6 +75,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Verbatim year input allows alphanumeric numbers in New taxon name
 
 ### Changed
+- Radial annotator Tag form uses a Keyword smart selector [#2564]
 - DwcOccurrence is rebuilt/refreshed each time Browse Collection Object is hit
 - `footprintWKT` is hidden in Browse CollectionOjbect [#2559]
 - Tweak geo coordinate matching on verbatim labels
@@ -97,10 +98,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Simplified SQL for ordering GeographicArea shapes
 - Tweak validation of ORCIDid format
 - Move autocomplete and lookup keyword to CVT controller [#2571]
-- Content by nomenclature works for all topic types
+- Task `Content by nomenclature` can be customized by selecting a Topic
 - Remove identifier section in New type specimen
 - Nill strings ("\u0000") are stripped from fields before writing
 
+[#2564]: https://github.com/SpeciesFileGroup/taxonworks/issues/2564
 [#2512]: https://github.com/SpeciesFileGroup/taxonworks/issues/2512
 [#2517]: https://github.com/SpeciesFileGroup/taxonworks/issues/2517
 [#915]: https://github.com/SpeciesFileGroup/taxonworks/issues/915
