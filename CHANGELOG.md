@@ -50,6 +50,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Rake task to rebuild source cached
 
 ### Fixed
+- Collection object filter type material param
 - Taxon name filter type metadata param fails [#2511]
 - Cloning a collecting event fails [#2533]
 - Modified recordedBy fields to only reference collector [#2567] [#2558]
@@ -95,6 +96,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Simplified SQL for ordering GeographicArea shapes
 - Tweak validation of ORCIDid format
 - Move autocomplete and lookup keyword to CVT controller [#2571]
+- Content by nomenclature works for all topic types
 
 [#915]: https://github.com/SpeciesFileGroup/taxonworks/issues/915
 [#1175]: https://github.com/SpeciesFileGroup/taxonworks/issues/1175

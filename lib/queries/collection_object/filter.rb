@@ -621,9 +621,9 @@ module Queries
       def type_material_facet
         return nil if type_material.nil?
         if type_material
-          ::CollectionObject.joins(:type_designations).distinct
+          ::CollectionObject.joins(:type_materials).distinct
         else
-          ::CollectionObject.left_outer_joins(:type_designations)
+          ::CollectionObject.left_outer_joins(:type_materials)
             .where(type_materials: {id: nil})
             .distinct
         end
