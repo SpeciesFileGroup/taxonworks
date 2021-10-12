@@ -1,7 +1,9 @@
 <template>
   <div class="tag_annotator">
     <div class="horizontal-right-content">
-      <a :href="manageCVTLink()">New keyword</a>
+      <a
+        target="_blank"
+        :href="manageCVTLink()">New keyword</a>
     </div>
     <smart-selector
       class="margin-medium-bottom"
