@@ -48,6 +48,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Option to rebuild single DwcOccurrence record for CollectionObject [#2563]
 - Ability to show observation matrices > 10k cells in size [#1790] 
 - Rake task to rebuild source cached
+- Add download and radial buttons for image viewer in filter image
 
 ### Fixed
 - Downloading formatted sources with mixed types (BibTeX/Verbatim) failed [#2512] 
@@ -118,7 +119,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2084]: https://github.com/SpeciesFileGroup/taxonworks/issues/2084
 [#2186]: https://github.com/SpeciesFileGroup/taxonworks/issues/2186
 [#2327]: https://github.com/SpeciesFileGroup/taxonworks/issues/2327
-[#2423]: https://github.com/SpeciesFileGroup/taxonworks/pull/2523
+[#2423]: https://github.com/SpeciesFileGroup/taxonworks/issues/2423
 [#2498]: https://github.com/SpeciesFileGroup/taxonworks/pull/2498
 [#2509]: https://github.com/SpeciesFileGroup/taxonworks/issues/2509
 [#2511]: https://github.com/SpeciesFileGroup/taxonworks/issues/2511
@@ -140,6 +141,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2563]: https://github.com/SpeciesFileGroup/taxonworks/issues/2563
 [#2567]: https://github.com/SpeciesFileGroup/taxonworks/issues/2567
 [#2571]: https://github.com/SpeciesFileGroup/taxonworks/issues/1771
+
 
 ## [0.19.7] - 2021-09-09
 
