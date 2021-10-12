@@ -24,6 +24,8 @@
   .btn-#{$key}-circle {
     height: #{$value};
     width: #{$value};
+    min-width: #{$value};
+    min-height: #{$value};
     text-align: center;
     border-radius: 100%;
     display: inline-flex;
