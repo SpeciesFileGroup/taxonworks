@@ -6,10 +6,12 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
   let(:query) { Queries::CollectionObject::Filter.new({}) }
 
   specify '#type_designations' do
-    s = FactoryBot.create(:valid_type_material)
-    t = Specimen.create!
+    t1 = Specimen.create!
+    t2 = Specimen.create!
+    s = FactoryBot.create(:valid_type_material, collection_object: t2)
+
     query.type_material = true
-    expect(query.all.pluck(:id)).to contain_exactly(s.id)
+    expect(query.all.pluck(:id)).to contain_exactly(t2.id)
   end
 
   specify '#buffered_collecting_event' do
@@ -297,6 +299,21 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       let!(:td4) { FactoryBot.create(:valid_taxon_determination, biological_collection_object: co2, otu: o1) } # current
 
       let!(:td5) { FactoryBot.create(:valid_taxon_determination, biological_collection_object: co3, otu: o3) } # current
+
+
+      # collection_objects/dwc_index?collector_ids_or=false&per=500&page=1&determiner_id[]=61279&ancestor_id=606330
+      specify '#determiner_id, collector_ids_or, ancestor_id combo' do
+        t1 = Specimen.create!
+        t2 = Specimen.create!
+        o = Otu.create(taxon_name: species1)
+        a = FactoryBot.create(:valid_taxon_determination, otu: o, biological_collection_object: t1, determiners: [ FactoryBot.create(:valid_person) ] )
+
+        query.determiner_id = a.determiners.pluck(:id)
+        query.collector_ids_or = false
+        query.ancestor_id = genus1.id
+
+        expect(query.all.pluck(:id)).to contain_exactly(t1.id)
+      end
 
       context 'type specimens' do
         let!(:tm1) { TypeMaterial.create!(collection_object: co1, protonym: species1, type_type: 'holotype') }
