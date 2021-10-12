@@ -182,8 +182,16 @@ module Queries
 
       # @return [Scope]
       def autocomplete_top_cached
-        a = table[:cached].matches("#{query_string}%")
+        s = query_string.delete('\\')
+        a = table[:cached].matches("#{s}%")
         base_query.where(a.to_sql).limit(1)
+      end
+
+      # @return [Scope]
+      def autocomplete_cached_end_wildcard
+        s = query_string.delete('\\')
+        a = table[:cached].matches("#{a}%")
+        base_query.where(a.to_sql).limit(20)
       end
 
       # @return [Scope]
@@ -206,12 +214,6 @@ module Queries
         return nil if result.nil?
         a = table[:cached].matches(result + '%')
         base_query.where(a.to_sql).order('type DESC, cached ASC').limit(8)
-      end
-
-      # @return [Scope]
-      def autocomplete_cached_end_wildcard
-        a = table[:cached].matches("#{query_string}%")
-        base_query.where(a.to_sql).limit(20)
       end
 
       # @return [Scope]
@@ -348,7 +350,7 @@ module Queries
       def base_query
         ::TaxonName.select('taxon_names.*, char_length(taxon_names.cached)').
           includes(:ancestor_hierarchies).
-          order(Arel.sql('char_length(taxon_names.cached), taxon_names.cached ASC'))
+          order(Arel.sql('char_length(taxon_names.cached), taxon_names.cached ASC')) # TODO: add index to CHAR_LENGTH ?
       end
 
       # @return [Arel::Table]
