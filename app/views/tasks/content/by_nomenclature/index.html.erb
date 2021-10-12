@@ -1,42 +1,48 @@
+<h2> Content by nomenclature </h2>
+<div>
+  <p> Select a topic to display all Content of that type for the OTUs of the species in this project. 
+  <%= tag.span('Content is restricted to those species that have family names.', class: %w{feedback feedback-warning feedback-thin}) -%>
+  </p>
+</div>
 
+<%= form_tag(content_by_nomenclature_task_path, method: :get) do %>
+  <%= tag.span('Select topic') %>
+  <%= select_tag(:topic_id, options_from_collection_for_select(Topic.where(project_id: sessions_current_project_id).order(:name), 'id', 'name')) %>
+  <%= tag.input(type: :submit, class: :button, value: 'Set') -%>
+<% end %>
 
-<% @taxon_names = TaxonName.that_is_valid.with_base_of_rank_class("NomenclaturalRank::Iczn::SpeciesGroup::S").joins(:descendant_hierarchies).where(project_id: sessions_current_project_id).order(:generations, :cached).uniq %>
+<% if !@topic.nil? %>
+  <% @rowcount = 1 %>
 
-<% @topic = Topic.with_project_id(sessions_current_project_id).find_by(name: 'Distribution text') # TODO: Consider assigning URI to this topic to better identify it -%>
-<% @rowcount = 1 %>
-<h2>Topic: <%= @topic.name -%> </h2>
+  <h2>Topic: <%= @topic.name -%> </h2>
+  <table>
+    <tr>
+      <td> Row</td>
+      <td> Order </td>
+      <td> Family </td>
+      <td> Subfamily </td>
+      <td> Tribe </td>
+      <td> Name </td>
+      <td> Author year </td>
+      <td> <%= @topic.name -%> </td>
+    </tr>
 
-<table>
-  <tr>
-    <td> Row</td>
-    <td> Order </td>
-    <td> Family </td>
-    <td> Subfamily </td>
-    <td> Tribe
-    <td> Name
-    <td> Author year </td>
+    <% @taxon_names.find_each do |n| %>
+      <% a = n.ancestor_hash %>
+      <% if !a['family'].blank? %> <!-- TODO: restrict query to those with famil/y names -->
+        <tr>
+          <td> <%= @rowcount -%> </td>
+          <td> <%= a['order'] -%> </td>
+          <td> <%= a['family'] -%> </td>
+          <td> <%= a['subfamily'] -%> </td>
+          <td> <%= a['tribe'] -%> </td>
+          <td> <%= n.cached -%> </td>
+          <td> <%= n.cached_author_year -%> </td>
+          <td> <%= Content.where(project_id: sessions_current_project_id).find_by(topic: @topic, otu: n.otus)&.text %> </td>
+        </tr>
 
-    <td> Distribution text </td>
-  </tr>
-
-
-
-<% @taxon_names.each do |n| -%>
-<% if !((n.ancestor_at_rank(:family)&.cached).blank?) -%>
-  <tr>
-    <td> <%= @rowcount -%> </td>
-    <td> <%= n.ancestor_at_rank(:order)&.cached -%> </td>
-    <td> <%= n.ancestor_at_rank(:family)&.cached -%> </td>
-    <td> <%= n.ancestor_at_rank(:subfamily)&.cached -%> </td>
-    <td> <%= n.ancestor_at_rank(:tribe)&.cached -%> </td>
-    <td> <%= n.cached -%> </td>
-    <td> <%= n.cached_author_year -%> </td>
-
-    <td> <%= Content.find_by(topic: @topic, otu: n.otus)&.text %> </td>
-  </tr>
-
-<% @rowcount = @rowcount + 1 %>
-    <% end -%>
-  <% end -%>
-</table>
-
+        <% @rowcount = @rowcount + 1 %>
+      <% end %>
+    <% end %>
+  </table>
+<% end %>
