@@ -81,6 +81,8 @@ export default {
         Repository.find(newVal).then(response => {
           this.setRepository(response.body)
         })
+      } else {
+        this.repositorySelected = undefined
       }
     }
   },
@@ -88,7 +90,7 @@ export default {
   methods: {
     setRepository (repository) {
       this.repositorySelected = repository
-      this.collectionObject.repository_id = repository?.id
+      this.collectionObject.repository_id = repository?.id || null
     }
   }
 }
