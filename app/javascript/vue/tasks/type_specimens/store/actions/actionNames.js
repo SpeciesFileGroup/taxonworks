@@ -7,8 +7,6 @@ const ActionNames = {
   RemoveTypeSpecimen: 'RemoveTypeSpecimen',
   UpdateTypeSpecimen: 'UpdateTypeSpecimen',
   SetNewTypeMaterial: 'SetNewTypeMaterial',
-  SaveIdentifier: 'SaveIdentifier',
-  UpdateCollectionObject: 'UpdateCollectionObject',
   SetTypeMaterialCO: 'setTypeMaterialCO'
 }
 
