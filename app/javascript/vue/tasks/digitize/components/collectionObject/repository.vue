@@ -81,6 +81,8 @@ export default {
         Repository.find(newVal).then(response => {
           this.setRepository(response.body)
         })
+      } else {
+        this.repositorySelected = undefined
       }
     }
   },

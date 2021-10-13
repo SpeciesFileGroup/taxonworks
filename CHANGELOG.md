@@ -12,8 +12,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Copy pasting into verbatim year with alphanumeric gives error even though numeric are all that are visible in New taxon name [#2577]
 - Record doesn't sync/update the list in OTU quick forms [#2576]
 - TIFF images are not visible in filter image task [#2575]
+- Repository input shows value, when not set [#2574]
 
 [#2540]: https://github.com/SpeciesFileGroup/taxonworks/issues/2540
+[#2574]: https://github.com/SpeciesFileGroup/taxonworks/issues/2574
 [#2575]: https://github.com/SpeciesFileGroup/taxonworks/issues/2575
 [#2576]: https://github.com/SpeciesFileGroup/taxonworks/issues/2576
 [#2577]: https://github.com/SpeciesFileGroup/taxonworks/issues/2577
