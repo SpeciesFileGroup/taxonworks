@@ -199,14 +199,14 @@
   <tr><th></th><th>Count</th><th> % total </th> </tr>
   <tr>
     <td> Type collection objects </td>
-    <td> <%= type_collection_objects = CollectionObject::BiologicalCollectionObject.joins(:type_designations).where(project_id: sessions_current_project_id).count -%> </td>
+    <td> <%= type_collection_objects = CollectionObject::BiologicalCollectionObject.joins(:type_materials).where(project_id: sessions_current_project_id).count -%> </td>
     <td> 100 </td>
   </tr>
 
   <% TypeMaterial.where(project_id: sessions_current_project_id).select(:type_type).distinct.pluck(:type_type).sort.each do |t| -%>
     <tr>
       <td><%= t -%></td>
-      <td> <%= tot = CollectionObject::BiologicalCollectionObject.joins(:type_designations).where(type_materials: {type_type: t}, project_id: sessions_current_project_id).count -%> </td>
+      <td> <%= tot = CollectionObject::BiologicalCollectionObject.joins(:type_materials).where(type_materials: {type_type: t}, project_id: sessions_current_project_id).count -%> </td>
       <td> <%= (100.0 * (tot.to_f / type_collection_objects.to_f)).round(2) -%> </td>
     </tr>
   <% end %>

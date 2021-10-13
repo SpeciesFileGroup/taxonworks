@@ -16,7 +16,7 @@
 
   <tbody>
   <% @serials.each do |serial| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= serial.name %></td>
           <td><%= serial.publisher %></td>
           <td><%= serial.place_published %></td>

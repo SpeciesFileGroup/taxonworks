@@ -47,8 +47,9 @@ module Shared::PolymorphicAnnotator
 
   included do
     # Concern implementation macro
-    def self.polymorphic_annotates(polymorphic_belongs, foreign_key = nil)
-      belongs_to polymorphic_belongs.to_sym, polymorphic: true, foreign_key: (foreign_key.nil? ? (polymorphic_belongs.to_s + '_id').to_s : polymorphic_belongs.to_s)
+    def self.polymorphic_annotates(polymorphic_belongs, foreign_key = nil) # , inverse_of = nil)
+      # inverse_of ||= self.table_name.to_sym
+      belongs_to polymorphic_belongs.to_sym, polymorphic: true, foreign_key: (foreign_key.nil? ? (polymorphic_belongs.to_s + '_id').to_s : polymorphic_belongs.to_s) # TODO: add for validation , inverse_of: inverse_of # polymorphic_belongs.to_sym
       alias_attribute :annotated_object, polymorphic_belongs.to_sym 
 
       define_singleton_method(:annotator_reflection){polymorphic_belongs.to_s} 

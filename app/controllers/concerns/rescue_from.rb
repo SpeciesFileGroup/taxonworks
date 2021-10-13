@@ -3,11 +3,16 @@ module RescueFrom
   extend ActiveSupport::Concern
 
   included do
-    rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
+    rescue_from 'ActiveRecord::RecordNotFound', with: :record_not_found
 
-    rescue_from ActionController::ParameterMissing do |exception|
+    rescue_from 'ActionController::ParameterMissing' do |exception|
       raise unless request.format == :json
       render json: { error: exception }, status: 400
+    end
+
+    rescue_from 'ActiveRecord::ConnectionTimeoutError' do |exception|
+      raise unless request.format == :json
+      render json: { error: exception }, status: 503
     end
 
     private

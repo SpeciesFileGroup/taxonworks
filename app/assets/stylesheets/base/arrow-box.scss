@@ -18,6 +18,16 @@
   }
 }
 
+@mixin arrow-box-top-right($right) {
+  &:after, &:before {
+    @extend .arrow-box;
+    bottom: 100%;
+    right: $right;
+    margin-right: -6px;
+    border-bottom-color: $color-help-description;
+  }
+}
+
 @mixin arrow-box-bottom($left) {
   &:after, &:before {
     @extend .arrow-box;

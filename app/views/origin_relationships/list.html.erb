@@ -12,7 +12,7 @@
 
   <tbody>
   <% @origin_relationships.each do |origin_relationship| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= object_link(origin_relationship.old_object) %></td>
           <td><%= object_link(origin_relationship.new_object) %></td>
           <%= fancy_metadata_cells_tag(origin_relationship) -%>

@@ -17,7 +17,7 @@
 
   <tbody>
     <% @extracts.each do |extract| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
         <td><%= extract.referenced_otus.collect{|o| object_link(o)}.join('; ').html_safe -%></td>
         <td><%= extract.old_objects.collect{|o| object_link(o)}.join('; ').html_safe -%></td>
         <td><%= object_tag(extract.repository) -%></td>

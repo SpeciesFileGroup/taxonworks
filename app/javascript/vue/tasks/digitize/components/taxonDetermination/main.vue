@@ -299,7 +299,7 @@ export default {
     addDetermination () {
       if (!this.taxonDetermination.id && this.list.find(determination => determination.otu_id === this.taxonDetermination.otu_id && determination.year_made === this.year)) { return }
 
-      this.taxonDetermination.object_tag = `${this.otuSelected} ${this.authorsString()} ${this.dateString()}`
+      this.taxonDetermination.object_tag = `${this.otuSelected.object_tag} ${this.authorsString()} ${this.dateString()}`
       this.$store.commit(MutationNames.AddTaxonDetermination, this.taxonDetermination)
       this.$store.commit(MutationNames.NewTaxonDetermination)
     },

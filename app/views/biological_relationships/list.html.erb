@@ -14,7 +14,7 @@
 
   <tbody>
     <% @biological_relationships.each do |biological_relationship| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
         <td><%= biological_relationship.name %></td>
         <td><%= biological_relationship.inverted_name %></td>
         <td><%= biological_relationship.is_transitive %></td>

@@ -16,7 +16,7 @@
 
   <tbody>
     <% @character_states.each do |character_state| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
         <td><%= character_state.name %></td>
         <td><%= character_state.label %></td>
         <td><%= descriptor_tag(character_state.descriptor) %></td>

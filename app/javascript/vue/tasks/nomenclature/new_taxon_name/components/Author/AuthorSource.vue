@@ -4,7 +4,6 @@
       <autocomplete
         url="/sources/autocomplete"
         min="3"
-        autofocus
         param="term"
         label="label_html"
         placeholder="Type for search..."

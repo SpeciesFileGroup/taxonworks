@@ -15,7 +15,7 @@
 
   <tbody>
   <% @taxon_determinations.each do |taxon_determination| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= object_tag(taxon_determination.biological_collection_object.metamorphosize) %></td>
           <td><%= object_tag(taxon_determination.otu) %></td>
           <td><%= taxon_determination.year_made %></td>

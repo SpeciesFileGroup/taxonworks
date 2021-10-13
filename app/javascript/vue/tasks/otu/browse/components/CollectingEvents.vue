@@ -81,14 +81,14 @@ const isLoading = computed(() => {
   return loadState.distribution && loadState.descendantsDistribution
 })
 
-const collectingEvents = computed(() => ({
+const collectingEvents = computed({
   get () {
     return store.getters[GetterNames.GetCollectingEvents]
   },
   set (value) {
     store.commit(MutationNames.SetCollectingEvents, value)
   }
-}))
+})
 
 const assertedDistributions = computed(() => {
   const ADs = store.getters[GetterNames.GetAssertedDistributions]
@@ -147,7 +147,7 @@ const populateShapes = () => {
   })
 }
 
-const getCollectionObjectByGeoId = georeference => collectionObjects.value.filter(co => co.collecting_event_id === this.getCEByGeo(georeference).id)
+const getCollectionObjectByGeoId = georeference => collectionObjects.value.filter(co => co.collecting_event_id === getCEByGeo(georeference).id)
 
 const composePopup = geo => {
   const ce = getCEByGeo(geo)

@@ -75,7 +75,8 @@ export default {
     getAuthors(args = {}) {
       const params = {
         last_name_starts_with: this.key,
-        roles: ['SourceAuthor']
+        roles: ['SourceAuthor'],
+        extend: ['roles']
       }
       this.isLoading = true
       People.where({ ...Object.assign({}, args, params) }).then(response => {

@@ -15,7 +15,7 @@
 
   <tbody>
   <% @tags.each do |tag| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= tag.tag_object_type %></td>
           <td><%= object_tag(tag.tag_object) %></td>
           <td><%= tag.tag_object_attribute %></td>

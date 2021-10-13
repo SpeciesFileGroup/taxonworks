@@ -1,14 +1,14 @@
 import { createApp } from 'vue'
 import App from './app.vue'
 
-function init (){
+function initApp (element) {
   const app = createApp(App)
 
-  app.mount('#<%= controller_base_name %>_task')
+  app.mount(element)
 }
 
 document.addEventListener('turbolinks:load', () => {
-  if (document.querySelector('#<%= controller_base_name %>_task')) {
-    init()
-  }
+  const el = document.querySelector('#<%= controller_base_name %>_task')
+
+  if (el) { initApp(el) }
 })

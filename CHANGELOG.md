@@ -7,7 +7,158 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Fixed
+- Observation matrix show expand was referencing the wrong id  [#2540]
+
+[2540]: https://github.com/SpeciesFileGroup/taxonworks/issues/2540
+
+
+\-
+
+## [0.20.0] - 2021-10-12
+
+### Added
+- Task `DwC Import` for importing DwC Archive files
+- Task `DwC Dashboard` facilitating DwCA download, metadata reporting, and "health" checks [#1467]
+- Updated framework for producing and downloading DwC Archives (DwCA) [#1775] [#1303]
+- Increased from 21 to 53 the number of fields referenced in the (DwCA) dump, including `identifiedByID` and `recordedByID` [#1269] [#1230]
+- Auto-generation of UUIDs for instances that don't have global identifiers during DwcOccurrence record building [#2186]
+- Wikidata (Q) and ORCiD support for people references in DwCA dumps
+- Georeferences can have Confidences assigned to them [#1772]
+- CSL style 'taxonworks.csl' used as the default style for displaying sources [#2517]
+- Custom CSL citation support for reference formating (see styles at bottom of select format list). New .cls submitted via issue tracker and integrated to source.
+- New .csl style 'world_chalcidoidea_book.csl"
+- BibTeX fields support verbatim values using "{}" for fields otherwise processed in BibTeX sources (e.g. author)
+- New specs for rendering Source citations
+- `&extend[]` and `&embed[]` helper methods for REST responses [#2532]
+- A new soft validation option to auto fix for objective synonym that must share the same type 
+- Add `Download`, `Full size` and `Radial navigation` buttons in Image viewer [#2423]
+- Endpoint `/tasks/dwc/dashboard/index_versions` returns the dates at which DwcOccurrence indexing was modified. !! TODO: update date of merge.
+- Endpoint `/dwc_occurrences/metadata`, for stats on the state of DwcOccurrence index
+- Endpoint `/dwc_occurrencs/predicates` to return a list of Predicates used on CollectionObjects and CollectingEvents
+- Endpoint `/dwc_occurrences/status` to check whether DwcOccurrence records are up-to-date
+- Endpoint `/dwc_occurrences/collector_id_metadata` to check whether People referenced in DwcOccurences have GUIDs
+- Task on Administration panel, "Reindex", with (temporary) options to re-index small blocks of DwcOccurrence records
+- Button on CollectionObject filter to download filter result as DwC Archive [#1303]
+- User can select a corresponding Person as their data representation (facilitates Identifiers for Users) [#1486]
+- Centroid index on GeographicItem
+- Field `total_records` on Download
+- Index on polymorphic fields of DwcIndex (e.g. faster queries to CollectionObject)
+- Index on `data_origin` for GeographicAreasGeographicItem
+- Identifiers for AssertedDistributions
+- Various relationships enabling the joining of DwcOccurrence directly to other classes of data (e.g. Georeferences)
+- Isolated Georeference related utilities into their own module CollectingEvent::Georeference
+- A Taxonomy module that caches classification values, used in CollectionObject, and Otu
+- Methods to return when a record attribute was updated (e.g. verbatim_locality changed), and who did it for Papertrail including classes of data
+- Methods to handle multiple classes of globally unique identifiers on DwcOccurrence records
+- Pattern for isolating modules that aid DwC serialization per class of data
+- Optimized `to_wkt` to quickly return well-known-text for geo-shapes (in part, [#2526])
+- New subclass of UUID `Identifier::Global::Uuid::TaxonworksDwcOccurrence`
+- Clarified, via`georeferenceSources` and `georeferenceProtocol` why there are many decimal points in DwC latitude/longitude referencing fields [#915] [#1175]
+- Option to rebuild single DwcOccurrence record for CollectionObject [#2563]
+- Ability to show observation matrices > 10k cells in size [#1790] 
+- Rake task to rebuild source cached
+- Add download and radial buttons for image viewer in filter image
+
+### Fixed
+- Downloading formatted sources with mixed types (BibTeX/Verbatim) failed [#2512] 
+- Collection object filter type material param
+- Taxon name filter type metadata param fails [#2511]
+- Cloning a collecting event fails [#2533]
+- Modified recordedBy fields to only reference collector [#2567] [#2558]
+- Many TDWG gazeteer references will now be properly categorized into state and country labels [#2542]
+- In Browse Nomenclature removed link to self for invalid taxon names with no synonymy [#2327]
+- Add missing original citation to synonym names in CoLDP export [#2543]
+- Uniquify people slow when many roles present [#2528]
+- Match combination when protonym has synonym relationships [#2525]
+- TaxonNameRelationsip `type_method` returns nil properly on unmatched types [#2504]
+- Taxon determinations list in comprehensive task
+- The clone button doesn't trigger update taxon name after authors were cloned [#2513]
+- Georeference count in new collecting event task [#2519]
+- Autofocus in New taxon name task [#2523]
+- Geographic area counts as georeference. Soft validations are sometimes loaded before saving georeferences [#2519]
+- `import_dataset_id` parameter persist on after resetState in DwC Importer [#2529]
+- Updated Ruby gems and Node packages
+- In project button [#2530]
+- View image matrix is passing wrong ids [#2537]
+- Observations with depictions sometimes are removed after move a depiction [#2549]
+- Relationship facet in Filter nomenclature
+- Determiner facet (param) in Filter collection objects
+- Verbatim year input allows alphanumeric numbers in New taxon name
+- Labels list renders for those linked to objects, or not
+
+### Changed
+- Radial annotator Tag form uses a Keyword smart selector [#2564]
+- DwcOccurrence is rebuilt/refreshed each time Browse Collection Object is hit
+- `footprintWKT` is hidden in Browse CollectionOjbect [#2559]
+- Tweak geo coordinate matching on verbatim labels
+- Year suffix, stated year, language, translated title and notes added to bibliography rendering via `to_citeproc`
+- Removed `label_html` from `/people` responses
+- `/people` JSON param from `&include_roles=true` to `&extend[]=roles` 
+- Prefer project sources in source autocomplete
+- Status name 'not for nomenclature' changed to 'not in published work'
+- Year letter is no longer appended to year in BibTeX exports
+- Include project's name in CoLDP exports filename [#2509]
+- Implemented STI for downloads [#2498]\
+- Upgraded gnfinder gem that makes use of new REST API
+- Refactor help code
+- Unified various DwC value returning methods in their own explicitly named extensions
+- Isolated CollectionObject filter and API param handling to their own module for reference in multiple controllers
+- DwcOccurrence `individualCount` is now Integer
+- Database ConnectionTimeoutErrors now result in a 503 response rather than a raise/email-warning
+- Added various `:inverse_of` across collection objects related models
+- `DwcOccurrence#individualCount` is integer now
+- Simplified SQL for ordering GeographicArea shapes
+- Tweak validation of ORCIDid format
+- Move autocomplete and lookup keyword to CVT controller [#2571]
+- Task `Content by nomenclature` can be customized by selecting a Topic
+- Remove identifier section in New type specimen
+- Nill strings ("\u0000") are stripped from fields before writing
+
+[#2564]: https://github.com/SpeciesFileGroup/taxonworks/issues/2564
+[#2512]: https://github.com/SpeciesFileGroup/taxonworks/issues/2512
+[#2517]: https://github.com/SpeciesFileGroup/taxonworks/issues/2517
+[#915]: https://github.com/SpeciesFileGroup/taxonworks/issues/915
+[#1175]: https://github.com/SpeciesFileGroup/taxonworks/issues/1175
+[#1230]: https://github.com/SpeciesFileGroup/taxonworks/issues/1230
+[#1269]: https://github.com/SpeciesFileGroup/taxonworks/issues/1269
+[#1303]: https://github.com/SpeciesFileGroup/taxonworks/issues/1303
+[#1467]: https://github.com/SpeciesFileGroup/taxonworks/issues/1467
+[#1486]: https://github.com/SpeciesFileGroup/taxonworks/issues/1486
+[#1772]: https://github.com/SpeciesFileGroup/taxonworks/issues/1772
+[#1775]: https://github.com/SpeciesFileGroup/taxonworks/issues/1775
+[#1943]: https://github.com/SpeciesFileGroup/taxonworks/issues/1943
+[#2084]: https://github.com/SpeciesFileGroup/taxonworks/issues/2084
+[#2186]: https://github.com/SpeciesFileGroup/taxonworks/issues/2186
+[#2327]: https://github.com/SpeciesFileGroup/taxonworks/issues/2327
+[#2423]: https://github.com/SpeciesFileGroup/taxonworks/issues/2423
+[#2498]: https://github.com/SpeciesFileGroup/taxonworks/pull/2498
+[#2509]: https://github.com/SpeciesFileGroup/taxonworks/issues/2509
+[#2511]: https://github.com/SpeciesFileGroup/taxonworks/issues/2511
+[#2519]: https://github.com/SpeciesFileGroup/taxonworks/pull/2519
+[#2519]: https://github.com/SpeciesFileGroup/taxonworks/pull/2519
+[#2523]: https://github.com/SpeciesFileGroup/taxonworks/pull/2523
+[#2526]: https://github.com/SpeciesFileGroup/taxonworks/issues/2526
+[#2528]: https://github.com/SpeciesFileGroup/taxonworks/issues/2528
+[#2529]: https://github.com/SpeciesFileGroup/taxonworks/pull/2529
+[#2530]: https://github.com/SpeciesFileGroup/taxonworks/pull/2530
+[#2532]: https://github.com/SpeciesFileGroup/taxonworks/issues/2532
+[#2533]: https://github.com/SpeciesFileGroup/taxonworks/issues/2533
+[#2542]: https://github.com/SpeciesFileGroup/taxonworks/issues/2542
+[#2543]: https://github.com/SpeciesFileGroup/taxonworks/issues/2543
+[#2549]: https://github.com/SpeciesFileGroup/taxonworks/pull/2549
+[#2558]: https://github.com/SpeciesFileGroup/taxonworks/issues/2558
+[#2559]: https://github.com/SpeciesFileGroup/taxonworks/issues/2559
+[#2562]: https://github.com/SpeciesFileGroup/taxonworks/issues/2562
+[#2563]: https://github.com/SpeciesFileGroup/taxonworks/issues/2563
+[#2567]: https://github.com/SpeciesFileGroup/taxonworks/issues/2567
+[#2571]: https://github.com/SpeciesFileGroup/taxonworks/issues/1771
+
+
+## [0.19.7] - 2021-09-09
+
 ### Add
+- Add link to new type specimen task from type material form
 - Export Observation::Media depictions as proxies for Otu depictions in NeXML [#2142]
 - Protonym `verbatim_author` parens should be properly closed when present [#2453]
 - Protonym `verbatim_author` can not contain digits (like years) [#2452]
@@ -21,7 +172,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - NeXML image URLs use shortened URLs
 - Reorder date fields in comprehensive, extract and new collecting event tasks [#2450]
 - Set Vue 3 reactive vuex state in comprehensive store, removed unnecesary mutations and getters
-- Updated Ruby gems
+- Updated Ruby gems and Node packages
 - Bumped database_cleaner
 - Upgraded to ruby 6.1 [#2474]
 - Remove Taxon determination slice from OTU quick forms(Radial object)
@@ -49,10 +200,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter collection objects shortcuts
 - Fix identifier update in new type specimen task
 - Radial menus are inheriting CSS properties in some cases [#2505]
+- Taxon determinations list in comprehensive task
 
 [#2487]: https://github.com/SpeciesFileGroup/taxonworks/issues/2487
 [#2319]: https://github.com/SpeciesFileGroup/taxonworks/issues/2319
-[#2453]: https://github.com/SpeciesFileGroup/taxonworks/issues/2142
+[#2142]: https://github.com/SpeciesFileGroup/taxonworks/issues/2142
 [#2453]: https://github.com/SpeciesFileGroup/taxonworks/issues/2453
 [#2452]: https://github.com/SpeciesFileGroup/taxonworks/issues/2452
 [#2450]: https://github.com/SpeciesFileGroup/taxonworks/pull/2450
@@ -1675,7 +1827,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.6...development
+
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.20.0...development
+[0.20.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.7...v0.20.0
+[0.19.7]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.6...v0.19.7
 [0.19.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.5...v0.19.6
 [0.19.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.4...v0.19.5
 [0.19.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.3...v0.19.4

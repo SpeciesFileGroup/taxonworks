@@ -9,8 +9,19 @@ class DownloadsController < ApplicationController
   # GET /downloads
   # GET /downloads.json
   def index
-    @recent_objects = Download.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = Download.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @downloads = Queries::Download::Filter.new(filter_params)
+          .all
+          .where(project_id: sessions_current_project_id)
+          .page(params[:page])
+          .per(params[:per] || 20)
+      }
+    end
   end
 
   # GET /downloads/1
@@ -70,6 +81,10 @@ class DownloadsController < ApplicationController
   end
 
   private
+
+  def filter_params
+    params.permit(:download_type)
+  end
 
   def set_download
     @download = Download.unscoped.where(project_id: sessions_current_project_id).find(params[:id])

@@ -16,7 +16,7 @@
 
   <tbody>
   <% @containers.each do |container| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
         <td><%= container.name %></td>
         <td><%= container.type %></td>
         <td><%= container_tag(container.container)  %></td> <!---- containers_helper.rb ---->

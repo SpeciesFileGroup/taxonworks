@@ -1,18 +1,18 @@
 module RolesHelper
 
-  def roles_names(roles)
-    people_names(roles.collect{|p| p.person}) 
-  end
-
   def role_tag(role)
     return nil if role.nil?
-    [person_tag(role.person), "[#{role.class.human_name}]"].join(' ').html_safe
+    [role.person.cached, "[#{role.class.human_name}]"].join(' ').html_safe
+  end
+
+  def roles_names(roles)
+    people_names(roles.collect{|p| p.person})
   end
 
   def role_link(role)
     return nil if role.nil?
     link_to(role_tag(role).html_safe, metamorphosize_if(role.role_object))
-  end 
+  end
 
   # @return [String, nil]
   #   the role followed by the object tag of the role_object, like 'Taxon name author of <i>Aus bus</i>'.
@@ -22,7 +22,7 @@ module RolesHelper
   end
 
   def role_in_project?(role)
-    Role.exists?(project_id: sessions_current_project_id, id: role.id.to_param)
+    Role.exists?(project_id: sessions_current_project_id, id: role.id)
   end
 
 end

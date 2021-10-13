@@ -61,7 +61,7 @@
             >
               <label>Depiction</label>
               <depictions-section />
-              <catalog-number />
+              To add a catalog number use the radial annotator above after save.
             </div>
           </div>
         </div>
@@ -83,7 +83,6 @@
 <script>
 
 import { GetterNames } from '../store/getters/getters'
-import { MutationNames } from '../store/mutations/mutations'
 import ActionNames from '../store/actions/actionNames'
 
 import Autocomplete from 'components/ui/Autocomplete.vue'
@@ -92,7 +91,6 @@ import Spinner from 'components/spinner.vue'
 import Expand from 'components/expand.vue'
 import CollectionObject from './collectionObject.vue'
 import DepictionsSection from './depictions.vue'
-import CatalogNumber from './catalogNumber'
 import SwitchComponent from 'components/switch.vue'
 
 import { RouteNames } from 'routes/routes'
@@ -111,7 +109,6 @@ export default {
     Expand,
     RadialAnnotator,
     Spinner,
-    CatalogNumber,
     SwitchComponent
   },
 

@@ -123,6 +123,8 @@ class User < ApplicationRecord
   attr_accessor :set_new_api_access_token
   attr_accessor :self_created
 
+  belongs_to :person, inverse_of: :user
+
   before_validation { self.email = email.to_s.downcase }
 
   before_save :generate_api_access_token, if: :set_new_api_access_token
@@ -454,6 +456,16 @@ class User < ApplicationRecord
   # @return [Boolean] always true
   def require_password_presence
     @require_password_presence = true
+  end
+
+  def orcid
+    return nil unless person
+    person.identifiers.where(type: 'Identifier::Global::Orcid').first&.identifier
+  end
+
+  def wikidata_id
+    return nil unless person
+    person.identifiers.where(type: 'Identifier::Global::Wikidata').first&.identifier
   end
 
   private

@@ -3,14 +3,11 @@ import { MutationFunctions } from './mutations/mutations'
 import { ActionFunctions } from './actions/actions'
 import { createStore } from 'vuex'
 
-import Identifier from '../const/identifier'
-
 function makeInitialState () {
   return {
     settings: {
       loading: false,
-      saving: false,
-      saveIdentifier: false
+      saving: false
     },
     taxon_name: undefined,
     type_material: {
@@ -35,7 +32,6 @@ function makeInitialState () {
       },
       type_designator_roles: []
     },
-    identifier: Identifier(),
     type_materials: [],
     softValidation: []
   }

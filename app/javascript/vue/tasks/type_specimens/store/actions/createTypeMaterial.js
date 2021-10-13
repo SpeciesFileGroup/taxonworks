@@ -13,7 +13,6 @@ export default ({ dispatch, commit, state }) =>
       commit(MutationNames.AddTypeMaterial, response.body)
       commit(MutationNames.SetTypeMaterial, response.body)
       commit(MutationNames.SetSaving, false)
-      dispatch(ActionNames.SaveIdentifier)
       dispatch(ActionNames.LoadSoftValidations)
       return resolve(response.body)
     }, response => {

@@ -1,0 +1,2 @@
+occurrenceID	basisOfRecord	scientificName	taxonRank
+0d66a0ee-7594-597b-9aa1-ac763591548b	PreservedSpecimen	Orotettix andeanus	species

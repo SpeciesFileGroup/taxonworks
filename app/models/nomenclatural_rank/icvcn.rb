@@ -1,5 +1,7 @@
 class NomenclaturalRank::Icvcn < NomenclaturalRank
 
+  KINGDOM = ['Viruses']
+
   def self.group_base(rank_string)
     rank_string.match( /(NomenclaturalRank::Icvcn::).+/)
     $1

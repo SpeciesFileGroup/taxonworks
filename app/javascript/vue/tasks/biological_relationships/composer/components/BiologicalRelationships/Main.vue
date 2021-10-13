@@ -15,8 +15,12 @@
           :key="item.id"
           @click="$emit('selected', item)">
           <td>
-            <span>{{ item.name }}</span><br>
-            <span class="margin-small-left subtle">{{ item.definition }}</span>
+            <span class="display-block">{{ item.name }}</span>
+            <span
+              v-if="item.definition"
+              class="margin-small-left subtle">
+              {{ item.definition }}
+            </span>
           </td>
           <td>{{ item.inverted_name }}</td>
         </tr>
