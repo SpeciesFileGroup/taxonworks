@@ -41,6 +41,7 @@
         @urlRequest="urlRequest = $event"
         @response="updateUrl"
         @result="loadList"
+        @pagination="pagination = getPagination($event)"
         @reset="resetTask"/>
       <div class="full_width">
         <div

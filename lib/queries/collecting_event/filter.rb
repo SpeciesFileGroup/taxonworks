@@ -94,7 +94,7 @@ module Queries
         # @spatial_geographic_area_ids = params[:spatial_geographic_areas].blank? ? [] : params[:spatial_geographic_area_ids]
 
         @collecting_event_wildcards = params[:collecting_event_wildcards] || []
-        @collector_id = params[:collector_id].blank? ? [] : params[:collector_id]
+        @collector_id = params[:collector_id]
         @collector_ids_or = boolean_param(params, :collector_ids_or )
         @collection_objects = boolean_param(params, :collection_objects )
         @geo_json = params[:geo_json]

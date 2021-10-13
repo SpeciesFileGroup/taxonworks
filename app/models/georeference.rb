@@ -69,6 +69,7 @@ class Georeference < ApplicationRecord
   include Shared::Tags
   include Shared::Citations
   include Shared::HasRoles
+  include Shared::DataAttributes
   include Shared::Confidences # qualitative, not spatial
   include Shared::IsData
 
@@ -323,13 +324,11 @@ class Georeference < ApplicationRecord
     }
   end
 
-
-
   protected
 
   # @return [Hash] of names of geographic areas
   def set_cached
-    collecting_event.send(:cache_geographic_names) # protected method
+    collecting_event.send(:set_cached_geographic_names) # protected method
   end
 
   # validation methods

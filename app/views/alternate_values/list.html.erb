@@ -16,7 +16,7 @@
 
   <tbody>
   <% @alternate_values.each do |alternate_value| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= alternate_value.alternate_value_object_type %></td>
           <td><%= object_tag(alternate_value.alternate_value_object.metamorphosize) %></td>
           <td><%= alternate_value.alternate_value_object_attribute %></td>

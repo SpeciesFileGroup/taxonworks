@@ -16,7 +16,7 @@
 
   <tbody>
     <% @common_names.each do |common_name| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
         <td><%= common_name.name %></td>
         <td><%= geographic_area_link(common_name.geographic_area) %></td>
         <td><%= otu_link(common_name.otu) %></td>

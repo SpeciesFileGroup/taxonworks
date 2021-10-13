@@ -12,7 +12,7 @@
 
   <tbody>
   <% @preparation_types.each do |preparation_type| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= preparation_type.name %></td>
           <td><%= preparation_type.definition %></td>
           <%= fancy_metadata_cells_tag(preparation_type) -%>

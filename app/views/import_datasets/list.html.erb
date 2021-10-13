@@ -13,7 +13,7 @@
 
   <tbody>
   <% @import_datasets.each do |import_dataset| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= import_dataset.status %></td>
           <td><%= import_dataset.description %></td>
           <td><%= import_dataset.source_updated_at %></td>

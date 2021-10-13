@@ -7,6 +7,7 @@
     <smart-selector
       class="full_width margin-small-bottom"
       ref="smartSelector"
+      autocomplete-url="/controlled_vocabulary_terms/autocomplete"
       :autocomplete-params="{'type[]' : 'Topic'}"
       get-url="/controlled_vocabulary_terms/"
       model="keywords"

@@ -567,6 +567,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
   def parse_location_class
     collecting_event = {}
+    georeference = {}
 
     # locationID: [Not mapped]
 
@@ -657,6 +658,27 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # footprintSpatialFit: [Not mapped]
 
     # georeferencedBy: [Not mapped]
+    if georeferenced_by = get_field_value(:georeferencedBy)
+      predicate_base_props = {uri: 'http://rs.tdwg.org/dwc/terms/georeferencedBy', project: self.project}
+      predicate = Predicate.find_by(predicate_base_props)
+      predicate ||= Predicate.where(project: project).find_by(
+        Predicate.arel_table[:name].matches('georeferencedBy')
+      )
+      predicate ||= Predicate.create!(predicate_base_props.merge(
+        {
+          name: 'georeferencedBy',
+          definition: 'A list (concatenated and separated) of names of people, groups, or organizations who determined the georeference (spatial representation) for the Location.'
+        })
+      )
+
+      georeference[:data_attributes] = [
+        InternalAttribute.new(
+          type: 'InternalAttribute',
+          predicate: predicate,
+          value: georeferenced_by
+        )
+      ]
+    end
 
     # georeferencedDate: [Not mapped]
 
@@ -668,7 +690,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # georeferenceRemarks: [georeference note]
     note = get_field_value(:georeferenceRemarks)
-    georeference = note ? {notes_attributes: [{text: note}]} : {}
+    georeference[:notes_attributes] = [{text: note}] if note
 
     {
       collecting_event: collecting_event,

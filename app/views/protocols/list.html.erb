@@ -13,7 +13,7 @@
 
   <tbody>
   <% @protocols.each do |protocol| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= protocol.name %></td>
           <td><%= protocol.short_name %></td>
           <td><%= protocol.description %></td>

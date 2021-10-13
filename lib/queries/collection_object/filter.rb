@@ -295,13 +295,15 @@ module Queries
       # See Queries::ColletingEvent::Filter for other use
       def determiner_facet
         return nil if determiner_id.empty?
+        tt = table
+
         o = ::TaxonDetermination.arel_table
         r = ::Role.arel_table
 
-        a = o.alias("a_")
+        a = o.alias("a_det__")
         b = o.project(a[Arel.star]).from(a)
 
-        c = r.alias('r1')
+        c = r.alias('det_r1')
 
         b = b.join(c, Arel::Nodes::OuterJoin)
           .on(
@@ -316,9 +318,10 @@ module Queries
         b = b.where(e.and(f))
         b = b.group(a['id'])
         b = b.having(a['id'].count.eq(determiner_id.length)) unless determiner_id_or
+
         b = b.as('det_z1_')
 
-        ::CollectionObject.joins(:taxon_determinations).joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
+        ::CollectionObject.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['biological_collection_object_id'].eq(tt['id']))))
       end
 
       def georeferences_facet
@@ -621,9 +624,9 @@ module Queries
       def type_material_facet
         return nil if type_material.nil?
         if type_material
-          ::CollectionObject.joins(:type_designations).distinct
+          ::CollectionObject.joins(:type_materials).distinct
         else
-          ::CollectionObject.left_outer_joins(:type_designations)
+          ::CollectionObject.left_outer_joins(:type_materials)
             .where(type_materials: {id: nil})
             .distinct
         end

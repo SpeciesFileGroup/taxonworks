@@ -85,6 +85,16 @@ export default {
     hotkey
   },
 
+  emits: [
+    'newSearch',
+    'pagination',
+    'params',
+    'reset',
+    'response',
+    'result',
+    'urlRequest'
+  ],
+
   computed: {
     emptyParams () {
       if (!this.params) return
@@ -132,6 +142,7 @@ export default {
         this.$emit('result', response.body)
         this.$emit('urlRequest', response.request.responseURL)
         this.$emit('response', response)
+        this.$emit('pagination', response)
         this.$emit('params', params)
         this.searching = false
         if (response.body.length === this.params.settings.per) {

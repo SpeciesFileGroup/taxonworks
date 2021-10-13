@@ -22,7 +22,7 @@
 
   <tbody>
   <% georeferences.each do |georeference| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= georeference.geographic_item_id %></td>
           <td><%= object_tag(georeference.collecting_event) %></td>
           <td><%= georeference.error_radius %></td>

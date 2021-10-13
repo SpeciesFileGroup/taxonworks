@@ -680,12 +680,6 @@ class Source::Bibtex < Source
     cached_nomenclature_date.year
   end
 
-  #  Month handling allows values from bibtex like 'may' to be handled
-  # @return [Time]
-  def nomenclature_date
-    Utilities::Dates.nomenclature_date(day, Utilities::Dates.month_index(month), year)
-  end
-
   # @return [Date || Time] <sigh>
   #  An memoizer, getter for cached_nomenclature_date, computes if not .persisted?
   def cached_nomenclature_date

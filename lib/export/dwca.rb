@@ -12,7 +12,7 @@ module Export
     # or most of the index should be regenerated.
     # To add a version use `Time.now` via IRB
     INDEX_VERSION = [
-      '2021-08-29 21:16:02.903688 -0500' # First major refactor
+      '2021-10-12 17:00:00.000000 -0500' # First major refactor
     ]
 
     # @param record_scope [ActiveRecord::Relation]

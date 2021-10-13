@@ -266,7 +266,7 @@ module CollectionObject::DwcExtensions
 
   # ISO 8601:2004(E).
   def dwc_date_identified
-    current_taxon_determination&.date
+    current_taxon_determination&.date.presence
   end
 
   def dwc_kingdom
@@ -298,20 +298,26 @@ module CollectionObject::DwcExtensions
 
   # Definition: A list (concatenated and separated) of names of people, groups, or organizations responsible for recording the original Occurrence. The primary collector or observer, especially one who applies a personal identifier (recordNumber), should be listed first.
   #
-  # This is, frankly, a worthless field. Currently populated with Determiners, ordered by preferred, then historical, then collectors tossed in for good measure. Maybe we can add the
-  # people who digitally captured all the different components of the graph too.
+  # This was interpreted as collectors (in the field in this context), not those who recorded other aspectes of the data.
   def dwc_recorded_by
-    # TODO: raw SQL this mess?
-    ( determiners.includes(:roles).order('taxon_determinations.position, roles.position').to_a +
-     (collecting_event ? collecting_event&.collectors.includes(:roles).order('roles.position').to_a : []))
-      .uniq.map(&:cached).join(CollectionObject::DWC_DELIMITER).presence
+    if collecting_event
+      collecting_event.collectors
+        .order('roles.position')
+        .pluck(:cached)
+        .join(CollectionObject::DWC_DELIMITER)
+        .presence
+    end
   end
 
+  # See dwc_recorded_by
   def dwc_recorded_by_id
-    # TODO: raw SQL this mess?
-    ( determiners.includes(:roles).order('taxon_determinations.position, roles.position').to_a +
-     (collecting_event ? collecting_event&.collectors.includes(:roles).order('roles.position').to_a : []))
-      .uniq.map(&:orcid).compact.join(CollectionObject::DWC_DELIMITER).presence
+    if collecting_event
+      collecting_event.collectors
+        .order('roles.position')
+        .map(&:orcid)
+        .join(CollectionObject::DWC_DELIMITER)
+        .presence
+    end
   end
 
   def dwc_identified_by
@@ -338,17 +344,17 @@ module CollectionObject::DwcExtensions
   end
 
   def dwc_country
-    v = try(:collecting_event).try(:geographic_name_classification)
+    v = try(:collecting_event).try(:geographic_names)
     v[:country] if v
   end
 
   def dwc_state_province
-    v = try(:collecting_event).try(:geographic_name_classification)
+    v = try(:collecting_event).try(:geographic_names)
     v[:state] if v
   end
 
   def dwc_county
-    v = try(:collecting_event).try(:geographic_name_classification)
+    v = try(:collecting_event).try(:geographic_names)
     v[:county] if v
   end
 
