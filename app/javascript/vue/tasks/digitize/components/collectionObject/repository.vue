@@ -90,7 +90,7 @@ export default {
   methods: {
     setRepository (repository) {
       this.repositorySelected = repository
-      this.collectionObject.repository_id = repository?.id
+      this.collectionObject.repository_id = repository?.id || null
     }
   }
 }
