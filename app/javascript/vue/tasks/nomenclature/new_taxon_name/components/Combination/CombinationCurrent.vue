@@ -6,7 +6,7 @@
         <v-btn
           medium
           color="primary"
-          @click="setCurrent">
+          @click="setCurrent()">
           Set as current
         </v-btn>
       </div>
@@ -55,24 +55,36 @@
 import { useStore } from 'vuex'
 import { computed } from 'vue'
 import { GetterNames } from '../../store/getters/getters.js'
-import { RANK_LIST } from '../../const/rankList.js'
+import { TaxonName } from 'routes/endpoints'
 import Draggable from 'vuedraggable'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
 
+const props = defineProps({
+  combinationRanks: {
+    type: Object,
+    required: true
+  }
+})
 const emit = defineEmits(['onSet'])
 
 const store = useStore()
 const currentTaxonName = computed(() => store.getters[GetterNames.GetTaxon])
+const groupName = computed(() => Object.entries(props.combinationRanks).find(([_, ranks]) => Object.keys(ranks).includes(currentTaxonName.value.rank))[0])
+const ranks = computed(() => [].concat(...Object.values(props.combinationRanks).map(ranks => Object.keys(ranks))))
 const taxonNameList = computed(() => [{
   rank: currentTaxonName.value,
   taxon: store.getters[GetterNames.GetTaxon]
 }])
-const groupName = computed(() => Object.entries(RANK_LIST).find(([_, ranks]) => ranks.includes(currentTaxonName.value.rank))[0])
 
-const setCurrent = () => {
-  emit('onSet', {
-    [currentTaxonName.value.rank]: currentTaxonName.value
+const setCurrent = (taxon = currentTaxonName.value, combination = { [currentTaxonName.value.rank]: currentTaxonName.value }) => {
+  TaxonName.find(taxon.parent_id).then(({ body }) => {
+    if(ranks.value.includes(taxon.rank)) {
+      combination[body.rank] = body
+      setCurrent(body, combination)
+    } else {
+      emit('onSet', combination)
+    }
   })
 }
 

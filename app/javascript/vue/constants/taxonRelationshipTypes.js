@@ -1,0 +1,8 @@
+export const TAXON_RELATIONSHIP_ORIGINAL_GENUS = 'TaxonNameRelationship::OriginalCombination::OriginalGenus'
+export const TAXON_RELATIONSHIP_ORIGINAL_SUBGENUS = 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus'
+export const TAXON_RELATIONSHIP_ORIGINAL_SPECIES = 'TaxonNameRelationship::OriginalCombination::OriginalSpecies'
+export const TAXON_RELATIONSHIP_ORIGINAL_SUBSPECIES = 'TaxonNameRelationship::OriginalCombination::OriginalSubspecies'
+export const TAXON_RELATIONSHIP_ORIGINAL_VARIETY = 'TaxonNameRelationship::OriginalCombination::OriginalVariety'
+export const TAXON_RELATIONSHIP_ORIGINAL_SUBVARIETY = 'TaxonNameRelationship::OriginalCombination::OriginalSubvariety'
+export const TAXON_RELATIONSHIP_ORIGINAL_FORM = 'TaxonNameRelationship::OriginalCombination::OriginalForm'
+export const TAXON_RELATIONSHIP_ORIGINAL_SUBFORM = 'TaxonNameRelationship::OriginalCombination::OriginalSubform'

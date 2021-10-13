@@ -7,14 +7,15 @@
     <template #body>
       <combination-current
         v-if="!isCurrentTaxonInCombination"
+        :combination-ranks="combinationRanks"
         @onSet="combination = $event"
       />
       <combination-rank
-        v-for="(group, groupName) in RANK_LIST"
+        v-for="(group, groupName) in combinationRanks"
         :key="groupName"
         v-model="combination"
         :nomenclature-group="groupName"
-        :rank-group="group"
+        :rank-group="Object.keys(group)"
         :disabled="!isCurrentTaxonInCombination"
         :options="{
           animation: 150,
@@ -66,7 +67,10 @@ import { ref, computed } from 'vue'
 import { useStore } from 'vuex'
 import { GetterNames } from '../../store/getters/getters.js'
 import { ActionNames } from '../../store/actions/actions.js'
-import { RANK_LIST } from '../../const/rankList.js'
+import {
+  combinationType,
+  combinationIcnType
+} from '../../const/originalCombinationTypes'
 import VBtn from 'components/ui/VBtn/index.vue'
 import DisplayList from 'components/displayList.vue'
 import BlockLayout from 'components/layout/BlockLayout.vue'
@@ -79,6 +83,11 @@ const combinationList = computed(() => store.getters[GetterNames.GetCombinations
 const taxonId = computed(() => store.getters[GetterNames.GetTaxon].id)
 const currentCombination = ref({})
 const isCurrentTaxonInCombination = computed(() => !!Object.entries(combination.value).find(([_, taxon]) => taxon?.id === taxonId.value))
+const combinationRanks = computed(() =>
+  store.getters[GetterNames.GetTaxon].nomenclatural_code === 'icn'
+    ? combinationIcnType
+    : combinationType
+)
 
 const saveCombination = () => {
   const combObj = Object.assign({},
@@ -87,7 +96,7 @@ const saveCombination = () => {
     ...makeCombinationParams()
   )
 
-  store.dispatch(ActionNames.CreateCombination, combObj).then(newCombination => {
+  store.dispatch(ActionNames.CreateCombination, combObj).then(_ => {
     combination.value = {}
   })
 }
