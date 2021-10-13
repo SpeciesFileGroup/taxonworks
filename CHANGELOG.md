@@ -9,8 +9,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - Observation matrix show expand was referencing the wrong id  [#2540]
+- Copy pasting into verbatim year with alphanumeric gives error even though numeric are all that are visible in New taxon name [#2577]
 
-[2540]: https://github.com/SpeciesFileGroup/taxonworks/issues/2540
+[#2540]: https://github.com/SpeciesFileGroup/taxonworks/issues/2540
+[#2577]: https://github.com/SpeciesFileGroup/taxonworks/issues/2577
 
 
 \-
