@@ -151,7 +151,6 @@ export default {
     },
 
     cleanInput () {
-      this.$refs.autocomplete.cleanInput()
       this.cleanCitation()
     },
 
@@ -175,10 +174,6 @@ export default {
 
     setPage (value) {
       sessionStorage.setItem('radialObject::source::pages', this.citation.pages)
-    },
-
-    setFocus () {
-      this.$refs.autocomplete.setFocus()
     }
   }
 }
