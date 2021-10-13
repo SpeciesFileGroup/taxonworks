@@ -1008,9 +1008,7 @@ class GeographicItem < ApplicationRecord
   # @return [String]
   #   a WKT POINT representing the centroid of the geographic item
   def st_centroid
-    GeographicItem.where(id: to_param)
-      .pluck(Arel.sql("ST_AsEWKT(ST_Centroid(#{GeographicItem::GEOMETRY_SQL.to_sql}))"))
-      .first.gsub(/SRID=\d*;/, '')
+    GeographicItem.where(id: to_param).pluck(Arel.sql("ST_AsEWKT(ST_Centroid(#{GeographicItem::GEOMETRY_SQL.to_sql}))")).first.gsub(/SRID=\d*;/, '')
   end
 
   # @return [Integer]
@@ -1035,10 +1033,14 @@ class GeographicItem < ApplicationRecord
   # @return [RGeo instance, nil]
   #  the Rgeo shape (See http://rubydoc.info/github/dazuma/rgeo/RGeo/Feature)
   def geo_object
-    if r = geo_object_type # rubocop:disable Lint/AssignmentInCondition
-      send(r)
-    else
-      false
+    begin
+      if r = geo_object_type # rubocop:disable Lint/AssignmentInCondition
+        send(r)
+      else
+        false
+      end
+    rescue RGeo::Error::InvalidGeometry
+      return nil # TODO: we need to render proper error for this!
     end
   end
 
@@ -1127,6 +1129,19 @@ class GeographicItem < ApplicationRecord
       object = Gis::FACTORY.parse_wkt(geom.geometry.to_s)
       write_attribute(this_type.underscore.to_sym, object)
       geom
+    end
+  end
+
+  # @return [String]
+  def to_wkt
+    #  10k  #<Benchmark::Tms:0x00007fb0dfd30fd0 @label="", @real=25.237487000005785, @cstime=0.0, @cutime=0.0, @stime=1.1704609999999995, @utime=5.507929999999988, @total=6.678390999999987>
+    #  GeographicItem.select("ST_AsText( #{GeographicItem::GEOMETRY_SQL.to_sql}) wkt").where(id: id).first.wkt
+
+    # 10k <Benchmark::Tms:0x00007fb0e02f7540 @label="", @real=21.619827999995323, @cstime=0.0, @cutime=0.0, @stime=0.8850890000000007, @utime=3.2958549999999605, @total=4.180943999999961>
+    if a =  ApplicationRecord.connection.execute( "SELECT ST_AsText( #{GeographicItem::GEOMETRY_SQL.to_sql} ) wkt from geographic_items where geographic_items.id = 1").first
+      return a['wkt']
+    else
+      return nil
     end
   end
 

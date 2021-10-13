@@ -23,10 +23,11 @@ module Utilities::Strings
 
   # @param [String] string
   # @return [String, nil]
-  #  strips pre/post fixed space and condenses internal spaces, but returns nil (not empty string) if nothing is left
+  #  strips pre/post fixed space and condenses internal spaces, and also  but returns nil (not empty string) if nothing is left
   def self.nil_squish_strip(string)
     a = string.dup
     if !a.nil?
+      a.delete("\u0000")
       a.squish!
       a = nil if a == ''
     end

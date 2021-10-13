@@ -18,7 +18,7 @@ describe Export::Dwca, type: :model, group: :darwin_core do
     s = CollectionObject.where(project_id: Current.project_id).order(:id).limit(10)
     m = Export::Dwca.index_metadata(CollectionObject, s)
 
-    expect(m[:sample]).to contain_exactly(*(s.collect{|a| a.to_global_id.to_s} - [ s.offset(8).limit(1).first.to_global_id.to_s]) )
+    expect(m[:sample]).to contain_exactly(*s.collect{|a| a.to_global_id.to_s} )
   end
 
   specify 'index_metadata :sample is ordered correctly #2' do

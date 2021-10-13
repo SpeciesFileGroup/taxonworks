@@ -1,89 +1,21 @@
 <template>
   <div class="tag_annotator">
-    <div
-      class="switch-radio separate-bottom"
-      v-if="preferences">
-      <template
-        v-for="(item, index) in tabOptions">
-        <template v-if="item == 'new keyword' || preferences[item].length && preferences[item].find(keyword => !tagAlreadyCreated(keyword))">
-          <input
-            v-model="view"
-            :value="item"
-            :id="`switch-picker-${index}`"
-            name="switch-picker-options"
-            type="radio"
-            class="normal-input button-active"
-          >
-          <label
-            :for="`switch-picker-${index}`"
-            class="capitalize">{{ item }}
-          </label>
-        </template>
-      </template>
+    <div class="horizontal-right-content">
+      <a
+        target="_blank"
+        :href="manageCVTLink()">New keyword</a>
     </div>
-
-    <modal
-      class="transparent-modal"
-      v-if="view == 'all'"
-      @close="view = 'new keyword'">
-      <template #header>
-        <h3>Keywords</h3>
-      </template>
-      <template #body>
-        <div>
-          <template v-for="keyword in preferences[view]">
-            <button
-              v-if="!tagAlreadyCreated(keyword)"
-              @click="createWithId(keyword.id)"
-              type="button"
-              class="button normal-input button-submit margin-small-right margin-small-bottom"> 
-              <span v-html="keyword.object_tag"/>
-            </button>
-          </template>
-        </div>
-      </template>
-    </modal>
-
-    <template v-if="preferences && view != 'new keyword' && view != 'all'">
-      <div class="field separate-bottom">
-        <template v-for="keyword in preferences[view]">
-          <button
-            v-if="!tagAlreadyCreated(keyword)"
-            @click="createWithId(keyword.id)"
-            type="button"
-            class="normal-input button-submit tag_button"> {{ keyword.name }} </button>
-        </template>
-      </div>
-    </template>
-
-    <div
-      class="separate-bottom"
-      v-if="view == 'new keyword'">
-      <autocomplete
-        url="/controlled_vocabulary_terms/autocomplete"
-        label="label"
-        min="2"
-        placeholder="Keyword"
-        :clear-after="true"
-        :add-params="{'type[]' : 'Keyword'}"
-        @getInput="tag.keyword_attributes.name = $event"
-        @getItem="createWithId($event.id)"
-        class="separate-bottom"
-        param="term"/>
-      <textarea
-        class="separate-bottom"
-        placeholder="Definition... (minimum is 20 characters)"
-        v-model="tag.keyword_attributes.definition"/>
-      <div>
-        <button
-          @click="createWithoutId()"
-          :disabled="!validateFields"
-          class="button button-submit normal-input separate-bottom"
-          type="button">Create
-        </button>
-      </div>
-    </div>
-
+    <smart-selector
+      class="margin-medium-bottom"
+      autocomplete-url="/controlled_vocabulary_terms/autocomplete"
+      :autocomplete-params="{'type[]' : 'Keyword'}"
+      get-url="/controlled_vocabulary_terms/"
+      model="keywords"
+      buttons
+      inline
+      klass="Tag"
+      :custom-list="{ all: allList }"
+      @selected="createWithId"/>
     <display-list
       :label="['keyword', 'name']"
       :list="list"
@@ -95,108 +27,47 @@
 
 import CRUD from '../request/crud.js'
 import annotatorExtend from '../components/annotatorExtend.js'
-import autocomplete from 'components/ui/Autocomplete.vue'
-import modal from 'components/ui/Modal.vue'
-import displayList from './displayList.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
+import DisplayList from './displayList.vue'
+import { ControlledVocabularyTerm, Tag } from 'routes/endpoints'
+import { RouteNames } from 'routes/routes'
 
 export default {
   mixins: [CRUD, annotatorExtend],
 
   components: {
-    autocomplete,
-    modal,
-    displayList
+    DisplayList,
+    SmartSelector
   },
 
-  mounted () {
-    this.loadTabList('Keyword')
+  created () {
+    ControlledVocabularyTerm.where({ type: ['Keyword'] }).then(({ body }) => {
+      this.allList = body
+    })
   },
 
-  computed: {
-    validateFields () {
-      return (this.tag.keyword_attributes.name.length > 1 &&
-            this.tag.keyword_attributes.definition.length > 20)
-    }
-  },
   data () {
     return {
-      preferences: undefined,
-      view: 'quick',
-      tabOptions: ['quick', 'recent', 'pinboard', 'all'],
-      tag: {
-        keyword_attributes: {
-          name: '',
-          definition: ''
-        },
-        annotated_global_entity: decodeURIComponent(this.globalId)
-      }
+      allList: []
     }
   },
 
   methods: {
-    createWithId (id) {
+    createWithId ({ id }) {
       const tag = {
-        tag: {
-          keyword_id: id,
-          annotated_global_entity: decodeURIComponent(this.globalId)
-        }
+        keyword_id: id,
+        annotated_global_entity: decodeURIComponent(this.globalId)
       }
-      this.create('/tags', tag).then(response => {
+
+      Tag.create({ tag }).then(response => {
         this.list.push(response.body)
+        TW.workbench.alert.create('Tag was successfully created.', 'notice')
       })
     },
 
-    createWithoutId () {
-      this.create('/tags', { tag: this.tag }).then(response => {
-        this.list.push(response.body)
-      })
-    },
-
-    tagAlreadyCreated (keyword) {
-      return this.list.find(item => keyword.id === item.keyword_id)
-    },
-
-    loadTabList (type) {
-      const promises = []
-      let tabList
-      let allList
-
-      promises.push(this.getList(`/keywords/select_options?klass=${this.objectType}`).then(response => {
-        tabList = response.body
-      }))
-      promises.push(this.getList(`/controlled_vocabulary_terms.json?type[]=${type}`).then(response => {
-        allList = response.body
-      }))
-
-      Promise.all(promises).then(() => {
-        tabList['all'] = allList
-        this.preferences = tabList
-      })
+    manageCVTLink () {
+      return RouteNames.ManageControlledVocabularyTask
     }
   }
 }
 </script>
-<style lang="scss">
-.radial-annotator {
-  .tag_annotator {
-    button {
-      min-width: 100px;
-    }
-
-    textarea {
-      padding-top: 14px;
-      padding-bottom: 14px;
-      width: 100%;
-      height: 100px;
-    }
-
-    .vue-autocomplete-input {
-      width: 100%;
-    }
-
-    .switch-radio label {
-      width: 80px;
-    }
-  }
-}
-</style>

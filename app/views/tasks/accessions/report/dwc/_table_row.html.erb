@@ -1,4 +1,4 @@
-<%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+<%= content_tag(:tr, class: :contextMenuCells) do -%>
   <% CollectionObject::DwcExtensions::DWC_OCCURENCE_MAP.each_key do |k| -%>
     <td> <%= o.catalogNumber -%> </td>
     <td> <%= o.family %></td>

@@ -11,7 +11,7 @@
 
   <tbody>
   <% @observation_matrices.each do |matrix| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= matrix.name %></td>
           <%= fancy_metadata_cells_tag(matrix) -%>
       <% end %>

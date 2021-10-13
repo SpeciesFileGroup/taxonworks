@@ -14,15 +14,15 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
     context 'geographic names' do
       before { collecting_event.save! }
 
-      context '#geographic_name_classification' do
-        specify 'with no data #geographic_name_classification returns nil' do
+      context '#geographic_name_classification_method' do
+        specify 'with no data #geographic_name_classification_method returns nil' do
           expect(collecting_event.geographic_name_classification_method).to eq(nil)
         end
 
         context 'with a georeference set ' do
           before { collecting_event.georeferences << FactoryBot.create(:valid_georeference) }
 
-          specify '#geographic_name_classification returns :preferred_georeference' do
+          specify '#geographic_name_classification_method returns :preferred_georeference' do
             expect(collecting_event.geographic_name_classification_method).to eq(:preferred_georeference)
           end
         end
@@ -33,7 +33,7 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
             collecting_event.update_column(:geographic_area_id, country.id)
           end
 
-          specify '#geographic_name_classification returns :geographic_area_with_shape' do
+          specify '#geographic_name_classification_method returns :geographic_area_with_shape' do
             expect(collecting_event.geographic_name_classification_method).to eq(:geographic_area_with_shape)
           end
         end
@@ -49,8 +49,8 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
 
       context 'caching' do
         context 'with no data' do
-          specify '#cached_geographic_name_classification returns {}' do
-            expect(collecting_event.cached_geographic_name_classification).to eq({})
+          specify '#geographic_names returns {}' do
+            expect(collecting_event.geographic_names).to eq({})
           end
         end
 
@@ -66,58 +66,55 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
           specify 'country, state, county are cached on creation of georeference' do
             # expect(collecting_event.cached_geographic_name_classification).to eq( {:country=>"West Boxia",
             # :state=>"QT", :county=>"M1"} )
-            expect(collecting_event.cached_geographic_name_classification).to eq({country: 'E', state: 'A'})
+            expect(collecting_event.geographic_names).to eq({country: 'E', state: 'A'})
           end
         end
 
-        context 'after #geographic_name_classification has been called, cached values are set' do
+        context 'after record is updated, cached values are set' do
           context 'with a geographic_area (no shape) set to country (level0)' do
             before do
-              collecting_event.update_column(:geographic_area_id, country.id)
-              collecting_event.geographic_name_classification
+              collecting_event.update(geographic_area_id: country.id)
             end
 
-            specify '#cached_geographic_name_classification returns { country: country_name }' do
-              expect(collecting_event.cached_geographic_name_classification).to eq({country: country.name})
+            specify '#geographic_names returns { country: country_name }' do
+              expect(collecting_event.geographic_names).to eq({country: country.name})
             end
           end
 
           context 'with a geographic_area (no shape) set to state (level1)' do
             before do
-              collecting_event.update_column(:geographic_area_id, state.id)
-              collecting_event.geographic_name_classification
+              collecting_event.update(geographic_area_id: state.id)
             end
 
             specify '#cached_geographic_name_classification returns { country: country_name, state: state_name }' do
-              expect(collecting_event.cached_geographic_name_classification).to eq({country: country.name,
-                                                                                    state:   state.name})
+              expect(collecting_event.geographic_names).to eq({country: country.name,
+                                                               state:   state.name})
             end
           end
 
           context 'with a geographic_area (no shape) set to county (level2)' do
             before do
-              collecting_event.update_column(:geographic_area_id, county.id)
-              collecting_event.geographic_name_classification
+              collecting_event.update(geographic_area_id: county.id)
             end
 
-            specify '#cached_geographic_name_classification returns { country: country_name, ' \
-                      'state: state_name, county: county_name }' do
-              expect(collecting_event.cached_geographic_name_classification).to eq({country: country.name,
-                                                                                    state:   state.name,
-                                                                                    county:  county.name})
+            specify '#geographic_names returns { country: country_name, state: state_name, county: county_name }' do
+              expect(collecting_event.geographic_names).to eq(
+                {country: country.name,
+                 state: state.name,
+                 county: county.name})
             end
           end
 
           context 'cached values are updated after geographic_area_id is updated' do
             before do
-              collecting_event.update_column(:geographic_area_id, county.id)
-              collecting_event.geographic_name_classification
-              collecting_event.update_attribute(:geographic_area_id, state.id)
+              collecting_event.update(geographic_area_id: county.id)
+              collecting_event.update(geographic_area_id: state.id)
             end
 
             specify '#cached_geographic_name_classification returns { country: country_name, state: state_name }' do
-              expect(collecting_event.cached_geographic_name_classification).to eq({country: country.name,
-                                                                                    state:   state.name})
+              expect(collecting_event.geographic_names).to eq(
+                {country: country.name,
+                 state: state.name})
             end
           end
 
@@ -127,8 +124,8 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
               collecting_event.update_attribute(:geographic_area_id, county.id)
             end
 
-            specify '#cached_geographic_name_classification returns {  }' do
-              expect(collecting_event.cached_geographic_name_classification).to eq({})
+            specify '#geographic_names returns {  }' do
+              expect(collecting_event.geographic_names).to eq({})
             end
           end
         end
@@ -397,12 +394,12 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
     end
   end
 
-  context 'creating a collecting event with no resolvable geographic_name_classification' do
+  context 'creating a collecting event with no resolvable geographic_names' do
     let(:earth) { FactoryBot.create(:earth_geographic_area) }
 
-    specify 'suceeds without entering a nasty loop' do
+    specify 'succeeds without entering a nasty loop' do
       CollectingEvent.create!(geographic_area: earth)
-      expect(CollectingEvent.last.geographic_name_classification).to eq({})
+      expect(CollectingEvent.last.geographic_names).to eq({})
     end
   end
 

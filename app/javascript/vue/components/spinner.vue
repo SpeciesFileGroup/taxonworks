@@ -78,7 +78,10 @@
         </svg>
         <div
           :style="legendStyle">
-          <span v-if="showLegend">{{ legend }}</span>
+          <span
+            v-if="showLegend"
+            v-html="legend"
+          />
           <slot/>
         </div>
       </div>

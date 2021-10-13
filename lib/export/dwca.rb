@@ -1,5 +1,9 @@
 require 'dwc_archive'
 
+# Library to create DwcA archives from TaxonWorks data.
+#
+# !! If changes are made to this or related Dwc files you should update the INDEX_VERSION constant.
+#
 module Export
   module Dwca
 
@@ -8,7 +12,7 @@ module Export
     # or most of the index should be regenerated.
     # To add a version use `Time.now` via IRB
     INDEX_VERSION = [
-      '2021-08-29 21:16:02.903688 -0500' # First major refactor
+      '2021-10-12 17:00:00.000000 -0500' # First major refactor
     ]
 
     # @param record_scope [ActiveRecord::Relation]
@@ -63,8 +67,8 @@ module Export
       }
 
       if b && (t > 2)
-        max = 8
-        max = t if t < 8
+        max = 9
+        max = t if t < 9
 
         ids = klass
           .select('*')

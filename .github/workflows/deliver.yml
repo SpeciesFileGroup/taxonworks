@@ -3,7 +3,16 @@ name: deliver
 on:
   push:
     branches:
-      - dwc_fields
+      - development
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-*'
+  pull_request:
+    branches:
+      - development
+  schedule:
+    - cron: '0 0 * * *'
+
 jobs:
   deliver:
     if: |
@@ -88,10 +97,18 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+    - name: Get tag for docker image
+      id: docker_tag
+      uses: actions/github-script@v3
+      with:
+        result-encoding: string
+        script: |
+          return context.ref.startsWith('refs/tags/v') ? context.ref.replace('refs/tags/v', '') : 'latest'
+
     - name: Push image to DockerHub
       if: ${{ github.event_name != 'pull_request' }}
       env:
-        DOCKER_TAG: 'dwc-fields'
+        DOCKER_TAG: '${{steps.docker_tag.outputs.result}}'
       run: |
         docker tag sfgrp/taxonworks:latest sfgrp/taxonworks:$DOCKER_TAG
         docker push sfgrp/taxonworks:$DOCKER_TAG

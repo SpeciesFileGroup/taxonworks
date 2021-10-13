@@ -475,17 +475,11 @@ class Person < ApplicationRecord
   # @params Role [String] one the available roles
   # @return [Hash] geographic_areas optimized for user selection
   def self.select_optimized(user_id, project_id, role_type = 'SourceAuthor')
-#    role_params = { updated_by_id: user_id }
-
-#    unless %w{SourceAuthor SourceEditor SourceSource}.include?(role_type)
-#      role_params[:project_id] = project_id
-#    end
-
     r = used_recently(user_id, role_type)
     h = {
-        quick: [],
-        pinboard: Person.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a,
-        recent: []
+      quick: [],
+      pinboard: Person.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a,
+      recent: []
     }
 
     if r.empty?
@@ -497,12 +491,6 @@ class Person < ApplicationRecord
         Person.where('"people"."id" IN (?)', r.first(4) ).to_a
       ).uniq
     end
-    #    h[:recent] =
-    #    (Person.joins(:roles).where(roles: role_params).used_recently(role_type).distinct.limit(10).to_a +
-    #     Person.where(created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('created_at DESC').limit(6).to_a).uniq
-
-#    h[:quick] = (Person.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a +
-#        h[:recent][0..3]).uniq
     h
   end
 

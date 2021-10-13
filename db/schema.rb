@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_09_12_175201) do
+ActiveRecord::Schema.define(version: 2021_10_12_163600) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -834,6 +834,7 @@ ActiveRecord::Schema.define(version: 2021_09_12_175201) do
     t.datetime "updated_at"
     t.string "identifiedByID"
     t.string "recordedByID"
+    t.index ["dwc_occurrence_object_id", "dwc_occurrence_object_type"], name: "dwc_occurrences_object_index"
     t.index ["project_id"], name: "index_dwc_occurrences_on_project_id"
   end
 
@@ -921,6 +922,7 @@ ActiveRecord::Schema.define(version: 2021_09_12_175201) do
     t.string "date_valid_to"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["data_origin"], name: "index_geographic_areas_geographic_items_on_data_origin"
     t.index ["geographic_area_id"], name: "index_geographic_areas_geographic_items_on_geographic_area_id"
     t.index ["geographic_item_id"], name: "index_geographic_areas_geographic_items_on_geographic_item_id"
   end

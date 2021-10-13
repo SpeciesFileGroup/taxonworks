@@ -1,8 +1,8 @@
 module TaxonDeterminationsHelper
 
   # @return [String, nil]
-  #    a descriptor, contains name only (if you want to include the identifier use collection_object_tag) 
-  def taxon_determination_tag(taxon_determination) 
+  #    a descriptor, contains name only (if you want to include the identifier use collection_object_tag)
+  def taxon_determination_tag(taxon_determination)
     return nil if taxon_determination.nil?
     ['det.', determination_tag(taxon_determination) ].join(' ').html_safe
   end
@@ -17,7 +17,7 @@ module TaxonDeterminationsHelper
     ].compact.join(' ').html_safe
   end
 
-  def label_for_taxon_determination(taxon_determination) 
+  def label_for_taxon_determination(taxon_determination)
     [ label_for_otu(taxon_determination.otu),
       taxon_determination_by(taxon_determination),
       taxon_determination_on(taxon_determination)

@@ -8,30 +8,13 @@ class Georeference::GeoLocate < Georeference
   EMBED_PATH     = '/web/webgeoreflight.aspx?'.freeze
   EMBED_HOST     = 'www.geo-locate.org'.freeze
 
-  # TODO: check
-  # @return [Hash]
-  #   The interface to DwC for verbatim values only on the CE.
-  #   See respective georeferences for other implementations.
-  #
   def dwc_georeference_attributes
-    h = {
-      coordinateUncertaintyInMeters: nil, # See related #1770
-
-      footprintWKT: geographic_item.geo_object.to_s,
-
+    h = {}
+    super(h)
+    h.merge!(
       georeferenceSources: "GEOLocate ",
-      georeferenceRemarks: "Typically references one or more values copy-pasted from collecting event into GEOLocate forms.",
-      georeferenceProtocol: 'Generate via a query through the GEOLocate web interface',
-      georeferenceVerificationStatus: confidences&.collect{|c| c.name}.join('; '),
-      georeferencedBy: creator.name,
-      georeferencedDate: created_at
-    }
-
-    if geographic_item.type == 'GeographicItem::Point'
-      h[:decimalLatitude] = geographic_item.to_a.first
-      h[:decimalLongitude] = geographic_item.to_a.last
-    end
-
+      georeferenceRemarks: "Typically created by copy-pasting one or more values from a collecting event into a GEOLocate form.",
+      georeferenceProtocol: 'Generated via a query through the GEOLocate web interface')
     h
   end
 

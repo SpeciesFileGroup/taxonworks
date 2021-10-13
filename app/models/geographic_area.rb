@@ -237,10 +237,40 @@ class GeographicArea < ApplicationRecord
     return {country: name} if GeographicAreaType::COUNTRY_LEVEL_TYPES.include?(n) || (id == level0_id)
     return {state: name} if GeographicAreaType::STATE_LEVEL_TYPES.include?(n) || (data_origin == 'ne_states') || (id == level1_id) || (!parent.nil? && (parent.try(:id) == parent.try(:level0_id)))
     return {county: name} if GeographicAreaType::COUNTY_LEVEL_TYPES.include?(n)
+
+    if data_origin =~ /tdwg/
+      if o = categorize_tdwg
+        return o
+      end
+    end
     {}
   end
 
-  # @return [Hash]
+  # Hack.  If TDWG Gazetteer data are eliminated this needs to be removed.
+  def categorize_tdwg
+    if g = GeographicArea
+      .where(name: name) # shares the same name
+      .where('level0_id = parent_id') # parent is a country
+      .where.not(geographic_area_type: [111,112]).any? # not another TDWG record
+    return {state: name}
+    end
+
+    # TODO: more manual checks can be added here intermediate areas like "Western Canada"
+    # Many other countries are a mess here.
+    return {country: 'United States'} if name =~ /U\.S\.A/
+    return {country: 'Canada'} if name =~ /Canada/
+    return {country: 'Chile'} if name =~ /Chile.Central/
+
+    if g = GeographicArea
+      .where(name: name) # shares the same name
+      .where('level0_id = id') # self is a country
+      .where.not(geographic_area_type: [111,112]).any? # not another TDWG record
+    return {country: name}
+    end
+    {}
+  end
+
+    # @return [Hash]
   #   use the parent/child relationships of the this GeographicArea to return a country/state/county categorization
   def geographic_name_classification
     v = {}
@@ -304,7 +334,7 @@ class GeographicArea < ApplicationRecord
 
   # @return [GeographicItem, nil]
   #   a "preferred" geographic item for this geographic area, where preference
-  #   is based on an ordering of source gazeteers, the order being
+  #     is based on an ordering of source gazeteers, the order being
   #   1) Natural Earth Countries
   #   2) Natural Earth States
   #   3) GADM
@@ -316,7 +346,7 @@ class GeographicArea < ApplicationRecord
 
   # @return [GeographicAreasGeographicItem, nil]
   def default_geographic_area_geographic_item
-    geographic_areas_geographic_items.merge(::GeographicAreasGeographicItem.default_geographic_item_data).first
+    GeographicAreasGeographicItem.where(geographic_area_id: id).default_geographic_item_data.first
   end
 
   # rubocop:disable Style/StringHashKeys
@@ -335,11 +365,11 @@ class GeographicArea < ApplicationRecord
   # TODO: parametrize to include gazeteer
   #   i.e. geographic_areas_geogrpahic_items.where( gaz = 'some string')
   def to_simple_json_feature
-    result             = {
-      'type'       => 'Feature',
+    result = {
+      'type' => 'Feature',
       'properties' => {}
     }
-    area               = geographic_items.order(:id)
+    area = geographic_items.order(:id)
     result['geometry'] = area.first.to_geo_json unless area.empty?
     result
   end

@@ -13,7 +13,7 @@
 
   <tbody>
   <% @observation_matrix_rows.each do |matrix_row| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= observation_matrix_tag(matrix_row.observation_matrix) %></td>
           <td><%= otu_tag(matrix_row.otu) -%></td>
           <td><%= collection_object_tag(matrix_row.collection_object) -%></td>

@@ -182,15 +182,16 @@ export default {
         label: (annotator.charAt(0).toUpperCase() + annotator.slice(1)).replace('_', ' '),
         innerPosition: 1.7,
         svgAttributes: {
-          fill: this.currentAnnotator === annotator ? '#8F8F8F' : undefined
+          class: this.currentAnnotator === annotator
+            ? 'slice active'
+            : 'slice'
         },
         slices: total
           ? [{
               label: total.toString(),
               size: 26,
               svgAttributes: {
-                fill: '#006ebf',
-                color: '#FFFFFF'
+                class: 'slice-total'
               }
             }]
           : [],
@@ -210,13 +211,12 @@ export default {
         centerSize: 34,
         margin: 2,
         middleButton: this.middleButton,
-        css: {
-          class: 'svg-radial-annotator'
-        },
         svgAttributes: {
+          class: 'svg-radial-menu'
+        },
+        svgSliceAttributes: {
           fontSize: 11,
-          fill: '#FFFFFF',
-          textAnchor: 'middle'
+          class: 'slice'
         },
         slices: slices
       }

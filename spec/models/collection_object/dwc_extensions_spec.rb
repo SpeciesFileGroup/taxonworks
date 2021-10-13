@@ -11,6 +11,29 @@ describe CollectionObject::DwcExtensions, type: :model, group: :collection_objec
 
     # Rough tests to detect infinite recursion
 
+    specify '#dwc_event_date 1' do
+      expect(s.dwc_event_date).to eq('2010')
+    end
+
+    specify '#dwc_event_date 2' do
+      ce.update!(
+        start_date_month: 1,
+        start_date_day: 2
+      )
+      expect(s.dwc_event_date).to eq('2010-01-02')
+    end
+
+    specify '#dwc_event_date 2' do
+      ce.update!(
+        start_date_month: 1,
+        start_date_day: 2,
+        end_date_year: 2011,
+        end_date_month: 1,
+        end_date_day: 1
+      )
+      expect(s.dwc_event_date).to eq('2010-01-02/2011-01-01')
+    end
+
     specify 'exists after create' do
       expect(s.dwc_occurrence).to be_truthy
     end
@@ -227,20 +250,21 @@ describe CollectionObject::DwcExtensions, type: :model, group: :collection_objec
       expect(s.dwc_previous_identifications).to eq('[GENUS NOT SPECIFIED] aus on 2020')
     end
 
-    specify '#recorded_by' do
+    specify '#dwc_recorded_by' do
       p1 = Protonym.create!(
         name: 'aus',
         rank_class: Ranks.lookup(:iczn, :species),
         parent: root
       )
 
-      ce.update!(collectors_attributes: [{last_name: 'James', first_name: 'James'}])
+      ce.update!(collectors_attributes: [{last_name: 'Doe', first_name: 'John'}])
       TaxonDetermination.create!(biological_collection_object: s, otu: Otu.create!(taxon_name: p1), determiner_roles_attributes: [{person: p}] )
 
       s.reload
 
-      expect(s.dwc_recorded_by).to eq('Smith, Sue | James, James')
+      expect(s.dwc_recorded_by).to eq('Doe, John')
     end
+
 
     specify '#dwc_other_catalog_numbers' do
       a = Identifier::Local::CatalogNumber.create!(identifier: '123', identifier_object: s, namespace: FactoryBot.create(:valid_namespace) )

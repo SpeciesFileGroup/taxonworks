@@ -27,6 +27,16 @@ namespace :tw do
         f.close
       end
 
+      desc 'reindex cached fields'
+      task reindex_cached_values: [:environment] do |t|
+        puts "Reindexing sources:"
+        sr = Source.pluck(:id)
+        sr.each_with_index  do |s, i|
+          print "\r#{i}"
+          Source.find(s).send(:set_cached)
+        end
+      end
+
     end
   end
 end

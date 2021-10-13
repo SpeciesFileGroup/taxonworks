@@ -1,19 +1,44 @@
 module DwcOccurrencesHelper
 
+  def dwc_occurrence_health_tag(dwc_occurrence)
+    a = [ ]
+    if dwc_occurrence.nil?
+      a.push tag.span('Darwin Core Occurrence not built', class: [:feedback, 'feedback-thin', 'feedback-danger'])
+    else
+      a.push tag.span('Referenced data are younger than this record', class: [:feedback, 'feedback-thin', 'feedback-warning']) if dwc_occurrence.is_stale?
+      a.push tag.span('A new version of the DwC builder is available', class: [:feedback, 'feedback-thin', 'feedback-warning']) if Time.new(::Export::Dwca::INDEX_VERSION.last) > dwc_occurrence.updated_at
+    end
+    a.push tag.span('Up-to-date', class: [:feedback, 'feedback-info']) if a.empty?
+    a.join().html_safe
+  end
+
+  def dwc_column(dwc_occurrence)
+    return nil if dwc_occurrence.nil?
+
+    r = []
+    CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.each do |k|
+      next if k == :footprintWKT
+      if v = dwc_occurrence.send(k)
+        r.push tag.tr( (tag.td(k) + tag.td(v)).html_safe )
+      end
+    end
+    tag.table(r.join.html_safe)
+  end
+
   def dwc_occurrences_metadata(dwc_occurrences = nil, project_id: nil)
     records = dwc_occurrences
     project_id ||= sessions_current_project_id
 
     # Anticipate multiple sources of records in future (e.g. AssertedDistribution)
     records ||= DwcOccurrence.where(project_id: project_id).where(dwc_occurrence_object_type: 'CollectionObject').all
-
     data = CollectionObject.where(project_id: project_id)
 
-    # without occurrences!
-    #
-
     a = {
-     collection_objects: {
+      health: {
+        'Kingdom rank present': TaxonName.where(project_id: project_id).with_rank_class_including('Kingdom').any?
+      },
+
+      collection_objects: {
         record_total: data.count,
         enumerated_total: data.sum(:total),
         freshness: {

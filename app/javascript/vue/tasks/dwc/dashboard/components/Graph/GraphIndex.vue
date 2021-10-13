@@ -23,6 +23,8 @@ const DATASET_LABELS = [
   { label: 'One year', property: 'one_year', backgroundColor: randomHue(4) }
 ]
 
+const FILTER_METATADA = ['health']
+
 const useState = inject('state')
 
 const chartState = reactive({
@@ -43,9 +45,18 @@ const chartState = reactive({
   }
 })
 
+const filterMetadata = (metadata) => {
+  const newObj = { ...metadata }
+
+  FILTER_METATADA.forEach(key => delete newObj[key])
+
+  return newObj
+}
+
 watch(() => useState.metadata, metadata => {
-  const objects = Object.values(metadata).reverse()
-  const labels = Object.keys(metadata).map(label => humanize(label))
+  const data = filterMetadata(metadata)
+  const objects = Object.values(data).reverse()
+  const labels = Object.keys(data).map(label => humanize(label))
   const datasets = DATASET_LABELS.map(({ label, property, backgroundColor }) => ({
     label,
     data: objects.map((obj, index) => obj.freshness[property] || 0),

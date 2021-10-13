@@ -1,9 +1,7 @@
 # Nested ness of this should get all the relationships?
 require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
-#
-# Force the loading of TaxonNameRelationships in all worlds.  This allows us to edit without restarting in development.
-# Dir[Rails.root.to_s + '/app/models/taxon_name_relationship/**/*.rb'].sort.each {|file| require_dependency file }
-#
+
+
 # A *monomial* TaxonName, a record implies a first usage. This follows Pyle's concept almost exactly.
 #
 # We inject a lot of relationship helper methods here, in this format.
@@ -696,7 +694,7 @@ class Protonym < TaxonName
     # get gender from first
     gender = original_genus&.gender_name # r.first.subject_taxon_name.gender_name
 
-    # apply gender to everything but the last
+    # Apply gender to everything but the last
     total = r.count - 1
     r.each_with_index do |j, i|
       if j.type =~ /enus/ || i == total
@@ -704,27 +702,27 @@ class Protonym < TaxonName
       else
         g = gender
       end
-      elements.merge! j.combination_name(g)
+      elements.merge! j.combination_name(g) # this is like '{genus: [nil, 'Aus']}
     end
 
     # what is point of this? Do we get around this check by requiring self relationships? (species aus has species relationship to self)
     # DD: we do not require it, it is optional
     if !r.empty? && r.collect{|i| i.subject_taxon_name}.last.lowest_rank_coordinated_taxon.id != lowest_rank_coordinated_taxon.id
       if elements[this_rank].nil?
-        elements[this_rank] = [original_name]
+        elements[this_rank] = [nil, original_name]
       end
     end
 
     if elements.any?
       if !elements[:genus] && !not_binomial?
         if original_genus
-          elements[:genus] = "[#{original_genus&.name}]"
+          elements[:genus] = [nil, "[#{original_genus&.name}]"]
         else
-          elements[:genus] = '[GENUS NOT SPECIFIED]'
+          elements[:genus] = [nil, '[GENUS NOT SPECIFIED]']
         end
       end
       # If there is no :species, but some species group, add element
-      elements[:species] = '[SPECIES NOT SPECIFIED]' if !elements[:species] && ( [:subspecies, :variety, :form] & elements.keys ).size > 0
+      elements[:species] = [nil, '[SPECIES NOT SPECIFIED]'] if !elements[:species] && ( [:subspecies, :variety, :form] & elements.keys ).size > 0
     end
 
     elements

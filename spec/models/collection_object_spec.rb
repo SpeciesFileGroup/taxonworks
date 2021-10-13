@@ -266,8 +266,9 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
         describe 'spanning a single year' do
           specify 'should find 2 records' do
             [co_m1, co_m1a]
-            collection_objects = CollectionObject.in_date_range(search_start_date: '1971-01-01',
-                                                                search_end_date:   '1971-12-31')
+            collection_objects = CollectionObject.in_date_range(
+              search_start_date: '1971-01-01',
+              search_end_date:   '1971-12-31')
             expect(collection_objects.map(&:collecting_event)).to contain_exactly(ce_m1, ce_m1a)
           end
         end

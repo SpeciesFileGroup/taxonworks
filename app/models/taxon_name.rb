@@ -1,7 +1,7 @@
 require_dependency Rails.root.to_s + '/app/models/taxon_name_classification.rb'
 require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 
-# A taxon name (nomenclature only). See also NOMEN.
+# A taxon name (nomenclature only). See also NOMEN (https://github.com/SpeciesFileGroup/nomen).
 #
 # @!attribute name
 #   @return [String, nil]
@@ -113,7 +113,7 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 # @!attribute cached_misspelling
 #   @return [Boolean]
 #   if the name is a misspelling, stores True.
-
+# 
 # @!attribute cached_classified_as
 #   @return [String]
 #   if the name was classified in different group (e.g. a genus placed in wrong family).
@@ -800,6 +800,11 @@ class TaxonName < ApplicationRecord
     cached_is_valid
   end
 
+  # Has Classification, but no relationship describing why
+  def is_ambiguously_invalid?
+    !is_valid? && (id == cached_valid_taxon_name_id)
+  end
+
   # @return [Boolean]
   #   whether this name needs italics applied
   def is_italicized?
@@ -992,11 +997,11 @@ class TaxonName < ApplicationRecord
     set_cached_author_year
   end
 
-  def set_cached_is_valid
+  def set_cached_valid_taxon_name_id
     update_column(:cached_valid_taxon_name_id, get_valid_taxon_name.id)
   end
 
-  def set_cached_valid_taxon_name_id
+  def set_cached_is_valid
     v = is_combination? ? false : !unavailable_or_invalid?
     update_column(:cached_is_valid, v)
   end

@@ -51,7 +51,8 @@ const vueAnnotator = {
     list: {
       handler () {
         this.updateCount()
-      }
+      },
+      deep: true
     }
   },
 
