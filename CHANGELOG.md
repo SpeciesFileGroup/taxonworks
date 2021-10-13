@@ -7,6 +7,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Fixed
+- Observation matrix show expand was referencing the wrong id  [#2540]
+
+[2540]: https://github.com/SpeciesFileGroup/taxonworks/issues/2540
+
+
 \-
 
 ## [0.20.0] - 2021-10-12
