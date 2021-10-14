@@ -55,7 +55,7 @@ watch(() => useState.metadata, metadata => {
   const data = filterMetadata(metadata)
   const datasetLabels = fillDatasetLabels(data.index.freshness)
   const objects = Object.values(data).reverse()
-  const labels = Object.keys(data).map(label => humanize(label))
+  const labels = Object.keys(data).reverse().map(label => humanize(label))
   const datasets = datasetLabels.map(({ label, property, backgroundColor }) => ({
     label,
     data: objects.map((obj, index) => obj.freshness[property] || 0),
