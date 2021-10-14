@@ -40,7 +40,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     class MatchExisting
       def self.execute(origins, parent, name)
-        Protonym.find_by(name.merge({ parent: parent })).tap do |protonym|
+        Protonym.find_by(name.slice(:rank_class, :name).merge({ parent: parent })).tap do |protonym|
           if protonym.nil?
             raise DatasetRecord::DarwinCore::InvalidData.new({
               origins[name.object_id] =>
