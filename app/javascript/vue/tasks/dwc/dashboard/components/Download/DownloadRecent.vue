@@ -10,8 +10,8 @@
             {{ humanize(header) }}
           </th>
           <th>Is public</th>
-          <th></th>
-          <th></th>
+          <th />
+          <th />
         </tr>
       </thead>
       <tbody>
@@ -61,7 +61,12 @@ import { humanize } from 'helpers/strings'
 import VBtn from 'components/ui/VBtn/index.vue'
 import RadialNavigation from 'components/radials/navigation/radial.vue'
 
-const CALL_DELAY = 15000
+const DEFAULT_WAIT_TIME = 60000
+const TIME_BY_RECORDS = {
+  1000: 5000,
+  10000: 15000,
+  100000: 30000
+}
 const PROPERTIES = [
   'created_at',
   'expires',
@@ -69,32 +74,39 @@ const PROPERTIES = [
   'times_downloaded'
 ]
 
-const emit = defineEmits(['onUpdate'])
 const useState = inject('state')
 const useAction = inject('actions')
+const timeoutDownloadIds = []
 
-let timeout
+const refreshDownloadList = list => {
+  const notReadyList = list.filter(item => !item.ready && !timeoutDownloadIds.includes(item.id))
 
-const refreshDownloadList = () => {
-  const requestDownloadProcessing = useState.downloadList
-    .filter(item => !item.ready)
-    .map(item => Download.find(item.id))
+  notReadyList.forEach(record => {
+    const timeRequest = getTimeByTotal(record.total_records)
 
-  Promise.all(requestDownloadProcessing).then(responses => {
-    const downloadRecords = responses.map(({ body }) => body)
-    const downloadReady = downloadRecords.filter(item => item.ready)
+    timeoutDownloadIds.push(record.id)
+    refreshDownloadRecord(record, timeRequest)
+  })
+}
 
-    downloadReady.forEach(record => {
-      if (record.ready) {
-        const index = useState.downloadList.findIndex(item => item.id === record.id)
-        useAction.setDownloadRecord({ index, record })
-      }
-    })
+const refreshDownloadRecord = async (record, timeRequest) => {
+  Download.find(record.id).then(({ body }) => {
+    if (body.ready) {
+      const index = useState.downloadList.findIndex(item => item.id === record.id)
+      const timeoutIndex = timeoutDownloadIds.findIndex(id => id === record.id)
 
-    if (downloadRecords.length !== downloadReady.length) {
-      timeout = setTimeout(() => refreshDownloadList(), CALL_DELAY)
+      useAction.setDownloadRecord({ index, record: body })
+      timeoutDownloadIds.splice(timeoutIndex, 1)
+    } else {
+      setTimeout(() => refreshDownloadRecord(record, timeRequest), timeRequest)
     }
   })
+}
+
+const getTimeByTotal = recordTotal => {
+  const maxRecord = Object.keys(TIME_BY_RECORDS).find(recordCount => recordTotal < recordCount)
+
+  return TIME_BY_RECORDS[maxRecord] || DEFAULT_WAIT_TIME
 }
 
 const setIsPublic = ({ id, is_public }, index) => {
@@ -111,18 +123,17 @@ const setIsPublic = ({ id, is_public }, index) => {
   })
 }
 
-const downloadFile = (url) => { window.open(url) }
+const downloadFile = url => { window.open(url) }
 
-const sortByDate = (list) => list.sort((a, b) => {
+const sortByDate = list => list.sort((a, b) => {
   const dateA = new Date(a.created_at).getTime()
   const dateB = new Date(b.created_at).getTime()
 
   return dateB - dateA
 })
 
-watch(() => useState.downloadList, () => {
-  clearTimeout(timeout)
-  refreshDownloadList()
+watch(() => useState.downloadList, list => {
+  refreshDownloadList(list)
 }, { deep: true })
 
 onBeforeMount(async () => {
