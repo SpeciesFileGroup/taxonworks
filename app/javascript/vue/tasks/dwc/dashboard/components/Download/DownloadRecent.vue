@@ -61,7 +61,7 @@ import { humanize } from 'helpers/strings'
 import VBtn from 'components/ui/VBtn/index.vue'
 import RadialNavigation from 'components/radials/navigation/radial.vue'
 
-const CALL_DELAY = 5000
+const CALL_DELAY = 15000
 const PROPERTIES = [
   'created_at',
   'expires',
