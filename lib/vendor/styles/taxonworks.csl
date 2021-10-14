@@ -1290,7 +1290,7 @@
           <group>
             <!-- Replace with label variable="number-of-volumes" if that becomes available -->
             <text term="volume" form="short" text-case="capitalize-first" suffix=" "/>
-            <text term="page-range-delimiter" prefix="1"/>
+            <text term="page-range-delimiter" prefix=""/>
             <number variable="number-of-volumes" form="numeric"/>
           </group>
         </else>

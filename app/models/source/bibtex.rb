@@ -899,14 +899,6 @@ class Source::Bibtex < Source
   def get_cached
     if errors.empty?
       c = cached_string('html') # preserves our convention of <i>
-
-      if bibtex_type == 'book' && !pages.blank?
-        if pages.to_i.to_s == pages
-          c = c + " #{pages} pp."
-        else
-          c = c + " #{pages}"
-        end
-      end
       return c
     end
     nil
