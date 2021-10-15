@@ -39,7 +39,7 @@ namespace :tw do
       #  end
 
       desc 'Index collection objects into dwc_occurrence records, no updating, only creation'
-      task build_dwc_occurrences: [:environment] do |t|
+      task build: [:environment] do |t|
         if ENV['total']
           total = ENV['total'].to_i
         else
@@ -49,7 +49,6 @@ namespace :tw do
         records = CollectionObject.includes(:dwc_occurrence).where(dwc_occurrences: {id: nil}).limit(total)
         puts Rainbow("Processing maximum #{total} collection objects into dwc_occurence records.").yellow
         i = 0
-
 
         records.order(:id).limit(total).find_each do |o|
           begin
@@ -66,7 +65,7 @@ namespace :tw do
       end
 
       desc 'Re-Index collection objects into dwc_occurrence records'
-      task rebuild_dwc_occurrences: [:environment, :project_id] do |t|
+      task rebuild: [:environment, :project_id] do |t|
         if ENV['total']
           total = ENV['total'].to_i
         else
@@ -92,8 +91,6 @@ namespace :tw do
 
         puts Rainbow("Processed #{i} records.").yellow
       end
-
-
 
     end
   end

@@ -1,7 +1,10 @@
 export const numberOnly = {
-  mounted: el => {
+  mounted: (el, binding, vnode) => {
     el.handler = () => {
-      el.value = el.value.replace(/[^\d]/g, '')
+      if (/[^\d]/g.test(el.value)) {
+        el.value = el.value.replace(/[^\d]/g, '')
+        vnode.el.dispatchEvent(new CustomEvent('input'))
+      }
     }
     el.addEventListener('input', el.handler)
   },

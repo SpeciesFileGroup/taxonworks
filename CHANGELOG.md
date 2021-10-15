@@ -9,6 +9,39 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.20.1] - 2021-10-15
+
+### Added
+- Added Attribution attributes to `/images` API show responses
+- API `/images` can return images by `image_file_fingerprint` (MD5), in addition to id
+
+### Changed
+- Removed footprintWKT from DwcOccurrence.  It will be re-instated as optional in the future.
+- Removed GeographicArea from consideration as a _georeference_ in DwcOccurrence
+- Changed `associatedMedia` format, pointed it to
+- Removed redundant 'Rebuild' button from Browse collection objects
+
+### Fixed
+- DwC Dashboard past links are properly scoped
+- DwC Dashboard graphs show proper count ranges
+- DwC archive no longer truncated at 10k records
+- OccurrenceID was not being added to DwcOccurrence attributes in all cases [#2573]
+- Observation matrix show expand was referencing the wrong id  [#2540]
+- Copy pasting into verbatim year with alphanumeric gives error even though numeric are all that are visible in New taxon name [#2577]
+- Record doesn't sync/update the list in OTU quick forms [#2576]
+- TIFF images are not visible in filter image task [#2575]
+- Repository input shows value, when not set [#2574]
+- Images don't load after expand depictions sections in comprehensive task
+- DwC occurrences importer being too strict when checking against existing nomenclature [#2581]
+
+[#2573]: https://github.com/SpeciesFileGroup/taxonworks/issues/2573
+[#2540]: https://github.com/SpeciesFileGroup/taxonworks/issues/2540
+[#2574]: https://github.com/SpeciesFileGroup/taxonworks/issues/2574
+[#2575]: https://github.com/SpeciesFileGroup/taxonworks/issues/2575
+[#2576]: https://github.com/SpeciesFileGroup/taxonworks/issues/2576
+[#2577]: https://github.com/SpeciesFileGroup/taxonworks/issues/2577
+[#2581]: https://github.com/SpeciesFileGroup/taxonworks/issues/2581
+
 ## [0.20.0] - 2021-10-12
 
 ### Added
@@ -25,7 +58,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - BibTeX fields support verbatim values using "{}" for fields otherwise processed in BibTeX sources (e.g. author)
 - New specs for rendering Source citations
 - `&extend[]` and `&embed[]` helper methods for REST responses [#2532]
-- A new soft validation option to auto fix for objective synonym that must share the same type 
+- A new soft validation option to auto fix for objective synonym that must share the same type
 - Add `Download`, `Full size` and `Radial navigation` buttons in Image viewer [#2423]
 - Endpoint `/tasks/dwc/dashboard/index_versions` returns the dates at which DwcOccurrence indexing was modified. !! TODO: update date of merge.
 - Endpoint `/dwc_occurrences/metadata`, for stats on the state of DwcOccurrence index
@@ -50,12 +83,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New subclass of UUID `Identifier::Global::Uuid::TaxonworksDwcOccurrence`
 - Clarified, via`georeferenceSources` and `georeferenceProtocol` why there are many decimal points in DwC latitude/longitude referencing fields [#915] [#1175]
 - Option to rebuild single DwcOccurrence record for CollectionObject [#2563]
-- Ability to show observation matrices > 10k cells in size [#1790] 
+- Ability to show observation matrices > 10k cells in size [#1790]
 - Rake task to rebuild source cached
 - Add download and radial buttons for image viewer in filter image
 
 ### Fixed
-- Downloading formatted sources with mixed types (BibTeX/Verbatim) failed [#2512] 
+- Downloading formatted sources with mixed types (BibTeX/Verbatim) failed [#2512]
 - Collection object filter type material param
 - Taxon name filter type metadata param fails [#2511]
 - Cloning a collecting event fails [#2533]
@@ -88,7 +121,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Tweak geo coordinate matching on verbatim labels
 - Year suffix, stated year, language, translated title and notes added to bibliography rendering via `to_citeproc`
 - Removed `label_html` from `/people` responses
-- `/people` JSON param from `&include_roles=true` to `&extend[]=roles` 
+- `/people` JSON param from `&include_roles=true` to `&extend[]=roles`
 - Prefer project sources in source autocomplete
 - Status name 'not for nomenclature' changed to 'not in published work'
 - Year letter is no longer appended to year in BibTeX exports
@@ -161,7 +194,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Smart selectors in asserted distribution and biological association quick forms.
 
 ### Changed
-- Cleaned up taxon name navigator appearance 
+- Cleaned up taxon name navigator appearance
 - Destroying a loanable object destroys corresponding LoanItems automatically [#2319]
 - NeXML image URLs use shortened URLs
 - Reorder date fields in comprehensive, extract and new collecting event tasks [#2450]
@@ -1822,7 +1855,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.20.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.20.1...development
+[0.20.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.20.0...v0.20.1
 [0.20.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.7...v0.20.0
 [0.19.7]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.6...v0.19.7
 [0.19.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.5...v0.19.6

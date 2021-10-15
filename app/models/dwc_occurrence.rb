@@ -132,20 +132,24 @@ class DwcOccurrence < ApplicationRecord
   end
 
   def uuid_identifier_scope
-    dwc_occurrence_object&.identifiers&.where('identifiers.type like ?', 'Identifier::Global::Uuid%')&.order(:created_at)
+    dwc_occurrence_object&.identifiers&.where('identifiers.type like ?', 'Identifier::Global::Uuid%')&.order(:position) # :created_at
   end
 
   def occurrence_identifier
     @occurrence_identifier ||= uuid_identifier_scope&.first
   end
 
-  def generate_uuid_if_required
-    if !occurrence_identifier && !dwc_occurrence_object.nil? # TODO: can be simplified when inverse_of/validation added to identifiers
-      @occurrence_identifier = Identifier::Global::Uuid::TaxonworksDwcOccurrence.create!(
-        identifier_object: dwc_occurrence_object,
-        by: dwc_occurrence_object&.creator, # revisit, why required?
-        project_id: dwc_occurrence_object&.project_id, # Current.project_id,  # revisit, why required?
-        is_generated: true)
+  # @param force [Boolean]
+  #   true - only create identifier if identifier exists
+  #   false - check if occurrenceID is present, if it is, assume identifier (still) exists
+  # TODO: quick check if occurrenceID exists in table?! <-> locking sync !?
+  def generate_uuid_if_required(force = false)
+    if force # really make sure there is an object to work with
+      create_object_uuid if !occurrence_identifier && !dwc_occurrence_object.nil? # TODO: can be simplified when inverse_of/validation added to identifiers
+    else # assume if occurrenceID is not blank identifier is present
+      if occurrenceID.blank?
+        create_object_uuid if !occurrence_identifier && !dwc_occurrence_object.nil? # TODO: can be simplified when inverse_of/validation added to identifiers
+      end
     end
   end
 
@@ -169,6 +173,15 @@ class DwcOccurrence < ApplicationRecord
   end
 
   protected
+
+  def create_object_uuid
+    @occurrence_identifier = Identifier::Global::Uuid::TaxonworksDwcOccurrence.create!(
+      identifier_object: dwc_occurrence_object,
+      by: dwc_occurrence_object&.creator, # revisit, why required?
+      project_id: dwc_occurrence_object&.project_id, # Current.project_id,  # revisit, why required?
+      is_generated: true)
+  end
+
 
   def set_metadata_attributes
     write_attribute( :basisOfRecord, basis)
