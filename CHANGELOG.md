@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.20.1] - 2021-10-15
+
 ### Added
 - Added Attribution attributes to `/images` API show responses
 - API `/images` can return images by `image_file_fingerprint` (MD5), in addition to id
@@ -37,8 +41,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2576]: https://github.com/SpeciesFileGroup/taxonworks/issues/2576
 [#2577]: https://github.com/SpeciesFileGroup/taxonworks/issues/2577
 [#2581]: https://github.com/SpeciesFileGroup/taxonworks/issues/2581
-
-\-
 
 ## [0.20.0] - 2021-10-12
 
@@ -1853,7 +1855,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.20.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.20.1...development
+[0.20.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.20.0...v0.20.1
 [0.20.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.7...v0.20.0
 [0.19.7]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.6...v0.19.7
 [0.19.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.5...v0.19.6
