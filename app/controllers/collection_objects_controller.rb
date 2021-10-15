@@ -1,3 +1,4 @@
+
 class CollectionObjectsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
   include CollectionObjects::FilterParams
@@ -20,7 +21,8 @@ class CollectionObjectsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @collection_objects = filtered_collection_objects.order('collection_objects.id') # see app/controllers/collection_objects/filter_params.rb
+        # see app/controllers/collection_objects/filter_params.rb
+        @collection_objects = filtered_collection_objects.order('collection_objects.id').page(params[:page]).per(params[:per] || 500)
       }
     end
   end
@@ -47,7 +49,7 @@ class CollectionObjectsController < ApplicationController
 
   # Render DWC fields *only*
   def dwc_index
-    objects = filtered_collection_objects.order('collection_objects.id').includes(:dwc_occurrence).all
+    objects = filtered_collection_objects.order('collection_objects.id').includes(:dwc_occurrence).page(params[:page]).per(params[:per] || 500).all
     assign_pagination(objects)
 
     # Default to *exclude* some big fields, like geo spatial wkt
@@ -94,12 +96,12 @@ class CollectionObjectsController < ApplicationController
   # Intent is DWC fields + quick summary fields for reports
   # !! As currently implemented rebuilds DWC all
   def report
-    @collection_objects = filtered_collection_objects.order('collection_objects.id').includes(:dwc_occurrence)
+    @collection_objects = filtered_collection_objects.order('collection_objects.id').includes(:dwc_occurrence).page(params[:page]).per(params[:per] || 500)
   end
 
   # /collection_objects/preview?<filter params>
   def preview
-    @collection_objects = filtered_collection_objects.order('collection_objects.id').includes(:dwc_occurrence)
+    @collection_objects = filtered_collection_objects.order('collection_objects.id').includes(:dwc_occurrence).page(params[:page]).per(params[:per] || 500)
   end
 
   # GET /collection_objects/depictions/1
@@ -303,7 +305,7 @@ class CollectionObjectsController < ApplicationController
 
   def autocomplete
     @collection_objects =
-      Queries::CollectionObject::Autocomplete.new(
+      ::Queries::CollectionObject::Autocomplete.new(
         params[:term],
         project_id: sessions_current_project_id
       ).autocomplete
@@ -312,7 +314,7 @@ class CollectionObjectsController < ApplicationController
 
   # GET /api/v1/collection_objects
   def api_index
-    @collection_objects = Queries::CollectionObject::Filter.new(collection_object_api_params).all.where(project_id: sessions_current_project_id)
+    @collection_objects = ::Queries::CollectionObject::Filter.new(collection_object_api_params).all.where(project_id: sessions_current_project_id)
       .order('collection_objects.id')
       .page(params[:page]).per(params[:per])
     render '/collection_objects/api/v1/index'
@@ -325,7 +327,7 @@ class CollectionObjectsController < ApplicationController
 
   def api_autocomplete
     render json: {} and return if params[:term].blank?
-    @collection_objects = Queries::CollectionObject::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
+    @collection_objects = ::Queries::CollectionObject::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
     render '/collection_objects/api/v1/autocomplete'
   end
 

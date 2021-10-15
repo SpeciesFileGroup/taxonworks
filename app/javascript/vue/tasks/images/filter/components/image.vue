@@ -10,7 +10,7 @@
         <div class="flex-wrap-column middle">
           <img
             class="img-maxsize margin-medium-bottom"
-            :src="image.image_file_url">
+            :src="urlSrc()">
           <div class="square-brackets">
             <ul class="context-menu no_bullets">
               <li>
@@ -77,6 +77,7 @@
 <script setup>
 
 import { ref } from 'vue'
+import { imageScale } from 'helpers/images'
 import ModalComponent from 'components/ui/Modal'
 import PinComponent from 'components/ui/Pinboard/VPin.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
@@ -84,6 +85,7 @@ import RadialNavigation from 'components/radials/navigation/radial.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
 
+const CONVERT_IMAGE_TYPES = ['image/tiff']
 const props = defineProps({
   image: {
     type: Object,
@@ -97,7 +99,13 @@ const setModalView = value => {
   showModal.value = value
 }
 
-const openFullsize = () => {
-  window.open(props.image.image_file_url, '_blank')
+const urlSrc = () => {
+  const { width, height } = props.image
+
+  return CONVERT_IMAGE_TYPES.includes(props.image.content_type)
+    ? imageScale(props.image.id, `0 0 ${width} ${height}`, width, height)
+    : props.image.image_file_url
 }
+
+const openFullsize = () => { window.open(urlSrc(), '_blank') }
 </script>

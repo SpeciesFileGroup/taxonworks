@@ -11,20 +11,11 @@
 <script setup>
 
 import { reactive, watch, inject } from 'vue'
-import { humanize } from 'helpers/strings.js'
+import { humanize, capitalize } from 'helpers/strings.js'
 import { randomHue } from 'helpers/colors.js'
 import VueChart from 'components/ui/Chart/index.vue'
 
-const DATASET_LABELS = [
-  { label: 'Never', property: 'never', backgroundColor: randomHue(0) },
-  { label: 'One day',property: 'one_day', backgroundColor: randomHue(1) },
-  { label: 'One week', property: 'one_week', backgroundColor: randomHue(2) },
-  { label: 'One month', property: 'one_month', backgroundColor: randomHue(3) },
-  { label: 'One year', property: 'one_year', backgroundColor: randomHue(4) }
-]
-
 const FILTER_METATADA = ['health']
-
 const useState = inject('state')
 
 const chartState = reactive({
@@ -53,11 +44,19 @@ const filterMetadata = (metadata) => {
   return newObj
 }
 
+const fillDatasetLabels = (freshness) =>
+  Object.keys(freshness).map((key, index) => ({
+    label: capitalize(humanize(key)),
+    property: key,
+    backgroundColor: randomHue(index)
+  }))
+
 watch(() => useState.metadata, metadata => {
   const data = filterMetadata(metadata)
+  const datasetLabels = fillDatasetLabels(data.index.freshness)
   const objects = Object.values(data).reverse()
-  const labels = Object.keys(data).map(label => humanize(label))
-  const datasets = DATASET_LABELS.map(({ label, property, backgroundColor }) => ({
+  const labels = Object.keys(data).reverse().map(label => humanize(label))
+  const datasets = datasetLabels.map(({ label, property, backgroundColor }) => ({
     label,
     data: objects.map((obj, index) => obj.freshness[property] || 0),
     backgroundColor
