@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Record doesn't sync/update the list in OTU quick forms [#2576]
 - TIFF images are not visible in filter image task [#2575]
 - Repository input shows value, when not set [#2574]
+- Images don't load after expand depictions sections in comprehensive task
 
 [#2573]: https://github.com/SpeciesFileGroup/taxonworks/issues/2573
 [#2540]: https://github.com/SpeciesFileGroup/taxonworks/issues/2540
