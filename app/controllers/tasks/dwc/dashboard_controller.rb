@@ -12,6 +12,7 @@ class Tasks::Dwc::DashboardController < ApplicationController
     # TODO: to support scoping by other filters
     # we will have to scope all filter params throughout by their target base
     # e.g. collection_object[param]
+    byebug
     a = nil
     if collection_object_filter_params.to_h.any?
       a = DwcOccurrence.by_collection_object_filter(
@@ -21,7 +22,8 @@ class Tasks::Dwc::DashboardController < ApplicationController
       a ||= DwcOccurrence.where(project_id: sessions_current_project_id).all
     end
 
-    @download = ::Export::Dwca.download_async(a, request.url)
+    # Param passing starts here.
+    @download = ::Export::Dwca.download_async(a, request.url, predicate_extension_params: predicate_extension_params )
     render '/downloads/show'
   end
 
@@ -39,5 +41,10 @@ class Tasks::Dwc::DashboardController < ApplicationController
   end
 
   private
+
+  def predicate_extension_params
+    params.permit[:collecting_event_predicate_id, :collection_object_predicate_id ],
+  end
+
 
 end

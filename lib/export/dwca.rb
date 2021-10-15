@@ -49,7 +49,7 @@ module Export
     # When we re-index a large set of data then we run it in the background.
     # To determine when it is done we poll by the last record to be indexed.
     #
-    def self.build_index_async(klass, record_scope)
+    def self.build_index_async(klass, record_scope, predicate_extension_params: {} )
       s = record_scope.order(:id)
       ::DwcaCreateIndexJob.perform_later(klass.to_s, sql_scope: s.to_sql)
       index_metadata(klass, s)
