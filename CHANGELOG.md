@@ -28,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - TIFF images are not visible in filter image task [#2575]
 - Repository input shows value, when not set [#2574]
 - Images don't load after expand depictions sections in comprehensive task
+- DwC occurrences importer being too strict when checking against existing nomenclature [#2581]
 
 [#2573]: https://github.com/SpeciesFileGroup/taxonworks/issues/2573
 [#2540]: https://github.com/SpeciesFileGroup/taxonworks/issues/2540
@@ -35,6 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2575]: https://github.com/SpeciesFileGroup/taxonworks/issues/2575
 [#2576]: https://github.com/SpeciesFileGroup/taxonworks/issues/2576
 [#2577]: https://github.com/SpeciesFileGroup/taxonworks/issues/2577
+[#2581]: https://github.com/SpeciesFileGroup/taxonworks/issues/2581
 
 \-
 
