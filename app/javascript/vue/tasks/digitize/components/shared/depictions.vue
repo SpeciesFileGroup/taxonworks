@@ -98,6 +98,7 @@ export default {
       }
     }
   },
+
   watch: {
     objectValue (newVal, oldVal) {
       if (newVal.id && (newVal.id != oldVal.id)) {
@@ -110,6 +111,14 @@ export default {
         this.figuresList = []
         this.$refs.depiction.setOption('autoProcessQueue', false)
       }
+    }
+  },
+
+  created () {
+    if (this.objectValue.id) {
+      this.getDepictions(this.objectValue.id).then(response => {
+        this.figuresList = response.body
+      })
     }
   },
   methods: {
