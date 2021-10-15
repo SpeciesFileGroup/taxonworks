@@ -52,6 +52,7 @@ module Shared::IsDwcOccurrence
     retried = false
     begin
       if dwc_occurrence_persisted?
+        dwc_occurrence.generate_uuid_if_required
         dwc_occurrence.update_columns(dwc_occurrence_attributes)
         dwc_occurrence.touch(:updated_at)
       else
@@ -69,20 +70,29 @@ module Shared::IsDwcOccurrence
     dwc_occurrence
   end
 
-  def dwc_occurrence_attributes
+  def dwc_occurrence_attributes(taxonworks_fields = true)
     a = {}
     self.class::DWC_OCCURRENCE_MAP.each do |k,v|
       a[k] = send(v)
     end
+    a[:occurrenceID] = dwc_occurrence_id
 
-    a[:project_id] = project_id
+    if taxonworks_fields
+      a[:project_id] = project_id
 
-    # TODO: semantics of these may need to be revisited, particularly updated_by_id
-    a[:created_by_id] = created_by_id
-    a[:updated_by_id] = updated_by_id
+      # TODO: semantics of these may need to be revisited, particularly updated_by_id
+      a[:created_by_id] = created_by_id
+      a[:updated_by_id] = updated_by_id
 
-    a[:updated_at] = Time.now # not applied via this key, but kept for reference, see `touch` in `set_dwc_occurrence`
+      a[:updated_at] = Time.now # !! Not applied via this key, but kept for reference, see `touch` in `set_dwc_occurrence`
+    end
+
     a
+  end
+
+  # TODO: CHECK when hit
+  def dwc_occurrence_id
+    dwc_occurrence&.occurrence_identifier&.cached
   end
 
   # @return [Array]

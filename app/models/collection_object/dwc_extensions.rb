@@ -125,7 +125,19 @@ module CollectionObject::DwcExtensions
 
   # https://dwc.tdwg.org/terms/#dwc:associatedMedia
   def dwc_associated_media
-    images.collect{|i| i.image_file.url }.join(CollectionObject::DWC_DELIMITER).presence
+    images.collect{|i| api_image_link(i) }.join(CollectionObject::DWC_DELIMITER).presence
+  end
+
+  # TODO: likeley a helper
+  def api_image_link(image)
+    s = ENV['SERVER_NAME']
+    if s.nil?
+      s ||= 'http://127.0.0.1:3000'
+    else
+      s = 'https://' + s
+    end
+
+    s = s + '/api/v1/images/' + image.image_file_fingerprint # An experiment, use md5 as a proxy for id (also unique id)
   end
 
   def dwc_georeference_sources

@@ -12,6 +12,13 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
   let(:source_bibtex) { FactoryBot.create(:valid_source_bibtex) }
   let(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution) }
 
+  specify '#dwc_occurrence_id post .set_dwc_occurrence' do
+    s = Specimen.create!(no_dwc_occurrence: true)
+    expect(s.dwc_occurrence_id).to eq(nil)
+    s.set_dwc_occurrence
+    expect(collection_object.dwc_occurrence_id).to eq(collection_object.identifiers.first.identifier)
+  end
+
   specify '.by_collection_object_filter 1' do
     3.times { Specimen.create }
     f = ::Queries::CollectionObject::Filter.new(user_date_start: Time.now.to_date.to_s).all # Note the .all
@@ -159,9 +166,5 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
   specify '.empty_fields' do
     expect(::DwcOccurrence.empty_fields).to contain_exactly() # Should be ::DwcOccurrence.column_names
   end
-
-  # context 'concerns' do
-  # it_behaves_like 'is_data'
-  # end
 
 end

@@ -74,10 +74,6 @@ resources :pinboard_items, only: [:create, :destroy, :update] do
   end
 end
 
-# constraints subdomain: 's' do
-#   get '/:id' => "shortener/shortened_urls#show"
-# end
-
 scope :s do
   get ':id' => 'shortener/shortened_urls#show'
 end
