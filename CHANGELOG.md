@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Removed redundant 'Rebuild' button from Browse collection objects
 
 ### Fixed
+- Dwc Dashboard graphs show proper count ranges
 - DwC archive no longer truncated at 10k records
 - OccurrenceID was not being added to DwcOccurrence attributes in all cases [#2573]
 - Observation matrix show expand was referencing the wrong id  [#2540]
