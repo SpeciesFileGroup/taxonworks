@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Removed GeographicArea from consideration as a _georeference_ in DwcOccurrence
 - Changed `associatedMedia` format, pointed it to
 - Removed redundant 'Rebuild' button from Browse collection objects
+- Ordering of GeorgaphicArea autocomplete results. Used areas and areas with shape are prioritized
 
 ### Fixed
 - DwC Dashboard past links are properly scoped
