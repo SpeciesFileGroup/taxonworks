@@ -13,8 +13,7 @@
       model="keywords"
       buttons
       inline
-      klass="Tag"
-      :target="objectType"
+      :klass="objectType"
       :custom-list="{ all: allList }"
       @selected="createWithId"/>
     <display-list
