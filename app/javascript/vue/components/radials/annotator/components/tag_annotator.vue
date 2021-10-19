@@ -14,7 +14,7 @@
       buttons
       inline
       klass="Tag"
-      target="TaxonName"
+      :target="objectType"
       :custom-list="{ all: allList }"
       @selected="createWithId"/>
     <display-list
