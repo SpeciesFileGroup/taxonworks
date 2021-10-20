@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [0.20.1] - 2021-10-15
 
 ### Added
+- Added missing OTU soft_validation for protonym
 - Added recent values on keywords
 - Added Attribution attributes to `/images` API show responses
 - API `/images` can return images by `image_file_fingerprint` (MD5), in addition to id
