@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - API `/images` can return images by `image_file_fingerprint` (MD5), in addition to id
 
 ### Changed
+- Updated author string for misspellings
 - Removed footprintWKT from DwcOccurrence.  It will be re-instated as optional in the future.
 - Removed GeographicArea from consideration as a _georeference_ in DwcOccurrence
 - Changed `associatedMedia` format, pointed it to
