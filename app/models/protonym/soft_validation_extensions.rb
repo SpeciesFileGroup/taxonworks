@@ -1437,7 +1437,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_missing_original_genus
-      if is_genus_or_species_rank? && self.original_genus.nil? && !not_binomial?
+      if is_genus_or_species_rank? && self.original_genus.nil? && !not_binominal?
         soft_validations.add(:base, 'Missing relationship: Original genus is not selected')
       end
     end

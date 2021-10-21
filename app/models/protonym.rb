@@ -4,7 +4,7 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 # Force the loading of TaxonNameRelationships in all worlds.  This allows us to edit without restarting in development.
 # Dir[Rails.root.to_s + '/app/models/taxon_name_relationship/**/*.rb'].sort.each {|file| require_dependency file }
 #
-# A *monomial* TaxonName, a record implies a first usage. This follows Pyle's concept almost exactly.
+# A *monominal* TaxonName, a record implies a first usage. This follows Pyle's concept almost exactly.
 #
 # We inject a lot of relationship helper methods here, in this format.
 #   subject                      object
@@ -719,7 +719,7 @@ class Protonym < TaxonName
     end
 
     if elements.any?
-      if !elements[:genus] && !not_binomial?
+      if !elements[:genus] && !not_binominal?
         if original_genus
           elements[:genus] = [nil, "[#{original_genus&.name}]"]
         else
@@ -746,7 +746,7 @@ class Protonym < TaxonName
   end
 
   # @return [String, nil]
-  #    a monomial, as originally rendered, with parens if subgenus
+  #    a monominal, as originally rendered, with parens if subgenus
   def original_name
     n = verbatim_name.nil? ? name_with_misspelling(nil) : verbatim_name
     n = "(#{n})" if n && rank_name == 'subgenus'

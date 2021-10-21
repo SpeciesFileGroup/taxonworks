@@ -506,7 +506,7 @@ class TaxonNameRelationship < ApplicationRecord
   end
 
   def sv_validate_required_relationships
-    return true if self.subject_taxon_name.not_binomial?
+    return true if self.subject_taxon_name.not_binominal?
     object_relationships = TaxonNameRelationship.where_object_is_taxon_name(self.object_taxon_name).not_self(self).collect{|r| r.type}
     required = self.type_class.required_taxon_name_relationships - object_relationships
     required.each do |r|

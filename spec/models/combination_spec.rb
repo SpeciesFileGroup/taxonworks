@@ -236,7 +236,7 @@ describe Combination, type: :model, group: :nomenclature do
     end
 
     context '#protonyms_by_rank' do
-      specify 'for a quadrinomial' do
+      specify 'for a quadrinominal' do
         combination.genus = genus
         combination.subgenus = genus
         combination.species = species
@@ -260,7 +260,7 @@ describe Combination, type: :model, group: :nomenclature do
         expect(basic_combination.full_name_hash).to eq({'genus'=>[nil, 'Erythroneura'], 'species'=>[nil, 'vitis']})
       end
 
-      specify 'with quadrinomial' do
+      specify 'with quadrinominal' do
         combination.update(genus: genus, subgenus: genus, species: species, subspecies: species2)
         expect(combination.full_name_hash).to eq({'genus'=>[nil, 'Erythroneura'], 'subgenus'=>[nil, 'Erythroneura'],  'species'=>[nil, 'vitis'], 'subspecies'=>[nil, 'comes']})
       end
@@ -295,7 +295,7 @@ describe Combination, type: :model, group: :nomenclature do
         expect(basic_combination.cached_html).to eq('<i>Erythroneura vitis</i>')
       end
 
-      specify 'with a quadrinomial' do
+      specify 'with a quadrinominal' do
         combination.update(genus: genus, subgenus: genus, species: species, subspecies: species2)
         expect(combination.cached_html).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>) <i>vitis comes</i>')
       end

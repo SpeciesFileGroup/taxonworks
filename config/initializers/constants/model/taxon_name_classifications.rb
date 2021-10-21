@@ -82,8 +82,8 @@ EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS = [
     TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters,
     TaxonNameClassification::Iczn::Unavailable::NotLatinizedAfter1899,
     TaxonNameClassification::Iczn::Unavailable::NotLatinizedBefore1900AndNotAccepted,
-    TaxonNameClassification::Iczn::Unavailable::NonBinomial,
-    TaxonNameClassification::Iczn::Unavailable::NonBinomial.descendants,
+    TaxonNameClassification::Iczn::Unavailable::NonBinominal,
+    TaxonNameClassification::Iczn::Unavailable::NonBinominal.descendants,
     TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished::NotLatin
 ].flatten.map(&:to_s).freeze
 

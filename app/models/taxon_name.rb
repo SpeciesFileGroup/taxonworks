@@ -5,7 +5,7 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #
 # @!attribute name
 #   @return [String, nil]
-#   the fully latinized string (monomial) of a code governed taxonomic biological name
+#   the fully latinized string (monominal) of a code governed taxonomic biological name
 #   not applicable for Combinations, they are derived from their pieces
 #
 # @!attribute parent_id
@@ -13,11 +13,11 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #   The id of the parent taxon. The parent child relationship is exclusively organizational. All statuses and relationships
 #   of a taxon name must be explicitly defined via taxon name relationships or classifications. The parent of a taxon name
 #   can be thought of as  "the place where you'd find this name in a hierarchy if you knew literally *nothing* else about that name."
-#   In practice read each monomial in the name (protonym or combination) from right to left, the parent is the parent of the last monomial read.
+#   In practice read each monominal in the name (protonym or combination) from right to left, the parent is the parent of the last monominal read.
 #   There are 3 simple rules for determining the parent of a Protonym or Combination:
 #     1) the parent must always be at least one rank higher than the target names rank
 #     2) the parent of a synonym (any sense) is the parent of the synonym's valid name
-#     3) the parent of a combination is the parent of the highest ranked monomial in the epithet (almost always the parent of the genus)
+#     3) the parent of a combination is the parent of the highest ranked monominal in the epithet (almost always the parent of the genus)
 #
 # @!attribute year_of_publication
 #   @return [Integer]
@@ -60,7 +60,7 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #
 # @!attribute verbatim_name
 #   @return [String]
-#   a representation of what the Combination (fully spelled out) or Protonym (monomial)
+#   a representation of what the Combination (fully spelled out) or Protonym (monominal)
 #   *looked like* in its originating publication.
 #   The sole purpose of this string is to represent visual differences from what is recorded in the
 #   latinized version of the name (Protonym#name, Combination#cached) from what was originally transcribed.
@@ -76,7 +76,7 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #
 # @!attribute cached
 #   @return [String]
-#   Genus-species combination for genus and lower, monomial for higher. The string has NO html, and no author/year.
+#   Genus-species combination for genus and lower, monominal for higher. The string has NO html, and no author/year.
 #
 # @!attribute cached_html
 #   @return [String]
@@ -839,9 +839,9 @@ class TaxonName < ApplicationRecord
   end
 
   # @return [True|False]
-  #   true if this name has a TaxonNameClassification of not_binomial
-  def not_binomial?
-    taxon_name_classifications.where_taxon_name(self).with_type_contains('NonBinomial').any?
+  #   true if this name has a TaxonNameClassification of not_binominal
+  def not_binominal?
+    taxon_name_classifications.where_taxon_name(self).with_type_contains('NonBinominal').any?
   end
 
   # @return [Boolean]
@@ -1148,7 +1148,7 @@ class TaxonName < ApplicationRecord
   end
 
   # @return [String]
-  #  a monomial if names is above genus, or a full epithet if below.
+  #  a monominal if names is above genus, or a full epithet if below.
   def get_full_name
     return name_with_misspelling(nil) if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
     return name if rank_class.to_s =~ /Icvcn/
@@ -1156,7 +1156,7 @@ class TaxonName < ApplicationRecord
 
     d = full_name_hash
     elements = []
-    elements.push(d['genus']) unless (not_binomial? && d['genus'][1] == '[GENUS NOT SPECIFIED]')
+    elements.push(d['genus']) unless (not_binominal? && d['genus'][1] == '[GENUS NOT SPECIFIED]')
     #elements.push ['(', d['subgenus'], d['section'], d['subsection'], d['series'], d['subseries'], ')']
     elements.push ['(', d['subgenus'], ')']
     elements.push ['(', d['infragenus'], ')'] if rank_name == 'infragenus'

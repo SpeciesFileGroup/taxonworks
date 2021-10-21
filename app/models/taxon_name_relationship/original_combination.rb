@@ -51,7 +51,7 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
 
   # @return [String, nil]  
   #   String should be included in Protonym::
-  def monomial_prefix
+  def monominal_prefix
     nil
   end
 
@@ -61,7 +61,7 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
   #   TODO: reconcile this with <>_name_elements for other combinations.
   #   TODO: reconcile this format with that of full_name_hash
   def combination_name(name_gender = nil)
-    elements = [monomial_prefix]
+    elements = [monominal_prefix]
     if !subject_taxon_name.verbatim_name.blank? && name_gender.nil?
       elements.push subject_taxon_name.verbatim_name
     else
