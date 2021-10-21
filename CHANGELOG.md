@@ -7,11 +7,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Changed
+- Ordering of GeorgaphicArea autocomplete results. Used areas and areas with shape are prioritized
+
+## [0.20.1] - 2021-10-15
+
 ### Added
+- Added missing OTU soft_validation for protonym
+- Added recent values on keywords
 - Added Attribution attributes to `/images` API show responses
 - API `/images` can return images by `image_file_fingerprint` (MD5), in addition to id
 
 ### Changed
+- Updated author string for misspellings
 - Removed footprintWKT from DwcOccurrence.  It will be re-instated as optional in the future.
 - Removed GeographicArea from consideration as a _georeference_ in DwcOccurrence
 - Changed `associatedMedia` format, pointed it to
@@ -28,6 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - TIFF images are not visible in filter image task [#2575]
 - Repository input shows value, when not set [#2574]
 - Images don't load after expand depictions sections in comprehensive task
+- DwC occurrences importer being too strict when checking against existing nomenclature [#2581]
 
 [#2573]: https://github.com/SpeciesFileGroup/taxonworks/issues/2573
 [#2540]: https://github.com/SpeciesFileGroup/taxonworks/issues/2540
@@ -35,8 +44,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2575]: https://github.com/SpeciesFileGroup/taxonworks/issues/2575
 [#2576]: https://github.com/SpeciesFileGroup/taxonworks/issues/2576
 [#2577]: https://github.com/SpeciesFileGroup/taxonworks/issues/2577
-
-\-
+[#2581]: https://github.com/SpeciesFileGroup/taxonworks/issues/2581
 
 ## [0.20.0] - 2021-10-12
 
@@ -1851,7 +1859,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.20.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.20.1...development
+[0.20.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.20.0...v0.20.1
 [0.20.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.7...v0.20.0
 [0.19.7]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.6...v0.19.7
 [0.19.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.5...v0.19.6

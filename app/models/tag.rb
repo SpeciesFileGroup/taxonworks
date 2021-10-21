@@ -102,14 +102,6 @@ class Tag < ApplicationRecord
     attributed['name'].blank? || attributed['definition'].blank?
   end
 
-  def self.tag_objects(objects, keyword_id = nil)
-    return nil if keyword_id.nil? or !objects.any?
-    raise 'cross project tagging of objects detected' if objects.first.project_id != Keyword.find(keyword_id).project_id
-    objects.each do |o|
-      o.tags << Tag.new(keyword_id: keyword_id)
-    end
-  end
-
   # @return [Boolean]
   #   destroy all tags with the keyword_id provided, true if success, false if failure
   def self.batch_remove(keyword_id, klass = nil)
@@ -120,24 +112,6 @@ class Tag < ApplicationRecord
       return true if Tag.where(keyword_id: keyword_id, tag_object_type: klass).destroy_all
     end
     false
-  end
-
-  def keyword_is_allowed_on_object
-    return true if keyword.nil? || tag_object.nil? || !keyword.respond_to?(:can_tag)
-    if !keyword.can_tag.include?(tag_object.class.name)
-      errors.add(:keyword, "this keyword class (#{tag_object.class}) can not be attached to a #{tag_object_type}")
-    end
-  end
-
-  def object_can_be_tagged_with_keyword
-    return true if keyword.nil? || tag_object.nil? || !tag_object.respond_to?(:taggable_with)
-    if !tag_object.taggable_with.include?(keyword.class.name)
-      errors.add(:tag_object, "this tag_object_type (#{tag_object.class}) can not be tagged with this keyword class (#{keyword.class})")
-    end
-  end
-
-  def reject_keyword(attributed)
-    attributed['name'].blank? || attributed['definition'].blank?
   end
 
   def add_source_to_project

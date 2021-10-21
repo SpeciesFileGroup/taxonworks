@@ -122,7 +122,7 @@ module Queries
                   .joins("LEFT OUTER JOIN sources ON roles.role_object_id = sources.id AND roles.role_object_type = 'Source'")
                   .joins('LEFT OUTER JOIN project_sources ON sources.id = project_sources.source_id')
                   .select("people.*, COUNT(roles.id) AS use_count, CASE WHEN MAX(roles.project_id) = #{Current.project_id} THEN MAX(roles.project_id) ELSE MAX(project_sources.project_id) END AS in_project_id")
-                  .where('roles.project_id = ? OR roles.project_id IS NULL OR project_sources.project_id = ? OR project_sources.project_id IS NULL', Current.project_id, Current.project_id)
+                  .where('roles.project_id = ? OR project_sources.project_id = ? OR (roles.project_id IS NULL AND project_sources.project_id IS NULL)', Current.project_id, Current.project_id)
                   .group('people.id')
                   .order('in_project_id, use_count DESC')
           end

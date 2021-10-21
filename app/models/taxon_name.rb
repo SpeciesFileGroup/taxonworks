@@ -749,7 +749,7 @@ class TaxonName < ApplicationRecord
   #   !! DO NOT USE IN building cached !!
   #   See also app/helpers/taxon_names_helper
   def original_author_year
-    if nomenclatural_code == :iczn
+    if nomenclatural_code == :iczn && !cached_misspelling && !name_is_misapplied?
       cached_author_year&.gsub(/^\(|\)/, '')
      #cached_author_year&.gsub(/^\(|\)$/, '')
     else
