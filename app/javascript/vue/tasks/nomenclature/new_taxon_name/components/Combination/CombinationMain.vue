@@ -57,7 +57,7 @@
       </div>
       <display-list
         :list="combinationList"
-        label="cached_html"
+        label="object_label"
         edit
         annotator
         @edit="loadCombination"
