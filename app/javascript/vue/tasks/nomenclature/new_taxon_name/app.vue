@@ -187,11 +187,11 @@ export default {
 
     this.initLoad().then(() => {
       if (/^\d+$/.test(taxonId)) {
-        this.$store.dispatch(ActionNames.LoadTaxonName, taxonId).then(() => {
+        this.$store.dispatch(ActionNames.LoadTaxonName, taxonId).then((taxon) => {
           this.$store.dispatch(ActionNames.LoadTaxonStatus, taxonId)
           this.$store.dispatch(ActionNames.LoadTaxonRelationships, taxonId)
           this.$store.dispatch(ActionNames.LoadOriginalCombination, taxonId)
-          this.$store.dispatch(ActionNames.LoadCombinations, taxonId)
+          this.$store.dispatch(ActionNames.LoadCombinations, taxon.cached_valid_taxon_name_id)
         }).finally(() => {
           this.loading = false
         })
