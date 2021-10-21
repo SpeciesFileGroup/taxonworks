@@ -27,6 +27,12 @@
           pull: false
         }"
       />
+
+      <div class="original-combination margin-medium-top">
+        <div class="rank-name-label"/>
+        <combination-verbatim v-model="currentCombination.verbatim_name"/>
+      </div>
+
       <div class="margin-medium-top">
         <v-btn
           class="margin-small-right"
@@ -76,6 +82,7 @@ import DisplayList from 'components/displayList.vue'
 import BlockLayout from 'components/layout/BlockLayout.vue'
 import CombinationRank from './CombinationRank.vue'
 import CombinationCurrent from './CombinationCurrent.vue'
+import CombinationVerbatim from './CombinationVerbatim.vue'
 
 const store = useStore()
 const combination = ref({})
@@ -91,7 +98,10 @@ const combinationRanks = computed(() =>
 
 const saveCombination = () => {
   const combObj = Object.assign({},
-    { id: currentCombination.value.id },
+    {
+      id: currentCombination.value.id,
+      verbatim_name: currentCombination.value.verbatim_name
+    },
     ...removeOldRelationships(combination.value),
     ...makeCombinationParams()
   )

@@ -29,8 +29,11 @@ export const combinationType = Object.freeze({
 export const combinationIcnType = Object.freeze({
   genusGroup,
   speciesGroup: {
-    ...speciesGroup,
-    subform: TAXON_RELATIONSHIP_ORIGINAL_SUBFORM,
-    subvariety: TAXON_RELATIONSHIP_ORIGINAL_SUBVARIETY
+    species: TAXON_RELATIONSHIP_ORIGINAL_SPECIES,
+    subspecies: TAXON_RELATIONSHIP_ORIGINAL_SUBSPECIES,
+    variety: TAXON_RELATIONSHIP_ORIGINAL_VARIETY,
+    subvariety: TAXON_RELATIONSHIP_ORIGINAL_SUBVARIETY,
+    form: TAXON_RELATIONSHIP_ORIGINAL_FORM,
+    subform: TAXON_RELATIONSHIP_ORIGINAL_SUBFORM
   }
 })
