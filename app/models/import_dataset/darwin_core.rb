@@ -294,7 +294,17 @@ class ImportDataset::DarwinCore < ImportDataset
     return records
   end
 
+  def get_field_mapping(field_name)
+    get_fields_mapping[field_name.to_s.downcase]
+  end
+
   private
+
+  def get_fields_mapping
+    @fields_mapping ||= metadata["core_headers"]
+      .reject(&:nil?)
+      .each.with_index.inject({}) { |m, (h, i)| m.merge({ h.downcase => i, i => h}) }
+  end
 
   def get_dwc_default_values(table)
     table.fields.select { |f| f.has_key? :default }

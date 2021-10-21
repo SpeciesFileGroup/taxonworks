@@ -9,6 +9,7 @@
         get-url="/controlled_vocabulary_terms/"
         model="keywords"
         klass="Tag"
+        target="CollectingEvent"
         @selected="addTag"/>
       <display-list
         label="object_tag"

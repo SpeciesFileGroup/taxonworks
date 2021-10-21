@@ -14,6 +14,7 @@
           buttons
           inline
           klass="Tag"
+          target="ObservationMatrixColumn"
           button-class="button-submit"
           @selected="create"/>
       </fieldset>

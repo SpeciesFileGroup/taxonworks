@@ -10,6 +10,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Ordering of GeorgaphicArea autocomplete results. Used areas and areas with shape are prioritized
 
+### Fixed
+- Failure when setting up namespaces in DwC importer with datasets having *unnamed* columns
+
 ## [0.20.1] - 2021-10-15
 
 ### Added

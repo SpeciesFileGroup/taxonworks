@@ -37,7 +37,7 @@
       <authors-component class="margin-large-bottom" v-model="params.source"/>
       <date-component class="margin-large-bottom" v-model="params.source"/>
       <serials-component class="margin-large-bottom" v-model="params.source.serial_ids"/>
-      <tags-component class="margin-large-bottom" v-model="params.keywords"/>
+      <tags-component class="margin-large-bottom" v-model="params.keywords" target="Source"/>
       <topics-component class="margin-large-bottom" v-model="params.source.topic_ids"/>
       <identifier-component class="margin-large-bottom" v-model="params.identifier"/>
       <taxon-name-component class="margin-large-bottom" v-model="params.nomenclature"/>
