@@ -95,7 +95,6 @@ module ObservationMatrices::Export::NexmlHelper
     cells = m.observations_in_grid({})[:grid]
     p = m.observation_matrix_columns.order('observation_matrix_columns.position').map(&:descriptor_id)
     q = m.observation_matrix_rows.order('observation_matrix_rows.position').collect{|i| "#{i.otu_id}|#{i.collection_object_id}" }
-
     xml.matrix do
       m.observation_matrix_rows.each do |r|
         xml.row(id: "multistate_row#{r.id}", otu: "row_#{r.id}") do |row| # use row_id to uniquel identify the row ##  Otu#id to uniquely id the row
@@ -105,8 +104,7 @@ module ObservationMatrices::Export::NexmlHelper
 
             x = p.index(d.id) # opt[:descriptors].index(d)  #   .index(d)
             y = q.index("#{r.otu_id}|#{r.collection_object_id}")
-
-            observations = cells[ x  ][ y ]
+            observations = cells[ x ][ y ]
 
             case observations.size
             when 0
