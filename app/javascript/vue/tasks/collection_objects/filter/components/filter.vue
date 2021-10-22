@@ -63,7 +63,7 @@
       <keywords-component
         class="margin-large-bottom"
         v-model="params.keywords"
-        target="Source" />
+        target="CollectionObject" />
       <types-component
         class="margin-large-bottom"
         v-model="params.types"/>
