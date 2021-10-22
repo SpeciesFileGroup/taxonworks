@@ -46,6 +46,7 @@
       <some-value-component
         class="margin-large-bottom"
         model="sources"
+        label="cached"
         v-model="params.attributes"/>
       <with-component
         class="margin-large-bottom"

@@ -141,7 +141,7 @@ export default {
     },
 
     getByCoords (lat, long) {
-      GeographicArea.coordinates({ latitude: lat, longitude: long, geo_json: true }).then(response => {
+      GeographicArea.coordinates({ latitude: lat, longitude: long, embed: ['shape'] }).then(response => {
         this.areasByCoors = response.body
       })
     },

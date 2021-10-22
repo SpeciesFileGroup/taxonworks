@@ -59,7 +59,7 @@ export default {
   created () {
     this.loadCombination()
 
-    Combination.all().then(response => {
+    Combination.all({ extend: ['protonyms', 'placement', 'metadata', 'citations', 'origin_citation', 'source'], embed: ['source'] }).then(response => {
       this.combinations = response.body
     })
 
@@ -81,7 +81,7 @@ export default {
       const keys = Object.keys(combination.protonyms)
 
       this.accept_taxon_name_ids = keys.map(key => combination.protonyms[key].id)
-      this.$refs.combination.editCombination(combination.name_string, combination)
+      this.$refs.combination.editCombination(combination.object_label, combination)
       this.$refs.inputSearch.disabledButton(true)
     },
 

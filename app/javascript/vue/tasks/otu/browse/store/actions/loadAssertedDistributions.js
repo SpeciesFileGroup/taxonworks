@@ -2,8 +2,22 @@ import { AssertedDistribution } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 import nonReactiveStore from '../nonReactiveStore.js'
 
+const embed = [
+  'shape',
+  'lavel_names'
+]
+const extend = [
+  'citations',
+  'geographic_area',
+  'geographic_area_type',
+  'origin_citation',
+  'shape',
+  'source',
+  'otu'
+]
+
 export default ({ commit }, otusId) => new Promise((resolve, reject) => {
-  AssertedDistribution.where({ otu_id: otusId, geo_json: true }).then(response => {
+  AssertedDistribution.where({ otu_id: otusId, embed, extend }).then(response => {
     const shapes = response.body.map(item => item.geographic_area.shape)
 
     nonReactiveStore.geographicAreas = [...new Map(shapes.map(item => [item.properties.geographic_area.id, item])).values()]

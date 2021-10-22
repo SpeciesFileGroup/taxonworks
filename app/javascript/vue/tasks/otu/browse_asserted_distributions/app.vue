@@ -75,6 +75,20 @@ import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
 import { AssertedDistribution } from 'routes/endpoints'
 
+const embed = [
+  'shape',
+  'lavel_names'
+]
+const extend = [
+  'citations',
+  'geographic_area',
+  'geographic_area_type',
+  'origin_citation',
+  'shape',
+  'source',
+  'otu'
+]
+
 export default {
 
   components: {
@@ -102,7 +116,11 @@ export default {
 
   methods: {
     searchDistribution (otu) {
-      AssertedDistribution.where({ otu_id: otu.id }).then(response => {
+      AssertedDistribution.where({
+        otu_id: otu.id,
+        embed,
+        extend
+      }).then(response => {
         this.assertedDistribution = response.body
       })
     },

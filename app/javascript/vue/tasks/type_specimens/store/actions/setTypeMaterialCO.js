@@ -1,6 +1,7 @@
 import { ActionNames } from './actions'
 import { MutationNames } from '../mutations/mutations'
 import { TypeMaterial } from 'routes/endpoints'
+import extend from '../../const/extendRequest.js'
 
 export default ({ state, commit, dispatch }, collectionObject) => {
   const type_material = {
@@ -10,8 +11,8 @@ export default ({ state, commit, dispatch }, collectionObject) => {
   }
 
   const saveRequest = type_material.id
-    ? TypeMaterial.update(state.type_material.id, { type_material })
-    : TypeMaterial.create({ type_material })
+    ? TypeMaterial.update(state.type_material.id, { type_material, extend })
+    : TypeMaterial.create({ type_material, extend })
 
   saveRequest.then(({ body }) => {
     dispatch(ActionNames.LoadTypeMaterial, body)

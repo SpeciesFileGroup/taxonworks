@@ -83,6 +83,7 @@
       class="table-entrys-list"
       element="ul"
       v-model="roles_attributes"
+      item-key="id"
       @end="onSortable">
       <template #item="{ element, index }">
         <li
