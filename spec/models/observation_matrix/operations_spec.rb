@@ -144,11 +144,17 @@ RSpec.describe ObservationMatrix, type: :model, group: :observation_matrix do
 
     specify ':rows 1' do
       expect(g[:rows]).to contain_exactly(
-        row_object1.to_global_id,
-        row_object2.to_global_id,
-        row_object3.to_global_id,
-        row_object4.to_global_id,
-        row_object5.to_global_id)
+                            "#{row_object1.id}|",
+                            "#{row_object2.id}|",
+                            "#{row_object3.id}|",
+                            "|#{row_object4.id}",
+                            "|#{row_object5.id}"
+                            #row_object1.to_global_id,
+                            #row_object2.to_global_id,
+                            #row_object3.to_global_id,
+                            #row_object4.to_global_id,
+                            #row_object5.to_global_id
+                          )
     end
 
     specify ':cols 1' do
@@ -168,7 +174,7 @@ RSpec.describe ObservationMatrix, type: :model, group: :observation_matrix do
   end
 
   specify '#observations_hash 1' do
-    expect(om.observations_hash[descriptor1.id][row_object1.to_global_id.to_s].map(&:id)).to contain_exactly(o1.id)
+    expect(om.observations_hash[descriptor1.id]["#{row_object1.id}|"].map(&:id)).to contain_exactly(o1.id)
   end
 
 end
