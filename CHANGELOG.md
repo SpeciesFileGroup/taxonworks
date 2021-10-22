@@ -7,11 +7,36 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- New parameters for fine-tuning the API responses, `&extend[]=` and `&embed[]` [#2531]
+- Parameter value `origin_citation` via `&extend[]=` to all basic GET `/object(/:id)` requests [#2531]
+- Parameter value `pinboard_item` via `&extend[]=` to all basic GET `/object(/:id)` requests [#2531]
+- Parameter value `citations` via `&extend[]=` to all basic GET `/object/:id` requests [#2531]
+- Parameter values `roles` and `documents` via `&extend[]=` to `/sources(/:id).json` [#2531]
+- Parameter values `protonyms` and `placement` via `&extend[]=` to `/combinations(/:id).json [#2531]
+- Parameter values `parent`, `otus`, `roles`, ancestor_ids`, `children`, `type_taxon_name_relationship` via `&extend[]=` to `/taxon_names(/:id).json [#2531]
+- Parameter values `level_names`, `geographic_area_type`, `parent` via `&extend[]=` and `shape` via `&embed[]=` to `/geographic_areas(/:id).json [#2531]
+- Parameter value `subject`, `object`, `biological_relationship`, `family_names` via `&extend[]=` to `/biological_associations(/:id).json [#2531]
+- Parameter value `citation_object`, `citation_topics`, `source`, `target_document` via `&extend[]=` to `/citations(/:id).json [#2531]
+- API route `/taxon_names/parse?query_string=Aus bus` for resolving names to Protonyms
+- Parameter value `roles` via `&extend[]=` to `/collecting_events(/:id).json` [#2531]
+- Param to isolate TaxonName smart select to Protonym if optional
+
 ### Changed
 - Ordering of GeorgaphicArea autocomplete results. Used areas and areas with shape are prioritized
+- Basic (REST) endpoints send less information, use `&extend[]` and `&embed[]` to return more [#2531]
+- Numerous tasks updated to use the new REST pattern
+- Objects in basic show/index JSON endpoints are represented by their metadata, rather than all their attributes in many cases now [#2531]
+- Metadata in extensions does not cascade and return metadata of metadata [#2531]
+- JSON smart selector data (`/sources/select_options`) includes base attributes, not metadata [#2531]
+- Updated corresponding ap1/v1 endpoints to use the `&extend[]` pattern for `/otus`, `/taxon_names`, `/combinations`, `/sources`, `/citations` (in part) and `biological_associations` to match the new parameter values above
+- API `/api/v1/biological_associations` uses metadata for related objects
+- Optimized Source smart selection queries
 
 ### Fixed
 - Failure when setting up namespaces in DwC importer with datasets having *unnamed* columns
+
+[#2531]:  https://github.com/SpeciesFileGroup/taxonworks/issues/2531
 
 ## [0.20.1] - 2021-10-15
 
