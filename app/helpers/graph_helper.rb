@@ -21,9 +21,21 @@ module GraphHelper
       graph_edge(collection_object, collection_object.collecting_event, 'collecting event') 
     ]
 
+    if collection_object.collecting_event
+      collection_object.collecting_event.collectors.each do |c|
+        edges.push graph_edge(collection_object.collecting_event, c)
+        edges.push graph_edge(collection_object.collecting_event, c)
+      end     
+    end
+
+    collection_object.identifiers.each do |i|
+      edges.push graph_edge(collection_object, i)
+      nodes.push graph_node(i)
+    end
+    
     return { 
-      nodes: nodes.compact,
-      edges: edges.compact
+      nodes: nodes.compact.uniq,
+      edges: edges.compact.uniq
     }
 
   end

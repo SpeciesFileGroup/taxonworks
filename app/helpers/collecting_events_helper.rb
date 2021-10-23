@@ -11,6 +11,11 @@ module CollectingEventsHelper
     end
   end
 
+  def label_for_collecting_event(collecting_event)
+    return nil if collecting_event.nil?
+    collecting_event.cached
+  end
+
   def collecting_event_autocomplete_tag(collecting_event, join_string = '<br>')
     return nil if collecting_event.nil?
     [ collecting_event_identifiers_tag(collecting_event),
@@ -157,11 +162,11 @@ module CollectingEventsHelper
     ].compact.join(', ')
   end
 
+  # TODO: remove
   # @return [HTML] a pre tag formatting a label
   def collecting_event_label_tag(label_text)
     content_tag(:pre, label_text, class: [:large_type, :word_break] ) # large_type needs to be larger
   end
-
 
   # Navigation
 
