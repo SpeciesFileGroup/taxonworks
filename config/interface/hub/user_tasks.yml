@@ -658,7 +658,7 @@ new_namespace_task:
   status: prototype
   description: 'Create new Namespaces, used in identifiers.'
 
-index_object_graph_task:
+object_graph_task:
   hub: true
   name: 'TODO: Task name'
   related:
