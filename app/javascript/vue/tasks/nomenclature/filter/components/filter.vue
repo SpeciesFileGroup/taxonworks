@@ -65,6 +65,7 @@
         :nomenclature-code="params.base.nomenclature_code"/>
       <tags-component
         class="margin-medium-bottom"
+        target="TaxonName"
         v-model="params.keywords"/>
       <users-component
         class="margin-medium-bottom"

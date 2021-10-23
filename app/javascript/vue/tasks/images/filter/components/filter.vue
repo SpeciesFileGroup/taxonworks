@@ -44,6 +44,7 @@
         v-model="params.identifier"/>
       <tags-component
         class="margin-large-bottom"
+        target="Image"
         v-model="params.keywords"/>
       <users-component
         class="margin-large-bottom"

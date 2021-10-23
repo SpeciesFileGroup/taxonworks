@@ -50,6 +50,7 @@
       />
       <filter-keywords
         class="margin-large-bottom"
+        target="CollectingEvent"
         v-model="params.keywords"
       />
       <users-component
