@@ -14,10 +14,7 @@ class GraphController < ApplicationController
     @object = GlobalID::Locator.locate(params.require(:global_id))
     render(json: { success: false}, status: :not_found) if @object.nil?
   
-    render json: {
-      nodes: [  { id: 1, label: 'Foo', link: 'link' }, { id: 1, label: 'Foo', link: 'link' } ],
-      edges: [  { start_id: 1, end_id: 2, label: 'some edge', link:  'some_link' } ]
-    }
+    render json: helpers.object_graph(@object)
   end
 
 end
