@@ -198,7 +198,7 @@ scope :tasks do
 
   scope :collection_objects do
       scope :object_graph, controller: 'tasks/collection_objects/object_graph' do
-        get :index, as: 'index_object_graph_task'
+        get '/', action: :index, as: 'object_graph_task'
       end
 
     scope :match, controller: 'tasks/collection_objects/match' do
