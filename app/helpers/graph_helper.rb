@@ -1,5 +1,19 @@
 module GraphHelper
 
+  # const colors = [, , , , , , , , , , '#9C27B0']
+
+  NODE_COLORS = {
+    'Person' => '#009688',
+    'CollectionObject' => '#2196F3',
+    'TaxonName' => '#E91E63',
+    'CollectingEvent' => '#7E57C2',
+    'TaxonDetermination' => '#FF9800',
+    'Identifier' => '#EF6C00',
+    'Otu' =>'#4CAF50',
+    'User' => '#F44336',
+    'ControlledVocabularyTerm' => '#CDDC39'
+  }
+
   def object_graph(object)
     case object.class.base_class.name
     when 'CollectionObject'
@@ -46,12 +60,27 @@ module GraphHelper
         nodes.push graph_node(d)
         edges.push graph_edge(t,d)
       end
-
     end
 
     collection_object.identifiers.each do |i|
       edges.push graph_edge(collection_object, i)
       nodes.push graph_node(i)
+    end
+
+    collection_object.biological_associations.each do |b|
+      nodes.push graph_node(b)
+      edges.push graph_edge(collection_object, b) # subject
+
+      edges.push graph_edge(b, b.biological_relationship)
+      nodes.push graph_node(b.biological_relationship)
+
+      edges.push graph_edge(b, b.biological_association_object)
+      nodes.push graph_node( b.biological_association_object)
+    end
+
+    collection_object.biocuration_classes.each do |b|
+      nodes.push graph_node(b)
+      edges.push graph_edge(collection_object, b) # subject
     end
 
     return { 
@@ -66,14 +95,21 @@ module GraphHelper
     nodes.push graph_node(taxon_name)
     edges.push graph_edge(taxon_name, target)
 
+    taxon_name.taxon_name_authors.each do |a|
+      nodes.push graph_node(a)
+      edges.push graph_edge(taxon_name, a)
+    end
+
     nomenclature_graph(nodes, edges, taxon_name.parent, taxon_name)
   end
+
 
   def graph_node(object, node_link = nil)
     return nil if object.nil?
     h = {
       id: object.to_global_id.to_s,
-      name: label_for(object)
+      name: label_for(object) || object.class.base_class.name,
+      color: NODE_COLORS[object.class.base_class.name] || '#000000'
     }
 
     h[:link] = node_link unless node_link.blank?

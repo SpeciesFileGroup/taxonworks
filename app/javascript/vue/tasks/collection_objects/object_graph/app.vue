@@ -1,5 +1,5 @@
 <template>
-  <h1>Welcome to your new Vue task!</h1>
+  <h1> Task: Object graph</h1>
   <svg
     v-if="bounds.minX"
     xmlns="http://www.w3.org/2000/svg"
@@ -27,7 +27,7 @@
         stroke="white"
         stroke-width="1"
         :title="node.name"
-        :fill="colors[Math.ceil(Math.sqrt(node.index))]"
+        :fill="node.color"
         @mousedown="currentMove = { x: $event.screenX, y: $event.screenY, node: node }"
         @mouseup="drop()"
       />
@@ -53,11 +53,11 @@ const graph = ref({
   links: []
 })
 
-const radio = 20
+const radio = 10
 const width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0) - 20
 const height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0) - 200
 const padding = 20
-const colors = ['#2196F3', '#E91E63', '#7E57C2', '#009688', '#00BCD4', '#EF6C00', '#4CAF50', '#FF9800', '#F44336', '#CDDC39', '#9C27B0']
+// const colors = ['#2196F3', '#E91E63', '#7E57C2', '#009688', '#00BCD4', '#EF6C00', '#4CAF50', '#FF9800', '#F44336', '#CDDC39', '#9C27B0']
 const simulation = ref(null)
 const currentMove = ref(null)
 
@@ -87,7 +87,7 @@ if (globalId) {
     }
 
     simulation.value = d3.forceSimulation(graph.value.nodes)
-      .force('charge', d3.forceManyBody().strength(d => -1000))
+      .force('charge', d3.forceManyBody().strength(d => -20))
       .force('link', d3.forceLink(graph.value.links))
       .force('center', d3.forceCenter(width / 2, height / 2))
   })
