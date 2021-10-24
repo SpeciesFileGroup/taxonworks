@@ -26,18 +26,47 @@ module GraphHelper
         edges.push graph_edge(collection_object.collecting_event, c)
         nodes.push graph_node(c)
       end     
+
+      collection_object.collecting_event.identifiers.each do |i|
+        nodes.push graph_node(i)
+        edges.push graph_edge(collection_object.collecting_event, i)
+      end
+    end
+
+    collection_object.taxon_determinations.each do |t|
+      nodes.push graph_node(t)
+      edges.push graph_edge(collection_object, t)
+
+      nodes.push graph_node(t.otu)
+      edges.push graph_edge(t, t.otu)
+
+      nomenclature_graph(nodes, edges, t.otu.taxon_name, t.otu)
+
+      t.determiners.each do |d|
+        nodes.push graph_node(d)
+        edges.push graph_edge(t,d)
+      end
+
     end
 
     collection_object.identifiers.each do |i|
       edges.push graph_edge(collection_object, i)
       nodes.push graph_node(i)
     end
-    
+
     return { 
       nodes: nodes.compact.uniq,
       edges: edges.compact.uniq
     }
+  end
 
+  def nomenclature_graph(nodes, edges, taxon_name, target)
+    return if taxon_name.nil?
+
+    nodes.push graph_node(taxon_name)
+    edges.push graph_edge(taxon_name, target)
+
+    nomenclature_graph(nodes, edges, taxon_name.parent, taxon_name)
   end
 
   def graph_node(object, node_link = nil)
