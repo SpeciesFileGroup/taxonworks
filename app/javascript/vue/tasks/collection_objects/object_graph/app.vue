@@ -17,20 +17,29 @@
       stroke="black"
       stroke-width="2"
     />
-    <circle
+    <g
       v-for="node in graph.nodes"
-      :key="node.id"
-      :cx="coords[node.index].x"
-      :cy="coords[node.index].y"
-      :r="20"
-      stroke="white"
-      stroke-width="1"
-      :title="node.name"
-      :fill="colors[Math.ceil(Math.sqrt(node.index))]"
-      @mousedown="currentMove = { x: $event.screenX, y: $event.screenY, node: node }"
-    >
-      Test
-    </circle>
+      :key="node.id">
+      <circle
+        :cx="coords[node.index].x"
+        :cy="coords[node.index].y"
+        :r="radio"
+        stroke="white"
+        stroke-width="1"
+        :title="node.name"
+        :fill="colors[Math.ceil(Math.sqrt(node.index))]"
+        @mousedown="currentMove = { x: $event.screenX, y: $event.screenY, node: node }"
+        @mouseup="drop()"
+      />
+      <text
+        :x="coords[node.index].x + radio"
+        :y="coords[node.index].y"
+        dy=".3em"
+      >
+        {{ node.name }}
+      </text>
+      <title>{{ node.name }}</title>
+    </g>
   </svg>
 </template>
 
@@ -43,6 +52,8 @@ const graph = ref({
   nodes: [],
   links: []
 })
+
+const radio = 20
 const width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0) - 20
 const height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0) - 200
 const padding = 20
@@ -58,29 +69,33 @@ const bounds = computed(() => ({
 }))
 
 const coords = computed(() => graph.value.nodes.map(node => ({
-  x: padding + (node.x - bounds.value.minX) * (width - 2 * padding) / (bounds.value.maxX - bounds.value.minX),
-  y: padding + (node.y - bounds.value.minY) * (height - 2 * padding) / (bounds.value.maxY - bounds.value.minY)
+/*   x: padding + (node.x - bounds.value.minX) * (width - 2 * padding) / (bounds.value.maxX - bounds.value.minX),
+  y: padding + (node.y - bounds.value.minY) * (height - 2 * padding) / (bounds.value.maxY - bounds.value.minY) */
+  x: node.x,
+  y: node.y
 })))
 
 AjaxCall('get', '/graph/gid%3A%2F%2Ftaxon-works%2FLot%2F23887/object').then(({ body }) => {
   graph.value = {
     nodes: body.nodes.map(node => ({ ...node, x: null, y: null })),
-    links: body.edges.map(link => ({ 
+    links: body.edges.map(link => ({
       source: body.nodes.findIndex(node => node.id === link.start_id),
-      target: body.nodes.findIndex(node => node.id === link.end_id) }))
+      target: body.nodes.findIndex(node => node.id === link.end_id)
+    }))
   }
 
   simulation.value = d3.forceSimulation(graph.value.nodes)
-    .force('charge', d3.forceManyBody())
+    .force('charge', d3.forceManyBody().strength(d => -1000))
     .force('link', d3.forceLink(graph.value.links))
-    .force('x', d3.forceX())
-    .force('y', d3.forceY())
+    .force('center', d3.forceCenter(width / 2, height / 2))
+/*     .force('x', d3.forceX())
+    .force('y', d3.forceY()) */
 })
 
 const drag = e => {
   if (currentMove.value) {
-    currentMove.value.node.fx = currentMove.value.node.x - (currentMove.value.x - e.screenX) * (bounds.value.maxX - bounds.value.minX) / (width - 2 * padding)
-    currentMove.value.node.fy = currentMove.value.node.y - (currentMove.value.y - e.screenY) * (bounds.value.maxY - bounds.value.minY) / (height - 2 * padding)
+    currentMove.value.node.fx = currentMove.value.node.x - (currentMove.value.x - e.screenX)
+    currentMove.value.node.fy = currentMove.value.node.y - (currentMove.value.y - e.screenY)
     currentMove.value.x = e.screenX
     currentMove.value.y = e.screenY
   }
