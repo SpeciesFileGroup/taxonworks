@@ -15,6 +15,19 @@ module GraphHelper
     'BiologicalRelationship' => '#9C27B0'
   }
 
+  NODE_SHAPES = {
+    'Person' => nil, 
+    'CollectionObject' => 'circle', 
+    'TaxonName' => 'square', 
+    'CollectingEvent' => 'circle', 
+    'TaxonDetermination' => nil,
+    'Identifier' => 'triangle',
+    'Otu' => nil, 
+    'User' => nil, 
+    'ControlledVocabularyTerm' => nil,
+    'BiologicalRelationship' => nil 
+  }
+
   def object_graph(object)
     case object.class.base_class.name
     when 'CollectionObject'
@@ -65,8 +78,18 @@ module GraphHelper
           nodes.push graph_node(i)
           edges.push graph_edge(d, i)
         end
-    
       end
+
+      if r = collection_object.repository
+        nodes.push graph_node(r)
+        edges.push graph_edge(collection_object,r)
+
+        r.identifiers.each do |i|
+          nodes.push graph_node(i)
+          edges.push graph_edge(r, i)
+        end       
+      end
+
     end
 
     collection_object.identifiers.each do |i|
@@ -116,12 +139,14 @@ module GraphHelper
 
   def graph_node(object, node_link = nil)
     return nil if object.nil?
+    b = object.class.base_class.name
     h = {
       id: object.to_global_id.to_s,
       name: label_for(object) || object.class.base_class.name,
-      color: NODE_COLORS[object.class.base_class.name] || '#000000'
-}
+      color: NODE_COLORS[b] || '#000000'
+    }
 
+    h[:shape] = NODE_SHAPES[b] if !NODE_SHAPES[b].nil?
     h[:link] = node_link unless node_link.blank?
     h
   end

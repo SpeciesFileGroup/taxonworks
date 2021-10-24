@@ -4,7 +4,7 @@
 <% end %>
 
 <%= content_for :tasks do -%>
-  <%= content_tag(:li, verify_accessions_task_link(@collection_object))   %>
+  <%= tag.li link_to('Graph', object_graph_task_path(global_id: @collection_object.to_global_id.to_s)) -%>
 <% end %>
 
 <%= content_for :add do -%>

@@ -6,6 +6,11 @@ module RepositoriesHelper
      (repository.acronym ? "(#{repository.acronym})" : nil)
     ].join(' ').html_safe
   end
+  
+  def label_for_repository(repository)
+    return nil if repository.nil?
+    repository.name
+  end
 
   def repository_link(repository)
     return nil if repository.nil?

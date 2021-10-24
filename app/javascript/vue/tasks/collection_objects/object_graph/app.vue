@@ -36,7 +36,7 @@
         @mouseup="drop()"
       />
       <rect
-        v-else-if="node.shape === 'rect'"
+        v-else-if="node.shape === 'square'"
         :width="size * 2"
         :height="size * 2"
         :x="coords[node.index].x - size"
