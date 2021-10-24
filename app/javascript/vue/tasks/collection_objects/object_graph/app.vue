@@ -21,10 +21,39 @@
     <g
       v-for="node in graph.nodes"
       :key="node.id">
+      <polygon
+        v-if="node.shape === 'triangle'"
+        :points="`
+        ${coords[node.index].x},${(coords[node.index].y - size)}
+        ${coords[node.index].x - size} ,${coords[node.index].y + size}
+        ${coords[node.index].x + size},${coords[node.index].y + size}`"
+        stroke="white"
+        stroke-width="1"
+        :title="node.name"
+        :fill="node.color"
+        @dblclick="loadGraph(node.id)"
+        @mousedown="currentMove = { x: $event.screenX, y: $event.screenY, node: node }"
+        @mouseup="drop()"
+      />
+      <rect
+        v-else-if="node.shape === 'rect'"
+        :width="size * 2"
+        :height="size * 2"
+        :x="coords[node.index].x - size"
+        :y="coords[node.index].y - size"
+        stroke="white"
+        stroke-width="1"
+        :title="node.name"
+        :fill="node.color"
+        @dblclick="loadGraph(node.id)"
+        @mousedown="currentMove = { x: $event.screenX, y: $event.screenY, node: node }"
+        @mouseup="drop()"
+      />
       <circle
+        v-else
         :cx="coords[node.index].x"
         :cy="coords[node.index].y"
-        :r="radio"
+        :r="size"
         stroke="white"
         stroke-width="1"
         :title="node.name"
@@ -34,7 +63,7 @@
         @mouseup="drop()"
       />
       <text
-        :x="coords[node.index].x + radio"
+        :x="coords[node.index].x + size"
         :y="coords[node.index].y"
         dy=".3em"
       >
@@ -56,7 +85,7 @@ const graph = ref({
   links: []
 })
 
-const radio = 10
+const size = 10
 const width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0) - 20
 const height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0) - 200
 const simulation = ref(null)
