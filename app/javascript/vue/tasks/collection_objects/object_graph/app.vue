@@ -69,28 +69,29 @@ const bounds = computed(() => ({
 }))
 
 const coords = computed(() => graph.value.nodes.map(node => ({
-/*   x: padding + (node.x - bounds.value.minX) * (width - 2 * padding) / (bounds.value.maxX - bounds.value.minX),
-  y: padding + (node.y - bounds.value.minY) * (height - 2 * padding) / (bounds.value.maxY - bounds.value.minY) */
   x: node.x,
   y: node.y
 })))
 
-AjaxCall('get', '/graph/gid%3A%2F%2Ftaxon-works%2FLot%2F23887/object').then(({ body }) => {
-  graph.value = {
-    nodes: body.nodes.map(node => ({ ...node, x: null, y: null })),
-    links: body.edges.map(link => ({
-      source: body.nodes.findIndex(node => node.id === link.start_id),
-      target: body.nodes.findIndex(node => node.id === link.end_id)
-    }))
-  }
+const urlParams = new URLSearchParams(window.location.search)
+const globalId = urlParams.get('global_id')
 
-  simulation.value = d3.forceSimulation(graph.value.nodes)
-    .force('charge', d3.forceManyBody().strength(d => -1000))
-    .force('link', d3.forceLink(graph.value.links))
-    .force('center', d3.forceCenter(width / 2, height / 2))
-/*     .force('x', d3.forceX())
-    .force('y', d3.forceY()) */
-})
+if (globalId) {
+  AjaxCall('get', `/graph/${encodeURIComponent(globalId)}/object`).then(({ body }) => {
+    graph.value = {
+      nodes: body.nodes.map(node => ({ ...node, x: null, y: null })),
+      links: body.edges.map(link => ({
+        source: body.nodes.findIndex(node => node.id === link.start_id),
+        target: body.nodes.findIndex(node => node.id === link.end_id)
+      }))
+    }
+
+    simulation.value = d3.forceSimulation(graph.value.nodes)
+      .force('charge', d3.forceManyBody().strength(d => -1000))
+      .force('link', d3.forceLink(graph.value.links))
+      .force('center', d3.forceCenter(width / 2, height / 2))
+  })
+}
 
 const drag = e => {
   if (currentMove.value) {
