@@ -1,5 +1,6 @@
 <template>
   <h1> Task: Object graph</h1>
+  <h3>Target: {{ currentNodeName }}</h3>
   <svg
     v-if="bounds.minX"
     xmlns="http://www.w3.org/2000/svg"
@@ -28,8 +29,9 @@
         stroke-width="1"
         :title="node.name"
         :fill="node.color"
-        @click="loadGraph(node.id)"
-
+        @dblclick="loadGraph(node.id)"
+        @mousedown="currentMove = { x: $event.screenX, y: $event.screenY, node: node }"
+        @mouseup="drop()"
       />
       <text
         :x="coords[node.index].x + radio"
@@ -59,6 +61,7 @@ const width = Math.max(document.documentElement.clientWidth, window.innerWidth |
 const height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0) - 200
 const simulation = ref(null)
 const currentMove = ref(null)
+const currentGlobalId = ref()
 
 const bounds = computed(() => ({
   minX: Math.min(...graph.value.nodes.map(n => n.x)),
@@ -71,6 +74,8 @@ const coords = computed(() => graph.value.nodes.map(node => ({
   x: node.x,
   y: node.y
 })))
+
+const currentNodeName = computed(() => graph.value.nodes.find(node => node.id === currentGlobalId.value)?.name)
 
 const drag = e => {
   if (currentMove.value) {
@@ -90,6 +95,7 @@ const drop = () => {
 }
 
 const loadGraph = globalId => {
+  currentGlobalId.value = globalId
   SetParam('/tasks/collection_objects/object_graph', 'global_id', globalId)
   AjaxCall('get', `/graph/${encodeURIComponent(globalId)}/object`).then(({ body }) => {
     graph.value = {
