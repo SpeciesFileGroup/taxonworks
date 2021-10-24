@@ -24,7 +24,7 @@ module GraphHelper
     if collection_object.collecting_event
       collection_object.collecting_event.collectors.each do |c|
         edges.push graph_edge(collection_object.collecting_event, c)
-        edges.push graph_edge(collection_object.collecting_event, c)
+        nodes.push graph_node(c)
       end     
     end
 
