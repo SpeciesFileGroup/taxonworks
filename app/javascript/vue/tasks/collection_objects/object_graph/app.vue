@@ -28,8 +28,8 @@
         stroke-width="1"
         :title="node.name"
         :fill="node.color"
-        @mousedown="currentMove = { x: $event.screenX, y: $event.screenY, node: node }"
-        @mouseup="drop()"
+        @click="loadGraph(node.id)"
+
       />
       <text
         :x="coords[node.index].x + radio"
@@ -46,6 +46,7 @@
 <script setup>
 import * as d3 from 'd3'
 import { ref, computed } from 'vue'
+import SetParam from 'helpers/setParam'
 import AjaxCall from 'helpers/ajaxCall'
 
 const graph = ref({
@@ -56,8 +57,6 @@ const graph = ref({
 const radio = 10
 const width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0) - 20
 const height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0) - 200
-const padding = 20
-// const colors = ['#2196F3', '#E91E63', '#7E57C2', '#009688', '#00BCD4', '#EF6C00', '#4CAF50', '#FF9800', '#F44336', '#CDDC39', '#9C27B0']
 const simulation = ref(null)
 const currentMove = ref(null)
 
@@ -72,26 +71,6 @@ const coords = computed(() => graph.value.nodes.map(node => ({
   x: node.x,
   y: node.y
 })))
-
-const urlParams = new URLSearchParams(window.location.search)
-const globalId = urlParams.get('global_id')
-
-if (globalId) {
-  AjaxCall('get', `/graph/${encodeURIComponent(globalId)}/object`).then(({ body }) => {
-    graph.value = {
-      nodes: body.nodes.map(node => ({ ...node, x: null, y: null })),
-      links: body.edges.map(link => ({
-        source: body.nodes.findIndex(node => node.id === link.start_id),
-        target: body.nodes.findIndex(node => node.id === link.end_id)
-      }))
-    }
-
-    simulation.value = d3.forceSimulation(graph.value.nodes)
-      .force('charge', d3.forceManyBody().strength(d => -40))
-      .force('link', d3.forceLink(graph.value.links))
-      .force('center', d3.forceCenter(width / 2, height / 2))
-  })
-}
 
 const drag = e => {
   if (currentMove.value) {
@@ -109,4 +88,30 @@ const drop = () => {
   simulation.value.alpha(1)
   simulation.value.restart()
 }
+
+const loadGraph = globalId => {
+  SetParam('/tasks/collection_objects/object_graph', 'global_id', globalId)
+  AjaxCall('get', `/graph/${encodeURIComponent(globalId)}/object`).then(({ body }) => {
+    graph.value = {
+      nodes: body.nodes.map(node => ({ ...node, x: null, y: null })),
+      links: body.edges.map(link => ({
+        source: body.nodes.findIndex(node => node.id === link.start_id),
+        target: body.nodes.findIndex(node => node.id === link.end_id)
+      }))
+    }
+
+    simulation.value = d3.forceSimulation(graph.value.nodes)
+      .force('charge', d3.forceManyBody().strength(d => -40))
+      .force('link', d3.forceLink(graph.value.links))
+      .force('center', d3.forceCenter(width / 2, height / 2))
+  })
+}
+
+const urlParams = new URLSearchParams(window.location.search)
+const globalId = urlParams.get('global_id')
+
+if (globalId) {
+  loadGraph(globalId)
+}
+
 </script>
