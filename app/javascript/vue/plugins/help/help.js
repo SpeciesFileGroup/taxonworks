@@ -7,7 +7,7 @@ const getString = function(binding) {
   let string = languages[defaultLanguage]
 
   if (binding.value) {
-    const expression = binding.value.split('.')
+    const expression = binding.value.split('|')
 
     expression.forEach(item => {
       string = string[item]
