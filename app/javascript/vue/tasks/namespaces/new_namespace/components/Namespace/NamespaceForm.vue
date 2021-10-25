@@ -17,7 +17,7 @@
           type="text">
       </div>
       <div class="field label-above">
-        <label>Verbaim</label>
+        <label>Verbatim</label>
         <input
           v-model="namespace.verbatim_short_name"
           type="text">
