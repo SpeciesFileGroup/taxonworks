@@ -100,9 +100,9 @@ module Queries
         queries = [
           autocomplete_exact_match,
           autocomplete_exact_inverted,
-          autocomplete_identifier_cached_exact,
-          autocomplete_identifier_identifier_exact,
-          autocomplete_exact_id,
+          autocomplete_identifier_cached_exact, # do not use extended query
+          autocomplete_identifier_identifier_exact, # do not use extended query
+          autocomplete_exact_id, # do not use extended query
           autocomplete_exact_last_name_match,
           autocomplete_alternate_values_last_name,
           autocomplete_alternate_values_first_name,
@@ -117,7 +117,7 @@ module Queries
         queries.each_with_index do |q ,i|
           if roles_assigned?
             a = q.joins(:roles).where(role_match.to_sql)
-          elsif i != 2 && i != 3 && i != 4
+          elsif i != 2 && i != 3 && i != 4 # do not use extended query for identifiers
             a = q.left_outer_joins(:roles)
                   .joins("LEFT OUTER JOIN sources ON roles.role_object_id = sources.id AND roles.role_object_type = 'Source'")
                   .joins('LEFT OUTER JOIN project_sources ON sources.id = project_sources.source_id')
