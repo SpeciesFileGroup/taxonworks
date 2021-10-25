@@ -36,9 +36,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 - Failure when setting up namespaces in DwC importer with datasets having *unnamed* columns
 - Namespace settings are not cleared when unmatched and re-opened in DwC Import [#2586]
+- scientificNameAuthorship parsing issues in DwC importer [#2589]
 
-[#2531]:  https://github.com/SpeciesFileGroup/taxonworks/issues/2531
-[#2586]:  https://github.com/SpeciesFileGroup/taxonworks/issues/2586
+[#2531]: https://github.com/SpeciesFileGroup/taxonworks/issues/2531
+[#2586]: https://github.com/SpeciesFileGroup/taxonworks/issues/2586
+[#2589]: https://github.com/SpeciesFileGroup/taxonworks/issues/2589
 
 ## [0.20.1] - 2021-10-15
 
