@@ -2,7 +2,6 @@
   <h1> Task: Object graph</h1>
   <h3>Target: {{ currentNodeName }}</h3>
   <svg
-    v-if="bounds.minX"
     xmlns="http://www.w3.org/2000/svg"
     :width="width+'px'"
     :height="height+'px'"
@@ -11,6 +10,7 @@
   >
     <line
       v-for="link in graph.links"
+      :key="link.index"
       :x1="coords[link.source.index].x"
       :y1="coords[link.source.index].y"
       :x2="coords[link.target.index].x"
@@ -20,47 +20,19 @@
     />
     <g
       v-for="node in graph.nodes"
-      :key="node.id">
-      <polygon
-        v-if="node.shape === 'triangle'"
-        :points="`
-        ${coords[node.index].x},${(coords[node.index].y - size)}
-        ${coords[node.index].x - size} ,${coords[node.index].y + size}
-        ${coords[node.index].x + size},${coords[node.index].y + size}`"
+      class="cursor-pointer"
+      :key="node.id"
+      @mousedown="currentMove = { x: $event.screenX, y: $event.screenY, node: node }"
+      @mouseup="drop()"
+    >
+      <component
+        :is="componentForShape(node.shape)"
+        :size="size"
+        :x="coords[node.index].x || 0"
+        :y="coords[node.index].y || 0"
+        :color="node.color"
         stroke="white"
         stroke-width="1"
-        :title="node.name"
-        :fill="node.color"
-        @dblclick="loadGraph(node.id)"
-        @mousedown="currentMove = { x: $event.screenX, y: $event.screenY, node: node }"
-        @mouseup="drop()"
-      />
-      <rect
-        v-else-if="node.shape === 'square'"
-        :width="size * 2"
-        :height="size * 2"
-        :x="coords[node.index].x - size"
-        :y="coords[node.index].y - size"
-        stroke="white"
-        stroke-width="1"
-        :title="node.name"
-        :fill="node.color"
-        @dblclick="loadGraph(node.id)"
-        @mousedown="currentMove = { x: $event.screenX, y: $event.screenY, node: node }"
-        @mouseup="drop()"
-      />
-      <circle
-        v-else
-        :cx="coords[node.index].x"
-        :cy="coords[node.index].y"
-        :r="size"
-        stroke="white"
-        stroke-width="1"
-        :title="node.name"
-        :fill="node.color"
-        @dblclick="loadGraph(node.id)"
-        @mousedown="currentMove = { x: $event.screenX, y: $event.screenY, node: node }"
-        @mouseup="drop()"
       />
       <text
         :x="coords[node.index].x + size"
@@ -79,11 +51,11 @@ import * as d3 from 'd3'
 import { ref, computed } from 'vue'
 import SetParam from 'helpers/setParam'
 import AjaxCall from 'helpers/ajaxCall'
-
-const graph = ref({
-  nodes: [],
-  links: []
-})
+import SvgCircle from './components/Svg/SvgCircle.vue'
+import SvgSquare from './components/Svg/SvgSquare.vue'
+import SvgTriangle from './components/Svg/SvgTriangle.vue'
+import SvgPerson from './components/Svg/SvgPerson.vue'
+import SvgHexagon from './components/Svg/SvgHexagon.vue'
 
 const size = 10
 const width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0) - 20
@@ -91,20 +63,26 @@ const height = Math.max(document.documentElement.clientHeight, window.innerHeigh
 const simulation = ref(null)
 const currentMove = ref(null)
 const currentGlobalId = ref()
-
-const bounds = computed(() => ({
-  minX: Math.min(...graph.value.nodes.map(n => n.x)),
-  maxX: Math.max(...graph.value.nodes.map(n => n.x)),
-  minY: Math.min(...graph.value.nodes.map(n => n.y)),
-  maxY: Math.max(...graph.value.nodes.map(n => n.y))
-}))
-
+const graph = ref({
+  nodes: [],
+  links: []
+})
 const coords = computed(() => graph.value.nodes.map(node => ({
   x: node.x,
   y: node.y
 })))
 
 const currentNodeName = computed(() => graph.value.nodes.find(node => node.id === currentGlobalId.value)?.name)
+
+const AVAILABLE_SHAPES = {
+  square: SvgSquare,
+  circle: SvgCircle,
+  triangle: SvgTriangle,
+  person: SvgPerson,
+  hexagon: SvgHexagon
+}
+
+const componentForShape = shapeType => AVAILABLE_SHAPES[shapeType] || SvgCircle
 
 const drag = e => {
   if (currentMove.value) {
