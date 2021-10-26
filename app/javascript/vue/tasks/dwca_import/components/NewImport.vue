@@ -121,7 +121,10 @@ export default {
       this.isUploading = true
       formData.append('import_dataset[description]', this.description)
       formData.append('import_dataset[import_settings][nomenclatural_code]', this.nomenclatureCode)
-      formData.append('import_dataset[import_settings][row_type]', this.rowType)
+
+      if (this.rowType) {
+        formData.append('import_dataset[import_settings][row_type]', this.rowType)
+      }
     },
 
     completeQueue (file, response) {
