@@ -28,10 +28,12 @@
         }"
       />
 
-      <div class="original-combination margin-medium-top">
+      <div class="original-combination margin-medium-top margin-medium-bottom">
         <div class="rank-name-label"/>
         <combination-verbatim v-model="currentCombination.verbatim_name"/>
       </div>
+
+      <combination-citation v-model="originCitation"/>
 
       <div class="margin-medium-top">
         <v-btn
@@ -77,18 +79,22 @@ import {
   combinationType,
   combinationIcnType
 } from '../../const/originalCombinationTypes'
+import { COMBINATION } from 'constants/index.js'
 import VBtn from 'components/ui/VBtn/index.vue'
 import DisplayList from 'components/displayList.vue'
 import BlockLayout from 'components/layout/BlockLayout.vue'
 import CombinationRank from './CombinationRank.vue'
 import CombinationCurrent from './CombinationCurrent.vue'
 import CombinationVerbatim from './CombinationVerbatim.vue'
+import CombinationCitation from './CombinationCitation.vue'
+import makeCitationObject from 'factory/Citation.js'
 
 const store = useStore()
 const combination = ref({})
 const combinationList = computed(() => store.getters[GetterNames.GetCombinations])
 const taxonId = computed(() => store.getters[GetterNames.GetTaxon].id)
 const currentCombination = ref({})
+const originCitation = ref(makeCitationObject(COMBINATION))
 const isCurrentTaxonInCombination = computed(() => !!Object.entries(combination.value).find(([_, taxon]) => taxon?.id === taxonId.value))
 const combinationRanks = computed(() =>
   store.getters[GetterNames.GetTaxon].nomenclatural_code === 'icn'
@@ -100,7 +106,8 @@ const saveCombination = () => {
   const combObj = Object.assign({},
     {
       id: currentCombination.value.id,
-      verbatim_name: currentCombination.value.verbatim_name
+      verbatim_name: currentCombination.value.verbatim_name,
+      origin_citation_attributes: originCitation.value,
     },
     ...removeOldRelationships(combination.value),
     ...makeCombinationParams()
@@ -109,6 +116,7 @@ const saveCombination = () => {
   store.dispatch(ActionNames.CreateCombination, combObj).then(_ => {
     combination.value = {}
     currentCombination.value = {}
+    originCitation.value = makeCitationObject(COMBINATION)
   })
 }
 
@@ -138,11 +146,19 @@ const makeCombinationParams = () => Object.entries(combination.value).map(([rank
 const newCombination = () => {
   combination.value = {}
   currentCombination.value = {}
+  originCitation.value = makeCitationObject(COMBINATION)
 }
 
 const loadCombination = data => {
   currentCombination.value = { ...data }
   combination.value = data.protonyms
+  originCitation.value = data.origin_citation
+    ? {
+        id: data.origin_citation.id,
+        source_id: data.origin_citation.source.id,
+        pages: data.origin_citation.pages
+      }
+    : makeCitationObject(COMBINATION)
 }
 
 const removeCombination = data => {

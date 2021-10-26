@@ -91,7 +91,7 @@ export default {
     taxon: {
       handler (newVal, oldVal) {
         if (newVal.id && !oldVal.id) {
-          this.tabIndex = getTabIndex(TAB.Source)
+          this.tabIndex = getTabIndex(this.setTabView())
         }
       }
     }
