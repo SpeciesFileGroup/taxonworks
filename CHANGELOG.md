@@ -32,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated corresponding ap1/v1 endpoints to use the `&extend[]` pattern for `/otus`, `/taxon_names`, `/combinations`, `/sources`, `/citations` (in part) and `biological_associations` to match the new parameter values above
 - API `/api/v1/biological_associations` uses metadata for related objects
 - Optimized Source smart selection queries
+- Added option in DwC importer to specific the dataset type (defaults to auto-detection).
 
 ### Fixed
 - Failure when setting up namespaces in DwC importer with datasets having *unnamed* columns
