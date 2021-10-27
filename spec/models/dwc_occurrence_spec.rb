@@ -14,32 +14,73 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
 
 
 specify 'extending predicates' do
-    s1 = Specimen.create
-    s2 = Specimen.create
-    s3 = Specimen.create
-    
-    p1 = FactoryBot.create(:valid_predicate)
-    p2 = FactoryBot.create(:valid_predicate)
-    d1 = InternalAttribute.create!( attribute_subject: s1, predicate: p1, value: 1)
-    d2 = InternalAttribute.create!( attribute_subject: s2, predicate: p1, value: 2)
-    
-    #   a = DwcOccurrence.collection_object_join
-    #     .left_outer_join(collection_objects: [:data_attributes])
-    #     .where(data_attributes: nil).
-    #     .or.where(data_attributes:
-    #     .select("controlled_vocabulary_terms.name")
-    #     .group('dwc_occurrences.id, controlled_vocabulary_terms.id')
-    
-    b = Predicate.joins(:internal_attributes)
-    .where(data_attributes: { data_attribute_object_type: ['CollectionObject']})
-    .select(:id, :name)
-    
-    c = InternalAttribute.select('t.*').from("CROSSTAB ('#{b.to_sql}') as t (pid, pname)")
-    
-    byebug
-    
-    expect(true).to eq(false)
-    
+  include ActiveJob::TestHelper
+
+
+  s1 = Specimen.create(collecting_event: collecting_event)
+  s2 = Specimen.create(collecting_event: collecting_event)
+  s3 = Specimen.create
+
+  ce1 = collecting_event
+
+  p1 = FactoryBot.create(:valid_predicate)
+  p2 = FactoryBot.create(:valid_predicate)
+  p3 = FactoryBot.create(:valid_predicate)
+  d1 = InternalAttribute.create!( attribute_subject: s1, predicate: p1, value: 1)
+  d2 = InternalAttribute.create!( attribute_subject: s2, predicate: p1, value: 2)
+  d3 = InternalAttribute.create!( attribute_subject: ce1, predicate: p3, value: 'my_ce_attribute')
+
+  p1_header = "TW:DataAttribute:CollectionObject:" + p1.name
+  p2_header = "TW:DataAttribute:CollectionObject:" + p2.name
+  p3_header = "TW:DataAttribute:CollectingEvent:" + p3.name
+
+  scope = DwcOccurrence.where(project_id: project_id)
+
+  predicate_extension_params = {predicate_extension_params:
+                                  {collection_object_predicate_id: [p1.id, p2.id],
+                                   collecting_event_predicate_id: [p3.id]}
+  }
+
+  download = Export::Dwca.download_async(
+    scope,
+    predicate_extension_params: predicate_extension_params
+  )
+
+  ::DwcaCreateDownloadJob.perform_now(download, core_scope: scope, predicate_extension_params: predicate_extension_params)
+
+
+  zipfile_path = download.file_path
+
+  content = nil
+
+  Zip::File.open(zipfile_path) do |zip_file|
+    zip_file.each do |entry|
+      if entry.name == 'data.csv' && entry.file?
+        content = entry.get_input_stream.read
+      end
+    end
+  end
+
+
+  tbl = CSV.parse(content, col_sep: "\t", headers: true)
+
+  expect(tbl.headers).to include(p1_header)
+  expect(tbl.headers).not_to include(p2_header)
+  expect(tbl.headers).to include(p3_header)
+
+  expect(tbl.first[p1_header]).to eq '1'
+  expect(tbl.first[p2_header]).to be_nil
+  expect(tbl.first[p3_header]).to eq 'my_ce_attribute'
+
+  expect(tbl[1][p1_header]).to eq '2'
+  expect(tbl[1][p2_header]).to be_nil
+  expect(tbl[1][p3_header]).to eq 'my_ce_attribute'
+
+  expect(tbl[2][p1_header]).to be_nil
+  expect(tbl[2][p2_header]).to be_nil
+  expect(tbl[2][p3_header]).to be_nil
+
+
 end
 
 
