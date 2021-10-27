@@ -469,7 +469,7 @@ class Person < ApplicationRecord
 
     Person.joins(
       Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['person_id'].eq(p['id'])))
-    ).distinct.pluck(:person_id)
+    ).pluck(:person_id).uniq
   end
 
   # @params Role [String] one the available roles

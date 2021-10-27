@@ -38,7 +38,8 @@ class Otu < ApplicationRecord
   include Shared::HasPapertrail
   include Shared::OriginRelationship
 
-include Otu::DwcExtensions
+  include Shared::Taxonomy
+  include Otu::DwcExtensions
 
   include Shared::MatrixHooks::Member
   include Otu::MatrixHooks

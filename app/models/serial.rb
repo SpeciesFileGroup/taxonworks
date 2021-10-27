@@ -153,7 +153,7 @@ class Serial < ApplicationRecord
 
     # i is a select manager
     i = t.project(t['serial_id'], t['created_at']).from(t)
-            .where(t['created_at'].gt(1.weeks.ago))
+            .where(t['created_at'].gt(1.months.ago))
             .where(t['created_by_id'].eq(user_id))
             .order(t['created_at'].desc)
 

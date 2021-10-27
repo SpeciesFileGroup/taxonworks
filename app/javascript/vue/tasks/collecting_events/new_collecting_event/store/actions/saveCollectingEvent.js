@@ -4,6 +4,7 @@ import { MutationNames } from '../mutations/mutations'
 import { RouteNames } from 'routes/routes'
 import { EVENT_SMART_SELECTOR_UPDATE } from 'constants/index.js'
 import SetParam from 'helpers/setParam'
+import extend from '../../const/extendRequest.js'
 
 const updateSmartSelectors = () => {
   const event = new CustomEvent(EVENT_SMART_SELECTOR_UPDATE)
@@ -24,8 +25,8 @@ export default async ({ state, commit, dispatch }) => {
   state.settings.isSaving = true
 
   return (collectingEvent.id
-    ? CollectingEvent.update(collectingEvent.id, { collecting_event: collectingEvent })
-    : CollectingEvent.create({ collecting_event: collectingEvent })
+    ? CollectingEvent.update(collectingEvent.id, { collecting_event: collectingEvent, extend })
+    : CollectingEvent.create({ collecting_event: collectingEvent, extend })
   ).then(async response => {
     TW.workbench.alert.create(`Collecting event was successfully ${collectingEvent.id ? 'updated' : 'created'}.`, 'notice')
     commit(MutationNames.SetCollectingEvent, Object.assign({}, collectingEvent, response.body, { roles_attributes: response.body.collector_roles || [] }))

@@ -18,7 +18,7 @@
 
 import SpinnerComponent from 'components/spinner.vue'
 import TableComponent from './tables/table.vue'
-import AjaxCall from 'helpers/ajaxCall'
+import extend from '../const/extendRequest.js'
 import { Citation } from 'routes/endpoints'
 
 export default {
@@ -56,8 +56,12 @@ export default {
     }
   },
   methods: {
-    getCites() {
-      const params = { citation_object_type: 'Otu', source_id: this.sourceID }
+    getCites () {
+      const params = {
+        citation_object_type: 'Otu',
+        source_id: this.sourceID,
+        extend
+      }
 
       this.showSpinner = true
 

@@ -7,6 +7,7 @@
         ref="determinerSmartSelector"
         model="people"
         target="Determiner"
+        label="cached"
         :autocomplete="false"
         @selected="addRole">
         <template #header>

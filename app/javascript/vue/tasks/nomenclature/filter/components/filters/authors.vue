@@ -9,6 +9,7 @@
         :autocomplete-params="{
           roles: ['TaxonNameAuthor']
         }"
+        label="cached"
         @selected="addAuthor"/>
       <label>
         <input

@@ -9,13 +9,15 @@
         :klass="objectType"
         pin-type="Source"
         @selected="citation.source_id = $event.id; citation.author_year = getAuthorYear($event)"
-        v-model="source">
+        v-model="source"
+        label="cached"
+      >
         <template #footer>
           <div
             v-if="source"
             class="horizontal-left-content margin-medium-bottom margin-medium-top">
             <span
-              v-html="source.object_tag"/>
+              v-html="source.cached"/>
             <span
               class="button circle-button btn-delete button-default"
               @click="unsetSource"/>

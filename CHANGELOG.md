@@ -8,17 +8,59 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- New parameters for fine-tuning the API responses, `&extend[]=` and `&embed[]` [#2531]
+- Parameter value `origin_citation` via `&extend[]=` to all basic GET `/object(/:id)` requests [#2531]
+- Parameter value `pinboard_item` via `&extend[]=` to all basic GET `/object(/:id)` requests [#2531]
+- Parameter value `citations` via `&extend[]=` to all basic GET `/object/:id` requests [#2531]
+- Parameter values `roles` and `documents` via `&extend[]=` to `/sources(/:id).json` [#2531]
+- Parameter values `protonyms` and `placement` via `&extend[]=` to `/combinations(/:id).json [#2531]
+- Parameter values `parent`, `otus`, `roles`, ancestor_ids`, `children`, `type_taxon_name_relationship` via `&extend[]=` to `/taxon_names(/:id).json [#2531]
+- Parameter values `level_names`, `geographic_area_type`, `parent` via `&extend[]=` and `shape` via `&embed[]=` to `/geographic_areas(/:id).json [#2531]
+- Parameter value `subject`, `object`, `biological_relationship`, `family_names` via `&extend[]=` to `/biological_associations(/:id).json [#2531]
+- Parameter value `citation_object`, `citation_topics`, `source`, `target_document` via `&extend[]=` to `/citations(/:id).json [#2531]
+- API route `/taxon_names/parse?query_string=Aus bus` for resolving names to Protonyms
+- Parameter value `roles` via `&extend[]=` to `/collecting_events(/:id).json` [#2531]
+- Param to isolate TaxonName smart select to Protonym if optional
+
+### Changed
+- Ordering of GeorgaphicArea autocomplete results. Used areas and areas with shape are prioritized
+- Basic (REST) endpoints send less information, use `&extend[]` and `&embed[]` to return more [#2531]
+- Numerous tasks updated to use the new REST pattern
+- Objects in basic show/index JSON endpoints are represented by their metadata, rather than all their attributes in many cases now [#2531]
+- Metadata in extensions does not cascade and return metadata of metadata [#2531]
+- JSON smart selector data (`/sources/select_options`) includes base attributes, not metadata [#2531]
+- Updated corresponding ap1/v1 endpoints to use the `&extend[]` pattern for `/otus`, `/taxon_names`, `/combinations`, `/sources`, `/citations` (in part) and `biological_associations` to match the new parameter values above
+- API `/api/v1/biological_associations` uses metadata for related objects
+- Optimized Source smart selection queries
+- Added option in DwC importer to specific the dataset type (defaults to auto-detection).
+
+### Fixed
+- Failure when setting up namespaces in DwC importer with datasets having *unnamed* columns
+- Namespace settings are not cleared when unmatched and re-opened in DwC Import [#2586]
+- scientificNameAuthorship parsing issues in DwC importer [#2589]
+
+[#2531]: https://github.com/SpeciesFileGroup/taxonworks/issues/2531
+[#2586]: https://github.com/SpeciesFileGroup/taxonworks/issues/2586
+[#2589]: https://github.com/SpeciesFileGroup/taxonworks/issues/2589
+
+## [0.20.1] - 2021-10-15
+
+### Added
+- Added missing OTU soft_validation for protonym
+- Added recent values on keywords
 - Added Attribution attributes to `/images` API show responses
 - API `/images` can return images by `image_file_fingerprint` (MD5), in addition to id
 
 ### Changed
+- Updated author string for misspellings
 - Removed footprintWKT from DwcOccurrence.  It will be re-instated as optional in the future.
 - Removed GeographicArea from consideration as a _georeference_ in DwcOccurrence
 - Changed `associatedMedia` format, pointed it to
 - Removed redundant 'Rebuild' button from Browse collection objects
 
 ### Fixed
-- Dwc Dashboard graphs show proper count ranges
+- DwC Dashboard past links are properly scoped
+- DwC Dashboard graphs show proper count ranges
 - DwC archive no longer truncated at 10k records
 - OccurrenceID was not being added to DwcOccurrence attributes in all cases [#2573]
 - Observation matrix show expand was referencing the wrong id  [#2540]
@@ -27,6 +69,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - TIFF images are not visible in filter image task [#2575]
 - Repository input shows value, when not set [#2574]
 - Images don't load after expand depictions sections in comprehensive task
+- DwC occurrences importer being too strict when checking against existing nomenclature [#2581]
 
 [#2573]: https://github.com/SpeciesFileGroup/taxonworks/issues/2573
 [#2540]: https://github.com/SpeciesFileGroup/taxonworks/issues/2540
@@ -34,9 +77,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2575]: https://github.com/SpeciesFileGroup/taxonworks/issues/2575
 [#2576]: https://github.com/SpeciesFileGroup/taxonworks/issues/2576
 [#2577]: https://github.com/SpeciesFileGroup/taxonworks/issues/2577
-
-
-\-
+[#2581]: https://github.com/SpeciesFileGroup/taxonworks/issues/2581
 
 ## [0.20.0] - 2021-10-12
 
@@ -1851,7 +1892,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.20.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.20.1...development
+[0.20.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.20.0...v0.20.1
 [0.20.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.7...v0.20.0
 [0.19.7]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.6...v0.19.7
 [0.19.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.5...v0.19.6

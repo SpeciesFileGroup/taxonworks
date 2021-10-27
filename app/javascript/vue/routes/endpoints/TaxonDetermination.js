@@ -1,5 +1,6 @@
-import baseCRUD from './base'
+import baseCRUD, { annotations } from './base'
 
+const controller = 'taxon_determinations'
 const permitParams = {
   taxon_determination: {
     biological_collection_object_id: Number,
@@ -31,5 +32,6 @@ const permitParams = {
 }
 
 export const TaxonDetermination = {
-  ...baseCRUD('taxon_determinations', permitParams)
+  ...baseCRUD(controller, permitParams),
+  ...annotations(controller)
 }
