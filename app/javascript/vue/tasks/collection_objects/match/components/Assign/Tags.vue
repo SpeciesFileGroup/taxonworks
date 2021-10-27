@@ -10,6 +10,7 @@
       get-url="/controlled_vocabulary_terms/"
       model="keywords"
       klass="Tag"
+      target="CollectionObject"
       @selected="addTag"/>
   </div>
 </template>

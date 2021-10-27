@@ -6,7 +6,7 @@
       Settings
     </button>
     <modal-component
-      v-show="showModal"
+      v-if="showModal"
       @close="setModalView(false)"
       :container-style="{
         width: '700px',
@@ -36,8 +36,8 @@
             </thead>
             <tbody>
               <row-component
-                class="contextMenuCells"
                 v-for="(item, index) in catalogueNumbers"
+                class="contextMenuCells"
                 :row="item"
                 :dataset-id="dataset.id"
                 :key="index"

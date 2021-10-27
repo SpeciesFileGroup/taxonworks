@@ -62,7 +62,8 @@
         v-model="params.collectors"/>
       <keywords-component
         class="margin-large-bottom"
-        v-model="params.keywords" />
+        v-model="params.keywords"
+        target="CollectionObject" />
       <types-component
         class="margin-large-bottom"
         v-model="params.types"/>

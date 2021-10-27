@@ -84,6 +84,10 @@ EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS = [
     TaxonNameClassification::Iczn::Unavailable::NotLatinizedBefore1900AndNotAccepted,
     TaxonNameClassification::Iczn::Unavailable::NonBinomial,
     TaxonNameClassification::Iczn::Unavailable::NonBinomial.descendants,
+    TaxonNameClassification::Iczn::Unavailable::NomenNudum,
+    TaxonNameClassification::Iczn::Unavailable::NomenNudum.descendants,
+    TaxonNameClassification::Iczn::Unavailable::Excluded,
+    TaxonNameClassification::Iczn::Unavailable::Excluded.descendants,
     TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished::NotLatin
 ].flatten.map(&:to_s).freeze
 

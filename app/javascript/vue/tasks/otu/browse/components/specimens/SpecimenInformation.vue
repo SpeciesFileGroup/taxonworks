@@ -73,7 +73,7 @@ export default {
   computed: {
     citationsLabel () {
       return this.citations.length
-        ? this.citations.map(item => item.source.cached).join('; ')
+        ? this.citations.map(item => item.citation_source_body).join('; ')
         : 'not specified'
     },
 
@@ -138,7 +138,7 @@ export default {
 
   methods: {
     loadData () {
-      CollectionObject.find(this.specimen.collection_objects_id).then(response => {
+      CollectionObject.find(this.specimen.collection_objects_id, { extend: ['citations'] }).then(response => {
         const repositoryId = response.body.repository_id
 
         this.collectionObject = response.body

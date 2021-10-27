@@ -2,10 +2,11 @@ import { TaxonName } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
 import filterObject from '../../helpers/filterObject'
+import extend from '../../const/extendRequest.js'
 
 export default function ({ commit, dispatch }, id) {
-  return new Promise(function (resolve, reject) {
-    TaxonName.find(id).then(response => {
+  return new Promise((resolve, reject) => {
+    TaxonName.find(id, { extend }).then(response => {
       if (response.body.hasOwnProperty('parent')) {
         commit(MutationNames.SetNomenclaturalCode, response.body.nomenclatural_code)
         commit(MutationNames.SetTaxon, filterObject(response.body))

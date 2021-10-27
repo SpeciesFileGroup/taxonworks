@@ -23,7 +23,7 @@ export default {
   },
   computed: {
     citationsLabel () {
-      return this.type.origin_citation ? this.type.origin_citation.source.object_tag : 'not specified'
+      return this.type.origin_citation ? this.type.origin_citation.source.cached : 'not specified'
     },
     otu () {
       return this.$store.getters[GetterNames.GetCurrentOtu]

@@ -11,7 +11,6 @@
           </th>
           <th>Is public</th>
           <th />
-          <th />
         </tr>
       </thead>
       <tbody>
@@ -29,9 +28,6 @@
               :checked="item.is_public"
               @click="setIsPublic(item, index)"
             >
-          </td>
-          <td>
-            <radial-navigation :global-id="item.global_id"/>
           </td>
           <td>
             <v-btn
@@ -59,7 +55,6 @@ import { DOWNLOAD_DWC_ARCHIVE } from 'constants/index.js'
 import { Download } from 'routes/endpoints'
 import { humanize } from 'helpers/strings'
 import VBtn from 'components/ui/VBtn/index.vue'
-import RadialNavigation from 'components/radials/navigation/radial.vue'
 
 const DEFAULT_WAIT_TIME = 60000
 const TIME_BY_RECORDS = {
