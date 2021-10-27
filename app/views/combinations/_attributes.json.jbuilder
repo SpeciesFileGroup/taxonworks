@@ -12,6 +12,19 @@ if extend_response_with('protonyms')
   end
 end
 
+if extend_response_with('roles')
+  if combination.roles.any?
+    json.taxon_name_author_roles do
+      json.array! combination.taxon_name_author_roles.each do |role|
+        json.extract! role, :id, :position, :type
+        json.person do
+          json.partial! '/people/base_attributes', person: role.person
+        end
+      end
+    end
+  end
+end
+
 if extend_response_with('placement')
   # Metadata on the placement of the finest component of the Combination.
   # Used to update placement of names to a current placement.

@@ -1,17 +1,10 @@
 import { TaxonNameRelationship } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
-export default function ({ commit, state, dispatch }, data) {
-  return new Promise((resolve, reject) => {
-    const relationship = {
-      taxon_name_relationship: {
-        object_taxon_name_id: data.taxonRelationshipId,
-        subject_taxon_name_id: state.taxon_name.id,
-        type: data.type
-      }
-    }
+export default ({ commit, state, dispatch }, taxon_name_relationship) => 
+  new Promise((resolve, reject) => {
     commit(MutationNames.SetHardValidation, undefined)
-    TaxonNameRelationship.create(relationship).then(response => {
+    TaxonNameRelationship.create({ taxon_name_relationship }).then(response => {
       commit(MutationNames.AddTaxonRelationship, response.body)
       dispatch('loadSoftValidation', 'taxon_name')
       dispatch('loadSoftValidation', 'taxonRelationshipList')
@@ -24,4 +17,3 @@ export default function ({ commit, state, dispatch }, data) {
     })
     state.taxonRelationship = undefined
   })
-}

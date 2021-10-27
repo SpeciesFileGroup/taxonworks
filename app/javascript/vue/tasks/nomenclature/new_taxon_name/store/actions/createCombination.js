@@ -3,7 +3,7 @@ import { MutationNames } from '../mutations/mutations'
 
 export default ({ commit }, combination) => new Promise((resolve, reject) => {
   const saveRequest = combination.id
-    ? Combination.update(combination.id, { combination, extend: ['protonyms', 'origin_citation'] })
+    ? Combination.update(combination.id, { combination, extend: ['protonyms', 'origin_citation', 'roles'] })
     : Combination.create({ combination, extend: ['protonyms', 'origin_citation'] })
 
   saveRequest.then(({ body }) => {

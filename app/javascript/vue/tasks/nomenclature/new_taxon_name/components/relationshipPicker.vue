@@ -117,7 +117,7 @@ import ListCommon from './commonList.vue'
 import Autocomplete from 'components/ui/Autocomplete.vue'
 import getRankGroup from '../helpers/getRankGroup'
 import SwitchComponent from 'components/switch'
-import BlockLayout from'components/layout/BlockLayout'
+import BlockLayout from 'components/layout/BlockLayout'
 
 export default {
   components: {
@@ -274,7 +274,8 @@ export default {
       else {
         this.$store.dispatch(ActionNames.AddTaxonRelationship, {
           type: item.type,
-          taxonRelationshipId: this.taxonRelation.id
+          object_taxon_name_id: this.taxonRelation.id,
+          subject_taxon_name_id: this.taxon.id
         }).then(() => {
           this.taxonRelation = undefined
           this.$store.commit(MutationNames.UpdateLastChange)

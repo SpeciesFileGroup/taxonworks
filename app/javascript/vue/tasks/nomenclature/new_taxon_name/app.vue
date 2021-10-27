@@ -83,7 +83,7 @@ import EtymologySection from './components/etymology.vue'
 import GenderSection from './components/gender.vue'
 import CheckChanges from './components/checkChanges.vue'
 import TypeSection from './components/type.vue'
-import BasicinformationSection from './components/basicInformation.vue'
+import TaxonSection from './components/basicInformation.vue'
 import OriginalcombinationSection from './components/pickOriginalCombination.vue'
 import ManagesynonymySection from './components/manageSynonym'
 import ClassificationSection from './components/classification.vue'
@@ -103,7 +103,7 @@ export default {
   components: {
     AuthorSection,
     Autocomplete,
-    BasicinformationSection,
+    TaxonSection,
     CheckChanges,
     ClassificationSection,
     EtymologySection,
@@ -151,7 +151,7 @@ export default {
     },
     menu () {
       return {
-        'Basic information': true,
+        Taxon: true,
         Author: true,
         Status: true,
         Relationship: true,

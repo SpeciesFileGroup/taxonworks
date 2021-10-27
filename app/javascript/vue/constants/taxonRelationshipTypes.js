@@ -6,3 +6,4 @@ export const TAXON_RELATIONSHIP_ORIGINAL_VARIETY = 'TaxonNameRelationship::Origi
 export const TAXON_RELATIONSHIP_ORIGINAL_SUBVARIETY = 'TaxonNameRelationship::OriginalCombination::OriginalSubvariety'
 export const TAXON_RELATIONSHIP_ORIGINAL_FORM = 'TaxonNameRelationship::OriginalCombination::OriginalForm'
 export const TAXON_RELATIONSHIP_ORIGINAL_SUBFORM = 'TaxonNameRelationship::OriginalCombination::OriginalSubform'
+export const TAXON_RELATIONSHIP_CURRENT_COMBINATION = 'TaxonNameRelationship::CurrentCombination'

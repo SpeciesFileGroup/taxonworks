@@ -33,7 +33,9 @@
         <combination-verbatim v-model="currentCombination.verbatim_name"/>
       </div>
 
-      <combination-citation v-model="originCitation"/>
+      <combination-citation
+        :taxon="taxon"
+        v-model="citationData"/>
 
       <div class="margin-medium-top">
         <v-btn
@@ -57,11 +59,8 @@
           New
         </v-btn>
       </div>
-      <display-list
+      <combination-list
         :list="combinationList"
-        label="object_label"
-        edit
-        annotator
         @edit="loadCombination"
         @delete="removeCombination"
       />
@@ -71,7 +70,7 @@
 
 <script setup>
 
-import { ref, computed } from 'vue'
+import { ref, computed, reactive } from 'vue'
 import { useStore } from 'vuex'
 import { GetterNames } from '../../store/getters/getters.js'
 import { ActionNames } from '../../store/actions/actions.js'
@@ -79,35 +78,43 @@ import {
   combinationType,
   combinationIcnType
 } from '../../const/originalCombinationTypes'
-import { COMBINATION } from 'constants/index.js'
+import {
+  COMBINATION,
+  NOMENCLATURE_CODE_BOTANY
+} from 'constants/index.js'
 import VBtn from 'components/ui/VBtn/index.vue'
-import DisplayList from 'components/displayList.vue'
 import BlockLayout from 'components/layout/BlockLayout.vue'
 import CombinationRank from './CombinationRank.vue'
 import CombinationCurrent from './CombinationCurrent.vue'
 import CombinationVerbatim from './CombinationVerbatim.vue'
-import CombinationCitation from './CombinationCitation.vue'
+import CombinationCitation from './Author/AuthorMain.vue'
+import CombinationList from './CombinationList.vue'
 import makeCitationObject from 'factory/Citation.js'
 
 const store = useStore()
 const combination = ref({})
 const combinationList = computed(() => store.getters[GetterNames.GetCombinations])
-const taxonId = computed(() => store.getters[GetterNames.GetTaxon].id)
+const taxon = computed(() => store.getters[GetterNames.GetTaxon])
 const currentCombination = ref({})
-const originCitation = ref(makeCitationObject(COMBINATION))
-const isCurrentTaxonInCombination = computed(() => !!Object.entries(combination.value).find(([_, taxon]) => taxon?.id === taxonId.value))
+const isCurrentTaxonInCombination = computed(() => !!Object.entries(combination.value).find(([_, protonym]) => protonym?.id === taxon.value.id))
 const combinationRanks = computed(() =>
-  store.getters[GetterNames.GetTaxon].nomenclatural_code === 'icn'
+  store.getters[GetterNames.GetTaxon].nomenclatural_code === NOMENCLATURE_CODE_BOTANY
     ? combinationIcnType
     : combinationType
 )
+const citationData = reactive({
+  origin_citation_attributes: makeCitationObject(COMBINATION),
+  verbatim_author: undefined,
+  year_of_publication: undefined,
+  roles_attributes: []
+})
 
 const saveCombination = () => {
   const combObj = Object.assign({},
     {
       id: currentCombination.value.id,
       verbatim_name: currentCombination.value.verbatim_name,
-      origin_citation_attributes: originCitation.value,
+      ...citationData
     },
     ...removeOldRelationships(combination.value),
     ...makeCombinationParams()
@@ -116,7 +123,7 @@ const saveCombination = () => {
   store.dispatch(ActionNames.CreateCombination, combObj).then(_ => {
     combination.value = {}
     currentCombination.value = {}
-    originCitation.value = makeCitationObject(COMBINATION)
+    setCitationData()
   })
 }
 
@@ -146,19 +153,13 @@ const makeCombinationParams = () => Object.entries(combination.value).map(([rank
 const newCombination = () => {
   combination.value = {}
   currentCombination.value = {}
-  originCitation.value = makeCitationObject(COMBINATION)
+  setCitationData()
 }
 
 const loadCombination = data => {
   currentCombination.value = { ...data }
   combination.value = data.protonyms
-  originCitation.value = data.origin_citation
-    ? {
-        id: data.origin_citation.id,
-        source_id: data.origin_citation.source.id,
-        pages: data.origin_citation.pages
-      }
-    : makeCitationObject(COMBINATION)
+  setCitationData(data)
 }
 
 const removeCombination = data => {
@@ -168,6 +169,20 @@ const removeCombination = data => {
   }
 
   store.dispatch(ActionNames.RemoveCombination, data.id)
+}
+
+const setCitationData = (combination = {}) => {
+  citationData.verbatim_author = combination.verbatim_author
+  citationData.year_of_publication = combination.year_of_publication
+  citationData.roles_attributes = combination.taxon_name_author_roles || []
+  citationData.origin_citation_attributes = combination.origin_citation
+    ? {
+        id: combination.origin_citation.id,
+        source_id: combination.origin_citation.source.id,
+        pages: combination.origin_citation.pages,
+        global_id: combination.origin_citation.global_id
+      }
+    : makeCitationObject(COMBINATION)
 }
 
 </script>
