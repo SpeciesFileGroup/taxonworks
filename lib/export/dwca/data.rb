@@ -160,7 +160,7 @@ module Export::Dwca
       return @predicate_data if @predicate_data
 
       # TODO maybe replace with select? not best practice to use pluck as input to other query
-      collection_object_ids = core_scope.preload(:dwc_occurrence_object).pluck(:dwc_occurrence_object_id)
+      collection_object_ids = core_scope.pluck(:dwc_occurrence_object_id)
 
 
       # do stuff
@@ -213,7 +213,10 @@ module Export::Dwca
 
       tbl = CSV::Table.new([headers])
 
-      data.sort.each do |row|
+      # Get order of ids that matches core records so we can align with csv
+      dwc_id_order = collection_object_ids.map.with_index.to_h
+
+      data.sort_by {|k, _| dwc_id_order[k]}.each do |row|
         # remove collection object id, select "value" from hash conversion
         row = row[1]
 
@@ -231,7 +234,6 @@ module Export::Dwca
       end
 
       content = tbl.to_csv(col_sep: "\t", encoding: Encoding::UTF_8)
-
 
 
       @predicate_data = Tempfile.new('predicate_data.csv')
