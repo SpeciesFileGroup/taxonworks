@@ -34,62 +34,10 @@ module Export::Dwca
 
     attr_reader :filename
 
-    # clone this
     attr_accessor :predicate_data
 
-    # data
-    # predicate_data
-    #
-    # pre-create a Ruby tempfile
-    #
-    # shell out and call paste to join two files into a third ``
-    #
+    # core records and predicate data (and maybe more in future) joined together in one file
     attr_accessor :all_data
-
-    # building the predicate file
-    # get headers just as we do for data
-    #   data =  DataAttribute::Internal.join(:predicate).where(project_id: project_id).where(predicate_id: [], data_attribute_object_type: 'CollectingEvent').or.where( ).pluck(:predicate_id, predicates: {:name, :uri})
-
-    # We know headers because we have ids
-    # Predicate.where()
-
-    # list of lists
-    # predicate_id, name_of_predicate, uri_of_predicate, object_id, object_type
-
-    # Sorted structure -> must have
-    #
-    #   build and index with preditcate_name: [   ]
-    #
-    #   index[object_id][predicate
-    #
-    #    set of possible collecting events (reverse join)
-    #
-    #     collecting_events result of IDs JOIN that
-    #
-    #     collecting_event_ids -> [core_scope]
-    #                          -> [with one of predicates]
-    #
-    #    list of collecting events that have data you need to draw from
-    #
-    #            data_attribute_object_type, data_attribute_id
-    #   DataAttribute::Internal.join(:predicate).where(project_id: project_id).where(predicate_id: [],
-    #
-    #  MAYBE a problem Trick: if you have to alter core scope to get CEid then it may change what is written to file
-    #
-    #  (core scope Inner join inner join data - attributes ) -> smallest set, completely SQL determined of collecting events we need to inspect
-    #    get the prediates for that set
-    #       sort them into the columns
-    #
-    # dwc_occurrence_object_id (-> links -> collection object id) <fields> <predicate fields>
-    #
-    # Sort all the das into a data structure
-    #   position (same order as collection_object_id) => list (columns as headers)
-    #
-    # Make a column structure
-    #   Loop the column structure looking for data in data structure
-    #
-    #   CROSSTAB - n rows
-    #
 
     # @param [Hash] args
     def initialize(core_scope: nil, extension_scopes: {}, predicate_extension_params: [] )
