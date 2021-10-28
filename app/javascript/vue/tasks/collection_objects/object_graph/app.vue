@@ -114,7 +114,7 @@ const loadGraph = globalId => {
     }
 
     simulation.value = d3.forceSimulation(graph.value.nodes)
-      .force('charge', d3.forceManyBody().strength(d => -40))
+      .force('charge', d3.forceManyBody().strength(d => -80))
       .force('link', d3.forceLink(graph.value.links))
       .force('center', d3.forceCenter(width / 2, height / 2))
   })
