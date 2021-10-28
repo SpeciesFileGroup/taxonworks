@@ -339,7 +339,6 @@ module Export::Dwca
 
       Zip::File.open(t.path, Zip::File::CREATE) do |zip|
         zip.add('data.csv', all_data.path)
-        # zip.add('data_attributes.csv', predicate_data.path)
         zip.add('meta.xml', meta.path)
         zip.add('eml.xml', eml.path)
       end
