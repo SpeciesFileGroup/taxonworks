@@ -75,4 +75,16 @@ class TaxonNameRelationship::SourceClassifiedAs < TaxonNameRelationship
 #      soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be younger than #{self.object_taxon_name.cached_html_name_and_author_year}")
 #    end
   end
+
+protected
+
+  def set_cached_names_for_taxon_names
+    begin
+      TaxonName.transaction do
+        t = subject_taxon_name
+        t.set_cached_classified_as
+      end
+    end
+    true
+  end
 end

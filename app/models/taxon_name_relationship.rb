@@ -308,7 +308,6 @@ class TaxonNameRelationship < ApplicationRecord
     self.source ? (self.source.cached_nomenclature_date ? self.source.cached_nomenclature_date.to_time : Time.now) : Time.now
   end
 
-  # @TODO SourceClassifiedAs is not really Combination in the other sense
   def is_combination?
     !!/TaxonNameRelationship::(OriginalCombination|Combination)/.match(self.type.to_s)
   end
@@ -418,40 +417,10 @@ class TaxonNameRelationship < ApplicationRecord
     errors.add(:subject_taxon_name_id, 'Not a Protonym') if subject_taxon_name.type == 'Combination' && self.type != 'TaxonNameRelationship::CurrentCombination'
   end
 
-  # TODO: Isolate to individual classes per type
   def set_cached_names_for_taxon_names
     begin
       TaxonName.transaction do
-        if is_combination?
-          t = object_taxon_name
-
-          t.send(:set_cached)
-
-          if type_name =~/(OriginalCombination)/
-            t.update_columns(
-              cached_original_combination: t.get_original_combination,
-              cached_original_combination_html: t.get_original_combination_html,
-              cached_author_year: t.get_author_and_year,
-            )
-          end
-        elsif type_name =~/(Basionym)/
-          TaxonName.where(cached_valid_taxon_name_id: object_taxon_name.cached_valid_taxon_name_id).each do |t|
-            t.update_column(:cached_author_year, t.get_author_and_year)
-          end
-        elsif type_name =~/TaxonNameRelationship::Hybrid/ # TODO: move to Hybrid
-          t = object_taxon_name
-          n = t.get_full_name
-          t.update_columns(
-            cached: n,
-            cached_html: t.get_full_name_html(n)
-          )
-
-        elsif type_name =~/SourceClassifiedAs/
-          t = subject_taxon_name
-          t.set_cached_classified_as
-          # t.update_column(:cached_classified_as, t.get_cached_classified_as)
-
-        elsif is_invalidating?
+        if is_invalidating?
           t = subject_taxon_name
           
           if type_name =~/Misspelling/
@@ -491,14 +460,9 @@ class TaxonNameRelationship < ApplicationRecord
             end
           end
         end
-
       end
-
-    # no point in rescuing and not returning something
-    rescue ActiveRecord::RecordInvalid
-      raise
     end
-    false
+    true
   end
 
   def is_invalidating?

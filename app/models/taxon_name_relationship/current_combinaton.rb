@@ -51,6 +51,18 @@ class TaxonNameRelationship::CurrentCombination < TaxonNameRelationship
 
   protected
 
+  def set_cached_names_for_taxon_names
+    begin
+      TaxonName.transaction do
+        t = object_taxon_name
+        t.update_columns(
+          cached_author_year: t.get_author_and_year,
+          cached_nomenclature_date: t.nomenclature_date)
+      end
+    end
+    true
+  end
+
   def subject_is_combination
     errors.add(:subject_taxon_name, 'Must be a combination') unless subject_taxon_name.type == 'Combination'
   end
