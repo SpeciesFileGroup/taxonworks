@@ -8,7 +8,8 @@
     </v-btn>
     <v-modal
       v-if="isVisible"
-      @close="setModalView(false)">
+      @close="setModalView(false)"
+      :container-style="{ width: '800px' }">
       <template #header>
         <h3>Description and diagnosis</h3>
       </template>

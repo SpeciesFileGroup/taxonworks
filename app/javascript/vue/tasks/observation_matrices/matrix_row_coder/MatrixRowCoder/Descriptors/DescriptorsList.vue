@@ -9,7 +9,7 @@
     <v-modal
       v-if="isVisible"
       @close="setModalView(false)"
-      :containerStyle="{ width: '800px' }">
+      :container-style="{ width: '800px' }">
       <template #header>
         <h3>Descriptors</h3>
       </template>
