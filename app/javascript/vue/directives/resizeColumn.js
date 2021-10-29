@@ -35,7 +35,6 @@ export const vResizeColumn = {
       bar.className = opt.handleClass || 'vue-column-resize-bar'
 
       bar.addEventListener('click', e => { e.stopPropagation() })
-
       bar.addEventListener('mousedown', e => {
         e.stopPropagation()
         if (e.target.parentElement.getAttribute('fixedsize')) {
