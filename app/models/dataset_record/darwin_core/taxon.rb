@@ -117,12 +117,8 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                 TaxonNameRelationship.find_or_create_by!(type: rank_in_type, subject_taxon_name: ancestor, object_taxon_name: taxon_name)
               end
             end
-          else
 
-            # create OC with self at lowest rank
-            if original_combination_types.has_key?(taxon_name.rank.downcase.to_sym)
-              TaxonNameRelationship.find_or_create_by!(type: original_combination_types[rank.downcase.to_sym], subject_taxon_name: taxon_name, object_taxon_name: taxon_name)
-            end
+          else  # protonym is not the original combination, need to make relationships to OC ancestors
 
             unless parent == project.root_taxon_name
               original_combination_parent = TaxonName.find(find_by_taxonID(get_original_combination.metadata['parent'])
@@ -133,6 +129,13 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                   TaxonNameRelationship.find_or_create_by!(type: rank_in_type, subject_taxon_name: ancestor, object_taxon_name: taxon_name)
                 end
               end
+            end
+
+            # create OC with self at lowest rank.
+            # moved down here to handle case where ancestor is same rank as name (OC was subspecies, protonym is species)
+            # Specs fail if removed, but I can't remember why we need this in the first place
+            if original_combination_types.has_key?(taxon_name.rank.downcase.to_sym)
+              TaxonNameRelationship.create_with(subject_taxon_name: taxon_name).find_or_create_by!(type: original_combination_types[rank.downcase.to_sym], object_taxon_name: taxon_name)
             end
           end
 
