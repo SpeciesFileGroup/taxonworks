@@ -35,6 +35,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Added option in DwC importer to specific the dataset type (defaults to auto-detection).
 
 ### Fixed
+- citation style taxonworks.csl is updated [#2600]
 - Failure when setting up namespaces in DwC importer with datasets having *unnamed* columns
 - Namespace settings are not cleared when unmatched and re-opened in DwC Import [#2586]
 - scientificNameAuthorship parsing issues in DwC importer [#2589]
