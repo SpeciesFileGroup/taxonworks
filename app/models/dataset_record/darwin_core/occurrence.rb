@@ -1,4 +1,3 @@
-# TODO: Parsear genus para determinar género de scientificName
 class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
   DWC_CLASSIFICATION_TERMS = %w{kingdom phylum class order family} # genus, subgenus, specificEpithet and infraspecificEpithet are extracted from scientificName
