@@ -39,10 +39,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Failure when setting up namespaces in DwC importer with datasets having *unnamed* columns
 - Namespace settings are not cleared when unmatched and re-opened in DwC Import [#2586]
 - scientificNameAuthorship parsing issues in DwC importer [#2589]
+- Author and editor roles are missing after save or create a source in New source task [#2607]
 
 [#2531]: https://github.com/SpeciesFileGroup/taxonworks/issues/2531
 [#2586]: https://github.com/SpeciesFileGroup/taxonworks/issues/2586
 [#2589]: https://github.com/SpeciesFileGroup/taxonworks/issues/2589
+[#2607]: https://github.com/SpeciesFileGroup/taxonworks/issues/2607
 
 ## [0.20.1] - 2021-10-15
 

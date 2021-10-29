@@ -8,8 +8,8 @@ export default ({ state, commit }) => {
   state.settings.saving = true
 
   const saveSource = state.source.id
-    ? Source.update(state.source.id, { source: state.source })
-    : Source.create({ source: state.source })
+    ? Source.update(state.source.id, { source: state.source, extend: 'roles' })
+    : Source.create({ source: state.source, extend: 'roles' })
 
   saveSource.then(response => {
     setSource(response.body)
