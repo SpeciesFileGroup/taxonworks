@@ -1,5 +1,8 @@
 <template>
-  <div>
+  <div class="margin-medium-top">
+    <h3 v-if="isPlant && !currentCombination">
+      Select current combination
+    </h3>
     <ul class="table-entrys-list">
       <li
         v-for="combination in list"
@@ -7,7 +10,7 @@
         class="list-complete-item flex-separate middle">
         <label>
           <input
-            v-if="taxon.nomenclatural_code === NOMENCLATURE_CODE_BOTANY"
+            v-if="isPlant"
             type="radio"
             :checked="currentCombination && combination.id === currentCombination.subject_taxon_name_id"
             name="current-combination"
@@ -19,7 +22,7 @@
           <v-btn
             class="circle-button"
             circle
-            color="primary"
+            color="update"
             @click="emit('edit', combination)">
             <v-icon
               x-small
@@ -63,6 +66,7 @@ import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 import { TaxonNameRelationship } from 'routes/endpoints'
 import { GetterNames } from '../../store/getters/getters.js'
+import { ActionNames } from '../../store/actions/actions.js'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
@@ -71,7 +75,6 @@ import {
   NOMENCLATURE_CODE_BOTANY
 } from 'constants/index.js'
 
-const store = useStore()
 const props = defineProps({
   list: {
     type: Array,
@@ -79,9 +82,12 @@ const props = defineProps({
   }
 })
 const emit = defineEmits(['edit', 'delete'])
+
+const store = useStore()
 const currentCombination = ref(undefined)
 
 const taxon = computed(() => store.getters[GetterNames.GetTaxon])
+const isPlant = computed(() => taxon.value.nomenclatural_code === NOMENCLATURE_CODE_BOTANY)
 
 const saveRelationship = combinationId => {
   const relationship = {
@@ -96,7 +102,7 @@ const saveRelationship = combinationId => {
 
   saveRequest.then(({ body }) => {
     currentCombination.value = body
-    TW.workbench.alert.create('Current combination was successfully saved.', 'notice')
+    store.dispatch(ActionNames.UpdateTaxonName, taxon.value)
   })
 }
 
