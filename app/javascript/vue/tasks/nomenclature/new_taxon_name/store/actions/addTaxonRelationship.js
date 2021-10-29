@@ -1,7 +1,7 @@
 import { TaxonNameRelationship } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
-export default ({ commit, state, dispatch }, taxon_name_relationship) => 
+export default ({ commit, state, dispatch }, taxon_name_relationship) =>
   new Promise((resolve, reject) => {
     commit(MutationNames.SetHardValidation, undefined)
     TaxonNameRelationship.create({ taxon_name_relationship }).then(response => {

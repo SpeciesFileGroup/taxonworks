@@ -86,7 +86,7 @@ const props = defineProps({
 const emit = defineEmits(['edit', 'delete'])
 
 const store = useStore()
-const currentCombination = ref(undefined)
+const currentCombination = computed(() => store.getters[GetterNames.GetTaxonRelationshipList].find(item => item.type === TAXON_RELATIONSHIP_CURRENT_COMBINATION))
 const confirmationModal = ref(null)
 
 const taxon = computed(() => store.getters[GetterNames.GetTaxon])
@@ -94,51 +94,46 @@ const isPlant = computed(() => taxon.value.nomenclatural_code === NOMENCLATURE_C
 
 const saveRelationship = combinationId => {
   const relationship = {
+    id: currentCombination.value?.id,
     subject_taxon_name_id: combinationId,
     object_taxon_name_id: taxon.value.id,
     type: TAXON_RELATIONSHIP_CURRENT_COMBINATION
   }
 
-  const saveRequest = currentCombination.value
+/*   const saveRequest = currentCombination.value
     ? TaxonNameRelationship.update(currentCombination.value.id, { taxon_name_relationship: relationship })
-    : TaxonNameRelationship.create({ taxon_name_relationship: relationship })
+    : TaxonNameRelationship.create({ taxon_name_relationship: relationship }) */
+
+  const saveRequest = currentCombination.value
+    ? store.dispatch(ActionNames.UpdateTaxonRelationship, relationship)
+    : store.dispatch(ActionNames.AddTaxonRelationship, relationship)
 
   saveRequest.then(({ body }) => {
-    currentCombination.value = body
     store.dispatch(ActionNames.UpdateTaxonName, taxon.value)
   })
 }
 
 const destroyRelationship = () =>
-  TaxonNameRelationship.destroy(currentCombination.value.id).then(_ => {
-    currentCombination.value = undefined
+  store.dispatch(ActionNames.RemoveTaxonRelationship, currentCombination.value).then(_ => {
     TW.workbench.alert.create('Current combination was successfully removed.', 'notice')
     store.dispatch(ActionNames.UpdateTaxonName, taxon.value)
   })
 
 
-TaxonNameRelationship.where({
-  object_taxon_name_id: taxon.value.id,
-  type: TAXON_RELATIONSHIP_CURRENT_COMBINATION
-}).then(({ body }) => {
-  currentCombination.value = body.find(relationship => relationship.type === TAXON_RELATIONSHIP_CURRENT_COMBINATION)
-})
-
 const deleteCombination = async combination => {
-  if (combination.id === currentCombination.value?.subject_taxon_name_id) {
-    const ok = await confirmationModal.value.show({
-      title: 'Destroy combination',
-      message: 'This will destroy the current combination relationship too. Are you sure you want to proceed?.',
-      typeButton: 'delete'
-    })
+  const isCurrent = combination.id === currentCombination.value?.subject_taxon_name_id
+  const ok = await confirmationModal.value.show({
+    title: 'Destroy combination',
+    message: isCurrent
+      ? `Are you sure you want to delete ${combination.object_label}. This will destroy the current combination relationship too.`
+      : `Are you sure you want to delete ${combination.object_label}`,
+    typeButton: 'delete'
+  })
 
-    if (ok) {
-      destroyRelationship().then(_ => {
-        emit('delete', combination)
-      })
-    }
-  } else {
-    emit('delete', combination)
+  if (ok) {
+    destroyRelationship().then(_ => {
+      emit('delete', combination)
+    })
   }
 }
 

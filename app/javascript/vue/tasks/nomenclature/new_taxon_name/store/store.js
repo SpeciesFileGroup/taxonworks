@@ -47,6 +47,10 @@ function makeInitialState () {
         title: 'Relationships',
         list: []
       },
+      combinations: {
+        title: 'Combinations',
+        list: []
+      },
       taxonStatusList: {
         title: 'Status',
         list: []
@@ -54,7 +58,7 @@ function makeInitialState () {
       original_combination: {
         title: 'Original combination',
         list: [],
-        transform: (value) => Object.values(value)
+        transform: value => Object.values(value)
       }
     },
     hardValidation: undefined,
@@ -65,7 +69,8 @@ function makeInitialState () {
     status: [],
     relationships: [],
     allRanks: [],
-    original_combination: []
+    original_combination: [],
+    subsequentCombinations: []
   }
 }
 

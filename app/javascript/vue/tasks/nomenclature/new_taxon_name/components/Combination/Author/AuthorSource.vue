@@ -109,13 +109,15 @@ const setSource = sourceId => {
 }
 
 const removeSource = () => {
-  const citationId = combination.value.origin_citation_attributes.id
+  if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
+    const citationId = combination.value.origin_citation_attributes.id
 
-  if (citationId) {
-    Citation.destroy(citationId)
+    if (citationId) {
+      Citation.destroy(citationId)
+    }
+
+    combination.value.origin_citation_attributes.id = undefined
+    setSource()
   }
-
-  combination.value.origin_citation_attributes.id = undefined
-  setSource()
 }
 </script>

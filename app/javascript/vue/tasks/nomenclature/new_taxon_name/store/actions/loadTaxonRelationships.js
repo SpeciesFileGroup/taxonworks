@@ -1,22 +1,35 @@
 import { TaxonNameRelationship } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
+import { TAXON_RELATIONSHIP_CURRENT_COMBINATION } from 'constants/index.js'
 
-export default function ({ commit, state, dispatch }, id) {
-  return new Promise(function (resolve, reject) {
-    TaxonNameRelationship.where({
+export default ({ commit, state, dispatch }, id) =>
+  new Promise((resolve, reject) => {
+    const combinationRelationship = TaxonNameRelationship.where({
+      object_taxon_name_id: id,
+      type: TAXON_RELATIONSHIP_CURRENT_COMBINATION
+    })
+
+    const taxonRelationships = TaxonNameRelationship.where({
       subject_taxon_name_id: id,
       taxon_name_relationship_set: [
         'synonym',
         'status',
-        'classification']
-    }).then(response => {
-      if (state.taxon_name.hasOwnProperty('type_taxon_name_relationship')) {
-        response.body.push(state.taxon_name.type_taxon_name_relationship)
+        'classification'
+      ]
+    })
+
+    Promise.all([combinationRelationship, taxonRelationships]).then(([combResponse, taxonResponse]) => {
+      const relationships = [...combResponse.body, ...taxonResponse.body]
+      const typeRelationship = state.taxon_name.type_taxon_name_relationship
+
+      if (typeRelationship) {
+        relationships.push(state.taxon_name.type_taxon_name_relationship)
       }
-      commit(MutationNames.SetTaxonRelationshipList, response.body)
+
+      commit(MutationNames.SetTaxonRelationshipList, relationships)
+
       dispatch('loadSoftValidation', 'taxonRelationshipList')
       dispatch('loadSoftValidation', 'original_combination')
       return resolve()
     })
   })
-}
