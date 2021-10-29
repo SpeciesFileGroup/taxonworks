@@ -5,21 +5,7 @@ json.source_in_project source_in_project?(source)
 json.project_source_id project_source_for_source(source)&.id
 
 if extend_response_with('roles')
-  if source.type == 'Source::Bibtex'
-    json.author_roles(source.author_roles) do |role|
-      json.extract! role, :id, :position, :type
-      json.person do
-        json.partial! '/people/base_attributes', person: role.person
-      end
-    end
-
-    json.editor_roles(source.editor_roles) do |role|
-      json.extract! role, :id, :position, :type
-      json.person do
-        json.partial! '/people/base_attributes', person: role.person
-      end
-    end
-  end
+  json.partial! '/sources/roles_attributes', source: source
 end
 
 if extend_response_with('documents')
