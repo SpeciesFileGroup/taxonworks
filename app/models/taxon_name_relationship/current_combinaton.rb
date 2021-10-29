@@ -81,7 +81,7 @@ class TaxonNameRelationship::CurrentCombination < TaxonNameRelationship
     true # not applicable
   end
 
-  def sv_validate_required_relationships
+  def sv_coordinated_taxa
     true # not applicable
   end
 
@@ -91,7 +91,7 @@ class TaxonNameRelationship::CurrentCombination < TaxonNameRelationship
     t1 = c[c.keys[-2]]
 
     if object_taxon_name.parent_id != t1.id
-      soft_validations.add(:object_taxon_name_id, "Current combination #{subject_taxon_name.cached} is conflicting with the parent of protonym '#{object_taxon_name.cached}'")
+      soft_validations.add(:object_taxon_name_id, "Current combination <i>#{subject_taxon_name.cached}</i> is conflicting with the parent of protonym <i>#{object_taxon_name.cached}</i>")
     end
   end
 end
