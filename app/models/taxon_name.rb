@@ -1260,8 +1260,12 @@ class TaxonName < ApplicationRecord
     m_obj = misapplication.empty? ? nil : misapplication.first.object_taxon_name
     mobj = misspelling.empty? ? taxon : misspelling.first.object_taxon_name
     ay = mobj.try(:author_string) # author string for basionym
-    current_combination = TaxonNameRelationship.where_object_is_taxon_name(mobj).with_type_string('TaxonNameRelationship::CurrentCombination')
-    cc = current_combination.empty? ? self : current_combination.first.subject_taxon_name
+    if self.type == 'Combination'
+      cc = self
+    else
+      current_combination = TaxonNameRelationship.where_object_is_taxon_name(mobj).with_type_string('TaxonNameRelationship::CurrentCombination')
+      cc = current_combination.empty? ? self : current_combination.first.subject_taxon_name
+    end
 
     if !self.author_string.blank? && mobj.id != cc.id
       ay = '(' + ay.to_s + ') ' + cc.try(:author_string).to_s
