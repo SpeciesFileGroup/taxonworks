@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - API route `/taxon_names/parse?query_string=Aus bus` for resolving names to Protonyms
 - Parameter value `roles` via `&extend[]=` to `/collecting_events(/:id).json` [#2531]
 - Param to isolate TaxonName smart select to Protonym if optional
+- Resize column in Filter tasks [#2606]
 
 ### Changed
 - Ordering of GeorgaphicArea autocomplete results. Used areas and areas with shape are prioritized
@@ -44,6 +45,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2531]: https://github.com/SpeciesFileGroup/taxonworks/issues/2531
 [#2586]: https://github.com/SpeciesFileGroup/taxonworks/issues/2586
 [#2589]: https://github.com/SpeciesFileGroup/taxonworks/issues/2589
+[#2606]: https://github.com/SpeciesFileGroup/taxonworks/issues/2606
 [#2607]: https://github.com/SpeciesFileGroup/taxonworks/issues/2607
 
 ## [0.20.1] - 2021-10-15
