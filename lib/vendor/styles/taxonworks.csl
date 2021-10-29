@@ -1463,10 +1463,7 @@
         </choose>
         <choose>
           <if variable="page">
-            <group delimiter=" ">
-              <label variable="page" form="short"/>
-              <text variable="page"/>
-            </group>
+            <text variable="page"/>
           </if>
           <else>
             <!-- Ex. 6: Journal article with article number or eLocator -->
