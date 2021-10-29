@@ -23,7 +23,7 @@ module Export::Dwca
     attr_accessor :eml
 
     attr_accessor :meta
-    
+
     attr_accessor :zipfile
 
     attr_accessor :core_scope
@@ -34,68 +34,22 @@ module Export::Dwca
 
     attr_reader :filename
 
-    # clone this
     attr_accessor :predicate_data
 
-    # data
-    # predicate_data
-    #
-    # pre-create a Ruby tempfile 
-    #
-    # shell out and call paste to join two files into a third ``
-    #
+    # core records and predicate data (and maybe more in future) joined together in one file
     attr_accessor :all_data
 
-    # building the predicate file
-    # get headers just as we do for data
-    #   data =  DataAttribute::Internal.join(:predicate).where(project_id: project_id).where(predicate_id: [], data_attribute_object_type: 'CollectingEvent').or.where( ).pluck(:predicate_id, predicates: {:name, :uri})
-
-    # We know headers because we have ids
-    # Predicate.where() 
-
-    # list of lists 
-    # predicate_id, name_of_predicate, uri_of_predicate, object_id, object_type
-
-    # Sorted structure -> must have 
-    #
-    #   build and index with preditcate_name: [   ]
-    #
-    #   index[object_id][predicate
-    #    
-    #    set of possible collecting events (reverse join) 
-    #
-    #     collecting_events result of IDs JOIN that 
-    #
-    #     collecting_event_ids -> [core_scope]
-    #                          -> [with one of predicates]
-    #
-    #    list of collecting events that have data you need to draw from
-    #
-    #            data_attribute_object_type, data_attribute_id
-    #   DataAttribute::Internal.join(:predicate).where(project_id: project_id).where(predicate_id: [], 
-    #
-    #  MAYBE a problem Trick: if you have to alter core scope to get CEid then it may change what is written to file
-    #  
-    #  (core scope Inner join inner join data - attributes ) -> smallest set, completely SQL determined of collecting events we need to inspect
-    #    get the prediates for that set
-    #       sort them into the columns 
-    #  
-    # dwc_occurrence_object_id (-> links -> collection object id) <fields> <predicate fields>
-    #
-    # Sort all the das into a data structure
-    #   position (same order as collection_object_id) => list (columns as headers)
-    #
-    # Make a column structure
-    #   Loop the column structure looking for data in data structure
-    #
-    #   CROSSTAB - n rows
-    #     
-
     # @param [Hash] args
-    def initialize(core_scope: nil, extension_scopes: {}, predicate_extensions: [] )
+    def initialize(core_scope: nil, extension_scopes: {}, predicate_extension_params: [] )
       # raise ArgumentError, 'must pass a core_scope' if !record_core_scope.kind_of?( ActiveRecord::Relation )
       @core_scope = get_scope(core_scope)
       @biological_extension_scope = extension_scopes[:biological_extension_scope] #  = get_scope(core_scope)
+
+      if predicate_extension_params
+        @data_predicate_ids = predicate_extension_params[:predicate_extension_params].transform_keys(&:to_sym)
+      else
+        @data_predicate_ids = {collection_object_predicate_id: [], collecting_event_predicate_id: []}
+      end
     end
 
     def total
@@ -118,7 +72,7 @@ module Export::Dwca
     #   use the temporarily written, and refined, CSV file to read off the existing headers
     def csv_headers
       return [] if no_records?
-      d = CSV.open(data, headers: true, col_sep: "\t")
+      d = CSV.open(all_data, headers: true, col_sep: "\t")
       d.read
       h = d.headers
       d.rewind
@@ -147,6 +101,107 @@ module Export::Dwca
       @data.flush
       @data.rewind
       @data
+    end
+
+
+    def predicate_data
+      return @predicate_data if @predicate_data
+
+      # TODO maybe replace with select? not best practice to use pluck as input to other query
+      collection_object_ids = core_scope.pluck(:dwc_occurrence_object_id)
+
+
+      # do stuff
+      # not including where for project id, is it necessary given we supply specific CO ids?
+      object_attributes = CollectionObject.left_joins(data_attributes: [:predicate])
+                                          .where(id: collection_object_ids)
+                                          .where(data_attributes: { controlled_vocabulary_term_id: @data_predicate_ids[:collection_object_predicate_id] })
+                                          .pluck(:id, 'controlled_vocabulary_terms.name', 'data_attributes.value')
+
+      event_attributes = CollectionObject.left_joins(collecting_event: [data_attributes: [:predicate]])
+                                         .where(id: collection_object_ids)
+                                         .where(data_attributes: { controlled_vocabulary_term_id: @data_predicate_ids[:collecting_event_predicate_id] })
+                                         .pluck(:id, 'controlled_vocabulary_terms.name',  'data_attributes.value')
+
+      # Add TW prefix to names
+      used_predicates = Set[]
+
+      object_attributes.each do |attr|
+        next if attr[1].nil?  # don't add headers for objects without predicates
+        header_name = 'TW:DataAttribute:CollectionObject:' + attr[1]
+        used_predicates.add(header_name)
+        attr[1] = header_name
+      end
+
+      event_attributes.each do |attr|
+        next if attr[1].nil?  # don't add headers for events without predicates
+        header_name = 'TW:DataAttribute:CollectingEvent:' + attr[1]
+        used_predicates.add(header_name)
+        attr[1] = header_name
+      end
+
+      # if no predicate data found, return empty file
+      if used_predicates.empty?
+        @predicate_data = Tempfile.new('predicate_data.csv')
+        return @predicate_data
+      end
+
+      # create hash with key: co_id, value [[predicate_name, predicate_value], ...]
+      # prefill with empty values so we have the same number of rows as the main csv, even if some rows don't have
+      # data attributes
+      empty_hash = collection_object_ids.index_with { |_| []}
+
+      data = (object_attributes + event_attributes).group_by(&:shift)
+
+      data = empty_hash.merge(data)
+
+      # write rows to csv
+
+      headers = CSV::Row.new(used_predicates, used_predicates, true)
+
+      tbl = CSV::Table.new([headers])
+
+      # Get order of ids that matches core records so we can align with csv
+      dwc_id_order = collection_object_ids.map.with_index.to_h
+
+      data.sort_by {|k, _| dwc_id_order[k]}.each do |row|
+        # remove collection object id, select "value" from hash conversion
+        row = row[1]
+
+        # Create empty row, this way we can insert columns by their headers, not by order
+        csv_row = CSV::Row.new(used_predicates, [])
+
+        # Add each [header, value] pair to the row
+        row.each do |column_pair|
+          unless column_pair.empty?
+            csv_row[column_pair[0]] = Utilities::Strings.sanitize_for_csv(column_pair[1])
+          end
+        end
+
+        tbl << csv_row
+      end
+
+      content = tbl.to_csv(col_sep: "\t", encoding: Encoding::UTF_8)
+
+
+      @predicate_data = Tempfile.new('predicate_data.csv')
+      @predicate_data.write(content)
+      @predicate_data.flush
+      @predicate_data.rewind
+      @predicate_data
+    end
+
+    def all_data
+      return @all_data if @all_data
+
+      @all_data = Tempfile.new('data.csv')
+
+      # only join files that aren't empty, prevents paste from adding an empty column header when empty
+      @all_data.write(`paste #{ [data, predicate_data].filter_map{|f| f.path if f.size > 0}.join(' ')}`)
+      @all_data.flush
+      @all_data.rewind
+      @all_data
+
     end
 
     # This is a stub, and only half-heartedly done. You should be using IPT for the time being.
@@ -226,7 +281,7 @@ module Export::Dwca
       @eml
     end
 
-    def biological_resource_relationship 
+    def biological_resource_relationship
       return nil if biological_extension_scope.nil?
       @biological_resource_relationship = Tempfile.new('biological_resource_relationship.xml')
 
@@ -262,7 +317,7 @@ module Export::Dwca
             }
             xml.id(index: 0)
             csv_headers.each_with_index do |h,i|
-              if h =~ /TW:/ # All TW headers have ':' 
+              if h =~ /TW:/ # All TW headers have ':'
                 xml.field(index: i+1, term: h)
               else
                 xml.field(index: i+1, term: DwcOccurrence::DC_NAMESPACE + h)
@@ -283,12 +338,12 @@ module Export::Dwca
       Zip::OutputStream.open(t) { |zos| }
 
       Zip::File.open(t.path, Zip::File::CREATE) do |zip|
-        zip.add('data.csv', data.path)
+        zip.add('data.csv', all_data.path)
         zip.add('meta.xml', meta.path)
         zip.add('eml.xml', eml.path)
       end
       t
-    end 
+    end
 
     # @return [Tempfile]
     #   the zipfile
@@ -319,6 +374,10 @@ module Export::Dwca
       eml.unlink
       data.close
       data.unlink
+      predicate_data.close
+      predicate_data.unlink
+      all_data.close
+      all_data.unlink
       true
     end
 
