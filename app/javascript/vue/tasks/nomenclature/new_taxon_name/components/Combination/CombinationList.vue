@@ -33,7 +33,7 @@
             class="circle-button"
             circle
             color="destroy"
-            @click="emit('delete', combination)">
+            @click="deleteCombination(combination)">
             <v-icon
               x-small
               name="trash"
@@ -58,6 +58,7 @@
         </v-btn>
       </div>
     </div>
+    <v-confirmation ref="confirmationModal"/>
   </div>
 </template>
 <script setup>
@@ -70,6 +71,7 @@ import { ActionNames } from '../../store/actions/actions.js'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
+import VConfirmation from 'components/ConfirmationModal.vue'
 import {
   TAXON_RELATIONSHIP_CURRENT_COMBINATION,
   NOMENCLATURE_CODE_BOTANY
@@ -85,6 +87,7 @@ const emit = defineEmits(['edit', 'delete'])
 
 const store = useStore()
 const currentCombination = ref(undefined)
+const confirmationModal = ref(null)
 
 const taxon = computed(() => store.getters[GetterNames.GetTaxon])
 const isPlant = computed(() => taxon.value.nomenclatural_code === NOMENCLATURE_CODE_BOTANY)
@@ -106,12 +109,13 @@ const saveRelationship = combinationId => {
   })
 }
 
-const destroyRelationship = () => {
+const destroyRelationship = () =>
   TaxonNameRelationship.destroy(currentCombination.value.id).then(_ => {
+    currentCombination.value = undefined
     TW.workbench.alert.create('Current combination was successfully removed.', 'notice')
+    store.dispatch(ActionNames.UpdateTaxonName, taxon.value)
   })
-  currentCombination.value = undefined
-}
+
 
 TaxonNameRelationship.where({
   object_taxon_name_id: taxon.value.id,
@@ -119,5 +123,23 @@ TaxonNameRelationship.where({
 }).then(({ body }) => {
   currentCombination.value = body.find(relationship => relationship.type === TAXON_RELATIONSHIP_CURRENT_COMBINATION)
 })
+
+const deleteCombination = async combination => {
+  if (combination.id === currentCombination.value?.subject_taxon_name_id) {
+    const ok = await confirmationModal.value.show({
+      title: 'Destroy combination',
+      message: 'This will destroy the current combination relationship too. Are you sure you want to proceed?.',
+      typeButton: 'delete'
+    })
+
+    if (ok) {
+      destroyRelationship().then(_ => {
+        emit('delete', combination)
+      })
+    }
+  } else {
+    emit('delete', combination)
+  }
+}
 
 </script>

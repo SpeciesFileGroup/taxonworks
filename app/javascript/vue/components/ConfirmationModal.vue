@@ -19,9 +19,7 @@
       </div>
     </template>
     <template #footer>
-      <div
-        slot="footer"
-        class="horizontal-right-content">
+      <div class="horizontal-right-content">
         <button
           type="button"
           class="button normal-input"
