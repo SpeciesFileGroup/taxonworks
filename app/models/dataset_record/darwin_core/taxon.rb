@@ -256,14 +256,16 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
         messages: invalid.record.errors.messages
       }
     rescue StandardError => e
-      raise if Rails.env.development?
       self.status = 'Failed'
-      self.metadata[:error_data] = {
-        exception: {
-          message: e.message,
-          backtrace: e.backtrace
+      self.metadata['error_data'] = {
+        messages: {
+          exception: {
+            message: e.message,
+            backtrace: e.backtrace
+          }
         }
       }
+      # raise if Rails.env.development?
     ensure
       save!
     end
