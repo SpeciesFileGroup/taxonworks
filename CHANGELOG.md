@@ -41,6 +41,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Namespace settings are not cleared when unmatched and re-opened in DwC Import [#2586]
 - scientificNameAuthorship parsing issues in DwC importer [#2589]
 - Author and editor roles are missing after save or create a source in New source task [#2607]
+- rank genus not being auto-detected when uninomial name in scientificName matches genus term value exactly
 
 [#2531]: https://github.com/SpeciesFileGroup/taxonworks/issues/2531
 [#2586]: https://github.com/SpeciesFileGroup/taxonworks/issues/2586

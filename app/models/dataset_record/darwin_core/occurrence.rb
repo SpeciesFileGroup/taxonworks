@@ -1,3 +1,4 @@
+# TODO: Parsear genus para determinar género de scientificName
 class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
   DWC_CLASSIFICATION_TERMS = %w{kingdom phylum class order family} # genus, subgenus, specificEpithet and infraspecificEpithet are extracted from scientificName
@@ -852,6 +853,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             rank_class: /subgen/ =~ parse_details[:rank] ? Ranks.lookup(code, "subgenus") : nil,
             name: parse_details[:uninomial]
           }.tap { |h| names << h }.object_id
+        ] = :scientificName
+      elsif get_field_value(:genus) == parse_details[:uninomial]
+        origins[
+          {rank_class: Ranks.lookup(code, "genus"), name: parse_details[:uninomial]}.tap { |h| names << h }.object_id
         ] = :scientificName
       elsif names.reverse.detect { |n| n[:name] }&.dig(:name) != parse_details[:uninomial]
         origins[
