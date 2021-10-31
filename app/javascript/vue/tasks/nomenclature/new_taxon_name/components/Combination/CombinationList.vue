@@ -65,7 +65,6 @@
 
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
-import { TaxonNameRelationship } from 'routes/endpoints'
 import { GetterNames } from '../../store/getters/getters.js'
 import { ActionNames } from '../../store/actions/actions.js'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
@@ -113,11 +112,19 @@ const saveRelationship = combinationId => {
   })
 }
 
-const destroyRelationship = () =>
-  store.dispatch(ActionNames.RemoveTaxonRelationship, currentCombination.value).then(_ => {
-    TW.workbench.alert.create('Current combination was successfully removed.', 'notice')
-    store.dispatch(ActionNames.UpdateTaxonName, taxon.value)
+const destroyRelationship = async () => {
+  const ok = await confirmationModal.value.show({
+    title: 'Destroy relationship',
+    message: 'Are you sure you want to delete the current combination relationship?',
+    typeButton: 'delete'
   })
+
+  if (ok) {
+    store.dispatch(ActionNames.RemoveTaxonRelationship, currentCombination.value).then(_ => {
+      store.dispatch(ActionNames.UpdateTaxonName, taxon.value)
+    })
+  }
+}
 
 
 const deleteCombination = async combination => {
@@ -131,7 +138,8 @@ const deleteCombination = async combination => {
   })
 
   if (ok) {
-    destroyRelationship().then(_ => {
+    store.dispatch(ActionNames.RemoveTaxonRelationship, currentCombination.value).then(_ => {
+      store.dispatch(ActionNames.UpdateTaxonName, taxon.value)
       emit('delete', combination)
     })
   }
