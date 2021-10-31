@@ -99,10 +99,6 @@ const saveRelationship = combinationId => {
     type: TAXON_RELATIONSHIP_CURRENT_COMBINATION
   }
 
-/*   const saveRequest = currentCombination.value
-    ? TaxonNameRelationship.update(currentCombination.value.id, { taxon_name_relationship: relationship })
-    : TaxonNameRelationship.create({ taxon_name_relationship: relationship }) */
-
   const saveRequest = currentCombination.value
     ? store.dispatch(ActionNames.UpdateTaxonRelationship, relationship)
     : store.dispatch(ActionNames.AddTaxonRelationship, relationship)
@@ -125,7 +121,6 @@ const destroyRelationship = async () => {
     })
   }
 }
-
 
 const deleteCombination = async combination => {
   const isCurrent = combination.id === currentCombination.value?.subject_taxon_name_id
