@@ -34,6 +34,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - API `/api/v1/biological_associations` uses metadata for related objects
 - Optimized Source smart selection queries
 - Added option in DwC importer to specific the dataset type (defaults to auto-detection).
+- Replace autocomplete for smart selector in alternate values annotator [#2610]
 
 ### Fixed
 - citation style taxonworks.csl is updated [#2600]
@@ -48,6 +49,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2589]: https://github.com/SpeciesFileGroup/taxonworks/issues/2589
 [#2606]: https://github.com/SpeciesFileGroup/taxonworks/issues/2606
 [#2607]: https://github.com/SpeciesFileGroup/taxonworks/issues/2607
+[#2610]: https://github.com/SpeciesFileGroup/taxonworks/issues/2610
 
 ## [0.20.1] - 2021-10-15
 
