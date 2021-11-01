@@ -2,6 +2,7 @@ import ActionNames from './actionNames'
 import cloneSource from './cloneSource'
 import convertToBibtex from './convertToBibtex'
 import loadSource from './loadSource'
+import loadSoftValidations from './loadSoftValidations'
 import resetSource from './resetSource'
 import saveDocumentation from './saveDocumentation'
 import saveSource from './saveSource'
@@ -11,6 +12,7 @@ const ActionFunctions = {
   [ActionNames.CloneSource]: cloneSource,
   [ActionNames.ConvertToBibtex]: convertToBibtex,
   [ActionNames.LoadSource]: loadSource,
+  [ActionNames.LoadSoftValidations]: loadSoftValidations,
   [ActionNames.ResetSource]: resetSource,
   [ActionNames.SaveDocumentation]: saveDocumentation,
   [ActionNames.SaveSource]: saveSource,

@@ -43,6 +43,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - scientificNameAuthorship parsing issues in DwC importer [#2589]
 - Author and editor roles are missing after save or create a source in New source task [#2607]
 - rank genus not being auto-detected when uninomial name in scientificName matches genus term value exactly
+- Soft validation block is displayed when is empty in New source task [#2611]
 
 [#2531]: https://github.com/SpeciesFileGroup/taxonworks/issues/2531
 [#2586]: https://github.com/SpeciesFileGroup/taxonworks/issues/2586
@@ -50,6 +51,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2606]: https://github.com/SpeciesFileGroup/taxonworks/issues/2606
 [#2607]: https://github.com/SpeciesFileGroup/taxonworks/issues/2607
 [#2610]: https://github.com/SpeciesFileGroup/taxonworks/issues/2610
+[#2611]: https://github.com/SpeciesFileGroup/taxonworks/issues/2611
 
 ## [0.20.1] - 2021-10-15
 
