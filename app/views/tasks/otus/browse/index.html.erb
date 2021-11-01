@@ -1,18 +1,1 @@
 <div id="vue-task-otu-browse"></div>
-<!-- TODO: Topics 
-<h2> Topics </h2>
-<% if @otu.topics.load.any? -%>
-  <% @otu.topics.order('controlled_vocabulary_terms.name').uniq.each do |t| -%>
-    <h3> <%= object_tag(t) -%> </h3>
-    <div class="horizontal-left-content middle">
-      <%= @otu.sources_by_topic_id(t.id).order('sources.cached').collect{|s| 
-        (source_author_year_tag(s) + 
-        radial_navigation_tag(s)).html_safe
-      }.join('; ').html_safe -%>
-    </div>
-  <%- end %> 
-<% else %>
-  <em>None.</em>
-<% end %>
-
--->

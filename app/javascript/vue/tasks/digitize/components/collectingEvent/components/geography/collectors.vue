@@ -11,6 +11,7 @@
         roles: ['Collector']
       }"
       :autocomplete="false"
+      label="cached"
       @selected="addRole">
       <template #header>
         <role-picker

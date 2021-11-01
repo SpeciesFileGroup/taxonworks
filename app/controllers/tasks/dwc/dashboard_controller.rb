@@ -18,7 +18,10 @@ class Tasks::Dwc::DashboardController < ApplicationController
         filter_scope: filtered_collection_objects,
         project_id: sessions_current_project_id)
     else
-      a ||= DwcOccurrence.where(project_id: sessions_current_project_id).all
+      a = DwcOccurrence.where(project_id: sessions_current_project_id)
+      if params[:dwc_occurrence_start_date]
+        a = a.where('dwc_occurrences.updated_at < ? and dwc_occurrences.updated_at > ?', params[:dwc_occurrence_start_date], params[:dwc_occurrence_end_date])
+      end
     end
 
     @download = ::Export::Dwca.download_async(a, request.url)

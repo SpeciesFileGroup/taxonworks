@@ -9,5 +9,5 @@ json.extract! taxon_name, :id, :name, :parent_id,
   :created_at, :updated_at, :verbatim_name
 
 json.year taxon_name.year_integer
-json.name_string taxon_name_name_string(taxon_name)
+json.name_string label_for_taxon_name(taxon_name)
 json.original_combination full_original_taxon_name_string(taxon_name)

@@ -4,7 +4,7 @@ import { Source, SoftValidation } from 'routes/endpoints'
 import setParam from 'helpers/setParam'
 
 export default ({ state, commit }, id) => {
-  Source.find(id).then(response => {
+  Source.find(id, { extend: 'roles' }).then(response => {
     const source = response.body
     const authors = source.author_roles
     const editors = source.editor_roles

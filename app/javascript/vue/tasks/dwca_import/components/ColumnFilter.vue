@@ -2,7 +2,7 @@
   <th
     class="column-filter">
     <div class="flex-separate middle">
-      <span v-help="`section.dwcTable.${title}`">{{ title }}</span>
+      <span v-help="`section|dwcTable|${title}`">{{ title }}</span>
       <div
         class="margin-small-left"
         @keyup.esc="show = false"

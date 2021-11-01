@@ -71,7 +71,7 @@ export const Source = {
   ...baseCRUD(model, permitParams),
   ...annotations(model),
 
-  clone: id => AjaxCall('post', `/${model}/${id}/clone`),
+  clone: (id, params) => AjaxCall('post', `/${model}/${id}/clone`, params),
 
   parse: params => AjaxCall('get', `/${model}/parse.json`, { params })
 }

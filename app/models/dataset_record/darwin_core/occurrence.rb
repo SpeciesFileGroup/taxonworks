@@ -26,7 +26,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     class CreateIfNotExists
       def self.execute(origins, parent, name)
         name.delete(:rank_class) if name[:rank_class].nil?
-        Protonym.create_with(also_create_otu: true).find_or_create_by(name.merge({ parent: parent })).tap do |protonym|
+        Protonym.create_with(
+          {also_create_otu: true}.merge!(name.except(:rank_class, :name))
+        ).find_or_create_by(name.slice(:rank_class, :name).merge!({ parent: parent })).tap do |protonym|
           unless protonym&.persisted?
             raise DatasetRecord::DarwinCore::InvalidData.new({
               origins[name.object_id] => name[:rank_class].present? ?
@@ -40,7 +42,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     class MatchExisting
       def self.execute(origins, parent, name)
-        Protonym.find_by(name.merge({ parent: parent })).tap do |protonym|
+        Protonym.find_by(name.slice(:rank_class, :name).merge!({ parent: parent })).tap do |protonym|
           if protonym.nil?
             raise DatasetRecord::DarwinCore::InvalidData.new({
               origins[name.object_id] =>
@@ -850,6 +852,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             rank_class: /subgen/ =~ parse_details[:rank] ? Ranks.lookup(code, "subgenus") : nil,
             name: parse_details[:uninomial]
           }.tap { |h| names << h }.object_id
+        ] = :scientificName
+      elsif get_field_value(:genus) == parse_details[:uninomial]
+        origins[
+          {rank_class: Ranks.lookup(code, "genus"), name: parse_details[:uninomial]}.tap { |h| names << h }.object_id
         ] = :scientificName
       elsif names.reverse.detect { |n| n[:name] }&.dig(:name) != parse_details[:uninomial]
         origins[

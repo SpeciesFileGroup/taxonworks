@@ -33,8 +33,8 @@ export default ({ commit, state: { collecting_event, collectingEventIdentifier }
     }
 
     const saveCE = collecting_event.id
-      ? CollectingEvent.update(collecting_event.id, { collecting_event })
-      : CollectingEvent.create({ collecting_event })
+      ? CollectingEvent.update(collecting_event.id, { collecting_event, extend: ['roles'] })
+      : CollectingEvent.create({ collecting_event, extend: ['roles'] })
 
     saveCE.then(({ body }) => {
       commit(MutationNames.SetCollectingEvent, body)

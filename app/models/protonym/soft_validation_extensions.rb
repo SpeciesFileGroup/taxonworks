@@ -346,6 +346,12 @@ module Protonym::SoftValidationExtensions
         name: 'Verbatim year is not required for misspelling',
         description: 'Verbatim year is not required for misspelling. The year of the misspelling is inherited from the correctly spelled protonym. The Fix will delete the year'
       },
+      sv_missing_otu: {
+        set: :missing_otu,
+        fix: :sv_fix_misspelling_otu,
+        name: 'Missing OTU',
+        description: 'Missing OTU prevents proper migration to Catalog of Life'
+      }
     }.freeze
 
     VALIDATIONS.each_key do |k|
@@ -1580,6 +1586,22 @@ module Protonym::SoftValidationExtensions
     def sv_fix_misspelling_year_is_not_required
       self.update_column(:year_of_publication, nil)
       return true
+    end
+
+    def sv_missing_otu
+      if is_available? && otus.empty?
+        soft_validations.add(
+          :year_of_publication, 'Missing OTU',
+          success_message: 'OTU was created',
+          failure_message:  'Failed to create OTU')
+      end
+    end
+    def sv_fix_misspelling_otu
+      if is_available? && otus.empty?
+        otus.create(taxon_name_id: id)
+        return true
+      end
+      return false
     end
   end
 end

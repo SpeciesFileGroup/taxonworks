@@ -79,6 +79,12 @@ import GeographicArea from './geographicArea.vue'
 import SourcePicker from './sourcePicker.vue'
 import Spinner from 'components/spinner.vue'
 import MapComponent from 'components/georeferences/map.vue'
+import { AssertedDistribution } from 'routes/endpoints'
+
+const EXTEND_PARAMS = {
+  extend: ['geographic_area', 'geographic_area_type', 'parent'],
+  embed: ['shape']
+}
 
 export default {
   mixins: [CRUD, AnnotatorExtend],
@@ -91,31 +97,28 @@ export default {
     MapComponent
   },
   computed: {
-    validateFields() {
+    validateFields () {
       return this.asserted_distribution.geographic_area_id && this.asserted_distribution.source_id
     },
-    splittedGlobalId() {
-      let splitted = this.globalId.split('/')
-      return splitted[splitted.length-1]
+    splittedGlobalId () {
+      const splitted = this.globalId.split('/')
+      return splitted[splitted.length - 1]
     },
-    idIndex() {
-      return this.list.findIndex(item => item.id === this.asserted_distribution.id);
-    },
-    filterList() {
+    filterList () {
       return this.list
     },
-    existingArea() {
-      return this.list.find(item => { return item.geographic_area_id === this.asserted_distribution.geographic_area_id && (item.is_absent === null ? false : item.is_absent) === (this.asserted_distribution.is_absent === undefined ? false : this.asserted_distribution.is_absent) })
+    existingArea () {
+      return this.list.find(item => item.geographic_area_id === this.asserted_distribution.geographic_area_id && (item.is_absent === null ? false : item.is_absent) === (this.asserted_distribution.is_absent === undefined ? false : this.asserted_distribution.is_absent))
     },
     shapes () {
-      return this.list.map(item => { 
+      return this.list.map(item => {
         const shape = item.geographic_area.shape
         shape.properties.is_absent = item.is_absent
         return shape
       })
     }
   },
-  data() {
+  data () {
     return {
       asserted_distribution: this.newAsserted(),
       displayLabel: undefined,
@@ -124,15 +127,17 @@ export default {
       lockSource: false,
       lockGeo: false,
       editCitation: undefined,
-      urlList: `${this.url}/${this.type}.json?geo_json=true`
+      urlList: `${this.url}/${this.type}.json?extend[]=geographic_area&embed[]=shape&extend[]=geographic_area_type&extend[]=parent`
     }
   },
-  mounted() {
+
+  created () {
     this.asserted_distribution.otu_id = this.splittedGlobalId
   },
+
   methods: {
     setEditCitation(citation) {
-      let data = {
+      const data = {
         id: citation.id,
         is_absent: undefined,
         pages: citation.pages,
@@ -143,51 +148,50 @@ export default {
       this.editCitation = citation
       this.$refs.source.setCitation(data)
     },
-    createAsserted() {
-      if(!this.existingArea) {
-        this.create('/asserted_distributions.json', { asserted_distribution: this.asserted_distribution }).then(response => {
-          TW.workbench.alert.create('Asserted distribution was successfully created.', 'notice')
-          this.addToList(response.body)
-        })
-      }
-      else {
-        this.asserted_distribution['id'] = this.existingArea.id
-        this.update(`/asserted_distributions/${this.existingArea.id}.json`, { asserted_distribution: this.asserted_distribution }).then(response => {
-          TW.workbench.alert.create('Asserted distribution was successfully updated.', 'notice')
-          this.addToList(response.body)
-        })
-      }
-    },
-    removeCitation(item) {
-      let data = { 
-        asserted_distribution: {
-          citations_attributes: [{
-            id: item.id,
-            _destroy: true
-          }]
-        }
-      }
-      this.update(`/asserted_distributions/${this.asserted_distribution.id}.json`, data).then(response => {
-        this.addToList(response.body)
+
+    createAsserted () {
+      const saveRequest = !this.existingArea
+        ? AssertedDistribution.create({ asserted_distribution: this.asserted_distribution, ...EXTEND_PARAMS })
+        : AssertedDistribution.update(this.existingArea.id, { asserted_distribution: this.asserted_distribution, ...EXTEND_PARAMS })
+
+      saveRequest.then(({ body }) => {
+        TW.workbench.alert.create('Asserted distribution was successfully saved.', 'notice')
+        this.addToList(body)
       })
     },
-    addToList(item) {
-      this.editTitle = item.object_tag
+
+    removeCitation (item) {
+      const asserted_distribution = {
+        citations_attributes: [{
+          id: item.id,
+          _destroy: true
+        }]
+      }
+      AssertedDistribution.update(this.asserted_distribution.id, { asserted_distribution, ...EXTEND_PARAMS }).then(({ body }) => {
+        this.addToList(body)
+      })
+    },
+
+    addToList (item) {
+      const index = this.list.findIndex(ad => ad.id === item.id)
+
       if (!this.lockSource) {
         this.$refs.source.cleanInput()
-        this.$refs.source.setFocus()
       }
 
-      this.getList(`/asserted_distributions/${item.id}.json`, { params: { geo_json: true }}).then(ad => {
-        if (this.idIndex > -1) {
-          this.list[this.idIndex] = ad.body
+      this.editTitle = item.object_tag
+
+      AssertedDistribution.find(item.id, EXTEND_PARAMS).then(ad => {
+        if (index > -1) {
+          this.list[index] = ad.body
         } else {
           this.list.push(ad.body)
         }
         this.asserted_distribution = this.newAsserted()
       })
     },
-    setDistribution(item) {
+
+    setDistribution (item) {
       this.asserted_distribution = this.newAsserted()
       this.editTitle = item.object_tag
       this.asserted_distribution.id = item.id
@@ -203,22 +207,26 @@ export default {
       this.editCitation = undefined
       this.$refs.source.cleanCitation()
     },
-    newAsserted() {
+
+    newAsserted () {
       this.displayLabel = ''
       return { 
         id: undefined,
         otu_id: this.splittedGlobalId,
         geographic_area_id: this.lockGeo ? this.asserted_distribution.geographic_area_id : undefined,
         citations: [],
-        citations_attributes: this.lockSource ? this.asserted_distribution.citations_attributes : [{
-          source_id: undefined,
-          pages: undefined,
-          is_original: undefined
-        }],
+        citations_attributes: this.lockSource
+          ? this.asserted_distribution.citations_attributes
+          : [{
+              source_id: undefined,
+              pages: undefined,
+              is_original: undefined
+            }],
         is_absent: undefined
       }
     },
-    setSource(source) {
+
+    setSource (source) {
       this.asserted_distribution.is_absent = source.is_absent
       this.asserted_distribution.citations_attributes[0].id = source.id
       this.asserted_distribution.citations_attributes[0].source_id = source.source_id
@@ -234,22 +242,8 @@ export default {
       position: relative;
       overflow-y: scroll;
 
-      .switch-radio {
-        label {
-          min-width: 95px;
-        }
-      }
-      textarea {
-        padding-top: 14px;
-        padding-bottom: 14px;
-        width: 100%;
-        height: 100px;
-      }
       .pages {
         width: 86px;
-      }
-      .vue-autocomplete-input, .vue-autocomplete {
-        width: 376px;
       }
       .asserted-map-link {
         position: absolute;

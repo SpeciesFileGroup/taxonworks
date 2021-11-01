@@ -123,7 +123,8 @@ export default {
     loadSourceCitations () {
       Citation.where({
         source_id: this.$store.getters[GetterNames.GetSourceSelected].id,
-        citation_object_type: 'Otu'
+        citation_object_type: 'Otu',
+        extend: ['citation_object', 'citation_topics', 'source']
       }).then(response => {
         if (response.body.length) {
           this.$store.commit(MutationNames.SetSourceCitationsList, response.body)
@@ -134,7 +135,8 @@ export default {
     loadOtuCitations () {
       Citation.where({
         citation_object_type: 'Otu',
-        citation_object_id: this.$store.getters[GetterNames.GetOtuSelected].id
+        citation_object_id: this.$store.getters[GetterNames.GetOtuSelected].id,
+        extend: ['citation_object', 'citation_topics', 'source']
       }).then(response => {
         if (response.body.length) {
           this.$store.commit(MutationNames.SetOtuCitationsList, response.body)
@@ -152,7 +154,8 @@ export default {
       Citation.where({
         source_id: this.$store.getters[GetterNames.GetSourceSelected].id,
         citation_object_type: 'Otu',
-        citation_object_id: this.$store.getters[GetterNames.GetOtuSelected].id
+        citation_object_id: this.$store.getters[GetterNames.GetOtuSelected].id,
+        extend: ['citation_object', 'citation_topics', 'source']
       }).then(response => {
         if (response.body.length) {
           commit(MutationNames.SetCurrentCitation, response.body[0])
@@ -165,7 +168,7 @@ export default {
             source_id: getters[GetterNames.GetSourceSelected].id
           }
 
-          Citation.create({ citation: citation }).then(response => {
+          Citation.create({ citation, extend: ['citation_object', 'citation_topics'] }).then(response => {
             commit(MutationNames.SetCurrentCitation, response.body)
             commit(MutationNames.AddCitation, response.body)
             commit(MutationNames.AddToSourceList, response.body)

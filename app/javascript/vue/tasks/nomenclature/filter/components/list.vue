@@ -1,6 +1,9 @@
 <template>
   <div class="full_width">
-    <table class="full_width">
+    <table
+      class="full_width"
+      v-resize-column
+    >
       <thead>
         <tr>
           <th @click="sortTable('cached')">Name</th>
@@ -28,7 +31,7 @@
           <td>
             <a
               :href="`/tasks/nomenclature/browse?taxon_name_id=${item.parent.id}`"
-              v-html="item.parent.cached_html"/>
+              v-html="item.parent.object_label"/>
           </td>
           <td class="options-column">
             <div class="horizontal-left-content">
@@ -53,6 +56,7 @@
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial'
 import { sortArray } from 'helpers/arrays.js'
+import { vResizeColumn } from 'directives/resizeColumn'
 
 export default {
   components: {
@@ -65,6 +69,10 @@ export default {
       type: Array,
       default: () => []
     }
+  },
+
+  directives: {
+    ResizeColumn: vResizeColumn
   },
 
   emits: ['onSort'],

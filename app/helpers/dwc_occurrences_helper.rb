@@ -16,9 +16,10 @@ module DwcOccurrencesHelper
     return nil if dwc_occurrence.nil?
 
     r = []
-    CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.each do |k|
-      next if k == :footprintWKT
-      if v = dwc_occurrence.send(k)
+    dwc_occurrence.dwc_occurrence_object.dwc_occurrence_attributes(false).each do |k, v|
+#    CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.each do |k|
+      next if [:footprintWKT].include?(k)
+      if !v.blank?
         r.push tag.tr( (tag.td(k) + tag.td(v)).html_safe )
       end
     end
@@ -30,23 +31,31 @@ module DwcOccurrencesHelper
     project_id ||= sessions_current_project_id
 
     # Anticipate multiple sources of records in future (e.g. AssertedDistribution)
-    records ||= DwcOccurrence.where(project_id: project_id).where(dwc_occurrence_object_type: 'CollectionObject').all
-    data = CollectionObject.where(project_id: project_id)
+    collection_objects = CollectionObject.where(project_id: project_id)
+    records ||= DwcOccurrence.where(project_id: project_id) # .where(dwc_occurrence_object_type: 'CollectionObject').all
+    data = collection_objects.joins(:dwc_occurrence)
 
     a = {
       health: {
-        'Kingdom rank present': TaxonName.where(project_id: project_id).with_rank_class_including('Kingdom').any?
+        'Kingdom rank present': TaxonName.where(project_id: project_id).with_rank_class_including('Kingdom').any?,
+        'DwcOccurrence records without occurrenceID (on collection objects)': records.where(occurrenceID: nil).count,
+        'Total collection objects': collection_objects.count,
+        'Collection objects without UUids': collection_objects.count - collection_objects.joins(:identifiers).where("identifiers.type ilike 'Identifier::Global::Uuid%'").distinct.count,
+        'Collection objects without DwcOccurrence records': collection_objects.where.missing(:dwc_occurrence).count
       },
 
+      # updated_at takes 'updated_at > ?'  to mean "between the time provided for ? and NOW
+
       collection_objects: {
-        record_total: data.count,
-        enumerated_total: data.sum(:total),
+        record_total: collection_objects.count,
+        enumerated_total: collection_objects.sum(:total),
         freshness: {
-          never: data.left_outer_joins(:dwc_occurrence).where(dwc_occurrences: {id: nil}).count,
-          one_day: data.where("updated_at > ?", 1.day.ago).count,
-          one_week: data.where("updated_at > ?", 1.week.ago).count,
-          one_month: data.where("updated_at > ?", 1.month.ago).count,
-          one_year: data.where("updated_at > ?", 1.year.ago).count,
+          never: collection_objects.where.missing(:dwc_occurrence).count,
+          one_day: data.where("dwc_occurrences.updated_at >= ?", 1.day.ago).count,
+          one_week: data.where("dwc_occurrences.updated_at <= ? and dwc_occurrences.updated_at >= ?", 1.day.ago, 1.week.ago).count,
+          one_month: data.where("dwc_occurrences.updated_at <= ? and dwc_occurrences.updated_at >= ?", 1.week.ago, 1.month.ago).count,
+          one_year: data.where("dwc_occurrences.updated_at <= ? and dwc_occurrences.updated_at >= ?", 1.month.ago, 1.year.ago).count,
+          greater_than_one_year: data.where("dwc_occurrences.updated_at < ?", 1.year.ago).count
         },
       },
 
@@ -54,10 +63,12 @@ module DwcOccurrencesHelper
         record_total: records.count,
         enumerated_total: records.sum(:individualCount),
         freshness: {
-          one_day: records.where("updated_at > ?", 1.day.ago).count,
-          one_week: records.where("updated_at > ?", 1.week.ago).count,
-          one_month: records.where("updated_at > ?", 1.month.ago).count,
-          one_year: records.where("updated_at > ?", 1.year.ago).count,
+          never: 0,
+          one_day: records.where("dwc_occurrences.updated_at >= ?", 1.day.ago).count,
+          one_week: records.where("dwc_occurrences.updated_at <= ? and dwc_occurrences.updated_at >= ?", 1.day.ago, 1.week.ago).count,
+          one_month: records.where("dwc_occurrences.updated_at <= ? and dwc_occurrences.updated_at >= ?", 1.week.ago, 1.month.ago).count,
+          one_year: records.where("dwc_occurrences.updated_at <= ? and dwc_occurrences.updated_at >= ?", 1.month.ago, 1.year.ago).count,
+          greater_than_one_year: records.where("dwc_occurrences.updated_at < ?", 1.year.ago).count
         }
       }
     }

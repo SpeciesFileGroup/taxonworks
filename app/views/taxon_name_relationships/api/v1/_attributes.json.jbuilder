@@ -3,6 +3,6 @@ json.extract! taxon_name_relationship, :id, :subject_taxon_name_id, :object_taxo
 json.inverse_assignment_method taxon_name_relationship.class.inverse_assignment_method
 json.assignment_method taxon_name_relationship.class.assignment_method
 
-json.subject_name taxon_name_name_string(taxon_name_relationship.subject_taxon_name)
-json.object_name taxon_name_name_string(taxon_name_relationship.object_taxon_name)
+json.subject_name label_for_taxon_name(taxon_name_relationship.subject_taxon_name)
+json.object_name label_for_taxon_name(taxon_name_relationship.object_taxon_name)
 json.global_id taxon_name_relationship.to_global_id.to_s

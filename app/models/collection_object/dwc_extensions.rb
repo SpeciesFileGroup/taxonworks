@@ -80,7 +80,6 @@ module CollectionObject::DwcExtensions
       # namePublishedIn NOT DONE
     }.freeze
 
-
     attr_accessor :georeference_attributes
 
     # @return [Hash]
@@ -110,7 +109,6 @@ module CollectionObject::DwcExtensions
 
     when :geographic_area
       h = collecting_event.geographic_area.dwc_georeference_attributes
-
       if a = collecting_event&.attribute_updater(:geographic_area_id)
         h[:georeferencedBy] = User.find(a).name
       end
@@ -125,7 +123,19 @@ module CollectionObject::DwcExtensions
 
   # https://dwc.tdwg.org/terms/#dwc:associatedMedia
   def dwc_associated_media
-    images.collect{|i| i.image_file.url }.join(CollectionObject::DWC_DELIMITER).presence
+    images.collect{|i| api_image_link(i) }.join(CollectionObject::DWC_DELIMITER).presence
+  end
+
+  # TODO: likeley a helper
+  def api_image_link(image)
+    s = ENV['SERVER_NAME']
+    if s.nil?
+      s ||= 'http://127.0.0.1:3000'
+    else
+      s = 'https://' + s
+    end
+
+    s = s + '/api/v1/images/' + image.image_file_fingerprint # An experiment, use md5 as a proxy for id (also unique id)
   end
 
   def dwc_georeference_sources
@@ -164,7 +174,11 @@ module CollectionObject::DwcExtensions
 
   # TODO: extend to Georeferences when we understand how to describe spatial uncertainty
   def dwc_coordinate_uncertainty_in_meters
-    collecting_event&.verbatim_geolocation_uncertainty
+    if georeference_attributes[:coordinateUncertaintyInMeters]
+      georeference_attributes[:coordinateUncertaintyInMeters]
+    else
+      collecting_event&.verbatim_geolocation_uncertainty
+    end
   end
 
   def dwc_verbatim_latitude
@@ -419,16 +433,7 @@ module CollectionObject::DwcExtensions
   end
 
   def dwc_georeference_protocol
-    case collecting_event.try(:lat_lon_source)
-    when :georeference
-      preferred_georeference.type.tableize.humanize # Can expand with Georeference#description possibly
-    when :verbatim
-      'Verbatim'
-    when :geographic_area
-      'Geographic area shape centroid.'  # TODO: standardize
-    else
-      nil
-    end
+    georeference_attributes[:georeferenceProtocol]
   end
 
 end
