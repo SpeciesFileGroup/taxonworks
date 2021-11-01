@@ -7,7 +7,7 @@
         ref="documents"
         class="panel"/>
       <soft-validation
-        v-if="areValidations"
+        v-if="validations"
         class="margin-medium-top soft-validation-panel"
         :validations="validations"/>
       <matches-component ref="matches"/>
@@ -30,9 +30,6 @@ export default {
   computed: {
     validations () {
       return this.$store.getters[GetterNames.GetSoftValidation]
-    },
-    areValidations () {
-      return this.validations?.sources?.list.length
     }
   },
   data () {
