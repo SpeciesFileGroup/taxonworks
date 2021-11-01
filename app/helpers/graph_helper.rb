@@ -1,52 +1,29 @@
 module GraphHelper
 
-  # const colors = [, , , , , , , , , , ]
-
-  NODE_COLORS = {
-    'Person' => '#009688',
-    'CollectionObject' => '#2196F3',
-    'TaxonName' => '#E91E63',
-    'CollectingEvent' => '#7E57C2',
-    'TaxonDetermination' => '#FF9800',
-    'Identifier' => '#EF6C00',
-    'Otu' =>'#4CAF50',
-    'User' => '#F44336',
-    'ControlledVocabularyTerm' => '#CDDC39',
-    'BiologicalRelationship' => '#9C27B0',
-    'Repository' => '#009688',
-    'Observation' => '#CDDC39',
-    'Citation' => '#009688',
-  }
-
-  NODE_SHAPES = {
-    'Person' => 'person', 
-    'CollectionObject' => 'circle', 
-    'TaxonName' => 'square', 
-    'CollectingEvent' => 'circle', 
-    'TaxonDetermination' => nil,
-    'Identifier' => 'triangle',
-    'Otu' => 'hexagon', 
-    'User' => 'person', 
-    'ControlledVocabularyTerm' => nil,
-    'BiologicalRelationship' => nil ,
-    'Observation' => 'square',
-    'Citation' => 'square',
-    'Repository' => 'circle'
-  }
 
   def object_graph(object)
-    g = Export::Graph.new
+    return nil if object.nil?
 
     case object.class.base_class.name
     when 'CollectionObject'
-      collection_object_graph(object, g)
+      collection_object_graph(object)
     else
-      g.add_node(object)
+      g = Export::Graph.new( object: object ) 
       g.to_json
     end 
   end
 
-  def collection_object_graph(collection_object)
+  def collection_object_graph(collection_object, graph = nil, target = nil)
+    g = graph
+    g ||= Export::Graph.new(object: collection_object)
+
+    g.to_json
+  end
+
+=begin
+
+
+
     nodes = [
       graph_node(collection_object),
       graph_node(collection_object.collecting_event)
@@ -119,11 +96,10 @@ module GraphHelper
       add_object_to_graph(b, collection_object, nodes, edges)
     end
 
-    return { 
-      nodes: nodes.compact.uniq,
-      edges: edges.compact.uniq
-    }
+
   end
+=end
+
 
   def nomenclature_graph(nodes, edges, taxon_name, target)
     return if taxon_name.nil?
