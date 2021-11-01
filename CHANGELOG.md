@@ -24,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Resize column in Filter tasks [#2606]
 
 ### Changed
+- Improved autocomplete search for Serials and Repositories [#2612]
 - Ordering of GeorgaphicArea autocomplete results. Used areas and areas with shape are prioritized
 - Basic (REST) endpoints send less information, use `&extend[]` and `&embed[]` to return more [#2531]
 - Numerous tasks updated to use the new REST pattern
