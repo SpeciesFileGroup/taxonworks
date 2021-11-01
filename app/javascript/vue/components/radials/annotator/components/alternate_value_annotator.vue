@@ -22,33 +22,34 @@
         </li>
       </ul>
 
-      <autocomplete
-        v-if="alternateType == ALTERNATE_VALUE_TRANSLATION"
-        class="field"
-        url="/languages/autocomplete"
-        label="label"
-        min="2"
-        placeholder="Language"
-        @getItem="alternateValue.language_id = $event.id"
-        param="term"
-      />
-
-      <div class="separate-bottom">
-        <div class="field">
-          <input
-            type="text"
-            class="normal-input"
-            v-model="alternateValue.value"
-            placeholder="Value">
-        </div>
-        <button
-          type="button"
-          class="normal-input button button-submit"
-          :disabled="!validateFields"
-          @click="createNew()">
-          Create
-        </button>
+      <fieldset v-if="alternateType == ALTERNATE_VALUE_TRANSLATION">
+        <legend>Language</legend>
+        <smart-selector
+          model="languages"
+          klass="AlternateValue"
+          label="english_name"
+          :filter-ids="languageId"
+          @selected="setLanguage"/>
+        <SmartSelectorItem
+          :item="language"
+          label="english_name"
+          @unset="setLanguage"
+        />
+      </fieldset>
+      <div class="field margin-medium-top">
+        <input
+          class="normal-input full_width"
+          type="text"
+          v-model="alternateValue.value"
+          placeholder="Value">
       </div>
+      <button
+        type="button"
+        class="normal-input button button-submit"
+        :disabled="!validateFields"
+        @click="createNew()">
+        Create
+      </button>
     </div>
 
     <display-list
@@ -62,9 +63,10 @@
 
 import CRUD from '../request/crud.js'
 import annotatorExtend from '../components/annotatorExtend.js'
-import Autocomplete from 'components/ui/Autocomplete.vue'
 import SwitchComponent from 'components/switch.vue'
 import DisplayList from './displayList.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
+import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
 import {
   ALTERNATE_VALUE_ABBREVIATION,
   ALTERNATE_VALUE_ALTERNATE_SPELLING,
@@ -77,7 +79,8 @@ export default {
   mixins: [CRUD, annotatorExtend],
 
   components: {
-    Autocomplete,
+    SmartSelector,
+    SmartSelectorItem,
     DisplayList,
     SwitchComponent
   },
@@ -107,12 +110,13 @@ export default {
     return {
       values: undefined,
       typeList: {
-        [ALTERNATE_VALUE_TRANSLATION]: 'translation',
-        [ALTERNATE_VALUE_ABBREVIATION]: 'abbreviation',
-        [ALTERNATE_VALUE_MISSPELLING]: 'misspelled',
-        [ALTERNATE_VALUE_ALTERNATE_SPELLING]: 'alternate spelling'
+        [ALTERNATE_VALUE_TRANSLATION]: 'Translation',
+        [ALTERNATE_VALUE_ABBREVIATION]: 'Abbreviation',
+        [ALTERNATE_VALUE_MISSPELLING]: 'Misspelled',
+        [ALTERNATE_VALUE_ALTERNATE_SPELLING]: 'Alternate spelling'
       },
       ALTERNATE_VALUE_TRANSLATION,
+      language: undefined,
       alternateValue: this.newAlternate(),
       tabIndex: 0
     }
@@ -138,7 +142,17 @@ export default {
         this.list.push(response.body)
         this.alternateValue = this.newAlternate()
       })
+    },
+
+    setLanguage (language) {
+      this.alternateValue.language_id = language?.id
+      this.language = language
     }
   }
 }
 </script>
+<style scoped>
+:deep(.vue-autocomplete-input) {
+  width: 50%;
+}
+</style>
