@@ -151,7 +151,7 @@ export default {
     },
 
     GetRelationshipsCreated () {
-      return this.$store.getters[GetterNames.GetTaxonRelationshipList].filter(item => !FILTER_RELATIONSHIPS.includes(item.type))
+      return this.$store.getters[GetterNames.GetTaxonRelationshipList].filter(item => !FILTER_RELATIONSHIPS.some(filterType => item.type.includes(filterType)))
     },
 
     taxon () {
