@@ -31,10 +31,10 @@ module GraphHelper
       g.add(p,c)
     end
 
-    c.georeferences.each do |g|
-      g.add(g,c)
-      g.georeferencers.each do |p|
-        g.add(p,g)
+    c.georeferences.each do |r|
+      g.add(r,c)
+      r.georeferencers.each do |p|
+        g.add(p,r)
       end
     end
 
