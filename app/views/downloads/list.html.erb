@@ -16,7 +16,7 @@
 
   <tbody>
   <% @downloads.each do |download| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= download.type %></td>
           <td><%= download.name.html_safe %></td>
           <td><%= download.description %></td>

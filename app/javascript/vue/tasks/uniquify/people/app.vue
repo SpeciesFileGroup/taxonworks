@@ -105,7 +105,9 @@
             <role-types
               v-model="params.base.role"/>
           </div>
-          <keywords-component v-model="params.base.keywords" />
+          <keywords-component
+            target="People"
+            v-model="params.base.keywords" />
           <users-component v-model="params.user"/>
         </div>
       </div>

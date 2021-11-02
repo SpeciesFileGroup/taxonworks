@@ -355,6 +355,12 @@ class Source < ApplicationRecord
     projects.where(id: project_id).any?
   end
 
+    #  Month handling allows values from bibtex like 'may' to be handled
+    # @return [Time]
+  def nomenclature_date
+    Utilities::Dates.nomenclature_date(day, Utilities::Dates.month_index(month), year)
+  end
+
   # @return [Source, false]
   def clone
     s = dup

@@ -342,8 +342,6 @@ end
 
 resources :keywords, only: [] do
   collection do
-    get :autocomplete
-    get :lookup_keyword
     get :select_options, defaults: {format: :json}
   end
 end

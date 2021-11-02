@@ -12,7 +12,7 @@
 
   <tbody>
   <% @otus.each do |otu| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= otu.name %></td>
           <td><%= taxon_name_link(otu.taxon_name) %></td>
           <%= fancy_metadata_cells_tag(otu) -%>

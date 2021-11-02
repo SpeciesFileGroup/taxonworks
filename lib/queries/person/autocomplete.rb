@@ -100,9 +100,9 @@ module Queries
         queries = [
           autocomplete_exact_match,
           autocomplete_exact_inverted,
-          autocomplete_identifier_cached_exact,
-          autocomplete_identifier_identifier_exact,
-          autocomplete_exact_id,
+          autocomplete_identifier_cached_exact, # do not use extended query
+          autocomplete_identifier_identifier_exact, # do not use extended query
+          autocomplete_exact_id, # do not use extended query
           autocomplete_exact_last_name_match,
           autocomplete_alternate_values_last_name,
           autocomplete_alternate_values_first_name,
@@ -117,12 +117,12 @@ module Queries
         queries.each_with_index do |q ,i|
           if roles_assigned?
             a = q.joins(:roles).where(role_match.to_sql)
-          elsif !Current.project_id.nil?
+          elsif i != 2 && i != 3 && i != 4 # do not use extended query for identifiers
             a = q.left_outer_joins(:roles)
                   .joins("LEFT OUTER JOIN sources ON roles.role_object_id = sources.id AND roles.role_object_type = 'Source'")
                   .joins('LEFT OUTER JOIN project_sources ON sources.id = project_sources.source_id')
                   .select("people.*, COUNT(roles.id) AS use_count, CASE WHEN MAX(roles.project_id) = #{Current.project_id} THEN MAX(roles.project_id) ELSE MAX(project_sources.project_id) END AS in_project_id")
-                  .where('roles.project_id = ? OR roles.project_id IS NULL OR project_sources.project_id = ? OR project_sources.project_id IS NULL', Current.project_id, Current.project_id)
+                  .where('roles.project_id = ? OR project_sources.project_id = ? OR (roles.project_id IS NULL AND project_sources.project_id IS NULL)', Current.project_id, Current.project_id)
                   .group('people.id')
                   .order('in_project_id, use_count DESC')
           end
@@ -136,19 +136,6 @@ module Queries
           break if result.count > 19
         end
         result = result[0..19]
-=begin
-        unless result.empty?
-          result = ::Person.left_outer_joins(:roles)
-                         .joins("LEFT OUTER JOIN sources ON roles.role_object_id = sources.id AND roles.role_object_type = 'Source'")
-                         .joins('LEFT OUTER JOIN project_sources ON sources.id = project_sources.source_id')
-                         .select('people.*, COUNT(roles.id) AS use_count, CASE WHEN MAX(roles.project_id) > 0 THEN MAX(roles.project_id) ELSE MAX(project_sources.project_id) END AS in_project_id')
-                         .where('people.id IN (?)', result.collect{|i| i.id})
-                         .where('roles.project_id = ? OR roles.project_id IS NULL OR project_sources.project_id = ? OR project_sources.project_id IS NULL', Current.project_id, Current.project_id)
-                         .group('people.id')
-                         .order('in_project_id, use_count DESC')
-        end
-        result
-=end
       end
 
       # @return [Arel::Table]

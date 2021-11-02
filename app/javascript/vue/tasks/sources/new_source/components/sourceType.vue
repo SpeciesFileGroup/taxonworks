@@ -4,7 +4,7 @@
       <li
         v-for="type in types"
         :key="type.value">
-        <label v-help="`section.sourceType.${type.label}`">
+        <label v-help="`section|sourceType|${type.label}`">
           <input
             v-model="sourceType"
             :value="type.value"

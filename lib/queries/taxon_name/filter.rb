@@ -182,7 +182,7 @@ module Queries
         @taxon_name_relationship = params[:taxon_name_relationship] || []
         @taxon_name_relationship_type = params[:taxon_name_relationship_type] || []
         @taxon_name_type = params[:taxon_name_type]
-        @type_metadata = boolean_param(params, :type_data)
+        @type_metadata = boolean_param(params, :type_metadata)
         @updated_since = params[:updated_since].to_s
         @validity = boolean_param(params, :validity)
         @year = params[:year].to_s

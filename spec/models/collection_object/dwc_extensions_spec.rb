@@ -1,5 +1,5 @@
 require 'rails_helper'
-describe CollectionObject::DwcExtensions, type: :model, group: :collection_objects do
+describe CollectionObject::DwcExtensions, type: :model, group: [:collection_objects, :darwin_core] do
 
   context '#dwc_occurrence' do
     let!(:ce) { CollectingEvent.create!(start_date_year: '2010') }
@@ -257,12 +257,12 @@ describe CollectionObject::DwcExtensions, type: :model, group: :collection_objec
         parent: root
       )
 
-      ce.update!(collectors_attributes: [{last_name: 'James', first_name: 'James'}])
+      ce.update!(collectors_attributes: [{last_name: 'Doe', first_name: 'John'}])
       TaxonDetermination.create!(biological_collection_object: s, otu: Otu.create!(taxon_name: p1), determiner_roles_attributes: [{person: p}] )
 
       s.reload
 
-      expect(s.dwc_recorded_by).to eq('Smith, Sue | James, James')
+      expect(s.dwc_recorded_by).to eq('Doe, John')
     end
 
 
@@ -276,11 +276,14 @@ describe CollectionObject::DwcExtensions, type: :model, group: :collection_objec
     specify '#dwc_associated_media' do
       i = FactoryBot.create(:valid_depiction, depiction_object: s)
       j = FactoryBot.create(:valid_depiction, depiction_object: s)
-      a = i.image.image_file.url
-      b = j.image.image_file.url
+      a = i.image
+      b = j.image
+
+
+      p = 'http://127.0.0.1:3000/api/v1/images'
 
       s.images.reload
-      expect(s.dwc_associated_media).to eq("#{a} | #{b}")
+      expect(s.dwc_associated_media).to eq("#{p}/#{a.image_file_fingerprint} | #{p}/#{b.image_file_fingerprint}")
     end
 
   end

@@ -1,6 +1,9 @@
 <template>
   <div class="full_width">
-    <table class="full_width">
+    <table
+      class="full_width"
+      v-resize-column
+    >
       <thead>
         <tr>
           <td colspan="4"/>
@@ -57,6 +60,7 @@
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial'
 import { sortArray } from 'helpers/arrays.js'
+import { vResizeColumn } from 'directives/resizeColumn.js'
 
 const printDate = (date) => date.filter(date => date).join('/')
 
@@ -64,6 +68,9 @@ export default {
   components: {
     RadialAnnotator,
     RadialObject
+  },
+  directives: {
+    ResizeColumn: vResizeColumn
   },
   props: {
     list: {

@@ -15,7 +15,7 @@
 
   <tbody>
   <% @citations.each do |citation| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= citation.citation_object_type %></td>
           <td><%= object_tag(citation.citation_object) %></td>
           <td><%= source_tag(citation.source) %></td>

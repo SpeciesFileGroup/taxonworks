@@ -58,7 +58,7 @@
     <br><br>
     <%= form_tag( observation_matrix_view_task_path, method: :get) do %>
       <%= hidden_field_tag(:view_large_matrix, true) -%>
-      <%= hidden_field_tag(:id, @observation_matrix.id) -%>
+      <%= hidden_field_tag(:observation_matrix_id, @observation_matrix.id) -%>
       <div class="actions"> <%= tag.input(type: :submit, value: 'Show', class: 'button-default') -%> </div>
     <% end %>
   </div>

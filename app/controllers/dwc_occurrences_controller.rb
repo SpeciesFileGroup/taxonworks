@@ -26,6 +26,7 @@ class DwcOccurrencesController < ApplicationController
     render json: helpers.collector_global_id_metadata
   end
 
+  # TODO: remove
   def create
     respond_to do |format|
       format.html do

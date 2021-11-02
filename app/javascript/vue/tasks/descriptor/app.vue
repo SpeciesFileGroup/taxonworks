@@ -83,11 +83,34 @@
                     />
                   </div>
                 </template>
-                <create-component
-                  v-if="!hideSaveButton"
-                  :descriptor="descriptor"
-                  @save="saveDescriptor(descriptor)"
-                />
+                <template v-if="!hideSaveButton">
+                  <v-btn
+                    color="create"
+                    medium
+                    :disabled="!descriptor.name"
+                    @click="saveDescriptor(descriptor, false)"
+                  >
+                    {{
+                      descriptor.id
+                        ? 'Update'
+                        : 'Create'
+                    }}
+                  </v-btn>
+                  <v-btn
+                    v-if="matrix"
+                    class="margin-small-left"
+                    color="create"
+                    medium
+                    :disabled="!descriptor.name"
+                    @click="saveDescriptor(descriptor)"
+                  >
+                    {{
+                      descriptor.id
+                        ? 'Update and return to matrix'
+                        : 'Create and return to matrix'
+                    }}
+                  </v-btn>
+                </template>
               </div>
             </div>
           </template>
@@ -118,7 +141,7 @@ import PreviewComponent from './components/preview/preview.vue'
 import GeneComponent from './components/gene/gene.vue'
 import setParam from 'helpers/setParam'
 import DefaultPin from 'components/getDefaultPin'
-import CreateComponent from './components/save/save.vue'
+import VBtn from 'components/ui/VBtn/index.vue'
 import makeDescriptor from 'factory/Descriptor.js'
 import { RouteNames } from 'routes/routes'
 import {
@@ -141,7 +164,7 @@ export default {
     Spinner,
     Autocomplete,
     DefaultPin,
-    CreateComponent
+    VBtn
   },
 
   computed: {

@@ -1,7 +1,7 @@
 <template>
   <div>
-    <h2>Description (generated)</h2>
-    <p>{{ description }}</p>
+    <h3>Description (generated)</h3>
+    <span>{{ description }}</span>
   </div>
 </template>
 

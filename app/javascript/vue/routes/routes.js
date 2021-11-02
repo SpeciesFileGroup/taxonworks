@@ -8,6 +8,7 @@ const RouteNames = {
   ImageMatrix: '/tasks/matrix_image/matrix_image/index',
   InteractiveKeys: '/tasks/observation_matrices/interactive_key',
   ManageBiocurationTask: '/tasks/controlled_vocabularies/biocuration/build_collection',
+  ManageControlledVocabularyTask: '/tasks/controlled_vocabularies/manage',
   MatrixRowCoder: '/tasks/observation_matrices/row_coder/index',
   NewCollectingEvent: '/tasks/collecting_events/new_collecting_event',
   NewTaxonName: '/tasks/nomenclature/new_taxon_name',

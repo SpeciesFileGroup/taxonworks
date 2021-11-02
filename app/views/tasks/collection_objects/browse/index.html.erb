@@ -136,11 +136,9 @@
       <div>
         <div class="panel content separate-left">
           <h2> Darwin Core representation </h2>
-          <%= form_tag(dwc_occurrences_path, method: :post) do %>
-            <%= hidden_field_tag(:object_global_id, @collection_object.to_global_id.to_s) -%>
-            <div class="actions"> <%= tag.input(type: :submit, value: 'Rebuild') -%> </div>
-          <% end %>
+          <p><i> This is rebuilt each time this page is loaded.</i></p>
           <%= dwc_occurrence_health_tag(@collection_object.dwc_occurrence) -%>
+          <i> Large fields (e.g. footprintWKT) are not displayed here.</i>
           <%= dwc_column(@collection_object.dwc_occurrence) -%>
         </div>
       </div>

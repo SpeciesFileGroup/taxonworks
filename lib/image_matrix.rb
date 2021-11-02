@@ -374,7 +374,7 @@ class ImageMatrix
       i[:height] = d.height
       i[:width] = d.width
       i[:original_url] = d.image_file.url
-      #i[:short_url] = short_url(d.image_file.url)
+      #i[:short_url] = short_url(d.image_file.url) #this does not work in a model
       i[:medium_url] = d.image_file.url(:medium)
       i[:thumb_url] = d.image_file.url(:thumb)
       i[:citations] = []
@@ -382,13 +382,19 @@ class ImageMatrix
     end
 
     #cit = Citation.where(citation_object_type: 'Image').where('citation_object_id IN (?)', img_ids )
-    cit = Citation.where(citation_object_type: 'Image').where('citation_object_id IN (?)', list_of_image_ids )
+    cit = Citation.select('citations.*, sources.cached, sources.cached_author_string, sources.year')
+            .joins(:source)
+            .where(citation_object_type: 'Image')
+            .where('citation_object_id IN (?)', @list_of_image_ids )
     cit.each do |c|
       i = {}
       i[:id] = c.id
       i[:source_id] = c.source_id
       i[:pages] = c.pages
       i[:is_original] = c.is_original
+      i[:cached] = c.cached
+      i[:cached_author_string] = c.cached_author_string
+      i[:year] = c.year
       #i[:citation_object_id] = c.citation_object_id
       #i[:citation_object_type] = c.citation_object_type
       h[c.citation_object_id][:citations].push(i)

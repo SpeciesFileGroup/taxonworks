@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Community events 
+    url: https://speciesfilegroup.org/events.html
+    about: See, and participate in weekly events to answer questions, help develop your ideas, and more. 
+  - name: Chat with developers 
+    url: https://gitter.im/SpeciesFileGroup/taxonworks 
+    about: Contact the developer team directly in a Gitter chatroom. 

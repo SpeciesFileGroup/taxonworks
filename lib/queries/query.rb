@@ -33,7 +33,7 @@ module Queries
 
     # @param [Hash] args
     def initialize(string, project_id: nil, **keyword_args)
-      @query_string = string
+      @query_string = ::ApplicationRecord.sanitize_sql(string)&.delete("\u0000") # remove null bytes
       @options = keyword_args
       @project_id = project_id
       build_terms
@@ -347,7 +347,7 @@ module Queries
     # @return [ActiveRecord::Relation]
     def autocomplete_named
       return nil if no_terms?
-      base_query.where(named.to_sql).limit(5)
+      base_query.where(named.to_sql).limit(20)
     end
 
     def common_name_table

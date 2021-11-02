@@ -23,7 +23,7 @@
 
   <tbody>
   <% @collection_profiles.each do |collection_profile| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= object_tag(collection_profile.otu) %></td>
           <td><%= collection_profile.collection_type %></td>
           <td><%= collection_profile.conservation_status %></td>

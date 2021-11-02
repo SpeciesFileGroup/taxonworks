@@ -26,7 +26,7 @@
       </thead>
       <tbody>
       <% @observation_matrices.each do |om| %>
-        <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%> 
+        <%= content_tag(:tr, class: :contextMenuCells) do -%> 
           <td> <%= om.name -%> </td>
           <td> <%= om.observation_matrix_rows.count -%> </td> 
           <td> <%= om.observation_matrix_columns.count -%> </td> 

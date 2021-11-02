@@ -25,6 +25,7 @@
         <multiple>eds. &amp; trans.</multiple>
       </term>
       <term name="translator" form="short">trans.</term>
+      <term name="no date" format="short">NO DATE</term>
       <term name="interviewer" form="short">
         <single>interviewer</single>
         <multiple>interviewers</multiple>
@@ -483,8 +484,7 @@
           </else-if>
           <else>
             <group>
-              <text term="no date" form="short"/>
-              <text variable="year-suffix" prefix="-"/>
+              <text term="no date" format="short"/>
             </group>
           </else>
         </choose>
@@ -565,7 +565,6 @@
       </else-if>
       <else>
         <text term="no date" form="short"/>
-        <text variable="year-suffix" prefix="-"/>
       </else>
     </choose>
   </macro>
@@ -727,7 +726,7 @@
         </if>
         <else-if type="post webpage" match="any">
           <!-- For post webpage, container-title is treated as publisher -->
-          <group delimiter="; ">
+          <group delimiter=", ">
             <text macro="publisher"/>
             <text macro="database-location"/>
             <text macro="number"/>
@@ -745,7 +744,7 @@
           </group>
         </else-if>
         <else>
-          <group delimiter="; ">
+          <group delimiter=", ">
             <text macro="publisher"/>
             <text macro="database-location"/>
             <text macro="number"/>
@@ -840,7 +839,10 @@
                   <choose>
                     <if variable="archive DOI URL" match="any">
                       <!-- Include the university in brackets if thesis is published -->
-                      <text variable="publisher"/>
+                      <group delimiter=", ">
+                        <text variable="publisher"/>
+                        <text variable="publisher-place"/>
+                      </group>
                     </if>
                   </choose>
                 </group>
@@ -1203,7 +1205,10 @@
               <choose>
                 <!-- Include the university in brackets if thesis is published -->
                 <if variable="archive DOI URL" match="any">
-                  <text variable="publisher"/>
+                  <group delimiter=", ">
+                    <text variable="publisher"/>
+                    <text variable="publisher-place"/>
+                  </group>
                 </if>
               </choose>
             </if>
@@ -1290,7 +1295,7 @@
           <group>
             <!-- Replace with label variable="number-of-volumes" if that becomes available -->
             <text term="volume" form="short" text-case="capitalize-first" suffix=" "/>
-            <text term="page-range-delimiter" prefix="1"/>
+            <text term="page-range-delimiter" prefix=""/>
             <number variable="number-of-volumes" form="numeric"/>
           </group>
         </else>
@@ -1299,10 +1304,28 @@
         <label variable="issue" text-case="capitalize-first"/>
         <text variable="issue"/>
       </group>
-      <group delimiter=" ">
-        <label variable="page" form="short" suffix=" "/>
-        <text variable="page"/>
-      </group>
+      <choose>
+        <if type="book pamphlet thesis report" match="any">
+          <choose>
+            <if is-numeric="page" match="any">
+              <group delimiter=" ">
+                <text variable="page" suffix=" pp."/>
+              </group>
+            </if>
+            <else>
+              <group delimiter=" ">
+                <text variable="page"/>
+              </group>
+            </else>
+          </choose>
+        </if>
+        <else>
+          <group delimiter=" ">
+            <label variable="page" form="short"/>
+            <text variable="page"/>
+          </group>
+        </else>
+      </choose>
     </group>
   </macro>
   <macro name="reviewed-title">
@@ -1501,7 +1524,10 @@
         <if type="thesis">
           <choose>
             <if variable="archive DOI URL" match="none">
-              <text variable="publisher"/>
+              <group delimiter=", ">
+                <text variable="publisher"/>
+                <text variable="publisher-place"/>
+              </group>
             </if>
           </choose>
         </if>
@@ -1509,19 +1535,28 @@
           <!-- For websites, treat container title like publisher -->
           <group delimiter="; ">
             <text variable="container-title" text-case="title"/>
-            <text variable="publisher"/>
+              <group delimiter=", ">
+                <text variable="publisher"/>
+                <text variable="publisher-place"/>
+              </group>
           </group>
         </else-if>
         <else-if type="paper-conference">
           <!-- For paper-conference, don't print publisher if in a journal-like proceedings -->
           <choose>
             <if variable="collection-editor editor editorial-director" match="any">
-              <text variable="publisher"/>
+              <group delimiter=", ">
+                <text variable="publisher"/>
+                <text variable="publisher-place"/>
+              </group>
             </if>
           </choose>
         </else-if>
         <else-if type="article-journal article-magazine article-newspaper post-weblog" match="none">
-          <text variable="publisher"/>
+          <group delimiter=", ">
+            <text variable="publisher"/>
+            <text variable="publisher-place"/>
+          </group>
         </else-if>
       </choose>
       <group delimiter=", ">

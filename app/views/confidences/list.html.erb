@@ -14,7 +14,7 @@
 
   <tbody>
   <% @confidences.each do |confidence| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= confidence.confidence_object_type %></td>
           <td><%= object_tag(confidence.confidence_object) %></td>
           <td><%= confidence.confidence_level.name %></td>
