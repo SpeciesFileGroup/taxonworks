@@ -1,6 +1,14 @@
 <template>
   <h1> Task: Object graph</h1>
   <h3>Target: {{ currentNodeName }}</h3>
+  <ul class="no_bullets context-menu capitalize">
+    <li
+      v-for="(value, key) in graph.stats"
+      :key="key"
+    >
+      {{ key }}: {{ value }}
+    </li>
+  </ul>
   <svg
     xmlns="http://www.w3.org/2000/svg"
     :width="width+'px'"
@@ -33,6 +41,7 @@
         :color="node.color"
         stroke="white"
         stroke-width="1"
+        @dblclick="loadGraph(node.id)"
       />
       <text
         :x="coords[node.index].x + size"
@@ -65,7 +74,8 @@ const currentMove = ref(null)
 const currentGlobalId = ref()
 const graph = ref({
   nodes: [],
-  links: []
+  links: [],
+  stats: {}
 })
 const coords = computed(() => graph.value.nodes.map(node => ({
   x: node.x,
@@ -106,6 +116,7 @@ const loadGraph = globalId => {
   SetParam('/tasks/graph/object', 'global_id', globalId)
   AjaxCall('get', `/graph/${encodeURIComponent(globalId)}/object`).then(({ body }) => {
     graph.value = {
+      stats: body.stats,
       nodes: body.nodes.map(node => ({ ...node, x: null, y: null })),
       links: body.edges.map(link => ({
         source: body.nodes.findIndex(node => node.id === link.start_id),
