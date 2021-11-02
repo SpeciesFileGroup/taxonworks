@@ -1,6 +1,22 @@
 <template>
-  <h1> Task: Object graph</h1>
-  <h3>Target: {{ currentNodeName }}</h3>
+  <h1>Task: Object graph</h1>
+  <div class="horizontal-left-content middle">
+    <h3 v-if="currentNode">
+      Target: {{ currentNode.name }}
+    </h3>
+    <div
+      v-if="currentNode"
+      class="square-brackets margin-medium-left">
+      <ul class="no_bullets context-menu">
+        <li>
+          <radial-annotator :global-id="currentNode.id" />
+        </li>
+        <li>
+          <radial-navigation :global-id="currentNode.id" />
+        </li>
+      </ul>
+    </div>
+  </div>
   <ul class="capitalize">
     <li
       v-for="(value, key) in graph.stats"
@@ -65,6 +81,8 @@ import SvgSquare from './components/Svg/SvgSquare.vue'
 import SvgTriangle from './components/Svg/SvgTriangle.vue'
 import SvgPerson from './components/Svg/SvgPerson.vue'
 import SvgHexagon from './components/Svg/SvgHexagon.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import RadialNavigation from 'components/radials/navigation/radial.vue'
 
 const size = 10
 const width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0) - 20
@@ -82,7 +100,7 @@ const coords = computed(() => graph.value.nodes.map(node => ({
   y: node.y
 })))
 
-const currentNodeName = computed(() => graph.value.nodes.find(node => node.id === currentGlobalId.value)?.name)
+const currentNode = computed(() => graph.value.nodes.find(node => node.id === currentGlobalId.value))
 
 const AVAILABLE_SHAPES = {
   square: SvgSquare,
