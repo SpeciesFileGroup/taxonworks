@@ -1,7 +1,7 @@
 <template>
   <h1> Task: Object graph</h1>
   <h3>Target: {{ currentNodeName }}</h3>
-  <ul class="no_bullets capitalize">
+  <ul class="capitalize">
     <li
       v-for="(value, key) in graph.stats"
       :key="key"
