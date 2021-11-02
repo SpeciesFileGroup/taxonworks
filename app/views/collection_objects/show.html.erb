@@ -1,6 +1,6 @@
 <%= content_for :report do -%>
-  <%=  content_tag(:li, link_to('Depictions', depictions_collection_object_path(@collection_object))) %> 
-  <%=  content_tag(:li, link_to('Browse collection object task (history, details)', browse_collection_objects_task_path(collection_object_id: @collection_object.id))) %> 
+  <%=  content_tag(:li, link_to('Depictions', depictions_collection_object_path(@collection_object))) %>
+  <%=  content_tag(:li, link_to('Browse collection object task (history, details)', browse_collection_objects_task_path(collection_object_id: @collection_object.id))) %>
 <% end %>
 
 <%= content_for :tasks do -%>
@@ -22,8 +22,5 @@
 <%= content_for :icon_navigation do -%>
   <%= content_tag(:li, collection_object_radial_tag(@collection_object) )   %>
 <% end %>
-
-
-
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @collection_object}) -%>
