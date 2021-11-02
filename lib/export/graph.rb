@@ -123,7 +123,7 @@ class Export::Graph
     }
 
     h[:shape] = NODE_SHAPES[b] if !NODE_SHAPES[b].nil?
-    h[:link] = node_link || Rails.application.routes.url_helpers.object_graph_task_path(object)
+    h[:link] = node_link || Rails.application.routes.url_helpers.object_graph_task_path(global_id: object.to_global_id.to_s)
     h
   end
 
