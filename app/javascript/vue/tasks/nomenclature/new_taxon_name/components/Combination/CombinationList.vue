@@ -46,7 +46,7 @@
       </li>
     </ul>
     <div v-if="currentCombination">
-      <h3>Current combination</h3>
+      <h3>Preferred name</h3>
       <div class="flex-separate middle">
         <span v-html="currentCombination.subject_object_tag"/>
         <v-btn
