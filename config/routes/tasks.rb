@@ -460,4 +460,11 @@ scope :tasks do
   scope :usage, controller: 'tasks/usage/user_activity' do
     get ':id', action: 'report', as: 'user_activity_report_task'
   end
+
+  scope :graph do
+    scope :object, controller: 'tasks/graph/object_graph' do
+      get '/', action: :index, as: 'object_graph_task'
+    end
+  end
+
 end
