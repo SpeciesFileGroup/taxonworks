@@ -47,5 +47,4 @@ class Tasks::Dwc::DashboardController < ApplicationController
     params.permit(collecting_event_predicate_id: [], collection_object_predicate_id: [] )
   end
 
-
 end
