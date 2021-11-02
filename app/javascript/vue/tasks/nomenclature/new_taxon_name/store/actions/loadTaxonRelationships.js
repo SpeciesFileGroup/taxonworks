@@ -6,7 +6,7 @@ export default ({ commit, state, dispatch }, id) =>
   new Promise((resolve, reject) => {
     const combinationRelationship = TaxonNameRelationship.where({
       object_taxon_name_id: id,
-      type: TAXON_RELATIONSHIP_CURRENT_COMBINATION
+      taxon_name_relationship_type: [TAXON_RELATIONSHIP_CURRENT_COMBINATION]
     })
 
     const taxonRelationships = TaxonNameRelationship.where({
