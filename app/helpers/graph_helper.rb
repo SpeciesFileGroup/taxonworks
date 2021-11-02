@@ -30,6 +30,14 @@ module GraphHelper
     c.collectors.each do |p|
       g.add(p,c)
     end
+
+    c.georeferences.each do |g|
+      g.add(g,c)
+      g.georeferencers.each do |p|
+        g.add(p,g)
+      end
+    end
+
     c
     g
   end

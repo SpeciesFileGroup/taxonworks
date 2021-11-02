@@ -103,7 +103,7 @@ const drop = () => {
 
 const loadGraph = globalId => {
   currentGlobalId.value = globalId
-  SetParam('/tasks/collection_objects/object_graph', 'global_id', globalId)
+  SetParam('/tasks/graph/object', 'global_id', globalId)
   AjaxCall('get', `/graph/${encodeURIComponent(globalId)}/object`).then(({ body }) => {
     graph.value = {
       nodes: body.nodes.map(node => ({ ...node, x: null, y: null })),

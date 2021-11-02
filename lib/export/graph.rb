@@ -57,12 +57,23 @@ class Export::Graph
     @edges.compact.uniq
   end
 
-  def to_json
-    return {
+  def to_json(include_stats: true)
+    h =  {
       nodes: nodes,
       edges: edges
     }
+
+    h[:stats] = stats if include_stats
+    return h
   end
+
+  def stats
+    return {
+      nodes: nodes.count,
+      edges: edges.count
+    }
+  end
+
 
   def add(object, object_origin = nil, edge_label: nil, edge_link: nil)
     add_node(object)
@@ -112,7 +123,7 @@ class Export::Graph
     }
 
     h[:shape] = NODE_SHAPES[b] if !NODE_SHAPES[b].nil?
-    h[:link] = node_link unless node_link.blank?
+    h[:link] = node_link || Rails.application.routes.url_helpers.object_graph_task_path(object)
     h
   end
 
