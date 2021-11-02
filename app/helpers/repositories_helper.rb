@@ -26,7 +26,11 @@ module RepositoriesHelper
   end
   
   def repository_usage_tag(repository)
-    content_tag(:span, repository.collection_objects.where(collection_objects: {project_id: sessions_current_project_id}).count.to_s + ' project uses', class: [:feedback, 'feedback-thin'])
+    if repository.try(:use_count).nil?
+      content_tag(:span, repository.collection_objects.where(collection_objects: {project_id: sessions_current_project_id}).count.to_s + ' project uses', class: [:feedback, 'feedback-thin'])
+    else
+      content_tag(:span, repository.use_count.to_s + ' project uses', class: [:feedback, 'feedback-thin'])
+    end
   end
 
   def repositories_search_form

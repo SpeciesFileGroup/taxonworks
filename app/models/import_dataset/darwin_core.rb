@@ -53,7 +53,10 @@ class ImportDataset::DarwinCore < ImportDataset
           headers = CSV.read(path, headers: true, col_sep: "\t", quote_char: nil, encoding: 'bom|utf-8').headers
         end
 
-        if headers.include? "occurrenceID"
+        row_type = params.dig(:import_settings, :row_type)
+        if row_type
+          core_type = row_type
+        elsif headers.include? "occurrenceID"
           core_type = OCCURRENCES_ROW_TYPE
         elsif headers.include? "taxonID"
           core_type = CHECKLIST_ROW_TYPE
@@ -223,7 +226,11 @@ class ImportDataset::DarwinCore < ImportDataset
         delimiter: ':'
       )
 
-      metadata["namespaces"]["core"] = @core_record_identifier_namespace.id
+      metadata.deep_merge!({
+        "namespaces" => {
+          "core" => @core_record_identifier_namespace.id
+        }
+      })
       save!
     end
 

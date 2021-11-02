@@ -83,11 +83,12 @@ import EtymologySection from './components/etymology.vue'
 import GenderSection from './components/gender.vue'
 import CheckChanges from './components/checkChanges.vue'
 import TypeSection from './components/type.vue'
-import BasicinformationSection from './components/basicInformation.vue'
+import TaxonSection from './components/basicInformation.vue'
 import OriginalcombinationSection from './components/pickOriginalCombination.vue'
 import ManagesynonymySection from './components/manageSynonym'
 import ClassificationSection from './components/classification.vue'
 import SoftValidation from 'components/soft_validations/panel.vue'
+import SubsequentCombinationSection from './components/Combination/CombinationMain.vue'
 import Spinner from 'components/spinner.vue'
 import platformKey from 'helpers/getPlatformKey'
 
@@ -102,7 +103,7 @@ export default {
   components: {
     AuthorSection,
     Autocomplete,
-    BasicinformationSection,
+    TaxonSection,
     CheckChanges,
     ClassificationSection,
     EtymologySection,
@@ -110,6 +111,7 @@ export default {
     ManagesynonymySection,
     NavHeader,
     OriginalcombinationSection,
+    SubsequentCombinationSection,
     RelationshipSection,
     SoftValidation,
     Spinner,
@@ -149,13 +151,14 @@ export default {
     },
     menu () {
       return {
-        'Basic information': true,
+        Taxon: true,
         Author: true,
         Status: true,
         Relationship: true,
         'Manage synonymy': showForThisGroup(['GenusGroup', 'FamilyGroup'], this.getTaxon),
         Type: showForThisGroup(['SpeciesGroup', 'GenusGroup', 'FamilyGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon),
         'Original combination': showForThisGroup(['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon),
+        'Subsequent Combination': showForThisGroup(['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon),
         Classification: true,
         Gender: showForThisGroup(['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon),
         Etymology: showForThisGroup(['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon),
@@ -184,12 +187,12 @@ export default {
 
     this.initLoad().then(() => {
       if (/^\d+$/.test(taxonId)) {
-        this.$store.dispatch(ActionNames.LoadTaxonName, taxonId).then(() => {
+        this.$store.dispatch(ActionNames.LoadTaxonName, taxonId).then((taxon) => {
           this.$store.dispatch(ActionNames.LoadTaxonStatus, taxonId)
           this.$store.dispatch(ActionNames.LoadTaxonRelationships, taxonId)
           this.$store.dispatch(ActionNames.LoadOriginalCombination, taxonId)
-          this.loading = false
-        }, () => {
+          this.$store.dispatch(ActionNames.LoadCombinations, taxon.id)
+        }).finally(() => {
           this.loading = false
         })
       } else {

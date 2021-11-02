@@ -76,7 +76,7 @@ class Protonym < TaxonName
         has_one d.assignment_method.to_sym, through: relationship, source: :object_taxon_name
       end
 
-      if d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification)/ # |SourceClassifiedAs
+      if d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification)/
         relationships = "#{d.assignment_method}_relationships".to_sym
         # ActiveRecord::Base.send(:sanitize_sql_array, [d.name])
         has_many relationships, -> {
@@ -141,6 +141,9 @@ class Protonym < TaxonName
 
   scope :is_original_name, -> { where("cached_author_year NOT ILIKE '(%'") }
   scope :is_not_original_name, -> { where("cached_author_year ILIKE '(%'") }
+
+  # Protonym.order_by_rank(RANKS) or Protonym.order_by_rank(ICZN)
+  scope :order_by_rank, -> (code) {order(Arel.sql("position(taxon_names.rank_class in '#{code}')"))}
 
   # @return [Protonym]
   #   a name ready to become the root
@@ -714,7 +717,7 @@ class Protonym < TaxonName
     end
 
     if elements.any?
-      if !elements[:genus] && !not_binomial?
+      if !elements[:genus] && !not_binominal?
         if original_genus
           elements[:genus] = [nil, "[#{original_genus&.name}]"]
         else
@@ -741,7 +744,7 @@ class Protonym < TaxonName
   end
 
   # @return [String, nil]
-  #    a monomial, as originally rendered, with parens if subgenus
+  #    a monominal, as originally rendered, with parens if subgenus
   def original_name
     n = verbatim_name.nil? ? name_with_misspelling(nil) : verbatim_name
     n = "(#{n})" if n && rank_name == 'subgenus'

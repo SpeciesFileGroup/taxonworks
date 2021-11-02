@@ -9,6 +9,7 @@ extensions = true if extensions.nil?
 
 # This allows us to prevent cascading extensions when we use `&extend[]`
 if extensions
+
   if extend_response_with('pinboard_item')
     json.partial! '/pinboard_items/pinned', object: object
   end
@@ -22,7 +23,13 @@ if extensions
 
         json.source do
           json.partial! '/sources/base_attributes', source: object.origin_citation.source
+
+          # Note: we may need to be more specific, this carries in from other role requests.
+          if extend_response_with('roles')
+            json.partial! '/sources/roles_attributes', source: object.origin_citation.source
+          end
         end
+
       end
     end
   end

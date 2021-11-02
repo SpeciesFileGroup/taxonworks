@@ -1,5 +1,7 @@
 <template>
-  <modal-component v-if="showModal">
+  <modal-component
+    v-if="showModal"
+    @close="_cancel">
     <template #header>
       <h3>{{ title }}</h3>
     </template>
@@ -19,9 +21,7 @@
       </div>
     </template>
     <template #footer>
-      <div
-        slot="footer"
-        class="horizontal-right-content">
+      <div class="horizontal-right-content">
         <button
           type="button"
           class="button normal-input"
