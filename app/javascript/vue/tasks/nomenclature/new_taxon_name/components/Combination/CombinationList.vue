@@ -3,6 +3,9 @@
     <h3 v-if="isPlant && !currentCombination">
       Select current combination
     </h3>
+    <h3 v-else>
+      Combinations
+    </h3>
     <ul class="table-entrys-list">
       <li
         v-for="combination in list"

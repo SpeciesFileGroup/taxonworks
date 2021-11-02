@@ -34,6 +34,7 @@
       </div>
 
       <combination-citation
+        class="margin-large-bottom"
         :taxon="taxon"
         v-model="citationData"/>
 
@@ -59,6 +60,7 @@
           New
         </v-btn>
       </div>
+      <hr>
       <combination-list
         :list="combinationList"
         @edit="loadCombination"

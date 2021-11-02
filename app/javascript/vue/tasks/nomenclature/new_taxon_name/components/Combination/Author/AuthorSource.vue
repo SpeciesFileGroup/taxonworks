@@ -1,6 +1,6 @@
 <template>
   <div class="full_width">
-    <div class="horizontal-left-content full_width">
+    <div class="horizontal-left-content full_width margin-medium-bottom">
       <autocomplete
         class="full_width"
         url="/sources/autocomplete"
@@ -20,7 +20,7 @@
         @getId="setSource"
       />
     </div>
-    <hr>
+
     <template v-if="source">
       <div class="flex-separate middle">
         <span>

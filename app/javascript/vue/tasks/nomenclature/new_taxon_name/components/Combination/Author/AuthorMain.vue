@@ -1,4 +1,5 @@
 <template>
+  <h3>Author</h3>
   <switch-component
     class="margin-medium-bottom"
     :options="sections"
@@ -14,14 +15,11 @@
 <script setup>
 
 import { computed, ref } from 'vue'
-import { useStore } from 'vuex'
 import { NOMENCLATURE_CODE_BOTANY } from 'constants/index.js'
 import SwitchComponent from 'components/switch.vue'
 import AuthorPerson from './AuthorPeople.vue'
 import AuthorSource from './AuthorSource.vue'
 import AuthorVerbatim from './AuthorVerbatim.vue'
-
-const store = useStore()
 
 const TAB = {
   Source: AuthorSource,

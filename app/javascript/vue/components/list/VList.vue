@@ -20,9 +20,9 @@ export default {}
 
     li {
       margin: 0px;
-      padding: 6px;
+      padding: 1em 0;
       border: 0px;
-      border-top: 1px solid #f5f5f5;
+      border-bottom: 1px solid #f5f5f5;
     }
   }
 </style>
