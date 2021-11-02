@@ -9,6 +9,13 @@
       class="square-brackets margin-medium-left">
       <ul class="no_bullets context-menu">
         <li>
+          <a
+            :href="`/graph/${encodeURIComponent(globalId)}/object`"
+            target="_blank">
+            JSON
+          </a>
+        </li>
+        <li>
           <radial-annotator :global-id="currentNode.id" />
         </li>
         <li>
@@ -73,6 +80,10 @@
       </g>
     </svg>
   </div>
+  <v-spinner
+    v-if="isLoading"
+    full-screen
+  />
 </template>
 
 <script setup>
@@ -87,10 +98,12 @@ import SvgPerson from './components/Svg/SvgPerson.vue'
 import SvgHexagon from './components/Svg/SvgHexagon.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialNavigation from 'components/radials/navigation/radial.vue'
+import VSpinner from 'components/spinner.vue'
 
 const size = 10
 const width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0) - 20
 const height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0) - 200
+const isLoading = ref(false)
 const simulation = ref(null)
 const currentMove = ref(null)
 const currentGlobalId = ref()
@@ -135,6 +148,7 @@ const drop = () => {
 
 const loadGraph = globalId => {
   currentGlobalId.value = globalId
+  isLoading.value = true
   SetParam('/tasks/graph/object', 'global_id', globalId)
   AjaxCall('get', `/graph/${encodeURIComponent(globalId)}/object`).then(({ body }) => {
     graph.value = {
@@ -150,6 +164,8 @@ const loadGraph = globalId => {
       .force('charge', d3.forceManyBody().strength(d => -80))
       .force('link', d3.forceLink(graph.value.links))
       .force('center', d3.forceCenter(width / 2, height / 2))
+
+    isLoading.value = false
   })
 }
 
