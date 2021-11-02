@@ -239,7 +239,7 @@ class ImageMatrix
     h = {}
     if observation_matrix_id.to_i == 0 && !otu_filter.blank?
       o = observation_depictions_from_otu_filter.pluck(:otu_id).uniq
-      otu_id_filter_array = otu_id_filter_array & o
+      @otu_id_filter_array = otu_id_filter_array & o # should be '@otu_id_filter_array' not 'otu_id_filter_array'
       rows = Otu.where('otus.id IN (?)', otu_id_filter_array)
     else
       rows = rows_with_filter
