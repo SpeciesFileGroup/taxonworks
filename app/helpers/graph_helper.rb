@@ -122,20 +122,20 @@ module GraphHelper
     end
 
     if taxon_determinations
-      c.taxon_determinations.each do |d|
+    c.taxon_determinations.each do |d|
         taxon_determination_graph(d, graph: g, target: c, taxon_names: true)
       end
     end
 
     if biological_associations
-      c.all_biological_associations.each do |b|
-        g.add_node(b.biological_association_subject)
-        g.add_node(b.biological_association_object)
-        g.add_node(b.biological_relationship)
+    c.all_biological_associations.each do |b|
+      g.add_node(b.biological_association_subject)
+      g.add_node(b.biological_association_object)
+      g.add_node(b.biological_relationship)
 
-        g.add_edge(b.biological_relationship, b.biological_association_subject)
-        g.add_edge(b.biological_relationship, b.biological_association_object)
-      end
+      g.add_edge(b.biological_relationship, b.biological_association_subject)
+      g.add_edge(b.biological_relationship, b.biological_association_object)
+    end
     end
 
     g
