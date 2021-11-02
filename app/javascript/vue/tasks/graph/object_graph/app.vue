@@ -10,7 +10,7 @@
       <ul class="no_bullets context-menu">
         <li>
           <a
-            :href="`/graph/${encodeURIComponent(globalId)}/object`"
+            :href="`/graph/${encodeURIComponent(currentGlobalId)}/object`"
             target="_blank">
             JSON
           </a>
