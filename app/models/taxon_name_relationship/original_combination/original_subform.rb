@@ -31,7 +31,7 @@ class TaxonNameRelationship::OriginalCombination::OriginalSubform < TaxonNameRel
     true
   end
 
-  def monomial_prefix
+  def monominal_prefix
     'subf.'
   end
 

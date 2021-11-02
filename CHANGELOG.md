@@ -163,6 +163,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Labels list renders for those linked to objects, or not
 
 ### Changed
+- Updated "ICZN binomial" to "ICZN binominal" following the Code dictionary
 - Radial annotator Tag form uses a Keyword smart selector [#2564]
 - DwcOccurrence is rebuilt/refreshed each time Browse Collection Object is hit
 - `footprintWKT` is hidden in Browse CollectionOjbect [#2559]
@@ -836,7 +837,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
-- updated softvalidation for non binomial names
+- updated softvalidation for non binominal names
 - updated label for species-group rank TaxonName
 - Compute print column divisions with barcode style labels [#1993]
 - Object tag for TaxonNameRelationship inverted [#2100]

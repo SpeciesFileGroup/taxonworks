@@ -1,9 +1,9 @@
 <template>
   <block-layout
     class="basic-information"
-    anchor="basic-information">
+    anchor="taxon">
     <template #header>
-      <h3>Basic information</h3>
+      <h3>Taxon</h3>
     </template>
     <template #body>
       <div class="horizontal-left-content align-start">

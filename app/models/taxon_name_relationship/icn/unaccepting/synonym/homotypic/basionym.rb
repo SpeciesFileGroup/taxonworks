@@ -40,4 +40,17 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Basionym < Ta
     :reverse
   end
 
+  protected
+
+  def set_cached_names_for_taxon_names
+    begin
+      TaxonName.transaction do
+        TaxonName.where(cached_valid_taxon_name_id: object_taxon_name.cached_valid_taxon_name_id).each do |t|
+          t.update_column(:cached_author_year, t.get_author_and_year)
+        end
+      end
+    end
+    true
+  end
+
 end

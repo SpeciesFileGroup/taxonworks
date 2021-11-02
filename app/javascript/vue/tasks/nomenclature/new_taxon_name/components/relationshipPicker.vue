@@ -111,13 +111,22 @@
 import { ActionNames } from '../store/actions/actions'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
+import { TAXON_RELATIONSHIP_CURRENT_COMBINATION } from 'constants/index.js'
 import TreeDisplay from './treeDisplay.vue'
 import ListEntrys from './listEntrys.vue'
 import ListCommon from './commonList.vue'
 import Autocomplete from 'components/ui/Autocomplete.vue'
 import getRankGroup from '../helpers/getRankGroup'
 import SwitchComponent from 'components/switch'
-import BlockLayout from'components/layout/BlockLayout'
+import BlockLayout from 'components/layout/BlockLayout'
+
+const FILTER_RELATIONSHIPS = [
+  TAXON_RELATIONSHIP_CURRENT_COMBINATION,
+  'OriginalCombination',
+  'Typification',
+  'UncertainPlacement',
+  'SourceClassifiedAs'
+]
 
 export default {
   components: {
@@ -142,11 +151,7 @@ export default {
     },
 
     GetRelationshipsCreated () {
-      return this.$store.getters[GetterNames.GetTaxonRelationshipList].filter((item) =>
-        item.type.split('::')[1] !== 'OriginalCombination' &&
-        item.type.split('::')[1] !== 'Typification' &&
-        !item.type.endsWith('::UncertainPlacement') &&
-        !item.type.endsWith('::SourceClassifiedAs'))
+      return this.$store.getters[GetterNames.GetTaxonRelationshipList].filter(item => !FILTER_RELATIONSHIPS.some(filterType => item.type.includes(filterType)))
     },
 
     taxon () {
@@ -274,7 +279,8 @@ export default {
       else {
         this.$store.dispatch(ActionNames.AddTaxonRelationship, {
           type: item.type,
-          taxonRelationshipId: this.taxonRelation.id
+          object_taxon_name_id: this.taxonRelation.id,
+          subject_taxon_name_id: this.taxon.id
         }).then(() => {
           this.taxonRelation = undefined
           this.$store.commit(MutationNames.UpdateLastChange)
