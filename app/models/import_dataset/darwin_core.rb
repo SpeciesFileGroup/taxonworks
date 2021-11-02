@@ -226,7 +226,11 @@ class ImportDataset::DarwinCore < ImportDataset
         delimiter: ':'
       )
 
-      metadata["namespaces"]["core"] = @core_record_identifier_namespace.id
+      metadata.deep_merge!({
+        "namespaces" => {
+          "core" => @core_record_identifier_namespace.id
+        }
+      })
       save!
     end
 
