@@ -1,7 +1,7 @@
 <template>
   <div class="margin-medium-top">
     <h3 v-if="isPlant && !currentCombination">
-      Select current combination
+      Preferred name (optional)
     </h3>
     <h3 v-else>
       Combinations
