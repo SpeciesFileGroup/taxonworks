@@ -17,58 +17,62 @@
       </ul>
     </div>
   </div>
-  <ul class="capitalize">
-    <li
-      v-for="(value, key) in graph.stats"
-      :key="key"
-    >
-      {{ key }}: {{ value }}
-    </li>
-  </ul>
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    :width="width+'px'"
-    :height="height+'px'"
-    @mousemove="drag($event)"
-    @mouseup="drop()"
-  >
-    <line
-      v-for="link in graph.links"
-      :key="link.index"
-      :x1="coords[link.source.index].x"
-      :y1="coords[link.source.index].y"
-      :x2="coords[link.target.index].x"
-      :y2="coords[link.target.index].y"
-      stroke="black"
-      stroke-width="2"
-    />
-    <g
-      v-for="node in graph.nodes"
-      class="cursor-pointer"
-      :key="node.id"
-      @mousedown="currentMove = { x: $event.screenX, y: $event.screenY, node: node }"
+  <div class="graph-container">
+    <div class="panel content graph-container__stats">
+      <ul class="capitalize">
+        <li
+          v-for="(value, key) in graph.stats"
+          :key="key"
+        >
+          {{ key }}: {{ value }}
+        </li>
+      </ul>
+    </div>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      :width="width+'px'"
+      :height="height+'px'"
+      @mousemove="drag($event)"
       @mouseup="drop()"
     >
-      <component
-        :is="componentForShape(node.shape)"
-        :size="size"
-        :x="coords[node.index].x || 0"
-        :y="coords[node.index].y || 0"
-        :color="node.color"
-        stroke="white"
-        stroke-width="1"
-        @dblclick="loadGraph(node.id)"
+      <line
+        v-for="link in graph.links"
+        :key="link.index"
+        :x1="coords[link.source.index].x"
+        :y1="coords[link.source.index].y"
+        :x2="coords[link.target.index].x"
+        :y2="coords[link.target.index].y"
+        stroke="black"
+        stroke-width="2"
       />
-      <text
-        :x="coords[node.index].x + size"
-        :y="coords[node.index].y"
-        dy=".3em"
+      <g
+        v-for="node in graph.nodes"
+        class="cursor-pointer"
+        :key="node.id"
+        @mousedown="currentMove = { x: $event.screenX, y: $event.screenY, node: node }"
+        @mouseup="drop()"
       >
-        {{ node.name }}
-      </text>
-      <title>{{ node.name }}</title>
-    </g>
-  </svg>
+        <component
+          :is="componentForShape(node.shape)"
+          :size="size"
+          :x="coords[node.index].x || 0"
+          :y="coords[node.index].y || 0"
+          :color="node.color"
+          stroke="white"
+          stroke-width="1"
+          @dblclick="loadGraph(node.id)"
+        />
+        <text
+          :x="coords[node.index].x + size"
+          :y="coords[node.index].y"
+          dy=".3em"
+        >
+          {{ node.name }}
+        </text>
+        <title>{{ node.name }}</title>
+      </g>
+    </svg>
+  </div>
 </template>
 
 <script setup>
@@ -157,3 +161,17 @@ if (globalId) {
 }
 
 </script>
+<style lang="scss" scoped>
+.graph-container {
+  position: relative;
+
+  &__stats {
+    position: absolute;
+  }
+
+  ul {
+    padding-left: 1em;
+    margin: 0;
+  }
+}
+</style>
