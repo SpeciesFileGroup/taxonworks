@@ -50,6 +50,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Author and editor roles are missing after save or create a source in New source task [#2607]
 - Rank genus not being auto-detected when uninomial name in scientificName matches genus term value exactly
 - Soft validation block is displayed when is empty in New source task [#2611]
+- Clipboard shortcuts
 
 [#2617]: https://github.com/SpeciesFileGroup/taxonworks/issues/2617
 [#2616]: https://github.com/SpeciesFileGroup/taxonworks/issues/2616
