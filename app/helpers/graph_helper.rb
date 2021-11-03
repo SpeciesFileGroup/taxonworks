@@ -83,7 +83,7 @@ module GraphHelper
     # TODO: Loop has_many
     [:authored_sources, :edited_sources, :human_sources].each do |m|
       p.send(m).each do |o|
-        g.add(o,p)
+        g.add(o, p)
       end
     end
 
@@ -92,6 +92,7 @@ module GraphHelper
         g.add(o,p)
       end
     end
+
     g
   end
 
