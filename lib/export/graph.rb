@@ -13,8 +13,10 @@ class Export::Graph
     'BiologicalRelationship' => '#9C27B0',
     'Repository' => '#009688',
     'Observation' => '#CDDC39',
-    'Citation' => '#009688',
-    'Georeference' => '#CDDC39'
+    'Citation' => '#CCCCCC',
+    'Georeference' => '#CDDC39',
+    'Source' => '#2196F3',
+    'AssertedDistribution' => '#FF9800'
   }
 
   NODE_SHAPES = {
@@ -31,7 +33,10 @@ class Export::Graph
     'Observation' => 'square',
     'Citation' => 'square',
     'Repository' => 'circle',
-    'Georeference' => 'square'
+    'Georeference' => 'square',
+    'Source' => 'pentagon',
+    'Citation' => 'octagon',
+    'AssertedDistribution' => 'pentagon'
   }
 
   RENDERABLE_ANNOTATIONS = []

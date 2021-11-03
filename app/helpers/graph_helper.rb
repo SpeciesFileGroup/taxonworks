@@ -1,6 +1,5 @@
 module GraphHelper
 
-
   def object_graph(object)
     return nil if object.nil?
 
@@ -15,11 +14,87 @@ module GraphHelper
       otu_graph(object, collection_objects: true, taxon_name: true, synonymy: true, biological_associations: true).to_json
     when 'TaxonDetermination'
       taxon_determination_graph(object, collection_object: true, taxon_names: true).to_json
+    when 'Person'
+      person_graph(object).to_json
+    when 'Citation'
+      citation_graph(object, source: true, citation_object: true).to_json
+    when 'Source'
+      source_graph(object, citations: true, authors: true, editors: true, citations: true).to_json
     else
       g = Export::Graph.new( object: object )
       g.to_json
     end
   end
+
+  def source_graph(source, graph: nil, target: nil, citations: false, authors: false, editors: false)
+    s = source
+    return nil if s.nil?
+
+    g = initialize_graph(graph, nil, nil)
+
+    # We can't auto-cite, so .add can not be used
+    g.add_node(s, citations: false, identifiers: true)
+    g.add_edge(target, s)
+
+    if authors && s.respond_to?(:authors)
+      s.authors.each do |p|
+        g.add(p, s)
+      end
+    end
+
+    if editors && s.respond_to?(:editors)
+      s.editors.each do |p|
+        g.add(p, s)
+      end
+    end
+
+    if citations
+      s.citations.where(project_id: sessions_current_project_id).each do |c|
+        citation_graph(c, graph: g, target: s, citation_object: true)
+      end
+    end
+
+    g
+  end
+
+  def citation_graph(citation, graph: nil, target: nil, source: false, citation_object: false)
+    c = citation
+    return nil if c.nil?
+
+    g = initialize_graph(graph, c, target)
+
+    if source
+      source_graph(c.source, graph: g, target: c, authors: true, editors: true)
+    end
+
+    if citation_object
+      g.add_node(c.citation_object, citations: false, identifiers: true)
+      g.add_edge(c, c.citation_object)
+    end
+    g
+  end
+
+  def person_graph(person, graph: nil, target: nil)
+    p = person
+    return nil if p.nil?
+
+    g = initialize_graph(graph, p, target)
+
+    # TODO: Loop has_many
+    [:authored_sources, :edited_sources, :human_sources].each do |m|
+      p.send(m).each do |o|
+        g.add(o,p)
+      end
+    end
+
+    [ :collecting_events, :taxon_determinations, :authored_taxon_names, :georeferences, :collection_objects, :dwc_occurrences].each do |m|
+      p.send(m).where(project_id: sessions_current_project_id).each do |o|
+        g.add(o,p)
+      end
+    end
+    g
+  end
+
 
   def collecting_event_graph(collecting_event, graph: nil, target: nil, collection_objects: false)
     c = collecting_event

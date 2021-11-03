@@ -96,6 +96,8 @@ import SvgSquare from './components/Svg/SvgSquare.vue'
 import SvgTriangle from './components/Svg/SvgTriangle.vue'
 import SvgPerson from './components/Svg/SvgPerson.vue'
 import SvgHexagon from './components/Svg/SvgHexagon.vue'
+import SvgPentagon from './components/Svg/SvgPentagon.vue'
+import SvgOctagon from './components/Svg/SvgOctagon.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialNavigation from 'components/radials/navigation/radial.vue'
 import VSpinner from 'components/spinner.vue'
@@ -124,7 +126,9 @@ const AVAILABLE_SHAPES = {
   circle: SvgCircle,
   triangle: SvgTriangle,
   person: SvgPerson,
-  hexagon: SvgHexagon
+  hexagon: SvgHexagon,
+  pentagon: SvgPentagon,
+  octagon: SvgOctagon
 }
 
 const componentForShape = shapeType => AVAILABLE_SHAPES[shapeType] || SvgCircle
