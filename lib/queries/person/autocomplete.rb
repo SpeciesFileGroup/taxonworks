@@ -117,7 +117,7 @@ module Queries
         queries.each_with_index do |q ,i|
           if roles_assigned?
             a = q.joins(:roles).where(role_match.to_sql)
-          elsif i != 2 && i != 3 && i != 4 # do not use extended query for identifiers
+          elsif Current.project_id && i != 2 && i != 3 && i != 4 # do not use extended query for identifiers
             a = q.left_outer_joins(:roles)
                   .joins("LEFT OUTER JOIN sources ON roles.role_object_id = sources.id AND roles.role_object_type = 'Source'")
                   .joins('LEFT OUTER JOIN project_sources ON sources.id = project_sources.source_id')

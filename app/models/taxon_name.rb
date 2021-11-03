@@ -755,7 +755,7 @@ class TaxonName < ApplicationRecord
       if matchdata1 = cached_author_year.match(/(\(.*\))/)
         matchdata1[1].gsub(/^\(|\)/, '')
       else
-        nil
+        cached_author_year
       end
     else
       cached_author_year

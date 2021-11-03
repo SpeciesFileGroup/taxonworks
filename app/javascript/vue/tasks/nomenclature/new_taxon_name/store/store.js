@@ -33,7 +33,7 @@ function makeInitialState () {
       initLoad: false,
       autosave: true
     },
-    combinationList: [],
+    combinations: [],
     taxonStatusList: [],
     taxonRelationshipList: [],
     taxonRelationship: undefined,
