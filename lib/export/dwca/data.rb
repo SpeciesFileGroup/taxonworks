@@ -45,7 +45,7 @@ module Export::Dwca
       @core_scope = get_scope(core_scope)
       @biological_extension_scope = extension_scopes[:biological_extension_scope] #  = get_scope(core_scope)
 
-      if predicate_extension_params
+      if !predicate_extension_params.empty?
         @data_predicate_ids = predicate_extension_params[:predicate_extension_params].transform_keys(&:to_sym)
       else
         @data_predicate_ids = {collection_object_predicate_id: [], collecting_event_predicate_id: []}
