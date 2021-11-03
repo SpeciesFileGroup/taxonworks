@@ -70,10 +70,7 @@ const emit = defineEmits(['onSet'])
 
 const store = useStore()
 const currentTaxonName = computed(() => store.getters[GetterNames.GetTaxon])
-const groupName = computed(() =>
-  currentTaxonName.value.id &&
-  Object.entries(props.combinationRanks).find(([_, ranks]) => Object.keys(ranks).includes(currentTaxonName.value.rank))[0]
-)
+const groupName = computed(() => Object.keys(props.combinationRanks).find(group => Object.keys(props.combinationRanks[group]).includes(currentTaxonName.value.rank)))
 const ranks = computed(() => [].concat(...Object.values(props.combinationRanks).map(ranks => Object.keys(ranks))))
 const taxonNameList = computed(() => [{
   rank: currentTaxonName.value,

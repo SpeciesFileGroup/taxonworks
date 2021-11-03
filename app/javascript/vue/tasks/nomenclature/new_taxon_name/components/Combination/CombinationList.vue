@@ -136,10 +136,14 @@ const deleteCombination = async combination => {
   })
 
   if (ok) {
-    store.dispatch(ActionNames.RemoveTaxonRelationship, currentCombination.value).then(_ => {
-      store.dispatch(ActionNames.UpdateTaxonName, taxon.value)
+    if (isCurrent) {
+      store.dispatch(ActionNames.RemoveTaxonRelationship, currentCombination.value).then(_ => {
+        store.dispatch(ActionNames.UpdateTaxonName, taxon.value)
+        emit('delete', combination)
+      })
+    } else {
       emit('delete', combination)
-    })
+    }
   }
 }
 

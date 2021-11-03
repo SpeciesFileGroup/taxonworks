@@ -1,5 +1,6 @@
 <template>
   <block-layout
+    :spinner="!taxon.id"
     anchor="original-combination">
     <template #header>
       <h3>Subsequent combination</h3>
@@ -34,7 +35,6 @@
       </div>
 
       <combination-citation
-        class="margin-large-bottom"
         :taxon="taxon"
         v-model="citationData"/>
 
