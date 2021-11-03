@@ -80,7 +80,7 @@
 import { ActionNames } from '../store/actions/actions'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import BlockLayout from'components/layout/BlockLayout'
+import BlockLayout from 'components/layout/BlockLayout'
 import ListEntrys from './listEntrys.vue'
 import Autocomplete from 'components/ui/Autocomplete.vue'
 
@@ -161,7 +161,8 @@ export default {
       } else {
         this.$store.dispatch(ActionNames.AddTaxonRelationship, {
           type: item,
-          taxonRelationshipId: this.taxonRelation.id
+          object_taxon_name_id: this.taxonRelation.id,
+          subject_taxon_name_id: this.taxon.id
         }).then(() => {
           this.taxonRelation = undefined
           this.$store.commit(MutationNames.UpdateLastChange)

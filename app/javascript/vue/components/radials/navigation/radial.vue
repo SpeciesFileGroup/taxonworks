@@ -143,6 +143,15 @@ export default {
   emits: ['close'],
 
   computed: {
+    defaultTasks () {
+      return ({
+        graph_object: {
+          name: 'Object graph',
+          path: `/tasks/graph/object?global_id=${encodeURIComponent(this.globalId)}`
+        }
+      })
+    },
+
     menuOptions () {
       const tasks = this.metadata.tasks || {}
       const taskSlices = Object.entries(tasks).slice(0, this.maxTaskInPie).map(([task, { name, path }]) => ({
@@ -189,7 +198,10 @@ export default {
         ))
       }
 
-      const slices = [].concat(taskSlices, this.defaultSlices)
+      const slices = [
+        ...taskSlices,
+        ...this.defaultSlices
+      ]
 
       return {
         width: 400,
@@ -326,11 +338,12 @@ export default {
       this.globalIdSaved = globalId
       this.loading = true
 
-      this.getList(`/metadata/object_radial?global_id=${encodeURIComponent(globalId)}`).then(response => {
-        this.metadata = response.body
+      this.getList(`/metadata/object_radial?global_id=${encodeURIComponent(globalId)}`).then(({ body }) => {
+        this.metadata = body
         this.title = this.metadata.object_label
-
         this.loading = false
+
+        Object.assign(this.metadata.tasks, this.defaultTasks)
       })
     },
 

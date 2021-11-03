@@ -1,0 +1,190 @@
+<template>
+  <block-layout
+    anchor="original-combination">
+    <template #header>
+      <h3>Subsequent combination</h3>
+    </template>
+    <template #body>
+      <combination-current
+        v-if="!isCurrentTaxonInCombination"
+        :combination-ranks="combinationRanks"
+        @onSet="combination = $event"
+      />
+      <combination-rank
+        v-for="(group, groupName) in combinationRanks"
+        :key="groupName"
+        v-model="combination"
+        :nomenclature-group="groupName"
+        :rank-group="Object.keys(group)"
+        :disabled="!isCurrentTaxonInCombination"
+        :options="{
+          animation: 150,
+          filter: '.item-filter'
+        }"
+        :group="{
+          name: groupName,
+          put: [groupName],
+          pull: false
+        }"
+      />
+
+      <div class="original-combination margin-medium-top margin-medium-bottom">
+        <div class="rank-name-label"/>
+        <combination-verbatim v-model="currentCombination.verbatim_name"/>
+      </div>
+
+      <combination-citation
+        class="margin-large-bottom"
+        :taxon="taxon"
+        v-model="citationData"/>
+
+      <div class="margin-medium-top">
+        <v-btn
+          class="margin-small-right"
+          color="create"
+          medium
+          :disabled="!isCurrentTaxonInCombination"
+          @click="saveCombination"
+        >
+          {{
+            currentCombination.id
+              ? 'Update'
+              : 'Create'
+          }}
+        </v-btn>
+        <v-btn
+          color="primary"
+          medium
+          @click="newCombination"
+        >
+          New
+        </v-btn>
+      </div>
+      <hr>
+      <combination-list
+        :list="combinationList"
+        @edit="loadCombination"
+        @delete="removeCombination"
+      />
+    </template>
+  </block-layout>
+</template>
+
+<script setup>
+
+import { ref, computed, reactive } from 'vue'
+import { useStore } from 'vuex'
+import { GetterNames } from '../../store/getters/getters.js'
+import { ActionNames } from '../../store/actions/actions.js'
+import {
+  combinationType,
+  combinationIcnType
+} from '../../const/originalCombinationTypes'
+import {
+  COMBINATION,
+  NOMENCLATURE_CODE_BOTANY
+} from 'constants/index.js'
+import VBtn from 'components/ui/VBtn/index.vue'
+import BlockLayout from 'components/layout/BlockLayout.vue'
+import CombinationRank from './CombinationRank.vue'
+import CombinationCurrent from './CombinationCurrent.vue'
+import CombinationVerbatim from './CombinationVerbatim.vue'
+import CombinationCitation from './Author/AuthorMain.vue'
+import CombinationList from './CombinationList.vue'
+import makeCitationObject from 'factory/Citation.js'
+
+const store = useStore()
+const combination = ref({})
+const combinationList = computed(() => store.getters[GetterNames.GetCombinations])
+const taxon = computed(() => store.getters[GetterNames.GetTaxon])
+const currentCombination = ref({})
+const isCurrentTaxonInCombination = computed(() => !!Object.entries(combination.value).find(([_, protonym]) => protonym?.id === taxon.value.id))
+const combinationRanks = computed(() =>
+  store.getters[GetterNames.GetTaxon].nomenclatural_code === NOMENCLATURE_CODE_BOTANY
+    ? combinationIcnType
+    : combinationType
+)
+const citationData = reactive({
+  origin_citation_attributes: makeCitationObject(COMBINATION),
+  verbatim_author: undefined,
+  year_of_publication: undefined,
+  roles_attributes: []
+})
+
+const saveCombination = () => {
+  const combObj = Object.assign({},
+    {
+      id: currentCombination.value.id,
+      verbatim_name: currentCombination.value.verbatim_name,
+      ...citationData
+    },
+    ...removeOldRelationships(combination.value),
+    ...makeCombinationParams()
+  )
+
+  store.dispatch(ActionNames.CreateCombination, combObj).then(_ => {
+    combination.value = {}
+    currentCombination.value = {}
+    setCitationData()
+  })
+}
+
+const removeOldRelationships = protonyms => {
+  const removeRanks = []
+  const oldProtonyms = currentCombination.value.protonyms
+
+  for (const rank in oldProtonyms) {
+    const taxon = oldProtonyms[rank]
+    const newTaxon = protonyms[rank]
+
+    if (taxon && !newTaxon) {
+      removeRanks.push({
+        [`${rank}_taxon_name_relationship_attributes`]: { 
+          id: oldProtonyms[rank].taxon_name_relationship_id,
+          _destroy: true
+        }
+      })
+    }
+  }
+
+  return removeRanks
+}
+
+const makeCombinationParams = () => Object.entries(combination.value).map(([rank, taxon]) => ({ [`${rank}_id`]: taxon?.id || null }))
+
+const newCombination = () => {
+  combination.value = {}
+  currentCombination.value = {}
+  setCitationData()
+}
+
+const loadCombination = data => {
+  currentCombination.value = { ...data }
+  combination.value = data.protonyms
+  setCitationData(data)
+}
+
+const removeCombination = data => {
+  if (data.id === currentCombination.value.id) {
+    currentCombination.value = {}
+    combination.value = {}
+  }
+
+  store.dispatch(ActionNames.RemoveCombination, data.id)
+}
+
+const setCitationData = (combination = {}) => {
+  citationData.verbatim_author = combination.verbatim_author
+  citationData.year_of_publication = combination.year_of_publication
+  citationData.roles_attributes = combination.taxon_name_author_roles || []
+  citationData.origin_citation_attributes = combination.origin_citation
+    ? {
+        id: combination.origin_citation.id,
+        source_id: combination.origin_citation.source.id,
+        pages: combination.origin_citation.pages,
+        global_id: combination.origin_citation.global_id
+      }
+    : makeCitationObject(COMBINATION)
+}
+
+</script>

@@ -12,6 +12,7 @@ import { trash } from './Paths/trash'
 import { undo } from './Paths/undo.js'
 import { expand } from './Paths/expand'
 import { question } from './Paths/question'
+import { scrollV } from './Paths/scrollV.js'
 
 const Icons = {
   attention,
@@ -27,7 +28,8 @@ const Icons = {
   trash,
   reset,
   undo,
-  question
+  question,
+  scrollV
 }
 
 export { Icons }

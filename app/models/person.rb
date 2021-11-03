@@ -113,9 +113,10 @@ class Person < ApplicationRecord
 
   has_many :sources, through: :roles, source: :role_object, source_type: 'Source' # Editor or Author or Person
 
-  has_many :authored_sources, through: :author_roles, source: :role_object, source_type: 'Source::Bibtex', inverse_of: :authors
-  has_many :edited_sources, through: :editor_roles, source: :role_object, source_type: 'Source::Bibtex', inverse_of: :editors
-  has_many :human_sources, through: :source_roles, source: :role_object, source_type: 'Source::Human', inverse_of: :people
+  has_many :authored_sources, through: :author_roles, source: :role_object, source_type: 'Source'
+  has_many :edited_sources, through: :editor_roles, source: :role_object, source_type: 'Source'
+  has_many :human_sources, through: :source_roles, source: :role_object, source_type: 'Source'
+
   has_many :collecting_events, through: :collector_roles, source: :role_object, source_type: 'CollectingEvent', inverse_of: :collectors
   has_many :taxon_determinations, through: :determiner_roles, source: :role_object, source_type: 'TaxonDetermination', inverse_of: :determiners
   has_many :authored_taxon_names, through: :taxon_name_author_roles, source: :role_object, source_type: 'TaxonName', inverse_of: :taxon_name_authors

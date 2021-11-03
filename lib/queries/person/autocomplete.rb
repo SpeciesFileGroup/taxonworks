@@ -43,28 +43,28 @@ module Queries
       def autocomplete_exact_match
         base_query.where(
           table[:cached].eq(normalize_name).to_sql
-        ).limit(5)
+        )
       end
 
       def autocomplete_exact_last_name_match
         base_query.where(
           table[:last_name].eq(query_string).to_sql
-        ).limit(20)
+        )
       end
 
       # @return [Scope]
       def autocomplete_exact_inverted
         base_query.where(
           table[:cached].eq(invert_name).to_sql
-        ).limit(5)
+        )
       end
 
       def autocomplete_alternate_values_last_name
-        matching_alternate_value_on(:last_name).limit(20) 
+        matching_alternate_value_on(:last_name)
       end
 
       def autocomplete_alternate_values_first_name
-        matching_alternate_value_on(:first_name).limit(20) 
+        matching_alternate_value_on(:first_name)
       end
 
       # TODO: Use bibtex parser!!
@@ -98,14 +98,14 @@ module Queries
       def autocomplete
         return [] if query_string.blank?
         queries = [
-          autocomplete_exact_match,
-          autocomplete_exact_inverted,
-          autocomplete_identifier_cached_exact, # do not use extended query
-          autocomplete_identifier_identifier_exact, # do not use extended query
-          autocomplete_exact_id, # do not use extended query
-          autocomplete_exact_last_name_match,
-          autocomplete_alternate_values_last_name,
-          autocomplete_alternate_values_first_name,
+          autocomplete_exact_id,
+          autocomplete_exact_match.limit(5),
+          autocomplete_exact_inverted.limit(5),
+          autocomplete_identifier_cached_exact,
+          autocomplete_identifier_identifier_exact,
+          autocomplete_exact_last_name_match.limit(20),
+          autocomplete_alternate_values_last_name.limit(20),
+          autocomplete_alternate_values_first_name.limit(20),
           autocomplete_ordered_wildcard_pieces_in_cached&.limit(5),
           autocomplete_cached_wildcard_anywhere&.limit(20), # in Queries::Query
           autocomplete_cached

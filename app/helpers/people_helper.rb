@@ -9,6 +9,11 @@ module PeopleHelper
     end
   end
 
+  def label_for_person(person)
+    return nil if person.nil?
+    person.cached
+  end
+
   def person_link(person)
     return nil if person.nil?
     link_to(person_tag(person), person.metamorphosize)

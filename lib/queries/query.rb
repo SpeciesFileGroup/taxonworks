@@ -347,7 +347,7 @@ module Queries
     # @return [ActiveRecord::Relation]
     def autocomplete_named
       return nil if no_terms?
-      base_query.where(named.to_sql).limit(5)
+      base_query.where(named.to_sql).limit(20)
     end
 
     def common_name_table
