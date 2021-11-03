@@ -9,42 +9,96 @@
     </v-btn>
     <v-modal
       @close="setModalView(false)"
-      v-if="showModal">
+      :container-style="{ width: '700px' }"
+      v-if="showModal"
+    >
       <template #header>
         <h3>Download DwC</h3>
       </template>
       <template #body>
-        <h4>Filter by predicates</h4>
-        <div class="margin-small-bottom">
-          <div v-if="collectingEvents.length">
-            <p>Collecting events</p>
-            <ul class="no_bullets">
-              <li
-                v-for="item in collectingEvents"
-                :key="item.id">
-                <label>
-                  <input
-                    type="checkbox"
-                    :value="item.id"
-                    v-model="predicateParams.collecting_event_predicate_id">
-                  <span v-html="item.object_tag"/>
-                </label>
-              </li>
-            </ul>
+        <h3>Filter by predicates</h3>
+        <div>
+          <v-btn
+            class="margin-small-right"
+            color="primary"
+            medium
+            @click="
+              predicateParams.collection_object_predicate_id = collectionObjects.map(co => co.id);
+              predicateParams.collecting_event_predicate_id = collectingEvents.map(ce => ce.id)
+            "
+          >
+            Select all
+          </v-btn>
+          <v-btn
+            color="primary"
+            medium
+            @click="
+              predicateParams.collection_object_predicate_id = [];
+              predicateParams.collecting_event_predicate_id = []
+            "
+          >
+            Unselect all
+          </v-btn>
+        </div>
+        <div class="margin-small-bottom dwc-download-predicates">
+          <div>
+            <table v-if="collectingEvents.length">
+              <thead>
+                <tr>
+                  <th>
+                    <input
+                      v-model="checkAllCe"
+                      type="checkbox">
+                  </th>
+                  <th class="full_width">Collecting events</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="item in collectingEvents"
+                  :key="item.id">
+                  <td>
+                    <input
+                      type="checkbox"
+                      :value="item.id"
+                      v-model="predicateParams.collecting_event_predicate_id">
+                  </td>
+                  <td>
+                    <span v-html="item.object_tag" />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          <div v-if="collectionObjects.length">
-            <p>Collection objects</p>
-            <ul class="no_bullets">
-              <li v-for="item in collectionObjects">
-                <label>
-                  <input
-                    type="checkbox"
-                    :value="item.id"
-                    v-model="predicateParams.collection_object_predicate_id">
-                  <span v-html="item.object_tag"/>
-                </label>
-              </li>
-            </ul>
+          <div>
+            <table
+              v-if="collectionObjects.length">
+              <thead>
+                <tr>
+                  <th>
+                    <input
+                      v-model="checkAllCo"
+                      type="checkbox">
+                  </th>
+                  <th class="full_width">Collection objects</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="item in collectionObjects"
+                  :key="item.id">
+                  <td>
+                    <input
+                      type="checkbox"
+                      :value="item.id"
+                      v-model="predicateParams.collection_object_predicate_id">
+                  </td>
+                  <td>
+                    <span v-html="item.object_tag" />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </template>
@@ -62,7 +116,7 @@
 </template>
 <script setup>
 
-import { reactive, ref, onBeforeMount } from 'vue'
+import { computed, reactive, ref, onBeforeMount, watch } from 'vue'
 import { RouteNames } from 'routes/routes.js'
 import { DwcOcurrence } from 'routes/endpoints'
 import { transformObjectToParams } from 'helpers/setParam.js'
@@ -90,7 +144,7 @@ const predicateParams = reactive({
 })
 
 const getFilterParams = params => {
-  const entries = Object.entries({...params, ...predicateParams }).filter(([key, value]) => !Array.isArray(value) || value.length)
+  const entries = Object.entries({ ...params, ...predicateParams }).filter(([key, value]) => !Array.isArray(value) || value.length)
   const data = Object.fromEntries(entries)
 
   data.per = props.total
@@ -98,6 +152,24 @@ const getFilterParams = params => {
 
   return data
 }
+
+const checkAllCe = computed({
+  get: () => predicateParams.collecting_event_predicate_id.length === collectingEvents.value.length,
+  set: isChecked => {
+    predicateParams.collecting_event_predicate_id = isChecked
+      ? collectingEvents.value.map(co => co.id)
+      : []
+  }
+})
+
+const checkAllCo = computed({
+  get: () => predicateParams.collection_object_predicate_id.length === collectionObjects.value.length,
+  set: isChecked => {
+    predicateParams.collection_object_predicate_id = isChecked
+      ? collectionObjects.value.map(co => co.id)
+      : []
+  }
+})
 
 const download = () => {
   const downloadParams = getFilterParams(props.params)
@@ -116,4 +188,19 @@ onBeforeMount(() => {
     collectionObjects.value = body.collection_object
   })
 })
+
+watch(showModal, newVal => {
+  if (newVal) {
+    predicateParams.collection_object_predicate_id = []
+    predicateParams.collecting_event_predicate_id = []
+  }
+})
+
 </script>
+<style>
+  .dwc-download-predicates {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1em;
+  }
+</style>
