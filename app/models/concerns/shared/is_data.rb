@@ -112,7 +112,7 @@ module Shared::IsData
     self.class.reflect_on_all_associations(:has_one).each do |r|
       if is_community? # *this* object is community, others we don't care about
         if o = send(r.name)
-          return false if o.respond_to(:project_id) && !p.include?(o.project)
+          return false if o.respond_to?(:project_id) && !p.include?(o.project)
         end
       end
     end
