@@ -314,24 +314,29 @@ module CollectionObject::DwcExtensions
   #
   # This was interpreted as collectors (in the field in this context), not those who recorded other aspectes of the data.
   def dwc_recorded_by
+    v = nil
     if collecting_event
-      collecting_event.collectors
+      v = collecting_event.collectors
         .order('roles.position')
         .pluck(:cached)
         .join(CollectionObject::DWC_DELIMITER)
         .presence
     end
+    v = collecting_event.verbatim_collectors.presence if v.blank?
   end
 
   # See dwc_recorded_by
   def dwc_recorded_by_id
+
     if collecting_event
-      collecting_event.collectors
+     v = collecting_event.collectors
         .order('roles.position')
         .map(&:orcid)
+        .compact
         .join(CollectionObject::DWC_DELIMITER)
         .presence
     end
+
   end
 
   def dwc_identified_by
@@ -377,11 +382,11 @@ module CollectionObject::DwcExtensions
   end
 
   def dwc_latitude
-    georeference_attributes[:dwcLatitude]
+    georeference_attributes[:decimalLatitude]
   end
 
   def dwc_longitude
-    georeference_attributes[:dwcLongitude]
+    georeference_attributes[:decimalLongitude]
   end
 
   def dwc_verbatim_locality
