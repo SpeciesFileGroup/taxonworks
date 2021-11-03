@@ -40,6 +40,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Replace autocomplete for smart selector in alternate values annotator [#2610]
 
 ### Fixed
+- DwC recordedBy not referencing verbatim_collectors, only collectors [#2617]
+- DwC recordedByID returning delimiter only records
+- DwC decimalLatitude/Longitude incorrectly mapped [#2616]
 - Citation style taxonworks.csl is updated [#2600]
 - Failure when setting up namespaces in DwC importer with datasets having *unnamed* columns
 - Namespace settings are not cleared when unmatched and re-opened in DwC Import [#2586]
@@ -48,6 +51,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Rank genus not being auto-detected when uninomial name in scientificName matches genus term value exactly
 - Soft validation block is displayed when is empty in New source task [#2611]
 
+[#2617]: https://github.com/SpeciesFileGroup/taxonworks/issues/2617
+[#2616]: https://github.com/SpeciesFileGroup/taxonworks/issues/2616
 [#2587]: https://github.com/SpeciesFileGroup/taxonworks/issues/2587
 [#2531]: https://github.com/SpeciesFileGroup/taxonworks/issues/2531
 [#2586]: https://github.com/SpeciesFileGroup/taxonworks/issues/2586

@@ -19,7 +19,7 @@ module GraphHelper
     when 'Citation'
       citation_graph(object, source: true, citation_object: true).to_json
     when 'Source'
-      source_graph(object, citations: true, authors: true, editors: true, citations: true).to_json
+      source_graph(object, citations: true, authors: true, editors: true).to_json
     else
       g = Export::Graph.new( object: object )
       g.to_json
