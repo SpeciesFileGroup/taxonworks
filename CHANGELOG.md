@@ -8,6 +8,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Add new task 'Object graph', visualize and navigate your Things via a force-directed-graph (network) [#2587]
+- Add new global identifier class for glbio repositories.
 - New parameters for fine-tuning the API responses, `&extend[]=` and `&embed[]` [#2531]
 - Parameter value `origin_citation` via `&extend[]=` to all basic GET `/object(/:id)` requests [#2531]
 - Parameter value `pinboard_item` via `&extend[]=` to all basic GET `/object(/:id)` requests [#2531]
@@ -38,14 +40,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Replace autocomplete for smart selector in alternate values annotator [#2610]
 
 ### Fixed
-- citation style taxonworks.csl is updated [#2600]
+- Citation style taxonworks.csl is updated [#2600]
 - Failure when setting up namespaces in DwC importer with datasets having *unnamed* columns
 - Namespace settings are not cleared when unmatched and re-opened in DwC Import [#2586]
-- scientificNameAuthorship parsing issues in DwC importer [#2589]
+- ScientificNameAuthorship parsing issues in DwC importer [#2589]
 - Author and editor roles are missing after save or create a source in New source task [#2607]
-- rank genus not being auto-detected when uninomial name in scientificName matches genus term value exactly
+- Rank genus not being auto-detected when uninomial name in scientificName matches genus term value exactly
 - Soft validation block is displayed when is empty in New source task [#2611]
 
+[#2587]: https://github.com/SpeciesFileGroup/taxonworks/issues/2587
 [#2531]: https://github.com/SpeciesFileGroup/taxonworks/issues/2531
 [#2586]: https://github.com/SpeciesFileGroup/taxonworks/issues/2586
 [#2589]: https://github.com/SpeciesFileGroup/taxonworks/issues/2589

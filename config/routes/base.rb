@@ -30,6 +30,7 @@ end
 
 scope :graph, controller: :graph do
   get ':global_id/metadata', action: :metadata, defaults: {format: :json}
+  get ':global_id/object', action: :object, as: :object_graph, defaults: {format: :json}
 end
 
 resources :projects do
