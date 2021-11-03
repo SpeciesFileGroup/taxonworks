@@ -321,15 +321,16 @@ module CollectionObject::DwcExtensions
         .pluck(:cached)
         .join(CollectionObject::DWC_DELIMITER)
         .presence
+      v = collecting_event.verbatim_collectors.presence if v.blank?
     end
-    v = collecting_event.verbatim_collectors.presence if v.blank?
+    v
   end
 
   # See dwc_recorded_by
   def dwc_recorded_by_id
 
     if collecting_event
-     v = collecting_event.collectors
+      collecting_event.collectors
         .order('roles.position')
         .map(&:orcid)
         .compact
