@@ -11,6 +11,15 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
   PARSE_DETAILS_KEYS = %i(uninomial genus species infraspecies).freeze
 
+  ORIGINAL_COMBINATION_RANKS = {
+    genus: 'TaxonNameRelationship::OriginalCombination::OriginalGenus',
+    subgenus: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus',
+    species: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies',
+    subspecies: 'TaxonNameRelationship::OriginalCombination::OriginalSubspecies',
+    variety: 'TaxonNameRelationship::OriginalCombination::OriginalVariety',
+    form: 'TaxonNameRelationship::OriginalCombination::OriginalForm'
+  }.freeze
+
   def import(dwc_data_attributes = {})
     super
     begin
@@ -98,22 +107,13 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
           end
 
-          # create original combination relationship, get parent of original combination to set as subject taxon name
-
-          original_combination_types = {
-            genus: 'TaxonNameRelationship::OriginalCombination::OriginalGenus',
-            subgenus: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus',
-            species: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies',
-            subspecies: 'TaxonNameRelationship::OriginalCombination::OriginalSubspecies',
-            variety: 'TaxonNameRelationship::OriginalCombination::OriginalVariety',
-            form: 'TaxonNameRelationship::OriginalCombination::OriginalForm'
-          }
+          # create original combination relationships, get parents of original combination to set as subject taxon name
 
           if get_field_value(:taxonID) == get_field_value(:originalNameUsageID)
             # create relationships for genus rank and below pointing to self and parents
 
             taxon_name.safe_self_and_ancestors.each do |ancestor|   # does not include self for new records
-              if (rank_in_type = original_combination_types[ancestor.rank.downcase.to_sym])
+              if (rank_in_type = ORIGINAL_COMBINATION_RANKS[ancestor.rank.downcase.to_sym])
                 TaxonNameRelationship.find_or_create_by!(type: rank_in_type, subject_taxon_name: ancestor, object_taxon_name: taxon_name)
               end
             end
@@ -125,7 +125,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                                                  .metadata['imported_objects']['taxon_name']['id'])
 
               original_combination_parent.safe_self_and_ancestors.each do |ancestor|
-                if (rank_in_type = original_combination_types[ancestor.rank.downcase.to_sym])
+                if (rank_in_type = ORIGINAL_COMBINATION_RANKS[ancestor.rank.downcase.to_sym])
                   TaxonNameRelationship.find_or_create_by!(type: rank_in_type, subject_taxon_name: ancestor, object_taxon_name: taxon_name)
                 end
               end
@@ -147,9 +147,9 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                                              .pick(:value)
                                              .downcase.to_sym
 
-            if original_combination_types.has_key?(oc_protonym_rank)
+            if ORIGINAL_COMBINATION_RANKS.has_key?(oc_protonym_rank)
               TaxonNameRelationship.create_with(subject_taxon_name: taxon_name).find_or_create_by!(
-                type: original_combination_types[oc_protonym_rank],
+                type: ORIGINAL_COMBINATION_RANKS[oc_protonym_rank],
                 object_taxon_name: taxon_name)
             end
           end
@@ -219,8 +219,11 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
           # because Combination uses named arguments, we need to get the ranks of the parent names to create the combination
           if parent.is_a?(Combination)
             parent_elements = parent.combination_taxon_names.index_by { |protonym| protonym.rank }
-          else
-            parent_elements = { parent.rank => parent }
+
+          else  # parent is a protonym, so we need to get all parent elements up to genus
+            parent_elements = parent.self_and_ancestors.order('taxon_name_hierarchies.generations DESC').to_a
+                                    .take_while{ |p| ORIGINAL_COMBINATION_RANKS.has_key?(p.rank.to_sym) }
+                                    .index_by{ |protonym| protonym.rank}
           end
 
           combination_attributes = {
