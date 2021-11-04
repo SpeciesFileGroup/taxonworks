@@ -9,7 +9,7 @@
         </div>
 
         <div class="attributes">
-          <%= button_to 'Edit', edit_user_path(@user), class: 'button-default' %><br>
+          <%= button_to 'Edit', edit_user_path(@user), method: :get, class: 'button-default' %><br>
           <%= render 'attributes' %>
         </div>
 
