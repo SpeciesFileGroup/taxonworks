@@ -209,19 +209,15 @@ module CollectionObject::DwcExtensions
       .pluck(:value)&.join(', ').presence
   end
 
-  # TODO: consider CVT attributes with predicates linked to URIs
+  # TODO: consider CVT attributes with Predicates linked to URIs
   def dwc_life_stage
-    biocuration_classes
-      .where(
-        controlled_vocabulary_terms: {uri: ::DWC_ATTRIBUTE_URIS[:lifeStage] })
+    biocuration_classes.tagged_with_uri(::DWC_ATTRIBUTE_URIS[:lifeStage])
       .pluck(:name)&.join(', ').presence # `.presence` is a Rails extension
   end
 
-  # TODO: consider CVT attributes with predicates linked to URIs
+  # TODO: consider CVT attributes with Predicates linked to URIs
   def dwc_sex
-    biocuration_classes
-      .where(
-        controlled_vocabulary_terms: {uri: ::DWC_ATTRIBUTE_URIS[:sex] })
+    biocuration_classes.tagged_with_uri(::DWC_ATTRIBUTE_URIS[:sex])
       .pluck(:name)&.join(', ').presence
   end
 

@@ -21,7 +21,10 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
 
   specify '.by_collection_object_filter 1' do
     3.times { Specimen.create }
-    f = ::Queries::CollectionObject::Filter.new(user_date_start: Time.now.to_date.to_s).all # Note the .all
+
+    # Failing without utc, what has changed?
+    f = ::Queries::CollectionObject::Filter.new(user_date_start: Time.now.utc.to_date.to_s).all # Note the .all
+
     a = DwcOccurrence.by_collection_object_filter(
       filter_scope: f,
       project_id: Current.project_id
@@ -33,7 +36,7 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
   specify '.by_collection_object_filter 2' do
     Specimen.create(created_at: 2.days.ago, updated_at: 2.days.ago)
     3.times { Specimen.create }
-    f = ::Queries::CollectionObject::Filter.new(user_date_start: Time.now.to_date.to_s).all
+    f = ::Queries::CollectionObject::Filter.new(user_date_start: Time.now.utc.to_date.to_s).all
     a = DwcOccurrence.by_collection_object_filter(
       filter_scope: f,
       project_id: Current.project_id

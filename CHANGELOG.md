@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Resize column in Filter tasks [#2606]
 
 ### Changed
+- dwcSex and dwcStage are now referenced by BiocurationGroup [#2615]
 - Improved autocomplete search for Serials and Repositories [#2612]
 - Ordering of GeorgaphicArea autocomplete results. Used areas and areas with shape are prioritized
 - Basic (REST) endpoints send less information, use `&extend[]` and `&embed[]` to return more [#2531]
@@ -52,6 +53,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Soft validation block is displayed when is empty in New source task [#2611]
 - Clipboard shortcuts
 
+
+[#2615]: https://github.com/SpeciesFileGroup/taxonworks/issues/2615
 [#2617]: https://github.com/SpeciesFileGroup/taxonworks/issues/2617
 [#2616]: https://github.com/SpeciesFileGroup/taxonworks/issues/2616
 [#2587]: https://github.com/SpeciesFileGroup/taxonworks/issues/2587
