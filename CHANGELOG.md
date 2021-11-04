@@ -53,6 +53,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Soft validation block is displayed when is empty in New source task [#2611]
 - Clipboard shortcuts
 - Serial raising on failed destroy
+- crossRef assigns a wrong serial when journal is not present [#2620]
 
 
 [#2615]: https://github.com/SpeciesFileGroup/taxonworks/issues/2615
@@ -66,6 +67,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2607]: https://github.com/SpeciesFileGroup/taxonworks/issues/2607
 [#2610]: https://github.com/SpeciesFileGroup/taxonworks/issues/2610
 [#2611]: https://github.com/SpeciesFileGroup/taxonworks/issues/2611
+[#2620]: https://github.com/SpeciesFileGroup/taxonworks/issues/2620
 
 ## [0.20.1] - 2021-10-15
 
