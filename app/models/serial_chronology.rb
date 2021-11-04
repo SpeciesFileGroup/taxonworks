@@ -23,4 +23,3 @@ class SerialChronology < ApplicationRecord
 
   validates_presence_of :preceding_serial_id, :succeeding_serial_id, :type
 end
-

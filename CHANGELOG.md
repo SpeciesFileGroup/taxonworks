@@ -52,6 +52,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Rank genus not being auto-detected when uninomial name in scientificName matches genus term value exactly
 - Soft validation block is displayed when is empty in New source task [#2611]
 - Clipboard shortcuts
+- Serial raising on failed destroy
 
 
 [#2615]: https://github.com/SpeciesFileGroup/taxonworks/issues/2615
