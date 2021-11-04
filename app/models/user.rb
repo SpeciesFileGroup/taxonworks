@@ -312,14 +312,13 @@ class User < ApplicationRecord
     k = options[:kind]
     u = hub_favorites.clone
 
-    u[p]    = {'data' => [], 'tasks' => []} if !u[p]
+    u[p] = {'data' => [], 'tasks' => []} if !u[p]
     u[p][k] = u[p][k].push(n).uniq[0..19].sort
 
     update_column(:hub_favorites, u)
     true
   end
   # rubocop:enable Style/StringHashKeys
-
 
   # TODO: move to User concern
   # @param [Hash] options
@@ -355,7 +354,6 @@ class User < ApplicationRecord
       update_columns(last_seen_at: Time.now)
     end
   end
-
 
   # TODO: move to User concern
   # @param [String] recent_route
