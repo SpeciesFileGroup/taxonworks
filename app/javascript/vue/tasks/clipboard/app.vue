@@ -34,7 +34,7 @@ export default {
 
   computed: {
     actionKey () {
-      return navigator.userAgentData.platform.indexOf('Mac') > -1
+      return navigator.userAgentData.platform.indexOf('mac') > -1
         ? 'Control'
         : 'Alt'
     },
