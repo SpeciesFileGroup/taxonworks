@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Resize column in Filter tasks [#2606]
 
 ### Changed
+- dwcSex and dwcStage are now referenced by BiocurationGroup [#2615]
 - Improved autocomplete search for Serials and Repositories [#2612]
 - Ordering of GeorgaphicArea autocomplete results. Used areas and areas with shape are prioritized
 - Basic (REST) endpoints send less information, use `&extend[]` and `&embed[]` to return more [#2531]
@@ -50,7 +51,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Author and editor roles are missing after save or create a source in New source task [#2607]
 - Rank genus not being auto-detected when uninomial name in scientificName matches genus term value exactly
 - Soft validation block is displayed when is empty in New source task [#2611]
+- Clipboard shortcuts
+- Serial raising on failed destroy
+- crossRef assigns a wrong serial when journal is not present [#2620]
 
+
+[#2615]: https://github.com/SpeciesFileGroup/taxonworks/issues/2615
 [#2617]: https://github.com/SpeciesFileGroup/taxonworks/issues/2617
 [#2616]: https://github.com/SpeciesFileGroup/taxonworks/issues/2616
 [#2587]: https://github.com/SpeciesFileGroup/taxonworks/issues/2587
@@ -61,6 +67,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2607]: https://github.com/SpeciesFileGroup/taxonworks/issues/2607
 [#2610]: https://github.com/SpeciesFileGroup/taxonworks/issues/2610
 [#2611]: https://github.com/SpeciesFileGroup/taxonworks/issues/2611
+[#2620]: https://github.com/SpeciesFileGroup/taxonworks/issues/2620
 
 ## [0.20.1] - 2021-10-15
 

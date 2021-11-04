@@ -12,6 +12,73 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
   let(:source_bibtex) { FactoryBot.create(:valid_source_bibtex) }
   let(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution) }
 
+  specify 'extending predicates' do
+    include ActiveJob::TestHelper
+
+    def extract_data_csv_table(zip_path)
+      content = ''
+      Zip::File.open(zip_path) do |zip_file|
+        zip_file.each do |entry|
+          if entry.name == 'data.csv' && entry.file?
+            content = entry.get_input_stream.read
+          end
+        end
+      end
+
+      CSV.parse(content, col_sep: "\t", headers: true)
+    end
+
+    s1 = Specimen.create!(collecting_event: collecting_event)
+    s2 = Specimen.create!(collecting_event: collecting_event)
+    s3 = Specimen.create!
+
+    ce1 = collecting_event
+
+    p1 = FactoryBot.create(:valid_predicate)
+    p2 = FactoryBot.create(:valid_predicate)
+    p3 = FactoryBot.create(:valid_predicate)
+    d1 = InternalAttribute.create!(attribute_subject: s1, predicate: p1, value: 1)
+    d2 = InternalAttribute.create!(attribute_subject: s2, predicate: p1, value: 2)
+    d3 = InternalAttribute.create!(attribute_subject: ce1, predicate: p3, value: 'my_ce_attribute')
+
+    p1_header = 'TW:DataAttribute:CollectionObject:' + p1.name
+    p2_header = 'TW:DataAttribute:CollectionObject:' + p2.name
+    p3_header = 'TW:DataAttribute:CollectingEvent:' + p3.name
+
+    scope = DwcOccurrence.where(project_id: project_id)
+
+    predicate_extension_params = { predicate_extension_params:
+                                     { collection_object_predicate_id: [p1.id, p2.id],
+                                       collecting_event_predicate_id: [p3.id] }
+    }
+
+    download = Export::Dwca.download_async(
+      scope,
+      predicate_extension_params: predicate_extension_params
+    )
+
+    ::DwcaCreateDownloadJob.perform_now(download, core_scope: scope, predicate_extension_params: predicate_extension_params)
+
+    tbl = extract_data_csv_table(download.file_path)
+
+    expect(tbl.headers).to include(p1_header)
+    expect(tbl.headers).not_to include(p2_header)   # header shouldn't be included if no predicate values are present
+    expect(tbl.headers).to include(p3_header)
+
+    expect(tbl.first[p1_header]).to eq '1'
+    expect(tbl.first[p2_header]).to be_nil
+    expect(tbl.first[p3_header]).to eq 'my_ce_attribute'
+
+    expect(tbl[1][p1_header]).to eq '2'
+    expect(tbl[1][p2_header]).to be_nil
+    expect(tbl[1][p3_header]).to eq 'my_ce_attribute'
+
+    expect(tbl[2][p1_header]).to be_nil
+    expect(tbl[2][p2_header]).to be_nil
+    expect(tbl[2][p3_header]).to be_nil
+
+  end
+
   specify '#dwc_occurrence_id post .set_dwc_occurrence' do
     s = Specimen.create!(no_dwc_occurrence: true)
     expect(s.dwc_occurrence_id).to eq(nil)
@@ -21,7 +88,10 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
 
   specify '.by_collection_object_filter 1' do
     3.times { Specimen.create }
-    f = ::Queries::CollectionObject::Filter.new(user_date_start: Time.now.to_date.to_s).all # Note the .all
+
+    # Failing without utc, what has changed?
+    f = ::Queries::CollectionObject::Filter.new(user_date_start: Time.now.utc.to_date.to_s).all # Note the .all
+
     a = DwcOccurrence.by_collection_object_filter(
       filter_scope: f,
       project_id: Current.project_id
@@ -33,7 +103,7 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
   specify '.by_collection_object_filter 2' do
     Specimen.create(created_at: 2.days.ago, updated_at: 2.days.ago)
     3.times { Specimen.create }
-    f = ::Queries::CollectionObject::Filter.new(user_date_start: Time.now.to_date.to_s).all
+    f = ::Queries::CollectionObject::Filter.new(user_date_start: Time.now.utc.to_date.to_s).all
     a = DwcOccurrence.by_collection_object_filter(
       filter_scope: f,
       project_id: Current.project_id
