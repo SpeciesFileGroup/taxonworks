@@ -64,7 +64,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
     context 'added via TaxonNameRelationships' do
       TaxonNameRelationship.descendants.each do |d|
-        if d.respond_to?(:assignment_method) && (not d.name.to_s =~ /TaxonNameRelationship::Combination|SourceClassifiedAs/)
+        if d.respond_to?(:assignment_method) && (not d.name.to_s =~ /TaxonNameRelationship::Combination|SourceClassifiedAs|CurrentCombination/)
           if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Icnp|Icvcn)/
             relationship = "#{d.assignment_method}_relationship".to_sym
             relationships = "#{d.inverse_assignment_method}_relationships".to_sym

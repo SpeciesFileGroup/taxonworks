@@ -3,7 +3,8 @@
     <div>
       <table
         ref="tableBar"
-        class="full_width">
+        v-resize-column
+      >
         <thead>
           <tr>
             <th>
@@ -56,13 +57,18 @@
 <script>
 
 import { sortArray } from 'helpers/arrays.js'
+import { vResizeColumn } from 'directives/resizeColumn.js'
 import TagAll from './tagAll'
-import HandyScroll from "vue-handy-scroll"
+import HandyScroll from 'vue-handy-scroll'
 
 export default {
   components: {
     TagAll,
     HandyScroll
+  },
+
+  directives: {
+    ResizeColumn: vResizeColumn
   },
 
   props: {

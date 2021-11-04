@@ -2,7 +2,10 @@
   <div
     v-if="list.length"
     class="full_width overflow-scroll">
-    <table class="full_width">
+    <table
+      class="full_width"
+      v-resize-column
+    >
       <thead>
         <tr>
           <th>
@@ -83,6 +86,7 @@ import PdfButton from 'components/pdfButton'
 import AddToProject from 'components/addToProjectSource'
 import PinComponent from 'components/ui/Pinboard/VPin.vue'
 import { sortArray } from 'helpers/arrays.js'
+import { vResizeColumn } from 'directives/resizeColumn'
 
 export default {
   components: {
@@ -92,6 +96,10 @@ export default {
     TagAll,
     AddToProject,
     PinComponent
+  },
+
+  directives: {
+    ResizeColumn: vResizeColumn
   },
 
   props: {

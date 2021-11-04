@@ -10,6 +10,7 @@
         :autocomplete-params="{
           roles: ['Extractor']
         }"
+        label="cached"
         @selected="addRole"
       />
       <role-picker
@@ -45,7 +46,7 @@ export default {
           makePerson(
             role.first_name,
             role.last_name,
-            role.person_id,
+            role.id,
             'Extractor'
           ))
       }

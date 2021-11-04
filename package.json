@@ -7,6 +7,7 @@
     "@sfgrp/svg-radial-menu": "^1.0.7",
     "axios": "^0.22.0",
     "chart.js": "^3.5.1",
+    "d3": "^7.1.1",
     "dompurify": "^2.3.3",
     "easymde": "^2.15.0",
     "exif-js": "^2.3.0",

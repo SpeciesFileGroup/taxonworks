@@ -18,13 +18,10 @@
     </td>
     <td>
       <a
-        v-html="citation.citation_object.original_combination"
+        v-html="citation.citation_object.object_tag"
         :href="`/tasks/nomenclature/browse?taxon_name_id=${citation.citation_object_id}`"
       />
       <span v-html="isInvalid" />
-    </td>
-    <td>
-      <span v-html="citation.citation_object.type" />
     </td>
     <td>
       <confidence-button :global-id="citation.citation_object.global_id" />

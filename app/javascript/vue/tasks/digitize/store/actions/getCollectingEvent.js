@@ -7,7 +7,7 @@ import {
 import makeIdentifier from 'factory/CollectingEvent'
 
 export default ({ commit }, id) =>
-  CollectingEvent.find(id).then(({ body }) => {
+  CollectingEvent.find(id, { extend: ['roles'] }).then(({ body }) => {
     commit(MutationNames.SetCollectingEvent, body)
     commit(MutationNames.SetCollectingEventIdentifier, body.identifiers[0] || makeIdentifier(IDENTIFIER_LOCAL_TRIP_CODE, COLLECTING_EVENT))
   })

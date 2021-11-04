@@ -53,10 +53,12 @@ class Observation < ApplicationRecord
     Observation.from("((#{a.to_sql}) UNION (#{b.to_sql})) as observations").distinct
   end
 
-  # @params row_object_global_ids [Array of global_id instances (not string)
-  def self.by_descriptors_and_rows(descriptor_ids, row_object_global_ids)
-    collection_object_ids = ::GlobalIdHelper.ids_by_class_name(row_object_global_ids, 'CollectionObject')
-    otu_ids = ::GlobalIdHelper.ids_by_class_name(row_object_global_ids, 'Otu')
+  # @params rows is string ("otu_id|collection_object_id")
+  def self.by_descriptors_and_rows(descriptor_ids, rows)
+    collection_object_ids = rows.collect{|i| i.split('|')[1]}.compact
+    otu_ids = rows.collect{|i| i.split('|')[0]}.compact
+    # collection_object_ids = ::GlobalIdHelper.ids_by_class_name(row_object_global_ids, 'CollectionObject')
+    # otu_ids = ::GlobalIdHelper.ids_by_class_name(row_object_global_ids, 'Otu')
 
     where(descriptor_id: descriptor_ids, otu_id: otu_ids).or(
       where(descriptor_id: descriptor_ids, collection_object_id: collection_object_ids))

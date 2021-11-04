@@ -1,11 +1,8 @@
 json.extract! controlled_vocabulary_term, :id, :type, :name, :definition, :uri, :uri_relation, :css_color, :updated_at
-
 json.partial! '/shared/data/all/metadata', object: controlled_vocabulary_term
 
-# TODO: not REST, consider other summary endpoints
-# &count=true
-if params[:count]
-
+#if params[:count]
+if extend_response_with('controlled_vocabulary_use_count')
   json.count case controlled_vocabulary_term.type  
   when 'Keyword'
     controlled_vocabulary_term.tags.count
@@ -24,5 +21,4 @@ if params[:count]
   else
     nil 
   end
-
 end

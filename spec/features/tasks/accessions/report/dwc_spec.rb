@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe 'tasks/accessions/report/dwc', type: :feature, group: [:collection_objects, :darwin_core] do
   context 'with properly built collection of objects' do
-    let(:page_title) { 'DWC Occurrence Report' }
+    let(:page_title) { 'DwC Occurrence Report' }
     let(:index_path) { report_dwc_task_path }
 
     it_behaves_like 'a_login_required_and_project_selected_controller'
@@ -17,16 +17,6 @@ describe 'tasks/accessions/report/dwc', type: :feature, group: [:collection_obje
             a.get_dwc_occurrence
           end
         end 
-
-        context 'downloading data' do
-          before { visit index_path }
-
-          specify 'is possible by clicking on button', js: true do
-            click_link('download_dwca')
-            expect( Features::Downloads::download_content ).to be_truthy # eq(zip)
-          end
-        end
-
       end
     end
   end

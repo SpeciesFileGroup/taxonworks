@@ -160,7 +160,7 @@ module Queries
       attr_accessor :buffered_other_labels
 
       # See Queries::CollectingEvent::Filter
-      attr_accessor :collector_ids
+      attr_accessor :collector_id
       attr_accessor :collector_ids_or
 
       # @return [True, False, nil]

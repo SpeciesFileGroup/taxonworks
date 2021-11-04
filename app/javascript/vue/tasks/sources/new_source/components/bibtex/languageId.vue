@@ -8,7 +8,7 @@
             class="full_width"
             model="languages"
             ref="smartSelector"
-            klass="source"
+            klass="Source"
             label="english_name"
             :filter-ids="languageId"
             @selected="setSelected"/>

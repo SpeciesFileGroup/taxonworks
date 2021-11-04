@@ -34,7 +34,7 @@
       <tbody>
         <tr
           v-for="(item, index) in sortedList"
-          class="contextMenuCells btn btn-neutral"
+          class="contextMenuCells"
           :class="{ even: index % 2 }"
           :key="item.id">
           <td>

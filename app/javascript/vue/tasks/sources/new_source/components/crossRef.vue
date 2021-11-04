@@ -79,12 +79,15 @@ export default {
         if (response.body.title) {
           response.body.roles_attributes = []
           this.$store.commit(MutationNames.SetSource, response.body)
+
+          if (response.body.journal) {
+            Serial.where({ name: response.body.journal }).then(response => {
+              if (response.body.length) {
+                this.$store.commit(MutationNames.SetSerialId, response.body[0].id)
+              }
+            })
+          }
           this.$emit('close', true)
-          Serial.where({ name: response.body.journal }).then(response => {
-            if (response.body.length) {
-              this.$store.commit(MutationNames.SetSerialId, response.body[0].id)
-            }
-          })
           TW.workbench.alert.create('Found! (please check).', 'notice')
         } else {
           this.found = false

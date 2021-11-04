@@ -58,6 +58,21 @@ describe Source::Bibtex, type: :model, group: :sources do
     expect(source_bibtex.soft_validations.messages_on(:note).empty?).to be_truthy
   end
 
+  specify 'unmatching html tags in the title 1' do
+    source_bibtex.update(title: 'text<i>a</i>text<i>b</i>')
+    source_bibtex.soft_validate(only_sets: :html_tags)
+    expect(source_bibtex.soft_validations.messages_on(:title).empty?).to be_truthy
+  end
 
+  specify 'unmatching html tags in the title 2' do
+    source_bibtex.update(title: 'text</i>text<i>b</i>')
+    source_bibtex.soft_validate(only_sets: :html_tags)
+    expect(source_bibtex.soft_validations.messages_on(:title).empty?).to be_falsey
+  end
 
+  specify 'unmatching html tags in the title 3' do
+    source_bibtex.update(title: 'text<i>a<i>text<i>b</i>')
+    source_bibtex.soft_validate(only_sets: :html_tags)
+    expect(source_bibtex.soft_validations.messages_on(:title).empty?).to be_falsey
+  end
 end

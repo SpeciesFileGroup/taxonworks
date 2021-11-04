@@ -70,7 +70,7 @@ module CollectionObjects
         biocuration_class_ids: [],
         biological_relationship_ids: [],
         collecting_event_ids: [],
-        collector_ids: [], #
+        collector_id: [], #
         determiner_id: [],
         geographic_area_id: [],
         is_type: [],

@@ -27,15 +27,15 @@ json.extract! collecting_event, :id,
 
 json.global_id collecting_event.to_global_id.to_s
 
-if collecting_event.roles.any?
-  json.collector_roles do
-    json.array! collecting_event.collector_roles.each do |role|
-      json.extract! role, :id, :position, :type
-      json.partial! '/people/api/v1/brief', person: role.person
+if extend_response_with('roles')
+  if collecting_event.roles.any?
+    json.collector_roles do
+      json.array! collecting_event.collector_roles.each do |role|
+        json.extract! role, :id, :position, :type
+        json.partial! '/people/api/v1/brief', person: role.person
+      end
     end
-  end
-end 
-
-
+  end 
+end
 
 

@@ -229,7 +229,7 @@ class Georeference < ApplicationRecord
   def dwc_georeference_attributes(h = {})
     h.merge!(
       footprintWKT: geographic_item.to_wkt,
-      georeferenceVerificationStatus: confidences&.collect{|c| c.name}.join('; '),
+      georeferenceVerificationStatus: confidences&.collect{|c| c.name}.join('; ').presence,
       georeferencedBy: creator.name,
       georeferencedDate: created_at
     )

@@ -13,14 +13,15 @@ module Export
     # To add a version use `Time.now` via IRB
     INDEX_VERSION = [
       '2021-10-12 17:00:00.000000 -0500',    # First major refactor
-      '2021-10-15 17:00:00.000000 -0500'     # Minor  Excludes footprintWKT, and references to GeographicArea in gazetteer; new form of media links
+      '2021-10-15 17:00:00.000000 -0500',    # Minor  Excludes footprintWKT, and references to GeographicArea in gazetteer; new form of media links
+      '2021-11-04 17:00:00.000000 -0500'     # Minor  Removes '|', fixes some mappings 
     ]
 
     # @param record_scope [ActiveRecord::Relation]
     #   a relation that returns DwcOccurrence records
     # @return [Download]
     #   the download object containing the archive
-    def self.download_async(record_scope, request = nil)
+    def self.download_async(record_scope, request = nil, predicate_extension_params = nil)
       name = "dwc-a_#{DateTime.now}.zip"
 
       download = ::Download::DwcArchive.create!(
@@ -33,7 +34,7 @@ module Export
       )
 
       # Note we pass a string with the record scope
-      ::DwcaCreateDownloadJob.perform_later(download, core_scope: record_scope.to_sql)
+      ::DwcaCreateDownloadJob.perform_later(download, core_scope: record_scope.to_sql, predicate_extension_params: predicate_extension_params)
 
       download
     end
@@ -49,7 +50,7 @@ module Export
     # When we re-index a large set of data then we run it in the background.
     # To determine when it is done we poll by the last record to be indexed.
     #
-    def self.build_index_async(klass, record_scope)
+    def self.build_index_async(klass, record_scope, predicate_extension_params: {} )
       s = record_scope.order(:id)
       ::DwcaCreateIndexJob.perform_later(klass.to_s, sql_scope: s.to_sql)
       index_metadata(klass, s)

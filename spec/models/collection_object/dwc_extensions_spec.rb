@@ -186,11 +186,18 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
     end
 
     specify '#dwc_sex' do
+      g = BiocurationGroup.create!(
+        name: 'sex',
+        definition: 'as defined by gamete count in some ontology',
+        uri: 'http://rs.tdwg.org/dwc/terms/sex' # see /config/initializers/constants/_controlled_vocabularies/dwc_attribute_uris.rb
+      )
+
       a = BiocurationClass.create!(
         name: 'gynandromorph',
         definition: 'physically representing > 1 sex?',
-        uri: 'http://rs.tdwg.org/dwc/terms/sex' # see /config/initializers/constants/_controlled_vocabularies/dwc_attribute_uris.rb
       )
+
+      Tag.create!(keyword: g, tag_object: a)
 
       b = BiocurationClassification.create!(
         biological_collection_object: s,
@@ -200,11 +207,18 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
     end
 
     specify '#dwc_life_stage' do
+      g = BiocurationGroup.create!(
+        name: 'sex',
+        definition: 'as defined by gamete count in some ontology',
+        uri: 'http://rs.tdwg.org/dwc/terms/lifeStage' # see /config/initializers/constants/_controlled_vocabularies/dwc_attribute_uris.rb
+      )
+
       a = BiocurationClass.create!(
         name: 'adult',
         definition: 'reaaaaaaal mature person',
-        uri: 'http://rs.tdwg.org/dwc/terms/lifeStage' # see /config/initializers/constants/_controlled_vocabularies/dwc_attribute_uris.rb
       )
+
+      Tag.create!(keyword: g, tag_object: a)
 
       b = BiocurationClassification.create!(
         biological_collection_object: s,

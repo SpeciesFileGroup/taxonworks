@@ -81,6 +81,11 @@ import Spinner from 'components/spinner.vue'
 import MapComponent from 'components/georeferences/map.vue'
 import { AssertedDistribution } from 'routes/endpoints'
 
+const EXTEND_PARAMS = {
+  extend: ['geographic_area', 'geographic_area_type', 'parent'],
+  embed: ['shape']
+}
+
 export default {
   mixins: [CRUD, AnnotatorExtend],
   components: {
@@ -122,7 +127,7 @@ export default {
       lockSource: false,
       lockGeo: false,
       editCitation: undefined,
-      urlList: `${this.url}/${this.type}.json?geo_json=true`
+      urlList: `${this.url}/${this.type}.json?extend[]=geographic_area&embed[]=shape&extend[]=geographic_area_type&extend[]=parent`
     }
   },
 
@@ -146,8 +151,8 @@ export default {
 
     createAsserted () {
       const saveRequest = !this.existingArea
-        ? AssertedDistribution.create({ asserted_distribution: this.asserted_distribution })
-        : AssertedDistribution.update(this.existingArea.id, { asserted_distribution: this.asserted_distribution })
+        ? AssertedDistribution.create({ asserted_distribution: this.asserted_distribution, ...EXTEND_PARAMS })
+        : AssertedDistribution.update(this.existingArea.id, { asserted_distribution: this.asserted_distribution, ...EXTEND_PARAMS })
 
       saveRequest.then(({ body }) => {
         TW.workbench.alert.create('Asserted distribution was successfully saved.', 'notice')
@@ -162,7 +167,7 @@ export default {
           _destroy: true
         }]
       }
-      AssertedDistribution.update(this.asserted_distribution.id, { asserted_distribution }).then(({ body }) => {
+      AssertedDistribution.update(this.asserted_distribution.id, { asserted_distribution, ...EXTEND_PARAMS }).then(({ body }) => {
         this.addToList(body)
       })
     },
@@ -176,7 +181,7 @@ export default {
 
       this.editTitle = item.object_tag
 
-      AssertedDistribution.find(item.id, { geo_json: true }).then(ad => {
+      AssertedDistribution.find(item.id, EXTEND_PARAMS).then(ad => {
         if (index > -1) {
           this.list[index] = ad.body
         } else {

@@ -9,13 +9,86 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.21.0] - 2021-11-04
+### Added
+- Add new task 'Object graph', visualize and navigate your Things via a force-directed-graph (network) [#2587]
+- New combination editing, including support for multiple authors in plant names [#666] [#2407]
+- Add new global identifier class for glbio repositories
+- New parameters for fine-tuning the API responses, `&extend[]=` and `&embed[]` [#2531]
+- Parameter value `origin_citation` via `&extend[]=` to all basic GET `/object(/:id)` requests [#2531]
+- Parameter value `pinboard_item` via `&extend[]=` to all basic GET `/object(/:id)` requests [#2531]
+- Parameter value `citations` via `&extend[]=` to all basic GET `/object/:id` requests [#2531]
+- Parameter values `roles` and `documents` via `&extend[]=` to `/sources(/:id).json` [#2531]
+- Parameter values `protonyms` and `placement` via `&extend[]=` to `/combinations(/:id).json [#2531]
+- Parameter values `parent`, `otus`, `roles`, ancestor_ids`, `children`, `type_taxon_name_relationship` via `&extend[]=` to `/taxon_names(/:id).json [#2531]
+- Parameter values `level_names`, `geographic_area_type`, `parent` via `&extend[]=` and `shape` via `&embed[]=` to `/geographic_areas(/:id).json [#2531]
+- Parameter value `subject`, `object`, `biological_relationship`, `family_names` via `&extend[]=` to `/biological_associations(/:id).json [#2531]
+- Parameter value `citation_object`, `citation_topics`, `source`, `target_document` via `&extend[]=` to `/citations(/:id).json [#2531]
+- API route `/taxon_names/parse?query_string=Aus bus` for resolving names to Protonyms
+- Parameter value `roles` via `&extend[]=` to `/collecting_events(/:id).json` [#2531]
+- Param to isolate TaxonName smart select to Protonym if optional
+- Resize column in Filter tasks [#2606]
+- Confirmation banner in 'Collection Object Match'
+
+### Changed
+- Added new DwcOccurrence date-version
+- dwcSex and dwcStage are now referenced by BiocurationGroup [#2615]
+- Improved autocomplete search for Serials, Sources and Repositories [#2612]
+- Ordering of GeorgaphicArea autocomplete results. Used areas and areas with shapes are prioritized
+- Basic (REST) endpoints send less information, use `&extend[]` and `&embed[]` to return more [#2531]
+- Numerous tasks updated to use the new REST pattern
+- Objects in basic show/index JSON endpoints are represented by their metadata, rather than all their attributes in many cases now [#2531]
+- Metadata in extensions does not cascade and return metadata of metadata [#2531]
+- JSON smart-selector data (`/sources/select_options`) includes base attributes, not metadata [#2531]
+- Updated corresponding ap1/v1 endpoints to use the `&extend[]` pattern for `/otus`, `/taxon_names`, `/combinations`, `/sources`, `/citations` (in part) and `biological_associations` to match the new parameter values above
+- API `/api/v1/biological_associations` uses metadata for related objects
+- Optimized Source smart selection queries
+- Added option in DwC importer to specific the dataset type (defaults to auto-detection).
+- Replace autocomplete for smart selector in alternate values annotator [#2610]
+
+### Fixed
+- DwC recordedBy not referencing verbatim_collectors, only collectors [#2617]
+- DwC recordedByID returning delimiter only records
+- DwC decimalLatitude/Longitude incorrectly mapped [#2616]
+- Citation style taxonworks.csl is updated [#2600]
+- `collector_id` broken in CollecitonObject filter
+- Failure when setting up namespaces in DwC importer with datasets having *unnamed* columns
+- Namespace settings are not cleared when unmatched and re-opened in DwC Import [#2586]
+- ScientificNameAuthorship parsing issues in DwC importer [#2589]
+- Author and editor roles are missing after save or create a source in New source task [#2607]
+- Rank genus not being auto-detected when uninomial name in scientificName matches genus term value exactly
+- Soft validation block is displayed when is empty in New source task [#2611]
+- Clipboard shortcut hot-keys were broken
+- Serial raises on failed destroy gracefully handled
+- CrossRef assigns the wrong serial when journal is not present (partial) [#2620]
+
+[#666]: https://github.com/SpeciesFileGroup/taxonworks/issues/666
+[#2407]: https://github.com/SpeciesFileGroup/taxonworks/issues/2407  
+[#2612]: https://github.com/SpeciesFileGroup/taxonworks/issues/2612
+[#2613]: https://github.com/SpeciesFileGroup/taxonworks/issues/2613
+[#2615]: https://github.com/SpeciesFileGroup/taxonworks/issues/2615
+[#2617]: https://github.com/SpeciesFileGroup/taxonworks/issues/2617
+[#2616]: https://github.com/SpeciesFileGroup/taxonworks/issues/2616
+[#2587]: https://github.com/SpeciesFileGroup/taxonworks/issues/2587
+[#2531]: https://github.com/SpeciesFileGroup/taxonworks/issues/2531
+[#2586]: https://github.com/SpeciesFileGroup/taxonworks/issues/2586
+[#2589]: https://github.com/SpeciesFileGroup/taxonworks/issues/2589
+[#2606]: https://github.com/SpeciesFileGroup/taxonworks/issues/2606
+[#2608]: https://github.com/SpeciesFileGroup/taxonworks/issues/2608
+[#2610]: https://github.com/SpeciesFileGroup/taxonworks/issues/2610
+[#2611]: https://github.com/SpeciesFileGroup/taxonworks/issues/2611
+[#2620]: https://github.com/SpeciesFileGroup/taxonworks/issues/2620
+
 ## [0.20.1] - 2021-10-15
 
 ### Added
+- Added missing OTU soft_validation for protonym
+- Added recent values on keywords
 - Added Attribution attributes to `/images` API show responses
 - API `/images` can return images by `image_file_fingerprint` (MD5), in addition to id
 
 ### Changed
+- Updated author string for misspellings
 - Removed footprintWKT from DwcOccurrence.  It will be re-instated as optional in the future.
 - Removed GeographicArea from consideration as a _georeference_ in DwcOccurrence
 - Changed `associatedMedia` format, pointed it to
@@ -115,6 +188,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Labels list renders for those linked to objects, or not
 
 ### Changed
+- Updated "ICZN binomial" to "ICZN binominal" following the Code dictionary
 - Radial annotator Tag form uses a Keyword smart selector [#2564]
 - DwcOccurrence is rebuilt/refreshed each time Browse Collection Object is hit
 - `footprintWKT` is hidden in Browse CollectionOjbect [#2559]
@@ -788,7 +862,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
-- updated softvalidation for non binomial names
+- updated softvalidation for non binominal names
 - updated label for species-group rank TaxonName
 - Compute print column divisions with barcode style labels [#1993]
 - Object tag for TaxonNameRelationship inverted [#2100]
@@ -1855,7 +1929,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.20.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.21.0...development
+[0.21.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.20.1...v0.21.0
 [0.20.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.20.0...v0.20.1
 [0.20.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.7...v0.20.0
 [0.19.7]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.6...v0.19.7

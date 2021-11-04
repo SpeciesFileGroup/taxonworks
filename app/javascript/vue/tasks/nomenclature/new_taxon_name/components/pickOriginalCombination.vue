@@ -12,12 +12,13 @@
         class="original-combination-picker">
         <form class="horizontal-left-content">
           <div class="button-current separate-right">
-            <button
+            <v-btn
               v-if="!existOriginalCombination"
-              type="button"
-              @click="addOriginalCombination()"
-              class="normal-input button button-submit">Set as current
-            </button>
+              medium
+              color="create"
+              @click="addOriginalCombination()">
+              Set as current
+            </v-btn>
           </div>
           <div>
             <draggable
@@ -67,7 +68,7 @@
             },
             filter: '.item-filter'
           }"
-          :relationships="genusGroup"/>
+          :relationships="combinationRanks.genusGroup"/>
         <original-combination
           class="separate-top separate-bottom"
           v-if="!isGenus"
@@ -85,7 +86,7 @@
             },
             filter: '.item-filter'
           }"
-          :relationships="speciesGroup"/>
+          :relationships="combinationRanks.speciesGroup"/>
         <div class="original-combination separate-top separate-bottom">
           <div class="flex-wrap-column rank-name-label">
             <label class="row capitalize"/>
@@ -112,27 +113,23 @@ import { ActionNames } from '../store/actions/actions'
 import Draggable from 'vuedraggable'
 import OriginalCombination from './originalCombination.vue'
 import BlockLayout from 'components/layout/BlockLayout'
+import VBtn from 'components/ui/VBtn/index.vue'
+import {
+  combinationType,
+  combinationIcnType
+} from '../const/originalCombinationTypes'
 
 export default {
   components: {
     Draggable,
     OriginalCombination,
-    BlockLayout
+    BlockLayout,
+    VBtn
   },
 
   data () {
     return {
-      taxonOriginal: [],
-      genusGroup: {
-        genus: 'TaxonNameRelationship::OriginalCombination::OriginalGenus',
-        subgenus: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus'
-      },
-      speciesGroup: {
-        species: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies',
-        subspecies: 'TaxonNameRelationship::OriginalCombination::OriginalSubspecies',
-        variety: 'TaxonNameRelationship::OriginalCombination::OriginalVariety',
-        form: 'TaxonNameRelationship::OriginalCombination::OriginalForm'
-      }
+      taxonOriginal: []
     }
   },
 
@@ -160,7 +157,13 @@ export default {
     },
 
     types () {
-      return Object.assign({}, this.genusGroup, this.speciesGroup)
+      return Object.assign({}, this.combinationRanks.genusGroup, this.combinationRanks.speciesGroup)
+    },
+
+    combinationRanks () {
+      return this.taxon.nomenclatural_code === 'icn'
+        ? combinationIcnType
+        : combinationType
     }
   },
 

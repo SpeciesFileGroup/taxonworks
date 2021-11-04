@@ -38,6 +38,7 @@
             klass="CollectionObject"
             pin-section="Sources"
             pin-type="Source"
+            label="cached"
             @selected="selectSource"
           >
             <template #body>

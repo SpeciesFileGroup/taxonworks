@@ -8,6 +8,9 @@ module TaxonNamesHelper
     taxon_name.cached_html.try(:html_safe) || taxon_name.name
   end
 
+  # @return [String]
+  #   the current name/combination with author year, without HTML
+  # !! Unified deprecated taxon_name_name_string() here
   def label_for_taxon_name(taxon_name)
     return nil if taxon_name.nil?
     [taxon_name.cached, taxon_name.cached_author_year].compact.join(' ')
@@ -76,13 +79,6 @@ module TaxonNamesHelper
     [ original_taxon_name_tag(taxon_name),
       history_author_year_tag(taxon_name)
     ].compact.join(' ').html_safe
-  end
-
-  # @return [String]
-  #   the current name/combination with author year, without HTML
-  def taxon_name_name_string(taxon_name)
-    return nil if taxon_name.nil?
-    [ taxon_name.cached, taxon_name.cached_author_year].compact.join(' ')
   end
 
   # @return [String]
