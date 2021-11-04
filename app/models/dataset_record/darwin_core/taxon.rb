@@ -112,7 +112,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
           if get_field_value(:taxonID) == get_field_value(:originalNameUsageID)
             # create relationships for genus rank and below pointing to self and parents
 
-            taxon_name.safe_self_and_ancestors.each do |ancestor|
+            taxon_name.safe_self_and_ancestors.each do |ancestor|   # does not include self for new records
               if (rank_in_type = original_combination_types[ancestor.rank.downcase.to_sym])
                 TaxonNameRelationship.find_or_create_by!(type: rank_in_type, subject_taxon_name: ancestor, object_taxon_name: taxon_name)
               end
@@ -131,11 +131,26 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
               end
             end
 
-            # create OC with self at lowest rank.
-            # moved down here to handle case where ancestor is same rank as name (OC was subspecies, protonym is species)
-            # Specs fail if removed, but I can't remember why we need this in the first place
-            if original_combination_types.has_key?(taxon_name.rank.downcase.to_sym)
-              TaxonNameRelationship.create_with(subject_taxon_name: taxon_name).find_or_create_by!(type: original_combination_types[rank.downcase.to_sym], object_taxon_name: taxon_name)
+            # can't assume OC rank is same as valid rank, need to look at OC row to find real rank
+            # This is easier for the end-user than adding OC to protonym when importing the OC row,
+            # but might be more complex to code
+
+            # get OC dataset_record_id so we can pull the taxonRank from it.
+            oc_dataset_record_id = import_dataset.core_records_fields
+                                                 .at(get_field_mapping(:taxonID))
+                                                 .with_value(get_field_value(:originalNameUsageID))
+                                                 .pick(:dataset_record_id)
+
+            oc_protonym_rank = import_dataset.core_records_fields
+                                             .where(dataset_record_id: oc_dataset_record_id)
+                                             .at(get_field_mapping(:taxonRank))
+                                             .pick(:value)
+                                             .downcase.to_sym
+
+            if original_combination_types.has_key?(oc_protonym_rank)
+              TaxonNameRelationship.create_with(subject_taxon_name: taxon_name).find_or_create_by!(
+                type: original_combination_types[oc_protonym_rank],
+                object_taxon_name: taxon_name)
             end
           end
 
