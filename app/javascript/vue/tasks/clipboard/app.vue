@@ -28,13 +28,16 @@
 
 import { ProjectMember } from 'routes/endpoints'
 import platformKey from 'helpers/getPlatformKey'
-import { capitalize } from 'helpers/strings'
 
 export default {
   name: 'Clipboard',
 
   computed: {
-    actionKey: () => capitalize(platformKey()),
+    actionKey () {
+      return navigator.userAgentData.platform.indexOf('Mac') > -1
+        ? 'Control'
+        : 'Alt'
+    },
 
     isLinux () {
       return navigator.userAgentData.platform.indexOf('Linux') > -1
