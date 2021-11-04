@@ -426,6 +426,44 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
   end
 
+  context 'when importing a file with an original combination subspecies and protonym species' do
+    before :all do
+      DatabaseCleaner.start
+      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/oc_as_subspecies.tsv'), 'text/plain'),
+        description: 'subspecies oc and species protonym'
+      ).tap { |i| i.stage }
+
+      4.times { |_|
+        import_dataset.import(5000, 100)
+      }
+    end
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    # should be 5 protonyms (Root, Aphaenogaster, Atta, curiosa, gemella)
+    it 'should have 5 protonyms' do
+      expect(Protonym.all.length).to eq 5
+    end
+
+    it 'creates and imports 6 records' do
+      verify_all_records_imported(6)
+    end
+
+    # cached oc of curiosa should be Aphaenogaster gemella curiosa
+    it 'cached OC of "Aphaenogaster curiosa" should be "Aphaenogaster gemella curiosa"' do
+      expect(Protonym.find_by(name: 'curiosa').cached_original_combination).to eq 'Aphaenogaster gemella curiosa'
+    end
+
+    # there should be no Combinations, only Original Combinations
+    it 'should have no Combinations' do
+      expect(Combination.count).to eq 0
+    end
+
+  end
+
   # TODO test missing parent
   #
   # TODO test protonym is unavailable --- set classification on unsaved TaxonName
