@@ -30,7 +30,7 @@ describe Serial, type: :model do
 
     expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
     expect(s.save).to be_truthy
-    
+
     s.soft_validate
     expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
 
@@ -40,7 +40,7 @@ describe Serial, type: :model do
     # soft validate new record
     j.soft_validate
     expect(j.soft_validations.messages_on(:name).empty?).to be_falsey
-    
+
     expect(j.soft_validations.messages).to include 'There is another serial with this name in the database.'
     expect(j.save).to be_truthy
 
@@ -67,7 +67,7 @@ describe Serial, type: :model do
     let!(:rus) {FactoryBot.create(:russian) }
     let!(:cre) {FactoryBot.create(:creole_eng) }
     let(:s) {FactoryBot.build(:valid_serial) } 
-    
+
     specify 'should be able to get & set language by 3 letter abbreviation' do
       s.language = Language.where(alpha_3_bibliographic: 'eng').first
       expect(s.save).to be_truthy
@@ -155,9 +155,9 @@ describe Serial, type: :model do
       expect(@h.all_previous).to eq([@e, [@a, [@f], @b, [@d]]])
     end
     # skip '#full_chronology - should list the full serial tree' do
-      # Not sure we're going to implement this - it is complex to represent a full chronology because we need
-      # to represent siblings somehow and how do you handle translations? Also do you provide full trees for siblings
-      # as well?
+    # Not sure we're going to implement this - it is complex to represent a full chronology because we need
+    # to represent siblings somehow and how do you handle translations? Also do you provide full trees for siblings
+    # as well?
     # end
   end
 

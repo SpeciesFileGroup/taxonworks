@@ -24,7 +24,7 @@ class Tasks::Dwc::DashboardController < ApplicationController
       end
     end
 
-    @download = ::Export::Dwca.download_async(a, request.url)
+    @download = ::Export::Dwca.download_async(a, request.url, predicate_extension_params: predicate_extension_params )
     render '/downloads/show'
   end
 
@@ -42,5 +42,9 @@ class Tasks::Dwc::DashboardController < ApplicationController
   end
 
   private
+
+  def predicate_extension_params
+    params.permit(collecting_event_predicate_id: [], collection_object_predicate_id: [] )
+  end
 
 end

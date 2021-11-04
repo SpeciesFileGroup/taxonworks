@@ -141,7 +141,7 @@ module TaxonWorks
         end
 
         # @return [Integer]
-        #   the total monomials in the epithet
+        #   the total monominals in the epithet
         def name_count 
           (detail[detail.keys.first].keys - [:authorship]).count
         end

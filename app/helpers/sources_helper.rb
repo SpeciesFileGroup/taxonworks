@@ -6,6 +6,11 @@ module SourcesHelper
     source.cached ? sanitize(source.cached, tags: ['i']).html_safe : (source.new_record? ? nil : 'ERROR - Source cache not set, please notify admin.')
   end
 
+  def label_for_source(source)
+    return nil if source.nil?
+    source_author_year_tag(source)
+  end
+
   # TODO: Add language via language_id info
   def sources_autocomplete_tag(source, term)
     return nil if source.nil?

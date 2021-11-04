@@ -8,6 +8,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Add new task 'Object graph', visualize and navigate your Things via a force-directed-graph (network) [#2587]
+- Add new global identifier class for glbio repositories.
 - New parameters for fine-tuning the API responses, `&extend[]=` and `&embed[]` [#2531]
 - Parameter value `origin_citation` via `&extend[]=` to all basic GET `/object(/:id)` requests [#2531]
 - Parameter value `pinboard_item` via `&extend[]=` to all basic GET `/object(/:id)` requests [#2531]
@@ -24,6 +26,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Resize column in Filter tasks [#2606]
 
 ### Changed
+- dwcSex and dwcStage are now referenced by BiocurationGroup [#2615]
+- Improved autocomplete search for Serials and Repositories [#2612]
 - Ordering of GeorgaphicArea autocomplete results. Used areas and areas with shape are prioritized
 - Basic (REST) endpoints send less information, use `&extend[]` and `&embed[]` to return more [#2531]
 - Numerous tasks updated to use the new REST pattern
@@ -34,20 +38,36 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - API `/api/v1/biological_associations` uses metadata for related objects
 - Optimized Source smart selection queries
 - Added option in DwC importer to specific the dataset type (defaults to auto-detection).
+- Replace autocomplete for smart selector in alternate values annotator [#2610]
 
 ### Fixed
-- citation style taxonworks.csl is updated [#2600]
+- DwC recordedBy not referencing verbatim_collectors, only collectors [#2617]
+- DwC recordedByID returning delimiter only records
+- DwC decimalLatitude/Longitude incorrectly mapped [#2616]
+- Citation style taxonworks.csl is updated [#2600]
 - Failure when setting up namespaces in DwC importer with datasets having *unnamed* columns
 - Namespace settings are not cleared when unmatched and re-opened in DwC Import [#2586]
-- scientificNameAuthorship parsing issues in DwC importer [#2589]
+- ScientificNameAuthorship parsing issues in DwC importer [#2589]
 - Author and editor roles are missing after save or create a source in New source task [#2607]
-- rank genus not being auto-detected when uninomial name in scientificName matches genus term value exactly
+- Rank genus not being auto-detected when uninomial name in scientificName matches genus term value exactly
+- Soft validation block is displayed when is empty in New source task [#2611]
+- Clipboard shortcuts
+- Serial raising on failed destroy
+- crossRef assigns a wrong serial when journal is not present [#2620]
 
+
+[#2615]: https://github.com/SpeciesFileGroup/taxonworks/issues/2615
+[#2617]: https://github.com/SpeciesFileGroup/taxonworks/issues/2617
+[#2616]: https://github.com/SpeciesFileGroup/taxonworks/issues/2616
+[#2587]: https://github.com/SpeciesFileGroup/taxonworks/issues/2587
 [#2531]: https://github.com/SpeciesFileGroup/taxonworks/issues/2531
 [#2586]: https://github.com/SpeciesFileGroup/taxonworks/issues/2586
 [#2589]: https://github.com/SpeciesFileGroup/taxonworks/issues/2589
 [#2606]: https://github.com/SpeciesFileGroup/taxonworks/issues/2606
 [#2607]: https://github.com/SpeciesFileGroup/taxonworks/issues/2607
+[#2610]: https://github.com/SpeciesFileGroup/taxonworks/issues/2610
+[#2611]: https://github.com/SpeciesFileGroup/taxonworks/issues/2611
+[#2620]: https://github.com/SpeciesFileGroup/taxonworks/issues/2620
 
 ## [0.20.1] - 2021-10-15
 
@@ -158,6 +178,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Labels list renders for those linked to objects, or not
 
 ### Changed
+- Updated "ICZN binomial" to "ICZN binominal" following the Code dictionary
 - Radial annotator Tag form uses a Keyword smart selector [#2564]
 - DwcOccurrence is rebuilt/refreshed each time Browse Collection Object is hit
 - `footprintWKT` is hidden in Browse CollectionOjbect [#2559]
@@ -831,7 +852,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
-- updated softvalidation for non binomial names
+- updated softvalidation for non binominal names
 - updated label for species-group rank TaxonName
 - Compute print column divisions with barcode style labels [#1993]
 - Object tag for TaxonNameRelationship inverted [#2100]

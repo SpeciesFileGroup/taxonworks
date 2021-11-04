@@ -4,14 +4,14 @@ describe Vendor::Gnfinder::Name, type: [:model]  do
 
   let(:finder) { Vendor::Gnfinder.finder }
 
-  let(:monomial_string) { 'The ACRIDIDAE of the World' }
-  let(:binomial_string) { 'Turripria woldai sp. nov. is the same as Turripria woldaii' }
+  let(:monominal_string) { 'The ACRIDIDAE of the World' }
+  let(:binominal_string) { 'Turripria woldai sp. nov. is the same as Turripria woldaii' }
 
-  let(:gnfinder_monomial) { finder.find_names(monomial_string, verification: true, words_around: 3).names.first }
-  let(:gnfinder_binomial) { finder.find_names(binomial_string, verification: true, words_around: 3).names.first }
+  let(:gnfinder_monominal) { finder.find_names(monominal_string, verification: true, words_around: 3).names.first }
+  let(:gnfinder_binominal) { finder.find_names(binominal_string, verification: true, words_around: 3).names.first }
 
-  let(:mn) { ::Vendor::Gnfinder::Name.new(gnfinder_monomial) }
-  let(:bn) { ::Vendor::Gnfinder::Name.new(gnfinder_binomial) }
+  let(:mn) { ::Vendor::Gnfinder::Name.new(gnfinder_monominal) }
+  let(:bn) { ::Vendor::Gnfinder::Name.new(gnfinder_binominal) }
 
   specify '#project_id' do
     expect(mn.project_id).to eq([])

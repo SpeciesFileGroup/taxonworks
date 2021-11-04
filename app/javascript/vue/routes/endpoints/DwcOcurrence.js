@@ -11,5 +11,7 @@ export const DwcOcurrence = {
 
   createIndex: params => AjaxCall('post', '/tasks/dwc/dashboard/create_index', params),
 
-  collectorMetadata: () => AjaxCall('get', '/dwc_occurrences/collector_id_metadata')
+  collectorMetadata: () => AjaxCall('get', '/dwc_occurrences/collector_id_metadata'),
+
+  predicates: () => AjaxCall('get', '/dwc_occurrences/predicates.json')
 }

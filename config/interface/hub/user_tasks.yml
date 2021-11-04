@@ -657,3 +657,11 @@ new_namespace_task:
     - collecting_event
   status: prototype
   description: 'Create new Namespaces, used in identifiers.'
+
+object_graph_task:
+  hub: true
+  name: 'TODO: Task name'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'

@@ -31,7 +31,7 @@
 #
 # TODO handle translations (which are simultaneous)
 class Serial < ApplicationRecord
-  
+
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Shared::AlternateValues
@@ -45,20 +45,20 @@ class Serial < ApplicationRecord
   include Shared::HasPapertrail
 
   ALTERNATE_VALUES_FOR = [:name, :publisher, :place_published].freeze
-  
+
   belongs_to :translated_from_serial, foreign_key: :translated_from_serial_id, class_name: 'Serial'
   belongs_to :language, foreign_key: :primary_language_id
 
   has_many :sources, class_name: 'Source::Bibtex', inverse_of: :serial, dependent: :restrict_with_error
-  has_many :translations, foreign_key: :translated_from_serial_id, class_name: 'Serial'
+  has_many :translations, foreign_key: :translated_from_serial_id, class_name: 'Serial', dependent: :destroy
 
-  has_many :succeeding_serial_chronologies, foreign_key: :succeeding_serial_id, class_name: 'SerialChronology'
-  has_many :preceding_serial_chronologies, foreign_key: :preceding_serial_id, class_name: 'SerialChronology'
+  has_many :succeeding_serial_chronologies, foreign_key: :succeeding_serial_id, class_name: 'SerialChronology', dependent: :restrict_with_error
+  has_many :preceding_serial_chronologies, foreign_key: :preceding_serial_id, class_name: 'SerialChronology', dependent: :restrict_with_error
 
-  # single preceding chronology will be multiple serials if there is a merge
+  # Single preceding chronology will be multiple serials if there is a merge
   has_many :immediately_preceding_serials, through: :succeeding_serial_chronologies, source: :preceding_serial
 
-  # single succeeding chronology will be multiple serials if there is a split
+  # Single succeeding chronology will be multiple serials if there is a split
   has_many :immediately_succeeding_serials, through: :preceding_serial_chronologies, source: :succeeding_serial
 
   accepts_nested_attributes_for :alternate_values, reject_if: lambda { |av| av[:value].blank? }, allow_destroy: true
@@ -144,7 +144,7 @@ class Serial < ApplicationRecord
 
       out_array.push(succeeding) unless succeeding.empty?
     end
-    return out_array
+    out_array
   end
 
   def self.used_recently(user_id)
@@ -152,16 +152,16 @@ class Serial < ApplicationRecord
     p = Serial.arel_table
 
     # i is a select manager
-    i = t.project(t['serial_id'], t['created_at']).from(t)
-            .where(t['created_at'].gt(1.months.ago))
-            .where(t['created_by_id'].eq(user_id))
-            .order(t['created_at'].desc)
+    i = t.project(t['serial_id'], t['updated_at']).from(t)
+      .where(t['updated_at'].gt(1.months.ago))
+      .where(t['updated_by_id'].eq(user_id))
+      .order(t['updated_at'].desc)
 
     # z is a table alias
     z = i.as('recent_t')
 
     Serial.joins(
-        Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['serial_id'].eq(p['id'])))
+      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['serial_id'].eq(p['id'])))
     ).pluck(:id).uniq
   end
 
@@ -170,12 +170,12 @@ class Serial < ApplicationRecord
     h = {
       recent: (
         Serial.where('"serials"."id" IN (?)', r.first(10) ).order(:name).to_a +
-            Serial.where(created_by_id: user_id, created_at: 3.hours.ago..Time.now).limit(5).to_a).uniq,
+        Serial.where(created_by_id: user_id, created_at: 3.hours.ago..Time.now).limit(5).to_a).uniq,
       pinboard: Serial.pinned_by(user_id).pinned_in_project(project_id).to_a
     }
 
     h[:quick] = (Serial.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a +
-        Serial.where('"serials"."id" IN (?)', r.first(4) ).order(:name).to_a).uniq
+                 Serial.where('"serials"."id" IN (?)', r.first(4) ).order(:name).to_a).uniq
     h
   end
 

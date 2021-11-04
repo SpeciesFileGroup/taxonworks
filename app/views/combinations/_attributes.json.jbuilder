@@ -5,7 +5,21 @@ if extend_response_with('protonyms')
   json.protonyms do
     combination.combination_relationships.each do |r|
       json.set! r.rank_name do
+        json.taxon_name_relationship_id r.id
         json.partial! '/taxon_names/attributes', taxon_name: r.subject_taxon_name 
+      end
+    end
+  end
+end
+
+if extend_response_with('roles')
+  if combination.roles.any?
+    json.taxon_name_author_roles do
+      json.array! combination.taxon_name_author_roles.each do |role|
+        json.extract! role, :id, :position, :type
+        json.person do
+          json.partial! '/people/base_attributes', person: role.person
+        end
       end
     end
   end

@@ -36,4 +36,21 @@ class TaxonNameRelationship::Hybrid < TaxonNameRelationship
   def sv_coordinated_taxa_object
     true # not applicable
   end
+
+  protected
+
+  def set_cached_names_for_taxon_names
+    begin
+      TaxonName.transaction do
+        t = object_taxon_name
+        n = t.get_full_name
+        t.update_columns(
+          cached: n,
+          cached_html: t.get_full_name_html(n)
+        )
+      end
+    end
+    true
+  end
+
 end
