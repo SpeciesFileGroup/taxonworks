@@ -20,10 +20,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Parameter value `citations` via `&extend[]=` to all basic GET `/object/:id` requests [#2531]
 - Parameter values `roles` and `documents` via `&extend[]=` to `/sources(/:id).json` [#2531]
 - Parameter values `protonyms` and `placement` via `&extend[]=` to `/combinations(/:id).json [#2531]
-- Parameter values `parent`, `otus`, `roles`, ancestor_ids`, `children`, `type_taxon_name_relationship` via `&extend[]=` to `/taxon_names(/:id).json [#2531]
-- Parameter values `level_names`, `geographic_area_type`, `parent` via `&extend[]=` and `shape` via `&embed[]=` to `/geographic_areas(/:id).json [#2531]
-- Parameter value `subject`, `object`, `biological_relationship`, `family_names` via `&extend[]=` to `/biological_associations(/:id).json [#2531]
-- Parameter value `citation_object`, `citation_topics`, `source`, `target_document` via `&extend[]=` to `/citations(/:id).json [#2531]
+- Parameter values `parent`, `otus`, `roles`, `ancestor_ids`, `children`, `type_taxon_name_relationship` via `&extend[]=` to `/taxon_names(/:id).json` [#2531]
+- Parameter values `level_names`, `geographic_area_type`, `parent` via `&extend[]=` and `shape` via `&embed[]=` to `/geographic_areas(/:id).json` [#2531]
+- Parameter value `subject`, `object`, `biological_relationship`, `family_names` via `&extend[]=` to `/biological_associations(/:id).json` [#2531]
+- Parameter value `citation_object`, `citation_topics`, `source`, `target_document` via `&extend[]=` to `/citations(/:id).json` [#2531]
 - API route `/taxon_names/parse?query_string=Aus bus` for resolving names to Protonyms
 - Parameter value `roles` via `&extend[]=` to `/collecting_events(/:id).json` [#2531]
 - Param to isolate TaxonName smart select to Protonym if optional
