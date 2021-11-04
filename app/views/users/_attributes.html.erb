@@ -29,6 +29,11 @@
 </p>
 
 <p>
+  <strong>Time active:</strong>
+  <%= (@user.time_active.to_f / 3600.to_f || 0.0).round(1) %> hours
+</p>
+
+<p>
   <strong>Current sign in at:</strong>
   <%= @user.current_sign_in_at %>
 </p>
@@ -54,10 +59,5 @@
     <%= @user.api_access_token %>
   </p>
 <% end %>
-
-<p>
-  <strong>Preferences:</strong>
-  <%= ap(@user.preferences).html_safe %>
-</p>
 
 
