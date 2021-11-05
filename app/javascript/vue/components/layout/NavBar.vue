@@ -2,6 +2,7 @@
   <div
     class="separate-bottom"
     :style="barStyle"
+    :class="{ 'navbar-fixed-top': isFixed }"
     ref="navbar">
     <div class="panel">
       <div class="content">
@@ -10,60 +11,48 @@
     </div>
   </div>
 </template>
-<script>
+<script setup>
 
-export default {
-  props: {
-    componentStyle: {
-      type: Object,
-      default: () => {
-        return {
-          top: '0',
-          position: 'fixed',
-          zIndex: 200
-        }
-      }
-    }
-  },
-  computed: {
-    barStyle () {
-      return this.isFixed ? this.componentStyle : {}
-    }
-  },
-  data () {
-    return {
-      position: undefined,
-      isFixed: false,
-      observeBody: undefined
-    }
-  },
+import { computed, ref, watch, onMounted } from 'vue'
+import { useScroll, useWindowSize } from 'compositions/index.js'
 
-  mounted () {
-    this.position = this.$el.offsetTop
-    this.observeBody = new ResizeObserver(this.setFixeable)
-    this.observeBody.observe(document.body)
-    window.addEventListener('scroll', this.setFixeable)
-  },
-
-  methods: {
-    setFixeable () {
-      if ((window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0) > this.position) {
-        this.$el.classList.add('navbar-fixed-top')
-        this.$el.style.width = `${this.$el.parentElement.clientWidth}px`
-        this.isFixed = true
-      } else {
-        this.isFixed = false
-        this.$el.removeAttribute('style')
-        this.$el.classList.remove('navbar-fixed-top')
-      }
-    }
-  },
-
-  unmounted () {
-    window.removeEventListener('scroll', this.setFixeable)
-    this.observeBody?.disconnect()
+const props = defineProps({
+  componentStyle: {
+    type: Object,
+    default: () => ({
+      top: '0',
+      position: 'fixed',
+      zIndex: 200
+    })
   }
+})
+
+const windowSize = useWindowSize()
+const scroll = useScroll(window)
+const navbar = ref(null)
+const width = ref(null)
+const position = ref(null)
+const isFixed = ref(false)
+
+const barStyle = computed(() => isFixed.value
+  ? {
+      width: width.value,
+      ...props.componentStyle
+    }
+  : {}
+)
+
+watch([scroll.y, windowSize.width], _ => { setFixeable() })
+
+const setFixeable = () => {
+  isFixed.value = scroll.y.value > position.value
+  width.value = `${navbar.value.parentElement.clientWidth}px`
 }
+
+onMounted(() => {
+  position.value = navbar.value.offsetTop
+})
+
 </script>
 
 <style lang="scss" scoped>
