@@ -13,6 +13,7 @@ BIBTEX_FIELDS = [
   :journal,
   :key,
   :month,
+  :day,
   :note,
   :number,
   :organization,

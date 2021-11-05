@@ -261,7 +261,13 @@ class Source < ApplicationRecord
     end
   end
 
-  # @param [String] file
+    # @return [String] A string that represents the authors last_names and year (no suffix)
+  def author_year
+    return 'not yet calculated' if new_record?
+    [cached_author_string, year].compact.join(', ')
+  end
+
+    # @param [String] file
   # @return [Array, Boolean]
   def self.batch_create(file)
     sources = []
