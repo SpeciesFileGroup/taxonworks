@@ -228,7 +228,7 @@ export default {
     },
 
     originalCitation () {
-      return this.citations.filter(citation => citation.is_original).map(citation => [citation.source.cached, citation.pages].filter(item => item).join(':')).join('; ')
+      return this.citations.filter(citation => citation.is_original).map(citation => [citation.source.object_label, citation.pages].filter(item => item).join(':')).join('; ')
     },
 
     urlSrc () {
@@ -286,8 +286,8 @@ export default {
   methods: {
     async loadData () {
       const imageId = this.depiction.image.id
-      this.attributions = (await Image.attributions(imageId)).body
-      this.citations = (await Image.citations(imageId)).body
+      this.attributions = (await Image.attributions(imageId, { extend: ['roles'] })).body
+      this.citations = (await Image.citations(imageId, { extend: ['source'] })).body
     },
 
     updateDepiction () {
