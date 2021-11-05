@@ -4,60 +4,69 @@
       <switch-component
         :options="tabs"
         use-index
-        v-model="tabIndex"
+        v-model="alternateType"
       />
     </div>
-    <div v-if="alternateType">
-      <ul class="no_bullets content">
-        <li
-          v-for="(item, key) in values"
-          :key="item">
-          <label>
-            <input
-              type="radio"
-              v-model="alternateValue.alternate_value_object_attribute"
-              :value="key">
-            "{{ key }}" -> {{ item }}
-          </label>
-        </li>
-      </ul>
+    <ul class="no_bullets content">
+      <li
+        v-for="(item, key) in values"
+        :key="item">
+        <label>
+          <input
+            type="radio"
+            v-model="alternateValue.alternate_value_object_attribute"
+            :value="key">
+          "{{ key }}" -> {{ item }}
+        </label>
+      </li>
+    </ul>
 
-      <fieldset v-if="alternateType == ALTERNATE_VALUE_TRANSLATION">
-        <legend>Language</legend>
-        <smart-selector
-          model="languages"
-          klass="AlternateValue"
-          label="english_name"
-          :filter-ids="languageId"
-          @selected="setLanguage"/>
-        <SmartSelectorItem
-          :item="language"
-          label="english_name"
-          @unset="setLanguage"
-        />
-      </fieldset>
-      <div class="field margin-medium-top">
-        <input
-          class="normal-input full_width"
-          type="text"
-          v-model="alternateValue.value"
-          placeholder="Value">
-      </div>
-      <button
-        type="button"
-        class="normal-input button button-submit"
-        :disabled="!validateFields"
-        @click="createNew()">
-        Create
-      </button>
+    <fieldset v-if="alternateValue.type === ALTERNATE_VALUE_TRANSLATION">
+      <legend>Language</legend>
+      <smart-selector
+        v-model="language"
+        model="languages"
+        klass="AlternateValue"
+        label="english_name"
+        @selected="setLanguage"/>
+      <SmartSelectorItem
+        :item="language"
+        label="english_name"
+        @unset="setLanguage"
+      />
+    </fieldset>
+
+    <div class="field margin-medium-top">
+      <input
+        class="normal-input full_width"
+        type="text"
+        v-model="alternateValue.value"
+        placeholder="Value">
     </div>
 
-    <display-list
-      label="object_tag"
-      :list="list"
-      @delete="removeItem"
-      class="list"/>
+    <v-btn
+      class="margin-small-right"
+      color="create"
+      medium
+      :disabled="!validateFields"
+      @click="saveAlternateValue">
+      Save
+    </v-btn>
+    <v-btn
+      color="primary"
+      medium
+      @click="reset">
+      New
+    </v-btn>
   </div>
+
+  <display-list
+    label="object_tag"
+    :list="list"
+    edit
+    @edit="loadAlternateValue"
+    @delete="removeItem"
+    class="list"/>
 </template>
 <script>
 
@@ -67,13 +76,15 @@ import SwitchComponent from 'components/switch.vue'
 import DisplayList from './displayList.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
+import VBtn from 'components/ui/VBtn/index.vue'
+import { addToArray } from 'helpers/arrays.js'
 import {
   ALTERNATE_VALUE_ABBREVIATION,
   ALTERNATE_VALUE_ALTERNATE_SPELLING,
   ALTERNATE_VALUE_MISSPELLING,
   ALTERNATE_VALUE_TRANSLATION
 } from 'constants/index.js'
-import { AlternateValue } from 'routes/endpoints'
+import { AlternateValue, Language } from 'routes/endpoints'
 
 export default {
   mixins: [CRUD, annotatorExtend],
@@ -82,7 +93,8 @@ export default {
     SmartSelector,
     SmartSelectorItem,
     DisplayList,
-    SwitchComponent
+    SwitchComponent,
+    VBtn
   },
 
   computed: {
@@ -95,8 +107,13 @@ export default {
       return Object.values(this.typeList)
     },
 
-    alternateType () {
-      return Object.keys(this.typeList)[this.tabIndex]
+    alternateType: {
+      get () {
+        return Object.keys(this.typeList).findIndex(item => item === this.alternateValue.type)
+      },
+      set (value) {
+        this.alternateValue.type = Object.keys(this.typeList)[value]
+      }
     }
   },
 
@@ -127,26 +144,50 @@ export default {
       return {
         value: undefined,
         language_id: undefined,
+        type: ALTERNATE_VALUE_TRANSLATION,
         alternate_value_object_attribute: undefined
       }
     },
 
-    createNew () {
+    saveAlternateValue () {
       const alternate_value = {
         ...this.alternateValue,
-        type: this.alternateType,
         annotated_global_entity: decodeURIComponent(this.globalId)
       }
 
-      AlternateValue.create({ alternate_value }).then(response => {
-        this.list.push(response.body)
-        this.alternateValue = this.newAlternate()
+      const saveRequest = alternate_value.id
+        ? AlternateValue.update(alternate_value.id, { alternate_value })
+        : AlternateValue.create({ alternate_value })
+
+      saveRequest.then(response => {
+        addToArray(this.list, response.body)
+        this.reset()
+        TW.workbench.alert.create('Alternate value was successfully saved.', 'notice')
       })
+    },
+
+    reset () {
+      this.alternateValue = this.newAlternate()
+      this.language = undefined
     },
 
     setLanguage (language) {
       this.alternateValue.language_id = language?.id
       this.language = language
+    },
+
+    loadAlternateValue ({ id, value, alternate_value_object_attribute, language_id, type }) {
+      this.alternateValue = {
+        id,
+        value,
+        alternate_value_object_attribute,
+        type,
+        language_id
+      }
+
+      Language.find(language_id).then(({ body }) => {
+        this.language = body
+      })
     }
   }
 }
