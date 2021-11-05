@@ -1,7 +1,8 @@
 <template>
   <div
     class="separate-bottom"
-    :style="barStyle">
+    :style="barStyle"
+    ref="navbar">
     <div class="panel">
       <div class="content">
         <slot />
@@ -19,8 +20,7 @@ export default {
         return {
           top: '0',
           position: 'fixed',
-          zIndex: 200,
-          width: 'inherit'
+          zIndex: 200
         }
       }
     }
@@ -33,12 +33,15 @@ export default {
   data () {
     return {
       position: undefined,
-      isFixed: false
+      isFixed: false,
+      observeBody: undefined
     }
   },
 
   mounted () {
     this.position = this.$el.offsetTop
+    this.observeBody = new ResizeObserver(this.setFixeable)
+    this.observeBody.observe(document.body)
     window.addEventListener('scroll', this.setFixeable)
   },
 
@@ -50,6 +53,7 @@ export default {
         this.isFixed = true
       } else {
         this.isFixed = false
+        this.$el.removeAttribute('style')
         this.$el.classList.remove('navbar-fixed-top')
       }
     }
@@ -57,6 +61,7 @@ export default {
 
   unmounted () {
     window.removeEventListener('scroll', this.setFixeable)
+    this.observeBody?.disconnect()
   }
 }
 </script>
@@ -65,7 +70,6 @@ export default {
   .navbar-fixed-top {
     top:0px;
     z-index:1001;
-    width:inherit;
     position: fixed;
   }
 </style>
