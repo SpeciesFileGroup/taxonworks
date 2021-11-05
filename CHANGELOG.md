@@ -7,7 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- Determiners are not saved after lock the list in comprehensive form [#2626]
+
+[#2626]: https://github.com/SpeciesFileGroup/taxonworks/issues/2626
 
 ## [0.21.1] - 2021-11-05
 ### Fixed
