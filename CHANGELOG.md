@@ -7,6 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Fixed
+- Citations in image viewer
+
 \-
 
 ## [0.21.0] - 2021-11-04
