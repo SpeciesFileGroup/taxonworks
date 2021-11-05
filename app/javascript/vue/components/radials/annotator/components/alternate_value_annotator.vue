@@ -156,7 +156,7 @@ export default {
       }
 
       const saveRequest = alternate_value.id
-        ? AlternateValue.update(alternate_value.id, { alternate_value, embed: ['metadata'] })
+        ? AlternateValue.update(alternate_value.id, { alternate_value })
         : AlternateValue.create({ alternate_value })
 
       saveRequest.then(response => {
