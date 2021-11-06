@@ -62,7 +62,8 @@
         v-model="params.collectors"/>
       <keywords-component
         class="margin-large-bottom"
-        v-model="params.keywords" />
+        v-model="params.keywords"
+        target="CollectionObject" />
       <types-component
         class="margin-large-bottom"
         v-model="params.types"/>
@@ -105,6 +106,7 @@ import WithComponent from 'tasks/sources/filter/components/filters/with'
 import BufferedComponent from './filters/buffered.vue'
 import PreparationTypes from './filters/preparationTypes'
 import CollectorsComponent from './filters/shared/people'
+import { chunkArray } from 'helpers/arrays.js'
 
 import SpinnerComponent from 'components/spinner'
 import platformKey from 'helpers/getPlatformKey.js'
@@ -219,7 +221,7 @@ export default {
         this.DWCACount = 0
         if (response.body.data.length) {
           this.result = response.body.data
-          this.DWCASearch = response.body.data.filter(item => { return !this.isIndexed(item)})
+          this.DWCASearch = response.body.data.filter(item => !this.isIndexed(item))
           if (this.DWCASearch.length) {
             this.getDWCATable(this.DWCASearch)
           } else {
@@ -349,7 +351,7 @@ export default {
       return date.toISOString().slice(0, 10)
     },
 
-    filterEmptyParams(object) {
+    filterEmptyParams (object) {
       const keys = Object.keys(object)
       keys.forEach(key => {
         if (object[key] === '') {
@@ -366,15 +368,9 @@ export default {
     },
 
     getDWCATable (list) {
-      const IDS = list.map(item => item[0])
-      const chunk = IDS.length / this.perRequest
-      const chunkArray = []
-      let i, j
+      const IDs = chunkArray(list.map(item => item[0]), this.perRequest)
 
-      for (i = 0,j = IDS.length; i < j; i += chunk) {
-        chunkArray.push(IDS.slice(i, i + chunk))
-      }
-      this.getDWCA(chunkArray)
+      this.getDWCA(IDs)
     },
 
     isIndexed (object) {
@@ -383,21 +379,24 @@ export default {
 
     getDWCA (ids) {
       if (ids.length) {
-        this.loadingDWCA = true
-        const promises = []
-        ids[0].forEach(id => {
-          promises.push(CollectionObject.dwc(id).then(response => {
-            const index = this.coList.data.findIndex(item => item[0] === id)
+        const failedRequestIds = []
+        const idArray = ids.shift(0)
+        const promises = idArray.map(id => CollectionObject.dwc(id).then(response => {
+          const index = this.coList.data.findIndex(item => item[0] === id)
 
-            this.DWCACount++
-            this.coList.data[index] = response.body
-          }, (response) => {
-            this.loadingDWCA = false
-            TW.workbench.alert.create(`Error: ${response}`, 'warning')
-          }))
-        })
-        Promise.all(promises).then(() => {
-          ids.splice(0, 1)
+          this.DWCACount++
+          this.coList.data[index] = response.body
+        }, _ => {
+          failedRequestIds.push(id)
+        }))
+
+        this.loadingDWCA = true
+
+        Promise.allSettled(promises).then(_ => {
+          if (failedRequestIds.length) {
+            ids.push(failedRequestIds)
+          }
+
           this.$emit('result', { column_headers: this.coList.column_headers, data: this.result })
           this.getDWCA(ids)
         })

@@ -50,6 +50,7 @@
                 roles: ['Determiner']
               }"
               :autocomplete="false"
+              label="cached"
               @onTabSelected="view = $event"
               @selected="addRole">
               <template #header>

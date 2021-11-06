@@ -5,6 +5,11 @@ module ObservationsHelper
     "#{observation.descriptor.name}: #{observation.id}"
   end
 
+  def label_for_observation(observation)
+    return nil if observation.nil?
+    observation.descriptor.name # TODO: add values
+  end
+
   def observation_matrix_cell_tag(row_object, descriptor)
     q = Observation.object_scope(row_object).where(descriptor: descriptor)
     q.collect{|o| observation_cell_tag(o)}.sort.join(' ').html_safe

@@ -52,9 +52,11 @@ export default {
       }, {})
       return output
     },
+
     taxonNames () {
       return this.$store.getters[GetterNames.GetTaxonNames]
     },
+
     taxonName () {
       return this.$store.getters[GetterNames.GetTaxonName]
     }
@@ -72,12 +74,14 @@ export default {
       handler (newVal) {
         if (newVal.length) {
           const currentTaxon = newVal.find(taxon => this.otu.taxon_name_id === taxon.id)
-          const data = currentTaxon.id === currentTaxon.cached_valid_taxon_name_id ? newVal : [currentTaxon]
+          const data = currentTaxon.id === currentTaxon.cached_valid_taxon_name_id
+            ? newVal
+            : [currentTaxon]
 
           data.forEach(taxon => {
-            CollectionObject.dwcIndex({ type_specimen_taxon_name_id: taxon.id }).then(response => {
-              this.collectionObjects = this.collectionObjects.concat(response.body.data.map((item, index) => this.createObject(response.body, index)))
-              TypeMaterial.where({ protonym_id: taxon.id }).then(response => {
+            CollectionObject.dwcIndex({ type_specimen_taxon_name_id: taxon.id, extend: ['origin_citation', 'citations', 'source'] }).then(response => {
+              this.collectionObjects = this.collectionObjects.concat(response.body.data.map((_, index) => this.createObject(response.body, index)))
+              TypeMaterial.where({ protonym_id: taxon.id, extend: ['origin_citation', 'citations', 'source'] }).then(response => {
                 this.types = this.types.concat(response.body)
               })
             })

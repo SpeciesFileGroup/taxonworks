@@ -21,7 +21,7 @@
 
   <tbody>
   <% @geographic_areas.each do |geographic_area| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= geographic_area.name %></td>
           <td><%= geographic_area_link(geographic_area.parent) %></td>
           <td><%= geographic_area_type_tag(geographic_area.geographic_area_type) %></td>

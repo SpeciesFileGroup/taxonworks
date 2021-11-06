@@ -3,7 +3,7 @@
 
 # EntryItems for this Entry must follow the pattern:
 # * The `base_object` is always a TaxonName
-# * The `object` may be a Protony, TaxonNameRelationship, or Combination
+# * The `object` may be a Protonym, TaxonNameRelationship, or Combination
 #
 
 require 'catalog/entry'

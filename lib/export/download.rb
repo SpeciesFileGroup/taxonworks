@@ -30,30 +30,44 @@ module Export::Download
       # If keys are not deterministic: .attributes.values_at(*column_names).collect{|v| Utilities::Strings.sanitize_for_csv(v) }
     end
 
-    delete_columns(tbl, exclude_columns) if !exclude_columns.empty?
-    trim_columns(tbl) if trim_columns
-    trim_rows(tbl) if trim_rows
+    if !exclude_columns.empty?
+      Rainbow('deleting columns: ' + Benchmark.measure {
+        delete_columns(tbl, exclude_columns)
+      }.to_s).yellow
+    end
+
+    if trim_columns
+      Rainbow('trimming columns: ' + Benchmark.measure {
+        trim_columns(tbl)
+      }.to_s).yellow
+    end
+
+    if trim_rows 
+      Rainbow('trimming rows: ' + Benchmark.measure {
+        trim_rows(tbl)
+      }.to_s).yellow
+    end
 
     # CSV::Converters are only available on read, not generate, so we can't use them here.
     tbl.to_csv(col_sep: "\t", encoding: Encoding::UTF_8)
   end
 
-    # @param table [CSV::Table]
-    # @param columns [Array]
-    # @return [CSV::Table]
-    #   delete the specified columns
+  # @param table [CSV::Table]
+  # @param columns [Array]
+  # @return [CSV::Table]
+  #   delete the specified columns
   def self.delete_columns(tbl, columns = [])
     return tbl if columns.empty?
     columns.each do |col|
       tbl.delete(col.to_s)
     end
-   tbl
+    tbl
   end
 
-    # @return [CSV::Table]
-    # @param table [CSV::Table]
-    # @param skip_id [Boolean] if true ignore the 'id'l column in consideration of whether to delete this row
-    #   delete rows if there are no values in any cell (of course doing this in the scope is better!)
+  # @return [CSV::Table]
+  # @param table [CSV::Table]
+  # @param skip_id [Boolean] if true ignore the 'id'l column in consideration of whether to delete this row
+  #   delete rows if there are no values in any cell (of course doing this in the scope is better!)
   def self.trim_rows(table, skip_id = true)
     headers = table.headers
     headers = headers - ['id'] if skip_id
@@ -69,9 +83,10 @@ module Export::Download
     table
   end
 
-    # @return [CSV::Table]
-    # @param table [CSV::Table]
-    #   remove columns without any non-#blank? values (of course doing this in the scope is better!)
+  # @return [CSV::Table]
+  # @param table [CSV::Table]
+  #   remove columns without any non-#blank? values (of course doing this in the scope is better!)
+  #   this is very slow, use a proper scope, and exclude_columns: [] options instead    
   def self.trim_columns(table)
     table.by_col!.delete_if do |h, col|
       d = true

@@ -19,6 +19,7 @@
 
 import TableComponent from './tables/table.vue'
 import SpinnerComponent from 'components/spinner.vue'
+import extend from '../const/extendRequest.js'
 import { Citation } from 'routes/endpoints'
 
 export default {
@@ -53,7 +54,8 @@ export default {
     getCites () {
       const params = {
         citation_object_type: 'AssertedDistribution',
-        source_id: this.sourceID
+        source_id: this.sourceID,
+        extend
       }
 
       this.showSpinner = true

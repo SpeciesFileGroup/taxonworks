@@ -240,6 +240,15 @@ resources :downloads, except: [:edit, :new, :create] do
   end
 end
 
+resources :dwc_occurrences, only: [:create] do
+  collection do
+    get 'metadata', defaults: {format: :json}
+    get 'predicates', defaults: {format: :json}
+    get 'status', defaults: {format: :json}
+    get 'collector_id_metadata', defaults: {format: :json}
+  end
+end
+
 resources :extracts do
   concerns [:data_routes]
   collection do
@@ -333,8 +342,6 @@ end
 
 resources :keywords, only: [] do
   collection do
-    get :autocomplete
-    get :lookup_keyword
     get :select_options, defaults: {format: :json}
   end
 end

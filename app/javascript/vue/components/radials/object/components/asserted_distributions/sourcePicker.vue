@@ -12,6 +12,7 @@
           klass="AssertedDistribution"
           pin-section="Sources"
           pin-type="Source"
+          label="cached"
           @selected="setSource"
         />
         <lock-component
@@ -151,7 +152,6 @@ export default {
     },
 
     cleanInput () {
-      this.$refs.autocomplete.cleanInput()
       this.cleanCitation()
     },
 
@@ -168,17 +168,13 @@ export default {
 
     setSource (source) {
       sessionStorage.setItem('radialObject::source::id', source.id)
-      sessionStorage.setItem('radialObject::source::label', source.object_tag)
+      sessionStorage.setItem('radialObject::source::label', source.cached)
       this.citation.source_id = source.id
-      this.sourceLabel = source.object_tag
+      this.sourceLabel = source.cached
     },
 
     setPage (value) {
       sessionStorage.setItem('radialObject::source::pages', this.citation.pages)
-    },
-
-    setFocus () {
-      this.$refs.autocomplete.setFocus()
     }
   }
 }

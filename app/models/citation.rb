@@ -60,6 +60,11 @@ class Citation < ApplicationRecord
   before_destroy :prevent_if_required
 
   after_create :add_source_to_project
+
+  before_save {@old_is_original = is_original_was}
+  before_save {@old_citation_object_id = citation_object_id_was}
+  before_save {@old_source_id = source_id_was}
+
   after_save :update_related_cached_values, if: :is_original?
 
   after_save :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
@@ -115,9 +120,11 @@ class Citation < ApplicationRecord
   end
 
   def update_related_cached_values
-    if citation_object_type == 'TaxonName'
-      citation_object.update_columns(cached_author_year: citation_object.get_author_and_year,
-                                     cached_nomenclature_date: citation_object.nomenclature_date)  if citation_object.persisted?
+    if is_original != @old_is_original || citation_object_id != @old_citation_object_id || source_id != @old_source_id
+      if citation_object_type == 'TaxonName'
+        citation_object.update_columns(cached_author_year: citation_object.get_author_and_year,
+                                       cached_nomenclature_date: citation_object.nomenclature_date)  if citation_object.persisted?
+      end
     end
     true
   end
@@ -130,33 +137,34 @@ class Citation < ApplicationRecord
     end
   end
 
-  # TODO: This *should only fire on creation, right?!.  Page changes never matter?
   def set_cached_names_for_taxon_names
-    if citation_object_type == 'TaxonNameRelationship' && TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(citation_object.try(:type_name))
-      begin
-        TaxonNameRelationship.transaction do
-          t = citation_object.subject_taxon_name
-          vn = t.get_valid_taxon_name
+    if is_original != @old_is_original || citation_object_id != @old_citation_object_id || source_id != @old_source_id
+      if citation_object_type == 'TaxonNameRelationship' && TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(citation_object.try(:type_name))
+        begin
+          TaxonNameRelationship.transaction do
+            t = citation_object.subject_taxon_name
+            vn = t.get_valid_taxon_name
 
-          t.update_columns(
-            cached: t.get_full_name,
-            cached_html: t.get_full_name_html,
-            cached_valid_taxon_name_id: vn.id)
-          t.combination_list_self.each do |c|
-            c.update_column(:cached_valid_taxon_name_id, vn.id)
-          end
-
-          vn.list_of_invalid_taxon_names.each do |s|
-            s.update_column(:cached_valid_taxon_name_id, vn.id)
-            s.combination_list_self.each do |c|
+            t.update_columns(
+              cached: t.get_full_name,
+              cached_html: t.get_full_name_html,
+              cached_valid_taxon_name_id: vn.id)
+            t.combination_list_self.each do |c|
               c.update_column(:cached_valid_taxon_name_id, vn.id)
             end
+
+            vn.list_of_invalid_taxon_names.each do |s|
+              s.update_column(:cached_valid_taxon_name_id, vn.id)
+              s.combination_list_self.each do |c|
+                c.update_column(:cached_valid_taxon_name_id, vn.id)
+              end
+            end
           end
+        rescue ActiveRecord::RecordInvalid
+          raise
         end
-      rescue ActiveRecord::RecordInvalid
-        raise
+        false
       end
-      false
     end
   end
 

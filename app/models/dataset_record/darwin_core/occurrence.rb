@@ -26,7 +26,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     class CreateIfNotExists
       def self.execute(origins, parent, name)
         name.delete(:rank_class) if name[:rank_class].nil?
-        Protonym.create_with(also_create_otu: true).find_or_create_by(name.merge({ parent: parent })).tap do |protonym|
+        Protonym.create_with(
+          {also_create_otu: true}.merge!(name.except(:rank_class, :name))
+        ).find_or_create_by(name.slice(:rank_class, :name).merge!({ parent: parent })).tap do |protonym|
           unless protonym&.persisted?
             raise DatasetRecord::DarwinCore::InvalidData.new({
               origins[name.object_id] => name[:rank_class].present? ?
@@ -40,7 +42,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     class MatchExisting
       def self.execute(origins, parent, name)
-        Protonym.find_by(name.merge({ parent: parent })).tap do |protonym|
+        Protonym.find_by(name.slice(:rank_class, :name).merge!({ parent: parent })).tap do |protonym|
           if protonym.nil?
             raise DatasetRecord::DarwinCore::InvalidData.new({
               origins[name.object_id] =>
@@ -567,6 +569,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
   def parse_location_class
     collecting_event = {}
+    georeference = {}
 
     # locationID: [Not mapped]
 
@@ -657,6 +660,27 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # footprintSpatialFit: [Not mapped]
 
     # georeferencedBy: [Not mapped]
+    if georeferenced_by = get_field_value(:georeferencedBy)
+      predicate_base_props = {uri: 'http://rs.tdwg.org/dwc/terms/georeferencedBy', project: self.project}
+      predicate = Predicate.find_by(predicate_base_props)
+      predicate ||= Predicate.where(project: project).find_by(
+        Predicate.arel_table[:name].matches('georeferencedBy')
+      )
+      predicate ||= Predicate.create!(predicate_base_props.merge(
+        {
+          name: 'georeferencedBy',
+          definition: 'A list (concatenated and separated) of names of people, groups, or organizations who determined the georeference (spatial representation) for the Location.'
+        })
+      )
+
+      georeference[:data_attributes] = [
+        InternalAttribute.new(
+          type: 'InternalAttribute',
+          predicate: predicate,
+          value: georeferenced_by
+        )
+      ]
+    end
 
     # georeferencedDate: [Not mapped]
 
@@ -668,7 +692,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # georeferenceRemarks: [georeference note]
     note = get_field_value(:georeferenceRemarks)
-    georeference = note ? {notes_attributes: [{text: note}]} : {}
+    georeference[:notes_attributes] = [{text: note}] if note
 
     {
       collecting_event: collecting_event,
@@ -828,6 +852,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             rank_class: /subgen/ =~ parse_details[:rank] ? Ranks.lookup(code, "subgenus") : nil,
             name: parse_details[:uninomial]
           }.tap { |h| names << h }.object_id
+        ] = :scientificName
+      elsif get_field_value(:genus) == parse_details[:uninomial]
+        origins[
+          {rank_class: Ranks.lookup(code, "genus"), name: parse_details[:uninomial]}.tap { |h| names << h }.object_id
         ] = :scientificName
       elsif names.reverse.detect { |n| n[:name] }&.dig(:name) != parse_details[:uninomial]
         origins[

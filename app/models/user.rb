@@ -45,11 +45,11 @@
 #
 # @!attribute password_reset_token
 #   @return [String]
-#     if user has requested a password reset the token is stored here 
+#     if user has requested a password reset the token is stored here
 #
 # @!attribute password_reset_token_date
 #   @return [DateTime]
-#     helps determine how long the password reset token is valid 
+#     helps determine how long the password reset token is valid
 #
 # @!attribute name
 #   @return [String]
@@ -62,6 +62,10 @@
 # @!attribute last_sign_in_at
 #   @return [ActiveSupport::TimeWithZone]
 #    time of sign in prior to this sign in
+#
+# @!attribute time_active
+#   @return [Integer, nil]
+#     estimated time in seconds
 #
 # @!attribute last_sign_in_ip
 #   @return [String]
@@ -95,7 +99,7 @@
 #   @return [true, false]
 #   Only used for when .new_record? is true. If true assigns creator and updater as self.
 #
-# @!attribute preferences [JSON] 
+# @!attribute preferences [JSON]
 #   @return [true, false]
 #   Only used for when .new_record? is true. If true assigns creator and updater as self.
 #
@@ -122,6 +126,8 @@ class User < ApplicationRecord
 
   attr_accessor :set_new_api_access_token
   attr_accessor :self_created
+
+  belongs_to :person, inverse_of: :user
 
   before_validation { self.email = email.to_s.downcase }
 
@@ -184,7 +190,7 @@ class User < ApplicationRecord
     klass.column_names.include?('created_by_id') && (klass.where(created_by_id: id).or(klass.where(updated_by_id: id))).any?
   end
 
-  # TODO: Deprecate for a `lib/query/user/filter`  
+  # TODO: Deprecate for a `lib/query/user/filter`
   # @param [String, User, Integer] user
   # @return [Integer] selected user id
 # def self.get_user_id(user)
@@ -306,7 +312,7 @@ class User < ApplicationRecord
     k = options[:kind]
     u = hub_favorites.clone
 
-    u[p]    = {'data' => [], 'tasks' => []} if !u[p]
+    u[p] = {'data' => [], 'tasks' => []} if !u[p]
     u[p][k] = u[p][k].push(n).uniq[0..19].sort
 
     update_column(:hub_favorites, u)
@@ -314,7 +320,6 @@ class User < ApplicationRecord
   end
   # rubocop:enable Style/StringHashKeys
 
-  
   # TODO: move to User concern
   # @param [Hash] options
   def remove_page_from_favorites(options = {}) # name: nil, kind: nil, project_id: nil
@@ -349,7 +354,6 @@ class User < ApplicationRecord
       update_columns(last_seen_at: Time.now)
     end
   end
-
 
   # TODO: move to User concern
   # @param [String] recent_route
@@ -454,6 +458,32 @@ class User < ApplicationRecord
   # @return [Boolean] always true
   def require_password_presence
     @require_password_presence = true
+  end
+
+  def orcid
+    return nil unless person
+    person.identifiers.where(type: 'Identifier::Global::Orcid').first&.identifier
+  end
+
+  def wikidata_id
+    return nil unless person
+    person.identifiers.where(type: 'Identifier::Global::Wikidata').first&.identifier
+  end
+
+  # @return Array of Projects
+  #   A quick, not comprehensive check of what projects User has touched data in
+  def data_in_projects
+    scan = [TaxonName, Citation, CollectionObject, CollectingEvent, Image, AssertedDistribution, Role]
+    found = []
+    Project.pluck(:id, :name).each do |i, name|
+      scan.each do |k|
+        if k.where('(updated_by_id = ? OR created_by_id = ?) AND project_id = ?', id, id, i).any?
+          found.push name
+          break
+        end
+      end
+    end
+    found
   end
 
   private

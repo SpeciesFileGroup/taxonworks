@@ -179,7 +179,10 @@ module Workbench::SessionsHelper
     [
       project_settings_link,
       administration_link,
-      link_to('Account', sessions_current_user, data: { 'current-user-id': sessions_current_user.id.to_s }),
+      link_to('Account', sessions_current_user, data: { 
+        current_user_id: sessions_current_user.id.to_s,
+        current_user_is_administrator: sessions_current_user.is_administrator,
+      }),
       link_to('Sign out', signout_path, method: :delete, id: 'sign_out')
     ]
   end

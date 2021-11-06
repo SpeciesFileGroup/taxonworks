@@ -13,6 +13,7 @@ BIBTEX_FIELDS = [
   :journal,
   :key,
   :month,
+  :day,
   :note,
   :number,
   :organization,
@@ -31,6 +32,7 @@ BIBTEX_FIELDS = [
   :copyright,
   :language,
   :stated_year,
+  :year_suffix,
   :bibtex_type
 ].freeze
 

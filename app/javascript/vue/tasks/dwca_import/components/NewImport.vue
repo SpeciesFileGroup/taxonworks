@@ -17,6 +17,18 @@
             v-model="description">
         </div>
         <div class="field label-above margin-small-left">
+          <label>Dataset type </label>
+          <select v-model="rowType">
+            <option
+              v-for="(value, key) in datasetRowTypes"
+              :key="key"
+              :value="value"
+            >
+              {{ key }}
+            </option>
+          </select>
+        </div>
+        <div class="field label-above margin-small-left">
           <label>Nomenclature code: </label>
           <select v-model="nomenclatureCode">
             <option
@@ -55,6 +67,7 @@
 
 import Dropzone from 'components/dropzone'
 import SpinnerComponent from 'components/spinner'
+import DATASET_ROW_TYPES from '../const/datasetRowTypes.js'
 import CODES from '../const/nomenclatureCodes.js'
 import { capitalize } from 'helpers/strings'
 import BlockLayout from 'components/layout/BlockLayout.vue'
@@ -76,8 +89,10 @@ export default {
 
   data () {
     return {
+      datasetRowTypes: DATASET_ROW_TYPES,
       codes: Object.values(CODES),
       nomenclatureCode: CODES.ICZN,
+      rowType: undefined,
       description: '',
       isUploading: false,
       dropzone: {
@@ -106,6 +121,10 @@ export default {
       this.isUploading = true
       formData.append('import_dataset[description]', this.description)
       formData.append('import_dataset[import_settings][nomenclatural_code]', this.nomenclatureCode)
+
+      if (this.rowType) {
+        formData.append('import_dataset[import_settings][row_type]', this.rowType)
+      }
     },
 
     completeQueue (file, response) {

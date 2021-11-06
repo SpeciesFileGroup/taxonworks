@@ -18,7 +18,7 @@
 
   <tbody>
   <% @organizations.each do |organization| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= organization.name %></td>
           <td><%= organization.alternate_name %></td>
           <td><%= organization.description %></td>

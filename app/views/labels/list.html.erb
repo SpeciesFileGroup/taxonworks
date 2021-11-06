@@ -6,7 +6,9 @@
       <%= fancy_th_tag( name: 'Text') %>
       <%= fancy_th_tag( name: 'Total') %>
       <%= fancy_th_tag( name: 'Style') %>
-      <%= fancy_th_tag( name: 'Object global id') %>
+      
+      <%= fancy_th_tag( name: 'On object type') %>
+      <%= fancy_th_tag( name: 'On object') %>
       <%= fancy_th_tag( name: 'Is copy edited') %>
       <%= fancy_th_tag( name: 'Is printed') %>
   
@@ -16,16 +18,17 @@
   </thead>
 
   <tbody>
-    <% @labels.each do |label| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
-        <td><%= label.text -%></td>
-        <td><%= label.total -%></td>
-        <td><%= label.style -%></td>
-        <td><%= label.object_global_id -%></td>
-        <td><%= label.is_copy_edited -%></td>
-        <td><%= label.is_printed -%></td>
+    <% @labels.each do |l| %>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
+        <td><%= l.text -%></td>
+        <td><%= l.total -%></td>
+        <td><%= l.style -%></td>
+        <td><%= l.label_object_type -%></td>
+        <td><%= object_tag(l.label_object) -%></td>
+        <td><%= l.is_copy_edited -%></td>
+        <td><%= l.is_printed -%></td>
 
-        <%= fancy_metadata_cells_tag(label) -%>
+        <%= fancy_metadata_cells_tag(l) -%>
       <% end %>
     <% end %>
   </tbody>

@@ -19,7 +19,7 @@
 
   <tbody>
   <% @images.each do |image| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= image_tag(image.image_file.url(:thumb)) -%> </td>
           <td><%= image.height %></td>
           <td><%= image.width %></td>

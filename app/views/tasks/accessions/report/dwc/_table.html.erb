@@ -23,7 +23,7 @@
 
   <tbody>
   <% collection_objects.each do |o| -%>
-    <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+    <%= content_tag(:tr, class: :contextMenuCells) do -%>
 
       <td> <%= o.preferred_catalog_number.try(:cached) -%> </td>
       <td> <%= repository_tag(o.repository) %></td>

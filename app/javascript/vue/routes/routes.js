@@ -8,6 +8,7 @@ const RouteNames = {
   ImageMatrix: '/tasks/matrix_image/matrix_image/index',
   InteractiveKeys: '/tasks/observation_matrices/interactive_key',
   ManageBiocurationTask: '/tasks/controlled_vocabularies/biocuration/build_collection',
+  ManageControlledVocabularyTask: '/tasks/controlled_vocabularies/manage',
   MatrixRowCoder: '/tasks/observation_matrices/row_coder/index',
   NewCollectingEvent: '/tasks/collecting_events/new_collecting_event',
   NewTaxonName: '/tasks/nomenclature/new_taxon_name',
@@ -18,7 +19,9 @@ const RouteNames = {
   PrintLabel: '/tasks/labels/print_labels',
   TypeMaterial: '/tasks/type_material/edit_type_material',
   NewExtract: '/tasks/extracts/new_extract',
-  NewNamespace: '/tasks/namespaces/new_namespace'
+  NewNamespace: '/tasks/namespaces/new_namespace',
+  DwcDashboard: '/tasks/dwc/dashboard',
+  FilterCollectionObjects: '/tasks/collection_objects/filter'
 }
 
 export {

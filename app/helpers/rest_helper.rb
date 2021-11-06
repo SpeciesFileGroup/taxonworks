@@ -7,7 +7,7 @@ module RestHelper
   end
 
   # @return Boolean
-  def embed_response_with(to_dig, value)
+  def embed_response_with(value)
     if p = params.dig(:embed)
       return p.include?(value)
     end

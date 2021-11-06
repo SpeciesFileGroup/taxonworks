@@ -39,22 +39,67 @@
               </button>
             </div>
             <div class="horizontal-left-content">
-              <ul class="context-menu no_bullets">
-                <li class="horizontal-left-content">
-                  <radial-annotator
-                    type="annotations"
-                    :global-id="depiction.image.global_id"
-                    @close="loadData"/>
-                  Image
-                </li>
-                <li class="horizontal-left-content">
-                  <radial-annotator
-                    type="annotations"
-                    :global-id="depiction.global_id"
-                    @close="loadData"/>
-                  Depiction
-                </li>
-              </ul>
+              <div class="horizontal-left-content">
+                <span class="margin-small-right">Image</span>
+                <div class="square-brackets">
+                  <ul class="context-menu no_bullets">
+                    <li>
+                      <v-btn
+                        circle
+                        color="primary"
+                        @click="openFullsize">
+                        <v-icon
+                          x-small
+                          name="expand"
+                          color="white"
+                        />
+                      </v-btn>
+                    </li>
+                    <li>
+                      <v-btn
+                        circle
+                        :href="image.image_file_url"
+                        :download="image.image_original_filename"
+                        color="primary">
+                        <v-icon
+                          x-small
+                          name="download"
+                          color="white"
+                        />
+                      </v-btn>
+                    </li>
+                    <li>
+                      <radial-annotator
+                        type="annotations"
+                        :global-id="depiction.image.global_id"
+                        @close="loadData"/>
+                    </li>
+                    <li>
+                      <radial-navigation
+                        :global-id="depiction.image.global_id"
+                      />
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div class="horizontal-left-content margin-large-left">
+                <span class="margin-small-right">Depiction</span>
+                <div class="square-brackets">
+                  <ul class="context-menu no_bullets">
+                    <li>
+                      <radial-annotator
+                        type="annotations"
+                        :global-id="depiction.global_id"
+                        @close="loadData"/>
+                    </li>
+                    <li>
+                      <radial-navigation
+                        :global-id="depiction.global_id"
+                      />
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </template>
@@ -132,7 +177,10 @@
 <script>
 
 import VModal from 'components/ui/Modal.vue'
+import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator'
+import RadialNavigation from 'components/radials/navigation/radial.vue'
 import { capitalize } from 'helpers/strings.js'
 import { Image, Depiction } from 'routes/endpoints'
 import { imageSVGViewBox, imageScale } from 'helpers/images'
@@ -149,7 +197,10 @@ const IMG_MAX_SIZES = {
 export default {
   components: {
     VModal,
-    RadialAnnotator
+    RadialAnnotator,
+    RadialNavigation,
+    VBtn,
+    VIcon
   },
 
   props: {
@@ -177,7 +228,7 @@ export default {
     },
 
     originalCitation () {
-      return this.citations.filter(citation => citation.is_original).map(citation => [citation.source.cached, citation.pages].filter(item => item).join(':')).join('; ')
+      return this.citations.filter(citation => citation.is_original).map(citation => [citation.source.object_label, citation.pages].filter(item => item).join(':')).join('; ')
     },
 
     urlSrc () {
@@ -235,8 +286,8 @@ export default {
   methods: {
     async loadData () {
       const imageId = this.depiction.image.id
-      this.attributions = (await Image.attributions(imageId)).body
-      this.citations = (await Image.citations(imageId)).body
+      this.attributions = (await Image.attributions(imageId, { extend: ['roles'] })).body
+      this.citations = (await Image.citations(imageId, { extend: ['source'] })).body
     },
 
     updateDepiction () {
@@ -248,6 +299,10 @@ export default {
       Depiction.update(this.depiction.id, { depiction }).then(() => {
         TW.workbench.alert.create('Depiction was successfully updated.', 'notice')
       })
+    },
+
+    openFullsize () {
+      window.open(this.depiction.image.image_file_url, '_blank')
     }
   }
 }

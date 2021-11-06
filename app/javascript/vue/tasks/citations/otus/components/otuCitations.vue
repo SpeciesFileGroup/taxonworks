@@ -8,7 +8,7 @@
         v-for="item in items"
         @click="setSource(item)"
         class="flex-separate middle slide-panel-category-item">
-        <span v-html="item.source.object_tag"/>
+        <span v-html="item.source.cached"/>
       </li>
     </ul>
   </div>

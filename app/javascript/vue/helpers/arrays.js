@@ -36,8 +36,19 @@ function sortArray (arr, sortProperty, ascending = true) {
   })
 }
 
+function addToArray (arr, obj) {
+  const index = arr.findIndex(item => obj.id === item.id)
+
+  if (index > -1) {
+    arr[index] = obj
+  } else {
+    arr.push(obj)
+  }
+}
+
 export {
   chunkArray,
   getUnique,
-  sortArray
+  sortArray,
+  addToArray
 }

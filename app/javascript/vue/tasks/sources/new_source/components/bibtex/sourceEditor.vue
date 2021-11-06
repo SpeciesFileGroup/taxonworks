@@ -6,6 +6,7 @@
       ref="smartSelector"
       target="Source"
       klass="Source"
+      label="cached"
       :filter-ids="peopleIds"
       :params="{ role_type: 'SourceEditor' }"
       :autocomplete-params="{

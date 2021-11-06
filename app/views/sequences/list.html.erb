@@ -13,7 +13,7 @@
 
   <tbody>
   <% @sequences.each do |sequence| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= sequence.name %></td>
           <td><%= sequence.sequence %></td>
           <td><%= sequence.sequence_type %></td>

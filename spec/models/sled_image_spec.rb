@@ -81,7 +81,8 @@ RSpec.describe SledImage, type: :model, group: :image do
       identifiers_attributes: [ {identifier: 0, type: 'Identifier::Local::CatalogNumber', namespace_id: namespace.id} ] ,
       notes_attributes: [ { text: 'Hello' } ],
       tags_attributes: [ { keyword_id: keyword.id } ],
-      taxon_determinations_attributes: [ { otu_id: otu.id} ]
+      taxon_determinations_attributes: [ { otu_id: otu.id} ],
+      no_dwc_occurrence: true
     }}
 
   context '#summary' do

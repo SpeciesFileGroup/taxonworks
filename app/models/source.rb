@@ -235,6 +235,12 @@ class Source < ApplicationRecord
     name: 'Cached names',
     description: 'Check if cached values need to be updated' )
 
+  soft_validate(
+    :sv_html_tags,
+    set: :html_tags,
+    name: 'html tags',
+    description: 'Check if html has both open and close tags' )
+
     # Redirect type here
   # @param [String] file
   # @return [[Array, message]]
@@ -255,7 +261,13 @@ class Source < ApplicationRecord
     end
   end
 
-  # @param [String] file
+    # @return [String] A string that represents the authors last_names and year (no suffix)
+  def author_year
+    return 'not yet calculated' if new_record?
+    [cached_author_string, year].compact.join(', ')
+  end
+
+    # @param [String] file
   # @return [Array, Boolean]
   def self.batch_create(file)
     sources = []
@@ -302,10 +314,10 @@ class Source < ApplicationRecord
 
     Source.joins(
       Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['source_id'].eq(p['id'])))
-    ).pluck(:source_id).uniq
+    ).select(:id).distinct.pluck(:id)
   end
 
-    # @params target [String] a citable model name
+  # @params target [String] a citable model name
   # @return [Hash] sources optimized for user selection
   def self.select_optimized(user_id, project_id, target = 'TaxonName')
     r = used_recently(user_id, project_id, target)
@@ -317,17 +329,17 @@ class Source < ApplicationRecord
 
     if r.empty?
       h[:recent] = Source.where(created_by_id: user_id, updated_at: 2.hours.ago..Time.now )
-                       .order('created_at DESC')
-                       .limit(5).order(:cached).to_a
+        .order('created_at DESC')
+        .limit(5).order(:cached).to_a
       h[:quick] = Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a
     else
-        h[:recent] =
-            (Source.where(created_by_id: user_id, updated_at: 2.hours.ago..Time.now )
-                .order('created_at DESC')
-                .limit(5).order(:cached).to_a +
-            Source.where('"sources"."id" IN (?)', r.first(6) ).to_a).uniq
-        h[:quick] = ( Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a +
-        Source.where('"sources"."id" IN (?)', r.first(4) ).to_a).uniq
+      h[:recent] =
+        (Source.where(created_by_id: user_id, updated_at: 2.hours.ago..Time.now )
+        .order('created_at DESC')
+        .limit(5).order(:cached).to_a +
+      Source.where('"sources"."id" IN (?)', r.first(6) ).to_a).uniq
+      h[:quick] = ( Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a +
+                   Source.where('"sources"."id" IN (?)', r.first(4) ).to_a).uniq
     end
 
     h
@@ -347,6 +359,12 @@ class Source < ApplicationRecord
   # @return [Boolean]
   def is_in_project?(project_id)
     projects.where(id: project_id).any?
+  end
+
+    #  Month handling allows values from bibtex like 'may' to be handled
+    # @return [Time]
+  def nomenclature_date
+    Utilities::Dates.nomenclature_date(day, Utilities::Dates.month_index(month), year)
   end
 
   # @return [Source, false]
@@ -403,6 +421,13 @@ class Source < ApplicationRecord
       true
     rescue
       false
+    end
+  end
+
+  def sv_html_tags
+    unless title.blank?
+      str = title.squish.gsub(/\<i>[^<>]*?<\/i>/, '')
+      soft_validations.add(:title, 'The title contains unmatched html tags') if str.include?('<i>') || str.include?('</i>')
     end
   end
 end

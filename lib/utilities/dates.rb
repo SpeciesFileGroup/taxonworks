@@ -338,8 +338,11 @@ module Utilities::Dates
       return nil unless first_date_hash
 
       # Split date on separators, then work backwards inserting numbers for non-null values from first date
-      second_date_values = second_date_str.split(/[-T:Z]/).map { |x| x.to_i }
-
+      begin
+        second_date_values = second_date_str.split(/[-T:Z]/).map { |x| ap x; Integer(x, 10) }
+      rescue
+        return nil
+      end
 
       # keep non-nil values in first date string
       present_date_hash = first_date_hash.reject { |_,v| v.nil? }
@@ -796,7 +799,7 @@ module Utilities::Dates
       date[:end_date_month] = matchdata1[1]
       date[:end_date_year] = matchdata1[4]
       # 27-29 June 1947
-    elsif matchdata1 = text.match(/\W(\d\d?)\s?[-–—\+]\s?(\d\d?)[\s\.,\/-]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[-–—\s\/,]?\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+    elsif matchdata1 = text.match(/\W(\d\d?)\.?\s?[-–—\+]\s?(\d\d?)[\s\.,\/-]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[-–—\s\/,]?\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
       date[:verbatim_date] = matchdata1[0].strip
       date[:start_date_day] = matchdata1[1]
       date[:start_date_month] = matchdata1[3]

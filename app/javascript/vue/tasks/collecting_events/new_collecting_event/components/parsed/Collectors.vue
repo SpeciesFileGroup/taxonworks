@@ -10,6 +10,7 @@
       :autocomplete-params="{
         roles: ['Collector']
       }"
+      label="cached"
       :autocomplete="false"
       @selected="addRole">
       <template #header>

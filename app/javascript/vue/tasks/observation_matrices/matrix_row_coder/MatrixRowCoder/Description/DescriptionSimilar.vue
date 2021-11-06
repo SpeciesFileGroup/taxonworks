@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Similar objects</h2>
+    <h3>Similar objects</h3>
     <ul class="no_bullets">
       <li
         v-for="item in similarObjects"

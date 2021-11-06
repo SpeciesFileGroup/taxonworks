@@ -40,7 +40,7 @@
             Apply filter
           </button>
           <button-image-matrix
-            :otu-ids="this.selectedRows"/>
+            :otu-ids="otuIds"/>
         </div>
         <ul class="no_bullets">
           <li
@@ -80,7 +80,7 @@
             Apply filter
           </button>
           <button-image-matrix
-            :otu-ids="this.selectedRows"/>
+            :otu-ids="otuIds"/>
         </div>
       </template>
     </modal-component>
@@ -122,6 +122,14 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetRowFilter, value)
       }
+    },
+
+    otuIds () {
+      const objects = this.remaining
+        .map(item => item.object)
+        .filter(item => this.selectedRows.includes(item.id))
+
+      return objects.map(item => item.otu_id).filter(id => id)
     },
 
     allSelected () {
