@@ -33,7 +33,7 @@ module Queries
 
     # @param [Hash] args
     def initialize(string, project_id: nil, **keyword_args)
-      @query_string = string
+      @query_string = ::ApplicationRecord.sanitize_sql(string)&.delete("\u0000") # remove null bytes
       @options = keyword_args
       @project_id = project_id
       build_terms
@@ -152,7 +152,9 @@ module Queries
     # @return [String]
     #   if `foo, and 123 and stuff` then %foo%and%123%and%stuff%
     def wildcard_pieces
-      '%' + query_string.gsub(/[\W]+/, '%') + '%'
+      a = '%' + query_string.gsub(/[\W]+/, '%') + '%' ### DD: if query_string is cyrilic or diacritics, it returns '%%%'
+      a = 'NothingToMatch' if a.gsub('%','').gsub(' ', '').blank?
+      a
     end
 
     # @return [Integer]
@@ -316,7 +318,7 @@ module Queries
     # @return [ActiveRecord::Relation]
     def autocomplete_ordered_wildcard_pieces_in_cached
       return nil if no_terms?
-      base_query.where(match_ordered_wildcard_pieces_in_cached.to_sql).limit(5)
+      base_query.where(match_ordered_wildcard_pieces_in_cached.to_sql)
     end
 
     # @return [ActiveRecord::Relation]
@@ -324,7 +326,7 @@ module Queries
     def autocomplete_cached_wildcard_anywhere
       a = match_wildcard_in_cached
       return nil if a.nil?
-      base_query.where(a.to_sql).limit(20)
+      base_query.where(a.to_sql)
     end
 
     # @return [ActiveRecord::Relation]
@@ -345,7 +347,7 @@ module Queries
     # @return [ActiveRecord::Relation]
     def autocomplete_named
       return nil if no_terms?
-      base_query.where(named.to_sql).limit(5)
+      base_query.where(named.to_sql).limit(20)
     end
 
     def common_name_table

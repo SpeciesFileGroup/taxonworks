@@ -53,6 +53,14 @@
           <li>
             <label class="middle">
               <input
+                v-model="settings.softValidations"
+                type="checkbox">
+              Validation
+            </label>
+          </li>
+          <li>
+            <label class="middle">
+              <input
                 v-model="settings.sortable"
                 type="checkbox">
               Sortable columns/rows
@@ -119,6 +127,8 @@ import { ActionNames } from './store/actions/actions'
 import { RouteNames } from 'routes/routes'
 
 export default {
+  name: 'NewObservationMatrix',
+
   components: {
     NewMatrix,
     RowsFixed,

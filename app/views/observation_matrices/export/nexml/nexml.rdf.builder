@@ -22,6 +22,7 @@ xml.nex(:nexml,
 
   nexml_otus(@options) if @options[:include_otus] == 'true'  #   true  #if params[:include_otus]
   nexml_descriptors(@options) if @options[:include_descriptors] == 'true'  # if params[:include_descriptors]
+ # nexml_otu_depictions(@options) if @options[:include_otu_depictions] == 'true'  # if params[:include_otu_depictions]
 
   # This block format is not supported, they are presently rendered inline
   # nexml_depictions(@options) if true # @options[:include_depictions] == 'true'  # if params[:include_descriptors]

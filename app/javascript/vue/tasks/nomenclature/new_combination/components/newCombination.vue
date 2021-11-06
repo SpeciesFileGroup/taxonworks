@@ -250,10 +250,10 @@ export default {
       return {
         verbatim_name: undefined,
         protonyms: {
-          subspecies: undefined,
-          species: undefined,
+          genus: undefined,
           subgenus: undefined,
-          genus: undefined
+          species: undefined,
+          subspecies: undefined
         }
       }
     },

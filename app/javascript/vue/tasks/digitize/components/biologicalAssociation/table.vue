@@ -6,7 +6,11 @@
           <th>Relationship</th>
           <th>Related</th>
           <th>Citation</th>
-          <th></th>
+          <th>
+            <div class="horizontal-right-content">
+              <lock-component v-model="settings.locked.biologicalAssociations" />
+            </div>
+          </th>
         </tr>
       </thead>
       <transition-group
@@ -15,29 +19,22 @@
         <template
           v-for="(item, index) in list"
           :key="item.id">
-          <tr
-            v-if="item.hasOwnProperty('id')"
-            class="list-complete-item">
+          <tr class="list-complete-item">
             <td v-html="item.biological_relationship.name"/>
             <td v-html="item.object.object_tag"/>
             <td v-html="getCitationString(item)"/>
-            <td class="vue-table-options">
-              <radial-annotator :global-id="item.global_id"/>
-              <span
-                class="circle-button btn-delete"
-                @click="deleteItem(item)">Remove
-              </span>
-            </td>
-          </tr>
-          <tr v-else>
-            <td v-html="item.biologicalRelationship.name"/>
-            <td v-html="item.biologicalRelation.object_tag"/>
-            <td v-html="getCitationString(item)"/>
             <td>
-              <span
-                class="circle-button btn-delete btn-default"
-                @click="$emit('delete', index)">Remove
-              </span>
+              <div class="middle horizontal-right-content">
+                <radial-annotator
+                  v-if="item.global_id"
+                  :global-id="item.global_id"/>
+                <span
+                  class="circle-button btn-delete"
+                  :class="{ 'button-default': !item.id }"
+                  @click="deleteItem(index)">
+                  Remove
+                </span>
+              </div>
             </td>
           </tr>
         </template>
@@ -48,10 +45,14 @@
 <script>
 
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import LockComponent from 'components/ui/VLock/index.vue'
+import { GetterNames } from '../../store/getters/getters'
+import { MutationNames } from '../../store/mutations/mutations'
 
 export default {
   components: {
-    RadialAnnotator
+    RadialAnnotator,
+    LockComponent
   },
 
   props: {
@@ -63,25 +64,37 @@ export default {
 
   emits: ['delete'],
 
-  mounted () {
-    this.$options.components['RadialAnnotator'] = RadialAnnotator
+  computed: {
+    settings: {
+      get () {
+        return this.$store.getters[GetterNames.GetSettings]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSettings, value)
+      }
+    }
   },
 
   methods: {
-    deleteItem(item) {
-      if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+    deleteItem (item) {
+      if (item.id) {
+        if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
+          this.$emit('delete', item)
+        }
+      } else {
         this.$emit('delete', item)
       }
     },
+
     getCitationString(object) {
-      if(object.hasOwnProperty('citation') && object.citation) {
+      if (object?.citation) {
         return object.citation.label
-      }
-      if(object.hasOwnProperty('origin_citation')) {
-        let citation = object.origin_citation.source.cached_author_string
-        if(object.origin_citation.source.hasOwnProperty('year'))
-          citation = citation + ', ' + object.origin_citation.source.year
-        return citation
+      } else if (object.hasOwnProperty('origin_citation')) {
+        const citation = object.origin_citation.source.cached_author_string
+
+        return object.origin_citation.source.hasOwnProperty('year')
+          ? `${citation}, ${object.origin_citation.source.year}`
+          : citation
       }
       return ''
     }

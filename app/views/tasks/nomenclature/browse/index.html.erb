@@ -39,7 +39,6 @@
   <div id="show" class="panels-container">
     <div class="item item1 nav-column">
       <div class="panel separate-right">
-        <%# render('/taxon_names/classification_navigator', taxon_name: @taxon_name) -%>
         <%= render('/taxon_names/parent_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
       </div>
     </div>

@@ -1,6 +1,6 @@
-import { romanNumbers } from './romanNumbers'
-import DOMPurify from 'dompurify'
+import { ROMAN_NUMBERS, GEOREFERENCE_VERBATIM } from 'constants/index.js'
 import { truncateDecimal } from 'helpers/math.js'
+import DOMPurify from 'dompurify'
 
 export const parsedProperties = {
   GeographicArea: ({ ce }) => ce.geographicArea?.name,
@@ -8,11 +8,11 @@ export const parsedProperties = {
   Dates: ({ ce }) => [
     [
       ce.start_date_day,
-      romanNumbers[Number(ce.start_date_month) - 1],
+      ROMAN_NUMBERS[Number(ce.start_date_month) - 1],
       ce.start_date_year],
     [
       ce.end_date_day,
-      romanNumbers[Number(ce.end_date_month) - 1],
+      ROMAN_NUMBERS[Number(ce.end_date_month) - 1],
       ce.end_date_year
     ]
   ].map(dates => dates.filter(date => date).join('.')).filter(arr => arr.length).join('\n'),
@@ -42,7 +42,7 @@ export const parsedProperties = {
   TripCode: ({ ce, tripCode }) => DOMPurify.sanitize(tripCode.object_tag, { FORBID_TAGS: ['span'], KEEP_CONTENT: true }),
 
   Georeferences: ({ georeferences }) => (georeferences || [])
-    .filter(geo => geo?.geo_json?.geometry?.type === 'Point')
+    .filter(geo => geo?.geo_json?.geometry?.type === 'Point' && geo.type !== GEOREFERENCE_VERBATIM)
     .map(geo => `${truncateDecimal(geo.geo_json.geometry.coordinates[1], 6)}, ${truncateDecimal(geo.geo_json.geometry.coordinates[0], 6)}`)
     .join('\n')
 }

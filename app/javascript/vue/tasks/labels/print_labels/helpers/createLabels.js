@@ -1,9 +1,13 @@
 
 import cssStyle from '!!css-loader!sass-loader!../stylesheets/ce.scss'
+import {
+  LABEL_CODE_128,
+  LABEL_QR_CODE
+} from 'constants/index.js'
 
 const labelTypes = {
-  'Label::Code128': 2.75,
-  'Label::QrCode': 3.05,
+  [LABEL_CODE_128]: 2.75,
+  [LABEL_QR_CODE]: 3.05
 }
 
 const createLabel = (label, cssStyle) => `<div class="${cssStyle}">${label.label}</div>`

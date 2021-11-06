@@ -9,8 +9,28 @@
 </p>
 
 <p>
+  <strong>Person (you, as data):</strong>
+  <%= person_link(@user.person) %>
+</p>
+
+<p>
+  <strong>ORCiD:</strong>
+  <%= @user.orcid ? @user.orcid : content_tag(:span, 'NONE (add to person)', class: %w{feedback feedback-thin feedback-danger})  %>
+</p>
+
+<p>
+  <strong>Wikidata ID:</strong>
+  <%= @user.wikidata_id ? @user.wikidata_id : content_tag(:span, 'NONE (add to person)', class: %w{feedback feedback-thin feedback-warning})  %>
+</p>
+
+<p>
   <strong>Sign in count:</strong>
   <%= @user.sign_in_count %>
+</p>
+
+<p>
+  <strong>Time active:</strong>
+  <%= (@user.time_active.to_f / 3600.to_f || 0.0).round(1) %> hours
 </p>
 
 <p>
@@ -39,10 +59,5 @@
     <%= @user.api_access_token %>
   </p>
 <% end %>
-
-<p>
-  <strong>Preferences:</strong>
-  <%= ap(@user.preferences).html_safe %>
-</p>
 
 

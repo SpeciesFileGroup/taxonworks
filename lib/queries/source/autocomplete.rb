@@ -7,6 +7,9 @@ module Queries
       # @param limit_to_project [String] `true` or `false`
       attr_accessor :limit_to_project
 
+      # Comes from sessions_current_project_id in UI
+      attr_accessor :project_id
+
       # @param [Hash] args
       def initialize(string, project_id: nil, limit_to_project: false)
         @limit_to_project = limit_to_project
@@ -15,18 +18,19 @@ module Queries
 
       # @return [Scope]
       def base_query
-        ::Source.select('sources.*')
+        ::Source #.select('sources.*')
       end
 
       # @return [ActiveRecord::Relation]
       #   if and only iff author string matches
       def autocomplete_exact_author
         a = table[:cached_author_string].eq(query_string)
-        base_query.where(a.to_sql).limit(20)
+        base_query.where(a.to_sql)
       end
 
       # @return [ActiveRecord::Relation]
       #   author matches any full word exactly
+      #     !!  Not used currently
       def autocomplete_any_author
         a = table[:cached_author_string].matches_regexp('\m' + query_string + '\M')
         base_query.where(a.to_sql).limit(20)
@@ -36,11 +40,12 @@ module Queries
       #   author matches start
       def autocomplete_start_of_author
         a = table[:cached_author_string].matches(query_string + '%')
-        base_query.where(a.to_sql).limit(8)
+        base_query.where(a.to_sql)
       end
 
       # @return [ActiveRecord::Relation]
       #   author matches partial string
+      #      !! Not used currently
       def autocomplete_partial_author
         a = table[:cached_author_string].matches('%' + query_string + '%')
         base_query.where(a.to_sql).limit(5)
@@ -57,7 +62,14 @@ module Queries
       #   title matches start
       def autocomplete_start_of_title
         a = table[:title].matches(query_string + '%')
-        base_query.where(a.to_sql).limit(5)
+        base_query.where(a.to_sql)
+      end
+
+      # @return [ActiveRecord::Relation]
+      #   title matches wildcard on alternate
+      def autocomplete_wildcard_of_title_alternate
+        base_query.joins(:alternate_values).
+          where("alternate_values.alternate_value_object_attribute = 'title' AND alternate_values.value ILIKE ?", '%' + query_string + '%')
       end
 
       # @return [ActiveRecord::Relation]
@@ -86,7 +98,7 @@ module Queries
         c = match_year
         return nil if [a,b,c].include?(nil)
         d = a.and(b).and(c)
-        base_query.where(d.to_sql).limit(2)
+        base_query.where(d.to_sql)
       end
 
       # @return [ActiveRecord::Relation, nil]
@@ -95,7 +107,7 @@ module Queries
         b = match_year
         return nil if a.nil? || b.nil?
         c = a.and(b)
-        base_query.where(c.to_sql).limit(10)
+        base_query.where(c.to_sql)
       end
 
       # @return [ActiveRecord::Relation, nil]
@@ -104,7 +116,7 @@ module Queries
         b = match_wildcard_author
         return nil if a.nil? || b.nil?
         c = a.and(b)
-        base_query.where(c.to_sql).limit(10)
+        base_query.where(c.to_sql)
       end
 
       # @return [ActiveRecord::Relation, nil]
@@ -113,7 +125,7 @@ module Queries
         b = match_wildcard_in_cached
         return nil if a.nil? || b.nil?
         c = a.and(b)
-        base_query.where(c.to_sql).limit(10)
+        base_query.where(c.to_sql)
       end
 
       # match ALL wildcards, but unordered, if 2 - 6 pieces provided
@@ -165,37 +177,52 @@ module Queries
 
       # @return [Array]
       def autocomplete
+
+        # [ query, order by use if true- don't if nil ]
         queries = [
-          autocomplete_exact_author_year_letter,
-          autocomplete_exact_author_year,
-          autocomplete_identifier_cached_exact, 
-          autocomplete_wildcard_author_exact_year,
-          autocomplete_exact_author,
-          autocomplete_identifier_identifier_exact,
-          autocomplete_exact_id,
-          autocomplete_start_of_author,  
-          autocomplete_wildcard_anywhere_exact_year,
-          autocomplete_identifier_cached_like,
-          autocomplete_ordered_wildcard_pieces_in_cached,
-          autocomplete_cached_wildcard_anywhere,
-          autocomplete_start_of_title
+          [ autocomplete_exact_id, nil],
+          [ autocomplete_identifier_identifier_exact, nil],
+          [ autocomplete_exact_author_year_letter&.limit(2), nil],
+          [ autocomplete_exact_author_year&.limit(10), nil],
+          [ autocomplete_identifier_cached_exact, nil],
+          [ autocomplete_wildcard_author_exact_year&.limit(10), true],
+          [ autocomplete_exact_author&.limit(20), true],
+          [ autocomplete_start_of_author.limit(8), true],
+          [ autocomplete_wildcard_anywhere_exact_year&.limit(10), true],
+          [ autocomplete_identifier_cached_like, true],
+          [ autocomplete_ordered_wildcard_pieces_in_cached&.limit(5), true],
+          [ autocomplete_cached_wildcard_anywhere&.limit(20), true],
+          [ autocomplete_start_of_title&.limit(5), true],
+          [ autocomplete_wildcard_of_title_alternate&.limit(5), true]
         ]
 
-        queries.compact!
-
-        updated_queries = []
-        queries.each_with_index do |q ,i|
-          a = q.joins(:project_sources).where(member_of_project_id.to_sql) if project_id && limit_to_project
-          a ||= q
-          updated_queries[i] = a
-        end
+        queries.delete_if{|a,b| a.nil?} # compact!
 
         result = []
-        updated_queries.each do |q|
-          result += q.to_a
+
+        queries.each do |q, scope|
+          a = q
+
+          # Limit autocomplete to ONLY project sources if limit_to_project == true
+          if project_id && limit_to_project
+            a = a.joins(:project_sources).where(member_of_project_id.to_sql)
+          end
+
+          # Order results by number of times used *in this project*
+          if project_id && scope
+            a = a.left_outer_joins(:citations)
+              .select('sources.*, COUNT(citations.id) AS use_count, NULLIF(citations.project_id, NULL) as in_project')
+              .where('citations.project_id = ? OR citations.project_id IS NULL', project_id)
+              .group('sources.id, citations.project_id')
+              .order('use_count DESC')
+          end
+          a ||= q
+
+          result += a.to_a
           result.uniq!
           break if result.count > 19
         end
+
         result[0..19]
       end
 

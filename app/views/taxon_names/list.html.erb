@@ -17,7 +17,7 @@
   </thead>
   <tbody>
     <% @taxon_names.each do |taxon_name| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%> 
+      <%= content_tag(:tr, class: :contextMenuCells) do -%> 
         <%= content_tag(:td, taxon_name.name,) %>
         <%= content_tag(:td, object_tag(taxon_name.parent)) %>
         <%= content_tag(:td, (taxon_name.cached_html.html_safe ? taxon_name.cached_html.html_safe : content_tag(:em, 'ERROR: not rendered',  class: :warning))) %>

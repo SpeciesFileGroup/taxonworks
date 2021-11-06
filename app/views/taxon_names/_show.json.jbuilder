@@ -6,9 +6,3 @@ json.extract! taxon_name, :id, :name, :parent_id, :year_of_publication, :verbati
 json.object_tag taxon_name_tag(taxon_name)
 
 json.partial! '/taxon_names/attributes', taxon_name: taxon_name
-
-if taxon_name.parent
-  json.parent do |parent|
-    json.partial! '/taxon_names/attributes', taxon_name: taxon_name.parent
-  end
-end

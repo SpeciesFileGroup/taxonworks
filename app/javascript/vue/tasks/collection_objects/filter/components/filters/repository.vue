@@ -2,7 +2,6 @@
   <div>
     <h3>Repository</h3>
     <smart-selector
-      class="margin-medium-top"
       model="repositories"
       klass="CollectionObject"
       pin-section="Repositories"

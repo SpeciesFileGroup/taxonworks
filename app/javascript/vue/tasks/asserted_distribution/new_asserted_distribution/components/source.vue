@@ -8,6 +8,7 @@
       ref="smartSelector"
       pin-section="Sources"
       pin-type="Source"
+      label="cached"
       v-model="assertedDistribution.citation.source">
       <template #footer>
         <div>
@@ -15,7 +16,7 @@
             <div class="horizontal-left-content margin-small-top margin-small-bottom">
               <span data-icon="ok"/>
               <div class="horizontal-left-content">
-                <span v-html="assertedDistribution.citation.source.object_tag"/>
+                <span v-html="assertedDistribution.citation.source.cached"/>
                 <radial-annotator
                   :global-id="assertedDistribution.citation.source.global_id"/>
               </div>

@@ -71,12 +71,19 @@ import RecentComponent from './components/recent.vue'
 import DestroyConfirmation from './components/DestroyConfirmation'
 import all_tasksComponent from './components/allTasks.vue'
 
-const defaultOptions = {
+import { PinboardItem } from 'routes/endpoints'
+
+const DEFAULT_OPTIONS = {
   New: 'New',
   Edit: 'Edit',
   Destroy: 'Destroy',
   Recent: 'Recent',
   Show: 'Show'
+}
+
+const CUSTOM_OPTIONS = {
+  AllTasks: 'allTasks',
+  CircleButton: 'circleButton'
 }
 
 export default {
@@ -136,6 +143,15 @@ export default {
   emits: ['close'],
 
   computed: {
+    defaultTasks () {
+      return ({
+        graph_object: {
+          name: 'Object graph',
+          path: `/tasks/graph/object?global_id=${encodeURIComponent(this.globalId)}`
+        }
+      })
+    },
+
     menuOptions () {
       const tasks = this.metadata.tasks || {}
       const taskSlices = Object.entries(tasks).slice(0, this.maxTaskInPie).map(([task, { name, path }]) => ({
@@ -154,7 +170,10 @@ export default {
       if (Object.keys(tasks).length > this.maxTaskInPie) {
         taskSlices.push({
           label: 'All tasks',
-          name: 'alltasks',
+          name: CUSTOM_OPTIONS.AllTasks,
+          svgAttributes: {
+            class: 'slice'
+          },
           icon: {
             url: Icons.AllTasks,
             width: '20',
@@ -164,15 +183,14 @@ export default {
       }
 
       if (this.metadata?.recent_url) {
-        taskSlices.push(this.addSlice(defaultOptions.Recent,
+        taskSlices.push(this.addSlice(DEFAULT_OPTIONS.Recent,
           this.recentTotal
             ? {
                 slices: [{
                   size: 26,
                   label: this.recentTotal.toString(),
                   svgAttributes: {
-                    fill: '#006ebf',
-                    color: '#FFFFFF'
+                    class: 'slice-total'
                   }
                 }]
               }
@@ -180,7 +198,10 @@ export default {
         ))
       }
 
-      const slices = [].concat(taskSlices, this.defaultSlices)
+      const slices = [
+        ...taskSlices,
+        ...this.defaultSlices
+      ]
 
       return {
         width: 400,
@@ -190,13 +211,12 @@ export default {
         innerPosition: 1.7,
         margin: 2,
         middleButton: this.middleButton,
-        css: {
-          class: 'svg-radial-annotator'
-        },
         svgAttributes: {
+          class: 'svg-radial-menu'
+        },
+        svgSliceAttributes: {
           fontSize: 11,
-          fill: '#FFFFFF',
-          textAnchor: 'middle'
+          class: 'slice'
         },
         slices: slices
       }
@@ -206,7 +226,7 @@ export default {
       const filterOptions = this.filterOptions
 
       if (!this.metadata.destroy) {
-        filterOptions.push(this.addSlice(defaultOptions.Destroy))
+        filterOptions.push(this.addSlice(DEFAULT_OPTIONS.Destroy))
       }
 
       return this.defaultSlicesTypes.filter(type => !filterOptions.includes(type)).map(type => this.addSlice(type, { link: this.defaultLinks()[type] }))
@@ -217,12 +237,12 @@ export default {
     },
 
     isPinned () {
-      return this.metadata['pinboard_item']
+      return this.metadata?.pinboard_item
     },
 
     middleButton () {
       return {
-        name: 'circleButton',
+        name: CUSTOM_OPTIONS.CircleButton,
         radius: 30,
         icon: {
           url: Icons.Pin,
@@ -243,16 +263,15 @@ export default {
       display: false,
       globalIdSaved: undefined,
       metadata: undefined,
-      title: 'Radial object',
+      title: 'Radial navigation',
       deleted: false,
       showDestroyModal: false,
       recentTotal: 0,
-      customOptions: ['alltasks', 'circleButton'],
       defaultSlicesTypes: [
-        defaultOptions.New,
-        defaultOptions.Destroy,
-        defaultOptions.Edit,
-        defaultOptions.Show
+        DEFAULT_OPTIONS.New,
+        DEFAULT_OPTIONS.Destroy,
+        DEFAULT_OPTIONS.Edit,
+        DEFAULT_OPTIONS.Show
       ]
     }
   },
@@ -268,44 +287,37 @@ export default {
           width: '20',
           height: '20'
         },
+        svgAttributes: {
+          class: 'slice'
+        },
         ...attr
       }
     },
 
     selectedRadialOption ({ name }) {
-      if (Object.keys(defaultOptions).includes(name) || this.customOptions.includes(name)) {
-        this.currentView = undefined
-        switch (name) {
-          case 'circleButton':
-            this.isPinned ? this.destroyPin() : this.createPin()
-            break
-          case defaultOptions.Recent:
-            this.currentView = 'Recent'
-            break
-          case defaultOptions.Edit:
-            window.open(this.metadata['edit'] ? this.metadata.edit : `${this.metadata.resource_path}/edit`)
-            break
-          case defaultOptions.New:
-            window.open(this.metadata['new'] ? this.metadata.new : `${this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf('/'))}/new`)
-            break
-          case defaultOptions.Show:
-            window.open(this.metadata.resource_path)
-            break
-          case defaultOptions.Destroy:
-            this.showDestroyModal = true
-            break
-          case 'alltasks':
-            this.currentView = 'all_tasks'
-            break
-        }
+      switch (name) {
+        case CUSTOM_OPTIONS.CircleButton:
+          this.isPinned
+            ? this.destroyPin()
+            : this.createPin()
+          break
+        case DEFAULT_OPTIONS.Recent:
+          this.currentView = 'Recent'
+          break
+        case DEFAULT_OPTIONS.Destroy:
+          this.showDestroyModal = true
+          break
+        case CUSTOM_OPTIONS.AllTasks:
+          this.currentView = 'all_tasks'
+          break
       }
     },
 
     defaultLinks () {
       return {
-        [defaultOptions.Edit]: this.metadata?.edit || `${this.metadata.resource_path}/edit`,
-        [defaultOptions.New]: this.metadata?.new || `${this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf('/'))}/new`,
-        [defaultOptions.Show]: this.metadata.resource_path
+        [DEFAULT_OPTIONS.Edit]: this.metadata?.edit || `${this.metadata.resource_path}/edit`,
+        [DEFAULT_OPTIONS.New]: this.metadata?.new || `${this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf('/'))}/new`,
+        [DEFAULT_OPTIONS.Show]: this.metadata.resource_path
       }
     },
 
@@ -326,11 +338,12 @@ export default {
       this.globalIdSaved = globalId
       this.loading = true
 
-      this.getList(`/metadata/object_radial?global_id=${encodeURIComponent(globalId)}`).then(response => {
-        this.metadata = response.body
+      this.getList(`/metadata/object_radial?global_id=${encodeURIComponent(globalId)}`).then(({ body }) => {
+        this.metadata = body
         this.title = this.metadata.object_label
-
         this.loading = false
+
+        Object.assign(this.metadata.tasks, this.defaultTasks)
       })
     },
 
@@ -361,22 +374,21 @@ export default {
     },
 
     createPin () {
-      const pinItem = {
-        pinboard_item: {
-          pinned_object_id: this.metadata.id,
-          pinned_object_type: this.metadata.type,
-          is_inserted: true
-        }
+      const pinboard_item = {
+        pinned_object_id: this.metadata.id,
+        pinned_object_type: this.metadata.type,
+        is_inserted: true
       }
-      this.create('/pinboard_items', pinItem).then(response => {
-        this.metadata['pinboard_item'] = { id: response.body.id }
-        TW.workbench.pinboard.addToPinboard(response.body)
+
+      PinboardItem.create({ pinboard_item }).then(({ body }) => {
+        this.metadata.pinboard_item = { id: body.id }
+        TW.workbench.pinboard.addToPinboard(body)
         TW.workbench.alert.create('Pinboard item was successfully created.', 'notice')
       })
     },
 
     destroyPin () {
-      this.destroy(`/pinboard_items/${this.metadata.pinboard_item.id}`, { _destroy: true }).then(response => {
+      PinboardItem.destroy(this.metadata.pinboard_item.id).then(_ => {
         TW.workbench.alert.create('Pinboard item was successfully destroyed.', 'notice')
         TW.workbench.pinboard.removeItem(this.metadata.pinboard_item.id)
         delete this.metadata.pinboard_item
@@ -385,7 +397,7 @@ export default {
 
     destroyObject () {
       this.showDestroyModal = false
-      this.destroy(`${this.metadata.resource_path}.json`).then((response) => {
+      this.destroy(`${this.metadata.resource_path}.json`).then(_ => {
         TW.workbench.alert.create(`${this.metadata.type} was successfully destroyed.`, 'notice')
         if (this.globalId === this.metadata.globalId) {
           this.eventDestroy()

@@ -1,4 +1,4 @@
-export default function (state, value) {
+export default (state, value) => {
   if (value.id) {
     const index = state.taxon_determinations.findIndex(item => item.id === value.id)
     if (index > -1) {

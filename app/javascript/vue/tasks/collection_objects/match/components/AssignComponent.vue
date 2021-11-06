@@ -16,9 +16,11 @@ import TagComponent from './Assign/Tags'
 import DeterminationComponent from './Assign/Determinations'
 import LoanComponent from './Assign/Loans'
 import CollectingEventComponent from './Assign/CollectingEvents'
+import AccessionsComponent from './Assign/Accesssions.vue'
 
 export default {
   components: {
+    AccessionsComponent,
     SwitchComponent,
     DeterminationComponent,
     TagComponent,
@@ -35,7 +37,7 @@ export default {
 
   data () {
     return {
-      tabs: ['Tag', 'Loan', 'Determination', 'Collecting Event'],
+      tabs: ['Tag', 'Loan', 'Determination', 'Collecting Event', 'Accessions'],
       view: 'Tag'
     }
   }

@@ -5,8 +5,8 @@
       model="people"
       ref="smartSelector"
       target="Source"
-      @onTabSelected="view = $event"
       klass="Source"
+      label="cached"
       :filter-ids="peopleIds"
       :params="{ role_type: 'SourceEditor' }"
       :autocomplete-params="{
@@ -37,9 +37,11 @@
 
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
-
+import { findRole } from 'helpers/people/people.js'
+import makePerson from 'factory/Person.js'
 import RolePicker from 'components/role_picker.vue'
 import SmartSelector from 'components/ui/SmartSelector'
+import { ROLE_SOURCE_EDITOR } from 'constants/index.js'
 
 export default {
   components: {
@@ -70,11 +72,7 @@ export default {
       return this.roleAttributes.filter(item => item.person_id || item.person).map(item => item.person_id ? item.person_id : item.person.id)
     }
   },
-  data () {
-    return {
-      view: undefined
-    }
-  },
+
   watch: {
     lastSave: {
       handler (newVal, oldVal) {
@@ -84,23 +82,17 @@ export default {
       }
     }
   },
+
   methods: {
-    roleExist (id) {
-      return (this.source.roles_attributes.find((role) => {
-        return !role.hasOwnProperty('_destroy') && (role.person_id === id || (role.hasOwnProperty('person') && role.person.id === id))
-      }) ? true : false)
-    },
     addRole (person) {
-      if (!this.roleExist(person.id)) {
-        this.$refs.rolePicker.setPerson(this.createPerson(person, 'SourceEditor'))
-      }
-    },
-    createPerson (person, roleType) {
-      return {
-        first_name: person.first_name,
-        last_name: person.last_name,
-        person_id: person.id,
-        type: roleType
+      if (!findRole(this.source.roles_attributes, person.id)) {
+        this.$refs.rolePicker.setPerson(
+          makePerson(
+            person.first_name,
+            person.last_name,
+            person.id,
+            ROLE_SOURCE_EDITOR)
+        )
       }
     }
   }

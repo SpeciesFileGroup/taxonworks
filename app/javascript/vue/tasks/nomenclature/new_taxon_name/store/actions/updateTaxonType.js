@@ -1,7 +1,7 @@
 import { TaxonNameRelationship } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
-export default function ({ commit, state, dispatch }, data) {
+export default ({ commit, state, dispatch }, data) => {
   const taxon_name_relationship = {
     id: data.id,
     object_taxon_name_id: state.taxon_name.id,
@@ -9,7 +9,7 @@ export default function ({ commit, state, dispatch }, data) {
     type: data.type
   }
 
-  TaxonNameRelationships(taxon_name_relationship.id, { taxon_name_relationship }).then(response => {
+  TaxonNameRelationship.update(taxon_name_relationship.id, { taxon_name_relationship }).then(response => {
     commit(MutationNames.AddTaxonRelationship, response.body)
     dispatch('loadSoftValidation', 'taxonRelationshipList')
     dispatch('loadSoftValidation', 'original_combination')

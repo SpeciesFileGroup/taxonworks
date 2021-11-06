@@ -60,6 +60,7 @@ import ContinuousDescriptor from './Descriptors/Continuous'
 import SampleDescriptor from './Descriptors/Sample'
 import QualitativeDescriptor from './Descriptors/Qualitative'
 import PresenceAbsenceDescriptor from './Descriptors/PresenceAbsence'
+import scrollToTop from '../utils/scrollToTop.js'
 
 export default {
   components: {
@@ -150,8 +151,10 @@ export default {
       if (this.settings.refreshOnlyTaxa) {
         this.$store.dispatch(ActionNames.LoadUpdatedRemaining)
       } else {
-        this.$store.dispatch(ActionNames.LoadObservationMatrix, this.observationMatrix.observation_matrix_id)
-        document.querySelector('.descriptors-view div').scrollIntoView(0)
+        if (this.observationMatrix?.observation_matrix_id) {
+          this.$store.dispatch(ActionNames.LoadObservationMatrix, this.observationMatrix.observation_matrix_id)
+          scrollToTop()
+        }
       }
     },
 

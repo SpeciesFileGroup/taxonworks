@@ -1,3 +1,9 @@
+import {
+  COLLECTION_OBJECT,
+  COLLECTING_EVENT,
+  IDENTIFIER_LOCAL_CATALOG_NUMBER,
+  IDENTIFIER_LOCAL_TRIP_CODE
+} from 'constants/index.js'
 import { createStore } from 'vuex'
 import { GetterFunctions } from './getters/getters'
 import { MutationFunctions } from './mutations/mutations'
@@ -7,35 +13,38 @@ import {
   ComponentParse,
   ComponentVerbatim
 } from '../const/components'
-import makeCollectingEvent from '../const/collectingEvent'
-import makeCollectionObject from '../const/collectionObject'
-import makeTypeMaterial from '../const/typeMaterial'
-import makeLabel from '../const/label'
-import makeIdentifier from '../const/identifier'
-import makeTaxonDetermination from '../const/taxonDetermination'
+import makeCollectingEvent from 'factory/CollectingEvent.js'
+import makeCollectionObject from 'factory/CollectionObject.js'
+import makeTypeMaterial from 'factory/TypeMaterial.js'
+import makeLabel from 'factory/Label.js'
+import makeIdentifier from 'factory/Identifier.js'
+import makeTaxonDetermination from 'factory/TaxonDetermination.js'
+import { reactive } from 'vue'
 
 function makeInitialState () {
-  return {
+  return reactive({
     settings: {
-      saving: false,
-      loading: false,
       increment: false,
-      lastSave: 0,
-      lastChange: 0,
-      saveIdentifier: true,
       isLocked: false,
+      lastChange: 0,
+      lastSave: 0,
+      loading: false,
+      saveIdentifier: true,
+      saving: false,
       locked: {
         biocuration: false,
-        identifier: false,
-        collecting_event: false,
+        biologicalAssociations: false,
+        taxonDeterminations: false,
         coCitations: false,
+        collecting_event: false,
         collection_object: {
-          buffered_determinations: false,
           buffered_collecting_event: false,
+          buffered_determinations: false,
           buffered_other_labels: false,
-          repository_id: false,
-          preparation_type_id: false
+          preparation_type_id: false,
+          repository_id: false
         },
+        identifier: false,
         taxon_determination: {
           otu_id: false,
           year_made: false,
@@ -52,37 +61,34 @@ function makeInitialState () {
       sortable: false
     },
     taxon_determination: makeTaxonDetermination(),
-    identifier: makeIdentifier(),
-    collectingEventIdentifier: {
-      id: undefined,
-      namespace_id: undefined,
-      type: 'Identifier::Local::TripCode',
-      identifier: undefined
-    },
+    identifier: makeIdentifier(IDENTIFIER_LOCAL_CATALOG_NUMBER, COLLECTION_OBJECT),
+    collectingEventIdentifier: makeIdentifier(IDENTIFIER_LOCAL_TRIP_CODE, COLLECTING_EVENT),
     coCitations: [],
+    collecting_event: makeCollectingEvent(),
     collection_object: makeCollectionObject(),
-    collection_event: makeCollectingEvent(),
-    type_material: makeTypeMaterial(),
-    label: makeLabel(),
     geographicArea: undefined,
+    label: makeLabel(COLLECTING_EVENT),
+    type_material: makeTypeMaterial(),
     tmpData: {
       otu: undefined
     },
-    subsequentialUses: 0,
-    identifiers: [],
-    materialTypes: [],
-    determinations: [],
-    preferences: {},
-    project_preferences: undefined,
+    biocurations: [],
+    biologicalAssociations: [],
+    collection_objects: [],
     container: undefined,
     containerItems: [],
-    collection_objects: [],
     depictions: [],
-    COTypes: [],
-    biocurations: [],
-    preparation_type_id: undefined,
-    taxon_determinations: [],
+    determinations: [],
+    identifiers: [],
+    georeferences: [],
+    materialTypes: [],
     namespaceSelected: '',
+    preferences: {},
+    preparation_type_id: undefined,
+    project_preferences: undefined,
+    softValidations: [],
+    subsequentialUses: 0,
+    taxon_determinations: [],
     componentsOrder: {
       leftColumn: [
         'TaxonDeterminationLayout',
@@ -93,7 +99,7 @@ function makeInitialState () {
       ComponentVerbatim: Object.values(ComponentVerbatim),
       ComponentMap: Object.values(ComponentMap)
     }
-  }
+  })
 }
 
 function newStore () {

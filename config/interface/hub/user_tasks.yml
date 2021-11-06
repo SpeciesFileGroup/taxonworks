@@ -211,8 +211,8 @@ new_asserted_distribution_from_map_task:
     - new
 report_dwc_task:
   hub: true
-  name: 'Report DWCA table'
-  description: 'Collection objects with calculated attributes that will ultimately be exported to DWCA.'
+  name: 'Report DwC-A table'
+  description: 'Collection objects with calculated attributes that will ultimately be exported to DwC-A.'
   status: prototype
   categories:
     - collection_object
@@ -259,17 +259,6 @@ dates_index_task:
     - collecting_event
   status: prototype
   description: "Parse the collecting_events table's verbatim label for possible date combinations."
-psu_import_task:
-  hub: true
-  name: 'Import Penn State DWCA'
-  related:
-    - collecting_events
-    - collection_objects
-  categories:
-    - collecting_event
-    - collection_object
-  status: prototype
-  description: 'Import a DWCA file from Penn State.'
 overdue_loans_task:
   hub: true
   name: 'Overdue loans'
@@ -524,7 +513,7 @@ biological_relationship_composer_task:
   categories:
     - biology
   status: prototype
-  description: 'Define and add properties to biological relationships, e.g. things like "host/paraiste".'
+  description: 'Define and add properties to biological relationships, e.g. things like "host/parasite".'
 grid_digitize_task:
   hub: true
   name: 'Grid digitizer'
@@ -597,6 +586,16 @@ gnfinder_task:
     - nomenclature
   status: prototype
   description: 'Show all names in a document.'
+index_dwca_import_task:
+  hub: true
+  name: 'Darwin Core Archive (DwC-A) import'
+  related:
+  categories:
+    - nomenclature
+    - collecting_event
+    - collection_object
+  status: prototype
+  description: 'Import Darwin Core Archive data into project.'
 new_collecting_event_task:
   hub: true
   name: 'New collecting event'
@@ -622,6 +621,14 @@ export_taxonworks_project_task:
   categories:
   status: prototype
   description: 'Generate a downloadable copy of the database with data from this project and community data (Sources, People, Repositories, etc.)'
+dwc_dashboard_task:
+  hub: true
+  name: 'DwC Dashboard'
+  description: 'Report DwC Occurrence metadata, issues, and coverage. Manage DwC-A export.'
+  status: prototype
+  categories:
+    - collection_object
+    - collecting_event
 new_extract_task:
   hub: true
   name: 'New extract'
@@ -631,3 +638,30 @@ new_extract_task:
     - new
   status: prototype
   description: 'Create new extracts, e.g. for DNA purposes.'
+content_by_nomenclature_task:
+  hub: true
+  name: 'Content by nomenclature ("Brock")'
+  related:
+  categories:
+  status: prototype
+  description: 'Report a content block in a taxon name table.'
+new_namespace_task:
+  hub: true
+  name: 'New namespace'
+  related:
+    - collection_object
+    - collecting_event
+  categories:
+    - new
+    - collection_object
+    - collecting_event
+  status: prototype
+  description: 'Create new Namespaces, used in identifiers.'
+
+object_graph_task:
+  hub: true
+  name: 'TODO: Task name'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'

@@ -16,7 +16,6 @@ class CitationsController < ApplicationController
         @citations = Queries::Citation::Filter.new(params).all.where(project_id: sessions_current_project_id).includes(:source)
           .order(:source_id, :pages)
           .page(params[:page]).per(params[:per] || 500)
-        @verbose_object = params[:verbose_object]
       }
     end
   end
@@ -89,7 +88,7 @@ class CitationsController < ApplicationController
 
   def search
     if params[:id].blank?
-      redirect_to citations_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to citations_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to citation_path(params[:id])
     end

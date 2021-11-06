@@ -2,15 +2,15 @@
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
 #
-# This file is the source Rails uses to define your schema when running `rails
-# db:schema:load`. When creating a new database, `rails db:schema:load` tends to
+# This file is the source Rails uses to define your schema when running `bin/rails
+# db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
 # be faster and is potentially less error prone than running all of your
 # migrations from scratch. Old migrations may fail to apply correctly if those
 # migrations use external dependencies or application code.
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_27_181334) do
+ActiveRecord::Schema.define(version: 2021_10_21_151310) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -368,8 +368,8 @@ ActiveRecord::Schema.define(version: 2021_05_27_181334) do
   end
 
   create_table "confidences", id: :serial, force: :cascade do |t|
-    t.string "confidence_object_type", null: false
     t.integer "confidence_object_id", null: false
+    t.string "confidence_object_type", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -488,6 +488,34 @@ ActiveRecord::Schema.define(version: 2021_05_27_181334) do
     t.index ["updated_by_id"], name: "index_data_attributes_on_updated_by_id"
   end
 
+  create_table "dataset_record_fields", force: :cascade do |t|
+    t.integer "position", null: false
+    t.string "value", null: false
+    t.integer "encoded_dataset_record_type", null: false
+    t.integer "project_id", null: false
+    t.integer "import_dataset_id", null: false
+    t.bigint "dataset_record_id", null: false
+    t.index "import_dataset_id, encoded_dataset_record_type, \"position\", substr((value)::text, 1, 1000), dataset_record_id", name: "index_dataset_record_fields_for_filters", unique: true
+    t.index ["dataset_record_id", "position"], name: "index_dataset_record_fields_on_dataset_record_id_and_position", unique: true
+  end
+
+  create_table "dataset_records", force: :cascade do |t|
+    t.string "type", null: false
+    t.string "status", null: false
+    t.jsonb "metadata"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.bigint "project_id"
+    t.bigint "import_dataset_id"
+    t.index ["created_by_id"], name: "index_dataset_records_on_created_by_id"
+    t.index ["import_dataset_id", "type", "id"], name: "index_dataset_records_on_import_dataset_id_and_type_and_id"
+    t.index ["import_dataset_id"], name: "index_dataset_records_on_import_dataset_id"
+    t.index ["project_id"], name: "index_dataset_records_on_project_id"
+    t.index ["updated_by_id"], name: "index_dataset_records_on_updated_by_id"
+  end
+
   create_table "delayed_jobs", id: :serial, force: :cascade do |t|
     t.integer "priority", default: 0, null: false
     t.integer "attempts", default: 0, null: false
@@ -569,8 +597,8 @@ ActiveRecord::Schema.define(version: 2021_05_27_181334) do
   end
 
   create_table "documentation", id: :serial, force: :cascade do |t|
-    t.string "documentation_object_type", null: false
     t.integer "documentation_object_id", null: false
+    t.string "documentation_object_type", null: false
     t.integer "document_id", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -588,7 +616,7 @@ ActiveRecord::Schema.define(version: 2021_05_27_181334) do
   create_table "documents", id: :serial, force: :cascade do |t|
     t.string "document_file_file_name", null: false
     t.string "document_file_content_type", null: false
-    t.bigint "document_file_file_size", null: false
+    t.integer "document_file_file_size", null: false
     t.datetime "document_file_updated_at", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -618,6 +646,8 @@ ActiveRecord::Schema.define(version: 2021_05_27_181334) do
     t.integer "updated_by_id", null: false
     t.bigint "project_id"
     t.boolean "is_public"
+    t.string "type"
+    t.integer "total_records"
     t.index ["created_by_id"], name: "index_downloads_on_created_by_id"
     t.index ["filename"], name: "index_downloads_on_filename"
     t.index ["project_id"], name: "index_downloads_on_project_id"
@@ -697,7 +727,7 @@ ActiveRecord::Schema.define(version: 2021_05_27_181334) do
     t.string "identificationRemarks"
     t.string "identificationVerificationStatus"
     t.string "identifiedBy"
-    t.string "individualCount"
+    t.integer "individualCount"
     t.string "informationWithheld"
     t.string "infraspecificEpithet"
     t.string "institutionCode"
@@ -795,13 +825,16 @@ ActiveRecord::Schema.define(version: 2021_05_27_181334) do
     t.string "vernacularName"
     t.string "waterBody"
     t.string "year"
-    t.string "dwc_occurrence_object_type"
     t.integer "dwc_occurrence_object_id"
+    t.string "dwc_occurrence_object_type"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string "identifiedByID"
+    t.string "recordedByID"
+    t.index ["dwc_occurrence_object_id", "dwc_occurrence_object_type"], name: "dwc_occurrences_object_index"
     t.index ["project_id"], name: "index_dwc_occurrences_on_project_id"
   end
 
@@ -889,6 +922,7 @@ ActiveRecord::Schema.define(version: 2021_05_27_181334) do
     t.string "date_valid_to"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["data_origin"], name: "index_geographic_areas_geographic_items_on_data_origin"
     t.index ["geographic_area_id"], name: "index_geographic_areas_geographic_items_on_geographic_area_id"
     t.index ["geographic_item_id"], name: "index_geographic_areas_geographic_items_on_geographic_item_id"
   end
@@ -906,6 +940,7 @@ ActiveRecord::Schema.define(version: 2021_05_27_181334) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.string "type", null: false
+    t.index "st_centroid(\nCASE type\n    WHEN 'GeographicItem::MultiPolygon'::text THEN (multi_polygon)::geometry\n    WHEN 'GeographicItem::Point'::text THEN (point)::geometry\n    WHEN 'GeographicItem::LineString'::text THEN (line_string)::geometry\n    WHEN 'GeographicItem::Polygon'::text THEN (polygon)::geometry\n    WHEN 'GeographicItem::MultiLineString'::text THEN (multi_line_string)::geometry\n    WHEN 'GeographicItem::MultiPoint'::text THEN (multi_point)::geometry\n    WHEN 'GeographicItem::GeometryCollection'::text THEN (geometry_collection)::geometry\n    ELSE NULL::geometry\nEND)", name: "idx_centroid", using: :gist
     t.index ["created_by_id"], name: "index_geographic_items_on_created_by_id"
     t.index ["geometry_collection"], name: "geometry_collection_gix", using: :gist
     t.index ["line_string"], name: "line_string_gix", using: :gist
@@ -980,7 +1015,7 @@ ActiveRecord::Schema.define(version: 2021_05_27_181334) do
     t.datetime "updated_at", null: false
     t.string "image_file_file_name"
     t.string "image_file_content_type"
-    t.bigint "image_file_file_size"
+    t.integer "image_file_file_size"
     t.datetime "image_file_updated_at"
     t.integer "updated_by_id", null: false
     t.text "image_file_meta"
@@ -989,6 +1024,25 @@ ActiveRecord::Schema.define(version: 2021_05_27_181334) do
     t.index ["image_file_content_type"], name: "index_images_on_image_file_content_type"
     t.index ["project_id"], name: "index_images_on_project_id"
     t.index ["updated_by_id"], name: "index_images_on_updated_by_id"
+  end
+
+  create_table "import_datasets", force: :cascade do |t|
+    t.string "type", null: false
+    t.string "status", null: false
+    t.string "description", null: false
+    t.jsonb "metadata"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.bigint "project_id"
+    t.string "source_file_name"
+    t.string "source_content_type"
+    t.bigint "source_file_size"
+    t.datetime "source_updated_at"
+    t.index ["created_by_id"], name: "index_import_datasets_on_created_by_id"
+    t.index ["project_id"], name: "index_import_datasets_on_project_id"
+    t.index ["updated_by_id"], name: "index_import_datasets_on_updated_by_id"
   end
 
   create_table "imports", id: :serial, force: :cascade do |t|
@@ -1042,8 +1096,8 @@ ActiveRecord::Schema.define(version: 2021_05_27_181334) do
     t.integer "project_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "loan_item_object_type"
     t.integer "loan_item_object_id"
+    t.string "loan_item_object_type"
     t.integer "total"
     t.string "disposition"
     t.index ["created_by_id"], name: "index_loan_items_on_created_by_id"
@@ -1072,7 +1126,7 @@ ActiveRecord::Schema.define(version: 2021_05_27_181334) do
     t.datetime "updated_at", null: false
     t.string "recipient_honorific"
     t.string "recipient_country"
-    t.text "lender_address", null: false
+    t.text "lender_address", default: "Lender's address not provided.", null: false
     t.index ["created_by_id"], name: "index_loans_on_created_by_id"
     t.index ["project_id"], name: "index_loans_on_project_id"
     t.index ["updated_by_id"], name: "index_loans_on_updated_by_id"
@@ -1261,10 +1315,10 @@ ActiveRecord::Schema.define(version: 2021_05_27_181334) do
   end
 
   create_table "origin_relationships", id: :serial, force: :cascade do |t|
-    t.string "old_object_type", null: false
     t.integer "old_object_id", null: false
-    t.string "new_object_type", null: false
+    t.string "old_object_type", null: false
     t.integer "new_object_id", null: false
+    t.string "new_object_type", null: false
     t.integer "position"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1345,8 +1399,8 @@ ActiveRecord::Schema.define(version: 2021_05_27_181334) do
   end
 
   create_table "pinboard_items", id: :serial, force: :cascade do |t|
-    t.string "pinned_object_type", null: false
     t.integer "pinned_object_id", null: false
+    t.string "pinned_object_type", null: false
     t.integer "user_id", null: false
     t.integer "project_id", null: false
     t.integer "position", null: false
@@ -1410,7 +1464,7 @@ ActiveRecord::Schema.define(version: 2021_05_27_181334) do
     t.datetime "updated_at", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.jsonb "preferences", default: "{}", null: false
+    t.jsonb "preferences", default: {}, null: false
     t.string "api_access_token"
     t.index ["created_by_id"], name: "index_projects_on_created_by_id"
     t.index ["updated_by_id"], name: "index_projects_on_updated_by_id"
@@ -1418,8 +1472,8 @@ ActiveRecord::Schema.define(version: 2021_05_27_181334) do
 
   create_table "protocol_relationships", id: :serial, force: :cascade do |t|
     t.integer "protocol_id", null: false
-    t.string "protocol_relationship_object_type", null: false
     t.integer "protocol_relationship_object_id", null: false
+    t.string "protocol_relationship_object_type", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1671,8 +1725,8 @@ ActiveRecord::Schema.define(version: 2021_05_27_181334) do
     t.string "boundary_finder", null: false
     t.boolean "has_border", null: false
     t.string "layout", null: false
-    t.jsonb "metadata_map", default: "{}", null: false
-    t.jsonb "specimen_coordinates", default: "{}", null: false
+    t.jsonb "metadata_map", default: {}, null: false
+    t.jsonb "specimen_coordinates", default: {}, null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1886,7 +1940,9 @@ ActiveRecord::Schema.define(version: 2021_05_27_181334) do
     t.datetime "last_seen_at"
     t.integer "time_active", default: 0
     t.json "preferences", default: {}
+    t.bigint "person_id"
     t.index ["created_by_id"], name: "index_users_on_created_by_id"
+    t.index ["person_id"], name: "index_users_on_person_id"
     t.index ["remember_token"], name: "index_users_on_remember_token"
     t.index ["updated_by_id"], name: "index_users_on_updated_by_id"
   end
@@ -2006,6 +2062,11 @@ ActiveRecord::Schema.define(version: 2021_05_27_181334) do
   add_foreign_key "data_attributes", "projects", name: "data_attributes_project_id_fkey"
   add_foreign_key "data_attributes", "users", column: "created_by_id", name: "data_attributes_created_by_id_fkey"
   add_foreign_key "data_attributes", "users", column: "updated_by_id", name: "data_attributes_updated_by_id_fkey"
+  add_foreign_key "dataset_record_fields", "dataset_records"
+  add_foreign_key "dataset_record_fields", "import_datasets"
+  add_foreign_key "dataset_record_fields", "projects"
+  add_foreign_key "dataset_records", "import_datasets"
+  add_foreign_key "dataset_records", "projects"
   add_foreign_key "depictions", "sled_images"
   add_foreign_key "descriptors", "projects"
   add_foreign_key "descriptors", "users", column: "created_by_id"
@@ -2057,6 +2118,7 @@ ActiveRecord::Schema.define(version: 2021_05_27_181334) do
   add_foreign_key "images", "projects", name: "images_project_id_fkey"
   add_foreign_key "images", "users", column: "created_by_id", name: "images_created_by_id_fkey"
   add_foreign_key "images", "users", column: "updated_by_id", name: "images_updated_by_id_fkey"
+  add_foreign_key "import_datasets", "projects"
   add_foreign_key "labels", "projects"
   add_foreign_key "labels", "users", column: "created_by_id", name: "labels_created_by_id_fk"
   add_foreign_key "labels", "users", column: "updated_by_id", name: "labels_updated_by_id_fk"
@@ -2229,6 +2291,7 @@ ActiveRecord::Schema.define(version: 2021_05_27_181334) do
   add_foreign_key "type_materials", "taxon_names", column: "protonym_id", name: "type_materials_protonym_id_fkey"
   add_foreign_key "type_materials", "users", column: "created_by_id", name: "type_materials_created_by_id_fkey"
   add_foreign_key "type_materials", "users", column: "updated_by_id", name: "type_materials_updated_by_id_fkey"
+  add_foreign_key "users", "people"
   add_foreign_key "users", "users", column: "created_by_id", name: "users_created_by_id_fkey"
   add_foreign_key "users", "users", column: "updated_by_id", name: "users_updated_by_id_fkey"
 end

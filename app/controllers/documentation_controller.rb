@@ -80,7 +80,7 @@ class DocumentationController < ApplicationController
 
   def search
     if params[:id].blank?
-      redirect_to documentation_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to documentation_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to documentation_path(params[:id])
     end

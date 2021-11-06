@@ -5,37 +5,20 @@
     </template>
     <template #body>
       <div class="horizontal-left-content align-end">
-        <div class="label-above margin-small-right">
-          <label>Day</label>
-          <input
-            type="text"
-            class="input-xsmall-width"
-            v-model="extract.day_made">
-        </div>
-        <div class="label-above margin-small-right">
-          <label>Month</label>
-          <input
-            type="text"
-            class="input-xsmall-width"
-            v-model="extract.month_made">
-        </div>
-        <div class="label-above">
-          <label>Year</label>
-          <input
-            type="text"
-            class="input-xsmall-width"
-            v-model="extract.year_made">
-        </div>
+        <date-fields
+          v-model:year="extract.year_made"
+          v-model:month="extract.month_made"
+          v-model:day="extract.day_made"
+        />
         <div class="horizontal-left-content align-end margin-small-left">
+          <date-now
+            v-model:year="extract.year_made"
+            v-model:month="extract.month_made"
+            v-model:day="extract.day_made"
+          />
           <button
             type="button"
-            class="button normal-input button-default margin-small-right"
-            @click="setActualDate">
-            Now
-          </button>
-          <button
-            type="button"
-            class="button normal-input button-default"
+            class="button normal-input button-default margin-small-left"
             @click="setYear">
             This year
           </button>
@@ -53,23 +36,20 @@
 import LockComponent from 'components/ui/VLock/index.vue'
 import componentExtend from './mixins/componentExtend'
 import BlockLayout from 'components/layout/BlockLayout'
+import DateFields from 'components/ui/Date/DateFields.vue'
+import DateNow from 'components/ui/Date/DateNow.vue'
 
 export default {
   mixins: [componentExtend],
 
   components: {
     LockComponent,
-    BlockLayout
+    BlockLayout,
+    DateFields,
+    DateNow
   },
 
   methods: {
-    setActualDate () {
-      const today = new Date()
-      this.extract.day_made = today.getDate()
-      this.extract.month_made = today.getMonth() + 1
-      this.extract.year_made = today.getFullYear()
-    },
-
     setYear () {
       this.extract.day_made = undefined
       this.extract.month_made = undefined

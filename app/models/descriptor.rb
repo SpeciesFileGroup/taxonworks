@@ -48,7 +48,6 @@ class Descriptor < ApplicationRecord
 
   # @return [String] name of the descriptor in a particular language
   # @params target [Symbol] one of :key, :description, nil
-  # TODO: This should be a helper method, not a model method
   def target_name(target, language_id)
     n = self.name
     a = nil
@@ -61,14 +60,18 @@ class Descriptor < ApplicationRecord
     unless language_id.nil?
       case target
       when :key
-        a = AlternateValue::Translation.where(alternate_value_object: self, language_id: language_id, alternate_value_object_attribute: 'key_name').first
+        a = AlternateValue::Translation.
+          where(alternate_value_object: self, language_id: language_id).
+          where("(alternate_values.alternate_value_object_attribute = 'key_name' OR alternate_values.alternate_value_object_attribute = 'name')").
+          order(:alternate_value_object_attribute).pluck(:value).first
       when :description
-        a = AlternateValue::Translation.where(alternate_value_object: self, language_id: language_id, alternate_value_object_attribute: 'description_name').first
+        a = AlternateValue::Translation.
+          where(alternate_value_object: self, language_id: language_id).
+          where("(alternate_values.alternate_value_object_attribute = 'description_name' OR alternate_values.alternate_value_object_attribute = 'name')").
+          order(:alternate_value_object_attribute).pluck(:value).first
       end
-      a = AlternateValue::Translation.where(alternate_value_object: self, language_id: language_id, alternate_value_object_attribute: 'name').first if a.nil?
-      n = a.value unless a.nil?
     end
-    return n
+    return a.nil? ? n : a
   end
 
   def qualitative?

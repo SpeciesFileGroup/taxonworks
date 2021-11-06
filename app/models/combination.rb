@@ -58,8 +58,7 @@
 class Combination < TaxonName
 
   # The ranks that can be used to build combinations.  
-  APPLICABLE_RANKS = %w{genus subgenus section subsection
-                        series subseries species subspecies variety subvariety form subform}.freeze
+  APPLICABLE_RANKS = %w{genus subgenus section subsection series subseries species subspecies variety subvariety form subform}.freeze
 
   before_validation :set_parent
   validate :validate_absence_of_subject_relationships
@@ -120,7 +119,7 @@ class Combination < TaxonName
     has_one "#{rank}_taxon_name_relationship".to_sym, -> {
       joins(:combination_relationships)
       where(taxon_name_relationships: {type: "TaxonNameRelationship::Combination::#{rank.capitalize}"}) },
-    class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
+    class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id, inverse_of: :object_taxon_name
 
     has_one rank.to_sym, -> {
       joins(:combination_relationships)
@@ -128,6 +127,8 @@ class Combination < TaxonName
     }, through: "#{rank}_taxon_name_relationship".to_sym, source: :subject_taxon_name
 
     accepts_nested_attributes_for rank.to_sym
+    
+    accepts_nested_attributes_for "#{rank}_taxon_name_relationship".to_sym, allow_destroy: true
 
     attr_accessor "#{rank}_id".to_sym
     method = "#{rank}_id"
@@ -219,8 +220,7 @@ class Combination < TaxonName
       )
     end
 
-    b = b.group(j['id']).having(sr['object_taxon_name_id'].count.eq(protonym_ids.count))
-
+    b = b.group(j['id']).having(sr['object_taxon_name_id'].count.eq(protonym_ids.count)).where(sr['type'].in(::COMBINATION_TAXON_NAME_RELATIONSHIP_NAMES))
     b = b.as('join_alias')
 
     Protonym.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(s['id']))))

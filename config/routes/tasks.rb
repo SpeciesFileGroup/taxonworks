@@ -1,4 +1,17 @@
 scope :tasks do
+  scope :dwca_import, controller: 'tasks/dwca_import/dwca_import' do
+    get :index, as: 'index_dwca_import_task'
+    post 'upload'
+    post 'update_catalog_number_namespace'
+    post 'set_import_settings'
+  end
+
+  scope :namespaces do
+    scope :new_namespace, controller: 'tasks/namespaces/new_namespace' do
+      get '/', action: :index, as: 'new_namespace_task'
+    end
+  end
+
   scope :extracts do
     scope :new_extract, controller: 'tasks/extracts/new_extract' do
       get '/', action: :index, as: 'new_extract_task'
@@ -18,6 +31,16 @@ scope :tasks do
       get 'new', action: 'new', as: 'new_asserted_distribution_from_map_task'
       get 'generate_choices'
       post 'create', action: 'create', as: 'create_asserted_distribution_from_map_task'
+    end
+  end
+
+  scope :dwc do
+    scope :dashboard, controller: 'tasks/dwc/dashboard' do
+      get '/', action: :index, as: 'dwc_dashboard_task'
+      get :index_versions, defaults: {format: :json}
+
+      post 'generate_download', as: 'generate_dwc_download_task', defaults: {format: :json}
+      post :create_index, as: 'create_dwc_index_task', defaults: {format: :json}
     end
   end
 
@@ -61,6 +84,10 @@ scope :tasks do
   end
 
   scope :content do
+      scope :by_nomenclature, controller: 'tasks/content/by_nomenclature' do
+        get '/', action: :index, as: 'content_by_nomenclature_task'
+      end
+
     scope :editor, controller: 'tasks/content/editor' do
       get 'index', as: 'index_editor_task'
       get 'recent_topics', as: 'content_editor_recent_topics_task'
@@ -81,15 +108,6 @@ scope :tasks do
 
     scope :new_image, controller: 'tasks/images/new_image' do
       get :index, as: 'index_new_image_task'
-    end
-  end
-
-  scope :import do
-    scope :dwca do
-      scope :psu_import, controller: 'tasks/import/dwca/psu_import' do
-        get 'index', as: 'psu_import_task'
-        post 'do_psu_import', as: 'do_psu_import'
-      end
     end
   end
 
@@ -442,4 +460,11 @@ scope :tasks do
   scope :usage, controller: 'tasks/usage/user_activity' do
     get ':id', action: 'report', as: 'user_activity_report_task'
   end
+
+  scope :graph do
+    scope :object, controller: 'tasks/graph/object_graph' do
+      get '/', action: :index, as: 'object_graph_task'
+    end
+  end
+
 end

@@ -6,7 +6,7 @@
     <div class="body">
       <ul class="no_bullets">
         <li
-          v-for="(label, key) in types"
+          v-for="(label, key) in TYPES"
           :key="key">
           <label>
             <input
@@ -32,6 +32,7 @@ export default {
       type: String,
       default: undefined
     },
+
     descriptorId: {
       type: [String, Number],
       default: undefined
@@ -53,7 +54,7 @@ export default {
 
   data () {
     return {
-      types: TYPES()
+      TYPES
     }
   }
 }

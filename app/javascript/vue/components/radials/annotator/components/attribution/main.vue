@@ -72,6 +72,7 @@
           :autocomplete-params="{
             roles: ['Collector']
           }"
+          label="cached"
           :autocomplete="false"
           @selected="addRole">
           <template #header>
@@ -111,6 +112,7 @@ import AnnotatorExtended from '../annotatorExtend.js'
 import OrganizationPicker from 'components/organizationPicker'
 import DisplayList from 'components/displayList'
 import SmartSelector from 'components/ui/SmartSelector'
+import { findRole } from 'helpers/people/people.js'
 
 export default {
   mixins: [CRUD, AnnotatorExtended],
@@ -286,12 +288,8 @@ export default {
       }
     },
 
-    roleExist (id) {
-      return this.roleList.find(role => !role?._destroy && (role.person_id === id || role?.person?.id === id))
-    },
-
     addRole (role) {
-      if (!this.roleExist(role.id)) {
+      if (!findRole(this.roleList, role.id)) {
         this.roleList.push({
           first_name: role.first_name,
           last_name: role.last_name,

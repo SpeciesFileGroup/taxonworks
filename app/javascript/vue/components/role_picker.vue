@@ -83,6 +83,7 @@
       class="table-entrys-list"
       element="ul"
       v-model="roles_attributes"
+      item-key="id"
       @end="onSortable">
       <template #item="{ element, index }">
         <li
@@ -396,10 +397,12 @@ export default {
 
     li {
       margin: 0px;
-      padding: 6px;
+      padding: 1em 0;
       display: flex;
       justify-content: space-between;
-      border-top: 1px solid #f5f5f5;
+      border-bottom: 1px solid #f5f5f5;
     }
+
+
   }
 </style>

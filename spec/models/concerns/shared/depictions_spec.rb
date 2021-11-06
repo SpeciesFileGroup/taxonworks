@@ -3,8 +3,8 @@ require 'rails_helper'
 describe 'Depictions', type: :model, group: [:images] do
   let(:instance_with_depiction) { TestDepictionable.new }
 
-  let(:image1) { fixture_file_upload(Rails.root + 'spec/files/images/tiny.png', 'image/png') }
-  let(:image2) { fixture_file_upload(Rails.root + 'spec/files/images/W3$rd fi(le%=name!.png', 'image/png') }
+  let(:image1) { Rack::Test::UploadedFile.new(Rails.root + 'spec/files/images/tiny.png', 'image/png') }
+  let(:image2) { Rack::Test::UploadedFile.new(Rails.root + 'spec/files/images/W3$rd fi(le%=name!.png', 'image/png') }
 
   let(:image_attributes) {
     {image_file: image1}

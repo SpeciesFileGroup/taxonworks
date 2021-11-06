@@ -44,6 +44,7 @@
         v-model="params.identifier"/>
       <tags-component
         class="margin-large-bottom"
+        target="Image"
         v-model="params.keywords"/>
       <users-component
         class="margin-large-bottom"
@@ -55,7 +56,7 @@
 <script>
 
 import SpinnerComponent from 'components/spinner'
-import platformKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getPlatformKey.js'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
 import BiocurationsComponent from 'tasks/collection_objects/filter/components/filters/biocurations'
 import TagsComponent from 'tasks/sources/filter/components/filters/tags'
@@ -84,6 +85,16 @@ export default {
   directives: {
     hotkey
   },
+
+  emits: [
+    'newSearch',
+    'pagination',
+    'params',
+    'reset',
+    'response',
+    'result',
+    'urlRequest'
+  ],
 
   computed: {
     emptyParams () {
@@ -132,6 +143,7 @@ export default {
         this.$emit('result', response.body)
         this.$emit('urlRequest', response.request.responseURL)
         this.$emit('response', response)
+        this.$emit('pagination', response)
         this.$emit('params', params)
         this.searching = false
         if (response.body.length === this.params.settings.per) {

@@ -179,6 +179,9 @@ end
 
 resources :contents do
   concerns [:data_routes]
+  collection do
+    get :select_options, defaults: {format: :json}
+  end
 end
 
 resources :controlled_vocabulary_terms do
@@ -234,6 +237,15 @@ resources :downloads, except: [:edit, :new, :create] do
   end
   member do
     get 'file'
+  end
+end
+
+resources :dwc_occurrences, only: [:create] do
+  collection do
+    get 'metadata', defaults: {format: :json}
+    get 'predicates', defaults: {format: :json}
+    get 'status', defaults: {format: :json}
+    get 'collector_id_metadata', defaults: {format: :json}
   end
 end
 
@@ -314,10 +326,22 @@ resources :images do
   end
 end
 
+resources :import_datasets do
+  concerns [:data_routes]
+  member do
+    post 'import'
+    post 'stop_import'
+  end
+  resources :dataset_records, only: [:index, :create, :show, :update, :destroy] do
+    collection do
+      get 'autocomplete_data_fields'
+      patch 'set_field_value'
+    end
+  end
+end
+
 resources :keywords, only: [] do
   collection do
-    get :autocomplete
-    get :lookup_keyword
     get :select_options, defaults: {format: :json}
   end
 end
@@ -368,6 +392,7 @@ resources :namespaces do
 end
 
 match 'observation_matrices/row/', to: 'observation_matrices#row', via: :get, method: :json
+match 'observation_matrices/column/', to: 'observation_matrices#column', via: :get, method: :json
 resources :observation_matrices do
   concerns [:data_routes]
 

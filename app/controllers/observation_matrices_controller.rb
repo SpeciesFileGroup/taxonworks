@@ -92,7 +92,7 @@ class ObservationMatricesController < ApplicationController
 
   def search
     if params[:id].blank?
-      redirect_to observation_matrices_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to observation_matrices_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to observation_matrix_path(params[:id])
     end
@@ -153,6 +153,11 @@ class ObservationMatricesController < ApplicationController
     @observation_matrix_row = ObservationMatrixRow.where(project_id: sessions_current_project_id).find(params.require(:observation_matrix_row_id))
   end
 
+  def column
+    @observation_matrix_column = ObservationMatrixColumn.where(project_id: sessions_current_project_id).find(params.require(:observation_matrix_column_id))
+  end
+
+
   def download
     send_data Export::Download.generate_csv(ObservationMatrix.where(project_id: sessions_current_project_id)), type: 'text', filename: "observation_matrices_#{DateTime.now}.csv"
   end
@@ -184,6 +189,7 @@ class ObservationMatricesController < ApplicationController
       include_otus: 'true',
       include_collection_objects: 'true',
       include_descriptors: 'true',
+      include_otu_depictions: 'true',
       include_matrix: 'true', 
       include_trees: 'false',
       rdf: false }.merge!(

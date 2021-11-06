@@ -10,6 +10,7 @@
       :autocomplete-params="{
         roles: ['Collector']
       }"
+      label="cached"
       :autocomplete="false"
       @selected="addRole">
       <template #header>
@@ -34,19 +35,19 @@
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import RolePicker from 'components/role_picker.vue'
 import extendCE from '../mixins/extendCE.js'
+import { findRole } from 'helpers/people/people.js'
 
 export default {
   mixins: [extendCE],
+
   components: {
     SmartSelector,
     RolePicker
   },
+
   methods: {
-    roleExist (id) {
-      this.collectingEvent.roles_attributes.find(role => !role?._destroy && role.person_id === id)
-    },
     addRole (role) {
-      if (!this.roleExist(role.id)) {
+      if (!findRole(this.collectingEvent.roles_attributes, role.id)) {
         this.$refs.rolepicker.addCreatedPerson({ object_id: role.id, label: role.cached })
       }
     }

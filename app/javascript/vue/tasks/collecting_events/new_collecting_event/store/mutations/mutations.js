@@ -10,6 +10,7 @@ import setSoftValidations from './setSoftValidations'
 import setStore from './setStore'
 import updateLastChange from './updateLastChange'
 import updateLastSave from './updateLastSave'
+import setUnit from './setUnit'
 
 const MutationNames = {
   AddGeoreference: 'addGeoreference',
@@ -23,7 +24,8 @@ const MutationNames = {
   SetSoftValidations: 'setSoftValidations',
   SetStore: 'setStore',
   UpdateLastChange: 'updateLastChange',
-  UpdateLastSave: 'updateLastSave'
+  UpdateLastSave: 'updateLastSave',
+  SetUnit: 'setUnit'
 }
 
 const MutationFunctions = {
@@ -37,6 +39,7 @@ const MutationFunctions = {
   [MutationNames.SetQueueGeoreferences]: setQueueGeoreferences,
   [MutationNames.SetSoftValidations]: setSoftValidations,
   [MutationNames.SetStore]: setStore,
+  [MutationNames.SetUnit]: setUnit,
   [MutationNames.UpdateLastChange]: updateLastChange,
   [MutationNames.UpdateLastSave]: updateLastSave
 }

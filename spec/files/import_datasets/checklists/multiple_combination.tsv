@@ -1,0 +1,7 @@
+taxonID	parentNameUsageID	parentNameUsage	acceptedNameUsageID	acceptedNameUsage	scientificName	kingdom	class	order	family	genus	subgenus	specificEpithet	infraspecificEpithet	taxonRank	scientificNameAuthorship	taxonomicStatus	originalNameUsage	originalNameUsageID	namePublishedInYear	nomenclaturalCode
+429073			429073	Arnoldius Dubovikoff, 2005	Arnoldius	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Dubovikoff, 2005	valid	Arnoldius Dubovikoff, 2005	429073	2005	ICZN
+429122			429122	Tapinoma Foerster, 1850	Tapinoma	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Foerster, 1850	valid	Tapinoma Foerster, 1850	429122	1850	ICZN
+429074			429074	Bothriomyrmex Emery, 1869	Bothriomyrmex	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Emery, 1869	valid	Bothriomyrmex Emery, 1869	429074	1869	ICZN
+431406	429073	Arnoldius Dubovikoff, 2005	431406	Arnoldius pusillus (Mayr, 1876)	Arnoldius pusillus	Animalia	Insecta	Hymenoptera	Formicidae	Arnoldius		pusillus		Species	(Mayr, 1876)	valid	Tapinoma pusillum Mayr, 1876	456676	1876	ICZN
+456676	429122	Tapinoma Foerster, 1850	431406	Arnoldius pusillus (Mayr, 1876)	Tapinoma pusillum	Animalia	Insecta	Hymenoptera	Formicidae	Tapinoma		pusillum		Species	Mayr, 1876	obsolete combination	Tapinoma pusillum Mayr, 1876	456676	1876	ICZN
+483958	429074	Bothriomyrmex Emery, 1869	431406	Arnoldius pusillus (Mayr, 1876)	Bothriomyrmex pusillus	Animalia	Insecta	Hymenoptera	Formicidae	Bothriomyrmex		pusillus		Species	(Mayr, 1876)	obsolete combination	Tapinoma pusillum Mayr, 1876	456676	1876	ICZN

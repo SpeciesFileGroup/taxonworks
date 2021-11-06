@@ -1,9 +1,0 @@
-<%= form_tag url, multipart: true do -%>
-    <%= file_field_tag(:file) -%><br>
-
-    <%= label_tag(:data_origin, 'Namespace for collection object\'s catalog number',
-                  title: 'Choose the namespace for the identifier to be applied to the collection object.') -%>
-    <%= namespace_select_tag(:dwca_namespace) -%><br>
-    <%= content_for :warn_level -%>
-    <%= submit_tag submit -%>
-<% end %>

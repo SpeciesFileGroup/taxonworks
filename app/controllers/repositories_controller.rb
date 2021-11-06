@@ -71,14 +71,14 @@ class RepositoriesController < ApplicationController
 
   def search
     if params[:id].blank?
-      redirect_to repositories_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to repositories_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to repository_path(params[:id])
     end
   end
 
   def autocomplete
-    @repositories = Queries::Repository::Autocomplete.new(params[:term], autocomplete_params).autocomplete
+    @repositories = Queries::Repository::Autocomplete.new(params[:term], **autocomplete_params).autocomplete
   end
 
   # GET /repositories/download
@@ -94,7 +94,7 @@ class RepositoriesController < ApplicationController
   private
 
   def autocomplete_params
-    params.permit(alternate_value_type: []).to_h.symbolize_keys
+    params.permit(alternate_value_type: []).merge(project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 
   def set_repository

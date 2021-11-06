@@ -83,11 +83,34 @@
                     />
                   </div>
                 </template>
-                <create-component
-                  v-if="!hideSaveButton"
-                  :descriptor="descriptor"
-                  @save="saveDescriptor(descriptor)"
-                />
+                <template v-if="!hideSaveButton">
+                  <v-btn
+                    color="create"
+                    medium
+                    :disabled="!descriptor.name"
+                    @click="saveDescriptor(descriptor, false)"
+                  >
+                    {{
+                      descriptor.id
+                        ? 'Update'
+                        : 'Create'
+                    }}
+                  </v-btn>
+                  <v-btn
+                    v-if="matrix"
+                    class="margin-small-left"
+                    color="create"
+                    medium
+                    :disabled="!descriptor.name"
+                    @click="saveDescriptor(descriptor)"
+                  >
+                    {{
+                      descriptor.id
+                        ? 'Update and return to matrix'
+                        : 'Create and return to matrix'
+                    }}
+                  </v-btn>
+                </template>
               </div>
             </div>
           </template>
@@ -118,15 +141,16 @@ import PreviewComponent from './components/preview/preview.vue'
 import GeneComponent from './components/gene/gene.vue'
 import setParam from 'helpers/setParam'
 import DefaultPin from 'components/getDefaultPin'
-import CreateComponent from './components/save/save.vue'
+import VBtn from 'components/ui/VBtn/index.vue'
+import makeDescriptor from 'factory/Descriptor.js'
 import { RouteNames } from 'routes/routes'
 import {
   Descriptor,
   ObservationMatrix,
   ObservationMatrixColumnItem
 } from 'routes/endpoints'
-
-import TYPES from './const/types'
+import { DESCRIPTOR_GENE } from 'constants/index.js'
+import DESCRIPTOR_TYPE from './const/types'
 
 export default {
   components: {
@@ -140,7 +164,7 @@ export default {
     Spinner,
     Autocomplete,
     DefaultPin,
-    CreateComponent
+    VBtn
   },
 
   computed: {
@@ -157,7 +181,7 @@ export default {
     },
 
     sectionName () {
-      return TYPES()[this.descriptor.type]
+      return DESCRIPTOR_TYPE[this.descriptor.type]
     },
 
     hideSaveButton () {
@@ -172,10 +196,10 @@ export default {
   data () {
     return {
       matrix: undefined,
-      descriptor: this.newDescriptor(),
+      descriptor: makeDescriptor(),
       loading: false,
       saving: false,
-      hideSaveButtonFor: ['Descriptor::Gene']
+      hideSaveButtonFor: [DESCRIPTOR_GENE]
     }
   },
 
@@ -195,21 +219,8 @@ export default {
 
   methods: {
     resetDescriptor () {
-      this.descriptor = this.newDescriptor()
+      this.descriptor = makeDescriptor()
       this.setParameters()
-    },
-
-    newDescriptor () {
-      return {
-        id: undefined,
-        type: undefined,
-        name: undefined,
-        description: undefined,
-        description_name: undefined,
-        key_name: undefined,
-        short_name: undefined,
-        weight: undefined
-      }
     },
 
     saveDescriptor (descriptor, redirect = true) {

@@ -1,3 +1,1 @@
-export default function(state) {
-  return state.biocurations
-}
+export default state => state.biocurations

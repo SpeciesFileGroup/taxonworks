@@ -13,8 +13,8 @@
       <span
         class="middle"
         v-if="otuSelected"
-        >
-        <span 
+      >
+        <span
           v-html="otuSelected"
           class="margin-small-right"/>
         <span
@@ -28,27 +28,11 @@
     </div>
     <div class="field">
       <label>Date made</label>
-      <input
-        class="date-input"
-        type="number"
-        placeholder="YYYY"
-        v-model="determination.year_made"
-        min="1735"
-        max="3000">
-      <input
-        class="date-input"
-        type="number"
-        placeholder="MM"
-        v-model="determination.month_made"
-        min="1"
-        max="12">
-      <input
-        class="date-input"
-        type="number"
-        placeholder="DD"
-        v-model="determination.day_made"
-        min="1"
-        max="31">
+      <date-fields
+        v-model:year="determination.year_made"
+        v-model:month="determination.month_made"
+        v-model:day="determination.day_made"
+      />
     </div>
     <button
       @click="setDeterminations()"
@@ -60,7 +44,7 @@
 </template>
 <script>
 
-import { createTaxonDetermination } from '../request/resources'
+import DateFields from 'components/ui/Date/DateFields.vue'
 import { TaxonDetermination } from 'routes/endpoints'
 import { MutationNames } from '../store/mutations/mutations'
 import rolePicker from 'components/role_picker.vue'
@@ -69,7 +53,8 @@ import OtuPicker from 'components/otu/otu_picker/otu_picker'
 export default {
   components: {
     OtuPicker,
-    rolePicker
+    rolePicker,
+    DateFields
   },
   props: {
     list: {
@@ -82,7 +67,7 @@ export default {
   computed: {
     validateFields () {
       return this.determination.otu_id &&
-						this.list.length
+        this.list.length
     },
     roles: {
       get () {
@@ -93,7 +78,7 @@ export default {
       }
     }
   },
-  data: function () {
+  data () {
     return {
       otuSelected: undefined,
       determination: {
@@ -126,8 +111,3 @@ export default {
   }
 }
 </script>
-<style scoped>
-	.date-input {
-		width: 95px;
-	}
-</style>

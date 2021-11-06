@@ -3,7 +3,7 @@ json.data do
     TaxonWorks::Vendor::Biodiversity::RANKS.each do |r|
       json.set! r do
         json.array! @result[:protonyms][r] do |t|
-          json.partial! '/taxon_names/base_attributes', taxon_name: t
+          json.partial! '/taxon_names/attributes', taxon_name: t
         end
       end
     end
@@ -19,7 +19,7 @@ json.other_matches do
   @result[:other_matches].keys.each do |k|
     json.set! k do
       json.array! @result[:other_matches][k] do |t|
-        json.partial! '/taxon_names/base_attributes', taxon_name: t
+        json.partial! '/taxon_names/attributes', taxon_name: t
       end
     end
   end

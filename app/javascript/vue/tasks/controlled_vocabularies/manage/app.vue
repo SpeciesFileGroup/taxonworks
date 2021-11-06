@@ -40,7 +40,7 @@
               />
             </div>
             <div class="field">
-              <label>CSS Color</label>
+              <label>Label color</label>
               <input
                 type="color"
                 v-model="controlled_vocabulary_term.css_color">

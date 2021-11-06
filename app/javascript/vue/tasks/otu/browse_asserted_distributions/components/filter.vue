@@ -61,7 +61,7 @@ export default {
     },
 
     search () {
-      const params = Object.assign({}, this.params.base)
+      const params = { ...this.params.base }
 
       this.searching = true
       AssertedDistribution.where(params).then(response => {
@@ -80,7 +80,8 @@ export default {
       return {
         base: {
           otu_id: undefined,
-          geo_json: true
+          embed: ['shape'],
+          extend: ['geographic_area']
         }
       }
     },

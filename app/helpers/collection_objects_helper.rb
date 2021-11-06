@@ -4,7 +4,7 @@ module CollectionObjectsHelper
   #   a descriptor including the identifier and determination
   def collection_object_tag(collection_object)
     return nil if collection_object.nil?
-    a = [ 
+    a = [
       collection_object_deaccession_tag(collection_object),
       collection_object_identifier_tag(collection_object),
       taxon_determination_tag(collection_object.taxon_determinations.order(:position).first)
@@ -80,7 +80,8 @@ module CollectionObjectsHelper
   #    also checks virtual container for identifier by proxy
   def collection_object_visualized_identifier(collection_object)
     return nil if collection_object.nil?
-    i = collection_object.identifiers&.first
+    i = collection_object.preferred_catalog_number # see delegation in collection_object.rb
+    i ||= collection_object.identifiers.order(:position)&.first
     return  [:collection_object, identifier_tag(i)] if i
     j = collection_object&.container&.identifiers&.first
     return [:container, identifier_tag(j)] if j
@@ -125,7 +126,7 @@ module CollectionObjectsHelper
 
   def dwc_occurrence_table_row_tag(dwc_occurrence)
     o = metamorphosize_if(dwc_occurrence.dwc_occurrence_object)
-    content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do
+    content_tag(:tr, class: :contextMenuCells) do
       [CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.collect{|k| content_tag(:td, dwc_occurrence.send(k))}.join,
        fancy_show_tag(o),
        fancy_edit_tag(o)

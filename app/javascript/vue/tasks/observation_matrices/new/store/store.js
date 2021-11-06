@@ -8,7 +8,8 @@ function makeInitialState () {
     settings: {
       loadingRows: false,
       loadingColumns: false,
-      sortable: false
+      sortable: false,
+      softValidations: false
     },
     configParams: {
       per: 500

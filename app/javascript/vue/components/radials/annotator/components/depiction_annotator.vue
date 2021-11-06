@@ -23,7 +23,8 @@
       </div>
       <div class="field">
         <textarea
-          class="normal-input"
+          class="normal-input full_width margin-small-top margin-small-bottom padding-medium"
+          rows="5"
           type="text"
           v-model="depiction.caption"
           placeholder="Caption"
@@ -110,6 +111,7 @@
         :search="false"
         :target="objectType"
         :add-tabs="['new', 'filter']"
+        pin-section="Images"
         @selected="createDepiction">
         <template #new>
           <dropzone
@@ -320,19 +322,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss">
-.radial-annotator {
-  .depiction_annotator {
-    button {
-      min-width: 100px;
-    }
-    textarea {
-      padding-top: 14px;
-      padding-bottom: 14px;
-      width: 100%;
-      height: 100px;
-    }
-  }
-}
-</style>

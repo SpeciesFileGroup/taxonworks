@@ -2,7 +2,7 @@ class ImagesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
   after_action -> { set_pagination_headers(:images) }, only: [:index, :api_index], if: :json_request?
 
-  before_action :set_image, only: [:show, :api_show, :edit, :update, :destroy, :rotate]
+  before_action :set_image, only: [:show, :edit, :update, :destroy, :rotate]
 
   # GET /images
   # GET /images.json
@@ -35,6 +35,11 @@ class ImagesController < ApplicationController
 
   # GET /api/v1/images/:id
   def api_show
+    @image = Image.where(project_id: sessions_current_project_id).find_by(id: params[:id])
+    @image ||= Image.where(project_id: sessions_current_project_id).find_by(image_file_fingerprint: params[:id])
+
+    render plain: 'Not found. You may need to add a &project_token= param to the URL currently in your address bar to access these data. See https://api.taxonworks.org/ for more.', status: 404 and return if @image.nil?
+
     render '/images/api/v1/show'
   end
 
@@ -99,7 +104,7 @@ class ImagesController < ApplicationController
   # TODO: remove for /images.json
   def search
     if params[:id].blank?
-      redirect_to images_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to images_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to image_path(params[:id])
     end

@@ -1,1 +1,3 @@
-export default (state, value) => { state.componentsOrder = value }
+export default (state, value) => {
+  state.componentsOrder = value
+}

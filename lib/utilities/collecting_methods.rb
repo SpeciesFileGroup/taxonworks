@@ -73,7 +73,7 @@ module Utilities::CollectingMethods
   end
 
   def self.method_regex_from_verbatim_label(text)
-    text = ' ' + text.downcase + ' '
+    text = ' ' + text.downcase.squish + ' '
     METHODS.each do |k, v|
       if text =~ /[\s,.;:\/|\(\)-]#{k}[\s,.;:\/|\(\)-]/
         return {verbatim_method: v}

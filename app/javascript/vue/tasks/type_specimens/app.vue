@@ -28,7 +28,7 @@
           class="cright item separate-left">
           <div id="cright-panel">
             <type-box class="separate-bottom"/>
-            <soft-validation/>
+            <soft-validation :validations="softValidations" />
           </div>
         </div>
       </div>
@@ -38,20 +38,23 @@
 
 <script>
 
-import SoftValidation from './components/softValidation.vue'
+import SoftValidation from 'components/soft_validations/panel.vue'
 import nameSection from './components/nameSection.vue'
 import typeMaterialSection from './components/typeMaterial.vue'
 import metadataSection from './components/metadataSection.vue'
 import typeBox from './components/typeBox.vue'
 import spinner from 'components/spinner.vue'
+import platformKey from 'helpers/getPlatformKey.js'
+import setParamsId from 'helpers/setParam.js'
 
 import ActionNames from './store/actions/actionNames'
 import { GetterNames } from './store/getters/getters'
-import platformKey from 'helpers/getMacKey.js'
+import { RouteNames } from 'routes/routes'
 
-import setParamsId from './helpers/setParamsId'
 
 export default {
+  name: 'NewTypeMaterial',
+
   components: {
     SoftValidation,
     nameSection,
@@ -60,70 +63,82 @@ export default {
     metadataSection,
     spinner
   },
+
   computed: {
     taxonMaterial () {
       return this.$store.getters[GetterNames.GetTaxon]
     },
+
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
     },
+
     settings () {
       return this.$store.getters[GetterNames.GetSettings]
     },
+
     isNew () {
       return this.$store.getters[GetterNames.GetTypeMaterial].id ? 'Edit' : 'New'
     },
+
     shortcuts () {
       const keys = {}
 
       keys[`${platformKey()}+t`] = this.switchTaxonNameTask
 
       return keys
+    },
+
+    softValidations () {
+      return this.$store.getters[GetterNames.GetSoftValidation]
     }
   },
-  mounted: function () {
+
+  mounted () {
     this.loadTaxonTypes()
     TW.workbench.keyboard.createLegend(`${platformKey()}+t`, 'Go to new taxon name task', 'New type material')
     TW.workbench.keyboard.createLegend(`${platformKey()}+o`, 'Go to browse OTU', 'New type material')
     TW.workbench.keyboard.createLegend(`${platformKey()}+e`, 'Go to comprehensive specimen digitization', 'New type material')
     TW.workbench.keyboard.createLegend(`${platformKey()}+b`, 'Go to browse nomenclature', 'New type material')
   },
+
   watch: {
     taxon (newVal) {
-      if (newVal != undefined) {
-        setParamsId('taxon_name_id', newVal.id)
+      if (newVal?.id) {
+        setParamsId(RouteNames.TypeMaterial, 'taxon_name_id', newVal.id)
       }
     }
   },
+
   methods: {
-    reloadApp: function () {
+    reloadApp () {
       window.location.href = '/tasks/type_material/edit_type_material'
     },
+
     loadTaxonTypes () {
-      let urlParams = new URLSearchParams(window.location.search)
-      let protonymId = urlParams.get('protonym_id')
-      if(!protonymId) {
-        protonymId = urlParams.get('taxon_name_id')
-      }
-      let typeId = urlParams.get('type_material_id')
+      const urlParams = new URLSearchParams(window.location.search)
+      const protonymId = urlParams.get('protonym_id') || urlParams.get('taxon_name_id')
+      const typeId = urlParams.get('type_material_id')
 
       if (/^\d+$/.test(protonymId)) {
-        this.$store.dispatch(ActionNames.LoadTaxonName, protonymId).then((response) => {
+        this.$store.dispatch(ActionNames.LoadTaxonName, protonymId).then(_ => {
           this.$store.dispatch(ActionNames.LoadTypeMaterials, protonymId).then(response => {
-            if (/^\d+$/.test(protonymId)) {
+            if (/^\d+$/.test(typeId)) {
               this.loadType(response, typeId)
             }
           })
         })
       }
     },
+
     loadType (list, typeId) {
-      const findType = list.find((type) => type.id === typeId)
+      const findType = list.find((type) => type.id === Number(typeId))
 
       if (findType) {
         this.$store.dispatch(ActionNames.LoadTypeMaterial, findType)
       }
     },
+
     switchTaxonNameTask () {
       const urlParams = new URLSearchParams(window.location.search)
       const taxonId = urlParams.get('taxon_name_id')

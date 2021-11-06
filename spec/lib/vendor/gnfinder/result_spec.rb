@@ -3,7 +3,7 @@ describe Vendor::Gnfinder::Result, type: [:model]  do
 
   let(:finder) { Vendor::Gnfinder.finder }
   let(:text) { 'A story involving illumination and a male Gallus gallus domesticus on a Canis lupus sp. nov. on a Equus asinus.' }
-  let(:found) { finder.find_names(text, verification: true, tokens_around: 3) }
+  let(:found) { finder.find_names(text, verification: true, words_around: 3) }
 
   let(:result) { Vendor::Gnfinder::Result.new(found) }
 

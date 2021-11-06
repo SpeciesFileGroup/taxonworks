@@ -54,7 +54,7 @@ module Export::Coldp::Files::Name
   # Invalid Protonyms are rendered only as their original Combination
   # @param t [Protonym]
   #    only place that var./frm can be handled.
-  def self.add_original_combination(t, csv)
+  def self.add_original_combination(t, csv, origin_citation)
     e = t.original_combination_elements
 
     infraspecific_element = t.original_combination_infraspecific_element(e)
@@ -82,7 +82,7 @@ module Export::Coldp::Files::Name
     uninomial = nil
 
     if rank == :genus
-      uninomial =  e[:genus][1]
+      uninomial = e[:genus][1]
 
     else
       if e[:genus]
@@ -122,9 +122,9 @@ module Export::Coldp::Files::Name
       subgenus,                                                  # subgenus (no parens)
       species,                                                   # species
       infraspecific_element ? infraspecific_element.last : nil,  # infraspecificEpithet
-      nil,                                                       # publishedInID   |
-      nil,                                                       # publishedInPage |-- Decisions is that these add to Synonym table
-      nil,                                                       # publishedInYear |
+      origin_citation&.source_id,                                # publishedInID    |
+      origin_citation&.pages,                                    # publishedInPage  | !! All origin citations get added to reference_csv via the main loop, not here
+      t.year_of_publication,                                     # publishedInYear  |
       true,                                                      # original
       code_field(t),                                             # code
       nil,                                                       # status https://api.catalogue.life/vocab/nomStatus
@@ -217,9 +217,9 @@ module Export::Coldp::Files::Name
 
           # TODO: Combinations don't have rank BUT CoL importer can interpret, so we're OK here for now
           rank = t.rank
-          
+
           # Set is: no original combination OR (valid or invalid higher, valid lower, past combinations)
-          if t.cached_original_combination.blank? || higher || t.is_valid? || t.is_combination? 
+          if t.cached_original_combination.blank? || higher || t.is_valid? || t.is_combination?
             csv << [
               t.id,                                     # ID
               basionym_id,                              # basionymID
@@ -245,7 +245,7 @@ module Export::Coldp::Files::Name
           # Here we truly want no higher
           if !t.cached_original_combination.blank? && (is_genus_species && !t.is_combination? && (!t.is_valid? || t.has_alternate_original?))
             name_total += 1
-            add_original_combination(t, csv)
+            add_original_combination(t, csv, origin_citation)
           end
 
           Export::Coldp::Files::Reference.add_reference_rows([origin_citation.source].compact, reference_csv) if reference_csv && origin_citation

@@ -34,7 +34,8 @@ const vueAnnotator = {
     list: {
       handler: function () {
         this.updateCount()
-      }
+      },
+      deep: true
     }
   },
   methods: {

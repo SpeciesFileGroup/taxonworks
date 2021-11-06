@@ -145,8 +145,8 @@ export default {
 
   li {
     margin: 0px;
-    padding: 6px;
-    border-top: 1px solid #f5f5f5;
+    padding: 1em 0;
+    border-bottom: 1px solid #f5f5f5;
   }
 }
 .list-complete-item {

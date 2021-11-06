@@ -32,11 +32,25 @@
           <td>{{ assertedDistribution.geographic_area.level0_name }}</td>
           <td>{{ assertedDistribution.geographic_area.level1_name }}</td>
           <td>{{ assertedDistribution.geographic_area.level2_name }}</td>
-          <td>{{ assertedDistribution.geographic_area.name }}</td>
+          <td>
+            <a
+              :href="`/asserted_distributions/${assertedDistribution.id}`"
+              title="Edit">
+              <span v-html="assertedDistribution.geographic_area.name"/>
+            </a>
+          </td>
           <td>{{ assertedDistribution.geographic_area.geographic_area_type.name }}</td>
           <td>{{ assertedDistribution.is_absent ? '✕' : '✓' }}</td>
-          <td>{{ assertedDistribution.geographic_area.geo_json ? '✓' : '✕' }}</td>
-          <td v-html="assertedDistribution.citations.map(citation => (`${citation.source.author_year}` + (citation.pages ? `:${citation.pages}` : ''))).sort().join('; ')"/>
+          <td>{{ assertedDistribution.geographic_area.shape ? '✓' : '✕' }}</td>
+          <td>
+            <a
+              v-for="citation in assertedDistribution.citations"
+              :key="citation.id"
+              :href="`/tasks/nomenclature/by_source?source_id=${citation.source.id}`"
+              :title="citation.source.cached">
+              <span v-html="authorString(citation)"/>&nbsp;
+            </a>
+          </td>
           <td v-html="assertedDistribution.otu.object_tag"/>
         </tr>
       </tbody>
@@ -128,6 +142,14 @@ export default {
   methods: {
     setModalView (value) {
       this.showModal = value
+    },
+
+    authorString (citation) {
+      const pages = citation.pages
+        ? `:${citation.pages}`
+        : ''
+
+      return `${citation.source.author_year}${citation.source.year_suffix || ''}${pages}`
     }
   }
 }

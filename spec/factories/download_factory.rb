@@ -8,6 +8,7 @@ FactoryBot.define do
       request { "/model/endpoint?params" }
       expires { 2.days.from_now }
       times_downloaded { 0 }
+      type { 'Download::Text' }
     end
     factory :expired_download do
       name { Faker::Lorem.unique.sentence }
@@ -17,6 +18,7 @@ FactoryBot.define do
       request { "/model/endpoint?params" }
       expires { 1.second.ago }
       times_downloaded { 0 }
+      type { 'Download::Text' }
     end
     factory :valid_download_no_file do
       name { Faker::Lorem.unique.sentence }
@@ -25,6 +27,7 @@ FactoryBot.define do
       request { "/model/endpoint?params" }
       expires { 2.days.from_now }
       times_downloaded { 0 }
+      type { 'Download::Text' }
     end
   end
 end

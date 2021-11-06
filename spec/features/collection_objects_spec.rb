@@ -47,7 +47,7 @@ describe 'CollectionObjects', type: :feature do
     context 'batch load', js: true do
       context 'collection objects from buffered strings' do
         let(:file) { 'spec/files/batch/collection_object/co_from_strings.tsv' }
-        let(:upload_file) { fixture_file_upload(file) }
+        let(:upload_file) { Rack::Test::UploadedFile.new(file) }
 
         specify 'find right section' do
           visit batch_load_collection_objects_path
@@ -92,11 +92,10 @@ describe 'CollectionObjects', type: :feature do
                 end
 
                 specify 'source' do
-                  s = FactoryBot.create(:valid_source, by: @user) 
-
+                  s = FactoryBot.create(:valid_source, by: @user)
                   fill_autocomplete('source_id_for_specimen_batchload', with: s.cached, select: s.id)
                   click_button('buf_preview')
-                  expect(page).to have_content("Using '#{s.cached}' as source.")
+                  expect(page).to have_content("Using '#{s.cached.gsub('<i>','').gsub('</i>', '')}' as source.")
                 end
               end
             end

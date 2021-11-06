@@ -1,9 +1,7 @@
 # Nested ness of this should get all the relationships?
 require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
-#
-# Force the loading of TaxonNameRelationships in all worlds.  This allows us to edit without restarting in development.
-# Dir[Rails.root.to_s + '/app/models/taxon_name_relationship/**/*.rb'].sort.each {|file| require_dependency file }
-#
+
+
 # A *monomial* TaxonName, a record implies a first usage. This follows Pyle's concept almost exactly.
 #
 # We inject a lot of relationship helper methods here, in this format.
@@ -36,7 +34,9 @@ class Protonym < TaxonName
     :validate_source_type,
     :new_parent_taxon_name,
     :name_is_latinized,
-    :name_is_valid_format
+    :name_is_valid_format,
+    :verbatim_author_without_digits,
+    :verbatim_author_with_closed_parens_when_present
 
   after_create :create_otu, if: -> {self.also_create_otu}
 
@@ -76,7 +76,7 @@ class Protonym < TaxonName
         has_one d.assignment_method.to_sym, through: relationship, source: :object_taxon_name
       end
 
-      if d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification)/ # |SourceClassifiedAs
+      if d.name.to_s =~ /TaxonNameRelationship::(OriginalCombination|Typification)/
         relationships = "#{d.assignment_method}_relationships".to_sym
         # ActiveRecord::Base.send(:sanitize_sql_array, [d.name])
         has_many relationships, -> {
@@ -141,6 +141,9 @@ class Protonym < TaxonName
 
   scope :is_original_name, -> { where("cached_author_year NOT ILIKE '(%'") }
   scope :is_not_original_name, -> { where("cached_author_year ILIKE '(%'") }
+
+  # Protonym.order_by_rank(RANKS) or Protonym.order_by_rank(ICZN)
+  scope :order_by_rank, -> (code) {order(Arel.sql("position(taxon_names.rank_class in '#{code}')"))}
 
   # @return [Protonym]
   #   a name ready to become the root
@@ -694,7 +697,7 @@ class Protonym < TaxonName
     # get gender from first
     gender = original_genus&.gender_name # r.first.subject_taxon_name.gender_name
 
-    # apply gender to everything but the last
+    # Apply gender to everything but the last
     total = r.count - 1
     r.each_with_index do |j, i|
       if j.type =~ /enus/ || i == total
@@ -702,27 +705,27 @@ class Protonym < TaxonName
       else
         g = gender
       end
-      elements.merge! j.combination_name(g)
+      elements.merge! j.combination_name(g) # this is like '{genus: [nil, 'Aus']}
     end
 
     # what is point of this? Do we get around this check by requiring self relationships? (species aus has species relationship to self)
     # DD: we do not require it, it is optional
     if !r.empty? && r.collect{|i| i.subject_taxon_name}.last.lowest_rank_coordinated_taxon.id != lowest_rank_coordinated_taxon.id
       if elements[this_rank].nil?
-        elements[this_rank] = [original_name]
+        elements[this_rank] = [nil, original_name]
       end
     end
 
     if elements.any?
-      if !elements[:genus] && !not_binomial?
+      if !elements[:genus] && !not_binominal?
         if original_genus
-          elements[:genus] = "[#{original_genus&.name}]"
+          elements[:genus] = [nil, "[#{original_genus&.name}]"]
         else
-          elements[:genus] = '[GENUS NOT SPECIFIED]'
+          elements[:genus] = [nil, '[GENUS NOT SPECIFIED]']
         end
       end
       # If there is no :species, but some species group, add element
-      elements[:species] = '[SPECIES NOT SPECIFIED]' if !elements[:species] && ( [:subspecies, :variety, :form] & elements.keys ).size > 0
+      elements[:species] = [nil, '[SPECIES NOT SPECIFIED]'] if !elements[:species] && ( [:subspecies, :variety, :form] & elements.keys ).size > 0
     end
 
     elements
@@ -741,7 +744,7 @@ class Protonym < TaxonName
   end
 
   # @return [String, nil]
-  #    a monomial, as originally rendered, with parens if subgenus
+  #    a monominal, as originally rendered, with parens if subgenus
   def original_name
     n = verbatim_name.nil? ? name_with_misspelling(nil) : verbatim_name
     n = "(#{n})" if n && rank_name == 'subgenus'
@@ -866,6 +869,17 @@ class Protonym < TaxonName
 
   def name_is_latinized
     errors.add(:name, 'Name must be latinized, no digits or spaces allowed') if !is_latin?
+  end
+
+  def verbatim_author_without_digits
+    errors.add(:verbatim_author, 'Verbatim author may not contain digits, a year may be present') if verbatim_author =~ /\d/
+  end
+
+  def verbatim_author_with_closed_parens_when_present
+    if verbatim_author.present? and nomenclatural_code != :icn  # workaround until basyonim field exists
+      # Regex matches two possible, both params, or no params at start/end
+      errors.add(:verbatim_author, 'Verbatim author is missing a parenthesis') unless verbatim_author =~ /\A\([^()]+\)\z|\A[^()]+\z/
+    end
   end
 
   def name_is_valid_format

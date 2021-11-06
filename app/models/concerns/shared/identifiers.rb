@@ -7,7 +7,7 @@ module Shared::Identifiers
     Identifier.related_foreign_keys.push self.name.foreign_key
 
     # Validation happens on the parent side!
-    has_many :identifiers, as: :identifier_object, validate: true, dependent: :destroy
+    has_many :identifiers, as: :identifier_object, validate: true, dependent: :destroy # TODO: add for validation, inverse_of: :identifier_object
     accepts_nested_attributes_for :identifiers, reject_if: :reject_identifiers, allow_destroy: true
 
     scope :with_identifier_type, ->(identifier_type) { joins(:identifiers).where('identifiers.type = ?', identifier_type).references(:identifiers) }
@@ -75,6 +75,10 @@ module Shared::Identifiers
       q = (!q.nil? ? q.with_identifiers_sorted(sorted) :  with_identifiers_sorted(sorted) ) if !sorted.blank?
       q
     end
+  end
+
+  def dwc_occurrence_id
+    identifiers.where('identifiers.type like ?', 'Identifier::Global::Uuid%').order('identifiers.position ASC').first&.identifier
   end
 
   def identified?

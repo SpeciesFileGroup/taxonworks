@@ -13,12 +13,13 @@
 
 <script>
 
-import makeCitationObject from '../../../const/citation'
+import makeCitationObject from 'factory/Citation'
 import CitationNew from './CitationNew.vue'
 import DisplayList from 'components/displayList.vue'
 import { GetterNames } from '../../../store/getters/getters'
 import { MutationNames } from '../../../store/mutations/mutations'
 import { ActionNames } from '../../../store/actions/actions'
+import { COLLECTION_OBJECT } from 'constants/index.js'
 
 export default {
   components: {
@@ -49,13 +50,13 @@ export default {
   },
 
   data: () => ({
-    citation: makeCitationObject()
+    citation: makeCitationObject(COLLECTION_OBJECT)
   }),
 
   methods: {
     addCitation (citation) {
       this.citations.push(citation)
-      this.citation = makeCitationObject()
+      this.citation = makeCitationObject(COLLECTION_OBJECT)
     },
 
     removeCitation (index) {

@@ -22,6 +22,7 @@
         :autocomplete-params="{
           roles: ['SourceAuthor', 'SourceEditor']
         }"
+        label="cached"
         @selected="addAuthor"/>
       <label>
         <input

@@ -9,13 +9,12 @@
       class="list-complete-item flex-separate middle"
       :class="{ 'highlight': checkHighlight(item) }">
       <span>
+        <soft-validation
+          v-if="validations"
+          :global-id="item.global_id"/>
         <span
           class="list-item"
           v-html="displayName(item)"/>
-        <soft-validation
-          v-if="validations"
-          class="margin-small-left"
-          :global-id="item.global_id"/>
       </span>
       <div class="list-controls">
         <slot
@@ -25,7 +24,8 @@
           v-if="download"
           class="btn-download circle-button"
           :href="getPropertyValue(item, download)"
-          download/>
+          download
+        />
         <radial-annotator
           v-if="annotator"
           :global-id="item.global_id"/>
@@ -110,7 +110,7 @@ export default {
     }
   },
 
-  emits: ['delete', 'deleteIndex'],
+  emits: ['delete', 'edit', 'deleteIndex'],
 
   beforeCreate () {
     this.$options.components['RadialAnnotator'] = RadialAnnotator
@@ -201,9 +201,9 @@ export default {
 
     li {
       margin: 0px;
-      padding: 6px;
+      padding: 1em 0;
       border: 0px;
-      border-top: 1px solid #f5f5f5;
+      border-bottom: 1px solid #f5f5f5;
     }
   }
 

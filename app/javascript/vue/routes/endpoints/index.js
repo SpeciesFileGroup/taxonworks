@@ -1,3 +1,4 @@
+import { AlternateValue } from './AlternateValue'
 import { AssertedDistribution } from './AssertedDistribution'
 import { Attribution } from './Attribution'
 import { BiocurationClassification } from './BiocurationClassification'
@@ -9,6 +10,7 @@ import { CollectingEvent } from './CollectingEvents'
 import { CollectionObject } from './CollectionObject'
 import { Combination } from './Combination'
 import { CommonName } from './CommonName'
+import { Confidence } from './Confidence'
 import { Container } from './Container'
 import { ContainerItem } from './ContainerItem'
 import { Content } from './Content'
@@ -18,6 +20,8 @@ import { Depiction } from './Depiction'
 import { Descriptor } from './Descriptor'
 import { Document } from './Document'
 import { Documentation } from './Documentation'
+import { Download } from './Download'
+import { DwcOcurrence } from './DwcOcurrence'
 import { Extract } from './Extract'
 import { GeographicArea } from './GeographicArea'
 import { Georeference } from './Georeference'
@@ -58,6 +62,7 @@ import { TypeMaterial } from './TypeMaterial'
 import { User } from './User'
 
 export {
+  AlternateValue,
   AssertedDistribution,
   Attribution,
   BiocurationClassification,
@@ -69,6 +74,7 @@ export {
   CollectionObject,
   Combination,
   CommonName,
+  Confidence,
   Container,
   ContainerItem,
   Content,
@@ -78,6 +84,8 @@ export {
   Descriptor,
   Document,
   Documentation,
+  Download,
+  DwcOcurrence,
   Extract,
   GeographicArea,
   Georeference,

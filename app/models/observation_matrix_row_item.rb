@@ -19,6 +19,7 @@ class ObservationMatrixRowItem < ApplicationRecord
   include Shared::Tags
   include Shared::Notes
   include Shared::IsData
+  include SoftValidation
 
   acts_as_list scope: [:observation_matrix_id, :project_id]
 
@@ -249,7 +250,6 @@ class ObservationMatrixRowItem < ApplicationRecord
     mr.update_columns(reference_count: (mr.reference_count || 0) +  1)
     mr.update_columns(cached_observation_matrix_row_item_id: id) if type =~ /Single/
   end
-
 end
 
 Dir[Rails.root.to_s + '/app/models/observation_matrix_row_item/**/*.rb'].each { |file| require_dependency file }

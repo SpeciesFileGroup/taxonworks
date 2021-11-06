@@ -36,8 +36,10 @@
             :biocutarions-type="biocutarionsType"
             :biological-id="collectionObject.id"/>
         </td>
-        <td class="horizontal-right-content">
-          <template v-if="collectionObject.id">
+        <td>
+          <div
+            v-if="collectionObject.id"
+            class="horizontal-right-content">
             <accession-metadata :collection-object="collectionObject"/>
             <radial-annotator :global-id="collectionObject.global_id"/>
             <button
@@ -51,7 +53,7 @@
               type="button"
               class="button circle-button btn-delete"
               @click="removeCO(collectionObject.id)"/>
-          </template>
+          </div>
         </td>
       </tr>
       <template
@@ -76,20 +78,22 @@
               :biocurations-groups="biocurationsGroups"
               :biocutarions-type="biocutarionsType"/>
           </td>
-          <td class="horizontal-right-content">
-            <accession-metadata :collection-object="item"/>
-            <radial-annotator :global-id="item.global_id"/>
-            <button
-              type="button"
-              class="button circle-button btn-edit"
-              @click="setCO(item)">Select</button>
-            <pin-component
-              type="CollectionObject"
-              :object-id="item.id"/>
-            <button
-              type="button"
-              class="button circle-button btn-delete"
-              @click="removeCO(item.id)"/>
+          <td>
+            <div class="horizontal-right-content">
+              <accession-metadata :collection-object="item"/>
+              <radial-annotator :global-id="item.global_id"/>
+              <button
+                type="button"
+                class="button circle-button btn-edit"
+                @click="setCO(item)">Select</button>
+              <pin-component
+                type="CollectionObject"
+                :object-id="item.id"/>
+              <button
+                type="button"
+                class="button circle-button btn-delete"
+                @click="removeCO(item.id)"/>
+            </div>
           </td>
         </tr>
       </template>

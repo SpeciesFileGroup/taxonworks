@@ -7,6 +7,7 @@
       @onTabSelected="view = $event"
       target="Source"
       klass="Source"
+      label="cached"
       :params="{ role_type: 'SourceAuthor' }"
       :autocomplete-params="{
         roles: ['SourceAuthor']
@@ -37,7 +38,7 @@
 
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
-
+import { findRole } from 'helpers/people/people.js'
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import RolePicker from 'components/role_picker.vue'
 
@@ -46,6 +47,7 @@ export default {
     RolePicker,
     SmartSelector
   },
+
   computed: {
     source: {
       get () {
@@ -67,15 +69,17 @@ export default {
       }
     },
     peopleIds () {
-      return this.roleAttributes.filter(item => item.person_id || item.person).map(item => item.person_id ? item.person_id : item.person.id)
+      return this.roleAttributes.filter(item => item.person_id || item.person).map(item => item?.person_id || item.person.id)
     }
   },
+
   data () {
     return {
       options: [],
       view: undefined
     }
   },
+
   watch: {
     lastSave: {
       handler (newVal, oldVal) {
@@ -85,17 +89,14 @@ export default {
       }
     }
   },
+
   methods: {
-    roleExist (id) {
-      return (this.source.roles_attributes.find((role) => {
-        return !role.hasOwnProperty('_destroy') && (role.person_id === id || (role.hasOwnProperty('person') && role.person.id === id))
-      }) ? true : false)
-    },
     addRole (person) {
-      if (!this.roleExist(person.id)) {
+      if (!findRole(this.source.roles_attributes, person.id)) {
         this.$refs.rolePicker.setPerson(this.createPerson(person, 'SourceAuthor'))
       }
     },
+
     createPerson (person, roleType) {
       return {
         first_name: person.first_name,

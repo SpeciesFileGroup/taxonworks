@@ -6,7 +6,9 @@
     <template 
       v-for="(item, index) in citations"
       :key="index">
-      <li v-if="item.label_html">
+      <li
+        v-if="item.label_html"
+        class="history__record">
         <span v-html="item.label_html"/>
       </li>
     </template>
@@ -23,3 +25,8 @@ export default {
   }
 }
 </script>
+<style scoped>
+.taxonomic_history li {
+  margin-bottom: 10px;
+}
+</style>

@@ -8,9 +8,10 @@
         :autocomplete-params="{'type[]' : 'Keyword'}"
         get-url="/controlled_vocabulary_terms/"
         model="keywords"
-        klass="CollectionObject"
+        klass="Tags"
         pin-section="Keywords"
         pin-type="Keyword"
+        :target="target"
         :custom-list="allFiltered"
         @selected="addKeyword"/>
     </fieldset>
@@ -65,6 +66,10 @@ export default {
     modelValue: {
       type: Object,
       default: () => ({})
+    },
+    target: {
+      type: String,
+      required: true
     }
   },
 

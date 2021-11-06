@@ -1,3 +1,3 @@
-export default function (state) {
+export default (state) => {
   state.panels.citations = !state.panels.citations
 }

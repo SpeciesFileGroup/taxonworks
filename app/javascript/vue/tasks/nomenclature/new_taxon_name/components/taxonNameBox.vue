@@ -43,10 +43,12 @@
             <div class="horizontal-right-content margin-small-top">
               <pin-object
                 v-if="taxon.id"
-                :pin-object="taxon['pinboard_item']"
+                class="circle-button"
                 :object-id="taxon.id"
-                :type="taxon.base_class"/>
-              <default-confidence :global-id="taxon.global_id"/>
+                type="TaxonName"/>
+              <default-confidence
+                class="circle-button"
+                :global-id="taxon.global_id"/>
               <span
                 v-if="taxon.id"
                 @click="showModal = true"
@@ -69,7 +71,7 @@ import RadialObject from 'components/radials/navigation/radial.vue'
 import DefaultConfidence from 'components/defaultConfidence.vue'
 import PinObject from 'components/ui/Pinboard/VPin.vue'
 import Modal from 'components/ui/Modal.vue'
-import platformKey from 'helpers/getMacKey'
+import platformKey from 'helpers/getPlatformKey'
 import { TaxonName } from 'routes/endpoints'
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'

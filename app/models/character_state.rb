@@ -24,7 +24,7 @@ class CharacterState < ApplicationRecord
 
   include SoftValidation
 
-  acts_as_list scope: [:descriptor_id]
+  acts_as_list scope: [:descriptor_id, :project_id]
 
   ALTERNATE_VALUES_FOR = [:name, :label, :description_name, :key_name].freeze
 
@@ -53,14 +53,18 @@ class CharacterState < ApplicationRecord
     unless language_id.nil?
       case target
       when :key
-        a = AlternateValue::Translation.where(alternate_value_object: self, language_id: language_id, alternate_value_object_attribute: 'key_name').first
+        a = AlternateValue::Translation.
+          where(alternate_value_object: self, language_id: language_id).
+          where("(alternate_values.alternate_value_object_attribute = 'key_name' OR alternate_values.alternate_value_object_attribute = 'name')").
+          order(:alternate_value_object_attribute).pluck(:value).first
       when :description
-        a = AlternateValue::Translation.where(alternate_value_object: self, language_id: language_id, alternate_value_object_attribute: 'description_name').first
+        a = AlternateValue::Translation.
+          where(alternate_value_object: self, language_id: language_id).
+          where("(alternate_values.alternate_value_object_attribute = 'description_name' OR alternate_values.alternate_value_object_attribute = 'name')").
+          order(:alternate_value_object_attribute).pluck(:value).first
       end
-      a = AlternateValue::Translation.where(alternate_value_object: self, language_id: language_id, alternate_value_object_attribute: 'name').first if a.nil?
-      n = a.value unless a.nil?
     end
-    return n
+    return a.nil? ? n : a
   end
 
   protected
