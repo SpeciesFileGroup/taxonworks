@@ -27,7 +27,7 @@ export default ({ commit, dispatch, state: { collection_object, taxon_determinat
     Promise.all(promises).then(responses => {
       commit(MutationNames.SetTaxonDeterminations, responses.map(({ body }) => ({ 
         ...body,
-        roles_attributes: body.determiner_roles.map(role => ({
+        roles_attributes: (body?.determiner_roles ?? []).map(role => ({
           id: role.id,
           first_name: role.person.first_name,
           last_name: role.person.first_name,
