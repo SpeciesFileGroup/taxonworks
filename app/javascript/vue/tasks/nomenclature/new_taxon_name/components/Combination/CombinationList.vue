@@ -18,7 +18,7 @@
             :checked="currentCombination && combination.id === currentCombination.subject_taxon_name_id"
             name="current-combination"
             @click="saveRelationship(combination.id)">
-          {{ combination.object_label }}
+          <span v-html="combination.object_label" />
         </label>
         <div class="horizontal-left-content middle">
           <radial-annotator :global-id="combination.global_id" />
