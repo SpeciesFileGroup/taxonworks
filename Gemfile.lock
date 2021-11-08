@@ -17,7 +17,7 @@ GIT
 
 GIT
   remote: https://github.com/LocoDelAssembly/gpx.git
-  revision: 2c152771740b3ec85ba743243fbfd3a417c64cb3
+  revision: c5e5a2d3d2bdf127b95553af89a3cc52266978f2
   branch: ruby3
   specs:
     gpx (1.0.0)
