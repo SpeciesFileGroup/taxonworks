@@ -279,11 +279,9 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
     rescue StandardError => e
       raise if Rails.env.development?
       self.status = 'Failed'
-      self.metadata[:error_data] = {
-        exception: {
-          message: e.message,
-          backtrace: e.backtrace
-        }
+      self.metadata[:exception_data] = {
+        message: e.message,
+        backtrace: e.backtrace
       }
     ensure
       save!
