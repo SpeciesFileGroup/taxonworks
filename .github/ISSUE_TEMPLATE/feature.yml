@@ -91,8 +91,7 @@ body:
   id: data 
   attributes:
     label: Data
-    description: Features might have a corresponding data-object that is accessible to the end user (e.g. by download of CSV, via JSON, GeoJSO, DwC Archive, etc.). 
-    What does this look like?
+    description: Features might have a corresponding data-object that is accessible to the end user (e.g. by download of CSV, via JSON, GeoJSO, DwC Archive, etc.). What does this look like?
     placeholder: A CSV file with the DwC headers specificEpithet, family, and year
   validations:
     required: true
