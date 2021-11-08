@@ -83,8 +83,7 @@ body:
   id: interface_actions
   attributes:
     label: Actions 
-    description: What can the user do with this feature that is "unique" to this part of the TaxonWorks software?  mocked digital description of the feature, 
-    can include screenshots.
+    description: What can the user do with this feature that is "unique" to this part of the TaxonWorks software?  mocked digital description of the feature, can include screenshots.
     placeholder: Sort table by clicking column headers; filter to show records by year only. 
   validations:
     required: false 
