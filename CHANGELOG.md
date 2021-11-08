@@ -7,10 +7,26 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Support for DwC terms on depth [#2628]
+
+### Fixed
+- Determiners are not saved after lock the list in comprehensive form [#2626]
+- Wrong rank for original combinations in DwC checklist importer [#2621]
+- No longer exposing exception data for *failed* records (not to be confused with *errored*) in DwC importer.
+- Smart selector is not working in Browse Annotations
+- Biological associations in OTU radial [#2630]
+- Fix citations on asserted distribution list in OTU radial [#2629]
+
+[#2628]: https://github.com/SpeciesFileGroup/taxonworks/issues/2628
+[#2626]: https://github.com/SpeciesFileGroup/taxonworks/issues/2626
+[#2621]: https://github.com/SpeciesFileGroup/taxonworks/pull/2621
+[#2629]: https://github.com/SpeciesFileGroup/taxonworks/pull/2629
+[#2630]: https://github.com/SpeciesFileGroup/taxonworks/pull/2630
+
+## [0.21.1] - 2021-11-05
 ### Fixed
 - Citations in image viewer
-
-\-
 
 ## [0.21.0] - 2021-11-04
 ### Added
@@ -1932,7 +1948,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.21.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.21.1...development
+[0.21.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.21.0...v0.21.1
 [0.21.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.20.1...v0.21.0
 [0.20.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.20.0...v0.20.1
 [0.20.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.7...v0.20.0

@@ -5,6 +5,16 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
   let(:query) { Queries::CollectionObject::Filter.new({}) }
 
+  specify '#loan_id' do
+    t1 = Specimen.create!
+    l = FactoryBot.create(:valid_loan)
+    t2 = Specimen.create!
+    l.loan_items << LoanItem.new(loan_item_object: t1)
+
+    query.loan_id = [l.id]
+    expect(query.all.pluck(:id)).to contain_exactly(t1.id)
+  end
+
   specify '#type_designations' do
     t1 = Specimen.create!
     t2 = Specimen.create!

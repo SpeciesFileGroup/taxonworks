@@ -115,6 +115,14 @@ import LockComponent from 'components/ui/VLock/index.vue'
 import { BiologicalAssociation, BiologicalRelationship } from 'routes/endpoints'
 import { convertType } from 'helpers/types'
 
+const extend = [
+  'origin_citation',
+  'object',
+  'biological_relationship',
+  'citations',
+  'source'
+]
+
 export default {
   mixins: [CRUD, AnnotatorExtend],
   components: {
@@ -148,7 +156,7 @@ export default {
       flip: false,
       lockSource: false,
       lockRelationship: false,
-      urlList: `/biological_associations.json?subject_global_id=${encodeURIComponent(this.globalId)}`
+      loadOnMounted: false
     }
   },
   watch: {
@@ -171,6 +179,13 @@ export default {
         })
       }
     }
+
+    BiologicalAssociation.where({
+      subject_global_id: this.globalId,
+      extend
+    }).then(({ body }) => {
+      this.list = body
+    })
   },
   methods: {
     reset () {
@@ -194,8 +209,8 @@ export default {
         citations_attributes: this.citation ? [this.citation] : undefined
       }
       const saveRequest = this.alreadyExist
-        ? BiologicalAssociation.update(this.alreadyExist.id, { biological_association: data })
-        : BiologicalAssociation.create({ biological_association: data })
+        ? BiologicalAssociation.update(this.alreadyExist.id, { biological_association: data, extend })
+        : BiologicalAssociation.create({ biological_association: data, extend })
 
       saveRequest.then(response => {
         if (this.alreadyExist) {

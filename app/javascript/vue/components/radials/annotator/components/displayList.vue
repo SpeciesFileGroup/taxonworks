@@ -115,7 +115,7 @@
   }
 
   .table-entrys-list {
-    overflow-y: scroll;
+    overflow-y: auto;
     padding: 0px;
     position: relative;
 

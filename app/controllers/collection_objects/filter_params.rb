@@ -76,6 +76,7 @@ module CollectionObjects
         is_type: [],
         keyword_id_and: [],
         keyword_id_or: [],
+        loan_id: [],
         otu_ids: [],
         preparation_type_id: []
         #  user_id: []
@@ -154,6 +155,7 @@ module CollectionObjects
         is_type: [],
         keyword_id_and: [],
         keyword_id_or: [],
+        loan_id: [],
         otu_ids: [],
         preparation_type_id: [],
 
