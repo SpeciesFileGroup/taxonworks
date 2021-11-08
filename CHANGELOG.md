@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Determiners are not saved after lock the list in comprehensive form [#2626]
 - Wrong rank for original combinations in DwC checklist importer [#2621]
 - No longer exposing exception data for *failed* records (not to be confused with *errored*) in DwC importer.
+- Smart selector is not working in Browse Annotations
 
 [#2628]: https://github.com/SpeciesFileGroup/taxonworks/issues/2628
 [#2626]: https://github.com/SpeciesFileGroup/taxonworks/issues/2626
