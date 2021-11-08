@@ -7,11 +7,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Support for DwC terms on depth [#2628]
+
 ### Fixed
 - Determiners are not saved after lock the list in comprehensive form [#2626]
 - Wrong rank for original combinations in DwC checklist importer [#2621]
 - No longer exposing exception data for *failed* records (not to be confused with *errored*) in DwC importer.
 
+[#2628]: https://github.com/SpeciesFileGroup/taxonworks/issues/2628
 [#2626]: https://github.com/SpeciesFileGroup/taxonworks/issues/2626
 [#2621]: https://github.com/SpeciesFileGroup/taxonworks/pull/2621
 
