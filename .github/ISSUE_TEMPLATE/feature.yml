@@ -27,7 +27,7 @@ body:
   id: summary_y
   attributes:
     label: Your needs
-    description: What do you need to answer the questions that this feature addresses, a graph, table, map, text?
+    description: What feature do you need to answer the questions that this feature addresses, a graph, table, map, text?
     placeholder: A particular table of data and corresponding bar-graph
   validations:
     required: true 
