@@ -16,10 +16,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - No longer exposing exception data for *failed* records (not to be confused with *errored*) in DwC importer.
 - Smart selector is not working in Browse Annotations
 - Biological associations in OTU radial [#2630]
+- Fix citations on asserted distribution list in OTU radial [#2629]
 
 [#2628]: https://github.com/SpeciesFileGroup/taxonworks/issues/2628
 [#2626]: https://github.com/SpeciesFileGroup/taxonworks/issues/2626
 [#2621]: https://github.com/SpeciesFileGroup/taxonworks/pull/2621
+[#2629]: https://github.com/SpeciesFileGroup/taxonworks/pull/2629
 [#2630]: https://github.com/SpeciesFileGroup/taxonworks/pull/2630
 
 ## [0.21.1] - 2021-11-05
