@@ -129,6 +129,11 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
             end
           end
 
+          # TODO handle if no names in group are marked as current / all are obsolete combinations
+          if current_item.nil?
+            current_item = name_items.first
+          end
+
           core_records[current_item][:has_external_accepted_name] = true
 
           replacement_taxon_id = core_records[current_item][:src_data]['acceptedNameUsageID']
@@ -136,11 +141,6 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
           core_records[current_item][:dependencies] << records_lut[replacement_taxon_id][:index]
           records_lut[replacement_taxon_id][:dependants] << current_item
 
-
-          # TODO handle if no names in group are marked as current / all are obsolete combinations
-          if current_item.nil?
-            current_item = name_items.first
-          end
         end
 
         current_record = core_records[current_item]
