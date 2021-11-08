@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - Support for DwC terms on depth [#2628]
+- Filter by individual Loan [#2632]
 
 ### Fixed
 - Determiners are not saved after lock the list in comprehensive form [#2626]
@@ -17,12 +18,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Smart selector is not working in Browse Annotations
 - Biological associations in OTU radial [#2630]
 - Fix citations on asserted distribution list in OTU radial [#2629]
+- Subsequent combinations are not scoped [#2634]
 
 [#2628]: https://github.com/SpeciesFileGroup/taxonworks/issues/2628
 [#2626]: https://github.com/SpeciesFileGroup/taxonworks/issues/2626
 [#2621]: https://github.com/SpeciesFileGroup/taxonworks/pull/2621
-[#2629]: https://github.com/SpeciesFileGroup/taxonworks/pull/2629
-[#2630]: https://github.com/SpeciesFileGroup/taxonworks/pull/2630
+[#2629]: https://github.com/SpeciesFileGroup/taxonworks/issues/2629
+[#2630]: https://github.com/SpeciesFileGroup/taxonworks/issues/2630
+[#2634]: https://github.com/SpeciesFileGroup/taxonworks/issues/2634
 
 ## [0.21.1] - 2021-11-05
 ### Fixed
