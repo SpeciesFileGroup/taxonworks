@@ -1,7 +1,7 @@
 import { ActionNames } from './actions'
 import { MutationNames } from '../mutations/mutations'
 import { Source } from 'routes/endpoints'
-import { SmartSelectorRefresh } from 'helpers/smartSelector'
+import { smartSelectorRefresh } from 'helpers/smartSelector'
 
 import setParam from 'helpers/setParam'
 
@@ -15,7 +15,7 @@ export default ({ state, commit, dispatch }) => {
   saveSource.then(({ body }) => {
     setSource(body)
     dispatch(ActionNames.LoadSoftValidations, body.global_id)
-    SmartSelectorRefresh()
+    smartSelectorRefresh()
     TW.workbench.alert.create('Source was successfully saved.', 'notice')
   }).finally(() => {
     state.settings.saving = false

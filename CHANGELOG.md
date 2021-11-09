@@ -20,6 +20,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Biological associations in OTU radial [#2630]
 - Fix citations on asserted distribution list in OTU radial [#2629]
 - Subsequent combinations are not scoped [#2634]
+- Missing scroll in alternate value annotator [#2635]
+- Smart selectors are not refreshing in New source [#2636]
+- Radial navigation doesn't work on source in New taxon name task [#2633]
 
 [#1275]: https://github.com/SpeciesFileGroup/taxonworks/issues/1275
 [#2628]: https://github.com/SpeciesFileGroup/taxonworks/issues/2628
@@ -27,7 +30,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2621]: https://github.com/SpeciesFileGroup/taxonworks/pull/2621
 [#2629]: https://github.com/SpeciesFileGroup/taxonworks/issues/2629
 [#2630]: https://github.com/SpeciesFileGroup/taxonworks/issues/2630
+[#2633]: https://github.com/SpeciesFileGroup/taxonworks/issues/2633
 [#2634]: https://github.com/SpeciesFileGroup/taxonworks/issues/2634
+[#2635]: https://github.com/SpeciesFileGroup/taxonworks/issues/2635
+[#2636]: https://github.com/SpeciesFileGroup/taxonworks/issues/2636
 
 ## [0.21.1] - 2021-11-05
 ### Fixed
