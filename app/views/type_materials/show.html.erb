@@ -1,10 +1,11 @@
 <%= content_for :tasks do %>
   <%= content_tag(
-    :li, 
+    :li,
     link_to(
-      content_tag(:span, 'Edit type material (task)', 'data-icon' => 'edit', class: 'small-icon'), 
+      content_tag(:span, 'Edit type material (task)', 'data-icon' => 'edit', class: 'small-icon'),
       edit_type_material_task_path(protonym_id: @type_material.protonym, target: :edit_type_material),
       class: 'navigation-item'
     )) -%>
 <% end %>
+
 <%= render(partial: 'shared/data/project/show', locals: {object: @type_material}) -%>

@@ -9,7 +9,7 @@ module RepositoriesHelper
   
   def label_for_repository(repository)
     return nil if repository.nil?
-    repository.name
+    repository_tag(repository) # identical for now
   end
 
   def repository_link(repository)
