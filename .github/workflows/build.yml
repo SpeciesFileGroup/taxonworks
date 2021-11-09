@@ -96,7 +96,9 @@ jobs:
       uses: actions/cache@v2
       with:
         path: spec/fixtures/vcr_cassettes
-        key: ${{ runner.os }}-vcr-rev2-${{ steps.datetime.outputs.year_week }}-${{ matrix.worker }}
+        key: ${{ runner.os }}-vcr-rev2-${{ steps.datetime.outputs.year_week }}-${{ matrix.worker }}-${{ hashFiles('spec/fixtures/vcr_cassettes/**') }}
+        restore-keys: |
+          ${{ runner.os }}-vcr-rev2-${{ steps.datetime.outputs.year_week }}-${{ matrix.worker }}
 
     - name: Install apt packages
       run: |
