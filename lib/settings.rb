@@ -49,7 +49,7 @@ module Settings
     load_exception_notification(config, hash[:exception_notification])
     load_default_data_directory(hash[:default_data_directory])
     load_backup_directory(hash[:backup_directory])
-    load_action_mailer_smtp_settings(config, {openssl_verify_mode: :none}.merge!(hash[:action_mailer_smtp_settings]))
+    load_action_mailer_smtp_settings(config, hash[:action_mailer_smtp_settings])
     load_action_mailer_url_host(config, hash[:action_mailer_url_host])
     load_mail_domain(config, hash[:mail_domain])
     load_interface(hash[:interface])
@@ -213,7 +213,7 @@ module Settings
   def self.load_action_mailer_smtp_settings(config, settings)
     if settings
       config.action_mailer.delivery_method = :smtp
-      config.action_mailer.smtp_settings = settings
+      config.action_mailer.smtp_settings = {openssl_verify_mode: :none}.merge!(settings)
     end
   end
 
