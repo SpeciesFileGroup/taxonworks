@@ -88,6 +88,7 @@ module TaxonWorks
       end
 
       def self.bibtex_from_citproc(c, b)
+        return nil if c.nil? || b.nil?
         c = JSON.parse(c)
 
         b[:address] = ::Utilities::Strings.encode_with_utf8(c['address']) unless c['address'].blank?
