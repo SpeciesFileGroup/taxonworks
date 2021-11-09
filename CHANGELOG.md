@@ -12,6 +12,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter by individual Loan [#2632]
 
 ### Fixed
+- Improved CrossRef parsing for a new source [#997] [#2620]
+- Container label shows catalog number for loan items [#1275]
 - Determiners are not saved after lock the list in comprehensive form [#2626]
 - Wrong rank for original combinations in DwC checklist importer [#2621]
 - No longer exposing exception data for *failed* records (not to be confused with *errored*) in DwC importer.
@@ -19,13 +21,20 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Biological associations in OTU radial [#2630]
 - Fix citations on asserted distribution list in OTU radial [#2629]
 - Subsequent combinations are not scoped [#2634]
+- Missing scroll in alternate value annotator [#2635]
+- Smart selectors are not refreshing in New source [#2636]
+- Radial navigation doesn't work on source in New taxon name task [#2633]
 
+[#1275]: https://github.com/SpeciesFileGroup/taxonworks/issues/1275
 [#2628]: https://github.com/SpeciesFileGroup/taxonworks/issues/2628
 [#2626]: https://github.com/SpeciesFileGroup/taxonworks/issues/2626
 [#2621]: https://github.com/SpeciesFileGroup/taxonworks/pull/2621
 [#2629]: https://github.com/SpeciesFileGroup/taxonworks/issues/2629
 [#2630]: https://github.com/SpeciesFileGroup/taxonworks/issues/2630
+[#2633]: https://github.com/SpeciesFileGroup/taxonworks/issues/2633
 [#2634]: https://github.com/SpeciesFileGroup/taxonworks/issues/2634
+[#2635]: https://github.com/SpeciesFileGroup/taxonworks/issues/2635
+[#2636]: https://github.com/SpeciesFileGroup/taxonworks/issues/2636
 
 ## [0.21.1] - 2021-11-05
 ### Fixed
@@ -33,6 +42,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [0.21.0] - 2021-11-04
 ### Added
+- Added new handling for plant name author_string.
+- Added new `Combination` section to handle historical protonym combination.
 - Add new task 'Object graph', visualize and navigate your Things via a force-directed-graph (network) [#2587]
 - New combination editing, including support for multiple authors in plant names [#666] [#2407]
 - Add new global identifier class for glbio repositories

@@ -1,21 +1,24 @@
-<p id="notice"><%= notice %></p>
-
 <p>
-  <strong>Protonym:</strong>
-  <%= object_link(@type_material.protonym) %>
+<strong>Catalog string (temporarily listed here):</strong>
+<%= type_material_catalog_label(@type_material) %>
 </p>
 
 <p>
-  <strong>Collection object:</strong>
-  <%= object_link(@type_material.collection_object) %>
+<strong>Protonym:</strong>
+<%= object_link(@type_material.protonym) %>
 </p>
 
 <p>
-  <strong>Type type:</strong>
-  <%= @type_material.type_type %>
+<strong>Collection object:</strong>
+<%= object_link(@type_material.collection_object) %>
 </p>
 
 <p>
-  <strong>Source:</strong>
-  <%= object_link(@type_material.source) %>
+<strong>Type type:</strong>
+<%= @type_material.type_type %>
+</p>
+
+<p>
+<strong>Source:</strong>
+<%= object_link(@type_material.source) %>
 </p>

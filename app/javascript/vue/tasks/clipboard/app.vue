@@ -34,13 +34,13 @@ export default {
 
   computed: {
     actionKey () {
-      return navigator.userAgentData.platform.indexOf('mac') > -1
+      return navigator.platform.indexOf('Mac') > -1
         ? 'Control'
         : 'Alt'
     },
 
     isLinux () {
-      return navigator.userAgentData.platform.indexOf('Linux') > -1
+      return navigator.platform.indexOf('Linux') > -1
     },
 
     pasteKeys () {
