@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter by individual Loan [#2632]
 
 ### Fixed
+- Improved CrossRef parsing for a new source [#997] [#2620]
 - Container label shows catalog number for loan items [#1275]
 - Determiners are not saved after lock the list in comprehensive form [#2626]
 - Wrong rank for original combinations in DwC checklist importer [#2621]
@@ -41,6 +42,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [0.21.0] - 2021-11-04
 ### Added
+- Added new handling for plant name author_string.
+- Added new `Combination` section to handle historical protonym combination.
 - Add new task 'Object graph', visualize and navigate your Things via a force-directed-graph (network) [#2587]
 - New combination editing, including support for multiple authors in plant names [#666] [#2407]
 - Add new global identifier class for glbio repositories
