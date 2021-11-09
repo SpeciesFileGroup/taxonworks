@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2629]: https://github.com/SpeciesFileGroup/taxonworks/issues/2629
 [#2630]: https://github.com/SpeciesFileGroup/taxonworks/issues/2630
 [#2634]: https://github.com/SpeciesFileGroup/taxonworks/issues/2634
+[#2636]: https://github.com/SpeciesFileGroup/taxonworks/issues/2636
 
 ## [0.21.1] - 2021-11-05
 ### Fixed
