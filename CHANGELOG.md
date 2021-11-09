@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter by individual Loan [#2632]
 
 ### Fixed
+- Container label shows catalog number for loan items [#1275]
 - Determiners are not saved after lock the list in comprehensive form [#2626]
 - Wrong rank for original combinations in DwC checklist importer [#2621]
 - No longer exposing exception data for *failed* records (not to be confused with *errored*) in DwC importer.
@@ -20,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Fix citations on asserted distribution list in OTU radial [#2629]
 - Subsequent combinations are not scoped [#2634]
 
+[#1275]: https://github.com/SpeciesFileGroup/taxonworks/issues/1275
 [#2628]: https://github.com/SpeciesFileGroup/taxonworks/issues/2628
 [#2626]: https://github.com/SpeciesFileGroup/taxonworks/issues/2626
 [#2621]: https://github.com/SpeciesFileGroup/taxonworks/pull/2621
