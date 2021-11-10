@@ -626,9 +626,13 @@ class CollectionObject < ApplicationRecord
   end
 
   # @return [Identifier::Local::CatalogNumber, nil]
-  #   the first (position) catalog number for this collection object
+  #   the first (position) catalog number for this collection object, either on specimen, or container
   def preferred_catalog_number
-    Identifier::Local::CatalogNumber.where(identifier_object: self).first
+    if i = Identifier::Local::CatalogNumber.where(identifier_object: self).first
+      i
+    else
+      container&.identifiers&.where(identifiers: {type: 'Identifier::Local::CatalogNumber'})&.first
+    end
   end
 
   # return [Boolean]

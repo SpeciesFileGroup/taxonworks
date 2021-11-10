@@ -83,14 +83,14 @@ module Utilities::Strings
     a.to_s.gsub(/\n|\t/, ' ')
   end
 
-  #   return nil if content.nil?, else wrap and return string if provided
   # @param [String] pre
   # @param [String] content
   # @param [String] post
-  # @return [String]
+  # @return [String, nil]
+  #   return nil if content.nil?, else wrap and return string if provided
   def self.nil_wrap(pre = nil, content = nil, post = nil)
     return nil if content.blank?
-    [pre, content, post].compact.join.html_safe
+    [pre, content, post].compact.join
   end
 
   # @param last_names [Array]

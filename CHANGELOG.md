@@ -8,10 +8,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-- Support for DwC terms on depth [#2628]
+- Support for DwC terms on body of water depth [#2628]
 - Filter by individual Loan [#2632]
 
+### Changed
+- Updated ruby gems.
+
 ### Fixed
+- Containerized specimens display catalog number in tag correctly [#2623]
 - Improved CrossRef parsing for a new source [#997] [#2620]
 - Container label shows catalog number for loan items [#1275]
 - Determiners are not saved after lock the list in comprehensive form [#2626]
@@ -24,7 +28,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing scroll in alternate value annotator [#2635]
 - Smart selectors are not refreshing in New source [#2636]
 - Radial navigation doesn't work on source in New taxon name task [#2633]
+- Determiner is not selectable on Grid Digitizer after "Create and new" [#2637]
+- DwC Dashboard data version counts correct now [#2627]
 
+[#2623]: https://github.com/SpeciesFileGroup/taxonworks/issues/2623
+[#2627]: https://github.com/SpeciesFileGroup/taxonworks/issues/2627
 [#1275]: https://github.com/SpeciesFileGroup/taxonworks/issues/1275
 [#2628]: https://github.com/SpeciesFileGroup/taxonworks/issues/2628
 [#2626]: https://github.com/SpeciesFileGroup/taxonworks/issues/2626
@@ -35,6 +43,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2634]: https://github.com/SpeciesFileGroup/taxonworks/issues/2634
 [#2635]: https://github.com/SpeciesFileGroup/taxonworks/issues/2635
 [#2636]: https://github.com/SpeciesFileGroup/taxonworks/issues/2636
+[#2637]: https://github.com/SpeciesFileGroup/taxonworks/issues/2637
 
 ## [0.21.1] - 2021-11-05
 ### Fixed
