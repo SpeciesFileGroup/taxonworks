@@ -25,7 +25,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Smart selectors are not refreshing in New source [#2636]
 - Radial navigation doesn't work on source in New taxon name task [#2633]
 - Determiner is not selectable on Grid Digitizer after "Create and new" [#2637]
+- DwC Dashboard data version counts correct now [#2627]
 
+[#2627]: https://github.com/SpeciesFileGroup/taxonworks/issues/2627
 [#1275]: https://github.com/SpeciesFileGroup/taxonworks/issues/1275
 [#2628]: https://github.com/SpeciesFileGroup/taxonworks/issues/2628
 [#2626]: https://github.com/SpeciesFileGroup/taxonworks/issues/2626
