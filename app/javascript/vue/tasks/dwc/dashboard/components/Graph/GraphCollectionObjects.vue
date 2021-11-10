@@ -42,7 +42,7 @@ const chartState = reactive({
 
 watch(versionsResponse, data => {
   const dates = [].concat(data.map(date => date.split(' ')[0]), [new Date().toISOString().split('T')[0]])
-  const coRequests = dates.map((date, index) => CollectionObject.where({
+  const coRequests = dates.map((date, index) => DwcOcurrence.where({
     user_date_start: dates[index - 1] || DEFAULT_START_DATE,
     user_date_end: date,
     ...DEFAULT_PARAMS
