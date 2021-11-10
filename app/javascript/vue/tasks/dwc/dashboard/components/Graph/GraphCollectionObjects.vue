@@ -11,14 +11,15 @@
 <script setup>
 
 import { reactive, ref, watch, onBeforeMount } from 'vue'
-import { DwcOcurrence, CollectionObject } from 'routes/endpoints'
+import { DwcOcurrence } from 'routes/endpoints'
 import { randomHue } from 'helpers/colors.js'
 import VueChart from 'components/ui/Chart/index.vue'
 
 const DEFAULT_START_DATE = '2000-01-01'
 const DEFAULT_PARAMS = {
   dwc_indexed: true,
-  per: 1
+  per: 1,
+  dwc_occurrence_object_type: ['CollectionObject']
 }
 const versionsResponse = ref([])
 const chartState = reactive({
