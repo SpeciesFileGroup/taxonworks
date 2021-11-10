@@ -3,6 +3,13 @@ class DwcOccurrencesController < ApplicationController
 
   before_action :set_object, only: [:status, :create]
 
+  after_action -> { set_pagination_headers(:dwc_occurrences) }, only: [:index], if: :json_request?
+
+  # .json only
+  def index
+    @dwc_occurrences = Queries::DwcOccurrence::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 1)
+  end
+
   def metadata
     @dwc_occurrences = DwcOccurrence.where(project_id: sessions_current_project_id)
   end
@@ -40,6 +47,16 @@ class DwcOccurrencesController < ApplicationController
   end
 
   protected
+
+  def filter_params
+    params.permit(
+      :user_date_end,
+      :user_date_start,
+      dwc_occurrence_object_id: [],
+      dwc_occurrence_object_type: []
+    )
+  end
+
 
   def set_object
     @object = GlobalID::Locator.locate(params[:object_global_id])

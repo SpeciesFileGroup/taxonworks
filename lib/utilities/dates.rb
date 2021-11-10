@@ -339,7 +339,7 @@ module Utilities::Dates
 
       # Split date on separators, then work backwards inserting numbers for non-null values from first date
       begin
-        second_date_values = second_date_str.split(/[-T:Z]/).map { |x| ap x; Integer(x, 10) }
+        second_date_values = second_date_str.split(/[-T:Z]/).map { |x| Integer(x, 10) }
       rescue
         return nil
       end
