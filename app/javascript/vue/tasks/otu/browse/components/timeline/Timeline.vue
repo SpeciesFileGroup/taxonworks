@@ -19,7 +19,9 @@
         <label :for="`switch-filter-nomenclature-${index}`">{{ item.label }}</label>
       </template>
     </div>
-    <div :class="Object.assign({}, ...(preferences.filterSections.show.concat(preferences.filterSections.topic)).map(item => ({ [item.key]: !item.value })))">
+    <div
+      v-if="nomenclature"
+      :class="Object.assign({}, ...(preferences.filterSections.show.concat(preferences.filterSections.topic)).map(item => ({ [item.key]: !item.value })))">
       <timeline-citations :citations="filteredList"/>
       <h3>References</h3>
       <ul
@@ -250,7 +252,7 @@ export default {
       references: [],
       topicsSelected: [],
       showModal: false,
-      nomenclature: '',
+      nomenclature: undefined,
       tabSelected: {
         label: 'All',
         key: '',
@@ -261,7 +263,8 @@ export default {
         {
           label: 'All',
           key: '',
-          value: ''
+          value: '',
+          equal: true
         },
         {
           label: 'Nomenclature',
@@ -272,12 +275,14 @@ export default {
         {
           label: 'Protonym',
           key: 'history-origin',
-          value: 'protonym'
+          value: 'protonym',
+          equal: true
         },
         {
           label: 'OTU (biology)',
           key: 'history-origin',
-          value: 'otu'
+          value: 'otu',
+          equal: true
         }
       ]
     }
@@ -301,10 +306,10 @@ export default {
       const keysAND = Object.keys(this.preferences.filterSections.and)
       const keysOR = Object.keys(this.preferences.filterSections.or)
 
-      return (((!this.tabSelected?.equal ||
+      return (((
         this.tabSelected.equal
-        ? item.data_attributes[this.tabSelected.key] === this.tabSelected.value
-        : item.data_attributes[this.tabSelected.key] !== this.tabSelected.value) ||
+          ? item.data_attributes[this.tabSelected.key] === this.tabSelected.value
+          : item.data_attributes[this.tabSelected.key] !== this.tabSelected.value) ||
         (this.tabSelected.label === 'All')) &&
         keysAND.every(key => {
           if ((this.preferences.filterSections.and[key].every(filter => filter.value === false))) return true

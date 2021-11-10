@@ -14,22 +14,40 @@
       >
         <span v-html="composeName(item)" />
       </a>
-      <div class="list-controls">
+      <div class="horizontal-right-content">
         <placement-component
+          class="margin-small-right"
           @created="$emit('placement', item)"
           :combination="item"/>
         <confidence-button
           :global-id="item.global_id"/>
         <radial-annotator
           :global-id="item.global_id"/>
-        <span
-          class="circle-button btn-edit"
-          @click="$emit('edit', Object.assign({}, item))">Edit
-        </span>
-        <span
-          class="circle-button btn-delete"
-          @click="$emit('delete', item)">Remove
-        </span>
+        <v-btn
+          class="margin-small-right"
+          color="update"
+          circle
+          @click="$emit('edit', Object.assign({}, item))"
+        >
+          <v-icon
+            x-small
+            title="Edit"
+            color="white"
+            name="pencil"
+          />
+        </v-btn>
+        <v-btn
+          color="destroy"
+          circle
+          @click="$emit('delete', item)"
+        >
+          <v-icon
+            x-small
+            title="Remove"
+            color="white"
+            name="trash"
+          />
+        </v-btn>
       </div>
     </li>
   </transition-group>
@@ -39,12 +57,16 @@
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import PlacementComponent from './placement.vue'
 import ConfidenceButton from 'components/defaultConfidence'
+import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
 
 export default {
   components: {
     RadialAnnotator,
     PlacementComponent,
-    ConfidenceButton
+    ConfidenceButton,
+    VBtn,
+    VIcon
   },
 
   props: {
@@ -68,17 +90,6 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-
-.list-controls {
-  display: flex;
-  align-items:center;
-  flex-direction:row;
-  justify-content: flex-end;
-  .circle-button {
-    margin-left: 4px !important;
-  }
-}
-
 .list-item {
   text-decoration: none;
   padding-left: 4px;
