@@ -38,6 +38,10 @@ import DisplayList from './components/displayList.vue'
 import Spinner from 'components/spinner.vue'
 import { Combination, TaxonName } from 'routes/endpoints'
 
+const EXTEND_PARAMS = {
+  extend: ['protonyms', 'placement', 'metadata', 'citations', 'origin_citation', 'source'], embed: ['source']
+}
+
 export default {
   components: {
     DisplayList,
@@ -59,7 +63,7 @@ export default {
   created () {
     this.loadCombination()
 
-    Combination.all({ extend: ['protonyms', 'placement', 'metadata', 'citations', 'origin_citation', 'source'], embed: ['source'] }).then(response => {
+    Combination.all({ ...EXTEND_PARAMS }).then(response => {
       this.combinations = response.body
     })
 
@@ -112,7 +116,7 @@ export default {
 
       if (/^\d+$/.test(combinationId)) {
         this.loading = true
-        Combination.find(combinationId).then(response => {
+        Combination.find(combinationId, { ...EXTEND_PARAMS }).then(response => {
           const keys = Object.keys(response.body.protonyms)
           this.accept_taxon_name_ids = keys.map(key => response.body.protonyms[key].id)
           this.editCombination(response.body)

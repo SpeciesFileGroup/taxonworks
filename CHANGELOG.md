@@ -32,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC Dashboard data version counts correct now [#2627]
 - Common statuses are not displayed in New taxon name task [#2642]
 - Nomenclature and OTU (biology) display the same thing on Browse OTU page [#2644]
+- New combination task hangs editing a combination [#2646]
 
 [#2623]: https://github.com/SpeciesFileGroup/taxonworks/issues/2623
 [#2627]: https://github.com/SpeciesFileGroup/taxonworks/issues/2627
@@ -48,6 +49,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2637]: https://github.com/SpeciesFileGroup/taxonworks/issues/2637
 [#2642]: https://github.com/SpeciesFileGroup/taxonworks/issues/2642
 [#2644]: https://github.com/SpeciesFileGroup/taxonworks/issues/2644
+[#2646]: https://github.com/SpeciesFileGroup/taxonworks/issues/2646
 
 ## [0.21.1] - 2021-11-05
 ### Fixed
