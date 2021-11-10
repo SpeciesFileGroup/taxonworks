@@ -11,6 +11,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Support for DwC terms on body of water depth [#2628]
 - Filter by individual Loan [#2632]
 
+### Changed
+- Updated ruby gems.
+
 ### Fixed
 - Containerized specimens display catalog number in tag correctly [#2623]
 - Improved CrossRef parsing for a new source [#997] [#2620]
