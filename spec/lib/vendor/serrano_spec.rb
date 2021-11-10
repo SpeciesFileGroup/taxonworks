@@ -118,7 +118,7 @@ describe TaxonWorks::Vendor::Serrano, type: :model, group: [:sources] do
 
     specify 'html2' do
       expect(src2.cached_string('html')).to start_with(
-        'Kevan, D.K.M.E. &amp; Wighton, D.C. (1981) <i>Paleocene orthopteroids from south-central Alberta, Canada</i>.'
+        'Kevan, D.K.M.E. &amp; Wighton, D.C. (1981) Paleocene orthopteroids from south-central Alberta, Canada.'
       )
     end
   end

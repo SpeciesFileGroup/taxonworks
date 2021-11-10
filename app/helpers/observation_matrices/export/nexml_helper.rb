@@ -196,15 +196,26 @@ module ObservationMatrices::Export::NexmlHelper
 
             object[1][:depictions].each_with_index do |depictions, index|
               depictions.each do |depiction|
+                lbl = []
+                cit = im.image_hash[depiction[:image_id]][:citations].collect{|i| i[:cached]}.join('')
+                lbl.push('<b>Taxon name:</b> ' + object[1][:object].otu_name) unless object[1][:object].otu_name.blank?
+                lbl.push('<b>Label:</b> ' + descriptors[index][:name]) unless descriptors[index][:name].blank?
+                lbl.push('<b>Caption:</b> ' + depiction[:caption]) unless depiction[:caption].blank?
+                lbl.push('<b>Citation:</b> ' + cit) unless cit.blank?
+                img_attr = Image.find(depiction[:image_id]).attribution
+                lbl.push('<b>Attribution:</b> ' + attribution_tag(img_attr)) unless img_attr.nil?
+                lbl = lbl.join('<br> ')
+
                 xml.meta(
                   'xsi:type' => 'ResourceMeta',
                   'rel' => 'foaf:depiction',
                   'about' => "row_#{r.id}",
                   'href' => short_url(im.image_hash[depiction[:image_id]][:original_url]),
                   #'object' => object[1][:object].otu_name,
-                  'label' => descriptors[index][:name],
-                  'caption' => depiction[:caption],
-                  'citation' => im.image_hash[depiction[:image_id]][:citations].collect{|i| i[:cached]}.join('')
+                  #'label' => descriptors[index][:name], ###
+                  'label' => lbl
+                  #'caption' => depiction[:caption],
+                  #'citation' => im.image_hash[depiction[:image_id]][:citations].collect{|i| i[:cached]}.join('')
                 )
               end
             end
