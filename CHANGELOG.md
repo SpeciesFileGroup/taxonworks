@@ -8,10 +8,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-- Support for DwC terms on depth [#2628]
+- Support for DwC terms on body of water depth [#2628]
 - Filter by individual Loan [#2632]
 
 ### Fixed
+- Containerized specimens display catalog number in tag correctly [#2623]
 - Improved CrossRef parsing for a new source [#997] [#2620]
 - Container label shows catalog number for loan items [#1275]
 - Determiners are not saved after lock the list in comprehensive form [#2626]
@@ -27,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Determiner is not selectable on Grid Digitizer after "Create and new" [#2637]
 - DwC Dashboard data version counts correct now [#2627]
 
+[#2623]: https://github.com/SpeciesFileGroup/taxonworks/issues/2623
 [#2627]: https://github.com/SpeciesFileGroup/taxonworks/issues/2627
 [#1275]: https://github.com/SpeciesFileGroup/taxonworks/issues/1275
 [#2628]: https://github.com/SpeciesFileGroup/taxonworks/issues/2628
