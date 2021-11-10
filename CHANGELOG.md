@@ -9,7 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - Support for DwC terms on body of water depth [#2628]
-- Filter by individual Loan [#2632]
+- Filter Collection Objects by a specific Loan [#2632]
 
 ### Changed
 - Updated ruby gems.
