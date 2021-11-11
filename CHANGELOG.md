@@ -7,7 +7,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Changed
+- Replace radial navigator icon [#2645]
 
 ## [0.21.2] - 2021-11-11
 
