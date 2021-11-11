@@ -6,10 +6,9 @@ body:
 - type: markdown
   attributes:
     value: |
-      A feature could be a function or output or user interface capability for example. Please describe what you would like to see or be able to do. 
-      This issue outlines and proposes a new function, its role, target audience, scope, and brief design [TODO: link to example]. As a way to provide
+      A feature could be a function or output or user interface capability for example. Please describe what you would like to see or be able to do. This issue outlines and proposes a new function, its role, target audience, scope, and brief design [TODO: link to example]. As a way to provide
       transparency for what is being shown, a new function description should address the statement "*As an X I need Y to answer question Q for audience A*".
-      _Need help filling this out?  Once you have your feature details in hand, contact us and we'll help step you through filling out this issue._
+      _Need help filling this out? Once you have your feature details in hand, contact us and we'll help step you through filling out this issue._
 - type: markdown
   attributes:
     value: |
