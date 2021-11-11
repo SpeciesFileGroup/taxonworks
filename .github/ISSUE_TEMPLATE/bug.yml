@@ -53,9 +53,9 @@ body:
     label: Environment
     description: Please identify where you experience this bug. Please select all that apply.
     options:
-      - label: Development (native)
+      - label: Development_native
         required: false
-      - label: Development (docker)
+      - label: Development_docker
         required: false
       - label: Sandbox
         required: false
@@ -69,13 +69,10 @@ body:
     label: Sandbox
     description: Please share which sandbox
     placeholder: sandworm, sandwich, sandstorm, etc
-    validations:
-      required: false
 - type: input
   id: browser
   attributes:
     label: Browser
     description: Please share which browser you are using.
     placeholder: (e.g. chrome, firefox, safari)
-    validations:
-      required: false
+
