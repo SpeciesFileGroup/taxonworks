@@ -284,7 +284,8 @@ export default {
         loans: {
           on_loan: undefined,
           loaned: undefined,
-          never_loaned: undefined
+          never_loaned: undefined,
+          loan_id: []
         },
         preparation_type_id: [],
         types: {

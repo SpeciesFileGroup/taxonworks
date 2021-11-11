@@ -38,7 +38,7 @@ namespace :tw do
       #    true
       #  end
 
-      desc 'Index collection objects into dwc_occurrence records, no updating, only creation'
+      desc 'Index collection objects into dwc_occurrence records, no updating of old, only new record creation'
       task build: [:environment] do |t|
         if ENV['total']
           total = ENV['total'].to_i
@@ -64,7 +64,7 @@ namespace :tw do
         puts Rainbow("Processed #{i} records.").yellow
       end
 
-      desc 'Re-Index collection objects into dwc_occurrence records'
+      desc 'Re-Index collection objects into dwc_occurrence records, all objects, with our without dwc_occcurrences'
       task rebuild: [:environment, :project_id] do |t|
         if ENV['total']
           total = ENV['total'].to_i

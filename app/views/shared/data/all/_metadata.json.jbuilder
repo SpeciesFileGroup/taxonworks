@@ -24,6 +24,7 @@ if extensions
         json.source do
           json.partial! '/sources/base_attributes', source: object.origin_citation.source
 
+          json.global_id object.origin_citation.source.to_global_id.to_s
           # Note: we may need to be more specific, this carries in from other role requests.
           if extend_response_with('roles')
             json.partial! '/sources/roles_attributes', source: object.origin_citation.source

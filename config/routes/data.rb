@@ -242,6 +242,7 @@ end
 
 resources :dwc_occurrences, only: [:create] do
   collection do
+    get :index, defaults: {format: :json}
     get 'metadata', defaults: {format: :json}
     get 'predicates', defaults: {format: :json}
     get 'status', defaults: {format: :json}

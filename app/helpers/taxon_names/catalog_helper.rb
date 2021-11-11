@@ -173,8 +173,14 @@ module TaxonNames::CatalogHelper
       a = history_author_year_tag(t) 
       b = source_author_year_tag(c.source)
 
+      if t.nomenclatural_code == :icn
+        in_str = ' ex '
+      else
+        in_str = ' in '
+      end
+
       if a != b || i.from_relationship?
-        content_tag(:em, ' in ') + link_to(content_tag(:span, b, title: strip_tags(c.source.cached), class: :history__subject_original_citation), send(:nomenclature_by_source_task_path, source_id: c.source.id) )
+        content_tag(:em, in_str) + link_to(content_tag(:span, b, title: strip_tags(c.source.cached), class: :history__subject_original_citation), send(:nomenclature_by_source_task_path, source_id: c.source.id) )
 #        return content_tag(:span,  content_tag(:em, ' in ') + b, class: [:history__in])
       end
     end
