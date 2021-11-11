@@ -10,6 +10,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Replace radial navigator icon [#2645]
 
+### Fixed
+- Roles in Image viewer
+
 ## [0.21.2] - 2021-11-11
 
 ### Added
