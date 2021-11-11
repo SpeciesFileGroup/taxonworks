@@ -7,6 +7,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Changed
+- Replace radial navigator icon [#2645]
+
+### Fixed
+- Roles in Image viewer
+
+## [0.21.2] - 2021-11-11
+
 ### Added
 - Support for DwC terms on body of water depth [#2628]
 - Filter Collection Objects by a specific Loan [#2632]
@@ -1977,7 +1985,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.21.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.21.2...development
+[0.21.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.21.1...v0.21.2
 [0.21.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.21.0...v0.21.1
 [0.21.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.20.1...v0.21.0
 [0.20.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.20.0...v0.20.1

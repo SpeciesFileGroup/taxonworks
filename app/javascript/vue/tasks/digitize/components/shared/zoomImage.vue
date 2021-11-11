@@ -80,6 +80,7 @@ export default {
     box-shadow: 0px 2px 4px 1px rgba(0,0,0,0.2);
     z-index: 500;
     line-height: 0px;
+    z-index: 1002;
 
     .img-size {
       max-width: 90vw;
