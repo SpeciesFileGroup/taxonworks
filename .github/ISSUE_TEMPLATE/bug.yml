@@ -64,13 +64,13 @@ body:
       - label: Browser (e.g. chrome, firefox, safari)
         required: false
 - type: input
-  id: sandbox
+  id: sandbox_used
   attributes:
     label: Sandbox Used
     description: Please share which sandbox
     placeholder: sandworm, sandwich, sandstorm, etc
 - type: input
-  id: browser
+  id: browser_used
   attributes:
     label: Browser Used
     description: Please share which browser you are using.
