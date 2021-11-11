@@ -52,14 +52,6 @@ body:
   attributes:
     value: |
       ## Interface
-- type: input 
-  id: interface_title
-  attributes:
-    label: Header
-    description: Suggested primary header (title of panel if present)
-    placeholder: Type species 
-  validations:
-    required: false
 - type: textarea 
   id: interface_napkin_sketch
   attributes:
