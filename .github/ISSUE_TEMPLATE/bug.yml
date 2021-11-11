@@ -72,7 +72,7 @@ body:
 - type: input
   id: browser
   attributes:
-    label: Browser
+    label: Browser Used
     description: Please share which browser you are using.
     placeholder: (e.g. chrome, firefox, safari)
 
