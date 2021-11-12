@@ -8,15 +8,14 @@
         <div class="horizontal-left-content align-start">
           <smart-selector
             class="full_width"
-            ref="smartSelector"
             input-id="serials-autocomplete"
             model="serials"
             target="Source"
             klass="Source"
             label="name"
-            :filter-ids="serialId"
             pin-section="Serials"
             pin-type="Serial"
+            :filter-ids="serialId"
             @selected="setSelected"/>
           <lock-component
             class="margin-small-left"
@@ -115,14 +114,6 @@ export default {
       },
       immediate: true,
       deep: true
-    },
-
-    lastSave: {
-      handler (newVal, oldVal) {
-        if (newVal !== oldVal) {
-          this.$refs.smartSelector.refresh()
-        }
-      }
     }
   },
 

@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Loan addresses don't strip line-endings, and display in form [#2641]
 - Replace radial navigator icon [#2645]
+- Update smart selector tab selected on refresh
 
 ### Fixed
 - Loan id facet [#2632]
