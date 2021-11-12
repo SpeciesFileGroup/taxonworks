@@ -11,9 +11,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Replace radial navigator icon [#2645]
 
 ### Fixed
+- Loan id facet [#2632]
 - Roles in Image viewer
 - Missing roles after trigger page autosave in new taxon name [#2631]
 
+[#2632]: https://github.com/SpeciesFileGroup/taxonworks/issues/2632
 [#2631]: https://github.com/SpeciesFileGroup/taxonworks/issues/2631
 
 ## [0.21.2] - 2021-11-11
