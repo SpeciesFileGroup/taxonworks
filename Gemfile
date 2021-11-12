@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'rack-cors', '~> 1.1', require: 'rack/cors'
 
-ruby '~> 2.7.0'
+ruby '~> 3.0.0'
 
 gem 'bundler', '~> 2.0'
 
@@ -23,6 +23,7 @@ gem 'daemons', '~> 1.4.1'
 gem 'tzinfo-data', '~> 1.2019' # , '>= 1.2019.3'
 gem 'psych', '~> 3.0'
 gem 'rmagick', '~> 4.2', '>= 4.2.2'
+gem 'webrick', '~> 1.7'
 gem 'roo', '~> 2.8', '>= 2.8.3'
 gem 'roo-xls', '~> 1.2'
 
@@ -35,7 +36,7 @@ gem 'rgeo-proj4', '~> 3.0', '>= 3.0.1'
 gem 'postgresql_cursor', '~> 0.6.1'
 
 # translate for geo
-gem 'gpx', '~> 1.0.0'
+gem 'gpx', github: 'LocoDelAssembly/gpx', branch: 'ruby3'
 
 # API/controllers
 gem 'jbuilder', '~> 2.7'
@@ -53,7 +54,7 @@ gem 'validates_timeliness', '~> 4.1', '>= 4.1.1'
 gem 'paper_trail', '~> 12.0'
 gem 'acts_as_list', '~> 1.0'
 gem 'modularity', '~> 3.0.0' # TODO: Used!?
-gem 'paperclip', '~> 6.1.0'
+gem 'paperclip', github: 'LocoDelAssembly/paperclip', branch: 'migration-fix' # gem 'paperclip', '~> 6.1.0'
 gem 'paperclip-meta', '~> 3.0' # TODO: kt-paperclip can be installed but because of this gem old paperclip is installed as well and deprecation warnings continue
 gem 'shortener', '~> 0.8.0'
 gem 'rails_or', '~> 1.1.8'
@@ -97,9 +98,10 @@ gem 'rqrcode', github:'mjy/rqrcode', branch: 'taxonworks'
 gem 'barby', '~> 0.6.8'
 
 # "Bio" and SFG gems
-gem 'taxonifi', '~> 0.5.5'
+#gem 'taxonifi', '~> 0.5.5'
+gem 'taxonifi', github: 'LocoDelAssembly/taxonifi', branch: 'ruby3'
 gem 'sqed', '0.6.0'
-gem 'dwc_agent', '~> 1.5'
+gem 'dwc_agent', '~> 3.0'
 gem 'dwc-archive', github: 'LocoDelAssembly/dwc-archive', branch: 'overhaul' # '~> 1.1', '>= 1.1.2'
 gem 'biodiversity', github: 'GlobalNamesArchitecture/biodiversity', branch: 'pipe_approach' # '~> 5.1', '>= 5.1.1'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
