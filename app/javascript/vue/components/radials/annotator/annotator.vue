@@ -468,6 +468,7 @@ export default {
       width: 100%;
       max-width: 100%;
       min-height: 600px;
+      overflow-y: auto;
     }
 
     .radial-annotator-container {

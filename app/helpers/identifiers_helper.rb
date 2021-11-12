@@ -13,11 +13,6 @@ module IdentifiersHelper
     link_to(identifier_tag(identifier).html_safe, identifier.identifier_object.metamorphosize)
   end
 
-  def label_for_identifier(identifier)
-    return nil if identifier.nil?
-    identifier.cached
-  end
-
   # @return [String, nil]
   def identifier_annotation_tag(identifier)
     return nil if identifier.nil?
@@ -48,7 +43,13 @@ module IdentifiersHelper
     content_tag(:span, identifier.cached, class: [:feedback, 'feedback-thin', 'feedback-primary'])
   end
 
+  # TODO: Unify to helpers/README.md pattern
   def identifier_label(identifier)
+    return nil if identifier.nil?
+    identifier.cached
+  end
+
+  def label_for_identifier(identifier)
     return nil if identifier.nil?
     identifier.cached
   end

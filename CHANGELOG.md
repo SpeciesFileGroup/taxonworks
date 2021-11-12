@@ -7,11 +7,60 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Changed
+- Replace radial navigator icon [#2645]
+
 ### Fixed
+- Roles in Image viewer
+- Missing roles after trigger page autosave in new taxon name [#2631]
 
+[#2631]: https://github.com/SpeciesFileGroup/taxonworks/issues/2631
+
+## [0.21.2] - 2021-11-11
+
+### Added
+- Support for DwC terms on body of water depth [#2628]
+- Filter Collection Objects by a specific Loan [#2632]
+
+### Changed
+- Updated ruby gems.
+
+### Fixed
+- Containerized specimens display catalog number in tag correctly [#2623]
+- Improved CrossRef parsing for a new source [#997] [#2620]
+- Container label shows catalog number for loan items [#1275]
 - Determiners are not saved after lock the list in comprehensive form [#2626]
+- Wrong rank for original combinations in DwC checklist importer [#2621]
+- No longer exposing exception data for *failed* records (not to be confused with *errored*) in DwC importer.
+- Smart selector is not working in Browse Annotations
+- Biological associations in OTU radial [#2630]
+- Fix citations on asserted distribution list in OTU radial [#2629]
+- Subsequent combinations are not scoped [#2634]
+- Missing scroll in alternate value annotator [#2635]
+- Smart selectors are not refreshing in New source [#2636]
+- Radial navigation doesn't work on source in New taxon name task [#2633]
+- Determiner is not selectable on Grid Digitizer after "Create and new" [#2637]
+- DwC Dashboard data version counts correct now [#2627]
+- Common statuses are not displayed in New taxon name task [#2642]
+- Nomenclature and OTU (biology) display the same thing on Browse OTU page [#2644]
+- New combination task hangs editing a combination [#2646]
 
+[#2623]: https://github.com/SpeciesFileGroup/taxonworks/issues/2623
+[#2627]: https://github.com/SpeciesFileGroup/taxonworks/issues/2627
+[#1275]: https://github.com/SpeciesFileGroup/taxonworks/issues/1275
+[#2628]: https://github.com/SpeciesFileGroup/taxonworks/issues/2628
 [#2626]: https://github.com/SpeciesFileGroup/taxonworks/issues/2626
+[#2621]: https://github.com/SpeciesFileGroup/taxonworks/pull/2621
+[#2629]: https://github.com/SpeciesFileGroup/taxonworks/issues/2629
+[#2630]: https://github.com/SpeciesFileGroup/taxonworks/issues/2630
+[#2633]: https://github.com/SpeciesFileGroup/taxonworks/issues/2633
+[#2634]: https://github.com/SpeciesFileGroup/taxonworks/issues/2634
+[#2635]: https://github.com/SpeciesFileGroup/taxonworks/issues/2635
+[#2636]: https://github.com/SpeciesFileGroup/taxonworks/issues/2636
+[#2637]: https://github.com/SpeciesFileGroup/taxonworks/issues/2637
+[#2642]: https://github.com/SpeciesFileGroup/taxonworks/issues/2642
+[#2644]: https://github.com/SpeciesFileGroup/taxonworks/issues/2644
+[#2646]: https://github.com/SpeciesFileGroup/taxonworks/issues/2646
 
 ## [0.21.1] - 2021-11-05
 ### Fixed
@@ -19,6 +68,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [0.21.0] - 2021-11-04
 ### Added
+- Added new handling for plant name author_string.
+- Added new `Combination` section to handle historical protonym combination.
 - Add new task 'Object graph', visualize and navigate your Things via a force-directed-graph (network) [#2587]
 - New combination editing, including support for multiple authors in plant names [#666] [#2407]
 - Add new global identifier class for glbio repositories
@@ -1937,7 +1988,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.21.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.21.2...development
+[0.21.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.21.1...v0.21.2
 [0.21.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.21.0...v0.21.1
 [0.21.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.20.1...v0.21.0
 [0.20.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.20.0...v0.20.1

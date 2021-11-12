@@ -8,6 +8,7 @@
         get-url="/controlled_vocabulary_terms/"
         model="keywords"
         klass="CollectionObject"
+        target="CollectionObject"
         pin-section="Keywords"
         pin-type="Keyword"
         @selected="addTag"/>

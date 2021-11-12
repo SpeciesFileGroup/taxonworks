@@ -96,7 +96,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: spec/fixtures/vcr_cassettes
-        key: ${{ runner.os }}-vcr-${{ steps.datetime.outputs.year_week }}-${{ matrix.worker }}
+        key: ${{ runner.os }}-vcr-rev3-${{ steps.datetime.outputs.year_week }}-${{ matrix.worker }}
 
     - name: Install apt packages
       run: |

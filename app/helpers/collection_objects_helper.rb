@@ -80,9 +80,14 @@ module CollectionObjectsHelper
   #    also checks virtual container for identifier by proxy
   def collection_object_visualized_identifier(collection_object)
     return nil if collection_object.nil?
+    # Get the Identifier::Local::Catalog number on collection_object, or immediate containing Container
     i = collection_object.preferred_catalog_number # see delegation in collection_object.rb
+
+    # Get some other identifier on collection_object
     i ||= collection_object.identifiers.order(:position)&.first
     return  [:collection_object, identifier_tag(i)] if i
+
+    # Get some other identifier on container
     j = collection_object&.container&.identifiers&.first
     return [:container, identifier_tag(j)] if j
     nil

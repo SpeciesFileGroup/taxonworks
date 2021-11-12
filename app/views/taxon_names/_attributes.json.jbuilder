@@ -6,7 +6,7 @@ json.original_combination full_original_taxon_name_tag(taxon_name) # contains HT
 if extend_response_with('parent')
   if taxon_name.parent
     json.parent do |parent|
-      json.extract! taxon_name.parent, :id, :cached_valid_taxon_name_id, :cached_is_valid
+      json.extract! taxon_name.parent, :id, :cached_valid_taxon_name_id, :cached_is_valid, :rank_string
       json.partial! '/shared/data/all/metadata', object: taxon_name.parent, klass: 'TaxonName', extensions: false
     end
   end

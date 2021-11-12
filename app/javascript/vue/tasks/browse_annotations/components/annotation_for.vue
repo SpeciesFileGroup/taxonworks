@@ -105,7 +105,7 @@ export default {
 
     getSelectOptions (onModel) {
       this.isLoading = true
-      AjaxCall('get', this.selectOptionsUrl, { params: { klass: this.onModel } }).then(response => {
+      AjaxCall('get', this.selectOptionsUrl, { params: { klass: this.onModel, target: this.onModel } }).then(response => {
         this.tabs = OrderSmartSelector(Object.keys(response.body))
         this.list = response.body
         AjaxCall('get', this.allSelectOptionUrl).then(response => {

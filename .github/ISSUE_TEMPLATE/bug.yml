@@ -1,0 +1,78 @@
+name: Bug
+description: Open a new issue to describe a bug. 
+title: "[Bug]: "
+labels: ["bug"]
+body:
+- type: markdown
+  attributes:
+    value: >
+      Please describe the details of any bug you have found. Developers need to know specific details of what you found, where, and how this different from what you expect. _Need help filling this out? Once you have your feature details in hand, contact us and we'll help step you through filling out this issue._
+- type: markdown
+  attributes:
+    value: |
+      # Describe the bug
+      _Please provide a summary about the bug in the following form._
+- type: textarea
+  id: repro
+  attributes:
+    label: Steps to reproduce the bug
+    description: "How do you trigger this bug? Please walk us through it step by step. Try something like, When I do x, then I do y, and do z, I see this error"
+    value: |
+      1.
+      2.
+      3. 
+      ...
+    render: bash
+  validations:
+    required: true
+- type: textarea
+  id: bug_screenshot
+  attributes:
+    label: Screenshot
+    description: Drag/drop your image/s here
+  validations:
+    required: false
+- type: textarea
+  id: expected_behavior
+  attributes:
+    label: Expected behavior
+    description: Describe briefly what you expect to happen.
+    placeholder: When I do a, I expect b, c, d
+  validations:
+    required: false
+- type: textarea
+  id: extra_screenshots
+  attributes:
+    label: Additional Screenshots
+    description: If applicable, add screenshots to help explain your problem. Drag/drop your image/s here
+  validations:
+    required: false
+- type: checkboxes
+  id: environment
+  attributes:
+    label: Environment
+    description: Please identify where you experience this bug. Please select all that apply.
+    options:
+      - label: Development_native
+        required: false
+      - label: Development_docker
+        required: false
+      - label: Sandbox
+        required: false
+      - label: Production
+        required: false
+      - label: Browser (e.g. chrome, firefox, safari)
+        required: false
+- type: input
+  id: sandbox_used
+  attributes:
+    label: Sandbox Used
+    description: Please share which sandbox
+    placeholder: sandworm, sandwich, sandstorm, etc
+- type: input
+  id: browser_used
+  attributes:
+    label: Browser Used
+    description: Please share which browser you are using.
+    placeholder: (e.g. chrome, firefox, safari)
+

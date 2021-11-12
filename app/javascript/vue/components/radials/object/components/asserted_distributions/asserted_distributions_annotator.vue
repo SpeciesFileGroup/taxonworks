@@ -82,7 +82,7 @@ import MapComponent from 'components/georeferences/map.vue'
 import { AssertedDistribution } from 'routes/endpoints'
 
 const EXTEND_PARAMS = {
-  extend: ['geographic_area', 'geographic_area_type', 'parent'],
+  extend: ['geographic_area', 'geographic_area_type', 'parent', 'citations', 'source'],
   embed: ['shape']
 }
 
@@ -127,11 +127,17 @@ export default {
       lockSource: false,
       lockGeo: false,
       editCitation: undefined,
-      urlList: `${this.url}/${this.type}.json?extend[]=geographic_area&embed[]=shape&extend[]=geographic_area_type&extend[]=parent`
+      loadOnMounted: false
     }
   },
 
   created () {
+    AssertedDistribution.where({
+      otu_id: this.metadata.object_id,
+      ...EXTEND_PARAMS
+    }).then(({ body }) => {
+      this.list = body
+    })
     this.asserted_distribution.otu_id = this.splittedGlobalId
   },
 

@@ -60,8 +60,8 @@ const roles = computed({
   }
 })
 
-const addRole = (role) => {
-  if (!findRole(roles, role.id)) {
+const addRole = role => {
+  if (!findRole(roles.value, role.id)) {
     roles.value.push(
       makePerson(
         role.first_name,
