@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Changed
+- Loan addresses don't strip line-endings, and display in form [#2641]
 - Replace radial navigator icon [#2645]
 
 ### Fixed
@@ -15,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Roles in Image viewer
 - Missing roles after trigger page autosave in new taxon name [#2631]
 
+[#2641]: https://github.com/SpeciesFileGroup/taxonworks/issues/2641
 [#2632]: https://github.com/SpeciesFileGroup/taxonworks/issues/2632
 [#2631]: https://github.com/SpeciesFileGroup/taxonworks/issues/2631
 
