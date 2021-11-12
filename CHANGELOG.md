@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loan id facet [#2632]
 - Roles in Image viewer
 - Missing roles after trigger page autosave in new taxon name [#2631]
+- Tag smart selector in new image task
 
 [#2641]: https://github.com/SpeciesFileGroup/taxonworks/issues/2641
 [#2632]: https://github.com/SpeciesFileGroup/taxonworks/issues/2632
