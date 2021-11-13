@@ -221,7 +221,7 @@ module Queries
         @never_loaned = boolean_param(params, :never_loaned)
         @object_global_id = params[:object_global_id]
         @on_loan =  boolean_param(params, :on_loan)
-        @loan_id = params[:loan]
+        @loan_id = params[:loan_id]
         @otu_descendants = boolean_param(params, :otu_descendants)
         @otu_ids = params[:otu_ids] || []
         @preparation_type_id = params[:preparation_type_id]

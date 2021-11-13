@@ -267,8 +267,7 @@ export default {
     return {
       lists: {},
       view: undefined,
-      options: [],
-      firstTime: true
+      options: []
     }
   },
 
@@ -315,12 +314,10 @@ export default {
       AjaxCall('get', `/${this.model}/select_options`, { params: Object.assign({}, { klass: this.klass, target: this.target }, this.params) }).then(response => {
         this.lists = response.body
         this.addCustomElements()
-        this.options = Object.keys(this.lists)
+        this.options = Object.keys(this.lists).concat(this.addTabs)
+        this.options = OrderSmart(this.options)
 
-        if (this.firstTime) {
-          this.view = SelectFirst(this.lists, this.options)
-          this.firstTime = false
-        }
+        this.view = SelectFirst(this.lists, this.options)
 
         if (this.search) {
           this.options.push('search')
@@ -328,8 +325,6 @@ export default {
             this.view = 'search'
           }
         }
-        this.options = this.options.concat(this.addTabs)
-        this.options = OrderSmart(this.options)
       }).catch(() => {
         this.options = []
         this.lists = []

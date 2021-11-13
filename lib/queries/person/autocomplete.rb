@@ -14,7 +14,7 @@ module Queries
       # project_id - the target project in general
 
       # @param [Hash] args
-      def initialize(string, params = {})
+      def initialize(string, **params)
         @limit_to_roles = params[:roles] # roles
         set_identifier(params)
         set_tags_params(params)

@@ -7,7 +7,6 @@
           <smart-selector
             class="full_width"
             model="languages"
-            ref="smartSelector"
             klass="Source"
             label="english_name"
             :filter-ids="languageId"
@@ -86,13 +85,7 @@ export default {
       },
       immediate: true
     },
-    lastSave: {
-      handler (newVal, oldVal) {
-        if (newVal !== oldVal) {
-          this.$refs.smartSelector.refresh()
-        }
-      }
-    },
+
     languageId: {
       handler (newVal) {
         if(!newVal) {

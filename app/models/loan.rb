@@ -68,6 +68,8 @@ class Loan < ApplicationRecord
   include Shared::HasPapertrail
   include Shared::IsData
 
+  ignore_whitespace_on(:lender_address, :recipient_address)
+
   CLONED_ATTRIBUTES = [
     :lender_address,
     :recipient_address,
@@ -80,8 +82,8 @@ class Loan < ApplicationRecord
   ]
 
   # A Loan#id, when present values
-  # from that record are copied 
-  # from the referenced loan, when 
+  # from that record are copied
+  # from the referenced loan, when
   # not otherwised populated
   attr_accessor :clone_from
 
@@ -114,10 +116,11 @@ class Loan < ApplicationRecord
   validate :received_after_closed
   validate :received_after_expected
 
-  soft_validate(:sv_missing_documentation,
-                set: :missing_documentation,
-                name: 'Missing documentation',
-                description: 'No documnets')
+  soft_validate(
+    :sv_missing_documentation,
+    set: :missing_documentation,
+    name: 'Missing documentation',
+    description: 'No documnets')
 
   accepts_nested_attributes_for :loan_items, allow_destroy: true, reject_if: :reject_loan_items
   accepts_nested_attributes_for :loan_supervisors, :loan_supervisor_roles, allow_destroy: true
@@ -165,7 +168,7 @@ class Loan < ApplicationRecord
       case li.loan_item_object_type
       when 'Container'
         retval += li.loan_item_object.all_collection_object_ids
-      when 'CollectionObject' 
+      when 'CollectionObject'
         retval.push(li.loan_item_object_id)
       when 'Otu'
         retval += li.loan_item_object.collection_objects.pluck(:id)
@@ -176,10 +179,10 @@ class Loan < ApplicationRecord
   end
 
   # @return [Scope]
-  #   the max 10 most recently used loans 
+  #   the max 10 most recently used loans
   def self.used_recently(project_id)
     t = LoanItem.arel_table
-    k = Loan.arel_table 
+    k = Loan.arel_table
 
     # i is a select manager
     i = t.project(t['loan_id'], t['created_at']).from(t)
@@ -187,7 +190,7 @@ class Loan < ApplicationRecord
       .where(t['project_id'].eq(project_id))
       .order(t['created_at'].desc)
 
-    # z is a table alias 
+    # z is a table alias
     z = i.as('recent_t')
 
     Loan.joins(
