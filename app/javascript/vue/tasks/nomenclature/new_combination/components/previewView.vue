@@ -4,15 +4,7 @@
       class="horizontal-center-content"
       v-if="combination">
       <span>
-        <i>
-          <span
-            v-for="rank in Object.keys(combination.protonyms).reverse()"
-            :key="rank">
-            <template v-if="combination.protonyms[rank]">
-              {{ combination.protonyms[rank].name }}
-            </template>
-          </span>
-        </i>
+        <i>{{ previewName }}</i>
         <template v-if="incomplete">
           <span class="feedback feedback-warning feedback-thin margin-small-left margin-small-right">
             <span
@@ -21,7 +13,7 @@
             Incomplete match
           </span>
         </template>
-        <span v-html="showAuthorCitation(searchLastExistingRank(combination.protonyms))"/>
+        <span v-html="showAuthorCitation"/>
       </span>
       <span class="separate-left separate-right"> | </span>
       <edit-in-place
@@ -63,6 +55,7 @@ export default {
       type: Object,
       default: undefined
     },
+
     incomplete: {
       type: Boolean,
       default: false
@@ -77,6 +70,20 @@ export default {
     }
   },
 
+  computed: {
+    previewName () {
+      const names = Object.values(this.combination?.protonyms || {})
+
+      return names.filter(rank => rank).map(({ name }) => name).join(' ')
+    },
+
+    showAuthorCitation () {
+      const lastTaxonRank = Object.values(this.combination.protonyms).reverse().find(combination => combination)
+
+      return lastTaxonRank?.origin_citation?.citation_source_body
+    }
+  },
+
   watch: {
     verbatimField (newVal) {
       this.$emit('onVerbatimChange', newVal)
@@ -85,15 +92,6 @@ export default {
 
   mounted () {
     this.verbatimField = this.combination.verbatim_name
-  },
-
-  methods: {
-    searchLastExistingRank (combination) {
-      return combination[Object.keys(combination).find(key => combination[key])]
-    },
-    showAuthorCitation (taxon) {
-      return taxon?.origin_citation?.citation_source_body || undefined
-    }
   }
 }
 </script>

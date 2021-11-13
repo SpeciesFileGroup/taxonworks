@@ -105,7 +105,9 @@ export default {
       return undefined
     },
     coIds () {
-      return Object.keys(this.list).length ? this.list.data.map(item => { return item[0] }) : []
+      return Object.keys(this.list).length
+        ? this.list.data.map(item => item[0])
+        : []
     },
     recordsFound() {
       return this.list.length
@@ -156,7 +158,8 @@ export default {
       }
       this.alreadySearch = true
     },
-    loadPage(event) {
+
+    loadPage (event) {
       this.$refs.filterComponent.loadPage(event.page)
     },
     getPagination: GetPagination

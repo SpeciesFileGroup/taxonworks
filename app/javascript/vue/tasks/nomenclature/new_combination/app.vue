@@ -17,7 +17,7 @@
     <new-combination
       class="separate-top"
       ref="combination"
-      @save="resetInput(); addToList($event)"
+      @save="addToList"
       @onSearchStart="searching = true"
       @onSearchEnd="searching = false"
       :accept-taxon-ids="accept_taxon_name_ids"
@@ -36,7 +36,9 @@ import NewCombination from './components/newCombination.vue'
 import InputSearch from './components/inputSearch.vue'
 import DisplayList from './components/displayList.vue'
 import Spinner from 'components/spinner.vue'
+import { addToArray } from 'helpers/arrays.js'
 import { Combination, TaxonName } from 'routes/endpoints'
+import { EXTEND_PARAMS } from './constants/extend'
 
 export default {
   components: {
@@ -59,7 +61,7 @@ export default {
   created () {
     this.loadCombination()
 
-    Combination.all().then(response => {
+    Combination.all({ ...EXTEND_PARAMS }).then(response => {
       this.combinations = response.body
     })
 
@@ -81,18 +83,13 @@ export default {
       const keys = Object.keys(combination.protonyms)
 
       this.accept_taxon_name_ids = keys.map(key => combination.protonyms[key].id)
-      this.$refs.combination.editCombination(combination.name_string, combination)
+      this.$refs.combination.editCombination(combination.object_label, combination)
       this.$refs.inputSearch.disabledButton(true)
     },
 
     addToList (combination) {
-      const position = this.combinations.findIndex(item => combination.id === item.id)
-
-      if (position > -1) {
-        this.combinations[position] = combination
-      } else {
-        this.combinations.push(combination)
-      }
+      this.resetInput()
+      addToArray(this.combinations, combination)
     },
 
     updatePlacement (combination) {
@@ -112,18 +109,17 @@ export default {
 
       if (/^\d+$/.test(combinationId)) {
         this.loading = true
-        Combination.find(combinationId).then(response => {
-          const keys = Object.keys(response.body.protonyms)
-          this.accept_taxon_name_ids = keys.map(key => response.body.protonyms[key].id)
+        Combination.find(combinationId, { ...EXTEND_PARAMS }).then(response => {
+          const protonyms = Object.values(response.body.protonyms)
+          this.accept_taxon_name_ids = protonyms.map(taxon => taxon.id)
           this.editCombination(response.body)
           this.loading = false
-        }, () => {
+        }, _ => {
           history.pushState(null, null, window.location.href.split('?')[0])
-          TaxonName.find(combinationId).then(response => {
+          TaxonName.find(combinationId, { ...EXTEND_PARAMS }).then(response => {
             this.$refs.inputSearch.processString(`${response.body.parent.name} ${response.body.name}`)
             this.accept_taxon_name_ids.push(response.body.id)
-            this.loading = false
-          }, () => {
+          }).finally(_ => {
             this.loading = false
           })
         })

@@ -4,12 +4,12 @@
       type="button"
       class="button normal-input button-default"
       @click="showModal = true"
-      :disabled="!selectedIds.length">
-      Open in matrix
+      :disabled="!otuIds.length">
+      Add to matrix
     </button>
     <modal-component
       v-if="showModal"
-      :container-style="{ width: '600px' }"
+      :container-style="{ width: '700px' }"
       @close="closeModal">
       <template #header>
         <h3>Add OTUs to matrix</h3>
@@ -18,40 +18,28 @@
         <spinner-component
           v-if="isLoading"
           legend="Loading..."/>
-        <div class="horizontal-left-content">
-          <select
-            class="full_width margin-small-right"
-            v-model="matrix">
-            <option :value="undefined">Select a observation matrix</option>
-            <option
-              v-for="item in observationMatrices"
-              :key="item.id"
-              :value="item">
+        <ul class="no_bullets">
+          <li
+            class="margin-small-bottom"
+            v-for="item in matrixWithRows"
+            :key="item.id">
+            <button
+              class="button normal-input button-default"
+              @click="addRows(item.id)">
               {{ item.name }}
-            </option>
-          </select>
-          <button
-            @click="addRows"
-            :disabled="!matrix"
-            class="button normal-input button-submit">
-            Add
-          </button>
-          <button
-            type="button"
-            class="button normal-input button-default margin-small-left"
-            :disabled="!matrix"
-            @click="openInteractiveKeys(matrix.id)">
-            Open in interactive keys
-          </button>
-          <button
-            v-if="matrix && matrix.is_media_matrix"
-            type="button"
-            class="button normal-input button-default margin-small-left"
-            :disabled="!selectedIds.length"
-            @click="openImageMatrix(matrix.id)">
-            Image matrix
-          </button>
-        </div>
+            </button>
+          </li>
+          <li
+            class="margin-small-bottom"
+            v-for="item in matrixWithoutRows"
+            :key="item.id">
+            <button
+              class="button normal-input button-submit"
+              @click="addRows(item.id)">
+              {{ item.name }}
+            </button>
+          </li>
+        </ul>
       </template>
     </modal-component>
   </div>
@@ -59,79 +47,28 @@
 
 <script>
 
-import ModalComponent from 'components/ui/Modal'
-import SpinnerComponent from 'components/spinner'
-import { RouteNames } from 'routes/routes'
-import { ObservationMatrix, ObservationMatrixRowItem } from 'routes/endpoints'
+import {
+  ObservationMatrixRow,
+  ObservationMatrix
+} from 'routes/endpoints'
+import extendButton from './shared/extendButton'
 
 export default {
-  components: {
-    ModalComponent,
-    SpinnerComponent
-  },
-
-  props: {
-    selectedIds: {
-      type: Array,
-      required: true
-    }
-  },
-
-  emits: ['close'],
-
-  data () {
-    return {
-      isLoading: false,
-      showModal: false,
-      observationMatrices: [],
-      matrix: undefined
-    }
-  },
+  mixins: [extendButton],
 
   watch: {
-    showModal: {
-      handler (newVal) {
-        if (newVal) {
-          this.isLoading = true
-          ObservationMatrix.all().then(response => {
-            this.observationMatrices = response.body
-            this.isLoading = false
-          })
-        }
-      },
-      immediate: true
-    }
-  },
+    showModal (newVal) {
+      if (newVal) {
+        const promises = []
+        this.isLoading = true
 
-  methods: {
-    addRows () {
-      const promises = []
-      const data = this.selectedIds.map(id => ({
-        observation_matrix_id: this.matrix.id,
-        otu_id: id,
-        type: 'ObservationMatrixRowItem::Single::Otu'
-      }))
+        promises.push(ObservationMatrix.all().then(response => { this.observationMatrices = response.body }))
+        promises.push(ObservationMatrixRow.where({ otu_ids: this.otuIds.join('|') }).then(({ body }) => { this.matrixObservationRows = body }))
 
-      data.forEach(row => { promises.push(ObservationMatrixRowItem.create({ observation_matrix_row_item: row })) })
-
-      Promise.all(promises).then(() => {
-        TW.workbench.alert.create('Rows was successfully added to matrix.', 'notice')
-      })
-    },
-
-    closeModal () {
-      this.showModal = false
-      this.$emit('close')
-    },
-
-    openInteractiveKeys (id) {
-      window.open(`${RouteNames.InteractiveKeys}?observation_matrix_id=${id}&otu_filter=${this.selectedIds.join('|')}`, '_blank')
-      this.closeModal()
-    },
-
-    openImageMatrix (id) {
-      window.open(`${RouteNames.ImageMatrix}?observation_matrix_id=${id}&otu_filter=${this.selectedIds.join('|')}`, '_blank')
-      this.closeModal()
+        Promise.all(promises).then(() => {
+          this.isLoading = false
+        })
+      }
     }
   }
 }

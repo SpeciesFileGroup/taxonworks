@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-import App from './app.vue'
+import App from 'components/pdf/pdfViewer.vue'
 
 function init (element) {
   const app = createApp(App)

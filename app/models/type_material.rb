@@ -36,7 +36,7 @@ class TypeMaterial < ApplicationRecord
   include SoftValidation
 
   # Keys are valid values for type_type, values are
-  # required Class for BiologicalCollectionObject 
+  # required Class for BiologicalCollectionObject
   ICZN_TYPES = {
     'holotype' =>  Specimen,
     'paratype' => Specimen,
@@ -63,7 +63,7 @@ class TypeMaterial < ApplicationRecord
       'isosyntypes' => Lot
   }.freeze
 
-  belongs_to :collection_object, foreign_key: :collection_object_id, class_name: 'CollectionObject', inverse_of: :type_designations
+  belongs_to :collection_object, foreign_key: :collection_object_id, class_name: 'CollectionObject', inverse_of: :type_materials
   belongs_to :protonym, inverse_of: :type_materials
 
   scope :where_protonym, -> (taxon_name) { where(protonym_id: taxon_name) }
@@ -98,7 +98,7 @@ class TypeMaterial < ApplicationRecord
     when :iczn
       ICZN_TYPES.keys.include?(type_type)
     when :icn
-      ICZN_TYPES.keys.include?(type_type)
+      ICN_TYPES.keys.include?(type_type)
     else
       false
     end

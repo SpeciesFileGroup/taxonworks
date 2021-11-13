@@ -23,14 +23,14 @@ module Queries
       attr_accessor :in_project
 
       # @return author [String, nil]
-      attr_accessor :author 
+      attr_accessor :author
 
       # @return ids [Array of Integer, nil]
-      attr_accessor :ids 
+      attr_accessor :ids
 
       # @return [Boolean, nil]
       # @params exact_author ['true', 'false', nil]
-      attr_accessor :exact_author 
+      attr_accessor :exact_author
 
       # @params author [Array of Integer, Person#id]
       attr_accessor :author_ids
@@ -83,7 +83,7 @@ module Queries
       # @params citation_object_type  [Array of ObjectType]
       attr_accessor :citation_object_type
 
-      # From lib/queries/concerns/tags.rb 
+      # From lib/queries/concerns/tags.rb
       # attr_accessor :tags
 
       # @return [Boolean, nil]
@@ -91,7 +91,7 @@ module Queries
       attr_accessor :notes
 
       # @return [String, nil]
-      # @params source_type ['Source::Bibtex', 'Source::Human', 'Source::Verbatim'] 
+      # @params source_type ['Source::Bibtex', 'Source::Human', 'Source::Verbatim']
       attr_accessor :source_type
 
       # @params author [Array of Integer, Serial#id]
@@ -109,7 +109,7 @@ module Queries
 
       # @param [Hash] params
       def initialize(params)
-        @query_string = params[:query_term]
+        @query_string = params[:query_term]&.delete("\u0000") # TODO, we need to sanitize params in general.
 
         @author = params[:author]
         @author_ids = params[:author_ids] || []
@@ -220,7 +220,7 @@ module Queries
         o = table
         r = ::Role.arel_table
 
-        a = o.alias("a_") 
+        a = o.alias("a_")
         b = o.project(a[Arel.star]).from(a)
 
         c = r.alias('r1')
@@ -305,7 +305,7 @@ module Queries
       def note_facet
         return nil if notes.nil?
 
-        if notes 
+        if notes
           ::Source.joins(:notes).distinct
         else
           ::Source.left_outer_joins(:notes)
@@ -336,7 +336,7 @@ module Queries
       def nomenclature_facet
         return nil if nomenclature.nil?
 
-        if nomenclature 
+        if nomenclature
           ::Source.joins(:citations)
             .where(citations: {citation_object_type: ['TaxonName', 'TaxonNameRelationship', 'TaxonNameClassification', 'TypeMaterial']})
             .distinct

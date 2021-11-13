@@ -19,13 +19,16 @@
           This will clone the current taxon name with the following information.
         </p>
         <ul class="no_bullets">
-          <li v-for="field in fieldsToCopy">
+          <li
+            v-for="field in fieldsToCopy"
+            :key="field.value">
             <label>
               <input
                 v-model="copyValues"
                 :value="field.value"
                 :disabled="field.lock"
-                type="checkbox"> {{ field.label }} 
+                type="checkbox">
+              {{ field.label }}
             </label>
           </li>
         </ul>
@@ -56,7 +59,7 @@
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 import ModalComponent from 'components/ui/Modal.vue'
-import platformKey from 'helpers/getMacKey'
+import platformKey from 'helpers/getPlatformKey'
 
 export default {
   components: {
@@ -134,10 +137,17 @@ export default {
           value: 'original_combination',
           lock: false,
           default: false
+        },
+        {
+          label: 'Add invalid relationship',
+          value: 'invalid_relationship',
+          lock: false,
+          default: false
         }
       ]
     }
   },
+
   watch: {
     showModal: {
       handler (newVal) {
@@ -149,9 +159,11 @@ export default {
       }
     }
   },
+
   mounted () {
-    this.copyValues = this.fieldsToCopy.filter(item => { return item.default }).map(item => { return item.value })
+    this.copyValues = this.fieldsToCopy.filter(item => item.default).map(item => item.value)
   },
+
   methods: {
     cloneTaxon () {
       if (!this.checkInput) {

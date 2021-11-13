@@ -178,6 +178,10 @@ module Queries
       #   one of :classification, :alphabetical
       attr_accessor :sort
 
+      # @return [Array]
+      #   taxon_name_ids for which all Combinations will be returned
+      attr_accessor :combination_taxon_name_id
+
       # @param params [Params]
       #   as permitted via controller
       def initialize(params)
@@ -196,13 +200,14 @@ module Queries
         @etymology = boolean_param(params, :etymology)
         @project_id = params[:project_id]
         @taxon_name_classification = params[:taxon_name_classification] || []
-        @taxon_name_id = params[:taxon_name_id] || []
+        @taxon_name_id = params[:taxon_name_id]
+        @combination_taxon_name_id = params[:combination_taxon_name_id]
         @parent_id = params[:parent_id] || []
         @sort = params[:sort]
         @taxon_name_relationship = params[:taxon_name_relationship] || []
         @taxon_name_relationship_type = params[:taxon_name_relationship_type] || []
         @taxon_name_type = params[:taxon_name_type]
-        @type_metadata = boolean_param(params, :type_data)
+        @type_metadata = boolean_param(params, :type_metadata)
         @updated_since = params[:updated_since].to_s
         @validity = boolean_param(params, :validity)
         @year = params[:year].to_s
@@ -226,6 +231,14 @@ module Queries
 
       def year=(value)
         @year = value.to_s
+      end
+
+      def taxon_name_id
+        [@taxon_name_id].flatten.compact
+      end
+
+      def combination_taxon_name_id
+        [@combination_taxon_name_id].flatten.compact
       end
 
       # @return [String, nil]
@@ -456,8 +469,39 @@ module Queries
         table[:id].eq_any(taxon_name_id)
       end
 
+      def combination_taxon_name_id_facet
+        return nil if combination_taxon_name_id.empty?
+        ::Combination.joins(:related_taxon_name_relationships)
+          .where(
+            taxon_name_relationships: {
+              type: ::TAXON_NAME_RELATIONSHIP_COMBINATION_TYPES.values,
+              subject_taxon_name_id: combination_taxon_name_id})
+      end
 
-      def base_and_clauses
+
+def base_and_clauses
+    clauses = []
+    # clauses += attribute_clauses
+    
+    clauses += [
+    parent_id_facet,
+    author_facet,
+    cached_name,
+    year_facet,
+    updated_since_facet,
+    validity_facet,
+    taxon_name_id_facet,
+    with_nomenclature_group,
+    with_nomenclature_code,
+    taxon_name_type_facet
+    ].compact!
+    
+    clauses
+    
+    
+end
+      # @return [ActiveRecord::Relation]
+      def and_clauses
         clauses = []
         # clauses += attribute_clauses
 
@@ -493,6 +537,7 @@ module Queries
 
       def base_merge_clauses
         clauses = [
+          combination_taxon_name_id_facet,
           ancestor_facet,
           authors_facet,
           citations_facet,

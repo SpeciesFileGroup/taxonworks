@@ -23,12 +23,12 @@ describe 'TaxonNames', type: :feature do
               rank_class: Ranks.lookup(:iczn, :family), name: 'Fooidae'
             )
           )
-        } 
+        }
       }
 
       context 'visiting taxon_names_path' do
-        before(:each) { 
-          visit taxon_names_path 
+        before(:each) {
+          visit taxon_names_path
         }
 
         describe 'GET /taxon_names' do
@@ -36,8 +36,8 @@ describe 'TaxonNames', type: :feature do
         end
 
         specify 'creating a new TaxonName', js: true do
-          click_link('New') 
-          fill_in('Name', with: 'Fooidae') 
+          click_link('New')
+          fill_in('Name', with: 'Fooidae')
           select('family (ICZN)', from: 'taxon_name_rank_class')
           fill_autocomplete('parent_id_for_name', with: 'root', select: root.id)
 
@@ -48,13 +48,19 @@ describe 'TaxonNames', type: :feature do
       end
 
       describe 'GET /taxon_names/list' do
-        before { visit list_taxon_names_path } 
+        before { visit list_taxon_names_path }
         it_behaves_like 'a_data_model_with_standard_list_and_records_created'
       end
 
       describe 'GET /taxon_names/n' do
         before { visit taxon_name_path(TaxonName.second) }
         it_behaves_like 'a_data_model_with_standard_show'
+
+        it 'should have a taxon name hierarchy list' do
+          within(:xpath,'//*[@id="show_taxon_name_hierarchy"]') do
+            expect(page).to have_link('Root', href: taxon_name_path(TaxonName.first))
+          end
+        end
       end
     end
 

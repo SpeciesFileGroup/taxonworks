@@ -17,7 +17,7 @@
             <input
               type="checkbox"
               v-model="settings.sortable">
-            Sortable fields
+            Reorder fields
           </label>
         </li>
         <li>
@@ -35,6 +35,7 @@
           <span v-else>New record</span>
           <template v-if="source.id">
             <pin-component
+              class="margin-medium-left"
               :object-id="source.id"
               type="Source"/>
             <radial-annotator :global-id="source.global_id"/>
@@ -137,17 +138,18 @@ import CloneSource from './components/cloneSource'
 
 import PinComponent from 'components/ui/Pinboard/VPin.vue'
 
-import { GetUserPreferences } from './request/resources'
-
+import { User } from 'routes/endpoints'
 import { GetterNames } from './store/getters/getters'
 import { ActionNames } from './store/actions/actions'
 import { MutationNames } from './store/mutations/mutations'
 
 import RightSection from './components/rightSection'
 import NavBar from 'components/layout/NavBar'
-import platformKey from 'helpers/getMacKey'
+import platformKey from 'helpers/getPlatformKey'
 
 export default {
+  name: 'NewSource',
+
   components: {
     Autocomplete,
     CloneSource,
@@ -166,6 +168,7 @@ export default {
     RecentComponent,
     SpinnerComponent
   },
+
   computed: {
     shortcuts () {
       const keys = {}
@@ -175,13 +178,16 @@ export default {
 
       return keys
     },
+
     section () {
       const type = this.$store.getters[GetterNames.GetType]
       return type ? type.split('::')[1] : undefined
     },
+
     source () {
       return this.$store.getters[GetterNames.GetSource]
     },
+
     settings: {
       get () {
         return this.$store.getters[GetterNames.GetSettings]
@@ -190,11 +196,13 @@ export default {
         this.$store.commit(MutationNames.SetSettings, value)
       }
     },
+
     unsave() {
-      let settings = this.$store.getters[GetterNames.GetSettings]
+      const settings = this.$store.getters[GetterNames.GetSettings]
       return settings.lastSave < settings.lastEdit
     }
   },
+
   data () {
     return {
       showModal: false,
@@ -202,6 +210,7 @@ export default {
       showRecent: false
     }
   },
+
   watch: {
     source: {
       handler (newVal, oldVal) {
@@ -212,6 +221,7 @@ export default {
       deep: true
     }
   },
+
   mounted () {
     TW.workbench.keyboard.createLegend(`${platformKey()}+s`, 'Save', 'New source')
     TW.workbench.keyboard.createLegend(`${platformKey()}+n`, 'New', 'New source')
@@ -224,10 +234,11 @@ export default {
       this.$store.dispatch(ActionNames.LoadSource, sourceId)
     }
 
-    GetUserPreferences().then(response => {
+    User.preferences().then(response => {
       this.$store.commit(MutationNames.SetPreferences, response.body)
     })
   },
+
   methods: {
     reset () {
       this.$store.dispatch(ActionNames.ResetSource)

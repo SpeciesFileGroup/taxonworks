@@ -1,4 +1,4 @@
-# Point definition...
+# A geographic point.
 #
 class GeographicItem::Point < GeographicItem
   SHAPE_COLUMN = :point

@@ -3,7 +3,7 @@
     class="button normal-input button-default"
     :disabled="!otuIds.length"
     @click="openImageMatrix">
-    Image matrix
+    View image matrix
   </button>
 </template>
 

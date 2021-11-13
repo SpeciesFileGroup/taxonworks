@@ -15,7 +15,7 @@ function makeInitialState () {
       distribution: true
     },
     preferences: {
-      preferenceSchema: 20200807,
+      preferenceSchema: 20210715,
       sections: Object.keys(componentNames()),
       filterSections: {
         and: {

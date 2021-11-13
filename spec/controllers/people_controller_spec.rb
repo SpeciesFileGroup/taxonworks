@@ -157,6 +157,7 @@ describe PeopleController, type: :controller do
     end
 
     it 'redirects to the people list' do
+      request.env['HTTP_REFERER'] = people_url
       person = Person.create! valid_attributes
       delete :destroy, params: {id: person.to_param}, session: valid_session
       expect(response).to redirect_to(people_url)

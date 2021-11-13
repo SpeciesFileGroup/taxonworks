@@ -91,7 +91,7 @@ class CollectionObjectObservationsController < ApplicationController
   def search
     if params[:id].blank?
       redirect_to collection_object_observations_path,
-                  notice: 'You must select an item from the list with a click or tab press before clicking show.'
+                  alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to collection_object_observation_path(params[:id])
     end

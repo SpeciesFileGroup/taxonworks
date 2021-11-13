@@ -1,5 +1,7 @@
 <template>
-  <div class="panel vue-filter-container">
+  <div
+    class="panel vue-filter-container"
+    v-hotkey="shortcuts">
     <div class="flex-separate content middle action-line">
       <span>Filter</span>
       <button
@@ -25,7 +27,7 @@
       <button
         class="button button-default normal-input full_width"
         type="button"
-        :disabled="emptyParams"
+        :disabled="isParamsEmpty"
         @click="searchForCollectionObjects(parseParams)">
         Search
       </button>
@@ -35,10 +37,15 @@
       <otu-component
         class="margin-large-bottom"
         v-model="params.determination"/>
+      <repository-component
+        class="margin-large-bottom"
+        v-model="params.repository.repository_id"/>
       <identifier-component
         class="margin-large-bottom"
         v-model="params.identifier"/>
-      <preparation-types v-model="params.preparation_type_id"/>
+      <preparation-types
+        class="margin-large-bottom"
+        v-model="params.preparation_type_id"/>
       <biocurations-component
         class="margin-large-bottom"
         v-model="params.biocurations.biocuration_class_ids"/>
@@ -55,7 +62,8 @@
         v-model="params.collectors"/>
       <keywords-component
         class="margin-large-bottom"
-        v-model="params.keywords" />
+        v-model="params.keywords"
+        target="CollectionObject" />
       <types-component
         class="margin-large-bottom"
         v-model="params.types"/>
@@ -69,9 +77,6 @@
         class="margin-large-bottom"
         @onUserslist="usersList = $event"
         v-model="params.user"/>
-      <repository-component
-        class="margin-large-bottom"
-        v-model="params.repository.repository_id"/>
       <buffered-component v-model="params.buffered"/>
       <with-component
         class="margin-large-bottom"
@@ -101,9 +106,10 @@ import WithComponent from 'tasks/sources/filter/components/filters/with'
 import BufferedComponent from './filters/buffered.vue'
 import PreparationTypes from './filters/preparationTypes'
 import CollectorsComponent from './filters/shared/people'
+import { chunkArray } from 'helpers/arrays.js'
 
 import SpinnerComponent from 'components/spinner'
-import platformKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getPlatformKey.js'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { CollectionObject } from 'routes/endpoints'
 
@@ -149,30 +155,29 @@ export default {
       return Object.assign({}, { preparation_type_id: this.params.preparation_type_id }, this.params.collectors, this.params.settings, this.params.buffered.text, this.params.buffered.exact, this.params.byRecordsWith, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.repository, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
     },
 
-    emptyParams () {
-      if (!this.params) return
-      return !this.params.biocurations.biocuration_class_ids.length &&
-        !this.params.geographic.geographic_area_id.length &&
-        !this.params.geographic.geo_json.length &&
-        !this.params.relationships.biological_relationship_ids.length &&
-        !this.params.types.is_type.length &&
-        !this.params.keywords.keyword_id_and.length &&
-        !this.params.keywords.keyword_id_or.length &&
-        !this.params.collectors.collector_id.length &&
-        !this.params.determination.otu_ids.length &&
-        !this.params.determination.determiner_id.length &&
-        !this.params.determination.ancestor_id &&
-        !this.params.repository.repository_id &&
-        !Object.keys(this.params.collectingEvents.fields).length &&
-        !this.params.collectingEvents.collecting_event_ids.length &&
-        !this.params.preparation_type_id.length &&
-        Object.keys(this.params.collectingEvents.fields).length <= 1 &&
-        !Object.values(this.params.collectingEvents).find(item => item && item.length) &&
-        !Object.values(this.params.user).find(item => item !== undefined) &&
-        !Object.values(this.params.loans).find(item => item !== undefined) &&
-        !Object.values(this.params.identifier).find(item => item !== undefined) &&
-        !Object.values(this.params.byRecordsWith).find(item => (item !== undefined)) &&
-        !Object.values(this.params.buffered).find(item => item !== undefined )
+    isParamsEmpty () {
+      return !(this.params.biocurations.biocuration_class_ids.length ||
+        this.params.geographic.geographic_area_id?.length ||
+        this.params.geographic.geo_json?.length ||
+        this.params.relationships.biological_relationship_ids.length ||
+        this.params.types.is_type.length ||
+        this.params.keywords.keyword_id_and.length ||
+        this.params.keywords.keyword_id_or.length ||
+        this.params.collectors.collector_id.length ||
+        this.params.determination.otu_ids.length ||
+        this.params.determination.determiner_id.length ||
+        this.params.determination.ancestor_id ||
+        this.params.repository.repository_id ||
+        this.params.collectingEvents.collecting_event_ids.length ||
+        this.params.preparation_type_id.length ||
+        Object.keys(this.params.collectingEvents.fields).length ||
+        Object.values(this.params.collectingEvents).find(item => item && item.length) ||
+        Object.values(this.params.user).find(item => item) ||
+        Object.values(this.params.loans).find(item => item) ||
+        Object.values(this.params.identifier).find(item => item) ||
+        Object.values(this.params.byRecordsWith).some(item => item !== undefined) ||
+        Object.values(this.params.buffered.text).find(item => item)
+      )
     }
   },
 
@@ -216,7 +221,7 @@ export default {
         this.DWCACount = 0
         if (response.body.data.length) {
           this.result = response.body.data
-          this.DWCASearch = response.body.data.filter(item => { return !this.isIndexed(item)})
+          this.DWCASearch = response.body.data.filter(item => !this.isIndexed(item))
           if (this.DWCASearch.length) {
             this.getDWCATable(this.DWCASearch)
           } else {
@@ -279,7 +284,8 @@ export default {
         loans: {
           on_loan: undefined,
           loaned: undefined,
-          never_loaned: undefined
+          never_loaned: undefined,
+          loan_id: []
         },
         preparation_type_id: [],
         types: {
@@ -346,7 +352,7 @@ export default {
       return date.toISOString().slice(0, 10)
     },
 
-    filterEmptyParams(object) {
+    filterEmptyParams (object) {
       const keys = Object.keys(object)
       keys.forEach(key => {
         if (object[key] === '') {
@@ -363,15 +369,9 @@ export default {
     },
 
     getDWCATable (list) {
-      const IDS = list.map(item => item[0])
-      const chunk = IDS.length / this.perRequest
-      const chunkArray = []
-      let i, j
+      const IDs = chunkArray(list.map(item => item[0]), this.perRequest)
 
-      for (i = 0,j = IDS.length; i < j; i += chunk) {
-        chunkArray.push(IDS.slice(i, i + chunk))
-      }
-      this.getDWCA(chunkArray)
+      this.getDWCA(IDs)
     },
 
     isIndexed (object) {
@@ -380,21 +380,24 @@ export default {
 
     getDWCA (ids) {
       if (ids.length) {
-        this.loadingDWCA = true
-        const promises = []
-        ids[0].forEach(id => {
-          promises.push(CollectionObject.dwc(id).then(response => {
-            const index = this.coList.data.findIndex(item => item[0] === id)
+        const failedRequestIds = []
+        const idArray = ids.shift(0)
+        const promises = idArray.map(id => CollectionObject.dwc(id).then(response => {
+          const index = this.coList.data.findIndex(item => item[0] === id)
 
-            this.DWCACount++
-            this.coList.data[index] = response.body
-          }, (response) => {
-            this.loadingDWCA = false
-            TW.workbench.alert.create(`Error: ${response}`, 'warning')
-          }))
-        })
-        Promise.all(promises).then(() => {
-          ids.splice(0, 1)
+          this.DWCACount++
+          this.coList.data[index] = response.body
+        }, _ => {
+          failedRequestIds.push(id)
+        }))
+
+        this.loadingDWCA = true
+
+        Promise.allSettled(promises).then(_ => {
+          if (failedRequestIds.length) {
+            ids.push(failedRequestIds)
+          }
+
           this.$emit('result', { column_headers: this.coList.column_headers, data: this.result })
           this.getDWCA(ids)
         })

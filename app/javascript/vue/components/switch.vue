@@ -12,7 +12,6 @@
           :id="`switch-${name}-${index}`"
           :name="`switch-${name}-options`"
           type="radio"
-          :checked="item === (useIndex ? index : modelValue)"
           class="normal-input button-active"
         >
         <label :for="`switch-${name}-${index}`">{{ item }}

@@ -9,7 +9,7 @@ describe Person, type: :model, group: [:sources, :people] do
     before { person.valid? }
 
     specify 'last_name is required' do
-      expect(person.errors.keys).to include(:last_name)
+      expect(person.errors[:last_name]).to be_present
     end
 
     specify 'type is required (set to \'Person::Unvetted\' when not provided)' do

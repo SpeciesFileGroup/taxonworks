@@ -49,14 +49,10 @@
         @pagination="pagination = getPagination($event)"
         @reset="resetTask"/>
       <div class="full_width overflow-x-auto">
-        <div 
+        <div
           v-if="recordsFound"
           class="horizontal-left-content flex-separate separate-bottom">
           <div class="horizontal-left-content">
-            <csv-button
-              :url="urlRequest"
-              :options="{ fields: csvFields }"/>
-            <span class="separate-left separate-right">|</span>
             <button
               v-if="ids.length"
               type="button"
@@ -71,6 +67,19 @@
               class="button normal-input button-default">
               Select all
             </button>
+            <span class="separate-left separate-right">|</span>
+            <csv-button
+              :url="urlRequest"
+              :options="{ fields: csvFields }"/>
+            <dwc-download
+              class="margin-small-left"
+              :params="$refs.filterComponent.parseParams"
+              :total="pagination.total"/>
+            <dwc-reindex
+              class="margin-small-left"
+              :params="$refs.filterComponent.parseParams"
+              :total="pagination.total"
+            />
           </div>
         </div>
         <div
@@ -85,6 +94,7 @@
             v-model="per"/>
         </div>
         <list-component
+          v-if="Object.keys(list).length"
           v-model="ids"
           :list="list"
           @onSort="list.data = $event"/>
@@ -105,6 +115,8 @@ import CsvButton from './components/csvDownload'
 import PaginationComponent from 'components/pagination'
 import PaginationCount from 'components/pagination/PaginationCount'
 import GetPagination from 'helpers/getPagination'
+import DwcDownload from './components/dwcDownload.vue'
+import DwcReindex from './components/dwcReindex.vue'
 
 export default {
   components: {
@@ -112,7 +124,9 @@ export default {
     FilterComponent,
     ListComponent,
     CsvButton,
-    PaginationCount
+    PaginationCount,
+    DwcDownload,
+    DwcReindex
   },
 
   computed: {

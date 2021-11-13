@@ -3,7 +3,7 @@ import { MutationNames } from '../mutations/mutations'
 
 export default ({ commit }, id) =>
   new Promise((resolve, reject) => {
-    TypeMaterial.where({ collection_object_id: id }).then(response => {
+    TypeMaterial.where({ collection_object_id: id, extend: ['roles', 'origin_citation'] }).then(response => {
       response.body.forEach((item, index) => {
         response.body[index].roles_attributes = response.body[index].roles || []
       })

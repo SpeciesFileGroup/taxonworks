@@ -151,6 +151,17 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
       expect(o.soft_validations.messages_on(:base).count).to eq(0)
     end
 
+    specify 'determination is preceding collecting' do
+      o.taxon_determinations << FactoryBot.create(:valid_taxon_determination, year_made: 2000)
+      o.collecting_event = FactoryBot.create(:valid_collecting_event)
+      o.collecting_event.start_date_year = 2001
+      o.soft_validate(only_sets: :determined_before_collected)
+      expect(o.soft_validations.messages_on(:base).count).to eq(1)
+      o.collecting_event.start_date_year = 1999
+      o.soft_validate(only_sets: :determined_before_collected)
+      expect(o.soft_validations.messages_on(:base).count).to eq(0)
+    end
+
     specify 'collecting_event missing' do
       o.soft_validate(only_sets: :missing_collecting_event)
       expect(o.soft_validations.messages_on(:collecting_event_id).count).to eq(1)

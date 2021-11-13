@@ -24,19 +24,11 @@
     <strong>Times downloaded:</strong>
     <%= @download.times_downloaded %>
   </p>
-
-  <%= form_for @download do |f| -%>
-    <div class="field">
-      <strong>Is public:</strong>
-      <%= f.check_box :is_public -%>    
-    </div>
-    <div class="actions">
-      <%= f.submit -%>
-    </div>
-  <% end %>
+  <%= content_tag(:div, nil, id: 'vue-data-download-form', data: { 'download-id': @download.id, 'is-public': @download.is_public }) -%>
 
   <p>
-    <%= link_to("Download", file_download_path(@download), target: "_blank") %>
+    <strong>Total records (estimate):</strong>
+    <%= @download.total_records -%>
   </p>
 <% else %>
   <p>

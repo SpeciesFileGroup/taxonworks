@@ -1,4 +1,4 @@
-FROM sfgrp/taxonworks-base:latest
+FROM sfgrp/taxonworks-base:ruby3
 ARG BUNDLER_WORKERS=1
 
 # Install Firefox (for headless feature tests)

@@ -2,43 +2,58 @@
 <template>
   <div v-if="keyId">
     <tippy
-      v-if="!created"
       animation="scale"
       placement="bottom"
       size="small"
-      :inertia="true"
-      :arrow="true"
-      :content="`<p>Create tag: ${getDefaultElement().firstChild.firstChild.textContent}.${showCount ? `<br>Used already on ${countTag} ${countTag > 200 ? 'or more' : '' } objects</p>` : ''}`">
-      <div
-        class="default_tag_widget circle-button btn-tag-add"
-        @click="createTag()"/>
-    </tippy>
+      inertia
+      arrow
+    >
+      <template #content>
+        <p>{{ created ? 'Remove' : 'Create' }} tag: {{ getDefaultElement().firstChild.firstChild.textContent }}.
+          <br>
+          {{ showCount ? `Used already on ${countTag} ${countTag > 200 ? 'or more' : '' } objects` : ''}}
+        </p>
+      </template>
 
-    <tippy
-      v-else
-      animation="scale"
-      placement="bottom"
-      size="small"
-      :inertia="true"
-      :arrow="true"
-      :content="`<p>Remove tag: ${getDefaultElement().firstChild.firstChild.textContent}.${showCount ? `<br>Used already on ${countTag} ${countTag > 200 ? 'or more' : '' } objects</p>` : ''}`">
-      <div
-        class="default_tag_widget circle-button btn-tag-delete"
-        @click="deleteTag()"/>
+      <v-btn
+        circle
+        :color="created ? 'destroy' : 'create'"
+        @click="created ? deleteTag() : createTag()"
+      >
+        <v-icon
+          color="white"
+          name="label"
+          x-small
+        />
+      </v-btn>
     </tippy>
   </div>
-  <div
+  <v-btn
     v-else
-    class="btn-tag circle-button btn-disabled"/>
+    circle
+    color="disabled"
+  >
+    <v-icon
+      color="white"
+      name="label"
+      x-small
+    />
+  </v-btn>
 </template>
 
 <script>
+
 import { Tippy } from 'vue-tippy'
-import AjaxCall from 'helpers/ajaxCall'
 import { Tag } from 'routes/endpoints'
+import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
 
 export default {
-  components: { Tippy },
+  components: {
+    Tippy,
+    VBtn,
+    VIcon
+  },
 
   props: {
     globalId: {
@@ -106,8 +121,9 @@ export default {
         global_id: this.globalId,
         keyword_id: this.keyId
       }
-      AjaxCall('get', '/tags/exists', { params: params }).then(response => {
+      Tag.exists(params).then(response => {
         this.created = !!response.body
+        this.tagItem = response.body
       })
     },
 

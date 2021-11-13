@@ -8,15 +8,14 @@
         <div class="horizontal-left-content align-start">
           <smart-selector
             class="full_width"
-            ref="smartSelector"
             input-id="serials-autocomplete"
             model="serials"
             target="Source"
             klass="Source"
             label="name"
-            :filter-ids="serialId"
             pin-section="Serials"
             pin-type="Serial"
+            :filter-ids="serialId"
             @selected="setSelected"/>
           <lock-component
             class="margin-small-left"
@@ -48,12 +47,11 @@
 
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
+import { Serial } from 'routes/endpoints'
 
 import LockComponent from 'components/ui/VLock/index.vue'
 import SmartSelector from 'components/ui/SmartSelector'
 import RadialObject from 'components/radials/navigation/radial'
-
-import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
@@ -61,6 +59,7 @@ export default {
     LockComponent,
     RadialObject
   },
+
   computed: {
     source: {
       get () {
@@ -70,6 +69,7 @@ export default {
         this.$store.commit(MutationNames.SetSource, value)
       }
     },
+
     serialId: {
       get () {
         return this.$store.getters[GetterNames.GetSerialId]
@@ -78,6 +78,7 @@ export default {
         this.$store.commit(MutationNames.SetSerialId, value)
       }
     },
+
     settings: {
       get () {
         return this.$store.getters[GetterNames.GetSettings]
@@ -90,17 +91,19 @@ export default {
       return this.$store.getters[GetterNames.GetLastSave]
     }
   },
+
   data () {
     return {
       selected: undefined
     }
   },
+
   watch: {
     serialId: {
-      handler(newVal, oldVal) {
-        if(newVal) {
-          if(oldVal !== newVal) {
-            AjaxCall('get', `/serials/${newVal}.json`).then(response => {
+      handler (newVal, oldVal) {
+        if (newVal) {
+          if (oldVal !== newVal) {
+            Serial.find(newVal).then(response => {
               this.selected = response.body
             })
           }
@@ -111,26 +114,22 @@ export default {
       },
       immediate: true,
       deep: true
-    },
-    lastSave: {
-      handler (newVal, oldVal) {
-        if (newVal !== oldVal) {
-          this.$refs.smartSelector.refresh()
-        }
-      }
     }
   },
+
   methods: {
     setSelected (serial) {
       this.source.serial_id = serial.id
       this.selected = serial
     },
+
     unset () {
       this.selected = undefined
       this.source.serial_id = null
     },
+
     getDefault (id) {
-      AjaxCall('get', `/serials/${id}.json`).then(response => {
+      Serial.find(id).then(response => {
         this.selected = response.body
       })
     }

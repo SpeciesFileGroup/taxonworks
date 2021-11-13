@@ -79,7 +79,8 @@
 import ModalComponent from 'components/ui/Modal'
 import SwitchComponent from 'components/switch'
 
-import { GetCollectingEvent, GetDWC } from '../request/resources'
+import { GetDWC } from '../request/resources'
+import { CollectingEvent } from 'routes/endpoints'
 
 const TABS_TYPE = {
   DETAILS: 'details',
@@ -131,12 +132,12 @@ export default {
       const ceId2 = this.compare[1]['collecting_event_id']
 
       if(ceId)
-        GetCollectingEvent(ceId).then(response => {
+        CollectingEvent.find(ceId).then(response => {
           this.compareCE[0] = response.body
           this.ceProperties = Object.keys(response.body)
         })
       if(ceId2)
-        GetCollectingEvent(ceId2).then(response => {
+        CollectingEvent.find(ceId2).then(response => {
           this.compareCE[1] = response.body
           this.ceProperties = Object.keys(response.body)
         })

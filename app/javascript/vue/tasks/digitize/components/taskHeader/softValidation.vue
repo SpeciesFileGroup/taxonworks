@@ -3,13 +3,16 @@
     <div class="hexagon-validation">
       <div
         class="cursor-pointer middle"
-        @click="loadSoftValidation"
-        v-html="badge"/>
+        @click="showValidation = true"
+        v-html="badge"
+      />
       <div class="panel content hexagon-information">
         <ul class="no_bullets">
           <li
             class="horizontal-left-content"
-            v-for="(segment, key) in segments">
+            v-for="(segment, key) in segments"
+            :key="key"
+          >
             <div
               class="hexagon-info-square margin-small-right"
               :style="{ 'background-color': key }"/>
@@ -25,22 +28,25 @@
         <h3>Soft validation</h3>
       </template>
       <template #body>
-        <template v-if="validation.collectionObject.length">
-          <h3>Collection object</h3>
+        <div
+          v-for="(typeValidation, key) in softValidations"
+          :key="key"
+        >
+          <h3>{{ typeValidation.title }}</h3>
           <ul class="no_bullets">
-            <li v-for="item in validation.collectionObject">
-              <span data-icon="warning" v-html="item.message"/>
-            </li>
+            <template
+              v-for="(list, i) in typeValidation.list"
+              :key="i">
+              <li
+                v-for="(item, index) in list.soft_validations"
+                :key="index">
+                <span
+                  data-icon="warning"
+                  v-html="item.message"/>
+              </li>
+            </template>
           </ul>
-        </template>
-        <template v-if="validation.collectingEvent.length">
-          <h3>Collecting event</h3>
-          <ul class="no_bullets">
-            <li v-for="item in validation.collectingEvent">
-              <span data-icon="warning" v-html="item.message"/>
-            </li>
-          </ul>
-        </template>
+        </div>
       </template>
     </modal-component>
   </div>
@@ -48,42 +54,31 @@
 
 <script>
 
-
+import { CollectionObject } from 'routes/endpoints'
 import { GetterNames } from '../../store/getters/getters'
-import { SoftValidation } from 'routes/endpoints'
 import ModalComponent from 'components/ui/Modal'
-import AjaxCall from 'helpers/ajaxCall'
 
 export default {
-  components: {
-    ModalComponent,
-  },
+  components: { ModalComponent },
+
   computed: {
     collectionObject () {
       return this.$store.getters[GetterNames.GetCollectionObject]
     },
-    collectingEvent () {
-      return this.$store.getters[GetterNames.GetCollectionEvent]
-    },
-    settings () {
-      return this.$store.getters[GetterNames.GetSettings]
-    },
+
     lastSave () {
       return this.$store.getters[GetterNames.GetSettings].lastSave
     },
-    taxonDeterminations () {
-      return this.$store.getters[GetterNames.GetTaxonDeterminations]
+
+    softValidations () {
+      return this.$store.getters[GetterNames.GetSoftValidations]
     }
   },
+
   data () {
     return {
-      validation: {
-        collectingEvent: [],
-        collectionObject: []
-      },
       badge: undefined,
       showValidation: false,
-      isLoading: false,
       segments: {
         yellow: 'Identifiers',
         orange: 'Taxon determinations',
@@ -94,39 +89,26 @@ export default {
       }
     }
   },
+
   watch: {
     lastSave: {
-      handler(newVal) {
-        if(newVal && this.collectionObject.id) {
+      handler (newVal) {
+        if (newVal && this.collectionObject.id) {
           this.getBadge(this.collectionObject.id)
         }
       },
-      deep: true,
-      immediate: true
+      deep: true
     }
   },
-  methods:{
+
+  created () {
+    this.getBadge(this.collectionObject.id)
+  },
+
+  methods: {
     getBadge (id) {
-      AjaxCall('get', `/collection_objects/${id}/metadata_badge`).then(response => {
+      CollectionObject.metadataBadge(id).then(response => {
         this.badge = response.body.svg
-      })
-    },
-    loadSoftValidation () {
-      const promises = []
-      this.showValidation = true
-      this.isLoading = true
-
-      promises.push(SoftValidation.find(this.collectionObject.global_id).then(response => {
-        this.validation.collectionObject = response.body.validations.soft_validations
-      }))
-      if (this.collectingEvent.id) {
-        promises.push(SoftValidation.find(this.collectingEvent.global_id).then(response => {
-          this.validation.collectingEvent = response.body.validations.soft_validations
-        }))
-      }
-
-      Promise.all(promises).then(() => {
-        this.isLoading = false
       })
     }
   }

@@ -14,15 +14,7 @@ function makeInitialState () {
       topic: undefined,
       otu: undefined
     },
-    recent: {
-      contents: [],
-      topics: [],
-      otus: []
-    },
     panels: {
-      otu: false,
-      topic: true,
-      recent: true,
       figures: false,
       citations: false
     },

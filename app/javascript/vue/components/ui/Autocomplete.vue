@@ -70,6 +70,7 @@ Parameters:
 <script>
 
 import AjaxCall from 'helpers/ajaxCall'
+import Qs from 'qs'
 
 export default {
   props: {
@@ -100,7 +101,7 @@ export default {
     headers: {
       required: false,
       type: Object,
-      default: () => ({})
+      default: undefined
     },
 
     nested: {
@@ -289,16 +290,7 @@ export default {
       var tempUrl = this.url + '?' + this.param + '=' + encodeURIComponent(this.type)
       var params = ''
       if (Object.keys(this.addParams).length) {
-        Object.keys(this.addParams).forEach((key) => {
-          if(Array.isArray(this.addParams[key])) {
-            this.addParams[key].forEach((param) => {
-              params += `&${key}=${encodeURIComponent(param)}`
-            })
-          }
-          else {
-            params += `&${key}=${encodeURIComponent(this.addParams[key])}`
-          }
-        })
+        params = `&${Qs.stringify(this.addParams, { arrayFormat: 'brackets' })}`
       }
       return tempUrl + params
     },
@@ -330,7 +322,8 @@ export default {
       } else {
         this.spinner = true
         AjaxCall('get', this.ajaxUrl(), {
-          requestId: this.requestId
+          requestId: this.requestId,
+          headers: this.headers
         })
           .then(({ body }) => {
             this.json = this.getNested(body, this.nested)

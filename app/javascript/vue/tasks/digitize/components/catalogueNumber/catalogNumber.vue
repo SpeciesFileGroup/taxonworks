@@ -23,6 +23,7 @@
               klass="CollectionObject"
               pin-section="Namespaces"
               pin-type="Namespace"
+              v-model="namespaceSelected"
               @selected="setNamespace"/>
             <lock-component
               class="margin-small-left"
@@ -31,16 +32,16 @@
               class="margin-small-top margin-small-left"
               href="/namespaces/new">New</a>
           </div>
-          <template v-if="namespace">
-            <div class="middle separate-top">
-              <span data-icon="ok" />
-              <p
-                class="separate-right"
-                v-html="namespaceSelected"
-              />
+          <template v-if="identifier.namespace_id">
+            <hr>
+            <div class="middle flex-separate">
+              <p class="separate-right">
+                <span data-icon="ok"/>
+                <span v-html="namespaceSelected.name"/>
+              </p>
               <span
                 class="circle-button button-default btn-undo"
-                @click="namespace = undefined"
+                @click="unsetNamespace"
               />
             </div>
           </template>
@@ -56,7 +57,7 @@
             :class="{ 'validate-identifier': existingIdentifier }"
             type="text"
             @input="checkIdentifier"
-            v-model="identifier"
+            v-model="identifier.identifier"
           >
           <label>
             <input
@@ -66,14 +67,14 @@
             Increment
           </label>
           <validate-component
-            v-if="namespace"
+            v-if="identifier.namespace_id"
             class="separate-left"
             :show-message="checkValidation"
             legend="Namespace and identifier needs to be set to be saved."
           />
         </div>
         <span
-          v-if="!namespace && identifier && identifier.length"
+          v-if="!identifier.namespace_id && identifier.identifier && identifier.identifier.length"
           style="color: red"
         >Namespace is needed.</span>
         <template v-if="existingIdentifier">
@@ -95,15 +96,14 @@
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { Identifier } from 'routes/endpoints'
+import { IDENTIFIER_LOCAL_CATALOG_NUMBER } from 'constants/index.js'
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import validateComponent from '../shared/validate.vue'
 import validateIdentifier from '../../validations/namespace.js'
 import incrementIdentifier from '../../helpers/incrementIdentifier.js'
 import LockComponent from 'components/ui/VLock/index.vue'
-import refreshSmartSelector from '../shared/refreshSmartSelector'
 
 export default {
-  mixins: [refreshSmartSelector],
   components: {
     validateComponent,
     LockComponent,
@@ -113,9 +113,11 @@ export default {
     collectionObject () {
       return this.$store.getters[GetterNames.GetCollectionObject]
     },
+
     identifiers () {
       return this.$store.getters[GetterNames.GetIdentifiers]
     },
+
     locked: {
       get () {
         return this.$store.getters[GetterNames.GetLocked]
@@ -124,6 +126,7 @@ export default {
         this.$store.commit([MutationNames.SetLocked, value])
       }
     },
+
     settings: {
       get () {
         return this.$store.getters[GetterNames.GetSettings]
@@ -132,25 +135,20 @@ export default {
         this.$store.commit(MutationNames.SetSettings, value)
       }
     },
-    namespace: {
-      get () {
-        return this.$store.getters[GetterNames.GetIdentifier].namespace_id
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetIdentifierNamespaceId, value)
-      }
-    },
+
     identifier: {
       get () {
-        return this.$store.getters[GetterNames.GetIdentifier].identifier
+        return this.$store.getters[GetterNames.GetIdentifier]
       },
       set (value) {
-        return this.$store.commit(MutationNames.SetIdentifierIdentifier, value)
+        return this.$store.commit(MutationNames.SetIdentifier, value)
       }
     },
+
     checkValidation () {
-      return !validateIdentifier({ namespace_id: this.namespace, identifier: this.identifier })
+      return !validateIdentifier({ namespace_id: this.identifier.namespace_id, identifier: this.identifier.identifier })
     },
+
     namespaceSelected: {
       get () {
         return this.$store.getters[GetterNames.GetNamespaceSelected]
@@ -174,18 +172,18 @@ export default {
   },
   methods: {
     increment () {
-      this.identifier = incrementIdentifier(this.identifier)
+      this.identifier.identifier = incrementIdentifier(this.identifier.identifier)
     },
     checkIdentifier () {
       if (this.saveRequest) {
         clearTimeout(this.saveRequest)
       }
-      if (this.identifier) {
+      if (this.identifier.identifier) {
         this.saveRequest = setTimeout(() => {
           Identifier.where({
-            type: 'Identifier::Local::CatalogNumber',
-            namespace_id: this.namespace,
-            identifier: this.identifier
+            type: IDENTIFIER_LOCAL_CATALOG_NUMBER,
+            namespace_id: this.identifier.namespace_id,
+            identifier: this.identifier.identifier
           }).then(response => {
             this.existingIdentifier = (response.body.length > 0 ? response.body[0] : undefined)
           })
@@ -193,9 +191,12 @@ export default {
       }
     },
     setNamespace (namespace) {
-      this.namespace = namespace.id
-      this.namespaceSelected = namespace.name
+      this.identifier.namespace_id = namespace.id
       this.checkIdentifier()
+    },
+    unsetNamespace () {
+      this.identifier.namespace_id = undefined
+      this.namespaceSelected = undefined
     }
   }
 }

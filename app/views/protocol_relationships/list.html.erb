@@ -13,7 +13,7 @@
 
   <tbody>
   <% @protocol_relationships.each do |protocol_relationship| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= object_link(protocol_relationship.protocol) %></td>
           <td><%= object_link(protocol_relationship.protocol_relationship_object) %></td>
           <td><%= protocol_relationship.protocol_relationship_object_type %></td>

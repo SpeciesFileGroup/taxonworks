@@ -5,28 +5,26 @@
       v-if="taxon"
       class="separate-bottom"
       :options="options"
-      v-model="view" 
+      v-model="view"
     />
     <div>
-      <template>
-        <div
-          v-if="taxon"
-          class="horizontal-left-content">
-          <span v-html="taxon.label"/>
-          <span
-            title="Undo"
-            class="circle-button button-default btn-undo"
-            @click="taxon = undefined"/>
-        </div>
-        <autocomplete
-          v-else
-          placeholder="Select a taxon name for the relationship"
-          url="/taxon_names/autocomplete"
-          param="term"
-          label="label_html"
-          :clear-after="true"
-          @getItem="setTaxon"/>
-      </template>
+      <div
+        v-if="taxon"
+        class="horizontal-left-content">
+        <span v-html="taxon.object_tag"/>
+        <span
+          title="Undo"
+          class="circle-button button-default btn-undo"
+          @click="taxon = undefined"/>
+      </div>
+      <autocomplete
+        v-else
+        placeholder="Select a taxon name for the relationship"
+        url="/taxon_names/autocomplete"
+        param="term"
+        label="label_html"
+        clear-after
+        @getItem="loadTaxonName"/>
     </div>
     <div
       class="separate-top"
@@ -102,7 +100,7 @@ export default {
   props: {
     modelValue: {
 
-    }
+    },
   },
 
   emits: ['update:modelValue'],
@@ -144,15 +142,23 @@ export default {
       this.typeSelected = undefined,
       this.relationships = []
     },
-    relationships () {
-      let newList = this.relationships.map(item => {
-        let name = item.type_name == 'subject_status_tag' ? 'subject_taxon_name_id' : 'object_taxon_name_id'
-        return {
-          type: item.type,
-          [name]: item.taxonId
-        }
-      })
-      this.$emit('update:modelValue', newList)
+
+    relationships: {
+      handler() {
+        const newList = this.relationships.map(item => {
+          const name = item.type_name === 'subject_status_tag'
+            ? 'subject_taxon_name_id'
+            : 'object_taxon_name_id'
+
+          return {
+            type: item.type,
+            [name]: item.taxonId
+          }
+        })
+
+        this.$emit('update:modelValue', newList)
+      },
+      deep: true
     }
   },
   mounted () {
@@ -184,27 +190,39 @@ export default {
     })
   },
   methods: {
+    loadTaxonName (taxon) {
+      TaxonName.find(taxon.id).then(response => {
+        this.taxon = response.body
+        this.merge()
+      })
+    },
+
     merge () {
-      const nomenclatureCodes = Object.keys(this.relationshipsList)
+      const relationshipsList = JSON.parse(JSON.stringify(this.relationshipsList))
+      const nomenclatureCode = this.taxon?.nomenclatural_code
       const newList = {
         all: {},
         common: {},
         tree: {}
       }
+      const nomenclatureCodes = nomenclatureCode
+        ? [nomenclatureCode]
+        : Object.keys(relationshipsList)
+
       nomenclatureCodes.forEach(key => {
-        newList.all = Object.assign(newList.all, this.relationshipsList[key].all)
-        newList.tree = Object.assign(newList.tree, this.relationshipsList[key].tree)
-        for (var keyType in this.relationshipsList[key].common) {
-          this.relationshipsList[key].common[keyType].subject_status_tag = `${this.relationshipsList[key].common[keyType].subject_status_tag} (${key})`
+        newList.all = Object.assign(newList.all, relationshipsList[key].all)
+        newList.tree = Object.assign(newList.tree, relationshipsList[key].tree)
+        for (const keyType in relationshipsList[key].common) {
+          relationshipsList[key].common[keyType].subject_status_tag = `${relationshipsList[key].common[keyType].subject_status_tag} (${key})`
         }
-        newList.common = Object.assign(newList.common, this.relationshipsList[key].common)
+        newList.common = Object.assign(newList.common, relationshipsList[key].common)
       })
       this.getTreeList(newList.tree, newList.all)
       this.mergeLists = newList
     },
 
     getTreeList (list, ranksList) {
-      for (var key in list) {
+      for (const key in list) {
         if (key in ranksList) {
           Object.defineProperty(list[key], 'type', { writable: true, value: key })
           Object.defineProperty(list[key], 'object_status_tag', { writable: true, value: ranksList[key].object_status_tag })
@@ -215,22 +233,18 @@ export default {
       }
     },
 
-    addRelationshipType(relationship) {
+    addRelationshipType (relationship) {
       this.view = undefined
       this.typeSelected = relationship
       this.addRelationship()
     },
 
-    setTaxon(taxon) {
-      this.taxon = taxon
-    },
-
-    addRelationship() {
-      this.relationships.push( 
-        { 
+    addRelationship () {
+      this.relationships.push(
+        {
           type_object: this.typeSelected,
           type: this.typeSelected.type,
-          taxon_label: this.taxon.label, 
+          taxon_label: this.taxon.label,
           type_label: this.typeSelected[this.display],
           type_name: this.display,
           taxonId: this.taxon.id,
@@ -241,8 +255,8 @@ export default {
       this.view = OPTIONS.common
     },
 
-    removeItem(key) {
-      delete this.relationships[key]
+    removeItem (index) {
+      this.relationships.splice(index, 1)
     },
 
     flipRelationship(relationship) {

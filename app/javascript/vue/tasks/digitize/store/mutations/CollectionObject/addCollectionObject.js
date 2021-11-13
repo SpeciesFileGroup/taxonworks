@@ -1,5 +1,5 @@
 export default (state, value) => {
-  const index = state.collection_objects.findIndex((item) => item.id == value.id)
+  const index = state.collection_objects.findIndex((item) => item.id === value.id)
 
   if (index >= 0) {
     state.collection_objects[index] = value

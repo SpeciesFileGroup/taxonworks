@@ -1,3 +1,1 @@
-export default function(state) {
-  return state.taxon_determination
-}
+export default state => state.taxon_determination

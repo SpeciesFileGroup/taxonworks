@@ -10,7 +10,7 @@
 
 <script>
 
-import ajaxCall from 'helpers/ajaxCall'
+import { Otu } from 'routes/endpoints'
 
 export default {
   props: {
@@ -39,7 +39,7 @@ export default {
       if (this.klass === 'TaxonName') {
         this.openBrowse(this.objectId, newTab)
       } else {
-        ajaxCall('get', `/otus/${this.objectId}.json`).then(response => {
+        Otu.find(this.objectId).then(response => {
           if (response.body.length) {
             this.openBrowse(response.body[0].taxon_name_id, newTab)
           }

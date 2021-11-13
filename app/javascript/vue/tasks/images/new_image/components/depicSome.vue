@@ -77,6 +77,11 @@ export default {
           key: 'CollectionObject',
           label: 'Collection object',
           model: 'collection_objects'
+        },
+        {
+          key: 'Person',
+          label: 'Person',
+          model: 'people'
         }
       ],
       selectedType: undefined

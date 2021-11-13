@@ -51,16 +51,17 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
 
   # @return [String, nil]  
   #   String should be included in Protonym::
-  def monomial_prefix
+  def monominal_prefix
     nil
   end
 
   # @return [Hash]
+  #   like { genus: [nil, 'Aus'] ... }
   #   the elements of the original combination name for this instance
   #   TODO: reconcile this with <>_name_elements for other combinations.
   #   TODO: reconcile this format with that of full_name_hash
   def combination_name(name_gender = nil)
-    elements = [monomial_prefix]
+    elements = [monominal_prefix]
     if !subject_taxon_name.verbatim_name.blank? && name_gender.nil?
       elements.push subject_taxon_name.verbatim_name
     else
@@ -79,6 +80,21 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
 # end
 
   protected
+
+  def set_cached_names_for_taxon_names
+    begin
+      TaxonName.transaction do
+        t = object_taxon_name
+        t.send(:set_cached)
+        t.update_columns(
+          cached_original_combination: t.get_original_combination,
+          cached_original_combination_html: t.get_original_combination_html,
+          cached_author_year: t.get_author_and_year,
+          )
+      end
+    end
+    true
+  end
 
   def set_cached_original_combination
     self.object_taxon_name.update_cached_original_combinations

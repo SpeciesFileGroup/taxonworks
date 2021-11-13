@@ -1,44 +1,61 @@
 <template>
   <div v-if="keyId">
     <tippy
-      v-if="!created"
       animation="scale"
       placement="bottom"
       size="small"
-      :inertia="true"
-      :arrow="true"
-      :content="`<p>Create confidence: ${getDefaultElement().firstChild.firstChild.textContent}.${confidenceCount ? `<br>Used already  on ${confidenceCount} ${confidenceCount > 200 ? 'or more' : '' } objects</p>` : ''}`">
-      <div
-        class="default_tag_widget circle-button btn-confidences btn-submit"
-        @click="createConfidence()"/>
-    </tippy>
+      inertia
+      arrow
+    >
+      <template #content>
+        <p>
+          {{ created ? 'Remove' : 'Create' }} confidence: {{ getDefaultElement().firstChild.firstChild.textContent }}.
+          <br>
+          {{ confidenceCount ? `Used already  on ${confidenceCount} ${confidenceCount > 200 ? 'or more' : '' } objects` : '' }}
+        </p>
+      </template>
 
-    <tippy
-      v-else
-      animation="scale"
-      placement="bottom"
-      size="small"
-      :inertia="true"
-      :arrow="true"
-      :content="`<p>Remove confidence: ${getDefaultElement().firstChild.firstChild.textContent}.${confidenceCount ? `<br>Used already on ${confidenceCount} ${confidenceCount > 200 ? 'or more' : '' } objects</p>` : ''}`">
-      <div
-        class="default_tag_widget circle-button btn-confidences btn-delete"
-        @click="deleteConfidence()"
-        title="Remove default confidence"/>
+      <v-btn
+        circle
+        :color="created ? 'destroy' : 'create'"
+        @click="created ? deleteConfidence() : createConfidence()"
+      >
+        <v-icon
+          color="white"
+          name="confidence"
+          x-small
+        />
+      </v-btn>
     </tippy>
   </div>
-  <div
+  <v-btn
     v-else
-    class="default_tag_widget circle-button btn-confidences btn-disabled"/>
+    circle
+    color="disabled"
+  >
+    <v-icon
+      color="white"
+      name="confidence"
+      x-small
+    />
+  </v-btn>
 </template>
 
 <script>
 
+import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
 import { Tippy } from 'vue-tippy'
-import AjaxCall from 'helpers/ajaxCall'
+import { Confidence } from 'routes/endpoints'
 
 export default {
-  components: { Tippy },
+  name: 'ButtonConfidence',
+
+  components: {
+    Tippy,
+    VBtn,
+    VIcon
+  },
 
   props: {
     globalId: {
@@ -104,12 +121,12 @@ export default {
         global_id: this.globalId,
         confidence_level_id: this.keyId
       }
-      AjaxCall('get', '/confidences/exists', { params }).then(response => {
+
+      Confidence.exists(params).then(response => {
         if (response.body) {
           this.created = true
           this.confidenceItem = response.body
-        }
-        else {
+        } else {
           this.created = false
         }
       })
@@ -123,7 +140,7 @@ export default {
         per: 100
       }
 
-      AjaxCall('get', '/confidences', { params: params }).then(response => {
+      Confidence.where(params).then(response => {
         this.confidenceCount = response.body.length
       })
     },
@@ -134,7 +151,7 @@ export default {
         annotated_global_entity: this.globalId
       }
 
-      AjaxCall('post', '/confidences', { confidence }).then(response => {
+      Confidence.create({ confidence }).then(response => {
         this.confidenceItem = response.body
         this.created = true
         TW.workbench.alert.create('Confidence item was successfully created.', 'notice')
@@ -142,12 +159,7 @@ export default {
     },
 
     deleteConfidence () {
-      const confidence = {
-        annotated_global_entity: this.globalId,
-        _destroy: true
-      }
-
-      AjaxCall('delete', `/confidences/${this.confidenceItem.id}`, { confidence }).then(() => {
+      Confidence.destroy(this.confidenceItem.id).then(() => {
         this.created = false
         TW.workbench.alert.create('Confidence item was successfully destroyed.', 'notice')
       })

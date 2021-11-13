@@ -6,8 +6,8 @@ const getString = function(binding) {
   const modifiers = binding.modifiers
   let string = languages[defaultLanguage]
 
-  if (binding.hasOwnProperty('expression')) {
-    const expression = binding.value.split('.')
+  if (binding.value) {
+    const expression = binding.value.split('|')
 
     expression.forEach(item => {
       string = string[item]
@@ -16,12 +16,7 @@ const getString = function(binding) {
   }
 
   for (const key in modifiers) {
-    if (string.hasOwnProperty(key)) {
-      string = string[key]
-    } else {
-      string = undefined
-      break
-    }
+    string = string[key]
   }
 
   return string

@@ -1,5 +1,7 @@
+
 class CollectionObjectsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+  include CollectionObjects::FilterParams
 
   before_action :set_collection_object, only: [
     :show, :edit, :update, :destroy, :navigation, :containerize,
@@ -19,7 +21,8 @@ class CollectionObjectsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @collection_objects = filtered_collection_objects
+        # see app/controllers/collection_objects/filter_params.rb
+        @collection_objects = filtered_collection_objects.order('collection_objects.id').page(params[:page]).per(params[:per] || 500)
       }
     end
   end
@@ -46,11 +49,13 @@ class CollectionObjectsController < ApplicationController
 
   # Render DWC fields *only*
   def dwc_index
-    objects = filtered_collection_objects.includes(:dwc_occurrence).all
+    objects = filtered_collection_objects.order('collection_objects.id').includes(:dwc_occurrence).page(params[:page]).per(params[:per] || 500).all
     assign_pagination(objects)
 
-    @objects = objects.pluck( ::CollectionObject.dwc_attribute_vector  )
-    @klass = ::CollectionObject
+    # Default to *exclude* some big fields, like geo spatial wkt
+    mode = params[:mode] || :view
+    @objects = objects.pluck(*::CollectionObject.dwc_attribute_vector(mode))
+    @headers = ::CollectionObject.dwc_attribute_vector_names(mode)
     render '/dwc_occurrences/dwc_index'
   end
 
@@ -60,13 +65,16 @@ class CollectionObjectsController < ApplicationController
     ActiveRecord::Base.connection_pool.with_connection do
       o = CollectionObject.find(params[:id])
       if params[:rebuild] == 'true'
-        # get does not rebuild
+        # get does not rebuild, but does set if it doesn't exist
         o.set_dwc_occurrence
       else
         o.get_dwc_occurrence
       end
+
+      # Default to *exclude* some fields that include large text, like geospatial
+      mode = params[:mode] || :view
+      render json: o.dwc_occurrence_attribute_values(mode)
     end
-    render json: o.dwc_occurrence_attribute_values
   end
 
   # GET /collection_objects/123/dwc_verbose
@@ -88,12 +96,12 @@ class CollectionObjectsController < ApplicationController
   # Intent is DWC fields + quick summary fields for reports
   # !! As currently implemented rebuilds DWC all
   def report
-    @collection_objects = filtered_collection_objects.includes(:dwc_occurrence)
+    @collection_objects = filtered_collection_objects.order('collection_objects.id').includes(:dwc_occurrence).page(params[:page]).per(params[:per] || 500)
   end
 
   # /collection_objects/preview?<filter params>
   def preview
-    @collection_objects = filtered_collection_objects.includes(:dwc_occurrence)
+    @collection_objects = filtered_collection_objects.order('collection_objects.id').includes(:dwc_occurrence).page(params[:page]).per(params[:per] || 500)
   end
 
   # GET /collection_objects/depictions/1
@@ -192,18 +200,10 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_object/search
   def search
     if params[:id].blank?
-      redirect_to collection_object_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to collection_object_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to collection_object_path(params[:id])
     end
-  end
-
-  def autocomplete
-    @collection_objects =
-      Queries::CollectionObject::Autocomplete.new(
-        params[:term],
-        project_id: sessions_current_project_id
-      ).autocomplete
   end
 
   # GET /collection_objects/download
@@ -304,15 +304,17 @@ class CollectionObjectsController < ApplicationController
   end
 
   def autocomplete
-    @collection_objects = Queries::CollectionObject::Autocomplete.new(
-      params[:term],
-      project_id: sessions_current_project_id
-    ).autocomplete
+    @collection_objects =
+      ::Queries::CollectionObject::Autocomplete.new(
+        params[:term],
+        project_id: sessions_current_project_id
+      ).autocomplete
   end
+
 
   # GET /api/v1/collection_objects
   def api_index
-    @collection_objects = Queries::CollectionObject::Filter.new(api_params).all.where(project_id: sessions_current_project_id)
+    @collection_objects = ::Queries::CollectionObject::Filter.new(collection_object_api_params).all.where(project_id: sessions_current_project_id)
       .order('collection_objects.id')
       .page(params[:page]).per(params[:per])
     render '/collection_objects/api/v1/index'
@@ -325,7 +327,7 @@ class CollectionObjectsController < ApplicationController
 
   def api_autocomplete
     render json: {} and return if params[:term].blank?
-    @collection_objects = Queries::CollectionObject::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
+    @collection_objects = ::Queries::CollectionObject::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
     render '/collection_objects/api/v1/autocomplete'
   end
 
@@ -351,13 +353,6 @@ class CollectionObjectsController < ApplicationController
     end
   end
 
-  def filtered_collection_objects
-    Queries::CollectionObject::Filter.
-      new(filter_params).all.where(project_id: sessions_current_project_id).
-      page(params[:page]).per(params[:per] || 500).
-      order('collection_objects.id')
-  end
-
   def set_collection_object
     @collection_object = CollectionObject.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @collection_object
@@ -370,6 +365,7 @@ class CollectionObjectsController < ApplicationController
       :buffered_collecting_event, :buffered_determinations,
       :buffered_other_labels, :accessioned_at, :deaccessioned_at, :deaccession_reason,
       :contained_in,
+      :taxon_determination_id,
       collecting_event_attributes: [],  # needs to be filled out!
       data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :value ],
       tags_attributes: [:id, :_destroy, :keyword_id],
@@ -407,161 +403,6 @@ class CollectionObjectsController < ApplicationController
         'end_year'    => 'end_date_year'}
     }
   end
-
-  def filter_params
-    a = params.permit(
-      :recent,
-      Queries::CollectingEvent::Filter::ATTRIBUTES,
-      :ancestor_id,
-      :buffered_collecting_event,
-      :buffered_determinations,
-      :buffered_other_labels,
-      :collecting_event,
-      :collection_object_type,
-      :collector_ids_or,
-      :current_determinations,
-      :depictions,
-      :determiner_id_or,
-      :dwc_indexed,
-      :end_date,
-      :exact_buffered_collecting_event,
-      :exact_buffered_determinations,
-      :exact_buffered_other_labels,
-      :geo_json,
-      :geographic_area,
-      :georeferences,
-      :identifier,
-      :identifier_end,
-      :identifier_exact,
-      :identifier_start,
-      :identifiers,
-      :in_labels,
-      :in_verbatim_locality,
-      :loaned,
-      :md5_verbatim_label,
-      :namespace_id,
-      :never_loaned,
-      :on_loan,
-      :partial_overlap_dates,
-      :preparation_type_id,
-      :radius,  # CE filter
-      :repository,
-      :repository_id,
-      :sled_image_id,
-      :spatial_geographic_areas,
-      :start_date,  # CE filter
-      :taxon_determinations,
-      :type_material,
-      :type_specimen_taxon_name_id,
-      :user_date_end,
-      :user_date_start,
-      :user_id,
-      :user_target,
-      :validity,
-      :with_buffered_collecting_event,
-      :with_buffered_determinations,
-      :with_buffered_other_labels,
-      :wkt,
-      biocuration_class_ids: [],
-      biological_relationship_ids: [],
-      collecting_event_ids: [],
-      collector_ids: [], #
-      determiner_id: [],
-      geographic_area_ids: [],
-      is_type: [],
-      keyword_id_and: [],
-      keyword_id_or: [],
-      otu_ids: [],
-      preparation_type_id: []
-      #  user_id: []
-      #  collecting_event: {
-      #   :recent,
-      #   keyword_id_and: []
-      # }
-    )
-
-    # TODO: check user_id: []
-
-    a[:user_id] = params[:user_id] if params[:user_id] && is_project_member_by_id(params[:user_id], sessions_current_project_id) # double check vs. setting project_id from API
-    a
-  end
-
-  def api_params
-    a = params.permit(
-      :recent,
-      Queries::CollectingEvent::Filter::ATTRIBUTES,
-      :ancestor_id,
-      :buffered_collecting_event,
-      :buffered_determinations,
-      :buffered_other_labels,
-      :collecting_event,
-      :collection_object_type,
-      :collector_ids_or,
-      :current_determinations,
-      :depictions,
-      :determiner_id_or,
-      :dwc_indexed,
-      :end_date,  # CE filter
-      :exact_buffered_collecting_event,
-      :exact_buffered_determinations,
-      :exact_buffered_other_labels,
-      :geo_json,
-      :geographic_area,
-      :georeferences,
-      :identifier,
-      :identifier_end,
-      :identifier_exact,
-      :identifier_start,
-      :identifiers,
-      :in_labels,
-      :in_verbatim_locality,
-      :loaned,
-      :md5_verbatim_label, # CE filter
-      :namespace_id,
-      :never_loaned,
-      :on_loan,
-      :partial_overlap_dates, # CE filter
-      :preparation_type_id,
-      :radius,
-      :repository,
-      :repository_id,
-      :sled_image_id,
-      :spatial_geographic_areas,
-      :start_date,
-      :taxon_determinations,
-      :type_material,
-      :type_specimen_taxon_name_id,
-      :user_date_end,
-      :user_date_start,
-      :user_id,
-      :user_target,
-      :validity,
-      :with_buffered_collecting_event,
-      :with_buffered_determinations,
-      :with_buffered_other_labels,
-      :wkt, # CE filter
-      biocuration_class_ids: [],
-      biological_relationship_ids: [],
-      collecting_event_ids: [],
-      collector_ids: [],
-      determiner_id: [],
-      geographic_area_ids: [], # CE filter
-      is_type: [],
-      keyword_id_and: [],
-      keyword_id_or: [],
-      otu_ids: [],
-      preparation_type_id: [],
-
-      #  collecting_event: {
-      #   :recent,
-      #   keyword_id_and: []
-      # }
-    )
-
-    a[:user_id] = params[:user_id] if params[:user_id] && is_project_member_by_id(params[:user_id], sessions_current_project_id) # double check vs. setting project_id from API
-    a
-  end
-
 
 end
 

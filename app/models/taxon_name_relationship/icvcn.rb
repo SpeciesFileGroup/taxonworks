@@ -6,12 +6,12 @@ class TaxonNameRelationship::Icvcn < TaxonNameRelationship
 
   # left_side
   def self.valid_subject_ranks
-    ::ICTV
+    ::ICVCN
   end
 
   # right_side
   def self.valid_object_ranks
-    ::ICTV
+    ::ICVCN
   end
 
   def self.disjoint_subject_classes

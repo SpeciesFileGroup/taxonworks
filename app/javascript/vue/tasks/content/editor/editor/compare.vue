@@ -19,6 +19,7 @@
         <ul class="no_bullets">
           <li
             v-for="item in contents"
+            :key="item.id"
             @click="compareContent(item)">
             <span data-icon="show">
               <div class="clone-content-text">{{ item.text }}</div>

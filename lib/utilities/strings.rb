@@ -13,22 +13,25 @@ module Utilities::Strings
   # @return [String, nil]
   #   strips space, leaves internal whitespace as is, returns nil if nothing is left
   def self.nil_strip(string) # string should have content or be empty
-    if !string.nil?
-      string.strip!
-      string = nil if string == ''
+    a = string.dup
+    if !a.nil?
+      a.strip!
+      a = nil if a == ''
     end
-    string
+    a 
   end
 
   # @param [String] string
   # @return [String, nil]
-  #  strips pre/post fixed space and condenses internal spaces, but returns nil (not empty string) if nothing is left
+  #  strips pre/post fixed space and condenses internal spaces, and also  but returns nil (not empty string) if nothing is left
   def self.nil_squish_strip(string)
-    if !string.nil?
-      string.squish!
-      string = nil if string == ''
+    a = string.dup
+    if !a.nil?
+      a.delete("\u0000")
+      a.squish!
+      a = nil if a == ''
     end
-    string
+    a 
   end
 
   # @param [String] text
@@ -40,14 +43,15 @@ module Utilities::Strings
   end
 
   # @param [String] string
-  # @return [String]
+  # @return [String, Boolean]
   #   increments the *first* integer encountered in the string, wrapping it
-  #   in *only* the immediate non integer strings before and after (see tests)
+  #   in *only* the immediate non integer strings before and after (see tests).
+  #   Returns false if no number is found
   def self.increment_contained_integer(string)
     string =~ /([^\d]*)(\d+)([^\d]*)/
     a, b, c = $1, $2, $3
     return false if b.nil?
-    [a,(b.to_i + 1), c].compact.join
+    [a, (b.to_i + 1), c].compact.join
   end
 
   # Adds a second single quote to escape apostrophe in SQL query strings
@@ -74,18 +78,19 @@ module Utilities::Strings
   #   TODO: Likely need to handle quotes, and write better UTF compliancy tests
   #   ~~ Technically \n is allowed!
   def self.sanitize_for_csv(string)
-    return string if string.blank?
-    string.to_s.gsub(/\n|\t/, ' ')
+    a = string.dup
+    return a if a.blank? # TODO: .blank is Rails, not OK here
+    a.to_s.gsub(/\n|\t/, ' ')
   end
 
-  #   return nil if content.nil?, else wrap and return string if provided
   # @param [String] pre
   # @param [String] content
   # @param [String] post
-  # @return [String]
+  # @return [String, nil]
+  #   return nil if content.nil?, else wrap and return string if provided
   def self.nil_wrap(pre = nil, content = nil, post = nil)
     return nil if content.blank?
-    [pre, content, post].compact.join.html_safe
+    [pre, content, post].compact.join
   end
 
   # @param last_names [Array]
@@ -96,21 +101,25 @@ module Utilities::Strings
     last_names.to_sentence(two_words_connector: ' & ', last_word_connector: ' & ')
   end
 
+  # Splits a string on special characters, returning an array of the strings that do not contain digits.
+  #
+  # It splits on accent characters, and does not split on underscores. The method is used for building wildcard searches,
+  # so splitting on accents creates pseudo accent insensitivity in searches.
+  #
   # @param string [String]
   # @return [Array]
-  #   whitespace split, then any string containing a digit eliminated
+  #   whitespace and special character split, then any string containing a digit eliminated
   def self.alphabetic_strings(string)
     return [] if string.nil? || string.length == 0
-    string.split(/\W/).select{|b| !(b =~ /\d/) }
+    string.split(/\W/).select { |b| !(b =~ /\d/) }.reject { |b| b.empty? }
   end
-
 
   # @param string [String]
   # @return [String, false]
   #   !! this is a bad sign, you should know your encoding *before* it gets to needing this
   def self.encode_with_utf8(string)
     return false if string.nil?
-    if Encoding.compatible?('test'.encode(Encoding::UTF_8), string) 
+    if Encoding.compatible?('test'.encode(Encoding::UTF_8), string)
       string.force_encoding(Encoding::UTF_8)
     else
       false
@@ -130,20 +139,54 @@ module Utilities::Strings
     string.match(/\d{4}([a-zAZ]+)/).to_a.last
   end
 
-  # @return [Array]
+  # Get numbers separated by spaces from a string
+  # @param [String] string
+  # @return [Array<String>]
   #   of strings representing integers
   def self.integers(string)
     return [] if string.nil? || string.length == 0
-    string.split(/\s+/).select{|t| is_i?(t)}
+    string.split(/\s+/).select { |t| is_i?(t) }
   end
 
   # @return [Boolean]
-  #   true if the query string only contains integers
+  #   true if the query string only contains integers separated by whitespace
   def self.only_integers?(string)
     !(string =~ /[^\d\s]/i) && !integers(string).empty?
   end
 
+  # Parse a scientificAuthorship field to extract author and year information.
+  #
+  # If the format matches ICZN, adds parentheses around author name (if detected)
+  # @param [String] authorship
+  # @return [Array] [author_name, year]
+  def self.parse_authorship(authorship)
+    return [] if (authorship = authorship.to_s.strip).empty?
 
+    year_match = /(,|\s)\s*(?<year>\d+)(?<paren>\))?$/.match(authorship)
+    author_name = "#{authorship[..(year_match&.offset(0)&.first || 0)-1]}#{year_match&.[](:paren)}"
+
+    [author_name, year_match&.[](:year)]
+  end
+
+  # @param [String] author_year
+  # @return [String, nil]
+  def self.year_of_publication(author_year)
+    return nil if author_year.to_s.strip.empty?   # alternative to .blank?
+    split_author_year = author_year.split(' ')
+    year = split_author_year[split_author_year.length - 1]
+    # try matching last element first, otherwise scan entire string for year
+    # Maybe we don't need regex match and can use years(author_year) exclusively?
+    year =~ /\A\d+\z/ ? year : years(author_year).last.to_s
+  end
+
+  # @param [String] author_year_string
+  # @return [String, nil]
+  def self.verbatim_author(author_year_string)
+    return nil if author_year_string.to_s.strip.empty?  # alternative to .blank?
+    author_end_index = author_year_string.rindex(' ')
+    author_end_index ||= author_year_string.length
+    author_year_string[0...author_end_index]
+  end
 
 end
 

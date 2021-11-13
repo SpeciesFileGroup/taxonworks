@@ -12,7 +12,7 @@
             <input
               type="checkbox"
               v-model="settings.sortable">
-            Sortable fields
+            Reorder fields
           </label>
         </li>
         <li>
@@ -131,7 +131,7 @@ import RecentComponent from './components/Recent'
 
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial'
-import platformKey from 'helpers/getMacKey'
+import platformKey from 'helpers/getPlatformKey'
 import SetParam from 'helpers/setParam'
 
 import PinComponent from 'components/ui/Pinboard/VPin.vue'

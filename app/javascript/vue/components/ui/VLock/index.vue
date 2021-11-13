@@ -15,6 +15,8 @@
 
 <script>
 export default {
+  name: 'VLock',
+
   props: {
     modelValue: {
       type: Boolean,
@@ -27,7 +29,7 @@ export default {
   computed: {
     checked: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
         this.$emit('update:modelValue', value)

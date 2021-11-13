@@ -49,6 +49,11 @@ describe Combination, type: :model, group: :nomenclature do
       expect(combination.errors.include?(:base)).to be_truthy
     end
 
+    specify 'Create by id' do
+      c = Combination.new(genus_id: genus.id, species_id: species.id)
+      expect(c.valid?).to be_truthy
+    end
+
     specify 'combinations without verbatim name must be unique' do
       basic_combination.save
       c = Combination.new(genus: genus, species: species)
@@ -201,6 +206,13 @@ describe Combination, type: :model, group: :nomenclature do
       species.update(original_genus: genus, original_subgenus: genus, original_species: species)
       expect(Combination.matching_protonyms(nil, genus: genus.id, subgenus: nil, species: species.id, subspecies: nil).to_a).to contain_exactly()
     end
+
+    specify '.matching_protonyms 6' do
+      species.update(original_genus: genus, original_species: species)
+      species2.update(original_genus: genus, original_species: species, original_subspecies: species2)
+      tr = TaxonNameRelationship.create(subject_taxon_name: species2, object_taxon_name: species, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+      expect(Combination.matching_protonyms(nil, genus: genus.id, species: species.id).to_a).to contain_exactly(species)
+    end
   end
 
   context 'instance methods' do
@@ -224,7 +236,7 @@ describe Combination, type: :model, group: :nomenclature do
     end
 
     context '#protonyms_by_rank' do
-      specify 'for a quadrinomial' do
+      specify 'for a quadrinominal' do
         combination.genus = genus
         combination.subgenus = genus
         combination.species = species
@@ -248,7 +260,7 @@ describe Combination, type: :model, group: :nomenclature do
         expect(basic_combination.full_name_hash).to eq({'genus'=>[nil, 'Erythroneura'], 'species'=>[nil, 'vitis']})
       end
 
-      specify 'with quadrinomial' do
+      specify 'with quadrinominal' do
         combination.update(genus: genus, subgenus: genus, species: species, subspecies: species2)
         expect(combination.full_name_hash).to eq({'genus'=>[nil, 'Erythroneura'], 'subgenus'=>[nil, 'Erythroneura'],  'species'=>[nil, 'vitis'], 'subspecies'=>[nil, 'comes']})
       end
@@ -283,12 +295,10 @@ describe Combination, type: :model, group: :nomenclature do
         expect(basic_combination.cached_html).to eq('<i>Erythroneura vitis</i>')
       end
 
-      specify 'with a quadrinomial' do
+      specify 'with a quadrinominal' do
         combination.update(genus: genus, subgenus: genus, species: species, subspecies: species2)
         expect(combination.cached_html).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>) <i>vitis comes</i>')
       end
-
-
     end
 
     specify 'cached values update on changed relationship' do
@@ -440,7 +450,6 @@ describe Combination, type: :model, group: :nomenclature do
           expect(stubs[5].type).to eq('TaxonNameRelationship::Combination::Form')
         end
       end
-
     end
   end
 

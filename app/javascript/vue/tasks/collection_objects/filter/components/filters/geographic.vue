@@ -131,7 +131,7 @@ export default {
         if (!newVal?.geo_json?.length && oldVal?.geo_json?.length) {
           this.geojson = []
         }
-        console.log(newVal)
+
         if (!newVal.geographic_area_id.length) {
           this.geographic_areas = []
         }

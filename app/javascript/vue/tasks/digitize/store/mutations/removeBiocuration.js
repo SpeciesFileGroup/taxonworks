@@ -1,8 +1,7 @@
-export default function(state, value) {
-  let position = state.biocurations.findIndex(item => {
-    return item.id == value
-  })
-  if(position > -1) {
-    state.biocurations.splice(position,1)
+export default (state, value) => {
+  const index = state.biocurations.findIndex(item => item.id === value)
+
+  if (index > -1) {
+    state.biocurations.splice(index, 1)
   }
 }

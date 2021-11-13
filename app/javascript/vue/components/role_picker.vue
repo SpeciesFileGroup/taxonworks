@@ -83,6 +83,7 @@
       class="table-entrys-list"
       element="ul"
       v-model="roles_attributes"
+      item-key="id"
       @end="onSortable">
       <template #item="{ element, index }">
         <li
@@ -111,7 +112,7 @@
 import Autocomplete from 'components/ui/Autocomplete.vue'
 import Draggable from 'vuedraggable'
 import DefaultPin from './getDefaultPin'
-import AjaxCall from 'helpers/ajaxCall'
+import { People } from 'routes/endpoints'
 
 export default {
   components: {
@@ -150,6 +151,7 @@ export default {
   emits: [
     'update:modelValue',
     'sortable',
+    'create',
     'delete'
   ],
 
@@ -320,6 +322,7 @@ export default {
       }
       return string.split(delimiter, 2)[position]
     },
+
     getFirstName (string) {
       if ((string.indexOf(',') > 1) || (string.indexOf(' ') > 1)) {
         return this.findName(string, 1)
@@ -327,6 +330,7 @@ export default {
         return ''
       }
     },
+
     getLastName (string) {
       if ((string.indexOf(',') > 1) || (string.indexOf(' ') > 1)) {
         return this.findName(string, 0)
@@ -334,6 +338,7 @@ export default {
         return string
       }
     },
+
     getFullName (first_name, last_name) {
       let separator = ''
       if (!!last_name && !!first_name) {
@@ -341,9 +346,11 @@ export default {
       }
       return (last_name + separator + (first_name != null ? first_name : ''))
     },
-    createPerson: function () {
-      AjaxCall('post', `/people.json`, { person: this.person_attributes }).then(response => {
-        let person = response.body
+
+    createPerson () {
+      People.create({ person: this.person_attributes }).then(response => {
+        const person = response.body
+
         person.label = person.object_tag
         person.object_id = person.id
         this.roles_attributes.push(this.addPerson(person))
@@ -354,7 +361,8 @@ export default {
         this.$emit('create', person)
       })
     },
-    addPerson: function (item) {
+
+    addPerson (item) {
       return {
         type: this.roleType,
         person_id: item.object_id,
@@ -363,7 +371,8 @@ export default {
         position: (this.roles_attributes.length + 1)
       }
     },
-    addCreatedPerson: function (item) {
+
+    addCreatedPerson (item) {
       if (!this.alreadyExist(item.object_id)) {
         this.roles_attributes.push(this.addPerson(item))
         this.$emit('update:modelValue', this.roles_attributes)
@@ -372,7 +381,8 @@ export default {
         this.searchPerson = ''
       }
     },
-    setPerson: function (person) {
+
+    setPerson (person) {
       person.position = (this.roles_attributes.length + 1)
       this.roles_attributes.push(person)
       this.$emit('update:modelValue', this.roles_attributes)
@@ -387,10 +397,12 @@ export default {
 
     li {
       margin: 0px;
-      padding: 6px;
+      padding: 1em 0;
       display: flex;
       justify-content: space-between;
-      border-top: 1px solid #f5f5f5;
+      border-bottom: 1px solid #f5f5f5;
     }
+
+
   }
 </style>

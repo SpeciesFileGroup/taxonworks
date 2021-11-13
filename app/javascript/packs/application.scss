@@ -2,7 +2,12 @@ $font-prefix: '../../../node_modules/@ibm/plex';
 @import '../vue/assets/styles/variables/_palette.scss';
 @import '../vue/assets/styles/variables/_exports.scss';
 @import '../vue/assets/styles/components/buttons.scss';
-@import 'node_modules/@ibm/plex/scss/ibm-plex.scss';
+
+@import 'node_modules/@ibm/plex/scss/sans/light/_latin1.scss';
+@import 'node_modules/@ibm/plex/scss/sans/regular/_latin1.scss';
+@import 'node_modules/@ibm/plex/scss/sans/medium/_latin1.scss';
+@import 'node_modules/@ibm/plex/scss/sans/bold/_latin1.scss';
+
 @import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
 @import '../vue/assets/styles/filter.scss';
 @import '../vue/assets/styles/labels.scss';

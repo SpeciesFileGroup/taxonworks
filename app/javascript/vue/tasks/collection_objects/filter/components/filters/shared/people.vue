@@ -7,6 +7,7 @@
       :klass="klass"
       pin-section="People"
       pin-type="People"
+      label="cached"
       @selected="addPerson"/>
     <label>
       <input

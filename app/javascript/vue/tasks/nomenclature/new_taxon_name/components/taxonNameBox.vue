@@ -16,18 +16,17 @@
           class="normal-input button button-delete">Delete</button>
       </template>
     </modal>
-    <div class="panel basic-information">
-      <div class="content header">
+    <div class="panel">
+      <div class="content">
         <div
           v-if="taxon.id"
           class="flex-separate middle">
           <a
             v-hotkey="shortcuts"
             :href="`/tasks/nomenclature/browse?taxon_name_id=${taxon.id}`"
-            class="taxonname">
-            <span v-html="taxon.cached_html"/>
-            <span v-html="taxon.cached_author_year"/>
-          </a>
+            class="taxonname"
+            v-html="taxonNameAndAuthor"
+          />
           <div class="flex-wrap-column">
             <div class="horizontal-right-content">
               <radial-annotator :global-id="taxon.global_id" />
@@ -41,13 +40,15 @@
                 :taxon-name="taxon.object_tag"/>
               <radial-object :global-id="taxon.global_id" />
             </div>
-            <div class="horizontal-right-content">
+            <div class="horizontal-right-content margin-small-top">
               <pin-object
                 v-if="taxon.id"
-                :pin-object="taxon['pinboard_item']"
+                class="circle-button"
                 :object-id="taxon.id"
-                :type="taxon.base_class"/>
-              <default-confidence :global-id="taxon.global_id"/>
+                type="TaxonName"/>
+              <default-confidence
+                class="circle-button"
+                :global-id="taxon.global_id"/>
               <span
                 v-if="taxon.id"
                 @click="showModal = true"
@@ -70,7 +71,7 @@ import RadialObject from 'components/radials/navigation/radial.vue'
 import DefaultConfidence from 'components/defaultConfidence.vue'
 import PinObject from 'components/ui/Pinboard/VPin.vue'
 import Modal from 'components/ui/Modal.vue'
-import platformKey from 'helpers/getMacKey'
+import platformKey from 'helpers/getPlatformKey'
 import { TaxonName } from 'routes/endpoints'
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
@@ -92,6 +93,10 @@ export default {
   computed: {
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
+    },
+
+    taxonNameAndAuthor () {
+      return `${this.taxon.cached_html} ${this.taxon.cached_author_year || ''}`
     },
 
     parent () {
@@ -169,20 +174,9 @@ export default {
   }
 }
 </script>
+
 <style lang="scss">
 #taxonNameBox {
-  .annotator {
-    width:30px;
-    margin-left: 14px;
-  }
-  .separate-options {
-    margin-left: 4px;
-    margin-right: 4px;
-  }
-  .header {
-    padding: 1em;
-    border: 1px solid #f5f5f5;
-  }
   .taxonname {
     font-size: 14px;
   }

@@ -96,7 +96,7 @@ class ContainerItem < ApplicationRecord
   # @return [Container, nil]
   #   the immediate container for this ContainerItem
   def container
-    parent.try(:contained_object)
+    parent&.contained_object
   end
 
   # TODO: this is silly, type should be the same
@@ -129,7 +129,6 @@ class ContainerItem < ApplicationRecord
         self.parent = ContainerItem.create!(contained_object: c) 
       end
     end
-
 
     # self.parent.save! if !self.parent.new_record?
     # save! unless new_record?

@@ -22,7 +22,7 @@
 import SmartSelector from 'components/ui/SmartSelector'
 import DisplayList from 'components/displayList'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { GetSerial } from '../../request/resources'
+import { Serial } from 'routes/endpoints'
 
 export default {
   components: {
@@ -76,7 +76,7 @@ export default {
     const urlParams = URLParamsToJSON(location.href)
     if (urlParams.serial_ids) {
       urlParams.serial_ids.forEach(id => {
-        GetSerial(id).then(response => {
+        Serial.find(id).then(response => {
           this.addSerial(response.body)
         })
       })

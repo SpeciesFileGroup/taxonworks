@@ -12,14 +12,14 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
   let(:user) { User.find(1) }
   let(:project) { Project.find(1) }
 
-  let(:upload_file) { fixture_file_upload(file_name) }
+  let(:upload_file) { Rack::Test::UploadedFile.new(file_name) }
   let(:import) { BatchLoad::Import::Otus.new(project_id: project.id,
                                              user_id: user.id,
                                              file: upload_file)
   }
 
   let(:source) { FactoryBot.create(:valid_source_verbatim) }
-  let(:upload_file_2) { fixture_file_upload(file_ph_2) }
+  let(:upload_file_2) { Rack::Test::UploadedFile.new(file_ph_2) }
   let(:import_2_im) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
                                                                              user_id: user.id,
                                                                              file: upload_file_2,

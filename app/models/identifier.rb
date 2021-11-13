@@ -41,7 +41,7 @@
 #   The type of the identified object, used in a polymorphic relationship.
 #
 class Identifier < ApplicationRecord
-  acts_as_list scope: [:project_id, :identifier_object_type, :identifier_object_id ]
+  acts_as_list scope: [:project_id, :identifier_object_type, :identifier_object_id ], add_new_at: :top
 
   include Shared::DualAnnotator
   include Shared::PolymorphicAnnotator
@@ -57,6 +57,7 @@ class Identifier < ApplicationRecord
   belongs_to :namespace, inverse_of: :identifiers  # only applies to Identifier::Local, here for create purposes
 
   # Please DO NOT include the following:
+  # ADD when polymorphic_annotator is updated with inverse relationships
   #   validates :identifier_object, presence: true
   #   validates_presence_of :identifier_object_type, :identifier_object_id
   validates_presence_of :type, :identifier

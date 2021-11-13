@@ -37,7 +37,7 @@
       <authors-component class="margin-large-bottom" v-model="params.source"/>
       <date-component class="margin-large-bottom" v-model="params.source"/>
       <serials-component class="margin-large-bottom" v-model="params.source.serial_ids"/>
-      <tags-component class="margin-large-bottom" v-model="params.keywords"/>
+      <tags-component class="margin-large-bottom" v-model="params.keywords" target="Source"/>
       <topics-component class="margin-large-bottom" v-model="params.source.topic_ids"/>
       <identifier-component class="margin-large-bottom" v-model="params.identifier"/>
       <taxon-name-component class="margin-large-bottom" v-model="params.nomenclature"/>
@@ -46,6 +46,7 @@
       <some-value-component
         class="margin-large-bottom"
         model="sources"
+        label="cached"
         v-model="params.attributes"/>
       <with-component
         class="margin-large-bottom"
@@ -63,7 +64,7 @@
 
 import TitleComponent from './filters/title'
 import SpinnerComponent from 'components/spinner'
-import platformKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getPlatformKey.js'
 import AuthorsComponent from './filters/authors'
 import DateComponent from './filters/date'
 import TagsComponent from './filters/tags'
@@ -77,7 +78,7 @@ import UsersComponent from 'tasks/collection_objects/filter/components/filters/u
 import SomeValueComponent from './filters/SomeValue/SomeValue'
 import TaxonNameComponent from './filters/TaxonName'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { GetSources } from '../request/resources.js'
+import { Source } from 'routes/endpoints'
 
 const parseAttributeParams = (attributes) => ({
   empty: attributes.filter(item => item.empty).map(item => item.name),
@@ -158,7 +159,7 @@ export default {
     getSources (params) {
       this.searching = true
       this.$emit('newSearch')
-      GetSources(params).then(response => {
+      Source.where(params).then(response => {
         this.$emit('result', response.body)
         this.$emit('urlRequest', response.request.responseURL)
         this.$emit('pagination', response)

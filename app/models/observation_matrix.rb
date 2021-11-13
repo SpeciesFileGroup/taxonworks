@@ -26,6 +26,8 @@ class ObservationMatrix < ApplicationRecord
   # TODO: restrict these- you can not directly create these!
   has_many :descriptors, through: :observation_matrix_columns, inverse_of: :observation_matrices
 
+  scope :with_otu_id_array, ->  (otu_id_array) { joins('LEFT OUTER JOIN "observation_matrix_rows" ON "observation_matrix_rows"."observation_matrix_id" = "observation_matrices"."id"').where("otu_id in (?)", otu_id_array) }
+
   def qualitative_descriptors
     descriptors.where(type: 'Descriptor::Qualitative')
   end 
@@ -58,6 +60,10 @@ class ObservationMatrix < ApplicationRecord
   # !! Note order() is applied !!
   def symbol_descriptors
     descriptors.where(type: ['Descriptor::PresenceAbsence', 'Descriptor::Qualitative']).order('observation_matrix_columns.position')
+  end
+
+  def character_states
+    CharacterState.joins(descriptor: [:observation_matrices]).merge(descriptors)
   end
 
   def cell_count
@@ -156,8 +162,8 @@ class ObservationMatrix < ApplicationRecord
     end
     
     return false if r.size == 0
-
-    rows = r.collect{|i| i.row_object.to_global_id}
+    #rows = r.collect{|i| i.row_object.to_global_id} ### slow
+   rows = r.collect{|i| "#{i.otu_id}|#{i.collection_object_id}" }
 
     if opts[:col_end] == 'all'
       cols = descriptors.order('observation_matrix_columns.position').pluck(:id) # all descriptors
@@ -174,9 +180,10 @@ class ObservationMatrix < ApplicationRecord
 
     # Dump the observations into bins
     Observation.by_descriptors_and_rows(cols, rows).each do |o|
-      i = o.observation_object.to_global_id
+      #i = o.observation_object.to_global_id ### this is very slow
+      i = "#{o.otu_id}|#{o.collection_object_id}"
       if rows.index(i)
-        grid[cols.index(o.descriptor_id)][rows.index(i)].push(o) 
+        grid[cols.index(o.descriptor_id)][rows.index(i)].push(o)
       end
     end
     
@@ -192,9 +199,9 @@ class ObservationMatrix < ApplicationRecord
   def polymorphic_cells_for_descriptor(symbol_start: 0, descriptor_id:)
     symbol_start ||= 0
     cells = Hash.new{|hash, key| hash[key] = Array.new}
-
     observations.where(descriptor_id: descriptor_id).each do |o|
-      cells[o.observation_object_global_id].push(
+      g = "#{o.otu_id}|#{o.collection_object_id}"
+      cells[g].push(
         o.qualitative? ? o.character_state_id : "#{o.descriptor_id}_#{o.presence_absence? ? '1' : '0'}"
       )
     end
@@ -219,8 +226,8 @@ class ObservationMatrix < ApplicationRecord
   #  was `codings_mx` in mx where this: "likely should add scope and merge with above, though this seems to be slower"
   def observations_hash
     h = Hash.new{|hash, key| hash[key] = Hash.new{|hash2, key2| hash2[key2] = Array.new}} 
-    observations.each {|o| h[o.descriptor_id][o.observation_object_global_id].push(o) }
+    observations.each {|o| h[o.descriptor_id]["#{o.otu_id}|#{o.collection_object_id}"].push(o) }
+    #observations.each {|o| h[o.descriptor_id][o.observation_object_global_id].push(o) } ### this is slow
     h
   end
-
 end

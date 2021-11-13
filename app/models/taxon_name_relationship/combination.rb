@@ -65,6 +65,16 @@ class TaxonNameRelationship::Combination < TaxonNameRelationship
 
   protected
 
+  def set_cached_names_for_taxon_names
+    begin
+      TaxonName.transaction do
+        t = object_taxon_name
+        t.send(:set_cached)
+      end
+    end
+    true
+  end
+
   def subject_is_protonym
     errors.add(:subject_taxon_name, 'Must be a protonym') if subject_taxon_name.type == 'Combination'
   end

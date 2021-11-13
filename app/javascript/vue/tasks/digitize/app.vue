@@ -7,11 +7,11 @@
       <h1>Comprehensive specimen digitization</h1>
       <ul class="context-menu">
         <li>
-          <label>
+          <label v-help.sections.global.reorderFields>
             <input
               type="checkbox"
               v-model="settings.sortable">
-            Sortable fields
+            Reorder fields
           </label>
         </li>
       </ul>
@@ -37,7 +37,7 @@
             :is="element"/>
         </template>
       </draggable>
-      <collection-event-layout class="separate-left item ce-section"/>
+      <collecting-event-layout class="separate-left item ce-section"/>
     </div>
   </div>
 </template>
@@ -46,7 +46,7 @@
 import TaskHeader from './components/taskHeader/main.vue'
 import CollectionObject from './components/collectionObject/main.vue'
 import TaxonDeterminationLayout from './components/taxonDetermination/main.vue'
-import CollectionEventLayout from './components/collectionEvent/main.vue'
+import CollectingEventLayout from './components/collectingEvent/main.vue'
 import TypeMaterial from './components/typeMaterial/typeMaterial.vue'
 import BiologicalAssociation from './components/biologicalAssociation/main.vue'
 import SortComponent from './components/shared/sortComponenets.vue'
@@ -55,7 +55,7 @@ import { MutationNames } from './store/mutations/mutations.js'
 import { ActionNames } from './store/actions/actions.js'
 import { GetterNames } from './store/getters/getters.js'
 import SpinnerComponent from 'components/spinner.vue'
-import platformKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getPlatformKey.js'
 import Draggable from 'vuedraggable'
 
 export default {
@@ -69,7 +69,7 @@ export default {
     TypeMaterial,
     TaxonDeterminationLayout,
     BiologicalAssociation,
-    CollectionEventLayout,
+    CollectingEventLayout,
     SpinnerComponent,
     Draggable
   },
@@ -100,7 +100,6 @@ export default {
 
   data () {
     return {
-      // componentsOrder: ['TaxonDeterminationLayout', 'BiologicalAssociation', 'TypeMaterial'],
       keyStorage: 'tasks::digitize::LeftColumnOrder',
       componentsSection: 'leftColumn'
     }
@@ -128,7 +127,7 @@ export default {
     else if (/^\d+$/.test(coIdParam)) {
       this.$store.dispatch(ActionNames.LoadDigitalization, coIdParam)
     } else if (/^\d+$/.test(ceIdParam)) {
-      this.$store.dispatch(ActionNames.GetCollectionEvent, ceIdParam)
+      this.$store.dispatch(ActionNames.GetCollectingEvent, ceIdParam)
     }
   },
 

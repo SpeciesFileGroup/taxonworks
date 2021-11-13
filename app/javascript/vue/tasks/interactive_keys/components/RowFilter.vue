@@ -40,7 +40,7 @@
             Apply filter
           </button>
           <button-image-matrix
-            :otu-ids="this.selectedRows"/>
+            :otu-ids="otuIds"/>
         </div>
         <ul class="no_bullets">
           <li
@@ -80,7 +80,7 @@
             Apply filter
           </button>
           <button-image-matrix
-            :otu-ids="this.selectedRows"/>
+            :otu-ids="otuIds"/>
         </div>
       </template>
     </modal-component>
@@ -93,6 +93,7 @@ import ModalComponent from 'components/ui/Modal'
 import ExtendResult from './extendResult'
 import RanksList from '../const/ranks'
 import ButtonImageMatrix from 'tasks/observation_matrices/dashboard/components/buttonImageMatrix.vue'
+import scrollToTop from '../utils/scrollToTop.js'
 import { MutationNames } from '../store/mutations/mutations'
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
@@ -121,6 +122,14 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetRowFilter, value)
       }
+    },
+
+    otuIds () {
+      const objects = this.remaining
+        .map(item => item.object)
+        .filter(item => this.selectedRows.includes(item.id))
+
+      return objects.map(item => item.otu_id).filter(id => id)
     },
 
     allSelected () {
@@ -153,7 +162,7 @@ export default {
 
     LoadObservationMatrix () {
       this.$store.dispatch(ActionNames.LoadObservationMatrix, this.observationMatrix.observation_matrix_id)
-      document.querySelector('.descriptors-view div').scrollIntoView(0)
+      scrollToTop()
     },
 
     selectAll () {

@@ -77,14 +77,18 @@ class CollectionObject < ApplicationRecord
   include Shared::Observations
   include Shared::IsData
   include SoftValidation
+  
+  include CollectionObject::BiologicalExtensions
+
+  include CollectionObject::Taxonomy # at present must be before IsDwcOccurence
   include Shared::IsDwcOccurrence
   include CollectionObject::DwcExtensions
 
-  include CollectionObject::BiologicalExtensions
-
   ignore_whitespace_on(:buffered_collecting_event, :buffered_determinations, :buffered_other_labels)
 
-  CO_OTU_HEADERS      = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
+  # TODO: move to export
+  CO_OTU_HEADERS = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
+
   BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}.freeze
 
   GRAPH_ENTRY_POINTS = [:biological_associations, :data_attributes, :taxon_determinations, :biocuration_classifications, :collecting_event, :origin_relationships, :extracts]
@@ -128,16 +132,24 @@ class CollectionObject < ApplicationRecord
 
   accepts_nested_attributes_for :collecting_event, allow_destroy: true, reject_if: :reject_collecting_event
 
+  before_validation :assign_type_if_total_or_ranged_lot_category_id_provided
+
   validates_presence_of :type
   validate :check_that_either_total_or_ranged_lot_category_id_is_present
   validate :check_that_both_of_category_and_total_are_not_present
-
   validate :collecting_event_belongs_to_project
 
-  before_validation :assign_type_if_total_or_ranged_lot_category_id_provided
+  soft_validate(
+    :sv_missing_accession_fields,
+    set: :missing_accession_fields,
+    name: 'Missing accession fields',
+    description: 'Name or Provider are not selected')
 
-  soft_validate(:sv_missing_accession_fields, set: :missing_accession_fields)
-  soft_validate(:sv_missing_deaccession_fields, set: :missing_deaccession_fields)
+  soft_validate(
+    :sv_missing_deaccession_fields,
+    set: :missing_deaccession_fields,
+    name: 'Missing deaccesson fields',
+    description: 'Date, recipient, or reason are not specified')
 
   scope :with_sequence_name, ->(name) { joins(sequence_join_hack_sql).where(sequences: {name: name}) }
   scope :via_descriptor, ->(descriptor) { joins(sequence_join_hack_sql).where(sequences: {id: descriptor.sequences}) }
@@ -190,8 +202,8 @@ class CollectionObject < ApplicationRecord
   #   a unque list of buffered_ values observed in the collection objects passed
   def self.breakdown_buffered(collection_objects)
     collection_objects = [collection_objects] if collection_objects.class != Array
-    breakdown          = {}
-    categories         = BUFFERED_ATTRIBUTES
+    breakdown = {}
+    categories = BUFFERED_ATTRIBUTES
 
     categories.each do |c|
       breakdown[c] = []
@@ -614,20 +626,28 @@ class CollectionObject < ApplicationRecord
   end
 
   # @return [Identifier::Local::CatalogNumber, nil]
-  #   the first (position) catalog number for this collection object
+  #   the first (position) catalog number for this collection object, either on specimen, or container
   def preferred_catalog_number
-    Identifier::Local::CatalogNumber.where(identifier_object: self).first
+    if i = Identifier::Local::CatalogNumber.where(identifier_object: self).first
+      i
+    else
+      if container
+        container.identifiers.where(identifiers: {type: 'Identifier::Local::CatalogNumber'}).first
+      else
+        nil
+      end
+    end
   end
 
   # return [Boolean]
   #    True if instance is a subclass of BiologicalCollectionObject
-  def biological?
+  def is_biological?
     self.class <= BiologicalCollectionObject ? true : false
   end
 
   def annotations
     h = annotations_hash
-    (h['biocuration classifications'] = biocuration_classes) if biological? && biocuration_classifications.load.any?
+    (h['biocuration classifications'] = biocuration_classes) if is_biological? && biocuration_classifications.load.any?
     h
   end
 
@@ -642,6 +662,10 @@ class CollectionObject < ApplicationRecord
     soft_validations.add(:deaccession_reason, 'Reason is is not defined') if self.deaccession_reason.blank? && self.deaccession_recipient && self.deaccessioned_at
   end
 
+  def sv_missing_determination
+    # see biological_collection_object
+  end
+
   def sv_missing_collecting_event
     # see biological_collection_object
   end
@@ -652,6 +676,10 @@ class CollectionObject < ApplicationRecord
 
   def sv_missing_repository
     # WHY? -  see biological_collection_object
+  end
+
+  def sv_missing_biocuration_classification
+    # see biological_collection_object
   end
 
   protected
@@ -692,6 +720,7 @@ class CollectionObject < ApplicationRecord
     # !! does not account for georeferences_attributes!
     reject
   end
+  
 end
 
 require_dependency 'specimen'

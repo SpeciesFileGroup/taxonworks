@@ -1,8 +1,6 @@
 module Queries
   module CollectingEvent
-
     class Filter
-
       include Queries::Helpers
 
       include Queries::Concerns::Tags
@@ -101,7 +99,7 @@ module Queries
         # @spatial_geographic_area_ids = params[:spatial_geographic_areas].blank? ? [] : params[:spatial_geographic_area_ids]
 
         @collecting_event_wildcards = params[:collecting_event_wildcards] || []
-        @collector_id = params[:collector_id].blank? ? [] : params[:collector_id]
+        @collector_id = params[:collector_id]
         @collector_ids_or = boolean_param(params, :collector_ids_or )
         @collection_objects = boolean_param(params, :collection_objects )
         @geo_json = params[:geo_json]
@@ -193,7 +191,7 @@ module Queries
             a[:id].eq(c[:role_object_id])
           .and(c[:role_object_type].eq('CollectingEvent'))
           .and(c[:type].eq('Collector'))
-        )
+          )
 
         e = c[:id].not_eq(nil)
         f = c[:person_id].eq_any(collector_id)
@@ -207,12 +205,12 @@ module Queries
       end
 
 
-     ## TODO: what is it @param value [String] ?!
-     ## In
-     #def shape=(value)
-     #  @shape = ::RGeo::GeoJSON.decode(value, json_parser: :json)
-     #  @shape
-     #end
+      ## TODO: what is it @param value [String] ?!
+      ## In
+      #def shape=(value)
+      #  @shape = ::RGeo::GeoJSON.decode(value, json_parser: :json)
+      #  @shape
+      #end
 
       def wkt_facet
         return nil if wkt.blank?
@@ -243,10 +241,10 @@ module Queries
         end
       end
 
-       # TODO: throttle by size?
-       def matching_spatial_via_geographic_area_ids
-          return nil unless spatial_geographic_areas && !geographic_area_id.empty?
-          a = ::GeographicItem.default_by_geographic_area_ids(geographic_area_id).ids
+      # TODO: throttle by size?
+      def matching_spatial_via_geographic_area_ids
+        return nil unless spatial_geographic_areas && !geographic_area_id.empty?
+        a = ::GeographicItem.default_by_geographic_area_ids(geographic_area_id).ids
         ::CollectingEvent.joins(:geographic_items).where( ::GeographicItem.contained_by_where_sql( a ) )
       end
 
@@ -361,6 +359,5 @@ module Queries
         q
       end
     end
-
   end
 end

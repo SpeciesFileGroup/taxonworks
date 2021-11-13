@@ -2,11 +2,6 @@
   <div>
     <h3 class="flex-separate">
       Housekeeping
-      <span
-        class="margin-small-left"
-        v-if="!user.user_target || (!user.user_date_start && !user.user_date_end)"
-        data-icon="warning"
-        title="Select a date range first to pick a date"/>
     </h3>
     <div class="field">
       <select v-model="user.user_id">
@@ -18,7 +13,7 @@
         </option>
       </select>
     </div>
-    <h3>Date range</h3>
+    <h3>Target</h3>
     <div class="field">
       <ul class="no_bullets">
         <li
@@ -34,11 +29,12 @@
         </li>
       </ul>
     </div>
+    <h3>Date range</h3>
     <div class="horizontal-left-content">
       <div class="field separate-right">
         <label>Start date:</label>
         <br>
-        <input 
+        <input
           type="date"
           class="date-input"
           v-model="user.user_date_start">
@@ -49,7 +45,6 @@
         <div class="horizontal-left-content">
           <input
             type="date"
-            :disabled="!user.user_date_start"
             class="date-input"
             v-model="user.user_date_end">
           <button
@@ -102,15 +97,15 @@ export default {
       users: [],
       options: [
         {
-          label: '--None--',
+          label: 'Both',
           value: undefined
         },
         {
-          label: 'created at',
+          label: 'Created at',
           value: 'created'
         },
         {
-          label: 'updated',
+          label: 'Updated at',
           value: 'updated'
         }
       ]

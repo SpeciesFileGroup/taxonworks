@@ -3,9 +3,12 @@
 
 # EntryItems for this Entry must follow the pattern:
 # * The `base_object` is always a TaxonName
-# * The `object` may be a Protony, TaxonNameRelationship, or Combination
+# * The `object` may be a Protonym, TaxonNameRelationship, or Combination
 #
-class Catalog::Nomenclature::Entry < ::Catalog::Entry
+
+require 'catalog/entry'
+class Catalog::Nomenclature < Catalog
+class Entry < ::Catalog::Entry
 
   def initialize(taxon_name)
     super(taxon_name)
@@ -165,4 +168,5 @@ class Catalog::Nomenclature::Entry < ::Catalog::Entry
     items.select{|i| i.object_class =~ /TaxonNameRelationship/}
   end
 
+end
 end

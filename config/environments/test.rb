@@ -1,3 +1,4 @@
+require 'settings'
 TaxonWorks::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
@@ -5,7 +6,7 @@ TaxonWorks::Application.configure do
   # test suite. You never need to work with it otherwise. Remember that
   # your test database is "scratch space" for the test suite and is wiped
   # and recreated between test runs. Don't rely on the data there!
-  config.cache_classes = true # false ###### Setting this to false make all the tests in the RubyMine to fail.
+  config.cache_classes = false
 
   # Do not eager load code on boot. This avoids loading your whole application
   # just for the purpose of running a single test. If you are using a tool that
@@ -55,6 +56,8 @@ TaxonWorks::Application.configure do
 
   Settings.load_test_defaults(config)
   Settings.load_from_settings_file(config, :test)
+
+  Settings.load_mail_domain(config, 'example.com')
 
   require 'taxonworks'
   require 'taxonworks_autoload'

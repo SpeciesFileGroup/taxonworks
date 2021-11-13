@@ -25,6 +25,7 @@
         @click="unsetNamespace"/>
     </div>
     <div class="field">
+      <h4>Match</h4>
       <ul class="no_bullets">
         <li
           v-for="item in match"
@@ -33,7 +34,6 @@
             <input
               type="radio"
               :value="item.value"
-              :disabled="!identifier.identifier || !identifier.identifier.length"
               v-model="identifier.identifier_exact"
               name="match-radio">
             {{ item.label }}
@@ -41,12 +41,12 @@
         </li>
       </ul>
     </div>
-    <h3>In range</h3>
+    <h4>In range</h4>
     <div class="horizontal-left-content">
       <div class="field separate-right">
         <label>Start:</label>
         <br>
-        <input 
+        <input
           type="text"
           v-model="identifier.identifier_start">
       </div>

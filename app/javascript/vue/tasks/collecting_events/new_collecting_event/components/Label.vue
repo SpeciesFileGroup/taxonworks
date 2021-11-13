@@ -9,7 +9,8 @@
           <input
             v-model="type"
             :value="item.value"
-            type="radio">
+            type="radio"
+          >
           {{ item.label }}
         </label>
       </li>
@@ -18,6 +19,13 @@
 </template>
 
 <script>
+
+import {
+  LABEL,
+  LABEL_QR_CODE,
+  LABEL_CODE_128
+} from 'constants/index.js'
+
 export default {
   props: {
     modelValue: {
@@ -25,6 +33,8 @@ export default {
       default: undefined
     }
   },
+
+  emits: ['update:modelValue'],
 
   computed: {
     type: {
@@ -46,15 +56,15 @@ export default {
         },
         {
           label: 'Text',
-          value: 'Label'
+          value: LABEL
         },
         {
           label: 'QR Code',
-          value: 'Label::QrCode'
+          value: LABEL_QR_CODE
         },
         {
           label: 'Barcode',
-          value: 'Label::Code128'
+          value: LABEL_CODE_128
         }
       ]
     }

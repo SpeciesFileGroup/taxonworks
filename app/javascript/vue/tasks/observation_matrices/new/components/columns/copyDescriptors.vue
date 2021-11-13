@@ -107,10 +107,10 @@ import ObservationTypes from '../../const/types.js'
 
 import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
+import { ObservationMatrix, ObservationMatrixColumnItem } from 'routes/endpoints'
 import {
   GetMatrixObservationColumns,
-  CreateColumnItem,
-  GetObservationMatrices
+  CreateColumnItem
 } from '../../request/resources'
 
 export default {
@@ -150,8 +150,8 @@ export default {
       handler (newVal) {
         if (newVal) {
           this.isLoading = true
-          GetObservationMatrices().then(response => {
-            response.body.splice(response.body.findIndex(item => { return this.matrixId === item.id }), 1)
+          ObservationMatrix.all().then(response => {
+            response.body.splice(response.body.findIndex(item => this.matrixId === item.id), 1)
             this.observationMatrices = response.body
             this.isLoading = false
           })
@@ -191,7 +191,7 @@ export default {
       data.sort((a, b) => a - b)
       console.log(data.sort((a, b) => a.position - b.position))
 
-      data.forEach(descriptor => { promises.push(CreateColumnItem({ observation_matrix_column_item: descriptor })) })
+      data.forEach(descriptor => { promises.push(ObservationMatrixColumnItem.create({ observation_matrix_column_item: descriptor })) })
 
       Promise.all(promises).then(() => {
         this.$store.dispatch(ActionNames.GetMatrixObservationColumns, this.matrixId)

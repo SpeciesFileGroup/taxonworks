@@ -21,12 +21,15 @@
           placeholder="Label"
         >
       </div>
-      <textarea
-        class="normal-input separate-bottom"
-        type="text"
-        v-model="depiction.caption"
-        placeholder="Caption"
-      />
+      <div class="field">
+        <textarea
+          class="normal-input full_width margin-small-top margin-small-bottom padding-medium"
+          rows="5"
+          type="text"
+          v-model="depiction.caption"
+          placeholder="Caption"
+        />
+      </div>
       <label>
         <input
           type="checkbox"
@@ -87,7 +90,7 @@
       <div>
         <button
           type="button"
-          class="normal-input button button-submit"
+          class="normal-input button button-submit margin-small-right"
           @click="updateFigure()"
         >
           Update
@@ -108,6 +111,7 @@
         :search="false"
         :target="objectType"
         :add-tabs="['new', 'filter']"
+        pin-section="Images"
         @selected="createDepiction">
         <template #new>
           <dropzone
@@ -192,6 +196,7 @@ import OtuPicker from 'components/otu/otu_picker/otu_picker'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import FilterImage from 'tasks/images/filter/components/filter'
 import SmartSelector from 'components/ui/SmartSelector'
+import { Depiction } from 'routes/endpoints'
 
 export default {
   mixins: [CRUD, annotatorExtend],
@@ -243,6 +248,11 @@ export default {
           value: 'TaxonName',
           label: 'Taxon name',
           url: '/taxon_names/autocomplete'
+        },
+        {
+          value: 'Person',
+          label: 'Person',
+          url: '/people/autocomplete'
         }
       ],
       isDataDepiction: false,
@@ -272,15 +282,18 @@ export default {
         this.depiction.depiction_object_type = this.selectedType.value
         this.depiction.depiction_object_id = this.selectedObject.id
       }
-      this.update(`/depictions/${this.depiction.id}`, { depiction: this.depiction }).then(response => {
+
+      Depiction.update(this.depiction.id, { depiction: this.depiction }).then(response => {
         const index = this.list.findIndex(element => this.depiction.id === element.id)
 
         if (this.updateObjectType) {
-          delete this.list[index]
+          this.list.splice(index, 1)
         } else {
           this.list[index] = response.body
         }
         this.depiction = undefined
+
+        TW.workbench.alert.create('Depiction was successfully updated.', 'notice')
       })
     },
 
@@ -297,7 +310,7 @@ export default {
         is_metadata_depiction: this.isDataDepiction
       }
 
-      this.create('/depictions.json', { depiction: depiction }).then(({ body }) => {
+      Depiction.create({ depiction }).then(({ body }) => {
         this.list.push(body)
         TW.workbench.alert.create('Depiction was successfully created.', 'notice')
       })
@@ -309,19 +322,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss">
-.radial-annotator {
-  .depiction_annotator {
-    button {
-      min-width: 100px;
-    }
-    textarea {
-      padding-top: 14px;
-      padding-bottom: 14px;
-      width: 100%;
-      height: 100px;
-    }
-  }
-}
-</style>

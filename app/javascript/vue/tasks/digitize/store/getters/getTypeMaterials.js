@@ -1,3 +1,1 @@
-export default function(state) {
-  return state.materialTypes
-}
+export default state => state.materialTypes

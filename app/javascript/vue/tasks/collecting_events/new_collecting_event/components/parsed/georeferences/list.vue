@@ -8,7 +8,7 @@
           <th class="word-keep-all">Coordinates</th>
           <th class="word-keep-all line-nowrap">Error radius</th>
           <th class="word-keep-all">Type</th>
-          <th></th>
+          <th />
         </tr>
       </thead>
       <tbody>
@@ -22,7 +22,7 @@
           <td class="line-nowrap">
             <edit-in-place
               v-model="item.error_radius"
-              @end="$emit('updateGeo', item)"/>
+              @end="$emit('update', item)"/>
           </td>
           <td class="word-keep-all">{{ item.type }}</td>
           <td class="vue-table-options">
@@ -44,7 +44,10 @@
 
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import EditInPlace from 'components/editInPlace'
-import GeoreferenceTypes from '../../../const/georeferenceTypes'
+import {
+  GEOREFERENCE_GEOLOCATE,
+  GEOREFERENCE_WKT
+} from 'constants/index.js'
 
 export default {
   components: {
@@ -54,15 +57,11 @@ export default {
   props: {
     list: {
       type: Array,
-      default: () => {
-        return []
-      }
+      default: () => []
     },
     header: {
       type: Array,
-      default: () => {
-        return []
-      }
+      default: () => []
     },
     destroy: {
       type: Boolean,
@@ -81,13 +80,17 @@ export default {
       default: false
     }
   },
+
+  emits: ['delete', 'update'],
+
   mounted () {
     this.$options.components['RadialAnnotator'] = RadialAnnotator
   },
+
   methods: {
     deleteItem (item) {
       if (this.deleteWarning) {
-        if (window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+        if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
           this.$emit('delete', item)
         }
       } else {
@@ -104,10 +107,10 @@ export default {
       return this.geojsonObject(object).geometry.type
     },
     isTmpWkt (object) {
-      return object.type === GeoreferenceTypes.Wkt && object.tmpId
+      return object.type === GEOREFERENCE_WKT && object.tmpId
     },
     isTempGeolocate (object) {
-      return object.type === GeoreferenceTypes.Geolocate && object.tmpId
+      return object.type === GEOREFERENCE_GEOLOCATE && object.tmpId
     },
     getCoordinatesByType (object) {
       if (this.isTmpWkt(object)) {

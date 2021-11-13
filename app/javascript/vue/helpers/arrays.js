@@ -18,13 +18,12 @@ function sortArray (arr, sortProperty, ascending = true) {
   return list.sort((A, B) => {
     const a = A[sortProperty]
     const b = B[sortProperty]
-    let result
 
     if (a === null) return 1
     if (b === null) return -1
     if (a === null && b === null) return 0
 
-    result = a - b
+    const result = a - b
 
     if (isNaN(result)) {
       return (ascending)
@@ -37,8 +36,19 @@ function sortArray (arr, sortProperty, ascending = true) {
   })
 }
 
+function addToArray (arr, obj) {
+  const index = arr.findIndex(item => obj.id === item.id)
+
+  if (index > -1) {
+    arr[index] = obj
+  } else {
+    arr.push(obj)
+  }
+}
+
 export {
   chunkArray,
   getUnique,
-  sortArray
+  sortArray,
+  addToArray
 }

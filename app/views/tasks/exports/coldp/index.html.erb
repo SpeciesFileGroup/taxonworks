@@ -15,9 +15,10 @@
     </div>
     <div class="field">
       <%= check_box_tag 'prefer_unlabelled_otus' %>
-      <%= label_tag 'prefer_unlabelled_otus', 'On taxon name with multiple OTUs conflict narrow selection to unlabelled ones.' %>
+      <%= label_tag 'prefer_unlabelled_otus', 'Export single OTU only' %> <span class="feedback feedback-warning feedback-thin"> If a taxon name has multiple OTUs, then, if possible, choose the OTU without a value in the OTU <b>name</b> field.</span>
     </div>
 
+    <br>
     <%= submit_tag :Download, class: ['normal-input', :button, 'button-default'] -%>
   <% end %>
 </div>

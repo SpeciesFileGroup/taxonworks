@@ -38,36 +38,42 @@
 
 <script>
 
-import AjaxCall from 'helpers/ajaxCall'
 import SpinnerComponent from 'components/spinner'
-import { MutationNames } from '../store/mutations/mutations'
 import ModalComponent from 'components/ui/Modal'
+import { MutationNames } from '../store/mutations/mutations'
+import { ActionNames } from '../store/actions/actions'
+import { Source } from 'routes/endpoints'
 
 export default {
   components: {
     ModalComponent,
     SpinnerComponent
   },
-  data() {
+
+  emits: ['close'],
+
+  data () {
     return {
       bibtexInput: '',
       creating: false,
       recentCreated: []
-    };
+    }
   },
+
   methods: {
-    createSource() {
+    createSource () {
       this.creating = true
-      AjaxCall('post', '/sources.json', { bibtex_input: this.bibtexInput }).then(response => {
-        this.bibtexInput = ""
-        this.creating = false
+      this.$store.dispatch(ActionNames.ResetSource)
+      Source.create({ bibtex_input: this.bibtexInput }).then(response => {
+        this.bibtexInput = ''
         this.$emit('close', true)
         this.$store.commit(MutationNames.SetSource, response.body)
         TW.workbench.alert.create('New source from BibTeX created.', 'notice')
       }, () => {
-        this.creating = false
         TW.workbench.alert.create('Wrong data', 'error')
-      }) 
+      }).finally(() => {
+        this.creating = false
+      })
     }
   }
 }

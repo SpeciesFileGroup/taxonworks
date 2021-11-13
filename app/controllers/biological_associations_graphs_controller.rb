@@ -71,7 +71,7 @@ class BiologicalAssociationsGraphsController < ApplicationController
 
   def search
     if params[:id].blank?
-      redirect_to biological_associations_graphs_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to biological_associations_graphs_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to biological_association_graph_path(params[:id])
     end

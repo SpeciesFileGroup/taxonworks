@@ -1,0 +1,17 @@
+<%= form_for(@import_dataset.becomes(ImportDataset), multipart: true) do |f| %>
+    <%= render 'shared/errors', object: @import_dataset.becomes(ImportDataset) %>
+
+    <div class="field">
+      <%= f.label :source %><br>
+      <%= f.file_field :source, class: :required_for_submit %>
+    </div>
+    
+    <div class="field">
+      <%= f.label :description %><br>
+      <%= f.text_field :description %>
+    </div>
+
+    <div class="actions">
+      <%= f.submit %>
+    </div>
+<% end %>

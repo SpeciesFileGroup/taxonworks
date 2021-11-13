@@ -12,7 +12,7 @@ export default function ({ commit, state, dispatch }, citation) {
       }
     }
 
-    TaxonName.update(taxon_name.id, { taxon_name }).then(response => {
+    TaxonName.update(taxon_name.id, { taxon_name, extend: ['origin_citation', 'roles'] }).then(response => {
       dispatch('loadSoftValidation', 'taxon_name')
       state.taxon_name.origin_citation = response.body.origin_citation
       commit(MutationNames.UpdateLastSave)

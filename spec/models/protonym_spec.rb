@@ -22,11 +22,40 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
   let(:protonym) { Protonym.new }
   let(:root) { Protonym.where(name: 'Root').first  }
-
+ 
   context 'validation' do
-    before { protonym.valid? }
 
-    context 'rank_class' do
+    specify '#verbatim_author without digits' do
+      protonym.verbatim_author = 'Smith, 1920'
+      protonym.valid?
+      expect(protonym.errors.messages[:verbatim_author]).to_not be_empty
+    end
+
+    specify '#verbatim_author parens 1' do
+      protonym.verbatim_author = '(Smith)'
+      protonym.valid?
+      expect(protonym.errors.messages[:verbatim_author]).to be_empty
+    end
+
+    specify '#verbatim_author parens 2' do
+      protonym.verbatim_author = '(Smith'
+      protonym.valid?
+      expect(protonym.errors.messages[:verbatim_author]).to_not be_empty
+    end
+
+    specify '#verbatim_author parens 3' do
+      protonym.verbatim_author = 'Smith)'
+      protonym.valid?
+      expect(protonym.errors.messages[:verbatim_author]).to_not be_empty
+    end
+
+    specify '#verbatim_author parens 4' do
+      protonym.verbatim_author = 'Smi)th'
+      protonym.valid?
+      expect(protonym.errors.messages[:verbatim_author]).to_not be_empty
+    end
+
+    context '#rank_class' do
       specify 'is valid when a NomenclaturalRank subclass' do
         protonym.rank_class = Ranks.lookup(:iczn, 'order')
         protonym.name = 'Aaa'
@@ -66,7 +95,8 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     end
 
     specify 'name' do
-      expect(protonym.errors.include?(:name)).to be_truthy
+        protonym.valid?
+        expect(protonym.errors.include?(:name)).to be_truthy
     end
 
     context 'latinization requires' do 
@@ -273,6 +303,15 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
     let(:s1) { Protonym.create!(name: 'aus', parent: root, rank_class: Ranks.lookup(:iczn, :species)) }
     let(:s2) { Protonym.create!(name: 'aus', parent: s1, rank_class: Ranks.lookup(:iczn, :subspecies)) }
+
+    specify 'list_of_coordinated_names' do
+      g3 = Protonym.create!(name: 'Aus', parent: g1, rank_class: Ranks.lookup(:iczn, :subgenus))
+      c1 = TaxonNameClassification::Iczn::Unavailable::NomenNudum.create!(taxon_name: g3)
+      expect(g3.cached_is_valid).to be_falsey
+      expect(g3.list_of_coordinated_names.count).to eq(0)
+      expect(g2.list_of_coordinated_names.count).to eq(1)
+      expect(g1.list_of_coordinated_names.count).to eq(1)
+    end
 
     specify '#nominotypical_sub_of? 1' do
       expect(g1.nominotypical_sub_of?(g2)).to be_falsey

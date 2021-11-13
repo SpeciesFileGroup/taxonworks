@@ -2,39 +2,42 @@ module ContainersHelper
 
   def container_tag(container)
     return nil if container.nil?
-    container.name ? 
-      container.name : 
-      [container.class.name, 
-       "[#{container.to_param}]",
-       content_tag(:i, 'unnamed'), 
-       content_tag(:span, container.container_items.count.to_s + ' inside', class: [:feedback, 'feedback-thin', 'feedback-secondary'])
-    ].join('&nbsp;').html_safe
-  end
+    a = []
 
+    a.push identifier_short_tag(container.identifiers.first)
+
+    if container.name
+      a.push container.class.name
+    else
+      a.push tag.i container.type, class: [:feedback, 'feedback-thin', 'feedback-secondary']
+    end
+
+    a.push tag.span container.container_items.count.to_s + ' inside', class: [:feedback, 'feedback-thin', 'feedback-info']
+
+    if container.print_label
+      a.push tag.span container.print_label, class: [:feedback, 'feedback-thin', 'feedback-light']
+    end
+
+    a.push tag.span 'id: ' + container.to_param
+
+    a.compact.join('&nbsp;').html_safe
+  end
 
   def container_link(container)
     return nil if container.nil?
     link_to(container_tag(container.metamorphosize).html_safe, container.metamorphosize)
   end
 
-  def container_label(container)
+  def label_for_container(container)
     return nil if container.nil?
-    [ identifier_label(container.identifiers.first),
+    [ label_for_identifier(container.identifiers.first),
       container.name,
       container.print_label,
-    ].compact.join.html_safe
+    ].compact.join(': ').html_safe
   end
 
   def container_autocomplete_tag(container)
-    return nil if container.nil?
-    a = [
-      identifier_short_tag(container.identifiers.first),
-      container.name,
-      container.print_label
-    ].compact
-
-    a = [ container.id ] if a.empty?
-    a.join('&nsbp;').html_safe
+    container_tag(container)
   end
 
   def container_parent_tag(container)
@@ -64,13 +67,13 @@ module ContainersHelper
   #    a string representation of the containers location, includes disposition of the containers if provided
   def container_location(object)
     return nil if !object.containable?
-    parts = [] 
-    object.enclosing_containers.each do |c| 
+    parts = []
+    object.enclosing_containers.each do |c|
       s = c.name.blank? ? c.class.class_name : c.name
-      s += " [#{c.disposition}]" if !c.disposition.blank? 
-      parts.push s 
+      s += " [#{c.disposition}]" if !c.disposition.blank?
+      parts.push s
     end
-    parts.join('; ') 
+    parts.join('; ')
   end
 
   # TODO: move content to containers/_card
@@ -80,8 +83,8 @@ module ContainersHelper
     content_tag(:div, class: :draw_container) do
       content_tag(:h2) do
         'Container details'
-      end + 
-      
+      end +
+
       content_tag(:h3) do
         container_tag(container)
       end +

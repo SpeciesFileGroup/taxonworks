@@ -1,38 +1,37 @@
 <template>
-  <div class="panel loan-box">
-    <spinner
-      :show-spinner="false"
-      :resize="false"
-      :show-legend="false"
-      v-if="!loan.id"/>
-    <div class="header flex-separate middle">
-      <h3 class="">Update selected items</h3>
+  <block-layout>
+    <template #header>
+      <h3>Update selected items</h3>
+    </template>
+    <template #options>
       <expand v-model="displayBody"/>
-    </div>
-    <div
-      class="body horizontal-left-content align-start"
+    </template>
+    <template
+      #body
       v-if="displayBody">
-      <div class="edit-loan-container column-left">
-        <span><b>Loan item information</b></span>
-        <hr>
-        <div class="separate-top">
-          <div class="field">
+      <div id="loan-update-items">
+        <div>
+          <span><b>Loan item information</b></span>
+          <hr>
+          <div class="field label-above">
             <label>Status</label>
             <select
               v-model="status"
               class="normal-input information-input">
               <option
                 v-for="item in statusList"
+                :key="item"
                 :value="item">{{ item }}
               </option>
             </select>
             <button
               :disabled="!status || !list.length"
               @click="updateStatus()"
-              class="button button-submit normal-input">Update
+              class="button button-submit normal-input margin-small-left">
+              Update
             </button>
           </div>
-          <div class="field">
+          <div class="field label-above">
             <label>Returned on date</label>
             <input
               v-model="date"
@@ -43,14 +42,15 @@
             <button
               :disabled="!date || !list.length"
               @click="updateDate()"
-              class="button button-submit normal-input">Update
+              class="button button-submit normal-input margin-small-left">
+              Update
             </button>
           </div>
         </div>
+        <date-determination :list="list"/>
       </div>
-      <date-determination :list="list"/>
-    </div>
-  </div>
+    </template>
+  </block-layout>
 </template>
 
 <script>
@@ -60,22 +60,18 @@ import { GetterNames } from '../store/getters/getters'
 import statusList from '../const/status.js'
 import expand from './expand.vue'
 import dateDetermination from './dateDetermination.vue'
-import spinner from 'components/spinner.vue'
+import BlockLayout from 'components/layout/BlockLayout.vue'
 
 export default {
   components: {
     expand,
-    spinner,
-    dateDetermination
+    dateDetermination,
+    BlockLayout
   },
 
   computed: {
     list () {
       return this.$store.getters[GetterNames.GetEditLoanItems]
-    },
-
-    loan () {
-      return this.$store.getters[GetterNames.GetLoan]
     }
   },
 
@@ -111,11 +107,12 @@ export default {
 }
 </script>
 <style scoped>
-  .column-left {
-    width: 40%;
+  #loan-update-items {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
   }
 
   .information-input {
-    width: 130px;
+    width: 200px;
   }
 </style>

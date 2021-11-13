@@ -76,12 +76,13 @@ import ContentComponent from './components/Content'
 import AssertedDistribution from './components/AssertedDistribution'
 import BiologicalAssociations from './components/BiologicalAssociations'
 import AnnotationsComponent from './components/Annotations'
-import NomenclatureHistory from './components/NomenclatureHistory'
+import NomenclatureHistory from './components/timeline/Timeline.vue'
 import CollectingEvents from './components/CollectingEvents'
 import CollectionObjects from './components/CollectionObjects'
 import TypeSpecimens from './components/specimens/Type'
 import TypeSection from './components/TypeSection.vue'
 import CommonNames from './components/CommonNames'
+import DescriptionComponent from './components/Description.vue'
 import Descendants from './components/descendants'
 import Autocomplete from 'components/ui/Autocomplete'
 import SearchOtu from './components/SearchOtu'
@@ -101,6 +102,7 @@ export default {
     ImageGallery,
     SpinnerComponent,
     ContentComponent,
+    DescriptionComponent,
     AssertedDistribution,
     BiologicalAssociations,
     AnnotationsComponent,

@@ -1,4 +1,4 @@
-FROM sfgrp/taxonworks-base:latest AS base
+FROM sfgrp/taxonworks-base:ruby3 AS base
 ARG BUNDLER_WORKERS=1
 ENV RAILS_ENV production
 

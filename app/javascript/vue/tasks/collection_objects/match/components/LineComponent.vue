@@ -11,7 +11,7 @@
                 type="radio"
                 :value="item"
                 v-model="filter">
-                {{ item }}
+              {{ item }}
             </label>
           </li>
         </ul>
@@ -21,6 +21,12 @@
             class="button button-default normal-input margin-small-right"
             @click="selectAll">
             Select all
+          </button>
+          <button
+            type="button"
+            class="button button-default normal-input margin-small-right"
+            @click="selected = []">
+            Unselect all
           </button>
           <compare-component
             :compare="compare"/>
@@ -85,7 +91,7 @@ export default {
   emits: ['selected'],
 
   computed: {
-    compare() {
+    compare () {
       if (this.selected.length === 2) {
         const list = [].concat(...Object.values(this.matchList).filter(item => Array.isArray(item)))
 
@@ -110,7 +116,7 @@ export default {
 
   watch: {
     selected: {
-      handler(newVal) {
+      handler (newVal) {
         this.$emit('selected', newVal)
       },
       deep: true

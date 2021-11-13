@@ -8,17 +8,22 @@
       ref="smartSelector"
       pin-section="Sources"
       pin-type="Source"
+      label="cached"
       v-model="assertedDistribution.citation.source">
       <template #footer>
         <div>
           <template v-if="assertedDistribution.citation.source">
-            <p class="horizontal-left-content">
+            <div class="horizontal-left-content margin-small-top margin-small-bottom">
               <span data-icon="ok"/>
-              <span v-html="assertedDistribution.citation.source.object_tag"/>
+              <div class="horizontal-left-content">
+                <span v-html="assertedDistribution.citation.source.cached"/>
+                <radial-annotator
+                  :global-id="assertedDistribution.citation.source.global_id"/>
+              </div>
               <span
                 class="button circle-button btn-undo button-default"
                 @click="unset"/>
-            </p>
+            </div>
           </template>
           <div
             class="horizontal-left-content middle margin-medium-top">
@@ -57,9 +62,14 @@
 <script>
 
 import SmartSelector from 'components/ui/SmartSelector'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import { Source } from 'routes/endpoints'
 
 export default {
-  components: { SmartSelector },
+  components: {
+    SmartSelector,
+    RadialAnnotator
+  },
 
   props: {
     modelValue: {
@@ -70,6 +80,10 @@ export default {
 
   emits: ['update:modelValue'],
 
+  data: () => ({
+    documentation: []
+  }),
+
   computed: {
     assertedDistribution: {
       get () {
@@ -78,6 +92,26 @@ export default {
       set (value) {
         this.$emit('update:modelValue', value)
       }
+    },
+    source () {
+      return this.assertedDistribution.citation.source
+    }
+  },
+
+  watch: {
+    source: {
+      handler (newVal, oldVal) {
+        if (newVal?.id) {
+          if (newVal?.id !== oldVal?.id) {
+            Source.documentation(newVal.id).then(response => {
+              this.documentation = response.body
+            })
+          } else {
+            this.documentation = []
+          }
+        }
+      },
+      deep: true
     }
   },
 

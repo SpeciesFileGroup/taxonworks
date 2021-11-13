@@ -56,8 +56,7 @@ import Draggable from 'vuedraggable'
 
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
-
-import { UpdateUserPreferences } from '../../request/resources'
+import { User } from 'routes/endpoints'
 
 export default {
   components: {
@@ -90,6 +89,7 @@ export default {
     BibtexCrosslinks,
     BibtexTwAttributes
   },
+
   computed: {
     preferences: {
       get () {
@@ -103,6 +103,7 @@ export default {
       return this.$store.getters[GetterNames.GetSettings].sortable
     }
   },
+
   data () {
     return {
       disableDraggable: false,
@@ -114,11 +115,12 @@ export default {
       keyStorage: 'tasks::newsource::bibtex'
     }
   },
+
   watch: {
     preferences: {
-      handler(newVal) {
-        if(this.preferences.hasOwnProperty('layout')) {
-          if(this.preferences.layout[this.keyStorage] && Object.keys(this.columns).every((key) => { return Object.keys(this.preferences.layout[this.keyStorage]).includes(key) }))
+      handler () {
+        if (this.preferences.hasOwnProperty('layout')) {
+          if (this.preferences.layout[this.keyStorage] && Object.keys(this.columns).every((key) => Object.keys(this.preferences.layout[this.keyStorage]).includes(key)))
             this.columns = this.preferences.layout[this.keyStorage]
         }
       },
@@ -126,12 +128,14 @@ export default {
       immediate: true
     }
   },
+
   methods: {
     setDraggable (mode) {
       this.disableDraggable = mode
     },
-    updatePreferences() {
-      UpdateUserPreferences(this.preferences.id, { [this.keyStorage]: this.columns }).then(response => {
+
+    updatePreferences () {
+      User.update(this.preferences.id, { user: { layout: { [this.keyStorage]: this.columns } } }).then(response => {
         this.preferences.layout = response.body.preferences
         this.columns = response.body.preferences.layout[this.keyStorage]
       })
@@ -154,7 +158,7 @@ export default {
     > div {
       margin-right: 14px;
     }
-    
+
     input[type="text"] {
       width: 100%;
     }

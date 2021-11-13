@@ -1,10 +1,17 @@
 module SourcesHelper
 
+  # TODO: extend with autocomplete-like extensions.
   def source_tag(source)
     return nil if source.nil?
     source.cached ? sanitize(source.cached, tags: ['i']).html_safe : (source.new_record? ? nil : 'ERROR - Source cache not set, please notify admin.')
   end
 
+  def label_for_source(source)
+    return nil if source.nil?
+    source_author_year_tag(source)
+  end
+
+  # TODO: Add language via language_id info
   def sources_autocomplete_tag(source, term)
     return nil if source.nil?
 
@@ -14,7 +21,13 @@ module SourcesHelper
       s = source.cached + ' '
     end
 
-    if source.is_in_project?(sessions_current_project_id)
+    # In project is the project_if if present in this project see lib/queries/source/autocomplete
+    if source.respond_to?(:in_project) && !source.in_project.nil?
+      s += ' ' + content_tag(:span, 'in', class: [:feedback, 'feedback-primary', 'feedback-thin'])
+      c = source.use_count
+      s += ' ' + ( c > 0 ? content_tag(:span, "#{c.to_s}&nbsp;#{'citations'.pluralize(c)}".html_safe, class: [:feedback, 'feedback-secondary', 'feedback-thin']) : '' )
+      s += ' ' + content_tag(:span, 'doc/pdf', class: [:feedback, 'feedback-success', 'feedback-thin']) if source.documentation.where(project_id: sessions_current_project_id).any?
+    elsif source.is_in_project?(sessions_current_project_id)
       s += ' ' + content_tag(:span, 'in', class: [:feedback, 'feedback-primary', 'feedback-thin']) 
       c = source.citations.where(project_id: sessions_current_project_id).count
       s += ' ' + ( c > 0 ? content_tag(:span, "#{c.to_s}&nbsp;#{'citations'.pluralize(c)}".html_safe, class: [:feedback, 'feedback-secondary', 'feedback-thin']) : '' )
@@ -46,6 +59,11 @@ module SourcesHelper
   def source_link(source)
     return nil if source.nil?
     link_to(source_tag(source).html_safe, source.metamorphosize )
+  end
+
+  def history_link(source)
+    content_tag(:em, ' in ') + link_to(content_tag(:span, source_author_year_tag(source), title: source.cached, class: :history__in), send(:nomenclature_by_source_task_path, source_id: source.id) )
+    #        return content_tag(:span,  content_tag(:em, ' in ') + b, class: [:history__in])
   end
 
   def short_sources_tag(sources)
@@ -123,6 +141,7 @@ module SourcesHelper
   def source_nomenclature_tag(source, topics)
     t = [content_tag(:span, source_tag(source))]
     t.push [':', topic_list_tag(topics).html_safe] if !topics.blank?
+    t.push radial_annotator(source)
     t.push radial_navigation_tag(source)
     t.flatten.compact.join(' ').html_safe
   end

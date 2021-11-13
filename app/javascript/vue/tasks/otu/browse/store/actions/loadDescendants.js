@@ -61,7 +61,8 @@ export default ({ commit, state }, otu) => {
   const params = {
     taxon_name_id: [otu.taxon_name_id],
     descendants: true,
-    descendants_max_depth: 2
+    descendants_max_depth: 2,
+    extend: ['otus']
   }
   const descendants = {
     taxon_names: [],

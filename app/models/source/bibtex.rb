@@ -41,11 +41,7 @@ require 'namecase'
 #   We do not track stated_month or stated_day if they are present in addition to actual month and actual day.
 #
 #   BibTeX has month.
-#
 #   BibTeX does not have day.
-#
-# TW will add all non-standard or housekeeping attributes to the bibliography even though
-# the data may be ignored.
 #
 # @author Elizabeth Frank <eef@illinois.edu> INHS University of IL
 # @author Matt Yoder
@@ -272,7 +268,7 @@ require 'namecase'
 #
 # @!attribute language_id
 #   @return [Integer]
-#     language, from a controlled vocabulary 
+#     language, from a controlled vocabulary
 #
 # @!attribute translator
 #   @return [String]
@@ -289,7 +285,7 @@ require 'namecase'
 #
 # @!attribute author
 #   @return [String, nil] author names preferably rendered in BibTeX format,
-#   "Last name, FirstName MiddleName". FirstName and MiddleName can be initials. 
+#   "Last name, FirstName MiddleName". FirstName and MiddleName can be initials.
 #   Additional authors are joined with ` and `. All names before the
 #   comma are treated as a single last name.
 #
@@ -304,6 +300,10 @@ require 'namecase'
 #   See also `cached_author_string`
 #
 class Source::Bibtex < Source
+
+  # Type will change
+  DEFAULT_CSL_STYLE = 'taxonworks'
+  #DEFAULT_CSL_STYLE = 'zootaxa'
 
   attr_accessor :authors_to_create
 
@@ -432,7 +432,6 @@ class Source::Bibtex < Source
   # @todo if there is an ISSN it should look up to see it the serial already exists.
   def self.new_from_bibtex(bibtex_entry = nil)
     return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
-
     s = Source::Bibtex.new(bibtex_type: bibtex_entry.type.to_s)
 
     import_attributes = []
@@ -476,14 +475,11 @@ class Source::Bibtex < Source
     [year, year_suffix].compact.join
   end
 
-  # @return [String] A string that represents the authors last_names and year (no suffix)
-  def author_year
-    return 'not yet calculated' if new_record?
-    [cached_author_string, year].compact.join(', ')
-  end
-
+  # TODO: Not used
+  #
   # Modified from build, the issues with polymorphic has_many and build
-  # are more than we want to tackle right now
+  # are more than we want to tackle right now.
+  #
   # @return [Array, Boolean] of names, or false
   def create_related_people_and_roles
     return false if !self.valid? ||
@@ -492,7 +488,7 @@ class Source::Bibtex < Source
       self.roles.count > 0
 
     bibtex = to_bibtex
-    namecase_bibtex_entry(bibtex)
+    ::TaxonWorks::Vendor::BibtexRuby.namecase_bibtex_entry(bibtex)
 
     begin
       Role.transaction do
@@ -643,7 +639,7 @@ class Source::Bibtex < Source
 
   # @return [Boolean]
   # is there a bibtex author or author roles?
-  def has_authors? 
+  def has_authors?
     return true if !author.blank?
     return false if new_record?
     # self exists in the db
@@ -668,19 +664,13 @@ class Source::Bibtex < Source
   # @return [Boolean]
   def has_some_year? # is there a year or stated year?
     return false if year.blank? && stated_year.blank?
-    true 
+    true
   end
 
   # @return [Integer]
   #  The effective year of publication as per nomenclatural rules
   def nomenclature_year
     cached_nomenclature_date.year
-  end
-
-  #  Month handling allows values from bibtex like 'may' to be handled
-  # @return [Time]
-  def nomenclature_date
-    Utilities::Dates.nomenclature_date(day, Utilities::Dates.month_index(month), year)
   end
 
   # @return [Date || Time] <sigh>
@@ -694,20 +684,22 @@ class Source::Bibtex < Source
   end
 
   # rubocop:disable Metrics/MethodLength
-  # @return [BibTeX::Entry]
-  #   entry equivalent to self, this should round-trip with no changes
+  # @return [BibTeX::Entry, false]
+  #   !! Entry equivalent to self, this should round-trip with no changes.
   def to_bibtex
+    return false if bibtex_type.nil?
     b = BibTeX::Entry.new(bibtex_type: bibtex_type)
 
     ::BIBTEX_FIELDS.each do |f|
-      if (!self.send(f).blank?) && !(f == :bibtex_type)
-        b[f] = self.send(f)
+      next if f == :bibtex_type
+      v = send(f)
+      if !v.blank?
+        b[f] = v
       end
     end
 
-    b.year = year_with_suffix if !year_suffix.blank?
-    b[:keywords] = verbatim_keywords     unless verbatim_keywords.blank?
-    b[:note] = concatenated_notes_string if !concatenated_notes_string.blank?
+    b[:keywords] = verbatim_keywords unless verbatim_keywords.blank?
+    b[:note] = concatenated_notes_string unless concatenated_notes_string.blank?
 
     unless serial.nil?
       b[:journal] = serial.name
@@ -744,13 +736,40 @@ class Source::Bibtex < Source
     b.author = get_bibtex_names('author') if author_roles.load.any? # unless (!authors.load.any? && author.blank?)
     b.editor = get_bibtex_names('editor') if editor_roles.load.any? # unless (!editors.load.any? && editor.blank?)
 
+    # TODO: use global_id or replace with UUID or DOI if available
     b.key = id unless new_record?
     b
   end
 
+  # @return Hash
+  #   a to_citeproc with values updated for literal
+  #   handling via `{}` in TaxonWorks
+  def to_citeproc(normalize_names = true)
+    b = to_bibtex
+    ::TaxonWorks::Vendor::BibtexRuby.namecase_bibtex_entry(b) if normalize_names
+
+    a = b.to_citeproc
+
+    ::BIBTEX_FIELDS.each do |f|
+      next if f == :bibtex_type
+      v = send(f)
+      if !v.blank? && (v =~ /\A{(.*)}\z/)
+        a[f.to_s] = {literal: $1}
+      end
+    end
+
+    a['year-suffix'] = year_suffix unless year_suffix.blank?
+    a['original-date'] = {"date-parts" => [[ stated_year ]]} unless stated_year.blank?
+    a['language'] = Language.find(language_id).english_name.to_s unless language_id.nil?
+    a['translated-title'] = alternate_values.where(type: "AlternateValue::Translation", alternate_value_object_attribute: 'title').pluck(:value).first
+    a['note'] = note
+    a.reject! { |k| k == 'note' } if note.blank?
+    a
+  end
+
   # @return [String, nil]
   #  priority is Person, string
-  #  !! Not the cached value !! 
+  #  !! Not the cached value !!
   def get_author
     a = authors.load
     if a.any?
@@ -758,18 +777,6 @@ class Source::Bibtex < Source
     else
       author.blank? ? nil : author
     end
-  end
-
-  # Namecase all elements of all names
-  def namecase_bibtex_entry(bibtex_entry)
-    bibtex_entry.parse_names
-    bibtex_entry.names.each do |n|
-      n.first = NameCase(n.first) if n.first
-      n.last = NameCase(n.last) if n.last
-      n.prefix = NameCase(n.prefix) if n.prefix
-      n.suffix = NameCase(n.suffix) if n.suffix
-    end
-    true
   end
 
   # @return [BibTex::Bibliography]
@@ -783,10 +790,11 @@ class Source::Bibtex < Source
   # @return [String]
   #   this source, rendered in the provided CSL style, as text
   def render_with_style(style = 'vancouver', format = 'text', normalize_names = true)
-    cp = CiteProc::Processor.new(style: style, format: format)
-    b = bibtex_bibliography
-    namecase_bibtex_entry(b) if normalize_names
-    cp.import(b.to_citeproc)
+    s = ::TaxonWorks::Vendor::BibtexRuby.get_style(style)
+    cp = CiteProc::Processor.new(style: s, format: format)
+    b = to_bibtex
+    ::TaxonWorks::Vendor::BibtexRuby.namecase_bibtex_entry(b) if normalize_names
+    cp.import( [to_citeproc(normalize_names)] )
     cp.render(:bibliography, id: cp.items.keys.first).first.strip
   end
 
@@ -794,22 +802,10 @@ class Source::Bibtex < Source
   # @return [String]
   #   a full representation, using bibtex
   # String must be length > 0
-  #
-  # There (was) a problem with the zootaxa format and letters!
-  #  https://github.com/citation-style-language/styles/pull/2305
   def cached_string(format = 'text')
     return nil unless (format == 'text') || (format == 'html')
-    str = render_with_style('zootaxa', format) # the current TaxonWorks default ... make a constant
-#    str = render_with_style('zookeys', format) # the current TaxonWorks default ... make a constant
-#    str = render_with_style('entomological-society-of-america', format) # the current TaxonWorks default ... make a constant
-#    str = render_with_style('florida-entomologist', format) # the current TaxonWorks default ... make a constant
-#    str = render_with_style('zoological-journal-of-the-linnean-society', format) # the current TaxonWorks default ... make a constant
-#    str = render_with_style('systematic-biology', format) # the current TaxonWorks default ... make a constant
-#    str = render_with_style('chicago-annotated-bibliography', format) # the current TaxonWorks default ... make a constant
-#    str = render_with_style('chicago-fullnote-bibliography-16th-edition', format) # the current TaxonWorks default ... make a constant
-#    str = render_with_style('chicago-library-list', format) # the current TaxonWorks default ... make a constant
-
-    str.sub('(0ADAD)', '') # citeproc renders year 0000 as (0ADAD)
+    str = render_with_style(DEFAULT_CSL_STYLE, format)
+    #str.sub('(0ADAD)', '') # citeproc renders year 0000 as (0ADAD)
   end
 
   # @return [String, nil]
@@ -823,7 +819,7 @@ class Source::Bibtex < Source
         return nil
       else
         b = to_bibtex
-        namecase_bibtex_entry(b)
+        ::TaxonWorks::Vendor::BibtexRuby.namecase_bibtex_entry(b)
         return Utilities::Strings.authorship_sentence(b.author.tokens.collect{ |t| t.last })
       end
     else # use normalized records
@@ -876,38 +872,30 @@ class Source::Bibtex < Source
     end
   end
 
+  # TODO: Replace with taxonworks.csl.  Move unsupported fields to
+  # wrappers in vue rendering.
   # set cached values and copies active record relations into bibtex values
   # @return [Ignored]
   def set_cached
     if errors.empty?
       attributes_to_update = {}
-
       attributes_to_update[:author] = get_bibtex_names('author') if authors.reload.size > 0
       attributes_to_update[:editor] = get_bibtex_names('editor') if editors.reload.size > 0
-
-      c = cached_string('html')
-      if bibtex_type == 'book' && !pages.blank?
-        if pages.to_i.to_s == pages
-          c = c + " #{pages} pp."
-        else
-          c = c + " #{pages}"
-        end
-      end
-      n = []
-      n += [stated_year.to_s] if stated_year && year && stated_year != year
-
-      n += ['in ' + Language.find(language_id).english_name.to_s] if language_id
-      n += [note.to_s] if note
-      c = c + " [#{n.join(', ')}]" unless n.empty?
-
       attributes_to_update.merge!(
-        cached: c,
+        cached: get_cached,
         cached_nomenclature_date: nomenclature_date,
         cached_author_string: authority_name(false)
       )
-
       update_columns(attributes_to_update)
     end
+  end
+
+  def get_cached
+    if errors.empty?
+      c = cached_string('html') # preserves our convention of <i>
+      return c
+    end
+    nil
   end
 
   #region hard validations
@@ -934,5 +922,21 @@ class Source::Bibtex < Source
     end
   end
 
+  def sv_cached_names # this cannot be moved to soft_validation_extensions
+    is_cached = true
+
+    if author.to_s != get_bibtex_names('author') ||
+        editor.to_s != get_bibtex_names('editor') ||
+        cached != get_cached ||
+        cached_nomenclature_date != nomenclature_date ||
+        cached_author_string.to_s != authority_name(false)
+      is_cached = false
+    end
+
+    soft_validations.add(
+      :base, 'Cached values should be updated',
+      success_message: 'Cached values were updated',
+      failure_message:  'Failed to update cached values') if !is_cached
+  end
 end
 

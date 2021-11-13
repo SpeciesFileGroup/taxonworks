@@ -1,11 +1,13 @@
-import { makeInitialState }  from '../store.js'
+import { makeInitialState } from '../store.js'
 
-export default function(state) {
-  let preferences = state.preferences
-  let COTypes = state.COTypes
+export default state => {
+  const {
+    preferences,
+    project_preferences
+  } = state
 
-  history.pushState(null, null, `/tasks/accessions/comprehensive`)
+  history.replaceState(null, null, '/tasks/accessions/comprehensive')
   state = Object.assign(state, makeInitialState())
   state.preferences = preferences
-  state.COTypes = COTypes
+  state.project_preferences = project_preferences
 }

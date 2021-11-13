@@ -42,6 +42,22 @@
           <li>
             <a href="/tasks/accessions/comprehensive/index">New collection object</a>
           </li>
+          <li v-if="matrix.id && settings.sortable">
+            <button
+              type="button"
+              class="button normal-input button-submit"
+              @click="sortRows(matrix.id)">
+              Sort by nomenclature
+            </button>
+          </li>
+          <li>
+            <label class="middle">
+              <input
+                v-model="settings.softValidations"
+                type="checkbox">
+              Validation
+            </label>
+          </li>
           <li>
             <label class="middle">
               <input
@@ -105,11 +121,14 @@ import RadialNavigation from 'components/radials/navigation/radial'
 import RowsDynamic from './components/rows/dynamic'
 import ColumnsDynamic from './components/columns/dynamic'
 
+import { SortMatrixByNomenclature } from './request/resources'
 import { GetterNames } from './store/getters/getters'
 import { ActionNames } from './store/actions/actions'
 import { RouteNames } from 'routes/routes'
 
 export default {
+  name: 'NewObservationMatrix',
+
   components: {
     NewMatrix,
     RowsFixed,
@@ -154,6 +173,14 @@ export default {
       this.loading = true
       this.$store.dispatch(ActionNames.LoadMatrix, matrixId).finally(() => {
         this.loading = false
+      })
+    }
+  },
+
+  methods: {
+    sortRows (matrixId) {
+      SortMatrixByNomenclature(matrixId).then(_ => {
+        this.$store.dispatch(ActionNames.GetMatrixObservationRows, { per: 500 })
       })
     }
   }

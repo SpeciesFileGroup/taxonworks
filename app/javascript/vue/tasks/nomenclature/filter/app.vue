@@ -87,6 +87,7 @@ import PaginationCount from 'components/pagination/PaginationCount'
 import GetPagination from 'helpers/getPagination'
 
 export default {
+  name: 'FilterNomenclature',
   components: {
     FilterComponent,
     ListComponent,

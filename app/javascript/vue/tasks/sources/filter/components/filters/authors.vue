@@ -22,6 +22,7 @@
         :autocomplete-params="{
           roles: ['SourceAuthor', 'SourceEditor']
         }"
+        label="cached"
         @selected="addAuthor"/>
       <label>
         <input
@@ -43,13 +44,14 @@
 import SmartSelector from 'components/ui/SmartSelector'
 import DisplayList from 'components/displayList'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { GetPeople } from '../../request/resources'
+import { People } from 'routes/endpoints'
 
 export default {
   components: {
     SmartSelector,
     DisplayList
   },
+
   props: {
     modelValue: {
       type: Object,
@@ -85,6 +87,7 @@ export default {
       },
       deep: true
     },
+
     authors: {
       handler (newVal) {
         this.source.author_ids = this.authors.map(author => author.id)
@@ -101,7 +104,7 @@ export default {
     this.source.author_ids_or = params.author_ids_or
     if (params.author_ids) {
       params.author_ids.forEach(id => {
-        GetPeople(id).then(response => {
+        People.find(id).then(response => {
           this.addAuthor(response.body)
         })
       })

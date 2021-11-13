@@ -41,7 +41,7 @@
 
   <tbody>
   <% @collecting_events.each do |collecting_event| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= collecting_event.verbatim_locality %></td>
           <td><%= geographic_area_link(collecting_event.geographic_area) %></td>
           <td><%= collecting_event.verbatim_collectors %></td>

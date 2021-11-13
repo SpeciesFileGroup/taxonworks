@@ -68,10 +68,22 @@ class CombinationsController < ApplicationController
   end
 
   def combination_params
+    p = ::Combination::APPLICABLE_RANKS.inject(Hash.new){|hsh, r| hsh.merge "#{r}_taxon_name_relationship_attributes".to_sym => [:id, :_destroy] }
     params.require(:combination).permit(
-      :verbatim_name, :source_id, 
-      *Combination::APPLICABLE_RANKS.collect{|r| "#{r}_id".to_sym},
+      :verbatim_name,
+      :verbatim_author,
+      :year_of_publication,
+      :source_id,
+      *Combination::APPLICABLE_RANKS.collect{ |r| "#{r}_id".to_sym},
+      p,
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
-    ) 
+      roles_attributes: [
+        :id, :_destroy, :type, :person_id, :position,
+        person_attributes: [
+          :last_name, :first_name, :suffix, :prefix
+        ]
+      ],
+    )
   end
+
 end

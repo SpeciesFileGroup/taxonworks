@@ -13,7 +13,7 @@
 
   <tbody>
   <% @taxon_name_classifications.each do |taxon_name_classification| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= taxon_name_link(taxon_name_classification.taxon_name.metamorphosize) %></td>
           <td><%= taxon_name_classification.classification_label %></td>
           <td><%= taxon_name_classification.nomen_id %> </td>

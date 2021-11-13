@@ -41,12 +41,12 @@
               <td>{{ item.dwc_attributes.family }}</td>
               <td>{{ item.dwc_attributes.genus }}</td>
               <td>{{ item.dwc_attributes.scientificName }}</td>
-              <template>
-                <td 
-                  v-if="item.identifier_from_container"
-                  v-html="item.object_tag"/>
-                <td v-else>{{ item.dwc_attributes.catalogNumber}}</td>
-              </template>
+              <td
+                v-if="item.identifier_from_container"
+                v-html="item.object_tag"/>
+              <td v-else>
+                {{ item.dwc_attributes.catalogNumber }}
+              </td>
               <td>{{ item.biocuration }}</td>
               <td>{{ item.dwc_attributes.country }}</td>
               <td>{{ item.dwc_attributes.stateProvince }}</td>
@@ -67,7 +67,7 @@
 
 import ModalComponent from 'components/ui/Modal'
 import SpinnerComponent from 'components/spinner'
-import { GetRecentCollectionObjects } from '../../request/resources.js'
+import { CollectionObject } from 'routes/endpoints'
 
 export default {
   components: {
@@ -87,9 +87,9 @@ export default {
 
   watch: {
     showModal (newVal) {
-      if(newVal) {
+      if (newVal) {
         this.isLoading = true
-        GetRecentCollectionObjects().then(response => {
+        CollectionObject.reportDwc({ per: 10 }).then(response => {
           this.list = response.body
           this.isLoading = false
         })

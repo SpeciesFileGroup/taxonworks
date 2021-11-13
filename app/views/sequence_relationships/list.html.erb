@@ -16,7 +16,7 @@
       <% subject_sequence = Sequence.find(sequence_relationship.subject_sequence_id) %>
       <% object_sequence = Sequence.find(sequence_relationship.object_sequence_id) %>
 
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= sequence_link(subject_sequence) %></td>
           <td><%= sequence_link(object_sequence) %></td>
           <td><%= sequence_relationship.type %></td>

@@ -42,6 +42,7 @@
     <modal
       class="transparent-modal"
       v-if="view == 'all'"
+      container-class="radial-annotator-inner-modal"
       @close="view = 'new'">
       <template #header>
         <h3>Confidence level</h3>

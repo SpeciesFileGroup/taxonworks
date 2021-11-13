@@ -9,11 +9,9 @@
       <template #body>
         <div class="horizontal-left-content align-start">
           <div class="full_width">
-            <template>
-              <img
-                class="img-maxsize"
-                :src="depiction.image.image_file_url">
-            </template>
+            <img
+              class="img-maxsize"
+              :src="depiction.image.image_file_url">
             <div class="horizontal-left-content">
               <radial-annotator :global-id="depiction.image.global_id"/>
               Annotate image
@@ -78,8 +76,8 @@
 </template>
 <script>
 
+import { Depiction } from 'routes/endpoints'
 import Modal from 'components/ui/Modal.vue'
-import { UpdateDepiction } from './request/resources'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialNavigation from 'components/radials/navigation/radial'
 import MarkdownEditor from 'components/markdown-editor.vue'
@@ -127,7 +125,7 @@ export default {
         is_metadata_depiction: this.depiction.is_metadata_depiction
       }
 
-      UpdateDepiction(this.depiction.id, { depiction: depiction }).then(response => {
+      Depiction.update(this.depiction.id, { depiction }).then(_ => {
         TW.workbench.alert.create('Depiction was successfully updated.', 'notice')
       })
     },

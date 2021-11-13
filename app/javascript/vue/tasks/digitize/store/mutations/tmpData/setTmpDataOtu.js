@@ -1,3 +1,3 @@
-export default function(state, value) {
+export default (state, value) => {
   state.tmpData.otu = value
 }

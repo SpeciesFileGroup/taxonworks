@@ -5,12 +5,12 @@ class SoftValidationsController < ApplicationController
 
   # GET /soft_validations/validate
   def validate
-    @object.soft_validate(soft_validate_params)
+    @object.soft_validate(**soft_validate_params)
   end
 
   # POST /soft_validations/fix?global_id=<>
   def fix
-    @object.soft_validate(soft_validate_params)
+    @object.soft_validate(**soft_validate_params)
     @object.fix_soft_validations
     render :validate
   end
@@ -18,7 +18,8 @@ class SoftValidationsController < ApplicationController
   protected
 
   def get_object
-    @object = GlobalID::Locator.locate(URI.decode(params[:global_id] || ''))
+    uri = URI::RFC2396_Parser.new.unescape(params[:global_id] || '')
+    @object = GlobalID::Locator.locate(uri)
     raise ActiveRecord::RecordNotFound if @object.nil?
   end
 

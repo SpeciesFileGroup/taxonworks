@@ -2,23 +2,23 @@
   <div id="loan_header" class="flexbox panels-container">
     <div id="recipient_details" class="item item1">
       <ul class="no_bullets">
-        <%= content_tag(:li, "To: #{loan_recipient_tag(@loan)}") -%>
-        <%= content_tag(:li, @loan.recipient_email) if @loan.recipient_email -%>
-        <%= content_tag(:li, @loan.recipient_phone) if @loan.recipient_phone -%>
+        <%= tag.li( "To: #{loan_recipient_tag(@loan)}") -%>
+        <%= tag.li( @loan.recipient_email) if @loan.recipient_email -%>
+        <%= tag.li( @loan.recipient_phone) if @loan.recipient_phone -%>
         <% @loan.loan_supervisors.each do |person| -%>
-            <%= content_tag(:li, person_tag(person)) -%>
+            <%= tag.li person_tag(person) -%>
         <% end %>
 
         <% @loan.loan_recipients.each do |person| -%>
-            <%= content_tag(:li, person_tag(person)) -%>
+            <%= tag.li person_tag(person) -%>
         <% end %>
 
-        <%= content_tag(:li, @loan.recipient_address) -%>
+        <%= tag.li tag.span(@loan.recipient_address, class: :loan_address)  -%>
       </ul>
     </div>
     <div id="lender_details" class="item item2">
       <ul>
-        <%= content_tag(:li, @loan.lender_address) -%>
+        <%= tag.li( tag.span(@loan.lender_address, class: :loan_address) ) -%>
       </ul>
     </div>
   </div>

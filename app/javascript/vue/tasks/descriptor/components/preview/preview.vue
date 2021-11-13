@@ -1,5 +1,5 @@
 <template>
-  <div class="panel basic-information">
+  <div class="panel">
     <modal
       v-if="showModal"
       @close="showModal = false">
@@ -16,11 +16,11 @@
           class="normal-input button button-delete align-end">Delete</button>
       </template>
     </modal>
-    <div class="content header">
-      <h3
+    <div class="content">
+      <div
         v-if="descriptor.id"
         class="flex-separate middle">
-        <span> {{ descriptor.object_tag }} </span>
+        <h3>{{ descriptor.object_tag }}</h3>
         <div class="descriptor-preview-options middle">
           <radial-annotator
             :global-id="descriptor.global_id"/>
@@ -28,8 +28,8 @@
             @click="showModal = true"
             class="circle-button btn-delete"/>
         </div>
-      </h3>
-      <p>{{ descriptor.description }}</p>
+      </div>
+      <p v-show="descriptor.description">{{ descriptor.description }}</p>
     </div>
   </div>
 </template>
@@ -60,7 +60,7 @@ export default {
   },
 
   methods: {
-    deleteDescriptor() {
+    deleteDescriptor () {
       this.$emit('remove', this.descriptor)
     }
   }
@@ -71,20 +71,5 @@ export default {
   .descriptor-preview-options {
     display: flex;
     justify-content: space-between;
-  }
-  .annotator {
-    width:30px;
-    margin-left: 14px;
-  }
-  .otu-radial {
-    margin-left: 6px;
-    margin-right: 6px;
-  }
-  .header {
-    padding: 1em;
-    border: 1px solid #f5f5f5;
-    .circle-button {
-      margin: 0px;
-    }
   }
 </style>

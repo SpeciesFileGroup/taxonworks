@@ -15,6 +15,7 @@
         :send-label="parent.object_label"
         param="term"/>
       <default-taxon
+        class="margin-small-left"
         section="TaxonNames"
         @getId="parentSelected"
         type="TaxonName"/>
@@ -38,7 +39,9 @@
       v-if="!taxon.id && parent && parent.parent_id == null">
       <h4>Nomenclature code</h4>
       <ul class="no_bullets">
-        <li v-for="code in getCodes">
+        <li
+          v-for="code in getCodes"
+          :key="code">
           <label class="middle uppercase">
             <input
               type="radio"
@@ -61,7 +64,6 @@ import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 import { TaxonName } from 'routes/endpoints'
-import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
@@ -76,15 +78,15 @@ export default {
 
     parent: {
       get () {
-        let value = this.$store.getters[GetterNames.GetParent]
-        return (value != undefined ? value : '')
+        const parent = this.$store.getters[GetterNames.GetParent]
+        return parent || ''
       }
     },
 
     getCodes: {
       get () {
-        let codes = Object.keys(this.$store.getters[GetterNames.GetRankList])
-        return (codes != undefined ? codes : '')
+        const codes = Object.keys(this.$store.getters[GetterNames.GetRankList])
+        return codes || ''
       }
     },
 
@@ -105,7 +107,6 @@ export default {
 
   data () {
     return {
-      code: undefined,
       validParent: undefined
     }
   },

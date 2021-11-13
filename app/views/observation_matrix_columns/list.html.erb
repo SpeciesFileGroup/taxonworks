@@ -12,7 +12,7 @@
 
   <tbody>
   <% @observation_matrix_columns.each do |matrix_column| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= observation_matrix_tag(observation_matrix_column.observation_matrix) %></td>
           <td><%= descriptor_tag(matrix_column.descriptor) %></td>
           <%= fancy_metadata_cells_tag(matrix_column) -%>

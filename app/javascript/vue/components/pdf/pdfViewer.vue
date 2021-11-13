@@ -80,8 +80,12 @@
 
 import PdfViewer from './components/pdfComponent'
 import ResizeHandle from '../resizeHandle'
+import IndexedDBStorage from 'storage/indexddb.js'
+import { blobToArrayBuffer } from 'helpers/files.js'
 
 export default {
+  name: 'PdfSlideout',
+
   components: {
     PdfViewer,
     ResizeHandle
@@ -125,23 +129,24 @@ export default {
     }
   },
 
-  mounted() {
-    this.eventsListens()
+  mounted () {
+    this.eventListeners()
+    this.isOpenInStorage()
+
+    document.addEventListener('turbolinks:load', _ => {
+      document.removeEventListener(this.eventLoadPDFName, this.handlePdfLoadEvent)
+      this.channel.close()
+    })
   },
 
   unmounted () {
     document.removeEventListener('mouseover', this.loadPDF)
     this.channel.close()
+    this.pdfdata?.destroy()
   },
 
   watch: {
-    show (s) {
-      if (s) {
-        this.getPdf()
-      }
-    },
-
-    page(p) {
+    page (p) {
       if (this.noTrigger) {
         this.noTrigger = false
       }
@@ -156,12 +161,29 @@ export default {
       }
     },
 
-    textCopy(newVal) {
+    textCopy (newVal) {
       document.querySelector('[data-panel-name="pinboard"]').setAttribute('data-clipboard', newVal)
+    },
+
+    async viewerActive (newVal) {
+      const pdfStored = await IndexedDBStorage.get('Pdf', this.getUserAndProjectIds())
+
+      if (pdfStored) {
+        pdfStored.isOpen = newVal
+        IndexedDBStorage.put('Pdf', pdfStored)
+      }
     }
   },
 
   methods: {
+    async isOpenInStorage () {
+      const pdfStored = await IndexedDBStorage.get('Pdf', this.getUserAndProjectIds())
+
+      if (pdfStored?.isOpen) {
+        this.getPdf(pdfStored.url)
+        this.openPanel()
+      }
+    },
     setWidth (style) {
       this.width = style
     },
@@ -170,14 +192,26 @@ export default {
       this.showPage = Number(this.page) + Number(value)
     },
 
-    setScale(value) {
+    setScale (value) {
       this.scale = this.scale + value
     },
 
-    getPdf (url) {
+    async getPdf (url) {
+      const pdfStored = await IndexedDBStorage.get('Pdf', this.getUserAndProjectIds())
+      const isAlreadyStored = pdfStored?.url === url
+      const pdfBuffer = isAlreadyStored
+        ? pdfStored.pdfBuffer
+        : await this.downloadPdf(url)
+
       this.documentUrl = url
-      this.pdfdata = PdfViewer.createLoadingTask(url)
       this.loadingPdf = true
+
+      if (!isAlreadyStored) {
+        this.savePdfInStorage(url, pdfBuffer, true)
+      }
+
+      this.pdfdata = PdfViewer.createLoadingTask({ data: pdfBuffer })
+
       this.pdfdata.then(pdf => {
         this.loadingPdf = false
         this.numPages = pdf.numPages
@@ -210,26 +244,35 @@ export default {
       return obj.offsetTop
     },
 
-    openPanel () {
-      this.viewerActive = true
-      document.querySelector('[data-panel-name="pinboard"]').classList.remove("slice-panel-show")
-      document.querySelector('[data-panel-name="pinboard"]').classList.add("slice-panel-hide")
-      document.querySelector('[data-panel-name="pdfviewer"]').classList.remove("slice-panel-hide")
-      document.querySelector('[data-panel-name="pdfviewer"]').classList.add("slice-panel-show")
+    getUserAndProjectIds () {
+      const userId = document.querySelector('[data-current-user-id]').getAttribute('data-current-user-id')
+      const projectId = document.querySelector('[data-project-id]').getAttribute('data-project-id')
+
+      return `${userId}-${projectId}`
     },
 
-    eventsListens () {
+    savePdfInStorage (url, pdfBuffer, isOpen) {
+      IndexedDBStorage.put('Pdf', {
+        userAndProjectId: this.getUserAndProjectIds(),
+        url,
+        pdfBuffer,
+        isOpen
+      })
+    },
+
+    openPanel () {
+      this.viewerActive = true
+      TW.views.shared.slideout.closePanel('pinboard')
+      TW.views.shared.slideout.openPanel('pdfviewer')
+    },
+
+    eventListeners () {
       this.channel.onmessage = (event) => {
         this.loadPDF({ detail: event.data })
         this.openPanel()
       }
 
-      document.addEventListener(this.eventLoadPDFName, event => {
-        const { detail } = event
-        this.channel.postMessage(detail)
-        this.loadPDF(event)
-        this.openPanel()
-      })
+      document.addEventListener(this.eventLoadPDFName, this.handlePdfLoadEvent)
 
       document.addEventListener('onSlidePanelClose', event => {
         if (event.detail.name === 'pdfviewer') {
@@ -239,17 +282,18 @@ export default {
       })
 
       document.addEventListener('onSlidePanelOpen', event => {
-        if (event.detail.name === 'pdfviewer')
+        if (event.detail.name === 'pdfviewer') {
           this.viewerActive = true
+        }
       })
 
       // Events
       //Copy text to input or textarea
 
-      document.body.addEventListener("click", event => {
+      document.body.addEventListener('click', event => {
         const name = event.target.nodeName
 
-        if (name == "INPUT" || name == "TEXTAREA") {
+        if (name === 'INPUT' || name === 'TEXTAREA') {
           if (this.viewerActive) {
             if (event.target.selectionStart === event.target.selectionEnd) {
               this.cursorPosition = event.target.selectionStart
@@ -265,7 +309,7 @@ export default {
       document.addEventListener('dblclick', event => {
         const name = event.target.nodeName
 
-        if (name === "INPUT" || name === "TEXTAREA") {
+        if (name === 'INPUT' || name === 'TEXTAREA') {
           if (this.viewerActive) {
             const inputText = event.target.value
             event.target.value = insertStringInPosition(inputText, this.textCopy, this.cursorPosition);
@@ -273,6 +317,15 @@ export default {
         }
       })
     },
+
+    handlePdfLoadEvent (event) {
+      const { detail } = event
+
+      this.channel.postMessage(detail)
+      this.loadPDF(event)
+      this.openPanel()
+    },
+
     getSelectedText () {
       if (window.getSelection) {
         return window.getSelection().toString()
@@ -290,6 +343,21 @@ export default {
       this.sourceId = event.detail.sourceId
       this.$nextTick(() => {
         this.getPdf(event.detail.url)
+      })
+    },
+
+    downloadPdf (url) {
+      return new Promise((resolve, reject) => {
+        fetch(url)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok')
+            }
+            return response.blob()
+          })
+          .then(async blobObject => {
+            resolve(await blobToArrayBuffer(blobObject))
+          })
       })
     }
   }

@@ -26,9 +26,11 @@
       v-if="showModal"
       @close="showModal = false"
       :container-style="{
-        width: '1000px',
+        width: '1100px',
         height: '90vh',
-        overflowX: 'scroll'
+        overflowX: 'auto',
+        background: 'transparent',
+        boxShadow: 'none'
       }">
       <template #header>
         <h3>Create collection objects</h3>
@@ -39,40 +41,51 @@
             v-if="isLoading || isSaving"
             :legend="isSaving ? `Creating ${index} of ${count} collection object(s)...` : 'Loading...'"/>
           <div class="full_width margin-medium-right">
-            <div class="flex-separate align-end">
-              <div class="field label-above">
-                <label>Number to create</label>
-                <input
-                  min="1"
-                  type="number"
-                  max="100"
-                  v-model.number="count">
-              </div>
-              <div class="field">
-                <button
-                  class="button normal-input button-submit"
-                  type="button"
-                  @click="noCreated = []; createCOs(0)">
-                  Create
-                </button>
+            <div class="panel content margin-medium-bottom">
+              <h3>Number to create</h3>
+              <div class="flex-separate align-end">
+                <div class="field label-above">
+                  <input
+                    min="1"
+                    type="number"
+                    max="100"
+                    v-model.number="count">
+                </div>
+                <div class="field">
+                  <button
+                    class="button normal-input button-submit"
+                    type="button"
+                    @click="noCreated = []; createCOs(0)">
+                    Create
+                  </button>
+                </div>
               </div>
             </div>
-            <label-component v-model="labelType"/>
+            <label-component
+              class="margin-medium-bottom panel content"
+              v-model="labelType"/>
             <identifiers-component
+              class="margin-medium-bottom panel content"
               v-model="identifier"
               :count="count"/>
             <preparation-types
-              class="margin-medium-bottom"
+              class="margin-medium-bottom panel content"
               v-model="preparationType"/>
-            <repository-component v-model="repositoryId"/>
+            <repository-component
+              class="margin-medium-bottom panel content"
+              v-model="repositoryId"/>
             <biocuration-component
-              class="margin-medium-bottom"
+              class="margin-medium-bottom panel content"
               v-model="biocurations"/>
-            <determiner-component v-model="determinations"/>
-            <tag-component v-model="tagList"/>
+            <determiner-component
+              class="margin-medium-bottom panel content"
+              v-model="determinations"/>
+            <tag-component
+              class="margin-medium-bottom panel content"
+              v-model="tagList"/>
           </div>
           <div
-            class="full_width">
+            class="full_width panel content">
             <template v-if="noCreated.length">
               <h3>Creation errors ({{ noCreated.length }})</h3>
               <table
@@ -102,7 +115,7 @@
                   <th>ID</th>
                   <th>Identifier</th>
                   <th>Determination</th>
-                  <th></th>
+                  <th />
                 </tr>
               </thead>
               <tbody>
@@ -134,6 +147,7 @@
 
 <script>
 
+import { IDENTIFIER_LOCAL_TRIP_CODE } from 'constants/index.js'
 import BiocurationComponent from './Biocuration'
 import PreparationTypes from './PreparationTypes'
 import ModalComponent from 'components/ui/Modal'
@@ -229,7 +243,7 @@ export default {
             ? [{
                 identifier: identifier.identifier,
                 namespace_id: identifier.namespace.id,
-                type: 'Identifier::Local::CatalogNumber',
+                type: IDENTIFIER_LOCAL_TRIP_CODE,
                 labels_attributes: this.labelType
                   ? [{
                       text_method: 'build_cached',

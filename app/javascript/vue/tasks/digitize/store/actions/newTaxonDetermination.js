@@ -1,10 +1,10 @@
-import newTaxonDetermination from '../../const/taxonDetermination'
+import makeTaxonDetermination from 'factory/TaxonDetermination'
 import { MutationNames } from '../mutations/mutations'
 
-export default function({ commit, state }) {
-  let newTD = newTaxonDetermination()
-  let locked = state.settings.locked.taxon_determination
-  let keys = Object.keys(locked)
+export default ({ commit, state }) => {
+  const newTD = makeTaxonDetermination()
+  const locked = state.settings.locked.taxon_determination
+  const keys = Object.keys(locked)
 
   keys.forEach(key => {
     newTD[key] = locked[key] ? state.taxon_determination[key] : undefined

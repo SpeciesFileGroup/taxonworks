@@ -30,7 +30,7 @@ class TaxonNameRelationship::OriginalCombination::OriginalForm < TaxonNameRelati
     true
   end
 
-  def monomial_prefix
+  def monominal_prefix
     'f.'
   end
 

@@ -1,21 +1,5 @@
 import ajaxCall from 'helpers/ajaxCall.js'
 
-const GetObservationMatrices = () => {
-  return ajaxCall('get', '/observation_matrices.json')
-}
-
-const CreateMatrix = function (data) {
-  return ajaxCall('post', `/observation_matrices.json`, { observation_matrix: data })
-}
-
-const UpdateMatrix = function (id, data) {
-  return ajaxCall('patch', `/observation_matrices/${id}.json`, { observation_matrix: data })
-}
-
-const GetMatrixObservation = function(id) {
-  return ajaxCall('get',`/observation_matrices/${id}.json`, { per: 500 })
-}
-
 const GetMatrixObservationRows = function (id, params = undefined) {
   return ajaxCall('get', `/observation_matrices/${id}/observation_matrix_rows.json`, { params: params })
 }
@@ -48,14 +32,6 @@ const GetMatrixRowMetadata = function() {
   return ajaxCall('get', `/tasks/observation_matrices/new_matrix/observation_matrix_row_item_metadata`)
 }
 
-const CreateRowItem = function(data) {
-  return ajaxCall('post',`/observation_matrix_row_items.json`, data)
-}
-
-const CreateColumnItem = function(data) {
-  return ajaxCall('post',`/observation_matrix_column_items.json`, data)
-}
-
 const CreateRowBatchLoad = function (params) {
   return ajaxCall('post', '/observation_matrix_row_items/batch_create', params)
 }
@@ -66,14 +42,6 @@ const CreateColumnBatchLoad = function (params) {
 
 const BatchRemoveKeyword = function (id, type) {
   return ajaxCall('post', `/tags/batch_remove?keyword_id=${id}&klass=${type}`)
-}
-
-const RemoveRow = function(id) {
-  return ajaxCall('delete', `/observation_matrix_row_items/${id}.json`)
-}
-
-const RemoveColumn = function(id) {
-  return ajaxCall('delete', `/observation_matrix_column_items/${id}.json`)
 }
 
 const GetSmartSelector = function(type) {
@@ -88,25 +56,20 @@ const SortColumns = function(ids) {
   return ajaxCall('patch', `/observation_matrix_columns/sort`, { ids: ids })
 }
 
+const SortMatrixByNomenclature = (matrixId) => ajaxCall('get', `/observation_matrices/${matrixId}/reorder_rows`, { params: { by: 'nomenclature' } })
+
 export {
-  CreateMatrix,
   CreateRowBatchLoad,
   CreateColumnBatchLoad,
-  CreateRowItem,
-  CreateColumnItem,
-  GetMatrixObservation,
   GetMatrixObservationRows,
   GetMatrixObservationRowsDynamic,
   GetMatrixObservationColumns,
   GetMatrixObservationColumnsDynamic,
   GetMatrixColumnMetadata,
-  GetObservationMatrices,
   GetMatrixRowMetadata,
   BatchRemoveKeyword,
   GetSmartSelector,
-  UpdateMatrix,
-  RemoveRow,
-  RemoveColumn,
   SortColumns,
+  SortMatrixByNomenclature,
   SortRows
 }

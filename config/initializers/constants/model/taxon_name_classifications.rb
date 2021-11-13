@@ -19,8 +19,8 @@ ICNP_TAXON_NAME_CLASSIFICATION_NAMES = TaxonNameClassification::Icnp.descendants
 
 TAXON_NAME_CLASSIFICATION_GENDER_CLASSES = TaxonNameClassification::Latinized::Gender.descendants.freeze
 
-# Array of all ICTV TaxonNameClassifications classes, as Strings
-ICTV_TAXON_NAME_CLASSIFICATION_NAMES = TaxonNameClassification::Icvcn.descendants.collect { |d| d.to_s }.freeze
+# Array of all ICVCN TaxonNameClassifications classes, as Strings
+ICVCN_TAXON_NAME_CLASSIFICATION_NAMES = TaxonNameClassification::Icvcn.descendants.collect { |d| d.to_s }.freeze
 
 ICZN_TAXON_NAME_CLASSIFICATION_HASH = (ICZN_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).inject({}) {
   |hsh, klass| hsh.merge(klass.constantize.name => klass)
@@ -34,12 +34,12 @@ ICNP_TAXON_NAME_CLASSIFICATION_HASH = (ICNP_TAXON_NAME_CLASSIFICATION_NAMES + LA
   |hsh, klass| hsh.merge(klass.constantize.name => klass)
 }.freeze
 
-ICTV_TAXON_NAME_CLASSIFICATION_HASH = (ICTV_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).inject({}) {
+ICVCN_TAXON_NAME_CLASSIFICATION_HASH = (ICVCN_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).inject({}) {
   |hsh, klass| hsh.merge(klass.constantize.name => klass)
 }.freeze
 
 # Array of all TaxonNameClassifications classes, as Strings
-TAXON_NAME_CLASSIFICATION_NAMES = (ICN_TAXON_NAME_CLASSIFICATION_NAMES + ICTV_TAXON_NAME_CLASSIFICATION_NAMES + ICNP_TAXON_NAME_CLASSIFICATION_NAMES + ICZN_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).freeze
+TAXON_NAME_CLASSIFICATION_NAMES = (ICN_TAXON_NAME_CLASSIFICATION_NAMES + ICVCN_TAXON_NAME_CLASSIFICATION_NAMES + ICNP_TAXON_NAME_CLASSIFICATION_NAMES + ICZN_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).freeze
 
 # Array of all Unavailable and Invalid TaxonNameClassifications classes, as Strings
 TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID = [
@@ -82,8 +82,12 @@ EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS = [
     TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters,
     TaxonNameClassification::Iczn::Unavailable::NotLatinizedAfter1899,
     TaxonNameClassification::Iczn::Unavailable::NotLatinizedBefore1900AndNotAccepted,
-    TaxonNameClassification::Iczn::Unavailable::NonBinomial,
-    TaxonNameClassification::Iczn::Unavailable::NonBinomial.descendants,
+    TaxonNameClassification::Iczn::Unavailable::NonBinominal,
+    TaxonNameClassification::Iczn::Unavailable::NonBinominal.descendants,
+    TaxonNameClassification::Iczn::Unavailable::NomenNudum,
+    TaxonNameClassification::Iczn::Unavailable::NomenNudum.descendants,
+    TaxonNameClassification::Iczn::Unavailable::Excluded,
+    TaxonNameClassification::Iczn::Unavailable::Excluded.descendants,
     TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished::NotLatin
 ].flatten.map(&:to_s).freeze
 

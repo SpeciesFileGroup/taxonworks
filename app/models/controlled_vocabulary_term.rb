@@ -42,6 +42,7 @@ class ControlledVocabularyTerm < ApplicationRecord
 
   validates_uniqueness_of :name, scope: [:type, :project_id]
   validates_uniqueness_of :definition, scope: [:project_id]
+
   validates_uniqueness_of :uri, scope: [:project_id, :uri_relation], allow_blank: true
   validates_presence_of :uri, unless: -> {uri_relation.blank?}, message: 'must be provided if uri_relation is provided'
 

@@ -2,24 +2,14 @@ $header-color: #00796B;
 $category-header-color: #004D40;
 $default-padding: 2em;
 
-@keyframes show-slidepanel {
-  from { right: -400px; }
-  to { right: 0px; }
-}
-
-@keyframes hide-slidepanel {
-  from { right: 0px; }
-  to { right: -400px; }
-}
-
 .slide-panel {
   z-index: 1000;
   right: -400px;
   top: 0px;
   position: fixed;
+  transition: all 0.5s ease;
   width: 400px;
   height: 100vh;
-  animation-timing-function: ease;
   background-color: #FFF;
   font-weight: 300;
   
@@ -93,6 +83,7 @@ $default-padding: 2em;
     background-size: 30px;
     transition: background-size 0.3s ease, opacity 0.3s ease;
   }
+
   .slide-panel-description {
     @include arrow-box-right(50%);
     display: none;
@@ -113,17 +104,10 @@ $default-padding: 2em;
 
 }
 
-.slice-panel-show {
-  z-index:1001;
-  animation-name: show-slidepanel;
-  animation-duration: 0.5s;
-  animation-fill-mode: forwards;
-}
-
-.slice-panel-hide {
-  animation-name: hide-slidepanel;
-  animation-duration: 0.5s;
-  animation-fill-mode: forwards;
+.slide-panel-show {
+  z-index:2103;
+  right: 0px;
+  transition: right 0.5s ease;
 }
 
 [data-panel-open="true"] .slide-panel-circle-icon {

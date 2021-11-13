@@ -346,6 +346,12 @@ module Protonym::SoftValidationExtensions
         name: 'Verbatim year is not required for misspelling',
         description: 'Verbatim year is not required for misspelling. The year of the misspelling is inherited from the correctly spelled protonym. The Fix will delete the year'
       },
+      sv_missing_otu: {
+        set: :missing_otu,
+        fix: :sv_fix_misspelling_otu,
+        name: 'Missing OTU',
+        description: 'Missing OTU prevents proper migration to Catalog of Life'
+      }
     }.freeze
 
     VALIDATIONS.each_key do |k|
@@ -878,17 +884,18 @@ module Protonym::SoftValidationExtensions
 
     def sv_fix_coordinated_names_type_species
       fixed = false
+      tr = nil
       return false unless self.type_species.nil?
       list_of_coordinated_names.each do |t|
-        if !t.type_species.nil?
-          self.type_species = t.type_species
+        if !t.type_species.nil? && fixed == false
+          tr = TaxonNameRelationship.new(type: t.type_species_relationship.type, subject_taxon_name_id: t.type_species_relationship.subject_taxon_name_id, object_taxon_name_id: self.id)
           fixed = true
         end
       end
       if fixed
         begin
-          Protonym.transaction do
-            self.type_species.save
+          TaxonNameRelationship.transaction do
+            tr.save
           end
           return true
         rescue
@@ -1175,7 +1182,8 @@ module Protonym::SoftValidationExtensions
     def sv_fix_type_placement1
       self.type_of_taxon_names.each do |t|
         coordinated = t.lowest_rank_coordinated_taxon
-        if t.id != coordinated.id && self.parent_id != coordinated.id
+        if self.parent_id != coordinated.id
+          #          if t.id != coordinated.id && self.parent_id != coordinated.id
           begin
             Protonym.transaction do
               self.parent_id = coordinated.id
@@ -1232,8 +1240,8 @@ module Protonym::SoftValidationExtensions
           elsif !sister_names.include?(self.parent.name) && !sisters.empty? && self.parent.name == Protonym.family_group_base(self.parent.name) && rank =~ /Family/
             # do nothing
           elsif !sister_names.include?(self.parent.name) && !sisters.empty?
-            soft_validations.add(:base, "The parent #{self.parent.rank_class.rank_name} #{self.parent.cached_html} of this #{self.rank_class.rank_name} does not contain nominotypical #{self.rank_class.rank_name} #{self.parent.name}",
-                                 success_message: "Nominotypical #{self.rank_class.rank_name} #{self.parent.name} was added to nominal #{self.parent.rank_class.rank_name} #{self.parent.name}", failure_message:  'Failed to create nomynotypical taxon')
+            soft_validations.add(:base, "The parent #{self.parent.rank_class.rank_name} #{self.parent.cached_html} of this #{self.rank_class.rank_name} does not contain nominotypical #{self.rank_class.rank_name} #{Protonym.family_group_name_at_rank(self.parent.name, self.rank_class.rank_name)}",
+                                 success_message: "Nominotypical #{self.rank_class.rank_name} was added to nominal #{self.parent.rank_class.rank_name} #{self.parent.cached_html}", failure_message:  'Failed to create nomynotypical taxon')
           end
         end
       end
@@ -1265,11 +1273,11 @@ module Protonym::SoftValidationExtensions
             t.save
             t.soft_validate
             t.fix_soft_validations
-            return true
           end
         rescue ActiveRecord::RecordInvalid # naked rescue is very bad
           return false
         end
+        return true
       end
     end
 
@@ -1435,7 +1443,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_missing_original_genus
-      if is_genus_or_species_rank? && self.original_genus.nil? && !not_binomial?
+      if is_genus_or_species_rank? && self.original_genus.nil? && !not_binominal?
         soft_validations.add(:base, 'Missing relationship: Original genus is not selected')
       end
     end
@@ -1537,7 +1545,9 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_misspelling_roles_are_not_required
-      if !self.roles.empty? && self.source && has_misspelling_relationship?
+      #DD: do not use .has_misspelling_relationship?
+      misspellings = taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING).any?
+      if !self.roles.empty? && self.source && misspellings
         soft_validations.add(
           :base, 'Taxon name author role is not required for misspellings and misapplications',
           success_message: 'Roles were deleted',
@@ -1578,6 +1588,22 @@ module Protonym::SoftValidationExtensions
     def sv_fix_misspelling_year_is_not_required
       self.update_column(:year_of_publication, nil)
       return true
+    end
+
+    def sv_missing_otu
+      if is_available? && otus.empty?
+        soft_validations.add(
+          :year_of_publication, 'Missing OTU',
+          success_message: 'OTU was created',
+          failure_message:  'Failed to create OTU')
+      end
+    end
+    def sv_fix_misspelling_otu
+      if is_available? && otus.empty?
+        otus.create(taxon_name_id: id)
+        return true
+      end
+      return false
     end
   end
 end

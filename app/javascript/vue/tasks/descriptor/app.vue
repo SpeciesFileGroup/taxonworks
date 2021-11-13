@@ -7,7 +7,7 @@
       v-if="loading || saving"
     />
     <div class="flex-separate middle">
-      <h1>{{ (descriptor['id'] ? 'Edit' : 'New') }} descriptor</h1>
+      <h1>{{ (descriptor.id ? 'Edit' : 'New') }} descriptor</h1>
       <ul class="context-menu">
         <li>
           <div class="horizontal-left-content">
@@ -35,6 +35,7 @@
                 @getItem="loadMatrix($event.id)"
               />
               <default-pin
+                class="margin-small-left"
                 section="ObservationMatrices"
                 type="ObservationMatrix"
                 @getId="loadMatrix"/>
@@ -48,7 +49,7 @@
           <span
             @click="resetDescriptor"
             data-icon="reset"
-            class="middle reload-app"
+            class="middle cursor-pointer"
           >Reset</span>
         </li>
       </ul>
@@ -58,7 +59,7 @@
         <div class="ccenter item separate-right">
           <type-component
             class="separate-bottom"
-            :descriptor-id="descriptor['id']"
+            :descriptor-id="descriptor.id"
             v-model="descriptor.type"
           />
           <template v-if="descriptor.type">
@@ -82,18 +83,41 @@
                     />
                   </div>
                 </template>
-                <create-component
-                  v-if="!hideSaveButton"
-                  :descriptor="descriptor"
-                  @save="saveDescriptor(descriptor)"
-                />
+                <template v-if="!hideSaveButton">
+                  <v-btn
+                    color="create"
+                    medium
+                    :disabled="!descriptor.name"
+                    @click="saveDescriptor(descriptor, false)"
+                  >
+                    {{
+                      descriptor.id
+                        ? 'Update'
+                        : 'Create'
+                    }}
+                  </v-btn>
+                  <v-btn
+                    v-if="matrix"
+                    class="margin-small-left"
+                    color="create"
+                    medium
+                    :disabled="!descriptor.name"
+                    @click="saveDescriptor(descriptor)"
+                  >
+                    {{
+                      descriptor.id
+                        ? 'Update and return to matrix'
+                        : 'Create and return to matrix'
+                    }}
+                  </v-btn>
+                </template>
               </div>
             </div>
           </template>
         </div>
         <div
           id="cright-panel"
-          v-if="descriptor['id']"
+          v-if="descriptor.id"
         >
           <preview-component
             class="separate-left"
@@ -117,15 +141,16 @@ import PreviewComponent from './components/preview/preview.vue'
 import GeneComponent from './components/gene/gene.vue'
 import setParam from 'helpers/setParam'
 import DefaultPin from 'components/getDefaultPin'
-import CreateComponent from './components/save/save.vue'
+import VBtn from 'components/ui/VBtn/index.vue'
+import makeDescriptor from 'factory/Descriptor.js'
 import { RouteNames } from 'routes/routes'
 import {
   Descriptor,
   ObservationMatrix,
   ObservationMatrixColumnItem
 } from 'routes/endpoints'
-
-import TYPES from './const/types'
+import { DESCRIPTOR_GENE } from 'constants/index.js'
+import DESCRIPTOR_TYPE from './const/types'
 
 export default {
   components: {
@@ -139,7 +164,7 @@ export default {
     Spinner,
     Autocomplete,
     DefaultPin,
-    CreateComponent,
+    VBtn
   },
 
   computed: {
@@ -152,11 +177,11 @@ export default {
     },
 
     matrixId () {
-      return this.matrix ? this.matrix.id : undefined
+      return this.matrix?.id
     },
 
     sectionName () {
-      return TYPES()[this.descriptor.type]
+      return DESCRIPTOR_TYPE[this.descriptor.type]
     },
 
     hideSaveButton () {
@@ -171,10 +196,10 @@ export default {
   data () {
     return {
       matrix: undefined,
-      descriptor: this.newDescriptor(),
+      descriptor: makeDescriptor(),
       loading: false,
       saving: false,
-      hideSaveButtonFor: ['Descriptor::Gene']
+      hideSaveButtonFor: [DESCRIPTOR_GENE]
     }
   },
 
@@ -194,49 +219,35 @@ export default {
 
   methods: {
     resetDescriptor () {
-      this.descriptor = this.newDescriptor()
+      this.descriptor = makeDescriptor()
       this.setParameters()
     },
 
-    newDescriptor () {
-      return {
-        id: undefined,
-        type: undefined,
-        name: undefined,
-        description: undefined,
-        description_name: undefined,
-        key_name: undefined,
-        short_name: undefined,
-        weight: undefined
-      }
-    },
-
     saveDescriptor (descriptor, redirect = true) {
+      const isUpdate = !!descriptor.id
+      const saveRecord = isUpdate
+        ? Descriptor.update(descriptor.id, { descriptor })
+        : Descriptor.create({ descriptor })
+
       this.saving = true
-      if (descriptor.id) {
-        Descriptor.update(descriptor.id, { descriptor }).then(response => {
-          this.descriptor = response.body
-          this.saving = false
-          TW.workbench.alert.create('Descriptor was successfully updated.', 'notice')
-          if (this.matrix && redirect) {
+
+      saveRecord.then(async response => {
+        this.descriptor = response.body
+
+        if (this.matrix) {
+          if (!isUpdate) {
+            this.setParameters()
+            await this.addToMatrix(this.descriptor, redirect)
+          }
+          if (redirect) {
             window.open(`/tasks/observation_matrices/new_matrix/${this.matrixId}`, '_self')
           }
-        }, rejected => {
-          this.saving = false
-        })
-      } else {
-        Descriptor.create({ descriptor }).then(response => {
-          this.descriptor = response.body
-          this.saving = false
-          this.setParameters()
-          TW.workbench.alert.create('Descriptor was successfully created.', 'notice')
-          if (this.matrix) {
-            this.addToMatrix(this.descriptor, redirect)
-          }
-        }, rejected => {
-          this.saving = false
-        })
-      }
+        }
+
+        TW.workbench.alert.create(`Descriptor was successfully ${isUpdate ? 'updated' : 'created'}.`, 'notice')
+      }).finally(_ => {
+        this.saving = false
+      })
     },
 
     removeDescriptor (descriptor) {
@@ -247,17 +258,15 @@ export default {
       })
     },
 
-    addToMatrix (descriptor, redirect) {
+    async addToMatrix (descriptor) {
       const data = {
         descriptor_id: descriptor.id,
         observation_matrix_id: this.matrix.id,
         type: 'ObservationMatrixColumnItem::Single::Descriptor'
       }
-      ObservationMatrixColumnItem.create({ observation_matrix_column_item: data }).then(() => {
+
+      return ObservationMatrixColumnItem.create({ observation_matrix_column_item: data }).then(() => {
         TW.workbench.alert.create('Descriptor was successfully added to the matrix.', 'notice')
-        if (redirect) {
-          window.open(`/tasks/observation_matrices/new_matrix/${this.matrixId}`, '_self')
-        }
       })
     },
 
@@ -305,22 +314,26 @@ export default {
       max-width: 350px;
       width: 300px;
     }
+
     #cright-panel {
       width: 350px;
       max-width: 350px;
     }
+
     .cright-fixed-top {
       top:68px;
       width: 1240px;
       z-index:200;
       position: fixed;
     }
+
     .anchor {
        display:block;
        height:65px;
        margin-top:-65px;
        visibility:hidden;
     }
+
     hr {
         height: 1px;
         color: #f5f5f5;
@@ -328,13 +341,6 @@ export default {
         font-size: 0;
         margin: 15px;
         border: 0;
-    }
-
-    .reload-app {
-      cursor: pointer;
-      &:hover {
-        opacity: 0.8;
-      }
     }
   }
 </style>

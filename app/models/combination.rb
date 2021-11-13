@@ -58,8 +58,7 @@
 class Combination < TaxonName
 
   # The ranks that can be used to build combinations.  
-  APPLICABLE_RANKS = %w{genus subgenus section subsection
-                        series subseries species subspecies variety subvariety form subform}.freeze
+  APPLICABLE_RANKS = %w{genus subgenus section subsection series subseries species subspecies variety subvariety form subform}.freeze
 
   before_validation :set_parent
   validate :validate_absence_of_subject_relationships
@@ -120,7 +119,7 @@ class Combination < TaxonName
     has_one "#{rank}_taxon_name_relationship".to_sym, -> {
       joins(:combination_relationships)
       where(taxon_name_relationships: {type: "TaxonNameRelationship::Combination::#{rank.capitalize}"}) },
-    class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
+    class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id, inverse_of: :object_taxon_name
 
     has_one rank.to_sym, -> {
       joins(:combination_relationships)
@@ -128,6 +127,8 @@ class Combination < TaxonName
     }, through: "#{rank}_taxon_name_relationship".to_sym, source: :subject_taxon_name
 
     accepts_nested_attributes_for rank.to_sym
+    
+    accepts_nested_attributes_for "#{rank}_taxon_name_relationship".to_sym, allow_destroy: true
 
     attr_accessor "#{rank}_id".to_sym
     method = "#{rank}_id"
@@ -184,6 +185,12 @@ class Combination < TaxonName
     name: 'Combination older than protonyms',
     description: 'The combination is older than protonyms in the combination' )
 
+  soft_validate(
+    :sv_combination_linked_to_valid_name,
+    set: :combination_linked_to_valid_name,
+    fix: :sv_fix_combination_parent_update,
+    name: 'Combination has valid parent',
+    description: 'The combination should have the same parent as protonym' )
 
   # @return [Protonym Scope]
   # @params protonym_ids [Hash] like `{genus: 4, species: 5}`
@@ -213,8 +220,7 @@ class Combination < TaxonName
       )
     end
 
-    b = b.group(j['id']).having(sr['object_taxon_name_id'].count.eq(protonym_ids.count))
-
+    b = b.group(j['id']).having(sr['object_taxon_name_id'].count.eq(protonym_ids.count)).where(sr['type'].in(::COMBINATION_TAXON_NAME_RELATIONSHIP_NAMES))
     b = b.as('join_alias')
 
     Protonym.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(s['id']))))
@@ -395,11 +401,6 @@ class Combination < TaxonName
     protonyms_by_rank.values.last
   end
 
-  def get_author_and_year
-    ay = iczn_author_and_year
-    ay.blank? ? nil : ay
-  end
-
   # @return [Array of TaxonNames, nil]
   #   return the component names for this combination prior to it being saved
   def protonyms_by_association
@@ -440,12 +441,36 @@ class Combination < TaxonName
     soft_validations.add(:base, 'Combination is a duplicate') unless duplicate.empty?
   end
 
+  def sv_combination_linked_to_valid_name
+    check = protonyms.first
+    if parent_id && check && check.parent_id && parent_id != check.parent_id
+      soft_validations.add(:base, "Combination #{cached_html_name_and_author_year} should have the same parent and rank with  #{check.cached_html_name_and_author_year}",
+                           success_message: 'The parent was updated', failure_message:  'The parent was not updated')
+    end
+  end
+
+  def sv_fix_combination_parent_update
+    check = protonyms.first
+    if parent_id && check && check.parent_id && parent_id != check.parent_id
+      begin
+        TaxonName.transaction do
+          update_column(:parent_id, check.parent_id)
+          return true
+        end
+      rescue
+      end
+    end
+    false
+  end
+
   def sv_cached_names
     is_cached = true
     is_cached = false if cached_author_year != get_author_and_year
-    is_cached = false if cached_is_valid.nil?
 
-    if is_cached && cached_html != get_full_name_html
+    if  is_cached && (
+        cached_is_valid.nil? ||
+        cached_html != get_full_name_html ||
+        cached_nomenclature_date != nomenclature_date)
       is_cached = false
     end
 

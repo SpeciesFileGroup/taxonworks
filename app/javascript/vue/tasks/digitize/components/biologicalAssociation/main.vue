@@ -6,74 +6,69 @@
       </template>
       <template #body>
         <div class="separate-bottom">
-          <template>
-            <div class="flex-separate middle">
-              <h3
-                v-if="biologicalRelationship"
-                class="relationship-title">
-                <template v-if="flip">
-                  <span 
-                    v-for="item in biologicalRelationship.object_biological_properties"
-                    :key="item.id"
-                    class="separate-right background-info"
-                    v-html="item.name"/>
-                  <span
-                    v-html="biologicalRelationship.inverted_name"/>
-                  <span 
-                    v-for="item in biologicalRelationship.subject_biological_properties"
-                    :key="item.id"
-                    class="separate-left background-info"
-                    v-html="item.name"/>
-                </template>
-                <template v-else>
-                  <span 
-                    v-for="item in biologicalRelationship.subject_biological_properties"
-                    :key="item.id"
-                    class="separate-right background-info"
-                    v-html="item.name"/>
-                  <span>{{ (biologicalRelationship.hasOwnProperty('label') ? biologicalRelationship.label : biologicalRelationship.name) }}</span>
-                  <span 
-                    v-for="item in biologicalRelationship.object_biological_properties"
-                    :key="item.id"
-                    class="separate-left background-info"
-                    v-html="item.name"/>
-                </template>
-                <button
-                  v-if="biologicalRelationship.inverted_name"
-                  class="separate-left button button-default flip-button"
-                  type="button"
-                  @click="flip = !flip">
-                  Flip
-                </button>
+          <div class="flex-separate middle">
+            <h3
+              v-if="biologicalRelationship"
+              class="relationship-title">
+              <template v-if="flip">
+                <span 
+                  v-for="item in biologicalRelationship.object_biological_properties"
+                  :key="item.id"
+                  class="separate-right background-info"
+                  v-html="item.name"/>
                 <span
-                  @click="biologicalRelationship = undefined; flip = false"
-                  class="separate-left"
-                  data-icon="reset"/>
-              </h3>
-              <h3
-                class="subtle relationship-title"
-                v-else>Choose relationship</h3>
-              <lock-component v-model="settings.locked.biological_association.relationship"/>
-            </div>
-          </template>
-
-          <template>
-            <div class="flex-separate middle">
-              <h3
-                v-if="biologicalRelation"
-                class="relation-title">
-                <span v-html="displayRelated"/>
+                  v-html="biologicalRelationship.inverted_name"/>
+                <span 
+                  v-for="item in biologicalRelationship.subject_biological_properties"
+                  :key="item.id"
+                  class="separate-left background-info"
+                  v-html="item.name"/>
+              </template>
+              <template v-else>
                 <span
-                  @click="biologicalRelation = undefined"
-                  class="separate-left"
-                  data-icon="reset"/>
-              </h3>
-              <h3
-                v-else
-                class="subtle relation-title">Choose relation</h3>
-              <lock-component v-model="settings.locked.biological_association.related"/>
-            </div>
-          </template>
+                  v-for="item in biologicalRelationship.subject_biological_properties"
+                  :key="item.id"
+                  class="separate-right background-info"
+                  v-html="item.name"/>
+                <span>{{ (biologicalRelationship.hasOwnProperty('label') ? biologicalRelationship.label : biologicalRelationship.name) }}</span>
+                <span
+                  v-for="item in biologicalRelationship.object_biological_properties"
+                  :key="item.id"
+                  class="separate-left background-info"
+                  v-html="item.name"/>
+              </template>
+              <button
+                v-if="biologicalRelationship.inverted_name"
+                class="separate-left button button-default flip-button"
+                type="button"
+                @click="flip = !flip">
+                Flip
+              </button>
+              <span
+                @click="biologicalRelationship = undefined; flip = false"
+                class="separate-left"
+                data-icon="reset"/>
+            </h3>
+            <h3
+              class="subtle relationship-title"
+              v-else>Choose relationship</h3>
+            <lock-component v-model="settings.locked.biological_association.relationship"/>
+          </div>
+          <div class="flex-separate middle">
+            <h3
+              v-if="biologicalRelation"
+              class="relation-title">
+              <span v-html="displayRelated"/>
+              <span
+                @click="biologicalRelation = undefined"
+                class="separate-left"
+                data-icon="reset"/>
+            </h3>
+            <h3
+              v-else
+              class="subtle relation-title">Choose relation</h3>
+            <lock-component v-model="settings.locked.biological_association.related"/>
+          </div>
         </div>
         <div
           v-if="!biologicalRelationship"
@@ -99,19 +94,13 @@
             type="button"
             :disabled="!validateFields"
             @click="addAssociation"
-            class="normal-input button button-submit">Add
+            class="normal-input button button-default">Add
           </button>
         </div>
-        <table-list 
-          v-if="collectionObject.id"
+        <table-list
           class="separate-top"
           :list="list"
           @delete="removeBiologicalRelationship"/>
-        <table-list 
-          v-else
-          class="separate-top"
-          @delete="removeFromQueue"
-          :list="queueAssociations"/>
       </template>
     </block-layout>
   </div>
@@ -138,30 +127,41 @@ export default {
     TableList,
     LockComponent
   },
+
   computed: {
-    validateFields() {
+    validateFields () {
       return this.biologicalRelationship && this.biologicalRelation
     },
-    displayRelated() {
-      return this.biologicalRelation
-        ? (this.biologicalRelation?.object_tag || this.biologicalRelation.label_html)
-        : undefined
+
+    displayRelated () {
+      return this.biologicalRelation?.object_tag || this.biologicalRelation?.label_html
     },
-    collectionObject() {
+
+    collectionObject () {
       return this.$store.getters[GetterNames.GetCollectionObject]
     },
+
     settings: {
       get () {
         return this.$store.getters[GetterNames.GetSettings]
       },
-      set () {
+      set (value) {
         this.$store.commit(MutationNames.SetSettings, value)
+      }
+    },
+
+    list: {
+      get () {
+        return this.$store.getters[GetterNames.GetBiologicalAssociations]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetBiologicalAssociations, value)
       }
     }
   },
-  data() {
+
+  data () {
     return {
-      list: [],
       biologicalRelationship: undefined,
       biologicalRelation: undefined,
       citation: undefined,
@@ -169,60 +169,44 @@ export default {
       flip: false,
     }
   },
+
   watch: {
     collectionObject (newVal) {
-      if (newVal.id) {
-        BiologicalAssociation.where({ subject_global_id: newVal.global_id }).then(response => {
-          this.list = response.body
-          this.processQueue()
-        })
-      }
-      if (!this.settings.locked.biological_association.relationship)
+      if (!this.settings.locked.biological_association.relationship) {
         this.biologicalRelationship = undefined
+      }
       if (!this.settings.locked.biological_association.related) {
         this.biologicalRelation = undefined
       }
-    },
+    }
   },
+
   methods: {
     addAssociation () {
       const data = {
-        biologicalRelationship: this.biologicalRelationship,
-        biologicalRelation: this.biologicalRelation,
-        citation: this.citation
+        biological_relationship: this.biologicalRelationship,
+        object: this.biologicalRelation,
+        biological_relationship_id: this.biologicalRelationship.id,
+        biological_association_object_id: this.biologicalRelation.id,
+        biological_association_object_type: this.biologicalRelation.type,
+        origin_citation_attributes: this.citation
       }
-      this.queueAssociations.push(data)
+
+      this.list.push(data)
       this.biologicalRelationship = this.settings.locked.biological_association.relationship ? this.biologicalRelationship : undefined
       this.biologicalRelation = this.settings.locked.biological_association.related ? this.biologicalRelation : undefined
       this.citation = undefined
       this.$refs.citation.cleanCitation()
-      this.processQueue()
     },
-    createAssociationObject(data) {
-      return {
-        biological_relationship_id: data.biologicalRelationship.id,
-        biological_association_object_id: data.biologicalRelation.id,
-        biological_association_object_type: data.biologicalRelation.type,
-        subject_global_id: this.collectionObject.global_id,
-        origin_citation_attributes: data.citation
+
+    removeBiologicalRelationship (index) {
+      const biologicalRelationship = this.list[index]
+
+      if (biologicalRelationship.id) {
+        BiologicalAssociation.destroy(biologicalRelationship.id)
       }
-    },
-    processQueue() {
-      if(!this.collectionObject.id) return
-      this.queueAssociations.forEach(item => {
-        BiologicalAssociation.create({ biological_association: this.createAssociationObject(item) }).then(response => {
-          this.list.push(response.body)
-        })
-      })
-      this.queueAssociations = []
-    },
-    removeBiologicalRelationship(biologicalRelationship) {
-      BiologicalAssociation.destroy(biologicalRelationship.id).then(() => {
-        this.list.splice(this.list.findIndex((item) => item.id === biologicalRelationship.id), 1)
-      })
-    },
-    removeFromQueue (index) {
-      this.queueAssociations.splice(index, 1)
+
+      this.list.splice(index, 1)
     }
   }
 }
