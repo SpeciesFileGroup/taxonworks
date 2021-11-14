@@ -25,10 +25,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Tag smart selector in new image task
 - Scrollbar in alternate values annotator [#2651]
 - Missing data on response in citations annotator [#2653]
+- Missing author and year in taxon name on Citation by source [#2650]
 
 [#2641]: https://github.com/SpeciesFileGroup/taxonworks/issues/2641
 [#2632]: https://github.com/SpeciesFileGroup/taxonworks/issues/2632
 [#2631]: https://github.com/SpeciesFileGroup/taxonworks/issues/2631
+[#2650]: https://github.com/SpeciesFileGroup/taxonworks/issues/2650
 [#2651]: https://github.com/SpeciesFileGroup/taxonworks/issues/2651
 [#2653]: https://github.com/SpeciesFileGroup/taxonworks/issues/2653
 
