@@ -23,10 +23,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Roles in Image viewer
 - Missing roles after trigger page autosave in new taxon name [#2631]
 - Tag smart selector in new image task
+- Scrollbar in alternate values annotator [#2651]
 
 [#2641]: https://github.com/SpeciesFileGroup/taxonworks/issues/2641
 [#2632]: https://github.com/SpeciesFileGroup/taxonworks/issues/2632
 [#2631]: https://github.com/SpeciesFileGroup/taxonworks/issues/2631
+[#2651]: https://github.com/SpeciesFileGroup/taxonworks/issues/2651
 
 ## [0.21.2] - 2021-11-11
 
