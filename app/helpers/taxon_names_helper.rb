@@ -229,7 +229,7 @@ module TaxonNamesHelper
              when :taxon_name
                new_taxon_name_task_path(taxon_name_id: t.id)
              when :combination
-               new_combination_task_path(taxon_name_id: t.id, literal: URI.escape(t.cached))
+               new_combination_task_path(taxon_name_id: t.id, literal: URI.encode_www_form_component(t.cached)) # only spaces should be an issue
              end
       link_to(
         content_tag(
