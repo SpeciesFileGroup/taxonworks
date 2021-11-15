@@ -56,8 +56,8 @@
 
 import { LoanItem } from 'routes/endpoints'
 import { MutationNames } from '../store/mutations/mutations'
-
 import Autocomplete from 'components/ui/Autocomplete.vue'
+import extend from '../const/extend.js'
 
 export default {
   components: { Autocomplete },
@@ -126,7 +126,7 @@ export default {
         total: this.isTypeOtu ? this.total : undefined
       }
 
-      LoanItem.create({ loan_item: data }).then(response => {
+      LoanItem.create({ loan_item: data, extend }).then(response => {
         this.$store.commit(MutationNames.AddLoanItem, response.body)
         TW.workbench.alert.create('Loan item was successfully created.', 'notice')
       }).finally(() => {
