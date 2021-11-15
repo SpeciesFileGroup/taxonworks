@@ -213,8 +213,14 @@ class Loan < ApplicationRecord
       h[:quick] = (Loan.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
           Loan.where(id: r.first(4)).to_a).uniq
     end
-
     h
+  end
+
+  def contains_types?
+    collection_objects.each do |c|
+      return true if c.type_materials.any?
+    end
+    false
   end
 
   protected

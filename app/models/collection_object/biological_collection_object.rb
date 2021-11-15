@@ -10,35 +10,41 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
 
   # !! See also CollectionObject::BiologicalExtensions, all code there technically belongs here
 
-  soft_validate(:sv_missing_determination,
-                set: :missing_determination,
-                name: 'Missing determination',
-                description: 'Determination is missing')
+  soft_validate(
+    :sv_missing_determination,
+    set: :missing_determination,
+    name: 'Missing determination',
+    description: 'Determination is missing')
 
-  soft_validate(:sv_determined_before_collected,
-                set: :determined_before_collected,
-                name: 'Determined before collected',
-                description: 'Determination date preciding collecting date')
+  soft_validate(
+    :sv_determined_before_collected,
+    set: :determined_before_collected,
+    name: 'Determined before collected',
+    description: 'Determination date preciding collecting date')
 
-  soft_validate(:sv_missing_collecting_event,
-                set: :missing_collecting_event,
-                name: 'Missing collecting event',
-                description: 'Missing collecting event')
+  soft_validate(
+    :sv_missing_collecting_event,
+    set: :missing_collecting_event,
+    name: 'Missing collecting event',
+    description: 'Missing collecting event')
 
-  soft_validate(:sv_missing_preparation_type,
-                set: :missing_preparation_type,
-                name: 'Missing preparation type',
-                description: 'Missing preparation type')
+  soft_validate(
+    :sv_missing_preparation_type,
+    set: :missing_preparation_type,
+    name: 'Missing preparation type',
+    description: 'Missing preparation type')
 
-  soft_validate(:sv_missing_repository,
-                set: :missing_repository,
-                name: 'Missing repository',
-                description: 'Repository is not selected')
+  soft_validate(
+    :sv_missing_repository,
+    set: :missing_repository,
+    name: 'Missing repository',
+    description: 'Repository is not selected')
 
-  soft_validate(:sv_missing_biocuration_classification,
-                set: :missing_biocuration_classification,
-                name: 'Missing biocuration classification',
-                description: 'Biocuration classification is not indicated')
+  soft_validate(
+    :sv_missing_biocuration_classification,
+    set: :missing_biocuration_classification,
+    name: 'Missing biocuration classification',
+    description: 'Biocuration classification is not indicated')
 
   def current_taxon_determination=(taxon_determination)
     if taxon_determinations.include?(taxon_determination)
@@ -107,4 +113,3 @@ end
 require_dependency 'lot'
 require_dependency 'specimen'
 require_dependency 'ranged_lot'
-

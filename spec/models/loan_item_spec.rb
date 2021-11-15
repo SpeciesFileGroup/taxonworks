@@ -30,6 +30,18 @@ describe LoanItem, type: :model, group: :loans do
     expect(loan_item.errors.include?(:total)).to be_truthy
   end
 
+  specify 'OTU can be loaned 2x' do
+    o = Otu.create!(name: 'giveaway')
+    loan_item.update(loan: loan, loan_item_object: o)
+    expect(LoanItem.create!(loan_item_object: o, loan: loan)).to be_truthy
+  end
+
+  specify 'collection object can NOT be loaned 2x' do
+    s = Specimen.create!
+    loan_item.update(loan: loan, loan_item_object: s)
+    expect(LoanItem.new(loan_item_object: s, loan: loan).valid?).to be_falsey
+  end
+
   context 'as part of a loan' do
 
     before { loan_item.loan = loan }

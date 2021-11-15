@@ -77,7 +77,7 @@ class CollectionObject < ApplicationRecord
   include Shared::Observations
   include Shared::IsData
   include SoftValidation
-  
+
   include CollectionObject::BiologicalExtensions
 
   include CollectionObject::Taxonomy # at present must be before IsDwcOccurence
@@ -688,7 +688,7 @@ class CollectionObject < ApplicationRecord
     if collecting_event&.persisted? && (Current.project_id || project_id)
       errors.add(:base, 'collecting event is not from this project') if collecting_event.project_id != (Current.project_id || project_id)
     end
-  end 
+  end
 
   def check_that_both_of_category_and_total_are_not_present
     errors.add(:ranged_lot_category_id, 'Both ranged_lot_category and total can not be set') if !ranged_lot_category_id.blank? && !total.blank?
@@ -720,7 +720,7 @@ class CollectionObject < ApplicationRecord
     # !! does not account for georeferences_attributes!
     reject
   end
-  
+
 end
 
 require_dependency 'specimen'

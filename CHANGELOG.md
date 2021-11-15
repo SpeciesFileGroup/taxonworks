@@ -9,10 +9,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Add
 - Radial navigation in loan task
+- Loan item notes, type status, and recipient form layout improvements [#2657]
 
 ### Changed
 - Upgraded to Ruby 3.0.2
+- OTUs can be loaned 2x [#2648]
 - Upgraded gems
+- Removed a loan item status 'Loaned on' (it's inferrred)
 
 ### Fixed
 - View errors on rows with no metadata in DwC importer
@@ -21,6 +24,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing author and year in taxon name on Citation by source [#2650]
 - Duplicate combinations in subsequent combination on New taxon name [#2654]
 
+[#2648]: https://github.com/SpeciesFileGroup/taxonworks/issues/2648
+[#2657]: https://github.com/SpeciesFileGroup/taxonworks/issues/2657
 [#2650]: https://github.com/SpeciesFileGroup/taxonworks/issues/2650
 [#2651]: https://github.com/SpeciesFileGroup/taxonworks/issues/2651
 [#2653]: https://github.com/SpeciesFileGroup/taxonworks/issues/2653
