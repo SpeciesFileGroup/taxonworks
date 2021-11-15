@@ -16,6 +16,29 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
   let(:t2) { Protonym.create(name: 'Aus', parent: t1, rank_class: Ranks.lookup(:iczn, :genus) ) }
   let(:t3) { Protonym.create(name: 'bus', parent: t2, rank_class: Ranks.lookup(:iczn, :species) ) }
 
+  specify '#otu_scope collection_objects 2' do
+    t = TaxonDetermination.create!(otu: o, biological_collection_object: co)
+    co.images << i1
+
+    t = Protonym.create(name: 'cus', parent: t2, rank_class: Ranks.lookup(:iczn, :species) )
+
+    t.synonymize_with(t3) 
+
+    q.otu_id = o.id
+    o.update!(taxon_name: t3)
+
+    q.otu_scope = [:coordinate_collection_objects]
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
+  specify '#otu_scope collection_objects 1' do
+    t = TaxonDetermination.create!(otu: o, biological_collection_object: co)
+    co.images << i1
+    q.otu_id = o.id
+    q.otu_scope = [:collection_object]
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
   specify '#otu_id one' do
     o.images << i1
     q.otu_id = o.id
