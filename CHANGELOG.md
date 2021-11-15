@@ -11,6 +11,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Upgraded to Ruby 3.0.2
 - Upgraded gems
 
+### Fixed
+- View errors on rows with no metadata in DwC importer
+
 ## [0.21.3] - 2021-11-12
 
 ### Changed
