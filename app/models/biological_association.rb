@@ -74,4 +74,25 @@ class BiologicalAssociation < ApplicationRecord
     write_attribute(:biological_association_object_type, o.metamorphosize.class.name)
   end
 
+  # @return [ActiveRecord::Relation]
+   #def self.collection_objects_subject_join
+   #  a = arel_table
+   #  b = ::CollectionObject.arel_table
+   #  j = a.join(b).on(a[:biological_association_subject_type].eq('CollectionObject').and(a[:biological_association_subject_id].eq(b[:id])))
+   #  joins(j.join_sources)
+   #end
+
+  # @return [ActiveRecord::Relation]
+  def self.targeted_join(target: 'subject', target_class: ::Otu )  
+    a = arel_table
+    b = target_class.arel_table
+    
+    j = a.join(b).on(a["biological_association_#{target}_type".to_sym].eq('CollectionObject').and(a["biological_assoication_#{target}_id".to_sym].eq(b[:id])))
+    joins(j.join_sources)
+  end
+
+
+
+
+
 end

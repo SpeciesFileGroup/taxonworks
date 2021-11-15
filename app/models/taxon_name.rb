@@ -865,7 +865,7 @@ class TaxonName < ApplicationRecord
   # @return [TaxonNameRelationship]
   #  returns youngest taxon name relationship where self is the subject.
   def first_possible_valid_taxon_name_relationship
-    taxon_name_relationships.reload.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).youngest_by_citation
+    taxon_name_relationships.reload.with_type_array(::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).youngest_by_citation
   end
 
   # @return [TaxonName]
@@ -887,7 +887,7 @@ class TaxonName < ApplicationRecord
       first_pass = false
       list_of_taxa_to_check = list.empty? ? [self] : list.keys.select{|t| list[t] == false}
       list_of_taxa_to_check.each do |t|
-        potentialy_invalid_relationships = t.related_taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).order_by_oldest_source_first
+        potentialy_invalid_relationships = t.related_taxon_name_relationships.with_type_array(::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).order_by_oldest_source_first
         potentialy_invalid_relationships.each do |r|
           if !TaxonNameClassification.where_taxon_name(r.subject_taxon_name).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
             # do nothing, taxon has a status of valid name
@@ -1684,7 +1684,7 @@ class TaxonName < ApplicationRecord
   end
 
   def sv_two_unresolved_alternative_synonyms
-    r = taxon_name_relationships.includes(:source).order_by_oldest_source_first.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM)
+    r = taxon_name_relationships.includes(:source).order_by_oldest_source_first.with_type_array(::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM)
     if r.to_a.size > 1
       if r.first.nomenclature_date.to_date == r.second.nomenclature_date.to_date
         soft_validations.add(:base, 'Taxon has two alternative invalidating relationships with identical dates. To resolve ambiguity, add original sources to the relationships with different priority dates.')

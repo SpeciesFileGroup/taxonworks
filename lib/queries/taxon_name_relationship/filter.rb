@@ -75,9 +75,9 @@ module Queries
         t = []
         # TODO of_types =>
         taxon_name_relationship_set.each do |i|
-          t += STATUS_TAXON_NAME_RELATIONSHIP_NAMES if i == 'status'
-          t += TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM if i == 'synonym'
-          t += TAXON_NAME_RELATIONSHIP_NAMES_CLASSIFICATION if i == 'classification'
+          t += ::STATUS_TAXON_NAME_RELATIONSHIP_NAMES if i == 'status'
+          t += ::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM if i == 'synonym'
+          t += ::TAXON_NAME_RELATIONSHIP_NAMES_CLASSIFICATION if i == 'classification'
         end
         t
       end

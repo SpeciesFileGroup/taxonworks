@@ -374,7 +374,7 @@ class Protonym < TaxonName
       if z.rank_string == 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
         if z.id == z.cached_valid_taxon_name_id
           a[year][:valid] = a[year][:valid] += 1
-        elsif TaxonNameRelationship.where_subject_is_taxon_name(z.id).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).any?
+        elsif TaxonNameRelationship.where_subject_is_taxon_name(z.id).with_type_array(::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).any?
           a[year][:synonyms] = a[year][:synonyms] += 1
         end
       end
@@ -443,9 +443,9 @@ class Protonym < TaxonName
     # Is faster than above?
     #    return true if rank_string =~ /Icnp/ && (name.start_with?('Candidatus ') || name.start_with?('Ca. '))
 
-    return true if is_family_rank? && !(taxon_name_relationships.collect{|i| i.type} & TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).empty?
-    return true unless (taxon_name_classifications.collect{|i| i.type} & EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS).empty?
-    return true unless (taxon_name_relationships.collect{|i| i.type} & TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING).empty?
+    return true if is_family_rank? && !(taxon_name_relationships.collect{|i| i.type} & ::TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).empty?
+    return true unless (taxon_name_classifications.collect{|i| i.type} & ::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS).empty?
+    return true unless (taxon_name_relationships.collect{|i| i.type} & ::TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING).empty?
     false
   end
 

@@ -1,7 +1,7 @@
 require 'rails_helper'
 require_relative "shared_context"
 
-describe Queries::Source::Filter, type: :model, group: [:sources] do
+describe Queries::Source::Filter, type: :model, group: [:sources, :filter] do
 
   # lib/queries/source/shared_context.rb
   include_examples 'source queries'

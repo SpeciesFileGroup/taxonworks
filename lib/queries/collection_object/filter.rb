@@ -16,7 +16,6 @@ module Queries
 
       # TODO: look for name collisions with CE filter
 
-
       # @param [String, nil]
       #    Array or Integer of CollectionObject ids 
       attr_accessor :collection_object_id

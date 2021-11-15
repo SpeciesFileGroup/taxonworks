@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'support/shared_contexts/shared_geo'
 
-describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collection_object, :collecting_event, :shared_geo] do
+describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collection_object, :collecting_event, :shared_geo, :filter] do
 
   let(:query) { Queries::CollectionObject::Filter.new({}) }
 

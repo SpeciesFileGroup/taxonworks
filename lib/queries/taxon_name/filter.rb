@@ -6,9 +6,9 @@ module Queries
 
       include Queries::Helpers
 
+      include Queries::Concerns::Citations
       include Queries::Concerns::Tags
       include Queries::Concerns::Users
-      include Queries::Concerns::Citations
 
       PARAMS = %w{
         ancestors
@@ -202,7 +202,7 @@ module Queries
         @taxon_name_classification = params[:taxon_name_classification] || []
         @taxon_name_id = params[:taxon_name_id]
         @combination_taxon_name_id = params[:combination_taxon_name_id]
-        @parent_id = params[:parent_id] || []
+        @parent_id = params[:parent_id]
         @sort = params[:sort]
         @taxon_name_relationship = params[:taxon_name_relationship] || []
         @taxon_name_relationship_type = params[:taxon_name_relationship_type] || []
@@ -239,6 +239,10 @@ module Queries
 
       def combination_taxon_name_id
         [@combination_taxon_name_id].flatten.compact
+      end
+
+      def parent_id
+        [@parent_id].flatten.compact
       end
 
       # @return [String, nil]
@@ -478,28 +482,26 @@ module Queries
               subject_taxon_name_id: combination_taxon_name_id})
       end
 
+      def base_and_clauses
+        clauses = []
+        # clauses += attribute_clauses
 
-def base_and_clauses
-    clauses = []
-    # clauses += attribute_clauses
-    
-    clauses += [
-    parent_id_facet,
-    author_facet,
-    cached_name,
-    year_facet,
-    updated_since_facet,
-    validity_facet,
-    taxon_name_id_facet,
-    with_nomenclature_group,
-    with_nomenclature_code,
-    taxon_name_type_facet
-    ].compact!
-    
-    clauses
-    
-    
-end
+        clauses += [
+          parent_id_facet,
+          author_facet,
+          cached_name,
+          year_facet,
+          updated_since_facet,
+          validity_facet,
+          taxon_name_id_facet,
+          with_nomenclature_group,
+          with_nomenclature_code,
+          taxon_name_type_facet
+        ].compact!
+
+        clauses
+      end
+
       # @return [ActiveRecord::Relation]
       def and_clauses
         clauses = []
@@ -519,8 +521,6 @@ end
         ].compact!
 
         clauses
- 
-
       end
         
       # @return [ActiveRecord::Relation]

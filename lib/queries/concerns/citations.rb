@@ -28,6 +28,8 @@ module Queries::Concerns::Citations
   def set_citations_params(params)
     @citations = params[:citations]
 
+    source_params = ::Queries::Source::Filter::PARAMS
+
     # TODO: write source_params
     @source_query = Queries::Source::Filter.new(
       params.select{|a,b| source_params.include?(a.to_s) }
@@ -44,7 +46,7 @@ module Queries::Concerns::Citations
     return nil if citations.nil?
 
     n = table.name
-    k = "::#{n}".classify.safe_constantize
+    k = "#{n}".classify.safe_constantize # TODO: removed '::' for outside reference?
 
     citation_conditions = ::Citation.arel_table[:citation_object_id].eq(k.arel_table[:id]).and(
       ::Citation.arel_table[:citation_object_type].eq(n))

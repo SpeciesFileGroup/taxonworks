@@ -2,12 +2,38 @@ module Queries
   module Source
     class Filter < Queries::Query
 
-      # TODO: likely move to model (replicated in Source too)
-      # Params exists for all CollectingEvent attributes except these
+      # TODO: move to model replicated in CollectingEvent
+      # TOOD: confirm cached should not be a target
       ATTRIBUTES = (::Source.column_names - %w{id project_id created_by_id updated_by_id created_at updated_at cached})
       #  ATTRIBUTES.each do |a|
       #    class_eval { attr_accessor a.to_sym }
       #  end
+
+      PARAMS = %w{
+        in_project
+        author
+        ids
+        exact_author
+        author_ids
+        author_ids_or
+        topic_ids
+        year_start
+        year_end
+        title
+        exact_title
+        citations
+        recent
+        roles
+        documents
+        nomenclature
+        with_doi
+        citation_object_type
+        notes
+        source_type
+        serial_ids
+        ancestor_id
+        citations_on_otus
+      }
 
       include Queries::Concerns::Tags
       include Queries::Concerns::Users
@@ -25,6 +51,7 @@ module Queries
       # @return author [String, nil]
       attr_accessor :author
 
+      # TODO: Change to source_id
       # @return ids [Array of Integer, nil]
       attr_accessor :ids
 
