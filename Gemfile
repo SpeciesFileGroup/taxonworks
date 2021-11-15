@@ -23,7 +23,6 @@ gem 'daemons', '~> 1.4.1'
 gem 'tzinfo-data', '~> 1.2019' # , '>= 1.2019.3'
 gem 'psych', '~> 4.0'
 gem 'rmagick', '~> 4.2', '>= 4.2.2'
-gem 'webrick', '~> 1.7'
 gem 'roo', '~> 2.8', '>= 2.8.3'
 gem 'roo-xls', '~> 1.2'
 
@@ -132,6 +131,7 @@ group :test, :development do
   gem 'factory_bot_rails', '~> 6.2'
   gem 'webdrivers', '~> 5.0', require: false
   gem 'prawn', '~> 2.4.0'
+  gem 'webrick', '~> 1.7'
 end
 
 gem 'parallel_tests', group: [:development, :test]
