@@ -164,7 +164,7 @@ module Queries
 
       # @return [Scope]
       def autocomplete_exact_name_and_year
-        a = alphabetic_strings
+        a = alphabetic_strings.select { |b| !(b =~ /\d/) }
         b = years
         if a.size == 1 && !b.empty?
           a = table[:name].eq(a.first).and(table[:cached_author_year].matches_any(wildcard_wrapped_years))

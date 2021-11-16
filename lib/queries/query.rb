@@ -96,6 +96,11 @@ module Queries
 
     # @return [Array]
     def alphabetic_strings
+      Utilities::Strings.alphabetic_strings(query_string) #alphanumeric allows searches by page number, year, etc.
+    end
+
+    # @return [Array]
+    def alphanumeric_strings
       Utilities::Strings.alphanumeric_strings(query_string) #alphanumeric allows searches by page number, year, etc.
     end
 
@@ -121,9 +126,21 @@ module Queries
     end
 
     # @return [Array]
-    #   if 1-5 alphabetic_strings, those alphabetic_strings wrapped in wildcards, else none.
+    #   if 1-5 alphanumeric_strings, those alphabetic_strings wrapped in wildcards, else none.
     #  Used in *unordered* AND searches
     def fragments
+      a = alphanumeric_strings
+      if a.size > 0 && a.size < 6
+        a.collect{|a| "%#{a}%"}
+      else
+        []
+      end
+    end
+
+    # @return [Array]
+    #   if 1-5 alphabetic_strings, those alphabetic_strings wrapped in wildcards, else none.
+    #  Used in *unordered* AND searches
+    def string_fragments
       a = alphabetic_strings
       if a.size > 0 && a.size < 6
         a.collect{|a| "%#{a}%"}

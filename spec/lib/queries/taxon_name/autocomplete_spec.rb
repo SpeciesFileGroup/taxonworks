@@ -36,7 +36,7 @@ describe Queries::TaxonName::Autocomplete, type: :model do
   end
 
   specify '#autocomplete_exact_name_and_year 2' do
-    query.terms = 'vulnerata 1800' 
+    query.terms = 'vulnerata 1800'
     expect(query.autocomplete_exact_name_and_year.all).to include(species)
   end
 
