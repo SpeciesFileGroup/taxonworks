@@ -114,6 +114,11 @@ module Utilities::Strings
     string.split(/\W/).select { |b| !(b =~ /\d/) }.reject { |b| b.empty? }
   end
 
+  def self.alphanumeric_strings(string)
+    return [] if string.nil? || string.length == 0
+    string.split(/\W/).reject { |b| b.empty? }
+  end
+
   # @param string [String]
   # @return [String, false]
   #   !! this is a bad sign, you should know your encoding *before* it gets to needing this

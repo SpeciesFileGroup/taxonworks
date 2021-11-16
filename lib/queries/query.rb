@@ -96,7 +96,7 @@ module Queries
 
     # @return [Array]
     def alphabetic_strings
-      Utilities::Strings.alphabetic_strings(query_string)
+      Utilities::Strings.alphanumeric_strings(query_string) #alphanumeric allows searches by page number, year, etc.
     end
 
     # @return [Array]

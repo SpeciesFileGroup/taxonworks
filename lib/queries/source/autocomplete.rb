@@ -222,7 +222,6 @@ module Queries
           result.uniq!
           break if result.count > 19
         end
-
         result[0..19]
       end
 
