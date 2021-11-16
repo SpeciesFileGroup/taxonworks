@@ -113,7 +113,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             # create relationships for genus rank and below pointing to self and parents
 
             taxon_name.safe_self_and_ancestors.each do |ancestor|   # does not include self for new records
-              if (rank_in_type = ORIGINAL_COMBINATION_RANKS[ancestor.rank.downcase.to_sym])
+              if (rank_in_type = ORIGINAL_COMBINATION_RANKS[ancestor&.rank&.downcase&.to_sym])
                 TaxonNameRelationship.find_or_create_by!(type: rank_in_type, subject_taxon_name: ancestor, object_taxon_name: taxon_name)
               end
             end
@@ -125,7 +125,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                                                  .metadata['imported_objects']['taxon_name']['id'])
 
               original_combination_parent.safe_self_and_ancestors.each do |ancestor|
-                if (rank_in_type = ORIGINAL_COMBINATION_RANKS[ancestor.rank.downcase.to_sym])
+                if (rank_in_type = ORIGINAL_COMBINATION_RANKS[ancestor.rank&.downcase&.to_sym])
                   TaxonNameRelationship.find_or_create_by!(type: rank_in_type, subject_taxon_name: ancestor, object_taxon_name: taxon_name)
                 end
               end
@@ -222,14 +222,12 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
           else  # parent is a protonym, so we need to get all parent elements up to genus
             parent_elements = parent.self_and_ancestors.order('taxon_name_hierarchies.generations DESC').to_a
-                                    .take_while{ |p| ORIGINAL_COMBINATION_RANKS.has_key?(p.rank.to_sym) }
+                                    .take_while{ |p| ORIGINAL_COMBINATION_RANKS.has_key?(p&.rank&.to_sym) }
                                     .index_by{ |protonym| protonym.rank}
           end
 
-          combination_attributes = {
-            **parent_elements,
-            rank.downcase => current_name
-          }
+          combination_attributes = {**parent_elements}
+          combination_attributes[rank.downcase] = current_name if rank
 
           # Can't use find_or_initialize_by because of dynamic parameters, causes query to fail because ranks are not columns in db
           # => PG::UndefinedTable: ERROR:  missing FROM-clause entry for table "genus"
