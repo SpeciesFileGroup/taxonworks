@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing data on response in citations annotator [#2653]
 - Missing author and year in taxon name on Citation by source [#2650]
 - Duplicate combinations in subsequent combination on New taxon name [#2654]
+- Missing documents in source filter [#2661]
 
 [#2648]: https://github.com/SpeciesFileGroup/taxonworks/issues/2648
 [#2657]: https://github.com/SpeciesFileGroup/taxonworks/issues/2657
@@ -30,6 +31,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2651]: https://github.com/SpeciesFileGroup/taxonworks/issues/2651
 [#2653]: https://github.com/SpeciesFileGroup/taxonworks/issues/2653
 [#2654]: https://github.com/SpeciesFileGroup/taxonworks/issues/2654
+[#2661]: https://github.com/SpeciesFileGroup/taxonworks/issues/2661
 
 ## [0.21.3] - 2021-11-12
 
