@@ -8,7 +8,7 @@ class Tasks::ObservationMatrices::ImageMatrixController < ApplicationController
 
   # GET /tasks/observation_matrices/image_matrix/37/key
   def key
-    @key = ImageMatrix.new(key_params)
+    @key = ImageMatrix.new(**key_params)
   end
 
   protected

@@ -88,7 +88,7 @@ class IdentifiersController < ApplicationController
 
   def autocomplete
     render json: {} and return if params[:term].blank?
-    @identifiers = Queries::Identifier::Autocomplete.new(params.require(:term), autocomplete_params).autocomplete
+    @identifiers = Queries::Identifier::Autocomplete.new(params.require(:term), **autocomplete_params).autocomplete
   end
 
   # GET /api/v1/identifiers
@@ -106,7 +106,7 @@ class IdentifiersController < ApplicationController
 
   def api_autocomplete
     render json: {} and return if params[:term].blank?
-    @identifiers = Queries::Identifier::Autocomplete.new(params.require(:term), autocomplete_params).autocomplete
+    @identifiers = Queries::Identifier::Autocomplete.new(params.require(:term), **autocomplete_params).autocomplete
     render '/identifiers/api/v1/autocomplete'
   end
 
