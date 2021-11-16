@@ -40,6 +40,17 @@ module AttributionsHelper
     s
   end
 
+  def attribution_nexml_label(attribution)
+    return nil if attribution.nil?
+    a = [
+      attribution_creators_tag(attribution),
+      attribution_owners_tag(attribution),
+      attribution.copyright_year
+    ]
+
+    a.compact.join(', ').html_safe
+  end
+
   def attribution_copyright_tag(attribution)
     a = attribution.copyright_year
     b = attribution.attribution_copyright_holders

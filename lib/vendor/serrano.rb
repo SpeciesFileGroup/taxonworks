@@ -116,6 +116,10 @@ module TaxonWorks
           b[:abstract] = ::Utilities::Strings.encode_with_utf8(c['abstract']).
             gsub('</jats:p>', '').
             gsub('<jats:p>', '').
+            gsub('</jats:sec>', '').
+            gsub('<jats:sec>', '').
+            gsub('</jats:title>', '</b>').
+            gsub('<jats:title>', '<b>').
             gsub('</jats:italic>', '</i>').
             gsub('<jats:italic>', '<i>').
             gsub('</jats:bold>', '</b>').
