@@ -21,10 +21,16 @@ module ObservationMatrices::Export::NexmlHelper
                 if cs.depictions.load.any?
                   xml.state(id: "cs#{cs.id}", label: cs.target_name(:key, nil), symbol: "#{i}") do
                     cs.depictions.each do |d|
+                      if d.image.image_file_content_type == 'image/tiff'
+                        href = d.image.image_file.url(:medium)
+                      else
+                        href = d.image.image_file.url(:original)
+                      end
+
                       xml.meta(
                         'xsi:type' => 'ResourceMeta',
                         'rel' => 'foaf:depiction',
-                        'href' => short_url(d.image.image_file.url(:original)) # root_url + d.image.image_file.url(:original)[1..-1]
+                        'href' => short_url(href) # root_url + d.image.image_file.url(:original)[1..-1]
                       )
                     end
                   end
@@ -207,11 +213,17 @@ module ObservationMatrices::Export::NexmlHelper
                 lbl.push(attribution_nexml_label(img_attr)) unless img_attr.nil?
                 lbl = lbl.compact.join('; ')
 
+                if im.image_hash[depiction[:image_id]][:image_file_content_type] == 'image/tiff'
+                  href = short_url(im.image_hash[depiction[:image_id]][:medium])
+                else
+                  href = short_url(im.image_hash[depiction[:image_id]][:original_url])
+                end
+
                 xml.meta(
                   'xsi:type' => 'ResourceMeta',
                   'rel' => 'foaf:depiction',
                   'about' => "row_#{r.id}",
-                  'href' => short_url(im.image_hash[depiction[:image_id]][:original_url]),
+                  'href' => href,
                   #'object' => object[1][:object].otu_name,
                   #'label' => descriptors[index][:name], ###
                   'label' => lbl
