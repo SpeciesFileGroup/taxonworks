@@ -388,6 +388,8 @@ GEM
       method_source (~> 1.0)
     psych (4.0.2)
     public_suffix (4.0.6)
+    puma (5.5.2)
+      nio4r (~> 2.0)
     racc (1.6.0)
     rack (2.2.3)
     rack-cors (1.1.1)
@@ -631,7 +633,6 @@ GEM
       rack-proxy (>= 0.6.1)
       railties (>= 5.2)
       semantic_range (>= 2.3.0)
-    webrick (1.7.0)
     websocket-driver (0.7.5)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
@@ -705,6 +706,7 @@ DEPENDENCIES
   postgresql_cursor (~> 0.6.1)
   prawn (~> 2.4.0)
   psych (~> 4.0)
+  puma (~> 5.5, >= 5.5.2)
   rack-cors (~> 1.1)
   rails (~> 6.1)
   rails-controller-testing (~> 1.0.2)
@@ -760,7 +762,6 @@ DEPENDENCIES
   webdrivers (~> 5.0)
   webmock (~> 3.8)
   webpacker (~> 5.2, >= 5.2.1)
-  webrick (~> 1.7)
   wikidata-client!
   zaru (~> 0.3.0)
 

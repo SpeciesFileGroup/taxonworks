@@ -16,7 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - OTUs can be loaned 2x [#2648]
 - Upgraded gems
 - Removed a loan item status 'Loaned on' (it's inferrred)
-
+- Replaced Webrick with Puma (developers-only change)
 ### Fixed
 - View errors on rows with no metadata in DwC importer
 - Scrollbar in alternate values annotator [#2651]
