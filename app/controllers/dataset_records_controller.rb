@@ -1,5 +1,6 @@
 class DatasetRecordsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+  include ActionController::Live
 
   before_action :set_dataset_record, only: [:show, :update, :destroy]
   after_action -> { set_pagination_headers(:dataset_records) }, only: [:index], if: :json_request?
@@ -7,7 +8,10 @@ class DatasetRecordsController < ApplicationController
   # GET /dataset_records
   # GET /dataset_records.json
   def index
-    @dataset_records = filtered_records.order(id: :asc).page(params[:page]).per(params[:per] || 100) #.preload_fields
+    respond_to do |format|
+      format.json { @dataset_records = filtered_records.order(id: :asc).page(params[:page]).per(params[:per] || 100) } #.preload_fields
+      format.csv { render_csv }
+    end
   end
 
   # GET /dataset_records/1
@@ -107,4 +111,31 @@ class DatasetRecordsController < ApplicationController
       params[:status].blank? ? dataset_records : dataset_records.where(status: params[:status])
     end
 
-  end
+    def render_csv
+      expires_now
+      response.headers[Rack::ETAG] = SecureRandom.hex # Prevents Rack::ETAG from buffering the response
+      response.headers["X-Accel-Buffering"] = "no"
+
+      filtered_records.first.import_dataset
+      import_dataset = filtered_records.first.import_dataset
+      filename = Zaru::sanitize!("#{import_dataset.description}_#{DateTime.now}.tsv").gsub(' ', '_').downcase
+
+      response.headers['Content-Type'] = 'text/tab-separated-values'
+      response.headers["Content-Disposition"] = "attachment; filename=\"#{filename}\""
+
+      response.stream.write CSV.generate_line([
+        'Status', 'error_data', *import_dataset.metadata["core_headers"]
+      ], col_sep: "\t", quote_char: '')
+
+      filtered_records.find_each do |row|
+        response.stream.write CSV.generate_line([
+          row.status, row.metadata&.dig('error_data', 'messages'), *row.data_fields
+        ], col_sep: "\t", quote_char: '')
+      end
+
+    rescue ClientDisconnected
+    ensure
+      response.stream.close
+    end
+
+ end
