@@ -101,6 +101,15 @@
               type="date"
               class="normal-input">
           </div>
+          <div class="field">
+            <label>
+              <input
+                v-model="loan.is_gift"
+                type="checkbox"
+              >
+              Gift
+            </label>
+          </div>
           <div class="field label-above">
             <label>Date closed</label>
             <input
@@ -276,7 +285,8 @@ export default {
         date_closed: undefined,
         recipient_honorific: undefined,
         lender_address: undefined,
-        clone_from: undefined
+        clone_from: undefined,
+        is_gift: undefined
       }
     }
   },

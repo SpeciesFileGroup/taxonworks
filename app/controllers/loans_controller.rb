@@ -112,6 +112,7 @@ class LoansController < ApplicationController
       :supervisor_email, :supervisor_phone, :date_closed, :recipient_honorific,
       :lender_address,
       :clone_from,
+      :is_gift,
       loan_items_attributes: [
         :_destroy,
         :id,
