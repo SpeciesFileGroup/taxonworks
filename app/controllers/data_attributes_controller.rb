@@ -1,7 +1,7 @@
 class DataAttributesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_data_attribute, only: [:update, :destroy]
+  before_action :set_data_attribute, only: [:update, :destroy, :api_show]
   after_action -> { set_pagination_headers(:data_attributes) }, only: [:index, :api_index ], if: :json_request?
 
   # GET /data_attributes
@@ -17,6 +17,17 @@ class DataAttributesController < ApplicationController
           .where(project_id: sessions_current_project_id).page(params[:page] || 1).per(params[:per] || 500)
       }
     end
+  end
+
+  def api_index
+    @data_attributes = Queries::DataAttribute::Filter.new(api_params).all
+      .where(project_id: sessions_current_project_id)
+      .page(params[:page]).per(params[:per])
+    render '/data_attributes/api/v1/index'
+  end
+
+  def api_show
+    render '/data_attributes/api/v1/show'
   end
 
   # GET /data_attributes/new
@@ -104,8 +115,32 @@ class DataAttributesController < ApplicationController
 
   private
 
+  def filter_params
+    params.permit(
+      :value,
+      :controlled_vocabulary_term_id,
+      :import_predicate,
+      :type,
+      :object_global_id,
+      :attribute_subject_type,
+      :attribute_subject_id
+    )
+  end
+
+  def api_params
+    params.permit(
+      :value,
+      :controlled_vocabulary_term_id,
+      :import_predicate,
+      :type,
+      :object_global_id,
+      :attribute_subject_type,
+      :attribute_subject_id
+    )
+  end
+
   def value_autocomplete_params
-    params.permit(:predicate_id).merge(project_id: sessions_current_project_id).to_h.symbolize_keys 
+    params.permit(:predicate_id).merge(project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 
   def set_data_attribute
@@ -123,7 +158,7 @@ class DataAttributesController < ApplicationController
       :controlled_vocabulary_term_id,
       :import_predicate,
       :value,
-      :annotated_global_entity 
+      :annotated_global_entity
     )
   end
 end

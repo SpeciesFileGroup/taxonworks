@@ -27,7 +27,9 @@ namespace :api, defaults: {format: :json} do
 
     # authenticated by project token
     defaults authenticate_project: true do
+      get '/activity', to: 'stats#activity'
       get '/project_authenticated', to: 'base#index'
+
       # !@ may not be many things here, doesn't make a lot of sense?!
     end
 
@@ -48,6 +50,7 @@ namespace :api, defaults: {format: :json} do
       get '/taxon_names', to: '/taxon_names#api_index'
       get '/taxon_names/autocomplete', to: '/taxon_names#autocomplete'
       get '/taxon_names/parse', to: '/taxon_names#parse'
+      get '/taxon_names/:id/status', to: '/taxon_names#api_status'
       get '/taxon_names/:id', to: '/taxon_names#api_show'
 
       get '/taxon_name_classifications', to: '/taxon_name_classifications#api_index'
@@ -86,8 +89,14 @@ namespace :api, defaults: {format: :json} do
       get '/asserted_distributions', to: '/asserted_distributions#api_index'
       get '/asserted_distributions/:id', to: '/asserted_distributions#api_show'
 
+      get '/data_attributes', to: '/data_attributes#api_index'
+      get '/data_attributes/:id', to: '/data_attributes#api_show'
+
       get '/observations', to: '/observations#api_index'
       get '/observations/:id', to: '/observations#api_show'
+
+      get '/observation_matrices', to: '/observation_matrices#api_index'
+      get '/observation_matrices/:id', to: '/observation_matrices#api_show'
 
       get '/images', to: '/images#api_index'
       get '/images/:id', to: '/images#api_show'

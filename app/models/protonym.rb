@@ -619,6 +619,7 @@ class Protonym < TaxonName
     nil
   end
 
+  # TODO: likley belongs in lib/vendor/biodiversity.rb
   # @return [Boolean]
   #   Wraps set_original_combination with result from Biodiversity parse
   #   !!You must can optionally pre-calculate a disambiguated protonym if you wish to use one.

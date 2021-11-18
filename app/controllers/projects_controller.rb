@@ -123,6 +123,7 @@ class ProjectsController < ApplicationController
   end
 
   private
+
   def set_project
     @project = Project.find(params[:id])
     @recent_object = @project

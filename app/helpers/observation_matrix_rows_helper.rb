@@ -14,6 +14,7 @@ module ObservationMatrixRowsHelper
   # @return [String]
   #  !! No HTML !!
   #    The label used in exports
+  # TODO: remove for pattern below/in helpers README
   def observation_matrix_row_label(observation_matrix_row)
     return observation_matrix_row.name unless observation_matrix_row.name.blank?
     o = observation_matrix_row.row_object
@@ -21,6 +22,8 @@ module ObservationMatrixRowsHelper
     s.gsub!(/[^\w]/, '_')
     s[0..11] + "_#{o.id}"
   end
+
+  alias :label_for_observation_matrix_row :observation_matrix_row_label
 
   def observation_matrix_row_label_nexus(observation_matrix_row)
     return observation_matrix_row.name unless observation_matrix_row.name.blank?

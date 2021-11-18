@@ -13,6 +13,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loan item notes, type status, and recipient form layout improvements [#2657]
 - Recipient form link in Edit loan task
 - Gift checkbox in Loan task
+- API routes for data attributes via `/api/v1/data_attributes` [#2366]
+- API routes for observation matrices  via `/api/v1/observation_matrices`
+- API route "status" for taxon names `/taxon_names/api/v1/123/status` [#2243]
+- API route "activity" for recent records/project `/api/v1/activity?project_token=123&past_days=9` [#2207]
+- Indecies for updated_at on some large models
+- Observation matrix query filter (minimal)
 
 ### Changed
 - Upgraded to Ruby 3.0.2
@@ -21,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Removed a loan item status 'Loaned on' (it's inferrred)
 - Replaced Webrick with Puma (developers-only change)
 - Improved loan autocomplete metadata [#2485]
+- API observation responses are now isolated from internal
 
 ### Fixed
 - View errors on rows with no metadata in DwC importer
@@ -32,6 +39,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Clonning source does not clean the doccumentation section [#2663]
 - Extra scrollbar in asserted distributions annotator [#2662]
 
+[#2207]: https://github.com/SpeciesFileGroup/taxonworks/issues/2207
+[#2243]: https://github.com/SpeciesFileGroup/taxonworks/issues/2243
+[#2366]: https://github.com/SpeciesFileGroup/taxonworks/issues/2366
 [#2485]: https://github.com/SpeciesFileGroup/taxonworks/issues/2485
 [#2648]: https://github.com/SpeciesFileGroup/taxonworks/issues/2648
 [#2657]: https://github.com/SpeciesFileGroup/taxonworks/issues/2657

@@ -12,6 +12,15 @@ module TaxonNameRelationshipsHelper
     ].compact.join(' ')
   end
 
+  def label_for_taxon_name_relationship(taxon_name_relationship)
+    return nil if taxon_name_relationship.nil?
+    [
+      label_for_taxon_name(taxon_name_relationship.subject_taxon_name),
+      defined?(taxon_name_relationship.class.inverse_assignment_method) ?  taxon_name_relationship.class.inverse_assignment_method.to_s.humanize : taxon_name_relationship.type,
+      label_for_taxon_name(taxon_name_relationship.object_taxon_name)
+    ].compact.join(' ')
+  end
+
   # @return [String]
   #   subject + relationship type 
   def taxon_name_relationship_for_subject_tag(taxon_name_relationship)

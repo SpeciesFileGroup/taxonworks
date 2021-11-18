@@ -1,5 +1,5 @@
 # A view to a set of observations.
-# 
+#
 class ObservationMatrix < ApplicationRecord
   include Housekeeping
   include Shared::Citations
@@ -30,31 +30,31 @@ class ObservationMatrix < ApplicationRecord
 
   def qualitative_descriptors
     descriptors.where(type: 'Descriptor::Qualitative')
-  end 
+  end
 
   def presence_absence_descriptors
     descriptors.where(type: 'Descriptor::PresenceAbsence')
-  end 
+  end
 
   def continuous_descriptors
     descriptors.where(type: 'Descriptor::Continuous')
-  end 
+  end
 
   def sample_descriptors
     descriptors.where(type: 'Descriptor::Sample')
-  end 
+  end
 
   def media_descriptors
     descriptors.where(type: 'Descriptor::Media')
-  end 
+  end
 
   def gene_descriptors
     descriptors.where(type: 'Descriptor::Gene')
-  end 
+  end
 
   def working_descriptors
     descriptors.where(type: 'Descriptor::Working')
-  end 
+  end
 
   # As handled in export/parsing by external tools
   # !! Note order() is applied !!
@@ -67,7 +67,7 @@ class ObservationMatrix < ApplicationRecord
   end
 
   def cell_count
-    observation_matrix_rows.count * observation_matrix_columns.count 
+    observation_matrix_rows.count * observation_matrix_columns.count
   end
 
   def is_media_matrix?
@@ -128,11 +128,11 @@ class ObservationMatrix < ApplicationRecord
 
   def observation_depictions
     Depiction.select('depictions.*, observations.descriptor_id, observations.otu_id, observations.collection_object_id, sources.id AS source_id, sources.cached_author_string, sources.year, sources.cached AS source_cached')
-        .joins("INNER JOIN observations ON observations.id = depictions.depiction_object_id")
-        .joins("INNER JOIN images ON depictions.image_id = images.id")
-        .joins("LEFT OUTER JOIN citations ON citations.citation_object_id = images.id AND citations.citation_object_type = 'Image' AND citations.is_original IS TRUE")
-        .joins("LEFT OUTER JOIN sources ON citations.source_id = sources.id")
-        .where(depiction_object: media_observations).order('depictions.position')
+      .joins("INNER JOIN observations ON observations.id = depictions.depiction_object_id")
+      .joins("INNER JOIN images ON depictions.image_id = images.id")
+      .joins("LEFT OUTER JOIN citations ON citations.citation_object_id = images.id AND citations.citation_object_type = 'Image' AND citations.is_original IS TRUE")
+      .joins("LEFT OUTER JOIN sources ON citations.source_id = sources.id")
+      .where(depiction_object: media_observations).order('depictions.position')
   end
 
   # @return [Hash]
@@ -160,10 +160,10 @@ class ObservationMatrix < ApplicationRecord
     else
       r = observation_matrix_rows.where("observation_matrix_rows.position >= ? and observation_matrix_rows.position <= ?", opts[:row_start], opts[:row_end]).order('observation_matrix_rows.position')
     end
-    
+
     return false if r.size == 0
     #rows = r.collect{|i| i.row_object.to_global_id} ### slow
-   rows = r.collect{|i| "#{i.otu_id}|#{i.collection_object_id}" }
+    rows = r.collect{|i| "#{i.otu_id}|#{i.collection_object_id}" }
 
     if opts[:col_end] == 'all'
       cols = descriptors.order('observation_matrix_columns.position').pluck(:id) # all descriptors
@@ -186,14 +186,14 @@ class ObservationMatrix < ApplicationRecord
         grid[cols.index(o.descriptor_id)][rows.index(i)].push(o)
       end
     end
-    
+
     {grid: grid, rows: rows, cols: cols }
   end
 
   # @param descriptor_id [Descriptor]
   # @param symbol_start [Integer]  #  takes :chr => Chr, :symbol_start => Int
   # @return Hash
-  #     1 => [character_state.id, charater_state.id] 
+  #     1 => [character_state.id, charater_state.id]
   #   Used soley as a indexing method for nexml output
   # Original code in mx
   def polymorphic_cells_for_descriptor(symbol_start: 0, descriptor_id:)
@@ -211,21 +211,21 @@ class ObservationMatrix < ApplicationRecord
     cells.keys.each do |k|
       if r # must be some other idiom
         if cells[k].size > 1
-          r[symbol_start + i] = cells[k].sort 
+          r[symbol_start + i] = cells[k].sort
           i += 1
         end
       end
     end
-    r 
+    r
   end
 
   # @return [Hash]
   #  a hash of hashes of arrays with the coding objects nicely organized
   #   descriptor_id1 =>{row_object_global_id => [observation1, observation2], descriptor_id: nil}
-  # 
+  #
   #  was `codings_mx` in mx where this: "likely should add scope and merge with above, though this seems to be slower"
   def observations_hash
-    h = Hash.new{|hash, key| hash[key] = Hash.new{|hash2, key2| hash2[key2] = Array.new}} 
+    h = Hash.new{|hash, key| hash[key] = Hash.new{|hash2, key2| hash2[key2] = Array.new}}
     observations.each {|o| h[o.descriptor_id]["#{o.otu_id}|#{o.collection_object_id}"].push(o) }
     #observations.each {|o| h[o.descriptor_id][o.observation_object_global_id].push(o) } ### this is slow
     h

@@ -82,8 +82,8 @@ module TaxonNamesHelper
   end
 
   # @return [String]
-  #  the name in original combination, with author year, with HTML
-  def full_original_taxon_name_string(taxon_name)
+  #  the name in original combination, with author year, *without* HTML
+  def full_original_taxon_name_label(taxon_name)
     return nil if taxon_name.nil? || taxon_name.cached_original_combination.nil?
     [ taxon_name.cached_original_combination,
       taxon_name.cached_author_year
@@ -141,6 +141,44 @@ module TaxonNamesHelper
           tag.span('This name is not valid/accepted.'.html_safe, class: :brief_status, data: {icon: :attention, status: :invalid})
         else
           tag.span("This name is not valid/accepted.<br>The valid name is #{taxon_name_browse_link(taxon_name.valid_taxon_name)}.".html_safe, class: :brief_status, data: {icon: :attention, status: :invalid})
+        end
+      end
+    end
+  end
+
+  def taxon_name_status_label(taxon_name)
+    taxon_name.combined_statuses.collect{|s| s}.join('; ')
+  end
+
+  def taxon_name_short_status_label(taxon_name)
+    if taxon_name.is_combination?
+      n = taxon_name.finest_protonym
+      s = ["This name is subsequent combination of"]
+      if n.is_valid?
+        s += [
+          original_taxon_name_tag(n),
+          history_author_year_tag(n),
+        ]
+      else
+        v = n.valid_taxon_name
+        s += [
+          original_taxon_name_tag(n),
+          history_author_year_tag(n),
+          "whose valid/accepted name is",
+          taxon_name_tag(v),
+          v.cached_author_year
+        ]
+      end
+
+      (s.join(' ') + '.')
+    else
+      if taxon_name.is_valid? # taxon_name.unavailable_or_invalid?
+         'This name is valid/accepted.'
+      else
+        if taxon_name.is_ambiguously_invalid?
+          'This name is not valid/accepted.'
+        else
+          "This name is not valid/accepted. The valid name is #{taxon_name.valid_taxon_name.cached}."
         end
       end
     end
