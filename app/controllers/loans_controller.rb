@@ -113,6 +113,7 @@ class LoansController < ApplicationController
       :lender_address,
       :is_gift,
       :clone_from,
+      :is_gift,
       loan_items_attributes: [
         :_destroy,
         :id,

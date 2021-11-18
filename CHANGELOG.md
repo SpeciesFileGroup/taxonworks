@@ -11,14 +11,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Radial navigation in loan task
 - `is_gift` boolean to Loan
 - Loan item notes, type status, and recipient form layout improvements [#2657]
+- Recipient form link in Edit loan task
+- Gift checkbox in Loan task
 
 ### Changed
 - Upgraded to Ruby 3.0.2
 - OTUs can be loaned 2x [#2648]
 - Upgraded gems
 - Removed a loan item status 'Loaned on' (it's inferrred)
+- Replaced Webrick with Puma (developers-only change)
 - Improved loan autocomplete metadata [#2485]
--
 
 ### Fixed
 - View errors on rows with no metadata in DwC importer
@@ -27,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing author and year in taxon name on Citation by source [#2650]
 - Duplicate combinations in subsequent combination on New taxon name [#2654]
 - Missing documents in source filter [#2661]
+- Clonning source does not clean the doccumentation section [#2663]
 
 [#2485]: https://github.com/SpeciesFileGroup/taxonworks/issues/2485
 [#2648]: https://github.com/SpeciesFileGroup/taxonworks/issues/2648
@@ -36,6 +39,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2653]: https://github.com/SpeciesFileGroup/taxonworks/issues/2653
 [#2654]: https://github.com/SpeciesFileGroup/taxonworks/issues/2654
 [#2661]: https://github.com/SpeciesFileGroup/taxonworks/issues/2661
+[#2663]: https://github.com/SpeciesFileGroup/taxonworks/issues/2663
 
 ## [0.21.3] - 2021-11-12
 
@@ -161,7 +165,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - CrossRef assigns the wrong serial when journal is not present (partial) [#2620]
 
 [#666]: https://github.com/SpeciesFileGroup/taxonworks/issues/666
-[#2407]: https://github.com/SpeciesFileGroup/taxonworks/issues/2407
+[#2407]: https://github.com/SpeciesFileGroup/taxonworks/issues/2407  
 [#2612]: https://github.com/SpeciesFileGroup/taxonworks/issues/2612
 [#2613]: https://github.com/SpeciesFileGroup/taxonworks/issues/2613
 [#2615]: https://github.com/SpeciesFileGroup/taxonworks/issues/2615
