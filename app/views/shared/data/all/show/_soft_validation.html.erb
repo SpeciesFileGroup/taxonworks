@@ -1,2 +1,10 @@
-<h2> Validation </h2>
-<%= render(partial: '/shared/data/all/show/soft_validation_list', locals: {object: object}) -%>
+<div
+  id="vue-validation-panel"
+  class="full_width">
+  <div id="data-validation-panel" class="panel separate-bottom d-none">
+    <div class="content">
+      <h2> Validation </h2>
+      <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: {object: object}) -%>
+    </div>
+  </div>
+</div>
