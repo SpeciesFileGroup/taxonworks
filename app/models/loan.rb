@@ -55,6 +55,10 @@
 #   @return [String]
 #     as in Prof. Mrs. Dr. M. Mr. etc.
 #
+# TODO: Turn into a proper subclass when https://github.com/SpeciesFileGroup/taxonworks/issues/2120 implemented.
+# @!attribute is_gift
+#   @return [Boolean, nil]
+#     when true then no return is expected
 class Loan < ApplicationRecord
   include Housekeeping
   include Shared::DataAttributes
@@ -115,6 +119,8 @@ class Loan < ApplicationRecord
   validate :sent_after_closed
   validate :received_after_closed
   validate :received_after_expected
+
+  validate :gift_or_date_expected_required
 
   soft_validate(
     :sv_missing_documentation,
@@ -238,6 +244,10 @@ class Loan < ApplicationRecord
     l.loan_supervisors.each do |p|
       roles.build(type: 'LoanSupervisor', person: p)
     end
+  end
+
+  def gift_or_date_expected_required
+    errors.add(:date_return_expected, ' or gift status is required') if is_gift.nil? && date_return_expected.nil?
   end
 
   def requested_after_sent

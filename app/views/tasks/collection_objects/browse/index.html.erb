@@ -89,7 +89,7 @@
                 <% end %>
               </div>
 
-              <%= loan_status_tag(@collection_object) -%>
+              <%= object_loan_status_tag(@collection_object) -%>
 
               <div class="content">
                 <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: @collection_object}) -%>

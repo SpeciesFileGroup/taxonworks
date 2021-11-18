@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Add
 - Radial navigation in loan task
+- `is_gift` boolean to Loan
 - Loan item notes, type status, and recipient form layout improvements [#2657]
 
 ### Changed
@@ -16,6 +17,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - OTUs can be loaned 2x [#2648]
 - Upgraded gems
 - Removed a loan item status 'Loaned on' (it's inferrred)
+- Improved loan autocomplete metadata [#2485]
+-
 
 ### Fixed
 - View errors on rows with no metadata in DwC importer
@@ -25,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Duplicate combinations in subsequent combination on New taxon name [#2654]
 - Missing documents in source filter [#2661]
 
+[#2485]: https://github.com/SpeciesFileGroup/taxonworks/issues/2485
 [#2648]: https://github.com/SpeciesFileGroup/taxonworks/issues/2648
 [#2657]: https://github.com/SpeciesFileGroup/taxonworks/issues/2657
 [#2650]: https://github.com/SpeciesFileGroup/taxonworks/issues/2650
@@ -157,7 +161,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - CrossRef assigns the wrong serial when journal is not present (partial) [#2620]
 
 [#666]: https://github.com/SpeciesFileGroup/taxonworks/issues/666
-[#2407]: https://github.com/SpeciesFileGroup/taxonworks/issues/2407  
+[#2407]: https://github.com/SpeciesFileGroup/taxonworks/issues/2407
 [#2612]: https://github.com/SpeciesFileGroup/taxonworks/issues/2612
 [#2613]: https://github.com/SpeciesFileGroup/taxonworks/issues/2613
 [#2615]: https://github.com/SpeciesFileGroup/taxonworks/issues/2615

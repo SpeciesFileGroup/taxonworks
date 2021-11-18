@@ -5,12 +5,20 @@
   }
 }
 
+#loan_recipient_form_loan_id {
+  text-align: center;
+  font-size: 16px;
+  font-weight: bolder;
+  margin-top: 0.2cm;
+}
+
 #loan_recipient_form {
   margin: 0 auto;
   max-width: 1020px;
 
   .loan_address { 
-    white-space: pre;
+    display:inline-block;
+    max-width: 5cm;
   }
 
   #return_date {

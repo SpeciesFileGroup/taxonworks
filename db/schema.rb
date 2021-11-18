@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_09_144200) do
+ActiveRecord::Schema.define(version: 2021_11_17_212703) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -1138,6 +1138,7 @@ ActiveRecord::Schema.define(version: 2021_11_09_144200) do
     t.string "recipient_honorific"
     t.string "recipient_country"
     t.text "lender_address", null: false
+    t.boolean "is_gift"
     t.index ["created_by_id"], name: "index_loans_on_created_by_id"
     t.index ["project_id"], name: "index_loans_on_project_id"
     t.index ["updated_by_id"], name: "index_loans_on_updated_by_id"

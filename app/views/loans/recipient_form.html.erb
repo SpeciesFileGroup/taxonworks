@@ -1,5 +1,7 @@
 <div id="loan_recipient_form">
+  <p id="loan_recipient_form_loan_id" class="no_bullets">Loan ID(s): <%= @loan.identifiers.collect{|a| a.cached}.join('; ') -%></p>
   <div id="loan_header" class="flexbox panels-container">
+
     <div id="recipient_details" class="item item1">
       <ul class="no_bullets">
         <%= tag.li( "To: #{loan_recipient_tag(@loan)}") -%>
