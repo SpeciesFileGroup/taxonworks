@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Upgraded gems
 - Removed a loan item status 'Loaned on' (it's inferrred)
 - Replaced Webrick with Puma (developers-only change)
+
 ### Fixed
 - View errors on rows with no metadata in DwC importer
 - Scrollbar in alternate values annotator [#2651]
@@ -24,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing author and year in taxon name on Citation by source [#2650]
 - Duplicate combinations in subsequent combination on New taxon name [#2654]
 - Missing documents in source filter [#2661]
+- Clonning source does not clean the doccumentation section [#2663]
 
 [#2648]: https://github.com/SpeciesFileGroup/taxonworks/issues/2648
 [#2657]: https://github.com/SpeciesFileGroup/taxonworks/issues/2657
@@ -32,6 +34,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2653]: https://github.com/SpeciesFileGroup/taxonworks/issues/2653
 [#2654]: https://github.com/SpeciesFileGroup/taxonworks/issues/2654
 [#2661]: https://github.com/SpeciesFileGroup/taxonworks/issues/2661
+[#2663]: https://github.com/SpeciesFileGroup/taxonworks/issues/2663
 
 ## [0.21.3] - 2021-11-12
 
