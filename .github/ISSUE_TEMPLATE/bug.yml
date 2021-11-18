@@ -72,10 +72,10 @@ body:
   attributes:
     label: Version
     description: What is the version the bug happened on
-    placeholder: "build ff302f1bc" or "v0.21.3" 
+    placeholder: build ff302f1bc or v0.21.3 
 - type: input
   id: browser_used
   attributes:
     label: Browser Used
     description: Please share the browser and its version you were using.
-    placeholder: (e.g. chrome, firefox, safari)
+    placeholder: (e.g. chrome, firefox)
