@@ -30,6 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Duplicate combinations in subsequent combination on New taxon name [#2654]
 - Missing documents in source filter [#2661]
 - Clonning source does not clean the doccumentation section [#2663]
+- Extra scrollbar in asserted distributions annotator [#2662]
 
 [#2485]: https://github.com/SpeciesFileGroup/taxonworks/issues/2485
 [#2648]: https://github.com/SpeciesFileGroup/taxonworks/issues/2648
@@ -39,6 +40,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2653]: https://github.com/SpeciesFileGroup/taxonworks/issues/2653
 [#2654]: https://github.com/SpeciesFileGroup/taxonworks/issues/2654
 [#2661]: https://github.com/SpeciesFileGroup/taxonworks/issues/2661
+[#2662]: https://github.com/SpeciesFileGroup/taxonworks/issues/2662
 [#2663]: https://github.com/SpeciesFileGroup/taxonworks/issues/2663
 
 ## [0.21.3] - 2021-11-12

@@ -459,6 +459,7 @@ export default {
     .modal-container {
       min-width: 1024px;
       width: 1200px;
+      overflow-y: hidden;
     }
 
     .radial-annotator-template {
