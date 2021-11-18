@@ -1,6 +1,6 @@
 class DatasetRecordsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-  include ActionController::Live
+  include ZipTricks::RailsStreaming
 
   before_action :set_dataset_record, only: [:show, :update, :destroy]
   after_action -> { set_pagination_headers(:dataset_records) }, only: [:index], if: :json_request?
@@ -10,7 +10,7 @@ class DatasetRecordsController < ApplicationController
   def index
     respond_to do |format|
       format.json { @dataset_records = filtered_records.order(id: :asc).page(params[:page]).per(params[:per] || 100) } #.preload_fields
-      format.csv { render_csv }
+      format.zip { render_zip }
     end
   end
 
@@ -98,9 +98,11 @@ class DatasetRecordsController < ApplicationController
       params.require(:dataset_record).permit(data_fields: {})
     end
 
-    def filtered_records
-      import_dataset = ImportDataset.where(project_id: sessions_current_project_id).find(params[:import_dataset_id])
+    def import_dataset
+      ImportDataset.where(project_id: sessions_current_project_id).find(params[:import_dataset_id])
+    end
 
+    def filtered_records
       dataset_records = import_dataset.core_records
       params[:filter]&.each do |key, value|
         dataset_records = dataset_records.where(
@@ -111,31 +113,32 @@ class DatasetRecordsController < ApplicationController
       params[:status].blank? ? dataset_records : dataset_records.where(status: params[:status])
     end
 
-    def render_csv
-      expires_now
+    def render_zip
       response.headers[Rack::ETAG] = SecureRandom.hex # Prevents Rack::ETAG from buffering the response
-      response.headers["X-Accel-Buffering"] = "no"
 
-      filtered_records.first.import_dataset
-      import_dataset = filtered_records.first.import_dataset
       filename = Zaru::sanitize!("#{import_dataset.description}_#{DateTime.now}.tsv").gsub(' ', '_').downcase
+      headers = import_dataset.metadata["core_headers"]
 
-      response.headers['Content-Type'] = 'text/tab-separated-values'
-      response.headers["Content-Disposition"] = "attachment; filename=\"#{filename}\""
+      response.headers["Content-Disposition"] = "attachment; filename=\"#{filename}.zip\""
 
-      response.stream.write CSV.generate_line([
-        'Status', 'error_data', *import_dataset.metadata["core_headers"]
-      ], col_sep: "\t", quote_char: '')
+      zip_tricks_stream do |zip|
+        zip.write_deflated_file('filters.txt') do |sink|
+          sink.write "Status: #{params[:status] || 'Any'}\n---\n"
+          params[:filter].each {|k, v| sink.write("#{headers[k.to_i]}: #{v}\n") } if params[:filter]
+        end
 
-      filtered_records.find_each do |row|
-        response.stream.write CSV.generate_line([
-          row.status, row.metadata&.dig('error_data', 'messages'), *row.data_fields
-        ], col_sep: "\t", quote_char: '')
+        zip.write_deflated_file(filename) do |sink|
+          sink.write CSV.generate_line([
+            'Status', 'error_data', *headers
+          ], col_sep: "\t", quote_char: '')
+
+          filtered_records.find_each do |row|
+            sink.write CSV.generate_line([
+              row.status, row.metadata&.dig('error_data', 'messages'), *row.data_fields
+            ], col_sep: "\t", quote_char: '')
+          end
+        end
       end
-
-    rescue ClientDisconnected
-    ensure
-      response.stream.close
     end
 
  end

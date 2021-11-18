@@ -642,6 +642,7 @@ GEM
       nokogiri (~> 1.8)
     zaru (0.3.0)
     zeitwerk (2.5.1)
+    zip_tricks (5.6.0)
 
 PLATFORMS
   ruby
@@ -764,6 +765,7 @@ DEPENDENCIES
   webpacker (~> 5.2, >= 5.2.1)
   wikidata-client!
   zaru (~> 0.3.0)
+  zip_tricks (~> 5.6)
 
 RUBY VERSION
    ruby 3.0.1p64
