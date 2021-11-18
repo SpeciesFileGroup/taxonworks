@@ -53,26 +53,29 @@ body:
     label: Environment
     description: Please identify where you experience this bug. Please select all that apply.
     options:
-      - label: Development_native
+      - label: Development (native)
         required: false
-      - label: Development_docker
+      - label: Development (docker)
         required: false
       - label: Sandbox
         required: false
       - label: Production
         required: false
-      - label: Browser (e.g. chrome, firefox, safari)
-        required: false
 - type: input
   id: sandbox_used
   attributes:
     label: Sandbox Used
-    description: Please share which sandbox
+    description: If experienced in a sandbox please name it here
     placeholder: sandworm, sandwich, sandstorm, etc
+- type: input
+  id: version
+  attributes:
+    label: Version
+    description: What is the version the bug happened on
+    placeholder: "build ff302f1bc" or "v0.21.3" 
 - type: input
   id: browser_used
   attributes:
     label: Browser Used
-    description: Please share which browser you are using.
+    description: Please share the browser and its version you were using.
     placeholder: (e.g. chrome, firefox, safari)
-
