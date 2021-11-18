@@ -38,6 +38,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing documents in source filter [#2661]
 - Clonning source does not clean the doccumentation section [#2663]
 - Extra scrollbar in asserted distributions annotator [#2662]
+- The citations annotator sometimes displays a created citations that are not part of the object
 
 [#2207]: https://github.com/SpeciesFileGroup/taxonworks/issues/2207
 [#2243]: https://github.com/SpeciesFileGroup/taxonworks/issues/2243
