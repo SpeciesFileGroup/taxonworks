@@ -4,13 +4,24 @@
       <h3>Loan information</h3>
     </template>
     <template #options>
-      <a
-        v-if="loan.id"
-        :href="`/loans/${loan.id}`"
-        target="_blank"
-        class="taxonname separate-right">
-        Show
-      </a>
+      <ul class="no_bullets context-menu">
+        <li>
+          <a
+            v-if="loan.id"
+            :href="`/loans/${loan.id}/recipient_form`">
+            Recipient form
+          </a>
+        </li>
+        <li>
+          <a
+            v-if="loan.id"
+            :href="`/loans/${loan.id}`"
+            target="_blank"
+            class="taxonname separate-right">
+            Show
+          </a>
+        </li>
+      </ul>
       <button
         v-if="loan.id"
         @click="showModal = true"

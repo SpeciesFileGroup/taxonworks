@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Add
 - Radial navigation in loan task
 - Loan item notes, type status, and recipient form layout improvements [#2657]
+- Recipient form link in Edit loan task
 
 ### Changed
 - Upgraded to Ruby 3.0.2
