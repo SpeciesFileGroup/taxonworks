@@ -111,12 +111,12 @@ module Utilities::Strings
   #   whitespace and special character split, then any string containing a digit eliminated
   def self.alphabetic_strings(string)
     return [] if string.nil? || string.length == 0
-    string.split(/\W/).select { |b| !(b =~ /\d/) }.reject { |b| b.empty? }
+    string.split(/[^[[:word:]]]+/).select { |b| !(b =~ /\d/) }.reject { |b| b.empty? }
   end
 
   def self.alphanumeric_strings(string)
     return [] if string.nil? || string.length == 0
-    string.split.reject { |b| b.empty? }
+    string.split(/[^[[:word:]]]+/).reject { |b| b.empty? }
   end
 
   # @param string [String]
