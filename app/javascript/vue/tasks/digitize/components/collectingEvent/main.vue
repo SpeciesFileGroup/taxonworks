@@ -191,8 +191,7 @@ export default {
 
   methods: {
     setCollectingEvent (ce) {
-      this.$store.commit(MutationNames.SetCollectingEvent, Object.assign(makeCollectingEvent(), ce))
-      this.$store.commit(MutationNames.SetCollectingEventIdentifier, ce?.identifiers[0] || makeIdentifier(IDENTIFIER_LOCAL_TRIP_CODE, COLLECTING_EVENT))
+      this.$store.dispatch(ActionNames.GetCollectingEvent, ce.id)
       this.$store.dispatch(ActionNames.GetLabels, ce.id)
       this.$store.dispatch(ActionNames.LoadGeoreferences, ce.id)
     },
