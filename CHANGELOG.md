@@ -43,6 +43,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - The citations annotator sometimes displays a created citations that are not part of the object
 - Move synonyms section not visible [#2670]
 - Collecting Event collectors are not loaded when CE is selected using smart selector in Comprehensive task [#2669]
+- Genus descriptor interface
 
 [#2207]: https://github.com/SpeciesFileGroup/taxonworks/issues/2207
 [#2243]: https://github.com/SpeciesFileGroup/taxonworks/issues/2243
