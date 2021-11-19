@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - API route "activity" for recent records/project `/api/v1/activity?project_token=123&past_days=9` [#2207]
 - Indecies for updated_at on some large models
 - Observation matrix query filter (minimal)
+- Add download table button in DwC Importer
 
 ### Changed
 - Upgraded to Ruby 3.0.2
