@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Indecies for updated_at on some large models
 - Observation matrix query filter (minimal)
 - Add download table button in DwC Importer
+- Confidence button on subsequent combination in New taxon name task
 
 ### Changed
 - Upgraded to Ruby 3.0.2
