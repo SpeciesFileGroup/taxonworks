@@ -40,6 +40,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Clonning source does not clean the doccumentation section [#2663]
 - Extra scrollbar in asserted distributions annotator [#2662]
 - The citations annotator sometimes displays a created citations that are not part of the object
+- Move synonyms section not visible [#2670]
 
 [#2207]: https://github.com/SpeciesFileGroup/taxonworks/issues/2207
 [#2243]: https://github.com/SpeciesFileGroup/taxonworks/issues/2243
@@ -54,6 +55,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2661]: https://github.com/SpeciesFileGroup/taxonworks/issues/2661
 [#2662]: https://github.com/SpeciesFileGroup/taxonworks/issues/2662
 [#2663]: https://github.com/SpeciesFileGroup/taxonworks/issues/2663
+[#2670]: https://github.com/SpeciesFileGroup/taxonworks/issues/2670
 
 ## [0.21.3] - 2021-11-12
 
