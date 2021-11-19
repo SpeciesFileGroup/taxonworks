@@ -169,7 +169,8 @@ module Queries
     # @return [String]
     #   if `foo, and 123 and stuff` then %foo%and%123%and%stuff%
     def wildcard_pieces
-      a = '%' + query_string.gsub(/[\W]+/, '%') + '%' ### DD: if query_string is cyrilic or diacritics, it returns '%%%'
+
+      a = '%' + query_string.gsub(' ', '%') + '%' ### DD: if query_string is cyrilic or diacritics, it returns '%%%'
       a = 'NothingToMatch' if a.gsub('%','').gsub(' ', '').blank?
       a
     end

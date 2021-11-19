@@ -116,7 +116,7 @@ module Utilities::Strings
 
   def self.alphanumeric_strings(string)
     return [] if string.nil? || string.length == 0
-    string.split(/\W/).reject { |b| b.empty? }
+    string.split.reject { |b| b.empty? }
   end
 
   # @param string [String]
