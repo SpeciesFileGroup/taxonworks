@@ -78,7 +78,8 @@ class RepositoriesController < ApplicationController
   end
 
   def autocomplete
-    @repositories = Queries::Repository::Autocomplete.new(params[:term], **autocomplete_params).autocomplete
+    # NOTE: Do not use double splat operator for last param without updating Repository::Autocomplete initializer.
+    @repositories = Queries::Repository::Autocomplete.new(params[:term], autocomplete_params).autocomplete
   end
 
   # GET /repositories/download
