@@ -133,7 +133,7 @@ class TaxonNamesController < ApplicationController
   end
 
   def rank_table
-    @q = Queries::TaxonName::Tabular.new({
+    @q = Queries::TaxonName::Tabular.new(
       ancestor_id: params.require(:ancestor_id),
       ranks: params.require(:ranks),
       fieldsets: params[:fieldsets],
@@ -142,7 +142,7 @@ class TaxonNamesController < ApplicationController
       combinations: params[:combinations],
       project_id: sessions_current_project_id,
       rank_data: params[:rank_data]
-    })
+    )
   end
 
   # GET /taxon_names/select_options
