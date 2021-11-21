@@ -30,6 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Replaced Webrick with Puma (developers-only change)
 - Improved loan autocomplete metadata [#2485]
 - API observation responses are now isolated from internal
+- DwC occurrences importer now accepts `|`, `:`, `;` and `,` as separators for `higherClassification`.
 
 ### Fixed
 - View errors on rows with no metadata in DwC importer
