@@ -45,6 +45,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Move synonyms section not visible [#2670]
 - Collecting Event collectors are not loaded when CE is selected using smart selector in Comprehensive task [#2669]
 - Genus descriptor interface
+- Free text character not saved if pasted from clipboard in Matrix Row Coder [#2672]
 
 [#2207]: https://github.com/SpeciesFileGroup/taxonworks/issues/2207
 [#2243]: https://github.com/SpeciesFileGroup/taxonworks/issues/2243
@@ -61,6 +62,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2663]: https://github.com/SpeciesFileGroup/taxonworks/issues/2663
 [#2669]: https://github.com/SpeciesFileGroup/taxonworks/issues/2669
 [#2670]: https://github.com/SpeciesFileGroup/taxonworks/issues/2670
+[#2672]: https://github.com/SpeciesFileGroup/taxonworks/issues/2672
 
 ## [0.21.3] - 2021-11-12
 

@@ -10,7 +10,7 @@
           class="full_width"
           rows="5"
           :value="freeTextValue"
-          @change="updateFreeTextValue" >
+          @input="updateFreeTextValue" >
         </textarea>
 
         <radial-annotator
