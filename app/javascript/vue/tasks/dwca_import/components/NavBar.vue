@@ -7,9 +7,9 @@
       margin: '0px'
     }">
     <div class="flex-separate middle">
-      <div class="half_width">
-        <span>{{ dataset.description}}</span>
-        <span>-</span>
+      <div class="half_width text-ellipsis margin-small-right">
+        <span :title="dataset.description">{{ dataset.description }}</span>
+        <br>
         <span v-if="pagination">{{ pagination.total }} records.</span>
       </div>
       <div class="full_width">
