@@ -46,6 +46,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Collecting Event collectors are not loaded when CE is selected using smart selector in Comprehensive task [#2669]
 - Genus descriptor interface
 - Free text character not saved if pasted from clipboard in Matrix Row Coder [#2672]
+- DwC importer crashing on invalid nomenclatural code
 
 [#2207]: https://github.com/SpeciesFileGroup/taxonworks/issues/2207
 [#2243]: https://github.com/SpeciesFileGroup/taxonworks/issues/2243

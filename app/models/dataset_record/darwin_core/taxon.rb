@@ -27,6 +27,11 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
         self.metadata.delete('error_data')
 
         nomenclature_code = get_field_value('nomenclaturalCode')&.downcase&.to_sym || import_dataset.default_nomenclatural_code
+        unless Ranks::CODES.include?(nomenclature_code)
+          raise DarwinCore::InvalidData.new(
+            { "nomenclaturalCode": ["Unrecognized nomenclatural code #{get_field_value('nomenclaturalCode')}"] }
+          )
+        end
         parse_results_details = Biodiversity::Parser.parse(get_field_value('scientificName') || '')[:details]&.values&.first
 
         parse_results = Biodiversity::Parser.parse(get_field_value(:scientificName) || '')
