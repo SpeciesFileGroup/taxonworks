@@ -47,6 +47,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Genus descriptor interface
 - Free text character not saved if pasted from clipboard in Matrix Row Coder [#2672]
 - DwC importer crashing on invalid nomenclatural code
+- DwC exporter swapped `decimalLatitude`/`decimalLongitude`
 
 [#2207]: https://github.com/SpeciesFileGroup/taxonworks/issues/2207
 [#2243]: https://github.com/SpeciesFileGroup/taxonworks/issues/2243

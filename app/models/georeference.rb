@@ -236,8 +236,8 @@ class Georeference < ApplicationRecord
 
     if geographic_item.type == 'GeographicItem::Point'
       b = geographic_item.to_a
-      h[:decimalLatitude] = b.first
-      h[:decimalLongitude] = b.last
+      h[:decimalLongitude] = b.first
+      h[:decimalLatitude] = b.second
       h[:coordinateUncertaintyInMeters] = error_radius
     end
 
