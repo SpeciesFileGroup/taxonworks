@@ -114,8 +114,7 @@ class ContentsController < ApplicationController
   # GET /api/v1/content
   def api_index
     @contents = Queries::Content::Filter.new(api_params).all
-      .includes(:topic)
-      .order('otus.id, controlled_vocabulary_terms.name')
+      .order('contents.otu_id, contents.topic_id')
       .page(params[:page]).per(params[:per])
     render '/contents/api/v1/index'
   end
