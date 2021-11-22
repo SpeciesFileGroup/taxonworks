@@ -779,6 +779,11 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # nomenclaturalCode: [Selects nomenclature code to pick ranks from]
     code = get_field_value(:nomenclaturalCode)&.downcase&.to_sym || import_dataset.default_nomenclatural_code
+    unless Ranks::CODES.include?(code)
+      raise DarwinCore::InvalidData.new(
+        { "nomenclaturalCode": ["Unrecognized nomenclatural code #{get_field_value(:nomenclaturalCode)}"] }
+      )
+    end
 
     # kingdom: [Kingdom protonym]
     origins[
