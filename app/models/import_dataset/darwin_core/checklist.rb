@@ -176,8 +176,9 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
           replacement_taxon_id = current_record[:src_data]['acceptedNameUsageID']
           current_record[:replacing_valid_name] = replacement_taxon_id
           current_record[:has_external_accepted_name] = true
-          current_record[:dependencies] << records_lut[replacement_taxon_id][:index]
-          records_lut[replacement_taxon_id][:dependants] << current_record[:index]
+          dependency = records_lut.dig(replacement_taxon_id, :index)
+          current_record[:dependencies] << dependency if dependency
+          records_lut.dig(replacement_taxon_id, :dependants)&.push(current_record[:index])
         end
 
       end
