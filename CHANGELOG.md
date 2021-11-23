@@ -35,6 +35,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC occurrences importer now accepts `|`, `:`, `;` and `,` as separators for `higherClassification`.
 
 ### Fixed
+- Tag facet bug affecting all filters but Source [#2678]
 - View errors on rows with no metadata in DwC importer
 - Scrollbar in alternate values annotator [#2651]
 - Missing data on response in citations annotator [#2653]
@@ -51,7 +52,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC importer crashing on invalid nomenclatural code
 - DwC exporter swapped `decimalLatitude`/`decimalLongitude`
 
-
+[#2678]: https://github.com/SpeciesFileGroup/taxonworks/issues/2678
 [#2207]: https://github.com/SpeciesFileGroup/taxonworks/issues/2207
 [#2243]: https://github.com/SpeciesFileGroup/taxonworks/issues/2243
 [#2366]: https://github.com/SpeciesFileGroup/taxonworks/issues/2366
