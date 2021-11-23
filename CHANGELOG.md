@@ -22,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Add download table button in DwC Importer
 - Confidence button on subsequent combination in New taxon name task
 - Create and new button in New descriptor task [#2594]
+- Content text is cropped on edit in OTU radial [#2676]
 
 ### Changed
 - Upgraded to Ruby 3.0.2
@@ -50,6 +51,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC importer crashing on invalid nomenclatural code
 - DwC exporter swapped `decimalLatitude`/`decimalLongitude`
 
+
 [#2207]: https://github.com/SpeciesFileGroup/taxonworks/issues/2207
 [#2243]: https://github.com/SpeciesFileGroup/taxonworks/issues/2243
 [#2366]: https://github.com/SpeciesFileGroup/taxonworks/issues/2366
@@ -67,6 +69,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2669]: https://github.com/SpeciesFileGroup/taxonworks/issues/2669
 [#2670]: https://github.com/SpeciesFileGroup/taxonworks/issues/2670
 [#2672]: https://github.com/SpeciesFileGroup/taxonworks/issues/2672
+[#2676]: https://github.com/SpeciesFileGroup/taxonworks/issues/2676
 
 ## [0.21.3] - 2021-11-12
 
