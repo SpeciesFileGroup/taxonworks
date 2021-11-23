@@ -4,5 +4,6 @@ export default () => ({
   name: undefined,
   short_name: undefined,
   verbatim_short_name: undefined,
-  delimiter: 'NONE'
+  delimiter: 'NONE',
+  is_virtual: undefined,
 })

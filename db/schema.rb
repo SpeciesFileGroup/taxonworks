@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_18_033903) do
+ActiveRecord::Schema.define(version: 2021_11_22_185415) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -1158,6 +1158,7 @@ ActiveRecord::Schema.define(version: 2021_11_18_033903) do
     t.integer "updated_by_id", null: false
     t.string "verbatim_short_name"
     t.string "delimiter"
+    t.boolean "is_virtual", default: false
     t.index ["created_at"], name: "index_namespaces_on_created_at"
     t.index ["created_by_id"], name: "index_namespaces_on_created_by_id"
     t.index ["updated_at"], name: "index_namespaces_on_updated_at"

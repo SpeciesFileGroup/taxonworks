@@ -24,6 +24,10 @@ class Identifier::Global < Identifier
 
   soft_validate(:sv_resolves?, set: :resolved)
 
+  def is_global?
+    true
+  end
+
   protected
 
   def build_cached

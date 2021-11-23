@@ -1,29 +1,29 @@
-# A Namespace is used to define a set of (i.e. scope) local (not intended to be globally unique) Identifiers.
-# All identifiers (strings) within a Namespace must be unique.  Namespaces used to attempt to provide
-# a degree of provenance to how the Identifier came to be, and to differentiate, in practical terms, one
-# identifier from another within the system.  In the case of the latter, they act as a label that lets 
-# the data curator disambiguate what might be otherwise two identical strings via a short mnemonic.
-#
-# In natural history collection management many catalog numbers contain an institutional coden as 
-# part of their catalog number (as physically written).  In TaxonWorks we treat that coden as the basis
-# for a Namespace. Note that we also may use the CODEN in a second way, to identify the Repository.  
-# While the string is duplicate the meaning is not.  One use let's us quickly reference a Repository,
-# the second use let's us quickly narrow searches to a specific Identifier linked to our object.
-#
-# In TW Identifiers + Namespaces are used for differentiating/disambiguating one datum from another.
-# This applies to all local identifiers, not just what most might be familiar with in the 
-# DwC catalogNumber field. 
-#
+# A Namespace is used to define a set of local Identifiers.
+# All identifiers within a Namespace must be unique.
 # Namespaces are shared across projects.
+# In TaxonWorks Identifiers + Namespaces are used for differentiating/disambiguating one datum from another.
+# This applies to all local identifiers, not just what most might be familiar with in the
+# DwC catalogNumber field.
 #
+# Namespaces are used to to meet practical needs that also have FAIR consequences:
+# * They attempt to provide a degree of provenance as to how the Identifier came to be
+# * To differentiate, in practical terms, one identifier from another within the system that merges data
+# * To act as a labels (short mneomincs) that allows the data curator to disambiguate what might be otherwise two identical strings
+##
 # Namespaces are minted in TW on a first come first serve basis.  Their short and
 # long names must be unique. When conflicts arise new values must be minted for
 # record keeping purposes. In this case a verbatim_short_name can be provided, and this
 # value will be presented for reporting/searching purposes.  This is a strong restriction
 # that is intended to encourage users to think before they mint a Namespace.
 #
-# In TW Namespaces DO NOT imply ownership! If an identifier has a Namespace
-# that includes a reference to some collection, it does not mean that that collection 'owns' the identified object.
+# In TaxonWorks Namespaces _do not_ imply ownership of the things they are linked to.  If an identifier has a Namespace
+# that includes a reference, in some way, to some Repository, it does not mean that that Repository 'owns' the identified thing.
+#
+# In natural history collection management many catalog numbers contain an institutional coden as
+# part of their catalog number (as physically written).  In TaxonWorks we treat that coden as the basis
+# for a Namespace. Note that we also may use the CODEN in a second way, to identify the Repository.
+# While the string is duplicate the meaning is not.  One use let's us quickly reference a Repository,
+# the second use let's us quickly narrow searches to a specific Identifier linked to our object.
 #
 # @!attribute institution
 # @return [String]
@@ -54,8 +54,8 @@
 #
 # @!attribute is_virtual
 # @return [Boolean]
-#   Defaults to false. If false then 
-#   
+#   Defaults to false. If false then
+#
 #
 class Namespace < ApplicationRecord
   include Housekeeping::Users
@@ -77,6 +77,10 @@ class Namespace < ApplicationRecord
   scope :used_on_klass, -> (klass) { joins(:identifiers).where(identifiers: {identifier_object_type: klass} ) }
   scope :used_recently, -> { joins(:identifiers).includes(:identifiers).where(identifiers: { created_at: 10.weeks.ago..Time.now } ).order('"identifiers"."created_at" DESC') }
   scope :used_in_project, -> (project_id) { joins(:identifiers).where( identifiers: { project_id: project_id } ) }
+
+  def is_virtual?
+    is_virtual
+  end
 
   def self.select_optimized(user_id, project_id, klass)
     h = {

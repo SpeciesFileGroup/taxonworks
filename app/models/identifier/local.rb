@@ -1,23 +1,23 @@
-# The identifier that is generated for local use, i.e. no signficant effort (countering example DOIs) was 
+# The identifier that is generated for local use, i.e. no signficant effort (countering example DOIs) was
 # made to ensure global uniqueness.  While most identifiers are intended to be unique globally, few
 # consider mechanisms for ensuring this.
 #
 # Local identifiers of the same type may be stacked on a single record without defining the relation
 # between each identifier (see conceptual difference in Identfier::Global).
 #
-# Local identifiers require a namespace. See Namespace.  
-# 
+# Local identifiers require a namespace. See Namespace.
+#
 # Multiple local identfiers of the same namespace can be applied to the same object, while this is rarely useful in real life
-# it does have physical-world analogs, see in particular Accession numbers on Collecting Events linked to Specimens that are in the process of 
+# it does have physical-world analogs, see in particular Accession numbers on Collecting Events linked to Specimens that are in the process of
 # being accessioned.
 #
-#   Foo 123 (CatalogNumber) 
+#   Foo 123 (CatalogNumber)
 #   Foo 345 (CatalogNumber)
 #
-# You can also do this on the same object: 
+# You can also do this on the same object:
 #   Foo 123 (CatalogNumber)
 #   Bar 123 (CatalogNumber)
-#  
+#
 # In addition, identifiers of a certain type (subclass) must be unique across namespaces within a project.
 #
 class Identifier::Local < Identifier
@@ -52,10 +52,19 @@ class Identifier::Local < Identifier
     ) if [:short_name, :verbatim_short_name, :delimiter].detect { |a| namespace.saved_change_to_attribute?(a) }
   end
 
+
+  def is_local?
+    true
+  end
+
   protected
 
   def build_cached
-    Identifier::Local.build_cached_prefix(namespace) + identifier.to_s
+    if namespace.is_virtual
+      identifier
+    else
+      Identifier::Local.build_cached_prefix(namespace) + identifier.to_s
+    end
   end
 
   def self.build_cached_prefix(namespace)
