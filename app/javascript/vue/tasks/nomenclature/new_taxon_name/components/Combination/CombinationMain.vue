@@ -99,10 +99,15 @@ const combinationList = computed(() => store.getters[GetterNames.GetCombinations
 const taxon = computed(() => store.getters[GetterNames.GetTaxon])
 const currentCombination = ref({})
 const isCurrentTaxonInCombination = computed(() => !!Object.entries(combination.value).find(([_, protonym]) => protonym?.id === taxon.value.id))
-const combinationRanks = computed(() =>
+const nomenclatureRanks = computed(() =>
   store.getters[GetterNames.GetTaxon].nomenclatural_code === NOMENCLATURE_CODE_BOTANY
     ? combinationIcnType
     : combinationType
+)
+const isGenusGroup = computed(() => Object.keys(nomenclatureRanks.value.genusGroup).includes(taxon.value.rank))
+const combinationRanks = computed(() => isGenusGroup.value
+  ? { genusGroup: nomenclatureRanks.value.genusGroup }
+  : nomenclatureRanks.value
 )
 const citationData = reactive({
   origin_citation_attributes: makeCitationObject(COMBINATION),

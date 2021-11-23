@@ -33,6 +33,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Improved loan autocomplete metadata [#2485]
 - API observation responses are now isolated from internal
 - DwC occurrences importer now accepts `|`, `:`, `;` and `,` as separators for `higherClassification`.
+- Restrict subsequent combination fields for genus and subgenus. [#2677]
 
 ### Fixed
 - View errors on rows with no metadata in DwC importer
@@ -70,6 +71,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2670]: https://github.com/SpeciesFileGroup/taxonworks/issues/2670
 [#2672]: https://github.com/SpeciesFileGroup/taxonworks/issues/2672
 [#2676]: https://github.com/SpeciesFileGroup/taxonworks/issues/2676
+[#2677]: https://github.com/SpeciesFileGroup/taxonworks/issues/2677
 
 ## [0.21.3] - 2021-11-12
 
