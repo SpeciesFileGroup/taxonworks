@@ -36,6 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Restrict subsequent combination fields for genus and subgenus. [#2677]
 
 ### Fixed
+- Reordering matrices by nomenclature when some rows have none
 - Tag facet bug affecting all filters but Source [#2678]
 - View errors on rows with no metadata in DwC importer
 - Scrollbar in alternate values annotator [#2651]

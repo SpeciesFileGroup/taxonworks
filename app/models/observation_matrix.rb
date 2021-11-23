@@ -88,8 +88,8 @@ class ObservationMatrix < ApplicationRecord
     when 'nomenclature'
       objects = []
       observation_matrix_rows.each do |r|
-        objects.push [r,  TaxonName.self_and_ancestors_of(r.current_taxon_name).order('taxon_name_hierarchies.generations DESC').pluck(:name).to_s]
-        #objects.push [r, r.current_taxon_name.ancestor_ids] # TODO: probably not correct, a quick and dirty attempt
+        t = r.current_taxon_name # not all rows have reference to a taxon name 
+        objects.push [r, (t ? TaxonName.self_and_ancestors_of(t).order('taxon_name_hierarchies.generations DESC').pluck(:name).to_s : '')]
       end
 
       objects.sort!{|a, b| a[1] <=> b[1]} # add internal loop on name
