@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Observation matrix query filter (minimal)
 - Add download table button in DwC Importer
 - Confidence button on subsequent combination in New taxon name task
+- Create and new button in New descriptor task [#2594]
 
 ### Changed
 - Upgraded to Ruby 3.0.2
@@ -53,6 +54,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2243]: https://github.com/SpeciesFileGroup/taxonworks/issues/2243
 [#2366]: https://github.com/SpeciesFileGroup/taxonworks/issues/2366
 [#2485]: https://github.com/SpeciesFileGroup/taxonworks/issues/2485
+[#2594]: https://github.com/SpeciesFileGroup/taxonworks/issues/2594
 [#2648]: https://github.com/SpeciesFileGroup/taxonworks/issues/2648
 [#2657]: https://github.com/SpeciesFileGroup/taxonworks/issues/2657
 [#2650]: https://github.com/SpeciesFileGroup/taxonworks/issues/2650

@@ -110,6 +110,20 @@
                         : 'Create and return to matrix'
                     }}
                   </v-btn>
+
+                  <v-btn
+                    class="margin-small-left"
+                    color="create"
+                    medium
+                    :disabled="!descriptor.name"
+                    @click="saveDescriptor(descriptor, false).then(_ => { resetDescriptor() })"
+                  >
+                    {{
+                      descriptor.id
+                        ? 'Update and new'
+                        : 'Create and new'
+                    }}
+                  </v-btn>
                 </template>
               </div>
             </div>
@@ -231,7 +245,7 @@ export default {
 
       this.saving = true
 
-      saveRecord.then(async response => {
+      return saveRecord.then(async response => {
         this.descriptor = response.body
 
         if (this.matrix) {
