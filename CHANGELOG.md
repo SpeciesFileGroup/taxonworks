@@ -54,6 +54,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Free text character not saved if pasted from clipboard in Matrix Row Coder [#2672]
 - DwC importer crashing on invalid nomenclatural code
 - DwC exporter swapped `decimalLatitude`/`decimalLongitude`
+- Error in Filter Collecting Event task when filtering by attributes that are stored as numbers in database
 
 [#2678]: https://github.com/SpeciesFileGroup/taxonworks/issues/2678
 [#2207]: https://github.com/SpeciesFileGroup/taxonworks/issues/2207

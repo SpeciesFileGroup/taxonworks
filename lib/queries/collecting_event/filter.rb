@@ -147,7 +147,7 @@ module Queries
           if v = send(a)
             if !v.blank?
               if collecting_event_wildcards.include?(a)
-                c.push table[a.to_sym].matches('%' + v.to_s + '%')
+                c.push Arel::Nodes::NamedFunction.new("CAST", [table[a.to_sym].as("TEXT")]).matches('%' + v.to_s + '%')
               else
                 c.push table[a.to_sym].eq(v)
               end
