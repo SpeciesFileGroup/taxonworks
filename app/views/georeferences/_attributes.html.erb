@@ -3,18 +3,11 @@
 <p>
   <strong>Geographic item:</strong>
   <%= geographic_item_link(@georeference.geographic_item) -%>
-  <%#= @georeference.geographic_item_id %>
   <strong>Error-Geographic item:</strong>
   <%= geographic_item_link(@georeference.error_geographic_item) -%>
-  <%#= @georeference.error_geographic_item_id %>
 </p>
 
 <%= simple_map([@georeference.geographic_item, @georeference.error_geographic_item]) -%>
-
-<!--<div id="feature_collection"-->
-<!--data-feature-collection='<%#= Gis::GeoJSON.feature_collection([@georeference.geographic_item, @georeference.error_geographic_item]).to_json %>'></div>-->
-<!--<div id="georeference_google_map_canvas" style="width:512px; height: 256px;"></div>-->
-<!--<span id="map_coords"></span>-->
 
 <p>
   <strong>Collecting event:</strong>
@@ -79,5 +72,20 @@
 <p>
   <strong>Is median z:</strong>
   <%= @georeference.is_median_z %>
+</p>
+
+<p>
+  <strong>Year georeferenced :</strong>
+  <%= @georeference.year_georeferenced %>
+</p>
+
+<p>
+  <strong>Month georeferenced :</strong>
+  <%= @georeference.month_georeferenced %>
+</p>
+
+<p>
+  <strong>Day georeferenced :</strong>
+  <%= @georeference.day_georeferenced %>
 </p>
 

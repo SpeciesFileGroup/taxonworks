@@ -664,7 +664,7 @@ object_graph_task:
   categories:
   status: prototype
   description: 'TODO: Task description'
-index_batch_add_users_task:
+batch_add_users_task:
   hub: false 
   name: 'Administration: Batch add users'
   related:

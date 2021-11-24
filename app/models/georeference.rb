@@ -62,6 +62,16 @@
 #   @return [Boolean]
 #   True if this georeference represents an average vertical distance, otherwise false.
 #
+# @!attribute year_georeferenced 
+#   @return [Integer, nil]
+#     4 digit year the georeference was *first* created/captured 
+#
+# @!attribute month_georeferenced 
+#   @return [Integer, nil]
+#
+# @!attribute day_georeferenced 
+#   @return [Integer, nil]
+#
 class Georeference < ApplicationRecord
   include Housekeeping
   include SoftValidation
@@ -90,6 +100,11 @@ class Georeference < ApplicationRecord
   has_many :georeferencers, -> { order('roles.position ASC') },
     through: :georeferencer_roles,
     source: :person, validate: true
+
+  validates :year_georeferenced, date_year: {min_year: 1000, max_year: Time.now.year }
+  validates :month_georeferenced, date_month: true
+  validates :day_georeferenced, date_day: {year_sym: :start_date_year, month_sym: :start_date_month},
+    unless: -> { year_georeferenced.nil? || month_georeferenced.nil? }
 
   validates :collecting_event, presence: true
   validates :collecting_event_id, uniqueness: { scope: [:type, :geographic_item_id, :project_id] }
