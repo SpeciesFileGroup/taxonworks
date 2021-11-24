@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Add
+- Batch create user admin task [#2680]
 - Radial navigation in loan task
 - `is_gift` boolean to Loan
 - Loan item notes, type status, and recipient form layout improvements [#2657]
@@ -57,6 +58,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC exporter swapped `decimalLatitude`/`decimalLongitude`
 - Error in Filter Collecting Event task when filtering by attributes that are stored as numbers in database
 
+[#2680]: https://github.com/SpeciesFileGroup/taxonworks/issues/2680
 [#2678]: https://github.com/SpeciesFileGroup/taxonworks/issues/2678
 [#2207]: https://github.com/SpeciesFileGroup/taxonworks/issues/2207
 [#2243]: https://github.com/SpeciesFileGroup/taxonworks/issues/2243

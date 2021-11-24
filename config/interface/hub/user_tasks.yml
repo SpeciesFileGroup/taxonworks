@@ -657,7 +657,6 @@ new_namespace_task:
     - collecting_event
   status: prototype
   description: 'Create new Namespaces, used in identifiers.'
-
 object_graph_task:
   hub: true
   name: 'TODO: Task name'
@@ -665,3 +664,10 @@ object_graph_task:
   categories:
   status: prototype
   description: 'TODO: Task description'
+index_batch_add_users_task:
+  hub: false 
+  name: 'Administration: Batch add users'
+  related:
+  categories:
+  status: prototype
+  description: 'Add a list of users.'
