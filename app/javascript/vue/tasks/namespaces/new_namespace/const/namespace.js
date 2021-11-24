@@ -5,5 +5,5 @@ export default () => ({
   short_name: undefined,
   verbatim_short_name: undefined,
   delimiter: 'NONE',
-  is_virtual: undefined,
+  is_virtual: undefined
 })
