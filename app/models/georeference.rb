@@ -73,9 +73,9 @@ class Georeference < ApplicationRecord
   include Shared::Confidences # qualitative, not spatial
   include Shared::IsData
 
-  attr_accessor :iframe_response # used to pass the geolocate from Tulane through
+  attr_accessor :iframe_response # used to handle the geolocate from Tulane response
 
-  acts_as_list scope: [:collecting_event_id, :project_id]
+  acts_as_list scope: [:collecting_event_id, :project_id], add_new_at: :top
 
   belongs_to :collecting_event, inverse_of: :georeferences
   belongs_to :error_geographic_item, class_name: 'GeographicItem', foreign_key: :error_geographic_item_id, inverse_of: :georeferences_through_error_geographic_item
@@ -92,9 +92,9 @@ class Georeference < ApplicationRecord
     source: :person, validate: true
 
   validates :collecting_event, presence: true
-  validates :collecting_event_id, uniqueness: {scope: [:type, :geographic_item_id, :project_id]}
+  validates :collecting_event_id, uniqueness: { scope: [:type, :geographic_item_id, :project_id] }
   validates :geographic_item, presence: true
-  validates :type, presence: true
+  validates :type, presence: true # TODO: technically not needed
 
   validate :add_err_geo_item_inside_err_radius
   validate :add_error_depth
@@ -283,8 +283,8 @@ class Georeference < ApplicationRecord
     sql_str = ActivRecord::Base.send(
       :sanitize_sql_array,
       ['SELECT ST_Buffer(?, ?)',
-                            geographic_item.geo_object.to_s,
-                            (error_radius / 111_319.444444444)])
+       geographic_item.geo_object.to_s,
+       (error_radius / 111_319.444444444)])
     value = GeographicItem.connection.select_all(sql_str).first['st_buffer']
     Gis::FACTORY.parse_wkb(value)
   end
@@ -557,4 +557,3 @@ class Georeference < ApplicationRecord
 end
 
 Dir[Rails.root.to_s + '/app/models/georeference/**/*.rb'].each { |file| require_dependency file }
-

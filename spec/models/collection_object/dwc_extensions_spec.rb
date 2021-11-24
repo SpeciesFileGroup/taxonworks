@@ -9,7 +9,12 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
 
     let(:root) { Project.find(Current.project_id).send(:create_root_taxon_name) }
 
-    # Rough tests to detect infinite recursion
+    specify '#dwc_decimal_latitude' do
+      a = Georeference::Wkt.create!(collecting_event: ce, wkt: 'POINT(9.0 60)' )
+
+      s.georeference_attributes(true) # force the rebuild 
+      expect(s.dwc_decimal_latitude).to eq(60.0) # technically not correct significant figures :(
+    end
 
     specify '#dwc_event_date 1' do
       expect(s.dwc_event_date).to eq('2010')
@@ -325,7 +330,6 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
 
       expect(s.dwc_recorded_by).to eq('Doe, John')
     end
-
 
     specify '#dwc_other_catalog_numbers' do
       a = Identifier::Local::CatalogNumber.create!(identifier: '123', identifier_object: s, namespace: FactoryBot.create(:valid_namespace) )
