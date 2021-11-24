@@ -74,8 +74,9 @@
             class="medium-icon separate-right"
             data-icon="warning"/>
         </tippy>
+        <settings-collection-object />
         <recent-component
-          class="separate-right"
+          class="separate-right margin-small-left"
           @selected="loadCollectionObject($event)"/>
         <button
           type="button"
@@ -108,6 +109,7 @@ import Autocomplete from 'components/ui/Autocomplete.vue'
 import NavBar from 'components/layout/NavBar'
 import AjaxCall from 'helpers/ajaxCall'
 import SoftValidation from './softValidation'
+import SettingsCollectionObject from '../settings/SettingCollectionObject.vue'
 
 export default {
   components: {
@@ -115,7 +117,8 @@ export default {
     RecentComponent,
     Tippy,
     NavBar,
-    SoftValidation
+    SoftValidation,
+    SettingsCollectionObject
   },
   computed: {
     identifier() {
