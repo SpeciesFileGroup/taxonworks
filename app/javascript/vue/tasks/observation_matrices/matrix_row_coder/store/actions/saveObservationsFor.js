@@ -6,12 +6,12 @@ export default function ({ dispatch, state, commit }, descriptorId) {
   const observations = state.observations
     .filter(o => o.descriptorId === descriptorId)
   return Promise.all(observations.map(o => {
-    if (!isUpdatableObservation(o)) { 
-      saveUnupdatableObservation(o) 
+    if (!isUpdatableObservation(o)) {
+      saveUnupdatableObservation(o)
     } else if (o.id) { 
-      return dispatch(ActionNames.UpdateObservation, descriptorId) 
-    } else { 
-      return dispatch(ActionNames.CreateObservation, { descriptorId }) 
+      return dispatch(ActionNames.UpdateObservation, descriptorId)
+    } else {
+      return dispatch(ActionNames.CreateObservation, { descriptorId })
     }
   }))
 
@@ -21,7 +21,7 @@ export default function ({ dispatch, state, commit }, descriptorId) {
     } else if (observation.isChecked) { 
       return dispatch(ActionNames.CreateObservation, makeObservationArgs(observation)) 
     } else { 
-      commit(MutationNames.ObservationSaved, makeObservationArgs(observation)) 
+      commit(MutationNames.ObservationSaved, makeObservationArgs(observation))
     }
   }
 };
