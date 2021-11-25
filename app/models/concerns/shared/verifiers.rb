@@ -1,4 +1,4 @@
-module Shared::Verifications
+module Shared::Verifiers
 
   extend ActiveSupport::Concern
   included do

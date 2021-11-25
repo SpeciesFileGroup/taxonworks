@@ -10,5 +10,5 @@ ANNOTATION_TYPES = [
   :data_attributes,
   :notes,
   :attribution,
-  :verifications
+  :verifiers
 ].freeze
