@@ -67,7 +67,6 @@ class Loan < ApplicationRecord
   include Shared::Tags
   include SoftValidation
   include Shared::Depictions
-  include Shared::HasRoles
   include Shared::Documentation
   include Shared::HasPapertrail
   include Shared::IsData

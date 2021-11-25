@@ -188,9 +188,7 @@ class CollectingEvent < ApplicationRecord
   include Shared::Confidences
   include Shared::Documentation
   include Shared::HasPapertrail
-  include Shared::IsData
   include SoftValidation
-  include Shared::HasRoles
   include Shared::Labels
   include Shared::IsData
 

@@ -78,7 +78,6 @@ class Georeference < ApplicationRecord
   include Shared::Notes
   include Shared::Tags
   include Shared::Citations
-  include Shared::HasRoles
   include Shared::DataAttributes
   include Shared::Confidences # qualitative, not spatial
   include Shared::IsData

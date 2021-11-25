@@ -13,6 +13,8 @@ module Shared::IsData
     include Scopes
     include Navigation
     include Metamorphosize
+    include HasRoles
+    include Shared::Verifications
   end
 
   module ClassMethods

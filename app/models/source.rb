@@ -195,7 +195,6 @@ class Source < ApplicationRecord
   include Shared::SharedAcrossProjects
   include Shared::Tags
   include Shared::Documentation
-  include Shared::HasRoles
   include Shared::IsData
   include Shared::HasPapertrail
   include SoftValidation
