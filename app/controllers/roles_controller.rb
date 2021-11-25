@@ -109,8 +109,12 @@ class RolesController < ApplicationController
 
   def role_params
     params.require(:role).permit(
+      :position,
+      :type,
       :person_id,
-      :role_object_id, :role_object_type,
+      :role_object_id,
+      :role_object_type,
+      :organization_id,
       :annotated_global_entity)
   end
 
