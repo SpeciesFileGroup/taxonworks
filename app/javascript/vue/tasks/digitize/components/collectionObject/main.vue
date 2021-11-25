@@ -6,8 +6,8 @@
       </template>
       <template #options>
         <div
-          v-hotkey="shortcuts"
           v-if="collectionObject.id"
+          v-hotkey="shortcuts"
           class="horizontal-left-content">
           <radial-annotator :global-id="collectionObject.global_id" />
           <default-tag :global-id="collectionObject.global_id" />
@@ -17,70 +17,60 @@
       </template>
       <template #body>
         <div id="collection-object-form">
-          <catalogue-number class="panel content"/>
-          <repository-component class="panel content" />
-          <preparation-type class="panel content" />
-          <div class="row-item panel content">
+          <catalogue-number
+            v-if="showCatalogNumber"
+            class="panel content" />
+          <repository-component
+            v-if="showRepository"
+            class="panel content" />
+          <preparation-type
+            v-if="showPreparation"
+            class="panel content" />
+          <div
+            v-if="showBuffered"
+            class="panel content">
             <h2 class="flex-separate">
               Buffered
-              <expand-component
-                class="margin-small-left"
-                v-model="showBuffered"
-                @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showBuffered', $event)"
-              />
             </h2>
             <buffered-component
-              v-if="showBuffered"
               class="field"/>
           </div>
-          <div class="row-item">
-            <div class="depict-validation-row">
-              <div class="panel content column-depictions">
-                <h2 class="flex-separate">
-                  Depictions
-                  <expand-component
-                    class="margin-small-left"
-                    v-model="showDepictions"
-                    @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showDepictions', $event)"
-                  />
-                </h2>
-                <depictions-component
-                  v-if="showDepictions"
-                  :object-value="collectionObject"
-                  :get-depictions="GetCollectionObjectDepictions"
-                  object-type="CollectionObject"
-                  @create="createDepictionForAll"
-                  @delete="removeAllDepictionsByImageId"
-                  default-message="Drop images or click here<br> to add collection object figures"
-                  action-save="SaveCollectionObject"/>
-              </div>
-              <soft-validations
-                class="column-validation"
-                :validations="validations"
-              />
-            </div>
+          <div
+            v-if="showDepictions"
+            class="panel content column-depictions">
+            <h2 class="flex-separate">
+              Depictions
+            </h2>
+            <depictions-component
+              v-if="showDepictions"
+              :object-value="collectionObject"
+              :get-depictions="GetCollectionObjectDepictions"
+              object-type="CollectionObject"
+              @create="createDepictionForAll"
+              @delete="removeAllDepictionsByImageId"
+              default-message="Drop images or click here<br> to add collection object figures"
+              action-save="SaveCollectionObject"/>
           </div>
-          <div class="panel content column-citations">
+          <soft-validations
+            v-if="showValidations"
+            class="column-validation"
+            :validations="validations"
+          />
+          <div
+            v-if="showCitations"
+            class="panel content column-citations">
             <h2 class="flex-separate">
               Citations
-              <expand-component
-                class="margin-small-left"
-                v-model="showCitations"
-                @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showCitations', $event)"
-              />
             </h2>
-            <citation-component v-if="showCitations"/>
+            <citation-component/>
           </div>
-          <div class="panel content column-attribute">
+          <div
+            v-if="showAttributes"
+            class="panel content column-attribute">
             <h2 class="flex-separate">
               Attributes
-              <expand-component
-                class="margin-small-left"
-                v-model="showAttributes"
-                @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showAttributes', $event)"
-              />
             </h2>
-            <div v-if="showAttributes">
+            <div>
               <spinner-component
                 v-if="!collectionObject.id"
                 :show-spinner="false"
@@ -116,7 +106,6 @@ import BufferedComponent from './bufferedData.vue'
 import DepictionsComponent from '../shared/depictions.vue'
 import RepositoryComponent from './repository.vue'
 import CitationComponent from './Citation/CitationMain.vue'
-import ExpandComponent from 'components/expand.vue'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions'
@@ -128,8 +117,21 @@ import PredicatesComponent from 'components/custom_attributes/predicates/predica
 import DefaultTag from 'components/defaultTag.vue'
 import platformKey from 'helpers/getPlatformKey'
 import SoftValidations from 'components/soft_validations/panel.vue'
-import { Depiction, User, CollectionObject } from 'routes/endpoints'
+import {
+  Depiction,
+  CollectionObject
+} from 'routes/endpoints'
 import { COLLECTION_OBJECT } from 'constants/index.js'
+import {
+  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_CITATIONS,
+  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_ATTRIBUTES,
+  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_BUFFERED,
+  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_DEPICTIONS,
+  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_PREPARATION,
+  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_REPOSITORY,
+  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_CATALOG_NUMBER,
+  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_VALIDATIONS
+} from 'tasks/digitize/const/layout'
 
 export default {
   components: {
@@ -146,20 +148,11 @@ export default {
     PredicatesComponent,
     RadialObject,
     DefaultTag,
-    ExpandComponent,
     RadialNavigation,
     SoftValidations
   },
-  computed: {
-    preferences: {
-      get () {
-        return this.$store.getters[GetterNames.GetPreferences]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetPreferences, value)
-      }
-    },
 
+  computed: {
     projectPreferences () {
       return this.$store.getters[GetterNames.GetProjectPreferences]
     },
@@ -173,7 +166,7 @@ export default {
       }
     },
 
-    collectionObjects() {
+    collectionObjects () {
       return this.$store.getters[GetterNames.GetCollectionObjects]
     },
 
@@ -182,7 +175,7 @@ export default {
         return this.$store.getters[GetterNames.GetDepictions]
       },
       set (value) {
-        this.$store.commit(MutationNames.SetDepictions)
+        this.$store.commit(MutationNames.SetDepictions, value)
       }
     },
 
@@ -200,6 +193,42 @@ export default {
       return Specimen
         ? { Specimen }
         : {}
+    },
+
+    layout () {
+      return this.$store.getters[GetterNames.GetPreferences]?.layout || {}
+    },
+
+    showAttributes () {
+      return !this.layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_ATTRIBUTES]
+    },
+
+    showBuffered () {
+      return !this.layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_BUFFERED]
+    },
+
+    showCitations () {
+      return !this.layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_CITATIONS]
+    },
+
+    showDepictions () {
+      return !this.layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_DEPICTIONS]
+    },
+
+    showPreparation () {
+      return !this.layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_PREPARATION]
+    },
+
+    showRepository () {
+      return !this.layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_REPOSITORY]
+    },
+
+    showCatalogNumber () {
+      return !this.layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_CATALOG_NUMBER]
+    },
+
+    showValidations () {
+      return !this.layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_VALIDATIONS]
     }
   },
 
@@ -208,47 +237,19 @@ export default {
       types: [],
       labelRepository: undefined,
       labelEvent: undefined,
-      showAttributes: true,
-      showBuffered: true,
-      showCitations: true,
-      showDepictions: true,
       GetCollectionObjectDepictions: CollectionObject.depictions
     }
   },
   watch: {
     collectionObject(newVal) {
-      if(newVal.id) {
+      if (newVal.id) {
         this.cloneDepictions(newVal)
       }
-    },
-    preferences: {
-      handler(newVal) {
-        if (newVal) {
-          const layout = newVal['layout']
-          if (layout) {
-            const sDepictions = layout['tasks::digitize::collectionObjects::showDepictions']
-            const sBuffered = layout['tasks::digitize::collectionObjects::showBuffered']
-            const sAttributes = layout['tasks::digitize::collectionObjects::showAttributes']
-            const sCitations = layout['tasks::digitize::collectionObjects::showCitations']
-            this.showDepictions = sDepictions !== undefined ? sDepictions : true
-            this.showBuffered = sBuffered !== undefined ? sBuffered : true
-            this.showAttributes = sAttributes !== undefined ? sAttributes : true
-            this.showCitations = sCitations !== undefined ? sCitations : true
-          }
-        }
-      },
-      deep: true
     }
   },
   methods: {
     setAttributes (value) {
       this.collectionObject.data_attributes_attributes = value
-    },
-
-    updatePreferences (key, value) {
-      User.update(this.preferences.id, { user: { layout: { [key]: value } } }).then(response => {
-        this.preferences.layout = response.body.preferences.layout
-      })
     },
 
     newDigitalization () {
@@ -327,8 +328,9 @@ export default {
 <style scoped>
   #collection-object-form {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(250px, 1fr) );
     gap: 0.5em;
+    grid-auto-flow: dense;
   }
 
   .depict-validation-row {
@@ -340,19 +342,11 @@ export default {
   .column-validation {
     grid-column: 3 / 4;
   }
-  .column-depictions {
-    grid-column: 1 / 3;
-  }
+
   .row-1-3 {
     grid-column: 1 / 3;
   }
   .row-item {
     grid-column: 1 / 4;
-  }
-  .column-attribute {
-    grid-column: 3 / 4;
-  }
-  .column-citations {
-    grid-column: 1 / 3;
   }
 </style>
