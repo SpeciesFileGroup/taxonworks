@@ -25,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Create and new button in New descriptor task [#2594]
 - Content text is cropped on edit in OTU radial [#2676]
 - Diagnosis status in matrix row coder [#2674]
+- Layout preferences in comprehensive task [#2673]
 
 ### Changed
 - Upgraded to Ruby 3.0.2
@@ -77,6 +78,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2669]: https://github.com/SpeciesFileGroup/taxonworks/issues/2669
 [#2670]: https://github.com/SpeciesFileGroup/taxonworks/issues/2670
 [#2672]: https://github.com/SpeciesFileGroup/taxonworks/issues/2672
+[#2673]: https://github.com/SpeciesFileGroup/taxonworks/issues/2673
 [#2674]: https://github.com/SpeciesFileGroup/taxonworks/issues/2674
 [#2676]: https://github.com/SpeciesFileGroup/taxonworks/issues/2676
 [#2677]: https://github.com/SpeciesFileGroup/taxonworks/issues/2677
