@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_24_222006) do
+ActiveRecord::Schema.define(version: 2021_11_25_201511) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -1846,6 +1846,8 @@ ActiveRecord::Schema.define(version: 2021_11_24_222006) do
     t.integer "descendant_id", null: false
     t.integer "generations", null: false
     t.index ["ancestor_id", "descendant_id", "generations"], name: "taxon_name_anc_desc_idx", unique: true
+    t.index ["ancestor_id", "descendant_id"], name: "index_taxon_name_hierarchies_on_ancestor_id_and_descendant_id"
+    t.index ["ancestor_id"], name: "index_taxon_name_hierarchies_on_ancestor_id"
     t.index ["descendant_id"], name: "taxon_name_desc_idx"
   end
 

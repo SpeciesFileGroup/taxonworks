@@ -102,7 +102,7 @@ class Georeference < ApplicationRecord
 
   validates :year_georeferenced, date_year: {min_year: 1000, max_year: Time.now.year }
   validates :month_georeferenced, date_month: true
-  validates :day_georeferenced, date_day: {year_sym: :start_date_year, month_sym: :start_date_month},
+  validates :day_georeferenced, date_day: {year_sym: :year_georeferenced, month_sym: :month_georeferenced},
     unless: -> { year_georeferenced.nil? || month_georeferenced.nil? }
 
   validates :collecting_event, presence: true
