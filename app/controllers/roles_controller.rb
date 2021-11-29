@@ -80,7 +80,7 @@ class RolesController < ApplicationController
 
   def filter_params
     add_project_id = false
-    role_types = [params[:role_type]&.safe_constantize]
+    role_types = [params[:role_type]].flatten.compact.map(&:safe_constantize)
     if !params[:object_global_id].blank?
       role_types << GlobalID::Locator.locate(params[:object_global_id]).class
     end
