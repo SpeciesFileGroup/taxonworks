@@ -58,6 +58,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC exporter swapped `decimalLatitude`/`decimalLongitude`
 - Error in Filter Collecting Event task when filtering by attributes that are stored as numbers in database
 - `Set as current` button it isn't working when taxon parent is root on Subsequent combination [#2688]
+- DwC checklist importing: original combination having wrong genus in some cases [#2684]
 
 [#2680]: https://github.com/SpeciesFileGroup/taxonworks/issues/2680
 [#2678]: https://github.com/SpeciesFileGroup/taxonworks/issues/2678
@@ -81,6 +82,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2674]: https://github.com/SpeciesFileGroup/taxonworks/issues/2674
 [#2676]: https://github.com/SpeciesFileGroup/taxonworks/issues/2676
 [#2677]: https://github.com/SpeciesFileGroup/taxonworks/issues/2677
+[#2684]: https://github.com/SpeciesFileGroup/taxonworks/pull/2684
 [#2688]: https://github.com/SpeciesFileGroup/taxonworks/issues/2688
 
 ## [0.21.3] - 2021-11-12
