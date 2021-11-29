@@ -267,10 +267,10 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             parent_elements = parents.to_h do |p|
               [
                 # Key is rank (as set in checklist file)
-                DatasetRecordField.where(dataset_record_id: p)
+                DatasetRecordField.where(dataset_record: p)
                                   .at(get_field_mapping(:taxonRank))
-                                  .pick(:value)
-                                  .downcase.to_sym,
+                                  &.pick(:value)
+                                  &.downcase&.to_sym,
                 # value is Protonym
                 TaxonName.find(p.metadata['imported_objects']['taxon_name']['id'])
               ]
@@ -335,7 +335,6 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
         message: e.message,
         backtrace: e.backtrace
       }
-      raise if Rails.env.development?
     ensure
       save!
     end
