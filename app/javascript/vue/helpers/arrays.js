@@ -46,9 +46,18 @@ function addToArray (arr, obj) {
   }
 }
 
+function removeFromArray (arr, obj) {
+  const index = arr.findIndex(item => obj.id === item.id)
+
+  if (index > -1) {
+    arr.splice(index, 1)
+  }
+}
+
 export {
   chunkArray,
   getUnique,
   sortArray,
-  addToArray
+  addToArray,
+  removeFromArray
 }

@@ -23,9 +23,11 @@
           @create="createRole($event.person_id)"/>
       </template>
     </smart-selector>
-    <display-list
+    <table-list
       :list="list"
-      label="object_tag"
+      :header="['Person', '']"
+      :attributes="['object_tag']"
+      @delete="removeRole"
     />
   </div>
 </template>
@@ -36,7 +38,8 @@ import CRUD from '../../request/crud.js'
 import annotatorExtend from '../../components/annotatorExtend.js'
 import RolePicker from 'components/role_picker.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
-import DisplayList from 'components/displayList.vue'
+import TableList from 'components/table_list.vue'
+import { removeFromArray } from 'helpers/arrays.js'
 import { Role } from 'routes/endpoints'
 
 export default {
@@ -45,7 +48,7 @@ export default {
   components: {
     SmartSelector,
     RolePicker,
-    DisplayList
+    TableList
   },
 
   computed: {
@@ -66,7 +69,7 @@ export default {
       role_type: ['Verifier'],
       object_global_id: this.globalId
     }).then(({ body }) => {
-      this.roles = body
+      this.list = body
     })
   },
 
@@ -81,6 +84,11 @@ export default {
       Role.create({ role }).then(({ body }) => {
         this.list.push(body)
       })
+    },
+
+    removeRole (role) {
+      Role.destroy(role.id)
+      removeFromArray(this.list, role)
     }
   }
 }
