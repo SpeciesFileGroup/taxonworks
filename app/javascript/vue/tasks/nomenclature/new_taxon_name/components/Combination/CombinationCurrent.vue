@@ -78,14 +78,14 @@ const taxonNameList = computed(() => [{
 }])
 
 const setCurrent = (taxon = currentTaxonName.value, combination = { [currentTaxonName.value.rank]: currentTaxonName.value }) => {
-  TaxonName.find(taxon.parent_id).then(({ body }) => {
-    if(ranks.value.includes(taxon.rank)) {
+  if (taxon.parent_id && ranks.value.includes(taxon.rank)) {
+    TaxonName.find(taxon.parent_id).then(({ body }) => {
       combination[body.rank] = body
       setCurrent(body, combination)
-    } else {
-      emit('onSet', combination)
-    }
-  })
+    })
+  } else {
+    emit('onSet', combination)
+  }
 }
 
 </script>
