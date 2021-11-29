@@ -26,7 +26,7 @@ class RolesController < ApplicationController
   def create
     @role = Role.new(role_params)
     if @role.save
-      render json: @role, status: :created, location: @role
+      render json: @role, status: :created, location: @role.metamorphosize
     else
       render json: @role.errors, status: :unprocessable_entity
     end
@@ -35,7 +35,7 @@ class RolesController < ApplicationController
   # PATCH/PUT /roles/1.json
   def update
     if @role.update(role_params)
-      render action: 'show', status: :created, location: @role
+      render action: 'show', status: :created, location: @role.metamorphosize
     else
       render json: @role.errors, status: :unprocessable_entity
     end
