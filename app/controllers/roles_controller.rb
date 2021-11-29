@@ -25,36 +25,28 @@ class RolesController < ApplicationController
   # POST /roles.json
   def create
     @role = Role.new(role_params)
-
-    respond_to do |format|
-      if @role.save
-        render json: @role, status: :created, location: @role
-      else
-        render json: @role.errors, status: :unprocessable_entity
-      end
+    if @role.save
+      render json: @role, status: :created, location: @role
+    else
+      render json: @role.errors, status: :unprocessable_entity
     end
   end
 
-  # PATCH/PUT /roles/1
   # PATCH/PUT /roles/1.json
   def update
-    respond_to do |format|
-      if @role.update(role_params)
-        render action: 'show', status: :created, location: @role
-      else
-        render json: @role.errors, status: :unprocessable_entity
-      end
+    if @role.update(role_params)
+      render action: 'show', status: :created, location: @role
+    else
+      render json: @role.errors, status: :unprocessable_entity
     end
   end
 
-  # DELETE /roles/1
   # DELETE /roles/1.json
   def destroy
-    @role.destroy
-    respond_to do |format|
-      # TODO: probably needs to be changed
-      format.html { destroy_redirect @role, notice: 'Role was successfully destroyed.' }
+    if @role.destroy
       format.json { head :no_content }
+    else
+      render json: @role.errors, status: :unprocessable_entity
     end
   end
 
