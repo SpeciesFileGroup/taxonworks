@@ -21,12 +21,11 @@ class RolesController < ApplicationController
     @role = Role.find_by_id(params[:id]).metamorphosize
   end
 
-  # POST /roles
   # POST /roles.json
   def create
     @role = Role.new(role_params)
     if @role.save
-      render json: @role, status: :created, location: @role.metamorphosize
+      render action: :show, status: :created, location: @role.metamorphosize
     else
       render json: @role.errors, status: :unprocessable_entity
     end
