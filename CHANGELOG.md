@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Add
+- Indecies on taxon name hierarchies table
 - Batch create user admin task [#2680]
 - Radial navigation in loan task
 - `is_gift` boolean to Loan
@@ -25,11 +26,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Create and new button in New descriptor task [#2594]
 - Content text is cropped on edit in OTU radial [#2676]
 - Diagnosis status in matrix row coder [#2674]
+- API `/api/v1/collection_objects` includes &extend[] for `dwc_fields` and `type_material`
+- API `/api/v1/taxon_names/123/status` endpoint for human readable taxon name data and metadata (in part [#2665])
 
 ### Changed
 - Upgraded to Ruby 3.0.2
 - OTUs can be loaned 2x [#2648]
 - Upgraded gems
+- `/collection_objects.json` response uses `&extend[]=dwc_fields` to return DwC fields; includes metadata
 - Removed a loan item status 'Loaned on' (it's inferrred)
 - Replaced Webrick with Puma (developers-only change)
 - Improved loan autocomplete metadata [#2485]
@@ -59,6 +63,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Error in Filter Collecting Event task when filtering by attributes that are stored as numbers in database
 - `Set as current` button it isn't working when taxon parent is root on Subsequent combination [#2688]
 
+[#2665]: https://github.com/SpeciesFileGroup/taxonworks/issues/2665
 [#2680]: https://github.com/SpeciesFileGroup/taxonworks/issues/2680
 [#2678]: https://github.com/SpeciesFileGroup/taxonworks/issues/2678
 [#2207]: https://github.com/SpeciesFileGroup/taxonworks/issues/2207
