@@ -42,6 +42,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Restrict subsequent combination fields for genus and subgenus. [#2677]
 
 ### Fixed
+- Containerized specimens export their identifier to DwC
 - Biological association objects could be destroyed when referenced in biological association
 - Reordering matrices by nomenclature when some rows have none
 - Tag facet bug affecting all filters but Source [#2678]
@@ -64,6 +65,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `Set as current` button it isn't working when taxon parent is root on Subsequent combination [#2688]
 - DwC checklist importing: original combination having wrong genus in some cases [#2684]
 
+[#2666]: https://github.com/SpeciesFileGroup/taxonworks/issues/2665
 [#2665]: https://github.com/SpeciesFileGroup/taxonworks/issues/2665
 [#2680]: https://github.com/SpeciesFileGroup/taxonworks/issues/2680
 [#2678]: https://github.com/SpeciesFileGroup/taxonworks/issues/2678
