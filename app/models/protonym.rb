@@ -762,7 +762,7 @@ class Protonym < TaxonName
     end
     v = v.gsub(') [sic]', ' [sic])').gsub(') (sic)', ' (sic))') if !v.blank?
 
-    v = Utilities::Italicize.taxon_name(v)
+    v = Utilities::Italicize.taxon_name(v) if is_genus_or_species_rank?
     v = '† ' + v if !v.blank? && is_fossil?
     v
   end
