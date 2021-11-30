@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Add
+- Indecies on taxon name hierarchies table
 - Batch create user admin task [#2680]
 - Radial navigation in loan task
 - `is_gift` boolean to Loan
@@ -26,11 +27,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Content text is cropped on edit in OTU radial [#2676]
 - Diagnosis status in matrix row coder [#2674]
 - Layout preferences in comprehensive task [#2673]
+- API `/api/v1/collection_objects` includes &extend[] for `dwc_fields` and `type_material`
+- API `/api/v1/taxon_names/123/status` endpoint for human readable taxon name data and metadata (in part [#2665])
 
 ### Changed
 - Upgraded to Ruby 3.0.2
 - OTUs can be loaned 2x [#2648]
 - Upgraded gems
+- `/collection_objects.json` response uses `&extend[]=dwc_fields` to return DwC fields; includes metadata
 - Removed a loan item status 'Loaned on' (it's inferrred)
 - Replaced Webrick with Puma (developers-only change)
 - Improved loan autocomplete metadata [#2485]
@@ -39,6 +43,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Restrict subsequent combination fields for genus and subgenus. [#2677]
 
 ### Fixed
+- Containerized specimens export their identifier to DwC
 - Biological association objects could be destroyed when referenced in biological association
 - Reordering matrices by nomenclature when some rows have none
 - Tag facet bug affecting all filters but Source [#2678]
@@ -58,7 +63,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC importer crashing on invalid nomenclatural code
 - DwC exporter swapped `decimalLatitude`/`decimalLongitude`
 - Error in Filter Collecting Event task when filtering by attributes that are stored as numbers in database
+- `Set as current` button it isn't working when taxon parent is root on Subsequent combination [#2688]
+- DwC checklist importing: original combination having wrong genus in some cases [#2684]
 
+[#2666]: https://github.com/SpeciesFileGroup/taxonworks/issues/2665
+[#2665]: https://github.com/SpeciesFileGroup/taxonworks/issues/2665
 [#2680]: https://github.com/SpeciesFileGroup/taxonworks/issues/2680
 [#2678]: https://github.com/SpeciesFileGroup/taxonworks/issues/2678
 [#2207]: https://github.com/SpeciesFileGroup/taxonworks/issues/2207
@@ -82,6 +91,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2674]: https://github.com/SpeciesFileGroup/taxonworks/issues/2674
 [#2676]: https://github.com/SpeciesFileGroup/taxonworks/issues/2676
 [#2677]: https://github.com/SpeciesFileGroup/taxonworks/issues/2677
+[#2684]: https://github.com/SpeciesFileGroup/taxonworks/pull/2684
+[#2688]: https://github.com/SpeciesFileGroup/taxonworks/issues/2688
 
 ## [0.21.3] - 2021-11-12
 

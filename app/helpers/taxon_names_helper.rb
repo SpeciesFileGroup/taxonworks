@@ -205,7 +205,7 @@ module TaxonNamesHelper
 
   def taxon_name_browse_link(taxon_name)
     return nil if taxon_name.nil?
-    [ link_to(taxon_name_tag(taxon_name), browse_nomenclature_task_path(taxon_name_id: taxon_name.id)).html_safe,  taxon_name.cached_author_year].compact.join(' ').html_safe
+    [ link_to(taxon_name_tag(taxon_name), browse_nomenclature_task_path(taxon_name_id: taxon_name.id)).html_safe, taxon_name.cached_author_year].compact.join(' ').html_safe
   end
 
   def taxon_name_parent_navigator_item_link(taxon_name, target = :taxon_name_path)
