@@ -42,6 +42,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - API observation responses are now isolated from internal
 - DwC occurrences importer now accepts `|`, `:`, `;` and `,` as separators for `higherClassification`.
 - Restrict subsequent combination fields for genus and subgenus. [#2677]
+- Moved matrix autocomplete into `Include in matrix` section in New descriptor task [#2685]
 
 ### Fixed
 - Containerized specimens export their identifier to DwC
@@ -94,6 +95,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2676]: https://github.com/SpeciesFileGroup/taxonworks/issues/2676
 [#2677]: https://github.com/SpeciesFileGroup/taxonworks/issues/2677
 [#2684]: https://github.com/SpeciesFileGroup/taxonworks/pull/2684
+[#2685]: https://github.com/SpeciesFileGroup/taxonworks/issues/2685
 [#2688]: https://github.com/SpeciesFileGroup/taxonworks/issues/2688
 
 ## [0.21.3] - 2021-11-12
