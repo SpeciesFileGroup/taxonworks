@@ -29,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Layout preferences in comprehensive task [#2673]
 - API `/api/v1/collection_objects` includes &extend[] for `dwc_fields` and `type_material`
 - API `/api/v1/taxon_names/123/status` endpoint for human readable taxon name data and metadata (in part [#2665])
+- `is_virtual` option to Namespace
 
 ### Changed
 - Upgraded to Ruby 3.0.2
@@ -66,6 +67,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `Set as current` button it isn't working when taxon parent is root on Subsequent combination [#2688]
 - DwC checklist importing: original combination having wrong genus in some cases [#2684]
 
+[#2286]: https://github.com/SpeciesFileGroup/taxonworks/issues/2286
 [#2666]: https://github.com/SpeciesFileGroup/taxonworks/issues/2665
 [#2665]: https://github.com/SpeciesFileGroup/taxonworks/issues/2665
 [#2680]: https://github.com/SpeciesFileGroup/taxonworks/issues/2680
