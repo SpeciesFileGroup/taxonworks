@@ -7,6 +7,9 @@
       <h1>Comprehensive specimen digitization</h1>
       <ul class="context-menu">
         <li>
+          <settings-collection-object />
+        </li>
+        <li>
           <label v-help.sections.global.reorderFields>
             <input
               type="checkbox"
@@ -49,6 +52,7 @@ import TaxonDeterminationLayout from './components/taxonDetermination/main.vue'
 import CollectingEventLayout from './components/collectingEvent/main.vue'
 import TypeMaterial from './components/typeMaterial/typeMaterial.vue'
 import BiologicalAssociation from './components/biologicalAssociation/main.vue'
+import SettingsCollectionObject from './components/settings/SettingCollectionObject.vue'
 import SortComponent from './components/shared/sortComponenets.vue'
 import { User, Project } from 'routes/endpoints'
 import { MutationNames } from './store/mutations/mutations.js'
@@ -71,7 +75,8 @@ export default {
     BiologicalAssociation,
     CollectingEventLayout,
     SpinnerComponent,
-    Draggable
+    Draggable,
+    SettingsCollectionObject
   },
 
   computed: {
