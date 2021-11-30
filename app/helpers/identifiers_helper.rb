@@ -4,9 +4,9 @@ module IdentifiersHelper
   def identifier_tag(identifier)
     return nil if identifier.nil? || identifier.new_record?
     if identifier.is_local?
-      if namespace.is_virtual?
+      if identifier.namespace.is_virtual?
         [
-          tag.span(namespace.short_name, class: [:feedback, 'feedback-thin', 'feedback-light']),
+          tag.span(identifier.namespace.short_name, class: [:feedback, 'feedback-thin', 'feedback-light']),
           tag.span(identifier.cached, title: identifier.type.demodulize.titleize.humanize)
         ].join('&nbsp;').html_safe
       else
