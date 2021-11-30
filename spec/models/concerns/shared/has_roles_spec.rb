@@ -27,6 +27,6 @@ end
 
 class TestHasRole < ApplicationRecord
   include FakeTable
-  include Shared::HasRoles
+  include Shared::IsData::HasRoles
 end
 

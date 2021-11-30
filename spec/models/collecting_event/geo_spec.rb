@@ -10,6 +10,31 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
   let(:state) { county.parent }
   let(:country) { state.parent }
 
+
+  specify '#preferred_georeference 1' do
+    collecting_event.save!
+    expect(collecting_event.preferred_georeference).to eq(nil)
+  end
+
+  specify '#preferred_georeference 2' do
+    collecting_event.save!
+    a = Georeference::Wkt.create!(wkt: 'POINT (99 99)', collecting_event: collecting_event)
+    expect(collecting_event.preferred_georeference).to eq(a)
+  end
+
+  specify '#preferred_georeference 3, latests is at top' do
+    collecting_event.save!
+    a = FactoryBot.create(:valid_georeference_verbatim_data, collecting_event: collecting_event)
+    expect(collecting_event.preferred_georeference).to eq(a)
+  end
+
+  specify '#preferred_georeference 3' do
+    collecting_event.save!
+    a = Georeference::Wkt.create!(wkt: 'POINT (10 10)', collecting_event: collecting_event)
+    b = FactoryBot.create(:valid_georeference_verbatim_data, collecting_event: collecting_event)
+    expect(collecting_event.preferred_georeference.reload).to eq(b)
+  end
+
   context 'with political areas and collecting events generated' do
     context 'geographic names' do
       before { collecting_event.save! }
@@ -19,31 +44,21 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
           expect(collecting_event.geographic_name_classification_method).to eq(nil)
         end
 
-        context 'with a georeference set ' do
-          before { collecting_event.georeferences << FactoryBot.create(:valid_georeference) }
-
-          specify '#geographic_name_classification_method returns :preferred_georeference' do
-            expect(collecting_event.geographic_name_classification_method).to eq(:preferred_georeference)
-          end
+        specify 'with a georeference set #geographic_name_classification_method returns :preferred_georeference' do
+          collecting_event.georeferences << FactoryBot.create(:valid_georeference)
+          expect(collecting_event.geographic_name_classification_method).to eq(:preferred_georeference)
         end
 
-        context 'with a geographic area that has a shape set ' do
-          before do
-            country.geographic_items << FactoryBot.create(:geographic_item_with_polygon)
-            collecting_event.update_column(:geographic_area_id, country.id)
-          end
+        specify 'with a geographic area that has a shape set #geographic_name_classification_method returns :geographic_area_with_shape' do
+          country.geographic_items << FactoryBot.create(:geographic_item_with_polygon)
+          collecting_event.update_column(:geographic_area_id, country.id)
 
-          specify '#geographic_name_classification_method returns :geographic_area_with_shape' do
-            expect(collecting_event.geographic_name_classification_method).to eq(:geographic_area_with_shape)
-          end
+          expect(collecting_event.geographic_name_classification_method).to eq(:geographic_area_with_shape)
         end
 
-        context 'with #geographic_area (no shape) set' do
-          before { collecting_event.update_column(:geographic_area_id, state.id) }
-
-          specify '#geographic_name_classification returns :geographic_area' do
-            expect(collecting_event.geographic_name_classification_method).to eq(:geographic_area)
-          end
+        specify 'with #geographic_area (no shape) set #geographic_name_classification returns :geographic_area' do
+          collecting_event.update_column(:geographic_area_id, state.id) 
+          expect(collecting_event.geographic_name_classification_method).to eq(:geographic_area)
         end
       end
 
@@ -211,41 +226,8 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
     end
   end
 
-
   context 'georeferences' do
-
-    # Jim- querying across multiple columns (polygon, multi-polygon etc.) is going to be tricky,
-    # we will likely need to write some sql generators to do this efficiently.  To start
-    # you could just pick one column, and we can abstract out the problem later.
     context 'when the CE has a GR' do
-
-      context 'has_one preferred_georeference' do
-
-        specify 'of none' do
-          expect(ce_area_v.preferred_georeference).to eq(nil)
-        end
-
-        specify 'of one' do
-          [ce_o2, gr_o2].each
-          ce_o2.reload
-          expect(ce_o2.preferred_georeference).to eq(gr_o2)
-        end
-
-        context 'of many' do
-          before {
-            [ce_n2, gr_n2_b, gr_n2_a].each
-            ce_n2.reload
-          }
-
-          specify 'eq' do
-            expect(ce_n2.preferred_georeference).to eq(gr_n2_b)
-          end
-
-          specify 'not eq' do
-            expect(ce_n2.preferred_georeference).not_to eq(gr_n2_a)
-          end
-        end
-      end
       context 'and that GR has some combination of GIs, and EGIs' do
         before { [gr_a, gr_b].each }
         # pending 'fixing the bug in all_geographic_items' # todo: @mjy
@@ -290,7 +272,6 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
             expect(ce_p2s.collecting_events_intersecting_with).not_to include(ce_a) # even though @p17 is close to @k
           end
         end
-
       end
 
       context 'and that GR has both GI and EGI' do
@@ -323,48 +304,50 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
         context 'geolocate_ui_params' do
           specify 'geolocate_ui_params from locality' do
             # @ce_n3 was built with locality, with no verbatim_lat/long
-            expect(ce_a.geolocate_ui_params).to eq({'country'       => 'E',
-                                                    'state'         => 'A',
-                                                    'county'        => nil,
-                                                    'locality'      => 'environs of A',
-                                                    'Latitude'      => 5.0,
-                                                    'Longitude'     => 5.0,
-                                                    'Placename'     => 'environs of A',
-                                                    'Score'         => '0',
-                                                    'Uncertainty'   => '3',
-                                                    'H20'           => 'false',
-                                                    'HwyX'          => 'false',
-                                                    'Uncert'        => 'true',
-                                                    'Poly'          => 'true',
-                                                    'DisplacePoly'  => 'false',
-                                                    'RestrictAdmin' => 'false',
-                                                    'BG'            => 'false',
-                                                    'LanguageIndex' => '0',
-                                                    'gc'            => 'TaxonWorks'
-                                                   })
+            expect(ce_a.geolocate_ui_params).to eq(
+              {'country'       => 'E',
+               'state'         => 'A',
+               'county'        => nil,
+               'locality'      => 'environs of A',
+               'Latitude'      => 5.0,
+               'Longitude'     => 5.0,
+               'Placename'     => 'environs of A',
+               'Score'         => '0',
+               'Uncertainty'   => '3',
+               'H20'           => 'false',
+               'HwyX'          => 'false',
+               'Uncert'        => 'true',
+               'Poly'          => 'true',
+               'DisplacePoly'  => 'false',
+               'RestrictAdmin' => 'false',
+               'BG'            => 'false',
+               'LanguageIndex' => '0',
+               'gc'            => 'TaxonWorks'
+              })
           end
 
           specify 'geolocate_ui_params from lat/long' do
             # @ce_m1.georeference was built from verbatim data; no locality
-            expect(ce_b.geolocate_ui_params).to eq({'country'       => 'E',
-                                                    'state'         => nil,
-                                                    'county'        => 'B',
-                                                    'locality'      => 'environs of B',
-                                                    'Latitude'      => -5.0,
-                                                    'Longitude'     => 5.0,
-                                                    'Placename'     => 'environs of B',
-                                                    'Score'         => '0',
-                                                    'Uncertainty'   => '3',
-                                                    'H20'           => 'false',
-                                                    'HwyX'          => 'false',
-                                                    'Uncert'        => 'true',
-                                                    'Poly'          => 'true',
-                                                    'DisplacePoly'  => 'false',
-                                                    'RestrictAdmin' => 'false',
-                                                    'BG'            => 'false',
-                                                    'LanguageIndex' => '0',
-                                                    'gc'            => 'TaxonWorks'
-                                                   })
+            expect(ce_b.geolocate_ui_params).to eq(
+              {'country'       => 'E',
+               'state'         => nil,
+               'county'        => 'B',
+               'locality'      => 'environs of B',
+               'Latitude'      => -5.0,
+               'Longitude'     => 5.0,
+               'Placename'     => 'environs of B',
+               'Score'         => '0',
+               'Uncertainty'   => '3',
+               'H20'           => 'false',
+               'HwyX'          => 'false',
+               'Uncert'        => 'true',
+               'Poly'          => 'true',
+               'DisplacePoly'  => 'false',
+               'RestrictAdmin' => 'false',
+               'BG'            => 'false',
+               'LanguageIndex' => '0',
+               'gc'            => 'TaxonWorks'
+              })
           end
         end
 
@@ -372,22 +355,24 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
 
           specify 'geolocate_ui_params_string from locality' do
             #pending 'creation of a method for geolocate_ui_params_string'
-            expect(ce_a.geolocate_ui_params_string).to eq('http://www.geo-locate.org/web/' \
-                                                          'webgeoreflight.aspx?country=E&state=A' \
-                                                          '&county=&locality=environs of A' \
-                                                          '&points=5.0|5.0|environs of A|0|3' \
-                                                          '&georef=run|false|false|true|true|false|false|false|0' \
-                                                          '&gc=TaxonWorks')
+            expect(ce_a.geolocate_ui_params_string).to eq(
+              'http://www.geo-locate.org/web/' \
+              'webgeoreflight.aspx?country=E&state=A' \
+              '&county=&locality=environs of A' \
+              '&points=5.0|5.0|environs of A|0|3' \
+              '&georef=run|false|false|true|true|false|false|false|0' \
+              '&gc=TaxonWorks')
           end
 
           specify 'geolocate_ui_params_string from lat/long' do
             #pending 'creation of a method for geolocate_ui_params_string'
-            expect(ce_b.geolocate_ui_params_string).to eq('http://www.geo-locate.org/web/' \
-                                                          'webgeoreflight.aspx?country=E&state=' \
-                                                          '&county=B&locality=environs of B' \
-                                                          '&points=-5.0|5.0|environs of B|0|3' \
-                                                          '&georef=run|false|false|true|true|false|false|false|0' \
-                                                          '&gc=TaxonWorks')
+            expect(ce_b.geolocate_ui_params_string).to eq(
+              'http://www.geo-locate.org/web/' \
+              'webgeoreflight.aspx?country=E&state=' \
+              '&county=B&locality=environs of B' \
+              '&points=-5.0|5.0|environs of B|0|3' \
+              '&georef=run|false|false|true|true|false|false|false|0' \
+              '&gc=TaxonWorks')
           end
         end
       end
@@ -417,10 +402,11 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
       end
 
       context 'on create()' do
-        let(:c) { CollectingEvent.create!(verbatim_latitude:               '10.001',
-                                          verbatim_longitude:              '10',
-                                          project:                         geo_project,
-                                          with_verbatim_data_georeference: true) }
+        let(:c) { CollectingEvent.create!(
+          verbatim_latitude: '10.001',
+          verbatim_longitude: '10',
+          project: geo_project,
+          with_verbatim_data_georeference: true) }
 
         specify '#verbatim_data_georeference.id is set' do
           expect(c.verbatim_data_georeference.id).to be_truthy
@@ -446,10 +432,11 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
 
       context 'using by cascades creator/updater to georeference and geographic_item' do
         let(:other_user) { FactoryBot.create(:valid_user, name: 'other', email: 'other@test.com') }
-        let(:c) { CollectingEvent.create(verbatim_latitude:               '10.001',
-                                         verbatim_longitude:              '10',
-                                         project:                         geo_project,
-                                         with_verbatim_data_georeference: true, by: other_user) }
+        let(:c) { CollectingEvent.create(
+          verbatim_latitude:  '10.001',
+          verbatim_longitude: '10',
+          project: geo_project,
+          with_verbatim_data_georeference: true, by: other_user) }
 
         specify 'sets collecting event updater' do
           expect(c.updater).to eq(other_user)

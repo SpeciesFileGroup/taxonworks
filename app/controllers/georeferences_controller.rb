@@ -163,6 +163,9 @@ class GeoreferencesController < ApplicationController
       :api_request,
       :is_undefined_z,
       :is_median_z,
+      :year_georeferenced,
+      :day_georeferenced,
+      :month_georeferenced,
       :wkt,
       geographic_item_attributes: [:shape],
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages]

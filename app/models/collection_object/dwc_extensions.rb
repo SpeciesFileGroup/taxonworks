@@ -57,8 +57,8 @@ module CollectionObject::DwcExtensions
       verbatimCoordinates: :dwc_verbatim_coordinates,
       verbatimLatitude: :dwc_verbatim_latitude,
       verbatimLongitude: :dwc_verbatim_longitude,
-      decimalLatitude: :dwc_latitude,
-      decimalLongitude: :dwc_longitude,
+      decimalLatitude: :dwc_decimal_latitude,
+      decimalLongitude: :dwc_decimal_longitude,
       footprintWKT: :dwc_footprint_wkt,
 
       coordinateUncertaintyInMeters: :dwc_coordinate_uncertainty_in_meters,
@@ -87,8 +87,12 @@ module CollectionObject::DwcExtensions
 
     # @return [Hash]
     # getter returning georeference related attributes
-    def georeference_attributes
-      @georeference_attributes ||= set_georeference_attributes
+    def georeference_attributes(force = false)
+      if force
+        @georeference_attributes = set_georeference_attributes
+      else
+        @georeference_attributes ||= set_georeference_attributes
+      end
     end
   end
 
@@ -409,11 +413,11 @@ module CollectionObject::DwcExtensions
     collecting_event.try(:verbatim_locality)
   end
 
-  def dwc_latitude
+  def dwc_decimal_latitude
     georeference_attributes[:decimalLatitude]
   end
 
-  def dwc_longitude
+  def dwc_decimal_longitude
     georeference_attributes[:decimalLongitude]
   end
 

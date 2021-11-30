@@ -762,7 +762,7 @@ class Protonym < TaxonName
     end
     v = v.gsub(') [sic]', ' [sic])').gsub(') (sic)', ' (sic))') if !v.blank?
 
-    v = Utilities::Italicize.taxon_name(v)
+    v = Utilities::Italicize.taxon_name(v) if is_genus_or_species_rank?
     v = '† ' + v if !v.blank? && is_fossil?
     v
   end
@@ -937,30 +937,33 @@ class Protonym < TaxonName
     end
   end
 
+  # This is a *very* expensive soft validation, it should be fragemented into individual parts likely
+  # It should also not be necessary by default our code should be good enough to handle these
+  # issues in the long run.
   def sv_cached_names # this cannot be moved to soft_validation_extensions
-    is_cached = true
-    is_cached = false if cached_author_year != get_author_and_year
+  is_cached = true
+  is_cached = false if cached_author_year != get_author_and_year
 
-    if is_cached && (
-        cached_valid_taxon_name_id != get_valid_taxon_name.id ||
-        cached_is_valid != !unavailable_or_invalid? || # Do not change this, we want the calculated value.
-        cached_html != get_full_name_html ||
-        cached_misspelling != get_cached_misspelling ||
-        cached_original_combination != get_original_combination ||
-        cached_original_combination_html != get_original_combination_html ||
-        cached_primary_homonym != get_genus_species(:original, :self) ||
-        cached_nomenclature_date != nomenclature_date ||
-        cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
-        rank_string =~ /Species/ &&
-            (cached_secondary_homonym != get_genus_species(:current, :self) ||
-                cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative)))
-      is_cached = false
-    end
+  if is_cached && (
+      cached_valid_taxon_name_id != get_valid_taxon_name.id ||
+      cached_is_valid != !unavailable_or_invalid? || # Do not change this, we want the calculated value.
+      cached_html != get_full_name_html ||
+      cached_misspelling != get_cached_misspelling ||
+      cached_original_combination != get_original_combination ||
+      cached_original_combination_html != get_original_combination_html ||
+      cached_primary_homonym != get_genus_species(:original, :self) ||
+      cached_nomenclature_date != nomenclature_date ||
+      cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
+      rank_string =~ /Species/ &&
+      (cached_secondary_homonym != get_genus_species(:current, :self) ||
+       cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative)))
+    is_cached = false
+  end
 
-    soft_validations.add(
-        :base, 'Cached values should be updated',
-        success_message: 'Cached values were updated',
-        failure_message:  'Failed to update cached values') if !is_cached
+  soft_validations.add(
+    :base, 'Cached values should be updated',
+    success_message: 'Cached values were updated',
+    failure_message:  'Failed to update cached values') if !is_cached
   end
 
   def set_cached

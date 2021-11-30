@@ -1167,6 +1167,7 @@ class GeographicItem < ApplicationRecord
 
   # @param [RGeo::Point] point
   # @return [Array] of a point
+  #   Longitude |, Latitude -
   def point_to_a(point)
     data = []
     data.push(point.x, point.y)

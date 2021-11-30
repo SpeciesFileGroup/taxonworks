@@ -1,7 +1,5 @@
-json.extract! @taxon_name, :id
-json.parent_id @taxon_name.parent_id
+json.extract! @taxon_name, :id, :parent_id, :name
 json.is_valid @taxon_name.cached_is_valid
-json.name @taxon_name.name
 json.full_name taxon_name_label(@taxon_name)
 
 json.nomenclatural_code @taxon_name.nomenclatural_code
@@ -9,11 +7,46 @@ json.short_status taxon_name_short_status_label(@taxon_name)
 json.status taxon_name_status_label(@taxon_name)
 json.rank @taxon_name.rank
 
+json.author @taxon_name.author_string
+json.year @taxon_name.cached_nomenclature_date&.year
+json.pages @taxon_name.origin_citation&.pages
+json.original_citation @taxon_name.source&.cached
+
+if extend_response_with('name_elements')
+  if @taxon_name.type == 'Protonym'
+    json.elements do
+      json.name do
+        h = @taxon_name.full_name_hash
+        json.merge! h.keys.inject({}){|hsh,k| hsh.merge(k => [h[k]].flatten.compact.join(' '))}
+      end
+      json.original_combination do
+        h = @taxon_name.original_combination_elements
+        json.merge! h.keys.inject({}){|hsh,k| hsh.merge(k => [h[k]].flatten.compact.join(' '))}
+      end
+    end
+  end
+end
+
 if !@taxon_name.cached_is_valid && !@taxon_name.is_ambiguously_invalid?
   json.valid_name do
     json.id @taxon_name.cached_valid_taxon_name_id
     json.valid_name @taxon_name.valid_taxon_name.name
     json.valid_full_name taxon_name_label(@taxon_name.valid_taxon_name)
+
+    json.author @taxon_name.valid_taxon_name.author_string
+    json.year @taxon_name.valid_taxon_name.cached_nomenclature_date&.year
+    json.pages @taxon_name.valid_taxon_name.origin_citation&.pages
+    json.original_citation @taxon_name.valid_taxon_name.source&.cached
+
+
+    # By definition it's a Protonym
+    if extend_response_with('name_elements')
+      h = @taxon_name.valid_taxon_name.full_name_hash
+      json.merge! h.keys.inject({}){|hsh,k| hsh.merge(k => [h[k]].flatten.compact.join(' '))}
+      json.author @taxon_name.valid_taxon_name.author_string
+      json.year @taxon_name.valid_taxon_name.cached_nomenclature_date&.year
+      json.original_citation @taxon_name.valid_taxon_name.source&.cached
+    end
   end
 end
 

@@ -1,0 +1,47 @@
+<h1>Task [Admin] - Batch add users</h1>
+
+<% if !@users.empty? %>
+  <h2> Created </h2>
+  <table>
+    <%= @users.select{|u| u.valid?}.collect{|v| tag.tr(tag.td(v.email) + tag.td(v.name))}.join.html_safe -%>
+  </table>
+
+  <h2> Failed to create</h2>
+  <table>
+    <%= @users.select{|u| !u.valid?}.collect{|v| tag.tr( tag.td(v.email) + tag.td(v.name) + tag.td(v.errors.full_messages.join('; ')) )}.join.html_safe -%>
+  </table>
+
+<% end %>
+
+<%= form_tag batch_create_users_path do  -%>
+
+  <h3> Users </h3>
+
+  <div class="field">
+    <%= tag.label 'Add to project' %>
+    <br>
+    <%= select_tag :project_id, options_from_collection_for_select(Project.all.order(:name), :id, :name), include_blank: true, default: nil -%>
+  </div>
+
+  <div class="field">
+    <%= tag.label 'Is administrator' %>
+    <br>
+    <%= check_box_tag :is_administrator %>
+  </div>
+
+  <div class="field">
+    <%= tag.label 'Create API token' %>
+    <br>
+    <%= check_box_tag :create_api_token %>
+  </div>
+
+  <div class="field">
+    <%= tag.label 'Users' %>
+    <br>
+    <%= text_area_tag :users, '', cols: 60, rows: 20, placeholder: "email, name\nemail, name\n..."   %>
+  </div>
+
+  <%= tag.input type: :submit, value: 'Create', class: ['button-submit'] -%>
+
+<% end %>
+

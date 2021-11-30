@@ -13,6 +13,7 @@
           class="matrix-row-coder__title"
           v-html="title"/>
         <div class="horizontal-left-content">
+          <diagnosis-component class="margin-small-right"/>
           <descriptors-list class="margin-small-right"/>
           <description-main class="margin-small-right"/>
           <clone-scoring
@@ -58,6 +59,7 @@ import CloneScoring from './Clone/Clone'
 import DestroyAllObservations from './ObservationRow/destroyObservationRow'
 import DescriptionMain from './Description/DescriptionMain.vue'
 import DescriptorsList from './Descriptors/DescriptorsList.vue'
+import DiagnosisComponent from './Diagnosis/Diagnosis.vue'
 import NavbarComponent from 'components/layout/NavBar.vue'
 
 const computed = mapState({
@@ -146,7 +148,8 @@ export default {
     MediaDescriptor,
     Spinner,
     DestroyAllObservations,
-    DescriptionMain
+    DescriptionMain,
+    DiagnosisComponent
   }
 }
 </script>

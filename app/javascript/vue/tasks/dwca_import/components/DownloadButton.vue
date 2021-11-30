@@ -42,6 +42,7 @@ export default {
 .btn-download-table {
   display: flex;
   align-items: center;
+  color: white;
 }
 .btn-download-table:hover {
   color: white

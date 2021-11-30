@@ -22,10 +22,6 @@ module CollectionObject::BiologicalExtensions
 
     has_many :type_materials, inverse_of: :collection_object, dependent: :restrict_with_error
 
-    has_one :current_taxon_determination, -> {order(:position)}, class_name: 'TaxonDetermination', foreign_key: :biological_collection_object_id, inverse_of: :biological_collection_object
-    has_one :current_otu, through: :current_taxon_determination, source: :otu
-    has_one :current_taxon_name, through: :current_otu, source: :taxon_name
-
     has_many :biocuration_classifications,  inverse_of: :biological_collection_object, dependent: :destroy, foreign_key: :biological_collection_object_id
     has_many :biocuration_classes, through: :biocuration_classifications, inverse_of: :biological_collection_objects
 
@@ -34,6 +30,20 @@ module CollectionObject::BiologicalExtensions
 
     accepts_nested_attributes_for :otus, allow_destroy: true, reject_if: :reject_otus
     accepts_nested_attributes_for :taxon_determinations, allow_destroy: true, reject_if: :reject_taxon_determinations
+
+    # Note that this should not be a has_one because order is over-ridden on .first 
+    # and can be lost when merged into other queries.
+    def current_taxon_determination
+      taxon_determinations.order(:position).first
+    end
+
+    def current_otu
+      current_taxon_determination&.otu
+    end
+
+    def current_taxon_name
+      current_otu&.taxon_name
+    end
   end
 
   # see BiologicalCollectionObject

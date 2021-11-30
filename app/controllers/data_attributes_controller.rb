@@ -104,7 +104,7 @@ class DataAttributesController < ApplicationController
 
   def value_autocomplete
     render json: [] if params[:term].blank? || params[:predicate_id].blank?
-    @values = ::Queries::DataAttribute::ValueAutocomplete.new(params[:term], value_autocomplete_params).autocomplete
+    @values = ::Queries::DataAttribute::ValueAutocomplete.new(params[:term], **value_autocomplete_params).autocomplete
     render json: @values
   end
 

@@ -29,7 +29,7 @@ module Shared::Taxonomy
             # !! Careful/TODO this is an arbitrary choice, technically can be only one primary, but not restricted in DB yet
             a ||= type_designations.primary.first&.protonym
           when 'Otu'
-            taxon_name.valid_taxon_name
+            taxon_name&.valid_taxon_name
           end
       if c
         @taxonomy = c.full_name_hash
