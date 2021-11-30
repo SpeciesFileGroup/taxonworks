@@ -49,7 +49,7 @@ module Export
             a['species'],
             a['subspecies'],
             t.cached_author,
-            t.cached_nomenclature_date.year,
+            t.cached_nomenclature_date&.year,
             syn.blank? ? nil : syn,
           ]
         end
