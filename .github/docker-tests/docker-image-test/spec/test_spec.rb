@@ -84,6 +84,7 @@ describe "Docker image test", js: true do
       visit 'tasks/exports/nomenclature/download_basic?taxon_name_id=1'
       expect(page).to have_content('Status: Download creation is in progress...')
       begin
+        puts page.body
         expect(page).to have_content('Status: Ready to download', wait: 30)
       rescue
         puts page.body
