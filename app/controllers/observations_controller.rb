@@ -5,6 +5,8 @@ class ObservationsController < ApplicationController
 
   before_action :set_observation, only: [:show, :edit, :update, :destroy, :annotations]
 
+  after_action -> { set_pagination_headers(:observations) }, only: [:index, :api_index], if: :json_request? 
+
   # GET /observations
   # GET /observations.json
   def index
@@ -15,19 +17,27 @@ class ObservationsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @observations = Queries::Observation::Filter.new(filter_params).all.with_project_id(sessions_current_project_id)
+        @observations = Queries::Observation::Filter.new(filter_params)
+          .all
+          .where(project_id: sessions_current_project_id)
+          .page(params[:page])
+          .per(params[:per])
       }
     end
   end
 
   def api_index
-    @observations = Queries::Observation::Filter.new(api_params).all.with_project_id(sessions_current_project_id)
-    render '/observations/api/index.json.jbuilder'
+    @observations = Queries::Observation::Filter.new(api_params).all
+      .with_project_id(sessions_current_project_id)
+      .page(params[:page])
+      .per(params[:per])
+
+    render '/observations/api/v1/index'
   end
 
   def api_show
     @observation = Observation.where(project_id: sessions_current_project_id).find(params[:id])
-    render '/observations/api/show.json.jbuilder'
+    render '/observations/api/v1/show'
   end
 
   # GET /observations/1
@@ -140,8 +150,14 @@ class ObservationsController < ApplicationController
     params.permit(:otu_id, :descriptor_id, :collection_object_id, :observation_object_global_id, :token, :project_token, :format, :authenticate_user_or_project)
   end
 
-  def api_params 
-    params.permit(:otu_id, :descriptor_id, :collection_object_id, :observation_object_global_id).to_h
+  def api_params
+    params.permit(
+      :observation_matrix_id,
+      :otu_id,
+      :descriptor_id,
+      :collection_object_id,
+      :observation_object_global_id
+    ).to_h
   end
 
 end

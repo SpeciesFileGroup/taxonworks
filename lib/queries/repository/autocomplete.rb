@@ -5,7 +5,7 @@ module Queries
     include Queries::Concerns::AlternateValues
 
     # @param [Hash] args
-    def initialize(string, params = {})
+    def initialize(string, **params)
       set_identifier(params)
       set_alternate_value(params)
       super

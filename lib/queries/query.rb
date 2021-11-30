@@ -96,7 +96,12 @@ module Queries
 
     # @return [Array]
     def alphabetic_strings
-      Utilities::Strings.alphabetic_strings(query_string)
+      Utilities::Strings.alphabetic_strings(query_string) #alphanumeric allows searches by page number, year, etc.
+    end
+
+    # @return [Array]
+    def alphanumeric_strings
+      Utilities::Strings.alphanumeric_strings(query_string) #alphanumeric allows searches by page number, year, etc.
     end
 
     # @return [Array]
@@ -121,9 +126,21 @@ module Queries
     end
 
     # @return [Array]
-    #   if 1-5 alphabetic_strings, those alphabetic_strings wrapped in wildcards, else none.
+    #   if 1-5 alphanumeric_strings, those alphabetic_strings wrapped in wildcards, else none.
     #  Used in *unordered* AND searches
     def fragments
+      a = alphanumeric_strings
+      if a.size > 0 && a.size < 6
+        a.collect{|a| "%#{a}%"}
+      else
+        []
+      end
+    end
+
+    # @return [Array]
+    #   if 1-5 alphabetic_strings, those alphabetic_strings wrapped in wildcards, else none.
+    #  Used in *unordered* AND searches
+    def string_fragments
       a = alphabetic_strings
       if a.size > 0 && a.size < 6
         a.collect{|a| "%#{a}%"}
@@ -152,7 +169,7 @@ module Queries
     # @return [String]
     #   if `foo, and 123 and stuff` then %foo%and%123%and%stuff%
     def wildcard_pieces
-      a = '%' + query_string.gsub(/[\W]+/, '%') + '%' ### DD: if query_string is cyrilic or diacritics, it returns '%%%'
+      a = '%' + query_string.gsub(/[^[[:word:]]]+/, '%') + '%' ### DD: if query_string is cyrilic or diacritics, it returns '%%%'
       a = 'NothingToMatch' if a.gsub('%','').gsub(' ', '').blank?
       a
     end

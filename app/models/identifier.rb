@@ -49,11 +49,11 @@ class Identifier < ApplicationRecord
   polymorphic_annotates('identifier_object')
 
   include Housekeeping # TODO: potential circular dependency constraint when this is before above.
-  include Shared::Labels 
+  include Shared::Labels
   include Shared::IsData
 
   after_save :set_cached, unless: Proc.new {|n| errors.any? }
-  
+
   belongs_to :namespace, inverse_of: :identifiers  # only applies to Identifier::Local, here for create purposes
 
   # Please DO NOT include the following:
@@ -64,7 +64,7 @@ class Identifier < ApplicationRecord
 
   validates :identifier, presence: true
 
-  # TODO: DRY to IsData? Test. 
+  # TODO: DRY to IsData? Test.
   scope :with_type_string, -> (base_string) {where('type LIKE ?', "#{base_string}")}
 
   # @return [String, Identifer]
@@ -78,6 +78,14 @@ class Identifier < ApplicationRecord
     self.class.name.demodulize.downcase
   end
 
+  def is_local?
+    false
+  end
+
+  def is_global?
+    false
+  end
+
   protected
 
   def set_cached
@@ -85,4 +93,4 @@ class Identifier < ApplicationRecord
   end
 end
 
-Dir[Rails.root.to_s + '/app/models/identifier/**/*.rb'].sort.each{ |file| require_dependency file } 
+Dir[Rails.root.to_s + '/app/models/identifier/**/*.rb'].sort.each{ |file| require_dependency file }

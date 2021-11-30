@@ -1,4 +1,10 @@
 scope :tasks do
+  scope :administrator do
+    scope :batch_add_users, controller: 'tasks/administrator/batch_add_users' do
+      get '/', as: 'batch_add_users_task', action: :index
+    end
+  end
+
   scope :dwca_import, controller: 'tasks/dwca_import/dwca_import' do
     get :index, as: 'index_dwca_import_task'
     post 'upload'

@@ -95,7 +95,7 @@ class PeopleController < ApplicationController
   def autocomplete
     @people = Queries::Person::Autocomplete.new(
       params.permit(:term)[:term],
-      autocomplete_params
+      **autocomplete_params
     ).autocomplete
   end
 

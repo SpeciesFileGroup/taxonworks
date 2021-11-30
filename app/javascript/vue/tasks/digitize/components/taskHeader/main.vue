@@ -75,7 +75,7 @@
             data-icon="warning"/>
         </tippy>
         <recent-component
-          class="separate-right"
+          class="separate-right margin-small-left"
           @selected="loadCollectionObject($event)"/>
         <button
           type="button"

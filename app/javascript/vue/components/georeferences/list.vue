@@ -8,7 +8,8 @@
           <th class="word-keep-all">Coordinates</th>
           <th class="word-keep-all line-nowrap">Error radius</th>
           <th class="word-keep-all">Type</th>
-          <th></th>
+          <th class="word-keep-all">Date</th>
+          <th />
         </tr>
       </thead>
       <transition-group
@@ -27,6 +28,24 @@
               @end="$emit('updateGeo', item)"/>
           </td>
           <td class="word-keep-all">{{ item.type }}</td>
+          <td>
+            <div class="horizontal-left-content">
+              <date-component
+                class="margin-small-right"
+                v-model:day="item.day_georeferenced"
+                v-model:month="item.month_georeferenced"
+                v-model:year="item.year_georeferenced"
+                placeholder
+              />
+              <v-btn
+                color="update"
+                medium
+                @click="$emit('dateChanged', item)"
+              >
+                Update
+              </v-btn>
+            </div>
+          </td>
           <td class="vue-table-options">
             <radial-annotator
               :global-id="item.global_id"/>
@@ -45,24 +64,25 @@
 
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import EditInPlace from 'components/editInPlace'
+import DateComponent from 'components/ui/Date/DateFields.vue'
+import VBtn from 'components/ui/VBtn/index.vue'
 
 export default {
   components: {
     RadialAnnotator,
-    EditInPlace
+    EditInPlace,
+    DateComponent,
+    VBtn
   },
+
   props: {
     list: {
       type: Array,
-      default: () => {
-        return []
-      }
+      default: () => []
     },
     header: {
       type: Array,
-      default: () => {
-        return []
-      }
+      default: () => []
     },
     destroy: {
       type: Boolean,
@@ -81,19 +101,25 @@ export default {
       default: false
     }
   },
-  mounted () {
-    this.$options.components['RadialAnnotator'] = RadialAnnotator
-  },
+
+  emits: [
+    'update',
+    'dateChanged',
+    'delete',
+    'updateGeo'
+  ],
+
   methods: {
     deleteItem (item) {
       if (this.deleteWarning) {
-        if (window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+        if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
           this.$emit('delete', item)
         }
       } else {
         this.$emit('delete', item)
       }
     },
+
     getCoordinates (coordinates) {
       return coordinates.map(coordinate => Array.isArray(coordinate) ? coordinate.map(item => item.slice(0, 2)) : coordinate)
     }

@@ -1,5 +1,7 @@
 <div id="loan_recipient_form">
+  <p id="loan_recipient_form_loan_id" class="no_bullets">Loan ID(s): <%= @loan.identifiers.collect{|a| a.cached}.join('; ') -%></p>
   <div id="loan_header" class="flexbox panels-container">
+
     <div id="recipient_details" class="item item1">
       <ul class="no_bullets">
         <%= tag.li( "To: #{loan_recipient_tag(@loan)}") -%>
@@ -30,20 +32,24 @@
     <%= render('/loan_items/loan_table', loan_items: @loan.loan_items.order(:position)) -%>
   </div>
 
+  <br>
 
   <div class="flexbox">
     <div class="signatures item2">
       <table class="comments">
         <thead>
-        <th>
-         Notes / Comments
-        </th>
+          <th>
+            Notes / Comments
+          </th>
         </thead>
 
         <tbody>
           <%= (@loan.notes.collect{|n| content_tag(:tr, content_tag(:td, n.text))}.join).html_safe -%>
         </tbody>
       </table>
+
+      <br><strong> Compiled by:  </strong><%= tag.span((@loan.loan_items.collect{|a| [a.updater.name, a.creator.name]}.flatten.uniq.sort.join(', ')).html_safe) -%>
+
 
       <p>I agree to the terms of this loan.</p>
       <div class="panels-container">

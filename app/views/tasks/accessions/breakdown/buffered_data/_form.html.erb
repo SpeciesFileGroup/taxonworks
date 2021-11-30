@@ -1,54 +1,55 @@
 <%= form_for(@collection_object.metamorphosize, as: :collection_object, url: collection_object_buffered_data_breakdown_update_task_path(@collection_object), remote: true) do |f| -%>
-    <%= f.fields_for(:collecting_event, @collection_object.collecting_event) do |c| -%>
+  <%= f.fields_for(:collecting_event, @collection_object.collecting_event) do |c| -%>
+    <div class="field">
+      <%= c.label :verbatim_locality %>
+      <br>
+      <%= c.autocomplete_field :verbatim_locality, autocomplete_collecting_event_verbatim_locality_collecting_events_path, size: 50 -%>
+    </div>
+
+    <div class="field">
+      <%= c.label :geographic_area %>
+      <br>
+      <%= render partial: '/workbench/elements/forms/ajax_select',
+        locals: {
+          controller: '/geographic_areas',
+          object: 'collection_object[collecting_event_attributes]',
+          method: 'geographic_area_id',
+          tag_id: 'geographic_area_id_for_collecting_event',
+          display: geographic_area_tag(c.object.geographic_area),
+          fields_for_object: c,
+          size: 40} %>
+    </div>
+
+
+    <%= c.fields_for(:identifiers, @collection_object.collecting_event.identifiers) do |i| -%>
+      <%= i.hidden_field :type -%>
+      <div class="side_by_side_fields">
+
         <div class="field">
-          <%= c.label :verbatim_locality %>
-          <br>
-          <%= c.autocomplete_field :verbatim_locality, autocomplete_collecting_event_verbatim_locality_collecting_events_path, size: 50 -%>
+          <%= i.label :namespace_id %><br>
+          <%= render(
+            partial: '/workbench/elements/forms/ajax_select',
+            locals:  {
+              controller: '/namespaces',
+              object: "collection_object[collecting_event_attributes][identifiers_attributes][#{i.index}]",
+              method: 'namespace_id',
+              tag_id: "namespace_id_for_identifier_#{i.index}",
+              display: (i.object.namespace ? i.object.namespace.short_name : nil),
+              size: 20,
+              fields_for_object: i})
+            %>
         </div>
 
         <div class="field">
-          <%= c.label :geographic_area %>
-          <br>
-          <%= render partial: '/workbench/elements/forms/ajax_select',
-                     locals:  {controller:        '/geographic_areas',
-                               object:            'collection_object[collecting_event_attributes]',
-                               method:            'geographic_area_id',
-                               tag_id:            'geographic_area_id_for_collecting_event',
-                               display:           geographic_area_tag(c.object.geographic_area),
-                               fields_for_object: c,
-                               size:              40} %>
+          <%= i.label :identifier %><br>
+          <%= i.text_field :identifier %>
+          <%= destroy_related_link(i) -%>
         </div>
-
-
-        <%= c.fields_for(:identifiers, @collection_object.collecting_event.identifiers) do |i| -%>
-            <%= i.hidden_field :type -%>
-            <div class="side_by_side_fields">
-
-              <div class="field">
-                <%= i.label :namespace_id %><br>
-                <%= render(
-                            partial: '/workbench/elements/forms/ajax_select',
-                            locals:  {
-                                    controller:        '/namespaces',
-                                    object:            "collection_object[collecting_event_attributes][identifiers_attributes][#{i.index}]",
-                                    method:            'namespace_id',
-                                    tag_id:            "namespace_id_for_identifier_#{i.index}",
-                                    display:           (i.object.namespace ? i.object.namespace.short_name : nil),
-                                    size:              20,
-                                    fields_for_object: i})
-                %>
-              </div>
-
-              <div class="field">
-                <%= i.label :identifier %><br>
-                <%= i.text_field :identifier %>
-                <%= destroy_related_link(i) -%>
-              </div>
-            </div>
-        <% end %>
+      </div>
     <% end %>
+  <% end %>
 
-    <%= submit_tag -%>
-    <%= submit_tag 'Save and next' -%>
+  <%= submit_tag -%>
+  <%= submit_tag 'Save and next' -%>
 
 <% end %>

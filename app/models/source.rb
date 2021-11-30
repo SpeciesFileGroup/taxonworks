@@ -195,7 +195,6 @@ class Source < ApplicationRecord
   include Shared::SharedAcrossProjects
   include Shared::Tags
   include Shared::Documentation
-  include Shared::HasRoles
   include Shared::IsData
   include Shared::HasPapertrail
   include SoftValidation
@@ -312,9 +311,13 @@ class Source < ApplicationRecord
     # z is a table alias
     z = i.as('recent_t')
 
-    Source.joins(
-      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['source_id'].eq(p['id'])))
-    ).select(:id).distinct.pluck(:id)
+    Source
+      .select('s.id')
+      .from(
+        Source.joins( Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['source_id'].eq(p['id'])))).distinct,
+        :s)
+      .order('id')
+      .pluck(:id)
   end
 
   # @params target [String] a citable model name

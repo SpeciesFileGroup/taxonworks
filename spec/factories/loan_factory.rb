@@ -6,6 +6,7 @@ FactoryBot.define  do
     factory :valid_loan do
       recipient_address { Faker::Address.unique.street_name } 
       lender_address { Faker::Address.unique.street_name }
+      date_return_expected { Time.now.to_date }
     end
 
   end

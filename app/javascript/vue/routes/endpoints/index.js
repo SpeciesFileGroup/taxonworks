@@ -60,6 +60,7 @@ import { TaxonNameRelationship } from './TaxonNameRelationships'
 import { Topic } from './Topic'
 import { TypeMaterial } from './TypeMaterial'
 import { User } from './User'
+export { Role } from './Role'
 
 export {
   AlternateValue,

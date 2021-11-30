@@ -14,7 +14,7 @@
           @getInput="setInput"
           ref="autocomplete"
           @getItem="addCreatedPerson"
-          :clear-after="true"
+          clear-after="true"
           placeholder="Family name, given name"
           param="term"/>
         <default-pin

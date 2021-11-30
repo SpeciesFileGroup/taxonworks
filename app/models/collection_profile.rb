@@ -69,7 +69,7 @@ class CollectionProfile < ApplicationRecord
   include Shared::Tags
   include Shared::IsData
 
-  belongs_to :container
+  belongs_to :container, inverse_of: :collection_profiles
   belongs_to :otu
 
   # Once created the intent is that CollectionProfiles are #dup(ed), not

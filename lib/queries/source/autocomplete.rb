@@ -182,13 +182,13 @@ module Queries
         queries = [
           [ autocomplete_exact_id, nil],
           [ autocomplete_identifier_identifier_exact, nil],
-          [ autocomplete_exact_author_year_letter&.limit(2), nil],
-          [ autocomplete_exact_author_year&.limit(10), nil],
+          #[ autocomplete_exact_author_year_letter&.limit(2), nil],
+          #[ autocomplete_exact_author_year&.limit(10), nil],
           [ autocomplete_identifier_cached_exact, nil],
-          [ autocomplete_wildcard_author_exact_year&.limit(10), true],
+          #[ autocomplete_wildcard_author_exact_year&.limit(10), true],
           [ autocomplete_exact_author&.limit(20), true],
           [ autocomplete_start_of_author.limit(8), true],
-          [ autocomplete_wildcard_anywhere_exact_year&.limit(10), true],
+          #[ autocomplete_wildcard_anywhere_exact_year&.limit(10), true],
           [ autocomplete_identifier_cached_like, true],
           [ autocomplete_ordered_wildcard_pieces_in_cached&.limit(5), true],
           [ autocomplete_cached_wildcard_anywhere&.limit(20), true],
@@ -222,7 +222,6 @@ module Queries
           result.uniq!
           break if result.count > 19
         end
-
         result[0..19]
       end
 

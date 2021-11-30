@@ -13,10 +13,10 @@ export default {
   },
   computed: {
     importedObjects () {
-      return this.row.metadata.imported_objects
+      return this.row?.metadata?.imported_objects
     },
     importedErrors () {
-      return this.row.metadata.error_data
+      return this.row?.metadata?.error_data
     },
     importedCount () {
       return this.importedObjects ? Object.keys(this.importedObjects).length : 0

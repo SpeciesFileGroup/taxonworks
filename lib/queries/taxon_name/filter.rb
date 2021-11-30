@@ -463,7 +463,7 @@ module Queries
           .where(
             taxon_name_relationships: {
               type: ::TAXON_NAME_RELATIONSHIP_COMBINATION_TYPES.values,
-              subject_taxon_name_id: combination_taxon_name_id})
+              subject_taxon_name_id: combination_taxon_name_id}).distinct
       end
 
       # @return [ActiveRecord::Relation]

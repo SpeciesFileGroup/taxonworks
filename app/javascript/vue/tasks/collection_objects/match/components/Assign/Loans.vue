@@ -80,7 +80,6 @@ export default {
       status: [
         'Destroyed',
         'Donated',
-        'Loaned on',
         'Lost',
         'Retained',
         'Returned'

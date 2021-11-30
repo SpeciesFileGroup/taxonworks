@@ -74,6 +74,14 @@
               @geoJsonLayersEdited="updateGeoreference($event)"
               @geoJsonLayerCreated="saveGeoreference($event)"/>
           </div>
+          <div class="margin-medium-top">
+            <b>Georeference date</b>
+            <date-component
+              v-model:day="date.day_georeferenced"
+              v-model:month="date.month_georeferenced"
+              v-model:year="date.year_georeferenced"
+            />
+          </div>
           <div class="horizontal-left-content margin-medium-top margin-medium-bottom">
             <wtk-component
               class="margin-small-right"
@@ -97,6 +105,7 @@
             :list="georeferences"
             @delete="removeGeoreference"
             @updateGeo="updateRadius"
+            @dateChanged="updateDate"
             label="object_tag"/>
         </div>
       </template>
@@ -116,6 +125,7 @@ import SpinnerComponent from 'components/spinner.vue'
 import DisplayList from 'components/georeferences/list.vue'
 import ManuallyComponent from 'components/georeferences/manuallyComponent'
 import GeolocateComponent from 'components/georeferences/geolocateComponent'
+import DateComponent from 'components/ui/Date/DateFields.vue'
 import WtkComponent from 'tasks/collecting_events/new_collecting_event/components/parsed/georeferences/wkt.vue'
 import { Georeference } from 'routes/endpoints'
 import {
@@ -124,6 +134,7 @@ import {
   GEOREFERENCE_VERBATIM
 } from 'constants/index.js'
 import { truncateDecimal } from 'helpers/math.js'
+import { addToArray } from 'helpers/arrays.js'
 import convertDMS from 'helpers/parseDMS.js'
 
 export default {
@@ -134,7 +145,8 @@ export default {
     DisplayList,
     ManuallyComponent,
     GeolocateComponent,
-    WtkComponent
+    WtkComponent,
+    DateComponent
   },
 
   emits: ['onModal'],
@@ -206,7 +218,12 @@ export default {
       show: false,
       shapes: [],
       creatingShape: false,
-      isLoading: false
+      isLoading: false,
+      date: {
+        year_georeferenced: undefined,
+        day_georeferenced: undefined,
+        month_georeferenced: undefined
+      }
     }
   },
 
@@ -243,7 +260,8 @@ export default {
     updateRadius (shape) {
       const georeference = {
         id: shape.id,
-        error_radius: shape.error_radius
+        error_radius: shape.error_radius,
+        error_geographic_item_id: shape.geographic_item_id
       }
       this.isLoading = true
 
@@ -273,7 +291,8 @@ export default {
         geographic_item_attributes: { shape: JSON.stringify(shape) },
         error_radius: shape.properties?.radius,
         collecting_event_id: this.collectingEvent.id,
-        type: GEOREFERENCE_LEAFLET
+        type: GEOREFERENCE_LEAFLET,
+        ...this.date
       }
 
       this.isLoading = true
@@ -370,6 +389,20 @@ export default {
       }).finally(() => {
         this.isLoading = false
       })
+    },
+
+    updateDate ({ id, year_georeferenced, month_georeferenced, day_georeferenced}) {
+      const georeference = {
+        year_georeferenced,
+        month_georeferenced,
+        day_georeferenced
+      }
+
+      this.isLoading = true
+
+      Georeference.update(id, { georeference })
+        .then(({ body }) => { addToArray(this.georeferences, body) })
+        .finally(() => { this.isLoading = false })
     }
   }
 }

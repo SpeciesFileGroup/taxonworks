@@ -3,7 +3,7 @@
     <div class="item item1">
 
       <h3> Identifiers </h3>
-      <%= f.fields_for(:identifiers, @result.depiction.depiction_object.identifiers) do |i| -%>
+      <%= f.fields_for(:identifiers, @result.depiction.depiction_object.identifiers.where(identifiers: {type: 'Identifier::Local::CatalogNumber'})) do |i| -%>
         <%= i.hidden_field :type -%>
 
         <div class="side_by_side_fields">

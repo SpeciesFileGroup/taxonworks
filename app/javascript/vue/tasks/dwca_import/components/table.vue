@@ -47,7 +47,9 @@
               <tr
                 v-else
                 class="row-empty contextMenuCells">
-                <td style="height: 40px" colspan="100">
+                <td
+                  style="height: 40px"
+                  colspan="100">
                   <div class="dwc-table-cell"/>
                 </td>
               </tr>
@@ -183,7 +185,7 @@ export default {
 
 <style lang="scss">
 .dwca-vscroll {
-  height: calc(100vh - 260px);
+  height: calc(100vh - 270px);
   overflow: auto;
   overflow-anchor: none;
 }

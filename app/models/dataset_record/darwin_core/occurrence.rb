@@ -779,6 +779,11 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # nomenclaturalCode: [Selects nomenclature code to pick ranks from]
     code = get_field_value(:nomenclaturalCode)&.downcase&.to_sym || import_dataset.default_nomenclatural_code
+    unless Ranks::CODES.include?(code)
+      raise DarwinCore::InvalidData.new(
+        { "nomenclaturalCode": ["Unrecognized nomenclatural code #{get_field_value(:nomenclaturalCode)}"] }
+      )
+    end
 
     # kingdom: [Kingdom protonym]
     origins[
@@ -882,9 +887,13 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     names.last&.merge!({otu_attributes: {name: otu_names.join(' ')}}) unless otu_names.empty?
 
     # higherClassification: [Several protonyms with ranks determined automatically when possible. Classification lower or at genus level is ignored and extracted from scientificName instead]
-    higherClassification = (
-      get_field_value(:higherClassification)&.split(/:|\|/) || []
-    ).map! { |n| normalize_value!(n); {rank_class: nil, name: n} }
+    higherClassification = ['|', ':', ';', ','].inject([]) do |names, separator|
+      break names if names.size > 1
+      get_field_value(:higherClassification)&.split(separator) || []
+    end.map! do |name|
+      normalize_value!(name)
+      {rank_class: nil, name: name}
+    end
 
     curr = 0
     names.each do |name|

@@ -16,6 +16,9 @@ const permitParams = {
     is_undefined_z: Boolean,
     is_median_z: Boolean,
     wkt: Number,
+    year_georeferenced: Number,
+    day_georeferenced: Number,
+    month_georeferenced: Number,
     geographic_item_attributes: {
       shape: Object
     },

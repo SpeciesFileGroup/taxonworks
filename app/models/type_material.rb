@@ -27,7 +27,6 @@ class TypeMaterial < ApplicationRecord
   include Housekeeping
   include Shared::Citations
   include Shared::DataAttributes
-  include Shared::HasRoles
 
   include Shared::Notes
   include Shared::Tags

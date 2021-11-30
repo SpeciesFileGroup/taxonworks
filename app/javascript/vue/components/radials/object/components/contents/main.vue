@@ -10,8 +10,8 @@
       autocomplete-url="/controlled_vocabulary_terms/autocomplete"
       :autocomplete-params="{'type[]' : 'Topic'}"
       get-url="/controlled_vocabulary_terms/"
-      model="keywords"
-      target="Otu"
+      model="topics"
+      target="Content"
       klass="Otu"
       :add-tabs="['all']"
       pin-section="Topic"
@@ -58,7 +58,7 @@
     </div>
     <table-list
       :header="['Text', 'Topic', '']"
-      :attributes="['text', ['topic', 'name']]"
+      :attributes="['text_for_list', ['topic', 'name']]"
       :list="shortList"
       edit
       @delete="removeItem"
@@ -111,7 +111,7 @@ export default {
     shortList () {
       return this.list.map(content => ({
         ...content,
-        text: shorten(content.text, 150)
+        text_for_list: shorten(content.text, 150)
       }))
     },
 

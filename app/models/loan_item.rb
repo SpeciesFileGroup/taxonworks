@@ -54,10 +54,13 @@ class LoanItem < ApplicationRecord
   validates_presence_of :loan_item_object
 
   validates :loan, presence: true
-  validates_uniqueness_of :loan, scope: [:loan_item_object_type, :loan_item_object_id]
+
+  # validates_uniqueness_of :loan, scope: [:loan_item_object_type, :loan_item_object_id]
 
   validate :total_provided_only_when_otu
   validate :loan_object_is_loanable
+ 
+  validate :available_for_loan
 
   validates_inclusion_of :disposition, in: STATUS, if: -> {!disposition.blank?}
 
@@ -202,9 +205,23 @@ class LoanItem < ApplicationRecord
     errors.add(:total, 'only providable when item is an OTU.') if total && loan_item_object_type != 'Otu'
   end
 
+  # Code, not out-on-loan check
   def loan_object_is_loanable
     if  loan_item_object && !loan_item_object.respond_to?(:is_loanable?)
       errors.add(:loan_item_object, 'is not loable')
+    end
+  end
+
+  # Is not already in a loan item if CollectionObject/Container
+  def available_for_loan
+    if loan_item_object && loan_item_object.respond_to?(:is_loanable?)
+      if loan_item_object_type == 'Otu'
+        true
+      else
+        if loan_item_object.loan_items.any?
+          errors.add(:loan_item_object, 'is already loaned')
+        end
+      end
     end
   end
 

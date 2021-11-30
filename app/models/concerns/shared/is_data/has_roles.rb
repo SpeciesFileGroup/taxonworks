@@ -1,6 +1,6 @@
-# Shared code Roles support.
+# Shared code Roles support, includes Verifier support at present.
 #
-module Shared::HasRoles
+module Shared::IsData::HasRoles
 
   extend ActiveSupport::Concern
   included do

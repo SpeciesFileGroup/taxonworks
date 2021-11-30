@@ -166,7 +166,8 @@ export default {
             TaxonName.where({
               parent_id: [this.taxon.id],
               taxon_name_type: 'Protonym',
-              per: 500
+              per: 500,
+              extend: ['parent']
             }).then(response => {
               this.childrenList = response.body.filter(item => item.id !== this.taxon.id)
               this.isLoading = false

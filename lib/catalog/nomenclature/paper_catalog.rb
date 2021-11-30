@@ -95,29 +95,57 @@ class PaperCatalog < Catalog::Nomenclature
     @otu_ids = []
 
     #Main logic
-    @results_hash = build_the_list
+    @results_hash = {names: {}, literature: {}}
+
+    build_the_list
   end
 
   def build_the_list
+    results_hash
     return {} if project_id.nil?
     return {} if classification_scope.blank? && otu_filter.blank? && taxon_name_filter.blank?
 
     taxon = classification_scope.blank? ? nil : TaxonName.find(classification_scope.to_i)
     unless taxon.nil?
       ancestors = get_ancestors(taxon)
+      descendants = get_descendants(taxon)
     end
 
-    descendants = get_descendants(taxon)
   end
 
   def get_ancestors(taxon)
-    Protonym.select('taxon_names.*, sources.id AS source_id, sources.cached_author_string AS source_author_string, sources.year AS source_year, sources.cached AS source_cached')
+    tn = Protonym
       .self_and_ancestors_of(taxon)
       .that_is_valid
-      .joins("LEFT OUTER JOIN citations ON citations.citation_object_id = images.id AND citations.citation_object_type = 'TaxonName' AND citations.is_original IS TRUE")
-      .joins('LEFT OUTER JOIN sources ON citations.source_id = sources.id')
+      .where.not(rank_class: 'NomenclaturalRank')
       .order('taxon_name_hierarchies.generations DESC')
 
+    #.select('taxon_names.*, sources.id AS source_id, sources.cached_author_string AS source_author_string, sources.year AS source_year, sources.cached AS source_cached')
+    #.joins("LEFT OUTER JOIN citations ON citations.citation_object_id = images.id AND citations.citation_object_type = 'TaxonName' AND citations.is_original IS TRUE")
+    #  .joins('LEFT OUTER JOIN sources ON citations.source_id = sources.id')
     #"Protonym.named('Zygina').order_by_rank(RANKS)"
+
+    tn.each do |t|
+      results_hash.names[t.id] = {name: t.cached,
+                                  author_year: t.author_year,
+                                  statuses: [],
+                                  synonyms: [],
+
+      }
+    end
   end
+
+  def get_descendants(taxon)
+    tn_ids = Protonym.descendants_of(taxon).that_is_valid.pluck(:id)
+    tn = TaxonName.find_by_sql("SELECT taxon_names.* FROM taxon_names INNER JOIN (SELECT a1.d, STRING_AGG(a1.str, '|') AS cl FROM (SELECT taxon_name_hierarchies.descendant_id AS d, a.name AS str FROM taxon_names AS a INNER JOIN taxon_name_hierarchies ON taxon_name_hierarchies.ancestor_id = a.id WHERE taxon_name_hierarchies.descendant_id IN (#{tn_ids.join(', ')}) ORDER BY taxon_name_hierarchies.descendant_id, taxon_name_hierarchies.generations DESC) as a1 GROUP BY a1.d) AS aa ON taxon_names.id = aa.d ORDER BY aa.cl")
+
+    tn.each do |t|
+      results_hash.names[t.id] = {name: t.cached,
+                                  author_year: t.author_year,
+                                  statuses: [],
+                                  synonyms: [],
+      }
+    end
+  end
+
 end

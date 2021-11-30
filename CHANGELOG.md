@@ -9,6 +9,99 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.22.0] - 2021-11-30
+
+### Add
+- Indecies on taxon name hierarchies table
+- Batch create user admin task [#2680]
+- Radial navigation in loan task
+- `is_gift` boolean to Loan
+- Loan item notes, type status, and recipient form layout improvements [#2657]
+- Recipient form link in Edit loan task
+- Gift checkbox in Loan task
+- API routes for data attributes via `/api/v1/data_attributes` [#2366]
+- API routes for observation matrices  via `/api/v1/observation_matrices`
+- API route "status" for taxon names `/taxon_names/api/v1/123/status` [#2243]
+- API route "activity" for recent records/project `/api/v1/activity?project_token=123&past_days=9` [#2207]
+- Indecies for updated_at on some large models
+- Observation matrix query filter (minimal)
+- Add download table button in DwC Importer
+- Confidence button on subsequent combination in New taxon name task
+- Create and new button in New descriptor task [#2594]
+- Content text is cropped on edit in OTU radial [#2676]
+- Diagnosis status in matrix row coder [#2674]
+- Layout preferences in comprehensive task [#2673]
+- API `/api/v1/collection_objects` includes &extend[] for `dwc_fields` and `type_material`
+- API `/api/v1/taxon_names/123/status` endpoint for human readable taxon name data and metadata (in part [#2665])
+- `is_virtual` option to Namespace
+
+### Changed
+- Upgraded to Ruby 3.0.2
+- OTUs can be loaned 2x [#2648]
+- Upgraded gems
+- `/collection_objects.json` response uses `&extend[]=dwc_fields` to return DwC fields; includes metadata
+- Removed a loan item status 'Loaned on' (it's inferrred)
+- Replaced Webrick with Puma (developers-only change)
+- Improved loan autocomplete metadata [#2485]
+- API observation responses are now isolated from internal
+- DwC occurrences importer now accepts `|`, `:`, `;` and `,` as separators for `higherClassification`.
+- Restrict subsequent combination fields for genus and subgenus. [#2677]
+- Moved matrix autocomplete into `Include in matrix` section in New descriptor task [#2685]
+
+### Fixed
+- Containerized specimens export their identifier to DwC
+- Biological association objects could be destroyed when referenced in biological association
+- Reordering matrices by nomenclature when some rows have none
+- Tag facet bug affecting all filters but Source [#2678]
+- View errors on rows with no metadata in DwC importer
+- Scrollbar in alternate values annotator [#2651]
+- Missing data on response in citations annotator [#2653]
+- Missing author and year in taxon name on Citation by source [#2650]
+- Duplicate combinations in subsequent combination on New taxon name [#2654]
+- Missing documents in source filter [#2661]
+- Clonning source does not clean the doccumentation section [#2663]
+- Extra scrollbar in asserted distributions annotator [#2662]
+- The citations annotator sometimes displays a created citations that are not part of the object
+- Move synonyms section not visible [#2670]
+- Collecting Event collectors are not loaded when CE is selected using smart selector in Comprehensive task [#2669]
+- Genus descriptor interface
+- Free text character not saved if pasted from clipboard in Matrix Row Coder [#2672]
+- DwC importer crashing on invalid nomenclatural code
+- DwC exporter swapped `decimalLatitude`/`decimalLongitude`
+- Error in Filter Collecting Event task when filtering by attributes that are stored as numbers in database
+- `Set as current` button it isn't working when taxon parent is root on Subsequent combination [#2688]
+- DwC checklist importing: original combination having wrong genus in some cases [#2684]
+
+[#2286]: https://github.com/SpeciesFileGroup/taxonworks/issues/2286
+[#2666]: https://github.com/SpeciesFileGroup/taxonworks/issues/2665
+[#2665]: https://github.com/SpeciesFileGroup/taxonworks/issues/2665
+[#2680]: https://github.com/SpeciesFileGroup/taxonworks/issues/2680
+[#2678]: https://github.com/SpeciesFileGroup/taxonworks/issues/2678
+[#2207]: https://github.com/SpeciesFileGroup/taxonworks/issues/2207
+[#2243]: https://github.com/SpeciesFileGroup/taxonworks/issues/2243
+[#2366]: https://github.com/SpeciesFileGroup/taxonworks/issues/2366
+[#2485]: https://github.com/SpeciesFileGroup/taxonworks/issues/2485
+[#2594]: https://github.com/SpeciesFileGroup/taxonworks/issues/2594
+[#2648]: https://github.com/SpeciesFileGroup/taxonworks/issues/2648
+[#2657]: https://github.com/SpeciesFileGroup/taxonworks/issues/2657
+[#2650]: https://github.com/SpeciesFileGroup/taxonworks/issues/2650
+[#2651]: https://github.com/SpeciesFileGroup/taxonworks/issues/2651
+[#2653]: https://github.com/SpeciesFileGroup/taxonworks/issues/2653
+[#2654]: https://github.com/SpeciesFileGroup/taxonworks/issues/2654
+[#2661]: https://github.com/SpeciesFileGroup/taxonworks/issues/2661
+[#2662]: https://github.com/SpeciesFileGroup/taxonworks/issues/2662
+[#2663]: https://github.com/SpeciesFileGroup/taxonworks/issues/2663
+[#2669]: https://github.com/SpeciesFileGroup/taxonworks/issues/2669
+[#2670]: https://github.com/SpeciesFileGroup/taxonworks/issues/2670
+[#2672]: https://github.com/SpeciesFileGroup/taxonworks/issues/2672
+[#2673]: https://github.com/SpeciesFileGroup/taxonworks/issues/2673
+[#2674]: https://github.com/SpeciesFileGroup/taxonworks/issues/2674
+[#2676]: https://github.com/SpeciesFileGroup/taxonworks/issues/2676
+[#2677]: https://github.com/SpeciesFileGroup/taxonworks/issues/2677
+[#2684]: https://github.com/SpeciesFileGroup/taxonworks/pull/2684
+[#2685]: https://github.com/SpeciesFileGroup/taxonworks/issues/2685
+[#2688]: https://github.com/SpeciesFileGroup/taxonworks/issues/2688
+
 ## [0.21.3] - 2021-11-12
 
 ### Changed
@@ -22,9 +115,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing roles after trigger page autosave in new taxon name [#2631]
 - Tag smart selector in new image task
 
-[#2641]: https://github.com/SpeciesFileGroup/taxonworks/issues/2641
 [#2632]: https://github.com/SpeciesFileGroup/taxonworks/issues/2632
 [#2631]: https://github.com/SpeciesFileGroup/taxonworks/issues/2631
+[#2641]: https://github.com/SpeciesFileGroup/taxonworks/issues/2641
+[#2645]: https://github.com/SpeciesFileGroup/taxonworks/issues/2645
 
 ## [0.21.2] - 2021-11-11
 
@@ -1998,7 +2092,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.21.3...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.0...development
+[0.22.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.21.3...v0.22.0
 [0.21.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.21.2...v0.21.3
 [0.21.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.21.1...v0.21.2
 [0.21.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.21.0...v0.21.1

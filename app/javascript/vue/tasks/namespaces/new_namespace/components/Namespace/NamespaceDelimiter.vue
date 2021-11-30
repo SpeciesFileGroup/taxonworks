@@ -1,5 +1,7 @@
 <template>
-  <div class="field">
+  <div
+    v-help.namespace.form.delimiter
+    class="field">
     <label>Delimiter</label>
     <ul class="no_bullets">
       <li

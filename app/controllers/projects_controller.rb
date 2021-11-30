@@ -64,6 +64,9 @@ class ProjectsController < ApplicationController
 
   def preferences
     @project = sessions_current_project
+    if @project.nil?
+      render json: {success: false}, status: :not_found and return
+    end
   end
 
   def select
@@ -108,7 +111,7 @@ class ProjectsController < ApplicationController
       {id: t.id,
        label: ApplicationController.helpers.project_tag(t),
        response_values: {
-           params[:method] => t.id
+         params[:method] => t.id
        },
        label_html: ApplicationController.helpers.project_tag(t)
       }
@@ -123,13 +126,14 @@ class ProjectsController < ApplicationController
   end
 
   private
+
   def set_project
     @project = Project.find(params[:id])
     @recent_object = @project
   end
 
   def project_params
-      params.require(:project).permit(:name, :set_new_api_access_token, :clear_api_access_token, Project.key_value_preferences, Project.array_preferences, Project.hash_preferences)
+    params.require(:project).permit(:name, :set_new_api_access_token, :clear_api_access_token, Project.key_value_preferences, Project.array_preferences, Project.hash_preferences)
   end
 
   def go_to

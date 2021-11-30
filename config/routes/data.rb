@@ -582,6 +582,8 @@ resources :repositories do
   end
 end
 
+resources :roles, only: [:index, :create, :update, :destroy], defaults: {format: :json}
+
 resources :serials do
   concerns [:data_routes]
   collection do
@@ -687,7 +689,6 @@ resources :taxon_names do
 
     get :rank_table, defaults: {format: :json}
     get :predicted_rank, {format: :json}
-
   end
 
   member do

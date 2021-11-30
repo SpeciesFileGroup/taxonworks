@@ -91,23 +91,32 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
     end
 
     specify 'can be destroyed' do
-      s.update(taxon_determinations_attributes: [{id: s.taxon_determinations.first.id, _destroy: '1'}])
-      s.save
+      s.update!(taxon_determinations_attributes: [{id: s.taxon_determinations.first.id, _destroy: '1'}])
       expect(s.taxon_determinations.reload.count).to eq(1)
     end
   end
 
   context 'ordering deteriminations' do
-    let!(:o) {
-      Specimen.create!(total: 1, otus_attributes: [{name: 'one'}, {name: 'two'}, {name: 'three'}])
-    }
+    let!(:o) { Specimen.create!(total: 1, otus_attributes: [{name: 'one'}, {name: 'two'}, {name: 'three'}]) }
+
+    specify 'three determinations' do
+      expect(o.taxon_determinations.count).to eq(3)
+    end
 
     specify '#current_taxon_determination, last created, first on list by default' do
-      expect(o.current_taxon_determination.reload.position).to eq(1)
+      expect(o.current_taxon_determination.otu.name).to eq('three')
+    end
+
+    specify 'three determinations' do
+      expect(o.taxon_determinations.count).to eq(3)
+    end
+
+    specify '#current_taxon_determination, last created, first on list by default' do
+      expect(o.current_taxon_determination.position).to eq(1)
     end
 
     specify '#current_otu (is last created)' do
-      expect(o.current_otu.reload.name).to eq('three')
+      expect(o.current_otu.name).to eq('three')
     end
 
     specify '#reorder_determinations_by(:year)' do

@@ -42,6 +42,7 @@ import saveIdentifier from './saveIdentifier'
 import saveLabel from './saveLabel'
 import saveTypeMaterial from './saveTypeMaterial'
 import saveBiologicalAssociations from './saveBiologicalAssociations'
+import updateLayoutPreferences from './updateLayoutPreferences'
 
 const ActionFunctions = {
   [ActionNames.AddToContainer]: addToContainer,
@@ -85,7 +86,8 @@ const ActionFunctions = {
   [ActionNames.SaveBiologicalAssociations]: saveBiologicalAssociations,
   [ActionNames.LoadSoftValidations]: loadSoftValidations,
   [ActionNames.LoadBiologicalAssociations]: loadBiologicalAssociations,
-  [ActionNames.LoadGeoreferences]: loadGeoreferences
+  [ActionNames.LoadGeoreferences]: loadGeoreferences,
+  [ActionNames.UpdateLayoutPreferences]: updateLayoutPreferences
 }
 
 export {
