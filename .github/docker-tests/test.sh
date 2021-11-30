@@ -18,6 +18,8 @@ for ver in `echo 10 12`; do
   docker-compose logs
 
   docker-compose exec -T test bundle exec rspec -fd --force-color
+  docker-compose logs
+  docker-compose exec taxonworks cat log/production.log
 
   # Test redis is running
   docker-compose exec -T taxonworks redis-cli ping
