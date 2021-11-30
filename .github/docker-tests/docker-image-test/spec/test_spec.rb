@@ -66,7 +66,12 @@ describe "Docker image test", js: true do
     it 'runs asynchronously' do
       visit 'tasks/exports/coldp/download?otu_id=1'
       expect(page).to have_content('Status: Download creation is in progress...')
-      expect(page).to have_content('Status: Ready to download', wait: 30)
+      begin
+        expect(page).to have_content('Status: Ready to download', wait: 30)
+      rescue
+        puts page.body
+        raise
+      end
     end
   end
 
@@ -78,7 +83,12 @@ describe "Docker image test", js: true do
     it 'runs asynchronously' do
       visit 'tasks/exports/nomenclature/download_basic?taxon_name_id=1'
       expect(page).to have_content('Status: Download creation is in progress...')
-      expect(page).to have_content('Status: Ready to download', wait: 30)
+      begin
+        expect(page).to have_content('Status: Ready to download', wait: 30)
+      rescue
+        puts page.body
+        raise
+      end
     end
   end
 
