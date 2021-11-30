@@ -36,6 +36,7 @@ class NamespacesController < ApplicationController
   # POST /namespaces
   # POST /namespaces.json
   def create
+    byebug
     @namespace = Namespace.new(namespace_params)
 
     respond_to do |format|
@@ -140,7 +141,7 @@ class NamespacesController < ApplicationController
   end
 
   def namespace_params
-    params.require(:namespace).permit(:institution, :name, :short_name, :verbatim_short_name, :delimiter)
+    params.require(:namespace).permit(:institution, :name, :short_name, :verbatim_short_name, :delimiter, :is_virtual)
   end
 
   def batch_params
