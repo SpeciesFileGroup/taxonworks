@@ -311,13 +311,9 @@ class Source < ApplicationRecord
     # z is a table alias
     z = i.as('recent_t')
 
-    Source
-      .select('s.id')
-      .from(
-        Source.joins( Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['source_id'].eq(p['id'])))).distinct,
-        :s)
-      .order('id')
-      .pluck(:id)
+    Source.joins(
+      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['source_id'].eq(p['id'])))
+    ).pluck(:id).uniq
   end
 
   # @params target [String] a citable model name
