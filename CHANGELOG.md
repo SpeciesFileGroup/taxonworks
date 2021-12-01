@@ -7,8 +7,17 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Georeferences can link to Protocols
+
+### Changed
+- API -added extend character_state option to /observations
+
 ### Fixed 
 - Custom attributes are not cleared on new record [#2692]
+- API - /api/v1/observation_matrices with no params failed
+- Asserted distribution link wasn't HTML safe
+
 
 [#2692]: https://github.com/SpeciesFileGroup/taxonworks/issues/2692
 

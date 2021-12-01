@@ -2,6 +2,8 @@ class ObservationMatricesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_observation_matrix, only: [:show, :api_show, :edit, :update, :destroy, :nexml, :tnt, :nexus, :otu_contents, :reorder_rows, :reorder_columns]
+  after_action -> { set_pagination_headers(:observation_matrices) }, only: [:index, :api_index], if: :json_request?
+
   # GET /observation_matrices
   # GET /observation_matrices.json
   def index
