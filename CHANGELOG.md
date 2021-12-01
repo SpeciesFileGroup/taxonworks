@@ -7,7 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed 
+- Custom attributes are not cleared on new record [#2692]
+
+[#2692]: https://github.com/SpeciesFileGroup/taxonworks/issues/2692
 
 ## [0.22.0] - 2021-11-30
 
