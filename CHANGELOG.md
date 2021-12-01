@@ -52,6 +52,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Moved matrix autocomplete into `Include in matrix` section in New descriptor task [#2685]
 
 ### Fixed
+- Update Source autocomplete [#2693]
 - Containerized specimens export their identifier to DwC
 - Biological association objects could be destroyed when referenced in biological association
 - Reordering matrices by nomenclature when some rows have none
