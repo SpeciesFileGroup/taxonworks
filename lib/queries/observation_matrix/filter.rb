@@ -32,15 +32,19 @@ module Queries
         observation_matrix_id.empty? ? nil : table[:id].eq_any(observation_matrix_id)
       end
 
-      # @return [String]
+      # @return [String, nil]
       def where_sql
         a = and_clauses
-        return ::ObservationMatrix.all if a.nil?
+        return nil if a.nil?
         a.to_sql
       end
 
       def all
-        base_query.where(where_sql).distinct
+        if w = where_sql
+          base_query.where(w).distinct
+        else
+          base_query.all
+        end
       end
 
       # @return [Arel::Table]
