@@ -18,6 +18,7 @@ describe Vendor::Gnfinder::Name, type: [:model]  do
   end
 
   context '#found 1' do
+
     let(:n) { mn.found }
 
     specify '#name' do
@@ -46,11 +47,15 @@ describe Vendor::Gnfinder::Name, type: [:model]  do
   end
 
   specify '#classification_path' do
-    expect(mn.classification_path).to contain_exactly("Acrididae", "Acrididea", "Acridoidea", "Acridomorpha", "Animalia", "Arthropoda", "Biota", "Caelifera", "Insecta", "Orthoptera")
+    expect(mn.classification_path).to contain_exactly(
+      'Biota', 'Animalia', 'Arthropoda', 'Insecta', 'Orthoptera', 'Caelifera', 'Acrididea', 'Acridomorpha', 'Acridoidea', 'Acrididae'
+    )
   end
 
   specify '#classification_rank' do
-    expect(mn.classification_rank).to contain_exactly("class", "family", "infraorder", "kingdom", "nanorder", "order", "phylum", "suborder", "superfamily", "unranked")
+    expect(mn.classification_rank).to contain_exactly(
+      'unranked', 'kingdom', 'phylum', 'class', 'order', 'suborder', 'infraorder', 'nanorder', 'superfamily', 'family'
+    )
   end
 
   specify '#data_source_title_short' do
@@ -84,4 +89,5 @@ describe Vendor::Gnfinder::Name, type: [:model]  do
   specify '#is_new_name?' do
     expect(bn.is_new_name?).to eq(true)
   end
+
 end
