@@ -9,6 +9,23 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.22.2] - 2021-12-02
+
+### Changed
+- Upped from 40 to 500 the cutoff point at which updating a collecing event will trigger a DwcOccurrence rebuild
+- Added a `url_base` option when rendering metadata partial
+
+### Fixed
+- Author by first letter (/people.json) [2697]
+- Loan recipient helper methods were confused with loan helper methods
+- Subsequent combination link in new taxon name task [#2695]
+- Unable to create tags in batches due to Ruby 3 syntax changes.
+- Observation matrices crashing due to response pagination bug.
+- Unable to create namespaces due to debug code accidentally added.
+
+[#2697]: https://github.com/SpeciesFileGroup/taxonworks/issues/2697
+[#2695]: https://github.com/SpeciesFileGroup/taxonworks/issues/2695
+
 ## [0.22.1] - 2021-12-01
 
 ### Added
@@ -2109,7 +2126,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.2...development
+[0.22.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.1...v0.22.2
 [0.22.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.0...v0.22.1
 [0.22.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.21.3...v0.22.0
 [0.21.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.21.2...v0.21.3

@@ -3,11 +3,19 @@ json.object_label label_for(object)
 json.global_id object.persisted? ? object.to_global_id.to_s : nil
 json.base_class object.class.base_class.name
 json.url_for url_for(only_path: false, format: :json)
-json.object_url url_for(metamorphosize_if(object))
 
-extensions = true if extensions.nil?
+# Some objects can not metamorphosize to a valid url base, e.g. Roles.
+# This allows us to provide an alternate default object_url.
+# TODO: if restricted to roles consider refactoring that response.
+url_base = false if url_base.nil?
+if !url_base
+  json.object_url url_for(metamorphosize_if(object))
+else
+  json.object_url send("#{url_base}_path", object)
+end
 
 # This allows us to prevent cascading extensions when we use `&extend[]`
+extensions = true if extensions.nil?
 if extensions
 
   if extend_response_with('pinboard_item')

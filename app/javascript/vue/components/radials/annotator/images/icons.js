@@ -10,6 +10,7 @@ import notes from './book'
 import tags from './tag'
 import attribution from './attribution'
 import pin from './pin'
+import verifiers from './verifier'
 
 const Icons = {
   alternate_values,
@@ -23,7 +24,8 @@ const Icons = {
   tags,
   protocol_relationships,
   attribution,
-  pin
+  pin,
+  verifiers
 }
 
 export default Icons

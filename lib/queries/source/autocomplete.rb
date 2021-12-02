@@ -111,12 +111,28 @@ module Queries
       end
 
       # @return [ActiveRecord::Relation, nil]
+      def autocomplete_start_author_year
+        a = match_start_author
+        d = match_year
+        return nil if a.nil? || d.nil?
+        z = a.and(d)
+        base_query.where(z.to_sql)
+      end
+
+      # @return [ActiveRecord::Relation, nil]
       def autocomplete_wildcard_author_exact_year
         a = match_year
-        b = match_wildcard_author
-        return nil if a.nil? || b.nil?
-        c = a.and(b)
-        base_query.where(c.to_sql)
+        d = match_wildcard_author
+        return nil if a.nil? || d.nil?
+        z = a.and(d)
+        base_query.where(z.to_sql)
+      end
+
+      # @return [ActiveRecord::Relation, nil]
+      def autocomplete_exact_in_cached
+        a = with_cached_like
+        return nil if a.nil?
+        base_query.where(a.to_sql)
       end
 
       # @return [ActiveRecord::Relation, nil]
@@ -139,6 +155,13 @@ module Queries
       # @return [Arel::Nodes::Equatity]
       def match_exact_author
         table[:cached_author_string].matches(author_from_author_year)
+      end
+
+      # @return [Arel::Nodes::Equatity]
+      def match_start_author
+        a = author_from_author_year
+        return nil if a.blank?
+        table[:cached_author_string].matches(a + '%')
       end
 
       # @return [Arel::Nodes::Equatity]
@@ -183,18 +206,20 @@ module Queries
         queries = [
           [ autocomplete_exact_id, nil],
           [ autocomplete_identifier_identifier_exact, nil],
-          [ autocomplete_exact_author_year_letter&.limit(20), nil],
-          [ autocomplete_exact_author_year&.limit(20), nil],
+          [ autocomplete_exact_author_year_letter&.limit(20), true],
+          [ autocomplete_exact_author_year&.limit(20), true],
           [ autocomplete_identifier_cached_exact, nil],
-          #[ autocomplete_wildcard_author_exact_year&.limit(10), true],
+          [ autocomplete_start_author_year&.limit(20), true],
+          [ autocomplete_wildcard_author_exact_year&.limit(20), true],
           [ autocomplete_exact_author&.limit(20), true],
-          [ autocomplete_start_of_author.limit(8), true],
+          [ autocomplete_start_of_author&.limit(20), true],
           #[ autocomplete_wildcard_anywhere_exact_year&.limit(10), true],
           [ autocomplete_identifier_cached_like, true],
-          [ autocomplete_ordered_wildcard_pieces_in_cached&.limit(5), true],
+          [ autocomplete_exact_in_cached&.limit(20), true],
+          [ autocomplete_ordered_wildcard_pieces_in_cached&.limit(20), true],
           [ autocomplete_cached_wildcard_anywhere&.limit(20), true],
-          [ autocomplete_start_of_title&.limit(5), true],
-          [ autocomplete_wildcard_of_title_alternate&.limit(5), true]
+          [ autocomplete_start_of_title&.limit(20), true],
+          [ autocomplete_wildcard_of_title_alternate&.limit(20), true]
         ]
 
         queries.delete_if{|a,b| a.nil?} # compact!
