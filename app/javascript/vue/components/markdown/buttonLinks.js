@@ -2,22 +2,27 @@ export default [
   {
     label: 'OTU',
     model: 'otus',
-    link: '/tasks/otus/browse',
-    param: 'otu_id',
-    propertyLabel: 'object_label'
+    labelProperty: 'object_label'
   },
   {
     label: 'Source',
     model: 'sources',
-    link: '/tasks/sources/new_source',
-    param: 'source_id',
-    propertyLabel: 'cached'
+    labelProperty: 'cached',
+    labelFunction: source => {
+      if (source.year && source.cached_author_string) {
+        return [source.cached_author_string, source.year].join(', ')
+      }
+
+      if (source.cached_author_string) {
+        return source.cached_author_string
+      }
+
+      return source.cached
+    }
   },
   {
     label: 'Taxon name',
     model: 'taxon_names',
-    link: '/tasks/nomenclature/browse',
-    param: 'taxon_name_id',
-    propertyLabel: 'object_label'
+    labelProperty: 'object_label'
   }
 ]

@@ -23,7 +23,7 @@
         <smart-selector
           target="Otu"
           :model="selected.model"
-          :label="selected.propertyLabel"
+          :label="selected.labelProperty"
           autofocus
           @selected="sendObject"
         />
@@ -62,12 +62,20 @@ export default {
     },
 
     sendObject (item) {
-      const data = {
-        label: item[this.selected.propertyLabel],
-        link: `/${this.selected.model}/${item.id}`
+      const {
+        labelFunction,
+        labelProperty,
+        model
+      } = this.selected
+
+      const label = labelFunction ? labelFunction(item) : item[labelProperty]
+
+      const payload = {
+        label,
+        link: `/${model}/${item.id}`
       }
 
-      this.$emit('selected', data)
+      this.$emit('selected', payload)
       this.$emit('close')
     }
   }
