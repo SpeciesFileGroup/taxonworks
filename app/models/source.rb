@@ -297,27 +297,16 @@ class Source < ApplicationRecord
   # @return [Scope]
   #    the max 10 most recently used (1 week, could parameterize) TaxonName, as used 
   def self.used_recently(user_id, project_id, used_on = 'TaxonName')
-    t = Citation.arel_table
-    p = Source.arel_table
-
-    # i is a select manager
-    i = t.project(t['source_id'], t['created_at']).from(t)
-      .where(t['created_at'].gt(1.weeks.ago))
-      .where(t['citation_object_type'].eq(used_on))
-      .where(t['created_by_id'].eq(user_id))
-      .where(t['project_id'].eq(project_id))
-      .order(t['created_at'].desc)
-
-    # z is a table alias
-    z = i.as('recent_t')
-
-    Source
-      .select('s.id')
-      .from(
-        Source.joins( Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['source_id'].eq(p['id'])))).distinct,
-        :s)
-      .order('id')
-      .pluck(:id)
+    Source.where(
+      id: Source.joins(:citations).merge(
+        Citation.where(
+          created_by_id: user_id,
+          project_id: project_id,
+          citation_object_type: used_on,
+          created_at: 1.week.ago..
+        ).order(created_at: :desc)
+      ).pluck(:id).uniq.first(10) # TODO: Return AR relation while still having 10 unique most used sources in outer query
+    )
   end
 
   # @params target [String] a citable model name

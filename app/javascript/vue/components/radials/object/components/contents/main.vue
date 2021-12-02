@@ -4,39 +4,48 @@
       v-if="content.id"
       v-html="content.object_tag"/>
     <h3 v-else>New record</h3>
-    <smart-selector
-      class="full_width margin-small-bottom"
-      ref="smartSelector"
-      autocomplete-url="/controlled_vocabulary_terms/autocomplete"
-      :autocomplete-params="{'type[]' : 'Topic'}"
-      get-url="/controlled_vocabulary_terms/"
-      model="topics"
-      target="Content"
-      klass="Otu"
-      :add-tabs="['all']"
-      pin-section="Topic"
-      buttons
-      inline
-      label="name"
-      pin-type="BiologicalRelationship"
-      @selected="setTopic"
-    >
-      <template #all>
-        <a
-          v-if="!allTopics.length"
-          target="blank"
-          href="/controlled_vocabulary_terms/new">
-          Create a topic first.
-        </a>
-        <topic-item
-          v-for="item in topicsAvailable"
-          :key="item.id"
-          :topic="item"
-          :class="{ 'btn-data': content.topic_id !== item.id }"
-          @select="setTopic"
-        />
-      </template>
-    </smart-selector>
+    <fieldset class="margin-medium-bottom">
+      <legend>Topic</legend>
+      <smart-selector
+        class="full_width margin-small-bottom"
+        ref="smartSelector"
+        autocomplete-url="/controlled_vocabulary_terms/autocomplete"
+        :autocomplete-params="{'type[]' : 'Topic'}"
+        get-url="/controlled_vocabulary_terms/"
+        model="topics"
+        target="Content"
+        klass="Otu"
+        :add-tabs="['all']"
+        pin-section="Topic"
+        buttons
+        inline
+        label="name"
+        pin-type="BiologicalRelationship"
+        @selected="setTopic"
+      >
+        <template #all>
+          <a
+            v-if="!allTopics.length"
+            target="blank"
+            href="/controlled_vocabulary_terms/new">
+            Create a topic first.
+          </a>
+          <topic-item
+            v-for="item in topicsAvailable"
+            :key="item.id"
+            :topic="item"
+            :class="{ 'btn-data': content.topic_id !== item.id }"
+            @select="setTopic"
+          />
+        </template>
+      </smart-selector>
+      <hr>
+      <smart-selector-item
+        :item="topic"
+        label="name"
+        @unset="topic = undefined"
+      />
+    </fieldset>
     <markdown-editor
       v-model="content.text"
       :configs="config"
@@ -75,6 +84,7 @@ import TopicItem from '../citations/topicItem.vue'
 import TableList from 'components/table_list.vue'
 import MarkdownEditor from 'components/markdown-editor.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
+import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
 import { shorten } from 'helpers/strings.js'
 import { ControlledVocabularyTerm, Content } from 'routes/endpoints'
 
@@ -87,7 +97,8 @@ export default {
     SmartSelector,
     MarkdownEditor,
     TopicItem,
-    TableList
+    TableList,
+    SmartSelectorItem
   },
 
   data () {
@@ -99,7 +110,8 @@ export default {
         status: false,
         spellChecker: false
       },
-      allTopics: []
+      allTopics: [],
+      topic: undefined
     }
   },
 
@@ -117,6 +129,12 @@ export default {
 
     topicsAvailable () {
       return this.allTopics.filter(topic => !this.list.find(item => item.topic_id === topic.id))
+    }
+  },
+
+  watch: {
+    topic (newVal) {
+      this.content.topic_id = newVal?.id
     }
   },
 
@@ -148,7 +166,7 @@ export default {
     },
 
     setTopic (topic) {
-      this.content.topic_id = topic.id
+      this.topic = topic
     },
 
     addRecord (record) {
@@ -163,6 +181,7 @@ export default {
 
     setContent (content) {
       this.content = content
+      this.topic = content?.topic
     }
   }
 }

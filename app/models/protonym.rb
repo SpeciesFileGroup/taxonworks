@@ -895,7 +895,7 @@ class Protonym < TaxonName
     r = self.iczn_uncertain_placement_relationship
     unless r.blank?
       if self.parent != r.object_taxon_name
-        errors.add(:parent_id, "Taxon has a relationship 'incertae sedis' - delete the relationship before changing the parent")
+        errors.add(:parent_id, "Taxon has an 'Incertae sedis' relationship, which prevent the parent modifications, change the relationship to 'Source classified as' before updating the parent")
       end
     end
   end

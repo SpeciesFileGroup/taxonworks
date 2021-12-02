@@ -24,7 +24,7 @@ module Queries
       # @return [ActiveRecord::Relation]
       #   if and only iff author string matches
       def autocomplete_exact_author
-        a = table[:cached_author_string].eq(query_string)
+        a = table[:cached_author_string].matches(query_string)
         base_query.where(a.to_sql)
       end
 
@@ -94,20 +94,20 @@ module Queries
       # @return [ActiveRecord::Relation, nil]
       def autocomplete_exact_author_year_letter
         a = match_exact_author
-        b = match_year_suffix
+        d = match_year_suffix
         c = match_year
-        return nil if [a,b,c].include?(nil)
-        d = a.and(b).and(c)
-        base_query.where(d.to_sql)
+        return nil if [a,d,c].include?(nil)
+        z = a.and(d).and(c)
+        base_query.where(z.to_sql)
       end
 
       # @return [ActiveRecord::Relation, nil]
       def autocomplete_exact_author_year
         a = match_exact_author
-        b = match_year
-        return nil if a.nil? || b.nil?
-        c = a.and(b)
-        base_query.where(c.to_sql)
+        d = match_year
+        return nil if a.nil? || d.nil?
+        z = a.and(d)
+        base_query.where(z.to_sql)
       end
 
       # @return [ActiveRecord::Relation, nil]
@@ -138,7 +138,7 @@ module Queries
 
       # @return [Arel::Nodes::Equatity]
       def match_exact_author
-        table[:cached_author_string].eq(author_from_author_year)
+        table[:cached_author_string].matches(author_from_author_year)
       end
 
       # @return [Arel::Nodes::Equatity]
@@ -155,7 +155,8 @@ module Queries
 
       # @return [String]
       def author_from_author_year
-        query_string.match(/^(.+?)\W/).to_a.last
+        query_string.match(/[[[:word:]]]+/).to_a.last
+        #query_string.match(/^(.+?)\W/).to_a.last
       end
 
       # @return [Arel::Nodes::Equatity]
@@ -182,8 +183,8 @@ module Queries
         queries = [
           [ autocomplete_exact_id, nil],
           [ autocomplete_identifier_identifier_exact, nil],
-          #[ autocomplete_exact_author_year_letter&.limit(2), nil],
-          #[ autocomplete_exact_author_year&.limit(10), nil],
+          [ autocomplete_exact_author_year_letter&.limit(20), nil],
+          [ autocomplete_exact_author_year&.limit(20), nil],
           [ autocomplete_identifier_cached_exact, nil],
           #[ autocomplete_wildcard_author_exact_year&.limit(10), true],
           [ autocomplete_exact_author&.limit(20), true],

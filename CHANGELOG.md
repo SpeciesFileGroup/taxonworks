@@ -9,9 +9,25 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.22.1] - 2021-12-01
+
+### Added
+- Georeferences can link to Protocols
+
+### Changed
+- API -added extend character_state option to /observations
+
+### Fixed 
+- Custom attributes are not cleared on new record [#2692]
+- API - /api/v1/observation_matrices with no params failed
+- Asserted distribution link wasn't HTML safe
+
+
+[#2692]: https://github.com/SpeciesFileGroup/taxonworks/issues/2692
+
 ## [0.22.0] - 2021-11-30
 
-### Add
+### Added
 - Indecies on taxon name hierarchies table
 - Batch create user admin task [#2680]
 - Radial navigation in loan task
@@ -49,6 +65,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Moved matrix autocomplete into `Include in matrix` section in New descriptor task [#2685]
 
 ### Fixed
+- Update Source autocomplete [#2693]
 - Containerized specimens export their identifier to DwC
 - Biological association objects could be destroyed when referenced in biological association
 - Reordering matrices by nomenclature when some rows have none
@@ -2092,7 +2109,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.1...development
+[0.22.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.0...v0.22.1
 [0.22.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.21.3...v0.22.0
 [0.21.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.21.2...v0.21.3
 [0.21.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.21.1...v0.21.2
