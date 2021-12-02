@@ -7,6 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Changed
+- Upped from 40 to 500 the cutoff point at which updating a collecing event will trigger a DwcOccurrence rebuild
+
 ### Fixed
 - Subsequent combination link in new taxon name task [#2695]
 
