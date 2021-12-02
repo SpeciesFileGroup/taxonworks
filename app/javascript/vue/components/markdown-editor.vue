@@ -115,11 +115,10 @@ export default {
     },
     setCustomLink (item) {
       const cm = this.simplemde.codemirror
-      let output = ''
       const selectedText = cm.getSelection()
       const text = selectedText || item.label
+      const output = `[${text}](${item.link})`
 
-      output = `[${text}](${item.link})`
       cm.replaceSelection(output)
     },
     customShortcuts () {

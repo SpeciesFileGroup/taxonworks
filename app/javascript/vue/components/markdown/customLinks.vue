@@ -1,11 +1,15 @@
 <template>
-  <modal-component @close="$emit('close')">
+  <modal-component
+    :container-style="{ width: '500px' }"
+    @close="$emit('close')">
     <template #header>
       <h3>Data links</h3>
     </template>
     <template #body>
       <ul class="no_bullets context-menu">
-        <li v-for="button in links">
+        <li
+          v-for="button in links"
+          :key="button.label">
           <button
             type="button"
             class="button normal-input button-default"
@@ -14,11 +18,15 @@
           </button>
         </li>
       </ul>
-      <div v-if="selected">
+      <div
+        v-if="selected"
+        class="margin-medium-top">
         <smart-selector
           target="Otu"
           :model="selected.model"
-          @selected="sendObject"/>
+          :label="selected.propertyLabel"
+          @selected="sendObject"
+        />
       </div>
     </template>
   </modal-component>
