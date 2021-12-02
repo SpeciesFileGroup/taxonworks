@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.22.1] - 2021-12-01
+
 ### Added
 - Georeferences can link to Protocols
 
@@ -23,7 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [0.22.0] - 2021-11-30
 
-### Add
+### Added
 - Indecies on taxon name hierarchies table
 - Batch create user admin task [#2680]
 - Radial navigation in loan task
@@ -2105,7 +2109,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.1...development
+[0.22.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.0...v0.22.1
 [0.22.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.21.3...v0.22.0
 [0.21.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.21.2...v0.21.3
 [0.21.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.21.1...v0.21.2
