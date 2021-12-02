@@ -1,8 +1,8 @@
 <template>
-  <div :class="{ disabled : !content || contents.length < 1}">
+  <div :class="{ disabled : !contents.length }">
     <div
       class="item flex-wrap-column middle menu-button"
-      @click="showModal = contents.length > 0">
+      @click="showModal = !!contents.length">
       <span
         data-icon="compare"
         class="big-icon"/>
@@ -53,7 +53,7 @@ export default {
     },
 
     disabled () {
-      return !this.$store.getters[GetterNames.GetTopicSelected] || !this.$store.getters[GetterNames.GetOtuSelected]
+      return !this.$store.getters[GetterNames.GetTopicSelected]
     }
   },
 
@@ -65,11 +65,9 @@ export default {
   },
 
   watch: {
-    content (val, oldVal) {
-      if (val !== undefined) {
-        if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
-          this.loadContent()
-        }
+    topic (val) {
+      if (val) {
+        this.loadContent()
       } else {
         this.contents = []
       }
@@ -78,10 +76,10 @@ export default {
 
   methods: {
     loadContent () {
-      if (this.disabled) return
-
-      Content.where({ topic_id: this.topic.id }).then(response => {
-        this.contents = response.body.filter(c => c.id !== this.content.id)
+      Content.where({ topic_id: this.topic.id }).then(({ body }) => {
+        this.contents = this.content?.id
+          ? body.filter(c => c.id !== this.content.id)
+          : body
       })
     },
 

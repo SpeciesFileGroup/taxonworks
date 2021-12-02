@@ -77,7 +77,6 @@
         <span class="tiny_space">Save</span>
       </div>
       <clone-content
-        :class="{ disabled : !content }"
         @addCloneCitation="addClone"
         class="item menu-item"/>
       <compare-content
