@@ -266,7 +266,7 @@ export default {
       }
       if (this.existCitation(citation)) return
 
-      Citation.create({ citation }).then(response => {
+      Citation.create({ citation, extend: ['source'] }).then(response => {
         this.$store.commit(MutationNames.AddCitationToList, response.body)
       })
     },
