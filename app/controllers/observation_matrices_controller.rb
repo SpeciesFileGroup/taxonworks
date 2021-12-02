@@ -13,7 +13,7 @@ class ObservationMatricesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @observation_matrices = ObservationMatrix.where(project_id: sessions_current_project_id)
+        @observation_matrices = ObservationMatrix.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per])
       }
     end
   end
@@ -24,7 +24,7 @@ class ObservationMatricesController < ApplicationController
   end
 
   def list
-    @observation_matrices = ObservationMatrix.with_project_id(sessions_current_project_id).page(params[:page])
+    @observation_matrices = ObservationMatrix.with_project_id(sessions_current_project_id).page(params[:page]).per(params[:per])
   end
 
   # GET /observation_matrices/new
