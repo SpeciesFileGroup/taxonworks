@@ -114,7 +114,7 @@ class TagsController < ApplicationController
   # POST /tags/batch_create.json?keyword_id=123&object_type=CollectionObject&object_ids[]=123
   def batch_create
     if Tag.batch_create(
-        params.permit(:keyword_id, :object_type, object_ids: []).to_h.merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).symbolize_keys
+        **params.permit(:keyword_id, :object_type, object_ids: []).to_h.merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).symbolize_keys
     )
       render json: {success: true}
     else

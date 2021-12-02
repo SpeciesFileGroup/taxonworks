@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - Subsequent combination link in new taxon name task [#2695]
+- Unable to create tags in batches due to Ruby 3 syntax changes.
 
 [#2695]: https://github.com/SpeciesFileGroup/taxonworks/issues/2695
 
