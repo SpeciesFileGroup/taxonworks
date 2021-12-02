@@ -20,7 +20,7 @@
 
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { Content, Citation } from 'routes/endpoints'
+import { Citation } from 'routes/endpoints'
 
 export default {
   computed: {
@@ -55,7 +55,11 @@ export default {
     },
 
     loadContent () {
-      Content.citations(this.content.id).then(response => {
+      Citation.where({
+        citation_object_type: 'Content',
+        citation_object_id: this.content.id,
+        extend: ['source']
+      }).then(response => {
         this.$store.commit(MutationNames.SetCitationList, response.body)
       })
     }
