@@ -66,12 +66,11 @@ export default {
         },
         toolbar: ['bold', 'italic', 'code', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'link', 'table', 'preview', {
           name: 'width-auto',
-          action: (editor) => {
-            // this.openCustomLinks()
+          action: _ => {
+            this.openCustomLinks()
           },
-          icon: '<span class="word-keep-all subtle">Data links</span>',
-          title: 'Data links',
-          disable: true
+          icon: '<span class="word-keep-all">Data links</span>',
+          title: 'Data links'
         }]
       }
       Object.assign(configs, this.configs)
@@ -116,7 +115,7 @@ export default {
     },
     setCustomLink (item) {
       const cm = this.simplemde.codemirror
-      const output = ''
+      let output = ''
       const selectedText = cm.getSelection()
       const text = selectedText || item.label
 

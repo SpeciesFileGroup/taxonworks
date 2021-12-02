@@ -56,7 +56,7 @@ export default {
     sendObject (item) {
       const data = {
         label: item[this.selected.propertyLabel],
-        link: `${window.location.href.split('/').slice(0, 3).join('/')}${this.selected.link}?${this.selected.param}=${item.id}`
+        link: `${window.location.origin}${this.selected.link}?${this.selected.param}=${item.id}`
       }
 
       this.$emit('selected', data)
