@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Subsequent combination link in new taxon name task [#2695]
 - Unable to create tags in batches due to Ruby 3 syntax changes.
 - Observation matrices crashing due to response pagination bug.
+- Unable to create namespaces due to debug code accidentally added.
 
 [#2697]: https://github.com/SpeciesFileGroup/taxonworks/issues/2697
 [#2695]: https://github.com/SpeciesFileGroup/taxonworks/issues/2695
