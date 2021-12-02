@@ -129,6 +129,13 @@ module Queries
       end
 
       # @return [ActiveRecord::Relation, nil]
+      def autocomplete_exact_in_cached
+        a = with_cached_like
+        return nil if a.nil?
+        base_query.where(a.to_sql)
+      end
+
+      # @return [ActiveRecord::Relation, nil]
       def autocomplete_wildcard_anywhere_exact_year
         a = match_year
         b = match_wildcard_in_cached
@@ -205,9 +212,10 @@ module Queries
           [ autocomplete_start_author_year&.limit(20), true],
           [ autocomplete_wildcard_author_exact_year&.limit(20), true],
           [ autocomplete_exact_author&.limit(20), true],
-          [ autocomplete_start_of_author.limit(20), true],
+          [ autocomplete_start_of_author&.limit(20), true],
           #[ autocomplete_wildcard_anywhere_exact_year&.limit(10), true],
           [ autocomplete_identifier_cached_like, true],
+          [ autocomplete_exact_in_cached&.limit(20), true],
           [ autocomplete_ordered_wildcard_pieces_in_cached&.limit(20), true],
           [ autocomplete_cached_wildcard_anywhere&.limit(20), true],
           [ autocomplete_start_of_title&.limit(20), true],
