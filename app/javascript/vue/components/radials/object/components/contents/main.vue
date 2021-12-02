@@ -46,10 +46,17 @@
         @unset="topic = undefined"
       />
     </fieldset>
-    <markdown-editor
-      v-model="content.text"
-      :configs="config"
-    />
+    <div>
+      <spinner-component
+        v-if="!topic"
+        :show-spinner="false"
+        legend="Select a topic first"
+      />
+      <markdown-editor
+        v-model="content.text"
+        :configs="config"
+      />
+    </div>
     <div class="margin-small-top margin-small-bottom">
       <button
         type="button"
@@ -85,6 +92,7 @@ import TableList from 'components/table_list.vue'
 import MarkdownEditor from 'components/markdown-editor.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
+import SpinnerComponent from 'components/spinner.vue'
 import { shorten } from 'helpers/strings.js'
 import { ControlledVocabularyTerm, Content } from 'routes/endpoints'
 
@@ -98,7 +106,8 @@ export default {
     MarkdownEditor,
     TopicItem,
     TableList,
-    SmartSelectorItem
+    SmartSelectorItem,
+    SpinnerComponent
   },
 
   data () {
