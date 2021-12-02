@@ -1,4 +1,4 @@
-export default () => [
+export default [
   {
     label: 'OTU',
     model: 'otus',

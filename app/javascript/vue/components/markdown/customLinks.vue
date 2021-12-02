@@ -19,12 +19,12 @@
         </li>
       </ul>
       <div
-        v-if="selected"
         class="margin-medium-top">
         <smart-selector
           target="Otu"
           :model="selected.model"
           :label="selected.propertyLabel"
+          autofocus
           @selected="sendObject"
         />
       </div>
@@ -34,7 +34,7 @@
 
 <script>
 
-import buttonLinks from './buttonLinks.js'
+import BUTTON_LINKS from './buttonLinks.js'
 import ModalComponent from 'components/ui/Modal'
 import SmartSelector from 'components/ui/SmartSelector'
 
@@ -51,8 +51,8 @@ export default {
 
   data () {
     return {
-      links: buttonLinks(),
-      selected: undefined
+      links: BUTTON_LINKS,
+      selected: BUTTON_LINKS[0]
     }
   },
 

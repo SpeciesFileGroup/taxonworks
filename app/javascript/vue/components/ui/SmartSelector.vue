@@ -28,6 +28,7 @@
           label="label_html"
           :clear-after="clear"
           display="label"
+          autofocus
           @getItem="getObject($event.id)"/>
         <otu-picker
           v-if="otuPicker"
@@ -239,6 +240,11 @@ export default {
     lockView: {
       type: Boolean,
       default: true
+    },
+
+    autofocus: {
+      type: Boolean,
+      default: false
     }
   },
 
