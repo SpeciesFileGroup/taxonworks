@@ -4,7 +4,7 @@ json.extract! descriptor, :id, :name, :short_name, :description, :default_unit,
 :position,
 :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
 
-json.partial! '/shared/data/all/metadata', object: descriptor, klass: descriptor.type 
+json.partial! '/shared/data/all/metadata', object: descriptor, url_base: :descriptor
 
 if descriptor.qualitative?
   json.character_states do 

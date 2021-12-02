@@ -9,11 +9,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Upped from 40 to 500 the cutoff point at which updating a collecing event will trigger a DwcOccurrence rebuild
+- Added a `url_base` option when rendering metadata partial
 
 ### Fixed
+- Author by first letter (/people.json) [2697]
+- Loan recipient helper methods were confused with loan helper methods
 - Subsequent combination link in new taxon name task [#2695]
 - Unable to create tags in batches due to Ruby 3 syntax changes.
 
+[#2697]: https://github.com/SpeciesFileGroup/taxonworks/issues/2697
 [#2695]: https://github.com/SpeciesFileGroup/taxonworks/issues/2695
 
 ## [0.22.1] - 2021-12-01

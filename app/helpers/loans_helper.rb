@@ -13,7 +13,12 @@ module LoansHelper
   def label_for_loan(loan)
     s = "loan #{loan.id}"
     s << loan.identifiers&.pluck(:cached)&.join(', ')
+  end
 
+  def loan_recipients_tag(loan)
+    return nil if loan.nil?
+    recipients = loan.loan_recipients.collect{|lr| person_tag(lr)}.join.html_safe
+    recipients.blank? ? 'No recipients defined!' : recipients
   end
 
   def loan_autocomplete_tag(loan)

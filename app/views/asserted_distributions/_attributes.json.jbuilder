@@ -1,11 +1,9 @@
 json.extract! asserted_distribution, :id, :otu_id, :geographic_area_id, :project_id, :created_by_id, :updated_by_id, :is_absent, :created_at, :updated_at
-json.partial! '/shared/data/all/metadata', object: asserted_distribution, klass: 'AssertedDistribution'
-
-# json.origin_citation_source_id asserted_distribution.origin_citation_source_id #
+json.partial! '/shared/data/all/metadata', object: asserted_distribution
 
 if extend_response_with('otu')
   json.otu do
-    json.partial! '/shared/data/all/metadata', object: asserted_distribution.otu, klass: 'Otu', extensions: false
+    json.partial! '/shared/data/all/metadata', object: asserted_distribution.otu, extensions: false
   end
 end
 
