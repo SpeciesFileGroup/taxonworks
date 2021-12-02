@@ -36,7 +36,6 @@ class NamespacesController < ApplicationController
   # POST /namespaces
   # POST /namespaces.json
   def create
-    byebug
     @namespace = Namespace.new(namespace_params)
 
     respond_to do |format|
