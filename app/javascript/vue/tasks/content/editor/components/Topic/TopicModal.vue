@@ -60,6 +60,7 @@ export default {
   methods: {
     setTopic (topic) {
       this.topic = topic
+      this.isOpen = false
     }
   }
 }
