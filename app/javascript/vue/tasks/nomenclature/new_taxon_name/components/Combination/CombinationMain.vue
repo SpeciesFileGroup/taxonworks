@@ -1,7 +1,7 @@
 <template>
   <block-layout
     :spinner="!taxon.id"
-    anchor="original-combination">
+    anchor="subsequent-combination">
     <template #header>
       <h3>Subsequent combination</h3>
     </template>

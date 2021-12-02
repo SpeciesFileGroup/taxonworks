@@ -7,7 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+- Subsequent combination link in new taxon name task [#2695]
+
+[#2695]: https://github.com/SpeciesFileGroup/taxonworks/issues/2695
 
 ## [0.22.1] - 2021-12-01
 
