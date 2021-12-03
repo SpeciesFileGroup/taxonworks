@@ -1,10 +1,5 @@
 export default [
   {
-    label: 'OTU',
-    model: 'otus',
-    labelProperty: 'object_label'
-  },
-  {
     label: 'Source',
     model: 'sources',
     labelProperty: 'cached',
@@ -19,6 +14,11 @@ export default [
 
       return source.cached
     }
+  },
+  {
+    label: 'OTU',
+    model: 'otus',
+    labelProperty: 'object_label'
   },
   {
     label: 'Taxon name',
