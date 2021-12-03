@@ -82,6 +82,7 @@ export default {
       this.addPreviewClass(className)
       this.bindingEvents()
     },
+
     bindingEvents () {
       this.simplemde.codemirror.on('change', () => {
         this.$emit('update:modelValue', this.simplemde.value())
@@ -132,6 +133,13 @@ export default {
     },
     openCustomLinks () {
       this.showCustomLinks = true
+    },
+
+    setFocus () {
+      const codemirror = this.simplemde.codemirror
+
+      codemirror.focus()
+      codemirror.setCursor(codemirror.lineCount(), 0)
     }
   },
   unmounted () {

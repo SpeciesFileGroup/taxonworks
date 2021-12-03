@@ -65,8 +65,8 @@ export default {
   },
 
   watch: {
-    topic (val) {
-      if (val) {
+    topic (newVal, oldVal) {
+      if (newVal?.id && newVal.id !== oldVal?.id) {
         this.loadContent()
       } else {
         this.contents = []

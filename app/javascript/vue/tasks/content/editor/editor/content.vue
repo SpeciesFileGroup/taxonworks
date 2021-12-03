@@ -77,20 +77,11 @@
         <span class="tiny_space">Save</span>
       </div>
       <clone-content
-        @addCloneCitation="addClone"
+        @addCloneCitation="addText"
         class="item menu-item"/>
       <compare-content
         class="item menu-item"
         @showCompareContent="showCompare"/>
-      <div
-        class="item flex-wrap-column middle menu-item menu-button"
-        @click="ChangeStateCitations()"
-        :class="{ active : activeCitations, disabled : citations < 1 }">
-        <span
-          data-icon="citation"
-          class="big-icon"/>
-        <span class="tiny_space">Citation</span>
-      </div>
       <div
         class="item flex-wrap-column middle menu-item menu-button"
         @click="ChangeStateFigures()"
@@ -178,14 +169,22 @@ export default {
   },
 
   watch: {
-    otu (val, oldVal) {
-      if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
+    otu (newVal, oldVal) {
+      if (
+        newVal?.id &&
+        newVal.id !== oldVal?.id &&
+        this.topic?.id
+      ) {
         this.loadContent()
       }
     },
 
-    topic (val, oldVal) {
-      if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
+    topic (newVal, oldVal) {
+      if (
+        newVal?.id &&
+        newVal.id !== oldVal?.id &&
+        this.otu?.id
+      ) {
         this.loadContent()
       }
     }
@@ -201,7 +200,7 @@ export default {
       }
     },
 
-    addClone (text) {
+    addText (text) {
       this.record.content.text += text
       this.autoSave()
     },
@@ -213,10 +212,6 @@ export default {
 
     ChangeStateFigures () {
       this.$store.commit(MutationNames.ChangeStateFigures)
-    },
-
-    ChangeStateCitations () {
-      this.$store.commit(MutationNames.ChangeStateCitations)
     },
 
     existCitation (citation) {
@@ -317,6 +312,7 @@ export default {
 
       this.firstInput = true
       this.resetAutoSave()
+
       Content.where(params).then(response => {
         if (response.body.length > 0) {
           const record = response.body[0]
@@ -330,15 +326,18 @@ export default {
 
           this.newRecord = false
           this.$store.commit(MutationNames.SetContentSelected, response.body[0])
+          this.$refs.contentText.setFocus()
         } else {
-          const content = this.initContent()
-
-          content.topic_id = this.topic.id
-          content.otu_id = this.otu.id
+          const content = {
+            ...this.initContent(),
+            topic_id: this.topic.id,
+            otu_id: this.otu.id
+          }
 
           this.record.content = content
           this.$store.commit(MutationNames.SetContent, undefined)
           this.newRecord = true
+          this.$refs.contentText.setFocus()
         }
       })
       this.loadMarkwdown = false
