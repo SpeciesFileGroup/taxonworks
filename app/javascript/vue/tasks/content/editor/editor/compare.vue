@@ -46,6 +46,10 @@ export default {
       return this.$store.getters[GetterNames.GetTopicSelected]
     },
 
+    otu () {
+      return this.$store.getters[GetterNames.GetOtuSelected]
+    },
+
     content () {
       return this.$store.getters[GetterNames.GetContentSelected]
     },
@@ -69,7 +73,14 @@ export default {
       } else {
         this.contents = []
       }
+    },
+
+    otu (newVal) {
+      if (newVal?.id) {
+        this.loadContent()
+      }
     }
+
   },
 
   methods: {

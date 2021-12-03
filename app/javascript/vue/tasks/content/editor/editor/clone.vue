@@ -56,6 +56,10 @@ export default {
       return this.$store.getters[GetterNames.GetTopicSelected]
     },
 
+    otu () {
+      return this.$store.getters[GetterNames.GetOtuSelected]
+    },
+
     content () {
       return this.$store.getters[GetterNames.GetContentSelected]
     }
@@ -69,6 +73,12 @@ export default {
 
       if (!newVal?.id) {
         this.contents = []
+      }
+    },
+
+    otu (newVal) {
+      if (newVal?.id) {
+        this.loadContent()
       }
     }
   },
