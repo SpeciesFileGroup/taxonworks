@@ -54,6 +54,10 @@ export default {
     }
   },
 
+  created () {
+    TW.workbench.keyboard.createLegend(`${GetOSKey()}+shift+l`, 'Open data links modal', 'Markdown editor')
+  },
+
   mounted () {
     this.initialize()
   },

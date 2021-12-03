@@ -27,7 +27,9 @@
             <radial-object
               v-if="otu"
               :global-id="otu.global_id"/>
-            <select-topic-otu class="separate-left"/>
+            <select-topic-otu
+              class="separate-left"
+              @close="$refs.contentText.setFocus()"/>
           </div>
         </div>
         <div
