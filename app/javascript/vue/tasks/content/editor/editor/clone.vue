@@ -22,9 +22,7 @@
             v-for="item in contents"
             :key="item.id"
             @click="cloneCitation(item.text)">
-            <span data-icon="show">
-              <div class="clone-content-text">{{ item.text }}</div>
-            </span>
+            <div class="clone-content-text">{{ item.text }}</div>
             <span v-html="item.object_tag"/>
           </li>
         </ul>
