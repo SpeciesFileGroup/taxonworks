@@ -24,10 +24,12 @@ export default {
   },
 
   methods: {
-    setDepictionLink (depiction) {
-      const link = `[${depiction.figure_label}](/depictions/${depiction.id})`
+    setDepictionLink ({ id, figure_label: label }) {
+      const text = label
+        ? `Fig. ${label}`
+        : 'Fig. X'
 
-      this.$refs.contentEditor.addText(link)
+      this.$refs.contentEditor.addText(`[${text}](/depictions/${id})`)
     }
   },
 }
