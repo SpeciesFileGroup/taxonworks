@@ -4,6 +4,7 @@
       <switch-components
         class="full_width capitalize"
         v-model="view"
+        ref="tabselector"
         :options="options"/>
       <default-pin
         v-if="pinSection"
@@ -29,6 +30,7 @@
           :clear-after="clear"
           display="label"
           autofocus
+          @keyEvent="changeTab"
           @getItem="getObject($event.id)"/>
         <otu-picker
           v-if="otuPicker"
@@ -76,6 +78,7 @@
                   @mousedown="sendObject(item)">
                   <input
                     :name="name"
+                    @keyup="changeTab"
                     @keyup.enter="sendObject(item)"
                     @keyup.space="sendObject(item)"
                     :value="item"
@@ -104,6 +107,7 @@ import OrderSmart from 'helpers/smartSelector/orderSmartSelector'
 import SelectFirst from 'helpers/smartSelector/selectFirstSmartOption'
 import DefaultPin from 'components/getDefaultPin'
 import OtuPicker from 'components/otu/otu_picker/otu_picker'
+import getPlatformKey from 'helpers/getPlatformKey'
 
 export default {
   components: {
@@ -269,6 +273,12 @@ export default {
 
     isImageModel () {
       return this.model === 'images'
+    },
+
+    actionKey () {
+      return navigator.platform.indexOf('Mac') > -1
+        ? 'Control'
+        : 'Alt'
     }
   },
 
@@ -369,6 +379,13 @@ export default {
     },
     setFocus () {
       this.$refs.autocomplete.setFocus()
+    },
+
+    changeTab (e) {
+      if (e.key !== this.actionKey) return
+      const element = this.$refs.tabselector.$el
+
+      element.querySelector('input:checked').focus()
     }
   }
 }
