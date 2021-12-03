@@ -54,8 +54,8 @@ export default {
   },
 
   computed: {
-    otu () {
-      return this.$store.getters[GetterNames.GetOtuSelected]
+    topic () {
+      return this.$store.getters[GetterNames.GetTopicSelected]
     },
 
     content () {
@@ -64,10 +64,12 @@ export default {
   },
 
   watch: {
-    otu (newVal, oldVal) {
+    topic (newVal, oldVal) {
       if (newVal?.id && newVal.id !== oldVal?.id) {
         this.loadContent()
-      } else {
+      }
+
+      if (!newVal?.id) {
         this.contents = []
       }
     }
@@ -75,7 +77,7 @@ export default {
 
   methods: {
     loadContent () {
-      Content.where({ otu_id: this.otu.id }).then(({ body }) => {
+      Content.where({ topic_id: this.topic.id }).then(({ body }) => {
         this.contents = this.content?.id
           ? body.filter(c => c.id !== this.content.id)
           : body
