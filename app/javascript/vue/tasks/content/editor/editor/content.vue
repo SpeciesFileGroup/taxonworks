@@ -43,7 +43,7 @@
             :configs="config"
             @input="handleInput"
             ref="contentText"
-            @dblclick="addCitation"/>
+          />
         </template>
       </div>
       <div
@@ -107,7 +107,7 @@ import RadialObject from 'components/radials/navigation/radial'
 import OtuButton from 'components/otu/otu'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { Citation, Content } from 'routes/endpoints'
+import { Content } from 'routes/endpoints'
 
 export default {
   components: {
@@ -155,14 +155,6 @@ export default {
 
     disabled () {
       return !this.topic || !this.otu
-    },
-
-    citations () {
-      return this.$store.getters[GetterNames.GetCitationsList]
-    },
-
-    activeCitations () {
-      return this.$store.getters[GetterNames.PanelCitations]
     },
 
     activeFigures () {
@@ -216,10 +208,6 @@ export default {
       this.$store.commit(MutationNames.ChangeStateFigures)
     },
 
-    existCitation (citation) {
-      return this.$store.getters[GetterNames.GetCitationsBySource](citation.source_id).length
-    },
-
     copyCompareContent () {
       if (window.getSelection) {
         if (window.getSelection().toString().length > 0) {
@@ -227,44 +215,6 @@ export default {
           this.autoSave()
         }
       }
-    },
-
-    addCitation (cursorPosition) {
-      this.record.content.text = [this.record.content.text.slice(0, cursorPosition),
-        document.querySelector('[data-panel-name="pinboard"]').getAttribute('data-clipboard'),
-        this.record.content.text.slice(cursorPosition)].join('')
-
-      if (this.newRecord) {
-        if (!this.record.content.id) {
-          Content.find(this.record.content.id).then(response => {
-            this.record.content.id = response.body.id
-            this.newRecord = false
-            this.createCitation()
-          })
-        }
-      } else {
-        this.update()
-        this.createCitation()
-      }
-    },
-
-    createCitation () {
-      const sourcePDF = document.querySelector('[data-pdf-source-id]').getAttribute('data-pdf-source-id')
-
-      if (sourcePDF === undefined) return
-      this.currentSourceID = Number(sourcePDF)
-
-      const citation = {
-        pages: '',
-        citation_object_type: 'Content',
-        citation_object_id: this.record.content.id,
-        source_id: this.currentSourceID
-      }
-      if (this.existCitation(citation)) return
-
-      Citation.create({ citation, extend: ['source'] }).then(response => {
-        this.$store.commit(MutationNames.AddCitationToList, response.body)
-      })
     },
 
     handleInput () {

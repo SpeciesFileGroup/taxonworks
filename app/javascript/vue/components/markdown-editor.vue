@@ -111,6 +111,7 @@ export default {
         }, 300)
       })
     },
+
     addPreviewClass (className) {
       const wrapper = this.simplemde.codemirror.getWrapperElement()
       const preview = document.createElement('div')
@@ -118,6 +119,7 @@ export default {
       preview.className = `editor-preview ${className}`
       wrapper.appendChild(preview)
     },
+
     setCustomLink (item) {
       const cm = this.simplemde.codemirror
       const selectedText = cm.getSelection()
@@ -125,7 +127,13 @@ export default {
       const output = `[${text}](${item.link})`
 
       cm.replaceSelection(output)
+
+      setTimeout(() => {
+        cm.focus()
+        cm.setCursor(cm.getCursor(false))
+      }, 100)
     },
+
     customShortcuts () {
       const codemirror = this.simplemde.codemirror
       const keys = codemirror.getOption('extraKeys')
@@ -135,6 +143,7 @@ export default {
       }
       codemirror.setOption('extraKeys', keys)
     },
+
     openCustomLinks () {
       this.showCustomLinks = true
     },
@@ -146,9 +155,11 @@ export default {
       codemirror.setCursor(codemirror.lineCount(), 0)
     }
   },
+
   unmounted () {
     this.simplemde = null
   },
+
   watch: {
     modelValue (val) {
       if (val === this.simplemde.value()) return
