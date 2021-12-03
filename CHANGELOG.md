@@ -6,12 +6,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Ability to inject links into Content via hot-key searching [#1674] 
+
 ### Fixed
 - Identifier form elements on SQED breakdown [#2700]
 
 [#2700]: https://github.com/SpeciesFileGroup/taxonworks/issues/2700
-
-\-
+[#1674]: https://github.com/SpeciesFileGroup/taxonworks/issues/1674
 
 ## [0.22.2] - 2021-12-02
 
