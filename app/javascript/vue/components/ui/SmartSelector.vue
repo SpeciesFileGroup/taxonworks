@@ -71,10 +71,13 @@
               </template>
               <template
                 v-else>
-                <label class="cursor-pointer">
+                <label
+                  class="cursor-pointer"
+                  @mousedown="sendObject(item)">
                   <input
                     :name="name"
-                    @click="sendObject(item)"
+                    @keyup.enter="sendObject(item)"
+                    @keyup.space="sendObject(item)"
                     :value="item"
                     :checked="selectedItem && item.id == selectedItem.id"
                     type="radio">
@@ -370,3 +373,8 @@ export default {
   }
 }
 </script>
+<style scoped>
+  input:focus + span {
+    font-weight: bold;
+  }
+</style>
