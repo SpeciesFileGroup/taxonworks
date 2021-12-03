@@ -3,11 +3,16 @@ class SequencesController < ApplicationController
   
   before_action :set_sequence, only: [:show, :edit, :update, :destroy]
 
-  # GET /sequences
-  # GET /sequences.json
   def index
-    @recent_objects = Sequence.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = Sequence.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @sequences = Sequence.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
+      }
+    end
   end
 
   # GET /sequences/1

@@ -10,7 +10,7 @@
     <modal-component
       v-if="show"
       @close="reset">
-      <template>
+      <template #header>
         <h3>Select observation matrix to open MRC or Image matrix</h3>
       </template>
       <template #body>

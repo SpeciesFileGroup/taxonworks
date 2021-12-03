@@ -3,9 +3,13 @@
     <div class="item item1">
 
       <h3> Identifiers </h3>
-      <%= f.fields_for(:identifiers, @result.depiction.depiction_object.identifiers.where(identifiers: {type: 'Identifier::Local::CatalogNumber'})) do |i| -%>
+      <% identifiers = @result.depiction.depiction_object.identifiers.where("identifiers.type ilike '%Local%'") + [
+        Identifier::Local::CatalogNumber.new(
+          identifier_object: @result.depiction.depiction_object,
+          namespace_id: (@result.namespace_locked? ? @result.namespace_id : nil)
+          ) ] %>
+      <%= f.fields_for(:identifiers, identifiers)  do |i| -%>
         <%= i.hidden_field :type -%>
-
         <div class="side_by_side_fields">
 
           <div class="field">
@@ -22,7 +26,7 @@
                 fields_for_object: i})
               %>
 
-            <% if @result.depiction.depiction_object.identifiers.size == 1 %>
+            <% if identifiers.first == i.object  %>
               <%= check_box_tag(:lock_namespace, '1', @result.namespace_locked?) -%>lock
             <% end %>
           </div>

@@ -1,6 +1,6 @@
 json.extract! role, :id, :person_id, :role_object_id, :role_object_type, :type, :position, :project_id, :created_by_id, :updated_by_id, :created_at, :updated_at
 
-json.partial! '/shared/data/all/metadata', object: role, klass: 'Role'
+json.partial! '/shared/data/all/metadata', object: role, url_base: 'role'
 
 if extend_response_with('role_object')
   json.role_object do

@@ -4,7 +4,7 @@
 
     <div id="recipient_details" class="item item1">
       <ul class="no_bullets">
-        <%= tag.li( "To: #{loan_recipient_tag(@loan)}") -%>
+        <%= tag.li( "To: #{loan_recipients_tag(@loan)}") -%>
         <%= tag.li( @loan.recipient_email) if @loan.recipient_email -%>
         <%= tag.li( @loan.recipient_phone) if @loan.recipient_phone -%>
         <% @loan.loan_supervisors.each do |person| -%>
