@@ -15,14 +15,21 @@ services:
       - "127.0.0.1:3000:3000" # local:docker
     links:
       - db
+      - postgres10_legacy
     stdin_open: true
     tty: true
-  db:
+  postgres10_legacy:
     image: mdillon/postgis:10
+    volumes:
+      - pg:/var/lib/postgresql/data
+  db:
+    image: postgis/postgis:12-3.0
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
     ports: 
       - "0.0.0.0:15432:5432"
     volumes:
-      - pg:/var/lib/postgresql/data
+      - pg12:/var/lib/postgresql/data
   webpack:
     build: 
       context: .
@@ -39,5 +46,7 @@ services:
       - '3035:3035'
 volumes:
     pg:
+      external: false
+    pg12:
       external: false
 

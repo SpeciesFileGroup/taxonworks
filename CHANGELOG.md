@@ -7,7 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-- Ability to inject links into Content via hot-key searching [#1674] 
+- Ability to inject links into Content via hot-key searching [#1674]
+
+### Changed
+- Upgraded to Postgres 12 in Docker Compose development environment. Postgres 10 container and volume are still present to allow for automatic data migration.
 
 ### Fixed
 - Identifier form elements on SQED breakdown [#2700]
