@@ -48,6 +48,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - API -added extend character_state option to /observations
 
 ### Fixed 
+- Updated reference string for 'classified as' relationship in Browse nomenclature
 - Custom attributes are not cleared on new record [#2692]
 - API - /api/v1/observation_matrices with no params failed
 - Asserted distribution link wasn't HTML safe

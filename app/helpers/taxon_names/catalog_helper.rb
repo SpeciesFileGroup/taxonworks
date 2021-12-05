@@ -115,7 +115,9 @@ module TaxonNames::CatalogHelper
       other_str = nil
 
       if catalog_item.other_name == reference_taxon_name
-        other_str = full_original_taxon_name_tag(catalog_item.other_name) 
+        other_str = full_original_taxon_name_tag(catalog_item.other_name)
+      elsif catalog_item.object.subject_status_tag == 'classified as'
+        other_str = link_to(taxon_name_tag(catalog_item.other_name), browse_nomenclature_task_path(taxon_name_id: catalog_item.other_name.id) ) + ' ' + original_author_year(catalog_item.other_name)
       else
         other_str = link_to(original_taxon_name_tag(catalog_item.other_name), browse_nomenclature_task_path(taxon_name_id: catalog_item.other_name.id) ) + ' ' + original_author_year(catalog_item.other_name)
       end
