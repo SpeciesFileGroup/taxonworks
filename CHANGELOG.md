@@ -6,7 +6,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Changed
+- Add space on navbar in New taxon name [#2701]
+
+[#2701]: https://github.com/SpeciesFileGroup/taxonworks/issues/2701
 
 ## [0.22.3] - 2021-12-03
 
