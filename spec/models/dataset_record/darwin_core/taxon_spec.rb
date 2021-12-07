@@ -511,6 +511,39 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
   end
 
+  context 'when importing a genus classified as incertae sedis' do
+    before :all do
+      DatabaseCleaner.start
+      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/incertae_sedis/genus_incertae_sedis_in_family.tsv'), 'text/plain'),
+        description: 'genus incertae sedis in family'
+      ).tap { |i| i.stage }
+
+      2.times { |_|
+        import_dataset.import(5000, 100)
+      }
+    end
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    # Root, Formicidae, Hypochira
+    it 'should have 3 protonyms' do
+      expect(Protonym.all.length).to eq 3
+    end
+
+    it 'imports 2 records' do
+      verify_all_records_imported(2)
+    end
+
+    let(:family) { TaxonName.find_by(name: 'Formicidae') }
+    let(:genus) { TaxonName.find_by(name: 'Hypochira') }
+
+    it 'genus should have UncertainPlacement relationship with family' do
+      expect(TaxonNameRelationship.find_by(subject_taxon_name: genus, object_taxon_name: family).type_name).to eq('TaxonNameRelationship::Iczn::Validating::UncertainPlacement')
+    end
+  end
+
   context 'when importing a genus and species that are incertae sedis in family' do
     before :all do
       DatabaseCleaner.start
