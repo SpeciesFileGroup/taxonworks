@@ -97,7 +97,7 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
 
     end
 
-    current_taxonomic_status = Set['valid', 'homonym', 'synonym', 'excluded', 'unidentifiable', 'unavailable'].freeze
+    current_taxonomic_status = Set['valid', 'homonym', 'synonym', 'excluded', 'unidentifiable', 'incertae sedis', 'unavailable'].freeze
 
     # make combinations dependent on the protonym of each OC group
     original_combination_groups.each do |oc_index, name_items|

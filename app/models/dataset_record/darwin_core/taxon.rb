@@ -225,6 +225,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             end
 
             # if taxonomicStatus is a homonym, invalid, unavailable, excluded, create the status
+            # if it's incertae sedis, create the relationship
           elsif get_field_value(:taxonomicStatus) != 'valid' || get_field_value(:taxonomicStatus).nil?
             status_types = {
               invalid: 'TaxonNameClassification::Iczn::Available::Invalid',
@@ -234,11 +235,28 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
             if (status = get_field_value(:taxonomicStatus)&.downcase)
 
-              type = status_types[status.to_sym]
+              # if name in incertae sedis, attach to finest level known (usually parent) and add TaxonNameRelationship
+              if status == 'incertae sedis'
+                # if parent has uncertain placement in rank, this taxon should have uncertain placement in same rank
+                #noinspection RubyResolve
+                if (r = parent.iczn_uncertain_placement_relationship)
+                  finest_known_rank = TaxonName.find(r.object_taxon_name_id)
+                else
+                  # if parent doesn't have uncertain placement, make relationship with it
+                  #noinspection RubyResolve
+                  finest_known_rank = parent
+                end
 
-              raise DarwinCore::InvalidData.new({ "taxonomicStatus": ["Couldn't find a status that matched #{status}"] }) if type.nil?
+                taxon_name.taxon_name_relationships.find_or_initialize_by(
+                  object_taxon_name: finest_known_rank,
+                  type: 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement')
+              else
+                type = status_types[status.to_sym]
 
-              taxon_name.taxon_name_classifications.find_or_initialize_by(type: type)
+                raise DarwinCore::InvalidData.new({ "taxonomicStatus": ["Couldn't find a status that matched #{status}"] }) if type.nil?
+
+                taxon_name.taxon_name_classifications.find_or_initialize_by(type: type)
+              end
             end
           end
 
