@@ -511,6 +511,62 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
   end
 
+  context 'when importing a synonym whose rank and parent do not match vaild name' do
+    before :all do
+      DatabaseCleaner.start
+      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/synonym_matching_parent_and_rank.tsv'), 'text/plain'),
+        description: 'interesting'
+      ).tap { |i| i.stage }
+
+      5.times { |_|
+        import_dataset.import(5000, 100)
+      }
+    end
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    # Root, Amblyopone, australis, cephalotes, maculata
+    it 'should have 5 protonyms' do
+      expect(Protonym.all.length).to eq 5
+    end
+
+    it 'imports 5 records' do
+      verify_all_records_imported(5)
+    end
+
+    # Amblyopone australis cephalotes
+    it 'should have 1 Combination' do
+      expect(Combination.all.length).to eq 1
+    end
+
+    it 'cephalotes original combination should be Amblyopone cephalotes' do
+      expect_original_combination(TaxonName.find_by(name: 'Amblyopone'), TaxonName.find_by(name: 'cephalotes'), 'genus')
+    end
+
+    it 'Amblyopone cephalotes should be a synonym of Amblyopone australis' do
+      relationship = TaxonNameRelationship.find_by({ subject_taxon_name: TaxonName.find_by(cached: 'Amblyopone cephalotes'),
+                                                     object_taxon_name: TaxonName.find_by(cached: 'Amblyopone australis') })
+      expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym')
+    end
+
+    it 'Amblyopone cephalotes maculata should be a synonym of Amblyopone australis' do
+      relationship = TaxonNameRelationship.find_by({ subject_taxon_name: TaxonName.find_by(cached: 'Amblyopone cephalotes maculata'),
+                                                     object_taxon_name: TaxonName.find_by(cached: 'Amblyopone australis') })
+      expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym')
+    end
+
+    # TODO do we need to check if the Combination is a synonym?
+    # it 'Amblyopone australis cephalotes should be a synonym of Amblyopone australis' do
+    #   relationship = TaxonNameRelationship.find_by({ subject_taxon_name: TaxonName.find_by(cached: 'Amblyopone australis cephalotes'),
+    #                                                  object_taxon_name: TaxonName.find_by(cached: 'Amblyopone australis') })
+    #   expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym')
+    # end
+
+
+  end
+
   # TODO test missing parent
   #
   # TODO test protonym is unavailable --- set classification on unsaved TaxonName

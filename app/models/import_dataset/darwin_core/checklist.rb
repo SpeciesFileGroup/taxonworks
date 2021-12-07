@@ -38,7 +38,7 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
     parse_results_ary = Biodiversity::Parser.parse_ary(records[:core].map { |r| r['scientificName'] || '' })
 
     # hash of taxonID, record metadata
-    records_lut = { }
+    records_lut = {}
 
     # hash of row index, record metadata
     core_records = records[:core].each_with_index.map do |record, index|
@@ -49,10 +49,10 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
         dependants: [],
         synonyms: [],
         synonym_of: nil, # index of current/valid name
-        replacing_valid_name: nil,  # taxonID of current/valid name, if record is a homonym or synonym
+        replacing_valid_name: nil, # taxonID of current/valid name, if record is a homonym or synonym
         is_hybrid: nil,
         is_synonym: nil,
-        has_external_accepted_name: nil,   # could be homonym or synonym, either way protonym is not valid. will use taxonomicStatus to determine the kind of relationship
+        has_external_accepted_name: nil, # could be homonym or synonym, either way protonym is not valid. will use taxonomicStatus to determine the kind of relationship
         original_combination: nil, # taxonID of original combination
         protonym_taxon_id: nil,
         parent: record['parentNameUsageID'],
@@ -63,6 +63,7 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
     # PROCESS OVERVIEW
     # if current name is valid, acceptedNameUsageID will be inside the original combination group, use that row for the protonym
     # if current name is synonym or homonym, acceptedNameUsageID won't be in the group, but use the synonym/homonym row for creating the protonym
+    # if synonym has different rank and parent from accepted name, find a select a name in the group that does for the protonym
     #
     # make combination relationships for other names in group
     # make other names dependent on valid name
@@ -73,10 +74,8 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
     # Create original combination relationship for each key in original_combination_groups
     # The protonym should be dependent on the parent of the original combination if it's a subsequent combination
 
-
-
     # identify protonyms by grouping by original combination
-    original_combination_groups = { }
+    original_combination_groups = {}
 
     core_records.each_with_index do |record, index|
 
@@ -123,8 +122,29 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
           current_item = accepted_name_index
         else
           name_items.each do |index|
-            if current_taxonomic_status.include? core_records[index][:src_data]['taxonomicStatus']
+            break unless current_item.nil?
+
+            # if synonym, make sure parent and rank are the same as the valid name
+            # if they aren't find a name that does match
+            if core_records[index][:src_data]['taxonomicStatus'] == 'synonym'
+              valid_name_id = core_records[index][:src_data]['acceptedNameUsageID']
+              if records_lut[valid_name_id][:src_data]['taxonRank'] == core_records[index][:src_data]['taxonRank'] && records_lut[valid_name_id][:src_data]['parentNameUsageID'] == core_records[index][:src_data]['parentNameUsageID']
+                current_item = index
+                core_records[current_item][:is_synonym] = true
+                break
+              else
+                name_items.each do |index2|
+                  if records_lut[valid_name_id][:src_data]['taxonRank'] == core_records[index2][:src_data]['taxonRank'] && records_lut[valid_name_id][:src_data]['parentNameUsageID'] == core_records[index2][:src_data]['parentNameUsageID']
+                    current_item = index2
+                    core_records[current_item][:is_synonym] = true
+                    break
+                  end
+                end
+              end
+
+            elsif current_taxonomic_status.include? core_records[index][:src_data]['taxonomicStatus']
               current_item = index
+
               break
             end
           end
@@ -164,7 +184,8 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
           records_lut[core_records[oc_index][:parent]][:dependants] << current_record[:index]
         end
 
-      else  # if original combination is only name, make it the protonym
+      else
+        # if original combination is only name, make it the protonym
         # TODO is it better to replace name_items.first with oc_index?
         current_record = core_records[name_items.first]
         current_record[:type] = :protonym
@@ -184,7 +205,6 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
       end
     end
 
-
     core_records.each_with_index do |record, index|
       accepted_name_usage = records_lut[record[:src_data]['acceptedNameUsageID']]
 
@@ -202,7 +222,7 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
       # set type as combination or protonym based on authorship being in parentheses
       unless parse_results[:details]
         record[:type] = :unknown
-        add_error_message(record, :scientificName, "Scientific name #{record[:src_data][:scientificName]} could not be parsed" )
+        add_error_message(record, :scientificName, "Scientific name #{record[:src_data][:scientificName]} could not be parsed")
       end
 
       unless record[:parent].nil?
@@ -218,8 +238,8 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
 
     # replace dependencies and dependants index values with taxonID values
     core_records.each do |record|
-      record[:dependants].map! {|i| core_records[i][:src_data]['taxonID']}.uniq!
-      record[:dependencies].map! {|i| core_records[i][:src_data]['taxonID']}.uniq!
+      record[:dependants].map! { |i| core_records[i][:src_data]['taxonID'] }.uniq!
+      record[:dependencies].map! { |i| core_records[i][:src_data]['taxonID'] }.uniq!
     end
 
     # create new dataset record for each row and mark items as ready
@@ -252,7 +272,7 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
   # @param [Hash] record: The record hash to add the error message to
   # @param [String] message
   def add_error_message(record, column_name, message)
-    record[:error_data] ||= {messages: {}}
+    record[:error_data] ||= { messages: {} }
 
     if (arry = record.dig(:error_data, :messages, column_name.to_sym))
       arry << message

@@ -209,6 +209,14 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             }.freeze
 
             if (status = get_field_value(:taxonomicStatus)&.downcase)
+
+              # workaround to handle cases where Protonym is a synonym, but row marked as synonym has different rank/parent
+              # so we use a row that does as the protonym instead. That row could have some other status, but
+              # we know it's a synonym.
+              if metadata['is_synonym']
+                status = :synonym
+              end
+
               type = synonym_classes[nomenclature_code][status.to_sym]
 
               raise DarwinCore::InvalidData.new({ "taxonomicStatus": ["Status #{status} did not match synonym, homonym, invalid, unavailable, excluded"] }) if type.nil?
