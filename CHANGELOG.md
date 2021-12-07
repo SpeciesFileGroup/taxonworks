@@ -9,7 +9,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Add space on navbar in New taxon name [#2701]
 
+### Fixed
+- Character order selector sends null value on blank selection [#2707]
+
 [#2701]: https://github.com/SpeciesFileGroup/taxonworks/issues/2701
+[#2707]: https://github.com/SpeciesFileGroup/taxonworks/issues/2707
 
 ## [0.22.3] - 2021-12-03
 
