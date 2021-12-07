@@ -101,11 +101,11 @@ module Queries
         @geographic_area_id = params[:geographic_area_id]
         @in_labels = params[:in_labels]
         @in_verbatim_locality = params[:in_verbatim_locality]
-        @md5_verbatim_label = (params[:md5_verbatim_label]&.downcase == 'true' ? true : false) if !params[:md5_verbatim_label].nil?
+        @md5_verbatim_label = params[:md5_verbatim_label]&.to_s&.downcase == 'true'
         @otu_id = params[:otu_id].blank? ? [] : params[:otu_id]
         @radius = params[:radius].blank? ? 100 : params[:radius]
         @recent = params[:recent].blank? ? nil : params[:recent].to_i
-        @spatial_geographic_areas = (params[:spatial_geographic_areas]&.downcase == 'true' ? true : false) if !params[:spatial_geographic_areas].nil?
+        @spatial_geographic_areas = params[:spatial_geographic_areas]&.to_s&.downcase == 'true'
         @wkt = params[:wkt]
 
         set_identifier(params)

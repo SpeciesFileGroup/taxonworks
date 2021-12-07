@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Character order selector sends null value on blank selection [#2707]
 - Interactive keys is loading two matrices on autocomplete search [#2706]
 - `Select observation matrix` is not displaying all observation matrices [#2708]
+- Crashing when attempting to download DwC results from Filter Collection Objects task with 'Treat geographic areas as spatial' set.
 
 [#2701]: https://github.com/SpeciesFileGroup/taxonworks/issues/2701
 [#2706]: https://github.com/SpeciesFileGroup/taxonworks/issues/2706
