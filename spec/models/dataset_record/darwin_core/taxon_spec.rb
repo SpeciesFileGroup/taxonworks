@@ -741,6 +741,157 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     end
   end
 
+  context 'when importing a genus classified as incertae sedis' do
+    before :all do
+      DatabaseCleaner.start
+      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/incertae_sedis/genus_incertae_sedis_in_family.tsv'), 'text/plain'),
+        description: 'genus incertae sedis in family'
+      ).tap { |i| i.stage }
+
+      2.times { |_|
+        import_dataset.import(5000, 100)
+      }
+    end
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    # Root, Formicidae, Hypochira
+    it 'should have 3 protonyms' do
+      expect(Protonym.all.length).to eq 3
+    end
+
+    it 'imports 2 records' do
+      verify_all_records_imported(2)
+    end
+
+    let(:family) { TaxonName.find_by(name: 'Formicidae') }
+    let(:genus) { TaxonName.find_by(name: 'Hypochira') }
+
+    it 'genus should have UncertainPlacement relationship with family' do
+      expect(TaxonNameRelationship.find_by(subject_taxon_name: genus, object_taxon_name: family).type_name).to eq('TaxonNameRelationship::Iczn::Validating::UncertainPlacement')
+    end
+  end
+
+  context 'when importing a genus and species that are incertae sedis in family' do
+    before :all do
+      DatabaseCleaner.start
+      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/incertae_sedis/incertae_sedis_in_family.tsv'), 'text/plain'),
+        description: 'incertae sedis in family'
+      ).tap { |i| i.stage }
+
+      3.times { |_|
+        import_dataset.import(5000, 100)
+      }
+    end
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    # Root, Formicidae, Condylodon, audouini
+    it 'should have 3 protonyms' do
+      expect(Protonym.all.length).to eq 3
+    end
+
+    it 'imports 3 records' do
+      verify_all_records_imported(3)
+    end
+
+    let(:genus) { TaxonName.find_by(name: 'Condylodon') }
+    let(:species) { TaxonName.find_by(name: 'audouini') }
+    let(:family) { TaxonName.find_by(name: 'Formicidae') }
+
+    it 'genus should have UncertainPlacement relationship with family' do
+      expect(TaxonNameRelationship.find_by(subject_taxon_name: genus, object_taxon_name: family).type_name).to eq('TaxonNameRelationship::Iczn::Validating::UncertainPlacement')
+    end
+
+    it 'species should have UncertainPlacement relationship with family' do
+      expect(TaxonNameRelationship.find_by(subject_taxon_name: species, object_taxon_name: family).type_name).to eq('TaxonNameRelationship::Iczn::Validating::UncertainPlacement')
+    end
+  end
+
+  context 'when importing a species classified as incertae sedis in genus' do
+    before :all do
+      DatabaseCleaner.start
+      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/incertae_sedis/incertae_sedis_in_genus.tsv'), 'text/plain'),
+        description: 'incertae sedis in genus'
+      ).tap { |i| i.stage }
+
+      2.times { |_|
+        import_dataset.import(5000, 100)
+      }
+    end
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    # Root, Formica, fuscescens
+    it 'should have 3 protonyms' do
+      expect(Protonym.all.length).to eq 3
+    end
+
+    it 'imports 2 records' do
+      verify_all_records_imported(2)
+    end
+
+    let(:genus) { TaxonName.find_by(name: 'Formica') }
+    let(:species) { TaxonName.find_by(name: 'fuscescens') }
+
+    it 'genus should not have UncertainPlacement' do
+      expect(genus.iczn_uncertain_placement_relationship).to be_falsey
+    end
+
+    it 'species should have UncertainPlacement relationship with genus' do
+      expect(TaxonNameRelationship.find_by(subject_taxon_name: species, object_taxon_name: genus).type_name).to eq('TaxonNameRelationship::Iczn::Validating::UncertainPlacement')
+    end
+  end
+
+  context 'when importing a moved species classified as incertae sedis in genus' do
+    before :all do
+      DatabaseCleaner.start
+      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/incertae_sedis/incertae_sedis_moved_genus.tsv'), 'text/plain'),
+        description: 'incertae sedis in genus'
+      ).tap { |i| i.stage }
+
+      4.times { |_|
+        import_dataset.import(5000, 100)
+      }
+    end
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    # Root, Formicidae, Formica, Cephalotes, fuscescens
+    it 'should have 5 protonyms' do
+      expect(Protonym.all.length).to eq 5
+    end
+
+    it 'imports 5 records' do
+      verify_all_records_imported(5)
+    end
+
+    let(:current_genus) { TaxonName.find_by(name: 'Cephalotes') }
+    let(:old_genus) {TaxonName.find_by(name: 'Formica')}
+    let(:species) { TaxonName.find_by(name: 'fuscescens') }
+
+    it 'genus should not have UncertainPlacement' do
+      expect(old_genus.iczn_uncertain_placement_relationship).to be_falsey
+      expect(current_genus.iczn_uncertain_placement_relationship).to be_falsey
+    end
+
+    it 'species should have UncertainPlacement relationship with genus' do
+      expect(TaxonNameRelationship.find_by(subject_taxon_name: species, object_taxon_name: current_genus).type_name).to eq('TaxonNameRelationship::Iczn::Validating::UncertainPlacement')
+    end
+
+    it 'should have an original combination relationship with old genus' do
+      expect_original_combination(old_genus, species, 'genus')
+    end
+  end
+
   # TODO test missing parent
   #
   # TODO test protonym is unavailable --- set classification on unsaved TaxonName

@@ -1,0 +1,6 @@
+taxonID	parentNameUsageID	parentNameUsage	acceptedNameUsageID	acceptedNameUsage	scientificName	kingdom	class	order	family	genus	subgenus	specificEpithet	infraspecificEpithet	taxonRank	scientificNameAuthorship	taxonomicStatus	originalNameUsage	originalNameUsageID	namePublishedInYear	nomenclaturalCode
+429011			429011	Formicidae Latreille, 1809	Formicidae	Animalia	Insecta	Hymenoptera	Formicidae					Family	Latreille, 1809	valid		429011	1809	ICZN
+429349	429011		429349	Formica Linnaeus, 1758	Formica	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Linnaeus, 1758	valid		429349	1758	ICZN
+429598	429011		429598	Cephalotes Latreille, 1802	Cephalotes	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Latreille, 1802	valid	429598		1802	ICZN
+434776	429598	Cephalotes Latreille, 1802	434776	Cephalotes haemorrhoidalis (Latreille, 1802)	Cephalotes haemorrhoidalis	Animalia	Insecta	Hymenoptera	Formicidae	Cephalotes		haemorrhoidalis		Species	(Latreille, 1802)	incertae sedis	Formica haemorrhoidalis Latreille, 1802	509394	1802	ICZN
+509394	429349	Formica Linnaeus, 1758	434776	Cephalotes haemorrhoidalis (Latreille, 1802)	Formica haemorrhoidalis	Animalia	Insecta	Hymenoptera	Formicidae	Formica		haemorrhoidalis		Species	Latreille, 1802	obsolete combination	Formica haemorrhoidalis Latreille, 1802	509394	1802	ICZN
