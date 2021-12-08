@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Crashing when attempting to download DwC results from Filter Collection Objects task with 'Treat geographic areas as spatial' set.
 - Stats response contains `projects` count when project token is set.
 - Menu options broken when right-click on matrices in Observation matrix hub [#2716]
+- Copy rows from matrix in New observation matrix
 
 [#2701]: https://github.com/SpeciesFileGroup/taxonworks/issues/2701
 [#2706]: https://github.com/SpeciesFileGroup/taxonworks/issues/2706
