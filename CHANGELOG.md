@@ -15,11 +15,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `Select observation matrix` is not displaying all observation matrices [#2708]
 - Crashing when attempting to download DwC results from Filter Collection Objects task with 'Treat geographic areas as spatial' set.
 - Stats response contains `projects` count when project token is set.
+- Menu options broken when right-click on matrices in Observation matrix hub [#2716]
 
 [#2701]: https://github.com/SpeciesFileGroup/taxonworks/issues/2701
 [#2706]: https://github.com/SpeciesFileGroup/taxonworks/issues/2706
 [#2707]: https://github.com/SpeciesFileGroup/taxonworks/issues/2707
 [#2708]: https://github.com/SpeciesFileGroup/taxonworks/issues/2708
+[#2716]: https://github.com/SpeciesFileGroup/taxonworks/issues/2716
 
 ## [0.22.3] - 2021-12-03
 
