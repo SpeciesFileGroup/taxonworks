@@ -25,11 +25,12 @@
       <div class="flexbox horizontal-center-content align-start">
         <div class="ccenter item separate-right">
           <type-component
-            class="separate-bottom"
             :descriptor-id="descriptor.id"
             v-model="descriptor.type"
           />
-          <block-layout v-if="descriptor.type">
+          <block-layout
+            v-if="descriptor.type"
+            class="margin-medium-top">
             <template #header>
               <h3>{{ sectionName }}</h3>
             </template>
@@ -92,7 +93,9 @@
               </template>
             </template>
           </block-layout>
-          <matrix-component v-model="matrix" />
+          <matrix-component
+            class="margin-medium-top"
+            v-model="matrix" />
         </div>
         <div
           id="cright-panel"
