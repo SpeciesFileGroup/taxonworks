@@ -19,12 +19,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Menu options broken when right-click on matrices in Observation matrix hub [#2716]
 - Copy rows from matrix in New observation matrix
 - GnFinder playground incompatibility with current GnFinder API
+- DwC checklist importer issue with synonyms have wrong rank [#2715]
+- Scientific name not cached properly when the taxon name is classified as part of speech [#2721]
 
 [#2701]: https://github.com/SpeciesFileGroup/taxonworks/issues/2701
 [#2706]: https://github.com/SpeciesFileGroup/taxonworks/issues/2706
 [#2707]: https://github.com/SpeciesFileGroup/taxonworks/issues/2707
 [#2708]: https://github.com/SpeciesFileGroup/taxonworks/issues/2708
+[#2715]: https://github.com/SpeciesFileGroup/taxonworks/pull/2715
 [#2716]: https://github.com/SpeciesFileGroup/taxonworks/issues/2716
+[#2721]: https://github.com/SpeciesFileGroup/taxonworks/pull/2721
 
 ## [0.22.3] - 2021-12-03
 
