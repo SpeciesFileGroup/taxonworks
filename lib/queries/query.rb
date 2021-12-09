@@ -391,5 +391,3 @@ module Queries
 
   end
 end
-
-Dir[Rails.root.to_s + '/lib/queries/**/*.rb'].sort.each { |p| require p }
