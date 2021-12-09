@@ -19,10 +19,14 @@ describe Vendor::Gnfinder::Name, type: [:model]  do
 
   context '#found 1' do
 
-    let(:n) { mn.found }
+    let(:n) { mn }
 
     specify '#name' do
       expect(n.name).to eq('Acrididae')
+    end
+
+    specify '#log_odds' do
+      expect(n.log_odds).to be_within(0.5).of(4)
     end
 
     specify '#verbatim' do
@@ -30,11 +34,11 @@ describe Vendor::Gnfinder::Name, type: [:model]  do
     end
 
     specify '#words_start' do
-      expect(n.start).to eq(4)
+      expect(n.words_start).to eq(4)
     end
 
     specify '#words_end' do
-      expect(n.end).to eq(13)
+      expect(n.words_end).to eq(13)
     end
 
     specify '#words_before' do

@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Stats response contains `projects` count when project token is set.
 - Menu options broken when right-click on matrices in Observation matrix hub [#2716]
 - Copy rows from matrix in New observation matrix
+- GnFinder playground incompatibility with current GnFinder API
 
 [#2701]: https://github.com/SpeciesFileGroup/taxonworks/issues/2701
 [#2706]: https://github.com/SpeciesFileGroup/taxonworks/issues/2706
