@@ -8,7 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Add space on navbar in New taxon name [#2701]
-- Updated ruby gems.
+- Updated ruby gems and node packages.
 
 ### Fixed
 - Character order selector sends null value on blank selection [#2707]
