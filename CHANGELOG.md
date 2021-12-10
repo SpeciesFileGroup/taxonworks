@@ -22,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - GnFinder playground incompatibility with current GnFinder API
 - DwC checklist importer issue with synonyms have wrong rank [#2715]
 - Scientific name not cached properly when the taxon name is classified as part of speech [#2721]
+- Depictions dropzone tries to create Depictions before saving collecting event
 
 [#2701]: https://github.com/SpeciesFileGroup/taxonworks/issues/2701
 [#2706]: https://github.com/SpeciesFileGroup/taxonworks/issues/2706
