@@ -58,7 +58,7 @@ module Vendor
       end
 
       def is_verified?
-        found.verification && found.verification.best_result.match_type != :NONE
+        [nil, 'NoMatch'].exclude?(found.verification.best_result&.match_type)
       end
 
       def is_low_probability?
