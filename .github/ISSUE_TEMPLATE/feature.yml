@@ -2,6 +2,7 @@ name: Feature request or enhancement
 description: Open a new issue to describe and request a new feature or enhancement. These will be labeled with _enhancement_.
 title: ""
 labels: ["enhancement"]
+body: 
 - type: input 
   id: summary
   attributes:
