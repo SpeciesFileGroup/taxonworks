@@ -73,10 +73,15 @@ class DescriptorsController < ApplicationController
   # DELETE /descriptors/1
   # DELETE /descriptors/1.json
   def destroy
-    @descriptor.destroy!
+    @descriptor.destroy
     respond_to do |format|
-      format.html { redirect_to descriptors_url, notice: 'Descriptor was successfully destroyed.' }
-      format.json { head :no_content }
+      if @descriptor.destroyed?
+        format.html { destroy_redirect @descriptor, notice: 'Descriptor was successfully destroyed.' }
+        format.json { head :no_content }
+      else
+        format.html { destroy_redirect @descriptor, notice: 'Descriptor was not destroyed, ' + @descriptor.errors.full_messages.join('; ') }
+        format.json { render json: @descriptor.errors, status: :unprocessable_entity }
+      end
     end
   end
 
