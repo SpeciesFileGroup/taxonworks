@@ -90,6 +90,12 @@ module Queries
       #  whether the CollectingEvent has associated CollectionObjects
       attr_accessor :collection_objects
 
+      # @return [True, False, nil]
+      #   true - index is built
+      #   false - index is not built
+      #   nil - not applied
+      attr_accessor :depictions
+
       def initialize(params)
         # @spatial_geographic_area_ids = params[:spatial_geographic_areas].blank? ? [] : params[:spatial_geographic_area_ids]
 
@@ -97,6 +103,7 @@ module Queries
         @collector_id = params[:collector_id]
         @collector_ids_or = boolean_param(params, :collector_ids_or )
         @collection_objects = boolean_param(params, :collection_objects )
+        @depictions = boolean_param(params, :depictions)
         @geo_json = params[:geo_json]
         @geographic_area_id = params[:geographic_area_id]
         @in_labels = params[:in_labels]
@@ -155,6 +162,18 @@ module Queries
           end
         end
         c
+      end
+
+      def depictions_facet
+        return nil if depictions.nil?
+
+        if depictions
+          ::CollectingEvent.joins(:depictions).distinct
+        else
+          ::CollectingEvent.left_outer_joins(:depictions)
+            .where(depictions: {id: nil})
+            .distinct
+        end
       end
 
       # @return Scope
@@ -295,6 +314,7 @@ module Queries
           identifier_between_facet,
           identifier_facet, # See Queries::Concerns::Identifiers
           identifier_namespace_facet,
+          depictions_facet,
         ].compact!
         clauses
       end

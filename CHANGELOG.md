@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated ruby gems and node packages.
 
 ### Fixed
+- Collecting event filter `depictions` facet [#2720]
 - Taxonifi wrapper init was broken
 - Character order selector sends null value on blank selection [#2707]
 - Interactive keys is loading two matrices on autocomplete search [#2706]
@@ -25,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Depictions dropzone tries to create Depictions before saving collecting event
 - Clipboard is not releasing key combination when the user clicks outside the window and release keys [#2724]
 
+[#2720]: https://github.com/SpeciesFileGroup/taxonworks/issues/2720
 [#2701]: https://github.com/SpeciesFileGroup/taxonworks/issues/2701
 [#2706]: https://github.com/SpeciesFileGroup/taxonworks/issues/2706
 [#2707]: https://github.com/SpeciesFileGroup/taxonworks/issues/2707
