@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Add space on navbar in New taxon name [#2701]
 - Updated ruby gems and node packages.
+- Tabindex in model view
 
 ### Fixed
 - Descriptor destroy raising [#2713]
