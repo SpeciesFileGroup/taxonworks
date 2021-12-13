@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC checklist importer issue with synonyms have wrong rank [#2715]
 - Scientific name not cached properly when the taxon name is classified as part of speech [#2721]
 - Depictions dropzone tries to create Depictions before saving collecting event
+- Clipboard is not releasing key combination when the user clicks outside the window and release keys [#2724]
 
 [#2701]: https://github.com/SpeciesFileGroup/taxonworks/issues/2701
 [#2706]: https://github.com/SpeciesFileGroup/taxonworks/issues/2706
@@ -31,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2715]: https://github.com/SpeciesFileGroup/taxonworks/pull/2715
 [#2716]: https://github.com/SpeciesFileGroup/taxonworks/issues/2716
 [#2721]: https://github.com/SpeciesFileGroup/taxonworks/pull/2721
+[#2724]: https://github.com/SpeciesFileGroup/taxonworks/pull/2721
 
 ## [0.22.3] - 2021-12-03
 

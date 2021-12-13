@@ -27,10 +27,9 @@
 <script>
 
 import { ProjectMember } from 'routes/endpoints'
-import platformKey from 'helpers/getPlatformKey'
 
 export default {
-  name: 'Clipboard',
+  name: 'ClipboardApp',
 
   computed: {
     actionKey () {
@@ -66,11 +65,13 @@ export default {
 
   created () {
     document.addEventListener('turbolinks:load', () => {
-      document.removeEventListener('keydown', this.keyPressed)
-      document.removeEventListener('keyup', this.removeKey)
+      window.removeEventListener('keydown', this.keyPressed)
+      window.removeEventListener('keyup', this.removeKey)
     })
-    document.addEventListener('keydown', this.keyPressed)
-    document.addEventListener('keyup', this.removeKey)
+
+    window.addEventListener('keydown', this.keyPressed)
+    window.addEventListener('keyup', this.removeKey)
+
     ProjectMember.clipboard().then(response => {
       Object.assign(this.clipboard, response.body.clipboard)
     })
@@ -90,7 +91,7 @@ export default {
 
       this.addKey(isClipboardKey ? keyPressed : key)
 
-      if (this.keys.includes(this.actionKey) && isClipboardKey) {
+      if ((this.keys.includes(this.actionKey) && event.getModifierState(this.actionKey)) && isClipboardKey) {
         if (iskeyCopyPressed) {
           this.setClipboard(key)
         } else if (this.pasteKeys.every(key => this.keys.includes(key))) {
