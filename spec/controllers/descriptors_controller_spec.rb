@@ -153,6 +153,7 @@ RSpec.describe DescriptorsController, type: :controller do
     end
 
     it 'redirects to the descriptors list' do
+      request.env['HTTP_REFERER'] = descriptors_url
       descriptor = Descriptor.create! valid_attributes
       delete :destroy, params: {id: descriptor.to_param}, session: valid_session
       expect(response).to redirect_to(descriptors_url)

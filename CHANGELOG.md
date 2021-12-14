@@ -12,7 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Tabindex in model view
 
 ### Fixed
-- Descriptor destroy raising [#2713]
+- Descriptor destroy raising
 - Loan items status not updatable (also new specs) [#2714]
 - Collecting event filter `depictions` facet [#2720]
 - Taxonifi wrapper init was broken
@@ -29,7 +29,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Depictions dropzone tries to create Depictions before saving collecting event
 - Clipboard is not releasing key combination when the user clicks outside the window and release keys [#2724]
 
-[#2713]: https://github.com/SpeciesFileGroup/taxonworks/issues/2713
 [#2714]: https://github.com/SpeciesFileGroup/taxonworks/issues/2714
 [#2720]: https://github.com/SpeciesFileGroup/taxonworks/issues/2720
 [#2701]: https://github.com/SpeciesFileGroup/taxonworks/issues/2701
