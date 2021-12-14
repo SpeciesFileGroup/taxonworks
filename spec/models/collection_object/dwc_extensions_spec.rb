@@ -12,7 +12,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
     specify '#dwc_decimal_latitude' do
       a = Georeference::Wkt.create!(collecting_event: ce, wkt: 'POINT(9.0 60)' )
 
-      s.georeference_attributes(true) # force the rebuild 
+      s.georeference_attributes(true) # force the rebuild
       expect(s.dwc_decimal_latitude).to eq(60.0) # technically not correct significant figures :(
     end
 
@@ -104,7 +104,10 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
     end
 
     specify '#dwc_type_status' do
-      FactoryBot.create(:valid_type_material, collection_object: s)
+      a = FactoryBot.create(:valid_type_material, collection_object: s)
+      a.protonym.update!(original_genus: a.protonym.parent)
+      a.protonym.update!(original_species: a.protonym )
+
       expect(s.dwc_type_status).to eq('holotype of Erythroneura vitis McAtee, 1900')
     end
 

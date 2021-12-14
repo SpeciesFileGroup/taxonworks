@@ -12,7 +12,7 @@ module TypeMaterialsHelper
 
   def label_for_type_material(type_material)
     return nil if type_material.nil?
-    type_material.type_type + ' of ' + full_original_taxon_name_label(type_material.protonym)
+    [type_material.type_type, full_original_taxon_name_label(type_material.protonym)].compact.join(' of ')
   end
 
   def type_materials_search_form
