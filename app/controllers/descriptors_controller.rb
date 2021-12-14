@@ -46,7 +46,6 @@ class DescriptorsController < ApplicationController
       if @descriptor.save
         format.html { redirect_to url_for(@descriptor.metamorphosize),
                       notice: 'Descriptor was successfully created.' }
-
         format.json { render :show, status: :created, location: @descriptor.metamorphosize }
       else
         format.html { render :new }
@@ -59,13 +58,19 @@ class DescriptorsController < ApplicationController
   # PATCH/PUT /descriptors/1.json
   def update
     respond_to do |format|
-      if @descriptor.update(descriptor_params)
-        format.html { redirect_to url_for(@descriptor.metamorphosize),
-                      notice: 'Descriptor was successfully updated.' }
-        format.json { render :show, status: :ok, location: @descriptor.metamorphosize }
-      else
+      begin
+        if @descriptor.update(descriptor_params)
+          format.html { redirect_to url_for(@descriptor.metamorphosize),
+                        notice: 'Descriptor was successfully updated.' }
+          format.json { render :show, status: :ok, location: @descriptor.metamorphosize }
+        else
+          format.html { render :edit }
+          format.json { render json: @descriptor.metamorphosize.errors, status: :unprocessable_entity }
+        end
+      # Can not cascade destroy Observations
+      rescue ActiveRecord::RecordNotDestroyed
         format.html { render :edit }
-        format.json { render json: @descriptor.metamorphosize.errors, status: :unprocessable_entity }
+        format.json { render json: 'Could not destroy, do observations still exist?', status: :unprocessable_entity }
       end
     end
   end
