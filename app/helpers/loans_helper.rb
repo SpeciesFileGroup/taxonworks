@@ -42,7 +42,7 @@ module LoansHelper
     return tag.span('Returned/canceled', class: [:feedback, 'feedback-thin', 'feedback-success']) if loan.date_closed.present?
     if loan.date_return_expected.present?
       return tag.span("Due in #{distance_of_time_in_words_to_now(loan.date_return_expected)}", class: [:feedback, 'feedback-thin', 'feedback-information']) if loan.date_return_expected > Time.now
-      return tag.span("#{distance_of_time_in_words(loan.date_return_expected)} overdue", class: [:feedback, 'feedback-thin', 'feedback-danger']) if loan.date_return_expected < Time.now
+      return tag.span("#{distance_of_time_in_words(Time.now, loan.date_return_expected)} overdue", class: [:feedback, 'feedback-thin', 'feedback-danger']) if loan.date_return_expected < Time.now
     end
     return tag.span("Lost/destroyed", class: [:feedback, 'feedback-thin', 'feedback-warning']) if loan.loan_items.count == loan.loan_items.where(disposition: ['Lost', 'Destroyed']).distinct.count
   end
