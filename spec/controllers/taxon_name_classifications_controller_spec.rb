@@ -123,19 +123,5 @@ describe TaxonNameClassificationsController, type: :controller do
     end
   end
 
-  describe 'DELETE destroy' do
-    it 'destroys the requested taxon_name_classification' do
-      taxon_name_classification = TaxonNameClassification.create! valid_attributes
-      expect {
-        delete :destroy, params: {id: taxon_name_classification.to_param}, session: valid_session
-      }.to change(TaxonNameClassification, :count).by(-1)
-    end
-
-    it 'redirects to :back' do
-      taxon_name_classification = TaxonNameClassification.create! valid_attributes
-      delete :destroy, params: {id: taxon_name_classification.to_param}, session: valid_session
-      expect(response).to redirect_to(list_otus_path)
-    end
-  end
-
+  include_examples 'DELETE #destroy', TaxonNameClassification
 end
