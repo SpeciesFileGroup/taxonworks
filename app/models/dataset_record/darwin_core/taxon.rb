@@ -248,6 +248,35 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             end
           end
 
+          # add gender or part of speech classification if given
+          if (gender = get_field_value('TW:TaxonNameClassification:Latinized:Gender'))
+            gender_types = {
+              masculine: 'TaxonNameClassification::Latinized::Gender::Masculine',
+              feminine: 'TaxonNameClassification::Latinized::Gender::Feminine',
+              neuter: 'TaxonNameClassification::Latinized::Gender::Neuter'
+            }.freeze
+
+            gender_classification = gender_types[gender.downcase.to_sym]
+
+            raise DarwinCore::InvalidData.new({ "TW:TaxonNameClassification:Latinized:Gender": ["Gender #{gender.downcase} is not one of: masculine, feminine, neuter."] }) if gender_classification.nil?
+
+            taxon_name.taxon_name_classifications.find_or_initialize_by(type: gender_classification)
+
+          elsif (part_of_speech = get_field_value('TW:TaxonNameClassification:Latinized:PartOfSpeech'))
+            parts_of_speech_types = {
+              adjective: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective',
+              participle: 'TaxonNameClassification::Latinized::PartOfSpeech::Participle',
+              'noun in apposition': 'TaxonNameClassification::Latinized::PartOfSpeech::NounInApposition',
+              'noun in genitive case': 'TaxonNameClassification::Latinized::PartOfSpeech::NounInGenitiveCase'
+            }.freeze
+
+            part_of_speech_classification = parts_of_speech_types[part_of_speech.downcase.to_sym]
+
+            raise DarwinCore::InvalidData.new({ "TW:TaxonNameClassification:Latinized:": ["PartOfSpeech #{part_of_speech.downcase} is not one of: adjective, participle, noun in apposition, noun in genitive case."] }) if part_of_speech_classification.nil?
+
+            taxon_name.taxon_name_classifications.find_or_initialize_by(type: part_of_speech_classification)
+          end
+
         elsif metadata['type'] == 'combination'
 
           # get protonym from staging metadata
