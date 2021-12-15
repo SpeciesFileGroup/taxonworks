@@ -9,7 +9,7 @@
     <template #body>
       <tree-display
         v-if="taxon.id"
-        :tree-list="treeList"
+        :tree-list="objectLists.tree"
         :object-lists="objectLists"
         :parent="parent"
         :show-modal="showModal"
@@ -38,7 +38,7 @@
       <div class="separate-top">
         <autocomplete
           v-if="view == 'Advanced'"
-          :array-list="objectLists.allList"
+          :array-list="objectLists.all"
           label="name"
           min="3"
           time="0"
@@ -48,8 +48,8 @@
           param="term"/>
         <list-common
           v-if="view != 'Advanced' && taxon.id"
-          :filter="true"
-          :object-lists="objectLists.commonList"
+          filter
+          :object-lists="objectLists.common"
           display="name"
           @addEntry="addEntry"
           :list-created="getStatusCreated"/>
@@ -77,6 +77,7 @@
 import { ActionNames } from '../store/actions/actions'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
+import { createStatusLists } from '../helpers/createStatusLists'
 import TreeDisplay from './treeDisplay.vue'
 import ListEntrys from './listEntrys.vue'
 import ListCommon from './commonList.vue'
@@ -95,32 +96,40 @@ export default {
   },
 
   computed: {
-    treeList () {
+    statusList () {
       return this.$store.getters[GetterNames.GetStatusList]
     },
+
     parent () {
       return this.$store.getters[GetterNames.GetParent]
     },
+
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
     },
+
     taxonRank () {
       return this.$store.getters[GetterNames.GetRankClass]
     },
+
     nomenclaturalCode () {
       return this.$store.getters[GetterNames.GetNomenclaturalCode]
     },
+
     showModal () {
       return this.$store.getters[GetterNames.ActiveModalStatus]
     },
+
     softValidation () {
       return this.$store.getters[GetterNames.GetSoftValidation].taxonStatusList.list
     },
+
     checkValidation () {
       return !!this.softValidation.filter(item => this.getStatusCreated.find(created => created.id === item.instance.id)).length
     },
+
     getStatusCreated () {
-      return this.$store.getters[GetterNames.GetTaxonStatusList].filter((item) => item.type.split('::')[1] !== 'Latinized')
+      return this.$store.getters[GetterNames.GetTaxonStatusList].filter(item => item.type.split('::')[1] !== 'Latinized')
     }
   },
 
@@ -128,7 +137,11 @@ export default {
     return {
       tabs: ['Common', 'Advanced', 'Show all'],
       view: 'Common',
-      objectLists: this.makeLists(),
+      objectLists: {
+        tree: [],
+        common: [],
+        all: []
+      },
       expanded: true,
       showAdvance: false,
       editStatus: undefined
@@ -139,15 +152,16 @@ export default {
     taxonRank: {
       handler (newVal) {
         if (newVal) {
-          this.refresh()
+          this.refreshLists()
         }
       }
     },
 
     parent: {
       handler (newVal) {
-        if (newVal == null) return true
-        this.refresh()
+        if (newVal) {
+          this.refreshLists()
+        }
       },
       immediate: true
     },
@@ -160,14 +174,6 @@ export default {
   },
 
   methods: {
-    makeLists () {
-      return {
-        tree: undefined,
-        commonList: [],
-        allList: []
-      }
-    },
-
     loadTaxonStatus () {
       this.$store.dispatch(ActionNames.LoadTaxonStatus, this.taxon.id)
     },
@@ -181,14 +187,13 @@ export default {
     },
 
     addEntry (item) {
-      if(this.editStatus) {
+      if (this.editStatus) {
         item.id = this.editStatus.id
         this.$store.dispatch(ActionNames.UpdateTaxonStatus, item).then(() => {
           this.editStatus = undefined
           this.$store.commit(MutationNames.UpdateLastChange)
         })
-      }
-      else {
+      } else {
         this.$store.dispatch(ActionNames.AddTaxonStatus, item).then(() => {
           this.$store.commit(MutationNames.UpdateLastChange)
         })
@@ -199,49 +204,10 @@ export default {
       this.$store.commit(MutationNames.SetModalStatus, value)
     },
 
-    refresh () {
-      const copyList = JSON.parse(JSON.stringify(this.treeList[this.nomenclaturalCode] || {}))
+    refreshLists () {
+      const list = this.statusList[this.nomenclaturalCode] || {}
 
-      this.objectLists = Object.assign({}, this.makeLists())
-      this.objectLists.tree = Object.assign({}, copyList.tree)
-
-      this.getStatusListForThisRank(copyList.all, this.taxon.rank_string).then(resolve => {
-        this.objectLists.allList = resolve
-        this.getTreeListForThisRank(this.objectLists.tree, copyList.all, resolve)
-      })
-      this.getStatusListForThisRank(copyList.common, this.parent.rank_string).then(resolve => {
-        this.objectLists.commonList = resolve
-      })
-    },
-
-    getStatusListForThisRank (list, findStatus) {
-      return new Promise(function (resolve, reject) {
-        const newList = []
-        for (var key in list) {
-          const t = list[key].applicable_ranks
-          t.find(function (item) {
-            if (item == findStatus) {
-              newList.push(list[key])
-              return true
-            }
-          })
-        }
-        resolve(newList)
-      })
-    },
-
-    getTreeListForThisRank (list, ranksList, filteredList) {
-      for (var key in list) {
-        Object.defineProperty(list[key], 'name', { writable: true, value: ranksList[key].name })
-        Object.defineProperty(list[key], 'type', { writable: true, value: ranksList[key].type })
-
-        if (filteredList.find((item) => item.type === key)) {
-          Object.defineProperty(list[key], 'disabled', { writable: true, value: false, configurable: true })
-        } else {
-          Object.defineProperty(list[key], 'disabled', { writable: true, value: true, configurable: true })
-        }
-        this.getTreeListForThisRank(list[key], ranksList, filteredList)
-      }
+      this.objectLists = createStatusLists(list, this.taxon.rank_string, this.parent.rank_string)
     }
   }
 }
