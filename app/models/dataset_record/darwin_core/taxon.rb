@@ -96,6 +96,8 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             valid_name = get_taxon_name_from_taxon_id(get_field_value(:acceptedNameUsageID))
             rank = valid_name.rank
             parent = valid_name.parent
+          elsif parent.is_a? Combination  # this can happen when the name is unavailable, it's not a synonym so it doesn't point to anything else
+            parent = parent.finest_protonym
           end
 
           protonym_attributes = {
@@ -121,26 +123,13 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
           end
 
-          # create original combination relationships, get parents of original combination to set as subject taxon name
 
-          if get_field_value(:taxonID) == get_field_value(:originalNameUsageID)
-            # create relationships for genus rank and below pointing to self and parents
+          # make OC relationships to OC ancestors
+          unless parent == project.root_taxon_name  # can't make original combination with Root
 
-            taxon_name.safe_self_and_ancestors.each do |ancestor|
-              # does not include self for new records
-              if (rank_in_type = ORIGINAL_COMBINATION_RANKS[ancestor&.rank&.downcase&.to_sym])
-                TaxonNameRelationship.find_or_create_by!(type: rank_in_type, subject_taxon_name: ancestor, object_taxon_name: taxon_name)
-              end
-            end
-
-          else
-            # protonym is not the original combination, need to make relationships to OC ancestors
-
-            unless parent == project.root_taxon_name
-
-              # loop through parents of original combination based on parentNameUsageID, not TW parent
-              # this way we get the name as intended, not with valid/current names
-              original_combination_parents = [find_by_taxonID(get_original_combination.metadata['parent'])]
+            # loop through parents of original combination based on parentNameUsageID, not TW parent
+            # this way we get the name as intended, not with any valid/current names
+            original_combination_parents = [find_by_taxonID(get_original_combination.metadata['parent'])]
 
               # build list of parent DatasetRecords
               while (next_parent = find_by_taxonID(original_combination_parents[-1].metadata['parent']))
@@ -194,8 +183,8 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
               TaxonNameRelationship.create_with(subject_taxon_name: taxon_name).find_or_create_by!(
                 type: ORIGINAL_COMBINATION_RANKS[oc_protonym_rank],
                 object_taxon_name: taxon_name)
-            end
           end
+
 
           # if taxonomicStatus is a synonym or homonym, create the relationship to acceptedNameUsageID
           if metadata['has_external_accepted_name']

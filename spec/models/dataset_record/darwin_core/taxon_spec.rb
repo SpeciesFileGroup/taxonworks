@@ -167,9 +167,9 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     # Apterostigma  genus
     # Apterostigma auriculatum genus + species
     # Apterostigma wasmannii genus + species
-    # Apterostigma icta genus + species
+    # Apterostigma wasmanii icta genus + species + subspecies
     it 'should have eight original combinations' do
-      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 7
+      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 8
     end
 
     context 'the synonym TaxonName' do
