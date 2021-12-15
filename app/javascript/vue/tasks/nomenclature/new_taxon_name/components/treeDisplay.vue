@@ -1,61 +1,69 @@
 <template>
-  <form v-if="parent">
-    <modal
-      class="transparent-modal"
-      v-if="showModal"
-      @close="activeModal(false)">
-      <template #header>
-        <h3>{{ nameModule }}</h3>
-      </template>
-      <template #body>
-        <div
-          class="tree-list">
-          <recursive-list
-            :getter-list="getterList"
-            :display="displayName"
-            @selected="$emit('selected', $event)"
-            :modal-mutation-name="mutationNameModal"
-            :action-mutation-name="mutationNameAdd"
-            :valid-property="validProperty"
-            :object-list="objectLists.tree"/>
-        </div>
-      </template>
-    </modal>
-  </form>
+  <modal
+    class="transparent-modal"
+    @close="$emit('close', true)">
+    <template #header>
+      <h3>{{ title }}</h3>
+    </template>
+    <template #body>
+      <div
+        class="tree-list">
+        <recursive-list
+          :created-list="createdList"
+          :display="displayName"
+          @selected="$emit('selected', $event)"
+          :valid-property="validProperty"
+          :object-list="objectLists.tree"
+          :taxon-rank="taxonRank"/>
+      </div>
+    </template>
+  </modal>
 </template>
 <script>
 
-import { GetterNames } from '../store/getters/getters'
-import { MutationNames } from '../store/mutations/mutations'
 import RecursiveList from './recursiveList.vue'
 import Modal from 'components/ui/Modal.vue'
 
 export default {
+  name: 'TreeDisplay',
+
   components: {
     RecursiveList,
     Modal
   },
 
-  name: 'TreeDisplay',
+  props: {
+    taxonRank: {
+      type: String,
+      required: true
+    },
 
-  props: ['treeList', 'parent', 'showModal', 'mutationNameAdd', 'mutationNameModal', 'objectLists', 'displayName', 'nameModule', 'getterList', 'validProperty'],
+    objectLists: {
+      type: Object,
+      required: true
+    },
 
-  data () {
-    return {
-      showAdvance: false
+    displayName: {
+      type: String,
+      required: true
+    },
+
+    title: {
+      type: String,
+      required: true
+    },
+
+    validProperty: {
+      type: String,
+      required: true
+    },
+
+    createdList: {
+      type: Array,
+      default: () => []
     }
   },
-  computed: {
-    taxon () {
-      return this.$store.getters[GetterNames.GetTaxon]
-    }
-  },
 
-  methods: {
-    activeModal (value) {
-      this.$emit('close', true)
-      this.$store.commit(MutationNames[this.mutationNameModal], value)
-    }
-  }
+  emits: ['close', 'selected']
 }
 </script>

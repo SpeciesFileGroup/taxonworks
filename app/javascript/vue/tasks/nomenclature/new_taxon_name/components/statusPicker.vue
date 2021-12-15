@@ -8,20 +8,17 @@
     </template>
     <template #body>
       <tree-display
-        v-if="taxon.id"
+        v-if="taxon.id && showModal"
         :tree-list="objectLists.tree"
         :object-lists="objectLists"
-        :parent="parent"
-        :show-modal="showModal"
+        :taxon-rank="taxon.rank_string"
         :filter="getStatusCreated"
-        valid-property="valid_subject_ranks"
-        @close="view = 'Common'"
+        :created-list="getStatusCreated"
+        title="Status"
+        display-name="name"
+        @close="view = 'Common'; showModal = false"
         @selected="addEntry"
-        mutation-name-add="AddTaxonStatus"
-        mutation-name-modal="SetModalStatus"
-        getter-list="GetTaxonStatusList"
-        name-module="Status"
-        display-name="name"/>
+      />
       <div v-if="editStatus">
         <p class="inline">
           <span class="separate-right">Editing status: </span>
@@ -116,10 +113,6 @@ export default {
       return this.$store.getters[GetterNames.GetNomenclaturalCode]
     },
 
-    showModal () {
-      return this.$store.getters[GetterNames.ActiveModalStatus]
-    },
-
     softValidation () {
       return this.$store.getters[GetterNames.GetSoftValidation].taxonStatusList.list
     },
@@ -144,7 +137,8 @@ export default {
       },
       expanded: true,
       showAdvance: false,
-      editStatus: undefined
+      editStatus: undefined,
+      showModal: false
     }
   },
 
@@ -201,7 +195,7 @@ export default {
     },
 
     activeModal (value) {
-      this.$store.commit(MutationNames.SetModalStatus, value)
+      this.showModal = value
     },
 
     refreshLists () {

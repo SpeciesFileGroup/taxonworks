@@ -52,17 +52,16 @@
         </div>
         <div v-else>
           <tree-display
-            :tree-list="treeList"
-            :parent="parent"
+            v-if="showModal"
+            :taxon-rank="taxon.rank_string"
             :object-lists="objectLists"
-            :show-modal="showModal"
             valid-property="valid_subject_ranks"
-            @close="view = 'Common'"
+            :list-created="GetRelationshipsCreated"
+            title="Relationship"
+            display-name="subject_status_tag"
+            @close="view = 'Common'; showModal = false"
             @selected="addEntry"
-            mutation-name-add="AddTaxonRelationship"
-            mutation-name-modal="SetModalRelationship"
-            name-module="Relationship"
-            display-name="subject_status_tag"/>
+          />
 
           <switch-component
             v-model="view"
@@ -172,10 +171,6 @@ export default {
 
     nomenclaturalCode () {
       return this.$store.getters[GetterNames.GetNomenclaturalCode]
-    },
-
-    showModal () {
-      return this.$store.getters[GetterNames.ActiveModalRelationship]
     }
   },
   data () {
@@ -192,7 +187,8 @@ export default {
       incertaeSedis: {
         iczn: { type: 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement' },
         icvcn: { type: 'TaxonNameRelationship::Icvcn::Accepting::UncertainPlacement' }
-      }
+      },
+      showModal: false
     }
   },
   watch: {
@@ -250,7 +246,7 @@ export default {
     },
 
     activeModal (value) {
-      this.$store.commit(MutationNames.SetModalRelationship, value)
+      this.showModal = value
     },
 
     makeLists () {
@@ -294,7 +290,7 @@ export default {
       this.taxonRelation = undefined
     },
 
-    editRelationship(value) {
+    editRelationship (value) {
       this.taxonRelation = value
       this.editMode = this.taxonRelation
     },
