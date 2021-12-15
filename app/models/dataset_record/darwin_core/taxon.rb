@@ -89,6 +89,15 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
         end
 
         if metadata['type'] == 'protonym'
+
+          # if the name is a synonym, we should use the valid taxon's rank and parent
+          # we fetch parent from the source file when calculating original combination, so it's ok to modify it here.
+          if metadata['is_synonym']
+            valid_name = get_taxon_name_from_taxon_id(get_field_value(:acceptedNameUsageID))
+            rank = valid_name.rank
+            parent = valid_name.parent
+          end
+
           protonym_attributes = {
             name: name,
             parent: parent,

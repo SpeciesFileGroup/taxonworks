@@ -164,8 +164,12 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym')
     end
 
+    # Apterostigma  genus
+    # Apterostigma auriculatum genus + species
+    # Apterostigma wasmannii genus + species
+    # Apterostigma icta genus + species
     it 'should have eight original combinations' do
-      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 8
+      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 7
     end
 
     context 'the synonym TaxonName' do
@@ -177,8 +181,8 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
         expect(synonym.cached_valid_taxon_name_id).to eq valid.id
       end
 
-      it "the synonym's parent should be Apterostigma wasmannii" do
-        expect(synonym.parent.id).to eq synonym_parent.id
+      it "the synonym's parent should be the same as the valid name's parent, Apterostigma" do
+        expect(synonym.parent.id).to eq valid.parent.id
       end
     end
   end
@@ -219,11 +223,13 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       expect(Combination.all.length).to eq 0
     end
 
-    it 'should have 4 original species relationships' do    # Anoplolepis longipes, Anoplolepis gracilipes, Pheidole longipes
+    it 'should have 4 original species relationships' do
+      # Anoplolepis longipes, Anoplolepis gracilipes, Pheidole longipes
       expect(TaxonNameRelationship.where(type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies').count).to eq 3
     end
 
-    it 'should have 5 valid taxon names' do # "Root", "Formica", "Anoplolepis", "Pheidole", "Anoplolepis gracilipes", "Pheidole longipes"
+    it 'should have 5 valid taxon names' do
+      # "Root", "Formica", "Anoplolepis", "Pheidole", "Anoplolepis gracilipes", "Pheidole longipes"
       expect(TaxonName.that_is_valid.count).to eq 6
     end
 
@@ -536,12 +542,14 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       verify_all_records_imported(5)
     end
 
-    # Amblyopone australis cephalotes
+    # Amblyopone australis cephalotes shouldn't be a combination, it's a synonym of Amblyopone australis so
+    # It makes/uses the protonym Amblyopone cephalotes instead
     it 'should have 1 Combination' do
-      expect(Combination.all.length).to eq 1
+      expect(Combination.all.length).to eq 0
     end
 
     it 'cephalotes original combination should be Amblyopone cephalotes' do
+      expect_original_combination(TaxonName.find_by(name: 'cephalotes'), TaxonName.find_by(name: 'cephalotes'), 'species')
       expect_original_combination(TaxonName.find_by(name: 'Amblyopone'), TaxonName.find_by(name: 'cephalotes'), 'genus')
     end
 
@@ -551,8 +559,8 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym')
     end
 
-    it 'Amblyopone cephalotes maculata should be a synonym of Amblyopone australis' do
-      relationship = TaxonNameRelationship.find_by({ subject_taxon_name: TaxonName.find_by(cached: 'Amblyopone cephalotes maculata'),
+    it 'maculata should be a synonym of Amblyopone australis' do
+      relationship = TaxonNameRelationship.find_by({ subject_taxon_name: TaxonName.find_by(name: 'maculata'),
                                                      object_taxon_name: TaxonName.find_by(cached: 'Amblyopone australis') })
       expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym')
     end
@@ -564,6 +572,62 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     #   expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym')
     # end
 
+  end
+
+  context "when importing a synonym that doesn't have a name with matching rank and parent" do
+    before :all do
+      DatabaseCleaner.start
+      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/synonym_without_matching_parent_and_rank.tsv'), 'text/plain'),
+        description: 'synonym without matching parent and rank'
+      ).tap { |i| i.stage }
+
+      6.times { |_|
+        import_dataset.import(5000, 100)
+      }
+    end
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    # Root, Aenictus, Typhlatta, Eciton, pachycerus, bengalensis, continuus
+    it 'should have 7 protonyms' do
+      expect(Protonym.all.length).to eq 7
+    end
+
+    it 'imports 9 records' do
+      verify_all_records_imported(9)
+    end
+
+    let(:subspecies) { TaxonName.find_by(name: 'continuus') }
+
+    it 'Aenictus bengalensis should have OC Typhlatta bengalensis' do
+      expect_original_combination(TaxonName.find_by(name: 'bengalensis'), TaxonName.find_by(name: 'bengalensis'), 'species')
+      expect_original_combination(TaxonName.find_by(name: 'Typhlatta'), TaxonName.find_by(name: 'bengalensis'), 'genus')
+    end
+
+    it 'Aenictus pachycerus should have OC Eciton pachycerus' do
+      expect_original_combination(TaxonName.find_by(name: 'pachycerus'), TaxonName.find_by(name: 'pachycerus'), 'species')
+      expect_original_combination(TaxonName.find_by(name: 'Eciton'), TaxonName.find_by(name: 'pachycerus'), 'genus')
+    end
+
+    it 'Aenictus pachycerus continuus should have OC Aenictus bengalensis continuus' do
+      expect_original_combination(subspecies, subspecies, 'subspecies')
+      expect_original_combination(TaxonName.find_by(name: "bengalensis"), subspecies, 'species')
+      expect_original_combination(TaxonName.find_by(name: "Aenictus"), subspecies, 'genus')
+    end
+
+    it 'Aenictus bengalensis should be synonym of Aenictus pachycerus' do
+      relationship = TaxonNameRelationship.find_by({ subject_taxon_name: TaxonName.find_by(name: 'bengalensis'),
+                                                     object_taxon_name: TaxonName.find_by(cached: 'Aenictus pachycerus') })
+      expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym')
+    end
+
+    it 'Aenictus pachycerus continuus should be synonym of Aenictus pachycerus' do
+      relationship = TaxonNameRelationship.find_by({ subject_taxon_name: TaxonName.find_by(name: 'continuus'),
+                                                     object_taxon_name: TaxonName.find_by(cached: 'Aenictus pachycerus') })
+      expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym')
+    end
 
   end
 
@@ -575,8 +639,8 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 end
 
 # Helper method to expect an OriginalCombination relationship with less code duplication
-# @param [Integer, Protonym] subject_taxon_name
-# @param [Integer, Protonym] object_taxon_name
+# @param [Integer, Protonym] subject_taxon_name (the higher rank name)
+# @param [Integer, Protonym] object_taxon_name (the lower rank name)
 # @param [String] rank The (short) rank to expect in the relationship
 def expect_original_combination(subject_taxon_name, object_taxon_name, rank)
   expect(TaxonNameRelationship.find_by({ subject_taxon_name: subject_taxon_name, object_taxon_name: object_taxon_name }).type_name).to eq('TaxonNameRelationship::OriginalCombination::Original' + rank.capitalize)
