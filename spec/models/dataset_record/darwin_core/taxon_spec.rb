@@ -631,6 +631,56 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
   end
 
+  context 'when importing a homonym with same author and year as valid name' do
+
+    before :all do
+      DatabaseCleaner.start
+      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/homonym_with_same_author_year.tsv'), 'text/plain'),
+        description: 'homonym with same author and year'
+      ).tap { |i| i.stage }
+
+      4.times { |_|
+        import_dataset.import(5000, 100)
+      }
+    end
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:silvestrii_valid) { TaxonName.find_by(name: 'silvestrii', cached_author_year: '(Santschi, 1914)') }
+    let(:silvestrii_homonym) { TaxonName.find_by(name: 'silvestrii', cached_author_year: 'Santschi, 1914') }
+
+    # Root, Carebara, Aneleus, {silvestrii (Santschi, 1914)}, {silvestrii Santschi, 1914}, guineana
+    it 'should have 6 protonyms' do
+      expect(Protonym.all.length).to eq 6
+    end
+
+    it 'imports 6 records' do
+      verify_all_records_imported(6)
+    end
+
+    it 'should have two protonyms named silvestrii' do
+      expect(Protonym.where(name: 'silvestrii').count).to eq 2
+    end
+
+    it 'Carebara silvestrii Santschi, 1914 should be a homonym replaced by Carebara guineana' do
+      expect(TaxonNameClassification.find_by(taxon_name: silvestrii_homonym).type).to eq('TaxonNameClassification::Iczn::Available::Invalid::Homonym')
+      relationship = TaxonNameRelationship.find_by({ subject_taxon_name: silvestrii_homonym, object_taxon_name: TaxonName.find_by(name: 'guineana') })
+      expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym')
+    end
+
+    it 'Carebara silvestrii (Santschi, 1914) should be a valid name' do
+      expect(silvestrii_valid.is_valid?).to be_truthy
+    end
+
+    it 'silvestrii should have original combination Aneleus silvestrii' do
+      expect_original_combination(silvestrii_valid, silvestrii_valid, 'species')
+      expect_original_combination(TaxonName.find_by(name: 'Aneleus'), silvestrii_valid, 'genus')
+    end
+
+  end
+
   # TODO test missing parent
   #
   # TODO test protonym is unavailable --- set classification on unsaved TaxonName

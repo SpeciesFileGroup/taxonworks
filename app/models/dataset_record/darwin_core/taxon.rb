@@ -104,13 +104,13 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             name: name,
             parent: parent,
             rank_class: Ranks.lookup(nomenclature_code, rank),
-            also_create_otu: false,
+            # also_create_otu: false,
             verbatim_author: author_name,
             year_of_publication: year
           }
 
-          taxon_name = Protonym.create_with(verbatim_author: author_name, project: project)
-                               .find_or_initialize_by(protonym_attributes.slice(:name, :parent, :rank_class, :year_of_publication))
+          taxon_name = Protonym.create_with(project: project)
+                               .find_or_initialize_by(protonym_attributes)
 
           unless taxon_name.persisted?
             taxon_name.taxon_name_classifications.build(type: TaxonNameClassification::Icn::Hybrid) if is_hybrid
