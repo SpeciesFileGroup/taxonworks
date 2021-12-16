@@ -235,7 +235,8 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             status_types = {
               invalid: 'TaxonNameClassification::Iczn::Available::Invalid',
               unavailable: 'TaxonNameClassification::Iczn::Unavailable',
-              excluded: 'TaxonNameClassification::Iczn::Unavailable::Excluded'
+              excluded: 'TaxonNameClassification::Iczn::Unavailable::Excluded',
+              'nomen nudum': 'TaxonNameClassification::Iczn::Unavailable::NomenNudum'
             }.freeze
 
             if (status = get_field_value(:taxonomicStatus)&.downcase)

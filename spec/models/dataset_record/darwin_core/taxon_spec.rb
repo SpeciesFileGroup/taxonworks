@@ -681,6 +681,66 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
   end
 
+  context 'when importing a name classified as nomen nudum' do
+    before :all do
+      DatabaseCleaner.start
+      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/nomen_nudum.tsv'), 'text/plain'),
+        description: 'nomen nudum'
+      ).tap { |i| i.stage }
+
+      5.times { |_|
+        import_dataset.import(5000, 100)
+      }
+    end
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:kraussei_krausse) { TaxonName.find_by(name: 'kraussei', cached_author_year: 'Krausse, 1912') }
+    let(:kraussei_emery) { TaxonName.find_by(name: 'kraussei', cached_author_year: '(Emery, 1916)') }
+
+    # Root, Myrmica, Leptothorax, Temnothorax, angustulus, "kraussei Emery, 1916", "kraussei Krausse, 1912", mediterraneus
+    it 'should have 8 protonyms' do
+      expect(Protonym.all.length).to eq 8
+    end
+
+    it 'imports 10 records' do
+      verify_all_records_imported(10)
+    end
+
+    it 'should have two protonyms named kraussei' do
+      expect(Protonym.where(name: 'kraussei').count).to eq 2
+    end
+
+    it 'Leptothorax angustulus kraussei Krausse, 1912 should have nomen nudum classification' do
+      expect(TaxonNameClassification.find_by(taxon_name: kraussei_krausse).type).to eq('TaxonNameClassification::Iczn::Unavailable::NomenNudum')
+    end
+
+    it 'Leptothorax angustulus kraussei Emery, 1916 should be a homonym' do
+      expect(TaxonNameClassification.find_by(taxon_name: kraussei_emery).type).to eq('TaxonNameClassification::Iczn::Available::Invalid::Homonym')
+      relationship = TaxonNameRelationship.find_by({ subject_taxon_name: kraussei_emery, object_taxon_name: TaxonName.find_by(name: 'mediterraneus') })
+      expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym')
+
+    end
+
+    it 'Leptothorax angustulus kraussei Krausse, 1912 should have OC Leptothorax angustulus kraussei Krausse, 1912' do
+      expect_original_combination(kraussei_krausse, kraussei_krausse, 'subspecies')
+      expect_original_combination(TaxonName.find_by(name: 'angustulus'), kraussei_krausse, 'species')
+      expect_original_combination(TaxonName.find_by(name: 'Leptothorax'), kraussei_krausse, 'genus')
+    end
+
+    it 'Leptothorax angustulus kraussei Emery, 1916 should have OC Leptothorax angustulus kraussei Emery, 1916' do
+      expect_original_combination(kraussei_emery, kraussei_emery, 'subspecies')
+      expect_original_combination(TaxonName.find_by(name: 'angustulus'), kraussei_emery, 'species')
+      expect_original_combination(TaxonName.find_by(name: 'Leptothorax'), kraussei_emery, 'genus')
+    end
+
+    it 'Leptothorax angustulus kraussei Emery, 1916 should have valid name Temnothorax kraussei' do
+      expect(kraussei_emery.parent).to eq(TaxonName.find_by(name: 'Temnothorax'))
+    end
+  end
+
   # TODO test missing parent
   #
   # TODO test protonym is unavailable --- set classification on unsaved TaxonName
