@@ -865,7 +865,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       DatabaseCleaner.clean
     end
 
-    # Root, Formicidae, Formica, Cephalotes, fuscescens
+    # Root, Formicidae, Formica, Cephalotes, haemorrhoidalis
     it 'should have 5 protonyms' do
       expect(Protonym.all.length).to eq 5
     end
@@ -875,8 +875,8 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     end
 
     let(:current_genus) { TaxonName.find_by(name: 'Cephalotes') }
-    let(:old_genus) {TaxonName.find_by(name: 'Formica')}
-    let(:species) { TaxonName.find_by(name: 'fuscescens') }
+    let(:old_genus) { TaxonName.find_by(name: 'Formica') }
+    let(:species) { TaxonName.find_by(name: 'haemorrhoidalis') }
 
     it 'genus should not have UncertainPlacement' do
       expect(old_genus.iczn_uncertain_placement_relationship).to be_falsey
