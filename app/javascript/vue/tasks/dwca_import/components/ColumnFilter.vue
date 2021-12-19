@@ -21,11 +21,12 @@
       </div>
     </div>
     <div
-      v-if="show && !disabled"
+      v-show="show && !disabled"
       class="panel content filter-container"
     >
       <div class="horizontal-left-content" >
         <autocomplete
+          ref="autocomplete"
           :url="`/import_datasets/${importId}/dataset_records/autocomplete_data_fields.json`"
           :add-params="{
             field: field,
@@ -72,9 +73,9 @@ import ColumnMixin from './shared/columnMixin.js'
 
 export default {
   mixins: [ColumnMixin],
-  components: {
-    Autocomplete
-  },
+
+  components: { Autocomplete },
+
   props: {
     columnIndex: {
       type: Number,
@@ -93,6 +94,9 @@ export default {
       required: true
     }
   },
+
+  emits: ['replace'],
+
   computed: {
     importId () {
       return this.$store.getters[GetterNames.GetDataset].id
@@ -101,6 +105,7 @@ export default {
       return this.$store.getters[GetterNames.GetParamsFilter]
     }
   },
+
   data () {
     return {
       per: 25,
@@ -108,6 +113,15 @@ export default {
       replace: ''
     }
   },
+
+  watch: {
+    filter (newVal) {
+      if (!newVal) {
+        this.$refs.autocomplete.setText('')
+      }
+    }
+  },
+
   methods: {
     applyFilter (value) {
       this.filter = value

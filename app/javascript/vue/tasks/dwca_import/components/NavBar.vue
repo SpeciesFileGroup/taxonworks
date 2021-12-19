@@ -75,10 +75,6 @@ export default {
   methods: {
     reset () {
       this.$store.dispatch(ActionNames.ResetState)
-    },
-
-    resetFilters () {
-
     }
   }
 }
