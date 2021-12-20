@@ -96,7 +96,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             valid_name = get_taxon_name_from_taxon_id(get_field_value(:acceptedNameUsageID))
             rank = valid_name.rank
             parent = valid_name.parent
-          elsif parent.is_a? Combination  # this can happen when the name is unavailable, it's not a synonym so it doesn't point to anything else
+          elsif parent.is_a? Combination # this can happen when the name is unavailable, it's not a synonym so it doesn't point to anything else
             parent = parent.finest_protonym
           end
 
@@ -123,68 +123,66 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
           end
 
-
           # make OC relationships to OC ancestors
-          unless parent == project.root_taxon_name  # can't make original combination with Root
+          unless parent == project.root_taxon_name # can't make original combination with Root
 
             # loop through parents of original combination based on parentNameUsageID, not TW parent
             # this way we get the name as intended, not with any valid/current names
             original_combination_parents = [find_by_taxonID(get_original_combination.metadata['parent'])]
 
-              # build list of parent DatasetRecords
-              while (next_parent = find_by_taxonID(original_combination_parents[-1].metadata['parent']))
-                original_combination_parents << next_parent
-              end
-
-              # convert DatasetRecords into list of Protonyms
-              original_combination_parents.map! do |p|
-                h = {}
-                h[:protonym] = TaxonName.find(p.metadata['imported_objects']['taxon_name']['id'])
-                h[:rank] = DatasetRecordField.where(dataset_record_id: p)
-                                             .at(get_field_mapping(:taxonRank))
-                                             .pick(:value)
-                                             .downcase
-                h
-              end
-
-              original_combination_parents.each do |ancestor|
-                ancestor_protonym = ancestor[:protonym]
-                rank = ancestor[:rank]
-
-                # If OC parent is combination, need to create relationship for lowest element
-                if ancestor_protonym.is_a?(Combination)
-                  ancestor_protonym = ancestor[:protonym].finest_protonym
-                end
-
-                if (rank_in_type = ORIGINAL_COMBINATION_RANKS[rank&.downcase&.to_sym])
-                  TaxonNameRelationship.find_or_create_by!(type: rank_in_type, subject_taxon_name: ancestor_protonym, object_taxon_name: taxon_name)
-                end
-              end
+            # build list of parent DatasetRecords
+            while (next_parent = find_by_taxonID(original_combination_parents[-1].metadata['parent']))
+              original_combination_parents << next_parent
             end
 
-            # when creating the OC record pointing to self,
-            # can't assume OC rank is same as valid rank, need to look at OC row to find real rank
-            # This is easier for the end-user than adding OC to protonym when importing the OC row,
-            # but might be more complex to code
+            # convert DatasetRecords into list of Protonyms
+            original_combination_parents.map! do |p|
+              h = {}
+              h[:protonym] = TaxonName.find(p.metadata['imported_objects']['taxon_name']['id'])
+              h[:rank] = DatasetRecordField.where(dataset_record_id: p)
+                                           .at(get_field_mapping(:taxonRank))
+                                           .pick(:value)
+                                           .downcase
+              h
+            end
 
-            # get OC dataset_record_id so we can pull the taxonRank from it.
-            oc_dataset_record_id = import_dataset.core_records_fields
-                                                 .at(get_field_mapping(:taxonID))
-                                                 .with_value(get_field_value(:originalNameUsageID))
-                                                 .pick(:dataset_record_id)
+            original_combination_parents.each do |ancestor|
+              ancestor_protonym = ancestor[:protonym]
+              rank = ancestor[:rank]
 
-            oc_protonym_rank = import_dataset.core_records_fields
-                                             .where(dataset_record_id: oc_dataset_record_id)
-                                             .at(get_field_mapping(:taxonRank))
-                                             .pick(:value)
-                                             .downcase.to_sym
+              # If OC parent is combination, need to create relationship for lowest element
+              if ancestor_protonym.is_a?(Combination)
+                ancestor_protonym = ancestor[:protonym].finest_protonym
+              end
 
-            if ORIGINAL_COMBINATION_RANKS.has_key?(oc_protonym_rank)
-              TaxonNameRelationship.create_with(subject_taxon_name: taxon_name).find_or_create_by!(
-                type: ORIGINAL_COMBINATION_RANKS[oc_protonym_rank],
-                object_taxon_name: taxon_name)
+              if (rank_in_type = ORIGINAL_COMBINATION_RANKS[rank&.downcase&.to_sym])
+                TaxonNameRelationship.find_or_create_by!(type: rank_in_type, subject_taxon_name: ancestor_protonym, object_taxon_name: taxon_name)
+              end
+            end
           end
 
+          # when creating the OC record pointing to self,
+          # can't assume OC rank is same as valid rank, need to look at OC row to find real rank
+          # This is easier for the end-user than adding OC to protonym when importing the OC row,
+          # but might be more complex to code
+
+          # get OC dataset_record_id so we can pull the taxonRank from it.
+          oc_dataset_record_id = import_dataset.core_records_fields
+                                               .at(get_field_mapping(:taxonID))
+                                               .with_value(get_field_value(:originalNameUsageID))
+                                               .pick(:dataset_record_id)
+
+          oc_protonym_rank = import_dataset.core_records_fields
+                                           .where(dataset_record_id: oc_dataset_record_id)
+                                           .at(get_field_mapping(:taxonRank))
+                                           .pick(:value)
+                                           .downcase.to_sym
+
+          if ORIGINAL_COMBINATION_RANKS.has_key?(oc_protonym_rank)
+            TaxonNameRelationship.create_with(subject_taxon_name: taxon_name).find_or_create_by!(
+              type: ORIGINAL_COMBINATION_RANKS[oc_protonym_rank],
+              object_taxon_name: taxon_name)
+          end
 
           # if taxonomicStatus is a synonym or homonym, create the relationship to acceptedNameUsageID
           if metadata['has_external_accepted_name']
@@ -245,18 +243,32 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
               # if name in incertae sedis, attach to finest level known (usually parent) and add TaxonNameRelationship
               if status == 'incertae sedis'
-                # if parent has uncertain placement in rank, this taxon should have uncertain placement in same rank
-                #noinspection RubyResolve
-                if (r = parent.iczn_uncertain_placement_relationship)
-                  finest_known_rank = TaxonName.find(r.object_taxon_name_id)
+
+                # if user has provided a `TW:TaxonNameRelationship:incertae_sedis_in_rank` field, use that to determine
+                # which rank of parent should be used for I.S. relationship
+                if (verbatim_is_rank = get_field_value('TW:TaxonNameRelationship:incertae_sedis_in_rank'))
+                  incertae_sedis_parent = taxon_name.ancestor_at_rank(verbatim_is_rank.downcase)
+
+                  if incertae_sedis_parent.nil?
+                    available_parent_ranks = taxon_name.ancestors.map { |a| "#{a.rank}: #{a.name}" }.join(", ")
+                    raise DarwinCore::InvalidData.new({ "TW:TaxonNameRelationship:incertae_sedis_in_rank":
+                                                          ["Taxon #{taxon_name.name} does not have a parent at rank #{rank}.
+                                                            Available ancestors are #{available_parent_ranks}.".squish] })
+                  end
+
                 else
-                  # if parent doesn't have uncertain placement, make relationship with it
+                  # if parent has uncertain placement in rank, this taxon should have uncertain placement in same rank
                   #noinspection RubyResolve
-                  finest_known_rank = parent
+                  if (r = parent.iczn_uncertain_placement_relationship)
+                    incertae_sedis_parent = TaxonName.find(r.object_taxon_name_id)
+                  else
+                    # if parent doesn't have uncertain placement, make relationship with family or subfamily (FamilyGroup)
+                    incertae_sedis_parent = taxon_name.ancestors.with_base_of_rank_class('NomenclaturalRank::Iczn::FamilyGroup')
+                  end
                 end
 
                 taxon_name.taxon_name_relationships.find_or_initialize_by(
-                  object_taxon_name: finest_known_rank,
+                  object_taxon_name: incertae_sedis_parent,
                   type: 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement')
               else
                 type = status_types[status.to_sym]
@@ -324,8 +336,8 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                 # Key is rank (as set in checklist file)
                 DatasetRecordField.where(dataset_record: p)
                                   .at(get_field_mapping(:taxonRank))
-                                  &.pick(:value)
-                                  &.downcase&.to_sym,
+                  &.pick(:value)
+                  &.downcase&.to_sym,
                 # value is Protonym
                 TaxonName.find(p.metadata['imported_objects']['taxon_name']['id'])
               ]
