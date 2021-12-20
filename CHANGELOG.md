@@ -6,6 +6,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Add
+- Add `reset filters` button in DwC import task [#2730]
+
 ### Changed
 - Add space on navbar in New taxon name [#2701]
 - Updated ruby gems and node packages.
@@ -31,6 +34,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Depictions dropzone tries to create Depictions before saving collecting event
 - Clipboard is not releasing key combination when the user clicks outside the window and release keys [#2724]
 - Removed `destroy!` pattern from various controllers
+- Unable to create loan items in Collection object match task [#2731]
+- DwC import search criteria is missing when search box is reopen [#2729]
 
 [#2712]: https://github.com/SpeciesFileGroup/taxonworks/issues/2712
 [#2713]: https://github.com/SpeciesFileGroup/taxonworks/issues/2713
@@ -44,6 +49,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2716]: https://github.com/SpeciesFileGroup/taxonworks/issues/2716
 [#2721]: https://github.com/SpeciesFileGroup/taxonworks/pull/2721
 [#2724]: https://github.com/SpeciesFileGroup/taxonworks/pull/2724
+[#2729]: https://github.com/SpeciesFileGroup/taxonworks/pull/2729
+[#2730]: https://github.com/SpeciesFileGroup/taxonworks/issues/2730
+[#2731]: https://github.com/SpeciesFileGroup/taxonworks/issues/2731
 
 ## [0.22.3] - 2021-12-03
 

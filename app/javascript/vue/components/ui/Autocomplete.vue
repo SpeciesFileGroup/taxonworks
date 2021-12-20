@@ -241,7 +241,7 @@ export default {
       this.type = ''
     },
 
-    setLabel(value) {
+    setText (value) {
       this.type = value
     },
 

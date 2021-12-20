@@ -4,36 +4,16 @@
     <fieldset>
       <legend>Loan</legend>
       <smart-selector
+        v-model="loan"
         model="loans"
         klass="CollectionObject"
-        @selected="setLoan"/>
-      <p
-        v-if="loan"
-        class="horizontal-left-content">
-        <span v-html="loanLabel"/>
-        <span
-          class="button btn-undo circle-button button-default"
-          @click="loan = undefined"/>
-      </p>
+      />
+      <smart-selector-item
+        :item="loan"
+        @unset="setLoan"
+      />
     </fieldset>
-    <div class="field label-above margin-medium-top">
-      <label>Date returned</label>
-      <input
-        type="date"
-        v-model="loanItem.date_returned">
-    </div>
-    <div class="field label-above">
-      <label>Status</label>
-      <select v-model="loanItem.disposition">
-        <option
-          v-for="item in status"
-          :key="item"
-          :value="item">
-          {{ item }}
-        </option>
-      </select>
-    </div>
-    <div>
+    <div class="margin-medium-top">
       <button
         type="button"
         class="button normal-input button-submit"
@@ -47,11 +27,15 @@
 
 <script>
 
-import SmartSelector from 'components/ui/SmartSelector'
 import { Loan } from 'routes/endpoints'
+import SmartSelector from 'components/ui/SmartSelector'
+import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
 
 export default {
-  components: { SmartSelector },
+  components: {
+    SmartSelector,
+    SmartSelectorItem
+  },
 
   props: {
     ids: {
@@ -66,24 +50,13 @@ export default {
       return this.loan?.object_tag || this.loan.html_label
     },
     validateFields () {
-      return this.ids.length && this.loanItem.disposition
+      return this.ids.length
     }
   },
 
   data () {
     return {
-      loan: undefined,
-      loanItem: {
-        disposition: undefined,
-        date_returned: undefined
-      },
-      status: [
-        'Destroyed',
-        'Donated',
-        'Lost',
-        'Retained',
-        'Returned'
-      ]
+      loan: undefined
     }
   },
   methods: {
@@ -94,12 +67,10 @@ export default {
     CreateLoanItems () {
       const loan_items_attributes = this.ids.map(id => ({
         loan_item_object_id: id,
-        loan_item_object_type: 'CollectionObject',
-        disposition: this.loanItem.disposition,
-        date_returned: this.loanItem.date_returned
+        loan_item_object_type: 'CollectionObject'
       }))
 
-      Loan.update(this.loan.id, { loan: { loan_items_attributes } }).then(response => {
+      Loan.update(this.loan.id, { loan: { loan_items_attributes } }).then(_ => {
         TW.workbench.alert.create('Loan items was successfully created.', 'notice')
       })
     }
