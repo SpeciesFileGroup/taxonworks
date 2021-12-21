@@ -6,7 +6,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-### Add
+### Added
 - Add `reset filters` button in DwC import task [#2730]
 
 ### Changed
@@ -36,6 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Removed `destroy!` pattern from various controllers
 - Unable to create loan items in Collection object match task [#2731]
 - DwC import search criteria is missing when search box is reopen [#2729]
+- Unable to download CoLDP exports
 
 [#2712]: https://github.com/SpeciesFileGroup/taxonworks/issues/2712
 [#2713]: https://github.com/SpeciesFileGroup/taxonworks/issues/2713

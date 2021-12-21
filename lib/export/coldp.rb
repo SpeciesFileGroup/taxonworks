@@ -63,7 +63,7 @@ module Export
     end
 
     def self.filename(otu)
-      Zaru::sanitize!("#{Project.find(Current.project_id).name}_coldp_otu_id_#{otu.id}_#{DateTime.now}.zip").gsub(' ', '_').downcase
+      Zaru::sanitize!("#{::Project.find(Current.project_id).name}_coldp_otu_id_#{otu.id}_#{DateTime.now}.zip").gsub(' ', '_').downcase
     end
 
     def self.download(otu, request = nil, prefer_unlabelled_otus: true)
