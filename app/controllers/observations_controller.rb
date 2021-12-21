@@ -62,11 +62,11 @@ class ObservationsController < ApplicationController
   # POST /observations.json
   def create
     @observation = Observation.new(observation_params)
-
     respond_to do |format|
       if @observation.save
-        format.html { redirect_to observation_path(@observation.metamorphosize),
-                      notice: 'Observation was successfully created.' }
+        format.html {
+          redirect_to observation_path(@observation.metamorphosize),
+          notice: 'Observation was successfully created.' }
         format.json { render :show, status: :created, location: @observation.metamorphosize }
       else
         format.html { render :new }
@@ -93,10 +93,15 @@ class ObservationsController < ApplicationController
   # DELETE /observations/1
   # DELETE /observations/1.json
   def destroy
-    @observation.destroy!
+    @observation.destroy
     respond_to do |format|
-      format.html { redirect_to observations_url, notice: 'Observation was successfully destroyed.' }
-      format.json { head :no_content }
+      if @observation.destroyed?
+        format.html { destroy_redirect @observation, notice: 'Observation was successfully destroyed.' }
+        format.json { head :no_content}
+      else
+        format.html { destroy_redirect @observation, notice: 'Observation was not destroyed, ' + @observation.errors.full_messages.join('; ') }
+        format.json { render json: @observation.errors, status: :unprocessable_entity }
+      end
     end
   end
 

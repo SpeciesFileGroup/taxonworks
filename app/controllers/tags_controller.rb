@@ -74,11 +74,15 @@ class TagsController < ApplicationController
   # DELETE /tags/1
   # DELETE /tags/1.json
   def destroy
-    @tag.destroy!
+    @tag.destroy
     respond_to do |format|
-      # TODO: probably needs to be changed with new annotator
-      format.html { destroy_redirect @tag, notice: 'Tag was successfully destroyed.' }
-      format.json { head :no_content }
+      if @tag.destroyed?
+        format.html { destroy_redirect @tag, notice: 'Tag was successfully destroyed.' }
+        format.json { head :no_content}
+      else
+        format.html { destroy_redirect @tag, notice: 'Tag was not destroyed, ' + @tag.errors.full_messages.join('; ') }
+        format.json { render json: @tag.errors, status: :unprocessable_entity }
+      end
     end
   end
 

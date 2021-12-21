@@ -22,7 +22,7 @@ json.data do
   json.Namespace Namespace.count
   json.set! 'Preparation type', PreparationType.count
   json.set! 'Repositories', Repository.count
-  json.set! 'Projects', Project.count
+  json.set! 'Projects', Project.count if @project_id.blank?
 end
 
 json.metadata do

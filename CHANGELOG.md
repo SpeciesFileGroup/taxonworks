@@ -8,6 +8,56 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.22.4] - 2021-12-21
+
+### Added
+- Add `reset filters` button in DwC import task [#2730]
+
+### Changed
+- Add space on navbar in New taxon name [#2701]
+- Updated ruby gems and node packages.
+- Tabindex in model view
+
+### Fixed
+- Overdue loan date time ago [#2712]
+- Descriptor character state destroy raising [#2713]
+- Loan items status not updatable (also new specs) [#2714]
+- Collecting event filter `depictions` facet [#2720]
+- Taxonifi wrapper init was broken
+- Character order selector sends null value on blank selection [#2707]
+- Interactive keys is loading two matrices on autocomplete search [#2706]
+- `Select observation matrix` is not displaying all observation matrices [#2708]
+- Crashing when attempting to download DwC results from Filter Collection Objects task with 'Treat geographic areas as spatial' set.
+- Stats response contains `projects` count when project token is set.
+- Menu options broken when right-click on matrices in Observation matrix hub [#2716]
+- Copy rows from matrix in New observation matrix
+- GnFinder playground incompatibility with current GnFinder API
+- DwC checklist importer issue with synonyms have wrong rank [#2715]
+- Scientific name not cached properly when the taxon name is classified as part of speech [#2721]
+- Depictions dropzone tries to create Depictions before saving collecting event
+- Clipboard is not releasing key combination when the user clicks outside the window and release keys [#2724]
+- Removed `destroy!` pattern from various controllers
+- Unable to create loan items in Collection object match task [#2731]
+- DwC import search criteria is missing when search box is reopen [#2729]
+- Unable to download CoLDP exports
+- Otu facet in Filter image task
+
+[#2712]: https://github.com/SpeciesFileGroup/taxonworks/issues/2712
+[#2713]: https://github.com/SpeciesFileGroup/taxonworks/issues/2713
+[#2714]: https://github.com/SpeciesFileGroup/taxonworks/issues/2714
+[#2720]: https://github.com/SpeciesFileGroup/taxonworks/issues/2720
+[#2701]: https://github.com/SpeciesFileGroup/taxonworks/issues/2701
+[#2706]: https://github.com/SpeciesFileGroup/taxonworks/issues/2706
+[#2707]: https://github.com/SpeciesFileGroup/taxonworks/issues/2707
+[#2708]: https://github.com/SpeciesFileGroup/taxonworks/issues/2708
+[#2715]: https://github.com/SpeciesFileGroup/taxonworks/pull/2715
+[#2716]: https://github.com/SpeciesFileGroup/taxonworks/issues/2716
+[#2721]: https://github.com/SpeciesFileGroup/taxonworks/pull/2721
+[#2724]: https://github.com/SpeciesFileGroup/taxonworks/pull/2724
+[#2729]: https://github.com/SpeciesFileGroup/taxonworks/pull/2729
+[#2730]: https://github.com/SpeciesFileGroup/taxonworks/issues/2730
+[#2731]: https://github.com/SpeciesFileGroup/taxonworks/issues/2731
+
 ## [0.22.3] - 2021-12-03
 
 ### Added
@@ -48,6 +98,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - API -added extend character_state option to /observations
 
 ### Fixed 
+- Updated reference string for 'classified as' relationship in Browse nomenclature
 - Custom attributes are not cleared on new record [#2692]
 - API - /api/v1/observation_matrices with no params failed
 - Asserted distribution link wasn't HTML safe
@@ -2139,7 +2190,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.3...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.4...development
+[0.22.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.3...v0.22.4
 [0.22.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.2...v0.22.3
 [0.22.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.1...v0.22.2
 [0.22.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.0...v0.22.1

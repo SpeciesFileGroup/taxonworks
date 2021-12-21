@@ -207,19 +207,23 @@ class LoanItem < ApplicationRecord
 
   # Code, not out-on-loan check
   def loan_object_is_loanable
-    if  loan_item_object && !loan_item_object.respond_to?(:is_loanable?)
-      errors.add(:loan_item_object, 'is not loable')
+    if !persisted? # if it is, then this check should not be necessary
+      if loan_item_object && !loan_item_object.respond_to?(:is_loanable?)
+        errors.add(:loan_item_object, 'is not loanble')
+      end
     end
   end
 
   # Is not already in a loan item if CollectionObject/Container
   def available_for_loan
-    if loan_item_object && loan_item_object.respond_to?(:is_loanable?)
-      if loan_item_object_type == 'Otu'
-        true
-      else
-        if loan_item_object.loan_items.any?
-          errors.add(:loan_item_object, 'is already loaned')
+    if !persisted? # if it is, then this check should not be necessary 
+      if loan_item_object && loan_item_object.respond_to?(:is_loanable?)
+        if loan_item_object_type == 'Otu'
+          true
+        else
+          if loan_item_object.loan_items.where.not(id: id).any?
+            errors.add(:loan_item_object, 'is already loaned')
+          end
         end
       end
     end

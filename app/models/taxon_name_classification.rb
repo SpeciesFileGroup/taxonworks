@@ -194,7 +194,7 @@ class TaxonNameClassification < ApplicationRecord
             cached_original_combination: t.get_original_combination,
             cached_original_combination_html: t.get_original_combination_html
           )
-        elsif type_name =~ /Latinized::PartOfSpeach/
+        elsif type_name =~ /Latinized::PartOfSpeech/
           n = t.get_full_name
           t.update_columns(
               cached: n,
@@ -243,7 +243,7 @@ class TaxonNameClassification < ApplicationRecord
           vn = t.get_valid_taxon_name
           vn.update_columns(
             cached_valid_taxon_name_id: vn.id,
-            cached_is_valid: !vn.unavailable_or_invalid?) # Do not change!  
+            cached_is_valid: !vn.unavailable_or_invalid?) # Do not change!
           vn.list_of_invalid_taxon_names.each do |s|
             s.update_columns(
               cached_valid_taxon_name_id: vn.id,

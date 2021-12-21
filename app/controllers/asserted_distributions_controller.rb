@@ -72,11 +72,16 @@ class AssertedDistributionsController < ApplicationController
   # DELETE /asserted_distributions/1.json
   def destroy
     @asserted_distribution.mark_citations_for_destruction
-    @asserted_distribution.destroy!
 
+    @asserted_distribution.destroy
     respond_to do |format|
-      format.html { redirect_to asserted_distributions_url, notice: 'Asserted distribution was successfully destroyed.' }
-      format.json { head :no_content }
+      if @asserted_distribution.destroyed?
+        format.html { destroy_redirect @asserted_distribution, notice: 'Asserted distribution was successfully destroyed.' }
+        format.json { head :no_content}
+      else
+        format.html { destroy_redirect @asserted_distribution, notice: 'Asserted distribution was not destroyed, ' + @asserted_distribution.errors.full_messages.join('; ') }
+        format.json { render json: @asserted_distribution.errors, status: :unprocessable_entity }
+      end
     end
   end
 

@@ -7,10 +7,13 @@
       margin: '0px'
     }">
     <div class="flex-separate middle">
-      <div class="half_width text-ellipsis margin-small-right">
-        <span :title="dataset.description">{{ dataset.description }}</span>
-        <br>
-        <span v-if="pagination">{{ pagination.total }} records.</span>
+      <div class="half_width text-ellipsis margin-small-right middle">
+        <div class="margin-medium-right">
+          <span :title="dataset.description">{{ dataset.description }}</span>
+          <br>
+          <span v-if="pagination">{{ pagination.total }} records.</span>
+        </div>
+        <reset-button/>
       </div>
       <div class="full_width">
         <progress-bar
@@ -44,6 +47,7 @@ import ProgressBar from './ProgressBar'
 import ProgressList from './ProgressList'
 import SettingsComponent from './settings/Settings'
 import DownloadButton from './DownloadButton.vue'
+import ResetButton from './ResetFilters.vue'
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 
@@ -54,7 +58,8 @@ export default {
     ProgressBar,
     ProgressList,
     SettingsComponent,
-    DownloadButton
+    DownloadButton,
+    ResetButton
   },
   computed: {
     pagination () {

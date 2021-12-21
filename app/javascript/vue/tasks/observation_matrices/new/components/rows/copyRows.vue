@@ -181,21 +181,23 @@ export default {
       })
     },
     addRows () {
-      const promises = []
       const index = this.existingRows.length
       const data = this.rowsSelected.map(item => {
+        const property = item.row_object.base_class === 'Otu'
+          ? 'otu_id'
+          : 'collection_object_id'
+
         return {
           observation_matrix_id: this.matrixId,
-          [(item.row_object.base_class === 'Otu' ? 'otu_id' : 'collection_object_id')]: item.row_object.id,
+          [property]: item.row_object.id,
           position: item.position + index,
           type: this.types[item.row_object.base_class]
         }
       })
 
       data.sort((a, b) => a - b)
-      console.log(data.sort((a, b) => a.position - b.position))
 
-      data.forEach(row => { promises.push(ObservationMatrixRowItem({ observation_matrix_row_item: row })) })
+      const promises = data.map(row => ObservationMatrixRowItem.create({ observation_matrix_row_item: row }))
 
       Promise.all(promises).then(() => {
         this.$store.dispatch(ActionNames.GetMatrixObservationRows)
