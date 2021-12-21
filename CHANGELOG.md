@@ -6,7 +6,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+- Fixed "eye" validation crash when activated in Browse Nomenclature task [#2736]
+
+[#2736]: https://github.com/SpeciesFileGroup/taxonworks/issues/2736
 
 ## [0.22.4] - 2021-12-21
 

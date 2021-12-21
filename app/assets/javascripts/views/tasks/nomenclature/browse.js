@@ -13,23 +13,31 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
         if ($('[data-global-id]').length) {
           soft_validations = {};
           $('[data-filter=".soft_validation_anchor"]').mx_spinner('show');
+
+          let groups = {}
           $('[data-global-id]').each(function () {
-            var
-              that = this;
+            let gid = $(this).attr("data-global-id");
+
+            (groups[gid] || (groups[gid] = [])).push(this);
+          });
+
+          for (const gid in groups) {
             $.ajax({
-              url: "/soft_validations/validate?global_id=" + $(this).attr("data-global-id"),
+              url: "/soft_validations/validate?global_id=" + gid,
               dataType: "json",
             }).done(function (response) {
-              if (response.validations.soft_validations.length) {
-                if (!soft_validations.hasOwnProperty($(that).attr('id'))) {
-                  Object.defineProperty(soft_validations, $(that).attr('id'), { value: response.validations.soft_validations });
+              for (const element of groups[gid]) {
+                if (response.soft_validations.length) {
+                  if (!soft_validations.hasOwnProperty($(element).attr('id'))) {
+                    Object.defineProperty(soft_validations, $(element).attr('id'), { value: response.soft_validations });
+                  }
+                }
+                else {
+                  $(element).remove();
                 }
               }
-              else {
-                $(that).remove();
-              }
             });
-          });
+          }
         }
       }
     }
@@ -161,7 +169,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 
     $('[data-global-id]').on('click', function () {
       var list = '';
-      if (soft_validations.hasOwnProperty($(this).attr('id'))) {
+      if (soft_validations?.hasOwnProperty($(this).attr('id'))) {
 
         soft_validations[$(this).attr('id')].forEach(function (item) {
           list += '<li class="list">' + item.message + '</li>';
