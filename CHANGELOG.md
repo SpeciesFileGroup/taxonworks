@@ -37,6 +37,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Unable to create loan items in Collection object match task [#2731]
 - DwC import search criteria is missing when search box is reopen [#2729]
 - Unable to download CoLDP exports
+- Otu facet in Filter image task
 
 [#2712]: https://github.com/SpeciesFileGroup/taxonworks/issues/2712
 [#2713]: https://github.com/SpeciesFileGroup/taxonworks/issues/2713
