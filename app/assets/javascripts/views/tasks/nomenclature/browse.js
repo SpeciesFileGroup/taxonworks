@@ -169,7 +169,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 
     $('[data-global-id]').on('click', function () {
       var list = '';
-      if (soft_validations?.hasOwnProperty($(this).attr('id'))) {
+      if (soft_validations && soft_validations.hasOwnProperty($(this).attr('id'))) {
 
         soft_validations[$(this).attr('id')].forEach(function (item) {
           list += '<li class="list">' + item.message + '</li>';
