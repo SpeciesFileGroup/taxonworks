@@ -6,6 +6,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.22.4] - 2021-12-21
+
 ### Added
 - Add `reset filters` button in DwC import task [#2730]
 
@@ -13,7 +17,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Add space on navbar in New taxon name [#2701]
 - Updated ruby gems and node packages.
 - Tabindex in model view
-
 
 ### Fixed
 - Overdue loan date time ago [#2712]
@@ -2187,7 +2190,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.3...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.4...development
+[0.22.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.3...v0.22.4
 [0.22.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.2...v0.22.3
 [0.22.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.1...v0.22.2
 [0.22.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.0...v0.22.1
