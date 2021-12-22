@@ -67,7 +67,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context 'when importing a homonym with a replacement taxon' do
-    before(:all) {import_checklist_tsv('homonym.tsv', 4, 'homonym')}
+    before(:all) { import_checklist_tsv('homonym.tsv', 4, 'homonym') }
 
     after :all do
       DatabaseCleaner.clean
@@ -572,7 +572,6 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     let(:homonym) { TaxonName.find_by(name: 'brunnea', cached_author_year: 'Santschi, 1915') }
     let(:genus) { TaxonName.find_by(name: 'Myrmicaria') }
 
-
     it 'Heptacondylus should be a synonym of Myrmicaria' do
       expect_relationship(TaxonName.find_by(name: 'Heptacondylus'), genus, 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
     end
@@ -732,7 +731,6 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       verify_all_records_imported(3)
     end
 
-
     let(:tribe) { TaxonName.find_by(name: 'Formicini') }
     let(:genus) { TaxonName.find_by(name: 'Formica') }
     let(:species) { TaxonName.find_by(name: 'fuscescens') }
@@ -787,6 +785,49 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
     it 'should have an original combination relationship with old genus' do
       expect_original_combination(old_genus, species, 'genus')
+    end
+  end
+
+  context 'when importing an obsolete classification of a genus' do
+    before(:all) { import_checklist_tsv('obsolete_classification.tsv', 5) }
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    # Root, Myrmicinae, Solenopsidini, Monomorium
+    it 'should have 5 protonyms' do
+      expect(Protonym.count).to eq 5
+    end
+
+    it 'imports 6 records' do
+      verify_all_records_imported(6)
+    end
+
+    it 'should have two combinations' do
+      expect(Combination.count).to eq 2
+      expect(TaxonName.find_by(cached: 'Monomorium (Monomorium)')).to be_truthy
+    end
+
+    it 'Monomorium (Monomorium) should be a combination of genus and subgenus' do
+      expect(TaxonName.find_by(cached: 'Monomorium (Monomorium)').genus).to eq TaxonName.find_by(cached: 'Monomorium')
+      expect(TaxonName.find_by(cached: 'Monomorium (Monomorium)').subgenus).to eq TaxonName.find_by(cached: 'Monomorium')
+    end
+
+    it 'Monomorium (Monomorium) should be invalid' do
+      expect(TaxonName.find_by(cached: 'Monomorium (Monomorium)').cached_is_valid).to eq false
+    end
+
+    it 'Monomorium OC should only by Monomorium' do
+      expect(TaxonNameRelationship.where(object_taxon_name: TaxonName.find_by(cached: 'Monomorium')).count).to eq 1
+    end
+
+    it 'Monomorium (Syllophopsis) should be a combination of genus and subgenus' do
+      expect(TaxonName.find_by(cached: 'Monomorium (Syllophopsis)').genus).to eq TaxonName.find_by(name: 'Monomorium')
+      expect(TaxonName.find_by(cached: 'Monomorium (Syllophopsis)').subgenus).to eq TaxonName.find_by(name: 'Syllophopsis')
+    end
+
+    it 'Monomorium (Syllophopsis) should point to Syllophopsis' do
+      expect(TaxonName.find_by(cached: 'Monomorium (Syllophopsis)').valid_taxon_name).to eq(TaxonName.find_by(cached: 'Syllophopsis'))
     end
   end
 
