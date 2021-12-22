@@ -45,8 +45,10 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
     }
 
     const taxonId = document.querySelector('#browse-view').getAttribute('data-taxon-id')
-    const taxonType = document.querySelector('[data-taxon-type]')?.getAttribute('data-taxon-type')
-    const taxonStatus = document.querySelector('[data-status]')?.getAttribute('data-status')
+    const taxonTypeElement = document.querySelector('[data-taxon-type]')
+    const taxonStatusElement = document.querySelector('[data-status]')
+    const taxonType = taxonTypeElement && taxonTypeElement.getAttribute('data-taxon-type')
+    const taxonStatus = taxonStatusElement && taxonStatusElement.getAttribute('data-status')
     const platformKey = navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt'
     const editTaskUrl = taxonType === 'Combination'
       ? `/tasks/nomenclature/new_combination?taxon_name_id=${taxonId}`
