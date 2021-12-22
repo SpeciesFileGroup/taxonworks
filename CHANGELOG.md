@@ -6,6 +6,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.22.5] - 2021-12-22
+
 ### Fixed
 - Fixed "eye" validation crash when activated in Browse Nomenclature task [#2736]
 
