@@ -7,284 +7,213 @@ TW.views.tasks.nomenclature.browse = TW.views.tasks.nomenclature.browse || {}
 Object.assign(TW.views.tasks.nomenclature.browse, {
 
   init: function () {
-    var soft_validations = undefined
-    function fillSoftValidation() {
-      if (soft_validations == undefined) {
-        if ($('[data-global-id]').length) {
-          soft_validations = {}
-          $('[data-filter=".soft_validation_anchor"]').mx_spinner('show')
+    let softValidations = undefined
 
-          let groups = {}
-          $('[data-global-id]').each(function () {
-            let gid = decodeURIComponent($(this).attr("data-global-id"));
+    function fillSoftValidation () {
+      if (!softValidations) {
+        const validationElements = [...document.querySelectorAll('[data-icon="attention"][data-global-id]')]
+        const groups = {}
+        softValidations = {}
 
-            (groups[gid] || (groups[gid] = [])).push(this)
-          })
+        $('[data-filter=".soft_validation_anchor"]').mx_spinner('show')
 
-          for (const gid in groups) {
-            $.ajax({
-              url: "/soft_validations/validate?global_id=" + gid,
-              dataType: "json",
-            }).done(function (response) {
-              for (const element of groups[gid]) {
-                if (response.soft_validations.length) {
-                  if (!soft_validations.hasOwnProperty($(element).attr('id'))) {
-                    Object.defineProperty(soft_validations, $(element).attr('id'), { value: response.soft_validations })
-                  }
+        validationElements.forEach(element => {
+          const gid = decodeURIComponent(element.getAttribute('data-global-id'));
+
+          (groups[gid] || (groups[gid] = [])).push(element)
+        })
+
+        const promises = Object.entries(groups).map(([gid, elements]) =>
+          fetch(`/soft_validations/validate?global_id=${gid}`).then(response => response.json()).then(response => {
+            for (const element of elements) {
+              if (response.soft_validations.length) {
+                const id = element.getAttribute('id')
+
+                if (!softValidations[id]) {
+                  Object.defineProperty(softValidations, id, { value: response.soft_validations })
                 }
-                else {
-                  $(element).remove()
-                }
+              } else {
+                element.remove()
               }
-            })
-          }
-        }
+            }
+          }))
+
+        Promise.all(promises).then(_ => {
+          $('[data-filter=".soft_validation_anchor"]').mx_spinner('hide')
+        })
       }
     }
 
-    var taxonId = document.querySelector("#browse-view").getAttribute("data-taxon-id")
-    var taxonType = document.querySelector("[data-taxon-type]") ? document.querySelector("[data-taxon-type]").getAttribute("data-taxon-type") : undefined
-    var taxonStatus = document.querySelector('[data-status]') ? document.querySelector('[data-status]').getAttribute('data-status') : undefined
+    const taxonId = document.querySelector('#browse-view').getAttribute('data-taxon-id')
+    const taxonType = document.querySelector('[data-taxon-type]')?.getAttribute('data-taxon-type')
+    const taxonStatus = document.querySelector('[data-status]')?.getAttribute('data-status')
+    const platformKey = navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt'
+    const editTaskUrl = taxonType === 'Combination'
+      ? `/tasks/nomenclature/new_combination?taxon_name_id=${taxonId}`
+      : `/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxonId}`
 
-    if(taxonType === 'Invalid' || taxonType === 'Combination' || taxonStatus === 'invalid') {
+    if (
+      taxonType === 'Invalid' ||
+      taxonType === 'Combination' ||
+      taxonStatus === 'invalid'
+    ) {
       document.querySelector('#browse-nomenclature-taxon-name').classList.add('feedback-warning')
     }
 
-    if(taxonType == 'Combination')
-      $('.edit-taxon-name').attr('href', '/tasks/nomenclature/new_combination?taxon_name_id=' + taxonId)
-    if(!document.querySelector('#browse-collection-object')) {
-      TW.workbench.keyboard.createShortcut((navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') + "+t", "Edit taxon name", "Browse nomenclature", function () {
-        if (/^\d+$/.test(taxonId)) {
-          if(taxonType == 'Combination')
-            window.open('/tasks/nomenclature/new_combination?taxon_name_id=' + taxonId, '_self')
-          else
-            window.open('/tasks/nomenclature/new_taxon_name?taxon_name_id=' + taxonId, '_self')
-        }
+    if (!document.querySelector('#browse-collection-object') && /^\d+$/.test(taxonId)) {
+      TW.workbench.keyboard.createShortcut(platformKey + '+t', 'Edit taxon name', 'Browse nomenclature', () => {
+        window.open(editTaskUrl, '_self')
       })
-      if (/^\d+$/.test(taxonId)) {
-        TW.workbench.keyboard.createShortcut((navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') + "+m", "New type specimen", "Browse nomenclature", function () {
-          window.open('/tasks/nomenclature/new_taxon_name?taxon_name_id=' + taxonId, '_self')
-        })
 
-        TW.workbench.keyboard.createShortcut((navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') + "+e", "Comprehensive specimen digitization", "Browse nomenclature", function () {
-          window.open('/tasks/accessions/comprehensive?taxon_name_id=' + taxonId, '_self')
-        })
+      TW.workbench.keyboard.createShortcut(platformKey + '+m', 'New type specimen', 'Browse nomenclature', () => {
+        window.open(`/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxonId}`, '_self')
+      })
 
-        TW.workbench.keyboard.createShortcut((navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') + "+o", "Browse OTU", "Browse nomenclature", function () {
-          window.open('/tasks/otus/browse?taxon_name_id=' + taxonId, '_self')
-        })
-      }
+      TW.workbench.keyboard.createShortcut(platformKey + '+e', 'Comprehensive specimen digitization', 'Browse nomenclature', () => {
+        window.open(`/tasks/accessions/comprehensive?taxon_name_id=${taxonId}`, '_self')
+      })
+
+      TW.workbench.keyboard.createShortcut(platformKey + '+o', 'Browse OTU', 'Browse nomenclature', () => {
+        window.open(`/tasks/otus/browse?taxon_name_id=${taxonId}`, '_self')
+      })
     }
 
-    $('.filter .open').on('click', function () {
-      $(this).css('transform', 'rotate(' + ($(this).rotationInfo().deg + 180) + 'deg)')
-      if ($(this).rotationInfo().deg == 360) {
-        $(this).css('transform', 'rotate(1deg)')
-      }
+    document.querySelector('.edit-taxon-name').setAttribute('href', editTaskUrl)
+
+    document.querySelector('.filter .open').addEventListener('click', e => {
+      e.target.classList.toggle('filter-button-open')
     })
 
-    // TODO: move to an external generic utilities helper
-    function isActive(tag, className) {
-      if ($(tag).hasClass(className)) {
-        $(tag).removeClass(className)
-        return true
-      }
-      else {
-        $(tag).addClass(className)
-        return false
-      }
-    }
+    function createValidationModal (validationList) {
+      const list = validationList.map(item => '<li class="list">' + item.message + '</li>').join('')
+      const template = document.createElement('template')
 
-    function checkStates(element) {
-      var filters = JSON.parse($(element).attr('data-hidden'))
-      if (!filters.length) {
-        $(element).show(255)
-      }
-      else {
-        $(element).hide(255)
-      }
-    }
-
-    function elementFilter(type, hide) {
-      $(type).each(function () {
-        if (hide) {
-          addHiddenData($(this), type)
-        }
-        else {
-          removeHiddenData($(this), type)
-        }
-        checkStates($(this))
-      })
-    }
-
-    function retrieveElementFilters(element) {
-      var attributes = $(element).attr('data-hidden')
-      if (attributes) {
-        attributes = JSON.parse(attributes)
-      }
-      if (Array.isArray(attributes)) {
-        return attributes
-      }
-      else {
-        return []
-      }
-    }
-
-    function getFilterPosition(list, type) {
-      return list.findIndex(function (item) {
-        return item == type
-      })
-    }
-
-    function addHiddenData(element, type) {
-      var attributes = retrieveElementFilters($(element))
-
-      if (getFilterPosition(attributes, type) < 0) {
-        attributes.push(type)
-        $(element).attr('data-hidden', JSON.stringify(attributes))
-      }
-    }
-
-    function removeHiddenData(element, type) {
-      var attributes = retrieveElementFilters($(element))
-      var position = getFilterPosition(attributes, type)
-
-      if (position > -1) {
-        attributes.splice(position, 1)
-        $(element).attr('data-hidden', JSON.stringify(attributes))
-      }
-    }
-
-    if(document.querySelector('#browse-view').getAttribute('loaded') != 'true') {
-      $('[data-history-valid-name="true"]').each(function () {
-        if (!$(this).has('[data-icon="ok"]').length) {
-          $(this).prepend('<span data-icon="ok"></span>')
-        }
-      })
-      $('[data-history-origin]').each(function () {
-        var type = $(this).attr("data-history-origin")
-        $(this).prepend('<span class="history__origin ' + type + '">' + type + '</span>')
-      })
-    }    
-
-    $('[data-icon="attention"][data-global-id]').on('click', function () {
-      var list = ''
-      if (soft_validations && soft_validations.hasOwnProperty($(this).attr('id'))) {
-
-        soft_validations[$(this).attr('id')].forEach(function (item) {
-          list += '<li class="list">' + item.message + '</li>'
-        })
-
-        $('#browse-view').append(`
-          <div class="modal-mask">
-            <div class="modal-wrapper">
-              <div class="modal-container">
-                <div class="modal-header">
-                  <div class="modal-close"></div>
-                  <h3>
-                    Validation
-                  </h3>
-                </div>\
-                <div class="modal-body soft_validation list">
-                    <ul>${list}</ul>
-                </div>
-                <div class="modal-footer">
-                </div>
+      template.innerHTML = `
+        <div class="modal-mask">
+          <div class="modal-wrapper">
+            <div class="modal-container">
+              <div class="modal-header">
+                <div class="modal-close"></div>
+                <h3>
+                  Validation
+                </h3>
+              </div>\
+              <div class="modal-body soft_validation list">
+                  <ul>${list}</ul>
+              </div>
+              <div class="modal-footer">
               </div>
             </div>
           </div>
-        `)
+        </div>`.trim()
+
+      template.content.querySelector('.modal-close').addEventListener('click', () => {
+        document.querySelector('.modal-mask').remove()
+      })
+
+      return template.content.firstChild
+    }
+
+    function toggleElementState (element, isVisible) {
+      if (isVisible) {
+        element.classList.add('d-none')
+      } else {
+        element.classList.remove('d-none')
       }
-    })
+    }
 
-    $(document).ajaxStop(function () {
-      $('[data-filter=".soft_validation_anchor"]').mx_spinner('hide')
-    })
+    if (document.querySelector('#browse-view').getAttribute('loaded') != 'true') {
+      const validElements = [...document.querySelectorAll('[data-history-valid-name="true"]')]
+      const originElements = [...document.querySelectorAll('[data-history-origin]')]
 
-    $(document).on('click', '.modal-close', function () {
-      $('.modal-mask').remove()
-    })
+      validElements.forEach(element => {
+        if (!element.querySelector('[data-icon="ok"]')) {
+          const icon = document.createElement('span')
 
-    $.fn.rotationInfo = function () {
-      var el = $(this),
-        tr = el.css("-webkit-transform") || el.css("-moz-transform") || el.css("-ms-transform") || el.css("-o-transform") || '',
-        info = { rad: 0, deg: 0 }
-      if (tr = tr.match('matrix\\((.*)\\)')) {
-        tr = tr[1].split(',')
-        if (typeof tr[0] != 'undefined' && typeof tr[1] != 'undefined') {
-          info.rad = Math.atan2(tr[1], tr[0])
-          info.deg = parseFloat((info.rad * 180 / Math.PI).toFixed(1))
+          icon.setAttribute('data-icon', 'ok')
+          element.prepend(icon)
         }
-      }
-      return info
-    };
+      })
 
-    $('#filterBrowse_button').on('click', function () {
-      $('[data-filter-slide]').slideToggle(250)
+      originElements.forEach(element => {
+        const type = element.getAttribute('data-history-origin')
+        const typeElement = document.createElement('span')
+
+        typeElement.classList.add('capitalize', 'd-none', 'history__origin', type)
+        typeElement.textContent = type.replaceAll('_', ' ')
+
+        element.prepend(typeElement)
+      })
+    }
+
+    const validationElements = [...document.querySelectorAll('[data-icon="attention"][data-global-id]')]
+
+    validationElements.forEach(element => {
+      element.classList.add('d-none')
+
+      element.addEventListener('click', () => {
+        const id = element.getAttribute('id')
+
+        if (softValidations[id]) {
+          document.querySelector('#browse-view').append(createValidationModal(softValidations[id]))
+        }
+      })
     })
 
-    $('#filterBrowse').on('click', '[data-filter=".soft_validation_anchor"]', function (selector) {
+    document.querySelector('#filterBrowse_button').addEventListener('click', () => {
+      document.querySelector('#filterBrowse').classList.toggle('active')
+    })
+
+    document.querySelector('#filterBrowse [data-filter=".soft_validation_anchor"]').addEventListener('click', _ => {
       fillSoftValidation()
     })
 
-    $('#filterBrowse').on('click', '.navigation-item', function (selector) {
+    const filterButtons = [...document.querySelectorAll('#filterBrowse [data-filter], #filterBrowse [data-filter-row]')]
+    const resetButton = document.querySelector('#filterBrowse [data-filter-reset]')
 
-      if ($(this).attr('data-filter-reset') === 'reset') {
-        fillSoftValidation()
-        $('[data-filter], [data-filter-font], [data-filter-row]').each(function (element) {
-          if ($(this).hasClass("active")) {
-            isActive($(this), 'active')
-          }
-          $($(this).attr('data-filter-font')).animate({
-            fontSize: '100%'
-          })
-          $($(this).attr('data-filter-row')).removeAttr('data-hidden')
-          $($(this).attr('data-filter-row')).show(255)
-          $($(this).attr('data-filter-row')).parents('.history__record').show(255)
-          $($(this).attr('data-filter')).show(255)
-          $($(this).children()).attr('data-icon', 'show')
+    resetButton.addEventListener('click', _ => {
+      fillSoftValidation()
+
+      filterButtons.forEach(filterElement => {
+        const elements = [
+          ...document.querySelectorAll(filterElement.getAttribute('data-filter')),
+          ...document.querySelectorAll(filterElement.getAttribute('data-filter-row'))
+        ]
+
+        filterElement.classList.remove('active')
+        filterElement.children[0].setAttribute('data-icon', 'show')
+
+        elements.forEach(element => {
+          element.classList.remove('d-none')
         })
-      }
-      else if($(this).attr('data-filter-hide-all')) {
-        document.querySelectorAll('[data-filter]').forEach(element => {
-          $(element).removeClass('active')
-          $($(element).children()).attr('data-icon', 'hide')
-          $($(element).attr('data-filter-font')).animate({
-            fontSize: '0px'
-          })
-
-          elementFilter($(element).attr('data-filter-row'), true)
-          $($(element).attr('data-filter')).hide(255)
-        })
-      }
-      else {
-        isActive($(this), 'active')
-        if ($(this).children().attr('data-icon') == "show") {
-          $($(this).children()).attr('data-icon', 'hide')
-          $($(this).attr('data-filter-font')).animate({
-            fontSize: '0px'
-          })
-
-          elementFilter($(this).attr('data-filter-row'), true)
-          $($(this).attr('data-filter')).hide(255)
-        }
-        else {
-          $($(this).children()).attr('data-icon', 'show')
-          $($(this).attr('data-filter-font')).animate({
-            fontSize: '100%'
-          })
-
-          elementFilter($(this).attr('data-filter-row'), false)
-          $($(this).attr('data-filter')).show(255)
-        }
-      }
+      })
     })
+
+    filterButtons.forEach(element => {
+      element.addEventListener('click', _ => {
+        const childElement = element.children[0]
+        const isVisible = childElement.getAttribute('data-icon') === 'show'
+        const filterSelector = element.getAttribute('data-filter') || element.getAttribute('data-filter-row')
+        const filterElements = [...document.querySelectorAll(filterSelector)]
+
+        element.classList.toggle('active')
+        childElement.setAttribute('data-icon', isVisible
+          ? 'hide'
+          : 'show'
+        )
+
+        filterElements.forEach(node => {
+          toggleElementState(node, isVisible)
+        })
+      })
+    })
+
     document.querySelector('#browse-view').setAttribute('loaded', true)
   }
 })
 
-$(document).on('turbolinks:load', function () {
-  if ($("#browse-view").length) {
+document.addEventListener('turbolinks:load', () => {
+  if (document.querySelector('#browse-view')) {
     TW.views.tasks.nomenclature.browse.init()
   }
 })
