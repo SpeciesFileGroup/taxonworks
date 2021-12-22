@@ -32,7 +32,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             { "nomenclaturalCode": ["Unrecognized nomenclatural code #{get_field_value('nomenclaturalCode')}"] }
           )
         end
-        parse_results_details = Biodiversity::Parser.parse(get_field_value('scientificName') || '')[:details]&.values&.first
+        # parse_results_details = Biodiversity::Parser.parse(get_field_value('scientificName') || '')[:details]&.values&.first
 
         parse_results = Biodiversity::Parser.parse(get_field_value(:scientificName) || '')
         parse_results_details = parse_results[:details]
@@ -371,6 +371,21 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
           self.status = 'Imported'
         else
           self.status = 'Errored'
+
+          # if error exist with taxon_name_relationships, add their errors under the main attribute (:taxon_name_relationships)
+          # eg:
+          #   original error: {:taxon_name_relationships=>["is invalid"]}
+          #   TNR error: [{:object_taxon_name_id=>["The parent Miomyrmecini and the Incertae Sedis placement (Dolichoderinae) should match"]}]
+          #   resulting message: {:taxon_name_relationships=>["is invalid", "The parent Miomyrmecini and the Incertae Sedis placement (Dolichoderinae) should match"]}
+          # TODO expand to other relationships, like classifications
+          if taxon_name.errors.messages[:taxon_name_relationships]
+            # skip relationships with no errors
+            errored_relationships = taxon_name.taxon_name_relationships.reject { |r| r.errors.empty? }
+
+            # add error messages to taxon_name.errors[:taxon_name_relationships]
+            errored_relationships.each { |r| r.errors.map { |error| taxon_name.errors.add(:taxon_name_relationships, message: error.message) } }
+          end
+
           self.metadata[:error_data] = {
             messages: taxon_name.errors.messages
           }
