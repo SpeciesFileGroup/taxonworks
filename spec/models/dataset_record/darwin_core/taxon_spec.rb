@@ -13,21 +13,9 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context 'when importing a parent and child taxon from a text file' do
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/parent_child.tsv'), 'text/plain'),
-        description: 'parent_child'
-      ).tap { |i| i.stage }
+    before(:all) { import_checklist_tsv('parent_child.tsv', 2, 'parent_child') }
 
-      2.times { |_|
-        import_dataset.import(5000, 100)
-      }
-    end
-
-    after :all do
-      DatabaseCleaner.clean
-    end
+    after(:all) { DatabaseCleaner.clean }
 
     let(:parent) { TaxonName.find_by(name: 'Formicidae') }
     let(:child) { TaxonName.find_by(name: 'Calyptites') }
@@ -79,17 +67,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context 'when importing a homonym with a replacement taxon' do
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/homonym.tsv'), 'text/plain'),
-        description: 'homonym'
-      ).tap { |i| i.stage }
-
-      4.times { |_|
-        import_dataset.import(5000, 100)
-      }
-    end
+    before(:all) {import_checklist_tsv('homonym.tsv', 4, 'homonym')}
 
     after :all do
       DatabaseCleaner.clean
@@ -134,17 +112,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context 'when importing a subspecies synonym of a species' do
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/synonym.tsv'), 'text/plain'),
-        description: 'synonym'
-      ).tap { |i| i.stage }
-
-      3.times { |_|
-        import_dataset.import(5000, 100)
-      }
-    end
+    before(:all) { import_checklist_tsv('synonym.tsv', 3, 'synonym') }
 
     after :all do
       DatabaseCleaner.clean
@@ -188,17 +156,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context 'when importing homonyms that are moved to another genus' do
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/moved_homonym.tsv'), 'text/plain'),
-        description: 'moved_homonym'
-      ).tap { |i| i.stage }
-
-      4.times { |_|
-        import_dataset.import(5000, 100)
-      }
-    end
+    before(:all) { import_checklist_tsv('moved_homonym.tsv', 4) }
 
     after :all do
       DatabaseCleaner.clean
@@ -258,17 +216,8 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context 'when importing a combination that moved genera' do
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/combination.tsv'), 'text/plain'),
-        description: 'combination'
-      ).tap { |i| i.stage }
 
-      4.times { |_|
-        import_dataset.import(5000, 100)
-      }
-    end
+    before(:all) { import_checklist_tsv('combination.tsv', 4) }
 
     after :all do
       DatabaseCleaner.clean
@@ -306,17 +255,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context 'when importing a subspecies' do
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/subspecies.tsv'), 'text/plain'),
-        description: 'subspecies'
-      ).tap { |i| i.stage }
-
-      3.times { |_|
-        import_dataset.import(5000, 100)
-      }
-    end
+    before(:all) { import_checklist_tsv('subspecies.tsv', 3) }
 
     after :all do
       DatabaseCleaner.clean
@@ -361,17 +300,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context 'when importing a protonym with multiple combinations' do
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/multiple_combination.tsv'), 'text/plain'),
-        description: 'parent_child'
-      ).tap { |i| i.stage }
-
-      4.times { |_|
-        import_dataset.import(5000, 100)
-      }
-    end
+    before(:all) { import_checklist_tsv('multiple_combination.tsv', 4) }
 
     after :all do
       DatabaseCleaner.clean
@@ -400,17 +329,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context 'when importing a file with three names for one protonym' do
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/genus_synonyms.tsv'), 'text/plain'),
-        description: 'parent_child'
-      ).tap { |i| i.stage }
-
-      4.times { |_|
-        import_dataset.import(5000, 100)
-      }
-    end
+    before(:all) { import_checklist_tsv('genus_synonyms.tsv', 4) }
 
     after :all do
       DatabaseCleaner.clean
@@ -433,17 +352,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context 'when importing a file with an original combination subspecies and protonym species' do
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/oc_as_subspecies.tsv'), 'text/plain'),
-        description: 'subspecies oc and species protonym'
-      ).tap { |i| i.stage }
-
-      4.times { |_|
-        import_dataset.import(5000, 100)
-      }
-    end
+    before(:all) { import_checklist_tsv('oc_as_subspecies.tsv', 4) }
 
     after :all do
       DatabaseCleaner.clean
@@ -471,17 +380,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context 'when importing subspecies with OC that is a combination' do
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/oc_is_combination.tsv'), 'text/plain'),
-        description: 'oc is combination'
-      ).tap { |i| i.stage }
-
-      7.times { |_|
-        import_dataset.import(5000, 100)
-      }
-    end
+    before(:all) { import_checklist_tsv('oc_is_combination.tsv', 7) }
 
     after :all do
       DatabaseCleaner.clean
@@ -518,17 +417,8 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context 'when importing a synonym whose rank and parent do not match vaild name' do
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/synonym_matching_parent_and_rank.tsv'), 'text/plain'),
-        description: 'interesting'
-      ).tap { |i| i.stage }
+    before(:all) { import_checklist_tsv('synonym_matching_parent_and_rank.tsv', 5) }
 
-      5.times { |_|
-        import_dataset.import(5000, 100)
-      }
-    end
     after :all do
       DatabaseCleaner.clean
     end
@@ -575,17 +465,8 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context "when importing a synonym that doesn't have a name with matching rank and parent" do
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/synonym_without_matching_parent_and_rank.tsv'), 'text/plain'),
-        description: 'synonym without matching parent and rank'
-      ).tap { |i| i.stage }
+    before(:all) { import_checklist_tsv('synonym_without_matching_parent_and_rank.tsv', 6) }
 
-      6.times { |_|
-        import_dataset.import(5000, 100)
-      }
-    end
     after :all do
       DatabaseCleaner.clean
     end
@@ -632,18 +513,8 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context 'when importing a homonym with same author and year as valid name' do
+    before(:all) { import_checklist_tsv('homonym_with_same_author_year.tsv', 4) }
 
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/homonym_with_same_author_year.tsv'), 'text/plain'),
-        description: 'homonym with same author and year'
-      ).tap { |i| i.stage }
-
-      4.times { |_|
-        import_dataset.import(5000, 100)
-      }
-    end
     after :all do
       DatabaseCleaner.clean
     end
@@ -682,17 +553,8 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context "when importing a homonym whose parent is a synonym (at a different rank)" do
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/homonym_child_of_synonym.tsv'), 'text/plain'),
-        description: 'homonym with synonym parent'
-      ).tap { |i| i.stage }
+    before(:all) { import_checklist_tsv('homonym_child_of_synonym.tsv', 10) }
 
-      10.times { |_|
-        import_dataset.import(5000, 100)
-      }
-    end
     after :all do
       DatabaseCleaner.clean
     end
@@ -751,17 +613,8 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context 'when importing a name classified as nomen nudum' do
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/nomen_nudum.tsv'), 'text/plain'),
-        description: 'nomen nudum'
-      ).tap { |i| i.stage }
+    before(:all) { import_checklist_tsv('nomen_nudum.tsv', 5) }
 
-      5.times { |_|
-        import_dataset.import(5000, 100)
-      }
-    end
     after :all do
       DatabaseCleaner.clean
     end
@@ -811,17 +664,8 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context 'when importing a genus classified as incertae sedis' do
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/incertae_sedis/genus_incertae_sedis_in_family.tsv'), 'text/plain'),
-        description: 'genus incertae sedis in family'
-      ).tap { |i| i.stage }
+    before(:all) { import_checklist_tsv('incertae_sedis/genus_incertae_sedis_in_family.tsv', 2) }
 
-      2.times { |_|
-        import_dataset.import(5000, 100)
-      }
-    end
     after :all do
       DatabaseCleaner.clean
     end
@@ -844,17 +688,8 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context 'when importing a genus and species that are incertae sedis in family' do
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/incertae_sedis/incertae_sedis_in_family.tsv'), 'text/plain'),
-        description: 'incertae sedis in family'
-      ).tap { |i| i.stage }
+    before(:all) { import_checklist_tsv('incertae_sedis/incertae_sedis_in_family.tsv', 3) }
 
-      3.times { |_|
-        import_dataset.import(5000, 100)
-      }
-    end
     after :all do
       DatabaseCleaner.clean
     end
@@ -882,17 +717,8 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context 'when importing a species classified as incertae sedis in genus' do
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/incertae_sedis/incertae_sedis_in_genus.tsv'), 'text/plain'),
-        description: 'incertae sedis in genus'
-      ).tap { |i| i.stage }
+    before(:all) { import_checklist_tsv('incertae_sedis/incertae_sedis_in_genus.tsv', 3) }
 
-      3.times { |_|
-        import_dataset.import(5000, 100)
-      }
-    end
     after :all do
       DatabaseCleaner.clean
     end
@@ -930,17 +756,8 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context 'when importing a moved species classified as incertae sedis in genus' do
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/incertae_sedis/incertae_sedis_moved_genus.tsv'), 'text/plain'),
-        description: 'incertae sedis in genus'
-      ).tap { |i| i.stage }
+    before(:all) { import_checklist_tsv('incertae_sedis/incertae_sedis_moved_genus.tsv', 6) }
 
-      6.times { |_|
-        import_dataset.import(5000, 100)
-      }
-    end
     after :all do
       DatabaseCleaner.clean
     end
@@ -978,6 +795,23 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   # TODO test protonym is unavailable --- set classification on unsaved TaxonName
   #
   # TODO test importing multiple times
+end
+
+# Stages and imports a DwC-A dataset, in TSV format
+#
+# @param [String] file_name The path to the file. Base directory is `spec/files/import_datasets/checklists/`
+# @param [Integer] import_iterations Number of times to call import on dataset.
+# @param [String] description The description to add to the dataset. if nil, uses filename.
+def import_checklist_tsv(file_name, import_iterations, description = nil)
+  DatabaseCleaner.start
+  import_dataset = ImportDataset::DarwinCore::Checklist.create!(
+    source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/' + file_name), 'text/plain'),
+    description: description || file_name # use file name as description if not given
+  ).tap { |i| i.stage }
+
+  import_iterations.times { |_|
+    import_dataset.import(5000, 100)
+  }
 end
 
 # Helper method to expect an OriginalCombination relationship with less code duplication
