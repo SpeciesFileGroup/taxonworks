@@ -10,7 +10,7 @@ module BatchLoad
     def initialize(data_origin: nil, **args)
       @asserted_distributions = {}
       @data_origin            = data_origin
-      super(args)
+      super(**args)
     end
 
     # when this routine is invoked, the following class variables must be instantiated:
