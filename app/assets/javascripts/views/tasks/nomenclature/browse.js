@@ -7,7 +7,7 @@ TW.views.tasks.nomenclature.browse = TW.views.tasks.nomenclature.browse || {}
 Object.assign(TW.views.tasks.nomenclature.browse, {
 
   init: function () {
-    let softValidations = undefined
+    let softValidations
 
     function fillSoftValidation () {
       if (!softValidations) {
@@ -97,7 +97,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
                 <h3>
                   Validation
                 </h3>
-              </div>\
+              </div>
               <div class="modal-body soft_validation list">
                   <ul>${list}</ul>
               </div>
@@ -122,7 +122,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
       }
     }
 
-    if (document.querySelector('#browse-view').getAttribute('loaded') != 'true') {
+    if (document.querySelector('#browse-view').getAttribute('loaded') !== 'true') {
       const validElements = [...document.querySelectorAll('[data-history-valid-name="true"]')]
       const originElements = [...document.querySelectorAll('[data-history-origin]')]
 
