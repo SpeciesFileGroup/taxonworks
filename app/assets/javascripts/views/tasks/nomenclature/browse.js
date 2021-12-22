@@ -16,7 +16,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 
           let groups = {}
           $('[data-global-id]').each(function () {
-            let gid = $(this).attr("data-global-id");
+            let gid = decodeURIComponent($(this).attr("data-global-id"));
 
             (groups[gid] || (groups[gid] = [])).push(this)
           })
