@@ -91,8 +91,10 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
         if metadata['type'] == 'protonym'
 
           # if the name is a synonym, we should use the valid taxon's rank and parent
+          # I *think* it's ok to do the same for homonyms, since we could have case where homonym's parent is a synonym,
+          # and it has been moved from species to subspecies rank.
           # we fetch parent from the source file when calculating original combination, so it's ok to modify it here.
-          if metadata['is_synonym']
+          if metadata['has_external_accepted_name']
             valid_name = get_taxon_name_from_taxon_id(get_field_value(:acceptedNameUsageID))
             rank = valid_name.rank
             parent = valid_name.parent
@@ -252,19 +254,21 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                   if incertae_sedis_parent.nil?
                     available_parent_ranks = taxon_name.ancestors.map { |a| "#{a.rank}: #{a.name}" }.join(", ")
                     raise DarwinCore::InvalidData.new({ "TW:TaxonNameRelationship:incertae_sedis_in_rank":
-                                                          ["Taxon #{taxon_name.name} does not have a parent at rank #{rank}.
+                                                          ["Taxon #{taxon_name.name} does not have a parent at rank #{verbatim_is_rank}.
                                                             Available ancestors are #{available_parent_ranks}.".squish] })
                   end
 
                 else
-                  # if parent has uncertain placement in rank, this taxon should have uncertain placement in same rank
+                  # if parent has uncertain placement in rank, taxon's parent should be changed to whichever taxon the parent's UncertainRelationship is with
                   #noinspection RubyResolve
                   if (r = parent.iczn_uncertain_placement_relationship)
                     incertae_sedis_parent = TaxonName.find(r.object_taxon_name_id)
                   else
                     # if parent doesn't have uncertain placement, make relationship with family or subfamily (FamilyGroup)
-                    incertae_sedis_parent = taxon_name.ancestors.with_base_of_rank_class('NomenclaturalRank::Iczn::FamilyGroup')
+                    incertae_sedis_parent = taxon_name.ancestors.with_base_of_rank_class('NomenclaturalRank::Iczn::FamilyGroup').first
                   end
+                  # Parent should be same as incertae sedis object_taxon
+                  taxon_name.parent = incertae_sedis_parent
                 end
 
                 taxon_name.taxon_name_relationships.find_or_initialize_by(

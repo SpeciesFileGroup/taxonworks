@@ -360,7 +360,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     end
   end
 
-  context 'when importing a file with three names for one protonym' do
+  context 'when importing a protonym with multiple combinations' do
     before :all do
       DatabaseCleaner.start
       import_dataset = ImportDataset::DarwinCore::Checklist.create!(
@@ -681,6 +681,75 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
   end
 
+  context "when importing a homonym whose parent is a synonym (at a different rank)" do
+    before :all do
+      DatabaseCleaner.start
+      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/homonym_child_of_synonym.tsv'), 'text/plain'),
+        description: 'homonym with synonym parent'
+      ).tap { |i| i.stage }
+
+      10.times { |_|
+        import_dataset.import(5000, 100)
+      }
+    end
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    # Root, Myrmicaria, Heptacondylus, Physatta, {brunnea Saunders, 1842}, {brunnea Santschi, 1915}, nitida, opaciventris, congolensis,
+    # fumata, natalensis, eumenoides
+    it 'should have 12 protonyms' do
+      expect(Protonym.all.length).to eq 12
+    end
+
+    it 'imports 16 records' do
+      verify_all_records_imported(16)
+    end
+
+    let(:homonym) { TaxonName.find_by(name: 'brunnea', cached_author_year: 'Santschi, 1915') }
+    let(:genus) { TaxonName.find_by(name: 'Myrmicaria') }
+
+
+    it 'Heptacondylus should be a synonym of Myrmicaria' do
+      expect_relationship(TaxonName.find_by(name: 'Heptacondylus'), genus, 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+    end
+
+    it 'nitida should be a synonym of Myrmicaria opaciventris congolensis' do
+      expect_relationship(TaxonName.find_by(name: 'nitida'),
+                          TaxonName.find_by(cached: 'Myrmicaria opaciventris congolensis'),
+                          'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+    end
+
+    it '{brunnea Santschi, 1915} should have parent Myrmicaria' do
+      expect(homonym.parent).to eq(TaxonName.find_by(name: 'Myrmicaria'))
+    end
+
+    it '{brunnea Santschi, 1915} should have replacement name Myrmicaria fumata' do
+      expect(homonym.get_valid_taxon_name).to eq(TaxonName.find_by(cached: 'Myrmicaria fumata'))
+    end
+
+    it 'congolensis should have parent opaciventris' do
+      expect(TaxonName.find_by(name: 'congolensis').parent).to eq(TaxonName.find_by(name: 'opaciventris'))
+    end
+
+    it 'Myrmicaria opaciventris congolensis should have OC Myrmicaria eumenoides congolensis' do
+      expect_original_combination(TaxonName.find_by(name: 'congolensis'), TaxonName.find_by(name: 'congolensis'), 'subspecies')
+      expect_original_combination(TaxonName.find_by(name: 'eumenoides'), TaxonName.find_by(name: 'congolensis'), 'species')
+      expect_original_combination(TaxonName.find_by(name: 'Myrmicaria'), TaxonName.find_by(name: 'congolensis'), 'genus')
+    end
+
+    it 'Myrmicaria natalensis eumenoides should have OC Heptacondylus eumenoides' do
+      expect_original_combination(TaxonName.find_by(name: 'eumenoides'), TaxonName.find_by(name: 'eumenoides'), 'species')
+      expect_original_combination(TaxonName.find_by(name: 'Heptacondylus'), TaxonName.find_by(name: 'eumenoides'), 'genus')
+    end
+
+    it 'Myrmicaria eumenoides should be a subsequent combination of Myrmicaria natalensis eumenoides' do
+      expect(Combination.match_exists?(genus: genus.id, species: TaxonName.find_by(name: 'eumenoides').id)).to be_truthy
+    end
+
+  end
+
   context 'when importing a name classified as nomen nudum' do
     before :all do
       DatabaseCleaner.start
@@ -791,8 +860,8 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     end
 
     # Root, Formicidae, Condylodon, audouini
-    it 'should have 3 protonyms' do
-      expect(Protonym.all.length).to eq 3
+    it 'should have 4 protonyms' do
+      expect(Protonym.all.length).to eq 4
     end
 
     it 'imports 3 records' do
@@ -820,7 +889,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
         description: 'incertae sedis in genus'
       ).tap { |i| i.stage }
 
-      2.times { |_|
+      3.times { |_|
         import_dataset.import(5000, 100)
       }
     end
@@ -828,15 +897,17 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       DatabaseCleaner.clean
     end
 
-    # Root, Formica, fuscescens
-    it 'should have 3 protonyms' do
-      expect(Protonym.all.length).to eq 3
+    # Root, Formicini Formica, fuscescens
+    it 'should have 4 protonyms' do
+      expect(Protonym.all.length).to eq 4
     end
 
-    it 'imports 2 records' do
-      verify_all_records_imported(2)
+    it 'imports 3 records' do
+      verify_all_records_imported(3)
     end
 
+
+    let(:tribe) { TaxonName.find_by(name: 'Formicini') }
     let(:genus) { TaxonName.find_by(name: 'Formica') }
     let(:species) { TaxonName.find_by(name: 'fuscescens') }
 
@@ -844,8 +915,17 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       expect(genus.iczn_uncertain_placement_relationship).to be_falsey
     end
 
-    it 'species should have UncertainPlacement relationship with genus' do
-      expect(TaxonNameRelationship.find_by(subject_taxon_name: species, object_taxon_name: genus).type_name).to eq('TaxonNameRelationship::Iczn::Validating::UncertainPlacement')
+    it 'fuscescens OC should be Formica fuscescens' do
+      expect_original_combination(species, species, 'species')
+      expect_original_combination(genus, species, 'genus')
+    end
+
+    it 'fuscescens parent should be tribe: Formicini' do
+      expect(species.parent).to eq tribe
+    end
+
+    it 'species should have UncertainPlacement relationship with tribe' do
+      expect(TaxonNameRelationship.find_by(subject_taxon_name: species, object_taxon_name: tribe).type_name).to eq('TaxonNameRelationship::Iczn::Validating::UncertainPlacement')
     end
   end
 
@@ -857,7 +937,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
         description: 'incertae sedis in genus'
       ).tap { |i| i.stage }
 
-      4.times { |_|
+      6.times { |_|
         import_dataset.import(5000, 100)
       }
     end
@@ -865,26 +945,27 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       DatabaseCleaner.clean
     end
 
-    # Root, Formicidae, Formica, Cephalotes, haemorrhoidalis
-    it 'should have 5 protonyms' do
-      expect(Protonym.all.length).to eq 5
+    # Root, Formicidae, Formica, Myrmicinae, Cephalotes, Attini, haemorrhoidalis
+    it 'should have 7 protonyms' do
+      expect(Protonym.all.length).to eq 7
     end
 
-    it 'imports 5 records' do
-      verify_all_records_imported(5)
+    it 'imports 7 records' do
+      verify_all_records_imported(7)
     end
 
     let(:current_genus) { TaxonName.find_by(name: 'Cephalotes') }
     let(:old_genus) { TaxonName.find_by(name: 'Formica') }
     let(:species) { TaxonName.find_by(name: 'haemorrhoidalis') }
+    let(:tribe) { TaxonName.find_by(name: 'Attini') }
 
     it 'genus should not have UncertainPlacement' do
       expect(old_genus.iczn_uncertain_placement_relationship).to be_falsey
       expect(current_genus.iczn_uncertain_placement_relationship).to be_falsey
     end
 
-    it 'species should have UncertainPlacement relationship with genus' do
-      expect(TaxonNameRelationship.find_by(subject_taxon_name: species, object_taxon_name: current_genus).type_name).to eq('TaxonNameRelationship::Iczn::Validating::UncertainPlacement')
+    it 'species should have UncertainPlacement relationship with tribe' do
+      expect(TaxonNameRelationship.find_by(subject_taxon_name: species, object_taxon_name: tribe).type_name).to eq('TaxonNameRelationship::Iczn::Validating::UncertainPlacement')
     end
 
     it 'should have an original combination relationship with old genus' do
@@ -905,6 +986,11 @@ end
 # @param [String] rank The (short) rank to expect in the relationship
 def expect_original_combination(subject_taxon_name, object_taxon_name, rank)
   expect(TaxonNameRelationship.find_by({ subject_taxon_name: subject_taxon_name, object_taxon_name: object_taxon_name }).type_name).to eq('TaxonNameRelationship::OriginalCombination::Original' + rank.capitalize)
+end
+
+def expect_relationship(subject_taxon_name, object_taxon_name, relationship)
+  r = TaxonNameRelationship.find_by(subject_taxon_name: subject_taxon_name, object_taxon_name: object_taxon_name)
+  expect(r.type).to eq(relationship)
 end
 
 def verify_all_records_imported(num_records)
