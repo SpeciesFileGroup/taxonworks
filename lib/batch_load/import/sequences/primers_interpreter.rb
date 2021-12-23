@@ -4,7 +4,7 @@ module BatchLoad
     # @param [Hash] args
     def initialize(**args)
       @sequences = {}
-      super(args)
+      super(**args)
     end
 
     # TODO: update this

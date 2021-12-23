@@ -22,7 +22,7 @@ module BatchLoad
       @parent_taxon_name_id = parent_taxon_name_id
       @also_create_otu = also_create_otu
 
-      super(args)
+      super(**args)
     end
 
     # @return [String]
