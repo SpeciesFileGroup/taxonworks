@@ -6,7 +6,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+- Several batch loaders not working due to syntax incompatibility with currently used Ruby version. [#2739]
+
+[#2739]: https://github.com/SpeciesFileGroup/taxonworks/pull/2739
 
 ## [0.22.5] - 2021-12-22
 
