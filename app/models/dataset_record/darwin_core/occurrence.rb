@@ -42,14 +42,21 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     class MatchExisting
       def self.execute(origins, parent, name)
-        Protonym.find_by(name.slice(:rank_class, :name).merge!({ parent: parent })).tap do |protonym|
-          if protonym.nil?
-            raise DatasetRecord::DarwinCore::InvalidData.new({
-              origins[name.object_id] =>
-              ["Protonym #{name[:name]} not found with that name and/or classification. Importing new names is disabled by import settings."]
-            })
-          end
+        protonym = Protonym.find_by(name.slice(:rank_class, :name).merge!({ parent: parent }))
+
+        # Protonym might not exist, or might have intermediate parent not listed in file
+        # if it exists, run more expensive query to see if it has an ancestor matching parent name and rank
+        if protonym.nil? && Protonym.where(name.slice(:rank_class, :name)).exists?
+          protonym ||= Protonym.where(name.slice(:rank_class, :name)).with_ancestor(parent).first
         end
+
+        if protonym.nil?
+          raise DatasetRecord::DarwinCore::InvalidData.new({
+            origins[name.object_id] =>
+            ["Protonym #{name[:name]} not found with that name and/or classification. Importing new names is disabled by import settings."]
+          })
+        end
+        protonym
       end
     end
   end
