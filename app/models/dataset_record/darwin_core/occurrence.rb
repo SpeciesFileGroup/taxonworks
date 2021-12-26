@@ -181,10 +181,19 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             identifier_object: collecting_event
           }.merge!(identifier_attributes)) unless identifier_attributes.nil?
 
-          Georeference::VerbatimData.create!({
-            collecting_event: collecting_event,
-            error_radius: get_field_value("coordinateUncertaintyInMeters")
-          }.merge(attributes[:georeference])) if collecting_event.verbatim_latitude && collecting_event.verbatim_longitude
+          if collecting_event.verbatim_latitude && collecting_event.verbatim_longitude
+            georeference = Georeference::VerbatimData.create!({
+                                                 collecting_event: collecting_event,
+                                                 error_radius: get_field_value("coordinateUncertaintyInMeters"),
+                                                 no_cached: true
+                                               }.merge(attributes[:georeference]))
+
+            # make job for calculating georeference cache, read-heavy operation that significantly slows down import
+            georeference.no_cached = false
+            DwcOccurrenceCacheGeoreferenceJob(georeference)
+
+          end
+
         end
 
         DwcOccurrenceUpsertJob.perform_later(specimen)
