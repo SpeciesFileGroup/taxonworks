@@ -190,7 +190,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
             # make job for calculating georeference cache, read-heavy operation that significantly slows down import
             georeference.no_cached = false
-            DwcOccurrenceCacheGeoreferenceJob(georeference)
+            DwcOccurrenceCacheGeoreferenceJob.perform_later(georeference)
 
           end
 
