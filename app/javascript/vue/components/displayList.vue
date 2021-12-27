@@ -195,7 +195,6 @@ export default {
   }
 
   .table-entrys-list {
-    overflow-y: auto;
     padding: 0px;
     position: relative;
 

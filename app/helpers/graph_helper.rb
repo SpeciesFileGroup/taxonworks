@@ -17,7 +17,7 @@ module GraphHelper
     when 'Person'
       person_graph(object).to_json
     when 'Citation'
-      citation_graph(object, source: true, citation_object: true).to_json
+      citation_graph(object, source: true, citation_object: true, topics: true).to_json
     when 'Source'
       source_graph(object, citations: true, authors: true, editors: true).to_json
     else
@@ -50,14 +50,14 @@ module GraphHelper
 
     if citations
       s.citations.where(project_id: sessions_current_project_id).each do |c|
-        citation_graph(c, graph: g, target: s, citation_object: true)
+        citation_graph(c, graph: g, target: s, citation_object: true, topics: true)
       end
     end
 
     g
   end
 
-  def citation_graph(citation, graph: nil, target: nil, source: false, citation_object: false)
+  def citation_graph(citation, graph: nil, target: nil, source: false, citation_object: false, topics: true)
     c = citation
     return nil if c.nil?
 
@@ -70,6 +70,12 @@ module GraphHelper
     if citation_object
       g.add_node(c.citation_object, citations: false, identifiers: true)
       g.add_edge(c, c.citation_object)
+    end
+
+    if topics
+      c.topics.each do |t|
+        g.add(t, c)
+      end
     end
     g
   end

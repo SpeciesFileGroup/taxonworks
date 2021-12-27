@@ -1,6 +1,6 @@
 module Queries
   module Content
-    class Filter 
+    class Filter
 
       include Queries::Concerns::Users
 
@@ -36,9 +36,10 @@ module Queries
         @otu_id = params[:otu_id]
         @project_id = params[:project_id]
         @text = params[:text]
+
+        # TODO: use helper method
         @exact = (params[:exact]&.downcase == 'true' ? true : false) if !params[:exact].nil?
         @depictions = (params[:depictions]&.downcase == 'true' ? true : false) if !params[:depictions].nil?
-      
         @citations = (params[:citations]&.downcase == 'true' ? true : false) if !params[:citations].nil?
 
         set_user_dates(params)
@@ -90,13 +91,13 @@ module Queries
       # @return [Arel::Node, nil]
       def otu_id_facet
         return nil if otu_id.empty?
-        table[:otu_id].eq_any(otu_id) 
+        table[:otu_id].eq_any(otu_id)
       end
 
       # @return [Arel::Node, nil]
       def project_id_facet
         return nil if project_id.empty?
-        table[:project_id].eq_any(project_id) 
+        table[:project_id].eq_any(project_id)
       end
 
       # TODO: DRY depictions/citations
@@ -124,12 +125,12 @@ module Queries
       # @return [Arel::Node, nil]
       def topic_id_facet
         return nil if topic_id.empty?
-        table[:topic_id].eq_any(topic_id) 
+        table[:topic_id].eq_any(topic_id)
       end
 
       def merge_clauses
         clauses = [
-          depictions_facet, 
+          depictions_facet,
           citations_facet,
           created_updated_facet, # See Queries::Concerns::Users
         ].compact

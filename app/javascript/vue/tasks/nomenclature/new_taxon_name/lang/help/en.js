@@ -34,6 +34,9 @@ export default {
     },
     originalCombination: {
       container: 'If the current classification of this name differs from the classification of the name as it was originally published the latter can be defined here.  To initiate the original combination either 1) Click the use original, or 2) click and drag the name into the rank it was originally found it.  After initiating search and provide the rest of the epithet.'
+    },
+    classification: {
+      container: 'Use this section to set the taxon as incertae sedis or to classify the source'
     }
   }
 }

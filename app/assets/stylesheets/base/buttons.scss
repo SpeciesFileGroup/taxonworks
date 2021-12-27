@@ -171,9 +171,10 @@
 }
 
 .btn-radial-object {
-  background-size: 16px;
+  background-size: 12px;
   background-color: $color-secondary-2-4;
-  background-image: image-url("radial-object.svg");
+  background-image: image-url("compass.svg");
+  background-position: 45% 55%;
 }
 
 .btn-locked {

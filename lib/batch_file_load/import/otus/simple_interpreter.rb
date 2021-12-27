@@ -2,7 +2,7 @@ module BatchFileLoad
   class Import::Otus::SimpleInterpreter < BatchFileLoad::Import
     # @param [Array] args
     def initialize(**args)
-      super(args)
+      super(**args)
     end
 
     # @return [Array]

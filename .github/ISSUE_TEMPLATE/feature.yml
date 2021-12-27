@@ -1,0 +1,36 @@
+name: Feature request or enhancement
+description: Open a new issue to describe and request a new feature or enhancement. These will be auto-labeled with _enhancement_. Be sure to provide a title.
+labels: ["enhancement"]
+body: 
+- type: textarea 
+  id: summary
+  attributes:
+    label: Feature or enhancement
+    description: Please describe what you would like to be able to do or see. Consider telling a story, e.g. first I do x, then y, then I see z.
+    placeholder: E.g. When I am at X, then I need Y, and when I click, then I will see Z.
+  validations:
+    required: true 
+- type: input 
+  id: summary_target
+  attributes:
+    label: Location
+    description: Stepping back, where should this feature be found? Providing a URL path can help (e.g. /taxon_names/123).
+    placeholder: Task - New taxon name.
+  validations:
+    required: true 
+- type: textarea 
+  id: figures
+  attributes:
+    label: Screenshot, napkin sketch of interface, or conceptual description
+    description: Provide drawings or screenshots mocking-up (illustrating) your feature, or feature progression.  
+    placeholder: Drag/drop your image(s) here
+  validations:
+    required: false
+- type: input 
+  id: summary_x
+  attributes:
+    label: Your role 
+    description: Who are you, i.e. in what role are you making this feature request? 
+    placeholder: Graduate biologist 
+  validations:
+    required: false 

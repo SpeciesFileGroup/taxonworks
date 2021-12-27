@@ -17,7 +17,7 @@
           </li>
         </template>
       </ul>
-      <div class="horizontal-center-content">
+      <div class="horizontal-center-content margin-medium-left">
         <save-taxon-name
           class="normal-input button button-submit separate-right"/>
         <clone-taxon-name

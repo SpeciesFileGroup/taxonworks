@@ -150,6 +150,7 @@ describe Source, type: :model, group: :source do
     expect(source.verbatim_contents).to eq(s)
   end
 
+
   context 'concerns' do
     it_behaves_like 'alternate_values'
     it_behaves_like 'data_attributes'
@@ -161,4 +162,31 @@ describe Source, type: :model, group: :source do
     it_behaves_like 'documentation'
   end
 
+  context 'source recently sued' do
+    let!(:s1) { FactoryBot.create(:valid_source_bibtex) }
+    let!(:s2) { FactoryBot.create(:valid_source_bibtex) }
+    let!(:s3) { FactoryBot.create(:valid_source_bibtex) }
+    let!(:s4) { FactoryBot.create(:valid_source_bibtex) }
+    let!(:s5) { FactoryBot.create(:valid_source_bibtex) }
+    let!(:s6) { FactoryBot.create(:valid_source_bibtex) }
+    let!(:s7) { FactoryBot.create(:valid_source_bibtex) }
+    let!(:s8) { FactoryBot.create(:valid_source_bibtex) }
+    let!(:s9) { FactoryBot.create(:valid_source_bibtex) }
+    let!(:otu) { FactoryBot.create(:valid_otu) }
+    let!(:c1) { otu.citations.create!(source_id: s1.id)}
+    let!(:c2) { otu.citations.create!(source_id: s2.id)}
+    let!(:c3) { otu.citations.create!(source_id: s3.id)}
+    let!(:c4) { otu.citations.create!(source_id: s4.id)}
+    let!(:c5) { otu.citations.create!(source_id: s5.id)}
+    let!(:c6) { otu.citations.create!(source_id: s6.id)}
+    let!(:c7) { otu.citations.create!(source_id: s7.id)}
+    let!(:c8) { otu.citations.create!(source_id: s8.id)}
+    let!(:c9) { otu.citations.create!(source_id: s9.id)}
+
+    specify 'source recent' do
+      expect(Source.used_recently(otu.created_by_id, otu.project_id, 'Otu').first).to eq(s9.id)
+      expect(Source.used_recently(otu.created_by_id, otu.project_id, used_on = 'Otu').last).to eq(s1.id)
+    end
+
+  end
 end

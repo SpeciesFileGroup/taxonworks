@@ -50,6 +50,7 @@ class SqedDepiction < ApplicationRecord
   validates_inclusion_of :layout, in: SqedConfig::LAYOUTS.keys.map(&:to_s)
   validates_inclusion_of :boundary_finder, in: %w{Sqed::BoundaryFinder::ColorLineFinder Sqed::BoundaryFinder::Cross}
   validates_inclusion_of :has_border, in: [true, false]
+  validate :depiction_is_of_collection_object
 
   accepts_nested_attributes_for :depiction
 
@@ -191,6 +192,12 @@ class SqedDepiction < ApplicationRecord
   end
 
   protected
+
+  def depiction_is_of_collection_object
+    if depiction
+      errors.add(:depiction, 'must be of a collection object') if !(depiction.depiction_object_type =~ /CollectionObject/)
+    end
+  end
 
   def sqed_metadata_map
     metadata_map.inject({}){|hsh, i| hsh.merge(i[0].to_i => i[1].to_sym)}

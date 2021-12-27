@@ -21,6 +21,7 @@
     <div class="content">
       <ul class="no_bullets list list-arrow">
         <%= content_tag(:li, link_to("New", signup_path, data: { icon: "new" })) -%>
+        <%= content_tag(:li, link_to("Batch add new", batch_add_users_task_path, data: { turbolinks: false, icon: "new" })) -%>
         <%= content_tag(:li, link_to("List", users_path, data: { icon: "list" })) -%>
         <%= content_tag(:li, link_to("Activity", user_activity_path, data: { turbolinks: false, icon: "list" })) -%>
       </ul>

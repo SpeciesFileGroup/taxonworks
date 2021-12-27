@@ -81,6 +81,7 @@ end
 
 resources :users, except: :new do
   collection do
+    post 'batch_create'
     get :autocomplete, defaults: {format: :json}
   end
   member do

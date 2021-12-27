@@ -15,3 +15,9 @@
   vertical-align: top;
   padding: 0px 12px;
 }
+
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

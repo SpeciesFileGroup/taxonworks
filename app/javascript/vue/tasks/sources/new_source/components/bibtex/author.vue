@@ -2,7 +2,6 @@
   <fieldset v-help.section.BibTeX.authors>
     <legend>Authors</legend>
     <smart-selector
-      ref="smartSelector"
       model="people"
       @onTabSelected="view = $event"
       target="Source"
@@ -77,16 +76,6 @@ export default {
     return {
       options: [],
       view: undefined
-    }
-  },
-
-  watch: {
-    lastSave: {
-      handler (newVal, oldVal) {
-        if (newVal !== oldVal) {
-          this.$refs.smartSelector.refresh()
-        }
-      }
     }
   },
 

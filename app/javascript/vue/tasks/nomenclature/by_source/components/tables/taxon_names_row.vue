@@ -18,7 +18,7 @@
     </td>
     <td>
       <a
-        v-html="citation.citation_object.object_tag"
+        v-html="citation.citation_object.object_label"
         :href="`/tasks/nomenclature/browse?taxon_name_id=${citation.citation_object_id}`"
       />
       <span v-html="isInvalid" />

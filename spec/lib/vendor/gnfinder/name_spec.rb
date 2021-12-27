@@ -19,10 +19,14 @@ describe Vendor::Gnfinder::Name, type: [:model]  do
 
   context '#found 1' do
 
-    let(:n) { mn.found }
+    let(:n) { mn }
 
     specify '#name' do
       expect(n.name).to eq('Acrididae')
+    end
+
+    specify '#log_odds' do
+      expect(n.log_odds).to be_within(0.5).of(4)
     end
 
     specify '#verbatim' do
@@ -30,11 +34,11 @@ describe Vendor::Gnfinder::Name, type: [:model]  do
     end
 
     specify '#words_start' do
-      expect(n.start).to eq(4)
+      expect(n.words_start).to eq(4)
     end
 
     specify '#words_end' do
-      expect(n.end).to eq(13)
+      expect(n.words_end).to eq(13)
     end
 
     specify '#words_before' do
@@ -47,11 +51,15 @@ describe Vendor::Gnfinder::Name, type: [:model]  do
   end
 
   specify '#classification_path' do
-    expect(mn.classification_path).to contain_exactly("Biota", "Acrididae", "Acridoidea", "Animalia", "Arthropoda", "Insecta", "Orthoptera")
+    expect(mn.classification_path).to contain_exactly(
+      'Biota', 'Animalia', 'Arthropoda', 'Insecta', 'Orthoptera', 'Caelifera', 'Acrididea', 'Acridomorpha', 'Acridoidea', 'Acrididae'
+    )
   end
 
   specify '#classification_rank' do
-    expect(mn.classification_rank).to contain_exactly("unranked", "class", "family", "kingdom", "order", "phylum", "superfamily")
+    expect(mn.classification_rank).to contain_exactly(
+      'unranked', 'kingdom', 'phylum', 'class', 'order', 'suborder', 'infraorder', 'nanorder', 'superfamily', 'family'
+    )
   end
 
   specify '#data_source_title_short' do

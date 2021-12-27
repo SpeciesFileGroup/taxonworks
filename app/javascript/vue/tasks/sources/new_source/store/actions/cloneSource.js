@@ -12,6 +12,7 @@ export default ({ state, commit }) => {
     source.roles_attributes = people
 
     commit(MutationNames.SetSource, source)
+    commit(MutationNames.SetDocumentation, [])
 
     SoftValidation.find(response.body.global_id).then(response => {
       commit(MutationNames.SetSoftValidation, { sources: { list: [response.body], title: 'Source' } })

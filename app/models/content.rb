@@ -38,6 +38,8 @@ class Content < ApplicationRecord
   has_one :public_content
   belongs_to :language
 
+  validate :topic_id_is_type_topic
+
   validates_uniqueness_of :topic_id, scope: [:otu_id]
   validates_presence_of :text, :topic_id, :otu_id
 
@@ -103,5 +105,13 @@ class Content < ApplicationRecord
     }
 
     h
+  end
+
+  private
+
+  def topic_id_is_type_topic
+    if topic_id
+      errors.add(:topic_id, 'is not a Topic id') if !Topic.find(topic_id)
+    end
   end
 end

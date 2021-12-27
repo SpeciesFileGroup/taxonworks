@@ -10,5 +10,4 @@ json.object_tag taxon_name_relationship_tag(taxon_name_relationship.metamorphosi
 json.url taxon_name_relationship_url(taxon_name_relationship.metamorphosize, format: :json)
 json.global_id taxon_name_relationship.to_global_id.to_s
 
-json.partial! '/shared/data/all/metadata', object: taxon_name_relationship, klass: 'TaxonNameRelationship'
-
+json.partial! '/shared/data/all/metadata', object: taxon_name_relationship

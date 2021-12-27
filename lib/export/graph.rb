@@ -118,8 +118,13 @@ class Export::Graph
     h = {
       id: object.to_global_id.to_s,
       name:  ApplicationController.helpers.label_for(object) || object.class.base_class.name,
-      color: NODE_COLORS[b] || '#000000'
     }
+
+    if b == 'ControlledVocabularyTerm'
+      object.css_color  || '#000000'
+    else
+      h[:color] = NODE_COLORS[b] || '#000000'
+    end
 
     h[:shape] = NODE_SHAPES[b] if !NODE_SHAPES[b].nil?
     h[:link] = node_link || Rails.application.routes.url_helpers.object_graph_task_path(global_id: object.to_global_id.to_s)

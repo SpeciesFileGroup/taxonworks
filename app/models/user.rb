@@ -190,36 +190,33 @@ class User < ApplicationRecord
     klass.column_names.include?('created_by_id') && (klass.where(created_by_id: id).or(klass.where(updated_by_id: id))).any?
   end
 
-  # TODO: Deprecate for a `lib/query/user/filter`
-  # @param [String, User, Integer] user
-  # @return [Integer] selected user id
-# def self.get_user_id(user)
-#   # no way to know who the current user is, so can't pre-set user_id
-#   case user.class.name
-#     when 'String'
-#       # search by name or email
-#       ut = User.arel_table
-#       c1 = ut[:name].eq(user).or(ut[:email].eq(user.downcase)).to_sql
-#       t_user = User.where(c1).first
-#       if t_user.present?
-#         user_id = t_user.id
-#       else  # try to convert to a number, to see if it came directly from a web page
-#         t_user = user.to_i
-#         if t_user > 0
-#           t_user = User.find(t_user).try(:id)
-#         else
-#           t_user = nil
-#         end
-#         user_id = t_user
-#       end
-#     when 'User'
-#       user_id = user.id
-#     when 'Integer'
-#       user_id = user
-#   end
-#   user_id
-# end
+  # @return
+  def self.batch_create(users: '', create_api_token: false, is_administrator: false, project_id: nil, created_by: nil)
+    return [] if users.blank? || created_by.nil?
+    v = []
+    users.split("\n").each do |r|
+      next if r.blank?
+      email, name = r.split(',')
+      p = SecureRandom.hex
+      u = User.create(
+        email: email,
+        name: name,
+        set_new_api_access_token: create_api_token,
+        is_administrator: is_administrator,
+        by: created_by,
+        password: p,
+        password_confirmation: p,
+        is_flagged_for_password_reset: true
+      )
 
+      v.push u
+
+      if !project_id.blank? && u.valid?
+        ProjectMember.create(user: u, project_id: project_id)
+      end
+    end
+    v
+  end
 
   # TODO: deprecate for a User filter query
   # @param [String, User, Integer, Array] users

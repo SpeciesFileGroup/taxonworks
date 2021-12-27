@@ -83,14 +83,14 @@ module Utilities::Strings
     a.to_s.gsub(/\n|\t/, ' ')
   end
 
-  #   return nil if content.nil?, else wrap and return string if provided
   # @param [String] pre
   # @param [String] content
   # @param [String] post
-  # @return [String]
+  # @return [String, nil]
+  #   return nil if content.nil?, else wrap and return string if provided
   def self.nil_wrap(pre = nil, content = nil, post = nil)
     return nil if content.blank?
-    [pre, content, post].compact.join.html_safe
+    [pre, content, post].compact.join
   end
 
   # @param last_names [Array]
@@ -111,7 +111,12 @@ module Utilities::Strings
   #   whitespace and special character split, then any string containing a digit eliminated
   def self.alphabetic_strings(string)
     return [] if string.nil? || string.length == 0
-    string.split(/\W/).select { |b| !(b =~ /\d/) }.reject { |b| b.empty? }
+    string.split(/[^[[:word:]]]+/).select { |b| !(b =~ /\d/) }.reject { |b| b.empty? }
+  end
+
+  def self.alphanumeric_strings(string)
+    return [] if string.nil? || string.length == 0
+    string.split(/[^[[:word:]]]+/).reject { |b| b.empty? }
   end
 
   # @param string [String]

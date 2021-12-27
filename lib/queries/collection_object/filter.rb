@@ -58,6 +58,10 @@ module Queries
       attr_accessor :never_loaned
 
       # @return [Array]
+      #   an array of loan_ids, all collection objects inside them will be included
+      attr_accessor :loan_id
+
+      # @return [Array]
       #   of biocuration_class ids
       attr_accessor :biocuration_class_ids
 
@@ -217,6 +221,7 @@ module Queries
         @never_loaned = boolean_param(params, :never_loaned)
         @object_global_id = params[:object_global_id]
         @on_loan =  boolean_param(params, :on_loan)
+        @loan_id = params[:loan_id]
         @otu_descendants = boolean_param(params, :otu_descendants)
         @otu_ids = params[:otu_ids] || []
         @preparation_type_id = params[:preparation_type_id]
@@ -277,6 +282,10 @@ module Queries
 
       def preparation_type_id
         [@preparation_type_id].flatten.compact
+      end
+
+      def loan_id
+        [@loan_id].flatten.compact
       end
 
       def taxon_determinations_facet
@@ -409,6 +418,11 @@ module Queries
       def biocuration_facet
         return nil if biocuration_class_ids.empty?
         ::CollectionObject::BiologicalCollectionObject.joins(:biocuration_classifications).where(biocuration_classifications: {biocuration_class_id: biocuration_class_ids})
+      end
+
+      def loan_facet
+        return nil if loan_id.empty?
+        ::CollectionObject::BiologicalCollectionObject.joins(:loans).where(loans: {id: loan_id})
       end
 
       def type_facet
@@ -559,6 +573,7 @@ module Queries
           biocuration_facet,
           biological_relationship_ids_facet,
           sled_image_facet,
+          loan_facet,
           depictions_facet,
         ]
 

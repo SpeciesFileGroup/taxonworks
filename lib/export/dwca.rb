@@ -14,7 +14,9 @@ module Export
     INDEX_VERSION = [
       '2021-10-12 17:00:00.000000 -0500',    # First major refactor
       '2021-10-15 17:00:00.000000 -0500',    # Minor  Excludes footprintWKT, and references to GeographicArea in gazetteer; new form of media links
-      '2021-11-04 17:00:00.000000 -0500'     # Minor  Removes '|', fixes some mappings 
+      '2021-11-04 17:00:00.000000 -0500',    # Minor  Removes '|', fixes some mappings
+      '2021-11-08 13:00:00.000000 -0500',    # PENDING: Minor  Adds depth mappings
+      '2021-11-30 13:00:00.000000 -0500'     # Fix inverted long,lat 
     ]
 
     # @param record_scope [ActiveRecord::Relation]

@@ -12,5 +12,18 @@ DWC_ATTRIBUTE_URIS =  {
 
   waterBody: [
     'http://rs.tdwg.org/dwc/terms/waterBody'
+  ],
+
+  minimumDepthInMeters: [
+    'http://rs.tdwg.org/dwc/terms/minimumDepthInMeters'
   ], 
+
+  maximumDepthInMeters: [
+    'http://rs.tdwg.org/dwc/terms/maximumDepthInMeters'
+  ], 
+
+  verbatimDepth: [
+    'http://rs.tdwg.org/dwc/terms/verbatimDepth'
+  ] 
+
 }

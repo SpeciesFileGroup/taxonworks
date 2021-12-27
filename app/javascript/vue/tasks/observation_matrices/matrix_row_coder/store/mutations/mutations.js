@@ -1,5 +1,6 @@
 import setDescription from './setDescription'
 import setDescriptors from './setDescriptors'
+import setDescriptorUnsaved from './setDescriptorUnsaved'
 import setFreeTextValue from './setFreeTextValue'
 import setTaxonTitle from './setTaxonTitle'
 import setTaxonId from './setTaxonId'
@@ -37,6 +38,7 @@ import setUnits from './setUnits'
 export const MutationNames = {
   SetDescription: 'setDescription',
   SetDescriptors: 'setDescriptors',
+  SetDescriptorUnsaved: 'setDescriptorUnsaved',
   SetTaxonTitle: 'setTaxonTitle',
   SetTaxonId: 'setTaxonId',
   SetConfidenceLevels: 'setConfidenceLevels',
@@ -76,6 +78,7 @@ export const MutationFunctions = {
   [MutationNames.ResetState]: resetState,
   [MutationNames.SetDescription]: setDescription,
   [MutationNames.SetDescriptors]: setDescriptors,
+  [MutationNames.SetDescriptorUnsaved]: setDescriptorUnsaved,
   [MutationNames.SetTaxonTitle]: setTaxonTitle,
   [MutationNames.SetTaxonId]: setTaxonId,
   [MutationNames.SetConfidenceLevels]: setConfidenceLevels,

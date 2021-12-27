@@ -18,9 +18,12 @@
             :checked="currentCombination && combination.id === currentCombination.subject_taxon_name_id"
             name="current-combination"
             @click="saveRelationship(combination.id)">
-          {{ combination.object_label }}
+          <span v-html="combination.object_label" />
         </label>
         <div class="horizontal-left-content middle">
+          <default-confidence
+            class="circle-button"
+            :global-id="combination.global_id"/>
           <radial-annotator :global-id="combination.global_id" />
           <v-btn
             class="circle-button"
@@ -71,6 +74,7 @@ import { useStore } from 'vuex'
 import { GetterNames } from '../../store/getters/getters.js'
 import { ActionNames } from '../../store/actions/actions.js'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import DefaultConfidence from 'components/defaultConfidence.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
 import VConfirmation from 'components/ConfirmationModal.vue'

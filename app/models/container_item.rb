@@ -96,7 +96,7 @@ class ContainerItem < ApplicationRecord
   # @return [Container, nil]
   #   the immediate container for this ContainerItem
   def container
-    parent.try(:contained_object)
+    parent&.contained_object
   end
 
   # TODO: this is silly, type should be the same

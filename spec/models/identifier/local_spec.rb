@@ -66,6 +66,12 @@ describe Identifier::Local, type: :model, group: :identifiers do
     expect(i1.cached).to eq("#{namespace.short_name} 123")
   end
 
+  specify 'virtual namespaces do not appear in cached' do
+    namespace.update!(is_virtual: true)
+    i1 = Identifier::Local::CatalogNumber.create(namespace: namespace, identifier_object: specimen1, identifier: 123)
+    expect(i1.cached).to eq('123')
+  end
+
   specify 'updating Namespace updates #cache' do
     i = Identifier::Local::CatalogNumber.create!(namespace: namespace, identifier_object: specimen1, identifier: 123)
     original = i.cached

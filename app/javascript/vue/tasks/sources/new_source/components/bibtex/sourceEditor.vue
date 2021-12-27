@@ -3,7 +3,6 @@
     <legend>Editors</legend>
     <smart-selector
       model="people"
-      ref="smartSelector"
       target="Source"
       klass="Source"
       label="cached"
@@ -70,16 +69,6 @@ export default {
     },
     peopleIds () {
       return this.roleAttributes.filter(item => item.person_id || item.person).map(item => item.person_id ? item.person_id : item.person.id)
-    }
-  },
-
-  watch: {
-    lastSave: {
-      handler (newVal, oldVal) {
-        if (newVal !== oldVal) {
-          this.$refs.smartSelector.refresh()
-        }
-      }
     }
   },
 

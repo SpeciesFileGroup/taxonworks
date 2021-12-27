@@ -3,7 +3,12 @@
     class="panel content margin-medium-right margin-medium-bottom cursor-pointer import-card"
     @click="$emit('onSelect', dataset.id)">
     <h2 class="flex-separate middle">
-      <b>{{ dataset.description }}</b>
+      <b
+        class="text-ellipsis"
+        :title="dataset.description"
+      >
+        {{ dataset.description }}
+      </b>
       <ul class="context-menu">
         <li>
           <a
@@ -50,6 +55,11 @@ export default {
       required: true
     }
   },
+
+  emits: [
+    'onRemove',
+    'onSelect'
+  ],
 
   methods: {
     async destroyDataset (dataset) {

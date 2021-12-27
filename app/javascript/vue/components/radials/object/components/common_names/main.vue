@@ -28,7 +28,7 @@
           <default-pinned
             section="GeographicAreas"
             type="GeographicArea"
-            @getLabel="$refs.geoAutocomplete.setLabel($event)"
+            @getLabel="$refs.geoAutocomplete.setText($event)"
             @getId="common_name.geographic_area_id = $event"/>
         </template>
       </div>

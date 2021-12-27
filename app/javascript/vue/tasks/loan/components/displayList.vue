@@ -31,11 +31,9 @@
             <th />
             <th>Loan item</th>
             <th>Date returned</th>
-            <th>Collection object status</th>
+            <th>Status</th>
             <th>Total</th>
-            <th>Pin</th>
-            <th>Radial</th>
-            <th>Delete</th>
+            <th />
           </tr>
         </thead>
         <transition-group

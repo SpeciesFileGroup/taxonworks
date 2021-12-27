@@ -38,6 +38,7 @@ namespace :tw do
       #    true
       #  end
 
+      # nohup rake tw:maintenance:dwc_occurrences:build total=1500000 &
       desc 'Index collection objects into dwc_occurrence records, no updating of old, only new record creation'
       task build: [:environment] do |t|
         if ENV['total']

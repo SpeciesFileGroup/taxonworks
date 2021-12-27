@@ -69,8 +69,6 @@ export default {
         this.$emit('close', true)
         this.$store.commit(MutationNames.SetSource, response.body)
         TW.workbench.alert.create('New source from BibTeX created.', 'notice')
-      }, () => {
-        TW.workbench.alert.create('Wrong data', 'error')
       }).finally(() => {
         this.creating = false
       })

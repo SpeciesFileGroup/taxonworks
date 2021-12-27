@@ -73,6 +73,14 @@
               @geoJsonLayersEdited="updateGeoreference($event)"
               @geoJsonLayerCreated="addGeoreference($event)"/>
           </div>
+          <div class="margin-medium-top">
+            <b>Georeference date</b>
+            <date-component
+              v-model:day="date.day_georeferenced"
+              v-model:month="date.month_georeferenced"
+              v-model:year="date.year_georeferenced"
+            />
+          </div>
           <div class="horizontal-left-content margin-medium-top margin-medium-bottom">
             <wkt-component
               @create="addToQueue"
@@ -93,16 +101,12 @@
             </button>
           </div>
           <display-list
-            v-if="collectingEventId"
-            :list="georeferences"
+            :list="collectingEventId
+              ? georeferences
+              : queueGeoreferences"
             @delete="removeGeoreference"
             @update="updateRadius"
-            label="object_tag"/>
-          <display-list
-            v-else
-            :list="queueGeoreferences"
-            @delete="removeGeoreference"
-            @update="updateRadius"
+            @dateChanged="updateDate"
             label="object_tag"/>
         </div>
       </template>
@@ -121,6 +125,7 @@ import GeolocateComponent from './geolocate'
 import ModalComponent from 'components/ui/Modal'
 import extendCE from '../../mixins/extendCE'
 import WktComponent from './wkt'
+import DateComponent from 'components/ui/Date/DateFields.vue'
 import { Georeference } from 'routes/endpoints'
 import { truncateDecimal } from 'helpers/math.js'
 import { GetterNames } from '../../../store/getters/getters'
@@ -144,7 +149,8 @@ export default {
     ManuallyComponent,
     GeolocateComponent,
     ModalComponent,
-    WktComponent
+    WktComponent,
+    DateComponent
   },
 
   emits: ['onGeoreferences'],
@@ -234,6 +240,11 @@ export default {
         type: 'FeatureCollection',
         features: []
       },
+      date: {
+        year_georeferenced: undefined,
+        month_georeferenced: undefined,
+        day_georeferenced: undefined
+      },
       showModal: false
     }
   },
@@ -260,6 +271,7 @@ export default {
 
       if (geo.id) {
         this.georeferences[index].error_radius = geo.error_radius
+        this.georeferences[index].error_geographic_item_id = geo.geographic_item_id
         this.queueGeoreferences.push(this.georeferences[index])
       } else {
         this.queueGeoreferences[index].error_radius = geo.error_radius
@@ -267,12 +279,12 @@ export default {
     },
 
     addGeoreference (shape) {
-      console.log("entra")
       this.queueGeoreferences.push({
         tmpId: Math.random().toString(36).substr(2, 5),
         geographic_item_attributes: { shape: JSON.stringify(shape) },
         error_radius: shape.properties?.radius,
-        type: GEOREFERENCE_LEAFLET
+        type: GEOREFERENCE_LEAFLET,
+        ...this.date
       })
 
       this.$store.dispatch(ActionNames.ProcessGeoreferenceQueue)
@@ -292,7 +304,7 @@ export default {
 
     populateShapes () {
       this.shapes.features = []
-      if(this.geographicArea) {
+      if (this.geographicArea) {
         this.shapes.features.unshift(this.geographicArea)
       }
       this.georeferences.forEach(geo => {
@@ -334,6 +346,14 @@ export default {
       })
 
       this.$store.dispatch(ActionNames.ProcessGeoreferenceQueue)
+    },
+
+    updateDate (georeference) {
+      this.addToQueue(georeference)
+      console.log(georeference)
+      if (georeference.id) {
+        this.$store.dispatch(ActionNames.ProcessGeoreferenceQueue)
+      }
     },
 
     addToQueue (data) {

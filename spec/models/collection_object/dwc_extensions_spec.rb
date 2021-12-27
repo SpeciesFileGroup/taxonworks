@@ -9,7 +9,12 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
 
     let(:root) { Project.find(Current.project_id).send(:create_root_taxon_name) }
 
-    # Rough tests to detect infinite recursion
+    specify '#dwc_decimal_latitude' do
+      a = Georeference::Wkt.create!(collecting_event: ce, wkt: 'POINT(9.0 60)' )
+
+      s.georeference_attributes(true) # force the rebuild
+      expect(s.dwc_decimal_latitude).to eq(60.0) # technically not correct significant figures :(
+    end
 
     specify '#dwc_event_date 1' do
       expect(s.dwc_event_date).to eq('2010')
@@ -99,7 +104,10 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
     end
 
     specify '#dwc_type_status' do
-      FactoryBot.create(:valid_type_material, collection_object: s)
+      a = FactoryBot.create(:valid_type_material, collection_object: s)
+      a.protonym.update!(original_genus: a.protonym.parent)
+      a.protonym.update!(original_species: a.protonym )
+
       expect(s.dwc_type_status).to eq('holotype of Erythroneura vitis McAtee, 1900')
     end
 
@@ -242,6 +250,53 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       expect(s.dwc_water_body).to eq('Lake Miss-again')
     end
 
+    specify '#dwc_verbatim_depth' do
+      d = 'reeeeeal deep'
+      a = Predicate.create!(
+        name: "Let's get deep",
+        definition: 'depth of the deepness',
+        uri: 'http://rs.tdwg.org/dwc/terms/verbatimDepth' # see /config/initializers/constants/_controlled_vocabularies/dwc_attribute_uris.rb
+      )
+
+      b = InternalAttribute.create!(
+        value: d,
+        predicate: a,
+        attribute_subject: ce
+      )
+      expect(s.dwc_verbatim_depth).to eq(d)
+    end
+
+    specify '#dwc_maximum_dpeth_in_meters' do
+      d = 2.1
+      a = Predicate.create!(
+        name: "wet toes?",
+        definition: 'number in metric m, not that other standard',
+        uri: 'http://rs.tdwg.org/dwc/terms/maximumDepthInMeters' # see /config/initializers/constants/_controlled_vocabularies/dwc_attribute_uris.rb
+      )
+
+      b = InternalAttribute.create!(
+        value: d,
+        predicate: a,
+        attribute_subject: ce
+      )
+      expect(s.dwc_maximum_depth_in_meters).to eq(d.to_s)
+    end
+
+    specify '#dwc_minimum_dpeth_in_meters' do
+      d = 2.1
+      a = Predicate.create!(
+        name: "wet toes?",
+        definition: 'number in metric m, not that other standard',
+        uri: 'http://rs.tdwg.org/dwc/terms/minimumDepthInMeters' # see /config/initializers/constants/_controlled_vocabularies/dwc_attribute_uris.rb
+      )
+
+      b = InternalAttribute.create!(
+        value: d,
+        predicate: a,
+        attribute_subject: ce
+      )
+      expect(s.dwc_minimum_depth_in_meters).to eq(d.to_s)
+    end
 
     specify '#dwc_previous_identifications' do
       p1 = Protonym.create!(
@@ -278,7 +333,6 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
 
       expect(s.dwc_recorded_by).to eq('Doe, John')
     end
-
 
     specify '#dwc_other_catalog_numbers' do
       a = Identifier::Local::CatalogNumber.create!(identifier: '123', identifier_object: s, namespace: FactoryBot.create(:valid_namespace) )

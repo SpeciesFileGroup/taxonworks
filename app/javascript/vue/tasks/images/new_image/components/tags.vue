@@ -7,6 +7,7 @@
       get-url="/controlled_vocabulary_terms/"
       model="keywords"
       klass="Image"
+      target="Image"
       @selected="addTag"/>
     <table-list
       v-if="tags.length"

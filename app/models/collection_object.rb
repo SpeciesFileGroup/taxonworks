@@ -65,7 +65,6 @@ class CollectionObject < ApplicationRecord
   include Shared::Containable
   include Shared::DataAttributes
   include Shared::Loanable
-  include Shared::HasRoles
   include Shared::Identifiers
   include Shared::Notes
   include Shared::Tags
@@ -77,7 +76,7 @@ class CollectionObject < ApplicationRecord
   include Shared::Observations
   include Shared::IsData
   include SoftValidation
-  
+
   include CollectionObject::BiologicalExtensions
 
   include CollectionObject::Taxonomy # at present must be before IsDwcOccurence
@@ -626,9 +625,17 @@ class CollectionObject < ApplicationRecord
   end
 
   # @return [Identifier::Local::CatalogNumber, nil]
-  #   the first (position) catalog number for this collection object
+  #   the first (position) catalog number for this collection object, either on specimen, or container
   def preferred_catalog_number
-    Identifier::Local::CatalogNumber.where(identifier_object: self).first
+    if i = Identifier::Local::CatalogNumber.where(identifier_object: self).first
+      i
+    else
+      if container
+        container.identifiers.where(identifiers: {type: 'Identifier::Local::CatalogNumber'}).first
+      else
+        nil
+      end
+    end
   end
 
   # return [Boolean]
@@ -680,7 +687,7 @@ class CollectionObject < ApplicationRecord
     if collecting_event&.persisted? && (Current.project_id || project_id)
       errors.add(:base, 'collecting event is not from this project') if collecting_event.project_id != (Current.project_id || project_id)
     end
-  end 
+  end
 
   def check_that_both_of_category_and_total_are_not_present
     errors.add(:ranged_lot_category_id, 'Both ranged_lot_category and total can not be set') if !ranged_lot_category_id.blank? && !total.blank?
@@ -712,7 +719,7 @@ class CollectionObject < ApplicationRecord
     # !! does not account for georeferences_attributes!
     reject
   end
-  
+
 end
 
 require_dependency 'specimen'

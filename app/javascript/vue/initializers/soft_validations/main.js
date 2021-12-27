@@ -1,20 +1,25 @@
 import { createApp } from 'vue'
 import SoftValidation from 'tasks/nomenclature/browse/components/validations'
 
-function initValidations () {
+function initValidations (element) {
+  const softValidationElements = Array.from(document.querySelectorAll('#data-validation-panel [data-global-id]'))
   const globalIds = {
-    '': Array.from(document.querySelectorAll('#data-validation-panel .soft_validation')).map(node => node.getAttribute('data-global-id'))
+    '': softValidationElements.map(node => node.getAttribute('data-global-id'))
   }
-  const props = {
-    globalIds
-  }
-  const app = createApp(SoftValidation, props)
 
-  app.mount('#vue-validation-panel')
+  if (softValidationElements.length) {
+    const app = createApp(SoftValidation, { globalIds })
+
+    app.mount('#vue-validation-panel')
+  } else {
+    element.remove()
+  }
 }
 
 document.addEventListener('turbolinks:load', () => {
-  if (document.querySelector('#vue-validation-panel')) {
-    initValidations()
+  const el = document.querySelector('#vue-validation-panel')
+
+  if (el) {
+    initValidations(el)
   }
 })

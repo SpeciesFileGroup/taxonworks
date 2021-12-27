@@ -45,7 +45,7 @@ class Catalog::Entry
   # Redefined in subclasses! 
   # !! This is default only, it should be defined in subclasses.
   def build
-    @items << Catalog::EntryItem.new(object: object, citation: object.origin_citation )
+    @items << Catalog::EntryItem.new(object: object, citation: object.origin_citation)
     true
   end
 
