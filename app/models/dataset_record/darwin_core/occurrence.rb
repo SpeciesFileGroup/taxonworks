@@ -183,7 +183,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
           Georeference::VerbatimData.create!({
             collecting_event: collecting_event,
-            error_radius: get_field_value("coordinateUncertaintyInMeters")
+            error_radius: get_field_value("coordinateUncertaintyInMeters"),
+            no_cached: true
           }.merge(attributes[:georeference])) if collecting_event.verbatim_latitude && collecting_event.verbatim_longitude
         end
 
