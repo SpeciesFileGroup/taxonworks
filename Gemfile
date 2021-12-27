@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'rack-cors', '~> 1.1', require: 'rack/cors'
 
-ruby '~> 3.0.0'
+ruby '>= 3.0', '<= 3.1'
 
 gem 'bundler', '~> 2.0'
 
@@ -26,6 +26,7 @@ gem 'psych', '~> 3.3'
 gem 'rmagick', '~> 4.2', '>= 4.2.2'
 gem 'roo', '~> 2.8', '>= 2.8.3'
 gem 'roo-xls', '~> 1.2'
+gem 'net-smtp', '~> 0.3.1'
 
 # Geo
 gem 'ffi-geos', '~> 2.2.0'
