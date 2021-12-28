@@ -78,5 +78,12 @@ module ApplicationEnumeration
     }
   end
 
+  # @return Array of AR associations
+  #   to access the related class use `.klass`
+  def self.klass_reflections(klass, relationship_type = :has_many)
+    a = klass.reflect_on_all_associations(relationship_type).sort{ |a, b| a.name <=> b.name }
+    a
+  end
+
 end
 

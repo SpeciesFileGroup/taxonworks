@@ -532,6 +532,8 @@ GEM
       rubocop (>= 1.7.0, < 2.0)
     rubocop-rspec (2.6.0)
       rubocop (~> 1.19)
+    ruby-graphviz (1.2.5)
+      rexml
     ruby-ole (1.2.12.2)
     ruby-prof (1.4.3)
     ruby-progressbar (1.11.0)
@@ -746,6 +748,7 @@ DEPENDENCIES
   rubocop-performance (~> 1.10)
   rubocop-rails (~> 2.4)
   rubocop-rspec (~> 2.6)
+  ruby-graphviz (~> 1.2.5)
   ruby-prof (~> 1.2)
   ruby-units (~> 2.3.0)
   rubyzip (~> 2.3.0)
