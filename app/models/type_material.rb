@@ -1,7 +1,5 @@
-# TODO: Rename the insane column names here
-#
-# TypeMaterial links CollectionObjects to Protonyms.  It is the single direct relationship between nomenclature and collection objects in TaxonWorks (all other name/collection object relationships coming through OTUs).
-# TypeMaterial is based on specific rules of nomenclature, it only includes those types (e.g. "holotype") that are specifically goverened (e.g. "topotype" is not allowed).
+# TypeMaterial links CollectionObjects to Protonyms. It is the single direct relationship between nomenclature (TaxonName) and CollectionObject in TaxonWorks. Other name-collection object relationships coming through TaxonDeterminations, i.e. linking an OTU to a object.
+# TypeMaterial is used to encode specific rules of nomenclature, therefor it only includes those types (e.g. "holotype") that are specifically goverened, for example "topotype" is not allowed.
 #
 # @!attribute protonym_id
 #   @return [Integer]
@@ -80,11 +78,7 @@ class TypeMaterial < ApplicationRecord
   soft_validate(:sv_type_source, set: :type_source)
 
   accepts_nested_attributes_for :collection_object, allow_destroy: true
-
-  validates_presence_of :type_type, :protonym_id
-
-  # !! breaks nested attributes if validated as collection_object_id.  Seems to be belongs_to only related.
-  validates_presence_of :collection_object
+  validates_presence_of :type_type, :protonym, :collection_object
 
   # TODO: really should be validating uniqueness at this point, it's type material, not garbage records
 
