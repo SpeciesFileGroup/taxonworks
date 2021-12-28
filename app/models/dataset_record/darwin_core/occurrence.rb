@@ -113,7 +113,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           TypeMaterial.create({
             protonym: innermost_protonym,
             collection_object: specimen,
-          }.merge!(attributes[:type_material]))
+          }.merge!(attributes[:type_material]))   # protoynm can be overwritten in type_materials hash if OC did not match scientific name / innermost_protonym
         end
 
         if attributes[:catalog_number]
@@ -721,9 +721,19 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     scientific_name = get_field_value(:scientificName)&.gsub(/\s+/, ' ')
     type_scientific_name = type_status&.[](:scientificName)&.gsub(/\s+/, ' ')
 
-    type_material = {
-      type_type: type_status[:type].downcase
-    } if scientific_name && type_scientific_name&.delete_prefix!(scientific_name)&.match(/^\W*$/)
+
+    if scientific_name && type_scientific_name.present?
+      if type_scientific_name&.delete_prefix!(scientific_name)&.match(/^\W*$/)
+        type_material = {
+          type_type: type_status[:type].downcase
+        }
+      elsif (original_combination_protonym = Protonym.find_by_cached_original_combination(type_scientific_name))
+        type_material = {
+          type_type: type_status[:type].downcase,
+          protonym: original_combination_protonym
+        }
+      end
+    end
 
     # identifiedBy: determiners of taxon determination
     Utilities::Hashes::set_unless_nil(taxon_determination, :determiners, parse_people(:identifiedBy))
