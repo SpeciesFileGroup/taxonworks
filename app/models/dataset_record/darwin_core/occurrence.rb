@@ -35,7 +35,6 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     def execute(origins, parent, name)
       protonym = get_protonym(parent, name)
       raise DatasetRecord::DarwinCore::InvalidData.new(exception_args(origins, parent, name, protonym)) unless protonym&.persisted?
-      handle_error(origins, parent, name) unless protonym&.persisted?
       protonym
     end
 
