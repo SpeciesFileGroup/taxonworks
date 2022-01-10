@@ -6,6 +6,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.22.6] - 2022-01-10
+
 ### Added
 - Option to select all and quick tag in Filter image task [#2744]
 
@@ -15,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated Ruby gems.
 - DwC occurrences importer: When matching protonyms also consider their alternate gender names if there are no matches by exact name. [#2738]
 - Allow import of specimens with empty `catalogNumber` even when `institutionCode` and/or `collectionCode` are set.
+
 ### Fixed
 - Several batch loaders not working due to syntax incompatibility with currently used Ruby version. [#2739]
 
@@ -2212,7 +2217,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.5...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.6...development
+[0.22.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.5...v0.22.6
 [0.22.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.4...v0.22.5
 [0.22.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.3...v0.22.4
 [0.22.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.2...v0.22.3
