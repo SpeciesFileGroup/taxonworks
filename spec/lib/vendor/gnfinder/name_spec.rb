@@ -26,7 +26,7 @@ describe Vendor::Gnfinder::Name, type: [:model]  do
     end
 
     specify '#log_odds' do
-      expect(n.log_odds).to be_within(0.5).of(4)
+      expect(n.log_odds).to be_within(0.5).of(4.5)
     end
 
     specify '#verbatim' do

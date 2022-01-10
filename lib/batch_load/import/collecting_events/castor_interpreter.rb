@@ -4,7 +4,7 @@ module BatchLoad
     # @param [Hash] args
     def initialize(**args)
       @collecting_events = {}
-      super(args)
+      super(**args)
     end
 
     # rubocop:disable Metrics/MethodLength

@@ -70,14 +70,31 @@
             </div>
           </div>
         </div>
-        <list-component
-          v-model="ids"
+        <div
           :class="{ 'separate-left': activeFilter }"
-          :list="list"/>
-        <h2
-          v-if="alreadySearch && !list.length"
-          class="subtle middle horizontal-center-content no-found-message">No records found.
-        </h2>
+        >
+          <div class="panel content margin-medium-bottom">
+            <div class="horizontal-left-content">
+              <tag-all
+                type="Image"
+                :ids="idsSelected"
+              />
+              <div class="margin-small-left">
+                <select-all
+                  v-model="idsSelected"
+                  :ids="list.map(({id}) => id)"
+                />
+              </div>
+            </div>
+          </div>
+          <list-component
+            v-model="idsSelected"
+            :list="list"/>
+          <h2
+            v-if="alreadySearch && !list.length"
+            class="subtle middle horizontal-center-content no-found-message">No records found.
+          </h2>
+        </div>
       </div>
     </div>
   </div>
@@ -88,15 +105,20 @@
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
 import PaginationComponent from 'components/pagination'
-import GetPagination from 'helpers/getPagination'
+import getPagination from 'helpers/getPagination'
 import PlatformKey from 'helpers/getPlatformKey'
+import TagAll from 'tasks/collection_objects/filter/components/tagAll.vue'
+import SelectAll from 'tasks/collection_objects/filter/components/selectAll.vue'
 
 export default {
   components: {
     PaginationComponent,
     FilterComponent,
-    ListComponent
-  },
+    ListComponent,
+    TagAll,
+    SelectAll
+},
+
   data () {
     return {
       list: [],
@@ -109,19 +131,23 @@ export default {
       pagination: undefined,
       maxRecords: [50, 100, 250, 500, 1000],
       per: 500,
-      params: undefined
+      params: undefined,
+      idsSelected: []
     }
   },
+
   watch: {
     per (newVal) {
       this.$refs.filterComponent.params.settings.per = newVal
       this.loadPage(1)
     }
   },
-  mounted () {
+
+  created () {
     TW.workbench.keyboard.createLegend(`${PlatformKey()}+f`, 'Search', 'Filter sources')
     TW.workbench.keyboard.createLegend(`${PlatformKey()}+r`, 'Reset task', 'Filter sources')
   },
+
   methods: {
     resetTask () {
       this.alreadySearch = false
@@ -130,6 +156,7 @@ export default {
       this.pagination = undefined
       history.pushState(null, null, '/tasks/images/filter')
     },
+
     loadList (newList) {
       if (this.append && this.list) {
         let concat = newList.data.concat(this.list.data)
@@ -145,20 +172,24 @@ export default {
       }
       this.alreadySearch = true
     },
+
     newSearch () {
       if (!this.append) {
         this.list = []
       }
     },
+
     loadPage (event) {
       this.$refs.filterComponent.loadPage(event.page)
     },
+
     updateUrl (response) {
-      this.getPagination(response)
+      getPagination(response)
       const urlParams = new URLSearchParams(response.request.responseURL.split('?')[1])
       history.pushState(null, null, `/tasks/images/filter?${urlParams.toString()}`)
     },
-    getPagination: GetPagination
+
+    getPagination
   }
 }
 </script>
