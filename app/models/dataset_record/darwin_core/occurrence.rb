@@ -126,7 +126,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           }.merge!(attributes[:type_material]))
         end
 
-        if attributes[:catalog_number]
+        if attributes.dig(:catalog_number, :identifier)
           namespace = attributes.dig(:catalog_number, :namespace)
           delete_namespace_prefix!(attributes.dig(:catalog_number, :identifier), namespace)
 

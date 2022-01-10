@@ -14,7 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Permit use of Ruby 3.1
 - Updated Ruby gems.
 - DwC occurrences importer: When matching protonyms also consider their alternate gender names if there are no matches by exact name. [#2738]
-
+- Allow import of specimens with empty `catalogNumber` even when `institutionCode` and/or `collectionCode` are set.
 ### Fixed
 - Several batch loaders not working due to syntax incompatibility with currently used Ruby version. [#2739]
 
