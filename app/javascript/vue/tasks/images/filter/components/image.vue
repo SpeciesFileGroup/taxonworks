@@ -70,13 +70,22 @@
           :object-id="image.id"
           type="Image"/>
       </div>
+      <input
+        class="position-absolute"
+        type="checkbox"
+        v-model="imageIds"
+        :value="image.id"
+        :style="{
+          left: '4px',
+          bottom: '4px'
+        }">
     </div>
   </div>
 </template>
 
 <script setup>
 
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { imageScale } from 'helpers/images'
 import ModalComponent from 'components/ui/Modal'
 import PinComponent from 'components/ui/Pinboard/VPin.vue'
@@ -90,10 +99,21 @@ const props = defineProps({
   image: {
     type: Object,
     required: true
+  },
+
+  modelValue: {
+    type: Array,
+    required: true
   }
 })
 
+const emit = defineEmits(['update:modelValue'])
 const showModal = ref(false)
+
+const imageIds = computed({
+  get: () => props.modelValue,
+  set: value => emit('update:modelValue', value)
+})
 
 const setModalView = value => {
   showModal.value = value
