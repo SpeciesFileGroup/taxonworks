@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - Option to select all and quick tag in Filter image task [#2744]
+- Attributions in Filter images [#2639]
 
 ### Changed
 - Perform georeferences caching in background for faster DwC occurrences import [#2741]
@@ -23,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 - Several batch loaders not working due to syntax incompatibility with currently used Ruby version. [#2739]
 
+[#2639]: https://github.com/SpeciesFileGroup/taxonworks/pull/2639
 [#2739]: https://github.com/SpeciesFileGroup/taxonworks/pull/2739
 [#2741]: https://github.com/SpeciesFileGroup/taxonworks/pull/2741
 [#2738]: https://github.com/SpeciesFileGroup/taxonworks/issues/2738
