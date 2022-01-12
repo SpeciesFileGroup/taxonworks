@@ -26,30 +26,34 @@ module Export::Download
 
     # Pluck rows is from postgresql_cursor gem
     scope.pluck_rows(*column_names).each do |o|
+      print '.'
       tbl << o.collect{|v| Utilities::Strings.sanitize_for_csv(v) }
       # If keys are not deterministic: .attributes.values_at(*column_names).collect{|v| Utilities::Strings.sanitize_for_csv(v) }
     end
-
+puts
+puts 1
     if !exclude_columns.empty?
-      Rainbow('deleting columns: ' + Benchmark.measure {
+      Rainbow('deleting columns: ' + (Benchmark.measure {
         delete_columns(tbl, exclude_columns)
-      }.to_s).yellow
+      }).to_s).yellow
     end
-
+puts 2
     if trim_columns
-      Rainbow('trimming columns: ' + Benchmark.measure {
+      Rainbow('trimming columns: ' + (Benchmark.measure {
         trim_columns(tbl)
-      }.to_s).yellow
+      }).to_s).yellow
     end
-
+puts 3
     if trim_rows 
-      Rainbow('trimming rows: ' + Benchmark.measure {
+      Rainbow('trimming rows: ' + (Benchmark.measure {
         trim_rows(tbl)
-      }.to_s).yellow
+      }).to_s).yellow
     end
-
+puts 4
     # CSV::Converters are only available on read, not generate, so we can't use them here.
-    tbl.to_csv(col_sep: "\t", encoding: Encoding::UTF_8)
+    res = tbl.to_csv(col_sep: "\t", encoding: Encoding::UTF_8)
+puts 5
+res
   end
 
   # @param table [CSV::Table]
@@ -59,6 +63,7 @@ module Export::Download
   def self.delete_columns(tbl, columns = [])
     return tbl if columns.empty?
     columns.each do |col|
+      puts col
       tbl.delete(col.to_s)
     end
     tbl
