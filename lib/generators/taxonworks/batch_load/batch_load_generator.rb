@@ -1,4 +1,5 @@
 # Generate new TaxonWorks batch loaders
+require 'rails/generators'
 class Generators::TaxonWorks::BatchLoad::BatchLoadGenerator < Rails::Generators::Base
   desc 'Stub files for a new batch_load for a particular class.'
 
