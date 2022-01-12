@@ -206,7 +206,7 @@ class CollectingEventsController < ApplicationController
 
   def preview_gpx_batch_load
     if params[:file]
-      @result = BatchLoad::Import::CollectingEvents::GpxInterpreter.new(**batch_params)
+      @result = BatchLoad::Import::CollectingEvents::GPXInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :gpx_batch_load_collecting_events_md5)
       render 'collecting_events/batch_load/gpx/preview'
       # render '/shared/data/all/batch_load/preview'
@@ -218,7 +218,7 @@ class CollectingEventsController < ApplicationController
 
   def create_gpx_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :gpx_batch_load_collecting_events_md5)
-      @result = BatchLoad::Import::CollectingEvents::GpxInterpreter.new(**batch_params)
+      @result = BatchLoad::Import::CollectingEvents::GPXInterpreter.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collecting events w/georeferences were created."
         render 'collecting_events/batch_load/gpx/create' and return

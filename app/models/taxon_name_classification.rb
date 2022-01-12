@@ -347,4 +347,4 @@ class TaxonNameClassification < ApplicationRecord
 
 end
 
-Dir[Rails.root.to_s + '/app/models/taxon_name_classification/**/*.rb'].each { |file| require_dependency file }
+#Dir[Rails.root.to_s + '/app/models/taxon_name_classification/**/*.rb'].each { |file| require_dependency file }

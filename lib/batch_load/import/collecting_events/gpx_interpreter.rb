@@ -1,5 +1,5 @@
 module BatchLoad
-  class Import::CollectingEvents::GpxInterpreter < BatchLoad::Import
+  class Import::CollectingEvents::GPXInterpreter < BatchLoad::Import
 
     # SAVE_ORDER = [:georeference, :collecting_event]
 

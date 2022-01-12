@@ -46,7 +46,7 @@ TaxonWorks::Application.configure do
   BetterErrors.editor='x-mine://open?file=%{file}&line=%{line}' if defined? BetterErrors
 
   require 'taxonworks'
-  require 'taxonworks_autoload'
+  require 'taxonworks/taxonworks_autoload'
 end
 
 

@@ -31,7 +31,6 @@ class Export::Graph
     'ControlledVocabularyTerm' => nil,
     'BiologicalRelationship' => 'square' ,
     'Observation' => 'square',
-    'Citation' => 'square',
     'Repository' => 'circle',
     'Georeference' => 'square',
     'Source' => 'pentagon',
