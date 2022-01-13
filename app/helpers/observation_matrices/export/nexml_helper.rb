@@ -30,7 +30,8 @@ module ObservationMatrices::Export::NexmlHelper
                       xml.meta(
                         'xsi:type' => 'ResourceMeta',
                         'rel' => 'foaf:depiction',
-                        'href' => short_url(href) # root_url + d.image.image_file.url(:original)[1..-1]
+                        'href' => short_url(href), # root_url + d.image.image_file.url(:original)[1..-1]
+                        'label' => c.target_name(:description, nil) + ' ' + cs.target_name(:description, nil)
                       )
                     end
                   end
@@ -214,7 +215,7 @@ module ObservationMatrices::Export::NexmlHelper
                 lbl = lbl.compact.join('; ')
 
                 if im.image_hash[depiction[:image_id]][:image_file_content_type] == 'image/tiff'
-                  href = short_url(im.image_hash[depiction[:image_id]][:medium])
+                  href = short_url(im.image_hash[depiction[:image_id]][:medium_url])
                 else
                   href = short_url(im.image_hash[depiction[:image_id]][:original_url])
                 end
