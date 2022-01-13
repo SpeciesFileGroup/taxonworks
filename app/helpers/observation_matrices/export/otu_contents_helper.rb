@@ -1,6 +1,4 @@
 module ObservationMatrices::Export::OtuContentsHelper
-  extend self
-
   def get_otu_contents(options = {})
     opt = {otus: []}.merge!(options)
     m = opt[:observation_matrix]
@@ -107,10 +105,9 @@ module ObservationMatrices::Export::OtuContentsHelper
           object[1][:depictions].each_with_index do |depictions, index|
             depictions.each do |depiction|
               list += "<span class='tw_depiction'><br>\n"
-              image_url = tw_url + im.image_hash[depiction[:image_id]][:original_url]
-              #image_url = ::ApplicationController.helpers.short_url(im.image_hash[depiction[:image_id]][:original_url])
-              list += "<img class='tw_image' src='#{image_url}'><br>\n"
-              list += "<b>Object:</b> #{object[1][:object].otu_name}<br>\n" unless object[1][:object].otu_name.blank?
+              image_url = short_url(im.image_hash[depiction[:image_id]][:original_url])
+              list += tag.img(src: image_url , class: 'tw_image') + "<br.\n"  # "<img class='tw_image' src='#{image_url}'><br>\n"
+              list += (tag.b('Object:') +  object[1][:object].otu_name + "<br>\n") unless object[1][:object].otu_name.blank?
               list += "<b>Description:</b> #{descriptors[index][:name]}<br>\n" unless descriptors[index].blank?
               list += "<b>Label:</b> #{depiction[:figure_label]}<br>\n" unless depiction[:figure_label].blank?
               list += "<b>Citation:</b> #{depiction[:source_cached]}<br>\n" unless depiction[:source_cached].blank?
