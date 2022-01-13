@@ -50,6 +50,12 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         # if it exists, run more expensive query to see if it has an ancestor matching parent name and rank
         if p.nil? && Protonym.where(name.slice(:rank_class).merge!({field => name[:name]})).exists?
           p = Protonym.where(name.slice(:rank_class).merge!({field => name[:name]})).with_ancestor(parent).first
+
+          # check parent.cached_valid_taxon_name_id if not valid, can have obsolete subgenus Aus (Aus) bus -> Aus bus, bus won't have ancestor (Aus)
+          if p.nil? && !parent.cached_is_valid
+            p = Protonym.where(name.slice(:rank_class).merge!({field => name[:name]})).with_ancestor(parent.valid_taxon_name).first
+        end
+
         end
         p
       end
