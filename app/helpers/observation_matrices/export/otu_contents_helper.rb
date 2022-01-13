@@ -15,7 +15,10 @@ module ObservationMatrices::Export::OtuContentsHelper
           where('otus.id IN (?)', otu_ids).where('observation_matrix_rows.observation_matrix_id = (?)', m.id).
           order(:otu_id)
         protonyms.each do |p|
-          csv << ['row_' + p.row_id.to_s, 'Taxon name', p.cached_html_name_and_author_year ]
+          csv << ['row_' + p.row_id.to_s, 'Taxon name', p.cached_html ]
+        end
+        protonyms.each do |p|
+          csv << ['row_' + p.row_id.to_s, 'Authority', p.cached_author_year ]
         end
       end
 
@@ -27,11 +30,11 @@ module ObservationMatrices::Export::OtuContentsHelper
         protonyms.each do |p|
           history = p.nomeclatural_history
           unless history.empty?
-            st = ''
+            st = []
             history.each do |h|
-              st += [h[:name], h[:author_year], h[:statuses], '<br>'].join(' ')
+              st.push( [h[:name], h[:author_year], h[:statuses]].join(' '))
             end
-            csv << ['row_' + p.row_id.to_s, 'Nomenclature', st ]
+            csv << ['row_' + p.row_id.to_s, 'Nomenclature', st.join('<br>') ]
           end
         end
       end
@@ -106,14 +109,31 @@ module ObservationMatrices::Export::OtuContentsHelper
           list = ''
           object[1][:depictions].each_with_index do |depictions, index|
             depictions.each do |depiction|
+              lbl = []
+              cit = im.image_hash[depiction[:image_id]][:citations].collect{|i| i[:cached]}.join('')
+              lbl.push(descriptors[index][:name]) unless descriptors[index][:name].blank?
+              lbl.push(depiction[:caption]) unless depiction[:caption].blank?
+              #lbl.push('<b>Citation:</b> ' + cit) unless cit.blank?
+              img_attr = Image.find(depiction[:image_id]).attribution
+              #lbl.push(attribution_tag(img_attr).gsub('&#169;', '')) unless img_attr.nil?
+              lbl.push(attribution_nexml_label(img_attr)) unless img_attr.nil?
+              lbl = lbl.compact.join('; ')
+
+              if im.image_hash[depiction[:image_id]][:image_file_content_type] == 'image/tiff'
+                href = tw_url + im.image_hash[depiction[:image_id]][:medium_url]
+              else
+                href = tw_url + im.image_hash[depiction[:image_id]][:original_url]
+              end
+
+
               list += "<span class='tw_depiction'><br>\n"
-              image_url = tw_url + im.image_hash[depiction[:image_id]][:original_url]
-              #image_url = ::ApplicationController.helpers.short_url(im.image_hash[depiction[:image_id]][:original_url])
-              list += "<img class='tw_image' src='#{image_url}'><br>\n"
-              list += "<b>Object:</b> #{object[1][:object].otu_name}<br>\n" unless object[1][:object].otu_name.blank?
-              list += "<b>Description:</b> #{descriptors[index][:name]}<br>\n" unless descriptors[index].blank?
-              list += "<b>Label:</b> #{depiction[:figure_label]}<br>\n" unless depiction[:figure_label].blank?
-              list += "<b>Citation:</b> #{depiction[:source_cached]}<br>\n" unless depiction[:source_cached].blank?
+              #href = tw_url + im.image_hash[depiction[:image_id]][:original_url]
+              #uncomment this line###href = ::ApplicationController.helpers.short_url(im.image_hash[depiction[:image_id]][:original_url])
+              list += "<img class='tw_image' src='#{href}'><br>\n"
+              #list += "<b>Object:</b> #{object[1][:object].otu_name}<br>\n" unless object[1][:object].otu_name.blank?
+              #list += "<b>Description:</b> #{descriptors[index][:name]}<br>\n" unless descriptors[index].blank?
+              list += "<b>Label:</b> #{lbl}<br>\n" unless lbl.blank?
+              list += "<b>Citation:</b> #{cit}<br>\n" unless cit.blank?
               list += "</span>\n"
             end
           end
