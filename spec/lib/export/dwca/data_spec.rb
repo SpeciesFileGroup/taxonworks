@@ -30,7 +30,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
       after { data.cleanup } 
 
       let(:csv) { CSV.parse(data.csv, headers: true, col_sep: "\t") }
-      let(:headers) { ['basisOfRecord', 'individualCount' ] }
+      let(:headers) { ['id', 'basisOfRecord', 'individualCount', 'occurrenceID' ] }
 
       context 'various scopes' do
         specify 'with .where clauses' do
@@ -53,7 +53,6 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
       end
 
       specify '#csv returns lines for specimens' do
-        byebug
         expect(csv.count).to eq(5)
       end
 
