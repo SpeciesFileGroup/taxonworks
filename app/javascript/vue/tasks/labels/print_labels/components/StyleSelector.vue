@@ -19,7 +19,10 @@
     <div
       v-show="modelValue == 'custom_style'"
       class="separate-top">
-      <custom-style @onNewStyle="$emit('onNewStyle', $event)"/>
+      <custom-style
+        @new-style="$emit('onNewStyle', $event)"
+        @new-name="styleName = $event"
+      />
     </div>
   </div>
 </template>
@@ -45,22 +48,7 @@ export default {
 
   data () {
     return {
-      list: [{
-        label: '4pt Insect (TAMU style)',
-        value: 'ce_lbl_insect_compressed'
-      },
-      {
-        label: '4pt Insect (NCSU style, uncompressed)',
-        value: 'ce_lbl_insect'
-      },
-      {
-        label: '4 dram Alchohol vial',
-        value: 'ce_lbl_4_dram_ETOH'
-      },
-      {
-        label: 'Custom style',
-        value: 'custom_style'
-      }]
+      styleName: ''
     }
   },
 
@@ -72,6 +60,33 @@ export default {
       set (value) {
         this.$emit('update:modelValue', value)
       }
+    },
+
+    customName () {
+      return this.styleName
+        ? `(${this.styleName})`
+        : ''
+    },
+
+    list () {
+      return [
+        {
+          label: '4pt Insect (TAMU style)',
+          value: 'ce_lbl_insect_compressed'
+        },
+        {
+          label: '4pt Insect (NCSU style, uncompressed)',
+          value: 'ce_lbl_insect'
+        },
+        {
+          label: '4 dram Alchohol vial',
+          value: 'ce_lbl_4_dram_ETOH'
+        },
+        {
+          label: `Custom style ${this.customName}`,
+          value: 'custom_style'
+        }
+      ]
     }
   },
 

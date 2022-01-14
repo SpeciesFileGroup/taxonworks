@@ -6,6 +6,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Import and export custom label style in print label task
+
 ### Fixed
 - Missing `Custom style` button in Print label task [#2764]
 
