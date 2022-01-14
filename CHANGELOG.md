@@ -11,9 +11,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - Missing `Custom style` button in Print label task [#2764]
+- Missing valid/invalid/combination mark in citation by source task [#2760]
 
+[#2760]: https://github.com/SpeciesFileGroup/taxonworks/issues/2760
 [#2764]: https://github.com/SpeciesFileGroup/taxonworks/issues/2764
-\-
+
 
 ## [0.22.6] - 2022-01-10
 

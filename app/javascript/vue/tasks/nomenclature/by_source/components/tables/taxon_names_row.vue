@@ -17,11 +17,11 @@
       >
     </td>
     <td>
-      <a
-        v-html="citation.citation_object.object_label"
-        :href="`/tasks/nomenclature/browse?taxon_name_id=${citation.citation_object_id}`"
-      />
-      <span v-html="isInvalid" />
+      <span>
+        <a :href="`/tasks/nomenclature/browse?taxon_name_id=${citation.citation_object_id}`">
+          <span v-html="citation.citation_object.object_label" /> {{ isInvalid }}
+        </a>
+      </span>
     </td>
     <td>
       <confidence-button :global-id="citation.citation_object.global_id" />
@@ -43,6 +43,7 @@
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import ConfidenceButton from 'components/defaultConfidence.vue'
 import extendedRow from './extendedRow.js'
+import { COMBINATION } from 'constants/index.js'
 
 export default {
   mixins: [extendedRow],
@@ -65,7 +66,13 @@ export default {
   },
   computed: {
     isInvalid () {
-      return (this.citation.citation_object.id === this.citation.citation_object.cached_valid_taxon_name_id) ? '✓' : '❌'
+      if (this.citation.citation_object.type === COMBINATION) {
+        return '[c]'
+      }
+
+      return (this.citation.citation_object.cached_is_valid)
+        ? '✅'
+        : '❌'
     }
   }
 }
