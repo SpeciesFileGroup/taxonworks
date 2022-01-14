@@ -77,6 +77,7 @@ module Export::Dwca
 
     # @return [Array]
     #   use the temporarily written, and refined, CSV file to read off the existing headers
+    # id, and non-standard DwC colums are handled elsewhere
     def csv_headers
       return [] if no_records?
       d = CSV.open(all_data, headers: true, col_sep: "\t")

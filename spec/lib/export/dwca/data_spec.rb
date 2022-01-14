@@ -30,7 +30,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
       after { data.cleanup } 
 
       let(:csv) { CSV.parse(data.csv, headers: true, col_sep: "\t") }
-      let(:headers) { ['id', 'basisOfRecord', 'individualCount', 'occurrenceID' ] }
+      let(:headers) { [ 'basisOfRecord', 'individualCount', 'occurrenceID' ] } # id, and non-standard DwC colums are handled elsewhere
 
       context 'various scopes' do
         specify 'with .where clauses' do
