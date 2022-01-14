@@ -123,14 +123,13 @@ module ObservationMatrices::Export::OtuContentsHelper
                 href = tw_url + im.image_hash[depiction[:image_id]][:original_url]
               end
 
-
               list += "<span class='tw_depiction'><br>\n"
-              image_url = short_url(im.image_hash[depiction[:image_id]][:original_url])
-              list += tag.img(src: image_url , class: 'tw_image') + "<br.\n"  # "<img class='tw_image' src='#{image_url}'><br>\n"
-              list += (tag.b('Object:') +  object[1][:object].otu_name + "<br>\n") unless object[1][:object].otu_name.blank?
-              list += "<b>Description:</b> #{descriptors[index][:name]}<br>\n" unless descriptors[index].blank?
-              list += "<b>Label:</b> #{depiction[:figure_label]}<br>\n" unless depiction[:figure_label].blank?
-              list += "<b>Citation:</b> #{depiction[:source_cached]}<br>\n" unless depiction[:source_cached].blank?
+              short_url(im.image_hash[depiction[:image_id]][:original_url])
+              list += tag.img(src: href , class: 'tw_image') + "<br.\n"
+              #list += (tag.b('Object:') +  object[1][:object].otu_name + "<br>\n") unless object[1][:object].otu_name.blank?
+              #list += "<b>Description:</b> #{descriptors[index][:name]}<br>\n" unless descriptors[index].blank?
+              list += "<b>Label:</b> #{lbl}<br>\n" unless lbl.blank?
+              list += "<b>Citation:</b> #{cit}<br>\n" unless cit.blank?
               list += "</span>\n"
             end
           end
