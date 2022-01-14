@@ -108,7 +108,7 @@ module Export::Download
       to_delete << index unless col.inject { |_, c| break true if !c.blank? }
     end
 
-    to_delete.each { |x| table.delete(x) }
+    to_delete.each_with_index { |x, i| table.delete_at(x-i) }
     table
   end
 
