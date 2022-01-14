@@ -8,7 +8,8 @@
         <label
           @click="onSelectedStyle(item.value)">
           <input
-            :checked="value == item.value"
+            v-model="selectedStyle"
+            :value="item.value"
             type="radio"
             name="style-selector">
           {{ item.label }}
@@ -16,7 +17,7 @@
       </li>
     </ul>
     <div
-      v-show="value == 'custom_style'"
+      v-show="modelValue == 'custom_style'"
       class="separate-top">
       <custom-style @onNewStyle="$emit('onNewStyle', $event)"/>
     </div>
@@ -60,6 +61,17 @@ export default {
         label: 'Custom style',
         value: 'custom_style'
       }]
+    }
+  },
+
+  computed: {
+    selectedStyle: {
+      get () {
+        return this.modelValue
+      },
+      set (value) {
+        this.$emit('update:modelValue', value)
+      }
     }
   },
 
