@@ -82,20 +82,20 @@ module Export::Download
   # @param table [CSV::Table]
   # @param skip_id [Boolean] if true ignore the 'id'l column in consideration of whether to delete this row
   #   delete rows if there are no values in any cell (of course doing this in the scope is better!)
-  def self.trim_rows(table, skip_id = true)
-    headers = table.headers
-    headers = headers - ['id'] if skip_id
-    table.by_row!.delete_if do |row|
-      d = true
-      headers.each do |h|
-        next if row[h].blank?
-        d = false
-        break
-      end
-      d
-    end
-    table
-  end
+  # def self.trim_rows(table, skip_id = true)
+  #   headers = table.headers
+  #   headers = headers - ['id'] if skip_id
+  #   table.by_row!.delete_if do |row|
+  #     d = true
+  #     headers.each do |h|
+  #       next if row[h].blank?
+  #       d = false
+  #       break
+  #     end
+  #     d
+  #   end
+  #   table
+  # end
 
   # @return [CSV::Table]
   # @param table [CSV::Table]
