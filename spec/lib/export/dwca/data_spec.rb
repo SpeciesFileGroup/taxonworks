@@ -27,9 +27,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         end
       end
 
-      after do
-        data.cleanup
-      end
+      after { data.cleanup } 
 
       let(:csv) { CSV.parse(data.csv, headers: true, col_sep: "\t") }
       let(:headers) { ['basisOfRecord', 'individualCount' ] }
@@ -55,6 +53,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
       end
 
       specify '#csv returns lines for specimens' do
+        byebug
         expect(csv.count).to eq(5)
       end
 

@@ -36,6 +36,8 @@ module Export::Dwca
 
     attr_accessor :predicate_data
 
+    attr_accessor :data_predicate_ids
+
     # core records and predicate data (and maybe more in future) joined together in one file
     attr_accessor :all_data
 
@@ -52,6 +54,10 @@ module Export::Dwca
       end
     end
 
+    def predicate_options_present?
+      !@data_predicate_ids[:collection_object_predicate_id].empty? || !@data_predicate_ids[:collecting_event_predicate_id].empty?
+    end
+
     def total
       @total ||= core_scope.size
     end
@@ -61,6 +67,7 @@ module Export::Dwca
     def csv
       ::Export::Download.generate_csv(
         core_scope.computed_columns,
+        # TODO: check to see if we nee dthis
         exclude_columns: ::DwcOccurrence.excluded_columns,
         trim_columns: true, # going to have to be optional
         trim_rows: false,
@@ -76,7 +83,7 @@ module Export::Dwca
       d.read
       h = d.headers
       d.rewind
-      h.shift # get rid of id, it's special in meta
+      h.shift # get rid of `id`, it's special in meta
       h
     end
 
@@ -103,25 +110,23 @@ module Export::Dwca
       @data
     end
 
-
     def predicate_data
       return @predicate_data if @predicate_data
 
       # TODO maybe replace with select? not best practice to use pluck as input to other query
       collection_object_ids = core_scope.pluck(:dwc_occurrence_object_id)
 
-
       # do stuff
       # not including where for project id, is it necessary given we supply specific CO ids?
       object_attributes = CollectionObject.left_joins(data_attributes: [:predicate])
-                                          .where(id: collection_object_ids)
-                                          .where(data_attributes: { controlled_vocabulary_term_id: @data_predicate_ids[:collection_object_predicate_id] })
-                                          .pluck(:id, 'controlled_vocabulary_terms.name', 'data_attributes.value')
+        .where(id: collection_object_ids)
+        .where(data_attributes: { controlled_vocabulary_term_id: @data_predicate_ids[:collection_object_predicate_id] })
+        .pluck(:id, 'controlled_vocabulary_terms.name', 'data_attributes.value')
 
       event_attributes = CollectionObject.left_joins(collecting_event: [data_attributes: [:predicate]])
-                                         .where(id: collection_object_ids)
-                                         .where(data_attributes: { controlled_vocabulary_term_id: @data_predicate_ids[:collecting_event_predicate_id] })
-                                         .pluck(:id, 'controlled_vocabulary_terms.name',  'data_attributes.value')
+        .where(id: collection_object_ids)
+        .where(data_attributes: { controlled_vocabulary_term_id: @data_predicate_ids[:collecting_event_predicate_id] })
+        .pluck(:id, 'controlled_vocabulary_terms.name',  'data_attributes.value')
 
       # Add TW prefix to names
       used_predicates = Set[]
@@ -156,7 +161,6 @@ module Export::Dwca
       data = empty_hash.merge(data)
 
       # write rows to csv
-
       headers = CSV::Row.new(used_predicates, used_predicates, true)
 
       tbl = CSV::Table.new([headers])
@@ -183,7 +187,6 @@ module Export::Dwca
 
       content = tbl.to_csv(col_sep: "\t", encoding: Encoding::UTF_8)
 
-
       @predicate_data = Tempfile.new('predicate_data.csv')
       @predicate_data.write(content)
       @predicate_data.flush
@@ -196,12 +199,20 @@ module Export::Dwca
 
       @all_data = Tempfile.new('data.csv')
 
-      # only join files that aren't empty, prevents paste from adding an empty column header when empty
-      @all_data.write(`paste #{ [data, predicate_data].filter_map{|f| f.path if f.size > 0}.join(' ')}`)
+      join_data = [data]
+      join_data.push(predicate_data) if predicate_options_present?
+
+      if join_data.size > 1
+        # TODO: might not need to check size at some point.
+        # only join files that aren't empty, prevents paste from adding an empty column header when empty
+        @all_data.write(`paste #{ [data, predicate_data].filter_map{|f| f.path if f.size > 0}.join(' ')}`)
+      else
+        @all_data.write(data)
+      end
+
       @all_data.flush
       @all_data.rewind
       @all_data
-
     end
 
     # This is a stub, and only half-heartedly done. You should be using IPT for the time being.
