@@ -29,14 +29,16 @@
         }"
       />
 
-      <div class="original-combination margin-medium-top margin-medium-bottom">
-        <div class="rank-name-label"/>
-        <combination-verbatim v-model="currentCombination.verbatim_name"/>
-      </div>
+      <template v-if="!isZoologicalCode">
+        <div class="original-combination margin-medium-top margin-medium-bottom">
+          <div class="rank-name-label"/>
+          <combination-verbatim v-model="currentCombination.verbatim_name"/>
+        </div>
 
-      <combination-citation
-        :taxon="taxon"
-        v-model="citationData"/>
+        <combination-citation
+          :taxon="taxon"
+          v-model="citationData"/>
+      </template>
 
       <div class="margin-medium-top">
         <v-btn
@@ -82,7 +84,8 @@ import {
 } from '../../const/originalCombinationTypes'
 import {
   COMBINATION,
-  NOMENCLATURE_CODE_BOTANY
+  NOMENCLATURE_CODE_BOTANY,
+  NOMENCLATURE_CODE_ZOOLOGY
 } from 'constants/index.js'
 import VBtn from 'components/ui/VBtn/index.vue'
 import BlockLayout from 'components/layout/BlockLayout.vue'
@@ -104,6 +107,7 @@ const nomenclatureRanks = computed(() =>
     ? combinationIcnType
     : combinationType
 )
+const isZoologicalCode = computed(() => store.getters[GetterNames.GetTaxon].nomenclatural_code === NOMENCLATURE_CODE_ZOOLOGY)
 const isGenusGroup = computed(() => Object.keys(nomenclatureRanks.value.genusGroup).includes(taxon.value.rank))
 const combinationRanks = computed(() => isGenusGroup.value
   ? { genusGroup: nomenclatureRanks.value.genusGroup }
