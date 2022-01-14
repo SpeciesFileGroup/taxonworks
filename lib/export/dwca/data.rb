@@ -38,7 +38,7 @@ module Export::Dwca
 
     attr_accessor :data_predicate_ids
 
-    # core records and predicate data (and maybe more in future) joined together in one file
+    # a Tempfile, core records and predicate data (and maybe more in future) joined together in one file
     attr_accessor :all_data
 
     # @param [Hash] args
@@ -195,6 +195,7 @@ module Export::Dwca
       @predicate_data
     end
 
+    
     def all_data
       return @all_data if @all_data
 
@@ -206,11 +207,11 @@ module Export::Dwca
       if join_data.size > 1
         # TODO: might not need to check size at some point.
         # only join files that aren't empty, prevents paste from adding an empty column header when empty
-        @all_data.write(`paste #{ [data, predicate_data].filter_map{|f| f.path if f.size > 0}.join(' ')}`)
+        @all_data.write(`paste #{ join_data.filter_map{|f| f.path if f.size > 0}.join(' ')}`)
       else
-        @all_data.write(data)
+        @all_data.write(data.read)
       end
-
+        
       @all_data.flush
       @all_data.rewind
       @all_data
