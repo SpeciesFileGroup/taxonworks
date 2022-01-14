@@ -71,7 +71,7 @@ export default {
       }
 
       return (this.citation.citation_object.cached_is_valid)
-        ? '✅'
+        ? '✓'
         : '❌'
     }
   }
