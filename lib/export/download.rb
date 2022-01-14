@@ -53,7 +53,7 @@ module Export::Download
     # CSV::Converters are only available on read, not generate, so we can't use them here.
     output = StringIO.new
     puts Rainbow('generating CSV: '+ (Benchmark.measure do
-      (0..tbl.first.length).each do |row_index|
+      (0..tbl.first.length-1).each do |row_index|
         row = tbl.collect { |c| c[row_index] }
         if trim_rows
           next unless row.detect { |c| c.present? }
