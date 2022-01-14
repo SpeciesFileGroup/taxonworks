@@ -6,9 +6,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+- `occurrenceID` missing from DwC exports. [#2766]
 
-## [0.22.6] - 2022-01-10
+[2766]: https://github.com/SpeciesFileGroup/taxonworks/issues/2766
 
 ### Added
 - Option to select all and quick tag in Filter image task [#2744]

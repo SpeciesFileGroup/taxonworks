@@ -12,6 +12,10 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
   let(:source_bibtex) { FactoryBot.create(:valid_source_bibtex) }
   let(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution) }
 
+  specify '.target_columns must include occurrenceID' do
+    expect(DwcOccurrence.target_columns).to include(:occurrenceID)
+  end
+
   specify 'extending predicates' do
     include ActiveJob::TestHelper
 
@@ -76,7 +80,6 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
     expect(tbl[2][p1_header]).to be_nil
     expect(tbl[2][p2_header]).to be_nil
     expect(tbl[2][p3_header]).to be_nil
-
   end
 
   specify '#dwc_occurrence_id post .set_dwc_occurrence' do

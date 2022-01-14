@@ -100,8 +100,10 @@ class DwcOccurrence < ApplicationRecord
 
   # @return [Array]
   #   of symbols
+  # !! When we come to adding AssertedDistributions, FieldOccurrnces, etc. we will have to
+  # make this more flexible
   def self.target_columns
-    [:id, :basisOfRecord] + CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys
+    [:id, :occurrenceID, :basisOfRecord] + CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys
   end
 
   # @return [Array]
