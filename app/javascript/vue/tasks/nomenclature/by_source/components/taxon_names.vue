@@ -13,15 +13,14 @@
     </div>
     <taxon-names-table
       :list="taxon_names_cites_list"
-      :names="taxon_names_list"/>
+    />
   </div>
 </template>
 <script>
 
 import TaxonNamesTable from './tables/taxon_names_table.vue'
 import SpinnerComponent from 'components/spinner.vue'
-import extend from '../const/extendRequest.js'
-import { Citation } from 'routes/endpoints'
+import { Citation, TaxonName } from 'routes/endpoints'
 
 export default {
   components: {
@@ -46,10 +45,9 @@ export default {
     'summarize'
   ],
 
-  data() {
+  data () {
     return {
       taxon_names_cites_list: [],
-      taxon_names_list: [],
       showSpinner: false
     }
   },
@@ -67,21 +65,26 @@ export default {
   methods: {
     getCites () {
       const params = {
-        verbose_citation_object: true,
         citation_object_type: 'TaxonName',
-        source_id: this.sourceID,
-        extend
+        source_id: this.sourceID
       }
 
       this.showSpinner = true
 
-      Citation.where(params).then(response => {
-        this.taxon_names_cites_list = response.body
+      Citation.where(params).then(async ({ body }) => {
+        const ids = body.map(item => item.citation_object_id)
+        const taxonList = (await TaxonName.where({ taxon_name_id: ids })).body
+
+        this.taxon_names_cites_list = body.map(item => ({
+          ...item,
+          citation_object: taxonList.find(taxon => taxon.id === item.citation_object_id)
+        }))
+
         this.showSpinner = false
       })
     },
 
-    addToList(citation) {
+    addToList (citation) {
       this.taxon_names_cites_list.push(citation)
       this.$emit('taxon_names_cites', this.taxon_names_cites_list)
     },

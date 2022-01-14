@@ -64,7 +64,6 @@ class TaxonNameClassificationsController < ApplicationController
 
   def new
     taxon_name_id = params[:taxon_name_classification].try(:[], :taxon_name_id)
-
     taxon_name = TaxonName.where(
       id:         taxon_name_id,
       project_id: sessions_current_project_id
@@ -78,10 +77,15 @@ class TaxonNameClassificationsController < ApplicationController
   # DELETE /taxon_name_classifications/1
   # DELETE /taxon_name_classifications/1.json
   def destroy
-    @taxon_name_classification.destroy!
+    @taxon_name_classification.destroy
     respond_to do |format|
-      format.html { destroy_redirect @taxon_name_classification, notice: 'Taxon name classification was successfully destroyed.' }
-      format.json { head :no_content }
+      if @taxon_name_classification.destroyed?
+        format.html { destroy_redirect @taxon_name_classification, notice: 'Taxon name classification was successfully destroyed.' }
+        format.json { head :no_content}
+      else
+        format.html { destroy_redirect @taxon_name_classification, notice: 'Taxon name classification was not destroyed, ' + @taxon_name_classification.errors.full_messages.join('; ') }
+        format.json { render json: @taxon_name_classification.errors, status: :unprocessable_entity }
+      end
     end
   end
 

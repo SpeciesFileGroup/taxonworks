@@ -33,7 +33,7 @@ module TypeMaterials::CatalogHelper
   # @return [String] 
   #   Must return a string, if no value then the wqrning is returned
   def type_material_collecting_event_label(collecting_event)
-    missing_ce_msg = '[TODO: A document (preferred) or verbatim label in a collecting event must be provided]'
+    missing_ce_message = '[TODO: A document (preferred) or verbatim label in a collecting event must be provided]'
     if ce = collecting_event
       if ce.document_label
         document_label # process to linearize here.  See functions in Strings::Utilities, don't add content her

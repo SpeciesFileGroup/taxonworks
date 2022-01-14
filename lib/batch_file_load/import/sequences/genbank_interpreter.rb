@@ -4,7 +4,7 @@ module BatchFileLoad
 
     # @param [Array] args
     def initialize(**args)
-      super(args)
+      super(**args)
     end
 
 =begin

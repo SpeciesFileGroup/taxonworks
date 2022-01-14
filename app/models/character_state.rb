@@ -39,8 +39,9 @@ class CharacterState < ApplicationRecord
 
   validate :descriptor_kind
 
-  ## retrunrs string, name of the character_state in a particular language
-  # target: :key, :description, nil
+  # @return [String] name of the character_state in a particular language
+  # @parm :target
+  #   one of :key, :description, nil
   def target_name(target, language_id)
     n = self.name
     a = nil

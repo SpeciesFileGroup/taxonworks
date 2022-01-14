@@ -30,7 +30,7 @@
 
               </span>
               <span
-                v-if="taxon.id != taxon.cached_valid_taxon_name_id"
+                v-if="!taxon.cached_is_valid"
                 class="separate-left"
                 title="Invalid"
                 data-icon="warning"/>

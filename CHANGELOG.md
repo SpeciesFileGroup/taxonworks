@@ -6,13 +6,61 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Import and export custom label style in print label task
+
+### Fixed
+- Missing `Custom style` button in Print label task [#2764]
+- Missing valid/invalid/combination mark in citation by source task [#2760]
+
+[#2760]: https://github.com/SpeciesFileGroup/taxonworks/issues/2760
+[#2764]: https://github.com/SpeciesFileGroup/taxonworks/issues/2764
+
+
+## [0.22.6] - 2022-01-10
+
+### Added
+- Option to select all and quick tag in Filter image task [#2744]
+- Attributions in Filter images [#2639]
+
+### Changed
+- Perform georeferences caching in background for faster DwC occurrences import [#2741]
+- Permit use of Ruby 3.1
+- Updated Ruby gems.
+- DwC occurrences importer: When matching protonyms also consider their alternate gender names if there are no matches by exact name. [#2738]
+- Allow import of specimens with empty `catalogNumber` even when `institutionCode` and/or `collectionCode` are set.
+
+### Fixed
+- Several batch loaders not working due to syntax incompatibility with currently used Ruby version. [#2739]
+- Missing observation matrices in copy columns/rows from another matrix in New observation matrix task [#2753]
+
+[#2639]: https://github.com/SpeciesFileGroup/taxonworks/pull/2639
+[#2739]: https://github.com/SpeciesFileGroup/taxonworks/pull/2739
+[#2741]: https://github.com/SpeciesFileGroup/taxonworks/pull/2741
+[#2738]: https://github.com/SpeciesFileGroup/taxonworks/issues/2738
+[#2744]: https://github.com/SpeciesFileGroup/taxonworks/issues/2744
+[#2753]: https://github.com/SpeciesFileGroup/taxonworks/issues/2753
+
+## [0.22.5] - 2021-12-22
+
+### Fixed
+- Fixed "eye" validation crash when activated in Browse Nomenclature task [#2736]
+
+[#2736]: https://github.com/SpeciesFileGroup/taxonworks/issues/2736
+
+## [0.22.4] - 2021-12-21
+
+### Added
+- Add `reset filters` button in DwC import task [#2730]
+
 ### Changed
 - Add space on navbar in New taxon name [#2701]
 - Updated ruby gems and node packages.
 - Tabindex in model view
 
 ### Fixed
-- Descriptor destroy raising
+- Overdue loan date time ago [#2712]
+- Descriptor character state destroy raising [#2713]
 - Loan items status not updatable (also new specs) [#2714]
 - Collecting event filter `depictions` facet [#2720]
 - Taxonifi wrapper init was broken
@@ -28,7 +76,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Scientific name not cached properly when the taxon name is classified as part of speech [#2721]
 - Depictions dropzone tries to create Depictions before saving collecting event
 - Clipboard is not releasing key combination when the user clicks outside the window and release keys [#2724]
+- Removed `destroy!` pattern from various controllers
+- Unable to create loan items in Collection object match task [#2731]
+- DwC import search criteria is missing when search box is reopen [#2729]
+- Unable to download CoLDP exports
+- Otu facet in Filter image task
 
+[#2712]: https://github.com/SpeciesFileGroup/taxonworks/issues/2712
+[#2713]: https://github.com/SpeciesFileGroup/taxonworks/issues/2713
 [#2714]: https://github.com/SpeciesFileGroup/taxonworks/issues/2714
 [#2720]: https://github.com/SpeciesFileGroup/taxonworks/issues/2720
 [#2701]: https://github.com/SpeciesFileGroup/taxonworks/issues/2701
@@ -39,6 +94,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2716]: https://github.com/SpeciesFileGroup/taxonworks/issues/2716
 [#2721]: https://github.com/SpeciesFileGroup/taxonworks/pull/2721
 [#2724]: https://github.com/SpeciesFileGroup/taxonworks/pull/2724
+[#2729]: https://github.com/SpeciesFileGroup/taxonworks/pull/2729
+[#2730]: https://github.com/SpeciesFileGroup/taxonworks/issues/2730
+[#2731]: https://github.com/SpeciesFileGroup/taxonworks/issues/2731
 
 ## [0.22.3] - 2021-12-03
 
@@ -2172,7 +2230,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.3...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.6...development
+[0.22.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.5...v0.22.6
+[0.22.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.4...v0.22.5
+[0.22.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.3...v0.22.4
 [0.22.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.2...v0.22.3
 [0.22.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.1...v0.22.2
 [0.22.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.0...v0.22.1

@@ -23,33 +23,50 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   }.freeze
 
   class ImportProtonym
-    class CreateIfNotExists
-      def self.execute(origins, parent, name)
-        name.delete(:rank_class) if name[:rank_class].nil?
-        Protonym.create_with(
-          {also_create_otu: true}.merge!(name.except(:rank_class, :name))
-        ).find_or_create_by(name.slice(:rank_class, :name).merge!({ parent: parent })).tap do |protonym|
-          unless protonym&.persisted?
-            raise DatasetRecord::DarwinCore::InvalidData.new({
-              origins[name.object_id] => name[:rank_class].present? ?
-              protonym.errors.messages.values.flatten :
-              ["Rank for #{name[:name]} could not be determined. Please create this taxon name manually and retry."]
-            })
-          end
-        end
+
+    def self.create_if_not_exists
+      @create_if_not_exists ||= CreateIfNotExists.new
+    end
+
+    def self.match_existing
+      @match_existing ||= MatchExisting.new
+    end
+
+    def execute(origins, parent, name)
+      protonym = get_protonym(parent, name)
+      raise DatasetRecord::DarwinCore::InvalidData.new(exception_args(origins, parent, name, protonym)) unless protonym&.persisted?
+      protonym
+    end
+
+    def get_protonym(parent, name)
+      name = name.except(:rank_class) if name[:rank_class].nil?
+
+      %I(name masculine_name feminine_name neuter_name).inject(nil) do |protonym, field|
+        break protonym unless protonym.nil?
+
+        Protonym.find_by(name.slice(:rank_class).merge!({field => name[:name], :parent => parent}))
+      end
+    end
+    class CreateIfNotExists < ImportProtonym
+      def get_protonym(parent, name)
+        super || Protonym.create({parent: parent, also_create_otu: true}.merge!(name))
+      end
+
+      def exception_args(origins, parent, name, protonym)
+        {
+          origins[name.object_id] => name[:rank_class].present? ?
+          protonym.errors.messages.values.flatten :
+          ["Rank for #{name[:name]} could not be determined. Please create this taxon name manually and retry."]
+        }
       end
     end
 
-    class MatchExisting
-      def self.execute(origins, parent, name)
-        Protonym.find_by(name.slice(:rank_class, :name).merge!({ parent: parent })).tap do |protonym|
-          if protonym.nil?
-            raise DatasetRecord::DarwinCore::InvalidData.new({
-              origins[name.object_id] =>
-              ["Protonym #{name[:name]} not found with that name and/or classification. Importing new names is disabled by import settings."]
-            })
-          end
-        end
+    class MatchExisting < ImportProtonym
+      def exception_args(origins, parent, name, protonym)
+        {
+          origins[name.object_id] =>
+          ["Protonym #{name[:name]} not found with that name and/or classification. Importing new names is disabled by import settings."]
+        }
       end
     end
   end
@@ -61,7 +78,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         self.metadata.delete("error_data")
 
         names, origins = parse_taxon_class
-        import_protonym_strategy = self.import_dataset.restrict_to_existing_nomenclature? ? ImportProtonym::MatchExisting : ImportProtonym::CreateIfNotExists
+        strategy = self.import_dataset.restrict_to_existing_nomenclature? ? ImportProtonym.match_existing : ImportProtonym.create_if_not_exists
 
         innermost_otu = nil
         innermost_protonym = names.inject(project.root_taxon_name) do |parent, name|
@@ -72,7 +89,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             name.delete(:rank_class) unless name[:rank_class] && /::FamilyGroup::/ =~ name[:rank_class]
           end
 
-          import_protonym_strategy.execute(origins, parent, name).tap do |protonym|
+          strategy.execute(origins, parent, name).tap do |protonym|
             innermost_otu = Otu.find_or_create_by!({taxon_name: protonym}.merge!(otu_attributes)) if otu_attributes
           end
         end
@@ -109,7 +126,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           }.merge!(attributes[:type_material]))
         end
 
-        if attributes[:catalog_number]
+        if attributes.dig(:catalog_number, :identifier)
           namespace = attributes.dig(:catalog_number, :namespace)
           delete_namespace_prefix!(attributes.dig(:catalog_number, :identifier), namespace)
 
@@ -183,7 +200,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
           Georeference::VerbatimData.create!({
             collecting_event: collecting_event,
-            error_radius: get_field_value("coordinateUncertaintyInMeters")
+            error_radius: get_field_value("coordinateUncertaintyInMeters"),
+            no_cached: true
           }.merge(attributes[:georeference])) if collecting_event.verbatim_latitude && collecting_event.verbatim_longitude
         end
 

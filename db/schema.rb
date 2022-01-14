@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_25_201511) do
+ActiveRecord::Schema.define(version: 2021_12_28_013444) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -1417,7 +1417,9 @@ ActiveRecord::Schema.define(version: 2021_11_25_201511) do
     t.integer "year_died"
     t.integer "year_active_start"
     t.integer "year_active_end"
+    t.index ["cached"], name: "index_people_on_cached"
     t.index ["created_by_id"], name: "index_people_on_created_by_id"
+    t.index ["last_name"], name: "index_people_on_last_name"
     t.index ["type"], name: "index_people_on_type"
     t.index ["updated_by_id"], name: "index_people_on_updated_by_id"
   end

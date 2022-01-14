@@ -4,7 +4,7 @@ module BatchLoad
 
     def initialize(**args)
       @<%= table_name %> = {}
-      super(args)
+      super(**args)
     end
 
     # TODO: update this

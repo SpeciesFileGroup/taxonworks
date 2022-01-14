@@ -140,6 +140,11 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
                     break
                   end
                 end
+
+                # at this point, parent/rank don't match, but there aren't any names that do.
+                # let's use the name with the synonym status
+                current_item = index
+                core_records[current_item][:is_synonym] = true
               end
 
             elsif current_taxonomic_status.include? core_records[index][:src_data]['taxonomicStatus']
@@ -200,6 +205,8 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
           dependency = records_lut.dig(replacement_taxon_id, :index)
           current_record[:dependencies] << dependency if dependency
           records_lut.dig(replacement_taxon_id, :dependants)&.push(current_record[:index])
+
+          current_record[:is_synonym] = (current_record[:src_data]['taxonomicStatus'] == 'synonym')
         end
 
       end

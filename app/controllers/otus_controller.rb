@@ -93,10 +93,10 @@ class OtusController < ApplicationController
     @otu.destroy
     respond_to do |format|
       if @otu.destroyed?
-        format.html { destroy_redirect @otu, notice: 'Otu was successfully destroyed.' }
+        format.html { destroy_redirect @otu, notice: 'OTU was successfully destroyed.' }
         format.json { head :no_content}
       else
-        format.html { destroy_redirect @otu, notice: 'Otu was not destroyed, ' + @otu.errors.full_messages.join('; ') }
+        format.html { destroy_redirect @otu, notice: 'OTU was not destroyed, ' + @otu.errors.full_messages.join('; ') }
         format.json { render json: @otu.errors, status: :unprocessable_entity }
       end
     end

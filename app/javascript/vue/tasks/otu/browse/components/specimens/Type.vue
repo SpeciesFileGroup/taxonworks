@@ -74,7 +74,7 @@ export default {
       handler (newVal) {
         if (newVal.length) {
           const currentTaxon = newVal.find(taxon => this.otu.taxon_name_id === taxon.id)
-          const data = currentTaxon.id === currentTaxon.cached_valid_taxon_name_id
+          const data = currentTaxon.cached_is_valid
             ? newVal
             : [currentTaxon]
 
