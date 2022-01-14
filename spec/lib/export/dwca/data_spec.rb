@@ -62,7 +62,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
       end
 
       specify 'generated headers are restricted to data' do
-        expect(csv.headers).to contain_exactly('id', 'basisOfRecord', 'individualCount')
+        expect(csv.headers).to contain_exactly('id', 'occurrenceID', 'basisOfRecord', 'individualCount')
       end
 
       specify '#csv_headers can be returned, and exclude id' do
