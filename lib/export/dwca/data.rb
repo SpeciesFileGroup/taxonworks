@@ -75,19 +75,6 @@ module Export::Dwca
       )
     end
 
-    # @return [Array]
-    #   use the temporarily written, and refined, CSV file to read off the existing headers
-    # id, and non-standard DwC colums are handled elsewhere
-    def csv_headers
-      return [] if no_records?
-      d = CSV.open(all_data, headers: true, col_sep: "\t")
-      d.read
-      h = d.headers
-      d.rewind
-      h.shift # get rid of `id`, it's special in meta
-      h
-    end
-
     # @return [Boolean]
     #   true if provided core_scope returns no records
     def no_records?
@@ -195,7 +182,7 @@ module Export::Dwca
       @predicate_data
     end
 
-    
+   # @return Tempfile
     def all_data
       return @all_data if @all_data
 
@@ -206,12 +193,12 @@ module Export::Dwca
 
       if join_data.size > 1
         # TODO: might not need to check size at some point.
-        # only join files that aren't empty, prevents paste from adding an empty column header when empty
+        # Only join files that aren't empty, prevents paste from adding an empty column header when empty.
         @all_data.write(`paste #{ join_data.filter_map{|f| f.path if f.size > 0}.join(' ')}`)
       else
         @all_data.write(data.read)
       end
-        
+
       @all_data.flush
       @all_data.rewind
       @all_data
@@ -317,6 +304,17 @@ module Export::Dwca
       @biological_resource_relationship
     end
 
+    # @return [Array]
+    #   use the temporarily written, and refined, CSV file to read off the existing headers
+    #   so we can use them in writing meta.yml
+    # id, and non-standard DwC colums are handled elsewhere
+    def meta_fields
+      return [] if no_records?
+      h = File.open(all_data, &:readline).strip.split("\t")
+      h.shift
+      h
+    end
+
     def meta
       return @meta if @meta
 
@@ -329,7 +327,7 @@ module Export::Dwca
               xml.location 'data.csv'
             }
             xml.id(index: 0)
-            csv_headers.each_with_index do |h,i|
+            meta_fields.each_with_index do |h,i|
               if h =~ /TW:/ # All TW headers have ':'
                 xml.field(index: i+1, term: h)
               else

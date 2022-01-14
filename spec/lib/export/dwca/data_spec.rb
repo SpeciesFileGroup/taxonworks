@@ -27,7 +27,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         end
       end
 
-      after { data.cleanup } 
+      after { data.cleanup }
 
       let(:csv) { CSV.parse(data.csv, headers: true, col_sep: "\t") }
       let(:headers) { [ 'basisOfRecord', 'individualCount', 'occurrenceID' ] } # id, and non-standard DwC colums are handled elsewhere
@@ -36,19 +36,19 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         specify 'with .where clauses' do
           s = scope.where('id > 1')
           d = Export::Dwca::Data.new(core_scope: s)
-          expect(d.csv_headers).to contain_exactly(*headers)
+          expect(d.meta_fields).to contain_exactly(*headers)
         end
 
         specify 'with .order clauses' do
           s = scope.order(:basisOfRecord)
           d = Export::Dwca::Data.new(core_scope: s)
-          expect(d.csv_headers).to contain_exactly(*headers)
+          expect(d.meta_fields).to contain_exactly(*headers)
         end
 
         specify 'with .join clauses' do
           s = scope.collection_objects_join
           d = Export::Dwca::Data.new(core_scope: s)
-          expect(d.csv_headers).to contain_exactly(*headers)
+          expect(d.meta_fields).to contain_exactly(*headers)
         end
       end
 
@@ -64,8 +64,8 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         expect(csv.headers).to contain_exactly('id', 'occurrenceID', 'basisOfRecord', 'individualCount')
       end
 
-      specify '#csv_headers can be returned, and exclude id' do
-        expect(data.csv_headers).to contain_exactly(*headers)
+      specify '#meta_fields can be returned, and exclude id' do
+        expect(data.meta_fields).to contain_exactly(*headers)
       end
 
       context 'files' do
