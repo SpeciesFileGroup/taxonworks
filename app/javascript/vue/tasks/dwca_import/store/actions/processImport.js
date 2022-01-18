@@ -39,6 +39,7 @@ export default ({ state, getters, commit }) => {
             processImport()
           }
         } else {
+          commit(MutationNames.SetDatasetRecords, createEmptyPages(getters[GetterNames.GetVirtualPages][state.currentPage]))
           state.settings.isProcessing = false
         }
       }, () => {
