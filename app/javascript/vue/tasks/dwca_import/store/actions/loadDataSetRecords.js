@@ -33,7 +33,7 @@ export default ({ state, commit, getters }, page) => {
         page: {
           count: response.body.length,
           downloaded: true,
-          rows: response.body
+          rows: response.body.records
         }
       })
 

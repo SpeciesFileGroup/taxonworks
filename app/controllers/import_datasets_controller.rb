@@ -19,6 +19,7 @@ class ImportDatasetsController < ApplicationController
   def import
     params.permit(:record_id, :retry_errored, filter: {})
 
+    @filters = params[:filter]
     @results = @import_dataset.import(5000, 100,
       retry_errored: params[:retry_errored],
       filters: params[:filter],
@@ -28,6 +29,9 @@ class ImportDatasetsController < ApplicationController
 
   # POST /import_datasets/1/stop_import.json
   def stop_import
+    params.permit(:record_id, :retry_errored, filter: {})
+
+    @filters = params[:filter]
     @import_dataset.stop_import
   end
 

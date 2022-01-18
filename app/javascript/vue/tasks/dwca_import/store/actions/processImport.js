@@ -26,7 +26,9 @@ export default ({ state, getters, commit }) => {
           commit(MutationNames.SetDataset, response.body)
 
           if (state.settings.stopRequested) {
-            StopImport(state.dataset.id).then(response => {
+            StopImport(state.dataset.id, {
+              filter: state.paramsFilter.filter
+            }).then(response => {
               commit(MutationNames.SetDataset, response.body)
             }).finally(() => {
               state.settings.isProcessing = false
