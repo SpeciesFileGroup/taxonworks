@@ -1,6 +1,7 @@
 import { ImportRows, StopImport } from '../../request/resources'
 import { MutationNames } from '../mutations/mutations'
 import { GetterNames } from '../getters/getters'
+import { createEmptyPages } from '../../helpers/pages'
 
 export default ({ state, getters, commit }) => {
   state.settings.isProcessing = true
@@ -30,6 +31,7 @@ export default ({ state, getters, commit }) => {
               filter: state.paramsFilter.filter
             }).then(response => {
               commit(MutationNames.SetDataset, response.body)
+              commit(MutationNames.SetDatasetRecords, createEmptyPages(getters[GetterNames.GetVirtualPages][state.currentPage]))
             }).finally(() => {
               state.settings.isProcessing = false
             })
