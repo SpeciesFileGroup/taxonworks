@@ -101,6 +101,10 @@
             </table>
           </div>
         </div>
+        <v-spinner
+          v-if="isLoading"
+          legend="Loading predicates..."
+        />
       </template>
       <template #footer>
         <v-btn
@@ -122,6 +126,7 @@ import { DwcOcurrence } from 'routes/endpoints'
 import { transformObjectToParams } from 'helpers/setParam.js'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VModal from 'components/ui/Modal.vue'
+import VSpinner from 'components/spinner.vue'
 
 const props = defineProps({
   params: {
@@ -136,6 +141,7 @@ const props = defineProps({
 })
 
 const showModal = ref(false)
+const isLoading = ref(false)
 const collectingEvents = ref([])
 const collectionObjects = ref([])
 const predicateParams = reactive({
@@ -183,7 +189,10 @@ const download = () => {
 const setModalView = value => { showModal.value = value }
 
 onBeforeMount(() => {
+  isLoading.value = true
+
   DwcOcurrence.predicates().then(({ body }) => {
+    isLoading.value = false
     collectingEvents.value = body.collecting_event
     collectionObjects.value = body.collection_object
   })
