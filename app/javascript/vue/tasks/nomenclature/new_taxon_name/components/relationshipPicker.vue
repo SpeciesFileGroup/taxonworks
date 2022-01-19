@@ -54,7 +54,7 @@
           <tree-display
             v-if="showModal"
             :taxon-rank="taxon.rank_string"
-            :object-lists="objectLists"
+            :list="objectLists.tree"
             valid-property="valid_subject_ranks"
             :list-created="GetRelationshipsCreated"
             title="Relationship"

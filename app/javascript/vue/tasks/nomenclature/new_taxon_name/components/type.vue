@@ -52,9 +52,8 @@
       </div>
       <div v-else>
         <tree-display
-          :tree-list="{ treeList }"
           :parent="parent"
-          :object-lists="objectLists"
+          :list="objectLists.tree"
           :show-modal="showModal"
           valid-property="valid_object_ranks"
           @selected="addEntry"

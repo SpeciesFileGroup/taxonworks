@@ -13,7 +13,7 @@
           :display="displayName"
           @selected="$emit('selected', $event)"
           :valid-property="validProperty"
-          :object-list="objectLists.tree"
+          :object-list="list"
           :taxon-rank="taxonRank"/>
       </div>
     </template>
@@ -38,7 +38,7 @@ export default {
       required: true
     },
 
-    objectLists: {
+    list: {
       type: Object,
       required: true
     },

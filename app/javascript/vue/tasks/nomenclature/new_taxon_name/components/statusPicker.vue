@@ -9,8 +9,7 @@
     <template #body>
       <tree-display
         v-if="taxon.id && showModal"
-        :tree-list="objectLists.tree"
-        :object-lists="objectLists"
+        :list="objectLists.tree"
         :taxon-rank="taxon.rank_string"
         :filter="getStatusCreated"
         :created-list="getStatusCreated"
