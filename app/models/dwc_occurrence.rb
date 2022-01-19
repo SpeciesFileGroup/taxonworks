@@ -80,6 +80,7 @@ class DwcOccurrence < ApplicationRecord
     a = self.collection_objects_join
       .where("dwc_occurrences.project_id = ?", project_id)
       .where(dwc_occurrence_object_id: k)
+      .select(::DwcOccurrence.target_columns) # TODO !! Will have to change when AssertedDistribution and other types merge in
     a
   end
 
@@ -100,16 +101,21 @@ class DwcOccurrence < ApplicationRecord
 
   # @return [Array]
   #   of symbols
-  # !! When we come to adding AssertedDistributions, FieldOccurrnces, etc. we will have to
+  # !! TODO: When we come to adding AssertedDistributions, FieldOccurrnces, etc. we will have to
   # make this more flexible
   def self.target_columns
-    [:id, :occurrenceID, :basisOfRecord] + CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys
+    [:id, # must be in position 0
+     :occurrenceID,
+     :basisOfRecord,
+     :dwc_occurrence_object_id,   # !! We don't want this, but need it in joins, it is removed in trim via `.excluded_columns` below
+     :dwc_occurrence_object_type, # !! ^
+    ] + CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys
   end
 
   # @return [Array]
   #   of symbols
   def self.excluded_columns
-    ::DwcOccurrence.columns.collect{|c| c.name.to_sym} - self.target_columns
+    ::DwcOccurrence.columns.collect{|c| c.name.to_sym} - self.target_columns - [:dwc_occurrence_object_id, :dwc_occurrence_object_type]
   end
 
   # @return [Scope]

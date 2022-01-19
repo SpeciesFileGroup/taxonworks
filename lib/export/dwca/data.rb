@@ -36,26 +36,25 @@ module Export::Dwca
 
     attr_accessor :predicate_data
 
+    # @return Hash
+    # collection_object_predicate_id: [], collecting_event_predicate_id: []
     attr_accessor :data_predicate_ids
 
-    # a Tempfile, core records and predicate data (and maybe more in future) joined together in one file
+    # A Tempfile, core records and predicate data (and maybe more in future) joined together in one file
     attr_accessor :all_data
 
     # @param [Hash] args
-    def initialize(core_scope: nil, extension_scopes: {}, predicate_extension_params: [] )
+    def initialize(core_scope: nil, extension_scopes: {}, predicate_extension_params: {} )
       # raise ArgumentError, 'must pass a core_scope' if !record_core_scope.kind_of?( ActiveRecord::Relation )
       @core_scope = get_scope(core_scope)
       @biological_extension_scope = extension_scopes[:biological_extension_scope] #  = get_scope(core_scope)
 
-      if !predicate_extension_params.empty?
-        @data_predicate_ids = predicate_extension_params[:predicate_extension_params].transform_keys(&:to_sym)
-      else
-        @data_predicate_ids = {collection_object_predicate_id: [], collecting_event_predicate_id: []}
-      end
+      @data_predicate_ids = predicate_extension_params
+      @data_predicate_ids = {collection_object_predicate_id: [], collecting_event_predicate_id: []} if @data_predicate_ids.empty?
     end
 
     def predicate_options_present?
-      !@data_predicate_ids[:collection_object_predicate_id]&.empty? || !@data_predicate_ids[:collecting_event_predicate_id]&.empty?
+      !data_predicate_ids[:collection_object_predicate_id].empty? || !data_predicate_ids[:collecting_event_predicate_id].empty?
     end
 
     def total
@@ -102,10 +101,9 @@ module Export::Dwca
       return @predicate_data if @predicate_data
 
       # TODO maybe replace with select? not best practice to use pluck as input to other query
-      collection_object_ids = core_scope.pluck(:dwc_occurrence_object_id)
+      collection_object_ids = core_scope.select(:dwc_occurrence_object_id).pluck(:dwc_occurrence_object_id) # TODO: when AssertedDistributions are added we'll need to change this  pluck(:dwc_occurrence_object_id)
 
-      # do stuff
-      # not including where for project id, is it necessary given we supply specific CO ids?
+      # At this point we have specific CO ids, so we don't need project_id
       object_attributes = CollectionObject.left_joins(data_attributes: [:predicate])
         .where(id: collection_object_ids)
         .where(data_attributes: { controlled_vocabulary_term_id: @data_predicate_ids[:collection_object_predicate_id] })
@@ -139,7 +137,7 @@ module Export::Dwca
         return @predicate_data
       end
 
-      # create hash with key: co_id, value [[predicate_name, predicate_value], ...]
+      # Create hash with key: co_id, value [[predicate_name, predicate_value], ...]
       # prefill with empty values so we have the same number of rows as the main csv, even if some rows don't have
       # data attributes
       empty_hash = collection_object_ids.index_with { |_| []}
@@ -182,14 +180,17 @@ module Export::Dwca
       @predicate_data
     end
 
-   # @return Tempfile
+    # @return Tempfile
     def all_data
       return @all_data if @all_data
 
       @all_data = Tempfile.new('data.csv')
 
       join_data = [data]
-      join_data.push(predicate_data) if predicate_options_present?
+
+      if predicate_options_present?
+        join_data.push(predicate_data)
+      end
 
       if join_data.size > 1
         # TODO: might not need to check size at some point.
@@ -365,8 +366,6 @@ module Export::Dwca
       @zipfile
     end
 
-    # File.read(@zipfile.path)
-
     # @return [String]
     # the name of zipfile
     def filename
@@ -385,15 +384,17 @@ module Export::Dwca
       eml.unlink
       data.close
       data.unlink
-      predicate_data.close
-      predicate_data.unlink
+      if predicate_options_present?
+        predicate_data.close
+        predicate_data.unlink
+      end
       all_data.close
       all_data.unlink
       true
     end
 
-    # params core_scope [String, ActiveRecord::Relation]
-    #   string is fully formed SQL
+    # !params core_scope [String, ActiveRecord::Relation]
+    #   String is fully formed SQL
     def get_scope(scope)
       if scope.kind_of?(String)
         DwcOccurrence.from('(' + scope + ') as dwc_occurrences')
@@ -413,5 +414,3 @@ module Export::Dwca
 
   end
 end
-
-

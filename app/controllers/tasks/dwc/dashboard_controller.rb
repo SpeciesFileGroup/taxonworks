@@ -44,7 +44,7 @@ class Tasks::Dwc::DashboardController < ApplicationController
   private
 
   def predicate_extension_params
-    params.permit(collecting_event_predicate_id: [], collection_object_predicate_id: [] )
+    params.permit(collecting_event_predicate_id: [], collection_object_predicate_id: [] ).transform_keys(&:to_sym).to_h
   end
 
 end

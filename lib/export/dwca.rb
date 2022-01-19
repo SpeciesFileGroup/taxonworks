@@ -23,7 +23,7 @@ module Export
     #   a relation that returns DwcOccurrence records
     # @return [Download]
     #   the download object containing the archive
-    def self.download_async(record_scope, request = nil, predicate_extension_params = nil)
+    def self.download_async(record_scope, request = nil, predicate_extension_params: {})
       name = "dwc-a_#{DateTime.now}.zip"
 
       download = ::Download::DwcArchive.create!(
