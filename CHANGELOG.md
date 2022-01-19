@@ -29,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated Ruby gems.
 - DwC occurrences importer: When matching protonyms also consider their alternate gender names if there are no matches by exact name. [#2738]
 - Allow import of specimens with empty `catalogNumber` even when `institutionCode` and/or `collectionCode` are set.
+- `basisOfRecord` now maps as `http://rs.tdwg.org/dwc/terms/FossilSpecimen` biocuration classification in DwC occurrences importer.
 
 ### Fixed
 - Several batch loaders not working due to syntax incompatibility with currently used Ruby version. [#2739]
