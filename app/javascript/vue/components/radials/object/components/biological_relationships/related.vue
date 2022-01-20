@@ -31,6 +31,11 @@ import SwitchComponent from '../shared/switch.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import CRUD from '../../request/crud'
 
+const TAB = {
+  otu: 'otu',
+  collectionObject: 'collection object'
+}
+
 export default {
   mixins: [CRUD],
 
@@ -43,14 +48,14 @@ export default {
 
   computed: {
     otuView () {
-      return this.view === 'otu'
+      return this.view === TAB.otu
     }
   },
 
   data () {
     return {
-      view: 'otu',
-      tabOptions: ['otu', 'collection object']
+      view: TAB.otu,
+      tabOptions: Object.values(TAB)
     }
   },
 
