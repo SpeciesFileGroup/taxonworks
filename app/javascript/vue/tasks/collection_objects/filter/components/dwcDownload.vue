@@ -9,13 +9,17 @@
     </v-btn>
     <v-modal
       @close="setModalView(false)"
-      :container-style="{ width: '700px' }"
+      :container-style="{ width: '700px', minHeight: '200px' }"
       v-if="showModal"
     >
       <template #header>
         <h3>Download DwC</h3>
       </template>
       <template #body>
+        <v-spinner
+          v-if="isLoading"
+          legend="Loading predicates..."
+        />
         <h3>Filter by predicates</h3>
         <div>
           <v-btn
@@ -101,19 +105,15 @@
             </table>
           </div>
         </div>
-        <v-spinner
-          v-if="isLoading"
-          legend="Loading predicates..."
-        />
-      </template>
-      <template #footer>
-        <v-btn
-          color="create"
-          medium
-          @click="download"
-        >
-          Download
-        </v-btn>
+        <div class="margin-medium-top">
+          <v-btn
+            color="create"
+            medium
+            @click="download"
+          >
+            Download
+          </v-btn>
+        </div>
       </template>
     </v-modal>
   </div>
