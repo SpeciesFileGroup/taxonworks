@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Import and export custom label style in print label task
 - Attributions in Filter images [#2639]
 - People, role, images stats to `/api/v1/stats`
+- `basisOfRecord` can be `FossilSpecimen` via biocuration
 
 ### Changed
 - `basisOfRecord` now maps as `http://rs.tdwg.org/dwc/terms/FossilSpecimen` biocuration classification in DwC occurrences importer.

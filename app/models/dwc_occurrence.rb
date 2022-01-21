@@ -119,7 +119,11 @@ class DwcOccurrence < ApplicationRecord
   def basis
     case dwc_occurrence_object_type
     when 'CollectionObject'
-      return 'PreservedSpecimen'
+      if dwc_occurrence_object.is_fossil?
+        return 'FossilSpecimen'
+      else
+        return 'PreservedSpecimen'
+      end
     when 'AssertedDistribution'
       case dwc_occurrence_object.source.try(:type)
       when 'Source::Bibtex'

@@ -1,6 +1,18 @@
 require 'rails_helper'
 describe CollectionObject::DwcExtensions, type: :model, group: [:collection_objects, :darwin_core] do
 
+  specify 'is_fossil? no' do
+    s = Specimen.create!
+    expect(s.is_fossil?).to eq(false)
+  end
+
+  specify 'is_fossil? yes' do
+    s = Specimen.create!
+    c = FactoryBot.create(:valid_biocuration_class, uri: DWC_FOSSIL_URI)
+    s.biocuration_classes << c
+    expect(s.is_fossil?).to eq(true)
+  end
+
   context '#dwc_occurrence' do
     let!(:ce) { CollectingEvent.create!(start_date_year: '2010') }
     let!(:s) { Specimen.create!(collecting_event: ce) }
