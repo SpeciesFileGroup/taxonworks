@@ -54,13 +54,19 @@ RSpec.describe ObservationMatrixColumnItem, type: :model, group: :observation_ma
 
     context '.batch_create' do
 
+      specify '.batch_create_by_observation_matrix_column_item_id' do
+        a = FactoryBot.create(:valid_observation_matrix_column_item)
+        b = FactoryBot.create(:valid_observation_matrix_column_item)
+        c = FactoryBot.create(:valid_observation_matrix)
+        expect(ObservationMatrixColumnItem.batch_create_by_observation_matrix_column_item_id(c.id, [a.id, b.id], Current.project_id, Current.user_id).size).to eq(2)
+      end
+
       specify '.batch_create_by_descriptor_id' do
         a = FactoryBot.create(:valid_descriptor)
         b = FactoryBot.create(:valid_descriptor)
         c = FactoryBot.create(:valid_observation_matrix)
         expect(ObservationMatrixColumnItem.batch_create_by_descriptor_id(c.id, [a.id, b.id], Current.project_id, Current.user_id).size).to eq(2)
       end
-
 
       specify '.batch_create_from_observation_matrix 1' do
         a = FactoryBot.create(:valid_observation_matrix_column_item)

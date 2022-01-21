@@ -129,7 +129,34 @@ class ObservationMatrixColumnItem < ApplicationRecord
       batch_create_from_observation_matrix(params[:observation_matrix_id], params[:target_observation_matrix_id], params[:project_id], params[:user_id])
     when 'descriptor_id'
       batch_create_by_descriptor_id(params[:observation_matrix_id], params[:descriptor_id], params[:project_id], params[:user_id])
+
+    when 'observation_matrix_column_item_id'
+      batch_create_by_observation_matrix_column_item_id(params[:observation_matrix_id], params[:observation_matrix_column_item_id], params[:project_id], params[:user_id])
     end
+  end
+
+  # @return [Array, false]
+  def self.batch_create_by_observation_matrix_column_item_id(observation_matrix_id, observation_matrix_column_item_id, project_id, user_id )
+    created = []
+    matrix  = ObservationMatrix.where(project_id: project_id).find(observation_matrix_id)
+    ids = [observation_matrix_column_item_id].flatten.compact
+    return false if matrix.nil?
+
+    ObservationMatrixColumnItem.transaction do
+      begin
+        ids.each do |i|
+          o = ObservationMatrixColumnItem.where(project_id: project_id).find(i)
+          c = o.dup
+          c.observation_matrix = matrix
+          c.created_by_id = user_id
+          c.save!
+          created.push c
+        end
+      rescue ActiveRecord::RecordInvalid => e
+        next
+      end
+    end
+    return created
   end
 
   # @return [Array, false]

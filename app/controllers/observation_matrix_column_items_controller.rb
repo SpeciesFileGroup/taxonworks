@@ -105,8 +105,10 @@ class ObservationMatrixColumnItemsController < ApplicationController
       :target_observation_matrix_id,
       :keyword_id,
       :descriptor_id,
+      :observation_matrix_column_item_id,
       :klass,
-      descriptor_id: []
+      descriptor_id: [],
+      observation_matrix_column_item_id: []
     ).to_h
       .symbolize_keys
       .merge(project_id: sessions_current_project_id, user_id: sessions_current_user_id)
