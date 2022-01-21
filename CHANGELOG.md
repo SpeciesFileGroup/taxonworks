@@ -9,6 +9,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - Import and export custom label style in print label task
 
+### Changed
+- Updated ruby gems
+
 ### Fixed
 - Missing `Custom style` button in Print label task [#2764]
 - Missing valid/invalid/combination mark in citation by source task [#2760]
