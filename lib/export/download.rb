@@ -24,81 +24,57 @@ module Export::Download
     tbl = headers.map { |h| [h] }
 
     # Pluck rows is from postgresql_cursor gem
-    puts Rainbow('preparing data: ' + (Benchmark.measure do
-      scope.pluck_rows(*column_names).each do |o|
-          o.each_with_index do |value, index|
-          tbl[index] << Utilities::Strings.sanitize_for_csv(value)
-        end
-        # If keys are not deterministic: .attributes.values_at(*column_names).collect{|v| Utilities::Strings.sanitize_for_csv(v) }
+    #puts Rainbow('preparing data: ' + (Benchmark.measure do
+    scope.pluck_rows(*column_names).each do |o|
+        o.each_with_index do |value, index|
+        tbl[index] << Utilities::Strings.sanitize_for_csv(value)
       end
-    end).to_s).yellow
+      # If keys are not deterministic: .attributes.values_at(*column_names).collect{|v| Utilities::Strings.sanitize_for_csv(v) }
+    end
+    # end).to_s).yellow
 
     if !exclude_columns.empty?
-      puts Rainbow('deleting columns: ' + (Benchmark.measure {
-        delete_columns(tbl, exclude_columns)
-      }).to_s).yellow
+      # puts Rainbow('deleting columns: ' + (Benchmark.measure {
+      delete_columns(tbl, exclude_columns)
+      # }).to_s).yellow
     end
 
     if trim_columns
-      puts Rainbow('trimming columns: ' + (Benchmark.measure {
-        trim_columns(tbl)
-      }).to_s).yellow
+      # puts Rainbow('trimming columns: ' + (Benchmark.measure {
+      trim_columns(tbl)
+      # }).to_s).yellow
     end
 
-    # if trim_rows
-    #   Rainbow('trimming rows: ' + (Benchmark.measure {
-    #     trim_rows(tbl)
-    #   }).to_s).yellow
-    # end
     # CSV::Converters are only available on read, not generate, so we can't use them here.
     output = StringIO.new
-    puts Rainbow('generating CSV: '+ (Benchmark.measure do
-      (0..tbl.first.length-1).each do |row_index|
-        row = tbl.collect { |c| c[row_index] }
-        if trim_rows
-          next unless row.detect { |c| c.present? }
-        end
-        output.puts CSV.generate_line(row, col_sep: "\t", encoding: Encoding::UTF_8)
+    # puts Rainbow('generating CSV: '+ (Benchmark.measure do
+    (0..tbl.first.length-1).each do |row_index|
+      row = tbl.collect { |c| c[row_index] }
+      if trim_rows
+        next unless row.detect { |c| c.present? }
       end
-    end).to_s).yellow
+      output.puts CSV.generate_line(row, col_sep: "\t", encoding: Encoding::UTF_8)
+    end
+    # end).to_s).yellow
 
     output.string
   end
 
-  # @param table [CSV::Table]
+  # @param table [Array]
   # @param columns [Array]
-  # @return [CSV::Table]
+  # @return [Array]
   #   delete the specified columns
   def self.delete_columns(tbl, columns = [])
     headers = tbl.collect { |c| c.first }
 
     columns.each do |col|
-      tbl.delete(headers.index(col.to_s))
+      tbl.delete_at(headers.index(col.to_s))
     end
     tbl
   end
 
-  # @return [CSV::Table]
-  # @param table [CSV::Table]
-  # @param skip_id [Boolean] if true ignore the 'id'l column in consideration of whether to delete this row
-  #   delete rows if there are no values in any cell (of course doing this in the scope is better!)
-  # def self.trim_rows(table, skip_id = true)
-  #   headers = table.headers
-  #   headers = headers - ['id'] if skip_id
-  #   table.by_row!.delete_if do |row|
-  #     d = true
-  #     headers.each do |h|
-  #       next if row[h].blank?
-  #       d = false
-  #       break
-  #     end
-  #     d
-  #   end
-  #   table
-  # end
-
-  # @return [CSV::Table]
-  # @param table [CSV::Table]
+  # @return [Array]
+  # @param table [Array]
   #   remove columns without any non-#blank? values (of course doing this in the scope is better!)
   #   this is very slow, use a proper scope, and exclude_columns: [] options instead    
   def self.trim_columns(table)

@@ -36,8 +36,7 @@ module Export
       )
 
       # Note we pass a string with the record scope
-      # TODO: REMEMBER TO REVERT PERFORM_NOW BACK TO PERFORM_LATER!
-      ::DwcaCreateDownloadJob.perform_now(download, core_scope: record_scope.to_sql, predicate_extension_params: predicate_extension_params)
+      ::DwcaCreateDownloadJob.perform_later(download, core_scope: record_scope.to_sql, predicate_extension_params: predicate_extension_params)
 
       download
     end
