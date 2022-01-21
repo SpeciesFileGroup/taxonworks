@@ -7,7 +7,7 @@
     title="Status"
     display-name="name"
     @close="emit('close')"
-    @selected="emit('select')"
+    @selected="emit('select', $event)"
   />
 </template>
 

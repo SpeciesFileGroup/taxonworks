@@ -37,6 +37,9 @@
       <combination-citation
         :taxon="taxon"
         v-model="citationData"/>
+      <hr>
+      <h3>Classification</h3>
+      <classification-main :taxon-id="taxon.id"/>
 
       <div class="margin-medium-top">
         <v-btn
@@ -91,6 +94,7 @@ import CombinationCurrent from './CombinationCurrent.vue'
 import CombinationVerbatim from './CombinationVerbatim.vue'
 import CombinationCitation from './Author/AuthorMain.vue'
 import CombinationList from './CombinationList.vue'
+import ClassificationMain from './Classification/ClassificationMain.vue'
 import makeCitationObject from 'factory/Citation.js'
 
 const store = useStore()

@@ -1,14 +1,17 @@
 <template>
   <div>
     <switch-component
-      v-model="view"
+      v-model="currentTab"
       :options="Object.values(TAB)"
     />
 
     <component
-      :is="ListComponents[view]"
-      :list="objectLists"
-      :created="statusCreated" />
+      :is="ListComponents[currentTab]"
+      :lists="objectLists"
+      :created="statusCreated"
+      @close="currentTab = TAB.common"
+      @select="createStatus"
+    />
 
     <ul
       v-if="!statusCreated.length && taxon.cached_is_valid"
@@ -33,14 +36,21 @@
 import { GetterNames } from '../../../store/getters/getters'
 import { createStatusLists } from '../../../helpers/createStatusLists'
 import { TaxonNameClassification } from 'routes/endpoints'
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, defineAsyncComponent } from 'vue'
 import { useStore } from 'vuex'
-
 import ListEntrys from '../../listEntrys.vue'
 import SwitchComponent from 'components/switch'
 
 const store = useStore()
 
+const props = defineProps({
+  taxonId: {
+    type: [String, Number],
+    required: true
+  }
+})
+
+const emit = defineEmits(['create'])
 
 const TAB = {
   common: 'Common',
@@ -49,23 +59,22 @@ const TAB = {
 }
 
 const ListComponents = {
-  [TAB.common]: import('./ClassificationCommon.vue'),
-  [TAB.advanced]: import('./ClassificationAdvanced.vue'),
-  [TAB.showAll]: import('./ClassificationAdvanced.vue')
+  [TAB.common]: defineAsyncComponent({ loader: () => import('./ClassificationListCommon.vue') }),
+  [TAB.advanced]: defineAsyncComponent({ loader: () => import('./ClassificationListAdvanced.vue') }),
+  [TAB.showAll]: defineAsyncComponent({ loader: () => import('./ClassificationListAll.vue') })
 }
 
-const view = ref(TAB.common)
-
-const objectLists = ref({
-  tree: [],
-  common: [],
-  all: []
-})
+const currentTab = ref(TAB.common)
 
 const statusList = computed(() => store.getters[GetterNames.GetStatusList])
 const statusCreated = ref([])
 
-const createStatus = item => {}
+const createStatus = ({ type }) => {
+  emit('create', {
+    taxon_name_id: props.taxonId,
+    type
+  })
+}
 
 const removeStatus = item => { TaxonNameClassification.destroy(item.id) }
 
@@ -74,14 +83,28 @@ const taxon = computed(() => store.getters[GetterNames.GetTaxon])
 const taxonRank = computed(() => store.getters[GetterNames.GetRankClass])
 const nomenclaturalCode = computed(() => store.getters[GetterNames.GetNomenclaturalCode])
 
-const refreshLists = () => {
-  const list = statusList.value[nomenclaturalCode.value] || {}
-
-  objectLists.value = createStatusLists(list, this.taxon.rank_string, this.parent.rank_string)
-}
+const objectLists = ref({
+  tree: [],
+  common: [],
+  all: []
+})
 
 watch([taxonRank, parent], () => {
-  refreshLists()
+  objectLists.value = createStatusLists(
+    statusList.value[nomenclaturalCode.value] || {},
+    taxon.value.rank_string,
+    parent.value.rank_string
+  )
 }, { immediate: true })
+
+watch(() => props.taxonId, newVal => {
+  if (newVal) {
+    TaxonNameClassification.where({
+      taxon_name_id: props.taxonId
+    }).then(({ body }) => {
+      statusCreated.value = body
+    })
+  }
+})
 
 </script>

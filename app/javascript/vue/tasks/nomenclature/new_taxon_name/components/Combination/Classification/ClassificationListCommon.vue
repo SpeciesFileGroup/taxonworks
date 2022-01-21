@@ -8,6 +8,7 @@
 </template>
 
 <script setup>
+import ListCommon from '../../commonList.vue'
 
 const props = defineProps({
   created: {
