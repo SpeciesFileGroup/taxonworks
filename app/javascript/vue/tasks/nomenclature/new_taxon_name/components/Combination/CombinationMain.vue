@@ -39,7 +39,17 @@
         v-model="citationData"/>
       <hr>
       <h3>Classification</h3>
-      <classification-main :taxon-id="taxon.id"/>
+      <classification-main
+        :taxon-id="taxon.id"
+        @select="addClassification"
+      />
+      <display-list
+        :list="queueClassification"
+        label="name"
+        :delete-warning="false"
+        @delete-index="queueClassification.splice($event, 1)"
+        soft-delete
+      />
 
       <div class="margin-medium-top">
         <v-btn
@@ -75,7 +85,7 @@
 
 <script setup>
 
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, watch } from 'vue'
 import { useStore } from 'vuex'
 import { GetterNames } from '../../store/getters/getters.js'
 import { ActionNames } from '../../store/actions/actions.js'
@@ -87,6 +97,7 @@ import {
   COMBINATION,
   NOMENCLATURE_CODE_BOTANY
 } from 'constants/index.js'
+import { TaxonNameClassification } from 'routes/endpoints'
 import VBtn from 'components/ui/VBtn/index.vue'
 import BlockLayout from 'components/layout/BlockLayout.vue'
 import CombinationRank from './CombinationRank.vue'
@@ -96,12 +107,15 @@ import CombinationCitation from './Author/AuthorMain.vue'
 import CombinationList from './CombinationList.vue'
 import ClassificationMain from './Classification/ClassificationMain.vue'
 import makeCitationObject from 'factory/Citation.js'
+import ListEntrys from '../listEntrys.vue'
+import DisplayList from 'components/displayList.vue'
 
 const store = useStore()
 const combination = ref({})
 const combinationList = computed(() => store.getters[GetterNames.GetCombinations])
 const taxon = computed(() => store.getters[GetterNames.GetTaxon])
 const currentCombination = ref({})
+const currentCombinationId = computed(() => currentCombination.value.id)
 const isCurrentTaxonInCombination = computed(() => !!Object.entries(combination.value).find(([_, protonym]) => protonym?.id === taxon.value.id))
 const nomenclatureRanks = computed(() =>
   store.getters[GetterNames.GetTaxon].nomenclatural_code === NOMENCLATURE_CODE_BOTANY
@@ -131,10 +145,11 @@ const saveCombination = () => {
     ...makeCombinationParams()
   )
 
-  store.dispatch(ActionNames.CreateCombination, combObj).then(_ => {
+  store.dispatch(ActionNames.CreateCombination, combObj).then(body => {
     combination.value = {}
     currentCombination.value = {}
     setCitationData()
+    processQueueCombination(body.id)
   })
 }
 
@@ -195,5 +210,44 @@ const setCitationData = (combination = {}) => {
       }
     : makeCitationObject(COMBINATION)
 }
+
+// Classifications
+const classifications = ref([])
+const queueClassification = ref([])
+
+const addClassification = type => {
+  queueClassification.value.push(type)
+}
+
+const processQueueCombination = combinationId => {
+  if (!queueClassification.value.length) { return }
+
+  const promise = queueClassification.value.map(({ type }) =>
+    TaxonNameClassification.create({
+      taxon_name_classification: {
+        taxon_name_id: combinationId,
+        type
+      }
+    })
+  )
+
+  Promise.all(promise).then(_ => {
+    queueClassification.value = []
+  })
+}
+
+watch(queueClassification, _ => {
+  if (currentCombinationId.value) {
+    processQueueCombination(currentCombinationId.value)
+  }
+}, { deep: true })
+
+watch(currentCombinationId, async newId => {
+  classifications.value = newId
+    ? (await TaxonNameClassification.where({ taxon_name_id: newId })).body
+    : []
+
+  queueClassification.value = []
+})
 
 </script>
