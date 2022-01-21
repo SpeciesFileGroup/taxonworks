@@ -17,6 +17,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - CSV export optimized
 - `basisOfRecord` now maps as `http://rs.tdwg.org/dwc/terms/FossilSpecimen` biocuration classification in DwC occurrences importer.
 - Updated ruby gems
+- Updated js packages
+- cached_is_valid is now used in interfaces to show if a taxon is valid or invalid
 
 ### Fixed
 - `occurrenceID` missing from DwC exports. [#2766]
