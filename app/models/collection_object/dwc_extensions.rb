@@ -128,6 +128,10 @@ module CollectionObject::DwcExtensions
     end
   end
 
+  def is_fossil?
+    biocuration_classes.where(uri: DWC_FOSSIL_URI).any?
+  end
+
   # https://dwc.tdwg.org/terms/#dwc:associatedMedia
   def dwc_associated_media
     images.collect{|i| api_image_link(i) }.join(CollectionObject::DWC_DELIMITER).presence

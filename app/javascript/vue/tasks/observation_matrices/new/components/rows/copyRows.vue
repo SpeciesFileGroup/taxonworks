@@ -147,7 +147,7 @@ export default {
       handler (newVal) {
         if (newVal) {
           this.isLoading = true
-          ObservationMatrix.all().then(response => {
+          ObservationMatrix.where({ per: 500 }).then(response => {
             response.body.splice(response.body.findIndex(item => this.matrixId === item.id), 1)
             this.observationMatrices = response.body
             this.isLoading = false

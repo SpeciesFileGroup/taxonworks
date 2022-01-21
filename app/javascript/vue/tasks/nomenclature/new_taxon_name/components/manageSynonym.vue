@@ -43,33 +43,33 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="children in childrenList">
+              <tr v-for="child in childrenList">
                 <td>
-                  {{ children.name }}
+                  {{ child.name }}
                 </td>
                 <td>
-                  {{ children.id == children.cached_valid_taxon_name_id ? 'Yes' : 'No' }}
+                  {{ child.cached_is_valid ? 'Yes' : 'No' }}
                 </td>
-                <td v-html="children.parent.name"/>
+                <td v-html="child.parent.name"/>
                 <td>
                   <autocomplete
                     url="/taxon_names/autocomplete"
                     param="term"
                     min="2"
                     label="label"
-                    @getItem="addPreSelected(children.id, $event.id)"
+                    @getItem="addPreSelected(child.id, $event.id)"
                     :add-params="{ type: 'Protonym', 'nomenclature_group[]': 'Genus' }"
                     :placeholder="validTaxon.name"/>
                 </td>
                 <td class="horizontal-left-content">
                   <span
                     class="circle-button btn-edit"
-                    @click="loadTaxon(children.id)"/>
-                  <radial-annotator :global-id="children.global_id"/>
+                    @click="loadTaxon(child.id)"/>
+                  <radial-annotator :global-id="child.global_id"/>
                 </td>
                 <td>
                   <input
-                    :value="children.id"
+                    :value="child.id"
                     type="checkbox"
                     v-model="selected">
                 </td>
@@ -137,7 +137,7 @@ export default {
       return this.$store.getters[GetterNames.GetTaxon]
     },
     isInvalid() {
-      return this.taxon.id !== this.taxon.cached_valid_taxon_name_id
+      return !this.taxon.cached_is_valid
     },
     checkInput() {
       return this.moveInput.toUpperCase() !== 'MOVE'
@@ -159,7 +159,7 @@ export default {
   watch: {
     taxon: {
       handler(newVal) {
-        if (newVal && newVal.id != newVal.cached_valid_taxon_name_id) {
+        if (newVal && !newVal.cached_is_valid) {
           TaxonName.find(this.taxon.cached_valid_taxon_name_id).then(res => {
             this.validTaxon = res.body
             this.isLoading = true

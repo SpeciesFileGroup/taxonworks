@@ -100,7 +100,6 @@ class ObservationMatricesController < ApplicationController
     end
   end
 
-
   # TODO export formats can move to a concern controller
 
   def nexml
@@ -118,10 +117,9 @@ class ObservationMatricesController < ApplicationController
   def otu_contents
     @options = otu_contents_params
     respond_to do |format|
-      #base =  '/observation_matrices/export/otu_contents/'
-      #format.html { render base + 'index' }
+      base = '/observation_matrices/export/otu_content/index'
       format.text {
-        s = ObservationMatrices::Export::OtuContentsHelper.get_otu_contents(@options)
+        s = render_to_string(base, layout: false)
         send_data(s, filename: "otu_contents_#{DateTime.now}.csv", type: 'text/plain')
       }
     end
