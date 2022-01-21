@@ -18,8 +18,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing `Custom style` button in Print label task [#2764]
 - Missing valid/invalid/combination mark in citation by source task [#2760]
 - Missing observation matrices in copy columns/rows from another matrix in New observation matrix task [#2753]
+- Handing of family names starting with `O'` being recognized as given names [#2747]
 
 [#2639]: https://github.com/SpeciesFileGroup/taxonworks/pull/2639
+[#2747]: https://github.com/SpeciesFileGroup/taxonworks/issues/2747
 [#2753]: https://github.com/SpeciesFileGroup/taxonworks/issues/2753
 [#2760]: https://github.com/SpeciesFileGroup/taxonworks/issues/2760
 [#2764]: https://github.com/SpeciesFileGroup/taxonworks/issues/2764
