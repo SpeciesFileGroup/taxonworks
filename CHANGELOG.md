@@ -13,6 +13,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `basisOfRecord` can be `FossilSpecimen` via biocuration
 
 ### Changed
+- DwCA export is *much* faster
+- CSV export optimized
 - `basisOfRecord` now maps as `http://rs.tdwg.org/dwc/terms/FossilSpecimen` biocuration classification in DwC occurrences importer.
 - Updated ruby gems
 
