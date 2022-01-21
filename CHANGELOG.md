@@ -8,14 +8,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - Import and export custom label style in print label task
+- Attributions in Filter images [#2639]
 
 ### Changed
+- `basisOfRecord` now maps as `http://rs.tdwg.org/dwc/terms/FossilSpecimen` biocuration classification in DwC occurrences importer.
 - Updated ruby gems
 
 ### Fixed
 - Missing `Custom style` button in Print label task [#2764]
 - Missing valid/invalid/combination mark in citation by source task [#2760]
+- Missing observation matrices in copy columns/rows from another matrix in New observation matrix task [#2753]
 
+[#2639]: https://github.com/SpeciesFileGroup/taxonworks/pull/2639
+[#2753]: https://github.com/SpeciesFileGroup/taxonworks/issues/2753
 [#2760]: https://github.com/SpeciesFileGroup/taxonworks/issues/2760
 [#2764]: https://github.com/SpeciesFileGroup/taxonworks/issues/2764
 
@@ -24,7 +29,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - Option to select all and quick tag in Filter image task [#2744]
-- Attributions in Filter images [#2639]
 
 ### Changed
 - Perform georeferences caching in background for faster DwC occurrences import [#2741]
@@ -32,18 +36,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated Ruby gems.
 - DwC occurrences importer: When matching protonyms also consider their alternate gender names if there are no matches by exact name. [#2738]
 - Allow import of specimens with empty `catalogNumber` even when `institutionCode` and/or `collectionCode` are set.
-- `basisOfRecord` now maps as `http://rs.tdwg.org/dwc/terms/FossilSpecimen` biocuration classification in DwC occurrences importer.
 
 ### Fixed
 - Several batch loaders not working due to syntax incompatibility with currently used Ruby version. [#2739]
-- Missing observation matrices in copy columns/rows from another matrix in New observation matrix task [#2753]
 
-[#2639]: https://github.com/SpeciesFileGroup/taxonworks/pull/2639
 [#2739]: https://github.com/SpeciesFileGroup/taxonworks/pull/2739
 [#2741]: https://github.com/SpeciesFileGroup/taxonworks/pull/2741
 [#2738]: https://github.com/SpeciesFileGroup/taxonworks/issues/2738
 [#2744]: https://github.com/SpeciesFileGroup/taxonworks/issues/2744
-[#2753]: https://github.com/SpeciesFileGroup/taxonworks/issues/2753
 
 ## [0.22.5] - 2021-12-22
 
