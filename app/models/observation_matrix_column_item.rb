@@ -1,20 +1,20 @@
 # Each ObservationMatrixColumnItem is set containing 1 or more descriptors.
 #
-# @!attribute observation_matrix_id 
-#   @return [Integer] id of the matrix 
+# @!attribute observation_matrix_id
+#   @return [Integer] id of the matrix
 #
-# @!attribute descriptor_id 
+# @!attribute descriptor_id
 #   @return [Integer] id of the descriptor (a single/static subclass)
 #
 # @!attribute controlled_vocabulary_term_id
-#   @return [Integer] id of the Keyword (a dynamic subclass) 
+#   @return [Integer] id of the Keyword (a dynamic subclass)
 #
-# @!attribute type 
-#   @return [String] the column type 
+# @!attribute type
+#   @return [String] the column type
 #
-# @!attribute position 
-#   @return [Integer] a sort order 
-# 
+# @!attribute position
+#   @return [Integer] a sort order
+#
 class ObservationMatrixColumnItem < ApplicationRecord
   include Housekeeping
   include Shared::Identifiers
@@ -30,10 +30,10 @@ class ObservationMatrixColumnItem < ApplicationRecord
 
   # TODO: remove from subclasses WHY does this need to be here
   # belongs_to :descriptor, inverse_of: :observation_matrix_column_items
-  
+
   # See above and corresponding questions
   # belongs_to :controlled_vocabulary_term, inverse_of: :observation_matrix_column_items
- 
+
   validates_presence_of :observation_matrix
   validate :other_subclass_attributes_not_set, if: -> { !type.blank? }
 
@@ -45,9 +45,9 @@ class ObservationMatrixColumnItem < ApplicationRecord
   def column_objects
     objects = []
 
-    objects.push *descriptors if descriptors 
+    objects.push *descriptors if descriptors
     objects
-  end 
+  end
 
   def cleanup_matrix_columns
     return true unless descriptors.size > 0
@@ -65,7 +65,7 @@ class ObservationMatrixColumnItem < ApplicationRecord
 
   def cleanup_single_matrix_column(descriptor_id, mc = nil)
     mc ||= ObservationMatrixColumn.where(
-      descriptor_id: descriptor_id, 
+      descriptor_id: descriptor_id,
       observation_matrix: observation_matrix
     ).first
     decrement_matrix_column_reference_count(mc) if !mc.nil?
@@ -83,7 +83,7 @@ class ObservationMatrixColumnItem < ApplicationRecord
 
   def find_or_build_column(descriptor)
     ObservationMatrixColumn.find_or_initialize_by(
-      observation_matrix: observation_matrix, 
+      observation_matrix: observation_matrix,
       descriptor: descriptor)
   end
 
@@ -98,7 +98,7 @@ class ObservationMatrixColumnItem < ApplicationRecord
   def increment_matrix_column_reference_count(mc)
     mc.update_columns(reference_count: (mc.reference_count || 0) + 1)
     mc.update_columns(cached_observation_matrix_column_item_id: id) if type =~ /Single/
-  end 
+  end
 
   def self.human_name
     self.name.demodulize.humanize
@@ -125,7 +125,61 @@ class ObservationMatrixColumnItem < ApplicationRecord
       batch_create_from_tags(params[:keyword_id], params[:klass], params[:observation_matrix_id])
     when 'pinboard'
       batch_create_from_pinboard(params[:observation_matrix_id], params[:project_id], params[:user_id], params[:klass])
+    when 'matrix_clone'
+      batch_create_from_observation_matrix(params[:observation_matrix_id], params[:target_observation_matrix_id], params[:project_id], params[:user_id])
+    when 'descriptor_id'
+      batch_create_by_descriptor_id(params[:observation_matrix_id], params[:descriptor_id], params[:project_id], params[:user_id])
     end
+  end
+
+  # @return [Array, false]
+  def self.batch_create_by_descriptor_id(observation_matrix_id, descriptor_id, project_id, user_id )
+    created = []
+    matrix  = ObservationMatrix.where(project_id: project_id).find(observation_matrix_id)
+    ids = [descriptor_id].flatten.compact
+    return false if matrix.nil?
+
+    ObservationMatrixColumnItem.transaction do
+      begin
+        ids.each do |i|
+          c = ObservationMatrixColumnItem::Single::Descriptor.create!(
+            descriptor: Descriptor.where(project_id: project_id).find(i),
+            observation_matrix_id: matrix.id,
+            project_id: project_id,
+            created_by_id: user_id)
+          created.push c
+        end
+      rescue ActiveRecord::RecordInvalid => e
+        next
+      end
+    end
+    return created
+  end
+
+  # @return [Array, false]
+  def self.batch_create_from_observation_matrix(from_observation_matrix_id, to_observation_matrix_id, project_id, user_id )
+    created = []
+
+    from_matrix = ObservationMatrix.where(project_id: project_id).find(from_observation_matrix_id)
+    to_matrix = ObservationMatrix.where(project_id: project_id).find(to_observation_matrix_id)
+
+    return false if from_matrix.nil? || to_matrix.nil?
+
+    ObservationMatrixColumnItem.transaction do
+      begin
+
+        from_matrix.observation_matrix_column_items.each do |oci|
+          c = oci.dup
+          c.observation_matrix = to_matrix
+          c.created_by_id = user_id
+          c.save!
+          created.push c
+        end
+      rescue ActiveRecord::RecordInvalid => e
+        next
+      end
+    end
+    return created
   end
 
   # @params klass [String] the subclass of the Descriptor ike `Descriptor::Working` or `Descriptor::Continuous`
@@ -144,7 +198,7 @@ class ObservationMatrixColumnItem < ApplicationRecord
               keyword_id: keyword_id,
               tag_object_type: 'Descriptor').all,
              observation_matrix_id
-          )       
+          )
         end
       rescue ActiveRecord::RecordInvalid => e
         raise # return false
@@ -203,7 +257,7 @@ class ObservationMatrixColumnItem < ApplicationRecord
     pinboard_item_scope.each do |o|
       a.push create_for(o.pinned_object, observation_matrix_id)
     end
-    a 
+    a
   end
 
   def self.create_for(object, observation_matrix_id)

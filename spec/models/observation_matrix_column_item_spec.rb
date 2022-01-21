@@ -44,7 +44,7 @@ RSpec.describe ObservationMatrixColumnItem, type: :model, group: :observation_ma
   end
 
   context '.create' do
-    let(:d1) { FactoryBot.create(:valid_descriptor_continuous) } 
+    let(:d1) { FactoryBot.create(:valid_descriptor_continuous) }
     let(:d2) { FactoryBot.create(:valid_descriptor_sample) }
     let(:d3) { FactoryBot.create(:valid_descriptor_working) }
 
@@ -53,6 +53,31 @@ RSpec.describe ObservationMatrixColumnItem, type: :model, group: :observation_ma
     end
 
     context '.batch_create' do
+
+      specify '.batch_create_by_descriptor_id' do
+        a = FactoryBot.create(:valid_descriptor)
+        b = FactoryBot.create(:valid_descriptor)
+        c = FactoryBot.create(:valid_observation_matrix)
+        expect(ObservationMatrixColumnItem.batch_create_by_descriptor_id(c.id, [a.id, b.id], Current.project_id, Current.user_id).size).to eq(2)
+      end
+
+
+      specify '.batch_create_from_observation_matrix 1' do
+        a = FactoryBot.create(:valid_observation_matrix_column_item)
+        b = FactoryBot.create(:valid_observation_matrix)
+
+        expect(ObservationMatrixColumnItem.batch_create_from_observation_matrix(a.observation_matrix.id, b.id, Current.project_id, Current.user_id).size).to eq(1)
+      end
+
+      specify '.batch_create_from_observation_matrix 2' do
+        # Descriptor exists, does not raise
+        a = FactoryBot.create(:valid_observation_matrix_column_item)
+        b = FactoryBot.create(:valid_observation_matrix)
+        c =  FactoryBot.create(:valid_observation_matrix_column_item, descriptor: a.descriptor, observation_matrix: b)
+
+        expect(ObservationMatrixColumnItem.batch_create_from_observation_matrix(a.observation_matrix.id, b.id, Current.project_id, Current.user_id).size).to eq(0)
+      end
+
       context 'from tags' do
         let(:keyword) { FactoryBot.create(:valid_keyword) }
         let!(:t1) { Tag.create!(keyword: keyword, tag_object: d1) }
