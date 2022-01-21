@@ -26,14 +26,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing observation matrices in copy columns/rows from another matrix in New observation matrix task [#2753]
 - Handing of family names starting with `O'` being recognized as given names [#2747]
 
-[2766]: https://github.com/SpeciesFileGroup/taxonworks/issues/2766
+[#2766]: https://github.com/SpeciesFileGroup/taxonworks/issues/2766
 [#2772]: https://github.com/SpeciesFileGroup/taxonworks/pull/2772
 [#2639]: https://github.com/SpeciesFileGroup/taxonworks/pull/2639
 [#2747]: https://github.com/SpeciesFileGroup/taxonworks/issues/2747
 [#2753]: https://github.com/SpeciesFileGroup/taxonworks/issues/2753
 [#2760]: https://github.com/SpeciesFileGroup/taxonworks/issues/2760
 [#2764]: https://github.com/SpeciesFileGroup/taxonworks/issues/2764
-[2766]: https://github.com/SpeciesFileGroup/taxonworks/issues/2766
+
+## [0.22.6] - 2021-01-10
 
 ### Added
 - Option to select all and quick tag in Filter image task [#2744]
