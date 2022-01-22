@@ -52,7 +52,7 @@ const store = useStore()
 
 const taxon = computed(() => store.getters[GetterNames.GetTaxon])
 const softValidation = computed(() => store.getters[GetterNames.GetSoftValidation].taxonStatusList.list)
-const checkValidation = computed(() => !!softValidation.value.filter(item => this.getStatusCreated.find(({ id }) => id === item.instance.id)).length)
+const checkValidation = computed(() => !!softValidation.value.filter(item => getStatusCreated.value.find(({ id }) => id === item.instance.id)).length)
 const getStatusCreated = computed(() => store.getters[GetterNames.GetTaxonStatusList].filter(item => item.type.split('::')[1] !== 'Latinized'))
 const classificationObject = ref({})
 
