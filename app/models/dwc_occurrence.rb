@@ -115,7 +115,7 @@ class DwcOccurrence < ApplicationRecord
   # @return [Array]
   #   of symbols
   def self.excluded_columns
-    ::DwcOccurrence.columns.collect{|c| c.name.to_sym} - self.target_columns - [:dwc_occurrence_object_id, :dwc_occurrence_object_type]
+    ::DwcOccurrence.columns.collect{|c| c.name.to_sym} - (self.target_columns - [:dwc_occurrence_object_id, :dwc_occurrence_object_type])
   end
 
   # @return [Scope]

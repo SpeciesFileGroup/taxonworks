@@ -51,10 +51,9 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
 
     scope = DwcOccurrence.where(project_id: project_id)
 
-    predicate_extension_params = { predicate_extension_params:
-                                     { collection_object_predicate_id: [p1.id, p2.id],
-                                       collecting_event_predicate_id: [p3.id] }
-    }
+    predicate_extension_params = {
+      collection_object_predicate_id: [p1.id, p2.id],
+      collecting_event_predicate_id: [p3.id] }
 
     download = Export::Dwca.download_async(
       scope,
