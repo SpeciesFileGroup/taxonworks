@@ -115,7 +115,7 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
   end
 
   specify 'collection_object filter merge' do
-    a = Queries::CollectionObject::Filter.new(on_loan: 'true').all
+    a = ::Queries::CollectionObject::Filter.new(on_loan: 'true').all
     FactoryBot.create(:valid_loan_item, loan_item_object: collection_object)
 
     # A canary, shouldn't be present since not on loan
