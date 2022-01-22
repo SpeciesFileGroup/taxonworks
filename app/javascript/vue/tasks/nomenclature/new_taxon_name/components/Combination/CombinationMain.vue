@@ -43,7 +43,16 @@
         :taxon-id="taxon.id"
         @select="addClassification"
       />
+
       <display-list
+        v-if="currentCombination.id"
+        :list="classifications"
+        label="object_tag"
+        annotator
+        @delete="removeClassification"
+      />
+      <display-list
+        v-else
         :list="queueClassification"
         label="name"
         :delete-warning="false"
@@ -97,6 +106,7 @@ import {
   COMBINATION,
   NOMENCLATURE_CODE_BOTANY
 } from 'constants/index.js'
+import { addToArray, removeFromArray } from 'helpers/arrays.js'
 import { TaxonNameClassification } from 'routes/endpoints'
 import VBtn from 'components/ui/VBtn/index.vue'
 import BlockLayout from 'components/layout/BlockLayout.vue'
@@ -105,7 +115,7 @@ import CombinationCurrent from './CombinationCurrent.vue'
 import CombinationVerbatim from './CombinationVerbatim.vue'
 import CombinationCitation from './Author/AuthorMain.vue'
 import CombinationList from './CombinationList.vue'
-import ClassificationMain from './Classification/ClassificationMain.vue'
+import ClassificationMain from '../Classification/ClassificationMain.vue'
 import makeCitationObject from 'factory/Citation.js'
 import ListEntrys from '../listEntrys.vue'
 import DisplayList from 'components/displayList.vue'
@@ -179,6 +189,7 @@ const makeCombinationParams = () => Object.entries(combination.value).map(([rank
 const newCombination = () => {
   combination.value = {}
   currentCombination.value = {}
+  queueClassification.value = []
   setCitationData()
 }
 
@@ -215,8 +226,12 @@ const setCitationData = (combination = {}) => {
 const classifications = ref([])
 const queueClassification = ref([])
 
-const addClassification = type => {
-  queueClassification.value.push(type)
+const addClassification = type => { queueClassification.value.push(type) }
+
+const removeClassification = item => {
+  TaxonNameClassification.destroy(item.id).then(_ => {
+    removeFromArray(classifications.value, item)
+  })
 }
 
 const processQueueCombination = combinationId => {
@@ -228,6 +243,8 @@ const processQueueCombination = combinationId => {
         taxon_name_id: combinationId,
         type
       }
+    }).then(({ body }) => {
+      addToArray(classifications.value, body)
     })
   )
 

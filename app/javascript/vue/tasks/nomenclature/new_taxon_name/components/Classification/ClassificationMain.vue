@@ -6,8 +6,8 @@
 </template>
 
 <script setup>
-import { GetterNames } from '../../../store/getters/getters'
-import { createStatusLists } from '../../../helpers/createStatusLists'
+import { GetterNames } from '../../store/getters/getters'
+import { createStatusLists } from '../../helpers/createStatusLists'
 import { ref, computed, watch } from 'vue'
 import { useStore } from 'vuex'
 import ClassificationList from './ClassificationList.vue'

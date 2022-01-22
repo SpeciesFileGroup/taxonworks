@@ -14,8 +14,8 @@
 <script setup>
 import { computed } from 'vue'
 import { useStore } from 'vuex'
-import { GetterNames } from '../../../store/getters/getters'
-import TreeDisplay from '../../treeDisplay.vue'
+import { GetterNames } from '../../store/getters/getters'
+import TreeDisplay from '../treeDisplay.vue'
 
 const props = defineProps({
   lists: {
