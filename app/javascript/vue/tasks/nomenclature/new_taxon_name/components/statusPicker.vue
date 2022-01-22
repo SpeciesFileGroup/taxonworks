@@ -7,18 +7,18 @@
       <h3>Status</h3>
     </template>
     <template #body>
-      <div v-if="editStatus">
+      <div v-if="classificationObject.id">
         <p class="inline">
           <span class="separate-right">Editing status: </span>
-          <span v-html="editStatus.object_tag"/>
+          <span v-html="classificationObject.object_tag"/>
           <span
             title="Undo"
             class="circle-button button-default btn-undo"
-            @click="editStatus = undefined"/>
+            @click="classificationObject = {}"/>
         </p>
       </div>
       <classification-main
-        @select="addEntry"
+        @select="saveClassification"
       />
       <ul
         v-if="!getStatusCreated.length && taxon.cached_is_valid"
@@ -29,7 +29,7 @@
       </ul>
       <display-list
         @delete="removeStatus"
-        @edit="editStatus = $event"
+        @edit="classificationObject = $event"
         edit
         annotator
         :list="getStatusCreated"
@@ -38,7 +38,9 @@
   </block-layout>
 </template>
 
-<script>
+<script setup>
+import { computed, ref } from 'vue'
+import { useStore } from 'vuex'
 import { ActionNames } from '../store/actions/actions'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
@@ -46,55 +48,26 @@ import DisplayList from 'components/displayList.vue'
 import BlockLayout from 'components/layout/BlockLayout'
 import ClassificationMain from './Classification/ClassificationMain.vue'
 
-export default {
-  components: {
-    ClassificationMain,
-    BlockLayout,
-    DisplayList
-  },
+const store = useStore()
 
-  computed: {
-    taxon () {
-      return this.$store.getters[GetterNames.GetTaxon]
-    },
+const taxon = computed(() => store.getters[GetterNames.GetTaxon])
+const softValidation = computed(() => store.getters[GetterNames.GetSoftValidation].taxonStatusList.list)
+const checkValidation = computed(() => !!softValidation.value.filter(item => this.getStatusCreated.find(({ id }) => id === item.instance.id)).length)
+const getStatusCreated = computed(() => store.getters[GetterNames.GetTaxonStatusList].filter(item => item.type.split('::')[1] !== 'Latinized'))
+const classificationObject = ref({})
 
-    taxonRank () {
-      return this.$store.getters[GetterNames.GetRankClass]
-    },
+const saveClassification = item => {
+  const { id } = classificationObject.value
+  const saveRequest = id
+    ? store.dispatch(ActionNames.UpdateTaxonStatus, { ...item, id })
+    : store.dispatch(ActionNames.AddTaxonStatus, item)
 
-    softValidation () {
-      return this.$store.getters[GetterNames.GetSoftValidation].taxonStatusList.list
-    },
+  saveRequest.then(_ => { store.commit(MutationNames.UpdateLastChange) })
 
-    checkValidation () {
-      return !!this.softValidation.filter(item => this.getStatusCreated.find(created => created.id === item.instance.id)).length
-    },
+  classificationObject.value = {}
+}
 
-    getStatusCreated () {
-      return this.$store.getters[GetterNames.GetTaxonStatusList].filter(item => item.type.split('::')[1] !== 'Latinized')
-    }
-  },
-
-  data () {
-    return {
-      editStatus: undefined
-    }
-  },
-
-  methods: {
-    removeStatus (item) {
-      this.$store.dispatch(ActionNames.RemoveTaxonStatus, item)
-    },
-
-    addEntry (item) {
-      const saveRequest = this.editStatus
-        ? this.$store.dispatch(ActionNames.UpdateTaxonStatus, item)
-        : this.$store.dispatch(ActionNames.AddTaxonStatus, item)
-
-      saveRequest.then(_ => { this.$store.commit(MutationNames.UpdateLastChange) })
-
-      this.editStatus = undefined
-    }
-  }
+const removeStatus = item => {
+  store.dispatch(ActionNames.RemoveTaxonStatus, item)
 }
 </script>
