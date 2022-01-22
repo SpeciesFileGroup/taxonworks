@@ -66,8 +66,14 @@ module Export::Download
   #   delete the specified columns
   def self.delete_columns(tbl, columns = [])
     headers = tbl.collect { |c| c.first }
+    offset = 0
 
-    columns.each_with_index { |c, i| tbl.delete_at(headers.index(c.to_s)-i) }
+    columns.each do |col|
+      if index = headers.index(col.to_s)
+        tbl.delete_at(index+offset)
+        offset -= 1
+      end
+    end
     tbl
   end
 

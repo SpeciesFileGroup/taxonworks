@@ -311,9 +311,9 @@ module Export::Dwca
     # id, and non-standard DwC colums are handled elsewhere
     def meta_fields
       return [] if no_records?
-      h = File.open(all_data, &:readline).strip.split("\t")
-      h.shift
-      h
+      h = File.open(all_data, &:gets)&.strip&.split("\t")
+      h&.shift
+      h || []
     end
 
     def meta
