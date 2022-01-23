@@ -7,6 +7,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Add more date (redundant) fields to DwC export [#2780]
 - Import and export custom label style in print label task
 - Attributions in Filter images [#2639]
 - People, role, images stats to `/api/v1/stats`
@@ -28,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing observation matrices in copy columns/rows from another matrix in New observation matrix task [#2753]
 - Handing of family names starting with `O'` being recognized as given names [#2747]
 
+[#2780]: https://github.com/SpeciesFileGroup/taxonworks/issues/2780
 [#2766]: https://github.com/SpeciesFileGroup/taxonworks/issues/2766
 [#2772]: https://github.com/SpeciesFileGroup/taxonworks/pull/2772
 [#2639]: https://github.com/SpeciesFileGroup/taxonworks/pull/2639

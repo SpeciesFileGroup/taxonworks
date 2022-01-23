@@ -17,8 +17,15 @@ module CollectionObject::DwcExtensions
       country: :dwc_country,
       stateProvince: :dwc_state_province,
       county: :dwc_county,
+
       eventDate: :dwc_event_date,
       eventTime: :dwc_event_time,
+      year: :dwc_year,
+      month: :dwc_day,
+      day: :dwc_day,
+      startDayOfYear: :dwc_start_day_of_year,
+      endDayOfYear: :dwc_end_day_of_year,
+
       fieldNumber: :dwc_field_number,
       maximumElevationInMeters: :dwc_maximum_elevation_in_meters,
       minimumElevationInMeters: :dwc_minimum_elevation_in_meters,
@@ -291,10 +298,6 @@ module CollectionObject::DwcExtensions
     collecting_event&.verbatim_habitat
   end
 
-  def dwc_verbatim_event_date
-    collecting_event&.verbatim_date
-  end
-
   def dwc_infraspecific_epithet
     %w{variety form subspecies}.each do |n| # add more as observed
       return taxonomy[n].last if taxonomy[n]
@@ -446,6 +449,10 @@ module CollectionObject::DwcExtensions
         .join("/").presence
   end
 
+  def dwc_verbatim_event_date
+    collecting_event&.verbatim_date
+  end
+
   def dwc_event_date
     return unless collecting_event
 
@@ -457,6 +464,31 @@ module CollectionObject::DwcExtensions
         .map { |d| d.compact.join('-') }
         .reject(&:blank?)
         .join("/").presence
+  end
+
+  def dwc_year
+    return unless collecting_event
+    collecting_event.start_date_year.presence
+  end
+
+  def dwc_month
+    return unless collecting_event
+    collecting_event.start_date_month.presence
+  end
+
+  def dwc_day
+    return unless collecting_event
+    collecting_event.start_date_day.presence
+  end
+
+  def dwc_start_day_of_year
+    return unless collecting_event
+    collecting_event.start_day_of_year.presence
+  end
+
+  def dwc_end_day_of_year
+    return unless collecting_event
+    collecting_event.end_day_of_year.presence
   end
 
   def dwc_preparations
