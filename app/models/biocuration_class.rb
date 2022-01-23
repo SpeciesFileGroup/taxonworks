@@ -10,7 +10,7 @@
 class BiocurationClass < ControlledVocabularyTerm
   include Shared::Tags
 
-  has_many :biocuration_classifications, inverse_of: :biocuration_class
+  has_many :biocuration_classifications, inverse_of: :biocuration_class, dependent: :restrict_with_error
   has_many :biological_collection_objects, through: :biocuration_classifications, class_name: 'CollectionObject::BiologicalCollectionObject', inverse_of: :biocuration_classes
 
   after_save :check_dwc_occurrence_basis
