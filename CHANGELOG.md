@@ -29,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing observation matrices in copy columns/rows from another matrix in New observation matrix task [#2753]
 - Handing of family names starting with `O'` being recognized as given names [#2747]
 - Error 500 deleting a biocuration term [#2181]
+- Uniquify people task shows "0" in used column and no roles [#2769]
 
 [#2181]: https://github.com/SpeciesFileGroup/taxonworks/issues/2181
 [#2780]: https://github.com/SpeciesFileGroup/taxonworks/issues/2780
@@ -39,6 +40,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2753]: https://github.com/SpeciesFileGroup/taxonworks/issues/2753
 [#2760]: https://github.com/SpeciesFileGroup/taxonworks/issues/2760
 [#2764]: https://github.com/SpeciesFileGroup/taxonworks/issues/2764
+[#2769]: https://github.com/SpeciesFileGroup/taxonworks/issues/2769
 
 ## [0.22.6] - 2021-01-10
 
