@@ -28,7 +28,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing valid/invalid/combination mark in citation by source task [#2760]
 - Missing observation matrices in copy columns/rows from another matrix in New observation matrix task [#2753]
 - Handing of family names starting with `O'` being recognized as given names [#2747]
+- Error 500 deleting a biocuration term [#2181]
 
+[#2181]: https://github.com/SpeciesFileGroup/taxonworks/issues/2181
 [#2780]: https://github.com/SpeciesFileGroup/taxonworks/issues/2780
 [#2766]: https://github.com/SpeciesFileGroup/taxonworks/issues/2766
 [#2772]: https://github.com/SpeciesFileGroup/taxonworks/pull/2772
