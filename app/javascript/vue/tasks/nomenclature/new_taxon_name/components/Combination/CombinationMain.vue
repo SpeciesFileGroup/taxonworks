@@ -200,6 +200,7 @@ const removeCombination = data => {
   if (data.id === currentCombination.value.id) {
     currentCombination.value = {}
     combination.value = {}
+    setCitationData()
   }
 
   store.dispatch(ActionNames.RemoveCombination, data.id)
