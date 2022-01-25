@@ -33,34 +33,35 @@
         <div class="rank-name-label"/>
         <combination-verbatim v-model="currentCombination.verbatim_name"/>
       </div>
+      <template v-if="Object.keys(combination).length">
+        <combination-citation
+          :taxon="taxon"
+          v-model="citationData"/>
+        <hr>
 
-      <combination-citation
-        :taxon="taxon"
-        v-model="citationData"/>
-      <hr>
+        <template v-if="isBotanyCode">
+          <h3>Classification</h3>
+          <classification-main
+            :taxon-id="taxon.id"
+            @select="addClassification"
+          />
 
-      <template v-if="isBotanyCode">
-        <h3>Classification</h3>
-        <classification-main
-          :taxon-id="taxon.id"
-          @select="addClassification"
-        />
-
-        <display-list
-          v-if="currentCombination.id"
-          :list="classifications"
-          label="object_tag"
-          annotator
-          @delete="removeClassification"
-        />
-        <display-list
-          v-else
-          :list="queueClassification"
-          label="name"
-          :delete-warning="false"
-          @delete-index="queueClassification.splice($event, 1)"
-          soft-delete
-        />
+          <display-list
+            v-if="currentCombination.id"
+            :list="classifications"
+            label="object_tag"
+            annotator
+            @delete="removeClassification"
+          />
+          <display-list
+            v-else
+            :list="queueClassification"
+            label="name"
+            :delete-warning="false"
+            @delete-index="queueClassification.splice($event, 1)"
+            soft-delete
+          />
+        </template>
       </template>
 
       <div class="margin-medium-top">
@@ -104,7 +105,7 @@ import { ActionNames } from '../../store/actions/actions.js'
 import {
   combinationType,
   combinationIcnType
-} from '../../const/originalCombinationTypes'
+} from '../../const/combinationTypes'
 import {
   COMBINATION,
   NOMENCLATURE_CODE_BOTANY

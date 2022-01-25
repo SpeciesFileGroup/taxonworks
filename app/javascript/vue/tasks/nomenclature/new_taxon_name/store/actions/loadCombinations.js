@@ -1,5 +1,5 @@
 import { Combination, TaxonName } from 'routes/endpoints'
-import { combinationIcnType } from '../../const/originalCombinationTypes'
+import { combinationIcnType } from '../../const/combinationTypes'
 
 const extend = ['protonyms', 'origin_citation', 'roles']
 const ranks = [
