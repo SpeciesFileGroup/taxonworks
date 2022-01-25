@@ -49,6 +49,7 @@
               <label>Uri</label>
               <input
                 type="text"
+                class="full_width"
                 v-model="controlled_vocabulary_term.uri">
             </div>
             <div class="flex-separate">

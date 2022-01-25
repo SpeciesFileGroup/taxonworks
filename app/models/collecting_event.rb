@@ -481,6 +481,24 @@ class CollectingEvent < ApplicationRecord
     [end_date_day, end_date_month, end_date_year].compact.any?
   end
 
+  # @return [Integer, nil]
+  #   the start day  of the event from 1-365 (or 366 in leap years)
+  #   only returned when completely unambigouous, in theory could
+  #   be added for month/day combinations on, but that is uncertain
+  def start_day_of_year
+    return unless has_start_date?
+    Date.new(start_date_year, start_date_month, start_date_day).yday
+  end
+
+  # @return [Integer, nil]
+  #   the end day of the event from 1-365 (or 366 in leap years)
+  #   only returned when completely unambigouous, in theory could
+  #   be added for month/day combinations on, but that is uncertain
+  def end_day_of_year
+    return unless has_end_date?
+    Date.new(end_date_year, end_date_month, end_date_day).yday
+  end
+
   # @return [String, nil]
   #   an umabigously formatted string with missing parts indicated by ??
   def start_date_string
@@ -1036,7 +1054,7 @@ class CollectingEvent < ApplicationRecord
 
   def update_dwc_occurrences
     # reload is required!
-    if collection_objects.count < 501 
+    if collection_objects.count < 501
       collection_objects.reload.each do |o|
         o.set_dwc_occurrence
       end

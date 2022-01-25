@@ -8,10 +8,16 @@ module Queries
       include Queries::Helpers
       include Queries::Concerns::Users
 
+      # @params dwc_occurrence_id [Integer, Array, nil]
+      #   the TW native id, *not* the occurrenceID
+      attr_accessor :dwc_occurrence_id
+
+      # These are both just and now, not paired
       attr_accessor :dwc_occurrence_object_id
       attr_accessor :dwc_occurrence_object_type
 
-      def initialize(params)
+      def initialize(params = {})
+        @dwc_occurrence_id = params[:dwc_occurrence_id]
         set_user_dates(params)
       end
 
@@ -24,12 +30,21 @@ module Queries
         ::DwcOccurrence.select('dwc_occurrences.*')
       end
 
+      def dwc_occurrence_id
+        [@dwc_occurrence_id].flatten.compact
+      end
+
       def dwc_occurrence_object_id
         [@dwc_occurrence_object_id].flatten.compact
       end
 
       def dwc_occurrence_object_type
         [@dwc_occurrence_object_type].flatten.compact
+      end
+
+      def dwc_occurrence_id_facet
+        return nil if dwc_occurrence_id.empty?
+        table[:dwc_occurrence_id].eq_any
       end
 
       def dwc_occurrence_object_id_facet
@@ -60,8 +75,9 @@ module Queries
         clauses = []
 
         clauses += [
+          dwc_occurrence_id_facet,
           dwc_occurrence_object_id_facet,
-          dwc_occurrence_object_type_facet
+          dwc_occurrence_object_type_facet,
         ]
 
         clauses.compact!

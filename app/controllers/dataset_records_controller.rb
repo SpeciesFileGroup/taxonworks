@@ -9,7 +9,11 @@ class DatasetRecordsController < ApplicationController
   # GET /dataset_records.json
   def index
     respond_to do |format|
-      format.json { @dataset_records = filtered_records.order(id: :asc).page(params[:page]).per(params[:per] || 100) } #.preload_fields
+      format.json do
+        @import_dataset = import_dataset
+        @dataset_records = filtered_records.order(id: :asc).page(params[:page]).per(params[:per] || 100) #.preload_fields
+        @filters = params[:filter]
+      end
       format.zip { render_zip }
     end
   end

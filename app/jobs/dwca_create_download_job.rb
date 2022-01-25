@@ -7,7 +7,7 @@ class DwcaCreateDownloadJob < ApplicationJob
   # take a download, and a list of scopes, and save the result to the download, that's all
   # @return
   # # TODO: handle extension scopes
-  def perform(download, core_scope: nil, extension_scopes: {biological_associations: nil}, predicate_extension_params: nil)
+  def perform(download, core_scope: nil, extension_scopes: {biological_associations: nil}, predicate_extension_params: {})
     begin
       begin
         d = ::Export::Dwca::Data.new(core_scope: core_scope, predicate_extension_params: predicate_extension_params)

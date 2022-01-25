@@ -1,6 +1,18 @@
 require 'rails_helper'
 describe CollectionObject::DwcExtensions, type: :model, group: [:collection_objects, :darwin_core] do
 
+  specify 'is_fossil? no' do
+    s = Specimen.create!
+    expect(s.is_fossil?).to eq(false)
+  end
+
+  specify 'is_fossil? yes' do
+    s = Specimen.create!
+    c = FactoryBot.create(:valid_biocuration_class, uri: DWC_FOSSIL_URI)
+    s.biocuration_classes << c
+    expect(s.is_fossil?).to eq(true)
+  end
+
   context '#dwc_occurrence' do
     let!(:ce) { CollectingEvent.create!(start_date_year: '2010') }
     let!(:s) { Specimen.create!(collecting_event: ce) }
@@ -14,6 +26,30 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
 
       s.georeference_attributes(true) # force the rebuild
       expect(s.dwc_decimal_latitude).to eq(60.0) # technically not correct significant figures :(
+    end
+
+    specify '#dwc_year' do
+      expect(s.dwc_year).to eq(2010)
+    end
+
+    specify '#dwc_month' do
+      ce.update!( start_date_month: 1)
+      expect(s.dwc_month).to eq(1)
+    end
+
+    specify '#dwc_month' do
+      ce.update!( start_date_month: 1, start_date_day: 10)
+      expect(s.dwc_day).to eq(10)
+    end
+
+    specify '#dwc_start_day_of_year' do
+      ce.update!( start_date_month: 1, start_date_day: 1)
+      expect(s.dwc_start_day_of_year).to eq(1)
+    end
+
+    specify '#dwc_end_day_of_year' do
+      ce.update!(start_date_year: 2000, start_date_month: 12, start_date_day: 31, end_date_year: 2000, end_date_month: 12, end_date_day: 31)
+      expect(s.dwc_end_day_of_year).to eq(366) # leap
     end
 
     specify '#dwc_event_date 1' do

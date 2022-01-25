@@ -331,7 +331,7 @@ class CollectionObjectsController < ApplicationController
     render '/collection_objects/api/v1/autocomplete'
   end
 
-  # GET /collection_objects/api/v1/123/dwc
+  # GET /api/v1/collection_objects/123/dwc
   def api_dwc
     ActiveRecord::Base.connection_pool.with_connection do
       @collection_object.get_dwc_occurrence
