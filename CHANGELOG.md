@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Attributions in Filter images [#2639]
 - People, role, images stats to `/api/v1/stats`
 - `basisOfRecord` can be `FossilSpecimen` via biocuration
+- Classification section for combination in New taxon name [#2681]
 
 ### Changed
 - DwCA export is *much* faster
@@ -36,6 +37,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2766]: https://github.com/SpeciesFileGroup/taxonworks/issues/2766
 [#2772]: https://github.com/SpeciesFileGroup/taxonworks/pull/2772
 [#2639]: https://github.com/SpeciesFileGroup/taxonworks/pull/2639
+[#2681]: https://github.com/SpeciesFileGroup/taxonworks/issues/2681
 [#2747]: https://github.com/SpeciesFileGroup/taxonworks/issues/2747
 [#2753]: https://github.com/SpeciesFileGroup/taxonworks/issues/2753
 [#2760]: https://github.com/SpeciesFileGroup/taxonworks/issues/2760
