@@ -19,6 +19,7 @@ export default function useBiocurationGroup (groupId) {
 
     Tag.create({ tag }).then(({ body }) => {
       biologicalGroupClasses.value.push(body)
+      TW.workbench.alert.create('Biocuration class item was successfully added.', 'notice')
     })
   }
 
@@ -26,6 +27,7 @@ export default function useBiocurationGroup (groupId) {
     const tag = biologicalGroupClasses.value.find(item => item.tag_object_id === id)
 
     Tag.destroy(tag.id).then(_ => {
+      TW.workbench.alert.create('Biocuration class item was successfully removed.', 'notice')
       removeFromArray(biologicalGroupClasses.value, { id: tag.id })
     })
   }

@@ -9,13 +9,13 @@ const state = reactive({
 export default () => {
   const actions = {
     requestBiocurationGroups: () => {
-      ControlledVocabularyTerm.where({ type: ['BiocurationGroup']}).then(({ body }) => {
+      ControlledVocabularyTerm.where({ type: ['BiocurationGroup'] }).then(({ body }) => {
         state.biocurationGroups = body
       })
     },
 
     requestBiocurationClasses: () => {
-      ControlledVocabularyTerm.where({ type: ['BiocurationClass']}).then(({ body }) => {
+      ControlledVocabularyTerm.where({ type: ['BiocurationClass'] }).then(({ body }) => {
         state.biocurationClasses = body
       })
     },
@@ -23,6 +23,7 @@ export default () => {
     createBiocurationGroup: (controlled_vocabulary_term) => {
       ControlledVocabularyTerm.create({ controlled_vocabulary_term }).then(({ body }) => {
         state.biocurationGroups.push(body)
+        TW.workbench.alert.create('Biocuration group item was successfully created.', 'notice')
       })
     },
 
@@ -31,6 +32,7 @@ export default () => {
 
       ControlledVocabularyTerm.destroy(id).then(_ => {
         state.biocurationGroups.splice(index, 1)
+        TW.workbench.alert.create('Biocuration group item was successfully destroyed.', 'notice')
       })
     }
   }
