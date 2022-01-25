@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - People, role, images stats to `/api/v1/stats`
 - `basisOfRecord` can be `FossilSpecimen` via biocuration
 - Classification section for combination in New taxon name [#2681]
+- API `/api/v1/otus/:id` includes &extend[] for `parents`
 
 ### Changed
 - DwCA export is *much* faster
