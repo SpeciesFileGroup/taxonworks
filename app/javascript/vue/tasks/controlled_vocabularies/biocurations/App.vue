@@ -1,40 +1,56 @@
 <template>
   <div>
-    <h1>Manage biocuration classes and groups</h1>
-    <nav-bar>
-      <v-btn
-        medium
-        color="primary">
-        Create biocuration group
-      </v-btn>
-    </nav-bar>
-    <div class="horizontal-left-content">
-      <biocuration-group
-        v-for="group in biocurationGroups"
-        :key="group.id"
-        :biocuration-group="group"
-      />
+    <div class="flex-separate middle">
+      <h1>Manage biocuration classes and groups</h1>
+      <ul class="context-menu">
+        <li>
+          <a :href="RouteNames.ManageControlledVocabularyTask">Manage controlled vocabulary term</a>
+        </li>
+      </ul>
     </div>
+
+    <nav-bar>
+      <biocuration-group-new/>
+    </nav-bar>
+    <table class="full_width">
+      <thead>
+        <tr>
+          <th>Group</th>
+          <th class="three_quarter_width">Classes</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <biocuration-group
+          v-for="group in biocurationGroups"
+          :key="group.id"
+          :biocuration-group="group"
+          @delete="removeBiocurationGroup"
+        />
+      </tbody>
+    </table>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { ControlledVocabularyTerm } from 'routes/endpoints';
-import BiocurationGroup from './components/BiocurationGroup.vue'
+import { computed } from 'vue'
+import useStore from './composables/useStore.js'
+import BiocurationGroup from './components/BiocurationGroupRow.vue'
 import NavBar from 'components/layout/NavBar.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
+import BiocurationGroupNew from './components/BiocurationGroupNew.vue'
+import { RouteNames } from 'routes/routes.js'
 
-const biocurationGroups = ref([])
-const biocurationClasses = ref([])
+const { getters, actions } = useStore()
+const biocurationGroups = computed(() => getters.getBiocurationGroups())
 
-ControlledVocabularyTerm.where({ type: ['BiocurationGroup']}).then(({ body }) => {
-  biocurationGroups.value = body
-})
+actions.requestBiocurationGroups()
+actions.requestBiocurationClasses()
 
-ControlledVocabularyTerm.where({ type: ['BiocurationClass']}).then(({ body }) => {
-  biocurationClasses.value = body
-})
+const removeBiocurationGroup = group => {
+  if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
+    actions.destroyBiocurationGroup(group.id)
+  }
+}
 
 </script>
 
@@ -43,6 +59,3 @@ export default {
   name: 'ManageBiocurations'
 }
 </script>
-
-<style>
-</style>
