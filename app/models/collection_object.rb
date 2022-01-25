@@ -342,9 +342,9 @@ class CollectionObject < ApplicationRecord
       retval = CollectionObject.where(id: step_4.sort)
     else
       retval = CollectionObject.joins(:geographic_items)
-                   .where(GeographicItem.contained_by_where_sql(geographic_item.id))
-                   .limit(limit)
-                   .includes(:data_attributes, :collecting_event)
+        .where(GeographicItem.contained_by_where_sql(geographic_item.id))
+        .limit(limit)
+        .includes(:data_attributes, :collecting_event)
     end
     retval
   end
@@ -365,16 +365,16 @@ class CollectionObject < ApplicationRecord
   def self.ce_headers(project_id)
     CollectionObject.selected_column_names
     cvt_list = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent')
-                 .distinct
-                 .pluck(:controlled_vocabulary_term_id)
+      .distinct
+      .pluck(:controlled_vocabulary_term_id)
     # add selectable column names (unselected) to the column name list list
     ControlledVocabularyTerm.where(id: cvt_list).map(&:name).sort.each { |column_name|
       @selected_column_names[:ce][:in][column_name] = {checked: '0'}
     }
     ImportAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent')
       .pluck(:import_predicate).uniq.sort.each { |column_name|
-      @selected_column_names[:ce][:im][column_name] = {checked: '0'}
-    }
+        @selected_column_names[:ce][:im][column_name] = {checked: '0'}
+      }
     @selected_column_names
   end
 
@@ -394,23 +394,23 @@ class CollectionObject < ApplicationRecord
           group[type_key.to_sym].each_key { |header|
             this_val = nil
             case type_key.to_sym
-              when :in
-                all_internal_das.each { |da|
-                  if da.predicate.name == header
-                    this_val = da.value
-                    break
-                  end
-                }
-                retval.push(this_val) # push one value (nil or not) for each selected header
-              when :im
-                all_import_das.each { |da|
-                  if da.import_predicate == header
-                    this_val = da.value
-                    break
-                  end
-                }
-                retval.push(this_val) # push one value (nil or not) for each selected header
-              else
+            when :in
+              all_internal_das.each { |da|
+                if da.predicate.name == header
+                  this_val = da.value
+                  break
+                end
+              }
+              retval.push(this_val) # push one value (nil or not) for each selected header
+            when :im
+              all_import_das.each { |da|
+                if da.import_predicate == header
+                  this_val = da.value
+                  break
+                end
+              }
+              retval.push(this_val) # push one value (nil or not) for each selected header
+            else
             end
           }
         }
@@ -425,16 +425,16 @@ class CollectionObject < ApplicationRecord
   def self.co_headers(project_id)
     CollectionObject.selected_column_names
     cvt_list = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject')
-                 .distinct
-                 .pluck(:controlled_vocabulary_term_id)
+      .distinct
+      .pluck(:controlled_vocabulary_term_id)
     # add selectable column names (unselected) to the column name list list
     ControlledVocabularyTerm.where(id: cvt_list).map(&:name).sort.each { |column_name|
       @selected_column_names[:co][:in][column_name] = {checked: '0'}
     }
     ImportAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject')
       .pluck(:import_predicate).uniq.sort.each { |column_name|
-      @selected_column_names[:co][:im][column_name] = {checked: '0'}
-    }
+        @selected_column_names[:co][:im][column_name] = {checked: '0'}
+      }
     @selected_column_names
   end
 
@@ -577,7 +577,7 @@ class CollectionObject < ApplicationRecord
             )
               .where(t['created_by_id'].eq(user_id))
               .where(t['project_id'].eq(project_id))
-            .order(t['updated_at'].desc)
+              .order(t['updated_at'].desc)
         else
           t.project(t['biological_collection_object_id'], t['updated_at']).from(t)
             .where(t['updated_at'].gt( 1.weeks.ago ))
@@ -615,7 +615,7 @@ class CollectionObject < ApplicationRecord
       n = target.tableize.to_sym
       h[:recent] = CollectionObject.where('"collection_objects"."id" IN (?)', r.first(10) ).to_a
       h[:quick] = (CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  +
-          CollectionObject.where('"collection_objects"."id" IN (?)', r.first(4) ).to_a).uniq
+                   CollectionObject.where('"collection_objects"."id" IN (?)', r.first(4) ).to_a).uniq
     else
       h[:recent] = CollectionObject.where(project_id: project_id, updated_by_id: user_id).order('updated_at DESC').limit(10).to_a
       h[:quick] = CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a

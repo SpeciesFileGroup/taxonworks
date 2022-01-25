@@ -63,8 +63,13 @@ class ControlledVocabularyTermsController < ApplicationController
   def destroy
     @controlled_vocabulary_term.destroy
     respond_to do |format|
-      format.html { destroy_redirect @controlled_vocabulary_term }
-      format.json { head :no_content }
+      if @controlled_vocabulary_term.destroyed?
+        format.html { destroy_redirect @controlled_vocabulary_term, notice: 'OTU was successfully destroyed.' }
+        format.json { head :no_content}
+      else
+        format.html { destroy_redirect @controlled_vocabulary_term, notice: 'OTU was not destroyed, ' + @controlled_vocabulary_term.errors.full_messages.join('; ') }
+        format.json { render json: @controlled_vocabulary_term.errors, status: :unprocessable_entity }
+      end
     end
   end
 

@@ -28,4 +28,23 @@ class BiocurationClassification < ApplicationRecord
 
   validates_presence_of :biocuration_class, :biological_collection_object
   validates_uniqueness_of :biocuration_class, scope: [:biological_collection_object]
+
+  # Janky, but here for now
+  after_save :update_dwc_occurrence
+  after_destroy :revert_dwc_occurrence
+
+  protected
+
+  def update_dwc_occurrence
+    if biocuration_class.uri == DWC_FOSSIL_URI
+      biological_collection_object.dwc_occurrence.update_attribute(:basisOfRecord, 'FossilSpecimen')
+    end
+  end
+
+  def revert_dwc_occurrence
+    if biocuration_class.uri == DWC_FOSSIL_URI
+      biological_collection_object.dwc_occurrence.update_attribute(:basisOfRecord, 'PreservedSpecimen')
+    end
+  end
+
 end

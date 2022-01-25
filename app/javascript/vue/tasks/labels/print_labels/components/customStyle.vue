@@ -22,6 +22,42 @@
         </div>
       </template>
       <template #footer>
+        <fieldset>
+          <legend>Style</legend>
+          <div class="flex-separate align-end">
+            <div class="field label-above">
+              <input
+                type="text"
+                v-model="styleName"
+                placeholder="Style name...">
+            </div>
+
+            <div class="margin-small-bottom">
+              <v-btn
+                class="margin-small-right"
+                medium
+                color="primary"
+                @click="exportStyle"
+              >
+                Export
+              </v-btn>
+              <v-btn
+                medium
+                color="primary"
+                @click="$refs.selectedFile.click()"
+              >
+                Import
+              </v-btn>
+              <input
+                type="file"
+                ref="selectedFile"
+                class="d-none"
+                accept="text/json"
+                @change="loadStyle"
+              >
+            </div>
+          </div>
+        </fieldset>
         <div
           class="options">
           <div class="horizontal-left-content align-start">
@@ -97,7 +133,7 @@
             </fieldset>
             <fieldset>
               <legend>Padding</legend>
-              <div >
+              <div>
                 <div class="separate-right">
                   <label>Top</label>
                   <input
@@ -132,6 +168,10 @@
                 </div>
               </div>
             </fieldset>
+            <fieldset class="full_width">
+              <legend>JSON style</legend>
+              <pre>{{ jsonStyle }}</pre>
+            </fieldset>
           </div>
         </div>
       </template>
@@ -142,13 +182,19 @@
 <script>
 
 import ModalComponent from 'components/ui/Modal'
+import VBtn from 'components/ui/VBtn/index.vue'
+import { downloadTextFile } from 'helpers/files.js'
 
 export default {
   components: {
-    ModalComponent
+    ModalComponent,
+    VBtn
   },
 
-  emits: ['onNewStyle'],
+  emits: [
+    'newStyle',
+    'newName'
+  ],
 
   computed: {
     customStyle() {
@@ -178,10 +224,19 @@ export default {
       white-space: pre;
       padding: ${this.options.padding.top}px ${this.options.padding.right}px ${this.options.padding.bottom}px ${this.options.padding.left}px;
       `
+    },
+
+    jsonStyle () {
+      return JSON.stringify({
+        name: this.styleName,
+        style: this.options
+      }, null, 2)
     }
   },
+
   data () {
     return {
+      styleName: '',
       options: {
         border: {
           size: 0,
@@ -207,14 +262,47 @@ export default {
       fontTypes: ['Times', 'Arial', 'Helvetica', 'Verdana', 'monospace']
     }
   },
+
   watch: {
-    customStyle() {
+    customStyle () {
       this.setStyle()
+    },
+
+    styleName () {
+      this.$emit('newName', this.styleName)
     }
   },
+
   methods: {
     setStyle () {
-      this.$emit('onNewStyle', this.cssFormat)
+      this.$emit('newStyle', this.cssFormat)
+    },
+
+    exportStyle () {
+      const fileName = this.styleName || 'customStyle.json'
+
+      downloadTextFile(this.jsonStyle, 'text/json', `${fileName}.json`)
+    },
+
+    loadStyle (e) {
+      const files = e.target.files
+
+      if (e.target.files.length) {
+        const fr = new FileReader()
+
+        fr.onload = e => {
+          const result = JSON.parse(e.target.result)
+
+          this.options = {
+            ...this.options,
+            ...result.style
+          }
+
+          this.styleName = result.name
+        }
+
+        fr.readAsText(files.item(0))
+      }
     }
   }
 }

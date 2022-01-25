@@ -240,6 +240,7 @@ resources :downloads, except: [:edit, :new, :create] do
   end
 end
 
+# TODO: these should default json?
 resources :dwc_occurrences, only: [:create] do
   collection do
     get :index, defaults: {format: :json}

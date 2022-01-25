@@ -27,7 +27,7 @@
       <table class="full_width">
         <thead>
           <tr>
-            <th></th>
+            <th />
             <th>Cached</th>
             <th>Lived</th>
             <th>Active</th>
@@ -176,7 +176,7 @@ export default {
 
     async selectPerson (person) {
       this.selected = person
-      return People.find(person.id).then(response => {
+      return People.find(person.id, { extend: ['roles'] }).then(response => {
         this.selectedPerson = response.body
         this.$emit('expand', false)
         return response.body

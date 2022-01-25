@@ -125,7 +125,7 @@ export default {
     },
 
     isInvalid () {
-      return this.taxonName && this.taxonName.id !== this.taxonName.cached_valid_taxon_name_id
+      return this.taxonName && !this.taxonName.cached_is_valid
     }
   },
 

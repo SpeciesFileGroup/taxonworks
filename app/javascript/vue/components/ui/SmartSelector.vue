@@ -29,7 +29,7 @@
           label="label_html"
           :clear-after="clear"
           display="label"
-          autofocus
+          :autofocus="autofocus"
           @keyEvent="changeTab"
           @getItem="getObject($event.id)"/>
         <otu-picker

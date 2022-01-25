@@ -36,6 +36,7 @@
       <label>Uri</label>
       <input
         type="text"
+        class="full_width"
         v-model="controlledVocabularyTerm.uri"
       >
     </div>

@@ -95,6 +95,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         end
 
         attributes = parse_record_level_class
+        record_level_biocuration_classifications = attributes.dig(:specimen, :biocuration_classifications)
         attributes.deep_merge!(parse_occurrence_class)
         attributes.deep_merge!(parse_event_class)
         attributes.deep_merge!(parse_location_class)
@@ -111,6 +112,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
         Utilities::Hashes::set_unless_nil(attributes[:specimen], :biocuration_classifications,
           (parse_biocuration_group_fields.dig(:specimen, :biocuration_classifications) || []) +
+          (record_level_biocuration_classifications || []) +
           (attributes.dig(:specimen, :biocuration_classifications) || [])
         )
 
@@ -379,9 +381,21 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # ownerInstitutionCode: [Not mapped]
 
-    # basisOfRecord: [Check it is 'PreservedSpecimen']
-    basis = get_field_value(:basisOfRecord) || 'PreservedSpecimen'
-    raise DarwinCore::InvalidData.new({ 'basisOfRecord' => ["Only 'PreservedSpecimen' or empty allowed"] }) unless "PreservedSpecimen".casecmp(basis) == 0
+    # basisOfRecord: [Check it is 'PreservedSpecimen', 'FossilSpecimen']
+    basis = get_field_value(:basisOfRecord)
+    if 'FossilSpecimen'.casecmp(basis) == 0
+      fossil_biocuration = BiocurationClass.find_by(uri: 'http://rs.tdwg.org/dwc/terms/FossilSpecimen')
+
+      raise DarwinCore::InvalidData.new(
+        { 'basisOfRecord' => ["Biocuration class http://rs.tdwg.org/dwc/terms/FossilSpecimen is not present in project"] }
+      ) if fossil_biocuration.nil?
+
+      Utilities::Hashes::set_unless_nil(res[:specimen], :biocuration_classifications, [BiocurationClassification.new(biocuration_class: fossil_biocuration)])
+    else
+      raise DarwinCore::InvalidData.new(
+        { 'basisOfRecord' => ["Only 'PreservedSpecimen', 'FossilSpecimen' or blank is allowed."] }
+      ) unless basis.nil? || 'PreservedSpecimen'.casecmp(basis) == 0
+    end
 
     # informationWithheld: [Not mapped]
 

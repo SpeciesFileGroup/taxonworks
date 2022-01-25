@@ -38,7 +38,6 @@ if !@taxon_name.cached_is_valid && !@taxon_name.is_ambiguously_invalid?
     json.pages @taxon_name.valid_taxon_name.origin_citation&.pages
     json.original_citation @taxon_name.valid_taxon_name.source&.cached
 
-
     # By definition it's a Protonym
     if extend_response_with('name_elements')
       h = @taxon_name.valid_taxon_name.full_name_hash
