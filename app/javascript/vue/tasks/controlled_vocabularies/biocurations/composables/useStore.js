@@ -23,7 +23,7 @@ export default () => {
     createBiocurationClass: (controlled_vocabulary_term) => {
       ControlledVocabularyTerm.create({ controlled_vocabulary_term }).then(({ body }) => {
         state.biocurationClasses.push(body)
-        TW.workbench.alert.create('Biocuration group item was successfully created.', 'notice')
+        TW.workbench.alert.create('Biocuration class item was successfully created.', 'notice')
       })
     },
 
