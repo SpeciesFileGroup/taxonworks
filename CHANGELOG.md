@@ -11,11 +11,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Import and export custom label style in print label task
 - Attributions in Filter images [#2639]
 - People, role, images stats to `/api/v1/stats`
-- `basisOfRecord` can be `FossilSpecimen` via biocuration
-- Classification section for combination in New taxon name [#2681]
-- API `/api/v1/otus/:id` includes &extend[] for `parents`
+- `basisOfRecord` in DwC exports can be `FossilSpecimen` via biocuration
+- Classification section for Combination in New taxon name (botanical nomenclature support) [#2681]
+- API `/api/v1/otus/:id` includes `&extend[]` for `parents`
 
 ### Changed
+- New interface for biocuration groups and classes
 - DwCA export is *much* faster
 - CSV export optimized
 - `basisOfRecord` now maps as `http://rs.tdwg.org/dwc/terms/FossilSpecimen` biocuration classification in DwC occurrences importer.
@@ -33,6 +34,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Error 500 deleting a biocuration term [#2181]
 - Uniquify people task shows "0" in used column and no roles [#2769]
 
+
+[#83]: https://github.com/SpeciesFileGroup/taxonworks/issues/83
 [#2181]: https://github.com/SpeciesFileGroup/taxonworks/issues/2181
 [#2780]: https://github.com/SpeciesFileGroup/taxonworks/issues/2780
 [#2766]: https://github.com/SpeciesFileGroup/taxonworks/issues/2766
