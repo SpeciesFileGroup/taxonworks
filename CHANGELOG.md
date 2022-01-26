@@ -6,6 +6,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.22.7] - 2021-01-26
+
 ### Added
 - Add more date (redundant) fields to DwC export [#2780]
 - Import and export custom label style in print label task
@@ -2258,7 +2262,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.6...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.7...development
+[0.22.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.6...v0.22.7
 [0.22.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.5...v0.22.6
 [0.22.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.4...v0.22.5
 [0.22.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.3...v0.22.4
