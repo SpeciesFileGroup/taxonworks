@@ -20,6 +20,13 @@ export default () => {
       })
     },
 
+    createBiocurationClass: (controlled_vocabulary_term) => {
+      ControlledVocabularyTerm.create({ controlled_vocabulary_term }).then(({ body }) => {
+        state.biocurationClasses.push(body)
+        TW.workbench.alert.create('Biocuration group item was successfully created.', 'notice')
+      })
+    },
+
     createBiocurationGroup: (controlled_vocabulary_term) => {
       ControlledVocabularyTerm.create({ controlled_vocabulary_term }).then(({ body }) => {
         state.biocurationGroups.push(body)

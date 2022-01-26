@@ -5,14 +5,14 @@
       color="primary"
       @click="showModal = true"
     >
-      Create biocuration group
+      Create biocuration class
     </v-btn>
 
     <v-modal
       v-if="showModal"
       @close="showModal = false">
       <template #header>
-        <h3>Create biocuration group</h3>
+        <h3>Create biocuration class</h3>
       </template>
       <template #body>
         <form-keyword
@@ -33,9 +33,9 @@ const { actions } = useStore()
 const showModal = ref(false)
 
 const saveKeyword = cvt => {
-  actions.createBiocurationGroup({
+  actions.createBiocurationClass({
     ...cvt,
-    type: 'BiocurationGroup'
+    type: 'BiocurationClass'
   })
   showModal.value = false
 }

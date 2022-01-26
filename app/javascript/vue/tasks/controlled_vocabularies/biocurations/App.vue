@@ -10,7 +10,10 @@
     </div>
 
     <nav-bar>
-      <biocuration-group-new/>
+      <div class="horizontal-left-content">
+        <biocuration-group-new class="margin-small-right"/>
+        <biocuration-class-new/>
+      </div>
     </nav-bar>
     <table class="full_width">
       <thead>
@@ -38,6 +41,7 @@ import useStore from './composables/useStore.js'
 import BiocurationGroup from './components/BiocurationGroupRow.vue'
 import NavBar from 'components/layout/NavBar.vue'
 import BiocurationGroupNew from './components/BiocurationGroupNew.vue'
+import BiocurationClassNew from './components/BiocurationClassNew.vue'
 import { RouteNames } from 'routes/routes.js'
 
 const { getters, actions } = useStore()
