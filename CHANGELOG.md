@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated ruby gems
 - Updated js packages
 - cached_is_valid is now used in interfaces to show if a taxon is valid or invalid
+- Refactor Manage biocuration classes and groups task [#83]
 
 ### Fixed
 - `occurrenceID` missing from DwC exports. [#2766]
