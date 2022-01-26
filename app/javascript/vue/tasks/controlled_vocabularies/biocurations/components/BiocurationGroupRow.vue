@@ -1,12 +1,15 @@
 <template>
   <tr class="contextMenuCells">
-    <td>{{ biocurationGroup.object_label }}</td>
+    <td>
+      <span v-html="biocurationGroup.object_tag"/>
+    </td>
     <td>
       <v-btn
         v-for="item in biologicalGroupClasses"
         :key="item.id"
         class="margin-small"
         color="destroy"
+        :title="getBiologicalClassById(item.tag_object_id).definition"
         @click="removeBiocuration(item.tag_object_id)"
       >
         {{ item.annotated_object.object_label }}
@@ -43,6 +46,7 @@ import useBiocurationGroup from '../composables/useBiocurationGroup.js'
 import BiocurationModal from './BiocurationModal.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
+import useStore from '../composables/useStore'
 
 const props = defineProps({
   biocurationGroup: {
@@ -52,11 +56,14 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['delete'])
+const { getters } = useStore()
 
 const {
   biologicalGroupClasses,
   addBiocuration,
   removeBiocuration
 } = useBiocurationGroup(props.biocurationGroup.id)
+
+const getBiologicalClassById = id => getters.getBiocurationClasses().find(item => item.id === id)
 
 </script>

@@ -27,6 +27,7 @@
               v-if="createdBiocurations.find(created => created.tag_object_id === item.id)"
               class="margin-small"
               color="destroy"
+              :title="item.definition"
               @click="emit('delete', item.id)"
             >
               {{ item.object_label }}
@@ -36,6 +37,7 @@
               v-else
               class="margin-small"
               color="create"
+              :title="item.definition"
               @click="emit('create', item.id)"
             >
               {{ item.object_label }}
