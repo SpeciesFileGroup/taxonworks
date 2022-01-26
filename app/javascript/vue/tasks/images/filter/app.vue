@@ -79,6 +79,12 @@
                 type="Image"
                 :ids="idsSelected"
               />
+              <attribution-component
+                class="margin-small-left margin-small-right"
+                :ids="idsSelected"
+                type="Image"
+              />
+              <span>|</span>
               <div class="margin-small-left">
                 <select-all
                   v-model="idsSelected"
@@ -92,7 +98,8 @@
             :list="list"/>
           <h2
             v-if="alreadySearch && !list.length"
-            class="subtle middle horizontal-center-content no-found-message">No records found.
+            class="subtle middle horizontal-center-content no-found-message">
+            No records found.
           </h2>
         </div>
       </div>
@@ -109,6 +116,7 @@ import getPagination from 'helpers/getPagination'
 import PlatformKey from 'helpers/getPlatformKey'
 import TagAll from 'tasks/collection_objects/filter/components/tagAll.vue'
 import SelectAll from 'tasks/collection_objects/filter/components/selectAll.vue'
+import AttributionComponent from './components/attributions/main.vue'
 
 export default {
   components: {
@@ -116,7 +124,8 @@ export default {
     FilterComponent,
     ListComponent,
     TagAll,
-    SelectAll
+    SelectAll,
+    AttributionComponent
 },
 
   data () {

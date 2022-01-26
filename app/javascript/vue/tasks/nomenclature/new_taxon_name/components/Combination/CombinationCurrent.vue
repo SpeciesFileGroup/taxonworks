@@ -77,10 +77,13 @@ const taxonNameList = computed(() => [{
   taxon: store.getters[GetterNames.GetTaxon]
 }])
 
-const setCurrent = (taxon = currentTaxonName.value, combination = { [currentTaxonName.value.rank]: currentTaxonName.value }) => {
-  if (taxon.parent_id && ranks.value.includes(taxon.rank)) {
+const setCurrent = (taxon = currentTaxonName.value, combination = {}) => {
+  if (ranks.value.includes(taxon.rank)) {
+    combination[taxon.rank] = taxon
+  }
+
+  if (taxon.parent_id) {
     TaxonName.find(taxon.parent_id).then(({ body }) => {
-      combination[body.rank] = body
       setCurrent(body, combination)
     })
   } else {

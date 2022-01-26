@@ -20,7 +20,7 @@
         @getId="parentSelected"
         type="TaxonName"/>
       <div
-        v-if="parent && parent.id != parent.cached_valid_taxon_name_id"
+        v-if="parent && !parent.cached_is_valid"
         class="horizontal-left-content separate-left">
         <span
           data-icon="warning"
@@ -118,7 +118,7 @@ export default {
     },
 
     parent (newVal) {
-      if (newVal && newVal.id !== newVal.cached_valid_taxon_name_id) {
+      if (newVal && !newVal.cached_is_valid) {
         TaxonName.find(newVal.cached_valid_taxon_name_id).then(response => {
           this.validParent = response.body
         })

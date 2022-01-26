@@ -22,6 +22,7 @@ export default ({ state, commit, getters }, page) => {
       params: Object.assign({}, { page: loadPage }, state.paramsFilter), paramsSerializer: (params) => Qs.stringify(params, { arrayFormat: 'brackets' })
     }).then(response => {
       commit(MutationNames.SetPagination, GetPagination(response))
+      state.dataset.progress = response.body.progress
 
       if (page === undefined) {
         page = 1
@@ -33,7 +34,7 @@ export default ({ state, commit, getters }, page) => {
         page: {
           count: response.body.length,
           downloaded: true,
-          rows: response.body
+          rows: response.body.records
         }
       })
 

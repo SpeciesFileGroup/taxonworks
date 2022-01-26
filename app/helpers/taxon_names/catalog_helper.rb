@@ -175,7 +175,8 @@ module TaxonNames::CatalogHelper
       a = history_author_year_tag(t) 
       b = source_author_year_tag(c.source)
 
-      if t.nomenclatural_code == :icn
+      tn = t.type == 'Combination' ? t.protonyms.last : t
+      if tn.nomenclatural_code == :icn
         in_str = ' ex '
       else
         in_str = ' in '
