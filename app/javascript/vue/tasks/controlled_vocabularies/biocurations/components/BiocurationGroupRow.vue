@@ -9,7 +9,7 @@
         :key="item.id"
         class="margin-small"
         color="destroy"
-        :title="getBiologicalClassById(item.tag_object_id).definition"
+        :title="makeTooltip(getBiologicalClassById(item.tag_object_id))"
         @click="removeBiocuration(item.tag_object_id)"
       >
         {{ item.annotated_object.object_label }}
@@ -47,6 +47,7 @@ import BiocurationModal from './BiocurationModal.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
 import useStore from '../composables/useStore'
+import makeTooltip from '../utils/makeTooltip.js'
 
 const props = defineProps({
   biocurationGroup: {

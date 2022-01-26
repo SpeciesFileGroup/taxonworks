@@ -27,7 +27,7 @@
               v-if="createdBiocurations.find(created => created.tag_object_id === item.id)"
               class="margin-small"
               color="destroy"
-              :title="item.definition"
+              :title="makeTooltip(item)"
               @click="emit('delete', item.id)"
             >
               {{ item.object_label }}
@@ -37,7 +37,7 @@
               v-else
               class="margin-small"
               color="create"
-              :title="item.definition"
+              :title="makeTooltip(item)"
               @click="emit('create', item.id)"
             >
               {{ item.object_label }}
@@ -55,6 +55,7 @@ import useStore from '../composables/useStore'
 import VModal from 'components/ui/Modal.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
+import makeTooltip from '../utils/makeTooltip.js'
 
 const { getters } = useStore()
 
