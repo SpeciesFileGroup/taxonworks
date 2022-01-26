@@ -4,7 +4,7 @@
       <h1>Manage biocuration classes and groups</h1>
       <ul class="context-menu">
         <li>
-          <a :href="RouteNames.ManageControlledVocabularyTask">Manage controlled vocabulary term</a>
+          <a :href="RouteNames.ManageControlledVocabularyTask">Manage controlled vocabulary terms</a>
         </li>
       </ul>
     </div>
