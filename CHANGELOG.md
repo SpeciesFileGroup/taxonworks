@@ -6,7 +6,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+- Type species section doesn't work in new taxon name [#2785]
+
+[#2785]: https://github.com/SpeciesFileGroup/taxonworks/issues/2785
 
 ## [0.22.7] - 2021-01-26
 
