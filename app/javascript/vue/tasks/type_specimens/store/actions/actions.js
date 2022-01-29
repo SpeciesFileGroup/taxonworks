@@ -7,8 +7,6 @@ import createTypeMaterial from './createTypeMaterial'
 import removeTypeSpecimen from './removeTypeSpecimen'
 import updateTypeSpecimen from './updateTypeSpecimen'
 import setNewTypeMaterial from './setNewTypeMaterial'
-import updateCollectionObject from './updateCollectionObject'
-import saveIdentifier from './saveIdentifier'
 import setTypeMaterialCO from './setTypeMaterialCO'
 
 const ActionFunctions = {
@@ -20,8 +18,6 @@ const ActionFunctions = {
   [ActionNames.RemoveTypeSpecimen]: removeTypeSpecimen,
   [ActionNames.UpdateTypeSpecimen]: updateTypeSpecimen,
   [ActionNames.SetNewTypeMaterial]: setNewTypeMaterial,
-  [ActionNames.UpdateCollectionObject]: updateCollectionObject,
-  [ActionNames.SaveIdentifier]: saveIdentifier,
   [ActionNames.SetTypeMaterialCO]: setTypeMaterialCO
 }
 

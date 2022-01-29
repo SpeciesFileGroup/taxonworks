@@ -7,7 +7,8 @@ const permitParams = {
     name: String,
     short_name: String,
     verbatim_short_name: String,
-    delimiter: String
+    delimiter: String,
+    is_virtual: Boolean
   }
 }
 

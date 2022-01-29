@@ -195,7 +195,6 @@ class Source < ApplicationRecord
   include Shared::SharedAcrossProjects
   include Shared::Tags
   include Shared::Documentation
-  include Shared::HasRoles
   include Shared::IsData
   include Shared::HasPapertrail
   include SoftValidation
@@ -228,7 +227,20 @@ class Source < ApplicationRecord
 
   accepts_nested_attributes_for :project_sources, reject_if: :reject_project_sources
 
-  # Redirect type here
+  soft_validate(
+    :sv_cached_names,
+    set: :cached_names,
+    fix: :sv_fix_cached_names,
+    name: 'Cached names',
+    description: 'Check if cached values need to be updated' )
+
+  soft_validate(
+    :sv_html_tags,
+    set: :html_tags,
+    name: 'html tags',
+    description: 'Check if html has both open and close tags' )
+
+    # Redirect type here
   # @param [String] file
   # @return [[Array, message]]
   #   TODO: return a more informative response?
@@ -248,7 +260,13 @@ class Source < ApplicationRecord
     end
   end
 
-  # @param [String] file
+    # @return [String] A string that represents the authors last_names and year (no suffix)
+  def author_year
+    return 'not yet calculated' if new_record?
+    [cached_author_string, year].compact.join(', ')
+  end
+
+    # @param [String] file
   # @return [Array, Boolean]
   def self.batch_create(file)
     sources = []
@@ -277,25 +295,15 @@ class Source < ApplicationRecord
 
   # @param used_on [String] a model name 
   # @return [Scope]
-  #    the max 10 most recently used (1 week, could parameterize) TaxonName, as used 
   def self.used_recently(user_id, project_id, used_on = 'TaxonName')
-    t = Citation.arel_table
-    p = Source.arel_table
-
-    # i is a select manager
-    i = t.project(t['source_id'], t['created_at']).from(t)
-      .where(t['created_at'].gt(1.weeks.ago))
-      .where(t['citation_object_type'].eq(used_on))
-      .where(t['created_by_id'].eq(user_id))
-      .where(t['project_id'].eq(project_id))
-      .order(t['created_at'].desc)
-
-    # z is a table alias
-    z = i.as('recent_t')
-
-    Source.joins(
-      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['source_id'].eq(p['id'])))
-    ).pluck(:source_id).uniq
+   Source.select('sources.id').
+     joins(:citations)
+         .where(citations: {created_by_id: user_id,
+                project_id: project_id,
+                citation_object_type: used_on,
+                created_at: 1.week.ago..})
+        .order('citations.created_at DESC')
+      .pluck(:id).uniq
   end
 
   # @params target [String] a citable model name
@@ -310,17 +318,17 @@ class Source < ApplicationRecord
 
     if r.empty?
       h[:recent] = Source.where(created_by_id: user_id, updated_at: 2.hours.ago..Time.now )
-                       .order('created_at DESC')
-                       .limit(5).order(:cached).to_a
+        .order('created_at DESC')
+        .limit(5).order(:cached).to_a
       h[:quick] = Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a
     else
-        h[:recent] =
-            (Source.where(created_by_id: user_id, updated_at: 2.hours.ago..Time.now )
-                .order('created_at DESC')
-                .limit(5).order(:cached).to_a +
-            Source.where('"sources"."id" IN (?)', r.first(6) ).to_a).uniq
-        h[:quick] = ( Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a +
-        Source.where('"sources"."id" IN (?)', r.first(4) ).to_a).uniq
+      h[:recent] =
+        (Source.where(created_by_id: user_id, updated_at: 2.hours.ago..Time.now )
+        .order('created_at DESC')
+        .limit(5).order(:cached).to_a +
+      Source.where('"sources"."id" IN (?)', r.first(6) ).to_a).uniq
+      h[:quick] = ( Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a +
+                   Source.where('"sources"."id" IN (?)', r.first(4) ).to_a).uniq
     end
 
     h
@@ -340,6 +348,12 @@ class Source < ApplicationRecord
   # @return [Boolean]
   def is_in_project?(project_id)
     projects.where(id: project_id).any?
+  end
+
+    #  Month handling allows values from bibtex like 'may' to be handled
+    # @return [Time]
+  def nomenclature_date
+    Utilities::Dates.nomenclature_date(day, Utilities::Dates.month_index(month), year)
   end
 
   # @return [Source, false]
@@ -373,11 +387,36 @@ class Source < ApplicationRecord
   def set_cached
   end
 
-  # @param [Hash] attributed
+    #set in subclasses
+  def get_cached
+  end
+
+    # @param [Hash] attributed
   # @return [Boolean]
   def reject_project_sources(attributed)
     return true if attributed['project_id'].blank?
     return true if ProjectSource.where(project_id: attributed['project_id'], source_id: id).any?
   end
- 
+
+  def sv_cached_names
+    true # see validation in subclasses
+  end
+
+  def sv_fix_cached_names
+    begin
+      TaxonName.transaction do
+        self.set_cached
+      end
+      true
+    rescue
+      false
+    end
+  end
+
+  def sv_html_tags
+    unless title.blank?
+      str = title.squish.gsub(/\<i>[^<>]*?<\/i>/, '')
+      soft_validations.add(:title, 'The title contains unmatched html tags') if str.include?('<i>') || str.include?('</i>')
+    end
+  end
 end

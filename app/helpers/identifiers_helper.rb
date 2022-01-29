@@ -3,7 +3,29 @@ module IdentifiersHelper
   # @return [String, nil]
   def identifier_tag(identifier)
     return nil if identifier.nil? || identifier.new_record?
-    content_tag(:span, identifier.cached, title: identifier.type.demodulize.titleize.humanize)
+    if identifier.is_local?
+      if identifier.namespace.is_virtual?
+        [
+          tag.span(identifier.namespace.short_name, class: [:feedback, 'feedback-thin', 'feedback-light']),
+          tag.span(identifier.cached, title: identifier.type.demodulize.titleize.humanize)
+        ].join('&nbsp;').html_safe
+      else
+        tag.span(identifier.cached, title: identifier.type.demodulize.titleize.humanize)
+      end
+    else
+      tag.span(identifier.cached, title: identifier.type.demodulize.titleize.humanize)
+    end
+  end
+
+  # TODO: Unify to helpers/README.md pattern
+  def identifier_label(identifier)
+    return nil if identifier.nil?
+    identifier.cached
+  end
+
+  def label_for_identifier(identifier)
+    return nil if identifier.nil?
+    identifier.cached
   end
 
   # @return [String, nil]
@@ -43,18 +65,13 @@ module IdentifiersHelper
     content_tag(:span, identifier.cached, class: [:feedback, 'feedback-thin', 'feedback-primary'])
   end
 
-  def identifier_label(identifier)
-    return nil if identifier.nil?
-    identifier.cached
-  end
-
   # @return [String]
   #   assumes the display context is on the object in question
   def identifier_list_tag(object)
     return nil unless object.has_identifiers? && object.identifiers.any?
     content_tag(:h3, 'Identifiers') +
       content_tag(:ul, class: 'annotations_identifier_list') do
-      object.identifiers.collect{|a| content_tag(:li, identifier_annotation_tag(a)) }.join.html_safe 
+      object.identifiers.collect{|a| content_tag(:li, identifier_annotation_tag(a)) }.join.html_safe
     end
   end
 
@@ -88,15 +105,15 @@ module IdentifiersHelper
   # @return [True]
   #   indicates a custom partial should be used, see list_helper.rb
   def identifiers_partial
-    true 
+    true
   end
 
   # @return [True]
   #   indicates a custom partial should be used, see list_helper.rb
   def identifier_recent_objects_partial
-    true 
+    true
   end
-  
+
   def identifier_type_select_options
     a = []
     %I{global local unknown}.each do |t|

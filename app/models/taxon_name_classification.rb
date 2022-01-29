@@ -69,7 +69,6 @@ class TaxonNameClassification < ApplicationRecord
     return nil
   end
 
-  # TODO: helper method
   def self.label
     name.demodulize.underscore.humanize.downcase.gsub(/\d+/, ' \0 ').squish
   end
@@ -195,7 +194,7 @@ class TaxonNameClassification < ApplicationRecord
             cached_original_combination: t.get_original_combination,
             cached_original_combination_html: t.get_original_combination_html
           )
-        elsif type_name =~ /Latinized::PartOfSpeach/
+        elsif type_name =~ /Latinized::PartOfSpeech/
           n = t.get_full_name
           t.update_columns(
               cached: n,
@@ -244,7 +243,7 @@ class TaxonNameClassification < ApplicationRecord
           vn = t.get_valid_taxon_name
           vn.update_columns(
             cached_valid_taxon_name_id: vn.id,
-            cached_is_valid: !vn.unavailable_or_invalid?) # Do not change!  
+            cached_is_valid: !vn.unavailable_or_invalid?) # Do not change!
           vn.list_of_invalid_taxon_names.each do |s|
             s.update_columns(
               cached_valid_taxon_name_id: vn.id,
@@ -279,7 +278,7 @@ class TaxonNameClassification < ApplicationRecord
     if TAXON_NAME_CLASSIFICATION_NAMES.include?(self.type)
       # self.type_class is a Class
       if not self.type_class.applicable_ranks.include?(self.taxon_name.rank_string)
-        soft_validations.add(:type, "The status '#{self.type_class.label}' is unapplicable to the taxon #{self.taxon_name.cached_html} at the rank of #{self.taxon_name.rank_class.rank_name}")
+        soft_validations.add(:type, "The status '#{self.classification_label}' is unapplicable to the taxon #{self.taxon_name.cached_html} at the rank of #{self.taxon_name.rank_class.rank_name}")
       end
     end
   end
@@ -287,14 +286,14 @@ class TaxonNameClassification < ApplicationRecord
   def sv_proper_year
     y = self.taxon_name.year_of_publication
     if !y.nil? && (y > self.type_class.code_applicability_end_year || y < self.type_class.code_applicability_start_year)
-      soft_validations.add(:type, "The status '#{self.type_class.label}' is unapplicable to the taxon #{self.taxon_name.cached_html} published in the year #{y}")
+      soft_validations.add(:type, "The status '#{self.classification_label}' is unapplicable to the taxon #{self.taxon_name.cached_html} published in the year #{y}")
     end
   end
 
   def sv_validate_disjoint_classes
     classifications = TaxonNameClassification.where_taxon_name(self.taxon_name).not_self(self)
     classifications.each  do |i|
-      soft_validations.add(:type, "The status  '#{self.type_class.label}' conflicting with another status: '#{i.type_class.label}'") if self.type_class.disjoint_taxon_name_classes.include?(i.type_name)
+      soft_validations.add(:type, "The status  '#{self.classification_label}' conflicting with another status: '#{i.classification_label}'") if self.type_class.disjoint_taxon_name_classes.include?(i.type_name)
     end
   end
 
@@ -316,7 +315,9 @@ class TaxonNameClassification < ApplicationRecord
 
   def nomenclature_code_matches
     if taxon_name && type && nomenclature_code
-      errors.add(:taxon_name, "#{taxon_name.cached_html} belongs to #{taxon_name.rank_class.nomenclatural_code} nomenclatural code, but the status used from #{nomenclature_code} nomenclature code") if nomenclature_code != taxon_name.rank_class.nomenclatural_code
+      tn = taxon_name.type == 'Combination' ? taxon_name.protonyms.last : taxon_name
+      nc = tn.rank_class.nomenclatural_code
+      errors.add(:taxon_name, "#{taxon_name.cached_html} belongs to #{taxon_name.rank_class.nomenclatural_code} nomenclatural code, but the status used from #{nomenclature_code} nomenclature code") if nomenclature_code != nc
     end
   end
 

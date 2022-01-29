@@ -1,39 +1,49 @@
 # A Download represents an expirable file (mostly ZIP files) users can download.
 #
 # @!attribute name
-#   @return [String]
+# @return [String]
 #   The name for this download (not file name).
 #
 # @!attribute description
-#   @return [String]
+# @return [String]
 #   A description for this download.
 #
 # @!attribute filename
-#   @return [String]
+# @return [String]
 #   The filename of this download.
 #
+# @!attribute type
+# @return [String]
+#   The type of Download, e.g. `Download::DwCArchive`.
+#
 # @!attribute request
-#   @return [String]
+# @return [String]
 #   The request URI path this download was generated from. This attribute may be used for caching.
 #
 # @!attribute expires
-#   @return [Datetime]
+# @return [Datetime]
 #   The date and time this download is elegible for removal.
 #
 # @!attribute times_downloaded
-#   @return [Integer]
+# @return [Integer]
 #   The number of times the file was downloaded.
 #
 # @!attribute project_id
-#   @return [Integer]
+# @return [Integer]
 #   the project ID
 #
-# @!attribute is_boolean 
-#   @return [Boolean, nil]
-#     whether the Download should be shared on the API 
+# @!attribute is_public
+# @return [Boolean, nil]
+#     whether the Download should be shared on the API
+#
+# @!attribute total_records
+#   @return [Integer, nil]
+#     and _estimate_ of the total records (rows of data) in this Download.
+#     Because Downloads can be variously create some generating might not accurate count the total
 #
 class Download < ApplicationRecord
   include Housekeeping
+  include Shared::IsData::Metamorphosize
 
   default_scope { where('expires >= ?', Time.now) }
 
@@ -43,6 +53,7 @@ class Download < ApplicationRecord
   validates_presence_of :name
   validates_presence_of :filename
   validates_presence_of :expires
+  validates_presence_of :type
 
   # Gets the downloads storage path
   def self.storage_path
@@ -98,3 +109,10 @@ class Download < ApplicationRecord
     FileUtils.cp(@source_file_path, file_path) if @source_file_path
   end
 end
+
+require_dependency 'download/basic_nomenclature'
+require_dependency 'download/bibtex'
+require_dependency 'download/coldp'
+require_dependency 'download/dwc_archive'
+require_dependency 'download/sql_project_dump'
+require_dependency 'download/text'

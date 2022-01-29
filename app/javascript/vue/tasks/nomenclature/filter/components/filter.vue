@@ -65,6 +65,7 @@
         :nomenclature-code="params.base.nomenclature_code"/>
       <tags-component
         class="margin-medium-bottom"
+        target="TaxonName"
         v-model="params.keywords"/>
       <users-component
         class="margin-medium-bottom"
@@ -106,7 +107,7 @@ import WithComponent from 'tasks/sources/filter/components/filters/with'
 import AuthorsComponent from './filters/authors.vue'
 
 import SpinnerComponent from 'components/spinner'
-import platformKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getPlatformKey.js'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { TaxonName } from 'routes/endpoints'
 
@@ -241,7 +242,8 @@ export default {
         },
         settings: {
           per: 500,
-          page: 1
+          page: 1,
+          extend: ['parent']
         }
       }
     },

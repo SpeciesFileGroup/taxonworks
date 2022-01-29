@@ -29,10 +29,7 @@ export default {
     },
 
     objectId: {
-      required: true,
-      validator (value) {
-        return value === undefined || typeof value === 'string' || typeof value === 'number'
-      }
+      type: [String, Number]
     },
 
     objectType: {
@@ -42,7 +39,7 @@ export default {
 
     existing: {
       type: Object,
-      required: false
+      default: undefined
     }
   },
 
@@ -64,6 +61,12 @@ export default {
         this.updatePredicate()
       },
       deep: true
+    },
+
+    objectId (newVal) {
+      if (!newVal) {
+        this.data_attribute.value = undefined
+      }
     }
   },
 
@@ -74,7 +77,7 @@ export default {
         controlled_vocabulary_term_id: this.predicateObject.id,
         attribute_subject_id: this.objectId,
         attribute_subject_type: this.objectType,
-        value: this.value
+        value: undefined
       }
     },
 

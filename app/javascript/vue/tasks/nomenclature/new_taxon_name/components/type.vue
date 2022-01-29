@@ -52,9 +52,8 @@
       </div>
       <div v-else>
         <tree-display
-          :tree-list="{ treeList }"
           :parent="parent"
-          :object-lists="objectLists"
+          :list="objectLists.tree"
           :show-modal="showModal"
           valid-property="valid_object_ranks"
           @selected="addEntry"
@@ -122,7 +121,7 @@ import ListCommon from './commonList.vue'
 import getRankGroup from '../helpers/getRankGroup'
 import childOfParent from '../helpers/childOfParent'
 import QuickTaxonName from './quickTaxonName'
-import platformKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getPlatformKey.js'
 
 export default {
   components: {

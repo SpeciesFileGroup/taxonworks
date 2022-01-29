@@ -1,9 +1,15 @@
 import { BiologicalAssociation } from 'routes/endpoints'
 
-export default ({ commit, state: { biologicalAssociations, collection_object } }) => {
-  const promises = []
+const extend = [
+  'origin_citation',
+  'object',
+  'biological_relationship'
+]
 
-  return new Promise((resolve, reject) => {
+export default ({ commit, state: { biologicalAssociations, collection_object } }) =>
+  new Promise((resolve, reject) => {
+    const promises = []
+
     biologicalAssociations.forEach((item, index) => {
       if (!item.id) {
         const biological_association = {
@@ -11,7 +17,7 @@ export default ({ commit, state: { biologicalAssociations, collection_object } }
           subject_global_id: collection_object.global_id
         }
 
-        BiologicalAssociation.create({ biological_association }).then(response => {
+        BiologicalAssociation.create({ biological_association, extend }).then(response => {
           biologicalAssociations[index] = response.body
         })
       }
@@ -21,4 +27,3 @@ export default ({ commit, state: { biologicalAssociations, collection_object } }
       resolve(responses)
     })
   })
-}

@@ -21,9 +21,14 @@ export default function ({state, commit}, descriptorId) {
         isSaving: false
       })
 
+      commit(MutationNames.SetDescriptorUnsaved, {
+        descriptorId,
+        isUnsaved: false
+      })
+
       commit(MutationNames.SetDescriptorSavedOnce, descriptorId)
       return true
-    }, response => {
+    }, _ => {
       commit(MutationNames.SetDescriptorSaving, {
         descriptorId,
         isSaving: false
@@ -63,5 +68,5 @@ function makePayload (observation) {
 }
 
 function getDescriptorTypeName (componentName) {
-  if (componentName === ComponentNames.Qualitative) { return `Qualitative` }
+  if (componentName === ComponentNames.Qualitative) { return 'Qualitative' }
 }

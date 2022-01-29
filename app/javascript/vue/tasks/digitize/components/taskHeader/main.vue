@@ -75,7 +75,7 @@
             data-icon="warning"/>
         </tippy>
         <recent-component
-          class="separate-right"
+          class="separate-right margin-small-left"
           @selected="loadCollectionObject($event)"/>
         <button
           type="button"
@@ -103,7 +103,7 @@ import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions.js'
 import { GetterNames } from '../../store/getters/getters.js'
 import RecentComponent from './recent.vue'
-import platformKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getPlatformKey.js'
 import Autocomplete from 'components/ui/Autocomplete.vue'
 import NavBar from 'components/layout/NavBar'
 import AjaxCall from 'helpers/ajaxCall'
@@ -125,7 +125,7 @@ export default {
       return this.$store.getters[GetterNames.GetCollectionObject]
     },
     collectingEvent() {
-      return this.$store.getters[GetterNames.GetCollectionEvent]
+      return this.$store.getters[GetterNames.GetCollectingEvent]
     },
     settings: {
       get () {
@@ -229,7 +229,7 @@ export default {
   .fixed-bar {
     position: fixed;
     top:0px;
-    width: calc(100%-52px);
+    width: calc(100% - 52px);
     z-index:200;
   }
 </style>

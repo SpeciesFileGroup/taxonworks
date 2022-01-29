@@ -1,6 +1,6 @@
-import newTypeMaterial from '../../const/typeMaterial'
+import makeTypeMaterial from 'factory/TypeMaterial.js'
 import { MutationNames } from '../mutations/mutations'
 
-export default function({ commit }) {
-  commit(MutationNames.SetTypeMaterial, newTypeMaterial())
+export default ({ commit }) => {
+  commit(MutationNames.SetTypeMaterial, makeTypeMaterial())
 }

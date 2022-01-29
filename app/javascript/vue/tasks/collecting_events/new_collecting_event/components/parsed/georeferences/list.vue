@@ -8,7 +8,8 @@
           <th class="word-keep-all">Coordinates</th>
           <th class="word-keep-all line-nowrap">Error radius</th>
           <th class="word-keep-all">Type</th>
-          <th></th>
+          <th class="word-keep-all">Date</th>
+          <th />
         </tr>
       </thead>
       <tbody>
@@ -25,15 +26,34 @@
               @end="$emit('update', item)"/>
           </td>
           <td class="word-keep-all">{{ item.type }}</td>
-          <td class="vue-table-options">
-            <radial-annotator
-              v-if="item.global_id"
-              :global-id="item.global_id"/>
-            <span
-              v-if="destroy"
-              class="circle-button btn-delete"
-              @click="deleteItem(item)">Remove
-            </span>
+          <td>
+            <div class="horizontal-left-content">
+              <date-component
+                v-model:day="item.day_georeferenced"
+                v-model:month="item.month_georeferenced"
+                v-model:year="item.year_georeferenced"
+                placeholder
+              />
+              <v-btn
+                color="update"
+                medium
+                @click="$emit('dateChanged', item)"
+              >
+                Update
+              </v-btn>
+            </div>
+          </td>
+          <td>
+            <div class="vue-table-options">
+              <radial-annotator
+                v-if="item.global_id"
+                :global-id="item.global_id"/>
+              <span
+                v-if="destroy"
+                class="circle-button btn-delete"
+                @click="deleteItem(item)">Remove
+              </span>
+            </div>
           </td>
         </tr>
       </tbody>
@@ -44,12 +64,19 @@
 
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import EditInPlace from 'components/editInPlace'
-import GeoreferenceTypes from '../../../const/georeferenceTypes'
+import DateComponent from 'components/ui/Date/DateFields.vue'
+import VBtn from 'components/ui/VBtn/index.vue'
+import {
+  GEOREFERENCE_GEOLOCATE,
+  GEOREFERENCE_WKT
+} from 'constants/index.js'
 
 export default {
   components: {
     RadialAnnotator,
-    EditInPlace
+    DateComponent,
+    EditInPlace,
+    VBtn
   },
   props: {
     list: {
@@ -78,11 +105,11 @@ export default {
     }
   },
 
-  emits: ['delete', 'update'],
-
-  mounted () {
-    this.$options.components['RadialAnnotator'] = RadialAnnotator
-  },
+  emits: [
+    'delete',
+    'update',
+    'dateChanged'
+  ],
 
   methods: {
     deleteItem (item) {
@@ -104,10 +131,10 @@ export default {
       return this.geojsonObject(object).geometry.type
     },
     isTmpWkt (object) {
-      return object.type === GeoreferenceTypes.Wkt && object.tmpId
+      return object.type === GEOREFERENCE_WKT && object.tmpId
     },
     isTempGeolocate (object) {
-      return object.type === GeoreferenceTypes.Geolocate && object.tmpId
+      return object.type === GEOREFERENCE_GEOLOCATE && object.tmpId
     },
     getCoordinatesByType (object) {
       if (this.isTmpWkt(object)) {

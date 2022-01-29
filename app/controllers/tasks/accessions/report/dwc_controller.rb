@@ -1,8 +1,9 @@
+# DEPRECATED!
 class Tasks::Accessions::Report::DwcController < ApplicationController
   include TaskControllerConfiguration
 
   # tasks/accessions/report/dwc
-  def index 
+  def index
     respond_to do |format|
       format.html do
         @collection_objects = CollectionObject.order(:id).includes(:dwc_occurrence).with_project_id(sessions_current_project_id).page(params[:page]).per(params[:per] || 30)
@@ -17,19 +18,9 @@ class Tasks::Accessions::Report::DwcController < ApplicationController
     end
   end
 
+  # TODO: doesn't belong here.
   def row
     @dwc_occurrence = CollectionObject.includes(:dwc_occurrence).find(params[:id]).get_dwc_occurrence # find or compute for
-  end
-
-  def download
-    # If failing remove begin/ensure/end to report Raised errors
-    # TODO: integrate with Download
-    begin
-      data = Dwca::Packer::Data.new(DwcOccurrence.where(project_id: sessions_current_project_id))
-      send_data(data.getzip, type: 'application/zip', filename: data.filename)
-    ensure
-      data.cleanup
-    end
   end
 
 end

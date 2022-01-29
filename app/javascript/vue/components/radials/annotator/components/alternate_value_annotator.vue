@@ -1,96 +1,123 @@
 <template>
   <div class="alternate_values_annotator">
     <div>
-      <div class="switch-radio">
-        <template v-for="(item, key, index) in typeList">
+      <switch-component
+        :options="tabs"
+        use-index
+        v-model="alternateType"
+      />
+    </div>
+    <ul class="no_bullets content">
+      <li
+        v-for="(item, key) in values"
+        :key="item">
+        <label>
           <input
-            v-model="alternate_value.type"
-            :value="key"
-            :id="`alternate_values-picker-${index}`"
-            name="alternate_values-picker-options"
             type="radio"
-            class="normal-input button-active"
-          >
-          <label
-            :for="`alternate_values-picker-${index}`"
-            class="capitalize">{{ item }}
-          </label>
-        </template>
-      </div>
-    </div>
-    <div v-if="alternate_value.type">
-      <ul class="no_bullets content">
-        <li v-for="(item, key) in values">
-          <label>
-            <input
-              type="radio"
-              v-model="alternate_value.alternate_value_object_attribute"
-              :value="key">
-            "{{ key }}" -> {{ item }}
-          </label>
-        </li>
-      </ul>
+            v-model="alternateValue.alternate_value_object_attribute"
+            :value="key">
+          "{{ key }}" -> {{ item }}
+        </label>
+      </li>
+    </ul>
 
-      <autocomplete
-        class="field"
-        v-if="alternate_value.type == 'AlternateValue::Translation'"
-        url="/languages/autocomplete"
-        label="label"
-        min="2"
-        placeholder="Language"
-        @getItem="alternate_value.language_id = $event.id"
-        param="term"/>
+    <fieldset v-if="alternateValue.type === ALTERNATE_VALUE_TRANSLATION">
+      <legend>Language</legend>
+      <smart-selector
+        v-model="language"
+        model="languages"
+        klass="AlternateValue"
+        label="english_name"
+        @selected="setLanguage"/>
+      <SmartSelectorItem
+        :item="language"
+        label="english_name"
+        @unset="setLanguage"
+      />
+    </fieldset>
 
-      <div class="separate-bottom">
-        <div class="field">
-          <input
-            type="text"
-            class="normal-input"
-            v-model="alternate_value.value"
-            placeholder="Value">
-        </div>
-        <button
-          type="button"
-          class="normal-input button button-submit"
-          :disabled="!validateFields"
-          @click="createNew()">
-          Create
-        </button>
-      </div>
+    <div class="field margin-medium-top">
+      <input
+        class="normal-input full_width"
+        type="text"
+        v-model="alternateValue.value"
+        placeholder="Value">
     </div>
 
-    <display-list
-      label="object_tag"
-      :list="list"
-      :edit="true"
-      @edit="note = $event"
-      @delete="removeItem"
-      class="list"/>
+    <v-btn
+      class="margin-small-right"
+      color="create"
+      medium
+      :disabled="!validateFields"
+      @click="saveAlternateValue">
+      Save
+    </v-btn>
+    <v-btn
+      color="primary"
+      medium
+      @click="reset">
+      New
+    </v-btn>
   </div>
+
+  <display-list
+    label="object_tag"
+    :list="list"
+    edit
+    @edit="loadAlternateValue"
+    @delete="removeItem"
+    class="list"/>
 </template>
 <script>
 
 import CRUD from '../request/crud.js'
 import annotatorExtend from '../components/annotatorExtend.js'
-import autocomplete from 'components/ui/Autocomplete.vue'
-import displayList from './displayList.vue'
+import SwitchComponent from 'components/switch.vue'
+import DisplayList from './displayList.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
+import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
+import VBtn from 'components/ui/VBtn/index.vue'
+import { addToArray } from 'helpers/arrays.js'
+import {
+  ALTERNATE_VALUE_ABBREVIATION,
+  ALTERNATE_VALUE_ALTERNATE_SPELLING,
+  ALTERNATE_VALUE_MISSPELLING,
+  ALTERNATE_VALUE_TRANSLATION
+} from 'constants/index.js'
+import { AlternateValue, Language } from 'routes/endpoints'
 
 export default {
   mixins: [CRUD, annotatorExtend],
 
   components: {
-    displayList,
-    autocomplete
+    SmartSelector,
+    SmartSelectorItem,
+    DisplayList,
+    SwitchComponent,
+    VBtn
   },
 
   computed: {
-    validateFields() {
-      return (this.alternate_value.value &&
-        this.alternate_value.alternate_value_object_attribute)
+    validateFields () {
+      return this.alternateValue.value &&
+        this.alternateValue.alternate_value_object_attribute
+    },
+
+    tabs () {
+      return Object.values(this.typeList)
+    },
+
+    alternateType: {
+      get () {
+        return Object.keys(this.typeList).findIndex(item => item === this.alternateValue.type)
+      },
+      set (value) {
+        this.alternateValue.type = Object.keys(this.typeList)[value]
+      }
     }
   },
 
-  mounted () {
+  created () {
     this.getList(`/alternate_values/${encodeURIComponent(this.globalId)}/metadata`).then(response => {
       this.values = response.body
     })
@@ -100,56 +127,73 @@ export default {
     return {
       values: undefined,
       typeList: {
-        'AlternateValue::Translation': 'translation',
-        'AlternateValue::Abbreviation': 'abbreviation',
-        'AlternateValue::Misspelling': 'misspelled',
-        'AlternateValue::AlternateSpelling': 'alternate spelling'
+        [ALTERNATE_VALUE_TRANSLATION]: 'Translation',
+        [ALTERNATE_VALUE_ABBREVIATION]: 'Abbreviation',
+        [ALTERNATE_VALUE_MISSPELLING]: 'Misspelled',
+        [ALTERNATE_VALUE_ALTERNATE_SPELLING]: 'Alternate spelling'
       },
-      alternate_value: this.newAlternate()
+      ALTERNATE_VALUE_TRANSLATION,
+      language: undefined,
+      alternateValue: this.newAlternate(),
+      tabIndex: 0
     }
   },
 
   methods: {
     newAlternate () {
       return {
-        type: undefined,
         value: undefined,
         language_id: undefined,
-        alternate_value_object_attribute: undefined,
-        annotated_global_entity: decodeURIComponent(this.globalId)
+        type: ALTERNATE_VALUE_TRANSLATION,
+        alternate_value_object_attribute: undefined
       }
     },
 
-    createNew () {
-      this.create('/alternate_values', {alternate_value: this.alternate_value}).then(response => {
-        this.list.push(response.body)
-        this.alternate_value = this.newAlternate()
+    saveAlternateValue () {
+      const alternate_value = {
+        ...this.alternateValue,
+        annotated_global_entity: decodeURIComponent(this.globalId)
+      }
+
+      const saveRequest = alternate_value.id
+        ? AlternateValue.update(alternate_value.id, { alternate_value })
+        : AlternateValue.create({ alternate_value })
+
+      saveRequest.then(response => {
+        addToArray(this.list, response.body)
+        this.reset()
+        TW.workbench.alert.create('Alternate value was successfully saved.', 'notice')
+      })
+    },
+
+    reset () {
+      this.alternateValue = this.newAlternate()
+      this.language = undefined
+    },
+
+    setLanguage (language) {
+      this.alternateValue.language_id = language?.id
+      this.language = language
+    },
+
+    loadAlternateValue ({ id, value, alternate_value_object_attribute, language_id, type }) {
+      this.alternateValue = {
+        id,
+        value,
+        alternate_value_object_attribute,
+        type,
+        language_id
+      }
+
+      Language.find(language_id).then(({ body }) => {
+        this.language = body
       })
     }
   }
 }
 </script>
-<style lang="scss">
-  .radial-annotator {
-    .alternate_values_annotator {
-      .field input {
-        width: 100%;
-      }
-      .switch-radio {
-        label {
-          min-width: 95px;
-        }
-      }
-      li {
-        border-right: 0px;
-        padding-left: 0px;
-      }
-      textarea {
-        padding-top: 14px;
-        padding-bottom: 14px;
-        width: 100%;
-        height: 100px;
-      }
-    }
-  }
+<style scoped>
+:deep(.vue-autocomplete-input) {
+  width: 50%;
+}
 </style>

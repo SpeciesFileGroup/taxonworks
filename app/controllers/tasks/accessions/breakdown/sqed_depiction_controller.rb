@@ -9,7 +9,7 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
     @sqed_depictions = SqedDepiction.where(project_id: sessions_current_project_id).order(:id).page(params[:page]).per(100)
   end
 
-  # GET /tasks/accession/breakdown/depiction/:id # id is a collection_object_id
+  # GET /tasks/accession/breakdown/depiction/:id # id is a collection_object_id !!
   def index
     @result = SqedToTaxonworks::Result.new(
       depiction_id: @sqed_depiction.depiction.id,

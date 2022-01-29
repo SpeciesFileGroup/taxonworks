@@ -14,7 +14,7 @@
 
   <tbody>
   <% @gene_attributes.each do |gene_attribute| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= gene_attribute.descriptor_id %></td>
           <td><%= gene_attribute.sequence_id %></td>
           <td><%= gene_attribute.sequence_relationship_type %></td>

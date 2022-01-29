@@ -9,6 +9,7 @@
         target="CollectionObject"
         pin-section="Sources"
         pin-type="Source"
+        label="cached"
         v-model="source"
       />
       <v-lock
@@ -18,7 +19,7 @@
     <div
       v-if="source"
       class="field horizontal-left-content middle">
-      <span v-html="source.object_tag"/>
+      <span v-html="source.cached"/>
       <button
         type="button"
         class="button circle-button btn-undo button-default"
@@ -51,8 +52,9 @@
 <script>
 
 import SmartSelector from 'components/ui/SmartSelector.vue'
-import makeCitationObject from '../../../const/citation'
+import makeCitationObject from 'factory/Citation.js'
 import VLock from 'components/ui/VLock'
+import { COLLECTION_OBJECT } from 'constants/index.js'
 
 export default {
   components: {
@@ -74,7 +76,7 @@ export default {
   computed: {
     lockCOs: {
       get () {
-        return this.lockValue
+        return this.lock
       },
       set (value) {
         this.$emit('update:lock', value)
@@ -91,7 +93,7 @@ export default {
   methods: {
     saveCitation () {
       this.$emit('onAdd', {
-        ...makeCitationObject(),
+        ...makeCitationObject(COLLECTION_OBJECT),
         citation_source_body: this.source.cached,
         pages: this.pages,
         source_id: this.source.id,

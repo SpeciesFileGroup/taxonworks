@@ -48,6 +48,10 @@ module Shared::Tags
 
   module ClassMethods
 
+    def tagged_with_uri(uri)
+      joins("JOIN tags t1 on t1.tag_object_type = '#{self.base_class.name}' AND t1.tag_object_id = #{self.base_class.name.tableize}.id JOIN controlled_vocabulary_terms k1 on k1.id = t1.keyword_id").where('k1.uri = ?', uri)
+    end
+
     # @params [Keyword] the target keyword object
     # @return [Scope]
     #    only those instances with tags that use the kewyord

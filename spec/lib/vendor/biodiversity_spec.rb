@@ -38,13 +38,13 @@ describe ::TaxonWorks::Vendor::Biodiversity, type: :model, group: [:nomenclature
     end
 
     context '#genus' do
-      specify 'as uninomial' do
+      specify 'as uninominal' do
         result.name = 'Bus'
         result.parse
         expect(result.genus).to eq('Bus')
       end
 
-      specify 'as binomial' do
+      specify 'as binominal' do
         result.name = 'Bus aus'
         result.parse
         expect(result.genus).to eq('Bus')

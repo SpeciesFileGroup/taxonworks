@@ -44,7 +44,6 @@
               <pin-object
                 v-if="taxon.id"
                 class="circle-button"
-                :pin-object="taxon['pinboard_item']"
                 :object-id="taxon.id"
                 type="TaxonName"/>
               <default-confidence
@@ -72,7 +71,7 @@ import RadialObject from 'components/radials/navigation/radial.vue'
 import DefaultConfidence from 'components/defaultConfidence.vue'
 import PinObject from 'components/ui/Pinboard/VPin.vue'
 import Modal from 'components/ui/Modal.vue'
-import platformKey from 'helpers/getMacKey'
+import platformKey from 'helpers/getPlatformKey'
 import { TaxonName } from 'routes/endpoints'
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'

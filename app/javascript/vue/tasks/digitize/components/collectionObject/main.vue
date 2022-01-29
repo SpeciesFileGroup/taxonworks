@@ -6,8 +6,8 @@
       </template>
       <template #options>
         <div
-          v-hotkey="shortcuts"
           v-if="collectionObject.id"
+          v-hotkey="shortcuts"
           class="horizontal-left-content">
           <radial-annotator :global-id="collectionObject.global_id" />
           <default-tag :global-id="collectionObject.global_id" />
@@ -17,33 +17,29 @@
       </template>
       <template #body>
         <div id="collection-object-form">
-          <catalogue-number />
-          <repository-component />
-          <preparation-type />
-          <div class="row-item">
-            <h2 class="horizontal-left-content">
+          <catalogue-number
+            v-if="showCatalogNumber"
+            class="panel content" />
+          <repository-component
+            v-if="showRepository"
+            class="panel content" />
+          <preparation-type
+            v-if="showPreparation"
+            class="panel content" />
+          <div
+            v-if="showBuffered"
+            class="panel content">
+            <h2 class="flex-separate">
               Buffered
-              <expand-component
-                class="margin-small-left"
-                v-model="showBuffered"
-                @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showBuffered', $event)"
-              />
             </h2>
-            <div
-              v-if="showBuffered"
-              class="horizontal-right-content">
-              <buffered-component
-                class="separate-top separate-right"/>
-            </div>
+            <buffered-component
+              class="field"/>
           </div>
-          <div class="row-item">
-            <h2 class="horizontal-left-content">
+          <div
+            v-if="showDepictions"
+            class="panel content column-depictions">
+            <h2 class="flex-separate">
               Depictions
-              <expand-component
-                class="margin-small-left"
-                v-model="showDepictions"
-                @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showDepictions', $event)"
-              />
             </h2>
             <depictions-component
               v-if="showDepictions"
@@ -55,27 +51,26 @@
               default-message="Drop images or click here<br> to add collection object figures"
               action-save="SaveCollectionObject"/>
           </div>
-          <div class="row-item">
-            <h2 class="horizontal-left-content">
+          <soft-validations
+            v-if="showValidations"
+            class="column-validation"
+            :validations="validations"
+          />
+          <div
+            v-if="showCitations"
+            class="panel content column-citations">
+            <h2 class="flex-separate">
               Citations
-              <expand-component
-                class="margin-small-left"
-                v-model="showCitations"
-                @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showCitations', $event)"
-              />
             </h2>
-            <citation-component v-if="showCitations" />
+            <citation-component/>
           </div>
-          <div class="row-item">
-            <h2 class="horizontal-left-content">
+          <div
+            v-if="showAttributes"
+            class="panel content column-attribute">
+            <h2 class="flex-separate">
               Attributes
-              <expand-component
-                class="margin-small-left"
-                v-model="showAttributes"
-                @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showAttributes', $event)"
-              />
             </h2>
-            <div v-if="showAttributes">
+            <div>
               <spinner-component
                 v-if="!collectionObject.id"
                 :show-spinner="false"
@@ -94,8 +89,8 @@
               />
             </div>
           </div>
+          <container-items class="row-item"/>
         </div>
-        <container-items/>
       </template>
     </block-layout>
   </div>
@@ -111,7 +106,6 @@ import BufferedComponent from './bufferedData.vue'
 import DepictionsComponent from '../shared/depictions.vue'
 import RepositoryComponent from './repository.vue'
 import CitationComponent from './Citation/CitationMain.vue'
-import ExpandComponent from 'components/expand.vue'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions'
@@ -121,10 +115,23 @@ import RadialNavigation from 'components/radials/navigation/radial.vue'
 import RadialObject from 'components/radials/object/radial.vue'
 import PredicatesComponent from 'components/custom_attributes/predicates/predicates'
 import DefaultTag from 'components/defaultTag.vue'
-import platformKey from 'helpers/getMacKey'
-
-import { GetCollectionObjectDepictions } from '../../request/resources.js'
-import { Depiction, User } from 'routes/endpoints'
+import platformKey from 'helpers/getPlatformKey'
+import SoftValidations from 'components/soft_validations/panel.vue'
+import {
+  Depiction,
+  CollectionObject
+} from 'routes/endpoints'
+import { COLLECTION_OBJECT } from 'constants/index.js'
+import {
+  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_CITATIONS,
+  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_ATTRIBUTES,
+  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_BUFFERED,
+  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_DEPICTIONS,
+  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_PREPARATION,
+  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_REPOSITORY,
+  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_CATALOG_NUMBER,
+  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_VALIDATIONS
+} from 'tasks/digitize/const/layout'
 
 export default {
   components: {
@@ -141,28 +148,25 @@ export default {
     PredicatesComponent,
     RadialObject,
     DefaultTag,
-    ExpandComponent,
-    RadialNavigation
+    RadialNavigation,
+    SoftValidations
   },
-  computed: {
-    preferences: {
-      get () {
-        return this.$store.getters[GetterNames.GetPreferences]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetPreferences, value)
-      }
-    },
 
+  computed: {
     projectPreferences () {
       return this.$store.getters[GetterNames.GetProjectPreferences]
     },
 
-    collectionObject () {
-      return this.$store.getters[GetterNames.GetCollectionObject]
+    collectionObject: {
+      get () {
+        return this.$store.getters[GetterNames.GetCollectionObject]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetCollectionObject, value)
+      }
     },
 
-    collectionObjects() {
+    collectionObjects () {
       return this.$store.getters[GetterNames.GetCollectionObjects]
     },
 
@@ -171,16 +175,7 @@ export default {
         return this.$store.getters[GetterNames.GetDepictions]
       },
       set (value) {
-        this.$store.commit(MutationNames.SetDepictions)
-      }
-    },
-
-    total: {
-      get() {
-        return this.$store.getters[GetterNames.GetCollectionObject].total
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetCollectionObjectTotal, value)
+        this.$store.commit(MutationNames.SetDepictions, value)
       }
     },
 
@@ -190,65 +185,86 @@ export default {
       keys[`${platformKey()}+e`] = this.openBrowse
 
       return keys
+    },
+
+    validations () {
+      const { Specimen } = this.$store.getters[GetterNames.GetSoftValidations]
+
+      return Specimen
+        ? { Specimen }
+        : {}
+    },
+
+    layout () {
+      return this.$store.getters[GetterNames.GetPreferences]?.layout || {}
+    },
+
+    showAttributes () {
+      return !this.layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_ATTRIBUTES]
+    },
+
+    showBuffered () {
+      return !this.layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_BUFFERED]
+    },
+
+    showCitations () {
+      return !this.layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_CITATIONS]
+    },
+
+    showDepictions () {
+      return !this.layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_DEPICTIONS]
+    },
+
+    showPreparation () {
+      return !this.layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_PREPARATION]
+    },
+
+    showRepository () {
+      return !this.layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_REPOSITORY]
+    },
+
+    showCatalogNumber () {
+      return !this.layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_CATALOG_NUMBER]
+    },
+
+    showValidations () {
+      return !this.layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_VALIDATIONS]
     }
   },
-  data() {
+
+  data () {
     return {
       types: [],
       labelRepository: undefined,
       labelEvent: undefined,
-      showAttributes: true,
-      showBuffered: true,
-      showCitations: true,
-      showDepictions: true,
-      GetCollectionObjectDepictions
+      GetCollectionObjectDepictions: CollectionObject.depictions
     }
   },
   watch: {
     collectionObject(newVal) {
-      if(newVal.id) {
+      if (newVal.id) {
         this.cloneDepictions(newVal)
       }
-    },
-    preferences: {
-      handler(newVal) {
-        if (newVal) {
-          const layout = newVal['layout']
-          if (layout) {
-            const sDepictions = layout['tasks::digitize::collectionObjects::showDepictions']
-            const sBuffered = layout['tasks::digitize::collectionObjects::showBuffered']
-            const sAttributes = layout['tasks::digitize::collectionObjects::showAttributes']
-            const sCitations = layout['tasks::digitize::collectionObjects::showCitations']
-            this.showDepictions = sDepictions !== undefined ? sDepictions : true
-            this.showBuffered = sBuffered !== undefined ? sBuffered : true
-            this.showAttributes = sAttributes !== undefined ? sAttributes : true
-            this.showCitations = sCitations !== undefined ? sCitations : true
-          }
-        }
-      },
-      deep: true
     }
   },
   methods: {
     setAttributes (value) {
-      this.$store.commit(MutationNames.SetCollectionObjectDataAttributes, value)
+      this.collectionObject.data_attributes_attributes = value
     },
-    updatePreferences (key, value) {
-      User.update(this.preferences.id, { user: { layout: { [key]: value } } }).then(response => {
-        this.preferences.layout = response.body.preferences.layout
-      })
-    },
+
     newDigitalization () {
       this.$store.dispatch(ActionNames.NewCollectionObject)
       this.$store.dispatch(ActionNames.NewIdentifier)
       this.$store.commit(MutationNames.NewTaxonDetermination)
       this.$store.commit(MutationNames.SetTaxonDeterminations, [])
     },
+
     saveCollectionObject() {
       this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
         this.$store.commit(MutationNames.SetTaxonDeterminations, [])
       })
     },
+
     saveAndNew() {
       this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
         setTimeout(() => {
@@ -256,11 +272,13 @@ export default {
         }, 500)
       })
     },
-    cloneDepictions(co) {
+
+    cloneDepictions (co) {
       const unique = new Set()
       const depictionsRemovedDuplicate = this.depictions.filter(depiction => {
-        let key = depiction.image_id,
-          isNew = !unique.has(key)
+        const key = depiction.image_id
+        const isNew = !unique.has(key)
+
         if (isNew) unique.add(key)
         return isNew
       })
@@ -273,16 +291,18 @@ export default {
         }
       })
     },
-    saveDepiction(coId, depiction) {
+
+    saveDepiction (coId, depiction) {
       const data = {
         depiction_object_id: coId,
-        depiction_object_type: 'CollectionObject',
+        depiction_object_type: COLLECTION_OBJECT,
         image_id: depiction.image_id
       }
       Depiction.create({ depiction: data }).then(response => {
         this.depictions.push(response.body)
       })
     },
+
     createDepictionForAll(depiction) {
       const coIds = this.collectionObjects.map((co) => co.id).filter(id => this.collectionObject.id !== id)
 
@@ -291,9 +311,11 @@ export default {
         this.saveDepiction(id, depiction)
       })
     },
+
     removeAllDepictionsByImageId(depiction) {
       this.$store.dispatch(ActionNames.RemoveDepictionsByImageId, depiction)
     },
+
     openBrowse () {
       if (this.collectionObject.id) {
         window.open(`/tasks/collection_objects/browse?collection_object_id=${this.collectionObject.id}`, '_self')
@@ -306,11 +328,25 @@ export default {
 <style scoped>
   #collection-object-form {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(250px, 1fr) );
+    gap: 0.5em;
+    grid-auto-flow: dense;
+  }
+
+  .depict-validation-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 0.5em;
   }
 
+  .column-validation {
+    grid-column: 3 / 4;
+  }
+
+  .row-1-3 {
+    grid-column: 1 / 3;
+  }
   .row-item {
-    grid-column: 1 / 4
+    grid-column: 1 / 4;
   }
 </style>

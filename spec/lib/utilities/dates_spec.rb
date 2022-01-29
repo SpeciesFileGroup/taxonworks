@@ -11,26 +11,26 @@ describe Utilities::Dates, group: [:collecting_events, :dates] do
 
   specify '.order_dates 1' do
     a = %w{1932-01-11 1859-01-22}
-    expect(lib.order_dates(a[0], a[1])).to eq([a[1], a[0]]) 
+    expect(lib.order_dates(a[0], a[1])).to eq([a[1], a[0]])
   end
 
   specify '.order_dates 2' do
     a = %w{1932/01/11 1859/01/22}
-    expect(lib.order_dates(a[0], a[1])).to eq([a[1], a[0]]) 
+    expect(lib.order_dates(a[0], a[1])).to eq([a[1], a[0]])
   end
 
   specify '.normalize_and_order_dates 1' do
     a = %w{1932/01/11 1859/01/22}
-    expect(lib.normalize_and_order_dates(a[0], a[1])).to eq([a[1], a[0]]) 
+    expect(lib.normalize_and_order_dates(a[0], a[1])).to eq([a[1], a[0]])
   end
 
   specify '.normalize_and_order_dates 2' do
     a = %w{1932/01/11 1859/01/22}
-    expect(lib.normalize_and_order_dates(a[0], nil)).to eq([ a[0], a[0] ]) 
+    expect(lib.normalize_and_order_dates(a[0], nil)).to eq([ a[0], a[0] ])
   end
 
   specify '.normalize_and_order_dates 2' do
-    expect(lib.normalize_and_order_dates(nil, nil)).to eq([ Utilities::Dates::EARLIEST_DATE, today ]) 
+    expect(lib.normalize_and_order_dates(nil, nil)).to eq([ Utilities::Dates::EARLIEST_DATE, today ])
   end
 
   context 'date discovery and parsing' do
@@ -64,7 +64,7 @@ describe Utilities::Dates, group: [:collecting_events, :dates] do
                              )
       end
     end
-    
+
     #done except failing on 'This is a test september 20 ,1944 - November 19 , 1945' (extra spaces)
     context 'single use case for dates hunt_dates' do
       use_case = {'Some text here,  5 V 2003, some more text after the date  ' =>
@@ -210,6 +210,81 @@ describe Utilities::Dates, group: [:collecting_events, :dates] do
       }
 
     end
+
+    context "ISO8601 parsing" do
+      #noinspection RubyUnusedLocalVariable
+      date_fields = [:year, :month, :day, :hour, :minute, :second]
+
+      context "ISO8601 single date parsing" do
+        specify "should return nil on invalid date" do
+          date = Utilities::Dates.parse_iso_date_str("January 2018")
+          expect(date).to be_nil
+        end
+
+        specify "should parse year only" do
+          date = Utilities::Dates.parse_iso_date_str("1932")
+          expect(date[0]).to eq(OpenStruct.new(year: 1932, month: nil, day: nil, hour: nil, minute: nil, second: nil))
+        end
+
+        specify "should parse year and month" do
+          date = Utilities::Dates.parse_iso_date_str("1932-01")
+          expect(date[0]).to eq(OpenStruct.new(year: 1932, month: 1, day: nil, hour: nil, minute: nil, second: nil))
+        end
+
+        specify "should parse year, month, and day" do
+          date = Utilities::Dates.parse_iso_date_str("1932-01-11")
+          expect(date[0]).to eq(OpenStruct.new(year: 1932, month: 1, day: 11, hour: nil, minute: nil, second: nil))
+        end
+
+        specify "should parse date and time" do
+          date = Utilities::Dates.parse_iso_date_str("1932-01-11T12:15:30")
+          expect(date[0]).to eq(OpenStruct.new(year: 1932, month: 1, day: 11, hour: 12, minute: 15, second: 30))
+        end
+      end
+
+      context "ISO8601 interval parsing" do
+        specify "should return nil on invalid range format" do
+          date = Utilities::Dates.parse_iso_date_str("2013/02/26-2013/02/26")
+          expect(date).to be_nil
+        end
+
+        specify "should return nil on invalid interval" do
+          date = Utilities::Dates.parse_iso_date_str("January 2018/March 2018")
+          expect(date).to be_nil
+        end
+
+        specify "should parse year interval" do
+          date = Utilities::Dates.parse_iso_date_str("1986/1988")
+          expect(date[0]).to eq(OpenStruct.new(year: 1986, month: nil, day: nil, hour: nil, minute: nil, second: nil))
+          expect(date[1]).to eq(OpenStruct.new(year: 1988, month: nil, day: nil, hour: nil, minute: nil, second: nil))
+        end
+
+        specify "should parse month interval" do
+          date = Utilities::Dates.parse_iso_date_str("1986-03/05")
+          expect(date[0]).to eq(OpenStruct.new(year: 1986, month: 3, day: nil, hour: nil, minute: nil, second: nil))
+          expect(date[1]).to eq(OpenStruct.new(year: 1986, month: 5, day: nil, hour: nil, minute: nil, second: nil))
+        end
+
+        specify "should parse day interval" do
+          date = Utilities::Dates.parse_iso_date_str("1986-03-04/05")
+          expect(date[0]).to eq(OpenStruct.new(year: 1986, month: 3, day: 4, hour: nil, minute: nil, second: nil))
+          expect(date[1]).to eq(OpenStruct.new(year: 1986, month: 3, day: 5, hour: nil, minute: nil, second: nil))
+        end
+
+        specify "should parse month and day interval" do
+          date = Utilities::Dates.parse_iso_date_str("1986-03-07/05-09")
+          expect(date[0]).to eq(OpenStruct.new(year: 1986, month: 3, day: 7, hour: nil, minute: nil, second: nil))
+          expect(date[1]).to eq(OpenStruct.new(year: 1986, month: 5, day: 9, hour: nil, minute: nil, second: nil))
+        end
+
+        specify "should parse time interval" do
+          date = Utilities::Dates.parse_iso_date_str("1986-03-07T08:00:00/09:00:00")
+          expect(date[0]).to eq(OpenStruct.new(year: 1986, month: 3, day: 7, hour: 8, minute: 0, second: 0))
+          expect(date[1]).to eq(OpenStruct.new(year: 1986, month: 3, day: 7, hour: 9, minute: 0, second: 0))
+        end
+
+      end
+    end
   end
 
   context 'test date_regex_from_verbatim_label' do
@@ -268,6 +343,7 @@ describe Utilities::Dates, group: [:collecting_events, :dates] do
           'text, Jun 1947, text' => '/6/1947///',
           'text, June, 1947, text' => '/6/1947///',
           'text, VI 1947, text' => '/6/1947///',
+          'text, 12.-14.IX.1912, text' => '12/9/1912/14/9/1912',
       }
 
       @entry = 0

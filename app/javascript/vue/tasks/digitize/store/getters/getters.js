@@ -3,10 +3,10 @@ import isLoading from './isLoading'
 import getLocked from './getLocked'
 import getSettings from './getSettings'
 import getCOCitations from './getCOCitations'
-import getCollectionEvent from './getCollectionEvent'
+import getCollectingEvent from './getCollectingEvent'
 import getCollectionObject from './getCollectionObject'
 import getCollectionObjects from './getCollectionObjects'
-import getCollectionEventLabel from './getCollectionEventLabel'
+import getCollectingEventLabel from './getCollectingEventLabel'
 import getComponentsOrder from './getComponentsOrder'
 import getTypeMaterial from './getTypeMaterial'
 import getTypeMaterials from './getTypeMaterials'
@@ -16,10 +16,8 @@ import getIdentifiers from './getIdentifiers'
 import getContainer from './getContainer'
 import getContainerItems from './getContainerItems'
 import getTaxonDetermination from './getTaxonDetermination'
-import getCollectionObjectTypes from './getCollectionObjectTypes'
 import getPreferences from './getPreferences'
 import getBiocurations from './getBiocurations'
-import getPreparationType from './getPreparationType'
 import getMaterialTypes from './getMaterialTypes'
 import getLabel from './getLabel'
 import getTaxonDeterminations from './getTaxonDeterminations'
@@ -42,10 +40,10 @@ const GetterNames = {
   GetTaxonDetermination: 'getTaxonDetermination',
   GetCOCitations: 'getCOCitations',
   GetCollectingEventIdentifier: 'getCollectingEventIdentifier',
-  GetCollectionEvent: 'getCollectionEvent',
+  GetCollectingEvent: 'getCollectingEvent',
   GetCollectionObject: 'getCollectionObject',
   GetCollectionObjects: 'getCollectionObjects',
-  GetCollectionEventLabel: 'getCollectionEventLabel',
+  GetCollectingEventLabel: 'getCollectingEventLabel',
   GetComponentsOrder: 'getComponentsOrder',
   GetGeographicArea: 'getGeographicArea',
   GetTypeMaterial: 'getTypeMaterial',
@@ -55,10 +53,8 @@ const GetterNames = {
   GetIdentifiers: 'getIdentifiers',
   GetContainer: 'getContainer',
   GetContainerItems: 'getContainerItems',
-  GetCollectionObjectTypes: 'getCollectionObjectTypes',
   GetPreferences: 'getPreferences',
   GetBiocurations: 'getBiocurations',
-  GetPreparationType: 'getPreparationType',
   GetMaterialTypes: 'getMaterialTypes',
   GetLabel: 'GetLabel',
   GetTaxonDeterminations: 'GetTaxonDeterminations',
@@ -80,9 +76,9 @@ const GetterFunctions = {
   [GetterNames.GetTaxonDetermination]: getTaxonDetermination,
   [GetterNames.GetGeographicArea]: getGeographicArea,
   [GetterNames.GetCOCitations]: getCOCitations,
-  [GetterNames.GetCollectionEventLabel]: getCollectionEventLabel,
+  [GetterNames.GetCollectingEventLabel]: getCollectingEventLabel,
   [GetterNames.GetCollectingEventIdentifier]: getCollectingEventIdentifier,
-  [GetterNames.GetCollectionEvent]: getCollectionEvent,
+  [GetterNames.GetCollectingEvent]: getCollectingEvent,
   [GetterNames.GetCollectionObject]: getCollectionObject,
   [GetterNames.GetCollectionObjects]: getCollectionObjects,
   [GetterNames.GetTypeMaterial]: getTypeMaterial,
@@ -92,11 +88,9 @@ const GetterFunctions = {
   [GetterNames.GetIdentifiers]: getIdentifiers,
   [GetterNames.GetContainer]: getContainer,
   [GetterNames.GetContainerItems]: getContainerItems,
-  [GetterNames.GetCollectionObjectTypes]: getCollectionObjectTypes,
   [GetterNames.GetComponentsOrder]: getComponentsOrder,
   [GetterNames.GetPreferences]: getPreferences,
   [GetterNames.GetBiocurations]: getBiocurations,
-  [GetterNames.GetPreparationType]: getPreparationType,
   [GetterNames.GetMaterialTypes]: getMaterialTypes,
   [GetterNames.GetLabel]: getLabel,
   [GetterNames.GetTaxonDeterminations]: getTaxonDeterminations,

@@ -129,6 +129,26 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     expect(query.all.map(&:id)).to contain_exactly(ce1.id)
   end
 
+  context 'collecting_event_wildcards' do
+    specify '#start_date_year (integer field test)' do
+      query.start_date_year = 20
+      query.collecting_event_wildcards << 'start_date_year'
+      expect(query.all.map(&:id)).to contain_exactly(ce1.id, ce2.id)
+
+      query.start_date_year = 201
+      expect(query.all.map(&:id)).to contain_exactly(ce1.id)
+    end
+
+    specify '#verbatim_locality (string field test)' do
+      query.verbatim_locality = 'Out there'
+      query.collecting_event_wildcards << 'verbatim_locality'
+      expect(query.all.map(&:id)).to contain_exactly(ce1.id, ce2.id)
+
+      query.verbatim_locality = 'Out there, '
+      expect(query.all.map(&:id)).to contain_exactly(ce2.id)
+    end
+  end
+
   context 'geo' do
     let(:point_lat) { '10.0' }
     let(:point_long) { '10.0' }

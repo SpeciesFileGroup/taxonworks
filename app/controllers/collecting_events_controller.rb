@@ -9,7 +9,7 @@ class CollectingEventsController < ApplicationController
   def index
     respond_to do |format|
       format.html do
-        @recent_objects = CollectingEvent.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        @recent_objects = CollectingEvent.where(project_id: sessions_current_project_id).order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       end
       format.json {
@@ -50,14 +50,14 @@ class CollectingEventsController < ApplicationController
   # POST /collecting_events/1/clone.json
   def clone
     @collecting_event = @collecting_event.clone
-    if @collecting_event.persisted?
-      respond_to do |format|
+    respond_to do |format|
+      if @collecting_event.persisted?
         format.html { redirect_to new_collecting_event_task_path(@collecting_event), notice: 'Clone successful, editing new record.' }
         format.json { render :show }
+      else
+        format.html { redirect_to new_collecting_event_task_path(@collecting_event), notice: 'Failed to clone the collecting event..' }
+        format.json {render json: @collecting_event.errors, status: :unprocessable_entity}
       end
-    else
-      format.html { redirect_to new_collecting_event_task_path(@collecting_event), notice: 'Failed to clone the collecting event..' }
-      format.json {render json: @collecting_event.errors, status: :unprocessable_entity}
     end
   end
 
@@ -99,7 +99,7 @@ class CollectingEventsController < ApplicationController
   end
 
   def list
-    @collecting_events = CollectingEvent.with_project_id(sessions_current_project_id).order(:id).page(params[:page])
+    @collecting_events = CollectingEvent.where(project_id: sessions_current_project_id).order(:id).page(params[:page])
   end
 
   def attributes
@@ -300,6 +300,7 @@ class CollectingEventsController < ApplicationController
       :collection_objects,
       :collector_id,
       :collector_ids_or,
+      :depictions,
       :end_date,   # used in date range
       :geo_json,
       :geographic_area_id,
@@ -333,6 +334,7 @@ class CollectingEventsController < ApplicationController
       :collection_objects,
       :collector_id,
       :collector_ids_or,
+      :depictions,
       :end_date, # used in date range
       :geo_json,
       :geographic_area_id,

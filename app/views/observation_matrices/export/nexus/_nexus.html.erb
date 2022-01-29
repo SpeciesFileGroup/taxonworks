@@ -31,7 +31,7 @@ Charstatelabels
 Matrix
 <% m.observation_matrix_rows.each do |r| -%>
 '<%= observation_matrix_row_label_nexus(r) %>'<%= as_file ? ' ' : '&nbsp;' -%>
-<% descriptors.each do |d| -%><%= observations_cell_label(observations_hash, d, r.row_object_global_id, :nexus) %><% end %>
+<% descriptors.each do |d| -%><%= observations_cell_label(observations_hash, d, "#{r.otu_id}|#{r.collection_object_id}", :nexus) %><% end %>
 <% end %>
 ;
 end; 
@@ -53,7 +53,7 @@ Begin characters;
 matrix
 <% m.observation_matrix_rows.each do |r| -%>
 '<%= observation_matrix_row_label_nexus(r) %>'<%= as_file ? ' ' : '&nbsp;' -%>
-<% m.continuous_descriptors.each do |d| -%><%= observations_cell_label(observations_hash, d, r.row_object_global_id, :nexus) %><% end %>
+<% m.continuous_descriptors.each do |d| -%><%= observations_cell_label(observations_hash, d, "#{r.otu_id}|#{r.collection_object_id}", :nexus) %><% end %>
 <% end %>
 ;
 end;

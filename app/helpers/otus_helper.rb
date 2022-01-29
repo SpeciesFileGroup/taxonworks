@@ -20,7 +20,7 @@ module OtusHelper
   def otu_autocomplete_selected_tag(otu)
     return nil if otu.nil? || (otu.new_record? && !otu.changed?)
     [otu.name,
-     Utilities::Strings.nil_wrap('[',taxon_name_autocomplete_selected_tag(otu.taxon_name), ']')
+     Utilities::Strings.nil_wrap('[',taxon_name_autocomplete_selected_tag(otu.taxon_name), ']')&.html_safe
     ].compact.join(' ')
   end
 

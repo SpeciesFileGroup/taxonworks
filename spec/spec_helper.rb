@@ -16,8 +16,6 @@
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|
 
-  Capybara.server = :webrick
-
   # The settings below are suggested to provide a good initial experience
   # with RSpec, but feel free to customize to your heart's content.
 =begin
@@ -156,9 +154,11 @@ RSpec.configure do |config|
   end
 
   # Verify DB is actually cleared. Retry if it isn't.
-  config.after(:each, type: :feature) do
+  config.after(:each, type: :feature, js: true) do
+    sleep 1 # Give additional time to test server to finish up manipulating the database before attempting to clear it
     DatabaseCleaner.clean
     i = 0
+    # TODO: Does this actually fixing something nowadays?
     while User.count > 0 && i <= 3
       puts "DATABASE NOT YET CLEARED, RETRYING..."
       sleep 2**i

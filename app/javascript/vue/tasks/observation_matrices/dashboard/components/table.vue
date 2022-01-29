@@ -78,7 +78,7 @@
         <template v-for="(row, index) in tableRanks.data">
           <tr
             v-if="withOtus ? row[1] : true && filterRow(index)"
-            class="contextMenuCells btn btn-neutral"
+            class="contextMenuCells"
             :class="{ even: (index % 2)}">
             <td>
               <input

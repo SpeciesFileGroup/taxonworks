@@ -1,3 +1,1 @@
-export default function(state) {
-  return state.settings.locked
-}
+export default state => state.settings.locked

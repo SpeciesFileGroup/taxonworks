@@ -33,67 +33,53 @@ end
 
     proxy.new_har
 
-describe "Docker image test", js: true do
-  before(:each) do
 
+RSpec::Steps.steps "Login and change password", js: true do
+  before(:all) do
     visit '/'
 
     find('#session_email').set('admin@example.com')
     find('#session_password').set('taxonworks')
 
     click_button 'sign_in'
+    click_on 'test_project'
   end
 
-  context 'dashboard page' do
-    it "shows that the dashboard is for the logged in user" do
+  before(:step) { visit '/' }
+
+    it "dashboard page > shows that the dashboard is for the logged in user" do
       expect(page).to have_content("Dashboard for John Doe")
     end
 
-    it "shows the revision matching git HEAD short hash (#{ENV['REVISION']})" do
+    it "dashboard page > shows the revision matching git HEAD short hash (#{ENV['REVISION']})" do
       expect(page).to have_content(ENV['REVISION'])
     end
 
-    it "has the test project visible" do
+    it "dashboard page > has the test project visible" do
       expect(page).to have_content("test_project")
     end
-  end
 
-  context 'when ColDP export is fired up' do
-    before(:each) do
-      click_on 'test_project'
-    end
-
-    it 'runs asynchronously' do
+    it 'when ColDP export is fired up > runs asynchronously' do
       visit 'tasks/exports/coldp/download?otu_id=1'
       expect(page).to have_content('Status: Download creation is in progress...')
-      sleep 10 # Wait for page to auto-refresh (download should be available by then)
-      expect(page).to have_content('Status: Ready to download')
-    end
-  end
-
-  context 'when basic nomenclature export is fired up' do
-    before(:each) do
-      click_on 'test_project'
+      expect(page).to have_content('Status: Ready to download', wait: 30)
     end
 
-    it 'runs asynchronously' do
+    it 'when basic nomenclature export is fired up > runs asynchronously' do
       visit 'tasks/exports/nomenclature/download_basic?taxon_name_id=1'
       expect(page).to have_content('Status: Download creation is in progress...')
-      sleep 10 # Wait for page to auto-refresh (download should be available by then)
-      expect(page).to have_content('Status: Ready to download')
-    end
-  end
-
-  context 'when using Biodiversity' do
-    before(:each) do
-      click_on 'test_project'
+      expect(page).to have_content('Status: Ready to download', wait: 30)
     end
 
-    it 'returns Testidae as result' do
+#   context 'when uploading a DwC-A' do
+    # xit 'stages asynchronously' do
+    # end
+#   end
+
+    it 'when using Biodiversity > returns Testidae as result' do
       visit '/taxon_names/autocomplete.json?term=Test'
       expect(page).to have_content('Testidae')
     end
-  end
 
 
 
@@ -105,15 +91,13 @@ describe "Docker image test", js: true do
   #   end
   # end
 
-  context 'HTTP proxy' do
-    it 'has not recorded any error response' do
+    it 'HTTP proxy > has not recorded any error response' do
       errors = proxy.har.entries.select do |x|
         x.response.status >= 400
       end
 
       expect(errors).to be_empty
     end
-  end
 
   after(:all) do
     puts "\n\n===URLs served==="

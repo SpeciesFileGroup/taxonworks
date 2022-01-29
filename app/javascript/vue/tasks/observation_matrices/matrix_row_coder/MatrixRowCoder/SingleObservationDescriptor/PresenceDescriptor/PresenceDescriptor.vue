@@ -63,7 +63,6 @@ export default {
         return this.$store.getters[GetterNames.GetPresenceFor](this.$props.descriptor.id)
       },
       set (value) {
-        console.log(value)
         this.updatePresence(value)
       }
     }

@@ -240,6 +240,17 @@ resources :downloads, except: [:edit, :new, :create] do
   end
 end
 
+# TODO: these should default json?
+resources :dwc_occurrences, only: [:create] do
+  collection do
+    get :index, defaults: {format: :json}
+    get 'metadata', defaults: {format: :json}
+    get 'predicates', defaults: {format: :json}
+    get 'status', defaults: {format: :json}
+    get 'collector_id_metadata', defaults: {format: :json}
+  end
+end
+
 resources :extracts do
   concerns [:data_routes]
   collection do
@@ -317,10 +328,22 @@ resources :images do
   end
 end
 
+resources :import_datasets do
+  concerns [:data_routes]
+  member do
+    post 'import'
+    post 'stop_import'
+  end
+  resources :dataset_records, only: [:index, :create, :show, :update, :destroy] do
+    collection do
+      get 'autocomplete_data_fields'
+      patch 'set_field_value'
+    end
+  end
+end
+
 resources :keywords, only: [] do
   collection do
-    get :autocomplete
-    get :lookup_keyword
     get :select_options, defaults: {format: :json}
   end
 end
@@ -560,6 +583,8 @@ resources :repositories do
   end
 end
 
+resources :roles, only: [:index, :create, :update, :destroy], defaults: {format: :json}
+
 resources :serials do
   concerns [:data_routes]
   collection do
@@ -665,7 +690,6 @@ resources :taxon_names do
 
     get :rank_table, defaults: {format: :json}
     get :predicted_rank, {format: :json}
-
   end
 
   member do

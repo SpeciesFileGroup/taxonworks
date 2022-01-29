@@ -57,10 +57,10 @@ jobs:
     - name: Git checkout
       uses: actions/checkout@v2
     
-    - name: Set up Ruby 2.7
+    - name: Set up Ruby 3.0
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: 2.7
+        ruby-version: 3.0
         
     - name: Set up Ruby Bundler gems cache
       uses: actions/cache@v2
@@ -96,7 +96,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: spec/fixtures/vcr_cassettes
-        key: ${{ runner.os }}-vcr-${{ steps.datetime.outputs.year_week }}-${{ matrix.worker }}
+        key: ${{ runner.os }}-vcr-${{ steps.datetime.outputs.year_week }}-${{ hashFiles('**/Gemfile.lock') }}-${{ matrix.worker }}
 
     - name: Install apt packages
       run: |

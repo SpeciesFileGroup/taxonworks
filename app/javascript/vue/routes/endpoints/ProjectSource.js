@@ -1,6 +1,6 @@
 import baseCRUD from './base'
 
-const controller = 'project_members'
+const controller = 'project_sources'
 const permitParams = {
   project_source: {
     source_id: Number,

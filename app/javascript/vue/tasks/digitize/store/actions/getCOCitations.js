@@ -1,11 +1,12 @@
 import { Citation } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
+import { COLLECTION_OBJECT } from 'constants/index.js'
 
 export default ({ state: { collection_object, settings, coCitations }, commit }) => {
   const lockCOCitations = settings.locked.coCitations
 
   Citation.where({
-    citation_object_type: 'CollectionObject',
+    citation_object_type: COLLECTION_OBJECT,
     citation_object_id: collection_object.id
   }).then(({ body }) => {
     if (lockCOCitations) {

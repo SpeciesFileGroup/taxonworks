@@ -21,7 +21,6 @@ describe 'Dashboard' do
       expect(page).to have_link('Forgot password?')
       expect(page).to have_link('Find out more')
     end
-
   end
 
   context 'when user is signed in' do
@@ -62,7 +61,7 @@ describe 'Dashboard' do
       end
 
       it 'should have Edit account link' do
-        expect(page).to have_link('Edit')
+        expect(page).to have_button('Edit')
       end
     end
   end

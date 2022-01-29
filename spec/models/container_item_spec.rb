@@ -125,7 +125,7 @@ describe ContainerItem, type: :model, group: :containers do
 
       specify '#container is alias for parent.contained_object' do
         ci3.update!(parent: ci2)
-        expect(o1.container.metamorphosize).to eq(container2)
+        expect(o1.container_item.container.metamorphosize).to eq(container2)
       end
 
       specify '#container_id can set #container' do

@@ -2,12 +2,17 @@ module TypeMaterialsHelper
 
   def type_material_tag(type_material)
     return nil if type_material.nil?
-    [type_material.type_type, 'of', object_tag(type_material.protonym)].compact.join(' ')
+    [type_material.type_type, full_original_taxon_name_tag(type_material.protonym)].compact.join(' of ')
   end
 
   def type_material_link(type_material)
     return nil if type_material.nil?
     link_to(type_material_tag(type_material).html_safe, type_material)
+  end
+
+  def label_for_type_material(type_material)
+    return nil if type_material.nil?
+    [type_material.type_type, full_original_taxon_name_label(type_material.protonym)].compact.join(' of ')
   end
 
   def type_materials_search_form

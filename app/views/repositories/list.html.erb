@@ -16,7 +16,7 @@
 
   <tbody>
   <% @repositories.each do |repository| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= repository.name %></td>
           <td><%= repository.url %></td>
           <td><%= repository.acronym %></td>

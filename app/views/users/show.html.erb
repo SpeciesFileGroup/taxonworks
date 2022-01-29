@@ -1,19 +1,54 @@
-<%= content_tag :h2, user_tag(@user) %>
-<p>
-  <%= sessions_current_user_id == @user.id ? content_tag(:span, 'You!', class: [:feedback, 'feedback-success']) :
-    content_tag(:span, 'NOT YOU!', class: [:feedback, 'feedback-danger']) -%>
-</p>
-
 <div class="flexbox">
-    <div class="item item1">
-      <%= render 'attributes' %>
-      <%= link_to 'Edit', edit_user_path(@user) %>
+  <div class="item item1">
+    <div id="attributes-panel">
+      <div class="break_words content">
+        <div class="title-section">
+          <h2><%= user_tag(@user) -%>
+          <%= sessions_current_user_id == @user.id ? content_tag(:span, 'You!', class: [:feedback, 'feedback-success', 'feedback-thin']) : content_tag(:span, 'NOT YOU!', class: [:feedback, 'feedback-danger', 'feedback-thin']) -%>
+          </h2>
+        </div>
+
+        <div class="attributes">
+          <%= button_to 'Edit', edit_user_path(@user), method: :get, class: 'button-default' %><br>
+          <%= render 'attributes' %>
+        </div>
+
+        <% if sessions_current_user.is_administrator? %>
+          <h2> Administration (not visible to user)</h2>
+          <div>
+            <h3> User's projects </h3>
+            <ul>
+              <% if @user.projects.any? %>
+                <%= @user.projects.pluck(:name).collect{|n| tag.li n}.join.html_safe %>
+              <% else %>
+                <li><i>None</i></li>
+              <% end %>
+            </ul>
+
+            <h3> User's data in projects (quick, not comprehensive) </h3>
+            <% p = @user.data_in_projects %>
+            <ul>
+              <% if p.count > 0 %>
+                <%= p.collect{|n| tag.li n}.join.html_safe %>
+              <% else %>
+                <li><i>Not found in core data</i></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+      </div>
     </div>
+  </div>
 
   <div class="item item2">
-    <%=  (link_to('hub', hub_path) + " for current project #{sessions_current_project.name}")  if sessions_current_project_id -%> <br/>
-      <%= link_to('dashboard', dashboard_path) -%>
-  </div>
-</div>
 
+    <div class="content">
+      <p>
+      <strong>Preferences:</strong>
+      <%= ap(@user.preferences).html_safe %>
+      </p>
+  </div>
+
+</div>
 

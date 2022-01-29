@@ -11,7 +11,7 @@
 
   <tbody>
   <% @observation_matrix_column_items.each do |observation_matrix_column_item| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= observation_matrix_tag(observation_matrix_column_item.observation_matrix) %></td>
           <td><%= observation_matrix_column_item.type %></td>
           <td><%= descriptor_tag(observation_matrix_column_item.descriptor) %></td>

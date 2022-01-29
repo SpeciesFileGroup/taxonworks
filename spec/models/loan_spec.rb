@@ -2,15 +2,16 @@ require 'rails_helper'
 
 describe Loan, type: :model, group: :loans do
 
-  let(:loan) { Loan.new }
+  let(:loan) { Loan.new() }
 
-  specify 'valid with lender_address' do
+  specify 'with lender_address and date_return_expected' do
     loan.lender_address = '123 N. South'
+    loan.date_return_expected = Time.now.to_date
     expect(loan.valid?).to be_truthy
   end
 
   context 'cloning records' do
-    let(:cloned_attributes) { 
+    let(:cloned_attributes) {
       {
         lender_address: '123 S. North Av',
         recipient_address: '456 E. West St',
@@ -22,8 +23,8 @@ describe Loan, type: :model, group: :loans do
       }
     }
 
-    before do 
-      loan.update(cloned_attributes)  
+    before do
+      loan.update(cloned_attributes.merge( date_return_expected: (Time.now + 2.days).to_date) )
     end
 
     context '#clone_from clones' do
@@ -55,15 +56,12 @@ describe Loan, type: :model, group: :loans do
     let(:building) { Container.containerize([room], Container::Building) }
     let(:site) { Container.containerize([building], Container::Site) }
 
-    before do
-      loan.lender_address = '123 N. South St.'
-      loan.save!
-    end
+    before { loan.update(lender_address: '123 N. South St.', date_return_expected: Time.now.to_date) }
 
     context 'enumerating loan items' do
       before  do
         loan.loan_items << LoanItem.new(loan_item_object: specimen)
-      end 
+      end
 
       specify '#loan_items' do
         expect(loan.loan_items.first.persisted?).to be_truthy
@@ -89,12 +87,12 @@ describe Loan, type: :model, group: :loans do
     end
 
     context 'objects via Otus' do
-      let(:otu) { Otu.create(name: 'Blobasaurus') } 
+      let(:otu) { Otu.create(name: 'Blobasaurus') }
       let!(:determination) { TaxonDetermination.create(otu: otu, biological_collection_object: specimen) }
 
-      before do 
+      before do
         loan.loan_items << LoanItem.new(loan_item_object: otu)
-      end 
+      end
 
       specify '#collection_objects' do
         expect(loan.collection_objects).to contain_exactly(specimen)

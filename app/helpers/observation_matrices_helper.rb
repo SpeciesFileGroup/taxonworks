@@ -43,12 +43,12 @@ module ObservationMatricesHelper
   #   the fully formatted cell, handles polymorphisms
   #   show states in tnt or nexus format for a 'cell' (e.g. [ab]) 
   #   Mx.print_codings in mx
-  def observations_cell_label(observations_hash, descriptor, row_object_global_id, style = :tnt)
-    case observations_hash[descriptor.id][row_object_global_id].size
+  def observations_cell_label(observations_hash, descriptor, otu_co, style = :tnt)
+    case observations_hash[descriptor.id][otu_co].size
     when 0
       "?"
     when 1
-      o = observations_hash[descriptor.id][row_object_global_id][0] 
+      o = observations_hash[descriptor.id][otu_co][0]
       s = observation_export_value(o)
 
       if s.length > 1 && style == :nexus && o.type == 'Observation::Qualitative'
@@ -57,7 +57,7 @@ module ObservationMatricesHelper
         s
       end
     else
-      str = observations_hash[descriptor.id][row_object_global_id].collect{|o| observation_export_value(o) }.sort.join("")
+      str = observations_hash[descriptor.id][otu_co].collect{|o| observation_export_value(o) }.sort.join("")
       case style
       when :nexus
         "{#{str}}"

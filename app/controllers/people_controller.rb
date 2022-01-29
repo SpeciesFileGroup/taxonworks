@@ -66,10 +66,15 @@ class PeopleController < ApplicationController
   # DELETE /people/1
   # DELETE /people/1.json
   def destroy
-    @person.destroy!
+    @person.destroy
     respond_to do |format|
-      format.html {redirect_to people_url}
-      format.json {head :no_content}
+      if @person.destroyed?
+        format.html { destroy_redirect @person, notice: 'Person was successfully destroyed.' }
+        format.json {head :no_content}
+      else
+        format.html { destroy_redirect @person, notice: 'Person was not destroyed, ' + @person.errors.full_messages.join('; ') }
+        format.json { render json: @person.errors, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -90,7 +95,7 @@ class PeopleController < ApplicationController
   def autocomplete
     @people = Queries::Person::Autocomplete.new(
       params.permit(:term)[:term],
-      autocomplete_params
+      **autocomplete_params
     ).autocomplete
   end
 

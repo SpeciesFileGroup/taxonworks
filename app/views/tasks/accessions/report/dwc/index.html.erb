@@ -1,9 +1,8 @@
+<h1> DwC Occurrence Report </h1>
 
-<h1> DWC Occurrence Report </h1>
+<%= tag.span 'This Task is deprecated and will be removed. Use the DwC Dashboard for downloads and reporting.', class: [:feedback, 'feedback-thin', 'feedback-warning'] %> <%= link_to('DwC Dashboard', dwc_dashboard_task_path) -%>
 
-<p> This report calculates records as requested. DWC Occurrence records are pre-calculated for <%= DwcOccurrence.where(project_id: sessions_current_project_id).count -%> records.  This report currently references collection objects only. <p>
-
-<p> <%= link_to("Download #{ DwcOccurrence.where(project_id: sessions_current_project_id).count} records", download_report_dwc_task_path, id: 'download_dwca') -%>.</p>
+<p> DwC Occurrence records are available for <%= DwcOccurrence.where(project_id: sessions_current_project_id).count -%> records.  This report currently references collection objects only. <p>
 
 <p><%= page_entries_info @collection_objects %></p> <%= paginate @collection_objects %> 
 

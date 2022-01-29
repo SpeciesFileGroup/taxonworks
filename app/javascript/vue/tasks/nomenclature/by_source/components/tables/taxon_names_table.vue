@@ -8,7 +8,6 @@
       <th @click="sortTable('citation_object.object_tag')">
         Name
       </th>
-      <th>Type</th>
       <th>Confidence</th>
       <th>Radial</th>
       <th>Delete</th>

@@ -14,7 +14,7 @@
 
   <tbody>
   <% @notes.each do |note| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
         <td><%= note.text %></td>
         <td><%= note.note_object_type %></td>
         <td><%= object_tag(note.note_object.metamorphosize) %></td>

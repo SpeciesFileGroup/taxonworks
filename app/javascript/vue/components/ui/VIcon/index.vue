@@ -75,7 +75,9 @@ export default {
   watch: {
     name: {
       handler () {
-        this.viewbox = this.getViewboxSize()
+        this.$nextTick(() => {
+          this.viewbox = this.getViewboxSize()
+        })
       }
     }
   },

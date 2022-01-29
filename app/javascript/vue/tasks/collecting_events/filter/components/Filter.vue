@@ -50,6 +50,7 @@
       />
       <filter-keywords
         class="margin-large-bottom"
+        target="CollectingEvent"
         v-model="params.keywords"
       />
       <users-component
@@ -73,7 +74,7 @@
 <script>
 
 import SpinnerComponent from 'components/spinner'
-import platformKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getPlatformKey.js'
 
 import FilterIdentifiers from 'tasks/collection_objects/filter/components/filters/identifier'
 import GeographicArea from 'tasks/collection_objects/filter/components/filters/geographic'

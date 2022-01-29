@@ -24,7 +24,7 @@ Object.assign(TW.workbench.keyboard, {
     this.keyShortcutElement = this.createTable()
     this.btnClose = this.keyShortcutElement.querySelector('.close')
     this.legendLink = this.keyShortcutElement.querySelector('.legend')
-    this.helpBackground = document.querySelector('.help-background-active')
+    this.helpBackground = document.querySelector('.help-background')
     this.keyShortcutsPanel = this.keyShortcutElement.querySelector('.panel')
 
     document.body.append(this.keyShortcutElement)
@@ -164,21 +164,25 @@ Object.assign(TW.workbench.keyboard, {
     sectionElement.append(this.addRowShortcut(shortcutKey, shortcutDescription))
   },
 
-  toggleViewPanel () {
-    this.keyShortcutsPanel.classList.toggle('active')
+  openViewPanel () {
+    this.keyShortcutsPanel.classList.add('active')
+  },
+
+  closeViewPanel () {
+    this.keyShortcutsPanel.classList.remove('active')
   },
 
   handleEvents () {
-    this.legendLink.addEventListener('click', this.toggleViewPanel.bind(this))
-    this.btnClose.addEventListener('click', this.toggleViewPanel.bind(this))
-    this.helpBackground.addEventListener('click', this.toggleViewPanel.bind(this))
+    this.legendLink.addEventListener('click', this.openViewPanel.bind(this))
+    this.btnClose.addEventListener('click', this.closeViewPanel.bind(this))
+    this.helpBackground.addEventListener('click', this.closeViewPanel.bind(this))
   }
 })
 
 document.addEventListener('turbolinks:load', () => {
   if (document.querySelectorAll('[data-shortcut-key]').length) {
     if (!document.querySelectorAll('[data-help]').length) {
-      TW.workbench.help.init_helpSystem()
+      TW.workbench.help.init()
     }
     TW.workbench.keyboard.init_keyShortcuts()
   }

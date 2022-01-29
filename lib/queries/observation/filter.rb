@@ -4,7 +4,16 @@ module Queries
     # !! does not inherit from base query
     class Filter 
 
-      attr_accessor :observation_object_global_id, :otu_id, :collection_object_id, :descriptor_id, :character_state_id, :type
+      attr_accessor :observation_object_global_id
+      attr_accessor :otu_id
+      attr_accessor :collection_object_id
+      attr_accessor :descriptor_id
+      attr_accessor :character_state_id
+      attr_accessor :type
+
+      # @return [Integer, nil]
+      #   not extended to Array yet
+      attr_accessor :observation_matrix_id
 
       def initialize(params)
         @otu_id = params[:otu_id]
@@ -14,7 +23,29 @@ module Queries
         @type = params[:type]
 
         @character_state_id = params[:character_state_id]
+
+        @observation_matrix_id = params[:observation_matrix_id]
       end
+
+      def observation_matrix_id_facet
+        return nil if observation_matrix_id.nil?
+        ::Observation.in_observation_matrix(observation_matrix_id)
+      end
+
+      def merge_clauses
+        clauses = [
+          observation_matrix_id_facet
+        ].compact
+
+        return nil if clauses.empty?
+
+        a = clauses.shift
+        clauses.each do |b|
+          a = a.merge(b)
+        end
+        a
+      end
+
 
       # @return [ActiveRecord::Relation]
       def and_clauses
@@ -90,12 +121,23 @@ module Queries
 
       # @return [ActiveRecord::Relation]
       def all
-        if a = and_clauses
-          ::Observation.where(and_clauses)
+        a = and_clauses
+        b = merge_clauses
+
+        q = nil
+        if a && b
+          q = b.where(a)
+        elsif a
+          q = ::Observation.where(a)
+        elsif b
+          q = b
         else
-          ::Observation.none
+          q = ::Observation.all
         end
+
+        q
       end
+
 
       # @return [Arel::Table]
       def table

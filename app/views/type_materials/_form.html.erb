@@ -1,3 +1,5 @@
+<p class="feedback feedback-warning"> A task is available, use <%= link_to('New type specimen', edit_type_material_task_path(taxon_name_id: @type_material.protonym_id)) -%>.</p>
+
 <%= form_for(@type_material) do |f| %>
   <%= render 'shared/errors', object: @type_material %>
 

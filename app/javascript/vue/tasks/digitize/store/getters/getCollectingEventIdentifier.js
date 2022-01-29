@@ -1,3 +1,1 @@
-export default function(state) {
-  return state.collectingEventIdentifier
-}
+export default state => state.collectingEventIdentifier

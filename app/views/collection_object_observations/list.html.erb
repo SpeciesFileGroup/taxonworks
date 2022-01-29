@@ -11,7 +11,7 @@
 
   <tbody>
     <% @collection_object_observations.each do |collection_object_observation| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
         <td><%= collection_object_observation.data %></td>
           <%= fancy_metadata_cells_tag(collection_object_observation) -%>
       <% end %>

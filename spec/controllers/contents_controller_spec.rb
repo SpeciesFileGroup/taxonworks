@@ -159,19 +159,5 @@ describe ContentsController, type: :controller do
     end
   end
 
-  describe 'DELETE destroy' do
-    it 'destroys the requested content' do
-      content = Content.create! valid_attributes
-      expect {
-        delete :destroy, params: {id: content.to_param}, session: valid_session
-      }.to change(Content, :count).by(-1)
-    end
-
-    it 'redirects to the contents list' do
-      content = Content.create! valid_attributes
-      delete :destroy, params: {id: content.to_param}, session: valid_session
-      expect(response).to redirect_to(contents_url)
-    end
-  end
-
+  include_examples 'DELETE #destroy', Content
 end

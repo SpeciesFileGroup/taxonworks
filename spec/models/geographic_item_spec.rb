@@ -154,7 +154,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
       }
 
       specify 'some data must be provided' do
-        expect(geographic_item.errors.keys).to include(:base)
+        expect(geographic_item.errors[:base]).to be_present
       end
 
       specify 'invalid data for point is invalid' do

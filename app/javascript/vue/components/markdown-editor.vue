@@ -16,7 +16,7 @@ import EasyMDE from 'easymde'
 import DOMPurify from 'dompurify'
 import 'easymde/dist/easymde.min.css'
 import CustomLinks from './markdown/customLinks.vue'
-import GetOSKey from 'helpers/getMacKey.js'
+import GetOSKey from 'helpers/getPlatformKey.js'
 
 export default {
   components: { CustomLinks },
@@ -54,6 +54,10 @@ export default {
     }
   },
 
+  created () {
+    TW.workbench.keyboard.createLegend(`${GetOSKey()}+shift+l`, 'Open data links modal', 'Markdown editor')
+  },
+
   mounted () {
     this.initialize()
   },
@@ -66,12 +70,11 @@ export default {
         },
         toolbar: ['bold', 'italic', 'code', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'link', 'table', 'preview', {
           name: 'width-auto',
-          action: (editor) => {
-            // this.openCustomLinks()
+          action: _ => {
+            this.openCustomLinks()
           },
-          icon: '<span class="word-keep-all subtle">Data links</span>',
-          title: 'Data links',
-          disable: true
+          icon: '<span class="word-keep-all">Data links</span>',
+          title: 'Data links'
         }]
       }
       Object.assign(configs, this.configs)
@@ -83,6 +86,7 @@ export default {
       this.addPreviewClass(className)
       this.bindingEvents()
     },
+
     bindingEvents () {
       this.simplemde.codemirror.on('change', () => {
         this.$emit('update:modelValue', this.simplemde.value())
@@ -107,6 +111,7 @@ export default {
         }, 300)
       })
     },
+
     addPreviewClass (className) {
       const wrapper = this.simplemde.codemirror.getWrapperElement()
       const preview = document.createElement('div')
@@ -114,15 +119,21 @@ export default {
       preview.className = `editor-preview ${className}`
       wrapper.appendChild(preview)
     },
+
     setCustomLink (item) {
       const cm = this.simplemde.codemirror
-      const output = ''
       const selectedText = cm.getSelection()
       const text = selectedText || item.label
+      const output = `[${text}](${item.link})`
 
-      output = `[${text}](${item.link})`
       cm.replaceSelection(output)
+
+      setTimeout(() => {
+        cm.focus()
+        cm.setCursor(cm.getCursor(false))
+      }, 100)
     },
+
     customShortcuts () {
       const codemirror = this.simplemde.codemirror
       const keys = codemirror.getOption('extraKeys')
@@ -132,13 +143,23 @@ export default {
       }
       codemirror.setOption('extraKeys', keys)
     },
+
     openCustomLinks () {
       this.showCustomLinks = true
+    },
+
+    setFocus () {
+      const codemirror = this.simplemde.codemirror
+
+      codemirror.focus()
+      codemirror.setCursor(codemirror.lineCount(), 0)
     }
   },
+
   unmounted () {
     this.simplemde = null
   },
+
   watch: {
     modelValue (val) {
       if (val === this.simplemde.value()) return

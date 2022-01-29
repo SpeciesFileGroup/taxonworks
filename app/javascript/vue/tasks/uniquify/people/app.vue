@@ -105,7 +105,9 @@
             <role-types
               v-model="params.base.role"/>
           </div>
-          <keywords-component v-model="params.base.keywords" />
+          <keywords-component
+            target="People"
+            v-model="params.base.keywords" />
           <users-component v-model="params.user"/>
         </div>
       </div>
@@ -285,7 +287,7 @@ export default {
       this.displayCount = true
       this.expandPeople = true
 
-      People.where(params).then(response => {
+      People.where({ ...params, extend: ['roles'] }).then(response => {
         this.foundPeople = response.body
         this.urlRequest = response.request.responseURL
         this.isLoading = false

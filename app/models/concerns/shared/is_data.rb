@@ -12,6 +12,9 @@ module Shared::IsData
     include Annotation
     include Scopes
     include Navigation
+    include Metamorphosize
+    include HasRoles
+    include Shared::Verifiers
   end
 
   module ClassMethods
@@ -19,6 +22,10 @@ module Shared::IsData
     # @return [Boolean]
     def is_community?
       self < Shared::SharedAcrossProjects ? true : false
+    end
+
+    def dwc_occurrence_eligible?
+      self < Shared::IsDwcOccurrence
     end
 
     # @return [Array] of strings of only the non-cached and non-housekeeping column names
@@ -106,8 +113,8 @@ module Shared::IsData
 
     self.class.reflect_on_all_associations(:has_one).each do |r|
       if is_community? # *this* object is community, others we don't care about
-        if o = t.send(r.name)
-          return false if o.respond_to(:project_id) && !p.include?(o.project)
+        if o = send(r.name)
+          return false if o.respond_to?(:project_id) && !p.include?(o.project)
         end
       end
     end

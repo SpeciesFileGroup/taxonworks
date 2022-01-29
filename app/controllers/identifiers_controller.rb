@@ -39,7 +39,7 @@ class IdentifiersController < ApplicationController
     respond_to do |format|
       if @identifier.save
         format.html { redirect_to url_for(@identifier.identifier_object.metamorphosize),
-                                  notice: 'Identifier was successfully created.' }
+                      notice: 'Identifier was successfully created.' }
         format.json { render action: 'show', status: :created, location: @identifier.becomes(Identifier) }
       else
         format.html { render 'new', notice: 'Identifier was NOT successfully created.' }
@@ -54,7 +54,7 @@ class IdentifiersController < ApplicationController
     respond_to do |format|
       if @identifier.update(identifier_params)
         format.html { redirect_to url_for(@identifier.identifier_object.metamorphosize),
-                                  notice: 'Identifier was successfully updated.' }
+                      notice: 'Identifier was successfully updated.' }
         format.json { render :show, status: :ok, location: @identifier.becomes(Identifier) }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Identifier was NOT successfully created.')}
@@ -88,7 +88,7 @@ class IdentifiersController < ApplicationController
 
   def autocomplete
     render json: {} and return if params[:term].blank?
-    @identifiers = Queries::Identifier::Autocomplete.new(params.require(:term), autocomplete_params).autocomplete
+    @identifiers = Queries::Identifier::Autocomplete.new(params.require(:term), **autocomplete_params).autocomplete
   end
 
   # GET /api/v1/identifiers
@@ -106,7 +106,7 @@ class IdentifiersController < ApplicationController
 
   def api_autocomplete
     render json: {} and return if params[:term].blank?
-    @identifiers = Queries::Identifier::Autocomplete.new(params.require(:term), autocomplete_params).autocomplete
+    @identifiers = Queries::Identifier::Autocomplete.new(params.require(:term), **autocomplete_params).autocomplete
     render '/identifiers/api/v1/autocomplete'
   end
 
@@ -143,7 +143,6 @@ class IdentifiersController < ApplicationController
     )
   end
 
-  # TODO: confirm identifier is needed
   def identifier_params
     params.require(:identifier).permit(
       :id, :identifier_object_id, :identifier_object_type, :identifier, :type, :namespace_id, :annotated_global_entity

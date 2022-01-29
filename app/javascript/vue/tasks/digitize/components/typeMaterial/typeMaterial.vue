@@ -39,26 +39,28 @@
             ref="smartSelector"
             model="taxon_names"
             klass="TypeMaterial"
+            target="TypeMaterial"
             :params="{ 'nomenclature_group[]': 'SpeciesGroup' }"
             :autocomplete-params="{ 'nomenclature_group[]': 'SpeciesGroup' }"
             pin-section="TaxonNames"
             pin-type="TaxonName"
             @selected="selectTaxon($event.id)"
           />
-          <div
-            class="horizontal-left-content"
-            v-if="taxonSelected">
-            <a
-              :href="`/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxon.id}`"
-              v-html="taxon.object_tag"
-            />
-            <button
-              type="button"
-              class="button circle-button btn-undo button-default"
-              @click="taxon = undefined"/>
-          </div>
+          <template v-if="taxonSelected">
+            <hr>
+            <div class="flex-separate middle">
+              <a
+                :href="`/tasks/nomenclature/new_taxon_name?taxon_name_id=${typeMaterial.taxon.id}`"
+                v-html="typeMaterial.taxon.object_tag"
+              />
+              <button
+                type="button"
+                class="button circle-button btn-undo button-default"
+                @click="typeMaterial.taxon = undefined"/>
+            </div>
+          </template>
         </fieldset>
-        <type-selector v-model="type"/>
+        <type-selector v-model="typeMaterial.type_type"/>
         <fieldset>
           <legend>Source</legend>
           <smart-selector
@@ -67,21 +69,24 @@
             klass="TypeMaterial"
             pin-section="Sources"
             pin-type="Source"
+            label="cached"
             @selected="selectSource"
           />
-          <div
-            v-if="sourceSelected"
-            class="horizontal-left-content margin-medium-top">
-            <span v-html="sourceSelected.object_tag"/>
-            <span
-              class="button circle-button btn-undo button-default"
-              @click="newCitation(); sourceSelected = undefined"/>
-          </div>
-          <input
-            class="margin-small-top"
-            type="text"
-            v-model="origin_citation_attributes.pages"
-            placeholder="Pages">
+          <template v-if="sourceSelected">
+            <hr>
+            <div
+              class="horizontal-left-content margin-medium-top">
+              <span v-html="sourceSelected.cached"/>
+              <span
+                class="button circle-button btn-undo button-default"
+                @click="newCitation(); sourceSelected = undefined"/>
+            </div>
+            <input
+              class="margin-small-top"
+              type="text"
+              v-model="origin_citation_attributes.pages"
+              placeholder="Pages">
+          </template>
         </fieldset>
       </div>
     </template>
@@ -99,7 +104,7 @@ import BlockLayout from 'components/layout/BlockLayout.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import VIcon from 'components/ui/VIcon/index'
-import platformKey from 'helpers/getMacKey'
+import platformKey from 'helpers/getPlatformKey'
 
 export default {
   components: {
@@ -126,15 +131,6 @@ export default {
       return otu?.taxon_name_id
     },
 
-    type: {
-      get () {
-        return this.$store.getters[GetterNames.GetTypeMaterial].type_type
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetTypeMaterialType, value)
-      }
-    },
-
     typeMaterial: {
       get () {
         return this.$store.getters[GetterNames.GetTypeMaterial]
@@ -148,27 +144,10 @@ export default {
       return this.$store.getters[GetterNames.GetTypeMaterials]
     },
 
-    taxon: {
-      get () {
-        return this.$store.getters[GetterNames.GetTypeMaterial].taxon
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetTypeMaterialTaxon, value)
-      }
-    },
-
     taxonSelected () {
-      return this.taxon
+      return this.typeMaterial.taxon
     },
 
-    citation: {
-      get () {
-        return this.$store.getters[GetterNames.GetTypeMaterial].origin_citation_attributes
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetTypeMaterialCitation, value)
-      }
-    },
     lastSave () {
       return this.$store.getters[GetterNames.GetLastSave]
     }
@@ -188,15 +167,13 @@ export default {
   watch: {
     origin_citation_attributes: {
       handler (newVal) {
-        this.citation = newVal
+        this.typeMaterial.origin_citation_attributes = newVal
       },
       deep: true
     },
 
-    lastSave (newVal) {
+    lastSave () {
       this.editMode = false
-      this.$refs.smartSelector.refresh()
-      this.$refs.sourceSmartSelector.refresh()
     }
   },
 
@@ -258,7 +235,7 @@ export default {
 
       this.typeMaterial.id = id
       this.selectTaxon(protonym_id)
-      this.type = type_type
+      this.typeMaterial.type_type = type_type
       this.editMode = true
     }
   }

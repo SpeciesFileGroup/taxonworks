@@ -52,8 +52,11 @@ export default {
   },
 
   watch: {
-    otusStore (newVal) {
-      this.$emit('update:modelValue', newVal.map(otu => otu.id))
+    otusStore: {
+      handler (newVal) {
+        this.$emit('update:modelValue', newVal.map(otu => otu.id))
+      },
+      deep: true
     }
   },
 

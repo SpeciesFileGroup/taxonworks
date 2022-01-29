@@ -4,9 +4,9 @@
       <%= content_tag(:div, link_to('Hub', hub_path, class: [:hub_link, (request.path == '/hub' ? :on_hub : nil)].compact), class: [:hub_circle, :hub_link_background]) -%>
 
       <% if request.path == '/' -%>
-        <%= content_tag(:h1, "Dashboard for " + user_tag(sessions_current_user), class: :hub_project_name) -%>
+        <%= content_tag(:h1, "Dashboard for " + user_tag(sessions_current_user), class: :hub_project_name, data: {project_id: sessions_current_project_id}) -%>
       <% else %>
-        <%= link_to(sessions_current_project.name, hub_path, class: :hub_project_name) if sessions_current_project -%>
+        <%= link_to(sessions_current_project.name, hub_path, class: :hub_project_name, data: { project_id: sessions_current_project_id }) if sessions_current_project -%>
       <% end %>
 
     </div>

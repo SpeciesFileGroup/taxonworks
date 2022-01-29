@@ -47,7 +47,7 @@ import { GetterNames } from '../store/getters/getters'
 import { Tippy } from 'vue-tippy'
 import NavbarComponent from 'components/layout/NavBar'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import platformKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getPlatformKey.js'
 
 export default {
   components: {

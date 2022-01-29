@@ -1,3 +1,4 @@
+import { AlternateValue } from './AlternateValue'
 import { AssertedDistribution } from './AssertedDistribution'
 import { Attribution } from './Attribution'
 import { BiocurationClassification } from './BiocurationClassification'
@@ -20,6 +21,7 @@ import { Descriptor } from './Descriptor'
 import { Document } from './Document'
 import { Documentation } from './Documentation'
 import { Download } from './Download'
+import { DwcOcurrence } from './DwcOcurrence'
 import { Extract } from './Extract'
 import { GeographicArea } from './GeographicArea'
 import { Georeference } from './Georeference'
@@ -58,8 +60,10 @@ import { TaxonNameRelationship } from './TaxonNameRelationships'
 import { Topic } from './Topic'
 import { TypeMaterial } from './TypeMaterial'
 import { User } from './User'
+export { Role } from './Role'
 
 export {
+  AlternateValue,
   AssertedDistribution,
   Attribution,
   BiocurationClassification,
@@ -82,6 +86,7 @@ export {
   Document,
   Documentation,
   Download,
+  DwcOcurrence,
   Extract,
   GeographicArea,
   Georeference,

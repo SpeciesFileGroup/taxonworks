@@ -30,6 +30,7 @@ end
 
 scope :graph, controller: :graph do
   get ':global_id/metadata', action: :metadata, defaults: {format: :json}
+  get ':global_id/object', action: :object, as: :object_graph, defaults: {format: :json}
 end
 
 resources :projects do
@@ -53,6 +54,7 @@ scope :administration, controller: :administration do
   get 'user_activity'
   get 'data_overview'
   get 'data_health'
+  get 'data_reindex'
 end
 
 resources :project_members, except: [:index] do
@@ -73,16 +75,13 @@ resources :pinboard_items, only: [:create, :destroy, :update] do
   end
 end
 
-# constraints subdomain: 's' do
-#   get '/:id' => "shortener/shortened_urls#show"
-# end
-
 scope :s do
   get ':id' => 'shortener/shortened_urls#show'
 end
 
 resources :users, except: :new do
   collection do
+    post 'batch_create'
     get :autocomplete, defaults: {format: :json}
   end
   member do

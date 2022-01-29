@@ -1,10 +1,17 @@
 module SourcesHelper
 
+  # TODO: extend with autocomplete-like extensions.
   def source_tag(source)
     return nil if source.nil?
     source.cached ? sanitize(source.cached, tags: ['i']).html_safe : (source.new_record? ? nil : 'ERROR - Source cache not set, please notify admin.')
   end
 
+  def label_for_source(source)
+    return nil if source.nil?
+    source_author_year_tag(source)
+  end
+
+  # TODO: Add language via language_id info
   def sources_autocomplete_tag(source, term)
     return nil if source.nil?
 
@@ -14,7 +21,8 @@ module SourcesHelper
       s = source.cached + ' '
     end
 
-    if source.respond_to?(:in_project_id) && source.in_project_id == sessions_current_project_id
+    # In project is the project_if if present in this project see lib/queries/source/autocomplete
+    if source.respond_to?(:in_project) && !source.in_project.nil?
       s += ' ' + content_tag(:span, 'in', class: [:feedback, 'feedback-primary', 'feedback-thin'])
       c = source.use_count
       s += ' ' + ( c > 0 ? content_tag(:span, "#{c.to_s}&nbsp;#{'citations'.pluralize(c)}".html_safe, class: [:feedback, 'feedback-secondary', 'feedback-thin']) : '' )

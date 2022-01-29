@@ -19,20 +19,23 @@
               :autocomplete="false"
               :otu-picker="true"
               target="TaxonDetermination"
+              v-model="otuSelected"
               @selected="setOtu"
             />
             <lock-component
               class="margin-small-left"
               v-model="locked.taxon_determination.otu_id"/>
           </div>
-          <div
-            v-show="otuSelected"
-            class="horizontal-left-content">
-            <p v-html="otuSelected"/>
-            <span
-              class="circle-button button-default btn-undo"
-              @click="otuId = undefined; otuSelected = undefined"/>
-          </div>
+          <template v-if="otuSelected">
+            <hr>
+            <div
+              class="horizontal-left-content">
+              <p v-html="otuSelected.object_tag"/>
+              <span
+                class="circle-button button-default btn-undo"
+                @click="taxonDetermination.otu_id = undefined; otuSelected = undefined"/>
+            </div>
+          </template>
         </fieldset>
         <fieldset>
           <legend>Determiner</legend>
@@ -47,6 +50,7 @@
                 roles: ['Determiner']
               }"
               :autocomplete="false"
+              label="cached"
               @onTabSelected="view = $event"
               @selected="addRole">
               <template #header>
@@ -56,92 +60,95 @@
                   hidden-list
                   ref="rolepicker"
                   role-type="Determiner"
-                  v-model="roles"/>
+                  v-model="taxonDetermination.roles_attributes"/>
               </template>
               <role-picker
                 class="role-picker"
                 :autofocus="false"
                 :create-form="false"
                 role-type="Determiner"
-                v-model="roles"/>
+                v-model="taxonDetermination.roles_attributes"/>
             </smart-selector>
             <lock-component
               class="margin-small-left"
               v-model="locked.taxon_determination.roles_attributes"/>
           </div>
         </fieldset>
-        <div class="horizontal-left-content date-fields separate-bottom separate-top">
-          <div class="separate-left">
-            <label>Day</label>
-            <input
-              type="number"
-              v-model="day">
-          </div>
-          <div class="separate-right separate-left">
-            <label>Month</label>
-            <input
-              type="number"
-              v-model="month">
-          </div>
-          <div class="separate-right">
-            <label>Year</label>
-            <input
-              type="number"
-              v-model="year">
-          </div>
-          <div>
-            <label>&nbsp</label>
-            <div class="align-start">
-              <button
-                type="button"
-                class="button normal-input button-default separate-left separate-right"
-                @click="setActualDate">
-                Now
-              </button>
-              <lock-component v-model="locked.taxon_determination.dates"/>
-            </div>
-          </div>
+        <div class="horizontal-left-content date-fields separate-bottom separate-top align-end">
+          <date-fields
+            v-model:year="taxonDetermination.year_made"
+            v-model:month="taxonDetermination.month_made"
+            v-model:day="taxonDetermination.day_made"
+          />
+          <button
+            type="button"
+            class="button normal-input button-default separate-left separate-right"
+            @click="setActualDate">
+            Now
+          </button>
+          <lock-component v-model="locked.taxon_determination.dates"/>
         </div>
-        <button
-          type="button"
-          id="determination-add-button"
-          :disabled="!otuId"
-          class="button normal-input button-submit separate-top"
-          @click="addDetermination">
-          {{ taxonDetermination.id ? 'Set' : 'Add' }}
-        </button>
-        <draggable
-          class="table-entrys-list"
-          tag="ul"
-          :item-key="item => item"
-          v-model="list"
-          @end="updatePosition">
-          <template #item="{ element }">
-            <li
-              class="list-complete-item flex-separate middle">
-              <a
-                v-if="element.id"
-                v-html="element.object_tag"
-                :href="openBrowseOtu(element.otu_id)"/>
-              <span
-                v-else
-                v-html="element.object_tag"/>
-              <div class="horizontal-left-content">
-                <span
-                  v-if="element.id"
-                  @click="editTaxonDetermination(element)"
-                  class="button circle-button btn-edit"/>
-                <radial-annotator
-                  v-if="element.global_id"
-                  :global-id="element.global_id"/>
-                <span
-                  class="circle-button btn-delete"
-                  :class="{ 'button-default': !element.id }"
-                  @click="removeTaxonDetermination(element)"/>
-              </div>
-            </li>
-          </template>
-        </draggable>
+        <div class="margin-small-bottom">
+          <button
+            type="button"
+            id="determination-add-button"
+            :disabled="!taxonDetermination.otu_id"
+            class="button normal-input button-submit"
+            @click="addDetermination">
+            {{ taxonDetermination.id ? 'Set' : 'Add' }}
+          </button>
+        </div>
+        <table class="vue-table">
+          <thead>
+            <tr>
+              <th>
+                Determination
+              </th>
+              <th>
+                <div class="horizontal-right-content">
+                  <lock-component
+                    class="margin-small-left"
+                    v-model="locked.taxonDeterminations"/>
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <draggable
+            class="table-entrys-list"
+            tag="tbody"
+            :item-key="item => item"
+            v-model="list"
+            @end="updatePosition">
+            <template #item="{ element }">
+              <tr>
+                <td>
+                  <a
+                    v-if="element.id"
+                    v-html="element.object_tag"
+                    :href="openBrowseOtu(element.otu_id)"/>
+                  <span
+                    v-else
+                    v-html="element.object_tag"/>
+                </td>
+                <td>
+                  <div class="horizontal-right-content">
+                    <span
+                      v-if="element.id"
+                      @click="editTaxonDetermination(element)"
+                      class="button circle-button btn-edit"/>
+                    <radial-annotator
+                      v-if="element.global_id"
+                      :global-id="element.global_id"/>
+                    <span
+                      class="circle-button btn-delete"
+                      :class="{ 'button-default': !element.id }"
+                      @click="removeTaxonDetermination(element)"/>
+                  </div>
+                </td>
+              </tr>
+            </template>
+          </draggable>
+        </table>
       </div>
     </template>
   </block-layout>
@@ -154,14 +161,17 @@ import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions'
 import { Otu, TaxonName } from 'routes/endpoints'
 import { RouteNames } from 'routes/routes'
+import { ROLE_DETERMINER } from 'constants/index.js'
+import { findRole } from 'helpers/people/people.js'
 
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import RolePicker from 'components/role_picker.vue'
 import BlockLayout from 'components/layout/BlockLayout.vue'
-import CreatePerson from '../../helpers/createPerson.js'
+import makePerson from 'factory/Person.js'
 import LockComponent from 'components/ui/VLock/index.vue'
 import Draggable from 'vuedraggable'
 import RadialAnnotator from 'components/radials/annotator/annotator'
+import DateFields from 'components/ui/Date/DateFields.vue'
 
 export default {
   components: {
@@ -170,11 +180,12 @@ export default {
     BlockLayout,
     LockComponent,
     Draggable,
-    RadialAnnotator
+    RadialAnnotator,
+    DateFields
   },
 
   computed: {
-    collectionObject() {
+    collectionObject () {
       return this.$store.getters[GetterNames.GetCollectionObject]
     },
 
@@ -200,54 +211,13 @@ export default {
       get () {
         return this.$store.getters[GetterNames.GetLocked]
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetLocked, value)
       }
     },
 
-    otuId: {
-      get () {
-        return this.$store.getters[GetterNames.GetTaxonDetermination].otu_id
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetTaxonDeterminationOtuId, value)
-      }
-    },
-
-    day: {
-      get () {
-        return this.$store.getters[GetterNames.GetTaxonDetermination].day_made
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetTaxonDeterminationDay, value)
-      }
-    },
-
-    month: {
-      get () {
-        return this.$store.getters[GetterNames.GetTaxonDetermination].month_made
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetTaxonDeterminationMonth, value)
-      }
-    },
-
-    year: {
-      get () {
-        return this.$store.getters[GetterNames.GetTaxonDetermination].year_made
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetTaxonDeterminationYear, value)
-      }
-    },
-
-    roles: {
-      get () {
-        return this.$store.getters[GetterNames.GetTaxonDetermination].roles_attributes
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetTaxonDeterminationRoles, value)
-      }
+    otuId () {
+      return this.$store.getters[GetterNames.GetTaxonDetermination].otu_id
     },
 
     list: {
@@ -257,10 +227,6 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetTaxonDeterminations, value)
       }
-    },
-
-    lastSave () {
-      return this.$store.getters[GetterNames.GetLastSave]
     }
   },
 
@@ -272,26 +238,20 @@ export default {
   },
 
   watch: {
-    collectionObject (newVal) {
+    collectionObject () {
       this.$refs.rolepicker.reset()
     },
 
     otuId (newVal) {
       if (newVal) {
         Otu.find(newVal).then(response => {
-          this.otuSelected = response.body.object_tag
+          this.otuSelected = response.body
           this.otu = response.body
         })
-      }
-      else {
+      } else {
         this.otu = undefined
         this.otuSelected = undefined
       }
-    },
-
-    lastSave (newVal) {
-      this.$refs.smartSelector.refresh()
-      this.$refs.determinerSmartSelector.refresh()
     }
   },
 
@@ -301,7 +261,7 @@ export default {
     const taxonId = urlParams.get('taxon_name_id')
 
     if (/^\d+$/.test(otuId)) {
-      this.otuId = otuId
+      this.taxonDetermination.otu_id = otuId
     }
     if (/^\d+$/.test(taxonId)) {
       TaxonName.otus(taxonId).then(response => {
@@ -321,13 +281,15 @@ export default {
   },
 
   methods: {
-    roleExist (id) {
-      return !!this.roles.find((role) => !role.hasOwnProperty('_destroy') && role.person_id === id)
-    },
-
     addRole (role) {
-      if (!this.roleExist(role.id)) {
-        this.roles.push(CreatePerson(role, 'Determiner'))
+      if (!findRole(this.taxonDetermination.roles_attributes, role.id)) {
+        this.taxonDetermination.roles_attributes.push(
+          makePerson(
+            role.first_name,
+            role.last_name,
+            role.id,
+            ROLE_DETERMINER
+          ))
       }
     },
 
@@ -336,9 +298,9 @@ export default {
     },
 
     addDetermination () {
-      if (!this.taxonDetermination.id && this.list.find(determination => determination.otu_id === this.taxonDetermination.otu_id && (determination.year_made === this.year))) { return }
+      if (!this.taxonDetermination.id && this.list.find(determination => determination.otu_id === this.taxonDetermination.otu_id && determination.year_made === this.year)) { return }
 
-      this.taxonDetermination.object_tag = `${this.otuSelected} ${this.authorsString()} ${this.dateString()}`
+      this.taxonDetermination.object_tag = `${this.otuSelected.object_tag} ${this.authorsString()} ${this.dateString()}`
       this.$store.commit(MutationNames.AddTaxonDetermination, this.taxonDetermination)
       this.$store.commit(MutationNames.NewTaxonDetermination)
     },
@@ -349,9 +311,9 @@ export default {
 
     setActualDate () {
       const today = new Date()
-      this.day = today.getDate()
-      this.month = today.getMonth() + 1
-      this.year = today.getFullYear()
+      this.taxonDetermination.day_made = today.getDate()
+      this.taxonDetermination.month_made = today.getMonth() + 1
+      this.taxonDetermination.year_made = today.getFullYear()
     },
 
     updatePosition () {
@@ -361,8 +323,7 @@ export default {
     },
 
     setOtu (otu) {
-      this.otuId = otu.id
-      this.otuSelected = otu.object_tag
+      this.taxonDetermination.otu_id = otu.id
     },
 
     editTaxonDetermination (item) {
@@ -403,11 +364,6 @@ export default {
     }
     li label {
       display: inline;
-    }
-    .date-fields {
-      input {
-        max-width: 80px;
-      }
     }
     .role-picker {
       .vue-autocomplete-input {

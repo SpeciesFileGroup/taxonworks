@@ -5,7 +5,6 @@ class TagsController < ApplicationController
 
   before_action :set_tag, only: [:update, :destroy]
   after_action -> { set_pagination_headers(:tags) }, only: [:index, :api_index ], if: :json_request?
-
   # GET /tags
   # GET /tags.json
   def index
@@ -75,11 +74,15 @@ class TagsController < ApplicationController
   # DELETE /tags/1
   # DELETE /tags/1.json
   def destroy
-    @tag.destroy!
+    @tag.destroy
     respond_to do |format|
-      # TODO: probably needs to be changed with new annotator
-      format.html { destroy_redirect @tag, notice: 'Tag was successfully destroyed.' }
-      format.json { head :no_content }
+      if @tag.destroyed?
+        format.html { destroy_redirect @tag, notice: 'Tag was successfully destroyed.' }
+        format.json { head :no_content}
+      else
+        format.html { destroy_redirect @tag, notice: 'Tag was not destroyed, ' + @tag.errors.full_messages.join('; ') }
+        format.json { render json: @tag.errors, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -115,7 +118,7 @@ class TagsController < ApplicationController
   # POST /tags/batch_create.json?keyword_id=123&object_type=CollectionObject&object_ids[]=123
   def batch_create
     if Tag.batch_create(
-        params.permit(:keyword_id, :object_type, object_ids: []).to_h.merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).symbolize_keys
+        **params.permit(:keyword_id, :object_type, object_ids: []).to_h.merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).symbolize_keys
     )
       render json: {success: true}
     else
@@ -132,7 +135,7 @@ class TagsController < ApplicationController
   def tag_params
     params.require(:tag).permit(
       :keyword_id, :tag_object_id, :tag_object_type, :tag_object_attribute, :annotated_global_entity, :_destroy,
-      keyword_attributes: [:name, :definition, :uri, :uri_relation, :css_color]
+      :target, keyword_attributes: [:name, :definition, :uri, :uri_relation, :css_color]
     )
   end
 

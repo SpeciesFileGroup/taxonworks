@@ -9,125 +9,217 @@ Example:
 
 */
 
-var TW = TW || {};
-TW.workbench = TW.workbench || {};
-TW.workbench.help = TW.workbench.help || {};
+var TW = TW || {}
+TW.workbench = TW.workbench || {}
+TW.workbench.help = TW.workbench.help || {}
 
 Object.assign(TW.workbench.help, {
 
-	init_helpSystem: function () {
-		firstClick = true;
-		helpLoaded = false,
+  init () {
+    const helpAttributes = document.querySelectorAll('[data-help]')
 
-		$('body').append('<div class="help-legend"></div>');
-		$('body').append('<div class="help-background-active"></div>');
-		$('body').append('<div class="help-button"><div class="help-button-description">Help</div></div>');
-		if ($("[data-help]").length) {
-			$('.help-button').addClass("help-button-present");
-		}
+    this.removeElements()
+    this.createElements()
 
-		$(document).off('mouseenter, mouseleave', '.help-bubble-tip');
+    if (helpAttributes.length) {
+      this.glowHelpButton()
+    }
 
-		$(document).on({
-			mouseenter: function (evt) {
-				if (TW.workbench.help.helpActive()) {
-					var
-						position = $(this).offset();
+    Mousetrap.bind('alt+shift+/', () => { this.toggleHelp() })
+    this.elementButton.addEventListener('click', () => { this.toggleHelp() })
+    this.elementBackground.addEventListener('click', () => { this.toggleHelp() })
+  },
 
-					$('.help-legend').empty();
-					$('.help-legend').css("left", position.left + "px");
-					$('.help-legend').css("top", (position.top + $(this).height()) + "px");
-					$('.help-legend').show(100);
-					$('.help-legend').append('<span>' + $(this).parent().attr("data-help") + '</span>');
-					TW.workbench.help.hideAllExcept($(this).attr("data-bubble-id"));
-				}
-			},
-			mouseleave: function () {
-				$('.help-legend').empty();
-				$('.help-legend').hide(100);
-				TW.workbench.help.showAll('.help-bubble-tip');
-			}
-		}, ".help-bubble-tip");
+  getHeight (element) {
+    return parseFloat(getComputedStyle(element, null).height.replace('px', ''))
+  },
 
-		Mousetrap.bind("alt+shift+/", function () {
-			TW.workbench.help.activeDisableHelp();
-		});
+  getWidth (element) {
+    return parseFloat(getComputedStyle(element, null).width.replace('px', ''))
+  },
 
+  getOffset (element) {
+    const rect = element.getBoundingClientRect()
 
-		$(".help-button").on('click', function () {
-			TW.workbench.help.activeDisableHelp();
-		});
+    return {
+      top: rect.top + window.scrollY,
+      left: rect.left + window.scrollX
+    }
+  },
 
-		$(".help-background-active").on('click', function () {
-			TW.workbench.help.activeDisableHelp();
-		});
-	},
+  glowHelpButton () {
+    document.querySelector('.help-button').classList.add('help-button-present')
+  },
 
-	discoverDataHelp: function () {
+  attachMouseEvent (bubbleElement) {
+    bubbleElement.addEventListener('mouseenter', event => {
+      const elementLegend = document.querySelector('.help-legend')
+      const element = event.target
+      const position = this.getOffset(element)
 
-	},
+      this.elementLegend.textContent = ''
+      this.elementLegend.style.top = `${(position.top + this.getHeight(element))}px`
+      this.elementLegend.style.maxWidth = ''
+      this.elementLegend.classList.add('help-legend__active')
 
-	addBubbleTips: function (className) {
-		$(className).each(function (i) {
-			if (!$(this).attr('help-discovered')) {
-				$(this).append('<div class="help-bubble-tip" data-bubble-id="' + (i) + '">' + (i + 1) + '</div>');
-				$(this).attr('help-discovered', true);
-			}
-		});
-	},
+      this.elementLegend.innerHTML = element.parentElement.getAttribute('data-help')
 
-	activeDisableHelp: function () {
+      const containerLegend = this.getWidth(elementLegend)
+      const distanceRight = window.innerWidth - position.left
 
-		if (firstClick) {
-			TW.workbench.help.addBubbleTips('[data-help]');
-			firstClick = false;
-		}
-		if (!TW.workbench.help.helpActive()) {
-			TW.workbench.help.addBubbleTips('[data-help]');
-			$('.help-background-active').fadeIn(100);
-			$('.help-bubble-tip').show(100);
-			$('.help-button').addClass('help-button-active');
-			$('.help-legend').empty();
-			$('[data-help]').each(function() {
-				$(this).addClass('help-tip');
-			});
-		}
-		else {
-			$('.help-background-active').fadeOut(100);
-			$('.help-bubble-tip').hide();
-			$('.help-button').removeClass('help-button-active');
-			$('.help-legend').hide(250);
-			$('[data-help]').each(function() {
-				$(this).removeClass('help-tip');
-			});
-		}
-	},
+      if (containerLegend > distanceRight) {
+        this.elementLegend.classList.add('tooltip-help-legend-right')
+        this.elementLegend.classList.remove('tooltip-help-legend-left')
 
-	helpActive: function () {
-		if ($('.help-background-active').css('display') === "none") {
-			return false;
-		}
-		else {
-			return true;
-		}
-	},
+        this.elementLegend.style.left = ''
+        this.elementLegend.style.right = distanceRight - this.getWidth(element) + 'px'
+        this.elementLegend.style.maxWidth = window.innerWidth - distanceRight + 'px'
+      } else {
+        this.elementLegend.classList.remove('tooltip-help-legend-right')
+        this.elementLegend.classList.add('tooltip-help-legend-left')
+        this.elementLegend.style.left = position.left + 'px'
+        this.elementLegend.style.right = ''
+      }
 
-	hideAllExcept: function (value) {
-		$('.help-bubble-tip').each(function (i) {
-			if ($(this).attr('data-bubble-id') != value) {
-				$(this).fadeOut(250);
-			}
-		})
-	},
+      this.hideAllExcept(element.getAttribute('data-bubble-id'))
+    })
 
-	showAll: function (className) {
-		$(className).fadeIn(250);
-	},
+    bubbleElement.addEventListener('mouseleave', event => {
+      const element = event.target
 
-});
+      if (element.classList.contains('help-bubble-tip')) {
+        this.elementLegend.textContent = ''
+        this.elementLegend.classList.remove('help-legend__active')
+        this.elementLegend.style.maxWidth = ''
+        this.showAll('.help-bubble-tip')
+      }
+    })
+  },
 
-$(document).on('turbolinks:load', function () {
-	if ($("[data-help]").length) {
-		TW.workbench.help.init_helpSystem();
-	}
-});
+  createElements () {
+    this.elementLegend = document.createElement('div')
+    this.elementBackground = document.createElement('div')
+    this.elementButton = document.createElement('div')
+    this.elementDescription = document.createElement('div')
+
+    this.elementLegend.classList.add('help-legend')
+    this.elementBackground.classList.add('help-background')
+    this.elementButton.classList.add('help-button')
+    this.elementDescription.classList.add('help-button-description')
+    this.elementDescription.textContent = 'Help'
+
+    this.elementButton.append(this.elementDescription)
+
+    document.body.append(
+      this.elementLegend,
+      this.elementBackground,
+      this.elementButton
+    )
+  },
+
+  removeElements () {
+    const selectors = [
+      '.help-bubble-tip',
+      '.help-background',
+      '.help-button',
+      '.help-legend'
+    ]
+
+    selectors.forEach(selector => { this.removeAllElements(selector) })
+  },
+
+  addBubbleTips (selector) {
+    [...document.querySelectorAll(selector)].forEach((el, i) => {
+      const bubbleCreated = el.querySelector('.help-bubble-tip')
+
+      if (!bubbleCreated) {
+        el.append(this.createBubble(i + 1))
+      } else {
+        this.attachMouseEvent(bubbleCreated)
+      }
+    })
+  },
+
+  createBubble (index) {
+    const bubbleElement = document.createElement('div')
+
+    bubbleElement.classList.add('help-bubble-tip')
+    bubbleElement.setAttribute('data-bubble-id', index)
+    bubbleElement.textContent = index
+
+    this.attachMouseEvent(bubbleElement)
+
+    return bubbleElement
+  },
+
+  toggleHelp () {
+    if (this.isActive()) {
+      this.disableHelp()
+    } else {
+      this.activateHelp()
+    }
+  },
+
+  removeAllElements (selector) {
+    const bubbleEements = document.querySelectorAll(selector)
+
+    bubbleEements.forEach(el => { el.remove() })
+  },
+
+  activateHelp () {
+    const helpElements = document.querySelectorAll('[data-help]')
+
+    this.addBubbleTips('[data-help]')
+
+    this.elementBackground.classList.add('help-background__active')
+    this.elementButton.classList.add('help-button-active')
+    this.elementLegend.textContent = ''
+
+    helpElements.forEach(element => {
+      element.classList.add('help-tip')
+    })
+
+    this.showAll('.help-bubble-tip')
+  },
+
+  disableHelp () {
+    const helpElements = document.querySelectorAll('[data-help]')
+    this.elementBackground.classList.remove('help-background__active')
+    this.elementButton.classList.remove('help-button-active')
+    this.elementLegend.classList.remove('.help-legend__active')
+
+    helpElements.forEach(element => {
+      element.classList.remove('help-tip')
+    })
+
+    this.removeAllElements('.help-bubble-tip')
+  },
+
+  isActive () {
+    return this.elementBackground.classList.contains('help-background__active')
+  },
+
+  hideAllExcept (value) {
+    const bubbleElements = [...document.querySelectorAll('.help-bubble-tip')]
+
+    bubbleElements.forEach(element => {
+      if (element.getAttribute('data-bubble-id') !== value) {
+        element.classList.remove('help-bubble-tip__active')
+      }
+    })
+  },
+
+  showAll (className) {
+    const bubbleElements = [...document.querySelectorAll(className)]
+
+    bubbleElements.forEach(element => {
+      element.classList.add('help-bubble-tip__active')
+    })
+  }
+})
+
+document.addEventListener('turbolinks:load', function () {
+  if (document.querySelectorAll('[data-help]').length) {
+    TW.workbench.help.init()
+  }
+})

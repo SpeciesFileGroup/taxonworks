@@ -1,3 +1,4 @@
+require 'queries/collecting_event/filter'
 module Queries
   module CollectionObject
 
@@ -57,6 +58,10 @@ module Queries
       attr_accessor :never_loaned
 
       # @return [Array]
+      #   an array of loan_ids, all collection objects inside them will be included
+      attr_accessor :loan_id
+
+      # @return [Array]
       #   of biocuration_class ids
       attr_accessor :biocuration_class_ids
 
@@ -108,6 +113,8 @@ module Queries
       # @return [Boolen, nil]
       attr_accessor :recent
 
+      attr_accessor :object_global_id
+
       # @return [True, False, nil]
       #   true - has repository_id
       #   false - does not have repository_id
@@ -157,7 +164,7 @@ module Queries
       attr_accessor :buffered_other_labels
 
       # See Queries::CollectingEvent::Filter
-      attr_accessor :collector_ids
+      attr_accessor :collector_id
       attr_accessor :collector_ids_or
 
       # @return [True, False, nil]
@@ -184,9 +191,9 @@ module Queries
 
         # Only CollectingEvent fields are permitted now.
         # (Perhaps) TODO: allow concern attributes nested inside as well, e.g. show me all COs with this Tag on CE.
-        collecting_event_params = Queries::CollectingEvent::Filter::ATTRIBUTES + Queries::CollectingEvent::Filter::PARAMS
+        collecting_event_params = ::Queries::CollectingEvent::Filter::ATTRIBUTES + ::Queries::CollectingEvent::Filter::PARAMS
 
-        @collecting_event_query = Queries::CollectingEvent::Filter.new(
+        @collecting_event_query = ::Queries::CollectingEvent::Filter.new(
           params.select{|a,b| collecting_event_params.include?(a.to_s) }
         )
 
@@ -212,7 +219,9 @@ module Queries
         @is_type = params[:is_type] || []
         @loaned = boolean_param(params, :loaned)
         @never_loaned = boolean_param(params, :never_loaned)
+        @object_global_id = params[:object_global_id]
         @on_loan =  boolean_param(params, :on_loan)
+        @loan_id = params[:loan_id]
         @otu_descendants = boolean_param(params, :otu_descendants)
         @otu_ids = params[:otu_ids] || []
         @preparation_type_id = params[:preparation_type_id]
@@ -275,6 +284,10 @@ module Queries
         [@preparation_type_id].flatten.compact
       end
 
+      def loan_id
+        [@loan_id].flatten.compact
+      end
+
       def taxon_determinations_facet
         return nil if taxon_determinations.nil?
 
@@ -291,13 +304,15 @@ module Queries
       # See Queries::ColletingEvent::Filter for other use
       def determiner_facet
         return nil if determiner_id.empty?
+        tt = table
+
         o = ::TaxonDetermination.arel_table
         r = ::Role.arel_table
 
-        a = o.alias("a_")
+        a = o.alias("a_det__")
         b = o.project(a[Arel.star]).from(a)
 
-        c = r.alias('r1')
+        c = r.alias('det_r1')
 
         b = b.join(c, Arel::Nodes::OuterJoin)
           .on(
@@ -312,9 +327,10 @@ module Queries
         b = b.where(e.and(f))
         b = b.group(a['id'])
         b = b.having(a['id'].count.eq(determiner_id.length)) unless determiner_id_or
+
         b = b.as('det_z1_')
 
-        ::CollectionObject.joins(:taxon_determinations).joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
+        ::CollectionObject.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['biological_collection_object_id'].eq(tt['id']))))
       end
 
       def georeferences_facet
@@ -325,6 +341,19 @@ module Queries
           ::CollectionObject.left_outer_joins(:georeferences)
             .where(georeferences: {id: nil})
             .distinct
+        end
+      end
+
+      def object_global_id_facet
+        return nil if object_global_id.nil?
+
+        if o = GlobalID::Locator.locate(object_global_id)
+          k = o.class.name
+          id = o.id
+
+          table[:id].eq(id).and(table[:type].eq(k))
+        else
+          nil
         end
       end
 
@@ -389,6 +418,11 @@ module Queries
       def biocuration_facet
         return nil if biocuration_class_ids.empty?
         ::CollectionObject::BiologicalCollectionObject.joins(:biocuration_classifications).where(biocuration_classifications: {biocuration_class_id: biocuration_class_ids})
+      end
+
+      def loan_facet
+        return nil if loan_id.empty?
+        ::CollectionObject::BiologicalCollectionObject.joins(:loans).where(loans: {id: loan_id})
       end
 
       def type_facet
@@ -500,7 +534,8 @@ module Queries
           collecting_event_ids_facet,
           preparation_type_id_facet,
           type_facet,
-          repository_id_facet
+          repository_id_facet,
+          object_global_id_facet
         ]
         clauses.compact!
         clauses
@@ -538,6 +573,7 @@ module Queries
           biocuration_facet,
           biological_relationship_ids_facet,
           sled_image_facet,
+          loan_facet,
           depictions_facet,
         ]
 
@@ -571,6 +607,7 @@ module Queries
           q = ::CollectionObject.all
         end
 
+        # TODO: needs to go, orders mess with chaining.
         q = q.order(updated_at: :desc) if recent
         q
       end
@@ -602,10 +639,10 @@ module Queries
       def type_material_facet
         return nil if type_material.nil?
         if type_material
-          ::CollectionObject.joins(:type_designations).distinct
+          ::CollectionObject.joins(:type_materials).distinct
         else
-          ::CollectionObject.left_outer_joins(:type_designations)
-            .where(type_material: {id: nil})
+          ::CollectionObject.left_outer_joins(:type_materials)
+            .where(type_materials: {id: nil})
             .distinct
         end
       end
@@ -660,7 +697,6 @@ module Queries
         ::CollectionObject.joins(q.join_sources).where(z)
       end
 
-
       # TODO: is this used?
       # @return [Scope]
       #  def geographic_area_scope
@@ -674,8 +710,6 @@ module Queries
       #    ::CollectionObject.joins(:geographic_items)
       #      .where(::GeographicItem.contained_by_where_sql(target_geographic_item_ids))
       #  end
-
-
     end
 
   end

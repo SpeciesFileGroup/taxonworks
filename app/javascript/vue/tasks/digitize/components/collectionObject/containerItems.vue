@@ -21,7 +21,7 @@ import TableCollectionObjects from '../collectionObject/tableCollectionObjects'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions'
-import platformKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getPlatformKey.js'
 
 export default {
   components: { TableCollectionObjects },
@@ -30,9 +30,11 @@ export default {
     collectionObject () {
       return this.$store.getters[GetterNames.GetCollectionObject]
     },
+
     collectionObjects () {
       return this.$store.getters[GetterNames.GetCollectionObjects]
     },
+
     shortcuts () {
       const keys = {}
 
@@ -49,6 +51,7 @@ export default {
       this.$store.commit(MutationNames.NewTaxonDetermination)
       this.$store.commit(MutationNames.SetTaxonDeterminations, [])
     },
+
     addToContainer () {
       if (!this.collectionObjects.length) return
       this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {

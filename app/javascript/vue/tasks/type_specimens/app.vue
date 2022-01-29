@@ -44,7 +44,7 @@ import typeMaterialSection from './components/typeMaterial.vue'
 import metadataSection from './components/metadataSection.vue'
 import typeBox from './components/typeBox.vue'
 import spinner from 'components/spinner.vue'
-import platformKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getPlatformKey.js'
 import setParamsId from 'helpers/setParam.js'
 
 import ActionNames from './store/actions/actionNames'

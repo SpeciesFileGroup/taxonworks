@@ -82,7 +82,7 @@ export const CollectingEvent = {
 
   attributes: () => AjaxCall('get', `/${controller}/attributes`),
 
-  clone: (id) => AjaxCall('post', `/${controller}/${id}/clone`),
+  clone: (id, params) => AjaxCall('post', `/${controller}/${id}/clone`, params),
 
   navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`),
 

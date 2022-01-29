@@ -12,7 +12,7 @@
 
   <tbody>
   <% @depictions.each do |depiction| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= object_tag(depiction.depiction_object.metamorphosize) %></td>
           <td><%= depiction_tag(depiction, size: :thumb) %></td>
           <%= fancy_metadata_cells_tag(depiction) -%>

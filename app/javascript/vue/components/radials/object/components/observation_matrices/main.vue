@@ -121,7 +121,7 @@ export default {
   mounted () {
     this.loading = true
     this.show = true
-    ObservationMatrix.all().then(response => {
+    ObservationMatrix.all({ per: 500 }).then(response => {
       this.matrices = response.body.sort((a, b) => {
         const compareA = a.object_tag
         const compareB = b.object_tag

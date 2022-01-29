@@ -1,3 +1,1 @@
-export default function(state) {
-  return state.preferences
-}
+export default state => state.preferences

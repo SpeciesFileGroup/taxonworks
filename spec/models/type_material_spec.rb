@@ -33,7 +33,7 @@ describe TypeMaterial, type: :model, group: :nomenclature do
       }
 
       specify 'protonym_id' do
-        expect(validated_type_material.errors.include?(:protonym_id)).to be_truthy
+        expect(validated_type_material.errors.include?(:protonym)).to be_truthy
       end
 
       specify 'collection_object' do

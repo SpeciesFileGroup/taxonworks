@@ -31,7 +31,8 @@
     <p> Estimate. If sequential requests are less than 5 minutes appart time between requests is summed to total. <p>
     <ol>
       <% User.limit(20).order(time_active: :desc).where('time_active IS NOT NULL').each do |u| -%>
-        <li> <%= user_link(u) %> <%= distance_of_time_in_words(u.time_active) -%> </li> 
+        <li> <%= user_link(u) %> <%= distance_of_time_in_words(u.time_active) -%>
+          or <%= (u.time_active.to_f / 3600.to_f || 0).round(0) -%> hours</li>
       <% end %> 
     </ol>
   </div>

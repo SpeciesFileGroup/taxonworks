@@ -45,7 +45,7 @@
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 import ModalComponent from 'components/ui/Modal.vue'
-import platformKey from 'helpers/getMacKey'
+import platformKey from 'helpers/getPlatformKey'
 
 export default {
   components: {

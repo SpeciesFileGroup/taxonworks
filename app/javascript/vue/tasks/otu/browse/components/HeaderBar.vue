@@ -82,7 +82,7 @@ import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial.vue'
 import QuickForms from 'components/radials/object/radial.vue'
 import BrowseTaxon from 'components/taxon_names/browseTaxon.vue'
-import platformKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getPlatformKey.js'
 import ShowForThisGroup from 'tasks/nomenclature/new_taxon_name/helpers/showForThisGroup.js'
 import componentNames from '../const/componentNames.js'
 import { GetterNames } from '../store/getters/getters'
@@ -125,7 +125,7 @@ export default {
     },
 
     isInvalid () {
-      return this.taxonName && this.taxonName.id !== this.taxonName.cached_valid_taxon_name_id
+      return this.taxonName && !this.taxonName.cached_is_valid
     }
   },
 

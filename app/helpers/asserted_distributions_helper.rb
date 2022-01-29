@@ -3,27 +3,23 @@ module AssertedDistributionsHelper
   def asserted_distribution_tag(asserted_distribution)
     return nil if asserted_distribution.nil?
     [
-      otu_tag(asserted_distribution.otu),
-      (asserted_distribution.is_absent ? content_tag(:span,
-                                                     ' not in ',
-                                                     class: :warning) : ' in '),
-      geographic_area_tag(asserted_distribution.geographic_area) #,
+      otu_tag(asserted_distribution.otu).html_safe,
+      (asserted_distribution.is_absent ? tag.span(' not in ', class: [:feedback, 'feedback-thin', 'feedback-warning']).html_safe : ' in ').html_safe,
+      geographic_area_tag(asserted_distribution.geographic_area).html_safe
+                                                                      #,
     # ' by ',
     # (asserted_distribution.source.cached_author_string ? asserted_distribution.source.cached_author_string
     # : content_tag(:span, '[source authors must be updated]', class: :warning))
-    ].join('&nbsp;')
+    ].join('&nbsp;').html_safe
   end
 
   def asserted_distribution_link(asserted_distribution)
     return nil if asserted_distribution.nil?
     [
       link_to(otu_tag(asserted_distribution.otu).html_safe, asserted_distribution.otu),
-      (asserted_distribution.is_absent ? content_tag(:span,
-                                                     ' not in ',
-                                                     class: :warning) : ' in '),
-      link_to(geographic_area_tag(asserted_distribution.geographic_area).html_safe, asserted_distribution)
-    ].join('&nbsp;')
-    #link_to(asserted_distribution_tag(asserted_distribution).html_safe, asserted_distribution)
+      (asserted_distribution.is_absent ? content_tag(:span, ' not in ', class: :warning) : ' in '),
+      link_to(geographic_area_tag(asserted_distribution.geographic_area).html_safe,
+              asserted_distribution) ].join('&nbsp;').html_safe
   end
 
   def asserted_distributions_search_form

@@ -8,6 +8,16 @@ class Georeference::GeoLocate < Georeference
   EMBED_PATH     = '/web/webgeoreflight.aspx?'.freeze
   EMBED_HOST     = 'www.geo-locate.org'.freeze
 
+  def dwc_georeference_attributes
+    h = {}
+    super(h)
+    h.merge!(
+      georeferenceSources: "GEOLocate ",
+      georeferenceRemarks: "Typically created by copy-pasting one or more values from a collecting event into a GEOLocate form.",
+      georeferenceProtocol: 'Generated via a query through the GEOLocate web interface')
+    h
+  end
+
   # @param [Response] response
   # @return [RGeo object]
   def api_response=(response)
@@ -233,6 +243,10 @@ class Georeference::GeoLocate < Georeference
     # end
     #
   end
+
+
+
+
 
   class Request
     REQUEST_PARAMS = {

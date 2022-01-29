@@ -22,6 +22,10 @@ export default function ({ commit, state }, args) {
         descriptorId,
         isSaving: false
       })
+      commit(MutationNames.SetDescriptorUnsaved, {
+        descriptorId,
+        isUnsaved: false
+      })
       commit(MutationNames.SetDescriptorSavedOnce, descriptorId)
     })
 

@@ -9,7 +9,7 @@ function insertStringInPosition(string, addString, index) {
 }
 
 String.prototype.toPascalCase = function () {
-  return this.match(/[a-z]+/gi)
+  return this.match(/[a-z0-9]+/gi)
     .map(function (word) {
       return word.charAt(0).toUpperCase() + word.substr(1).toLowerCase()
     })

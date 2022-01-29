@@ -1,12 +1,18 @@
 import { MutationNames } from '../mutations/mutations'
 import { Identifier } from 'routes/endpoints'
+import {
+  COLLECTION_OBJECT,
+  CONTAINER
+} from 'constants/index.js'
 
 export default ({ commit, state }, id) =>
   new Promise((resolve, reject) => {
     const identifier = state.identifier
     const index = state.collection_objects.findIndex(item => item.id === id)
 
-    identifier.identifier_object_type = state.container ? 'Container' : 'CollectionObject'
+    identifier.identifier_object_type = state.container
+      ? CONTAINER
+      : COLLECTION_OBJECT
 
     if (id && identifier.namespace_id && identifier.identifier && state.settings.saveIdentifier) {
       commit(MutationNames.SetIdentifierObjectId, state.container ? state.container.id : id)
@@ -42,8 +48,7 @@ export default ({ commit, state }, id) =>
           return resolve()
         }
       }
-    }
-    else {
+    } else {
       resolve()
     }
   })

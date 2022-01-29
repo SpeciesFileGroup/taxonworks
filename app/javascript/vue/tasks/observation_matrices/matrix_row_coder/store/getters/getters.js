@@ -1,3 +1,4 @@
+import areDescriptorsUnsaved from './areDescriptorsUnsaved'
 import getDescription from './getDescription'
 import getFreeTextValueFor from './getFreeTextValueFor'
 import getObservationsFor from './getObservationsFor'
@@ -20,6 +21,7 @@ import getMatrixRow from './getMatrixRow'
 import getUnits from './getUnits'
 
 export const GetterNames = {
+  AreDescriptorsUnsaved: 'areDescriptorsUnsaved',
   GetDescription: 'getDescription',
   GetFreeTextValueFor: 'getFreeTextValueFor',
   GetObservationsFor: 'getObservationsFor',
@@ -43,6 +45,7 @@ export const GetterNames = {
 }
 
 export const GetterFunctions = {
+  [GetterNames.AreDescriptorsUnsaved]: areDescriptorsUnsaved,
   [GetterNames.GetDescription]: getDescription,
   [GetterNames.GetFreeTextValueFor]: getFreeTextValueFor,
   [GetterNames.GetObservationsFor]: getObservationsFor,

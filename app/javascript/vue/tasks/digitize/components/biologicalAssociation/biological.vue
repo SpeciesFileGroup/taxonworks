@@ -34,12 +34,9 @@
 
 import TagItem from '../shared/item_tag.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
-import refreshSmartSelector from '../shared/refreshSmartSelector'
 import { BiologicalRelationship } from 'routes/endpoints'
 
 export default {
-  mixins: [refreshSmartSelector],
-
   components: {
     TagItem,
     SmartSelector

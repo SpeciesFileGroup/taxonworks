@@ -27,13 +27,14 @@ json.extract! collecting_event, :id,
 
 json.partial! '/shared/data/all/metadata', object: collecting_event
 
-# TODO: shared code
-if collecting_event.collector_roles.any?
-  json.collector_roles do
-    json.array! collecting_event.collector_roles.each do |role|
-      json.extract! role, :id, :position, :type
-      json.person do
-        json.partial! '/people/base_attributes', person: role.person
+if extend_response_with('roles')
+  if collecting_event.collector_roles.any?
+    json.collector_roles do
+      json.array! collecting_event.collector_roles.each do |role|
+        json.extract! role, :id, :position, :type
+        json.person do
+          json.partial! '/people/base_attributes', person: role.person
+        end
       end
     end
   end

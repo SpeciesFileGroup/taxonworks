@@ -12,7 +12,8 @@
 <script>
 
 import { Combination } from 'routes/endpoints'
-import platformKey from 'helpers/getMacKey'
+import { EXTEND_PARAMS } from '../constants/extend.js'
+import platformKey from 'helpers/getPlatformKey'
 
 export default {
   props: {
@@ -72,7 +73,7 @@ export default {
     },
     create () {
       this.$emit('processing', true)
-      Combination.create({ combination: this.createRecordCombination() }).then(response => {
+      Combination.create({ combination: this.createRecordCombination(), ...EXTEND_PARAMS }).then(response => {
         this.$emit('save', response.body)
         this.$emit('processing', false)
         this.$emit('success', true)
@@ -84,7 +85,8 @@ export default {
     },
     update (id) {
       this.$emit('processing', true)
-      Combination.update(id, { combination: this.createRecordCombination() }).then((response) => {
+      Combination.update(id, { 
+        combination: this.createRecordCombination(), ...EXTEND_PARAMS }).then((response) => {
         this.$emit('save', response.body)
         this.$emit('processing', false)
         this.$emit('success', true)

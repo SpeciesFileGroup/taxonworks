@@ -96,12 +96,15 @@ export default {
     geographicAreaId () {
       return this.collectingEvent.geographic_area_id
     },
+
     verbatimLatitude () {
       return this.collectingEvent.verbatim_latitude
     },
+
     verbatimLongitude () {
       return this.collectingEvent.verbatim_longitude
     },
+
     geographicArea () {
       return this.$store.getters[GetterNames.GetGeographicArea]
     }
@@ -138,7 +141,7 @@ export default {
     },
 
     getByCoords (lat, long) {
-      GeographicArea.coordinates({ latitude: lat, longitude: long, geo_json: true }).then(response => {
+      GeographicArea.coordinates({ latitude: lat, longitude: long, embed: ['shape'] }).then(response => {
         this.areasByCoors = response.body
       })
     },

@@ -99,4 +99,11 @@ class Source::Human < Source
       errors.add(:base, 'at least one person must be provided')
     end
   end
+
+  def sv_cached_names # this cannot be moved to soft_validation_extensions
+    soft_validations.add(
+      :base, 'Cached values should be updated',
+      success_message: 'Cached values were updated',
+      failure_message:  'Failed to update cached values') if cached != get_cached
+  end
 end

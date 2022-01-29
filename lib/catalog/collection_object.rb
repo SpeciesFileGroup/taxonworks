@@ -1,4 +1,5 @@
 # Concept is a chronological history of the collection object
+require 'catalog'
 class Catalog::CollectionObject < ::Catalog
 
   # An arbitrary vocabulary of human-readable event names (tags)
@@ -128,7 +129,7 @@ class Catalog::CollectionObject < ::Catalog
         start_date: g.created_at.to_time)
     end
 
-    o.type_designations.each do |t|
+    o.type_materials.each do |t|
       date = t&.source&.nomenclature_date
       data.items << Catalog::CollectionObject::EntryItem.new(type: :typified, object: t, start_date: date)
     end

@@ -1,21 +1,21 @@
 <template>
   <div
     v-help.sections.collectionObject.buffered
-    class="flexbox full_width"
+    class="buffered"
   >
     <buffered-field
       title="Buffered determination"
-      v-model="bufferedDetermination"
+      v-model="collectionObject.buffered_determinations"
       v-model:lock="locked.collection_object.buffered_determinations"
     />
     <buffered-field
       title="Buffered collecting event"
-      v-model="bufferedCollectionEvent"
+      v-model="collectionObject.buffered_collecting_event"
       v-model:lock="locked.collection_object.buffered_collecting_event"
     />
     <buffered-field
       title="Buffered other labels"
-      v-model="bufferedOtherLabels"
+      v-model="collectionObject.buffered_other_labels"
       v-model:lock="locked.collection_object.buffered_other_labels"
     />
   </div>
@@ -40,32 +40,22 @@ export default {
       }
     },
 
-    bufferedDetermination: {
+    collectionObject: {
       get () {
-        return this.$store.getters[GetterNames.GetCollectionObject].buffered_determinations
+        return this.$store.getters[GetterNames.GetCollectionObject]
       },
       set (value) {
-        this.$store.commit(MutationNames.SetCollectionObjectBufferedDeterminations, value)
-      }
-    },
-
-    bufferedOtherLabels: {
-      get () {
-        return this.$store.getters[GetterNames.GetCollectionObject].buffered_other_labels
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetCollectionObjectBufferedOtherLabel, value)
-      }
-    },
-
-    bufferedCollectionEvent: {
-      get () {
-        return this.$store.getters[GetterNames.GetCollectionObject].buffered_collecting_event
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetCollectionObjectBufferedCollectionEvent, value)
+        this.$store.commit(MutationNames.SetCollectionObject, value)
       }
     }
   }
 }
 </script>
+
+<style scoped>
+  .buffered {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 0.5em;
+  }
+</style>

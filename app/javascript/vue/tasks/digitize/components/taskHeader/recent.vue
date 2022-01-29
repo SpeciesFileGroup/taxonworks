@@ -67,7 +67,7 @@
 
 import ModalComponent from 'components/ui/Modal'
 import SpinnerComponent from 'components/spinner'
-import { GetRecentCollectionObjects } from '../../request/resources.js'
+import { CollectionObject } from 'routes/endpoints'
 
 export default {
   components: {
@@ -87,9 +87,9 @@ export default {
 
   watch: {
     showModal (newVal) {
-      if(newVal) {
+      if (newVal) {
         this.isLoading = true
-        GetRecentCollectionObjects().then(response => {
+        CollectionObject.reportDwc({ per: 10 }).then(response => {
           this.list = response.body
           this.isLoading = false
         })

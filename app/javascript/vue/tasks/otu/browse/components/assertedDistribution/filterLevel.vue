@@ -28,6 +28,8 @@ export default {
     }
   },
 
+  emits: ['update:modelValue'],
+
   computed: {
     selected: {
       get () {
