@@ -8,12 +8,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Show Images section in Browse OTU for GenusGroup [#2786]
+- User facet: `Now` button sets end date in Filter interfaces [#2788]
 
 ### Fixed
 - Type species section doesn't work in new taxon name [#2785]
 
 [#2785]: https://github.com/SpeciesFileGroup/taxonworks/issues/2785
 [#2786]: https://github.com/SpeciesFileGroup/taxonworks/issues/2786
+[#2788]: https://github.com/SpeciesFileGroup/taxonworks/issues/2788
 
 ## [0.22.7] - 2021-01-26
 
