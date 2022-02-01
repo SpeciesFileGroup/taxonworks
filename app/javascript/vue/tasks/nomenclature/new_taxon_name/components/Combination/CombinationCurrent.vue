@@ -37,6 +37,7 @@
                 title="Press and hold to drag input"
               >
                 <v-icon
+                  color="white"
                   name="scrollV"
                   small
                 />
