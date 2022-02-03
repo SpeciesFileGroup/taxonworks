@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - Type species section doesn't work in new taxon name [#2785]
+- Missing Variety and Form ranks in original combination section for ICZN in New taxon name task [#2794]
 
 [#2790]: https://github.com/SpeciesFileGroup/taxonworks/issues/2790
 [#2748]: https://github.com/SpeciesFileGroup/taxonworks/issues/2748
@@ -24,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2785]: https://github.com/SpeciesFileGroup/taxonworks/issues/2785
 [#2786]: https://github.com/SpeciesFileGroup/taxonworks/issues/2786
 [#2788]: https://github.com/SpeciesFileGroup/taxonworks/issues/2788
+[#2794]: https://github.com/SpeciesFileGroup/taxonworks/issues/2794
 
 ## [0.22.7] - 2021-01-26
 
