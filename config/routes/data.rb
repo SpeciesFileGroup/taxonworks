@@ -231,7 +231,7 @@ resources :documents do
   concerns [:data_routes]
 end
 
-resources :downloads, except: [:edit, :new, :create] do
+resources :downloads, except: [:new, :create] do
   collection do
     get 'list'
   end

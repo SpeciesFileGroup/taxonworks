@@ -10,13 +10,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - OTU descendants API endpoint `.../otus/123/inventory/descendants` [#2791]
 
 ### Changed
+- Add Download customization [#2748]
 - Show Images section in Browse OTU for GenusGroup [#2786]
 - User facet: `Now` button sets end date in Filter interfaces [#2788]
 
 ### Fixed
 - Type species section doesn't work in new taxon name [#2785]
 
-
+[#2748]: https://github.com/SpeciesFileGroup/taxonworks/issues/2748
 [#2791]: https://github.com/SpeciesFileGroup/taxonworks/issues/2791
 [#2785]: https://github.com/SpeciesFileGroup/taxonworks/issues/2785
 [#2786]: https://github.com/SpeciesFileGroup/taxonworks/issues/2786
