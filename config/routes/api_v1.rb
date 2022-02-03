@@ -53,7 +53,7 @@ namespace :api, defaults: {format: :json} do
       get '/taxon_names', to: '/taxon_names#api_index'
       get '/taxon_names/autocomplete', to: '/taxon_names#autocomplete'
       get '/taxon_names/parse', to: '/taxon_names#parse'
-      get '/taxon_names/:id/status', to: '/taxon_names#api_status'
+      get '/taxon_names/:id/inventory/summary', to: '/taxon_names#api_summary'
       get '/taxon_names/:id', to: '/taxon_names#api_show'
 
       get '/taxon_name_classifications', to: '/taxon_name_classifications#api_index'

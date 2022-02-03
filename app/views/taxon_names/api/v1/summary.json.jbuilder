@@ -57,6 +57,9 @@ if extend_response_with('taxon_name_classifications')
     json.status cl.classification_label
     json.id cl.id
     json.global_id cl.to_global_id.to_s
+
+    json.pages cl.origin_citation&.pages
+    json.original_citation cl.source&.cached
   end
 end
 
@@ -69,5 +72,8 @@ if extend_response_with('taxon_name_relationships')
     json.status r.subject_status
     json.id r.id
     json.global_id r.to_global_id.to_s
+
+    json.pages r.origin_citation&.pages
+    json.original_citation r.source&.cached
   end
 end
