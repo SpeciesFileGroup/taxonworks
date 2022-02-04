@@ -107,7 +107,11 @@ class ExtractsController < ApplicationController
         :identifier_start,
         :identifier_type,
         :recent,
+        :otu_id,
         :repository_id,
+        otu_id: [],
+        keyword_id_and: [],
+        keyword_id_or: [],
         repository_id: [],
       )
     end

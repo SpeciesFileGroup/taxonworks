@@ -43,9 +43,7 @@ class Extract < ApplicationRecord
   has_many :sequences, through: :origin_relationships, source: :new_object, source_type: 'Sequence'
   has_many :extracts, through: :related_origin_relationships, source: :old_object, source_type: 'Extract'
 
-
   attr_accessor :is_made_now
-
   before_validation :set_made, if: -> {is_made_now}
 
   validates :year_made, date_year: { min_year: 1757, max_year: -> {Time.now.year} }

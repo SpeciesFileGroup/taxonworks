@@ -1,7 +1,7 @@
 module Queries
   module Extract
 
-    # TODO 
+    # TODO
     # - use date processing? / DateConcern
     # - syncronize with GIS/GEO
 
@@ -22,9 +22,14 @@ module Queries
       # @return [Array of Repository#id]
       attr_accessor :repository_id
 
+      # @return [Array of Repository#id]
+      attr_accessor :otu_id
+
       # @param [Hash] args are permitted params
       def initialize(params)
-        @respository_id = params[:respository_id] 
+        @respository_id = params[:respository_id]
+        @otu_id = params[:otu_id]
+
         @recent = boolean_param(params, :recent)
 
         set_identifier(params)
@@ -45,9 +50,18 @@ module Queries
         [@repository_id].flatten.compact
       end
 
+      def otu_id
+        [@otu_id].flatten.compact
+      end
+
       def repository_id_facet
-        return nil if repository_id.blank?
+        return nil if repository_id.empty?
         table[:repository_id].eq_any(repository_id)
+      end
+
+      def otu_id_facet
+        return nil if otu_id.empty?
+        ::Extract.joins(:otus).where(otus: {id: otu_id})
       end
 
       # @return [ActiveRecord::Relation]
@@ -82,6 +96,7 @@ module Queries
           identifier_between_facet,
           identifier_facet,
           identifier_namespace_facet,
+          otu_id_facet,
         ]
 
         clauses.compact!
@@ -90,7 +105,7 @@ module Queries
 
       # @return [ActiveRecord::Relation]
       def merge_clauses
-        clauses = base_merge_clauses        
+        clauses = base_merge_clauses
         return nil if clauses.empty?
         a = clauses.shift
         clauses.each do |b|
