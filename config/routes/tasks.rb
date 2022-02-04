@@ -20,7 +20,7 @@ scope :tasks do
 
   scope :extracts do
       scope :filter, controller: 'tasks/extracts/filter' do
-        get :index, as: 'index_filter_task'
+        get '/', as: 'filter_extract_task', action: :index
       end
 
     scope :new_extract, controller: 'tasks/extracts/new_extract' do

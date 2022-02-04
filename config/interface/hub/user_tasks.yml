@@ -671,8 +671,7 @@ batch_add_users_task:
   categories:
   status: prototype
   description: 'Add a list of users.'
-
-index_filter_task:
+filter_extract_task:
   hub: true
   name: 'Filter extracts'
   related:
