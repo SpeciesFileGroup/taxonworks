@@ -1,1 +1,7 @@
+<% content_for :additional_navigation do %>
+  <div class="content">
+    <%= button_to 'Download', { action: :file }, method: :get,  disabled: ( @download.ready? ? false : true ), class: ['button', 'normal-input', 'button-default'] %>
+  </div>
+<% end %>
+
 <%= render(partial: 'shared/data/project/show', locals: {object: @download}) -%>
