@@ -20,6 +20,9 @@
         @click="handleSearch">
         Search
       </button>
+      <otu-component
+        v-model="params.determination"
+      />
       <geographic-component
         class="margin-large-bottom margin-medium-top"
         v-model="params.geographic"/>
@@ -44,6 +47,7 @@ import UserComponent from './filters/user'
 import GeographicComponent from './filters/geographic'
 import IdentifierComponent from './filters/identifier'
 import RepositoryComponent from './filters/repository.vue'
+import OtuComponent from 'tasks/collection_objects/filter/components/filters/otu.vue'
 import platformKey from 'helpers/getPlatformKey.js'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { computed, ref } from 'vue'
@@ -64,6 +68,7 @@ const shortcuts = computed(() => {
 
 const parseParams = computed(() =>
   ({
+    ...params.value.determination,
     ...params.value.identifier,
     ...params.value.geographic,
     ...params.value.repository,
@@ -75,6 +80,9 @@ const isParamsEmpty = computed(() => !(
   params.value.geographic.geographic_area_id?.length ||
   params.value.geographic.geo_json?.length ||
   params.value.repository.repository_id ||
+  params.value.determination.otu_ids.length ||
+  params.value.determination.determiner_id.length ||
+  params.value.determination.ancestor_id ||
   Object.values(params.value.user).find(item => item) ||
   Object.values(params.value.identifier).find(item => item)
 ))
@@ -91,6 +99,14 @@ const resetFilter = () => {
 }
 
 const initParams = () => ({
+  determination: {
+    determiner_id_or: [],
+    determiner_id: [],
+    otu_ids: [],
+    current_determinations: undefined,
+    ancestor_id: undefined,
+    validity: undefined
+  },
   identifier: {
     identifier: undefined,
     identifier_exact: undefined,

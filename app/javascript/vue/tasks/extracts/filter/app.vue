@@ -67,7 +67,7 @@
           :list="list"
         />
         <h2
-          v-if="alreadySearch && !list"
+          v-if="!list.length"
           class="subtle middle horizontal-center-content no-found-message"
         >
           No records found.
@@ -99,7 +99,14 @@ const csvFields = computed(() =>
   )
 )
 
-const { isLoading, list, per, pagination, makeFilterRequest } = useFilter(Extract)
+const {
+  isLoading,
+  list,
+  per,
+  pagination,
+  makeFilterRequest,
+  resetFilter
+} = useFilter(Extract)
 
 const preferences = reactive({
   activeFilter: true,
@@ -109,11 +116,8 @@ const preferences = reactive({
 const alreadySearch = ref(false)
 
 const resetTask = () => {
-  alreadySearch.value = false
-  list.value = []
-  urlRequest.value = ''
-  pagination.value = undefined
-  history.pushState(null, null, '/tasks/collection_objects/filter')
+  resetFilter()
+  history.pushState(null, null, '/tasks/extracts/filter')
 }
 </script>
 
