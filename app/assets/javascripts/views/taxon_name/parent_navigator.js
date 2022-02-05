@@ -11,16 +11,16 @@ Object.assign(TW.views.taxon_name.parent_navigator, {
 		$(".switch-radio input:radio[name=display_herarchy]").on("click", function() {
 			switch($(this).val()) {
 				case 'valid':
-					$('[data-valid-toggle="valid"]').show(effectSpeed);
-					$('[data-valid-toggle="invalid"]').hide(effectSpeed);
+					$('[data-valid="valid"]').show(effectSpeed);
+					$('[data-valid="invalid"]').hide(effectSpeed);
 				break;
 				case 'invalid':
-					$('[data-valid-toggle="valid"]').hide(effectSpeed);
-					$('[data-valid-toggle="invalid"]').show(effectSpeed);
+					$('[data-valid="valid"]').hide(effectSpeed);
+					$('[data-valid="invalid"]').show(effectSpeed);
 				break;
 				case 'both':
-					$('[data-valid-toggle="valid"]').show(effectSpeed);
-					$('[data-valid-toggle="invalid"]').show(effectSpeed);
+					$('[data-valid="valid"]').show(effectSpeed);
+					$('[data-valid="invalid"]').show(effectSpeed);
 				break;
 			}
 		});

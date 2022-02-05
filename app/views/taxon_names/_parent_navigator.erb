@@ -40,7 +40,9 @@
       </span>
 
       <% if taxon_name_synonyms_list(taxon_name).any? %>
-      <ul class="list-synonym taxon-synonym">
+      <ul 
+        class="list-synonym taxon-synonym"
+        data-valid="invalid">
         <% taxon_name_synonyms_list(taxon_name).each do |syn| %>
           <%= taxon_name_synonym_li(syn) -%>
         <% end %>
@@ -49,7 +51,7 @@
 
       <ul class="tree descendent">
         <% taxon_name.children.order(:name).where(type: 'Protonym').each do |p| -%>
-          <li data-valid-toggle="<%= p.is_valid? ? 'valid' : 'invalid' -%>">
+          <li data-valid="<%= p.is_valid? ? 'valid' : 'invalid' -%>">
             <span>
               <%= taxon_name_parent_navigator_item_link(p, target) -%>
               <span><%= p.cached_author_year -%></span>
@@ -60,7 +62,9 @@
             </span>
 
             <% if p.is_valid? && taxon_name_synonyms_list(p).any? %>
-            <ul class="list-synonym">
+            <ul 
+              class="list-synonym"
+              data-valid="invalid">
               <% taxon_name_synonyms_list(p).each do |syn| %>
                 <%= taxon_name_synonym_li(syn) -%>
               <% end %>
