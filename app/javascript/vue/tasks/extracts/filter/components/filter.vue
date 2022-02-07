@@ -39,6 +39,9 @@
         v-model="params.keywords"
         target="CollectionObject"
       />
+      <protocol-facet
+        v-model="params.protocols"
+      />
       <collection-object-facet v-model="params.base.collection_object_id" />
       <date-range-facet
         class="margin-large-bottom"
@@ -58,12 +61,12 @@ import UserComponent from 'tasks/collection_objects/filter/components/filters/us
 import GeographicComponent from 'tasks/collection_objects/filter/components/filters/geographic'
 import IdentifierComponent from 'tasks/collection_objects/filter/components/filters/identifier'
 import RepositoryComponent from 'tasks/collection_objects/filter/components/filters/repository.vue'
+import ProtocolFacet from './filters/ProtocolFacet.vue'
 import OtuComponent from 'tasks/collection_objects/filter/components/filters/otu.vue'
 import DateRangeFacet from './filters/DateRangeFacet.vue'
 import CollectionObjectFacet from './filters/CollectionObjectFacet.vue'
 import KeywordsComponent from 'tasks/sources/filter/components/filters/tags'
 import platformKey from 'helpers/getPlatformKey.js'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { computed, ref } from 'vue'
 
 const emit = defineEmits([
@@ -88,6 +91,7 @@ const parseParams = computed(() =>
     ...params.value.repository,
     ...params.value.base,
     ...params.value.keywords,
+    ...params.value.protocols,
     ...filterEmptyParams(params.value.user)
   })
 )
@@ -102,6 +106,8 @@ const isParamsEmpty = computed(() => !(
   params.value.base.collection_object_id.length ||
   params.value.keywords.keyword_id_and.length ||
   params.value.keywords.keyword_id_or.length ||
+  params.value.protocols.protocol_id_and.length ||
+  params.value.protocols.protocol_id_or.length ||
   Object.values(params.value.user).find(item => item) ||
   Object.values(params.value.identifier).find(item => item)
 ))
@@ -152,6 +158,10 @@ const initParams = () => ({
   keywords: {
     keyword_id_and: [],
     keyword_id_or: []
+  },
+  protocols: {
+    protocol_id_and: [],
+    protocol_id_or: []
   }
 })
 
