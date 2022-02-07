@@ -26,26 +26,15 @@
         class="separate-right"
         v-show="preferences.activeFilter"
         @parameters="makeFilterRequest"
-        @reset="resetTask"/>
+        @reset="resetFilter"/>
       <div class="full_width overflow-x-auto">
         <div
           v-if="recordsFound"
           class="horizontal-left-content flex-separate separate-bottom">
-          <div class="horizontal-left-content">
-            <span class="separate-left separate-right">|</span>
-            <csv-button
-              :url="urlRequest"
-              :options="{ fields: csvFields }"/>
-            <dwc-download
-              class="margin-small-left"
-              :params="$refs.filterComponent.parseParams"
-              :total="pagination.total"/>
-            <dwc-reindex
-              class="margin-small-left"
-              :params="$refs.filterComponent.parseParams"
-              :total="pagination.total"
-            />
-          </div>
+          <csv-button
+            :url="urlRequest"
+            :options="{ fields: csvFields }"
+          />
         </div>
 
         <div
@@ -87,7 +76,8 @@ import PaginationCount from 'components/pagination/PaginationCount'
 import MenuPreferences from './components/MenuPreferences.vue'
 import { Extract } from 'routes/endpoints'
 import useFilter from './composables/useFilter.js'
-import { computed, ref, reactive } from 'vue'
+import { computed, reactive } from 'vue'
+import { URLParamsToJSON } from 'helpers/url/parse'
 
 const csvFields = computed(() =>
   list.value.map((item, index) =>
@@ -99,26 +89,27 @@ const csvFields = computed(() =>
   )
 )
 
-const {
-  isLoading,
-  list,
-  per,
-  pagination,
-  makeFilterRequest,
-  resetFilter
-} = useFilter(Extract)
-
 const preferences = reactive({
   activeFilter: true,
   activeJSONRequest: false
 })
 
-const alreadySearch = ref(false)
+const {
+  isLoading,
+  list,
+  per,
+  pagination,
+  urlRequest,
+  makeFilterRequest,
+  resetFilter
+} = useFilter(Extract)
 
-const resetTask = () => {
-  resetFilter()
-  history.pushState(null, null, '/tasks/extracts/filter')
+const urlParams = URLParamsToJSON(location.href)
+
+if (Object.keys(urlParams).length) {
+  makeFilterRequest(urlParams)
 }
+
 </script>
 
 <style scoped>
