@@ -14,11 +14,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Add Download customization [#2748]
 - Show Images section in Browse OTU for GenusGroup [#2786]
 - User facet: `Now` button sets end date in Filter interfaces [#2788]
+- Hierarchy navigator in Browse nomenclature task now includes synonyms []
 
 ### Fixed
 - Type species section doesn't work in new taxon name [#2785]
 - Missing Variety and Form ranks in original combination section for ICZN in New taxon name task [#2795]
 
+[#2550]: https://github.com/SpeciesFileGroup/taxonworks/issues/2550
 [#2790]: https://github.com/SpeciesFileGroup/taxonworks/issues/2790
 [#2748]: https://github.com/SpeciesFileGroup/taxonworks/issues/2748
 [#2791]: https://github.com/SpeciesFileGroup/taxonworks/issues/2791
