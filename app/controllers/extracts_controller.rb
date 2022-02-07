@@ -2,6 +2,7 @@ class ExtractsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_extract, only: [:show, :edit, :update, :destroy]
+  after_action -> { set_pagination_headers(:extracts) }, only: [:index], if: :json_request?
 
   # GET /extracts
   # GET /extracts.json
