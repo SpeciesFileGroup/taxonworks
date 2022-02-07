@@ -1,19 +1,36 @@
 <template>
   <div>
     <h3>Origin</h3>
-    <select v-model="origin">
-      <option
+    <ul class="no_bullets">
+      <li>
+        <label>
+          <input
+            type="radio"
+            :value="undefined"
+            v-model="origin"
+          >
+          All
+        </label>
+      </li>
+      <li
         v-for="item in options"
-        :value="item"
         :key="item"
       >
-        {{ item }}
-      </option>
-    </select>
+        <label>
+          <input
+            type="radio"
+            v-model="origin"
+            :value="item"
+          >
+          {{ item }}
+        </label>
+      </li>
+    </ul>
   </div>
 </template>
 
 <script setup>
+import { URLParamsToJSON } from 'helpers/url/parse';
 import { ref, computed } from 'vue'
 import {
   COLLECTION_OBJECT,
@@ -23,13 +40,13 @@ import {
   LOT
 } from 'constants/index'
 
-const options = ref([
+const options = [
   COLLECTION_OBJECT,
   EXTRACT,
   OTU,
   RANGED_LOT,
   LOT
-])
+]
 
 const props = defineProps({
   modelValue: {
@@ -38,8 +55,13 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['update:modelValue'])
+
 const origin = computed({
   get: () => props.modelValue,
   set: value => emit('update:modelValue', value)
 })
+
+origin.value = URLParamsToJSON(location.href).extract_origin
+
 </script>

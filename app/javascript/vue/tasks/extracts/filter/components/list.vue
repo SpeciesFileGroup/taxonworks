@@ -7,7 +7,11 @@
       >
         <thead>
           <tr>
-            <th />
+            <th>
+              <input
+                v-model="selectIds"
+                type="checkbox">
+            </th>
             <th>ID</th>
             <th>Extract</th>
             <th>Year</th>
@@ -44,7 +48,7 @@
 
 <script setup>
 
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { sortArray } from 'helpers/arrays.js'
 import HandyScroll from 'vue-handy-scroll'
 import { vResizeColumn } from 'directives/resizeColumn.js'
@@ -66,6 +70,20 @@ const emit = defineEmits([
 ])
 
 const element = ref(null)
+
+const selectIds = computed({
+  get: () => props.list.length === props.modelValue.length,
+  set: value => emit('update:modelValue',
+    value
+      ? props.list.map(item => item.id)
+      : []
+  )
+})
+
+const ids = computed({
+  get: () => props.modelValue,
+  set: value => emit('update:modelValue', value)
+})
 
 watch(
   () => props.list,

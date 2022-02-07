@@ -29,11 +29,10 @@
         @reset="resetFilter"/>
       <div class="full_width overflow-x-auto">
         <div
-          v-if="recordsFound"
+          v-if="list.length"
           class="horizontal-left-content flex-separate separate-bottom">
           <csv-button
-            :url="urlRequest"
-            :options="{ fields: csvFields }"
+            :list="csvFields"
           />
         </div>
 
@@ -53,6 +52,7 @@
 
         <list-component
           v-if="list.length"
+          v-model="selectedIds"
           :list="list"
         />
         <h2
@@ -67,27 +67,24 @@
 </template>
 
 <script setup>
-
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
-import CsvButton from './components/csvDownload'
+import CsvButton from 'components/csvButton'
 import PaginationComponent from 'components/pagination'
 import PaginationCount from 'components/pagination/PaginationCount'
 import MenuPreferences from './components/MenuPreferences.vue'
 import { Extract } from 'routes/endpoints'
 import useFilter from './composables/useFilter.js'
-import { computed, reactive } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
 
 const csvFields = computed(() =>
-  list.value.map((item, index) =>
-    ({
-      label: item,
-      value: (row, field) => row[index] || field.default,
-      default: ''
-    })
-  )
+  selectedIds.value.length
+    ? list.value
+    : []
 )
+
+const selectedIds = ref([])
 
 const preferences = reactive({
   activeFilter: true,

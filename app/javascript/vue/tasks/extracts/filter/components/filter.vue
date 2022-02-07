@@ -21,6 +21,7 @@
         Search
       </button>
       <otu-component
+        class="margin-large-bottom"
         v-model="params.determination"
       />
       <geographic-component
@@ -39,10 +40,16 @@
         v-model="params.keywords"
         target="CollectionObject"
       />
+      <extract-origin-facet
+        class="margin-large-bottom"
+        v-model="params.base.extract_origin"
+      />
       <protocol-facet
         v-model="params.protocols"
       />
-      <collection-object-facet v-model="params.base.collection_object_id" />
+      <collection-object-facet
+        class="margin-large-bottom"
+        v-model="params.base.collection_object_id" />
       <date-range-facet
         class="margin-large-bottom"
         v-model:start="params.extract_start_date_range"
@@ -50,7 +57,9 @@
       />
       <user-component
         class="margin-large-bottom"
-        v-model="params.user"/>
+        v-model="params.user"
+      />
+      <sequence-facet v-model="params.base.sequences"/>
     </div>
   </div>
 </template>
@@ -65,6 +74,8 @@ import ProtocolFacet from './filters/ProtocolFacet.vue'
 import OtuComponent from 'tasks/collection_objects/filter/components/filters/otu.vue'
 import DateRangeFacet from './filters/DateRangeFacet.vue'
 import CollectionObjectFacet from './filters/CollectionObjectFacet.vue'
+import ExtractOriginFacet from './filters/ExtractOriginFacet.vue'
+import SequenceFacet from './filters/SequenceFacet.vue'
 import KeywordsComponent from 'tasks/sources/filter/components/filters/tags'
 import platformKey from 'helpers/getPlatformKey.js'
 import { computed, ref } from 'vue'
@@ -104,6 +115,8 @@ const isParamsEmpty = computed(() => !(
   params.value.determination.determiner_id.length ||
   params.value.determination.ancestor_id ||
   params.value.base.collection_object_id.length ||
+  params.value.base.sequences ||
+  params.value.base.extract_origin ||
   params.value.keywords.keyword_id_and.length ||
   params.value.keywords.keyword_id_or.length ||
   params.value.protocols.protocol_id_and.length ||
@@ -119,7 +132,9 @@ const resetFilter = () => {
 
 const initParams = () => ({
   base: {
-    collection_object_id: []
+    collection_object_id: [],
+    extract_origin: undefined,
+    sequences: undefined
   },
   determination: {
     determiner_id_or: [],
