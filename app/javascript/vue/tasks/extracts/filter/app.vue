@@ -73,6 +73,7 @@ import CsvButton from 'components/csvButton'
 import PaginationComponent from 'components/pagination'
 import PaginationCount from 'components/pagination/PaginationCount'
 import MenuPreferences from './components/MenuPreferences.vue'
+import SpinnerComponent from 'components/spinner.vue'
 import { Extract } from 'routes/endpoints'
 import useFilter from './composables/useFilter.js'
 import { computed, reactive, ref } from 'vue'
@@ -94,9 +95,10 @@ const preferences = reactive({
 const {
   isLoading,
   list,
-  per,
   pagination,
+  per,
   urlRequest,
+  loadPage,
   makeFilterRequest,
   resetFilter
 } = useFilter(Extract)

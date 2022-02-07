@@ -15,7 +15,10 @@ export default function (service) {
     state.parameters = params
     state.isLoading = true
 
-    service.where(params).then((response) => {
+    service.where({
+      per: state.per,
+      ...params
+    }).then((response) => {
       state.list = response.body
       state.isLoading = false
       state.pagination = getPagination(response)
@@ -31,10 +34,10 @@ export default function (service) {
     history.pushState(null, null, `${window.location.pathname}?${urlParams.toString()}`)
   }
 
-  const loadPage = page => {
-    service.where({
+  const loadPage = params => {
+    makeFilterRequest({
       ...state.parameters,
-      page
+      ...params
     })
   }
 

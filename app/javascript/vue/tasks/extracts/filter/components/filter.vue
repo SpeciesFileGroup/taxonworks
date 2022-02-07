@@ -14,7 +14,7 @@
 
     <div class="content">
       <button
-        class="button button-default normal-input full_width"
+        class="button button-default normal-input full_width margin-medium-bottom "
         type="button"
         :disabled="isParamsEmpty"
         @click="handleSearch">

@@ -38,7 +38,11 @@
             <td>{{ item.year_made }}</td>
             <td>{{ item.month_made }}</td>
             <td>{{ item.day_made }}</td>
-            <td />
+            <td>
+              <radial-navigation
+                :global-id="item.global_id"
+              />
+            </td>
           </tr>
         </tbody>
       </table>
@@ -52,6 +56,7 @@ import { computed, ref, watch } from 'vue'
 import { sortArray } from 'helpers/arrays.js'
 import HandyScroll from 'vue-handy-scroll'
 import { vResizeColumn } from 'directives/resizeColumn.js'
+import RadialNavigation from 'components/radials/navigation/radial.vue'
 
 const props = defineProps({
   list: {
