@@ -34,6 +34,11 @@
         class="margin-large-bottom"
         v-model="params.identifier"
       />
+      <keywords-component
+        class="margin-large-bottom"
+        v-model="params.keywords"
+        target="CollectionObject"
+      />
       <collection-object-facet v-model="params.base.collection_object_id" />
       <date-range-facet
         class="margin-large-bottom"
@@ -56,6 +61,7 @@ import RepositoryComponent from 'tasks/collection_objects/filter/components/filt
 import OtuComponent from 'tasks/collection_objects/filter/components/filters/otu.vue'
 import DateRangeFacet from './filters/DateRangeFacet.vue'
 import CollectionObjectFacet from './filters/CollectionObjectFacet.vue'
+import KeywordsComponent from 'tasks/sources/filter/components/filters/tags'
 import platformKey from 'helpers/getPlatformKey.js'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { computed, ref } from 'vue'
@@ -81,6 +87,7 @@ const parseParams = computed(() =>
     ...params.value.geographic,
     ...params.value.repository,
     ...params.value.base,
+    ...params.value.keywords,
     ...filterEmptyParams(params.value.user)
   })
 )
@@ -93,15 +100,11 @@ const isParamsEmpty = computed(() => !(
   params.value.determination.determiner_id.length ||
   params.value.determination.ancestor_id ||
   params.value.base.collection_object_id.length ||
+  params.value.keywords.keyword_id_and.length ||
+  params.value.keywords.keyword_id_or.length ||
   Object.values(params.value.user).find(item => item) ||
   Object.values(params.value.identifier).find(item => item)
 ))
-
-const urlParams = URLParamsToJSON(location.href)
-
-if (Object.keys(urlParams).length) {
-  urlParams.geo_json = urlParams.geo_json ? JSON.stringify(urlParams.geo_json) : []
-}
 
 const resetFilter = () => {
   emit('reset')
@@ -145,6 +148,10 @@ const initParams = () => ({
   date: {
     extract_start_date_range: undefined,
     extract_end_date_range: undefined
+  },
+  keywords: {
+    keyword_id_and: [],
+    keyword_id_or: []
   }
 })
 
