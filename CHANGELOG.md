@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - OTU descendants API endpoint `.../otus/123/inventory/descendants` [#2791]
 - Download SVG button in object graph task [#2804]
+- Rake task to generate docs.taxonworks.org Data documentation [#2352]
 
 ### Changed
 - Add origin citations for taxon name relationships/classifications, renames route [#2790]
@@ -22,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing Variety and Form ranks in original combination section for ICZN in New taxon name task [#2795]
 - Check if current identifier is the same as current in comprehensive task [#2550]
 
+[#2352]: https://github.com/SpeciesFileGroup/taxonworks/issues/2552
 [#2550]: https://github.com/SpeciesFileGroup/taxonworks/issues/2550
 [#2790]: https://github.com/SpeciesFileGroup/taxonworks/issues/2790
 [#2748]: https://github.com/SpeciesFileGroup/taxonworks/issues/2748
