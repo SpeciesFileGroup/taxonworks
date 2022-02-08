@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3>Date</h3>
+    <h3>Extracted date range</h3>
     <div class="horizontal-left-content">
       <div class="field separate-right label-above">
         <label>Start date</label>

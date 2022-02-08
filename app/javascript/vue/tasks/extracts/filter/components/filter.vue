@@ -17,49 +17,60 @@
         class="button button-default normal-input full_width margin-medium-bottom "
         type="button"
         :disabled="isParamsEmpty"
-        @click="handleSearch">
+        @click="handleSearch"
+      >
         Search
       </button>
-      <otu-component
+      <extract-origin-facet
         class="margin-large-bottom"
-        v-model="params.determination"
+        v-model="params.base.extract_origin"
       />
-      <geographic-component
-        class="margin-large-bottom margin-medium-top"
-        v-model="params.geographic"/>
+      <collection-object-facet
+        class="margin-large-bottom"
+        v-model="params.base.collection_object_id"
+      />
+      <taxon-name-facet
+        class="margin-large-bottom"
+        v-model="params.taxon"
+      />
+      <otu-facet
+        class="margin-large-bottom"
+        v-model="params.base.otu_id"
+        target="Extract"
+      />
+      <extract-verbatim-anatomical-facet
+        class="margin-large-bottom"
+        v-model="params.verbatimAnatomical"
+      />
+      <sequence-facet
+        class="margin-large-bottom"
+        v-model="params.base.sequences"
+      />
+      <date-range-facet
+        class="margin-large-bottom"
+        v-model:start="params.extract_start_date_range"
+        v-model:end="params.extract_end_date_range"
+      />
       <repository-component
         class="margin-large-bottom"
         v-model="params.repository.repository_id"
-      />
-      <identifier-component
-        class="margin-large-bottom"
-        v-model="params.identifier"
       />
       <keywords-component
         class="margin-large-bottom"
         v-model="params.keywords"
         target="CollectionObject"
       />
-      <extract-origin-facet
+      <identifier-component
         class="margin-large-bottom"
-        v-model="params.base.extract_origin"
+        v-model="params.identifier"
       />
       <protocol-facet
         v-model="params.protocols"
-      />
-      <collection-object-facet
-        class="margin-large-bottom"
-        v-model="params.base.collection_object_id" />
-      <date-range-facet
-        class="margin-large-bottom"
-        v-model:start="params.extract_start_date_range"
-        v-model:end="params.extract_end_date_range"
       />
       <user-component
         class="margin-large-bottom"
         v-model="params.user"
       />
-      <sequence-facet v-model="params.base.sequences"/>
     </div>
   </div>
 </template>
@@ -67,15 +78,16 @@
 <script setup>
 
 import UserComponent from 'tasks/collection_objects/filter/components/filters/user'
-import GeographicComponent from 'tasks/collection_objects/filter/components/filters/geographic'
 import IdentifierComponent from 'tasks/collection_objects/filter/components/filters/identifier'
 import RepositoryComponent from 'tasks/collection_objects/filter/components/filters/repository.vue'
 import ProtocolFacet from './filters/ProtocolFacet.vue'
-import OtuComponent from 'tasks/collection_objects/filter/components/filters/otu.vue'
+import OtuFacet from './filters/OtuFacet.vue'
+import TaxonNameFacet from './filters/TaxonNameFacet.vue'
 import DateRangeFacet from './filters/DateRangeFacet.vue'
 import CollectionObjectFacet from './filters/CollectionObjectFacet.vue'
 import ExtractOriginFacet from './filters/ExtractOriginFacet.vue'
 import SequenceFacet from './filters/SequenceFacet.vue'
+import ExtractVerbatimAnatomicalFacet from './filters/ExtractVerbatimAnatomicalFacet.vue'
 import KeywordsComponent from 'tasks/sources/filter/components/filters/tags'
 import platformKey from 'helpers/getPlatformKey.js'
 import { computed, ref } from 'vue'
@@ -103,6 +115,8 @@ const parseParams = computed(() =>
     ...params.value.base,
     ...params.value.keywords,
     ...params.value.protocols,
+    ...params.value.taxon,
+    ...params.value.verbatimAnatomical,
     ...filterEmptyParams(params.value.user)
   })
 )
@@ -111,16 +125,16 @@ const isParamsEmpty = computed(() => !(
   params.value.geographic.geographic_area_id?.length ||
   params.value.geographic.geo_json?.length ||
   params.value.repository.repository_id ||
-  params.value.determination.otu_ids.length ||
-  params.value.determination.determiner_id.length ||
-  params.value.determination.ancestor_id ||
+  params.value.base.otu_id.length ||
   params.value.base.collection_object_id.length ||
   params.value.base.sequences ||
   params.value.base.extract_origin ||
   params.value.keywords.keyword_id_and.length ||
   params.value.keywords.keyword_id_or.length ||
+  params.value.taxon.ancestor_id ||
   params.value.protocols.protocol_id_and.length ||
   params.value.protocols.protocol_id_or.length ||
+  params.value.verbatimAnatomical.verbatim_anatomical_origin ||
   Object.values(params.value.user).find(item => item) ||
   Object.values(params.value.identifier).find(item => item)
 ))
@@ -134,15 +148,8 @@ const initParams = () => ({
   base: {
     collection_object_id: [],
     extract_origin: undefined,
-    sequences: undefined
-  },
-  determination: {
-    determiner_id_or: [],
-    determiner_id: [],
-    otu_ids: [],
-    current_determinations: undefined,
-    ancestor_id: undefined,
-    validity: undefined
+    sequences: undefined,
+    otu_id: []
   },
   identifier: {
     identifier: undefined,
@@ -174,9 +181,17 @@ const initParams = () => ({
     keyword_id_and: [],
     keyword_id_or: []
   },
+  taxon: {
+    ancestor_id: undefined,
+    validity: undefined
+  },
   protocols: {
     protocol_id_and: [],
     protocol_id_or: []
+  },
+  verbatimAnatomical: {
+    verbatim_anatomical_origin: undefined,
+    exact_verbatim_anatomical_origin: undefined
   }
 })
 
