@@ -18,6 +18,7 @@
           <smart-selector
             :model="smartConfig.model"
             klass="Extract"
+            target="Extract"
             @selected="setOrigin"/>
         </template>
 
@@ -34,12 +35,14 @@
             v-model="settings.lock.originRelationship"/>
         </div>
 
-        <label v-if="!isExtract">
-          Verbatim anatomical origin
+        <div
+          v-if="!isExtract"
+          class="field label-above margin-medium-top">
+          <label>Verbatim anatomical origin</label>
           <input
             type="text"
             v-model="extract.verbatim_anatomical_origin">
-        </label>
+        </div>
       </div>
     </template>
   </block-layout>
@@ -55,14 +58,20 @@ import componentExtend from './mixins/componentExtend'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 
-const smartTypes = [{
-  label: 'CollectionObject',
-  model: 'collection_objects'
-},
-{
-  label: 'Extract',
-  model: 'extracts'
-}]
+const smartTypes = [
+  {
+    label: 'CollectionObject',
+    model: 'collection_objects'
+  },
+  {
+    label: 'Extract',
+    model: 'extracts'
+  },
+  {
+    label: 'Otu',
+    model: 'otus'
+  }
+]
 
 export default {
   mixins: [componentExtend],
