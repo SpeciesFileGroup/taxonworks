@@ -315,7 +315,9 @@ class TaxonNameClassification < ApplicationRecord
 
   def nomenclature_code_matches
     if taxon_name && type && nomenclature_code
-      errors.add(:taxon_name, "#{taxon_name.cached_html} belongs to #{taxon_name.rank_class.nomenclatural_code} nomenclatural code, but the status used from #{nomenclature_code} nomenclature code") if nomenclature_code != taxon_name.rank_class.nomenclatural_code
+      tn = taxon_name.type == 'Combination' ? taxon_name.protonyms.last : taxon_name
+      nc = tn.rank_class.nomenclatural_code
+      errors.add(:taxon_name, "#{taxon_name.cached_html} belongs to #{taxon_name.rank_class.nomenclatural_code} nomenclatural code, but the status used from #{nomenclature_code} nomenclature code") if nomenclature_code != nc
     end
   end
 

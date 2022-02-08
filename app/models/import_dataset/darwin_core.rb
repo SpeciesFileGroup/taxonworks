@@ -134,12 +134,9 @@ class ImportDataset::DarwinCore < ImportDataset
 
       status = ["Ready"]
       status << "Errored" if retry_errored
-      records = core_records.where(status: status).order(:id).limit(max_records) #.preload_fields
-      filters&.each do |key, value|
-        records = records.where(id: core_records_fields.at(key.to_i).with_value(value).select(:dataset_record_id))
-      end
-      records = records.where(id: start_id..) if start_id
+      records = add_filters(core_records.where(status: status), filters).order(:id).limit(max_records) #.preload_fields
 
+      records = records.where(id: start_id..) if start_id
       records = core_records.where(id: record_id, status: %w{Ready Errored}) if record_id
 
       records = records.all
@@ -181,8 +178,8 @@ class ImportDataset::DarwinCore < ImportDataset
 
   # @return [Hash]
   # Returns a hash with the record counts grouped by status
-  def progress
-    core_records.group(:status).count
+  def progress(filters: nil)
+    add_filters(core_records, filters).group(:status).count
   end
 
   # Stages DwC-A records into DB.
@@ -326,6 +323,13 @@ class ImportDataset::DarwinCore < ImportDataset
 
   def destroy_namespace
     Namespace.find_by(id: metadata["identifier_namespace"])&.destroy # If in use or gone no deletion happens
+  end
+
+  def add_filters(records, filters)
+    filters&.each do |key, value|
+      records = records.where(id: core_records_fields.at(key.to_i).with_value(value).select(:dataset_record_id))
+    end
+    records
   end
 
 end

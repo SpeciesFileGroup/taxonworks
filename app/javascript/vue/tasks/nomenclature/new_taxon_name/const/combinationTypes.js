@@ -17,20 +17,26 @@ const genusGroup = {
 const speciesGroup = {
   species: TAXON_RELATIONSHIP_ORIGINAL_SPECIES,
   subspecies: TAXON_RELATIONSHIP_ORIGINAL_SUBSPECIES,
-  variety: TAXON_RELATIONSHIP_ORIGINAL_VARIETY,
-  form: TAXON_RELATIONSHIP_ORIGINAL_FORM
 }
 
-export const combinationType = Object.freeze({
+export const subsequentCombinationType = Object.freeze({
   genusGroup,
   speciesGroup
+})
+
+export const originalCombinationType = Object.freeze({
+  genusGroup,
+  speciesGroup: {
+    ...speciesGroup,
+    variety: TAXON_RELATIONSHIP_ORIGINAL_VARIETY,
+    form: TAXON_RELATIONSHIP_ORIGINAL_FORM
+  }
 })
 
 export const combinationIcnType = Object.freeze({
   genusGroup,
   speciesGroup: {
-    species: TAXON_RELATIONSHIP_ORIGINAL_SPECIES,
-    subspecies: TAXON_RELATIONSHIP_ORIGINAL_SUBSPECIES,
+    ...speciesGroup,
     variety: TAXON_RELATIONSHIP_ORIGINAL_VARIETY,
     subvariety: TAXON_RELATIONSHIP_ORIGINAL_SUBVARIETY,
     form: TAXON_RELATIONSHIP_ORIGINAL_FORM,

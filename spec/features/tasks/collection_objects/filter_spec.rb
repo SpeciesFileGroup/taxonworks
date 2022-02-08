@@ -5,7 +5,7 @@ require 'rails_helper'
 describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :collection_objects, :shared_geo] do
 
   context 'with properly built collection of objects', js: true do
-    let(:page_title) { 'Collection objects filter' }
+    let(:page_title) { 'Filter collection objects' }
     let(:index_path) { collection_objects_filter_task_path }
 
     it_behaves_like 'a_login_required_and_project_selected_controller'

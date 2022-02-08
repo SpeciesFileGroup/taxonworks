@@ -231,7 +231,7 @@ resources :documents do
   concerns [:data_routes]
 end
 
-resources :downloads, except: [:edit, :new, :create] do
+resources :downloads, except: [:new, :create] do
   collection do
     get 'list'
   end
@@ -240,6 +240,7 @@ resources :downloads, except: [:edit, :new, :create] do
   end
 end
 
+# TODO: these should default json?
 resources :dwc_occurrences, only: [:create] do
   collection do
     get :index, defaults: {format: :json}

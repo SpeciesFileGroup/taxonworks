@@ -6,15 +6,96 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- OTU descendants API endpoint `.../otus/123/inventory/descendants` [#2791]
+- Download SVG button in object graph task [#2804]
+
+### Changed
+- Add origin citations for taxon name relationships/classifications, renames route [#2790]
+- Add Download customization [#2748]
+- Show Images section in Browse OTU for GenusGroup [#2786]
+- User facet: `Now` button sets end date in Filter interfaces [#2788]
+- Hierarchy navigator in Browse nomenclature task now includes synonyms []
+
+### Fixed
+- Type species section doesn't work in new taxon name [#2785]
+- Missing Variety and Form ranks in original combination section for ICZN in New taxon name task [#2795]
+- Check if current identifier is the same as current in comprehensive task [#2550]
+
+[#2550]: https://github.com/SpeciesFileGroup/taxonworks/issues/2550
+[#2790]: https://github.com/SpeciesFileGroup/taxonworks/issues/2790
+[#2748]: https://github.com/SpeciesFileGroup/taxonworks/issues/2748
+[#2791]: https://github.com/SpeciesFileGroup/taxonworks/issues/2791
+[#2785]: https://github.com/SpeciesFileGroup/taxonworks/issues/2785
+[#2786]: https://github.com/SpeciesFileGroup/taxonworks/issues/2786
+[#2788]: https://github.com/SpeciesFileGroup/taxonworks/issues/2788
+[#2795]: https://github.com/SpeciesFileGroup/taxonworks/issues/2795
+[#2804]: https://github.com/SpeciesFileGroup/taxonworks/issues/2804
+
+## [0.22.7] - 2021-01-26
+
+### Added
+- Add more date (redundant) fields to DwC export [#2780]
+- Import and export custom label style in print label task
+- Attributions in Filter images [#2639]
+- People, role, images stats to `/api/v1/stats`
+- `basisOfRecord` in DwC exports can be `FossilSpecimen` via biocuration
+- Classification section for Combination in New taxon name (botanical nomenclature support) [#2681]
+- API `/api/v1/otus/:id` includes `&extend[]` for `parents`
+
+### Changed
+- New interface for biocuration groups and classes
+- DwCA export is *much* faster
+- CSV export optimized
+- `basisOfRecord` now maps as `http://rs.tdwg.org/dwc/terms/FossilSpecimen` biocuration classification in DwC occurrences importer.
+- Updated ruby gems
+- Updated js packages
+- cached_is_valid is now used in interfaces to show if a taxon is valid or invalid
+- Refactor Manage biocuration classes and groups task [#83]
+
+### Fixed
+- `occurrenceID` missing from DwC exports. [#2766]
+- Cloning columns from matrices sometimes partially failed [#2772]
+- Missing `Custom style` button in Print label task [#2764]
+- Missing valid/invalid/combination mark in citation by source task [#2760]
+- Missing observation matrices in copy columns/rows from another matrix in New observation matrix task [#2753]
+- Handing of family names starting with `O'` being recognized as given names [#2747]
+- Error 500 deleting a biocuration term [#2181]
+- Uniquify people task shows "0" in used column and no roles [#2769]
+
+
+[#83]: https://github.com/SpeciesFileGroup/taxonworks/issues/83
+[#2181]: https://github.com/SpeciesFileGroup/taxonworks/issues/2181
+[#2780]: https://github.com/SpeciesFileGroup/taxonworks/issues/2780
+[#2766]: https://github.com/SpeciesFileGroup/taxonworks/issues/2766
+[#2772]: https://github.com/SpeciesFileGroup/taxonworks/pull/2772
+[#2639]: https://github.com/SpeciesFileGroup/taxonworks/pull/2639
+[#2681]: https://github.com/SpeciesFileGroup/taxonworks/issues/2681
+[#2747]: https://github.com/SpeciesFileGroup/taxonworks/issues/2747
+[#2753]: https://github.com/SpeciesFileGroup/taxonworks/issues/2753
+[#2760]: https://github.com/SpeciesFileGroup/taxonworks/issues/2760
+[#2764]: https://github.com/SpeciesFileGroup/taxonworks/issues/2764
+[#2769]: https://github.com/SpeciesFileGroup/taxonworks/issues/2769
+
+## [0.22.6] - 2021-01-10
+
+### Added
+- Option to select all and quick tag in Filter image task [#2744]
+
 ### Changed
 - Perform georeferences caching in background for faster DwC occurrences import [#2741]
 - Permit use of Ruby 3.1
+- Updated Ruby gems.
+- DwC occurrences importer: When matching protonyms also consider their alternate gender names if there are no matches by exact name. [#2738]
+- Allow import of specimens with empty `catalogNumber` even when `institutionCode` and/or `collectionCode` are set.
 
 ### Fixed
 - Several batch loaders not working due to syntax incompatibility with currently used Ruby version. [#2739]
 
 [#2739]: https://github.com/SpeciesFileGroup/taxonworks/pull/2739
 [#2741]: https://github.com/SpeciesFileGroup/taxonworks/pull/2741
+[#2738]: https://github.com/SpeciesFileGroup/taxonworks/issues/2738
+[#2744]: https://github.com/SpeciesFileGroup/taxonworks/issues/2744
 
 ## [0.22.5] - 2021-12-22
 
@@ -2205,7 +2286,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.5...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.7...development
+[0.22.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.6...v0.22.7
+[0.22.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.5...v0.22.6
 [0.22.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.4...v0.22.5
 [0.22.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.3...v0.22.4
 [0.22.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.2...v0.22.3

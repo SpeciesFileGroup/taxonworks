@@ -12,7 +12,7 @@ class ContentsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @contents = Queries::Content::Filter.new(filter_params).all.page(params[:page]).per(params[:per])
+        @contents = ::Queries::Content::Filter.new(filter_params).all.page(params[:page]).per(params[:per])
       }
     end
   end
@@ -118,7 +118,7 @@ class ContentsController < ApplicationController
 
   # GET /api/v1/content
   def api_index
-    @contents = Queries::Content::Filter.new(api_params).all
+    @contents = ::Queries::Content::Filter.new(api_params).all
       .order('contents.otu_id, contents.topic_id')
       .page(params[:page]).per(params[:per])
     render '/contents/api/v1/index'

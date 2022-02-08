@@ -374,7 +374,6 @@ class ImageMatrix
       i[:height] = d.height
       i[:width] = d.width
       i[:original_url] = d.image_file.url
-      #i[:short_url] = short_url(d.image_file.url) #this does not work in a model
       i[:medium_url] = d.image_file.url(:medium)
       i[:thumb_url] = d.image_file.url(:thumb)
       i[:citations] = []

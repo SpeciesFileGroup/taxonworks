@@ -10,6 +10,7 @@ class Tasks::Sources::NewSourceController < ApplicationController
       render json: :invalid_request
     else
       @source = TaxonWorks::Vendor::Serrano.new_from_citation(citation: citation_param)
+      @source ||= Source::Bibtex.new
       render '/sources/show'
     end
   end

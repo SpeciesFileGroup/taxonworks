@@ -15,7 +15,7 @@
 <script setup>
 
 import { computed, ref } from 'vue'
-import { NOMENCLATURE_CODE_BOTANY } from 'constants/index.js'
+import { NOMENCLATURE_CODE_BOTANY, NOMENCLATURE_CODE_ZOOLOGY } from 'constants/index.js'
 import SwitchComponent from 'components/switch.vue'
 import AuthorPerson from './AuthorPeople.vue'
 import AuthorSource from './AuthorSource.vue'
@@ -62,6 +62,6 @@ const sections = computed(() =>
         getTabLabel('Verbatim', verbatimFilled.value),
         getTabLabel('Person', hasRoles.value)
       ]
-    : [getTabLabel('Source', combination.value.origin_citation_attributes.source_id)]
+    : []
 )
 </script>

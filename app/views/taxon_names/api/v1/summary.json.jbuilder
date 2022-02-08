@@ -38,7 +38,6 @@ if !@taxon_name.cached_is_valid && !@taxon_name.is_ambiguously_invalid?
     json.pages @taxon_name.valid_taxon_name.origin_citation&.pages
     json.original_citation @taxon_name.valid_taxon_name.source&.cached
 
-
     # By definition it's a Protonym
     if extend_response_with('name_elements')
       h = @taxon_name.valid_taxon_name.full_name_hash
@@ -58,6 +57,9 @@ if extend_response_with('taxon_name_classifications')
     json.status cl.classification_label
     json.id cl.id
     json.global_id cl.to_global_id.to_s
+
+    json.pages cl.origin_citation&.pages
+    json.original_citation cl.source&.cached
   end
 end
 
@@ -70,5 +72,8 @@ if extend_response_with('taxon_name_relationships')
     json.status r.subject_status
     json.id r.id
     json.global_id r.to_global_id.to_s
+
+    json.pages r.origin_citation&.pages
+    json.original_citation r.source&.cached
   end
 end

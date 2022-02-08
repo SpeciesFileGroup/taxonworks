@@ -50,8 +50,8 @@
           <button
             type="button"
             class="button normal-input button-default margin-small-left"
-            @click="setActualDateStart"
-            @dblclick="setActualDateEnd">
+            @click="setActualDateEnd"
+          >
             Now
           </button>
         </div>

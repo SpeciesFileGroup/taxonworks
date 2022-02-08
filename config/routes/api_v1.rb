@@ -41,16 +41,19 @@ namespace :api, defaults: {format: :json} do
     defaults authenticate_user_or_project: true do
       get '/otus', to: '/otus#api_index'
       get '/otus/autocomplete', to: '/otus#api_autocomplete'
+      get '/otus/:id/inventory/descendants', to: '/otus#api_descendants', as: :api_descendants
       get '/otus/:id', to: '/otus#api_show'
 
       get '/downloads/:id', to: '/downloads#api_show'
       get '/downloads', to: '/downloads#api_index'
       get '/downloads/:id/file', to: '/downloads#api_file', as: :api_download_file
 
+      get '/dwc_occurrences', to: '/dwc_occurrences#api_index'
+
       get '/taxon_names', to: '/taxon_names#api_index'
       get '/taxon_names/autocomplete', to: '/taxon_names#autocomplete'
       get '/taxon_names/parse', to: '/taxon_names#parse'
-      get '/taxon_names/:id/status', to: '/taxon_names#api_status'
+      get '/taxon_names/:id/inventory/summary', to: '/taxon_names#api_summary'
       get '/taxon_names/:id', to: '/taxon_names#api_show'
 
       get '/taxon_name_classifications', to: '/taxon_name_classifications#api_index'

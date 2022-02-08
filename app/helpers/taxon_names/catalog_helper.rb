@@ -175,7 +175,8 @@ module TaxonNames::CatalogHelper
       a = history_author_year_tag(t) 
       b = source_author_year_tag(c.source)
 
-      if t.nomenclatural_code == :icn
+      tn = t.type == 'Combination' ? t.protonyms.last : t
+      if tn.nomenclatural_code == :icn
         in_str = ' ex '
       else
         in_str = ' in '
@@ -204,6 +205,19 @@ module TaxonNames::CatalogHelper
 
     #      history_in(entry_item.base_object&.type_taxon_name_relationship&.source)
     ].compact.join.html_safe
+  end
+
+  def taxon_name_synonym_li(syn)
+    label = [
+      content_tag(:span, "Syn. "), 
+      link_to(full_original_taxon_name_label(syn) || taxon_name_label(syn), browse_nomenclature_task_path(taxon_name_id: syn.id))
+    ].compact.join.html_safe
+
+    content_tag(:li, label)
+  end
+
+  def taxon_name_synonyms_list(taxon_name)
+    synonyms = taxon_name&.synonyms.where.not(id: taxon_name.id)&.order(:cached, :cached_author_year).uniq
   end
 
 end

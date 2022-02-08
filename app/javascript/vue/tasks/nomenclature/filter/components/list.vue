@@ -26,7 +26,7 @@
           </td>
           <td>{{ item.cached_author_year }}</td>
           <td v-html="item.original_combination" />
-          <td>{{ item.id === item.cached_valid_taxon_name_id }}</td>
+          <td>{{ item.cached_is_valid }}</td>
           <td>{{ item.rank }}</td>
           <td>
             <a

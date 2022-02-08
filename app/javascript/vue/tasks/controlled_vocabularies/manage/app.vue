@@ -2,9 +2,18 @@
   <div>
     <spinner-component
       v-if="isSaving"
-      :full-screen="true"
+      full-screen
       legend="Saving..."/>
-    <h1>Manage controlled vocabulary</h1>
+
+    <div class="flex-separate middle">
+      <h1>Manage controlled vocabulary</h1>
+      <ul class="context-menu">
+        <li>
+          <a :href="routeNames.ManageBiocurationTask">Manage biocuration classes and groups</a>
+        </li>
+      </ul>
+    </div>
+
     <switch-component
       v-model="view"
       :options="types"/>
@@ -18,54 +27,10 @@
     <div class="flex-separate margin-medium-top">
       <div class="one_quarter_width">
         <div class="panel content margin-medium-bottom">
-          <form
+          <FormKeyword
+            v-model="controlled_vocabulary_term"
             @submit="createCTV"
-            class="label-above">
-            <div class="field">
-              <label>Name</label>
-              <input
-                class="full_width"
-                type="text"
-                v-model="controlled_vocabulary_term.name">
-            </div>
-            <div
-              class="field"
-              v-help.new.definition>
-              <label>Definition</label>
-              <textarea
-                class="full_width"
-                :placeholder="`Definition (minimum length ${definitionLength} characters)`"
-                rows="5"
-                v-model="controlled_vocabulary_term.definition"
-              />
-            </div>
-            <div class="field">
-              <label>Label color</label>
-              <input
-                type="color"
-                v-model="controlled_vocabulary_term.css_color">
-            </div>
-            <div class="field">
-              <label>Uri</label>
-              <input
-                type="text"
-                v-model="controlled_vocabulary_term.uri">
-            </div>
-            <div class="flex-separate">
-              <button
-                type="submit"
-                class="button normal-input button-submit"
-                :disabled="!validateData">
-                {{ controlled_vocabulary_term.id ? 'Update' : 'Create' }}
-              </button>
-              <button
-                type="button"
-                class="button normal-input button-default"
-                @click="newCTV">
-                New
-              </button>
-            </div>
-          </form>
+          />
         </div>
         <div
           v-if="globalId"
@@ -87,20 +52,23 @@
 <script>
 
 import CVT_TYPES from './constants/controlled_vocabulary_term_types'
-import { CONTROLLED_VOCABULARY_TERM } from './constants/controlled_vocabulary_term'
+import makeControlledVocabularyTerm from 'factory/controlledVocabularyTerm'
 import { ControlledVocabularyTerm } from 'routes/endpoints'
 
 import SwitchComponent from 'components/switch.vue'
 import ListComponent from './components/List.vue'
 import SpinnerComponent from 'components/spinner'
+import FormKeyword from 'components/Form/FormKeyword.vue'
 
 import CloneFromObject from 'helpers/cloneFromObject'
+import { RouteNames } from 'routes/routes'
 
 export default {
   components: {
     SwitchComponent,
     ListComponent,
-    SpinnerComponent
+    SpinnerComponent,
+    FormKeyword
   },
 
   computed: {
@@ -114,13 +82,17 @@ export default {
 
     globalId () {
       return this.controlled_vocabulary_term?.global_id
+    },
+
+    routeNames () {
+      return RouteNames
     }
   },
 
   data () {
     return {
       cvtTypes: CVT_TYPES,
-      controlled_vocabulary_term: CONTROLLED_VOCABULARY_TERM(),
+      controlled_vocabulary_term: makeControlledVocabularyTerm(),
       isSaving: false,
       view: 'Keyword',
       linkFor: ['BiocurationClass', 'BiocurationGroup'],
@@ -150,7 +122,7 @@ export default {
   },
 
   methods: {
-    createCTV (e) {
+    createCTV () {
       const controlled_vocabulary_term = this.controlled_vocabulary_term
       const savePromise = this.controlled_vocabulary_term.id
         ? ControlledVocabularyTerm.update(controlled_vocabulary_term.id, { controlled_vocabulary_term })
@@ -165,16 +137,15 @@ export default {
       }).finally(() => {
         this.isSaving = false
       })
-      e.preventDefault()
     },
 
     newCTV () {
-      this.controlled_vocabulary_term = CONTROLLED_VOCABULARY_TERM()
+      this.controlled_vocabulary_term = makeControlledVocabularyTerm()
       this.controlled_vocabulary_term.type = this.view
     },
 
     setCTV (ctv) {
-      this.controlled_vocabulary_term = CloneFromObject(CONTROLLED_VOCABULARY_TERM(), ctv)
+      this.controlled_vocabulary_term = CloneFromObject(makeControlledVocabularyTerm(), ctv)
     },
 
     copyToClipboard () {

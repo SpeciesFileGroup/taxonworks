@@ -1,6 +1,6 @@
 module Queries
   module Content
-    class Filter
+    class Filter < Queries::Query
 
       include Queries::Concerns::Users
 
