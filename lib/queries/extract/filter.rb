@@ -48,17 +48,28 @@ module Queries
       #   see originates_from in app/models/extract.rb for legal values
       attr_accessor :extract_origin
 
+      # @return [String, nil]
+      # @param anatomical_origin [String]
+      attr_accessor :verbatim_anatomical_origin
+
+      # @return [Boolean, nil]
+      # @param extract_anatomical_origin [String]
+      #    'true', 'false', nil
+      attr_accessor :exact_verbatim_anatomical_origin
+
       # @param [Hash] args are permitted params
       def initialize(params)
+        @verbatim_anatomical_origin = params[:verbatim_anatomical_origin]
         @ancestor_id = params[:ancestory_id]
         @collection_object_id = params[:collection_object_id]
+        @exact_verbatim_anatomical_origin = boolean_param(params, params[:exact_verbatim_anatomical_origin])
         @extract_end_date_range = params[:extract_end_date_range]
+        @extract_origin = boolean_param(params, :extract_origin)
         @extract_start_date_range = params[:extract_start_date_range]
         @otu_id = params[:otu_id]
         @recent = boolean_param(params, :recent)
         @repository_id = params[:repository_id]
         @sequences = boolean_param(params, :sequences)
-        @extract_origin = boolean_param(params, :extract_origin)
 
         set_identifier(params)
         set_tags_params(params)
@@ -201,7 +212,8 @@ module Queries
       def base_and_clauses
         clauses = [
           repository_id_facet,
-          date_made_facet
+          date_made_facet,
+          attribute_exact_facet(:verbatim_anatomical_origin),
         ]
         clauses.compact!
         clauses

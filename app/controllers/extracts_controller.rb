@@ -116,6 +116,8 @@ class ExtractsController < ApplicationController
         :ancestor_id,
         :sequences,
         :extract_origin,
+        :verbatim_anatomical_origin,
+        :exact_verbatim_anatomical_origin,
         collection_object_id: [],
         otu_id: [],
         keyword_id_and: [],
