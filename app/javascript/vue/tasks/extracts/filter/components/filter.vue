@@ -65,6 +65,7 @@
         v-model="params.identifier"
       />
       <protocol-facet
+        class="margin-large-bottom"
         v-model="params.protocols"
       />
       <user-component
