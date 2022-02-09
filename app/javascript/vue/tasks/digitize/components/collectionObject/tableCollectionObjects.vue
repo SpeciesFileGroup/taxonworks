@@ -130,18 +130,37 @@ export default {
         this.$store.commit([MutationNames.SetLocked, value])
       }
     },
+
     collectionObjects () {
       return this.$store.getters[GetterNames.GetCollectionObjects]
     },
-    collectionObject () {
-      return this.$store.getters[GetterNames.GetCollectionObject]
+
+    collectionObject: {
+      get () {
+        return this.$store.getters[GetterNames.GetCollectionObject]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetCollectionObject, value)
+      }
+    },
+
+    coTotal () {
+      return this.collectionObject.total
     }
   },
 
-  data() {
+  data () {
     return {
       biocurationsGroups: [],
       biocutarionsType: []
+    }
+  },
+
+  watch: {
+    coTotal (newVal) {
+      if (newVal < 1) {
+        this.collectionObject.total = 1
+      }
     }
   },
 
