@@ -42,8 +42,10 @@
         class="margin-large-bottom"
         v-model="params.verbatimAnatomical"
       />
-      <sequence-facet
+      <with-component
         class="margin-large-bottom"
+        title="Sequences"
+        param="sequences"
         v-model="params.base.sequences"
       />
       <date-range-facet
@@ -87,10 +89,10 @@ import TaxonNameFacet from './filters/TaxonNameFacet.vue'
 import DateRangeFacet from './filters/DateRangeFacet.vue'
 import CollectionObjectFacet from './filters/CollectionObjectFacet.vue'
 import ExtractOriginFacet from './filters/ExtractOriginFacet.vue'
-import SequenceFacet from './filters/SequenceFacet.vue'
 import ExtractVerbatimAnatomicalFacet from './filters/ExtractVerbatimAnatomicalFacet.vue'
 import KeywordsComponent from 'tasks/sources/filter/components/filters/tags'
 import platformKey from 'helpers/getPlatformKey.js'
+import WithComponent from 'tasks/sources/filter/components/filters/with'
 import { computed, ref } from 'vue'
 
 const emit = defineEmits([
@@ -183,7 +185,7 @@ const initParams = () => ({
     keyword_id_or: []
   },
   taxon: {
-    ancestor_id: undefined,
+    ancestor_id: undefined
   },
   protocols: {
     protocol_id_and: [],
