@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing Variety and Form ranks in original combination section for ICZN in New taxon name task [#2795]
 - Check if current identifier is the same as current in comprehensive task [#2550]
 - Comprehensive digitization - entering '0' in total breaks the interface [#2807]
+- Download link doesn't work in data list view
 
 [#2352]: https://github.com/SpeciesFileGroup/taxonworks/issues/2552
 [#2550]: https://github.com/SpeciesFileGroup/taxonworks/issues/2550
@@ -36,6 +37,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2797]: https://github.com/SpeciesFileGroup/taxonworks/issues/2797
 [#2804]: https://github.com/SpeciesFileGroup/taxonworks/issues/2804
 [#2807]: https://github.com/SpeciesFileGroup/taxonworks/issues/2807
+[#2809]: https://github.com/SpeciesFileGroup/taxonworks/issues/2809
 
 ## [0.22.7] - 2021-01-26
 

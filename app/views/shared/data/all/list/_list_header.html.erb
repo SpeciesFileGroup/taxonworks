@@ -12,9 +12,7 @@
       <%= paginate objects %>
       </div>
       <div class="navigation-bar-right">
-        <a data-icon="download" href="#" data-turbolinks="false">                 
-          Download
-        </a>               
+        <%= download_for_model_link(@hub_model_metadata.klass) %>        
       </div>
     </div>       
   </div>
