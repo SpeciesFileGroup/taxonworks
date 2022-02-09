@@ -97,6 +97,7 @@ gem 'rgb', '~> 0.1'
 # Drawing
 gem 'rqrcode', github:'mjy/rqrcode', branch: 'taxonworks'
 gem 'barby', '~> 0.6.8'
+gem 'ruby-graphviz', '~> 1.2.5', require: false
 
 # "Bio" and SFG gems
 #gem 'taxonifi', '~> 0.5.5'
@@ -145,8 +146,6 @@ group :development do
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.4'
   gem 'guard-rspec', '~> 4.7.3', require: false
-
-  gem 'ruby-graphviz', '~> 1.2.5', require: false
 
   gem 'web-console', '~> 4.0', '>= 4.0.1'
   gem 'rubocop', '~> 1.20'
