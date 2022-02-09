@@ -11,23 +11,6 @@
         label="object_tag"
         @unset="taxon = undefined"
       />
-      <div class="field separate-top">
-        <ul class="no_bullets">
-          <li
-            v-for="item in validityOptions"
-            :key="item.value"
-          >
-            <label>
-              <input
-                type="radio"
-                :value="item.value"
-                name="taxon-validity"
-                v-model="params.validity">
-              {{ item.label }}
-            </label>
-          </li>
-        </ul>
-      </div>
     </div>
   </div>
 </template>
@@ -46,22 +29,7 @@ const props = defineProps({
   }
 })
 
-
 const emit = defineEmits(['update:modelValue'])
-const validityOptions = [
-  {
-    label: 'Both valid/invalid',
-    value: undefined
-  },
-  {
-    label: 'Valid only',
-    value: true
-  },
-  {
-    label: 'Invalid only',
-    value: false
-  }
-]
 
 const taxon = ref(undefined)
 const params = computed({
@@ -84,17 +52,12 @@ watch(() => params.value.ancestor_id, newVal => {
   }
 })
 
-const {
-  ancestor_id,
-  validity
-} = URLParamsToJSON(location.href)
+const { ancestor_id } = URLParamsToJSON(location.href)
 
 if (ancestor_id) {
   TaxonName.find(ancestor_id).then(({ body }) => {
     taxon.value = body
   })
 }
-
-params.value.validity = validity
 
 </script>

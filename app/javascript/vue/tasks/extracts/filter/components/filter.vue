@@ -184,7 +184,6 @@ const initParams = () => ({
   },
   taxon: {
     ancestor_id: undefined,
-    validity: undefined
   },
   protocols: {
     protocol_id_and: [],
