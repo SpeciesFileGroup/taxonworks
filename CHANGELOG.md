@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Check if current identifier is the same as current in comprehensive task [#2550]
 - Comprehensive digitization - entering '0' in total breaks the interface [#2807]
 - Download link doesn't work in data list view
+- Edit in Browse collecting event [#2814]
 
 [#2352]: https://github.com/SpeciesFileGroup/taxonworks/issues/2552
 [#2550]: https://github.com/SpeciesFileGroup/taxonworks/issues/2550
@@ -40,6 +41,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2804]: https://github.com/SpeciesFileGroup/taxonworks/issues/2804
 [#2807]: https://github.com/SpeciesFileGroup/taxonworks/issues/2807
 [#2809]: https://github.com/SpeciesFileGroup/taxonworks/issues/2809
+[#2814]: https://github.com/SpeciesFileGroup/taxonworks/issues/2814
 
 ## [0.22.7] - 2021-01-26
 
