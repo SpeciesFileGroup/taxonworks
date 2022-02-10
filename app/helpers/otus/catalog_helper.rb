@@ -67,7 +67,7 @@ module Otus::CatalogHelper
 
     similar_otus += s.collect{|p| p.id}
 
-    synonyms = otu.taxon_name&.synonyms.where.not(id: otu.taxon_name.id)&.order(:cached, :cached_author_year)
+    synonyms = otu.taxon_name&.synonyms.where(type: 'Protonym').where.not(id: otu.taxon_name.id)&.order(:cached, :cached_author_year)
 
     data = { otu_id: otu.id,
              label: a = label_for_otu(otu),
