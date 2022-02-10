@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Rake task to generate docs.taxonworks.org Data documentation [#2352]
 
 ### Changed
+- Browse nomenclature task was renamed to Browse nomenclature and classifications [#2638]
 - Add origin citations for taxon name relationships/classifications, renames route [#2790]
 - Add Download customization [#2748]
 - Show Images section in Browse OTU for GenusGroup [#2786]
