@@ -12,7 +12,7 @@
       <%= paginate objects %>
       </div>
       <div class="navigation-bar-right">
-        <%= download_for_model_link(@hub_model_metadata.klass) %>        
+        <%= download_for_model_link(@hub_model_metadata.klass) if @hub_model_metadata %>
       </div>
     </div>       
   </div>
