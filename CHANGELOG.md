@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Hierarchy navigator in Browse nomenclature task now includes synonyms [#2797]
 
 ### Fixed
+- author string for incorrect original spelling [#2743]
 - Type species section doesn't work in new taxon name [#2785]
 - Missing Variety and Form ranks in original combination section for ICZN in New taxon name task [#2795]
 - Check if current identifier is the same as current in comprehensive task [#2550]
