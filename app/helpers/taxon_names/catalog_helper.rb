@@ -209,7 +209,7 @@ module TaxonNames::CatalogHelper
 
   def taxon_name_synonym_li(syn)
     label = [
-      content_tag(:span, "Syn. "), 
+      content_tag(:span, "= "), 
       link_to(full_original_taxon_name_label(syn) || taxon_name_label(syn), browse_nomenclature_task_path(taxon_name_id: syn.id))
     ].compact.join.html_safe
 
@@ -217,7 +217,7 @@ module TaxonNames::CatalogHelper
   end
 
   def taxon_name_synonyms_list(taxon_name)
-    synonyms = taxon_name&.synonyms.where.not(id: taxon_name.id)&.order(:cached, :cached_author_year).uniq
+    synonyms = taxon_name&.synonyms.where(type: 'Protonym').where.not(id: taxon_name.id)&.order(:cached, :cached_author_year).uniq
   end
 
 end
