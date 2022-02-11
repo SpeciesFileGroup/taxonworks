@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Show Images section in Browse OTU for GenusGroup [#2786]
 - User facet: `Now` button sets end date in Filter interfaces [#2788]
 - Hierarchy navigator in Browse nomenclature task now includes synonyms [#2797]
+- Scroll tables in New observation matrix task [#2799]
 
 ### Fixed
 - author string for incorrect original spelling [#2743]
@@ -42,6 +43,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2807]: https://github.com/SpeciesFileGroup/taxonworks/issues/2807
 [#2809]: https://github.com/SpeciesFileGroup/taxonworks/issues/2809
 [#2814]: https://github.com/SpeciesFileGroup/taxonworks/issues/2814
+[#2799]: https://github.com/SpeciesFileGroup/taxonworks/issues/2799
 
 ## [0.22.7] - 2021-01-26
 
