@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - User facet: `Now` button sets end date in Filter interfaces [#2788]
 - Hierarchy navigator in Browse nomenclature task now includes synonyms [#2797]
 - Scroll tables in New observation matrix task [#2799]
+- Updated Ruby gems
 
 ### Fixed
 - author string for incorrect original spelling [#2743]
