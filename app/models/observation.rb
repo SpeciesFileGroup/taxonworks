@@ -1,5 +1,109 @@
-# Observations are of various types, e.g. Qualitative, Quantitative, Statistical.  Made on an Otu or CollectionObject.
-# They are where you store the data for concepts like traits, phenotypes, measurements, character matrices, descriptive matrices etc.
+# Records Qualitative, Quantitative, Statistical, free-text (Working), Media and other types of "measurements" gathered from our observations.
+# Where we record the data behind concepts like traits, phenotypes, measurements, character matrices, and descriptive matrices.
+#
+# Subclasses of Observation define the applicable attributes for its type. Type is echoed 1:1 in each
+# corresponding Descriptor, for convenience and validation purposes.
+#
+# @!attribute cached
+#   @return [string]
+#     !! Not used. Perhaps records a human readable short description ultimately.
+#
+# @!attribute cached_column_label
+#   @return [string]
+#     !! Not used. Candidate for removal.
+#
+# @!attribute cached_row_label
+#   @return [string]
+#     !! Not used. Candidate for removal.
+#
+# @!attribute descriptor_id
+#   @return [Descriptor#id]
+#     The type of observation according to it's Descriptor. See also `type`.
+#
+# @!attribute observation_object_id
+#   @return [Object#id]
+#     The id of the observed object
+#
+# @!attribute observation_object_type
+#   @return [Object#class.name]
+#     The type of the observed object
+#
+# @!attribute type
+#   @return [String]
+#     The type of observation.  Defines the attribute set that is applicable to it.
+#<
+# Subclass specific attributes
+#
+# Observation::Qualitative attributes
+#
+## @!attribute character_state_id
+#   @return [Integer]
+#     The corresponding CharacterState id for "traditional" Qualitative "characters"
+#
+# Observation::Quantiative attributes
+#
+# @!attribute continuous_unit
+#   @return [String]
+#     A controlled vocabulary from Ruby::Units, like 'm".  The unit of the quantitative measurement
+#
+# @!attribute continuous_value
+#   @return [String]
+#     The value of a quantitative measurement
+#
+# Observation::Working
+#
+# @!attribute descriptions
+#   @return [String]
+#     Free text description of an Observation
+#
+# Observation::??
+#
+# @!attribute frequency
+#   @return [Descriptor#id]
+#     ?! Candidate or removal ?!
+#
+# Observation::PresenceAbsence
+#
+# @!attribute presence
+#   @return [Boolean]
+#
+# Observation::Sample
+# !! Should only apply to OTUs technically, as this
+# is an aggregation of measurements seen in a typical
+# statistical summary
+#
+# @!attribute sample_max
+#   @return [Boolean]
+#     statistical max
+#
+# @!attribute sample_mean
+#   @return [Boolean]
+#    statistical mean
+#
+# @!attribute sample_median
+#   @return [Boolean]
+#     statistical median
+#
+# @!attribute sample_min
+#   @return [Boolean]
+#     statistical median
+#
+# @!attribute sample_n
+#   @return [Boolean]
+#     statistical n
+#
+# @!attribute sample_standard_deviation
+#   @return [Boolean]
+#     statistical standard deviation
+#
+# @!attribute sample_standard_error
+#   @return [Boolean]
+#     statistical standard error
+#
+# @!attribute sample_standard_units
+#   @return [Boolean]
+#     A controlled vocabulary from Ruby::Units, like 'm".  The unit of the sample observations
+#
 class Observation < ApplicationRecord
   include Housekeeping
   include Shared::Citations
@@ -39,22 +143,10 @@ class Observation < ApplicationRecord
     type == 'Observation::Continuous'
   end
 
-  # TODO:  Shouldn't this have access to cached?
-  #
   def self.in_observation_matrix(observation_matrix_id)
     Observation.joins('JOIN observation_matrix_rows omr on (omr.observation_object_type = observations.observation_object_type AND omr.observation_object_id = observations.observation_object_id)')
       .joins('JOIN observation_matrix_columns omc on omc.descriptor_id = observations.descriptor_id')
       .where('omr.observation_matrix_id = ? AND omc.observation_matrix_id = ?', observation_matrix_id, observation_matrix_id)
-  end
-
-  # @params rows is string 'Otu123'
-  # TODO: migrate
-  def self.by_descriptors_and_rows(descriptor_ids, rows)
-    collection_object_ids = rows.collect{|i| i.split('|')[1]}.compact
-    otu_ids = rows.collect{|i| i.split('|')[0]}.compact
-
-    where(descriptor_id: descriptor_ids, otu_id: otu_ids).or(
-      where(descriptor_id: descriptor_ids, collection_object_id: collection_object_ids))
   end
 
   def self.by_matrix_and_position(observation_matrix_id, options = {})
@@ -82,15 +174,12 @@ class Observation < ApplicationRecord
     base
   end
 
-
   def self.by_observation_matrix_row(observation_matrix_row_id)
     Observation.joins('JOIN observation_matrix_rows omr on (omr.observation_object_type = observations.observation_object_type AND omr.observation_object_id = observations.observation_object_id)')
       .joins('JOIN observation_matrix_columns omc on omc.descriptor_id = observations.descriptor_id')
       .where('omr.id = ?', observation_matrix_row_id)
       .order('omc.position')
-    # Could select specifics here
   end
-
 
   # TODO: deprecate or remove
   def self.object_scope(object)
