@@ -31,7 +31,23 @@
 # @!attribute type
 #   @return [String]
 #     The type of observation.  Defines the attribute set that is applicable to it.
-#<
+#
+# @!attribute year_made
+#  @return [Integer]
+#    4 digit year the observation originated (not when it was recorded in TaxonWorks, though these might be the close to the same)
+#
+# @!attribute month_made
+#  @return [Integer]
+#    2 digit month the observation originated
+#
+# @!attribute day_made
+#  @return [Integer]
+#    2 digit day the observation originated
+#
+# @!attribute time_made
+#  @return [Integer]
+#    time without time zone
+#
 # Subclass specific attributes
 #
 # Observation::Qualitative attributes
@@ -130,6 +146,10 @@ class Observation < ApplicationRecord
   validates_presence_of :descriptor_id, :type
   validates_presence_of :observation_object
   validate :type_matches_descriptor
+
+  validates :year_made, date_year: { min_year: 1757, max_year: -> {Time.now.year} }
+  validates :month_made, date_month: true
+  validates :day_made, date_day: {year_sym: :year_made, month_sym: :month_made}, unless: -> {year_made.nil? || month_made.nil?}
 
   def qualitative?
     type == 'Observation::Qualitative'

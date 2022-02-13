@@ -8,7 +8,8 @@ class Observation::Qualitative < Observation
   protected
 
   def character_state_is_unique
-    if Observation::Qualitative.object_scope(observation_object).where(character_state_id: character_state_id, descriptor_id: descriptor_id).any?
+    if Observation::Qualitative.object_scope(observation_object)
+      .where(character_state_id: character_state_id, descriptor_id: descriptor_id).where.not(id: id).any?
       errors.add(:character_state_id, ' is already observed')
     end
   end

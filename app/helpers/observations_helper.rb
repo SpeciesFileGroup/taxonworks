@@ -30,6 +30,15 @@ module ObservationsHelper
     end
   end
 
+  def observation_made_on_tag(observation)
+    return nil if observation.nil? 
+
+    [observation.year_made,
+     observation.month_made,
+     observation.day_made,
+     observation.time_made ].compact.join('-')
+  end
+
   def qualitative_observation_cell_tag(observation)
     observation.character_state.label
   end

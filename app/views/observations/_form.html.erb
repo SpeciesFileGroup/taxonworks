@@ -1,4 +1,6 @@
 <%= form_for(@observation.metamorphosize) do |f| %>
+  <div class="feedback feedback-danger"> You shouldn't be here. </div>
+    
   <% if @observation.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@observation.errors.count, "error") %> prohibited this observation from being saved:</h2>
@@ -17,7 +19,7 @@
   </div>
   <div class="field">
     <%= f.label :otu_id %><br>
-    <%= f.text_field :otu_id %> is_inserted: true
+    <%= f.text_field :otu_id %>
   </div>
   <div class="field">
     <%= f.label :collection_object_id %><br>
@@ -75,6 +77,28 @@
     <%= f.label :description %><br>
     <%= f.text_area :description %>
   </div>
+
+  <div class="field">
+    <%= f.label :year_made %><br>
+    <%= f.text_field :year_made %>
+  </div>
+
+  <div class="field">
+    <%= f.label :month_made %><br>
+    <%= f.text_field :month_made %>
+  </div>
+
+  <div class="field">
+    <%= f.label :day_made %><br>
+    <%= f.text_field :day_made %>
+  </div>
+
+  <div class="field">
+    <%= f.label :time_made %><br>
+    <%= f.text_field :time_made %>
+  </div>
+
+
   <div class="actions">
     <%= f.submit %>
   </div>

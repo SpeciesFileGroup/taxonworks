@@ -10,6 +10,26 @@
   <%= object_link( @observation ) %>
 </p>
 
+<p>
+  <strong>Year made:</strong>
+  <%= @observation.year_made %>
+</p>
+
+<p>
+  <strong>Month made:</strong>
+  <%= @observation.month_made %>
+</p>
+
+<p>
+  <strong>Day made:</strong>
+  <%= @observation.day_made %>
+</p>
+
+<p>
+  <strong>Time made:</strong>
+  <%= @observation.time_made %>
+</p>
+
 <% if @observation.type =~ /Qualitative/ -%>
 
 <p>

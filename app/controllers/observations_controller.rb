@@ -138,13 +138,17 @@ class ObservationsController < ApplicationController
       :presence,
       :description,
       :type,
+      :year_made,
+      :month_made,
+      :day_made,
+      :time_made,
       images_attributes: [:id, :_destroy, :image_file, :rotate],
       depictions_attributes: [
         :id,
         :_destroy,
         :depiction_object_id, :depiction_object_type,
         :annotated_global_entity, :caption,
-        :is_metadata_depiction,
+        :is_metakata_depiction,
         :image_id,
         :figure_label,
         image_attributes: [:image_file]

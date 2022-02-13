@@ -22,6 +22,8 @@
     <%= fancy_th_tag(name: 'Presence / absence') -%>
     <%= fancy_th_tag(name: 'Description') -%>
 
+    <%= fancy_th_tag(name: 'Made on') -%>
+
     <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
     <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
@@ -46,6 +48,8 @@
           <td><%= observation.presence %></td>
           <td><%= observation.description %></td>
 
+          <td><%= observation_made_on_tag(observation) %></td>
+          
           <%= fancy_metadata_cells_tag(observation) -%>
         <% end %>
   <% end %>

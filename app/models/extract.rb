@@ -44,7 +44,6 @@ class Extract < ApplicationRecord
   has_many :sequences, through: :origin_relationships, source: :new_object, source_type: 'Sequence'
   has_many :extracts, through: :related_origin_relationships, source: :old_object, source_type: 'Extract'
 
-
   attr_accessor :is_made_now
 
   before_validation :set_made, if: -> {is_made_now}
@@ -52,7 +51,6 @@ class Extract < ApplicationRecord
   validates :year_made, date_year: { min_year: 1757, max_year: -> {Time.now.year} }
   validates :month_made, date_month: true
   validates :day_made, date_day: {year_sym: :year_made, month_sym: :month_made}, unless: -> {year_made.nil? || month_made.nil?}
-
 
   # @return Array
   #   all inferred or asserted OTUs that this OTU came from
