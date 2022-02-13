@@ -4,19 +4,15 @@ class ObservationMatrixRowItem::Dynamic::TaxonName < ObservationMatrixRowItem::D
   belongs_to :taxon_name, inverse_of: :observation_matrix_row_items, class_name: '::TaxonName'
 
   validates_presence_of :taxon_name_id
+  validates_absence_of :controlled_vocabulary_term_id
   validates_uniqueness_of :taxon_name_id, scope: [:observation_matrix_id, :project_id]
 
   def self.subclass_attributes
     [:taxon_name_id]
   end
 
-  # THIS GOES DOWN ! --> need to go up.
-  def otus
-    ::Otu.joins(:taxon_name).where(taxon_name: taxon_name.self_and_descendants) 
-  end
-
-  def collection_objects
-    ::CollectionObject.none
+  def row_objects
+    ::Otu.joins(:taxon_name).where(taxon_name: taxon_name.self_and_descendants).to_a
   end
 
   def matrix_row_item_object

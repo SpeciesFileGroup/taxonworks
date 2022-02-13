@@ -14,6 +14,7 @@
 #
 #
 # TODO: sometime way down the line revisit this
+# !! This should be fine when inverse_of: attributes are added !! 
 # Please DO NOT include the following:
 #   validates :<foo>_object, presence: true
 #   validates_presence_of :<foo>_object_type, :<foo>_object_id

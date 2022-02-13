@@ -73,7 +73,7 @@ describe TaxonName, typein_scope_observation_matrix_row_items: :model, group: [:
       end
 
       specify 'adding species to scope 2' do
-        expect(observation_matrix.observation_matrix_rows.map(&:otu)).to contain_exactly(otu, otu2)
+        expect(observation_matrix.observation_matrix_rows.map(&:observation_object)).to contain_exactly(otu, otu2)
       end
 
       specify 'otus can be destroyed' do
@@ -105,12 +105,12 @@ describe TaxonName, typein_scope_observation_matrix_row_items: :model, group: [:
       end
 
       specify '#otus 1' do
-        expect(d.otus).to contain_exactly(otu)
+        expect(d.row_objects).to contain_exactly(otu)
       end
 
       specify '#otus 2' do
         species2.update(parent: genus1)
-        expect(d.otus).to contain_exactly(otu, otu2)
+        expect(d.row_objects).to contain_exactly(otu, otu2)
       end
 
       specify '#row_objects' do

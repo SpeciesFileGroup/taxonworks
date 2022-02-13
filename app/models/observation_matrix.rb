@@ -7,7 +7,7 @@ class ObservationMatrix < ApplicationRecord
   include Shared::Tags
   include Shared::Notes
   include Shared::DataAttributes
-  include Shared::IsData
+  include Shared::IsData # Hybrid of sorts, is also a layout engine, but people cite matrice so...
 
   validates_presence_of :name
   validates_uniqueness_of :name, scope: [:project_id]
@@ -20,8 +20,15 @@ class ObservationMatrix < ApplicationRecord
   has_many :observation_matrix_columns, inverse_of: :observation_matrix, dependent: :delete_all
 
   # TODO: restrict this- you can not directly create these!
-  has_many :otus, through: :observation_matrix_rows, inverse_of: :observation_matrices
-  has_many :collection_objects, through: :observation_matrix_rows, inverse_of: :observation_matrices
+  # TODO: must go
+  has_many :otus, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'Otu'
+  has_many :collection_objects, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'CollectionObject'
+
+# def observation_objects
+#   observation_matrix_rows -> objects
+#   # loop types, build union 
+# end
+
 
   # TODO: restrict these- you can not directly create these!
   has_many :descriptors, through: :observation_matrix_columns, inverse_of: :observation_matrices
@@ -66,10 +73,12 @@ class ObservationMatrix < ApplicationRecord
     CharacterState.joins(descriptor: [:observation_matrices]).merge(descriptors)
   end
 
+  # TODO: helper method
   def cell_count
     observation_matrix_rows.count * observation_matrix_columns.count
   end
 
+  # @return True if every descriptor is a media descriptor
   def is_media_matrix?
     observation_matrix_columns.each do |c|
       return false unless c.descriptor.type == 'Descriptor::Media'
@@ -137,57 +146,64 @@ class ObservationMatrix < ApplicationRecord
 
   # @return [Hash]
   #   grid: [columns][rows][observations]
-  #   rows: [row_object.GlobalId, row_object.GlobalId] (Klass)
+  #
+  # Note: old mx version had additional, at present not needed, they can be added via the row/column_index to get: 
+  #   rows: [Otu1, Otu2... CollectonObject1]  (was a global ID in mx)
   #   columns: [descriptor.id, desriptor.id]
-  # Derived from mx code. TODO: optimize by returning only observations with Otu range, not just Chr range (? still relevant ?)
-  #  :position attribute starts at 1
-  # Grid starts at 0!!
+  #
+  # !! :position attribute starts at 1
+  # !! Grid starts at 0 !!
   def observations_in_grid(options = {})
     opts = {
       row_start:  1,
       row_end: 'all',
       col_start: 1,
-      col_end: 'all'
+      col_end: 'all',
+      row_index: false,
+      column_index: false,
     }.merge!(options.symbolize_keys)
 
     return false if (opts[:row_start] == 0) || (opts[:col_start] == 0) # catch problems with forgetting index starts at 1
 
-    rows = []  # y axis
-    cols = []  # x axis
-    r = []
-    if opts[:row_end] == 'all'
-      r = observation_matrix_rows.order('observation_matrix_rows.position')
-    else
-      r = observation_matrix_rows.where("observation_matrix_rows.position >= ? and observation_matrix_rows.position <= ?", opts[:row_start], opts[:row_end]).order('observation_matrix_rows.position')
-    end
-
-    return false if r.size == 0
-    #rows = r.collect{|i| i.row_object.to_global_id} ### slow
-    rows = r.collect{|i| "#{i.otu_id}|#{i.collection_object_id}" }
-
-    if opts[:col_end] == 'all'
-      cols = descriptors.order('observation_matrix_columns.position').pluck(:id) # all descriptors
-    else
-      cols = observation_matrix_rows.
-        where("observation_matrix_columns.position >= ? and observation_matrix_columns.position <= ?", opts[:col_start], opts[:col_end]).
-        order('observation_matrix_columns.position').
-        pluck(:descriptor_id)  # self.chrs.within_mx_range(opts[:chr_start], opts[:chr_end])
-    end
-
-    return false if cols.size == 0
-
-    grid = Array.new(cols.size){Array.new(rows.size){Array.new}}
+    grid = empty_grid(opts)
 
     # Dump the observations into bins
-    Observation.by_descriptors_and_rows(cols, rows).each do |o|
-      #i = o.observation_object.to_global_id ### this is very slow
-      i = "#{o.otu_id}|#{o.collection_object_id}"
-      if rows.index(i)
-        grid[cols.index(o.descriptor_id)][rows.index(i)].push(o)
+    obs = Observation.by_matrix_and_position(self.id, opts)
+      .select('omc.position as column_index, omr.position as row_index, observations.*') 
+
+    rows, cols = [], []
+
+    obs.each do |o|
+      grid[o.column_index - 1][o.row_index - 1].push(o)
+
+      # These might not ever be needed, they were used in MX
+      if opts[:row_index]
+        rows[o.row_index - 1] = o.observation_object_type + o.observation_object_id.to_s if rows[o.row_index - 1].nil?
+      end
+
+      if opts[:column_index]
+        cols[o.column_index - 1] = o.descriptor_id if cols[o.column_index - 1].nil?
       end
     end
 
-    {grid: grid, rows: rows, cols: cols }
+    {grid: grid, rows: rows, cols: cols}
+  end
+
+  # @return [Array]
+  def empty_grid(opts)
+    re = if opts[:row_end] == 'all'
+           observation_matrix_rows.count + 1
+         else
+           opts[:row_end]
+         end
+
+    ce = if opts[:col_end] == 'all'
+           observation_matrix_columns.count + 1
+         else
+           opts[:col_end]
+         end
+
+    Array.new(ce - opts[:col_start]){Array.new(re - opts[:row_start]){Array.new}}
   end
 
   # @param descriptor_id [Descriptor]
@@ -200,7 +216,7 @@ class ObservationMatrix < ApplicationRecord
     symbol_start ||= 0
     cells = Hash.new{|hash, key| hash[key] = Array.new}
     observations.where(descriptor_id: descriptor_id).each do |o|
-      g = "#{o.otu_id}|#{o.collection_object_id}"
+      g = "#{o.observation_object_type}|#{o.observation_object_id}"
       cells[g].push(
         o.qualitative? ? o.character_state_id : "#{o.descriptor_id}_#{o.presence_absence? ? '1' : '0'}"
       )
@@ -221,13 +237,13 @@ class ObservationMatrix < ApplicationRecord
 
   # @return [Hash]
   #  a hash of hashes of arrays with the coding objects nicely organized
-  #   descriptor_id1 =>{row_object_global_id => [observation1, observation2], descriptor_id: nil}
+  #   descriptor_id1 =>{ "Otu1" => [observation1, observation2], descriptor_id: nil}
   #
   #  was `codings_mx` in mx where this: "likely should add scope and merge with above, though this seems to be slower"
   def observations_hash
     h = Hash.new{|hash, key| hash[key] = Hash.new{|hash2, key2| hash2[key2] = Array.new}}
-    observations.each {|o| h[o.descriptor_id]["#{o.otu_id}|#{o.collection_object_id}"].push(o) }
-    #observations.each {|o| h[o.descriptor_id][o.observation_object_global_id].push(o) } ### this is slow
+    observations.each {|o| h[o.descriptor_id][o.observation_object_type + o.observation_object_id.to_s].push(o) }
+    #observations.each {|o| h[o.descriptor_id][o.observation_object_global_id].push(o) } ### potentially useful but extra compute slower
     h
   end
 end

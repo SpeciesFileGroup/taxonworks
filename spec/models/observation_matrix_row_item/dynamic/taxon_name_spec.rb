@@ -21,16 +21,16 @@ RSpec.describe ObservationMatrixRowItem::Dynamic::TaxonName, type: :model, group
     end
 
     context 'other possible subclass attributes are nil' do
-      specify 'collection_object_id' do
-        observation_matrix_row_item.collection_object_id = FactoryBot.create(:valid_collection_object).id
+      specify 'observation_object_id' do
+        observation_matrix_row_item.observation_object_id = FactoryBot.create(:valid_otu).id
         observation_matrix_row_item.valid?
-        expect(observation_matrix_row_item.errors.include?(:collection_object_id)).to be_truthy
+        expect(observation_matrix_row_item.errors.include?(:observation_object_id)).to be_truthy
       end
 
-      specify 'otu_id' do
-        observation_matrix_row_item.otu_id = FactoryBot.create(:valid_otu).id
+      specify 'observation_object_type' do
+        observation_matrix_row_item.observation_object_type = 'Otu'
         observation_matrix_row_item.valid?
-        expect(observation_matrix_row_item.errors.include?(:otu_id)).to be_truthy
+        expect(observation_matrix_row_item.errors.include?(:observation_object_type)).to be_truthy
       end
     end
 
@@ -44,27 +44,17 @@ RSpec.describe ObservationMatrixRowItem::Dynamic::TaxonName, type: :model, group
 
       let!(:o1) { Otu.create(taxon_name: t1) }
 
-      before {
-        observation_matrix_row_item.taxon_name = t1 
-        observation_matrix_row_item.observation_matrix = observation_matrix
-        observation_matrix_row_item.save!
-      }
+      before { observation_matrix_row_item.update!(
+        taxon_name: t1,
+        observation_matrix:  observation_matrix)}
 
-      specify '.otus' do
-        expect(observation_matrix_row_item.otus).to contain_exactly(o1)
-      end
-
-      specify '.collection_objects' do
-        expect(observation_matrix_row_item.collection_objects).to contain_exactly()
+      specify '.row_objects' do
+        expect(observation_matrix_row_item.row_objects).to contain_exactly(o1)
       end
 
       context 'adding an item synchronizes observation_matrix_rows' do
         specify 'saving a record adds otus observation_matrix_rows' do
-          expect(ObservationMatrixRow.all.map(&:otu)).to contain_exactly(o1)
-        end
-
-        specify 'saving a record adds collection objects observation_matrix_rows' do
-          expect(ObservationMatrixRow.all.map(&:collection_object)).to contain_exactly(nil)
+          expect(ObservationMatrixRow.all.map(&:observation_object)).to contain_exactly(o1)
         end
 
         specify 'added observation_matrix_rows have reference_count == 1' do
@@ -84,8 +74,8 @@ RSpec.describe ObservationMatrixRowItem::Dynamic::TaxonName, type: :model, group
           let!(:om1) { FactoryBot.create(:valid_observation_matrix, name: 'something different') }
           let!(:omri) { ObservationMatrixRowItem::Dynamic::TaxonName.create(taxon_name: t1, observation_matrix: om1) }
 
-          specify 'saving a record adds otus observation_matrix_rows' do
-            expect(ObservationMatrixRow.all.map(&:otu)).to contain_exactly(o1, o1)
+          specify 'saving a record adds observation_matrix_rows' do
+            expect(ObservationMatrixRow.all.map(&:observation_object)).to contain_exactly(o1, o1)
           end
 
           specify 'updating an OTU to be out of scope removes from matrix' do
@@ -104,8 +94,8 @@ RSpec.describe ObservationMatrixRowItem::Dynamic::TaxonName, type: :model, group
       end
 
       context 'overlapping single item' do
-        let!(:other_observation_matrix_row_item) { ObservationMatrixRowItem::Single::Otu.create!(observation_matrix: observation_matrix, otu: o1) }
-        let(:observation_matrix_row) { ObservationMatrixRow.where(observation_matrix: observation_matrix, otu: o1).first} 
+        let!(:other_observation_matrix_row_item) { ObservationMatrixRowItem::Single.create!(observation_matrix: observation_matrix, observation_object: o1) }
+        let(:observation_matrix_row) { ObservationMatrixRow.where(observation_matrix: observation_matrix, observation_object: o1).first} 
 
         specify 'count is incremented' do
           expect(observation_matrix_row.reference_count).to eq(2)

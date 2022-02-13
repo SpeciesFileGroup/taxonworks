@@ -27,10 +27,6 @@ class ObservationMatrixRowItem < ApplicationRecord
 
   belongs_to :observation_matrix, inverse_of: :observation_matrix_row_items
 
-  # In subclasses?!  Validation vould have to be on _id?
-  # belongs_to :otu, inverse_of: :observation_matrix_row_items
-  # belongs_to :collection_object, inverse_of: :observation_matrix_row_items
-
   validates_presence_of :observation_matrix
   validate :other_subclass_attributes_not_set, if: -> {!type.blank?}
 
@@ -39,13 +35,10 @@ class ObservationMatrixRowItem < ApplicationRecord
 
   # @return [Array]
   #   of all objects this row references
+  # required/defined in subclasses
   def row_objects
-    objects = []
-
-    objects.push *otus if otus
-    objects.push *collection_objects if collection_objects
-    objects
-  end 
+    []
+  end
 
   def update_matrix_rows
      row_objects.each do |o|
@@ -54,23 +47,15 @@ class ObservationMatrixRowItem < ApplicationRecord
   end
 
   def cleanup_matrix_rows
-    return true if otus.count == 0 && collection_objects.count == 0
-    rows = []
-    rows.push *ObservationMatrixRow.where(observation_matrix: observation_matrix, otu_id: otus.map(&:id))
-    rows.push *ObservationMatrixRow.where(observation_matrix: observation_matrix, collection_object_id: collection_objects.map(&:id))
-
-    rows.each do |mr|
+    return true if row_objects.count == 0
+    ObservationMatrixRow.where(observation_matrix: observation_matrix, observation_object: row_objects).each do |mr|
       decrement_matrix_row_reference_count(mr)
     end
     true
   end
 
   def find_or_build_row(object)
-    if object.is_a? Otu
-      ObservationMatrixRow.find_or_initialize_by(observation_matrix: observation_matrix, otu: object )
-    elsif object.is_a? CollectionObject
-      ObservationMatrixRow.find_or_initialize_by(observation_matrix: observation_matrix, collection_object: object)
-    end
+    ObservationMatrixRow.find_or_initialize_by(observation_matrix: observation_matrix, observation_object: object)
   end
 
   def update_single_matrix_row(object)
@@ -79,15 +64,9 @@ class ObservationMatrixRowItem < ApplicationRecord
     increment_matrix_row_reference_count(mr)
   end
 
-  # Not names destroy because it doesn't always delete row
+  # Not named "destroy_" because it doesn't always delete row
   def cleanup_single_matrix_row(object)
-    mr = nil
-
-    if object.is_a? Otu
-      mr = ObservationMatrixRow.where(observation_matrix: observation_matrix, otu_id: object.id).first
-    elsif object.is_a? CollectionObject
-      mr = ObservationMatrixRow.where(observation_matrix: observation_matrix, collection_object_id: object.id).first
-    end
+    mr = ObservationMatrixRow.where(observation_matrix: observation_matrix, observation_object: object).first
     decrement_matrix_row_reference_count(mr) if !mr.nil?
   end
 
@@ -96,17 +75,9 @@ class ObservationMatrixRowItem < ApplicationRecord
   end
 
   # @return [Array]
-  #   the otus "defined" by this matrix row item
-  # override
-  def otus
-    [] 
-  end
-
-  # @return [Array]
-  #   the collection objects "defined" by this matrix row item
-  # override
-  def collection_objects
-    [] 
+  #  defined in subclasses
+  def row_objects
+    []
   end
 
   # @return [Array]
@@ -153,12 +124,12 @@ class ObservationMatrixRowItem < ApplicationRecord
     ObservationMatrixRowItem.transaction do
       begin
         if klass
-          klass.constantize.joins(:tags).where(tags: {keyword_id: keyword_id} ).each do |o|
-            created.push create_for(o, observation_matrix_id)
+          klass.safe_constantize.joins(:tags).where(tags: {keyword_id: keyword_id} ).each do |o|
+            created.push ObservationMatrixRowItem::Single.create!(observation_matrix_id: observation_matrix_id, observation_object: o)
           end
         else
           created += create_for_tags(
-            Tag.where(keyword_id: keyword_id, tag_object_type: ['Otu', 'CollectionObject']).all,
+            Tag.where(keyword_id: keyword_id, tag_object_type: OBSERVABLE_TYPES).all,
             observation_matrix_id
           )
         end
@@ -177,18 +148,17 @@ class ObservationMatrixRowItem < ApplicationRecord
     ObservationMatrixRow.transaction do
       begin
         if klass
-          klass.constantize.joins(:pinboard_items).where(pinboard_items: {user_id: user_id, project_id: project_id}).each do |o|
-            created.push create_for(o, observation_matrix_id)
+          klass.safe_constantize.joins(:pinboard_items).where(pinboard_items: {user_id: user_id, project_id: project_id}).each do |o|
+            created.push ObservationMatrixRowItem::Single.create!(observation_matrix_id: observation_matrix_id, observation_object: o)
           end
         else
           created += create_for_pinboard_items(
-            PinboardItem.where(project_id: project_id, user_id: user_id, pinned_object_type: ['Otu', 'CollectionObject']).all,
+            PinboardItem.where(project_id: project_id, user_id: user_id, pinned_object_type: OBSERVABLE_TYPES).all,
             observation_matrix_id
           )
         end
       rescue ActiveRecord::RecordInvalid => e
         raise
-       # return false
       end
     end
     return created
@@ -200,7 +170,7 @@ class ObservationMatrixRowItem < ApplicationRecord
   def self.create_for_tags(tag_scope, observation_matrix_id)
     a = []
     tag_scope.each do |o|
-      a.push create_for(o.tag_object, observation_matrix_id)
+      a.push ObservationMatrixRowItem::Single.create!(observation_matrix_id: observation_matrix_id, observation_object: o.tag_object)
     end
     a
   end
@@ -211,25 +181,9 @@ class ObservationMatrixRowItem < ApplicationRecord
   def self.create_for_pinboard_items(pinboard_item_scope, observation_matrix_id)
     a = []
     pinboard_item_scope.each do |o|
-      a.push create_for(o.pinned_object, observation_matrix_id)
+      a.push ObservationMatrixRowItem::Single.create!(observation_matrix_id: observation_matrix_id, observation_object: o.pinned_object)
     end
     a
-  end
-
-  def self.create_for(object, observation_matrix_id)
-    p = { observation_matrix_id: observation_matrix_id }
-    k = nil
-    case object.class.base_class.name
-    when 'Otu'
-      p[:otu] = object
-      k = ObservationMatrixRowItem::Single::Otu
-    when 'CollectionObject'
-      p[:collection_object] = object
-      k = ObservationMatrixRowItem::Single::CollectionObject
-    else
-      raise
-    end
-    k.create!(p)
   end
 
   def decrement_matrix_row_reference_count(mr)
@@ -245,7 +199,7 @@ class ObservationMatrixRowItem < ApplicationRecord
 
   # TODO: Should change behaviour of cached_
   # to only populate with id when reference count == 1
-  # that way we could delete rows  
+  # that way we could delete rows
   def increment_matrix_row_reference_count(mr)
     mr.update_columns(reference_count: (mr.reference_count || 0) +  1)
     mr.update_columns(cached_observation_matrix_row_item_id: id) if type =~ /Single/

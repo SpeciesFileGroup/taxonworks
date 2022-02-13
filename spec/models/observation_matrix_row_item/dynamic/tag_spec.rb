@@ -40,28 +40,22 @@ RSpec.describe ObservationMatrixRowItem::Dynamic::Tag, type: :model, group: :obs
       let!(:tag2) { Tag.create(keyword: keyword, tag_object: otu2) }
       let!(:tag3) { Tag.create(keyword: keyword, tag_object: co1) }
 
-      before{
-        observation_matrix_row_item.controlled_vocabulary_term = keyword
-        observation_matrix_row_item.observation_matrix = observation_matrix
-        observation_matrix_row_item.save!
-      }
+      before { observation_matrix_row_item.update!(
+        controlled_vocabulary_term: keyword,
+        observation_matrix: observation_matrix) }
 
-      specify '.otus' do
-        expect(observation_matrix_row_item.otus).to contain_exactly(otu1, otu2)
-      end
-
-      specify '.collection_objects' do
-        expect(observation_matrix_row_item.collection_objects).to contain_exactly(co1)
+      specify '.row_objects' do
+        expect(observation_matrix_row_item.row_objects).to contain_exactly(otu1, otu2, co1)
       end
 
       context 'adding an item synchronizes observation_matrix_rows' do
         specify 'saving a record adds otus observation_matrix_rows' do
-          expect(ObservationMatrixRow.all.map(&:otu)).to contain_exactly(otu1, otu2, nil)
+          expect(ObservationMatrixRow.all.map(&:observation_object)).to contain_exactly(otu1, otu2, co1)
         end
 
-        specify 'saving a record adds collection objects observation_matrix_rows' do
-          expect(ObservationMatrixRow.all.map(&:collection_object)).to contain_exactly(nil, nil, co1)
-        end
+#       specify 'saving a record adds collection objects observation_matrix_rows' do
+#         expect(ObservationMatrixRow.all.map(&:collection_object)).to contain_exactly(nil, nil, co1)
+#       end
 
         specify 'added observation_matrix_rows have reference_count == 1' do
           expect(ObservationMatrixRow.all.pluck(:reference_count)).to contain_exactly(1, 1, 1)
@@ -78,8 +72,8 @@ RSpec.describe ObservationMatrixRowItem::Dynamic::Tag, type: :model, group: :obs
       end
 
       context 'overlapping single item' do
-        let!(:other_observation_matrix_row_item) { ObservationMatrixRowItem::Single::Otu.create!(observation_matrix: observation_matrix, otu: otu1) }
-        let(:observation_matrix_row) { ObservationMatrixRow.where(observation_matrix: observation_matrix, otu: otu1).first} 
+        let!(:other_observation_matrix_row_item) { ObservationMatrixRowItem::Single.create!(observation_matrix: observation_matrix, observation_object: otu1) }
+        let(:observation_matrix_row) { ObservationMatrixRow.where(observation_matrix: observation_matrix, observation_object: otu1).first} 
 
         specify 'count is incremented' do
           expect(observation_matrix_row.reference_count).to eq(2)
@@ -110,11 +104,7 @@ RSpec.describe ObservationMatrixRowItem::Dynamic::Tag, type: :model, group: :obs
         let!(:other_observation_matrix_row_item) { ObservationMatrixRowItem::Dynamic::Tag.create!(observation_matrix: observation_matrix, controlled_vocabulary_term: other_keyword) }
 
         specify 'observation_matrix_row otus are still unique' do
-          expect(ObservationMatrixRow.all.map(&:otu)).to contain_exactly(otu1, otu2, nil)
-        end
-
-        specify 'observation_matrix_row collection objects are still unique' do
-          expect(ObservationMatrixRow.all.map(&:collection_object)).to contain_exactly(nil, nil, co1)
+          expect(ObservationMatrixRow.all.map(&:observation_object)).to contain_exactly(otu1, otu2, co1)
         end
 
         specify 'observation_matrix_row reference_count is incremented' do
@@ -128,8 +118,8 @@ RSpec.describe ObservationMatrixRowItem::Dynamic::Tag, type: :model, group: :obs
             expect(ObservationMatrixRow.all.pluck(:reference_count)).to contain_exactly(1)
           end
 
-          specify 'observation_matrix_row collection_object are left in' do
-            expect(ObservationMatrixRow.all.map(&:collection_object)).to contain_exactly(co1)
+          specify 'observation_matrix_row observation_objects are left in' do
+            expect(ObservationMatrixRow.all.map(&:observation_object)).to contain_exactly(co1)
           end
         end
 
@@ -140,11 +130,7 @@ RSpec.describe ObservationMatrixRowItem::Dynamic::Tag, type: :model, group: :obs
           let!(:new_tag2) { Tag.create(keyword: other_keyword, tag_object: co2) }
 
           specify 'otu observation_matrix_row is added' do
-            expect(ObservationMatrixRow.all.map(&:otu)).to contain_exactly(otu1, otu2, nil, otu3, nil)
-          end
-
-          specify 'collection_object observation_matrix_row is added' do
-            expect(ObservationMatrixRow.all.map(&:collection_object)).to contain_exactly(nil, nil, co1, nil, co2)
+            expect(ObservationMatrixRow.all.map(&:observation_object)).to contain_exactly(otu1, otu2, co1, otu3, co2)
           end
 
           specify 'only added observation_matrix rows are incremented' do
