@@ -26,7 +26,7 @@ class ObservationMatrix < ApplicationRecord
 
 # def observation_objects
 #   observation_matrix_rows -> objects
-#   # loop types, build union 
+#   # loop types, build union
 # end
 
 
@@ -97,7 +97,7 @@ class ObservationMatrix < ApplicationRecord
     when 'nomenclature'
       objects = []
       observation_matrix_rows.each do |r|
-        t = r.current_taxon_name # not all rows have reference to a taxon name 
+        t = r.current_taxon_name # not all rows have reference to a taxon name
         objects.push [r, (t ? TaxonName.self_and_ancestors_of(t).order('taxon_name_hierarchies.generations DESC').pluck(:name).to_s : '')]
       end
 
@@ -132,11 +132,12 @@ class ObservationMatrix < ApplicationRecord
   end
 
   def media_observations
-    Observation.in_observation_matrix(id).where(type: 'Observation::Media')
+    Observation::Media.in_observation_matrix(id)
   end
 
+  # TODO: Railsify
   def observation_depictions
-    Depiction.select('depictions.*, observations.descriptor_id, observations.otu_id, observations.collection_object_id, sources.id AS source_id, sources.cached_author_string, sources.year, sources.cached AS source_cached')
+    Depiction.select('depictions.*, observations.descriptor_id, observations.observation_object_id, observations.observation_object_type, sources.id AS source_id, sources.cached_author_string, sources.year, sources.cached AS source_cached')
       .joins("INNER JOIN observations ON observations.id = depictions.depiction_object_id")
       .joins("INNER JOIN images ON depictions.image_id = images.id")
       .joins("LEFT OUTER JOIN citations ON citations.citation_object_id = images.id AND citations.citation_object_type = 'Image' AND citations.is_original IS TRUE")
@@ -147,7 +148,7 @@ class ObservationMatrix < ApplicationRecord
   # @return [Hash]
   #   grid: [columns][rows][observations]
   #
-  # Note: old mx version had additional, at present not needed, they can be added via the row/column_index to get: 
+  # Note: old mx version had additional, at present not needed, they can be added via the row/column_index to get:
   #   rows: [Otu1, Otu2... CollectonObject1]  (was a global ID in mx)
   #   columns: [descriptor.id, desriptor.id]
   #
@@ -169,7 +170,7 @@ class ObservationMatrix < ApplicationRecord
 
     # Dump the observations into bins
     obs = Observation.by_matrix_and_position(self.id, opts)
-      .select('omc.position as column_index, omr.position as row_index, observations.*') 
+      .select('omc.position as column_index, omr.position as row_index, observations.*')
 
     rows, cols = [], []
 

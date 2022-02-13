@@ -88,8 +88,8 @@ module ObservationMatrices::Export::NexmlHelper
         end # end format
 
         include_continuous_matrix(opt.merge(descriptors: d)) if opt[:include_matrix]
-    end # end multistate characters
-    opt[:target]
+      end # end multistate characters
+      opt[:target]
   end
 
   def include_multistate_matrix(options = {})
@@ -100,17 +100,22 @@ module ObservationMatrices::Export::NexmlHelper
 
     # the matrix
     cells = m.observations_in_grid({})[:grid]
+   
     p = m.observation_matrix_columns.order('observation_matrix_columns.position').map(&:descriptor_id)
+
+    # TODO: not real now
     q = m.observation_matrix_rows.order('observation_matrix_rows.position').collect{|i| "#{i.otu_id}|#{i.collection_object_id}" }
+    
     xml.matrix do
       m.observation_matrix_rows.each do |r|
-        xml.row(id: "multistate_row#{r.id}", otu: "row_#{r.id}") do |row| # use row_id to uniquel identify the row ##  Otu#id to uniquely id the row
+        xml.row(id: "multistate_row#{r.id}", otu: "row_#{r.id}") do |row| # use row_id to uniquely identify the row, Otu#id to uniquely id the row Otu
 
           # cell representation
           opt[:descriptors].each do |d|
 
             x = p.index(d.id) # opt[:descriptors].index(d)  #   .index(d)
             y = q.index("#{r.otu_id}|#{r.collection_object_id}")
+
             observations = cells[ x ][ y ]
 
             case observations.size
@@ -174,8 +179,6 @@ module ObservationMatrices::Export::NexmlHelper
     return opt[:target]
   end
 
-
-
   def nexml_otus(options = {})
     opt = {target: ''}.merge!(options)
     xml = Builder::XmlMarkup.new(target: opt[:target])
@@ -192,11 +195,12 @@ module ObservationMatrices::Export::NexmlHelper
           label: observation_matrix_row_label_nexml(r)
         ) do
           include_collection_objects(opt.merge(otu: r.row_object)) if opt[:include_collection_objects]
+
           # This is experimental only. Issues:
           # * It draws images and data from all matrices, # not just this one
           # * Depictions are on Observation::Media, not OTU, i.e. we could be more granular throughout
           # * Citations are on Image, not Depiction
-          im =  ImageMatrix.new(project_id: r.project_id, otu_filter: r.otu_id.to_s)
+          im = Tools::ImageMatrix.new(project_id: r.project_id, otu_filter: r.otu_id.to_s)
           descriptors = im.list_of_descriptors.values
           if !im.blank? && !im.depiction_matrix.empty?
             object = im.depiction_matrix.first
@@ -235,7 +239,6 @@ module ObservationMatrices::Export::NexmlHelper
             end
           end
 
-
 =begin
           Observation::Media.where(otu_id: r.otu_id).each do |o|
             o.depictions.each do |d|
@@ -255,8 +258,6 @@ module ObservationMatrices::Export::NexmlHelper
             end
           end
 =end
-
-
         end
       end
     end
@@ -283,40 +284,40 @@ module ObservationMatrices::Export::NexmlHelper
     return opt[:target]
   end
 
-   #
-   # NOT USED - current using inline approach to handle depictions
+  #
+  # NOT USED - current using inline approach to handle depictions
   def nexml_otu_depictions(options = {})
-     opt = {target:  '', descriptors: []}.merge!(options)
-     xml = Builder::XmlMarkup.new(target: opt[:target])
-     m = opt[:observation_matrix]
-     otus = m.otus
-     im =  ImageMatrix.new(
-       project_id: m.project_id,
-       otu_filter: m.otus.pluck(:id).join('|'))
-     descriptors = im.list_of_descriptors.values
-     row_hash = m.observation_matrix_rows.map{|i| [i.otu_id, i.id]}.to_h
+    opt = {target:  '', descriptors: []}.merge!(options)
+    xml = Builder::XmlMarkup.new(target: opt[:target])
+    m = opt[:observation_matrix]
+    otus = m.otus
+    im = Tools::ImageMatrix.new(
+      project_id: m.project_id,
+      otu_filter: m.otus.pluck(:id).join('|'))
+    descriptors = im.list_of_descriptors.values
+    row_hash = m.observation_matrix_rows.map{|i| [i.otu_id, i.id]}.to_h
 
-     xml.otu_depictions do |d|
-       im.depiction_matrix.each do |object|
-         object[1][:depictions].each_with_index do |depictions, index|
-           depictions.each do |depiction|
+    xml.otu_depictions do |d|
+      im.depiction_matrix.each do |object|
+        object[1][:depictions].each_with_index do |depictions, index|
+          depictions.each do |depiction|
 
-             xml.meta(
-               'xsi:type' => 'ResourceMeta',
-               'rel' => 'foaf:depiction',
-               'about' => "row_#{row_hash[object[1][:otu_id].to_i].to_s}",
-               'href' => root_url + im.image_hash[depiction[:image_id]][:original_url],
-               'object' => object[1][:object].otu_name,
-               'description' => descriptors[index][:caption],
-               'label' => depiction[:figure_label],
-               'citation' => depiction[:source_cached]
-             )
-           end
-         end
-       end
-     end
-     return opt[:target]
-   end
+            xml.meta(
+              'xsi:type' => 'ResourceMeta',
+              'rel' => 'foaf:depiction',
+              'about' => "row_#{row_hash[object[1][:otu_id].to_i].to_s}",
+              'href' => root_url + im.image_hash[depiction[:image_id]][:original_url],
+              'object' => object[1][:object].otu_name,
+              'description' => descriptors[index][:caption],
+              'label' => depiction[:figure_label],
+              'citation' => depiction[:source_cached]
+            )
+          end
+        end
+      end
+    end
+    return opt[:target]
+  end
 
 
   # TODO: if semantics change we can add them as block later.

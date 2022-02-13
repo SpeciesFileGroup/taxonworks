@@ -2,8 +2,7 @@
 #
 # http://localhost:3000/tasks/observation_matrices/image_matrix/0/key?otu_filter=30947|22978|23065
 #
-#
-class ImageMatrix
+class Tools::ImageMatrix
 
   ##### FILTER PARAMETERS #####
 
@@ -33,8 +32,8 @@ class ImageMatrix
   attr_accessor :row_filter
 
   # @!otu_filter
-  #   @return [String or null]
-  # Optional attribute to provide a list of rowIDs to limit the set "otu_filter=1|5|10"
+  #   @return [String or null] like "otu_filter=1|5|10"
+  # Optional attribute to provide a list of rowIDs to limit the set 
   attr_accessor :otu_filter
 
   # @!eliminate_unknown
@@ -48,7 +47,9 @@ class ImageMatrix
   # Optional attribute to limit identification to OTU or a particular nomenclatural rank. Valid values are 'otu', 'species', 'genus', etc.
   attr_accessor :identified_to_rank
 
+  # 
   ##### RETURNED DATA ######
+  #
 
   # @!observation_matrix
   #   @return [Object]
@@ -101,7 +102,7 @@ class ImageMatrix
   attr_accessor :otu_id_filter_array
 
   # @!list_of_descriptors
-  #   @return [Array]
+  #   @return [Hash]
   # Return the list of descriptors and their states. Translated (if needed) and Sorted
   attr_accessor :list_of_descriptors
 
@@ -150,24 +151,32 @@ class ImageMatrix
     @otu_filter = otu_filter
     @row_id_filter_array = row_filter_array
     @otu_id_filter_array = otu_filter_array
-    @rows_with_filter = get_rows_with_filter
+  
+    # Memoized now  
+    # @rows_with_filter = get_rows_with_filter
+   
     @identified_to_rank = identified_to_rank
     @row_hash = row_hash_initiate
- 
- 
+
     @descriptors_with_filter = descriptors_with_keywords
-  
+
     @descriptor_available_languages = descriptor_available_languages_list
     @language_to_use = language_to_use
+
     ###main_logic
     @list_of_image_ids = []
-    @list_of_descriptors = build_list_of_descriptors
+
+    # Initiate on getter, memoized, only breaks then when requested
+    # @list_of_descriptors = build_list_of_descriptors
+  
     @depiction_matrix = descriptors_hash_initiate
     @image_hash = build_image_hash
     ###delete temporary data
     @row_hash = nil
     @rows_with_filter = []
-    @list_of_image_ids = nil
+   
+    # This was here twice! 
+    # @list_of_image_ids = nil
 
     @descriptors_with_filter = nil #!?@#
   end
@@ -177,7 +186,7 @@ class ImageMatrix
   end
 
   def descriptors
-    return nil if observation_matrix.nil?
+    return nil if observation_matrix.nil? # Might be more universal if Descriptors.none
     observation_matrix.descriptors.where("descriptors.type = 'Descriptor::Media'").not_weight_zero
   end
 
@@ -209,7 +218,7 @@ class ImageMatrix
   end
 
   def descriptors_with_keywords
-    if observation_matrix_id.to_i == 0 && !otu_filter.blank?
+    if observation_matrix_id.to_i == 0 && !otu_filter.blank? # @proceps, Why 0, it should never be this, but rather nil
       d = observation_depictions_from_otu_filter.pluck(:descriptor_id).uniq
       ds = Descriptor.where("descriptors.type = 'Descriptor::Media' AND descriptors.id IN (?)", d).not_weight_zero
     elsif keyword_ids
@@ -230,27 +239,35 @@ class ImageMatrix
     otu_filter.blank? ? nil : otu_filter.to_s.split('|').map(&:to_i)
   end
 
-  def get_rows_with_filter
-    return [] if observation_matrix.nil?
-    observation_matrix.observation_matrix_rows.order(:position)
+  def rows_with_filter
+    return @rows_with_filter if !@rows_with_filter.nil?
+    @rows_with_fitler = [] if observation_matrix.nil?
+    @rows_with_filter ||= observation_matrix.observation_matrix_rows.order(:position)
   end
 
   def row_hash_initiate
     h = {}
+    rows = nil # Of either Otu or ObservationMatrixRow of type Otu !! TODO: 
     if observation_matrix_id.to_i == 0 && !otu_filter.blank?
-      o = observation_depictions_from_otu_filter.pluck(:otu_id).uniq
-      @otu_id_filter_array = otu_id_filter_array & o # should be '@otu_id_filter_array' not 'otu_id_filter_array'
-      rows = Otu.where('otus.id IN (?)', otu_id_filter_array)
+
+      o = observation_depictions_from_otu_filter.where("observations.observation_object_type = 'Otu'").pluck(:observation_object_id).uniq
+
+      @otu_id_filter_array = otu_id_filter_array & o
+      
+      rows = Otu.where(id: otu_id_filter_array)
     else
       rows = rows_with_filter
     end
+    
     rows.each do |r|
       case r.class.to_s
       when 'Otu'
-        otu_collection_object = r.id.to_s + '|'
+        otu_collection_object = 'Otu' + r.id.to_s
+        # otu_collection_object = r.id.to_s + '|'
       when 'ObservationMatrixRow'
-        otu_collection_object = r.otu_id.to_s + '|' + r.collection_object_id.to_s
+        otu_collection_object = r.observation_object_type + r.observation_object_id.to_s # r.otu_id.to_s + '|' + r.collection_object_id.to_s
       end
+      
       h[otu_collection_object] = {}
       h[otu_collection_object][:object] = r
 
@@ -271,17 +288,21 @@ class ImageMatrix
       else
         h[otu_collection_object][:object_at_rank] = r
       end
-      h[otu_collection_object][:otu_id] = r.class.to_s == 'Otu' ? r.id : r.otu_id
+      h[otu_collection_object][:otu_id] = r.class.to_s == 'Otu' ? r.id : r.observation_object_id # otu_id
     end
     h
   end
 
-  ## descriptors_hash: {descriptor.id: {:descriptor,           ### (descriptor)
-  ##                                    :observations,         ### (array of observations for )
-  ##                                    :state_ids,            ### {hash of state_ids used in the particular matrix}
+  ## descriptors_hash: {descriptor.id: {:descriptor,    ### (descriptor)
+  ##                                    :observations,  ### (array of observations for )
+  ##                                    :state_ids,     ### {hash of state_ids used in the particular matrix}
   ##                                    }}
   def descriptors_hash_initiate
     h = {}
+  
+    # Depictions is depictions with other attributes added 
+    depictions = nil
+    
     if observation_matrix_id.to_i == 0 && !otu_filter.blank?
       depictions = observation_depictions_from_otu_filter
     else
@@ -289,37 +310,41 @@ class ImageMatrix
     end
 
     descriptors_count = list_of_descriptors.count
+
     row_hash.each do |r_key, r_value|
       if (row_id_filter_array.nil? && otu_id_filter_array.nil?) ||
           (row_id_filter_array && row_id_filter_array.include?(r_value[:object].id)) ||
-          (otu_id_filter_array && otu_id_filter_array.include?(r_value[:otu_id]))
+          (otu_id_filter_array && otu_id_filter_array.include?(r_value[:otu_id])) # !! TODO !!!
         h[r_key] = {object: r_value[:object_at_rank],
                     row_id: r_value[:object].id,
-                    otu_id: r_value[:otu_id],
+                    otu_id: r_value[:otu_id], ## TODO !!
                     depictions: Array.new(descriptors_count) {Array.new},
         } if h[r_key].nil?
       end
     end
 
     depictions.each do |o|
-      next if otu_id_filter_array && !otu_id_filter_array.include?(o.otu_id)
-      otu_collection_object = o.otu_id.to_s + '|' + o.collection_object_id.to_s
+      next if otu_id_filter_array && (o.observation_object_type == 'Otu' && !otu_id_filter_array.include?(o.observation_object_id)) # TODO: check this
+
+      otu_collection_object = o.observation_object_type + o.observation_object_id.to_s # id.to_s + '|' + o.collection_object_id.to_s
       if h[otu_collection_object]
         descriptor_index = list_of_descriptors[o.descriptor_id][:index]
         h[otu_collection_object][:depictions][descriptor_index] += [o]
-        list_of_image_ids.append(o.image_id)
+        @list_of_image_ids.append(o.image_id)
       end
     end
     h
   end
 
+  # TODO: CHANGED FLAG REMOVE
+  # @return [Depiction scope]
   def observation_depictions_from_otu_filter
-    Depiction.select('depictions.*, observations.descriptor_id, observations.otu_id, observations.collection_object_id, sources.id AS source_id, sources.cached_author_string, sources.year, sources.cached AS source_cached')
+    Depiction.select('depictions.*, observations.descriptor_id, observations.observation_object_id, observations.observation_object_type, sources.id AS source_id, sources.cached_author_string, sources.year, sources.cached AS source_cached')
       .joins("INNER JOIN observations ON observations.id = depictions.depiction_object_id")
       .joins("INNER JOIN images ON depictions.image_id = images.id")
       .joins("LEFT OUTER JOIN citations ON citations.citation_object_id = images.id AND citations.citation_object_type = 'Image' AND citations.is_original IS TRUE")
       .joins("LEFT OUTER JOIN sources ON citations.source_id = sources.id")
-      .where("observations.type = 'Observation::Media' AND observations.otu_id IN (?)", otu_id_filter_array)
+      .where("observations.type = 'Observation::Media' AND observations.observation_object_id IN (?)", otu_id_filter_array) 
       .where('observations.project_id = (?)', project_id)
       .order('depictions.position')
   end
@@ -337,7 +362,8 @@ class ImageMatrix
     h
   end
 
-  def build_list_of_descriptors
+  def list_of_descriptors
+    return @list_of_descriptors if !@list_of_descriptors.nil?
     language = language_id.blank? ? nil : language_id.to_i
     n = 0
     h = {}
@@ -352,7 +378,7 @@ class ImageMatrix
       h[d.id] = descriptor
       n += 1
     end
-    h
+    @list_of_descriptors = h
   end
 
   def build_image_hash
@@ -362,7 +388,7 @@ class ImageMatrix
     #      img_ids = observation_matrix.observation_depictions.pluck(:image_id).uniq
     #    end
     h = {}
-    #imgs = Image.where('id IN (?)', img_ids )
+    
     imgs = Image.where('id IN (?)', list_of_image_ids )
     imgs.each do |d|
       i = {}
@@ -382,9 +408,11 @@ class ImageMatrix
 
     #cit = Citation.where(citation_object_type: 'Image').where('citation_object_id IN (?)', img_ids )
     cit = Citation.select('citations.*, sources.cached, sources.cached_author_string, sources.year')
-            .joins(:source)
-            .where(citation_object_type: 'Image')
-            .where('citation_object_id IN (?)', @list_of_image_ids )
+      .joins(:source)
+      .where(citation_object_type: 'Image')
+      .where('citation_object_id IN (?)', list_of_image_ids )
+   
+    # @proceps this is over-writing the citations data in a weird way!! 
     cit.each do |c|
       i = {}
       i[:id] = c.id

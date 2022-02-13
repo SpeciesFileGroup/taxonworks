@@ -99,7 +99,7 @@ module ObservationMatrices::Export::OtuContentsHelper
 
       if options[:include_depictions] == 'true'
         tw_url = 'https://sfg.taxonworks.org'
-        im =  ImageMatrix.new(
+        im = Tools::ImageMatrix.new(
           project_id: m.project_id,
           otu_filter: otu_ids.join('|'))
         descriptors = im.list_of_descriptors.values

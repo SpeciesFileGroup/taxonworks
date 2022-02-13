@@ -8,7 +8,7 @@ class Tasks::ObservationMatrices::InteractiveKeyController < ApplicationControll
 
   # GET /tasks/observation_matrices/interactive_key/37/key
   def key
-    @key = InteractiveKey.new(**key_params)
+    @key = Tools::InteractiveKey.new(**key_params)
   end
 
   protected
