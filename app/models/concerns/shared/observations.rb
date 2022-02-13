@@ -7,8 +7,8 @@ module Shared::Observations
     class_name = self.name.tableize.singularize
 
     has_many :observations, as: :observation_object, dependent: :restrict_with_error # inverse_of: class_name
-    has_many :observation_matrix_rows, as: :observation_object # , inverse_of: class_name 
-    has_many :observation_matrix_row_items, as: :observation_object #, inverse_of: class_name 
+    has_many :observation_matrix_rows, as: :observation_object # , inverse_of: class_name
+    has_many :observation_matrix_row_items, as: :observation_object #, inverse_of: class_name
     has_many :observation_matrices, inverse_of: class_name.pluralize, through: :observation_matrix_rows
     has_many :descriptors, through: :observations
 
@@ -19,7 +19,7 @@ module Shared::Observations
 
   module ClassMethods
     def recently_observed
-      joins(:observations).where(observations: { updated_at: 1.weeks.ago..Time.now } ) 
+      joins(:observations).where(observations: { updated_at: 1.weeks.ago..Time.now } )
     end
   end
 

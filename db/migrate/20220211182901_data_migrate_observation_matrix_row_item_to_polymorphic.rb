@@ -6,7 +6,7 @@ class DataMigrateObservationMatrixRowItemToPolymorphic < ActiveRecord::Migration
       elsif !o.otu_id.nil?
         o.update!(observation_object_id: o.otu_id, observation_object_type: 'Otu')
       else
-        puts "!! Bad observation_matrix_row_item: #{o.id}, not linked to object" 
+        puts "!! Bad observation_matrix_row_item: #{o.id}, not linked to object"
       end
     end
   end

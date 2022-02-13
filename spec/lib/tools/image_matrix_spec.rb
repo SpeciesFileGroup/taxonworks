@@ -41,7 +41,7 @@ describe Tools::ImageMatrix, type: :model, group: :observation_matrix do
         project_id: observation_matrix.project_id)
 
       expect(im.list_of_descriptors.keys).to contain_exactly(descriptor1.id, descriptor2.id, descriptor3.id)
-    end 
+    end
 
     specify 'image_matrix' do
       depiction1.image.citations.create(source: source, is_original: true)

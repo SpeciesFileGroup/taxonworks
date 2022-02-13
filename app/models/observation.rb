@@ -40,9 +40,9 @@ class Observation < ApplicationRecord
   end
 
   # TODO:  Shouldn't this have access to cached?
-  # 
+  #
   def self.in_observation_matrix(observation_matrix_id)
-    Observation.joins('JOIN observation_matrix_rows omr on (omr.observation_object_type = observations.observation_object_type AND omr.observation_object_id = observations.observation_object_id)')  
+    Observation.joins('JOIN observation_matrix_rows omr on (omr.observation_object_type = observations.observation_object_type AND omr.observation_object_id = observations.observation_object_id)')
       .joins('JOIN observation_matrix_columns omc on omc.descriptor_id = observations.descriptor_id')
       .where('omr.observation_matrix_id = ? AND omc.observation_matrix_id = ?', observation_matrix_id, observation_matrix_id)
   end
@@ -65,9 +65,9 @@ class Observation < ApplicationRecord
       col_end: 'all'
     }.merge!(options.symbolize_keys)
 
-    return in_observation_matrix(observation_matrix_id).order('omc.position, omr.position') if opts[:row_start] == 1 && opts[:row_end] == 'all' && opts[:col_start] == 1 && opts[:col_end] == 'all' 
+    return in_observation_matrix(observation_matrix_id).order('omc.position, omr.position') if opts[:row_start] == 1 && opts[:row_end] == 'all' && opts[:col_start] == 1 && opts[:col_end] == 'all'
 
-    base = Observation.joins('JOIN observation_matrix_rows omr on (omr.observation_object_type = observations.observation_object_type AND omr.observation_object_id = observations.observation_object_id)')  
+    base = Observation.joins('JOIN observation_matrix_rows omr on (omr.observation_object_type = observations.observation_object_type AND omr.observation_object_id = observations.observation_object_id)')
       .joins('JOIN observation_matrix_columns omc on omc.descriptor_id = observations.descriptor_id')
       .where('omr.observation_matrix_id = ? AND omc.observation_matrix_id = ?', observation_matrix_id, observation_matrix_id)
 
@@ -84,10 +84,10 @@ class Observation < ApplicationRecord
 
 
   def self.by_observation_matrix_row(observation_matrix_row_id)
-    Observation.joins('JOIN observation_matrix_rows omr on (omr.observation_object_type = observations.observation_object_type AND omr.observation_object_id = observations.observation_object_id)')  
+    Observation.joins('JOIN observation_matrix_rows omr on (omr.observation_object_type = observations.observation_object_type AND omr.observation_object_id = observations.observation_object_id)')
       .joins('JOIN observation_matrix_columns omc on omc.descriptor_id = observations.descriptor_id')
       .where('omr.id = ?', observation_matrix_row_id)
-      .order('omc.position')   
+      .order('omc.position')
     # Could select specifics here
   end
 
@@ -123,7 +123,7 @@ class Observation < ApplicationRecord
   #
   # @params new_global_id [String]
   #    global_id of collection object or Otu
-  # 
+  #
   def self.copy(old_global_id, new_global_id)
     begin
       old = GlobalID::Locator.locate(old_global_id)
@@ -131,7 +131,7 @@ class Observation < ApplicationRecord
       Observation.transaction do
         old.observations.each do |o|
           d = o.dup
-          d.update!(observation_object_global_id: new_global_id) 
+          d.update!(observation_object_global_id: new_global_id)
         end
       end
       true
@@ -141,7 +141,7 @@ class Observation < ApplicationRecord
     true
   end
 
-  # TODO: Does this belong here? 
+  # TODO: Does this belong here?
   # Remove all observations for the set of descriptors in a given row
   def self.destroy_row(observation_matrix_row_id)
     r = ObservationMatrixRow.find(observation_matrix_row_id)

@@ -3,8 +3,8 @@ require 'tools/interactive_key'
 
 describe Tools::InteractiveKey, type: :model, group: :observation_matrix do
 
-  # Alias the class 
-  let(:key) { Tools::InteractiveKey } 
+  # Alias the class
+  let(:key) { Tools::InteractiveKey }
 
   context 'respond to' do
     let(:observation_matrix) { ObservationMatrix.create!(name: 'Matrix') }

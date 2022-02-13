@@ -33,7 +33,7 @@ class Tools::ImageMatrix
 
   # @!otu_filter
   #   @return [String or null] like "otu_filter=1|5|10"
-  # Optional attribute to provide a list of rowIDs to limit the set 
+  # Optional attribute to provide a list of rowIDs to limit the set
   attr_accessor :otu_filter
 
   # @!eliminate_unknown
@@ -47,7 +47,7 @@ class Tools::ImageMatrix
   # Optional attribute to limit identification to OTU or a particular nomenclatural rank. Valid values are 'otu', 'species', 'genus', etc.
   attr_accessor :identified_to_rank
 
-  # 
+  #
   ##### RETURNED DATA ######
   #
 
@@ -151,10 +151,10 @@ class Tools::ImageMatrix
     @otu_filter = otu_filter
     @row_id_filter_array = row_filter_array
     @otu_id_filter_array = otu_filter_array
-  
-    # Memoized now  
+
+    # Memoized now
     # @rows_with_filter = get_rows_with_filter
-   
+
     @identified_to_rank = identified_to_rank
     @row_hash = row_hash_initiate
 
@@ -168,14 +168,14 @@ class Tools::ImageMatrix
 
     # Initiate on getter, memoized, only breaks then when requested
     # @list_of_descriptors = build_list_of_descriptors
-  
+
     @depiction_matrix = descriptors_hash_initiate
     @image_hash = build_image_hash
     ###delete temporary data
     @row_hash = nil
     @rows_with_filter = []
-   
-    # This was here twice! 
+
+    # This was here twice!
     # @list_of_image_ids = nil
 
     @descriptors_with_filter = nil #!?@#
@@ -247,18 +247,18 @@ class Tools::ImageMatrix
 
   def row_hash_initiate
     h = {}
-    rows = nil # Of either Otu or ObservationMatrixRow of type Otu !! TODO: 
+    rows = nil # Of either Otu or ObservationMatrixRow of type Otu !! TODO:
     if observation_matrix_id.to_i == 0 && !otu_filter.blank?
 
       o = observation_depictions_from_otu_filter.where("observations.observation_object_type = 'Otu'").pluck(:observation_object_id).uniq
 
       @otu_id_filter_array = otu_id_filter_array & o
-      
+
       rows = Otu.where(id: otu_id_filter_array)
     else
       rows = rows_with_filter
     end
-    
+
     rows.each do |r|
       case r.class.to_s
       when 'Otu'
@@ -267,7 +267,7 @@ class Tools::ImageMatrix
       when 'ObservationMatrixRow'
         otu_collection_object = r.observation_object_type + r.observation_object_id.to_s # r.otu_id.to_s + '|' + r.collection_object_id.to_s
       end
-      
+
       h[otu_collection_object] = {}
       h[otu_collection_object][:object] = r
 
@@ -299,10 +299,10 @@ class Tools::ImageMatrix
   ##                                    }}
   def descriptors_hash_initiate
     h = {}
-  
-    # Depictions is depictions with other attributes added 
+
+    # Depictions is depictions with other attributes added
     depictions = nil
-    
+
     if observation_matrix_id.to_i == 0 && !otu_filter.blank?
       depictions = observation_depictions_from_otu_filter
     else
@@ -344,7 +344,7 @@ class Tools::ImageMatrix
       .joins("INNER JOIN images ON depictions.image_id = images.id")
       .joins("LEFT OUTER JOIN citations ON citations.citation_object_id = images.id AND citations.citation_object_type = 'Image' AND citations.is_original IS TRUE")
       .joins("LEFT OUTER JOIN sources ON citations.source_id = sources.id")
-      .where("observations.type = 'Observation::Media' AND observations.observation_object_id IN (?)", otu_id_filter_array) 
+      .where("observations.type = 'Observation::Media' AND observations.observation_object_id IN (?)", otu_id_filter_array)
       .where('observations.project_id = (?)', project_id)
       .order('depictions.position')
   end
@@ -388,7 +388,7 @@ class Tools::ImageMatrix
     #      img_ids = observation_matrix.observation_depictions.pluck(:image_id).uniq
     #    end
     h = {}
-    
+
     imgs = Image.where('id IN (?)', list_of_image_ids )
     imgs.each do |d|
       i = {}
@@ -411,8 +411,8 @@ class Tools::ImageMatrix
       .joins(:source)
       .where(citation_object_type: 'Image')
       .where('citation_object_id IN (?)', list_of_image_ids )
-   
-    # @proceps this is over-writing the citations data in a weird way!! 
+
+    # @proceps this is over-writing the citations data in a weird way!!
     cit.each do |c|
       i = {}
       i[:id] = c.id

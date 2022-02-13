@@ -11,14 +11,14 @@ class ObservationMatrixRowItem::Dynamic::Tag < ObservationMatrixRowItem::Dynamic
 
   # TODO: make this dynamic based on classes that are Observable!
   def row_objects
-    Otu.joins(:tags).where(tags: {keyword: controlled_vocabulary_term}).to_a + 
+    Otu.joins(:tags).where(tags: {keyword: controlled_vocabulary_term}).to_a +
       CollectionObject.joins(:tags).where(tags: {keyword: controlled_vocabulary_term}).to_a
-    # + 
+    # +
     #  Extract.joins(:tags).where(tags: {keyword: controlled_vocabulary_term}).to_a
   end
 
   def matrix_row_item_object
-    controlled_vocabulary_term 
+    controlled_vocabulary_term
   end
 
 end

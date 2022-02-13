@@ -12,14 +12,14 @@ class ObservationMatrixRowItem::Single < ObservationMatrixRowItem
     observation_object
   end
 
-  # Note: 
+  # Note:
   #   replaces deprecated `otus` and `collection_objects` methods
   def row_objects
     [ observation_object ]
   end
 
-  private 
-  
+  private
+
   def observation_object_is_unique_in_matrix
     if ObservationMatrixRowItem::Single.where(
         observation_matrix_id: observation_matrix_id,
