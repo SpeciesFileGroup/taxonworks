@@ -9,12 +9,12 @@ class ObservationMatrixRowItem::Dynamic::Tag < ObservationMatrixRowItem::Dynamic
     [:controlled_vocabulary_term_id]
   end
 
-  # TODO: make this dynamic based on classes that are Observable!
-  def row_objects
-    Otu.joins(:tags).where(tags: {keyword: controlled_vocabulary_term}).to_a +
-      CollectionObject.joins(:tags).where(tags: {keyword: controlled_vocabulary_term}).to_a
-    # +
-    #  Extract.joins(:tags).where(tags: {keyword: controlled_vocabulary_term}).to_a
+  def observation_objects
+    d = []
+    OBSERVABLE_TYPES.each do |t| # Currently assumes all types are also taggable, could do a simple check
+      d += t.safe_constantize.joins(:tags).where(tags: {keyword: controlled_vocabulary_term}).to_a 
+    end
+    d
   end
 
   def matrix_row_item_object

@@ -105,22 +105,22 @@ describe TaxonName, typein_scope_observation_matrix_row_items: :model, group: [:
       end
 
       specify '#otus 1' do
-        expect(d.row_objects).to contain_exactly(otu)
+        expect(d.observation_objects).to contain_exactly(otu)
       end
 
       specify '#otus 2' do
         species2.update(parent: genus1)
-        expect(d.row_objects).to contain_exactly(otu, otu2)
+        expect(d.observation_objects).to contain_exactly(otu, otu2)
       end
 
-      specify '#row_objects' do
+      specify '#observation_objects' do
         species2.update(parent: genus1)
-        expect(d.row_objects).to contain_exactly(otu, otu2)
+        expect(d.observation_objects).to contain_exactly(otu, otu2)
       end
 
-      specify '#row_objects 2' do
+      specify '#observation_objects 2' do
         species2.update!(parent: species, rank_class: Ranks.lookup(:iczn, :subspecies))
-        expect(d.row_objects).to contain_exactly(otu, otu2)
+        expect(d.observation_objects).to contain_exactly(otu, otu2)
       end
 
       specify 'enter scope' do

@@ -36,7 +36,7 @@ class ObservationMatrixRow < ApplicationRecord
 
   acts_as_list scope: [:observation_matrix_id, :project_id]
 
-  attr_accessor :row_object_global_id
+  attr_accessor :observation_object_global_id
 
   belongs_to :observation_object, polymorphic: true
   belongs_to :observation_matrix, inverse_of: :observation_matrix_rows
@@ -92,7 +92,7 @@ class ObservationMatrixRow < ApplicationRecord
     self.reference_count ||= 0
   end
 
-  def row_object_global_id=(value)
+  def observation_object_global_id=(value)
     self.observation_object = GlobalID::Locator.locate(value)
     @observation_object_global_id = value
   end

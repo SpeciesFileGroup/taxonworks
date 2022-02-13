@@ -41,13 +41,13 @@
               class="button normal-input button-default"
               v-if="matrixRow.hasOwnProperty('previous_row')"
               @click="initializeData.rowId = matrixRow.previous_row.id; loadMatrix()"
-              v-html="matrixRow.previous_row.row_object.object_tag"/>
+              v-html="matrixRow.previous_row.observation_object.object_tag"/>
             <button
               type="button"
               class="button normal-input button-default"
               v-if="matrixRow.hasOwnProperty('next_row')"
               @click="initializeData.rowId = matrixRow.next_row.id; loadMatrix()"
-              v-html="matrixRow.next_row.row_object.object_tag"/>
+              v-html="matrixRow.next_row.observation_object.object_tag"/>
           </div>
         </div>
       </template>

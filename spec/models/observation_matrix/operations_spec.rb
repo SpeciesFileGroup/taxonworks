@@ -4,11 +4,11 @@ RSpec.describe ObservationMatrix, type: :model, group: :observation_matrix do
 
   let!(:om) { FactoryBot.create(:valid_observation_matrix) }
 
-  let!(:row_object1) { FactoryBot.create(:valid_otu, name: 'row1') }
-  let!(:row_object2) { FactoryBot.create(:valid_otu, name: 'row2') }
-  let!(:row_object3) { FactoryBot.create(:valid_otu, name: 'row3') }
-  let!(:row_object4) { FactoryBot.create(:valid_specimen) }
-  let!(:row_object5) { FactoryBot.create(:valid_specimen) }
+  let!(:observation_object1) { FactoryBot.create(:valid_otu, name: 'row1') }
+  let!(:observation_object2) { FactoryBot.create(:valid_otu, name: 'row2') }
+  let!(:observation_object3) { FactoryBot.create(:valid_otu, name: 'row3') }
+  let!(:observation_object4) { FactoryBot.create(:valid_specimen) }
+  let!(:observation_object5) { FactoryBot.create(:valid_specimen) }
 
   # Standard format
   let!(:descriptor1) { Descriptor::Qualitative.create!(name: 'descriptor1') }
@@ -42,49 +42,49 @@ RSpec.describe ObservationMatrix, type: :model, group: :observation_matrix do
   # 5  -                s MED           -                  -           true false    0.1 0.3 n=5 m=5 mm
 
   # row 1
-  let!(:o1) { Observation.create!(observation_object: row_object1, descriptor: descriptor1, character_state: character_state1_1) }
-  let!(:o2) { Observation.create!(observation_object: row_object1, descriptor: descriptor3, character_state: character_state3_1) }
-  let!(:o3) { Observation.create!(observation_object: row_object1, descriptor: descriptor4, continuous_value: 20, continuous_unit: 'mm' ) }
-  let!(:o4) { Observation.create!(observation_object: row_object1, descriptor: descriptor6, sample_min: 1, sample_max: 2, sample_n: 5, sample_units: 'mm') }
+  let!(:o1) { Observation.create!(observation_object: observation_object1, descriptor: descriptor1, character_state: character_state1_1) }
+  let!(:o2) { Observation.create!(observation_object: observation_object1, descriptor: descriptor3, character_state: character_state3_1) }
+  let!(:o3) { Observation.create!(observation_object: observation_object1, descriptor: descriptor4, continuous_value: 20, continuous_unit: 'mm' ) }
+  let!(:o4) { Observation.create!(observation_object: observation_object1, descriptor: descriptor6, sample_min: 1, sample_max: 2, sample_n: 5, sample_units: 'mm') }
 
   # row 2
-  let!(:o5) { Observation.create!(observation_object: row_object2, descriptor: descriptor1, character_state: character_state1_2) }
-  let!(:o6) { Observation.create!(observation_object: row_object2, descriptor: descriptor2, character_state: character_state2_3) }
-  let!(:o7) { Observation.create!(observation_object: row_object2, descriptor: descriptor3, character_state: character_state3_3) }
-  let!(:o8) { Observation.create!(observation_object: row_object2, descriptor: descriptor4, continuous_value: 40, continuous_unit: 'mm' ) }
-  let!(:o9) { Observation.create!(observation_object: row_object2, descriptor: descriptor6, presence: true ) }
-  let!(:o10){ Observation.create!(observation_object: row_object2, descriptor: descriptor6, sample_min: 1, sample_units: 'cm') }
+  let!(:o5) { Observation.create!(observation_object: observation_object2, descriptor: descriptor1, character_state: character_state1_2) }
+  let!(:o6) { Observation.create!(observation_object: observation_object2, descriptor: descriptor2, character_state: character_state2_3) }
+  let!(:o7) { Observation.create!(observation_object: observation_object2, descriptor: descriptor3, character_state: character_state3_3) }
+  let!(:o8) { Observation.create!(observation_object: observation_object2, descriptor: descriptor4, continuous_value: 40, continuous_unit: 'mm' ) }
+  let!(:o9) { Observation.create!(observation_object: observation_object2, descriptor: descriptor6, presence: true ) }
+  let!(:o10){ Observation.create!(observation_object: observation_object2, descriptor: descriptor6, sample_min: 1, sample_units: 'cm') }
 
   # row 3
-  let!(:o11) { Observation.create!(observation_object: row_object3, descriptor: descriptor1, character_state: character_state1_1) }
-  let!(:o12) { Observation.create!(observation_object: row_object3, descriptor: descriptor1, character_state: character_state1_2) }
-  let!(:o13) { Observation.create!(observation_object: row_object3, descriptor: descriptor2, character_state: character_state2_1) }
-  let!(:o14) { Observation.create!(observation_object: row_object3, descriptor: descriptor3, character_state: character_state3_1) }
-  let!(:o15) { Observation.create!(observation_object: row_object3, descriptor: descriptor3, character_state: character_state3_2) }
-  let!(:o16) { Observation.create!(observation_object: row_object3, descriptor: descriptor3, character_state: character_state3_3) }
-  let!(:o17) { Observation.create!(observation_object: row_object3, descriptor: descriptor4, continuous_value: 1, continuous_unit: 'cm' ) }
-  let!(:o18) { Observation.create!(observation_object: row_object3, descriptor: descriptor5, presence: false) }
-  let!(:o19) { Observation.create!(observation_object: row_object3, descriptor: descriptor6, sample_min: 0.1, sample_max: 5.22, sample_units: 'mm') }
+  let!(:o11) { Observation.create!(observation_object: observation_object3, descriptor: descriptor1, character_state: character_state1_1) }
+  let!(:o12) { Observation.create!(observation_object: observation_object3, descriptor: descriptor1, character_state: character_state1_2) }
+  let!(:o13) { Observation.create!(observation_object: observation_object3, descriptor: descriptor2, character_state: character_state2_1) }
+  let!(:o14) { Observation.create!(observation_object: observation_object3, descriptor: descriptor3, character_state: character_state3_1) }
+  let!(:o15) { Observation.create!(observation_object: observation_object3, descriptor: descriptor3, character_state: character_state3_2) }
+  let!(:o16) { Observation.create!(observation_object: observation_object3, descriptor: descriptor3, character_state: character_state3_3) }
+  let!(:o17) { Observation.create!(observation_object: observation_object3, descriptor: descriptor4, continuous_value: 1, continuous_unit: 'cm' ) }
+  let!(:o18) { Observation.create!(observation_object: observation_object3, descriptor: descriptor5, presence: false) }
+  let!(:o19) { Observation.create!(observation_object: observation_object3, descriptor: descriptor6, sample_min: 0.1, sample_max: 5.22, sample_units: 'mm') }
 
   # row 4
-  let!(:o20) { Observation.create!(observation_object: row_object4, descriptor: descriptor1, character_state: character_state1_2) }
-  let!(:o21) { Observation.create!(observation_object: row_object4, descriptor: descriptor2, character_state: character_state2_2) }
-  let!(:o22) { Observation.create!(observation_object: row_object4, descriptor: descriptor3, character_state: character_state3_2) }
-  let!(:o23) { Observation.create!(observation_object: row_object4, descriptor: descriptor4, continuous_value: 0.01, continuous_unit: 'm' ) }
+  let!(:o20) { Observation.create!(observation_object: observation_object4, descriptor: descriptor1, character_state: character_state1_2) }
+  let!(:o21) { Observation.create!(observation_object: observation_object4, descriptor: descriptor2, character_state: character_state2_2) }
+  let!(:o22) { Observation.create!(observation_object: observation_object4, descriptor: descriptor3, character_state: character_state3_2) }
+  let!(:o23) { Observation.create!(observation_object: observation_object4, descriptor: descriptor4, continuous_value: 0.01, continuous_unit: 'm' ) }
 
   # row 5
-  let!(:o24) { Observation.create!(observation_object: row_object5, descriptor: descriptor2, character_state: character_state2_1) }
-  let!(:o25) { Observation.create!(observation_object: row_object5, descriptor: descriptor2, character_state: character_state2_2) }
-  let!(:o26) { Observation.create!(observation_object: row_object5, descriptor: descriptor5, presence: false) }
-  let!(:o27) { Observation.create!(observation_object: row_object5, descriptor: descriptor5, presence: true) }
-  let!(:o28) { Observation.create!(observation_object: row_object5, descriptor: descriptor6, sample_min: 0.1, sample_max: 0.3, sample_n: 5, sample_median: 5, sample_units: 'mm') }
+  let!(:o24) { Observation.create!(observation_object: observation_object5, descriptor: descriptor2, character_state: character_state2_1) }
+  let!(:o25) { Observation.create!(observation_object: observation_object5, descriptor: descriptor2, character_state: character_state2_2) }
+  let!(:o26) { Observation.create!(observation_object: observation_object5, descriptor: descriptor5, presence: false) }
+  let!(:o27) { Observation.create!(observation_object: observation_object5, descriptor: descriptor5, presence: true) }
+  let!(:o28) { Observation.create!(observation_object: observation_object5, descriptor: descriptor6, sample_min: 0.1, sample_max: 0.3, sample_n: 5, sample_median: 5, sample_units: 'mm') }
 
   # Add rows
-  let!(:om_row_item1) { ObservationMatrixRowItem::Single.create!(observation_matrix: om, observation_object: row_object1) }
-  let!(:om_row_item2) { ObservationMatrixRowItem::Single.create!(observation_matrix: om, observation_object: row_object2) }
-  let!(:om_row_item3) { ObservationMatrixRowItem::Single.create!(observation_matrix: om, observation_object: row_object3) }
-  let!(:om_row_item4) { ObservationMatrixRowItem::Single.create!(observation_matrix: om, observation_object: row_object4) }
-  let!(:om_row_item5) { ObservationMatrixRowItem::Single.create!(observation_matrix: om, observation_object: row_object5) }
+  let!(:om_row_item1) { ObservationMatrixRowItem::Single.create!(observation_matrix: om, observation_object: observation_object1) }
+  let!(:om_row_item2) { ObservationMatrixRowItem::Single.create!(observation_matrix: om, observation_object: observation_object2) }
+  let!(:om_row_item3) { ObservationMatrixRowItem::Single.create!(observation_matrix: om, observation_object: observation_object3) }
+  let!(:om_row_item4) { ObservationMatrixRowItem::Single.create!(observation_matrix: om, observation_object: observation_object4) }
+  let!(:om_row_item5) { ObservationMatrixRowItem::Single.create!(observation_matrix: om, observation_object: observation_object5) }
 
   # Add columns
   let!(:om_column_item1) { ObservationMatrixColumnItem::Single::Descriptor.create!(observation_matrix: om, descriptor: descriptor1) }
@@ -144,11 +144,11 @@ RSpec.describe ObservationMatrix, type: :model, group: :observation_matrix do
 
     specify ':rows 1' do
       expect(g[:rows]).to contain_exactly(
-        row_object1.class.base_class.name + row_object1.to_param,
-        row_object2.class.base_class.name + row_object2.to_param,
-        row_object3.class.base_class.name + row_object3.to_param,
-        row_object4.class.base_class.name + row_object4.to_param,
-        row_object5.class.base_class.name + row_object5.to_param,
+        observation_object1.class.base_class.name + observation_object1.to_param,
+        observation_object2.class.base_class.name + observation_object2.to_param,
+        observation_object3.class.base_class.name + observation_object3.to_param,
+        observation_object4.class.base_class.name + observation_object4.to_param,
+        observation_object5.class.base_class.name + observation_object5.to_param,
       )
     end
 
@@ -169,6 +169,6 @@ RSpec.describe ObservationMatrix, type: :model, group: :observation_matrix do
   end
 
   specify '#observations_hash' do
-    expect(om.observations_hash[descriptor1.id][row_object1.class.base_class.name +  row_object1.to_param].map(&:id)).to contain_exactly(o1.id)
+    expect(om.observations_hash[descriptor1.id][observation_object1.class.base_class.name +  observation_object1.to_param].map(&:id)).to contain_exactly(o1.id)
   end
 end

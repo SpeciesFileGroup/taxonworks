@@ -194,7 +194,8 @@ module ObservationMatrices::Export::NexmlHelper
           about: "#row_#{r.id}", # technically only need this for proper RDFa extraction  !!! Might need this to be different, is it about row, or row object!
           label: observation_matrix_row_label_nexml(r)
         ) do
-          include_collection_objects(opt.merge(otu: r.row_object)) if opt[:include_collection_objects]
+          # TODO: should otu: be more generic
+          include_collection_objects(opt.merge(otu: r.observation_object)) if opt[:include_collection_objects]
 
           # This is experimental only. Issues:
           # * It draws images and data from all matrices, # not just this one

@@ -21,36 +21,36 @@
 <br>
 <% if (@observation_matrix.cell_count < 10000) || (params[:view_large_matrix] == 'true')   %>
 
-<table id="observation_matrices">
-  <thead>
-    <tr>
-      <th class="header-slanted-cell"></th>
-      <th class="header-slanted-cell">
-        <span class="header-slanted-label">Code</span>
-      </th>
-      <th class="header-slanted-cell" style="column-width: auto;" >
-        <span class="header-slanted-label"> OTUs </span>
-      </th>
-      <% @observation_matrix.observation_matrix_columns.order(:position).each do |d| -%>
-        <%= tag.th tag.label(descriptor_matrix_column_link(d.descriptor), class: ['header-slanted-label']), class: ['header-slanted-cell'] -%>
-      <% end %>
-    </tr>
-  </thead>
-
-  <tbody>
-    <% @observation_matrix.observation_matrix_rows.order(:position).each_with_index do |row, i| -%>
+  <table id="observation_matrices">
+    <thead>
       <tr>
-        <%= tag.td (i + 1).to_s -%>
-        <%= tag.td link_to('code', index_row_coder_task_path(observation_matrix_row_id: row.id) , class: ['circle-button', 'btn-row-coder'] ) -%>
-        <%= tag.td object_link(row.row_object), class: 'otu_column' -%>
-
-        <% @observation_matrix.observation_matrix_columns.order(:position).each do |col| -%>
-          <%= tag.td observation_matrix_cell_tag(row.row_object, col.descriptor) -%>
-        <% end %> 
+        <th class="header-slanted-cell"></th>
+        <th class="header-slanted-cell">
+          <span class="header-slanted-label">Code</span>
+        </th>
+        <th class="header-slanted-cell" style="column-width: auto;" >
+          <span class="header-slanted-label"> OTUs </span>
+        </th>
+        <% @observation_matrix.observation_matrix_columns.order(:position).each do |d| -%>
+          <%= tag.th tag.label(descriptor_matrix_column_link(d.descriptor), class: ['header-slanted-label']), class: ['header-slanted-cell'] -%>
+        <% end %>
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </thead>
+
+    <tbody>
+      <% @observation_matrix.observation_matrix_rows.order(:position).each_with_index do |row, i| -%>
+        <tr>
+          <%= tag.td (i + 1).to_s -%>
+          <%= tag.td link_to('code', index_row_coder_task_path(observation_matrix_row_id: row.id) , class: ['circle-button', 'btn-row-coder'] ) -%>
+          <%= tag.td object_link(row.observation_object), class: 'otu_column' -%>
+
+          <% @observation_matrix.observation_matrix_columns.order(:position).each do |col| -%>
+            <%= tag.td observation_matrix_cell_tag(row.observation_object, col.descriptor) -%>
+          <% end %> 
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 
 <% else %>
   <div> 

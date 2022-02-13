@@ -4,8 +4,7 @@
   <thead>
   <tr>
     <%= fancy_th_tag(name: 'Descriptor') -%>
-    <%= fancy_th_tag(name: 'Otu') -%>
-    <%= fancy_th_tag(name: 'Collection object') -%>
+    <%= fancy_th_tag(name: 'Observation object') -%>
     <%= fancy_th_tag(name: 'Character state') -%>
     <%= fancy_th_tag(name: 'Frequency') -%>
 
@@ -32,8 +31,7 @@
   <% @observations.each do |observation| %>
       <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= descriptor_tag(observation.descriptor) %></td>
-          <td><%= otu_tag(observation.otu) %></td>
-          <td><%= collection_object_tag(observation.collection_object) %></td>
+          <td><%= object_tag(observation.observation_object) %></td>
           <td><%= character_state_tag(observation.character_state) if observation.respond_to?(:character_state) %></td>
           <td><%= observation.frequency %></td>
           <td><%= observation.continuous_value %></td>

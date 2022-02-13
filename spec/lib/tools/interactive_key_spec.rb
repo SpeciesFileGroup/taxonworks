@@ -319,7 +319,7 @@ describe Tools::InteractiveKey, type: :model, group: :observation_matrix do
     end
 
     specify 'soft_validate row 1' do
-      row = r1.find_or_build_row(r1.row_objects.first)
+      row = r1.find_or_build_row(r1.observation_objects.first)
       row.soft_validate(only_sets: :cannot_be_separated)
       expect(row.soft_validations.messages_on(:base).empty?).to be_truthy
     end
@@ -327,7 +327,7 @@ describe Tools::InteractiveKey, type: :model, group: :observation_matrix do
     specify 'soft_validate row 2' do
       otu11 = Otu.create!(name: 'b11')
       r11 = ObservationMatrixRowItem::Single.create!(observation_object: otu11, observation_matrix: observation_matrix)
-      row = r11.find_or_build_row(r11.row_objects.first)
+      row = r11.find_or_build_row(r11.observation_objects.first)
       row.soft_validate(only_sets: :cannot_be_separated)
       expect(row.soft_validations.messages_on(:base).count).to eq(1)
     end

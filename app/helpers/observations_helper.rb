@@ -10,8 +10,8 @@ module ObservationsHelper
     observation.descriptor.name # TODO: add values
   end
 
-  def observation_matrix_cell_tag(row_object, descriptor)
-    q = Observation.object_scope(row_object).where(descriptor: descriptor)
+  def observation_matrix_cell_tag(observation_object, descriptor)
+    q = Observation.object_scope(observation_object).where(descriptor: descriptor)
     q.collect{|o| observation_cell_tag(o)}.sort.join(' ').html_safe
   end
 

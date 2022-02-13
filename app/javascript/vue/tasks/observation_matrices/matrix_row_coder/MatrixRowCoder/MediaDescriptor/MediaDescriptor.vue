@@ -7,7 +7,7 @@
         model="images"
         :autocomplete="false"
         :search="false"
-        :target="matrixRow.row_object.base_class"
+        :target="matrixRow.row_object.base_class" 
         :addTabs="['new', 'filter']"
         @selected="createObservation">
         <template #new>

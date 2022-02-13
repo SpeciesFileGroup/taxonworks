@@ -36,19 +36,19 @@ class ObservationMatrixRowItem < ApplicationRecord
   # @return [Array]
   #   of all objects this row references
   # required/defined in subclasses
-  def row_objects
+  def observation_objects
     []
   end
 
   def update_matrix_rows
-     row_objects.each do |o|
+     observation_objects.each do |o|
       update_single_matrix_row o
     end
   end
 
   def cleanup_matrix_rows
-    return true if row_objects.count == 0
-    ObservationMatrixRow.where(observation_matrix: observation_matrix, observation_object: row_objects).each do |mr|
+    return true if observation_objects.count == 0
+    ObservationMatrixRow.where(observation_matrix: observation_matrix, observation_object: observation_objects).each do |mr|
       decrement_matrix_row_reference_count(mr)
     end
     true
@@ -73,13 +73,7 @@ class ObservationMatrixRowItem < ApplicationRecord
   def self.human_name
     self.name.demodulize.humanize
   end
-
-  # @return [Array]
-  #  defined in subclasses
-  def row_objects
-    []
-  end
-
+  
   # @return [Array]
   #   the required attributes for this subclass
   # override

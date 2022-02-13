@@ -12,9 +12,7 @@ class ObservationMatrixRowItem::Single < ObservationMatrixRowItem
     observation_object
   end
 
-  # Note:
-  #   replaces deprecated `otus` and `collection_objects` methods
-  def row_objects
+  def observation_objects
     [ observation_object ]
   end
 

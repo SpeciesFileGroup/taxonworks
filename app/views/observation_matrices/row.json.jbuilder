@@ -1,7 +1,7 @@
 json.id @observation_matrix_row.id
 
-json.row_object do
-  json.partial! "row_object", row_object: @observation_matrix_row.row_object
+json.observation_object do
+  json.partial! "/observation_matrices/observation_object", observation_object: @observation_matrix_row.observation_object
 end
 
 json.observation_matrix do

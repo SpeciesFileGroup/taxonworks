@@ -44,8 +44,8 @@ RSpec.describe ObservationMatrixRowItem::Dynamic::Tag, type: :model, group: :obs
         controlled_vocabulary_term: keyword,
         observation_matrix: observation_matrix) }
 
-      specify '.row_objects' do
-        expect(observation_matrix_row_item.row_objects).to contain_exactly(otu1, otu2, co1)
+      specify '.observation_objects' do
+        expect(observation_matrix_row_item.observation_objects).to contain_exactly(otu1, otu2, co1)
       end
 
       context 'adding an item synchronizes observation_matrix_rows' do
