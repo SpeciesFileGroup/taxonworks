@@ -131,6 +131,7 @@ class Observation < ApplicationRecord
   include Shared::Depictions
   include Shared::Confidences
   include Shared::IsData
+  include Shared::ObservationIndex
 
   ignore_whitespace_on(:description)
 

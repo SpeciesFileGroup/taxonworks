@@ -6,6 +6,7 @@
   <%= content_tag(:li, link_to('Edit', new_matrix_task_path(@observation_matrix))) -%>
   <%= content_tag(:li, link_to('TNT', tnt_observation_matrix_path(@observation_matrix))) -%>
   <%= content_tag(:li, link_to('nexus', nexus_observation_matrix_path(@observation_matrix))) -%>
+  <%= content_tag(:li, link_to('CSV', csv_observation_matrix_path(@observation_matrix))) -%>
 </ul>
 
 <ul class="context-menu">
@@ -14,6 +15,7 @@
   <%= content_tag(:li, link_to('nexus', nexus_observation_matrix_path(@observation_matrix, format: :text))) -%>
   <%= content_tag(:li, link_to('NeXML', nexml_observation_matrix_path(@observation_matrix, format: :text))) -%>
   <%= content_tag(:li, link_to('OTU contents', otu_contents_observation_matrix_path(@observation_matrix, format: :text))) -%>
+  <%= content_tag(:li, link_to('CSV', csv_observation_matrix_path(@observation_matrix, format: :text))) -%>
 </ul>
 
 <br>

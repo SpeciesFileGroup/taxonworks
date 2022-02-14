@@ -103,8 +103,7 @@ module ObservationMatrices::Export::NexmlHelper
 
     p = m.observation_matrix_columns.order('observation_matrix_columns.position').map(&:descriptor_id)
 
-    # TODO: not real now
-    q = m.observation_matrix_rows.order('observation_matrix_rows.position').collect{|i| "#{i.otu_id}|#{i.collection_object_id}" }
+    q = m.observation_matrix_rows.order('observation_matrix_rows.position').collect{|i| i.observation_index } # could pluck this string concat from the db
 
     xml.matrix do
       m.observation_matrix_rows.each do |r|
@@ -114,7 +113,7 @@ module ObservationMatrices::Export::NexmlHelper
           opt[:descriptors].each do |d|
 
             x = p.index(d.id) # opt[:descriptors].index(d)  #   .index(d)
-            y = q.index("#{r.otu_id}|#{r.collection_object_id}")
+            y = q.index( r.observation_index)
 
             observations = cells[ x ][ y ]
 
@@ -156,7 +155,7 @@ module ObservationMatrices::Export::NexmlHelper
     # the matrix
     cells = m.observations_in_grid({})[:grid]
 
-    z = m.observation_matrix_rows.map.collect{|i| "#{i.otu_id}|#{i.collection_object_id}"}
+    z = m.observation_matrix_rows.collect{|i| i.observation_index }
 
     xml.matrix do |mx|
       m.observation_matrix_rows.each do |o|
@@ -166,7 +165,7 @@ module ObservationMatrices::Export::NexmlHelper
           opt[:descriptors].each do |c|
 
             x = m.descriptors.index(c)
-            y = z.index("#{o.otu_id}|#{o.collection_object_id}")
+            y = z.index( o.observation_index )
 
             observations = cells[ x ][ y ]
             if observations.size > 0  && !observations.first.continuous_value.nil?

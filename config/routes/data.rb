@@ -408,6 +408,7 @@ resources :observation_matrices do
     get :tnt
     get :nexus
     get :otu_contents
+    get :csv
     #  get :csv
     #  get :biom
 

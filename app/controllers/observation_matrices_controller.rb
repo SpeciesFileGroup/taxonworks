@@ -1,7 +1,7 @@
 class ObservationMatricesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_observation_matrix, only: [:show, :api_show, :edit, :update, :destroy, :nexml, :tnt, :nexus, :otu_contents, :reorder_rows, :reorder_columns]
+  before_action :set_observation_matrix, only: [:show, :api_show, :edit, :update, :destroy, :nexml, :tnt, :nexus, :csv, :otu_contents, :reorder_rows, :reorder_columns]
   after_action -> { set_pagination_headers(:observation_matrices) }, only: [:index, :api_index], if: :json_request?
 
   # GET /observation_matrices
@@ -136,6 +136,18 @@ class ObservationMatricesController < ApplicationController
     end
   end
 
+  def csv
+    respond_to do |format|
+      base = '/observation_matrices/export/csv/'
+      format.html { render base + 'index' }
+      format.text {
+        s = render_to_string(partial: base + 'csv', locals: { as_file: true }, layout: false, formats: [:html])
+        send_data(s, filename: "csv_#{DateTime.now}.csv", type: 'text/plain')
+      }
+    end
+  end
+  
+  
   def nexus
     respond_to do |format|
       base = '/observation_matrices/export/nexus/'

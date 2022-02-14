@@ -20,6 +20,8 @@ class ObservationMatrixRowItem < ApplicationRecord
   include Shared::Notes
   include Shared::IsData
   include SoftValidation
+  include Shared::ObservationIndex
+
 
   acts_as_list scope: [:observation_matrix_id, :project_id]
 

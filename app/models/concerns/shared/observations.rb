@@ -8,7 +8,7 @@ module Shared::Observations
 
     has_many :observations, as: :observation_object, dependent: :restrict_with_error # inverse_of: class_name
     has_many :observation_matrix_rows, as: :observation_object # , inverse_of: class_name
-    has_many :observation_matrix_row_items, as: :observation_object #, inverse_of: class_name
+    has_many :observation_matrix_row_items, as: :observation_object, dependent: :destroy #, inverse_of: class_name
     has_many :observation_matrices, inverse_of: class_name.pluralize, through: :observation_matrix_rows
     has_many :descriptors, through: :observations
 

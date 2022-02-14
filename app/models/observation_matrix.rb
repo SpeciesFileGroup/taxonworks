@@ -1,4 +1,4 @@
-# A view to a set of observations.
+# A view to a set of Observations.
 #
 class ObservationMatrix < ApplicationRecord
   include Housekeeping
@@ -23,12 +23,6 @@ class ObservationMatrix < ApplicationRecord
   # TODO: must go
   has_many :otus, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'Otu'
   has_many :collection_objects, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'CollectionObject'
-
-# def observation_objects
-#   observation_matrix_rows -> objects
-#   # loop types, build union
-# end
-
 
   # TODO: restrict these- you can not directly create these!
   has_many :descriptors, through: :observation_matrix_columns, inverse_of: :observation_matrices
@@ -168,10 +162,13 @@ class ObservationMatrix < ApplicationRecord
 
     grid = empty_grid(opts)
 
+    reindex_row_order if observation_matrix_rows.first.position != 1 || (observation_matrix_rows.last.position != observation_matrix_rows.size)
+    reindex_column_order if observation_matrix_columns.first.position != 1 || (observation_matrix_columns.last.position != observation_matrix_columns.size)
+
     # Dump the observations into bins
     obs = Observation.by_matrix_and_position(self.id, opts)
       .select('omc.position as column_index, omr.position as row_index, observations.*')
-
+    
     rows, cols = [], []
 
     obs.each do |o|
@@ -190,6 +187,24 @@ class ObservationMatrix < ApplicationRecord
     {grid: grid, rows: rows, cols: cols}
   end
 
+  def reindex_row_order
+    i = 1
+    observation_matrix_rows.order(:position).find_each do |o|
+      o.update_column(:position, i)
+      i += 1
+    end
+    true 
+  end
+
+  def reindex_column_order
+    i = 1
+    observation_matrix_columns.order(:position).find_each do |o|
+      o.update_column(:position, i)
+      i += 1
+    end
+    true 
+  end
+  
   # @return [Array]
   def empty_grid(opts)
     re = if opts[:row_end] == 'all'

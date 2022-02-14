@@ -34,6 +34,8 @@ class ObservationMatrixRow < ApplicationRecord
   include SoftValidation
   include Shared::IsData
 
+  include Shared::ObservationIndex
+
   acts_as_list scope: [:observation_matrix_id, :project_id]
 
   attr_accessor :observation_object_global_id
@@ -76,7 +78,6 @@ class ObservationMatrixRow < ApplicationRecord
     set: :cannot_be_separated,
     name: 'Cannot be separated',
     description: 'Observation matrix row cannot be separated from other rows in the matrix' )
-
 
   # @param array [Array]
   # @return true
