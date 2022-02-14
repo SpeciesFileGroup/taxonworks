@@ -78,6 +78,7 @@ import ButtonCitation from './ButtonCitation.vue'
 import { Observation, Depiction } from 'routes/endpoints'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
+import { OTU, COLLECTION_OBJECT } from 'constants/index.js'
 
 export default {
   components: {
@@ -126,6 +127,7 @@ export default {
         this.$store.commit(MutationNames.SetObservationMoved, value)
       }
     },
+
     depictionMoved: {
       get () {
         return this.$store.getters[GetterNames.GetDepictionMoved]
@@ -144,7 +146,7 @@ export default {
     },
 
     rowObjectBaseCassParam () {
-      return this.rowObject.otu_id ? 'otu_id' : 'collection_object_id'
+      return this.rowObject.otu_id ? OTU : COLLECTION_OBJECT
     },
 
     observationId () {
@@ -184,7 +186,8 @@ export default {
         const observation = {
           descriptor_id: this.column.id,
           type: 'Observation::Media',
-          [this.rowObjectBaseCassParam]: this.rowObjectId
+          obseravtion_object_type: this.rowObjectBaseCassParam,
+          observation_object_id: this.rowObjectId
         }
 
         Observation.create({ observation }).then(({ body }) => {
@@ -257,7 +260,8 @@ export default {
     sending (file, xhr, formData) {
       formData.append('observation[descriptor_id]', this.column.id)
       formData.append('observation[type]', 'Observation::Media')
-      formData.append(`observation[${this.rowObjectBaseCassParam}]`, this.rowObjectId)
+      formData.append('observation[observation_object_id]', this.rowObjectId)
+      formData.append('observation[obseravtion_object_type]', this.rowObjectBaseCassParam)
     },
 
     successDepic (file, response) {
