@@ -148,7 +148,7 @@ class ObservationsController < ApplicationController
         :_destroy,
         :depiction_object_id, :depiction_object_type,
         :annotated_global_entity, :caption,
-        :is_metakata_depiction,
+        :is_metadata_depiction,
         :image_id,
         :figure_label,
         image_attributes: [:image_file]
