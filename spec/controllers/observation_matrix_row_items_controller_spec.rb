@@ -20,9 +20,7 @@ require 'rails_helper'
 
 RSpec.describe ObservationMatrixRowItemsController, type: :controller do
 
-  before {
-    sign_in
-  }
+  before { sign_in }
 
   # This should return the minimal set of attributes required to create a valid
   # MatrixRowItem. As you add validations to MatrixRowItem, be sure to
