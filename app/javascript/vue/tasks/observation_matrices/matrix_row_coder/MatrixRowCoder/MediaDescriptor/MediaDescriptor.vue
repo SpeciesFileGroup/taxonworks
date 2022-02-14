@@ -136,7 +136,8 @@ export default {
     sending (file, xhr, formData) {
       formData.append('observation[descriptor_id]', this.descriptor.id)
       formData.append('observation[type]', 'Observation::Media')
-      formData.append(`observation[${this.matrixRow.observation_object.base_class === 'Otu' ? 'otu_id' : 'collection_object_id'}]`, this.matrixRow.observation_object.id)
+      formData.append('observation[observation_object_type]', this.matrixRow.observation_object.base_class)
+      formData.append('observation[observation_object_id]', this.matrixRow.observation_object.id)
     },
 
     destroyObservation (observationId) {
@@ -153,7 +154,8 @@ export default {
             image_id: image.id
           }],
           type: 'Observation::Media',
-          [(this.matrixRow.observation_object.base_class === 'Otu' ? 'otu_id' : 'collection_object_id')]: this.matrixRow.observation_object.id
+          observation_object_id: this.matrixRow.observation_object.id,
+          observation_object_type: this.matrixRow.observation_object.base_class
         }
       }).then(response => {
         this.observations.push(response)
