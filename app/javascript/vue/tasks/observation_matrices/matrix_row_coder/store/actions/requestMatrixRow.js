@@ -23,7 +23,7 @@ export default function ({ commit, state }, args) {
         const {
           global_id,
           object_tag
-        } = response.row_object
+        } = response.observation_object
         commit(MutationNames.SetTaxonId, global_id)
         commit(MutationNames.SetTaxonTitle, object_tag)
       }
