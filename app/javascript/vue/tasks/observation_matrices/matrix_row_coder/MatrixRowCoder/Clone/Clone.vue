@@ -100,7 +100,7 @@ export default {
     isOtu() {
       return this.$store.getters[GetterNames.GetMatrixRow] &&
       // José - class is in observation_object_type, and will soon be other things as well, like Extract
-      (this.$store.getters[GetterNames.GetMatrixRow].row_object.base_class == 'Otu' || this.$store.getters[GetterNames.GetMatrixRow].row_object.base_class == 'CollectionObject')
+      (this.$store.getters[GetterNames.GetMatrixRow].observation_object.base_class == 'Otu' || this.$store.getters[GetterNames.GetMatrixRow].observation_object.base_class == 'CollectionObject')
     },
     rowGlobalId() {
       return this.$store.getters[GetterNames.GetMatrixRow].observation_object.global_id

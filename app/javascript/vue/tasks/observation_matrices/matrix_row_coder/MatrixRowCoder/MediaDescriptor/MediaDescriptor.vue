@@ -7,7 +7,7 @@
         model="images"
         :autocomplete="false"
         :search="false"
-        :target="matrixRow.row_object.base_class" 
+        :target="matrixRow.observation_object.base_class" 
         :addTabs="['new', 'filter']"
         @selected="createObservation">
         <template #new>
@@ -91,7 +91,7 @@ export default {
 
   created () {
     const descriptorId = this.$props.descriptor.id
-    const otuId = this.matrixRow.row_object.global_id
+    const otuId = this.matrixRow.observation_object.global_id
 
     this.$store.dispatch(ActionNames.RequestObservations, { descriptorId, otuId })
       .then(_ => this.$store.getters[GetterNames.GetObservationsFor](descriptorId))
@@ -136,7 +136,7 @@ export default {
     sending (file, xhr, formData) {
       formData.append('observation[descriptor_id]', this.descriptor.id)
       formData.append('observation[type]', 'Observation::Media')
-      formData.append(`observation[${this.matrixRow.row_object.base_class === 'Otu' ? 'otu_id' : 'collection_object_id'}]`, this.matrixRow.row_object.id)
+      formData.append(`observation[${this.matrixRow.observation_object.base_class === 'Otu' ? 'otu_id' : 'collection_object_id'}]`, this.matrixRow.observation_object.id)
     },
 
     destroyObservation (observationId) {
@@ -153,7 +153,7 @@ export default {
             image_id: image.id
           }],
           type: 'Observation::Media',
-          [(this.matrixRow.row_object.base_class === 'Otu' ? 'otu_id' : 'collection_object_id')]: this.matrixRow.row_object.id
+          [(this.matrixRow.observation_object.base_class === 'Otu' ? 'otu_id' : 'collection_object_id')]: this.matrixRow.observation_object.id
         }
       }).then(response => {
         this.observations.push(response)
