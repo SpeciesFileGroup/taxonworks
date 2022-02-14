@@ -182,18 +182,13 @@ export default {
     },
     addRows () {
       const index = this.existingRows.length
-      const data = this.rowsSelected.map(item => {
-        const property = item.observation_object.base_class === 'Otu'
-          ? 'otu_id'
-          : 'collection_object_id'
-
-        return {
-          observation_matrix_id: this.matrixId,
-          [property]: item.observation_object.id,
-          position: item.position + index,
-          type: this.types[item.observation_object.base_class]
-        }
-      })
+      const data = this.rowsSelected.map(item => ({
+        observation_matrix_id: this.matrixId,
+        observation_object_id: item.observation_object.id,
+        observation_object_type: item.observation_object.base_class,
+        position: item.position + index,
+        type: this.types[item.observation_object.base_class]
+      }))
 
       data.sort((a, b) => a - b)
 

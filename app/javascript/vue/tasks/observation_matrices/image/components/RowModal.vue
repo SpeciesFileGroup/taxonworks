@@ -8,20 +8,20 @@
       <ul class="no_bullets">
         <li
           v-for="item in types"
-          :key="item.type">
+          :key="item">
           <label>
             <input
               type="radio"
               v-model="type"
               :value="item">
-            {{ item.label }}
+            {{ item }}
           </label>
         </li>
       </ul>
       <div
         class="separate-top"
-        v-if="type.label === 'Otu'">
-        <otu-picker @getItem="createRow"/>
+        v-if="type === 'Otu'">
+        <otu-picker @get-item="createRow"/>
       </div>
     </template>
   </modal-component>
@@ -33,6 +33,11 @@ import ModalComponent from 'components/ui/Modal.vue'
 import OtuPicker from 'components/otu/otu_picker/otu_picker.vue'
 import SpinnerComponent from 'components/spinner'
 import { ObservationMatrixRowItem } from 'routes/endpoints'
+import { 
+  COLLECTION_OBJECT,
+  OBSERVATION_MATRIX_ROW_SINGLE,
+  OTU
+} from 'constants/index.js'
 
 export default {
   components: {
@@ -53,19 +58,10 @@ export default {
   data () {
     return {
       types: [
-        {
-          label: 'Otu',
-          type: 'ObservationMatrixRowItem::Single::Otu'
-        },
-        {
-          label: 'Collection object',
-          type: 'ObservationMatrixRowItem::Single::CollectionObject'
-        }
+        OTU,
+        COLLECTION_OBJECT
       ],
-      type: {
-        label: 'Otu',
-        type: 'ObservationMatrixRowItem::Single::Otu'
-      },
+      type: OTU,
       saving: false
     }
   },
@@ -74,9 +70,11 @@ export default {
     createRow (object) {
       const observation_matrix_row_item = {
         observation_matrix_id: this.matrixId,
-        type: this.type.type,
-        [this.type.label === 'Otu' ? 'otu_id' : 'collection_object_id']: object.id
+        observation_object_id: object.id,
+        observation_object_type: this.type,
+        type: OBSERVATION_MATRIX_ROW_SINGLE
       }
+
       this.saving = true
       ObservationMatrixRowItem.create({ observation_matrix_row_item }).then(response => {
         TW.workbench.alert.create('Row item was successfully created.', 'notice')
