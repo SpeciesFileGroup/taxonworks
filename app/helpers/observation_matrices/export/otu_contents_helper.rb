@@ -54,7 +54,7 @@ module ObservationMatrices::Export::OtuContentsHelper
           order(:otu_id)
 
         otus.each do |o|
-          description = Catalog::DescriptionFromObservationMatrix.new(project_id: m.project_id, observation_matrix_id: m.id, otu_id: o.id)
+          description = Tools::Description::FromObservationMatrix.new(project_id: m.project_id, observation_matrix_id: m.id, otu_id: o.id)
           csv << ['row_' + o.row_id.to_s, 'Description', description.generated_description ]
         end
       end
