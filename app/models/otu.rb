@@ -51,6 +51,7 @@ class Otu < ApplicationRecord
   GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes]
 
   belongs_to :taxon_name, inverse_of: :otus
+  belongs_to :protonym, -> { where(type: 'Protonym') }, foreign_key: :taxon_name_id
 
   has_many :asserted_distributions, inverse_of: :otu, dependent: :restrict_with_error
 
@@ -59,6 +60,7 @@ class Otu < ApplicationRecord
 
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy # TODO: change
   has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus
+  has_many :type_materials, through: :protonym
 
   has_many :extracts, through: :collection_objects, source: :extracts
   has_many :sequences, through: :extracts, source: :derived_sequences
