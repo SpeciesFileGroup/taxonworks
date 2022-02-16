@@ -31,7 +31,12 @@ const emit = defineEmits('create')
 const showModal = ref(false)
 
 const createPredicate = predicate => {
-  ControlledVocabularyTerm.create({ controlled_vocabulary_term: predicate }).then(response => {
+  ControlledVocabularyTerm.create({
+    controlled_vocabulary_term: {
+      ...predicate,
+      type: 'Predicate'
+    }
+  }).then(response => {
     TW.workbench.alert.create('Predicate was successfully created.', 'notice')
     emit('create', response.body)
     showModal.value = false
