@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Download SVG button in object graph task [#2804]
 - Rake task to generate docs.taxonworks.org Data documentation [#2352]
 - Confirmation window for delete documentation in radial annotator [#2820]
+- Drag and drop to sort predicates in project preferences [#2821]
 
 ### Changed
 - Browse nomenclature task was renamed to Browse nomenclature and classifications [#2638]
@@ -47,6 +48,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2814]: https://github.com/SpeciesFileGroup/taxonworks/issues/2814
 [#2799]: https://github.com/SpeciesFileGroup/taxonworks/issues/2799
 [#2820]: https://github.com/SpeciesFileGroup/taxonworks/issues/2820
+[#2821]:https://github.com/SpeciesFileGroup/taxonworks/issues/2821
 
 ## [0.22.7] - 2021-01-26
 
