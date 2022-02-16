@@ -1,26 +1,28 @@
 <template>
-  <modal-component
-    v-if="showModal"
-    @close="showModal = false">
-    <template #header>
-      <h3>New predicate</h3>
-    </template>
-    <template #body>
-      <form-keyword @submit="createPredicate" />
-    </template>
-  </modal-component>
-  <button
-    type="button"
-    class="button normal-input button-default"
-    @click="showModal = true"
-  >
-    New predicate
-  </button>
+  <div>
+    <modal-component
+      v-if="showModal"
+      @close="showModal = false">
+      <template #header>
+        <h3>New predicate</h3>
+      </template>
+      <template #body>
+        <form-keyword @submit="createPredicate" />
+      </template>
+    </modal-component>
+    <v-btn
+      color="primary"
+      @click="showModal = true"
+    >
+      New predicate
+    </v-btn>
+  </div>
 </template>
 
 <script setup>
 import ModalComponent from 'components/ui/Modal'
 import FormKeyword from 'components/Form/FormKeyword.vue'
+import VBtn from 'components/ui/VBtn/index.vue'
 import { ref } from 'vue'
 import { ControlledVocabularyTerm } from 'routes/endpoints'
 

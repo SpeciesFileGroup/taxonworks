@@ -12,14 +12,16 @@
         class="separate-right"
         v-model="model"
       />
-      <predicates-component
-        :model-list="modelList"
-        :list="predicates"
-        :model="model"
-        @update="updatePredicatePreferences"
-        class="separate-left"
-      />
-      <predicate-form @create="addToArray(predicates, $event)" />
+      <div class="flex-direction-column">
+        <predicates-component
+          class="margin-medium-left margin-medium-bottom"
+          :model-list="modelList"
+          :list="predicates"
+          :model="model"
+          @update="updatePredicatePreferences"
+        />
+        <predicate-form @create="addToArray(predicates, $event)" />
+      </div>
     </div>
   </div>
 </template>
