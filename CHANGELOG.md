@@ -22,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Hierarchy navigator in Browse nomenclature task now includes synonyms [#2797]
 - Scroll tables in New observation matrix task [#2799]
 - Updated Ruby gems
+- Replace autocomplete by otu picker to biological associations form in radial object
 
 ### Fixed
 - author string for incorrect original spelling [#2743]
