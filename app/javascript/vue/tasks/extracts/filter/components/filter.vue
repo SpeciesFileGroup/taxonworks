@@ -16,7 +16,6 @@
       <button
         class="button button-default normal-input full_width margin-medium-bottom "
         type="button"
-        :disabled="isParamsEmpty"
         @click="handleSearch"
       >
         Search
@@ -123,24 +122,6 @@ const parseParams = computed(() =>
     ...filterEmptyParams(params.value.user)
   })
 )
-
-const isParamsEmpty = computed(() => !(
-  params.value.geographic.geographic_area_id?.length ||
-  params.value.geographic.geo_json?.length ||
-  params.value.repository.repository_id ||
-  params.value.base.otu_id.length ||
-  params.value.base.collection_object_id.length ||
-  params.value.base.sequences ||
-  params.value.base.extract_origin ||
-  params.value.keywords.keyword_id_and.length ||
-  params.value.keywords.keyword_id_or.length ||
-  params.value.taxon.ancestor_id ||
-  params.value.protocols.protocol_id_and.length ||
-  params.value.protocols.protocol_id_or.length ||
-  params.value.verbatimAnatomical.verbatim_anatomical_origin ||
-  Object.values(params.value.user).find(item => item) ||
-  Object.values(params.value.identifier).find(item => item)
-))
 
 const resetFilter = () => {
   emit('reset')
