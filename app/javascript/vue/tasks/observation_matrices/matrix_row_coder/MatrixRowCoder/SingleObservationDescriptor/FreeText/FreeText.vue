@@ -25,17 +25,6 @@
         </span>
       </div>
     </summary-view>
-
-    <single-observation-zoomed-view
-      :descriptor="descriptor"
-      :observation="observation">
-
-        <label>
-          Free text
-          <input type="text" @change="updateFreeTextValue" >
-        </label>
-
-    </single-observation-zoomed-view>
   </div>
 </template>
 

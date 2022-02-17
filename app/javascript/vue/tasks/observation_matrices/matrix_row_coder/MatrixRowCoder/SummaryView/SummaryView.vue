@@ -29,9 +29,7 @@
 <style src="./SummaryView.styl" lang="stylus"></style>
 
 <script>
-import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
-
 import Spinner from 'components/spinner.vue'
 import saveCountdown from '../SaveCountdown/SaveCountdown.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator'
@@ -39,34 +37,32 @@ import RadialObject from 'components/radials/navigation/radial'
 
 export default {
   name: 'SummaryView',
-  props: ['descriptor', 'index'],
-  computed: {
-    isUnsaved: function () {
-      return this.$store.getters[GetterNames.IsDescriptorUnsaved](this.$props.descriptor.id)
-    },
-    savedAtLeastOnce: function () {
-      return this.$props.descriptor.hasSavedAtLeastOnce
-    },
-    isSaving: function () {
-      return this.$store.getters[GetterNames.IsDescriptorSaving](this.$props.descriptor.id)
-    }
-  },
-  methods: {
-    zoomIn: function (event) {
-      this.$store.commit(MutationNames.SetDescriptorZoom, {
-        descriptorId: this.descriptor.id,
-        isZoomed: true
-      })
-    },
-    returnTop: function() {
-      window.scrollTo(0, 0)
-    }
-  },
+
   components: {
     saveCountdown,
     RadialAnnotator,
     RadialObject,
     Spinner
+  },
+
+  props: ['descriptor', 'index'],
+
+  computed: {
+    isUnsaved () {
+      return this.$store.getters[GetterNames.IsDescriptorUnsaved](this.$props.descriptor.id)
+    },
+    savedAtLeastOnce () {
+      return this.$props.descriptor.hasSavedAtLeastOnce
+    },
+    isSaving () {
+      return this.$store.getters[GetterNames.IsDescriptorSaving](this.$props.descriptor.id)
+    }
+  },
+
+  methods: {
+    returnTop () {
+      window.scrollTo(0, 0)
+    }
   }
 }
 </script>

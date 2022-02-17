@@ -22,7 +22,7 @@
               <a
                 class="matrix-row-coder__descriptor-item"
                 :data-icon="observationsCount(descriptor.id) ? 'ok' : false"
-                @click="zoomDescriptor(descriptor.id)"
+                @click="scrollToDescriptor(descriptor.id)"
                 v-html="descriptor.title"/>
             </div>
           </li>
@@ -58,7 +58,7 @@ export default {
   computed,
 
   methods: {
-    zoomDescriptor (descriptorId) {
+    scrollToDescriptor (descriptorId) {
       const top = document.querySelector(`[data-descriptor-id="${descriptorId}"]`).getBoundingClientRect().top + window.pageYOffset - 80
 
       window.scrollTo({ top })

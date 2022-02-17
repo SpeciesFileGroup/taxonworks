@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Confirmation window for delete documentation in radial annotator [#2820]
 - Drag and drop to sort predicates in project preferences [#2821]
 - Endpoints for observation matrix row and column labels [#2800]
+- Matrix row navigation in Matrix row coder [#2800]
 
 ### Changed
 - Browse nomenclature task was renamed to Browse nomenclature and classifications [#2638]
@@ -50,6 +51,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2809]: https://github.com/SpeciesFileGroup/taxonworks/issues/2809
 [#2814]: https://github.com/SpeciesFileGroup/taxonworks/issues/2814
 [#2799]: https://github.com/SpeciesFileGroup/taxonworks/issues/2799
+[#2800]: https://github.com/SpeciesFileGroup/taxonworks/issues/2800
 [#2820]: https://github.com/SpeciesFileGroup/taxonworks/issues/2820
 [#2821]:https://github.com/SpeciesFileGroup/taxonworks/issues/2821
 
