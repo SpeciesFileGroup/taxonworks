@@ -59,17 +59,17 @@ module Queries
 
       # @param [Hash] args are permitted params
       def initialize(params)
-        @verbatim_anatomical_origin = params[:verbatim_anatomical_origin]
-        @ancestor_id = params[:ancestory_id]
+        @ancestor_id = params[:ancestor_id]
         @collection_object_id = params[:collection_object_id]
-        @exact_verbatim_anatomical_origin = boolean_param(params, params[:exact_verbatim_anatomical_origin])
+        @exact_verbatim_anatomical_origin = params[:exact_verbatim_anatomical_origin]
         @extract_end_date_range = params[:extract_end_date_range]
-        @extract_origin = boolean_param(params, :extract_origin)
+        @extract_origin = params[:extract_origin]
         @extract_start_date_range = params[:extract_start_date_range]
         @otu_id = params[:otu_id]
         @recent = boolean_param(params, :recent)
         @repository_id = params[:repository_id]
         @sequences = boolean_param(params, :sequences)
+        @verbatim_anatomical_origin = params[:verbatim_anatomical_origin]
 
         set_identifier(params)
         set_tags_params(params)
@@ -134,6 +134,7 @@ module Queries
 
       def extract_end_date_range
         @extract_end_date_range ||= @extract_start_date_range
+        byebug
         return nil if @extract_end_date_range.nil?
         d = nil
         begin
