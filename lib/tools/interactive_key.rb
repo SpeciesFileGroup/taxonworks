@@ -430,7 +430,6 @@ class Tools::InteractiveKey
     return h.values
   end
 
-  # TODO: How can we break this into pieces?
   def useful_descriptors
     list_of_remaining_taxa = {}
     language = language_id.blank? ? nil : language_id.to_i

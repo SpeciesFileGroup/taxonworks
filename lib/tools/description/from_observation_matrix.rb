@@ -224,13 +224,12 @@ class Tools::Description::FromObservationMatrix
     if include_descendants == 'true' && !otu_id_filter_array.blank? # Big bug here was = not ==
       CollectionObject.joins(:taxon_determinations).where(taxon_determinations: {position: 1, otu_id: otu_id_filter_array}).pluck(:id)
     elsif !observation_matrix_row_id.blank?
-      [ObservationMatrixRow.find(observation_matrix_row_id.to_i)&.collection_object_id.to_i]
+      [ObservationMatrixRow.find(observation_matrix_row_id.to_i)&.observation_object_id.to_i]
     else
       [0]
     end
   end
 
-  # TODO: Much to long, how can we break this up?
   def get_descriptor_hash
     descriptor_ids = descriptors_with_filter.collect{|i| i.id}
     t = ['Observation::Continuous', 'Observation::PresenceAbsence', 'Observation::Sample']
@@ -287,52 +286,49 @@ class Tools::Description::FromObservationMatrix
     end
 
     otu_ids = otu_id_filter_array.to_a + [0]
-    collection_object_ids = collection_object_id_filter_array.to_a + [0] # why zero?
+    collection_object_ids = collection_object_id_filter_array.to_a + [0] # why zero? - to make non empty array, and get value not matching any id in the db
 
     unless observation_matrix_id.nil?
       otu_ids_count = {}
       collection_object_ids_count = {}
       t = ['Descriptor::Continuous', 'Descriptor::PresenceAbsence', 'Descriptor::Sample']
 
-      # TODO: the last to unravell
       char_states = ObservationMatrix.
-        select('descriptors.id AS d_id, character_states.id AS cs_id, observations.id AS o_id, observations.otu_id AS o_otu_id, observations.collection_object_id AS o_collection_object_id, observation_matrix_rows.otu_id AS r_otu_id, observation_matrix_rows.collection_object_id AS r_collection_object_id, observations.character_state_id AS o_cs_id').
+        select('descriptors.id AS d_id, character_states.id AS cs_id, observations.id AS o_id, observations.observation_object_id AS o_obj_id, observations.observation_object_type AS o_obj_type, observation_matrix_rows.observation_object_id AS r_obj_id, observation_matrix_rows.observation_object_type AS r_obj_type, observations.character_state_id AS o_cs_id').
         left_outer_joins(:descriptors).
         left_outer_joins(:observation_matrix_rows).
-        joins('LEFT OUTER JOIN observations ON observations.descriptor_id = descriptors.id AND (observations.otu_id = observation_matrix_rows.otu_id OR observations.collection_object_id = observation_matrix_rows.collection_object_id )').
+        joins('LEFT OUTER JOIN observations ON observations.descriptor_id = descriptors.id AND (observations.observation_object_id = observation_matrix_rows.observation_object_id AND observations.observation_object_type = observation_matrix_rows.observation_object_type )').
         joins('LEFT OUTER JOIN character_states ON character_states.id = observations.character_state_id').
         where("descriptors.type = 'Descriptor::Qualitative'").
         where('descriptors.id IN (?)', descriptor_ids).
-        where('(observation_matrix_rows.observation_object_id NOT IN (?) OR observation_matrix_rows.otu_id IS NULL)', otu_ids).
-        where('(observation_matrix_rows.collection_object_id NOT IN (?) OR observation_matrix_rows.collection_object_id IS NULL)', collection_object_ids).
+        where("(observation_matrix_rows.observation_object_id NOT IN (?) AND observation_matrix_rows.observation_object_type = 'Otu') OR (observation_matrix_rows.observation_object_id NOT IN (?) AND observation_matrix_rows.observation_object_type = 'CollectionObject')", otu_ids, collection_object_ids).
         where('observation_matrices.id = ?', observation_matrix_id)
 
       char_states.each do |cs|
-        if !descriptor_hash[cs.d_id][:similar_otu_ids].include?(cs.r_otu_id) &&
-            !descriptor_hash[cs.d_id][:similar_collection_object_ids].include?(cs.r_collection_object_id)
-          if !cs.r_otu_id.nil? && (descriptor_hash[cs.d_id][:char_states_ids].include?(cs.cs_id) || cs.o_id.nil?)
-            descriptor_hash[cs.d_id][:similar_otu_ids].append(cs.r_otu_id)
-            otu_ids_count[cs.r_otu_id] = otu_ids_count[cs.r_otu_id].to_i + 1
-          elsif !cs.r_collection_object_id.nil? && (descriptor_hash[cs.d_id][:char_states_ids].include?(cs.cs_id) || cs.o_id.nil?)
-            descriptor_hash[cs.d_id][:similar_collection_object_ids].append(cs.r_collection_object_id)
-            collection_object_ids_count[cs.r_collection_object_id] = collection_object_ids_count[cs.r_collection_object_id].to_i + 1
+        if (cs.r_obj_type == 'Otu' && !descriptor_hash[cs.d_id][:similar_otu_ids].include?(cs.r_obj_id)) ||
+          (cs.r_obj_type == 'CollectionObject' && !descriptor_hash[cs.d_id][:similar_collection_object_ids].include?(cs.r_obj_id))
+          if cs.r_obj_type == 'Otu' && (descriptor_hash[cs.d_id][:char_states_ids].include?(cs.cs_id) || cs.o_id.nil?)
+            descriptor_hash[cs.d_id][:similar_otu_ids].append(cs.r_obj_id)
+            otu_ids_count[cs.r_obj_id] = otu_ids_count[cs.r_obj_id].to_i + 1
+          elsif cs.r_obj_type == 'CollectionObject' && (descriptor_hash[cs.d_id][:char_states_ids].include?(cs.cs_id) || cs.o_id.nil?)
+            descriptor_hash[cs.d_id][:similar_collection_object_ids].append(cs.r_obj_id)
+            collection_object_ids_count[cs.r_obj_id] = collection_object_ids_count[cs.r_obj_id].to_i + 1
           end
         end
       end
 
       observations = ObservationMatrix.
-        select('descriptors.id AS d_id, observations.id AS o_id, observations.otu_id AS o_otu_id, observations.collection_object_id AS o_collection_object_id, observations.type, observations.continuous_value, observations.sample_min, observations.sample_max, observations.presence AS o_presence, observation_matrix_rows.otu_id AS r_otu_id, observation_matrix_rows.collection_object_id AS r_collection_object_id, observations.character_state_id AS o_cs_id').
+        select('descriptors.id AS d_id, observations.id AS o_id, observations.observation_object_id AS o_obj_id, observations.observation_object_type AS o_obj_type, observations.type, observations.continuous_value, observations.sample_min, observations.sample_max, observations.presence AS o_presence, observation_matrix_rows.observation_object_id AS r_obj_id, observation_matrix_rows.observation_object_type AS r_obj_type, observations.character_state_id AS o_cs_id').
         left_outer_joins(:descriptors).
         left_outer_joins(:observation_matrix_rows).
-        joins('LEFT OUTER JOIN observations ON observations.descriptor_id = descriptors.id AND (observations.otu_id = observation_matrix_rows.otu_id OR observations.collection_object_id = observation_matrix_rows.collection_object_id )').
+        joins('LEFT OUTER JOIN observations ON observations.descriptor_id = descriptors.id AND (observations.observation_object_id = observation_matrix_rows.observation_object_id AND observations.observation_object_type = observation_matrix_rows.observation_object_type )').
         where('descriptors.type IN (?)', t).
         where('descriptors.id IN (?)', descriptor_ids).
-        where('(observation_matrix_rows.otu_id NOT IN (?) OR observation_matrix_rows.otu_id IS NULL)', otu_ids).
-        where('(observation_matrix_rows.collection_object_id NOT IN (?) OR observation_matrix_rows.collection_object_id IS NULL)', collection_object_ids).
+        where("(observation_matrix_rows.observation_object_id NOT IN (?) AND observation_matrix_rows.observation_object_type = 'Otu') OR (observation_matrix_rows.observation_object_id NOT IN (?) AND observation_matrix_rows.observation_object_type = 'CollectionObject')", otu_ids, collection_object_ids).
         where('observation_matrices.id = ?', @observation_matrix_id)
       observations.each do |o|
-        if !descriptor_hash[o.d_id][:similar_otu_ids].include?(o.r_otu_id) &&
-            !descriptor_hash[o.d_id][:similar_collection_object_ids].include?(o.r_collection_object_id)
+        if (o.r_obj_type == 'Otu' && !descriptor_hash[o.d_id][:similar_otu_ids].include?(o.r_obj_id)) ||
+          (o.r_obj_type == 'CollectionObject' && !descriptor_hash[o.d_id][:similar_collection_object_ids].include?(o.r_obj_id))
           yes = false
           if o.continuous_value.nil? && o.sample_min.nil? && o.o_presence.nil?
             yes = true
@@ -347,12 +343,12 @@ class Tools::Description::FromObservationMatrix
           elsif !o.o_presence.nil? && o.o_presence == false && descriptor_hash[o.d_id][:presence].to_s.include?('absent')
             yes = true
           end
-          if !o.r_otu_id.nil? && yes
-            descriptor_hash[o.d_id][:similar_otu_ids].append(o.r_otu_id)
-            otu_ids_count[o.r_otu_id] = otu_ids_count[o.r_otu_id].to_i + 1
-          elsif !o.r_collection_object_id.nil? && yes
-            descriptor_hash[o.d_id][:similar_collection_object_ids].append(o.r_collection_object_id)
-            collection_object_ids_count[o.r_collection_object_id] = collection_object_ids_count[o.r_collection_object_id].to_i + 1
+          if o.r_obj_type == 'Otu' && yes
+            descriptor_hash[o.d_id][:similar_otu_ids].append(o.r_obj_id)
+            otu_ids_count[o.r_obj_id] = otu_ids_count[o.r_obj_id].to_i + 1
+          elsif o.r_obj_type == 'CollectionObject' && yes
+            descriptor_hash[o.d_id][:similar_collection_object_ids].append(o.r_obj_id)
+            collection_object_ids_count[o.r_obj_id] = collection_object_ids_count[o.r_obj_id].to_i + 1
           end
         end
       end
