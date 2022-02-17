@@ -22,15 +22,12 @@ class ObservationMatrixRowItem < ApplicationRecord
   include SoftValidation
   include Shared::ObservationIndex
 
-
   acts_as_list scope: [:observation_matrix_id, :project_id]
 
-  ALL_STI_ATTRIBUTES = [:otu_id, :collection_object_id, :controlled_vocabulary_term_id, :taxon_name_id].freeze # readded
-
   belongs_to :observation_matrix, inverse_of: :observation_matrix_row_items
+  belongs_to :observation_object, polymorphic: true
 
-  validates_presence_of :observation_matrix
-  validate :other_subclass_attributes_not_set, if: -> {!type.blank?}
+  validates_presence_of :observation_matrix, :observation_object
 
   after_save :update_matrix_rows
   after_destroy :cleanup_matrix_rows
@@ -96,12 +93,6 @@ class ObservationMatrixRowItem < ApplicationRecord
   end
 
   protected
-
-  def other_subclass_attributes_not_set
-    (ALL_STI_ATTRIBUTES - self.type.constantize.subclass_attributes).each do |attr|
-      errors.add(attr, 'is not valid for this type of observation matrix row item') if !send(attr).blank?
-    end
-  end
 
   # @return [Array] of ObservationMatrixRowItems
   def self.batch_create(params)

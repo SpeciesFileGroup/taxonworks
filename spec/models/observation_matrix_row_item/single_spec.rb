@@ -15,12 +15,6 @@ RSpec.describe ObservationMatrixRowItem::Single, type: :model, group: :observati
     expect(observation_matrix_row_item.errors.include?(:observation_matrix)).to be_truthy
   end
 
-  specify '#controlled_vocabulary_term_id (subclass) is not allowed' do
-    observation_matrix_row_item.controlled_vocabulary_term_id = FactoryBot.create(:valid_keyword).id
-    observation_matrix_row_item.valid?
-    expect(observation_matrix_row_item.errors.include?(:controlled_vocabulary_term_id)).to be_truthy
-  end
-
   context 'with a observation_matrix_row_item saved' do
     before { observation_matrix_row_item.update!(
       observation_matrix: observation_matrix,

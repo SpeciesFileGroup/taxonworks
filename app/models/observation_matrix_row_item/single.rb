@@ -1,7 +1,5 @@
 class ObservationMatrixRowItem::Single < ObservationMatrixRowItem
-  belongs_to :observation_object, polymorphic: true
 
-  validates_presence_of :observation_object
   validate :observation_object_is_unique_in_matrix
 
   def is_dynamic?

@@ -15,7 +15,7 @@ describe TaxonName, typein_scope_observation_matrix_row_items: :model, group: [:
   let!(:otu) { Otu.create!(taxon_name: species) }
 
   context 'setup' do
-    let!(:d) { ::ObservationMatrixRowItem::Dynamic::TaxonName.create!( observation_matrix: observation_matrix, taxon_name: genus1 )}
+    let!(:d) { ::ObservationMatrixRowItem::Dynamic::TaxonName.create!( observation_matrix: observation_matrix, observation_object: genus1 )}
 
     # NOTE: Specs in this block should also work if :otu is created in this position
 
@@ -64,7 +64,7 @@ describe TaxonName, typein_scope_observation_matrix_row_items: :model, group: [:
     end
 
     context 'add species' do
-      let!(:d) { ::ObservationMatrixRowItem::Dynamic::TaxonName.create!( observation_matrix: observation_matrix, taxon_name: genus1 )}
+      let!(:d) { ::ObservationMatrixRowItem::Dynamic::TaxonName.create!( observation_matrix: observation_matrix, observation_object: genus1 )}
       let!(:species2) { Protonym.create!(name: 'gus', parent: genus1, rank_class: Ranks.lookup(:iczn, :species)) }
       let!(:otu2) { Otu.create!(taxon_name: species2) }
 
@@ -142,7 +142,7 @@ describe TaxonName, typein_scope_observation_matrix_row_items: :model, group: [:
 
     context 'overlapping' do
       let(:keyword) { FactoryBot.create(:valid_keyword) }
-      let!(:t) { ::ObservationMatrixRowItem::Dynamic::Tag.create!( observation_matrix: observation_matrix, controlled_vocabulary_term: keyword )}
+      let!(:t) { ::ObservationMatrixRowItem::Dynamic::Tag.create!( observation_matrix: observation_matrix, observation_object: keyword )}
 
       specify 'dynamic groups increment count' do
         Tag.create!(keyword: keyword, tag_object: otu)
@@ -154,7 +154,7 @@ describe TaxonName, typein_scope_observation_matrix_row_items: :model, group: [:
   # TODO: move to tag matrix hook specs
   context 'tag alone' do
     let(:keyword) { FactoryBot.create(:valid_keyword) }
-    let!(:t) { ::ObservationMatrixRowItem::Dynamic::Tag.create!( observation_matrix: observation_matrix, controlled_vocabulary_term: keyword )}
+    let!(:t) { ::ObservationMatrixRowItem::Dynamic::Tag.create!( observation_matrix: observation_matrix, observation_object: keyword )}
     
     specify 'dynamic groups increment count' do
       Tag.create!(keyword: keyword, tag_object: otu) 

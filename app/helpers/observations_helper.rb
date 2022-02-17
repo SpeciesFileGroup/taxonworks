@@ -25,13 +25,16 @@ module ObservationsHelper
       sample_observation_cell_tag(observation)
     when 'Observation::PresenceAbsence'
       presence_absence_observation_cell_tag(observation)
-    else 
+
+    when 'Observation::Working' # TODO: Validate in format
+      tag.span('X', title: observation.description)
+    else
       '!! display not done !!'
     end
   end
 
   def observation_made_on_tag(observation)
-    return nil if observation.nil? 
+    return nil if observation.nil?
 
     [observation.year_made,
      observation.month_made,
@@ -49,17 +52,17 @@ module ObservationsHelper
 
   def presence_absence_observation_cell_tag(observation)
     # TODO: messing with visualization here, do something more clean
-    observation.presence ? '&#10003;' : '&#x274c;' 
+    observation.presence ? '&#10003;' : '&#x274c;'
   end
 
   def sample_observation_cell_tag(observation)
-    o = observation 
+    o = observation
     r = []
 
     r.push [o.sample_min, o.sample_max].compact.join('-')
     r.push "#{o.sample_units}" if o.sample_units.present?
 
-    m = []  
+    m = []
 
     m.push "median = #{o.sample_median}" if o.sample_median.present?
     m.push "&#956; = #{o.sample_mean}" if o.sample_mean.present?
