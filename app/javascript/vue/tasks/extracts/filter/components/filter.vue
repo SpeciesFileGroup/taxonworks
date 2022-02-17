@@ -49,8 +49,7 @@
       />
       <date-range-facet
         class="margin-large-bottom"
-        v-model:start="params.extract_start_date_range"
-        v-model:end="params.extract_end_date_range"
+        v-model="params.date"
       />
       <repository-component
         class="margin-large-bottom"
@@ -115,6 +114,7 @@ const parseParams = computed(() =>
     ...params.value.geographic,
     ...params.value.repository,
     ...params.value.base,
+    ...params.value.date,
     ...params.value.keywords,
     ...params.value.protocols,
     ...params.value.taxon,

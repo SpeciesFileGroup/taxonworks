@@ -6,7 +6,7 @@
         <label>Start date</label>
         <input
           type="date"
-          v-model="startDate"
+          v-model="date.extract_start_date_range"
         >
       </div>
 
@@ -14,7 +14,7 @@
         <label>End date</label>
         <input
           type="date"
-          v-model="endDate"
+          v-model="date.extract_end_date_range"
         >
       </div>
     </div>
@@ -25,30 +25,20 @@
 import { computed } from 'vue'
 
 const props = defineProps({
-  start: {
-    type: String,
-    default: undefined
-  },
-
-  end: {
-    type: String,
-    default: undefined
+  modelValue: {
+    type: Object,
+    default: () => ({
+      extract_start_date_range: undefined,
+      extract_end_date_range: undefined
+    })
   }
 })
 
-const emit = defineEmits([
-  'update:start',
-  'update:end'
-])
+const emit = defineEmits(['update:modelValue'])
 
-const startDate = computed({
-  get: () => props.start,
-  set: value => emit('update:start', value)
-})
-
-const endDate = computed({
-  get: () => props.end,
-  set: value => emit('update:end', value)
+const date = computed({
+  get: () => props.modelValue,
+  set: value => emit('update:modelValue', value)
 })
 
 </script>
