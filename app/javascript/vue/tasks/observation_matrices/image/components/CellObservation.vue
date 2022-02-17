@@ -186,11 +186,11 @@ export default {
         const observation = {
           descriptor_id: this.column.id,
           type: 'Observation::Media',
-          obseravtion_object_type: this.rowObjectBaseCassParam,
+          observation_object_type: this.rowObjectBaseCassParam,
           observation_object_id: this.rowObjectId
         }
 
-        Observation.create({ observation }).then(({ body }) => {
+        Observation.create({ observation, extend: ['depictions'] }).then(({ body }) => {
           this.updateDepiction(event, body.id)
         })
       }
@@ -213,7 +213,7 @@ export default {
       this.$store.commit(MutationNames.SetIsSaving, true)
 
       if (observation.id) {
-        await Observation.update(observation.id, { observation }).then(({ body }) => {
+        await Observation.update(observation.id, { observation, extend: ['depictions'] }).then(({ body }) => {
           if (!body.depictions.find(d => d.depiction_object_id === this.observationMoved)) {
             Observation.destroy(body.id)
           }
@@ -261,7 +261,8 @@ export default {
       formData.append('observation[descriptor_id]', this.column.id)
       formData.append('observation[type]', 'Observation::Media')
       formData.append('observation[observation_object_id]', this.rowObjectId)
-      formData.append('observation[obseravtion_object_type]', this.rowObjectBaseCassParam)
+      formData.append('observation[observation_object_type]', this.rowObjectBaseCassParam)
+      formData.append('extend[]', 'depictions')
     },
 
     successDepic (file, response) {
