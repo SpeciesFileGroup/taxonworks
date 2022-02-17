@@ -114,7 +114,6 @@ class ObservationMatrixRowItemsController < ApplicationController
     params.require(:observation_matrix_row_item).permit(
       :observation_matrix_id, :type,
       :observation_object_type, :observation_object_id,
-      :taxon_name_id,
-      :controlled_vocabulary_term_id, :type, :position)
+      :type, :position)
   end
 end

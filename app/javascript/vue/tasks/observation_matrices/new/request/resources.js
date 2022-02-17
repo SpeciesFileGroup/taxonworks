@@ -45,7 +45,7 @@ const BatchRemoveKeyword = function (id, type) {
 }
 
 const GetSmartSelector = function(type) {
-  return ajaxCall('get', `/${type}/select_options?klass=ObservationMatrix`)
+  return ajaxCall('get', `/${type}/select_options`, { params: { klass: 'ObservationMatrix', target: 'ObservationMatrix' } })
 }
 
 const SortRows = function(ids) {
