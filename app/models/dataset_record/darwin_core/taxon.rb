@@ -23,7 +23,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
   def import(dwc_data_attributes = {})
     super
     begin
-      DatasetRecord.transaction do
+      DatasetRecord.transaction(requires_new: true) do
         self.metadata.delete('error_data')
 
         nomenclature_code = get_field_value('nomenclaturalCode')&.downcase&.to_sym || import_dataset.default_nomenclatural_code
