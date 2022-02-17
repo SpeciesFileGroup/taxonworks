@@ -174,7 +174,7 @@ export default {
   methods: {
     loadRows (page = undefined) {
       this.isLoading = true
-      GetMatrixObservationRows(this.matrixSelected.id, { per: 500, page: page }).then(response => {
+      GetMatrixObservationRows(this.matrixSelected.id, { per: 500, page: page, extend: ['observation_object'] }).then(response => {
         this.rows = this.rows.concat(response.body)
         this.pagination = getPagination(response)
         this.isLoading = false
