@@ -1,7 +1,6 @@
 class Tasks::ObservationMatrices::ImageMatrixController < ApplicationController
   include TaskControllerConfiguration
-  include DataControllerConfiguration::ProjectDataControllerConfiguration
-
+  
   # GET /tasks/observation_matrices/image_matrix
   def index
   end
