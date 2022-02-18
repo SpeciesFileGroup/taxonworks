@@ -13,7 +13,6 @@ export function makeInitialState (requestModule) {
     description: undefined,
     descriptors: [],
     observations: [],
-    confidenceLevels: null,
     units: {}
   }
 }

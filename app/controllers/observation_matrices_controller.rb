@@ -1,7 +1,7 @@
 class ObservationMatricesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_observation_matrix, only: [:show, :api_show, :edit, :update, :destroy, :nexml, :tnt, :nexus, :csv, :otu_contents, :reorder_rows, :reorder_columns]
+  before_action :set_observation_matrix, only: [:show, :api_show, :edit, :update, :destroy, :nexml, :tnt, :nexus, :csv, :otu_contents, :reorder_rows, :reorder_columns, :row_labels, :column_labels]
   after_action -> { set_pagination_headers(:observation_matrices) }, only: [:index, :api_index], if: :json_request?
 
   # GET /observation_matrices
@@ -92,6 +92,7 @@ class ObservationMatricesController < ApplicationController
     @observation_matrices = ObservationMatrix.where(project_id: sessions_current_project_id).where('name ilike ?', "%#{params[:term]}%")
   end
 
+  # TODO: deprecate
   def search
     if params[:id].blank?
       redirect_to observation_matrices_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
@@ -99,6 +100,13 @@ class ObservationMatricesController < ApplicationController
       redirect_to observation_matrix_path(params[:id])
     end
   end
+
+  def row_labels
+  end
+
+  def column_labels
+  end
+
 
   # TODO export formats can move to a concern controller
 
@@ -179,7 +187,7 @@ class ObservationMatricesController < ApplicationController
   end
 
   def otus_used_in_matrices
-    #ObservationMatrix.with_otu_ids_array([13597, 25680])
+    # ObservationMatrix.with_otu_ids_array([13597, 25680])
     if !params[:otu_ids].blank?
       p = ObservationMatrix.with_otu_id_array(params[:otu_ids].split('|')).pluck(:id)
       if p.nil?

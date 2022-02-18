@@ -204,10 +204,3 @@ export default {
   }
 }
 </script>
-<style lang="scss" scoped>
-  .vue-table-container {
-    overflow-y: scroll;
-    padding: 0px;
-    position: relative;
-  }
-</style>

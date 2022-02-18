@@ -175,7 +175,8 @@ export default {
     'getInput',
     'getItem',
     'found',
-    'keyEvent'
+    'keyEvent',
+    'select'
   ],
 
   data () {
@@ -231,6 +232,7 @@ export default {
     sendItem (item) {
       this.$emit('update:modelValue', item)
       this.$emit('getItem', item)
+      this.$emit('select', item)
     },
 
     sendKeyEvent (e) {

@@ -1,86 +1,71 @@
 <template>
   <div>
     <h2>Attributes (predicates) to include</h2>
-    <ul class="no_bullets">
-      <li
-        v-for="item in list"
-        :key="item.id"
-      >
-        <label>
-          <checkbox-component
-            :val="item.id"
-            v-model="selected"
-            @change="updateList"
-          />
-          <span v-html="item.object_tag" />
-        </label>
-      </li>
-    </ul>
-    <button
-      type="button"
-      class="button normal-input button-default"
-      @click="showModal = true">New predicate
-    </button>
-    <predicate-modal
-      v-if="showModal"
-      @close="showModal = false"
-      @onNew="newPredicate" />
+    <draggable
+      class="no_bullets"
+      tag="ul"
+      item-key="id"
+      :list="list"
+      :disabled="!model"
+      @end="updateList"
+    >
+      <template #item="{ element }">
+        <li>
+          <label :key="element.id">
+            <input
+              type="checkbox"
+              :value="element.id"
+              v-model="selected"
+              :disabled="!model"
+              @change="updateList"
+            >
+            <span v-html="element.object_tag" />
+          </label>
+        </li>
+      </template>
+    </draggable>
   </div>
 </template>
 
-<script>
+<script setup>
 
-import PredicateModal from './newPredicate'
-import CheckboxComponent from './checkboxComponent'
+import Draggable from 'vuedraggable'
+import { ref, watch } from 'vue'
 
-import { ControlledVocabularyTerm } from 'routes/endpoints'
-
-export default {
-  components: {
-    PredicateModal,
-    CheckboxComponent
+const props = defineProps({
+  modelList: {
+    type: Array,
+    default: () => []
   },
 
-  props: {
-    modelList: {
-      type: Array,
-      default: () => []
-    }
+  list: {
+    type: Array,
+    default: () => []
   },
 
-  emits: ['onUpdate'],
-
-  data () {
-    return {
-      list: [],
-      selected: [],
-      showModal: false
-    }
-  },
-
-  watch: {
-    modelList (newVal) {
-      this.selected = newVal
-    }
-  },
-
-  created () {
-    ControlledVocabularyTerm.where({ type: ['Predicate'] }).then(response => {
-      this.list = response.body
-    })
-  },
-
-  methods: {
-    newPredicate (predicate) {
-      ControlledVocabularyTerm.create({ controlled_vocabulary_term: predicate }).then(response => {
-        TW.workbench.alert.create('Predicate was successfully created.', 'notice')
-        this.list.push(response.body)
-      })
-    },
-
-    updateList () {
-      this.$emit('onUpdate', this.selected)
-    }
+  model: {
+    type: String,
+    default: undefined
   }
+})
+
+const emit = defineEmits([
+  'update',
+  'sort'
+])
+
+const selected = ref([])
+
+watch(
+  () => props.modelList,
+  newVal => { selected.value = newVal }
+)
+
+const updateList = () => {
+  emit('update', {
+    [props.model]: selected.value,
+    predicate_index: props.list.map(({ id }) => id)
+  })
 }
+
 </script>

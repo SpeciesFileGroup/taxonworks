@@ -10,6 +10,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - OTU descendants API endpoint `.../otus/123/inventory/descendants` [#2791]
 - Download SVG button in object graph task [#2804]
 - Rake task to generate docs.taxonworks.org Data documentation [#2352]
+- Confirmation window for delete documentation in radial annotator [#2820]
+- Drag and drop to sort predicates in project preferences [#2821]
+- Endpoints for observation matrix row and column labels [#2800]
+- Matrix row navigation in Matrix row coder [#2800]
 
 ### Changed
 - Browse nomenclature task was renamed to Browse nomenclature and classifications [#2638]
@@ -18,6 +22,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Show Images section in Browse OTU for GenusGroup [#2786]
 - User facet: `Now` button sets end date in Filter interfaces [#2788]
 - Hierarchy navigator in Browse nomenclature task now includes synonyms [#2797]
+- Scroll tables in New observation matrix task [#2799]
+- Updated Ruby gems
+- Replace autocomplete by otu picker to biological associations form in radial object
 
 ### Fixed
 - author string for incorrect original spelling [#2743]
@@ -28,6 +35,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Download link doesn't work in data list view
 - Edit in Browse collecting event [#2814]
 
+[#2800]: https://github.com/SpeciesFileGroup/taxonworks/issues/2800
 [#2352]: https://github.com/SpeciesFileGroup/taxonworks/issues/2552
 [#2550]: https://github.com/SpeciesFileGroup/taxonworks/issues/2550
 [#2790]: https://github.com/SpeciesFileGroup/taxonworks/issues/2790
@@ -42,6 +50,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2807]: https://github.com/SpeciesFileGroup/taxonworks/issues/2807
 [#2809]: https://github.com/SpeciesFileGroup/taxonworks/issues/2809
 [#2814]: https://github.com/SpeciesFileGroup/taxonworks/issues/2814
+[#2799]: https://github.com/SpeciesFileGroup/taxonworks/issues/2799
+[#2800]: https://github.com/SpeciesFileGroup/taxonworks/issues/2800
+[#2820]: https://github.com/SpeciesFileGroup/taxonworks/issues/2820
+[#2821]:https://github.com/SpeciesFileGroup/taxonworks/issues/2821
 
 ## [0.22.7] - 2021-01-26
 
