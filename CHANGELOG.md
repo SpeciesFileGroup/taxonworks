@@ -7,6 +7,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Extract Filter [#2270] 
+- Protocol facets for filters, currently on Extract filter
 - OTU descendants API endpoint `.../otus/123/inventory/descendants` [#2791]
 - Download SVG button in object graph task [#2804]
 - Rake task to generate docs.taxonworks.org Data documentation [#2352]
@@ -16,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Matrix row navigation in Matrix row coder [#2800]
 
 ### Changed
+- Tweaked how Extracts are displayed in various views 
 - Browse nomenclature task was renamed to Browse nomenclature and classifications [#2638]
 - Add origin citations for taxon name relationships/classifications, renames route [#2790]
 - Add Download customization [#2748]
@@ -27,7 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Replace autocomplete by otu picker to biological associations form in radial object
 
 ### Fixed
-- author string for incorrect original spelling [#2743]
+- Author string for incorrect original spelling [#2743]
 - Type species section doesn't work in new taxon name [#2785]
 - Missing Variety and Form ranks in original combination section for ICZN in New taxon name task [#2795]
 - Check if current identifier is the same as current in comprehensive task [#2550]
@@ -35,6 +38,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Download link doesn't work in data list view
 - Edit in Browse collecting event [#2814]
 
+[#2270]: https://github.com/SpeciesFileGroup/taxonworks/issues/2270
 [#2800]: https://github.com/SpeciesFileGroup/taxonworks/issues/2800
 [#2352]: https://github.com/SpeciesFileGroup/taxonworks/issues/2552
 [#2550]: https://github.com/SpeciesFileGroup/taxonworks/issues/2550
