@@ -97,10 +97,10 @@ gem 'rgb', '~> 0.1'
 # Drawing
 gem 'rqrcode', github:'mjy/rqrcode', branch: 'taxonworks'
 gem 'barby', '~> 0.6.8'
+gem 'ruby-graphviz', '~> 1.2.5', require: false
 
 # "Bio" and SFG gems
-#gem 'taxonifi', '~> 0.5.5'
-gem 'taxonifi', github: 'LocoDelAssembly/taxonifi', branch: 'ruby3'
+gem 'taxonifi', '~> 0.6.0'
 gem 'sqed', '0.6.0'
 gem 'dwc_agent', '~> 3.0'
 gem 'dwc-archive', github: 'LocoDelAssembly/dwc-archive', branch: 'overhaul' # '~> 1.1', '>= 1.1.2'
@@ -133,7 +133,7 @@ group :test, :development do
   gem 'factory_bot_rails', '~> 6.2'
   gem 'webdrivers', '~> 5.0', require: false
   gem 'prawn', '~> 2.4.0'
-  gem 'puma', '~> 5.5.0', '>= 5.5.2'
+  gem 'puma', '~> 5.5'
 end
 
 gem 'parallel_tests', group: [:development, :test]

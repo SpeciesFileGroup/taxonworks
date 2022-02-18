@@ -113,7 +113,7 @@ module Workbench::NavigationHelper
 
   def download_for_model_link(model)
     if self.controller.respond_to?(:download)
-      link_to('Download', download_path_for_model(model), 'data-icon' => 'download')
+      link_to('Download', download_path_for_model(model), data: { icon: :download, turbolinks: false })
     else
       content_tag(:em, 'Download not yet available.')
     end

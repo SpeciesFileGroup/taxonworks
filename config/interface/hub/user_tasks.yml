@@ -84,8 +84,8 @@ new_taxon_name_task:
   description: 'Create or edit a taxon name along with its related metadata including original combinations, status, type material and synonym.'
 browse_nomenclature_task:
   hub: true
-  name: 'Browse nomenclature'
-  description: 'Browse through nomenclature, focusing on a single record at a time.'
+  name: 'Browse nomenclature and classification'
+  description: 'Browse through nomenclature and classification, focusing on a single record at a time.'
   status: stable
   categories:
     - nomenclature

@@ -102,7 +102,10 @@
             :is="`columns-${matrixMode}`"/>
         </div>
       </div>
-      <tables-component v-if="matrix.id"/>
+      <tables-component
+        v-if="matrix.id"
+        class="matrix-tables"
+      />
     </div>
   </div>
 </template>
@@ -187,7 +190,7 @@ export default {
 }
 
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
   #vue_new_matrix_task {
     flex-direction: column-reverse;
     margin: 0 auto;
@@ -217,6 +220,11 @@ export default {
     table {
       min-width: 500px;
       width: 100%;
+    }
+
+    .matrix-tables {
+      overflow-y: auto;
+      max-height: calc(100vh - 200px);
     }
   }
 </style>

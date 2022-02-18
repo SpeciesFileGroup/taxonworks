@@ -115,6 +115,12 @@ begin
       TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameOriginalForm
       TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling}.freeze
 
+    TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_PARENTHESES = %w{
+      TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling
+      TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling
+      TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling}.freeze
+
+
     TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY = %w{
       TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling
       TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling

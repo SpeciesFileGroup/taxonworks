@@ -34,10 +34,11 @@ describe 'Browse nomenclature task', type: :feature, group: :nomenclature do
           expect(@hierarchy).to have_link('Root', href: browse_nomenclature_task_path(taxon_name_id: TaxonName.first.id))
         end
 
+        
         specify 'displaying invalid should only show invalid names' do
           visit browse_nomenclature_task_path(taxon_name_id: root.id)
           @hierarchy.find('label[for=display_herarchy_invalid]').click
-          expect(@hierarchy).to have_link('Bus', href: browse_nomenclature_task_path(taxon_name_id: genus_synonym.id))
+          expect(@hierarchy).to_not have_link('Bus', href: browse_nomenclature_task_path(taxon_name_id: genus_synonym.id))
           expect(@hierarchy).to_not have_link('Aus', href: browse_nomenclature_task_path(taxon_name_id: genus.id))
         end
 

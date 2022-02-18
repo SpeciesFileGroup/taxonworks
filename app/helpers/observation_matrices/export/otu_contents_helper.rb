@@ -118,14 +118,13 @@ module ObservationMatrices::Export::OtuContentsHelper
               lbl = lbl.compact.join('; ')
 
               if im.image_hash[depiction[:image_id]][:image_file_content_type] == 'image/tiff'
-                href = tw_url + im.image_hash[depiction[:image_id]][:medium_url]
+                href = im.image_hash[depiction[:image_id]][:medium_url]
               else
-                href = tw_url + im.image_hash[depiction[:image_id]][:original_url]
+                href = im.image_hash[depiction[:image_id]][:original_url]
               end
 
               list += "<span class='tw_depiction'><br>\n"
-              short_url(im.image_hash[depiction[:image_id]][:original_url])
-              list += tag.img(src: href , class: 'tw_image') + "<br.\n"
+              list += "#{tag.img(src: short_url(href), class: 'tw_image')}<br>\n"
               #list += (tag.b('Object:') +  object[1][:object].otu_name + "<br>\n") unless object[1][:object].otu_name.blank?
               #list += "<b>Description:</b> #{descriptors[index][:name]}<br>\n" unless descriptors[index].blank?
               list += "<b>Label:</b> #{lbl}<br>\n" unless lbl.blank?

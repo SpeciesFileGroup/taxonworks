@@ -1,17 +1,19 @@
 <template>
   <div
-    id="matrix_row_coder"
+    id="matrix-row-coder-app"
     class="matrix-row-coder">
     <spinner
       legend="Loading..."
-      :full-screen="true"
+      full-screen
       :logo-size="{ width: '50px', height: '50px'}"
-      v-if="isLoading"/>
+      v-if="isLoading"
+    />
     <navbar-component>
       <div class="flex-separate middle">
         <h3
           class="matrix-row-coder__title"
-          v-html="title"/>
+          v-html="title"
+        />
         <div class="horizontal-left-content">
           <diagnosis-component class="margin-small-right"/>
           <descriptors-list class="margin-small-right"/>
@@ -19,9 +21,9 @@
           <clone-scoring
             class="margin-small-right"
             @onCopy="copyScorings"
-            @onClone="cloneScorings"/>
-          <destroy-all-observations
-            @onConfirm="destroyAllObservations"/>
+            @onClone="cloneScorings"
+          />
+          <destroy-all-observations @onConfirm="destroyAllObservations"/>
         </div>
       </div>
     </navbar-component>
@@ -68,74 +70,8 @@ const computed = mapState({
 })
 
 export default {
-  created () {
-    this.loadMatrixRow({
-      rowId: this.$props.rowId,
-      otuId: this.$props.otuId
-    })
-    this.$store.dispatch(ActionNames.RequestUnits)
-  },
-  data () {
-    return {
-      isLoading: false
-    }
-  },
   name: 'MatrixRowCoder',
-  props: {
-    rowId: Number,
-    otuId: Number,
-    apiBase: String,
-    apiParams: Object
-  },
-  computed,
-  methods: {
-    setApiValues () {
-      this.$store.state.request.setApi({
-        apiBase: this.$props.apiBase,
-        apiParams: this.$props.apiParams
-      })
-    },
 
-    loadMatrixRow (matrixRow) {
-      this.$store.commit(MutationNames.ResetState)
-      this.setApiValues()
-      this.isLoading = true
-      this.$store.dispatch(ActionNames.RequestMatrixRow, matrixRow).then(() => {
-        this.isLoading = false
-      })
-      this.$store.dispatch(ActionNames.RequestDescription, matrixRow.rowId)
-      this.$store.dispatch(ActionNames.RequestConfidenceLevels)
-    },
-
-    destroyAllObservations () {
-      this.$store.dispatch(ActionNames.RemoveObservationsRow, this.rowId).then(() => {
-        this.loadMatrixRow({
-          rowId: this.rowId,
-          otuId: this.otuId
-        })
-      })
-    },
-
-    cloneScorings(args) {
-      this.isLoading = true
-      this.$store.dispatch(ActionNames.CreateClone, args).finally(() => {
-        this.isLoading = false
-      })
-    },
-
-    copyScorings(args) {
-      this.isLoading = true
-      this.$store.dispatch(ActionNames.CreateClone, args).then(() => {
-        this.isLoading = false
-        this.loadMatrixRow({
-          rowId: this.rowId,
-          otuId: this.otuId
-        })
-      }, () => {
-        this.isLoading = false
-      })
-    }
-  },
   components: {
     DescriptorsList,
     NavbarComponent,
@@ -150,6 +86,69 @@ export default {
     DestroyAllObservations,
     DescriptionMain,
     DiagnosisComponent
+  },
+
+  props: {
+    rowId: {
+      type: Number,
+      required: true
+    },
+
+    otuId: {
+      type: Number,
+      required: true
+    }
+  },
+
+  data () {
+    return {
+      isLoading: false
+    }
+  },
+
+  computed,
+
+  watch: {
+    rowId () {
+      this.loadMatrixRow(this.rowId)
+    }
+  },
+
+  created () {
+    this.$store.dispatch(ActionNames.RequestUnits)
+  },
+
+  methods: {
+    loadMatrixRow (matrixRow) {
+      this.$store.commit(MutationNames.ResetState)
+      this.isLoading = true
+      this.$store.dispatch(ActionNames.RequestMatrixRow, matrixRow).then(() => {
+        this.isLoading = false
+      })
+      this.$store.dispatch(ActionNames.RequestDescription, matrixRow)
+    },
+
+    destroyAllObservations () {
+      this.$store.dispatch(ActionNames.RemoveObservationsRow, this.rowId).then(() => {
+        this.loadMatrixRow(this.rowId)
+      })
+    },
+
+    cloneScorings (args) {
+      this.isLoading = true
+      this.$store.dispatch(ActionNames.CreateClone, args).finally(() => {
+        this.isLoading = false
+      })
+    },
+
+    copyScorings (args) {
+      this.isLoading = true
+      this.$store.dispatch(ActionNames.CreateClone, args).then(() => {
+        this.loadMatrixRow(this.rowId)
+      }).finally(() => {
+        this.isLoading = false
+      })
+    }
   }
 }
 </script>
