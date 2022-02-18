@@ -103,7 +103,7 @@ import { useStore } from 'vuex'
 import { GetterNames } from '../../store/getters/getters.js'
 import { ActionNames } from '../../store/actions/actions.js'
 import {
-  combinationType,
+  subsequentCombinationType,
   combinationIcnType
 } from '../../const/combinationTypes'
 import {
@@ -133,7 +133,7 @@ const isCurrentTaxonInCombination = computed(() => !!Object.entries(combination.
 const isBotanyCode = computed(() => store.getters[GetterNames.GetTaxon].nomenclatural_code === NOMENCLATURE_CODE_BOTANY)
 const nomenclatureRanks = computed(() => isBotanyCode.value
   ? combinationIcnType
-  : combinationType
+  : subsequentCombinationType
 )
 const isGenusGroup = computed(() => Object.keys(nomenclatureRanks.value.genusGroup).includes(taxon.value.rank))
 const combinationRanks = computed(() => isGenusGroup.value

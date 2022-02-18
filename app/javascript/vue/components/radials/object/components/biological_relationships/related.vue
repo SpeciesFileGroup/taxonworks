@@ -12,6 +12,8 @@
       target="BiologicalAssociation"
       buttons
       inline
+      otu-picker
+      :autocomplete="false"
       @selected="sendRelated"
     />
     <smart-selector

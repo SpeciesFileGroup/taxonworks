@@ -231,7 +231,7 @@ resources :documents do
   concerns [:data_routes]
 end
 
-resources :downloads, except: [:edit, :new, :create] do
+resources :downloads, except: [:new, :create] do
   collection do
     get 'list'
   end
@@ -413,6 +413,9 @@ resources :observation_matrices do
 
     get :reorder_rows, defaults: {format: :json}
     get :reorder_columns, defaults: {format: :json}
+
+    get :row_labels, defaults: {format: :json}
+    get :column_labels, defaults: {format: :json}
   end
 
   collection do

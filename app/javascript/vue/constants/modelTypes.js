@@ -7,3 +7,8 @@ export const COLLECTING_EVENT = 'CollectingEvent'
 export const TYPE_MATERIAL = 'TypeMaterial'
 export const CONTROLLED_VOCABULARY_TERM = 'ControlledVocabularyTerm'
 export const OTU = 'Otu'
+export const ASSERTED_DISTRIBUTION = 'AssertedDistribution'
+export const EXTRACT = 'Extract'
+export const LOT = 'Lot'
+export const RANGED_LOT = 'RangedLot'
+

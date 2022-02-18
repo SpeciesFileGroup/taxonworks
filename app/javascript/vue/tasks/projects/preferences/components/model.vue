@@ -3,60 +3,54 @@
     <h2>Select model</h2>
     <ul class="no_bullets">
       <li
-        v-for="item in list"
-        :key="item.value"
+        v-for="item in MODEL_TYPES"
+        :key="item"
       >
         <label>
           <input
             type="radio"
             name="model"
-            :value="item.value"
-            @click="selectOption(item)"
+            :value="item"
+            v-model="selected"
           >
-          {{ item.label }}
+          {{ humanize(item) }}
         </label>
       </li>
     </ul>
   </div>
 </template>
 
-<script>
-export default {
-  emits: ['onSelect'],
+<script setup>
+import { humanize } from 'helpers/strings'
+import { computed } from 'vue'
+import {
+  OTU,
+  ASSERTED_DISTRIBUTION,
+  COLLECTION_OBJECT,
+  COLLECTING_EVENT,
+  EXTRACT
+} from 'constants/index.js'
 
-  data () {
-    return {
-      list: [
-        {
-          label: 'Otu',
-          value: 'Otu'
-        },
-        {
-          label: 'Asserted distribution',
-          value: 'AssertedDistribution'
-        },
-        {
-          label: 'Collection object',
-          value: 'CollectionObject'
-        },
-        {
-          label: 'Collecting Event',
-          value: 'CollectingEvent'
-        },
-        {
-          label: 'Extract',
-          value: 'Extract'
-        }
-      ],
-      selected: undefined
-    }
-  },
+const MODEL_TYPES = [
+  OTU,
+  ASSERTED_DISTRIBUTION,
+  COLLECTION_OBJECT,
+  COLLECTING_EVENT,
+  EXTRACT
+]
 
-  methods: {
-    selectOption (item) {
-      this.selected = item
-      this.$emit('onSelect', item)
-    }
+const props = defineProps({
+  modelValue: {
+    type: String,
+    default: undefined
   }
-}
+})
+
+const emit = defineEmits(['update:modelValue'])
+
+const selected = computed({
+  get: () => props.modelValue,
+  set: value => emit('update:modelValue', value)
+})
+
 </script>

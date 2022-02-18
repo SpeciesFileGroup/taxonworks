@@ -115,7 +115,7 @@ import OriginalCombination from './originalCombination.vue'
 import BlockLayout from 'components/layout/BlockLayout'
 import VBtn from 'components/ui/VBtn/index.vue'
 import {
-  combinationType,
+  originalCombinationType,
   combinationIcnType
 } from '../const/combinationTypes'
 
@@ -163,7 +163,7 @@ export default {
     combinationRanks () {
       return this.taxon.nomenclatural_code === 'icn'
         ? combinationIcnType
-        : combinationType
+        : originalCombinationType
     }
   },
 

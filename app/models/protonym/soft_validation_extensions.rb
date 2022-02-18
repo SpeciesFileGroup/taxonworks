@@ -1591,7 +1591,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_missing_otu
-      if is_available? && otus.empty?
+      if is_available? && otus.empty? && rank_string != 'NomenclaturalRank'
         soft_validations.add(
           :year_of_publication, 'Missing OTU',
           success_message: 'OTU was created',
