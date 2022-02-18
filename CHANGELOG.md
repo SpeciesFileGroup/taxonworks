@@ -7,7 +7,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-- Extract Filter [#2270] 
+- Extract Filter [#2270]
 - Protocol facets for filters, currently on Extract filter
 - OTU descendants API endpoint `.../otus/123/inventory/descendants` [#2791]
 - Download SVG button in object graph task [#2804]
@@ -16,18 +16,20 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Drag and drop to sort predicates in project preferences [#2821]
 - Endpoints for observation matrix row and column labels [#2800]
 - Matrix row navigation in Matrix row coder [#2800]
+- Download enabled for controlled vocabulary terms [#2809]
+- Type materials metadata extension for /api/v1/otus
 
 ### Changed
-- Tweaked how Extracts are displayed in various views 
+- Tweaked how Extracts are displayed in various views
 - Browse nomenclature task was renamed to Browse nomenclature and classifications [#2638]
 - Add origin citations for taxon name relationships/classifications, renames route [#2790]
 - Add Download customization [#2748]
 - Show Images section in Browse OTU for GenusGroup [#2786]
 - User facet: `Now` button sets end date in Filter interfaces [#2788]
-- Hierarchy navigator in Browse nomenclature task now includes synonyms [#2797]
+- Changes content and layout ouf hierarchy navigator in Browse nomenclature task [#2797]
 - Scroll tables in New observation matrix task [#2799]
 - Updated Ruby gems
-- Replace autocomplete by otu picker to biological associations form in radial object
+- Replace autocomplete with OTU picker in biological associations form in radial object
 
 ### Fixed
 - Author string for incorrect original spelling [#2743]
@@ -37,7 +39,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Comprehensive digitization - entering '0' in total breaks the interface [#2807]
 - Download link doesn't work in data list view
 - Edit in Browse collecting event [#2814]
+- DwC importer is more robust to invalid taxon names
 
+[#2743]: https://github.com/SpeciesFileGroup/taxonworks/issues/2743
+[#2638]: https://github.com/SpeciesFileGroup/taxonworks/issues/2638
 [#2270]: https://github.com/SpeciesFileGroup/taxonworks/issues/2270
 [#2800]: https://github.com/SpeciesFileGroup/taxonworks/issues/2800
 [#2352]: https://github.com/SpeciesFileGroup/taxonworks/issues/2552
@@ -57,7 +62,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2799]: https://github.com/SpeciesFileGroup/taxonworks/issues/2799
 [#2800]: https://github.com/SpeciesFileGroup/taxonworks/issues/2800
 [#2820]: https://github.com/SpeciesFileGroup/taxonworks/issues/2820
-[#2821]:https://github.com/SpeciesFileGroup/taxonworks/issues/2821
+[#2821]: https://github.com/SpeciesFileGroup/taxonworks/issues/2821
 
 ## [0.22.7] - 2021-01-26
 
@@ -220,7 +225,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - API -added extend character_state option to /observations
 
-### Fixed 
+### Fixed
 - Updated reference string for 'classified as' relationship in Browse nomenclature
 - Custom attributes are not cleared on new record [#2692]
 - API - /api/v1/observation_matrices with no params failed
@@ -447,7 +452,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - CrossRef assigns the wrong serial when journal is not present (partial) [#2620]
 
 [#666]: https://github.com/SpeciesFileGroup/taxonworks/issues/666
-[#2407]: https://github.com/SpeciesFileGroup/taxonworks/issues/2407  
+[#2407]: https://github.com/SpeciesFileGroup/taxonworks/issues/2407
 [#2612]: https://github.com/SpeciesFileGroup/taxonworks/issues/2612
 [#2613]: https://github.com/SpeciesFileGroup/taxonworks/issues/2613
 [#2615]: https://github.com/SpeciesFileGroup/taxonworks/issues/2615
