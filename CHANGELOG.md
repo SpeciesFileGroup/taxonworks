@@ -6,6 +6,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.23.0] - 2022-02-18
+
 ### Added
 - Extract Filter [#2270]
 - Protocol facets for filters, currently on Extract filter
@@ -64,7 +68,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2820]: https://github.com/SpeciesFileGroup/taxonworks/issues/2820
 [#2821]: https://github.com/SpeciesFileGroup/taxonworks/issues/2821
 
-## [0.22.7] - 2021-01-26
+## [0.22.7] - 2022-01-26
 
 ### Added
 - Add more date (redundant) fields to DwC export [#2780]
@@ -109,7 +113,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2764]: https://github.com/SpeciesFileGroup/taxonworks/issues/2764
 [#2769]: https://github.com/SpeciesFileGroup/taxonworks/issues/2769
 
-## [0.22.6] - 2021-01-10
+## [0.22.6] - 2022-01-10
 
 ### Added
 - Option to select all and quick tag in Filter image task [#2744]
