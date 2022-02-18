@@ -38,6 +38,14 @@ describe Queries::Extract::Filter, type: :model, group: [:dna, :collection_objec
     expect(q.all.pluck(:id)).to contain_exactly(e.id)
   end
 
+  specify '#extract_start_date_range 4' do
+    e = FactoryBot.create(:valid_extract, year_made: 2000, month_made: 1, day_made: 1)
+    FactoryBot.create(:valid_extract, year_made: 2000, month_made: 1, day_made: 2)
+
+    q.extract_start_date_range = '2000-1-1'
+    expect(q.all.pluck(:id)).to contain_exactly(e.id)
+  end
+
   specify '#extract_start_date_range invalid date is nillified' do
     e = FactoryBot.create(:valid_extract, year_made: 2000)
     q.extract_start_date_range = '2001'

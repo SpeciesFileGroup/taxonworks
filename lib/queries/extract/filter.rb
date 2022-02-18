@@ -7,6 +7,7 @@ module Queries
       include Queries::Concerns::Tags
       include Queries::Concerns::Users
       include Queries::Concerns::Identifiers
+      include Queries::Concerns::Protocols
 
       # @param [String, nil]
       #  'true' - order by updated_at
@@ -74,6 +75,7 @@ module Queries
         set_identifier(params)
         set_tags_params(params)
         set_user_dates(params)
+        set_protocols_params(params)
       end
 
       # @return [Arel::Table]
@@ -134,7 +136,6 @@ module Queries
 
       def extract_end_date_range
         @extract_end_date_range ||= @extract_start_date_range
-        byebug
         return nil if @extract_end_date_range.nil?
         d = nil
         begin
@@ -168,7 +169,7 @@ module Queries
         end
 
         # days in start month
-        ranges.push table[:year_made].eq(sy).and(table[:month_made].eq(sm)).and(table[:day_made].gteq(sd))
+        ranges.push table[:year_made].eq(sy).and(table[:month_made].eq(sm)).and(table[:day_made].gteq(sd)).and(table[:day_made].lteq(ed))
 
         # days in end month
         ranges.push table[:year_made].eq(ey).and(table[:month_made].eq(em)).and(table[:day_made].lteq(ed))
@@ -224,6 +225,8 @@ module Queries
         clauses = []
 
         clauses += [
+          protocol_id_facet,      # See Queries::Concerns::Protocols
+          protocol_facet,
           keyword_id_facet,       # See Queries::Concerns::Tags
           created_updated_facet,  # See Queries::Concerns::Users
           identifiers_facet,      # See Queries::Concerns::Identifiers
