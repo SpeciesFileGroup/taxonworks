@@ -35,6 +35,8 @@ export default ({ commit, dispatch, state }) =>
           updateSmartSelectors()
           state.settings.saving = false
         })
+      }).catch(() => {
+        state.settings.saving = false
       })
     }).catch(_ => {
       state.settings.saving = false

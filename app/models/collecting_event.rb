@@ -188,9 +188,7 @@ class CollectingEvent < ApplicationRecord
   include Shared::Confidences
   include Shared::Documentation
   include Shared::HasPapertrail
-  include Shared::IsData
   include SoftValidation
-  include Shared::HasRoles
   include Shared::Labels
   include Shared::IsData
 
@@ -231,11 +229,8 @@ class CollectingEvent < ApplicationRecord
   has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy
   has_many :collectors, through: :collector_roles, source: :person, inverse_of: :collecting_events
   has_many :dwc_occurrences, through: :collection_objects, inverse_of: :collecting_event
-  has_many :georeferences, dependent: :destroy, inverse_of: :collecting_event, class_name: '::Georeference'
-  has_many :error_geographic_items, through: :georeferences, source: :error_geographic_item
-  has_many :geographic_items, through: :georeferences # See also all_geographic_items, the union
-  has_many :geo_locate_georeferences, class_name: '::Georeference::GeoLocate', dependent: :destroy
-  has_many :gpx_georeferences, class_name: 'Georeference::GPX', dependent: :destroy
+
+  # see also app/models/colelcting_event/georeference.rb for more has_many
 
   has_many :otus, through: :collection_objects
 
@@ -250,15 +245,13 @@ class CollectingEvent < ApplicationRecord
   after_save :set_cached, unless: -> { no_cached }
   after_save :update_dwc_occurrences , unless: -> { no_dwc_occurrence }
 
-  accepts_nested_attributes_for :verbatim_data_georeference
-  accepts_nested_attributes_for :geo_locate_georeferences
-  accepts_nested_attributes_for :gpx_georeferences
+  # see also app/models/colelcting_event/georeference.rb for more accepts_nested_attributes
   accepts_nested_attributes_for :collectors, :collector_roles, allow_destroy: true
 
   validate :check_verbatim_geolocation_uncertainty,
-           :check_date_range,
-           :check_elevation_range,
-           :check_ma_range
+    :check_date_range,
+    :check_elevation_range,
+    :check_ma_range
 
   validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: -> { verbatim_label.blank? }
   validates_presence_of :verbatim_longitude, if: -> { !verbatim_latitude.blank? }
@@ -290,30 +283,34 @@ class CollectingEvent < ApplicationRecord
   validates_presence_of :end_date_month, if: -> { !end_date_day.nil? }
 
   validates :end_date_day, date_day: {year_sym: :end_date_year, month_sym: :end_date_month},
-            unless: -> { end_date_year.nil? || end_date_month.nil? }
+    unless: -> { end_date_year.nil? || end_date_month.nil? }
 
   validates :start_date_day, date_day: {year_sym: :start_date_year, month_sym: :start_date_month},
     unless: -> { start_date_year.nil? || start_date_month.nil? }
 
-  soft_validate(:sv_minimally_check_for_a_label,
-                set: :minimally_check_for_a_label,
-                name: 'Minimally check for a label',
-                description: 'At least one label type, or field notes, should be provided')
+  soft_validate(
+    :sv_minimally_check_for_a_label,
+    set: :minimally_check_for_a_label,
+    name: 'Minimally check for a label',
+    description: 'At least one label type, or field notes, should be provided')
 
-  soft_validate(:sv_missing_georeference,
-                set: :georeference,
-                name: 'Missing georeference',
-                description: 'Georeference is missing')
+  soft_validate(
+    :sv_missing_georeference,
+    set: :georeference,
+    name: 'Missing georeference',
+    description: 'Georeference is missing')
 
-  soft_validate(:sv_georeference_matches_verbatim,
-                set: :georeference,
-                name: 'Georeference matches verbatim',
-                description: 'Georeference matches verbatim latitude and longitude')
+  soft_validate(
+    :sv_georeference_matches_verbatim,
+    set: :georeference,
+    name: 'Georeference matches verbatim',
+    description: 'Georeference matches verbatim latitude and longitude')
 
-  soft_validate(:sv_missing_geographic_area,
-                set: :georeference,
-                name: 'Missing geographic area',
-                description: 'Georaphic area is missing')
+  soft_validate(
+    :sv_missing_geographic_area,
+    set: :georeference,
+    name: 'Missing geographic area',
+    description: 'Georaphic area is missing')
 
   # @param [String]
   def verbatim_label=(value)
@@ -344,7 +341,7 @@ class CollectingEvent < ApplicationRecord
       }
 
       h[:quick] = (CollectingEvent.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a  +
-          h[:recent]).uniq
+                   h[:recent]).uniq
       h
     end
 
@@ -482,6 +479,24 @@ class CollectingEvent < ApplicationRecord
 
   def some_end_date?
     [end_date_day, end_date_month, end_date_year].compact.any?
+  end
+
+  # @return [Integer, nil]
+  #   the start day  of the event from 1-365 (or 366 in leap years)
+  #   only returned when completely unambigouous, in theory could
+  #   be added for month/day combinations on, but that is uncertain
+  def start_day_of_year
+    return unless has_start_date?
+    Date.new(start_date_year, start_date_month, start_date_day).yday
+  end
+
+  # @return [Integer, nil]
+  #   the end day of the event from 1-365 (or 366 in leap years)
+  #   only returned when completely unambigouous, in theory could
+  #   be added for month/day combinations on, but that is uncertain
+  def end_day_of_year
+    return unless has_end_date?
+    Date.new(end_date_year, end_date_month, end_date_day).yday
   end
 
   # @return [String, nil]
@@ -747,7 +762,7 @@ class CollectingEvent < ApplicationRecord
   #   determines (prioritizes) the method to be used to decided the geographic name classification
   #   (string labels for country, state, county) for this collecting_event.
   def geographic_name_classification_method
-    return :preferred_georeference if preferred_georeference
+    return :preferred_georeference if !preferred_georeference.nil?
     return :geographic_area_with_shape if geographic_area.try(:has_shape?)
     return :geographic_area if geographic_area
     return :verbatim_map_center if verbatim_map_center
@@ -932,25 +947,25 @@ class CollectingEvent < ApplicationRecord
     geographic_area.nil? ? [] : geographic_area.self_and_ancestors.where("name != 'Earth'").collect { |ga| ga.name }
   end
 
- #def level0_name
- #  return cached_level0_name if cached_level0_name
- #  cache_geographic_names[:country]
- #end
+  #def level0_name
+  #  return cached_level0_name if cached_level0_name
+  #  cache_geographic_names[:country]
+  #end
 
- #def level1_name
- #  return cached_level1_name if cached_level1_name
- #  cache_geographic_names[:state]
- #end
+  #def level1_name
+  #  return cached_level1_name if cached_level1_name
+  #  cache_geographic_names[:state]
+  #end
 
- #def level2_name
- #  return cached_level2_name if cached_level2_name
- #  cache_geographic_names[:county]
- #end
+  #def level2_name
+  #  return cached_level2_name if cached_level2_name
+  #  cache_geographic_names[:county]
+  #end
 
-# def cached_level0_name
-#   return cached_level0_name if cached_level0_name
-#   cache_geographic_names[:country]
-# end
+  # def cached_level0_name
+  #   return cached_level0_name if cached_level0_name
+  #   cache_geographic_names[:country]
+  # end
 
   # @return [CollectingEvent]
   #   the instance may not be valid!
@@ -1039,7 +1054,7 @@ class CollectingEvent < ApplicationRecord
 
   def update_dwc_occurrences
     # reload is required!
-    if collection_objects.count < 40
+    if collection_objects.count < 501
       collection_objects.reload.each do |o|
         o.set_dwc_occurrence
       end
@@ -1115,4 +1130,4 @@ class CollectingEvent < ApplicationRecord
     end
   end
 
-end
+  end

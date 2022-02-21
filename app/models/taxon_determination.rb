@@ -42,8 +42,8 @@ class TaxonDetermination < ApplicationRecord
   include Shared::Notes
   include Shared::Confidences
   include Shared::Labels
-  include Shared::HasRoles
   include Shared::Depictions
+  include Shared::ProtocolRelationships
   include Shared::IsData
   include SoftValidation
   ignore_whitespace_on(:print_label)

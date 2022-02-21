@@ -1,8 +1,8 @@
 class OtusController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_otu, only: [:show, :edit, :update, :destroy, :collection_objects, :navigation, :breadcrumbs, :timeline, :coordinate, :api_show]
-  after_action -> { set_pagination_headers(:otus) }, only: [:index, :api_index], if: :json_request? 
+  before_action :set_otu, only: [:show, :edit, :update, :destroy, :collection_objects, :navigation, :breadcrumbs, :timeline, :coordinate, :api_show, :api_descendants]
+  after_action -> { set_pagination_headers(:otus) }, only: [:index, :api_index], if: :json_request?
 
   # GET /otus
   # GET /otus.json
@@ -52,7 +52,7 @@ class OtusController < ApplicationController
   end
 
   # GET /otus/1/navigation.json
-  def breadcrumbs 
+  def breadcrumbs
     render json: :not_found and return if @otu.nil?
   end
 
@@ -93,18 +93,18 @@ class OtusController < ApplicationController
     @otu.destroy
     respond_to do |format|
       if @otu.destroyed?
-        format.html { destroy_redirect @otu, notice: 'Otu was successfully destroyed.' }
+        format.html { destroy_redirect @otu, notice: 'OTU was successfully destroyed.' }
         format.json { head :no_content}
       else
-        format.html { destroy_redirect @otu, notice: 'Otu was not destroyed, ' + @otu.errors.full_messages.join('; ') }
+        format.html { destroy_redirect @otu, notice: 'OTU was not destroyed, ' + @otu.errors.full_messages.join('; ') }
         format.json { render json: @otu.errors, status: :unprocessable_entity }
       end
     end
   end
 
-  # GET /api/v1/otus/1/collection_objects
+  # GET /otus/1/collection_objects
   def collection_objects
-    @collection_objects = Otu.find(params[:id]).collection_objects.pluck(:id)
+    @collection_objects = Otu.where(project_id: sessions_current_project_id).find(params[:id]).collection_objects.pluck(:id)
   end
 
   def search
@@ -262,6 +262,11 @@ class OtusController < ApplicationController
   def api_autocomplete
     @otus = Queries::Otu::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).autocomplete
     render '/otus/api/v1/autocomplete'
+  end
+
+  # GET /api/v1/otus/:id
+  def api_descendants
+    render '/otus/api/v1/descendants'
   end
 
   private

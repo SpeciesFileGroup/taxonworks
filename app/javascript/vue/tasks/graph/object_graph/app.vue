@@ -16,6 +16,19 @@
           </a>
         </li>
         <li>
+          <v-btn
+            color="primary"
+            circle
+            @click="downloadTextFile(svgElement.outerHTML, 'image/svg+xml', 'graph.svg')"
+          >
+            <v-icon
+              color="white"
+              x-small
+              name="download"
+            />
+          </v-btn>
+        </li>
+        <li>
           <radial-annotator :global-id="currentNode.id" />
         </li>
         <li>
@@ -39,6 +52,7 @@
       xmlns="http://www.w3.org/2000/svg"
       :width="width+'px'"
       :height="height+'px'"
+      ref="svgElement"
       @mousemove="drag($event)"
       @mouseup="drop()"
     >
@@ -101,6 +115,9 @@ import SvgOctagon from './components/Svg/SvgOctagon.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialNavigation from 'components/radials/navigation/radial.vue'
 import VSpinner from 'components/spinner.vue'
+import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
+import { downloadTextFile } from 'helpers/files'
 
 const size = 10
 const width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0) - 20
@@ -109,6 +126,7 @@ const isLoading = ref(false)
 const simulation = ref(null)
 const currentMove = ref(null)
 const currentGlobalId = ref()
+const svgElement = ref(null)
 const graph = ref({
   nodes: [],
   links: [],

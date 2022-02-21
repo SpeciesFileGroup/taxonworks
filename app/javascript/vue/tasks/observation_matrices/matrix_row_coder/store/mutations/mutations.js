@@ -1,17 +1,10 @@
 import setDescription from './setDescription'
 import setDescriptors from './setDescriptors'
+import setDescriptorUnsaved from './setDescriptorUnsaved'
 import setFreeTextValue from './setFreeTextValue'
 import setTaxonTitle from './setTaxonTitle'
 import setTaxonId from './setTaxonId'
-import setConfidenceLevels from './setConfidenceLevels'
 import setObservation from './setObservation'
-import setDescriptorNotes from './setDescriptorNotes'
-import setDescriptorDepictions from './setDescriptorDepictions'
-import setObservationNotes from './setObservationNotes'
-import setObservationDepictions from './setObservationDepictions'
-import setObservationConfidences from './setObservationConfidences'
-import setObservationCitations from './setObservationCitations'
-import setDescriptorZoom from './setDescriptorZoom'
 import setContinuousValue from './setContinuousValue'
 import setContinuousUnit from './setContinuousUnit'
 import setPresence from './setPresence'
@@ -37,17 +30,10 @@ import setUnits from './setUnits'
 export const MutationNames = {
   SetDescription: 'setDescription',
   SetDescriptors: 'setDescriptors',
+  SetDescriptorUnsaved: 'setDescriptorUnsaved',
   SetTaxonTitle: 'setTaxonTitle',
   SetTaxonId: 'setTaxonId',
-  SetConfidenceLevels: 'setConfidenceLevels',
   SetObservation: 'setObservation',
-  SetDescriptorNotes: 'setDescriptorNotes',
-  SetDescriptorDepictions: 'setDescriptorDepictions',
-  SetObservationNotes: 'setObservationNotes',
-  SetObservationDepictions: 'setObservationDepictions',
-  SetObservationConfidences: 'setObservationConfidences',
-  SetObservationCitations: 'setObservationCitations',
-  SetDescriptorZoom: 'setDescriptorZoom',
   SetContinuousValue: 'setContinuousValue',
   SetContinuousUnit: 'setContinuousUnit',
   SetFreeTextValue: 'setFreeTextValue',
@@ -76,17 +62,10 @@ export const MutationFunctions = {
   [MutationNames.ResetState]: resetState,
   [MutationNames.SetDescription]: setDescription,
   [MutationNames.SetDescriptors]: setDescriptors,
+  [MutationNames.SetDescriptorUnsaved]: setDescriptorUnsaved,
   [MutationNames.SetTaxonTitle]: setTaxonTitle,
   [MutationNames.SetTaxonId]: setTaxonId,
-  [MutationNames.SetConfidenceLevels]: setConfidenceLevels,
   [MutationNames.SetObservation]: setObservation,
-  [MutationNames.SetDescriptorNotes]: setDescriptorNotes,
-  [MutationNames.SetDescriptorDepictions]: setDescriptorDepictions,
-  [MutationNames.SetObservationNotes]: setObservationNotes,
-  [MutationNames.SetObservationDepictions]: setObservationDepictions,
-  [MutationNames.SetObservationConfidences]: setObservationConfidences,
-  [MutationNames.SetObservationCitations]: setObservationCitations,
-  [MutationNames.SetDescriptorZoom]: setDescriptorZoom,
   [MutationNames.SetContinuousValue]: setContinuousValue,
   [MutationNames.SetContinuousUnit]: setContinuousUnit,
   [MutationNames.SetFreeTextValue]: setFreeTextValue,

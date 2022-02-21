@@ -49,37 +49,6 @@
         </label>
       </div>
     </summary-view>
-
-    <single-observation-zoomed-view
-      :descriptor="descriptor"
-      :observation="observation">
-
-      <p>
-        <label>
-          Min:
-          <input type="number" :value="sampleMin" @input="updateSampleMin">
-        </label>
-      </p>
-      <p>
-        to
-      </p>
-      <p>
-        <label>
-          Max:
-          <input type="number" :value="sampleMax" @input="updateSampleMax">
-        </label>
-      </p>
-      <p>
-        <unit-selector v-model="sampleUnit"/>
-      </p>
-
-      <p>
-        <label>
-          n:
-          <input type="number" :value="sampleN" @input="updateSampleN">
-        </label>
-      </p>
-    </single-observation-zoomed-view>
   </div>
 </template>
 

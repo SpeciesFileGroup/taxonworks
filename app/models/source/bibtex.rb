@@ -596,18 +596,21 @@ class Source::Bibtex < Source
     identifier_string_of_type('Identifier::Global::Doi')
   end
 
-  # @todo Are ISSN only Serials now? Maybe - the raw bibtex source may come in with an ISSN in which case
-  # we need to set the serial based on ISSN.
   # @param [String] value
   # @return [String]
   def issn=(value)
-    write_attribute(:issn, value)
-    unless value.blank?
-      tw_issn = self.identifiers.where(type: 'Identifier::Global::Issn').first
-      unless tw_issn.nil? || tw_issn.identifier != value
-        tw_issn.destroy
+
+    # Only add ISSN if it is reasonable to assume its repeated
+    # It is like that most  ISSN belong on Serials
+    unless %w{article inbook phdthesis inproceedings}.include?(bibtex_type)
+      write_attribute(:issn, value)
+      unless value.blank?
+        tw_issn = self.identifiers.where(type: 'Identifier::Global::Issn').first
+        unless tw_issn.nil? || tw_issn.identifier != value
+          tw_issn.destroy
+        end
+        self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
       end
-      self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
     end
   end
 

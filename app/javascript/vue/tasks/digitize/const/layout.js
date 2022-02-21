@@ -1,0 +1,8 @@
+export const COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_ATTRIBUTES = 'tasks::digitize::collectionObjects::hideAttributes'
+export const COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_BUFFERED = 'tasks::digitize::collectionObjects::hideBuffered'
+export const COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_CATALOG_NUMBER = 'tasks::digitize::collectionObjects::hideCatalogNumber'
+export const COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_CITATIONS = 'tasks::digitize::collectionObjects::hideCitations'
+export const COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_DEPICTIONS = 'tasks::digitize::collectionObjects::hideDepictions'
+export const COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_PREPARATION = 'tasks::digitize::collectionObjects::hidePreparation'
+export const COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_REPOSITORY = 'tasks::digitize::collectionObjects::hideRepository'
+export const COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_VALIDATIONS = 'tasks::digitize::collectionObjects::hideValidations'

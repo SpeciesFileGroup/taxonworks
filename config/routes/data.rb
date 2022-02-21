@@ -231,7 +231,7 @@ resources :documents do
   concerns [:data_routes]
 end
 
-resources :downloads, except: [:edit, :new, :create] do
+resources :downloads, except: [:new, :create] do
   collection do
     get 'list'
   end
@@ -240,6 +240,7 @@ resources :downloads, except: [:edit, :new, :create] do
   end
 end
 
+# TODO: these should default json?
 resources :dwc_occurrences, only: [:create] do
   collection do
     get :index, defaults: {format: :json}
@@ -412,6 +413,9 @@ resources :observation_matrices do
 
     get :reorder_rows, defaults: {format: :json}
     get :reorder_columns, defaults: {format: :json}
+
+    get :row_labels, defaults: {format: :json}
+    get :column_labels, defaults: {format: :json}
   end
 
   collection do
@@ -582,6 +586,8 @@ resources :repositories do
   end
 end
 
+resources :roles, only: [:index, :create, :update, :destroy], defaults: {format: :json}
+
 resources :serials do
   concerns [:data_routes]
   collection do
@@ -687,7 +693,6 @@ resources :taxon_names do
 
     get :rank_table, defaults: {format: :json}
     get :predicted_rank, {format: :json}
-
   end
 
   member do

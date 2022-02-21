@@ -10,20 +10,20 @@ module Queries::Concerns::Polymorphic
     attr_accessor :global_object
 
     def self.polymorphic_klass(klass)
-      define_singleton_method(:annotating_class){klass} 
+      define_singleton_method(:annotating_class){klass}
     end
- 
+
     def polymorphic_ids=(hash)
       set_polymorphic_ids(hash)
     end
 
    def object_global_id=(value)
       @object_global_id = value
-   end 
+   end
   end
 
   def set_polymorphic_ids(hash)
-    @polymorphic_ids = hash.select{|k,v| self.class.annotating_class.related_foreign_keys.include?(k.to_s)} 
+    @polymorphic_ids = hash.select{|k,v| self.class.annotating_class.related_foreign_keys.include?(k.to_s)}
     @polymorphic_ids ||= {}
   end
 

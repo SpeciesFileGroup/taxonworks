@@ -1,5 +1,17 @@
 #browse-view {
 
+  .filter-button-open {
+    transform: rotate(180deg);
+  }
+
+  #vue-browse-validation-panel {
+    .soft-validation-box {
+      height: 100%;
+      box-sizing: border-box;
+    }
+    margin-bottom: 1em;
+  }
+
   .nav-column {
     width: 400px;
     min-width: 270px
@@ -36,7 +48,6 @@
   .soft_validation_anchor {
     cursor: pointer;
     margin-left: 5px;
-    display: none;
   }
   .annotation__note {
     display: none;
@@ -45,7 +56,6 @@
     width: 600px;
   }
   .history__origin {
-    display: none;
     color: #FFF;
     padding-left: 7px;
     padding-right: 7px;
@@ -63,6 +73,18 @@
     &.error {
       background-color: #A1887F;
     }
+  }
+
+  #filterBrowse {
+    transition: opacity 1s ease-out;
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+  }
+
+  #filterBrowse.active {
+    opacity: 1;
+    height: auto;
   }
 }
 

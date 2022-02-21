@@ -4,13 +4,51 @@
     :class="{ 'card-handle' : !edit }">
     <div class="figures-header">
       <img :src="depiction.image.image_file_url">
-      <div
-        class="button-delete circle-button figures-delete"
-        @click="deleteDepiction()"/>
-      <div
-        :class="{ 'button-submit' : edit, 'button-default' : !edit }"
-        class="circle-button figures-edit"
-        @click="editChange()"/>
+
+      <v-btn
+        class="figures-delete"
+        circle
+        medium
+        color="destroy"
+        @click="deleteDepiction()"
+      >
+        <v-icon
+          x-small
+          color="white"
+          name="trash"
+        />
+      </v-btn>
+
+      <v-btn
+        class="figures-link"
+        circle
+        medium
+        color="primary"
+        @click="linkDepiction()"
+      >
+        <v-icon
+          small
+          color="white"
+          name="link"
+        />
+      </v-btn>
+
+      <v-btn
+        class="figures-edit"
+        circle
+        medium
+        :color="edit
+          ? 'update'
+          : 'primary'"
+        @click="editChange()"
+      >
+        <v-icon
+          x-small
+          color="white"
+          name="pencil"
+        />
+      </v-btn>
+
       <input
         class="figures-label horizontal-center-content middle"
         v-if="edit"
@@ -36,8 +74,15 @@
 
 import { MutationNames } from '../store/mutations/mutations'
 import { Depiction } from 'routes/endpoints'
+import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
 
 export default {
+  components: {
+    VBtn,
+    VIcon
+  },
+
   name: 'FigureItem',
 
   props: {
@@ -46,6 +91,8 @@ export default {
       required: true
     }
   },
+
+  emits: ['link'],
 
   data () {
     return {
@@ -87,6 +134,10 @@ export default {
       Depiction.update(this.depiction.id, { depiction }).then(() => {
         TW.workbench.alert.create('Depiction was successfully updated.', 'notice')
       })
+    },
+
+    linkDepiction () {
+      this.$emit('link', this.depiction)
     }
   }
 }

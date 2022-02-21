@@ -4,11 +4,14 @@
       v-for="(field, index) in fields"
       :key="field.property"
       class="margin-small-right label-above">
-      <label class="capitalize">
+      <label
+        v-if="!placeholder"
+        class="capitalize">
         {{ field.property }}
       </label>
       <input
         type="text"
+        :placeholder="placeholder ? field.property : ''"
         :class="[`input-date-${field.property}`, 'input-date']"
         :ref="el => { if (el) fieldsRef[index] = el }"
         :maxlength="field.maxLength"
@@ -28,7 +31,11 @@ const fieldsRef = ref([])
 const props = defineProps({
   day: [String, Number],
   month: [String, Number],
-  year: [String, Number]
+  year: [String, Number],
+  placeholder: {
+    type: Boolean,
+    default: false
+  }
 })
 
 const fields = [

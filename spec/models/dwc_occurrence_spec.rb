@@ -12,6 +12,10 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
   let(:source_bibtex) { FactoryBot.create(:valid_source_bibtex) }
   let(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution) }
 
+  specify '.target_columns must include occurrenceID' do
+    expect(DwcOccurrence.target_columns).to include(:occurrenceID)
+  end
+
   specify 'extending predicates' do
     include ActiveJob::TestHelper
 
@@ -47,10 +51,9 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
 
     scope = DwcOccurrence.where(project_id: project_id)
 
-    predicate_extension_params = { predicate_extension_params:
-                                     { collection_object_predicate_id: [p1.id, p2.id],
-                                       collecting_event_predicate_id: [p3.id] }
-    }
+    predicate_extension_params = {
+      collection_object_predicate_id: [p1.id, p2.id],
+      collecting_event_predicate_id: [p3.id] }
 
     download = Export::Dwca.download_async(
       scope,
@@ -76,7 +79,6 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
     expect(tbl[2][p1_header]).to be_nil
     expect(tbl[2][p2_header]).to be_nil
     expect(tbl[2][p3_header]).to be_nil
-
   end
 
   specify '#dwc_occurrence_id post .set_dwc_occurrence' do
@@ -113,7 +115,7 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
   end
 
   specify 'collection_object filter merge' do
-    a = Queries::CollectionObject::Filter.new(on_loan: 'true').all
+    a = ::Queries::CollectionObject::Filter.new(on_loan: 'true').all
     FactoryBot.create(:valid_loan_item, loan_item_object: collection_object)
 
     # A canary, shouldn't be present since not on loan

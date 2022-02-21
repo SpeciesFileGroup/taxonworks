@@ -1,4 +1,4 @@
-FROM sfgrp/taxonworks-base:ruby3 AS base
+FROM sfgrp/taxonworks-base:latest AS base
 ARG BUNDLER_WORKERS=1
 ENV RAILS_ENV production
 
@@ -11,7 +11,8 @@ ADD Gemfile.lock /app/
 WORKDIR /app
 
 RUN bundle config --local build.sassc --disable-march-tune-native # https://github.com/sass/sassc-ruby/issues/146
-RUN bundle install -j$BUNDLER_WORKERS --without=development test
+RUN bundle config set --local without 'development test'
+RUN bundle install -j$BUNDLER_WORKERS
 RUN npm install
 
 COPY . /app

@@ -90,6 +90,7 @@ import alternate_valuesAnnotator from './components/alternate_value_annotator.vu
 import citationsAnnotator from './components/citations/citation_annotator.vue'
 import protocol_relationshipsAnnotator from './components/protocol_annotator.vue'
 import attributionAnnotator from './components/attribution/main.vue'
+import verifiersAnnotator from './components/verifiers/Verifiers.vue'
 
 import ContextMenu from './components/contextMenu'
 import Icons from './images/icons.js'
@@ -118,6 +119,7 @@ export default {
     tagsAnnotator,
     protocol_relationshipsAnnotator,
     attributionAnnotator,
+    verifiersAnnotator,
     ContextMenu
   },
 
@@ -459,6 +461,7 @@ export default {
     .modal-container {
       min-width: 1024px;
       width: 1200px;
+      overflow-y: hidden;
     }
 
     .radial-annotator-template {

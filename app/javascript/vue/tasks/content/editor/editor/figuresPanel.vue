@@ -11,7 +11,10 @@
       item-key="id"
     >
       <template #item="{ element }">
-        <figure-item :figure="element" />
+        <figure-item
+          :figure="element"
+          @link="$emit('selected', $event)"
+        />
       </template>
     </draggable>
     <dropzone
@@ -40,6 +43,8 @@ export default {
     Dropzone,
     FigureItem
   },
+
+  emits: ['selected'],
 
   computed: {
     content () {
@@ -105,7 +110,7 @@ export default {
     },
 
     updatePosition () {
-      Depiction.sort({ depiction_ids: this.depictions.map((depiction) => depiction.id) })
+      Depiction.sort({ depiction_ids: this.depictions.map(depiction => depiction.id) })
     }
   }
 }

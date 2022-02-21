@@ -23,6 +23,8 @@ module DwcOccurrencesHelper
         r.push tag.tr( (tag.td(k) + tag.td(v)).html_safe )
       end
     end
+
+    r.push tag.tr( (tag.td('basisOfRecord') + tag.td(dwc_occurrence.basisOfRecord)).html_safe )
     tag.table(r.join.html_safe)
   end
 

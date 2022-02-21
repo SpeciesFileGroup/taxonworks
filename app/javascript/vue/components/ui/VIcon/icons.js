@@ -4,6 +4,7 @@ import { download } from './Paths/download'
 import { hexagon } from './Paths/hexagon.js'
 import { image } from './Paths/image.js'
 import { label } from './Paths/label.js'
+import { link } from './Paths/link.js'
 import { check } from './Paths/check.js'
 import { pencil } from './Paths/pencil'
 import { pin } from './Paths/pin'
@@ -23,6 +24,7 @@ const Icons = {
   hexagon,
   image,
   label,
+  link,
   pencil,
   pin,
   trash,

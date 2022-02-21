@@ -7,10 +7,13 @@
       margin: '0px'
     }">
     <div class="flex-separate middle">
-      <div class="half_width">
-        <span>{{ dataset.description}}</span>
-        <span>-</span>
-        <span v-if="pagination">{{ pagination.total }} records.</span>
+      <div class="half_width text-ellipsis margin-small-right middle">
+        <div class="margin-medium-right">
+          <span :title="dataset.description">{{ dataset.description }}</span>
+          <br>
+          <span v-if="pagination">{{ pagination.total }} records.</span>
+        </div>
+        <reset-button/>
       </div>
       <div class="full_width">
         <progress-bar
@@ -21,6 +24,7 @@
           :progress="dataset.progress"/>
       </div>
       <div class="horizontal-right-content half_width">
+        <download-button class="margin-small-right"/>
         <settings-component class="margin-small-right"/>
         <import-modal/>
         <button
@@ -42,6 +46,8 @@ import ImportModal from './ImportModal'
 import ProgressBar from './ProgressBar'
 import ProgressList from './ProgressList'
 import SettingsComponent from './settings/Settings'
+import DownloadButton from './DownloadButton.vue'
+import ResetButton from './ResetFilters.vue'
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 
@@ -51,7 +57,9 @@ export default {
     ImportModal,
     ProgressBar,
     ProgressList,
-    SettingsComponent
+    SettingsComponent,
+    DownloadButton,
+    ResetButton
   },
   computed: {
     pagination () {

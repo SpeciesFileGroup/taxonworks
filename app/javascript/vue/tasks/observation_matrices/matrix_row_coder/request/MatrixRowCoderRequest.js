@@ -47,14 +47,8 @@ export default class MatrixRowCoderRequest extends IMatrixRowCoderRequest {
     this.getObservationQueue = Promise.resolve({})
   }
 
-  setApi ({apiBase, apiParams}) {
-    this.apiBase = apiBase
-    this.apiParams = {}
-//    this.apiParams = {apiParams}
-  }
-
   buildGetUrl (url, extraParams = {}) {
-    return `${this.apiBase}${url}${MatrixRowCoderRequest.stringifyApiParams(Object.assign({}, this.apiParams, extraParams))}`
+    return `${url}${MatrixRowCoderRequest.stringifyApiParams(Object.assign({}, this.apiParams, extraParams))}`
   }
 
   static stringifyApiParams (object) {
@@ -96,42 +90,32 @@ export default class MatrixRowCoderRequest extends IMatrixRowCoderRequest {
   }
 
   updateObservation (observationId, payload) {
-    const url = `${this.apiBase}/observations/${observationId}.json${MatrixRowCoderRequest.stringifyApiParams(this.apiParams)}`
+    const url = `/observations/${observationId}.json${MatrixRowCoderRequest.stringifyApiParams(this.apiParams)}`
     return putJSON(url, payload)
   }
 
   createClone (payload) {
-    const url = `${this.apiBase}/tasks/observation_matrices/observation_matrix_hub/copy_observations.json`
+    const url = `/tasks/observation_matrices/observation_matrix_hub/copy_observations.json`
     return postJSON(url, Object.assign(payload, this.apiParams))
   }
 
   createObservation (payload) {
-    const url = `${this.apiBase}/observations.json`
+    const url = `/observations.json`
     return postJSON(url, Object.assign(payload, this.apiParams))
   }
 
   removeObservation (observationId) {
-    const url = `${this.apiBase}/observations/${observationId}.json${MatrixRowCoderRequest.stringifyApiParams(this.apiParams)}`
+    const url = `/observations/${observationId}.json${MatrixRowCoderRequest.stringifyApiParams(this.apiParams)}`
     return deleteResource(url)
   }
 
   removeAllObservationsRow (rowId) {
-    const url = `${this.apiBase}/observations/destroy_row.json?observation_matrix_row_id=${rowId}${MatrixRowCoderRequest.stringifyApiParams(this.apiParams)}`
+    const url = `/observations/destroy_row.json?observation_matrix_row_id=${rowId}${MatrixRowCoderRequest.stringifyApiParams(this.apiParams)}`
     return deleteResource(url)
-  }
-
-  getDescriptorNotes (descriptorId) {
-    const url = this.buildGetUrl(`/descriptors/${descriptorId}/notes.json`)
-    return getJSON(url)
   }
 
   getDescriptorDepictions (descriptorId) {
     const url = this.buildGetUrl(`/descriptors/${descriptorId}/depictions.json`)
-    return getJSON(url)
-  }
-
-  getObservationNotes (observationId) {
-    const url = this.buildGetUrl(`/observations/${observationId}/notes.json`)
     return getJSON(url)
   }
 
@@ -140,23 +124,8 @@ export default class MatrixRowCoderRequest extends IMatrixRowCoderRequest {
     return getJSON(url)
   }
 
-  getObservationConfidences (observationId) {
-    const url = this.buildGetUrl(`/observations/${observationId}/confidences.json`)
-    return getJSON(url)
-  }
-
-  getObservationCitations (observationId) {
-    const url = this.buildGetUrl(`/observations/${observationId}/citations.json`)
-    return getJSON(url)
-  }
-
   getUnits () {
     const url = this.buildGetUrl('/descriptors/units.json')
-    return getJSON(url)
-  }
-
-  getConfidenceLevels () {
-    const url = this.buildGetUrl('/confidence_levels.json')
     return getJSON(url)
   }
 

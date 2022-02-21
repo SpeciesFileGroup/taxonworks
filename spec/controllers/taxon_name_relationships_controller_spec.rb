@@ -148,19 +148,5 @@ describe TaxonNameRelationshipsController, type: :controller do
     end
   end
 
-  describe 'DELETE destroy' do
-    it 'destroys the requested taxon_name_relationship' do
-      taxon_name_relationship = TaxonNameRelationship.create! valid_attributes
-      expect {
-        delete :destroy, params: {id: taxon_name_relationship.to_param}, session: valid_session
-      }.to change(TaxonNameRelationship, :count).by(-1)
-    end
-
-    it 'redirects to the taxon_name_relationships list' do
-      taxon_name_relationship = TaxonNameRelationship.create! valid_attributes
-      delete :destroy, params: {id: taxon_name_relationship.to_param}, session: valid_session
-      expect(response).to redirect_to(taxon_name_relationships_url)
-    end
-  end
-
+  include_examples 'DELETE #destroy', TaxonNameRelationship
 end

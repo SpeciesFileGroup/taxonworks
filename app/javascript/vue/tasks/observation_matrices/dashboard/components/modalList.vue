@@ -10,7 +10,7 @@
     <modal-component
       v-if="show"
       @close="reset">
-      <template>
+      <template #header>
         <h3>Select observation matrix to open MRC or Image matrix</h3>
       </template>
       <template #body>
@@ -141,7 +141,7 @@ export default {
     openModal () {
       this.loading = true
       this.show = true
-      ObservationMatrix.all().then(response => {
+      ObservationMatrix.all({ per: 500 }).then(response => {
         this.matrices = response.body.sort((a, b) => { 
           const compareA = a.object_tag
           const compareB = b.object_tag

@@ -1,4 +1,4 @@
-# The (Role) person who created the georeference record.  If not include then assumed to be User or Source.
+# The (Role) person who created the georeference record.
 class Georeferencer  < Role::ProjectRole
 
   def self.human_name
@@ -6,3 +6,4 @@ class Georeferencer  < Role::ProjectRole
   end
 
 end
+

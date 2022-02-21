@@ -36,8 +36,8 @@ function sortArray (arr, sortProperty, ascending = true) {
   })
 }
 
-function addToArray (arr, obj) {
-  const index = arr.findIndex(item => obj.id === item.id)
+function addToArray (arr, obj, property = 'id') {
+  const index = arr.findIndex(item => obj[property] === item[property])
 
   if (index > -1) {
     arr[index] = obj
@@ -46,9 +46,18 @@ function addToArray (arr, obj) {
   }
 }
 
+function removeFromArray (arr, obj, property = 'id') {
+  const index = arr.findIndex(item => obj[property] === item[property])
+
+  if (index > -1) {
+    arr.splice(index, 1)
+  }
+}
+
 export {
   chunkArray,
   getUnique,
   sortArray,
-  addToArray
+  addToArray,
+  removeFromArray
 }

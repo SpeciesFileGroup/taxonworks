@@ -22,21 +22,6 @@
         </span>
       </div>
     </summary-view>
-
-    <single-observation-zoomed-view
-      :descriptor="descriptor"
-      :observation="observation">
-
-      <p>
-        <label>
-          Amount:
-          <input type="number" :value="continuousValue" @input="updateContinuousValue">
-        </label>
-      </p>
-      <p>
-        <unit-selector v-model="continuousUnit"/>
-      </p>
-    </single-observation-zoomed-view>
   </div>
 </template>
 

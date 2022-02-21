@@ -20,6 +20,22 @@ module Vendor
       end
 
       # Name helpers
+      def name
+        found.name
+      end
+
+      def verbatim
+        found.verbatim
+      end
+
+      def words_start
+        found.start
+      end
+
+      def words_end
+        found.end
+      end
+
       def words_before
         found.words_before || []
       end
@@ -42,7 +58,7 @@ module Vendor
       end
 
       def is_verified?
-        found.verification && found.verification.best_result.match_type != :NONE
+        [nil, 'NoMatch'].exclude?(found.verification.best_result&.match_type)
       end
 
       def is_low_probability?
@@ -56,7 +72,7 @@ module Vendor
       # Generic helpers
 
       def log_odds
-        Math.log10(found.odds)
+        found.odds_log10
       end
 
       def is_new_name?

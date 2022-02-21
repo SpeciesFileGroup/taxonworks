@@ -13,91 +13,82 @@ module Export::Download
   # @param [Boolean] trim_columns
   # @return [CSV]
   def self.generate_csv(scope, exclude_columns: [], header_converters: [], trim_rows: false, trim_columns: false)
-
     # Check to see if keys is deterministicly ordered
     column_names = scope.columns_hash.keys
 
     h = CSV.new(column_names.join(','), header_converters: header_converters, headers: true)
     h.read
 
-    headers = CSV::Row.new(h.headers, h.headers, true)
+    headers = CSV::Row.new(h.headers, h.headers, true).headers
 
-    tbl = CSV::Table.new([headers])
+    tbl = headers.map { |h| [h] }
 
     # Pluck rows is from postgresql_cursor gem
+    #puts Rainbow('preparing data: ' + (Benchmark.measure do
     scope.pluck_rows(*column_names).each do |o|
-      tbl << o.collect{|v| Utilities::Strings.sanitize_for_csv(v) }
+        o.each_with_index do |value, index|
+        tbl[index] << Utilities::Strings.sanitize_for_csv(value)
+      end
       # If keys are not deterministic: .attributes.values_at(*column_names).collect{|v| Utilities::Strings.sanitize_for_csv(v) }
     end
+    # end).to_s).yellow
 
     if !exclude_columns.empty?
-      Rainbow('deleting columns: ' + Benchmark.measure {
-        delete_columns(tbl, exclude_columns)
-      }.to_s).yellow
+      # puts Rainbow('deleting columns: ' + (Benchmark.measure {
+      delete_columns(tbl, exclude_columns)
+      # }).to_s).yellow
     end
 
     if trim_columns
-      Rainbow('trimming columns: ' + Benchmark.measure {
-        trim_columns(tbl)
-      }.to_s).yellow
-    end
-
-    if trim_rows 
-      Rainbow('trimming rows: ' + Benchmark.measure {
-        trim_rows(tbl)
-      }.to_s).yellow
+      # puts Rainbow('trimming columns: ' + (Benchmark.measure {
+      trim_columns(tbl)
+      # }).to_s).yellow
     end
 
     # CSV::Converters are only available on read, not generate, so we can't use them here.
-    tbl.to_csv(col_sep: "\t", encoding: Encoding::UTF_8)
+    output = StringIO.new
+    # puts Rainbow('generating CSV: '+ (Benchmark.measure do
+    (0..tbl.first.length-1).each do |row_index|
+      row = tbl.collect { |c| c[row_index] }
+      if trim_rows
+        next unless row.detect { |c| c.present? }
+      end
+      output.puts CSV.generate_line(row, col_sep: "\t", encoding: Encoding::UTF_8)
+    end
+    # end).to_s).yellow
+
+    output.string
   end
 
-  # @param table [CSV::Table]
+  # @param table [Array]
   # @param columns [Array]
-  # @return [CSV::Table]
+  # @return [Array]
   #   delete the specified columns
   def self.delete_columns(tbl, columns = [])
-    return tbl if columns.empty?
+    headers = tbl.collect { |c| c.first }
+    offset = 0
+
     columns.each do |col|
-      tbl.delete(col.to_s)
+      if index = headers.index(col.to_s)
+        tbl.delete_at(index+offset)
+        offset -= 1
+      end
     end
     tbl
   end
 
-  # @return [CSV::Table]
-  # @param table [CSV::Table]
-  # @param skip_id [Boolean] if true ignore the 'id'l column in consideration of whether to delete this row
-  #   delete rows if there are no values in any cell (of course doing this in the scope is better!)
-  def self.trim_rows(table, skip_id = true)
-    headers = table.headers
-    headers = headers - ['id'] if skip_id
-    table.by_row!.delete_if do |row|
-      d = true
-      headers.each do |h|
-        next if row[h].blank?
-        d = false
-        break
-      end
-      d
-    end
-    table
-  end
-
-  # @return [CSV::Table]
-  # @param table [CSV::Table]
+  # @return [Array]
+  # @param table [Array]
   #   remove columns without any non-#blank? values (of course doing this in the scope is better!)
   #   this is very slow, use a proper scope, and exclude_columns: [] options instead    
   def self.trim_columns(table)
-    table.by_col!.delete_if do |h, col|
-      d = true
-      col.shift
-      col.each do |v|
-        next if v.blank?
-        d = false
-        break
-      end
-      d
+    to_delete = []
+
+    table.each_with_index do |col, index|
+      to_delete << index unless col.inject { |_, c| break true if !c.blank? }
     end
+
+    to_delete.each_with_index { |x, i| table.delete_at(x-i) }
     table
   end
 

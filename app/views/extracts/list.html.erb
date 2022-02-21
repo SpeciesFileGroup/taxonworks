@@ -4,6 +4,7 @@
   <thead>
     <tr>
       <%= fancy_th_tag(name: 'Otus') -%>
+      <%= fancy_th_tag(name: 'Origin type') -%>
       <%= fancy_th_tag(name: 'Origin(s)') -%>
       <%= fancy_th_tag(name: 'Repository') -%>
       <%= fancy_th_tag(name: 'Verbatim anatomical origin') -%>
@@ -19,6 +20,7 @@
     <% @extracts.each do |extract| %>
       <%= content_tag(:tr, class: :contextMenuCells) do -%>
         <td><%= extract.referenced_otus.collect{|o| object_link(o)}.join('; ').html_safe -%></td>
+        <td><%= extract.old_objects.collect{|o| o.class.name}.join('; ').html_safe -%></td>
         <td><%= extract.old_objects.collect{|o| object_link(o)}.join('; ').html_safe -%></td>
         <td><%= object_tag(extract.repository) -%></td>
         <td><%= extract.verbatim_anatomical_origin -%></td>

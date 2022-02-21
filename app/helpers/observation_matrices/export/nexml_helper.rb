@@ -21,10 +21,17 @@ module ObservationMatrices::Export::NexmlHelper
                 if cs.depictions.load.any?
                   xml.state(id: "cs#{cs.id}", label: cs.target_name(:key, nil), symbol: "#{i}") do
                     cs.depictions.each do |d|
+                      if d.image.image_file_content_type == 'image/tiff'
+                        href = d.image.image_file.url(:medium)
+                      else
+                        href = d.image.image_file.url(:original)
+                      end
+
                       xml.meta(
                         'xsi:type' => 'ResourceMeta',
                         'rel' => 'foaf:depiction',
-                        'href' => short_url(d.image.image_file.url(:original)) # root_url + d.image.image_file.url(:original)[1..-1]
+                        'href' => short_url(href), # root_url + d.image.image_file.url(:original)[1..-1]
+                        'label' => c.target_name(:description, nil) + ' ' + cs.target_name(:description, nil)
                       )
                     end
                   end
@@ -198,19 +205,26 @@ module ObservationMatrices::Export::NexmlHelper
               depictions.each do |depiction|
                 lbl = []
                 cit = im.image_hash[depiction[:image_id]][:citations].collect{|i| i[:cached]}.join('')
-                lbl.push('<b>Taxon name:</b> ' + object[1][:object].otu_name) unless object[1][:object].otu_name.blank?
-                lbl.push('<b>Label:</b> ' + descriptors[index][:name]) unless descriptors[index][:name].blank?
-                lbl.push('<b>Caption:</b> ' + depiction[:caption]) unless depiction[:caption].blank?
-                lbl.push('<b>Citation:</b> ' + cit) unless cit.blank?
+                #lbl.push('<b>Taxon name:</b> ' + object[1][:object].otu_name) unless object[1][:object].otu_name.blank?
+                lbl.push(descriptors[index][:name]) unless descriptors[index][:name].blank?
+                lbl.push(depiction[:caption]) unless depiction[:caption].blank?
+                #lbl.push('<b>Citation:</b> ' + cit) unless cit.blank?
                 img_attr = Image.find(depiction[:image_id]).attribution
-                lbl.push('<b>Attribution:</b> ' + attribution_tag(img_attr)) unless img_attr.nil?
-                lbl = lbl.join('<br> ')
+                #lbl.push(attribution_tag(img_attr).gsub('&#169;', '')) unless img_attr.nil?
+                lbl.push(attribution_nexml_label(img_attr)) unless img_attr.nil?
+                lbl = lbl.compact.join('; ')
+
+                if im.image_hash[depiction[:image_id]][:image_file_content_type] == 'image/tiff'
+                  href = short_url(im.image_hash[depiction[:image_id]][:medium_url])
+                else
+                  href = short_url(im.image_hash[depiction[:image_id]][:original_url])
+                end
 
                 xml.meta(
                   'xsi:type' => 'ResourceMeta',
                   'rel' => 'foaf:depiction',
                   'about' => "row_#{r.id}",
-                  'href' => short_url(im.image_hash[depiction[:image_id]][:original_url]),
+                  'href' => href,
                   #'object' => object[1][:object].otu_name,
                   #'label' => descriptors[index][:name], ###
                   'label' => lbl

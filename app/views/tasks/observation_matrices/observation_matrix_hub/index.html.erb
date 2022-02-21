@@ -37,6 +37,7 @@
             <%= link_to('Interactive key', interactive_key_task_path(observation_matrix_id: om.id)) unless om.is_media_matrix? -%>
           </td>
           <td> <%= pin_item_to_pinboard_link(om, sessions_current_user) -%></td>
+          <%= fancy_options_cells_tag(om) -%>
         <% end %>
       <% end %>
       </tbody>

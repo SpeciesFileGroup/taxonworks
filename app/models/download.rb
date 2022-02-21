@@ -43,7 +43,7 @@
 #
 class Download < ApplicationRecord
   include Housekeeping
-  include Shared::IsData::Metamorphosize
+  include Shared::IsData
 
   default_scope { where('expires >= ?', Time.now) }
 

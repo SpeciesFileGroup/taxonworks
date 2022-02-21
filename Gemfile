@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'rack-cors', '~> 1.1', require: 'rack/cors'
 
-ruby '~> 3.0.0'
+ruby '>= 3.0', '< 3.2'
 
 gem 'bundler', '~> 2.0'
 
@@ -19,13 +19,14 @@ gem 'rdf', '~> 3.0'
 # System
 gem 'thor', '~> 1.1.0'
 gem 'rubyzip', '~> 2.3.0'
+gem 'zip_tricks', '~> 5.6'
 gem 'daemons', '~> 1.4.1'
 gem 'tzinfo-data', '~> 1.2019' # , '>= 1.2019.3'
-gem 'psych', '~> 4.0'
+gem 'psych', '~> 3.3'
 gem 'rmagick', '~> 4.2', '>= 4.2.2'
-gem 'webrick', '~> 1.7'
 gem 'roo', '~> 2.8', '>= 2.8.3'
 gem 'roo-xls', '~> 1.2'
+gem 'net-smtp', '~> 0.3.1'
 
 # Geo
 gem 'ffi-geos', '~> 2.2.0'
@@ -96,10 +97,10 @@ gem 'rgb', '~> 0.1'
 # Drawing
 gem 'rqrcode', github:'mjy/rqrcode', branch: 'taxonworks'
 gem 'barby', '~> 0.6.8'
+gem 'ruby-graphviz', '~> 1.2.5', require: false
 
 # "Bio" and SFG gems
-#gem 'taxonifi', '~> 0.5.5'
-gem 'taxonifi', github: 'LocoDelAssembly/taxonifi', branch: 'ruby3'
+gem 'taxonifi', '~> 0.6.0'
 gem 'sqed', '0.6.0'
 gem 'dwc_agent', '~> 3.0'
 gem 'dwc-archive', github: 'LocoDelAssembly/dwc-archive', branch: 'overhaul' # '~> 1.1', '>= 1.1.2'
@@ -132,6 +133,7 @@ group :test, :development do
   gem 'factory_bot_rails', '~> 6.2'
   gem 'webdrivers', '~> 5.0', require: false
   gem 'prawn', '~> 2.4.0'
+  gem 'puma', '~> 5.5'
 end
 
 gem 'parallel_tests', group: [:development, :test]

@@ -17,8 +17,15 @@ module CollectionObject::DwcExtensions
       country: :dwc_country,
       stateProvince: :dwc_state_province,
       county: :dwc_county,
+
       eventDate: :dwc_event_date,
       eventTime: :dwc_event_time,
+      year: :dwc_year,
+      month: :dwc_day,
+      day: :dwc_day,
+      startDayOfYear: :dwc_start_day_of_year,
+      endDayOfYear: :dwc_end_day_of_year,
+
       fieldNumber: :dwc_field_number,
       maximumElevationInMeters: :dwc_maximum_elevation_in_meters,
       minimumElevationInMeters: :dwc_minimum_elevation_in_meters,
@@ -57,8 +64,8 @@ module CollectionObject::DwcExtensions
       verbatimCoordinates: :dwc_verbatim_coordinates,
       verbatimLatitude: :dwc_verbatim_latitude,
       verbatimLongitude: :dwc_verbatim_longitude,
-      decimalLatitude: :dwc_latitude,
-      decimalLongitude: :dwc_longitude,
+      decimalLatitude: :dwc_decimal_latitude,
+      decimalLongitude: :dwc_decimal_longitude,
       footprintWKT: :dwc_footprint_wkt,
 
       coordinateUncertaintyInMeters: :dwc_coordinate_uncertainty_in_meters,
@@ -87,8 +94,12 @@ module CollectionObject::DwcExtensions
 
     # @return [Hash]
     # getter returning georeference related attributes
-    def georeference_attributes
-      @georeference_attributes ||= set_georeference_attributes
+    def georeference_attributes(force = false)
+      if force
+        @georeference_attributes = set_georeference_attributes
+      else
+        @georeference_attributes ||= set_georeference_attributes
+      end
     end
   end
 
@@ -122,6 +133,10 @@ module CollectionObject::DwcExtensions
     else
       {}
     end
+  end
+
+  def is_fossil?
+    biocuration_classes.where(uri: DWC_FOSSIL_URI).any?
   end
 
   # https://dwc.tdwg.org/terms/#dwc:associatedMedia
@@ -283,10 +298,6 @@ module CollectionObject::DwcExtensions
     collecting_event&.verbatim_habitat
   end
 
-  def dwc_verbatim_event_date
-    collecting_event&.verbatim_date
-  end
-
   def dwc_infraspecific_epithet
     %w{variety form subspecies}.each do |n| # add more as observed
       return taxonomy[n].last if taxonomy[n]
@@ -409,11 +420,11 @@ module CollectionObject::DwcExtensions
     collecting_event.try(:verbatim_locality)
   end
 
-  def dwc_latitude
+  def dwc_decimal_latitude
     georeference_attributes[:decimalLatitude]
   end
 
-  def dwc_longitude
+  def dwc_decimal_longitude
     georeference_attributes[:decimalLongitude]
   end
 
@@ -438,6 +449,10 @@ module CollectionObject::DwcExtensions
         .join("/").presence
   end
 
+  def dwc_verbatim_event_date
+    collecting_event&.verbatim_date
+  end
+
   def dwc_event_date
     return unless collecting_event
 
@@ -449,6 +464,31 @@ module CollectionObject::DwcExtensions
         .map { |d| d.compact.join('-') }
         .reject(&:blank?)
         .join("/").presence
+  end
+
+  def dwc_year
+    return unless collecting_event
+    collecting_event.start_date_year.presence
+  end
+
+  def dwc_month
+    return unless collecting_event
+    collecting_event.start_date_month.presence
+  end
+
+  def dwc_day
+    return unless collecting_event
+    collecting_event.start_date_day.presence
+  end
+
+  def dwc_start_day_of_year
+    return unless collecting_event
+    collecting_event.start_day_of_year.presence
+  end
+
+  def dwc_end_day_of_year
+    return unless collecting_event
+    collecting_event.end_day_of_year.presence
   end
 
   def dwc_preparations

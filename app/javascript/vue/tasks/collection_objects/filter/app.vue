@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="flex-separate middle">
-      <h1>Collection objects filter</h1>
+      <h1>Filter collection objects</h1>
       <ul class="context-menu">
         <li>
           <label>
@@ -53,20 +53,10 @@
           v-if="recordsFound"
           class="horizontal-left-content flex-separate separate-bottom">
           <div class="horizontal-left-content">
-            <button
-              v-if="ids.length"
-              type="button"
-              @click="ids = []"
-              class="button normal-input button-default">
-              Unselect all
-            </button>
-            <button
-              v-else
-              type="button"
-              @click="ids = coIds"
-              class="button normal-input button-default">
-              Select all
-            </button>
+            <select-all
+              v-model="ids"
+              :ids="coIds"
+            />
             <span class="separate-left separate-right">|</span>
             <csv-button
               :url="urlRequest"
@@ -117,6 +107,7 @@ import PaginationCount from 'components/pagination/PaginationCount'
 import GetPagination from 'helpers/getPagination'
 import DwcDownload from './components/dwcDownload.vue'
 import DwcReindex from './components/dwcReindex.vue'
+import SelectAll from './components/selectAll.vue'
 
 export default {
   components: {
@@ -126,7 +117,8 @@ export default {
     CsvButton,
     PaginationCount,
     DwcDownload,
-    DwcReindex
+    DwcReindex,
+    SelectAll
   },
 
   computed: {

@@ -1,9 +1,9 @@
-
-
 <div class="breakdown_nav">
   <%= render '/tasks/accessions/breakdown/breakdown_nav_items' -%>
   <div> <%= link_to('Depiction breakdown', sqed_depiction_breakdown_task_path(@result.sqed_depiction), 'data-turbolinks' => false) -%> </div>
 </div>
+
+<% if @result.sqed_result %>
 
 <div class="flexbox sqed_breakdown" id="breakdown_buffered_data">
   <div class="item item1" id="depiction_navigator_target"> <span class="subtle">Calculating...</span>
@@ -11,16 +11,17 @@
 
   <div class="item item2">
     <div id="verbatim_locality_text">
-      <%= best_in_place(@collection_object.metamorphosize, :buffered_collecting_event, 
-                            place_holder: 'click to edit', 
-                            as: :textarea, 
-                            class:  'highlight_on_success', 
-                            activator: '#verbatim_locality_edit', 
-                            inner_class: 'buffered_collecting_event_input') -%> 
+      <%= best_in_place(
+        @collection_object.metamorphosize, :buffered_collecting_event,
+        place_holder: 'click to edit',
+        as: :textarea,
+        class:  'highlight_on_success',
+        activator: '#verbatim_locality_edit',
+        inner_class: 'buffered_collecting_event_input') -%>
     </div>
 
-    <p class="subtle"> 
-      highlight to copy | <%= link_to('edit in place', '#', data: { turbolinks: false }, id: 'verbatim_locality_edit') -%>  
+    <p class="subtle">
+    highlight to copy | <%= link_to('edit in place', '#', data: { turbolinks: false }, id: 'verbatim_locality_edit') -%>
     </p>
 
     <div id="bigbox">
@@ -33,7 +34,6 @@
   </div>
 
   <div class="item item3">
-
     <div>
       <h3> Edit collecting event  </h3>
       <div id="message"> </div>
@@ -43,7 +43,7 @@
       <%= link_to 'Skip to next', collection_object_buffered_data_breakdown_task_path(@result.sqed_depiction.next_sqed_depiction.depiction_object)  -%>
 
       <%# render "similar_buffered_collecting_event_values" %>
-      
+
       <hr>
       <h3> Collecting event details </h3>
 
@@ -53,7 +53,7 @@
         <% else %>
           <p>
             <%= link_to("Show collecting event", collecting_event_path(@collection_object.collecting_event), target: '_blank' ) -%>
-            <%= render(partial: '/collecting_events/attributes', locals: {object: @collection_object.collecting_event}) -%> 
+            <%= render(partial: '/collecting_events/attributes', locals: {object: @collection_object.collecting_event}) -%>
           </p>
         <% end %>
       </div>
@@ -62,7 +62,7 @@
   </div>
 </div>
 
-<%= image_tag(@result.depiction.image.image_file.url(:original), id: 'original_image', hidden: true) -%>
+<%= image_tag(@result.depiction.image.image_file.url(:original), id: 'original_image', hidden: true) %>
 
 <script>
     $("#collection_object_collecting_event_attributes_verbatim_locality").focus();
@@ -358,4 +358,8 @@ $(document).on('turbolinks:load', function() {
 });
 
 </script>
-
+<% else %>
+  <div>
+    <%= tag.span('Error in processing, image may not be available.', class: [:feedback, 'feedback-danger']) -%>
+  </div>
+<% end %>

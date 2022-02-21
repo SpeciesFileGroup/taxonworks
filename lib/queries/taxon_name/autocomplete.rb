@@ -20,7 +20,7 @@ module Queries
       attr_accessor :type
 
       # @return [Array]
-      #   &parent_id[]=<int>&parent_id=<other_int> etc.
+      #   &parent_id[]=<int>&parent_id[]=<other_int> etc.
       attr_accessor :parent_id
 
       # @return [Boolean]
@@ -164,7 +164,7 @@ module Queries
 
       # @return [Scope]
       def autocomplete_exact_name_and_year
-        a = alphabetic_strings
+        a = alphabetic_strings.select { |b| !(b =~ /\d/) }
         b = years
         if a.size == 1 && !b.empty?
           a = table[:name].eq(a.first).and(table[:cached_author_year].matches_any(wildcard_wrapped_years))
@@ -307,7 +307,6 @@ module Queries
         ]
       end
 
-      # rubocop:disable Metrics/MethodLength
       # @return [Array]
       def autocomplete
         queries = (exact ? exact_autocomplete : comprehensive_autocomplete)
@@ -319,15 +318,17 @@ module Queries
           a = q
           a = q.where(project_id: project_id) if project_id
           a = a.where(and_clauses.to_sql) if and_clauses # TODO: duplicates clauses like exact!!
+          if !parent_id.empty?
+            a = a.descendants_of(::TaxonName.where(id: parent_id))
+          end
           a = a.not_leaves if no_leaves
           result += a.to_a
           break if result.count > 19
         end
-        
+
         result.uniq!
         result[0..19]
       end
-      # rubocop:enable Metrics/MethodLength
 
       # @return [String, nil]
       #   parse and only return what is assumed to be genus/species, with a wildcard in front

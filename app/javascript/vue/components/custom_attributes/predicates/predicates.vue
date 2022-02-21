@@ -34,6 +34,7 @@ import {
   ControlledVocabularyTerm,
   DataAttribute
 } from 'routes/endpoints'
+import { addToArray } from 'helpers/arrays'
 
 export default {
   components: {
@@ -70,7 +71,8 @@ export default {
       list: [],
       data_attributes: [],
       modelPreferencesIds: undefined,
-      predicatesList: []
+      predicatesList: [],
+      sortedIds: []
     }
   },
 
@@ -98,39 +100,31 @@ export default {
 
   methods: {
     loadPreferences () {
-      if (this.modelPreferences?.length) {
-        this.loadPredicates(this.modelPreferences)
-      } else {
-        Project.preferences().then(response => {
-          this.modelPreferencesIds = response.body.model_predicate_sets[this.model]
-          this.loadPredicates(this.modelPreferencesIds)
-        })
-      }
+      Project.preferences().then(response => {
+        this.modelPreferencesIds = response.body.model_predicate_sets[this.model]
+        this.sortedIds = response.body.model_predicate_sets?.predicate_index || []
+        this.loadPredicates(this.modelPreferencesIds)
+      })
     },
 
-    loadPredicates (ids) {
-      const promises = []
-      if (ids?.length) {
-        promises.push(ControlledVocabularyTerm.where({ type: ['Predicate'], id: ids }).then(response => {
-          this.predicatesList = response.body
-        }))
-      } else {
-        this.predicatesList = []
-      }
+    async loadPredicates (ids) {
+      this.predicatesList = ids?.length
+        ? (await ControlledVocabularyTerm.where({ type: ['Predicate'], id: ids })).body
+        : []
+
+      this.predicatesList.sort((a, b) => this.sortedIds.indexOf(a.id) - this.sortedIds.indexOf(b.id))
 
       if (this.objectId) {
-        promises.push(DataAttribute.where({
+        await DataAttribute.where({
           attribute_subject_type: this.objectType,
           attribute_subject_id: this.objectId,
           type: 'InternalAttribute'
         }).then(response => {
           this.createdList = response.body
-        }))
+        })
       }
 
-      Promise.all(promises).then(() => {
-        this.loading = false
-      })
+      this.loading = false
     },
 
     findExisting (id) {
@@ -138,14 +132,7 @@ export default {
     },
 
     addDataAttribute (dataAttribute) {
-      const index = this.data_attributes.findIndex(item => item.controlled_vocabulary_term_id === dataAttribute.controlled_vocabulary_term_id)
-
-      if (index > -1) {
-        this.data_attributes[index] = dataAttribute
-      } else {
-        this.data_attributes.push(dataAttribute)
-      }
-
+      addToArray(this.data_attributes, dataAttribute, 'controlled_vocabulary_term_id')
       this.$emit('onUpdate', this.data_attributes)
     }
   }

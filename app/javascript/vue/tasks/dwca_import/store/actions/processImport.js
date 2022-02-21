@@ -1,6 +1,7 @@
 import { ImportRows, StopImport } from '../../request/resources'
 import { MutationNames } from '../mutations/mutations'
 import { GetterNames } from '../getters/getters'
+import { createEmptyPages } from '../../helpers/pages'
 
 export default ({ state, getters, commit }) => {
   state.settings.isProcessing = true
@@ -26,8 +27,11 @@ export default ({ state, getters, commit }) => {
           commit(MutationNames.SetDataset, response.body)
 
           if (state.settings.stopRequested) {
-            StopImport(state.dataset.id).then(response => {
+            StopImport(state.dataset.id, {
+              filter: state.paramsFilter.filter
+            }).then(response => {
               commit(MutationNames.SetDataset, response.body)
+              commit(MutationNames.SetDatasetRecords, createEmptyPages(getters[GetterNames.GetVirtualPages][state.currentPage]))
             }).finally(() => {
               state.settings.isProcessing = false
             })
@@ -35,6 +39,7 @@ export default ({ state, getters, commit }) => {
             processImport()
           }
         } else {
+          commit(MutationNames.SetDatasetRecords, createEmptyPages(getters[GetterNames.GetVirtualPages][state.currentPage]))
           state.settings.isProcessing = false
         }
       }, () => {

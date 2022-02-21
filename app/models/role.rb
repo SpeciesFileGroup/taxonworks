@@ -4,14 +4,14 @@
 # Roles are the only place where person_id and organization_id must be referenced.
 
 # Had we started from scratch we might have implemented a polymorphic `role_agent`,
-# though we reference people *far* more often than organziations, so it would 
+# though we reference people *far* more often than organziations, so it would
 # have felt klunky to always de-reference to role_agent.
 #
 # @!attribute person_id
 #   @return [Integer]
 #    The ID of the Person in the role.
 #
-# @!attribute organization_id 
+# @!attribute organization_id
 #   @return [Integer]
 #    The ID of the Organization in the role.
 #
@@ -40,6 +40,9 @@ class Role < ApplicationRecord
   include Housekeeping::Timestamps
   include Shared::IsData
 
+  include Shared::PolymorphicAnnotator
+  polymorphic_annotates(:role_object)
+
   acts_as_list scope: [:type, :role_object_type, :role_object_id]
 
   belongs_to :organization, inverse_of: :roles, validate: true
@@ -47,7 +50,7 @@ class Role < ApplicationRecord
   belongs_to :role_object, polymorphic: :true #, validate: true
 
   after_save :update_cached
-  
+
   validates_presence_of :type
   validate :agent_present,
     :only_one_agent,
@@ -79,7 +82,7 @@ class Role < ApplicationRecord
   protected
 
   def agent_present
-    if !person.present? && !organization.present? 
+    if !person.present? && !organization.present?
       errors.add(:base, 'missing an agent (person or organization)')
     end
   end
@@ -92,8 +95,8 @@ class Role < ApplicationRecord
 
   def only_one_agent
     if person && organization
-      errors.add(:person_id, 'organization is also selected') 
-      errors.add(:organization_id, 'organization is also selected') 
+      errors.add(:person_id, 'organization is also selected')
+      errors.add(:organization_id, 'organization is also selected')
     end
   end
 
@@ -122,7 +125,7 @@ require_dependency 'loan_recipient'
 require_dependency 'loan_supervisor'
 require_dependency 'accession_provider'
 require_dependency 'deaccession_recipient'
-
+require_dependency 'verifier'
 require_dependency 'attribution_creator'
 require_dependency 'attribution_editor'
 

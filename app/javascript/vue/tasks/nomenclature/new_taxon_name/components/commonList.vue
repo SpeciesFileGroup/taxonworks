@@ -22,17 +22,20 @@
 export default {
   props: {
     objectLists: {
-      required: true,
+      type: Array,
       default: () => []
     },
+
     listCreated: {
       type: Array,
       required: true
     },
+
     display: {
       type: String,
       required: true
     },
+
     filter: {
       type: Boolean,
       default: false
