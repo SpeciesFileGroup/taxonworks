@@ -1,4 +1,4 @@
-import baseCRUD from './base'
+import baseCRUD, { annotations } from './base'
 import AjaxCall from 'helpers/ajaxCall'
 
 const permitParams = {
@@ -36,6 +36,7 @@ const permitParams = {
 
 export const Descriptor = {
   ...baseCRUD('descriptors', permitParams),
+  ...annotations('descriptors'),
 
   units: () => AjaxCall('get', '/descriptors/units')
 }
