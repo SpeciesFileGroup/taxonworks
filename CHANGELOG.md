@@ -6,7 +6,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+- Qualitative descriptor modal in matrix row coder [#2763]
+
+[#2763]: https://github.com/SpeciesFileGroup/taxonworks/issues/2763
 
 ## [0.23.0] - 2022-02-18
 
