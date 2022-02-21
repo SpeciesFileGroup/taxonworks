@@ -14,7 +14,8 @@
         class="horizontal-center-content">
         <div
           v-for="depiction in depictions"
-          :key="depiction.id">
+          :key="depiction.id"
+        >
           <div>
             <img
               :src="depiction.image.alternatives.medium.image_file_url"
@@ -53,7 +54,6 @@
                 @change="updateStateChecked(characterState.id, $event.target.checked)"
               >
               {{ characterState.label }}: {{ characterState.name }}
-              {{ characterState.name }} ({{ characterState.number_of_objects }})
             </label>
           </div>
         </div>
@@ -81,16 +81,10 @@ export default {
     descriptor: {
       type: Object,
       required: true
-    },
-
-    modelValue: {
-      type: Object,
-      default: () => []
     }
   },
 
   emits: [
-    'update:modelValue',
     'update',
     'close'
   ],
@@ -98,8 +92,6 @@ export default {
   data () {
     return {
       depictions: [],
-      selected: [],
-      copy: [],
       observations: []
     }
   },
