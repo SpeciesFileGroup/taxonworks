@@ -194,15 +194,15 @@ class Protonym < TaxonName
     return false if protonym.rank_class.to_s != rank_class.to_s
 
     begin
-      case nomenclature_code
+      case nomenclatural_code
       when  :iczn
-        TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(taxon_name_relationship_subject: self, taxon_name_relationship_object: protonym)
+        TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: self, object_taxon_name: protonym)
       when :icn
-        TaxonNameRelationship::Icn::Unaccepting::Synonym.create!(taxon_name_relationship_subject: self, taxon_name_relationship_object: protonym)
+        TaxonNameRelationship::Icn::Unaccepting::Synonym.create!(subject_taxon_name: self, object_taxon_name: protonym)
       when :icnp
-        TaxonNameRelationship::Icnp::Unaccepting::Synonym.create!(taxon_name_relationship_subject: self, taxon_name_relationship_object: protonym)
+        TaxonNameRelationship::Icnp::Unaccepting::Synonym.create!(subject_taxon_name: self, object_taxon_name: protonym)
       when :icvnc
-        TaxonNameRelationship::Icnp::Unaccepting::SupressedSynony.create!(taxon_name_relationship_subject: self, taxon_name_relationship_object: protonym)
+        TaxonNameRelationship::Icnp::Unaccepting::SupressedSynony.create!(subject_taxon_name: self, object_taxon_name: protonym)
       else 
         return false
       end
