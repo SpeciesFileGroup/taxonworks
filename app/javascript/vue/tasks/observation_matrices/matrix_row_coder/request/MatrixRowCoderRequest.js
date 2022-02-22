@@ -48,10 +48,10 @@ export default class MatrixRowCoderRequest extends IMatrixRowCoderRequest {
   }
 
   buildGetUrl (url, extraParams = {}) {
-    return `${url}${MatrixRowCoderRequest.stringifyApiParams(Object.assign({}, this.apiParams, extraParams))}`
+    return `${url}${MatrixRowCoderRequest.stringifyApiParams(Object.assign({}, extraParams))}`
   }
 
-  static stringifyApiParams (object) {
+  static stringifyApiParams (object = {}) {
     return Object.keys(object).reduce((accumulated, property, currentIndex) => {
       return `${accumulated}${getPropertyPrefix(currentIndex)}${property}=${object[property]}`
     }, '')
@@ -92,27 +92,27 @@ export default class MatrixRowCoderRequest extends IMatrixRowCoderRequest {
   }
 
   updateObservation (observationId, payload) {
-    const url = `/observations/${observationId}.json${MatrixRowCoderRequest.stringifyApiParams(this.apiParams)}`
+    const url = `/observations/${observationId}.json`
     return putJSON(url, payload)
   }
 
   createClone (payload) {
     const url = `/tasks/observation_matrices/observation_matrix_hub/copy_observations.json`
-    return postJSON(url, Object.assign(payload, this.apiParams))
+    return postJSON(url, Object.assign(payload))
   }
 
   createObservation (payload) {
     const url = `/observations.json`
-    return postJSON(url, Object.assign(payload, this.apiParams))
+    return postJSON(url, Object.assign(payload))
   }
 
   removeObservation (observationId) {
-    const url = `/observations/${observationId}.json${MatrixRowCoderRequest.stringifyApiParams(this.apiParams)}`
+    const url = `/observations/${observationId}.json`
     return deleteResource(url)
   }
 
   removeAllObservationsRow (rowId) {
-    const url = `/observations/destroy_row.json?observation_matrix_row_id=${rowId}${MatrixRowCoderRequest.stringifyApiParams(this.apiParams)}`
+    const url = `/observations/destroy_row.json?observation_matrix_row_id=${rowId}`
     return deleteResource(url)
   }
 

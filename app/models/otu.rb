@@ -126,7 +126,9 @@ class Otu < ApplicationRecord
   end
 
   # @return [Otu::ActiveRecordRelation]
-  #   if the Otu is a child, via synonymy or not, of the taxon name
+  #   all OTUs linked to the taxon_name_id, it descendants, and
+  #   any synonym of any of the previous
+  #   linked directly to the taxon name
   #   !! Invalid taxon_name_ids return nothing
   #   !! Taxon names with synonyms return the OTUs of their synonyms
   def self.descendant_of_taxon_name(taxon_name_id)

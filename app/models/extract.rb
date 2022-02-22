@@ -36,8 +36,8 @@ class Extract < ApplicationRecord
 
   has_many :extractor_roles, -> { order('roles.position ASC') }, class_name: 'Extractor', as: :role_object, dependent: :destroy, validate: true
   has_many :extractors, -> { order('roles.position ASC') }, through: :extractor_roles, source: :person, validate: true
-  
-  # Upstream 
+
+  # Upstream
   has_many :otus, through: :related_origin_relationships, source: :old_object, source_type: 'Otu'
   has_many :collection_objects, through: :related_origin_relationships, source: :old_object, source_type: 'CollectionObject'
 
@@ -46,7 +46,6 @@ class Extract < ApplicationRecord
   has_many :extracts, through: :related_origin_relationships, source: :old_object, source_type: 'Extract'
 
   attr_accessor :is_made_now
-
   before_validation :set_made, if: -> {is_made_now}
 
   validates :year_made, date_year: { min_year: 1757, max_year: -> {Time.now.year} }
@@ -55,7 +54,7 @@ class Extract < ApplicationRecord
 
   # @return Array
   #   all inferred or asserted OTUs that this OTU came from
-  def referenced_otus 
+  def referenced_otus
     [
       [otus],
       [collection_objects.collect{|o| o.current_otu} ]
