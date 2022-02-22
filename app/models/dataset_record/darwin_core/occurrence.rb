@@ -44,11 +44,11 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       %I(name masculine_name feminine_name neuter_name).inject(nil) do |protonym, field|
         break protonym unless protonym.nil?
 
-        p = Protonym.find_by(name.slice(:rank_class).merge!({field => name[:name], :parent => parent}))
+        p = Protonym.find_by(name.slice(:rank_class).merge({field => name[:name], :parent => parent}))
 
         # Protonym might not exist, or might have intermediate parent not listed in file
         # if it exists, run more expensive query to see if it has an ancestor matching parent name and rank
-        if p.nil? && Protonym.where(name.slice(:rank_class).merge!({field => name[:name]})).exists?
+        if p.nil? && Protonym.where(name.slice(:rank_class).merge({field => name[:name]})).exists?
           p = Protonym.where(name.slice(:rank_class).merge!({field => name[:name]})).with_ancestor(parent).first
 
           # check parent.cached_valid_taxon_name_id if not valid, can have obsolete subgenus Aus (Aus) bus -> Aus bus, bus won't have ancestor (Aus)
