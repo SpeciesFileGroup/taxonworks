@@ -166,7 +166,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           identifier_type = Identifier::Global.descendants.detect { |c| c.name.downcase == namespace.downcase } if namespace
           identifier_attributes = {
             identifier: event_id,
-            identifier_object_type: CollectingEvent.name
+            identifier_object_type: CollectingEvent.name,
+            project_id: Current.project_id
           }
 
           if identifier_type.nil?
