@@ -23,7 +23,6 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       DatabaseCleaner.clean
     end
 
-    let!(:root) { FactoryBot.create(:root_taxon_name) }
     let!(:results) { @import_dataset.import(5000, 100) }
 
     it 'creates a new record' do
@@ -94,8 +93,6 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
 
     after :all do
-      TaxonNameRelationship.delete_all
-      TaxonName.delete_all
       DatabaseCleaner.clean
     end
   end
