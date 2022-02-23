@@ -47,8 +47,8 @@ export default {
   },
 
   methods: {
-    removeObservation() {
-      this.$store.dispatch(ActionNames.RemoveObservation, { descriptorId: this.descriptor.id } )
+    removeObservation () {
+      this.$store.dispatch(ActionNames.RemoveObservation, { descriptorId: this.descriptor.id })
     }
   }
 }

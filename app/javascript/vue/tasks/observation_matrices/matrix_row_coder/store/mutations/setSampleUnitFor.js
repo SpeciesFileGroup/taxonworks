@@ -7,6 +7,6 @@ export default function (state, args) {
     units
   } = args
 
-  mergeIntoObservation(state.observations.find(o => o.descriptorId === descriptorId), { units })
+  mergeIntoObservation(state.observations.find(o => o.descriptorId === descriptorId), { units, isUnsaved: true })
   setDescriptorUnsaved(state.descriptors.find(d => d.id === descriptorId))
 };

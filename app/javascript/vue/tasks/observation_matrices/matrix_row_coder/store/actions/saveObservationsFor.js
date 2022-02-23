@@ -4,7 +4,7 @@ import ObservationTypes from '../helpers/ObservationTypes'
 
 export default function ({ dispatch, state, commit }, descriptorId) {
   const observations = state.observations
-    .filter(o => o.descriptorId === descriptorId)
+    .filter(o => o.descriptorId === descriptorId && o.isUnsaved)
 
   console.log(observations)
   return Promise.all(observations.map(o => {
