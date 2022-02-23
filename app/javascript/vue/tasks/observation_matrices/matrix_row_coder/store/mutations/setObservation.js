@@ -10,7 +10,21 @@ export default function (state, observation) {
   if (observation.type === ObservationTypes.Qualitative && !observation.characterStateId) { throw `Qualitative Observations must have a character state id!` }
 
   let existingObservation
-  if (observation.type !== ObservationTypes.Qualitative) { existingObservation = state.observations.find(o => o.descriptorId === observation.descriptorId) } else { existingObservation = state.observations.find(o => o.descriptorId === observation.descriptorId && o.characterStateId === observation.characterStateId) }
 
-  if (existingObservation) { Object.assign(existingObservation, observation) } else { state.observations.push(observation) }
-};
+  if (observation.type === ObservationTypes.FreeText) {
+    existingObservation = state.observations.find(o => o.descriptorId === observation.descriptorId)
+  } else if (observation.type === ObservationTypes.Sample) {
+    existingObservation = state.observations.find(o => o.descriptorId === observation.descriptorId)
+  } else if (observation.type === ObservationTypes.Qualitative) {
+    existingObservation = state.observations.find(o => o.descriptorId === observation.descriptorId && o.characterStateId === observation.characterStateId)
+  } else {
+    existingObservation = state.observations.find(o => o.descriptorId === observation.descriptorId && o.id === observation.id)
+  }
+
+  if (existingObservation) {
+    console.log(existingObservation)
+    Object.assign(existingObservation, observation)
+  } else {
+    state.observations.push(observation)
+  }
+}

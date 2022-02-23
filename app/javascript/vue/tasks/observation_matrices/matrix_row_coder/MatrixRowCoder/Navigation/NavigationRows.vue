@@ -1,7 +1,7 @@
 <template>
   <div class="horizontal-left-content">
     <a
-      v-if="matrixRow.previous_row"
+      v-if="matrixRow.previous_row && matrixRow.previous_row.row_object"
       class="margin-small-right"
       href="#"
       v-html="matrixRow.previous_row.row_object.object_tag"
@@ -17,7 +17,7 @@
       @select="emit('select', $event.id)"
     />
     <a
-      v-if="matrixRow.next_row"
+      v-if="matrixRow.next_row && matrixRow.next_row.row_object"
       class="margin-small-left"
       href="#"
       v-html="matrixRow.next_row.row_object.object_tag"

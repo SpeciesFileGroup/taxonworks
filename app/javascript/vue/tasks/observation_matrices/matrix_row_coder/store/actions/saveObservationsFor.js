@@ -5,13 +5,15 @@ import ObservationTypes from '../helpers/ObservationTypes'
 export default function ({ dispatch, state, commit }, descriptorId) {
   const observations = state.observations
     .filter(o => o.descriptorId === descriptorId)
+
+  console.log(observations)
   return Promise.all(observations.map(o => {
     if (!isUpdatableObservation(o)) {
       saveUnupdatableObservation(o)
-    } else if (o.id) { 
-      return dispatch(ActionNames.UpdateObservation, descriptorId)
+    } else if (o.id) {
+      return dispatch(ActionNames.UpdateObservation, { descriptorId, observationId: o.id })
     } else {
-      return dispatch(ActionNames.CreateObservation, { descriptorId })
+      return dispatch(ActionNames.CreateObservation, { descriptorId, internalId: o.internalId })
     }
   }))
 

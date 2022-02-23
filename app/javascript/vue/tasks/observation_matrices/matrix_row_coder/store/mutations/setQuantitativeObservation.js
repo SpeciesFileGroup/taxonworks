@@ -4,10 +4,14 @@ import setDescriptorUnsaved from '../helpers/setDescriptorUnsaved'
 export default function (state, args) {
   const {
     descriptorId,
-    continuousUnit,
-    observationId
+    observationId,
+    continuousValue,
+    units
   } = args
 
-  mergeIntoObservation(state.observations.find(o => o.descriptorId === descriptorId && (o.id === observationId || o.internalId === observationId)), { continuousUnit })
+  const observation = state.observations
+    .find(o => o.descriptorId === descriptorId && o.id === observationId)
+
+  mergeIntoObservation(observation, { continuousValue, units })
   setDescriptorUnsaved(state.descriptors.find(d => d.id === descriptorId))
-};
+}

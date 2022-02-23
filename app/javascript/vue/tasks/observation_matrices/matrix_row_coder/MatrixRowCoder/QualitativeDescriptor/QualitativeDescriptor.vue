@@ -9,7 +9,7 @@
       <ul>
         <li
           class="horizontal-left-content qualitative-descriptor__descriptor-li"
-          v-for="(characterState, index) in descriptor.characterStates"
+          v-for="characterState in descriptor.characterStates"
           :key="characterState.id"
         >
           <label>
