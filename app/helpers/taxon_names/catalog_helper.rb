@@ -210,7 +210,7 @@ module TaxonNames::CatalogHelper
   def taxon_name_synonym_li(syn)
     label = [
       content_tag(:span, "= "), 
-      link_to(full_original_taxon_name_tag(syn) || taxon_name_label(syn), browse_nomenclature_task_path(taxon_name_id: syn.id))
+      link_to(full_original_taxon_name_tag(syn) || taxon_name_tag(syn), browse_nomenclature_task_path(taxon_name_id: syn.id))
     ].compact.join.html_safe
 
     content_tag(:li, label)
