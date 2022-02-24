@@ -42,7 +42,7 @@
       <% if taxon_name.id == taxon_name.cached_valid_taxon_name_id && taxon_name_synonyms_list(taxon_name).any? %>
       <ul 
         class="list-synonym taxon-synonym"
-        data-valid="<%= taxon_name.is_valid? ? 'valid' : 'invalid' -%>">
+        data-valid="invalid">
         <% taxon_name_synonyms_list(taxon_name).each do |syn| %>
           <%= taxon_name_synonym_li(syn) -%>
         <% end %>
@@ -53,7 +53,7 @@
         <% taxon_name.children.order(:name).where(type: 'Protonym').each do |p| -%>
         <% if p.id == p.cached_valid_taxon_name_id %>
           <li>
-            <span data-valid="<%= p.is_valid? ? 'valid' : 'invalid' -%>">
+            <span data-valid="<%= p.cached_is_valid ? 'valid' : 'invalid' -%>">
               <%= taxon_name_parent_navigator_item_link(p, target) -%>
               <span><%= p.cached_author_year -%></span>
               <% v = p.descendants.that_is_valid.count -%>
@@ -65,7 +65,7 @@
             <% if p.id == p.cached_valid_taxon_name_id && taxon_name_synonyms_list(p).any? %>
             <ul 
               class="list-synonym"
-              data-valid="<%= p.is_valid? ? 'valid' : 'invalid' -%>">
+              data-valid="invalid">
               <% taxon_name_synonyms_list(p).each do |syn| %>
                 <%= taxon_name_synonym_li(syn) -%>
               <% end %>
