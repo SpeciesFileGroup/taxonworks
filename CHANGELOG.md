@@ -15,10 +15,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - DwC importer looking up collecting events outside the scope of the current project
+- Missing names in hierarchy tree on Browse nomenclature task [#2827]
 
 [#2551]: https://github.com/SpeciesFileGroup/taxonworks/issues/2551
 [#2740]: https://github.com/SpeciesFileGroup/taxonworks/pull/2740
 [#2763]: https://github.com/SpeciesFileGroup/taxonworks/issues/2763
+[#2827]: https://github.com/SpeciesFileGroup/taxonworks/issues/2827
 
 ## [0.23.0] - 2022-02-18
 
