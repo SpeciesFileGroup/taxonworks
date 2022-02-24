@@ -64,7 +64,8 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
         description: 'Missing Ancestor Protonym',
         metadata: {'import_settings' => {'restrict_to_existing_nomenclature' => true}}
       ).tap { |i| i.stage }
-      # @import_dataset.metadata['import_settings']['restrict_to_existing_nomenclature'] = true
+      @import_dataset.metadata['import_settings']['restrict_to_existing_nomenclature'] = true
+      @import_dataset.save!
 
 
       kingdom = Protonym.create(parent: @root, name: "Animalia", rank_class: Ranks.lookup(:iczn, :kingdom))
