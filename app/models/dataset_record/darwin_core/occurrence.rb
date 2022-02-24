@@ -44,7 +44,20 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       %I(name masculine_name feminine_name neuter_name).inject(nil) do |protonym, field|
         break protonym unless protonym.nil?
 
-        Protonym.find_by(name.slice(:rank_class).merge!({field => name[:name], :parent => parent}))
+        p = Protonym.find_by(name.slice(:rank_class).merge({field => name[:name], :parent => parent}))
+
+        # Protonym might not exist, or might have intermediate parent not listed in file
+        # if it exists, run more expensive query to see if it has an ancestor matching parent name and rank
+        if p.nil? && Protonym.where(name.slice(:rank_class).merge({field => name[:name]})).where(project_id: parent.project_id).exists?
+          p = Protonym.where(name.slice(:rank_class).merge!({field => name[:name]})).with_ancestor(parent).first
+
+          # check parent.cached_valid_taxon_name_id if not valid, can have obsolete subgenus Aus (Aus) bus -> Aus bus, bus won't have ancestor (Aus)
+          if p.nil? && !parent.cached_is_valid
+            p = Protonym.where(name.slice(:rank_class).merge!({field => name[:name]})).with_ancestor(parent.valid_taxon_name).first
+        end
+
+        end
+        p
       end
     end
     class CreateIfNotExists < ImportProtonym
@@ -125,7 +138,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           TypeMaterial.create({
             protonym: innermost_protonym,
             collection_object: specimen,
-          }.merge!(attributes[:type_material]))
+          }.merge!(attributes[:type_material]))   # protoynm can be overwritten in type_materials hash if OC did not match scientific name / innermost_protonym
         end
 
         if attributes.dig(:catalog_number, :identifier)
@@ -746,9 +759,19 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     scientific_name = get_field_value(:scientificName)&.gsub(/\s+/, ' ')
     type_scientific_name = type_status&.[](:scientificName)&.gsub(/\s+/, ' ')
 
-    type_material = {
-      type_type: type_status[:type].downcase
-    } if scientific_name && type_scientific_name&.delete_prefix!(scientific_name)&.match(/^\W*$/)
+
+    if scientific_name && type_scientific_name.present?
+      if type_scientific_name&.delete_prefix!(scientific_name)&.match(/^\W*$/)
+        type_material = {
+          type_type: type_status[:type].downcase
+        }
+      elsif (original_combination_protonym = Protonym.find_by_cached_original_combination(type_scientific_name))
+        type_material = {
+          type_type: type_status[:type].downcase,
+          protonym: original_combination_protonym
+        }
+      end
+    end
 
     # identifiedBy: determiners of taxon determination
     Utilities::Hashes::set_unless_nil(taxon_determination, :determiners, parse_people(:identifiedBy))
