@@ -52,8 +52,8 @@
       <ul class="tree descendent">
         <% taxon_name.children.order(:name).where(type: 'Protonym').each do |p| -%>
         <% if p.id == p.cached_valid_taxon_name_id %>
-          <li data-valid="valid">
-            <span>
+          <li>
+            <span data-valid="valid">
               <%= taxon_name_parent_navigator_item_link(p, target) -%>
               <span><%= p.cached_author_year -%></span>
               <% v = p.descendants.that_is_valid.count -%>
