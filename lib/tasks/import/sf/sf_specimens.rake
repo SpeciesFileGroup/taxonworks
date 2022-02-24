@@ -67,7 +67,19 @@ namespace :tw do
 
           get_project_website_name = Project.all.map { |p| [p.id, p.name.scan(/^[^_]+/).first] }.to_h
 
-          depo_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'SpecimenDepository', short_name: 'Depo')
+          depo_namespaces = get_tw_repo_id.map do |sf_depo_id, tw_depo_id|
+            repo = Repository.find(tw_depo_id)
+            name = repo.acronym ? "#{repo.name} (#{repo.acronym})" : repo.name
+            short_name = repo.acronym
+            if sf_depo_id == "3664"
+              name = 'Museo di Zoologia, Instituto di Zoologia e Anatomia Comparata Universita di Torino (MZT)'
+              short_name = 'MZT'
+            end
+            [sf_depo_id, Namespace.find_or_create_by!(
+              institution: repo.name, name: name, short_name: short_name)
+            ]
+          end.to_h
+          default_repo_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'SpecimenDepository', short_name: 'Depo')
 
           syntypes_range = {} # use ranged_lot_category for syntypes, paratypes and paralectotypes without individual counts
           paratypes_range = {}
@@ -440,6 +452,12 @@ namespace :tw do
               # ApplicationRecord.transaction do
               current_objects = [] # stores all objects created in the row below temporarily
 
+              identifier_params = row['DepoCatNo'].present? ? {
+                identifier: repository_id.nil? ? "SF.DepoID #{sf_depo_id}, #{row['DepoCatNo']}" : row['DepoCatNo'],
+                namespace: depo_namespaces[sf_depo_id] || default_repo_namespace,
+                project_id: project_id
+              } : nil
+
               # This outer loop loops through total, category pairs, we create
               # a new collection object for each pair
 
@@ -462,14 +480,14 @@ namespace :tw do
                   created_by_id: get_tw_user_id[row['CreatedBy']],
                   updated_by_id: get_tw_user_id[row['ModifiedBy']],
 
-                  identifiers:[
-                    Identifier::Global.new(
-                      identifier: "http://#{get_project_website_name[project_id.to_i]}.speciesfile.org/Common/specimen/ShowSpecimen.aspx?" +
-                                  "SpecimenID=#{specimen_id}##{specimen_category_id}_#{count}",
-                      project_id: project_id,
-                      created_by_id: get_tw_user_id[row['CreatedBy']],
-                      updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                    )
+                  data_attributes_attributes: [
+                    {
+                      type: 'ImportAttribute',
+                      import_predicate: 'sf_specimen_url',
+                      value: "http://#{get_project_website_name[project_id.to_i]}.speciesfile.org/Common/specimen/ShowSpecimen.aspx?" +
+                            "SpecimenID=#{specimen_id}##{specimen_category_id}_#{count}",
+                      project_id: project_id
+                    }
                   ]
                 )
                 co_params.merge!({ total: count }) unless ranged_lot_category_id
@@ -493,29 +511,25 @@ namespace :tw do
                 # 2) If there is an "identifier", associate it with a single collection object or the container (if applicable)
                 identifier = nil
                 if row['DepoCatNo'].present?
-                  identifier = Identifier::Local::CatalogNumber.new(
-                      identifier: "collection_object.id #{collection_object.id} (SF.SpecimenID #{specimen_id}): SF.DepoID #{sf_depo_id},  #{row['DepoCatNo']}",
-                      namespace: depo_namespace,
-                      project_id: project_id)
-
-                  if current_objects.count == 1
-                    # The "Identifier" is attached to the only collection object that is created
-
-                    current_objects.first.identifiers << identifier if identifier
-
-                  elsif current_objects.count > 1
-                    # There is more than one object, put them in a virtual container
-                    c = Container::Virtual.create!(project_id: project_id)
-                    current_objects.each do |o|
-                      o.put_in_container(c)
-                    end
-
-                    c.identifiers << identifier if identifier
-
-                  else
-                    puts 'OOPS' # would this happen?
-                  end
+                  ImportAttribute.create!({
+                    import_predicate: "original_DepoCatNo",
+                    value: row['DepoCatNo'],
+                    project_id: project_id,
+                    attribute_subject: collection_object
+                  }) if Identifier::Local::CatalogNumber.find_by(identifier_params)
                 end
+              end
+
+              old_project_id = Current.project_id
+              Current.project_id = project_id # Required for container and container items creation
+              identifier_object = current_objects.length > 1 ? Container::Virtual.containerize(current_objects) : current_objects.first
+              Current.project_id = old_project_id
+
+              if identifier_params
+                while Identifier::Local::CatalogNumber.find_by(identifier_params)
+                  identifier_params[:identifier] += "'"
+                end
+                identifier_object.identifiers << Identifier::Local::CatalogNumber.new(identifier_params)
               end
 
               # data_attributes to do:
