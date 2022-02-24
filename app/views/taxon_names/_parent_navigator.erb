@@ -24,7 +24,7 @@
   <ul class="tree">
   
     <% taxon_name.ancestor_protonyms.each do |p| -%>
-    <li data-valid-toggle="<%= p.is_valid? ? 'valid' : 'invalid' -%>">
+    <li data-valid="<%= p.is_valid? ? 'valid' : 'invalid' -%>">
       <span>
         <%= taxon_name_parent_navigator_item_link(p, target) -%>
         <span>
@@ -39,7 +39,7 @@
         <%= full_taxon_name_tag(taxon_name) -%>
       </span>
 
-      <% if taxon_name.is_valid? && taxon_name_synonyms_list(taxon_name).any? %>
+      <% if taxon_name.id == taxon_name.cached_valid_taxon_name_id && taxon_name_synonyms_list(taxon_name).any? %>
       <ul 
         class="list-synonym taxon-synonym"
         data-valid="invalid">
@@ -51,7 +51,7 @@
 
       <ul class="tree descendent">
         <% taxon_name.children.order(:name).where(type: 'Protonym').each do |p| -%>
-        <% if p.is_valid? %>
+        <% if p.id == p.cached_valid_taxon_name_id %>
           <li data-valid="valid">
             <span>
               <%= taxon_name_parent_navigator_item_link(p, target) -%>
@@ -62,7 +62,7 @@
               <%= content_tag(:span, iv, class: [:feedback, 'feedback-thin', 'feedback-secondary']) if iv > 0  %>
             </span>
 
-            <% if p.is_valid? && taxon_name_synonyms_list(p).any? %>
+            <% if p.id == p.cached_valid_taxon_name_id && taxon_name_synonyms_list(p).any? %>
             <ul 
               class="list-synonym"
               data-valid="invalid">
