@@ -1,6 +1,7 @@
 <template>
   <div class="horizontal-left-content organization-picker">
     <autocomplete
+      class="margin-small-right"
       url="/organizations/autocomplete"
       param="term"
       label="label"
@@ -18,6 +19,11 @@
       class="button normal-input button-default">
       New
     </button>
+    <default-pin
+      class="button-circle"
+      type="Organization"
+      @get-item="setOrganization({ id: $event.id, label: $event.label })"
+      section="Organizations"/>
     <modal-component
       v-if="showModal"
       @close="showModal = false">
@@ -153,11 +159,13 @@
 
 import Autocomplete from 'components/ui/Autocomplete'
 import ModalComponent from 'components/ui/Modal'
+import DefaultPin from './getDefaultPin.vue'
 import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
     Autocomplete,
+    DefaultPin,
     ModalComponent
   },
 

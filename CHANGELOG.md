@@ -8,10 +8,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - Qualitative descriptor modal in matrix row coder [#2763]
+- Pin button for organization in attribution annotator [#2551]
 
 ### Fixed
 - DwC importer looking up collecting events outside the scope of the current project
 
+[#2551]: https://github.com/SpeciesFileGroup/taxonworks/issues/2551
 [#2763]: https://github.com/SpeciesFileGroup/taxonworks/issues/2763
 
 ## [0.23.0] - 2022-02-18
