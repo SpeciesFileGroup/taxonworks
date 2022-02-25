@@ -134,11 +134,19 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         }.merge!(attributes[:specimen]))
 
         if attributes[:type_material] && (innermost_otu&.name).nil?
-          # Best effort only, import will proceed even if creating the type material fails
-          TypeMaterial.create({
-            protonym: innermost_protonym,
-            collection_object: specimen,
-          }.merge!(attributes[:type_material]))   # protoynm can be overwritten in type_materials hash if OC did not match scientific name / innermost_protonym
+
+          type_material = TypeMaterial.new(
+            {
+              protonym: innermost_protonym,
+              collection_object: specimen,
+            }.merge!(attributes[:type_material])) # protoynm can be overwritten in type_materials hash if OC did not match scientific name / innermost_protonym
+
+          if self.import_dataset.require_type_material_success? # raise error if validations fail and it cannot be imported
+            type_material.save
+          else
+            # Best effort only, import will proceed even if creating the type material fails
+            type_material.save
+          end
         end
 
         if attributes.dig(:catalog_number, :identifier)
@@ -761,6 +769,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
 
     if scientific_name && type_scientific_name.present?
+
+      # if type_scientific_name matches the current name of the occurrence, use that
       if type_scientific_name&.delete_prefix!(scientific_name)&.match(/^\W*$/)
         type_material = {
           type_type: type_status[:type].downcase
