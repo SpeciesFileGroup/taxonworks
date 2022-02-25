@@ -765,7 +765,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         type_material = {
           type_type: type_status[:type].downcase
         }
-      elsif (original_combination_protonym = Protonym.find_by_cached_original_combination(type_scientific_name))
+      elsif (original_combination_protonym = Protonym.find_by(cached_original_combination: type_scientific_name, project_id: self.project_id))
         type_material = {
           type_type: type_status[:type].downcase,
           protonym: original_combination_protonym
