@@ -6,7 +6,23 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+- Qualitative descriptor modal in matrix row coder [#2763]
+- Pin button for organization in attribution annotator [#2551]
+
+### Changed
+- Allow matching protonyms in DwC occurrences importer even on cases where the imported classification is a subset of the existing one. [#2740]
+
+### Fixed
+- DwC importer looking up collecting events outside the scope of the current project
+- Missing names in hierarchy tree on Browse nomenclature task [#2827]
+- DwC importer finding names by original combination without project scope [#2828]
+
+[#2551]: https://github.com/SpeciesFileGroup/taxonworks/issues/2551
+[#2740]: https://github.com/SpeciesFileGroup/taxonworks/pull/2740
+[#2763]: https://github.com/SpeciesFileGroup/taxonworks/issues/2763
+[#2827]: https://github.com/SpeciesFileGroup/taxonworks/issues/2827
+[#2828]: https://github.com/SpeciesFileGroup/taxonworks/pull/2828
 
 ## [0.23.0] - 2022-02-18
 
