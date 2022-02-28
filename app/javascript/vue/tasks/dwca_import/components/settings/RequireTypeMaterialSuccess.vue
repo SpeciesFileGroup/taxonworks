@@ -5,7 +5,7 @@
         type="checkbox"
         v-model="requireTypeMaterialSuccess"
       >
-      Skip/error rows where type material creation fails
+      Error records with unprocessable typeStatus information
     </label>
   </div>
 </template>
