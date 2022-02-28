@@ -37,6 +37,18 @@ GIT
       terrapin (~> 0.6.0)
 
 GIT
+  remote: https://github.com/LocoDelAssembly/serrano.git
+  revision: 22e9b215a9bb94247a860f5a22bfad219cda1bc9
+  branch: fixes
+  specs:
+    serrano (1.0.0)
+      faraday (~> 1.0)
+      faraday_middleware (~> 1.2)
+      multi_json (~> 1.15)
+      rexml (~> 3.2, >= 3.2.4)
+      thor (~> 1.0, >= 1.0.1)
+
+GIT
   remote: https://github.com/LocoDelAssembly/wikidata-client.git
   revision: 482e77b8640e4e0f748aef48518871943c751e8d
   branch: bump-dependencies
@@ -552,11 +564,6 @@ GEM
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2)
     semantic_range (3.0.0)
-    serrano (1.0.0)
-      faraday (~> 1.1)
-      faraday_middleware (~> 1.0)
-      multi_json (~> 1.15)
-      thor (~> 1.0, >= 1.0.1)
     shellany (0.0.1)
     shortener (0.8.2)
       voight_kampff (~> 1.1.2)
@@ -751,7 +758,7 @@ DEPENDENCIES
   sassc-rails (~> 2.1.0)
   sdoc (~> 2.2.0)
   seedbank (~> 0.5.0)
-  serrano (~> 1.0.0)
+  serrano!
   shortener (~> 0.8.0)
   simplecov
   spring-commands-rspec (~> 1.0.4)

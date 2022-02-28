@@ -13,7 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Option to error records if `typeStatus` is unprocessable in DwC occurrences importer [#2829]
 
 ### Changed
-- Allow matching protonyms in DwC occurrences importer even on cases where the imported classification is a subset of the existing one. [#2740]
+- Allow matching protonyms in DwC occurrences importer even on cases where the imported classification is a subset of the existing one [#2740]
 - Updated Ruby gems
 
 ### Fixed
@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing names in hierarchy tree on Browse nomenclature task [#2827]
 - DwC importer finding names by original combination without project scope [#2828]
 - DwC export month field exporting day value rather than month [#2835]
+- Use unofficial serrano repo to fix problems with citeproc-json responses
 
 [#2656]: https://github.com/SpeciesFileGroup/taxonworks/issues/2656
 [#2551]: https://github.com/SpeciesFileGroup/taxonworks/issues/2551
