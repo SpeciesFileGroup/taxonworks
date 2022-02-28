@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Allow matching protonyms in DwC occurrences importer even on cases where the imported classification is a subset of the existing one. [#2740]
+- Updated Ruby gems
 
 ### Fixed
 - DwC importer looking up collecting events outside the scope of the current project
