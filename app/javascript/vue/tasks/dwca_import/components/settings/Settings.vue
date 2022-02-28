@@ -23,6 +23,7 @@
           <div class="field">
             <containerize-checkbox />
             <restrict-to-nomenclature-checkbox />
+            <require-type-material-success-checkbox />
           </div>
 
           <h3>Catalog number namespace mapping</h3>
@@ -60,12 +61,14 @@ import ModalComponent from 'components/ui/Modal'
 import RowComponent from './Row'
 import ContainerizeCheckbox from './Containerize'
 import RestrictToNomenclatureCheckbox from './RestrictToNomenclature'
+import RequireTypeMaterialSuccessCheckbox from './RequireTypeMaterialSuccess'
 import NomenclatureCode from './NomenclatureCode.vue'
 
 export default {
   components: {
     ContainerizeCheckbox,
     RestrictToNomenclatureCheckbox,
+    RequireTypeMaterialSuccessCheckbox,
     ModalComponent,
     RowComponent,
     NomenclatureCode
