@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Qualitative descriptor modal in matrix row coder [#2763]
 - Pin button for organization in attribution annotator [#2551]
 - Image inventory/filter endpoint for OTUs `/api/v1/otus/123/inventory/images` [#2656]
+- Option to error records if `typeStatus` is unprocessable in DwC occurrences importer [#2829]
 
 ### Changed
 - Allow matching protonyms in DwC occurrences importer even on cases where the imported classification is a subset of the existing one. [#2740]
@@ -27,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2763]: https://github.com/SpeciesFileGroup/taxonworks/issues/2763
 [#2827]: https://github.com/SpeciesFileGroup/taxonworks/issues/2827
 [#2828]: https://github.com/SpeciesFileGroup/taxonworks/pull/2828
+[#2829]: https://github.com/SpeciesFileGroup/taxonworks/pull/2829
 [#2835]: https://github.com/SpeciesFileGroup/taxonworks/pull/2835
 
 ## [0.23.0] - 2022-02-18
