@@ -142,7 +142,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             }.merge!(attributes[:type_material])) # protoynm can be overwritten in type_materials hash if OC did not match scientific name / innermost_protonym
 
           if self.import_dataset.require_type_material_success? # raise error if validations fail and it cannot be imported
-            type_material.save
+            type_material.save!
           else
             # Best effort only, import will proceed even if creating the type material fails
             type_material.save
