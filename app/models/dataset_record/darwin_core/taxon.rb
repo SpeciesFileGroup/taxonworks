@@ -157,8 +157,10 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                 ancestor_protonym = ancestor[:protonym].finest_protonym
               end
 
-              if (rank_in_type = ORIGINAL_COMBINATION_RANKS[rank&.downcase&.to_sym])
-                TaxonNameRelationship.find_or_create_by!(type: rank_in_type, subject_taxon_name: ancestor_protonym, object_taxon_name: taxon_name)
+                if (rank_in_type = ORIGINAL_COMBINATION_RANKS[rank&.downcase&.to_sym])
+                  taxon_name.save!
+                  TaxonNameRelationship.find_or_create_by!(type: rank_in_type, subject_taxon_name: ancestor_protonym, object_taxon_name: taxon_name)
+                end
               end
             end
           end
