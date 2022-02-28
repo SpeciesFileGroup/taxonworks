@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC importer looking up collecting events outside the scope of the current project
 - Missing names in hierarchy tree on Browse nomenclature task [#2827]
 - DwC importer finding names by original combination without project scope [#2828]
+- DwC export month field exporting day value rather than month [#2835]
 
 [#2656]: https://github.com/SpeciesFileGroup/taxonworks/issues/2656
 [#2551]: https://github.com/SpeciesFileGroup/taxonworks/issues/2551
@@ -26,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2763]: https://github.com/SpeciesFileGroup/taxonworks/issues/2763
 [#2827]: https://github.com/SpeciesFileGroup/taxonworks/issues/2827
 [#2828]: https://github.com/SpeciesFileGroup/taxonworks/pull/2828
+[#2835]: https://github.com/SpeciesFileGroup/taxonworks/pull/2835
 
 ## [0.23.0] - 2022-02-18
 
