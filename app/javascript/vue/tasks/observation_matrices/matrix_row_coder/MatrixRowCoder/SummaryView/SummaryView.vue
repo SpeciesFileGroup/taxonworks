@@ -2,27 +2,40 @@
   <div
     class="summary-view" 
     :class="{ 'summary-view--unsaved': isUnsaved, 'summary-view--saved-at-least-once': savedAtLeastOnce }">
-    <spinner
+    <DescriptorModal
+      v-if="isQualitative && isModalVisible"
+      :descriptor="descriptor"
+      @close="isModalVisible = false"
+    />
+    <SpinnerComponent
       legend="Saving changes..."
       :logo-size="{ width: '50px', height: '50px'}"
-      v-if="isSaving"/>
+      v-if="isSaving"
+    />
     <h2 class="summary-view__title flex-separate">
       <div class="horizontal-left-content">
-        {{ index }} {{ descriptor.title }}
-        <radial-annotator :global-id="descriptor.globalId"/>
-        <radial-object :global-id="descriptor.globalId"/>
+        <span
+          :class="titleStyle"
+          @click="isModalVisible = true"
+        >
+          {{ index }} {{ descriptor.title }}
+        </span>
+        <RadialAnnotator :global-id="descriptor.globalId" />
+        <RadialObject :global-id="descriptor.globalId" />
       </div>
       <p>
         <button
           type="button"
-          @click="returnTop">Top
+          @click="returnTop"
+        >
+          Top
         </button>
       </p>
     </h2>
     <div>
-      <slot/>
+      <slot />
     </div>
-    <save-countdown :descriptor="descriptor"/>
+    <SaveCountdown :descriptor="descriptor"/>
   </div>
 </template>
 
@@ -30,32 +43,61 @@
 
 <script>
 import { GetterNames } from '../../store/getters/getters'
-import Spinner from 'components/spinner.vue'
-import saveCountdown from '../SaveCountdown/SaveCountdown.vue'
+import SpinnerComponent from 'components/spinner.vue'
+import SaveCountdown from '../SaveCountdown/SaveCountdown.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial'
+import DescriptorModal from '../DepictionModal/DepictionsContainer.vue'
 
 export default {
   name: 'SummaryView',
 
   components: {
-    saveCountdown,
+    DescriptorModal,
+    SaveCountdown,
     RadialAnnotator,
     RadialObject,
-    Spinner
+    SpinnerComponent
   },
 
-  props: ['descriptor', 'index'],
+  props: {
+    descriptor: {
+      type: Object,
+      required: true
+    },
+
+    isQualitative: {
+      type: Boolean,
+      default: false
+    },
+
+    index: {
+      type: Number,
+      required: true
+    }
+  },
+
+  data: () => ({
+    isModalVisible: false
+  }),
 
   computed: {
     isUnsaved () {
       return this.$store.getters[GetterNames.IsDescriptorUnsaved](this.$props.descriptor.id)
     },
+
     savedAtLeastOnce () {
       return this.$props.descriptor.hasSavedAtLeastOnce
     },
+
     isSaving () {
       return this.$store.getters[GetterNames.IsDescriptorSaving](this.$props.descriptor.id)
+    },
+
+    titleStyle () {
+      return this.isQualitative
+        ? 'link cursor-pointer'
+        : ''
     }
   },
 

@@ -8,6 +8,43 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.23.1] - 2022-03-01
+
+### Added
+- Qualitative descriptor modal in matrix row coder [#2763]
+- Pin button for organization in attribution annotator [#2551]
+- Image inventory/filter endpoint for OTUs `/api/v1/otus/123/inventory/images` [#2656]
+- Option to error records if `typeStatus` is unprocessable in DwC occurrences importer [#2829]
+- Several taxon name classifications in DwC checklist importer [#2732]
+
+### Changed
+- Allow matching protonyms in DwC occurrences importer even on cases where the imported classification is a subset of the existing one [#2740]
+- Updated Ruby gems
+- Copying observations from object to object also copies their depictions [#2823]
+
+### Fixed
+- DwC importer looking up collecting events outside the scope of the current project
+- Missing names in hierarchy tree on Browse nomenclature task [#2827]
+- DwC importer finding names by original combination without project scope [#2828]
+- DwC export month field exporting day value rather than month [#2835]
+- Use unofficial serrano repo to fix problems with citeproc-json responses
+- DwC Occurrence Importer settings modal lags on open when many namespaces set [#2834]
+- Destroying last Depiction for Observation::Media destroys Observations [#2269]
+- Allowing to use same Namespace short name with different casing (e.g. 'alpha', 'Alpha')
+
+[#2823]: https://github.com/SpeciesFileGroup/taxonworks/issues/2823
+[#2269]: https://github.com/SpeciesFileGroup/taxonworks/issues/2269
+[#2656]: https://github.com/SpeciesFileGroup/taxonworks/issues/2656
+[#2551]: https://github.com/SpeciesFileGroup/taxonworks/issues/2551
+[#2732]: https://github.com/SpeciesFileGroup/taxonworks/pull/2732
+[#2740]: https://github.com/SpeciesFileGroup/taxonworks/pull/2740
+[#2763]: https://github.com/SpeciesFileGroup/taxonworks/issues/2763
+[#2827]: https://github.com/SpeciesFileGroup/taxonworks/issues/2827
+[#2828]: https://github.com/SpeciesFileGroup/taxonworks/pull/2828
+[#2829]: https://github.com/SpeciesFileGroup/taxonworks/pull/2829
+[#2834]: https://github.com/SpeciesFileGroup/taxonworks/pull/2834
+[#2835]: https://github.com/SpeciesFileGroup/taxonworks/pull/2835
+
 ## [0.23.0] - 2022-02-18
 
 ### Added
@@ -2322,7 +2359,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.23.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.23.1...development
+[0.23.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.23.0...v0.23.1
 [0.23.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.7...v0.23.0
 [0.22.7]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.6...v0.22.7
 [0.22.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.5...v0.22.6

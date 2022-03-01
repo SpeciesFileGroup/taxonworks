@@ -1,0 +1,7 @@
+taxonID	parentNameUsageID	parentNameUsage	acceptedNameUsageID	acceptedNameUsage	scientificName	kingdom	class	order	family	genus	subgenus	specificEpithet	infraspecificEpithet	taxonRank	scientificNameAuthorship	taxonomicStatus	originalNameUsage	originalNameUsageID	namePublishedInYear	nomenclaturalCode	TW:TaxonNameClassification:Latinized:Gender	TW:TaxonNameClassification:Latinized:PartOfSpeech
+429529			429529	Myrmicinae Lepeletier de Saint-Fargeau, 1835	Myrmicinae	Animalia	Insecta	Hymenoptera	Formicidae					Subfamily	Lepeletier de Saint-Fargeau, 1835	valid		429529	1835	ICZN
+429681	429529	Myrmicinae Lepeletier de Saint-Fargeau, 1835	429681	Solenopsidini Forel, 1893	Solenopsidini	Animalia	Insecta	Hymenoptera	Formicidae					Tribe	Forel, 1893	valid		429681	1893	ICZN
+429718	429681	Solenopsidini Forel, 1893	429718	Monomorium Mayr, 1855	Monomorium	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Mayr, 1855	valid		429718	1855	ICZN	neuter
+429732	429681	Solenopsidini Forel, 1893	429732	Syllophopsis Santschi, 1915	Syllophopsis	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Santschi, 1915	valid		429732	1915	ICZN	feminine
+509020	429718	Monomorium Mayr, 1855	429732	Syllophopsis Santschi, 1915	Monomorium (Syllophopsis)	Animalia	Insecta	Hymenoptera	Formicidae	Monomorium				Subgenus	Santschi, 1915	obsolete classification		429732	1915	ICZN
+511142	429718	Monomorium Mayr, 1855	429718	Monomorium Mayr, 1855	Monomorium (Monomorium)	Animalia	Insecta	Hymenoptera	Formicidae	Monomorium				Subgenus	Mayr, 1855	obsolete classification		429718	1855	ICZN

@@ -45,7 +45,6 @@ function makeBaseDescriptor (descriptorData) {
     needsCountdown: false,
     isSaving: false,
     hasSavedAtLeastOnce: false,
-    notes: null,
     depictions: null
   }
 }

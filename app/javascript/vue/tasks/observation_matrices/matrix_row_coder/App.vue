@@ -58,7 +58,7 @@ export default {
     loadRow (rowId) {
       ObservationMatrix.row({ observation_matrix_row_id: rowId }).then(({ body }) => {
         this.matrixRow = body
-        this.rowId = rowId
+        this.rowId = Number(rowId)
         SetParam('/tasks/observation_matrices/row_coder/index', 'observation_matrix_row_id', rowId)
       })
     }
