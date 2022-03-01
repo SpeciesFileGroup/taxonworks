@@ -24,7 +24,7 @@
 # @!attribute svg_view_box
 #   @return [String, nil]
 #     sets the clipping box, identical dimensions to clip for rectangles
-# 
+#
 # @!attribute is_metadata_depiction
 #   @return [Boolean, nil]
 #      If true then this depiction depicts data that describes the entity, rather than the entity itself.
@@ -62,6 +62,8 @@ class Depiction < ApplicationRecord
   validates_presence_of :depiction_object
   validates_uniqueness_of :sled_image_id, scope: [:project_id, :sled_image_x_position, :sled_image_y_position], allow_nil: true, if: Proc.new {|n| !n.sled_image_id.nil?}
 
+  after_destroy :remove_media_observations, if: Proc.new {|o| o.depiction_object.class.name == 'Observation::Media' }
+
   def from_sled?
     !sled_image_id.nil?
   end
@@ -76,7 +78,7 @@ class Depiction < ApplicationRecord
         box_width = Image::DEFAULT_SIZES[size][:width]
         box_height = Image::DEFAULT_SIZES[size][:height]
       when :original
-        box_width = w.to_i 
+        box_width = w.to_i
         box_height = h.to_i
       end
 
@@ -86,4 +88,11 @@ class Depiction < ApplicationRecord
     end
   end
 
+  private
+
+  def remove_media_observations
+    if depiction_object.depictions.size == 0
+      depiction_object.destroy!
+    end
+  end
 end

@@ -23,7 +23,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC export month field exporting day value rather than month [#2835]
 - Use unofficial serrano repo to fix problems with citeproc-json responses
 - DwC Occurrence Importer settings modal lags on open when many namespaces set [#2834]
+- Destroying last Depiction for Observation::Media destroys Observations [#2269]
 
+[#2269]: https://github.com/SpeciesFileGroup/taxonworks/issues/2269
 [#2656]: https://github.com/SpeciesFileGroup/taxonworks/issues/2656
 [#2551]: https://github.com/SpeciesFileGroup/taxonworks/issues/2551
 [#2740]: https://github.com/SpeciesFileGroup/taxonworks/pull/2740
