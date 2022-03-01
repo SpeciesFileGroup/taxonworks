@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Use unofficial serrano repo to fix problems with citeproc-json responses
 - DwC Occurrence Importer settings modal lags on open when many namespaces set [#2834]
 - Destroying last Depiction for Observation::Media destroys Observations [#2269]
+- Allowing to use same Namespace short name with different casing (e.g. 'alpha', 'Alpha')
 
 [#2823]: https://github.com/SpeciesFileGroup/taxonworks/issues/2823
 [#2269]: https://github.com/SpeciesFileGroup/taxonworks/issues/2269

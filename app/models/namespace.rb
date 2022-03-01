@@ -67,7 +67,7 @@ class Namespace < ApplicationRecord
   after_update :update_local_idenfifiers
 
   validates_presence_of :name, :short_name
-  validates_uniqueness_of :name, :short_name
+  validates_uniqueness_of :name, :short_name, case_sensitive: false
 
   # autosave should resave all, but it clearly doesn't
   # we also don't want to validte the identifiers on this resave, but rather
