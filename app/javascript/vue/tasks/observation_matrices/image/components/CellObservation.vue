@@ -238,13 +238,7 @@ export default {
           const observationId = this.observationId
 
           this.$emit('removeDepiction', index)
-          if (!this.depictions.length) {
-            Observation.destroy(observationId).then(() => {
-              this.$store.commit(MutationNames.SetIsSaving, false)
-            })
-          } else {
-            this.$store.commit(MutationNames.SetIsSaving, false)
-          }
+          this.$store.commit(MutationNames.SetIsSaving, false)
         })
       }
     },
