@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Allow matching protonyms in DwC occurrences importer even on cases where the imported classification is a subset of the existing one [#2740]
 - Updated Ruby gems
+- Copying observations from object to object also copies their depictions [#2823]
 
 ### Fixed
 - DwC importer looking up collecting events outside the scope of the current project
@@ -26,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC Occurrence Importer settings modal lags on open when many namespaces set [#2834]
 - Destroying last Depiction for Observation::Media destroys Observations [#2269]
 
+[#2823]: https://github.com/SpeciesFileGroup/taxonworks/issues/2823
 [#2269]: https://github.com/SpeciesFileGroup/taxonworks/issues/2269
 [#2656]: https://github.com/SpeciesFileGroup/taxonworks/issues/2656
 [#2551]: https://github.com/SpeciesFileGroup/taxonworks/issues/2551
