@@ -22,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC importer finding names by original combination without project scope [#2828]
 - DwC export month field exporting day value rather than month [#2835]
 - Use unofficial serrano repo to fix problems with citeproc-json responses
+- DwC Occurrence Importer settings modal lags on open when many namespaces set [#2834]
 
 [#2656]: https://github.com/SpeciesFileGroup/taxonworks/issues/2656
 [#2551]: https://github.com/SpeciesFileGroup/taxonworks/issues/2551
@@ -30,6 +31,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2827]: https://github.com/SpeciesFileGroup/taxonworks/issues/2827
 [#2828]: https://github.com/SpeciesFileGroup/taxonworks/pull/2828
 [#2829]: https://github.com/SpeciesFileGroup/taxonworks/pull/2829
+[#2834]: https://github.com/SpeciesFileGroup/taxonworks/pull/2834
 [#2835]: https://github.com/SpeciesFileGroup/taxonworks/pull/2835
 
 ## [0.23.0] - 2022-02-18

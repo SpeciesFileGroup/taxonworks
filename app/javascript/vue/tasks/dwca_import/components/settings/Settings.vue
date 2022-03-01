@@ -36,14 +36,14 @@
               </tr>
             </thead>
             <tbody>
-              <row-component
+              <catalog-number-row
                 v-for="(item, index) in catalogueNumbers"
                 class="contextMenuCells"
                 :row="item"
                 :dataset-id="dataset.id"
                 :key="index"
-                @onUpdate="updateChanges"
-                @onRemove="updateChanges"/>
+                @update="updateChanges($event, index)"
+              />
             </tbody>
           </table>
         </div>
@@ -58,7 +58,7 @@ import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 import { ActionNames } from '../../store/actions/actions'
 import ModalComponent from 'components/ui/Modal'
-import RowComponent from './Row'
+import CatalogNumberRow from './CatalogNumberRow'
 import ContainerizeCheckbox from './Containerize'
 import RestrictToNomenclatureCheckbox from './RestrictToNomenclature'
 import RequireTypeMaterialSuccessCheckbox from './RequireTypeMaterialSuccess'
@@ -70,7 +70,7 @@ export default {
     RestrictToNomenclatureCheckbox,
     RequireTypeMaterialSuccessCheckbox,
     ModalComponent,
-    RowComponent,
+    CatalogNumberRow,
     NomenclatureCode
   },
 
@@ -83,9 +83,11 @@ export default {
         this.$store.commit(MutationNames.SetSettings, value)
       }
     },
+
     dataset () {
       return this.$store.getters[GetterNames.GetDataset]
     },
+
     catalogueNumbers () {
       return this.dataset.metadata?.catalog_numbers_namespaces || []
     }
@@ -111,15 +113,24 @@ export default {
     }
   },
 
+  created () {
+    const namespaceIds = this.catalogueNumbers.map(item => item.namespace_id).filter(id => id)
+
+    this.$store.dispatch(ActionNames.LoadNamespaces, namespaceIds)
+  },
+
   methods: {
     setModalView (value) {
       this.showModal = value
     },
+
     reloadDataset () {
       this.$store.dispatch(ActionNames.LoadDataset, this.dataset.id)
       this.$store.dispatch(ActionNames.LoadDatasetRecords)
     },
-    updateChanges () {
+
+    updateChanges (data, index) {
+      this.dataset.metadata.catalog_numbers_namespaces[index] = data
       this.needUpdate = true
     }
   }
