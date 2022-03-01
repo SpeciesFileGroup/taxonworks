@@ -1,0 +1,4 @@
+taxonID	parentNameUsageID	parentNameUsage	acceptedNameUsageID	acceptedNameUsage	scientificName	kingdom	class	order	family	genus	subgenus	specificEpithet	infraspecificEpithet	taxonRank	scientificNameAuthorship	taxonomicStatus	originalNameUsage	originalNameUsageID	namePublishedInYear	nomenclaturalCode
+429339			429339	Formicini Latreille, 1809	Formicini	Animalia	Insecta	Hymenoptera	Formicidae					Tribe	Latreille, 1809	valid		429339	1809	ICZN
+429349	429339	Formicini Latreille, 1809	429349	Formica Linnaeus, 1758	Formica	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Linnaeus, 1758	valid		429349	1758	ICZN
+437479	429349	Formica Linnaeus, 1758	437479	Formica fuscescens Gmelin, 1790	Formica fuscescens	Animalia	Insecta	Hymenoptera	Formicidae	Formica		fuscescens		Species	Gmelin, 1790	incertae sedis	Formica fuscescens Gmelin, 1790	437479	1790	ICZN
