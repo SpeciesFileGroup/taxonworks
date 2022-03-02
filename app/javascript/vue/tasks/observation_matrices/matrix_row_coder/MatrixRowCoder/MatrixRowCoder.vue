@@ -90,12 +90,7 @@ export default {
   props: {
     rowId: {
       type: Number,
-      required: true
-    },
-
-    otuId: {
-      type: Number,
-      required: true
+      default: undefined
     }
   },
 

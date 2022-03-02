@@ -3,6 +3,7 @@
 #
 class Observation::Media < Observation 
 
-  # TODO: Valid absence of everything
+  # TODO: Validate absence of everything
+  # TODO: Validate presence of at least one Descriptor (use same logic as AssertedDistribution)
   
 end

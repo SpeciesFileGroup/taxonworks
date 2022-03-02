@@ -42,6 +42,7 @@ namespace :api, defaults: {format: :json} do
       get '/otus', to: '/otus#api_index'
       get '/otus/autocomplete', to: '/otus#api_autocomplete'
       get '/otus/:id/inventory/descendants', to: '/otus#api_descendants', as: :api_descendants
+      get '/otus/:otu_id/inventory/images', to: '/images#api_image_inventory', as: :api_images
       get '/otus/:id', to: '/otus#api_show'
 
       get '/downloads/:id', to: '/downloads#api_show'

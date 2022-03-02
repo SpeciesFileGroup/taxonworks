@@ -50,6 +50,12 @@ RSpec.describe Observation, type: :model, group: :observation_matrix do
       expect(new.observations.count).to eq(1)
     end
 
+    specify 'also copies depictions' do
+      o1.depictions << FactoryBot.build(:valid_depiction)
+      Observation.copy(old.to_global_id.to_s, new.to_global_id.to_s)
+      expect(new.observations.first.depictions.count).to eq(1)
+    end
+
     specify 'does not fail on duplicates' do
       o = FactoryBot.create(:valid_observation, observation_object: new, descriptor: o1.descriptor) 
       expect(Observation.copy(old.to_global_id.to_s, new.to_global_id.to_s)).to be_truthy
