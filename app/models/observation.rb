@@ -241,9 +241,6 @@ class Observation < ApplicationRecord
       Observation.transaction do
         old.observations.each do |o|
           d = o.dup
-<<<<<<< HEAD
-          d.update!(observation_object_global_id: new_global_id)
-=======
           d.update(observation_object_global_id: new_global_id)
 
           # Copy depictions
@@ -251,7 +248,6 @@ class Observation < ApplicationRecord
             j = i.dup
             j.update(depiction_object: d)
           end
->>>>>>> development
         end
       end
       true
