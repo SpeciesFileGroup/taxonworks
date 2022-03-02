@@ -6,7 +6,6 @@ export default function ({ dispatch, state, commit }, descriptorId) {
   const observations = state.observations
     .filter(o => o.descriptorId === descriptorId && o.isUnsaved)
 
-  console.log(observations)
   return Promise.all(observations.map(o => {
     if (!isUpdatableObservation(o)) {
       saveUnupdatableObservation(o)
@@ -18,11 +17,11 @@ export default function ({ dispatch, state, commit }, descriptorId) {
   }))
 
   function saveUnupdatableObservation (observation) {
-    if (observation.id && !observation.isChecked) { 
+    if (observation.id && !observation.isChecked) {
       return dispatch(ActionNames.RemoveObservation, makeObservationArgs(observation)) 
-    } else if (observation.isChecked) { 
+    } else if (observation.isChecked) {
       return dispatch(ActionNames.CreateObservation, makeObservationArgs(observation)) 
-    } else { 
+    } else {
       commit(MutationNames.ObservationSaved, makeObservationArgs(observation))
     }
   }

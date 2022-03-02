@@ -40,14 +40,19 @@ export default function ({ commit, state }, args) {
       return o => o.descriptorId === descriptorId && o.characterStateId === characterStateId
     } else if (descriptor.type === ComponentNames.Continuous) {
       return o => o.descriptorId === descriptorId && o.id === obsId
+    } else if (descriptor.type === ComponentNames.Sample) {
+      return o => o.descriptorId === descriptorId && o.id === obsId
     } else {
       return o => o.descriptorId === descriptorId
     }
   }
 
   function removeObservation () {
-    if (descriptor.type === ComponentNames.Continuous) {
-      const descriptorObservations = state.observations.filter(o => o.type === ObservationTypes.Continuous)
+    if (
+      descriptor.type === ComponentNames.Continuous ||
+      descriptor.type === ComponentNames.Sample
+    ) {
+      const descriptorObservations = getObservationListByType(descriptor.type)
 
       if (descriptorObservations.length > 1) {
         commit(MutationNames.RemoveObservation, obsId)
@@ -56,6 +61,14 @@ export default function ({ commit, state }, args) {
       }
     } else {
       commit(MutationNames.ClearObservation, observationId)
+    }
+  }
+
+  function getObservationListByType (type) {
+    if (type === ComponentNames.Continuous) {
+      return state.observations.filter(o => o.type === ObservationTypes.Continuous && o.descriptorId === descriptor.id)
+    } else if (type === ComponentNames.Sample) {
+      return state.observations.filter(o => o.type === ObservationTypes.Sample && o.descriptorId === descriptor.id)
     }
   }
 };

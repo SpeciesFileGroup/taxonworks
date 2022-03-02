@@ -20,7 +20,7 @@ export default function ({state, commit}, { descriptorId, observationId }) {
 
   return state.request.updateObservation(observation.id, { observation: makePayload(observation) })
     .then(_ => {
-      commit(MutationNames.SetObservation, { 
+      commit(MutationNames.SetObservation, {
         ...observation,
         isUnsaved: false
       })

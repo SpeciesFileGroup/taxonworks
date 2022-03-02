@@ -52,7 +52,7 @@ import { ActionNames } from '../store/actions/actions'
 import ContinuousDescriptor from './ContinuousDescriptor/ContinuousDescriptor.vue'
 import FreeTextDescriptor from './SingleObservationDescriptor/FreeText/FreeText.vue'
 import PresenceDescriptor from './SingleObservationDescriptor/PresenceDescriptor/PresenceDescriptor.vue'
-import SampleDescriptor from './SingleObservationDescriptor/SampleDescriptor/SampleDescriptor.vue'
+import SampleDescriptor from './SampleDescriptor/SampleDescriptor.vue'
 import QualitativeDescriptor from './QualitativeDescriptor/QualitativeDescriptor.vue'
 import MediaDescriptor from './MediaDescriptor/MediaDescriptor.vue'
 import Spinner from 'components/spinner'
@@ -80,7 +80,7 @@ export default {
     PresenceDescriptor,
     QualitativeDescriptor,
     SampleDescriptor,
-    MediaDescriptor, 
+    MediaDescriptor,
     Spinner,
     DestroyAllObservations,
     DescriptionMain,

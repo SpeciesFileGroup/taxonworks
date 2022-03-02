@@ -1,15 +1,20 @@
 <template>
-  <div class="continuous-descriptor">
+  <div class="sample-descriptor">
     <summary-view
+      :descriptor="descriptor"
       :index="index"
-      :descriptor="descriptor">
-      <ContinousDescriptorObservation
-        v-for="obs in observations"
-        :key="obs.id || obs.internalId"
-        class="margin-small-bottom"
-        :observation="obs"
-        :descriptor="descriptor"
-      />
+    >
+      <div>
+        <template
+          v-for="o in observations"
+          :key="o.id || o.internalId">
+          <SampleDescriptorObservation
+            :observation="o"
+            :descriptor="descriptor"
+          />
+          <hr>
+        </template>
+      </div>
       <v-btn
         color="primary"
         :disabled="!!emptyObservation"
@@ -21,36 +26,36 @@
   </div>
 </template>
 
-<style lang="stylus" src="./ContinuousDescriptor.styl"></style>
+<style src="./SampleDescriptor.styl" lang="stylus"></style>
 
 <script>
 
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 import { ActionNames } from '../../store/actions/actions'
+import SampleDescriptorObservation from './SampleDescriptorObservation.vue'
+import ObservationTypes from '../../store/helpers/ObservationTypes'
+import makeObservation from '../../store/helpers/makeObservation'
 import VBtn from 'components/ui/VBtn/index.vue'
 import SummaryView from '../SummaryView/SummaryView.vue'
-import ContinousDescriptorObservation from './ContinuousDescriptorObservation.vue'
-import makeObservation from '../../store/helpers/makeObservation'
-import ObservationTypes from '../../store/helpers/ObservationTypes'
 
 export default {
-  name: 'continuous-descriptor',
+  name: 'SampleDescriptor',
 
   components: {
+    SampleDescriptorObservation,
     SummaryView,
-    VBtn,
-    ContinousDescriptorObservation
+    VBtn
   },
 
   props: {
-    descriptor: {
-      type: Object,
+    index: {
+      type: Number,
       required: true
     },
 
-    index: {
-      type: Number,
+    descriptor: {
+      type: Object,
       required: true
     }
   },
@@ -75,9 +80,9 @@ export default {
   methods: {
     addEmptyObservation () {
       const args = {
-        type: ObservationTypes.Continuous,
+        type: ObservationTypes.Sample,
         descriptorId: this.descriptor.id,
-        continuous_unit: this.descriptor.default_unit
+        default_unit: this.descriptor.default_unit
       }
 
       this.$store.commit(MutationNames.AddObservation, makeObservation(args))

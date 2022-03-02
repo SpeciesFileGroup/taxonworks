@@ -26,7 +26,6 @@
 </template>
 
 <script>
-import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 import { ActionNames } from '../../store/actions/actions'
 import UnitSelector from '../UnitSelector/UnitSelector.vue'
