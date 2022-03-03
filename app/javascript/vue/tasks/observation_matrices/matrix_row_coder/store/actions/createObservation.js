@@ -36,7 +36,15 @@ export default function ({ commit, state }, args) {
       })
 
       commit(MutationNames.SetDescriptorSavedOnce, args.descriptorId)
-      if (isValidResponseData(responseData)) { commit(MutationNames.SetObservationId, makeObservationIdArgs(responseData.id, responseData.global_id)) }
+      if (isValidResponseData(responseData)) {
+        commit(MutationNames.SetObservationId, makeObservationIdArgs(responseData.id, responseData.global_id))
+        commit(MutationNames.SetObservation, {
+          ...observation,
+          id: responseData.id,
+          global_id: responseData.global_id,
+          isUnsaved: false
+        })
+      }
       return true
     }, _ => {
       commit(MutationNames.SetDescriptorSaving, {

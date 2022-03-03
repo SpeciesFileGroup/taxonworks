@@ -1,3 +1,4 @@
+import addObservation from './addObservation'
 import setDescription from './setDescription'
 import setDescriptors from './setDescriptors'
 import setDescriptorUnsaved from './setDescriptorUnsaved'
@@ -26,8 +27,10 @@ import setObservationId from './setObservationId'
 import setMatrixRow from './setMatrixRow'
 import resetState from './resetState'
 import setUnits from './setUnits'
+import removeObservation from '../mutations/removeObservation'
 
 export const MutationNames = {
+  AddObservation: 'addObservation',
   SetDescription: 'setDescription',
   SetDescriptors: 'setDescriptors',
   SetDescriptorUnsaved: 'setDescriptorUnsaved',
@@ -55,10 +58,12 @@ export const MutationNames = {
   SetDescriptorSavedOnce: 'setDescriptorSavedOnce',
   SetObservationId: 'setObservationId',
   ResetState: 'resetState',
-  SetUnits: 'setUnits'
+  SetUnits: 'setUnits',
+  RemoveObservation: 'removeObservation'
 }
 
 export const MutationFunctions = {
+  [MutationNames.AddObservation]: addObservation,
   [MutationNames.ResetState]: resetState,
   [MutationNames.SetDescription]: setDescription,
   [MutationNames.SetDescriptors]: setDescriptors,
@@ -86,5 +91,6 @@ export const MutationFunctions = {
   [MutationNames.SetDescriptorSavedOnce]: setDescriptorSavedOnce,
   [MutationNames.SetObservationId]: setObservationId,
   [MutationNames.SetMatrixRow]: setMatrixRow,
-  [MutationNames.SetUnits]: setUnits
+  [MutationNames.SetUnits]: setUnits,
+  [MutationNames.RemoveObservation]: removeObservation
 }

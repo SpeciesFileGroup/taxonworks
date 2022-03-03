@@ -174,6 +174,10 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
     !!self.metadata.dig("import_settings", "restrict_to_existing_nomenclature")
   end
 
+  def require_type_material_success?
+    !!self.metadata.dig("import_settings", "require_type_material_success")
+  end
+
   private
 
   def get_catalog_number_namespace_mapping(institution_code, collection_code)

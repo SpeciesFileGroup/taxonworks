@@ -26,6 +26,8 @@ import NavigationMatrix from './MatrixRowCoder/Navigation/NavigationMatrix.vue'
 import { ObservationMatrix } from 'routes/endpoints'
 
 export default {
+  name: 'MatrixRowCoderApp',
+
   components: {
     MatrixRowCoder,
     NavigationMatrix,
@@ -58,7 +60,7 @@ export default {
     loadRow (rowId) {
       ObservationMatrix.row({ observation_matrix_row_id: rowId }).then(({ body }) => {
         this.matrixRow = body
-        this.rowId = rowId
+        this.rowId = Number(rowId)
         SetParam('/tasks/observation_matrices/row_coder/index', 'observation_matrix_row_id', rowId)
       })
     }

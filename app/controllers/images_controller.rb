@@ -1,6 +1,6 @@
 class ImagesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-  after_action -> { set_pagination_headers(:images) }, only: [:index, :api_index], if: :json_request?
+  after_action -> { set_pagination_headers(:images) }, only: [:index, :api_index, :api_image_inventory], if: :json_request?
 
   before_action :set_image, only: [:show, :edit, :update, :destroy, :rotate]
 
@@ -18,6 +18,16 @@ class ImagesController < ApplicationController
           .all.page(params[:page]).per(params[:per] || 50)
       }
     end
+  end
+
+  # GET /api/v1/otus/:id/inventory/images
+  #  - routed here to take advantage of Pagination
+  def api_image_inventory
+    @images = ::Queries::Image::Filter.new(
+      params.permit(
+        :otu_id, otu_scope: [])
+    ).all.page(params[:page]).per(params[:per])
+    render '/images/api/v1/images'
   end
 
   # GET /images/1
@@ -191,7 +201,8 @@ class ImagesController < ApplicationController
         keyword_id_or: [],
         otu_id: [],
         sled_image_id: [],
-        taxon_name_id: []
+        taxon_name_id: [],
+        otu_scope: [],
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
@@ -221,7 +232,8 @@ class ImagesController < ApplicationController
       keyword_id_or: [],
       otu_id: [],
       sled_image_id: [],
-      taxon_name_id: []
+      taxon_name_id: [],
+      otu_scope: [],
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 

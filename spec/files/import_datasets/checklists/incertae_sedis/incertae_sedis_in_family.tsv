@@ -1,0 +1,4 @@
+taxonID	parentNameUsageID	parentNameUsage	acceptedNameUsageID	acceptedNameUsage	scientificName	kingdom	class	order	family	genus	subgenus	specificEpithet	infraspecificEpithet	taxonRank	scientificNameAuthorship	taxonomicStatus	originalNameUsage	originalNameUsageID	namePublishedInYear	nomenclaturalCode
+429011			429011	Formicidae Latreille, 1809	Formicidae	Animalia	Insecta	Hymenoptera	Formicidae					Family	Latreille, 1809	valid		429011	1809	ICZN
+429013	429011	Formicidae Latreille, 1809	429013	Condylodon Lund, 1831	Condylodon	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Lund, 1831	incertae sedis		429013	1831	ICZN
+435158	429013	Condylodon Lund, 1831	435158	Condylodon audouini Lund, 1831	Condylodon audouini	Animalia	Insecta	Hymenoptera	Formicidae	Condylodon		audouini		Species	Lund, 1831	incertae sedis	Condylodon audouini Lund, 1831	435158	1831	ICZN

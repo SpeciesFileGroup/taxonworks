@@ -1,128 +1,65 @@
-import { AlternateValue } from './AlternateValue'
-import { AssertedDistribution } from './AssertedDistribution'
-import { Attribution } from './Attribution'
-import { BiocurationClassification } from './BiocurationClassification'
-import { BiologicalAssociation } from './BiologicalAssociation'
-import { BiologicalRelationship } from './BiologicalRelationship'
-import { Citation } from './Citation'
-import { CitationTopic } from './CitationTopic'
-import { CollectingEvent } from './CollectingEvents'
-import { CollectionObject } from './CollectionObject'
-import { Combination } from './Combination'
-import { CommonName } from './CommonName'
-import { Confidence } from './Confidence'
-import { Container } from './Container'
-import { ContainerItem } from './ContainerItem'
-import { Content } from './Content'
-import { ControlledVocabularyTerm } from './ControlledVocabularyTerm'
-import { DataAttribute } from './DataAttribute'
-import { Depiction } from './Depiction'
-import { Descriptor } from './Descriptor'
-import { Document } from './Document'
-import { Documentation } from './Documentation'
-import { Download } from './Download'
-import { DwcOcurrence } from './DwcOcurrence'
-import { Extract } from './Extract'
-import { GeographicArea } from './GeographicArea'
-import { Georeference } from './Georeference'
-import { Identifier } from './Identifier'
-import { Image } from './Image'
-import { Label } from './Label'
-import { Language } from './Language'
-import { Loan } from './Loan'
-import { LoanItem } from './LoanItem'
-import { Namespace } from './Namespace'
-import { Observation } from './Observation'
-import { ObservationMatrix } from './ObservationMatrix'
-import { ObservationMatrixColumn } from './ObservationMatrixColumn'
-import { ObservationMatrixColumnItem } from './ObservationMatrixColumnItem'
-import { ObservationMatrixRow } from './ObservationMatrixRow'
-import { ObservationMatrixRowItem } from './ObservationMatrixRowItem'
-import { Otu } from './Otu'
-import { OriginRelationship } from './OriginRelationship'
-import { People } from './People'
-import { PinboardItem } from './PinboardItem'
-import { PreparationType } from './PreparationType'
-import { Project } from './Project'
-import { ProjectMember } from './ProjectMember'
-import { ProjectSource } from './ProjectSource'
-import { ProtocolRelationship } from './ProtocolRelationship'
-import { Repository } from './Repository'
-import { Serial } from './Serial'
-import { SoftValidation } from './SoftValidation'
-import { Source } from './Source'
-import { SqedDepiction } from './SqedDepiction'
-import { Tag } from './Tag'
-import { TaxonDetermination } from './TaxonDetermination'
-import { TaxonName } from './TaxonName'
-import { TaxonNameClassification } from './TaxonNameClassifications'
-import { TaxonNameRelationship } from './TaxonNameRelationships'
-import { Topic } from './Topic'
-import { TypeMaterial } from './TypeMaterial'
-import { User } from './User'
+export { AlternateValue } from './AlternateValue'
+export { AssertedDistribution } from './AssertedDistribution'
+export { Attribution } from './Attribution'
+export { BiocurationClassification } from './BiocurationClassification'
+export { BiologicalAssociation } from './BiologicalAssociation'
+export { BiologicalRelationship } from './BiologicalRelationship'
+export { CharacterState } from './CharacterState'
+export { Citation } from './Citation'
+export { CitationTopic } from './CitationTopic'
+export { CollectingEvent } from './CollectingEvents'
+export { CollectionObject } from './CollectionObject'
+export { Combination } from './Combination'
+export { CommonName } from './CommonName'
+export { Confidence } from './Confidence'
+export { Container } from './Container'
+export { ContainerItem } from './ContainerItem'
+export { Content } from './Content'
+export { ControlledVocabularyTerm } from './ControlledVocabularyTerm'
+export { DataAttribute } from './DataAttribute'
+export { Depiction } from './Depiction'
+export { Descriptor } from './Descriptor'
+export { Document } from './Document'
+export { Documentation } from './Documentation'
+export { Download } from './Download'
+export { DwcOcurrence } from './DwcOcurrence'
+export { Extract } from './Extract'
+export { GeographicArea } from './GeographicArea'
+export { Georeference } from './Georeference'
+export { Identifier } from './Identifier'
+export { Image } from './Image'
+export { Label } from './Label'
+export { Language } from './Language'
+export { Loan } from './Loan'
+export { LoanItem } from './LoanItem'
+export { Namespace } from './Namespace'
+export { Observation } from './Observation'
+export { ObservationMatrix } from './ObservationMatrix'
+export { ObservationMatrixColumn } from './ObservationMatrixColumn'
+export { ObservationMatrixColumnItem } from './ObservationMatrixColumnItem'
+export { ObservationMatrixRow } from './ObservationMatrixRow'
+export { ObservationMatrixRowItem } from './ObservationMatrixRowItem'
+export { Otu } from './Otu'
+export { OriginRelationship } from './OriginRelationship'
+export { People } from './People'
+export { PinboardItem } from './PinboardItem'
+export { PreparationType } from './PreparationType'
+export { Project } from './Project'
+export { ProjectMember } from './ProjectMember'
+export { ProjectSource } from './ProjectSource'
+export { ProtocolRelationship } from './ProtocolRelationship'
+export { Repository } from './Repository'
+export { Serial } from './Serial'
+export { SoftValidation } from './SoftValidation'
+export { Source } from './Source'
+export { SqedDepiction } from './SqedDepiction'
+export { Tag } from './Tag'
+export { TaxonDetermination } from './TaxonDetermination'
+export { TaxonName } from './TaxonName'
+export { TaxonNameClassification } from './TaxonNameClassifications'
+export { TaxonNameRelationship } from './TaxonNameRelationships'
+export { Topic } from './Topic'
+export { TypeMaterial } from './TypeMaterial'
+export { User } from './User'
 export { Role } from './Role'
-
-export {
-  AlternateValue,
-  AssertedDistribution,
-  Attribution,
-  BiocurationClassification,
-  BiologicalAssociation,
-  BiologicalRelationship,
-  Citation,
-  CitationTopic,
-  CollectingEvent,
-  CollectionObject,
-  Combination,
-  CommonName,
-  Confidence,
-  Container,
-  ContainerItem,
-  Content,
-  ControlledVocabularyTerm,
-  DataAttribute,
-  Depiction,
-  Descriptor,
-  Document,
-  Documentation,
-  Download,
-  DwcOcurrence,
-  Extract,
-  GeographicArea,
-  Georeference,
-  Identifier,
-  Image,
-  Label,
-  Language,
-  Loan,
-  LoanItem,
-  Namespace,
-  Observation,
-  ObservationMatrix,
-  ObservationMatrixColumn,
-  ObservationMatrixColumnItem,
-  ObservationMatrixRow,
-  ObservationMatrixRowItem,
-  Otu,
-  OriginRelationship,
-  People,
-  PinboardItem,
-  PreparationType,
-  Project,
-  ProjectMember,
-  ProjectSource,
-  ProtocolRelationship,
-  Repository,
-  Serial,
-  SoftValidation,
-  Source,
-  SqedDepiction,
-  Tag,
-  TaxonDetermination,
-  TaxonName,
-  TaxonNameClassification,
-  TaxonNameRelationship,
-  Topic,
-  TypeMaterial,
-  User
-}
+export { Protocol } from './Protocol'

@@ -2,11 +2,16 @@
   <div class="qualitative-descriptor">
     <summary-view
       :index="index"
-      :descriptor="descriptor">
+      :descriptor="descriptor"
+      :observations="observations"
+      is-qualitative
+    >
       <ul>
         <li
           class="horizontal-left-content qualitative-descriptor__descriptor-li"
-          v-for="(characterState, index) in descriptor.characterStates">
+          v-for="characterState in descriptor.characterStates"
+          :key="characterState.id"
+        >
           <label>
             <input
               type="checkbox"

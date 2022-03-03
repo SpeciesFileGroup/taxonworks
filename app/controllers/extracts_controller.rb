@@ -2,6 +2,7 @@ class ExtractsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_extract, only: [:show, :edit, :update, :destroy]
+  after_action -> { set_pagination_headers(:extracts) }, only: [:index], if: :json_request?
 
   # GET /extracts
   # GET /extracts.json
@@ -12,9 +13,9 @@ class ExtractsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @extracts = Queries::Extract::Filter.
-        new(filter_params).all.where(project_id: sessions_current_project_id).
-        page(params[:page]).per(params[:per] || 500)
+        @extracts = Queries::Extract::Filter
+          .new(filter_params).all.where(project_id: sessions_current_project_id)
+          .page(params[:page]).per(params[:per] || 500)
       }
       end
   end
@@ -107,7 +108,23 @@ class ExtractsController < ApplicationController
         :identifier_start,
         :identifier_type,
         :recent,
+        :otu_id,
+        :collection_object_id,
         :repository_id,
+        :extract_start_date_range,
+        :extract_end_date_range,
+        :ancestor_id,
+        :sequences,
+        :extract_origin,
+        :verbatim_anatomical_origin,
+        :exact_verbatim_anatomical_origin,
+        :protocol_id,
+        collection_object_id: [],
+        otu_id: [],
+        protocol_id_and: [],
+        protocol_id_or: [],
+        keyword_id_and: [],
+        keyword_id_or: [],
         repository_id: [],
       )
     end

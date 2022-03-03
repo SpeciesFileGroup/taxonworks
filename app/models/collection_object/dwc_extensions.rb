@@ -21,7 +21,7 @@ module CollectionObject::DwcExtensions
       eventDate: :dwc_event_date,
       eventTime: :dwc_event_time,
       year: :dwc_year,
-      month: :dwc_day,
+      month: :dwc_month,
       day: :dwc_day,
       startDayOfYear: :dwc_start_day_of_year,
       endDayOfYear: :dwc_end_day_of_year,

@@ -34,21 +34,30 @@ import { GetterNames } from '../../../store/getters/getters'
 import { MutationNames } from '../../../store/mutations/mutations'
 
 export default {
-  mixins: [SingleObservationDescriptor],
   name: 'FreeTextDescriptor',
-  props: ['index'],
-  computed: {
-    isPresent () {
-      return this.$store.getters[GetterNames.GetPresenceFor](this.$props.descriptor.id)
-    },
-    freeTextValue () {
-      return this.$store.getters[GetterNames.GetFreeTextValueFor](this.$props.descriptor.id)
+
+  mixins: [SingleObservationDescriptor],
+
+  props: {
+    index: {
+      type: Number,
+      required: true
     }
   },
+
+  computed: {
+    isPresent () {
+      return this.$store.getters[GetterNames.GetPresenceFor](this.descriptor.id)
+    },
+    freeTextValue () {
+      return this.$store.getters[GetterNames.GetFreeTextValueFor](this.descriptor.id)
+    }
+  },
+
   methods: {
     updateFreeTextValue (event) {
       this.$store.commit(MutationNames.SetFreeTextValue, {
-        descriptorId: this.$props.descriptor.id,
+        descriptorId: this.descriptor.id,
         description: event.target.value
       })
     }
