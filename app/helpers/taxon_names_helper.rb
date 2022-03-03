@@ -34,11 +34,6 @@ module TaxonNamesHelper
     taxon_name_label(taxon_name)
   end
 
-  def taxon_name_label(taxon_name)
-    return nil if taxon_name.nil?
-    [taxon_name.cached, taxon_name.cached_author_year].compact.join(' ')
-  end
-
   def taxon_name_rank_tag(taxon_name, css_class = [:feedback, 'feedback-info', 'feedback-thin'] )
     return nil if taxon_name.nil?
     content_tag(:span, taxon_name.rank || 'Combination', class: css_class)
