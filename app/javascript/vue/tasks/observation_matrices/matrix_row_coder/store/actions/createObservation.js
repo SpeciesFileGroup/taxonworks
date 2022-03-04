@@ -100,7 +100,10 @@ export default function ({ commit, state }, args) {
       descriptor_id: args.descriptorId,
       observation_object_global_id: state.taxonId,
       global_id: undefined,
-      type: observation.type
+      type: observation.type,
+      day_made: observation.day,
+      month_made: observation.month,
+      year_made: observation.year
     }
   }
 };

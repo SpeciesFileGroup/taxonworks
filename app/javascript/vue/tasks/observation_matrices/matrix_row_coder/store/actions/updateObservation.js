@@ -50,13 +50,19 @@ function isNotUpdatable (componentName) {
 }
 
 function makePayload (observation) {
+  const payload = {
+    day_made: observation.day,
+    month_made: observation.month,
+    year_made: observation.year
+  }
+
   if (observation.type === ObservationTypes.Continuous) {
-    return {
+    Object.assign(payload, {
       continuous_value: observation.continuousValue,
       continuous_unit: observation.continuousUnit
-    }
+    })
   } else if (observation.type === ObservationTypes.Sample) {
-    return {
+    Object.assign(payload, {
       sample_n: observation.n,
       sample_min: observation.min,
       sample_max: observation.max,
@@ -65,14 +71,14 @@ function makePayload (observation) {
       sample_mean: observation.mean,
       sample_standard_deviation: observation.standardDeviation,
       sample_standard_error: observation.standardError
-    }
+    })
   } else if (observation.type === ObservationTypes.Presence) {
-    return {
-      presence: observation.isChecked
-    }
+    Object.assign(payload, { presence: observation.isChecked })
   } else if (observation.type === ObservationTypes.FreeText) {
-    return { description: observation.description }
+    Object.assign(payload, { description: observation.description })
   }
+
+  return payload
 }
 
 function getDescriptorTypeName (componentName) {

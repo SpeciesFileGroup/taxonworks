@@ -25,6 +25,9 @@ import setDescriptorSaving from './setDescriptorSaving'
 import setDescriptorSavedOnce from './setDescriptorSavedOnce'
 import setObservationId from './setObservationId'
 import setMatrixRow from './setMatrixRow'
+import setDayFor from './setDayFor'
+import setMonthFor from './setMonthFor'
+import setYearFor from './setYearFor'
 import resetState from './resetState'
 import setUnits from './setUnits'
 import removeObservation from '../mutations/removeObservation'
@@ -59,6 +62,9 @@ export const MutationNames = {
   SetObservationId: 'setObservationId',
   ResetState: 'resetState',
   SetUnits: 'setUnits',
+  SetDayFor: 'setDayFor',
+  SetMonthFor: 'setMonthFor',
+  SetYearFor: 'setYearFor',
   RemoveObservation: 'removeObservation'
 }
 
@@ -92,5 +98,8 @@ export const MutationFunctions = {
   [MutationNames.SetObservationId]: setObservationId,
   [MutationNames.SetMatrixRow]: setMatrixRow,
   [MutationNames.SetUnits]: setUnits,
+  [MutationNames.SetDayFor]: setDayFor,
+  [MutationNames.SetMonthFor]: setMonthFor,
+  [MutationNames.SetYearFor]: setYearFor,
   [MutationNames.RemoveObservation]: removeObservation
 }

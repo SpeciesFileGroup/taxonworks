@@ -6,6 +6,10 @@ export default function (observationData) {
     type: observationData.type,
     global_id: observationData.global_id,
     depictions: [],
-    isUnsaved: false
+    isUnsaved: false,
+    day: observationData.day_made,
+    month: observationData.month_made,
+    year: observationData.year_made,
+    time: observationData.time_made
   }
-};
+}

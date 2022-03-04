@@ -142,6 +142,10 @@ class ObservationsController < ApplicationController
       :month_made,
       :day_made,
       :time_made,
+      :day_made,
+      :month_made,
+      :year_made,
+      :time_made,
       images_attributes: [:id, :_destroy, :image_file, :rotate],
       depictions_attributes: [
         :id,
