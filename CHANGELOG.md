@@ -6,7 +6,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+- OTUs and collection objects batchloaders failing to initialize due to Ruby syntax error
 
 ## [0.23.1] - 2022-03-01
 
