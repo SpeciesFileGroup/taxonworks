@@ -1,5 +1,18 @@
 <template>
+  <v-btn
+    v-if="!showDatafields"
+    color="primary"
+    circle
+    @click="showDatafields = true"
+  >
+    <v-icon
+      color="white"
+      name="clock"
+      small
+    />
+  </v-btn>
   <DateFields
+    v-if="showDatafields"
     :inline="inline"
     v-model:day="day"
     v-model:month="month"
@@ -11,9 +24,15 @@
 
 import { MutationNames } from '../../store/mutations/mutations'
 import DateFields from 'components/ui/Date/DateFields.vue'
+import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
 
 export default {
-  components: { DateFields },
+  components: {
+    DateFields,
+    VBtn,
+    VIcon
+  },
 
   props: {
     descriptor: {
@@ -31,6 +50,10 @@ export default {
       default: false
     }
   },
+
+  data: () => ({
+    showDatafields: false
+  }),
 
   computed: {
     day: {
