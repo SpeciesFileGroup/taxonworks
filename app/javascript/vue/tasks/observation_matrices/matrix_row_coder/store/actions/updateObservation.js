@@ -53,7 +53,8 @@ function makePayload (observation) {
   const payload = {
     day_made: observation.day,
     month_made: observation.month,
-    year_made: observation.year
+    year_made: observation.year,
+    time_made: observation.time
   }
 
   if (observation.type === ObservationTypes.Continuous) {

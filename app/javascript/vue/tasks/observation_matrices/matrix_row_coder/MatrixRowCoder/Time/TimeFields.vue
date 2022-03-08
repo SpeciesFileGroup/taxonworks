@@ -11,13 +11,19 @@
       small
     />
   </v-btn>
-  <DateFields
-    v-if="showDatafields"
-    :inline="inline"
-    v-model:day="day"
-    v-model:month="month"
-    v-model:year="year"
-  />
+  <template v-if="showDatafields">
+    <DateFields
+      :inline="inline"
+      v-model:day="day"
+      v-model:month="month"
+      v-model:year="year"
+    />
+    <label>Time</label>
+    <input
+      type="time"
+      v-model="time"
+    >
+  </template>
 </template>
 
 <script>
@@ -91,6 +97,19 @@ export default {
           descriptorId: this.descriptor.id,
           observationId: this.observation.id || this.observation.internalId,
           year
+        })
+      }
+    },
+
+    time: {
+      get () {
+        return this.observation.time
+      },
+      set (time) {
+        this.$store.commit(MutationNames.SetTimeFor, {
+          descriptorId: this.descriptor.id,
+          observationId: this.observation.id || this.observation.internalId,
+          time
         })
       }
     }

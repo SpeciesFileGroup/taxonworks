@@ -28,6 +28,7 @@ import setMatrixRow from './setMatrixRow'
 import setDayFor from './setDayFor'
 import setMonthFor from './setMonthFor'
 import setYearFor from './setYearFor'
+import setTimeFor from './setTimeFor'
 import resetState from './resetState'
 import setUnits from './setUnits'
 import removeObservation from '../mutations/removeObservation'
@@ -65,6 +66,7 @@ export const MutationNames = {
   SetDayFor: 'setDayFor',
   SetMonthFor: 'setMonthFor',
   SetYearFor: 'setYearFor',
+  SetTimeFor: 'setTimeFor',
   RemoveObservation: 'removeObservation'
 }
 
@@ -101,5 +103,6 @@ export const MutationFunctions = {
   [MutationNames.SetDayFor]: setDayFor,
   [MutationNames.SetMonthFor]: setMonthFor,
   [MutationNames.SetYearFor]: setYearFor,
+  [MutationNames.SetTimeFor]: setTimeFor,
   [MutationNames.RemoveObservation]: removeObservation
 }
