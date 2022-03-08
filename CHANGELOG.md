@@ -6,8 +6,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Changed
+- Replace autocompletes by smart selectors in Common Name form on OTU radial [#2840]
+
 ### Fixed
 - OTUs and collection objects batchloaders failing to initialize due to Ruby syntax error
+
+[#2840]: https://github.com/SpeciesFileGroup/taxonworks/pull/2840
 
 ## [0.23.1] - 2022-03-01
 
