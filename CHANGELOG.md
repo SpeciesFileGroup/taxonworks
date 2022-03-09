@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - OTUs and collection objects batchloaders failing to initialize due to Ruby syntax error
+- Sqed depictions crash on cache update when no processing results are available
 
 [#2840]: https://github.com/SpeciesFileGroup/taxonworks/pull/2840
 
