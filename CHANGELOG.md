@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Replace autocompletes by smart selectors in Common Name form on OTU radial [#2840]
+- Updated Ruby gems
 
 ### Fixed
 - OTUs and collection objects batchloaders failing to initialize due to Ruby syntax error
