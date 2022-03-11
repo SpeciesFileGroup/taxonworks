@@ -40,7 +40,7 @@
               @create="saveWTK"/>
             <manually-component
               class="margin-small-right"
-              @create="saveGeoreference"/>
+              @create="saveGeoreference($event, GEOREFERENCE_POINT)"/>
             <geolocate-component
               class="margin-small-right"
               @create="createGEOLocate"/>
@@ -88,7 +88,7 @@
               @create="saveWTK"/>
             <manually-component
               class="margin-small-right"
-              @create="saveGeoreference"/>
+              @create="saveGeoreference($event, GEOREFERENCE_POINT)"/>
             <geolocate-component
               class="margin-small-right"
               @create="createGEOLocate"/>
@@ -131,7 +131,8 @@ import { Georeference } from 'routes/endpoints'
 import {
   GEOREFERENCE_GEOLOCATE,
   GEOREFERENCE_LEAFLET,
-  GEOREFERENCE_VERBATIM
+  GEOREFERENCE_VERBATIM,
+  GEOREFERENCE_POINT
 } from 'constants/index.js'
 import { truncateDecimal } from 'helpers/math.js'
 import { addToArray } from 'helpers/arrays.js'
@@ -210,6 +211,10 @@ export default {
 
     count () {
       return this.georeferences.length
+    },
+
+    GEOREFERENCE_POINT () {
+      return GEOREFERENCE_POINT
     }
   },
 
@@ -286,12 +291,12 @@ export default {
       })
     },
 
-    saveGeoreference (shape) {
+    saveGeoreference (shape, type = GEOREFERENCE_LEAFLET) {
       const georeference = {
         geographic_item_attributes: { shape: JSON.stringify(shape) },
         error_radius: shape.properties?.radius,
         collecting_event_id: this.collectingEvent.id,
-        type: GEOREFERENCE_LEAFLET,
+        type,
         ...this.date
       }
 
@@ -306,13 +311,13 @@ export default {
       })
     },
 
-    updateGeoreference (shape) {
+    updateGeoreference (shape, type = GEOREFERENCE_LEAFLET) {
       const georeference = {
         id: shape.properties.georeference.id,
         error_radius: shape.properties?.radius,
         geographic_item_attributes: { shape: JSON.stringify(shape) },
         collecting_event_id: this.collectingEvent.id,
-        type: GEOREFERENCE_LEAFLET
+        type
       }
 
       this.isLoading = true

@@ -14,8 +14,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 - OTUs and collection objects batchloaders failing to initialize due to Ruby syntax error
 - Sqed depictions crash on cache update when no processing results are available
+- Incorrect georeference type for points [#2843]
 
 [#2840]: https://github.com/SpeciesFileGroup/taxonworks/pull/2840
+[#2843]: https://github.com/SpeciesFileGroup/taxonworks/pull/2843
 
 ## [0.23.1] - 2022-03-01
 
