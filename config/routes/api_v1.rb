@@ -41,6 +41,7 @@ namespace :api, defaults: {format: :json} do
     defaults authenticate_user_or_project: true do
       get '/otus', to: '/otus#api_index'
       get '/otus/autocomplete', to: '/otus#api_autocomplete'
+      get '/otus/:id/inventory/distribution', to: '/otus#api_distribution', as: :api_distribution
       get '/otus/:id/inventory/descendants', to: '/otus#api_descendants', as: :api_descendants
       get '/otus/:otu_id/inventory/images', to: '/images#api_image_inventory', as: :api_images
       get '/otus/:id', to: '/otus#api_show'

@@ -260,7 +260,7 @@ class Source < ApplicationRecord
     end
   end
 
-    # @return [String] A string that represents the authors last_names and year (no suffix)
+  # @return [String] A string that represents the authors last_names and year (no suffix)
   def author_year
     return 'not yet calculated' if new_record?
     [cached_author_string, year].compact.join(', ')
@@ -295,6 +295,7 @@ class Source < ApplicationRecord
 
   # @param used_on [String] a model name 
   # @return [Scope]
+  #    the max 10 most recently used (1 week, could parameterize) TaxonName, as used 
   def self.used_recently(user_id, project_id, used_on = 'TaxonName')
    Source.select('sources.id').
      joins(:citations)

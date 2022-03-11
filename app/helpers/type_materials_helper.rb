@@ -15,6 +15,16 @@ module TypeMaterialsHelper
     [type_material.type_type, full_original_taxon_name_label(type_material.protonym)].compact.join(' of ')
   end
 
+  def type_material_to_geo_json_feature(type_material)
+    return nil if type_material.nil?
+    a = collection_object_to_geo_json_feature(type_material.collection_object)
+    a['properties']['target'] = {
+      'type' => 'TypeMaterial',
+      'id' => type_material.id
+    }
+    a
+  end
+
   def type_materials_search_form
     render('/type_materials/quick_search_form')
   end

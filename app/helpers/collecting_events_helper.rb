@@ -24,7 +24,7 @@ module CollectingEventsHelper
       collecting_event_dates_tag(collecting_event),
       collecting_event_collectors_tag(collecting_event),
       collecting_event_verbatim_coordinates_tag(collecting_event),
-     # collecting_event_coordinates_tag(collecting_event), # this is very slow
+      # collecting_event_coordinates_tag(collecting_event), # this is very slow
       collecting_event_method_habitat_tag(collecting_event),
       collecting_event_uses_tag(collecting_event)
     ].compact.join(join_string).html_safe
@@ -202,7 +202,40 @@ module CollectingEventsHelper
         class:'navigation-item')
   end
 
-  def collecting_event_next_by_start_date(collecting_event)
+  # @return [GeoJSON::Feature]
+  #   the first geographic item of the first georeference on this collecting event
+  def collecting_event_to_geo_json_feature(collecting_event)
+    # !! avoid loading the whole GeographicItem, just grab the bits we need:
+    # self.georeferences(true)  # do this to
+    collecting_event_to_simple_json_feature(collecting_event).merge(
+      {
+        'properties' => {
+          'collecting_event' => {
+            'id'  => collecting_event.id,
+            'tag' => "Collecting event #{collecting_event.id}."}
+        }
+      })
+  end
+
+  # TODO: parametrize to include gazetteer
+  #   i.e. geographic_areas_geographic_items.where( gaz = 'some string')
+  # !! avoid loading the whole GeographicItem, just grab the bits we need.
+  def collecting_event_to_simple_json_feature(collecting_event)
+    base = {
+      'type' => 'Feature',
+      'properties' => {
+        'target' => {
+          'type' => 'CollectingEvent',
+          'id' => collecting_event.id },
+          'label' => label_for_collecting_event(collecting_event) }
+    }
+
+    if geographic_items.any?
+      geo_item_id = geographic_items.select(:id).first.id
+      query = "ST_AsGeoJSON(#{GeographicItem::GEOMETRY_SQL.to_sql}::geometry) geo_json"
+      base['geometry'] = JSON.parse(GeographicItem.select(query).find(geo_item_id).geo_json)
+    end
+    base
   end
 
 

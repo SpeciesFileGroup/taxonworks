@@ -196,4 +196,16 @@ module CollectionObjectsHelper
     c.to_svg
   end
 
+  def collection_object_to_geo_json_feature(collection_object)
+    return nil if collection_object.nil?
+    a = collecting_event_to_geo_json_feature(collection_object.collecting_event)
+
+    a['properties']['target'] = {
+      'type' => 'CollectionObject',
+      'id' => collection_object.id
+    }
+    a
+
+  end
+
 end

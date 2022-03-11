@@ -1,7 +1,7 @@
 class OtusController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_otu, only: [:show, :edit, :update, :destroy, :collection_objects, :navigation, :breadcrumbs, :timeline, :coordinate, :api_show, :api_descendants]
+  before_action :set_otu, only: [:show, :edit, :update, :destroy, :collection_objects, :navigation, :breadcrumbs, :timeline, :coordinate, :api_show, :api_descendants, :api_distribution]
   after_action -> { set_pagination_headers(:otus) }, only: [:index, :api_index], if: :json_request?
 
   # GET /otus
@@ -264,9 +264,14 @@ class OtusController < ApplicationController
     render '/otus/api/v1/autocomplete'
   end
 
-  # GET /api/v1/otus/:id
+  # GET /api/v1/otus/:id/inventory/descendants
   def api_descendants
     render '/otus/api/v1/descendants'
+  end
+
+  # GET /api/v1/otus/:id/inventory/distribution
+  def api_distribution
+    render '/otus/api/v1/distribution'
   end
 
   private

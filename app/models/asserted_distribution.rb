@@ -83,24 +83,26 @@ class AssertedDistribution < ApplicationRecord
   # @return [AssertedDistribution]
   #   used to also stub an #origin_citation, as required
   def self.stub(defaults: {})
-    a                 = AssertedDistribution.new(
-      otu_id:                     defaults[:otu_id],
-      origin_citation_attributes: {source_id: defaults[:source_id]}
-    )
+    a = AssertedDistribution.new(
+      otu_id: defaults[:otu_id],
+      origin_citation_attributes: {source_id: defaults[:source_id]})
     a.origin_citation = Citation.new if defaults[:source_id].blank?
     a
   end
 
+  # Moved to helper
+  #
   # rubocop:disable Style/StringHashKeys
   # @return [Hash] GeoJSON feature
-  def to_geo_json_feature
-    retval = {
-      'type'       => 'Feature',
-      'geometry'   => RGeo::GeoJSON.encode(self.geographic_area.geographic_items.first.geo_object),
-      'properties' => {'asserted_distribution' => {'id' => self.id}}
-    }
-    retval
-  end
+# def to_geo_json_feature
+#   return {
+#     'type' => 'Feature',
+#     'geometry' => RGeo::GeoJSON.encode(self.geographic_area.geographic_items.first.geo_object),
+#     'properties' => {
+#       'from' => {'type' => 'AssertedDistribution', 'id' => id }
+#       'label' => 
+#   }
+# end
 
   # rubocop:enable Style/StringHashKeys
 

@@ -40,7 +40,9 @@ module SourcesHelper
   end
 
   def source_author_year_tag(source)
-    res = content_tag(:span, 'Author, year not yet provided for source.', class: [:feedback, 'feedback-thin', 'feedback-warning'])
+    return nil if source.nil?
+    
+    res = tag.span( 'Author, year not yet provided for source.', class: [:feedback, 'feedback-thin', 'feedback-warning'])
 
     case source&.type
     when 'Source::Human'

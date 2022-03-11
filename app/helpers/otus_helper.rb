@@ -43,7 +43,7 @@ module OtusHelper
   def otus_link_list_tag(otus)
     otus.collect { |o| link_to(o.name, o) }.join(',')
   end
- 
+
   # Stub a smart link to browse OTUs
   # @param object [an instance of TaxonName or Otu]
   #   if TaxonName is provided JS UI will disambiguate if more options are possible
@@ -94,9 +94,65 @@ module OtusHelper
         .distinct
         .reorder('taxon_name_hierarchies.generations DESC, taxon_names.cached_valid_taxon_name_id').each do |t|
           above.push [t.cached, t.otus.to_a] # TODO: to_a vs. pluck
-      end
+        end
     end
     above
+  end
+
+  # @return Hash
+  #   A GeoJSON collection of distribution data in x parts
+  #     need a `to_geo_json` for each object
+  #   
+  #      :asserted_distributions
+  #         with shape
+  #         without shapes
+  #      :collection_objects
+  #           with georeferences 
+  #           with GeographicAreas
+  #      :type material
+  #           with georeferences
+  #           with GeographicAreas
+  # TODO:
+  # 
+  #  * make properties universal
+  #    type: 'Model', 
+  #    id: id,
+  #    label: <label>
+  # * merge origin_otu_id: id to reference coordinate OTUs
+  #
+  def otu_distribution(otu)
+    return {} if otu.nil?
+    h = {
+      'type' => 'FeatureCollection',
+      'features' => [], 
+      'properties' => {
+        'target_otu_id' => otu.id,
+        'target_otu_label' => label_for_otu(otu)
+      }
+    }
+
+    Otu.coordinate_otus(otu.id).each do |o|
+      o.current_collection_objects.each do |c|
+        g = c.to_geo_json_feature
+        g.properties['otu_id'] = o.id
+        h['features'].push g
+      end
+
+      o.asserted_distributions.each do |a|
+        g = asserted_distribution_to_geo_json_feature(a)
+        g['properties']['otu_id'] = o.id
+
+        h['features'].push g
+      end
+
+      o.type_materials.each do |t|
+        g = type_material_to_geo_json_feature(t)
+        g.properties['otu_id'] = o.id
+
+        h['features'].push t.to_geo_json_feature
+      end
+    end
+    h
   end
 
 end

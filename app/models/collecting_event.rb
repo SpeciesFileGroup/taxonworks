@@ -571,7 +571,6 @@ class CollectingEvent < ApplicationRecord
     false
   end
 
-
   # @return [GeographicItem, nil]
   #    a GeographicItem instance representing a translation of the verbatim values, not saved
   def build_verbatim_geographic_item
@@ -599,6 +598,19 @@ class CollectingEvent < ApplicationRecord
   #  returns the geographic_item corresponding to the geographic area, if provided
   def geographic_area_default_geographic_item
     try(:geographic_area).try(:default_geographic_item)
+  end
+
+  # @return [ [GeographicItem, :origin ], [nil, nil] ]
+  #   a shape to represent the CE, 
+  #   prioritize georeference over geographic_area
+  def geo_json_geographic_item
+    if a = preferred_georeference 
+      return a, :georeference 
+    elsif b = geographic_area_default_geographic_item
+      return b, :geographic_area
+    else
+      return nil, nil
+    end
   end
 
   # @param [GeographicItem]
@@ -854,55 +866,6 @@ class CollectingEvent < ApplicationRecord
   end
 
   alias county_name county_or_equivalent_name
-
-  # @return [GeoJSON::Feature]
-  #   the first geographic item of the first georeference on this collecting event
-  def to_geo_json_feature
-    # !! avoid loading the whole geographic item, just grab the bits we need:
-    # self.georeferences(true)  # do this to
-    to_simple_json_feature.merge({
-      'properties' => {
-        'collecting_event' => {
-          'id'  => self.id,
-          'tag' => "Collecting event #{self.id}."
-        }
-      }
-    })
-  end
-
-  # TODO: parametrize to include gazetteer
-  #   i.e. geographic_areas_geogrpahic_items.where( gaz = 'some string')
-  def to_simple_json_feature
-    base = {
-      'type'       => 'Feature',
-      'properties' => {}
-    }
-
-    if geographic_items.any?
-      geo_item_id      = geographic_items.select(:id).first.id
-      query = "ST_AsGeoJSON(#{GeographicItem::GEOMETRY_SQL.to_sql}::geometry) geo_json"
-      base['geometry'] = JSON.parse(GeographicItem.select(query).find(geo_item_id).geo_json)
-    end
-    base
-  end
-
-  # rubocop:enable Style/StringHashKeys
-
-  # TODO: move to helper
-  # @return [CollectingEvent]
-  #   return the next collecting event without a georeference in this collecting events project sort order
-  #   1.  verbatim_locality
-  #   2.  geography_id
-  #   3.  start_date_year
-  #   4.  updated_on
-  #   5.  id
-  def next_without_georeference
-    CollectingEvent.not_including(self).
-      includes(:georeferences).
-      where(project_id: self.project_id, georeferences: {collecting_event_id: nil}).
-      order(:verbatim_locality, :geographic_area_id, :start_date_year, :updated_at, :id).
-      first
-  end
 
   # @param [Float] delta_z, will be used to fill in the z coordinate of the point
   # @return [RGeo::Geographic::ProjectedPointImpl, nil]

@@ -44,7 +44,7 @@ module Otus::CatalogHelper
   # @return Hash
   #  { otu_id: 123,
   #    label: label_for_otu(),
-  #    otu_clones: [otu1.id, otu2.id],                   # OTus with the same taxon name AND `name`
+  #    otu_clones: [otu1.id, otu2.id],                   # OTUs with the same taxon name AND `name`
   #    similar_otus: { otu.id => label_for_otu(), ...},  # OTUs with the same taxon name, but different `name`
   #    nomenclatural_synonyms: [ full_original_taxon_name_label*, ...},
   #    descendants: [{ ... as above ...}]
