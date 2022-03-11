@@ -1,27 +1,35 @@
 <template>
-  <div class="horizontal-left-content">
-    <label>
-      Amount:
-      <input
-        type="number"
-        :value="continuousValue"
-        @input="updateContinuousValue"
-      >
-    </label>
-    <br>
-    <unit-selector v-model="continuousUnit" />
-    <template v-if="observation.id">
-      <radial-annotator :global-id="observation.global_id" />
-      <v-btn
-        color="destroy"
-        circle
-        @click="removeObservation">
-        <v-icon
-          x-small
-          name="trash"
-        />
-      </v-btn>
-    </template>
+  <div>
+    <div class="horizontal-left-content">
+      <label>
+        Amount:
+        <input
+          type="number"
+          :value="continuousValue"
+          @input="updateContinuousValue"
+        >
+      </label>
+      <unit-selector
+        class="margin-small-right"
+        v-model="continuousUnit" />
+      <TimeFields
+        inline
+        :descriptor="descriptor"
+        :observation="observation"
+      />
+      <template v-if="observation.id">
+        <radial-annotator :global-id="observation.global_id" />
+        <v-btn
+          color="destroy"
+          circle
+          @click="removeObservation">
+          <v-icon
+            x-small
+            name="trash"
+          />
+        </v-btn>
+      </template>
+    </div>
   </div>
 </template>
 
@@ -32,11 +40,13 @@ import UnitSelector from '../UnitSelector/UnitSelector.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
+import TimeFields from '../Time/TimeFields.vue'
 
 export default {
   components: {
     UnitSelector,
     RadialAnnotator,
+    TimeFields,
     VBtn,
     VIcon
   },

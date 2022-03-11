@@ -1,6 +1,6 @@
 <template>
   <div class="sample-descriptor">
-    <div class="horizontal-left-content">
+    <div class="horizontal-left-content margin-small-bottom">
       <label class="separate-right">
         Min:
         <input
@@ -43,7 +43,7 @@
       </template>
     </div>
 
-    <div class="separate-top">
+    <div class="margin-small-bottom">
       <label class="separate-right">
         Mean:
         <input
@@ -77,6 +77,13 @@
         >
       </label>
     </div>
+    <div>
+      <TimeFields
+        inline
+        :descriptor="descriptor"
+        :observation="observation"
+      />
+    </div>
   </div>
 </template>
 
@@ -89,6 +96,7 @@ import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import UnitSelector from '../UnitSelector/UnitSelector.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
+import TimeFields from '../Time/TimeFields.vue'
 
 export default {
   name: 'SampleDescriptorObservation',
@@ -96,6 +104,7 @@ export default {
   components: {
     RadialAnnotator,
     UnitSelector,
+    TimeFields,
     VBtn,
     VIcon
   },

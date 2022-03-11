@@ -24,6 +24,11 @@
           Remove
         </span>
       </div>
+      <TimeFields
+        v-if="observation"
+        :descriptor="descriptor"
+        :observation="observation"
+      />
     </summary-view>
   </div>
 </template>
@@ -32,9 +37,12 @@
 import SingleObservationDescriptor from '../SingleObservationDescriptor'
 import { GetterNames } from '../../../store/getters/getters'
 import { MutationNames } from '../../../store/mutations/mutations'
+import TimeFields from '../../Time/TimeFields.vue'
 
 export default {
   name: 'FreeTextDescriptor',
+
+  components: { TimeFields },
 
   mixins: [SingleObservationDescriptor],
 
