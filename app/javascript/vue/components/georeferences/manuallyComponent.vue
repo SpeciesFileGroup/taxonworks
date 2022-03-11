@@ -2,10 +2,10 @@
   <div>
     <button
       class="button normal-input button-default"
-      @click="openModal">Enter coordinates</button>
+      @click="isModalVisible = true">Enter coordinates</button>
     <modal-component
-      v-if="show"
-      @close="show = false">
+      v-if="isModalVisible"
+      @close="isModalVisible = false">
       <template #header>
         <h3>Create georeference</h3>
       </template>
@@ -25,7 +25,7 @@
         <div class="field label-above">
           <label>Range distance</label>
           <label
-            v-for="range in ranges"
+            v-for="range in RANGES"
             :key="range">
             <input
               type="radio"
@@ -49,56 +49,47 @@
   </div>
 </template>
 
-<script>
+<script setup>
 
 import ModalComponent from 'components/ui/Modal'
 import convertDMS from 'helpers/parseDMS.js'
+import { computed, ref, watch } from 'vue'
 
-export default {
-  components: { ModalComponent },
+const RANGES = [0, 10, 100, 1000, 10000]
 
-  computed: {
-    validateFields () {
-      return convertDMS(this.shape.lat) && convertDMS(this.shape.long)
+const emit = defineEmits(['create'])
+
+const validateFields = computed(() => convertDMS(shape.value.lat) && convertDMS(shape.value.long))
+const isModalVisible = ref(false)
+const shape = ref({})
+
+const createShape = () => {
+  const geoJson = {
+    type: 'Feature',
+    properties: { radius: shape.value.range || null },
+    geometry: {
+      type: 'Point',
+      coordinates: [convertDMS(shape.value.long), convertDMS(shape.value.lat)]
     }
-  },
+  }
 
-  data () {
-    return {
-      show: false,
-      ranges: [0, 10, 100, 1000, 10000],
-      shape: this.resetShape()
-    }
-  },
+  emit('create', geoJson)
+  isModalVisible.value = false
+}
 
-  methods: {
-    createShape () {
-      this.$emit('create', {
-        type: 'Feature',
-        properties: this.shape.range > 0 ? { radius: this.shape.range } : {},
-        geometry: {
-          type: 'Point',
-          coordinates: [convertDMS(this.shape.long), convertDMS(this.shape.lat)]
-        }
-      })
-      this.shape = this.resetShape()
-      this.show = false
-    },
-
-    resetShape () {
-      return {
+watch(
+  isModalVisible,
+  newVal => {
+    if (newVal) {
+      shape.value = {
         lat: undefined,
         long: undefined,
         range: 0
       }
-    },
-
-    openModal () {
-      this.show = true
-      this.shape = this.resetShape()
     }
   }
-}
+)
+
 </script>
 
 <style lang="scss" scoped>
