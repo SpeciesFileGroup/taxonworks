@@ -54,7 +54,10 @@ class TaxonNamesController < ApplicationController
   def update
     respond_to do |format|
       if @taxon_name.update(taxon_name_params)
+
+        # TODO: WHY?!
         @taxon_name.reload
+
         format.html { redirect_to url_for(@taxon_name.metamorphosize), notice: 'Taxon name was successfully updated.' }
         format.json { render :show, status: :ok, location: @taxon_name.metamorphosize }
       else

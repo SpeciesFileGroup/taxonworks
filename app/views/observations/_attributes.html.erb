@@ -7,7 +7,7 @@
 
 <p>
   <strong>Observation object:</strong>
-  <%= object_link( @observation ) %>
+  <%= object_link(@observation.observation_object) %> [<%= @observation.observation_object_type %>]
 </p>
 
 <p>
@@ -27,7 +27,7 @@
 
 <p>
   <strong>Time made:</strong>
-  <%= @observation.time_made %>
+  <%= @observation.time_made.to_formatted_s(:hour_minutes_seconds) %>
 </p>
 
 <% if @observation.type =~ /Qualitative/ -%>

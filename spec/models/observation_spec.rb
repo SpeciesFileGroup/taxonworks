@@ -19,6 +19,18 @@ RSpec.describe Observation, type: :model, group: :observation_matrix do
     end
   end
 
+  xspecify '#time_made 1' do
+    observation.time_made = '12:99:12'
+    observation.valid?
+    expect(observation.errors.include?(:time_made)).to be_truthy
+  end
+
+  xspecify '#time_made 2' do
+    observation.time_made = '12:00:12'
+    observation.valid?
+    expect(observation.errors.include?(:time_made)).to be_falsey
+  end
+
   specify '#observation_object_global_id=' do
     observation.observation_object_global_id = otu.to_global_id.to_s
     expect(observation.observation_object).to eq(otu) 

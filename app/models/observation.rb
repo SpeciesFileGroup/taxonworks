@@ -135,6 +135,8 @@ class Observation < ApplicationRecord
 
   ignore_whitespace_on(:description)
 
+  self.skip_time_zone_conversion_for_attributes = [:time_made]
+
   # String, not GlobalId
   attr_accessor :observation_object_global_id
 
@@ -151,6 +153,9 @@ class Observation < ApplicationRecord
   validates :year_made, date_year: { min_year: 1757, max_year: -> {Time.now.year} }
   validates :month_made, date_month: true
   validates :day_made, date_day: {year_sym: :year_made, month_sym: :month_made}, unless: -> {year_made.nil? || month_made.nil?}
+
+  # depends on timeliness 6.0, which is breaking something
+  # validates_time :time_made, allow_nil: true
 
   def qualitative?
     type == 'Observation::Qualitative'

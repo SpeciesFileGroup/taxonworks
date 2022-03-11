@@ -95,9 +95,8 @@
 
   <div class="field">
     <%= f.label :time_made %><br>
-    <%= f.text_field :time_made %>
+    <%= f.text_field :time_made, value: @observation.time_made&.to_formatted_s(:hour_minutes_seconds)  %>
   </div>
-
 
   <div class="actions">
     <%= f.submit %>
