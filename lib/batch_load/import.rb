@@ -28,7 +28,14 @@ module BatchLoad
     # An attempt was made to create new records
     attr_accessor :create_attempted
 
+    # TODO: used?
     attr_accessor :project, :user
+
+    # @return [Integer]
+    attr_accessor :project_id
+
+    # @return [Integer]
+    attr_accessor :user_id
 
     # The number of non-header rows in the file
     attr_accessor :total_lines
@@ -61,8 +68,8 @@ module BatchLoad
     def initialize(project_id: nil, user_id: nil, file: nil, process: true, import_level: :warn, user_header_map: {})
       @processed = false
       @import_level = import_level
-      @project_id = project_id
-      @user_id = user_id
+      @project_id = project_id&.to_i
+      @user_id = user_id&.to_i
       @file = file
 
       @user_header_map = user_header_map
@@ -90,28 +97,28 @@ module BatchLoad
       @file
     end
 
-    # @return [CSV, nil]
+    # @return [csv, nil]
     def csv
       begin
         @csv ||= CSV.parse(
-          @file.tempfile.read.force_encoding('utf-8'), # force encoding is likely a very bad idea 
+          @file.tempfile.read.force_encoding('utf-8'), # force encoding is likely a very bad idea, but instructinos say "utf-8"
           headers: true,
           header_converters: [:downcase,
                               lambda { |h| h.strip },
                               lambda { |h| user_map(h) }],
-          col_sep: "\t",
-          encoding: 'UTF-8',
-          skip_blanks: true)
+        col_sep: "\t",
+        encoding: 'utf-8',
+        skip_blanks: true)
 
-        #  rescue Encoding::UndefinedConversionError => e
+        #  rescue encoding::undefinedconversionerror => e
 
-      rescue ArgumentError => e
+      rescue argumenterror => e
         @processed = false
-        @file_errors.push("Error converting file. #{e}")
+        @file_errors.push("error converting file. #{e}")
         return nil
-      rescue CSV::MalformedCSVError => e
+      rescue csv::malformedcsverror => e
         @processed = false
-        @file_errors.push("Error converting file. #{e}")
+        @file_errors.push("error converting file. #{e}")
         return nil
       end
     end
@@ -137,14 +144,14 @@ module BatchLoad
     # @return [Boolean]
     def import_level_ok?
       case import_level.to_sym
-        when :warn
-          warn_level_ok?
-        when :strict
-          strict_level_ok?
-        when :line_strict
-          line_strict_level_ok?
-        else
-          false
+      when :warn
+        warn_level_ok?
+      when :strict
+        strict_level_ok?
+      when :line_strict
+        line_strict_level_ok?
+      else
+        false
       end
     end
 
@@ -245,11 +252,10 @@ module BatchLoad
     def all_objects
       processed_rows.collect { |_i, rp| rp.all_objects }.flatten
     end
-    
+
     def save_order
       self.class.const_defined?('SAVE_ORDER') ? self.class::SAVE_ORDER : nil
     end
 
   end
 end
-

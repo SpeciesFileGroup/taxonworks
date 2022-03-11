@@ -214,9 +214,11 @@ resources :descriptors do
     get :annotations, defaults: {format: :json}
   end
   collection do
+    get :units
     post :preview_modify_gene_descriptor_batch_load
     post :create_modify_gene_descriptor_batch_load
-    get :units
+    post :preview_qualitative_descriptor_batch_load
+    post :create_qualitative_descriptor_batch_load
   end
 end
 
