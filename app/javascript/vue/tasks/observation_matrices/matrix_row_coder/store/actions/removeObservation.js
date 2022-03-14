@@ -42,6 +42,8 @@ export default function ({ commit, state }, args) {
       return o => o.descriptorId === descriptorId && o.id === obsId
     } else if (descriptor.type === ComponentNames.Sample) {
       return o => o.descriptorId === descriptorId && o.id === obsId
+    } else if (descriptor.type === ComponentNames.Media) {
+      return o => o.descriptorId === descriptorId && o.id === obsId
     } else {
       return o => o.descriptorId === descriptorId
     }
