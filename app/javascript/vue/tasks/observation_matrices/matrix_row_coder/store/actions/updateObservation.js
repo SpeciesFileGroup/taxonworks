@@ -1,17 +1,10 @@
 import ObservationTypes from '../helpers/ObservationTypes'
-import ComponentNames from '../helpers/ComponentNames'
 import { MutationNames } from '../mutations/mutations'
 
 export default function ({state, commit}, { descriptorId, observationId }) {
-  const descriptor = state.descriptors.find(d => d.id === descriptorId)
-
-  if (isNotUpdatable(descriptor.componentName)) { throw `You can't update a ${getDescriptorTypeName(descriptor.componentName)} descriptor. You can only delete or create them.` }
-
   const observation = observationId
     ? state.observations.find(o => o.id === observationId)
     : state.observations.find(o => o.descriptorId === descriptorId)
-
-  console.log(observation)
 
   commit(MutationNames.SetDescriptorSaving, {
     descriptorId,
@@ -45,10 +38,6 @@ export default function ({state, commit}, { descriptorId, observationId }) {
     })
 }
 
-function isNotUpdatable (componentName) {
-  return componentName === ComponentNames.Qualitative
-}
-
 function makePayload (observation) {
   const payload = {
     day_made: observation.day,
@@ -80,8 +69,4 @@ function makePayload (observation) {
   }
 
   return payload
-}
-
-function getDescriptorTypeName (componentName) {
-  if (componentName === ComponentNames.Qualitative) { return 'Qualitative' }
 }

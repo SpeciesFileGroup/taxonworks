@@ -7,8 +7,8 @@ export default function ({ dispatch, state, commit }, descriptorId) {
     .filter(o => o.descriptorId === descriptorId && o.isUnsaved)
 
   return Promise.all(observations.map(o => {
-    if (!isUpdatableObservation(o)) {
-      saveUnupdatableObservation(o)
+    if (isQualitativeObservation(o)) {
+      saveQualitativeObservation(o)
     } else if (o.id) {
       return dispatch(ActionNames.UpdateObservation, { descriptorId, observationId: o.id })
     } else {
@@ -16,27 +16,29 @@ export default function ({ dispatch, state, commit }, descriptorId) {
     }
   }))
 
-  function saveUnupdatableObservation (observation) {
+  function saveQualitativeObservation (observation) {
     if (observation.id && !observation.isChecked) {
-      return dispatch(ActionNames.RemoveObservation, makeObservationArgs(observation)) 
+      return dispatch(ActionNames.RemoveObservation, makeObservationArgs(observation))
+    } else if (observation.isChecked && observation.id) {
+      return dispatch(ActionNames.UpdateObservation, makeObservationArgs(observation))
     } else if (observation.isChecked) {
-      return dispatch(ActionNames.CreateObservation, makeObservationArgs(observation)) 
+      return dispatch(ActionNames.CreateObservation, makeObservationArgs(observation))
     } else {
       commit(MutationNames.ObservationSaved, makeObservationArgs(observation))
     }
   }
 };
 
-function isUpdatableObservation (observation) {
-  return observation.type !== ObservationTypes.Qualitative
+function isQualitativeObservation (observation) {
+  return observation.type === ObservationTypes.Qualitative
 }
 
 function makeObservationArgs (observation) {
   const args = {
-    descriptorId: observation.descriptorId
+    descriptorId: observation.descriptorId,
+    observationId: observation.id || observation.internalId,
+    characterStateId: observation.characterStateId
   }
-
-  if (observation.type === ObservationTypes.Qualitative) { args.characterStateId = observation.characterStateId }
 
   return args
 }

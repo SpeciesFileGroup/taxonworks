@@ -5,7 +5,7 @@ import { MutationNames } from '../mutations/mutations'
 export default function ({ commit, state }, args) {
   const observation = getObservationFromArgs(state, args)
 
-  if (observation.id) { return Promise.resolve() }
+  if (observation?.id) { return Promise.resolve() }
 
   commit(MutationNames.SetDescriptorSaving, {
     descriptorId: args.descriptorId,
