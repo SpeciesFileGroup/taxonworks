@@ -1,29 +1,33 @@
 <template>
-  <v-btn
-    v-if="!showDatafields"
-    color="primary"
-    circle
-    @click="showDatafields = true"
-  >
-    <v-icon
-      color="white"
-      name="clock"
-      small
-    />
-  </v-btn>
-  <template v-if="showDatafields">
-    <DateFields
-      :inline="inline"
-      v-model:day="day"
-      v-model:month="month"
-      v-model:year="year"
-    />
-    <label>Time</label>
-    <input
-      type="time"
-      v-model="time"
+  <div class="horizontal-left-content">
+    <v-btn
+      v-if="!showDatafields"
+      color="primary"
+      circle
+      @click="showDatafields = true"
     >
-  </template>
+      <v-icon
+        color="white"
+        name="clock"
+        small
+      />
+    </v-btn>
+    <template v-if="showDatafields">
+      <DateFields
+        :inline="inline"
+        v-model:day="day"
+        v-model:month="month"
+        v-model:year="year"
+      />
+      <div :class="{ 'label-above': !inline }">
+        <label :class="{ 'margin-small-right': inline }">Time</label>
+        <input
+          type="time"
+          v-model="time"
+        >
+      </div>
+    </template>
+  </div>
 </template>
 
 <script>
