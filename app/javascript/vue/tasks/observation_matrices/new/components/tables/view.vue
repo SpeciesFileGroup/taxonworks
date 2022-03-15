@@ -1,6 +1,6 @@
 <template>
   <div class="horizontal-left-content align-start">
-    <div>
+    <div class="matrix-tables">
       <rows-table
         class="margin-medium-bottom"
         :list="rowsListDynamic"
@@ -32,7 +32,7 @@
         @nextPage="loadRowPage"
         :pagination="fixedRowPagination"/>
     </div>
-    <div class="margin-medium-left">
+    <div class="margin-medium-left matrix-tables">
       <columns-table
         class="margin-medium-bottom"
         :list="columnsListDynamic"
