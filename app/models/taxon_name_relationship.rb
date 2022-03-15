@@ -520,6 +520,10 @@ class TaxonNameRelationship < ApplicationRecord
     true # all validations moved to subclasses
   end
 
+  def sv_fix_objective_synonym_relationship
+    true # all validations moved to subclasses
+  end
+
   def sv_synonym_relationship
     true # all validations moved to subclasses
   end

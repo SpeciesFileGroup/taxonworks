@@ -117,7 +117,7 @@ module SqedToTaxonworks
     end
 
     def cache_ocr
-      sqed_depiction.update_column(:result_ocr, sqed_result&.text)
+      sqed_depiction.update_column(:result_ocr, (sqed_result || nil)&.text)
     end
 
     def cache_all
@@ -133,7 +133,7 @@ module SqedToTaxonworks
       else
         sqed_result
         cache_all
-        sqed_result&.text_for(layout_section_type.to_sym)
+        sqed_result&.text_for(layout_section_type.to_sym) if sqed_result
       end
     end
 

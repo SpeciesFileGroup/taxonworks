@@ -50,7 +50,9 @@
       <% end %>
 
       <ul class="tree descendent">
-        <% taxon_name.children.order(:name).where(type: 'Protonym').each do |p| -%>
+        <% 
+        taxon_name.children.order(:name).where(type: 'Protonym').sort_by{|a| RANKS.index(a.rank_string)}.each do |p| 
+        -%>
         <% if p.id == p.cached_valid_taxon_name_id %>
           <li>
             <span data-valid="<%= p.cached_is_valid ? 'valid' : 'invalid' -%>">

@@ -5,7 +5,7 @@
     "@rails/webpacker": "^5.4.3",
     "@sfgrp/sled": "^1.0.3",
     "@sfgrp/svg-radial-menu": "^1.0.7",
-    "axios": "^0.26.0",
+    "axios": "^0.26.1",
     "chart.js": "^3.7.1",
     "d3": "^7.3.0",
     "dompurify": "^2.3.6",
