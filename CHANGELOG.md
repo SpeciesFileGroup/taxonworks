@@ -10,14 +10,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Replace autocompletes by smart selectors in Common Name form on OTU radial [#2840]
 - Updated Ruby gems
 - DwC importer sex mapped changed to prioritize `http://rs.tdwg.org/dwc/terms/sex` DwC URI and also create sex biocuration group with such URI if none exist.
+- Taxon name label for original combination label in Citations by source task.
+- Add separate scrollbars to row and column tables in New observation matrix task [#2799]
 
 ### Fixed
 - OTUs and collection objects batchloaders failing to initialize due to Ruby syntax error
 - Sqed depictions crash on cache update when no processing results are available
 - Incorrect georeference type for points [#2843]
+- After saving an area with 'is absent' flag, the form stays locked in OTU radial Asserted distribution
 
+[#2799]: https://github.com/SpeciesFileGroup/taxonworks/pull/2799
 [#2840]: https://github.com/SpeciesFileGroup/taxonworks/pull/2840
 [#2843]: https://github.com/SpeciesFileGroup/taxonworks/pull/2843
+[#2848]: https://github.com/SpeciesFileGroup/taxonworks/pull/2848
 
 ## [0.23.1] - 2022-03-01
 

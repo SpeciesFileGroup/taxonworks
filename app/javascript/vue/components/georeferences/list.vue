@@ -18,14 +18,15 @@
         <tr
           v-for="item in list"
           :key="item.id"
-          class="list-complete-item">
+          class="list-complete-item"
+        >
           <td>{{ item.id }}</td>
           <td class="word-keep-all">{{ item.geo_json.geometry.type }}</td>
           <td>{{ getCoordinates(item.geo_json.geometry.coordinates) }}</td>
           <td class="line-nowrap">
             <edit-in-place
               v-model="item.error_radius"
-              @end="$emit('updateGeo', item)"/>
+              @end="emit('updateGeo', item)"/>
           </td>
           <td class="word-keep-all">{{ item.type }}</td>
           <td>
@@ -40,89 +41,65 @@
               <v-btn
                 color="update"
                 medium
-                @click="$emit('dateChanged', item)"
+                @click="emit('dateChanged', item)"
               >
                 Update
               </v-btn>
             </div>
           </td>
-          <td class="vue-table-options">
-            <radial-annotator
-              :global-id="item.global_id"/>
-            <span
-              v-if="destroy"
-              class="circle-button btn-delete"
-              @click="deleteItem(item)">Remove
-            </span>
+          <td>
+            <div class="horizontal-right-content">
+              <radial-annotator :global-id="item.global_id"/>
+              <v-btn
+                color="destroy"
+                circle
+                @click="deleteItem(item)"
+              >
+                <v-icon
+                  name="trash"
+                  x-small
+                />
+              </v-btn>
+            </div>
           </td>
         </tr>
       </transition-group>
     </table>
   </div>
 </template>
-<script>
+
+<script setup>
 
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import EditInPlace from 'components/editInPlace'
 import DateComponent from 'components/ui/Date/DateFields.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
 
-export default {
-  components: {
-    RadialAnnotator,
-    EditInPlace,
-    DateComponent,
-    VBtn
-  },
+const props = defineProps({
+  list: {
+    type: Array,
+    default: () => []
+  }
+})
 
-  props: {
-    list: {
-      type: Array,
-      default: () => []
-    },
-    header: {
-      type: Array,
-      default: () => []
-    },
-    destroy: {
-      type: Boolean,
-      default: true
-    },
-    deleteWarning: {
-      type: Boolean,
-      default: true
-    },
-    annotator: {
-      type: Boolean,
-      default: true
-    },
-    edit: {
-      type: Boolean,
-      default: false
-    }
-  },
+const emit = defineEmits([
+  'update',
+  'dateChanged',
+  'delete',
+  'updateGeo'
+])
 
-  emits: [
-    'update',
-    'dateChanged',
-    'delete',
-    'updateGeo'
-  ],
-
-  methods: {
-    deleteItem (item) {
-      if (this.deleteWarning) {
-        if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
-          this.$emit('delete', item)
-        }
-      } else {
-        this.$emit('delete', item)
-      }
-    },
-
-    getCoordinates (coordinates) {
-      return coordinates.map(coordinate => Array.isArray(coordinate) ? coordinate.map(item => item.slice(0, 2)) : coordinate)
-    }
+const deleteItem = item => {
+  if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
+    emit('delete', item)
   }
 }
+
+const getCoordinates = coordinates =>
+  coordinates.map(coordinate => Array.isArray(coordinate)
+    ? coordinate.map(item => item.slice(0, 2))
+    : coordinate
+  )
+
 </script>

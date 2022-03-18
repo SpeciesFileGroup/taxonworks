@@ -9,46 +9,42 @@
           v-html="editTitle"/>
         <span
           data-icon="reset"
-          @click="asserted_distribution = newAsserted()"/>
+          @click="resetForm()"/>
       </div>
       <source-picker
-        @create="setSource"
+        v-model="citation"
+        v-model:absent="asserted_distribution.is_absent"
         ref="source"
-        @lock="lockSource = $event"
-        :display="displayLabel"/>
-      <template v-if="asserted_distribution.id">
-        <button
-          v-if="editCitation"
-          type="button"
-          class="button normal-input button-submit"
-          @click="createAsserted">Update
-        </button>
-        <button
-          v-else
-          type="button"
-          class="button normal-input button-submit"
-          @click="createAsserted">Create
-        </button>
-      </template>
-      <display-list
-        class="margin-medium-top"
+        @lock="lock.source = $event"
+      />
+      <button
         v-if="asserted_distribution.id"
+        type="button"
+        class="button normal-input button-submit"
+        @click="saveAssertedDistribution"
+      >
+        {{ editCitation ? 'Update' : 'Create' }}
+      </button>
+      <display-list
+        v-if="asserted_distribution.id"
+        edit
+        class="margin-medium-top"
+        label="citation_source_body"
         :list="asserted_distribution.citations"
-        :edit="true"
-        @edit="setEditCitation"
+        @edit="setCitation"
         @delete="removeCitation"
-        label="citation_source_body"/>
+      />
       <div>
         <spinner
-          v-if="!asserted_distribution.citations_attributes[0].source_id || asserted_distribution.id"
+          v-if="!citation.source_id || asserted_distribution.id"
           :show-legend="false"
-          :show-spinner="false"/>
+          :show-spinner="false"
+        />
         <geographic-area
           class="separate-bottom"
-          @lock="lockGeo = $event"
-          :created-list="list"
-          :source-lock="lockSource"
-          @select="asserted_distribution.geographic_area_id = $event; createAsserted()"/>
+          :source-lock="lock.source"
+          @select="asserted_distribution.geographic_area_id = $event; saveAssertedDistribution()"
+        />
       </div>
     </div>
     <div class="horizontal-left-content">
@@ -63,10 +59,11 @@
       class="separate-top"
       :header="['Geographic area', 'Absent', '']"
       :attributes="[['geographic_area', 'name'], 'is_absent']"
-      :edit="true"
+      edit
+      :list="list"
       @edit="setDistribution"
-      :list="filterList"
-      @delete="removeItem"/>
+      @delete="removeItem"
+    />
   </div>
 </template>
 <script>
@@ -79,15 +76,29 @@ import GeographicArea from './geographicArea.vue'
 import SourcePicker from './sourcePicker.vue'
 import Spinner from 'components/spinner.vue'
 import MapComponent from 'components/georeferences/map.vue'
+import { addToArray } from 'helpers/arrays.js'
 import { AssertedDistribution } from 'routes/endpoints'
 
 const EXTEND_PARAMS = {
-  extend: ['geographic_area', 'geographic_area_type', 'parent', 'citations', 'source'],
-  embed: ['shape']
+  embed: ['shape'],
+  extend: [
+    'geographic_area',
+    'geographic_area_type',
+    'parent', 'citations',
+    'source'
+  ]
 }
+
+const makeEmptyCitation = () => ({
+  id: undefined,
+  source_id: undefined,
+  pages: undefined,
+  is_original: undefined
+})
 
 export default {
   mixins: [CRUD, AnnotatorExtend],
+
   components: {
     Spinner,
     TableList,
@@ -96,20 +107,18 @@ export default {
     GeographicArea,
     MapComponent
   },
+
   computed: {
     validateFields () {
       return this.asserted_distribution.geographic_area_id && this.asserted_distribution.source_id
     },
-    splittedGlobalId () {
-      const splitted = this.globalId.split('/')
-      return splitted[splitted.length - 1]
-    },
-    filterList () {
-      return this.list
-    },
+
     existingArea () {
-      return this.list.find(item => item.geographic_area_id === this.asserted_distribution.geographic_area_id && (item.is_absent === null ? false : item.is_absent) === (this.asserted_distribution.is_absent === undefined ? false : this.asserted_distribution.is_absent))
+      return this.list.find(item =>
+        item.geographic_area_id === this.asserted_distribution.geographic_area_id &&
+        (item.is_absent === null ? false : item.is_absent) === (this.asserted_distribution.is_absent === null ? false : this.asserted_distribution.is_absent))
     },
+
     shapes () {
       return this.list.map(item => {
         const shape = item.geographic_area.shape
@@ -118,47 +127,57 @@ export default {
       })
     }
   },
+
   data () {
     return {
-      asserted_distribution: this.newAsserted(),
-      displayLabel: undefined,
-      displayGeographic: undefined,
+      asserted_distribution: {},
       editTitle: undefined,
-      lockSource: false,
-      lockGeo: false,
       editCitation: undefined,
-      loadOnMounted: false
+      loadOnMounted: false,
+
+      citation: makeEmptyCitation(),
+
+      lock: {
+        geo: false,
+        source: false
+      }
     }
   },
 
   created () {
+    this.asserted_distribution = this.newAsserted()
     AssertedDistribution.where({
       otu_id: this.metadata.object_id,
       ...EXTEND_PARAMS
     }).then(({ body }) => {
       this.list = body
     })
-    this.asserted_distribution.otu_id = this.splittedGlobalId
+    this.asserted_distribution.otu_id = this.metadata.object_id
   },
 
   methods: {
-    setEditCitation(citation) {
-      const data = {
+    setCitation (citation) {
+      this.citation = {
         id: citation.id,
-        is_absent: undefined,
         pages: citation.pages,
         source_id: citation.source_id,
-        is_original: citation.is_original,
-        citation_source_body: citation.citation_source_body
+        is_original: citation.is_original
       }
       this.editCitation = citation
-      this.$refs.source.setCitation(data)
     },
 
-    createAsserted () {
+    saveAssertedDistribution () {
+      const params = {
+        asserted_distribution: {
+          ...this.asserted_distribution,
+          citations_attributes: [this.citation]
+        },
+        ...EXTEND_PARAMS
+      }
+
       const saveRequest = !this.existingArea
-        ? AssertedDistribution.create({ asserted_distribution: this.asserted_distribution, ...EXTEND_PARAMS })
-        : AssertedDistribution.update(this.existingArea.id, { asserted_distribution: this.asserted_distribution, ...EXTEND_PARAMS })
+        ? AssertedDistribution.create(params)
+        : AssertedDistribution.update(this.existingArea.id, params)
 
       saveRequest.then(({ body }) => {
         TW.workbench.alert.create('Asserted distribution was successfully saved.', 'notice')
@@ -173,73 +192,59 @@ export default {
           _destroy: true
         }]
       }
-      AssertedDistribution.update(this.asserted_distribution.id, { asserted_distribution, ...EXTEND_PARAMS }).then(({ body }) => {
-        this.addToList(body)
-      })
+
+      AssertedDistribution.update(
+        this.asserted_distribution.id, {
+          asserted_distribution,
+          ...EXTEND_PARAMS
+        })
+        .then(({ body }) => {
+          this.addToList(body)
+        })
     },
 
     addToList (item) {
-      const index = this.list.findIndex(ad => ad.id === item.id)
-
-      if (!this.lockSource) {
-        this.$refs.source.cleanInput()
-      }
-
       this.editTitle = item.object_tag
 
-      AssertedDistribution.find(item.id, EXTEND_PARAMS).then(ad => {
-        if (index > -1) {
-          this.list[index] = ad.body
-        } else {
-          this.list.push(ad.body)
-        }
-        this.asserted_distribution = this.newAsserted()
+      AssertedDistribution.find(item.id, EXTEND_PARAMS).then(({ body }) => {
+        addToArray(this.list, body)
+        this.resetForm()
       })
     },
 
     setDistribution (item) {
-      this.asserted_distribution = this.newAsserted()
+      this.resetForm()
       this.editTitle = item.object_tag
-      this.asserted_distribution.id = item.id
-      this.asserted_distribution.citations = item.citations
-      this.asserted_distribution.otu_id = item.otu_id
-      this.asserted_distribution.geographic_area_id = item.geographic_area_id
-      this.asserted_distribution.citations_attributes = [{
-        id: undefined,
-        source_id: undefined,
-        pages: undefined,
-        is_original: undefined
-      }]
+      this.asserted_distribution = {
+        id: item.id,
+        citations: item.citations,
+        otu_id: item.otu_id,
+        is_absent: item.is_absent,
+        geographic_area_id: item.geographic_area_id,
+      }
+
       this.editCitation = undefined
-      this.$refs.source.cleanCitation()
     },
 
     newAsserted () {
-      this.displayLabel = ''
-      return { 
+      return {
         id: undefined,
-        otu_id: this.splittedGlobalId,
-        geographic_area_id: this.lockGeo ? this.asserted_distribution.geographic_area_id : undefined,
+        otu_id: this.metadata.object_id,
+        geographic_area_id: this.lock.geo ? this.asserted_distribution.geographic_area_id : undefined,
         citations: [],
-        citations_attributes: this.lockSource
-          ? this.asserted_distribution.citations_attributes
-          : [{
-              source_id: undefined,
-              pages: undefined,
-              is_original: undefined
-            }],
-        is_absent: undefined
+        is_absent: null
       }
     },
 
-    setSource (source) {
-      this.asserted_distribution.is_absent = source.is_absent
-      this.asserted_distribution.citations_attributes[0].id = source.id
-      this.asserted_distribution.citations_attributes[0].source_id = source.source_id
-      this.asserted_distribution.citations_attributes[0].pages = source.pages
-      this.asserted_distribution.citations_attributes[0].is_original = source.is_original
+    resetForm () {
+      this.asserted_distribution = this.newAsserted()
+      this.citation = {
+        ...makeEmptyCitation(),
+        source_id: this.lock.source ? this.citation.source_id : undefined,
+        pages: this.lock.source ? this.citation.pages : undefined
+      }
     }
-  },
+  }
 }
 </script>
 <style lang="scss">
