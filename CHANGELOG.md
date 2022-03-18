@@ -21,12 +21,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Sqed depictions crash on cache update when no processing results are available
 - Incorrect georeference type for points [#2843]
 - After saving an area with 'is absent' flag, the form stays locked in OTU radial Asserted distribution
+- Uniquify people roles list is missing role_object_tag [#2853]
 
 [#1831]: https://github.com/SpeciesFileGroup/taxonworks/pull/1831
 [#2799]: https://github.com/SpeciesFileGroup/taxonworks/pull/2799
 [#2840]: https://github.com/SpeciesFileGroup/taxonworks/pull/2840
 [#2843]: https://github.com/SpeciesFileGroup/taxonworks/pull/2843
 [#2848]: https://github.com/SpeciesFileGroup/taxonworks/pull/2848
+[#2853]: https://github.com/SpeciesFileGroup/taxonworks/pull/2853
 
 ## [0.23.1] - 2022-03-01
 
