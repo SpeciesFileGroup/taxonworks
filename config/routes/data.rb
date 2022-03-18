@@ -404,13 +404,15 @@ resources :observation_matrices do
   resources :observation_matrix_column_items, shallow: true, only: [:index], defaults: {format: :json}
 
   member do
-    get :nexml, defaults: {format: :rdf}
-    get :tnt
-    get :nexus
-    get :otu_contents
-    get :csv
-    #  get :csv
-    #  get :biom
+    scope :export do
+      get :nexml, defaults: {format: :rdf}
+      get :tnt
+      get :nexus
+      get :otu_contents
+      get :csv
+      get :descriptor_list
+      #  get :biom
+    end
 
     get :reorder_rows, defaults: {format: :json}
     get :reorder_columns, defaults: {format: :json}
