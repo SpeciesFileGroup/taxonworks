@@ -6,6 +6,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- A qualitative descriptor batch loader (Data->Descriptors->Batch load) [#1831] (in part)
+
 ### Changed
 - Replace autocompletes by smart selectors in Common Name form on OTU radial [#2840]
 - Updated Ruby gems
@@ -19,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Incorrect georeference type for points [#2843]
 - After saving an area with 'is absent' flag, the form stays locked in OTU radial Asserted distribution
 
+[#1831]: https://github.com/SpeciesFileGroup/taxonworks/pull/1831
 [#2799]: https://github.com/SpeciesFileGroup/taxonworks/pull/2799
 [#2840]: https://github.com/SpeciesFileGroup/taxonworks/pull/2840
 [#2843]: https://github.com/SpeciesFileGroup/taxonworks/pull/2843
