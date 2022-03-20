@@ -1257,10 +1257,15 @@ namespace :tw do
               data_attributes_bucket[:data_attributes_attributes].push(precision_code)
             end
 
-            level1_id, level2_id, level3_id, level4_id = row['Level1ID'], row['Level2ID'], row['Level3ID'], row['Level4ID']
-            tdwg_id = (level1_id + level2_id + level3_id).gsub('-', '')
+            tdwg_id = (1..4)
+              .collect { |n| row["Level#{n}ID"] }
+              .map { |l| l.gsub('-', '') }
+              .reject { |l| l.blank? }
+            tdwg_id = [tdwg_id[0..2].join, tdwg_id[3]].compact.join('-')
+
             geographic_area_id = geographic_area_id_hash[tdwg_id]
             if geographic_area_id # not nil, is there a level 4?
+              level4_id = row['Level4ID']
               if level4_id != '---' # there is a level 4, add level4_id and level4_name as data_attributes
                 if sf_geo_level4_hash[level3_id + level4_id] # data errors can cause exec err, data will be fixed in future: case level 4 but no level 3
                   level4_name = sf_geo_level4_hash[level3_id + level4_id]['name']
@@ -1358,28 +1363,25 @@ namespace :tw do
 
           file.each do |row|
             all_rows += 1
-            tw_area = nil
 
             next if row['Level1ID'] == '0' # check for Level1ID = 0 when processing and ignore; nil values will indicate bad data
 
             # if there is a Level4ID, add as data attribute
 
-            tdwg_id = (row['Level1ID'] + row['Level2ID'] + row['Level3ID']).gsub('-', '')
+            tdwg_id = (1..4)
+              .collect { |n| row["Level#{n}ID"] }
+              .map { |l| l.strip.gsub('-', '') }
+              .reject { |l| l.blank? }
+            tdwg_id = [tdwg_id[0..2].join, tdwg_id[3]].compact.join('-')
+
             if geographic_area_id_hash[tdwg_id]
               next
             end
 
             puts "Working with LocalityID = #{row['LocalityID']}, Level1ID = #{row['Level1ID']}, Level2ID = #{row['Level2ID']}, Level3ID = #{row['Level3ID']}, Level4ID = #{row['Level4ID']}, unique_rows = #{unique_rows += 1}, all_rows = #{all_rows} \n"
 
-            tw_area = GeographicArea.where(tdwgID: tdwg_id).first
-
-            if tw_area
-              geographic_area_id = tw_area.id
-            else
-              geographic_area_id = nil
-            end
-
-            geographic_area_id_hash[tdwg_id] = geographic_area_id
+            geographic_area_id = GeographicArea.find_by(tdwgID: tdwg_id)&.id
+            geographic_area_id_hash[tdwg_id] = geographic_area_id unless geographic_area_id.nil?
 
             puts "************** tdwg_id: #{tdwg_id}, geographic_area_id = #{geographic_area_id} \n"
           end
