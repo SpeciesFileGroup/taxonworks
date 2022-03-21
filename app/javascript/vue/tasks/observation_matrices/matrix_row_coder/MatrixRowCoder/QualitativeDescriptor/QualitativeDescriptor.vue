@@ -4,7 +4,6 @@
       :index="index"
       :descriptor="descriptor"
       :observations="observations"
-      is-qualitative
     >
       <ul>
         <li

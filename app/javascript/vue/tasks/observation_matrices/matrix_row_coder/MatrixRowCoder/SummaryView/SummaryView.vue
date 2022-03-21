@@ -68,11 +68,6 @@ export default {
       required: true
     },
 
-    isQualitative: {
-      type: Boolean,
-      default: false
-    },
-
     index: {
       type: Number,
       required: true
