@@ -3,14 +3,14 @@
     <p>Select</p>
     <ul class="context-menu no_bullets">
       <li
-        v-for="(item, key) in typeLabels"
-        :key="key">
+        v-for="item in typeLabels"
+        :key="item">
         <label>
           <input
             type="radio"
             v-model="type"
             name="autocomplete_type"
-            :value="key"
+            :value="item"
           >
           {{ item }}
         </label>
@@ -41,6 +41,10 @@ import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
 import ObservationTypes from '../../const/types.js'
 import OtuPicker from 'components/otu/otu_picker/otu_picker'
+import { 
+  COLLECTION_OBJECT,
+  OTU
+} from 'constants/index.js'
 
 export default {
   components: {
@@ -54,22 +58,22 @@ export default {
     },
 
     isOtuType () {
-      return this.type === 'Otu'
+      return this.type === OTU
     }
   },
 
   data () {
     return {
-      typeLabels: {
-        Otu: 'OTU',
-        CollectionObject: 'Collection object'
-      },
+      typeLabels: [
+        OTU,
+        COLLECTION_OBJECT
+      ],
       autocomplete_type: {
-        Otu: '/otus/autocomplete',
-        CollectionObject: '/collection_objects/autocomplete'
+        [OTU]: '/otus/autocomplete',
+        [COLLECTION_OBJECT]: '/collection_objects/autocomplete'
       },
       types: ObservationTypes.Row,
-      type: 'Otu'
+      type: OTU
     }
   },
 
@@ -77,10 +81,10 @@ export default {
     createRowItem (id) {
       const data = {
         observation_matrix_id: this.matrix.id,
+        observation_object_id: id,
+        observation_object_type: this.type,
         type: this.types[this.type]
       }
-
-      data[(this.type === 'Otu' ? 'otu_id' : 'collection_object_id')] = id
 
       this.$store.dispatch(ActionNames.CreateRowItem, data)
     }

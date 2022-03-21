@@ -103,7 +103,9 @@ namespace :api, defaults: {format: :json} do
       get '/observation_matrices/:id', to: '/observation_matrices#api_show'
 
       get '/images', to: '/images#api_index'
+      get '/images/:id/file', to: '/images#api_file', as: :image_file
       get '/images/:id', to: '/images#api_show'
+
 
       # get '/controlled_vocabulary_terms'
     end

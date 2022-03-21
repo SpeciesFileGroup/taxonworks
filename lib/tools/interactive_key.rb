@@ -1,5 +1,5 @@
 # Contains methods used to build an interactive key
-class InteractiveKey
+class Tools::InteractiveKey
 
   ##### FILTER PARAMETERS #####
 
@@ -183,24 +183,33 @@ class InteractiveKey
     @identified_to_rank = identified_to_rank
     @selected_descriptors = selected_descriptors
     @selected_descriptors_hash = selected_descriptors_hash_initiate
+
     @row_hash = row_hash_initiate
+
     @descriptors_hash = descriptors_hash_initiate
+
     ###main_logic
+
     @remaining = remaining_taxa
     @eliminated = eliminated_taxa
     @list_of_descriptors = useful_descriptors
-    ###delete temporary data
-    @row_hash = nil
+
+    ### delete temporary data
+
+    # @proceps this is very confusing to initialize a variable, but really not initialize it. If you are
+    # using these to initialize some other initialization then write seperate code to initialize only what is needed?
+
+    @row_hash = nil #
     @descriptors_hash = nil
     @rows_with_filter = nil
     @descriptors_with_filter = nil
   end
 
   def descriptors
-    if @sorting == 'weighted'
-      @observation_matrix.descriptors.not_weight_zero.order('descriptors.weight DESC, descriptors.position')
+    if sorting == 'weighted'
+      observation_matrix.descriptors.not_weight_zero.order('descriptors.weight DESC, descriptors.position')
     else
-      @observation_matrix.descriptors.not_weight_zero.order(:position)
+      observation_matrix.descriptors.not_weight_zero.order(:position)
     end
   end
 
@@ -216,9 +225,9 @@ class InteractiveKey
   end
 
   def language_to_use
-    return nil if @language_id.blank?
-    l = Language.where(id: @language_id).first
-    return nil if l.nil? || !@descriptor_available_languages.to_a.include?(l)
+    return nil if language_id.blank?
+    l = Language.where(id: language_id).first
+    return nil if l.nil? || !descriptor_available_languages.to_a.include?(l)
     l
   end
 
@@ -230,23 +239,23 @@ class InteractiveKey
   end
 
   def descriptors_with_keywords
-    if @keyword_ids
-      descriptors.joins(:tags).where('tags.keyword_id IN (?)', @keyword_ids.to_s.split('|').map(&:to_i) )
+    if keyword_ids
+      descriptors.joins(:tags).where('tags.keyword_id IN (?)', keyword_ids.to_s.split('|').map(&:to_i) )
     else
       descriptors
     end
   end
 
   def row_filter_array
-    @row_filter.blank? ? nil : row_filter.to_s.split('|').map(&:to_i)
+    row_filter.blank? ? nil : row_filter.to_s.split('|').map(&:to_i)
   end
 
   def otu_filter_array
-    @otu_filter.blank? ? nil : otu_filter.to_s.split('|').map(&:to_i)
+    otu_filter.blank? ? nil : otu_filter.to_s.split('|').map(&:to_i)
   end
 
   def get_rows_with_filter
-    @observation_matrix.observation_matrix_rows.order(:position)
+    observation_matrix.observation_matrix_rows.order(:position)
   end
 
   ## row_hash: {otu_collection_object: {:object,           ### (collection_object or OTU)
@@ -258,17 +267,17 @@ class InteractiveKey
   def row_hash_initiate
     h = {}
     rows_with_filter.each do |r|
-      otu_collection_object = r.otu_id.to_s + '|' + r.collection_object_id.to_s
+      otu_collection_object = r.observation_object_type + r.observation_object_id.to_s #  r.otu_id.to_s + '|' + r.collection_object_id.to_s
       h[otu_collection_object] = {}
       h[otu_collection_object][:object] = r
-      if @identified_to_rank == 'otu'
+      if identified_to_rank == 'otu'
         h[otu_collection_object][:object_at_rank] = r.current_otu || r
-      elsif @identified_to_rank
-        h[otu_collection_object][:object_at_rank] = r&.current_taxon_name&.ancestor_at_rank(@identified_to_rank, inlude_self = true) || r
+      elsif identified_to_rank
+        h[otu_collection_object][:object_at_rank] = r&.current_taxon_name&.ancestor_at_rank(identified_to_rank, inlude_self = true) || r
       else
         h[otu_collection_object][:object_at_rank] = r
       end
-      h[otu_collection_object][:otu_id] = r.otu_id ? r.otu_id : r.current_otu.id
+      h[otu_collection_object][:otu_id] = r.otu_id ? r.otu_id : r.current_otu.id # TODO: maybe this problem
       h[otu_collection_object][:errors] = 0
       h[otu_collection_object][:error_descriptors] = []
       h[otu_collection_object][:status] = 'remaining' ### if number of errors > @error_tolerance, replaced to 'eliminated'
@@ -282,6 +291,7 @@ class InteractiveKey
   ##                                    }}
   def descriptors_hash_initiate
     h = {}
+
     descriptors_with_keywords.each do |d|
       h[d.id] = {}
       h[d.id][:descriptor] = d
@@ -293,13 +303,14 @@ class InteractiveKey
       h[d.id][:observations] = {} # all observation for a particular
       h[d.id][:observation_hash] = {} ### state_ids, true/false for a particular descriptor/otu_id/catalog_id combination (for PresenceAbsence or Qualitative or Continuous)
       h[d.id][:status] = 'useless' ### 'used', 'useful', 'useless'
-      h[d.id][:status] = 'used' if @selected_descriptors_hash[d.id]
+      h[d.id][:status] = 'used' if selected_descriptors_hash[d.id]
     end
+
     t = ['Observation::Continuous', 'Observation::PresenceAbsence', 'Observation::Qualitative', 'Observation::Sample']
 
-    @observation_matrix.observations.where('"observations"."type" IN (?)', t).each do |o|
+    observation_matrix.observations.where('"observations"."type" IN (?)', t).each do |o|
       if h[o.descriptor_id]
-        otu_collection_object = o.otu_id.to_s + '|' + o.collection_object_id.to_s
+        otu_collection_object = o.observation_object_type + o.observation_object_id.to_s # otu_id.to_s + '|' + o.collection_object_id.to_s
         h[o.descriptor_id][:observations][otu_collection_object] = [] if h[o.descriptor_id][:observations][otu_collection_object].nil? #??????
         h[o.descriptor_id][:observations][otu_collection_object] += [o]                                                                #??????
         h[o.descriptor_id][:observation_hash][otu_collection_object] = [] if h[o.descriptor_id][:observation_hash][otu_collection_object].nil?
@@ -312,11 +323,11 @@ class InteractiveKey
   end
 
   # returns {123: ['1', '3'], 125: ['3', '5'], 135: ['2'], 136: ['true'], 140: ['5-10']}
+  # "123:1|3||125:3|5||135:2"
   def selected_descriptors_hash_initiate
-    # "123:1|3||125:3|5||135:2"
     h = {}
-    return h if @selected_descriptors.blank?
-    a = @selected_descriptors.include?('||') ? @selected_descriptors.to_s.split('||') : [@selected_descriptors]
+    return h if selected_descriptors.blank?
+    a = selected_descriptors.include?('||') ? selected_descriptors.to_s.split('||') : [selected_descriptors]
     a.each do |i|
       d = i.split(':')
       h[d[0].to_i] = d[1].include?('|') ? d[1].split('|') : [d[1]]
@@ -324,42 +335,41 @@ class InteractiveKey
     h
   end
 
+  #  @error_tolerance  - integer
+  #  @eliminate_unknown  'true' or 'false'
+  #  @descriptors_hash
   def remaining_taxa
-    #    @error_tolerance  - integer
-    #    @eliminate_unknown  'true' or 'false'
-    #    @descriptors_hash
-
     h = {}
-    language = @language_id.blank? ? nil : @language_id.to_i
+    language = language_id.blank? ? nil : language_id.to_i
 
-    @row_hash.each do |r_key, r_value|
-      @selected_descriptors_hash.each do |d_key, d_value|
-        otu_collection_object = r_value[:object].otu_id.to_s + '|' + r_value[:object].collection_object_id.to_s
-        next if @descriptors_hash[d_key].blank?
-        d_name = @descriptors_hash[d_key][:descriptor].target_name(:key, language) + ': '
-        if @eliminate_unknown && @descriptors_hash[d_key][:observation_hash][otu_collection_object].nil?
+    row_hash.each do |r_key, r_value|
+      selected_descriptors_hash.each do |d_key, d_value|
+        otu_collection_object = r_value[:object].observation_object_type + r_value[:object].observation_object_id.to_s # otu_id.to_s + '|' + r_value[:object].collection_object_id.to_s
+        next if descriptors_hash[d_key].blank?
+        d_name = descriptors_hash[d_key][:descriptor].target_name(:key, language) + ': '
+        if eliminate_unknown && descriptors_hash[d_key][:observation_hash][otu_collection_object].nil?
           r_value[:errors] += 1
           r_value[:error_descriptors] += [d_name + 'unknown']
-        elsif @descriptors_hash[d_key][:observation_hash][otu_collection_object].nil?
+        elsif descriptors_hash[d_key][:observation_hash][otu_collection_object].nil?
           #character not scored but no error
         else
-          case @descriptors_hash[d_key][:descriptor].type
+          case descriptors_hash[d_key][:descriptor].type
           when 'Descriptor::Continuous'
-            if (@descriptors_hash[d_key][:observation_hash][otu_collection_object] & d_value).empty?
+            if (descriptors_hash[d_key][:observation_hash][otu_collection_object] & d_value).empty?
               r_value[:errors] += 1
-              str = d_name + @descriptors_hash[d_key][:observations][otu_collection_object].collect{|o| "%g" % o.continuous_value}.join(' OR ')
+              str = d_name + descriptors_hash[d_key][:observations][otu_collection_object].collect{|o| "%g" % o.continuous_value}.join(' OR ')
               r_value[:error_descriptors] += [str]
             end
           when 'Descriptor::PresenceAbsence'
-            if (@descriptors_hash[d_key][:observation_hash][otu_collection_object] & d_value).empty?
+            if (descriptors_hash[d_key][:observation_hash][otu_collection_object] & d_value).empty?
               r_value[:errors] += 1
-              str = d_name + @descriptors_hash[d_key][:observations][otu_collection_object].collect{|o| o.presence}.join(' OR ')
+              str = d_name + descriptors_hash[d_key][:observations][otu_collection_object].collect{|o| o.presence}.join(' OR ')
               r_value[:error_descriptors] += [str]
             end
           when 'Descriptor::Qualitative'
-            if (@descriptors_hash[d_key][:observation_hash][otu_collection_object] & d_value).empty?
+            if (descriptors_hash[d_key][:observation_hash][otu_collection_object] & d_value).empty?
               r_value[:errors] += 1
-              str = d_name + @descriptors_hash[d_key][:observations][otu_collection_object].collect{|o| o.character_state.target_name(:key, language)}.join(' OR ')
+              str = d_name + descriptors_hash[d_key][:observations][otu_collection_object].collect{|o| o.character_state.target_name(:key, language)}.join(' OR ')
               r_value[:error_descriptors] += [str]
             end
           when 'Descriptor::Sample'
@@ -367,37 +377,38 @@ class InteractiveKey
             a = d_value.first.split('-')
             d_min = a[0].to_f
             d_max = a[1].nil? ? d_min : a[1].to_f
-            @descriptors_hash[d_key][:observations][otu_collection_object].each do |o|
+            descriptors_hash[d_key][:observations][otu_collection_object].each do |o|
               s_min = o.sample_min.to_f
               s_max = o.sample_max.nil? ? s_min : o.sample_max.to_f
               p = true if (d_min >= s_min && d_min <= s_max) || (d_max >= s_min && d_max <= s_max) || (d_min <= s_min && d_max >= s_max)
             end
             if p == false
               r_value[:errors] += 1
-              str = d_name + @descriptors_hash[d_key][:observations][otu_collection_object].collect{|o| o.sample_min.to_s + '–' + o.sample_max.to_s}.join(' OR ')
+              str = d_name + descriptors_hash[d_key][:observations][otu_collection_object].collect{|o| o.sample_min.to_s + '–' + o.sample_max.to_s}.join(' OR ')
               r_value[:error_descriptors] += [str]
             end
           end
         end
       end
+
       obj = r_value[:object_at_rank].class.to_s + '|' + r_value[:object_at_rank].id.to_s
 
-      if (@row_id_filter_array && !@row_id_filter_array.include?(r_value[:object].id)) ||
-            (@otu_id_filter_array && !@otu_id_filter_array.include?(r_value[:otu_id]))
+      if (row_id_filter_array && !row_id_filter_array.include?(r_value[:object].id)) ||
+          (otu_id_filter_array && !otu_id_filter_array.include?(r_value[:otu_id]))
         r_value[:status] = 'eliminated'
         r_value[:errors] = 'F'
         r_value[:error_descriptors] = ['Filtered out']
       end
 
-      if r_value[:errors] == 'F' || r_value[:errors] > @error_tolerance
+      if r_value[:errors] == 'F' || r_value[:errors] > error_tolerance
         r_value[:status] = 'eliminated'
       elsif h[obj].nil?
-          h[obj] =
-              {object: r_value[:object_at_rank],
-               row_id: r_value[:object].id,
-               errors: r_value[:errors],
-               error_descriptors: r_value[:error_descriptors]
-              }
+        h[obj] =
+          {object: r_value[:object_at_rank],
+           row_id: r_value[:object].id,
+           errors: r_value[:errors],
+           error_descriptors: r_value[:error_descriptors]
+          }
       end
     end
     return h.values
@@ -405,15 +416,15 @@ class InteractiveKey
 
   def eliminated_taxa
     h = {}
-    @row_hash.each do |r_key, r_value|
+    row_hash.each do |r_key, r_value|
       obj = r_value[:object_at_rank].class.to_s + '|' + r_value[:object_at_rank].id.to_s
-      if r_value[:status] == 'eliminated' && !@remaining.include?(r_value[:object_at_rank].class.to_s + '|' + r_value[:object_at_rank].id.to_s)
+      if r_value[:status] == 'eliminated' && !remaining.include?(r_value[:object_at_rank].class.to_s + '|' + r_value[:object_at_rank].id.to_s)
         h[obj] =
-            {object: r_value[:object_at_rank],
-             row_id: r_value[:object].id,
-             errors: r_value[:errors],
-             error_descriptors: r_value[:error_descriptors]
-            } if h[obj].nil?
+          {object: r_value[:object_at_rank],
+           row_id: r_value[:object].id,
+           errors: r_value[:errors],
+           error_descriptors: r_value[:error_descriptors]
+          } if h[obj].nil?
       end
     end
     return h.values
@@ -421,8 +432,8 @@ class InteractiveKey
 
   def useful_descriptors
     list_of_remaining_taxa = {}
-    language = @language_id.blank? ? nil : @language_id.to_i
-    @row_hash.each do |r_key, r_value|
+    language = language_id.blank? ? nil : language_id.to_i
+    row_hash.each do |r_key, r_value|
       if r_value[:status] != 'eliminated'
         list_of_remaining_taxa[r_value[:object_at_rank] ] = true
       end
@@ -430,7 +441,7 @@ class InteractiveKey
     number_of_taxa = list_of_remaining_taxa.count
     array_of_descriptors = []
 
-    @descriptors_hash.each do |d_key, d_value|
+    descriptors_hash.each do |d_key, d_value|
       taxa_with_unknown_character_states = list_of_remaining_taxa if @eliminate_unknown == false
       d_value[:observations].each do |otu_key, otu_value|
         otu_collection_object = otu_key
@@ -440,7 +451,7 @@ class InteractiveKey
               d_value[:state_ids][o.character_state_id.to_s] = {} if d_value[:state_ids][o.character_state_id.to_s].nil?
               d_value[:state_ids][o.character_state_id.to_s][:rows] = {} if d_value[:state_ids][o.character_state_id.to_s][:rows].nil? ## rows which this state identifies
               d_value[:state_ids][o.character_state_id.to_s][:rows][ @row_hash[otu_collection_object][:object_at_rank] ] = true if @row_hash[otu_collection_object][:status] != 'eliminated'
-              if @selected_descriptors_hash[d_key] && @selected_descriptors_hash[d_key].include?(o.character_state_id.to_s)
+              if selected_descriptors_hash[d_key] && selected_descriptors_hash[d_key].include?(o.character_state_id.to_s)
                 d_value[:state_ids][o.character_state_id.to_s][:status] = 'used' ## 'used', 'useful', 'useless'
               else
                 d_value[:state_ids][o.character_state_id.to_s][:status] = 'useful' ## 'used', 'useful', 'useless'
@@ -450,7 +461,7 @@ class InteractiveKey
               d_value[:state_ids][o.presence.to_s] = {} if d_value[:state_ids][o.presence.to_s].nil?
               d_value[:state_ids][o.presence.to_s][:rows] = {} if d_value[:state_ids][o.presence.to_s][:rows].nil? ## rows which this state identifies
               d_value[:state_ids][o.presence.to_s][:rows][ @row_hash[otu_collection_object][:object_at_rank] ] = true if @row_hash[otu_collection_object][:status] != 'eliminated'
-              if @selected_descriptors_hash[d_key] && @selected_descriptors_hash[d_key].include?(o.presence.to_s)
+              if selected_descriptors_hash[d_key] && selected_descriptors_hash[d_key].include?(o.presence.to_s)
                 d_value[:state_ids][o.presence.to_s][:status] = 'used' ## 'used', 'useful', 'useless'
               else
                 d_value[:state_ids][o.presence.to_s][:status] = 'useful' ## 'used', 'useful', 'useless'
@@ -589,7 +600,7 @@ class InteractiveKey
       array_of_descriptors += [descriptor]
     end
 
-    case @sorting
+    case sorting
     when 'ordered'
       array_of_descriptors.sort_by!{|i| i[:position]}
     when 'weighted'
@@ -601,5 +612,3 @@ class InteractiveKey
   end
 
 end
-
-

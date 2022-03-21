@@ -24,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Incorrect georeference type for points [#2843]
 - After saving an area with 'is absent' flag, the form stays locked in OTU radial Asserted distribution
 - Uniquify people roles list is missing role_object_tag [#2853]
+- Large list of taxon names are not loaded in Citations by source
 
 [#1831]: https://github.com/SpeciesFileGroup/taxonworks/pull/1831
 [#2799]: https://github.com/SpeciesFileGroup/taxonworks/pull/2799

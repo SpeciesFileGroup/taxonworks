@@ -10,13 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_12_28_013444) do
+ActiveRecord::Schema.define(version: 2022_02_16_221450) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
   enable_extension "hstore"
   enable_extension "plpgsql"
   enable_extension "postgis"
+  enable_extension "postgis_raster"
   enable_extension "tablefunc"
 
   create_table "alternate_values", id: :serial, force: :cascade do |t|
@@ -1247,10 +1248,13 @@ ActiveRecord::Schema.define(version: 2021_12_28_013444) do
     t.datetime "updated_at", null: false
     t.integer "position"
     t.bigint "taxon_name_id"
+    t.integer "observation_object_id"
+    t.string "observation_object_type"
     t.index ["collection_object_id"], name: "omri_co_index"
     t.index ["controlled_vocabulary_term_id"], name: "omri_cvt_index"
     t.index ["created_by_id"], name: "index_observation_matrix_row_items_on_created_by_id"
     t.index ["observation_matrix_id"], name: "omri_om_index"
+    t.index ["observation_object_id", "observation_object_type"], name: "omrowitem_oo_polymorphic_index"
     t.index ["otu_id"], name: "index_observation_matrix_row_items_on_otu_id"
     t.index ["project_id"], name: "index_observation_matrix_row_items_on_project_id"
     t.index ["taxon_name_id"], name: "index_observation_matrix_row_items_on_taxon_name_id"
@@ -1270,9 +1274,12 @@ ActiveRecord::Schema.define(version: 2021_12_28_013444) do
     t.integer "reference_count"
     t.integer "cached_observation_matrix_row_item_id"
     t.string "name"
+    t.integer "observation_object_id"
+    t.string "observation_object_type"
     t.index ["collection_object_id"], name: "index_observation_matrix_rows_on_collection_object_id"
     t.index ["created_by_id"], name: "index_observation_matrix_rows_on_created_by_id"
     t.index ["observation_matrix_id"], name: "omr_om_index"
+    t.index ["observation_object_id", "observation_object_type"], name: "obmxrow_polymorphic_obj_index"
     t.index ["otu_id"], name: "index_observation_matrix_rows_on_otu_id"
     t.index ["project_id"], name: "index_observation_matrix_rows_on_project_id"
     t.index ["updated_by_id"], name: "index_observation_matrix_rows_on_updated_by_id"
@@ -1305,9 +1312,16 @@ ActiveRecord::Schema.define(version: 2021_12_28_013444) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "type", null: false
+    t.integer "observation_object_id"
+    t.string "observation_object_type"
+    t.integer "year_made"
+    t.integer "month_made"
+    t.integer "day_made"
+    t.time "time_made"
     t.index ["character_state_id"], name: "index_observations_on_character_state_id"
     t.index ["collection_object_id"], name: "index_observations_on_collection_object_id"
     t.index ["descriptor_id"], name: "index_observations_on_descriptor_id"
+    t.index ["observation_object_id", "observation_object_type"], name: "observation_polymorphic_index"
     t.index ["otu_id"], name: "index_observations_on_otu_id"
     t.index ["project_id"], name: "index_observations_on_project_id"
     t.index ["updated_at"], name: "index_observations_on_updated_at"

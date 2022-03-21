@@ -125,10 +125,6 @@ class CollectionObject < ApplicationRecord
   has_many :georeferences, through: :collecting_event
   has_many :geographic_items, through: :georeferences
 
-  has_many :observation_matrix_row_items, inverse_of: :collection_object, class_name: 'ObservationMatrixRowItem::Single::CollectionObject'
-  has_many :observation_matrix_rows, inverse_of: :collection_object
-  has_many :observation_matrices, inverse_of: :collection_objects, through: :observation_matrix_rows
-
   accepts_nested_attributes_for :collecting_event, allow_destroy: true, reject_if: :reject_collecting_event
 
   before_validation :assign_type_if_total_or_ranged_lot_category_id_provided

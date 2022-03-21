@@ -22,7 +22,7 @@ module Queries
       # @return [Array]
       # A sub scope of sorts. Purpose is to gather all images
       # possible under an OTU that are of an OTU, CollectionObject or Observation.
-      # 
+      #
       # !! Must be used with an otu_id !!
       # @param otu_scope
       #   options
@@ -258,9 +258,10 @@ module Queries
         d
       end
 
-      # TODO: Must be updated on poly branch merge
       def otu_facet_type_material_observations(otu_ids)
-        ::Image.joins(observations: [collection_object: [type_materials: [protonym: [:otus]]]])
+        ::Image.joins(:observations)
+          .joins("INNER JOIN type_materials on type_materials.collection_object_id = observations.observation_object_id AND observations.observation_object_type = 'CollectionObject'")
+          .joins('INNER JOIN otus on otus.taxon_name_id = type_materials.protonym_id')
           .where(otus: {id: otu_ids})
       end
 
@@ -278,16 +279,15 @@ module Queries
           .where(taxon_determinations: {otu_id: otu_ids})
       end
 
-      # TODO: Must be updated on poly branch merge
       def otu_facet_collection_object_observations(otu_ids)
-        ::Image.joins(observations: [collection_object: [:taxon_determinations]])
-          .where(taxon_determinations: {otu_id: otu_ids})
+        ::Image.joins(:observations)
+          .joins('INNER JOIN taxon_determinations on taxon_determinations.biological_collection_object_id = observations.observation_object_id')
+          .where(taxon_determinations: {otu_id: otu_ids}, observations: {observation_object_type: 'CollectionObject'})
       end
 
-      # TODO: Must be updated on poly branch merge
       def otu_facet_otu_observations(otu_ids)
         ::Image.joins(:observations)
-          .where(observations: {otu_id: otu_ids}) # TODO: Move to observation_object with poly merge
+          .where(observations: {observation_object_id: otu_ids, observation_object_type: 'Otu'})
       end
 
       # @return [ActiveRecord::Relation]

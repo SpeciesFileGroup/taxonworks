@@ -11,6 +11,6 @@ export default function (state, args) {
   const observation = state.observations
     .find(o => o.descriptorId === descriptorId && o.characterStateId === characterStateId)
 
-  mergeIntoObservation(observation, { isChecked })
+  mergeIntoObservation(observation, { isChecked, isUnsaved: true })
   setDescriptorUnsaved(state.descriptors.find(d => d.id === descriptorId))
 };
