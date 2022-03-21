@@ -17,6 +17,7 @@ ActiveRecord::Schema.define(version: 2022_02_16_221450) do
   enable_extension "hstore"
   enable_extension "plpgsql"
   enable_extension "postgis"
+  enable_extension "postgis_raster"
   enable_extension "tablefunc"
 
   create_table "alternate_values", id: :serial, force: :cascade do |t|
