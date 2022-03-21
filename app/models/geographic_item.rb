@@ -1090,12 +1090,21 @@ class GeographicItem < ApplicationRecord
 
   # @return [Hash]
   #   in GeoJSON format
-  #   Computed via "raw" PostGIS (much faster).
+  #   Computed via "raw" PostGIS (much faster). This 
+  #   requires the geo_object_type and id.
+  #
   def to_geo_json
     JSON.parse(
-      GeographicItem.connection.select_all(
+      GeographicItem.connection.select_one(
         "SELECT ST_AsGeoJSON(#{geo_object_type}::geometry) a " \
-        "FROM geographic_items WHERE id=#{id};").first['a'])
+        "FROM geographic_items WHERE id=#{id};")['a'])
+  end
+
+  # We don't need to serialize to/from JSON
+  def to_geo_json_string
+    GeographicItem.connection.select_one(
+      "SELECT ST_AsGeoJSON(#{geo_object_type}::geometry) a " \
+      "FROM geographic_items WHERE id=#{id};")['a']
   end
 
   # @return [Hash]

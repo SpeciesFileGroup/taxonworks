@@ -205,6 +205,7 @@ module CollectingEventsHelper
   # @return [GeoJSON::Feature]
   #   the first geographic item of the first georeference on this collecting event
   def collecting_event_to_geo_json_feature(collecting_event)
+    return nil if collecting_event.nil?
     # !! avoid loading the whole GeographicItem, just grab the bits we need:
     # self.georeferences(true)  # do this to
     collecting_event_to_simple_json_feature(collecting_event).merge(

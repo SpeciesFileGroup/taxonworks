@@ -41,6 +41,8 @@ module AssertedDistributionsHelper
   # @return [Hash] GeoJSON feature
   def asserted_distribution_to_geo_json_feature(asserted_distribution)
     return nil if asserted_distribution.nil?
+    return nil unless asserted_distribution.has_shape?
+    
     return {
       'type' => 'Feature',
 

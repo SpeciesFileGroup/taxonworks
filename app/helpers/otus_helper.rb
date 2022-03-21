@@ -102,54 +102,63 @@ module OtusHelper
   # @return Hash
   #   A GeoJSON collection of distribution data in x parts
   #     need a `to_geo_json` for each object
-  #   
+  #
   #      :asserted_distributions
   #         with shape
   #         without shapes
   #      :collection_objects
-  #           with georeferences 
+  #           with georeferences
   #           with GeographicAreas
   #      :type material
   #           with georeferences
   #           with GeographicAreas
   # TODO:
-  # 
+  #
   #  * make properties universal
-  #    type: 'Model', 
+  #    type: 'Model',
   #    id: id,
   #    label: <label>
   # * merge origin_otu_id: id to reference coordinate OTUs
   #
-  def otu_distribution(otu)
+  def otu_distribution(otu, children = true)
     return {} if otu.nil?
     h = {
       'type' => 'FeatureCollection',
-      'features' => [], 
+      'features' => [],
       'properties' => {
         'target_otu_id' => otu.id,
         'target_otu_label' => label_for_otu(otu)
       }
     }
 
-    Otu.coordinate_otus(otu.id).each do |o|
+    otus = if children
+             otu.coordinate_otus_with_children
+           else
+             Otu.coordinate_otus(otu.id)
+           end
+
+    otus.each do |o|
       o.current_collection_objects.each do |c|
-        g = c.to_geo_json_feature
-        g.properties['otu_id'] = o.id
-        h['features'].push g
+        if g = collection_object_to_geo_json_feature(c)
+          g.properties['otu_id'] = o.id
+          h['features'].push g
+        end
       end
 
       o.asserted_distributions.each do |a|
-        g = asserted_distribution_to_geo_json_feature(a)
-        g['properties']['otu_id'] = o.id
+        if g = asserted_distribution_to_geo_json_feature(a)
+          g['properties']['otu_id'] = o.id
 
-        h['features'].push g
+          h['features'].push g
+        end
       end
 
       o.type_materials.each do |t|
-        g = type_material_to_geo_json_feature(t)
-        g.properties['otu_id'] = o.id
+        if g = type_material_to_geo_json_feature(t)
+          g.properties['otu_id'] = o.id
 
-        h['features'].push t.to_geo_json_feature
+          h['features'].push t.to_geo_json_feature
+        end
       end
     end
     h

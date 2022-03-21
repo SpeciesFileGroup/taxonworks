@@ -37,9 +37,8 @@ module Gis::GeoJSON
      }
 =end
 
-  # rubocop:disable Style/StringHashKeys
-# @param objects [Array feature_collections]
-# @return [JSON object]
+  # @param objects [Array feature_collections]
+  # @return [JSON object]
   def self.aggregation(objects, properties = nil)
     count  = 0
     result = {
@@ -64,8 +63,8 @@ module Gis::GeoJSON
   end
 
 
-# @param objects [Array of instances that respond to .to_geo_json_feature]
-# @return [geo_JSON object]
+  # @param objects [Array of instances that respond to .to_geo_json_feature]
+  # @return [geo_JSON object]
   def self.feature_collection(objects, properties = nil)
     count  = 0
     result = {
@@ -89,8 +88,8 @@ module Gis::GeoJSON
     result
   end
 
-# @param [Object] object
-# @return [Hash]
+  # @param [Object] object
+  # @return [Hash]
   def self.feature(object)
     result = {
       'type'     => 'FeatureCollection',
@@ -100,12 +99,11 @@ module Gis::GeoJSON
     result
   end
 
-# # @return [a Feature]
-# def to_geo_json_using_entity_factory
-#   f                   = RGeo::GeoJSON::EntityFactory.new
-#   inserted_attributes = {foo: "bar"} # some of self.attributes, but not all
-#   f.feature(self.geo_object, self.id, inserted_attributes)
-# end
-# rubocop:enable Style/StringHashKeys
+  # # @return [a Feature]
+  # def to_geo_json_using_entity_factory
+  #   f                   = RGeo::GeoJSON::EntityFactory.new
+  #   inserted_attributes = {foo: "bar"} # some of self.attributes, but not all
+  #   f.feature(self.geo_object, self.id, inserted_attributes)
+  # end
 
 end

@@ -17,11 +17,13 @@ module TypeMaterialsHelper
 
   def type_material_to_geo_json_feature(type_material)
     return nil if type_material.nil?
-    a = collection_object_to_geo_json_feature(type_material.collection_object)
-    a['properties']['target'] = {
-      'type' => 'TypeMaterial',
-      'id' => type_material.id
-    }
+    if a = collection_object_to_geo_json_feature(type_material.collection_object)
+      a['properties']['target'] = {
+        'type' => 'TypeMaterial',
+        'id' => type_material.id
+      }
+    end
+
     a
   end
 

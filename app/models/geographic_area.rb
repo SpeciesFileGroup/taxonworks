@@ -369,7 +369,8 @@ class GeographicArea < ApplicationRecord
       'type' => 'Feature',
       'properties' => {}
     }
-    area = geographic_items.order(:id)
+    area = geographic_items.order(:id) # Not prioritized!? 
+
     result['geometry'] = area.first.to_geo_json unless area.empty?
     result
   end
