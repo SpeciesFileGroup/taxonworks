@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - A qualitative descriptor batch loader (Data->Descriptors->Batch load) [#1831] (in part)
+- Modal depictions for all descriptors in Matrix row coder [#2847]
 
 ### Changed
 - Replace autocompletes by smart selectors in Common Name form on OTU radial [#2840]
@@ -28,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2799]: https://github.com/SpeciesFileGroup/taxonworks/pull/2799
 [#2840]: https://github.com/SpeciesFileGroup/taxonworks/pull/2840
 [#2843]: https://github.com/SpeciesFileGroup/taxonworks/pull/2843
+[#2847]: https://github.com/SpeciesFileGroup/taxonworks/pull/2847
 [#2848]: https://github.com/SpeciesFileGroup/taxonworks/pull/2848
 [#2853]: https://github.com/SpeciesFileGroup/taxonworks/pull/2853
 
