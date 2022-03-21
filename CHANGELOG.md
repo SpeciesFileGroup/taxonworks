@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwC importer sex mapped changed to prioritize `http://rs.tdwg.org/dwc/terms/sex` DwC URI and also create sex biocuration group with such URI if none exist.
 - Taxon name label for original combination label in Citations by source task.
 - Add separate scrollbars to row and column tables in New observation matrix task [#2799]
+- Change form fields order in OTU radial - Biological associations
 
 ### Fixed
 - OTUs and collection objects batchloaders failing to initialize due to Ruby syntax error

@@ -14,7 +14,7 @@
       <source-picker
         v-model="citation"
         v-model:absent="asserted_distribution.is_absent"
-        ref="source"
+        absent-field
         @lock="lock.source = $event"
       />
       <button
@@ -76,6 +76,7 @@ import GeographicArea from './geographicArea.vue'
 import SourcePicker from './sourcePicker.vue'
 import Spinner from 'components/spinner.vue'
 import MapComponent from 'components/georeferences/map.vue'
+import makeEmptyCitation from '../../helpers/makeEmptyCitation.js'
 import { addToArray } from 'helpers/arrays.js'
 import { AssertedDistribution } from 'routes/endpoints'
 
@@ -88,13 +89,6 @@ const EXTEND_PARAMS = {
     'source'
   ]
 }
-
-const makeEmptyCitation = () => ({
-  id: undefined,
-  source_id: undefined,
-  pages: undefined,
-  is_original: undefined
-})
 
 export default {
   mixins: [CRUD, AnnotatorExtend],

@@ -22,7 +22,7 @@
       <div class="margin-small-top">
         <span
           v-if="selectedSource"
-          v-html="selectedSource.object_tag"
+          v-html="selectedSource.cached"
         />
       </div>
       <span
@@ -49,7 +49,7 @@
             Is original
           </label>
         </li>
-        <li>
+        <li v-if="absentField">
           <label class="inline middle">
             <input
               v-model="isAbsent"
@@ -85,6 +85,11 @@ export default {
     modelValue: {
       type: Object,
       required: true
+    },
+
+    absentField: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -117,6 +122,10 @@ export default {
       set (value) {
         this.$emit('update:modelValue', value)
       }
+    },
+
+    sourceId () {
+      return this.citation.source_id
     }
   },
 
@@ -128,11 +137,11 @@ export default {
   },
 
   watch: {
-    citation: {
+    sourceId: {
       handler (newVal, oldVal) {
-        if (newVal.source_id) {
-          if (newVal.source_id !== oldVal.source_id) {
-            Source.find(newVal.source_id).then(({ body }) => {
+        if (newVal) {
+          if (newVal !== oldVal) {
+            Source.find(newVal).then(({ body }) => {
               this.selectedSource = body
             })
           }
