@@ -222,6 +222,7 @@ export default {
     .matrix-tables {
       overflow-y: auto;
       max-height: calc(100vh - 200px);
+      min-width: fit-content;
     }
   }
 </style>

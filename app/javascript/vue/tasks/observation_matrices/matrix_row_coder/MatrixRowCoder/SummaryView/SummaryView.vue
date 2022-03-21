@@ -1,9 +1,9 @@
 <template>
   <div
-    class="summary-view" 
+    class="summary-view"
     :class="{ 'summary-view--unsaved': isUnsaved, 'summary-view--saved-at-least-once': savedAtLeastOnce }">
     <DescriptorModal
-      v-if="isQualitative && isModalVisible"
+      v-if="isModalVisible"
       :descriptor="descriptor"
       @close="isModalVisible = false"
     />
@@ -12,14 +12,16 @@
       :logo-size="{ width: '50px', height: '50px'}"
       v-if="isSaving"
     />
-    <h2 class="summary-view__title flex-separate">
-      <div class="horizontal-left-content">
-        <span
-          :class="titleStyle"
-          @click="isModalVisible = true"
-        >
-          {{ index }} {{ descriptor.title }}
-        </span>
+    <div class="flex-separate middle">
+      <div class="horizontal-right-content">
+        <h2 class="summary-view__title">
+          <span
+            class="link cursor-pointer"
+            @click="isModalVisible = true"
+          >
+            {{ index }} {{ descriptor.title }}
+          </span>
+        </h2>
         <RadialAnnotator :global-id="descriptor.globalId" />
         <RadialObject :global-id="descriptor.globalId" />
       </div>
@@ -31,11 +33,11 @@
           Top
         </button>
       </p>
-    </h2>
+    </div>
     <div>
       <slot />
     </div>
-    <SaveCountdown :descriptor="descriptor"/>
+    <SaveCountdown :descriptor="descriptor" />
   </div>
 </template>
 
@@ -66,11 +68,6 @@ export default {
       required: true
     },
 
-    isQualitative: {
-      type: Boolean,
-      default: false
-    },
-
     index: {
       type: Number,
       required: true
@@ -92,12 +89,6 @@ export default {
 
     isSaving () {
       return this.$store.getters[GetterNames.IsDescriptorSaving](this.$props.descriptor.id)
-    },
-
-    titleStyle () {
-      return this.isQualitative
-        ? 'link cursor-pointer'
-        : ''
     }
   },
 
