@@ -7,10 +7,17 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-- A qualitative descriptor batch loader (Data->Descriptors->Batch load) [#1831] (in part)
+- Matrix row coder supports mutiple Quantitative and Sample observations per "cell"
+- Exracts are observable [#2037]
+- Download observation matrix descriptors as text
+- Download observation matrix observations in .tab format
+- Observations have `made_year|month|day|time` attributes
+- Qualitative descriptor batch loader (Data->Descriptors->Batch load) [#1831] (in part)
 - Modal depictions for all descriptors in Matrix row coder [#2847]
+- New georeference type for user-supplied points [#2843]
 
 ### Changed
+- Observations now are polymorphic [#2037]
 - Replace autocompletes by smart selectors in Common Name form on OTU radial [#2840]
 - Updated Ruby gems
 - DwC importer sex mapped changed to prioritize `http://rs.tdwg.org/dwc/terms/sex` DwC URI and also create sex biocuration group with such URI if none exist.
@@ -21,11 +28,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 - OTUs and collection objects batchloaders failing to initialize due to Ruby syntax error
 - Sqed depictions crash on cache update when no processing results are available
-- Incorrect georeference type for points [#2843]
+- Asserted distributions on OTU radial is_absent no longer locks [#2848]
 - After saving an area with 'is absent' flag, the form stays locked in OTU radial Asserted distribution
 - Uniquify people roles list is missing role_object_tag [#2853]
 - Large list of taxon names are not loaded in Citations by source
 
+[#2037]: https://github.com/SpeciesFileGroup/taxonworks/pull/2037
 [#1831]: https://github.com/SpeciesFileGroup/taxonworks/pull/1831
 [#2799]: https://github.com/SpeciesFileGroup/taxonworks/pull/2799
 [#2840]: https://github.com/SpeciesFileGroup/taxonworks/pull/2840

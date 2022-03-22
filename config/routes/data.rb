@@ -442,14 +442,14 @@ resources :observation_matrix_rows, only: [:index, :show] do
   end
 end
 
-resources :observation_matrix_column_items do
+resources :observation_matrix_column_items, except: [:new] do
   concerns [:data_routes]
   collection do
     post :batch_create
   end
 end
 
-resources :observation_matrix_row_items do
+resources :observation_matrix_row_items, except: [:new] do
   concerns [:data_routes]
   collection do
     post :batch_create

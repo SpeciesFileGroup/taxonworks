@@ -54,13 +54,6 @@ RSpec.describe ObservationMatrixRowItemsController, type: :controller do
     end
   end
 
-  describe 'GET #new' do
-    it 'assigns a new observation_matrix_row_item as @observation_matrix_row_item' do
-      get :new, params: {}, session: valid_session
-      expect(assigns(:observation_matrix_row_item)).to be_a_new(ObservationMatrixRowItem)
-    end
-  end
-
   describe 'GET #edit' do
     it 'assigns the requested matrix_row_item as @observation_matrix_row_item' do
       observation_matrix_row_item = ObservationMatrixRowItem.create! valid_attributes
@@ -73,31 +66,21 @@ RSpec.describe ObservationMatrixRowItemsController, type: :controller do
     context 'with valid params' do
       it 'creates a new MatrixRowItem' do
         expect {
-          post :create, params: {observation_matrix_row_item: valid_attributes}, session: valid_session
+          post :create, params: {observation_matrix_row_item: valid_attributes}, format: :json, session: valid_session
         }.to change(ObservationMatrixRowItem, :count).by(1)
       end
 
       it 'assigns a newly created matrix_row_item as @observation_matrix_row_item' do
-        post :create, params: {observation_matrix_row_item: valid_attributes}, session: valid_session
+        post :create, params: {observation_matrix_row_item: valid_attributes}, format: :json, session: valid_session
         expect(assigns(:observation_matrix_row_item)).to be_a(ObservationMatrixRowItem)
         expect(assigns(:observation_matrix_row_item)).to be_persisted
-      end
-
-      it 'redirects to the created matrix_row_item' do
-        post :create, params: {observation_matrix_row_item: valid_attributes}, session: valid_session
-        expect(response).to redirect_to(ObservationMatrixRowItem.last.metamorphosize)
       end
     end
 
     context 'with invalid params' do
       it 'assigns a newly created but unsaved matrix_row_item as @observation_matrix_row_item' do
-        post :create, params: {observation_matrix_row_item: invalid_attributes}, session: valid_session
+        post :create, params: {observation_matrix_row_item: invalid_attributes}, format: :json, session: valid_session
         expect(assigns(:observation_matrix_row_item).metamorphosize).to be_a_new(ObservationMatrixRowItem)
-      end
-
-      it 're-renders the \'new\' template' do
-        post :create, params: {observation_matrix_row_item: invalid_attributes}, session: valid_session
-        expect(response).to render_template('new')
       end
     end
   end
@@ -110,35 +93,23 @@ RSpec.describe ObservationMatrixRowItemsController, type: :controller do
 
       it 'updates the requested matrix_row_item' do
         observation_matrix_row_item = ObservationMatrixRowItem.create! valid_attributes
-        put :update, params: {id: observation_matrix_row_item.to_param, observation_matrix_row_item: new_attributes}, session: valid_session
+        put :update, params: {id: observation_matrix_row_item.to_param, observation_matrix_row_item: new_attributes}, format: :json, session: valid_session
         observation_matrix_row_item.reload
         expect(observation_matrix_row_item.observation_matrix_id).to eq(new_attributes[:observation_matrix_id])
       end
 
       it 'assigns the requested matrix_row_item as @observation_matrix_row_item' do
         observation_matrix_row_item = ObservationMatrixRowItem.create! valid_attributes
-        put :update, params: {id: observation_matrix_row_item.to_param, observation_matrix_row_item: valid_attributes}, session: valid_session
+        put :update, params: {id: observation_matrix_row_item.to_param, observation_matrix_row_item: valid_attributes}, format: :json, session: valid_session
         expect(assigns(:observation_matrix_row_item)).to eq(observation_matrix_row_item)
-      end
-
-      it 'redirects to the matrix_row_item' do
-        observation_matrix_row_item = ObservationMatrixRowItem.create! valid_attributes
-        put :update, params: {id: observation_matrix_row_item.to_param, observation_matrix_row_item: valid_attributes}, session: valid_session
-        expect(response).to redirect_to(observation_matrix_row_item.metamorphosize)
       end
     end
 
     context 'with invalid params' do
       it 'assigns the matrix_row_item as @observation_matrix_row_item' do
         observation_matrix_row_item = ObservationMatrixRowItem.create! valid_attributes
-        put :update, params: {id: observation_matrix_row_item.to_param, observation_matrix_row_item: invalid_attributes}, session: valid_session
+        put :update, params: {id: observation_matrix_row_item.to_param, observation_matrix_row_item: invalid_attributes}, format: :json, session: valid_session
         expect(assigns(:observation_matrix_row_item)).to eq(observation_matrix_row_item)
-      end
-
-      it 're-renders the \'edit\' template' do
-        observation_matrix_row_item = ObservationMatrixRowItem.create! valid_attributes
-        put :update, params: {id: observation_matrix_row_item.to_param, observation_matrix_row_item: invalid_attributes}, session: valid_session
-        expect(response).to render_template('edit')
       end
     end
   end
