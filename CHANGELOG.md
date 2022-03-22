@@ -7,6 +7,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- 'Infferred combination' to Browse taxon name header, when required [#2836]
 - Extract autocomplete
 - Matrix row coder supports mutiple Quantitative and Sample observations per "cell"
 - Exracts are observable [#2037]
@@ -36,6 +37,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Large list of taxon names are not loaded in Citations by source
 - Missing source_id parameter in Citation by source link on New asserted distribution and Browse OTU
 
+[#2836]: https://github.com/SpeciesFileGroup/taxonworks/pull/2836
 [#2037]: https://github.com/SpeciesFileGroup/taxonworks/pull/2037
 [#1831]: https://github.com/SpeciesFileGroup/taxonworks/pull/1831
 [#2799]: https://github.com/SpeciesFileGroup/taxonworks/pull/2799
