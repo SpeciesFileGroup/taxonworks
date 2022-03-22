@@ -46,7 +46,7 @@
             <a
               v-for="citation in assertedDistribution.citations"
               :key="citation.id"
-              :href="`/tasks/nomenclature/by_source?source_id=${citation.source.id}`"
+              :href="`/tasks/nomenclature/by_source?source_id=${citation.source_id}`"
               :title="citation.source.cached">
               <span v-html="authorString(citation)"/>&nbsp;
             </a>
