@@ -76,6 +76,7 @@ import {
   ObservationMatrixRowItem,
   Otu
 } from 'routes/endpoints'
+import { OBSERVATION_MATRIX_ROW_SINGLE, OTU } from 'constants/index.js'
 
 export default {
   components: {
@@ -182,9 +183,11 @@ export default {
           Promise.all(promises).then(() => {
             const data = {
               observation_matrix_id: this.selectedMatrix.id,
-              otu_id: this.otuSelected,
-              type: 'ObservationMatrixRowItem::Single::Otu'
+              observation_object_id: this.otuSelected,
+              observation_object_type: OTU,
+              type: OBSERVATION_MATRIX_ROW_SINGLE
             }
+
             ObservationMatrixRowItem.create({ observation_matrix_row_item: data }).then(() => {
               ObservationMatrixRow.where({ otu_id: this.otuSelected }).then(response => {
                 this.rows = response.body

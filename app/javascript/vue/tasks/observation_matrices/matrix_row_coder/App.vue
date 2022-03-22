@@ -26,6 +26,8 @@ import NavigationMatrix from './MatrixRowCoder/Navigation/NavigationMatrix.vue'
 import { ObservationMatrix } from 'routes/endpoints'
 
 export default {
+  name: 'MatrixRowCoderApp',
+
   components: {
     MatrixRowCoder,
     NavigationMatrix,

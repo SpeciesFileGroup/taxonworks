@@ -4,38 +4,41 @@ import ObservationTypes from '../helpers/ObservationTypes'
 
 export default function ({ dispatch, state, commit }, descriptorId) {
   const observations = state.observations
-    .filter(o => o.descriptorId === descriptorId)
+    .filter(o => o.descriptorId === descriptorId && o.isUnsaved)
+
   return Promise.all(observations.map(o => {
-    if (!isUpdatableObservation(o)) {
-      saveUnupdatableObservation(o)
-    } else if (o.id) { 
-      return dispatch(ActionNames.UpdateObservation, descriptorId)
+    if (isQualitativeObservation(o)) {
+      saveQualitativeObservation(o)
+    } else if (o.id) {
+      return dispatch(ActionNames.UpdateObservation, { descriptorId, observationId: o.id })
     } else {
-      return dispatch(ActionNames.CreateObservation, { descriptorId })
+      return dispatch(ActionNames.CreateObservation, { descriptorId, internalId: o.internalId })
     }
   }))
 
-  function saveUnupdatableObservation (observation) {
-    if (observation.id && !observation.isChecked) { 
-      return dispatch(ActionNames.RemoveObservation, makeObservationArgs(observation)) 
-    } else if (observation.isChecked) { 
-      return dispatch(ActionNames.CreateObservation, makeObservationArgs(observation)) 
-    } else { 
+  function saveQualitativeObservation (observation) {
+    if (observation.id && !observation.isChecked) {
+      return dispatch(ActionNames.RemoveObservation, makeObservationArgs(observation))
+    } else if (observation.isChecked && observation.id) {
+      return dispatch(ActionNames.UpdateObservation, makeObservationArgs(observation))
+    } else if (observation.isChecked) {
+      return dispatch(ActionNames.CreateObservation, makeObservationArgs(observation))
+    } else {
       commit(MutationNames.ObservationSaved, makeObservationArgs(observation))
     }
   }
 };
 
-function isUpdatableObservation (observation) {
-  return observation.type !== ObservationTypes.Qualitative
+function isQualitativeObservation (observation) {
+  return observation.type === ObservationTypes.Qualitative
 }
 
 function makeObservationArgs (observation) {
   const args = {
-    descriptorId: observation.descriptorId
+    descriptorId: observation.descriptorId,
+    observationId: observation.id || observation.internalId,
+    characterStateId: observation.characterStateId
   }
-
-  if (observation.type === ObservationTypes.Qualitative) { args.characterStateId = observation.characterStateId }
 
   return args
 }

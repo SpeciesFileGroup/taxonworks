@@ -99,13 +99,14 @@ export default {
   computed: {
     isOtu() {
       return this.$store.getters[GetterNames.GetMatrixRow] &&
-      (this.$store.getters[GetterNames.GetMatrixRow].row_object.base_class == 'Otu' || this.$store.getters[GetterNames.GetMatrixRow].row_object.base_class == 'CollectionObject')
+      // José - class is in observation_object_type, and will soon be other things as well, like Extract
+      (this.$store.getters[GetterNames.GetMatrixRow].observation_object.base_class == 'Otu' || this.$store.getters[GetterNames.GetMatrixRow].observation_object.base_class == 'CollectionObject')
     },
     rowGlobalId() {
-      return this.$store.getters[GetterNames.GetMatrixRow].row_object.global_id
+      return this.$store.getters[GetterNames.GetMatrixRow].observation_object.global_id
     },
     rowClass() {
-      return this.$store.getters[GetterNames.GetMatrixRow].row_object.base_class
+      return this.$store.getters[GetterNames.GetMatrixRow].observation_object.base_class
     },
     buttonLabel() {
       return this.copy ? 'Copy observation' : 'Clone observations'

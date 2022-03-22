@@ -3,8 +3,8 @@ module TaxonName::MatrixHooks
 
   # @return Scope
   def coordinate_observation_matrix_row_items
-    ObservationMatrixRowItem::Dynamic::TaxonName.joins(:taxon_name)
-      .where( taxon_name: self_and_ancestors )
+    ObservationMatrixRowItem::Dynamic::TaxonName #.joins(:taxon_name)
+      .where( observation_object: self_and_ancestors )
   end
 
   def in_scope_observation_matrix_row_items

@@ -20,10 +20,10 @@
           <description-main class="margin-small-right"/>
           <clone-scoring
             class="margin-small-right"
-            @onCopy="copyScorings"
-            @onClone="cloneScorings"
+            @on-copy="copyScorings"
+            @on-clone="cloneScorings"
           />
-          <destroy-all-observations @onConfirm="destroyAllObservations"/>
+          <destroy-all-observations @on-confirm="destroyAllObservations"/>
         </div>
       </div>
     </navbar-component>
@@ -47,14 +47,13 @@
 
 <script>
 import { mapState } from 'vuex'
-import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
-import ContinuousDescriptor from './SingleObservationDescriptor/ContinuousDescriptor/ContinuousDescriptor.vue'
+import ContinuousDescriptor from './ContinuousDescriptor/ContinuousDescriptor.vue'
 import FreeTextDescriptor from './SingleObservationDescriptor/FreeText/FreeText.vue'
 import PresenceDescriptor from './SingleObservationDescriptor/PresenceDescriptor/PresenceDescriptor.vue'
+import SampleDescriptor from './SampleDescriptor/SampleDescriptor.vue'
 import QualitativeDescriptor from './QualitativeDescriptor/QualitativeDescriptor.vue'
-import SampleDescriptor from './SingleObservationDescriptor/SampleDescriptor/SampleDescriptor.vue'
 import MediaDescriptor from './MediaDescriptor/MediaDescriptor.vue'
 import Spinner from 'components/spinner'
 import CloneScoring from './Clone/Clone'

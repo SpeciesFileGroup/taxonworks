@@ -11,6 +11,20 @@ module ImagesHelper
     render('/images/quick_search_form')
   end
 
+  # Return a ShortenedUrl to the original file image
+  # @params image [Image, Integer]
+  def image_short_url(image, api: true)
+    if !image.kind_of?(::Image)
+      image = ::Image.find(image)
+    end
+
+    if api
+      short_url( api_v1_image_file_path( image) )
+    else
+      short_url( image.image_file.url(:original) )
+    end
+  end
+
   # @return [True]
   #   indicates a custom partial should be used, see list_helper.rb
   def images_recent_objects_partial

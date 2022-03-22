@@ -90,6 +90,15 @@ browse_nomenclature_task:
   categories:
     - nomenclature
     - browse
+observation_matrices_hub_task:
+  hub: true
+  name: 'Observation matrix hub'
+  related:
+  categories:
+    - matrix
+    - dna
+  status: prototype
+  description: 'An overview of observation matrices and descriptors.  Includes links to new records.'
 nomenclature_by_source_task:
   hub: true
   name: 'Citations by source'
@@ -351,15 +360,6 @@ uniquify_people_task:
     - nomenclature
   status: stable
   description: 'Find and merge redundant or duplicated people, e.g., from import.'
-observation_matrices_hub_task:
-  hub: true
-  name: 'Observation matrix hub'
-  related:
-  categories:
-    - matrix
-    - dna
-  status: prototype
-  description: 'An overview of observation matrices and descriptors.  Includes links to new records.'
 observation_matrix_view_task:
   hub: true
   name: 'View an observation matrix'

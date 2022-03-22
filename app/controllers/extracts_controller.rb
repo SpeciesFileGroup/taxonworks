@@ -78,6 +78,14 @@ class ExtractsController < ApplicationController
     end
   end
 
+  def autocomplete
+    @extracts =
+      ::Queries::Extract::Autocomplete.new(
+        params[:term],
+        project_id: sessions_current_project_id
+      ).autocomplete
+  end
+
   def search
     if params[:id].blank?
       redirect_to extracts_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'

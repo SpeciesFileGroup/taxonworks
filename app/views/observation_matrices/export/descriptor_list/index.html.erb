@@ -1,0 +1,5 @@
+<%= link_to 'Back', observation_matrix_view_task_path(observation_matrix_id: @observation_matrix.id) -%>
+
+<pre>
+<%= render partial: 'observation_matrices/export/descriptor_list/descriptor_list', locals: { as_file: true } %> 
+</pre>

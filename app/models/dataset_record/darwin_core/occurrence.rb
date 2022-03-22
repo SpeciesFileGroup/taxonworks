@@ -406,10 +406,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # basisOfRecord: [Check it is 'PreservedSpecimen', 'FossilSpecimen']
     basis = get_field_value(:basisOfRecord)
     if 'FossilSpecimen'.casecmp(basis) == 0
-      fossil_biocuration = BiocurationClass.find_by(uri: 'http://rs.tdwg.org/dwc/terms/FossilSpecimen')
+      fossil_biocuration = BiocurationClass.find_by(uri: DWC_FOSSIL_URI)
 
       raise DarwinCore::InvalidData.new(
-        { 'basisOfRecord' => ["Biocuration class http://rs.tdwg.org/dwc/terms/FossilSpecimen is not present in project"] }
+        { 'basisOfRecord' => ["Biocuration class #{DWC_FOSSIL_URI} is not present in project"] }
       ) if fossil_biocuration.nil?
 
       Utilities::Hashes::set_unless_nil(res[:specimen], :biocuration_classifications, [BiocurationClassification.new(biocuration_class: fossil_biocuration)])
@@ -457,8 +457,13 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     sex = get_field_value(:sex)
     if sex
       raise DarwinCore::InvalidData.new({ "sex": ["Only single-word controlled vocabulary supported at this time."] }) if sex =~ /\s/
-      group   = BiocurationGroup.where(project_id: Current.project_id).where('name ILIKE ?', 'sex').first
-      group ||= BiocurationGroup.create!(name: 'Sex', definition: 'The sex of the individual(s) [CREATED FROM DWC-A IMPORT]')
+      group   = BiocurationGroup.find_by(project_id: Current.project_id, uri: DWC_ATTRIBUTE_URIS[:sex])
+      group ||= BiocurationGroup.where(project_id: Current.project_id).where('name ILIKE ?', 'sex').first
+      group ||= BiocurationGroup.create!(
+        name: 'Sex',
+        definition: 'The sex of the individual(s) [CREATED FROM DWC-A IMPORT]',
+        uri: DWC_ATTRIBUTE_URIS[:sex]
+      )
       # TODO: BiocurationGroup.biocuration_classes not returning AR relation
       sex_biocuration = group.biocuration_classes.detect { |c| c.name.casecmp(sex) == 0 }
       unless sex_biocuration
