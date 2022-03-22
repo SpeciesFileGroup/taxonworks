@@ -7,6 +7,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Extract autocomplete
 - Matrix row coder supports mutiple Quantitative and Sample observations per "cell"
 - Exracts are observable [#2037]
 - Download observation matrix descriptors as text

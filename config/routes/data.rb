@@ -256,6 +256,7 @@ end
 resources :extracts do
   concerns [:data_routes]
   collection do
+    get :autocomplete, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
   end
 
