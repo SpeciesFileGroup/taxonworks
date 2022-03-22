@@ -24,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Taxon name label for original combination label in Citations by source task.
 - Add separate scrollbars to row and column tables in New observation matrix task [#2799]
 - Change form fields order in OTU radial - Biological associations
+- Updated ruby gems
 
 ### Fixed
 - OTUs and collection objects batchloaders failing to initialize due to Ruby syntax error
