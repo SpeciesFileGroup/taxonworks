@@ -1,4 +1,8 @@
+import DescriptorContainer from './DescriptorContainer.vue'
+
 export default {
+  components: { DescriptorContainer },
+
   props: {
     descriptor: {
       type: Object,

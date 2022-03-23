@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Modal depictions for all descriptors in Matrix row coder [#2847]
 - New georeference type for user-supplied points [#2843]
 - Extract rows in New observation matrix
+- Depiction modal for all descriptors in Interactive key
 
 ### Changed
 - Observations now are polymorphic [#2037]

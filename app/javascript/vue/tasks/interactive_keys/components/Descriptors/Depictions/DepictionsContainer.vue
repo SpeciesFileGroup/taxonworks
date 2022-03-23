@@ -36,31 +36,33 @@
         {{ descriptor.description }}
       </h3>
       <hr v-if="descriptor.description && depictions.find(d => d.caption != null)">
-      <template
-        v-for="(row, rIndex) in chunkArray(descriptor.states, 3)"
-        :key="`${rIndex}-depictions`">
-        <div class="wrapper">
-          <character-state
-            v-for="(characterState, index) in row"
-            :key="index"
-            v-model="selected"
-            :character-state="characterState"
-          />
-        </div>
-        <div class="wrapper margin-medium-bottom">
-          <div
-            v-for="(characterState, index) in row"
-            :key="index">
-            <label>
-              <input
-                type="checkbox"
-                :value="characterState.id"
-                v-model="selected">
-              <span v-if="characterState.status === 'useless'">-</span> {{ characterState.name }} ({{ characterState.number_of_objects }})
-            </label>
+      <div v-if="descriptor.states">
+        <template
+          v-for="(row, rIndex) in chunkArray(descriptor.states, 3)"
+          :key="`${rIndex}-depictions`">
+          <div class="wrapper">
+            <character-state
+              v-for="(characterState, index) in row"
+              :key="index"
+              v-model="selected"
+              :character-state="characterState"
+            />
           </div>
-        </div>
-      </template>
+          <div class="wrapper margin-medium-bottom">
+            <div
+              v-for="(characterState, index) in row"
+              :key="index">
+              <label>
+                <input
+                  type="checkbox"
+                  :value="characterState.id"
+                  v-model="selected">
+                <span v-if="characterState.status === 'useless'">-</span> {{ characterState.name }} ({{ characterState.number_of_objects }})
+              </label>
+            </div>
+          </div>
+        </template>
+      </div>
     </template>
     <template #footer>
       <hr>
@@ -92,7 +94,8 @@ export default {
       type: Object,
       required: true
     },
-    modelValue: {
+
+    characters: {
       type: Object,
       default: () => []
     }
@@ -104,17 +107,6 @@ export default {
     'close'
   ],
 
-  computed: {
-    filter: {
-      get () {
-        return this.modelValue
-      },
-      set (value) {
-        this.$emit('update:modelValue', value)
-      }
-    }
-  },
-
   data () {
     return {
       depictions: [],
@@ -124,9 +116,11 @@ export default {
   },
 
   created () {
-    const data = this.modelValue[this.descriptor.id]
-    this.selected = data ? Array.isArray(data) ? data.slice(0) : [data] : []
+    const characterId = this.characters[this.descriptor.id]
+
+    this.selected = characterId ? Array.isArray(characterId) ? characterId.slice(0) : [characterId] : []
     this.copy = this.selected.slice()
+
     GetDescriptorDepictions(this.descriptor.id).then(response => {
       this.depictions = response.body
     })
