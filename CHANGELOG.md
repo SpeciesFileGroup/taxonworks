@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Qualitative descriptor batch loader (Data->Descriptors->Batch load) [#1831] (in part)
 - Modal depictions for all descriptors in Matrix row coder [#2847]
 - New georeference type for user-supplied points [#2843]
+- Extract rows in New observation matrix
 
 ### Changed
 - Observations now are polymorphic [#2037]

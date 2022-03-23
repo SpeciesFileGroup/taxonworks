@@ -3,7 +3,7 @@
     <p>Select</p>
     <ul class="context-menu no_bullets">
       <li
-        v-for="item in typeLabels"
+        v-for="item in Object.keys(autocompleteType)"
         :key="item">
         <label>
           <input
@@ -20,16 +20,18 @@
       <otu-picker
         v-if="isOtuType"
         clear-after
-        @getItem="createRowItem($event.id)"/>
+        @get-item="createRowItem"
+      />
       <autocomplete
         v-else
         min="2"
         :placeholder="`Select a ${type}`"
         label="label_html"
         :clear-after="true"
-        @getItem="createRowItem($event.id)"
-        :url="autocomplete_type[type]"
-        param="term"/>
+        @get-item="createRowItem"
+        :url="autocompleteType[type]"
+        param="term"
+      />
     </div>
   </div>
 </template>
@@ -43,7 +45,8 @@ import ObservationTypes from '../../const/types.js'
 import OtuPicker from 'components/otu/otu_picker/otu_picker'
 import { 
   COLLECTION_OBJECT,
-  OTU
+  OTU,
+  EXTRACT
 } from 'constants/index.js'
 
 export default {
@@ -64,13 +67,10 @@ export default {
 
   data () {
     return {
-      typeLabels: [
-        OTU,
-        COLLECTION_OBJECT
-      ],
-      autocomplete_type: {
+      autocompleteType: {
         [OTU]: '/otus/autocomplete',
-        [COLLECTION_OBJECT]: '/collection_objects/autocomplete'
+        [COLLECTION_OBJECT]: '/collection_objects/autocomplete',
+        [EXTRACT]: '/extracts/autocomplete'
       },
       types: ObservationTypes.Row,
       type: OTU
@@ -78,7 +78,7 @@ export default {
   },
 
   methods: {
-    createRowItem (id) {
+    createRowItem ({ id }) {
       const data = {
         observation_matrix_id: this.matrix.id,
         observation_object_id: id,
