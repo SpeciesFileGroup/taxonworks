@@ -120,44 +120,73 @@ module OtusHelper
   #    label: <label>
   # * merge origin_otu_id: id to reference coordinate OTUs
   #
+  #  target:
+  #    type: Otu
+  #    label:
+  #    id
+  #
+  #  base:   # one level above target (or one level below shape?!)
+  #    type:
+  #    id:
+  #
+  #  shape: # Either GeographicArea or Georeference
+  #     type
+  #     id
+  #
   def otu_distribution(otu, children = true)
     return {} if otu.nil?
-    h = {
-      'type' => 'FeatureCollection',
-      'features' => [],
-      'properties' => {
-        'target_otu_id' => otu.id,
-        'target_otu_label' => label_for_otu(otu)
-      }
-    }
-
     otus = if children
              otu.coordinate_otus_with_children
            else
              Otu.coordinate_otus(otu.id)
            end
 
+    t = 40
+    if otus.size > t
+      return { request_too_large: true,
+               message: "The number of children (#{t}) of this OTU is too large to presently return."
+      }
+    end
+
+    h = {
+      'type' => 'FeatureCollection',
+      'features' => [],
+      'properties' => {
+        'target' => { # Top level target
+          'id' => otu.id,
+          'label' => label_for_otu(otu),
+          'type' => 'Otu'
+        }
+      }
+    }
+
     otus.each do |o|
+
+      # internal target
+      t = {
+        'id' => o.id,
+        'type' => 'Otu',
+        'label' => label_for_otu(otu)
+      }
+
       o.current_collection_objects.each do |c|
         if g = collection_object_to_geo_json_feature(c)
-          g.properties['otu_id'] = o.id
+          g['properties']['target'] = t
           h['features'].push g
         end
       end
 
       o.asserted_distributions.each do |a|
         if g = asserted_distribution_to_geo_json_feature(a)
-          g['properties']['otu_id'] = o.id
-
+          g['properties']['target'] = t
           h['features'].push g
         end
       end
 
-      o.type_materials.each do |t|
-        if g = type_material_to_geo_json_feature(t)
-          g.properties['otu_id'] = o.id
-
-          h['features'].push t.to_geo_json_feature
+      o.type_materials.each do |e|
+        if g = type_material_to_geo_json_feature(e)
+          g['properties']['target'] = t
+          h['features'].push g
         end
       end
     end

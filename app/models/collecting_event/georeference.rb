@@ -18,6 +18,10 @@ module CollectingEvent::Georeference
     def preferred_georeference
       georeferences.order(:position).first
     end
+
+    def preferred_georeference_geographic_item_id
+      georeferences.order(:position).limit(1).pluck(:geographic_item_id).first
+    end
   end
 
   # @param [Float] delta_z, will be used to fill in the z coordinate of the point

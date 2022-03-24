@@ -344,6 +344,11 @@ class GeographicArea < ApplicationRecord
     # GeographicItem.default_by_geographic_area_ids([id]).first
   end
 
+  def default_geographic_item_id
+    default_geographic_area_geographic_item.pluck('geographic_items.id').first # &.geographic_item
+    # GeographicItem.default_by_geographic_area_ids([id]).first
+  end
+
   # @return [GeographicAreasGeographicItem, nil]
   def default_geographic_area_geographic_item
     GeographicAreasGeographicItem.where(geographic_area_id: id).default_geographic_item_data.first

@@ -42,17 +42,18 @@ module AssertedDistributionsHelper
   def asserted_distribution_to_geo_json_feature(asserted_distribution)
     return nil if asserted_distribution.nil?
     return nil unless asserted_distribution.has_shape?
-    
+
     return {
       'type' => 'Feature',
-
-      # TODO: optimize
-      'geometry' => RGeo::GeoJSON.encode(asserted_distribution.geographic_area.geographic_items.first.geo_object),
+      'geometry' => RGeo::GeoJSON.encode(asserted_distribution.geographic_area.geographic_items.first.geo_object), # TODO: optimize
       'properties' => {
-        'from' => {
+        'base' => {
           'type' => 'AssertedDistribution',
-          'id' => asserted_distribution.id },
-          'label' => label_for_asserted_distribution(asserted_distribution) }
+          'id' => asserted_distribution.id,
+          'label' => label_for_asserted_distribution(asserted_distribution) },
+        'shape' => {
+          'type' => 'GeographicArea',
+          'id' => asserted_distribution.geographic_area_id }}
     }
   end
 

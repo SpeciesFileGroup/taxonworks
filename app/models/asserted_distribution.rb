@@ -89,19 +89,17 @@ class AssertedDistribution < ApplicationRecord
     a
   end
 
-  # Moved to helper
-  #
+  # TODO: DRY with helper methods 
   # rubocop:disable Style/StringHashKeys
   # @return [Hash] GeoJSON feature
-# def to_geo_json_feature
-#   return {
-#     'type' => 'Feature',
-#     'geometry' => RGeo::GeoJSON.encode(self.geographic_area.geographic_items.first.geo_object),
-#     'properties' => {
-#       'from' => {'type' => 'AssertedDistribution', 'id' => id }
-#       'label' => 
-#   }
-# end
+  def to_geo_json_feature
+    retval = {
+      'type'       => 'Feature',
+      'geometry'   => RGeo::GeoJSON.encode(self.geographic_area.geographic_items.first.geo_object),
+      'properties' => {'asserted_distribution' => {'id' => self.id}}
+    }
+    retval
+  end
 
   # rubocop:enable Style/StringHashKeys
 

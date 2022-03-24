@@ -1,41 +1,5 @@
 module Gis::GeoJSON
-# not tested
-
-=begin
- { "type": "FeatureCollection",
-    "features": [
-      { "type": "Feature",
-        "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
-        "properties": {"prop0": "value0"}
-        },
-      { "type": "Feature",
-        "geometry": {
-          "type": "LineString",
-          "coordinates": [
-            [102.0, 0.0], [103.0, 1.0], [104.0, 0.0], [105.0, 1.0]
-            ]
-          },
-        "properties": {
-          "prop0": "value0",
-          "prop1": 0.0
-          }
-        },
-      { "type": "Feature",
-         "geometry": {
-           "type": "Polygon",
-           "coordinates": [
-             [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0],
-               [100.0, 1.0], [100.0, 0.0] ]
-             ]
-         },
-         "properties": {
-           "prop0": "value0",
-           "prop1": {"this": "that"}
-           }
-         }
-       ]
-     }
-=end
+  # not tested
 
   # @param objects [Array feature_collections]
   # @return [JSON object]
@@ -61,7 +25,6 @@ module Gis::GeoJSON
     end
     result
   end
-
 
   # @param objects [Array of instances that respond to .to_geo_json_feature]
   # @return [geo_JSON object]
@@ -97,6 +60,27 @@ module Gis::GeoJSON
     }
     result['features'].push(object.to_geo_json_feature)
     result
+  end
+
+  # @return String, nil
+  #   a GeoJSON string
+  # The point is to not instantiate a whole AR object, but query
+  # as directly as possible to get the GeoJSON string value.
+  # It's unclear as to whether this saves that much time.
+  def self.quick_geo_json_string(geographic_item_id)
+    return nil if geographic_item_id.nil?
+
+    query = "ST_AsGeoJSON(#{GeographicItem::GEOMETRY_SQL.to_sql}::geometry) geo_json_str"
+    a = GeographicItem.where(id: geographic_item_id)
+      .select(query)
+      .limit(1)
+    ::GeographicItem.connection.select_all(a.to_sql)
+      .first['geo_json_str']
+  end
+
+  # @return [GeoJSON] content for geometry
+  def self.quick_geo_json(geographic_item_id)
+    JSON.parse(quick_geo_json_string(geographic_item_id))
   end
 
   # # @return [a Feature]

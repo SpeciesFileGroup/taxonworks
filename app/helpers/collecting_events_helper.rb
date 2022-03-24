@@ -206,18 +206,34 @@ module CollectingEventsHelper
   #   the first geographic item of the first georeference on this collecting event
   def collecting_event_to_geo_json_feature(collecting_event)
     return nil if collecting_event.nil?
-    # !! avoid loading the whole GeographicItem, just grab the bits we need:
-    # self.georeferences(true)  # do this to
-    collecting_event_to_simple_json_feature(collecting_event).merge(
-      {
-        'properties' => {
-          'collecting_event' => {
-            'id'  => collecting_event.id,
-            'tag' => "Collecting event #{collecting_event.id}."}
-        }
-      })
+
+    a,b,c = collecting_event.geo_json_data
+    return nil if a.nil?
+
+    l = label_for_collecting_event(collecting_event)
+
+    return {
+      'type' => 'Feature',
+      'geometry' => a,
+      'properties' => {
+        'target' => {
+          'type' => 'CollectingEvent',
+          'id' => collecting_event.id,
+          'label' => l
+        },
+        'base' => {
+          'type' => 'CollectingEvent',
+          'id' => collecting_event.id,
+          'label' => l
+        },
+        'shape' => {
+          'type' => b,
+          'id' => c }
+      }
+    }
   end
 
+  # TODO: deprecate
   # TODO: parametrize to include gazetteer
   #   i.e. geographic_areas_geographic_items.where( gaz = 'some string')
   # !! avoid loading the whole GeographicItem, just grab the bits we need.
@@ -231,8 +247,8 @@ module CollectingEventsHelper
           'label' => label_for_collecting_event(collecting_event) }
     }
 
-    if geographic_items.any?
-      geo_item_id = geographic_items.select(:id).first.id
+    if collecting_event.geographic_items.any?
+      geo_item_id = collecting_event.geographic_items.select(:id).first.id
       query = "ST_AsGeoJSON(#{GeographicItem::GEOMETRY_SQL.to_sql}::geometry) geo_json"
       base['geometry'] = JSON.parse(GeographicItem.select(query).find(geo_item_id).geo_json)
     end

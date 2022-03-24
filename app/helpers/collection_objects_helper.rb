@@ -196,16 +196,28 @@ module CollectionObjectsHelper
     c.to_svg
   end
 
-  def collection_object_to_geo_json_feature(collection_object)
+  # @return [GeoJSON feature, nil]
+  # @param base [Boolean]
+  #   wehther to annotate the feature properties with TW 'base' attributes
+  def collection_object_to_geo_json_feature(collection_object, base = true)
     return nil if collection_object.nil?
     if a = collecting_event_to_geo_json_feature(collection_object.collecting_event)
+      l = label_for_collection_object(collection_object)
       a['properties']['target'] = {
         'type' => 'CollectionObject',
-        'id' => collection_object.id
+        'id' => collection_object.id,
+        'label' => l
       }
+      if base
+        a['properties']['base'] =  {
+          'type' => 'CollectionObject',
+          'id' => collection_object.id,
+          'label' => l}
+      end
+      a
+    else
+      nil
     end
-    a
-
   end
 
 end
