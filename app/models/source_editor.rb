@@ -6,7 +6,7 @@ class SourceEditor < Role::SourceRole
 
   def year_active_year
     y = role_object.year
-    y ||= role_object.year_of_publication
+    y ||= role_object.stated_year
     y
   end
 

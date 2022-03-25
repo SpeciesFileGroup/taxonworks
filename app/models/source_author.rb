@@ -9,7 +9,7 @@ class SourceAuthor < Role::SourceRole
   # however, our definition of "active" is not locked in stone.
   def year_active_year
     y = role_object.year
-    y ||= role_object.year_of_publication
+    y ||= role_object.stated_year
     y
   end
 
