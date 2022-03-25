@@ -64,6 +64,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Copying observations from object to object also copies their depictions [#2823]
 
 ### Fixed
+- Not all year metadata automatically updated Person active metadata [#2854]
 - DwC importer looking up collecting events outside the scope of the current project
 - Missing names in hierarchy tree on Browse nomenclature task [#2827]
 - DwC importer finding names by original combination without project scope [#2828]
@@ -73,6 +74,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Destroying last Depiction for Observation::Media destroys Observations [#2269]
 - Allowing to use same Namespace short name with different casing (e.g. 'alpha', 'Alpha')
 
+
+[#2854]: https://github.com/SpeciesFileGroup/taxonworks/issues/2854
 [#2823]: https://github.com/SpeciesFileGroup/taxonworks/issues/2823
 [#2269]: https://github.com/SpeciesFileGroup/taxonworks/issues/2269
 [#2656]: https://github.com/SpeciesFileGroup/taxonworks/issues/2656

@@ -5,4 +5,12 @@ class SourceAuthor < Role::SourceRole
     'Author'
   end
 
+  # Technically this can be wrong, when published post-humously,
+  # however, our definition of "active" is not locked in stone.
+  def year_active_year
+    y = role_object.year
+    y ||= role_object.year_of_publication
+    y
+  end
+
 end
