@@ -39,6 +39,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Uniquify people roles list is missing role_object_tag [#2853]
 - Large list of taxon names are not loaded in Citations by source
 - Missing source_id parameter in Citation by source link on New asserted distribution and Browse OTU
+- New CO assigns a wrong Identifier type in New collecting event task [#2862]
 
 [#2844]: https://github.com/SpeciesFileGroup/taxonworks/pull/2844
 [#2836]: https://github.com/SpeciesFileGroup/taxonworks/pull/2836
@@ -50,6 +51,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2847]: https://github.com/SpeciesFileGroup/taxonworks/pull/2847
 [#2848]: https://github.com/SpeciesFileGroup/taxonworks/pull/2848
 [#2853]: https://github.com/SpeciesFileGroup/taxonworks/pull/2853
+[#2862]: https://github.com/SpeciesFileGroup/taxonworks/pull/2862
 
 ## [0.23.1] - 2022-03-01
 
