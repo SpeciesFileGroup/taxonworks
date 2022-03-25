@@ -70,14 +70,15 @@
             <button
               class="button normal-input button-default full_width"
               @click="findPerson"
-              type="button">Search
+              type="button">
+              Selected person
             </button>
             <button
               class="button normal-input button-default full_width margin-medium-top"
               type="button"
               :disabled="!selectedPerson"
               @click="getMatchPeople()">
-              Update match people
+              Match people
             </button>
           </div>
           <in-project v-model="params.base.used_in_project_id"/>

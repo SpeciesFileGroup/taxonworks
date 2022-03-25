@@ -31,7 +31,7 @@ module TaxonNamesHelper
   # @return [String]
   #   no HTML inside <input>
   def taxon_name_autocomplete_selected_tag(taxon_name)
-    taxon_name_label(taxon_name)
+    label_for_taxon_name(taxon_name)
   end
 
   def taxon_name_rank_tag(taxon_name, css_class = [:feedback, 'feedback-info', 'feedback-thin'] )
