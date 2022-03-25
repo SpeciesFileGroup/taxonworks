@@ -82,10 +82,10 @@ module Shared
 
       def dynamic_cleanup_in_scope_row_items(rows)
         rows.each do |mri|
-          mri.row_objects.each do |o|
+          mri.observation_objects.each do |o|
             p = mri.find_or_build_row(o)
             if p.persisted?
-             #if p.row_object == o
+             #if p.observation_object == o
              #  p.update_column(:reference_count,  p.reference_count + 1) 
              #end
             else
@@ -159,7 +159,7 @@ module Shared
         # so we cache those records that need to be popped off the matrix row stack
         @dynamic_row_out_map = {}
         @dynamic_row_items_out.each do |mri|
-          @dynamic_row_out_map[mri.id] = mri.row_objects
+          @dynamic_row_out_map[mri.id] = mri.observation_objects
         end
 
         # Columns 

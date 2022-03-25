@@ -21,6 +21,7 @@ module BatchLoad
       i = 1 # accounting for headers
       csv.each do |row|
         parse_result = BatchLoad::RowParse.new
+
         # creation of the possible-objects list
         parse_result.objects[:otu] = []
         # attach the results to the row

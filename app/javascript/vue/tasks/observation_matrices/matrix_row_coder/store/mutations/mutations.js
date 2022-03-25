@@ -1,3 +1,4 @@
+import addObservation from './addObservation'
 import setDescription from './setDescription'
 import setDescriptors from './setDescriptors'
 import setDescriptorUnsaved from './setDescriptorUnsaved'
@@ -24,10 +25,16 @@ import setDescriptorSaving from './setDescriptorSaving'
 import setDescriptorSavedOnce from './setDescriptorSavedOnce'
 import setObservationId from './setObservationId'
 import setMatrixRow from './setMatrixRow'
+import setDayFor from './setDayFor'
+import setMonthFor from './setMonthFor'
+import setYearFor from './setYearFor'
+import setTimeFor from './setTimeFor'
 import resetState from './resetState'
 import setUnits from './setUnits'
+import removeObservation from '../mutations/removeObservation'
 
 export const MutationNames = {
+  AddObservation: 'addObservation',
   SetDescription: 'setDescription',
   SetDescriptors: 'setDescriptors',
   SetDescriptorUnsaved: 'setDescriptorUnsaved',
@@ -55,10 +62,16 @@ export const MutationNames = {
   SetDescriptorSavedOnce: 'setDescriptorSavedOnce',
   SetObservationId: 'setObservationId',
   ResetState: 'resetState',
-  SetUnits: 'setUnits'
+  SetUnits: 'setUnits',
+  SetDayFor: 'setDayFor',
+  SetMonthFor: 'setMonthFor',
+  SetYearFor: 'setYearFor',
+  SetTimeFor: 'setTimeFor',
+  RemoveObservation: 'removeObservation'
 }
 
 export const MutationFunctions = {
+  [MutationNames.AddObservation]: addObservation,
   [MutationNames.ResetState]: resetState,
   [MutationNames.SetDescription]: setDescription,
   [MutationNames.SetDescriptors]: setDescriptors,
@@ -86,5 +99,10 @@ export const MutationFunctions = {
   [MutationNames.SetDescriptorSavedOnce]: setDescriptorSavedOnce,
   [MutationNames.SetObservationId]: setObservationId,
   [MutationNames.SetMatrixRow]: setMatrixRow,
-  [MutationNames.SetUnits]: setUnits
+  [MutationNames.SetUnits]: setUnits,
+  [MutationNames.SetDayFor]: setDayFor,
+  [MutationNames.SetMonthFor]: setMonthFor,
+  [MutationNames.SetYearFor]: setYearFor,
+  [MutationNames.SetTimeFor]: setTimeFor,
+  [MutationNames.RemoveObservation]: removeObservation
 }

@@ -74,6 +74,8 @@ class Descriptor < ApplicationRecord
     return a.nil? ? n : a
   end
 
+  # TODO: these should be `is_` to follow design pattern
+  
   def qualitative?
     type == 'Descriptor::Qualitative'
   end

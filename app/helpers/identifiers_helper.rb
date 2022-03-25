@@ -17,19 +17,13 @@ module IdentifiersHelper
     end
   end
 
-  # TODO: Unify to helpers/README.md pattern
-  def identifier_label(identifier)
-    return nil if identifier.nil?
-    identifier.cached
-  end
-
   def label_for_identifier(identifier)
     return nil if identifier.nil?
     identifier.cached
   end
 
   # @return [String, nil]
-  #   link to GET idnetifiers/:id
+  #   link to GET identifiers/:id
   def identifier_link(identifier)
     return nil if identifier.nil?
     link_to(identifier_tag(identifier).html_safe, identifier.identifier_object.metamorphosize)
@@ -76,10 +70,17 @@ module IdentifiersHelper
   end
 
   # @return [String, nil]
-  #   a list of identifiers *without* HTML
+  #   a list of identifiers *with* HTML
   def simple_identifier_list_tag(object)
     return nil if !object.identifiers.any?
-    object.identifiers.collect{|a| content_tag(:span, identifier_annotation_tag(a)) }.join.html_safe
+    object.identifiers.collect{|a| tag.span(identifier_annotation_tag(a)) }.join.html_safe
+  end
+
+  # @return [String, nil]
+  #   a list of identifiers *without* HTML
+  def identifier_list_labels(object)
+    return nil if !object.identifiers.any?
+    object.identifiers.collect{|a| a.cached }.join(', ')
   end
 
   # @return [String, nil]

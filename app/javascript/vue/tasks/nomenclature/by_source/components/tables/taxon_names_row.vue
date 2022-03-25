@@ -19,7 +19,7 @@
     <td>
       <span>
         <a :href="`/tasks/nomenclature/browse?taxon_name_id=${citation.citation_object_id}`">
-          <span v-html="citation.citation_object.object_label" /> {{ isInvalid }}
+          <span v-html="citation.citation_object.original_combination" /> {{ isInvalid }}
         </a>
       </span>
     </td>

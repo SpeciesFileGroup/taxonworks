@@ -130,13 +130,22 @@ class ObservationsController < ApplicationController
   def observation_params
     params.require(:observation).permit(
       :observation_object_global_id,
-      :descriptor_id, :otu_id, :collection_object_id,
+      :descriptor_id,
+      :observation_object_type, :observation_object_id,
       :character_state_id, :frequency,
       :continuous_value, :continuous_unit,
       :sample_n, :sample_min, :sample_max, :sample_median, :sample_mean, :sample_units, :sample_standard_deviation, :sample_standard_error,
       :presence,
       :description,
       :type,
+      :year_made,
+      :month_made,
+      :day_made,
+      :time_made,
+      :day_made,
+      :month_made,
+      :year_made,
+      :time_made,
       images_attributes: [:id, :_destroy, :image_file, :rotate],
       depictions_attributes: [
         :id,
@@ -152,16 +161,25 @@ class ObservationsController < ApplicationController
   end
 
   def filter_params
-    params.permit(:otu_id, :descriptor_id, :collection_object_id, :observation_object_global_id, :token, :project_token, :format, :authenticate_user_or_project)
+    params.permit(
+      :collection_object_id,
+      :descriptor_id,
+      :format,
+      :observation_object_global_id,
+      :otu_id
+    )
+    # :authenticate_user_or_project, # WHY?
+    # :project_token,
+    #:token)
   end
 
   def api_params
     params.permit(
-      :observation_matrix_id,
-      :otu_id,
-      :descriptor_id,
       :collection_object_id,
-      :observation_object_global_id
+      :descriptor_id,
+      :observation_matrix_id,
+      :observation_object_global_id,
+      :otu_id
     ).to_h
   end
 

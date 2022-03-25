@@ -42,7 +42,7 @@
                     v-if="row"
                     type="button"
                     class="circle-button btn-edit"
-                    :href="getUrlType(element.row_object.base_class, element.row_object.id)"
+                    :href="getUrlType(element.observation_object.base_class, element.observation_object.id)"
                   />
                   <a
                     v-else

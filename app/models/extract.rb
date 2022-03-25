@@ -24,6 +24,8 @@ class Extract < ApplicationRecord
   include Shared::OriginRelationship
   include Shared::Containable
   include Shared::DataAttributes
+  include Shared::Observations
+  include Shared::Tags
   include SoftValidation
   include Shared::IsData
 

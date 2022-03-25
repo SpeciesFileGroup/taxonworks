@@ -21,6 +21,10 @@
 import TaxonNamesTable from './tables/taxon_names_table.vue'
 import SpinnerComponent from 'components/spinner.vue'
 import { Citation, TaxonName } from 'routes/endpoints'
+import { chunkArray } from 'helpers/arrays'
+import { TAXON_NAME } from 'constants/index.js'
+
+const MAX_PER_REQUEST = 25
 
 export default {
   components: {
@@ -65,22 +69,26 @@ export default {
   methods: {
     getCites () {
       const params = {
-        citation_object_type: 'TaxonName',
+        citation_object_type: TAXON_NAME,
         source_id: this.sourceID
       }
 
       this.showSpinner = true
 
-      Citation.where(params).then(async ({ body }) => {
-        const ids = body.map(item => item.citation_object_id)
-        const taxonList = (await TaxonName.where({ taxon_name_id: ids })).body
+      Citation.where(params).then(({ body }) => {
+        const arrIds = chunkArray(body.map(item => item.citation_object_id), MAX_PER_REQUEST)
+        const requestTaxons = arrIds.map(ids => TaxonName.where({ taxon_name_id: ids }))
 
-        this.taxon_names_cites_list = body.map(item => ({
-          ...item,
-          citation_object: taxonList.find(taxon => taxon.id === item.citation_object_id)
-        }))
+        Promise.all(requestTaxons).then(responses => {
+          const taxonList = [].concat(...responses.map(r => r.body))
 
-        this.showSpinner = false
+          this.taxon_names_cites_list = body.map(item => ({
+            ...item,
+            citation_object: taxonList.find(taxon => taxon.id === item.citation_object_id)
+          }))
+        }).finally(_ => {
+          this.showSpinner = false
+        })
       })
     },
 

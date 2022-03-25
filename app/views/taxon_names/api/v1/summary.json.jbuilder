@@ -1,6 +1,6 @@
 json.extract! @taxon_name, :id, :parent_id, :name
 json.is_valid @taxon_name.cached_is_valid
-json.full_name taxon_name_label(@taxon_name)
+json.full_name label_for_taxon_name(@taxon_name)
 
 json.nomenclatural_code @taxon_name.nomenclatural_code
 json.short_status taxon_name_short_status_label(@taxon_name)
@@ -31,7 +31,7 @@ if !@taxon_name.cached_is_valid && !@taxon_name.is_ambiguously_invalid?
   json.valid_name do
     json.id @taxon_name.cached_valid_taxon_name_id
     json.valid_name @taxon_name.valid_taxon_name.name
-    json.valid_full_name taxon_name_label(@taxon_name.valid_taxon_name)
+    json.valid_full_name label_for_taxon_name(@taxon_name.valid_taxon_name)
 
     json.author @taxon_name.valid_taxon_name.author_string
     json.year @taxon_name.valid_taxon_name.cached_nomenclature_date&.year

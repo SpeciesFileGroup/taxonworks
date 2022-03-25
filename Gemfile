@@ -51,7 +51,11 @@ gem 'bcrypt', '~> 3.1.11'
 gem 'closure_tree', '~> 7.0'
 
 gem 'delayed_job_active_record', '~> 4.1.3'
-gem 'validates_timeliness', '~> 4.1', '>= 4.1.1' # TODO: updating to 5.0 causes "NoMethodError: undefined method `has_attached_file' for Image:Class"
+
+# TODO: updating to 5.0 causes "NoMethodError: undefined method `has_attached_file' for Image:Class"
+# This is likely not the real propegated error, see similar https://github.com/Shopify/bootsnap/issues/218
+# version 6 beta out now
+gem 'validates_timeliness', '~> 4.1', '>= 4.1.1'
 gem 'paper_trail', '~> 12.0'
 gem 'acts_as_list', '~> 1.0'
 gem 'modularity', '~> 3.0.0' # TODO: Used!?

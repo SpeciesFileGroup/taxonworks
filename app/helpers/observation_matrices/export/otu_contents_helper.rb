@@ -54,7 +54,7 @@ module ObservationMatrices::Export::OtuContentsHelper
           order(:otu_id)
 
         otus.each do |o|
-          description = Catalog::DescriptionFromObservationMatrix.new(project_id: m.project_id, observation_matrix_id: m.id, otu_id: o.id)
+          description = Tools::Description::FromObservationMatrix.new(project_id: m.project_id, observation_matrix_id: m.id, otu_id: o.id)
           csv << ['row_' + o.row_id.to_s, 'Description', description.generated_description ]
         end
       end
@@ -99,7 +99,7 @@ module ObservationMatrices::Export::OtuContentsHelper
 
       if options[:include_depictions] == 'true'
         tw_url = 'https://sfg.taxonworks.org'
-        im =  ImageMatrix.new(
+        im = Tools::ImageMatrix.new(
           project_id: m.project_id,
           otu_filter: otu_ids.join('|'))
         descriptors = im.list_of_descriptors.values

@@ -5,7 +5,7 @@ import { MutationNames } from '../mutations/mutations'
 export default function ({ commit, state }, args) {
   const observation = getObservationFromArgs(state, args)
 
-  if (observation.id) { return Promise.resolve() }
+  if (observation?.id) { return Promise.resolve() }
 
   commit(MutationNames.SetDescriptorSaving, {
     descriptorId: args.descriptorId,
@@ -36,7 +36,15 @@ export default function ({ commit, state }, args) {
       })
 
       commit(MutationNames.SetDescriptorSavedOnce, args.descriptorId)
-      if (isValidResponseData(responseData)) { commit(MutationNames.SetObservationId, makeObservationIdArgs(responseData.id, responseData.global_id)) }
+      if (isValidResponseData(responseData)) {
+        commit(MutationNames.SetObservationId, makeObservationIdArgs(responseData.id, responseData.global_id))
+        commit(MutationNames.SetObservation, {
+          ...observation,
+          id: responseData.id,
+          global_id: responseData.global_id,
+          isUnsaved: false
+        })
+      }
       return true
     }, _ => {
       commit(MutationNames.SetDescriptorSaving, {
@@ -92,7 +100,10 @@ export default function ({ commit, state }, args) {
       descriptor_id: args.descriptorId,
       observation_object_global_id: state.taxonId,
       global_id: undefined,
-      type: observation.type
+      type: observation.type,
+      day_made: observation.day,
+      month_made: observation.month,
+      year_made: observation.year
     }
   }
 };

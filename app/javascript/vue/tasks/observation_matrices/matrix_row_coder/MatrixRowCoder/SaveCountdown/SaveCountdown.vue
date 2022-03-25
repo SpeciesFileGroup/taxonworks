@@ -3,7 +3,6 @@
     <transition
       name="save-countdown__duration-bar-animation"
       @after-enter="doSave">
-
       <div
         v-if="isCountingDown"
         class="save-countdown__duration-bar"/>
@@ -12,7 +11,7 @@
     <div
       v-if="!isCountingDown"
       class="save-countdown__status-bar"
-      :class="{ 
+      :class="{
         'save-countdown__status-bar--saving': isSaving, 
         'save-countdown__status-bar--failed': failed, 
         'save-countdown__status-bar--saved-at-least-once': savedAtLeastOnce }"/>
@@ -22,7 +21,6 @@
       :class="{ 'save-countdown__save-button--showing': isCountingDown }"
       @click="doSave"
       type="button">
-
       Save Changes
     </button>
   </div>
@@ -37,37 +35,35 @@ import { ActionNames } from '../../store/actions/actions'
 
 export default {
   name: 'SaveCountdown',
-  props: ['descriptor'],
-  data: function () {
+
+  props: {
+    descriptor: {
+      type: Object,
+      required: true
+    }
+  },
+
+  data () {
     return {
       isCountingDown: false,
       failed: false
     }
   },
+
   computed: {
-    needsCountdown: function () {
+    needsCountdown () {
       return this.$store.getters[GetterNames.DoesDescriptorNeedCountdown](this.$props.descriptor.id)
     },
-    isSaving: function () {
+    isSaving () {
       return this.$props.descriptor.isSaving
     },
-    savedAtLeastOnce: function () {
+    savedAtLeastOnce () {
       return this.$props.descriptor.hasSavedAtLeastOnce
     }
   },
-  methods: {
-    doSave () {
-      this.isCountingDown = false
-      this.$store.dispatch(ActionNames.SaveObservationsFor, this.$props.descriptor.id).then(response =>
-      {
-        if(response.includes(false)) {
-          this.failed = true
-        }
-      })
-    }
-  },
+
   watch: {
-    needsCountdown: function (needsCountdown) {
+    needsCountdown (needsCountdown) {
       if (needsCountdown) {
         this.isCountingDown = false
         requestAnimationFrame(_ => {
@@ -76,6 +72,17 @@ export default {
           this.$store.commit(MutationNames.CountdownStartedFor, this.$props.descriptor.id)
         })
       }
+    }
+  },
+
+  methods: {
+    doSave () {
+      this.isCountingDown = false
+      this.$store.dispatch(ActionNames.SaveObservationsFor, this.$props.descriptor.id).then(response => {
+        if (response.includes(false)) {
+          this.failed = true
+        }
+      })
     }
   }
 }
