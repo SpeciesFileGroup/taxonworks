@@ -68,6 +68,7 @@ module Export::Dwca
         core_scope.computed_columns,
         # TODO: check to see if we nee dthis
         exclude_columns: ::DwcOccurrence.excluded_columns,
+        column_order: ::CollectionObject::DWC_OCCURRENCE_MAP.keys, # TODO: add other maps here
         trim_columns: true, # going to have to be optional
         trim_rows: false,
         header_converters: [:dwc_headers]

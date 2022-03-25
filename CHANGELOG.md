@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Depiction modal for all descriptors in Interactive key
 
 ### Changed
+- DwC export uses a "sorted" column order [#2844]
 - Observations now are polymorphic [#2037]
 - Replace autocompletes by smart selectors in Common Name form on OTU radial [#2840]
 - Updated Ruby gems
@@ -39,6 +40,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Large list of taxon names are not loaded in Citations by source
 - Missing source_id parameter in Citation by source link on New asserted distribution and Browse OTU
 
+[#2844]: https://github.com/SpeciesFileGroup/taxonworks/pull/2844
 [#2836]: https://github.com/SpeciesFileGroup/taxonworks/pull/2836
 [#2037]: https://github.com/SpeciesFileGroup/taxonworks/pull/2037
 [#1831]: https://github.com/SpeciesFileGroup/taxonworks/pull/1831
