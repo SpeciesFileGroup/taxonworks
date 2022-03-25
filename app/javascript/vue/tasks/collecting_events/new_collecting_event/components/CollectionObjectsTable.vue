@@ -147,7 +147,7 @@
 
 <script>
 
-import { IDENTIFIER_LOCAL_TRIP_CODE } from 'constants/index.js'
+import { IDENTIFIER_LOCAL_CATALOG_NUMBER } from 'constants/index.js'
 import BiocurationComponent from './Biocuration'
 import PreparationTypes from './PreparationTypes'
 import ModalComponent from 'components/ui/Modal'
@@ -243,7 +243,7 @@ export default {
             ? [{
                 identifier: identifier.identifier,
                 namespace_id: identifier.namespace.id,
-                type: IDENTIFIER_LOCAL_TRIP_CODE,
+                type: IDENTIFIER_LOCAL_CATALOG_NUMBER,
                 labels_attributes: this.labelType
                   ? [{
                       text_method: 'build_cached',
