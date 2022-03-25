@@ -1,5 +1,7 @@
+import AjaxCall from 'helpers/ajaxCall'
 import baseCRUD, { annotations } from './base'
 
+const controller = 'observation_matrix_column_items'
 const permitParams = {
   observation_matrix_column_item: {
     controlled_vocabulary_term_id: Number,
@@ -12,6 +14,8 @@ const permitParams = {
 }
 
 export const ObservationMatrixColumnItem = {
-  ...baseCRUD('observation_matrix_column_items', permitParams),
-  ...annotations('observation_matrix_column_items')
+  ...baseCRUD(controller, permitParams),
+  ...annotations(controller),
+
+  createBatch: (params) => AjaxCall('post', `/${controller}/batch_create`, params)
 }
