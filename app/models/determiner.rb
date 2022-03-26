@@ -6,4 +6,8 @@ class Determiner < Role::ProjectRole
   def self.human_name
     'Determiner'
   end
+
+  def year_active_year
+    role_object.year_made
+  end
 end

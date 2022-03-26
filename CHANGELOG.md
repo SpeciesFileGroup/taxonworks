@@ -7,6 +7,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- 'Infferred combination' to Browse taxon name header, when required [#2836]
 - Extract autocomplete
 - Matrix row coder supports mutiple Quantitative and Sample observations per "cell"
 - Exracts are observable [#2037]
@@ -20,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Depiction modal for all descriptors in Interactive key
 
 ### Changed
+- DwC export uses a "sorted" column order [#2844]
 - Observations now are polymorphic [#2037]
 - Replace autocompletes by smart selectors in Common Name form on OTU radial [#2840]
 - Updated Ruby gems
@@ -37,7 +39,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Uniquify people roles list is missing role_object_tag [#2853]
 - Large list of taxon names are not loaded in Citations by source
 - Missing source_id parameter in Citation by source link on New asserted distribution and Browse OTU
+- New CO assigns a wrong Identifier type in New collecting event task [#2862]
 
+[#2844]: https://github.com/SpeciesFileGroup/taxonworks/pull/2844
+[#2836]: https://github.com/SpeciesFileGroup/taxonworks/pull/2836
 [#2037]: https://github.com/SpeciesFileGroup/taxonworks/pull/2037
 [#1831]: https://github.com/SpeciesFileGroup/taxonworks/pull/1831
 [#2799]: https://github.com/SpeciesFileGroup/taxonworks/pull/2799
@@ -46,6 +51,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2847]: https://github.com/SpeciesFileGroup/taxonworks/pull/2847
 [#2848]: https://github.com/SpeciesFileGroup/taxonworks/pull/2848
 [#2853]: https://github.com/SpeciesFileGroup/taxonworks/pull/2853
+[#2862]: https://github.com/SpeciesFileGroup/taxonworks/pull/2862
 
 ## [0.23.1] - 2022-03-01
 
@@ -62,6 +68,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Copying observations from object to object also copies their depictions [#2823]
 
 ### Fixed
+- Not all year metadata automatically updated Person active metadata [#2854]
 - DwC importer looking up collecting events outside the scope of the current project
 - Missing names in hierarchy tree on Browse nomenclature task [#2827]
 - DwC importer finding names by original combination without project scope [#2828]
@@ -71,6 +78,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Destroying last Depiction for Observation::Media destroys Observations [#2269]
 - Allowing to use same Namespace short name with different casing (e.g. 'alpha', 'Alpha')
 
+
+[#2854]: https://github.com/SpeciesFileGroup/taxonworks/issues/2854
 [#2823]: https://github.com/SpeciesFileGroup/taxonworks/issues/2823
 [#2269]: https://github.com/SpeciesFileGroup/taxonworks/issues/2269
 [#2656]: https://github.com/SpeciesFileGroup/taxonworks/issues/2656

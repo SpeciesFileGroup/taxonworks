@@ -73,8 +73,8 @@ class ObservationMatrixColumnItemsController < ApplicationController
   end
 
 
-  # POST /observation_matrix_column_items/batch_create?batch_type=tags&observation_matrix_id=123&keyword_id=456&klass=Otu
-  # POST /observation_matrix_column_items/batch_create?batch_type=pinboard&observation_matrix_id=123&klass=Otu
+  # POST /observation_matrix_column_items/batch_create?batch_type=tags&observation_matrix_id=123&keyword_id=456&klass=ObservationMatrixColumnItem::Single
+  # POST /observation_matrix_column_items/batch_create?batch_type=pinboard&observation_matrix_id=123&klass=ObservationMatrixColumnItem::Single
   def batch_create
     if @loan_items = ObservationMatrixColumnItem.batch_create(batch_params)
       render :index

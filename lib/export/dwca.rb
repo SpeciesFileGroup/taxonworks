@@ -63,7 +63,7 @@ module Export
       a = record_scope.first&.to_global_id&.to_s
       b = record_scope.last&.to_global_id&.to_s
 
-      t = record_scope.size # was haveing problems with count
+      t = record_scope.size # was having problems with count
 
       metadata = {
         total: t,
