@@ -2,4 +2,4 @@
 <% a = project.send(relationship).count %>
 <%= "#{a} total records - created on by month"  -%>
 
-<%= line_chart(project.send(relationship).group_by_month("#{relationship}.created_at").count) %> 
+<%= column_chart(project.send(relationship).group_by_month("#{relationship}.created_at").count) %> 

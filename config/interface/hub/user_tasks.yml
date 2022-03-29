@@ -554,14 +554,6 @@ match_collection_objects_task:
     - collection_object
   status: prototype
   description: 'Use a quick list of catalog numbers or ids to find collection objects.'
-work_report_task:
-  hub: true
-  name: 'Collection object work report'
-  related:
-  categories:
-    - collection_object
-  status: prototype
-  description: 'Estimate time spent on digitization tasks per user. Project administrators can see all users.'
 filter_sources_task:
   hub: true
   name: 'Filter sources'
@@ -686,7 +678,7 @@ project_activity_task:
   related:
   categories:
   status: prototype
-  description: 'Overview project activiy, recent records, totals, and member contributions.'
+  description: 'Overview project and member activity, recent records, totals, member contributions, and more.'
 
 
 

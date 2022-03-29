@@ -17,7 +17,8 @@
 
   <div class="field">
     <h3> For project member (leave blank for all project members)</h3>
-    <%= select_tag :user_id, options_from_collection_for_select( @project.users.order(:name), :id, :name), include_blank: true %>
+    
+    <%= select_tag :user_id, options_from_collection_for_select( @project.users.order(:name), :id, :name), include_blank: true %> <em> Selecting a single user will generate a session report for that user as well.</em><br>
   </div>
 
   <table class="full_width">
@@ -49,7 +50,7 @@
 
         <div class="field">
           <%= radio_button_tag :target, :updated %>
-          <%= label_tag :Modified %>
+          <%= label_tag :Updated %>
         </div>
       </td>
 

@@ -1,12 +1,11 @@
-<%= tag.h2 @klass.table_name.humanize -%>
+<%= tag.h2 @klass.table_name.humanize + ' ' + @target.humanize.downcase + ' by member' -%>
 <p><em> Plots axes are number of records by <%= @target.humanize.downcase %></em> between <%= (@start_date.to_s + ' and ' + @end_date.to_s) %>. Click a name to toggle visibility. </p>
 <div>
-  <%=column_chart @data, height: '400px' %>
+  <%= column_chart @data, height: '400px', download: true %>
 </div>
 
-<h2> Data summary </h2>
-
-<p>Total records over timespan: <%= @data.collect{|d| d[:data].values}.flatten.sum %>.</p>
+<%= tag.h2 @klass.table_name.humanize + ' ' + @target.humanize.downcase + ' summary' -%>
+<p><%= @data.count %> people created <%= @data.collect{|d| d[:data].values}.flatten.sum %> total records over the timepan. </p>
 
 <table class="tablesorter">
   <tr>
@@ -26,7 +25,7 @@
   </tbody>
 </table>
 
-<h2> Data table </h2>
+<%= tag.h2 @klass.table_name.humanize + ' ' + @target.humanize.downcase + ' data' -%>
 <% columns = @data.inject([]){|a, h| a += h[:data].keys; a}.uniq.sort %>
 <table>
   <tr>
@@ -38,7 +37,74 @@
       <tr>
         <td> <%= d[:name] %> </td>
         <%= columns.collect{|c| tag.td( d[:data][c] ) }.join.html_safe %>
-       </tr>
+      </tr>
     <% end %>
   </tbody>
 </table>
+
+<% if @user %>
+  <%= tag.h2 @klass.table_name.humanize +  ' session data for ' + user_tag(@user)  -%>
+  <% if !@sessions.empty? -%>
+    <p>
+    Between <%= @sessions.first[:start].strftime("%Y-%m-%d") -%> and  <%= @sessions.last[:end].strftime("%Y-%m-%d") -%>
+  updated <%= @records.count(:all) -%> <%= @klass.table_name.humanize.downcase %> records in
+  <%= @sessions.count -%> sessions
+  in a total work time of <%=  distance_of_time_in_words ::Work.total_time(@sessions) -%> (<%= (::Work.total_time(@sessions) / 60.0).round(0) -%> minutes).
+    </p>
+    <table>
+      <tr>
+        <th>Start date</th>
+        <th>Start time</th>
+        <th>End date</th>
+        <th>End time</th>
+        <th>Total time</th>
+        <th>Hours</th>
+        <th>Count</th>
+        <th>Records /<br> minute</th>
+      </tr>
+
+      <tr><td colspan="7">Total</td></tr>
+      <%= content_tag(:tr, [
+        tag.td(@sessions.first[:start].strftime("%Y-%m-%d")),
+        tag.td(@sessions.first[:start].strftime("%I:%M")),
+        tag.td(@sessions.last[:end].strftime("%Y-%m-%d")),
+        tag.td(@sessions.last[:end].strftime("%I:%M")),
+        tag.td(distance_of_time_in_words(::Work.total_time(@sessions))),
+        tag.td((@records.count(:all) / 3600.0).round(2) ),
+        tag.td((@records.count(:all).to_f / (::Work.total_time(@sessions) / 60.0)).round(3) ),
+      ].join.html_safe) -%>
+
+    <tr><td colspan="7">Sessions</td></tr>
+    <%= @sessions.collect{|s|
+      content_tag( :tr, [
+        tag.td(s[:start].strftime("%Y-%m-%d")),
+        tag.td(s[:start].strftime("%I:%M")),
+        tag.td(s[:end].strftime("%Y-%m-%d")),
+        tag.td(s[:end].strftime("%I:%M")),
+        tag.td( distance_of_time_in_words(s[:end] - s[:start])),
+        tag.td(((s[:end] - s[:start]) / 3600.0).round(2)),
+        tag.td(s[:count]),
+        tag.td(s[:efficiency].round(3))].join.html_safe)}
+        .flatten.join.html_safe -%>
+    </table>
+  <% else %>
+    <p class='feedback feedback-warning'>User <%= @user.name -%> has no <em>updated</em> records</p>
+  <% end %>
+
+  <h3> Session plot, max 10 records/minute shown </h3>
+  <%= column_chart @sessions.collect{|s| [s[:start], s[:efficiency]]}, height: '400px',
+    download: true,
+    max: 10, ytitle: 'Records/minute' %>
+
+  <h3> Session plot, max 50 records/session shown </h3>
+  <%= column_chart @sessions.collect{|s| [s[:start], s[:count]]}, height: '400px', download: true, max: 50, ytitle: 'Records/session' %>
+<% end %>
+
+<% if @user.nil? %>
+  <%= tag.h2 @klass.table_name.humanize + ' ' + @target.humanize.downcase + ' project overview' -%>
+  <% a = @klass.where(project_id: sessions_current_project_id).count %>
+  <%= "#{a} total records"  -%>
+  <%= column_chart(@klass.where(project_id: sessions_current_project_id)
+    .where("#{@klass.table_name}.#{@target}_at BETWEEN ? AND ?", @start_date, @end_date)
+    .send("group_by_#{@time_span}", "#{@target}_at".to_sym ).count, download: true) %>
+<% end %>

@@ -239,11 +239,6 @@ scope :tasks do
     end
 
     scope :report do
-      scope :work, controller: 'tasks/accessions/report/work' do
-        get '/', action: :index, as: 'work_report_task'
-        get :data, as: 'work_data_task'
-      end
-
       scope :dwc, controller: 'tasks/accessions/report/dwc' do
         get '', action: :index, as: 'report_dwc_task'
         get 'row/:id', action: :row

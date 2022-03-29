@@ -7,7 +7,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-- Project user activity report task [#50]
+- Project user activity report task [#50] [#1062]
 - 'Infferred combination' to Browse taxon name header, when required [#2836]
 - Extract autocomplete
 - Matrix row coder supports mutiple Quantitative and Sample observations per "cell"
@@ -44,8 +44,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing source_id parameter in Citation by source link on New asserted distribution and Browse OTU
 - New CO assigns a wrong Identifier type in New collecting event task [#2862]
 
-
 [#50]: https://github.com/SpeciesFileGroup/taxonworks/pull/50
+[#1062]: https://github.com/SpeciesFileGroup/taxonworks/pull/1062
 [#2864]: https://github.com/SpeciesFileGroup/taxonworks/pull/2864
 [#2844]: https://github.com/SpeciesFileGroup/taxonworks/pull/2844
 [#2836]: https://github.com/SpeciesFileGroup/taxonworks/pull/2836
