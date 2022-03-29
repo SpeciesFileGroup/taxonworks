@@ -32,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Add separate scrollbars to row and column tables in New observation matrix task [#2799]
 - Change form fields order in OTU radial - Biological associations
 - Updated ruby gems
+- Close modal after select a status in New taxon name
 
 ### Fixed
 - Administration activity report raising [#2864]
