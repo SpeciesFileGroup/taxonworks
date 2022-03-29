@@ -3,21 +3,21 @@
     "https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"  %>
 <% end %>
 
-<h1> Administration - Data overview </h1>
+<%= tag.h1 "Task - Project activity: #{@project.name}", id: :top -%>
 
-<%= link_to 'Back', administration_path() %>
+<p><%= link_to 'Back', @project %></p>
 
-<h2> Graph data type by project by created/updated by date range</h2>
+<h2> Report data type by created/updated by date range</h2>
 
-<%= form_tag data_class_summary_path, method: :get, remote: true do |f| %>
+<%= form_tag project_activity_type_report_path, method: :get, remote: true do |f| %>
   <div class="field">
     <h3> Plot data for </h3>
     <%= select_tag :klass, options_for_select(ApplicationEnumeration.project_data_classes.select{|a| a.column_names.include?('created_at')}.collect{|b| b.name}.sort, include_blank: true) %>
   </div>
 
   <div class="field">
-    <h3> For project (leave blank for all projects)</h3>
-    <%= select_tag :project_id, options_from_collection_for_select( Project.all.order(:name), :id, :name), include_blank: true %>
+    <h3> For project member (leave blank for all project members)</h3>
+    <%= select_tag :user_id, options_from_collection_for_select( @project.users.order(:name), :id, :name), include_blank: true %>
   </div>
 
   <table class="full_width">
@@ -41,14 +41,14 @@
       </td>
 
       <td>
-        <h3> Created / modified</h3>
+        <h3> Created / updated</h3>
         <div class="field">
-          <%= radio_button_tag :target, :created_at, true %>
+          <%= radio_button_tag :target, :created, true %>
           <%= label_tag :Created %>
         </div>
 
         <div class="field">
-          <%= radio_button_tag :target, :updated_at %>
+          <%= radio_button_tag :target, :updated %>
           <%= label_tag :Modified %>
         </div>
       </td>
@@ -69,22 +69,13 @@
     </tr>
   </table>
 
-
-  <%= tag.button :Graph, class: 'button, button-default' %>
+  <br>
+  <%= tag.button(:Report, class: [:button, 'button-default']) %>
 <% end %>
 
 <br>
 
-<div id="class_graph" >
-  <%= tag.span 'Select graph options above.', class: ['feedback', 'feedback-notice']  %>
+<div id="type_report" >
+  <%= tag.span 'Select report options above.', class: ['feedback', 'feedback-notice']  %>
 </div>
 
-<div class="flexbox">
-  <div class="item item1">
-    <h2> Community data type </h2>
-    <div>
-      <%= line_chart ApplicationEnumeration.community_data_classes.map{|k|
-        { name: k.name.titleize, data: k.all.group_by_month(:created_at).count}  } %>
-    </div>
-  </div>
-</div>

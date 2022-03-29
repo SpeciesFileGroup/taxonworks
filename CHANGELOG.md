@@ -7,6 +7,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Project user activity report task [#50]
 - 'Infferred combination' to Browse taxon name header, when required [#2836]
 - Extract autocomplete
 - Matrix row coder supports mutiple Quantitative and Sample observations per "cell"
@@ -21,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Depiction modal for all descriptors in Interactive key
 
 ### Changed
+- Administration activity report
 - DwC export uses a "sorted" column order [#2844]
 - Observations now are polymorphic [#2037]
 - Replace autocompletes by smart selectors in Common Name form on OTU radial [#2840]
@@ -32,6 +34,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated ruby gems
 
 ### Fixed
+- Administration activity report raising [#2864]
 - OTUs and collection objects batchloaders failing to initialize due to Ruby syntax error
 - Sqed depictions crash on cache update when no processing results are available
 - Asserted distributions on OTU radial is_absent no longer locks [#2848]
@@ -41,6 +44,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing source_id parameter in Citation by source link on New asserted distribution and Browse OTU
 - New CO assigns a wrong Identifier type in New collecting event task [#2862]
 
+
+[#50]: https://github.com/SpeciesFileGroup/taxonworks/pull/50
+[#2864]: https://github.com/SpeciesFileGroup/taxonworks/pull/2864
 [#2844]: https://github.com/SpeciesFileGroup/taxonworks/pull/2844
 [#2836]: https://github.com/SpeciesFileGroup/taxonworks/pull/2836
 [#2037]: https://github.com/SpeciesFileGroup/taxonworks/pull/2037

@@ -680,3 +680,13 @@ filter_extract_task:
     - dna
   status: prototype
   description: 'Search and list extracts from collection objects, OTUs, other extracts, date ranges etc.'
+project_activity_task:
+  hub: true
+  name: 'Project activity'
+  related:
+  categories:
+  status: prototype
+  description: 'Overview project activiy, recent records, totals, and member contributions.'
+
+
+

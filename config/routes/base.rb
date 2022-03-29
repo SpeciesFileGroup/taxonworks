@@ -55,6 +55,7 @@ scope :administration, controller: :administration do
   get 'data_overview'
   get 'data_health'
   get 'data_reindex'
+  get 'data_class_summary'
 end
 
 resources :project_members, except: [:index] do

@@ -139,6 +139,11 @@ scope :tasks do
   end
 
   scope :projects do
+    scope :activity, controller: 'tasks/projects/activity' do
+      get :index, as: :project_activity_task
+      get :type_report, as: :project_activity_type_report
+    end
+
     scope :preferences, controller: 'tasks/projects/preferences' do
       get :index, as: 'project_preferences_task'
     end
