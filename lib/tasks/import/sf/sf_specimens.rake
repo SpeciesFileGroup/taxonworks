@@ -1259,12 +1259,12 @@ namespace :tw do
 
             tdwg_id = (1..4)
               .collect { |n| row["Level#{n}ID"] }
-              .map { |l| l.gsub('-', '') }
+              .map { |l| l.strip.gsub('-', '') }
               .reject { |l| l.blank? }
             tdwg_id = [tdwg_id[0..2].join, tdwg_id[3]].compact.join('-')
-
             geographic_area_id = geographic_area_id_hash[tdwg_id]
             if geographic_area_id # not nil, is there a level 4?
+              level3_id = row['Level3ID']
               level4_id = row['Level4ID']
               if level4_id != '---' # there is a level 4, add level4_id and level4_name as data_attributes
                 if sf_geo_level4_hash[level3_id + level4_id] # data errors can cause exec err, data will be fixed in future: case level 4 but no level 3
