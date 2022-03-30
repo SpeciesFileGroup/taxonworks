@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New georeference type for user-supplied points [#2843]
 - Extract rows in New observation matrix
 - Depiction modal for all descriptors in Interactive key
+- Link CollectionObject batch load to DwCA importer [#2868]
 
 ### Changed
 - Administration activity report
@@ -47,6 +48,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing source_id parameter in Citation by source link on New asserted distribution and Browse OTU
 - New CO assigns a wrong Identifier type in New collecting event task [#2862]
 
+[#2868]: https://github.com/SpeciesFileGroup/taxonworks/pull/2868
 [#2842]: https://github.com/SpeciesFileGroup/taxonworks/pull/2842
 [#2846]: https://github.com/SpeciesFileGroup/taxonworks/pull/2846
 [#50]: https://github.com/SpeciesFileGroup/taxonworks/pull/50
