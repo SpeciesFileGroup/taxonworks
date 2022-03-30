@@ -1,7 +1,9 @@
 <template>
   <div>
     <h2>Match people</h2>
-    <p v-if="selectedPerson">{{ matchList.length }}  matches found</p>
+    <p v-if="selectedPerson">
+      {{ matchList.length }}  matches found
+    </p>
     <div>
       <autocomplete
         url="/people/autocomplete"
@@ -9,14 +11,16 @@
         label="label_html"
         placeholder="Search a person..."
         clear-after
-        @getItem="addToList"/>
+        @get-item="addToList"
+      />
       <table class="full_width">
         <thead>
           <tr>
             <th>
               <input
                 v-model="selectAll"
-                type="checkbox">
+                type="checkbox"
+              >
             </th>
             <th>Cached</th>
             <th>Lived</th>
@@ -28,13 +32,15 @@
         <tbody>
           <template
             v-for="person in matchList"
-            :key="person.id">
+            :key="person.id"
+          >
             <tr>
               <td>
                 <input
                   type="checkbox"
                   :value="person"
-                  v-model="selectedMergePerson">
+                  v-model="selectedMergePerson"
+                >
               </td>
               <td>{{ person.cached }}</td>
               <td>
@@ -111,7 +117,7 @@ export default {
   methods: {
     addToList (person) {
       person.cached = person.label
-      People.find(person.id).then(response => {
+      People.find(person.id, { extend: ['roles'] }).then(response => {
         if (!this.selectedMergePerson.find(p => p.id === response.body.id)) {
           this.selectedMergePerson.push(response.body)
           this.$emit('addToList', response.body)
