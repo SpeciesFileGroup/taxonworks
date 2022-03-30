@@ -383,7 +383,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     institution_code = get_field_value(:institutionCode)
     if institution_code
       repository = Repository.find_by(acronym: institution_code)
-      raise DarwinCore::InvalidData.new({ "institutionCode": ["Unknown #{institution_code} repository. If valid please register it using '#{institution_code}' as acronym."] }) unless repository
+
+      # Some repositories may not have acronyms, in that case search by name as well
+      repository |= Repository.find_by(name: institution_code)
+      raise DarwinCore::InvalidData.new({ "institutionCode": ["Unknown #{institution_code} repository. If valid please register it using '#{institution_code}' as acronym or name."] }) unless repository
       Utilities::Hashes::set_unless_nil(res[:specimen], :repository, repository)
     end
 
