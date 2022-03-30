@@ -137,7 +137,7 @@ group :test, :development do
   gem 'factory_bot_rails', '~> 6.2'
   gem 'webdrivers', '~> 5.0', require: false
   gem 'prawn', '~> 2.4.0'
-  gem 'puma', '~> 5.5'
+  gem 'puma', '~> 5.6'
 end
 
 gem 'parallel_tests', group: [:development, :test]
