@@ -1,6 +1,21 @@
 require 'rails_helper'
 describe CollectionObject::DwcExtensions, type: :model, group: [:collection_objects, :darwin_core] do
 
+  specify 'dwc_georeferenced_by 1' do
+    p1 = Person.create!(last_name: 'Jones')
+    p2 = Person.create!(last_name: 'Janes')
+
+    g = FactoryBot.create(:valid_georeference, georeferencers: [p1,p2])
+    s = Specimen.create!(collecting_event: g.collecting_event)
+    expect(s.dwc_georeferenced_by).to eq(p1.cached + '|' + p2.cached)
+  end
+
+  specify 'dwc_georeferenced_by 2' do
+    g = FactoryBot.create(:valid_georeference)
+    s = Specimen.create!(collecting_event: g.collecting_event)
+    expect(s.dwc_georeferenced_by).to eq(g.creator.name)  #
+  end
+
   specify 'is_fossil? no' do
     s = Specimen.create!
     expect(s.is_fossil?).to eq(false)
