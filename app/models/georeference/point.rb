@@ -7,9 +7,9 @@ class Georeference::Point < Georeference
     h.merge!(
       georeferenceSources: "Curator entered point/radius data.",
       georeferenceRemarks: "A generic point georeference.",
-      georeferenceProtocol: 'Created by entering point coordinates in a form, along with an optional error radius.',
       geodeticDatum: nil
     )
+    h[:georeferenceProtocol] =  'Created by entering point coordinates in a form, along with an optional error radius.' if h[:georeferenceProtocol].blank?
     h
   end
 

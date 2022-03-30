@@ -1,6 +1,13 @@
 require 'rails_helper'
 describe CollectionObject::DwcExtensions, type: :model, group: [:collection_objects, :darwin_core] do
 
+  specify 'dwc_georeference_protocol' do
+    p = FactoryBot.create(:valid_protocol)
+    g = FactoryBot.create(:valid_georeference, protocols: [p])
+    s = Specimen.create!(collecting_event: g.collecting_event)
+    expect(s.dwc_georeference_protocol).to eq(p.name)
+  end
+
   specify 'dwc_georeferenced_by 1' do
     p1 = Person.create!(last_name: 'Jones')
     p2 = Person.create!(last_name: 'Janes')

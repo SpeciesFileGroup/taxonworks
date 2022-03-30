@@ -35,6 +35,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Close modal after select a status in New taxon name
 
 ### Fixed
+- DwC georeferencedProtocol references Procols properly [#2842]
 - DwC georeferencedBy references Georeferncers properly [#2846]
 - Administration activity report raising [#2864]
 - OTUs and collection objects batchloaders failing to initialize due to Ruby syntax error
@@ -46,6 +47,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing source_id parameter in Citation by source link on New asserted distribution and Browse OTU
 - New CO assigns a wrong Identifier type in New collecting event task [#2862]
 
+[#2842]: https://github.com/SpeciesFileGroup/taxonworks/pull/2842
 [#2846]: https://github.com/SpeciesFileGroup/taxonworks/pull/2846
 [#50]: https://github.com/SpeciesFileGroup/taxonworks/pull/50
 [#1062]: https://github.com/SpeciesFileGroup/taxonworks/pull/1062

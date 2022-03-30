@@ -242,18 +242,17 @@ class Georeference < ApplicationRecord
   #   The interface to DwcOccurrence writiing for Georeference based values.
   #   See subclasses for super extensions.
   def dwc_georeference_attributes(h = {})
-
     georeferenced_by = if georeferencers.any?
                          georeferencers.collect{|a| a.cached}.join('|')
                        else
                          creator.name
                        end
-
     h.merge!(
       footprintWKT: geographic_item.to_wkt,
       georeferenceVerificationStatus: confidences&.collect{|c| c.name}.join('; ').presence,
       georeferencedBy: georeferenced_by,
-      georeferencedDate: created_at
+      georeferencedDate: created_at,
+      georeferenceProtocol: protocols.collect{|p| p.name}.join('|')
     )
 
     if geographic_item.type == 'GeographicItem::Point'
