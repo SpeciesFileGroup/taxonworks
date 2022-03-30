@@ -83,15 +83,6 @@ class ProjectsController < ApplicationController
     redirect_to edit_project_path(sessions_current_project)
   end
 
-  def stats
-    Rails.application.eager_load!
-  end
-
-  def per_relationship_recent_stats
-    Rails.application.eager_load!
-    @relationship = params.require(:relationship) # params.permit(:relationship)[:relationship]
-  end
-
   def list
     @projects = Project.order(:id).page(params[:page]) #.per(10) #.per(3)
   end

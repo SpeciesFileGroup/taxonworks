@@ -1,0 +1,5 @@
+var content;
+
+content = $('<%= escape_javascript(render(partial: 'class_summary_graph', locals: {project: @project, relationship: @relationship}) ) %>');
+
+$('#class_graph').html(content);

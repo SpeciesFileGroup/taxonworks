@@ -1,0 +1,6 @@
+<%= tag.h2 @klass.table_name.humanize -%>
+<p><em> Plots axes are number of records by <%= @target.humanize.downcase %></em> between <%= (@start_date.to_s + ' and ' + @end_date.to_s) %>.</p>
+<div>
+  <%=column_chart @projects.map{|p| {name: p.name, data: @klass.all.where(project_id: p.id).where("#{@klass.table_name}.#{@target} BETWEEN ? AND ?", @start_date, @end_date).send("group_by_#{@time_span}", @target.to_sym).count}}.select{|h| !h[:data].empty?
+  } %>
+</div>
