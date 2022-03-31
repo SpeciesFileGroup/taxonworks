@@ -7,6 +7,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Link to comprehensive digitization collection object via `?dwc_occurrence_object_id=123` [#2851]
 - Project user activity report task [#50] [#1062]
 - 'Infferred combination' to Browse taxon name header, when required [#2836]
 - Extract autocomplete
@@ -48,6 +49,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing source_id parameter in Citation by source link on New asserted distribution and Browse OTU
 - New CO assigns a wrong Identifier type in New collecting event task [#2862]
 
+[#2851]: https://github.com/SpeciesFileGroup/taxonworks/pull/2851
 [#2868]: https://github.com/SpeciesFileGroup/taxonworks/pull/2868
 [#2842]: https://github.com/SpeciesFileGroup/taxonworks/pull/2842
 [#2846]: https://github.com/SpeciesFileGroup/taxonworks/pull/2846
