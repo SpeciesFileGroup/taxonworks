@@ -1,6 +1,12 @@
 require 'rails_helper'
 describe CollectionObject::DwcExtensions, type: :model, group: [:collection_objects, :darwin_core] do
 
+  specify 'dwc_occurrence_remarks' do
+    s = Specimen.create!
+    s.notes << Note.new(text: 'text')
+    expect(s.dwc_occurrence_remarks).to eq('text')
+  end
+
   specify 'dwc_georeference_protocol' do
     p = FactoryBot.create(:valid_protocol)
     g = FactoryBot.create(:valid_georeference, protocols: [p])

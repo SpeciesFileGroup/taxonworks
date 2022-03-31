@@ -78,7 +78,9 @@ module CollectionObject::DwcExtensions
       verbatimSRS: :dwc_verbatim_srs,
 
       # TODO: move to a proper extensions
-      associatedMedia: :dwc_associated_media
+      associatedMedia: :dwc_associated_media,
+
+      occurrenceRemarks: :dwc_occurrence_remarks
 
       # -- Core taxon? --
       # nomenclaturalCode
@@ -137,6 +139,11 @@ module CollectionObject::DwcExtensions
 
   def is_fossil?
     biocuration_classes.where(uri: DWC_FOSSIL_URI).any?
+  end
+
+  # https://dwc.tdwg.org/list/#dwc_georeferenceRemarks
+  def dwc_occurrence_remarks
+    notes.collect{|n| n.text}.join('|')
   end
 
   # https://dwc.tdwg.org/terms/#dwc:associatedMedia
