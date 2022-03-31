@@ -1,12 +1,60 @@
 require 'rails_helper'
 describe CollectionObject::DwcExtensions, type: :model, group: [:collection_objects, :darwin_core] do
 
-  specify 'is_fossil? no' do
+  specify '#dwc_collection_code 1' do
+    s = Specimen.create!
+    n = FactoryBot.create(:valid_namespace, verbatim_short_name: 'DEF')
+    s.identifiers << Identifier::Local::CatalogNumber.new(
+      namespace: n,
+      identifier: '123'
+    )
+    expect(s.dwc_collection_code).to eq('DEF')
+  end
+
+  specify '#dwc_collection_code 2' do
+    s = Specimen.create!
+    n = FactoryBot.create(:valid_namespace, short_name: 'ABC')
+    s.identifiers << Identifier::Local::CatalogNumber.new(
+      namespace: n,
+      identifier: '123'
+    )
+    expect(s.dwc_collection_code).to eq('ABC')
+  end
+
+  specify '#dwc_occurrence_remarks' do
+    s = Specimen.create!
+    s.notes << Note.new(text: 'text')
+    expect(s.dwc_occurrence_remarks).to eq('text')
+  end
+
+  specify '#dwc_georeference_protocol' do
+    p = FactoryBot.create(:valid_protocol)
+    g = FactoryBot.create(:valid_georeference, protocols: [p])
+    s = Specimen.create!(collecting_event: g.collecting_event)
+    expect(s.dwc_georeference_protocol).to eq(p.name)
+  end
+
+  specify '#dwc_georeferenced_by 1' do
+    p1 = Person.create!(last_name: 'Jones')
+    p2 = Person.create!(last_name: 'Janes')
+
+    g = FactoryBot.create(:valid_georeference, georeferencers: [p1,p2])
+    s = Specimen.create!(collecting_event: g.collecting_event)
+    expect(s.dwc_georeferenced_by).to eq(p1.cached + '|' + p2.cached)
+  end
+
+  specify '#dwc_georeferenced_by 2' do
+    g = FactoryBot.create(:valid_georeference)
+    s = Specimen.create!(collecting_event: g.collecting_event)
+    expect(s.dwc_georeferenced_by).to eq(g.creator.name)  #
+  end
+
+  specify '#is_fossil? no' do
     s = Specimen.create!
     expect(s.is_fossil?).to eq(false)
   end
 
-  specify 'is_fossil? yes' do
+  specify '#is_fossil? yes' do
     s = Specimen.create!
     c = FactoryBot.create(:valid_biocuration_class, uri: DWC_FOSSIL_URI)
     s.biocuration_classes << c

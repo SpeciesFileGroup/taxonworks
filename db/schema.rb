@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_02_16_221450) do
+ActiveRecord::Schema.define(version: 2022_03_31_023656) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -313,6 +313,7 @@ ActiveRecord::Schema.define(version: 2022_02_16_221450) do
     t.date "accessioned_at"
     t.string "deaccession_reason"
     t.date "deaccessioned_at"
+    t.integer "current_repository_id"
     t.index ["collecting_event_id"], name: "index_collection_objects_on_collecting_event_id"
     t.index ["created_at"], name: "index_collection_objects_on_created_at"
     t.index ["created_by_id"], name: "index_collection_objects_on_created_by_id"

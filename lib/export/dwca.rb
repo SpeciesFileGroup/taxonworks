@@ -17,7 +17,8 @@ module Export
       '2021-11-04 17:00:00.000000 -0500',    # Minor  Removes '|', fixes some mappings
       '2021-11-08 13:00:00.000000 -0500',    # PENDING: Minor  Adds depth mappings
       '2021-11-30 13:00:00.000000 -0500',    # Fix inverted long,lat 
-      '2022-01-21 16:30:00.000000 -0500'     # basisOfRecord can now be FossilSpecimen; occurrenceId exporting; adds redundant time fields
+      '2022-01-21 16:30:00.000000 -0500',    # basisOfRecord can now be FossilSpecimen; occurrenceId exporting; adds redundant time fields
+      '2022-03-31 16:30:00.000000 -0500'     # collectionCode, occurrenceRemarks and various small fixes
     ]
 
     # @param record_scope [ActiveRecord::Relation]

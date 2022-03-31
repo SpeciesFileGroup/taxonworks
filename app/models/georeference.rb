@@ -62,14 +62,14 @@
 #   @return [Boolean]
 #   True if this georeference represents an average vertical distance, otherwise false.
 #
-# @!attribute year_georeferenced 
+# @!attribute year_georeferenced
 #   @return [Integer, nil]
-#     4 digit year the georeference was *first* created/captured 
+#     4 digit year the georeference was *first* created/captured
 #
-# @!attribute month_georeferenced 
+# @!attribute month_georeferenced
 #   @return [Integer, nil]
 #
-# @!attribute day_georeferenced 
+# @!attribute day_georeferenced
 #   @return [Integer, nil]
 #
 class Georeference < ApplicationRecord
@@ -242,11 +242,17 @@ class Georeference < ApplicationRecord
   #   The interface to DwcOccurrence writiing for Georeference based values.
   #   See subclasses for super extensions.
   def dwc_georeference_attributes(h = {})
+    georeferenced_by = if georeferencers.any?
+                         georeferencers.collect{|a| a.cached}.join('|')
+                       else
+                         creator.name
+                       end
     h.merge!(
       footprintWKT: geographic_item.to_wkt,
       georeferenceVerificationStatus: confidences&.collect{|c| c.name}.join('; ').presence,
-      georeferencedBy: creator.name,
-      georeferencedDate: created_at
+      georeferencedBy: georeferenced_by,
+      georeferencedDate: created_at,
+      georeferenceProtocol: protocols.collect{|p| p.name}.join('|')
     )
 
     if geographic_item.type == 'GeographicItem::Point'
