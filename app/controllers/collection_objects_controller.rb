@@ -360,7 +360,7 @@ class CollectionObjectsController < ApplicationController
 
   def collection_object_params
     params.require(:collection_object).permit(
-      :total, :preparation_type_id, :repository_id,
+      :total, :preparation_type_id, :repository_id, :current_repository_id,
       :ranged_lot_category_id, :collecting_event_id,
       :buffered_collecting_event, :buffered_determinations,
       :buffered_other_labels, :accessioned_at, :deaccessioned_at, :deaccession_reason,

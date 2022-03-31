@@ -42,7 +42,8 @@ function makeInitialState () {
           buffered_determinations: false,
           buffered_other_labels: false,
           preparation_type_id: false,
-          repository_id: false
+          repository_id: false,
+          current_repository_id: false
         },
         identifier: false,
         taxon_determination: {
