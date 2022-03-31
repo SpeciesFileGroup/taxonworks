@@ -12,10 +12,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Notes on CollectionObject export to DwC `occurrenceRemarks` [#2850]
 - Link to comprehensive digitization collection object via `?dwc_occurrence_object_id=123` [#2851]
 - Project user activity report task [#50] [#1062]
-- 'Infferred combination' to Browse taxon name header, when required [#2836]
+- 'Inferred combination' to Browse taxon name header, when required [#2836]
 - Extract autocomplete
 - Matrix row coder supports mutiple Quantitative and Sample observations per "cell"
-- Exracts are observable [#2037]
+- Extracts are observable [#2037]
 - Download observation matrix descriptors as text
 - Download observation matrix observations in .tab format
 - Observations have `made_year|month|day|time` attributes
@@ -40,10 +40,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Close modal after select a status in New taxon name
 
 ### Fixed
-- DwC georeferencedProtocol references Procols properly [#2842]
-- DwC georeferencedBy references Georeferncers properly [#2846]
+- DwC georeferencedProtocol references Protocols properly [#2842]
+- DwC georeferencedBy references Georeferencers properly [#2846]
 - Administration activity report raising [#2864]
-- OTUs and collection objects batchloaders failing to initialize due to Ruby syntax error
+- OTUs and collection objects batch-loaders failing to initialize due to Ruby syntax error
 - Sqed depictions crash on cache update when no processing results are available
 - Asserted distributions on OTU radial is_absent no longer locks [#2848]
 - After saving an area with 'is absent' flag, the form stays locked in OTU radial Asserted distribution
