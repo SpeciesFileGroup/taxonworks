@@ -399,6 +399,10 @@ module CollectionObject::DwcExtensions
     repository.try(:acronym)
   end
 
+  def dwc_collection_code
+    catalog_number_namespace&.verbatim_short_name || catalog_number_namespace&.short_name
+  end
+
   def dwc_catalog_number
     catalog_number_cached # via delegation
   end

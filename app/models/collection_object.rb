@@ -94,6 +94,7 @@ class CollectionObject < ApplicationRecord
 
   # Identifier delegations
   delegate :cached, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
+  delegate :namespace, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
 
   # CollectingEvent delegations
   delegate :map_center, to: :collecting_event, prefix: :collecting_event, allow_nil: true
