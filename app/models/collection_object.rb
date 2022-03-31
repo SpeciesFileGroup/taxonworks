@@ -17,7 +17,11 @@
 #
 # @!attribute respository_id
 #   @return [Integer]
-#   The id of the Repository.  This is the "home" repository, *not* where the specimen currently is located.  Repositories may indicate ownership BUT NOT ALWAYS (this is custody, not ownership). The assertion is only that "if this collection object was not being used, then it should be in this repository".
+#   The id of the Repository.  This is an assertion of the "home" repository, i.e. where you would most reasonably find the ColletionObject when it is not "in use" by external parties. Repositories may indicate ownership, but this is inference, not an assetion. There is some notion of "custody" tied to this assertion. The assertion is only that "if this collection object was not being used, then it you can infer that it will be found in this Repository. In the absence of the assertion of a current repository it is reasonable to infer that this is also where the specimen can be currently found, however this inference will not always hold.  See current_repository_id for related issues vs. modeling localization in TaxonWorks and the use of Containers.
+#
+# @!attribute current_respository_id
+#   @return [Integer]
+#   The id of the current repository.  The current repository is the Repository that the specimen can be expected to be found at (i.e. "is localized to") at the present time.  See also respository_id.  This is a temporally bound assertion of location of the specimen, not ownership.  In the future this will need to be reconciled with concepts of "custody" (the agent responsible for the specimen) and a stricter modelling of localization (in TaxonWorks this really should be a Container::Collection or Container::Building, i.e. the attribute doesn't really belong here in the long term.
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -121,6 +125,7 @@ class CollectionObject < ApplicationRecord
   belongs_to :preparation_type, inverse_of: :collection_objects
   belongs_to :ranged_lot_category, inverse_of: :ranged_lots
   belongs_to :repository, inverse_of: :collection_objects
+  belongs_to :current_repository, class_name: 'Repository', foreign_key: :current_repository_id, inverse_of: :collection_objects
 
   has_many :georeferences, through: :collecting_event
   has_many :geographic_items, through: :georeferences
