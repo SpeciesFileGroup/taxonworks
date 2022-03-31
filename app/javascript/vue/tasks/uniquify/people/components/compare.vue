@@ -164,9 +164,9 @@
 
 <script>
 
-import TableRoles from './tableRoles'
-import TableAnnotations from './tableAnnotations'
-import TablePersonRoles from './roles_table'
+import TableRoles from './Table/tableRoles'
+import TableAnnotations from './Table/tableAnnotations'
+import TablePersonRoles from './Table/roles_table'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import SwitchComponent from 'components/switch'
 import ConfirmModal from './confirmModal.vue'

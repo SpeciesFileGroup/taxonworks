@@ -130,11 +130,9 @@
               <found-people
                 ref="foundPeople"
                 v-model="selectedPerson"
-                @expand="expandPeople = $event"
-                @add-to-list="foundPeople.push($event)"
-                :expanded="expandPeople"
                 :found-people="foundPeople"
                 :display-count="displayCount"
+                @add-to-list="foundPeople.push($event)"
               />
             </div>
             <div v-show="showMatch">
@@ -215,7 +213,6 @@ export default {
       mergeList: [],
       mergePerson: {},
       displayCount: false,
-      haltWatcher: false,
       showMatch: true,
       showFound: true,
       showSearch: true,
@@ -291,7 +288,6 @@ export default {
     flipPerson (personIndex) {
       const tmp = this.selectedPerson
 
-      this.haltWatcher = true
       this.selectedPerson = this.mergeList[personIndex]
       this.mergeList[personIndex] = tmp
     },
@@ -305,7 +301,6 @@ export default {
       this.isLoading = true
       this.clearFoundData()
       this.displayCount = true
-      this.expandPeople = true
 
       People.where({ ...params, extend: ['roles'] }).then(response => {
         this.foundPeople = response.body
@@ -367,7 +362,6 @@ export default {
 
     clearFoundData () {
       this.displayCount = false
-      this.expandPeople = true
       this.selectedPerson = undefined
       this.foundPeople = []
       this.matchPeople = []
