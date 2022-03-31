@@ -7,11 +7,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Collection object `current_repository_id` and interface toggle [#2866]
+- Use Namespace as DwC `collectionCode` [#2726]
+- Notes on CollectionObject export to DwC `occurrenceRemarks` [#2850]
+- Link to comprehensive digitization collection object via `?dwc_occurrence_object_id=123` [#2851]
 - Project user activity report task [#50] [#1062]
-- 'Infferred combination' to Browse taxon name header, when required [#2836]
+- 'Inferred combination' to Browse taxon name header, when required [#2836]
 - Extract autocomplete
 - Matrix row coder supports mutiple Quantitative and Sample observations per "cell"
-- Exracts are observable [#2037]
+- Extracts are observable [#2037]
 - Download observation matrix descriptors as text
 - Download observation matrix observations in .tab format
 - Observations have `made_year|month|day|time` attributes
@@ -20,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New georeference type for user-supplied points [#2843]
 - Extract rows in New observation matrix
 - Depiction modal for all descriptors in Interactive key
+- Link CollectionObject batch load to DwCA importer [#2868]
 
 ### Changed
 - Administration activity report
@@ -35,8 +40,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Close modal after select a status in New taxon name
 
 ### Fixed
+- DwC georeferencedProtocol references Protocols properly [#2842]
+- DwC georeferencedBy references Georeferencers properly [#2846]
 - Administration activity report raising [#2864]
-- OTUs and collection objects batchloaders failing to initialize due to Ruby syntax error
+- OTUs and collection objects batch-loaders failing to initialize due to Ruby syntax error
 - Sqed depictions crash on cache update when no processing results are available
 - Asserted distributions on OTU radial is_absent no longer locks [#2848]
 - After saving an area with 'is absent' flag, the form stays locked in OTU radial Asserted distribution
@@ -45,6 +52,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing source_id parameter in Citation by source link on New asserted distribution and Browse OTU
 - New CO assigns a wrong Identifier type in New collecting event task [#2862]
 
+[#2866]: https://github.com/SpeciesFileGroup/taxonworks/issues/2866
+[#2726]: https://github.com/SpeciesFileGroup/taxonworks/issues/2726
+[#2850]: https://github.com/SpeciesFileGroup/taxonworks/pull/2850
+[#2851]: https://github.com/SpeciesFileGroup/taxonworks/pull/2851
+[#2868]: https://github.com/SpeciesFileGroup/taxonworks/pull/2868
+[#2842]: https://github.com/SpeciesFileGroup/taxonworks/pull/2842
+[#2846]: https://github.com/SpeciesFileGroup/taxonworks/pull/2846
 [#50]: https://github.com/SpeciesFileGroup/taxonworks/pull/50
 [#1062]: https://github.com/SpeciesFileGroup/taxonworks/pull/1062
 [#2864]: https://github.com/SpeciesFileGroup/taxonworks/pull/2864

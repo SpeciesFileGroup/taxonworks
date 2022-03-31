@@ -17,9 +17,9 @@ class Georeference::Wkt < Georeference
     h.merge!(
       georeferenceSources: "Undefined WKT source.",
       georeferenceRemarks: "Created by pasting in a shape in WKT (well known text) format.",
-      georeferenceProtocol: 'General purpose georeference derived from any source that produces WKT (well known text).',
       geodeticDatum: nil # TODO: check
     )
+    h[:georeferenceProtocol] = 'General purpose georeference derived from any source that produces WKT (well known text).' if h[:georeferenceProtocol].blank?  
     h
   end
 

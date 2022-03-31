@@ -578,7 +578,7 @@ gnfinder_task:
     - nomenclature
   status: prototype
   description: 'Show all names in a document.'
-index_dwca_import_task:
+dwca_import_task:
   hub: true
   name: 'Darwin Core Archive (DwC-A) import'
   related:
@@ -677,8 +677,9 @@ project_activity_task:
   name: 'Project activity'
   related:
   categories:
+    - collection_object
+    - collecting_event
+    - nomenclature
+    - image
   status: prototype
   description: 'Overview project and member activity, recent records, totals, member contributions, and more.'
-
-
-

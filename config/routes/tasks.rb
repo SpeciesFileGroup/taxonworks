@@ -6,7 +6,7 @@ scope :tasks do
   end
 
   scope :dwca_import, controller: 'tasks/dwca_import/dwca_import' do
-    get :index, as: 'index_dwca_import_task'
+    get :index, as: 'dwca_import_task'
     post 'upload'
     post 'update_catalog_number_namespace'
     post 'set_import_settings'
