@@ -7,6 +7,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Collection object `current_repository_id` and interface toggle [#2866]
 - Use Namespace as DwC `collectionCode` [#2726]
 - Notes on CollectionObject export to DwC `occurrenceRemarks` [#2850]
 - Link to comprehensive digitization collection object via `?dwc_occurrence_object_id=123` [#2851]
@@ -51,6 +52,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing source_id parameter in Citation by source link on New asserted distribution and Browse OTU
 - New CO assigns a wrong Identifier type in New collecting event task [#2862]
 
+[#2866]: https://github.com/SpeciesFileGroup/taxonworks/issues/2866
 [#2726]: https://github.com/SpeciesFileGroup/taxonworks/issues/2726
 [#2850]: https://github.com/SpeciesFileGroup/taxonworks/pull/2850
 [#2851]: https://github.com/SpeciesFileGroup/taxonworks/pull/2851
