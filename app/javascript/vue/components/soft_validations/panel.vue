@@ -100,9 +100,7 @@ export default {
 
   methods: {
     runFix (fixItems) {
-      const promises = []
-
-      fixItems.forEach(params => { promises.push(SoftValidation.fix(params.global_id, params)) })
+      const promises = fixItems.map(params => SoftValidation.fix(params.global_id, params))
 
       Promise.all(promises).then(() => {
         location.reload()
@@ -111,7 +109,7 @@ export default {
 
     getFixPresent (list) {
       return list.map(item =>
-        Object.assign({}, {
+        ({
           global_id: item.instance.global_id,
           only_methods: item.soft_validations
             .filter(v => v.fixable)

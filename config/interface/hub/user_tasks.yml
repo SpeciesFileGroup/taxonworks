@@ -90,6 +90,15 @@ browse_nomenclature_task:
   categories:
     - nomenclature
     - browse
+observation_matrices_hub_task:
+  hub: true
+  name: 'Observation matrix hub'
+  related:
+  categories:
+    - matrix
+    - dna
+  status: prototype
+  description: 'An overview of observation matrices and descriptors.  Includes links to new records.'
 nomenclature_by_source_task:
   hub: true
   name: 'Citations by source'
@@ -351,15 +360,6 @@ uniquify_people_task:
     - nomenclature
   status: stable
   description: 'Find and merge redundant or duplicated people, e.g., from import.'
-observation_matrices_hub_task:
-  hub: true
-  name: 'Observation matrix hub'
-  related:
-  categories:
-    - matrix
-    - dna
-  status: prototype
-  description: 'An overview of observation matrices and descriptors.  Includes links to new records.'
 observation_matrix_view_task:
   hub: true
   name: 'View an observation matrix'
@@ -554,14 +554,6 @@ match_collection_objects_task:
     - collection_object
   status: prototype
   description: 'Use a quick list of catalog numbers or ids to find collection objects.'
-work_report_task:
-  hub: true
-  name: 'Collection object work report'
-  related:
-  categories:
-    - collection_object
-  status: prototype
-  description: 'Estimate time spent on digitization tasks per user. Project administrators can see all users.'
 filter_sources_task:
   hub: true
   name: 'Filter sources'
@@ -586,7 +578,7 @@ gnfinder_task:
     - nomenclature
   status: prototype
   description: 'Show all names in a document.'
-index_dwca_import_task:
+dwca_import_task:
   hub: true
   name: 'Darwin Core Archive (DwC-A) import'
   related:
@@ -680,3 +672,14 @@ filter_extract_task:
     - dna
   status: prototype
   description: 'Search and list extracts from collection objects, OTUs, other extracts, date ranges etc.'
+project_activity_task:
+  hub: true
+  name: 'Project activity'
+  related:
+  categories:
+    - collection_object
+    - collecting_event
+    - nomenclature
+    - image
+  status: prototype
+  description: 'Overview project and member activity, recent records, totals, member contributions, and more.'

@@ -1,20 +1,22 @@
 # The result of parsing a row.
 class BatchLoad::RowParse
 
-  # Whether the row was parsed or not
+  # @return [Boolean]
+  #   whether the row was parsed or not
   attr_accessor :parsed
 
+  # @return [Array]
   attr_accessor :parse_errors
 
-  # A bucket of all the objects created, indexed by class
+  # @return [Hash]
+  #   all the objects created, indexed by class name
   attr_accessor :objects
 
-
   def initialize
-    @created      = false
-    @parsed       = false
+    @created = false
+    @parsed = false
     @parse_errors = []
-    @objects      = {}
+    @objects = {}
   end
 
   # @return [Boolean]

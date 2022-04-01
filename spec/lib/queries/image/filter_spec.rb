@@ -19,7 +19,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
   specify '#otu_scope :type_material_observations' do
     t = FactoryBot.create(:valid_type_material)
 
-    c = FactoryBot.create(:valid_observation, collection_object_id: t.collection_object_id) # TODO: Poly branch switch to observation_object
+    c = FactoryBot.create(:valid_observation, observation_object: t.collection_object)
     c.images << i1
 
     o.update!(taxon_name: t.protonym)
@@ -57,7 +57,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     o.update!(taxon_name: t3)
     TaxonDetermination.create!(otu: o, biological_collection_object: co)
 
-    b = FactoryBot.create(:valid_observation, collection_object_id: co.id) # TODO: Poly branch switch to observation_object
+    b = FactoryBot.create(:valid_observation, observation_object: co)
     b.images << i1
 
     # Second image, on invalid
@@ -66,7 +66,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     o1 = Otu.create!(taxon_name: t)
     td = TaxonDetermination.create!(otu: o1, biological_collection_object: Specimen.create!)
 
-    c = FactoryBot.create(:valid_observation, collection_object_id: td.biological_collection_object.id) # TODO: Poly branch switch to observation_object
+    c = FactoryBot.create(:valid_observation, observation_object: td.biological_collection_object)
     c.images << i2
 
     i3 # not this image
@@ -139,7 +139,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
   end
 
   specify '#otu_scope :all' do
-    b = FactoryBot.create(:valid_observation, collection_object_id: co.id) # TODO: Poly branch switch to observation_object
+    b = FactoryBot.create(:valid_observation, observation_object: co)
     b.images << i1
     TaxonDetermination.create!(otu: o, biological_collection_object: co)
 
@@ -152,7 +152,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
   end
 
   specify '#otu_scope :collection_object_observations' do
-    b = FactoryBot.create(:valid_observation, collection_object_id: co.id) # TODO: Poly branch switch to observation_object
+    b = FactoryBot.create(:valid_observation, observation_object: co)
     b.images << i1
     TaxonDetermination.create!(otu: o, biological_collection_object: co)
     i2 # not this one
@@ -162,7 +162,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
   end
 
   specify '#otu_scope :otu_observations' do
-    b = FactoryBot.create(:valid_observation, otu_id: o.id) # TODO: Poly branch switch to observation_object
+    b = FactoryBot.create(:valid_observation, observation_object: o)
     b.images << i1
     i2 # not this one
     q.otu_id = o.id

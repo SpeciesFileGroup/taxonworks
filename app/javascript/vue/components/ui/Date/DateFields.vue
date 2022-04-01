@@ -3,10 +3,13 @@
     <div
       v-for="(field, index) in fields"
       :key="field.property"
-      class="margin-small-right label-above">
+      class="margin-small-right"
+      :class="{ 'label-above': !inline }">
       <label
         v-if="!placeholder"
-        class="capitalize">
+        :class="{ 'margin-small-right': inline }"
+        class="capitalize"
+      >
         {{ field.property }}
       </label>
       <input
@@ -33,6 +36,10 @@ const props = defineProps({
   month: [String, Number],
   year: [String, Number],
   placeholder: {
+    type: Boolean,
+    default: false
+  },
+  inline: {
     type: Boolean,
     default: false
   }

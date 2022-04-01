@@ -5,5 +5,9 @@ class Georeferencer  < Role::ProjectRole
     'Georeferencer'
   end
 
+  def year_active_year
+    role_object.year_georeferenced
+  end
+
 end
 

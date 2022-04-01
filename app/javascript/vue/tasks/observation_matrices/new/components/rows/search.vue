@@ -3,14 +3,14 @@
     <p>Select</p>
     <ul class="context-menu no_bullets">
       <li
-        v-for="(item, key) in typeLabels"
-        :key="key">
+        v-for="item in Object.keys(autocompleteType)"
+        :key="item">
         <label>
           <input
             type="radio"
             v-model="type"
             name="autocomplete_type"
-            :value="key"
+            :value="item"
           >
           {{ item }}
         </label>
@@ -20,16 +20,18 @@
       <otu-picker
         v-if="isOtuType"
         clear-after
-        @getItem="createRowItem($event.id)"/>
+        @get-item="createRowItem"
+      />
       <autocomplete
         v-else
         min="2"
         :placeholder="`Select a ${type}`"
         label="label_html"
         :clear-after="true"
-        @getItem="createRowItem($event.id)"
-        :url="autocomplete_type[type]"
-        param="term"/>
+        @get-item="createRowItem"
+        :url="autocompleteType[type]"
+        param="term"
+      />
     </div>
   </div>
 </template>
@@ -41,6 +43,11 @@ import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
 import ObservationTypes from '../../const/types.js'
 import OtuPicker from 'components/otu/otu_picker/otu_picker'
+import { 
+  COLLECTION_OBJECT,
+  OTU,
+  EXTRACT
+} from 'constants/index.js'
 
 export default {
   components: {
@@ -54,33 +61,30 @@ export default {
     },
 
     isOtuType () {
-      return this.type === 'Otu'
+      return this.type === OTU
     }
   },
 
   data () {
     return {
-      typeLabels: {
-        Otu: 'OTU',
-        CollectionObject: 'Collection object'
-      },
-      autocomplete_type: {
-        Otu: '/otus/autocomplete',
-        CollectionObject: '/collection_objects/autocomplete'
+      autocompleteType: {
+        [OTU]: '/otus/autocomplete',
+        [COLLECTION_OBJECT]: '/collection_objects/autocomplete',
+        [EXTRACT]: '/extracts/autocomplete'
       },
       types: ObservationTypes.Row,
-      type: 'Otu'
+      type: OTU
     }
   },
 
   methods: {
-    createRowItem (id) {
+    createRowItem ({ id }) {
       const data = {
         observation_matrix_id: this.matrix.id,
+        observation_object_id: id,
+        observation_object_type: this.type,
         type: this.types[this.type]
       }
-
-      data[(this.type === 'Otu' ? 'otu_id' : 'collection_object_id')] = id
 
       this.$store.dispatch(ActionNames.CreateRowItem, data)
     }

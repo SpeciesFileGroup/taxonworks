@@ -1,3 +1,4 @@
+# TODO: remove fully
 module Tasks::Import::Dwca::PsuImportHelper
 
   def text_row(row)
@@ -6,8 +7,6 @@ module Tasks::Import::Dwca::PsuImportHelper
     output = "<li class=#{color}>"
     output += (row[:row].to_s)
     # output += ((ap row[:row]))
-    # output += ((ap row[:row_objects][:make_ce]))
-    # output += ap(row[:row_objects][:make_ce])
     unless row[:warn].blank?
       row[:warn].each do |warning|
         # unless warning.blank?

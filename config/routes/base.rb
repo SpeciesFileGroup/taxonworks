@@ -43,9 +43,7 @@ resources :projects do
   member do
     get 'select'
     get 'settings_for'
-    get 'stats'
     get 'recently_created_stats'
-    get 'per_relationship_recent_stats/:relationship', action: :per_relationship_recent_stats, as: :per_relationship_recent_stats
   end
 end
 
@@ -55,6 +53,7 @@ scope :administration, controller: :administration do
   get 'data_overview'
   get 'data_health'
   get 'data_reindex'
+  get 'data_class_summary'
 end
 
 resources :project_members, except: [:index] do

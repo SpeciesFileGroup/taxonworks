@@ -35,7 +35,7 @@
               class="margin-small-right"/>
             <manually-component
               class="margin-small-right"
-              @create="addGeoreference"/>
+              @create="addGeoreference($event, GEOREFERENCE_POINT)"/>
             <geolocate-component
               :disabled="!collectingEvent.id"
               class="margin-small-right"
@@ -87,7 +87,7 @@
               class="margin-small-right"/>
             <manually-component
               class="margin-small-right"
-              @create="addGeoreference"/>
+              @create="addGeoreference($event, GEOREFERENCE_POINT)"/>
             <geolocate-component
               class="margin-small-right"
               @create="addToQueue"/>
@@ -134,6 +134,7 @@ import { ActionNames } from '../../../store/actions/actions'
 import {
   GEOREFERENCE_GEOLOCATE,
   GEOREFERENCE_EXIF,
+  GEOREFERENCE_POINT,
   GEOREFERENCE_VERBATIM,
   GEOREFERENCE_WKT,
   GEOREFERENCE_LEAFLET
@@ -213,6 +214,9 @@ export default {
     geographicArea () {
       return this.$store.getters[GetterNames.GetGeographicArea]?.shape
     },
+    GEOREFERENCE_POINT () {
+      return GEOREFERENCE_POINT
+    },
     georeferences: {
       get () {
         return this.$store.getters[GetterNames.GetGeoreferences]
@@ -278,25 +282,25 @@ export default {
       }
     },
 
-    addGeoreference (shape) {
+    addGeoreference (shape, type = GEOREFERENCE_LEAFLET) {
       this.queueGeoreferences.push({
         tmpId: Math.random().toString(36).substr(2, 5),
         geographic_item_attributes: { shape: JSON.stringify(shape) },
         error_radius: shape.properties?.radius,
-        type: GEOREFERENCE_LEAFLET,
+        type,
         ...this.date
       })
 
       this.$store.dispatch(ActionNames.ProcessGeoreferenceQueue)
     },
 
-    updateGeoreference (shape) {
+    updateGeoreference (shape, type = GEOREFERENCE_LEAFLET) {
       this.addToQueue({
         id: shape.properties.georeference.id,
         error_radius: shape.properties?.radius,
         geographic_item_attributes: { shape: JSON.stringify(shape) },
         collecting_event_id: this.collectingEventId,
-        type: GEOREFERENCE_LEAFLET
+        type
       })
 
       this.$store.dispatch(ActionNames.ProcessGeoreferenceQueue)

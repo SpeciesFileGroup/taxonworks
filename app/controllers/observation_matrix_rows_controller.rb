@@ -21,10 +21,10 @@ class ObservationMatrixRowsController < ApplicationController
       else
         format.json {
           @observation_matrix_rows = ObservationMatrixRow
-                                     .with_otu_ids(params[:otu_ids]).where(filter_params)
-                                     .where(project_id: sessions_current_project_id)
-                                     .order('observation_matrix_rows.position')
-                                     .page(params[:page]).per(params[:per])
+            .with_otu_ids(params[:otu_ids]).where(filter_params)
+            .where(project_id: sessions_current_project_id)
+            .order('observation_matrix_rows.position')
+            .page(params[:page]).per(params[:per])
         }
       end
     end

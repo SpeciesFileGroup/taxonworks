@@ -11,4 +11,5 @@ export const ASSERTED_DISTRIBUTION = 'AssertedDistribution'
 export const EXTRACT = 'Extract'
 export const LOT = 'Lot'
 export const RANGED_LOT = 'RangedLot'
-
+export const TAG = 'Tag'
+export const DESCRIPTOR = 'Descriptor'

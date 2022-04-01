@@ -35,7 +35,8 @@ module CollectionObjectsHelper
   def label_for_collection_object(collection_object)
     return nil if collection_object.nil?
     [ 'CollectionObject ' + collection_object.id.to_s,
-      collection_object.identifiers.first&.cached].compact.join(', ')
+      identifier_list_labels(collection_object)
+    ].compact.join('; ')
   end
 
   def collection_object_autocomplete_tag(collection_object)

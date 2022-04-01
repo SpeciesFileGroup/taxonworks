@@ -76,6 +76,7 @@ import { GetSmartSelector } from '../../request/resources'
 import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
 import ObservationTypes from '../../const/types.js'
+import { TAXON_NAME, CONTROLLED_VOCABULARY_TERM } from 'constants/index.js'
 
 export default {
   components: {
@@ -128,20 +129,20 @@ export default {
   },
   methods: {
     create (item) {
-      let data = {
-        controlled_vocabulary_term_id: item.id,
+      this.$store.dispatch(ActionNames.CreateRowItem, {
+        observation_object_id: item.id,
+        observation_object_type: CONTROLLED_VOCABULARY_TERM,
         observation_matrix_id: this.matrixId,
         type: ObservationTypes.Row.Tag
-      }
-      this.$store.dispatch(ActionNames.CreateRowItem, data)
+      })
     },
     createTaxon (item) {
-      let data = {
-        taxon_name_id: item.id,
+      this.$store.dispatch(ActionNames.CreateRowItem, {
+        observation_object_id: item.id,
+        observation_object_type: TAXON_NAME,
         observation_matrix_id: this.matrixId,
         type: ObservationTypes.Row.TaxonName
-      }
-      this.$store.dispatch(ActionNames.CreateRowItem, data)
+      })
     }
   }
 }

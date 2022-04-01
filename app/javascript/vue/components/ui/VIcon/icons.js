@@ -14,11 +14,13 @@ import { undo } from './Paths/undo.js'
 import { expand } from './Paths/expand'
 import { question } from './Paths/question'
 import { scrollV } from './Paths/scrollV.js'
+import { clock } from './Paths/clock.js'
 
 const Icons = {
   attention,
   download,
   check,
+  clock,
   confidence,
   expand,
   hexagon,

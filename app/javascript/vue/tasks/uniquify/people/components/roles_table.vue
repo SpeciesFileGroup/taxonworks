@@ -15,54 +15,47 @@
             :class="classForRoleProject(item)">
             {{ item.role_object_type }}
           </td>
-          <td v-html="item.role_object_tag" />
+          <td v-html="item.object_tag" />
         </tr>
       </tbody>
     </table>
   </div>
 </template>
 
-<script>
+<script setup>
+import { watch, ref } from 'vue'
+import { People } from 'routes/endpoints'
 
-import AjaxCall from 'helpers/ajaxCall'
+const props = defineProps({
+  person: {
+    type: Object,
+    default: () => ({})
+  },
 
-export default {
-  props: {
-    person: {
-      type: Object,
-      default: () => { return {} }
-    },
-    title: {
-      type: String,
-      required: true
-    }
+  title: {
+    type: String,
+    required: true
+  }
+})
+
+const personRoles = ref([])
+
+watch(() => props.person,
+  async person => {
+    personRoles.value = person?.id
+      ? (await People.roles(person.id)).body
+      : []
   },
-  data () {
-    return {
-      personRoles: []
-    }
-  },
-  watch: {
-    person: {
-      handler (newVal) {
-        if (newVal.hasOwnProperty('id')) {
-          this.getPerson(newVal.id)
-        } else {
-          this.personRoles = []
-        }
-      },
-      deep: true
-    }
-  },
-  methods: {
-    getPerson () {
-      AjaxCall('get', `/people/${this.person.id}/roles.json`).then(response => {
-        this.personRoles = response.body
-      })
-    },
-    classForRoleProject (role) {
-      return role.in_project ? 'in-project' : role.project_id === null ? 'nulled' : 'no-in-project'
-    }
+  { deep: true }
+)
+
+const classForRoleProject = role => {
+  if (role.in_project) {
+    return 'in-project'
+  } else if (role.project_id === null) {
+    return 'nulled'
+  } else {
+    return 'no-in-project'
   }
 }
 </script>

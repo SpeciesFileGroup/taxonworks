@@ -187,7 +187,7 @@ module Queries
       end
 
       # TODO: this is not a join, but an IN x2 UNION, i.e. there
-      # is likely room for optimation via a join.
+      # is likely room for optimization via a join.
       def ancestors_facet
         return nil if ancestor_id.nil?
 

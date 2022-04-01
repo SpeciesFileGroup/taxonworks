@@ -7,7 +7,8 @@
           <label>
             <input
               type="checkbox"
-              v-model="activeJSONRequest">
+              v-model="activeJSONRequest"
+            >
             Show JSON request
           </label>
         </li>
@@ -15,7 +16,8 @@
           <label>
             <input
               type="checkbox"
-              v-model="showSearch">
+              v-model="showSearch"
+            >
             Show filter
           </label>
         </li>
@@ -23,7 +25,8 @@
           <label>
             <input
               type="checkbox"
-              v-model="showFound">
+              v-model="showFound"
+            >
             Show found people
           </label>
         </li>
@@ -31,7 +34,8 @@
           <label>
             <input
               type="checkbox"
-              v-model="showMatch">
+              v-model="showMatch"
+            >
             Show match people
           </label>
         </li>
@@ -39,7 +43,9 @@
           <span
             @click="resetApp"
             class="reload-app"
-            data-icon="reset">Reset
+            data-icon="reset"
+          >
+            Reset
           </span>
         </li>
       </ul>
@@ -51,7 +57,8 @@
       :logo-size="{ width: '100px', height: '100px'}"/>
     <div
       v-show="activeJSONRequest"
-      class="panel content separate-bottom">
+      class="panel content separate-bottom"
+    >
       <div class="flex-separate middle">
         <span>
           JSON Request: {{ urlRequest }}
@@ -61,7 +68,8 @@
     <div class="horizontal-left-content align-start">
       <div
         v-if="showSearch"
-        class="panel vue-filter-container">
+        class="panel vue-filter-container"
+      >
         <div class="flex-separate content middle action-line">
           <span>Filter</span>
         </div>
@@ -70,45 +78,49 @@
             <button
               class="button normal-input button-default full_width"
               @click="findPerson"
-              type="button">Search
+              type="button">
+              Selected person
             </button>
             <button
               class="button normal-input button-default full_width margin-medium-top"
               type="button"
               :disabled="!selectedPerson"
               @click="getMatchPeople()">
-              Update match people
+              Match people
             </button>
           </div>
-          <in-project v-model="params.base.used_in_project_id"/>
+          <in-project v-model="params.base.used_in_project_id" />
           <h3>Person</h3>
           <name-field
             title="Name"
             param="name"
-            v-model="params.base"/>
+            v-model="params.base"
+          />
           <name-field
             title="Last name"
             param="last_name"
             :disabled="levenshteinCuttoff > 0"
-            v-model="params.base"/>
+            v-model="params.base"
+          />
           <name-field
             title="First name"
             param="first_name"
             :disabled="levenshteinCuttoff > 0"
-            v-model="params.base"/>
-          <active-filter v-model="params.active"/>
-          <born-filter v-model="params.born"/>
-          <died-filter v-model="params.died"/>
-          <levenshtein-cuttoff v-model="params.base.levenshtein_cuttoff"/>
+            v-model="params.base"
+          />
+          <active-filter v-model="params.active" />
+          <born-filter v-model="params.born" />
+          <died-filter v-model="params.died" />
+          <levenshtein-cuttoff v-model="params.base.levenshtein_cuttoff" />
           <div class="field">
             <label>Roles</label>
-            <role-types
-              v-model="params.base.role"/>
+            <role-types v-model="params.base.role" />
           </div>
           <keywords-component
             target="People"
-            v-model="params.base.keywords" />
-          <users-component v-model="params.user"/>
+            v-model="params.base.keywords"
+          />
+          <users-component v-model="params.user" />
         </div>
       </div>
       <div class="full_width">
@@ -119,7 +131,7 @@
                 ref="foundPeople"
                 v-model="selectedPerson"
                 @expand="expandPeople = $event"
-                @addToList="foundPeople.push($event)"
+                @add-to-list="foundPeople.push($event)"
                 :expanded="expandPeople"
                 :found-people="foundPeople"
                 :display-count="displayCount"
@@ -127,21 +139,21 @@
             </div>
             <div v-show="showMatch">
               <match-people
-                @addToList="matchPeople.push($event)"
+                @add-to-list="matchPeople.push($event)"
                 v-model="mergeList"
                 :match-people="matchPeople"
                 :selected-person="selectedPerson"
               />
             </div>
           </div>
-          <div
-            class="flex-separate top">
+          <div class="flex-separate top">
             <div>
               <compare-component
                 @flip="flipPerson"
                 @merge="mergePeople"
                 :selected="selectedPerson"
-                :merge-list="mergeList"/>
+                :merge-list="mergeList"
+              />
             </div>
           </div>
         </div>
@@ -183,11 +195,13 @@ export default {
     NameField,
     Spinner
   },
+
   computed: {
     levenshteinCuttoff () {
       return this.params.base.levenshtein_cuttoff
     }
   },
+
   data () {
     return {
       activeJSONRequest: false,
@@ -209,6 +223,7 @@ export default {
       params: this.initParams()
     }
   },
+
   watch: {
     levenshteinCuttoff (newVal) {
       if (newVal !== 0) {
@@ -216,12 +231,14 @@ export default {
         this.params.base.last_name = undefined
       }
     },
+
     selectedPerson (newVal) {
       if (newVal) {
         this.getMatchPeople({ name: newVal.cached, levenshtein_cuttoff: 3 })
       }
     }
   },
+
   methods: {
     filterEmptyParams (object) {
       const keys = Object.keys(object)
@@ -232,6 +249,7 @@ export default {
       })
       return object
     },
+
     initParams () {
       return {
         settings: {
@@ -269,6 +287,7 @@ export default {
         }
       }
     },
+
     flipPerson (personIndex) {
       const tmp = this.selectedPerson
 
@@ -276,6 +295,7 @@ export default {
       this.selectedPerson = this.mergeList[personIndex]
       this.mergeList[personIndex] = tmp
     },
+
     findPerson (event) {
       event.preventDefault()
       const params = this.filterEmptyParams(Object.assign({}, this.params.base, this.params.keywords, this.params.active, this.params.born, this.params.died, this.params.user, this.params.settings))
@@ -295,26 +315,29 @@ export default {
     },
     getPerson (id) {
       this.isLoading = true
-      People.find(id).then(response => {
+      People.find(id, { extend: ['roles'] }).then(response => {
         this.foundPeople = [response.body]
         this.selectedPerson = response.body
         this.isLoading = false
       })
     },
+
     mergePeople () {
       this.peopleRemain = this.mergeList.length
       this.processMerge(this.mergeList)
     },
+
     processMerge (mergeList) {
       const mergePerson = mergeList.pop()
       this.isSaving = true
 
-      People.merge(this.selectedPerson.id, { person_to_destroy: mergePerson.id }).then(({ body }) => {
+      People.merge(this.selectedPerson.id, { person_to_destroy: mergePerson.id, extend: ['roles'] }).then(({ body }) => {
         const personIndex = this.foundPeople.findIndex(person => person.id === this.selectedPerson.id)
 
-        this.selectedPerson = body
         this.foundPeople = this.foundPeople.filter(people => mergePerson.id !== people.id)
         this.matchPeople = this.matchPeople.filter(people => mergePerson.id !== people.id)
+
+        this.selectedPerson = body
 
         if (personIndex > -1) {
           this.foundPeople[personIndex] = this.selectedPerson
@@ -324,18 +347,24 @@ export default {
           this.peopleRemain--
           this.processMerge(mergeList)
         } else {
-          this.isSaving = false
+          People.find(this.selectedPerson.id, { extend: ['roles'] }).then(response => {
+            this.selectedPerson = response.body
+            this.isSaving = false
+          })
         }
       })
     },
+
     resetApp () {
       this.clearSearchData()
       this.clearMatchData()
     },
+
     clearSearchData () {
       this.params = this.initParams()
       this.clearFoundData()
     },
+
     clearFoundData () {
       this.displayCount = false
       this.expandPeople = true
@@ -344,20 +373,23 @@ export default {
       this.matchPeople = []
       this.mergeList = []
     },
+
     clearMatchData () {
       this.foundPeople = []
       this.selectedPerson = undefined
       this.matchPeople = []
       this.mergeList = []
     },
+
     getMatchPeople (params) {
       const data = params || this.filterEmptyParams(Object.assign({}, this.params.base, this.params.active, this.params.born, this.params.died, this.params.user, this.params.settings))
       this.mergeList = []
-      People.where(data).then(response => {
+      People.where(data, { extend: ['roles'] }).then(response => {
         this.matchPeople = response.body
       })
     }
   },
+
   mounted () {
     const urlParams = new URLSearchParams(window.location.search)
     const lastName = urlParams.get('last_name')

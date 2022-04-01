@@ -30,7 +30,7 @@ module DataControllerConfiguration
   end
 
   def set_hub_model_metadata
-    @hub_model_metadata =  Hub::Data::BY_NAME[@data_model.name]
+    @hub_model_metadata = Hub::Data::BY_NAME[@data_model.name]
   end
 
 end

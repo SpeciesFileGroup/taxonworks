@@ -27,41 +27,29 @@ class ObservationMatrixColumnItemsController < ApplicationController
       .page(params[:page])
   end
 
-  # GET /observation_matrix_column_items/new
-  def new
-    @observation_matrix_column_item = ObservationMatrixColumnItem.new
-  end
-
   # GET /observation_matrix_column_items/1/edit
   def edit
+    redirect_to new_matrix_task_path(@observation_matrix_column_item.observation_matrix) and return
   end
 
-  # POST /observation_matrix_column_items
   # POST /observation_matrix_column_items.json
   def create
     @observation_matrix_column_item = ObservationMatrixColumnItem.new(observation_matrix_column_item_params)
     respond_to do |format|
       if @observation_matrix_column_item.save
-        format.html { redirect_to url_for(@observation_matrix_column_item.metamorphosize),
-                      notice: 'Matrix column item was successfully created.' }
         format.json { render :show, status: :created, location: @observation_matrix_column_item.metamorphosize }
       else
-        format.html { render :new }
         format.json { render json: @observation_matrix_column_item.errors, status: :unprocessable_entity }
       end
     end
   end
 
-  # PATCH/PUT /observation_matrix_column_items/1
   # PATCH/PUT /observation_matrix_column_items/1.json
   def update
     respond_to do |format|
       if @observation_matrix_column_item.update(observation_matrix_column_item_params)
-        format.html { redirect_to url_for(@observation_matrix_column_item.metamorphosize),
-                      notice: 'Matrix column item was successfully updated.' }
-        format.json { render :show, status: :ok, location: @observation_matrix_column_item }
+        format.json { render :show, status: :ok, location: @observation_matrix_column_item.metamorphosize }
       else
-        format.html { render :edit }
         format.json { render json: @observation_matrix_column_item.errors, status: :unprocessable_entity }
       end
     end
@@ -72,7 +60,6 @@ class ObservationMatrixColumnItemsController < ApplicationController
   def destroy
     @observation_matrix_column_item.destroy
     respond_to do |format|
-
       if @observation_matrix_column_item.destroyed?
         format.html {
           redirect_to observation_matrix_column_items_url,
@@ -86,8 +73,8 @@ class ObservationMatrixColumnItemsController < ApplicationController
   end
 
 
-  # POST /observation_matrix_column_items/batch_create?batch_type=tags&observation_matrix_id=123&keyword_id=456&klass=Otu
-  # POST /observation_matrix_column_items/batch_create?batch_type=pinboard&observation_matrix_id=123&klass=Otu
+  # POST /observation_matrix_column_items/batch_create?batch_type=tags&observation_matrix_id=123&keyword_id=456&klass=ObservationMatrixColumnItem::Single
+  # POST /observation_matrix_column_items/batch_create?batch_type=pinboard&observation_matrix_id=123&klass=ObservationMatrixColumnItem::Single
   def batch_create
     if @loan_items = ObservationMatrixColumnItem.batch_create(batch_params)
       render :index

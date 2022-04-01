@@ -126,7 +126,7 @@ class OtusController < ApplicationController
 
   def preview_simple_batch_load
     if params[:file]
-      @result = BatchLoad::Import::Otus.new(batch_params.merge(user_map))
+      @result = BatchLoad::Import::Otus.new(**batch_params.merge(user_map))
       digest_cookie(params[:file].tempfile, :batch_otus_md5)
       render('otus/batch_load/simple/preview')
     else
@@ -137,7 +137,7 @@ class OtusController < ApplicationController
 
   def create_simple_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :batch_otus_md5)
-      @result = BatchLoad::Import::Otus.new(batch_params.merge(user_map))
+      @result = BatchLoad::Import::Otus.new(**batch_params.merge(user_map))
       if @result.create
         flash[:notice] = "Successfully processed file, #{@result.total_records_created} otus were created."
         render('otus/batch_load/simple/create') and return

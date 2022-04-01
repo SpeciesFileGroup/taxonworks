@@ -6,8 +6,8 @@ if extend_response_with('rows')
   json.rows(observation_matrix.observation_matrix_rows.order(:position)) do |r|
     json.partial! '/shared/data/all/metadata', object: r, extensions: false 
 
-    json.row_object do
-      json.partial! '/shared/data/all/metadata', object: r.row_object, extensions: false 
+    json.observation_object do
+      json.partial! '/shared/data/all/metadata', object: r.observation_object, extensions: false 
     end
   end
 end

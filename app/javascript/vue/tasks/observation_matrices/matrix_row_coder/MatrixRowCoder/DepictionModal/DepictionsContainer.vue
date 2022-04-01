@@ -31,33 +31,35 @@
         {{ descriptor.description }}
       </h3>
       <hr v-if="descriptor.description && depictions.find(d => d.caption != null)">
-      <template
-        v-for="(row, rIndex) in chunkArray(descriptor.characterStates, 3)"
-        :key="`${rIndex}-depictions`">
-        <div class="wrapper">
-          <character-state
-            v-for="(characterState, index) in row"
-            :key="index"
-            :character-state="characterState"
-            @select="updateStateChecked(characterState.id, !isStateChecked(characterState.id))"
-          />
-        </div>
-        <div class="wrapper margin-medium-bottom">
-          <div
-            v-for="(characterState, index) in row"
-            :key="index"
-          >
-            <label>
-              <input
-                type="checkbox"
-                :checked="isStateChecked(characterState.id)"
-                @change="updateStateChecked(characterState.id, $event.target.checked)"
-              >
-              {{ characterState.label }}: {{ characterState.name }}
-            </label>
+      <div v-if="descriptor.characterStates">
+        <template
+          v-for="(row, rIndex) in chunkArray(descriptor.characterStates, 3)"
+          :key="`${rIndex}-depictions`">
+          <div class="wrapper">
+            <character-state
+              v-for="(characterState, index) in row"
+              :key="index"
+              :character-state="characterState"
+              @select="updateStateChecked(characterState.id, !isStateChecked(characterState.id))"
+            />
           </div>
-        </div>
-      </template>
+          <div class="wrapper margin-medium-bottom">
+            <div
+              v-for="(characterState, index) in row"
+              :key="index"
+            >
+              <label>
+                <input
+                  type="checkbox"
+                  :checked="isStateChecked(characterState.id)"
+                  @change="updateStateChecked(characterState.id, $event.target.checked)"
+                >
+                {{ characterState.label }}: {{ characterState.name }}
+              </label>
+            </div>
+          </div>
+        </template>
+      </div>
     </template>
   </modal-component>
 </template>

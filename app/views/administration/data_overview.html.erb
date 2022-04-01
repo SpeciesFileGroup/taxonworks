@@ -1,35 +1,90 @@
 <%= content_for :head do -%>
-  <%= javascript_include_tag "https://www.gstatic.com/charts/loader.js", "chartkick" %>
+  <%= javascript_include_tag "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.js",
+    "https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"  %>
 <% end %>
 
 <h1> Administration - Data overview </h1>
 
-<%= link_to 'Back', administration_path() %> 
+<%= link_to 'Back', administration_path() %>
 
-<p> Plots axes are number of records create by date created. </p>
+<h2> Graph data type by project by created/updated by date range</h2>
 
-<div class="flexbox">
-
-  <div class="item item1">
-
-    <h2> Community based </h2>
-    <%= line_chart ApplicationEnumeration.community_data_classes.map{|k| 
-      { name: k.name.titleize, data: k.all.group_by_week(:created_at).count}  
-    } %>
-
-    <h2> Project based </h2>
-    <ol>
-      <% ApplicationEnumeration.project_data_classes.each do |k| %>
-        <h3> <%= k.name.titleize %> </h3>
-        <%= line_chart Project.all.map{|p| 
-          {name: p.name, data: k.all.where(project_id: p.id).group_by_week(:created_at).count}
-        } %>
-      <% end %> 
-    </ol>
+<%= form_tag data_class_summary_path, method: :get, remote: true do |f| %>
+  <div class="field">
+    <h3> Plot data for </h3>
+    <%= select_tag :klass, options_for_select(ApplicationEnumeration.project_data_classes.select{|a| a.column_names.include?('created_at')}.collect{|b| b.name}.sort, include_blank: true) %>
   </div>
 
-  <div class="item item2">
+  <div class="field">
+    <h3> For project (leave blank for all projects)</h3>
+    <%= select_tag :project_id, options_from_collection_for_select( Project.all.order(:name), :id, :name), include_blank: true %>
   </div>
 
+  <table class="full_width">
+    <tr>
+      <td>
+        <h3> Aggregated by timespan of</h3>
+        <div class="field">
+          <%= radio_button_tag :time_span, :year, true %>
+          <%= label_tag :year %>
+        </div>
+
+        <div class="field">
+          <%= radio_button_tag :time_span, :month %>
+          <%= label_tag :month %>
+        </div>
+
+        <div class="field">
+          <%= radio_button_tag :time_span, :week %>
+          <%= label_tag :week %>
+        </div>
+      </td>
+
+      <td>
+        <h3> Created / modified</h3>
+        <div class="field">
+          <%= radio_button_tag :target, :created_at, true %>
+          <%= label_tag :Created %>
+        </div>
+
+        <div class="field">
+          <%= radio_button_tag :target, :updated_at %>
+          <%= label_tag :Modified %>
+        </div>
+      </td>
+
+      <td>
+        <h3> Between (blank for all)</h3>
+        <div class="field">
+          <%= label_tag :Start %>
+          <%= date_field_tag :start_date %>
+        </div>
+
+        <div class="field">
+          <%= label_tag :End %>
+          <%= date_field_tag :end_date  %>
+        </div>
+      </td>
+
+    </tr>
+  </table>
+
+
+  <%= tag.button :Graph, class: 'button, button-default' %>
+<% end %>
+
+<br>
+
+<div id="class_graph" >
+  <%= tag.span 'Select graph options above.', class: ['feedback', 'feedback-notice']  %>
 </div>
 
+<div class="flexbox">
+  <div class="item item1">
+    <h2> Community data type </h2>
+    <div>
+      <%= line_chart ApplicationEnumeration.community_data_classes.map{|k|
+        { name: k.name.titleize, data: k.all.group_by_month(:created_at).count}  } %>
+    </div>
+  </div>
+</div>
