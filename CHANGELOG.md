@@ -38,7 +38,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Change form fields order in OTU radial - Biological associations
 - Updated ruby gems
 - Close modal after select a status in New taxon name
-
+- Escape new additional pseudo-LaTeX encodings from BibTex data
 ### Fixed
 - DwC georeferencedProtocol references Protocols properly [#2842]
 - DwC georeferencedBy references Georeferencers properly [#2846]
