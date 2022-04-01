@@ -5,14 +5,19 @@ import { createStore } from 'vuex'
 
 function makeInitialState () {
   return {
+    requestState: {
+      isLoading: false,
+      isMerging: false
+    },
     settings: {
       showMatch: true,
       showFound: true,
       showSearch: true,
       showJSONRequest: false
     },
+    URLRequest: undefined,
     foundPeople: [],
-    selectedPerson: undefined,
+    selectedPerson: {},
     matchPeople: [],
     mergeList: [],
     mergePerson: {},

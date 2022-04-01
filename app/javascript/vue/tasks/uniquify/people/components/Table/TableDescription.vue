@@ -1,7 +1,8 @@
 <template>
   <div
     class="full_width"
-    v-if="personRoles.length">
+    v-if="personRoles.length"
+  >
     <h3>{{ title }}</h3>
     <table class="table-roles">
       <tbody>
@@ -9,10 +10,12 @@
           v-for="(item, index) in personRoles"
           :key="item.id"
           class="contextMenuCells"
-          :class="{ even: (index % 2 == 0) }">
+          :class="{ even: (index % 2 == 0) }"
+        >
           <td
             class="column-property"
-            :class="classForRoleProject(item)">
+            :class="classForRoleProject(item)"
+          >
             {{ item.role_object_type }}
           </td>
           <td v-html="item.object_tag" />

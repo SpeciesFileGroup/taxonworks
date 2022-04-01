@@ -12,6 +12,7 @@
           >
             Flip
           </button>
+          <ConfirmationModal ref="confirmationModal" />
           <confirm-modal
             v-if="mergeList.length"
             @on-accept="$emit('merge')"
@@ -164,12 +165,13 @@
 
 <script>
 
-import TableRoles from './Table/tableRoles'
-import TableAnnotations from './Table/tableAnnotations'
-import TablePersonRoles from './Table/roles_table'
+import TableRoles from './Table/TableRoles.vue'
+import TableAnnotations from './Table/TableAnnotations.vue'
+import TablePersonRoles from './Table/TableDescription.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import SwitchComponent from 'components/switch'
 import ConfirmModal from './confirmModal.vue'
+import ConfirmationModal from 'components/ConfirmationModal.vue'
 import { capitalize, humanize } from 'helpers/strings'
 
 export default {
@@ -179,7 +181,8 @@ export default {
     TableRoles,
     RadialAnnotator,
     SwitchComponent,
-    ConfirmModal
+    ConfirmModal,
+    ConfirmationModal
   },
 
   name: 'CompareComponent',
@@ -234,9 +237,15 @@ export default {
     },
 
     sendMerge () {
-      if (window.confirm('Are you sure you want to merge?')) {
+      this.$refs.confirmationModal.show({
+        title: 'Merge people',
+        message: 'This will merge all selected match people to selected person.',
+        okButton: 'Merge',
+        confirmationWord: 'merge',
+        typeButton: 'create'
+      }).then(_ => {
         this.$emit('merge')
-      }
+      })
     },
 
     humanizeValue (value) {

@@ -1,10 +1,12 @@
 <template>
-  <div>
+  <div class="field">
     <h3>Levenshtein cuttoff</h3>
     <datalist id="days">
       <option
         v-for="n in 7"
-        :value="n-1"/>
+        :key="n"
+        :value="n-1"
+      />
     </datalist>
     <input
       type="range"
@@ -12,11 +14,14 @@
       min="0"
       max="6"
       step="0"
-      v-model.number="optionValue">
+      v-model.number="optionValue"
+    >
     <div class="options-label">
       <span
+        :key="n"
         v-for="n in 7"
-        v-html="n-1"/>
+        v-html="n-1"
+      />
     </div>
   </div>
 </template>

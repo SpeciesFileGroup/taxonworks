@@ -1,6 +1,10 @@
 const ActionNames = {
+  AddSelectPerson: 'addSelectPerson',
+  FindPeople: 'findPeople',
+  FindMatchPeople: 'findMatchPeople',
   MergePeople: 'mergePeople',
-  AddSelectPerson: 'addSelectPerson'
+  ProcessMerge: 'processMerge',
+  ResetStore: 'resetStore'
 }
 
 export default ActionNames

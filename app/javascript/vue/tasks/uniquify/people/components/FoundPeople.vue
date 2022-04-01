@@ -70,11 +70,12 @@
 </template>
 <script>
 
-import Autocomplete from 'components/ui/Autocomplete.vue'
-import DefaultPin from 'components/getDefaultPin.vue'
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 import { MutationNames } from '../store/mutations/mutations'
+import Autocomplete from 'components/ui/Autocomplete.vue'
+import DefaultPin from 'components/getDefaultPin.vue'
+import getRoles from '../utils/getRoles'
 
 export default {
   components: {
@@ -110,13 +111,11 @@ export default {
       this.$store.dispatch(ActionNames.AddSelectPerson, person.id)
     },
 
-    getRoles (person) {
-      return person.roles ? [...new Set(person.roles.map(r => r.role_object_type))].join(', ') : '?'
-    },
-
     yearValue (value) {
       return value || '?'
-    }
+    },
+
+    getRoles
   }
 }
 </script>
