@@ -6,6 +6,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Changed
+- Time ranges for `eventTime` in DwC occurrences importer are now supported.
+## [0.24.0] - 2022-03-31
+
 ### Added
 - Collection object `current_repository_id` and interface toggle [#2866]
 - Use Namespace as DwC `collectionCode` [#2726]
@@ -39,6 +43,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated ruby gems
 - Close modal after select a status in New taxon name
 - Escape new additional pseudo-LaTeX encodings from BibTex data
+
 ### Fixed
 - DwC georeferencedProtocol references Protocols properly [#2842]
 - DwC georeferencedBy references Georeferencers properly [#2846]
@@ -2428,7 +2433,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.23.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.0...development
+[0.24.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.23.1...v0.24.0
 [0.23.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.23.0...v0.23.1
 [0.23.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.7...v0.23.0
 [0.22.7]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.6...v0.22.7
