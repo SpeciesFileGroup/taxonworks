@@ -212,7 +212,7 @@ export default {
 
       this.$store.commit(MutationNames.SetIsSaving, true)
 
-      if (observation.id) {
+      if (observation.id && observation.depictions_attributes.length > 1) {
         await Observation.update(observation.id, { observation, extend: ['depictions'] }).then(({ body }) => {
           if (!body.depictions.find(d => d.depiction_object_id === this.observationMoved)) {
             Observation.destroy(body.id)

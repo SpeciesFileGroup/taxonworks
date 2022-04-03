@@ -6,6 +6,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Fixed
+- Sometimes it's not possible move images from one cell to another in Image matrix task [#2874]
+
 ### Added
 - Collection object `current_repository_id` and interface toggle [#2866]
 - Use Namespace as DwC `collectionCode` [#2726]
