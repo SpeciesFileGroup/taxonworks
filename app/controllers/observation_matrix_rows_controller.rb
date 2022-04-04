@@ -11,22 +11,12 @@ class ObservationMatrixRowsController < ApplicationController
         @recent_objects = ObservationMatrixRow.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       end
-      if params[:otu_ids].blank?
-        format.json {
-          @observation_matrix_rows = ObservationMatrixRow.where(filter_params)
-            .where(project_id: sessions_current_project_id)
-            .order('observation_matrix_rows.position')
-            .page(params[:page]).per(params[:per])
-        }
-      else
-        format.json {
-          @observation_matrix_rows = ObservationMatrixRow
-            .with_otu_ids(params[:otu_ids]).where(filter_params)
-            .where(project_id: sessions_current_project_id)
-            .order('observation_matrix_rows.position')
-            .page(params[:page]).per(params[:per])
-        }
-      end
+      format.json {
+        @observation_matrix_rows = ::Queries::Filter::ObservationMatrixRow.new(filter_params)
+          .all
+          .order('observation_matrix_rows.position')
+          .page(params[:page]).per(params[:per])
+      }
     end
   end
 
@@ -60,6 +50,11 @@ class ObservationMatrixRowsController < ApplicationController
   end
 
   def filter_params
-    params.permit(:observation_matrix_id, :collection_object_id, :otu_id)
+    params.permit(
+      :observation_matrix_id,
+      :observation_object_type,
+      :observation_object_id
+      :observation_object_id_vector
+    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 end

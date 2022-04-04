@@ -42,10 +42,6 @@ RSpec.describe ObservationMatrixRow, type: :model, group: :observation_matrix do
     specify '#observations2' do
       expect(r1.observations.map(&:id)).to contain_exactly()
     end
-
-    specify 'with_otu_ids' do
-      expect(observation_matrix.observation_matrix_rows.with_otu_ids(otu.id.to_s + '|' + otu1.id.to_s).count).to eq(2)
-    end
   end
 
   context '#sort' do
