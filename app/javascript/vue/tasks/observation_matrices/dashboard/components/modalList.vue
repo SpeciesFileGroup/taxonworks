@@ -143,7 +143,7 @@ export default {
       this.loading = true
       this.show = true
       ObservationMatrix.all({ per: 500 }).then(response => {
-        this.matrices = response.body.sort((a, b) => { 
+        this.matrices = response.body.sort((a, b) => {
           const compareA = a.object_tag
           const compareB = b.object_tag
           if (compareA < compareB) {
@@ -157,7 +157,10 @@ export default {
         this.loading = false
       })
       if (this.otuSelected) {
-        ObservationMatrixRow.where({ otu_id: this.otuSelected }).then(response => {
+        ObservationMatrixRow.where({
+          observation_object_type: 'Otu',
+          observation_object_id: this.otuSelected
+        }).then(response => {
           this.rows = response.body
         })
       }
