@@ -63,7 +63,7 @@ export default {
         this.isLoading = true
 
         promises.push(ObservationMatrix.all().then(response => { this.observationMatrices = response.body }))
-        promises.push(ObservationMatrixRow.where({ otu_ids: this.otuIds.join('|') }).then(({ body }) => { this.matrixObservationRows = body }))
+        promises.push(ObservationMatrixRow.where({ observation_object_id_vector: this.otuIds.join('|') }).then(({ body }) => { this.matrixObservationRows = body }))
 
         Promise.all(promises).then(() => {
           this.isLoading = false

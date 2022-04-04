@@ -10,37 +10,44 @@
     <modal-component
       v-if="showModal"
       :container-style="{ width: '700px' }"
-      @close="showModal = false">
+      @close="showModal = false"
+    >
       <template #header>
         <h3>Select a matrix</h3>
       </template>
       <template #body>
         <spinner-component
           v-if="isLoading"
-          legend="Loading..."/>
+          legend="Loading..."
+        />
         <pin-component
           class="button-circle"
           type="ObservationMatrix"
-          @getItem="addRows($event.id)"
-          section="ObservationMatrices"/>
+          @get-item="addRows($event.id)"
+          section="ObservationMatrices"
+        />
         <ul class="no_bullets">
           <li
             class="margin-small-bottom"
             v-for="item in matrixWithRows"
-            :key="item.id">
+            :key="item.id"
+          >
             <button
               class="button normal-input button-default"
-              @click="addRows(item.id)">
+              @click="addRows(item.id)"
+            >
               {{ item.name }}
             </button>
           </li>
           <li
             class="margin-small-bottom"
             v-for="item in matrixWithoutRows"
-            :key="item.id">
+            :key="item.id"
+          >
             <button
               class="button normal-input button-submit"
-              @click="addRows(item.id)">
+              @click="addRows(item.id)"
+            >
               {{ item.name }}
             </button>
           </li>
@@ -56,22 +63,33 @@ import {
   ObservationMatrixRow,
   ObservationMatrix
 } from 'routes/endpoints'
-import extendButton from './shared/extendButton'
+import { OTU } from 'constants/index.js'
 import { sortArray } from 'helpers/arrays'
+import extendButton from './shared/extendButton'
 
 export default {
   mixins: [extendButton],
 
   watch: {
-    showModal (newVal) {
+    async showModal (newVal) {
       if (newVal) {
-        const promises = []
         this.isLoading = true
 
-        promises.push(ObservationMatrix.all().then(response => { this.observationMatrices = sortArray(response.body, 'name') }))
-        promises.push(ObservationMatrixRow.where({ otu_ids: this.otuIds.join('|') }).then(({ body }) => { this.matrixObservationRows = body }))
+        Promise.all([
+          ObservationMatrix
+            .all()
+            .then(({ body }) => {
+              this.observationMatrices = sortArray(body, 'name')
+            }),
 
-        Promise.all(promises).then(() => {
+          ObservationMatrixRow
+            .where({
+              observation_object_id_vector: this.otuIds.join('|'),
+              observation_object_type: OTU
+            }).then(({ body }) => {
+              this.matrixObservationRows = body
+            })
+        ]).then(_ => {
           this.isLoading = false
         })
       }
