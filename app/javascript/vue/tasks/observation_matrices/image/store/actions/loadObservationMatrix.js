@@ -15,7 +15,7 @@ const addImagesToDepictions = (rows, images) => rows
         })))
   }))
 
-export default ({ state, commit, dispatch }, params) => {
+export default ({ commit, dispatch }, params) => {
   AjaxCall('get', `/tasks/observation_matrices/image_matrix/${params.observation_matrix_id}/key`, { params }).then(({ body }) => {
     commit(MutationNames.SetObservationMatrix, body.observation_matrix)
     commit(MutationNames.SetObservationColumns, body.list_of_descriptors)

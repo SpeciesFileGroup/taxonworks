@@ -1,18 +1,18 @@
 import { Otu, TaxonName, CollectionObject } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
-const objectClass = {
-  otu_id: Otu,
-  collection_object_id: CollectionObject,
-  taxon_name_id: TaxonName
+const requestFunctions = {
+  CollectionObject,
+  Otu,
+  TaxonName
 }
 
 function requestDepictions (item) {
-  const [property, request] = item.base_class === 'Otu'
-    ? ['id', Otu]
-    : Object.entries(objectClass).find(([key, value]) => item[key])
+  const type = item.observation_object_type || item.base_class
 
-  return request.depictions(item[property])
+  return type in requestFunctions
+    ? requestFunctions[type].depictions(item.observation_object_id)
+    : Promise.resolve()
 }
 
 export default ({ state: { observationRows }, commit }) => {
