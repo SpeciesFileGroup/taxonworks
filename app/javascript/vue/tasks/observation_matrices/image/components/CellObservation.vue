@@ -114,7 +114,7 @@ export default {
   },
 
   emits: [
-    'removeDepictions',
+    'removeDepiction',
     'addDepiction'
   ],
 
@@ -142,11 +142,11 @@ export default {
     },
 
     rowObjectId () {
-      return this.rowObject.otu_id || this.rowObject.collection_object_id
+      return this.rowObject.observation_object_id || this.rowObject.id
     },
 
     rowObjectBaseCassParam () {
-      return this.rowObject.otu_id ? OTU : COLLECTION_OBJECT
+      return this.rowObject.observation_object_type || this.rowObject.base_class
     },
 
     observationId () {
@@ -191,15 +191,14 @@ export default {
         }
 
         Observation.create({ observation, extend: ['depictions'] }).then(({ body }) => {
-          this.updateDepiction(event, body.id)
+          this.updateDepiction(body.id)
         })
-      }
-      else {
-        this.updateDepiction(event)
+      } else {
+        this.updateDepiction()
       }
     },
 
-    async updateDepiction (event, observationId) {
+    updateDepiction (observationId) {
       const depiction = {
         id: this.depictionMoved.id,
         depiction_object_id: observationId || this.observationId,
@@ -212,16 +211,26 @@ export default {
 
       this.$store.commit(MutationNames.SetIsSaving, true)
 
-      if (observation.id) {
-        await Observation.update(observation.id, { observation, extend: ['depictions'] }).then(({ body }) => {
-          if (!body.depictions.find(d => d.depiction_object_id === this.observationMoved)) {
-            Observation.destroy(body.id)
-          }
-        })
-      }
+      const request = observation.id
+        ? Observation
+          .update(observation.id, { observation, extend: ['depictions'] })
+          .then(({ body }) => {
+            const existDepiction = body.depictions.find(d => d.depiction_object_id === this.observationMoved)
 
-      Depiction.update(depiction.id, { depiction }).then(({ body }) => {
-        this.$emit('addDepiction', body)
+            if (!existDepiction) {
+              Observation.destroy(body.id)
+            }
+
+            this.$emit('addDepiction', {
+              ...this.depictionMoved,
+              ...depiction
+            })
+          })
+        : Depiction.update(depiction.id, { depiction }).then(({ body }) => {
+          this.$emit('addDepiction', body)
+        })
+
+      request.finally(() => {
         this.depictionMoved = undefined
         this.observationMoved = undefined
         this.$store.commit(MutationNames.SetIsSaving, false)
@@ -238,7 +247,6 @@ export default {
         this.$store.commit(MutationNames.SetIsSaving, true)
         Depiction.destroy(depiction.id).then(() => {
           const index = this.depictions.findIndex(item => item.id === depiction.id)
-          const observationId = this.observationId
 
           this.$emit('removeDepiction', index)
           this.$store.commit(MutationNames.SetIsSaving, false)
