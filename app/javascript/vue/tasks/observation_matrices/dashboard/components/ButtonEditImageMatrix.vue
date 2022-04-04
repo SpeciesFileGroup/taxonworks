@@ -77,7 +77,7 @@ export default {
 
         Promise.all([
           ObservationMatrix
-            .all()
+            .where({ per: 500 })
             .then(({ body }) => {
               this.observationMatrices = sortArray(body, 'name')
             }),
