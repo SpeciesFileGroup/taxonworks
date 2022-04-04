@@ -7,7 +7,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Changed
-- Time ranges for `eventTime` in DwC occurrences importer are now supported.
+- Time ranges for `eventTime` in DwC occurrences importer are now supported
+- Updated Ruby gems
 ## [0.24.0] - 2022-03-31
 
 ### Added
