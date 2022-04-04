@@ -15,6 +15,7 @@ module Queries
         @observation_object_id = params[:observation_object_id]
         @project_id = params[:project_id]
         @observation_object_id_vector = params[:observation_object_id_vector]
+        @observation_matrix_id = params[:observation_matrix_id]
       end
 
       def base_query
@@ -37,7 +38,7 @@ module Queries
       # @return [ActiveRecord::Relation]
       def and_clauses
         clauses = [
-          #matching_observation_matrix_id,
+          matching_observation_matrix_id,
           matching_observation_object_id,
           matching_observation_object_type,
         ].compact
@@ -58,7 +59,7 @@ module Queries
       end
 
       def matching_observation_matrix_id
-        observation_matrix_id.empty? ? nil : table[:id].eq_any(observation_matrix_id)
+        observation_matrix_id.empty? ? nil : table[:observation_matrix_id].eq_any(observation_matrix_id)
       end
 
       def matching_observation_object_id
