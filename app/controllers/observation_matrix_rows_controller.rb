@@ -12,7 +12,7 @@ class ObservationMatrixRowsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @observation_matrix_rows = ::Queries::Filter::ObservationMatrixRow.new(filter_params)
+        @observation_matrix_rows = Queries::ObservationMatrixRow::Filter.new(filter_params)
           .all
           .order('observation_matrix_rows.position')
           .page(params[:page]).per(params[:per])

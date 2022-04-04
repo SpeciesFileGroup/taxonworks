@@ -22,12 +22,12 @@ module Queries
       end
 
       def table
-        ObservationMatrixRow.arel_table
+        ::ObservationMatrixRow.arel_table
       end
 
       def observation_object_id
         [@observation_object_id].flatten.compact +  
-          (observation_object_id_vector.blank? ? [] : observation_object_id_vector.split('|'))]
+          (observation_object_id_vector.blank? ? [] : observation_object_id_vector.split('|'))
       end
 
       def observation_matrix_id
@@ -37,7 +37,7 @@ module Queries
       # @return [ActiveRecord::Relation]
       def and_clauses
         clauses = [
-          matching_observation_matrix_id,
+          #matching_observation_matrix_id,
           matching_observation_object_id,
           matching_observation_object_type,
         ].compact
@@ -52,7 +52,9 @@ module Queries
       end
 
       def merge_clauses
-        []
+        clauses = []
+
+        return nil if clauses.empty?
       end
 
       def matching_observation_matrix_id
@@ -60,11 +62,11 @@ module Queries
       end
 
       def matching_observation_object_id
-        observation_matrix_id.empty? ? nil : table[:id].eq_any(observation_matrix_id)
+        observation_object_id.empty? ? nil : table[:observation_object_id].eq_any(observation_object_id)
       end
 
       def matching_observation_object_type
-        observation_object_type.blank? ? nil : table[:observation_object_type].eq(observation_matrix_id)
+        observation_object_type.blank? ? nil : table[:observation_object_type].eq(observation_object_type)
       end
 
       # @return [String, nil]
