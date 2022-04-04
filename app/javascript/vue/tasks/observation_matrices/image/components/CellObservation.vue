@@ -142,11 +142,11 @@ export default {
     },
 
     rowObjectId () {
-      return this.rowObject.otu_id || this.rowObject.collection_object_id
+      return this.rowObject.observation_object_id || this.rowObject.id
     },
 
     rowObjectBaseCassParam () {
-      return this.rowObject.otu_id ? OTU : COLLECTION_OBJECT
+      return this.rowObject.observation_object_type || this.rowObject.base_class
     },
 
     observationId () {
@@ -211,18 +211,26 @@ export default {
 
       this.$store.commit(MutationNames.SetIsSaving, true)
 
-      Observation.update(observation.id, { observation, extend: ['depictions'] }).then(({ body }) => {
-        const existDepiction = body.depictions.find(d => d.depiction_object_id === this.observationMoved)
+      const request = observation.id
+        ? Observation
+          .update(observation.id, { observation, extend: ['depictions'] })
+          .then(({ body }) => {
+            const existDepiction = body.depictions.find(d => d.depiction_object_id === this.observationMoved)
 
-        if (!existDepiction) {
-          Observation.destroy(body.id)
-        }
+            if (!existDepiction) {
+              Observation.destroy(body.id)
+            }
 
-        this.$emit('addDepiction', {
-          ...this.depictionMoved,
-          ...depiction
+            this.$emit('addDepiction', {
+              ...this.depictionMoved,
+              ...depiction
+            })
+          })
+        : Depiction.update(depiction.id, { depiction }).then(({ body }) => {
+          this.$emit('addDepiction', body)
         })
 
+      request.finally(() => {
         this.depictionMoved = undefined
         this.observationMoved = undefined
         this.$store.commit(MutationNames.SetIsSaving, false)
