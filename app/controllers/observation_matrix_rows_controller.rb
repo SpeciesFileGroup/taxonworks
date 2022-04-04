@@ -53,7 +53,7 @@ class ObservationMatrixRowsController < ApplicationController
     params.permit(
       :observation_matrix_id,
       :observation_object_type,
-      :observation_object_id
+      :observation_object_id,
       :observation_object_id_vector
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
