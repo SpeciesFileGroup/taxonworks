@@ -9,6 +9,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Time ranges for `eventTime` in DwC occurrences importer are now supported
 - Updated Ruby gems
+
+### Fixed
+- Observation matrix row filter generalized to work for all observation object types [#2873]
+
+[#2873]: https://github.com/SpeciesFileGroup/taxonworks/issues/2873
+
 ## [0.24.0] - 2022-03-31
 
 ### Added
