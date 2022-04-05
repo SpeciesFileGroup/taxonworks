@@ -17,4 +17,13 @@ module DownloadsHelper
       nil
     end
   end
+
+  def download_status(download)
+    return nil if download.nil?  || !download.persisted?
+   
+    return {
+      ready: download.ready?,
+      expired: download.expired?,
+    } 
+  end
 end

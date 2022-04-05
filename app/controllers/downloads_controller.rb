@@ -2,7 +2,7 @@ class DownloadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_download, only: [:show, :download_file, :destroy, :update, :file, :api_show, :edit]
-  before_action :set_download_api, only: [:api_file, :api_show]
+  before_action :set_download_api, only: [:api_file, :api_show, :api_status, :api_terminate]
 
   after_action -> { set_pagination_headers(:downloads) }, only: [:api_index], if: :json_request?
 
@@ -96,6 +96,19 @@ class DownloadsController < ApplicationController
     render '/downloads/api/v1/show'
   end
 
+  def api_status
+    render '/downloads/api/v1/status'
+  end
+
+  def api_build
+    @download = Download.new(api_build_params) 
+    render '/downloads/api/v1/status'
+  end
+
+  def api_terminate
+    render '/downloads/api/v1/status'
+  end
+
   private
 
   def filter_params
@@ -112,5 +125,9 @@ class DownloadsController < ApplicationController
 
   def download_params
     params.require(:download).permit(:is_public, :name, :expires )
+  end
+
+  def api_build_params
+    params.permit(:type, predicate_extensions: {})
   end
 end

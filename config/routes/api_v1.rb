@@ -45,9 +45,13 @@ namespace :api, defaults: {format: :json} do
       get '/otus/:otu_id/inventory/images', to: '/images#api_image_inventory', as: :api_images
       get '/otus/:id', to: '/otus#api_show'
 
+      get '/downloads/build', to: '/downloads#api_build', as: :api_download_build
       get '/downloads/:id', to: '/downloads#api_show'
       get '/downloads', to: '/downloads#api_index'
       get '/downloads/:id/file', to: '/downloads#api_file', as: :api_download_file
+
+      get '/downloads/:id/terminate', to: '/downloads#api_terminate', as: :api_download_terminate
+      get '/downloads/:id/status', to: '/downloads#api_status', as: :api_download_status
 
       get '/dwc_occurrences', to: '/dwc_occurrences#api_index'
 

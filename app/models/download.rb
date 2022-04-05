@@ -55,6 +55,15 @@ class Download < ApplicationRecord
   validates_presence_of :expires
   validates_presence_of :type
 
+  def build_async(record_scope, predicate_extension_params: {}, download_params: {} )
+    # MEH! 
+    download_params.each do |k, v|
+      self.send("#{k}=".to_sym, v)
+    end
+
+    ::DwcaCreateDownloadJob.perform_later(self, core_scope: record_scope.to_sql, predicate_extension_params: predicate_extension_params)
+  end
+
   # Gets the downloads storage path
   def self.storage_path
     STORAGE_PATH
@@ -95,6 +104,10 @@ class Download < ApplicationRecord
     FileUtils.rm_rf(path)
   end
 
+  def api_buildable?
+    false
+  end
+
   private
 
   STORAGE_PATH = Rails.root.join(Rails.env.test? ? 'tmp' : '', "downloads#{ENV['TEST_ENV_NUMBER']}").freeze
@@ -114,5 +127,6 @@ require_dependency 'download/basic_nomenclature'
 require_dependency 'download/bibtex'
 require_dependency 'download/coldp'
 require_dependency 'download/dwc_archive'
+require_dependency 'download/dwc_archive/complete'
 require_dependency 'download/sql_project_dump'
 require_dependency 'download/text'

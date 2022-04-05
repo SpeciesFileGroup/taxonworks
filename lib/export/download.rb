@@ -109,6 +109,13 @@ module Export::Download
     unsorted + sorted
   end
 
+# # @return [Download, false]
+# #
+# # Given a set of API param, create a download of a cnkkk
+# def self.delegate_build(params = {})
+
+# end
+
 
 end
 

@@ -28,6 +28,7 @@ module Export
     def self.download_async(record_scope, request = nil, predicate_extension_params: {})
       name = "dwc-a_#{DateTime.now}.zip"
 
+      # TODO: move fixed attributes to model
       download = ::Download::DwcArchive.create!(
         name: "DwC Archive generated at #{Time.now}.",
         description: 'A Darwin Core archive.',
