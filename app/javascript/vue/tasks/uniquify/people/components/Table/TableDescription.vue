@@ -1,24 +1,33 @@
 <template>
   <div
     class="full_width"
-    v-if="personRoles.length"
+    v-if="Object.keys(personRoles).length"
   >
     <h3>{{ title }}</h3>
     <table class="table-roles">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>In project</th>
+          <th>Not in project</th>
+          <th>Not determinated</th>
+        </tr>
+      </thead>
       <tbody>
         <tr
-          v-for="(item, index) in personRoles"
-          :key="item.id"
+          v-for="(roleList, roleType, index) in personRoles"
+          :key="roleType"
           class="contextMenuCells"
           :class="{ even: (index % 2 == 0) }"
         >
+          <td v-text="roleType" />
           <td
+            v-for="(value, key) in rolesCount(roleList)"
+            :key="key"
             class="column-property"
-            :class="classForRoleProject(item)"
           >
-            {{ item.role_object_type }}
+            {{ value ? value : '' }}
           </td>
-          <td v-html="item.object_tag" />
         </tr>
       </tbody>
     </table>
@@ -26,8 +35,7 @@
 </template>
 
 <script setup>
-import { watch, ref } from 'vue'
-import { People } from 'routes/endpoints'
+import { computed } from 'vue'
 
 const props = defineProps({
   person: {
@@ -41,16 +49,20 @@ const props = defineProps({
   }
 })
 
-const personRoles = ref([])
+const personRoles = computed(() => {
+  const roles = props.person?.roles || []
+  const roleList = roles.reduce(
+    (prev, curr, index) => {
+      const type = curr.role_object_type
 
-watch(() => props.person,
-  async person => {
-    personRoles.value = person?.id
-      ? (await People.roles(person.id)).body
-      : []
-  },
-  { deep: true }
-)
+      return {
+        ...prev,
+        [type]: [...prev[type] || [], curr]
+      }
+    }, {})
+
+  return Object.fromEntries(Object.entries(roleList).sort())
+})
 
 const classForRoleProject = role => {
   if (role.in_project) {
@@ -61,6 +73,24 @@ const classForRoleProject = role => {
     return 'no-in-project'
   }
 }
+
+const rolesCount = roleList =>
+  roleList.reduce((acc, curr, index) => {
+    if (curr.in_project) {
+      acc.inProject++
+    } else if (curr.project_id === null) {
+      acc.nulled++
+    } else {
+      acc.noInProject++
+    }
+
+    return acc
+  }, {
+    inProject: 0,
+    noInProject: 0,
+    nulled: 0
+  })
+
 </script>
 
 <style lang="scss" scoped>

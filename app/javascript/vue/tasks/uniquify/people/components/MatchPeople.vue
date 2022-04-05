@@ -44,13 +44,19 @@
               </td>
               <td>{{ person.cached }}</td>
               <td>
-                <span class="feedback feedback-secondary feedback-thin line-nowrap">{{ yearValue(person.year_born) }} - {{ yearValue(person.year_died) }}</span>
+                <span class="feedback feedback-secondary feedback-thin line-nowrap">
+                  {{ yearValue(person.year_born) }} - {{ yearValue(person.year_died) }}
+                </span>
               </td>
               <td>
-                <span class="feedback feedback-secondary feedback-thin line-nowrap">{{ yearValue(person.year_active_start) }} - {{ yearValue(person.year_active_end) }}</span>
+                <span class="feedback feedback-secondary feedback-thin line-nowrap">
+                  {{ yearValue(person.year_active_start) }} - {{ yearValue(person.year_active_end) }}
+                </span>
               </td>
               <td>
-                <span class="feedback feedback-thin feedback-primary">{{ person.roles ? person.roles.length : '?' }}</span>
+                <span class="feedback feedback-thin feedback-primary">
+                  {{ person.roles ? person.roles.length : '?' }}
+                </span>
               </td>
               <td>{{ getRoles(person) }}</td>
             </tr>
@@ -102,11 +108,11 @@ export default {
 
     selectAll: {
       get () {
-        return this.matchList.length && this.selectedMergePerson.length === this.matchList.length
+        return this.filterMatchList.length && this.selectedMergePerson.length === this.filterMatchList.length
       },
 
       set (value) {
-        this.selectedMergePerson = value ? this.matchList : []
+        this.selectedMergePerson = value ? this.filterMatchList : []
       }
     }
   },

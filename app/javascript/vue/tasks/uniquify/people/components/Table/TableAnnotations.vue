@@ -19,6 +19,7 @@
 <script>
 
 import AjaxCall from 'helpers/ajaxCall'
+import { Annotation } from 'routes/endpoints'
 
 export default {
   props: {
@@ -26,37 +27,43 @@ export default {
       type: Object,
       required: true
     },
+
     title: {
       type: String,
       required: true
     }
   },
-  data() {
+
+  data () {
     return {
       annotationLists: []
     }
   },
+
   watch: {
     person: {
-      handler(newVal) {
-        if(newVal != undefined && Object.keys(newVal).length) {
+      handler (newVal) {
+        if (newVal?.global_id) {
           this.getAnnotations(newVal.global_id)
-        }
-        else {
+        } else {
           this.annotationLists = []
         }
       },
       deep: true
     }
   },
+
   methods: {
-    getAnnotations(globalId) {
-      let that = this
-      AjaxCall('get', `/annotations/${encodeURIComponent(globalId)}/metadata`).then(response => {
-        Object.keys(response.body.endpoints).forEach((endpoint, index) => {
-          if (response.body.endpoints[endpoint].total > 0) {
-            AjaxCall('get', `${response.body.url}/${endpoint}.json`).then(response => {
-              that.annotationLists = that.annotationLists.concat(response.body)
+    getAnnotations (globalId) {
+      this.annotationLists = []
+
+      Annotation.metadata(globalId).then(({ body }) => {
+        const endpoints = Object.entries(body.endpoints)
+
+        endpoints.forEach(([endpoint, obj], index) => {
+          if (obj.total > 0) {
+            AjaxCall('get', `${body.url}/${endpoint}.json`).then(response => {
+              this.annotationLists = this.annotationLists.concat(response.body)
             })
           }
         })

@@ -29,7 +29,7 @@
         </div>
         <div class="flex-separate top">
           <div>
-            <compare-component
+            <compare-table
               @flip="flipPerson"
               :selected="selectedPerson"
               :merge-list="mergeList"
@@ -54,7 +54,7 @@ import SettingsNavbar from './components/SettingsNavbar.vue'
 import FilterPanel from './components/Filter/FilterPanel.vue'
 import FoundPeople from './components/FoundPeople'
 import MatchPeople from './components/MatchPeople'
-import CompareComponent from './components/compare.vue'
+import CompareTable from './components/CompareTable.vue'
 import VSpinner from 'components/spinner.vue'
 import URLComponent from './components/URLComponent.vue'
 
@@ -66,7 +66,7 @@ export default {
   name: 'UniquifyPeople',
 
   components: {
-    CompareComponent,
+    CompareTable,
     FilterPanel,
     FoundPeople,
     MatchPeople,

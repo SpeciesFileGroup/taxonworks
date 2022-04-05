@@ -7,18 +7,13 @@
           <button
             type="button"
             class="button normal-input button-default separate-right"
-            :disabled="!(Object.keys(selected).length && Object.keys(merge).length)"
+            :disabled="!(Object.keys(selected).length && selectedMergePerson)"
             @click="$emit('flip', personIndex)"
           >
             Flip
           </button>
           <ConfirmationModal ref="confirmationModal" />
-          <confirm-modal
-            v-if="mergeList.length"
-            @on-accept="$emit('merge')"
-          />
           <button
-            v-else
             class="button normal-input button-submit"
             @click="sendMerge"
             :disabled="isMergeEmpty"
@@ -49,7 +44,7 @@
     </div>
     <table>
       <tbody>
-        <tr v-if="Object.keys(selected).length">
+        <tr v-if="selected.id">
           <td />
           <td>
             <div class="horizontal-left-content">
@@ -69,13 +64,13 @@
             <div class="horizontal-left-content">
               <a
                 target="_blank"
-                :href="`/people/${merge.id}`"
+                :href="`/people/${selectedMergePerson.id}`"
               >
-                {{ merge.cached }}
+                {{ selectedMergePerson.cached }}
               </a>
               <radial-annotator
-                v-if="merge.global_id"
-                :global-id="merge.global_id"
+                v-if="selectedMergePerson.global_id"
+                :global-id="selectedMergePerson.global_id"
               />
             </div>
           </td>
@@ -89,7 +84,7 @@
             class="contextMenuCells"
             :class="{
               even: (index % 2 == 0),
-              repeated: (value !== merge[key]) && merge[key]
+              repeated: (value !== selectedMergePerson[key]) && selectedMergePerson[key]
             }"
           >
             <td
@@ -102,101 +97,64 @@
             />
             <td
               class="column-merge"
-              v-html="humanizeValue(merge[key])"
+              v-html="humanizeValue(selectedMergePerson[key])"
             />
           </tr>
         </template>
       </tbody>
     </table>
-    <div
-      class="margin-medium-top"
-      v-if="Object.keys(selected).length || Object.keys(merge).length"
-    >
-      <ul class="no_bullets context-menu">
-        <li class="middle">
-          <div class="circle-info-project in-project margin-small-right" />
-          <span>In project</span>
-        </li>
-        <li class="middle">
-          <div class="circle-info-project no-in-project margin-small-right" />
-          <span>Not in project</span>
-        </li>
-        <li class="middle">
-          <div class="circle-info-project nulled margin-small-right" />
-          <span>Not determinated</span>
-        </li>
-      </ul>
-    </div>
 
-    <div class="horizontal-left-content align-start">
-      <table-person-roles
-        :class="{ 'separate-right': Object.keys(merge).length }"
-        v-show="Object.keys(selected).length"
-        title="Selected role types"
-        :person="selected"
-      />
-      <table-person-roles
-        :class="{ 'separate-left': Object.keys(selected).length }"
-        v-show="Object.keys(merge).length"
-        title="Merge role types"
-        :person="merge"
-      />
-    </div>
-    <table-roles
-      v-if="selected['roles'] && selected['roles'].length"
-      title="Selected roles"
-      :list="selected['roles']"
-    />
-    <table-roles
-      v-if="merge['roles'] && merge['roles'].length"
-      title="Merge roles"
-      :list="merge['roles']"
-    />
-    <table-annotations
-      :person="selected"
-      title="Selected annotations"
-    />
-    <table-annotations
-      :person="merge"
-      title="Merge annotations"
-    />
+    <TableGrid
+      :columns="2"
+      :gap="12"
+    >
+      <div>
+        <table-person-roles
+          v-show="selected.id"
+          title="Selected role types"
+          :person="selected"
+        />
+        <table-annotations
+          :person="selected"
+          title="Selected annotations"
+        />
+      </div>
+      <div>
+        <table-person-roles
+          v-show="selectedMergePerson.id"
+          title="Merge role types"
+          :person="selectedMergePerson"
+        />
+        <table-annotations
+          :person="selectedMergePerson"
+          title="Merge annotations"
+        />
+      </div>
+    </TableGrid>
   </div>
 </template>
 
 <script>
 
-import TableRoles from './Table/TableRoles.vue'
 import TableAnnotations from './Table/TableAnnotations.vue'
 import TablePersonRoles from './Table/TableDescription.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import SwitchComponent from 'components/switch'
-import ConfirmModal from './confirmModal.vue'
 import ConfirmationModal from 'components/ConfirmationModal.vue'
+import TableGrid from 'components/layout/Table/TableGrid.vue'
 import { capitalize, humanize } from 'helpers/strings'
+import { GetterNames } from '../store/getters/getters'
 
 export default {
+  name: 'CompareComponent',
+
   components: {
     TablePersonRoles,
     TableAnnotations,
-    TableRoles,
     RadialAnnotator,
     SwitchComponent,
-    ConfirmModal,
-    ConfirmationModal
-  },
-
-  name: 'CompareComponent',
-
-  props: {
-    selected: {
-      type: [Object, Array],
-      default: () => ({})
-    },
-
-    mergeList: {
-      type: Array,
-      required: true
-    }
+    ConfirmationModal,
+    TableGrid
   },
 
   emits: [
@@ -213,12 +171,20 @@ export default {
       return this.mergeList.length === 0
     },
 
-    merge () {
+    selectedMergePerson () {
       return this.mergeList[this.personIndex] || {}
     },
 
     peopleList () {
       return this.mergeList.map(p => p.cached)
+    },
+
+    mergeList () {
+      return this.$store.getters[GetterNames.GetMergePeople]
+    },
+
+    selected () {
+      return this.$store.getters[GetterNames.GetSelectedPerson]
     }
   },
 
