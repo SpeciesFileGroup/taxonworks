@@ -58,10 +58,6 @@ class ObservationMatrixRow < ApplicationRecord
 
   after_initialize :set_reference_count
 
-  # TODO: remove
-  # list of rows with otu_ids in format '1|3|5'
-  scope :with_otu_ids, -> (otu_ids) { where("(observation_matrix_rows.observation_object_id IN (?) AND observation_matrix_rows.observation_object_type = 'Otu')", otu_ids.to_s.split('|').map(&:to_i)).order(:position) }
-
   def observations
     observation_object.observations
       .joins(descriptor: [:observation_matrix_columns])
@@ -112,9 +108,9 @@ class ObservationMatrixRow < ApplicationRecord
   def current_otu
     case observation_object_type
     when 'Otu'
-     observation_object
+      observation_object
     when 'CollectionObject'
-     observation_object.current_otu
+      observation_object.current_otu
     end
   end
 
