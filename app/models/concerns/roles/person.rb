@@ -70,14 +70,10 @@ module Roles::Person
       yas = [y, person.year_active_start].compact.map(&:to_i).min
       yae = [y, person.year_active_end].compact.map(&:to_i).max
 
-      begin
-        person.update!(
-          year_active_end: yae,
-          year_active_start: yas
-        )
-      rescue ActiveRecord::RecordInvalid
-        # probably a year conflict, allow quietly!?
-      end
+      person.update(
+        year_active_start: yas,
+        year_active_end: yae
+      )
     end
   end
 
