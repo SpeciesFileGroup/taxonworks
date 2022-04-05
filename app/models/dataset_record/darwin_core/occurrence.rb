@@ -570,10 +570,16 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     Utilities::Hashes::set_unless_nil(collecting_event, :start_date_day, day)
 
     # eventTime: time_start_*
-    /(?<hour>\d+)(:(?<minute>\d+))?(:(?<second>\d+))?/ =~ get_field_value(:eventTime)
-    Utilities::Hashes::set_unless_nil(collecting_event, :time_start_hour, hour)
-    Utilities::Hashes::set_unless_nil(collecting_event, :time_start_minute, minute)
-    Utilities::Hashes::set_unless_nil(collecting_event, :time_start_second, second)
+    %r{^
+      (?<start_hour>\d+)(:(?<start_minute>\d+))?(:(?<start_second>\d+))?
+      (/(?<end_hour>\d+))?(:(?<end_minute>\d+))?(:(?<end_second>\d+))?
+    $}x =~ get_field_value(:eventTime)
+    Utilities::Hashes::set_unless_nil(collecting_event, :time_start_hour, start_hour)
+    Utilities::Hashes::set_unless_nil(collecting_event, :time_start_minute, start_minute)
+    Utilities::Hashes::set_unless_nil(collecting_event, :time_start_second, start_second)
+    Utilities::Hashes::set_unless_nil(collecting_event, :time_end_hour, end_hour)
+    Utilities::Hashes::set_unless_nil(collecting_event, :time_end_minute, end_minute)
+    Utilities::Hashes::set_unless_nil(collecting_event, :time_end_second, end_second)
 
     endDayOfYear = get_integer_field_value(:endDayOfYear)
 

@@ -10,6 +10,24 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Sometimes it's not possible move images from one cell to another in Image matrix task [#2874]
 
 ### Added
+- Increment tripcode in New collecting event task [#2441]
+
+[#2441]: https://github.com/SpeciesFileGroup/taxonworks/issues/2441
+
+## [0.24.1] - 2022-04-04
+
+### Changed
+- Time ranges for `eventTime` in DwC occurrences importer are now supported
+- Updated Ruby gems
+
+### Fixed
+- Observation matrix row filter generalized to work for all observation object types [#2873]
+
+[#2873]: https://github.com/SpeciesFileGroup/taxonworks/issues/2873
+
+## [0.24.0] - 2022-03-31
+
+### Added
 - Collection object `current_repository_id` and interface toggle [#2866]
 - Use Namespace as DwC `collectionCode` [#2726]
 - Notes on CollectionObject export to DwC `occurrenceRemarks` [#2850]
@@ -41,6 +59,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Change form fields order in OTU radial - Biological associations
 - Updated ruby gems
 - Close modal after select a status in New taxon name
+- Escape new additional pseudo-LaTeX encodings from BibTex data
 
 ### Fixed
 - DwC georeferencedProtocol references Protocols properly [#2842]
@@ -2431,7 +2450,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.23.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.1...development
+[0.24.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.0...v0.24.1
+[0.24.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.23.1...v0.24.0
 [0.23.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.23.0...v0.23.1
 [0.23.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.7...v0.23.0
 [0.22.7]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.6...v0.22.7

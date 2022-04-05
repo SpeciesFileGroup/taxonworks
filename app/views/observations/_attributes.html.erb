@@ -27,7 +27,7 @@
 
 <p>
   <strong>Time made:</strong>
-  <%= @observation.time_made.to_formatted_s(:hour_minutes_seconds) %>
+  <%= @observation.time_made&.to_formatted_s(:hour_minutes_seconds) %>
 </p>
 
 <% if @observation.type =~ /Qualitative/ -%>
