@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="field">
+    <label>Roles</label>
     <ul class="no_bullets">
       <li
         v-for="(label, key) in roleTypes"
