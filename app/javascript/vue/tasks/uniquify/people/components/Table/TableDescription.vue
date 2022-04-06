@@ -10,7 +10,7 @@
           <th>Type</th>
           <th>In project</th>
           <th>Not in project</th>
-          <th>Not determinated</th>
+          <th>Community</th>
         </tr>
       </thead>
       <tbody>
@@ -19,6 +19,7 @@
           :key="roleType"
           class="contextMenuCells"
           :class="{ even: (index % 2 == 0) }"
+          @click="selectedRoleType = roleType"
         >
           <td v-text="roleType" />
           <td
@@ -31,11 +32,19 @@
         </tr>
       </tbody>
     </table>
+    <RoleDescription
+      v-if="selectedRoleType"
+      :title="title"
+      :role-type="selectedRoleType"
+      :roles="personRoles[selectedRoleType]"
+      @close="selectedRoleType = undefined"
+    />
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import RoleDescription from '../RoleDescription.vue'
 
 const props = defineProps({
   person: {
@@ -48,6 +57,8 @@ const props = defineProps({
     required: true
   }
 })
+
+const selectedRoleType = ref(undefined)
 
 const personRoles = computed(() => {
   const roles = props.person?.roles || []
@@ -63,16 +74,6 @@ const personRoles = computed(() => {
 
   return Object.fromEntries(Object.entries(roleList).sort())
 })
-
-const classForRoleProject = role => {
-  if (role.in_project) {
-    return 'in-project'
-  } else if (role.project_id === null) {
-    return 'nulled'
-  } else {
-    return 'no-in-project'
-  }
-}
 
 const rolesCount = roleList =>
   roleList.reduce((acc, curr, index) => {
@@ -102,18 +103,6 @@ const rolesCount = roleList =>
     }
     .column-property {
       min-width: 100px;
-    }
-    .nulled {
-      border-left: 4px solid;
-      border-left-color: #E5D2BE;
-    }
-    .in-project {
-      border-left: 4px solid;
-      border-left-color: #5D9ECE;
-    }
-    .no-in-project {
-      border-left: 4px solid;
-      border-left-color: #C38A8A;
     }
   }
 </style>
