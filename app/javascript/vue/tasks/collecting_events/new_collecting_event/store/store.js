@@ -16,6 +16,9 @@ const makeInitialState = () => {
       lastChange: 0,
       lastSave: 0
     },
+    preferences: {
+      incrementIdentifier: false
+    },
     collectingEvent: makeCollectingEvent(),
     ceLabel: makeLabel('CollectingEvent'),
     geographicArea: undefined,

@@ -2,6 +2,13 @@ require 'rails_helper'
 describe 'Roles::Person', type: :model do
   let(:p1) { Person.create!(last_name: 'Root') }
 
+  specify '#active_start and Collector *not* updated on role create ' do
+    a = 4.years.from_now.year
+    t = FactoryBot.create(:valid_collecting_event, collectors: [p1], start_date_year: a)
+    p1.valid?
+    expect(p1.errors.include?(:year_active_end)).to be_truthy
+  end
+
   specify '#active_start and TaxonDetermination updated on create' do
     t = FactoryBot.create(:valid_taxon_determination, determiners: [p1], year_made: 2020)
     p1.reload
