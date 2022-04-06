@@ -44,7 +44,7 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import RoleDescription from '../RoleDescription.vue'
+import RoleDescription from '../RoleDetails/RoleDescription.vue'
 
 const props = defineProps({
   person: {

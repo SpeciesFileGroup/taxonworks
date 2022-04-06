@@ -1,15 +1,18 @@
 <template>
   <div v-if="annotationLists.length">
-    <h3>{{ title }}</h3> 
+    <h3>{{ title }}</h3>
     <table>
       <tbody>
         <tr
           v-for="(item, index) in annotationLists"
+          :key="item.id"
           class="contextMenuCells"
-          :class="{ even: (index % 2 == 0) }">
+          :class="{ even: (index % 2 == 0) }"
+        >
           <td
             class="column-value"
-            v-html="item.object_tag"/>
+            v-html="item.object_tag"
+          />
         </tr>
       </tbody>
     </table>

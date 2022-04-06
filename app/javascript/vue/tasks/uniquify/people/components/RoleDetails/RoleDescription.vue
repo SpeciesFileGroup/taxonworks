@@ -7,20 +7,7 @@
       <h3>{{ title }} ({{ roleType }} roles)</h3>
     </template>
     <template #body>
-      <ul class="no_bullets context-menu">
-        <li class="middle">
-          <div class="role__legend in-project margin-small-right" />
-          <span>In project</span>
-        </li>
-        <li class="middle">
-          <div class="role__legend no-in-project margin-small-right" />
-          <span>Not in project</span>
-        </li>
-        <li class="middle">
-          <div class="role__legend community margin-small-right" />
-          <span>Not community</span>
-        </li>
-      </ul>
+      <RoleLegend />
       <table class="full_width margin-large-top">
         <tr
           v-for="item in objects"
@@ -31,7 +18,7 @@
           <td v-html="item.object_tag" />
         </tr>
       </table>
-      <p 
+      <p
         v-if="nothingFound"
         class="horizontal-center-content"
       >
@@ -44,9 +31,10 @@
 
 <script setup>
 import { computed } from 'vue'
+import RoleLegend from './RoleLegend.vue'
 import VModal from 'components/ui/Modal.vue'
 import VSpinner from 'components/spinner.vue'
-import useRoleObjectRequest from '../composables/useRoleObjectRequest.js'
+import useRoleObjectRequest from '../../composables/useRoleObjectRequest.js'
 
 const props = defineProps({
   roleType: {
@@ -80,34 +68,17 @@ const classForRoleProject = role => {
 </script>
 
 <style lang="scss" scoped>
-$color-community: #E5D2BE;
-$color-in-project: #5D9ECE;
-$color-no-in-project: #C38A8A;
-  .row-role {
-    border-left: 4px solid;
-  }
-  .community {
-    border-left-color: $color-community;
-  }
-  .in-project {
-    border-left-color: $color-in-project;
-  }
-  .no-in-project {
-    border-left-color: $color-no-in-project;
-  }
-  .role__legend {
-    border-radius: 50%;
-    width: 18px;
-    height: 18px;
-
-    &.community {
-      background-color: $color-community;
-    }
-    &.in-project {
-      background-color: $color-in-project;
-    }
-    &.no-in-project {
-      background-color: $color-no-in-project;
-    }
-  }
+@import './RoleDescription.scss';
+.row-role {
+  border-left: 4px solid;
+}
+.community {
+  border-left-color: $color-community;
+}
+.in-project {
+  border-left-color: $color-in-project;
+}
+.no-in-project {
+  border-left-color: $color-no-in-project;
+}
 </style>

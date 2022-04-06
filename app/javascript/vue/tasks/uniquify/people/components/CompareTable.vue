@@ -144,6 +144,7 @@ import ConfirmationModal from 'components/ConfirmationModal.vue'
 import TableGrid from 'components/layout/Table/TableGrid.vue'
 import { capitalize, humanize } from 'helpers/strings'
 import { GetterNames } from '../store/getters/getters'
+import { ActionNames } from '../store/actions/actions'
 
 export default {
   name: 'CompareComponent',
@@ -202,16 +203,18 @@ export default {
       )
     },
 
-    sendMerge () {
-      this.$refs.confirmationModal.show({
+    async sendMerge () {
+      const confirmed = await this.$refs.confirmationModal.show({
         title: 'Merge people',
         message: 'This will merge all selected match people to selected person.',
         okButton: 'Merge',
         confirmationWord: 'merge',
-        typeButton: 'create'
-      }).then(_ => {
-        this.$emit('merge')
+        typeButton: 'submit'
       })
+
+      if (confirmed) {
+        this.$store.dispatch(ActionNames.ProcessMerge)
+      }
     },
 
     humanizeValue (value) {

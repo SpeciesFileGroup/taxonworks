@@ -1,9 +1,10 @@
 import { People } from 'routes/endpoints'
+import { MutationNames } from '../mutations/mutations'
 
 export default ({ state, commit }) => {
   function processMerge (mergeList) {
     const mergePerson = state.mergeList.pop()
-    state.preferences.isSaving = true
+    state.requestState.isMerging = true
 
     People.merge(state.selectedPerson.id, {
       person_to_destroy: mergePerson.id,
@@ -25,11 +26,12 @@ export default ({ state, commit }) => {
       } else {
         People.find(state.selectedPerson.id, { extend: ['roles'] }).then(({ body }) => {
           state.selectedPerson = body
-          state.isSaving = false
+          state.requestState.isMerging = false
+          commit(MutationNames.SetMergePeople, [])
         })
       }
     })
   }
 
-  processMerge(state.mergeList)
+  processMerge([...state.mergeList])
 }
