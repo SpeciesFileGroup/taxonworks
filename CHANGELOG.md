@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 - Sometimes it's not possible move images from one cell to another in Image matrix task [#2874]
 - Uniquify people task are not merging all selected match people [#2892]
+- Media observations are not displayed after creating them using drag and drop box in Matrix row coder task. [#2880]
 
 
 [#2889]: https://github.com/SpeciesFileGroup/taxonworks/issues/2889
