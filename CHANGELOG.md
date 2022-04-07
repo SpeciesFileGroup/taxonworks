@@ -15,11 +15,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - Sometimes it's not possible move images from one cell to another in Image matrix task [#2874]
+- Uniquify people task are not merging all selected match people [#2892]
 
 
 [#2889]: https://github.com/SpeciesFileGroup/taxonworks/issues/2889
 [#2441]: https://github.com/SpeciesFileGroup/taxonworks/issues/2441
 [#2858]: https://github.com/SpeciesFileGroup/taxonworks/issues/2858
+[#2892]: https://github.com/SpeciesFileGroup/taxonworks/issues/2892
 
 ## [0.24.1] - 2022-04-04
 

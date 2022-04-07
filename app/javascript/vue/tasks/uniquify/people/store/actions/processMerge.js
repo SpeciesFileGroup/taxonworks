@@ -3,7 +3,7 @@ import { MutationNames } from '../mutations/mutations'
 
 export default ({ state, commit }) => {
   function processMerge (mergeList) {
-    const mergePerson = state.mergeList.pop()
+    const mergePerson = mergeList.pop()
     state.requestState.isMerging = true
 
     People.merge(state.selectedPerson.id, {
@@ -21,7 +21,7 @@ export default ({ state, commit }) => {
         state.foundPeople[personIndex] = state.selectedPerson
       }
     }).finally(() => {
-      if (state.mergeList.length) {
+      if (mergeList.length) {
         processMerge(mergeList)
       } else {
         People.find(state.selectedPerson.id, { extend: ['roles'] }).then(({ body }) => {
