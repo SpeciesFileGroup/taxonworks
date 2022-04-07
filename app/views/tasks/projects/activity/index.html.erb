@@ -12,7 +12,7 @@
 <%= form_tag project_activity_type_report_path, method: :get, remote: true do |f| %>
   <div class="field">
     <h3> Plot data for </h3>
-    <%= select_tag :klass, options_for_select(ApplicationEnumeration.project_data_classes.select{|a| a.column_names.include?('created_at')}.collect{|b| b.name}.sort, include_blank: true) %>
+    <%= select_tag :klass, options_for_select(ApplicationEnumeration.data_models.select{|a| a.column_names.include?('created_at')}.collect{|b| b.name}.sort, include_blank: true) %>
   </div>
 
   <div class="field">
@@ -79,4 +79,3 @@
 <div id="type_report" >
   <%= tag.span 'Select report options above.', class: ['feedback', 'feedback-notice']  %>
 </div>
-

@@ -7,6 +7,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Project activity report includes community data (but not scoped to project) [#2893]
 - Protocols for Observations [#2889]
 - Increment tripcode in New collecting event task [#2441]
 
@@ -14,9 +15,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Refactor Uniquify People task. Added improvements [#2858]
 
 ### Fixed
+- Project activity session report shows hours properly [#2878]
+- xAxis category ordering of Project activity [#2891]
 - Sometimes it's not possible move images from one cell to another in Image matrix task [#2874]
 
-
+[#2878]: https://github.com/SpeciesFileGroup/taxonworks/issues/2878
+[#2891]: https://github.com/SpeciesFileGroup/taxonworks/issues/2891
+[#2893]: https://github.com/SpeciesFileGroup/taxonworks/issues/2893
 [#2889]: https://github.com/SpeciesFileGroup/taxonworks/issues/2889
 [#2441]: https://github.com/SpeciesFileGroup/taxonworks/issues/2441
 [#2858]: https://github.com/SpeciesFileGroup/taxonworks/issues/2858
