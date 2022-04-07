@@ -29,11 +29,11 @@ export default ({ state, commit }) => {
         processMerge(mergeList)
       } else {
         People.find(selectedPerson.id, { extend: ['roles'] }).then(({ body }) => {
-          state.selectedPerson = body
-          state.foundPeople = foundPeople
-          state.matchPeople = matchPeople
-          state.requestState.isMerging = false
+          commit(MutationNames.SetSelectedPerson, body)
+          commit(MutationNames.SetFoundPeople, foundPeople)
+          commit(MutationNames.SetMatchPeople, matchPeople)
           commit(MutationNames.SetMergePeople, [])
+          state.requestState.isMerging = false
         })
       }
     })
