@@ -43,7 +43,7 @@
 
 import extendCE from '../mixins/extendCE'
 import DateFields from 'components/ui/Date/DateFields.vue'
-import DateNow from 'components/ui/Date/DateNow.vue'
+import DateNow from 'components/ui/Date/DateToday.vue'
 
 export default {
   mixins: [extendCE],
