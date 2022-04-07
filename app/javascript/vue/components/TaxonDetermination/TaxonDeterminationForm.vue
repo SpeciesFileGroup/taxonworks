@@ -31,7 +31,7 @@ import { reactive, ref, watch } from 'vue'
 import TaxonDeterminationOtu from './TaxonDeterminationOtu.vue'
 import TaxonDeterminationDeterminer from './TaxonDeterminationDeterminer.vue'
 import DateFields from 'components/ui/Date/DateFields.vue'
-import DateNow from 'components/ui/Date/DateNow.vue'
+import DateNow from 'components/ui/Date/DateToday.vue'
 import makeTaxonDetermination from 'factory/TaxonDetermination.js'
 
 const emit = defineEmits(['onAdd'])
