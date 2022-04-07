@@ -130,6 +130,7 @@ class Observation < ApplicationRecord
   include Shared::Tags
   include Shared::Depictions
   include Shared::Confidences
+  include Shared::ProtocolRelationships
   include Shared::IsData
   include Shared::ObservationIndex
 
