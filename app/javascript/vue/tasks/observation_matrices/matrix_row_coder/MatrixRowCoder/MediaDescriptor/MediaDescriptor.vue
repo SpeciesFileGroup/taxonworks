@@ -182,7 +182,7 @@ export default {
           depictions_attributes: [{
             image_id: image.id
           }],
-          type: 'Observation::Media',
+          type: ObservationTypes.Media,
           observation_object_id: this.matrixRow.observation_object.id,
           observation_object_type: this.matrixRow.observation_object.base_class
         },
