@@ -9,10 +9,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 - Sometimes it's not possible move images from one cell to another in Image matrix task [#2874]
 
+### Changed
+- Refactor Uniquify People task. Added improvements [#2858]
+
 ### Added
 - Increment tripcode in New collecting event task [#2441]
 
 [#2441]: https://github.com/SpeciesFileGroup/taxonworks/issues/2441
+[#2858]: https://github.com/SpeciesFileGroup/taxonworks/issues/2858
 
 ## [0.24.1] - 2022-04-04
 
