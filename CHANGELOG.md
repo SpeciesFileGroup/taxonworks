@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Refactor Uniquify People task. Added improvements [#2858]
 
 ### Fixed
+- Extract -> show rendering raising [#2886]
 - People being set as invalid during automatic activity updates
 - Project activity session report shows hours properly [#2878]
 - xAxis category ordering of Project activity [#2891]
@@ -26,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Media observations are not displayed after creating them using drag and drop box in Matrix row coder task. [#2880]
 - New extract task loads incorrect repository for existing extracts [#2883]
 
+[#2886]: https://github.com/SpeciesFileGroup/taxonworks/issues/2886
 [#2887]: https://github.com/SpeciesFileGroup/taxonworks/issues/2887
 [#2878]: https://github.com/SpeciesFileGroup/taxonworks/issues/2878
 [#2891]: https://github.com/SpeciesFileGroup/taxonworks/issues/2891

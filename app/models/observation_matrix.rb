@@ -20,9 +20,10 @@ class ObservationMatrix < ApplicationRecord
   has_many :observation_matrix_columns, inverse_of: :observation_matrix, dependent: :delete_all
 
   # TODO: restrict this- you can not directly create these!
-  # TODO: must go
+  # TODO: must go, define dynamically in app/models/concerns/shared/observations.rb
   has_many :otus, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'Otu'
   has_many :collection_objects, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'CollectionObject'
+  has_many :extracts, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'Extract'
 
   # TODO: restrict these- you can not directly create these!
   has_many :descriptors, through: :observation_matrix_columns, inverse_of: :observation_matrices
