@@ -7,19 +7,36 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- New units mg, µg, ng, ml, µl, nl, ng/µl, Ratio (for Descriptor, etc.) [#2887]
+- Project activity report includes community data (but not scoped to project) [#2893]
 - Protocols for Observations [#2889]
 - Increment tripcode in New collecting event task [#2441]
+- Now and today buttons for time/date made [#2888]
+- Radial navigator to New extract task [#2885]
 
 ### Changed
 - Refactor Uniquify People task. Added improvements [#2858]
 
 ### Fixed
+- People being set as invalid during automatic activity updates
+- Project activity session report shows hours properly [#2878]
+- xAxis category ordering of Project activity [#2891]
 - Sometimes it's not possible move images from one cell to another in Image matrix task [#2874]
+- Uniquify people task are not merging all selected match people [#2892]
+- Media observations are not displayed after creating them using drag and drop box in Matrix row coder task. [#2880]
+- New extract task loads incorrect repository for existing extracts [#2883]
 
-
+[#2887]: https://github.com/SpeciesFileGroup/taxonworks/issues/2887
+[#2878]: https://github.com/SpeciesFileGroup/taxonworks/issues/2878
+[#2891]: https://github.com/SpeciesFileGroup/taxonworks/issues/2891
+[#2893]: https://github.com/SpeciesFileGroup/taxonworks/issues/2893
 [#2889]: https://github.com/SpeciesFileGroup/taxonworks/issues/2889
 [#2441]: https://github.com/SpeciesFileGroup/taxonworks/issues/2441
 [#2858]: https://github.com/SpeciesFileGroup/taxonworks/issues/2858
+[#2883]: https://github.com/SpeciesFileGroup/taxonworks/issues/2883
+[#2885]: https://github.com/SpeciesFileGroup/taxonworks/issues/2885
+[#2888]: https://github.com/SpeciesFileGroup/taxonworks/issues/2888
+[#2892]: https://github.com/SpeciesFileGroup/taxonworks/issues/2892
 
 ## [0.24.1] - 2022-04-04
 

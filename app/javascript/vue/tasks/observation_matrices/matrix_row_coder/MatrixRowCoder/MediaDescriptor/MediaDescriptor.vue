@@ -2,14 +2,16 @@
   <div class="qualitative-descriptor">
     <summary-view
       :index="index"
-      :descriptor="descriptor">
+      :descriptor="descriptor"
+    >
       <smart-selector
         model="images"
         :autocomplete="false"
         :search="false"
-        :target="matrixRow.observation_object.base_class" 
-        :addTabs="['new', 'filter']"
-        @selected="createObservation">
+        :target="matrixRow.observation_object.base_class"
+        :add-tabs="['new', 'filter']"
+        @selected="createObservation"
+      >
         <template #new>
           <dropzone-component
             class="dropzone-card"
@@ -19,22 +21,24 @@
             :use-custom-dropzone-options="true"
             @vdropzone-sending="sending"
             @vdropzone-success="success"
-            :dropzone-options="dropzoneObservation"/>
+            :dropzone-options="dropzoneObservation"
+          />
         </template>
         <template #filter>
           <div class="horizontal-left-content align-start">
-            <filter-image
-              @result="loadList"/>
+            <filter-image @result="loadList" />
             <div class="margin-small-left flex-wrap-row">
               <div
                 v-for="image in filterList"
                 :key="image.id"
                 class="thumbnail-container margin-small cursor-pointer"
-                @click="createObservation(image)">
+                @click="createObservation(image)"
+              >
                 <img
                   :width="image.alternatives.thumb.width"
                   :height="image.alternatives.thumb.height"
-                  :src="image.alternatives.thumb.image_file_url">
+                  :src="image.alternatives.thumb.image_file_url"
+                >
               </div>
             </div>
           </div>
@@ -47,11 +51,13 @@
         <li
           v-for="observation in observations"
           :key="observation.id"
-          class="horizontal-left-content">
+          class="horizontal-left-content"
+        >
           <image-viewer
             v-for="depiction in observation.depictions"
             :key="depiction.id"
-            :depiction="depiction">
+            :depiction="depiction"
+          >
             <template #thumbfooter>
               <div class="horizontal-left-content">
                 <time-fields
@@ -60,7 +66,8 @@
                 />
                 <radial-annotator
                   type="annotations"
-                  :global-id="depiction.image.global_id"/>
+                  :global-id="depiction.image.global_id"
+                />
                 <button
                   class="button circle-button btn-delete"
                   type="button"
@@ -165,6 +172,7 @@ export default {
       formData.append('observation[type]', 'Observation::Media')
       formData.append('observation[observation_object_type]', this.matrixRow.observation_object.base_class)
       formData.append('observation[observation_object_id]', this.matrixRow.observation_object.id)
+      formData.append('extend[]', 'depictions')
     },
 
     createObservation (image) {
@@ -174,7 +182,7 @@ export default {
           depictions_attributes: [{
             image_id: image.id
           }],
-          type: 'Observation::Media',
+          type: ObservationTypes.Media,
           observation_object_id: this.matrixRow.observation_object.id,
           observation_object_type: this.matrixRow.observation_object.base_class
         },

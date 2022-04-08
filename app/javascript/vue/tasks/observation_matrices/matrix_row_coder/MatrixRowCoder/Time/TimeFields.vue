@@ -1,5 +1,5 @@
 <template>
-  <div class="horizontal-left-content">
+  <div class="horizontal-left-content align-end">
     <v-btn
       v-if="!showDatafields"
       color="primary"
@@ -15,17 +15,24 @@
     <template v-if="showDatafields">
       <DateFields
         :inline="inline"
+        time-field
+        v-model:day="day"
+        v-model:month="month"
+        v-model:year="year"
+        v-model:time="time"
+      />
+      <DateToday
+        class="margin-small-right"
         v-model:day="day"
         v-model:month="month"
         v-model:year="year"
       />
-      <div :class="{ 'label-above': !inline }">
-        <label :class="{ 'margin-small-right': inline }">Time</label>
-        <input
-          type="time"
-          v-model="time"
-        >
-      </div>
+      <DateNow
+        v-model:day="day"
+        v-model:month="month"
+        v-model:year="year"
+        v-model:time="time"
+      />
     </template>
   </div>
 </template>
@@ -34,6 +41,8 @@
 
 import { MutationNames } from '../../store/mutations/mutations'
 import DateFields from 'components/ui/Date/DateFields.vue'
+import DateToday from 'components/ui/Date/DateToday.vue'
+import DateNow from 'components/ui/Date/DateNow.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
 
@@ -41,7 +50,9 @@ export default {
   components: {
     DateFields,
     VBtn,
-    VIcon
+    VIcon,
+    DateNow,
+    DateToday
   },
 
   props: {

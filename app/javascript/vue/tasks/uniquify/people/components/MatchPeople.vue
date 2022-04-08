@@ -2,7 +2,7 @@
   <div>
     <h2>Match people</h2>
     <p v-if="selectedPerson">
-      {{ filterMatchList.length }}  matches found
+      {{ matchList.length }}  matches found
     </p>
     <div>
       <autocomplete
@@ -31,7 +31,7 @@
         </thead>
         <tbody>
           <template
-            v-for="person in filterMatchList"
+            v-for="person in matchList"
             :key="person.id"
           >
             <tr>
@@ -92,10 +92,6 @@ export default {
       }
     },
 
-    filterMatchList () {
-      return this.matchList.filter(person => this.selectedPerson.id !== person.id)
-    },
-
     selectedMergePerson: {
       get () {
         return this.$store.getters[GetterNames.GetMergePeople]
@@ -108,11 +104,11 @@ export default {
 
     selectAll: {
       get () {
-        return this.filterMatchList.length && this.selectedMergePerson.length === this.filterMatchList.length
+        return this.matchList.length && this.selectedMergePerson.length === this.matchList.length
       },
 
       set (value) {
-        this.selectedMergePerson = value ? this.filterMatchList : []
+        this.selectedMergePerson = value ? this.matchList : []
       }
     }
   },
