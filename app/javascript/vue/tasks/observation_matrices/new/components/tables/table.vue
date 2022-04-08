@@ -161,7 +161,8 @@ export default {
       urlTypes: {
         Otu: '/otus/',
         Specimen: '/collection_objects/',
-        Descriptor: '/tasks/descriptors/new_descriptor/'
+        Descriptor: '/tasks/descriptors/new_descriptor/',
+        Extract: '/tasks/extracts/new_extract?extract_id='
       }
     }
   },

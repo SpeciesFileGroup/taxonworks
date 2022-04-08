@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Uniquify people task are not merging all selected match people [#2892]
 - Media observations are not displayed after creating them using drag and drop box in Matrix row coder task. [#2880]
 - New extract task loads incorrect repository for existing extracts [#2883]
+- Extract edit link in New observation matrix task [#2896]
 
 [#2886]: https://github.com/SpeciesFileGroup/taxonworks/issues/2886
 [#2887]: https://github.com/SpeciesFileGroup/taxonworks/issues/2887
@@ -39,6 +40,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2885]: https://github.com/SpeciesFileGroup/taxonworks/issues/2885
 [#2888]: https://github.com/SpeciesFileGroup/taxonworks/issues/2888
 [#2892]: https://github.com/SpeciesFileGroup/taxonworks/issues/2892
+[#2896]: https://github.com/SpeciesFileGroup/taxonworks/issues/2896
 
 ## [0.24.1] - 2022-04-04
 
