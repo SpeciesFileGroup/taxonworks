@@ -7,6 +7,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- New units mg, µg, ng, ml, µl, nl, ng/µl, Ratio (for Descriptor, etc.) [#2887]
 - Project activity report includes community data (but not scoped to project) [#2893]
 - Protocols for Observations [#2889]
 - Increment tripcode in New collecting event task [#2441]
@@ -23,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Uniquify people task are not merging all selected match people [#2892]
 - Media observations are not displayed after creating them using drag and drop box in Matrix row coder task. [#2880]
 
+[#2887]: https://github.com/SpeciesFileGroup/taxonworks/issues/2887
 [#2878]: https://github.com/SpeciesFileGroup/taxonworks/issues/2878
 [#2891]: https://github.com/SpeciesFileGroup/taxonworks/issues/2891
 [#2893]: https://github.com/SpeciesFileGroup/taxonworks/issues/2893
