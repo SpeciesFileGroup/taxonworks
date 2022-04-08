@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Refactor Uniquify People task. Added improvements [#2858]
 
 ### Fixed
+- People being set as invalid during automatic activity updates
 - Project activity session report shows hours properly [#2878]
 - xAxis category ordering of Project activity [#2891]
 - Sometimes it's not possible move images from one cell to another in Image matrix task [#2874]
