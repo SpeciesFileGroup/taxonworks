@@ -383,6 +383,45 @@ namespace :tw do
           "http://#{website_name}.speciesfile.org/Common/basic/ShowImage.aspx?ImageID=#{image_id}"
         end
 
+        desc 'time rake tw:project_import:sf_import:media:sound_links user_id=1 data_directory=~/src/onedb2tw/working/'
+        LoggedTask.define sound_links: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
+          # NOTE: As an initial approach, links to SF will be provided until TW sound models are developed
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          get_tw_project_id = import.get('SFFileIDToTWProjectID')
+          get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
+          get_taxon_name_otu_id = import.get('TWTaxonNameIDToOtuID')
+          get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID') # an ill-formed SF taxon name
+          get_project_website_name = Project.all.map { |p| [p.id, p.name.scan(/^[^_]+/).first] }.to_h
+
+          CSV.foreach(@args[:data_directory] + 'tblSounds.txt', col_sep: "\t", headers: true, encoding: 'BOM|UTF-8') do |row|
+            link = "* [#{row['Description']}](http://#{get_project_website_name[get_tw_project_id[row['FileID']].to_i]}.speciesfile.org/Common/basic/PlaySound.aspx?TaxonNameID=#{row['TaxonNameID']}&SoundID=#{row['SoundID']})\n"
+            project_id = get_tw_project_id[row['FileID']]
+
+            next if project_id.nil?
+            next if row['AccessCode'] != '0'
+
+            otu_id = get_taxon_name_otu_id[get_tw_taxon_name_id[row['TaxonNameID']]]
+            if otu_id.nil?
+              logger.error "OTU not found: #{row.to_h.inspect}"
+              next
+            end
+
+            content = Content.create_with(text: link).find_or_initialize_by(
+              topic: Topic.find_or_create_by!(
+                name: 'Sound links',
+                definition: 'Links to original Species File Software sound pages',
+                project_id: project_id
+              ),
+              otu_id: otu_id,
+              project_id: project_id
+            )
+
+            content.text = content.text + link unless content.new_record?
+            content.save!
+          end
+        end
+
       end
     end
   end

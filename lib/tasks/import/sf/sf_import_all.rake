@@ -129,7 +129,8 @@ namespace :tw do
 
           'citations:soft_validation_fixes',
 
-          'media:image_data'
+          'media:image_data',
+          'media:sound_links'
         ]
 
         tasks.each.with_index(1) do |task, index|
