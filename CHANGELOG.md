@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Refactor Uniquify People task. Added improvements [#2858]
 - Removed PDF viewer broad channel event
+- Updated Ruby gems
 
 ### Fixed
 - Extract -> show rendering raising [#2886]
