@@ -29,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Media observations are not displayed after creating them using drag and drop box in Matrix row coder task. [#2880]
 - New extract task loads incorrect repository for existing extracts [#2883]
 - Extract edit link in New observation matrix task [#2896]
+- Incorrect matrix list is displayed on Observation matrix slice in Radial object [#2901]
 
 [#2886]: https://github.com/SpeciesFileGroup/taxonworks/issues/2886
 [#2887]: https://github.com/SpeciesFileGroup/taxonworks/issues/2887
@@ -43,6 +44,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2888]: https://github.com/SpeciesFileGroup/taxonworks/issues/2888
 [#2892]: https://github.com/SpeciesFileGroup/taxonworks/issues/2892
 [#2896]: https://github.com/SpeciesFileGroup/taxonworks/issues/2896
+[#2901]: https://github.com/SpeciesFileGroup/taxonworks/issues/2901
 
 ## [0.24.1] - 2022-04-04
 
