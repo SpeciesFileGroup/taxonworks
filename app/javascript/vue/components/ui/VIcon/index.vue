@@ -16,7 +16,8 @@
     <g
       ref="svggroup"
       stroke-width="2"
-      :fill="selectedColor">
+      :fill="selectedColor"
+    >
       <path
         v-for="(path, index) in iconPaths"
         :key="index"
@@ -30,7 +31,7 @@
 
 import mixinSizes from '../mixins/sizes.js'
 import mixinColors from '../mixins/colors.js'
-import { Icons } from './icons.js'
+import * as Icons from './icons.js'
 
 export default {
   name: 'VIcon',
