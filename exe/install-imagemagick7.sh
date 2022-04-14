@@ -20,7 +20,7 @@ cd ..
   curl -sL $(curl -s https://api.github.com/repos/strukturag/libheif/releases/latest | jq --raw-output '.assets[0] | .browser_download_url') | tar xzf - && \
   cd libheif-* && \
   ./autogen.sh && \
-  ./configure --disable-examples && \
+  ./configure --disable-examples --disable-go && \
   cd ..
 cd libheif-*
 make -j${MAKE_JOBS-3}
