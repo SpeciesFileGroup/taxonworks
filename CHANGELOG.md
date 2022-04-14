@@ -30,6 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New extract task loads incorrect repository for existing extracts [#2883]
 - Extract edit link in New observation matrix task [#2896]
 - Incorrect matrix list is displayed on Observation matrix slice in Radial object [#2901]
+- Pages label is not displayed in citation form in comprehensive task [#2903]
 
 [#2886]: https://github.com/SpeciesFileGroup/taxonworks/issues/2886
 [#2887]: https://github.com/SpeciesFileGroup/taxonworks/issues/2887
@@ -45,6 +46,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2892]: https://github.com/SpeciesFileGroup/taxonworks/issues/2892
 [#2896]: https://github.com/SpeciesFileGroup/taxonworks/issues/2896
 [#2901]: https://github.com/SpeciesFileGroup/taxonworks/issues/2901
+[#2903]: https://github.com/SpeciesFileGroup/taxonworks/issues/2903
 
 ## [0.24.1] - 2022-04-04
 
