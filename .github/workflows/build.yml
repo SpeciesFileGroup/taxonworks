@@ -114,7 +114,7 @@ jobs:
           /usr/src/libheif-*
           /usr/src/libde265-*
           /usr/src/ImageMagick-7*
-        key: ${{ runner.os }}-imagemagick-${{ hashFiles('**/Gemfile.lock') }}
+        key: ${{ runner.os }}-imagemagick-rev2-${{ hashFiles('**/Gemfile.lock') }}
 
     - name: Change ownership of /usr/src back to root
       run: |
