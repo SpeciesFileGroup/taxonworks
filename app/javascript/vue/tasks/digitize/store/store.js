@@ -18,7 +18,6 @@ import makeCollectionObject from 'factory/CollectionObject.js'
 import makeTypeMaterial from 'factory/TypeMaterial.js'
 import makeLabel from 'factory/Label.js'
 import makeIdentifier from 'factory/Identifier.js'
-import makeTaxonDetermination from 'factory/TaxonDetermination.js'
 import { reactive } from 'vue'
 
 function makeInitialState () {
@@ -58,7 +57,6 @@ function makeInitialState () {
       },
       sortable: false
     },
-    taxon_determination: makeTaxonDetermination(),
     identifier: makeIdentifier(IDENTIFIER_LOCAL_CATALOG_NUMBER, COLLECTION_OBJECT),
     collectingEventIdentifier: makeIdentifier(IDENTIFIER_LOCAL_TRIP_CODE, COLLECTING_EVENT),
     coCitations: [],
