@@ -11,16 +11,18 @@
 
     <nav-bar>
       <div class="horizontal-left-content">
-        <biocuration-group-new class="margin-small-right"/>
-        <biocuration-class-new/>
+        <biocuration-group-new class="margin-small-right" />
+        <biocuration-class-new />
       </div>
     </nav-bar>
     <table class="full_width">
       <thead>
         <tr>
           <th>Group</th>
-          <th class="three_quarter_width">Classes</th>
-          <th></th>
+          <th class="three_quarter_width">
+            Classes
+          </th>
+          <th />
         </tr>
       </thead>
       <tbody>

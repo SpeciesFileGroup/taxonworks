@@ -7,14 +7,15 @@
     >
       <v-icon
         color="white"
-        name="pencil"
+        name="plus"
         x-small
       />
     </v-btn>
 
     <v-modal
       v-if="showModal"
-      @close="showModal = false">
+      @close="showModal = false"
+    >
       <template #header>
         <h3>Add biocuration class to {{ groupName }}</h3>
       </template>
@@ -22,7 +23,8 @@
         <div>
           <template
             v-for="item in biocurationClasses"
-            :key="item.id">
+            :key="item.id"
+          >
             <v-btn
               v-if="createdBiocurations.find(created => created.tag_object_id === item.id)"
               class="margin-small"

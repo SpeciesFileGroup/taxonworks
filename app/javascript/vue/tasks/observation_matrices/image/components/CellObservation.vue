@@ -78,7 +78,6 @@ import ButtonCitation from './ButtonCitation.vue'
 import { Observation, Depiction } from 'routes/endpoints'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { OTU, COLLECTION_OBJECT } from 'constants/index.js'
 
 export default {
   components: {

@@ -44,13 +44,19 @@
               </td>
               <td>{{ person.cached }}</td>
               <td>
-                <span class="feedback feedback-secondary feedback-thin line-nowrap">{{ yearValue(person.year_born) }} - {{ yearValue(person.year_died) }}</span>
+                <span class="feedback feedback-secondary feedback-thin line-nowrap">
+                  {{ yearValue(person.year_born) }} - {{ yearValue(person.year_died) }}
+                </span>
               </td>
               <td>
-                <span class="feedback feedback-secondary feedback-thin line-nowrap">{{ yearValue(person.year_active_start) }} - {{ yearValue(person.year_active_end) }}</span>
+                <span class="feedback feedback-secondary feedback-thin line-nowrap">
+                  {{ yearValue(person.year_active_start) }} - {{ yearValue(person.year_active_end) }}
+                </span>
               </td>
               <td>
-                <span class="feedback feedback-thin feedback-primary">{{ person.roles ? person.roles.length : '?' }}</span>
+                <span class="feedback feedback-thin feedback-primary">
+                  {{ person.roles ? person.roles.length : '?' }}
+                </span>
               </td>
               <td>{{ getRoles(person) }}</td>
             </tr>
@@ -63,40 +69,36 @@
 <script>
 
 import { People } from 'routes/endpoints'
+import { ActionNames } from '../store/actions/actions'
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
 import Autocomplete from 'components/ui/Autocomplete'
+import getRoles from '../utils/getRoles.js'
 
 export default {
   components: { Autocomplete },
 
-  props: {
-    modelValue: {
-      type: Array,
-      required: true
-    },
-
-    selectedPerson: {
-      type: Object,
-      default: undefined
-    },
-
-    matchPeople: {
-      type: Array,
-      required: true
-    }
-  },
-
-  emits: [
-    'update:modelValue',
-    'addToList'
-  ],
-
   computed: {
-    selectedMergePerson: {
+    selectedPerson () {
+      return this.$store.getters[GetterNames.GetSelectedPerson]
+    },
+
+    matchList: {
       get () {
-        return this.modelValue
+        return this.$store.getters[GetterNames.GetMatchPeople]
       },
       set (value) {
-        this.$emit('update:modelValue', value)
+        this.$store.commit(MutationNames.SetMatchPeople, value)
+      }
+    },
+
+    selectedMergePerson: {
+      get () {
+        return this.$store.getters[GetterNames.GetMergePeople]
+      },
+
+      set (value) {
+        this.$store.commit(MutationNames.SetMergePeople, value)
       }
     },
 
@@ -104,30 +106,38 @@ export default {
       get () {
         return this.matchList.length && this.selectedMergePerson.length === this.matchList.length
       },
+
       set (value) {
         this.selectedMergePerson = value ? this.matchList : []
       }
-    },
+    }
+  },
 
-    matchList () {
-      return this.matchPeople.filter(person => this.selectedPerson.id !== person.id)
+  watch: {
+    selectedPerson (newVal) {
+      if (newVal.id) {
+        this.$store.dispatch(ActionNames.FindMatchPeople, {
+          name: newVal.cached,
+          levenshtein_cuttoff: 3
+        })
+      }
     }
   },
 
   methods: {
     addToList (person) {
-      person.cached = person.label
-      People.find(person.id, { extend: ['roles'] }).then(response => {
-        if (!this.selectedMergePerson.find(p => p.id === response.body.id)) {
+      const isAlreadyInList = this.selectedMergePerson.find(p => p.id === person.id)
+
+      if (!isAlreadyInList) {
+        person.cached = person.label
+        People.find(person.id, { extend: ['roles'] }).then(response => {
+          this.matchList.push(response.body)
           this.selectedMergePerson.push(response.body)
-          this.$emit('addToList', response.body)
-        }
-      })
+        })
+      }
     },
 
-    getRoles (person) {
-      return person.roles ? [...new Set(person.roles.map(r => r.role_object_type))].join(', ') : ''
-    },
+    getRoles,
 
     yearValue (value) {
       return value || '?'

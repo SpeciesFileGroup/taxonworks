@@ -26,7 +26,8 @@
               <span
                 v-if="tripCode.id"
                 @click="removeIdentifier"
-                class="circle-button btn-delete"/>
+                class="circle-button btn-delete"
+              />
               <span
                 v-else
                 class="circle-button button-default btn-undo"
@@ -43,6 +44,13 @@
             type="text"
             v-model="tripCode.identifier"
           >
+          <label>
+            <input
+              type="checkbox"
+              v-model="incrementIdentifier"
+            >
+            Increment
+          </label>
         </div>
       </div>
     </div>
@@ -69,10 +77,21 @@ export default {
       get () {
         return this.$store.getters[GetterNames.GetIdentifier]
       },
+
       set (value) {
         this.$store.commit(MutationNames.SetIdentifier, value)
       }
     },
+
+    incrementIdentifier: {
+      get () {
+        return this.$store.getters[GetterNames.GetPreferences].incrementIdentifier
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetIncrementIdentifier, value)
+      }
+    },
+
     namespace_id () {
       return this.tripCode.namespace_id
     }
@@ -90,6 +109,8 @@ export default {
         Namespace.find(newVal).then(response => {
           this.namespace = response.body
         })
+      } else {
+        this.namespace = undefined
       }
     }
   },
