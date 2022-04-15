@@ -6,6 +6,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.24.2] - 2022-04-15
+
 ### Added
 - New units mg, µg, ng, ml, µl, nl, ng/µl, Ratio (for Descriptor, etc.) [#2887]
 - Project activity report includes community data (but not scoped to project) [#2893]
@@ -2484,7 +2488,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.2...development
+[0.24.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.1...v0.24.2
 [0.24.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.0...v0.24.1
 [0.24.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.23.1...v0.24.0
 [0.23.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.23.0...v0.23.1
