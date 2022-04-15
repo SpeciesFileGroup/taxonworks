@@ -6,7 +6,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Changed
+- Improvements for taxon determinations in comprehensive task
 
 ## [0.24.2] - 2022-04-15
 

@@ -50,14 +50,11 @@ import setIdentifierObjectId from './Identifier/setIdentifierObjectId'
 
 import addTaxonDetermination from './TaxonDetermination/addTaxonDetermination'
 import removeTaxonDetermination from './TaxonDetermination/removeTaxonDetermination'
-import newTaxonDetermination from './TaxonDetermination/newTaxonDetermination'
-import setTaxonDetermination from './TaxonDetermination/setTaxonDetermination'
 import setTaxonDeterminations from './TaxonDetermination/setTaxonDeterminations'
 
 import setSoftValidations from './setSoftValidations'
 import setBiologicalAssociations from './setBiologicalAssociations'
 
-import setTmpDataOtu from './tmpData/setTmpDataOtu'
 import setProjectPreferences from './setProjectPreferences'
 
 const MutationNames = {
@@ -66,7 +63,6 @@ const MutationNames = {
 
   SetGeographicArea: 'setGeographicArea',
   SetGeoreferences: 'setGeoreferences',
-  SetTmpDataOtu: 'setTmpDataOtu',
   SetSubsequentialUses: 'setSubsequentialUses',
 
   SetLocked: 'setLocked',
@@ -91,11 +87,9 @@ const MutationNames = {
   AddBiocuration: 'AddBiocuration',
   RemoveBiocuration: 'RemoveBiocuration',
 
-  NewTaxonDetermination: 'newTaxonDetermination',
   RemoveTaxonDetermination: 'removeTaxonDetermination',
   AddTaxonDetermination: 'addTaxonDetermination',
   SetTaxonDeterminations: 'setTaxonDeterminations',
-  SetTaxonDetermination: 'setTaxonDetermination',
 
   SetIdentifiers: 'setIdentifiers',
   SetIdentifier: 'setIdentifier',
@@ -130,7 +124,6 @@ const MutationFunctions = {
   [MutationNames.SetProjectPreferences]: setProjectPreferences,
   [MutationNames.SetGeographicArea]: setGeographicArea,
   [MutationNames.SetGeoreferences]: setGeoreferences,
-  [MutationNames.SetTmpDataOtu]: setTmpDataOtu,
   [MutationNames.SetSubsequentialUses]: setSubsequentialUses,
 
   [MutationNames.SetLocked]: setLocked,
@@ -154,9 +147,7 @@ const MutationFunctions = {
 
   [MutationNames.AddTaxonDetermination]: addTaxonDetermination,
   [MutationNames.RemoveTaxonDetermination]: removeTaxonDetermination,
-  [MutationNames.NewTaxonDetermination]: newTaxonDetermination,
   [MutationNames.SetTaxonDeterminations]: setTaxonDeterminations,
-  [MutationNames.SetTaxonDetermination]: setTaxonDetermination,
 
   [MutationNames.SetIdentifiers]: setIdentifiers,
   [MutationNames.SetIdentifier]: setIdentifier,

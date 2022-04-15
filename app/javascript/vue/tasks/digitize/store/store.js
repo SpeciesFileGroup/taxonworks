@@ -48,9 +48,6 @@ function makeInitialState () {
         identifier: false,
         taxon_determination: {
           otu_id: false,
-          year_made: false,
-          month_made: false,
-          day_made: false,
           dates: false,
           roles_attributes: false
         },
