@@ -55,7 +55,7 @@ describe 'Task - Comprehensive digitization', type: :feature, group: :collection
         let!(:o) { Otu.create!(name: 'Foo', by: @user, project: @project) } 
 
         specify 'adds taxon determinations' do
-          fill_in('determination-otu-autocomplete', with: 'Foo')
+          find('#taxon-determination-digitize .vue-otu-picker .vue-autocomplete-input').set('Foo')
 
           find('.vue-autocomplete-list li', text: 'Foo').hover.click
 
