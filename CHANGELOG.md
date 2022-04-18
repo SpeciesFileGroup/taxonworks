@@ -10,12 +10,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Improvements for taxon determinations in comprehensive task
 - Observation Matrix CSV dump uses full object labels [#2912]
 
-[#2912]: https://github.com/SpeciesFileGroup/taxonworks/issues/2912
-
 ### Fixed
 - Collection object label is not updated after saving determinations in comprehensive task [#2899]
+- Label form is not updated after loading a collecting event in Comprehensive task [#2898]
 
+[#2898]: https://github.com/SpeciesFileGroup/taxonworks/issues/2898
 [#2899]: https://github.com/SpeciesFileGroup/taxonworks/issues/2899
+[#2912]: https://github.com/SpeciesFileGroup/taxonworks/issues/2912
 
 ## [0.24.2] - 2022-04-15
 

@@ -65,9 +65,6 @@ function makeInitialState () {
     geographicArea: undefined,
     label: makeLabel(COLLECTING_EVENT),
     type_material: makeTypeMaterial(),
-    tmpData: {
-      otu: undefined
-    },
     biocurations: [],
     biologicalAssociations: [],
     collection_objects: [],
