@@ -1,7 +1,7 @@
 <% m = @observation_matrix %>
 <% observations_hash = m.observations_hash %>
-object,<%= m.descriptors.order('observation_matrix_columns.position').collect{|d| descriptor_matrix_label(d)}.join(',') %>
-<% m.observation_matrix_rows.order('observation_matrix_rows.position').each do |r| -%><%= observation_matrix_row_label(r) %>,<%= m.descriptors.order('observation_matrix_columns.position').collect{|d| observations_cell_label(observations_hash, d, r.observation_index, :csv)}.join(',') %>
+object,<%= m.descriptors.order('observation_matrix_columns.position').collect{|d| descriptor_matrix_label_csv(d)}.join(',') %>
+<% m.observation_matrix_rows.order('observation_matrix_rows.position').each do |r| -%><%= observation_matrix_row_label_csv(r) %>,<%= m.descriptors.order('observation_matrix_columns.position').collect{|d| observations_cell_label(observations_hash, d, r.observation_index, :csv)}.join(',') %>
 <% end %>
 
 

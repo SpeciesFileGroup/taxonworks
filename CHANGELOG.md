@@ -8,6 +8,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Improvements for taxon determinations in comprehensive task
+- Observation Matrix CSV dump uses full object labels [#2912]
+
+[#2912]: https://github.com/SpeciesFileGroup/taxonworks/issues/2912
 
 ## [0.24.2] - 2022-04-15
 

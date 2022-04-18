@@ -18,7 +18,7 @@ module ObservationMatrixRowsHelper
   def observation_matrix_row_label(observation_matrix_row)
     return observation_matrix_row.name unless observation_matrix_row.name.blank?
     o = observation_matrix_row.observation_object
-    s = label_for(o) 
+    s = label_for(o)
     s.gsub!(/[^\w]/, '_')
     s[0..11] + "_#{o.id}"
   end
@@ -35,7 +35,15 @@ module ObservationMatrixRowsHelper
   def observation_matrix_row_label_nexml(observation_matrix_row)
     return observation_matrix_row.name unless observation_matrix_row.name.blank?
     o = observation_matrix_row.observation_object
-    s = label_for(o)
+    label_for(o)
+  end
+
+  # @return [String, nil]
+  #   the object_label with any commas replaced by pipes
+  def observation_matrix_row_label_csv(observation_matrix_row)
+    return observation_matrix_row.name unless observation_matrix_row.name.blank?
+    o = observation_matrix_row.observation_object
+    '"' + label_for(o).gsub('"', "'") + '"'
   end
 
   # ONLY CACHE IF count == 1 ?!
