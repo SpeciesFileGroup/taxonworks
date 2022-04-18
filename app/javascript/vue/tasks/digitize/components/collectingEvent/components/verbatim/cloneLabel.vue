@@ -49,6 +49,7 @@
 
 <script>
 
+import { ActionNames } from '../../../../store/actions/actions'
 import { GetterNames } from '../../../../store/getters/getters'
 import { MutationNames } from '../../../../store/mutations/mutations'
 import { CollectingEvent } from 'routes/endpoints'
@@ -120,6 +121,8 @@ export default {
 
     setCE (ce) {
       this.collectingEvent = ce
+      this.$store.dispatch(ActionNames.GetCollectingEvent, ce.id)
+      this.$store.dispatch(ActionNames.GetLabels, ce.id)
       this.closeModal()
     },
 

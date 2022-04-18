@@ -5,7 +5,7 @@ import {
   CONTAINER
 } from 'constants/index.js'
 
-export default ({ commit, dispatch, state }, coId) => 
+export default ({ commit, dispatch, state }, coId) =>
   new Promise((resolve, reject) => {
     state.settings.loading = true
     dispatch(ActionNames.GetCollectionObject, coId).then(coObject => {
@@ -30,13 +30,16 @@ export default ({ commit, dispatch, state }, coId) =>
       if (coObject.collecting_event_id) {
         promises.push(dispatch(ActionNames.GetCollectingEvent, coObject.collecting_event_id))
         promises.push(dispatch(ActionNames.LoadGeoreferences, coObject.collecting_event_id))
+        promises.push(dispatch(ActionNames.GetLabels, coObject.collecting_event_id))
+      } else {
+        dispatch(ActionNames.NewLabel)
       }
 
       promises.push(dispatch(ActionNames.GetTypeMaterial, coId))
       promises.push(dispatch(ActionNames.GetCOCitations, coId))
-      promises.push(dispatch(ActionNames.GetLabels, coObject.collecting_event_id))
       promises.push(dispatch(ActionNames.GetTaxonDeterminations, coId))
       promises.push(dispatch(ActionNames.LoadBiologicalAssociations))
+
       commit(MutationNames.AddCollectionObject, coObject)
 
       Promise.allSettled(promises).then(() => {

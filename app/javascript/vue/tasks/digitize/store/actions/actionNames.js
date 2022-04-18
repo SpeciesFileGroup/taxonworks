@@ -1,5 +1,6 @@
 const ActionNames = {
   AddToContainer: 'addToContainer',
+  CreateDeterminationFromParams: 'createDeterminationFromParams',
   GetCOCitations: 'getCOCitations',
   GetCollectingEvent: 'getCollectingEvent',
   GetCollectionObject: 'getCollectionObject',
@@ -19,7 +20,6 @@ const ActionNames = {
   NewCollectionObject: 'newCollectionObject',
   NewIdentifier: 'newIdentifier',
   NewLabel: 'newLabel',
-  NewTaxonDetermination: 'newTaxonDetermination',
   NewTypeMaterial: 'newTypeMaterial',
   RemoveCOCitation: 'removeCOCitation',
   RemoveCollectionObject: 'removeCollectionObject',
@@ -35,7 +35,6 @@ const ActionNames = {
   SaveCollectionObject: 'saveCollectionObject',
   SaveContainer: 'saveContainer',
   SaveContainerItem: 'saveContainerItem',
-  SaveDetermination: 'saveDetermination',
   SaveDeterminations: 'saveDeterminations',
   SaveDigitalization: 'saveDigitalization',
   SaveIdentifier: 'saveIdentifier',

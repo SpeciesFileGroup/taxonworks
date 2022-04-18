@@ -1,4 +1,3 @@
-import ActionNames from './actionNames'
 import { MutationNames } from '../mutations/mutations'
 import { TaxonDetermination } from 'routes/endpoints'
 import { ROLE_DETERMINER } from 'constants/index.js'
@@ -25,7 +24,7 @@ export default ({ commit, dispatch, state: { collection_object, taxon_determinat
     })
 
     Promise.all(promises).then(responses => {
-      commit(MutationNames.SetTaxonDeterminations, responses.map(({ body }) => ({ 
+      commit(MutationNames.SetTaxonDeterminations, responses.map(({ body }) => ({
         ...body,
         roles_attributes: (body?.determiner_roles ?? []).map(role => ({
           id: role.id,
