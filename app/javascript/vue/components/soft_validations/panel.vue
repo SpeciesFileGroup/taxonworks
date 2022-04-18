@@ -102,8 +102,15 @@ export default {
     runFix (fixItems) {
       const promises = fixItems.map(params => SoftValidation.fix(params.global_id, params))
 
-      Promise.all(promises).then(() => {
-        location.reload()
+      Promise.all(promises).then(responses => {
+        const softValidations = responses.map(r => r.body.soft_validations)
+        const notFixed = [].concat(...softValidations).filter(validation => validation.fixed === 'fix_error')
+
+        if (notFixed.length) {
+          TW.workbench.alert.create(notFixed.map(f => f.failure_message).join('; '), 'error')
+        } else {
+          location.reload()
+        }
       })
     },
 
