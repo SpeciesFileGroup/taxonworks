@@ -9,6 +9,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Improvements for taxon determinations in comprehensive task
 
+### Fixed
+- Collection object label is not updated after saving determinations in comprehensive task [#2899]
+
+[#2899]: https://github.com/SpeciesFileGroup/taxonworks/issues/2899
+
 ## [0.24.2] - 2022-04-15
 
 ### Added
