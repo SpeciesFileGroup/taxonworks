@@ -13,10 +13,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 - Collection object label is not updated after saving determinations in comprehensive task [#2899]
 - Label form is not updated after loading a collecting event in Comprehensive task [#2898]
+- Preferred catalog number for collection objects using first created rather than top of the list (also fixes wrong `otherCatalogNumbers` in DwC export) [#2904]
 
 [#2898]: https://github.com/SpeciesFileGroup/taxonworks/issues/2898
 [#2899]: https://github.com/SpeciesFileGroup/taxonworks/issues/2899
 [#2912]: https://github.com/SpeciesFileGroup/taxonworks/issues/2912
+[#2904]: https://github.com/SpeciesFileGroup/taxonworks/issues/2904
 
 ## [0.24.2] - 2022-04-15
 
