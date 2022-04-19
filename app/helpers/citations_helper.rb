@@ -16,8 +16,8 @@ module CitationsHelper
     [
       '[',
       citation.citation_topics.collect{|ct|
-      content_tag(:span, (controlled_vocabulary_term_tag(ct.topic.metamorphosize) + (!ct.pages.blank? ? ": #{ct.pages}" : '')), class: [:annotation__citation_topic])
-    }.compact.join(', '),
+        content_tag(:span, (controlled_vocabulary_term_tag(ct.topic.metamorphosize) + (!ct.pages.blank? ? ": #{ct.pages}" : '')), class: [:annotation__citation_topic])
+      }.compact.join(', '),
       ']'
     ].join.html_safe
   end
@@ -34,10 +34,10 @@ module CitationsHelper
     return nil unless object.has_citations? && object.citations.any?
     content_tag(:h3, 'Citations') +
       content_tag(:ul, class: 'annotations__citation_list') do
-      object.citations.collect{|t|
-        content_tag(:li, citation_annotation_tag(t))
-      }.join.html_safe
-    end
+        object.citations.collect{|t|
+          content_tag(:li, citation_annotation_tag(t))
+        }.join.html_safe
+      end
   end
 
   def citation_link(citation)
@@ -51,8 +51,8 @@ module CitationsHelper
 
   def add_citation_link(object: nil, attribute: nil)
     link_to('Add citation', new_citation_path(citation: {
-        citation_object_type: object.class.base_class.name,
-        citation_object_id: object.id})) if object.has_citations?
+      citation_object_type: object.class.base_class.name,
+      citation_object_id: object.id})) if object.has_citations?
   end
 
   def edit_citation_link(citation)

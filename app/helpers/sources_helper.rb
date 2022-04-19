@@ -1,40 +1,41 @@
 module SourcesHelper
 
-  # TODO: extend with autocomplete-like extensions.
   def source_tag(source)
     return nil if source.nil?
     source.cached ? sanitize(source.cached, tags: ['i']).html_safe : (source.new_record? ? nil : 'ERROR - Source cache not set, please notify admin.')
   end
 
+  # Never used
   def label_for_source(source)
     return nil if source.nil?
     source_author_year_tag(source)
   end
 
-  # TODO: Add language via language_id info
   def sources_autocomplete_tag(source, term)
     return nil if source.nil?
 
     if term
-      s = source.cached.gsub(/#{Regexp.escape(term)}/i, "<mark>#{term}</mark>") + ' ' # weee bit simpler
+      s = regex_mark_tag(source.cached, term) + ' '
     else
       s = source.cached + ' '
     end
 
     # In project is the project_if if present in this project see lib/queries/source/autocomplete
     if source.respond_to?(:in_project) && !source.in_project.nil?
-      s += ' ' + content_tag(:span, 'in', class: [:feedback, 'feedback-primary', 'feedback-thin'])
+      s += ' ' + tag.span('in', class: [:feedback, 'feedback-primary', 'feedback-thin'])
       c = source.use_count
-      s += ' ' + ( c > 0 ? content_tag(:span, "#{c.to_s}&nbsp;#{'citations'.pluralize(c)}".html_safe, class: [:feedback, 'feedback-secondary', 'feedback-thin']) : '' )
-      s += ' ' + content_tag(:span, 'doc/pdf', class: [:feedback, 'feedback-success', 'feedback-thin']) if source.documentation.where(project_id: sessions_current_project_id).any?
+      s += ' ' + ( c > 0 ? tag.span("#{c.to_s}&nbsp;#{'citations'.pluralize(c)}".html_safe, class: [:feedback, 'feedback-secondary', 'feedback-thin']) : '' )
+      s += ' ' + tag.span('doc/pdf', class: [:feedback, 'feedback-success', 'feedback-thin']) if source.documentation.where(project_id: sessions_current_project_id).any?
     elsif source.is_in_project?(sessions_current_project_id)
-      s += ' ' + content_tag(:span, 'in', class: [:feedback, 'feedback-primary', 'feedback-thin']) 
+      s += ' ' + tag.span('in', class: [:feedback, 'feedback-primary', 'feedback-thin']) 
       c = source.citations.where(project_id: sessions_current_project_id).count
-      s += ' ' + ( c > 0 ? content_tag(:span, "#{c.to_s}&nbsp;#{'citations'.pluralize(c)}".html_safe, class: [:feedback, 'feedback-secondary', 'feedback-thin']) : '' )
-      s += ' ' + content_tag(:span, 'doc/pdf', class: [:feedback, 'feedback-success', 'feedback-thin']) if source.documentation.where(project_id: sessions_current_project_id).any?
+      s += ' ' + ( c > 0 ? tag.span("#{c.to_s}&nbsp;#{'citations'.pluralize(c)}".html_safe, class: [:feedback, 'feedback-secondary', 'feedback-thin']) : '' )
+      s += ' ' + tag.span('doc/pdf', class: [:feedback, 'feedback-success', 'feedback-thin']) if source.documentation.where(project_id: sessions_current_project_id).any?
     else
-      s += ' ' + content_tag(:span, 'out', class: [:feedback, 'feedback-warning', 'feedback-thin']) 
+      s += ' ' + tag.span('out', class: [:feedback, 'feedback-warning', 'feedback-thin']) 
     end
+
+    s += ' ' + tag.span(label_for_language(source.source_language), class: [:feedback, 'feedback-secondary', 'feedback-thin']) if source.language_id.present?
 
     s.html_safe
   end
