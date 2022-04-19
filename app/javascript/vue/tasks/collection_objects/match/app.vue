@@ -3,16 +3,18 @@
     <h1>Collection object match</h1>
     <spinner-component
       v-if="isLoading"
-      :full-screen="true"/>
+      :full-screen="true"
+    />
     <div class="horizontal-left-content align-start">
       <div class="full_width margin-small-right">
-        <input-component @lines="lines = $event"/>
+        <input-component @lines="lines = $event" />
         <div class="flex-separate margin-medium-bottom">
           <button
             class="button normal-input button-default"
             type="button"
             :disabled="!lines.length"
-            @click="processList">
+            @click="processList"
+          >
             Match
           </button>
           <ul class="no_bullets context-menu">
@@ -27,14 +29,14 @@
             </li>
           </ul>
         </div>
-        <assign-component
-          :ids="ids"/>
+        <assign-component :ids="ids" />
       </div>
       <div class="full_width margin-small-left">
         <line-component
           @selected="ids = $event"
           class="margin-small-bottom"
-          :match-list="matches"/>
+          :match-list="matches"
+        />
       </div>
     </div>
   </div>
@@ -82,7 +84,7 @@ export default {
 
   methods: {
     GetMatchesById (arrayIds = this.lines.filter(line => Number(line))) {
-      const ids = arrayIds.slice(0, this.maxPerCall)
+      const ids = arrayIds.splice(0, this.maxPerCall)
       const nextIds = arrayIds.slice(this.maxPerCall)
       const promises = ids.map(id => CollectionObject.find(id).then(response => {
         this.matches[id] = [response.body]
@@ -100,8 +102,7 @@ export default {
     },
 
     GetMatchesByIdentifier (arrayIdentifiers = this.lines.filter(line => line)) {
-      const identifiers = arrayIdentifiers.slice(0, this.maxPerCall)
-      const nextIdentifiers = arrayIdentifiers.slice(this.maxPerCall)
+      const identifiers = arrayIdentifiers.splice(0, this.maxPerCall)
       const promises = identifiers.map(identifier => CollectionObject.where({ identifier_exact: true, identifier }).then(response => {
         this.matches[identifier] = response.body
       }, () => {
@@ -109,8 +110,8 @@ export default {
       }))
 
       Promise.allSettled(promises).then(() => {
-        if (nextIdentifiers.length) {
-          this.GetMatchesByIdentifier(nextIdentifiers)
+        if (arrayIdentifiers.length) {
+          this.GetMatchesByIdentifier(arrayIdentifiers)
         } else {
           this.isLoading = false
         }

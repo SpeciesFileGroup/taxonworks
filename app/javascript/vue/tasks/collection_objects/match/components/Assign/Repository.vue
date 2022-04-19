@@ -41,7 +41,7 @@ export default {
   },
 
   methods: {
-    setRepository (repository, arrayIds = this.ids) {
+    setRepository (repository, arrayIds = this.ids.slice()) {
       const ids = arrayIds.splice(0, this.maxPerCall)
       const requests = ids.map(id => CollectionObject.update(id, {
         collection_object: {
