@@ -79,7 +79,7 @@ import LepStage2Layout from './layouts/lep_stage2'
 import VerticalSplitLayout from './layouts/vertical_split'
 import SpinnerComponent from 'components/spinner'
 
-import TagsComponent from '../tags'
+import TagsComponent from '../sqed/tags'
 import DataAttributes from '../dataAttributes'
 
 import { GetterNames } from '../../store/getters/getters.js'

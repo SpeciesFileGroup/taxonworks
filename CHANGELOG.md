@@ -6,6 +6,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Tag panel for images in New images task [#2919]
+
 ### Changed
 - Improvements for taxon determinations in comprehensive task
 - Observation Matrix CSV dump uses full object labels [#2912]
@@ -21,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2899]: https://github.com/SpeciesFileGroup/taxonworks/issues/2899
 [#2912]: https://github.com/SpeciesFileGroup/taxonworks/issues/2912
 [#2904]: https://github.com/SpeciesFileGroup/taxonworks/issues/2904
+[#2919]: https://github.com/SpeciesFileGroup/taxonworks/issues/2919
 
 ## [0.24.2] - 2022-04-15
 

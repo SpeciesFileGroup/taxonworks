@@ -1,6 +1,8 @@
 <template>
-  <fieldset>
-    <legend>Tags</legend>
+  <div class="panel content panel-section">
+    <div>
+      <h2>Tags</h2>
+    </div>
     <smart-selector
       autocomplete-url="/controlled_vocabulary_terms/autocomplete"
       :autocomplete-params="{'type[]' : 'Keyword'}"
@@ -8,24 +10,28 @@
       model="keywords"
       klass="Image"
       target="Image"
-      @selected="addTag"/>
+      @selected="addTag"
+    />
     <table-list
       v-if="tags.length"
+      class="margin-medium-top"
       :list="tags"
       :header="['Tags', 'Remove']"
       :delete-warning="false"
       :annotator="false"
+      :attributes="['object_tag']"
       @delete="removeTag"
-      :attributes="['object_tag']"/>
-  </fieldset>
+    />
+  </div>
 </template>
 
 <script>
 
 import SmartSelector from 'components/ui/SmartSelector'
 import TableList from 'components/table_list'
-import { MutationNames } from '../store/mutations/mutations'
-import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../../store/mutations/mutations'
+import { GetterNames } from '../../store/getters/getters'
+import { addToArray } from 'helpers/arrays'
 
 export default {
   components: {
@@ -36,18 +42,19 @@ export default {
   computed: {
     tags: {
       get () {
-        return this.$store.getters[GetterNames.GetTags]
+        return this.$store.getters[GetterNames.GetTagsForImage]
       },
       set (value) {
-        this.$store.commit(MutationNames.SetTags, value)
+        this.$store.commit(MutationNames.SetTagsForImage, value)
       }
     }
   },
 
   methods: {
     addTag (tag) {
-      this.$store.commit(MutationNames.AddTag, tag)
+      addToArray(this.tags, tag)
     },
+
     removeTag (tag) {
       this.tags.splice(this.tags.findIndex(item => item.id === tag.id), 1)
     }

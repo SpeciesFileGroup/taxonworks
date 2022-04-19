@@ -6,26 +6,30 @@
         v-model="authors"
         :options="['someone else']"
         role-type="AttributionCreator"
-        title="Author/Creator"/>
+        title="Author/Creator"
+      />
       <person-box
         class="separate-left separate-right panel-section"
         v-model="editors"
         :options="['someone else']"
         role-type="AttributionEditor"
-        title="Editor"/>
+        title="Editor"
+      />
       <person-box
         class="separate-left panel-section"
         v-model="owners"
         role-type="AttributionOwner"
-        title="Owner"/>
+        title="Owner"
+      />
     </div>
     <div class="flexbox">
-      <licenses-section class="separate-right panel-section"/>
+      <licenses-section class="separate-right panel-section" />
       <source-component class="separate-left separate-right" />
       <copyright-holder
         class="separate-left"
         role-type="AttributionCopyrightHolder"
-        title="Copyright holder"/>
+        title="Copyright holder"
+      />
     </div>
   </div>
 </template>
