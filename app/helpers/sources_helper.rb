@@ -2,13 +2,15 @@ module SourcesHelper
 
   def source_tag(source)
     return nil if source.nil?
+    # TODO: sanitize should happen at the model validation level, not here!
     source.cached ? sanitize(source.cached, tags: ['i']).html_safe : (source.new_record? ? nil : 'ERROR - Source cache not set, please notify admin.')
   end
 
-  # Never used
+  # This is an exception to the no HTML currently  in that it returns 
+  # curator supplied <i> tags (they are the only allowed
   def label_for_source(source)
     return nil if source.nil?
-    source_author_year_tag(source)
+    source.cached
   end
 
   def sources_autocomplete_tag(source, term)

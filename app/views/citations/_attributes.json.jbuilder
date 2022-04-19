@@ -21,7 +21,7 @@ if extend_response_with('source')
   json.source do
     json.partial! '/shared/data/all/metadata', object: citation.source, extensions: false
     if citation.source.is_bibtex?
-      json.author_year label_for_source(citation.source) # .author_year
+      json.author_year citation.source.author_year
     end
   end
 end
