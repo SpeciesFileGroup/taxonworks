@@ -49,6 +49,7 @@ import LineComponent from './components/LineComponent'
 import AssignComponent from './components/AssignComponent'
 import SpinnerComponent from 'components/spinner'
 import { CollectionObject } from 'routes/endpoints'
+import { URLParamsToJSON } from 'helpers/url/parse'
 
 export default {
   name: 'CollectionObjectMatch',
@@ -82,19 +83,29 @@ export default {
     }
   },
 
+  created () {
+    const urlParams = URLParamsToJSON(location.href)
+    const coIds = urlParams.collection_object_ids || []
+    const identifierIds = urlParams.identifier_ids || []
+
+    this.GetMatchesById(coIds)
+    this.GetMatchesByIdentifier(identifierIds)
+  },
+
   methods: {
     GetMatchesById (arrayIds = this.lines.filter(line => Number(line))) {
       const ids = arrayIds.splice(0, this.maxPerCall)
-      const nextIds = arrayIds.slice(this.maxPerCall)
-      const promises = ids.map(id => CollectionObject.find(id).then(response => {
-        this.matches[id] = [response.body]
-      }, () => {
-        this.matches[id] = []
-      }))
+      const promises = ids.map(id =>
+        CollectionObject.find(id).then(response => {
+          this.matches[id] = [response.body]
+        }, () => {
+          this.matches[id] = []
+        })
+      )
 
       Promise.allSettled(promises).then(() => {
-        if (nextIds.length) {
-          this.GetMatchesById(nextIds)
+        if (arrayIds.length) {
+          this.GetMatchesById(arrayIds)
         } else {
           this.isLoading = false
         }
@@ -103,11 +114,16 @@ export default {
 
     GetMatchesByIdentifier (arrayIdentifiers = this.lines.filter(line => line)) {
       const identifiers = arrayIdentifiers.splice(0, this.maxPerCall)
-      const promises = identifiers.map(identifier => CollectionObject.where({ identifier_exact: true, identifier }).then(response => {
-        this.matches[identifier] = response.body
-      }, () => {
-        this.matches[identifier] = []
-      }))
+      const promises = identifiers.map(identifier =>
+        CollectionObject.where({
+          identifier_exact: true,
+          identifier
+        }).then(response => {
+          this.matches[identifier] = response.body
+        }, () => {
+          this.matches[identifier] = []
+        })
+      )
 
       Promise.allSettled(promises).then(() => {
         if (arrayIdentifiers.length) {
