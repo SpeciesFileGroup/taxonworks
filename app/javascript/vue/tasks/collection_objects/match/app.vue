@@ -18,12 +18,16 @@
             Match
           </button>
           <ul class="no_bullets context-menu">
-            <li v-for="option in searchParams">
+            <li
+              v-for="option in searchParams"
+              :key="option.value"
+            >
               <label>
                 <input
                   v-model="paramSelected"
                   :value="option.value"
-                  type="radio">
+                  type="radio"
+                >
                 {{ option.label }}
               </label>
             </li>
@@ -88,8 +92,17 @@ export default {
     const coIds = urlParams.collection_object_ids || []
     const identifierIds = urlParams.identifier_ids || []
 
-    this.GetMatchesById(coIds)
-    this.GetMatchesByIdentifier(identifierIds)
+    if (Object.keys(urlParams).length) {
+      if (
+        identifierIds.length ||
+        coIds.length
+      ) {
+        this.GetMatchesById(coIds)
+        this.GetMatchesByIdentifier(identifierIds)
+      } else {
+        this.GetMatchByParams(urlParams)
+      }
+    }
   },
 
   methods: {
@@ -102,6 +115,8 @@ export default {
           this.matches[id] = []
         })
       )
+
+      this.isLoading = true
 
       Promise.allSettled(promises).then(() => {
         if (arrayIds.length) {
@@ -125,12 +140,23 @@ export default {
         })
       )
 
+      this.isLoading = true
+
       Promise.allSettled(promises).then(() => {
         if (arrayIdentifiers.length) {
           this.GetMatchesByIdentifier(arrayIdentifiers)
         } else {
           this.isLoading = false
         }
+      })
+    },
+
+    GetMatchByParams (params) {
+      this.isLoading = true
+
+      CollectionObject.where(params).then(({ body }) => {
+        this.matches = Object.fromEntries(body.map(co => [co.id, [co]]))
+        this.isLoading = false
       })
     },
 
