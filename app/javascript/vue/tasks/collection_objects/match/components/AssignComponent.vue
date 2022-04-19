@@ -2,10 +2,12 @@
   <div>
     <switch-component
       :options="tabs"
-      v-model="view"/>
+      v-model="view"
+    />
     <component
       :ids="ids"
-      :is="`${view.replace(' ', '')}Component`"/>
+      :is="`${view.replace(' ', '')}Component`"
+    />
   </div>
 </template>
 
@@ -17,6 +19,7 @@ import DeterminationComponent from './Assign/Determinations'
 import LoanComponent from './Assign/Loans'
 import CollectingEventComponent from './Assign/CollectingEvents'
 import AccessionsComponent from './Assign/Accesssions.vue'
+import RepositoryComponent from './Assign/Repository.vue'
 
 export default {
   components: {
@@ -25,7 +28,8 @@ export default {
     DeterminationComponent,
     TagComponent,
     LoanComponent,
-    CollectingEventComponent
+    CollectingEventComponent,
+    RepositoryComponent
   },
 
   props: {
@@ -37,7 +41,14 @@ export default {
 
   data () {
     return {
-      tabs: ['Tag', 'Loan', 'Determination', 'Collecting Event', 'Accessions'],
+      tabs: [
+        'Accessions',
+        'Collecting Event',
+        'Determination',
+        'Loan',
+        'Repository',
+        'Tag'
+      ],
       view: 'Tag'
     }
   }
