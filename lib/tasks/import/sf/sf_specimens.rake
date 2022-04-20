@@ -237,20 +237,20 @@ namespace :tw do
                 # check if otu_id/geo_area_id used for assert_dist; if yes, what are the source_id(s) assoc with it
                 # if otu_id/geo_id in hash and current source_id used, document ERROR CASE #1!
                 # ok if current source_id is first time
-                used_asserted_distribution_id = ids_asserted_distribution[[otu_id, geographic_area_id]]
+                used_asserted_distribution_id, used_asserted_distribution_type = ids_asserted_distribution[[otu_id, geographic_area_id]]
                 if used_asserted_distribution_id
                   if Citation.where(
                       source_id: source_id,
                       project_id: project_id,
-                      citation_object_type: 'AssertedDistribution',
+                      citation_object_type: used_asserted_distribution_type,
                       citation_object_id: used_asserted_distribution_id
                   ).any?
-                    logger.error "used_asserted_distribution_id = #{used_asserted_distribution_id} consisting of [ otu_id = #{otu_id}, geographic_area_id = #{geographic_area_id}, source_id = #{source_id} ] already exists"
+                    logger.error "used_asserted_distribution_id = #{used_asserted_distribution_id}(#{used_asserted_distribution_type}) consisting of [ otu_id = #{otu_id}, geographic_area_id = #{geographic_area_id}, source_id = #{source_id} ] already exists"
                   else
                     # create citation to ad with this source_id
                     citation = Citation.create!(
                         source_id: source_id,
-                        citation_object_type: 'AssertedDistribution',
+                        citation_object_type: used_asserted_distribution_type,
                         citation_object_id: used_asserted_distribution_id,
                         project_id: project_id
                     )
@@ -267,14 +267,31 @@ namespace :tw do
                 )
                 # ap ad.citations
 
-
-                begin
-                  ad.save!
-                  logger.info " AssertedDistribution ! CREATED ! for SpecimenID = '#{specimen_id}', FileID = '#{sf_file_id}', otu_id = '#{otu_id}', source_id = '#{source_id}' [ asserted_dist_counter = #{asserted_dist_counter += 1} ]"
-                  ids_asserted_distribution[[otu_id, geographic_area_id]] = ad.id.to_s
-
-                rescue ActiveRecord::RecordInvalid
-                  logger.error "AssertedDistribution error: (error count #{error_counter += 1})" + ad.errors.full_messages.join(';')
+                unless get_sf_locality_metadata[row['LocalityID']]['dataflags'].to_i & 16 == 0
+                  begin
+                    ad.save!
+                    logger.info " AssertedDistribution ! CREATED ! for SpecimenID = '#{specimen_id}', FileID = '#{sf_file_id}', otu_id = '#{otu_id}', source_id = '#{source_id}' [ asserted_dist_counter = #{asserted_dist_counter += 1} ]"
+                    ids_asserted_distribution[[otu_id, geographic_area_id]] = [ad.id, 'AssertedDistribution']
+                  rescue ActiveRecord::RecordInvalid
+                    logger.error "AssertedDistribution error: (error count #{error_counter += 1})" + ad.errors.full_messages.join(';')
+                  end
+                else
+                  ad = ImportAttribute.create!(
+                    project_id: project_id,
+                    import_predicate: 'asserted_distribution_excluded_from_map',
+                    citations_attributes: [{source_id: source_id, project_id: project_id}],
+                    attribute_subject_id: otu_id,
+                    attribute_subject_type: 'Otu',
+                    value: {
+                      geographic_area: GeographicArea.find(geographic_area_id).name,
+                      tdwg_id: GeographicArea.find(geographic_area_id).tdwgID,
+                      source: Source.find(source_id).cached,
+                      geographic_area_id: geographic_area_id,
+                      source_id: source_id,
+                      otu_id: otu_id
+                    }
+                  )
+                  ids_asserted_distribution[[otu_id, geographic_area_id]] = [ad.id, 'ImportAttribute']
                 end
 
                 next
@@ -1580,7 +1597,7 @@ namespace :tw do
                 otu_id: otu_id,
                 geographic_area_id: geographic_area_id,
                 project_id: project_id,
-              )
+              ) unless row['DataFlags'].to_i & 16 == 0
             end
           end
         end
