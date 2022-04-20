@@ -37,9 +37,9 @@ export const parsedProperties = {
   ].map(times =>
     times.filter(time => time).map(time => time < 10 ? `0${time}` : time).join(':')).filter(arr => arr.length).join('\n'),
 
-  CollectorsComponent: ({ ce }) => ce.roles_attributes.map(role => role.person.cached).join('; '),
+  CollectorsComponent: ({ ce }) => ce.roles_attributes.map(role => role?.person?.cached || [role?.last_name, role?.first_name].filter(Boolean).join(', ')).join('; '),
 
-  TripCode: ({ ce, tripCode }) => DOMPurify.sanitize(tripCode.object_tag, { FORBID_TAGS: ['span'], KEEP_CONTENT: true }),
+  TripCode: ({ _, tripCode }) => tripCode?.cached,
 
   Georeferences: ({ georeferences }) => (georeferences || [])
     .filter(geo => geo?.geo_json?.geometry?.type === 'Point' && geo.type !== GEOREFERENCE_VERBATIM)
