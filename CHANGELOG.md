@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Tag panel for images in New images task [#2919]
 - Repository section for Collection object match task [#2918]
 - Match collection object button in Filter collection object [#2917]
+- Lock button for By section in New extract task [#2926]
 
 ### Changed
 - Improvements for taxon determinations in comprehensive task
@@ -34,6 +35,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2919]: https://github.com/SpeciesFileGroup/taxonworks/issues/2919
 [#2920]: https://github.com/SpeciesFileGroup/taxonworks/issues/2920
 [#2921]: https://github.com/SpeciesFileGroup/taxonworks/issues/2921
+[#2926]: https://github.com/SpeciesFileGroup/taxonworks/issues/2926
 
 ## [0.24.2] - 2022-04-15
 

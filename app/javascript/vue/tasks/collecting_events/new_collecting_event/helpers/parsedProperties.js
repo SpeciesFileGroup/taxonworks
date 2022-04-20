@@ -1,6 +1,5 @@
 import { ROMAN_NUMBERS, GEOREFERENCE_VERBATIM } from 'constants/index.js'
 import { truncateDecimal } from 'helpers/math.js'
-import DOMPurify from 'dompurify'
 
 export const parsedProperties = {
   GeographicArea: ({ ce }) => ce.geographicArea?.name,
