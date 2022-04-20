@@ -6,6 +6,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Tag panel for images in New images task [#2919]
+- Repository section for Collection object match task [#2918]
+- Match collection object button in Filter collection object [#2917]
+
 ### Changed
 - Improvements for taxon determinations in comprehensive task
 - Observation Matrix CSV dump uses full object labels [#2912]
@@ -15,12 +20,17 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Label form is not updated after loading a collecting event in Comprehensive task [#2898]
 - Preferred catalog number for collection objects using first created rather than top of the list (also fixes wrong `otherCatalogNumbers` in DwC export) [#2904]
 - Missing not fixable error message for automatically soft validations [#2877]
+- Recent lists on Data have broken flex CSS [#2920]
 
 [#2877]: https://github.com/SpeciesFileGroup/taxonworks/issues/2877
 [#2898]: https://github.com/SpeciesFileGroup/taxonworks/issues/2898
 [#2899]: https://github.com/SpeciesFileGroup/taxonworks/issues/2899
 [#2912]: https://github.com/SpeciesFileGroup/taxonworks/issues/2912
 [#2904]: https://github.com/SpeciesFileGroup/taxonworks/issues/2904
+[#2917]: https://github.com/SpeciesFileGroup/taxonworks/issues/2917
+[#2918]: https://github.com/SpeciesFileGroup/taxonworks/issues/2918
+[#2919]: https://github.com/SpeciesFileGroup/taxonworks/issues/2919
+[#2920]: https://github.com/SpeciesFileGroup/taxonworks/issues/2920
 
 ## [0.24.2] - 2022-04-15
 

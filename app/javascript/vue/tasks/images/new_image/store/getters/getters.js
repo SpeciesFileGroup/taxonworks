@@ -17,6 +17,7 @@ import getTags from './getTags'
 import getTaxonDetermination from './getTaxonDetermination'
 import getTaxonDeterminations from './getTaxonDeterminations'
 import getYearCopyright from './getYearCopyright'
+import getTagsForImage from './getTagsForImage'
 
 const GetterNames = {
   GetAttributions: 'getAttributions',
@@ -37,7 +38,8 @@ const GetterNames = {
   GetTags: 'getTags',
   GetTaxonDetermination: 'getTaxonDetermination',
   GetTaxonDeterminations: 'getTaxonDeterminations',
-  GetYearCopyright: 'getYearCopyright'
+  GetYearCopyright: 'getYearCopyright',
+  GetTagsForImage: 'getTagsForImage'
 }
 
 const GetterFunctions = {
@@ -59,7 +61,8 @@ const GetterFunctions = {
   [GetterNames.GetTags]: getTags,
   [GetterNames.GetTaxonDetermination]: getTaxonDetermination,
   [GetterNames.GetTaxonDeterminations]: getTaxonDeterminations,
-  [GetterNames.GetYearCopyright]: getYearCopyright
+  [GetterNames.GetYearCopyright]: getYearCopyright,
+  [GetterNames.GetTagsForImage]: getTagsForImage
 }
 
 export {
