@@ -24,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Recent lists on Data have broken flex CSS [#2920]
 - Generating label from collecting event with verbatim trip identifier duplicates tripcode [#2921]
 - Leaflet map doesn't center the view on shapes
+- Programming typos affecting error handling in some batch loaders
 
 [#2877]: https://github.com/SpeciesFileGroup/taxonworks/issues/2877
 [#2898]: https://github.com/SpeciesFileGroup/taxonworks/issues/2898
