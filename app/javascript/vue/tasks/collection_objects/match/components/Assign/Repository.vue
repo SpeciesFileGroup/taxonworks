@@ -51,10 +51,10 @@ export default {
 
       Promise.allSettled(requests).then(() => {
         if (arrayIds.length) {
-          this.addTag(repository, arrayIds)
+          this.setRepository(repository, arrayIds)
         } else {
           this.isSaving = false
-          TW.workbench.alert.create('Tag items was successfully created.', 'notice')
+          TW.workbench.alert.create('Repository was successfully set.', 'notice')
         }
       })
     }
