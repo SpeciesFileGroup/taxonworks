@@ -14,16 +14,19 @@
       />
       <v-lock
         class="margin-small-left"
-        v-model="lockCOs"/>
+        v-model="lockCOs"
+      />
     </div>
     <div
       v-if="source"
-      class="field horizontal-left-content middle">
-      <span v-html="source.cached"/>
+      class="field horizontal-left-content middle"
+    >
+      <span v-html="source.cached" />
       <button
         type="button"
         class="button circle-button btn-undo button-default"
-        @click="source = undefined"/>
+        @click="source = undefined"
+      />
     </div>
     <div class="field">
       <input
@@ -35,7 +38,8 @@
       <label>
         <input
           v-model="is_original"
-          type="checkbox">
+          type="checkbox"
+        >
         Is original
       </label>
     </div>
@@ -43,7 +47,8 @@
       type="button"
       class="button normal-input button-default"
       @click="saveCitation"
-      :disabled="!source">
+      :disabled="!source"
+    >
       Add
     </button>
   </fieldset>
@@ -94,7 +99,7 @@ export default {
     saveCitation () {
       this.$emit('onAdd', {
         ...makeCitationObject(COLLECTION_OBJECT),
-        citation_source_body: this.source.cached,
+        citation_source_body: this.getCitationString(this.source),
         pages: this.pages,
         source_id: this.source.id,
         is_original: this.is_original
@@ -103,6 +108,14 @@ export default {
       this.source = undefined
       this.is_original = undefined
       this.pages = undefined
+    },
+
+    getCitationString (source) {
+      const author = [source.cached_author_string, source.year].filter(Boolean).join(', ')
+
+      return this.pages
+        ? `${author}:${this.pages}`
+        : author
     }
   }
 }

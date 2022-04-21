@@ -2,11 +2,12 @@
   <div>
     <citation-new
       v-model:lock="lock.coCitations"
-      @onAdd="addCitation"/>
+      @on-add="addCitation"
+    />
     <display-list
       :list="citations"
       label="citation_source_body"
-      @deleteIndex="removeCitation"
+      @delete-index="removeCitation"
     />
   </div>
 </template>

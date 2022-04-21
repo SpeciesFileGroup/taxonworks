@@ -66,21 +66,18 @@ module Roles::Person
   # Could be spun out to sublclasses but
   def update_person_year_metadata
     if y = year_active_year
+      person.year_active_start = [y, person.year_active_start].compact.map(&:to_i).min
+      person.year_active_end = [y, person.year_active_end].compact.map(&:to_i).max
 
-      yas = [y, person.year_active_start].compact.map(&:to_i).min
-      yae = [y, person.year_active_end].compact.map(&:to_i).max
-
-      begin
-        person.update!(
-          year_active_end: yae,
-          year_active_start: yas
-        )
-      rescue ActiveRecord::RecordInvalid
-        # probably a year conflict, allow quietly!?
+      if person.valid?
+        person.save
+      else
+        person.year_active_start = person.year_active_start_before_last_save
+        person.year_active_end = person.year_active_end_before_last_save
       end
     end
+    true
   end
-
 
 end
 

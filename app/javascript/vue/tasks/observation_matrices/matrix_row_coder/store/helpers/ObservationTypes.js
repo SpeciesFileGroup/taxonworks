@@ -1,10 +1,19 @@
+import {
+  OBSERVATION_CONTINUOUS,
+  OBSERVATION_QUALITATIVE,
+  OBSERVATION_WORKING,
+  OBSERVATION_MEDIA,
+  OBSERVATION_PRESENCE,
+  OBSERVATION_SAMPLE
+} from 'constants/index.js'
+
 const ObservationTypes = {
-  Qualitative: 'Observation::Qualitative',
-  Presence: 'Observation::PresenceAbsence',
-  Continuous: 'Observation::Continuous',
-  Sample: 'Observation::Sample',
-  Media: 'Observation::Media',
-  FreeText: 'Observation::Working'
+  Qualitative: OBSERVATION_QUALITATIVE,
+  Presence: OBSERVATION_PRESENCE,
+  Continuous: OBSERVATION_CONTINUOUS,
+  Sample: OBSERVATION_SAMPLE,
+  Media: OBSERVATION_MEDIA,
+  FreeText: OBSERVATION_WORKING
 }
 
 export default ObservationTypes

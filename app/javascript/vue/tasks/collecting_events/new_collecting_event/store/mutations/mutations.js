@@ -5,6 +5,7 @@ import setCollectingEvent from './setCollectingEvent'
 import setGeographicArea from './setGeographicArea'
 import setGeoreferences from './setGeoreferences'
 import setIdentifier from './setIdentifier'
+import setIncrementIdentifier from './setIncrementIdentifier'
 import setQueueGeoreferences from './setQueueGeoreferences'
 import setSoftValidations from './setSoftValidations'
 import setStore from './setStore'
@@ -20,6 +21,7 @@ const MutationNames = {
   SetGeographicArea: 'setGeographicArea',
   SetGeoreferences: 'setGeoreferences',
   SetIdentifier: 'setIdentifier',
+  SetIncrementIdentifier: 'setIncrementIdentifier',
   SetQueueGeoreferences: 'setQueueGeoreferences',
   SetSoftValidations: 'setSoftValidations',
   SetStore: 'setStore',
@@ -36,6 +38,7 @@ const MutationFunctions = {
   [MutationNames.SetGeographicArea]: setGeographicArea,
   [MutationNames.SetGeoreferences]: setGeoreferences,
   [MutationNames.SetIdentifier]: setIdentifier,
+  [MutationNames.SetIncrementIdentifier]: setIncrementIdentifier,
   [MutationNames.SetQueueGeoreferences]: setQueueGeoreferences,
   [MutationNames.SetSoftValidations]: setSoftValidations,
   [MutationNames.SetStore]: setStore,

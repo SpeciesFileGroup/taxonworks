@@ -52,9 +52,16 @@ module DescriptorsHelper
   end
 
   # @return [String]
-  #   the column/descriptor name presented in the exported matrix 
+  #   the column/descriptor name presented in the exported matrix
   def descriptor_matrix_label(descriptor)
     descriptor.name.gsub(/[\W]/ , "_")
+  end
+
+  # @return [String]
+  #   the column/descriptor name modified for comma seperated
+  #     quote delimited CSV export
+  def descriptor_matrix_label_csv(descriptor, quote = '"')
+    quote + descriptor.name.gsub('"', "'") + quote
   end
 
   # @return [String, nil]
@@ -62,7 +69,7 @@ module DescriptorsHelper
   def descriptor_matrix_character_states_label(descriptor)
     if descriptor.qualitative?
       descriptor.character_states.map{|state| state.name.gsub(/[\W]/ , "_")}.join(" ")
-    else 
+    else
       nil
     end
   end

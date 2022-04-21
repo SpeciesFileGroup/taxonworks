@@ -1,4 +1,10 @@
 import ActionNames from './actionNames'
+import { EVENT_TAXON_DETERMINATION_FORM_RESET } from 'constants/index.js'
+
+const resetTaxonDeterminationForm = () => {
+  const event = new CustomEvent(EVENT_TAXON_DETERMINATION_FORM_RESET)
+  document.dispatchEvent(event)
+}
 
 export default ({ dispatch, state }) => {
   const { locked } = state.settings
@@ -7,7 +13,6 @@ export default ({ dispatch, state }) => {
   dispatch(ActionNames.NewCollectionObject)
   dispatch(ActionNames.NewTypeMaterial)
   dispatch(ActionNames.NewIdentifier)
-  dispatch(ActionNames.NewTaxonDetermination)
   dispatch(ActionNames.NewLabel)
 
   state.collection_objects = []
@@ -29,4 +34,6 @@ export default ({ dispatch, state }) => {
   state.taxon_determinations = locked.taxonDeterminations
     ? state.taxon_determinations.map((item, index) => ({ ...item, id: undefined, global_id: undefined, position: undefined }))
     : []
+
+  resetTaxonDeterminationForm()
 }

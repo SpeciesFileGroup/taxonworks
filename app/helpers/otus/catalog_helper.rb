@@ -73,7 +73,7 @@ module Otus::CatalogHelper
              label: a = label_for_otu(otu),
              otu_clones: Otu.where(name: otu.name, taxon_name: otu.taxon_name).where.not(id: otu.id).pluck(:id),
              similar_otus: s.inject({}){|hsh, n| hsh[n.id] = label_for_otu(n) ; hsh },
-             nomenclatural_synonyms: ( (synonyms&.collect{|l| full_original_taxon_name_label(l) || label_for_taxon_name(l) } || []) - [a]).uniq, # This is labels, combinations can duplicate
+             nomenclatural_synonyms: ( (synonyms&.collect{|l| full_original_taxon_name_tag(l) || taxon_name_tag(l) } || []) - [a]).uniq, # This is labels, combinations can duplicate
              descendants: []}
 
     if otu.taxon_name

@@ -32,7 +32,7 @@
     <ol>
       <% User.limit(20).order(time_active: :desc).where('time_active IS NOT NULL').each do |u| -%>
         <li> <%= user_link(u) %> <%= distance_of_time_in_words(u.time_active) -%>
-          or <%= (u.time_active.to_f / 3600.to_f || 0).round(0) -%> hours</li>
+        or <%= (u.time_active.to_f / 3600.to_f || 0).round(0) -%> hours</li>
       <% end %> 
     </ol>
   </div>
@@ -66,7 +66,5 @@
     <h2> User activity over time </h2>
     <%= column_chart User.group_by_day(:last_seen_at, format: "%a").count, xtitle: 'Day', ytitle: 'Number of users' %>
   </div>
-
-
-
+</div>
 

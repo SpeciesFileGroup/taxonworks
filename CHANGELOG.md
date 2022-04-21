@@ -7,8 +7,74 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Changed
+- Improvements for taxon determinations in comprehensive task
+- Observation Matrix CSV dump uses full object labels [#2912]
+
+### Fixed
+- Collection object label is not updated after saving determinations in comprehensive task [#2899]
+- Label form is not updated after loading a collecting event in Comprehensive task [#2898]
+- Preferred catalog number for collection objects using first created rather than top of the list (also fixes wrong `otherCatalogNumbers` in DwC export) [#2904]
+
+[#2898]: https://github.com/SpeciesFileGroup/taxonworks/issues/2898
+[#2899]: https://github.com/SpeciesFileGroup/taxonworks/issues/2899
+[#2912]: https://github.com/SpeciesFileGroup/taxonworks/issues/2912
+[#2904]: https://github.com/SpeciesFileGroup/taxonworks/issues/2904
+
+## [0.24.2] - 2022-04-15
+
+### Added
+- New units mg, µg, ng, ml, µl, nl, ng/µl, Ratio (for Descriptor, etc.) [#2887]
+- Project activity report includes community data (but not scoped to project) [#2893]
+- Protocols for Observations [#2889]
+- Increment tripcode in New collecting event task [#2441]
+- Now and today buttons for time/date made [#2888]
+- Radial navigator to New extract task [#2885]
+
+### Changed
+- Refactor Uniquify People task. Added improvements [#2858]
+- Removed PDF viewer broad channel event
+- Updated Ruby gems
+
+### Fixed
+- Extract -> show rendering raising [#2886]
+- People being set as invalid during automatic activity updates
+- Project activity session report shows hours properly [#2878]
+- xAxis category ordering of Project activity [#2891]
+- Sometimes it's not possible move images from one cell to another in Image matrix task [#2874]
+- Uniquify people task are not merging all selected match people [#2892]
+- Media observations are not displayed after creating them using drag and drop box in Matrix row coder task. [#2880]
+- New extract task loads incorrect repository for existing extracts [#2883]
+- Extract edit link in New observation matrix task [#2896]
+- Incorrect matrix list is displayed on Observation matrix slice in Radial object [#2901]
+- Pages label is not displayed in citation form in comprehensive task [#2903]
+
+[#2886]: https://github.com/SpeciesFileGroup/taxonworks/issues/2886
+[#2887]: https://github.com/SpeciesFileGroup/taxonworks/issues/2887
+[#2878]: https://github.com/SpeciesFileGroup/taxonworks/issues/2878
+[#2891]: https://github.com/SpeciesFileGroup/taxonworks/issues/2891
+[#2893]: https://github.com/SpeciesFileGroup/taxonworks/issues/2893
+[#2889]: https://github.com/SpeciesFileGroup/taxonworks/issues/2889
+[#2441]: https://github.com/SpeciesFileGroup/taxonworks/issues/2441
+[#2858]: https://github.com/SpeciesFileGroup/taxonworks/issues/2858
+[#2883]: https://github.com/SpeciesFileGroup/taxonworks/issues/2883
+[#2885]: https://github.com/SpeciesFileGroup/taxonworks/issues/2885
+[#2888]: https://github.com/SpeciesFileGroup/taxonworks/issues/2888
+[#2892]: https://github.com/SpeciesFileGroup/taxonworks/issues/2892
+[#2896]: https://github.com/SpeciesFileGroup/taxonworks/issues/2896
+[#2901]: https://github.com/SpeciesFileGroup/taxonworks/issues/2901
+[#2903]: https://github.com/SpeciesFileGroup/taxonworks/issues/2903
+
+## [0.24.1] - 2022-04-04
+
+### Changed
 - Time ranges for `eventTime` in DwC occurrences importer are now supported
 - Updated Ruby gems
+
+### Fixed
+- Observation matrix row filter generalized to work for all observation object types [#2873]
+
+[#2873]: https://github.com/SpeciesFileGroup/taxonworks/issues/2873
+
 ## [0.24.0] - 2022-03-31
 
 ### Added
@@ -2434,7 +2500,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.2...development
+[0.24.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.1...v0.24.2
+[0.24.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.0...v0.24.1
 [0.24.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.23.1...v0.24.0
 [0.23.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.23.0...v0.23.1
 [0.23.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.22.7...v0.23.0
