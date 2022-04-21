@@ -2,7 +2,7 @@ class DownloadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_download, only: [:show, :download_file, :destroy, :update, :file, :api_show, :edit]
-  before_action :set_download_api, only: [:api_file, :api_show, :api_status, :api_terminate]
+  before_action :set_download_api, only: [:api_file, :api_show, :api_destroy]
 
   after_action -> { set_pagination_headers(:downloads) }, only: [:api_index], if: :json_request?
 
@@ -78,11 +78,12 @@ class DownloadsController < ApplicationController
   end
 
   def api_index
-    @downloads = Download.where(is_public: true, project_id: sessions_current_project_id)
+    @downloads = Download.where(project_id: sessions_current_project_id)
       .order('downloads.id').page(params[:page]).per(params[:per])
     render '/downloads/api/v1/index'
   end
 
+  # GET /api/v1/downloads/123/file.json
   def api_file
     if @download.ready?
       @download.increment!(:times_downloaded)
@@ -96,17 +97,24 @@ class DownloadsController < ApplicationController
     render '/downloads/api/v1/show'
   end
 
-  def api_status
-    render '/downloads/api/v1/status'
+  # DELETE /api/v1/downloads/1.json
+  def api_destroy
+    if @download.destroy
+      render json: {id: @download.id_was, status: :destroyed}
+    else
+      render json: {}, status: :unprocessable_entity
+    end
   end
 
+  # /api/v1/downloads/build?type=Download::DwcArchive::Complete
   def api_build
-    @download = Download.new(api_build_params) 
-    render '/downloads/api/v1/status'
+    @download = Download.create(api_build_params)
+    render '/downloads/api/v1/show'
   end
 
   def api_terminate
-    render '/downloads/api/v1/status'
+    @download.terminate # TODO, add method, or change to :destroy
+    render '/downloads/api/v1/show'
   end
 
   private
@@ -116,11 +124,12 @@ class DownloadsController < ApplicationController
   end
 
   def set_download
-    @download = Download.unscoped.where(project_id: sessions_current_project_id).find(params[:id])
+    # Why .unscoped ?
+    @download = Download.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   def set_download_api
-    @download = Download.unscoped.where(is_public: true, project_id: sessions_current_project_id).find(params[:id])
+    @download = Download.where(is_public: true, project_id: sessions_current_project_id).find(params[:id])
   end
 
   def download_params

@@ -373,7 +373,7 @@ class TaxonNamesController < ApplicationController
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
 
     # TODO: see config in collection objects controller
-    # a[:user_id] = params[:user_id] if params[:user_id] && is_project_member_by_id(params[:user_id], sessions_current_project_id) # double check vs. setting project_id from API
+    # a[:user_id] = params[:user_id] if params[:user_id] && is_project_member_by_id?(params[:user_id], sessions_current_project_id) # double check vs. setting project_id from API
     # a
   end
 

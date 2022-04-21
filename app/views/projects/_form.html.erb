@@ -13,6 +13,12 @@
     <%= radio_button_tag 'project[clear_api_access_token]', true %> <%= f.label :clear_api_access_token %> <em> Disables public API access to all project data. </em>
   </div>
 
+  <% if !is_project_member_by_id?(sessions_current_user_id, sessions_current_project_id) -%>
+    <div class="field">
+      <%= check_box_tag 'project[project_members_attributes][0][user_id]', sessions_current_user_id, true %> <%= f.label :add_yourself_to_project %><br>
+    </div>
+  <% end %>
+
   <div class="actions">
     <%= f.submit %>
   </div>

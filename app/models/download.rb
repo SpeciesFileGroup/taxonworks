@@ -55,12 +55,7 @@ class Download < ApplicationRecord
   validates_presence_of :expires
   validates_presence_of :type
 
-  def build_async(record_scope, predicate_extension_params: {}, download_params: {} )
-    # MEH! 
-    download_params.each do |k, v|
-      self.send("#{k}=".to_sym, v)
-    end
-
+  def build_async(record_scope, predicate_extension_params: {})
     ::DwcaCreateDownloadJob.perform_later(self, core_scope: record_scope.to_sql, predicate_extension_params: predicate_extension_params)
   end
 
@@ -112,14 +107,35 @@ class Download < ApplicationRecord
 
   STORAGE_PATH = Rails.root.join(Rails.env.test? ? 'tmp' : '', "downloads#{ENV['TEST_ENV_NUMBER']}").freeze
 
+  # TODO: check performance on 50-100mb files
+  def set_sha2
+    if @source_file_path
+      s = ::Digest::SHA2.new
+      File.open(@source_file_path) do |f|
+        while chunk = f.read(256) # only load 256 bytes at a time
+          s << chunk
+        end
+      end
+      self.update_column(:sha2, s.hexdigest)
+    end
+  end
+
   def dir_path
     str = id.to_s.rjust(9, '0')
     STORAGE_PATH.join(str[-str.length..-7], str[-6..-4], str[-3..-1])
   end
 
+  # This is the only method to move a temporary file
+  # to its location on the file server.
+  #
+  # ActiveJob generating files trigger this method
+  # by .updating the filename attribute.
   def save_file
     FileUtils.mkdir_p(dir_path)
-    FileUtils.cp(@source_file_path, file_path) if @source_file_path
+    if @source_file_path
+      FileUtils.cp(@source_file_path, file_path)
+      set_sha2
+    end
   end
 end
 

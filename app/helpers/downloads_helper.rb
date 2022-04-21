@@ -18,12 +18,13 @@ module DownloadsHelper
     end
   end
 
+  # @return [Hash]
+  #   calculated attributes used in /download responses
   def download_status(download)
     return nil if download.nil?  || !download.persisted?
-   
     return {
       ready: download.ready?,
-      expired: download.expired?,
-    } 
+      expired: download.expired?
+    }
   end
 end

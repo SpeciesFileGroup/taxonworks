@@ -88,7 +88,7 @@ module CollectionObjects
 
       # TODO: check user_id: []
 
-      a[:user_id] = params[:user_id] if params[:user_id] && is_project_member_by_id(params[:user_id], sessions_current_project_id) # double check vs. setting project_id from API
+      a[:user_id] = params[:user_id] if params[:user_id] && is_project_member_by_id?(params[:user_id], sessions_current_project_id) # double check vs. setting project_id from API
       a
     end
 
@@ -165,7 +165,7 @@ module CollectionObjects
         # }
       )
 
-      a[:user_id] = params[:user_id] if params[:user_id] && is_project_member_by_id(params[:user_id], sessions_current_project_id) # double check vs. setting project_id from API
+      a[:user_id] = params[:user_id] if params[:user_id] && is_project_member_by_id?(params[:user_id], sessions_current_project_id) # double check vs. setting project_id from API
       a
     end
   end
