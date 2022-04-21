@@ -15,7 +15,8 @@ const makeInitialState = () => {
         lock: false,
         originRelationship: false,
         protocols: false,
-        repository: false
+        repository: false,
+        roles: false
       },
       sortable: false
     },
@@ -31,7 +32,8 @@ const makeInitialState = () => {
     recents: [],
     protocols: [],
     repository: undefined,
-    softValidation: []
+    softValidation: [],
+    roles: []
   }
 }
 

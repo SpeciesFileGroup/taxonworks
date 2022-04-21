@@ -17,6 +17,7 @@
     "TW": "true",
     "jquery": "true",
     "defineEmits": true,
-    "defineProps": true
+    "defineProps": true,
+    "defineExpose": true
   }
 }

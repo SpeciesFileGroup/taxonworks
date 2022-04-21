@@ -97,7 +97,7 @@ module BatchLoad
       @file
     end
 
-    # @return [csv, nil]
+    # @return [CSV, nil]
     def csv
       begin
         @csv ||= CSV.parse(
@@ -107,18 +107,18 @@ module BatchLoad
                               lambda { |h| h.strip },
                               lambda { |h| user_map(h) }],
         col_sep: "\t",
-        encoding: 'utf-8',
+        encoding: 'UTF-8',
         skip_blanks: true)
 
-        #  rescue encoding::undefinedconversionerror => e
+        #  rescue Encoding::UndefinedConversionError => e
 
-      rescue argumenterror => e
+      rescue ArgumentError => e
         @processed = false
         @file_errors.push("error converting file. #{e}")
         return nil
-      rescue csv::malformedcsverror => e
+      rescue CSV::MalformedCSVError => e
         @processed = false
-        @file_errors.push("error converting file. #{e}")
+        @file_errors.push("Error converting file. #{e}")
         return nil
       end
     end

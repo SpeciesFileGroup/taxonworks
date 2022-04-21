@@ -13,7 +13,6 @@
     flex-direction: column;
 
     li {
-      display: flex;
       width: 1040px;
       padding: 5px;
       border-bottom:1px solid $navigation_border;
@@ -32,8 +31,6 @@
       opacity: 1 !important;
     }
     a {
-      display: flex;
-      align-items: center;
       text-align: left;
       text-decoration: none;
     }

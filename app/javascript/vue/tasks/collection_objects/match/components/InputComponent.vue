@@ -10,6 +10,8 @@
 </template>
 
 <script>
+import { URLParamsToJSON } from 'helpers/url/parse'
+
 export default {
   emits: ['lines'],
 
@@ -23,6 +25,17 @@ export default {
     text (newVal) {
       this.$emit('lines', newVal.split('\n').filter(line => line.trim().length))
     }
+  },
+
+  created () {
+    const urlParams = URLParamsToJSON(location.href)
+    const coIds = urlParams.collection_object_ids || []
+    const identifierIds = urlParams.identifier_ids || []
+
+    this.text = [
+      ...coIds,
+      ...identifierIds
+    ].join('\n')
   }
 }
 </script>

@@ -8,25 +8,29 @@
         <smart-selector
           class="separate-bottom"
           :options="options"
-          v-model="view"/>
+          v-model="view"
+        />
         <role-picker
           v-if="view == 'someone else'"
           v-model="roles_attributes"
-          :role-type="roleType"/>
+          :role-type="roleType"
+        />
         <autocomplete
           v-else
           placeholder="Select an organization"
           url="/organizations/autocomplete"
           param="term"
-          @getItem="setOrganization"
-          label="label_html"/>
+          @get-item="setOrganization"
+          label="label_html"
+        />
       </div>
       <div class="separate-left">
         <label>
           Year of copyright
           <input
             type="number"
-            v-model="year">
+            v-model="year"
+          >
         </label>
       </div>
     </div>
@@ -68,6 +72,7 @@ export default {
         this.$store.commit(MutationNames.SetCopyrightHolder, value)
       }
     },
+
     year: {
       get () {
         return this.$store.getters[GetterNames.GetYearCopyright]

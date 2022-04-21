@@ -15,6 +15,7 @@ import setLastChange from './setLastChange'
 import setLastSave from './setLastSave'
 import removeProtocol from './removeProtocol'
 import removeIdentifierByIndex from './removeIdentifierByIndex'
+import setRoles from './setRoles'
 
 const MutationNames = {
   AddIdentifier: 'addIdentifier',
@@ -33,7 +34,8 @@ const MutationNames = {
   SetLastChange: 'setLastChange',
   SetLastSave: 'setLastSave',
   RemoveIdentifierByIndex: 'removeIdentifierByIndex',
-  RemoveProtocol: 'removeProtocol'
+  RemoveProtocol: 'removeProtocol',
+  SetRoles: 'setRoles'
 }
 
 const MutationFunctions = {
@@ -53,7 +55,8 @@ const MutationFunctions = {
   [MutationNames.SetLastChange]: setLastChange,
   [MutationNames.SetLastSave]: setLastSave,
   [MutationNames.RemoveIdentifierByIndex]: removeIdentifierByIndex,
-  [MutationNames.RemoveProtocol]: removeProtocol
+  [MutationNames.RemoveProtocol]: removeProtocol,
+  [MutationNames.SetRoles]: setRoles
 }
 
 export {

@@ -19,16 +19,16 @@ module BatchLoad
           @file.tempfile.read.force_encoding('utf-8'), # force encoding is likely a very bad idea, but instructinos say "utf-8"
           headers: false,
           col_sep: "\t",
-          encoding: 'utf-8',
+          encoding: 'UTF-8',
           skip_blanks: true)
 
-      rescue encoding::undefinedconversionerror => e
+      rescue Encoding::UndefinedConversionError => e
 
-      rescue argumenterror => e
+      rescue ArgumentError => e
         @processed = false
         @file_errors.push("error converting file. #{e}")
         return nil
-      rescue csv::malformedcsverror => e
+      rescue CSV::MalformedCSVError => e
         @processed = false
         @file_errors.push("error converting file. #{e}")
         return nil
