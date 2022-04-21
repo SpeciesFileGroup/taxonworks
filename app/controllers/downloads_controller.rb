@@ -11,7 +11,7 @@ class DownloadsController < ApplicationController
   def index
     respond_to do |format|
       format.html do
-        @recent_objects = Download.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        @recent_objects = Download.unscoped.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       end
       format.json {
@@ -64,7 +64,8 @@ class DownloadsController < ApplicationController
   # GET /downloads/list
   # GET /downloads/list.json
   def list
-    @downloads = Download.where(project_id: sessions_current_project_id).order(:id).page(params[:page]).per(params[:per])
+    # has a default scope
+    @downloads = Download.unscoped.where(project_id: sessions_current_project_id).order(:id).page(params[:page]).per(params[:per])
   end
 
   # GET /downloads/1/file
@@ -78,6 +79,7 @@ class DownloadsController < ApplicationController
   end
 
   def api_index
+    # If default scope is removed return here
     @downloads = Download.where(project_id: sessions_current_project_id)
       .order('downloads.id').page(params[:page]).per(params[:per])
     render '/downloads/api/v1/index'
@@ -125,11 +127,11 @@ class DownloadsController < ApplicationController
 
   def set_download
     # Why .unscoped ?
-    @download = Download.where(project_id: sessions_current_project_id).find(params[:id])
+    @download = Download.unscoped.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   def set_download_api
-    @download = Download.where(is_public: true, project_id: sessions_current_project_id).find(params[:id])
+    @download = Download.unscoped.where(is_public: true, project_id: sessions_current_project_id).find(params[:id])
   end
 
   def download_params
