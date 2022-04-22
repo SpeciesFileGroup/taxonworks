@@ -683,3 +683,12 @@ project_activity_task:
     - image
   status: prototype
   description: 'Overview project and member activity, recent records, totals, member contributions, and more.'
+stepwise_determinations_task:
+  hub: true
+  name: 'Stepwise determinations'
+  related:
+  categories:
+    - collection_object
+    - people
+  status: prototype
+  description: 'Parse verbatim determinations into their semantic components.'
