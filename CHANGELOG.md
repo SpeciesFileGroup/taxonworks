@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Preparations section for CO Match task [#2930]
 - Match collection object button in Filter collection object [#2917]
 - Lock button for By section in New extract task [#2926]
+- With preparation facet in Filter collection objects [#2937]
 
 ### Changed
 - Improvements for taxon determinations in comprehensive task
@@ -41,6 +42,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2921]: https://github.com/SpeciesFileGroup/taxonworks/issues/2921
 [#2926]: https://github.com/SpeciesFileGroup/taxonworks/issues/2926
 [#2930]: https://github.com/SpeciesFileGroup/taxonworks/issues/2930
+[#2937]: https://github.com/SpeciesFileGroup/taxonworks/issues/2937
 [#2938]: https://github.com/SpeciesFileGroup/taxonworks/issues/2938
 
 ## [0.24.2] - 2022-04-15
