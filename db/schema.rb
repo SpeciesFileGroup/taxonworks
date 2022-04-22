@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_03_31_023656) do
+ActiveRecord::Schema.define(version: 2022_04_21_212203) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -314,6 +314,9 @@ ActiveRecord::Schema.define(version: 2022_03_31_023656) do
     t.string "deaccession_reason"
     t.date "deaccessioned_at"
     t.integer "current_repository_id"
+    t.index ["buffered_collecting_event"], name: "index_collection_objects_on_buffered_collecting_event"
+    t.index ["buffered_determinations"], name: "index_collection_objects_on_buffered_determinations"
+    t.index ["buffered_other_labels"], name: "index_collection_objects_on_buffered_other_labels"
     t.index ["collecting_event_id"], name: "index_collection_objects_on_collecting_event_id"
     t.index ["created_at"], name: "index_collection_objects_on_created_at"
     t.index ["created_by_id"], name: "index_collection_objects_on_created_by_id"
@@ -659,6 +662,7 @@ ActiveRecord::Schema.define(version: 2022_03_31_023656) do
     t.boolean "is_public"
     t.string "type"
     t.integer "total_records"
+    t.string "sha2"
     t.index ["created_by_id"], name: "index_downloads_on_created_by_id"
     t.index ["filename"], name: "index_downloads_on_filename"
     t.index ["project_id"], name: "index_downloads_on_project_id"
