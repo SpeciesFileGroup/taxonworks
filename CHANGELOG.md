@@ -27,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Leaflet map doesn't center the view on shapes
 - Programming typos affecting error handling in some batch loaders
 - PDF reading causing software crash with some PDF documents (e.g. encrypted and/or having unsupported features)
+- "virtual" spelled "virutal" [#2938]
 
 [#2877]: https://github.com/SpeciesFileGroup/taxonworks/issues/2877
 [#2898]: https://github.com/SpeciesFileGroup/taxonworks/issues/2898
@@ -40,6 +41,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2921]: https://github.com/SpeciesFileGroup/taxonworks/issues/2921
 [#2926]: https://github.com/SpeciesFileGroup/taxonworks/issues/2926
 [#2930]: https://github.com/SpeciesFileGroup/taxonworks/issues/2930
+[#2938]: https://github.com/SpeciesFileGroup/taxonworks/issues/2938
 
 ## [0.24.2] - 2022-04-15
 
