@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - Tag panel for images in New images task [#2919]
 - Repository section for Collection object match task [#2918]
+- Preparations section for CO Match task [#2930]
 - Match collection object button in Filter collection object [#2917]
 - Lock button for By section in New extract task [#2926]
 
@@ -25,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Generating label from collecting event with verbatim trip identifier duplicates tripcode [#2921]
 - Leaflet map doesn't center the view on shapes
 - Programming typos affecting error handling in some batch loaders
+- PDF reading causing software crash with some PDF documents (e.g. encrypted and/or having unsupported features)
 
 [#2877]: https://github.com/SpeciesFileGroup/taxonworks/issues/2877
 [#2898]: https://github.com/SpeciesFileGroup/taxonworks/issues/2898
@@ -37,6 +39,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2920]: https://github.com/SpeciesFileGroup/taxonworks/issues/2920
 [#2921]: https://github.com/SpeciesFileGroup/taxonworks/issues/2921
 [#2926]: https://github.com/SpeciesFileGroup/taxonworks/issues/2926
+[#2930]: https://github.com/SpeciesFileGroup/taxonworks/issues/2930
 
 ## [0.24.2] - 2022-04-15
 

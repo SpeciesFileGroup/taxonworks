@@ -20,16 +20,18 @@ import LoanComponent from './Assign/Loans'
 import CollectingEventComponent from './Assign/CollectingEvents'
 import AccessionsComponent from './Assign/Accesssions.vue'
 import RepositoryComponent from './Assign/Repository.vue'
+import PreparationComponent from './Assign/PreparationType.vue'
 
 export default {
   components: {
     AccessionsComponent,
-    SwitchComponent,
-    DeterminationComponent,
-    TagComponent,
-    LoanComponent,
     CollectingEventComponent,
-    RepositoryComponent
+    DeterminationComponent,
+    LoanComponent,
+    PreparationComponent,
+    RepositoryComponent,
+    SwitchComponent,
+    TagComponent
   },
 
   props: {
@@ -46,6 +48,7 @@ export default {
         'Collecting Event',
         'Determination',
         'Loan',
+        'Preparation',
         'Repository',
         'Tag'
       ],

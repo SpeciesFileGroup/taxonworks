@@ -130,6 +130,10 @@ class Document < ApplicationRecord
       end
     rescue PDF::Reader::MalformedPDFError
       errors.add(:base, 'pdf is malformed')
+    rescue PDF::Reader::EncryptedPDFError
+      errors.add(:base, 'pdf is encrypted')
+    rescue PDF::Reader::UnsupportedFeatureError
+      errors.add(:base, 'pdf contains features not supported by the software')
     end
     set_pages_by_start(initialize_start_page) if initialize_start_page
   end
