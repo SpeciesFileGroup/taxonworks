@@ -214,10 +214,8 @@ scope :tasks do
   scope :collection_objects do
     scope :stepwise do
       scope :determinations, controller: 'tasks/collection_objects/stepwise/determinations' do
-        get '/', action: :index, as: 'stepwise_determinations_task', defaults: {format: :json}
-
-        # TODO: remove/replace with /collection_objects
-        get :expand, as: 'stepwise_determinations_expand', defaults: {format: :json}
+        get '/', action: :index, as: 'stepwise_determinations_task'
+        get :data, defaults: {format: :json}
       end
     end
 

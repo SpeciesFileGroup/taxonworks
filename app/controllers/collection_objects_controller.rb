@@ -403,7 +403,6 @@ class CollectionObjectsController < ApplicationController
         'end_year'    => 'end_date_year'}
     }
   end
-
 end
 
 require_dependency Rails.root.to_s + '/lib/batch_load/import/collection_objects/castor_interpreter.rb'
