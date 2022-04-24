@@ -35,7 +35,7 @@ end
 
 namespace :shared do
   scope :maintenance, controller: :maintenance do
-    get :reorder, {format: :json}
+    patch :reorder, {format: :json}
   end
 end
 
