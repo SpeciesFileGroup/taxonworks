@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Observation Matrix CSV dump uses full object labels [#2912]
 
 ### Fixed
+- Display full citation in image viewer [#2857]
 - Extract filter OTU id match not macthing determinations [#2925]
 - Improve observation matrix row label handling [#2902]
 - Showing related data for Descriptor broken [#2934]
@@ -34,6 +35,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - PDF reading causing software crash with some PDF documents (e.g. encrypted and/or having unsupported features)
 - "virtual" spelled "virutal" [#2938]
 
+
+[#2857]: https://github.com/SpeciesFileGroup/taxonworks/issues/2857
 [#2925]: https://github.com/SpeciesFileGroup/taxonworks/issues/2925
 [#2902]: https://github.com/SpeciesFileGroup/taxonworks/issues/2902
 [#2934]: https://github.com/SpeciesFileGroup/taxonworks/issues/2934
