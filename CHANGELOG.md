@@ -7,6 +7,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- DwC expoert includes `occurrenceStatus` [#2935]
 - Tag panel for images in New images task [#2919]
 - Repository section for Collection object match task [#2918]
 - Preparations section for CO Match task [#2930]
@@ -30,6 +31,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - PDF reading causing software crash with some PDF documents (e.g. encrypted and/or having unsupported features)
 - "virtual" spelled "virutal" [#2938]
 
+[#2935]: https://github.com/SpeciesFileGroup/taxonworks/issues/2935
 [#2877]: https://github.com/SpeciesFileGroup/taxonworks/issues/2877
 [#2898]: https://github.com/SpeciesFileGroup/taxonworks/issues/2898
 [#2899]: https://github.com/SpeciesFileGroup/taxonworks/issues/2899
