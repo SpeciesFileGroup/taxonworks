@@ -49,7 +49,7 @@ body:
     required: false
 - type: dropdown
   id: environment
-  validation:
+  validations:
     required: true
   attributes:
     label: Environment
