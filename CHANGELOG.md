@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Observation Matrix CSV dump uses full object labels [#2912]
 
 ### Fixed
+- Improve observation matrix row label handling [#2902]
 - Showing related data for Descriptor broken [#2934]
 - Collection object label is not updated after saving determinations in comprehensive task [#2899]
 - Label form is not updated after loading a collecting event in Comprehensive task [#2898]
@@ -32,7 +33,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - PDF reading causing software crash with some PDF documents (e.g. encrypted and/or having unsupported features)
 - "virtual" spelled "virutal" [#2938]
 
-[#2943]: https://github.com/SpeciesFileGroup/taxonworks/issues/2934
+[#2902]: https://github.com/SpeciesFileGroup/taxonworks/issues/2902
+[#2934]: https://github.com/SpeciesFileGroup/taxonworks/issues/2934
 [#2935]: https://github.com/SpeciesFileGroup/taxonworks/issues/2935
 [#2877]: https://github.com/SpeciesFileGroup/taxonworks/issues/2877
 [#2898]: https://github.com/SpeciesFileGroup/taxonworks/issues/2898
