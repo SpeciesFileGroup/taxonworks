@@ -49,19 +49,17 @@ body:
     required: false
 - type: dropdown
   id: environment
+  validation:
+    required: true
   attributes:
     label: Environment
     description: Please identify where you experience this bug. Please select all that apply.
     multiple: true
     options:
-      - label: Development (native)
-        required: false
-      - label: Development (docker)
-        required: false
-      - label: Sandbox
-        required: false
-      - label: Production
-        required: false
+      - Sandbox
+      - Production
+      - Development (native)
+      - Development (docker)
 - type: input
   id: sandbox_used
   attributes:
