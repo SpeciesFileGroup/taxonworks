@@ -33,6 +33,12 @@ scope :graph, controller: :graph do
   get ':global_id/object', action: :object, as: :object_graph, defaults: {format: :json}
 end
 
+namespace :shared do
+  scope :maintenance, controller: :maintenance do
+    get :reorder, {format: :json}
+  end
+end
+
 resources :projects do
   collection do
     get 'list'
