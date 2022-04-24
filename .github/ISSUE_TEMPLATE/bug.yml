@@ -47,11 +47,12 @@ body:
     description: If applicable, add screenshots to help explain your problem. Drag/drop your image/s here
   validations:
     required: false
-- type: checkboxes
+- type: dropdown
   id: environment
   attributes:
     label: Environment
     description: Please identify where you experience this bug. Please select all that apply.
+    multiple: true
     options:
       - label: Development (native)
         required: false
