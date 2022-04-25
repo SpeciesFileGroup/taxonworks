@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New Bibtex based Sources match and/or create Serials for some types [#2719] 
 - Improvements for taxon determinations in comprehensive task
 - Observation Matrix CSV dump uses full object labels [#2912]
+- Allow multiple origin relationships in New extract task [#2928]
 
 ### Fixed
 - Display full citation in image viewer [#2857]
@@ -55,6 +56,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2921]: https://github.com/SpeciesFileGroup/taxonworks/issues/2921
 [#2926]: https://github.com/SpeciesFileGroup/taxonworks/issues/2926
 [#2927]: https://github.com/SpeciesFileGroup/taxonworks/issues/2927
+[#2928]: https://github.com/SpeciesFileGroup/taxonworks/issues/2928
 [#2930]: https://github.com/SpeciesFileGroup/taxonworks/issues/2930
 [#2937]: https://github.com/SpeciesFileGroup/taxonworks/issues/2937
 [#2938]: https://github.com/SpeciesFileGroup/taxonworks/issues/2938
