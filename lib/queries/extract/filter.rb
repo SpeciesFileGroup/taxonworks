@@ -106,7 +106,10 @@ module Queries
 
       def otu_id_facet
         return nil if otu_id.empty?
-        ::Extract.joins(:otus).where(otus: {id: otu_id})
+        a = ::Extract.joins(:otus).where(otus: {id: otu_id})
+        b = ::Extract.joins(collection_objects: [:otus]).where(otus: {id: otu_id})
+        
+       ::Extract.from("((#{a.to_sql}) UNION (#{b.to_sql})) as extracts")
       end
 
       def extract_origin_facet

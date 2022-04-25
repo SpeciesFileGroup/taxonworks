@@ -95,13 +95,24 @@ describe Queries::Extract::Filter, type: :model, group: [:dna, :collection_objec
     expect(q.all.pluck(:id)).to contain_exactly(e.id)
   end
 
-  specify '#otu_id' do
+  specify '#otu_id on Otu' do
     o = Otu.create!(name: 'extractable')
     e = FactoryBot.create(:valid_extract, otus: [o])
     FactoryBot.create(:valid_extract) # not this
 
     q.otu_id = o.id
     expect(q.all.pluck(:id)).to contain_exactly(e.id)
+  end
+
+  specify '#otu_id on Otu and CollectionObject' do
+    o = Otu.create!(name: 'extractable')
+    d = FactoryBot.create(:valid_taxon_determination, otu: o)
+    e = FactoryBot.create(:valid_extract, otus: [o])
+    f = FactoryBot.create(:valid_extract, collection_objects: [d.biological_collection_object])
+    FactoryBot.create(:valid_extract) # not this
+
+    q.otu_id = o.id
+    expect(q.all.pluck(:id)).to contain_exactly(e.id, f.id)
   end
 
   specify '#collection_object_id' do

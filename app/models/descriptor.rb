@@ -1,3 +1,4 @@
+# require_dependency Rails.root.to_s +  '/app/models/observation.rb'
 # Descriptors are the general mechanism for describing CollectionObjects (individual specimens) or Otus (taxa).
 #
 # They come in various types, reflecting the approaches commonly used to describe specimens and OTUs:
@@ -31,8 +32,8 @@ class Descriptor < ApplicationRecord
   validate :type_is_subclassed
   validate :short_name_is_shorter
 
+  # See also /app/models/concerns/shared/observations.rb for additional has_many definitions
   has_many :observations, inverse_of: :descriptor, dependent: :restrict_with_error
-  has_many :otus, through: :observations, inverse_of: :descriptors
   has_many :observation_matrix_column_items, dependent: :destroy, class_name: 'ObservationMatrixColumnItem::Single::Descriptor'
   has_many :observation_matrix_columns, inverse_of: :descriptor
 
