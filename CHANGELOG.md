@@ -35,6 +35,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Programming typos affecting error handling in some batch loaders
 - PDF reading causing software crash with some PDF documents (e.g. encrypted and/or having unsupported features)
 - "virtual" spelled "virutal" [#2938]
+- Protocols should not display origin [#2927]
 
 [#2719]: https://github.com/SpeciesFileGroup/taxonworks/issues/2719
 [#2857]: https://github.com/SpeciesFileGroup/taxonworks/issues/2857
@@ -53,6 +54,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2920]: https://github.com/SpeciesFileGroup/taxonworks/issues/2920
 [#2921]: https://github.com/SpeciesFileGroup/taxonworks/issues/2921
 [#2926]: https://github.com/SpeciesFileGroup/taxonworks/issues/2926
+[#2927]: https://github.com/SpeciesFileGroup/taxonworks/issues/2927
 [#2930]: https://github.com/SpeciesFileGroup/taxonworks/issues/2930
 [#2937]: https://github.com/SpeciesFileGroup/taxonworks/issues/2937
 [#2938]: https://github.com/SpeciesFileGroup/taxonworks/issues/2938
