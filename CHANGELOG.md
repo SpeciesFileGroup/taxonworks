@@ -37,6 +37,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - PDF reading causing software crash with some PDF documents (e.g. encrypted and/or having unsupported features)
 - "virtual" spelled "virutal" [#2938]
 - Protocols should not display origin [#2927]
+- Determination lock not working for "Add to container" in Comprehensive task [#2943]
 
 [#2719]: https://github.com/SpeciesFileGroup/taxonworks/issues/2719
 [#2857]: https://github.com/SpeciesFileGroup/taxonworks/issues/2857
@@ -60,6 +61,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2930]: https://github.com/SpeciesFileGroup/taxonworks/issues/2930
 [#2937]: https://github.com/SpeciesFileGroup/taxonworks/issues/2937
 [#2938]: https://github.com/SpeciesFileGroup/taxonworks/issues/2938
+[#2943]: https://github.com/SpeciesFileGroup/taxonworks/issues/2943
 
 ## [0.24.2] - 2022-04-15
 
