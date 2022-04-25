@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - With preparation facet in Filter collection objects [#2937]
 
 ### Changed
+- New Bibtex based Sources match and/or create Serials for some types [#2719] 
 - Improvements for taxon determinations in comprehensive task
 - Observation Matrix CSV dump uses full object labels [#2912]
 
@@ -35,7 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - PDF reading causing software crash with some PDF documents (e.g. encrypted and/or having unsupported features)
 - "virtual" spelled "virutal" [#2938]
 
-
+[#2719]: https://github.com/SpeciesFileGroup/taxonworks/issues/2719
 [#2857]: https://github.com/SpeciesFileGroup/taxonworks/issues/2857
 [#2925]: https://github.com/SpeciesFileGroup/taxonworks/issues/2925
 [#2902]: https://github.com/SpeciesFileGroup/taxonworks/issues/2902
