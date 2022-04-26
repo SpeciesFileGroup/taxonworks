@@ -1,14 +1,10 @@
 class OtusController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-<<<<<<< HEAD
-  before_action :set_otu, only: [:show, :edit, :update, :destroy, :collection_objects, :navigation, :breadcrumbs, :timeline, :coordinate, :api_show, :api_descendants, :api_distribution]
-=======
   before_action :set_otu, only: [
     :show, :edit, :update, :destroy, :collection_objects, :navigation,
     :breadcrumbs, :timeline, :coordinate,
-    :api_show, :api_taxonomy_inventory, :api_type_material_inventory, :api_nomenclature_citations]
->>>>>>> development
+    :api_show, :api_taxonomy_inventory, :api_type_material_inventory, :api_nomenclature_citations, :api_distribution ]
   after_action -> { set_pagination_headers(:otus) }, only: [:index, :api_index], if: :json_request?
 
   # GET /otus

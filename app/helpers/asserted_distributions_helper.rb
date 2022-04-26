@@ -53,7 +53,9 @@ module AssertedDistributionsHelper
           'label' => label_for_asserted_distribution(asserted_distribution) },
         'shape' => {
           'type' => 'GeographicArea',
-          'id' => asserted_distribution.geographic_area_id }}
+          'id' => asserted_distribution.geographic_area_id },
+        'is_absent' => asserted_distribution.is_absent
+      }
     }
   end
 
