@@ -45,7 +45,7 @@ if extensions
 
   if extend_response_with('citations')
     json.citations do
-      json.array! object.citations, partial: '/citations/attributes', as: :citation # .reload removed
+      json.array! object.citations, partial: '/citations/attributes', as: :citation
     end
   end
 end

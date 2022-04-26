@@ -1,7 +1,14 @@
 class OtusController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
+<<<<<<< HEAD
   before_action :set_otu, only: [:show, :edit, :update, :destroy, :collection_objects, :navigation, :breadcrumbs, :timeline, :coordinate, :api_show, :api_descendants, :api_distribution]
+=======
+  before_action :set_otu, only: [
+    :show, :edit, :update, :destroy, :collection_objects, :navigation,
+    :breadcrumbs, :timeline, :coordinate,
+    :api_show, :api_taxonomy_inventory, :api_type_material_inventory, :api_nomenclature_citations]
+>>>>>>> development
   after_action -> { set_pagination_headers(:otus) }, only: [:index, :api_index], if: :json_request?
 
   # GET /otus
@@ -264,9 +271,27 @@ class OtusController < ApplicationController
     render '/otus/api/v1/autocomplete'
   end
 
-  # GET /api/v1/otus/:id/inventory/descendants
-  def api_descendants
-    render '/otus/api/v1/descendants'
+  # GET /api/v1/otus/:id/inventory/taxonomy
+  def api_taxonomy_inventory
+    render '/otus/api/v1/inventory/taxonomy'
+  end
+
+  # GET /api/v1/otus/:id/inventory/type_material
+  def api_type_material_inventory
+    render '/otus/api/v1/inventory/type_material'
+  end
+
+  # GET /api/v1/otus/:id/inventory/nomenclature_citations
+  def api_nomenclature_citations
+    if @otu.taxon_name
+      redirect_to  api_v1_citations_path(
+        citation_object_type: 'TaxonName',
+        citation_object_id: @otu.taxon_name_id,
+        extend: params[:extend]
+      ) and return
+    else
+      render json: {}, status: :unprocessable_entity
+    end
   end
 
   # GET /api/v1/otus/:id/inventory/distribution

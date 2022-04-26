@@ -5,6 +5,11 @@ module DescriptorsHelper
     descriptor.name
   end
 
+  def label_for_descriptor(descriptor)
+    return nil if descriptor.nil?
+    descriptor.name
+  end
+
   def descriptors_search_form
     render('/descriptors/quick_search_form')
   end
