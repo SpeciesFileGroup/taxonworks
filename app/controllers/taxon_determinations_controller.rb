@@ -115,7 +115,7 @@ class TaxonDeterminationsController < ApplicationController
     def taxon_determination_params
       params.require(:taxon_determination).permit(
         :biological_collection_object_id, :otu_id, :year_made, :month_made, :day_made, :position,
-        roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
+        roles_attributes: [:id, :_destroy, :type, :organization_id, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
         otu_attributes: [:id, :_destroy, :name, :taxon_name_id]
       )
     end

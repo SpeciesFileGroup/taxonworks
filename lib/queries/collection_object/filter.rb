@@ -122,6 +122,12 @@ module Queries
       attr_accessor :repository
 
       # @return [True, False, nil]
+      #   true - has preparation_type
+      #   false - does not have preparation_type
+      #   nil - not applied
+      attr_accessor :preparation_type
+
+      # @return [True, False, nil]
       # @param collecting_event ['true', 'false']
       #   true - has collecting_event_id
       #   false - does not have collecting_event_id
@@ -227,6 +233,7 @@ module Queries
         @preparation_type_id = params[:preparation_type_id]
         @recent = boolean_param(params, :recent)
         @repository = boolean_param(params, :repository)
+        @preparation_type = boolean_param(params, :preparation_type)
         @repository_id = params[:repository_id].blank? ? nil : params[:repository_id]
         @sled_image_id = params[:sled_image_id].blank? ? nil : params[:sled_image_id]
         @taxon_determinations = boolean_param(params, :taxon_determinations)
@@ -363,6 +370,15 @@ module Queries
           ::CollectionObject.where.not(repository_id: nil)
         else
           ::CollectionObject.where(repository_id: nil)
+        end
+      end
+
+      def preparation_type_facet
+        return nil if preparation_type.nil?
+        if preparation_type
+          ::CollectionObject.where.not(preparation_type_id: nil)
+        else
+          ::CollectionObject.where(preparation_type_id: nil)
         end
       end
 
@@ -553,6 +569,7 @@ module Queries
           geographic_area_facet,
           collecting_event_facet,
           repository_facet,
+          preparation_type_facet,
           type_material_facet,
           georeferences_facet,
           taxon_determinations_facet,

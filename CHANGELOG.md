@@ -6,20 +6,59 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- DwC expoert includes `occurrenceStatus` [#2935]
+- Tag panel for images in New images task [#2919]
+- Repository section for Collection object match task [#2918]
+- Preparations section for CO Match task [#2930]
+- Match collection object button in Filter collection object [#2917]
+- Lock button for By section in New extract task [#2926]
+- With preparation facet in Filter collection objects [#2937]
+
 ### Changed
+- New Bibtex based Sources match and/or create Serials for some types [#2719] 
 - Improvements for taxon determinations in comprehensive task
 - Observation Matrix CSV dump uses full object labels [#2912]
 
 ### Fixed
+- Display full citation in image viewer [#2857]
+- Extract filter OTU id match not macthing determinations [#2925]
+- Improve observation matrix row label handling [#2902]
+- Showing related data for Descriptor broken [#2934]
 - Collection object label is not updated after saving determinations in comprehensive task [#2899]
 - Label form is not updated after loading a collecting event in Comprehensive task [#2898]
 - Preferred catalog number for collection objects using first created rather than top of the list (also fixes wrong `otherCatalogNumbers` in DwC export) [#2904]
+- Missing not fixable error message for automatically soft validations [#2877]
+- Recent lists on Data have broken flex CSS [#2920]
+- Generating label from collecting event with verbatim trip identifier duplicates tripcode [#2921]
+- Leaflet map doesn't center the view on shapes
+- Programming typos affecting error handling in some batch loaders
+- PDF reading causing software crash with some PDF documents (e.g. encrypted and/or having unsupported features)
+- "virtual" spelled "virutal" [#2938]
+- Protocols should not display origin [#2927]
 
 [#2857]: https://github.com/SpeciesFileGroup/taxonworks/issues/2857
+[#2719]: https://github.com/SpeciesFileGroup/taxonworks/issues/2719
+[#2857]: https://github.com/SpeciesFileGroup/taxonworks/issues/2857
+[#2925]: https://github.com/SpeciesFileGroup/taxonworks/issues/2925
+[#2902]: https://github.com/SpeciesFileGroup/taxonworks/issues/2902
+[#2934]: https://github.com/SpeciesFileGroup/taxonworks/issues/2934
+[#2935]: https://github.com/SpeciesFileGroup/taxonworks/issues/2935
+[#2877]: https://github.com/SpeciesFileGroup/taxonworks/issues/2877
 [#2898]: https://github.com/SpeciesFileGroup/taxonworks/issues/2898
 [#2899]: https://github.com/SpeciesFileGroup/taxonworks/issues/2899
 [#2912]: https://github.com/SpeciesFileGroup/taxonworks/issues/2912
 [#2904]: https://github.com/SpeciesFileGroup/taxonworks/issues/2904
+[#2917]: https://github.com/SpeciesFileGroup/taxonworks/issues/2917
+[#2918]: https://github.com/SpeciesFileGroup/taxonworks/issues/2918
+[#2919]: https://github.com/SpeciesFileGroup/taxonworks/issues/2919
+[#2920]: https://github.com/SpeciesFileGroup/taxonworks/issues/2920
+[#2921]: https://github.com/SpeciesFileGroup/taxonworks/issues/2921
+[#2926]: https://github.com/SpeciesFileGroup/taxonworks/issues/2926
+[#2927]: https://github.com/SpeciesFileGroup/taxonworks/issues/2927
+[#2930]: https://github.com/SpeciesFileGroup/taxonworks/issues/2930
+[#2937]: https://github.com/SpeciesFileGroup/taxonworks/issues/2937
+[#2938]: https://github.com/SpeciesFileGroup/taxonworks/issues/2938
 
 ## [0.24.2] - 2022-04-15
 
