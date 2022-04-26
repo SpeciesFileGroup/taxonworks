@@ -6,9 +6,43 @@ module CitationsHelper
     [citation.citation_object.class.name, ': ', object_tag(citation.citation_object&.metamorphosize), ' in ', citation_source_body(citation)].compact.join.html_safe
   end
 
+  def label_for_citation(citation)
+    return nil if citation.nil?
+    citation_string = source_author_year_label(citation.source)
+    [citation.citation_object.class.name, ': ', label_for(citation.citation_object&.metamorphosize), ' in ', citation_source_body(citation)].compact.join.html_safe
+  end
+
+  # @return [String]
+  #   Author year, pages, topics
+  #   presently contains HTML
   def citation_source_body(citation)
-    pages = citation.pages unless citation.pages.blank?
-    [[source_author_year_tag(citation.source) + citation.source.year_suffix.to_s, pages].compact.join(':'), citation_topics_tag(citation)].compact.join(' ').html_safe
+    [
+      [source_author_year_tag(citation.source) + citation.source.year_suffix.to_s, citation.pages].compact.join(':'),
+      citation_topics_tag(citation)
+    ].compact.join(' ').html_safe
+  end
+
+# @return [String]
+  #   Author year, pages, topics
+  #   presently contains HTML
+  def citation_source_label(citation)
+    [
+      [source_author_year_label(citation.source) + citation.source.year_suffix.to_s,
+       citation.pages].compact.join(':'),
+      citation_topics_label(citation)
+    ].compact.join(' ')
+  end
+
+
+  def citation_topics_label(citation)
+    return nil unless citation.topics.any?
+    [
+      '[',
+      citation.citation_topics.collect{|ct|
+        label_for_controlled_vocabulary_term(ct.topic.metamorphosize) + (!ct.pages.blank? ? ": #{ct.pages}" : '')
+      }.compact.join(', '),
+      ']'
+    ].join
   end
 
   def citation_topics_tag(citation)

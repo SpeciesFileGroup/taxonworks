@@ -67,6 +67,10 @@ class Identifier < ApplicationRecord
   # TODO: DRY to IsData? Test.
   scope :with_type_string, -> (base_string) {where('type LIKE ?', "#{base_string}")}
 
+  scope :prefer, -> (type) {  order(Arel.sql("CASE WHEN identifiers.type = '#{type}' THEN 1 END ASC, \
+                                              CASE WHEN identifiers.type != '#{type}' THEN 2 END ASC, \
+                                               position ASC"))  }
+
   # @return [String, Identifer]
   def self.prototype_identifier(project_id, created_by_id)
     identifiers = Identifier.where(project_id: project_id, created_by_id: created_by_id).limit(1)

@@ -42,17 +42,28 @@ module SourcesHelper
     s.html_safe
   end
 
-  def source_author_year_tag(source)
-    res = content_tag(:span, 'Author, year not yet provided for source.', class: [:feedback, 'feedback-thin', 'feedback-warning'])
-
+  # @return [String]
+  #   No HTML
+  def source_author_year_label(source)
     case source&.type
     when 'Source::Human'
-      res = source.cached
+      source.cached
     when 'Source::Bibtex'
-      res = source.author_year if source.author_year.present?
+      source.author_year if source.author_year.present?
+    else
+      'Author, year not yet provided for source.'
     end
+  end
 
-    res
+  def source_author_year_tag(source)
+    case source&.type
+    when 'Source::Human'
+      source.cached
+    when 'Source::Bibtex'
+      source.author_year if source.author_year.present?
+    else
+      tag.span('Author, year not yet provided for source.', class: [:feedback, 'feedback-thin', 'feedback-warning'])
+    end
   end
 
   def sources_search_form
@@ -65,7 +76,7 @@ module SourcesHelper
   end
 
   def history_link(source)
-    content_tag(:em, ' in ') + link_to(content_tag(:span, source_author_year_tag(source), title: source.cached, class: :history__in), send(:nomenclature_by_source_task_path, source_id: source.id) )
+    tag.em(' in ') + link_to(tag.span(source_author_year_tag(source), title: source.cached, class: :history__in), send(:nomenclature_by_source_task_path, source_id: source.id) )
     #        return content_tag(:span,  content_tag(:em, ' in ') + b, class: [:history__in])
   end
 
@@ -76,13 +87,13 @@ module SourcesHelper
 
   def source_document_viewer_option_tag(source)
     return nil if !source.documents.load.any?
-    content_tag(:span, class: 'pdfviewerItem') do
-      source.documents.collect{|d| content_tag(:a, 'View', class: 'circle-button', data: { pdfviewer: d.document_file(:original, false), sourceid: source.id})}.join.html_safe
+    tag.span(class: 'pdfviewerItem') do
+      source.documents.collect{|d| tag.a('View', class: 'circle-button', data: { pdfviewer: d.document_file(:original, false), sourceid: source.id})}.join.html_safe
     end.html_safe
   end
 
   def source_attributes_for(source)
-    w = content_tag(:em, 'ERROR, unkown class of Source, contact developers', class: :warning)
+    w = tag.em('ERROR, unkown class of Source, contact developers', class: :warning)
     content_for :attributes do
       case source.class.name
       when 'Source::Bibtex'
@@ -100,9 +111,9 @@ module SourcesHelper
   def source_related_attributes(source)
     content_for :related_attributes do
       if source.class.name == 'Source::Bibtex'
-        content_tag(:h3, 'Authors') do
-          content_tag(:ul) do
-            source.authors.collect{|a| content_tag(:li, a.last_name)}
+        tag.h3( 'Authors') do
+          tag.ul do
+            source.authors.collect{|a| tag.li(a.last_name)}
           end
         end
       else
@@ -137,12 +148,12 @@ module SourcesHelper
 
   def source_in_other_project_tag(object)
     if source_in_other_project?(object)
-      content_tag(:h3, 'This source is used in another project.', class: :warning)
+      tag.h3('This source is used in another project.', class: :warning)
     end
   end
 
   def source_nomenclature_tag(source, topics)
-    t = [content_tag(:span, source_tag(source))]
+    t = [tag.span(source_tag(source))]
     t.push [':', topic_list_tag(topics).html_safe] if !topics.blank?
     t.push radial_annotator(source)
     t.push radial_navigation_tag(source)

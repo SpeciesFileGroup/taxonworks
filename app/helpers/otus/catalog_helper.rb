@@ -57,7 +57,7 @@ module Otus::CatalogHelper
   # @param otu [an Otu]
   # @param data [Hash] the data to return
   # @param similar_otus [Array] of otu_ids, the ids of OTUs to skip when assigning nodes (e.g. clones, or similar otus)
-  def otu_descendants_and_synonyms(otu = self, data = {}, similar_otus = [])
+  def otu_descendants_and_synonyms(otu = selff, data: {}, similar_otus: [], common_names: false, langage_alpha2: nil)
     s = nil
     if otu.name.present?
       s = Otu.where(taxon_name: otu.taxon_name.id).where.not(id: otu.id).where.not("otus.name = ?", otu.name).to_a
@@ -74,6 +74,7 @@ module Otus::CatalogHelper
              otu_clones: Otu.where(name: otu.name, taxon_name: otu.taxon_name).where.not(id: otu.id).pluck(:id),
              similar_otus: s.inject({}){|hsh, n| hsh[n.id] = label_for_otu(n) ; hsh },
              nomenclatural_synonyms: ( (synonyms&.collect{|l| full_original_taxon_name_tag(l) || taxon_name_tag(l) } || []) - [a]).uniq, # This is labels, combinations can duplicate
+             common_names: (common_names ? otu_inventory_common_names(otu, langage_alpha2) : []) ,
              descendants: []}
 
     if otu.taxon_name
@@ -85,6 +86,13 @@ module Otus::CatalogHelper
       end
     end
     data
+  end
+
+  def otu_inventory_common_names(otu, language_alpha_2)
+    return nil if otu.nil?
+    o = CommonName.where(project_id: sessions_current_project_id, otu: otu)
+    o = o.where(language: Language.where(alpha_2: language_alpha_2.downcase)) unless language_alpha_2.blank?
+    return o.collect{|a| {name: a.name, language: a.language.english_name } }
   end
 
 end
