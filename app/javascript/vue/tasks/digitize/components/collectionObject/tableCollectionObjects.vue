@@ -74,6 +74,7 @@
           <td />
           <td>
             <bioclassification
+              disabled
               :biological-id="item.id"
               :biocurations-groups="biocurationsGroups"
               :biocutarions-type="biocutarionsType"/>

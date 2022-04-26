@@ -7,16 +7,24 @@
         <template
           v-for="item in group.list">
           <button
+            v-if="(biologicalId ? !isCreated(item.id) : !isInQueue(item.id))"
             type="button"
-            class="bottom button-submit normal-input biocuration-toggle-button"
+            class="bottom normal-input button-submit biocuration-toggle-button"
+            :class="{ 'biocuration-toggle-button__disabled': disabled }"
+            :disabled="disabled"
             @click="addToQueue(item.id)"
-            v-if="(biologicalId ? !isCreated(item.id) : !isInQueue(item.id))">{{ item.name }}
+          >
+            {{ item.name }}
           </button>
           <button
+            v-else
             type="button"
-            class="bottom button-delete normal-input biocuration-toggle-button"
+            class="bottom normal-input button-delete biocuration-toggle-button"
+            :class="{ 'biocuration-toggle-button__disabled': disabled }"
+            :disabled="disabled"
             @click="(biologicalId ? removeEntry(item) : removeFromQueue(item.id))"
-            v-else>{{ item.name }}
+          >
+            {{ item.name }}
           </button>
         </template>
       </div>
@@ -43,6 +51,11 @@ export default {
     biocurationsGroups: {
       type: Array,
       default: () => []
+    },
+
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -151,7 +164,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
   .total-input {
     width: 50px;
   }
@@ -162,5 +175,10 @@ export default {
     margin-bottom: 6px;
     border-top-left-radius: 14px;
     border-bottom-left-radius: 14px;
+
+    &__disabled {
+      opacity: 0.3;
+    }
   }
+
 </style>

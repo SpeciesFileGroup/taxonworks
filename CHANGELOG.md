@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Improvements for taxon determinations in comprehensive task
 - Observation Matrix CSV dump uses full object labels [#2912]
 - Allow multiple origin relationships in New extract task [#2928]
+- Enanle biocuration buttons only for the current collection object in comprehensive task [#2946]
 
 ### Fixed
 - Display full citation in image viewer [#2857]
