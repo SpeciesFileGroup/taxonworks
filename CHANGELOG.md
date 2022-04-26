@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New Bibtex based Sources match and/or create Serials for some types [#2719] 
 - Improvements for taxon determinations in comprehensive task
 - Observation Matrix CSV dump uses full object labels [#2912]
+- Allow multiple origin relationships in New extract task [#2928]
 
 ### Fixed
 - Display full citation in image viewer [#2857]
@@ -36,6 +37,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - PDF reading causing software crash with some PDF documents (e.g. encrypted and/or having unsupported features)
 - "virtual" spelled "virutal" [#2938]
 - Protocols should not display origin [#2927]
+- Determination lock not working for "Add to container" in Comprehensive task [#2943]
 
 [#2857]: https://github.com/SpeciesFileGroup/taxonworks/issues/2857
 [#2719]: https://github.com/SpeciesFileGroup/taxonworks/issues/2719
@@ -56,9 +58,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2921]: https://github.com/SpeciesFileGroup/taxonworks/issues/2921
 [#2926]: https://github.com/SpeciesFileGroup/taxonworks/issues/2926
 [#2927]: https://github.com/SpeciesFileGroup/taxonworks/issues/2927
+[#2928]: https://github.com/SpeciesFileGroup/taxonworks/issues/2928
 [#2930]: https://github.com/SpeciesFileGroup/taxonworks/issues/2930
 [#2937]: https://github.com/SpeciesFileGroup/taxonworks/issues/2937
 [#2938]: https://github.com/SpeciesFileGroup/taxonworks/issues/2938
+[#2943]: https://github.com/SpeciesFileGroup/taxonworks/issues/2943
 
 ## [0.24.2] - 2022-04-15
 

@@ -29,6 +29,7 @@ import removeContainerItem from './removeContainerItem'
 import removeDepictionsByImageId from './removeDepictionsByImageId'
 import removeTaxonDetermination from './removeTaxonDetermination'
 import removeTypeMaterial from './removeTypeMaterial'
+import resetTaxonDetermination from './resetTaxonDeterminations'
 import resetWithDefault from './resetWithDefault'
 import saveCOCitations from './saveCOCitations'
 import saveCollectingEvent from './saveCollectingEvent'
@@ -70,6 +71,7 @@ const ActionFunctions = {
   [ActionNames.RemoveDepictionsByImageId]: removeDepictionsByImageId,
   [ActionNames.RemoveTaxonDetermination]: removeTaxonDetermination,
   [ActionNames.RemoveTypeMaterial]: removeTypeMaterial,
+  [ActionNames.ResetTaxonDetermination]: resetTaxonDetermination,
   [ActionNames.ResetWithDefault]: resetWithDefault,
   [ActionNames.SaveCOCitations]: saveCOCitations,
   [ActionNames.SaveCollectingEvent]: saveCollectingEvent,
