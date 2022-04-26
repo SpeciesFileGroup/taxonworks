@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": "./app/javascript/vue",
     "paths": {
-      "*": ["./*"],
+      "*": ["node_modules/*", "app/javascript/*"]
     }
   },
   "exclude": ["node_modules"],

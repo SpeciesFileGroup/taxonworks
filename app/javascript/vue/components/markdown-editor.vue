@@ -12,9 +12,8 @@
 
 <script>
 
-import EasyMDE from 'easymde'
+import EasyMDE from 'easymde/dist/easymde.min.js'
 import DOMPurify from 'dompurify'
-import 'easymde/dist/easymde.min.css'
 import CustomLinks from './markdown/customLinks.vue'
 import GetOSKey from 'helpers/getPlatformKey.js'
 

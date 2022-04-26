@@ -7,13 +7,12 @@
 // To reference this file, add <%= javascript_pack_tag 'application' %> to the appropriate
 // layout file, like app/views/layouts/application.html.erb
 
-import 'core-js/stable'
-import 'regenerator-runtime/runtime'
+/* import 'core-js/stable'
+import 'regenerator-runtime/runtime' */
 // Styles
 import 'leaflet/dist/leaflet.css'
 import 'tippy.js/dist/tippy.css'
 
-/* require('../vue/config.js') */
 require('../vue/tasks/citations/otus/main.js')
 require('../vue/tasks/content/editor/main.js')
 require('../vue/tasks/nomenclature/new_taxon_name/main.js')
