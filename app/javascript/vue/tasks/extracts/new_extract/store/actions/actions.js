@@ -13,6 +13,7 @@ import saveIdentifiers from './saveIdentifiers'
 import saveOriginRelationship from './saveOriginRelationships'
 import saveProtocols from './saveProtocols'
 import resetState from './resetState'
+import removeOriginRelationship from './removeOriginRelationship'
 
 const ActionFunctions = {
   [ActionNames.LoadExtract]: loadExtract,
@@ -27,6 +28,7 @@ const ActionFunctions = {
   [ActionNames.SaveIdentifiers]: saveIdentifiers,
   [ActionNames.SaveOriginRelationship]: saveOriginRelationship,
   [ActionNames.SaveProtocols]: saveProtocols,
+  [ActionNames.RemoveOriginRelationship]: removeOriginRelationship,
   [ActionNames.ResetState]: resetState
 }
 

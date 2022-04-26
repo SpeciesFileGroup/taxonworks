@@ -12,7 +12,8 @@ export default ({ state, commit }) => {
         ...item,
         protocol_relationship_object_id: extract.id,
         protocol_relationship_object_type: 'Extract'
-      }
+      },
+      extend: ['protocol']
     }).then(({ body }) => {
       commit(MutationNames.AddProtocol, body)
     }))
