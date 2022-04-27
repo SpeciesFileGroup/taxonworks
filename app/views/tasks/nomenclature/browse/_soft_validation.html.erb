@@ -21,5 +21,11 @@
       <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: { object: classification }) -%>  
     <% end %>
   </div>
+
+  <div id="taxon-original-combination">
+    <% @taxon_name.original_combination_relationships.each do |combination| %>
+      <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: { object: combination }) -%>
+    <% end %>
+  </div>
 </div>
 
