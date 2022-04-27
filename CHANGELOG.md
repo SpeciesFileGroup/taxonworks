@@ -39,6 +39,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - "virtual" spelled "virutal" [#2938]
 - Protocols should not display origin [#2927]
 - Determination lock not working for "Add to container" in Comprehensive task [#2943]
+- Role types table in uniquify people renders poorly when "show found people" or "show match people" enabled [#2894]
 
 [#2857]: https://github.com/SpeciesFileGroup/taxonworks/issues/2857
 [#2719]: https://github.com/SpeciesFileGroup/taxonworks/issues/2719
@@ -48,6 +49,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2934]: https://github.com/SpeciesFileGroup/taxonworks/issues/2934
 [#2935]: https://github.com/SpeciesFileGroup/taxonworks/issues/2935
 [#2877]: https://github.com/SpeciesFileGroup/taxonworks/issues/2877
+[#2894]: https://github.com/SpeciesFileGroup/taxonworks/issues/2894
 [#2898]: https://github.com/SpeciesFileGroup/taxonworks/issues/2898
 [#2899]: https://github.com/SpeciesFileGroup/taxonworks/issues/2899
 [#2912]: https://github.com/SpeciesFileGroup/taxonworks/issues/2912

@@ -9,6 +9,7 @@
         v-for="(item, index) in json"
         v-if="maxResults == 0 || index < maxResults">
         <a
+          tabindex="-1"
           target="_blank"
           :href="makeUrl(item.id)"
           v-html="item[label]"/>
