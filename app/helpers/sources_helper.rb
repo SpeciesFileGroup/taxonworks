@@ -43,26 +43,28 @@ module SourcesHelper
   end
 
   # @return [String]
-  #   No HTML
+  #   No HTML, no nil
   def source_author_year_label(source)
+    not_provided = 'Author, year not yet provided for source.'
     case source&.type
     when 'Source::Human'
       source.cached
     when 'Source::Bibtex'
-      source.author_year if source.author_year.present?
+      source.author_year.present? ? source.author_year : not_provided
     else
-      'Author, year not yet provided for source.'
+      not_provided
     end
   end
 
   def source_author_year_tag(source)
+    not_provided = 'Author, year not yet provided for source.'
     case source&.type
     when 'Source::Human'
       source.cached
     when 'Source::Bibtex'
-      source.author_year if source.author_year.present?
+      source.author_year.present? ? source.author_year : not_provided
     else
-      tag.span('Author, year not yet provided for source.', class: [:feedback, 'feedback-thin', 'feedback-warning'])
+      tag.span(not_provided, class: [:feedback, 'feedback-thin', 'feedback-warning'])
     end
   end
 

@@ -260,7 +260,8 @@ class Source < ApplicationRecord
     end
   end
 
-    # @return [String] A string that represents the authors last_names and year (no suffix)
+  # @return [String]
+  #   A string that represents the authors last_names and year (no suffix)
   def author_year
     return 'not yet calculated' if new_record?
     [cached_author_string, year].compact.join(', ')
@@ -293,7 +294,7 @@ class Source < ApplicationRecord
     return {records: sources, count: valid}
   end
 
-  # @param used_on [String] a model name 
+  # @param used_on [String] a model name
   # @return [Scope]
   def self.used_recently(user_id, project_id, used_on = 'TaxonName')
    Source.select('sources.id').

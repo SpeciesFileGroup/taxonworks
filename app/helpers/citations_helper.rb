@@ -2,14 +2,12 @@ module CitationsHelper
 
   def citation_tag(citation)
     return nil if citation.nil?
-    citation_string = source_author_year_tag(citation.source)
     [citation.citation_object.class.name, ': ', object_tag(citation.citation_object&.metamorphosize), ' in ', citation_source_body(citation)].compact.join.html_safe
   end
 
   def label_for_citation(citation)
     return nil if citation.nil?
-    citation_string = source_author_year_label(citation.source)
-    [citation.citation_object.class.name, ': ', label_for(citation.citation_object&.metamorphosize), ' in ', citation_source_body(citation)].compact.join.html_safe
+    [citation.citation_object.class.name, ': ', label_for(citation.citation_object&.metamorphosize), ' in ', citation_source_body_label(citation)].compact.join.html_safe
   end
 
   # @return [String]
@@ -25,7 +23,7 @@ module CitationsHelper
 # @return [String]
   #   Author year, pages, topics
   #   presently contains HTML
-  def citation_source_label(citation)
+  def citation_source_body_label(citation)
     [
       [source_author_year_label(citation.source) + citation.source.year_suffix.to_s,
        citation.pages].compact.join(':'),
