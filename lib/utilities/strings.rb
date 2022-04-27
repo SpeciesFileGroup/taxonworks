@@ -1,6 +1,18 @@
 # Methods that recieve or generate a String. This methods in this library should be completely independant (i.e. ultimately gemifiable) from TaxonWorks.
 module Utilities::Strings
 
+  def self.linearize(string, separator = ' | ')
+    return nil if string.to_s.length == 0
+    string.gsub(/\n|(\r\n)/, separator)
+  end
+
+  # @return String,nil
+  #   the string preceeded with "a" or "an"
+  def self.a_label(string)
+    return nil if string.to_s.length == 0
+    (string =~ /\A[aeiou]/i ? 'an ' : 'a ') + string
+  end
+
   # @param [Integer] string_length
   # @return [String, nil]
   #   stub a string of a certain length
@@ -18,7 +30,7 @@ module Utilities::Strings
       a.strip!
       a = nil if a == ''
     end
-    a 
+    a
   end
 
   # @param [String] string
@@ -31,7 +43,7 @@ module Utilities::Strings
       a.squish!
       a = nil if a == ''
     end
-    a 
+    a
   end
 
   # @param [String] text

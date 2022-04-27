@@ -27,7 +27,7 @@ class ImagesController < ApplicationController
       params.permit(
         :otu_id, otu_scope: [])
     ).all.page(params[:page]).per(params[:per])
-    render '/images/api/v1/images'
+    render '/images/api/v1/index'
   end
 
   # GET /images/1

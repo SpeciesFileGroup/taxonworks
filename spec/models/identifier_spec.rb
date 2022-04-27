@@ -7,6 +7,22 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
   let(:specimen2) { FactoryBot.create(:valid_specimen) }
   let(:serial) { FactoryBot.create(:valid_serial) }
 
+  specify '.prefer 1' do
+    c =  'Identifier::Local::CatalogNumber'
+    specimen1.identifiers << FactoryBot.build(:valid_identifier_local, type: c)
+    specimen1.identifiers << FactoryBot.build(:uri_identifier)
+
+    expect(specimen1.identifiers.prefer(c).first.type).to eq(c)
+  end
+
+  specify '.prefer 2' do
+    c =  'Identifier::Local::CatalogNumber'
+    specimen1.identifiers << FactoryBot.build(:valid_identifier_local, type: c)
+    specimen1.identifiers << FactoryBot.build(:uri_identifier)
+    expect(specimen1.identifiers.prefer('Identifier::Global::Uri').first.type).to_not eq(c)
+  end
+
+
   context 'validation' do
 
     context 'requires' do
