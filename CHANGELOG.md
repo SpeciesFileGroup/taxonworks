@@ -40,6 +40,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Protocols should not display origin [#2927]
 - Determination lock not working for "Add to container" in Comprehensive task [#2943]
 - Role types table in uniquify people renders poorly when "show found people" or "show match people" enabled [#2894]
+- Syntax error during code generating synonyms and descendants for catalogs
 
 [#2857]: https://github.com/SpeciesFileGroup/taxonworks/issues/2857
 [#2719]: https://github.com/SpeciesFileGroup/taxonworks/issues/2719
