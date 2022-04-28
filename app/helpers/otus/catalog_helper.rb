@@ -57,7 +57,7 @@ module Otus::CatalogHelper
   # @param otu [an Otu]
   # @param data [Hash] the data to return
   # @param similar_otus [Array] of otu_ids, the ids of OTUs to skip when assigning nodes (e.g. clones, or similar otus)
-  def otu_descendants_and_synonyms(otu = selff, data: {}, similar_otus: [], common_names: false, langage_alpha2: nil)
+  def otu_descendants_and_synonyms(otu = self, data: {}, similar_otus: [], common_names: false, langage_alpha2: nil)
     s = nil
     if otu.name.present?
       s = Otu.where(taxon_name: otu.taxon_name.id).where.not(id: otu.id).where.not("otus.name = ?", otu.name).to_a
@@ -81,7 +81,7 @@ module Otus::CatalogHelper
       otu.taxon_name.descendants.that_is_valid.order(:cached, :cached_author_year).each do |d|
         if o = o = d.otus.order(name: 'DESC', id: 'ASC').first # arbitrary pick an OTU, prefer those without `name`. t since we summarize across identical OTUs, this is not an issue
           next if similar_otus.include?(o.id)
-          data[:descendants].push otu_descendants_and_synonyms(o, data, similar_otus)
+          data[:descendants].push otu_descendants_and_synonyms(o, data: data, similar_otus: similar_otus)
         end
       end
     end
