@@ -44,7 +44,7 @@
         </v-btn>
 
         <v-btn
-          class="margin-small-left"
+          class="margin-small-left margin-small-right"
           color="primary"
           circle
           @click="unsetBiologicalRelationship"
