@@ -30,18 +30,18 @@ class Extract < ApplicationRecord
   include Shared::IsData
 
   is_origin_for 'Extract', 'Sequence'
-  originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot', 'Otu'
+  originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot', 'Otu', 'CollectionObject'
 
   belongs_to :repository, inverse_of: :extracts
 
   has_many :extractor_roles, -> { order('roles.position ASC') }, class_name: 'Extractor', as: :role_object, dependent: :destroy, validate: true
   has_many :extractors, -> { order('roles.position ASC') }, through: :extractor_roles, source: :person, validate: true
 
-  # Upstream
+  # Upstream - aliases of `origin_otus` and `origin_collection_objects` TODO remove
   has_many :otus, through: :related_origin_relationships, source: :old_object, source_type: 'Otu'
   has_many :collection_objects, through: :related_origin_relationships, source: :old_object, source_type: 'CollectionObject'
 
-  # Downstresm
+  # Downstresm - aliases of `derived_*`, TODO: remove
   has_many :sequences, through: :origin_relationships, source: :new_object, source_type: 'Sequence'
   has_many :extracts, through: :related_origin_relationships, source: :old_object, source_type: 'Extract'
 

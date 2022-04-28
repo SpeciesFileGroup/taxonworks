@@ -126,11 +126,6 @@ export default {
       return keys
     },
 
-    taxonIdFormOtu () {
-      const otu = this.$store.getters[GetterNames.GetTmpData].otu
-      return otu?.taxon_name_id
-    },
-
     typeMaterial: {
       get () {
         return this.$store.getters[GetterNames.GetTypeMaterial]

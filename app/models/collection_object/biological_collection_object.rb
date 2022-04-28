@@ -2,7 +2,8 @@
 #
 # !! See also CollectionObject::BiologicalExtensions
 class CollectionObject::BiologicalCollectionObject < CollectionObject
-    
+
+  # TODO: revisit base class needs
   is_origin_for 'Extract', 'CollectionObject::BiologicalCollectionObject'
 
   include Shared::IsDwcOccurrence
@@ -74,7 +75,7 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
     return true
   end
 
-  protected 
+  protected
 
   def sv_missing_determination
     soft_validations.add(:base, 'Determination is missing') if !taxon_determinations.any?

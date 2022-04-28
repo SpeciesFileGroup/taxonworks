@@ -129,10 +129,13 @@ export default {
       this.$store.commit(MutationNames.SetProjectPreferences, response.body)
     })
 
+    if (!coIdParam) {
+      this.$store.dispatch(ActionNames.CreateDeterminationFromParams)
+    }
+
     if (/^\d+$/.test(coId)) {
       this.$store.dispatch(ActionNames.LoadDigitalization, coId)
-    }
-    else if (/^\d+$/.test(coIdParam)) {
+    } else if (/^\d+$/.test(coIdParam)) {
       this.$store.dispatch(ActionNames.LoadDigitalization, coIdParam)
     } else if (/^\d+$/.test(ceIdParam)) {
       this.$store.dispatch(ActionNames.GetCollectingEvent, ceIdParam)

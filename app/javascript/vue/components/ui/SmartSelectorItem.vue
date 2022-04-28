@@ -1,10 +1,9 @@
 <template>
   <div
     v-if="item"
-    class="middle flex-separate">
-    <p>
-      <span v-html="item[label]"/>
-    </p>
+    class="middle flex-separate"
+  >
+    <p v-html="item[label]" />
     <v-btn
       color="primary"
       circle
@@ -21,10 +20,10 @@
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
 
-const props = defineProps({
+defineProps({
   item: {
     type: [String, Object],
-    required: true
+    default: undefined
   },
 
   label: {

@@ -21,8 +21,9 @@
       </div>
       <display-list
         :list="protocols"
+        :label="['protocol', 'object_label']"
         @deleteIndex="removeProtocol"
-        label="object_tag"/>
+      />
     </template>
   </block-layout>
 </template>
