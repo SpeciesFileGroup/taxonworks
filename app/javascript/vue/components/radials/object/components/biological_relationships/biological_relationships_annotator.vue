@@ -1,18 +1,29 @@
 <template>
   <div class="biological_relationships_annotator">
-    <div class="separate-bottom">
-      <template v-if="createdBiologicalAssociation">
-        <div class="flex-separate">
-          <h3>Edit mode</h3>
-          <button
-            type="button"
-            class="button button-default"
-            @click="reset">
-            Cancel
-          </button>
-        </div>
-        <br>
-      </template>
+    <template v-if="createdBiologicalAssociation">
+      <div class="flex-separate">
+        <h3>Edit mode</h3>
+        <button
+          type="button"
+          class="button button-default"
+          @click="reset">
+          Cancel
+        </button>
+      </div>
+      <br>
+    </template>
+
+    <form-citation v-model="citation" />
+    <display-list
+      v-if="createdBiologicalAssociation"
+      edit
+      class="margin-medium-top"
+      label="citation_source_body"
+      :list="createdBiologicalAssociation.citations"
+      @edit="setCitation"
+      @delete="removeCitation"
+    />
+    <div>
       <h3 v-html="metadata.object_tag" />
       <h3
         v-if="biologicalRelationship"
@@ -33,7 +44,7 @@
         </v-btn>
 
         <v-btn
-          class="margin-small-left"
+          class="margin-small-left margin-small-right"
           color="primary"
           circle
           @click="unsetBiologicalRelationship"
@@ -73,18 +84,7 @@
         class="subtle relation-title">
         Choose related OTU/collection object
       </h3>
-    </div>
-
-    <form-citation v-model="citation" />
-    <display-list
-      v-if="createdBiologicalAssociation"
-      edit
-      class="margin-medium-top"
-      label="citation_source_body"
-      :list="createdBiologicalAssociation.citations"
-      @edit="setCitation"
-      @delete="removeCitation"
-    />
+    </div>  
     <biological
       v-if="!biologicalRelationship"
       class="separate-bottom"
