@@ -21,8 +21,9 @@
             </tippy>
           </div>
           <select-type
+            v-model="typeSelected"
             :list="typeList[typeListSelected]"
-            v-model="typeSelected"/>
+          />
         </template>
 
         <ul
@@ -45,6 +46,7 @@
         <template v-if="typeSelected">
           <namespace-component
             v-if="isTypeListLocal"
+            v-model:lock="isNamespaceLocked"
             v-model="namespace"/>
           <identifier-component
             class="margin-small-bottom"
@@ -59,9 +61,6 @@
             @click="addIdentifier(); resetIdentifier()">
             Add
           </button>
-          <lock-component
-            class="margin-small-left"
-            v-model="settings.lock.identifiers"/>
         </div>
       </div>
       <display-list
@@ -107,7 +106,8 @@ export default {
       identifier: undefined,
       typeList: undefined,
       typeListSelected: undefined,
-      typeSelected: undefined
+      typeSelected: undefined,
+      isNamespaceLocked: false,
     }
   },
 
@@ -166,7 +166,9 @@ export default {
     },
 
     resetIdentifier () {
-      this.namespace = undefined
+      if (!this.isNamespaceLocked) {
+        this.namespace = undefined
+      }
       this.identifier = undefined
     },
 
