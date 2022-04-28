@@ -330,7 +330,7 @@ GEM
       parslet
     logical_query_parser (0.3.2)
       treetop (~> 1.6.8)
-    loofah (2.16.0)
+    loofah (2.17.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     lumberjack (1.2.8)
