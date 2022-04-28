@@ -16,11 +16,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - With preparation facet in Filter collection objects [#2937]
 
 ### Changed
+- Improved(?) behaviour of Extact autocomplete [#2923]
 - New Bibtex based Sources match and/or create Serials for some types [#2719] 
 - Improvements for taxon determinations in comprehensive task
 - Observation Matrix CSV dump uses full object labels [#2912]
 - Allow multiple origin relationships in New extract task [#2928]
 - Enanle biocuration buttons only for the current collection object in comprehensive task [#2946]
+- Updated ruby gems
 
 ### Fixed
 - Display full citation in image viewer [#2857]
@@ -42,6 +44,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Role types table in uniquify people renders poorly when "show found people" or "show match people" enabled [#2894]
 - Syntax error during code generating synonyms and descendants for catalogs
 
+[#2923]: https://github.com/SpeciesFileGroup/taxonworks/issues/2923
 [#2857]: https://github.com/SpeciesFileGroup/taxonworks/issues/2857
 [#2719]: https://github.com/SpeciesFileGroup/taxonworks/issues/2719
 [#2857]: https://github.com/SpeciesFileGroup/taxonworks/issues/2857
