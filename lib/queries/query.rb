@@ -63,7 +63,7 @@ module Queries
     # @return [Array]
     def terms
       if @terms.nil? || (@terms == [] && !@query_string.blank?)
-        @terms = build_terms 
+        @terms = build_terms
       end
       @terms
     end
@@ -328,8 +328,11 @@ module Queries
 
     # @return [ActiveRecord::Relation]
     def autocomplete_exact_id
-      return nil if no_terms?
-      base_query.where(id: query_string).limit(1)
+      if i = ::Utilities::Strings::only_integer(query_string)
+        base_query.where(id: i).limit(1)
+      else
+        nil
+      end
     end
 
     # @return [ActiveRecord::Relation]

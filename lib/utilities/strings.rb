@@ -79,7 +79,7 @@ module Utilities::Strings
   #   whether the string is an integer (positive or negative)
   # see http://stackoverflow.com/questions/1235863/test-if-a-string-is-basically-an-integer-in-quotes-using-ruby
   # Note:  Might checkout CSV::Converters constants to see how they handle this
-  # Allows '02' ... hmm
+  # Allows '02', but treated as OK as 02.to_i returns 2
   def self.is_i?(string)
     /\A[-+]?\d+\z/ === string
   end
@@ -163,6 +163,18 @@ module Utilities::Strings
   def self.integers(string)
     return [] if string.nil? || string.length == 0
     string.split(/\s+/).select { |t| is_i?(t) }
+  end
+
+  # @param [String] string
+  # @return [Integer, nil]
+  #   return an integer if and only if the string is a single integer,
+  #   otherwise nil
+  def self.only_integer(string)
+    if is_i?(string)
+      string.to_i
+    else
+      nil
+    end
   end
 
   # @return [Boolean]
