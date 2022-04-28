@@ -12,7 +12,6 @@ const makeInitialState = () => {
       isLoading: false,
       lock: {
         made: false,
-        identifiers: false,
         lock: false,
         originRelationships: false,
         protocols: false,
