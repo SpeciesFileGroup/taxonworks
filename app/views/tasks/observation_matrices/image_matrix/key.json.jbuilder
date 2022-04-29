@@ -24,10 +24,7 @@ json.depiction_matrix (@key.depiction_matrix) do |d, v|
   json.extract! v, :row_id
   json.depictions (v[:depictions]) do |depiction|
       json.array! depiction do |d| 
-        json.id d.id
-        json.depiction_object_id d.depiction_object_id
-        json.depiction_object_type d.depiction_object_type
-        json.image_id d.image_id
+        json.extract! d, :id, :depiction_object_id, :depiction_object_type, :image_id
         json.partial! '/shared/data/all/metadata', object: d
       end
   end
