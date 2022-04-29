@@ -11,8 +11,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - Cannot set Determiner of CO to department/organization [#2915]
+- Combination view is broken on Browse nomenclature [#2952]
 
 [#2915]: https://github.com/SpeciesFileGroup/taxonworks/issues/2915
+[#2952]: https://github.com/SpeciesFileGroup/taxonworks/issues/2952
 
 ## [0.24.3] - 2022-04-28
 ### Added
