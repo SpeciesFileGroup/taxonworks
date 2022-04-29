@@ -37,7 +37,11 @@ module TaxonDeterminationsHelper
   # @return [String]
   #   the "by" clause of the determination
   def taxon_determination_by(taxon_determination)
-    names = taxon_determination.determiners.collect{|d| d.last_name }.to_sentence
+    names = [
+      taxon_determination.determiners.collect{|d| d.last_name },
+      taxon_determination.determiners_organization.collect{|d| d.name }
+    ].reduce([], :concat).to_sentence
+
     names.blank? ? nil : "by #{names}"
   end
 
