@@ -112,8 +112,13 @@ const setDetermination = determination => {
   Object.assign(taxonDetermination, makeTaxonDetermination(), determination)
 }
 
+const getRoleString = role =>
+  role.organization_id
+    ? role.name
+    : role?.person?.last_name || role?.last_name || ''
+
 const addDetermination = () => {
-  const rolesString = taxonDetermination.roles_attributes.map(author => author?.person?.last_name || author?.last_name || '').join('; ')
+  const rolesString = taxonDetermination.roles_attributes.map(getRoleString).join('; ')
   const label = `${otuLabel.value} by ${rolesString} ${dateString(taxonDetermination)}`
 
   emit('onAdd', {
