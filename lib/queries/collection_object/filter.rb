@@ -154,6 +154,8 @@ module Queries
       # @return [String, nil]
       attr_accessor :buffered_determinations
 
+      # TODO: See `exact[]` pattern in people
+
       # @return [Boolean, nil]
       attr_accessor :exact_buffered_determinations
 

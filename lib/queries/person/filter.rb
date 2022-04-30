@@ -28,6 +28,7 @@ module Queries
       #   !! if provided then last/first_name are ignored
       attr_accessor :levenshtein_cuttoff
 
+      # TODO: change to `exact[]`
       # @return [Array]
       #   values are attributes that should be wildcarded:
       #     last_name, first_name, name
@@ -40,7 +41,7 @@ module Queries
       attr_accessor :active_before_year
 
       attr_accessor :died_after_year
-      attr_accessor :died_before_year
+      attr_accessor :attr_accessordied_before_year
 
       attr_accessor :last_name_starts_with
 
