@@ -22,16 +22,12 @@ module TaxonDeterminationsHelper
       taxon_determination_by(taxon_determination),
       taxon_determination_on(taxon_determination)
     ].compact.join(' ')
-
   end
 
   # @return [String]
   #   as for taxon_determination_tag but does not reference collection object, links to OTU
   def taxon_determination_link(taxon_determination)
-    [ link_to(determination_tag(taxon_determination), taxon_determination.otu),
-      taxon_determination_by(taxon_determination),
-      taxon_determination_on(taxon_determination)
-    ].join(' ').html_safe
+    link_to(determination_tag(taxon_determination), browse_otus_task_path(taxon_determination.otu))
   end
 
   # @return [String]
