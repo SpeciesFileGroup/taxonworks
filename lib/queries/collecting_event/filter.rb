@@ -6,6 +6,7 @@ module Queries
       include Queries::Concerns::Tags
       include Queries::Concerns::DateRanges
       include Queries::Concerns::Identifiers
+      include Queries::Concerns::Users
 
       # TODO: likely move to model (replicated in Source too)
       # Params exists for all CollectingEvent attributes except these
@@ -119,6 +120,7 @@ module Queries
         set_tags_params(params)
         set_attributes(params)
         set_dates(params)
+        set_user_dates(params)
       end
 
       def set_attributes(params)
@@ -315,6 +317,7 @@ module Queries
           identifier_facet, # See Queries::Concerns::Identifiers
           identifier_namespace_facet,
           depictions_facet,
+          created_updated_facet
         ].compact!
         clauses
       end
