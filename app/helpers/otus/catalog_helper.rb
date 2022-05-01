@@ -48,6 +48,7 @@ module Otus::CatalogHelper
   #    similar_otus: { otu.id => label_for_otu(), ...},  # OTUs with the same taxon name, but different `name`
   #    nomenclatural_synonyms: [ full_original_taxon_name_label*, ...},
   #    descendants: [{ ... as above ...}]
+  #    leaf_node: boolean                                # Signals whether bottom of the tree was reached. Useful max_descendants_depth is set
   # }
   #
   # Starting from an OTU, recurse via TaxonName and
@@ -57,7 +58,15 @@ module Otus::CatalogHelper
   # @param otu [an Otu]
   # @param data [Hash] the data to return
   # @param similar_otus [Array] of otu_ids, the ids of OTUs to skip when assigning nodes (e.g. clones, or similar otus)
-  def otu_descendants_and_synonyms(otu = self, data: {}, similar_otus: [], common_names: false, langage_alpha2: nil)
+  # @param max_descendants_depth [Numeric] the maximum depth of the descendants tree. Default is unbounded
+  def otu_descendants_and_synonyms(
+    otu = self,
+    data: {},
+    similar_otus: [],
+    common_names: false,
+    langage_alpha2: nil,
+    max_descendants_depth: Float::INFINITY
+  )
     s = Otu.where(taxon_name: otu.taxon_name).where.not(id: otu.id).where.not(name: otu.name.present? ? otu.name : nil).to_a
 
     similar_otus += s.collect { |p| p.id }
@@ -73,11 +82,21 @@ module Otus::CatalogHelper
              descendants: []}
 
     if otu.taxon_name
-      otu.taxon_name.descendants.where(parent: otu.taxon_name).that_is_valid.order(:cached, :cached_author_year).each do |d|
-        if o = d.otus.order(name: 'DESC', id: 'ASC').first # arbitrary pick an OTU, prefer those without `name`. t since we summarize across identical OTUs, this is not an issue
-          next if similar_otus.include?(o.id)
-          data[:descendants].push otu_descendants_and_synonyms(o, data: data, similar_otus: similar_otus)
+      descendants = otu.taxon_name.descendants.where(parent: otu.taxon_name).that_is_valid
+      if max_descendants_depth >= 1
+        descendants.order(:cached, :cached_author_year).each do |d|
+          if o = d.otus.order(name: 'DESC', id: 'ASC').first # arbitrary pick an OTU, prefer those without `name`. t since we summarize across identical OTUs, this is not an issue
+            data[:descendants].push otu_descendants_and_synonyms(
+              o,
+              data: data,
+              similar_otus: similar_otus,
+              max_descendants_depth: max_descendants_depth - 1
+            ) unless similar_otus.include?(o.id)
+          end
         end
+        data[:leaf_node] = data[:descendants].empty?
+      else
+        data[:leaf_node] = descendants.where.not(id: similar_otus).none?
       end
     end
     data
