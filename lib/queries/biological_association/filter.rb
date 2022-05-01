@@ -46,9 +46,9 @@ module Queries
       # Citations
       # Tags
       # User (on associations
-    
+
       attr_accessor :taxon_name_query
-     
+
       # @return [Symbol]
       #   one of :any, :subject, :object
       # @params [String, nil] 
@@ -72,7 +72,7 @@ module Queries
 
       # @return [Array] 
       attr_accessor :subject_global_id
-    
+
       # @return [Array] 
       attr_accessor :object_global_id
 
@@ -114,7 +114,7 @@ module Queries
       def taxon_name_query_target
         @taxon_name_query_target.blank? ? :any : @taxon_name_query_target.to_sym
       end
- 
+
       def biological_association_id 
         [@biological_association_id].flatten.compact
       end
@@ -225,17 +225,17 @@ module Queries
         # Convert base and clauses to merge clauses
         taxon_name_query.base_and_clauses.each do |i|
           if taxon_name_query_target == 'subject'
-             case subject_type
-           
-             when 'collection_object'
-                ::BiologicalAssociation
-                  .targeted_join(target: 'subject', target_class: ::CollectionObject)
-                  .merge(::Queries::CollectionObject::Filter.new(taxon_name_query: taxon_name_query) 
-             when 'otu'
-            
-             else
-               
-             end
+            case subject_type
+
+            when 'collection_object'
+              ::BiologicalAssociation
+                .targeted_join(target: 'subject', target_class: ::CollectionObject)
+                .merge(::Queries::CollectionObject::Filter.new(taxon_name_query: taxon_name_query) 
+            when 'otu'
+
+            else
+
+            end
 
             c.push ::BiologicalAssociation.joins(:taxon_name).where( i )
           elsif taxon_Name_query_target == 'object'
@@ -278,13 +278,13 @@ module Queries
         clauses += taxon_name_merge_clauses + taxon_name_and_clauses
 
         clauses += [
-        # keyword_id_facet,       # See Queries::Concerns::Tags
-        # created_updated_facet,  # See Queries::Concerns::Users
-        # identifiers_facet,      # See Queries::Concerns::Identifiers
-        # identifier_between_facet,
-        # identifier_facet, # See Queries::Concerns::Identifiers
-        # identifier_namespace_facet,
-         ]
+          # keyword_id_facet,       # See Queries::Concerns::Tags
+          # created_updated_facet,  # See Queries::Concerns::Users
+          # identifiers_facet,      # See Queries::Concerns::Identifiers
+          # identifier_between_facet,
+          # identifier_facet, # See Queries::Concerns::Identifiers
+          # identifier_namespace_facet,
+        ]
 
         clauses.compact!
         clauses
