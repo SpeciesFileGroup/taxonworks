@@ -1,6 +1,7 @@
 <template>
   <block-layout
     anchor="classification"
+    v-help.section.classification.container
     :warning="checkValidation"
     :spinner="!taxon.id">
     <template #header>

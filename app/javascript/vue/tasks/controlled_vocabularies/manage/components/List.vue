@@ -103,8 +103,9 @@ export default {
     removeCTV (index) {
       if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
         this.isLoading = true
-        ControlledVocabularyTerm.destroy(this.list[index].id).then(response => {
+        ControlledVocabularyTerm.destroy(this.list[index].id).then(_ => {
           this.list.splice(index, 1)
+        }).finally(_ => {
           this.isLoading = false
         })
       }

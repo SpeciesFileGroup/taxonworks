@@ -37,6 +37,7 @@
                 title="Press and hold to drag input"
               >
                 <v-icon
+                  color="white"
                   name="scrollV"
                   small
                 />
@@ -77,15 +78,18 @@ const taxonNameList = computed(() => [{
   taxon: store.getters[GetterNames.GetTaxon]
 }])
 
-const setCurrent = (taxon = currentTaxonName.value, combination = { [currentTaxonName.value.rank]: currentTaxonName.value }) => {
-  TaxonName.find(taxon.parent_id).then(({ body }) => {
-    if(ranks.value.includes(taxon.rank)) {
-      combination[body.rank] = body
+const setCurrent = (taxon = currentTaxonName.value, combination = {}) => {
+  if (ranks.value.includes(taxon.rank)) {
+    combination[taxon.rank] = taxon
+  }
+
+  if (taxon.parent_id) {
+    TaxonName.find(taxon.parent_id).then(({ body }) => {
       setCurrent(body, combination)
-    } else {
-      emit('onSet', combination)
-    }
-  })
+    })
+  } else {
+    emit('onSet', combination)
+  }
 }
 
 </script>

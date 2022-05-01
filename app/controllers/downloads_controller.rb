@@ -1,7 +1,7 @@
 class DownloadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_download, only: [:show, :download_file, :destroy, :update, :file, :api_show]
+  before_action :set_download, only: [:show, :download_file, :destroy, :update, :file, :api_show, :edit]
   before_action :set_download_api, only: [:api_file, :api_show]
 
   after_action -> { set_pagination_headers(:downloads) }, only: [:api_index], if: :json_request?
@@ -28,21 +28,37 @@ class DownloadsController < ApplicationController
   def show
   end
 
+  # GET /downloads/1/edit
+  def edit
+  end
+
   # DELETE /downloads/1
   # DELETE /downloads/1.json
   def destroy
     @download.destroy
     respond_to do |format|
-      format.html { redirect_to downloads_url, notice: 'Download was successfully destroyed.' }
-      format.json { head :no_content }
+      if @download.destroyed?
+        format.html { destroy_redirect @download, notice: 'Download was successfully destroyed.' }
+        format.json { head :no_content}
+      else
+        format.html { destroy_redirect @download, notice: 'Download was not destroyed, ' + @download.errors.full_messages.join('; ') }
+        format.json { render json: @download.errors, status: :unprocessable_entity }
+      end
     end
   end
 
   # PATCH /downloads/1
   # PATCH /downloads/1.json
   def update
-    @download.update(download_params)
-    render action: :show
+    respond_to do |format|
+      if @download.update(download_params)
+        format.html { redirect_to @download.metamorphosize, notice: 'Download was successfully updated.' }
+        format.json { render :show, location: @download.metamorphosize }
+      else
+        format.html { render action: 'edit' }
+        format.json { render json: @download.errors, status: :unprocessable_entity }
+      end
+    end
   end
 
   # GET /downloads/list
@@ -95,6 +111,6 @@ class DownloadsController < ApplicationController
   end
 
   def download_params
-    params.require(:download).permit(:is_public)
+    params.require(:download).permit(:is_public, :name, :expires )
   end
 end

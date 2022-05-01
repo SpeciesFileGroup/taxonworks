@@ -73,7 +73,8 @@ class Sequence < ApplicationRecord
   # @param used_on [String] required, one of `GeneAttribute` or `SequenceRelationship`
   # @return [Scope]
   #   the max 10 most recently used otus, as `used_on`
-  def self.used_recently(user_id, project_id, used_on = '')
+  def self.used_recently(user_id, project_id, used_on = nil)
+    return Sequence.none if used_on.nil?
     t = case used_on
         when 'GeneAttribute'
           GeneAttribute.arel_table
@@ -96,15 +97,15 @@ class Sequence < ApplicationRecord
           t.project(t['object_sequence_id'], t['updated_at']).from(t)
             .where(
               t['updated_at'].gt(1.weeks.ago)
-          )
+            )
               .where(t['created_by_id'].eq(user_id))
               .where(t['project_id'].eq(project_id))
-            .order(t['updated_at'])
+              .order(t['updated_at'])
         else
           t.project(t['sequence_id'], t['updated_at']).from(t)
             .where(t['updated_at'].gt( 1.weeks.ago ))
-              .where(t['created_by_id'].eq(user_id))
-              .where(t['project_id'].eq(project_id))
+            .where(t['created_by_id'].eq(user_id))
+            .where(t['project_id'].eq(project_id))
             .order(t['updated_at'])
         end
 

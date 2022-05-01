@@ -7,10 +7,14 @@
       <h1>Comprehensive specimen digitization</h1>
       <ul class="context-menu">
         <li>
+          <settings-collection-object />
+        </li>
+        <li>
           <label v-help.sections.global.reorderFields>
             <input
               type="checkbox"
-              v-model="settings.sortable">
+              v-model="settings.sortable"
+            >
             Reorder fields
           </label>
         </li>
@@ -20,9 +24,10 @@
       v-if="saving || loading"
       full-screen
       :logo-size="{ width: '100px', height: '100px'}"
-      :legend="(saving ? 'Saving changes...' : 'Loading...')"/>
-    <task-header/>
-    <collection-object class="separate-bottom"/>
+      :legend="(saving ? 'Saving changes...' : 'Loading...')"
+    />
+    <task-header />
+    <collection-object class="separate-bottom" />
     <div class="horizontal-left-content align-start separate-top main-panel">
       <draggable
         class="separate-right left-section"
@@ -34,10 +39,11 @@
         <template #item="{ element }">
           <component
             class="margin-medium-bottom"
-            :is="element"/>
+            :is="element"
+          />
         </template>
       </draggable>
-      <collecting-event-layout class="separate-left item ce-section"/>
+      <collecting-event-layout class="separate-left item ce-section" />
     </div>
   </div>
 </template>
@@ -49,6 +55,7 @@ import TaxonDeterminationLayout from './components/taxonDetermination/main.vue'
 import CollectingEventLayout from './components/collectingEvent/main.vue'
 import TypeMaterial from './components/typeMaterial/typeMaterial.vue'
 import BiologicalAssociation from './components/biologicalAssociation/main.vue'
+import SettingsCollectionObject from './components/settings/SettingCollectionObject.vue'
 import SortComponent from './components/shared/sortComponenets.vue'
 import { User, Project } from 'routes/endpoints'
 import { MutationNames } from './store/mutations/mutations.js'
@@ -71,7 +78,8 @@ export default {
     BiologicalAssociation,
     CollectingEventLayout,
     SpinnerComponent,
-    Draggable
+    Draggable,
+    SettingsCollectionObject
   },
 
   computed: {
@@ -121,10 +129,13 @@ export default {
       this.$store.commit(MutationNames.SetProjectPreferences, response.body)
     })
 
+    if (!coIdParam) {
+      this.$store.dispatch(ActionNames.CreateDeterminationFromParams)
+    }
+
     if (/^\d+$/.test(coId)) {
       this.$store.dispatch(ActionNames.LoadDigitalization, coId)
-    }
-    else if (/^\d+$/.test(coIdParam)) {
+    } else if (/^\d+$/.test(coIdParam)) {
       this.$store.dispatch(ActionNames.LoadDigitalization, coIdParam)
     } else if (/^\d+$/.test(ceIdParam)) {
       this.$store.dispatch(ActionNames.GetCollectingEvent, ceIdParam)

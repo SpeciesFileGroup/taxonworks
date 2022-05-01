@@ -10,39 +10,6 @@
       <h1>{{ (descriptor.id ? 'Edit' : 'New') }} descriptor</h1>
       <ul class="context-menu">
         <li>
-          <div class="horizontal-left-content">
-            <span>Matrix:</span>
-            <div
-              class="horizontal-left-content"
-              v-if="matrix">
-              <a
-                class="margin-small-left"
-                :href="`/tasks/observation_matrices/new_matrix/${matrix.id}`"
-                v-html="matrix.object_tag"/>
-              <span
-                class="button circle-button btn-undo button-default"
-                @click="unsetMatrix"/>
-            </div>
-            <div
-              class="horizontal-left-content"
-              v-else>
-              <autocomplete
-                class="margin-small-left"
-                url="/observation_matrices/autocomplete"
-                param="term"
-                label="label"
-                placeholder="Search a observation matrix..."
-                @getItem="loadMatrix($event.id)"
-              />
-              <default-pin
-                class="margin-small-left"
-                section="ObservationMatrices"
-                type="ObservationMatrix"
-                @getId="loadMatrix"/>
-            </div>
-          </div>
-        </li>
-        <li>
           <a :href="observationMatrixHubPath">Observation matrix hub</a>
         </li>
         <li>
@@ -58,62 +25,77 @@
       <div class="flexbox horizontal-center-content align-start">
         <div class="ccenter item separate-right">
           <type-component
-            class="separate-bottom"
             :descriptor-id="descriptor.id"
             v-model="descriptor.type"
           />
-          <template v-if="descriptor.type">
-            <div class="panel basic-information">
-              <div class="header">
-                <h3>{{ sectionName }}</h3>
-              </div>
-              <div class="body">
-                <definition-component
-                  class="separate-bottom"
+          <block-layout
+            v-if="descriptor.type"
+            class="margin-medium-top">
+            <template #header>
+              <h3>{{ sectionName }}</h3>
+            </template>
+            <template #body>
+              <definition-component
+                class="separate-bottom"
+                v-model="descriptor"
+                @save="saveDescriptor(descriptor)"
+              />
+
+              <div v-if="existComponent">
+                <component
+                  v-if="descriptor.type"
+                  :is="loadComponent + 'Component'"
+                  @save="saveDescriptor($event, false)"
                   v-model="descriptor"
-                  @save="saveDescriptor(descriptor)"
                 />
-                <template v-if="existComponent">
-                  <div>
-                    <component
-                      v-if="descriptor.type"
-                      :is="loadComponent + 'Component'"
-                      @save="saveDescriptor($event, false)"
-                      v-model="descriptor"
-                    />
-                  </div>
-                </template>
-                <template v-if="!hideSaveButton">
-                  <v-btn
-                    color="create"
-                    medium
-                    :disabled="!descriptor.name"
-                    @click="saveDescriptor(descriptor, false)"
-                  >
-                    {{
-                      descriptor.id
-                        ? 'Update'
-                        : 'Create'
-                    }}
-                  </v-btn>
-                  <v-btn
-                    v-if="matrix"
-                    class="margin-small-left"
-                    color="create"
-                    medium
-                    :disabled="!descriptor.name"
-                    @click="saveDescriptor(descriptor)"
-                  >
-                    {{
-                      descriptor.id
-                        ? 'Update and return to matrix'
-                        : 'Create and return to matrix'
-                    }}
-                  </v-btn>
-                </template>
               </div>
-            </div>
-          </template>
+              <template v-if="!hideSaveButton">
+                <v-btn
+                  color="create"
+                  medium
+                  :disabled="!descriptor.name"
+                  @click="saveDescriptor(descriptor, false)"
+                >
+                  {{
+                    descriptor.id
+                      ? 'Update'
+                      : 'Create'
+                  }}
+                </v-btn>
+                <v-btn
+                  v-if="matrix"
+                  class="margin-small-left"
+                  color="create"
+                  medium
+                  :disabled="!descriptor.name"
+                  @click="saveDescriptor(descriptor)"
+                >
+                  {{
+                    descriptor.id
+                      ? 'Update and return to matrix'
+                      : 'Create and return to matrix'
+                  }}
+                </v-btn>
+
+                <v-btn
+                  class="margin-small-left"
+                  color="create"
+                  medium
+                  :disabled="!descriptor.name"
+                  @click="saveDescriptor(descriptor, false).then(_ => { resetDescriptor() })"
+                >
+                  {{
+                    descriptor.id
+                      ? 'Update and new'
+                      : 'Create and new'
+                  }}
+                </v-btn>
+              </template>
+            </template>
+          </block-layout>
+          <matrix-component
+            class="margin-medium-top"
+            v-model="matrix" />
         </div>
         <div
           id="cright-panel"
@@ -140,16 +122,19 @@ import UnitComponent from './components/units/units.vue'
 import PreviewComponent from './components/preview/preview.vue'
 import GeneComponent from './components/gene/gene.vue'
 import setParam from 'helpers/setParam'
-import DefaultPin from 'components/getDefaultPin'
 import VBtn from 'components/ui/VBtn/index.vue'
 import makeDescriptor from 'factory/Descriptor.js'
+import MatrixComponent from './components/matrix/Matrix.vue'
+import BlockLayout from 'components/layout/BlockLayout.vue'
 import { RouteNames } from 'routes/routes'
 import {
   Descriptor,
-  ObservationMatrix,
   ObservationMatrixColumnItem
 } from 'routes/endpoints'
-import { DESCRIPTOR_GENE } from 'constants/index.js'
+import {
+  DESCRIPTOR_GENE,
+  OBSERVATION_MATRIX_COLUMN_SINGLE_DESCRIPTOR
+} from 'constants/index.js'
 import DESCRIPTOR_TYPE from './const/types'
 
 export default {
@@ -163,8 +148,9 @@ export default {
     GeneComponent,
     Spinner,
     Autocomplete,
-    DefaultPin,
-    VBtn
+    VBtn,
+    BlockLayout,
+    MatrixComponent
   },
 
   computed: {
@@ -203,14 +189,18 @@ export default {
     }
   },
 
-  mounted () {
-    const urlParams = new URLSearchParams(window.location.search)
-    const matrixId = urlParams.get('observation_matrix_id')
-    const descriptorId = urlParams.get('descriptor_id') || location.pathname.split('/')[4]
-
-    if (/^\d+$/.test(matrixId)) {
-      this.loadMatrix(matrixId)
+  watch: {
+    matrix: {
+      handler () {
+        this.setParameters()
+      },
+      deep: true
     }
+  },
+
+  created () {
+    const urlParams = new URLSearchParams(window.location.search)
+    const descriptorId = urlParams.get('descriptor_id') || location.pathname.split('/')[4]
 
     if (/^\d+$/.test(descriptorId)) {
       this.loadDescriptor(descriptorId)
@@ -231,7 +221,7 @@ export default {
 
       this.saving = true
 
-      saveRecord.then(async response => {
+      return saveRecord.then(async response => {
         this.descriptor = response.body
 
         if (this.matrix) {
@@ -262,7 +252,7 @@ export default {
       const data = {
         descriptor_id: descriptor.id,
         observation_matrix_id: this.matrix.id,
-        type: 'ObservationMatrixColumnItem::Single::Descriptor'
+        type: OBSERVATION_MATRIX_COLUMN_SINGLE_DESCRIPTOR
       }
 
       return ObservationMatrixColumnItem.create({ observation_matrix_column_item: data }).then(() => {
@@ -278,18 +268,6 @@ export default {
         this.loading = false
         this.setParameters()
       })
-    },
-
-    loadMatrix (id) {
-      ObservationMatrix.find(id).then(response => {
-        this.matrix = response.body
-        this.setParameters()
-      })
-    },
-
-    unsetMatrix () {
-      this.matrix = undefined
-      this.setParameters()
     },
 
     setParameters () {

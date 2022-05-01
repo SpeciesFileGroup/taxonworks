@@ -156,7 +156,7 @@ export default {
 
   methods: {
     getDigitizeRoute () {
-      return `${RouteNames.DigitizeTask}?collection_object_id=${this.biologicalId}`
+      return `${RouteNames.DigitizeTask}?collection_object_id=${this.biologicalId}&taxon_name_id=${this.protonymId}`
     },
 
     createTypeMaterial () {

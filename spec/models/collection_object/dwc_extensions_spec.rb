@@ -1,6 +1,66 @@
 require 'rails_helper'
 describe CollectionObject::DwcExtensions, type: :model, group: [:collection_objects, :darwin_core] do
 
+  specify '#dwc_collection_code 1' do
+    s = Specimen.create!
+    n = FactoryBot.create(:valid_namespace, verbatim_short_name: 'DEF')
+    s.identifiers << Identifier::Local::CatalogNumber.new(
+      namespace: n,
+      identifier: '123'
+    )
+    expect(s.dwc_collection_code).to eq('DEF')
+  end
+
+  specify '#dwc_collection_code 2' do
+    s = Specimen.create!
+    n = FactoryBot.create(:valid_namespace, short_name: 'ABC')
+    s.identifiers << Identifier::Local::CatalogNumber.new(
+      namespace: n,
+      identifier: '123'
+    )
+    expect(s.dwc_collection_code).to eq('ABC')
+  end
+
+  specify '#dwc_occurrence_remarks' do
+    s = Specimen.create!
+    s.notes << Note.new(text: 'text')
+    expect(s.dwc_occurrence_remarks).to eq('text')
+  end
+
+  specify '#dwc_georeference_protocol' do
+    p = FactoryBot.create(:valid_protocol)
+    g = FactoryBot.create(:valid_georeference, protocols: [p])
+    s = Specimen.create!(collecting_event: g.collecting_event)
+    expect(s.dwc_georeference_protocol).to eq(p.name)
+  end
+
+  specify '#dwc_georeferenced_by 1' do
+    p1 = Person.create!(last_name: 'Jones')
+    p2 = Person.create!(last_name: 'Janes')
+
+    g = FactoryBot.create(:valid_georeference, georeferencers: [p1,p2])
+    s = Specimen.create!(collecting_event: g.collecting_event)
+    expect(s.dwc_georeferenced_by).to eq(p1.cached + '|' + p2.cached)
+  end
+
+  specify '#dwc_georeferenced_by 2' do
+    g = FactoryBot.create(:valid_georeference)
+    s = Specimen.create!(collecting_event: g.collecting_event)
+    expect(s.dwc_georeferenced_by).to eq(g.creator.name)  #
+  end
+
+  specify '#is_fossil? no' do
+    s = Specimen.create!
+    expect(s.is_fossil?).to eq(false)
+  end
+
+  specify '#is_fossil? yes' do
+    s = Specimen.create!
+    c = FactoryBot.create(:valid_biocuration_class, uri: DWC_FOSSIL_URI)
+    s.biocuration_classes << c
+    expect(s.is_fossil?).to eq(true)
+  end
+
   context '#dwc_occurrence' do
     let!(:ce) { CollectingEvent.create!(start_date_year: '2010') }
     let!(:s) { Specimen.create!(collecting_event: ce) }
@@ -9,7 +69,36 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
 
     let(:root) { Project.find(Current.project_id).send(:create_root_taxon_name) }
 
-    # Rough tests to detect infinite recursion
+    specify '#dwc_decimal_latitude' do
+      a = Georeference::Wkt.create!(collecting_event: ce, wkt: 'POINT(9.0 60)' )
+
+      s.georeference_attributes(true) # force the rebuild
+      expect(s.dwc_decimal_latitude).to eq(60.0) # technically not correct significant figures :(
+    end
+
+    specify '#dwc_year' do
+      expect(s.dwc_year).to eq(2010)
+    end
+
+    specify '#dwc_month' do
+      ce.update!( start_date_month: 1)
+      expect(s.dwc_month).to eq(1)
+    end
+
+    specify '#dwc_month' do
+      ce.update!( start_date_month: 1, start_date_day: 10)
+      expect(s.dwc_day).to eq(10)
+    end
+
+    specify '#dwc_start_day_of_year' do
+      ce.update!( start_date_month: 1, start_date_day: 1)
+      expect(s.dwc_start_day_of_year).to eq(1)
+    end
+
+    specify '#dwc_end_day_of_year' do
+      ce.update!(start_date_year: 2000, start_date_month: 12, start_date_day: 31, end_date_year: 2000, end_date_month: 12, end_date_day: 31)
+      expect(s.dwc_end_day_of_year).to eq(366) # leap
+    end
 
     specify '#dwc_event_date 1' do
       expect(s.dwc_event_date).to eq('2010')
@@ -99,7 +188,10 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
     end
 
     specify '#dwc_type_status' do
-      FactoryBot.create(:valid_type_material, collection_object: s)
+      a = FactoryBot.create(:valid_type_material, collection_object: s)
+      a.protonym.update!(original_genus: a.protonym.parent)
+      a.protonym.update!(original_species: a.protonym )
+
       expect(s.dwc_type_status).to eq('holotype of Erythroneura vitis McAtee, 1900')
     end
 
@@ -325,7 +417,6 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
 
       expect(s.dwc_recorded_by).to eq('Doe, John')
     end
-
 
     specify '#dwc_other_catalog_numbers' do
       a = Identifier::Local::CatalogNumber.create!(identifier: '123', identifier_object: s, namespace: FactoryBot.create(:valid_namespace) )

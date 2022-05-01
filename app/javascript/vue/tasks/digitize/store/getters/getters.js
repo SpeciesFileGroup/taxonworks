@@ -15,7 +15,6 @@ import getIdentifier from './getIdentifier'
 import getIdentifiers from './getIdentifiers'
 import getContainer from './getContainer'
 import getContainerItems from './getContainerItems'
-import getTaxonDetermination from './getTaxonDetermination'
 import getPreferences from './getPreferences'
 import getBiocurations from './getBiocurations'
 import getMaterialTypes from './getMaterialTypes'
@@ -23,7 +22,6 @@ import getLabel from './getLabel'
 import getTaxonDeterminations from './getTaxonDeterminations'
 import getNamespaceSelected from './getNamespaceSelected'
 import getSubsequentialUses from './getSubsequentialUses'
-import getTmpData from './getTmpData'
 import getCollectingEventIdentifier from './getCollectingEventIdentifier'
 import getGeographicArea from './getGeographicArea'
 import getProjectPreferences from './getProjectPreferences'
@@ -37,7 +35,6 @@ const GetterNames = {
   IsLoading: 'isLoading',
   GetLocked: 'getLocked',
   GetSettings: 'getSettings',
-  GetTaxonDetermination: 'getTaxonDetermination',
   GetCOCitations: 'getCOCitations',
   GetCollectingEventIdentifier: 'getCollectingEventIdentifier',
   GetCollectingEvent: 'getCollectingEvent',
@@ -60,7 +57,6 @@ const GetterNames = {
   GetTaxonDeterminations: 'GetTaxonDeterminations',
   GetNamespaceSelected: 'getNamespaceSelected',
   GetSubsequentialUses: 'getSubsequentialUses',
-  GetTmpData: 'getTmpData',
   GetProjectPreferences: 'getProjectPreferences',
   GetLastSave: 'getLastSave',
   GetSoftValidations: 'getSoftValidations',
@@ -73,7 +69,6 @@ const GetterFunctions = {
   [GetterNames.IsLoading]: isLoading,
   [GetterNames.GetLocked]: getLocked,
   [GetterNames.GetSettings]: getSettings,
-  [GetterNames.GetTaxonDetermination]: getTaxonDetermination,
   [GetterNames.GetGeographicArea]: getGeographicArea,
   [GetterNames.GetCOCitations]: getCOCitations,
   [GetterNames.GetCollectingEventLabel]: getCollectingEventLabel,
@@ -96,7 +91,6 @@ const GetterFunctions = {
   [GetterNames.GetTaxonDeterminations]: getTaxonDeterminations,
   [GetterNames.GetNamespaceSelected]: getNamespaceSelected,
   [GetterNames.GetSubsequentialUses]: getSubsequentialUses,
-  [GetterNames.GetTmpData]: getTmpData,
   [GetterNames.GetProjectPreferences]: getProjectPreferences,
   [GetterNames.GetLastSave]: getLastSave,
   [GetterNames.GetSoftValidations]: getSoftValidations,

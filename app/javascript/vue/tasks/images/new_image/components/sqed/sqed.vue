@@ -75,10 +75,11 @@ import HorizontalOffsetCrossLayout from './layouts/horizontal_offset_cross'
 import VerticalOffsetCrossLayout from './layouts/vertical_offset_cross'
 import SevenSlotLayout from './layouts/seven_slot'
 import LepStageLayout from './layouts/lep_stage'
+import LepStage2Layout from './layouts/lep_stage2'
 import VerticalSplitLayout from './layouts/vertical_split'
 import SpinnerComponent from 'components/spinner'
 
-import TagsComponent from '../tags'
+import TagsComponent from '../sqed/tags'
 import DataAttributes from '../dataAttributes'
 
 import { GetterNames } from '../../store/getters/getters.js'
@@ -101,7 +102,8 @@ export default {
     VerticalSplitLayout,
     SpinnerComponent,
     TagsComponent,
-    DataAttributes
+    DataAttributes,
+    LepStage2Layout
   },
 
   computed: {

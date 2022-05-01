@@ -15,6 +15,8 @@ module Queries
 
       # @return [Array]
       def autocomplete
+        return [] if query_string.blank?
+
         queries = [
           autocomplete_recipient_email,
           autocomplete_exact_date_sent,

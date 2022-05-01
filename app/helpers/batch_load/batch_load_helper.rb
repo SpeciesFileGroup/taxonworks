@@ -58,11 +58,11 @@ module BatchLoad::BatchLoadHelper
   end
 
   def batch_valid_objects_td(rp)
-    content_tag(:td, rp.has_valid_objects? ? rp.valid_objects.length : 0)
+    tag.td(rp.has_valid_objects? ? rp.valid_objects.length : 0)
   end
 
   def batch_all_objects_count_td(rp)
-    content_tag(:td, rp.total_objects)
+    tag.td rp.total_objects
   end
 
   def batch_line_link_td(line)

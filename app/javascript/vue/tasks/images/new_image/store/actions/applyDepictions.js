@@ -44,8 +44,7 @@ export default ({ state, commit }) => {
         })
       }))
     })
-  }
-  else {
+  } else {
     state.objectsForDepictions.forEach(object => {
       state.imagesCreated.forEach(item => {
         const depiction = {
@@ -67,8 +66,7 @@ export default ({ state, commit }) => {
             createdCount++
             commit(MutationNames.AddDepiction, response.body)
           }))
-        }
-        else {
+        } else {
           depiction.id = alreadyCreated.id
           if (depiction.sqed_depiction_attributes && alreadyCreated?.sqed_depiction?.id) {
             depiction.sqed_depiction_attributes.id = alreadyCreated.sqed_depiction.id

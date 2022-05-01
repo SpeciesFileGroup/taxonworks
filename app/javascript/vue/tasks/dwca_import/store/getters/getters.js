@@ -7,7 +7,7 @@ import getRowPositionById from './getRowPositionById'
 import getSettings from './getSettings'
 import getVirtualPages from './getVirtualPages'
 import getCurrentVirtualPage from './getCurrentVirtualPage'
-import getStartRow from './getStartRow'
+import getNamespaceFor from './getNamespaceFor'
 
 const GetterNames = {
   GetDataset: 'getDataset',
@@ -15,11 +15,11 @@ const GetterNames = {
   GetParamsFilter: 'getParamsFilter',
   GetSelectedRowIds: 'getSelectedRowIds',
   GetDatasetRecords: 'getDatasetRecords',
+  GetNamespaceFor: 'getNamespaceFor',
   GetRowPositionById: 'getRowPositionById',
   GetSettings: 'getSettings',
   GetVirtualPages: 'getVirtualPages',
   GetCurrentVirtualPage: 'getCurrentVirtualPage',
-  getStartRow: 'getStartRow'
 }
 
 const GetterFunctions = {
@@ -28,11 +28,11 @@ const GetterFunctions = {
   [GetterNames.GetParamsFilter]: getParamsFilter,
   [GetterNames.GetSelectedRowIds]: getSelectedRowIds,
   [GetterNames.GetDatasetRecords]: getDatasetRecords,
+  [GetterNames.GetNamespaceFor]: getNamespaceFor,
   [GetterNames.GetRowPositionById]: getRowPositionById,
   [GetterNames.GetSettings]: getSettings,
   [GetterNames.GetVirtualPages]: getVirtualPages,
-  [GetterNames.GetCurrentVirtualPage]: getCurrentVirtualPage,
-  [GetterNames.GetStartRow]: getStartRow,
+  [GetterNames.GetCurrentVirtualPage]: getCurrentVirtualPage
 }
 
 export {

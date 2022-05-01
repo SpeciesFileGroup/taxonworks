@@ -46,7 +46,6 @@ class DescriptorsController < ApplicationController
       if @descriptor.save
         format.html { redirect_to url_for(@descriptor.metamorphosize),
                       notice: 'Descriptor was successfully created.' }
-
         format.json { render :show, status: :created, location: @descriptor.metamorphosize }
       else
         format.html { render :new }
@@ -59,13 +58,19 @@ class DescriptorsController < ApplicationController
   # PATCH/PUT /descriptors/1.json
   def update
     respond_to do |format|
-      if @descriptor.update(descriptor_params)
-        format.html { redirect_to url_for(@descriptor.metamorphosize),
-                      notice: 'Descriptor was successfully updated.' }
-        format.json { render :show, status: :ok, location: @descriptor.metamorphosize }
-      else
+      begin
+        if @descriptor.update(descriptor_params)
+          format.html { redirect_to url_for(@descriptor.metamorphosize),
+                        notice: 'Descriptor was successfully updated.' }
+          format.json { render :show, status: :ok, location: @descriptor.metamorphosize }
+        else
+          format.html { render :edit }
+          format.json { render json: @descriptor.metamorphosize.errors, status: :unprocessable_entity }
+        end
+        # Can not cascade destroy Observations
+      rescue ActiveRecord::RecordNotDestroyed
         format.html { render :edit }
-        format.json { render json: @descriptor.metamorphosize.errors, status: :unprocessable_entity }
+        format.json { render json: 'Could not destroy, do observations still exist?', status: :unprocessable_entity }
       end
     end
   end
@@ -73,10 +78,15 @@ class DescriptorsController < ApplicationController
   # DELETE /descriptors/1
   # DELETE /descriptors/1.json
   def destroy
-    @descriptor.destroy!
+    @descriptor.destroy
     respond_to do |format|
-      format.html { redirect_to descriptors_url, notice: 'Descriptor was successfully destroyed.' }
-      format.json { head :no_content }
+      if @descriptor.destroyed?
+        format.html { destroy_redirect @descriptor, notice: 'Descriptor was successfully destroyed.' }
+        format.json { head :no_content }
+      else
+        format.html { destroy_redirect @descriptor, notice: 'Descriptor was not destroyed, ' + @descriptor.errors.full_messages.join('; ') }
+        format.json { render json: @descriptor.errors, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -115,11 +125,23 @@ class DescriptorsController < ApplicationController
     end
   end
 
+  def preview_qualitative_descriptor_batch_load
+    if params[:file]
+      @result = BatchLoad::Import::Descriptors::QualitativeInterpreter.new(**batch_params)
+      digest_cookie(params[:file].tempfile, :qualitative_descriptors_batch_load_md5)
+      render 'descriptors/batch_load/qualitative_descriptor/preview'
+    else
+      flash[:notice] = 'No file provided!'
+      redirect_to action: :batch_load
+    end
+  end
+
   def create_modify_gene_descriptor_batch_load
-    if params[:file] && digested_cookie_exists?(params[:file]
-      .tempfile, :modify_gene_descriptor_batch_load_descriptors_md5)
+    if params[:file] && digested_cookie_exists?(
+        params[:file].tempfile,
+        :modify_gene_descriptor_batch_load_descriptors_md5)
       @result = BatchLoad::Import::Descriptors::ModifyGeneDescriptorInterpreter.new(**batch_params)
-      if @result.create!
+      if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} " \
           'Gene Descriptors were modified.'
 
@@ -132,6 +154,24 @@ class DescriptorsController < ApplicationController
     end
     render :batch_load
   end
+
+  def create_qualitative_descriptor_batch_load
+    if params[:file] && digested_cookie_exists?(
+        params[:file].tempfile,
+        :qualitative_descriptors_batch_load_md5)
+      @result = BatchLoad::Import::Descriptors::QualitativeInterpreter.new(**batch_params)
+      if @result.create
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created}."
+        render 'descriptors/batch_load/qualitative_descriptor/create' and return
+      else
+        flash[:alert] = 'Batch import failed.'
+      end
+    else
+      flash[:alert] = 'File to batch upload must be supplied.'
+    end
+    render :batch_load
+  end
+
 
   def units
     render json: UNITS

@@ -17,7 +17,11 @@
 #
 # @!attribute respository_id
 #   @return [Integer]
-#   The id of the Repository.  This is the "home" repository, *not* where the specimen currently is located.  Repositories may indicate ownership BUT NOT ALWAYS (this is custody, not ownership). The assertion is only that "if this collection object was not being used, then it should be in this repository".
+#   The id of the Repository.  This is an assertion of the "home" repository, i.e. where you would most reasonably find the ColletionObject when it is not "in use" by external parties. Repositories may indicate ownership, but this is inference, not an assetion. There is some notion of "custody" tied to this assertion. The assertion is only that "if this collection object was not being used, then it you can infer that it will be found in this Repository. In the absence of the assertion of a current repository it is reasonable to infer that this is also where the specimen can be currently found, however this inference will not always hold.  See current_repository_id for related issues vs. modeling localization in TaxonWorks and the use of Containers.
+#
+# @!attribute current_respository_id
+#   @return [Integer]
+#   The id of the current repository.  The current repository is the Repository that the specimen can be expected to be found at (i.e. "is localized to") at the present time.  See also respository_id.  This is a temporally bound assertion of location of the specimen, not ownership.  In the future this will need to be reconciled with concepts of "custody" (the agent responsible for the specimen) and a stricter modelling of localization (in TaxonWorks this really should be a Container::Collection or Container::Building, i.e. the attribute doesn't really belong here in the long term.
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -65,7 +69,6 @@ class CollectionObject < ApplicationRecord
   include Shared::Containable
   include Shared::DataAttributes
   include Shared::Loanable
-  include Shared::HasRoles
   include Shared::Identifiers
   include Shared::Notes
   include Shared::Tags
@@ -77,7 +80,7 @@ class CollectionObject < ApplicationRecord
   include Shared::Observations
   include Shared::IsData
   include SoftValidation
-  
+
   include CollectionObject::BiologicalExtensions
 
   include CollectionObject::Taxonomy # at present must be before IsDwcOccurence
@@ -95,6 +98,7 @@ class CollectionObject < ApplicationRecord
 
   # Identifier delegations
   delegate :cached, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
+  delegate :namespace, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
 
   # CollectingEvent delegations
   delegate :map_center, to: :collecting_event, prefix: :collecting_event, allow_nil: true
@@ -122,13 +126,10 @@ class CollectionObject < ApplicationRecord
   belongs_to :preparation_type, inverse_of: :collection_objects
   belongs_to :ranged_lot_category, inverse_of: :ranged_lots
   belongs_to :repository, inverse_of: :collection_objects
+  belongs_to :current_repository, class_name: 'Repository', foreign_key: :current_repository_id, inverse_of: :collection_objects
 
   has_many :georeferences, through: :collecting_event
   has_many :geographic_items, through: :georeferences
-
-  has_many :observation_matrix_row_items, inverse_of: :collection_object, class_name: 'ObservationMatrixRowItem::Single::CollectionObject'
-  has_many :observation_matrix_rows, inverse_of: :collection_object
-  has_many :observation_matrices, inverse_of: :collection_objects, through: :observation_matrix_rows
 
   accepts_nested_attributes_for :collecting_event, allow_destroy: true, reject_if: :reject_collecting_event
 
@@ -343,9 +344,9 @@ class CollectionObject < ApplicationRecord
       retval = CollectionObject.where(id: step_4.sort)
     else
       retval = CollectionObject.joins(:geographic_items)
-                   .where(GeographicItem.contained_by_where_sql(geographic_item.id))
-                   .limit(limit)
-                   .includes(:data_attributes, :collecting_event)
+        .where(GeographicItem.contained_by_where_sql(geographic_item.id))
+        .limit(limit)
+        .includes(:data_attributes, :collecting_event)
     end
     retval
   end
@@ -366,16 +367,16 @@ class CollectionObject < ApplicationRecord
   def self.ce_headers(project_id)
     CollectionObject.selected_column_names
     cvt_list = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent')
-                 .distinct
-                 .pluck(:controlled_vocabulary_term_id)
+      .distinct
+      .pluck(:controlled_vocabulary_term_id)
     # add selectable column names (unselected) to the column name list list
     ControlledVocabularyTerm.where(id: cvt_list).map(&:name).sort.each { |column_name|
       @selected_column_names[:ce][:in][column_name] = {checked: '0'}
     }
     ImportAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent')
       .pluck(:import_predicate).uniq.sort.each { |column_name|
-      @selected_column_names[:ce][:im][column_name] = {checked: '0'}
-    }
+        @selected_column_names[:ce][:im][column_name] = {checked: '0'}
+      }
     @selected_column_names
   end
 
@@ -395,23 +396,23 @@ class CollectionObject < ApplicationRecord
           group[type_key.to_sym].each_key { |header|
             this_val = nil
             case type_key.to_sym
-              when :in
-                all_internal_das.each { |da|
-                  if da.predicate.name == header
-                    this_val = da.value
-                    break
-                  end
-                }
-                retval.push(this_val) # push one value (nil or not) for each selected header
-              when :im
-                all_import_das.each { |da|
-                  if da.import_predicate == header
-                    this_val = da.value
-                    break
-                  end
-                }
-                retval.push(this_val) # push one value (nil or not) for each selected header
-              else
+            when :in
+              all_internal_das.each { |da|
+                if da.predicate.name == header
+                  this_val = da.value
+                  break
+                end
+              }
+              retval.push(this_val) # push one value (nil or not) for each selected header
+            when :im
+              all_import_das.each { |da|
+                if da.import_predicate == header
+                  this_val = da.value
+                  break
+                end
+              }
+              retval.push(this_val) # push one value (nil or not) for each selected header
+            else
             end
           }
         }
@@ -426,16 +427,16 @@ class CollectionObject < ApplicationRecord
   def self.co_headers(project_id)
     CollectionObject.selected_column_names
     cvt_list = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject')
-                 .distinct
-                 .pluck(:controlled_vocabulary_term_id)
+      .distinct
+      .pluck(:controlled_vocabulary_term_id)
     # add selectable column names (unselected) to the column name list list
     ControlledVocabularyTerm.where(id: cvt_list).map(&:name).sort.each { |column_name|
       @selected_column_names[:co][:in][column_name] = {checked: '0'}
     }
     ImportAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject')
       .pluck(:import_predicate).uniq.sort.each { |column_name|
-      @selected_column_names[:co][:im][column_name] = {checked: '0'}
-    }
+        @selected_column_names[:co][:im][column_name] = {checked: '0'}
+      }
     @selected_column_names
   end
 
@@ -578,7 +579,7 @@ class CollectionObject < ApplicationRecord
             )
               .where(t['created_by_id'].eq(user_id))
               .where(t['project_id'].eq(project_id))
-            .order(t['updated_at'].desc)
+              .order(t['updated_at'].desc)
         else
           t.project(t['biological_collection_object_id'], t['updated_at']).from(t)
             .where(t['updated_at'].gt( 1.weeks.ago ))
@@ -616,7 +617,7 @@ class CollectionObject < ApplicationRecord
       n = target.tableize.to_sym
       h[:recent] = CollectionObject.where('"collection_objects"."id" IN (?)', r.first(10) ).to_a
       h[:quick] = (CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  +
-          CollectionObject.where('"collection_objects"."id" IN (?)', r.first(4) ).to_a).uniq
+                   CollectionObject.where('"collection_objects"."id" IN (?)', r.first(4) ).to_a).uniq
     else
       h[:recent] = CollectionObject.where(project_id: project_id, updated_by_id: user_id).order('updated_at DESC').limit(10).to_a
       h[:quick] = CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
@@ -628,11 +629,11 @@ class CollectionObject < ApplicationRecord
   # @return [Identifier::Local::CatalogNumber, nil]
   #   the first (position) catalog number for this collection object, either on specimen, or container
   def preferred_catalog_number
-    if i = Identifier::Local::CatalogNumber.where(identifier_object: self).first
+    if i = Identifier::Local::CatalogNumber.where(identifier_object: self).order(:position).first
       i
     else
       if container
-        container.identifiers.where(identifiers: {type: 'Identifier::Local::CatalogNumber'}).first
+        container.identifiers.where(identifiers: {type: 'Identifier::Local::CatalogNumber'}).order(:position).first
       else
         nil
       end
@@ -688,7 +689,7 @@ class CollectionObject < ApplicationRecord
     if collecting_event&.persisted? && (Current.project_id || project_id)
       errors.add(:base, 'collecting event is not from this project') if collecting_event.project_id != (Current.project_id || project_id)
     end
-  end 
+  end
 
   def check_that_both_of_category_and_total_are_not_present
     errors.add(:ranged_lot_category_id, 'Both ranged_lot_category and total can not be set') if !ranged_lot_category_id.blank? && !total.blank?
@@ -720,7 +721,7 @@ class CollectionObject < ApplicationRecord
     # !! does not account for georeferences_attributes!
     reject
   end
-  
+
 end
 
 require_dependency 'specimen'

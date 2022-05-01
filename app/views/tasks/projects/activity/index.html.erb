@@ -1,0 +1,81 @@
+<%= content_for :head do -%>
+  <%= javascript_include_tag "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.js",
+    "https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"  %>
+<% end %>
+
+<%= tag.h1 "Task - Project activity: #{@project.name}", id: :top -%>
+
+<p><%= link_to 'Back', @project %></p>
+
+<h2> Report data type by created/updated by date range</h2>
+
+<%= form_tag project_activity_type_report_path, method: :get, remote: true do |f| %>
+  <div class="field">
+    <h3> Plot data for </h3>
+    <%= select_tag :klass, options_for_select(ApplicationEnumeration.data_models.select{|a| a.column_names.include?('created_at')}.collect{|b| b.name}.sort, include_blank: true) %>
+  </div>
+
+  <div class="field">
+    <h3> For project member (leave blank for all project members)</h3>
+    
+    <%= select_tag :user_id, options_from_collection_for_select( @project.users.order(:name), :id, :name), include_blank: true %> <em> Selecting a single user will generate a session report for that user as well.</em><br>
+  </div>
+
+  <table class="full_width">
+    <tr>
+      <td>
+        <h3> Aggregated by timespan of</h3>
+        <div class="field">
+          <%= radio_button_tag :time_span, :year, true %>
+          <%= label_tag :year %>
+        </div>
+
+        <div class="field">
+          <%= radio_button_tag :time_span, :month %>
+          <%= label_tag :month %>
+        </div>
+
+        <div class="field">
+          <%= radio_button_tag :time_span, :week %>
+          <%= label_tag :week %>
+        </div>
+      </td>
+
+      <td>
+        <h3> Created / updated</h3>
+        <div class="field">
+          <%= radio_button_tag :target, :created, true %>
+          <%= label_tag :Created %>
+        </div>
+
+        <div class="field">
+          <%= radio_button_tag :target, :updated %>
+          <%= label_tag :Updated %>
+        </div>
+      </td>
+
+      <td>
+        <h3> Between (blank for all)</h3>
+        <div class="field">
+          <%= label_tag :Start %>
+          <%= date_field_tag :start_date %>
+        </div>
+
+        <div class="field">
+          <%= label_tag :End %>
+          <%= date_field_tag :end_date  %>
+        </div>
+      </td>
+
+    </tr>
+  </table>
+
+  <br>
+  <%= tag.button(:Report, class: [:button, 'button-default']) %>
+<% end %>
+
+<br>
+
+<div id="type_report" >
+  <%= tag.span 'Select report options above.', class: ['feedback', 'feedback-notice']  %>
+</div>

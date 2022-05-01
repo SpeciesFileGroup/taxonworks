@@ -1,5 +1,6 @@
 const ActionNames = {
   AddToContainer: 'addToContainer',
+  CreateDeterminationFromParams: 'createDeterminationFromParams',
   GetCOCitations: 'getCOCitations',
   GetCollectingEvent: 'getCollectingEvent',
   GetCollectionObject: 'getCollectionObject',
@@ -19,7 +20,6 @@ const ActionNames = {
   NewCollectionObject: 'newCollectionObject',
   NewIdentifier: 'newIdentifier',
   NewLabel: 'newLabel',
-  NewTaxonDetermination: 'newTaxonDetermination',
   NewTypeMaterial: 'newTypeMaterial',
   RemoveCOCitation: 'removeCOCitation',
   RemoveCollectionObject: 'removeCollectionObject',
@@ -28,6 +28,7 @@ const ActionNames = {
   RemoveDepictionsByImageId: 'removeDepictionsByImageId',
   RemoveTaxonDetermination: 'removeTaxonDetermination',
   RemoveTypeMaterial: 'removeTypeMaterial',
+  ResetTaxonDetermination: 'resetTaxonDetermination',
   ResetWithDefault: 'resetWithDefault',
   SaveBiologicalAssociations: 'saveBiologicalAssociation',
   SaveCOCitations: 'saveCOCitations',
@@ -35,12 +36,12 @@ const ActionNames = {
   SaveCollectionObject: 'saveCollectionObject',
   SaveContainer: 'saveContainer',
   SaveContainerItem: 'saveContainerItem',
-  SaveDetermination: 'saveDetermination',
   SaveDeterminations: 'saveDeterminations',
   SaveDigitalization: 'saveDigitalization',
   SaveIdentifier: 'saveIdentifier',
   SaveLabel: 'saveLabel',
-  SaveTypeMaterial: 'saveTypeMaterial'
+  SaveTypeMaterial: 'saveTypeMaterial',
+  UpdateLayoutPreferences: 'updateLayoutPreferences'
 }
 
 export default ActionNames

@@ -13,8 +13,8 @@ class Georeference::GeoLocate < Georeference
     super(h)
     h.merge!(
       georeferenceSources: "GEOLocate ",
-      georeferenceRemarks: "Typically created by copy-pasting one or more values from a collecting event into a GEOLocate form.",
-      georeferenceProtocol: 'Generated via a query through the GEOLocate web interface')
+      georeferenceRemarks: "Typically created by copy-pasting one or more values from a collecting event into a GEOLocate form.")
+    h[:georeferenceProtocol] = 'Generated via a query through the GEOLocate web interface' if h[:georeferenceProtocol].blank?
     h
   end
 

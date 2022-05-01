@@ -36,6 +36,7 @@ Parameters:
       @keydown.down="downKey"
       @keydown.up="upKey"
       @keydown.enter="enterKey"
+      @keyup="sendKeyEvent"
       autocomplete="off"
       :autofocus="autofocus"
       :disabled="disabled"
@@ -173,7 +174,9 @@ export default {
     'update:modelValue',
     'getInput',
     'getItem',
-    'found'
+    'found',
+    'keyEvent',
+    'select'
   ],
 
   data () {
@@ -229,13 +232,18 @@ export default {
     sendItem (item) {
       this.$emit('update:modelValue', item)
       this.$emit('getItem', item)
+      this.$emit('select', item)
+    },
+
+    sendKeyEvent (e) {
+      this.$emit('keyEvent', e)
     },
 
     cleanInput() {
       this.type = ''
     },
 
-    setLabel(value) {
+    setText (value) {
       this.type = value
     },
 

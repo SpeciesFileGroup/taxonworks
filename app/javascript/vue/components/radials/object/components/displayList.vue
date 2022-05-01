@@ -119,7 +119,6 @@ export default {
   }
 
   .table-entrys-list {
-    overflow-y: scroll;
     padding: 0px;
     position: relative;
 

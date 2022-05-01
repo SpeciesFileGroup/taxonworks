@@ -113,7 +113,7 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 # @!attribute cached_misspelling
 #   @return [Boolean]
 #   if the name is a misspelling, stores True.
-# 
+#
 # @!attribute cached_classified_as
 #   @return [String]
 #   if the name was classified in different group (e.g. a genus placed in wrong family).
@@ -141,7 +141,6 @@ class TaxonName < ApplicationRecord
 
   include Housekeeping
   include Shared::DataAttributes
-  include Shared::HasRoles
   include Shared::Tags
   include Shared::Identifiers
   include Shared::Notes
@@ -217,10 +216,12 @@ class TaxonName < ApplicationRecord
   # TODO: think of a different name, and test
   has_many :historical_taxon_names, class_name: 'TaxonName', foreign_key: :cached_valid_taxon_name_id
 
-  has_many :observation_matrix_row_items, inverse_of: :taxon_name, class_name: 'ObservationMatrixRowItem::Dynamic::TaxonName', dependent: :delete_all
+  has_many :observation_matrix_row_items, as: :observation_object, inverse_of: :observation_object, class_name: 'ObservationMatrixRowItem::Dynamic::TaxonName', dependent: :destroy # was delete_all
   has_many :observation_matrices, through: :observation_matrix_row_items
 
+  # TODO: revisit?
   belongs_to :valid_taxon_name, class_name: 'TaxonName', foreign_key: :cached_valid_taxon_name_id
+
   has_one :source_classified_as_relationship, -> {
     where(taxon_name_relationships: {type: 'TaxonNameRelationship::SourceClassifiedAs'})
   }, class_name: 'TaxonNameRelationship::SourceClassifiedAs', foreign_key: :subject_taxon_name_id
@@ -254,7 +255,7 @@ class TaxonName < ApplicationRecord
 
   def self.calculated_invalid
     a = TaxonName.with_different_cached_valid_id # that_is_invalid
-    b = TaxonName.joins(:taxon_name_classifications).where(taxon_name_classifications: {type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID }) # - 16115
+    b = TaxonName.joins(:taxon_name_classifications).where(taxon_name_classifications: {type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID })
     TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
   end
 
@@ -587,17 +588,20 @@ class TaxonName < ApplicationRecord
 
   # @return [String, nil]
   #   the baseline means of displaying name authorship, i.e. the author for this taxon, last name only.
-  # Important, string format priority is 1) as provided verbatim, 2) as generated from people, and 3) as taken from the source.
+  # Important, string format priority is
+  #   1) as provided verbatim
+  #   2) as generated from People
+  #   3) as taken from the Source
+  #       Source People (Authors)
+  #       Source Verbatim authors
   def author_string
     return verbatim_author if !verbatim_author.nil?
     if taxon_name_authors.any?
-      if !source.nil? && source.authors.collect{|i| i.id} == taxon_name_authors.pluck(:id).to_a
-        return source.authority_name unless source.nil?
-      else
-        return Utilities::Strings.authorship_sentence( taxon_name_authors.pluck(:last_name) )
-      end
+      # TODO: Technically not correct if prefix/suffix involved.
+      return Utilities::Strings.authorship_sentence( taxon_name_authors.pluck(:last_name) )
     end
-    return source.authority_name unless source.nil?
+
+    return source.authority_name if !source.nil?
     nil
   end
 
@@ -609,14 +613,7 @@ class TaxonName < ApplicationRecord
   end
 
   # @return String, nil
-  #  # virtual attribute, to ultimately be fixed in db
-  def cached_year
-    a = cached_author_year&.match(/\d{4}/)
-    a ? a[0] : nil
-  end
-
-  # @return String, nil
-  #  # virtual attribute, to ultimately be fixed in db
+  #   virtual attribute, to ultimately be fixed in db
   def cached_author
     cached_author_year&.gsub(/,\s\d+/, '')
   end
@@ -626,17 +623,17 @@ class TaxonName < ApplicationRecord
   # @return [Time]
   #   effective date of publication, used to determine nomenclatural priority
   def nomenclature_date
-    return nil if self.id.nil?
-     family_before_1961 = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961').first
+    return nil if !persisted?
+    family_before_1961 = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961').first
 
     # family_before_1961 = taxon_name_relationships.with_type_string('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961').first
     if family_before_1961.nil?
-      year = self.year_of_publication ? Time.utc(self.year_of_publication, 12, 31) : nil
+      year = year_of_publication ? Time.utc(year_of_publication, 12, 31) : nil
       self.source ? (self.source.cached_nomenclature_date ? self.source.nomenclature_date : year) : year
     else
-      obj  = family_before_1961.object_taxon_name
+      obj = family_before_1961.object_taxon_name
       year = obj.year_of_publication ? Time.utc(obj.year_of_publication, 12, 31) : nil
-      obj.source ? (self.source.cached_nomenclature_date ? obj.source.nomenclature_date : year) : year
+      obj.source ? (source.cached_nomenclature_date ? obj.source.nomenclature_date : year) : year
     end
   end
 
@@ -1067,10 +1064,10 @@ class TaxonName < ApplicationRecord
   #   an list of ancestors, Root first
   # Uses parent recursion when record is new and awesome_nested_set_is_not_usable
   def safe_self_and_ancestors
-    if self.new_record?
+    if new_record?
       ancestors_through_parents
     else
-      self.self_and_ancestors.reload.to_a.reverse ## .self_and_ancestors returns empty array!!!!!!!
+      self_and_ancestors.reload.to_a.reverse ## .self_and_ancestors returns empty array!!!!!!!
     end
   end
 
@@ -1081,9 +1078,9 @@ class TaxonName < ApplicationRecord
   #  "section"=>["sect.", "Aus"], "series"=>["ser.", "Aus"], "species"=>[nil, "aaa"], "subspecies"=>[nil, "bbb"], "variety"=>["var.", "ccc"]\}
   def full_name_array
     gender = nil
-    data   = []
+    data = []
     safe_self_and_ancestors.each do |i|
-      rank   = i.rank
+      rank = i.rank
       gender = i.gender_name if rank == 'genus'
       method = "#{rank.gsub(/\s/, '_')}_name_elements"
       data.push([rank] + send(method, i, gender)) if self.respond_to?(method)
@@ -1091,6 +1088,8 @@ class TaxonName < ApplicationRecord
     data
   end
 
+  # @return Hash
+  #  { 'family' => 'Aidae', ...}
   def ancestor_hash
     h = {}
     safe_self_and_ancestors.each do |n|
@@ -1099,27 +1098,30 @@ class TaxonName < ApplicationRecord
     h
   end
 
-  # !! TODO: when name is a subgenus will no grab genus
+  # !! TODO: when name is a subgenus will not grab genus
+  # !! TODO: Higher classification does not follow the same pattern
+  # ?? TODO: Replace with `taxonomy` object .to_h?
   #
   # @!return [ { rank => [prefix, name] }
   #   Returns a hash of rank => [prefix, name] for genus and below
   # @taxon_name.full_name_hash # =>
-  #      {"genus" => [nil, "Aus"],
-  #       "subgenus" => [nil, "Aus"],
-  #       "section" => ["sect.", "Aus"],
-  #       "series" => ["ser.", "Aus"],
-  #       "species" => [nil, "aaa"],
-  #       "subspecies" => [nil, "bbb"],
-  #       "variety" => ["var.", "ccc"]}
+  #      { "family' => 'Gidae',
+  #        "genus" => [nil, "Aus"],
+  #        "subgenus" => [nil, "Aus"],
+  #        "section" => ["sect.", "Aus"],
+  #        "series" => ["ser.", "Aus"],
+  #        "species" => [nil, "aaa"],
+  #        "subspecies" => [nil, "bbb"],
+  #        "variety" => ["var.", "ccc"]}
   def full_name_hash
     gender = nil
-    data   = {}
+    data = {}
     safe_self_and_ancestors.each do |i| # !! You can not use self.self_and_ancestors because (this) record is not saved off.
-      rank   = i.rank
+      rank = i.rank
       gender = i.gender_name if rank == 'genus'
 
       if i.is_genus_or_species_rank?
-        if ['genus', 'subgenus', 'species', 'subspecies'].include? (rank)
+        if ['genus', 'subgenus', 'species', 'subspecies'].include?(rank)
           data[rank] = [nil, i.name_with_misspelling(gender)]
         else
           data[rank] = [i.rank_class.abbreviation, i.name_with_misspelling(gender)]
@@ -1129,40 +1131,46 @@ class TaxonName < ApplicationRecord
       end
     end
 
-    if data['genus'].nil?
-      if original_genus
-        data['genus'] = [nil, "[#{original_genus&.name}]"]
-      else
-        data['genus'] = [nil, '[GENUS NOT SPECIFIED]']
+    # Only check for these ranks
+    if COMBINATION_ELEMENTS.include?(rank.to_sym)
+      if data['genus'].nil?
+        if original_genus
+          data['genus'] = [nil, "[#{original_genus&.name}]"]
+        else
+          data['genus'] = [nil, '[GENUS NOT SPECIFIED]']
+        end
       end
-    end
 
-    if data['species'].nil? && (!data['subspecies'].nil? || !data['variety'].nil? || !data['subvariety'].nil? || !data['form'].nil? || !data['subform'].nil?)
-      data['species'] = [nil, '[SPECIES NOT SPECIFIED]']
-    end
+      if data['species'].nil? && (!data['subspecies'].nil? || !data['variety'].nil? || !data['subvariety'].nil? || !data['form'].nil? || !data['subform'].nil?)
+        data['species'] = [nil, '[SPECIES NOT SPECIFIED]']
+      end
 
-    if data['variety'].nil? && !data['subvariety'].nil?
-      data['variety'] = [nil, '[VARIETY NOT SPECIFIED]']
-    end
+      if !data['subvariety'].nil? && data['variety'].nil?
+        data['variety'] = [nil, '[VARIETY NOT SPECIFIED]']
+      end
 
-    if data['form'].nil? && !data['subform'].nil?
-      data['form'] = [nil, '[FORM NOT SPECIFIED]']
+      if !data['subform'].nil? && data['form'].nil?
+        data['form'] = [nil, '[FORM NOT SPECIFIED]']
+      end
     end
 
     data
   end
 
-  # @return [String]
-  #  a monominal if names is above genus, or a full epithet if below.
+  # @return [String, nil]
+  #  A monominal if names is above genus, or a full epithet if below.
+  #  Does not include author_year. Does not include HTML.
   def get_full_name
     return name_with_misspelling(nil) if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
     return name if rank_class.to_s =~ /Icvcn/
-    return verbatim_name if !verbatim_name.nil? && type == 'Combination'
+    return verbatim_name if verbatim_name.present? && is_combination?
 
     d = full_name_hash
+
     elements = []
+
     elements.push(d['genus']) unless (not_binominal? && d['genus'][1] == '[GENUS NOT SPECIFIED]')
-    #elements.push ['(', d['subgenus'], d['section'], d['subsection'], d['series'], d['subseries'], ')']
+
     elements.push ['(', d['subgenus'], ')']
     elements.push ['(', d['infragenus'], ')'] if rank_name == 'infragenus'
     elements.push ['(', d['supergenus'], ')'] if rank_name == 'supergenus'
@@ -1171,15 +1179,15 @@ class TaxonName < ApplicationRecord
     elements.push [d['supersuperspecies']] if rank_name == 'supersuperspecies'
     elements.push [d['superspecies']] if rank_name == 'superspecies'
     elements.push [d['subsuperspecies']] if rank_name == 'subsuperspecies'
+
     elements.push(d['species'], d['subspecies'], d['variety'], d['subvariety'], d['form'], d['subform'])
+
     elements = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish
     elements.blank? ? nil : elements
   end
 
   def get_full_name_html(name = nil)
     name = get_full_name if name.nil?
-    #m = name
-    # m = verbatim_name.blank? ? name : verbatim_name
     return  "\"<i>Candidatus</i> #{name}\"" if is_candidatus?
     if !name.blank? && is_hybrid?
       w = name.split(' ')
@@ -1222,11 +1230,12 @@ class TaxonName < ApplicationRecord
 
   # return [String, nil, false] # TODO: fix
   def get_genus_species(genus_option, self_option)
-  # see protonym
+  # see Protonym
     true
   end
 
-  # return [Boolean] whether there is missaplication relationship
+  # return [Boolean]
+  #   whether there is an ICZN missapplication relationship present on this name
   def name_is_misapplied?
     !TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::Invalidating::Misapplication').empty?
   end
@@ -1283,51 +1292,6 @@ class TaxonName < ApplicationRecord
     ay.blank? ? nil : ay
   end
 
-=begin
-  def icn_author_and_year_old_code(taxon)
-    ay = nil
-
-    basionym = TaxonNameRelationship.where_subject_is_taxon_name(taxon).
-      with_type_string('TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Basionym').first
-    if basionym.nil?
-      basionym = TaxonNameRelationship.where_object_is_taxon_name(taxon).
-        with_type_string('TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Basionym').first
-    end
-
-    b_sub = basionym.nil? ? nil : basionym.subject_taxon_name
-    if b_sub.nil? && taxon.is_combination?
-      b_sub = taxon.finest_protonym
-    end
-
-    misapplication = TaxonNameRelationship.where_subject_is_taxon_name(taxon).with_type_string('TaxonNameRelationship::Icn::Unaccepting::Misapplication')
-    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(taxon).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING)
-    m_obj = misapplication.empty? ? nil : misapplication.first.object_taxon_name
-
-    mobj = misspelling.empty? ? nil : misspelling.first.object_taxon_name
-    if !mobj.blank?
-      ay = mobj.try(:author_string)
-    else
-      ay = self.try(:author_string)
-    end
-
-    #t  = [self.author_string]
-    #t  += ['(' + self.year_integer.to_s + ')'] unless self.year_integer.nil?
-    #ay = t.compact.join(' ')
-
-    if !basionym.nil? && !b_sub.author_string.blank? && b_sub.id != self.id
-      ay = '(' + b_sub.author_string + ') ' + ay
-    end
-
-    unless misapplication.empty? || m_obj.author_string.blank?
-      ay += ' non ' + [m_obj.author_string]
-      t  += ['(' + m_obj.year_integer.to_s + ')'] unless m_obj.year_integer.nil?
-      ay = t.compact.join(' ')
-    end
-
-    ay.blank? ? nil : ay
-  end
-=end
-
   # @return [String, nil]
   #   the authors, and year, with parentheses as inferred by the data
   def iczn_author_and_year(taxon)
@@ -1345,7 +1309,6 @@ class TaxonName < ApplicationRecord
       a = [taxon.try(:author_string)]
       y = [taxon.try(:year_integer)]
     end
-
     if a[0] =~ /^\(.+\)$/ # (Author)
       a[0] = a[0][1..-2] ## remove parentheses in the author string
       p = true
@@ -1365,9 +1328,10 @@ class TaxonName < ApplicationRecord
         if self.type == 'Combination'
           cg = genus
         else
-          cg = ancestor_at_rank('genus')
+          par = TaxonNameRelationship.where_subject_is_taxon_name(taxon).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_PARENTHESES).any?
+          cg = (par == false && !misspelling.empty?) ? og : ancestor_at_rank('genus')
         end
-        unless og.nil? || cg.nil?
+        if !og.nil? && !cg.nil?
           ay = '(' + ay + ')' if !ay.empty? && og.normalized_genus.id != cg.normalized_genus.id
         end
       end
@@ -1380,6 +1344,7 @@ class TaxonName < ApplicationRecord
     ay.blank? ? nil : ay
   end
 
+  # @return Protonym
   def normalized_genus
     misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
     tn = misspelling.empty? ? self : misspelling.first.object_taxon_name
@@ -1400,6 +1365,7 @@ class TaxonName < ApplicationRecord
     !parent_id.nil? || (parent && parent.persisted?)
   end
 
+  # TODO: this should be paginated, not all IDs!
   def next_sibling
     if siblings.where(project_id: project_id).load.any?
       sibs = self_and_siblings.order(:cached).pluck(:id)
@@ -1410,6 +1376,7 @@ class TaxonName < ApplicationRecord
     end
   end
 
+  # TODO: this should be paginated, not all IDs!
   def previous_sibling
     if siblings.where(project_id: project_id).load.any?
       sibs = self_and_siblings.order(:cached).pluck(:id)

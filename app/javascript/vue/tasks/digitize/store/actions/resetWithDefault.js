@@ -7,7 +7,6 @@ export default ({ dispatch, state }) => {
   dispatch(ActionNames.NewCollectionObject)
   dispatch(ActionNames.NewTypeMaterial)
   dispatch(ActionNames.NewIdentifier)
-  dispatch(ActionNames.NewTaxonDetermination)
   dispatch(ActionNames.NewLabel)
 
   state.collection_objects = []
@@ -26,7 +25,6 @@ export default ({ dispatch, state }) => {
   state.biologicalAssociations = locked.biologicalAssociations
     ? state.biologicalAssociations.map(item => ({ ...item, id: undefined, global_id: undefined }))
     : []
-  state.taxon_determinations = locked.taxonDeterminations
-    ? state.taxon_determinations.map((item, index) => ({ ...item, id: undefined, global_id: undefined, position: undefined }))
-    : []
+
+  dispatch(ActionNames.ResetTaxonDetermination)
 }

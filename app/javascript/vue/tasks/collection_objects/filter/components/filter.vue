@@ -261,6 +261,7 @@ export default {
           taxon_determinations: undefined,
           type_material: undefined,
           repository: undefined,
+          preparation_type: undefined,
           dwc_indexed: undefined,
           with_buffered_collecting_event: undefined,
           with_buffered_determinations: undefined,

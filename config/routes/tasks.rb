@@ -1,6 +1,12 @@
 scope :tasks do
+  scope :administrator do
+    scope :batch_add_users, controller: 'tasks/administrator/batch_add_users' do
+      get '/', as: 'batch_add_users_task', action: :index
+    end
+  end
+
   scope :dwca_import, controller: 'tasks/dwca_import/dwca_import' do
-    get :index, as: 'index_dwca_import_task'
+    get :index, as: 'dwca_import_task'
     post 'upload'
     post 'update_catalog_number_namespace'
     post 'set_import_settings'
@@ -13,6 +19,10 @@ scope :tasks do
   end
 
   scope :extracts do
+      scope :filter, controller: 'tasks/extracts/filter' do
+        get '/', as: 'filter_extract_task', action: :index
+      end
+
     scope :new_extract, controller: 'tasks/extracts/new_extract' do
       get '/', action: :index, as: 'new_extract_task'
     end
@@ -129,6 +139,11 @@ scope :tasks do
   end
 
   scope :projects do
+    scope :activity, controller: 'tasks/projects/activity' do
+      get :index, as: :project_activity_task
+      get :type_report, as: :project_activity_type_report
+    end
+
     scope :preferences, controller: 'tasks/projects/preferences' do
       get :index, as: 'project_preferences_task'
     end
@@ -224,11 +239,6 @@ scope :tasks do
     end
 
     scope :report do
-      scope :work, controller: 'tasks/accessions/report/work' do
-        get '/', action: :index, as: 'work_report_task'
-        get :data, as: 'work_data_task'
-      end
-
       scope :dwc, controller: 'tasks/accessions/report/dwc' do
         get '', action: :index, as: 'report_dwc_task'
         get 'row/:id', action: :row

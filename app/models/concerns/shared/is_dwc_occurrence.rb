@@ -1,5 +1,4 @@
-# Shared code for data classes that can be serialized as DwcOccurrence records
-#
+# Shared code for data classes that can be indexed/serialized as DwcOccurrence records
 module Shared::IsDwcOccurrence
   extend ActiveSupport::Concern
 
@@ -32,7 +31,7 @@ module Shared::IsDwcOccurrence
       t = ::DwcOccurrence.arel_table
       s = self.arel_table
 
-      k = self::DWC_OCCURRENCE_MAP.keys.sort
+      k = self::DWC_OCCURRENCE_MAP.keys #.sort
 
       if mode.to_sym == :view
         k = k - self::VIEW_EXCLUSIONS
@@ -70,11 +69,16 @@ module Shared::IsDwcOccurrence
     dwc_occurrence
   end
 
+  def dwc_occurrence_id
+    dwc_occurrence&.occurrence_identifier&.cached
+  end
+
   def dwc_occurrence_attributes(taxonworks_fields = true)
     a = {}
     self.class::DWC_OCCURRENCE_MAP.each do |k,v|
       a[k] = send(v)
     end
+
     a[:occurrenceID] = dwc_occurrence_id
 
     if taxonworks_fields
@@ -88,11 +92,6 @@ module Shared::IsDwcOccurrence
     end
 
     a
-  end
-
-  # TODO: CHECK when hit
-  def dwc_occurrence_id
-    dwc_occurrence&.occurrence_identifier&.cached
   end
 
   # @return [Array]

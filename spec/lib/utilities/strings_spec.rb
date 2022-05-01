@@ -28,7 +28,7 @@ describe Utilities::Strings do
   end
 
   specify '.alphabetic_strings should split on accent characters' do
-    expect(l.alphabetic_strings("Hernán")).to contain_exactly('Hern', 'n')
+    expect(l.alphabetic_strings("Hernán")).to contain_exactly('Hernán')
   end
 
   specify '.random_string' do

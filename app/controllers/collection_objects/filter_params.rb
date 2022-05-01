@@ -47,6 +47,7 @@ module CollectionObjects
         :object_global_id,
         :on_loan,
         :partial_overlap_dates,
+        :preparation_type,
         :preparation_type_id,
         :radius,  # CE filter
         :repository,
@@ -127,6 +128,7 @@ module CollectionObjects
         :never_loaned,
         :on_loan,
         :partial_overlap_dates, # CE filter
+        :preparation_type,
         :preparation_type_id,
         :radius,
         :repository,

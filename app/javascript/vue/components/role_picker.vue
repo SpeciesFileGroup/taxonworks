@@ -1,106 +1,141 @@
 <template>
   <div>
-    <div
-      v-if="createForm"
-      class="horizontal-left-content align-start">
-      <div class="horizontal-left-content">
-        <autocomplete
-          :autofocus="autofocus"
-          class="separate-right"
-          url="/people/autocomplete"
-          label="label_html"
-          display="label"
-          min="2"
-          @getInput="setInput"
-          ref="autocomplete"
-          @getItem="addCreatedPerson"
-          :clear-after="true"
-          placeholder="Family name, given name"
-          param="term"/>
-        <default-pin
-          class="button-circle"
-          type="People"
-          @getItem="addCreatedPerson({ object_id: $event.id, label: $event.label })"
-          section="People"/>
+    <template v-if="createForm">
+      <div v-if="organization">
+        <organization-picker @get-item="addOrganization" />
       </div>
+
       <div
-        class="flex-wrap-column separate-left"
-        v-if="searchPerson.length > 0">
-        <div>
-          <input
-            class="normal-input"
-            disabled
-            :value="newNamePerson">
-          <button
-            type="button"
-            class="normal-input button button-submit"
-            @click="createPerson()">Add new
-          </button>
-          <button
-            type="button"
-            class=" normal-input button button-default"
-            @click="switchName(newNamePerson)">Switch
-          </button>
-          <button
-            type="button"
-            class="normal-input button button-default"
-            @click="expandPerson = !expandPerson">Expand
-          </button>
+        v-else
+        class="horizontal-left-content align-start"
+      >
+        <div class="horizontal-left-content">
+          <autocomplete
+            ref="autocomplete"
+            :autofocus="autofocus"
+            class="separate-right"
+            url="/people/autocomplete"
+            label="label_html"
+            display="label"
+            min="2"
+            clear-after="true"
+            placeholder="Family name, given name"
+            param="term"
+            @get-input="setInput"
+            @get-item="addCreatedPerson"
+          />
+          <default-pin
+            class="button-circle"
+            type="People"
+            @get-item="addCreatedPerson({ object_id: $event.id, label: $event.label })"
+            section="People"
+          />
         </div>
-        <hr>
         <div
-          class="flex-wrap-column"
-          v-if="expandPerson">
-          <div class="field label-above">
-            <label>Given name</label>
+          class="flex-wrap-column separate-left"
+          v-if="searchPerson.length > 0"
+        >
+          <div>
             <input
-              v-model="person_attributes.first_name"
-              type="text">
+              class="normal-input"
+              disabled
+              :value="newNamePerson"
+            >
+            <button
+              type="button"
+              class="normal-input button button-submit"
+              @click="createPerson()"
+            >
+              Add new
+            </button>
+            <button
+              type="button"
+              class=" normal-input button button-default"
+              @click="switchName(newNamePerson)"
+            >
+              Switch
+            </button>
+            <button
+              type="button"
+              class="normal-input button button-default"
+              @click="expandPerson = !expandPerson"
+            >
+              Expand
+            </button>
           </div>
-          <div class="field label-above">
-            <label>Family name prefix</label>
-            <input
-              v-model="person_attributes.prefix"
-              type="text">
-          </div>
-          <div class="field label-above">
-            <label>Family name</label>
-            <input
-              v-model="person_attributes.last_name"
-              type="text">
-          </div>
-          <div class="field label-above">
-            <label>Family name suffix</label>
-            <input
-              v-model="person_attributes.suffix"
-              type="text">
+          <hr>
+          <div
+            class="flex-wrap-column"
+            v-if="expandPerson"
+          >
+            <div class="field label-above">
+              <label>Given name</label>
+              <input
+                v-model="person_attributes.first_name"
+                type="text"
+              >
+            </div>
+            <div class="field label-above">
+              <label>Family name prefix</label>
+              <input
+                v-model="person_attributes.prefix"
+                type="text"
+              >
+            </div>
+            <div class="field label-above">
+              <label>Family name</label>
+              <input
+                v-model="person_attributes.last_name"
+                type="text"
+              >
+            </div>
+            <div class="field label-above">
+              <label>Family name suffix</label>
+              <input
+                v-model="person_attributes.suffix"
+                type="text"
+              >
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </template>
+
     <draggable
       v-if="!hiddenList"
       class="table-entrys-list"
       element="ul"
       v-model="roles_attributes"
       item-key="id"
-      @end="onSortable">
+      @end="onSortable"
+    >
       <template #item="{ element, index }">
         <li
           class="list-complete-item flex-separate middle"
-          v-if="!element.hasOwnProperty('_destroy') && filterRole(element)">
+          v-if="!element._destroy && filterRole(element)"
+        >
           <a
             v-if="(element.hasOwnProperty('person_id') || element.hasOwnProperty('person'))"
             :href="getUrl(element)"
             target="_blank"
-            v-html="getLabel(element)"/>
+            v-html="getLabel(element)"
+          />
           <span
             v-else
-            v-html="getLabel(element)"/>
+            v-html="getLabel(element)"
+          />
 
-          <span
-            class="circle-button btn-delete"
-            @click="removePerson(index)"/>
+          <v-btn
+            circle
+            color="destroy"
+            @click="removePerson(index)"
+          >
+            <v-icon
+              x-small
+              color="white"
+              name="trash"
+            />
+          </v-btn>
         </li>
       </template>
     </draggable>
@@ -112,13 +147,19 @@
 import Autocomplete from 'components/ui/Autocomplete.vue'
 import Draggable from 'vuedraggable'
 import DefaultPin from './getDefaultPin'
+import OrganizationPicker from 'components/organizationPicker.vue'
+import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
 import { People } from 'routes/endpoints'
 
 export default {
   components: {
     Autocomplete,
     Draggable,
-    DefaultPin
+    DefaultPin,
+    OrganizationPicker,
+    VBtn,
+    VIcon
   },
 
   props: {
@@ -143,6 +184,10 @@ export default {
       default: true
     },
     hiddenList: {
+      type: Boolean,
+      default: false
+    },
+    organization: {
       type: Boolean,
       default: false
     }
@@ -194,8 +239,8 @@ export default {
       this.$refs.autocomplete.cleanInput()
     },
 
-    getUrl(role) {
-      return (role.hasOwnProperty('person_id') || role.hasOwnProperty('person'))
+    getUrl (role) {
+      return (role?.person_id || role?.person)
         ? `/people/${role?.person_id || role.person.id}`
         : '#'
     },
@@ -215,13 +260,17 @@ export default {
       }
     },
 
-    getLabel (person) {
-      if (person.hasOwnProperty('person_attributes')) {
-        return this.getFullName(person.person_attributes.first_name, person.person_attributes.last_name)
-      } else if (person.hasOwnProperty('person')) {
-        return this.getFullName(person.person.first_name, person.person.last_name)
+    getLabel (item) {
+      if (item.organization_id) {
+        return item.name
+      }
+
+      if (item.person_attributes) {
+        return this.getFullName(item.person_attributes.first_name, item.person_attributes.last_name)
+      } else if (item.person) {
+        return this.getFullName(item.person.first_name, item.person.last_name)
       } else {
-        return this.getFullName(person.first_name, person.last_name)
+        return this.getFullName(item.first_name, item.last_name)
       }
     },
 
@@ -238,17 +287,19 @@ export default {
     },
 
     removePerson (index) {
-      if (this.roles_attributes[index].hasOwnProperty('id') && this.roles_attributes[index].id) {
-        this.roles_attributes[index] = {id: this.roles_attributes[index].id, _destroy: true }
-        this.$emit('update:modelValue', this.roles_attributes)
-        this.$emit('delete', this.roles_attributes[index])
-      }
-      else {
-        const person = this.roles_attributes[index]
+      const role = this.roles_attributes[index]
+
+      if (role?.id) {
+        this.roles_attributes[index] = { 
+          id: role.id, 
+          _destroy: true
+        }
+      } else {
         this.roles_attributes.splice(index, 1)
-        this.$emit('update:modelValue', this.roles_attributes)
-        this.$emit('delete', person)
       }
+  
+      this.$emit('update:modelValue', this.roles_attributes)
+      this.$emit('delete', role)
     },
 
     setInput (text) {
@@ -267,33 +318,19 @@ export default {
     },
 
     processedList (list) {
-      if (!list) return []
-
-      return list.map((element, index) => {
-        const item = {
-          id: element?.id,
-          type: element.type,
-          first_name: element?.first_name,
-          last_name: element?.last_name,
-          position: element.position
-        }
-
-        if (element.hasOwnProperty('person_attributes')) {
-          item.person_attributes = element.person_attributes
-        }
-
-        if (element.hasOwnProperty('person_id')) {
-          item.person_id = element.person_id
-        }
-
-        if (element.hasOwnProperty('person')) {
-          item.person = element.person
-        }
-        if (element.hasOwnProperty('_destroy')) {
-          item._destroy = element._destroy
-        }
-        return item
-      })
+      return (list || []).map((element, index) => ({
+        id: element.id,
+        type: element.type,
+        first_name: element.first_name,
+        last_name: element.last_name,
+        position: element.position,
+        person_attributes: element.person_attributes,
+        person_id: element.person_id,
+        person: element.person,
+        _destroy: element._destroy,
+        organization_id: element.organization_id || element?.organization?.id,
+        name: element.name || element?.organization?.name
+      }))
     },
 
     updateIndex () {
@@ -382,10 +419,17 @@ export default {
       }
     },
 
-    setPerson (person) {
-      person.position = (this.roles_attributes.length + 1)
-      this.roles_attributes.push(person)
-      this.$emit('update:modelValue', this.roles_attributes)
+    addOrganization (organization) {
+      const alreadyExist = !!this.roles_attributes.find(role => organization.id === role?.organization_id)
+
+      if (!alreadyExist) {
+        this.roles_attributes.push({
+          organization_id: organization.id,
+          name: organization.label,
+          type: this.roleType
+        })
+        this.$emit('update:modelValue', this.roles_attributes)
+      }
     }
   }
 }

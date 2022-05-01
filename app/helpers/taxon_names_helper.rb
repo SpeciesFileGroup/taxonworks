@@ -31,12 +31,7 @@ module TaxonNamesHelper
   # @return [String]
   #   no HTML inside <input>
   def taxon_name_autocomplete_selected_tag(taxon_name)
-    taxon_name_label(taxon_name)
-  end
-
-  def taxon_name_label(taxon_name)
-    return nil if taxon_name.nil?
-    [taxon_name.cached, taxon_name.cached_author_year].compact.join(' ')
+    label_for_taxon_name(taxon_name)
   end
 
   def taxon_name_rank_tag(taxon_name, css_class = [:feedback, 'feedback-info', 'feedback-thin'] )
@@ -82,8 +77,8 @@ module TaxonNamesHelper
   end
 
   # @return [String]
-  #  the name in original combination, with author year, with HTML
-  def full_original_taxon_name_string(taxon_name)
+  #  the name in original combination, with author year, *without* HTML
+  def full_original_taxon_name_label(taxon_name)
     return nil if taxon_name.nil? || taxon_name.cached_original_combination.nil?
     [ taxon_name.cached_original_combination,
       taxon_name.cached_author_year
@@ -146,6 +141,53 @@ module TaxonNamesHelper
     end
   end
 
+  def taxon_name_status_label(taxon_name)
+    taxon_name.combined_statuses.collect{|s| s}.join('; ')
+  end
+
+  def taxon_name_short_status_label(taxon_name)
+    if taxon_name.is_combination?
+      n = taxon_name.finest_protonym
+      s = ["This name is subsequent combination of"]
+      if n.is_valid?
+        s += [
+          original_taxon_name_tag(n),
+          history_author_year_tag(n),
+        ]
+      else
+        v = n.valid_taxon_name
+        s += [
+          original_taxon_name_tag(n),
+          history_author_year_tag(n),
+          "whose valid/accepted name is",
+          taxon_name_tag(v),
+          v.cached_author_year
+        ]
+      end
+
+      (s.join(' ') + '.')
+    else
+      if taxon_name.is_valid? # taxon_name.unavailable_or_invalid?
+         'This name is valid/accepted.'
+      else
+        if taxon_name.is_ambiguously_invalid?
+          'This name is not valid/accepted.'
+        else
+          "This name is not valid/accepted. The valid name is #{taxon_name.valid_taxon_name.cached}."
+        end
+      end
+    end
+  end
+
+  def taxon_name_inferred_combination_tag(taxon_name)
+    return nil if taxon_name.nil? || taxon_name.is_combination? || taxon_name.is_valid?
+    if taxon_name.is_protonym?
+      return nil if taxon_name.cached_primary_homonym == taxon_name.cached_secondary_homonym
+    end
+
+    tag.span(tag.em('inferred combination'), class: :subtle)
+  end
+
   def taxon_name_gender_sentence_tag(taxon_name)
     return nil if taxon_name.nil?
     "The name is #{taxon_name.gender_name}." if taxon_name.gender_name
@@ -167,7 +209,7 @@ module TaxonNamesHelper
 
   def taxon_name_browse_link(taxon_name)
     return nil if taxon_name.nil?
-    [ link_to(taxon_name_tag(taxon_name), browse_nomenclature_task_path(taxon_name_id: taxon_name.id)).html_safe,  taxon_name.cached_author_year].compact.join(' ').html_safe
+    [ link_to(taxon_name_tag(taxon_name), browse_nomenclature_task_path(taxon_name_id: taxon_name.id)).html_safe, taxon_name.cached_author_year].compact.join(' ').html_safe
   end
 
   def taxon_name_parent_navigator_item_link(taxon_name, target = :taxon_name_path)
@@ -229,7 +271,7 @@ module TaxonNamesHelper
              when :taxon_name
                new_taxon_name_task_path(taxon_name_id: t.id)
              when :combination
-               new_combination_task_path(taxon_name_id: t.id, literal: URI.escape(t.cached))
+               new_combination_task_path(taxon_name_id: t.id, literal: URI.encode_www_form_component(t.cached)) # only spaces should be an issue
              end
       link_to(
         content_tag(

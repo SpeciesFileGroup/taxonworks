@@ -4,7 +4,7 @@ module Features
   module Downloads
 
     TIMEOUT = 20
-    PATH    = Rails.root.join("tmp/browser-downloads#{ENV['TEST_ENV_NUMBER']}")
+    PATH = Rails.root.join("tmp/browser-downloads#{ENV['TEST_ENV_NUMBER']}")
 
     extend self
 

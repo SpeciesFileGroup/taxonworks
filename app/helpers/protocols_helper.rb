@@ -4,6 +4,11 @@ module ProtocolsHelper
     protocol.name
   end
 
+  def label_for_protocol(protocol)
+    return nil if protocol.nil?
+    protocol.name
+  end
+
   def protocol_link(protocol)
     return nil if protocol.nil?
     link_to(protocol_tag(protocol).html_safe, protocol)
@@ -20,10 +25,9 @@ module ProtocolsHelper
 
   def add_protocol_link(object: nil, attribute: nil)
     link_to('Add protocol', new_protocol_relationship_path(protocol_relationship: {
-                                      protocol_object_type:      object.class.base_class.name,
-                                      protocol_object_id:        object.id,
-                                      protocol_object_attribute: attribute})) if object.has_protocols?
+      protocol_object_type: object.class.base_class.name,
+      protocol_object_id: object.id,
+      protocol_object_attribute: attribute})) if object.has_protocols?
   end
-
 
 end

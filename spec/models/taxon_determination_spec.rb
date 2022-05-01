@@ -21,6 +21,10 @@ describe TaxonDetermination, type: :model, group: [:collection_objects] do
       specify 'determiners' do
         expect(taxon_determination).to respond_to(:determiners)
       end
+
+      specify 'determiners_organization' do
+        expect(taxon_determination).to respond_to(:determiners_organization)
+      end
     end
   end
 
@@ -80,7 +84,7 @@ describe TaxonDetermination, type: :model, group: [:collection_objects] do
       t = TaxonDetermination.new(otu: otu1)
       specimen.taxon_determinations << t
       specimen.taxon_determinations.last.move_to_top
-      expect(specimen.reload.current_taxon_determination.otu).to eq(otu1)
+      expect(specimen.current_taxon_determination.otu).to eq(otu1)
     end
   end
 

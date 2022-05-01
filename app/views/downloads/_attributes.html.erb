@@ -1,0 +1,59 @@
+<p>
+  <strong>Name:</strong>
+  <%= @download.name.html_safe %>
+</p>
+
+<p>
+  <strong>Description:</strong>
+  <%= @download.description %>
+</p>
+
+<p>
+  <strong>Is public:</strong>
+  <%= @download.is_public %>
+</p>
+
+<p>
+  <strong>Expires:</strong>
+  <%= distance_of_time_in_words Time.now - @download.expires %>
+</p>
+
+<p>
+  <strong>Times downloaded:</strong>
+  <%= @download.times_downloaded %>
+</p>
+
+<div data-view="development" class="attribute_set" data-title="Metadata">
+  <p>
+    <strong>Type:</strong>
+    <%= @download.type %>
+  </p>
+
+  <p>
+    <strong>Request:</strong>
+    <%= @download.request %>
+  </p>
+</div>
+
+<% if @download.ready? %>
+  <p>
+    <strong>Status:</strong>
+    Ready to download
+  </p>
+
+  <p>
+    <strong>Total records (estimate):</strong>
+    <%= @download.total_records -%>
+  </p>
+<% else %>
+  <p>
+    <strong>Status:</strong>
+    Download <%= @download.expired? ? "has expired and cannot be downloaded." : "creation is in progress..." %>
+  </p>
+<% end %>
+
+<% unless @download.expired? or @download.ready? %>
+  <script>setTimeout(location.reload.bind(location), 5000);</script>
+<% end %>
+
+

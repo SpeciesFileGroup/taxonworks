@@ -1,5 +1,5 @@
 json.partial! '/sources/base_attributes', source: source
-json.partial! '/shared/data/all/metadata', object: source, klass: 'Source'
+json.partial! '/shared/data/all/metadata', object: source
 
 json.source_in_project source_in_project?(source)
 json.project_source_id project_source_for_source(source)&.id

@@ -1,16 +1,25 @@
 module DepictionsHelper
 
+  # Should this have Image?
   def depiction_tag(depiction, size: :thumb)
     return nil if depiction.nil?
     if depiction.from_sled?
       depictions_sled_tag(depiction, size: size)
       # depiction_svg_tag(depiction)
     else
-      content_tag(:figure) do
-        image_tag(depiction.image.image_file.url(size)) +
-          content_tag(:figcaption, image_context_depiction_tag(depiction))
+      tag.figure do
+        tag.image(depiction.image.image_file.url(size)) +
+          tag.figcaption(image_context_depiction_tag(depiction))
       end
     end
+  end
+
+  # Only text, no HTML
+  def label_for_depiction(depiction)
+    return nil if depiction.nil?
+    [depiction.caption,
+     ('Depicts ' + label_for(depiction.depiction_object.metamorphosize).to_s + ', ' + Utilities::Strings.a_label(depiction.depiction_object_type).to_s + '.'),
+    ].compact.join('. ').gsub(/\.\./, '')
   end
 
   def image_context_depiction_tag(depiction)

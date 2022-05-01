@@ -102,14 +102,14 @@ class NamespacesController < ApplicationController
   def batch_load
   end
 
-  def preview_simple_batch_load 
-    if params[:file] 
+  def preview_simple_batch_load
+    if params[:file]
       @result = BatchLoad::Import::Namespaces::SimpleInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :Simple_namespaces_md5)
       render 'namespaces/batch_load/simple/preview'
     else
       flash[:notice] = 'No file provided!'
-      redirect_to action: :batch_load 
+      redirect_to action: :batch_load
     end
   end
 
@@ -131,7 +131,7 @@ class NamespacesController < ApplicationController
   private
 
   def filter_params
-    params.permit(:name, :short_name, :verbatim_name, :institution)
+    params.permit(:name, :short_name, :verbatim_name, :institution, :is_virtual)
   end
 
   def set_namespace
@@ -140,7 +140,7 @@ class NamespacesController < ApplicationController
   end
 
   def namespace_params
-    params.require(:namespace).permit(:institution, :name, :short_name, :verbatim_short_name, :delimiter)
+    params.require(:namespace).permit(:institution, :name, :short_name, :verbatim_short_name, :delimiter, :is_virtual)
   end
 
   def batch_params

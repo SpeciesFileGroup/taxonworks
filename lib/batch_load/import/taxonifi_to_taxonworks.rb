@@ -27,7 +27,7 @@ module BatchLoad
       @also_create_otu = also_create_otu
       @parent_taxon_name_id = parent_taxon_name_id
 
-      super(args)
+      super(**args)
     end
 
     # @return [TaxonName]

@@ -1,7 +1,22 @@
-import ActionNames from './actionNames'
 import { MutationNames } from '../mutations/mutations'
 import { TaxonDetermination } from 'routes/endpoints'
 import { ROLE_DETERMINER } from 'constants/index.js'
+
+const makePerson = role => ({
+  id: role.id,
+  first_name: role.person.first_name,
+  last_name: role.person.first_name,
+  person_id: role.person.id,
+  position: role.position,
+  type: ROLE_DETERMINER
+})
+
+const makeOrganization = role => ({
+  id: role.id,
+  name: role.organization.name,
+  organization_id: role.organization.id,
+  type: ROLE_DETERMINER
+})
 
 export default ({ commit, dispatch, state: { collection_object, taxon_determinations } }) =>
   new Promise((resolve, reject) => {
@@ -25,17 +40,21 @@ export default ({ commit, dispatch, state: { collection_object, taxon_determinat
     })
 
     Promise.all(promises).then(responses => {
-      commit(MutationNames.SetTaxonDeterminations, responses.map(({ body }) => ({ 
-        ...body,
-        roles_attributes: (body?.determiner_roles ?? []).map(role => ({
-          id: role.id,
-          first_name: role.person.first_name,
-          last_name: role.person.first_name,
-          person_id: role.person.id,
-          position: role.position,
-          type: ROLE_DETERMINER
-        }))
-      })))
+      commit(MutationNames.SetTaxonDeterminations, responses.map(
+        ({ body }) => {
+          const roles = (body?.determiner_roles ?? []).map(role => {
+            role.organization
+             ? makeOrganization(role)
+             : makePerson(role)
+          })
+
+          return {
+            ...body,
+            roles_attributes: roles
+          }
+        }
+      ))
+    
       resolve(promises)
     }, error => {
       reject(error)

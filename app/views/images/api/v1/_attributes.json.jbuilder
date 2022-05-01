@@ -2,9 +2,3 @@ json.extract! image, :id, :height, :width, :image_file_fingerprint, :image_file_
 json.original short_url(image.image_file)
 json.thumb short_url(image.image_file.url(:thumb))
 json.medium short_url(image.image_file.url(:medium))
-
-if image.attribution
-  json.attribution do
-    json.partial! '/attributions/api/v1/attributes', attribution: image.attribution
-  end
-end

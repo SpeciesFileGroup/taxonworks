@@ -62,20 +62,30 @@
 #   @return [Boolean]
 #   True if this georeference represents an average vertical distance, otherwise false.
 #
+# @!attribute year_georeferenced
+#   @return [Integer, nil]
+#     4 digit year the georeference was *first* created/captured
+#
+# @!attribute month_georeferenced
+#   @return [Integer, nil]
+#
+# @!attribute day_georeferenced
+#   @return [Integer, nil]
+#
 class Georeference < ApplicationRecord
   include Housekeeping
   include SoftValidation
   include Shared::Notes
   include Shared::Tags
+  include Shared::ProtocolRelationships
   include Shared::Citations
-  include Shared::HasRoles
   include Shared::DataAttributes
   include Shared::Confidences # qualitative, not spatial
   include Shared::IsData
 
-  attr_accessor :iframe_response # used to pass the geolocate from Tulane through
+  attr_accessor :iframe_response # used to handle the geolocate from Tulane response
 
-  acts_as_list scope: [:collecting_event_id, :project_id]
+  acts_as_list scope: [:collecting_event_id, :project_id], add_new_at: :top
 
   belongs_to :collecting_event, inverse_of: :georeferences
   belongs_to :error_geographic_item, class_name: 'GeographicItem', foreign_key: :error_geographic_item_id, inverse_of: :georeferences_through_error_geographic_item
@@ -91,10 +101,15 @@ class Georeference < ApplicationRecord
     through: :georeferencer_roles,
     source: :person, validate: true
 
+  validates :year_georeferenced, date_year: {min_year: 1000, max_year: Time.now.year }
+  validates :month_georeferenced, date_month: true
+  validates :day_georeferenced, date_day: {year_sym: :year_georeferenced, month_sym: :month_georeferenced},
+    unless: -> { year_georeferenced.nil? || month_georeferenced.nil? }
+
   validates :collecting_event, presence: true
-  validates :collecting_event_id, uniqueness: {scope: [:type, :geographic_item_id, :project_id]}
+  validates :collecting_event_id, uniqueness: { scope: [:type, :geographic_item_id, :project_id] }
   validates :geographic_item, presence: true
-  validates :type, presence: true
+  validates :type, presence: true # TODO: technically not needed
 
   validate :add_err_geo_item_inside_err_radius
   validate :add_error_depth
@@ -227,17 +242,23 @@ class Georeference < ApplicationRecord
   #   The interface to DwcOccurrence writiing for Georeference based values.
   #   See subclasses for super extensions.
   def dwc_georeference_attributes(h = {})
+    georeferenced_by = if georeferencers.any?
+                         georeferencers.collect{|a| a.cached}.join('|')
+                       else
+                         creator.name
+                       end
     h.merge!(
       footprintWKT: geographic_item.to_wkt,
       georeferenceVerificationStatus: confidences&.collect{|c| c.name}.join('; ').presence,
-      georeferencedBy: creator.name,
-      georeferencedDate: created_at
+      georeferencedBy: georeferenced_by,
+      georeferencedDate: created_at,
+      georeferenceProtocol: protocols.collect{|p| p.name}.join('|')
     )
 
     if geographic_item.type == 'GeographicItem::Point'
       b = geographic_item.to_a
-      h[:decimalLatitude] = b.first
-      h[:decimalLongitude] = b.last
+      h[:decimalLongitude] = b.first
+      h[:decimalLatitude] = b.second
       h[:coordinateUncertaintyInMeters] = error_radius
     end
 
@@ -283,8 +304,8 @@ class Georeference < ApplicationRecord
     sql_str = ActivRecord::Base.send(
       :sanitize_sql_array,
       ['SELECT ST_Buffer(?, ?)',
-                            geographic_item.geo_object.to_s,
-                            (error_radius / 111_319.444444444)])
+       geographic_item.geo_object.to_s,
+       (error_radius / 111_319.444444444)])
     value = GeographicItem.connection.select_all(sql_str).first['st_buffer']
     Gis::FACTORY.parse_wkb(value)
   end
@@ -557,4 +578,3 @@ class Georeference < ApplicationRecord
 end
 
 Dir[Rails.root.to_s + '/app/models/georeference/**/*.rb'].each { |file| require_dependency file }
-

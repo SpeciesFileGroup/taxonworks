@@ -4,12 +4,12 @@
   <thead>
     <tr>
       <%= fancy_th_tag(name: 'Otus') -%>
+      <%= fancy_th_tag(name: 'Identifiers') -%>
+      <%= fancy_th_tag(name: 'Origin type') -%>
       <%= fancy_th_tag(name: 'Origin(s)') -%>
       <%= fancy_th_tag(name: 'Repository') -%>
       <%= fancy_th_tag(name: 'Verbatim anatomical origin') -%>
-      <%= fancy_th_tag(name: 'Year made') -%>
-      <%= fancy_th_tag(name: 'Month made') -%>
-      <%= fancy_th_tag(name: 'Day made') -%>
+      <%= fancy_th_tag(name: 'Made on') -%>
       <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
       <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
     </tr>
@@ -19,12 +19,12 @@
     <% @extracts.each do |extract| %>
       <%= content_tag(:tr, class: :contextMenuCells) do -%>
         <td><%= extract.referenced_otus.collect{|o| object_link(o)}.join('; ').html_safe -%></td>
+        <td><%= simple_identifier_list_tag(extract) -%></td>
+        <td><%= extract.old_objects.collect{|o| o.class.name}.join('; ').html_safe -%></td>
         <td><%= extract.old_objects.collect{|o| object_link(o)}.join('; ').html_safe -%></td>
         <td><%= object_tag(extract.repository) -%></td>
         <td><%= extract.verbatim_anatomical_origin -%></td>
-        <td><%= extract.year_made -%></td>
-        <td><%= extract.month_made -%></td>
-        <td><%= extract.day_made -%></td>
+        <td><%= extract_made_tag(extract) -%></td>
         <%= fancy_metadata_cells_tag(extract) -%>
       <% end %>
     <% end %>

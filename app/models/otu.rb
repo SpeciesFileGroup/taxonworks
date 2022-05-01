@@ -51,6 +51,7 @@ class Otu < ApplicationRecord
   GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes]
 
   belongs_to :taxon_name, inverse_of: :otus
+  belongs_to :protonym, -> { where(type: 'Protonym') }, foreign_key: :taxon_name_id
 
   has_many :asserted_distributions, inverse_of: :otu, dependent: :restrict_with_error
 
@@ -59,6 +60,7 @@ class Otu < ApplicationRecord
 
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy # TODO: change
   has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus
+  has_many :type_materials, through: :protonym
 
   has_many :extracts, through: :collection_objects, source: :extracts
   has_many :sequences, through: :extracts, source: :derived_sequences
@@ -72,13 +74,6 @@ class Otu < ApplicationRecord
   has_many :georeferences, through: :collecting_events
 
   has_many :content_topics, through: :contents, source: :topic
-
-  has_many :observation_matrix_row_items, inverse_of: :otu, dependent: :delete_all, class_name: 'ObservationMatrixRowItem::Single::Otu'
-  has_many :observation_matrix_rows, inverse_of: :collection_object, dependent: :delete_all
-  has_many :observation_matrices, through: :observation_matrix_rows
-
-  has_many :observations, inverse_of: :otu, dependent: :restrict_with_error
-  has_many :descriptors, through: :observations
 
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id: taxon_name_id) }
   scope :with_name, -> (name) { where(name: name) }
@@ -131,7 +126,9 @@ class Otu < ApplicationRecord
   end
 
   # @return [Otu::ActiveRecordRelation]
-  #   if the Otu is a child, via synonymy or not, of the taxon name
+  #   all OTUs linked to the taxon_name_id, it descendants, and
+  #   any synonym of any of the previous
+  #   linked directly to the taxon name
   #   !! Invalid taxon_name_ids return nothing
   #   !! Taxon names with synonyms return the OTUs of their synonyms
   def self.descendant_of_taxon_name(taxon_name_id)

@@ -10,6 +10,8 @@ import getRepository from './getRepository'
 import getProtocols from './getProtocols'
 import getLastSave from './getLastSave'
 import getLastChange from './getLastChange'
+import getRoles from './getRoles'
+import getOriginRelationships from './getOriginRelationships'
 
 const GetterNames = {
   GetRecent: 'getRecent',
@@ -23,7 +25,9 @@ const GetterNames = {
   GetRepository: 'getRepository',
   GetProtocols: 'getProtocols',
   GetLastSave: 'getLastSave',
-  GetLastChange: 'getLastChange'
+  GetLastChange: 'getLastChange',
+  GetRoles: 'getRoles',
+  GetOriginRelationships: 'getOriginRelationships'
 }
 
 const GetterFunctions = {
@@ -38,7 +42,9 @@ const GetterFunctions = {
   [GetterNames.GetRepository]: getRepository,
   [GetterNames.GetProtocols]: getProtocols,
   [GetterNames.GetLastSave]: getLastSave,
-  [GetterNames.GetLastChange]: getLastChange
+  [GetterNames.GetLastChange]: getLastChange,
+  [GetterNames.GetRoles]: getRoles,
+  [GetterNames.GetOriginRelationships]: getOriginRelationships
 }
 
 export {

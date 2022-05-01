@@ -124,8 +124,7 @@ export default {
       checkScroll: undefined,
       documentUrl: undefined,
       loadingPdf: false,
-      sourceId: undefined,
-      channel: new BroadcastChannel('tw-pdf')
+      sourceId: undefined
     }
   },
 
@@ -135,13 +134,11 @@ export default {
 
     document.addEventListener('turbolinks:load', _ => {
       document.removeEventListener(this.eventLoadPDFName, this.handlePdfLoadEvent)
-      this.channel.close()
     })
   },
 
   unmounted () {
     document.removeEventListener('mouseover', this.loadPDF)
-    this.channel.close()
     this.pdfdata?.destroy()
   },
 
@@ -267,11 +264,6 @@ export default {
     },
 
     eventListeners () {
-      this.channel.onmessage = (event) => {
-        this.loadPDF({ detail: event.data })
-        this.openPanel()
-      }
-
       document.addEventListener(this.eventLoadPDFName, this.handlePdfLoadEvent)
 
       document.addEventListener('onSlidePanelClose', event => {
@@ -319,9 +311,6 @@ export default {
     },
 
     handlePdfLoadEvent (event) {
-      const { detail } = event
-
-      this.channel.postMessage(detail)
       this.loadPDF(event)
       this.openPanel()
     },

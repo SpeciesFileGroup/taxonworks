@@ -156,8 +156,9 @@ export default {
     addRow (row) {
       this.showRowModal = false
       if (row.otu_id) {
+        // José HERE
         Otu.find(row.otu_id).then(response => {
-          row.row_object = response.body
+          row.observation_object = response.body
           this.observationRows.push(row)
         })
       }

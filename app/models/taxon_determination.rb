@@ -42,8 +42,8 @@ class TaxonDetermination < ApplicationRecord
   include Shared::Notes
   include Shared::Confidences
   include Shared::Labels
-  include Shared::HasRoles
   include Shared::Depictions
+  include Shared::ProtocolRelationships
   include Shared::IsData
   include SoftValidation
   ignore_whitespace_on(:print_label)
@@ -53,6 +53,7 @@ class TaxonDetermination < ApplicationRecord
 
   has_many :determiner_roles, class_name: 'Determiner', as: :role_object
   has_many :determiners, through: :determiner_roles, source: :person
+  has_many :determiners_organization, through: :determiner_roles, source: :organization
 
   validates :biological_collection_object, presence: true
   validates :otu, presence: true

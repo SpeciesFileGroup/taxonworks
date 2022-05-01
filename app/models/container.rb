@@ -43,7 +43,7 @@ class Container < ApplicationRecord
   include Shared::Labels 
   include Shared::IsData
 
-  has_many :collection_profiles
+  has_many :collection_profiles, inverse_of: :container, dependent: :restrict_with_error
 
   validates :type, presence: true
   validate :type_is_valid

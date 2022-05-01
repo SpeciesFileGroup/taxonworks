@@ -1,5 +1,6 @@
 class DatasetRecordsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+  include ZipTricks::RailsStreaming
 
   before_action :set_dataset_record, only: [:show, :update, :destroy]
   after_action -> { set_pagination_headers(:dataset_records) }, only: [:index], if: :json_request?
@@ -7,7 +8,14 @@ class DatasetRecordsController < ApplicationController
   # GET /dataset_records
   # GET /dataset_records.json
   def index
-    @dataset_records = filtered_records.order(id: :asc).page(params[:page]).per(params[:per] || 100) #.preload_fields
+    respond_to do |format|
+      format.json do
+        @import_dataset = import_dataset
+        @dataset_records = filtered_records.order(id: :asc).page(params[:page]).per(params[:per] || 100) #.preload_fields
+        @filters = params[:filter]
+      end
+      format.zip { render_zip }
+    end
   end
 
   # GET /dataset_records/1
@@ -94,9 +102,11 @@ class DatasetRecordsController < ApplicationController
       params.require(:dataset_record).permit(data_fields: {})
     end
 
-    def filtered_records
-      import_dataset = ImportDataset.where(project_id: sessions_current_project_id).find(params[:import_dataset_id])
+    def import_dataset
+      ImportDataset.where(project_id: sessions_current_project_id).find(params[:import_dataset_id])
+    end
 
+    def filtered_records
       dataset_records = import_dataset.core_records
       params[:filter]&.each do |key, value|
         dataset_records = dataset_records.where(
@@ -107,4 +117,32 @@ class DatasetRecordsController < ApplicationController
       params[:status].blank? ? dataset_records : dataset_records.where(status: params[:status])
     end
 
-  end
+    def render_zip
+      response.headers[Rack::ETAG] = SecureRandom.hex # Prevents Rack::ETAG from buffering the response
+
+      filename = Zaru::sanitize!("#{import_dataset.description}_#{DateTime.now}.tsv").gsub(' ', '_').downcase
+      headers = import_dataset.metadata["core_headers"]
+
+      response.headers["Content-Disposition"] = "attachment; filename=\"#{filename}.zip\""
+
+      zip_tricks_stream do |zip|
+        zip.write_deflated_file('filters.txt') do |sink|
+          sink.write "Status: #{params[:status] || 'Any'}\n---\n"
+          params[:filter].each {|k, v| sink.write("#{headers[k.to_i]}: #{v}\n") } if params[:filter]
+        end
+
+        zip.write_deflated_file(filename) do |sink|
+          sink.write CSV.generate_line([
+            'Status', 'error_data', *headers
+          ], col_sep: "\t", quote_char: '')
+
+          filtered_records.find_each do |row|
+            sink.write CSV.generate_line([
+              row.status, row.metadata&.dig('error_data', 'messages'), *row.data_fields
+            ], col_sep: "\t", quote_char: '')
+          end
+        end
+      end
+    end
+
+ end

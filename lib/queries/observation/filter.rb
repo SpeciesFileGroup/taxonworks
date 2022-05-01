@@ -1,10 +1,20 @@
 module Queries
-  module Observation 
+  module Observation
 
+    # !! TODO: needs tests
     # !! does not inherit from base query
-    class Filter 
+    class Filter
 
-      attr_accessor :observation_object_global_id, :otu_id, :collection_object_id, :descriptor_id, :character_state_id, :type
+      attr_accessor :observation_object_global_id
+      attr_accessor :otu_id
+      attr_accessor :collection_object_id
+      attr_accessor :descriptor_id
+      attr_accessor :character_state_id
+      attr_accessor :type
+
+      # @return [Integer, nil]
+      #   not extended to Array yet
+      attr_accessor :observation_matrix_id
 
       def initialize(params)
         @otu_id = params[:otu_id]
@@ -14,6 +24,27 @@ module Queries
         @type = params[:type]
 
         @character_state_id = params[:character_state_id]
+
+        @observation_matrix_id = params[:observation_matrix_id]
+      end
+
+      def observation_matrix_id_facet
+        return nil if observation_matrix_id.nil?
+        ::Observation.in_observation_matrix(observation_matrix_id)
+      end
+
+      def merge_clauses
+        clauses = [
+          observation_matrix_id_facet
+        ].compact
+
+        return nil if clauses.empty?
+
+        a = clauses.shift
+        clauses.each do |b|
+          a = a.merge(b)
+        end
+        a
       end
 
       # @return [ActiveRecord::Relation]
@@ -35,67 +66,67 @@ module Queries
 
       # @return [Arel::Node, nil]
       def matching_observation_object_global_id
-        if  observation_object_global_id.blank?
-          nil
-        else
-        
-          # TODO - make a hash method to parameterize these values 
-          o = GlobalID::Locator.locate(observation_object_global_id) 
+        return nil if observation_object_global_id.blank?
 
-          case o.metamorphosize.class.name
-          when 'Otu'
-            table[:otu_id].eq(o.id) 
-          when 'CollectionObject'
-            table[:collection_object_id].eq(o.id) 
-          else
-            return nil
-          end
-        end
+        # TODO - make a hash method to parameterize these values
+        o = GlobalID::Locator.locate(observation_object_global_id)
+
+        a = o.id
+        b = o.class.base_class.name
+
+        table[:observation_object_id].eq(a).and(table[:observation_object_type].eq(b))
       end
 
       # @return [Arel::Node, nil]
       def matching_character_state_id
-        character_state_id.blank? ? nil : table[:character_state_id].eq(character_state_id) 
-      end
-
-      # @return [Arel::Node, nil]
-      def matching_otu_id
-        otu_id.blank? ? nil : table[:otu_id].eq(otu_id) 
+        character_state_id.blank? ? nil : table[:character_state_id].eq(character_state_id)
       end
 
       # @return [Arel::Node, nil]
       def matching_collection_object_id
-        collection_object_id.blank? ? nil : table[:collection_object_id].eq(collection_object_id) 
+        collection_object_id.blank? ? nil : table[:observation_object_id].eq(collection_object_id).and(table[:observation_object_type].eq('CollectionObject'))
       end
 
       # @return [Arel::Node, nil]
       def matching_type
-        type.blank? ? nil : table[:type].eq(type) 
+        type.blank? ? nil : table[:type].eq(type)
       end
-      
+
       # @return [Arel::Node, nil]
       def matching_descriptor_id
-        descriptor_id.blank? ? nil : table[:descriptor_id].eq(descriptor_id) 
+        descriptor_id.blank? ? nil : table[:descriptor_id].eq(descriptor_id)
       end
 
       # @return [Arel::Node, nil]
       def matching_character_state_id
-        character_state_id.blank? ? nil : table[:character_state_id].eq(character_state_id) 
+        character_state_id.blank? ? nil : table[:character_state_id].eq(character_state_id)
       end
 
+      # TODO: make Array or individual
       # @return [Arel::Node, nil]
       def matching_otu_id
-        otu_id.blank? ? nil : table[:otu_id].eq(otu_id) 
+        otu_id.blank? ? nil : table[:observation_object_id].eq(otu_id).and(table[:observation_object_type].eq('Otu'))
       end
 
       # @return [ActiveRecord::Relation]
       def all
-        if a = and_clauses
-          ::Observation.where(and_clauses)
+        a = and_clauses
+        b = merge_clauses
+
+        q = nil
+        if a && b
+          q = b.where(a)
+        elsif a
+          q = ::Observation.where(a)
+        elsif b
+          q = b
         else
-          ::Observation.none
+          q = ::Observation.all
         end
+
+        q
       end
+
 
       # @return [Arel::Table]
       def table

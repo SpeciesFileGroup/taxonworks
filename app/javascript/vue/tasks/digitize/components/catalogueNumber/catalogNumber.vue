@@ -54,7 +54,7 @@
         <div class="horizontal-left-content field">
           <input
             id="identifier-field"
-            :class="{ 'validate-identifier': existingIdentifier }"
+            :class="{ 'validate-identifier': existingIdentifiers.length && !isCreatedIdentifierCurrent }"
             type="text"
             @input="checkIdentifier"
             v-model="identifier.identifier"
@@ -77,13 +77,13 @@
           v-if="!identifier.namespace_id && identifier.identifier && identifier.identifier.length"
           style="color: red"
         >Namespace is needed.</span>
-        <template v-if="existingIdentifier">
+        <template v-if="existingIdentifiers.length && !isCreatedIdentifierCurrent">
           <span
             style="color: red"
           >Identifier already exists, and it won't be saved:</span>
           <a
-            :href="existingIdentifier.identifier_object.object_url"
-            v-html="existingIdentifier.identifier_object.object_tag"
+            :href="existingIdentifiers[0].identifier_object.object_url"
+            v-html="existingIdentifiers[0].identifier_object.object_tag"
           />
         </template>
       </div>
@@ -109,6 +109,7 @@ export default {
     LockComponent,
     SmartSelector
   },
+
   computed: {
     collectionObject () {
       return this.$store.getters[GetterNames.GetCollectionObject]
@@ -156,24 +157,32 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetNamespaceSelected, value)
       }
+    },
+
+    isCreatedIdentifierCurrent () {
+      return this.existingIdentifiers.find(item => item.id === this.identifier.id)
     }
   },
+
   data () {
     return {
-      existingIdentifier: undefined,
+      existingIdentifiers: [],
       delay: 1000,
       saveRequest: undefined
     }
   },
+
   watch: {
     existingIdentifier (newVal) {
       this.settings.saveIdentifier = !newVal
     }
   },
+
   methods: {
     increment () {
       this.identifier.identifier = incrementIdentifier(this.identifier.identifier)
     },
+
     checkIdentifier () {
       if (this.saveRequest) {
         clearTimeout(this.saveRequest)
@@ -185,7 +194,7 @@ export default {
             namespace_id: this.identifier.namespace_id,
             identifier: this.identifier.identifier
           }).then(response => {
-            this.existingIdentifier = (response.body.length > 0 ? response.body[0] : undefined)
+            this.existingIdentifiers = response.body
           })
         }, this.delay)
       }

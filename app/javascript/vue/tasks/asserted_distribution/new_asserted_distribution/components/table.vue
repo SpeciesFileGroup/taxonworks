@@ -30,7 +30,7 @@
             <a
               class="margin-small-right"
               target="blank"
-              :href="nomenclatureBySourceRoute(item.citations[0].source.id)"
+              :href="nomenclatureBySourceRoute(item.citations[0].source_id)"
               v-html="item.citations[0].citation_source_body"/>
             <soft-validation
               :global-id="item.global_id"/>

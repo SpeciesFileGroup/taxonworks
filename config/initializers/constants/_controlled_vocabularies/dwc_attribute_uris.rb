@@ -27,3 +27,7 @@ DWC_ATTRIBUTE_URIS =  {
   ] 
 
 }
+
+# Reference the same URI throughout
+DWC_FOSSIL_URI = 'http://rs.tdwg.org/dwc/terms/FossilSpecimen'
+

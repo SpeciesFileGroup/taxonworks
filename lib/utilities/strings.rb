@@ -1,6 +1,18 @@
 # Methods that recieve or generate a String. This methods in this library should be completely independant (i.e. ultimately gemifiable) from TaxonWorks.
 module Utilities::Strings
 
+  def self.linearize(string, separator = ' | ')
+    return nil if string.to_s.length == 0
+    string.gsub(/\n|(\r\n)/, separator)
+  end
+
+  # @return String,nil
+  #   the string preceeded with "a" or "an"
+  def self.a_label(string)
+    return nil if string.to_s.length == 0
+    (string =~ /\A[aeiou]/i ? 'an ' : 'a ') + string
+  end
+
   # @param [Integer] string_length
   # @return [String, nil]
   #   stub a string of a certain length
@@ -18,7 +30,7 @@ module Utilities::Strings
       a.strip!
       a = nil if a == ''
     end
-    a 
+    a
   end
 
   # @param [String] string
@@ -31,7 +43,7 @@ module Utilities::Strings
       a.squish!
       a = nil if a == ''
     end
-    a 
+    a
   end
 
   # @param [String] text
@@ -67,7 +79,7 @@ module Utilities::Strings
   #   whether the string is an integer (positive or negative)
   # see http://stackoverflow.com/questions/1235863/test-if-a-string-is-basically-an-integer-in-quotes-using-ruby
   # Note:  Might checkout CSV::Converters constants to see how they handle this
-  # Allows '02' ... hmm
+  # Allows '02', but treated as OK as 02.to_i returns 2
   def self.is_i?(string)
     /\A[-+]?\d+\z/ === string
   end
@@ -111,7 +123,12 @@ module Utilities::Strings
   #   whitespace and special character split, then any string containing a digit eliminated
   def self.alphabetic_strings(string)
     return [] if string.nil? || string.length == 0
-    string.split(/\W/).select { |b| !(b =~ /\d/) }.reject { |b| b.empty? }
+    string.split(/[^[[:word:]]]+/).select { |b| !(b =~ /\d/) }.reject { |b| b.empty? }
+  end
+
+  def self.alphanumeric_strings(string)
+    return [] if string.nil? || string.length == 0
+    string.split(/[^[[:word:]]]+/).reject { |b| b.empty? }
   end
 
   # @param string [String]
@@ -146,6 +163,18 @@ module Utilities::Strings
   def self.integers(string)
     return [] if string.nil? || string.length == 0
     string.split(/\s+/).select { |t| is_i?(t) }
+  end
+
+  # @param [String] string
+  # @return [Integer, nil]
+  #   return an integer if and only if the string is a single integer,
+  #   otherwise nil
+  def self.only_integer(string)
+    if is_i?(string)
+      string.to_i
+    else
+      nil
+    end
   end
 
   # @return [Boolean]

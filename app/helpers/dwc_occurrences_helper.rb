@@ -9,7 +9,9 @@ module DwcOccurrencesHelper
       a.push tag.span('A new version of the DwC builder is available', class: [:feedback, 'feedback-thin', 'feedback-warning']) if Time.new(::Export::Dwca::INDEX_VERSION.last) > dwc_occurrence.updated_at
     end
     a.push tag.span('Up-to-date', class: [:feedback, 'feedback-info']) if a.empty?
-    a.join().html_safe
+
+    a.push tag.span('TW DwcOccurrence id (internal index/use only): ' + dwc_occurrence.to_param, class: [:feedback, 'feedback-secondary'])
+    a.join(' ').html_safe
   end
 
   def dwc_column(dwc_occurrence)
@@ -23,6 +25,8 @@ module DwcOccurrencesHelper
         r.push tag.tr( (tag.td(k) + tag.td(v)).html_safe )
       end
     end
+
+    r.push tag.tr( (tag.td('basisOfRecord') + tag.td(dwc_occurrence.basisOfRecord)).html_safe )
     tag.table(r.join.html_safe)
   end
 

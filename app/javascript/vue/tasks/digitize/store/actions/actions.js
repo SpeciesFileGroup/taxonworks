@@ -1,6 +1,7 @@
 import ActionNames from './actionNames'
 
 import addToContainer from './AddToContainer'
+import createDeterminationFromParams from './createDeterminationFromParams'
 import getCOCitations from './getCOCitations'
 import getCollectingEvent from './getCollectingEvent'
 import getCollectionObject from './getCollectionObject'
@@ -20,7 +21,6 @@ import newCollectingEvent from './newCollectingEvent'
 import newCollectionObject from './newCollectionObject'
 import newIdentifier from './newIdentifier'
 import newLabel from './newLabel'
-import newTaxonDetermination from './newTaxonDetermination'
 import newTypeMaterial from './newTypeMaterial'
 import removeCOCitation from './removeCOCitation'
 import removeCollectionObject from './removeCollectionObject'
@@ -29,22 +29,24 @@ import removeContainerItem from './removeContainerItem'
 import removeDepictionsByImageId from './removeDepictionsByImageId'
 import removeTaxonDetermination from './removeTaxonDetermination'
 import removeTypeMaterial from './removeTypeMaterial'
+import resetTaxonDetermination from './resetTaxonDeterminations'
 import resetWithDefault from './resetWithDefault'
 import saveCOCitations from './saveCOCitations'
 import saveCollectingEvent from './saveCollectingEvent'
 import saveCollectionObject from './saveCollectionObject'
 import saveContainer from './saveContainer'
 import saveContainerItem from './saveContainerItem'
-import saveDetermination from './saveDetermination'
 import saveDeterminations from './saveDeterminations'
 import saveDigitalization from './saveDigitalization'
 import saveIdentifier from './saveIdentifier'
 import saveLabel from './saveLabel'
 import saveTypeMaterial from './saveTypeMaterial'
 import saveBiologicalAssociations from './saveBiologicalAssociations'
+import updateLayoutPreferences from './updateLayoutPreferences'
 
 const ActionFunctions = {
   [ActionNames.AddToContainer]: addToContainer,
+  [ActionNames.CreateDeterminationFromParams]: createDeterminationFromParams,
   [ActionNames.GetCollectingEvent]: getCollectingEvent,
   [ActionNames.GetCollectionObject]: getCollectionObject,
   [ActionNames.GetIdentifier]: getIdentifier,
@@ -61,7 +63,6 @@ const ActionFunctions = {
   [ActionNames.NewCollectionObject]: newCollectionObject,
   [ActionNames.NewIdentifier]: newIdentifier,
   [ActionNames.NewLabel]: newLabel,
-  [ActionNames.NewTaxonDetermination]: newTaxonDetermination,
   [ActionNames.NewTypeMaterial]: newTypeMaterial,
   [ActionNames.RemoveCOCitation]: removeCOCitation,
   [ActionNames.RemoveCollectionObject]: removeCollectionObject,
@@ -70,13 +71,13 @@ const ActionFunctions = {
   [ActionNames.RemoveDepictionsByImageId]: removeDepictionsByImageId,
   [ActionNames.RemoveTaxonDetermination]: removeTaxonDetermination,
   [ActionNames.RemoveTypeMaterial]: removeTypeMaterial,
+  [ActionNames.ResetTaxonDetermination]: resetTaxonDetermination,
   [ActionNames.ResetWithDefault]: resetWithDefault,
   [ActionNames.SaveCOCitations]: saveCOCitations,
   [ActionNames.SaveCollectingEvent]: saveCollectingEvent,
   [ActionNames.SaveCollectionObject]: saveCollectionObject,
   [ActionNames.SaveContainerItem]: saveContainerItem,
   [ActionNames.SaveContainer]: saveContainer,
-  [ActionNames.SaveDetermination]: saveDetermination,
   [ActionNames.SaveDeterminations]: saveDeterminations,
   [ActionNames.SaveDigitalization]: saveDigitalization,
   [ActionNames.SaveIdentifier]: saveIdentifier,
@@ -85,7 +86,8 @@ const ActionFunctions = {
   [ActionNames.SaveBiologicalAssociations]: saveBiologicalAssociations,
   [ActionNames.LoadSoftValidations]: loadSoftValidations,
   [ActionNames.LoadBiologicalAssociations]: loadBiologicalAssociations,
-  [ActionNames.LoadGeoreferences]: loadGeoreferences
+  [ActionNames.LoadGeoreferences]: loadGeoreferences,
+  [ActionNames.UpdateLayoutPreferences]: updateLayoutPreferences
 }
 
 export {

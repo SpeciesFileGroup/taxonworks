@@ -1,12 +1,27 @@
+import {
+  OTU,
+  TAXON_NAME,
+  COLLECTION_OBJECT,
+  EXTRACT,
+  DESCRIPTOR,
+  TAG,
+  OBSERVATION_MATRIX_COLUMN_DYNAMIC_TAG,
+  OBSERVATION_MATRIX_COLUMN_SINGLE_DESCRIPTOR,
+  OBSERVATION_MATRIX_ROW_DYNAMIC_TAXONNAME,
+  OBSERVATION_MATRIX_ROW_DYNAMIC_TAG,
+  OBSERVATION_MATRIX_ROW_SINGLE,
+} from 'constants/index.js'
+
 export default {
   Row: {
-    Tag: 'ObservationMatrixRowItem::Dynamic::Tag',
-    TaxonName: 'ObservationMatrixRowItem::Dynamic::TaxonName',
-    Otu: 'ObservationMatrixRowItem::Single::Otu',
-    CollectionObject: 'ObservationMatrixRowItem::Single::CollectionObject'
+    [TAG]: OBSERVATION_MATRIX_ROW_DYNAMIC_TAG,
+    [TAXON_NAME]: OBSERVATION_MATRIX_ROW_DYNAMIC_TAXONNAME,
+    [OTU]: OBSERVATION_MATRIX_ROW_SINGLE,
+    [COLLECTION_OBJECT]: OBSERVATION_MATRIX_ROW_SINGLE,
+    [EXTRACT]: OBSERVATION_MATRIX_ROW_SINGLE
   },
   Column: {
-    Descriptor: 'ObservationMatrixColumnItem::Single::Descriptor',
-    Tag: 'ObservationMatrixColumnItem::Dynamic::Tag'
+    [DESCRIPTOR]: OBSERVATION_MATRIX_COLUMN_SINGLE_DESCRIPTOR,
+    [TAG]: OBSERVATION_MATRIX_COLUMN_DYNAMIC_TAG
   }
 }

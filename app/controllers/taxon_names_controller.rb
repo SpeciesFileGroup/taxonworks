@@ -1,7 +1,7 @@
 class TaxonNamesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination, :catalog, :api_show]
+  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination, :catalog, :api_show, :api_summary]
   after_action -> { set_pagination_headers(:taxon_names) }, only: [:index, :api_index], if: :json_request?
 
   # GET /taxon_names
@@ -54,7 +54,10 @@ class TaxonNamesController < ApplicationController
   def update
     respond_to do |format|
       if @taxon_name.update(taxon_name_params)
+
+        # TODO: WHY?!
         @taxon_name.reload
+
         format.html { redirect_to url_for(@taxon_name.metamorphosize), notice: 'Taxon name was successfully updated.' }
         format.json { render :show, status: :ok, location: @taxon_name.metamorphosize }
       else
@@ -231,6 +234,11 @@ class TaxonNamesController < ApplicationController
   # GET /api/v1/taxon_names/:id
   def api_show
     render '/taxon_names/api/v1/show'
+  end
+
+  # GET /api/v1/taxon_names/:id/inventory/summary
+  def api_summary
+    render '/taxon_names/api/v1/summary'
   end
 
   def api_parse

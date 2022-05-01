@@ -1,5 +1,7 @@
 <template>
-  <div class="field label-above">
+  <div
+    class="field label-above"
+    v-help.namespace.form.institution>
     <label>Institution (or person responsible for minting this namespace)</label>
     <autocomplete
       param="term"

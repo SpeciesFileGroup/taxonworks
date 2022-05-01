@@ -63,16 +63,20 @@
         height: 30px;
       }
       .figures-delete {
-        background-image: image-url("w_trash.svg");
         position: absolute;
         top: 12px;
         right: 12px;
       }
       .figures-edit {
-        background-image: image-url("w_pencil.svg");
         position: absolute;
-        bottom: -15px;
+        bottom: -12px;
         right: 12px;
+      }
+
+      .figures-link {
+        position: absolute;
+        top: 12px;
+        left: 24px;
       }
     }
   }

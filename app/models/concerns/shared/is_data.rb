@@ -13,6 +13,8 @@ module Shared::IsData
     include Scopes
     include Navigation
     include Metamorphosize
+    include HasRoles
+    include Shared::Verifiers
   end
 
   module ClassMethods
@@ -24,6 +26,10 @@ module Shared::IsData
 
     def dwc_occurrence_eligible?
       self < Shared::IsDwcOccurrence
+    end
+
+    def is_observable?
+      self < Shared::Observations
     end
 
     # @return [Array] of strings of only the non-cached and non-housekeeping column names

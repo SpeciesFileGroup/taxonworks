@@ -4,5 +4,6 @@ import { MutationNames } from '../mutations/mutations'
 export default ({ commit }, id) => {
   TaxonName.originalCombination(id).then(response => {
     commit(MutationNames.SetOriginalCombination, response.body)
+    dispatch('loadSoftValidation', 'original_combination')
   })
 }

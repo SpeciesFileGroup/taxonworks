@@ -217,7 +217,7 @@ class CollectionObjectsController < ApplicationController
 
   def preview_simple_batch_load
     if params[:file]
-      @result = BatchLoad::Import::CollectionObjects.new(batch_params.merge(user_map))
+      @result = BatchLoad::Import::CollectionObjects.new(**batch_params.merge(user_map))
       digest_cookie(params[:file].tempfile, :batch_collection_objects_md5)
       render 'collection_objects/batch_load/simple/preview'
     else
@@ -230,7 +230,7 @@ class CollectionObjectsController < ApplicationController
     if params[:file] && digested_cookie_exists?(
         params[:file].tempfile,
         :batch_collection_objects_md5)
-      @result = BatchLoad::Import::CollectionObjects.new(batch_params.merge(user_map))
+      @result = BatchLoad::Import::CollectionObjects.new(**batch_params.merge(user_map))
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collection object-related object-sets were created."
         render 'collection_objects/batch_load/simple/create' and return
@@ -331,7 +331,7 @@ class CollectionObjectsController < ApplicationController
     render '/collection_objects/api/v1/autocomplete'
   end
 
-  # GET /collection_objects/api/v1/123/dwc
+  # GET /api/v1/collection_objects/123/dwc
   def api_dwc
     ActiveRecord::Base.connection_pool.with_connection do
       @collection_object.get_dwc_occurrence
@@ -360,7 +360,7 @@ class CollectionObjectsController < ApplicationController
 
   def collection_object_params
     params.require(:collection_object).permit(
-      :total, :preparation_type_id, :repository_id,
+      :total, :preparation_type_id, :repository_id, :current_repository_id,
       :ranged_lot_category_id, :collecting_event_id,
       :buffered_collecting_event, :buffered_determinations,
       :buffered_other_labels, :accessioned_at, :deaccessioned_at, :deaccession_reason,

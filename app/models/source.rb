@@ -195,7 +195,6 @@ class Source < ApplicationRecord
   include Shared::SharedAcrossProjects
   include Shared::Tags
   include Shared::Documentation
-  include Shared::HasRoles
   include Shared::IsData
   include Shared::HasPapertrail
   include SoftValidation
@@ -261,7 +260,8 @@ class Source < ApplicationRecord
     end
   end
 
-    # @return [String] A string that represents the authors last_names and year (no suffix)
+  # @return [String]
+  #   A string that represents the authors last_names and year (no suffix)
   def author_year
     return 'not yet calculated' if new_record?
     [cached_author_string, year].compact.join(', ')
@@ -294,27 +294,17 @@ class Source < ApplicationRecord
     return {records: sources, count: valid}
   end
 
-  # @param used_on [String] a model name 
+  # @param used_on [String] a model name
   # @return [Scope]
-  #    the max 10 most recently used (1 week, could parameterize) TaxonName, as used 
   def self.used_recently(user_id, project_id, used_on = 'TaxonName')
-    t = Citation.arel_table
-    p = Source.arel_table
-
-    # i is a select manager
-    i = t.project(t['source_id'], t['created_at']).from(t)
-      .where(t['created_at'].gt(1.weeks.ago))
-      .where(t['citation_object_type'].eq(used_on))
-      .where(t['created_by_id'].eq(user_id))
-      .where(t['project_id'].eq(project_id))
-      .order(t['created_at'].desc)
-
-    # z is a table alias
-    z = i.as('recent_t')
-
-    Source.joins(
-      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['source_id'].eq(p['id'])))
-    ).select(:id).distinct.pluck(:id)
+   Source.select('sources.id').
+     joins(:citations)
+         .where(citations: {created_by_id: user_id,
+                project_id: project_id,
+                citation_object_type: used_on,
+                created_at: 1.week.ago..})
+        .order('citations.created_at DESC')
+      .pluck(:id).uniq
   end
 
   # @params target [String] a citable model name

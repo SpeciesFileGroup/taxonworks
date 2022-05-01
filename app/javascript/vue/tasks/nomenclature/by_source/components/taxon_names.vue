@@ -13,15 +13,18 @@
     </div>
     <taxon-names-table
       :list="taxon_names_cites_list"
-      :names="taxon_names_list"/>
+    />
   </div>
 </template>
 <script>
 
 import TaxonNamesTable from './tables/taxon_names_table.vue'
 import SpinnerComponent from 'components/spinner.vue'
-import extend from '../const/extendRequest.js'
-import { Citation } from 'routes/endpoints'
+import { Citation, TaxonName } from 'routes/endpoints'
+import { chunkArray } from 'helpers/arrays'
+import { TAXON_NAME } from 'constants/index.js'
+
+const MAX_PER_REQUEST = 25
 
 export default {
   components: {
@@ -46,10 +49,9 @@ export default {
     'summarize'
   ],
 
-  data() {
+  data () {
     return {
       taxon_names_cites_list: [],
-      taxon_names_list: [],
       showSpinner: false
     }
   },
@@ -67,21 +69,30 @@ export default {
   methods: {
     getCites () {
       const params = {
-        verbose_citation_object: true,
-        citation_object_type: 'TaxonName',
-        source_id: this.sourceID,
-        extend
+        citation_object_type: TAXON_NAME,
+        source_id: this.sourceID
       }
 
       this.showSpinner = true
 
-      Citation.where(params).then(response => {
-        this.taxon_names_cites_list = response.body
-        this.showSpinner = false
+      Citation.where(params).then(({ body }) => {
+        const arrIds = chunkArray(body.map(item => item.citation_object_id), MAX_PER_REQUEST)
+        const requestTaxons = arrIds.map(ids => TaxonName.where({ taxon_name_id: ids }))
+
+        Promise.all(requestTaxons).then(responses => {
+          const taxonList = [].concat(...responses.map(r => r.body))
+
+          this.taxon_names_cites_list = body.map(item => ({
+            ...item,
+            citation_object: taxonList.find(taxon => taxon.id === item.citation_object_id)
+          }))
+        }).finally(_ => {
+          this.showSpinner = false
+        })
       })
     },
 
-    addToList(citation) {
+    addToList (citation) {
       this.taxon_names_cites_list.push(citation)
       this.$emit('taxon_names_cites', this.taxon_names_cites_list)
     },

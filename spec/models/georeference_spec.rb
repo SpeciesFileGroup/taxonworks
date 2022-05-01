@@ -20,7 +20,7 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
 
   # this collecting event should produce a georeference.geographic_item.geo_object of 'Point(0.1 0.1 0.1)'
   let(:collecting_event_with_geographic_area) {
-    CollectingEvent.create(
+    CollectingEvent.create!(
       geographic_area:    g_a,
       verbatim_locality:  'Test Event',
       minimum_elevation:  0.1,
@@ -29,10 +29,10 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
   }
 
   let(:collecting_event_without_geographic_area) {
-    CollectingEvent.create(verbatim_locality: 'without geographic area')
+    CollectingEvent.create!(verbatim_locality: 'without geographic area')
   }
 
-  let!(:gagi) { GeographicAreasGeographicItem.create(geographic_item: item_d, geographic_area: g_a) }
+  let!(:gagi) { GeographicAreasGeographicItem.create!(geographic_item: item_d, geographic_area: g_a) }
 
   context 'associations' do
     context 'belongs_to' do
@@ -66,18 +66,16 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
   end
 
   context 'validation' do
-    before(:each) {
-      georeference.valid?
-    }
+    before(:each) { georeference.valid?  }
 
     specify '#geographic_item is required' do
       expect(georeference.errors.include?(:geographic_item)).to be_truthy
     end
 
-    specify '#collecting_event is required' do
+    # specify '#collecting_event is required' do
       # no longer true at this level: 'not null' is now enforced at the table level.
       # expect(georeference.errors.include?(:collecting_event)).to be_truthy
-    end
+    # end
 
     specify '#type is required' do
       expect(georeference.errors.include?(:type)).to be_truthy
@@ -190,12 +188,13 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
         let(:gi_e1) { GeographicItem.create!(polygon: poly_e1) }
         let(:ga_e1) {
           GeographicArea.create!(
-            name:                                         'test area E1',
-            data_origin:                                  'Test Data',
-            geographic_area_type:                         g_a_t,
-            parent:                                       earth,
-            geographic_areas_geographic_items_attributes: [{geographic_item: gi_e1,
-                                                            data_origin:     'Test Data'}]
+            name:                   'test area E1',
+            data_origin:            'Test Data',
+            geographic_area_type:   g_a_t,
+            parent:                 earth,
+            geographic_areas_geographic_items_attributes: [
+              {geographic_item: gi_e1,
+               data_origin: 'Test Data'}]
           ) }
         let(:ga_b1) {
           GeographicArea.create!(

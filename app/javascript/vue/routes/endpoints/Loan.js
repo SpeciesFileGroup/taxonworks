@@ -19,6 +19,7 @@ const permitParams = {
     recipient_honorific: String,
     lender_address: String,
     clone_from: String,
+    is_gift: Boolean,
     loan_items_attributes: {
       _destroy: Boolean,
       id: Number,

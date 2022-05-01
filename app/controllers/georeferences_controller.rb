@@ -79,7 +79,7 @@ class GeoreferencesController < ApplicationController
   #    skip
   #  end
 
-  # TODO: Fix other georefernce Tasks/interfaces to use JSON, not this ^
+  # TODO: Fix other georeference Tasks/interfaces to use JSON, not this ^
 
   # POST /georeferences
   # POST /georeferences.json
@@ -97,7 +97,6 @@ class GeoreferencesController < ApplicationController
       end
     end
   end
-
 
   def batch_create
   end
@@ -119,10 +118,15 @@ class GeoreferencesController < ApplicationController
   # DELETE /georeferences/1
   # DELETE /georeferences/1.json
   def destroy
-    @georeference.destroy!
+    @georeference.destroy
     respond_to do |format|
-      format.html { redirect_to georeferences_url }
-      format.json { head :no_content }
+      if @georeference.destroyed?
+        format.html { destroy_redirect @georeference, notice: 'Georeference was successfully destroyed.' }
+        format.json { head :no_content}
+      else
+        format.html { destroy_redirect @georeference, notice: 'Georeference was not destroyed, ' + @georeference.errors.full_messages.join('; ') }
+        format.json { render json: @georeference.errors, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -163,6 +167,9 @@ class GeoreferencesController < ApplicationController
       :api_request,
       :is_undefined_z,
       :is_median_z,
+      :year_georeferenced,
+      :day_georeferenced,
+      :month_georeferenced,
       :wkt,
       geographic_item_attributes: [:shape],
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages]

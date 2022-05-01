@@ -19,7 +19,7 @@ module Shared::BiologicalAssociations
     klass = related_class.tableize.singularize.safe_constantize
 
     has_many :biological_associations, as: :biological_association_subject, inverse_of: :biological_association_subject, dependent: :restrict_with_error
-    has_many :related_biological_associations, as: :biological_association_object, inverse_of: :biological_association_object, class_name: 'BiologicalAssociation'
+    has_many :related_biological_associations, as: :biological_association_object, inverse_of: :biological_association_object, class_name: 'BiologicalAssociation', dependent: :restrict_with_error
 
     define_singleton_method :with_biological_associations do
       joins("LEFT OUTER JOIN biological_associations tnr1 ON otus.id = tnr1.biological_association_subject_id AND tnr1.biological_association_object_type = '#{related_class }'"). # Otu

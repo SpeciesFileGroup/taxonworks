@@ -9,7 +9,6 @@ export default ({ state, commit }) => {
 
   Object.entries(lock).forEach(([key, isLocked]) => {
     if (isLocked) {
-      console.log(state[key])
       initState[key] = Array.isArray(state[key])
         ? state[key].map(item => ({ ...item, id: undefined }))
         : state[key]?.id ? { ...state[key], id: undefined } : state[key]

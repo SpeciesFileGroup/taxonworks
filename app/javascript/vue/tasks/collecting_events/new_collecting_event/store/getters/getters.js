@@ -1,9 +1,10 @@
 import getCELabel from './getCELabel'
 import getCollectingEvent from './getCollectingEvent'
+import getGeographicArea from './getGeographicArea'
 import getGeoreferences from './getGeoreferences'
 import getIdentifier from './getIdentifier'
+import getPreferences from './getPreferences.js'
 import getQueueGeoreferences from './getQueueGeoreferences'
-import getGeographicArea from './getGeographicArea'
 import getSettings from './getSettings'
 import getSoftValidations from './getSoftValidations'
 import getUnit from './getUnit'
@@ -15,6 +16,7 @@ const GetterNames = {
   GetGeographicArea: 'getGeographicArea',
   GetGeoreferences: 'getGeoreferences',
   GetIdentifier: 'getIdentifier',
+  GetPreferences: 'getPreferences',
   GetQueueGeoreferences: 'getQueueGeoreferences',
   GetSettings: 'getSetting',
   GetSoftValidations: 'getSoftValidations',
@@ -28,6 +30,7 @@ const GetterFunctions = {
   [GetterNames.GetGeographicArea]: getGeographicArea,
   [GetterNames.GetGeoreferences]: getGeoreferences,
   [GetterNames.GetIdentifier]: getIdentifier,
+  [GetterNames.GetPreferences]: getPreferences,
   [GetterNames.GetSettings]: getSettings,
   [GetterNames.GetQueueGeoreferences]: getQueueGeoreferences,
   [GetterNames.GetSoftValidations]: getSoftValidations,

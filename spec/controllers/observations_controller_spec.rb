@@ -144,19 +144,5 @@ RSpec.describe ObservationsController, type: :controller do
     end
   end
 
-  describe 'DELETE #destroy' do
-    it 'destroys the requested observation' do
-      observation = Observation.create! valid_attributes
-      expect {
-        delete :destroy, params: {id: observation.to_param}, session: valid_session
-      }.to change(Observation, :count).by(-1)
-    end
-
-    it 'redirects to the observations list' do
-      observation = Observation.create! valid_attributes
-      delete :destroy, params: {id: observation.to_param}, session: valid_session
-      expect(response).to redirect_to(observations_url)
-    end
-  end
-
+  include_examples 'DELETE #destroy', Observation
 end

@@ -15,9 +15,12 @@ module TaxonWorks
 
         def apply(value)
           if value.is_a? String
-            value = value.gsub(/\$\\less\$\/?\w+\$\\greater\$/,
+            value = value.gsub(/(?:\$\\less|{\\&}lt\$\\mathsemicolon)\$\/?\w+(?:\$\\greater|{\\&}gt\$\\mathsemicolon)\$/,
               '$\less$i$\greater$' => '<i>', '$\less$/i$\greater$' => '</i>',
-              '$\less$em$\greater$' => '<i>', '$\less$/em$\greater$' => '</i>' # Some times <em> is used for scientific names, making sense to translate to TW-supported <i>
+              '{\&}lt$\mathsemicolon$i{\&}gt$\mathsemicolon$' => '<i>', '{\&}lt$\mathsemicolon$/i{\&}gt$\mathsemicolon$' => '</i>',
+              # Some times <em> is used for scientific names, making sense to translate to TW-supported <i>
+              '$\less$em$\greater$' => '<i>', '$\less$/em$\greater$' => '</i>',
+              '{\&}lt$\mathsemicolon$em{\&}gt$\mathsemicolon$' => '<i>', '{\&}lt$\mathsemicolon$/em{\&}gt$\mathsemicolon$' => '</i>',
             )
           end
           ::LaTeX.decode(value)
@@ -116,6 +119,10 @@ module TaxonWorks
           b[:abstract] = ::Utilities::Strings.encode_with_utf8(c['abstract']).
             gsub('</jats:p>', '').
             gsub('<jats:p>', '').
+            gsub('</jats:sec>', '').
+            gsub('<jats:sec>', '').
+            gsub('</jats:title>', '</b>').
+            gsub('<jats:title>', '<b>').
             gsub('</jats:italic>', '</i>').
             gsub('<jats:italic>', '<i>').
             gsub('</jats:bold>', '</b>').

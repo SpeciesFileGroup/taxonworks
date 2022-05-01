@@ -101,7 +101,12 @@ export default {
     },
 
     generateLabel () {
-      this.label.text = [].concat(this.generateVerbatimLabel(), this.generateParsedLabel().filter(label => label)).join('\n')
+      const fieldsData = [
+        ...this.generateVerbatimLabel(),
+        ...this.generateParsedLabel()
+      ].filter(label => label)
+
+      this.label.text = [...new Set(fieldsData)].join('\n')
     }
   }
 }

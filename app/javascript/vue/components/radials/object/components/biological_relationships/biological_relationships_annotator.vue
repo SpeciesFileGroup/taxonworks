@@ -1,121 +1,139 @@
 <template>
   <div class="biological_relationships_annotator">
-    <div class="separate-bottom">
-      <template v-if="edit">
-        <div class="flex-separate">
-          <h3>Edit mode</h3>
-          <button
-            type="button"
-            class="button button-default"
-            @click="reset">
-            Cancel
-          </button>
-        </div>
-        <br>
-      </template>
-      <h3 v-html="metadata.object_tag"/>
-      <h3 v-if="biologicalRelationship" class="relationship-title middle">
-        <template v-if="flip">
-          <span
-            v-for="item in biologicalRelationship.object_biological_properties"
-            :key="item.id"
-            class="separate-right background-info"
-            v-html="item.name"/>
-          <span
-            v-html="biologicalRelationship.inverted_name"/>
-          <span 
-            v-for="item in biologicalRelationship.subject_biological_properties"
-            :key="item.id"
-            class="separate-left background-info"
-            v-html="item.name"/>
-        </template>
-        <template v-else>
-          <span 
-            v-for="item in biologicalRelationship.subject_biological_properties"
-            :key="item.id"
-            class="separate-right background-info"
-            v-html="item.name"/>
-          <span>{{ (biologicalRelationship.hasOwnProperty('label') ? biologicalRelationship.label : biologicalRelationship.name) }}</span>
-          <span 
-            v-for="item in biologicalRelationship.object_biological_properties"
-            :key="item.id"
-            class="separate-left background-info"
-            v-html="item.name"/>
-        </template>
+    <template v-if="createdBiologicalAssociation">
+      <div class="flex-separate">
+        <h3>Edit mode</h3>
         <button
-          v-if="biologicalRelationship.inverted_name"
-          class="separate-left button button-default flip-button"
           type="button"
-          @click="flip = !flip">
-          Flip
+          class="button button-default"
+          @click="reset">
+          Cancel
         </button>
+      </div>
+      <br>
+    </template>
+
+    <form-citation v-model="citation" />
+    <display-list
+      v-if="createdBiologicalAssociation"
+      edit
+      class="margin-medium-top"
+      label="citation_source_body"
+      :list="createdBiologicalAssociation.citations"
+      @edit="setCitation"
+      @delete="removeCitation"
+    />
+    <div>
+      <h3 v-html="metadata.object_tag" />
+      <h3
+        v-if="biologicalRelationship"
+        class="relationship-title middle"
+      >
         <span
-          @click="biologicalRelationship = undefined; flip = false"
-          class="margin-small-left button button-default circle-button btn-undo"/>
-        <lock-component v-model="lockRelationship"/>
+          v-html="flip
+            ? biologicalRelationship.inverted_name
+            : biologicalRelationLabel"
+        />
+
+        <v-btn
+          v-if="biologicalRelationship.inverted_name"
+          color="primary"
+          @click="flip = !flip"
+        >
+          Flip
+        </v-btn>
+
+        <v-btn
+          class="margin-small-left margin-small-right"
+          color="primary"
+          circle
+          @click="unsetBiologicalRelationship"
+        >
+          <v-icon
+            name="undo"
+            small
+          />
+        </v-btn>
+        <lock-component v-model="lockRelationship" />
       </h3>
       <h3
         class="subtle relationship-title"
-        v-else>Choose relationship</h3>
+        v-else
+      >
+        Choose relationship
+      </h3>
 
       <h3
         v-if="biologicalRelation"
         class="relation-title middle">
         <span v-html="displayRelated"/>
-        <span
+        <v-btn
+          class="margin-small-left"
+          color="primary"
+          circle
           @click="biologicalRelation = undefined"
-          class="margin-small-left button button-default circle-button btn-undo"/>
+        >
+          <v-icon
+            name="undo"
+            small
+          />
+        </v-btn>
       </h3>
       <h3
         v-else
-        class="subtle relation-title">Choose related OTU/collection object</h3>
-    </div>
-
+        class="subtle relation-title">
+        Choose related OTU/collection object
+      </h3>
+    </div>  
     <biological
       v-if="!biologicalRelationship"
       class="separate-bottom"
-      @select="setBiologicalRelationship"/>
+      @select="setBiologicalRelationship"
+    />
     <related
       v-if="!biologicalRelation"
       class="separate-bottom separate-top"
-      @select="biologicalRelation = $event"/>
-    <new-citation
-      class="separate-top"
-      ref="citation"
-      @lock="lockSource = $event"
-      @create="citation = $event"
-      :global-id="globalId"/>
+      @select="biologicalRelation = $event"
+    />
 
     <div class="separate-top">
       <button
         type="button"
         :disabled="!validateFields"
         @click="saveAssociation()"
-        class="normal-input button button-submit">
-        {{ edit ? 'Update' : 'Create' }}
+        class="normal-input button button-submit"
+      >
+        {{ createdBiologicalAssociation ? 'Update' : 'Create' }}
       </button>
     </div>
-    <table-list 
+
+    <table-list
       class="separate-top"
       :list="list"
       :metadata="metadata"
       @edit="editBiologicalRelationship"
-      @delete="removeItem"/>
+      @delete="removeItem"
+    />
   </div>
 </template>
 <script>
 
+import { BiologicalAssociation, BiologicalRelationship } from 'routes/endpoints'
+import { convertType } from 'helpers/types'
+import { addToArray } from 'helpers/arrays.js'
 import CRUD from '../../request/crud.js'
 import AnnotatorExtend from '../annotatorExtend.js'
 import Biological from './biological.vue'
 import Related from './related.vue'
-import NewCitation from './newCitation.vue'
 import TableList from './table.vue'
 import LockComponent from 'components/ui/VLock/index.vue'
-import { BiologicalAssociation, BiologicalRelationship } from 'routes/endpoints'
-import { convertType } from 'helpers/types'
+import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
+import FormCitation from '../asserted_distributions/sourcePicker.vue'
+import makeEmptyCitation from '../../helpers/makeEmptyCitation.js'
+import displayList from 'components/displayList.vue'
 
-const extend = [
+const EXTEND_PARAMS = [
   'origin_citation',
   'object',
   'biological_relationship',
@@ -125,45 +143,62 @@ const extend = [
 
 export default {
   mixins: [CRUD, AnnotatorExtend],
+
   components: {
     Biological,
     LockComponent,
     Related,
-    NewCitation,
-    TableList
+    TableList,
+    VBtn,
+    VIcon,
+    FormCitation,
+    displayList
   },
+
   computed: {
     validateFields () {
       return this.biologicalRelationship && this.biologicalRelation
     },
+
     displayRelated () {
       return this.biologicalRelation?.object_tag || this.biologicalRelation?.label_html
     },
-    alreadyExist () {
+
+    createdBiologicalAssociation () {
       return this.list.find(item =>
         item.biological_relationship_id === this.biologicalRelationship?.id &&
-        item.biological_association_object_id === this.biologicalRelation?.id
-      )
+        item.biological_association_object_id === this.biologicalRelation?.id)
+    },
+
+    biologicalRelationLabel () {
+      return this.biologicalRelationship?.label || this.biologicalRelationship?.name
     }
   },
+
   data () {
     return {
       list: [],
-      edit: undefined,
       biologicalRelationship: undefined,
       biologicalRelation: undefined,
-      citation: undefined,
+      citation: makeEmptyCitation(),
       flip: false,
       lockSource: false,
       lockRelationship: false,
-      loadOnMounted: false
+      loadOnMounted: false,
+
+      lock: {
+        source: false,
+        relationship: false
+      }
     }
   },
+
   watch: {
     lockRelationship (newVal) {
       sessionStorage.setItem('radialObject::biologicalRelationship::lock', newVal)
     }
   },
+
   created () {
     const value = convertType(sessionStorage.getItem('radialObject::biologicalRelationship::lock'))
     if (value !== null) {
@@ -182,11 +217,12 @@ export default {
 
     BiologicalAssociation.where({
       subject_global_id: this.globalId,
-      extend
+      extend: EXTEND_PARAMS
     }).then(({ body }) => {
       this.list = body
     })
   },
+
   methods: {
     reset () {
       if (!this.lockRelationship) {
@@ -194,10 +230,10 @@ export default {
       }
       this.biologicalRelation = undefined
       this.flip = false
-      this.edit = undefined
-      if (!this.lockSource) {
-        this.citation = undefined
-        this.$refs.citation.cleanCitation()
+      this.citation = {
+        ...makeEmptyCitation(),
+        source_id: this.lockSource ? this.citation.source_id : undefined,
+        pages: this.lockSource ? this.citation.pages : undefined
       }
     },
 
@@ -208,34 +244,66 @@ export default {
         subject_global_id: this.flip ? this.biologicalRelation.global_id : this.globalId,
         citations_attributes: this.citation ? [this.citation] : undefined
       }
-      const saveRequest = this.alreadyExist
-        ? BiologicalAssociation.update(this.alreadyExist.id, { biological_association: data, extend })
-        : BiologicalAssociation.create({ biological_association: data, extend })
+      const saveRequest = this.createdBiologicalAssociation
+        ? BiologicalAssociation.update(this.createdBiologicalAssociation.id, { biological_association: data, extend: EXTEND_PARAMS })
+        : BiologicalAssociation.create({ biological_association: data, extend: EXTEND_PARAMS })
 
-      saveRequest.then(response => {
-        if (this.alreadyExist) {
-          const index = this.list.findIndex(item => item.id === response.body.id)
-
-          this.list[index] = response.body
-        } else {
-          this.list.push(response.body)
-        }
-
+      saveRequest.then(({ body }) => {
+        addToArray(this.list, body)
         this.reset()
         TW.workbench.alert.create('Biological association was successfully saved.', 'notice')
       })
     },
 
+    setCitation (citation) {
+      this.citation = {
+        id: citation.id,
+        pages: citation.pages,
+        source_id: citation.source_id,
+        is_original: citation.is_original
+      }
+      this.editCitation = citation
+    },
+
+    removeCitation (item) {
+      const biological_association = {
+        citations_attributes: [{
+          id: item.id,
+          _destroy: true
+        }]
+      }
+
+      BiologicalAssociation.update(
+        this.createdBiologicalAssociation.id, {
+          biological_association,
+          extend: EXTEND_PARAMS
+        })
+        .then(({ body }) => {
+          addToArray(this.list, body)
+        })
+    },
+
     editBiologicalRelationship (bioRelation) {
-      this.edit = bioRelation
-      this.biologicalRelationship = bioRelation.biological_relationship
-      this.biologicalRelation = bioRelation.object
-      this.flip = (bioRelation.object.id === this.metadata.object_id)
+      this.biologicalRelationship = {
+        id: bioRelation.biological_relationship_id,
+        ...bioRelation.biological_relationship
+      }
+
+      this.biologicalRelation = {
+        id: bioRelation.biological_association_object_id,
+        ...bioRelation.object
+      }
+      this.flip = bioRelation.object.id === this.metadata.object_id
     },
 
     setBiologicalRelationship (item) {
       this.biologicalRelationship = item
       sessionStorage.setItem('radialObject::biologicalRelationship::id', item.id)
+    },
+
+    unsetBiologicalRelationship () {
+      this.biologicalRelationship = undefined
+      this.flip = false
     }
   }
 }

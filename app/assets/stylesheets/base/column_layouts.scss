@@ -1,6 +1,5 @@
 /* see
 http://css-tricks.com/snippets/css/a-guide-to-flexbox/
-http://flexboxin5.com/
  */
 .horizontal-center-content {
   display: flex;
@@ -58,8 +57,8 @@ http://flexboxin5.com/
 
 .flexbox {
   display: -webkit-box;
-  display: -moz-box;
-  display: -ms-flexbox;
+  display: -moz-box; // TODO: not valid?
+  display: -ms-flexbox; // TODO: not valid?
   display: -webkit-flex;
   -webkit-flex-flow: row wrap;
   display: flex;
@@ -70,6 +69,13 @@ http://flexboxin5.com/
   .item img {
     display: block;
   }
+}
+
+// sensu CSS tricks: TOOD: probably a much saner default than .flexbox above
+.simple_flexbox {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
 }
 
 .flexbox > * {
