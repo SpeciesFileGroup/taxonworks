@@ -10,11 +10,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Organization roles to taxon determinations model
 
 ### Fixed
+- Duplicated text in TaxonDetermination link [#2947]
+- Housekeeping facet in CollectingEvent filter broken [#2957]
 - Cannot set Determiner of CO to department/organization [#2915]
 - Combination view is broken on Browse nomenclature [#2952]
 - Matrix row coder button in Observation matrix dashboard task redirect to a wrong OTU in Image Matrix task [#2956]
 - Depiction radials are not working in Image matrix task [#2954]
 
+[#2947]: https://github.com/SpeciesFileGroup/taxonworks/issues/2947
+[#2957]: https://github.com/SpeciesFileGroup/taxonworks/issues/2957
 [#2915]: https://github.com/SpeciesFileGroup/taxonworks/issues/2915
 [#2952]: https://github.com/SpeciesFileGroup/taxonworks/issues/2952
 [#2954]: https://github.com/SpeciesFileGroup/taxonworks/issues/2954
