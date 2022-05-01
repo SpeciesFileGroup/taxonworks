@@ -263,7 +263,11 @@ class OtusController < ApplicationController
   end
 
   def api_autocomplete
-    @otus = Queries::Otu::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).autocomplete
+    @otus = Queries::Otu::Autocomplete.new(
+      params.require(:term),
+      project_id: sessions_current_project_id,
+      having_taxon_name_only: params[:having_taxon_name_only]
+    ).autocomplete
     render '/otus/api/v1/autocomplete'
   end
 
