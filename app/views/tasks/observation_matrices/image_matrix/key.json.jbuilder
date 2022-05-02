@@ -15,16 +15,19 @@ json.otu_id_filter_array @key.otu_id_filter_array
 json.identified_to_rank @key.identified_to_rank
 json.list_of_descriptors @key.list_of_descriptors.sort_by {|k, v| v[:index]}.map { |k, v| v }
 json.image_hash @key.image_hash
-#json.depiction_matrix @key.depiction_matrix
 
 json.depiction_matrix (@key.depiction_matrix) do |d, v|
   json.object do
     json.partial! '/shared/data/all/metadata', object: v[:object]
     json.merge! v[:object].attributes
   end
-  # json.extract! v, :object
   json.extract! v, :row_id
-  json.extract! v, :depictions
+  json.depictions (v[:depictions]) do |depiction|
+      json.array! depiction do |d| 
+        json.extract! d, :id, :depiction_object_id, :depiction_object_type, :image_id
+        json.partial! '/shared/data/all/metadata', object: d
+      end
+  end
 end
 
 if @key.observation_matrix

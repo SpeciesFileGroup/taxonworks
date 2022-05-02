@@ -1,53 +1,52 @@
 <template>
   <fieldset>
     <legend>Determiner</legend>
+    <div class="horizontal-left-content margin-small-bottom">
+      <VSwitch
+        class="full_width"
+        v-model="roleView"
+        :options="Object.values(ROLE_TABS)"
+      />
+      <v-lock
+        v-if="lock !== undefined"
+        class="margin-small-left"
+        v-model="lockButton"
+      />
+    </div>
     <div class="horizontal-left-content separate-bottom align-start">
       <smart-selector
         class="full_width"
-        ref="determinerSmartSelector"
         model="people"
         target="Determiner"
         label="cached"
         :autocomplete="false"
-        @selected="addRole"
+        @selected="addPerson"
       >
         <template #header>
           <role-picker
             class="role-picker"
             :autofocus="false"
-            hidden-list
-            ref="rolepicker"
             role-type="Determiner"
+            :organization="roleView === ROLE_TABS.organization"
             v-model="roles"
           />
         </template>
-        <role-picker
-          class="role-picker"
-          :autofocus="false"
-          :create-form="false"
-          role-type="Determiner"
-          v-model="roles"
-        />
       </smart-selector>
-      <lock-component
-        v-if="lock !== undefined"
-        class="margin-small-left"
-        v-model="lockButton"
-      />
     </div>
   </fieldset>
 </template>
 
 <script setup>
 
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { ROLE_DETERMINER } from 'constants/index.js'
 import { findRole } from 'helpers/people/people.js'
 import makePerson from 'factory/Person'
 import makeTaxonDetermination from 'factory/TaxonDetermination.js'
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import RolePicker from 'components/role_picker.vue'
-import LockComponent from 'components/ui/VLock/index.vue'
+import VLock from 'components/ui/VLock/index.vue'
+import VSwitch from 'components/switch.vue'
 
 const props = defineProps({
   modelValue: {
@@ -61,10 +60,17 @@ const props = defineProps({
   }
 })
 
+const ROLE_TABS = {
+  people: 'People',
+  organization: 'Organization'
+}
+
 const emit = defineEmits([
   'update:modelValue',
   'update:lock'
 ])
+
+const roleView = ref(ROLE_TABS.people)
 
 const lockButton = computed({
   get: () => props.lock,
@@ -78,7 +84,7 @@ const roles = computed({
   }
 })
 
-const addRole = role => {
+const addPerson = role => {
   if (!findRole(roles.value, role.id)) {
     roles.value.push(
       makePerson(
@@ -90,4 +96,5 @@ const addRole = role => {
     )
   }
 }
+
 </script>

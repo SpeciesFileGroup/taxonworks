@@ -21,6 +21,10 @@ describe TaxonDetermination, type: :model, group: [:collection_objects] do
       specify 'determiners' do
         expect(taxon_determination).to respond_to(:determiners)
       end
+
+      specify 'determiners_organization' do
+        expect(taxon_determination).to respond_to(:determiners_organization)
+      end
     end
   end
 
