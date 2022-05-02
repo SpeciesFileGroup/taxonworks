@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Organization roles to taxon determinations model
 
 ### Fixed
+- Repository autocomplete raises [#2960]
 - Duplicated text in TaxonDetermination link [#2947]
 - Housekeeping facet in CollectingEvent filter broken [#2957]
 - Cannot set Determiner of CO to department/organization [#2915]
@@ -17,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Matrix row coder button in Observation matrix dashboard task redirect to a wrong OTU in Image Matrix task [#2956]
 - Depiction radials are not working in Image matrix task [#2954]
 
+[#2960]: https://github.com/SpeciesFileGroup/taxonworks/issues/2960
 [#2947]: https://github.com/SpeciesFileGroup/taxonworks/issues/2947
 [#2957]: https://github.com/SpeciesFileGroup/taxonworks/issues/2957
 [#2915]: https://github.com/SpeciesFileGroup/taxonworks/issues/2915
@@ -35,7 +37,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Improved(?) behaviour of Extract autocomplete [#2923]
-- New BiBTeX based Sources match and/or create Serials for some types [#2719] 
+- New BiBTeX based Sources match and/or create Serials for some types [#2719]
 - Improvements for taxon determinations in comprehensive task
 - Observation Matrix CSV dump uses full object labels [#2912]
 - Allow multiple origin relationships in New extract task [#2928]
