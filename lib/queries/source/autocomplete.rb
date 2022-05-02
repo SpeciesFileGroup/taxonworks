@@ -222,7 +222,7 @@ module Queries
           [ autocomplete_wildcard_of_title_alternate&.limit(20), true]
         ]
 
-        queries.delete_if{|a,b| a.nil?} # compact!
+        queries.delete_if{|a,b| a.nil?} # Note this pattern differs because [[]] so we don't use compact. /lib/queries/repository/autocomplete.rb follows same pattern
 
         result = []
 

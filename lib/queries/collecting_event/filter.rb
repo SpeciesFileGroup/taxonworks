@@ -232,8 +232,11 @@ module Queries
       # Shape is a Hash in GeoJSON format
       def geo_json_facet
         return nil if geo_json.nil?
-        a = RGeo::GeoJSON.decode(geo_json)
-        spatial_query(a.geometry_type.to_s, a.to_s)
+        if a = RGeo::GeoJSON.decode(geo_json)
+          return spatial_query(a.geometry_type.to_s, a.to_s)
+        else
+          return nil
+        end
       end
 
       def spatial_query(geometry_type, wkt)
