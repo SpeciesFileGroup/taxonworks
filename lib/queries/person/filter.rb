@@ -41,7 +41,7 @@ module Queries
       attr_accessor :active_before_year
 
       attr_accessor :died_after_year
-      attr_accessor :attr_accessordied_before_year
+      attr_accessor :died_before_year
 
       attr_accessor :last_name_starts_with
 
