@@ -6,7 +6,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+- People smart selector doesn't work to add new roles [#2963]
 
 ## [0.24.4] - 2022-05-02
 

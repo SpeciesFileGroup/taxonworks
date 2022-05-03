@@ -430,6 +430,12 @@ export default {
         })
         this.$emit('update:modelValue', this.roles_attributes)
       }
+    },
+
+    setPerson (person) {
+      person.position = (this.roles_attributes.length + 1)
+      this.roles_attributes.push(person)
+      this.$emit('update:modelValue', this.roles_attributes)
     }
   }
 }
