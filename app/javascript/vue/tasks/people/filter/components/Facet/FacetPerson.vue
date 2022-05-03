@@ -1,4 +1,6 @@
 <template>
+<div>
+  <h3>Person</h3>
   <div class="field">
     <label class="display-block">First name</label>
     <input
@@ -59,10 +61,12 @@
       Exact
     </label>
   </div>
+</div>
 </template>
 
 <script setup>
 import { computed } from 'vue';
+import { URLParamsToJSON } from 'helpers/url/parse';
 
 const props = defineProps({
   modelValue: {
@@ -82,5 +86,17 @@ const fields = computed({
     emit('update:modelValue', value)
   }
 })
+
+
+const urlParams = URLParamsToJSON(location.href)
+
+fields.value = {
+  ...fields.value,
+  first_name: urlParams.first_name,
+  last_name: urlParams.last_name,
+  suffix: urlParams.suffix,
+  prefix: urlParams.prefix,
+  exact: urlParams.exact || []
+}
 
 </script>
