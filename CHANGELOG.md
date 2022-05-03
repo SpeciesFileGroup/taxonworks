@@ -10,9 +10,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Previously loaned and returned CollectionObjects are unloanable [#2964]
 - People smart selector doesn't work to add new roles [#2963]
 - Type species section is empty in Browse OTU
+- Missing depictions caption and figure label in Image matrix task [#2965]
 
 [#2964]: https://github.com/SpeciesFileGroup/taxonworks/issues/2964
 [#2963]: https://github.com/SpeciesFileGroup/taxonworks/issues/2963
+[#2965]: https://github.com/SpeciesFileGroup/taxonworks/issues/2965
 
 ## [0.24.4] - 2022-05-02
 
