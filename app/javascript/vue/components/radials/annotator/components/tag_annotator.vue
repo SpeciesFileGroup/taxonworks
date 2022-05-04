@@ -21,7 +21,7 @@
       :label="['keyword', 'name']"
       :list="list"
       @delete="removeItem"
-      class="list"/>
+    />
   </div>
 </template>
 <script>
@@ -29,7 +29,7 @@
 import CRUD from '../request/crud.js'
 import annotatorExtend from '../components/annotatorExtend.js'
 import SmartSelector from 'components/ui/SmartSelector.vue'
-import DisplayList from './displayList.vue'
+import DisplayList from 'components/displayList.vue'
 import { ControlledVocabularyTerm, Tag } from 'routes/endpoints'
 import { RouteNames } from 'routes/routes'
 
