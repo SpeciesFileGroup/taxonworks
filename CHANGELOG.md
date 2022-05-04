@@ -8,6 +8,18 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.24.5] - 2022-05-03
+
+### Fixed
+- Previously loaned and returned CollectionObjects are unloanable [#2964]
+- People smart selector doesn't work to add new roles [#2963]
+- Type species section is empty in Browse OTU
+- Missing depictions caption and figure label in Image matrix task [#2965]
+
+[#2964]: https://github.com/SpeciesFileGroup/taxonworks/issues/2964
+[#2963]: https://github.com/SpeciesFileGroup/taxonworks/issues/2963
+[#2965]: https://github.com/SpeciesFileGroup/taxonworks/issues/2965
+
 ## [0.24.4] - 2022-05-02
 
 ### Added
@@ -2575,7 +2587,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.4...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.5...development
+[0.24.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.4...v0.24.5
 [0.24.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.3...v0.24.4
 [0.24.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.2...v0.24.3
 [0.24.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.1...v0.24.2
