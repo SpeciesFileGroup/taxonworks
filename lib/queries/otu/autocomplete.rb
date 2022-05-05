@@ -31,13 +31,14 @@ module Queries
     end
 
     def base_queries
+      queries = []
+      queries << autocomplete_exactly_named unless having_taxon_name_only
       queries = [
-        autocomplete_exactly_named,
         autocomplete_exact_id,
         autocomplete_identifier_cached_exact,
         autocomplete_identifier_identifier_exact,
       ]
-      queries << autocomplete_named if having_taxon_name_only
+      queries << autocomplete_named unless having_taxon_name_only
       queries += [
         autocomplete_via_taxon_name_autocomplete,
         autocomplete_identifier_cached_like,
