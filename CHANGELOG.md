@@ -6,8 +6,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Confirmation modal for clone button on New collecting event task [#2978]
+
 ### Fixed
 - Original combination soft validations are not loaded when New taxon name task is opened
+
+[#2978]: https://github.com/SpeciesFileGroup/taxonworks/issues/2978
 
 ## [0.24.5] - 2022-05-03
 
