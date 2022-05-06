@@ -6,7 +6,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+- Original combination soft validations are not loaded when New taxon name task is opened
 
 ## [0.24.5] - 2022-05-03
 
