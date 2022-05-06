@@ -10,40 +10,33 @@
         <h1 class="task_header">Citations by source</h1>
         <a href="/tasks/sources/hub">Back to source hub</a>
       </div>
-      <nomen-source @sourceID="lists = initStoreList(); sourceID = $event"/>
+      <nomen-source @sourceId="lists = initStoreList(); sourceId = $event"/>
     </div>
     <div class="flexbox">
       <div class="flexbox">
         <div class="first-column separate-right">
-          <taxon-names
-            :sourceID="sourceID"
-            :newTaxon="newTaxonNameCitation"
-            @summarize="summarize = $event"
-          />
+          <CitationTaxonName :sourceId="sourceId" />
           <taxon-name-relationships
-            :sourceID="sourceID"
+            :sourceId="sourceId"
             @summarize="summarize = $event"
           />
           <taxon-name-classifications
-            :sourceID="sourceID"
+            :sourceId="sourceId"
             @summarize="summarize = $event"
           />
           <biological-associations
-            :sourceID="sourceID"
+            :sourceId="sourceId"
             @summarize="summarize = $event"
           />
-          <asserted-distributions
-            :sourceID="sourceID"
-            @summarize="summarize = $event"
-          />
+          <CitationAssertedDistribution :source-id="sourceId" />
           <otus-by-match
-            :sourceID="sourceID"
+            :sourceId="sourceId"
             @summarize="summarize = $event"
           />
         </div>
         <div class="second-column separate-left">
           <otus-match-proxy
-            :sourceID="sourceID"
+            :sourceId="sourceId"
             :summarize="summarize"
           />
         </div>
@@ -55,32 +48,33 @@
 
 import NomenSource from './components/nomen_source'
 import OtusByMatch from './components/otus_by_match'
-import TaxonNames from './components/taxon_names'
+import CitationTaxonName from './components/Citation/CitationTaxonName.vue'
 import TaxonNameRelationships from './components/taxon_name_relationships'
 import TaxonNameClassifications from './components/taxon_name_classifications'
 import BiologicalAssociations from './components/biological_associations'
-import AssertedDistributions from './components/asserted_distributions'
+import CitationAssertedDistribution from './components/Citation/CitationAssertedDistribution.vue'
 import OtusMatchProxy from './components/otus_match_proxy'
 import Spinner from 'components/spinner.vue'
 
 export default {
+  name: 'CitationsBySource',
+
   components: {
     NomenSource,
     OtusByMatch,
-    TaxonNames,
+    CitationTaxonName,
     TaxonNameRelationships,
     TaxonNameClassifications,
     BiologicalAssociations,
-    AssertedDistributions,
+    CitationAssertedDistribution,
     OtusMatchProxy,
     Spinner
   },
 
   data () {
     return {
-      sourceID: undefined,
+      sourceId: undefined,
       isLoading: false,
-      newTaxonNameCitation: {},
       lists: this.initStoreList(),
       summarize: undefined
     }

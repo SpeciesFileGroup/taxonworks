@@ -76,27 +76,27 @@ export default {
   data () {
     return {
       source: undefined,
-      sourceID: undefined,
+      sourceId: undefined,
     }
   },
 
-  $emit: ['sourceID'],
+  $emit: ['sourceId'],
 
   methods: {
     getSource () {
-      if (this.sourceID) {
-        Source.find(this.sourceID, { extend: ['roles'] }).then(response => {
+      if (this.sourceId) {
+        Source.find(this.sourceId, { extend: ['roles'] }).then(response => {
           this.source = response.body
           history.pushState(null, null, `/tasks/nomenclature/by_source?source_id=${this.source.id}`)
-          this.$emit('sourceID', this.sourceID);
+          this.$emit('sourceId', this.sourceId);
         })
       }
     },
 
     getNewSource (id) {
-      this.sourceID = id.toString()
+      this.sourceId = id.toString()
       this.getSource()
-      this.$emit('sourceID', this.sourceID);  // since we avoided the AJAX
+      this.$emit('sourceId', this.sourceId);  // since we avoided the AJAX
     }
   },
 
@@ -105,7 +105,7 @@ export default {
     const sourceId = urlParams.get('source_id')
 
     if (/^\d+$/.test(sourceId)) {
-      this.sourceID = sourceId
+      this.sourceId = sourceId
       this.getSource()
     }
   }
