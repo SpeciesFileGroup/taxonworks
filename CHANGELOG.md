@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - Original combination soft validations are not loaded when New taxon name task is opened
+- ObservationMatrixRow|ColumnItem index view failing because new links are not available
 
 [#2979]: https://github.com/SpeciesFileGroup/taxonworks/issues/2979
 [#2978]: https://github.com/SpeciesFileGroup/taxonworks/issues/2978
