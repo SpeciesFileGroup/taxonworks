@@ -5,6 +5,27 @@ module Queries
       include Queries::Concerns::Tags
       include Queries::Concerns::Users
 
+    # attr_accessor :project_id
+    # attr_accessor :except_project_id # []
+
+    # attr_accessor :exact # []
+
+    # attr_accessor :suffix # []
+    # attr_accessor :prefix # []
+
+    # attr_accessor :regex
+
+    # attr_accessor :role
+    # attr_accessor :except_role
+
+    # attr_accessor :role_total_min
+    # attr_accessor :role_total_max
+
+    # attr_accessor :repeated_total
+
+    # attr_accessor :without # (first/last/prefix/suffix)
+
+
       # @return [String, nil]
       #   also matches any AlternateValue
       attr_accessor :first_name
