@@ -1,15 +1,18 @@
 <template>
   <div>
     <h2>OTU summary</h2>
-    <otu-table-component :list="list"/>
+    <TableOtu
+      class="full_width"
+      :list="list"
+    />
   </div>
 </template>
 <script setup>
 
-import OtuTableComponent from './tables/otu_table.vue'
 import { useStore } from 'vuex'
 import { computed } from 'vue'
-import { GetterNames } from '../store/getters/getters';
+import { GetterNames } from '../store/getters/getters'
+import TableOtu from './tables/TableOtu.vue'
 
 const store = useStore()
 const list = computed(() => store.getters[GetterNames.GetOtuList])

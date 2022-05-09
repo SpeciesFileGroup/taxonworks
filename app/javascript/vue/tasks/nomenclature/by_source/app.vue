@@ -8,19 +8,19 @@
       <nomen-source />
     </div>
     <div class="flexbox">
-      <div class="flexbox">
-        <div class="first-column separate-right">
-          <CitationTaxonName />
-          <CitationRelationships />
-          <CitationClassification />
-          <CitationBiologicalAssociation />
-          <CitationAssertedDistribution />
-          <CitationOtu />
-        </div>
-        <div class="second-column separate-left">
-          <otus-match-proxy />
-        </div>
+      <div class="margin-small-right">
+        <template
+          v-for="({ title, summarizeParam }, type) in CITATION_BLOCKS"
+          :key="type"
+        >
+          <CitationSummary
+            :title="title"
+            :summarize-param="summarizeParam"
+            :type="type"
+          />
+        </template>
       </div>
+      <OtusMatchProxy class="margin-small-left" />
     </div>
   </div>
 </template>
@@ -32,21 +32,43 @@ export default {
 <script setup>
 
 import NomenSource from './components/nomen_source'
-import CitationOtu from './components/Citation/CitationOtu.vue'
-import CitationTaxonName from './components/Citation/CitationTaxonName.vue'
-import CitationRelationships from './components/Citation/CitationRelationship.vue'
-import CitationClassification from './components/Citation/CitationClassification.vue'
-import CitationBiologicalAssociation from './components/Citation/CitationBiologicalAssociation.vue'
-import CitationAssertedDistribution from './components/Citation/CitationAssertedDistribution.vue'
-import OtusMatchProxy from './components/otus_match_proxy'
+import CitationSummary from './components/CitationSummary.vue'
+import OtusMatchProxy from './components/OtusMatchProxy'
+import { 
+  TAXON_NAME,
+  TAXON_NAME_RELATIONSHIP,
+  TAXON_NAME_CLASSIFICATION,
+  BIOLOGICAL_ASSOCIATION,
+  ASSERTED_DISTRIBUTION,
+  OTU 
+} from 'constants/index.js'
+
+const CITATION_BLOCKS = {
+  [TAXON_NAME]: { 
+    title: 'Taxon names',
+    summarizeParam: 'taxon_name_ids'
+  },
+  [TAXON_NAME_CLASSIFICATION]: { 
+    title: 'Nomenclature status',
+    summarizeParam: 'taxon_name_classification_ids'
+  },
+  [TAXON_NAME_RELATIONSHIP]: { 
+    title: 'Taxon name relationships',
+    summarizeParam: 'taxon_name_relationship_ids'
+  },
+  [BIOLOGICAL_ASSOCIATION]: { 
+    title: 'Biological associations',
+    summarizeParam: 'biological_association_ids'
+  },
+  [ASSERTED_DISTRIBUTION]: { 
+    title: 'Asserted distributions',
+    summarizeParam: 'asserted_distribution_ids'
+  },
+  [OTU]: { 
+    title: 'OTUs',
+    summarizeParam: 'otu_ids'
+  },
+}
 
 </script>
 
-<style lang="scss">
-  #nomenclature-by-source-task {
-    table {
-      width: 100%;
-      max-width: 800px;
-    }
-  }
-</style>

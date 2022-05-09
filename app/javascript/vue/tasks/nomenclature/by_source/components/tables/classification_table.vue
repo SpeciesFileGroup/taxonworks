@@ -4,8 +4,7 @@
       <th @click="sortPages()">Pages</th>
       <th>Is original</th>
       <th @click="sortTable('citation_object.object_tag')">Object</th>
-      <th>Radial</th>
-      <th>Delete</th>
+      <th />
     </tr>
     <row-components
       v-for="item in list"

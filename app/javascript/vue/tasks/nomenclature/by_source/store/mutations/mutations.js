@@ -1,14 +1,17 @@
 import setOtuList from './setOtuList.js'
 import setSource from './setSource.js'
+import removeCitation from './removeCitation.js'
 
 const MutationNames = {
   SetOtuList: 'setOtuList',
-  SetSource: 'setSource'
+  SetSource: 'setSource',
+  RemoveCitation: 'removeCitation'
 }
 
 const MutationFunctions = {
   [MutationNames.SetOtuList]: setOtuList,
-  [MutationNames.SetSource]: setSource
+  [MutationNames.SetSource]: setSource,
+  [MutationNames.RemoveCitation]: removeCitation
 }
 
 export { 
