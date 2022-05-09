@@ -2,11 +2,12 @@
   <div>
     <VSpinner v-if="isLoading" />
     <div class="flex-separate middle">
-      <h2>Asserted distributions</h2>
+      <h2>OTUs</h2>
       <button
-        @click="loadOtuByProxy('asserted_distribution_ids')"
+        @click="loadOtuByProxy('otu_ids')"
         :disabled="!citations.length"
-        class="button normal-input button-default">
+        class="button normal-input button-default"
+      >
         Summarize OTUs
       </button>
     </div>

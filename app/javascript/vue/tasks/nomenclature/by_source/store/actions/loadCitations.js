@@ -1,6 +1,6 @@
 import { Citation, TaxonName } from "routes/endpoints"
 import { chunkArray } from "helpers/arrays.js"
-import { TAXON_NAME } from "constants/index.js"
+import { TAXON_NAME, TAXON_NAME_CLASSIFICATION } from "constants/index.js"
 import extend from '../../const/extendRequest.js'
 
 const MAX_PER_REQUEST = 25
@@ -42,7 +42,7 @@ const loadTaxonNamesIntoList = list =>
 
       resolve(list.map(item => ({
         ...item,
-        citation_object: taxonList.find(taxon => taxon.id === item.citation_object_id)
+        citation_object: taxonList.find(taxon => taxon.id === item.citation_object_id) || citation_object
       })))
     })
   })

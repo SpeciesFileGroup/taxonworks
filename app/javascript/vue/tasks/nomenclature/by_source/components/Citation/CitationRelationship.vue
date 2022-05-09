@@ -2,11 +2,12 @@
   <div>
     <VSpinner v-if="isLoading" />
     <div class="flex-separate middle">
-      <h2>Asserted distributions</h2>
+      <h2>Taxon name relationships</h2>
       <button
-        @click="loadOtuByProxy('asserted_distribution_ids')"
+        class="button normal-input button-default"
         :disabled="!citations.length"
-        class="button normal-input button-default">
+        @click="loadOtuByProxy('taxon_name_relationship_ids')"
+      >
         Summarize OTUs
       </button>
     </div>
@@ -15,10 +16,10 @@
 </template>
 
 <script setup>
-import VTable from '../tables/table.vue'
+import VTable from '../tables/taxon_names_table.vue'
 import VSpinner from 'components/spinner.vue'
 import useCitation from '../../composables/useCitation.js'
-import { ASSERTED_DISTRIBUTION } from 'constants/index.js'
+import { TAXON_NAME_RELATIONSHIP } from 'constants/index.js'
 
 const { 
   isLoading,
@@ -26,6 +27,6 @@ const {
   requestCitations,
   loadOtuByProxy,
   pagination
-} = useCitation(ASSERTED_DISTRIBUTION)
+} = useCitation(TAXON_NAME_RELATIONSHIP)
 
 </script>

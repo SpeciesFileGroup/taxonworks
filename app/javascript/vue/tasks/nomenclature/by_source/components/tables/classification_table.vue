@@ -5,14 +5,14 @@
       <th>Is original</th>
       <th @click="sortTable('citation_object.object_tag')">Object</th>
       <th>Radial</th>
-      <th>Otu</th>
       <th>Delete</th>
     </tr>
     <row-components
       v-for="item in list"
       :key="item.id"
+      :citation="item"
       @delete="removeCitation"
-      :citation="item"/>
+    />
   </table>
 </template>
 

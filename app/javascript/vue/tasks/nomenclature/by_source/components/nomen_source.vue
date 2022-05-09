@@ -6,14 +6,15 @@
         min="2"
         param="term"
         label="label"
-        :clear-after="true"
+        clear-after
         placeholder="Search for a Source"
-        @getItem="getNewSource($event.id)"
+        @get-item="store.dispatch(ActionNames.LoadSource, $event.id)"
       />
       <default-source
+        type="Source"
         section="Sources"
-        @getId="getNewSource"
-        type="Source"/>
+        @get-id="store.dispatch(ActionNames.LoadSource, $event)"
+      />
     </div>
     <div
       v-if="source"
@@ -25,10 +26,11 @@
       <radial-object :global-id="source.global_id"/>
       <radial-annotator :global-id="source.global_id"/>
       <pin-component
-        class="circle-button"
         v-if="source.id"
+        class="circle-button"
         :object-id="source.id"
-        :type="source.base_class"/>
+        :type="source.base_class"
+      />
       <template 
         v-for="document in source.documents"
         :key="document.id">
@@ -36,24 +38,27 @@
           class="circle-button btn-download"
           :download="document.document_file_file_name"
           :title="document.document_file_file_name"
-          :href="document.document_file"></a>
-        <pdf-button :pdf="document"/>
+          :href="document.document_file"
+        />
+        <pdf-button :pdf="document" />
       </template>
     </div>
     <ul
-      v-if="source && source.author_roles.length"
+      v-if="source.id && source.author_roles.length"
       class="no_bullets">
       <li 
         v-for="author in source.author_roles"
         :key="author.id">
         <a
           :href="`${author.object_url}`"
-          target="blank">{{ author.object_tag }}</a>
+          target="blank">
+          {{ author.object_tag }}
+        </a>
       </li>
     </ul>
   </div>
 </template>
-<script>
+<script setup>
 
 import Autocomplete from 'components/ui/Autocomplete';
 import RadialAnnotator from 'components/radials/annotator/annotator.vue';
@@ -61,55 +66,20 @@ import PinComponent from 'components/ui/Pinboard/VPin.vue'
 import RadialObject from 'components/radials/navigation/radial.vue'
 import DefaultSource from 'components/getDefaultPin'
 import PdfButton from 'components/pdfButton.vue'
-import { Source } from 'routes/endpoints'
+import { GetterNames } from '../store/getters/getters'
+import { ActionNames } from '../store/actions/actions'
+import { computed } from 'vue'
+import { useStore } from 'vuex';
 
-export default {
-  components: {
-    Autocomplete,
-    RadialAnnotator,
-    RadialObject,
-    PinComponent,
-    DefaultSource,
-    PdfButton
-  },
+const store = useStore()
+const source = computed(() => store.getters[GetterNames.GetSource])
+const urlParams = new URLSearchParams(window.location.search)
+const sourceId = urlParams.get('source_id')
 
-  data () {
-    return {
-      source: undefined,
-      sourceId: undefined,
-    }
-  },
-
-  $emit: ['sourceId'],
-
-  methods: {
-    getSource () {
-      if (this.sourceId) {
-        Source.find(this.sourceId, { extend: ['roles'] }).then(response => {
-          this.source = response.body
-          history.pushState(null, null, `/tasks/nomenclature/by_source?source_id=${this.source.id}`)
-          this.$emit('sourceId', this.sourceId);
-        })
-      }
-    },
-
-    getNewSource (id) {
-      this.sourceId = id.toString()
-      this.getSource()
-      this.$emit('sourceId', this.sourceId);  // since we avoided the AJAX
-    }
-  },
-
-  created () {
-    const urlParams = new URLSearchParams(window.location.search)
-    const sourceId = urlParams.get('source_id')
-
-    if (/^\d+$/.test(sourceId)) {
-      this.sourceId = sourceId
-      this.getSource()
-    }
-  }
+if (/^\d+$/.test(sourceId)) {
+  store.dispatch(ActionNames.LoadSource, sourceId)
 }
+
 </script>
 <style lang="scss">
   #nomenclature-by-source-task {

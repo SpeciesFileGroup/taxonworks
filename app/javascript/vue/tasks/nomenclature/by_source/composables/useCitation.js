@@ -1,20 +1,21 @@
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 import { GetterNames } from '../store/getters/getters.js'
 import { ActionNames } from '../store/actions/actions.js'
 import getPagination from 'helpers/getPagination.js'
 
-export default type => {
+export default (type) => {
   const store = useStore()
   const citations = computed(() => store.getters[GetterNames.GetCitationsByType](type))
   const isLoading = ref(false)
   const pagination = ref(null)
+  const sourceId = computed(() => store.getters[GetterNames.GetSource].id)
  
-  const requestCitations = ({ page, per, sourceId }) => {
+  const requestCitations = ({ page, per }) => {
     isLoading.value = true
     store.dispatch(ActionNames.LoadCitations, { 
+      sourceId: sourceId.value,
       type,
-      sourceId,
       page,
       per
     }).then(response => { 
@@ -22,6 +23,17 @@ export default type => {
       isLoading.value = false
     })
   }
+
+  watch(
+    sourceId, 
+    id => {
+      requestCitations({
+        sourceId: id,
+        page: 1,
+        per: 500 
+      })
+    }
+  )
 
   const loadOtuByProxy = param => {
     store.dispatch(ActionNames.LoadOtuByProxy, {

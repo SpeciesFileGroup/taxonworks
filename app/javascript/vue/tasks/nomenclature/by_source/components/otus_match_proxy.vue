@@ -14,6 +14,4 @@ import { GetterNames } from '../store/getters/getters';
 const store = useStore()
 const list = computed(() => store.getters[GetterNames.GetOtuList])
 
-
-
 </script>

@@ -1,4 +1,5 @@
 export default {
   LoadCitations: 'loadCitations',
-  LoadOtuByProxy: 'loadOtuByProxy'
+  LoadOtuByProxy: 'loadOtuByProxy',
+  LoadSource: 'loadSource'
 }

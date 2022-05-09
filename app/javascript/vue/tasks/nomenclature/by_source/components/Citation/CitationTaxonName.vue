@@ -6,27 +6,20 @@
       <button
         @click="loadOtuByProxy('taxon_name_ids')"
         :disabled="!citations.length"
-        class="button normal-input button-default">
+        class="button normal-input button-default"
+      >
         Summarize OTUs
       </button>
     </div>
     <TaxonNameTable :list="citations" />
   </div>
 </template>
-<script setup>
 
+<script setup>
 import TaxonNameTable from '../tables/taxon_names_table.vue'
 import VSpinner from 'components/spinner.vue'
-import useCitation from '../../composable/useCitation.js'
+import useCitation from '../../composables/useCitation.js'
 import { TAXON_NAME } from 'constants/index.js'
-import { watch } from 'vue'
-
-const props = defineProps({
-  sourceId: {
-    type: String,
-    default: undefined
-  },
-})
 
 const { 
   isLoading,
@@ -36,14 +29,4 @@ const {
   pagination
 } = useCitation(TAXON_NAME)
 
-watch(
-  () => props.sourceId, 
-  id => {
-    requestCitations({
-      sourceId: id,
-      page: 1,
-      per: 500 
-    })
-  }
-)
 </script>

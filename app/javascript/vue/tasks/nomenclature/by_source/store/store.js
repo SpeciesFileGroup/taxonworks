@@ -8,15 +8,16 @@ function makeInitialState () {
     citations: {
       Otu: [],
       TaxonName: [],
-      TaxonRelationship: [],
-      TaxonClassification: [],
+      TaxonNameRelationship: [],
+      TaxonNameClassification: [],
       BiologicalAssociation: [],
-      AssertedDistribution: []
+      AssertedDistribution: [],
     },
     otuList: [],
     paginations: {
 
-    }
+    },
+    source: {}
   }
 }
 
