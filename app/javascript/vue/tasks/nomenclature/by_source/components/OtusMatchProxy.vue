@@ -12,7 +12,7 @@
 import { useStore } from 'vuex'
 import { computed } from 'vue'
 import { GetterNames } from '../store/getters/getters'
-import TableOtu from './tables/TableOtu.vue'
+import TableOtu from './Table/TableOtu.vue'
 
 const store = useStore()
 const list = computed(() => store.getters[GetterNames.GetOtuList])

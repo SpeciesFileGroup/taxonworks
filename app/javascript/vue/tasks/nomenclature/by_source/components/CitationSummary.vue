@@ -11,6 +11,20 @@
         Summarize OTUs
       </button>
     </div>
+
+    <div
+      v-if="pagination"
+      class="flex-separate margin-medium-bottom"
+    >
+      <VPagination 
+        :pagination="pagination"
+        @next-page="requestCitations"
+      />
+      <VPaginationCount
+        :pagination="pagination"
+        v-model="per"
+      />
+    </div>
     <TableCitation
       class="full_width"
       :list="citations"
@@ -20,8 +34,10 @@
 
 <script setup>
 import VSpinner from 'components/spinner.vue'
-import TableCitation from './tables/TableCitation.vue'
+import TableCitation from './Table/TableCitation.vue'
 import useCitation from '../composables/useCitation.js'
+import VPagination from 'components/pagination.vue'
+import VPaginationCount from 'components/pagination/PaginationCount.vue'
 
 const props = defineProps({
   title: {
@@ -47,7 +63,8 @@ const {
   citations,
   requestCitations,
   loadOtuByProxy,
-  pagination
+  pagination,
+  per
 } = useCitation(props.type)
 
 </script>

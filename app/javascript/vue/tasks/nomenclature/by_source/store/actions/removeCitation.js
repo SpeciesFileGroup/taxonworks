@@ -7,8 +7,8 @@ export default ({ commit }, payload) => {
     type
   } = payload
 
-  //Citation.destroy(citationId).then(_ => {
+  Citation.destroy(citationId).then(_ => {
     TW.workbench.alert.create('Citation was successfully destroyed.', 'notice')
     commit(MutationNames.RemoveCitation, { type, citationId })
-  //})
+  })
 }

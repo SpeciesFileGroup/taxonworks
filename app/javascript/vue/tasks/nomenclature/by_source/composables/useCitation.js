@@ -9,6 +9,7 @@ export default (type) => {
   const citations = computed(() => store.getters[GetterNames.GetCitationsByType](type))
   const isLoading = ref(false)
   const pagination = ref(null)
+  const per = ref(500)
   const sourceId = computed(() => store.getters[GetterNames.GetSource].id)
  
   const requestCitations = ({ page, per }) => {
@@ -25,12 +26,12 @@ export default (type) => {
   }
 
   watch(
-    sourceId, 
+    [sourceId, per],
     id => {
       requestCitations({
         sourceId: id,
         page: 1,
-        per: 500 
+        per: per.value
       })
     }
   )
@@ -48,6 +49,7 @@ export default (type) => {
     getPagination,
     loadOtuByProxy,
     pagination,
-    requestCitations,
+    per,
+    requestCitations
   }
 }

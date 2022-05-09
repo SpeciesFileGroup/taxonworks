@@ -1,21 +1,5 @@
 <template>
-  <div class="nomen-source">
-    <div class="horizontal-left-content separate-bottom">
-      <autocomplete
-        url="/sources/autocomplete"
-        min="2"
-        param="term"
-        label="label"
-        clear-after
-        placeholder="Search for a Source"
-        @get-item="store.dispatch(ActionNames.LoadSource, $event.id)"
-      />
-      <default-source
-        type="Source"
-        section="Sources"
-        @get-id="store.dispatch(ActionNames.LoadSource, $event)"
-      />
-    </div>
+  <NavBar>
     <div
       v-if="source"
       class="source-text horizontal-left-content">
@@ -56,16 +40,15 @@
         </a>
       </li>
     </ul>
-  </div>
+  </NavBar>
 </template>
 <script setup>
 
-import Autocomplete from 'components/ui/Autocomplete';
 import RadialAnnotator from 'components/radials/annotator/annotator.vue';
 import PinComponent from 'components/ui/Pinboard/VPin.vue'
 import RadialObject from 'components/radials/navigation/radial.vue'
-import DefaultSource from 'components/getDefaultPin'
 import PdfButton from 'components/pdfButton.vue'
+import NavBar from 'components/layout/NavBar.vue'
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 import { computed } from 'vue'

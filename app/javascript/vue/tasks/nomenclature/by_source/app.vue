@@ -1,12 +1,19 @@
 <template>
   <div id="nomenclature-by-source-task">
-    <div>
-      <div class="flex-separate middle">
-        <h1 class="task_header">Citations by source</h1>
-        <a href="/tasks/sources/hub">Back to source hub</a>
-      </div>
-      <nomen-source />
+    <div class="flex-separate middle">
+      <h1>Citations by source</h1>
+      <ul class="context-menu">
+        <li>
+          <SourcePicker/>
+        </li>
+        <li>
+          <a href="/tasks/sources/hub">Back to source hub</a>
+        </li>
+      </ul>
     </div>
+
+    <HeaderBar />
+
     <div class="flexbox">
       <div class="margin-small-right">
         <template
@@ -31,9 +38,10 @@ export default {
 </script>
 <script setup>
 
-import NomenSource from './components/nomen_source'
+import HeaderBar from './components/HeaderBar.vue'
 import CitationSummary from './components/CitationSummary.vue'
 import OtusMatchProxy from './components/OtusMatchProxy'
+import SourcePicker from './components/SourcePicker.vue'
 import { 
   TAXON_NAME,
   TAXON_NAME_RELATIONSHIP,
