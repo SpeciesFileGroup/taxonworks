@@ -177,33 +177,26 @@ namespace :tw do
                   type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
 
                   case bit_position
-                  when 10
+                  when 10 # preoccupied; if not in scope, no relationship
+                    type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
                     bit_flag_name = 'preoccupied'
-                  when 11
+                  when 11 # primary homonym
+                    type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary'
                     bit_flag_name = 'primary homonym'
-                  when 12
+                  when 12 # secondary homonym
+                    type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
                     bit_flag_name = 'secondary homonym'
-                  when 22
+                  when 22 # unspecified homonym
+                    type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
                     bit_flag_name = 'unspecified homonym'
                   end
 
                   Note.create!(
-                      text: "Species File taxon (TaxonNameID = #{row['TaxonNameID']}), marked as '#{bit_flag_name}', created generic TaxonNameRelationship type '#{type}'",
-                      note_object_id: taxon_name_id,
-                      note_object_type: 'TaxonName',
-                      project_id: project_id
+                    text: "Species File taxon (TaxonNameID = #{row['TaxonNameID']}), marked as '#{bit_flag_name}', created TaxonNameRelationship type '#{type}'",
+                    note_object_id: taxon_name_id,
+                    note_object_type: 'TaxonName',
+                    project_id: project_id
                   )
-
-                  # when 10 # preoccupied; if not in scope, no relationship
-                  #   type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
-                  #   bit_flag_name = 'preoccupied'
-                  # when 11 # primary homonym
-                  #   type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary'
-                  #   bit_flag_name = 'primary homonym'
-                  # when 12 # secondary homonym
-                  #   type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
-                  #   bit_flag_name = 'secondary homonym'
-                  # - - -
 
                 when 13 # nomen oblitum
                   type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName'
@@ -216,7 +209,9 @@ namespace :tw do
                   bit_flag_name = 'incorrect original spelling'
 
                   # when 16 # other comment; comments were entered at time of taxon import
-
+                when 16
+                  type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
+                  bit_flag_name = 'other'
                 when 17 # unavailable other; use invalidating?
                   type = 'TaxonNameRelationship::Iczn::Invalidating'
                   bit_flag_name = 'unavailable other'
@@ -243,10 +238,7 @@ namespace :tw do
 
                   # when 21 # subsequent name; reciprocal of homonym or required emendation?
 
-                  # when 22 # unspecified homonym
-                  #   type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
-                  #   bit_flag_name = 'unspecified homonym'
-                when 23 # lapsus calami; treat as incorrect original spelling for now
+               when 23 # lapsus calami; treat as incorrect original spelling for now
                   type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling'
                   bit_flag_name = 'lapsus calami'
 
