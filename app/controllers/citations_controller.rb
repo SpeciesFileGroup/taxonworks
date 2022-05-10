@@ -122,7 +122,6 @@ class CitationsController < ApplicationController
       .where(project_id: sessions_current_project_id).includes(:source)
       .order('sources.cached, sources.pages')
       .page(params[:page]).per(params[:per] || 50)     ### error when 500 !!
-      .sort { |*a| a.map { |c| c.source.is_bibtex? ? c.source.nomenclature_date : Float::INFINITY }.reduce(:<=>) }
 
     @verbose_object = params[:verbose_object]
     render '/citations/api/v1/index'
