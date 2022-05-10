@@ -14,9 +14,6 @@ function makeInitialState () {
       AssertedDistribution: [],
     },
     otuList: [],
-    paginations: {
-
-    },
     source: {}
   }
 }

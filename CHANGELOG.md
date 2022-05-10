@@ -9,10 +9,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - Confirmation modal for clone button on New collecting event task [#2978]
 - Minutes/record estimate in project activity task [#2979] 
+- Pagination in Citations by source task
+
+### Changed
+- Refactor citations by source task
 
 ### Fixed
 - Original combination soft validations are not loaded when New taxon name task is opened
 - ObservationMatrixRow|ColumnItem index view failing because new links are not available
+- Author roles are no visible in Citations by source task
 
 [#2979]: https://github.com/SpeciesFileGroup/taxonworks/issues/2979
 [#2978]: https://github.com/SpeciesFileGroup/taxonworks/issues/2978
