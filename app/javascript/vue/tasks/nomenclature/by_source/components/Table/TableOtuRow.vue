@@ -6,19 +6,19 @@
         v-html="otu.object_tag"/>
     </td>
     <td>
-      <radial-annotator :global-id="otu.global_id" />
-    </td>
-    <td>
-      <otu-radial
-        :taxon-id="otu.global_id"
-        :otu="otu"
-        :redirect="false"/>
-    </td>
-    <td>
-      <otu-radial
-        :taxon-id="otu.global_id"
-        :otu="otu"
-        redirect/>
+      <div class="horizontal-right-content">
+        <radial-annotator :global-id="otu.global_id" />
+        <otu-radial
+          :taxon-id="otu.global_id"
+          :otu="otu"
+          :redirect="false"
+        />
+        <otu-radial
+          :taxon-id="otu.global_id"
+          :otu="otu"
+          redirect
+        />
+      </div>
     </td>
   </tr>
 </template>
