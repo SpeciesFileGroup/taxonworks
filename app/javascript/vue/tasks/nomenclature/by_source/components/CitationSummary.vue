@@ -27,6 +27,7 @@
     </div>
     <TableCitation
       class="full_width"
+      :type="type"
       :list="citations"
     />
   </div>

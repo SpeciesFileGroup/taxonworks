@@ -1,7 +1,7 @@
 <template>
   <table>
     <tr>
-      <th>Otu</th>
+      <th @click="sortTable('object_label')">Otu</th>
       <th/>
     </tr>
     <TableOtuRow
@@ -13,6 +13,8 @@
 
 <script setup>
 import TableOtuRow from './TableOtuRow.vue'
+import { ActionNames } from '../../store/actions/actions'
+import { useStore } from 'vuex'
 import { ref } from 'vue'
 
 const props = defineProps({
@@ -22,7 +24,15 @@ const props = defineProps({
   }
 })
 
-const ascending = ref(true)
+const store = useStore()
+const asc = ref(true)
 
-const sortTable = sortProperty => {}
+const sortTable = property => {
+  store.dispatch(ActionNames.SortOtuList, {
+    ascending: asc.value,
+    property
+  })
+
+  asc.value = !asc.value
+}
 </script>

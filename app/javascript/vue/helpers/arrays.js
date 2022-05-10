@@ -15,9 +15,16 @@ function getUnique (arr, property) {
 
 function sortArray (arr, sortProperty, ascending = true) {
   const list = arr.slice()
-  return list.sort((A, B) => {
-    const a = A[sortProperty]
-    const b = B[sortProperty]
+  const prop = sortProperty.split('.')
+  const len = prop.length
+
+  return list.sort((a, b) => {
+    let i = 0
+    
+    for (let i = 0; i < len; i++) {
+      a = a[prop[i]]
+      b = b[prop[i]]
+    }
 
     if (a === null) return 1
     if (b === null) return -1
@@ -29,8 +36,7 @@ function sortArray (arr, sortProperty, ascending = true) {
       return (ascending)
         ? a.toString().localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
         : b.toString().localeCompare(a, undefined, { numeric: true, sensitivity: 'base' })
-    }
-    else {
+    } else {
       return (ascending) ? result : -result
     }
   })

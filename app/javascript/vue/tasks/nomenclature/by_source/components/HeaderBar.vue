@@ -1,45 +1,45 @@
 <template>
   <NavBar>
-    <div
-      v-if="source"
-      class="source-text horizontal-left-content">
-      <span>
-        <span v-html="source.cached"/>
-        <span class="separate-right">(Published on {{ source.cached_nomenclature_date }})</span>
-      </span>
-      <radial-object :global-id="source.global_id"/>
-      <radial-annotator :global-id="source.global_id"/>
-      <pin-component
-        v-if="source.id"
-        class="circle-button"
-        :object-id="source.id"
-        :type="source.base_class"
-      />
-      <template 
-        v-for="document in source.documents"
-        :key="document.id">
-        <a
-          class="circle-button btn-download"
-          :download="document.document_file_file_name"
-          :title="document.document_file_file_name"
-          :href="document.document_file"
+    <template v-if="source.id">
+      <div class="source-text horizontal-left-content">
+        <span>
+          <span v-html="source.cached"/>
+          <span class="separate-right">(Published on {{ source.cached_nomenclature_date }})</span>
+        </span>
+        <RadialObject :global-id="source.global_id"/>
+        <RadialAnnotator :global-id="source.global_id"/>
+        <pin-component
+          v-if="source.id"
+          class="circle-button"
+          :object-id="source.id"
+          :type="source.base_class"
         />
-        <pdf-button :pdf="document" />
-      </template>
-    </div>
-    <ul
-      v-if="source.id && source.author_roles.length"
-      class="no_bullets">
-      <li 
-        v-for="author in source.author_roles"
-        :key="author.id">
-        <a
-          :href="`${author.object_url}`"
-          target="blank">
-          {{ author.object_tag }}
-        </a>
-      </li>
-    </ul>
+        <template 
+          v-for="document in source.documents"
+          :key="document.id">
+          <a
+            class="circle-button btn-download"
+            :download="document.document_file_file_name"
+            :title="document.document_file_file_name"
+            :href="document.document_file"
+          />
+          <pdf-button :pdf="document" />
+        </template>
+      </div>
+      <ul
+        v-if="source.author_roles.length"
+        class="no_bullets context-menu">
+        <li 
+          v-for="author in source.author_roles"
+          :key="author.id">
+          <a
+            :href="`/people/${author.person.id}`"
+            target="blank">
+            {{ author.person.cached }}
+          </a>
+        </li>
+      </ul>
+    </template>
   </NavBar>
 </template>
 <script setup>

@@ -3,5 +3,7 @@ export default {
   LoadOtuByProxy: 'loadOtuByProxy',
   LoadSource: 'loadSource',
   RemoveCitation: 'removeCitation',
-  UpdateCitation: 'updateCitation'
+  UpdateCitation: 'updateCitation',
+  SortCitationList: 'sortCitationList',
+  SortOtuList: 'sortOtuList'
 }

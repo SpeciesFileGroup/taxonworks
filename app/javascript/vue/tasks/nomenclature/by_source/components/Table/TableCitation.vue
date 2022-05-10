@@ -2,9 +2,9 @@
   <table>
     <thead>
       <tr>
-        <th>Pages</th>
+        <th @click="sortColumn('pages')">Pages</th>
         <th>Is original</th>
-        <th>Object</th>
+        <th @click="sortColumn('citation_object.object_label')">Object</th>
         <th/>
       </tr>
     </thead>
@@ -28,11 +28,32 @@
 import TableCitationRow from './TableCitationRow.vue'
 import TableCitationTaxonRow from './TableCitationTaxonRow.vue'
 import { TAXON_NAME } from 'constants/index.js'
+import { ActionNames } from '../../store/actions/actions'
+import { ref } from 'vue'
+import { useStore } from 'vuex'
 
-defineProps({
+const props = defineProps({
   list: {
     type: Array,
     required: true
+  },
+
+  type: {
+    type: String,
+    required: true
   }
 })
+
+const store = useStore()
+const asc = ref(false)
+
+const sortColumn = (property) => {
+  store.dispatch(ActionNames.SortCitationList, { 
+    type: props.type, 
+    ascending: asc.value,
+    property
+  })
+
+  asc.value = !asc.value
+}
 </script>

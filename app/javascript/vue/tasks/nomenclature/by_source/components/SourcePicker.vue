@@ -21,7 +21,8 @@
 <script setup>
 import Autocomplete from 'components/ui/Autocomplete';
 import DefaultSource from 'components/getDefaultPin'
-import { useStore } from 'vuex';
+import { ActionNames } from '../store/actions/actions'
+import { useStore } from 'vuex'
 
 const store = useStore()
 </script>
