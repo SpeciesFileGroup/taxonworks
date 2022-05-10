@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-# These specs also contain the canonical specs for Queries::Concerns::Users.
+# !! These specs also contain the canonical specs for Queries::Concerns::Users.
 
 describe Queries::Person::Filter, type: :model, group: :people do
 
@@ -29,21 +29,58 @@ describe Queries::Person::Filter, type: :model, group: :people do
       verbatim_longitude: '10',
       collectors: [p2]) }
 
-  let(:georeference) do
-    collecting_event.georeferences.first.georeferencers << p3
-    collecting_event.georeferences.first.georeferencers << p2
+  let(:query) { Queries::Person::Filter.new() }
+
+  specify '#role_total_min' do
+    query.role_total_min = 2
+    expect(query.all.map(&:id)).to be_empty
   end
 
-  let(:query) { Queries::Person::Filter.new({}) }
+  specify '#role_total_min 2' do
+    collecting_event
+    s = FactoryBot.create(:valid_source, authors: [p2]) # p1 an author, not eliminated
+    query.role_total_min = 2
+    expect(query.all.map(&:id)).to contain_exactly(p2.id)
+  end
+
+  specify '#repeated_total' do
+    query.repeated_total = 2
+    expect(query.all.map(&:id)).to be_empty
+  end
+
+  specify '#without' do
+    query.without = ['first_name']
+    expect(query.all.map(&:id)).to contain_exactly(p1.id)
+  end
+
+  specify '#without 2' do
+    query.without = ['prefix']
+    expect(query.all.map(&:id)).to contain_exactly(p1.id, p2.id, p4.id)
+  end
+
+  specify '#regex' do
+    query.regex = '.*t[h]'
+    expect(query.all.map(&:id)).to contain_exactly(p1.id, p2.id)
+  end
+
+  specify '#regex 2' do
+    query.regex = '\AS.*t'
+    expect(query.all.map(&:id)).to contain_exactly(p1.id, p2.id)
+  end
+
+  specify '#regex 3' do
+    query.regex = 'p.p'
+    expect(query.all.map(&:id)).to contain_exactly(p4.id)
+  end
 
   specify '#first_name 1' do
     query.first_name = 'e'
     expect(query.all.map(&:id)).to contain_exactly()
   end
 
-  specify '#first_name, #person_wildcard' do
+  specify '#first_name, #exact' do
     query.first_name = 'e'
-    query.person_wildcard = ['first_name']
+    query.exact = ['first_name']
     expect(query.all.map(&:id)).to contain_exactly(p3.id, p4.id)
   end
 
@@ -52,10 +89,25 @@ describe Queries::Person::Filter, type: :model, group: :people do
     expect(query.all.map(&:id)).to contain_exactly(p1.id, p2.id)
   end
 
-  specify '#last_name, #person_wildcard' do
+  specify '#last_name, #exact' do
     query.last_name = 'op'
-    query.person_wildcard = ['last_name']
+    query.exact = ['last_name']
     expect(query.all.map(&:id)).to contain_exactly(p4.id)
+  end
+
+  specify '#except_role' do
+    collecting_event # p2 eliminated
+    query.last_name = 'Smith'
+    query.except_role = ['Collector']
+    expect(query.all.map(&:id)).to contain_exactly(p1.id)
+  end
+
+  specify '#except_role 2' do
+    collecting_event # p2 eliminated
+    s = FactoryBot.create(:valid_source, authors: [p1]) # p1 an author, not eliminated
+    query.last_name = 'Smith'
+    query.except_role = ['Collector']
+    expect(query.all.map(&:id)).to contain_exactly(p1.id)
   end
 
   specify '#role' do
@@ -71,6 +123,15 @@ describe Queries::Person::Filter, type: :model, group: :people do
     expect(query.all.pluck(:id)).to contain_exactly(p2.id)
   end
 
+  specify '#role + other 1' do
+    s = Source::Bibtex.create!(bibtex_type: :article, title: 'Title', year: 1293)
+    s.editors << p3
+
+    query.role = ['SourceEditor']
+    query.last_name_starts_with = p3.last_name[0..3]
+    expect(query.all.map(&:id)).to contain_exactly(p3.id)
+  end
+
   specify '#name' do
     query.name = 'Smith'
     expect(query.all.pluck(:id)).to contain_exactly(p1.id)
@@ -78,7 +139,7 @@ describe Queries::Person::Filter, type: :model, group: :people do
 
   specify '#name' do
     query.name = 'Smith'
-    query.person_wildcard = ['name']
+    query.exact = ['name']
     expect(query.all.pluck(:id)).to contain_exactly(p1.id, p2.id)
   end
 
@@ -179,30 +240,36 @@ describe Queries::Person::Filter, type: :model, group: :people do
     expect(query.all.pluck(:id)).to contain_exactly(p2.id)
   end
 
-  specify '#in_project_id 1' do
-    query.used_in_project_id = [collecting_event.project_id]
+  specify '#project_id 1' do
+    query.project_id = [collecting_event.project_id] # Create the collector and reference project in one place
     expect(query.all.map(&:id)).to contain_exactly(p2.id)
   end
 
-  specify '#in_project_id 2' do
+  specify '#project_id 2' do
     s = Source::Bibtex.create!(bibtex_type: :article, title: 'Title', year: 1293)
     s.authors << p3
     c = ProjectSource.create!(source: s, project_id: Current.project_id)
 
-    query.used_in_project_id = [collecting_event.project_id]
+    query.project_id = [collecting_event.project_id] # Create the collector and reference project in one place
+
     expect(query.all.map(&:id)).to contain_exactly(p2.id, p3.id)
   end
 
-  specify '#role + other 1' do
-    s = Source::Bibtex.create!(bibtex_type: :article, title: 'Title', year: 1293)
-    s.editors << p3
+  specify '#except_project_id 3' do
+    p = FactoryBot.create(:valid_project)
+    u = FactoryBot.create(:valid_project_member, user: FactoryBot.create(:valid_user))
 
-    query.role = ['SourceEditor']
-    query.last_name_starts_with = p3.last_name[0..3]
+    s = Source::Bibtex.create!(bibtex_type: :article, title: 'Title', year: 1293)
+    s.authors << p3
+    c = ProjectSource.create!(source: s, project_id: p.id)
+
+    collecting_event # not this collector (p2)
+
+    query.except_project_id = [Current.project_id]
     expect(query.all.map(&:id)).to contain_exactly(p3.id)
   end
 
-  #
+
   # Tested elsewhere, just check to see that they are initialized here
   #
   specify 'tag hooks' do
@@ -298,5 +365,4 @@ describe Queries::Person::Filter, type: :model, group: :people do
       expect(query.all.map(&:id)).to contain_exactly(p2.id)
     end
   end
-
 end
