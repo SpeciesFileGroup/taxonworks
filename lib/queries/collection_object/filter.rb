@@ -13,6 +13,7 @@ module Queries
       include Queries::Concerns::Tags
       include Queries::Concerns::Users
       include Queries::Concerns::Identifiers
+      include Queries::Concerns::Notes
 
       # TODO: look for name collisions with CE filter
 
@@ -243,8 +244,9 @@ module Queries
         @with_buffered_collecting_event = boolean_param(params, :with_buffered_collecting_event)
         @with_buffered_determinations =  boolean_param(params, :with_buffered_determinations)
         @with_buffered_other_labels = boolean_param(params, :with_buffered_other_labels)
-
+        
         set_identifier(params)
+        set_notes_params(params)
         set_tags_params(params)
         set_user_dates(params)
       end
@@ -577,6 +579,8 @@ module Queries
           type_by_taxon_name_facet,
           type_material_type_facet,
           ancestors_facet,
+          notes_facet,            # See Queries::Concerns::Notes
+          note_text_facet,        # See Queries::Concerns::Notes
           keyword_id_facet,       # See Queries::Concerns::Tags
           created_updated_facet,  # See Queries::Concerns::Users
           identifiers_facet,      # See Queries::Concerns::Identifiers

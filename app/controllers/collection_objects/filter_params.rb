@@ -44,6 +44,9 @@ module CollectionObjects
         :md5_verbatim_label,
         :namespace_id,
         :never_loaned,
+        :note_exact,
+        :note_text,
+        :notes,
         :object_global_id,
         :on_loan,
         :partial_overlap_dates,
@@ -122,10 +125,13 @@ module CollectionObjects
         :identifiers,
         :in_labels,
         :in_verbatim_locality,
+        :note_exact,
         :loaned,
         :md5_verbatim_label, # CE filter
         :namespace_id,
         :never_loaned,
+        :note_text,
+        :notes,
         :on_loan,
         :partial_overlap_dates, # CE filter
         :preparation_type,
