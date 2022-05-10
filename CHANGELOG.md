@@ -19,10 +19,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - ObservationMatrixRow|ColumnItem index view failing because new links are not available
 - Author roles are no visible in Citations by source task
 - Increasing number of labels to print while label is selected *adds* that many to preview [#2973]
+- Geographic areas are not suggested based on verbatim coordinates in comprehensive and new collecting event task [#2982]
 
 [#2973]: https://github.com/SpeciesFileGroup/taxonworks/issues/2973
 [#2978]: https://github.com/SpeciesFileGroup/taxonworks/issues/2978
 [#2979]: https://github.com/SpeciesFileGroup/taxonworks/issues/2979
+[#2982]: https://github.com/SpeciesFileGroup/taxonworks/issues/2982
 
 ## [0.24.5] - 2022-05-03
 

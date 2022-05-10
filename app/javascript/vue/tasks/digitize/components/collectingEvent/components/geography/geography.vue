@@ -125,6 +125,7 @@ export default {
     collectingEvent: {
       handler (newVal) {
         if (this.geoId && newVal && newVal.geographic_area_id === this.geoId) return
+
         this.geoId = newVal.geographic_area_id
         if (newVal.geographic_area_id) {
           GeographicArea.find(newVal.geographic_area_id, { embed: ['shape'] }).then(response => {
@@ -133,6 +134,7 @@ export default {
           })
         } else {
           this.selected = undefined
+          console.log("Entra")
           if (convertDMS(newVal.verbatim_latitude) && convertDMS(newVal.verbatim_longitude)) {
             clearTimeout(this.ajaxCall)
             this.ajaxCall = setTimeout(() => {
@@ -140,7 +142,8 @@ export default {
             }, this.delay)
           }
         }
-      }
+      },
+      deep: true
     }
   },
 
