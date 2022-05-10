@@ -131,4 +131,9 @@ module Work
     (i.to_f / (t / 60)).round(3)
   end
 
+  def self.average_minutes_per_record(sessions, include_batch = false)
+    (1.00 / average_records_per_minute(sessions, include_batch)).round(3)
+  end
+
+
 end
