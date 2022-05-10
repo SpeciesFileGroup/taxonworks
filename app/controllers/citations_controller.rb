@@ -2,7 +2,9 @@ require_dependency Rails.root.to_s + '/lib/queries/citation/filter'
 
 class CitationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+
   before_action :set_citation, only: [:update, :destroy, :show]
+  after_action -> { set_pagination_headers(:citations) }, only: [:index, :api_index ], if: :json_request?
 
   # GET /citations
   # GET /citations.json

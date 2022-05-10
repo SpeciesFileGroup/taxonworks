@@ -41,7 +41,7 @@
             <input
               type="checkbox"
               v-model="selected"
-              :value="item">
+              :value="item.id">
           </td>
           <td>
             <pre v-html="item.label"/>
