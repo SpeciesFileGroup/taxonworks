@@ -40,6 +40,9 @@
         </li>
       </ul>
     </template>
+    <span v-else>
+      [No source selected]
+    </span>
   </NavBar>
 </template>
 <script setup>

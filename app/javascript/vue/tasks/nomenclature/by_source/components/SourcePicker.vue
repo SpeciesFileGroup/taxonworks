@@ -6,6 +6,7 @@
       param="term"
       label="label"
       clear-after
+      autofocus
       placeholder="Search for a Source"
       @get-item="store.dispatch(ActionNames.LoadSource, $event.id)"
     />
