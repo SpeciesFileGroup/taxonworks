@@ -134,7 +134,6 @@ export default {
           })
         } else {
           this.selected = undefined
-          console.log("Entra")
           if (convertDMS(newVal.verbatim_latitude) && convertDMS(newVal.verbatim_longitude)) {
             clearTimeout(this.ajaxCall)
             this.ajaxCall = setTimeout(() => {
