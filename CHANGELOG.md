@@ -18,9 +18,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Original combination soft validations are not loaded when New taxon name task is opened
 - ObservationMatrixRow|ColumnItem index view failing because new links are not available
 - Author roles are no visible in Citations by source task
+- Increasing number of labels to print while label is selected *adds* that many to preview [#2973]
 
-[#2979]: https://github.com/SpeciesFileGroup/taxonworks/issues/2979
+[#2973]: https://github.com/SpeciesFileGroup/taxonworks/issues/2973
 [#2978]: https://github.com/SpeciesFileGroup/taxonworks/issues/2978
+[#2979]: https://github.com/SpeciesFileGroup/taxonworks/issues/2979
 
 ## [0.24.5] - 2022-05-03
 
