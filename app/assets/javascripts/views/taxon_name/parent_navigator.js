@@ -6,19 +6,15 @@ TW.views.taxon_name.parent_navigator = TW.views.taxon_name.parent_navigator || {
 
 Object.assign(TW.views.taxon_name.parent_navigator, {
 
-	addElementsClass (tag, klass) {
-		const elements = document.querySelectorAll(tag)
-
+	hideElements (elements) {
 		elements.forEach(element => {
-			element.classList.add(klass)
+			element.classList.add('display-none')
 		})
 	},
 
-	removeElementsClass (tag, klass) {
-		const elements = document.querySelectorAll(tag)
-
+	showElements (elements) {
 		elements.forEach(element => {
-			element.classList.remove(klass)
+			element.classList.remove('display-none')
 		})
 	},
 
@@ -27,22 +23,25 @@ Object.assign(TW.views.taxon_name.parent_navigator, {
 
 		switch (value) {
 			case 'valid':
-				this.removeElementsClass('[data-valid="valid"]', 'display-none')
-				this.addElementsClass('[data-valid="invalid"]', 'display-none')
+				this.showElements(this.validElements)
+				this.hideElements(this.invalidElements)
 			break;
 			case 'invalid':
-				this.addElementsClass('[data-valid="valid"]', 'display-none')
-				this.removeElementsClass('[data-valid="invalid"]', 'display-none')
+				this.hideElements(this.validElements)
+				this.showElements(this.invalidElements)
 			break;
 			case 'both':
-				this.removeElementsClass('[data-valid="valid"]', 'display-none')
-				this.removeElementsClass('[data-valid="invalid"]', 'display-none')
+				this.showElements(this.validElements)
+				this.showElements(this.invalidElements)
 			break;
 		}
 	},
 
 	init () {
 		const radioElements = document.querySelectorAll('input[name="display_herarchy"]')
+
+		this.validElements = document.querySelectorAll('[data-valid="valid"]')
+		this.invalidElements = document.querySelectorAll('[data-valid="invalid"]')
 
 		radioElements.forEach(element => {
 			element.addEventListener('click', this.toggleView.bind(this))
