@@ -2,7 +2,6 @@
   <div>
     <h3>Notes</h3>
     <div class="field label-above">
-      <label>Note</label>
       <input 
         class="full_width"
         type="text"
