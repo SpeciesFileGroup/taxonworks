@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Refactor citations by source task
 
 ### Fixed
+- Fixed soft_validation on Collection Object related to determination date [#2949] 
 - Original combination soft validations are not loaded when New taxon name task is opened
 - ObservationMatrixRow|ColumnItem index view failing because new links are not available
 - Author roles are no visible in Citations by source task
