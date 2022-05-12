@@ -14,10 +14,8 @@
             v-for="(label, property) in properties"
             :key="property"
             @click="sortTable(property)">
-            {{ property }}
+            {{ label }}
           </th>
-          <th>Identifiers</th>
-          <th>Collectors</th>
           <th>Options</th>
         </tr>
       </thead>
@@ -28,15 +26,10 @@
           class="contextMenuCells"
           @mouseover="$emit('onRowHover', item)">
           <td
-            v-for="(param, property) in properties"
+            v-for="(_, property) in properties"
             :key="property"
-            v-html="printValue(param, item)"/>
-          <td>
-            {{ printIdentifiers(item.identifiers) }}
-          </td>
-          <td>
-            {{ printCollectors(item.collector_roles) }}
-          </td>
+            v-html="item[property]"
+          />
           <td>
             <div class="horizontal-left-content">
               <radial-object :global-id="item.global_id"/>
@@ -62,16 +55,16 @@ import RadialObject from 'components/radials/navigation/radial'
 import { sortArray } from 'helpers/arrays.js'
 import { vResizeColumn } from 'directives/resizeColumn.js'
 
-const printDate = (date) => date.filter(date => date).join('/')
-
 export default {
   components: {
     RadialAnnotator,
     RadialObject
   },
+
   directives: {
     ResizeColumn: vResizeColumn
   },
+
   props: {
     list: {
       type: Array,
@@ -88,24 +81,21 @@ export default {
     return {
       ascending: false,
       properties: {
-        ID: 'id',
-        Locality: 'verbatim_locality',
-        'Date start': {
-          printValue: ce => printDate([ce.start_date_day, ce.start_date_month, ce.start_date_year])
-        },
-        'Date end': {
-          printValue: ce => printDate([ce.end_date_day, ce.end_date_month, ce.end_date_year])
-        },
-        Collectors: 'verbatim_collectors',
-        Method: 'verbatim_method',
-        'Trip Identifier': 'verbatim_trip_identifier',
-        Latitude: 'verbatim_latitude',
-        Longitude: 'verbatim_longitude',
-        'Level 1': 'cached_level0_geographic_name',
-        'Level 2': 'cached_level1_geographic_name',
-        'Level 3': 'cached_level2_geographic_name',
-        Geo: 'georeferencesCount'
-
+        id: 'ID',
+        verbatim_locality: 'Locality',
+        end_date: 'Date start',
+        start_date: 'Date end',
+        verbatim_collectors: 'Collectors',
+        verbatim_method: 'Method',
+        verbatim_trip_identifier: 'Trip Identifier',
+        verbatim_latitude: 'Latitude',
+        verbatim_longitude: 'Longitude',
+        cached_level0_geographic_name: 'Level 1',
+        cached_level1_geographic_name: 'Level 2',
+        cached_level2_geographic_name: 'Level 3',
+        georeferencesCount: 'Geo',
+        identifiers: 'Identifiers',
+        roles: 'Collectors'
       }
     }
   },
@@ -114,20 +104,6 @@ export default {
     sortTable (sortProperty) {
       this.$emit('onSort', sortArray(this.list, sortProperty, this.ascending))
       this.ascending = !this.ascending
-    },
-
-    printCollectors (roles = []) {
-      return roles.map(role => role.person.object_tag).join('; ')
-    },
-
-    printIdentifiers (identifiers = []) {
-      return identifiers.map(identifier => identifier.cached).join('; ')
-    },
-
-    printValue (data, ce) {
-      return (typeof data === 'string')
-        ? ce[data]
-        : data.printValue(ce)
     }
   }
 }
