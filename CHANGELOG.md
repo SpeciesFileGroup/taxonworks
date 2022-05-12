@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Refactor citations by source task
+- Person autocomplete optimization.
 
 ### Fixed
 - Fixed soft_validation on Collection Object related to determination date [#2949] 
