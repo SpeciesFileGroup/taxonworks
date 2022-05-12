@@ -30,7 +30,7 @@ module TaxonWorks
         opts[:language] = 'detect' if detect_language
         opts[:language] = language unless language.nil?
 
-        ::Vendor::Gnfinder::Result.new(finder.find_names(text, opts), project_id)
+        TaxonWorks::Vendor::Gnfinder::Result.new(finder.find_names(text, opts), project_id)
       end
     end
 

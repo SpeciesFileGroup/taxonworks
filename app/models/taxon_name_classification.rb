@@ -311,7 +311,21 @@ class TaxonNameClassification < ApplicationRecord
     taxon_name
   end
 
-  private
+  @@subclasses_preloaded = false
+  def self.descendants
+    unless @@subclasses_preloaded
+      Dir.glob("#{Rails.root}/app/models/taxon_name_classification/**/*.rb")
+        .sort { |a, b| a.split('/').count <=> b.split('/').count }
+        .map { |p| p.split('/app/models/').last.sub(/\.rb$/, '') }
+        .map { |p| p.split('/') }
+        .map { |c| c.map { |n| ActiveSupport::Inflector.camelize(n) } }
+        .map { |c| c.join('::') }.map(&:constantize)
+      @@subclasses_preloaded = true
+    end
+    super
+  end
+
+ private
 
   def nomenclature_code_matches
     if taxon_name && type && nomenclature_code
