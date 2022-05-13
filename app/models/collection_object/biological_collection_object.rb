@@ -84,11 +84,14 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
   def sv_determined_before_collected
     ce = collecting_event
     return true if ce.nil? || ce.start_date_year.nil?
-    ce_date = ce.start_date_year.to_s + '/' + sprintf( '%02d', ce.start_date_month.to_i) + "/" + sprintf( '%02d', ce.start_date_day.to_i)
-    ce_date = ce.end_date_year.to_s + '/' + sprintf( '%02d', ce.end_date_month.to_i) + "/" + sprintf( '%02d', ce.end_date_day.to_i) unless ce.end_date_year.nil?
+    #ce_date = ce.start_date_year.to_s + '/' + sprintf( '%02d', ce.start_date_month.to_i) + "/" + sprintf( '%02d', ce.start_date_day.to_i)
+    #ce_date = ce.end_date_year.to_s + '/' + sprintf( '%02d', ce.end_date_month.to_i) + "/" + sprintf( '%02d', ce.end_date_day.to_i) unless ce.end_date_year.nil?
+    ce_date = Utilities::Dates.nomenclature_date(ce.start_date_day, ce.start_date_month, ce.start_date_year)
+    ce_date = Utilities::Dates.nomenclature_date(ce.end_date_day, ce.end_date_month, ce.end_date_year) unless ce.end_date_year.nil?
     taxon_determinations.each do |d|
       next if d.year_made.nil?
-      d_date = d.year_made.to_s + '/' + sprintf( '%02d', d.month_made.to_i) + "/" + sprintf( '%02d', d.day_made.to_i)
+      #d_date = d.year_made.to_s + '/' + sprintf( '%02d', d.month_made.to_i) + "/" + sprintf( '%02d', d.day_made.to_i)
+      d_date = Utilities::Dates.nomenclature_date(d.day_made, d.month_made, d.year_made)
       soft_validations.add(:base, 'Determination is preceding the collecting date') if d_date < ce_date
     end
   end
