@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Confirmation modal for clone button on New collecting event task [#2978]
 - Minutes/record estimate in project activity task [#2979] 
 - Pagination in Citations by source task
+- Current repository facet in collection object filter [#2975]
 
 ### Changed
 - Refactor citations by source task
@@ -28,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2966]: https://github.com/SpeciesFileGroup/taxonworks/issues/2966
 [#2970]: https://github.com/SpeciesFileGroup/taxonworks/issues/2970
 [#2973]: https://github.com/SpeciesFileGroup/taxonworks/issues/2973
+[#2975]: https://github.com/SpeciesFileGroup/taxonworks/issues/2975
 [#2978]: https://github.com/SpeciesFileGroup/taxonworks/issues/2978
 [#2979]: https://github.com/SpeciesFileGroup/taxonworks/issues/2979
 [#2982]: https://github.com/SpeciesFileGroup/taxonworks/issues/2982
