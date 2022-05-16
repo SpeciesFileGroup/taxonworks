@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Confirmation modal for clone button on New collecting event task [#2978]
 - Minutes/record estimate in project activity task [#2979] 
 - Pagination in Citations by source task
+- Current repository facet in collection object filter [#2975]
 
 ### Changed
 - Refactor citations by source task
@@ -25,15 +26,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Increasing number of labels to print while label is selected *adds* that many to preview [#2973]
 - Geographic areas are not suggested based on verbatim coordinates in comprehensive and new collecting event task [#2982]
 - Cannot sort by column in filter collecting event task [#2970]
-
+- "Recent" determiners not working in Comprehensive [#2985]
+- Determiners locked are missing after press "Save and new" in comprehensive task [#2943]
 
 [#1864]: https://github.com/SpeciesFileGroup/taxonworks/issues/1864
+[#2943]: https://github.com/SpeciesFileGroup/taxonworks/issues/2943
 [#2966]: https://github.com/SpeciesFileGroup/taxonworks/issues/2966
 [#2970]: https://github.com/SpeciesFileGroup/taxonworks/issues/2970
 [#2973]: https://github.com/SpeciesFileGroup/taxonworks/issues/2973
+[#2975]: https://github.com/SpeciesFileGroup/taxonworks/issues/2975
 [#2978]: https://github.com/SpeciesFileGroup/taxonworks/issues/2978
 [#2979]: https://github.com/SpeciesFileGroup/taxonworks/issues/2979
 [#2982]: https://github.com/SpeciesFileGroup/taxonworks/issues/2982
+[#2985]: https://github.com/SpeciesFileGroup/taxonworks/issues/2985
 
 ## [0.24.5] - 2022-05-03
 

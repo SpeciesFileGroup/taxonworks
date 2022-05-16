@@ -101,7 +101,7 @@ class PeopleController < ApplicationController
 
   # GET /people/select_options
   def select_options
-    @people = Person.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:role_type])
+    @people = Person.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target])
   end
 
   # POST /people/merge
