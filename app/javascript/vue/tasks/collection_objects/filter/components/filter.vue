@@ -37,6 +37,10 @@
       <otu-component
         class="margin-large-bottom"
         v-model="params.determination"/>
+      <FacetCurrentRepository
+        class="margin-large-bottom"
+        v-model="params.repository.current_repository_id"
+      />
       <repository-component
         class="margin-large-bottom"
         v-model="params.repository.repository_id"/>
@@ -106,6 +110,7 @@ import WithComponent from 'tasks/sources/filter/components/filters/with'
 import BufferedComponent from './filters/buffered.vue'
 import PreparationTypes from './filters/preparationTypes'
 import CollectorsComponent from './filters/shared/people'
+import FacetCurrentRepository from './filters/FacetCurrentRepository.vue'
 import { chunkArray } from 'helpers/arrays.js'
 
 import SpinnerComponent from 'components/spinner'
@@ -130,7 +135,8 @@ export default {
     RepositoryComponent,
     WithComponent,
     PreparationTypes,
-    CollectorsComponent
+    CollectorsComponent,
+    FacetCurrentRepository
   },
 
   emits: [
@@ -168,6 +174,7 @@ export default {
         this.params.determination.determiner_id.length ||
         this.params.determination.ancestor_id ||
         this.params.repository.repository_id ||
+        this.params.repository.current_repository_id ||
         this.params.collectingEvents.collecting_event_ids.length ||
         this.params.preparation_type_id.length ||
         Object.keys(this.params.collectingEvents.fields).length ||
@@ -260,6 +267,7 @@ export default {
           identifiers: undefined,
           taxon_determinations: undefined,
           type_material: undefined,
+          current_repository: undefined,
           repository: undefined,
           preparation_type: undefined,
           dwc_indexed: undefined,
@@ -337,6 +345,7 @@ export default {
           geographic_area_id: []
         },
         repository: {
+          current_repository_id: undefined,
           repository_id: undefined
         }
       }
