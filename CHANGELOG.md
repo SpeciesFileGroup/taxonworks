@@ -26,7 +26,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Geographic areas are not suggested based on verbatim coordinates in comprehensive and new collecting event task [#2982]
 - Cannot sort by column in filter collecting event task [#2970]
 - "Recent" determiners not working in Comprehensive [#2985]
+- Determiners locked are missing after press "Save and new" in comprehensive task [#2943]
 
+[#2943]: https://github.com/SpeciesFileGroup/taxonworks/issues/2943
 [#2966]: https://github.com/SpeciesFileGroup/taxonworks/issues/2966
 [#2970]: https://github.com/SpeciesFileGroup/taxonworks/issues/2970
 [#2973]: https://github.com/SpeciesFileGroup/taxonworks/issues/2973
