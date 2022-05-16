@@ -28,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Cannot sort by column in filter collecting event task [#2970]
 - "Recent" determiners not working in Comprehensive [#2985]
 - Determiners locked are missing after press "Save and new" in comprehensive task [#2943]
+- Crashing when creating georeferences with invalid WKT input
 
 [#1864]: https://github.com/SpeciesFileGroup/taxonworks/issues/1864
 [#2943]: https://github.com/SpeciesFileGroup/taxonworks/issues/2943
