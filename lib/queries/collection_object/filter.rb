@@ -128,6 +128,9 @@ module Queries
       #   nil - not applied
       attr_accessor :preparation_type
 
+      # @return [Array]
+      attr_accessor :preparation_type_id
+
       # @return [True, False, nil]
       # @param collecting_event ['true', 'false']
       #   true - has collecting_event_id
@@ -244,7 +247,7 @@ module Queries
         @with_buffered_collecting_event = boolean_param(params, :with_buffered_collecting_event)
         @with_buffered_determinations =  boolean_param(params, :with_buffered_determinations)
         @with_buffered_other_labels = boolean_param(params, :with_buffered_other_labels)
-        
+
         set_identifier(params)
         set_notes_params(params)
         set_tags_params(params)

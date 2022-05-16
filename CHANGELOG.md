@@ -7,6 +7,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Collection object classification summary task [#1864]
 - Notes facet to Collection Objects filter [#2966]
 - Confirmation modal for clone button on New collecting event task [#2978]
 - Minutes/record estimate in project activity task [#2979] 
@@ -25,6 +26,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Geographic areas are not suggested based on verbatim coordinates in comprehensive and new collecting event task [#2982]
 - Cannot sort by column in filter collecting event task [#2970]
 
+
+[#1864]: https://github.com/SpeciesFileGroup/taxonworks/issues/1864
 [#2966]: https://github.com/SpeciesFileGroup/taxonworks/issues/2966
 [#2970]: https://github.com/SpeciesFileGroup/taxonworks/issues/2970
 [#2973]: https://github.com/SpeciesFileGroup/taxonworks/issues/2973

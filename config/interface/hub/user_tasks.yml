@@ -683,3 +683,11 @@ project_activity_task:
     - image
   status: prototype
   description: 'Overview project and member activity, recent records, totals, member contributions, and more.'
+classification_summary_task:
+  hub: true
+  name: 'Collection object classification summary'
+  related:
+  categories:
+    - collection_object
+  status: prototype
+  description: 'Summarize collection objects totals and preparation by classification (by class, order, family).'
