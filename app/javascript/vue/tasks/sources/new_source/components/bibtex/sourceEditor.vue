@@ -3,7 +3,7 @@
     <legend>Editors</legend>
     <smart-selector
       model="people"
-      target="Source"
+      target="SourceEditor"
       klass="Source"
       label="cached"
       :filter-ids="peopleIds"

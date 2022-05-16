@@ -2,7 +2,7 @@
   <div>
     <smart-selector
       model="people"
-      :target="objectType"
+      target="Verifier"
       :klass="objectType"
       label="cached"
       :params="{ role_type: 'Verifier' }"
