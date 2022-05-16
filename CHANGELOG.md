@@ -7,6 +7,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Collection object classification summary task [#1864]
 - Notes facet to Collection Objects filter [#2966]
 - Confirmation modal for clone button on New collecting event task [#2978]
 - Minutes/record estimate in project activity task [#2979] 
@@ -27,7 +28,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Cannot sort by column in filter collecting event task [#2970]
 - "Recent" determiners not working in Comprehensive [#2985]
 - Determiners locked are missing after press "Save and new" in comprehensive task [#2943]
+- Crashing when creating georeferences with invalid WKT input
 
+[#1864]: https://github.com/SpeciesFileGroup/taxonworks/issues/1864
 [#2943]: https://github.com/SpeciesFileGroup/taxonworks/issues/2943
 [#2966]: https://github.com/SpeciesFileGroup/taxonworks/issues/2966
 [#2970]: https://github.com/SpeciesFileGroup/taxonworks/issues/2970
