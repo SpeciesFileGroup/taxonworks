@@ -285,7 +285,6 @@ class OtusController < ApplicationController
   def api_nomenclature_citations
     if @otu.taxon_name
       data = ::Catalog::Nomenclature::Entry.new(@otu.taxon_name)
-
       @citations = data.citations
       render '/citations/api/v1/index'
     else
