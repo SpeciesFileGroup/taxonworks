@@ -7,19 +7,27 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- OTU geo-json inventory API endpoint, `/api/v1/otus/123/inventory/distribution`.
 - Collection object classification summary task [#1864]
 - Notes facet to Collection Objects filter [#2966]
 - Confirmation modal for clone button on New collecting event task [#2978]
-- Minutes/record estimate in project activity task [#2979] 
+- Minutes/record estimate in project activity task [#2979]
 - Pagination in Citations by source task
 - Current repository facet in collection object filter [#2975]
 
 ### Changed
 - Refactor citations by source task
-- Person autocomplete optimization.
+- Person autocomplete optimization
+- Cleaned up Label UI text
+- Removed some jQuery
+- Updated Ruby gems via `bundle update`
+- Use Catalog for API source of OTU nomenclature citations
 
 ### Fixed
-- Fixed soft_validation on Collection Object related to determination date [#2949] 
+- Missing params for api_nomenclature_citations added
+- Converted wkt parsing errors from exceptions to validation
+- DwcOccurrence version scope to project in Hub
+- Fixed soft validation on Collection Object related to determination date [#2949]
 - Original combination soft validations are not loaded when New taxon name task is opened
 - ObservationMatrixRow|ColumnItem index view failing because new links are not available
 - Author roles are no visible in Citations by source task
@@ -29,9 +37,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - "Recent" determiners not working in Comprehensive [#2985]
 - Determiners locked are missing after press "Save and new" in comprehensive task [#2943]
 - Crashing when creating georeferences with invalid WKT input
+- ObservationMatrixRow|Column index and autocomplete calls
+
 
 [#1864]: https://github.com/SpeciesFileGroup/taxonworks/issues/1864
 [#2943]: https://github.com/SpeciesFileGroup/taxonworks/issues/2943
+[#2949]: https://github.com/SpeciesFileGroup/taxonworks/issues/2949
 [#2966]: https://github.com/SpeciesFileGroup/taxonworks/issues/2966
 [#2970]: https://github.com/SpeciesFileGroup/taxonworks/issues/2970
 [#2973]: https://github.com/SpeciesFileGroup/taxonworks/issues/2973
