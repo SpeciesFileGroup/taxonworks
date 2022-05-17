@@ -284,11 +284,10 @@ class OtusController < ApplicationController
   # GET /api/v1/otus/:id/inventory/nomenclature_citations
   def api_nomenclature_citations
     if @otu.taxon_name
-      redirect_to  api_v1_citations_path(
-        citation_object_type: 'TaxonName',
-        citation_object_id: @otu.taxon_name_id,
-        extend: params[:extend]
-      ) and return
+      data = ::Catalog::Nomenclature::Entry.new(@otu.taxon_name)
+
+      @citations = data.citations
+      render '/citations/api/v1/index'
     else
       render json: {}, status: :unprocessable_entity
     end
