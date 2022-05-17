@@ -288,6 +288,9 @@ class OtusController < ApplicationController
         citation_object_type: 'TaxonName',
         citation_object_id: @otu.taxon_name_id,
         extend: params[:extend]
+        project_token: params[:project_token],
+        project_id: params[:project_id],
+        token: params[:token],
       ) and return
     else
       render json: {}, status: :unprocessable_entity
