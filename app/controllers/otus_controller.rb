@@ -4,7 +4,7 @@ class OtusController < ApplicationController
   before_action :set_otu, only: [
     :show, :edit, :update, :destroy, :collection_objects, :navigation,
     :breadcrumbs, :timeline, :coordinate,
-    :api_show, :api_taxonomy_inventory, :api_type_material_inventory, :api_nomenclature_citations]
+    :api_show, :api_taxonomy_inventory, :api_type_material_inventory, :api_nomenclature_citations, :api_distribution ]
   after_action -> { set_pagination_headers(:otus) }, only: [:index, :api_index], if: :json_request?
 
   # GET /otus
@@ -263,7 +263,11 @@ class OtusController < ApplicationController
   end
 
   def api_autocomplete
-    @otus = Queries::Otu::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).autocomplete
+    @otus = Queries::Otu::Autocomplete.new(
+      params.require(:term),
+      project_id: sessions_current_project_id,
+      having_taxon_name_only: params[:having_taxon_name_only]
+    ).autocomplete
     render '/otus/api/v1/autocomplete'
   end
 
@@ -288,6 +292,11 @@ class OtusController < ApplicationController
     else
       render json: {}, status: :unprocessable_entity
     end
+  end
+
+  # GET /api/v1/otus/:id/inventory/distribution
+  def api_distribution
+    render '/otus/api/v1/distribution'
   end
 
   private
