@@ -14,6 +14,13 @@ module Queries
 
   class Otu::Autocomplete < Queries::Query
 
+    attr_accessor :having_taxon_name_only
+
+    def initialize(string, project_id: nil, having_taxon_name_only: false)
+      super(string, project_id: project_id)
+      @having_taxon_name_only = having_taxon_name_only&.to_s&.downcase == 'true'
+    end
+
     def base_query
       ::Otu.select('otus.*')
     end
@@ -24,12 +31,15 @@ module Queries
     end
 
     def base_queries
+      queries = []
+      queries << autocomplete_exactly_named unless having_taxon_name_only
       queries = [
-        autocomplete_exactly_named,
         autocomplete_exact_id,
         autocomplete_identifier_cached_exact,
         autocomplete_identifier_identifier_exact,
-        autocomplete_named,
+      ]
+      queries << autocomplete_named unless having_taxon_name_only
+      queries += [
         autocomplete_via_taxon_name_autocomplete,
         autocomplete_identifier_cached_like,
         autocomplete_common_name_exact,
@@ -65,7 +75,13 @@ module Queries
     # @return [Scope]
     def autocomplete_via_taxon_name_autocomplete
       taxon_names = Queries::TaxonName::Autocomplete.new(query_string, project_id: project_id).autocomplete
-      ::Otu.joins(:taxon_name).where(taxon_name: taxon_names).references(:taxon_names).limit(40).order(Arel.sql('char_length(otus.name), char_length(taxon_names.cached), taxon_names.cached ASC'))
+      (
+        having_taxon_name_only ? ::Otu.where(name: nil) : ::Otu
+      )
+        .joins(:taxon_name)
+        .where(taxon_name: taxon_names)
+        .references(:taxon_names)
+        .limit(40).order(Arel.sql('char_length(otus.name), char_length(taxon_names.cached), taxon_names.cached ASC'))
     end
 
   end
