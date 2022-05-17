@@ -287,7 +287,7 @@ class OtusController < ApplicationController
       redirect_to  api_v1_citations_path(
         citation_object_type: 'TaxonName',
         citation_object_id: @otu.taxon_name_id,
-        extend: params[:extend]
+        extend: params[:extend],
         project_token: params[:project_token],
         project_id: params[:project_id],
         token: params[:token],
