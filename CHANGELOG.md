@@ -24,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Use Catalog for API source of OTU nomenclature citations
 
 ### Fixed
+- Dwca eml.xml file validates locally [#2986]
 - Missing params for api_nomenclature_citations added
 - Converted wkt parsing errors from exceptions to validation
 - DwcOccurrence version scope to project in Hub
@@ -42,6 +43,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New type specimen duplicates specimen when updated after creating [#2994]
 
 
+[#2986]: https://github.com/SpeciesFileGroup/taxonworks/issues/2986
 [#1864]: https://github.com/SpeciesFileGroup/taxonworks/issues/1864
 [#2943]: https://github.com/SpeciesFileGroup/taxonworks/issues/2943
 [#2949]: https://github.com/SpeciesFileGroup/taxonworks/issues/2949
