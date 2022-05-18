@@ -38,6 +38,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Determiners locked are missing after press "Save and new" in comprehensive task [#2943]
 - Crashing when creating georeferences with invalid WKT input
 - ObservationMatrixRow|Column index and autocomplete calls
+- Lock source button is not working in OTU radial - biological associations form [#2989]
 
 
 [#1864]: https://github.com/SpeciesFileGroup/taxonworks/issues/1864
