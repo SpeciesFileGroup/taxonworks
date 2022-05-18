@@ -39,6 +39,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Crashing when creating georeferences with invalid WKT input
 - ObservationMatrixRow|Column index and autocomplete calls
 - Lock source button is not working in OTU radial - biological associations form [#2989]
+- New type specimen duplicates specimen when updated after creating [#2994]
 
 
 [#1864]: https://github.com/SpeciesFileGroup/taxonworks/issues/1864
@@ -52,6 +53,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2979]: https://github.com/SpeciesFileGroup/taxonworks/issues/2979
 [#2982]: https://github.com/SpeciesFileGroup/taxonworks/issues/2982
 [#2985]: https://github.com/SpeciesFileGroup/taxonworks/issues/2985
+[#2994]: https://github.com/SpeciesFileGroup/taxonworks/issues/2994
 
 ## [0.24.5] - 2022-05-03
 
