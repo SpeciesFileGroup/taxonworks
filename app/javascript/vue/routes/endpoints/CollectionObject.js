@@ -58,5 +58,5 @@ export const CollectionObject = {
 
   metadataBadge: (id) => AjaxCall('get', `/${controller}/${id}/metadata_badge`),
 
-  stepwiseDeterminations: (params) => AjaxCall('get', 'tasks/collection_objects/stepwise/determinations/data.json', { params })
+  stepwiseDeterminations: (params) => AjaxCall('get', '/tasks/collection_objects/stepwise/determinations/data.json', { params })
 }

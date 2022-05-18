@@ -33,5 +33,8 @@ const permitParams = {
 
 export const TaxonDetermination = {
   ...baseCRUD(controller, permitParams),
-  ...annotations(controller)
+
+  ...annotations(controller),
+
+  createBatch: (params) => AjaxCall('post', `/${controller}/batch_create`, params)
 }
