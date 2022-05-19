@@ -48,6 +48,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Lock source button is not working in OTU radial - biological associations form [#2989]
 - New type specimen duplicates specimen when updated after creating [#2994]
 - Sort column option is not working on Filter collection objects
+- Toggle members buttons is not working on Browse annotator
 
 [#2959]: https://github.com/SpeciesFileGroup/taxonworks/issues/2959
 [#2775]: https://github.com/SpeciesFileGroup/taxonworks/issues/2775
