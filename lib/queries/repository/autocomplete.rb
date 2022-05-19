@@ -66,7 +66,7 @@ module Queries
           # TODO: there are now 2 repository references, see also current_repository_id
           a = a.select('repositories.*, COUNT(collection_objects.id) AS use_count, NULLIF(collection_objects.project_id, NULL) as in_project')
             .left_outer_joins(:collection_objects)
-            .where('collection_objects.project_id = ? OR collection_objects.project_id IS NULL', project_id)
+            .where('collection_objects.project_id = ? OR collection_objects.project_id IS DISTINCT FROM ?', project_id, project_id)
             .group('repositories.id, collection_objects.project_id')
             .order('use_count DESC')
         end
