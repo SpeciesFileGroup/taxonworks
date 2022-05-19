@@ -39,12 +39,12 @@ describe Source, type: :model, group: :source do
   end
 
   specify '#is_in_project? 1' do
-    expect(s.is_in_project?(1)).to be_falsey
+    expect(source.is_in_project?(1)).to be_falsey
   end
 
   context 'associations' do
     specify '#citations' do
-      expect(s.citations << Citation.new()).to be_truthy
+      expect(source.citations << Citation.new()).to be_truthy
     end
   end
 
