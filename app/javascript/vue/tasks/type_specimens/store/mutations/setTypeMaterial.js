@@ -9,5 +9,6 @@ export default (state, material) => {
     pages: undefined
   }
 
+  state.type_material.collection_object_attributes.id = material?.collection_object?.id
   state.type_material = Object.assign({}, state.type_material, material)
 }
