@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Current repository facet in collection object filter [#2975]
 
 ### Changed
+- Improved Repository autocomplete [#2993]
 - Refactor citations by source task
 - Person autocomplete optimization
 - Cleaned up Label UI text
@@ -42,7 +43,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Lock source button is not working in OTU radial - biological associations form [#2989]
 - New type specimen duplicates specimen when updated after creating [#2994]
 
-
+[#2993]: https://github.com/SpeciesFileGroup/taxonworks/issues/2993
 [#2986]: https://github.com/SpeciesFileGroup/taxonworks/issues/2986
 [#1864]: https://github.com/SpeciesFileGroup/taxonworks/issues/1864
 [#2943]: https://github.com/SpeciesFileGroup/taxonworks/issues/2943

@@ -51,7 +51,7 @@ module Queries
         [autocomplete_exact_acronym, nil],
         [autocomplete_identifier_identifier_exact, nil],
         [autocomplete_acronym_match.limit(5), nil],
-        [autocomplete_named, nil ], # TODO: turn back on when scope handling is fixed.
+        [autocomplete_named, true ],
         [autocomplete_alternate_values_acronym.limit(20), true ],
         [autocomplete_alternate_values_name.limit(20), true ]
       ]
