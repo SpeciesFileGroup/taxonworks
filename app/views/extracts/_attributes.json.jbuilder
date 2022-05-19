@@ -27,3 +27,17 @@ if extend_response_with('otus')
     json.array! extract.referenced_otus.collect{|o| label_for(o)}
   end
 end
+
+if extend_response_with('origin_types')
+  json.origin_types do
+    json.array! extract.old_objects.collect{|o| o.class.name}
+  end
+end
+
+if extend_response_with('origins')
+  json.origins do
+    json.array! extract.old_objects.collect{|o| link_to(o)}
+  end
+end
+
+
