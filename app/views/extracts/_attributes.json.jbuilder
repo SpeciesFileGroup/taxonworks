@@ -36,8 +36,16 @@ end
 
 if extend_response_with('origins')
   json.origins do
-    json.array! extract.old_objects.collect{|o| link_to(o)}
+    json.array! extract.old_objects.collect{|o| label_for(o)}
   end
 end
+
+# TODO: unify likely
+if extend_response_with('protocols')
+  json.protocols do
+    json.array! extract.protocols.collect{|o| label_for(o)}
+  end
+end
+
 
 
