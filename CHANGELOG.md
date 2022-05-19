@@ -7,6 +7,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Link to Download project in show project [#2775]
 - OTU geo-json inventory API endpoint, `/api/v1/otus/123/inventory/distribution`.
 - Collection object classification summary task [#1864]
 - Notes facet to Collection Objects filter [#2966]
@@ -16,6 +17,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Current repository facet in collection object filter [#2975]
 
 ### Changed
+- Improved Extract tables [#2884] [#2881]
+- Improved Repository autocomplete [#2993]
 - Refactor citations by source task
 - Person autocomplete optimization
 - Cleaned up Label UI text
@@ -24,6 +27,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Use Catalog for API source of OTU nomenclature citations
 
 ### Fixed
+- Extract/protocol UI issues [#2990]
+- Source year_suffix preventing cloning [#2992]
 - Dwca eml.xml file validates locally [#2986]
 - Missing params for api_nomenclature_citations added
 - Converted wkt parsing errors from exceptions to validation
@@ -42,7 +47,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Lock source button is not working in OTU radial - biological associations form [#2989]
 - New type specimen duplicates specimen when updated after creating [#2994]
 
-
+[#2775]: https://github.com/SpeciesFileGroup/taxonworks/issues/2775
+[#2881]: https://github.com/SpeciesFileGroup/taxonworks/issues/2881
+[#2884]: https://github.com/SpeciesFileGroup/taxonworks/issues/2884
+[#2990]: https://github.com/SpeciesFileGroup/taxonworks/issues/2990
+[#2992]: https://github.com/SpeciesFileGroup/taxonworks/issues/2992
+[#2993]: https://github.com/SpeciesFileGroup/taxonworks/issues/2993
 [#2986]: https://github.com/SpeciesFileGroup/taxonworks/issues/2986
 [#1864]: https://github.com/SpeciesFileGroup/taxonworks/issues/1864
 [#2943]: https://github.com/SpeciesFileGroup/taxonworks/issues/2943
