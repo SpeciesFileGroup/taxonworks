@@ -41,7 +41,7 @@ module Queries
             a = a.select('serials.*, COUNT(project_sources.source_id) AS use_count, NULLIF(project_sources.project_id, NULL) as in_project')
                  .left_outer_joins(:sources)
                  .joins('LEFT OUTER JOIN project_sources ON sources.id = project_sources.source_id')
-                 .where('project_sources.project_id = ? OR project_sources.project_id IS NULL', project_id)
+                 .where('project_sources.project_id = ? OR project_sources.project_id IS DISTINCT FROM ?', project_id, project_id)
                  .group('serials.id, project_sources.project_id')
                  .order('use_count DESC')
           end
