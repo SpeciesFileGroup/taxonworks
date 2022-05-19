@@ -30,13 +30,13 @@ end
 
 if extend_response_with('origin_types')
   json.origin_types do
-    json.array! extract.old_objects.collect{|o| o.class.name}
+    json.array! extract.old_objects.collect{|o| o.class.name}.uniq
   end
 end
 
 if extend_response_with('origins')
   json.origins do
-    json.array! extract.old_objects.collect{|o| label_for(o)}
+    json.array! extract.old_objects.collect{|o| label_for(o)}.uniq
   end
 end
 
