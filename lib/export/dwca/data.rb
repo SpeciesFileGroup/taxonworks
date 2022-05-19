@@ -231,7 +231,7 @@ module Export::Dwca
           'xsi:schemaLocation' => 'eml://ecoinformatics.org/eml-2.1.1 http://rs.gbif.org/schema/eml-gbif-profile/1.1/eml-gbif-profile.xsd',
           'packageId' => identifier,
           'system' => 'https://taxonworks.org',
-          'core_scope' => 'system',
+          'scope' => 'system',
           'xml:lang' => 'en'
         ) {
           xml.dataset {
