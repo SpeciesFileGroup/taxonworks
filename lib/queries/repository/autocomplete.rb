@@ -27,6 +27,13 @@ module Queries
       )
     end
 
+    # @return [Scope]
+    def autocomplete_exact_acronym
+      base_query.where(
+        table[:acronym].eq(query_string).to_sql
+      )
+    end
+
     def autocomplete_alternate_values_acronym
       matching_alternate_value_on(:acronym)
     end
@@ -39,12 +46,13 @@ module Queries
     def autocomplete
       return [] if query_string.blank?
       queries = [
-        [autocomplete_exactly_named, true],
         [autocomplete_exact_id, nil ],
-        [autocomplete_identifier_identifier_exact, nil ],
+        [autocomplete_exactly_named, nil],
+        [autocomplete_exact_acronym, nil],
+        [autocomplete_identifier_identifier_exact, nil],
         [autocomplete_acronym_match.limit(5), nil],
-        [autocomplete_alternate_values_acronym.limit(20), nil ],
-        [autocomplete_named, true ],
+        [autocomplete_named, nil ], # TODO: turn back on when scope handling is fixed.
+        [autocomplete_alternate_values_acronym.limit(20), true ],
         [autocomplete_alternate_values_name.limit(20), true ]
       ]
 
@@ -55,6 +63,7 @@ module Queries
       queries.each do |q, scope|
         a = q
         if project_id && scope
+          # TODO: there are now 2 repository references, see also current_repository_id
           a = a.select('repositories.*, COUNT(collection_objects.id) AS use_count, NULLIF(collection_objects.project_id, NULL) as in_project')
             .left_outer_joins(:collection_objects)
             .where('collection_objects.project_id = ? OR collection_objects.project_id IS NULL', project_id)
