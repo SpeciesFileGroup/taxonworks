@@ -33,10 +33,15 @@ class SourcesController < ApplicationController
 
   # POST /sources/1/clone.json
   def clone
-    @source = @source.clone
     respond_to do |format|
-      format.html { redirect_to edit_source_path(@source), notice: 'Clone successful, on new record.' }
-      format.json { render :show }
+      @source = @source.clone
+      if @source.valid?
+        format.html { redirect_to edit_source_path(@source), notice: 'Clone successful, on new record.' }
+        format.json { render :show }
+      else
+        format.html { redirect_to edit_source_path(@source), notice: 'Clone failed.  On original original.' }
+        format.json { render json: @source.errors, status: :unprocessable_entity }
+      end
     end
   end
 

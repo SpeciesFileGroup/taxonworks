@@ -358,27 +358,25 @@ class Source < ApplicationRecord
     Utilities::Dates.nomenclature_date(day, Utilities::Dates.month_index(month), year)
   end
 
-  # @return [Source, false]
+  # @return [Source]
   def clone
     s = dup
+
     m = "[CLONE of #{id}] "
-    begin
-      Source.transaction do |t|
-        roles.each do |r|
-          s.roles << Role.new(person: r.person, type: r.type, position: r.position )
-        end
 
-        case type
-        when 'Source::Verbatim'
-          s.verbatim = m + verbatim.to_s
-        when 'Source::Bibtex'
-          s.title = m + title.to_s
-        end
-
-        s.save!
-      end
-    rescue ActiveRecord::RecordInvalid
+    case type
+    when 'Source::Verbatim'
+      s.verbatim = m + verbatim.to_s
+    when 'Source::Bibtex'
+      s.title = m + title.to_s
     end
+
+    roles.each do |r|
+      s.roles << Role.new(person: r.person, type: r.type, position: r.position )
+    end
+
+    s.year_suffix = nil
+    s.save
     s
   end
 

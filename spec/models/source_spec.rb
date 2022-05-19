@@ -1,20 +1,50 @@
 require 'rails_helper'
 
 describe Source, type: :model, group: :source do
-
   let(:source) { Source.new }
+  after(:all) { Source.destroy_all }
 
-  after(:all) {
-    Source.destroy_all
-  }
+  context '#clone' do
+    let (:s) { Source::Bibtex.create!(bibtex_type: :article, title: 'This is verbatim') }
+
+    specify 'labeled' do
+      a = s.clone
+      expect(a.title).to eq("[CLONE of #{s.id}] " + s.title)
+    end
+
+    context '#roles' do
+      let(:p1) { FactoryBot.create(:valid_person) }
+      let(:p2) { FactoryBot.create(:valid_person) }
+      let(:p3) { FactoryBot.create(:valid_person) }
+
+      before do
+        s.roles << SourceAuthor.new(person: p1)
+        s.roles << SourceAuthor.new(person: p2)
+        s.roles << SourceEditor.new(person: p3)
+      end
+
+      specify 'are duplicated' do
+        expect(s.clone.roles.count).to eq(3)
+      end
+
+      specify '#persisted?' do
+        expect(s.clone.persisted?).to be_truthy
+      end
+
+      specify 'author_year' do
+        s.update!(year: '1920', year_suffix: 'a')
+        expect(s.clone.valid?).to be_truthy
+      end
+    end
+  end
 
   specify '#is_in_project? 1' do
-    expect(source.is_in_project?(1)).to be_falsey
+    expect(s.is_in_project?(1)).to be_falsey
   end
 
   context 'associations' do
     specify '#citations' do
-      expect(source.citations << Citation.new()).to be_truthy
+      expect(s.citations << Citation.new()).to be_truthy
     end
   end
 
