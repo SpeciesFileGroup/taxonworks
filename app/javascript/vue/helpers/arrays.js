@@ -32,7 +32,7 @@ function sortFunction (a, b, asc) {
 
 function sortArray (arr, sortProperty, ascending = true) {
   const list = arr.slice()
-  const prop = sortProperty.split('.')
+  const prop = String(sortProperty).split('.')
   const len = prop.length
 
   return list.sort((a, b) => {

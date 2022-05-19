@@ -47,6 +47,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - ObservationMatrixRow|Column index and autocomplete calls
 - Lock source button is not working in OTU radial - biological associations form [#2989]
 - New type specimen duplicates specimen when updated after creating [#2994]
+- Sort column option is not working on Filter collection objects
 
 [#2959]: https://github.com/SpeciesFileGroup/taxonworks/issues/2959
 [#2775]: https://github.com/SpeciesFileGroup/taxonworks/issues/2775
