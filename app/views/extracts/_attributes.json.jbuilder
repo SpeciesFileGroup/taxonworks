@@ -15,3 +15,15 @@ if extract.extractor_roles.any?
     end
   end
 end
+
+if extend_response_with('identifiers')
+  json.identifiers do
+    json.array! extract.identifiers.pluck(:cached)
+  end
+end
+
+if extend_response_with('otus')
+  json.otus do
+    json.array! extract.referenced_otus.collect{|o| label_for(o)}
+  end
+end
