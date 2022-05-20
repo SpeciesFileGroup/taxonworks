@@ -1,8 +1,9 @@
 import { MutationNames } from '../mutations/mutations'
 import { Extract, SoftValidation } from 'routes/endpoints'
 import { RouteNames } from 'routes/routes'
-import SetParam from 'helpers/setParam.js'
 import { addToArray } from 'helpers/arrays'
+import SetParam from 'helpers/setParam.js'
+import extend from '../../const/extendRequest.js'
 
 export default ({ state: { extract, recents, repository, roles }, commit }) => {
   const payload = {
@@ -12,8 +13,8 @@ export default ({ state: { extract, recents, repository, roles }, commit }) => {
   }
 
   return (extract.id
-    ? Extract.update(extract.id, { extract: payload })
-    : Extract.create({ extract: payload })
+    ? Extract.update(extract.id, { extract: payload, extend })
+    : Extract.create({ extract: payload, extend })
   ).then(({ body }) => {
     const roles = (body.extractor_roles || []).map(role =>
       ({
@@ -31,6 +32,7 @@ export default ({ state: { extract, recents, repository, roles }, commit }) => {
       commit(MutationNames.SetSoftValidation, response.body)
     })
 
+    TW.workbench.alert.create('Extract was successfully saved.', 'notice')
     commit(MutationNames.SetLastSave, Date.now())
     return body
   })

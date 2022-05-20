@@ -15,6 +15,31 @@ module TypeMaterialsHelper
     [type_material.type_type, full_original_taxon_name_label(type_material.protonym)].compact.join(' of ')
   end
 
+  # @return [GeoJson feature]
+  # @param base [Boolean]
+  #
+  def type_material_to_geo_json_feature(type_material, base = true)
+    return nil if type_material.nil?
+    if a = collection_object_to_geo_json_feature(type_material.collection_object, false)
+      l = label_for_type_material(type_material)
+      a['properties']['target'] = {
+        'type' => 'TypeMaterial',
+        'id' => type_material.id,
+        'label' => l
+      }
+      if base
+        a['properties']['base'] = {
+          'type' => 'TypeMaterial',
+          'id' => type_material.id,
+          'label' => l
+        }
+      end
+      a
+    else
+      nil
+    end
+  end
+
   def type_materials_search_form
     render('/type_materials/quick_search_form')
   end

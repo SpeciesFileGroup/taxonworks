@@ -97,6 +97,7 @@
           </li>
         </ul>
       </div>
+      <confirmation-modal ref="confirmationModal"/>
     </nav-bar>
     <recent-component
       v-if="showRecent"
@@ -160,6 +161,7 @@ import CollectingEventForm from './components/CollectingEventForm'
 import CollectionObjectsTable from './components/CollectionObjectsTable.vue'
 import NavigateComponent from './components/Navigate'
 import SpinnerComponent from 'components/spinner'
+import ConfirmationModal from 'components/ConfirmationModal.vue'
 
 import { ActionNames } from './store/actions/actions'
 import { GetterNames } from './store/getters/getters'
@@ -180,7 +182,8 @@ export default {
     CollectingEventForm,
     Autocomplete,
     NavigateComponent,
-    SpinnerComponent
+    SpinnerComponent,
+    ConfirmationModal
   },
 
   computed: {
@@ -223,7 +226,7 @@ export default {
 
   watch: {
     collectingEvent: {
-      handler (newVal) {
+      handler (_) {
         this.$store.commit(MutationNames.UpdateLastChange)
       },
       deep: true
@@ -251,9 +254,20 @@ export default {
   },
 
   methods: {
-    cloneCE () {
-      this.$store.dispatch(ActionNames.CloneCollectingEvent)
+    async cloneCE () {
+      const ok = await this.$refs.confirmationModal.show({
+        title: 'Clone collecting event',
+        message: 'This will clone the current collecting event. Are you sure you want to proceed?',
+        confirmationWord: 'CLONE',
+        okButton: 'Clone',
+        typeButton: 'submit'
+      })
+
+      if (ok) {
+        this.$store.dispatch(ActionNames.CloneCollectingEvent)
+      }
     },
+
     reset () {
       this.$store.dispatch(ActionNames.ResetStore)
       SetParam(RouteNames.NewCollectingEvent, 'collecting_event_id')

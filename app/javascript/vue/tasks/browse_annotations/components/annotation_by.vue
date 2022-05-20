@@ -4,15 +4,16 @@
       v-for="member in membersList"
       :key="member.id"
       type="button"
-      :class="{ 'button-default': !(selectedList.hasOwnProperty(member.id))}"
+      :class="{ 'button-default': !selectedMembers.includes(member.id) }"
       class="button normal-input biocuration-toggle-button"
       @click="selectMember(member)"
-      v-html="member.user.name"/>
+      v-html="member.user.name"
+    />
   </div>
 </template>
 
 <script>
-import AjaxCall from 'helpers/ajaxCall'
+import { ProjectMember } from 'routes/endpoints'
 
 export default {
   props: {
@@ -26,29 +27,37 @@ export default {
 
   data () {
     return {
-      membersList: [],
-      selectedList: {}
+      membersList: []
     }
   },
-  watch: {
-    value(newVal) {
-      this.selectedList = newVal
+
+  computed: {
+    selectedMembers: {
+      get () {
+        return this.modelValue
+      },
+
+      set (value) {
+        this.$emits('update:modelValue', value)
+      }
     }
   },
-  mounted: function () {
-    AjaxCall('get', '/project_members.json').then(response => {
+
+  created () {
+    ProjectMember.all().then(response => {
       this.membersList = response.body
     })
   },
+
   methods: {
-    selectMember(item) {
-      if (this.selectedList.hasOwnProperty(item.id)) {
-        delete this.selectedList[item.id]
+    selectMember (item) {
+      const index = this.selectedMembers.findIndex(memberId => memberId === item.id)
+
+      if (index > -1) {
+        this.selectedMembers.splice(index, 1)
+      } else {
+        this.selectedMembers.push(item.id)
       }
-      else {
-        this.selectedList[item.id] = item
-      }
-      this.$emit('update:modelValue', this.selectedList);
     }
   }
 }

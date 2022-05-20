@@ -30,7 +30,6 @@ class Tasks::BrowseAnnotationsController < ApplicationController
     })
   end
 
-
   def process_submit
     render({json: params})
   end

@@ -25,7 +25,7 @@ module TypeMaterials::CatalogHelper
     # TODO: add verbose warning when missing any identifier
     # TODO: add option(?) to render all identifiers
     v.push label_for_identifier(
-      co.identifiers.prefer('Identifer::Local::CatalogNumber').first
+      co.identifiers.prefer('Identifier::Local::CatalogNumber').first
     )
 
     if d = label_for_repository(co.repository)

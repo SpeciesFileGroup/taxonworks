@@ -25,7 +25,7 @@
       <filter-component
         class="separate-right"
         v-show="preferences.activeFilter"
-        @parameters="makeFilterRequest"
+        @parameters="makeFilterRequest({ ...$event, extend })"
         @reset="resetFilter"/>
       <div class="full_width overflow-x-auto">
         <div
@@ -74,8 +74,9 @@ import PaginationComponent from 'components/pagination'
 import PaginationCount from 'components/pagination/PaginationCount'
 import MenuPreferences from './components/MenuPreferences.vue'
 import SpinnerComponent from 'components/spinner.vue'
-import { Extract } from 'routes/endpoints'
 import useFilter from './composables/useFilter.js'
+import extend from 'tasks/extracts/new_extract/const/extendRequest'
+import { Extract } from 'routes/endpoints'
 import { computed, reactive, ref } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
 
@@ -106,7 +107,7 @@ const {
 const urlParams = URLParamsToJSON(location.href)
 
 if (Object.keys(urlParams).length) {
-  makeFilterRequest(urlParams)
+  makeFilterRequest({ ...urlParams, extend })
 }
 
 </script>
