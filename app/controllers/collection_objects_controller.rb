@@ -1,4 +1,3 @@
-
 class CollectionObjectsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
   include CollectionObjects::FilterParams
