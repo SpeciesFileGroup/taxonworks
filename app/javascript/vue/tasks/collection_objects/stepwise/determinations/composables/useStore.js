@@ -31,12 +31,15 @@ export default () => {
 
   const createDeterminations = () => {
     const params = {
-      ...state.taxonDetermination,
+      taxon_determination: state.taxonDetermination,
       collection_object_id: state.selectedCOIds
     }
 
-    TaxonDetermination.createBatch({ taxon_determination: params }).then(_ => {
+    TaxonDetermination.createBatch(params).then(_ => {
       state.collectionObjects = state.collectionObjects.filter(({ id }) => !state.selectedCOIds.includes(id))
+      state.selectedCOIds = []
+      
+      TW.workbench.alert.create('Taxon determinations were successfully created.', 'notice')
     })
   }
 
@@ -48,19 +51,24 @@ export default () => {
     state.taxonDetermination = determination
   }
 
-  const loadCollectionObjects = () => {
+  const loadCollectionObjects = page => {
     const params = {
       buffered_determinations: state.selectedLabel,
       exact_buffered_determinations: true,
-      taxon_determinations: false
+      taxon_determinations: false,
+      per: 50,
+      page
     }
+    const request = CollectionObject.where(params)
 
     state.isLoading = true
 
-    CollectionObject.where(params).then(({ body }) => {
+    request.then(({ body }) => {
       state.collectionObjects = body
       state.isLoading = false
     })
+
+    return request
   }
 
   return {

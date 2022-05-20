@@ -1,4 +1,5 @@
 import baseCRUD, { annotations } from './base'
+import AjaxCall from 'helpers/ajaxCall'
 
 const controller = 'taxon_determinations'
 const permitParams = {

@@ -7,6 +7,7 @@
         <VBtn
           color="create"
           :disabled="!collectionObjects.length || !taxonDetermination"
+          @click="createDeterminations"
         >
           Add determination
         </VBtn>
