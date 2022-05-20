@@ -8,13 +8,16 @@ const state = reactive({
   taxonDetermination: undefined,
   selectedCOIds: [],
   selectedLabel: undefined,
+  bufferedParams: {
+    count_cutoff: 100,
+    per: 10
+  }
 })
 
 export default () => {
   const loadBufferedPage = (page = 1) => {
     const params = {
-      count_cutoff: 100,
-      per: 10,
+      ...state.bufferedParams,
       page
     }
     const request = CollectionObject.stepwiseDeterminations(params)
@@ -56,7 +59,7 @@ export default () => {
       buffered_determinations: state.selectedLabel,
       exact_buffered_determinations: true,
       taxon_determinations: false,
-      per: 50,
+      per: 500,
       page
     }
     const request = CollectionObject.where(params)

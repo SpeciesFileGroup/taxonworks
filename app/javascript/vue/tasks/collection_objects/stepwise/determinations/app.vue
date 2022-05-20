@@ -14,10 +14,14 @@
       </div>
     </NavBar>
     <div class="horizontal-left-content align-start">
-      <TaxonDetermination class="margin-medium-right"/>
       <div class="full_width">
         <LabelList class="margin-medium-bottom"/>
         <CollectionObjectList />
+      </div>
+
+      <div class="margin-medium-left">
+        <CuttoffInput class="margin-medium-bottom" />
+        <TaxonDetermination />
       </div>
     </div>
     <VSpinner 
@@ -42,6 +46,7 @@ import NavBar from 'components/layout/NavBar.vue'
 import LabelList from './components/LabelList.vue'
 import VSpinner from 'components/spinner.vue'
 import useStore from './composables/useStore.js'
+import CuttoffInput from './components/CutoffInput.vue'
 
 const {
   isLoading,

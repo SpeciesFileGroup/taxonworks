@@ -41,7 +41,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import useStore from '../composables/useStore.js'
 import VBtn from 'components/ui/VBtn/index.vue'
 import getPagination from 'helpers/getPagination.js'
@@ -52,7 +52,14 @@ const {
   setLabel,
   selectedLabel,
   labels,
+  bufferedParams
 } = useStore()
+
+watch(
+  bufferedParams,
+  () => loadPage(1),
+  { deep: true }
+)
 
 const pagination = ref({})
 
