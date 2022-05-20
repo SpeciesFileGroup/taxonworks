@@ -6,6 +6,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.25.0] - 2022-05-19
+
 ### Added
 - Link to Download project in show project [#2775]
 - OTU geo-json inventory API endpoint, `/api/v1/otus/123/inventory/distribution`.
@@ -2650,7 +2654,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.5...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.25.0...development
+[0.25.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.5...v0.25.0
 [0.24.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.4...v0.24.5
 [0.24.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.3...v0.24.4
 [0.24.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.2...v0.24.3
