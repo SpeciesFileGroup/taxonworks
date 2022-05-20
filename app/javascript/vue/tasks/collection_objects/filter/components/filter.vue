@@ -141,7 +141,7 @@ export default {
     WithComponent,
     PreparationTypes,
     CollectorsComponent,
-    FacetNotes
+    FacetNotes,
     FacetCurrentRepository
   },
 
