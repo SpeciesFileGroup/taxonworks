@@ -3,7 +3,6 @@
 #
 # AssertedDistributions can be asserts that the source indicates that a taxon is NOT present in an area.  This is a "positive negative" in , i.e. the Source can be thought of recording evidence that a taxon is not present. TaxonWorks does not differentiate between types of negative evidence.
 #
-#
 # @!attribute otu_id
 #   @return [Integer]
 #   the OTU ID
@@ -83,14 +82,14 @@ class AssertedDistribution < ApplicationRecord
   # @return [AssertedDistribution]
   #   used to also stub an #origin_citation, as required
   def self.stub(defaults: {})
-    a                 = AssertedDistribution.new(
-      otu_id:                     defaults[:otu_id],
-      origin_citation_attributes: {source_id: defaults[:source_id]}
-    )
+    a = AssertedDistribution.new(
+      otu_id: defaults[:otu_id],
+      origin_citation_attributes: {source_id: defaults[:source_id]})
     a.origin_citation = Citation.new if defaults[:source_id].blank?
     a
   end
 
+  # TODO: DRY with helper methods 
   # rubocop:disable Style/StringHashKeys
   # @return [Hash] GeoJSON feature
   def to_geo_json_feature
@@ -112,6 +111,10 @@ class AssertedDistribution < ApplicationRecord
 
   def geographic_item
     geographic_area.default_geographic_item
+  end
+
+  def has_shape?
+    geographic_area.geographic_items.any?
   end
 
   protected

@@ -96,33 +96,6 @@ describe Source::Bibtex, type: :model, group: :sources do
     expect(subject.year_with_suffix).to eq('1922c')
   end
 
-  context '#clone' do
-    before do
-      bibtex.update!(title: 'This is verbatim', bibtex_type: :article)
-    end
-
-    specify 'labeled' do
-      a = bibtex.clone
-      expect(a.title).to eq("[CLONE of #{bibtex.id}] " + bibtex.title)
-    end
-
-    context '#roles' do
-      let(:p1) { FactoryBot.create(:valid_person) }
-      let(:p2) { FactoryBot.create(:valid_person) }
-      let(:p3) { FactoryBot.create(:valid_person) }
-
-      before do
-        bibtex.roles << SourceAuthor.new(person: p1)
-        bibtex.roles << SourceAuthor.new(person: p2)
-        bibtex.roles << SourceEditor.new(person: p3)
-      end
-
-      specify 'are duplicated' do
-        expect(bibtex.clone.roles.count).to eq(3)
-      end
-    end
-  end
-
   context 'test bibtex-ruby gem capabilities we rely upon' do
     context 'using BibTeX bibliography' do
       specify 'the test file should have 42 records' do

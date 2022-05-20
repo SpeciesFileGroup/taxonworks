@@ -42,11 +42,11 @@ export default ({ commit, dispatch, state: { collection_object, taxon_determinat
     Promise.all(promises).then(responses => {
       commit(MutationNames.SetTaxonDeterminations, responses.map(
         ({ body }) => {
-          const roles = (body?.determiner_roles ?? []).map(role => {
+          const roles = (body?.determiner_roles || []).map(role => 
             role.organization
              ? makeOrganization(role)
              : makePerson(role)
-          })
+          )
 
           return {
             ...body,

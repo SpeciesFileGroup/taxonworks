@@ -23,6 +23,8 @@ module CollectionObjects
         :collection_object_type,
         :collector_ids_or,
         :current_determinations,
+        :current_repository,
+        :current_repository_id,
         :depictions,
         :determiner_id_or,
         :dwc_indexed,

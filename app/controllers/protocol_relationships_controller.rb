@@ -11,11 +11,9 @@ class ProtocolRelationshipsController < ApplicationController
         @recent_objects = ProtocolRelationship.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       }
-
       format.json {
-        @protocol_relationships = ProtocolRelationship.where(project_id: sessions_current_project_id).where(
-          Queries::Annotator::polymorphic_params(params, ProtocolRelationship)
-        )
+        @protocol_relationships = ::Queries::ProtocolRelationship::Filter.new(params).all.where(project_id: sessions_current_project_id).
+        page(params[:page]).per(params[:per] || 500)
       }
     end
   end
@@ -29,7 +27,7 @@ class ProtocolRelationshipsController < ApplicationController
   def new
     @protocol_relationship = ProtocolRelationship.new
 
-    if !Protocol.with_project_id(sessions_current_project_id).any? 
+    if !Protocol.with_project_id(sessions_current_project_id).any?
       redirect_to new_protocol_path, notice: 'Create a protocol or two first.' and return
     end
     @protocol_relationship= ProtocolRelationship.new(protocol_relationship_params)
@@ -93,7 +91,7 @@ class ProtocolRelationshipsController < ApplicationController
   end
 
   private
-  
+
   def set_protocol_relationship
     @protocol_relationship = ProtocolRelationship.where(project_id: sessions_current_project_id).find(params[:id])
   end

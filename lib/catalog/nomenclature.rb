@@ -6,7 +6,7 @@ class Catalog::Nomenclature < ::Catalog
     n = []
     entries.each do |e|
       n += e.all_names
-    end   
+    end
     n.uniq
   end
 
