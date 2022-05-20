@@ -166,7 +166,7 @@ export default {
     processResult ({ page } = {}) {
       const params = {
         on: [this.filter.model],
-        by: Object.values(this.filter.selected_by).map(item => item.user_id),
+        by: this.filter.selected_by,
         created_after: this.filter.annotation_dates.after,
         created_before: this.filter.annotation_dates.before,
         per: this.per,
@@ -218,7 +218,7 @@ export default {
         annotation_logic: 'replace',
         selected_type: undefined,
         selected_for: [],
-        selected_by: {},
+        selected_by: [],
         model: undefined,
         result: 'initial result'
       }

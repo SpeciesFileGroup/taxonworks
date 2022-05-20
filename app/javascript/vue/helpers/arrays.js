@@ -13,9 +13,26 @@ function getUnique (arr, property) {
   return [...new Map(arr.map(item => [item[property], item])).values()]
 }
 
+
+function sortFunction (a, b, asc) {
+  if (a === null) return 1
+  if (b === null) return -1
+  if (a === null && b === null) return 0
+
+  const result = a - b
+
+  if (isNaN(result)) {
+    return (asc)
+      ? a.toString().localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+      : b.toString().localeCompare(a, undefined, { numeric: true, sensitivity: 'base' })
+  } else {
+    return (asc) ? result : -result
+  }
+}
+
 function sortArray (arr, sortProperty, ascending = true) {
   const list = arr.slice()
-  const prop = sortProperty.split('.')
+  const prop = String(sortProperty).split('.')
   const len = prop.length
 
   return list.sort((a, b) => {
@@ -26,20 +43,16 @@ function sortArray (arr, sortProperty, ascending = true) {
       b = b[prop[i]]
     }
 
-    if (a === null) return 1
-    if (b === null) return -1
-    if (a === null && b === null) return 0
-
-    const result = a - b
-
-    if (isNaN(result)) {
-      return (ascending)
-        ? a.toString().localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
-        : b.toString().localeCompare(a, undefined, { numeric: true, sensitivity: 'base' })
-    } else {
-      return (ascending) ? result : -result
-    }
+    return sortFunction(a, b, ascending)
   })
+}
+
+function sortArrayByArray (arr, sortingArr, asc) {
+  const list = arr.slice()
+
+  list.sort((a, b) => sortFunction(sortingArr.indexOf(a), sortingArr.indexOf(b), asc))
+
+  return list
 }
 
 function addToArray (arr, obj, property = 'id') {
@@ -64,6 +77,7 @@ export {
   chunkArray,
   getUnique,
   sortArray,
+  sortArrayByArray,
   addToArray,
   removeFromArray
 }

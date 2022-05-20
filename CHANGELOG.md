@@ -6,6 +6,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.25.0] - 2022-05-19
+
 ### Added
 - Link to Download project in show project [#2775]
 - OTU geo-json inventory API endpoint, `/api/v1/otus/123/inventory/distribution`.
@@ -17,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Current repository facet in collection object filter [#2975]
 
 ### Changed
+- Identifiers added to print labels [2959]
 - Improved Extract tables [#2884] [#2881]
 - Improved Repository autocomplete [#2993]
 - Refactor citations by source task
@@ -46,7 +51,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - ObservationMatrixRow|Column index and autocomplete calls
 - Lock source button is not working in OTU radial - biological associations form [#2989]
 - New type specimen duplicates specimen when updated after creating [#2994]
+- Sort column option is not working on Filter collection objects
+- Toggle members buttons is not working on Browse annotator
 
+[#2959]: https://github.com/SpeciesFileGroup/taxonworks/issues/2959
 [#2775]: https://github.com/SpeciesFileGroup/taxonworks/issues/2775
 [#2881]: https://github.com/SpeciesFileGroup/taxonworks/issues/2881
 [#2884]: https://github.com/SpeciesFileGroup/taxonworks/issues/2884
@@ -2646,7 +2654,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.5...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.25.0...development
+[0.25.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.5...v0.25.0
 [0.24.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.4...v0.24.5
 [0.24.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.3...v0.24.4
 [0.24.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.2...v0.24.3
