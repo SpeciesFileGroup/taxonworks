@@ -692,3 +692,11 @@ stepwise_determinations_task:
     - people
   status: prototype
   description: 'Parse verbatim determinations into their semantic components.'
+classification_summary_task:
+  hub: true
+  name: 'Collection object classification summary'
+  related:
+  categories:
+    - collection_object
+  status: prototype
+  description: 'Summarize collection objects totals and preparation by classification (by class, order, family).'

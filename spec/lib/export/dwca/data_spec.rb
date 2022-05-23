@@ -30,7 +30,9 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
       after { data.cleanup }
 
       let(:csv) { CSV.parse(data.csv, headers: true, col_sep: "\t") }
-      let(:headers) { [ 'basisOfRecord', 'individualCount', 'occurrenceID' ] } # id, and non-standard DwC colums are handled elsewhere
+      
+      # id, and non-standard DwC columns are handled elsewhere
+      let(:headers) { [ 'basisOfRecord', 'individualCount', 'occurrenceID', 'occurrenceStatus' ] } 
 
       context 'various scopes' do
         specify 'with .where clauses' do
@@ -61,7 +63,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
       end
 
       specify 'generated headers are restricted to data' do
-        expect(csv.headers).to contain_exactly('id', 'occurrenceID', 'basisOfRecord', 'individualCount')
+        expect(csv.headers).to contain_exactly(*(['id'] + headers))
       end
 
       specify '#meta_fields can be returned, and exclude id' do

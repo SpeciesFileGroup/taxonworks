@@ -12,9 +12,10 @@
         name="list-complete"
         tag="tbody">
         <tr
-          v-for="item in list"
+          v-for="(item, index) in list"
           :key="rowKey ? item[rowKey] : item.id"
-          class="list-complete-item">
+          class="list-complete-item contextMenuCells"
+          :class="{ even: index % 2 }">
           <td
             v-for="attr in attributes"
             v-html="getValue(item, attr)"/>

@@ -12,7 +12,8 @@ function initValidations (element) {
   const globalIds = {
     'Taxon name': Array.from(document.querySelectorAll('#taxon-validations [data-global-id]')).map(node => node.getAttribute('data-global-id')),
     Status: Array.from(document.querySelectorAll('#status-validations [data-global-id]')).map(node => node.getAttribute('data-global-id')),
-    Relationships: Array.from(document.querySelectorAll('#relationships-validations [data-global-id]')).map(node => node.getAttribute('data-global-id'))
+    Relationships: Array.from(document.querySelectorAll('#relationships-validations [data-global-id]')).map(node => node.getAttribute('data-global-id')),
+    'Original combination': Array.from(document.querySelectorAll('#taxon-original-combination [data-global-id]')).map(node => node.getAttribute('data-global-id'))
   }
 
   if ([].concat(...Object.values(globalIds)).length) {

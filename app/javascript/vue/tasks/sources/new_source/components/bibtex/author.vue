@@ -4,7 +4,7 @@
     <smart-selector
       model="people"
       @onTabSelected="view = $event"
-      target="Source"
+      target="SourceAuthor"
       klass="Source"
       label="cached"
       :params="{ role_type: 'SourceAuthor' }"

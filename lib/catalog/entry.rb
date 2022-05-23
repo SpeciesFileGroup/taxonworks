@@ -25,7 +25,7 @@ class Catalog::Entry
   attr_accessor :sources
 
   # @return [Array]
-  # All Topics observed for this entry 
+  # All Topics observed for this entry
   attr_accessor :topics
 
   # @return [Array]
@@ -37,12 +37,12 @@ class Catalog::Entry
   def initialize(object, sort_order = [])
     @object = object
     @items = []
-    @sort_order = sort_order 
+    @sort_order = sort_order
     build
     index_items
   end
 
-  # Redefined in subclasses! 
+  # Redefined in subclasses!
   # !! This is default only, it should be defined in subclasses.
   def build
     @items << Catalog::EntryItem.new(object: object, citation: object.origin_citation)
@@ -79,7 +79,7 @@ class Catalog::Entry
   # @return Boolean
   # Returns true if
   #   * it's the only item with this object
-  #   * it's the last citation chronologically 
+  #   * it's the last citation chronologically
   # Inversely, returns false in all other cases:
   def last_item?(item)
     o = items_by_object(item.object)
@@ -155,7 +155,7 @@ class Catalog::Entry
     end
     h
   end
- 
+
   def to_json
     return {
       item_count: items.count,
@@ -168,6 +168,11 @@ class Catalog::Entry
   def coordinate_entry_items
   end
 
+  def citations
+    @citations ||= all_citations
+    @citations
+  end
+
   protected
 
   # @return [Array of Source]
@@ -176,8 +181,12 @@ class Catalog::Entry
     items.collect{|i| i.source} || []
   end
 
+  def all_citations
+    items.map(&:citation) || []
+  end
+
   # @return [Array]
-  # Some duplication here 
+  # Some duplication here
   def all_dates
     d = []
     sources.each do |s|
@@ -187,7 +196,7 @@ class Catalog::Entry
     items.each do |i|
       d.push i.nomenclature_date
     end
-    
+
     d.compact.uniq.sort
   end
 

@@ -2,9 +2,6 @@ require 'rails_helper'
 
 describe Source::Bibtex, type: :model, group: :sources do
 
-  # TODO: shouldn't be needed ultimately
-  # after(:all) { Source.destroy_all }
-
   # TODO: this should follow pattern { Source::Bibtex.new }
   let(:bibtex) { FactoryBot.build(:source_bibtex) }
 
@@ -24,37 +21,79 @@ describe Source::Bibtex, type: :model, group: :sources do
     BibTeX.open(Rails.root + 'spec/files/bibtex/Taenionema.bib')
   }
 
+
+  specify '.new_from_bibtex with ISSN for serial and no matching Serial creates Serial and Identifier' do
+    citation_string =  %q{@Article{Park2021a,
+        author = {Kyu-Tek Park AND J. B. Heppner},
+        title = {Notes on Vietnam moths, 21. Athymoris in Vietnam, with two new species (Lepidoptera: Lecithoceridae: Torodorinae)},
+        journal = {Lepidoptera Novae},
+        year = {2021},
+        volume = {13},
+        number = {1-2},
+        pages = {23--26},
+        issn = {1941-1014},
+        abstract = {– Two new species of the genus Athymoris Meyrick, 1935, are described from Vietnam: Athymoris gilvimaculata Park & Heppner, sp. nov.,
+        and A. clinozonalis Park & Heppner, sp. nov.},
+        file = {:VN-Athymoris.pdf:PDF},
+        }}
+
+    src = Source::Bibtex.new_from_bibtex_text(citation_string)
+    src.save!
+
+    expect(Serial.first.name).to eq('Lepidoptera Novae')
+    expect(Serial.first.identifiers.first.identifier).to eq('1941-1014')
+  end
+
+  specify '.new_from_bibtex with ISSN matching existing Serial links to serial' do
+    issn = '1941-1014'
+    citation_string =  %q{@Article{Park2021a,
+        author = {Kyu-Tek Park AND J. B. Heppner},
+        title = {Notes on Vietnam moths, 21. Athymoris in Vietnam, with two new species (Lepidoptera: Lecithoceridae: Torodorinae)},
+        journal = {Lepidoptera Novae},
+        year = {2021},
+        volume = {13},
+        number = {1-2},
+        pages = {23--26},
+        issn = {1941-1014},
+        abstract = {– Two new species of the genus Athymoris Meyrick, 1935, are described from Vietnam: Athymoris gilvimaculata Park & Heppner, sp. nov.,
+        and A. clinozonalis Park & Heppner, sp. nov.},
+        file = {:VN-Athymoris.pdf:PDF},
+        }}
+
+    s = FactoryBot.create(:valid_serial, identifiers_attributes: [ { type: 'Identifier::Global::Issn', identifier: issn  } ] )
+
+    src = Source::Bibtex.new_from_bibtex_text(citation_string)
+    src.save!
+    expect(src.serial_id).to eq(s.id)
+  end
+
+  specify '.new_from_bibtex with ISSN and name matching existing Serial links to serial' do
+    issn = '1941-1014'
+    citation_string =  %q{@Article{Park2021a,
+        author = {Kyu-Tek Park AND J. B. Heppner},
+        title = {Notes on Vietnam moths, 21. Athymoris in Vietnam, with two new species (Lepidoptera: Lecithoceridae: Torodorinae)},
+        journal = {Lepidoptera Novae},
+        year = {2021},
+        volume = {13},
+        number = {1-2},
+        pages = {23--26},
+        issn = {1941-1014},
+        abstract = {– Two new species of the genus Athymoris Meyrick, 1935, are described from Vietnam: Athymoris gilvimaculata Park & Heppner, sp. nov.,
+        and A. clinozonalis Park & Heppner, sp. nov.},
+        file = {:VN-Athymoris.pdf:PDF},
+        }}
+
+    s = FactoryBot.create(:valid_serial, name: 'Lepidoptera Novae', identifiers_attributes: [ { type: 'Identifier::Global::Issn', identifier: issn  } ] )
+
+    src = Source::Bibtex.new_from_bibtex_text(citation_string)
+    src.save!
+    expect(src.serial_id).to eq(s.id)
+  end
+
   specify '#year_with_suffix' do
     subject.year = '1922'
     subject.year_suffix = 'c'
     expect(subject.year_with_suffix).to eq('1922c')
-  end
-
-  context '#clone' do
-    before do
-      bibtex.update!(title: 'This is verbatim', bibtex_type: :article)
-    end
-
-    specify 'labeled' do
-      a = bibtex.clone
-      expect(a.title).to eq("[CLONE of #{bibtex.id}] " + bibtex.title)
-    end
-
-    context '#roles' do
-      let(:p1) { FactoryBot.create(:valid_person) }
-      let(:p2) { FactoryBot.create(:valid_person) }
-      let(:p3) { FactoryBot.create(:valid_person) }
-
-      before do
-        bibtex.roles << SourceAuthor.new(person: p1)
-        bibtex.roles << SourceAuthor.new(person: p2)
-        bibtex.roles << SourceEditor.new(person: p3)
-      end
-
-      specify 'are duplicated' do
-        expect(bibtex.clone.roles.count).to eq(3)
-      end
-    end
   end
 
   context 'test bibtex-ruby gem capabilities we rely upon' do
@@ -99,7 +138,9 @@ describe Source::Bibtex, type: :model, group: :sources do
         expect(gem_bibtex_bibliography[1].volume).to eq('53')
       end
 
-      # TODO: the validator for ISSN identifiers has been perverted so as to *NOT* require the preamble 'ISSN ', even tough the ISSN spec is quite specific about its being there, because the Bibtex gem does not return it with the ISSN vslue as it should.
+      # TODO: the validator for ISSN identifiers has been perverted
+      # so as to *NOT* require the preamble 'ISSN ', even tough the ISSN spec
+      # is quite specific about its being there, because the Bibtex gem does not return it with the ISSN vslue as it should.
       specify "second record issn is '1480-3283'" do
         expect(gem_bibtex_bibliography[1].issn).to eq('1480-3283')
       end
@@ -217,7 +258,7 @@ describe Source::Bibtex, type: :model, group: :sources do
   context 'Ruby BibTeX related instance methods' do
     let(:s) { Source::Bibtex.new_from_bibtex(gem_bibtex_entry1) } 
 
-    context 'to_bibtex' do
+    context '.to_bibtex' do
       specify 'basic features' do
         expect(s.bibtex_type.to_s).to eq(gem_bibtex_entry1.type.to_s)
         expect(s.to_bibtex.fields).to eq(gem_bibtex_entry1.fields)
@@ -234,7 +275,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           expect(bib.journal).to eq(serial1.name)
         end
 
-        specify 'issn gets converted properly' do
+        specify 'ISSN gets converted properly' do
           issn = FactoryBot.build(:issn_identifier)
           serial1.identifiers << issn
           src.update(serial: serial1)
@@ -297,23 +338,23 @@ describe Source::Bibtex, type: :model, group: :sources do
       identifier = '1-84356-028-3'
       valid_gem_bibtex_book.isbn = identifier
       s = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
+      s.save
       expect(s.identifiers.to_a.size).to eq(1)
       expect(s.identifiers.first.identifier).to eq(identifier)
-      expect(s.save).to be_truthy
-      expect(s.identifiers.first.id.nil?).to be_falsey
+      expect(s.identifiers.first.persisted?).to be_truthy
       expect(s.isbn.to_s).to eq(identifier)
     end
 
     context 'with an issn in a BibTeX::Entry, convert it to an Identifier' do
       %w{2049-3630 1050-124x 1050-124X}.each do |n|
         specify "ISSN #{n}" do
-          identifier                 = "ISSN #{n}"
+          identifier = "ISSN #{n}"
           valid_gem_bibtex_book.issn = identifier
-          s                          = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
+          s = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
+          s.save
           expect(s.identifiers.to_a.size).to eq(1)
           expect(s.identifiers.first.identifier).to eq(identifier)
-          expect(s.save).to be_truthy
-          expect(s.identifiers.first.id.nil?).to be_falsey
+          expect(s.identifiers.first.persisted?).to be_truthy
           expect(s.issn.to_s).to eq(identifier)
         end
       end
@@ -327,11 +368,11 @@ describe Source::Bibtex, type: :model, group: :sources do
 
       identifier = '10.2345/S1384107697000225'
       valid_gem_bibtex_book.doi = identifier
-      s  = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
+      s = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
+      s.save
       expect(s.identifiers.to_a.size).to eq(1)
       expect(s.identifiers.first.identifier).to eq(identifier)
-      expect(s.save).to be_truthy
-      expect(s.identifiers.first.id.nil?).to be_falsey
+      expect(s.identifiers.first.persisted?).to be_truthy
       expect(s.doi.to_s).to eq(identifier)
     end
   end
@@ -1097,10 +1138,11 @@ describe Source::Bibtex, type: :model, group: :sources do
       let(:bib3) { FactoryBot.create(:valid_misc, day: 5) }
       let(:bib4) { FactoryBot.create(:valid_misc, author: 'Anon, Test') }
       let(:trial) {
-        Source::Bibtex.new(bibtex_type: bib3.bibtex_type,
-                           title:       bib3.title,
-                           year:        bib3.year,
-                           month:       'jul')
+        Source::Bibtex.new(
+          bibtex_type: bib3.bibtex_type,
+          title: bib3.title,
+          year: bib3.year,
+          month: 'jul')
       }
 
       specify '#identical, full matchine' do
@@ -1234,8 +1276,6 @@ describe Source::Bibtex, type: :model, group: :sources do
           expect(b.authors.collect{|a| a.last_name }).to eq(%w{Deux Trois Un})
         end
       end
-
     end
   end
-
-  end
+end

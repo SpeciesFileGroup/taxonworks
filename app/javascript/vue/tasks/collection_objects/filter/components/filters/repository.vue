@@ -2,6 +2,7 @@
   <div>
     <h3>Repository</h3>
     <smart-selector
+      v-model="repositorySelected"
       model="repositories"
       klass="CollectionObject"
       pin-section="Repositories"

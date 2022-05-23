@@ -7,7 +7,7 @@
         <VBtn
           color="create"
           :disabled="!collectionObjects.length || !taxonDetermination"
-          @click="createDeterminations"
+          @click="handleClick"
         >
           Add determination
         </VBtn>
@@ -15,7 +15,7 @@
     </NavBar>
     <div class="horizontal-left-content align-start">
       <div class="full_width">
-        <LabelList class="margin-medium-bottom"/>
+        <LabelList class="margin-medium-bottom" />
         <CollectionObjectList />
       </div>
 
@@ -24,21 +24,16 @@
         <TaxonDetermination />
       </div>
     </div>
-    <VSpinner 
+    <VSpinner
       v-if="isLoading"
       full-screen
     />
+    <ConfirmationModal ref="confirmationModalRef" />
   </div>
 </template>
 
-<script>
-export default {
-  name: 'StepwiseDeterminations'
-}
-</script>
-
 <script setup>
-
+import { ref } from 'vue'
 import TaxonDetermination from './components/TaxonDetermination.vue'
 import CollectionObjectList from './components/CollectionObjectList.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
@@ -47,14 +42,39 @@ import LabelList from './components/LabelList.vue'
 import VSpinner from 'components/spinner.vue'
 import useStore from './composables/useStore.js'
 import CuttoffInput from './components/CutoffInput.vue'
+import ConfirmationModal from 'components/ConfirmationModal.vue'
 
 const {
   isLoading,
   selectedLabel,
   createDeterminations,
   collectionObjects,
-  taxonDetermination
-
+  taxonDetermination,
+  selectedCOIds
 } = useStore()
 
+const confirmationModalRef = ref(null)
+
+const handleClick = async () => {
+  const ok =
+    selectedCOIds.value.length <= 5 ||
+    await confirmationModalRef.value.show({
+      title: 'Create taxon determinations',
+      message: 'This will add the current taxon determination to all collection object selected. Are you sure you want to proceed?',
+      confirmationWord: 'CREATE',
+      okButton: 'Create',
+      typeButton: 'submit'
+    })
+
+  if (ok) {
+    createDeterminations()
+  }
+}
+
+</script>
+
+<script>
+export default {
+  name: 'StepwiseDeterminations'
+}
 </script>

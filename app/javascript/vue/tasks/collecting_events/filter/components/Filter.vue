@@ -160,7 +160,7 @@ export default {
     getCollectingEvents (params) {
       this.searching = true
       this.$emit('newSearch')
-      CollectingEvent.where(params).then(response => {
+      CollectingEvent.where({ ...params, extend: ['roles'] }).then(response => {
         const urlParams = new URLSearchParams(response.request.responseURL.split('?')[1])
 
         this.$emit('result', response.body)

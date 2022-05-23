@@ -1,8 +1,8 @@
 <template>
   <h3>Collection objects</h3>
-  <VPagination 
-    :pagination="pagination"
-    @next-page="loadPage($event.page)"
+  <VPagination
+    :pagination="pagination.collectionObjects"
+    @next-page="loadCollectionObjects($event.page)"
   />
   <table class="full_width">
     <thead>
@@ -10,17 +10,23 @@
         <th>
           <input
             v-model="selectedAll"
-            type="checkbox">
+            type="checkbox"
+          >
         </th>
         <th>ID</th>
-        <th class="full_width">Object tag</th>
-        <th/>
+        <th class="full_width">
+          Object tag
+        </th>
+        <th />
       </tr>
     </thead>
     <tbody>
-      <tr v-for="co in collectionObjects">
+      <tr
+        v-for="co in collectionObjects"
+        :key="co.id"
+      >
         <td>
-          <input 
+          <input
             v-model="selectedCOIds"
             :value="co.id"
             type="checkbox"
@@ -41,42 +47,37 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, watch } from 'vue'
 import useStore from '../composables/useStore'
 import RadialNavigator from 'components/radials/navigation/radial.vue'
 import VPagination from 'components/pagination.vue'
-import getPagination from 'helpers/getPagination'
 
-const { 
+const {
   collectionObjects,
   selectedCOIds,
   selectedLabel,
-  loadCollectionObjects
+  loadCollectionObjects,
+  getPages
 } = useStore()
 
 const selectedAll = computed({
   get: () => collectionObjects.value.length === selectedCOIds.value.length,
   set: value => {
-    selectedCOIds.value = value 
+    selectedCOIds.value = value
       ? collectionObjects.value.map(co => co.id)
       : []
   }
 })
 
 watch(
-  selectedLabel, 
+  selectedLabel,
   label => {
     if (label) {
-      loadPage(1)
+      loadCollectionObjects(1)
     }
   }
 )
 
-const pagination = ref({})
-
-const loadPage = async (page) => {
-  pagination.value = getPagination(await loadCollectionObjects(page))
-}
-
+const pagination = getPages()
 
 </script>

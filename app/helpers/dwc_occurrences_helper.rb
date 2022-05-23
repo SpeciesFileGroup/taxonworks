@@ -10,8 +10,8 @@ module DwcOccurrencesHelper
     end
     a.push tag.span('Up-to-date', class: [:feedback, 'feedback-info']) if a.empty?
 
-    a.push tag.span('Occurrence id: ' + dwc_occurrence.to_param, class: [:feedback, 'feedback-secondary'])
-    a.join.html_safe
+    a.push tag.span('TW DwcOccurrence id (internal index/use only): ' + dwc_occurrence.to_param, class: [:feedback, 'feedback-secondary'])
+    a.join(' ').html_safe
   end
 
   def dwc_column(dwc_occurrence)

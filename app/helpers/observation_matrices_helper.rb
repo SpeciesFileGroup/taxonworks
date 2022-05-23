@@ -29,11 +29,13 @@ module ObservationMatricesHelper
 
   # Matrix export helpers
 
+  # TODO: This is only used in TNT exports, expand
+  # to allow for other export formats
   def max_row_name_width(observation_matrix)
     max = 0
 
     observation_matrix.observation_matrix_rows.load.each do |r|
-      s = observation_matrix_row_label_nexus(r).length
+      s = observation_matrix_row_label_tnt(r).length
       max = s if max < s
     end
     max + 1

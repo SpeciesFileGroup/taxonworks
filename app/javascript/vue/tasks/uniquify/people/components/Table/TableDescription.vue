@@ -4,7 +4,7 @@
     v-if="Object.keys(personRoles).length"
   >
     <h3>{{ title }}</h3>
-    <table class="table-roles">
+    <table class="full_width">
       <thead>
         <tr>
           <th>Type</th>
@@ -93,16 +93,3 @@ const rolesCount = roleList =>
   })
 
 </script>
-
-<style lang="scss" scoped>
-  .table-roles {
-    display: table;
-    table-layout: fixed;
-    td {
-      word-break: break-all;
-    }
-    .column-property {
-      min-width: 100px;
-    }
-  }
-</style>
