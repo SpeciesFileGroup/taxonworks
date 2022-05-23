@@ -1,6 +1,6 @@
 <template>
   <h3>Collection objects</h3>
-  <VPagination 
+  <VPagination
     :pagination="pagination.collectionObjects"
     @next-page="loadCollectionObjects($event.page)"
   />
@@ -10,17 +10,23 @@
         <th>
           <input
             v-model="selectedAll"
-            type="checkbox">
+            type="checkbox"
+          >
         </th>
         <th>ID</th>
-        <th class="full_width">Object tag</th>
-        <th/>
+        <th class="full_width">
+          Object tag
+        </th>
+        <th />
       </tr>
     </thead>
     <tbody>
-      <tr v-for="co in collectionObjects">
+      <tr
+        v-for="co in collectionObjects"
+        :key="co.id"
+      >
         <td>
-          <input 
+          <input
             v-model="selectedCOIds"
             :value="co.id"
             type="checkbox"
@@ -46,7 +52,7 @@ import useStore from '../composables/useStore'
 import RadialNavigator from 'components/radials/navigation/radial.vue'
 import VPagination from 'components/pagination.vue'
 
-const { 
+const {
   collectionObjects,
   selectedCOIds,
   selectedLabel,
@@ -57,14 +63,14 @@ const {
 const selectedAll = computed({
   get: () => collectionObjects.value.length === selectedCOIds.value.length,
   set: value => {
-    selectedCOIds.value = value 
+    selectedCOIds.value = value
       ? collectionObjects.value.map(co => co.id)
       : []
   }
 })
 
 watch(
-  selectedLabel, 
+  selectedLabel,
   label => {
     if (label) {
       loadCollectionObjects(1)
@@ -73,6 +79,5 @@ watch(
 )
 
 const pagination = getPages()
-
 
 </script>

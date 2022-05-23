@@ -1,9 +1,9 @@
 <template>
   <div class="panel content">
     <h3>Count cutoff</h3>
-    <InputRange 
+    <InputRange
       v-model.number="cuttOffValue"
-      min="2" 
+      min="2"
       max="100"
       step="1"
       @input:mouseup="bufferedParams.count_cutoff = cuttOffValue"

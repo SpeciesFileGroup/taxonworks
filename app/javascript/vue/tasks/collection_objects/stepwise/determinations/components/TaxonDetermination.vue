@@ -4,9 +4,9 @@
     <TaxonDeterminationForm
       ref="determinationForm"
       class="margin-medium-bottom"
-      @onAdd="setTaxonDetermination"
+      @on-add="setTaxonDetermination"
     />
-    <TaxonDeterminationList 
+    <TaxonDeterminationList
       v-model="determinationList"
       @edit="loadDetermination"
       @delete="setTaxonDetermination()"
@@ -20,16 +20,16 @@ import TaxonDeterminationForm from 'components/TaxonDetermination/TaxonDetermina
 import TaxonDeterminationList from 'components/TaxonDetermination/TaxonDeterminationList.vue'
 import useStore from '../composables/useStore'
 
-const { 
+const {
   setTaxonDetermination,
   taxonDetermination
 } = useStore()
 
-const determinationList = computed(() => 
+const determinationList = computed(() =>
   taxonDetermination.value
     ? [taxonDetermination.value]
     : []
-  )
+)
 
 const determinationForm = ref(null)
 
