@@ -22,24 +22,50 @@ module SqedDepictionsHelper
         depiction_id: sqed_depiction.depiction.id,
       )
 
-     return image_tag(result.image_path_for_large_image(section), id: 'little1', class: 'little_image clickable') 
+     return image_tag(result.image_path_for_large_image(section), id: 'little1', class: 'little_image clickable')
     rescue
-      return content_tag(:div, link_to('Error parsing.', depiction_path(sqed_depiction.depiction)), class: :warning) 
+      return content_tag(:div, link_to('Error parsing.', depiction_path(sqed_depiction.depiction)), class: :warning)
     end
+  end
+
+  def sqed_depiction_buffered_determination_images(collection_object)
+    return nil if collection_object.sqed_depictions.empty?
+    d = []
+    collection_object.sqed_depictions.each do |s|
+      begin
+        result = SqedToTaxonworks::Result.new(
+          depiction_id: s.depiction.id,
+        )
+
+        return nil unless result.sqed.metadata_map.values.include?(:determination_labels)
+
+        if t = result.image_path_for_small_image(:determination_labels)
+          d.push({
+            depiction_id: s.depiction.id,
+            image_id: s.depiction.image_id,
+            thumbnail: t,
+            large: result.image_path_for_large_image(:determination_labels)
+          })
+        end
+      end
+    rescue
+      return []
+    end
+    d
   end
 
   def sqed_depiction_thumb_navigator(sqed_depiction, before = 3, after = 3)
     around = sqed_depiction.nearby_sqed_depictions(before, after)
-    
-    around[:before].reverse.collect{|s| 
-      link_to(sqed_depiction_collecting_event_label_thumb_preview(s), collection_object_buffered_data_breakdown_task_path(s.depiction.depiction_object))  
+
+    around[:before].reverse.collect{|s|
+      link_to(sqed_depiction_collecting_event_label_thumb_preview(s), collection_object_buffered_data_breakdown_task_path(s.depiction.depiction_object))
     }.join().html_safe +
-    
+
     content_tag(:div, ' this record ', class: 'sqed_thumb_nav_current') +
-   
-    around[:after].collect{|s| 
-      link_to(sqed_depiction_collecting_event_label_thumb_preview(s), collection_object_buffered_data_breakdown_task_path(s.depiction.depiction_object), 'data-turbolinks' => 'false')  
-    }.join().html_safe 
+
+    around[:after].collect{|s|
+      link_to(sqed_depiction_collecting_event_label_thumb_preview(s), collection_object_buffered_data_breakdown_task_path(s.depiction.depiction_object), 'data-turbolinks' => 'false')
+    }.join().html_safe
   end
 
   def sqed_done_tag(project_id)
@@ -49,7 +75,7 @@ module SqedDepictionsHelper
   def sqed_not_done_tag(project_id)
     SqedDepiction.without_collection_object_data.where(project_id: project_id).count
   end
-  
+
   def sqed_previous_next_links(sqed_depiction)
     around = sqed_depiction.nearby_sqed_depictions(1, 1)
     a = content_tag(:li, link_to('Previous', sqed_depiction_breakdown_task_path(around[:before].first), 'data-turbolinks' => 'false') ) if around[:before].any?
@@ -80,7 +106,7 @@ module SqedDepictionsHelper
       nil
     end
   end
-  
+
   def sqed_first_with_data_tag
     if o = SqedDepiction.where(project_id: sessions_current_project_id).with_collection_object_data.first
       content_tag(:span, ('First with data: ' + sqed_card_link(o)).html_safe, class: [:feedback, 'feedback-success', 'feedback-thin'])
@@ -104,7 +130,7 @@ module SqedDepictionsHelper
   end
 
   def sqed_card_link(sqed_depiction)
-    link_to(sqed_depiction.id, sqed_depiction_breakdown_task_path(sqed_depiction), 'data-turbolinks' => 'false') 
+    link_to(sqed_depiction.id, sqed_depiction_breakdown_task_path(sqed_depiction), 'data-turbolinks' => 'false')
   end
 
   def sqed_waxy_layout(sqed_depictions)
@@ -113,7 +139,7 @@ module SqedDepictionsHelper
       Waxy::Geometry::Point.new(20,20), # size
       Waxy::Geometry::Point.new(20,20), # start
       9 # padding
-    ) 
+    )
 
     meta = []
 

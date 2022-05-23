@@ -10,3 +10,9 @@ if extend_response_with('dwc_fields')
     json.merge!(collection_object.get_dwc_occurrence_attributes.select{|k,v| !v.blank?} )
   end
 end
+
+if extend_response_with('taxon_determination_images')
+  json.determination_images do
+    json.array! sqed_depiction_buffered_determination_images(collection_object)
+  end
+end
