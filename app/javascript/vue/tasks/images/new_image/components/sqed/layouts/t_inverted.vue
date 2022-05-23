@@ -1,19 +1,19 @@
 <template>
-  <div class="t-inverted">
+  <div class="t">
     <div class="horizontal-left-content row">
-      <div class="section-box box-double-size box-3">
+      <div class="section-box box-0">
         <select-component
           :layout-types="layoutTypes"
           v-model="newType[0]"/>
       </div>
-    </div>
-    <div class="horizontal-left-content">
-      <div class="section-box box-0">
+      <div class="section-box box-1">
         <select-component
           :layout-types="layoutTypes"
           v-model="newType[1]"/>
       </div>
-      <div class="section-box box-1">
+    </div>
+    <div class="horizontal-left-content">
+      <div class="section-box box-double-size box-3">
         <select-component
           :layout-types="layoutTypes"
           v-model="newType[2]"/>
@@ -32,7 +32,7 @@ export default {
 </script>
 
 <style lang="scss">
-  .t-inverted {
+  .t {
     .section-box {
       display: flex;
       align-items: center;
