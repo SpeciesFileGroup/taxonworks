@@ -1,8 +1,8 @@
 <template>
   <h3>Collection objects</h3>
   <VPagination 
-    :pagination="pagination"
-    @next-page="loadPage($event.page)"
+    :pagination="pagination.collectionObjects"
+    @next-page="loadCollectionObjects($event.page)"
   />
   <table class="full_width">
     <thead>
@@ -41,17 +41,17 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, watch } from 'vue'
 import useStore from '../composables/useStore'
 import RadialNavigator from 'components/radials/navigation/radial.vue'
 import VPagination from 'components/pagination.vue'
-import getPagination from 'helpers/getPagination'
 
 const { 
   collectionObjects,
   selectedCOIds,
   selectedLabel,
-  loadCollectionObjects
+  loadCollectionObjects,
+  getPages
 } = useStore()
 
 const selectedAll = computed({
@@ -67,16 +67,12 @@ watch(
   selectedLabel, 
   label => {
     if (label) {
-      loadPage(1)
+      loadCollectionObjects(1)
     }
   }
 )
 
-const pagination = ref({})
-
-const loadPage = async (page) => {
-  pagination.value = getPagination(await loadCollectionObjects(page))
-}
+const pagination = getPages()
 
 
 </script>

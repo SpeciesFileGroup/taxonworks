@@ -1,12 +1,12 @@
 <template>
 <div>
   <div
-    v-if="pagination"
+    v-if="pagination.stepwise"
     class="flex-separate margin-medium-bottom"
   >
     <VPagination 
-      :pagination="pagination"
-      @next-page="loadPage($event.page)"
+      :pagination="pagination.stepwise"
+      @next-page="loadBufferedPage($event.page)"
     />
   </div>
   <table class="full_width">
@@ -44,7 +44,6 @@
 import { ref, watch } from 'vue'
 import useStore from '../composables/useStore.js'
 import VBtn from 'components/ui/VBtn/index.vue'
-import getPagination from 'helpers/getPagination.js'
 import VPagination from 'components/pagination.vue'
 
 const {
@@ -52,20 +51,18 @@ const {
   setLabel,
   selectedLabel,
   labels,
-  bufferedParams
+  bufferedParams,
+  getPages
 } = useStore()
 
 watch(
   bufferedParams,
-  () => loadPage(1),
+  () => loadBufferedPage(1),
   { deep: true }
 )
 
-const pagination = ref({})
+const pagination = getPages()
 
-const loadPage = async page => {
-  pagination.value = getPagination(await loadBufferedPage(page))
-}
 
-loadPage(1)
+loadBufferedPage(1)
 </script>
