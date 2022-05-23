@@ -6,40 +6,173 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.25.0] - 2022-05-19
+
 ### Added
+- Link to Download project in show project [#2775]
+- OTU geo-json inventory API endpoint, `/api/v1/otus/123/inventory/distribution`.
+- Collection object classification summary task [#1864]
+- Notes facet to Collection Objects filter [#2966]
+- Confirmation modal for clone button on New collecting event task [#2978]
+- Minutes/record estimate in project activity task [#2979]
+- Pagination in Citations by source task
+- Current repository facet in collection object filter [#2975]
+
+### Changed
+- Identifiers added to print labels [2959]
+- Improved Extract tables [#2884] [#2881]
+- Improved Repository autocomplete [#2993]
+- Refactor citations by source task
+- Person autocomplete optimization
+- Cleaned up Label UI text
+- Removed some jQuery
+- Updated Ruby gems via `bundle update`
+- Use Catalog for API source of OTU nomenclature citations
+
+### Fixed
+- Extract/protocol UI issues [#2990]
+- Source year_suffix preventing cloning [#2992]
+- Dwca eml.xml file validates locally [#2986]
+- Missing params for api_nomenclature_citations added
+- Converted wkt parsing errors from exceptions to validation
+- DwcOccurrence version scope to project in Hub
+- Fixed soft validation on Collection Object related to determination date [#2949]
+- Original combination soft validations are not loaded when New taxon name task is opened
+- ObservationMatrixRow|ColumnItem index view failing because new links are not available
+- Author roles are no visible in Citations by source task
+- Increasing number of labels to print while label is selected *adds* that many to preview [#2973]
+- Geographic areas are not suggested based on verbatim coordinates in comprehensive and new collecting event task [#2982]
+- Cannot sort by column in filter collecting event task [#2970]
+- "Recent" determiners not working in Comprehensive [#2985]
+- Determiners locked are missing after press "Save and new" in comprehensive task [#2943]
+- Crashing when creating georeferences with invalid WKT input
+- ObservationMatrixRow|Column index and autocomplete calls
+- Lock source button is not working in OTU radial - biological associations form [#2989]
+- New type specimen duplicates specimen when updated after creating [#2994]
+- Sort column option is not working on Filter collection objects
+- Toggle members buttons is not working on Browse annotator
+
+[#2959]: https://github.com/SpeciesFileGroup/taxonworks/issues/2959
+[#2775]: https://github.com/SpeciesFileGroup/taxonworks/issues/2775
+[#2881]: https://github.com/SpeciesFileGroup/taxonworks/issues/2881
+[#2884]: https://github.com/SpeciesFileGroup/taxonworks/issues/2884
+[#2990]: https://github.com/SpeciesFileGroup/taxonworks/issues/2990
+[#2992]: https://github.com/SpeciesFileGroup/taxonworks/issues/2992
+[#2993]: https://github.com/SpeciesFileGroup/taxonworks/issues/2993
+[#2986]: https://github.com/SpeciesFileGroup/taxonworks/issues/2986
+[#1864]: https://github.com/SpeciesFileGroup/taxonworks/issues/1864
+[#2943]: https://github.com/SpeciesFileGroup/taxonworks/issues/2943
+[#2949]: https://github.com/SpeciesFileGroup/taxonworks/issues/2949
+[#2966]: https://github.com/SpeciesFileGroup/taxonworks/issues/2966
+[#2970]: https://github.com/SpeciesFileGroup/taxonworks/issues/2970
+[#2973]: https://github.com/SpeciesFileGroup/taxonworks/issues/2973
+[#2975]: https://github.com/SpeciesFileGroup/taxonworks/issues/2975
+[#2978]: https://github.com/SpeciesFileGroup/taxonworks/issues/2978
+[#2979]: https://github.com/SpeciesFileGroup/taxonworks/issues/2979
+[#2982]: https://github.com/SpeciesFileGroup/taxonworks/issues/2982
+[#2985]: https://github.com/SpeciesFileGroup/taxonworks/issues/2985
+[#2994]: https://github.com/SpeciesFileGroup/taxonworks/issues/2994
+
+## [0.24.5] - 2022-05-03
+
+### Fixed
+- Previously loaned and returned CollectionObjects are unloanable [#2964]
+- People smart selector doesn't work to add new roles [#2963]
+- Type species section is empty in Browse OTU
+- Missing depictions caption and figure label in Image matrix task [#2965]
+
+[#2964]: https://github.com/SpeciesFileGroup/taxonworks/issues/2964
+[#2963]: https://github.com/SpeciesFileGroup/taxonworks/issues/2963
+[#2965]: https://github.com/SpeciesFileGroup/taxonworks/issues/2965
+
+## [0.24.4] - 2022-05-02
+
+### Added
+- Organization roles to taxon determinations model
+
+### Fixed
+- Repository autocomplete raises [#2960]
+- Duplicated text in TaxonDetermination link [#2947]
+- Housekeeping facet in CollectingEvent filter broken [#2957]
+- Cannot set Determiner of CO to department/organization [#2915]
+- Combination view is broken on Browse nomenclature [#2952]
+- Matrix row coder button in Observation matrix dashboard task redirect to a wrong OTU in Image Matrix task [#2956]
+- Depiction radials are not working in Image matrix task [#2954]
+
+[#2960]: https://github.com/SpeciesFileGroup/taxonworks/issues/2960
+[#2947]: https://github.com/SpeciesFileGroup/taxonworks/issues/2947
+[#2957]: https://github.com/SpeciesFileGroup/taxonworks/issues/2957
+[#2915]: https://github.com/SpeciesFileGroup/taxonworks/issues/2915
+[#2952]: https://github.com/SpeciesFileGroup/taxonworks/issues/2952
+[#2954]: https://github.com/SpeciesFileGroup/taxonworks/issues/2954
+
+## [0.24.3] - 2022-04-28
+### Added
+- DwC export includes `occurrenceStatus` [#2935]
 - Tag panel for images in New images task [#2919]
 - Repository section for Collection object match task [#2918]
 - Preparations section for CO Match task [#2930]
 - Match collection object button in Filter collection object [#2917]
 - Lock button for By section in New extract task [#2926]
+- With preparation facet in Filter collection objects [#2937]
 
 ### Changed
+- Improved(?) behaviour of Extract autocomplete [#2923]
+- New BiBTeX based Sources match and/or create Serials for some types [#2719]
 - Improvements for taxon determinations in comprehensive task
 - Observation Matrix CSV dump uses full object labels [#2912]
+- Allow multiple origin relationships in New extract task [#2928]
+- Enable biocuration buttons only for the current collection object in comprehensive task [#2946]
+- Updated ruby gems
 
 ### Fixed
+- Display full citation in image viewer [#2857]
+- Extract filter OTU id match not matching determinations [#2925]
+- Improve observation matrix row label handling [#2902]
+- Showing related data for Descriptor broken [#2934]
 - Collection object label is not updated after saving determinations in comprehensive task [#2899]
 - Label form is not updated after loading a collecting event in Comprehensive task [#2898]
 - Preferred catalog number for collection objects using first created rather than top of the list (also fixes wrong `otherCatalogNumbers` in DwC export) [#2904]
 - Missing not fixable error message for automatically soft validations [#2877]
 - Recent lists on Data have broken flex CSS [#2920]
 - Generating label from collecting event with verbatim trip identifier duplicates tripcode [#2921]
-- Leaflet map doesn't center the view on shapes
+- Leaflet map does not center the view on shapes
 - Programming typos affecting error handling in some batch loaders
 - PDF reading causing software crash with some PDF documents (e.g. encrypted and/or having unsupported features)
+- "virtual" spelled "virutal" [#2938]
+- Protocols should not display origin [#2927]
+- Determination lock not working for "Add to container" in Comprehensive task [#2943]
+- Role types table in uniquify people renders poorly when "show found people" or "show match people" enabled [#2894]
+- Syntax error during code generating synonyms and descendants for catalogs
 
+[#2719]: https://github.com/SpeciesFileGroup/taxonworks/issues/2719
+[#2857]: https://github.com/SpeciesFileGroup/taxonworks/issues/2857
+[#2857]: https://github.com/SpeciesFileGroup/taxonworks/issues/2857
 [#2877]: https://github.com/SpeciesFileGroup/taxonworks/issues/2877
+[#2894]: https://github.com/SpeciesFileGroup/taxonworks/issues/2894
 [#2898]: https://github.com/SpeciesFileGroup/taxonworks/issues/2898
 [#2899]: https://github.com/SpeciesFileGroup/taxonworks/issues/2899
-[#2912]: https://github.com/SpeciesFileGroup/taxonworks/issues/2912
+[#2902]: https://github.com/SpeciesFileGroup/taxonworks/issues/2902
 [#2904]: https://github.com/SpeciesFileGroup/taxonworks/issues/2904
+[#2912]: https://github.com/SpeciesFileGroup/taxonworks/issues/2912
 [#2917]: https://github.com/SpeciesFileGroup/taxonworks/issues/2917
 [#2918]: https://github.com/SpeciesFileGroup/taxonworks/issues/2918
 [#2919]: https://github.com/SpeciesFileGroup/taxonworks/issues/2919
 [#2920]: https://github.com/SpeciesFileGroup/taxonworks/issues/2920
 [#2921]: https://github.com/SpeciesFileGroup/taxonworks/issues/2921
+[#2923]: https://github.com/SpeciesFileGroup/taxonworks/issues/2923
+[#2925]: https://github.com/SpeciesFileGroup/taxonworks/issues/2925
 [#2926]: https://github.com/SpeciesFileGroup/taxonworks/issues/2926
+[#2927]: https://github.com/SpeciesFileGroup/taxonworks/issues/2927
+[#2928]: https://github.com/SpeciesFileGroup/taxonworks/issues/2928
 [#2930]: https://github.com/SpeciesFileGroup/taxonworks/issues/2930
+[#2934]: https://github.com/SpeciesFileGroup/taxonworks/issues/2934
+[#2935]: https://github.com/SpeciesFileGroup/taxonworks/issues/2935
+[#2937]: https://github.com/SpeciesFileGroup/taxonworks/issues/2937
+[#2938]: https://github.com/SpeciesFileGroup/taxonworks/issues/2938
+[#2943]: https://github.com/SpeciesFileGroup/taxonworks/issues/2943
 
 ## [0.24.2] - 2022-04-15
 
@@ -2521,7 +2654,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.2...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.25.0...development
+[0.25.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.5...v0.25.0
+[0.24.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.4...v0.24.5
+[0.24.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.3...v0.24.4
+[0.24.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.2...v0.24.3
 [0.24.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.1...v0.24.2
 [0.24.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.0...v0.24.1
 [0.24.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.23.1...v0.24.0

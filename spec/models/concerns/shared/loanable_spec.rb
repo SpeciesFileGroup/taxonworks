@@ -49,9 +49,7 @@ describe 'Loanable', type: :model, group: :loans do
   end
 
   context 'on loan' do
-    before {
-      class_with_loan.update(loan: loan)
-    }
+    before { class_with_loan.update(loan: loan) }
 
     specify '#on_loan?' do
       expect(class_with_loan.on_loan?).to be_truthy

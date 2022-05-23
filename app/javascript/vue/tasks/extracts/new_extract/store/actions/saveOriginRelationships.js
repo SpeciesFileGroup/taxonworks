@@ -1,23 +1,31 @@
 import { OriginRelationship } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
+import { EXTRACT } from 'constants/index.js'
 import parseOrigin from '../../helpers/parseOrigin'
 
-export default ({ state: { extract, originRelationship }, commit }) => {
-  if (!originRelationship.oldObject) return
+export default ({ state: { extract, originRelationships }, commit }) => {
+  const unsavedRelationships = originRelationships.filter(item => item.isUnsaved)
 
-  const data = {
-    id: originRelationship.id,
-    old_object_id: originRelationship.oldObject.old_object_id,
-    old_object_type: originRelationship.oldObject.old_object_type,
-    new_object_type: 'Extract',
-    new_object_id: extract.id
-  }
+  const saveRequests = unsavedRelationships.map(relationship => {
+    const data = {
+      id: relationship.id,
+      old_object_id: relationship.old_object_id,
+      old_object_type: relationship.old_object_type,
+      new_object_type: EXTRACT,
+      new_object_id: extract.id
+    }
 
-  const saveOriginRelationshio = originRelationship.id
-    ? OriginRelationship.update(originRelationship.id, { origin_relationship: data })
-    : OriginRelationship.create({ origin_relationship: data })
+    return relationship.id
+      ? OriginRelationship.update(data.id, { origin_relationship: data })
+      : OriginRelationship.create({ origin_relationship: data })
+  })
 
-  saveOriginRelationshio.then(({ body }) => {
-    commit(MutationNames.SetOriginRelationship, parseOrigin(body))
+  Promise.all(saveRequests).then(responses => {
+    const savedRelationships = responses.map(({ body }) => parseOrigin(body))
+
+    commit(MutationNames.SetOriginRelationships, [
+      ...savedRelationships,
+      ...originRelationships.filter(item => !item.isUnsaved)
+    ])
   })
 }

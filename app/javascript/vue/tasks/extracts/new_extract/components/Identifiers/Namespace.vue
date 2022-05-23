@@ -12,6 +12,10 @@
           klass="CollectionObject"
           pin-section="Namespaces"
           pin-type="Namespace"/>
+        <v-lock
+          class="margin-small-left"
+          v-model="lockButton"
+        />
         <a
           class="margin-small-top margin-small-left"
           href="/namespaces/new">New</a>
@@ -36,20 +40,32 @@
 
 import componentExtend from '../mixins/componentExtend'
 import SmartSelector from 'components/ui/SmartSelector.vue'
+import VLock from 'components/ui/VLock/index.vue'
 
 export default {
   mixins: [componentExtend],
 
-  components: { SmartSelector },
+  components: { 
+    SmartSelector,
+    VLock
+  },
 
   props: {
     modelValue: {
       type: Object,
       default: undefined
+    },
+
+    lock: {
+      type: Boolean,
+      default: false
     }
   },
 
-  emits: ['update:modelValue'],
+  emits: [
+    'update:modelValue',
+    'update:lock'
+  ],
 
   computed: {
     namespace: {
@@ -59,7 +75,16 @@ export default {
       set (value) {
         this.$emit('update:modelValue', value)
       }
-    }
+    },
+
+    lockButton: {
+      get () {
+        return this.lock
+      },
+      set (value) {
+        this.$emit('update:lock', value)
+      }
+    },
   }
 
 }

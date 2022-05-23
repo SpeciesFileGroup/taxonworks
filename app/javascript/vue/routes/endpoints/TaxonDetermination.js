@@ -16,6 +16,7 @@ const permitParams = {
       type: String,
       person_id: Number,
       position: Number,
+      organization_id: Number,
       person_attributes: {
         last_name: String,
         first_name: String,

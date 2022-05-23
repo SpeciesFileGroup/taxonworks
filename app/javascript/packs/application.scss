@@ -9,5 +9,6 @@ $font-prefix: '../../../node_modules/@ibm/plex';
 @import 'node_modules/@ibm/plex/scss/sans/bold/_latin1.scss';
 
 @import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
+@import 'easymde/dist/easymde.min.css';
 @import '../vue/assets/styles/filter.scss';
 @import '../vue/assets/styles/labels.scss';

@@ -117,6 +117,7 @@ class CollectionObjectsController < ApplicationController
     @images = @collection_object.images
   end
 
+  # TODO: render in view 
   # GET /collection_objects/1/geo_json
   # GET /collection_objects/1/geo_json.json
   def geo_json

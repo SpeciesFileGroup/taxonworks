@@ -35,6 +35,7 @@ export default ({ commit, state, dispatch }, taxon) => {
       commit(MutationNames.SetTaxon, response.body)
       commit(MutationNames.SetHardValidation, undefined)
       dispatch('loadSoftValidation', 'taxon_name')
+      dispatch('loadSoftValidation', 'original_combination')
       commit(MutationNames.UpdateLastSave)
       commit(MutationNames.SetSaving, false)
       return resolve(response.body)

@@ -106,7 +106,10 @@ module Queries
 
       def otu_id_facet
         return nil if otu_id.empty?
-        ::Extract.joins(:otus).where(otus: {id: otu_id})
+        a = ::Extract.joins(:origin_otus).where(otus: {id: otu_id})
+        b = ::Extract.joins(origin_collection_objects: [:otus]).where(otus: {id: otu_id})
+        
+       ::Extract.from("((#{a.to_sql}) UNION (#{b.to_sql})) as extracts")
       end
 
       def extract_origin_facet
@@ -183,7 +186,7 @@ module Queries
 
       def collection_object_id_facet
         return nil if collection_object_id.empty?
-        ::Extract.joins(:collection_objects).where(collection_objects: {id: collection_object_id})
+        ::Extract.joins(:origin_collection_objects).where(collection_objects: {id: collection_object_id})
       end
 
       # TODO: this is not a join, but an IN x2 UNION, i.e. there
@@ -191,8 +194,8 @@ module Queries
       def ancestors_facet
         return nil if ancestor_id.nil?
 
-        a = ::Extract.joins(:otus).where(otus: ::Otu.descendant_of_taxon_name(ancestor_id))
-        b = ::Extract.joins(:collection_objects).where(collection_objects: ::CollectionObject.joins(:otus).where(otus: ::Otu.descendant_of_taxon_name(ancestor_id)) )
+        a = ::Extract.joins(:origin_otus).where(otus: ::Otu.descendant_of_taxon_name(ancestor_id))
+        b = ::Extract.joins(:origin_collection_objects).where(collection_objects: ::CollectionObject.joins(:otus).where(otus: ::Otu.descendant_of_taxon_name(ancestor_id)) )
 
         ::Extract.from("((#{a.to_sql}) UNION (#{b.to_sql})) as extracts")
       end
