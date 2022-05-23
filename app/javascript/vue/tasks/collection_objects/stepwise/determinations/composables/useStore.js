@@ -19,10 +19,22 @@ const state = reactive({
   }
 })
 
-const decrementCount = () => {
+const decrementCount = count => {
   const { labels } = state
+  const index = labels.findIndex(label => label === state.selectedLabel)
+  const label = labels[index]
+  const newCount = label.count_buffered - count
 
-  labels[0].count_buffered = 0
+  if (newCount) {
+    label.count_buffered = newCount
+  } else {
+    labels.splice(index, 1)
+  }
+
+  if (!labels.length) {
+    loadBufferedPage(1)
+  }
+
 }
 
 export default () => {
@@ -55,7 +67,6 @@ export default () => {
         state.labels = response.body
         state.pagination.stepwise = getPagination(response)
         state.isLoading = false
-        decrementCount()
       })
 
       return request
