@@ -96,7 +96,7 @@
             :class="{ 'separate-left': activeFilter }"
             :list="list"
             @onRowHover="setRowHover"
-            @onSort="list.data = $event"/>
+            @onSort="list = $event"/>
         </div>
 
         <h2
@@ -182,8 +182,12 @@ export default {
       this.loadPage(1)
     },
 
-    list (newVal) {
-      this.loadGeoreferences(newVal)
+    list (newVal, oldList) {
+      const ids = newVal.map(item => item.id)
+
+      if (!oldList.every(item => ids.includes(item.id))) {
+        this.loadGeoreferences(newVal)
+      }
     }
   },
 
@@ -207,7 +211,14 @@ export default {
         )
         newList = concat
       }
-      this.list = newList
+
+      this.list = newList.map(item => ({
+        ...item,
+        roles: (item?.collector_roles || []).map(role => role.person.cached).join('; '),
+        identifiers: (item?.identifiers || []).map(i => i.cached).join('; '),
+        start_date: this.parseStartDate(item),
+        end_date: this.parseEndDate(item)
+      }))
       this.alreadySearch = true
     },
 
@@ -238,6 +249,14 @@ export default {
       this.list.forEach((ce, index) => {
         this.list[index]['georeferencesCount'] = this.georeferences.filter(item => item.collecting_event_id === ce.id).length
       })
+    },
+
+    parseStartDate(ce) {
+      return [ce.start_date_day, ce.start_date_month, ce.start_date_year].filter(date => date).join('/')
+    },
+
+    parseEndDate(ce) {
+      return [ce.end_date_day, ce.end_date_month, ce.end_date_year].filter(date => date).join('/')
     },
 
     getPagination: GetPagination

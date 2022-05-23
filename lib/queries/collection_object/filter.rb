@@ -13,6 +13,7 @@ module Queries
       include Queries::Concerns::Tags
       include Queries::Concerns::Users
       include Queries::Concerns::Identifiers
+      include Queries::Concerns::Notes
 
       # TODO: look for name collisions with CE filter
 
@@ -81,6 +82,9 @@ module Queries
       # @return [Repository#id, nil]
       attr_accessor :repository_id
 
+      # @return [CurrentRepository#id, nil]
+      attr_accessor :current_repository_id
+
       # @return [Array, nil]
       #  one of `holotype`, `lectotype` etc.
       #   nil - not applied
@@ -122,10 +126,19 @@ module Queries
       attr_accessor :repository
 
       # @return [True, False, nil]
+      #   true - has current_repository_id
+      #   false - does not have current_repository_id
+      #   nil - not applied
+      attr_accessor :current_repository
+
+      # @return [True, False, nil]
       #   true - has preparation_type
       #   false - does not have preparation_type
       #   nil - not applied
       attr_accessor :preparation_type
+
+      # @return [Array]
+      attr_accessor :preparation_type_id
 
       # @return [True, False, nil]
       # @param collecting_event ['true', 'false']
@@ -213,6 +226,8 @@ module Queries
         @collecting_event_ids = params[:collecting_event_ids] || []
         @collection_object_type = params[:collection_object_type].blank? ? nil : params[:collection_object_type]
         @current_determinations = boolean_param(params, :current_determinations)
+        @current_repository = boolean_param(params, :current_repository)
+        @current_repository_id = params[:current_repository_id].blank? ? nil : params[:current_repository_id]
         @depictions = boolean_param(params, :depictions)
         @determiner_id = params[:determiner_id]
         @determiner_id_or = boolean_param(params, :determiner_id_or)
@@ -245,6 +260,7 @@ module Queries
         @with_buffered_other_labels = boolean_param(params, :with_buffered_other_labels)
 
         set_identifier(params)
+        set_notes_params(params)
         set_tags_params(params)
         set_user_dates(params)
       end
@@ -370,6 +386,15 @@ module Queries
           ::CollectionObject.where.not(repository_id: nil)
         else
           ::CollectionObject.where(repository_id: nil)
+        end
+      end
+
+      def current_repository_facet
+        return nil if current_repository.nil?
+        if current_repository
+          ::CollectionObject.where.not(current_repository_id: nil)
+        else
+          ::CollectionObject.where(current_repository_id: nil)
         end
       end
 
@@ -506,6 +531,11 @@ module Queries
         table[:repository_id].eq(repository_id)
       end
 
+      def current_repository_id_facet
+        return nil if current_repository_id.blank?
+        table[:current_repository_id].eq(current_repository_id)
+      end
+
       def collecting_event_merge_clauses
         c = []
 
@@ -551,6 +581,7 @@ module Queries
           preparation_type_id_facet,
           type_facet,
           repository_id_facet,
+          current_repository_id_facet,
           object_global_id_facet
         ]
         clauses.compact!
@@ -569,6 +600,7 @@ module Queries
           geographic_area_facet,
           collecting_event_facet,
           repository_facet,
+          current_repository_facet,
           preparation_type_facet,
           type_material_facet,
           georeferences_facet,
@@ -577,6 +609,8 @@ module Queries
           type_by_taxon_name_facet,
           type_material_type_facet,
           ancestors_facet,
+          notes_facet,            # See Queries::Concerns::Notes
+          note_text_facet,        # See Queries::Concerns::Notes
           keyword_id_facet,       # See Queries::Concerns::Tags
           created_updated_facet,  # See Queries::Concerns::Users
           identifiers_facet,      # See Queries::Concerns::Identifiers

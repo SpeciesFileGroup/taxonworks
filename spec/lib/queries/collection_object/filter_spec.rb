@@ -5,6 +5,46 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
   let(:query) { Queries::CollectionObject::Filter.new({}) }
 
+  context 'lib/queries/concerns/notes.rb' do
+    specify '#notes present' do
+      s = Specimen.create!
+      Specimen.create! # not this one
+      n = s.notes << Note.new(text: 'my text')
+      query.notes = true
+
+      expect(query.all.pluck(:id)).to contain_exactly(s.id)
+    end
+
+    specify '#notes absent' do
+      s = Specimen.create!  # not this one
+      n = Specimen.create!
+      s.notes << Note.new(text: 'my text')
+      query.notes = false
+
+      expect(query.all.pluck(:id)).to contain_exactly(n.id)
+    end
+
+    specify '#note_text matches' do
+      s = Specimen.create!
+      Specimen.create! # not this
+      s.notes << Note.new(text: 'my text')
+      query.note_text = 'text'
+
+      expect(query.all.pluck(:id)).to contain_exactly(s.id)
+    end
+
+    specify '#note_text exact matches' do
+      s = Specimen.create!
+      Specimen.create! # not this
+      s.notes << Note.new(text: 'my text')
+      query.note_text = 'text'
+      query.note_exact = true
+
+      expect(query.all.pluck(:id)).to be_empty
+    end
+  end
+
+
   specify '#loan_id' do
     t1 = Specimen.create!
     l = FactoryBot.create(:valid_loan)

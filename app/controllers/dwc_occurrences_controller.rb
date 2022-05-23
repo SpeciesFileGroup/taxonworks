@@ -8,6 +8,7 @@ class DwcOccurrencesController < ApplicationController
   # .json only
   def index
     @dwc_occurrences = Queries::DwcOccurrence::Filter.new(filter_params).all
+      .where(project_id: sessions_current_project_id)
       .page(params[:page])
       .per(params[:per] || 1)
   end

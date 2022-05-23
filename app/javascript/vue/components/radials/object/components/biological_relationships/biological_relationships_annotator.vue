@@ -13,7 +13,10 @@
       <br>
     </template>
 
-    <form-citation v-model="citation" />
+    <form-citation 
+      v-model="citation"
+      @lock="lockSource = $event"
+    />
     <display-list
       v-if="createdBiologicalAssociation"
       edit
@@ -103,7 +106,11 @@
         @click="saveAssociation()"
         class="normal-input button button-submit"
       >
-        {{ createdBiologicalAssociation ? 'Update' : 'Create' }}
+        {{ 
+          createdBiologicalAssociation
+            ? 'Update'
+            : 'Create'
+        }}
       </button>
     </div>
 
@@ -118,9 +125,6 @@
 </template>
 <script>
 
-import { BiologicalAssociation, BiologicalRelationship } from 'routes/endpoints'
-import { convertType } from 'helpers/types'
-import { addToArray } from 'helpers/arrays.js'
 import CRUD from '../../request/crud.js'
 import AnnotatorExtend from '../annotatorExtend.js'
 import Biological from './biological.vue'
@@ -132,10 +136,17 @@ import VIcon from 'components/ui/VIcon/index.vue'
 import FormCitation from '../asserted_distributions/sourcePicker.vue'
 import makeEmptyCitation from '../../helpers/makeEmptyCitation.js'
 import displayList from 'components/displayList.vue'
+import { convertType } from 'helpers/types'
+import { addToArray } from 'helpers/arrays.js'
+import {
+  BiologicalAssociation,
+  BiologicalRelationship
+} from 'routes/endpoints'
 
 const EXTEND_PARAMS = [
   'origin_citation',
   'object',
+  'subject',
   'biological_relationship',
   'citations',
   'source'
@@ -184,12 +195,7 @@ export default {
       flip: false,
       lockSource: false,
       lockRelationship: false,
-      loadOnMounted: false,
-
-      lock: {
-        source: false,
-        relationship: false
-      }
+      loadOnMounted: false
     }
   },
 

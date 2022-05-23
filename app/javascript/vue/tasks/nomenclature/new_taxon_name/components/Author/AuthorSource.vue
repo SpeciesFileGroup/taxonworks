@@ -119,7 +119,7 @@ export default {
     setSource (source) {
       const newSource = {
         id: source?.id || source,
-        pages: source?.pages || null
+        pages: this.citation?.pages || null
       }
       this.$store.dispatch(ActionNames.ChangeTaxonSource, newSource)
       this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)

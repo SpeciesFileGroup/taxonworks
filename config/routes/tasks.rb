@@ -212,6 +212,11 @@ scope :tasks do
   end
 
   scope :collection_objects do
+    scope :classification_summary, controller: 'tasks/collection_objects/classification_summary' do
+      get '/', action: :index, as: 'classification_summary_task'
+      get :report, as: 'classification_summary_report',  defaults: {format: :js}
+    end
+
     scope :match, controller: 'tasks/collection_objects/match' do
       get '/', action: :index, as: 'match_collection_objects_task'
     end
