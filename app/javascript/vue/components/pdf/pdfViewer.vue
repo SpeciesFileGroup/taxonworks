@@ -82,7 +82,7 @@ import PdfViewer from './components/pdfComponent'
 import ResizeHandle from '../resizeHandle'
 import IndexedDBStorage from 'storage/indexddb.js'
 import { blobToArrayBuffer } from 'helpers/files.js'
-
+import { createLoadingTask } from './components/pdfLibraryComponents'
 export default {
   name: 'PdfSlideout',
 
@@ -130,7 +130,7 @@ export default {
 
   mounted () {
     this.eventListeners()
-    this.isOpenInStorage()
+    //this.isOpenInStorage()
 
     document.addEventListener('turbolinks:load', _ => {
       document.removeEventListener(this.eventLoadPDFName, this.handlePdfLoadEvent)
@@ -146,8 +146,7 @@ export default {
     page (p) {
       if (this.noTrigger) {
         this.noTrigger = false
-      }
-      else {
+      } else {
         if (p > 0 && p <= this.numPages) {
           const containerPosition = Math.abs(document.querySelector('#viewer').getBoundingClientRect().y) + 120
 
@@ -207,9 +206,9 @@ export default {
         this.savePdfInStorage(url, pdfBuffer, true)
       }
 
-      this.pdfdata = PdfViewer.createLoadingTask({ data: pdfBuffer })
+      this.pdfdata = createLoadingTask({ data: pdfBuffer })
 
-      this.pdfdata.then(pdf => {
+      this.pdfdata.promise.then(pdf => {
         this.loadingPdf = false
         this.numPages = pdf.numPages
         document.querySelector('#pdfViewerContainer').onscroll = (event) => {
