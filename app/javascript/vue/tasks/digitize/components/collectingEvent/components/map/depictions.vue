@@ -30,7 +30,7 @@ export default {
 }
 </script>
 
-<style module>
+<style scoped>
   .vue-dropzone {
     padding: 0px !important;
   }
