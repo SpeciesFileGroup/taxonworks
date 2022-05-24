@@ -9,9 +9,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added 
 - Two more digitization stage types, "T" and "Inverted T" [#2863]
 
-[#2863]: https://github.com/SpeciesFileGroup/taxonworks/issues/2863
+### Changed
+- Upgraded Node to version 16
 
-\-
+[#2863]: https://github.com/SpeciesFileGroup/taxonworks/issues/2863
 
 ## [0.25.0] - 2022-05-19
 
