@@ -130,7 +130,7 @@ export default {
 
   mounted () {
     this.eventListeners()
-    //this.isOpenInStorage()
+    this.isOpenInStorage()
 
     document.addEventListener('turbolinks:load', _ => {
       document.removeEventListener(this.eventLoadPDFName, this.handlePdfLoadEvent)
@@ -149,9 +149,14 @@ export default {
       } else {
         if (p > 0 && p <= this.numPages) {
           const containerPosition = Math.abs(document.querySelector('#viewer').getBoundingClientRect().y) + 120
+          const currentPage = document.getElementById(p)
+          const nextPageElement = document.getElementById(p + 1)
 
-          if ((containerPosition <= this.findPos(document.getElementById(p)) || p === 1) || (document.getElementById(p + 1) && containerPosition >= this.findPos(document.getElementById(p + 1)))) {
-            document.getElementById(p).scrollIntoView()
+          if (
+            (containerPosition <= this.findPos(currentPage) || p === 1) ||
+            (nextPageElement && containerPosition >= this.findPos(nextPageElement))
+          ) {
+            currentPage.scrollIntoView()
           }
         }
       }

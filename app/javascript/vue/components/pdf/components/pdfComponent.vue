@@ -1,7 +1,7 @@
 <template>
   <div>
     <slot
-      v-if="loading"
+      v-if="isLoading"
       name="loading"
     />
     <div
@@ -60,12 +60,10 @@ const props = defineProps({
 })
 
 const pdf = ref(null)
-const pdfViewer = ref(null)
-const loading = ref(true)
+const isLoading = ref(true)
 const pdfContainer = ref(null)
 
 let pdfInstance = null
-let pdfDocument = null
 let pdfViewPage = null
 
 const emit = defineEmits([
@@ -85,26 +83,19 @@ watch(
   () => props.page,
   val => {
     pdf.value.getPage(val).then((pdfPage) => {
-      pdfViewer.value.setPdfPage(pdfPage)
-      pdfViewer.value.draw()
+      pdfViewPage.setPdfPage(pdfPage)
+      pdfViewPage.draw()
     })
   }
 )
 
 watch(
-  () => props.scale,
+  [
+    () => props.scale,
+    () => props.rotate
+  ],
   val => {
-    drawScaled(val)
-  }
-)
-
-watch(
-  () => props.rotate,
-  newRotate => {
-    if (pdfViewer.value) {
-      pdfViewer.value.update(this.scale, newRotate)
-      pdfViewer.value.draw()
-    }
+    updatePage(val)
   }
 )
 
@@ -116,26 +107,29 @@ watch(
 )
 
 const calculateScale = (width = -1, height = -1) => {
-  pdfViewer.value.update(1, this.rotate)
+  pdfViewPage.update(1, props.rotate)
   if (width === -1 && height === -1) {
-    width = this.$refs.container.offsetWidth
-    height = this.$refs.container.height
+    width = pdfContainer.value.offsetWidth
+    height = pdfContainer.value.height
   }
-  const pageWidthScale = width / this.pdfViewer.viewport.width * 1
-  const pageHeightScale = height / this.pdfViewer.viewport.height * 1
+  const pageWidthScale = width / pdfViewPage.viewport.width * 1
+  const pageHeightScale = height / pdfViewPage.viewport.height * 1
 
   return pageWidthScale
 }
 
-const drawScaled = newScale => {
-  if (this.pdfViewer) {
+const updatePage = newScale => {
+  if (pdfViewPage) {
     if (newScale === 'page-width') {
       newScale = calculateScale()
     }
-    this.pdfViewer.update(newScale, this.rotate)
-    this.pdfViewer.draw()
-    this.loading = false
-    this.$emit('loading', false)
+
+    pdfViewPage.update({
+      scale: props.scale,
+      rotate: props.rotate
+    })
+
+    pdfViewPage.draw()
   }
 }
 
@@ -159,18 +153,20 @@ const loadPdf = async (pdfInstance) => {
 
   const eventBus = new EventBus()
 
-  pdfDocument = await pdfInstance.promise
+  const pdfDocument = await pdfInstance.promise
   const pdfPage = await pdfDocument.getPage(props.page)
 
   pdfViewPage = new PDFPageView({
     container,
     id: props.page,
-    scale: 1,
-    defaultViewport: pdfPage.getViewport({ scale: 1 }),
+    scale: props.scale,
+    defaultViewport: pdfPage.getViewport({ scale: props.scale }),
     textLayerFactory,
     annotationLayerFactory,
     eventBus
   })
+
+  isLoading.value = false
 
   pdfViewPage.setPdfPage(pdfPage)
   return pdfViewPage.draw()
