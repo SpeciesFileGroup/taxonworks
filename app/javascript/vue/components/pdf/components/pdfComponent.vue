@@ -20,7 +20,7 @@ import {
   isPDFDocumentLoadingTask,
   EventBus
 } from './pdfLibraryComponents.js'
-import { ref, watch, onMounted, onUnmounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted, toRaw } from 'vue'
 
 const props = defineProps({
   src: {
@@ -133,12 +133,7 @@ const updatePage = newScale => {
   }
 }
 
-const loadPdf = async (pdfInstance) => {
-/*   if (!isPDFDocumentLoadingTask(pdfInstance)) {
-    pdfInstance = createLoadingTask({ data: src })
-    emit('loading', true)
-  } */
-
+const loadPdf = async pdfInstance => {
   const container = pdfContainer.value
   let annotationLayerFactory
   let textLayerFactory
@@ -153,7 +148,7 @@ const loadPdf = async (pdfInstance) => {
 
   const eventBus = new EventBus()
 
-  const pdfDocument = await pdfInstance.promise
+  const pdfDocument = await pdfInstance
   const pdfPage = await pdfDocument.getPage(props.page)
 
   pdfViewPage = new PDFPageView({
@@ -174,14 +169,13 @@ const loadPdf = async (pdfInstance) => {
 
 onMounted(() => {
   document.addEventListener('turbolinks:load', _ => {
-    props.src?.destroy()
     pdfViewPage?.destroy()
   })
+
   loadPdf(props.src)
 })
 
 onUnmounted(() => {
-  props.src?.destroy()
   pdfViewPage?.destroy()
 })
 </script>
