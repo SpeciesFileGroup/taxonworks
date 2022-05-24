@@ -1,3 +1,4 @@
+
 module Queries
   module TaxonName 
 
@@ -5,8 +6,8 @@ module Queries
     #
     # Results are Arrays, not AR objects.
     #  
-    # The approach is to use OVER/PARTITION build ranked list, then to summarize only those ranked data requested.
-    # When we select without preserving all ranks, then the data are not sortable according to their overall neesting.
+    # The approach is to use OVER/PARTITION to build a ranked list, then to summarize only those ranked data requested.
+    # When we select without preserving all ranks, then the data are not sortable according to their overall nesting.
     #
     # The approach only succeeds on the hierarchical data because we cache the current valid id for every name, this 
     # allows us to build an ordered, nested by hierarchy list across not only valid, but also combination and invalid names.
@@ -15,6 +16,8 @@ module Queries
     #   * https://sonnym.github.io/2017/06/05/common-table-expressions-in-activerecord-a-case-study-of-quantiles/
     #   * https://blog.codeship.com/folding-postgres-window-functions-into-rails/
     class Tabular < Queries::Query
+
+      include Queries::Helpers
 
       # @return [Integer]
       #   required, the id scoping the result set 
@@ -70,11 +73,11 @@ module Queries
         super(nil, project_id: params[:project_id]) # We don't actually use project_id here
 
         @ancestor_id = params[:ancestor_id]
-        @combinations = (params[:combinations]&.downcase == 'true' ? true : false)
+        @combinations = boolean_param(params, :combinations) #[:combinations]&.downcase == 'true' ? true : false)
         @limit = params[:limit]
         @ranks = params[:ranks] || [] 
         @rank_data = params[:rank_data] || [] 
-        @validity = (params[:validity]&.downcase == 'true' ? true : false)
+        @validity = boolean_param(params, :validity)  #(params[:validity]&.downcase == 'true' ? true : false)
 
         @column_headers = ['rank_over', 'otu_id', 'taxon_name_id', 'cached_valid_taxon_name_id', *ranks, 'cached', 'otu']
         @fieldsets = params[:fieldsets] || []
