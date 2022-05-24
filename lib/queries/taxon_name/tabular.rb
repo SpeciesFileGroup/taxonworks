@@ -80,6 +80,7 @@ module Queries
         @validity = boolean_param(params, :validity)  #(params[:validity]&.downcase == 'true' ? true : false)
 
         @column_headers = ['rank_over', 'otu_id', 'taxon_name_id', 'cached_valid_taxon_name_id', *ranks, 'cached', 'otu']
+        
         @fieldsets = params[:fieldsets] || []
         @rank_id_fields = []
         @rank_joins = []
@@ -160,7 +161,7 @@ module Queries
         # scope the query to only specified ranks
         w = table[:rank_class].eq_any(rank_classes)
         w = w.or(table[:rank_class].eq(nil)) if combinations
-       
+
         q = q.project(
           rank_over(table, valid_table), # the sort column
           otu_table[:id].as('otu_id'),        
@@ -207,21 +208,23 @@ module Queries
 
       # TODO: break out fieldset to its own concern
       def observations_set(query)
+
         @data_fields.push '"fs_o1"."observation_count" as observation_count'
         @column_headers.push 'observation_count'
         o = ::Observation.arel_table
         x = o.project(
-          o[:otu_id], 
-          o[:otu_id].count.as('observation_count')
-        ).group(o[:otu_id]).as('fs_o1')
+          o[:observation_object_id], 
+          o[:observation_object_type], 
+          o[:observation_object_id].count.as('observation_count')
+        ).group(o[:observation_object_id], o[:observation_object_type]).as('fs_o1')
 
-        query.join(x, Arel::Nodes::OuterJoin).on(x[:otu_id].eq(otu_table[:id]))
+        query.join(x, Arel::Nodes::OuterJoin).on(x[:observation_object_id].eq(otu_table[:id]).and( x[:observation_object_type].eq('Otu')  ))
 
         @data_fields.push '"fs_o2"."observation_depictions" as observation_depictions'
         @column_headers.push 'observation_depictions'
         p = ::Depiction.arel_table
         y = p.join(o, Arel::Nodes::OuterJoin).on(
-          p[:depiction_object_id].eq(o[:otu_id])).where(p[:depiction_object_type].eq('Observation'))
+          p[:depiction_object_id].eq(o[:observation_object_id])).where(p[:depiction_object_type].eq('Observation'))
           .project(
             p[:depiction_object_id], 
             p[:depiction_object_id].count.as('observation_depictions')
@@ -232,45 +235,62 @@ module Queries
         @data_fields.push '"fs_d1"."descriptors_scored" as descriptors_scored'
         @column_headers.push 'descriptors_scored'
         z = o.project(
-          o[:otu_id], 
+          o[:observation_object_id],
+          o[:observation_object_type], 
           o[:descriptor_id].count.as('descriptors_scored')
-        ).group(o[:otu_id]).as('fs_d1')
+        ).group(o[:observation_object_id], o[:observation_object_type]).as('fs_d1')
 
-        query.join(z, Arel::Nodes::OuterJoin).on(z[:otu_id].eq(otu_table[:id]))
+        query.join(z, Arel::Nodes::OuterJoin).on( z[:observation_object_id].eq(otu_table[:id]).and(z[:observation_object_type].eq('Otu') ) )
       end
 
       # TODO: break out fieldset to its own concern
       def nomenclatural_stats_set(query)
+        c = rank_data
+
+        i = 0
+        c.each do |r|
+          %w{valid invalid}.each do |v|
+            nomenclature_stats_column(query, r, v, i)
+            i += 1
+          end
+        end
+
+        # Add combination column
+        
+        nomenclature_stats_column(query, 'combination', nil, i)
+
+        query
+      end
+
+      def nomenclature_stats_column(query, rank, valid = nil, index = 0) 
+        i = index
+        v = valid
+        r = rank
+
         h = hierarchy_table
         t = table
 
-        c = rank_data
-        c << nil if combinations
+        s = [v, r].compact.join('_') #  "#{v}_#{ r }" #  r ? r : 'combination' }"
+        a = "ns_o#{i}_#{v}"
 
-        c.each_with_index do |r,i|
-          %w{valid invalid}.each do |v|
-            s = "#{v}_#{r ? r : 'combination' }"
-            a = "ns_o#{i}_#{v}"
-            @data_fields.push "\"#{a}\".\"#{s}\" as #{s}"
-            @column_headers.push s
+        @data_fields.push "\"#{a}\".\"#{s}\" as #{s}"
+        @column_headers.push s
 
-            x = t.where(
-              h[:generations].gt(0) 
-              .and( v == 'valid' ? t[:cached_valid_taxon_name_id].eq(t[:id]) : t[:cached_valid_taxon_name_id].not_eq(t[:id]) ) 
-              .and( t[:rank_class].eq( Ranks.lookup(ancestor.nomenclatural_code, r) ) )
-            )
-              .join(h, Arel::Nodes::InnerJoin).on(
-                h[:descendant_id].eq( t[:id] )  )
-              .project(
-                h[:ancestor_id],
-                t[:id].count.as( s )
-            ).group(h[:ancestor_id])
-              .as(a)
+        x = t.where(
+          h[:generations].gt(0) 
+          .and( v == 'valid' ? t[:cached_valid_taxon_name_id].eq(t[:id]) : t[:cached_valid_taxon_name_id].not_eq(t[:id]) ) 
+          .and( t[:rank_class].eq( Ranks.lookup(ancestor.nomenclatural_code, r) ) )
+        )
+          .join(h, Arel::Nodes::InnerJoin).on(
+            h[:descendant_id].eq( t[:id] )  )
+          .project(
+            h[:ancestor_id],
+            t[:id].count.as( s )
+          ).group(h[:ancestor_id])
+            .as(a)
 
-            query.join(x, Arel::Nodes::OuterJoin).on( x[:ancestor_id].eq( finest_rank_id  ) )  # # NOT query['taxon_name_id']
-          end
-        end
-        query
+          query.join(x, Arel::Nodes::OuterJoin).on( x[:ancestor_id].eq( finest_rank_id  ) )  # # NOT query['taxon_name_id']
+          query
       end
 
     end
