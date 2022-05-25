@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added 
 - Two more digitization stage types, "T" and "Inverted T" [#2863]
+- Added soft_validation fix to missing collection_object determination, when the type is designated [#2907]
 
 ### Changed
 - Upgraded Node to version 16

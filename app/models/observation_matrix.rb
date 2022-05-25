@@ -7,6 +7,7 @@ class ObservationMatrix < ApplicationRecord
   include Shared::Tags
   include Shared::Notes
   include Shared::DataAttributes
+  include Shared::AlternateValues
   include Shared::IsData # Hybrid of sorts, is also a layout engine, but people cite matrice so...
 
   validates_presence_of :name

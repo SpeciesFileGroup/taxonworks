@@ -136,4 +136,5 @@ LATIN_ADJECTIVES = {
     'turpius' => {masculine_name: 'turpior', feminine_name: 'turpior', neuter_name: 'turpius'},
     'ulterius' => {masculine_name: 'ulterior', feminine_name: 'ulterior', neuter_name: 'ulterius'},
     'vilius' => {masculine_name: 'vilior', feminine_name: 'vilior', neuter_name: 'vilius'},
+    'vetus' => {masculine_name: 'vetus', feminine_name: 'vetus', neuter_name: 'vetus'},
 }.freeze
