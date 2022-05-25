@@ -152,7 +152,7 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
     end
   end
 
-  context '#number_of_species: nomenclature stats' do
+  context 'number of species: nomenclature stats' do
     before do
       query.ancestor_id = genus.id.to_s
       query.ranks = ['genus', 'species']
@@ -167,7 +167,10 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
 
     specify 'all' do
       # 3 is correct, OTUs should not increase the number of taxa
-      expect(query.all.count).to eq(3)
+      #  
+      # Genus + 3 species, 2 valid, 1 not, is 4, not 3 (and also not 5)
+     
+      expect(query.all.count).to eq(4) 
     end
 
     specify 'cached' do
@@ -180,6 +183,7 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
     end
 
     specify 'invalid_genus' do
+      byebug
       expect(query.all[0]['invalid_genus']).to eq(1)
     end
 
@@ -243,7 +247,7 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
     end
   end
 
-  context '#number_of_species: nomenclature stats: unavailable' do
+  context 'number of species: nomenclature stats: unavailable' do
     before do
       # all TN with the TaxonNameClassification in the array: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID
       # should be excluded from counting of valid names.
@@ -261,7 +265,8 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
 
     #otus should not be inluded in the list
     specify 'all' do
-      expect(query.all.count).to eq(3)
+      # Genus plus 3 species
+      expect(query.all.count).to eq(4)
     end
 
     specify 'cached' do
@@ -284,11 +289,13 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
     end
   end
 
-  context '#number_of_species: observations' do
+  context 'number of species: observations' do
     before do
       observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: descriptor1)
       observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: descriptor2)
+
       observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::Single.new(observation_object: otu1)
+
       observation_matrix.save!
       o1 = Observation.create!(observation_object: otu1, descriptor: descriptor1, continuous_value: 5)
       o2 = Observation.create!(observation_object: otu1, descriptor: descriptor2)

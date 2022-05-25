@@ -58,7 +58,10 @@ module Queries
       attr_accessor :query
 
       attr_accessor :data_fields
+
+      # @return Array
       attr_accessor :column_headers
+      
       attr_accessor :rank_joins
       attr_accessor :rank_id_fields
 
@@ -158,25 +161,58 @@ module Queries
           q = send(f + '_set', q) 
         end
 
+        # TODO: rank_classes getter should merge nil when combinations,
+        # i.e. we likely don't need nil
+
         # scope the query to only specified ranks
         w = table[:rank_class].eq_any(rank_classes)
         w = w.or(table[:rank_class].eq(nil)) if combinations
 
-        q = q.project(
-          rank_over(table, valid_table), # the sort column
-          otu_table[:id].as('otu_id'),        
-          table[:id].as('taxon_name_id'),
-          table[:cached_valid_taxon_name_id].as('cached_valid_taxon_name_id'),
-          *name_fields.values,
-          table[:cached].as('cached'),
-          otu_table[:name].as('otu_name'),
-          *data_fields,
-        ).from(table).where(w).distinct
+       #q = q.project(
+       #  rank_over(table, valid_table), # the sort column
+       #  otu_table[:id].as('otu_id'),        
+       #  table[:id].as('taxon_name_id'),
+       #  table[:cached_valid_taxon_name_id].as('cached_valid_taxon_name_id'),
+       #  *name_fields.values,
+       #  table[:cached].as('cached'),
+       #  otu_table[:name].as('otu_name'),
+       #  *data_fields,
+       #).from(table).where(w).distinct
+
+        q = q.project(*projected_columns(name_fields))
+        q = q.from(table).where(w).distinct
 
         # !! CAREFUL, too small limits will not properly nest all names !!
         q = q.take(limit.to_i) if limit
 
         @query = table.project( Arel::Nodes::SqlLiteral.new('*') ).from(q.as('p')).order( 'cached_valid_taxon_name_id', 'ro'  ) # if every field had a value this would work
+      end
+
+      # TODO: very janky, make subclasses of tabular likely
+      # and add as a constant
+      def projected_columns(name_fields)
+
+        valid_table = table.alias('valid_taxon_names')
+
+        f = [
+          rank_over(table, valid_table), # the sort column
+        ]
+
+        f.push otu_table[:id].as('otu_id') if fieldsets.include?('observations')
+        f.push table[:id].as('taxon_name_id') # if fieldsets.include?(:observations)
+
+        f.push table[:cached_valid_taxon_name_id].as('cached_valid_taxon_name_id')
+
+        f += name_fields.values
+
+        f.push table[:cached].as('cached')
+
+        f.push otu_table[:name].as('otu_name') if fieldsets.include?('observations')
+
+        f += data_fields
+
+        f
+
       end
 
       def rank_classes
@@ -208,7 +244,6 @@ module Queries
 
       # TODO: break out fieldset to its own concern
       def observations_set(query)
-
         @data_fields.push '"fs_o1"."observation_count" as observation_count'
         @column_headers.push 'observation_count'
         o = ::Observation.arel_table
@@ -271,18 +306,20 @@ module Queries
         t = table
 
         s = [v, r].compact.join('_') #  "#{v}_#{ r }" #  r ? r : 'combination' }"
-        a = "ns_o#{i}_#{v}"
+        a = ['ns_o', r, i, v].join('_') #  i, r,  "ns_o#{i}_#{v}"
 
         @data_fields.push "\"#{a}\".\"#{s}\" as #{s}"
-        @column_headers.push s
+
+       @column_headers.push s
 
         x = t.where(
-          h[:generations].gt(0) 
-          .and( v == 'valid' ? t[:cached_valid_taxon_name_id].eq(t[:id]) : t[:cached_valid_taxon_name_id].not_eq(t[:id]) ) 
+          # h[:generations].gt(0) 
+          t[:cached_is_valid].eq( v == 'valid' ? true : false )
           .and( t[:rank_class].eq( Ranks.lookup(ancestor.nomenclatural_code, r) ) )
-        )
-          .join(h, Arel::Nodes::InnerJoin).on(
-            h[:descendant_id].eq( t[:id] )  )
+        ).join(h, Arel::Nodes::InnerJoin).on(
+         
+          h[:descendant_id].eq( t[:cached_valid_taxon_name_id] )  )
+          # h[:descendant_id].eq( t[:id] )  )
           .project(
             h[:ancestor_id],
             t[:id].count.as( s )
