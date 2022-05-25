@@ -14,7 +14,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Replaced Webpacker for Shakapacker gem
 - Upgrade PDF viewer library
 
+### Fixed
+- Cannot add a determination after editing one in comprehensive task [#2996]
+
 [#2863]: https://github.com/SpeciesFileGroup/taxonworks/issues/2863
+[#2996]: https://github.com/SpeciesFileGroup/taxonworks/issues/2996
 
 ## [0.25.0] - 2022-05-19
 
