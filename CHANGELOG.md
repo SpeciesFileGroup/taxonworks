@@ -11,6 +11,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Upgraded Node to version 16
+- Replaced Webpacker for Shakapacker gem
+- Upgrade PDF viewer library
 
 [#2863]: https://github.com/SpeciesFileGroup/taxonworks/issues/2863
 
