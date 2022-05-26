@@ -73,7 +73,7 @@
           <clone-source />
           <button
             v-if="source.type === 'Source::Verbatim' && source.id"
-            class="button normal-input button-submit button-size margin-small-left"
+            class="button normal-input button-submit button-size margin-small-left margin-small-top margin-small-bottom"
             type="button"
             @click="convert"
           >
@@ -88,7 +88,7 @@
             CrossRef
           </button>
           <button
-            class="button normal-input button-default button-size margin-small-left"
+            class="button normal-input button-default button-size margin-small-left margin-small-top margin-small-bottom"
             type="button"
             @click="showBibtex = true"
           >
