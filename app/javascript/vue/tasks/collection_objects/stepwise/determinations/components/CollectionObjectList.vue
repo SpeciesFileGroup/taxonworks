@@ -1,9 +1,19 @@
 <template>
   <h3>Collection objects</h3>
-  <VPagination
-    :pagination="pagination.collectionObjects"
-    @next-page="loadCollectionObjects($event.page)"
-  />
+  <div class="flex-separate">
+    <VPagination
+      :pagination="pagination.collectionObjects"
+      @next-page="loadCollectionObjects($event.page)"
+    />
+    <label>
+      <input
+        type="checkbox"
+        @change="toggleImages"
+      >
+      Show images
+    </label>
+  </div>
+
   <table class="full_width">
     <thead>
       <tr>
@@ -14,6 +24,9 @@
           >
         </th>
         <th>ID</th>
+        <th v-if="isImageColumnVisible">
+          Images
+        </th>
         <th class="full_width">
           Object tag
         </th>
@@ -22,7 +35,7 @@
     </thead>
     <tbody>
       <tr
-        v-for="co in collectionObjects"
+        v-for="co in list"
         :key="co.id"
       >
         <td>
@@ -35,6 +48,14 @@
         <td>
           {{ co.id }}
         </td>
+        <td v-if="isImageColumnVisible">
+          <ImageViewer
+            v-for="image in co.images"
+            :key="image.image_id"
+            :image="image"
+            :edit="false"
+          />
+        </td>
         <td>
           <span v-html="co.object_tag" />
         </td>
@@ -43,14 +64,20 @@
         </td>
       </tr>
     </tbody>
+    <VSpinner
+      v-if="isLoading"
+      full-screen
+    />
   </table>
 </template>
 
 <script setup>
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import useStore from '../composables/useStore'
 import RadialNavigator from 'components/radials/navigation/radial.vue'
 import VPagination from 'components/pagination.vue'
+import ImageViewer from 'components/ui/ImageViewer/ImageViewer.vue'
+import VSpinner from 'components/spinner.vue'
 
 const {
   collectionObjects,
@@ -59,6 +86,8 @@ const {
   loadCollectionObjects,
   getPages
 } = useStore()
+
+const pagination = getPages()
 
 const selectedAll = computed({
   get: () => collectionObjects.value.length === selectedCOIds.value.length,
@@ -69,6 +98,20 @@ const selectedAll = computed({
   }
 })
 
+const isImageColumnVisible = ref(false)
+const isLoading = ref(false)
+
+const toggleImages = e => {
+  const newValue = e.target.checked
+
+  isLoading.value = !!list.value.length
+
+  setTimeout(() => {
+    isImageColumnVisible.value = newValue
+    isLoading.value = false
+  }, 100)
+}
+
 watch(
   selectedLabel,
   label => {
@@ -78,6 +121,24 @@ watch(
   }
 )
 
-const pagination = getPages()
+const list = computed(() => collectionObjects.value.map(co => ({
+  id: co.id,
+  object_tag: co.object_tag,
+  global_id: co.global_id,
+  images: co.determination_images.map(image => adaptImage(image))
+})))
+
+const adaptImage = image => ({
+  id: image.image_id,
+  alternatives: {
+    thumb: {
+      image_file_url: image.thumbnail
+    },
+    medium: {
+      image_file_url: image.large
+    }
+  },
+  image_file_url: image.large
+})
 
 </script>
