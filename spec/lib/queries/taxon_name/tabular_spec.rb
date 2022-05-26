@@ -4,7 +4,7 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
   let!(:root) { FactoryBot.create(:root_taxon_name) }
   let!(:genus) { Protonym.create!(name: 'Erasmoneura', rank_class: Ranks.lookup(:iczn, :genus), parent: root) }
   let!(:genus1) { Protonym.create!(name: 'Erasmoneuraa', rank_class: Ranks.lookup(:iczn, :genus), parent: root) }
- 
+
   let!(:tr1) { TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(
     subject_taxon_name: genus1,
     object_taxon_name: genus)}
@@ -24,14 +24,12 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
   let(:observation_matrix) { ObservationMatrix.create!(name: 'Matrix') }
   let(:descriptor1) { Descriptor::Continuous.create!(name: 'descriptor1') }
   let(:descriptor2) { Descriptor::Media.create!(name: 'descriptor2') }
-  
-  let(:image_file) { Rack::Test::UploadedFile.new( Spec::Support::Utilities::Files.generate_png, 'image/png') }
 
   let(:query) { Queries::TaxonName::Tabular.new }
 
-  # TODO: these tests are not quite right, what we return is not what we 
+  # TODO: these tests are not quite right, what we return is not what we
   # display.  Reconcile this in the view, not result here.
-  context '#column_headers' do
+  context 'column headers (shared)' do
     before do
       query.ancestor_id = genus.id.to_s
       query.ranks = ['genus', 'species']
@@ -82,8 +80,8 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
       expect(query.column_headers.include? 'otu_id').to be_falsey
     end
 
-    specify 'otu' do
-      expect(query.column_headers.include? 'otu').to be_falsey
+    specify 'otu_name' do
+      expect(query.column_headers.include? 'otu_name').to be_falsey
     end
 
     specify 'observation_count' do
@@ -99,12 +97,11 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
     end
   end
 
-  context '#column_headers: observations' do
+  context 'column headers: observations' do
 
     before do
       query.ancestor_id = genus.id.to_s
       query.ranks = ['genus', 'species']
-      query.rank_data =  ['genus', 'species']
       query.fieldsets = ['observations']
       query.validity = false
       query.combinations = true
@@ -135,20 +132,20 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
       expect(query.column_headers.include? 'otu_id').to be_truthy
     end
 
-    specify 'otu' do
-      expect(query.column_headers.include? 'otu').to be_truthy
+    specify 'otu_name' do
+      expect(query.column_headers.include? 'otu_name').to be_truthy
     end
 
-    specify 'observation_count' do
-      expect(query.column_headers.include? 'observation_count').to be_truthy
+    specify 'otu_observation_count' do
+      expect(query.column_headers.include? 'otu_observation_count').to be_truthy
     end
 
-    specify 'observation_depictions' do
-      expect(query.column_headers.include? 'observation_depictions').to be_truthy
+    specify 'otu_observation_depictions' do
+      expect(query.column_headers.include? 'otu_observation_depictions').to be_truthy
     end
 
-    specify 'descriptors_scored' do
-      expect(query.column_headers.include? 'descriptors_scored').to be_truthy
+    specify 'descriptors_scored_for_otus' do
+      expect(query.column_headers.include? 'descriptors_scored_for_otus').to be_truthy
     end
   end
 
@@ -167,10 +164,9 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
 
     specify 'all' do
       # 3 is correct, OTUs should not increase the number of taxa
-      #  
+      #
       # Genus + 3 species, 2 valid, 1 not, is 4, not 3 (and also not 5)
-     
-      expect(query.all.count).to eq(4) 
+      expect(query.all.count).to eq(4)
     end
 
     specify 'cached' do
@@ -183,7 +179,6 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
     end
 
     specify 'invalid_genus' do
-      byebug
       expect(query.all[0]['invalid_genus']).to eq(1)
     end
 
@@ -233,7 +228,7 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
 
     specify 'invalid_genus #3' do
       expect(query.all[2]['invalid_genus'].nil?).to be_truthy
-    end 
+    end
 
     #synonyms and combinations for each species are not displayed
     specify 'valid_species #3' do
@@ -263,7 +258,7 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
       query.build_query
     end
 
-    #otus should not be inluded in the list
+    #otus should not be included in the list
     specify 'all' do
       # Genus plus 3 species
       expect(query.all.count).to eq(4)
@@ -289,7 +284,7 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
     end
   end
 
-  context 'number of species: observations' do
+  context 'observation stats' do
     before do
       observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: descriptor1)
       observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: descriptor2)
@@ -299,7 +294,10 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
       observation_matrix.save!
       o1 = Observation.create!(observation_object: otu1, descriptor: descriptor1, continuous_value: 5)
       o2 = Observation.create!(observation_object: otu1, descriptor: descriptor2)
-      d = Depiction.create!(depiction_object: o2, image_attributes: {image_file: image_file})
+
+      FactoryBot.create(:valid_depiction, depiction_object: o2)
+      FactoryBot.create(:valid_depiction, depiction_object: o2)
+
 
       query.ancestor_id = genus.id.to_s
       query.ranks = ['genus', 'species']
@@ -325,17 +323,16 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
       expect(query.all[1]['otu_name']).to eq('otu1')
     end
 
-    specify 'observation_count' do
-      expect(query.all[1]['observation_count']).to eq(2)
+    specify 'otu_observation_count' do
+      expect(query.all[1]['otu_observation_count']).to eq(2)
     end
 
-    specify '#observation_depictions' do
-      #att the moment all depictions go to the "descriptors_scored" column
-      expect(query.all[1]['observation_depictions']).to eq(1)
+    specify 'otu_observation_depictions' do
+      expect(query.all[1]['otu_observation_depictions']).to eq(2)
     end
 
-    specify '#descriptors_scored' do
-      expect(query.all[1]['descriptors_scored']).to eq(1)
+    specify 'descriptors_scored_for_otus' do
+      expect(query.all[1]['descriptors_scored_for_otus']).to eq(2) # descriptor 1 and 2 for otu1
     end
   end
 
