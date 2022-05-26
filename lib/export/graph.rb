@@ -16,7 +16,8 @@ class Export::Graph
     'Citation' => '#CCCCCC',
     'Georeference' => '#CDDC39',
     'Source' => '#2196F3',
-    'AssertedDistribution' => '#FF9800'
+    'AssertedDistribution' => '#FF9800',
+    'Image' => '#CDDC39',
   }
 
   NODE_SHAPES = {
@@ -36,7 +37,8 @@ class Export::Graph
     'Georeference' => 'square',
     'Source' => 'pentagon',
     'Citation' => 'octagon',
-    'AssertedDistribution' => 'pentagon'
+    'AssertedDistribution' => 'pentagon',
+    'Image' => 'square'
   }
 
   RENDERABLE_ANNOTATIONS = []

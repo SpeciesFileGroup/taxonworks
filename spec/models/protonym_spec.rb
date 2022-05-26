@@ -390,6 +390,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         'asper'     => 'asper|aspera|asperum',
         'aspera'    => 'asper|aspera|asperum',
         'asperum'   => 'asper|aspera|asperum',
+        'vetus'     => 'vetus|vetus|vetus',
     }
 
     @entry = 0
