@@ -8,10 +8,20 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added 
 - Two more digitization stage types, "T" and "Inverted T" [#2863]
+- Added soft_validation fix to missing collection_object determination, when the type is designated [#2907]
+- Confirmation button for tags, preparation type and repository panels in CO Match [#2995]
+
+### Changed
+- Upgraded Node to version 16
+- Replaced Webpacker for Shakapacker gem
+- Upgrade PDF viewer library
+
+### Fixed
+- Cannot add a determination after editing one in comprehensive task [#2996]
 
 [#2863]: https://github.com/SpeciesFileGroup/taxonworks/issues/2863
-
-\-
+[#2995]: https://github.com/SpeciesFileGroup/taxonworks/issues/2995
+[#2996]: https://github.com/SpeciesFileGroup/taxonworks/issues/2996
 
 ## [0.25.0] - 2022-05-19
 

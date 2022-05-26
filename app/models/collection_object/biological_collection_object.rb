@@ -14,8 +14,9 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
   soft_validate(
     :sv_missing_determination,
     set: :missing_determination,
-    name: 'Missing determination',
-    description: 'Determination is missing')
+    fix: :sv_fix_missing_determination,
+    name: 'Missing determination for the type specimen',
+    description: 'Missing determination for the type specimen. The determination could be added automatically')
 
   soft_validate(
     :sv_determined_before_collected,
@@ -78,7 +79,15 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
   protected
 
   def sv_missing_determination
-    soft_validations.add(:base, 'Determination is missing') if !taxon_determinations.any?
+    soft_validations.add(:base, 'Determination is missing', success_message: 'Determination was added', failure_message: 'The determination was not added') if !taxon_determinations.any?
+  end
+
+  def sv_fix_missing_determination
+    if !taxon_determinations.any? && type_materials.any?
+      tn = type_materials.first.protonym_id
+      otu = Otu.find_or_create_by(taxon_name_id: tn, name: nil).try(:id)
+      td = taxon_determinations.create(otu_id: otu) unless otu.nil?
+    end
   end
 
   def sv_determined_before_collected
