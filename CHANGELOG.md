@@ -18,10 +18,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - Cannot add a determination after editing one in comprehensive task [#2996]
+- "In project" button is not updated after select a different source in Edit source task [#3000]
 
 [#2863]: https://github.com/SpeciesFileGroup/taxonworks/issues/2863
 [#2995]: https://github.com/SpeciesFileGroup/taxonworks/issues/2995
 [#2996]: https://github.com/SpeciesFileGroup/taxonworks/issues/2996
+[#3000]: https://github.com/SpeciesFileGroup/taxonworks/issues/3000
 
 ## [0.25.0] - 2022-05-19
 
