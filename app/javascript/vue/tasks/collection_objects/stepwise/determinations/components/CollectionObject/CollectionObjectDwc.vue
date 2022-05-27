@@ -15,12 +15,12 @@
         </thead>
         <tbody>
           <tr
-            v-for="(key, value, index) in dwcAttributes"
-            :key="key"
+            v-for="(value, attr, index) in dwcAttributes"
+            :key="attr"
             class="list-complete-item contextMenuCells"
             :class="{ even: index % 2}"
           >
-            <td>{{ key }}</td>
+            <td>{{ attr }}</td>
             <td>{{ value }}</td>
           </tr>
         </tbody>
