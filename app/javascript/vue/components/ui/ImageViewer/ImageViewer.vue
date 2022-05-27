@@ -123,7 +123,7 @@
         <div class="flex-separate">
           <slot name="infoColumn" />
           <div
-            v-if="depiction"
+            v-if="depiction && !edit"
             class="full_width panel content"
           >
             <h3>Depiction</h3>
