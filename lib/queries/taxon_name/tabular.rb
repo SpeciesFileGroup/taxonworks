@@ -322,8 +322,7 @@ module Queries
           .and( t[:rank_class].eq( Ranks.lookup(ancestor.nomenclatural_code, r) ) )
         ).join(h, Arel::Nodes::InnerJoin).on(
 
-          h[:descendant_id].eq( t[:cached_valid_taxon_name_id] )  )
-        # h[:descendant_id].eq( t[:id] ) )
+          h[:descendant_id].eq( t[:cached_valid_taxon_name_id] )  ) # h[:descendant_id].eq( t[:id] ) )
           .project(
             h[:ancestor_id],
             t[:id].count.as( s )

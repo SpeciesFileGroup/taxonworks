@@ -505,7 +505,7 @@ ActiveRecord::Schema.define(version: 2022_03_31_023656) do
     t.integer "encoded_dataset_record_type", null: false
     t.integer "project_id", null: false
     t.integer "import_dataset_id", null: false
-    t.integer "dataset_record_id", null: false
+    t.bigint "dataset_record_id", null: false
     t.index "import_dataset_id, encoded_dataset_record_type, \"position\", substr((value)::text, 1, 1000), dataset_record_id", name: "index_dataset_record_fields_for_filters", unique: true
     t.index ["dataset_record_id", "position"], name: "index_dataset_record_fields_on_dataset_record_id_and_position", unique: true
   end
@@ -518,8 +518,8 @@ ActiveRecord::Schema.define(version: 2022_03_31_023656) do
     t.datetime "updated_at", precision: 6, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.integer "project_id"
-    t.integer "import_dataset_id"
+    t.bigint "project_id"
+    t.bigint "import_dataset_id"
     t.index ["created_by_id"], name: "index_dataset_records_on_created_by_id"
     t.index ["import_dataset_id", "type", "id"], name: "index_dataset_records_on_import_dataset_id_and_type_and_id"
     t.index ["import_dataset_id"], name: "index_dataset_records_on_import_dataset_id"
@@ -1053,7 +1053,7 @@ ActiveRecord::Schema.define(version: 2022_03_31_023656) do
     t.datetime "updated_at", precision: 6, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.integer "project_id"
+    t.bigint "project_id"
     t.string "source_file_name"
     t.string "source_content_type"
     t.bigint "source_file_size"
@@ -1086,7 +1086,7 @@ ActiveRecord::Schema.define(version: 2022_03_31_023656) do
     t.datetime "updated_at", null: false
     t.string "type"
     t.index ["created_by_id"], name: "labels_created_by_id_index"
-    t.index ["label_object_type", "label_object_id"], name: "index_labels_on_label_object"
+    t.index ["label_object_type", "label_object_id"], name: "index_labels_on_label_object_type_and_label_object_id"
     t.index ["project_id"], name: "index_labels_on_project_id"
     t.index ["updated_by_id"], name: "labels_updated_by_id_index"
   end
@@ -1363,8 +1363,8 @@ ActiveRecord::Schema.define(version: 2022_03_31_023656) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["created_by_id"], name: "index_origin_relationships_on_created_by_id"
-    t.index ["new_object_type", "new_object_id"], name: "index_origin_relationships_on_new_object"
-    t.index ["old_object_type", "old_object_id"], name: "index_origin_relationships_on_old_object"
+    t.index ["new_object_type", "new_object_id"], name: "index_origin_relationships_on_new_object_type_and_new_object_id"
+    t.index ["old_object_type", "old_object_id"], name: "index_origin_relationships_on_old_object_type_and_old_object_id"
     t.index ["project_id"], name: "index_origin_relationships_on_project_id"
     t.index ["updated_by_id"], name: "index_origin_relationships_on_updated_by_id"
   end
@@ -1452,7 +1452,7 @@ ActiveRecord::Schema.define(version: 2022_03_31_023656) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["created_by_id"], name: "index_pinboard_items_on_created_by_id"
-    t.index ["pinned_object_type", "pinned_object_id"], name: "index_pinboard_items_on_pinned_object"
+    t.index ["pinned_object_type", "pinned_object_id"], name: "index_pinboard_items_on_pinned_object_type_and_pinned_object_id"
     t.index ["position"], name: "index_pinboard_items_on_position"
     t.index ["project_id"], name: "index_pinboard_items_on_project_id"
     t.index ["updated_by_id"], name: "index_pinboard_items_on_updated_by_id"
@@ -1682,7 +1682,7 @@ ActiveRecord::Schema.define(version: 2022_03_31_023656) do
   end
 
   create_table "sled_images", force: :cascade do |t|
-    t.integer "image_id", null: false
+    t.bigint "image_id", null: false
     t.jsonb "metadata"
     t.jsonb "object_layout"
     t.integer "cached_total_rows"
@@ -1690,7 +1690,7 @@ ActiveRecord::Schema.define(version: 2022_03_31_023656) do
     t.integer "cached_total_collection_objects", default: 0, null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.integer "project_id"
+    t.bigint "project_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["created_by_id"], name: "index_sled_images_on_created_by_id"

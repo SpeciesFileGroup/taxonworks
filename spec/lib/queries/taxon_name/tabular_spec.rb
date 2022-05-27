@@ -24,6 +24,7 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
   let(:observation_matrix) { ObservationMatrix.create!(name: 'Matrix') }
   let(:descriptor1) { Descriptor::Continuous.create!(name: 'descriptor1') }
   let(:descriptor2) { Descriptor::Media.create!(name: 'descriptor2') }
+  let(:descriptor3) { Descriptor::Media.create!(name: 'descriptor3') }
 
   let(:query) { Queries::TaxonName::Tabular.new }
 
@@ -288,15 +289,19 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
     before do
       observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: descriptor1)
       observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: descriptor2)
+      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: descriptor3)
 
       observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::Single.new(observation_object: otu1)
 
       observation_matrix.save!
       o1 = Observation.create!(observation_object: otu1, descriptor: descriptor1, continuous_value: 5)
       o2 = Observation.create!(observation_object: otu1, descriptor: descriptor2)
+      o3 = Observation.create!(observation_object: otu1, descriptor: descriptor1, continuous_value: 6)
+      o4 = Observation.create!(observation_object: otu1, descriptor: descriptor3)
 
       FactoryBot.create(:valid_depiction, depiction_object: o2)
       FactoryBot.create(:valid_depiction, depiction_object: o2)
+      FactoryBot.create(:valid_depiction, depiction_object: o4)
 
 
       query.ancestor_id = genus.id.to_s
@@ -324,15 +329,15 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
     end
 
     specify 'otu_observation_count' do
-      expect(query.all[1]['otu_observation_count']).to eq(2)
+      expect(query.all[1]['otu_observation_count']).to eq(4)
     end
 
     specify 'otu_observation_depictions' do
-      expect(query.all[1]['otu_observation_depictions']).to eq(2)
+      expect(query.all[1]['otu_observation_depictions']).to eq(3)
     end
 
     specify 'descriptors_scored_for_otus' do
-      expect(query.all[1]['descriptors_scored_for_otus']).to eq(2) # descriptor 1 and 2 for otu1
+      expect(query.all[1]['descriptors_scored_for_otus']).to eq(3) # descriptor 1 and 2 for otu1
     end
   end
 
