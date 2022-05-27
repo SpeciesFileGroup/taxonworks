@@ -12,11 +12,11 @@
     <table class="full_width">
       <thead>
         <tr>
+          <th>Count</th>
           <th />
           <th class="full_width">
             Label
           </th>
-          <th>Count</th>
         </tr>
       </thead>
       <tbody>
@@ -25,6 +25,7 @@
           :class="{ highlight: item.buffered_determinations == selectedLabel }"
           :key="item.buffered_determinations"
         >
+          <td>{{ item.count_buffered }}</td>
           <td>
             <v-btn
               color="primary"
@@ -36,7 +37,6 @@
             </v-btn>
           </td>
           <td>{{ item.buffered_determinations }}</td>
-          <td>{{ item.count_buffered }}</td>
         </tr>
       </tbody>
     </table>

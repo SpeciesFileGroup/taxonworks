@@ -35,7 +35,7 @@
 <script setup>
 import { ref } from 'vue'
 import TaxonDetermination from './components/TaxonDetermination.vue'
-import CollectionObjectList from './components/CollectionObjectList.vue'
+import CollectionObjectList from './components/CollectionObject/CollectionObjectList.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import NavBar from 'components/layout/NavBar.vue'
 import LabelList from './components/LabelList.vue'
@@ -57,7 +57,7 @@ const confirmationModalRef = ref(null)
 
 const handleClick = async () => {
   const ok =
-    selectedCOIds.value.length <= 5 ||
+    selectedCOIds.value.length < 5 ||
     await confirmationModalRef.value.show({
       title: 'Create taxon determinations',
       message: 'This will add the current taxon determination to all collection object selected. Are you sure you want to proceed?',
