@@ -5,7 +5,9 @@
     class="btn-add-to-project circle-button"
     title="Add to project"
     @click="addToProject"
-  />
+  >
+    Add to project
+  </VBtn>
 
   <VBtn
     v-else
@@ -13,7 +15,9 @@
     class="btn-remove-from-project circle-button"
     title="Remove from project"
     @click="removeFromProject"
-  />
+  >
+    Remove from project
+  </VBtn>
 </template>
 
 <script setup>
