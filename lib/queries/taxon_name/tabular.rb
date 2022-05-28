@@ -93,14 +93,14 @@ module Queries
 
         @columns.push({ header: 'ro', projected: rank_over(table, valid_table) })
 
+        @columns.push({header: 'taxon_name_id', projected: table[:id].as('taxon_name_id') } )
+        @columns.push({header: 'cached_valid_taxon_name_id', projected: table[:cached_valid_taxon_name_id].as('cached_valid_taxon_name_id') } )
+        @columns.push({header: 'cached', projected: table[:cached].as('cached') } )
+
         if fieldsets.include?('observations')
           @columns.push({header: 'otu_id', projected: otu_table[:id].as('otu_id')  } )
           @columns.push({header: 'otu_name', projected:  otu_table[:name].as('otu_name')} )
         end
-
-        @columns.push({header: 'taxon_name_id', projected: table[:id].as('taxon_name_id') } )
-        @columns.push({header: 'cached_valid_taxon_name_id', projected: table[:cached_valid_taxon_name_id].as('cached_valid_taxon_name_id') } )
-        @columns.push({header: 'cached', projected: table[:cached].as('cached') } )
       end
 
       def fieldsets=(array)
@@ -205,7 +205,7 @@ module Queries
         q = q.from(table).where(w).distinct
         q = q.take(limit.to_i) if limit
 
-        @query = table.project( Arel::Nodes::SqlLiteral.new('*') ).from(q.as('p')).order( 'cached_valid_taxon_name_id', 'ro'  ) # if every field had a value this would work
+        @query = table.project( Arel::Nodes::SqlLiteral.new('*') ).from(q.as('p')).order( 'cached_valid_taxon_name_id', 'ro' ) # if every field had a value this would work
       end
 
       def rank_classes

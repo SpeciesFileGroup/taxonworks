@@ -86,9 +86,9 @@ export default {
       searching: false,
       params: this.initParams(),
       tableFilter: {
-        observation_count: undefined,
-        observation_depictions: undefined,
-        descriptors_scored: undefined
+        otu_observation_count: undefined,
+        otu_observation_depictions: undefined,
+        descriptors_scored_for_otu: undefined
       }
     }
   },
