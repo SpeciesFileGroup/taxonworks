@@ -28,6 +28,11 @@
       v-if="isLoading"
       full-screen
     />
+    <VSpinner
+      v-if="isCreating"
+      full-screen
+      legend="Creating determinations..."
+    />
     <ConfirmationModal ref="confirmationModalRef" />
   </div>
 </template>
@@ -45,6 +50,7 @@ import CuttoffInput from './components/CutoffInput.vue'
 import ConfirmationModal from 'components/ConfirmationModal.vue'
 
 const {
+  isCreating,
   isLoading,
   selectedLabel,
   createDeterminations,

@@ -4,6 +4,7 @@ import getPagination from 'helpers/getPagination'
 
 const state = reactive({
   isLoading: false,
+  isCreating: false,
   labels: [],
   collectionObjects: [],
   taxonDetermination: undefined,
@@ -43,10 +44,13 @@ const actions = {
       collection_object_id: state.selectedCOIds
     }
 
+    state.isCreating = true
+
     TaxonDetermination.createBatch(params).then(_ => {
       updateBufferedTable(state.selectedCOIds.length)
       state.collectionObjects = state.collectionObjects.filter(({ id }) => !state.selectedCOIds.includes(id))
       state.selectedCOIds = []
+      state.isCreating = false
       TW.workbench.alert.create('Taxon determinations were successfully created.', 'notice')
     })
   },
