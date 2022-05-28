@@ -102,12 +102,23 @@ class TaxonDeterminationsController < ApplicationController
   # GET /taxon_determinations/download
   def download
     send_data Export::Download.generate_csv(TaxonDetermination.where(project_id: sessions_current_project_id)),
-              type: 'text',
-              filename: "taxon_determinations_#{DateTime.now}.csv"
+      type: 'text',
+      filename: "taxon_determinations_#{DateTime.now}.csv"
+  end
+
+  # POST /taxon_determinations/batch_create
+  def batch_create
+    render json: TaxonDetermination.batch_create(
+      params[:collection_object_id],
+      taxon_determination_params.to_h.merge(
+        project_id: sessions_current_project_id,
+        by: sessions_current_user_id
+      )
+    )
   end
 
   private
-    def set_taxon_determination
+  def set_taxon_determination
       @taxon_determination = TaxonDetermination.with_project_id(sessions_current_project_id).find(params[:id])
       @recent_object = @taxon_determination
     end
