@@ -18,9 +18,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Upgrade PDF viewer library
 
 ### Fixed
+- Nomenclature and observation matrix stats [#1124] [#1356]
 - Cannot add a determination after editing one in comprehensive task [#2996]
 - "In project" button is not updated after select a different source in Edit source task [#3000]
 
+[#1356]: https://github.com/SpeciesFileGroup/taxonworks/issues/1356
+[#1124]: https://github.com/SpeciesFileGroup/taxonworks/issues/1124
 [#2911]: https://github.com/SpeciesFileGroup/taxonworks/issues/2911
 [#2863]: https://github.com/SpeciesFileGroup/taxonworks/issues/2863
 [#2995]: https://github.com/SpeciesFileGroup/taxonworks/issues/2995
