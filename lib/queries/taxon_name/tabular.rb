@@ -1,4 +1,3 @@
-
 module Queries
   module TaxonName
 
@@ -52,8 +51,7 @@ module Queries
       #   if true then only include valid names
       attr_accessor :validity
 
-
-      # Internal accessors
+      ### Internal 
 
       # @return [ the build query ]
       attr_accessor :query
@@ -75,11 +73,11 @@ module Queries
         super(nil, project_id: params[:project_id]) # We don't actually use project_id here
 
         @ancestor_id = params[:ancestor_id]
-        @combinations = boolean_param(params, :combinations) #[:combinations]&.downcase == 'true' ? true : false)
+        @combinations = boolean_param(params, :combinations)
         @limit = params[:limit]
         @ranks = params[:ranks]
         @rank_data = params[:rank_data]
-        @validity = boolean_param(params, :validity)  #(params[:validity]&.downcase == 'true' ? true : false)
+        @validity = boolean_param(params, :validity)
         @fieldsets = params[:fieldsets]
         @rank_id_fields = []
 
@@ -237,55 +235,68 @@ module Queries
         ApplicationRecord.connection.execute(@query.to_sql)
       end
 
-      # TODO: break out fieldset to its own concern
+      # Only calculates for OTUs, not through to 
+      # get CollectionObjects, nor Extracts
       def observations_set(query)
+        o = ::Observation.arel_table
 
         # Observations on OTUs
         f = 'otu_observation_count'
-        @columns.push({header: f, projected: '"fs_o1"."' + f + '" as ' + f })
-        o = ::Observation.arel_table
+        fa = 'fs_o1'
+        @columns.push({header: f, projected: '"' + fa +  '"."' + f + '" as ' + f })
+
         x = o.project(
           o[:observation_object_id],
           o[:observation_object_type],
-          o[:observation_object_id].count.as(f)
-        ).group(o[:observation_object_id], o[:observation_object_type]).as('fs_o1')
+          o[:id].count.as(f)
+        ).group(o[:observation_object_id], o[:observation_object_type]).as(fa)
 
         query.join(x, Arel::Nodes::OuterJoin).on(x[:observation_object_id].eq(otu_table[:id]).and( x[:observation_object_type].eq('Otu')  ))
 
         # Depictions on observations on OTUs
-
-        # TODO: returning multiple values and seemingly breaking the stats?!
         f = 'otu_observation_depictions'
-        @columns.push({header: f, projected: '"fs_o2"."' + f + '" as ' + f } )
+        fa = 'fs_o2'
+        @columns.push( {header: f, projected: '"' + fa + '"."' + f + '" as ' + f } )
 
         p = ::Depiction.arel_table
-        y = p.join(o, Arel::Nodes::OuterJoin).on(
-          p[:depiction_object_id].eq(o[:id])).where(p[:depiction_object_type].eq('Observation'))
-          .project(
-            o[:observation_object_id],
-            o[:observation_object_type],
-            p[:depiction_object_id],
-            p[:depiction_object_id].count.as(f)
-          ).group( o[:observation_object_id], o[:observation_object_type], p[:depiction_object_id], p[:depiction_object_type] ).as('fs_o2')
+        y = o.join(p, Arel::Nodes::InnerJoin).on(
+          o[:id].eq(p[:depiction_object_id]).and(
+            p[:depiction_object_type].eq('Observation')
+          )
+        ).project(
+          o[:observation_object_id], # an OTU id
+          p[:depiction_object_type],
+          p[:id].count.as(f)
+        ).group(
+          o[:observation_object_id],
+          p[:depiction_object_type]
+        ).as(fa)
 
         query.join(y, Arel::Nodes::OuterJoin).on(
           y[:observation_object_id].eq(otu_table[:id])
-          .and(y[:observation_object_type].eq('Otu'))
         )
 
         # Descriptors on OTUs scored
         f = 'descriptors_scored_for_otus'
-        @columns.push({header: f, projected: '"fs_d1"."' + f + '" as ' + f } )
+        fa = 'fs_d1'
+        @columns.push({header: f, projected: '"' + fa + '"."' + f + '" as ' + f } )
+
         z = o.project(
           o[:observation_object_id],
           o[:observation_object_type],
-          o[:descriptor_id].count.as(f)
-        ).group(o[:observation_object_id], o[:observation_object_type]).as('fs_d1')
+          o[:descriptor_id].count(true).as(f) # count(true) == distinct
+        ).group(
+          o[:observation_object_id],
+          o[:observation_object_type],
+        ).as(fa)
 
-        query.join(z, Arel::Nodes::OuterJoin).on( z[:observation_object_id].eq(otu_table[:id]).and(z[:observation_object_type].eq('Otu') ) )
+        query.join(z, Arel::Nodes::OuterJoin).on(
+          z[:observation_object_id].eq(otu_table[:id])
+          .and(z[:observation_object_type].eq('Otu'))
+        )
+        query
       end
 
-      # TODO: break out fieldset to its own concern
       def nomenclatural_stats_set(query)
         c = rank_data
 
