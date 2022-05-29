@@ -263,7 +263,7 @@ GEM
     faraday_middleware (1.2.0)
       faraday (~> 1.0)
     ffi (1.15.5)
-    ffi-geos (2.2.0)
+    ffi-geos (2.3.1)
       ffi (>= 1.0.0)
     formatador (1.1.0)
     globalid (1.0.0)
@@ -563,7 +563,7 @@ GEM
       rubyzip (>= 1.2.2, < 3.0)
       websocket (~> 1.0)
     semantic_range (3.0.0)
-    shakapacker (6.2.1)
+    shakapacker (6.3.0)
       activesupport (>= 5.2)
       rack-proxy (>= 0.6.1)
       railties (>= 5.2)
@@ -695,7 +695,7 @@ DEPENDENCIES
   execjs (~> 2.8.1)
   factory_bot_rails (~> 6.2)
   faker (~> 2.10)
-  ffi-geos (~> 2.2.0)
+  ffi-geos (~> 2.3.0)
   gnfinder (~> 0.16)
   gpx!
   groupdate (~> 5.2)
@@ -759,7 +759,7 @@ DEPENDENCIES
   sdoc (~> 2.2.0)
   seedbank (~> 0.5.0)
   serrano!
-  shakapacker (= 6.2.1)
+  shakapacker (= 6.3)
   shortener (~> 0.8.0)
   simplecov
   spring-commands-rspec (~> 1.0.4)

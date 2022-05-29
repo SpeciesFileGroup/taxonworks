@@ -29,7 +29,7 @@ gem 'roo-xls', '~> 1.2'
 gem 'net-smtp', '~> 0.3.1'
 
 # Geo
-gem 'ffi-geos', '~> 2.2.0'
+gem 'ffi-geos', '~> 2.3.0'
 # gem 'rgeo-shapefile', '~> 0.4.2'  # deprecated? not compatible- perhaps only used in
 gem 'rgeo', '~> 2.2'
 gem 'rgeo-geojson', '~> 2.1', '>= 2.1.1'
@@ -76,6 +76,7 @@ gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
 gem 'turbolinks', '~> 5.2.0'
 gem 'jquery-turbolinks', '~> 2.1'
+gem "shakapacker", '6.3'
 
 # BibTeX handling
 gem 'csl', '~> 1.6.0'
@@ -181,4 +182,4 @@ group :production do
   gem 'passenger', '~> 6.0.2'
 end
 
-gem "shakapacker", "= 6.2.1"
+
