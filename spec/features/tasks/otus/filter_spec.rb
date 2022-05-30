@@ -47,12 +47,8 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
           visit(index_path)
           find('label', text: "map").click
           # TODO: Helper method to calculate x-y and perform interaction
-          find('#drawable_map_canvas')
-            .hover.click(x: 256, y: 128) # [  0,   0]
-            .hover.click(x: 270, y: 128) # [ 10,   0]
-            .hover.click(x: 270, y: 143) # [ 10, -10]
-            .hover.click(x: 256, y: 143) # [  0, -10]
-            .hover.click(x: 256, y: 128) # [  0,   0]
+          [[256, 128], [270, 128], [270, 143], [256, 143], [256, 128]]
+            .inject(find('#drawable_map_canvas')) { |e, (x, y)| sleep 1; e.hover.click(x: x, y: y) }
           click_button('Set area')
           expect(page).to have_css('#area_count', text: '4')
         end
@@ -61,12 +57,8 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
           visit(index_path)
           find('label', text: "map").click
           # TODO: Helper method to calculate x-y and perform interaction
-          find('#drawable_map_canvas')
-            .hover.click(x: 256, y: 113).hover # [  0,  10]
-            .hover.click(x: 270, y: 113)  # [ 10,  10]
-            .hover.click(x: 270, y: 143) # [ 10, -10]
-            .hover.click(x: 256, y: 143) # [  0, -10]
-            .hover.click(x: 256, y: 113) # [  0,  10]
+          [[256, 113], [270, 113], [270, 143], [256, 143], [256, 113]]
+            .inject(find('#drawable_map_canvas')) { |e, (x, y)| sleep 1; e.hover.click(x: x, y: y) }
           click_button('Set area')
           expect(page).to have_css('#area_count', text: '9')
         end

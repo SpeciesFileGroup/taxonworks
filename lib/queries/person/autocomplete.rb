@@ -98,27 +98,29 @@ module Queries
       def autocomplete
         return [] if query_string.blank?
         queries = [
-          autocomplete_exact_id,
-          autocomplete_exact_match.limit(5),
-          autocomplete_exact_inverted.limit(5),
-          autocomplete_identifier_cached_exact,
-          autocomplete_identifier_identifier_exact,
-          autocomplete_exact_last_name_match.limit(20),
-          autocomplete_alternate_values_last_name.limit(20),
-          autocomplete_alternate_values_first_name.limit(20),
-          autocomplete_ordered_wildcard_pieces_in_cached&.limit(5),
-          autocomplete_cached_wildcard_anywhere&.limit(20), # in Queries::Query
-          autocomplete_cached
+          [ autocomplete_exact_id, false ],
+          [ autocomplete_exact_match.limit(5), true ],
+          [ autocomplete_exact_inverted.limit(5), true ],
+          [ autocomplete_identifier_cached_exact, false ],
+          [ autocomplete_identifier_identifier_exact, false ],
+          [ autocomplete_exact_last_name_match.limit(20), true ],
+          [ autocomplete_alternate_values_last_name.limit(20), true ],
+          [ autocomplete_alternate_values_first_name.limit(20), true ],
+          [ autocomplete_ordered_wildcard_pieces_in_cached&.limit(5), true ],
+          [ autocomplete_cached_wildcard_anywhere&.limit(20), true ], # in Queries::Query
+          [ autocomplete_cached, true ]
         ]
 
         queries.compact!
 
         updated_queries = []
-        queries.each_with_index do |q ,i|
-          if roles_assigned?
-            a = q.joins(:roles).where(role_match.to_sql)
-          elsif Current.project_id && i != 2 && i != 3 && i != 4 # do not use extended query for identifiers
-            a = q.left_outer_joins(:roles)
+        queries.each_with_index do |q, i|
+          if q[0].nil?
+            #do nothing
+          elsif roles_assigned?
+            a = q[0].joins(:roles).where(role_match.to_sql)
+          elsif Current.project_id && q[1] # do not use extended query for identifiers
+            a = q[0].left_outer_joins(:roles)
                   .joins("LEFT OUTER JOIN sources ON roles.role_object_id = sources.id AND roles.role_object_type = 'Source'")
                   .joins('LEFT OUTER JOIN project_sources ON sources.id = project_sources.source_id')
                   .select("people.*, COUNT(roles.id) AS use_count, CASE WHEN MAX(roles.project_id) = #{Current.project_id} THEN MAX(roles.project_id) ELSE MAX(project_sources.project_id) END AS in_project_id")
@@ -126,7 +128,7 @@ module Queries
                   .group('people.id')
                   .order('in_project_id, use_count DESC')
           end
-          a ||= q
+          a ||= q[0]
           updated_queries[i] = a
         end
         result = []

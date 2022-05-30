@@ -105,7 +105,7 @@ export default {
       }))
 
       promises.push(this.getList('/project_preferences.json').then(response => {
-        this.customPredicate = response.body.model_predicate_sets[this.metadata.object_type]
+        this.customPredicate = response.body.model_predicate_sets[this.metadata.object_type] || []
       }))
 
       Promise.all(promises).then(() => {

@@ -136,7 +136,7 @@ class TaxonNamesController < ApplicationController
   end
 
   def rank_table
-    @q = Queries::TaxonName::Tabular.new(
+    @query = Queries::TaxonName::Tabular.new(
       ancestor_id: params.require(:ancestor_id),
       ranks: params.require(:ranks),
       fieldsets: params[:fieldsets],

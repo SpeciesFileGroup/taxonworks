@@ -34,7 +34,7 @@ export default {
   }
 }
 </script>
-<style lang="scss" module>
+<style lang="scss" scoped>
   .warning-component {
     .warning-validation {
       cursor: pointer;

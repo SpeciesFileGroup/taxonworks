@@ -21,12 +21,22 @@
               type="radio"
               :value="type.id"
               name="collection-object-type"
-              @click="setPreparationType(type.id)"
+              @click="typeId = type.id"
             >
             {{ type.name }}
           </label>
         </li>
       </ul>
+    </div>
+    <div class="margin-medium-top">
+      <button
+        type="button"
+        class="button normal-input button-submit"
+        :disabled="!typeId"
+        @click="setPreparationType()"
+      >
+        Set preparation
+      </button>
     </div>
   </div>
 </template>
@@ -53,7 +63,8 @@ export default {
     return {
       maxPerCall: 5,
       isSaving: false,
-      preparationList: []
+      preparationList: [],
+      typeId: undefined
     }
   },
 
@@ -76,7 +87,7 @@ export default {
   },
 
   methods: {
-    setPreparationType (preparationId, arrayIds = this.ids.slice()) {
+    setPreparationType (preparationId = this.typeId, arrayIds = this.ids.slice()) {
       const ids = arrayIds.splice(0, this.maxPerCall)
       const requests = ids.map(id => CollectionObject.update(id, {
         collection_object: {

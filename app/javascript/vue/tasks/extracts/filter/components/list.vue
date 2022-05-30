@@ -12,17 +12,15 @@
                 v-model="selectIds"
                 type="checkbox">
             </th>
-            <th>ID</th>
-            <th>Extract</th>
-            <th>Year</th>
-            <th>Month</th>
-            <th>Day</th>
+            <th v-for="label in TABLE_HEADERS">
+              {{ label }}
+            </th>
             <th />
           </tr>
         </thead>
         <tbody>
           <tr
-            v-for="(item, index) in list"
+            v-for="(item, index) in makeExtractList(list)"
             :key="item.id"
             class="contextMenuCells"
             :class="{ even: index % 2 }"
@@ -33,11 +31,11 @@
                 :value="item.id"
                 type="checkbox">
             </td>
-            <td>{{ item.id }}</td>
-            <td v-html="item.object_tag" />
-            <td>{{ item.year_made }}</td>
-            <td>{{ item.month_made }}</td>
-            <td>{{ item.day_made }}</td>
+            <td
+              v-for="attr in TABLE_ATTRIBUTES"
+              :key="attr"
+              v-html="item[attr]"
+            />
             <td>
               <radial-navigation
                 :global-id="item.global_id"
@@ -57,6 +55,11 @@ import { sortArray } from 'helpers/arrays.js'
 import HandyScroll from 'vue-handy-scroll'
 import { vResizeColumn } from 'directives/resizeColumn.js'
 import RadialNavigation from 'components/radials/navigation/radial.vue'
+import makeExtractList from 'tasks/extracts/new_extract/helpers/makeExtractList'
+import {
+  TABLE_ATTRIBUTES,
+  TABLE_HEADERS
+} from 'tasks/extracts/new_extract/const/table.js'
 
 const props = defineProps({
   list: {
@@ -102,6 +105,8 @@ const sortTable = sortProperty => {
   emit('onSort', sortArray(this.list, sortProperty, ascending.value))
   ascending.value = !ascending.value
 }
+
+delete TABLE_ATTRIBUTES.global_id
 </script>
 
 <style lang="scss" scoped>

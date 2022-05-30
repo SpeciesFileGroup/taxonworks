@@ -1,5 +1,4 @@
 module CollectingEvent::Georeference
-
   extend ActiveSupport::Concern
 
   included do
@@ -18,6 +17,10 @@ module CollectingEvent::Georeference
 
     def preferred_georeference
       georeferences.order(:position).first
+    end
+
+    def preferred_georeference_geographic_item_id
+      georeferences.order(:position).limit(1).pluck(:geographic_item_id).first
     end
   end
 
@@ -43,7 +46,6 @@ module CollectingEvent::Georeference
   def longitude
     verbatim_map_center.try(:x)
   end
-
 
   # TODO: Helper method
   # @return [CollectingEvent]
@@ -147,7 +149,6 @@ module CollectingEvent::Georeference
     false
   end
 
-
   # @return [Symbol, nil]
   #   Prioritizes and identifies the source of the latitude/longitude values that
   #   will be calculated for DWCA and primary display
@@ -162,6 +163,5 @@ module CollectingEvent::Georeference
       nil
     end
   end
-
 
 end

@@ -182,6 +182,9 @@ module Queries
       #   taxon_name_ids for which all Combinations will be returned
       attr_accessor :combination_taxon_name_id
 
+
+      attr_accessor :rank
+
       # @param params [Params]
       #   as permitted via controller
       def initialize(params)
@@ -194,8 +197,9 @@ module Queries
         @leaves = boolean_param(params, :leves)
         @name = params[:name]
         @not_specified = boolean_param(params, :not_specified)
-        @nomenclature_code = params[:nomenclature_code]  if !params[:nomenclature_code].nil?
-        @nomenclature_group = params[:nomenclature_group]  if !params[:nomenclature_group].nil?
+        @nomenclature_code = params[:nomenclature_code] if !params[:nomenclature_code].nil?
+        @nomenclature_group = params[:nomenclature_group] if !params[:nomenclature_group].nil?
+        @rank = params[:rank]
         @otus = boolean_param(params, :otus)
         @etymology = boolean_param(params, :etymology)
         @project_id = params[:project_id]
@@ -410,8 +414,15 @@ module Queries
       # @return [Arel::Nodes::Grouping, nil]
       #   and clause
       def with_nomenclature_group
-        return nil if nomenclature_group.nil?
+        return nil if nomenclature_group.blank?
         table[:rank_class].matches(nomenclature_group)
+      end
+
+      # @return [Arel::Nodes::Grouping, nil]
+      #   and clause
+      def rank_facet
+        return nil if rank.blank?
+        table[:rank_class].matches('%' + rank) # We don't wildcard end so that we can isolate to specific ranks and below
       end
 
       # @return [Arel::Nodes::Grouping, nil]
@@ -508,6 +519,7 @@ module Queries
         # clauses += attribute_clauses
 
         clauses += [
+          rank_facet,
           parent_id_facet,
           author_facet,
           cached_name,

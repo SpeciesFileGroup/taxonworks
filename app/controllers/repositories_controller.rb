@@ -78,7 +78,7 @@ class RepositoriesController < ApplicationController
   end
 
   def autocomplete
-    @repositories = Queries::Repository::Autocomplete.new(params[:term], **autocomplete_params).autocomplete
+    @repositories = ::Queries::Repository::Autocomplete.new(params[:term], **autocomplete_params).autocomplete
   end
 
   # GET /repositories/download

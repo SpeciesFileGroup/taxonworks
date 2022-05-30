@@ -1,13 +1,17 @@
 <template>
   <div>
     <h3>Determinations</h3>
-    <taxon-determination-form @onAdd="addDetermination"/>
+    <taxon-determination-form 
+      create-form
+      @on-add="addDetermination"
+    />
     <display-list
       :list="list"
       @delete="removeTaxonDetermination"
       :radial-object="true"
       set-key="otu_id"
-      label="object_tag"/>
+      label="object_tag"
+    />
   </div>
 </template>
 
