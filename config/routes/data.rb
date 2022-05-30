@@ -674,6 +674,9 @@ end
 resources :tagged_section_keywords, only: [:create, :update, :destroy]
 
 resources :taxon_determinations do
+  collection do
+    post :batch_create, defaults: {format: :json}
+  end
   concerns [:data_routes]
 end
 

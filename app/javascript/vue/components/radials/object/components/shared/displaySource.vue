@@ -28,7 +28,7 @@ export default {
 }
 </script>
 
-<style lang="scss" module>
+<style lang="scss" scoped>
   .source-information {
     transform: translateX(-100%), translateY(-50%);
     position: fixed;

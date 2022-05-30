@@ -1,43 +1,45 @@
 <template>
-  <div>
-    <button
-      type="button"
-      class="button normal-input button-submit button-size"
-      :disabled="!source.id"
-      v-hotkey="shortcuts"
-      @click="showModal = true">
-      Clone
-    </button>
-    <modal-component
-      v-show="showModal"
-      @close="showModal = false">
-      <template #header>
-        <h3>Clone source</h3>
-      </template>
-      <template #body>
-        <p>
-          This will clone the current source.
-        </p>
-        <p>Are you sure you want to proceed? Type "{{ checkWord }}" to proceed.</p>
-        <input
-          type="text"
-          class="full_width"
-          v-model="inputValue"
-          @keypress.enter.prevent="cloneSource()"
-          ref="inputtext"
-          :placeholder="`Write ${checkWord} to continue`">
-      </template>
-      <template #footer>
-        <button
-          type="button"
-          class="button normal-input button-submit button-size"
-          :disabled="!isWordTyped"
-          @click="cloneSource()">
-          Clone
-        </button>
-      </template>
-    </modal-component>
-  </div>
+  <button
+    type="button"
+    class="button normal-input button-submit button-size margin-small-left"
+    :disabled="!source.id"
+    v-hotkey="shortcuts"
+    @click="showModal = true"
+  >
+    Clone
+  </button>
+  <modal-component
+    v-show="showModal"
+    @close="showModal = false"
+  >
+    <template #header>
+      <h3>Clone source</h3>
+    </template>
+    <template #body>
+      <p>
+        This will clone the current source.
+      </p>
+      <p>Are you sure you want to proceed? Type "{{ checkWord }}" to proceed.</p>
+      <input
+        type="text"
+        class="full_width"
+        v-model="inputValue"
+        @keypress.enter.prevent="cloneSource()"
+        ref="inputtext"
+        :placeholder="`Write ${checkWord} to continue`"
+      >
+    </template>
+    <template #footer>
+      <button
+        type="button"
+        class="button normal-input button-submit button-size"
+        :disabled="!isWordTyped"
+        @click="cloneSource()"
+      >
+        Clone
+      </button>
+    </template>
+  </modal-component>
 </template>
 
 <script>

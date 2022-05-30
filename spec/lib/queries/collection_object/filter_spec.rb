@@ -230,11 +230,25 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     expect(query.all.pluck(:id)).to contain_exactly(s.id)
   end
 
-  specify '#taxon_determinations' do
+  specify '#taxon_determinations 1' do
     s = FactoryBot.create(:valid_specimen)
     d = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s)
+    a = Specimen.create! # this one
     query.taxon_determinations = false
-    expect(query.all.pluck(:id)).to contain_exactly()
+    expect(query.all.pluck(:id)).to contain_exactly(a.id)
+  end
+
+  specify '#taxon_determinations #buffered_determinations' do
+    s = FactoryBot.create(:valid_specimen, buffered_determinations: 'Foo')
+    d = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s)
+    
+    a = Specimen.create!(buffered_determinations: 'Foo')  # this one
+    
+    query.taxon_determinations = false
+    query.exact_buffered_determinations = true
+    query.buffered_determinations = 'Foo'
+
+    expect(query.all.pluck(:id)).to contain_exactly(a.id)
   end
 
   specify '#georeferences' do
