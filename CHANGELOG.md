@@ -6,6 +6,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.26.0] - 2022-05-30
 ### Added 
 - Task - Stepwise determinations, facilitate verbatim to parsed determinations en masse [#2911]
 - Two more digitization stage types, "T" and "Inverted T" [#2863]
