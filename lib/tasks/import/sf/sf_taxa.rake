@@ -176,20 +176,20 @@ namespace :tw do
 
                   type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
 
-                  case bit_position
-                  when 10 # preoccupied; if not in scope, no relationship
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
-                    bit_flag_name = 'preoccupied'
-                  when 11 # primary homonym
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary'
-                    bit_flag_name = 'primary homonym'
-                  when 12 # secondary homonym
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
-                    bit_flag_name = 'secondary homonym'
-                  when 22 # unspecified homonym
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
-                    bit_flag_name = 'unspecified homonym'
-                  end
+                  # case bit_position
+                  # when 10 # preoccupied; if not in scope, no relationship
+                  #   type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
+                  #   bit_flag_name = 'preoccupied'
+                  # when 11 # primary homonym
+                  #   type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary'
+                  #   bit_flag_name = 'primary homonym'
+                  # when 12 # secondary homonym
+                  #   type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
+                  #   bit_flag_name = 'secondary homonym'
+                  # when 22 # unspecified homonym
+                  #   type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
+                  #   bit_flag_name = 'unspecified homonym'
+                  # end
 
                   Note.create!(
                     text: "Species File taxon (TaxonNameID = #{row['TaxonNameID']}), marked as '#{bit_flag_name}', created TaxonNameRelationship type '#{type}'",
