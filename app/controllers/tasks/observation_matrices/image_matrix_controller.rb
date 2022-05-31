@@ -1,14 +1,13 @@
 class Tasks::ObservationMatrices::ImageMatrixController < ApplicationController
   include TaskControllerConfiguration
-  include DataControllerConfiguration::ProjectDataControllerConfiguration
-
+  
   # GET /tasks/observation_matrices/image_matrix
   def index
   end
 
   # GET /tasks/observation_matrices/image_matrix/37/key
   def key
-    @key = ImageMatrix.new(**key_params)
+    @key = Tools::ImageMatrix.new(**key_params)
   end
 
   protected

@@ -38,6 +38,7 @@
               class="margin-small-left"
             >
               <v-icon
+                color="white"
                 name="scrollV"
                 small
               />

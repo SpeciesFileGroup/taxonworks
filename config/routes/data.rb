@@ -214,9 +214,11 @@ resources :descriptors do
     get :annotations, defaults: {format: :json}
   end
   collection do
+    get :units
     post :preview_modify_gene_descriptor_batch_load
     post :create_modify_gene_descriptor_batch_load
-    get :units
+    post :preview_qualitative_descriptor_batch_load
+    post :create_qualitative_descriptor_batch_load
   end
 end
 
@@ -231,7 +233,7 @@ resources :documents do
   concerns [:data_routes]
 end
 
-resources :downloads, except: [:edit, :new, :create] do
+resources :downloads, except: [:new, :create] do
   collection do
     get 'list'
   end
@@ -254,6 +256,7 @@ end
 resources :extracts do
   concerns [:data_routes]
   collection do
+    get :autocomplete, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
   end
 
@@ -404,15 +407,21 @@ resources :observation_matrices do
   resources :observation_matrix_column_items, shallow: true, only: [:index], defaults: {format: :json}
 
   member do
-    get :nexml, defaults: {format: :rdf}
-    get :tnt
-    get :nexus
-    get :otu_contents
-    #  get :csv
-    #  get :biom
+    scope :export do
+      get :nexml, defaults: {format: :rdf}
+      get :tnt
+      get :nexus
+      get :otu_contents
+      get :csv
+      get :descriptor_list
+      #  get :biom
+    end
 
     get :reorder_rows, defaults: {format: :json}
     get :reorder_columns, defaults: {format: :json}
+
+    get :row_labels, defaults: {format: :json}
+    get :column_labels, defaults: {format: :json}
   end
 
   collection do
@@ -434,14 +443,14 @@ resources :observation_matrix_rows, only: [:index, :show] do
   end
 end
 
-resources :observation_matrix_column_items do
+resources :observation_matrix_column_items, except: [:new] do
   concerns [:data_routes]
   collection do
     post :batch_create
   end
 end
 
-resources :observation_matrix_row_items do
+resources :observation_matrix_row_items, except: [:new] do
   concerns [:data_routes]
   collection do
     post :batch_create
@@ -665,6 +674,9 @@ end
 resources :tagged_section_keywords, only: [:create, :update, :destroy]
 
 resources :taxon_determinations do
+  collection do
+    post :batch_create, defaults: {format: :json}
+  end
   concerns [:data_routes]
 end
 

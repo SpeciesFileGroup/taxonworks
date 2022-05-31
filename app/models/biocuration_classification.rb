@@ -37,13 +37,13 @@ class BiocurationClassification < ApplicationRecord
 
   def update_dwc_occurrence
     if biocuration_class.uri == DWC_FOSSIL_URI
-      biological_collection_object.dwc_occurrence.update_attribute(:basisOfRecord, 'FossilSpecimen')
+      biological_collection_object.dwc_occurrence&.update_attribute(:basisOfRecord, 'FossilSpecimen')
     end
   end
 
   def revert_dwc_occurrence
     if biocuration_class.uri == DWC_FOSSIL_URI
-      biological_collection_object.dwc_occurrence.update_attribute(:basisOfRecord, 'PreservedSpecimen')
+      biological_collection_object.dwc_occurrence&.update_attribute(:basisOfRecord, 'PreservedSpecimen')
     end
   end
 

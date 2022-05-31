@@ -4,36 +4,40 @@
       :full-screen="true"
       :legend="'Saving...'"
       :logo-size="{ width: '100px', height: '100px'}"
-      v-if="isSaving"/>
+      v-if="isSaving"
+    />
     <div class="flex-separate middle">
       <h1>Task: New images</h1>
       <span
         data-icon="reset"
         class="cursor-pointer"
-        @click="resetStore">Reset
+        @click="resetStore"
+      >Reset
       </span>
     </div>
     <div class="panel content separate-bottom">
       <image-dropzone
         v-model="images"
         @delete="removeImage"
-        @onClear="clearDataCreated"/>
+        @on-clear="clearDataCreated"
+      />
     </div>
     <div class="separate-top separate-bottom">
-      <apply-attributes/>
+      <apply-attributes />
     </div>
     <div class="separate-top separate-bottom">
-      <persons-section/>
+      <persons-section />
     </div>
     <div class="separate-top separate-bottom">
       <div class="flexbox separate-bottom">
-        <pixels-unit class="margin-medium-right"/>
-        <depic-some class="panel-section separate-right"/>
-        <depiction-component class="panel-section separate-left"/>
+        <pixels-unit class="margin-medium-right" />
+        <depic-some class="panel-section separate-right" />
+        <depiction-component class="panel-section separate-left separate-right" />
+        <panel-tag class="panel-section separate-left" />
       </div>
     </div>
     <div class="separate-top separate-bottom">
-      <sqed-component/>
+      <sqed-component />
     </div>
   </div>
 </template>
@@ -47,10 +51,11 @@ import PersonsSection from './components/personsSection'
 import DepicSome from './components/depicSome'
 import SqedComponent from './components/sqed/sqed'
 import DepictionComponent from './components/depiction'
+import PixelsUnit from './components/pixelsUnit.vue'
+import PanelTag from './components/Panel/PanelTags.vue'
 import { GetterNames } from './store/getters/getters.js'
 import { MutationNames } from './store/mutations/mutations.js'
 import { ActionNames } from './store/actions/actions.js'
-import PixelsUnit from './components/pixelsUnit.vue'
 
 export default {
   components: {
@@ -61,7 +66,8 @@ export default {
     SpinnerComponent,
     SqedComponent,
     DepictionComponent,
-    PixelsUnit
+    PixelsUnit,
+    PanelTag
   },
   computed: {
     images: {

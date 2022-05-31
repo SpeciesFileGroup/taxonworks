@@ -7,6 +7,7 @@ const permitParams = {
     total: Number,
     preparation_type_id: Number,
     repository_id: Number,
+    current_repository_id: Number,
     ranged_lot_category_id: Number,
     collecting_event_id: Number,
     buffered_collecting_event: String,
@@ -51,9 +52,11 @@ export const CollectionObject = {
 
   dwc: (id) => AjaxCall('get', `/${controller}/${id}/dwc`),
 
-  reportDwc: (params) => AjaxCall('get', `/tasks/accessions/report/dwc.json`, { params }),
+  reportDwc: (params) => AjaxCall('get', '/tasks/accessions/report/dwc.json', { params }),
 
   dwcIndex: (params) => AjaxCall('get', `/${controller}/dwc_index`, { params }),
 
-  metadataBadge: (id) => AjaxCall('get', `/${controller}/${id}/metadata_badge`)
+  metadataBadge: (id) => AjaxCall('get', `/${controller}/${id}/metadata_badge`),
+
+  stepwiseDeterminations: (params) => AjaxCall('get', '/tasks/collection_objects/stepwise/determinations/data.json', { params })
 }

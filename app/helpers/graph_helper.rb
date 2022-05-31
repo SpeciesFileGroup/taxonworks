@@ -5,7 +5,7 @@ module GraphHelper
 
     case object.class.base_class.name
     when 'CollectionObject'
-      collection_object_graph(object, collecting_event: true, taxon_determinations: true, biological_associations: true).to_json
+      collection_object_graph(object, collecting_event: true, taxon_determinations: true, biological_associations: true, images: true).to_json
     when 'CollectingEvent'
       collecting_event_graph(object, collection_objects: true).to_json
     when 'TaxonName'
@@ -20,6 +20,8 @@ module GraphHelper
       citation_graph(object, source: true, citation_object: true, topics: true).to_json
     when 'Source'
       source_graph(object, citations: true, authors: true, editors: true).to_json
+    when 'Image'
+      image_graph(object, citations: true, depictions: true).to_json
     else
       g = Export::Graph.new( object: object )
       g.to_json
@@ -56,6 +58,41 @@ module GraphHelper
 
     g
   end
+
+  def image_graph(image, graph: nil, target: nil, depictions: false, citations: false, copyright_holders: true)
+    i = image
+    return nil if i.nil?
+
+    g = initialize_graph(graph, i, target)
+
+    if depictions
+      i.depictions.each do |d|
+        depiction_graph(d, graph: g, target: i)
+      end
+    end
+
+    if citations
+      i.citations.where(project_id: sessions_current_project_id).each do |c|
+        citation_graph(c, graph: g, target: i, citation_object: true, topics: true)
+      end
+    end
+
+    g
+  end
+
+  def depiction_graph(depiction, graph: nil, target: nil)
+    d = depiction
+    return nil if d.nil?
+
+    g = initialize_graph(graph, d, target)
+
+    o = d.depiction_object
+    g.add_node(o)
+    g.add_edge(d, o)
+
+    g
+  end
+
 
   def citation_graph(citation, graph: nil, target: nil, source: false, citation_object: false, topics: true)
     c = citation
@@ -101,7 +138,6 @@ module GraphHelper
 
     g
   end
-
 
   def collecting_event_graph(collecting_event, graph: nil, target: nil, collection_objects: false)
     c = collecting_event
@@ -183,7 +219,7 @@ module GraphHelper
   end
 
   # @return Export::Graph
-  def collection_object_graph(collection_object, graph: nil, target: nil, collecting_event: false, taxon_determinations: false, biological_associations: false)
+  def collection_object_graph(collection_object, graph: nil, target: nil, collecting_event: false, taxon_determinations: false, biological_associations: false, images: false)
     c = collection_object
     return nil if c.nil?
 
@@ -203,6 +239,12 @@ module GraphHelper
       g.add(o, c)
     end
 
+    if images
+      c.images.each do |i|
+        image_graph(i, graph: g, target: c)
+      end
+    end
+
     if taxon_determinations
     c.taxon_determinations.each do |d|
         taxon_determination_graph(d, graph: g, target: c, taxon_names: true)
@@ -210,14 +252,14 @@ module GraphHelper
     end
 
     if biological_associations
-    c.all_biological_associations.each do |b|
-      g.add_node(b.biological_association_subject)
-      g.add_node(b.biological_association_object)
-      g.add_node(b.biological_relationship)
+      c.all_biological_associations.each do |b|
+        g.add_node(b.biological_association_subject)
+        g.add_node(b.biological_association_object)
+        g.add_node(b.biological_relationship)
 
-      g.add_edge(b.biological_relationship, b.biological_association_subject)
-      g.add_edge(b.biological_relationship, b.biological_association_object)
-    end
+        g.add_edge(b.biological_relationship, b.biological_association_subject)
+        g.add_edge(b.biological_relationship, b.biological_association_object)
+      end
     end
 
     g

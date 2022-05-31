@@ -1,0 +1,151 @@
+<%= tag.h2 @klass.table_name.humanize + ' ' + @target.humanize.downcase + ' by member' -%>
+<% if @klass.is_community? %>
+  <%= tag.span("Community data are not specific to this project! This plot is across all projects by <em>this</em> project's members.".html_safe, class: [:feedback, 'feedback-warning']) %>
+<% end %>
+
+<p><em> Plots axes are number of records by <%= @target.humanize.downcase %></em> between <%= (@start_date.to_s + ' and ' + @end_date.to_s) %>. Click a name to toggle visibility. </p>
+<div>
+  <%= column_chart( @data , height: '400px', discrete: true, download: true) %> </div>
+
+<%= tag.h2 @klass.table_name.humanize + ' ' + @target.humanize.downcase + ' summary' -%>
+<p><%= @data.count %> people created <%= @data.collect{|d| d[:data].values}.flatten.sum %> total records over the timespan.</p>
+
+<table class="tablesorter">
+  <tr>
+    <th class="header"> Name </th>
+    <th class="header"> Total over timespan </th>
+    <th class="header"> Sample records (max 5)</th>
+  </tr>
+  <tbody>
+    <% @data.each do |d| %>
+      <tr>
+        <td> <%= d[:name] %> </td>
+        <td> <%= d[:data].values.sum %> </td>
+        <td> <%= klass = @klass.where("#{@target}_by_id": d[:id]).where("#{@klass.table_name}.#{@target}_at BETWEEN ? AND ?", @start_date, @end_date); klass = klass.where(project_id: sessions_current_project_id) if !@klass.is_community?; klass.limit(5).collect{|o| object_link(o) }.join('<br>').html_safe %> </td>
+      </tr>
+      <tr></tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= tag.h2 @klass.table_name.humanize + ' ' + @target.humanize.downcase + ' data' -%>
+<% columns = @data.inject([]){|a, h| a += h[:data].keys; a}.uniq.sort %>
+<table>
+  <tr>
+    <th> Name </th>
+    <%= columns.collect{|c| tag.th(c)}.join.html_safe %>
+  </tr>
+  <tbody>
+    <% @data.each do |d| %>
+      <tr>
+        <td> <%= d[:name] %> </td>
+        <%= columns.collect{|c| tag.td( d[:data][c] ) }.join.html_safe %>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<% if @user %>
+  <%= tag.h2 @klass.table_name.humanize +  ' session data for ' + user_tag(@user)  -%>
+  <% if !@sessions.empty? -%>
+    <p>
+    Between <%= @sessions.first[:start].strftime("%Y-%m-%d") -%> and <%= @sessions.last[:end].strftime("%Y-%m-%d") -%>
+  updated <%= @records.count(:all) -%> <%= @klass.table_name.humanize.downcase %> records in
+  <%= @sessions.count -%> sessions
+  in a total time  <%= distance_of_time_in_words ::Work.total_time(@sessions, true) -%> (<%= ::Work.total_time_in_hours(@sessions, true) -%> hours).
+    </p>
+    <p> <%= tag.span('Batch', class: ['feedback-info']) %> sessions are <em>predicted</em> as those with count &gt; <%= ::Work::BATCH_COUNT_CUTOFF %> and Records/minute &gt; <%= ::Work::BATCH_EFFICIENCY_CUTOFF %>. </p>
+    <table>
+      <tr>
+        <th>Batch?</th>
+        <th>Start date</th>
+        <th>Start time</th>
+        <th>End date</th>
+        <th>End time</th>
+        <th>Total time</th>
+        <th>Hours</th>
+        <th>Count</th>
+        <th>Minutes /<br> record </th>
+        <th>Records /<br> minute</th>
+      </tr>
+
+      <tr><td colspan="10" class='feedback-dark'>Total (Batch? = 'true' also includes batch sessions) </td></tr>
+      <%= content_tag(:tr, [
+        tag.td(),
+        tag.td(@sessions.first[:start].strftime("%Y-%m-%d")),
+        tag.td(@sessions.first[:start].strftime("%I:%M")),
+        tag.td(@sessions.last[:end].strftime("%Y-%m-%d")),
+        tag.td(@sessions.last[:end].strftime("%I:%M")),
+        tag.td( distance_of_time_in_words(::Work.total_time(@sessions, false))),
+        tag.td( ::Work.total_time_in_hours(@sessions, false )   ),
+        tag.td( record_count = ::Work.sum_count(@sessions, false) ),
+        tag.td( ::Work.average_records_per_minute(@sessions, false)),
+        tag.td( ::Work.average_minutes_per_record(@sessions, false)),
+        ].join.html_safe  ) -%>
+
+      <%= content_tag(:tr, [
+        tag.td('true'),
+        tag.td(@sessions.first[:start].strftime("%Y-%m-%d")),
+        tag.td(@sessions.first[:start].strftime("%I:%M")),
+        tag.td(@sessions.last[:end].strftime("%Y-%m-%d")),
+        tag.td(@sessions.last[:end].strftime("%I:%M")),
+        tag.td( distance_of_time_in_words(::Work.total_time(@sessions, true))),
+        tag.td( ::Work.total_time_in_hours(@sessions, true )   ),
+        tag.td( record_count = ::Work.sum_count(@sessions, true) ),
+        tag.td( ::Work.average_records_per_minute(@sessions, true)),
+        tag.td( ::Work.average_minutes_per_record(@sessions, true)),
+      ].join.html_safe, class: 'feedback-info'  ) -%>
+
+    <tr><td colspan="10" class='feedback-dark'>Sessions</td></tr>
+    <%= @sessions.collect{|s|
+      content_tag( :tr, [
+        tag.td( s[:batch] ),
+        tag.td(s[:start].strftime("%Y-%m-%d")),
+        tag.td(s[:start].strftime("%I:%M")),
+        tag.td(s[:end].strftime("%Y-%m-%d")),
+        tag.td(s[:end].strftime("%I:%M")),
+        tag.td( distance_of_time_in_words(s[:end] - s[:start])),
+        tag.td(((s[:end] - s[:start]) / 3600.0).round(2)),
+        tag.td(s[:count]),
+        tag.td(s[:efficiency]),
+        tag.td( s[:efficiency] == 0 ? '-' :  (1.00 / s[:efficiency]).round(3) ),
+
+      ].join.html_safe , class: [ (s[:batch] ? 'feedback-info' : nil) ].compact  )}
+        .flatten.join.html_safe  -%>
+
+    </table>
+  <% else %>
+    <p class='feedback feedback-warning'>User <%= @user.name -%> has no <em><%= @target.humanize.downcase %></em> records.</p>
+  <% end %>
+
+  <h3> Session plot, max 10 records/minute shown </h3>
+  <%= column_chart @sessions.collect{|s| [s[:start], s[:efficiency]]},
+    height: '400px',
+    download: true,
+    discrete: true,
+    max: 10,
+    ytitle: 'Records/minute' %>
+
+  <h3> Session plot, max 50 records/session shown </h3>
+  <%= column_chart @sessions.collect{|s| [s[:start], s[:count]]},
+    height: '400px',
+    download: true,
+    discrete: true,
+    max: 50,
+    ytitle: 'Records/session' %>
+<% end %>
+
+<% if @user.nil? %>
+  <%= tag.h2 @klass.table_name.humanize + ' ' + @target.humanize.downcase + ' by all project members' -%>
+  <% if @klass.is_community? %>
+    <% a = @klass.where("#{@klass.table_name}.#{@target}_at BETWEEN ? AND ?", @start_date, @end_date).where("#{@klass.table_name}.#{@target}_by_id IN (?)", sessions_current_project.project_members.pluck(:user_id)) %>
+    <%= "#{a.count} total records"  -%>
+    <%= column_chart(a .send("group_by_#{@time_span}", "#{@target}_at".to_sym ).count, download: true, discrete: true ) %>
+  <% else %>
+    <% a = @klass.where(project_id: sessions_current_project_id).count %>
+    <%= "#{a} total records"  -%>
+    <%= column_chart(@klass.where(project_id: sessions_current_project_id)
+      .where("#{@klass.table_name}.#{@target}_at BETWEEN ? AND ?", @start_date, @end_date)
+      .send("group_by_#{@time_span}", "#{@target}_at".to_sym ).count, download: true, discrete: true ) %>
+  <% end %>
+<% end %>

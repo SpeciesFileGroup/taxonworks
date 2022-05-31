@@ -1,7 +1,10 @@
 class ObservationMatricesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_observation_matrix, only: [:show, :api_show, :edit, :update, :destroy, :nexml, :tnt, :nexus, :otu_contents, :reorder_rows, :reorder_columns]
+  before_action :set_observation_matrix, only: [
+    :show, :api_show, :edit, :update, :destroy,
+    :nexml, :tnt, :nexus, :csv, :otu_contents, :descriptor_list,
+    :reorder_rows, :reorder_columns, :row_labels, :column_labels]
   after_action -> { set_pagination_headers(:observation_matrices) }, only: [:index, :api_index], if: :json_request?
 
   # GET /observation_matrices
@@ -92,6 +95,7 @@ class ObservationMatricesController < ApplicationController
     @observation_matrices = ObservationMatrix.where(project_id: sessions_current_project_id).where('name ilike ?', "%#{params[:term]}%")
   end
 
+  # TODO: deprecate
   def search
     if params[:id].blank?
       redirect_to observation_matrices_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
@@ -99,6 +103,13 @@ class ObservationMatricesController < ApplicationController
       redirect_to observation_matrix_path(params[:id])
     end
   end
+
+  def row_labels
+  end
+
+  def column_labels
+  end
+
 
   # TODO export formats can move to a concern controller
 
@@ -118,12 +129,25 @@ class ObservationMatricesController < ApplicationController
     @options = otu_contents_params
     respond_to do |format|
       base = '/observation_matrices/export/otu_content/index'
+      format.html { render base }
       format.text {
         s = render_to_string(base, layout: false)
         send_data(s, filename: "otu_contents_#{DateTime.now}.csv", type: 'text/plain')
       }
     end
   end
+
+  def descriptor_list
+    respond_to do |format|
+      base = '/observation_matrices/export/descriptor_list/'
+      format.html { render base + 'index' }
+      format.text {
+        s = render_to_string(partial: base + 'descriptor_list', locals: { as_file: true }, layout: false, formats: [:html])
+        send_data(s, filename: "descriptor_list_#{DateTime.now}.csv", type: 'text/plain')
+      }
+    end
+  end
+
 
   def tnt
     respond_to do |format|
@@ -132,6 +156,17 @@ class ObservationMatricesController < ApplicationController
       format.text {
         s = render_to_string(partial: base + 'tnt', locals: { as_file: true }, layout: false, formats: [:html])
         send_data(s, filename: "tnt_#{DateTime.now}.tnt", type: 'text/plain')
+      }
+    end
+  end
+
+  def csv
+    respond_to do |format|
+      base = '/observation_matrices/export/csv/'
+      format.html { render base + 'index' }
+      format.text {
+        s = render_to_string(partial: base + 'csv', locals: { as_file: true }, layout: false, formats: [:html])
+        send_data(s, filename: "csv_#{DateTime.now}.csv", type: 'text/plain')
       }
     end
   end
@@ -167,7 +202,7 @@ class ObservationMatricesController < ApplicationController
   end
 
   def otus_used_in_matrices
-    #ObservationMatrix.with_otu_ids_array([13597, 25680])
+    # ObservationMatrix.with_otu_ids_array([13597, 25680])
     if !params[:otu_ids].blank?
       p = ObservationMatrix.with_otu_id_array(params[:otu_ids].split('|')).pluck(:id)
       if p.nil?

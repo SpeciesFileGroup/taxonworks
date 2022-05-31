@@ -1,6 +1,6 @@
 <template>
   <div class="horizontal-left-content align-start">
-    <div>
+    <div class="matrix-tables">
       <rows-table
         class="margin-medium-bottom"
         :list="rowsListDynamic"
@@ -20,8 +20,8 @@
         :matrix-id="matrixId"
         :header="['Rows (all)', '']"
         :filter-remove="item => item.cached_observation_matrix_row_item_id"
-        :attributes="['observation_matrix_row_object_label']"
-        :global-id-path="['observation_matrix_row_object_global_id']"
+        :attributes="['observation_object_label']"
+        :global-id-path="['observation_object_global_id']"
         warning-message="You are trying to delete the OTU/collection object row from the matrix. Deleting the row from the matrix, does not delete OTU/collection object itself; it does not also delete the observations on this OTU. Are you sure you want to proceed?"
         @delete="removeRow($event.cached_observation_matrix_row_item_id)"
         edit
@@ -32,7 +32,7 @@
         @nextPage="loadRowPage"
         :pagination="fixedRowPagination"/>
     </div>
-    <div class="margin-medium-left">
+    <div class="margin-medium-left matrix-tables">
       <columns-table
         class="margin-medium-bottom"
         :list="columnsListDynamic"

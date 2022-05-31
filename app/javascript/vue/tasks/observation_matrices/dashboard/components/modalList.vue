@@ -76,6 +76,7 @@ import {
   ObservationMatrixRowItem,
   Otu
 } from 'routes/endpoints'
+import { OBSERVATION_MATRIX_ROW_SINGLE, OTU } from 'constants/index.js'
 
 export default {
   components: {
@@ -142,7 +143,7 @@ export default {
       this.loading = true
       this.show = true
       ObservationMatrix.all({ per: 500 }).then(response => {
-        this.matrices = response.body.sort((a, b) => { 
+        this.matrices = response.body.sort((a, b) => {
           const compareA = a.object_tag
           const compareB = b.object_tag
           if (compareA < compareB) {
@@ -156,7 +157,10 @@ export default {
         this.loading = false
       })
       if (this.otuSelected) {
-        ObservationMatrixRow.where({ otu_id: this.otuSelected }).then(response => {
+        ObservationMatrixRow.where({
+          observation_object_type: OTU,
+          observation_object_id: this.otuSelected
+        }).then(response => {
           this.rows = response.body
         })
       }
@@ -182,11 +186,16 @@ export default {
           Promise.all(promises).then(() => {
             const data = {
               observation_matrix_id: this.selectedMatrix.id,
-              otu_id: this.otuSelected,
-              type: 'ObservationMatrixRowItem::Single::Otu'
+              observation_object_id: this.otuSelected,
+              observation_object_type: OTU,
+              type: OBSERVATION_MATRIX_ROW_SINGLE
             }
+
             ObservationMatrixRowItem.create({ observation_matrix_row_item: data }).then(() => {
-              ObservationMatrixRow.where({ otu_id: this.otuSelected }).then(response => {
+              ObservationMatrixRow.where({
+                observation_object_type: OTU,
+                observation_object_id: this.otuSelected
+              }).then(response => {
                 this.rows = response.body
                 resolve(response)
               })

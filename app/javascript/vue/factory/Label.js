@@ -1,7 +1,7 @@
 export default (type) => ({
   id: undefined,
   text: '',
-  total: undefined,
+  total: 1,
   label_object_id: undefined,
   label_object_type: type
 })

@@ -35,7 +35,8 @@ module CollectionObjectsHelper
   def label_for_collection_object(collection_object)
     return nil if collection_object.nil?
     [ 'CollectionObject ' + collection_object.id.to_s,
-      collection_object.identifiers.first&.cached].compact.join(', ')
+      identifier_list_labels(collection_object)
+    ].compact.join('; ')
   end
 
   def collection_object_autocomplete_tag(collection_object)
@@ -196,4 +197,115 @@ module CollectionObjectsHelper
     c.to_svg
   end
 
+  # @return [GeoJSON feature, nil]
+  # @param base [Boolean]
+  #   wehther to annotate the feature properties with TW 'base' attributes
+  def collection_object_to_geo_json_feature(collection_object, base = true)
+    return nil if collection_object.nil?
+    if a = collecting_event_to_geo_json_feature(collection_object.collecting_event)
+      l = label_for_collection_object(collection_object)
+      a['properties']['target'] = {
+        'type' => 'CollectionObject',
+        'id' => collection_object.id,
+        'label' => l
+      }
+      if base
+        a['properties']['base'] =  {
+          'type' => 'CollectionObject',
+          'id' => collection_object.id,
+          'label' => l}
+      end
+      a
+    else
+      nil
+    end
+  end
+
+  # Perhaps a /lib/catalog method
+  # @return Hash
+  def collection_object_count_by_classification(scope = nil)
+    return [] if scope.nil?
+    specimen_data = {}
+    lot_data = {}
+
+    total_index = {}
+
+    scope.each do |n|
+      a = ::Queries::CollectionObject::Filter.new(project_id: sessions_current_project_id, ancestor_id: n.id, collection_object_type: 'Specimen').all
+      b = ::Queries::CollectionObject::Filter.new(project_id: sessions_current_project_id, ancestor_id: n.id, collection_object_type: 'Lot').all
+
+      ts = CollectionObject.where(id: a).calculate(:sum, :total)
+      tl = CollectionObject.where(id: b).calculate(:sum, :total)
+
+      if (ts > 0) || (tl > 0)
+        lot_data[n.cached] = tl
+        specimen_data[n.cached] = ts
+        total_index[n.cached] = ts + tl
+      end
+
+    end
+
+    # We only need to sort 1 pile!
+    specimen_data = specimen_data.sort{|a,b| total_index[b[0]] <=> total_index[a[0]] }.to_h
+
+    return {
+      total_index: total_index,
+      data: [
+        { name: 'Specimen', data: specimen_data},
+        { name: 'Lot', data: lot_data}
+      ]
+    }
+  end
+
+  # Perhaps a /lib/catalog method
+  # @return Hash
+  def collection_object_preparation_by_classification(scope = nil)
+    return [] if scope.nil?
+    data = {}
+    no_data = {}
+
+    preparations = ::PreparationType.joins(:collection_objects).where(collection_objects: {project_id: sessions_current_project_id}).distinct
+
+    i = 0
+    scope.each do |n|
+
+      j = []
+
+      a = ::Queries::CollectionObject::Filter.new(
+        project_id: sessions_current_project_id,
+        ancestor_id: n.id
+      )
+
+      # Yes a custom query could do this much faster
+      preparations.each do |p|
+        a.preparation_type_id = p.id
+        t = CollectionObject.where(id: a.all).calculate(:sum, :total)
+        if t > 0
+          j.push [p.name, t]
+          i += 1
+        end
+      end
+
+      if j.empty?
+        # There are no data at all, don't query for Missing
+        no_data[n.id] = n.cached
+      else
+        a.preparation_type_id = nil
+        a.preparation_type = false
+        w = CollectionObject.where(id: a.all).calculate(:sum, :total)
+        if w > 0
+          j.push ['Missing', w]
+        end
+
+        data[n.cached] = j
+      end
+    end
+
+    return {
+      labels: preparations.collect{|p| p.name} + ['Missing'],
+      data: data,
+      no_data: no_data
+    }
+
+  end
 end

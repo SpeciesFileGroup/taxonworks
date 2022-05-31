@@ -50,7 +50,7 @@
           class="no_bullets">
           <li
             v-for="item in rows"
-            :key="item.row_object.id">
+            :key="item.observation_object.id">
             <label>
               <input
                 type="checkbox"
@@ -59,9 +59,9 @@
                 :disabled="alreadyExist(item)">
               <span
                 class="disabled"
-                v-if="alreadyExist(item)"> <span v-html="item.row_object.object_tag" /> ({{ item.row_object.base_class }}) <span>(Already added)</span></span>
+                v-if="alreadyExist(item)"> <span v-html="item.observation_object.object_tag" /> ({{ item.observation_object.base_class }}) <span>(Already added)</span></span>
               <span v-else>
-                <span v-html="item.row_object.object_tag" /> ({{ item.row_object.base_class }})
+                <span v-html="item.observation_object.object_tag" /> ({{ item.observation_object.base_class }})
               </span>
             </label>
           </li>
@@ -174,7 +174,7 @@ export default {
   methods: {
     loadRows (page = undefined) {
       this.isLoading = true
-      GetMatrixObservationRows(this.matrixSelected.id, { per: 500, page: page }).then(response => {
+      GetMatrixObservationRows(this.matrixSelected.id, { per: 500, page: page, extend: ['observation_object'] }).then(response => {
         this.rows = this.rows.concat(response.body)
         this.pagination = getPagination(response)
         this.isLoading = false
@@ -182,18 +182,13 @@ export default {
     },
     addRows () {
       const index = this.existingRows.length
-      const data = this.rowsSelected.map(item => {
-        const property = item.row_object.base_class === 'Otu'
-          ? 'otu_id'
-          : 'collection_object_id'
-
-        return {
-          observation_matrix_id: this.matrixId,
-          [property]: item.row_object.id,
-          position: item.position + index,
-          type: this.types[item.row_object.base_class]
-        }
-      })
+      const data = this.rowsSelected.map(item => ({
+        observation_matrix_id: this.matrixId,
+        observation_object_id: item.observation_object.id,
+        observation_object_type: item.observation_object.base_class,
+        position: item.position + index,
+        type: this.types[item.observation_object.base_class]
+      }))
 
       data.sort((a, b) => a - b)
 
@@ -207,7 +202,7 @@ export default {
       })
     },
     alreadyExist (item) {
-      return this.existingRows.find(row => item.row_object.id === row.row_object.id)
+      return this.existingRows.find(row => item.observation_object.id === row.observation_object.id)
     },
     closeModal () {
       this.showModal = false

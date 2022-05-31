@@ -21,40 +21,62 @@
     </div>
   </div>
 
-  <ul>
+  <ul class="tree">
+  
     <% taxon_name.ancestor_protonyms.each do |p| -%>
-      <li data-valid-toggle="<%= p.is_valid? ? 'valid' : 'invalid' -%>">
-        <p>
+    <li data-valid="<%= p.is_valid? ? 'valid' : 'invalid' -%>">
+      <span>
         <%= taxon_name_parent_navigator_item_link(p, target) -%>
         <span>
           <%= p.cached_author_year -%>
         </span>
-        </p>
-      </li>
+      </span>
+    </li>
     <% end %>
 
-    <li class="selected">
-      <%= image_tag('arrow-right.svg') %>
-      <p>
-      <%= taxon_name_tag(taxon_name) -%>
-      <span>
-        <%= taxon_name.cached_author_year -%>
+    <li>
+      <span class="selected">
+        <%= full_taxon_name_tag(taxon_name) -%>
       </span>
-      </p>
+
+      <% if taxon_name.id == taxon_name.cached_valid_taxon_name_id && taxon_name_synonyms_list(taxon_name).any? %>
+      <ul 
+        class="list-synonym taxon-synonym"
+        data-valid="invalid">
+        <% taxon_name_synonyms_list(taxon_name).each do |syn| %>
+          <%= taxon_name_synonym_li(syn) -%>
+        <% end %>
+      </ul>
+      <% end %>
+
+      <ul class="tree descendent">
+        <% 
+        taxon_name.children.order(:name).where(type: 'Protonym').sort_by{|a| RANKS.index(a.rank_string)}.each do |p| 
+        -%>
+        <% if p.id == p.cached_valid_taxon_name_id %>
+          <li>
+            <span data-valid="<%= p.cached_is_valid ? 'valid' : 'invalid' -%>">
+              <%= taxon_name_parent_navigator_item_link(p, target) -%>
+              <span><%= p.cached_author_year -%></span>
+              <% v = p.descendants.that_is_valid.count -%>
+              <% iv = p.descendants.that_is_invalid.count -%>
+              <%= content_tag(:span, v, class: [:feedback, 'feedback-thin', 'feedback-primary']) if v > 0  %>
+              <%= content_tag(:span, iv, class: [:feedback, 'feedback-thin', 'feedback-secondary']) if iv > 0  %>
+            </span>
+
+            <% if p.id == p.cached_valid_taxon_name_id && taxon_name_synonyms_list(p).any? %>
+            <ul 
+              class="list-synonym"
+              data-valid="invalid">
+              <% taxon_name_synonyms_list(p).each do |syn| %>
+                <%= taxon_name_synonym_li(syn) -%>
+              <% end %>
+            </ul>
+            <% end %>
+          </li>
+          <% end %>
+        <% end %>
+      </ul>
     </li>
-  </ul>
-  <ul class="descendent">
-    <% taxon_name.children.order(:name).where(type: 'Protonym').each do |p| -%>
-      <li data-valid-toggle="<%= p.is_valid? ? 'valid' : 'invalid' -%>">
-        <p>
-        <%= taxon_name_parent_navigator_item_link(p, target) -%>
-        <span><%= p.cached_author_year -%></span>
-        <% v = p.descendants.that_is_valid.count -%>
-        <% iv = p.descendants.that_is_invalid.count -%>
-        <%= content_tag(:span, v, class: [:feedback, 'feedback-thin', 'feedback-primary']) if v > 0  %>
-        <%= content_tag(:span, iv, class: [:feedback, 'feedback-thin', 'feedback-secondary']) if iv > 0  %>
-        </p>
-      </li>
-    <% end %>
   </ul>
 </div>

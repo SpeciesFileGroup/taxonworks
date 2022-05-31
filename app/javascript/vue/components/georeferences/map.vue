@@ -179,15 +179,11 @@ onMounted(() => {
 })
 
 const resizeMap = () => {
-  const bounds = drawnItems.getBounds()
-
   mapObject.invalidateSize()
 
-  nextTick(() => {
-    if (Object.keys(bounds).length && props.fitBounds) {
-      mapObject.fitBounds(bounds, fitBoundsOptions)
-    }
-  })
+  if (props.fitBounds) {
+    centerShapesInMap()
+  }
 }
 
 const initEvents = () => {
@@ -314,16 +310,20 @@ const addGeoJsonLayer = geoJsonLayers => {
   }).addTo(drawnItems)
 
   if (props.fitBounds) {
-    if (getLayersCount(drawnItems)) {
-      mapObject.fitBounds([].concat(drawnItems.getBounds()), fitBoundsOptions)
-    } else {
-      const coordinates = geographicArea.getLayers().length
-        ? geographicArea.getBounds()
-        : [0, 0]
-
-      mapObject.fitBounds(coordinates, fitBoundsOptions)
-    }
+    centerShapesInMap()
   }
+}
+
+const centerShapesInMap = () => {
+  const bounds = drawnItems.getBounds()
+
+  bounds.extend(geographicArea.getBounds())
+
+  nextTick(() => {
+    if (Object.keys(bounds).length) {
+      mapObject.fitBounds(bounds, fitBoundsOptions)
+    }
+  })
 }
 
 const createMarker = (feature, latlng) => {

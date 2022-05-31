@@ -63,7 +63,7 @@
       <div class="flexbox separate-bottom">
         <div class="panel separate-left separate-right">
           <div id="browse-nomenclature-taxon-name" class="content subtitle filter middle">
-            <%= content_tag(:p, collection_object_tag(@collection_object), class: 'item center_text name', style: 'line-height: 23px;') -%>
+            <%= tag.p( collection_object_tag(@collection_object), class: 'item center_text name', style: 'line-height: 23px;') -%>
           </div>
 
           <div class="horizontal-center-content filter">
@@ -134,12 +134,13 @@
       </div>
 
       <div>
-        <div class="panel content separate-left">
+        <div class="content">
           <h2> Darwin Core representation </h2>
-          <p><i> This is rebuilt each time this page is loaded.</i></p>
-          <%= dwc_occurrence_health_tag(@collection_object.dwc_occurrence) -%>
-          <i> Large fields (e.g. footprintWKT) are not displayed here.</i>
-          <%= dwc_column(@collection_object.dwc_occurrence) -%>
+          <p> <%= dwc_occurrence_health_tag(@collection_object.dwc_occurrence) -%> </p>
+          <div class="panel content separate-left">
+            <%= tag.span('This is rebuilt each time this page is loaded. Large fields (e.g. footprintWKT) are not displayed here.', class: [:feedback, 'feedback-light']) -%>
+            <%= dwc_column(@collection_object.dwc_occurrence) -%>
+          </div>
         </div>
       </div>
 

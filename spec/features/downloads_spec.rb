@@ -37,7 +37,7 @@ describe 'Downloads', type: :feature, group: [:downloads] do
           end
 
           it 'allows file to be downloaded', js: true do
-            click_link('Download')
+            click_button('Download')
             expect(Features::Downloads::download_content).to eq(File.read(download.file_path))
           end
         end

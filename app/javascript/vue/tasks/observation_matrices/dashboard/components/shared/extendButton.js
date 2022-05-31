@@ -1,5 +1,6 @@
 import { ObservationMatrix, ObservationMatrixRowItem } from 'routes/endpoints'
 import { sortArray } from 'helpers/arrays'
+import { OTU, OBSERVATION_MATRIX_ROW_SINGLE } from 'constants/index.js'
 import ModalComponent from 'components/ui/Modal.vue'
 import SpinnerComponent from 'components/spinner.vue'
 import PinComponent from 'components/getDefaultPin.vue'
@@ -61,8 +62,9 @@ export default {
       const promises = []
       const data = this.otuIds.map(id => ({
         observation_matrix_id: matrixId,
-        otu_id: id,
-        type: 'ObservationMatrixRowItem::Single::Otu'
+        observation_object_id: id,
+        observation_object_type: OTU,
+        type: OBSERVATION_MATRIX_ROW_SINGLE
       }))
 
       data.forEach(row => {

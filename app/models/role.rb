@@ -123,6 +123,9 @@ require_dependency 'georeferencer'
 require_dependency 'determiner'
 require_dependency 'loan_recipient'
 require_dependency 'loan_supervisor'
+
+# Records below have not been hooked to Person activity years
+
 require_dependency 'accession_provider'
 require_dependency 'deaccession_recipient'
 require_dependency 'verifier'

@@ -9,14 +9,19 @@
     "import"
   ],
   "env": {
-    "browser": "true",
-    "es6": "true",
-    "jquery": "true"
+    "browser": true,
+    "es2021": true,
+    "jquery": true
+  },
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
   },
   "globals": {
-    "TW": "true",
-    "jquery": "true",
+    "TW": true,
+    "jquery": true,
     "defineEmits": true,
-    "defineProps": true
+    "defineProps": true,
+    "defineExpose": true
   }
 }

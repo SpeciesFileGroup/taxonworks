@@ -12,9 +12,10 @@ module Export::Download
   # @param [Boolean] trim_rows
   # @param [Boolean] trim_columns
   # @return [CSV]
-  def self.generate_csv(scope, exclude_columns: [], header_converters: [], trim_rows: false, trim_columns: false)
-    # Check to see if keys is deterministicly ordered
+  def self.generate_csv(scope, exclude_columns: [], header_converters: [], trim_rows: false, trim_columns: false, column_order: [])
+
     column_names = scope.columns_hash.keys
+    column_names = sort_column_headers(column_names, column_order.map(&:to_s)) if column_order.any?
 
     h = CSV.new(column_names.join(','), header_converters: header_converters, headers: true)
     h.read
@@ -80,7 +81,7 @@ module Export::Download
   # @return [Array]
   # @param table [Array]
   #   remove columns without any non-#blank? values (of course doing this in the scope is better!)
-  #   this is very slow, use a proper scope, and exclude_columns: [] options instead    
+  #   this is very slow, use a proper scope, and exclude_columns: [] options instead
   def self.trim_columns(table)
     to_delete = []
 
@@ -91,6 +92,23 @@ module Export::Download
     to_delete.each_with_index { |x, i| table.delete_at(x-i) }
     table
   end
+
+  # Sort order for columns
+  #   columns not in column order at added at the the *front* of the file
+  def self.sort_column_headers(column_names = [], column_order = [])
+    sorted = []
+    unsorted = []
+    column_names.each do |n|
+      if p = column_order.index(n)
+        sorted[p] = n
+      else
+        unsorted.push n
+      end
+    end
+
+    unsorted + sorted
+  end
+
 
 end
 

@@ -1,4 +1,4 @@
-# A descriptor that has qualitative states. For example a phylogenetic character.  Also used for descriptive matrices.
+# A descriptor that has qualitative states. For example a phylogenetic character. Also used for descriptive matrices.
 # Note that presence/absence descriptors have their own subclass and should be represented there to maximize utility.
 #
 class Descriptor::Qualitative < Descriptor 

@@ -78,9 +78,8 @@ class Person < ApplicationRecord
 
   validates :year_born, inclusion: {in: 0..Time.now.year}, allow_nil: true
   validates :year_died, inclusion: {in: 0..Time.now.year}, allow_nil: true
-  validates :year_active_start, inclusion: {in: 0..Time.now.year}, allow_nil: true
-  validates :year_active_end, inclusion: {in: 0..Time.now.year}, allow_nil: true
-
+  validates :year_active_start, inclusion: {in: 0..Time.now.year, message: "%{value} is not within the year 0-#{Time.now.year}"}, allow_nil: true
+  validates :year_active_end, inclusion: {in: 0..Time.now.year , message: "%{value} is not within the year 0-#{Time.now.year}"}, allow_nil: true
   validate :died_after_born
   validate :activity_ended_after_started
   validate :not_active_after_death

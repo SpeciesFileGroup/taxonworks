@@ -22,7 +22,7 @@
 import { Content } from 'routes/endpoints'
 import SectionPanel from './shared/sectionPanel'
 import extendSection from './shared/extendSections'
-import EasyMDE from 'easymde'
+import EasyMDE from 'easymde/dist/easymde.min.js'
 import DOMPurify from 'dompurify'
 
 export default {

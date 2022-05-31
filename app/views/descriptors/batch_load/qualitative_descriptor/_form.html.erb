@@ -1,0 +1,10 @@
+<%= form_tag url, multipart: true do -%>
+  <div class="field">
+    <%= label_tag :file, 'Select a file' -%>
+    <br>
+    <%= file_field_tag :file -%>
+  </div>
+
+  <%= content_for :warn_level -%>
+  <%= submit_tag submit, class: ['button-default'] -%>
+<% end %>

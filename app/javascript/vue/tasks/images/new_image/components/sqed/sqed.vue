@@ -76,10 +76,12 @@ import VerticalOffsetCrossLayout from './layouts/vertical_offset_cross'
 import SevenSlotLayout from './layouts/seven_slot'
 import LepStageLayout from './layouts/lep_stage'
 import LepStage2Layout from './layouts/lep_stage2'
+import TLayout from './layouts/t.vue'
+import InvertedTLayout from './layouts/t_inverted.vue'
 import VerticalSplitLayout from './layouts/vertical_split'
 import SpinnerComponent from 'components/spinner'
 
-import TagsComponent from '../tags'
+import TagsComponent from '../sqed/tags'
 import DataAttributes from '../dataAttributes'
 
 import { GetterNames } from '../../store/getters/getters.js'
@@ -103,7 +105,9 @@ export default {
     SpinnerComponent,
     TagsComponent,
     DataAttributes,
-    LepStage2Layout
+    LepStage2Layout,
+    TLayout,
+    InvertedTLayout
   },
 
   computed: {

@@ -51,6 +51,7 @@ import { GetterNames } from '../../../../store/getters/getters.js'
 import { MutationNames } from '../../../../store/mutations/mutations.js'
 import { parsedProperties } from 'tasks/collecting_events/new_collecting_event/helpers/parsedProperties.js'
 import { verbatimProperties } from 'tasks/collecting_events/new_collecting_event/helpers/verbatimProperties.js'
+import { sortArrayByArray } from 'helpers/arrays.js'
 import expandCE from '../../mixins/extendCE'
 
 export default {
@@ -93,15 +94,40 @@ export default {
     },
 
     generateVerbatimLabel () {
-      return this.componentsOrder.ComponentVerbatim.map(componentName => this.collectingEvent[verbatimProperties[componentName]]).filter(item => item)
+      return this.componentsOrder.ComponentVerbatim
+        .map(componentName => ({ [componentName]: this.collectingEvent[verbatimProperties[componentName]] }))
+        .filter(item => Object.values(item)[0])
     },
 
     generateParsedLabel () {
-      return this.componentsOrder.ComponentParse.map(componentName => parsedProperties[componentName]).filter(func => func).map(func => func(Object.assign({}, { ce: this.collectingEvent, tripCode: this.tripCode })))
+      return this.componentsOrder.ComponentParse
+        .map(componentName => ({ [componentName]: parsedProperties[componentName] }))
+        .filter(item => Object.values(item)[0])
+        .map(item => {
+          const [key, func] = Object.entries(item)[0]
+
+          return {
+            [key]: func({ ce: this.collectingEvent, tripCode: this.tripCode })
+          }
+        }
+      )
     },
 
     generateLabel () {
-      this.label.text = [].concat(this.generateVerbatimLabel(), this.generateParsedLabel().filter(label => label)).join('\n')
+      const objectLabels = Object.assign({},
+        ...this.generateVerbatimLabel(),
+        ...this.generateParsedLabel()
+      )
+
+      const AtStart = [
+        'TripIdentifier',
+        'TripCode',
+      ]
+
+      const sortedObjectLabelKeys = sortArrayByArray(Object.keys(objectLabels), AtStart)
+      const sortedLabels = sortedObjectLabelKeys.map(key => objectLabels[key]).filter(Boolean)
+
+      this.label.text = [...new Set(sortedLabels)].join('\n')
     }
   }
 }

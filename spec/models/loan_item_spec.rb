@@ -32,15 +32,24 @@ describe LoanItem, type: :model, group: :loans do
   specify 'OTU can be loaned 2x' do
     o = Otu.create!(name: 'giveaway')
     loan_item.update!(loan: loan, loan_item_object: o)
+    o.reload
     expect(LoanItem.create!(loan_item_object: o, loan: loan)).to be_truthy
   end
 
   specify 'collection object can NOT be loaned 2x' do
     s = Specimen.create!
     loan_item.update!(loan: loan, loan_item_object: s)
+    s.reload
     expect(LoanItem.new(loan_item_object: s, loan: loan).valid?).to be_falsey
   end
-  
+
+  specify 'loan item can be created when object previously returned from loan' do
+    s = Specimen.create!
+    loan_item.update!(loan: loan, loan_item_object: s, date_returned: Time.now.to_date )
+    s.reload
+    expect(LoanItem.new(loan_item_object: s, loan: loan).valid?).to be_truthy
+  end
+
   specify '#disposition can be updated on CollectionObject' do
     loan_item.update!(loan: loan, loan_item_object: Specimen.create!)
     expect(loan_item.update!(disposition: 'Donated')).to be_truthy

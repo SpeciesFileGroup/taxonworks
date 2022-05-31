@@ -43,6 +43,8 @@ class Repository < ApplicationRecord
   ALTERNATE_VALUES_FOR = [:name, :acronym]
 
   has_many :collection_objects, inverse_of: :repository, dependent: :restrict_with_error
+  has_many :current_collection_objects, class_name: 'CollectionObject', foreign_key: :current_repository_id, inverse_of: :current_repository, dependent: :restrict_with_error
+  
   has_many :extracts, inverse_of: :repository, dependent: :restrict_with_error
   
   validates_presence_of :name, :acronym

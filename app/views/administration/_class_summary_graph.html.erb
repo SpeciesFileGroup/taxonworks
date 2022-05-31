@@ -1,0 +1,5 @@
+<%= tag.h2 @klass.table_name.humanize -%>
+<p><em> Plots axes are number of records by <%= @target.humanize.downcase %></em> between <%= (@start_date.to_s + ' and ' + @end_date.to_s) %>.</p>
+<div>
+  <%= column_chart @data, height: '400px', discrete: true, download: true %>
+</div>

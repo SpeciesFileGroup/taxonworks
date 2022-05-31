@@ -49,7 +49,8 @@
               @create="createDepictionForAll"
               @delete="removeAllDepictionsByImageId"
               default-message="Drop images or click here<br> to add collection object figures"
-              action-save="SaveCollectionObject"/>
+              action-save="SaveCollectionObject"
+            />
           </div>
           <soft-validations
             v-if="showValidations"
@@ -104,7 +105,7 @@ import PreparationType from './preparationType.vue'
 import CatalogueNumber from '../catalogueNumber/catalogNumber.vue'
 import BufferedComponent from './bufferedData.vue'
 import DepictionsComponent from '../shared/depictions.vue'
-import RepositoryComponent from './repository.vue'
+import RepositoryComponent from './Repository/main.vue'
 import CitationComponent from './Citation/CitationMain.vue'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations.js'
@@ -241,7 +242,7 @@ export default {
     }
   },
   watch: {
-    collectionObject(newVal) {
+    collectionObject (newVal) {
       if (newVal.id) {
         this.cloneDepictions(newVal)
       }
@@ -250,27 +251,6 @@ export default {
   methods: {
     setAttributes (value) {
       this.collectionObject.data_attributes_attributes = value
-    },
-
-    newDigitalization () {
-      this.$store.dispatch(ActionNames.NewCollectionObject)
-      this.$store.dispatch(ActionNames.NewIdentifier)
-      this.$store.commit(MutationNames.NewTaxonDetermination)
-      this.$store.commit(MutationNames.SetTaxonDeterminations, [])
-    },
-
-    saveCollectionObject() {
-      this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
-        this.$store.commit(MutationNames.SetTaxonDeterminations, [])
-      })
-    },
-
-    saveAndNew() {
-      this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
-        setTimeout(() => {
-          this.newDigitalization()
-        }, 500)
-      })
     },
 
     cloneDepictions (co) {
@@ -303,7 +283,7 @@ export default {
       })
     },
 
-    createDepictionForAll(depiction) {
+    createDepictionForAll (depiction) {
       const coIds = this.collectionObjects.map((co) => co.id).filter(id => this.collectionObject.id !== id)
 
       this.depictions.push(depiction)
@@ -312,7 +292,7 @@ export default {
       })
     },
 
-    removeAllDepictionsByImageId(depiction) {
+    removeAllDepictionsByImageId (depiction) {
       this.$store.dispatch(ActionNames.RemoveDepictionsByImageId, depiction)
     },
 

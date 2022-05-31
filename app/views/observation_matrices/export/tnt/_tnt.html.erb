@@ -11,7 +11,7 @@ xread
 <%= as_file ? '&'.html_safe : '&' -%>[continuous]
 <% m.observation_matrix_rows.each do |r| -%>
   <%= observation_matrix_row_label(r).ljust(col_width) -%>
-  <% m.continuous_descriptors.each do |d| %><%= observations_cell_label(observations_hash, d, "#{r.otu_id}|#{r.collection_object_id}", :tnt) %><% end -%>
+  <% m.continuous_descriptors.each do |d| %><%= observations_cell_label(observations_hash, d, r.observation_index, :tnt) %><% end -%>
 <% end %>
 <% end -%>
 <% if m.qualitative_descriptors.load.any? -%>
@@ -19,7 +19,7 @@ xread
 
 <% m.observation_matrix_rows.each do |r| %>
   <%= observation_matrix_row_label(r).ljust(col_width) -%>
-  <% (m.qualitative_descriptors + m.presence_absence_descriptors).each do |d| %><%= observations_cell_label(observations_hash, d, "#{r.otu_id}|#{r.collection_object_id}", :tnt) %><% end -%>
+  <% (m.qualitative_descriptors + m.presence_absence_descriptors).each do |d| %><%= observations_cell_label(observations_hash, d, r.observation_index, :tnt) %><% end -%>
 <% end -%>
 <% end -%>
 ;

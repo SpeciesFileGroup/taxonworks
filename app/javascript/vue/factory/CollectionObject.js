@@ -4,6 +4,7 @@ export default () => ({
   total: 1,
   preparation_type_id: null,
   repository_id: undefined,
+  current_repository_id: undefined,
   ranged_lot_category_id: undefined,
   collecting_event_id: undefined,
   buffered_collecting_event: undefined,

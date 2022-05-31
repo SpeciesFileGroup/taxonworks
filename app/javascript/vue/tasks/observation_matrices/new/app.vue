@@ -102,7 +102,7 @@
             :is="`columns-${matrixMode}`"/>
         </div>
       </div>
-      <tables-component v-if="matrix.id"/>
+      <tables-component v-if="matrix.id" />
     </div>
   </div>
 </template>
@@ -217,6 +217,12 @@ export default {
     table {
       min-width: 500px;
       width: 100%;
+    }
+
+    .matrix-tables {
+      overflow-y: auto;
+      max-height: calc(100vh - 200px);
+      min-width: fit-content;
     }
   }
 </style>

@@ -100,18 +100,23 @@ export default {
 
   methods: {
     runFix (fixItems) {
-      const promises = []
+      const promises = fixItems.map(params => SoftValidation.fix(params.global_id, params))
 
-      fixItems.forEach(params => { promises.push(SoftValidation.fix(params.global_id, params)) })
+      Promise.all(promises).then(responses => {
+        const softValidations = responses.map(r => r.body.soft_validations)
+        const notFixed = [].concat(...softValidations).filter(validation => validation.fixed === 'fix_error')
 
-      Promise.all(promises).then(() => {
-        location.reload()
+        if (notFixed.length) {
+          TW.workbench.alert.create(notFixed.map(f => f.failure_message).join('; '), 'error')
+        } else {
+          location.reload()
+        }
       })
     },
 
     getFixPresent (list) {
       return list.map(item =>
-        Object.assign({}, {
+        ({
           global_id: item.instance.global_id,
           only_methods: item.soft_validations
             .filter(v => v.fixable)

@@ -9,19 +9,25 @@
         <div class="horizontal-left-content full_width">
           <input
             v-model="matrixName"
+            autofocus
             class="full_width margin-small-right"
-            type="text">
+            type="text"
+          >
           <button
             v-if="!matrix.id"
             @click="create"
             class="normal-input button button-submit"
-            type="button">Create
+            type="button"
+          >
+            Create
           </button>
           <button
             v-else
             @click="updateMatrix"
             class="normal-input button button-submit"
-            type="button">Update
+            type="button"
+          >
+            Update
           </button>
         </div>
       </div>
@@ -31,10 +37,12 @@
           <switch-component
             class="margin-small-bottom"
             :options="['Column', 'Row']"
-            v-model="matrixView"/>
+            v-model="matrixView"
+          />
           <switch-component
             :options="['fixed', 'dynamic']"
-            v-model="matrixMode"/>
+            v-model="matrixMode"
+          />
         </div>
       </template>
     </div>
@@ -51,42 +59,49 @@ import { ObservationMatrix } from 'routes/endpoints'
 import SwitchComponent from './switch.vue'
 
 export default {
-  components: {
-    SwitchComponent
-  },
+  components: { SwitchComponent },
+
   computed: {
     matrixName: {
       get () {
         return this.$store.getters[GetterNames.GetMatrix].name
       },
+
       set (value) {
         this.$store.commit(MutationNames.SetMatrixName, value)
       }
     },
+
     matrix: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetMatrix]
       },
-      set(value) {
+
+      set (value) {
         this.$store.commit(MutationNames.SetMatrix, value)
       }
     },
+
     matrixView: {
       get () {
         return this.$store.getters[GetterNames.GetMatrixView] === 'column'
       },
+
       set (value) {
         this.$store.commit(MutationNames.SetMatrixView, (value ? 'column' : 'row'))
       }
     },
+
     matrixMode: {
       get () {
         return this.$store.getters[GetterNames.GetMatrixMode] === 'fixed'
       },
+
       set (value) {
         this.$store.commit(MutationNames.SetMatrixMode, (value ? 'fixed' : 'dynamic'))
       }
     },
+
     validateData () {
       return this.$store.getters[GetterNames.GetMatrix].name &&
             !this.$store.getters[GetterNames.GetMatrix].id

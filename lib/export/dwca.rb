@@ -17,7 +17,9 @@ module Export
       '2021-11-04 17:00:00.000000 -0500',    # Minor  Removes '|', fixes some mappings
       '2021-11-08 13:00:00.000000 -0500',    # PENDING: Minor  Adds depth mappings
       '2021-11-30 13:00:00.000000 -0500',    # Fix inverted long,lat 
-      '2022-01-21 16:30:00.000000 -0500'     # basisOfRecord can now be FossilSpecimen; occurrenceId exporting; adds redundant time fields
+      '2022-01-21 16:30:00.000000 -0500',    # basisOfRecord can now be FossilSpecimen; occurrenceId exporting; adds redundant time fields
+      '2022-03-31 16:30:00.000000 -0500',    # collectionCode, occurrenceRemarks and various small fixes
+      '2022-04-28 16:30:00.000000 -0500'     # add dwcOccurrenceStatus
     ]
 
     # @param record_scope [ActiveRecord::Relation]
@@ -63,7 +65,7 @@ module Export
       a = record_scope.first&.to_global_id&.to_s
       b = record_scope.last&.to_global_id&.to_s
 
-      t = record_scope.size # was haveing problems with count
+      t = record_scope.size # was having problems with count
 
       metadata = {
         total: t,

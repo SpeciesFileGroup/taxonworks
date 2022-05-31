@@ -24,38 +24,37 @@ class Extract < ApplicationRecord
   include Shared::OriginRelationship
   include Shared::Containable
   include Shared::DataAttributes
+  include Shared::Observations
+  include Shared::Tags
   include SoftValidation
   include Shared::IsData
 
   is_origin_for 'Extract', 'Sequence'
-  originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot', 'Otu'
+  originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot', 'Otu', 'CollectionObject'
 
   belongs_to :repository, inverse_of: :extracts
 
   has_many :extractor_roles, -> { order('roles.position ASC') }, class_name: 'Extractor', as: :role_object, dependent: :destroy, validate: true
   has_many :extractors, -> { order('roles.position ASC') }, through: :extractor_roles, source: :person, validate: true
-  
-  # Upstream 
+
+  # Upstream - aliases of `origin_otus` and `origin_collection_objects` TODO remove
   has_many :otus, through: :related_origin_relationships, source: :old_object, source_type: 'Otu'
   has_many :collection_objects, through: :related_origin_relationships, source: :old_object, source_type: 'CollectionObject'
 
-  # Downstresm
+  # Downstresm - aliases of `derived_*`, TODO: remove
   has_many :sequences, through: :origin_relationships, source: :new_object, source_type: 'Sequence'
   has_many :extracts, through: :related_origin_relationships, source: :old_object, source_type: 'Extract'
 
-
   attr_accessor :is_made_now
-
   before_validation :set_made, if: -> {is_made_now}
 
   validates :year_made, date_year: { min_year: 1757, max_year: -> {Time.now.year} }
   validates :month_made, date_month: true
   validates :day_made, date_day: {year_sym: :year_made, month_sym: :month_made}, unless: -> {year_made.nil? || month_made.nil?}
 
-
   # @return Array
   #   all inferred or asserted OTUs that this OTU came from
-  def referenced_otus 
+  def referenced_otus
     [
       [otus],
       [collection_objects.collect{|o| o.current_otu} ]

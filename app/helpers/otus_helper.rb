@@ -10,7 +10,7 @@ module OtusHelper
   def otu_tag_elements(otu)
     return nil if otu.nil?
     [
-      ( otu.name ? content_tag(:span, otu.name, class: :otu_tag_otu_name) : nil ),
+      ( otu.name ? content_tag(:span, otu.name, class: :otu_tag_otu_name, title: otu.id) : nil ),
       ( otu.taxon_name ? content_tag(:span, full_taxon_name_tag(otu.taxon_name).html_safe, class: :otu_tag_taxon_name, title: otu.taxon_name.id) : nil)
     ].compact
   end
@@ -43,7 +43,7 @@ module OtusHelper
   def otus_link_list_tag(otus)
     otus.collect { |o| link_to(o.name, o) }.join(',')
   end
- 
+
   # Stub a smart link to browse OTUs
   # @param object [an instance of TaxonName or Otu]
   #   if TaxonName is provided JS UI will disambiguate if more options are possible
@@ -94,9 +94,103 @@ module OtusHelper
         .distinct
         .reorder('taxon_name_hierarchies.generations DESC, taxon_names.cached_valid_taxon_name_id').each do |t|
           above.push [t.cached, t.otus.to_a] # TODO: to_a vs. pluck
-      end
+        end
     end
     above
+  end
+
+  # @return Hash
+  #   A GeoJSON collection of distribution data in x parts
+  #     need a `to_geo_json` for each object
+  #
+  #      :asserted_distributions
+  #         with shape
+  #         without shapes
+  #      :collection_objects
+  #           with georeferences
+  #           with GeographicAreas
+  #      :type material
+  #           with georeferences
+  #           with GeographicAreas
+  # TODO:
+  #
+  #  * make properties universal
+  #    type: 'Model',
+  #    id: id,
+  #    label: <label>
+  # * merge origin_otu_id: id to reference coordinate OTUs
+  #
+  #  target:
+  #    type: Otu
+  #    label:
+  #    id
+  #
+  #  base:   # one level above target (or one level below shape?!)
+  #    type:
+  #    id:
+  #
+  #  shape: # Either GeographicArea or Georeference
+  #     type
+  #     id
+  #
+  def otu_distribution(otu, children = true)
+    return {} if otu.nil?
+    otus = if children
+             otu.coordinate_otus_with_children
+           else
+             Otu.coordinate_otus(otu.id)
+           end
+
+    t = 40
+    if otus.size > t
+      return { request_too_large: true,
+               message: "The number of children (#{t}) of this OTU is too large to presently return."
+      }
+    end
+
+    h = {
+      'type' => 'FeatureCollection',
+      'features' => [],
+      'properties' => {
+        'target' => { # Top level target
+          'id' => otu.id,
+          'label' => label_for_otu(otu),
+          'type' => 'Otu'
+        }
+      }
+    }
+
+    otus.each do |o|
+
+      # internal target
+      t = {
+        'id' => o.id,
+        'type' => 'Otu',
+        'label' => label_for_otu(otu)
+      }
+
+      o.current_collection_objects.each do |c|
+        if g = collection_object_to_geo_json_feature(c)
+          g['properties']['target'] = t
+          h['features'].push g
+        end
+      end
+
+      o.asserted_distributions.each do |a|
+        if g = asserted_distribution_to_geo_json_feature(a)
+          g['properties']['target'] = t
+          h['features'].push g
+        end
+      end
+
+      o.type_materials.each do |e|
+        if g = type_material_to_geo_json_feature(e)
+          g['properties']['target'] = t
+          h['features'].push g
+        end
+      end
+    end
+    h
   end
 
 end

@@ -1,12 +1,16 @@
 <template>
   <div class="panel content">
     <h2>Taxon determination</h2>
-    <taxon-determination-form @onAdd="addDetermination"/>
+    <taxon-determination-form
+      create-form
+      @on-add="addDetermination"
+    />
     <list-component
       :list="taxon_determinations"
-      @deleteIndex="removeTaxonDetermination"
+      @delete-index="removeTaxonDetermination"
       set-key="otu_id"
-      label="object_tag"/>
+      label="object_tag"
+    />
   </div>
 </template>
 

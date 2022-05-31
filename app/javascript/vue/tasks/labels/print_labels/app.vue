@@ -15,7 +15,7 @@
     <navbar-component>
       <div class="horizontal-right-content middle">
         <preview-labels
-          :disabled="!(styleSelected && labels.length)"
+          :disabled="!(styleSelected && selectedLabels.length)"
           class="margin-small-right"
           :class-selected="styleSelected"
           :rows="layout.rows"
@@ -23,7 +23,7 @@
           :divisor="layout.divisor"
           :separator="layout.separator"
           :custom-style="customStyle"
-          :labels="labels"/>
+          :labels="selectedLabels"/>
         <label-form
           v-model="label"
           @save="saveLabel"/>
@@ -102,6 +102,12 @@ export default {
         url: '/collection_objects/new'
       }],
       customStyle: ''
+    }
+  },
+
+  computed: {
+    selectedLabels () {
+      return this.list.filter(item => this.labels.includes(item.id))
     }
   },
 

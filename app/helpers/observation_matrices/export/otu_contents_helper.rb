@@ -54,7 +54,7 @@ module ObservationMatrices::Export::OtuContentsHelper
           order(:otu_id)
 
         otus.each do |o|
-          description = Catalog::DescriptionFromObservationMatrix.new(project_id: m.project_id, observation_matrix_id: m.id, otu_id: o.id)
+          description = Tools::Description::FromObservationMatrix.new(project_id: m.project_id, observation_matrix_id: m.id, otu_id: o.id)
           csv << ['row_' + o.row_id.to_s, 'Description', description.generated_description ]
         end
       end
@@ -99,7 +99,7 @@ module ObservationMatrices::Export::OtuContentsHelper
 
       if options[:include_depictions] == 'true'
         tw_url = 'https://sfg.taxonworks.org'
-        im =  ImageMatrix.new(
+        im = Tools::ImageMatrix.new(
           project_id: m.project_id,
           otu_filter: otu_ids.join('|'))
         descriptors = im.list_of_descriptors.values
@@ -118,14 +118,13 @@ module ObservationMatrices::Export::OtuContentsHelper
               lbl = lbl.compact.join('; ')
 
               if im.image_hash[depiction[:image_id]][:image_file_content_type] == 'image/tiff'
-                href = tw_url + im.image_hash[depiction[:image_id]][:medium_url]
+                href = im.image_hash[depiction[:image_id]][:medium_url]
               else
-                href = tw_url + im.image_hash[depiction[:image_id]][:original_url]
+                href = im.image_hash[depiction[:image_id]][:original_url]
               end
 
               list += "<span class='tw_depiction'><br>\n"
-              short_url(im.image_hash[depiction[:image_id]][:original_url])
-              list += tag.img(src: href , class: 'tw_image') + "<br.\n"
+              list += "#{tag.img(src: short_url(href), class: 'tw_image')}<br>\n"
               #list += (tag.b('Object:') +  object[1][:object].otu_name + "<br>\n") unless object[1][:object].otu_name.blank?
               #list += "<b>Description:</b> #{descriptors[index][:name]}<br>\n" unless descriptors[index].blank?
               list += "<b>Label:</b> #{lbl}<br>\n" unless lbl.blank?

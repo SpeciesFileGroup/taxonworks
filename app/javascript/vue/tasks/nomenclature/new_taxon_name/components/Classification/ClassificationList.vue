@@ -14,7 +14,7 @@
       @select="emit('select', {
         name: $event.name,
         type: $event.type
-      })"
+      }); currentTab = TAB.common"
     />
   </div>
 </template>

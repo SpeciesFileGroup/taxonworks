@@ -216,7 +216,7 @@ class TaxonName < ApplicationRecord
   # TODO: think of a different name, and test
   has_many :historical_taxon_names, class_name: 'TaxonName', foreign_key: :cached_valid_taxon_name_id
 
-  has_many :observation_matrix_row_items, inverse_of: :taxon_name, class_name: 'ObservationMatrixRowItem::Dynamic::TaxonName', dependent: :delete_all
+  has_many :observation_matrix_row_items, as: :observation_object, inverse_of: :observation_object, class_name: 'ObservationMatrixRowItem::Dynamic::TaxonName', dependent: :destroy # was delete_all
   has_many :observation_matrices, through: :observation_matrix_row_items
 
   # TODO: revisit?
@@ -1309,7 +1309,6 @@ class TaxonName < ApplicationRecord
       a = [taxon.try(:author_string)]
       y = [taxon.try(:year_integer)]
     end
-
     if a[0] =~ /^\(.+\)$/ # (Author)
       a[0] = a[0][1..-2] ## remove parentheses in the author string
       p = true
@@ -1329,9 +1328,10 @@ class TaxonName < ApplicationRecord
         if self.type == 'Combination'
           cg = genus
         else
-          cg = ancestor_at_rank('genus')
+          par = TaxonNameRelationship.where_subject_is_taxon_name(taxon).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_PARENTHESES).any?
+          cg = (par == false && !misspelling.empty?) ? og : ancestor_at_rank('genus')
         end
-        unless og.nil? || cg.nil?
+        if !og.nil? && !cg.nil?
           ay = '(' + ay + ')' if !ay.empty? && og.normalized_genus.id != cg.normalized_genus.id
         end
       end

@@ -11,28 +11,27 @@
 
 <h3> Line breakdown </h3>
 <% if content_for?(:line_breakdown) -%>
-    <%= yield :line_breakdown -%>
+  <%= yield :line_breakdown -%>
 <% else %>
+  <table class="top_align_text" border="1">
+    <tr>
+      <th class="four_character_width">line</th>
+      <th class="four_character_width">data count</th>
+      <th class="four_character_width">valid count*</th>
+      <th class="one_third_width">data errors</th>
+      <th>parse errors</th>
+    </tr>
 
-    <table class="top_align_text" border="1">
+    <% @result.sorted_processed_rows.each do |i, rp| -%>
       <tr>
-        <th class="four_character_width">line</th>
-        <th class="four_character_width">data count</th>
-        <th class="four_character_width">valid count*</th>
-        <th class="one_third_width">data errors</th>
-        <th>parse errors</th>
+        <%= batch_line_link_td(i) -%>
+        <%= batch_all_objects_count_td(rp) -%>
+        <%= batch_valid_objects_td(rp) -%>
+        <%= batch_data_errors_td(rp) -%>
+        <%= batch_parse_errors_td(rp) -%>
       </tr>
-
-      <% @result.sorted_processed_rows.each do |i, rp| -%>
-          <tr>
-            <%= batch_line_link_td(i) -%>
-            <%= batch_all_objects_count_td(rp) -%>
-            <%= batch_valid_objects_td(rp) -%>
-            <%= batch_data_errors_td(rp) -%>
-            <%= batch_parse_errors_td(rp) -%>
-          </tr>
-      <% end -%>
-    </table>
+    <% end -%>
+  </table>
 <% end %>
 
 <h3> Input file </h3>

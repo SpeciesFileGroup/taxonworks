@@ -21,7 +21,7 @@ module CollectionObject::DwcExtensions
       eventDate: :dwc_event_date,
       eventTime: :dwc_event_time,
       year: :dwc_year,
-      month: :dwc_day,
+      month: :dwc_month,
       day: :dwc_day,
       startDayOfYear: :dwc_start_day_of_year,
       endDayOfYear: :dwc_end_day_of_year,
@@ -77,8 +77,12 @@ module CollectionObject::DwcExtensions
       georeferencedDate: :dwc_georeferenced_date,
       verbatimSRS: :dwc_verbatim_srs,
 
+      occurrenceStatus: :dwc_occurrence_status,
+
       # TODO: move to a proper extensions
-      associatedMedia: :dwc_associated_media
+      associatedMedia: :dwc_associated_media,
+
+      occurrenceRemarks: :dwc_occurrence_remarks,
 
       # -- Core taxon? --
       # nomenclaturalCode
@@ -137,6 +141,15 @@ module CollectionObject::DwcExtensions
 
   def is_fossil?
     biocuration_classes.where(uri: DWC_FOSSIL_URI).any?
+  end
+
+  def dwc_occurrence_status
+    'present'
+  end
+
+  # https://dwc.tdwg.org/list/#dwc_georeferenceRemarks
+  def dwc_occurrence_remarks
+    notes.collect{|n| n.text}.join('|')
   end
 
   # https://dwc.tdwg.org/terms/#dwc:associatedMedia
@@ -390,6 +403,10 @@ module CollectionObject::DwcExtensions
 
   def dwc_institution_code
     repository.try(:acronym)
+  end
+
+  def dwc_collection_code
+    catalog_number_namespace&.verbatim_short_name || catalog_number_namespace&.short_name
   end
 
   def dwc_catalog_number

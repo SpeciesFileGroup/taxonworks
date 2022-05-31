@@ -1,4 +1,5 @@
 import baseCRUD, { annotations } from './base'
+import AjaxCall from 'helpers/ajaxCall'
 
 const controller = 'taxon_determinations'
 const permitParams = {
@@ -15,6 +16,7 @@ const permitParams = {
       type: String,
       person_id: Number,
       position: Number,
+      organization_id: Number,
       person_attributes: {
         last_name: String,
         first_name: String,
@@ -33,5 +35,8 @@ const permitParams = {
 
 export const TaxonDetermination = {
   ...baseCRUD(controller, permitParams),
-  ...annotations(controller)
+
+  ...annotations(controller),
+
+  createBatch: (params) => AjaxCall('post', `/${controller}/batch_create`, params)
 }

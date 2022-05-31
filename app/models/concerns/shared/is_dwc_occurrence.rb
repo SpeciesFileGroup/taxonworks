@@ -31,7 +31,7 @@ module Shared::IsDwcOccurrence
       t = ::DwcOccurrence.arel_table
       s = self.arel_table
 
-      k = self::DWC_OCCURRENCE_MAP.keys.sort
+      k = self::DWC_OCCURRENCE_MAP.keys #.sort
 
       if mode.to_sym == :view
         k = k - self::VIEW_EXCLUSIONS
