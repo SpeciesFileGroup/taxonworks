@@ -709,6 +709,7 @@ DEPENDENCIES
   kaminari (~> 1.2.0)
   logic_tools
   logical_query_parser
+  matrix (~> 0.4.2)
   modularity (~> 3.0.0)
   namecase (~> 2.0)
   net-smtp (~> 0.3.1)
