@@ -6,8 +6,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Changed
+- Upgraded to Ruby 3.1 [#3011]
 
+[#3011]: https://github.com/SpeciesFileGroup/taxonworks/pull/3011
 ## [0.26.0] - 2022-05-30
 ### Added 
 - Task - Stepwise determinations, facilitate verbatim to parsed determinations en masse [#2911]
