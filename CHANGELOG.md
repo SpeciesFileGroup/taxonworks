@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Upgraded to Ruby 3.1 [#3011]
 
 [#3011]: https://github.com/SpeciesFileGroup/taxonworks/pull/3011
+
 ## [0.26.0] - 2022-05-30
 ### Added 
 - Task - Stepwise determinations, facilitate verbatim to parsed determinations en masse [#2911]
@@ -2682,7 +2683,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.25.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.26.0...development
+[0.26.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.25.0...v0.26.0
 [0.25.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.5...v0.25.0
 [0.24.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.4...v0.24.5
 [0.24.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.3...v0.24.4
