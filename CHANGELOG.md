@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Upgraded to Ruby 3.1 [#3011]
+- Updated Ruby gems
 
 [#3011]: https://github.com/SpeciesFileGroup/taxonworks/pull/3011
 
