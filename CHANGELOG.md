@@ -59,6 +59,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Use Catalog for API source of OTU nomenclature citations
 
 ### Fixed
+- Improved project activity to include current session [#3013]
 - Extract/protocol UI issues [#2990]
 - Source year_suffix preventing cloning [#2992]
 - Dwca eml.xml file validates locally [#2986]

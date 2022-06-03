@@ -49,6 +49,15 @@ module Work
       last_time = current_time
     end
 
+    current_session[:end] = last_time
+    if current_session[:count] == 1
+      current_session[:efficiency] = 0.0
+    else
+      current_session[:efficiency] = (current_session[:count].to_f / ((current_session[:end] - current_session[:start]) / 60.0)).round(3)
+    end
+    current_session[:batch] = true if (current_session[:count] > BATCH_COUNT_CUTOFF) &&  (current_session[:efficiency] > BATCH_EFFICIENCY_CUTOFF )
+    sessions.push current_session
+
     sessions
   end
 
