@@ -29,12 +29,13 @@ module Work
       if current_time - last_time > 3600.0
 
         current_session[:end] = last_time
+        current_session[:end] = last_time + 5.minutes if  current_session[:start] = current_session[:end] # at least 5 min per record, if only one record was created
 
-        if current_session[:count] == 1
-          current_session[:efficiency] = 0.0
-        else
+#        if current_session[:count] == 1
+#          current_session[:efficiency] = (1/5).round(3)
+#        else
           current_session[:efficiency] = (current_session[:count].to_f / ((current_session[:end] - current_session[:start]) / 60.0)).round(3)
-        end
+#        end
 
         # TODO: add efficiency comparison here
         current_session[:batch] = true if (current_session[:count] > BATCH_COUNT_CUTOFF) &&  (current_session[:efficiency] > BATCH_EFFICIENCY_CUTOFF )
@@ -50,11 +51,8 @@ module Work
     end
 
     current_session[:end] = last_time
-    if current_session[:count] == 1
-      current_session[:efficiency] = 0.0
-    else
-      current_session[:efficiency] = (current_session[:count].to_f / ((current_session[:end] - current_session[:start]) / 60.0)).round(3)
-    end
+    current_session[:end] = last_time + 5.minutes if  current_session[:start] = current_session[:end]
+    current_session[:efficiency] = (current_session[:count].to_f / ((current_session[:end] - current_session[:start]) / 60.0)).round(3)
     current_session[:batch] = true if (current_session[:count] > BATCH_COUNT_CUTOFF) &&  (current_session[:efficiency] > BATCH_EFFICIENCY_CUTOFF )
     sessions.push current_session
 
@@ -67,19 +65,8 @@ module Work
       start: current_time, # Time of session start
       end: nil,            # Time of session end
       count: 1,            # Number of records updated
-      efficiency: nil      # Records updated per minute
+      efficiency: 0      # Records updated per minute (at least 5 min per record, if only a single record was created)
     }
-  end
-
-  # @return [Integer, nil]
-  #   in seconds
-  def self.total_time(sessions)
-    return 0 if sessions.nil?
-    t = 0
-    sessions.each do |s|
-      t += s[:end] - s[:start]
-    end
-    t
   end
 
   # @return [Integer, nil]
@@ -137,7 +124,7 @@ module Work
       i += s[:count]
       t += s[:end] - s[:start]
     end
-    (i.to_f / (t / 60)).round(3)
+    ( i.to_f / (t / 60)).round(3)
   end
 
   def self.average_minutes_per_record(sessions, include_batch = false)
