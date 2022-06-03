@@ -27,6 +27,7 @@ gem 'rmagick', '~> 4.2', '>= 4.2.2'
 gem 'roo', '~> 2.8', '>= 2.8.3'
 gem 'roo-xls', '~> 1.2'
 gem 'net-smtp', '~> 0.3.1'
+gem "matrix", "~> 0.4.2"
 
 # Geo
 gem 'ffi-geos', '~> 2.3.0'
@@ -76,7 +77,7 @@ gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
 gem 'turbolinks', '~> 5.2.0'
 gem 'jquery-turbolinks', '~> 2.1'
-gem "shakapacker", '6.3'
+gem "shakapacker", '~>6.3'
 
 # BibTeX handling
 gem 'csl', '~> 1.6.0'
@@ -181,5 +182,3 @@ group :production do
   gem 'execjs', '~> 2.8.1'
   gem 'passenger', '~> 6.0.2'
 end
-
-

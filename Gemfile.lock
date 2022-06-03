@@ -350,7 +350,7 @@ GEM
     minitest (5.15.0)
     modularity (3.0.1)
     multi_json (1.15.0)
-    multipart-post (2.1.1)
+    multipart-post (2.2.0)
     namae (1.1.1)
     namecase (2.0.0)
     nenv (0.3.0)
@@ -557,13 +557,13 @@ GEM
       rdoc (>= 5.0)
     seedbank (0.5.0)
       rake (>= 10.0)
-    selenium-webdriver (4.2.0)
+    selenium-webdriver (4.2.1)
       childprocess (>= 0.5, < 5.0)
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 3.0)
       websocket (~> 1.0)
     semantic_range (3.0.0)
-    shakapacker (6.3.0)
+    shakapacker (6.4.0)
       activesupport (>= 5.2)
       rack-proxy (>= 0.6.1)
       railties (>= 5.2)
@@ -709,6 +709,7 @@ DEPENDENCIES
   kaminari (~> 1.2.0)
   logic_tools
   logical_query_parser
+  matrix (~> 0.4.2)
   modularity (~> 3.0.0)
   namecase (~> 2.0)
   net-smtp (~> 0.3.1)
@@ -759,7 +760,7 @@ DEPENDENCIES
   sdoc (~> 2.2.0)
   seedbank (~> 0.5.0)
   serrano!
-  shakapacker (= 6.3)
+  shakapacker (~> 6.3)
   shortener (~> 0.8.0)
   simplecov
   spring-commands-rspec (~> 1.0.4)
