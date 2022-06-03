@@ -29,7 +29,7 @@ module Work
       if current_time - last_time > 3600.0
 
         current_session[:end] = last_time
-        current_session[:end] = last_time + 5.minutes if  current_session[:start] = current_session[:end] # at least 5 min per record, if only one record was created
+        current_session[:end] = last_time + 5.minutes if current_session[:start] == current_session[:end] # at least 5 min per record, if only one record was created
 
 #        if current_session[:count] == 1
 #          current_session[:efficiency] = (1/5).round(3)
@@ -51,7 +51,7 @@ module Work
     end
 
     current_session[:end] = last_time
-    current_session[:end] = last_time + 5.minutes if  current_session[:start] = current_session[:end]
+    current_session[:end] = last_time + 5.minutes if current_session[:start] == current_session[:end]
     current_session[:efficiency] = (current_session[:count].to_f / ((current_session[:end] - current_session[:start]) / 60.0)).round(3)
     current_session[:batch] = true if (current_session[:count] > BATCH_COUNT_CUTOFF) &&  (current_session[:efficiency] > BATCH_EFFICIENCY_CUTOFF )
     sessions.push current_session
