@@ -8,6 +8,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.26.2] - 2022-06-05
+
+### Changed
+- Updated Ruby gems
+### Fixed
+- Filter collection object not working when attempting to show the record
+
 ## [0.26.1] - 2022-06-03
 
 ### Changed
@@ -2688,7 +2695,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.26.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.26.2...development
+[0.26.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.26.1...v0.26.2
 [0.26.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.26.0...v0.26.1
 [0.26.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.25.0...v0.26.0
 [0.25.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.24.5...v0.25.0
