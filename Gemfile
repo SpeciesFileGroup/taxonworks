@@ -106,7 +106,7 @@ gem 'ruby-graphviz', '~> 1.2.5', require: false
 
 # "Bio" and SFG gems
 gem 'taxonifi', '~> 0.6.0'
-gem 'sqed', '0.7.0'
+gem 'sqed', '~>0.7.0'
 gem 'dwc_agent', '~> 3.0'
 gem 'dwc-archive', github: 'LocoDelAssembly/dwc-archive', branch: 'overhaul' # '~> 1.1', '>= 1.1.2'
 gem 'biodiversity', github: 'GlobalNamesArchitecture/biodiversity', branch: 'pipe_approach' # '~> 5.1', '>= 5.1.1'

@@ -6,7 +6,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Changed
+- Updated Ruby gems
+### Fixed
+- Filter collection object not working when attempting to show the record
 
 ## [0.26.1] - 2022-06-03
 
