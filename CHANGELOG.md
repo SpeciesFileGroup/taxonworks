@@ -6,6 +6,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Interactive key engine endpoint `/api/v1/observation_matrices/123/key.json`
+
+
 \-
 
 ## [0.26.2] - 2022-06-05

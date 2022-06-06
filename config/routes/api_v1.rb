@@ -102,6 +102,7 @@ namespace :api, defaults: {format: :json} do
       get '/observations', to: '/observations#api_index'
       get '/observations/:id', to: '/observations#api_show'
 
+      get '/observation_matrices/:observation_matrix_id/key', to: '/tasks/observation_matrices/interactive_key#api_key'
       get '/observation_matrices', to: '/observation_matrices#api_index'
       get '/observation_matrices/:id', to: '/observation_matrices#api_show'
 
