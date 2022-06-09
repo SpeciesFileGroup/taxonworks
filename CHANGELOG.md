@@ -8,8 +8,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
-- Interactive key engine endpoint `/api/v1/observation_matrices/123/key.json`
-
+- API interactive key engine endpoint `/api/v1/observation_matrices/123/key.json`
+- API depictions endpoint `api/v1/depictions/123.json?extend[]=image&extend[]=sqed_depiction&extend[]=figures` 
 
 \-
 

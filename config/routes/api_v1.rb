@@ -99,6 +99,8 @@ namespace :api, defaults: {format: :json} do
       get '/data_attributes', to: '/data_attributes#api_index'
       get '/data_attributes/:id', to: '/data_attributes#api_show'
 
+      get '/depictions/:id', to: '/depictions#api_show'
+
       get '/observations', to: '/observations#api_index'
       get '/observations/:id', to: '/observations#api_show'
 
@@ -109,7 +111,6 @@ namespace :api, defaults: {format: :json} do
       get '/images', to: '/images#api_index'
       get '/images/:id/file', to: '/images#api_file', as: :image_file
       get '/images/:id', to: '/images#api_show'
-
 
       # get '/controlled_vocabulary_terms'
     end
