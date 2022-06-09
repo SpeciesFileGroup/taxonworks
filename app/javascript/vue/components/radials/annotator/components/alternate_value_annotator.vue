@@ -66,14 +66,14 @@
     edit
     @edit="loadAlternateValue"
     @delete="removeItem"
-    class="list"/>
+  />
 </template>
 <script>
 
 import CRUD from '../request/crud.js'
 import annotatorExtend from '../components/annotatorExtend.js'
 import SwitchComponent from 'components/switch.vue'
-import DisplayList from './displayList.vue'
+import DisplayList from 'components/displayList.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
 import VBtn from 'components/ui/VBtn/index.vue'

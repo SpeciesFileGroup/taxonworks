@@ -81,6 +81,14 @@ class Catalog
     t.uniq.sort{|a, b| (a&.cached_nomenclature_date || Time.now) <=> (b&.cached_nomenclature_date || Time.now)}.compact
   end
 
+  def citations
+    t = []
+    entries.each do |e|
+      t += e.all_citations
+    end
+    t.uniq.sort{|a, b| (a&.source.cached_nomenclature_date || Time.now) <=> (b&.source.cached_nomenclature_date || Time.now)}.compact
+  end
+
   # TODO: optimize ;)
   def objects_for_source(source)
     d = []

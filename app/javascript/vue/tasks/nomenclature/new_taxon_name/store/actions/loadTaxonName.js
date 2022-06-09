@@ -12,6 +12,7 @@ export default function ({ commit, dispatch }, id) {
         commit(MutationNames.SetTaxon, filterObject(response.body))
         dispatch('setParentAndRanks', response.body.parent)
         dispatch('loadSoftValidation', 'taxon_name')
+        dispatch('loadSoftValidation', 'original_combination')
         resolve(response.body)
       } else {
         if (response.body.name === 'Root') {

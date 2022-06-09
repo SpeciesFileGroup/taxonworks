@@ -7,7 +7,7 @@ class Catalog::EntryItem
   # The source of this entry item, e.g. a TaxonNameRelationship
   attr_accessor :object
 
-  # Optional, should be provided explicitly 
+  # Optional, should be provided explicitly
   attr_accessor :citation
 
   # @return [Time, nil]
@@ -25,7 +25,7 @@ class Catalog::EntryItem
   attr_accessor :pages
 
   # @return [Symbol]
-  #   a pointer to a method in /app/helpers 
+  #   a pointer to a method in /app/helpers
   attr_accessor :to_html_method
 
   #
@@ -47,7 +47,7 @@ class Catalog::EntryItem
   def initialize(object: nil, base_object: nil, citation: nil, nomenclature_date: nil, year_suffix: nil, pages: nil, citation_date: nil, current_target: nil)
     raise if object.nil?
     @object = object
-    @base_object = base_object 
+    @base_object = base_object
     @nomenclature_date = nomenclature_date
     @year_suffix = citation.try(:source).try(:year_suffix)
     @pages =  citation.try(:source).try(:pages)
@@ -65,14 +65,14 @@ class Catalog::EntryItem
       'history-object-id' => object.to_global_id.to_s,
       'history-year' => nomenclature_date&.year || 'unknown',
       'history-is-first' => is_first,
-      'history-is-last' => is_last, 
+      'history-is-last' => is_last,
       'history-is-cited' => (citation ? true : false),
       'history-is-current-target' => matches_current_target
     }
   end
 
   def references_self?
-    object == base_object 
+    object == base_object
   end
 
   # See Subclasses for extensions
@@ -116,12 +116,12 @@ class Catalog::EntryItem
     end
   end
 
-  # @return [Array of Topic] 
+  # @return [Array of Topic]
   #   the topics on this object for this Citation/Source combination *only*
   def topics
     t = []
     if source
-      t += citation.topics 
+      t += citation.topics
     end
     t.uniq
   end

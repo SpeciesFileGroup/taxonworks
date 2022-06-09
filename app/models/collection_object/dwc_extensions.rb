@@ -77,10 +77,12 @@ module CollectionObject::DwcExtensions
       georeferencedDate: :dwc_georeferenced_date,
       verbatimSRS: :dwc_verbatim_srs,
 
+      occurrenceStatus: :dwc_occurrence_status,
+
       # TODO: move to a proper extensions
       associatedMedia: :dwc_associated_media,
 
-      occurrenceRemarks: :dwc_occurrence_remarks
+      occurrenceRemarks: :dwc_occurrence_remarks,
 
       # -- Core taxon? --
       # nomenclaturalCode
@@ -139,6 +141,10 @@ module CollectionObject::DwcExtensions
 
   def is_fossil?
     biocuration_classes.where(uri: DWC_FOSSIL_URI).any?
+  end
+
+  def dwc_occurrence_status
+    'present'
   end
 
   # https://dwc.tdwg.org/list/#dwc_georeferenceRemarks

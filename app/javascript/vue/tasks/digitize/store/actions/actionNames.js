@@ -28,6 +28,7 @@ const ActionNames = {
   RemoveDepictionsByImageId: 'removeDepictionsByImageId',
   RemoveTaxonDetermination: 'removeTaxonDetermination',
   RemoveTypeMaterial: 'removeTypeMaterial',
+  ResetTaxonDetermination: 'resetTaxonDetermination',
   ResetWithDefault: 'resetWithDefault',
   SaveBiologicalAssociations: 'saveBiologicalAssociation',
   SaveCOCitations: 'saveCOCitations',

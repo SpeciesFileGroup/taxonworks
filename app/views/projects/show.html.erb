@@ -62,19 +62,30 @@
   </div>
 
   <div>
-    <h2> Metadata </h2>
-    <ul class="no_bullets list list-arrow">
-      <%= tag.li(link_to('Stats', project_activity_task_path, data: { turbolinks: false })) -%>
-    </ul>
+    <div>
+      <h2> Data </h2>
+      <ul class="no_bullets list list-arrow">
+        <%= content_tag(:li, link_to('Download project task', export_taxonworks_project_task_path, data: { turbolinks: false } ) ) %>
+      </ul>
+    </div>
 
-    <h2> API Helpers </h2>
-    <ul class="no_bullets">
-      <% if is_project_member_by_id?(sessions_current_user_id, sessions_current_project_id) %>
-        <%= tag.li("?project_token=#{@project.api_access_token}&token=#{sessions_current_user.api_access_token}") -%>
-      <% else %>
-        <%= tag.li("?project_token=#{@project.api_access_token}") -%>
-      <% end %>
-    </ul>
+    <div>
+      <h2> Metadata </h2>
+      <ul class="no_bullets list list-arrow">
+        <%= content_tag(:li, link_to('Stats', project_activity_task_path, data: { turbolinks: false })) -%>
+      </ul>
+    </div>
 
+    <div>
+      <h2> API Helpers </h2>
+      <ul class="no_bullets">
+        <% if is_project_member_by_id?(sessions_current_user_id, sessions_current_project_id) %>
+          <%= tag.li("?project_token=#{@project.api_access_token}&token=#{sessions_current_user.api_access_token}") -%>
+        <% else %>
+          <%= tag.li("?project_token=#{@project.api_access_token}") -%>
+        <% end %>
+      </ul>
+    </div>
   </div>
+
 </div>

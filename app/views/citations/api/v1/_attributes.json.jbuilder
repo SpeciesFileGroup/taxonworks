@@ -18,11 +18,5 @@ if extend_response_with('citation_topics')
 end
 
 if extend_response_with('source')
-  json.source do
-    json.name citation.source.cached
-    json.global_id citation.source.to_global_id.to_s
-    if citation.source.is_bibtex?
-      json.author_year citation.source.author_year
-    end
-  end
+  json.partial! '/sources/api/v1/brief', source: citation.source
 end

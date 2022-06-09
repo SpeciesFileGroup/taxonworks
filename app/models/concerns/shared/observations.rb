@@ -6,6 +6,14 @@ module Shared::Observations
   included do
     class_name = self.name.tableize.singularize
 
+    # Descriptor subclasses may already exist so we
+    # enumerate them all to insert the has_many.
+    ::Descriptor.descendants.each do |k|
+      k.class_eval do
+        has_many class_name.tableize.to_sym, through: :observations, source: :observation_object, source_type: class_name.classify
+      end
+    end
+
     has_many :observations, as: :observation_object, dependent: :restrict_with_error # inverse_of: class_name
     has_many :observation_matrix_rows, as: :observation_object # , inverse_of: class_name
     has_many :observation_matrix_row_items, as: :observation_object, dependent: :destroy #, inverse_of: class_name

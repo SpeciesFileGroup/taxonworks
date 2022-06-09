@@ -132,18 +132,20 @@ export default {
 
     saveExtract () {
       const { dispatch } = this.$store
-      const promise = []
 
       dispatch(ActionNames.SaveExtract).then(() => {
-        TW.workbench.alert.create('Extract was saved successfully', 'notice')
-        promise.push(dispatch(ActionNames.SaveOriginRelationship))
-        promise.push(dispatch(ActionNames.SaveIdentifiers))
-        promise.push(dispatch(ActionNames.SaveProtocols))
-      })
+        const promise = [
+          dispatch(ActionNames.SaveOriginRelationship),
+          dispatch(ActionNames.SaveIdentifiers),
+          dispatch(ActionNames.SaveProtocols)
+        ]
 
-      Promise.all(promise).then(() => {
-        this.$nextTick(() => {
-          this.$store.commit(MutationNames.SetLastChange, 0)
+        TW.workbench.alert.create('Extract was saved successfully', 'notice')
+
+        Promise.all(promise).then(() => {
+          this.$nextTick(() => {
+            this.$store.commit(MutationNames.SetLastChange, 0)
+          })
         })
       })
     },

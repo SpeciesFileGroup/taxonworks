@@ -6,12 +6,12 @@ module DwcOccurrencesHelper
       a.push tag.span('Darwin Core Occurrence not built', class: [:feedback, 'feedback-thin', 'feedback-danger'])
     else
       a.push tag.span('Referenced data are younger than this record', class: [:feedback, 'feedback-thin', 'feedback-warning']) if dwc_occurrence.is_stale?
-      a.push tag.span('A new version of the DwC builder is available', class: [:feedback, 'feedback-thin', 'feedback-warning']) if Time.new(::Export::Dwca::INDEX_VERSION.last) > dwc_occurrence.updated_at
+      a.push tag.span('A new version of the DwC builder is available', class: [:feedback, 'feedback-thin', 'feedback-warning']) if DateTime.parse(::Export::Dwca::INDEX_VERSION.last).to_i > dwc_occurrence.updated_at.to_i
     end
     a.push tag.span('Up-to-date', class: [:feedback, 'feedback-info']) if a.empty?
 
-    a.push tag.span('Occurrence id: ' + dwc_occurrence.to_param, class: [:feedback, 'feedback-secondary'])
-    a.join.html_safe
+    a.push tag.span('TW DwcOccurrence id (internal index/use only): ' + dwc_occurrence.to_param, class: [:feedback, 'feedback-secondary'])
+    a.join(' ').html_safe
   end
 
   def dwc_column(dwc_occurrence)

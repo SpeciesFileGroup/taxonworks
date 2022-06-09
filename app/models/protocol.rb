@@ -5,7 +5,7 @@
 #
 class Protocol < ApplicationRecord
   include Housekeeping
-  include Shared::Documentation 
+  include Shared::Documentation
   include Shared::Citations
   include Shared::IsData
 
@@ -16,14 +16,14 @@ class Protocol < ApplicationRecord
   validates_presence_of :short_name
   validates_presence_of :description
 
-  scope :used_on_klass, -> (klass) { joins(:protocol_relationships).where(protocol_relationships: {protocol_relationship_object: klass} ) } # remember to .distinct 
+  scope :used_on_klass, -> (klass) { joins(:protocol_relationships).where(protocol_relationships: {protocol_relationship_object_type: klass} ) } # remember to .distinct
 
   # TODO: unify, perhaps, with annotator logic, this is identical to Keyword methods
   # @return [Scope]
-  #    the max 10 most recently used Protocols 
+  #    the max 10 most recently used Protocols
   def self.used_recently(user_id, project_id, klass)
     t = ProtocolRelationship.arel_table
-    k = Protocol.arel_table 
+    k = self.arel_table
 
     # i is a select manager
     i = t.project(t['protocol_id'], t['created_at']).from(t)
@@ -32,10 +32,10 @@ class Protocol < ApplicationRecord
       .where(t['project_id'].eq(project_id))
       .order(t['created_at'].desc)
 
-    # z is a table alias 
+    # z is a table alias
     z = i.as('recent_t')
 
-    Protocol.used_on_klass(klass).joins(
+    used_on_klass(klass).joins(
       Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['protocol_id'].eq(k['id'])))
     ).pluck(:id).uniq
   end

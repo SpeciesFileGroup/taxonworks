@@ -212,6 +212,18 @@ scope :tasks do
   end
 
   scope :collection_objects do
+    scope :stepwise do
+      scope :determinations, controller: 'tasks/collection_objects/stepwise/determinations' do
+        get '/', action: :index, as: 'stepwise_determinations_task'
+        get :data, defaults: {format: :json}
+      end
+    end
+
+    scope :classification_summary, controller: 'tasks/collection_objects/classification_summary' do
+      get '/', action: :index, as: 'classification_summary_task'
+      get :report, as: 'classification_summary_report',  defaults: {format: :js}
+    end
+
     scope :match, controller: 'tasks/collection_objects/match' do
       get '/', action: :index, as: 'match_collection_objects_task'
     end
