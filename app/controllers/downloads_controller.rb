@@ -6,6 +6,8 @@ class DownloadsController < ApplicationController
 
   after_action -> { set_pagination_headers(:downloads) }, only: [:api_index], if: :json_request?
 
+  skip_forgery_protection only: [:api_build, :api_destroy]
+
   # GET /downloads
   # GET /downloads.json
   def index
