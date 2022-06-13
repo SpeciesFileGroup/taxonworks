@@ -3,39 +3,46 @@
     <spinner-component
       v-if="sorting"
       :full-screen="true"
-      legend="Loading..."/>
+      legend="Loading..."
+    />
     <div class="flex-separate margin-small-bottom">
       <div class="horizontal-left-content">
         <button
           class="button normal-input button-default margin-small-right"
           type="button"
-          @click="selectAll">
+          @click="selectAll"
+        >
           Select all
         </button>
         <button
           class="button normal-input button-default margin-small-right"
           type="button"
-          @click="unselect">
+          @click="unselect"
+        >
           Unselect all
         </button>
         <add-to-matrix
           class="margin-small-right"
-          :otu-ids="selectedIds"/>
+          :otu-ids="selectedIds"
+        />
         <button-interactive-key
           class="margin-small-right"
-          :otu-ids="selectedIds"/>
+          :otu-ids="selectedIds"
+        />
         <button-edit-image-matrix
           class="margin-small-right"
           :otu-ids="selectedIds"
-          @onCreate="openImageMatrix"/>
-        <button-image-matrix :otu-ids="selectedIds"/>
+          @on-create="openImageMatrix"
+        />
+        <button-image-matrix :otu-ids="selectedIds" />
       </div>
       <ul class="no_bullets context-menu">
         <li>
           <label class="middle">
             <input
               v-model="withOtus"
-              type="checkbox">
+              type="checkbox"
+            >
             Show taxon names with OTUs only
           </label>
         </li>
@@ -48,7 +55,8 @@
               <option
                 v-for="field in fieldset"
                 :key="field.value"
-                :value="field.value">
+                :value="field.value"
+              >
                 {{ field.label }}
               </option>
             </select>
@@ -58,36 +66,46 @@
     </div>
     <table
       class="full_width"
-      v-if="tableRanks">
+      v-if="tableRanks"
+    >
       <thead>
         <tr>
           <th>
             Selected
           </th>
           <template v-for="(header, index) in tableRanks.column_headers">
-            <th 
+            <th
               v-if="renderFromPosition <= index"
-              @click="sortBy(header)">
-              <span v-html="header.replace('_', '<br>')"/>
+              :key="header"
+              @click="sortBy(header)"
+            >
+              <span v-html="header.replace('_', '<br>')" />
             </th>
           </template>
           <th>Code</th>
         </tr>
       </thead>
       <tbody>
-        <template v-for="(row, index) in tableRanks.data">
+        <template
+          v-for="(row, index) in renderList.data"
+          :key="row[1]"
+        >
           <tr
-            v-if="withOtus ? row[1] : true && filterRow(index)"
             class="contextMenuCells"
-            :class="{ even: (index % 2)}">
+            :class="{ even: (index % 2)}"
+          >
             <td>
               <input
-                :disabled="!row[1]"
-                :value="row[1]"
+                :disabled="!row[4]"
+                :value="row[4]"
                 v-model="selectedIds"
-                type="checkbox">
+                type="checkbox"
+              >
             </td>
-            <template v-for="(header, hindex) in tableRanks.column_headers">
+            <template
+              v-for="(header, hindex) in tableRanks.column_headers"
+              :key="header"
+            >
               <td v-if="renderFromPosition <= hindex">
                 {{ row[hindex] }}
               </td>
@@ -95,7 +113,8 @@
             <td>
               <modal-list
                 :otu-id="getValueFromTable('otu_id', index)"
-                :taxon-name-id="getValueFromTable('taxon_name_id', index)"/>
+                :taxon-name-id="getValueFromTable('taxon_name_id', index)"
+              />
             </td>
           </tr>
         </template>
@@ -130,6 +149,7 @@ export default {
       type: Object,
       default: () => ({})
     },
+
     filter: {
       type: Object,
       default: undefined
@@ -143,6 +163,15 @@ export default {
 
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
+    },
+
+    renderList () {
+      return {
+        column_headers: this.tableRanks.column_headers,
+        data: this.withOtus
+          ? this.tableRanks.data.filter(item => item[4])
+          : this.tableRanks.data
+      }
     }
   },
 
@@ -230,19 +259,12 @@ export default {
       }, 50)
     },
 
-    filterRow (index) {
-      return Object.keys(this.filter).every(key => {
-        const value = this.getValueFromTable(key, index)
-        return (this.filter[key] === undefined) || (this.filter[key] ? value : !value)
-      })
-    },
-
     unselect () {
       this.selectedIds = []
     },
 
     selectAll () {
-      this.selectedIds = this.tableList.data.filter(column => column[1] != null).map(column => column[1])
+      this.selectedIds = this.tableList.data.filter(column => column[4]).map(column => column[4])
     },
 
     openImageMatrix ({ matrixId, otuIds }) {
