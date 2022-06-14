@@ -94,6 +94,10 @@ scope :tasks do
   end
 
   scope :content do
+      scope :publisher, controller: 'tasks/content/publisher' do
+        get '/', as: 'publisher_task'
+      end
+
       scope :by_nomenclature, controller: 'tasks/content/by_nomenclature' do
         get '/', action: :index, as: 'content_by_nomenclature_task'
       end
