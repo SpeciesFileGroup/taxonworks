@@ -85,6 +85,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Use Catalog for API source of OTU nomenclature citations
 
 ### Fixed
+- taxonworks.csl update for stated date [#3021]
 - Improved project activity to include current session [#3013]
 - Extract/protocol UI issues [#2990]
 - Source year_suffix preventing cloning [#2992]
