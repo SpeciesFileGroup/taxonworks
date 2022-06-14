@@ -96,8 +96,10 @@ scope :tasks do
   scope :content do
       scope :publisher, controller: 'tasks/content/publisher' do
         get 'summary', as: :publisher_summary,  defaults: {format: :json}
-        get 'topic_table', as: :publisher_topic_table,  defaults: {format: :json}
+        get 'topic_table', as: :publisher_topic_table, defaults: {format: :json}
         get '/', action: :index, as: 'publisher_task'
+        post 'publish_all', defaults: {format: :json}
+        post 'unpublish_all', defaults: {format: :json}
       end
 
       scope :by_nomenclature, controller: 'tasks/content/by_nomenclature' do
