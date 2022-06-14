@@ -35,8 +35,8 @@ class Content < ApplicationRecord
 
   attr_accessor :is_public 
 
-  after_save :publish, if: -> { is_public }
-  after_save :unpublish, if: -> { is_public == false }
+  after_save :publish, if: -> { (is_public == true) || is_public == '1' }
+  after_save :unpublish, if: -> { (is_public == false) || (is_public == '0') }
 
   belongs_to :otu, inverse_of: :contents
   belongs_to :topic, inverse_of: :contents
@@ -55,7 +55,7 @@ class Content < ApplicationRecord
   # @return [Boolean]
   #    true if this content has been published
   def is_published?
-    self.public_content
+    public_content.present?
   end
 
   # TODO: this will have to be updated in subclasses.
