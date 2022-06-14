@@ -54,7 +54,7 @@ class Content < ApplicationRecord
 
   # @return [Boolean]
   #    true if this content has been published
-  def published?
+  def is_published?
     self.public_content
   end
 

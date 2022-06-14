@@ -6,5 +6,9 @@ class Tasks::Content::PublisherController < ApplicationController
 
   def summary
   end
+  
+  def topic_table
+    params.require(:topic_id)
+  end
 
 end
