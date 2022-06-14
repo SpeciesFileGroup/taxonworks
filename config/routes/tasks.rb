@@ -95,7 +95,8 @@ scope :tasks do
 
   scope :content do
       scope :publisher, controller: 'tasks/content/publisher' do
-        get '/', as: 'publisher_task'
+        get 'summary', as: :publisher_summary,  defaults: {format: :json}
+        get '/', action: :index, as: 'publisher_task'
       end
 
       scope :by_nomenclature, controller: 'tasks/content/by_nomenclature' do
