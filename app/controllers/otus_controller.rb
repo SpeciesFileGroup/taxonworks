@@ -4,7 +4,7 @@ class OtusController < ApplicationController
   before_action :set_otu, only: [
     :show, :edit, :update, :destroy, :collection_objects, :navigation,
     :breadcrumbs, :timeline, :coordinate,
-    :api_show, :api_taxonomy_inventory, :api_type_material_inventory, :api_nomenclature_citations, :api_distribution ]
+    :api_show, :api_taxonomy_inventory, :api_type_material_inventory, :api_nomenclature_citations, :api_distribution, :api_content ]
   after_action -> { set_pagination_headers(:otus) }, only: [:index, :api_index], if: :json_request?
 
   # GET /otus
@@ -274,6 +274,11 @@ class OtusController < ApplicationController
   # GET /api/v1/otus/:id/inventory/taxonomy
   def api_taxonomy_inventory
     render '/otus/api/v1/inventory/taxonomy'
+  end
+
+  # GET /api/v1/otus/:id/inventory/content
+  def api_content
+    render '/otus/api/v1/inventory/content'
   end
 
   # GET /api/v1/otus/:id/inventory/type_material

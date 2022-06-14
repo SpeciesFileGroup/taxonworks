@@ -25,11 +25,11 @@
 class PublicContent < ApplicationRecord
   include Housekeeping
 
-  belongs_to :otu
+  belongs_to :otu, inverse_of: :public_contents
   belongs_to :topic
-  belongs_to :content
+  belongs_to :content, inverse_of: :public_content
 
-  validates_presence_of :text, :topic_id
+  validates_presence_of :text, :topic_id # is general, or always OTU?
 
   def version
     self.content.version

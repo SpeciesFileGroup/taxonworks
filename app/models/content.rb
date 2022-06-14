@@ -33,9 +33,14 @@ class Content < ApplicationRecord
   include Shared::IsData
   ignore_whitespace_on(:text)
 
+  attr_accessor :is_public 
+
+  after_save :publish, if: -> { is_public }
+  after_save :unpublish, if: -> { is_public == false }
+
   belongs_to :otu, inverse_of: :contents
   belongs_to :topic, inverse_of: :contents
-  has_one :public_content
+  has_one :public_content, inverse_of: :content
   belongs_to :language
 
   validate :topic_id_is_type_topic
@@ -55,19 +60,17 @@ class Content < ApplicationRecord
 
   # TODO: this will have to be updated in subclasses.
   def publish
-    to_publish = {
-      topic: self.topic,
-      text:  self.text,
-      otu:   self.otu
-    }
-
-    self.public_content.delete if self.public_content
-    self.public_content = PublicContent.new(to_publish)
-    self.save
+    public_content.delete if public_content
+    PublicContent.create!(
+      content: self,
+      topic: topic,
+      text:  text,
+      otu:   otu
+    )
   end
 
   def unpublish
-    self.public_content.destroy
+    public_content.destroy
   end
 
   # OTU_PAGE_LAYOUTS
