@@ -21,3 +21,14 @@
   <strong>Published:</strong>
   <%= @content.is_published? ? 'true' : 'false' %>
 </p>
+
+<p>
+  <strong>Version:</strong>
+  <%= @content.versions.count %>
+</p>
+
+<p>
+  <strong>Public is current?</strong>
+  <%= @content.public_content&.is_current? %>
+</p>
+

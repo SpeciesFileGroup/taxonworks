@@ -31,6 +31,7 @@ class Content < ApplicationRecord
   include Shared::HasPapertrail
   include Shared::DataAttributes # TODO: reconsider, why is this here?  Should be removed, use case is currently cross reference to an identifier, if required use Identifier
   include Shared::IsData
+  
   ignore_whitespace_on(:text)
 
   attr_accessor :is_public 
@@ -70,7 +71,7 @@ class Content < ApplicationRecord
   end
 
   def unpublish
-    public_content.destroy
+    public_content&.destroy
   end
 
   # OTU_PAGE_LAYOUTS

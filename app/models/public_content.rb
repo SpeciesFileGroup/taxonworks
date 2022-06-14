@@ -31,8 +31,10 @@ class PublicContent < ApplicationRecord
 
   validates_presence_of :text, :topic_id # is general, or always OTU?
 
-  def version
-    self.content.version
+  ignore_whitespace_on(:text)
+
+  def is_current?
+    content.text == text 
   end
 
 end

@@ -18,7 +18,7 @@
   <div class="field">
     <%= f.label :topic_id %>
     <br>
-    <%= f.select :topic_id, options_from_collection_for_select(Topic.with_project_id(sessions_current_project_id).all, :id, :name, empty: true) -%>
+    <%= f.select :topic_id, options_from_collection_for_select(Topic.with_project_id(sessions_current_project_id).order(:name), :id, :name, f.object.topic_id) -%>
   </div>
 
   <div class="field">
