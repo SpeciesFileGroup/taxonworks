@@ -37,6 +37,4 @@ class Tasks::Content::PublisherController < ApplicationController
     end
   end
 
-
-
 end
