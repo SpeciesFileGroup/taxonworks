@@ -15,7 +15,7 @@ class Tasks::Content::PublisherController < ApplicationController
     params.require(:topic_id)
     begin
       Content.transaction do
-        Content.where(topic_id: params[:topic_id], project_is: sessions_current_project_id).each do |c|
+        Content.where(topic_id: params[:topic_id], project_id: sessions_current_project_id).each do |c|
           c.publish
         end
       end
@@ -28,7 +28,7 @@ class Tasks::Content::PublisherController < ApplicationController
     params.require(:topic_id)
     begin
       Content.transaction do
-        Content.where(topic_id: params[:topic_id], project_is: sessions_current_project_id).each do |c|
+        Content.where(topic_id: params[:topic_id], project_id: sessions_current_project_id).each do |c|
           c.unpublish
         end
       end
