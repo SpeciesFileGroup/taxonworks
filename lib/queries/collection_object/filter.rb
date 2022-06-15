@@ -204,6 +204,12 @@ module Queries
       # See with_buffered_determinations
       attr_accessor :with_buffered_other_labels
 
+      # @return String
+      # A PostgreSQL valid regular expression. Note that
+      # simple strings evaluate as wildcard matches.
+      # !! Probably shouldn't expose to external API.
+      attr_accessor :determiner_name_regex
+
       # @param [Hash] args are permitted params
       def initialize(params)
         params.reject!{ |_k, v| v.blank? } # dump all entries with empty values
@@ -231,6 +237,7 @@ module Queries
         @depictions = boolean_param(params, :depictions)
         @determiner_id = params[:determiner_id]
         @determiner_id_or = boolean_param(params, :determiner_id_or)
+        @determiner_name_regex = params[:determiner_name_regex]
         @dwc_indexed = boolean_param(params, :dwc_indexed)
         @exact_buffered_collecting_event = boolean_param(params, :exact_buffered_collecting_event)
         @exact_buffered_determinations = boolean_param(params, :exact_buffered_determinations)
@@ -354,6 +361,11 @@ module Queries
         b = b.as('det_z1_')
 
         ::CollectionObject.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['biological_collection_object_id'].eq(tt['id']))))
+      end
+
+      def determiner_name_regex_facet
+        return nil if determiner_name_regex.nil?
+        ::CollectionObject.joins(:determiners).where('people.cached ~* ?',  determiner_name_regex)
       end
 
       def georeferences_facet
@@ -593,6 +605,7 @@ module Queries
         clauses += collecting_event_merge_clauses + collecting_event_and_clauses
 
         clauses += [
+          determiner_name_regex_facet,
           with_buffered_collecting_event_facet,
           with_buffered_other_labels_facet,
           with_buffered_determinations_facet,

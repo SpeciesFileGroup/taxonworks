@@ -8,6 +8,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+
+- Add `determiner_name_regex` to collection object filter [#3026]
 - API interactive key engine endpoint `/api/v1/observation_matrices/123/key.json`
 - API depictions endpoint `api/v1/depictions/123.json?extend[]=image&extend[]=sqed_depiction&extend[]=figures` 
 - Taxon determinations stats in stats API
@@ -16,9 +18,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Change column order in Observation matrices dashboard task
 
 ### Fixed
+- Wildcard matches on collecting event attributes failing
 - Select row in Observation matrices dashboard assigns incorrect ID
 - Last week citations stats in API showing values for images. [#3020]
 
+[#3026]: https://github.com/SpeciesFileGroup/taxonworks/issues/3026
 [#3020]: https://github.com/SpeciesFileGroup/taxonworks/issues/3020
 
 ## [0.26.2] - 2022-06-05
