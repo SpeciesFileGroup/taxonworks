@@ -240,6 +240,25 @@ module Queries
       def observations_set(query)
         o = ::Observation.arel_table
 
+        # Descriptors on OTUs scored
+        f = 'descriptors_scored_for_otus'
+        fa = 'fs_d1'
+        @columns.push({header: f, projected: '"' + fa + '"."' + f + '" as ' + f } )
+
+        z = o.project(
+          o[:observation_object_id],
+          o[:observation_object_type],
+          o[:descriptor_id].count(true).as(f) # count(true) == distinct
+        ).group(
+          o[:observation_object_id],
+          o[:observation_object_type],
+        ).as(fa)
+
+        query.join(z, Arel::Nodes::OuterJoin).on(
+          z[:observation_object_id].eq(otu_table[:id])
+          .and(z[:observation_object_type].eq('Otu'))
+        )
+
         # Observations on OTUs
         f = 'otu_observation_count'
         fa = 'fs_o1'
@@ -274,25 +293,6 @@ module Queries
 
         query.join(y, Arel::Nodes::OuterJoin).on(
           y[:observation_object_id].eq(otu_table[:id])
-        )
-
-        # Descriptors on OTUs scored
-        f = 'descriptors_scored_for_otus'
-        fa = 'fs_d1'
-        @columns.push({header: f, projected: '"' + fa + '"."' + f + '" as ' + f } )
-
-        z = o.project(
-          o[:observation_object_id],
-          o[:observation_object_type],
-          o[:descriptor_id].count(true).as(f) # count(true) == distinct
-        ).group(
-          o[:observation_object_id],
-          o[:observation_object_type],
-        ).as(fa)
-
-        query.join(z, Arel::Nodes::OuterJoin).on(
-          z[:observation_object_id].eq(otu_table[:id])
-          .and(z[:observation_object_type].eq('Otu'))
         )
         query
       end
