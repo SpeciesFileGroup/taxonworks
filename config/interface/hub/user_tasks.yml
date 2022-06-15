@@ -700,3 +700,12 @@ classification_summary_task:
     - collection_object
   status: prototype
   description: 'Summarize collection objects totals and preparation by classification (by class, order, family).'
+taxon_name_merge_task:
+  hub: true
+  name: 'Merge taxon names'
+  related:
+  categories:
+    - nomenclature 
+  status: prototype
+  description: 'Basic tools that faclitate merging taxon names.'
+

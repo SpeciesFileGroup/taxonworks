@@ -458,6 +458,12 @@ scope :tasks do
   end
 
   scope :taxon_names do
+      scope :merge, controller: 'tasks/taxon_names/merge' do
+        get '/', action: :index, as: 'merge_task'
+        get 'report', as: 'report_merge_task'
+        post 'merge', as: 'merge_merge_task'
+      end
+
     scope :syncronize_otus, controller: 'tasks/taxon_names/syncronize_otus' do
       get 'index', as: 'syncronize_otus_to_nomenclature_task'
       post 'index', as: 'preview_syncronize_otus_to_nomenclature_task'
