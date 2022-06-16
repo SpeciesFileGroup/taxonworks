@@ -11,7 +11,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - API interactive key engine endpoint `/api/v1/observation_matrices/123/key.json`
 - API depictions endpoint `api/v1/depictions/123.json?extend[]=image&extend[]=sqed_depiction&extend[]=figures` 
 
-\-
+### Fixed
+- Annotations panel doesn't display notes in Browse nomenclature
 
 ## [0.26.2] - 2022-06-05
 
