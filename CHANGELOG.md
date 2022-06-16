@@ -8,7 +8,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
-
 - Add `determiner_name_regex` to collection object filter [#3026]
 - API interactive key engine endpoint `/api/v1/observation_matrices/123/key.json`
 - API depictions endpoint `api/v1/depictions/123.json?extend[]=image&extend[]=sqed_depiction&extend[]=figures` 
@@ -22,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Select row in Observation matrices dashboard assigns incorrect ID
 - Last week citations stats in API showing values for images. [#3020]
 - Annotations panel doesn't display notes in Browse nomenclature
+- Geographic areas download failing to generate CSV
 
 [#3026]: https://github.com/SpeciesFileGroup/taxonworks/issues/3026
 [#3020]: https://github.com/SpeciesFileGroup/taxonworks/issues/3020
