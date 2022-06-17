@@ -29,6 +29,16 @@ class DatasetRecord::DarwinCore < DatasetRecord
       .reject(&:nil?)
   end
 
+  def get_tw_tag_fields_for(subject_class)
+    get_fields_mapping.values
+                      .select { |f| f.is_a?(String) }
+                      .map do |field|
+      /(TW:Tag:#{Regexp.escape(subject_class)}:).+/i =~ field
+      {field: field, selector: field.sub($1, '')} if $1
+    end
+                      .reject(&:nil?)
+  end
+
   def get_tw_fields_for(subject_class)
     get_fields_mapping.keys
       .select { |f| f.is_a?(String) }

@@ -5,6 +5,18 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
   let(:query) { Queries::CollectionObject::Filter.new({}) }
 
+
+  specify '#determiner_name_regex' do
+    s = Specimen.create!
+    a = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s, determiners: [ FactoryBot.create(:valid_person, last_name: 'Smith') ] )
+
+    s1 = Specimen.create! # not this one
+    b = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s1, determiners: [ FactoryBot.create(:valid_person, last_name: 'htims') ] )
+
+    query.determiner_name_regex = 'i.*h'
+    expect(query.all.pluck(:id)).to contain_exactly(s.id)
+  end
+
   context 'lib/queries/concerns/notes.rb' do
     specify '#notes present' do
       s = Specimen.create!
@@ -43,7 +55,6 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       expect(query.all.pluck(:id)).to be_empty
     end
   end
-
 
   specify '#loan_id' do
     t1 = Specimen.create!
@@ -241,9 +252,9 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
   specify '#taxon_determinations #buffered_determinations' do
     s = FactoryBot.create(:valid_specimen, buffered_determinations: 'Foo')
     d = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s)
-    
+
     a = Specimen.create!(buffered_determinations: 'Foo')  # this one
-    
+
     query.taxon_determinations = false
     query.exact_buffered_determinations = true
     query.buffered_determinations = 'Foo'

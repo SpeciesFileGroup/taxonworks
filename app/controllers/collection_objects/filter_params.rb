@@ -27,6 +27,7 @@ module CollectionObjects
         :current_repository_id,
         :depictions,
         :determiner_id_or,
+        :determiner_name_regex,
         :dwc_indexed,
         :end_date,
         :exact_buffered_collecting_event,
@@ -84,7 +85,9 @@ module CollectionObjects
         keyword_id_or: [],
         loan_id: [],
         otu_ids: [],
-        preparation_type_id: []
+        preparation_type_id: [],
+
+        collecting_event_wildcards: [] # !! TODO, factor into CONSTANT
         #  user_id: []
         #  collecting_event: {
         #   :recent,

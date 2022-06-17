@@ -2,7 +2,7 @@ import { People } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
 export default ({ state, commit }, params) => {
-  state.isLoading = true
+  state.requestState.isLoading = true
   state.selectedPerson = {}
   state.matchPeople = []
   state.mergeList = []
@@ -11,6 +11,6 @@ export default ({ state, commit }, params) => {
     commit(MutationNames.SetFoundPeople, response.body)
     state.URLRequest = response.request.responseURL
   }).finally(_ => {
-    state.isLoading = false
+    state.requestState.isLoading = false
   })
 }

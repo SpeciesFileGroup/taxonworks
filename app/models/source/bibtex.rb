@@ -793,7 +793,7 @@ class Source::Bibtex < Source
     end
 
     a['year-suffix'] = year_suffix unless year_suffix.blank?
-    a['original-date'] = {"date-parts" => [[ stated_year ]]} unless stated_year.blank?
+    a['original-date'] = {"date-parts" => [[ stated_year ]]} if !stated_year.blank? && stated_year.to_s != year.to_s
     a['language'] = Language.find(language_id).english_name.to_s unless language_id.nil?
     a['translated-title'] = alternate_values.where(type: "AlternateValue::Translation", alternate_value_object_attribute: 'title').pluck(:value).first
     a['note'] = note

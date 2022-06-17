@@ -15,7 +15,8 @@ module Queries
         class_eval { attr_accessor a.to_sym }
       end
 
-      PARAMS = %w{collector_id
+      PARAMS = %w{
+        collector_id
         collector_ids_or
         spatial_geographic_areas
         wkt
@@ -28,6 +29,7 @@ module Queries
         in_verbatim_locality
         in_labels
         geo_json
+        collecting_event_wildcards
       }
 
       # Wildcard wrapped matching any label

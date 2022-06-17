@@ -707,3 +707,11 @@ publisher_task:
   categories:
   status: prototype
   description: 'Manage the publishing of OTU content (text per topic).'
+taxon_name_merge_task:
+  hub: true
+  name: 'Merge taxon names'
+  related:
+  categories:
+    - nomenclature 
+  status: prototype
+  description: 'Basic tools that faclitate merging taxon names.'
