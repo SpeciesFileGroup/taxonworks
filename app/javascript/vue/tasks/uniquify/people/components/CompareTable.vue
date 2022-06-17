@@ -7,8 +7,8 @@
           <button
             type="button"
             class="button normal-input button-default separate-right"
-            :disabled="!(Object.keys(selected).length && selectedMergePerson)"
-            @click="$emit('flip', personIndex)"
+            :disabled="!(selected.id && selectedMergePerson.id)"
+            @click="flipPeople"
           >
             Flip
           </button>
@@ -219,6 +219,10 @@ export default {
 
     humanizeValue (value) {
       return capitalize(humanize(value))
+    },
+
+    flipPeople () {
+      this.$store.dispatch(ActionNames.FlipPeople, this.personIndex)
     }
   }
 }

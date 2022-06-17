@@ -7,19 +7,29 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-
+- Add `determiner_name_regex` to collection object filter [#3026]
 - API interactive key engine endpoint `/api/v1/observation_matrices/123/key.json`
 - API depictions endpoint `api/v1/depictions/123.json?extend[]=image&extend[]=sqed_depiction&extend[]=figures` 
 - Taxon determinations stats in stats API
+- Setting tags for collecting events and collection objects in DwC occurrences importer [#3019], [#2855]
 
 ### Changed
-- Change column order in Observation matrices dashboard task
+- Column order in Observation matrices dashboard task
+- Size of description input in Protocol form
+- Error code for merge people response
 
 ### Fixed
+- Wildcard matches on collecting event attributes failing
 - Select row in Observation matrices dashboard assigns incorrect ID
 - Last week citations stats in API showing values for images. [#3020]
+- Annotations panel doesn't display notes in Browse nomenclature
+- Geographic areas download failing to generate CSV
+- Flip is not working propertly in Uniquify people task
 
+[#3026]: https://github.com/SpeciesFileGroup/taxonworks/issues/3026
 [#3020]: https://github.com/SpeciesFileGroup/taxonworks/issues/3020
+[#3019]: https://github.com/SpeciesFileGroup/taxonworks/pull/3018
+[#2855]: https://github.com/SpeciesFileGroup/taxonworks/issues/2855
 
 ## [0.26.2] - 2022-06-05
 
