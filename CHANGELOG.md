@@ -22,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Last week citations stats in API showing values for images. [#3020]
 - Annotations panel doesn't display notes in Browse nomenclature
 - Geographic areas download failing to generate CSV
+- Flip is not working propertly in Uniquify people task
 
 [#3026]: https://github.com/SpeciesFileGroup/taxonworks/issues/3026
 [#3020]: https://github.com/SpeciesFileGroup/taxonworks/issues/3020
