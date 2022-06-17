@@ -216,10 +216,11 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             # get list of preexisting tags, exclude them from update
             current_tags = collecting_event.tags.pluck(:keyword_id).to_set
 
-            new_tags = attributes[:collecting_event][:tags_attributes].reject { |t| current_tags.member?(t[:keyword].id)}
+            new_tags = attributes[:collecting_event][:tags_attributes].reject { |t| current_tags.member?(t[:keyword].id) }
 
             # add tags if there were any new ones
-            collecting_event.update!(tags_attributes: new_tags) if new_tags
+            collecting_event.tags.build(new_tags)
+            collecting_event.save!
           end
 
           specimen.update!(collecting_event: collecting_event)
@@ -1041,8 +1042,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       append_data_attribute(attributes, attribute)
     end
 
-    get_tw_tag_fields_for('CollectionObject').each do |keyword|
-      append_tag_attribute(tags, keyword)
+    get_tw_tag_fields_for('CollectionObject').each do |tag|
+      append_tag_attribute(tags, tag)
     end
 
     {
@@ -1061,8 +1062,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       append_data_attribute(attributes, attribute)
     end
 
-    get_tw_tag_fields_for('CollectingEvent').each do |keyword|
-      append_tag_attribute(tags, keyword)
+    get_tw_tag_fields_for('CollectingEvent').each do |tag|
+      append_tag_attribute(tags, tag)
     end
 
     {
@@ -1073,25 +1074,25 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     }
   end
 
-  def append_tag_attribute(tags, keyword)
-    value = get_field_value(keyword[:field])
+  def append_tag_attribute(tags, tag)
+    value = get_field_value(tag[:field])
     return unless value
 
-    tag = Keyword.find_by(name: keyword[:selector], project: self.project)
-    tag ||= Keyword.where(project: project).find_by(
-      Keyword.arel_table[:name].matches(ApplicationRecord.sanitize_sql_like(keyword[:selector]))
+    keyword = Keyword.find_by(uri: tag[:selector], project: self.project)
+    keyword ||= Keyword.where(project: project).find_by(
+      Keyword.arel_table[:name].matches(ApplicationRecord.sanitize_sql_like(tag[:selector]))
     )
 
     if value
-      raise DarwinCore::InvalidData.new({ keyword[:field] => ["Tag with #{keyword[:selector]} URI or name not found"] }) unless tag
+      raise DarwinCore::InvalidData.new({ tag[:field] => ["Tag with #{tag[:selector]} URI or name not found"] }) unless keyword
 
-      if value.downcase == 'true' || value == 1
-        tags.append({keyword: tag})
+      if value.downcase == "true" || value == "1"
+        tags.append({keyword: keyword})
         return
       end
 
       unless value.downcase == "false" || value == "0"
-        raise DarwinCore::InvalidData.new({ keyword[:field] => ["tag value must be \"true\" or \"1\" to apply, or blank, \"false\", or \"0\", to not apply"] })
+        raise DarwinCore::InvalidData.new({ tag[:field] => ["Tag value must be \"true\" or \"1\" to apply, or blank, \"false\", or \"0\", to not apply"] })
       end
     end
   end
