@@ -7,11 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-
 - Add `determiner_name_regex` to collection object filter [#3026]
 - API interactive key engine endpoint `/api/v1/observation_matrices/123/key.json`
 - API depictions endpoint `api/v1/depictions/123.json?extend[]=image&extend[]=sqed_depiction&extend[]=figures` 
 - Taxon determinations stats in stats API
+- Setting tags for collecting events and collection objects in DwC occurrences importer [#3019]
 
 ### Changed
 - Change column order in Observation matrices dashboard task
@@ -25,7 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#3026]: https://github.com/SpeciesFileGroup/taxonworks/issues/3026
 [#3020]: https://github.com/SpeciesFileGroup/taxonworks/issues/3020
-
+[#3019]: https://github.com/SpeciesFileGroup/taxonworks/pull/3018
 ## [0.26.2] - 2022-06-05
 
 ### Changed
