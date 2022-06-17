@@ -459,9 +459,9 @@ scope :tasks do
 
   scope :taxon_names do
       scope :merge, controller: 'tasks/taxon_names/merge' do
-        get '/', action: :index, as: 'merge_task'
-        get 'report', as: 'report_merge_task'
-        post 'merge', as: 'merge_merge_task'
+        get '/', action: :index, as: 'taxon_name_merge_task'
+        get 'report', as: 'taxon_name_merge_report'
+        post 'merge', as: 'taxon_name_merge'
       end
 
     scope :syncronize_otus, controller: 'tasks/taxon_names/syncronize_otus' do
