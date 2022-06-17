@@ -30,7 +30,8 @@
       />
       <filter-determinations
         class="margin-large-bottom"
-        v-model="params.determination"/>
+        v-model="params.determination"
+      />
       <filter-identifiers
         class="margin-large-bottom"
         v-model="params.identifier"
@@ -201,6 +202,7 @@ export default {
           determiner_id_or: [],
           determiner_id: [],
           otu_ids: [],
+          determiner_name_regex: undefined,
           current_determinations: undefined,
           ancestor_id: undefined,
           validity: undefined

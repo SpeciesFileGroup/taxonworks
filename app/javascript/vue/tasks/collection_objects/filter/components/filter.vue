@@ -297,7 +297,7 @@ export default {
         },
         notes: {
           note_text: undefined,
-          note_exact: undefined,
+          note_exact: undefined
         },
         relationships: {
           biological_relationship_ids: []
@@ -332,6 +332,7 @@ export default {
           determiner_id_or: [],
           determiner_id: [],
           otu_ids: [],
+          determiner_name_regex: undefined,
           current_determinations: undefined,
           ancestor_id: undefined,
           validity: undefined

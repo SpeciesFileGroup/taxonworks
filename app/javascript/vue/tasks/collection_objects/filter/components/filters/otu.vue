@@ -69,7 +69,9 @@
         klass="CollectionObject"
         param-people="determiner_id"
         param-any="determiner_id_or"
-        v-model="determination"/>
+        toggle
+        v-model="determination"
+      />
     </div>
 
     <div class="field">
@@ -110,7 +112,7 @@ export default {
   props: {
     modelValue: {
       type: Object,
-      default: undefined
+      default: () => ({})
     }
   },
 
