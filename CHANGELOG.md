@@ -7,6 +7,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Task to merge taxon name relationships from one taxon to another [#3022]
 - Add `determiner_name_regex` to collection object filter [#3026]
 - API interactive key engine endpoint `/api/v1/observation_matrices/123/key.json`
 - API depictions endpoint `api/v1/depictions/123.json?extend[]=image&extend[]=sqed_depiction&extend[]=figures` 
@@ -26,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Geographic areas download failing to generate CSV
 - Flip is not working propertly in Uniquify people task
 
+[#3022]: https://github.com/SpeciesFileGroup/taxonworks/issues/3022
 [#3026]: https://github.com/SpeciesFileGroup/taxonworks/issues/3026
 [#3020]: https://github.com/SpeciesFileGroup/taxonworks/issues/3020
 [#3019]: https://github.com/SpeciesFileGroup/taxonworks/pull/3018
