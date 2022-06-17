@@ -6,6 +6,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.27.0] - 2022-06-17
+
 ### Added
 - Task to manage pubilcation of Content to PublicContent [#3004] in part
 - Task to merge taxon name relationships from one taxon to another [#3022]
@@ -28,7 +32,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Annotations panel doesn't display notes in Browse nomenclature
 - Geographic areas download failing to generate CSV
 - Flip is not working propertly in Uniquify people task
-
 
 [#3004]: https://github.com/SpeciesFileGroup/taxonworks/issues/3004
 [#3022]: https://github.com/SpeciesFileGroup/taxonworks/issues/3022
@@ -2725,7 +2728,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.26.2...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.0...development
+[0.27.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.26.2...v0.27.0
 [0.26.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.26.1...v0.26.2
 [0.26.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.26.0...v0.26.1
 [0.26.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.25.0...v0.26.0
