@@ -14,7 +14,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Setting tags for collecting events and collection objects in DwC occurrences importer [#3019], [#2855]
 
 ### Changed
-- Change column order in Observation matrices dashboard task
+- Column order in Observation matrices dashboard task
+- Size of description input in Protocol form
 
 ### Fixed
 - Wildcard matches on collecting event attributes failing
