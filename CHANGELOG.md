@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Column order in Observation matrices dashboard task
 - Size of description input in Protocol form
+- Error code for merge people response
 
 ### Fixed
 - Wildcard matches on collecting event attributes failing
