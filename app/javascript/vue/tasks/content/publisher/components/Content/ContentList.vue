@@ -9,7 +9,7 @@
           PublicContent#text
         </th>
         <th>Otu</th>
-        <th>Publish/Unpublish</th>
+        <th>Unpublish/Publish</th>
       </tr>
     </thead>
     <tbody>

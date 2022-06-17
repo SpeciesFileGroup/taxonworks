@@ -17,9 +17,12 @@
           <VBtn
             color="primary"
             medium
-            @click="isContentListVisible = true"
+            @click="isContentListVisible = !isContentListVisible"
           >
-            Expand
+            {{ isContentListVisible
+              ? 'Collapse'
+              : 'Expand'
+            }}
           </VBtn>
         </li>
       </ul>
