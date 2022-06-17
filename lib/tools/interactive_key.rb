@@ -330,7 +330,7 @@ class Tools::InteractiveKey
     a = selected_descriptors.include?('||') ? selected_descriptors.to_s.split('||') : [selected_descriptors]
     a.each do |i|
       d = i.split(':')
-      h[d[0].to_i] = d[1].include?('|') ? d[1].split('|') : [d[1]]
+      h[d[0].to_i] = d[1].to_s.include?('|') ? d[1].split('|') : [d[1]]
     end
     h
   end

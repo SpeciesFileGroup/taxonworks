@@ -1952,6 +1952,10 @@ ActiveRecord::Schema.define(version: 2022_04_21_212203) do
     t.index ["updated_by_id"], name: "index_test_classes_on_updated_by_id"
   end
 
+  create_table "testing", id: false, force: :cascade do |t|
+    t.geography "geog", limit: {:srid=>4267, :type=>"geometry", :geographic=>true}
+  end
+
   create_table "type_materials", id: :serial, force: :cascade do |t|
     t.integer "protonym_id", null: false
     t.integer "collection_object_id", null: false

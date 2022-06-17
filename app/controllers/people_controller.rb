@@ -111,7 +111,7 @@ class PeopleController < ApplicationController
     if @person.hard_merge(person_to_remove.id)
       render 'show'
     else
-      render json: {status: 'Failed. Check to see that both People are not linked to the same record, e.g. Authors on the same Source.'}
+      render json: { error: 'Failed. Check to see that both People are not linked to the same record, e.g. Authors on the same Source.' }, status: :conflict
     end
   end
 

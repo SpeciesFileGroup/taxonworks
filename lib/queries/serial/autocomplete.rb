@@ -66,20 +66,20 @@ module Queries
       #    match exact name 
       def autocomplete_exact_name
         a = table[:name].eq(query_string) 
-        base_query.where(a.to_sql).limit(4)
+        base_query.where(a.to_sql).limit(20)
       end
 
       # @return [ActiveRecord::Relation]
       #    match begining of name
       def autocomplete_begining_name
         a = table[:name].matches(query_string + '%') 
-        base_query.where(a.to_sql).limit(10)
+        base_query.where(a.to_sql).limit(20)
       end
 
       # @return [ActiveRecord::Relation]
       def autocomplete_ordered_wildcard_pieces_in_name
         a = table[:name].matches(wildcard_pieces)
-        base_query.where( a.to_sql).limit(6)
+        base_query.where( a.to_sql).limit(10)
       end
 
       # TODO: these three should be factored out to just the join, made more Arel like
@@ -89,7 +89,7 @@ module Queries
           alternate_value_table[:type].eq(type).and(
           alternate_value_table[:alternate_value_object_attribute].eq(attribute).
           and(alternate_value_table[:value].matches(wildcard_pieces))).to_sql
-        ).limit(5)
+        ).limit(10)
       end
 
       def autocomplete_exact_alternate_value(attribute = 'name', type = 'AlternateValue')
@@ -97,7 +97,7 @@ module Queries
           alternate_value_table[:type].eq(type).and(
           alternate_value_table[:alternate_value_object_attribute].eq(attribute).
           and(alternate_value_table[:value].eq(query_string))).to_sql
-        ).limit(5)
+        ).limit(20)
       end
 
       def autocomplete_begining_alternate_value(attribute = 'name', type = 'AlternateValue')
@@ -105,7 +105,7 @@ module Queries
           alternate_value_table[:type].eq(type).and(
           alternate_value_table[:alternate_value_object_attribute].eq(attribute).
           and(alternate_value_table[:value].matches(query_string + '%'))).to_sql
-        ).limit(5)
+        ).limit(20)
       end
 
       #  def alternate_value_join

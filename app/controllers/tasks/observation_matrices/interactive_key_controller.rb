@@ -10,9 +10,15 @@ class Tasks::ObservationMatrices::InteractiveKeyController < ApplicationControll
     @key = Tools::InteractiveKey.new(**key_params)
   end
 
+  # GET /api/v1/observation_matrices/123/key.json
+  def api_key
+    @key = Tools::InteractiveKey.new(**key_params)
+    render '/tasks/observation_matrices/interactive_key/key'
+  end
+
   protected
 
-  #params[:observation_matrix_id, :project_id, :observation_matrix, :language_id, :keyword_ids, :row_filter, :otu_filter,
+  # params[:observation_matrix_id, :project_id, :observation_matrix, :language_id, :keyword_ids, :row_filter, :otu_filter,
   #       :sorting, :eliminate_unknown, :error_tolerance, :identified_to_rank, :selected_descriptors]
   def key_params
     params.permit(

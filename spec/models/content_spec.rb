@@ -60,6 +60,11 @@ describe Content, type: :model do
       expect(content_to_publish.unpublish).to be_truthy
       expect(PublicContent.all.count).to eq(0)
     end
+
+    specify '#is_public' do 
+      content_to_publish.update!(is_public: true)
+      expect(PublicContent.all.count).to eq(1)
+    end
   end
 
   # See the Papertrail gem https://github.com/airblade/paper_trail

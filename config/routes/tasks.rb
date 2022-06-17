@@ -94,6 +94,14 @@ scope :tasks do
   end
 
   scope :content do
+      scope :publisher, controller: 'tasks/content/publisher' do
+        get 'summary', as: :publisher_summary,  defaults: {format: :json}
+        get 'topic_table', as: :publisher_topic_table, defaults: {format: :json}
+        get '/', action: :index, as: 'publisher_task'
+        post 'publish_all', defaults: {format: :json}
+        post 'unpublish_all', defaults: {format: :json}
+      end
+
       scope :by_nomenclature, controller: 'tasks/content/by_nomenclature' do
         get '/', action: :index, as: 'content_by_nomenclature_task'
       end
@@ -458,6 +466,12 @@ scope :tasks do
   end
 
   scope :taxon_names do
+      scope :merge, controller: 'tasks/taxon_names/merge' do
+        get '/', action: :index, as: 'taxon_name_merge_task'
+        get 'report', as: 'taxon_name_merge_report'
+        post 'merge', as: 'taxon_name_merge'
+      end
+
     scope :syncronize_otus, controller: 'tasks/taxon_names/syncronize_otus' do
       get 'index', as: 'syncronize_otus_to_nomenclature_task'
       post 'index', as: 'preview_syncronize_otus_to_nomenclature_task'

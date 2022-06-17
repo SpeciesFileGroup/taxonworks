@@ -300,6 +300,7 @@ class CollectingEventsController < ApplicationController
       :collection_objects,
       :collector_id,
       :collector_ids_or,
+      :determiner_name_regex,
       :depictions,
       :end_date,   # used in date range
       :geo_json,

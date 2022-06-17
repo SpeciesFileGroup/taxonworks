@@ -171,6 +171,6 @@ class ContentsController < ApplicationController
   end
 
   def content_params
-    params.require(:content).permit(:text, :otu_id, :topic_id)
+    params.require(:content).permit(:text, :otu_id, :topic_id, :is_public)
   end
 end
