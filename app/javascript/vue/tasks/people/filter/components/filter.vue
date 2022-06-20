@@ -24,6 +24,9 @@
         class="margin-large-bottom"
         v-model="params.base"
       />
+      <FacetActiveYear v-model="params.base" />
+      <FacetBorn v-model="params.base" />
+      <FacetDied v-model="params.base" />
       <with-component
         class="margin-large-bottom"
         title="Sequences"
@@ -55,6 +58,9 @@ import KeywordsComponent from 'tasks/sources/filter/components/filters/tags'
 import platformKey from 'helpers/getPlatformKey.js'
 import WithComponent from 'tasks/sources/filter/components/filters/with'
 import FacetPerson from './Facet/FacetPerson.vue'
+import FacetActiveYear from 'tasks/uniquify/people/components/Filter/Facets/FacetActive.vue'
+import FacetBorn from 'tasks/uniquify/people/components/Filter/Facets/FacetBorn.vue'
+import FacetDied from 'tasks/uniquify/people/components/Filter/Facets/FacetDied.vue'
 import { computed, ref } from 'vue'
 
 const emit = defineEmits([
@@ -121,7 +127,7 @@ const initParams = () => ({
     identifier_start: undefined,
     identifier_end: undefined,
     namespace_id: undefined
-  },
+  }
 })
 
 const params = ref(initParams())
