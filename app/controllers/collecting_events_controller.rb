@@ -300,6 +300,7 @@ class CollectingEventsController < ApplicationController
       :collection_objects,
       :collector_id,
       :collector_ids_or,
+      :determiner_name_regex,
       :depictions,
       :end_date,   # used in date range
       :geo_json,
@@ -319,6 +320,9 @@ class CollectingEventsController < ApplicationController
       :spatial_geographic_areas,
       :start_date, # used in date range
       :wkt,
+      :user_target,
+      :user_date_start,
+      :user_date_end,
       collecting_event_wildcards: [],
       collector_id: [],
       geographic_area_id: [],
@@ -353,6 +357,9 @@ class CollectingEventsController < ApplicationController
       :spatial_geographic_areas,
       :start_date, # used in date range
       :wkt,
+      :user_target,
+      :user_date_start,
+      :user_date_end,
       collector_id: [],
       geographic_area_id: [],
       keyword_id_and: [],

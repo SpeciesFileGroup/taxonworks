@@ -1,27 +1,59 @@
 <template>
   <div class="notes_annotator">
-    <textarea class="separate-bottom" placeholder="Text..." v-model="note.text"/>
-    <div v-if="note.hasOwnProperty('id')">
-      <button type="button" class="button button-submit normal-input separate-bottom" @click="updateNote()" :disabled="!validateFields">Update</button>
-      <button type="button" class="button button-default normal-input" @click="note = newNote()">New</button>
+    <textarea 
+      class="separate-bottom"
+      v-model="note.text"
+      rows="10"
+      placeholder="Text..."
+    />
+    <div v-if="note.id">
+      <v-btn
+        class="margin-small-right"
+        color="create"
+        medium
+        :disabled="!validateFields"
+        @click="updateNote()">
+        Update
+      </v-btn>
+      <v-btn
+        color="primary"
+        medium
+        @click="note = newNote()"
+      >
+        New
+      </v-btn>
     </div>
     <div v-else>
-      <button @click="createNew()" :disabled="!validateFields" class="button button-submit normal-input separate-bottom" type="button">Create</button>
+      <v-btn
+        medium
+        color="create"
+        :disabled="!validateFields"
+        @click="createNew()"
+      >
+        Create
+      </v-btn>
     </div>
-    <display-list label="text" :list="list" :edit="true" @edit="note = $event" @delete="removeItem" class="list"/>
+    <display-list 
+      label="text" 
+      :list="list" 
+      edit 
+      @edit="note = $event" 
+      @delete="removeItem" 
+    />
   </div>
 </template>
 <script>
 
 import CRUD from '../request/crud.js'
 import annotatorExtend from '../components/annotatorExtend.js'
-import autocomplete from 'components/ui/Autocomplete.vue'
-import displayList from './displayList.vue'
+import DisplayList from 'components/displayList.vue'
+import VBtn from 'components/ui/VBtn/index.vue'
 
 export default {
   mixins: [CRUD, annotatorExtend],
   components: {
-    displayList
+    DisplayList,
+    VBtn
   },
   computed: {
     validateFields () {
@@ -58,18 +90,4 @@ export default {
   }
 }
 </script>
-<style lang="scss">
-.radial-annotator {
-  .notes_annotator {
-    button {
-      min-width: 100px;
-    }
-    textarea {
-      padding-top: 14px;
-      padding-bottom: 14px;
-      width: 100%;
-      height: 100px;
-    }
-  }
-}
-</style>
+

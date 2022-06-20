@@ -101,7 +101,7 @@ class PeopleController < ApplicationController
 
   # GET /people/select_options
   def select_options
-    @people = Person.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:role_type])
+    @people = Person.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target])
   end
 
   # POST /people/merge
@@ -111,7 +111,7 @@ class PeopleController < ApplicationController
     if @person.hard_merge(person_to_remove.id)
       render 'show'
     else
-      render json: {status: 'Failed. Check to see that both People are not linked to the same record, e.g. Authors on the same Source.'}
+      render json: { error: 'Failed. Check to see that both People are not linked to the same record, e.g. Authors on the same Source.' }, status: :conflict
     end
   end
 

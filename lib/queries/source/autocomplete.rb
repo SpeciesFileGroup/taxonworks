@@ -204,11 +204,11 @@ module Queries
 
         # [ query, order by use if true- don't if nil ]
         queries = [
-          [ autocomplete_exact_id, nil],
-          [ autocomplete_identifier_identifier_exact, nil],
+          [ autocomplete_exact_id, false],
+          [ autocomplete_identifier_identifier_exact, false],
           [ autocomplete_exact_author_year_letter&.limit(20), true],
           [ autocomplete_exact_author_year&.limit(20), true],
-          [ autocomplete_identifier_cached_exact, nil],
+          [ autocomplete_identifier_cached_exact, false],
           [ autocomplete_start_author_year&.limit(20), true],
           [ autocomplete_wildcard_author_exact_year&.limit(20), true],
           [ autocomplete_exact_author&.limit(20), true],
@@ -222,7 +222,7 @@ module Queries
           [ autocomplete_wildcard_of_title_alternate&.limit(20), true]
         ]
 
-        queries.delete_if{|a,b| a.nil?} # compact!
+        queries.delete_if{|a,b| a.nil?} # Note this pattern differs because [[]] so we don't use compact. /lib/queries/repository/autocomplete.rb follows same pattern
 
         result = []
 
@@ -238,7 +238,7 @@ module Queries
           if project_id && scope
             a = a.left_outer_joins(:citations)
               .select('sources.*, COUNT(citations.id) AS use_count, NULLIF(citations.project_id, NULL) as in_project')
-              .where('citations.project_id = ? OR citations.project_id IS NULL', project_id)
+              .where('citations.project_id = ? OR citations.project_id IS DISTINCT FROM ?', project_id, project_id)
               .group('sources.id, citations.project_id')
               .order('use_count DESC')
           end

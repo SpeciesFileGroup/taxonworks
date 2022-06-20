@@ -80,10 +80,18 @@ module SqedToTaxonworks
         @sqed_result ||= sqed.result
       rescue NoMethodError # TODO - better handling in Sqed
         @sqed_result = false
-      rescue Magick::ImageMagickError, 'unable to open image'
-        @sqed_result = false
-      rescue RuntimeError, 'ImageMagick library function failed to return a result.'
-        @sqed_result = false
+      rescue Magick::ImageMagickError => e
+        if e.message.include?('unable to open image')
+          @sqed_result = false
+        else
+          raise
+        end
+      rescue RuntimeError => e
+        if e.message.include?( 'ImageMagick library function failed to return a result.')
+          @sqed_result = false
+        else
+          raise
+        end
       end
       @sqed_result
     end
@@ -91,8 +99,12 @@ module SqedToTaxonworks
     def original_image
       begin
         @original_image ||= Magick::Image.read(depiction.image.image_file.path(:original)).first
-      rescue Magick::ImageMagickError, 'unable to open image'
-        @original_image = nil
+      rescue Magick::ImageMagickError => e
+        if e.message.include?('unable to open image')
+          @original_image = nil
+        else
+          raise
+        end
       end
     end
 
@@ -111,8 +123,12 @@ module SqedToTaxonworks
     def cache_boundaries
       begin
         sqed_depiction.update_column(:result_boundary_coordinates, sqed.boundaries.coordinates)
-      rescue RuntimeError, 'No image provided'
-        sqed_depiction.update_column(:result_boundary_coordinates, nil)
+      rescue RuntimeError => e
+        if e.message.include?( 'No image provided')
+          sqed_depiction.update_column(:result_boundary_coordinates, nil)
+        else
+          raise
+        end
       end
     end
 

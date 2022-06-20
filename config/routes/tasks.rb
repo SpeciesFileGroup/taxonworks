@@ -94,6 +94,14 @@ scope :tasks do
   end
 
   scope :content do
+      scope :publisher, controller: 'tasks/content/publisher' do
+        get 'summary', as: :publisher_summary,  defaults: {format: :json}
+        get 'topic_table', as: :publisher_topic_table, defaults: {format: :json}
+        get '/', action: :index, as: 'publisher_task'
+        post 'publish_all', defaults: {format: :json}
+        post 'unpublish_all', defaults: {format: :json}
+      end
+
       scope :by_nomenclature, controller: 'tasks/content/by_nomenclature' do
         get '/', action: :index, as: 'content_by_nomenclature_task'
       end
@@ -212,6 +220,18 @@ scope :tasks do
   end
 
   scope :collection_objects do
+    scope :stepwise do
+      scope :determinations, controller: 'tasks/collection_objects/stepwise/determinations' do
+        get '/', action: :index, as: 'stepwise_determinations_task'
+        get :data, defaults: {format: :json}
+      end
+    end
+
+    scope :classification_summary, controller: 'tasks/collection_objects/classification_summary' do
+      get '/', action: :index, as: 'classification_summary_task'
+      get :report, as: 'classification_summary_report',  defaults: {format: :js}
+    end
+
     scope :match, controller: 'tasks/collection_objects/match' do
       get '/', action: :index, as: 'match_collection_objects_task'
     end
@@ -457,6 +477,12 @@ scope :tasks do
   end
 
   scope :taxon_names do
+      scope :merge, controller: 'tasks/taxon_names/merge' do
+        get '/', action: :index, as: 'taxon_name_merge_task'
+        get 'report', as: 'taxon_name_merge_report'
+        post 'merge', as: 'taxon_name_merge'
+      end
+
     scope :syncronize_otus, controller: 'tasks/taxon_names/syncronize_otus' do
       get 'index', as: 'syncronize_otus_to_nomenclature_task'
       post 'index', as: 'preview_syncronize_otus_to_nomenclature_task'

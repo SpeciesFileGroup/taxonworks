@@ -1479,6 +1479,35 @@ class TaxonName < ApplicationRecord
     id.to_s + '-' + Digest::MD5.hexdigest(cached_original_combination)
   end
 
+  def merge_to(to_taxon_name, kind)
+    @result = {
+      failed: 0,
+      passed: 0,
+      kind: kind
+    }
+
+    case kind
+    when :taxon_name_relationships
+      all_taxon_name_relationships.each do |r|
+        begin
+          if r.subject_taxon_name_id == id
+            r.update!(subject_taxon_name: to_taxon_name)
+          elsif  r.object_taxon_name_id == id
+            r.update!(object_taxon_name: to_taxon_name)
+          else
+            @result[:failed] += 1
+          end
+          @result[:passed] += 1
+        rescue ActiveRecord::RecordInvalid
+          @result[:failed] += 1
+        end
+      end
+    else
+    end
+
+    @result
+  end
+
   protected
 
   def check_for_children

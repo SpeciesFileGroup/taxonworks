@@ -22,10 +22,14 @@
     <% end %>
   </div>
 
-  <div id="taxon-original-combination">
-    <% @taxon_name.original_combination_relationships.each do |combination| %>
-      <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: { object: combination }) -%>
-    <% end %>
-  </div>
+  <% unless @taxon_name.is_combination? %>
+    <div id="taxon-original-combination">
+      <%= content_tag(:h3, 'Original combination') if @taxon_name.original_combination_relationships.any? %>
+      <% @taxon_name.original_combination_relationships.each do |combination| %>
+        <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: { object: combination }) -%>
+      <% end %>
+    </div>
+  <% end %>
 </div>
+
 

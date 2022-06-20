@@ -4,7 +4,7 @@ class OtusController < ApplicationController
   before_action :set_otu, only: [
     :show, :edit, :update, :destroy, :collection_objects, :navigation,
     :breadcrumbs, :timeline, :coordinate,
-    :api_show, :api_taxonomy_inventory, :api_type_material_inventory, :api_nomenclature_citations]
+    :api_show, :api_taxonomy_inventory, :api_type_material_inventory, :api_nomenclature_citations, :api_distribution, :api_content ]
   after_action -> { set_pagination_headers(:otus) }, only: [:index, :api_index], if: :json_request?
 
   # GET /otus
@@ -263,13 +263,22 @@ class OtusController < ApplicationController
   end
 
   def api_autocomplete
-    @otus = Queries::Otu::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).autocomplete
+    @otus = Queries::Otu::Autocomplete.new(
+      params.require(:term),
+      project_id: sessions_current_project_id,
+      having_taxon_name_only: params[:having_taxon_name_only]
+    ).autocomplete
     render '/otus/api/v1/autocomplete'
   end
 
   # GET /api/v1/otus/:id/inventory/taxonomy
   def api_taxonomy_inventory
     render '/otus/api/v1/inventory/taxonomy'
+  end
+
+  # GET /api/v1/otus/:id/inventory/content
+  def api_content
+    render '/otus/api/v1/inventory/content'
   end
 
   # GET /api/v1/otus/:id/inventory/type_material
@@ -280,14 +289,17 @@ class OtusController < ApplicationController
   # GET /api/v1/otus/:id/inventory/nomenclature_citations
   def api_nomenclature_citations
     if @otu.taxon_name
-      redirect_to  api_v1_citations_path(
-        citation_object_type: 'TaxonName',
-        citation_object_id: @otu.taxon_name_id,
-        extend: params[:extend]
-      ) and return
+      data = ::Catalog::Nomenclature::Entry.new(@otu.taxon_name)
+      @citations = data.citations
+      render '/citations/api/v1/index'
     else
       render json: {}, status: :unprocessable_entity
     end
+  end
+
+  # GET /api/v1/otus/:id/inventory/distribution
+  def api_distribution
+    render '/otus/api/v1/distribution'
   end
 
   private

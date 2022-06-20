@@ -13,6 +13,14 @@ module AssertedDistributionsHelper
     ].join('&nbsp;').html_safe
   end
 
+  def label_for_asserted_distribution(asserted_distribution)
+    return nil if asserted_distribution.nil?
+    [ label_for_otu(asserted_distribution.otu),
+      label_for_geographic_area(asserted_distribution.geographic_area),
+      label_for_source(asserted_distribution.source)
+    ].compact.join(' in ')
+  end
+
   def asserted_distribution_link(asserted_distribution)
     return nil if asserted_distribution.nil?
     [
@@ -28,6 +36,27 @@ module AssertedDistributionsHelper
 
   def no_geographic_items?
     ' (has no geographic items)' if @asserted_distribution.geographic_area.geographic_items.empty?
+  end
+
+  # @return [Hash] GeoJSON feature
+  def asserted_distribution_to_geo_json_feature(asserted_distribution)
+    return nil if asserted_distribution.nil?
+    return nil unless asserted_distribution.has_shape?
+
+    return {
+      'type' => 'Feature',
+      'geometry' => RGeo::GeoJSON.encode(asserted_distribution.geographic_area.geographic_items.first.geo_object), # TODO: optimize
+      'properties' => {
+        'base' => {
+          'type' => 'AssertedDistribution',
+          'id' => asserted_distribution.id,
+          'label' => label_for_asserted_distribution(asserted_distribution) },
+        'shape' => {
+          'type' => 'GeographicArea',
+          'id' => asserted_distribution.geographic_area_id },
+        'is_absent' => asserted_distribution.is_absent
+      }
+    }
   end
 
 end

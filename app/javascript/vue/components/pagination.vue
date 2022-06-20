@@ -5,13 +5,15 @@
         <span v-if="pagination['previousPage'] && pagination['previousPage'] != 1">
           <a
             class="cursor-pointer"
-            @click="sendPage(pagination.previousPage)">
+            @click="sendPage(pagination.previousPage)"
+          >
             ‹ Back
           </a>
         </span>
         <span
           v-else
-          class="disabled">
+          class="disabled"
+        >
           ‹ Back
         </span>
       </template>
@@ -19,12 +21,15 @@
         <span v-if="pagination['nextPage'] && pagination['nextPage'] != pagination.totalPages">
           <a
             class="cursor-pointer"
-            @click="sendPage(pagination.nextPage)">Next ›
+            @click="sendPage(pagination.nextPage)"
+          >
+            Next ›
           </a>
         </span>
         <span
           v-else
-          class="disabled">
+          class="disabled"
+        >
           Next ›
         </span>
       </template>
@@ -32,35 +37,50 @@
     <nav class="pagination">
       <span
         v-if="pagination.paginationPage > rangePages"
-        class="page gap">...</span>
+        class="page gap"
+      >
+        ...
+      </span>
+      <span>Page</span>
       <span
+        v-for="n in pagesCount"
+        :key="n"
         :class="{ current: n == pagination.paginationPage}"
-        v-for="n in pagesCount">
+      >
         <template v-if="n < rangeMax && rangeMin < n">
           <span
             v-if="n == pagination.paginationPage"
-            class="page">{{ n }}</span>
+            class="page"
+          >
+            {{ n }}
+          </span>
           <a
             v-else
             class="cursor-pointer page"
-            @click="sendPage(n)">
+            @click="sendPage(n)"
+          >
             {{ n }}
           </a>
         </template>
       </span>
       <span
         v-if="(pagination.totalPages - pagination.paginationPage) >= rangePages"
-        class="page gap">...</span>
+        class="page gap"
+      >
+        ...
+      </span>
       <span
         v-if="pagination.paginationPage != 1 && pagination.paginationPage"
         @click="sendPage(1)"
-        class="first cursor-pointer">
+        class="first cursor-pointer"
+      >
         <a>« First</a>
       </span>
       <span
         v-if="pagination.paginationPage != pagination.totalPages"
         @click="sendPage(pagination.totalPages)"
-        class="last cursor-pointer">
+        class="last cursor-pointer"
+      >
         <a>Last »</a>
       </span>
     </nav>
@@ -79,10 +99,10 @@ export default {
   emits: ['nextPage'],
 
   computed: {
-    pagesCount() {
-      if(Object.keys(this.pagination).length)
-        return this.pagination.totalPages
-      return 1
+    pagesCount () {
+      return Object.keys(this.pagination).length
+        ? this.pagination.totalPages
+        : 1
     },
 
     rangeMax () {
@@ -93,6 +113,7 @@ export default {
       return this.pagination.paginationPage - this.rangePages
     }
   },
+
   data () {
     return {
       rangePages: 5
@@ -100,7 +121,7 @@ export default {
   },
 
   methods: {
-    sendPage(page) {
+    sendPage (page) {
       this.$emit('nextPage', { page })
     }
   }

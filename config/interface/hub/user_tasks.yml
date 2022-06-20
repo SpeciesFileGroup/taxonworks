@@ -690,3 +690,35 @@ filter_people_task:
   categories:
   status: prototype
   description: 'Filter people.'
+stepwise_determinations_task:
+  hub: true
+  name: 'Stepwise determinations'
+  related:
+  categories:
+    - collection_object
+    - people
+  status: prototype
+  description: 'Parse verbatim determinations into their semantic components.'
+classification_summary_task:
+  hub: true
+  name: 'Collection object classification summary'
+  related:
+  categories:
+    - collection_object
+  status: prototype
+  description: 'Summarize collection objects totals and preparation by classification (by class, order, family).'
+publisher_task:
+  hub: true
+  name: 'Content publisher'
+  related:
+  categories:
+  status: prototype
+  description: 'Manage the publishing of OTU content (text per topic).'
+taxon_name_merge_task:
+  hub: true
+  name: 'Merge taxon names'
+  related:
+  categories:
+    - nomenclature 
+  status: prototype
+  description: 'Basic tools that faclitate merging taxon names.'

@@ -60,7 +60,5 @@ class Tasks::Projects::ActivityController < ApplicationController
       @sessions = ::Work.sessions(@records)
     end
 
-
   end
-
 end

@@ -66,9 +66,10 @@
         <th>Hours</th>
         <th>Count</th>
         <th>Records /<br> minute</th>
+        <th>Minutes /<br> record </th>
       </tr>
 
-      <tr><td colspan="9" class='feedback-dark'>Total (Batch? = 'true' also includes batch sessions) </td></tr>
+      <tr><td colspan="10" class='feedback-dark'>Total (Batch? = 'true' also includes batch sessions) </td></tr>
       <%= content_tag(:tr, [
         tag.td(),
         tag.td(@sessions.first[:start].strftime("%Y-%m-%d")),
@@ -79,6 +80,7 @@
         tag.td( ::Work.total_time_in_hours(@sessions, false )   ),
         tag.td( record_count = ::Work.sum_count(@sessions, false) ),
         tag.td( ::Work.average_records_per_minute(@sessions, false)),
+        tag.td( ::Work.average_minutes_per_record(@sessions, false)),
         ].join.html_safe  ) -%>
 
       <%= content_tag(:tr, [
@@ -91,9 +93,10 @@
         tag.td( ::Work.total_time_in_hours(@sessions, true )   ),
         tag.td( record_count = ::Work.sum_count(@sessions, true) ),
         tag.td( ::Work.average_records_per_minute(@sessions, true)),
-        ].join.html_safe, class: 'feedback-info'  ) -%>
+        tag.td( ::Work.average_minutes_per_record(@sessions, true)),
+      ].join.html_safe, class: 'feedback-info'  ) -%>
 
-    <tr><td colspan="9" class='feedback-dark'>Sessions</td></tr>
+    <tr><td colspan="10" class='feedback-dark'>Sessions</td></tr>
     <%= @sessions.collect{|s|
       content_tag( :tr, [
         tag.td( s[:batch] ),
@@ -105,6 +108,8 @@
         tag.td(((s[:end] - s[:start]) / 3600.0).round(2)),
         tag.td(s[:count]),
         tag.td(s[:efficiency]),
+        tag.td( s[:efficiency] == 0 ? '-' :  (1.00 / s[:efficiency]).round(3) ),
+
       ].join.html_safe , class: [ (s[:batch] ? 'feedback-info' : nil) ].compact  )}
         .flatten.join.html_safe  -%>
 

@@ -66,9 +66,13 @@ const vueAnnotator = {
     },
 
     removeItem (item) {
-      this.destroy(`/${this.type}/${item.id}`, item).then(() => {
+      const request = this.destroy(`/${this.type}/${item.id}`, item)
+      
+      request.then(() => {
         this.removeFromList(item.id)
       })
+
+      return request
     },
 
     updateCount () {

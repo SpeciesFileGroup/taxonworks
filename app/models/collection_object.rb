@@ -152,7 +152,7 @@ class CollectionObject < ApplicationRecord
     name: 'Missing deaccesson fields',
     description: 'Date, recipient, or reason are not specified')
 
-  scope :with_sequence_name, ->(name) { joins(sequence_join_hack_sql).where(sequences: {name: name}) }
+    scope :with_sequence_name, ->(name) { joins(sequence_join_hack_sql).where(sequences: {name: name}) }
   scope :via_descriptor, ->(descriptor) { joins(sequence_join_hack_sql).where(sequences: {id: descriptor.sequences}) }
 
   has_many :extracts, through: :origin_relationships, source: :new_object, source_type: 'Extract'

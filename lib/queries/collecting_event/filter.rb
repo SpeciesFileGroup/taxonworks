@@ -6,6 +6,7 @@ module Queries
       include Queries::Concerns::Tags
       include Queries::Concerns::DateRanges
       include Queries::Concerns::Identifiers
+      include Queries::Concerns::Users
 
       # TODO: likely move to model (replicated in Source too)
       # Params exists for all CollectingEvent attributes except these
@@ -14,7 +15,8 @@ module Queries
         class_eval { attr_accessor a.to_sym }
       end
 
-      PARAMS = %w{collector_id
+      PARAMS = %w{
+        collector_id
         collector_ids_or
         spatial_geographic_areas
         wkt
@@ -27,6 +29,7 @@ module Queries
         in_verbatim_locality
         in_labels
         geo_json
+        collecting_event_wildcards
       }
 
       # Wildcard wrapped matching any label
@@ -119,6 +122,7 @@ module Queries
         set_tags_params(params)
         set_attributes(params)
         set_dates(params)
+        set_user_dates(params)
       end
 
       def set_attributes(params)
@@ -230,8 +234,11 @@ module Queries
       # Shape is a Hash in GeoJSON format
       def geo_json_facet
         return nil if geo_json.nil?
-        a = RGeo::GeoJSON.decode(geo_json)
-        spatial_query(a.geometry_type.to_s, a.to_s)
+        if a = RGeo::GeoJSON.decode(geo_json)
+          return spatial_query(a.geometry_type.to_s, a.to_s)
+        else
+          return nil
+        end
       end
 
       def spatial_query(geometry_type, wkt)
@@ -315,6 +322,7 @@ module Queries
           identifier_facet, # See Queries::Concerns::Identifiers
           identifier_namespace_facet,
           depictions_facet,
+          created_updated_facet
         ].compact!
         clauses
       end

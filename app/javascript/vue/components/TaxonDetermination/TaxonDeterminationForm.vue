@@ -26,10 +26,21 @@
       />
     </div>
     <button
+      v-if="createForm"
       type="button"
       id="determination-add-button"
       :disabled="!taxonDetermination.otu_id"
       class="button normal-input button-submit separate-top"
+      @click="addDetermination"
+    >
+      {{ taxonDetermination.id || taxonDetermination.uuid ? 'Update' : 'Create' }}
+    </button>
+    <button
+      v-else
+      type="button"
+      id="determination-add-button"
+      :disabled="!taxonDetermination.otu_id"
+      class="button normal-input button-default separate-top"
       @click="addDetermination"
     >
       {{ taxonDetermination.id || taxonDetermination.uuid ? 'Update' : 'Add' }}
@@ -55,6 +66,11 @@ import makeTaxonDetermination from 'factory/TaxonDetermination.js'
 import LockComponent from 'components/ui/VLock/index.vue'
 
 const props = defineProps({
+  createForm: {
+    type: Boolean,
+    default: false
+  },
+
   lockDeterminer: {
     type: Boolean,
     default: undefined
@@ -112,8 +128,13 @@ const setDetermination = determination => {
   Object.assign(taxonDetermination, makeTaxonDetermination(), determination)
 }
 
+const getRoleString = role =>
+  role.organization_id
+    ? role.name
+    : role?.person?.last_name || role?.last_name || ''
+
 const addDetermination = () => {
-  const rolesString = taxonDetermination.roles_attributes.map(author => author?.person?.last_name || author?.last_name || '').join('; ')
+  const rolesString = taxonDetermination.roles_attributes.map(getRoleString).join('; ')
   const label = `${otuLabel.value} by ${rolesString} ${dateString(taxonDetermination)}`
 
   emit('onAdd', {

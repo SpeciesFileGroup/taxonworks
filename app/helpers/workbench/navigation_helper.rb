@@ -3,8 +3,8 @@
 # helpers.
 module Workbench::NavigationHelper
   
-  NO_NEW_FORMS = %w{Confidence Attribution ObservationMatrixRow ObservationMatrixColumn Note Tag
-  Citation Identifier DataAttribute AlternateValue
+  NO_NEW_FORMS = %w{Confidence Attribution ObservationMatrixRowItem ObservationMatrixColumnItem ObservationMatrixRow ObservationMatrixColumn Note Tag
+  Citation Identifier DataAttribute AlternateValue 
   GeographicArea ContainerItem ProtocolRelationship Download}.freeze
 
   NOT_DATA_PATHS = %w{/project /administration /user}.freeze

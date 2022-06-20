@@ -45,7 +45,7 @@
                   type="button"
                   class="button normal-input button-default"
                   :disabled="person.id === selectedPerson['id']"
-                  @click="selectedPerson = person"
+                  @click="addToList(person)"
                 >
                   Select
                 </button>
@@ -103,6 +103,10 @@ export default {
 
     foundPeople () {
       return this.$store.getters[GetterNames.GetFoundPeopleList]
+    },
+
+    matchPeople () {
+      return this.$store.getters[GetterNames.GetMatchPeople]
     }
   },
 

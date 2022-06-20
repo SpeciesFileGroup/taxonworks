@@ -339,11 +339,15 @@ export default {
       this.loading = true
 
       this.getList(`/metadata/object_radial?global_id=${encodeURIComponent(globalId)}`).then(({ body }) => {
-        this.metadata = body
+        const { tasks, ...rest } = body
+
+        this.metadata = rest
+        this.metadata.tasks = {
+          ...tasks,
+          ...this.defaultTasks
+        }
         this.title = this.metadata.object_label
         this.loading = false
-
-        Object.assign(this.metadata.tasks, this.defaultTasks)
       })
     },
 

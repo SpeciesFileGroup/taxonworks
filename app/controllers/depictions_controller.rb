@@ -1,7 +1,7 @@
 class DepictionsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_depiction, only: [:show, :edit, :update, :destroy]
+  before_action :set_depiction, only: [:show, :edit, :update, :destroy, :api_show]
 
   # GET /depictions
   # GET /depictions.json
@@ -27,6 +27,10 @@ class DepictionsController < ApplicationController
   # GET /depictions/1.json
   def show
     @depiction.sqed_depiction.preprocess(false) if @depiction.sqed_depiction
+  end
+
+  def api_show
+    render '/depictions/api/v1/show'
   end
 
   # GET /depictions/new

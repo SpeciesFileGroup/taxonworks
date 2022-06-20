@@ -1,5 +1,4 @@
 import { convertToUnit } from 'helpers/style'
-import SIZE_MAP from 'assets/styles/variables/_sizes.scss'
 
 export default {
   props: {
@@ -30,7 +29,20 @@ export default {
 
     size: {
       type: [Number, String],
-      default: SIZE_MAP.default
+      default: '24px'
+    }
+  },
+
+  data () {
+    return {
+      SIZE_MAP: {
+        xSmall: '12px',
+        small: '16px',
+        default: '24px',
+        medium: '28px',
+        large: '36px',
+        xLarge: '40px'
+      }
     }
   },
 
@@ -52,7 +64,7 @@ export default {
     },
 
     elementSize () {
-      return (this.explicitSize && SIZE_MAP[this.explicitSize]) || convertToUnit(this.size)
+      return (this.explicitSize && this.SIZE_MAP[this.explicitSize]) || convertToUnit(this.size)
     }
   }
 }

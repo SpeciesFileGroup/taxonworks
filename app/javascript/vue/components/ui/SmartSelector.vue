@@ -252,6 +252,11 @@ export default {
     autofocus: {
       type: Boolean,
       default: false
+    },
+
+    extend: {
+      type: Array,
+      default: () => []
     }
   },
 
@@ -316,7 +321,7 @@ export default {
 
   methods: {
     getObject (id) {
-      AjaxCall('get', this.getUrl ? `${this.getUrl}${id}.json` : `/${this.model}/${id}.json`).then(response => {
+      AjaxCall('get', this.getUrl ? `${this.getUrl}${id}.json` : `/${this.model}/${id}.json`, { params: { extend: this.extend } }).then(response => {
         this.sendObject(response.body)
       })
     },
@@ -330,7 +335,7 @@ export default {
     },
     refresh (forceUpdate = false) {
       if (this.alreadyOnLists() && !forceUpdate) return
-      AjaxCall('get', `/${this.model}/select_options`, { params: Object.assign({}, { klass: this.klass, target: this.target }, this.params) }).then(response => {
+      AjaxCall('get', `/${this.model}/select_options`, { params: Object.assign({}, { klass: this.klass, target: this.target }, { extend: this.extend }, this.params) }).then(response => {
         this.lists = response.body
         this.addCustomElements()
         this.options = Object.keys(this.lists).concat(this.addTabs)

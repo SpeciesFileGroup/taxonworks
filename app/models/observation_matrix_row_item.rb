@@ -3,11 +3,11 @@
 # @!attribute observation_matrix_id
 #   @return [Integer] id of the matrix
 #
-# @!attribute otu_id
-#   @return [Integer] id of an (single) Otu based row
+# @!attribute observation_object_id
+#   @return id of the object being observed
 #
-# @!attribute collection_object_id
-#   @return [Integer] id of a (single) CollectObject based row
+# @!attribute observation_object_type
+#   @return type of the object being observed
 #
 # @!attribute position
 #   @return [Integer] a sort order
