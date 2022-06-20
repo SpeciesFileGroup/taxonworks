@@ -8,7 +8,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
--  People/Name toggle remove historical option for name [#3028]
+- People/Name toggle remove historical option for name [#3028]
+
+### Fixed 
+
+- Content attributes response
 
 [#3028]: https://github.com/SpeciesFileGroup/taxonworks/issues/3028
 
