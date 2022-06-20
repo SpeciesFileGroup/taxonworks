@@ -96,7 +96,10 @@ export default {
     }
   },
 
-  emits: ['update:modelValue'],
+  emits: [
+    'update:modelValue',
+    'toggle'
+  ],
 
   data () {
     return {
@@ -131,7 +134,8 @@ export default {
       deep: true
     },
 
-    isPeopleView () {
+    isPeopleView (newVal) {
+      this.$emit('toggle', newVal)
       this.list = []
       this.params.determiner_name_regex = undefined
     }
