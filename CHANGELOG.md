@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - Content panel in browse OTU not working properly
+- Darwin Core Export failing on specific combinations of data attributes selection.
 
 ## [0.27.1] - 2022-06-21
 ### Changed
