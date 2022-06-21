@@ -1,16 +1,19 @@
 <template>
   <section-panel
     :status="status"
-    :title="title">
+    :title="title"
+  >
     <div class="separate-top">
       <ul>
         <li
           v-for="content in contents"
-          :key="content.id">
-          <b><span v-html="content.topic.name"/></b>
+          :key="content.id"
+        >
+          <b><span v-html="content.topic.name" /></b>
           <p
             class="pre"
-            v-html="markdownToHtml(content.text)"/>
+            v-html="markdownToHtml(content.text)"
+          />
         </li>
       </ul>
     </div>
@@ -47,7 +50,11 @@ export default {
     otu: {
       handler (newVal) {
         if (newVal) {
-          Content.where({ otu_id: this.otu.id, most_recent_updates: 100 }).then(response => {
+          Content.where({
+            otu_id: this.otu.id,
+            most_recent_updates: 100,
+            extend: ['topic']
+          }).then(response => {
             this.contents = response.body
           })
         }
