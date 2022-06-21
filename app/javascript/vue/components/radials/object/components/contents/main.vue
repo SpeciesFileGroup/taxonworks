@@ -79,7 +79,8 @@
       edit
       @delete="removeItem"
       @edit="setContent"
-      class="list"/>
+      class="list"
+    />
   </div>
 </template>
 
@@ -95,6 +96,8 @@ import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
 import SpinnerComponent from 'components/spinner.vue'
 import { shorten } from 'helpers/strings.js'
 import { ControlledVocabularyTerm, Content } from 'routes/endpoints'
+
+const extend = ['otu', 'topic']
 
 export default {
   name: 'QuickContentForm',
@@ -120,7 +123,8 @@ export default {
         spellChecker: false
       },
       allTopics: [],
-      topic: undefined
+      topic: undefined,
+      loadOnMounted: false
     }
   },
 
@@ -149,14 +153,18 @@ export default {
 
   async created () {
     this.allTopics = (await ControlledVocabularyTerm.where({ type: ['Topic'] })).body
+    this.list = (await Content.where({
+      otu_id: this.metadata.object_id,
+      extend
+    })).body
   },
 
   methods: {
     saveContent () {
       const content = this.content
       const saveRecord = this.content.id
-        ? Content.update(content.id, { content })
-        : Content.create({ content })
+        ? Content.update(content.id, { content, extend })
+        : Content.create({ content, extend })
 
       saveRecord.then(response => {
         this.addRecord(response.body)
