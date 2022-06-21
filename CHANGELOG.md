@@ -6,6 +6,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+## [0.27.1] - 2022-06-21
 ### Changed
 - People/Name toggle remove historical option for name [#3028]
 
@@ -2734,7 +2735,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.1...development
+[0.27.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.0...v0.27.1
 [0.27.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.26.2...v0.27.0
 [0.26.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.26.1...v0.26.2
 [0.26.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.26.0...v0.26.1
