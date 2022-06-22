@@ -10,6 +10,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Content panel in browse OTU not working properly
 - Darwin Core Export failing on specific combinations of data attributes selection.
 
+### Changed
+- Updated Ruby gems and Node packages
+
 ## [0.27.1] - 2022-06-21
 ### Changed
 - People/Name toggle remove historical option for name [#3028]
