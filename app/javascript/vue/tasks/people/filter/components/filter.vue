@@ -1,7 +1,8 @@
 <template>
   <div
     class="panel vue-filter-container"
-    v-hotkey="shortcuts">
+    v-hotkey="shortcuts"
+  >
     <div class="flex-separate content middle action-line">
       <span>Filter</span>
       <button
@@ -24,6 +25,7 @@
         class="margin-large-bottom"
         v-model="params.base"
       />
+      <FacetProjects v-model="params.base" />
       <FacetActiveYear v-model="params.base" />
       <FacetBorn v-model="params.base" />
       <FacetDied v-model="params.base" />
@@ -61,6 +63,7 @@ import FacetPerson from './Facet/FacetPerson.vue'
 import FacetActiveYear from 'tasks/uniquify/people/components/Filter/Facets/FacetActive.vue'
 import FacetBorn from 'tasks/uniquify/people/components/Filter/Facets/FacetBorn.vue'
 import FacetDied from 'tasks/uniquify/people/components/Filter/Facets/FacetDied.vue'
+import FacetProjects from './Facet/FacetProjects.vue'
 import { computed, ref } from 'vue'
 
 const emit = defineEmits([
@@ -109,7 +112,9 @@ const initParams = () => ({
     active_after_year: undefined,
     active_before_year: undefined,
     died_after_year: undefined,
-    repeated_total: undefined
+    repeated_total: undefined,
+    except_project_id: [],
+    project_id: []
   },
   with: {
     first_name: undefined,
