@@ -156,7 +156,8 @@ module Queries
         # Scope all names in the result
         a = table[:id].eq(h[:descendant_id])
           .and(h[:ancestor_id].eq(ancestor_id) )
-        a = a.and(table[:cached_valid_taxon_name_id].eq(table[:id])) if validity
+        a = a.and(table[:cached_is_valid].eq(true)) if validity
+        #a = a.and(table[:cached_valid_taxon_name_id].eq(table[:id])) if validity
 
         # Start a query
         q = q.join(h, Arel::Nodes::InnerJoin).on(a)
