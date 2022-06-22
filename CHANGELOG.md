@@ -6,6 +6,17 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.27.2] - 2022-06-22
+
+### Fixed
+- Content panel in browse OTU not working properly
+- Darwin Core Export failing on specific combinations of data attributes selection.
+
+### Changed
+- Updated Ruby gems and Node packages
+
 ## [0.27.1] - 2022-06-21
 ### Changed
 - People/Name toggle remove historical option for name [#3028]
@@ -2735,7 +2746,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.2...development
+[0.27.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.1...v0.27.2
 [0.27.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.0...v0.27.1
 [0.27.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.26.2...v0.27.0
 [0.26.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.26.1...v0.26.2
