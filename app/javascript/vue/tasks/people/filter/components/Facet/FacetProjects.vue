@@ -76,7 +76,7 @@ watch(
 )
 
 User.find(getCurrentUserId(), { extends: ['projects'] }).then(r => {
-  projects.value = r.body
+  projects.value = r.body?.projects || []
 })
 
 const {

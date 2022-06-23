@@ -81,7 +81,7 @@ const fields = [
   }
 ]
 
-const emit = defineEmits('update:modelValue')
+const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get () {
@@ -95,14 +95,13 @@ const params = computed({
 
 const urlParams = URLParamsToJSON(location.href)
 
-params.value = {
-  ...params.value,
+Object.assign(params.value, {
   name: urlParams.name,
   first_name: urlParams.first_name,
   last_name: urlParams.last_name,
   suffix: urlParams.suffix,
   prefix: urlParams.prefix,
   exact: urlParams.exact || []
-}
+})
 
 </script>

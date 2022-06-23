@@ -29,6 +29,7 @@
       <FacetActiveYear v-model="params.base" />
       <FacetBorn v-model="params.base" />
       <FacetDied v-model="params.base" />
+      <FacetRegex v-model="params.base" />
       <with-component
         class="margin-large-bottom"
         title="Sequences"
@@ -64,6 +65,7 @@ import FacetActiveYear from 'tasks/uniquify/people/components/Filter/Facets/Face
 import FacetBorn from 'tasks/uniquify/people/components/Filter/Facets/FacetBorn.vue'
 import FacetDied from 'tasks/uniquify/people/components/Filter/Facets/FacetDied.vue'
 import FacetProjects from './Facet/FacetProjects.vue'
+import FacetRegex from './Facet/FacetRegex.vue'
 import { computed, ref } from 'vue'
 
 const emit = defineEmits([
@@ -155,6 +157,6 @@ const filterEmptyParams = object => {
 </script>
 <style scoped>
 :deep(.btn-delete) {
-    background-color: #5D9ECE;
-  }
+  background-color: #5D9ECE;
+}
 </style>
