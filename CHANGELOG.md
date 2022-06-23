@@ -6,7 +6,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+- Include facet is not working properly in Filter nomenclature [#3023]
+
+[#3023]: https://github.com/SpeciesFileGroup/taxonworks/issues/3023
 
 ## [0.27.2] - 2022-06-22
 
