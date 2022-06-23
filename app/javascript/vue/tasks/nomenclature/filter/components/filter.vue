@@ -33,7 +33,10 @@
         v-model="params.authors"/>
       <scope-component
         class="margin-medium-bottom"
-        :autocomplete-params="{ no_leaves: true }"
+        :autocomplete-params="{
+          type: 'Protonym',
+          valid: true
+        }"
         v-model="params.base.taxon_name_id"/>
       <related-component
         class="margin-medium-bottom"
