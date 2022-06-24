@@ -150,6 +150,7 @@ import DefaultPin from './getDefaultPin'
 import OrganizationPicker from 'components/organizationPicker.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
+import { sortArray } from 'helpers/arrays'
 import { People } from 'routes/endpoints'
 
 export default {
@@ -213,7 +214,7 @@ export default {
   watch: {
     modelValue: {
       handler (newVal) {
-        this.roles_attributes = this.sortPosition(this.processedList(newVal))
+        this.roles_attributes = sortArray(this.processedList(newVal), 'position')
       },
       deep: true,
       immediate: true
@@ -290,14 +291,14 @@ export default {
       const role = this.roles_attributes[index]
 
       if (role?.id) {
-        this.roles_attributes[index] = { 
-          id: role.id, 
+        this.roles_attributes[index] = {
+          id: role.id,
           _destroy: true
         }
       } else {
         this.roles_attributes.splice(index, 1)
       }
-  
+
       this.$emit('update:modelValue', this.roles_attributes)
       this.$emit('delete', role)
     },
@@ -306,19 +307,12 @@ export default {
       this.searchPerson = text
     },
 
-    sortPosition (list) {
-      list.sort((a, b) =>
-        a.position > b.position ? 1 : -1
-      )
-      return list
-    },
-
     alreadyExist (personId) {
       return !!this.roles_attributes.find(item => personId === item?.person_id)
     },
 
     processedList (list) {
-      return (list || []).map((element, index) => ({
+      return (list || []).map(element => ({
         id: element.id,
         type: element.type,
         first_name: element.first_name,
@@ -334,8 +328,8 @@ export default {
     },
 
     updateIndex () {
-      this.roles_attributes.forEach((element, index) => {
-        this.roles_attributes[index].position = (index + 1)
+      this.roles_attributes.forEach((role, index) => {
+        role.position = (index + 1)
       })
     },
 
@@ -376,12 +370,8 @@ export default {
       }
     },
 
-    getFullName (first_name, last_name) {
-      let separator = ''
-      if (!!last_name && !!first_name) {
-        separator = ', '
-      }
-      return (last_name + separator + (first_name != null ? first_name : ''))
+    getFullName (firstName, lastName) {
+      return [lastName, firstName].filter(Boolean).join(', ')
     },
 
     createPerson () {
@@ -452,7 +442,5 @@ export default {
       justify-content: space-between;
       border-bottom: 1px solid #f5f5f5;
     }
-
-
   }
 </style>

@@ -8,7 +8,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - Include facet is not working properly in Filter nomenclature [#3023]
+- Role picker changes order of roles after removing one [#3003]
 
+[#3003]: https://github.com/SpeciesFileGroup/taxonworks/issues/3003
 [#3023]: https://github.com/SpeciesFileGroup/taxonworks/issues/3023
 
 ## [0.27.2] - 2022-06-22
