@@ -10,13 +10,14 @@
             <th>
               <input
                 v-model="selectIds"
-                type="checkbox">
+                type="checkbox"
+              >
             </th>
             <th>ID</th>
             <th>First name</th>
             <th>Last name</th>
             <th>Prefix</th>
-            <th>Sufix</th>
+            <th>Suffix</th>
             <th />
           </tr>
         </thead>
@@ -31,13 +32,14 @@
               <input
                 v-model="ids"
                 :value="item.id"
-                type="checkbox">
+                type="checkbox"
+              >
             </td>
             <td>{{ item.id }}</td>
-            <td v-html="item.object_tag" />
-            <td>{{ item.year_made }}</td>
-            <td>{{ item.month_made }}</td>
-            <td>{{ item.day_made }}</td>
+            <td v-html="item.first_name" />
+            <td v-html="item.last_name" />
+            <td v-html="item.prefix" />
+            <td v-html="item.suffix" />
             <td>
               <radial-navigation
                 :global-id="item.global_id"

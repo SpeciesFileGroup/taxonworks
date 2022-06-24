@@ -30,11 +30,17 @@
       <FacetBorn v-model="params.base" />
       <FacetDied v-model="params.base" />
       <FacetRegex v-model="params.base" />
-      <with-component
-        class="margin-large-bottom"
-        title="Sequences"
-        param="sequences"
-        v-model="params.with"
+      <FacetWith
+        v-model="params.base"
+        param="first_name"
+      />
+      <FacetWith
+        v-model="params.base"
+        param="suffix"
+      />
+      <FacetWith
+        v-model="params.base"
+        param="prefix"
       />
       <keywords-component
         class="margin-large-bottom"
@@ -66,6 +72,7 @@ import FacetBorn from 'tasks/uniquify/people/components/Filter/Facets/FacetBorn.
 import FacetDied from 'tasks/uniquify/people/components/Filter/Facets/FacetDied.vue'
 import FacetProjects from './Facet/FacetProjects.vue'
 import FacetRegex from './Facet/FacetRegex.vue'
+import FacetWith from './Facet/FacetWith.vue'
 import { computed, ref } from 'vue'
 
 const emit = defineEmits([
@@ -116,11 +123,9 @@ const initParams = () => ({
     died_after_year: undefined,
     repeated_total: undefined,
     except_project_id: [],
-    project_id: []
-  },
-  with: {
-    first_name: undefined,
-    last_name: undefined
+    project_id: [],
+    with: [],
+    without: []
   },
   user: {
     user_id: undefined,
