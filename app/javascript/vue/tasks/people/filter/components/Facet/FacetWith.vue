@@ -1,10 +1,13 @@
 <template>
   <div>
-    <h3 class="capitalize">{{ param.replaceAll('_', ' ') }}</h3>
-    <ul class="no_bullets">
+    <h3 class="capitalize">
+      {{ param.replaceAll('_', ' ') }}
+    </h3>
+    <ul class="no_bullets context-menu">
       <li
         v-for="(func, key) in OPTIONS"
         :key="key"
+        class="capitalize"
       >
         <label
           @click="func"

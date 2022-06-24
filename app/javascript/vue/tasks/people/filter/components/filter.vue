@@ -30,18 +30,6 @@
       <FacetBorn v-model="params.base" />
       <FacetDied v-model="params.base" />
       <FacetRegex v-model="params.base" />
-      <FacetWith
-        v-model="params.base"
-        param="first_name"
-      />
-      <FacetWith
-        v-model="params.base"
-        param="suffix"
-      />
-      <FacetWith
-        v-model="params.base"
-        param="prefix"
-      />
       <keywords-component
         class="margin-large-bottom"
         v-model="params.keywords"
@@ -54,6 +42,13 @@
       <user-component
         class="margin-large-bottom"
         v-model="params.user"
+      />
+      <FacetWith
+        v-for="param in withFilter"
+        :key="param"
+        v-model="params.base"
+        class="margin-large-bottom"
+        :param="param"
       />
     </div>
   </div>
@@ -74,6 +69,8 @@ import FacetProjects from './Facet/FacetProjects.vue'
 import FacetRegex from './Facet/FacetRegex.vue'
 import FacetWith from './Facet/FacetWith.vue'
 import { computed, ref } from 'vue'
+
+const withFilter = ['first_name', 'suffix', 'prefix']
 
 const emit = defineEmits([
   'parameters',
