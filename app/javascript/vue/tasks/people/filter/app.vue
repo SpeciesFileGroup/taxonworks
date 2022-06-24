@@ -111,6 +111,12 @@ if (Object.keys(urlParams).length) {
 
 </script>
 
+<script>
+export default {
+  name: 'FilterPeople'
+}
+</script>
+
 <style scoped>
   .no-found-message {
     height: 70vh;

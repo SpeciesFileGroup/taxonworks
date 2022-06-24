@@ -1,13 +1,18 @@
 <template>
   <div>
     <h3>Project scope</h3>
-    <div class="fields">
-      <label>
-        <input type="checkbox">
-        Current only
-      </label>
+    <div class="flex-separate margin-medium-bottom">
+      <div class="fields">
+        <label>
+          <input type="checkbox">
+          Current only
+        </label>
+      </div>
+      <VToggle
+        v-model="isExcept"
+        :options="['Not used in project', 'Used in project']"
+      />
     </div>
-    <VToggle v-model="isExcept" />
     <div>
       <ul class="no_bullets">
         <li
@@ -33,7 +38,7 @@ import { ref, computed, watch } from 'vue'
 import { User } from 'routes/endpoints'
 import { getCurrentUserId } from 'helpers/user.js'
 import { URLParamsToJSON } from 'helpers/url/parse'
-import VToggle from 'components/ui/VToggle.vue'
+import VToggle from 'tasks/observation_matrices/new/components/newMatrix/switch.vue'
 
 const props = defineProps({
   modelValue: {
@@ -64,18 +69,19 @@ watch(
     isExcept
   ],
   _ => {
+    console.log("E")
     params.value.except_project_id = isExcept.value
-      ? projectIds.value
+      ? [...projectIds.value]
       : []
 
     params.value.project_id = isExcept.value
       ? []
-      : projectIds.value
+      : [...projectIds.value]
   },
   { deep: true }
 )
 
-User.find(getCurrentUserId(), { extends: ['projects'] }).then(r => {
+User.find(getCurrentUserId(), { extend: ['projects'] }).then(r => {
   projects.value = r.body?.projects || []
 })
 
