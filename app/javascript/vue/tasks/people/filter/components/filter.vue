@@ -21,11 +21,14 @@
       >
         Search
       </button>
-      <facet-person
+      <FacetProjects
         class="margin-large-bottom"
         v-model="params.base"
       />
-      <FacetProjects v-model="params.base" />
+      <FacetPerson
+        class="margin-large-bottom"
+        v-model="params.base"
+      />
       <FacetActiveYear v-model="params.base" />
       <FacetBorn v-model="params.base" />
       <FacetDied v-model="params.base" />

@@ -1,9 +1,8 @@
 <template>
   <div>
     <h3>Person</h3>
-    <h4>Full</h4>
     <div class="field">
-      <label class="display-block">Name</label>
+      <label class="display-block">Full name</label>
       <input
         class="full_width"
         v-model="params.name"

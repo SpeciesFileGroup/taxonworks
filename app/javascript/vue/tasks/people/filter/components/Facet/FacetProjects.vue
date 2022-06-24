@@ -69,7 +69,6 @@ watch(
     isExcept
   ],
   _ => {
-    console.log("E")
     params.value.except_project_id = isExcept.value
       ? [...projectIds.value]
       : []
