@@ -93,6 +93,12 @@ module Queries
       attr_accessor :role_total_min
 
       # @return [Array]
+      # @param with [Array of strings]
+      #    legal values are first_name, prefix, suffix
+      #    only return names where the field provided is not nil
+      attr_accessor :with
+
+      # @return [Array]
       # @param without [Array of strings]
       #    legal values are first_name, prefix, suffix
       #    only return names where the field provided is nil
@@ -112,6 +118,7 @@ module Queries
 
         @name = params[:name]
 
+        @with = params[:with]
         @without = params[:without]
 
         @last_name_starts_with = params[:last_name_starts_with]
@@ -139,6 +146,10 @@ module Queries
         set_identifier(params)
         set_tags_params(params)
         set_user_dates(params)
+      end
+
+      def with
+        [@with].flatten.compact
       end
 
       def without
@@ -304,6 +315,17 @@ module Queries
         q.distinct
       end
 
+      def with_facet
+        return nil if with.empty?
+        a = with.shift
+        q = table[a.to_sym].not_eq(nil)
+
+        with.each do |f|
+          q = q.and(table[f.to_sym].not_eq(nil))
+        end
+        q
+      end
+
       def without_facet
         return nil if without.empty?
         a = without.shift
@@ -349,6 +371,7 @@ module Queries
       # @return [ActiveRecord::Relation, nil]
       def and_clauses
         clauses = [
+          with_facet,
           without_facet,
           name_facet,
           born_after_year_facet,

@@ -182,6 +182,7 @@ class PeopleController < ApplicationController
       project_id: [],
       role: [],
       user_id: [],
+      with: [],
       without: []
     )
   end
