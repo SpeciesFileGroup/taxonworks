@@ -33,6 +33,21 @@
       <FacetBorn v-model="params.base" />
       <FacetDied v-model="params.base" />
       <FacetRegex v-model="params.base" />
+      <FacetRoles
+        v-model="params.roles"
+        title="Roles"
+        param="role"
+      />
+      <FacetRolesTotalUsed
+        v-model="params.roles"
+        class="margin-large-bottom"
+      />
+
+      <FacetRoles
+        v-model="params.roles"
+        title="Without roles"
+        param="except_role"
+      />
       <keywords-component
         class="margin-large-bottom"
         v-model="params.keywords"
@@ -63,7 +78,8 @@ import UserComponent from 'tasks/collection_objects/filter/components/filters/us
 import IdentifierComponent from 'tasks/collection_objects/filter/components/filters/identifier'
 import KeywordsComponent from 'tasks/sources/filter/components/filters/tags'
 import platformKey from 'helpers/getPlatformKey.js'
-import WithComponent from 'tasks/sources/filter/components/filters/with'
+import FacetRoles from './Facet/FacetRoles.vue'
+import FacetRolesTotalUsed from './Facet/FacetRolesTotalUsed.vue'
 import FacetPerson from './Facet/FacetPerson.vue'
 import FacetActiveYear from 'tasks/uniquify/people/components/Filter/Facets/FacetActive.vue'
 import FacetBorn from 'tasks/uniquify/people/components/Filter/Facets/FacetBorn.vue'
@@ -93,6 +109,7 @@ const parseParams = computed(() =>
   ({
     ...params.value.base,
     ...params.value.with,
+    ...params.value.roles,
     ...filterEmptyParams(params.value.user)
   })
 )
@@ -126,6 +143,12 @@ const initParams = () => ({
     project_id: [],
     with: [],
     without: []
+  },
+  roles: {
+    role: [],
+    except_role: [],
+    role_total_min: undefined,
+    role_total_max: undefined
   },
   user: {
     user_id: undefined,
