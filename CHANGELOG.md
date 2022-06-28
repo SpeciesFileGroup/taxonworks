@@ -9,7 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 - Include facet is not working properly in Filter nomenclature [#3023]
 - Role picker changes order of roles after removing one [#3003]
-- Observation matrix TNT export failed due to undefined method error
+- Observation matrix TNT export failed due to undefined method error [#3034]
 
 ### Changed
 - Updated Ruby gems and Node packages
@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#3003]: https://github.com/SpeciesFileGroup/taxonworks/issues/3003
 [#3023]: https://github.com/SpeciesFileGroup/taxonworks/issues/3023
+[#3034]: https://github.com/SpeciesFileGroup/taxonworks/issues/3034
 
 ## [0.27.2] - 2022-06-22
 
