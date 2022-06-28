@@ -96,6 +96,7 @@ module Queries
         @columns.push({header: 'taxon_name_id', projected: table[:id].as('taxon_name_id') } )
         @columns.push({header: 'cached_valid_taxon_name_id', projected: table[:cached_valid_taxon_name_id].as('cached_valid_taxon_name_id') } )
         @columns.push({header: 'cached', projected: table[:cached].as('cached') } )
+        @columns.push({header: 'cached_author_year', projected: table[:cached_author_year].as('cached_author_year') } )
 
         if fieldsets.include?('observations')
           @columns.push({header: 'otu_id', projected: otu_table[:id].as('otu_id')  } )
