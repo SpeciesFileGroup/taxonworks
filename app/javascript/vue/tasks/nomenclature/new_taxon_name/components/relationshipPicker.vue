@@ -80,7 +80,7 @@
               :array-list="objectLists.allList"
               label="subject_status_tag"
               min="3"
-              time="0"
+              delay="0"
               placeholder="Search"
               event-send="autocompleteRelationshipSelected"
               @getItem="addEntry"

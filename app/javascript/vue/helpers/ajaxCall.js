@@ -21,7 +21,7 @@ const axios = Axios.create({
 const ajaxCall = (type, url, data = {}, config = {}) => {
   const cancelFunction = config.cancelRequest || data.cancelRequest
   const requestId = config.requestId || data.requestId
-  const CSRFToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+  const CSRFToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
   const defaultHeaders = { 'X-CSRF-Token': CSRFToken }
 
   if (
@@ -113,7 +113,7 @@ const setDataProperty = (response) => {
 }
 
 const printDevelopmentResponse = (response) => {
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV === 'development') {
     console.log(response)
   }
 }

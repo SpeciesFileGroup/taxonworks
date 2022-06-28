@@ -2,7 +2,7 @@
   <autocomplete
     :array-list="lists.all"
     label="name"
-    time="0"
+    delay="0"
     placeholder="Search"
     @get-item="emit('select', $event)"
     param="term"/>

@@ -58,13 +58,13 @@
         url=""
         :array-list="Object.keys(mergeLists.all).map(key => { mergeLists.all[key].type = key; return mergeLists.all[key] })"
         :label="display"
-        :clear-after="true"
+        clear-after
         min="3"
-        time="0"
-        @getItem="addRelationshipType"
+        delay="0"
+        @get-item="addRelationshipType"
         placeholder="Search"
         event-send="autocompleteRelationshipSelected"
-        param="term" 
+        param="term"
       />
     </div>
     <list-component

@@ -13,7 +13,7 @@
       param="label"
       label="label"
       clear-after
-      time="0"
+      delay="0"
       @select="emit('select', $event.id)"
     />
     <a

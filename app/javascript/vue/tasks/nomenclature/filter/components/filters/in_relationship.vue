@@ -40,7 +40,7 @@
         label="name"
         clear-after
         min="3"
-        time="0"
+        delay="0"
         @getItem="addRelationship"
         placeholder="Search"
         event-send="autocompleteRelationshipSelected"

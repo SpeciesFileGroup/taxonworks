@@ -40,7 +40,7 @@
         label="name"
         :clear-after="true"
         min="3"
-        time="0"
+        delay="0"
         @getItem="addStatus"
         placeholder="Search"
         event-send="autocompleteRelationshipSelected"
