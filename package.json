@@ -1,6 +1,19 @@
 {
   "name": "app",
   "private": true,
+  "version": "0.1.0",
+  "babel": {
+    "presets": [
+      "./node_modules/shakapacker/package/babel/preset.js"
+    ]
+  },
+  "scripts": {
+    "test": "vitest",
+    "coverage": "vitest run --coverage"
+  },
+  "browserslist": [
+    "defaults"
+  ],
   "dependencies": {
     "@geoman-io/leaflet-geoman-free": "^2.13.0",
     "@ibm/plex": "^6.0.2",
@@ -28,22 +41,17 @@
     "vuedraggable": "^4.1.0",
     "vuex": "^4.0.2"
   },
-  "version": "0.1.0",
-  "babel": {
-    "presets": [
-      "./node_modules/shakapacker/package/babel/preset.js"
-    ]
-  },
-  "browserslist": [
-    "defaults"
-  ],
   "devDependencies": {
     "@babel/core": "^7.18.6",
     "@babel/plugin-transform-runtime": "^7.18.6",
     "@babel/preset-env": "^7.18.6",
     "@babel/runtime": "^7.18.6",
+    "@testing-library/user-event": "^14.2.1",
+    "@testing-library/vue": "^6.6.0",
+    "@vitejs/plugin-vue": "^2.3.3",
     "@vue/compiler-sfc": "^3.2.37",
     "babel-loader": "^8.2.5",
+    "c8": "^7.11.3",
     "compression-webpack-plugin": "^10.0.0",
     "css-loader": "^6.7.1",
     "css-minimizer-webpack-plugin": "^4.0.0",
@@ -55,7 +63,9 @@
     "eslint-plugin-promise": "^6.0.0",
     "eslint-plugin-standard": "^4.1.0",
     "eslint-plugin-vue": "^9.1.1",
+    "jsdom": "^20.0.0",
     "mini-css-extract-plugin": "^2.6.1",
+    "msw": "^0.42.3",
     "postcss": "^8.4.14",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-import": "^14.1.0",
@@ -70,6 +80,7 @@
     "stylus-loader": "^7.0.0",
     "terser-webpack-plugin": "^5.3.3",
     "url": "^0.11.0",
+    "vitest": "^0.16.0",
     "vue-loader": "^17.0.0",
     "webpack": "^5.73.0",
     "webpack-assets-manifest": "^5.1.0",
