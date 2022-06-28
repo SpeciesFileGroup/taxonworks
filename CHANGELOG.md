@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Updated Ruby gems and Node packages
+- OTU name string into link in Observation matrices dashboard task
 
 [#3003]: https://github.com/SpeciesFileGroup/taxonworks/issues/3003
 [#3023]: https://github.com/SpeciesFileGroup/taxonworks/issues/3023

@@ -70,9 +70,9 @@
     >
       <thead>
         <tr>
-          <th>
-            Selected
-          </th>
+          <th>Selected</th>
+          <th>otu id</th>
+          <th>otu name</th>
           <template v-for="(header, index) in tableRanks.column_headers">
             <th
               v-if="renderFromPosition <= index"
@@ -101,6 +101,15 @@
                 v-model="selectedIds"
                 type="checkbox"
               >
+            </td>
+            <td>{{ row[4] }}</td>
+            <td>
+              <a
+                v-if="row[5]"
+                :href="`/otus/${row[4]}`"
+              >
+                {{ row[5] }}
+              </a>
             </td>
             <template
               v-for="(header, hindex) in tableRanks.column_headers"
@@ -177,7 +186,7 @@ export default {
 
   data () {
     return {
-      renderFromPosition: 4,
+      renderFromPosition: 6,
       rankNames: [],
       tableRanks: {},
       fieldset: [
