@@ -137,6 +137,7 @@ group :test, :development do
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 6.2'
   gem 'webdrivers', '~> 5.0', require: false
+  gem 'selenium-webdriver', '~> 4.2.0'
   gem 'prawn', '~> 2.4.0'
   gem 'puma', '~> 5.5'
 end
