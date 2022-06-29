@@ -51,13 +51,16 @@
             <span v-if="taxon">Scoped: {{ taxon.name }}</span>
           </div>
           <div class="header-box middle separate-left">
-            <select class="normal-input">
+            <select
+              v-model="selectedFieldset"
+              class="normal-input"
+            >
               <option
-                v-for="field in fieldset"
-                :key="field.value"
-                :value="field.value"
+                v-for="(field, key) in fieldset"
+                :key="key"
+                :value="key"
               >
-                {{ field.label }}
+                {{ key }}
               </option>
             </select>
           </div>
@@ -71,12 +74,12 @@
       <thead>
         <tr>
           <th>Selected</th>
-          <th>otu id</th>
-          <th>otu name</th>
-          <template v-for="(header, index) in tableRanks.column_headers">
+          <th>OTU name</th>
+          <template
+            v-for="header in fieldset[selectedFieldset]"
+            :key="header"
+          >
             <th
-              v-if="renderFromPosition <= index"
-              :key="header"
               @click="sortBy(header)"
             >
               <span v-html="header.replace('_', '<br>')" />
@@ -88,7 +91,7 @@
       <tbody>
         <template
           v-for="(row, index) in renderList.data"
-          :key="row[1]"
+          :key="row.taxon_name_id"
         >
           <tr
             class="contextMenuCells"
@@ -96,27 +99,19 @@
           >
             <td>
               <input
-                :disabled="!row[4]"
-                :value="row[4]"
+                :disabled="!row.otu_id"
+                :value="row.otu_id"
                 v-model="selectedIds"
                 type="checkbox"
               >
             </td>
-            <td>{{ row[4] }}</td>
-            <td>
-              <a
-                v-if="row[5]"
-                :href="`/otus/${row[4]}`"
-              >
-                {{ row[5] }}
-              </a>
-            </td>
+            <td v-html="otuLabel(row)" />
             <template
-              v-for="(header, hindex) in tableRanks.column_headers"
+              v-for="(header) in fieldset[selectedFieldset]"
               :key="header"
             >
-              <td v-if="renderFromPosition <= hindex">
-                {{ row[hindex] }}
+              <td>
+                {{ row[header] }}
               </td>
             </template>
             <td>
@@ -175,11 +170,16 @@ export default {
     },
 
     renderList () {
+      const data = (this.withOtus
+        ? this.tableRanks.data.filter(item => item[4])
+        : this.tableRanks.data
+      ).map(row => Object.fromEntries(
+        row.map((value, index) => [this.tableRanks.column_headers[index], value])
+      ))
+
       return {
         column_headers: this.tableRanks.column_headers,
-        data: this.withOtus
-          ? this.tableRanks.data.filter(item => item[4])
-          : this.tableRanks.data
+        data
       }
     }
   },
@@ -188,19 +188,13 @@ export default {
     return {
       renderFromPosition: 6,
       rankNames: [],
-      tableRanks: {},
-      fieldset: [
-        {
-          label: 'Observations',
-          value: 'observations',
-          set: ['observation_count', 'observation_depictions', 'descriptors_scored']
-        }
-      ],
-      selectedFieldSet: {
-        label: 'Observations',
-        value: 'observations',
-        set: ['observation_count', 'observation_depictions', 'descriptors_scored']
+      tableRanks: {
+        data: []
       },
+      fieldset: {
+        observations: ['descriptors_scored_for_otus', 'otu_observation_count', 'otu_observation_depictions']
+      },
+      selectedFieldset: 'observations',
       ascending: false,
       sorting: false,
       withOtus: false,
@@ -255,7 +249,7 @@ export default {
       setTimeout(() => {
         const index = this.tableRanks.column_headers.findIndex(item => item === headerName)
 
-        this.tableRanks.data.sort(function (a, b) {
+        this.tableRanks.data.sort((a, b) => {
           return this.ascending
             ? (a[index] === null) - (b[index] === null) || +(a[index] > b[index]) || -(a[index] < b[index])
             : (a[index] === null) - (b[index] === null) || -(a[index] > b[index]) || +(a[index] < b[index])
@@ -273,12 +267,36 @@ export default {
     },
 
     selectAll () {
-      this.selectedIds = this.tableList.data.filter(column => column[4]).map(column => column[4])
+      this.selectedIds = this.renderList.data.filter(column => column.otu_id).map(column => column.otu_id)
     },
 
     openImageMatrix ({ matrixId, otuIds }) {
       window.open(`${RouteNames.ImageMatrix}?observation_matrix_id=${matrixId}&otu_filter=${otuIds.join('|')}`, '_blank')
       this.showModal = false
+    },
+
+    getValidMark (isValid) {
+      return isValid
+        ? '✓'
+        : '❌'
+    },
+
+    otuLabel (row) {
+      return `
+        <a href="${row.otu_id}">
+          <span class="otu_tag">
+            <span
+              class="otu_tag_otu_name"
+              title="${row.otu_id}">${row.otu_name || ''}
+            </span> 
+            <span
+              class="otu_tag_taxon_name" 
+              title="${row.taxon_name_id}"
+            >
+              <i>${row.cached}</i> ${row.cached_author_year}
+            </span> ${this.getValidMark(row.cached_is_valid)}
+          </span>
+        </a>`
     }
   }
 }
