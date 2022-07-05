@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Pagination to Image matrix task
 
 ### Fixed
+- Fixes rendering the author string in the catalogue [#2825]
 - Include facet is not working properly in Filter nomenclature [#3023]
 - Role picker changes order of roles after removing one [#3003]
 - Observation matrix TNT export failed due to undefined method error [#3034]
