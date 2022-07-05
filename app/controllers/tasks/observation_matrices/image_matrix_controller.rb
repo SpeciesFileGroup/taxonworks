@@ -7,7 +7,6 @@ class Tasks::ObservationMatrices::ImageMatrixController < ApplicationController
 
   # GET /tasks/observation_matrices/image_matrix/37/key
   def key
-    byebug
     @key = Tools::ImageMatrix.new(**image_key_params)
   end
 

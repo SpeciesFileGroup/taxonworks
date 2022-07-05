@@ -52,11 +52,6 @@ class Tools::ImageMatrix
   # Optional attribute. Number of rows displayed per page
   attr_accessor :per
 
-  # @!page
-  #   @return [Integer or null]
-  # Optional attribute. Page number
-  attr_accessor :page
-
   #
   ##### RETURNED DATA ######
   #
@@ -141,6 +136,36 @@ class Tools::ImageMatrix
   #temporary array of image.ids; used to build the @image_hash
   attr_accessor :list_of_image_ids
 
+  # @!pagination_page
+  #   @return [Integer]
+  # Returns the page number
+  attr_accessor :pagination_page
+
+  # @!pagination_next_page
+  #   @return [Integer or null]
+  # Returns the next page number
+  attr_accessor :pagination_next_page
+
+  # @!pagination_previous_page
+  #   @return [Integer or null]
+  # Returns the previous page number
+  attr_accessor :pagination_previous_page
+
+  # @!pagination_per_page
+  #   @return [Integer or null]
+  # Returns number of records per page
+  attr_accessor :pagination_per_page
+
+  # @!pagination_total
+  #   @return [Integer or null]
+  # Returns total number of records
+  attr_accessor :pagination_total
+
+  # @!pagination_total_pages
+  #   @return [Integer or null]
+  # Returns total number of pages
+  attr_accessor :pagination_total_pages
+
   def initialize(
     observation_matrix_id: nil,
     project_id: nil,
@@ -150,7 +175,13 @@ class Tools::ImageMatrix
     otu_filter: nil,
     identified_to_rank: nil,
     per: nil,
-    page: nil)
+    page: nil,
+    pagination_page: nil,
+    pagination_next_page: nil,
+    pagination_previous_page: nil,
+    pagination_per_page: nil,
+    pagination_total: nil,
+    pagination_total_pages: nil)
 
     @observation_matrix_id = observation_matrix_id
     @project_id = project_id
@@ -277,6 +308,15 @@ class Tools::ImageMatrix
     i = 0
     per = @per.to_i
     page = @page.to_i
+
+    @pagination_page = page
+    @pagination_total = rows.count
+    @pagination_total_pages = @pagination_total / per
+    @pagination_total_pages = @pagination_total_pages == @pagination_total_pages.to_i ? @pagination_total_pages.to_i : @pagination_total_pages.to_i + 1
+    @pagination_next_page = @pagination_total_pages > @pagination_page ? @pagination_page + 1 : nil
+    @pagination_previous_page = @pagination_page > 1 ? @pagination_page - 1 : nil
+    @pagination_per_page = per
+
     rows.each do |r|
       i += 1
       next if i < per * (page - 1) + 1
