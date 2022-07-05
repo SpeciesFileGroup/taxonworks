@@ -6,6 +6,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Pagination to Image matrix task
+
 ### Fixed
 - Include facet is not working properly in Filter nomenclature [#3023]
 - Role picker changes order of roles after removing one [#3003]

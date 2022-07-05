@@ -1,20 +1,25 @@
 <template>
   <div id="vue-matrix-image">
     <spinner-component
-      :full-screen="true"
-      :legend="('Saving changes...')"
+      v-if="isLoading || isSaving"
+      full-screen
+      :legend="isSaving
+        ? 'Saving changes...'
+        : 'Loading observation matrix...'
+      "
       :logo-size="{ width: '100px', height: '100px'}"
-      v-if="isSaving"/>
+    />
     <row-modal
       v-if="showRowModal"
+      :matrix-id="observationMatrix.id"
       @close="showRowModal = false"
       @create="addRow"
-      :matrix-id="observationMatrix.id"/>
+    />
     <column-modal
       v-if="showColumnModal"
+      :matrix-id="observationMatrix.id"
       @close="showColumnModal = false"
       @create="addColumn"
-      :matrix-id="observationMatrix.id"
     />
     <div class="flex-separate">
       <h1>Image matrix</h1>
@@ -23,7 +28,8 @@
           <label class="cursor-pointer middle">
             <input
               v-model="viewMode"
-              type="checkbox">
+              type="checkbox"
+            >
             View mode
           </label>
         </li>
@@ -31,18 +37,27 @@
           <li>
             <span
               class="cursor-pointer"
-              @click="showColumnModal = true">Add column</span>
+              @click="showColumnModal = true"
+            >
+              Add column
+            </span>
           </li>
           <li>
             <span
               class="cursor-pointer"
-              @click="collapseAll">Collapse all</span>
+              @click="collapseAll"
+            >
+              Collapse all
+            </span>
           </li>
           <li>
-            <span 
+            <span
               class="cursor-pointer"
               data-icon="reset"
-              @click="resetTable">Reset</span>
+              @click="resetTable"
+            >
+              Reset
+            </span>
           </li>
         </template>
         <li>
@@ -53,25 +68,35 @@
         </li>
       </ul>
     </div>
-    <h3 v-if="observationMatrix">{{ observationMatrix.object_tag }}</h3>
+    <pagination-component
+      v-if="pagination"
+      @next-page="loadPage"
+      :pagination="pagination"
+    />
+    <h3 v-if="observationMatrix">
+      {{ observationMatrix.object_tag }}
+    </h3>
     <template v-if="!viewMode">
       <matrix-table
         class="separate-autocomplete"
         ref="matrixTable"
         :columns="observationColumns"
-        :rows="observationRows"/>
+        :rows="observationRows"
+      />
     </template>
     <view-component
       v-if="viewMode"
       :matrix-id="matrixId"
-      :otus-id="otuFilter"/>
+      :otus-id="otuFilter"
+    />
   </div>
 </template>
 
 <script>
-import {
-  Otu
-} from 'routes/endpoints'
+import { Otu } from 'routes/endpoints'
+import { GetterNames } from './store/getters/getters'
+import { RouteNames } from 'routes/routes'
+import { ActionNames } from './store/actions/actions'
 
 import MatrixTable from './components/MatrixTable.vue'
 import SpinnerComponent from 'components/spinner.vue'
@@ -79,10 +104,7 @@ import RowModal from './components/RowModal.vue'
 import ColumnModal from './components/ColumnModal.vue'
 import ViewComponent from './components/View/Main.vue'
 import setParam from 'helpers/setParam'
-
-import { GetterNames } from './store/getters/getters'
-import { RouteNames } from 'routes/routes'
-import { ActionNames } from './store/actions/actions'
+import PaginationComponent from 'components/pagination.vue'
 
 export default {
   components: {
@@ -90,12 +112,16 @@ export default {
     MatrixTable,
     SpinnerComponent,
     RowModal,
-    ColumnModal
+    ColumnModal,
+    PaginationComponent
   },
 
   computed: {
     isSaving () {
       return this.$store.getters[GetterNames.GetIsSaving]
+    },
+    isLoading () {
+      return this.$store.getters[GetterNames.GetIsLoading]
     },
     matrixId () {
       return this.observationMatrix?.id
@@ -109,6 +135,9 @@ export default {
     observationRows () {
       return this.$store.getters[GetterNames.GetObservationRows]
     },
+    pagination () {
+      return this.$store.getters[GetterNames.GetPagination]
+    },
     RouteNames: () => RouteNames
   },
 
@@ -116,7 +145,6 @@ export default {
     return {
       showRowModal: false,
       showColumnModal: false,
-      pagination: {},
       maxPerPage: 3,
       viewMode: false,
       otuFilter: []
@@ -128,6 +156,7 @@ export default {
     const obsIdParam = urlParams.get('observation_matrix_id')
     const otuFilterParam = urlParams.get('otu_filter')
     const rowFilterParam = urlParams.get('row_filter')
+    const page = urlParams.get('page')
 
     this.viewMode = (urlParams.get('view') === 'true')
 
@@ -139,7 +168,8 @@ export default {
       this.$store.dispatch(ActionNames.LoadObservationMatrix, {
         observation_matrix_id: (/^\d+$/.test(obsIdParam) && obsIdParam) || 0,
         otu_filter: otuFilterParam,
-        row_filter: rowFilterParam
+        row_filter: rowFilterParam,
+        page
       })
     }
   },
@@ -156,7 +186,6 @@ export default {
     addRow (row) {
       this.showRowModal = false
       if (row.otu_id) {
-        // José HERE
         Otu.find(row.otu_id).then(response => {
           row.observation_object = response.body
           this.observationRows.push(row)
@@ -169,9 +198,13 @@ export default {
       this.observationColumns.push(column)
     },
 
-    loadMatrix (id) {
-      this.$store.dispatch(ActionNames.LoadObservationMatrix, { observation_matrix_id: id })
-      setParam(RouteNames.ImageMatrix, 'observation_matrix_id', id)
+    loadPage ({ page }) {
+      this.$store.dispatch(ActionNames.LoadObservationMatrix, {
+        observation_matrix_id: this.matrixId,
+        page
+      })
+      setParam(RouteNames.ImageMatrix, 'observation_matrix_id', this.matrixId)
+      setParam(RouteNames.ImageMatrix, 'page', page)
     }
 
   }

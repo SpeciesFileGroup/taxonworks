@@ -311,8 +311,7 @@ class Tools::ImageMatrix
 
     @pagination_page = page
     @pagination_total = rows.count
-    @pagination_total_pages = @pagination_total / per
-    @pagination_total_pages = @pagination_total_pages == @pagination_total_pages.to_i ? @pagination_total_pages.to_i : @pagination_total_pages.to_i + 1
+    @pagination_total_pages = (@pagination_total.to_f / per).ceil
     @pagination_next_page = @pagination_total_pages > @pagination_page ? @pagination_page + 1 : nil
     @pagination_previous_page = @pagination_page > 1 ? @pagination_page - 1 : nil
     @pagination_per_page = per
