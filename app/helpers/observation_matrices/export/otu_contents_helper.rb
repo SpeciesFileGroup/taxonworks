@@ -101,7 +101,8 @@ module ObservationMatrices::Export::OtuContentsHelper
         tw_url = 'https://sfg.taxonworks.org'
         im = Tools::ImageMatrix.new(
           project_id: m.project_id,
-          otu_filter: otu_ids.join('|'))
+          otu_filter: otu_ids.join('|'),
+          per: 1000000)
         descriptors = im.list_of_descriptors.values
         im.depiction_matrix.each do |object|
           list = ''

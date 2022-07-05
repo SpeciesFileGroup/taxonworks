@@ -13,6 +13,8 @@ json.row_id_filter_array @key.row_id_filter_array
 json.otu_filter @key.otu_filter
 json.otu_id_filter_array @key.otu_id_filter_array
 json.identified_to_rank @key.identified_to_rank
+json.per @key.per
+json.page @key.page
 json.list_of_descriptors @key.list_of_descriptors.sort_by {|k, v| v[:index]}.map { |k, v| v }
 json.image_hash @key.image_hash
 

@@ -47,6 +47,16 @@ class Tools::ImageMatrix
   # Optional attribute to limit identification to OTU or a particular nomenclatural rank. Valid values are 'otu', 'species', 'genus', etc.
   attr_accessor :identified_to_rank
 
+  # @!per
+  #   @return [Integer or null]
+  # Optional attribute. Number of rows displayed per page
+  attr_accessor :per
+
+  # @!page
+  #   @return [Integer or null]
+  # Optional attribute. Page number
+  attr_accessor :page
+
   #
   ##### RETURNED DATA ######
   #
@@ -138,7 +148,9 @@ class Tools::ImageMatrix
     keyword_ids: nil,
     row_filter: nil,
     otu_filter: nil,
-    identified_to_rank: nil)
+    identified_to_rank: nil,
+    per: nil,
+    page: nil)
 
     @observation_matrix_id = observation_matrix_id
     @project_id = project_id
@@ -146,6 +158,8 @@ class Tools::ImageMatrix
     @observation_matrix_citation = @observation_matrix&.source
     @language_id = language_id
     @keyword_ids = keyword_ids
+    @per = per.blank? ? 300 : per
+    @page = page.blank? ? 1 : page
     @descriptor_available_keywords = descriptor_available_keywords
     @row_filter = row_filter
     @otu_filter = otu_filter
@@ -162,6 +176,7 @@ class Tools::ImageMatrix
 
     @descriptor_available_languages = descriptor_available_languages_list
     @language_to_use = language_to_use
+
 
     ###main_logic
     @list_of_image_ids = []
@@ -259,7 +274,14 @@ class Tools::ImageMatrix
       rows = rows_with_filter
     end
 
+    i = 0
+    per = @per.to_i
+    page = @page.to_i
     rows.each do |r|
+      i += 1
+      next if i < per * (page - 1) + 1
+      break if i > per * page
+
       case r.class.to_s
       when 'Otu'
         otu_collection_object = 'Otu' + r.id.to_s
