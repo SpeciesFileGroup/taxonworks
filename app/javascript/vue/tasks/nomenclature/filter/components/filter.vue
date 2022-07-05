@@ -78,12 +78,14 @@
         v-model="params.base.updated_since"/>
       <citations-component
         class="margin-medium-bottom"
-        v-model="params.base.citations"/>
+        v-model="params.base.citations"
+      />
       <with-component
         v-for="(param, key) in params.with"
         :key="key"
         :param="key"
-        :title="withTitles[key] || key.replaceAll('_', ' ')"
+        :title="(withTitles[key] && withTitles[key].title) || key.replaceAll('_', ' ')"
+        :inverted="withTitles[key] && withTitles[key].inverted"
         v-model="params.with[key]"
       />
     </div>
@@ -165,8 +167,16 @@ export default {
       result: [],
       searching: false,
       withTitles: {
-        type_metadata: 'Type information',
-        not_specified: 'Incomplete combination relationships'
+        type_metadata: {
+          title: 'Type information'
+        },
+        not_specified: {
+          title: 'Incomplete combination relationships'
+        },
+        leaves: {
+          title: 'Descendants',
+          inverted: true
+        }
       }
     }
   },

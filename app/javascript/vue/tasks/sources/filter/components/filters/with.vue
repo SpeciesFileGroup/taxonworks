@@ -3,13 +3,16 @@
     <h3 class="capitalize">{{ title.replace(/_/g, ' ') }}</h3>
     <ul class="no_bullets context-menu">
       <li
-        v-for="option in options">
+        v-for="option in list"
+        :key="option.value"
+      >
         <label class="capitalize">
           <input
             :value="option.value"
             :name="name"
             v-model="optionValue"
-            type="radio">
+            type="radio"
+          >
           {{ option.label }}
         </label>
       </li>
@@ -42,6 +45,10 @@ export default {
     param: {
       type: String,
       default: undefined
+    },
+    inverted: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -55,6 +62,12 @@ export default {
       set (value) {
         this.$emit('update:modelValue', value)
       }
+    },
+
+    list () {
+      return this.inverted
+        ? this.invertedOptions
+        : this.options
     }
   },
 
@@ -72,6 +85,21 @@ export default {
         {
           label: 'without',
           value: false
+        }
+      ],
+
+      invertedOptions: [
+        {
+          label: 'Both',
+          value: undefined
+        },
+        {
+          label: 'with',
+          value: false
+        },
+        {
+          label: 'without',
+          value: true
         }
       ]
     }
