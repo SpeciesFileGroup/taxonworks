@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Role picker changes order of roles after removing one [#3003]
 - Observation matrix TNT export failed due to undefined method error [#3034]
 - Date start and Date end display flipped in "Filter Collecting Events" [#3039]
+- Role picker list doesn't display suffix and preffix
 
 ### Changed
 - Updated Ruby gems and Node packages

@@ -27,7 +27,7 @@
           <default-pin
             class="button-circle"
             type="People"
-            @get-item="addCreatedPerson({ object_id: $event.id, label: $event.label })"
+            @get-item="addCreatedPerson({ object_id: $event.id })"
             section="People"
           />
         </div>
@@ -264,27 +264,24 @@ export default {
     getLabel (item) {
       if (item.organization_id) {
         return item.name
-      }
-
-      if (item.person_attributes) {
-        return this.getFullName(item.person_attributes.first_name, item.person_attributes.last_name)
       } else if (item.person) {
-        return this.getFullName(item.person.first_name, item.person.last_name)
+        return item.person.cached || this.getFullName(item.person.first_name, item.person.last_name)
       } else {
-        return this.getFullName(item.first_name, item.last_name)
+        return item.cached || this.getFullName(item.first_name, item.last_name)
       }
     },
 
-    switchName (name) {
+    switchName () {
       const tmp = this.person_attributes.first_name
       this.person_attributes.first_name = this.person_attributes.last_name
       this.person_attributes.last_name = tmp
+
       return this.getFullName(this.person_attributes.first_name, tmp)
     },
 
     fillFields (name) {
-      this.person_attributes.first_name = this.getFirstName(name)
-      this.person_attributes.last_name = this.getLastName(name)
+      this.person_attributes.first_name = this.findName(name, 1)
+      this.person_attributes.last_name = this.findName(name, 0)
     },
 
     removePerson (index) {
@@ -311,6 +308,21 @@ export default {
       return !!this.roles_attributes.find(item => personId === item?.person_id)
     },
 
+    findName (string, position) {
+      let delimiter
+
+      if (string.indexOf(',') > 1) {
+        delimiter = ','
+      }
+      if (string.indexOf(', ') > 1) {
+        delimiter = ', '
+      }
+      if (string.indexOf(' ') > 1 && delimiter != ', ') {
+        delimiter = ' '
+      }
+      return string.split(delimiter, 2)[position]
+    },
+
     processedList (list) {
       return (list || []).map(element => ({
         id: element.id,
@@ -321,6 +333,7 @@ export default {
         person_attributes: element.person_attributes,
         person_id: element.person_id,
         person: element.person,
+        cached: element.cached,
         _destroy: element._destroy,
         organization_id: element.organization_id || element?.organization?.id,
         name: element.name || element?.organization?.name
@@ -339,35 +352,12 @@ export default {
       this.$emit('sortable', this.roles_attributes)
     },
 
-    findName (string, position) {
-      let delimiter
-
-      if (string.indexOf(',') > 1) {
-        delimiter = ','
-      }
-      if (string.indexOf(', ') > 1) {
-        delimiter = ', '
-      }
-      if (string.indexOf(' ') > 1 && delimiter != ', ') {
-        delimiter = ' '
-      }
-      return string.split(delimiter, 2)[position]
+    getFirstName (person) {
+      return person.first_name
     },
 
-    getFirstName (string) {
-      if ((string.indexOf(',') > 1) || (string.indexOf(' ') > 1)) {
-        return this.findName(string, 1)
-      } else {
-        return ''
-      }
-    },
-
-    getLastName (string) {
-      if ((string.indexOf(',') > 1) || (string.indexOf(' ') > 1)) {
-        return this.findName(string, 0)
-      } else {
-        return string
-      }
+    getLastName (person) {
+      return person.last_name
     },
 
     getFullName (firstName, lastName) {
@@ -378,7 +368,6 @@ export default {
       People.create({ person: this.person_attributes }).then(response => {
         const person = response.body
 
-        person.label = person.object_tag
         person.object_id = person.id
         this.roles_attributes.push(this.addPerson(person))
         this.$emit('update:modelValue', this.roles_attributes)
@@ -392,18 +381,22 @@ export default {
     addPerson (item) {
       return {
         type: this.roleType,
-        person_id: item.object_id,
-        first_name: this.getFirstName(item.label),
-        last_name: this.getLastName(item.label),
+        person_id: item.id,
+        cached: item.cached,
+        first_name: this.getFirstName(item),
+        last_name: this.getLastName(item),
         position: (this.roles_attributes.length + 1)
       }
     },
 
-    addCreatedPerson (item) {
-      if (!this.alreadyExist(item.object_id)) {
-        this.roles_attributes.push(this.addPerson(item))
+    async addCreatedPerson ({ object_id }) {
+      if (!this.alreadyExist(object_id)) {
+        const person = (await People.find(object_id)).body
+        const personData = this.addPerson(person)
+
+        this.roles_attributes.push(personData)
         this.$emit('update:modelValue', this.roles_attributes)
-        this.$emit('create', this.addPerson(item))
+        this.$emit('create', personData)
         this.person_attributes = this.makeNewPerson()
         this.searchPerson = ''
       }
