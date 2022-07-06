@@ -1,5 +1,6 @@
 # Contains methods used to build an image_matrix table
 #
+# endpoint: http://localhost:3000/tasks/observation_matrices/image_matrix/36/key?observation_matrix_id=36&page=5
 # http://localhost:3000/tasks/observation_matrices/image_matrix/0/key?otu_filter=30947|22978|23065
 #
 class Tools::ImageMatrix
@@ -189,7 +190,7 @@ class Tools::ImageMatrix
     @observation_matrix_citation = @observation_matrix&.source
     @language_id = language_id
     @keyword_ids = keyword_ids
-    @per = per.blank? ? 300 : per
+    @per = per.blank? ? 100 : per
     @page = page.blank? ? 1 : page
     @descriptor_available_keywords = descriptor_available_keywords
     @row_filter = row_filter
@@ -217,14 +218,12 @@ class Tools::ImageMatrix
 
     @depiction_matrix = descriptors_hash_initiate
     @image_hash = build_image_hash
+
     ###delete temporary data
     @row_hash = nil
     @rows_with_filter = []
-
-    # This was here twice!
-    # @list_of_image_ids = nil
-
-    @descriptors_with_filter = nil #!?@#
+    @list_of_image_ids = nil
+    @descriptors_with_filter = nil
   end
 
   def find_observation_matrix
@@ -372,20 +371,25 @@ class Tools::ImageMatrix
 
     descriptors_count = list_of_descriptors.count
 
+    otu_ids = {}
     row_hash.each do |r_key, r_value|
       if (row_id_filter_array.nil? && otu_id_filter_array.nil?) ||
           (row_id_filter_array && row_id_filter_array.include?(r_value[:object].id)) ||
-          (otu_id_filter_array && otu_id_filter_array.include?(r_value[:otu_id])) # !! TODO !!!
+          (otu_id_filter_array && otu_id_filter_array.include?(r_value[:otu_id]))
         h[r_key] = {object: r_value[:object_at_rank],
                     row_id: r_value[:object].id,
-                    otu_id: r_value[:otu_id], ## TODO !!
+                    otu_id: r_value[:otu_id],
                     depictions: Array.new(descriptors_count) {Array.new},
         } if h[r_key].nil?
+        otu_ids[r_value[:otu_id]] = true
       end
     end
 
     depictions.each do |o|
-      next if otu_id_filter_array && (o.observation_object_type == 'Otu' && !otu_id_filter_array.include?(o.observation_object_id)) # TODO: check this
+      if (o.observation_object_type == 'Otu' && otu_ids[o.observation_object_id].nil?) ||
+        (otu_id_filter_array && (o.observation_object_type == 'Otu' && !otu_id_filter_array.include?(o.observation_object_id)))
+        next
+      end
 
       otu_collection_object = o.observation_object_type + o.observation_object_id.to_s # id.to_s + '|' + o.collection_object_id.to_s
       if h[otu_collection_object]
