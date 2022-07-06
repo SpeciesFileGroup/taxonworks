@@ -149,7 +149,6 @@ import CrossRef from './components/crossRef'
 import BibtexButton from './components/bibtex'
 import Verbatim from './components/verbatim/main'
 import Bibtex from './components/bibtex/main'
-import Human from './components/person/main'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial'
 import AddSource from 'components/addToProjectSource'
@@ -180,7 +179,6 @@ export default {
     SourceType,
     Verbatim,
     Bibtex,
-    Human,
     CrossRef,
     RightSection,
     BibtexButton,

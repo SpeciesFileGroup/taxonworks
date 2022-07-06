@@ -366,10 +366,9 @@ export default {
 
     createPerson () {
       People.create({ person: this.person_attributes }).then(response => {
-        const person = response.body
+        const person = this.adapterPerson(response.body)
 
-        person.object_id = person.id
-        this.roles_attributes.push(this.addPerson(person))
+        this.roles_attributes.push(person)
         this.$emit('update:modelValue', this.roles_attributes)
         this.$refs.autocomplete.cleanInput()
         this.expandPerson = false
@@ -378,7 +377,7 @@ export default {
       })
     },
 
-    addPerson (item) {
+    adapterPerson (item) {
       return {
         type: this.roleType,
         person_id: item.id,
@@ -392,7 +391,7 @@ export default {
     async addCreatedPerson ({ object_id }) {
       if (!this.alreadyExist(object_id)) {
         const person = (await People.find(object_id)).body
-        const personData = this.addPerson(person)
+        const personData = this.adapterPerson(person)
 
         this.roles_attributes.push(personData)
         this.$emit('update:modelValue', this.roles_attributes)
@@ -415,7 +414,9 @@ export default {
       }
     },
 
-    setPerson (person) {
+    setPerson (data) {
+      const person = this.adapterPerson(data)
+
       person.position = (this.roles_attributes.length + 1)
       this.roles_attributes.push(person)
       this.$emit('update:modelValue', this.roles_attributes)
