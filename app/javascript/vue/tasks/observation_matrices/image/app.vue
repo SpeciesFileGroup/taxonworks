@@ -68,11 +68,17 @@
         </li>
       </ul>
     </div>
-    <pagination-component
-      v-if="pagination"
-      @next-page="loadPage"
-      :pagination="pagination"
-    />
+    <div class="flex-separate">
+      <pagination-component
+        v-if="pagination"
+        @next-page="loadPage"
+        :pagination="pagination"
+      />
+      <pagination-count
+        :pagination="pagination"
+        v-model="per"
+      />
+    </div>
     <h3 v-if="observationMatrix">
       {{ observationMatrix.object_tag }}
     </h3>
@@ -105,6 +111,7 @@ import ColumnModal from './components/ColumnModal.vue'
 import ViewComponent from './components/View/Main.vue'
 import setParam from 'helpers/setParam'
 import PaginationComponent from 'components/pagination.vue'
+import PaginationCount from 'components/pagination/PaginationCount.vue'
 
 export default {
   components: {
@@ -113,7 +120,8 @@ export default {
     SpinnerComponent,
     RowModal,
     ColumnModal,
-    PaginationComponent
+    PaginationComponent,
+    PaginationCount
   },
 
   computed: {
@@ -147,7 +155,14 @@ export default {
       showColumnModal: false,
       maxPerPage: 3,
       viewMode: false,
+      per: 100,
       otuFilter: []
+    }
+  },
+
+  watch: {
+    per () {
+      this.loadPage({ page: this.pagination.paginationPage })
     }
   },
 
@@ -169,7 +184,8 @@ export default {
         observation_matrix_id: (/^\d+$/.test(obsIdParam) && obsIdParam) || 0,
         otu_filter: otuFilterParam,
         row_filter: rowFilterParam,
-        page
+        page,
+        per: this.per
       })
     }
   },
@@ -201,7 +217,8 @@ export default {
     loadPage ({ page }) {
       this.$store.dispatch(ActionNames.LoadObservationMatrix, {
         observation_matrix_id: this.matrixId,
-        page
+        page,
+        per: this.per
       })
       setParam(RouteNames.ImageMatrix, 'observation_matrix_id', this.matrixId)
       setParam(RouteNames.ImageMatrix, 'page', page)
