@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Role picker list doesn't display suffix and preffix
 
 ### Changed
+- ElectronicPulbications moved from NomenNudum to Unavailable.
 - Updated Ruby gems and Node packages
 - OTU name string into link in Observation matrices dashboard task
 

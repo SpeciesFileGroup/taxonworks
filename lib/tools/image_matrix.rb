@@ -190,7 +190,7 @@ class Tools::ImageMatrix
     @observation_matrix_citation = @observation_matrix&.source
     @language_id = language_id
     @keyword_ids = keyword_ids
-    @per = per.blank? ? 100 : per
+    @per = per.blank? ? 250 : per
     @page = page.blank? ? 1 : page
     @descriptor_available_keywords = descriptor_available_keywords
     @row_filter = row_filter
@@ -487,6 +487,7 @@ class Tools::ImageMatrix
       i[:cached] = c.cached
       i[:cached_author_string] = c.cached_author_string
       i[:year] = c.year
+      i[:global_id] = c.to_global_id.to_s
       #i[:citation_object_id] = c.citation_object_id
       #i[:citation_object_type] = c.citation_object_type
       h[c.citation_object_id][:citations].push(i)
