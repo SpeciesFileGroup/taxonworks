@@ -7,6 +7,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Soft_validation for the year of taxon description compared to person years of life [#2595]
 - Pagination to Image matrix task
 
 ### Fixed
