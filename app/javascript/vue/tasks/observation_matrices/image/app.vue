@@ -27,10 +27,10 @@
         <li>
           <label class="cursor-pointer middle">
             <input
-              v-model="viewMode"
+              v-model="editMode"
               type="checkbox"
             >
-            View mode
+            Edit mode
           </label>
         </li>
         <template v-if="matrixId">
@@ -82,7 +82,7 @@
     <h3 v-if="observationMatrix">
       {{ observationMatrix.object_tag }}
     </h3>
-    <template v-if="!viewMode">
+    <template v-if="editMode">
       <matrix-table
         class="separate-autocomplete"
         ref="matrixTable"
@@ -91,7 +91,7 @@
       />
     </template>
     <view-component
-      v-if="viewMode"
+      v-else
       :matrix-id="matrixId"
       :otus-id="otuFilter"
     />
@@ -154,7 +154,7 @@ export default {
       showRowModal: false,
       showColumnModal: false,
       maxPerPage: 3,
-      viewMode: false,
+      editMode: true,
       per: 100,
       otuFilter: []
     }
@@ -173,7 +173,7 @@ export default {
     const rowFilterParam = urlParams.get('row_filter')
     const page = urlParams.get('page')
 
-    this.viewMode = (urlParams.get('view') === 'true')
+    this.editMode = urlParams.get('edit') === 'true'
 
     if (otuFilterParam) {
       this.otuFilter = otuFilterParam
