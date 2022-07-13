@@ -4,7 +4,9 @@ import { GetterFunctions } from './getters/getters'
 import { MutationFunctions } from './mutations/mutations'
 
 const makeInitialState = () => ({
+  observationColumnId: undefined,
   observationMatrix: undefined,
+  descriptor: undefined,
   otus: [],
   collectionObjects: [],
   observations: []

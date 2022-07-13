@@ -16,7 +16,6 @@ onBeforeMount(() => {
   const columnId = urlParams.get('observation_matrix_column_id')
 
   if (/^\d+$/.test(columnId)) {
-    console.log("entra")
     store.dispatch(ActionNames.LoadColumns, columnId)
   }
 })
