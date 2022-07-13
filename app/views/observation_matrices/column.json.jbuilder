@@ -28,6 +28,6 @@ end
 
 json.collection_objects do |collection_objects|
   collection_objects.array!(@observation_matrix_column.observation_matrix.collection_objects.includes(:observation_matrix_rows).order('observation_matrix_rows.position ASC')) do |collection_object|
-    collection_objects.partial! '/collection_objects/attributes', otu: collection_object
+    collection_objects.partial! '/collection_objects/attributes', collection_object: collection_object
   end
 end
