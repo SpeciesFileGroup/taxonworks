@@ -8,7 +8,10 @@
       arrow-size="small"
       inertia
       arrow
-      :content="`<p>Create citation with: ${getDefaultElement().firstChild.firstChild.textContent}</p>`">
+    >
+      <template #content>
+        <span>Create citation with: {{ getDefaultElement().firstChild.firstChild.textContent }}</span>
+      </template>
       <div
         class="circle-button button-submit btn-citation"
         @click="createCitation()"/>
@@ -22,7 +25,10 @@
       arrow-size="small"
       inertia
       arrow
-      :content="`<p>Remove citation: ${getDefaultElement().firstChild.firstChild.textContent}`">
+    >
+      <template #content>
+        <span>Remove citation: {{ getDefaultElement().firstChild.firstChild.textContent }}</span>
+      </template>
       <div
         class="circle-button btn-delete btn-citation"
         @click="deleteCitation()"/>

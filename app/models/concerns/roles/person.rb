@@ -46,34 +46,38 @@ module Roles::Person
 
   # See /app/models/person.rb for a definition of vetted
   def vet_person
-    # Check whether there are one or more *other* roles besides this one, 
+    # Check whether there are one or more *other* roles besides this one,
     # i.e. there are at least *2* for person_id
     if Role.where(person_id: person_id).where.not(id: id).any?
-      person.update_column(:type, 'Person::Vetted') 
+      person.update_column(:type, 'Person::Vetted')
     end
   end
 
+  # @return [Year, nil]
+  #   used to compare and update Person active_start/end values
+  # The largest year attribte in the RoleObject
+  #
+  # Set in Role subclasses
+  #
+  def year_active_year
+    nil
+  end
+
+  # Could be spun out to sublclasses but
   def update_person_year_metadata
-    if role_object.respond_to?(:year)
-      begin
-        y = role_object.try(:year)
-        y ||= role_object.try(:year_of_publication)
+    if y = year_active_year
+      person.year_active_start = [y, person.year_active_start].compact.map(&:to_i).min
+      person.year_active_end = [y, person.year_active_end].compact.map(&:to_i).max
 
-        yas = [y, person.year_active_start].compact.map(&:to_i).min
-        yae = [y, person.year_active_end].compact.map(&:to_i).max
-
-        person.update(
-          year_active_end: yae,
-          year_active_start: yas
-        )
-
-      rescue ActiveRecord::RecordInvalid
-        # probably a year conflict, allow quietly
-        # !? 
+      if person.valid?
+        person.save
+      else
+        person.year_active_start = person.year_active_start_before_last_save
+        person.year_active_end = person.year_active_end_before_last_save
       end
     end
+    true
   end
-
 
 end
 

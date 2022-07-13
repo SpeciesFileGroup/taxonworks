@@ -11,7 +11,7 @@ class TaxonNameClassification::Iczn::Unavailable::Excluded < TaxonNameClassifica
     self.parent.disjoint_taxon_name_classes +
         self.collect_descendants_and_itself_to_s(TaxonNameClassification::Iczn::Unavailable::Suppressed,
             TaxonNameClassification::Iczn::Unavailable::NomenNudum,
-            TaxonNameClassification::Iczn::Unavailable::NonBinomial) +
+            TaxonNameClassification::Iczn::Unavailable::NonBinominal) +
         self.collect_to_s(TaxonNameClassification::Iczn::Unavailable)
 
   end

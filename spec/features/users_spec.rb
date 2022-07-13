@@ -31,12 +31,12 @@ describe 'Users', type: :feature do
 
         it 'should have information and links' do
           expect(page).to have_css('h2', text: @user.name)
-          expect(page).to have_link('Edit')
+          expect(page).to have_button('Edit')
         end
 
         context 'editing self' do
           before {
-            click_link 'Edit'
+            click_button 'Edit'
           }
 
           it 'should have information and links' do
@@ -197,8 +197,8 @@ describe 'Users', type: :feature do
             end
           end
 
-          it 'provides a link to edit the account' do
-            expect(page).to have_link('Edit', href: edit_user_path(@user))
+          it 'provides a button to edit the account' do
+            expect(page).to have_button('Edit')
           end
           # it 'provides a link to the user statistics page', skip: 'statistics page not implemented' do
           #   expect(page).to have_link('View my statistics', href: user_statistics_path)
@@ -207,7 +207,7 @@ describe 'Users', type: :feature do
         end
       end
 
-      context 'when editing self' do         # this is either edit oneself or an admin editing someone else
+      context 'when editing self' do #  this is either edit oneself or an admin editing someone else
         before {
           sign_in_user
           visit edit_user_path(@user)

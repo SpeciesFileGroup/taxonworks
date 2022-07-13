@@ -16,10 +16,6 @@
             %>
         <% end %>
         </div>
-
-        <div class="separate-left separate-right">
-          <%# render('/taxon_names/breadcrumb_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
-        </div>
       </div>
 
       <span class="right_float flex-separate">
@@ -57,7 +53,6 @@
         <div class="navigation-controls">
           <%=  collection_object_browse_previous_by_identifier(@collection_object) -%>
           <%=  collection_object_browse_next_by_identifier(@collection_object) -%>
-
         </div>
 
         <%# render('/taxon_names/parent_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
@@ -68,7 +63,7 @@
       <div class="flexbox separate-bottom">
         <div class="panel separate-left separate-right">
           <div id="browse-nomenclature-taxon-name" class="content subtitle filter middle">
-            <%= content_tag(:p, collection_object_tag(@collection_object), class: 'item center_text name', style: 'line-height: 23px;') -%>
+            <%= tag.p( collection_object_tag(@collection_object), class: 'item center_text name', style: 'line-height: 23px;') -%>
           </div>
 
           <div class="horizontal-center-content filter">
@@ -94,7 +89,7 @@
                 <% end %>
               </div>
 
-              <%= loan_status_tag(@collection_object) -%>
+              <%= object_loan_status_tag(@collection_object) -%>
 
               <div class="content">
                 <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: @collection_object}) -%>
@@ -103,12 +98,11 @@
             </div>
           </div>
         </div>
-
       </div>
 
       <% if @collection_object.depictions.any? %>
         <div>
-          <div id="depiction-panel" class="panel content separate-left">
+          <div id="depiction-panel" class="panel content separate-left separate-bottom">
             <h2> Depictions </h2>
             <div class="horizontal-left-content flexbox">
               <%= thumb_list_tag(@collection_object) -%>
@@ -118,7 +112,7 @@
       <% end %>
 
       <div>
-        <div class="panel content separate-left">
+        <div class="panel content separate-left separate-bottom">
           <h2>Buffered</h2>
           <div class="flexbox">
             <div class="content separate-left column-medium">
@@ -139,12 +133,17 @@
         </div>
       </div>
 
-      <div  class="panel content separate-left">
-        <h2> DwC </h2>
-        <%= dwc_table([@collection_object]) -%>
+      <div>
+        <div class="content">
+          <h2> Darwin Core representation </h2>
+          <p> <%= dwc_occurrence_health_tag(@collection_object.dwc_occurrence) -%> </p>
+          <div class="panel content separate-left">
+            <%= tag.span('This is rebuilt each time this page is loaded. Large fields (e.g. footprintWKT) are not displayed here.', class: [:feedback, 'feedback-light']) -%>
+            <%= dwc_column(@collection_object.dwc_occurrence) -%>
+          </div>
+        </div>
       </div>
 
     </div>
-
   </div>
 </div>

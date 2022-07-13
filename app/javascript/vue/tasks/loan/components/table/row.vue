@@ -13,7 +13,7 @@
       >
     </td>
     <td>
-      <span v-html="item.loan_item_object_tag"/>
+      <span v-html="item.loan_item_object.object_tag"/>
     </td>
     <td>
       <input
@@ -33,6 +33,7 @@
     <td
       v-if="isOtu">
       <input
+        class="input-xsmall-width"
         :value="item.total"
         @blur="updateTotal"
         type="number">
@@ -41,18 +42,17 @@
       v-else
       v-html="item.total"/>
     <td>
-      <pin-component
-        :object-id="item.loan_item_object_id"
-        :type="item.loan_item_object_type"/>
-    </td>
-    <td>
-      <radial-annotator :global-id="item.global_id"/>
-    </td>
-    <td>
-      <span
-        class="circle-button btn-delete"
-        @click="$emit('onDelete', item)">Remove
-      </span>
+      <div class="horizontal-right-content">
+        <pin-component
+          :object-id="item.loan_item_object_id"
+          :type="item.loan_item_object_type"/>
+        <radial-annotator :global-id="item.global_id" />
+        <radial-navigator :global-id="item.loan_item_object.global_id" />
+        <span
+          class="circle-button btn-delete"
+          @click="$emit('onDelete', item)">Remove
+        </span>
+      </div>
     </td>
   </tr>
 </template>
@@ -64,11 +64,13 @@ import { MutationNames } from '../../store/mutations/mutations'
 import statusList from '../../const/status.js'
 import PinComponent from 'components/ui/Pinboard/VPin.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator'
+import RadialNavigator from 'components/radials/navigation/radial.vue'
 
 export default {
   components: {
     PinComponent,
-    RadialAnnotator
+    RadialAnnotator,
+    RadialNavigator
   },
 
   props: {

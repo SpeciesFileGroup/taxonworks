@@ -10,7 +10,7 @@ module BatchLoad
     def initialize(ce_namespace: nil, **args)
       @collecting_events = {}
       @ce_namespace      = ce_namespace
-      super(args)
+      super(**args)
     end
 
     # @return [Hash]

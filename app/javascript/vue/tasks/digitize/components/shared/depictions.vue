@@ -98,6 +98,7 @@ export default {
       }
     }
   },
+
   watch: {
     objectValue (newVal, oldVal) {
       if (newVal.id && (newVal.id != oldVal.id)) {
@@ -110,6 +111,14 @@ export default {
         this.figuresList = []
         this.$refs.depiction.setOption('autoProcessQueue', false)
       }
+    }
+  },
+
+  created () {
+    if (this.objectValue.id) {
+      this.getDepictions(this.objectValue.id).then(response => {
+        this.figuresList = response.body
+      })
     }
   },
   methods: {
@@ -127,7 +136,8 @@ export default {
     addedfile () {
       if (!this.objectValue.id && !this.creatingType) {
         this.creatingType = true
-        this.$store.dispatch(ActionNames[this.actionSave]).then((response) => {
+        this.$store.dispatch(ActionNames[this.actionSave]).then(data => {
+          if (!data?.id) return
           setTimeout(() => {
             this.$refs.depiction.setOption('autoProcessQueue', true)
             this.$refs.depiction.processQueue()

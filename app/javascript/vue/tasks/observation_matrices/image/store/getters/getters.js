@@ -7,6 +7,8 @@ import getObservationMoved from './getObservationMoved'
 import getIsSaving from './getIsSaving'
 import getDepictionMoved from './getDepictionMoved'
 import getObservationLanguages from './getObservationLanguages'
+import getPagination from './getPagination.js'
+import getIsLoading from './getIsLoading.js'
 
 const GetterNames = {
   GetMatrix: 'getMatrix',
@@ -17,7 +19,9 @@ const GetterNames = {
   GetObservationRows: 'getObservationRows',
   GetObservationMoved: 'getObservationMoved',
   GetIsSaving: 'getIsSaving',
-  GetDepictionMoved: 'getDepictionMoved'
+  GetDepictionMoved: 'getDepictionMoved',
+  GetPagination: 'getPagination',
+  GetIsLoading: 'getIsLoading'
 }
 
 const GetterFunctions = {
@@ -29,7 +33,9 @@ const GetterFunctions = {
   [GetterNames.GetObservationRows]: getObservationRows,
   [GetterNames.GetObservationMoved]: getObservationMoved,
   [GetterNames.GetIsSaving]: getIsSaving,
-  [GetterNames.GetDepictionMoved]: getDepictionMoved
+  [GetterNames.GetDepictionMoved]: getDepictionMoved,
+  [GetterNames.GetPagination]: getPagination,
+  [GetterNames.GetIsLoading]: getIsLoading
 }
 
 export {

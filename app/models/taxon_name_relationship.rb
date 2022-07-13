@@ -308,7 +308,6 @@ class TaxonNameRelationship < ApplicationRecord
     self.source ? (self.source.cached_nomenclature_date ? self.source.cached_nomenclature_date.to_time : Time.now) : Time.now
   end
 
-  # @TODO SourceClassifiedAs is not really Combination in the other sense
   def is_combination?
     !!/TaxonNameRelationship::(OriginalCombination|Combination)/.match(self.type.to_s)
   end
@@ -322,7 +321,9 @@ class TaxonNameRelationship < ApplicationRecord
   end
 
   def validate_type
-    unless TAXON_NAME_RELATIONSHIP_NAMES.include?(type)
+    if type && !TAXON_NAME_RELATIONSHIP_NAMES.include?(type.to_s)
+      errors.add(:type, "'#{type}' is not a valid taxon name relationship")
+    elsif self.type_class && object_taxon_name.class.to_s == 'Protonym' && !self.type_class.valid_object_ranks.include?(object_taxon_name.rank_string)
       errors.add(:type, "'#{type}' is not a valid taxon name relationship")
     end
 
@@ -413,43 +414,13 @@ class TaxonNameRelationship < ApplicationRecord
     else
       errors.add(:object_taxon_name_id, 'Not a Protonym') if object_taxon_name.type == 'Combination'
     end
-    errors.add(:subject_taxon_name_id, 'Not a Protonym') if subject_taxon_name.type == 'Combination'
+    errors.add(:subject_taxon_name_id, 'Not a Protonym') if subject_taxon_name.type == 'Combination' && self.type != 'TaxonNameRelationship::CurrentCombination'
   end
 
-  # TODO: Isolate to individual classes per type
   def set_cached_names_for_taxon_names
     begin
       TaxonName.transaction do
-        if is_combination?
-          t = object_taxon_name
-
-          t.send(:set_cached)
-
-          if type_name =~/(OriginalCombination)/
-            t.update_columns(
-              cached_original_combination: t.get_original_combination,
-              cached_original_combination_html: t.get_original_combination_html,
-              cached_author_year: t.get_author_and_year,
-            )
-          end
-        elsif type_name =~/(Basionym)/
-          TaxonName.where(cached_valid_taxon_name_id: object_taxon_name.cached_valid_taxon_name_id).each do |t|
-            t.update_column(:cached_author_year, t.get_author_and_year)
-          end
-        elsif type_name =~/TaxonNameRelationship::Hybrid/ # TODO: move to Hybrid
-          t = object_taxon_name
-          n = t.get_full_name
-          t.update_columns(
-            cached: n,
-            cached_html: t.get_full_name_html(n)
-          )
-
-        elsif type_name =~/SourceClassifiedAs/
-          t = subject_taxon_name
-          t.set_cached_classified_as
-          # t.update_column(:cached_classified_as, t.get_cached_classified_as)
-
-        elsif is_invalidating?
+        if is_invalidating?
           t = subject_taxon_name
           
           if type_name =~/Misspelling/
@@ -489,14 +460,9 @@ class TaxonNameRelationship < ApplicationRecord
             end
           end
         end
-
       end
-
-    # no point in rescuing and not returning something
-    rescue ActiveRecord::RecordInvalid
-      raise
     end
-    false
+    true
   end
 
   def is_invalidating?
@@ -504,7 +470,7 @@ class TaxonNameRelationship < ApplicationRecord
   end
 
   def sv_validate_required_relationships
-    return true if self.subject_taxon_name.not_binomial?
+    return true if self.subject_taxon_name.not_binominal?
     object_relationships = TaxonNameRelationship.where_object_is_taxon_name(self.object_taxon_name).not_self(self).collect{|r| r.type}
     required = self.type_class.required_taxon_name_relationships - object_relationships
     required.each do |r|
@@ -551,6 +517,10 @@ class TaxonNameRelationship < ApplicationRecord
   end
 
   def sv_objective_synonym_relationship
+    true # all validations moved to subclasses
+  end
+
+  def sv_fix_objective_synonym_relationship
     true # all validations moved to subclasses
   end
 

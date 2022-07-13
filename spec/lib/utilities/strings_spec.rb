@@ -28,7 +28,7 @@ describe Utilities::Strings do
   end
 
   specify '.alphabetic_strings should split on accent characters' do
-    expect(l.alphabetic_strings("Hernán")).to contain_exactly('Hern', 'n')
+    expect(l.alphabetic_strings("Hernán")).to contain_exactly('Hernán')
   end
 
   specify '.random_string' do
@@ -38,6 +38,10 @@ describe Utilities::Strings do
   specify '.random_string' do
     expect(l.random_string(0)).to be_nil
   end
+
+  # specify '.nil_strip 0' do
+  #   expect(l.nil_strip("\u0000")).to eq(nil)
+  # end
 
   specify '.nil_strip 1' do
     expect(l.nil_strip('   ')).to eq(nil)
@@ -53,6 +57,10 @@ describe Utilities::Strings do
 
   specify ".nil_strip nil returns nil" do
     expect(l.nil_strip(nil)).to be_nil
+  end
+
+  specify '.nil_squish_strip 0' do
+    expect(l.nil_squish_strip("\u0000 \u0000\u0000  ")).to eq(nil)
   end
 
   specify '.nil_squish_strip 1' do

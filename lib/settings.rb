@@ -213,7 +213,7 @@ module Settings
   def self.load_action_mailer_smtp_settings(config, settings)
     if settings
       config.action_mailer.delivery_method = :smtp
-      config.action_mailer.smtp_settings = settings
+      config.action_mailer.smtp_settings = {openssl_verify_mode: 'none'}.merge!(settings)
     end
   end
 

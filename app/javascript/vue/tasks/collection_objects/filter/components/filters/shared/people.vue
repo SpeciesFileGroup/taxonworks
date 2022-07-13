@@ -1,29 +1,52 @@
 <template>
   <div>
-    <h4>{{ title }}</h4>
-    <smart-selector
-      :autocomplete-params="{'roles[]' : role }"
-      model="people"
-      :klass="klass"
-      pin-section="People"
-      pin-type="People"
-      @selected="addPerson"/>
-    <label>
+    <div class="flex-separate middle">
+      <h3>{{ title }}</h3>
+      <SwitchButtom
+        v-if="toggle"
+        v-model="isPeopleView"
+        :options="switchOptions"
+      />
+    </div>
+    <div v-if="isPeopleView">
+      <smart-selector
+        :autocomplete-params="{'roles[]' : role }"
+        model="people"
+        :klass="klass"
+        pin-section="People"
+        pin-type="People"
+        label="cached"
+        @selected="addPerson"
+      />
+      <label>
+        <input
+          v-model="params[paramAny]"
+          type="checkbox"
+        >
+        Any
+      </label>
+      <display-list
+        :list="list"
+        label="cached"
+        :delete-warning="false"
+        @delete-index="removePerson"
+      />
+    </div>
+    <div v-else>
+      <label class="display-block">Matches</label>
+      <i class="display-block">Allows regular expressions</i>
       <input
-        v-model="params[paramAny]"
-        type="checkbox">
-      Any
-    </label>
-    <display-list
-      :list="list"
-      label="object_tag"
-      :delete-warning="false"
-      @deleteIndex="removePerson"/>
+        v-model="params.determiner_name_regex"
+        class="full_width"
+        type="text"
+      >
+    </div>
   </div>
 </template>
 
 <script>
 
+import SwitchButtom from 'tasks/observation_matrices/new/components/newMatrix/switch.vue'
 import SmartSelector from 'components/ui/SmartSelector'
 import DisplayList from 'components/displayList'
 import { People } from 'routes/endpoints'
@@ -32,7 +55,8 @@ import { URLParamsToJSON } from 'helpers/url/parse.js'
 export default {
   components: {
     SmartSelector,
-    DisplayList
+    DisplayList,
+    SwitchButtom
   },
 
   props: {
@@ -64,14 +88,24 @@ export default {
     klass: {
       type: String,
       required: true
+    },
+
+    toggle: {
+      type: Boolean,
+      default: false
     }
   },
 
-  emits: ['update:modelValue'],
+  emits: [
+    'update:modelValue',
+    'toggle'
+  ],
 
   data () {
     return {
-      list: []
+      list: [],
+      switchOptions: ['People', 'Name'],
+      isPeopleView: true
     }
   },
 
@@ -87,7 +121,7 @@ export default {
   },
 
   watch: {
-    value (newVal) {
+    modelValue (newVal) {
       if (!newVal[this.paramPeople].length && this.list.length) {
         this.list = []
       }
@@ -98,6 +132,12 @@ export default {
         this.params[this.paramPeople] = this.list.map(item => item.id)
       },
       deep: true
+    },
+
+    isPeopleView (newVal) {
+      this.$emit('toggle', newVal)
+      this.list = []
+      this.params.determiner_name_regex = undefined
     }
   },
 

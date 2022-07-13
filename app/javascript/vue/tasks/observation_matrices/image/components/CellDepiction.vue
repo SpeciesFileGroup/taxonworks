@@ -7,7 +7,8 @@
         :list="depictions"
         item-key="id"
         @choose="setObservationDragged"
-        @remove="removeDepiction">
+        @remove="removeDepiction"
+      >
         <template #item="{ element }">
           <div class="drag-container">
             <image-viewer
@@ -32,7 +33,8 @@
     </div>
     <v-icon
       v-if="!show && depictions.length"
-      name="image"/>
+      name="image"
+    />
   </div>
 </template>
 

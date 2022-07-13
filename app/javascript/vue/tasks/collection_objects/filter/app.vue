@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="flex-separate middle">
-      <h1>Collection objects filter</h1>
+      <h1>Filter collection objects</h1>
       <ul class="context-menu">
         <li>
           <label>
@@ -49,48 +49,61 @@
         @pagination="pagination = getPagination($event)"
         @reset="resetTask"/>
       <div class="full_width overflow-x-auto">
-        <div 
+        <div
           v-if="recordsFound"
           class="horizontal-left-content flex-separate separate-bottom">
           <div class="horizontal-left-content">
+            <select-all
+              v-model="ids"
+              :ids="coIds"
+            />
+            <span class="separate-left separate-right">|</span>
             <csv-button
               :url="urlRequest"
-              :options="{ fields: csvFields }"/>
-            <span class="separate-left separate-right">|</span>
-            <button
-              v-if="ids.length"
-              type="button"
-              @click="ids = []"
-              class="button normal-input button-default">
-              Unselect all
-            </button>
-            <button
-              v-else
-              type="button"
-              @click="ids = coIds"
-              class="button normal-input button-default">
-              Select all
-            </button>
+              :options="{ fields: csvFields }"
+            />
+            <dwc-download
+              class="margin-small-left"
+              :params="$refs.filterComponent.parseParams"
+              :total="pagination.total"
+            />
+            <dwc-reindex
+              class="margin-small-left"
+              :params="$refs.filterComponent.parseParams"
+              :total="pagination.total"
+            />
+            <match-button
+              :ids="ids"
+              :url="urlRequest"
+              class="margin-small-left"
+            />
           </div>
         </div>
         <div
+          v-if="pagination"
           class="flex-separate margin-medium-bottom"
-          v-if="pagination">
+        >
           <pagination-component
             v-if="pagination"
-            @nextPage="loadPage"
-            :pagination="pagination"/>
+            @next-page="loadPage"
+            :pagination="pagination"
+          />
           <pagination-count
             :pagination="pagination"
-            v-model="per"/>
+            v-model="per"
+          />
         </div>
         <list-component
+          v-if="Object.keys(list).length"
           v-model="ids"
           :list="list"
-          @onSort="list.data = $event"/>
+          @on-sort="list.data = $event"
+        />
         <h2
           v-if="alreadySearch && !list"
-          class="subtle middle horizontal-center-content no-found-message">No records found.
+          class="subtle middle horizontal-center-content no-found-message"
+        >
+          No records found.
         </h2>
       </div>
     </div>
@@ -105,14 +118,24 @@ import CsvButton from './components/csvDownload'
 import PaginationComponent from 'components/pagination'
 import PaginationCount from 'components/pagination/PaginationCount'
 import GetPagination from 'helpers/getPagination'
+import DwcDownload from './components/dwcDownload.vue'
+import DwcReindex from './components/dwcReindex.vue'
+import SelectAll from './components/selectAll.vue'
+import MatchButton from './components/matchButton.vue'
 
 export default {
+  name: 'FilterCollectionObjects',
+
   components: {
     PaginationComponent,
     FilterComponent,
     ListComponent,
     CsvButton,
-    PaginationCount
+    PaginationCount,
+    DwcDownload,
+    DwcReindex,
+    SelectAll,
+    MatchButton
   },
 
   computed: {

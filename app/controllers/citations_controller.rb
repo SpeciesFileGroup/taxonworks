@@ -2,7 +2,9 @@ require_dependency Rails.root.to_s + '/lib/queries/citation/filter'
 
 class CitationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+
   before_action :set_citation, only: [:update, :destroy, :show]
+  after_action -> { set_pagination_headers(:citations) }, only: [:index, :api_index ], if: :json_request?
 
   # GET /citations
   # GET /citations.json
@@ -16,7 +18,6 @@ class CitationsController < ApplicationController
         @citations = Queries::Citation::Filter.new(params).all.where(project_id: sessions_current_project_id).includes(:source)
           .order(:source_id, :pages)
           .page(params[:page]).per(params[:per] || 500)
-        @verbose_object = params[:verbose_object]
       }
     end
   end
@@ -121,6 +122,7 @@ class CitationsController < ApplicationController
       .where(project_id: sessions_current_project_id).includes(:source)
       .order('sources.cached, sources.pages')
       .page(params[:page]).per(params[:per] || 50)     ### error when 500 !!
+
     @verbose_object = params[:verbose_object]
     render '/citations/api/v1/index'
   end

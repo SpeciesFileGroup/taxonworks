@@ -31,5 +31,7 @@ export const Attribution = {
   ...baseCRUD(controller, permitParams),
   ...annotations(controller),
 
-  licenses: () => AjaxCall('get', `/${controller}/licenses`)
+  licenses: () => AjaxCall('get', `/${controller}/licenses`),
+
+  roleTypes: () => AjaxCall('get', `/${controller}/role_types.json`)
 }

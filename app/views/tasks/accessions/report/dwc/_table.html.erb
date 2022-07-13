@@ -23,7 +23,7 @@
 
   <tbody>
   <% collection_objects.each do |o| -%>
-    <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+    <%= content_tag(:tr, class: :contextMenuCells) do -%>
 
       <td> <%= o.preferred_catalog_number.try(:cached) -%> </td>
       <td> <%= repository_tag(o.repository) %></td>
@@ -34,8 +34,8 @@
       <td> <%= o.dwc_state_province -%> </td>
       <td> <%= o.dwc_county -%> </td>
       <td> <%= o.dwc_locality -%> </td>
-      <td> <%= o.dwc_latitude -%> </td>
-      <td> <%= o.dwc_longitude -%> </td>
+      <td> <%= o.dwc_decimal_latitude -%> </td>
+      <td> <%= o.dwc_decimal_longitude -%> </td>
       <td> Precision (m) </td>
       <td> <%= tag_default_icon(o) -%> </td>
       <%= fancy_metadata_cells_tag(o) -%>

@@ -10,10 +10,10 @@
   <v-modal
     v-if="isOpen"
     @close="isOpen = false"
-    :containerStyle="{ width: '600px', height: '70vh' }"
+    :container-style="{ width: '600px', height: '70vh' }"
   >
     <template #header>
-      <h3>Select Topic</h3>
+      <h3>Select OTU</h3>
     </template>
     <template #body>
       <smart-selector

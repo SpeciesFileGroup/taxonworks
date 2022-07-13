@@ -66,12 +66,13 @@
         <smart-selector
           ref="smartSelector"
           model="people"
-          target="CollectingEvent"
+          target="Collector"
           klass="CollectingEvent"
           :params="{ role_type: 'Collector' }"
           :autocomplete-params="{
             roles: ['Collector']
           }"
+          label="cached"
           :autocomplete="false"
           @selected="addRole">
           <template #header>

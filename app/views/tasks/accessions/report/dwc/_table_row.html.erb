@@ -1,4 +1,4 @@
-<%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+<%= content_tag(:tr, class: :contextMenuCells) do -%>
   <% CollectionObject::DwcExtensions::DWC_OCCURENCE_MAP.each_key do |k| -%>
     <td> <%= o.catalogNumber -%> </td>
     <td> <%= o.family %></td>
@@ -9,8 +9,8 @@
     <td> <%= o.dwc_state_province -%> </td>
     <td> <%= o.dwc_county -%> </td>
     <td> <%= o.dwc_locality -%> </td>
-    <td> <%= o.dwc_latitude -%> </td>
-    <td> <%= o.dwc_longitude -%>  </td>
+    <td> <%= o.dwc_decimal_latitude -%> </td>
+    <td> <%= o.dwc_decimal_longitude -%>  </td>
     <td> Precision (m)</td>
   <% end %>
 

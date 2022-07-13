@@ -90,6 +90,7 @@ import alternate_valuesAnnotator from './components/alternate_value_annotator.vu
 import citationsAnnotator from './components/citations/citation_annotator.vue'
 import protocol_relationshipsAnnotator from './components/protocol_annotator.vue'
 import attributionAnnotator from './components/attribution/main.vue'
+import verifiersAnnotator from './components/verifiers/Verifiers.vue'
 
 import ContextMenu from './components/contextMenu'
 import Icons from './images/icons.js'
@@ -118,6 +119,7 @@ export default {
     tagsAnnotator,
     protocol_relationshipsAnnotator,
     attributionAnnotator,
+    verifiersAnnotator,
     ContextMenu
   },
 
@@ -206,15 +208,16 @@ export default {
         label: (annotator.charAt(0).toUpperCase() + annotator.slice(1)).replace('_', ' '),
         innerPosition: 1.7,
         svgAttributes: {
-          fill: this.currentAnnotator === annotator ? '#8F8F8F' : undefined
+          class: this.currentAnnotator === annotator
+            ? 'slice active'
+            : 'slice'
         },
         slices: total
           ? [{
               label: total.toString(),
               size: 26,
               svgAttributes: {
-                fill: '#006ebf',
-                color: '#FFFFFF'
+                class: 'slice-total'
               }
             }]
           : [],
@@ -234,13 +237,11 @@ export default {
         centerSize: 34,
         margin: 2,
         middleButton: this.middleButton,
-        css: {
-          class: 'svg-radial-annotator'
-        },
         svgAttributes: {
-          fontSize: 11,
-          fill: '#FFFFFF',
-          textAnchor: 'middle'
+          class: 'svg-radial-menu'
+        },
+        svgSliceAttributes: {
+          fontSize: 11
         },
         slices: slices
       }
@@ -418,12 +419,31 @@ export default {
 }
 </script>
 <style lang="scss">
-  .svg-radial-annotator {
+  .svg-radial-menu {
+    text-anchor: middle;
+
     g:hover {
       cursor: pointer;
       opacity: 0.9;
     }
+
+    path.slice {
+      fill: #FFFFFF;
+    }
+
+    path.active {
+      fill:#8F8F8F
+    }
+
+    path.slice-total {
+      fill: #006ebf;
+    }
+
+    tspan.slice-total {
+      fill: #FFFFFF;
+    }
   }
+
   .radial-annotator {
     position: relative;
     width: initial;
@@ -441,6 +461,7 @@ export default {
     .modal-container {
       min-width: 1024px;
       width: 1200px;
+      overflow-y: hidden;
     }
 
     .radial-annotator-template {
@@ -450,6 +471,7 @@ export default {
       width: 100%;
       max-width: 100%;
       min-height: 600px;
+      overflow-y: auto;
     }
 
     .radial-annotator-container {

@@ -1,11 +1,14 @@
 <template>
-  <modal-component v-if="showModal">
+  <modal-component
+    v-if="showModal"
+    @close="_cancel"
+  >
     <template #header>
       <h3>{{ title }}</h3>
     </template>
     <template #body>
       <div>
-        <div v-html="message"/>
+        <div v-html="message" />
         <div v-show="confirmationWord">
           <p>Type "{{ confirmationWord }}" to proceed.</p>
           <input
@@ -13,15 +16,14 @@
             class="full_width"
             ref="inputtext"
             v-model="inputValue"
+            :placeholder="`Write ${confirmationWord} to continue`"
             @keydown.enter="isConfirmationWordTyped && _confirm()"
-            :placeholder="`Write ${confirmationWord} to continue`">
+          >
         </div>
       </div>
     </template>
     <template #footer>
-      <div
-        slot="footer"
-        class="horizontal-right-content">
+      <div class="horizontal-right-content">
         <button
           type="button"
           class="button normal-input"
@@ -33,7 +35,8 @@
         </button>
         <button
           class="button normal-input button-default margin-small-left"
-          @click="_cancel">
+          @click="_cancel"
+        >
           {{ cancelButton }}
         </button>
       </div>

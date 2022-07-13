@@ -1,7 +1,7 @@
 <% content_for :tasks do %>
   <%= content_tag(:li, link_to(
     content_tag(:span, 'DwC-A Import (task)', 'data-icon' => 'edit', class: 'small-icon'),
-    index_dwca_import_task_path(import_dataset_id: @import_dataset.id), class: 'navigation-item', 'data-task' => 'dwca_import')
+    dwca_import_task_path(import_dataset_id: @import_dataset.id), class: 'navigation-item', 'data-task' => 'dwca_import')
   ) -%>
 <% end %>
 

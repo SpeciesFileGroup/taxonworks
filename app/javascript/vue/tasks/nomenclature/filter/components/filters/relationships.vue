@@ -143,16 +143,22 @@ export default {
       this.relationships = []
     },
 
-    relationships () {
-      const newList = this.relationships.map(item => {
-        const name = item.type_name === 'subject_status_tag' ? 'subject_taxon_name_id' : 'object_taxon_name_id'
+    relationships: {
+      handler() {
+        const newList = this.relationships.map(item => {
+          const name = item.type_name === 'subject_status_tag'
+            ? 'subject_taxon_name_id'
+            : 'object_taxon_name_id'
 
-        return {
-          type: item.type,
-          [name]: item.taxonId
-        }
-      })
-      this.$emit('update:modelValue', newList)
+          return {
+            type: item.type,
+            [name]: item.taxonId
+          }
+        })
+
+        this.$emit('update:modelValue', newList)
+      },
+      deep: true
     }
   },
   mounted () {
@@ -249,8 +255,8 @@ export default {
       this.view = OPTIONS.common
     },
 
-    removeItem (key) {
-      delete this.relationships[key]
+    removeItem (index) {
+      this.relationships.splice(index, 1)
     },
 
     flipRelationship(relationship) {

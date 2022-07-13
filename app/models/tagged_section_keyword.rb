@@ -22,7 +22,7 @@ class TaggedSectionKeyword < ApplicationRecord
   include Shared::IsData
 
 
-  acts_as_list scope: [:otu_page_layout_section]
+  acts_as_list scope: [:otu_page_layout_section, :project_id]
 
   belongs_to :otu_page_layout_section
   belongs_to :keyword

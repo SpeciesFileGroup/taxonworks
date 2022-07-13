@@ -1,7 +1,7 @@
 <template>
   <div class="panel content panel-section">
     <h2>{{ title }}</h2>
-    <smart-selector
+    <switch-component
       class="separate-bottom"
       :options="options"
       v-model="view"
@@ -16,20 +16,21 @@
       placeholder="Select an organization"
       url="/organizations/autocomplete"
       param="term"
-      @getItem="setOrganization"
-      label="label_html"/>
+      @get-item="setOrganization"
+      label="label_html"
+    />
   </div>
 </template>
 
 <script>
 
-import SmartSelector from 'components/switch'
+import SwitchComponent from 'components/switch'
 import RolePicker from 'components/role_picker'
 import Autocomplete from 'components/ui/Autocomplete'
 
 export default {
   components: {
-    SmartSelector,
+    SwitchComponent,
     RolePicker,
     Autocomplete
   },
@@ -39,14 +40,17 @@ export default {
       type: String,
       required: true
     },
+
     roleType: {
       type: String,
       required: true
     },
+
     options: {
       type: Array,
       default: () => ['someone else', 'an organization']
     },
+
     modelValue: {
       type: Array,
       required: true
@@ -69,8 +73,9 @@ export default {
       },
       deep: true
     },
+
     modelValue: {
-      handler(newVal) {
+      handler (newVal) {
         this.roles_attributes = newVal
       },
       deep: true
@@ -78,7 +83,7 @@ export default {
   },
 
   methods: {
-    setOrganization(organization) {
+    setOrganization (organization) {
       this.roles_attributes = [{
         type: this.roleType,
         label: organization.label,

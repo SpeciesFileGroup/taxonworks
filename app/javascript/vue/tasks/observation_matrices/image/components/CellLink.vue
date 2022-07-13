@@ -1,17 +1,23 @@
 <template>
   <a
     v-html="label"
-    :href="browseLink(rowObject)"/>
+    :href="browseLink(rowObject)"
+  />
 </template>
 
 <script>
 
 import { RouteNames } from 'routes/routes'
+import {
+  OTU,
+  COLLECTION_OBJECT,
+  TAXON_NAME
+} from 'constants/index.js'
 
 const BROWSE_LINK = {
-  CollectionObject: (id, _) => `${RouteNames.BrowseCollectionObject}?collection_object_id=${id}`,
-  TaxonName: (id, _) => `${RouteNames.BrowseNomenclature}?taxon_name_id=${id}`,
-  Otu: (id, rowObject) => rowObject.observation_matrix_id
+  [COLLECTION_OBJECT]: (id, _) => `${RouteNames.BrowseCollectionObject}?collection_object_id=${id}`,
+  [TAXON_NAME]: (id, _) => `${RouteNames.BrowseNomenclature}?taxon_name_id=${id}`,
+  [OTU]: (id, rowObject) => rowObject.observation_matrix_id
     ? `${RouteNames.BrowseOtu}?otu_id=${id}&observation_matrix_id=${rowObject.observation_matrix_id}`
     : `${RouteNames.BrowseOtu}?otu_id=${id}`
 }
@@ -31,17 +37,12 @@ export default {
 
   methods: {
     browseLink (object) {
-      const objectClass = {
-        otu_id: 'Otu',
-        collection_object_id: 'CollectionObject',
-        taxon_name_id: 'TaxonName'
-      }
+      const klass = object.observation_object_type || object.base_class
+      const objectId = object.observation_object_id || object.id
 
-      const [property, klass] = object.base_class === 'Otu'
-        ? ['id', 'Otu']
-        : Object.entries(objectClass).find(([key, value]) => object[key])
-
-      return BROWSE_LINK[klass](object[property], object)
+      return klass in BROWSE_LINK
+        ? BROWSE_LINK[klass](objectId, object)
+        : ''
     }
   }
 }

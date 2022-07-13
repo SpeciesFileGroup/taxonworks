@@ -1,6 +1,5 @@
 const ActionNames = {
   CreateExtract: 'createExtract',
-  RemoveExtract: 'removeExtract',
   LoadExtract: 'loadExtract',
   LoadIdentifiers: 'loadIdentifiers',
   LoadRecents: 'loadRecents',
@@ -12,6 +11,8 @@ const ActionNames = {
   SaveIdentifiers: 'saveIdentifiers',
   SaveOriginRelationship: 'saveOriginRelationship',
   SaveProtocols: 'saveProtocols',
+  RemoveExtract: 'removeExtract',
+  RemoveOriginRelationship: 'removeOriginRelationship',
   ResetState: 'resetState'
 }
 

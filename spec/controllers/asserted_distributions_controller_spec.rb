@@ -165,21 +165,7 @@ describe AssertedDistributionsController, type: :controller do
     end
   end
 
-  describe 'DELETE destroy' do
-    it 'destroys the requested asserted_distribution' do
-      asserted_distribution = AssertedDistribution.create! valid_attributes
-      expect {
-        delete :destroy, params: {id: asserted_distribution.to_param}, session: valid_session
-      }.to change(AssertedDistribution, :count).by(-1)
-    end
-
-    it 'redirects to the asserted_distributions list' do
-      asserted_distribution = AssertedDistribution.create! valid_attributes
-      delete :destroy, params: {id: asserted_distribution.to_param}, session: valid_session
-      expect(response).to redirect_to(asserted_distributions_url)
-    end
-  end
-
+  include_examples 'DELETE #destroy', AssertedDistribution
 end
 
 

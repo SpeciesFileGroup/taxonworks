@@ -75,7 +75,7 @@
             data-icon="warning"/>
         </tippy>
         <recent-component
-          class="separate-right"
+          class="separate-right margin-small-left"
           @selected="loadCollectionObject($event)"/>
         <button
           type="button"
@@ -203,7 +203,6 @@ export default {
     newDigitalization () {
       this.$store.dispatch(ActionNames.NewCollectionObject)
       this.$store.dispatch(ActionNames.NewIdentifier)
-      this.$store.commit(MutationNames.NewTaxonDetermination)
       this.$store.commit(MutationNames.SetTaxonDeterminations, [])
     },
 

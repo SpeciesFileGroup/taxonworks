@@ -1,5 +1,9 @@
-function capitalize (string) {
-  return string.charAt(0).toUpperCase() + string.substring(1)
+function capitalize (str = '') {
+  if (typeof str !== 'string') {
+    return str
+  }
+
+  return str.charAt(0).toUpperCase() + str.substring(1)
 }
 
 function shorten (str, maxLen, separator = ' ') {
@@ -21,10 +25,22 @@ function stringInline (text) {
   return text.replace(/\s+|\n|\r/g, ' ').trim()
 }
 
+function humanize (text = '') {
+  if (typeof text !== 'string') {
+    return text
+  }
+
+  return text
+    .replace(/^[\s_]+|[\s_]+$/g, '')
+    .replace(/[_\s]+/g, ' ')
+    .replace(/^[a-z]/, m => m.toUpperCase())
+}
+
 export {
   capitalize,
   shorten,
   toSnakeCase,
   replaceAt,
-  stringInline
+  stringInline,
+  humanize
 }

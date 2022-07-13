@@ -31,12 +31,20 @@ class Content < ApplicationRecord
   include Shared::HasPapertrail
   include Shared::DataAttributes # TODO: reconsider, why is this here?  Should be removed, use case is currently cross reference to an identifier, if required use Identifier
   include Shared::IsData
+  
   ignore_whitespace_on(:text)
+
+  attr_accessor :is_public 
+
+  after_save :publish, if: -> { (is_public == true) || is_public == '1' }
+  after_save :unpublish, if: -> { (is_public == false) || (is_public == '0') }
 
   belongs_to :otu, inverse_of: :contents
   belongs_to :topic, inverse_of: :contents
-  has_one :public_content
+  has_one :public_content, inverse_of: :content
   belongs_to :language
+
+  validate :topic_id_is_type_topic
 
   validates_uniqueness_of :topic_id, scope: [:otu_id]
   validates_presence_of :text, :topic_id, :otu_id
@@ -47,25 +55,23 @@ class Content < ApplicationRecord
 
   # @return [Boolean]
   #    true if this content has been published
-  def published?
-    self.public_content
+  def is_published?
+    public_content.present?
   end
 
   # TODO: this will have to be updated in subclasses.
   def publish
-    to_publish = {
-      topic: self.topic,
-      text:  self.text,
-      otu:   self.otu
-    }
-
-    self.public_content.delete if self.public_content
-    self.public_content = PublicContent.new(to_publish)
-    self.save
+    public_content.delete if public_content
+    PublicContent.create!(
+      content: self,
+      topic: topic,
+      text:  text,
+      otu:   otu
+    )
   end
 
   def unpublish
-    self.public_content.destroy
+    public_content&.destroy
   end
 
   # OTU_PAGE_LAYOUTS
@@ -103,5 +109,13 @@ class Content < ApplicationRecord
     }
 
     h
+  end
+
+  private
+
+  def topic_id_is_type_topic
+    if topic_id
+      errors.add(:topic_id, 'is not a Topic id') if !Topic.find(topic_id)
+    end
   end
 end

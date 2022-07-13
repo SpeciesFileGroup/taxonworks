@@ -4,6 +4,7 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
   has_many :core_records, foreign_key: 'import_dataset_id', class_name: 'DatasetRecord::DarwinCore::Occurrence'
   has_many :extension_records, foreign_key: 'import_dataset_id', class_name: 'DatasetRecord::DarwinCore::Extension'
 
+  # TODO: Can occurrenceID requirement be dropped? Should other fields be added here?
   MINIMUM_FIELD_SET = ["occurrenceID", "scientificName", "basisOfRecord"]
 
   validate :source, :check_field_set
@@ -129,27 +130,25 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
       ready = namespace_id.to_i > 0
       save!
 
-      fields_mapping = self.metadata["core_headers"].each.with_index.inject({}) { |m, (h, i)| m.merge({ h.downcase => i, i => h}) }
-
       query = ready ? core_records.where(status: 'NotReady') : core_records.where.not(status: ['NotReady', 'Imported', 'Unsupported'])
 
       # TODO: Add scopes/methods in DatasetRecord to handle nil fields values transparently
       unless institution_code.nil?
         query = query.where(
-          id: core_records_fields.at(fields_mapping["institutioncode"]).with_value(institution_code).select(:dataset_record_id)
+          id: core_records_fields.at(get_field_mapping(:institutionCode)).with_value(institution_code).select(:dataset_record_id)
         )
       else
         query = query.where.not(
-          id: core_records_fields.at(fields_mapping["institutioncode"]).select(:dataset_record_id)
+          id: core_records_fields.at(get_field_mapping(:institutionCode)).select(:dataset_record_id)
         )
       end
       unless collection_code.nil?
         query = query.where(
-          id: core_records_fields.at(fields_mapping["collectioncode"]).with_value(collection_code).select(:dataset_record_id)
+          id: core_records_fields.at(get_field_mapping(:collectionCode)).with_value(collection_code).select(:dataset_record_id)
         )
       else
         query = query.where.not(
-          id: core_records_fields.at(fields_mapping["collectioncode"]).select(:dataset_record_id)
+          id: core_records_fields.at(get_field_mapping(:collectionCode)).select(:dataset_record_id)
         )
       end
 
@@ -173,6 +172,10 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
 
   def restrict_to_existing_nomenclature?
     !!self.metadata.dig("import_settings", "restrict_to_existing_nomenclature")
+  end
+
+  def require_type_material_success?
+    !!self.metadata.dig("import_settings", "require_type_material_success")
   end
 
   private

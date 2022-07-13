@@ -44,6 +44,7 @@
         v-model="params.identifier"/>
       <tags-component
         class="margin-large-bottom"
+        target="Image"
         v-model="params.keywords"/>
       <users-component
         class="margin-large-bottom"
@@ -84,6 +85,16 @@ export default {
   directives: {
     hotkey
   },
+
+  emits: [
+    'newSearch',
+    'pagination',
+    'params',
+    'reset',
+    'response',
+    'result',
+    'urlRequest'
+  ],
 
   computed: {
     emptyParams () {
@@ -132,6 +143,7 @@ export default {
         this.$emit('result', response.body)
         this.$emit('urlRequest', response.request.responseURL)
         this.$emit('response', response)
+        this.$emit('pagination', response)
         this.$emit('params', params)
         this.searching = false
         if (response.body.length === this.params.settings.per) {

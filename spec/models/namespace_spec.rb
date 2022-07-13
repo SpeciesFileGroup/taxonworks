@@ -5,6 +5,13 @@ describe Namespace, type: :model do
   let(:otu) { FactoryBot.create(:valid_otu) }
   let(:specimen) { FactoryBot.create(:valid_specimen) }
 
+  specify '#short_name can not differ in case only' do
+    FactoryBot.create(:valid_namespace, short_name: 'pws')
+    n = Namespace.new(short_name: 'PwS')
+    n.valid?
+    expect(n.errors.include?(:short_name)).to be_truthy
+  end
+
   context 'validation' do
     context 'requires' do
       before { namespace.valid? }

@@ -12,7 +12,7 @@ class ContentsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @contents = Queries::Content::Filter.new(filter_params).all.page(params[:page]).per(params[:per])
+        @contents = ::Queries::Content::Filter.new(filter_params).all.page(params[:page]).per(params[:per])
       }
     end
   end
@@ -64,10 +64,15 @@ class ContentsController < ApplicationController
   # DELETE /contents/1
   # DELETE /contents/1.json
   def destroy
-    @content.destroy!
+    @content.destroy
     respond_to do |format|
-      format.html { redirect_to contents_url }
-      format.json { head :no_content }
+      if @content.destroyed?
+        format.html { destroy_redirect @content, notice: 'Content was successfully destroyed.' }
+        format.json { head :no_content}
+      else
+        format.html { destroy_redirect @content, notice: 'Content was not destroyed, ' + @content.errors.full_messages.join('; ') }
+        format.json { render json: @content.errors, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -113,9 +118,8 @@ class ContentsController < ApplicationController
 
   # GET /api/v1/content
   def api_index
-    @contents = Queries::Content::Filter.new(api_params).all
-      .includes(:topic)
-      .order('otus.id, controlled_vocabulary_terms.name')
+    @contents = ::Queries::Content::Filter.new(api_params).all
+      .order('contents.otu_id, contents.topic_id')
       .page(params[:page]).per(params[:per])
     render '/contents/api/v1/index'
   end
@@ -167,6 +171,6 @@ class ContentsController < ApplicationController
   end
 
   def content_params
-    params.require(:content).permit(:text, :otu_id, :topic_id)
+    params.require(:content).permit(:text, :otu_id, :topic_id, :is_public)
   end
 end

@@ -191,8 +191,7 @@ export default {
 
   methods: {
     setCollectingEvent (ce) {
-      this.$store.commit(MutationNames.SetCollectingEvent, Object.assign(makeCollectingEvent(), ce))
-      this.$store.commit(MutationNames.SetCollectingEventIdentifier, ce?.identifiers[0] || makeIdentifier(IDENTIFIER_LOCAL_TRIP_CODE, COLLECTING_EVENT))
+      this.$store.dispatch(ActionNames.GetCollectingEvent, ce.id)
       this.$store.dispatch(ActionNames.GetLabels, ce.id)
       this.$store.dispatch(ActionNames.LoadGeoreferences, ce.id)
     },
@@ -202,7 +201,7 @@ export default {
     },
 
     cloneCE () {
-      CollectingEvent.clone(this.collectingEvent.id).then(response => {
+      CollectingEvent.clone(this.collectingEvent.id, { extend: ['roles'] }).then(response => {
         this.$store.commit(MutationNames.SetCollectingEvent, Object.assign(makeCollectingEvent(), response.body))
         this.$store.commit(MutationNames.SetCollectingEventIdentifier, response.body?.identifiers[0] || makeIdentifier(IDENTIFIER_LOCAL_TRIP_CODE, COLLECTING_EVENT))
         this.$store.dispatch(ActionNames.SaveDigitalization)

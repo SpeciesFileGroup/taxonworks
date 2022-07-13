@@ -8,7 +8,7 @@
         height: topHeight + 'px'
       }"
     />
-    <slot :items="visibleItems"/>
+    <slot :items="visibleItems" />
     <div
       class="vscroll-spacer"
       :style="{
@@ -23,6 +23,7 @@
 <script>
 export default {
   name: 'VirtualScroll',
+
   props: {
     items: {
       type: Array,
@@ -33,6 +34,9 @@ export default {
       required: true
     }
   },
+
+  emits: ['update'],
+
   data () {
     return {
       topHeight: 0,
@@ -41,6 +45,7 @@ export default {
       updateDelay: undefined
     }
   },
+
   watch: {
     items: {
       handler (newVal) {
@@ -48,19 +53,22 @@ export default {
       }
     }
   },
+
   mounted () {
     this._checkScrollPosition = this.checkScrollPosition.bind(this)
     this.checkScrollPosition()
     this.$el.addEventListener('scroll', this._checkScrollPosition)
     this.$el.addEventListener('wheel', this._checkScrollPosition)
   },
-  beforeDestroy () {
+
+  beforeUnmount () {
     this.$el.removeEventListener('scroll', this._checkScrollPosition)
     this.$el.removeEventListener('wheel', this._checkScrollPosition)
   },
+
   methods: {
     checkScrollPosition (e = {}) {
-      var el = this.$el
+      const el = this.$el
 
       if (
         (el.scrollTop === 0 && e.deltaY < 0) ||
@@ -73,18 +81,18 @@ export default {
       this.updateWindow(e)
     },
 
-    updateWindow (e) {
-      var visibleItemsCount = Math.ceil(
+    updateWindow (_) {
+      const visibleItemsCount = Math.ceil(
         this.$el.clientHeight / this.itemHeight
       )
-      var totalScrollHeight = this.items.length * this.itemHeight
+      const totalScrollHeight = this.items.length * this.itemHeight
 
-      var scrollTop = this.$el.scrollTop
-      var offset = 5
-      var firstVisibleIndex = Math.floor(scrollTop / this.itemHeight)
-      var lastVisibleIndex = firstVisibleIndex + visibleItemsCount
-      var firstCutIndex = Math.max(firstVisibleIndex - offset, 0)
-      var lastCutIndex = lastVisibleIndex + offset
+      const scrollTop = this.$el.scrollTop
+      const offset = 5
+      const firstVisibleIndex = Math.floor(scrollTop / this.itemHeight)
+      const lastVisibleIndex = firstVisibleIndex + visibleItemsCount
+      const firstCutIndex = Math.max(firstVisibleIndex - offset, 0)
+      const lastCutIndex = lastVisibleIndex + offset
 
       this.visibleItems = this.items.slice(firstCutIndex, lastCutIndex)
 

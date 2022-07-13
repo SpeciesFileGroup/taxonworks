@@ -41,6 +41,8 @@ export default {
     OtuModal
   },
 
+  emits: ['close'],
+
   data () {
     return {
       showModal: true,
@@ -76,6 +78,7 @@ export default {
     closeModal () {
       if (this.otu && this.topic) {
         this.showModal = false
+        this.$emit('close')
       }
     }
   }

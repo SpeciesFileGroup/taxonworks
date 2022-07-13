@@ -3,7 +3,10 @@
     <table class="vue-table">
       <thead>
         <tr>
-          <th v-for="label in header">
+          <th
+            v-for="(label, index) in header"
+            :key="index"
+          >
             {{ label }}
           </th>
         </tr>
@@ -30,27 +33,20 @@
                 <div class="margin-small-right">
                   <object-validation
                     v-if="code && enableSoftValidation"
-                    :global-id="element.global_id"/>
+                    :global-id="element.global_id"
+                  />
                 </div>
-                <span v-html="getValue(element, label)"/>
+                <span v-html="getValue(element, label)" />
               </div>
             </td>
             <td>
               <div class="horizontal-left-content">
-                <template v-if="edit && !element.is_dynamic">
-                  <a
-                    v-if="row"
-                    type="button"
-                    class="circle-button btn-edit"
-                    :href="getUrlType(element.row_object.base_class, element.row_object.id)"
-                  />
-                  <a
-                    v-else
-                    type="button"
-                    class="circle-button btn-edit"
-                    :href="`/tasks/descriptors/new_descriptor?descriptor_id=${element.descriptor_id}&observation_matrix_id=${matrix.id}`"
-                  />
-                </template>
+                <a
+                  v-if="edit && !element.is_dynamic"
+                  type="button"
+                  class="circle-button btn-edit"
+                  :href="getUrlLink(element)"
+                />
 
                 <a
                   v-if="code"
@@ -86,8 +82,14 @@
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/navigation/radial.vue'
 import Draggable from 'vuedraggable'
-import { GetterNames } from '../../store/getters/getters'
 import ObjectValidation from 'components/soft_validations/objectValidation.vue'
+import { GetterNames } from '../../store/getters/getters'
+import {
+  OTU,
+  EXTRACT,
+  DESCRIPTOR,
+  SPECIMEN
+} from 'constants/index.js'
 
 export default {
   components: {
@@ -96,43 +98,53 @@ export default {
     RadialObject,
     ObjectValidation
   },
+
   props: {
     list: {
       type: Array,
       required: true
     },
+
     row: {
       type: Boolean,
       default: true
     },
+
     matrixId: {
       type: Number,
       required: true
     },
+
     code: {
       type: Boolean,
       default: false
     },
+
     attributes: {
       type: Array,
       required: true
     },
+
     header: {
       type: Array,
       required: true
     },
+
     filterRemove: {
       type: Function,
-      default: (item) => true
+      default: () => true
     },
+
     edit: {
       type: Boolean,
       default: false
     },
+
     globalIdPath: {
       type: Array,
       required: true
     },
+
     warningMessage: {
       type: String,
       default: undefined
@@ -148,23 +160,28 @@ export default {
     matrix () {
       return this.$store.getters[GetterNames.GetMatrix]
     },
+
     sortable () {
       return this.$store.getters[GetterNames.GetSettings].sortable
     },
+
     enableSoftValidation () {
       return this.$store.getters[GetterNames.GetSettings].softValidations
     }
   },
+
   data () {
     return {
       newList: [],
       urlTypes: {
-        Otu: '/otus/',
-        Specimen: '/collection_objects/',
-        Descriptor: '/tasks/descriptors/new_descriptor/'
+        [OTU]: '/otus/',
+        [SPECIMEN]: '/collection_objects/',
+        [DESCRIPTOR]: '/tasks/descriptors/new_descriptor/',
+        [EXTRACT]: '/tasks/extracts/new_extract?extract_id='
       }
     }
   },
+
   watch: {
     list: {
       handler (newVal) {
@@ -173,16 +190,19 @@ export default {
       immediate: true
     }
   },
+
   methods: {
     deleteItem (item) {
       if (window.confirm(this.warningMessage ? this.warningMessage : "You're trying to delete this record. Are you sure want to proceed?")) {
         this.$emit('delete', item)
       }
     },
+
     onSortable () {
       const ids = this.newList.map(object => object.id)
       this.$emit('order', ids)
     },
+
     getValue (object, attributes) {
       if (Array.isArray(attributes)) {
         let obj = object
@@ -198,16 +218,12 @@ export default {
       }
       return object[attributes]
     },
-    getUrlType (type, id) {
-      return `${this.urlTypes[type]}${id}`
+
+    getUrlLink (item) {
+      return this.row
+        ? `${this.urlTypes[item.observation_object.base_class]}${item.observation_object.id}`
+        : `/tasks/descriptors/new_descriptor?descriptor_id=${item.descriptor_id}&observation_matrix_id=${this.matrix.id}`
     }
   }
 }
 </script>
-<style lang="scss" scoped>
-  .vue-table-container {
-    overflow-y: scroll;
-    padding: 0px;
-    position: relative;
-  }
-</style>

@@ -13,31 +13,71 @@ function getUnique (arr, property) {
   return [...new Map(arr.map(item => [item[property], item])).values()]
 }
 
+
+function sortFunction (a, b, asc) {
+  if (a === null) return 1
+  if (b === null) return -1
+  if (a === null && b === null) return 0
+
+  const result = a - b
+
+  if (isNaN(result)) {
+    return (asc)
+      ? a?.toString().localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+      : b?.toString().localeCompare(a, undefined, { numeric: true, sensitivity: 'base' })
+  } else {
+    return (asc) ? result : -result
+  }
+}
+
 function sortArray (arr, sortProperty, ascending = true) {
   const list = arr.slice()
-  return list.sort((A, B) => {
-    const a = A[sortProperty]
-    const b = B[sortProperty]
+  const prop = String(sortProperty).split('.')
+  const len = prop.length
 
-    if (a === null) return 1
-    if (b === null) return -1
-    if (a === null && b === null) return 0
-
-    const result = a - b
-
-    if (isNaN(result)) {
-      return (ascending)
-        ? a.toString().localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
-        : b.toString().localeCompare(a, undefined, { numeric: true, sensitivity: 'base' })
+  return list.sort((a, b) => {
+    let i = 0
+    
+    for (let i = 0; i < len; i++) {
+      a = a[prop[i]]
+      b = b[prop[i]]
     }
-    else {
-      return (ascending) ? result : -result
-    }
+
+    return sortFunction(a, b, ascending)
   })
+}
+
+function sortArrayByArray (arr, sortingArr, asc) {
+  const list = arr.slice()
+
+  list.sort((a, b) => sortFunction(sortingArr.indexOf(a), sortingArr.indexOf(b), asc))
+
+  return list
+}
+
+function addToArray (arr, obj, property = 'id') {
+  const index = arr.findIndex(item => obj[property] === item[property])
+
+  if (index > -1) {
+    arr[index] = obj
+  } else {
+    arr.push(obj)
+  }
+}
+
+function removeFromArray (arr, obj, property = 'id') {
+  const index = arr.findIndex(item => obj[property] === item[property])
+
+  if (index > -1) {
+    arr.splice(index, 1)
+  }
 }
 
 export {
   chunkArray,
   getUnique,
-  sortArray
+  sortArray,
+  sortArrayByArray,
+  addToArray,
+  removeFromArray
 }

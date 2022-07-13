@@ -62,5 +62,6 @@ export default {
 <style scoped>
 .import-card {
   min-width: 300px;
+  max-width: 300px;
 }
 </style>

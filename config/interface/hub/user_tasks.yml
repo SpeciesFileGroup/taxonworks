@@ -84,12 +84,21 @@ new_taxon_name_task:
   description: 'Create or edit a taxon name along with its related metadata including original combinations, status, type material and synonym.'
 browse_nomenclature_task:
   hub: true
-  name: 'Browse nomenclature'
-  description: 'Browse through nomenclature, focusing on a single record at a time.'
+  name: 'Browse nomenclature and classification'
+  description: 'Browse through nomenclature and classification, focusing on a single record at a time.'
   status: stable
   categories:
     - nomenclature
     - browse
+observation_matrices_hub_task:
+  hub: true
+  name: 'Observation matrix hub'
+  related:
+  categories:
+    - matrix
+    - dna
+  status: prototype
+  description: 'An overview of observation matrices and descriptors.  Includes links to new records.'
 nomenclature_by_source_task:
   hub: true
   name: 'Citations by source'
@@ -181,7 +190,7 @@ author_list_task:
   description: 'Display all source authors with links to source list.'
   categories:
     - source
-  status: stable 
+  status: stable
 sqed_depiction_breakdown_todo_map_task:
   hub: true
   name: 'Collection object image breakdown TODO list'
@@ -211,8 +220,8 @@ new_asserted_distribution_from_map_task:
     - new
 report_dwc_task:
   hub: true
-  name: 'Report DWCA table'
-  description: 'Collection objects with calculated attributes that will ultimately be exported to DWCA.'
+  name: 'Report DwC-A table'
+  description: 'Collection objects with calculated attributes that will ultimately be exported to DwC-A.'
   status: prototype
   categories:
     - collection_object
@@ -349,17 +358,8 @@ uniquify_people_task:
   categories:
     - source
     - nomenclature
-  status: stable 
+  status: stable
   description: 'Find and merge redundant or duplicated people, e.g., from import.'
-observation_matrices_hub_task:
-  hub: true
-  name: 'Observation matrix hub'
-  related:
-  categories:
-    - matrix
-    - dna
-  status: prototype
-  description: 'An overview of observation matrices and descriptors.  Includes links to new records.'
 observation_matrix_view_task:
   hub: true
   name: 'View an observation matrix'
@@ -423,7 +423,7 @@ visualize_confidences_task:
   name: 'Visualize confidences.'
   related:
   categories:
-  status: stable 
+  status: stable
   description: 'See a graph of confidences applied per data type.'
 observation_matrices_dashboard_task:
   hub: true
@@ -544,7 +544,7 @@ manage_controlled_vocabulary_terms_task:
   name: 'Manage controlled vocabulary terms'
   related:
   categories:
-  status: stable 
+  status: stable
   description: 'View and create custom fields, tags, etc. used throughout this project.'
 match_collection_objects_task:
   hub: true
@@ -554,14 +554,6 @@ match_collection_objects_task:
     - collection_object
   status: prototype
   description: 'Use a quick list of catalog numbers or ids to find collection objects.'
-work_report_task:
-  hub: true
-  name: 'Collection object work report'
-  related:
-  categories:
-    - collection_object
-  status: prototype
-  description: 'Estimate time spent on digitization tasks per user. Project administrators can see all users.'
 filter_sources_task:
   hub: true
   name: 'Filter sources'
@@ -586,7 +578,7 @@ gnfinder_task:
     - nomenclature
   status: prototype
   description: 'Show all names in a document.'
-index_dwca_import_task:
+dwca_import_task:
   hub: true
   name: 'Darwin Core Archive (DwC-A) import'
   related:
@@ -621,6 +613,14 @@ export_taxonworks_project_task:
   categories:
   status: prototype
   description: 'Generate a downloadable copy of the database with data from this project and community data (Sources, People, Repositories, etc.)'
+dwc_dashboard_task:
+  hub: true
+  name: 'DwC Dashboard'
+  description: 'Report DwC Occurrence metadata, issues, and coverage. Manage DwC-A export.'
+  status: prototype
+  categories:
+    - collection_object
+    - collecting_event
 new_extract_task:
   hub: true
   name: 'New extract'
@@ -649,7 +649,6 @@ new_namespace_task:
     - collecting_event
   status: prototype
   description: 'Create new Namespaces, used in identifiers.'
-
 index_matrix_column_coder_task:
   hub: true
   name: 'Matrix column coder'
@@ -657,3 +656,69 @@ index_matrix_column_coder_task:
   categories:
   status: prototype
   description: 'Code a matrix column'
+object_graph_task:
+  hub: false
+  name: 'Task - Object graph'
+  related:
+  categories:
+  status: prototype
+  description: 'Visualize how dat are related to each other in a dynamic (force-directed) graph.  Navigate throughout the graph.'
+batch_add_users_task:
+  hub: false
+  name: 'Administration: Batch add users'
+  related:
+  categories:
+  status: prototype
+  description: 'Add a list of users.'
+filter_extract_task:
+  hub: true
+  name: 'Filter extracts'
+  related:
+  categories:
+    - filters
+    - dna
+  status: prototype
+  description: 'Search and list extracts from collection objects, OTUs, other extracts, date ranges etc.'
+project_activity_task:
+  hub: true
+  name: 'Project activity'
+  related:
+  categories:
+    - collection_object
+    - collecting_event
+    - nomenclature
+    - image
+  status: prototype
+  description: 'Overview project and member activity, recent records, totals, member contributions, and more.'
+stepwise_determinations_task:
+  hub: true
+  name: 'Stepwise determinations'
+  related:
+  categories:
+    - collection_object
+    - people
+  status: prototype
+  description: 'Parse verbatim determinations into their semantic components.'
+classification_summary_task:
+  hub: true
+  name: 'Collection object classification summary'
+  related:
+  categories:
+    - collection_object
+  status: prototype
+  description: 'Summarize collection objects totals and preparation by classification (by class, order, family).'
+publisher_task:
+  hub: true
+  name: 'Content publisher'
+  related:
+  categories:
+  status: prototype
+  description: 'Manage the publishing of OTU content (text per topic).'
+taxon_name_merge_task:
+  hub: true
+  name: 'Merge taxon names'
+  related:
+  categories:
+    - nomenclature 
+  status: prototype
+  description: 'Basic tools that faclitate merging taxon names.'

@@ -355,7 +355,7 @@ class Source::Bibtex < Source
     as: :role_object, validate: true
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person, validate: true
 
-  accepts_nested_attributes_for :authors, :editors, :author_roles, :editor_roles, allow_destroy: true
+  accepts_nested_attributes_for :authors, :editors, :author_roles, :editor_roles, :serial, allow_destroy: true
 
   before_validation :create_authors, if: -> { !authors_to_create.nil? }
   before_validation :check_has_field
@@ -425,14 +425,10 @@ class Source::Bibtex < Source
   #
   # @param [BibTex::Entry] bibtex_entry the BibTex::Entry to convert
   # @return [Source::BibTex.new] a new instance
-  # @todo annote to project specific note?
-  # @todo if it finds one & only one match for serial assigns the serial ID, and if not it just store in journal title
-  # serial with alternate_value on name .count = 1 assign .first
-  # before validate assign serial if matching & not doesn't have a serial currently assigned.
-  # @todo if there is an ISSN it should look up to see it the serial already exists.
+  # TODO annote to project specific note?
+  # TODO: Serial with alternate_value on name .count = 1 assign .first
   def self.new_from_bibtex(bibtex_entry = nil)
     return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
-
     s = Source::Bibtex.new(bibtex_type: bibtex_entry.type.to_s)
 
     import_attributes = []
@@ -444,13 +440,29 @@ class Source::Bibtex < Source
       end
 
       v = value.to_s.strip
+
       if s.respond_to?(key.to_sym) && key != :type
         s.send("#{key}=", v)
       else
         import_attributes.push({import_predicate: key, value: v, type: 'ImportAttribute'})
       end
     end
+
     s.data_attributes_attributes = import_attributes
+
+    # See issn=() for code matching to existing serials that preceeds this logic
+    if s.serial_id.blank? && !bibtex_entry.fields[:journal].to_s.blank? && !bibtex_entry.fields[:issn].to_s.blank?
+      a = {
+        name: bibtex_entry.fields[:journal].to_s,
+        publisher: bibtex_entry.fields[:publisher].to_s,
+        identifiers_attributes: [ {
+          identifier: bibtex_entry.fields[:issn].to_s,
+          type: 'Identifier::Global::Issn'
+        } ]
+      }
+
+      s.serial_attributes = a
+    end
     s
   end
 
@@ -474,12 +486,6 @@ class Source::Bibtex < Source
   #   returns "" if neither :year or :year_suffix are set.
   def year_with_suffix
     [year, year_suffix].compact.join
-  end
-
-  # @return [String] A string that represents the authors last_names and year (no suffix)
-  def author_year
-    return 'not yet calculated' if new_record?
-    [cached_author_string, year].compact.join(', ')
   end
 
   # TODO: Not used
@@ -603,18 +609,39 @@ class Source::Bibtex < Source
     identifier_string_of_type('Identifier::Global::Doi')
   end
 
-  # @todo Are ISSN only Serials now? Maybe - the raw bibtex source may come in with an ISSN in which case
-  # we need to set the serial based on ISSN.
   # @param [String] value
   # @return [String]
   def issn=(value)
-    write_attribute(:issn, value)
-    unless value.blank?
-      tw_issn = self.identifiers.where(type: 'Identifier::Global::Issn').first
-      unless tw_issn.nil? || tw_issn.identifier != value
-        tw_issn.destroy
+    # Only add ISSN if it is reasonable to assume its repeated
+    # It is likely that most ISSN belong on Serials
+    unless %w{article inbook phdthesis inproceedings}.include?(bibtex_type)
+      write_attribute(:issn, value)
+      unless value.blank?
+        tw_issn = self.identifiers.where(type: 'Identifier::Global::Issn').first
+        unless tw_issn.nil? || tw_issn.identifier != value
+          tw_issn.destroy
+        end
+        self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
       end
-      self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
+    else
+      # Do some work to assign a Serial if possible
+      # Check for Journal by ISSN
+      s = Serial.where(name: journal).first
+      i = Identifier::Global::Issn.where(identifier: value, identifier_object_type: 'Serial').first
+
+      # Found an Existing Serial identically named with
+      # an Identical ISSN
+      if s && i
+        write_attribute(:serial_id, s.id)
+      elsif i && s.nil? # Found an identifier, but not on a identically named Serial, assign it anyways
+        write_attribute(:serial_id, i.identifier_object_id)
+      elsif i.nil? && s.nil? && !journal.blank? && !value.blank?
+        # Found neither, but provided ISSN and Serial, this will get caught in new_from_bibtex to create a new serial
+      else
+        # Some other strange combination has occurred, add some erorrs (not tested)
+        errors.add(:journal, 'Conflict between ISSN and article type')
+        errors.add(:issn, 'Conflict between ISSN and article type')
+      end
     end
   end
 
@@ -678,12 +705,6 @@ class Source::Bibtex < Source
   #  The effective year of publication as per nomenclatural rules
   def nomenclature_year
     cached_nomenclature_date.year
-  end
-
-  #  Month handling allows values from bibtex like 'may' to be handled
-  # @return [Time]
-  def nomenclature_date
-    Utilities::Dates.nomenclature_date(day, Utilities::Dates.month_index(month), year)
   end
 
   # @return [Date || Time] <sigh>
@@ -772,10 +793,11 @@ class Source::Bibtex < Source
     end
 
     a['year-suffix'] = year_suffix unless year_suffix.blank?
-    a['original-date'] = {"date-parts" => [[ stated_year ]]} unless stated_year.blank?
+    a['original-date'] = {"date-parts" => [[ stated_year ]]} if !stated_year.blank? && stated_year.to_s != year.to_s
     a['language'] = Language.find(language_id).english_name.to_s unless language_id.nil?
     a['translated-title'] = alternate_values.where(type: "AlternateValue::Translation", alternate_value_object_attribute: 'title').pluck(:value).first
-    a['note'] = note unless note.blank?
+    a['note'] = note
+    a.reject! { |k| k == 'note' } if note.blank?
     a
   end
 
@@ -817,7 +839,7 @@ class Source::Bibtex < Source
   def cached_string(format = 'text')
     return nil unless (format == 'text') || (format == 'html')
     str = render_with_style(DEFAULT_CSL_STYLE, format)
-    str.sub('(0ADAD)', '') # citeproc renders year 0000 as (0ADAD)
+    #str.sub('(0ADAD)', '') # citeproc renders year 0000 as (0ADAD)
   end
 
   # @return [String, nil]
@@ -835,7 +857,8 @@ class Source::Bibtex < Source
         return Utilities::Strings.authorship_sentence(b.author.tokens.collect{ |t| t.last })
       end
     else # use normalized records
-      return Utilities::Strings.authorship_sentence(authors.collect{ |a| a.full_last_name })
+      #      return Utilities::Strings.authorship_sentence(authors.collect{ |a| a.full_last_name })
+      return Utilities::Strings.authorship_sentence(authors.collect{ |a| a.last_name })
     end
   end
 
@@ -905,14 +928,6 @@ class Source::Bibtex < Source
   def get_cached
     if errors.empty?
       c = cached_string('html') # preserves our convention of <i>
-
-      if bibtex_type == 'book' && !pages.blank?
-        if pages.to_i.to_s == pages
-          c = c + " #{pages} pp."
-        else
-          c = c + " #{pages}"
-        end
-      end
       return c
     end
     nil

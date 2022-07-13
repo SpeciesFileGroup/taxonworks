@@ -41,7 +41,7 @@
 #   The type of the identified object, used in a polymorphic relationship.
 #
 class Identifier < ApplicationRecord
-  acts_as_list scope: [:project_id, :identifier_object_type, :identifier_object_id ]
+  acts_as_list scope: [:project_id, :identifier_object_type, :identifier_object_id ], add_new_at: :top
 
   include Shared::DualAnnotator
   include Shared::PolymorphicAnnotator
@@ -49,22 +49,29 @@ class Identifier < ApplicationRecord
   polymorphic_annotates('identifier_object')
 
   include Housekeeping # TODO: potential circular dependency constraint when this is before above.
-  include Shared::Labels 
+  include Shared::Labels
   include Shared::IsData
 
   after_save :set_cached, unless: Proc.new {|n| errors.any? }
-  
+
   belongs_to :namespace, inverse_of: :identifiers  # only applies to Identifier::Local, here for create purposes
 
   # Please DO NOT include the following:
+  # ADD when polymorphic_annotator is updated with inverse relationships
   #   validates :identifier_object, presence: true
   #   validates_presence_of :identifier_object_type, :identifier_object_id
   validates_presence_of :type, :identifier
 
   validates :identifier, presence: true
 
-  # TODO: DRY to IsData? Test. 
+  # TODO: DRY to IsData? Test.
   scope :with_type_string, -> (base_string) {where('type LIKE ?', "#{base_string}")}
+
+  scope :prefer, -> (type) { order(Arel.sql(<<~SQL)) }
+    CASE WHEN identifiers.type = '#{type}' THEN 1 \
+    WHEN identifiers.type != '#{type}' THEN 2 END ASC, \
+    position ASC
+  SQL
 
   # @return [String, Identifer]
   def self.prototype_identifier(project_id, created_by_id)
@@ -77,6 +84,14 @@ class Identifier < ApplicationRecord
     self.class.name.demodulize.downcase
   end
 
+  def is_local?
+    false
+  end
+
+  def is_global?
+    false
+  end
+
   protected
 
   def set_cached
@@ -84,4 +99,4 @@ class Identifier < ApplicationRecord
   end
 end
 
-Dir[Rails.root.to_s + '/app/models/identifier/**/*.rb'].sort.each{ |file| require_dependency file } 
+Dir[Rails.root.to_s + '/app/models/identifier/**/*.rb'].sort.each{ |file| require_dependency file }

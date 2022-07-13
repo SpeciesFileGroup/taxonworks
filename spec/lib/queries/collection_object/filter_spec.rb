@@ -5,6 +5,76 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
   let(:query) { Queries::CollectionObject::Filter.new({}) }
 
+
+  specify '#determiner_name_regex' do
+    s = Specimen.create!
+    a = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s, determiners: [ FactoryBot.create(:valid_person, last_name: 'Smith') ] )
+
+    s1 = Specimen.create! # not this one
+    b = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s1, determiners: [ FactoryBot.create(:valid_person, last_name: 'htims') ] )
+
+    query.determiner_name_regex = 'i.*h'
+    expect(query.all.pluck(:id)).to contain_exactly(s.id)
+  end
+
+  context 'lib/queries/concerns/notes.rb' do
+    specify '#notes present' do
+      s = Specimen.create!
+      Specimen.create! # not this one
+      n = s.notes << Note.new(text: 'my text')
+      query.notes = true
+
+      expect(query.all.pluck(:id)).to contain_exactly(s.id)
+    end
+
+    specify '#notes absent' do
+      s = Specimen.create!  # not this one
+      n = Specimen.create!
+      s.notes << Note.new(text: 'my text')
+      query.notes = false
+
+      expect(query.all.pluck(:id)).to contain_exactly(n.id)
+    end
+
+    specify '#note_text matches' do
+      s = Specimen.create!
+      Specimen.create! # not this
+      s.notes << Note.new(text: 'my text')
+      query.note_text = 'text'
+
+      expect(query.all.pluck(:id)).to contain_exactly(s.id)
+    end
+
+    specify '#note_text exact matches' do
+      s = Specimen.create!
+      Specimen.create! # not this
+      s.notes << Note.new(text: 'my text')
+      query.note_text = 'text'
+      query.note_exact = true
+
+      expect(query.all.pluck(:id)).to be_empty
+    end
+  end
+
+  specify '#loan_id' do
+    t1 = Specimen.create!
+    l = FactoryBot.create(:valid_loan)
+    t2 = Specimen.create!
+    l.loan_items << LoanItem.new(loan_item_object: t1)
+
+    query.loan_id = [l.id]
+    expect(query.all.pluck(:id)).to contain_exactly(t1.id)
+  end
+
+  specify '#type_designations' do
+    t1 = Specimen.create!
+    t2 = Specimen.create!
+    s = FactoryBot.create(:valid_type_material, collection_object: t2)
+
+    query.type_material = true
+    expect(query.all.pluck(:id)).to contain_exactly(t2.id)
+  end
+
   specify '#buffered_collecting_event' do
     s = FactoryBot.create(:valid_specimen, buffered_collecting_event: 'A BC D')
     query.buffered_collecting_event = 'BC'
@@ -171,11 +241,25 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     expect(query.all.pluck(:id)).to contain_exactly(s.id)
   end
 
-  specify '#taxon_determinations' do
+  specify '#taxon_determinations 1' do
     s = FactoryBot.create(:valid_specimen)
     d = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s)
+    a = Specimen.create! # this one
     query.taxon_determinations = false
-    expect(query.all.pluck(:id)).to contain_exactly()
+    expect(query.all.pluck(:id)).to contain_exactly(a.id)
+  end
+
+  specify '#taxon_determinations #buffered_determinations' do
+    s = FactoryBot.create(:valid_specimen, buffered_determinations: 'Foo')
+    d = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s)
+
+    a = Specimen.create!(buffered_determinations: 'Foo')  # this one
+
+    query.taxon_determinations = false
+    query.exact_buffered_determinations = true
+    query.buffered_determinations = 'Foo'
+
+    expect(query.all.pluck(:id)).to contain_exactly(a.id)
   end
 
   specify '#georeferences' do
@@ -290,6 +374,21 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       let!(:td4) { FactoryBot.create(:valid_taxon_determination, biological_collection_object: co2, otu: o1) } # current
 
       let!(:td5) { FactoryBot.create(:valid_taxon_determination, biological_collection_object: co3, otu: o3) } # current
+
+
+      # collection_objects/dwc_index?collector_ids_or=false&per=500&page=1&determiner_id[]=61279&ancestor_id=606330
+      specify '#determiner_id, collector_ids_or, ancestor_id combo' do
+        t1 = Specimen.create!
+        t2 = Specimen.create!
+        o = Otu.create(taxon_name: species1)
+        a = FactoryBot.create(:valid_taxon_determination, otu: o, biological_collection_object: t1, determiners: [ FactoryBot.create(:valid_person) ] )
+
+        query.determiner_id = a.determiners.pluck(:id)
+        query.collector_ids_or = false
+        query.ancestor_id = genus1.id
+
+        expect(query.all.pluck(:id)).to contain_exactly(t1.id)
+      end
 
       context 'type specimens' do
         let!(:tm1) { TypeMaterial.create!(collection_object: co1, protonym: species1, type_type: 'holotype') }
@@ -447,6 +546,14 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       expect(query.all.pluck(:id)).to contain_exactly()
     end
 
+    specify '#dwc_indexed + date' do
+      co1.set_dwc_occurrence
+      query.dwc_indexed = true
+      query.user_date_end = 1.day.ago.to_date.to_s
+      query.user_date_start = 2.day.ago.to_date.to_s
+      expect(query.all.pluck(:id)).to contain_exactly()
+    end
+
     context 'loans' do
       let!(:li1) { FactoryBot.create(:valid_loan_item, loan_item_object: co1) }
 
@@ -536,6 +643,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       end
 
       specify '#identifier_exact 2' do
+        Identifier::Global.destroy_all # purge random dwc_occurrence based identifiers that might match
         query.identifier_exact = false
         query.identifier = '1'
         expect(query.all.pluck(:id)).to contain_exactly(co1.id)

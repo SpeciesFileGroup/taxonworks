@@ -8,7 +8,7 @@
         :key="index"
         class="slide-panel-category-item">
         <div class="full_width padding-large-right">
-          <p>Shortcut: <b>{{ actionKey }} {{ isLinux ? '+ Shift' : '' }} + {{ index }}</b></p>
+          <p>Shortcut: <b>{{ pasteKeys.join(' + ') }} + {{ index }}</b></p>
           <div class="middle">
             <textarea
               class="full_width"
@@ -29,14 +29,23 @@
 import { ProjectMember } from 'routes/endpoints'
 
 export default {
-  name: 'Clipboard',
+  name: 'ClipboardApp',
 
   computed: {
     actionKey () {
-      return (navigator.platform.indexOf('Mac') > -1 ? 'Control' : 'Alt')
+      return navigator.platform.indexOf('Mac') > -1
+        ? 'Control'
+        : 'Alt'
     },
+
     isLinux () {
-      return window.navigator.userAgent.indexOf('Linux') > -1
+      return navigator.platform.indexOf('Linux') > -1
+    },
+
+    pasteKeys () {
+      return this.isLinux
+        ? [this.actionKey, 'Control']
+        : [this.actionKey]
     }
   },
 
@@ -56,11 +65,13 @@ export default {
 
   created () {
     document.addEventListener('turbolinks:load', () => {
-      document.removeEventListener('keydown', this.keyPressed)
-      document.removeEventListener('keyup', this.removeKey)
+      window.removeEventListener('keydown', this.keyPressed)
+      window.removeEventListener('keyup', this.removeKey)
     })
-    document.addEventListener('keydown', this.keyPressed)
-    document.addEventListener('keyup', this.removeKey)
+
+    window.addEventListener('keydown', this.keyPressed)
+    window.addEventListener('keyup', this.removeKey)
+
     ProjectMember.clipboard().then(response => {
       Object.assign(this.clipboard, response.body.clipboard)
     })
@@ -68,9 +79,10 @@ export default {
 
   methods: {
     isInput () {
-      return (document.activeElement.tagName === 'INPUT' ||
-          document.activeElement.tagName === 'TEXTAREA')
+      return document.activeElement.tagName === 'INPUT' ||
+          document.activeElement.tagName === 'TEXTAREA'
     },
+
     keyPressed (event) {
       const { code, key } = event
       const keyPressed = String(Object.keys(this.clipboard).findIndex(keyCode => `Digit${keyCode}` === code) + 1)
@@ -79,15 +91,16 @@ export default {
 
       this.addKey(isClipboardKey ? keyPressed : key)
 
-      if (this.keys.includes(this.actionKey) && isClipboardKey) {
+      if ((this.keys.includes(this.actionKey) && event.getModifierState(this.actionKey)) && isClipboardKey) {
         if (iskeyCopyPressed) {
           this.setClipboard(key)
-        } else {
+        } else if (this.pasteKeys.every(key => this.keys.includes(key))) {
           this.pasteClipboard(key)
         }
         event.preventDefault()
       }
     },
+
     pasteClipboard (clipboardIndex) {
       if (this.isInput() && this.clipboard[clipboardIndex]) {
         const position = document.activeElement.selectionStart
@@ -96,24 +109,30 @@ export default {
         document.activeElement.dispatchEvent(new CustomEvent('input'))
       }
     },
+
     saveClipboard () {
       ProjectMember.updateClipboard(this.clipboard).then(response => {
         this.clipboard = response.body.clipboard
       })
     },
+
     setClipboard (index) {
-      const textSelected = window.getSelection().toString()
+      const textSelected = this.isInput()
+        ? document.activeElement.value
+        : window.getSelection().toString()
 
       if (textSelected.length > 0) {
         this.clipboard[index] = textSelected
         this.saveClipboard()
       }
     },
+
     addKey (key) {
       if (!this.keys.includes(key)) {
         this.keys.push(key)
       }
     },
+
     removeKey ({ key }) {
       const position = this.keys.findIndex(keyStore => keyStore === key)
 

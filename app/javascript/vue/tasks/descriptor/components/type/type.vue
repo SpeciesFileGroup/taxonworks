@@ -1,9 +1,9 @@
 <template>
-  <div class="panel basic-information">
-    <div class="header">
+  <block-layout>
+    <template #header>
       <h3>Type</h3>
-    </div>
-    <div class="body">
+    </template>
+    <template #body>
       <ul class="no_bullets">
         <li
           v-for="(label, key) in TYPES"
@@ -19,14 +19,17 @@
           </label>
         </li>
       </ul>
-    </div>
-  </div>
+    </template>
+  </block-layout>
 </template>
 <script>
 
+import BlockLayout from 'components/layout/BlockLayout.vue'
 import TYPES from '../../const/types'
 
 export default {
+  components: { BlockLayout },
+
   props: {
     modelValue: {
       type: String,

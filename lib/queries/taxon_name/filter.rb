@@ -152,6 +152,13 @@ module Queries
       #   one of :classification, :alphabetical
       attr_accessor :sort
 
+      # @return [Array]
+      #   taxon_name_ids for which all Combinations will be returned
+      attr_accessor :combination_taxon_name_id
+
+
+      attr_accessor :rank
+
       # @param params [Params]
       #   as permitted via controller
       def initialize(params)
@@ -162,22 +169,24 @@ module Queries
         @descendants_max_depth = params[:descendants_max_depth]
         @ancestors = boolean_param(params,:ancestors )
         @exact = boolean_param(params, :exact)
-        @leaves = boolean_param(params, :leves)
+        @leaves = boolean_param(params, :leaves)
         @name = params[:name]
         @not_specified = boolean_param(params, :not_specified)
-        @nomenclature_code = params[:nomenclature_code]  if !params[:nomenclature_code].nil?
-        @nomenclature_group = params[:nomenclature_group]  if !params[:nomenclature_group].nil?
+        @nomenclature_code = params[:nomenclature_code] if !params[:nomenclature_code].nil?
+        @nomenclature_group = params[:nomenclature_group] if !params[:nomenclature_group].nil?
+        @rank = params[:rank]
         @otus = boolean_param(params, :otus)
         @etymology = boolean_param(params, :etymology)
         @project_id = params[:project_id]
         @taxon_name_classification = params[:taxon_name_classification] || []
-        @taxon_name_id = params[:taxon_name_id] || []
+        @taxon_name_id = params[:taxon_name_id]
+        @combination_taxon_name_id = params[:combination_taxon_name_id]
         @parent_id = params[:parent_id] || []
         @sort = params[:sort]
         @taxon_name_relationship = params[:taxon_name_relationship] || []
         @taxon_name_relationship_type = params[:taxon_name_relationship_type] || []
         @taxon_name_type = params[:taxon_name_type]
-        @type_metadata = boolean_param(params, :type_data)
+        @type_metadata = boolean_param(params, :type_metadata)
         @updated_since = params[:updated_since].to_s
         @validity = boolean_param(params, :validity)
         @year = params[:year].to_s
@@ -200,6 +209,14 @@ module Queries
 
       def year=(value)
         @year = value.to_s
+      end
+
+      def taxon_name_id
+        [@taxon_name_id].flatten.compact
+      end
+
+      def combination_taxon_name_id
+        [@combination_taxon_name_id].flatten.compact
       end
 
       # @return [String, nil]
@@ -381,8 +398,15 @@ module Queries
       # @return [Arel::Nodes::Grouping, nil]
       #   and clause
       def with_nomenclature_group
-        return nil if nomenclature_group.nil?
+        return nil if nomenclature_group.blank?
         table[:rank_class].matches(nomenclature_group)
+      end
+
+      # @return [Arel::Nodes::Grouping, nil]
+      #   and clause
+      def rank_facet
+        return nil if rank.blank?
+        table[:rank_class].matches('%' + rank) # We don't wildcard end so that we can isolate to specific ranks and below
       end
 
       # @return [Arel::Nodes::Grouping, nil]
@@ -444,11 +468,21 @@ module Queries
         table[:id].eq_any(taxon_name_id)
       end
 
+      def combination_taxon_name_id_facet
+        return nil if combination_taxon_name_id.empty?
+        ::Combination.joins(:related_taxon_name_relationships)
+          .where(
+            taxon_name_relationships: {
+              type: ::TAXON_NAME_RELATIONSHIP_COMBINATION_TYPES.values,
+              subject_taxon_name_id: combination_taxon_name_id}).distinct
+      end
+
       # @return [ActiveRecord::Relation]
       def and_clauses
         clauses = []
 
         clauses += [
+          rank_facet,
           parent_id_facet,
           author_facet,
           cached_name,
@@ -472,6 +506,7 @@ module Queries
 
       def merge_clauses
         clauses = [
+          combination_taxon_name_id_facet,
           ancestor_facet,
           authors_facet,
           citations_facet,

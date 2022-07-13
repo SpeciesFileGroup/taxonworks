@@ -53,6 +53,7 @@ module Queries
         [@identifier_object_id, global_object_id].flatten.compact
       end
 
+      # TODO: used?!
       def object_global_id_value
         object_global_id ? GlobalID::Locator.locate(object_global_id).id : nil
       end

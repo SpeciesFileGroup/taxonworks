@@ -78,7 +78,7 @@ class RepositoriesController < ApplicationController
   end
 
   def autocomplete
-    @repositories = Queries::Repository::Autocomplete.new(params[:term], autocomplete_params).autocomplete
+    @repositories = ::Queries::Repository::Autocomplete.new(params[:term], **autocomplete_params).autocomplete
   end
 
   # GET /repositories/download
@@ -94,7 +94,7 @@ class RepositoriesController < ApplicationController
   private
 
   def autocomplete_params
-    params.permit(alternate_value_type: []).to_h.symbolize_keys
+    params.permit(alternate_value_type: []).merge(project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 
   def set_repository

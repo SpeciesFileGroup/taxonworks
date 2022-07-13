@@ -5,9 +5,13 @@
   </ul>
 <% end %>
 
-<%= content_for :edit do 
+<%= content_for :edit do
   link_to(content_tag(:span, 'Edit', 'data-icon' => 'edit', class: 'small-icon'), new_collecting_event_task_path(collecting_event_id: @collecting_event.id), class: 'navigation-item')
 end %>
+
+<%= content_for :tasks do -%>
+  <%= tag.li link_to('Graph', object_graph_task_path(global_id: @collecting_event.to_global_id.to_s)) -%>
+<% end %>
 
 <%= content_for :associated do %>
   <% if @collecting_event.georeferences.any? %>

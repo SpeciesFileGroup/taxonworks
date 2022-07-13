@@ -1,4 +1,5 @@
-<%= content_tag(:span, 'An new loan task exists and should be used.', class: [:feedback, 'feedback-warning']) %> <%= link_to('New loan task', edit_loan_task_path) %></p>
+<%= content_tag(:span, 'An new loan task exists and should be used.', class: [:feedback, 'feedback-warning']) %>
+<%= link_to('New/edit loan task', edit_loan_task_path(loan_id: @loan&.id )) %></p>
 
 <%= render 'shared/errors', object: @loan %>
 
@@ -97,7 +98,7 @@
       </div>
    </div>
 
-   <div class="item item3">
+   <div class="item item3 one_third_width">
      <h3> Add loan items by tag</h3>
      <% keywords_on_loanable_items.each do |k| %>
        <h3><%= object_tag(k) %></h3>

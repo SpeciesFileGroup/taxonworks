@@ -1,7 +1,7 @@
 class TaxonNamesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination, :catalog, :api_show]
+  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination, :catalog, :api_show, :api_summary]
   after_action -> { set_pagination_headers(:taxon_names) }, only: [:index, :api_index], if: :json_request?
 
   # GET /taxon_names
@@ -54,7 +54,10 @@ class TaxonNamesController < ApplicationController
   def update
     respond_to do |format|
       if @taxon_name.update(taxon_name_params)
+
+        # TODO: WHY?!
         @taxon_name.reload
+
         format.html { redirect_to url_for(@taxon_name.metamorphosize), notice: 'Taxon name was successfully updated.' }
         format.json { render :show, status: :ok, location: @taxon_name.metamorphosize }
       else
@@ -89,7 +92,6 @@ class TaxonNamesController < ApplicationController
 
   def autocomplete
     render json: {} and return if params[:term].blank?
-
     @taxon_names = Queries::TaxonName::Autocomplete.new(
       params[:term],
       **autocomplete_params
@@ -134,7 +136,7 @@ class TaxonNamesController < ApplicationController
   end
 
   def rank_table
-    @q = Queries::TaxonName::Tabular.new(
+    @query = Queries::TaxonName::Tabular.new(
       ancestor_id: params.require(:ancestor_id),
       ranks: params.require(:ranks),
       fieldsets: params[:fieldsets],
@@ -148,7 +150,11 @@ class TaxonNamesController < ApplicationController
 
   # GET /taxon_names/select_options
   def select_options
-    @taxon_names = TaxonName.select_optimized(sessions_current_user_id, sessions_current_project_id)
+    @taxon_names = TaxonName.select_optimized(
+      sessions_current_user_id,
+      sessions_current_project_id,
+      target: params[:target]
+    )
   end
 
   def preview_simple_batch_load
@@ -204,11 +210,11 @@ class TaxonNamesController < ApplicationController
   end
 
   def parse
-    @combination = Combination.where(project_id: sessions_current_project_id).find(params[:combination_id]) if params[:combination_id] # TODO: this may have to change to taxon_name_id
+    @combination = Combination.where(project_id: sessions_current_project_id).find(params[:combination_id]) if params[:combination_id]
     @result = TaxonWorks::Vendor::Biodiversity::Result.new(
       query_string: params.require(:query_string),
       project_id: sessions_current_project_id,
-      code: :iczn # !! TODO:
+      code: :iczn # !! TODO: generalize
     ).result
   end
 
@@ -228,6 +234,21 @@ class TaxonNamesController < ApplicationController
   # GET /api/v1/taxon_names/:id
   def api_show
     render '/taxon_names/api/v1/show'
+  end
+
+  # GET /api/v1/taxon_names/:id/inventory/summary
+  def api_summary
+    render '/taxon_names/api/v1/summary'
+  end
+
+  def api_parse
+    @combination = Combination.where(project_id: sessions_current_project_id).find(params[:combination_id]) if params[:combination_id]
+    @result = TaxonWorks::Vendor::Biodiversity::Result.new(
+      query_string: params.require(:query_string),
+      project_id: sessions_current_project_id,
+      code: :iczn # !! TODO: generalize
+    ).result
+    render '/taxon_names/api/v1/parse'
   end
 
   private
@@ -303,6 +324,7 @@ class TaxonNamesController < ApplicationController
       :user_target,
       :validity,
       :year,
+      combination_taxon_name_id: [],
       keyword_id_and: [],
       keyword_id_or: [],
       parent_id: [],
@@ -339,6 +361,7 @@ class TaxonNamesController < ApplicationController
       :updated_since,
       :validity,
       :year,
+      combination_taxon_name_id: [],
       keyword_id_and: [],
       keyword_id_or: [],
       parent_id: [],

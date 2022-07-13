@@ -48,7 +48,7 @@ describe 'ProjectAuthentication', type: :request do
     end
 
     context 'when not provided' do
-      before { get path, params }
+      before { get path, **params }
       it_behaves_like 'unauthorized response'
     end
   end

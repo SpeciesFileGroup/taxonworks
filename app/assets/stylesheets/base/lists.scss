@@ -66,11 +66,12 @@ ul.tree, ul.tree ul {
    padding: 0;
  } 
  ul.tree ul {
-   margin-left: 10px;
+   //margin-left: 10px;
  }
  ul.tree li {
+   position: relative;
    margin: 0;
-   padding: 0 7px;
+   padding-left: 16px;
    line-height: 20px;
    color: #369;
    border-left:1px solid rgb(100,100,100);
@@ -80,15 +81,15 @@ ul.tree, ul.tree ul {
      border-left:none;
  }
  ul.tree li:before {
-    position:relative;
+    position:absolute;
     top:-0.3em;
-    height:1em;
-    width:12px;
+    height: 1em;
+    width: 12px;
     color:white;
-    border-bottom:1px solid rgb(100,100,100);
+    border-bottom: 1px solid rgb(100,100,100);
     content:"";
     display:inline-block;
-    left:-7px;
+    left:0px;
  }
  ul.tree li:last-child:before {
     border-left:1px solid rgb(100,100,100);   

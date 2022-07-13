@@ -46,9 +46,9 @@
             <a
               v-for="citation in assertedDistribution.citations"
               :key="citation.id"
-              :href="`/tasks/nomenclature/by_source?source_id=${citation.source.id}`"
+              :href="`/tasks/nomenclature/by_source?source_id=${citation.source_id}`"
               :title="citation.source.cached">
-              <span v-html="`${citation.source.author_year}` + `${citation.source.year_suffix}` + (citation.pages ? `:${citation.pages}` : '')"/>&nbsp;
+              <span v-html="authorString(citation)"/>&nbsp;
             </a>
           </td>
           <td v-html="assertedDistribution.otu.object_tag"/>
@@ -142,6 +142,14 @@ export default {
   methods: {
     setModalView (value) {
       this.showModal = value
+    },
+
+    authorString (citation) {
+      const pages = citation.pages
+        ? `:${citation.pages}`
+        : ''
+
+      return `${citation.source.author_year}${citation.source.year_suffix || ''}${pages}`
     }
   }
 }

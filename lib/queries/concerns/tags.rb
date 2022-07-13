@@ -49,6 +49,7 @@ module Queries::Concerns::Tags
     ::Tag.arel_table
   end
 
+  # TODO: why here?
   def keyword_ids=(value = [])
     @keyword_ids = value
   end
@@ -67,7 +68,7 @@ module Queries::Concerns::Tags
     elsif b.nil?
       a
     else
-      k.from("( (#{a.to_sql}) UNION (#{b.to_sql})) as sources")
+      k.from("( (#{a.to_sql}) UNION (#{b.to_sql})) as #{table.name}")
     end
   end
 

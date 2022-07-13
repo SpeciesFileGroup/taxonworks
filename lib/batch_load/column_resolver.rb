@@ -17,8 +17,8 @@ module BatchLoad::ColumnResolver
       proj_id = columns['project_id']
       r.error_messages << 'No column for \'Value\' was provided.' unless columns.key?('value')
       r.error_messages << 'No column for \'Predicate\' was provided.' unless columns.key?('predicate')
-      r.error_messages << 'No contents for \'Value\' was provided.' if value.blank?
-      r.error_messages << 'No contents for \'Predicate\' was provided.' if predicate.blank?
+      r.error_messages << 'No content for \'Value\' was provided.' if value.blank?
+      r.error_messages << 'No content for \'Predicate\' was provided.' if predicate.blank?
 
       if type.start_with?('im')
         r.assign(DataAttribute.where(import_predicate: predicate, value: value, project_id: proj_id).to_a)

@@ -1,8 +1,9 @@
 <template>
-  <div :class="{ disabled : contents.length == 0 }">
+  <div :class="{ disabled : !contents.length }">
     <div
-      @click="showModal = contents.length > 0"
-      class="item flex-wrap-column middle menu-button">
+      @click="showModal = !!contents.length"
+      class="item flex-wrap-column middle menu-button"
+    >
       <span
         data-icon="clone"
         class="big-icon"
@@ -12,7 +13,8 @@
     <modal
       v-if="showModal"
       id="clone-modal"
-      @close="showModal = false">
+      @close="showModal = false"
+    >
       <template #header>
         <h3>Clone</h3>
       </template>
@@ -21,11 +23,12 @@
           <li
             v-for="item in contents"
             :key="item.id"
-            @click="cloneCitation(item.text)">
-            <span data-icon="show">
-              <div class="clone-content-text">{{ item.text }}</div>
-            </span>
-            <span v-html="item.object_tag"/>
+            @click="cloneCitation(item.text)"
+          >
+            <div class="clone-content-text">
+              {{ item.text }}
+            </div>
+            <span v-html="item.object_tag" />
           </li>
         </ul>
       </template>
@@ -54,41 +57,46 @@ export default {
   },
 
   computed: {
-    disabled () {
-      return !this.$store.getters[GetterNames.GetContentSelected]
-    },
-
     topic () {
       return this.$store.getters[GetterNames.GetTopicSelected]
     },
 
-    content () {
-      return this.$store.getters[GetterNames.GetContentSelected]
-    },
-
     otu () {
       return this.$store.getters[GetterNames.GetOtuSelected]
+    },
+
+    content () {
+      return this.$store.getters[GetterNames.GetContentSelected]
     }
   },
 
   watch: {
-    content (val, oldVal) {
-      if (val) {
-        if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
-          this.loadContent()
-        }
-      } else {
+    topic (newVal, oldVal) {
+      if (newVal?.id && newVal.id !== oldVal?.id) {
+        this.loadContent()
+      }
+
+      if (!newVal?.id) {
         this.contents = []
+      }
+    },
+
+    otu (newVal) {
+      if (newVal?.id && this.topic?.id) {
+        this.loadContent()
       }
     }
   },
 
   methods: {
     loadContent () {
-      if (this.disabled) return
-
-      Content.where({ topic_id: this.topic.id }).then(response => {
-        this.contents = response.body.filter(c => c.id !== this.content.id)
+      Content.where({
+        topic_id: this.topic.id,
+        extend: ['otu', 'topic']
+      }).then(({ body }) => {
+        this.contents = this.content?.id
+          ? body.filter(c => c.id !== this.content.id)
+          : body
       })
     },
 

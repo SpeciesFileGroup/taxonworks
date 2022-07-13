@@ -1,4 +1,5 @@
 export const verbatimProperties = {
+  Datum: 'verbatim_datum',
   Label: 'verbatim_label',
   Locality: 'verbatim_locality',
   Latitude: 'verbatim_latitude',

@@ -109,8 +109,7 @@ import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
 import { ObservationMatrix, ObservationMatrixColumnItem } from 'routes/endpoints'
 import {
-  GetMatrixObservationColumns,
-  CreateColumnItem
+  GetMatrixObservationColumns
 } from '../../request/resources'
 
 export default {
@@ -150,7 +149,7 @@ export default {
       handler (newVal) {
         if (newVal) {
           this.isLoading = true
-          ObservationMatrix.all().then(response => {
+          ObservationMatrix.where({ per: 500 }).then(response => {
             response.body.splice(response.body.findIndex(item => this.matrixId === item.id), 1)
             this.observationMatrices = response.body
             this.isLoading = false
@@ -179,25 +178,17 @@ export default {
     },
 
     addDescriptors () {
-      const promises = []
-      const index = this.columns.length
-      const data = this.descriptorsSelected.map(item => ({
+      const payload = {
+        batch_type: 'descriptor_id',
         observation_matrix_id: this.matrixId,
-        descriptor_id: item.descriptor_id,
-        position: item.position + index,
-        type: ObservationTypes.Column.Descriptor
-      }))
+        descriptor_id: this.descriptorsSelected.map(item => item.descriptor_id)
+      }
 
-      data.sort((a, b) => a - b)
-      console.log(data.sort((a, b) => a.position - b.position))
-
-      data.forEach(descriptor => { promises.push(ObservationMatrixColumnItem.create({ observation_matrix_column_item: descriptor })) })
-
-      Promise.all(promises).then(() => {
+      ObservationMatrixColumnItem.createBatch(payload).then(() => {
         this.$store.dispatch(ActionNames.GetMatrixObservationColumns, this.matrixId)
         this.descriptorsSelected = []
-        TW.workbench.alert.create('Descriptors was successfully added to matrix.', 'notice')
         this.closeModal()
+        TW.workbench.alert.create('Descriptors was successfully added to matrix.', 'notice')
       })
     },
 

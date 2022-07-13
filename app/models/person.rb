@@ -78,9 +78,8 @@ class Person < ApplicationRecord
 
   validates :year_born, inclusion: {in: 0..Time.now.year}, allow_nil: true
   validates :year_died, inclusion: {in: 0..Time.now.year}, allow_nil: true
-  validates :year_active_start, inclusion: {in: 0..Time.now.year}, allow_nil: true
-  validates :year_active_end, inclusion: {in: 0..Time.now.year}, allow_nil: true
-
+  validates :year_active_start, inclusion: {in: 0..Time.now.year, message: "%{value} is not within the year 0-#{Time.now.year}"}, allow_nil: true
+  validates :year_active_end, inclusion: {in: 0..Time.now.year , message: "%{value} is not within the year 0-#{Time.now.year}"}, allow_nil: true
   validate :died_after_born
   validate :activity_ended_after_started
   validate :not_active_after_death
@@ -99,6 +98,8 @@ class Person < ApplicationRecord
     in: ['Person::Vetted', 'Person::Unvetted'],
     message: '%{value} is not a validly_published type'}
 
+  has_one :user, dependent: :restrict_with_error, inverse_of: :person
+
   has_many :roles, dependent: :restrict_with_error, inverse_of: :person #, before_remove: :set_cached_for_related
 
   has_many :author_roles, class_name: 'SourceAuthor', dependent: :restrict_with_error, inverse_of: :person #, before_remove: :set_cached_for_related
@@ -111,13 +112,17 @@ class Person < ApplicationRecord
 
   has_many :sources, through: :roles, source: :role_object, source_type: 'Source' # Editor or Author or Person
 
-  has_many :authored_sources, through: :author_roles, source: :role_object, source_type: 'Source::Bibtex', inverse_of: :authors
-  has_many :edited_sources, through: :editor_roles, source: :role_object, source_type: 'Source::Bibtex', inverse_of: :editors
-  has_many :human_sources, through: :source_roles, source: :role_object, source_type: 'Source::Human', inverse_of: :people
+  has_many :authored_sources, through: :author_roles, source: :role_object, source_type: 'Source'
+  has_many :edited_sources, through: :editor_roles, source: :role_object, source_type: 'Source'
+  has_many :human_sources, through: :source_roles, source: :role_object, source_type: 'Source'
+
   has_many :collecting_events, through: :collector_roles, source: :role_object, source_type: 'CollectingEvent', inverse_of: :collectors
   has_many :taxon_determinations, through: :determiner_roles, source: :role_object, source_type: 'TaxonDetermination', inverse_of: :determiners
   has_many :authored_taxon_names, through: :taxon_name_author_roles, source: :role_object, source_type: 'TaxonName', inverse_of: :taxon_name_authors
   has_many :georeferences, through: :georeferencer_roles, source: :role_object, source_type: 'Georeference', inverse_of: :georeferencers
+
+  has_many :collection_objects, through: :collecting_events
+  has_many :dwc_occurrences, through: :collection_objects
 
   scope :created_before, -> (time) { where('created_at < ?', time) }
   scope :with_role, -> (role) { includes(:roles).where(roles: {type: role}) }
@@ -170,6 +175,12 @@ class Person < ApplicationRecord
   #   The person's full last name including prefix & suffix (von last Jr)
   def full_last_name
     [prefix, last_name, suffix].compact.join(' ')
+  end
+
+  # Return [String, nil]
+  #   convenience, maybe a delegate: candidate
+  def orcid
+    identifiers.where(type: 'Identifier::Global::Orcid').first&.cached
   end
 
   # @param [Integer] person_id
@@ -458,23 +469,17 @@ class Person < ApplicationRecord
 
     Person.joins(
       Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['person_id'].eq(p['id'])))
-    ).distinct.pluck(:person_id)
+    ).pluck(:person_id).uniq
   end
 
   # @params Role [String] one the available roles
   # @return [Hash] geographic_areas optimized for user selection
   def self.select_optimized(user_id, project_id, role_type = 'SourceAuthor')
-#    role_params = { updated_by_id: user_id }
-
-#    unless %w{SourceAuthor SourceEditor SourceSource}.include?(role_type)
-#      role_params[:project_id] = project_id
-#    end
-
     r = used_recently(user_id, role_type)
     h = {
-        quick: [],
-        pinboard: Person.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a,
-        recent: []
+      quick: [],
+      pinboard: Person.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a,
+      recent: []
     }
 
     if r.empty?
@@ -486,12 +491,6 @@ class Person < ApplicationRecord
         Person.where('"people"."id" IN (?)', r.first(4) ).to_a
       ).uniq
     end
-    #    h[:recent] =
-    #    (Person.joins(:roles).where(roles: role_params).used_recently(role_type).distinct.limit(10).to_a +
-    #     Person.where(created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('created_at DESC').limit(6).to_a).uniq
-
-#    h[:quick] = (Person.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a +
-#        h[:recent][0..3]).uniq
     h
   end
 

@@ -28,7 +28,7 @@ module Queries
 
       def autocomplete_start_date_wild_card(field = :verbatim_locality)
         a = with_start_date
-        b = fragments
+        b = string_fragments
         return nil if a.nil? || b.empty? || field.nil?
         base_query.where( a.and(table[field].matches(b.join)).to_sql).limit(20)
       end
@@ -70,7 +70,7 @@ module Queries
         return nil if query_string.length < 7 || a.empty?
         base_query.where(
           table[:start_date_year].eq_any(a).
-          and( table[:verbatim_locality].matches(fragments.join))
+          and( table[:verbatim_locality].matches(string_fragments.join))
           .to_sql)
           .limit(20)
       end

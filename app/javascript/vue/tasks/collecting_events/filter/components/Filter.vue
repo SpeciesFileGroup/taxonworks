@@ -30,7 +30,8 @@
       />
       <filter-determinations
         class="margin-large-bottom"
-        v-model="params.determination"/>
+        v-model="params.determination"
+      />
       <filter-identifiers
         class="margin-large-bottom"
         v-model="params.identifier"
@@ -50,6 +51,7 @@
       />
       <filter-keywords
         class="margin-large-bottom"
+        target="CollectingEvent"
         v-model="params.keywords"
       />
       <users-component
@@ -159,7 +161,7 @@ export default {
     getCollectingEvents (params) {
       this.searching = true
       this.$emit('newSearch')
-      CollectingEvent.where(params).then(response => {
+      CollectingEvent.where({ ...params, extend: ['roles'] }).then(response => {
         const urlParams = new URLSearchParams(response.request.responseURL.split('?')[1])
 
         this.$emit('result', response.body)
@@ -200,6 +202,7 @@ export default {
           determiner_id_or: [],
           determiner_id: [],
           otu_ids: [],
+          determiner_name_regex: undefined,
           current_determinations: undefined,
           ancestor_id: undefined,
           validity: undefined

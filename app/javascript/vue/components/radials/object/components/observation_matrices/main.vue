@@ -18,7 +18,7 @@
           <default-pin
             section="ObservationMatrices"
             type="ObservationMatrix"
-            @getId="setMatrix"
+            @get-id="setMatrix"
           />
         </div>
         <div class="flex-separate">
@@ -65,6 +65,7 @@ import annotatorExtend from '../annotatorExtend'
 import SpinnerComponent from 'components/spinner'
 import DefaultPin from 'components/getDefaultPin'
 import { ObservationMatrix, ObservationMatrixRow, ObservationMatrixRowItem } from 'routes/endpoints'
+import { OBSERVATION_MATRIX_ROW_SINGLE } from 'constants/index'
 
 export default {
   mixins: [CRUD, annotatorExtend],
@@ -98,17 +99,7 @@ export default {
       filterType: '',
       loading: false,
       otuSelected: undefined,
-      loadOnMounted: false,
-      types: {
-        Otu: {
-          propertyName: 'otu_id',
-          type: 'ObservationMatrixRowItem::Single::Otu'
-        },
-        CollectionObject: {
-          propertyName: 'collection_object_id',
-          type: 'ObservationMatrixRowItem::Single::CollectionObject'
-        }
-      }
+      loadOnMounted: false
     }
   },
 
@@ -121,7 +112,7 @@ export default {
   mounted () {
     this.loading = true
     this.show = true
-    ObservationMatrix.all().then(response => {
+    ObservationMatrix.all({ per: 500 }).then(response => {
       this.matrices = response.body.sort((a, b) => {
         const compareA = a.object_tag
         const compareB = b.object_tag
@@ -135,7 +126,10 @@ export default {
       })
       this.loading = false
     })
-    ObservationMatrixRow.where({ [this.types[this.metadata.object_type].propertyName]: this.metadata.object_id }).then(response => {
+    ObservationMatrixRow.where({
+      observation_object_type: this.metadata.object_type,
+      observation_object_id: this.metadata.object_id
+    }).then(response => {
       this.rows = response.body
     })
   },
@@ -161,11 +155,16 @@ export default {
         if (window.confirm(`Are you sure you want to add this ${this.metadata.object_type} to this matrix?`)) {
           const data = {
             observation_matrix_id: this.selectedMatrix.id,
-            [this.types[this.metadata.object_type].propertyName]: this.metadata.object_id,
-            type: this.types[this.metadata.object_type].type
+            observation_object_type: this.metadata.object_type,
+            observation_object_id: this.metadata.object_id,
+            type: OBSERVATION_MATRIX_ROW_SINGLE
           }
+
           ObservationMatrixRowItem.create({ observation_matrix_row_item: data }).then(response => {
-            ObservationMatrixRow.where({ [this.types[this.metadata.object_type].propertyName]: this.metadata.object_id }).then(response => {
+            ObservationMatrixRow.where({
+              observation_matrix_id: this.selectedMatrix.id,
+              observation_object_type: this.metadata.object_type
+            }).then(response => {
               this.rows = response.body
               resolve(response)
             })

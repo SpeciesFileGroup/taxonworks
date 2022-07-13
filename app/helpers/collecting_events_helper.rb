@@ -11,6 +11,11 @@ module CollectingEventsHelper
     end
   end
 
+  def label_for_collecting_event(collecting_event)
+    return nil if collecting_event.nil?
+    collecting_event.cached
+  end
+
   def collecting_event_autocomplete_tag(collecting_event, join_string = '<br>')
     return nil if collecting_event.nil?
     [ collecting_event_identifiers_tag(collecting_event),
@@ -19,7 +24,7 @@ module CollectingEventsHelper
       collecting_event_dates_tag(collecting_event),
       collecting_event_collectors_tag(collecting_event),
       collecting_event_verbatim_coordinates_tag(collecting_event),
-     # collecting_event_coordinates_tag(collecting_event), # this is very slow
+      # collecting_event_coordinates_tag(collecting_event), # this is very slow
       collecting_event_method_habitat_tag(collecting_event),
       collecting_event_uses_tag(collecting_event)
     ].compact.join(join_string).html_safe
@@ -134,8 +139,8 @@ module CollectingEventsHelper
   def elevation_tag(collecting_event)
     return nil if collecting_event.nil?
     [
-      Utilities::Strings.nil_wrap(nil, [collecting_event.minimum_elevation, collecting_event.maximum_elevation].compact.join('-'), 'm'),
-      Utilities::Strings.nil_wrap(' +/-', collecting_event.elevation_precision, nil)
+      Utilities::Strings.nil_wrap(nil, [collecting_event.minimum_elevation, collecting_event.maximum_elevation].compact.join('-'), 'm')&.html_safe,
+      Utilities::Strings.nil_wrap(' +/-', collecting_event.elevation_precision, nil)&.html_safe
     ].compact.join.html_safe
   end
 
@@ -152,16 +157,16 @@ module CollectingEventsHelper
     return if collecting_event.nil?
     [collecting_event.verbatim_latitude,
      collecting_event.verbatim_longitude,
-     Utilities::Strings.nil_wrap(' (+/-', collecting_event.verbatim_geolocation_uncertainty, ')'),
-     Utilities::Strings.nil_wrap(' [via ', collecting_event.verbatim_datum, ']'),
+     Utilities::Strings.nil_wrap(' (+/-', collecting_event.verbatim_geolocation_uncertainty, ')')&.html_safe,
+     Utilities::Strings.nil_wrap(' [via ', collecting_event.verbatim_datum, ']')&.html_safe,
     ].compact.join(', ')
   end
 
+  # TODO: remove
   # @return [HTML] a pre tag formatting a label
   def collecting_event_label_tag(label_text)
     content_tag(:pre, label_text, class: [:large_type, :word_break] ) # large_type needs to be larger
   end
-
 
   # Navigation
 
@@ -197,7 +202,57 @@ module CollectingEventsHelper
         class:'navigation-item')
   end
 
-  def collecting_event_next_by_start_date(collecting_event)
+  # @return [GeoJSON::Feature]
+  #   the first geographic item of the first georeference on this collecting event
+  def collecting_event_to_geo_json_feature(collecting_event)
+    return nil if collecting_event.nil?
+
+    a,b,c = collecting_event.geo_json_data
+    return nil if a.nil?
+
+    l = label_for_collecting_event(collecting_event)
+
+    return {
+      'type' => 'Feature',
+      'geometry' => a,
+      'properties' => {
+        'target' => {
+          'type' => 'CollectingEvent',
+          'id' => collecting_event.id,
+          'label' => l
+        },
+        'base' => {
+          'type' => 'CollectingEvent',
+          'id' => collecting_event.id,
+          'label' => l
+        },
+        'shape' => {
+          'type' => b,
+          'id' => c }
+      }
+    }
+  end
+
+  # TODO: deprecate
+  # TODO: parametrize to include gazetteer
+  #   i.e. geographic_areas_geographic_items.where( gaz = 'some string')
+  # !! avoid loading the whole GeographicItem, just grab the bits we need.
+  def collecting_event_to_simple_json_feature(collecting_event)
+    base = {
+      'type' => 'Feature',
+      'properties' => {
+        'target' => {
+          'type' => 'CollectingEvent',
+          'id' => collecting_event.id },
+          'label' => label_for_collecting_event(collecting_event) }
+    }
+
+    if collecting_event.geographic_items.any?
+      geo_item_id = collecting_event.geographic_items.select(:id).first.id
+      query = "ST_AsGeoJSON(#{GeographicItem::GEOMETRY_SQL.to_sql}::geometry) geo_json"
+      base['geometry'] = JSON.parse(GeographicItem.select(query).find(geo_item_id).geo_json)
+    end
+    base
   end
 
 

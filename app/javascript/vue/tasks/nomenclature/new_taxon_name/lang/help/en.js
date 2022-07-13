@@ -11,7 +11,7 @@ export default {
     },
     basic: {
       container: 'Use this section to provide the minimily require information, a name, parent, and rank. Rank is guessed based on parent, and can be adjusted if the guess in not correct.',
-      name: 'A monomial.',
+      name: 'A monominal.',
       parent: 'The parent of a taxon name is the location in a classification that you would expect to find this name <em>if nothing else is known</em>. <b>Parenthood never implies synonymy! For example, the parent of a synonymous species is the same as the parent its valid name.</b>'
     },
     author: {
@@ -34,6 +34,9 @@ export default {
     },
     originalCombination: {
       container: 'If the current classification of this name differs from the classification of the name as it was originally published the latter can be defined here.  To initiate the original combination either 1) Click the use original, or 2) click and drag the name into the rank it was originally found it.  After initiating search and provide the rest of the epithet.'
+    },
+    classification: {
+      container: 'Use this section to set the taxon as incertae sedis or to classify the source'
     }
   }
 }

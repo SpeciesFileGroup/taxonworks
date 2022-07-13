@@ -66,10 +66,15 @@ class PeopleController < ApplicationController
   # DELETE /people/1
   # DELETE /people/1.json
   def destroy
-    @person.destroy!
+    @person.destroy
     respond_to do |format|
-      format.html {redirect_to people_url}
-      format.json {head :no_content}
+      if @person.destroyed?
+        format.html { destroy_redirect @person, notice: 'Person was successfully destroyed.' }
+        format.json {head :no_content}
+      else
+        format.html { destroy_redirect @person, notice: 'Person was not destroyed, ' + @person.errors.full_messages.join('; ') }
+        format.json { render json: @person.errors, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -90,13 +95,13 @@ class PeopleController < ApplicationController
   def autocomplete
     @people = Queries::Person::Autocomplete.new(
       params.permit(:term)[:term],
-      autocomplete_params
+      **autocomplete_params
     ).autocomplete
   end
 
   # GET /people/select_options
   def select_options
-    @people = Person.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:role_type])
+    @people = Person.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target])
   end
 
   # POST /people/merge
@@ -106,7 +111,7 @@ class PeopleController < ApplicationController
     if @person.hard_merge(person_to_remove.id)
       render 'show'
     else
-      render json: {status: 'Failed. Check to see that both People are not linked to the same record, e.g. Authors on the same Source.'}
+      render json: { error: 'Failed. Check to see that both People are not linked to the same record, e.g. Authors on the same Source.' }, status: :conflict
     end
   end
 

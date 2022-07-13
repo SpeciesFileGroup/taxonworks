@@ -26,6 +26,10 @@
           :href="getPropertyValue(item, download)"
           download
         />
+        <pdf-button
+          v-if="pdf && pdfExist(item)"
+          :pdf="pdfExist(item)"
+        />
         <radial-annotator
           v-if="annotator"
           :global-id="item.global_id"/>
@@ -52,11 +56,13 @@
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/navigation/radial.vue'
 import SoftValidation from 'components/soft_validations/objectValidation.vue'
+import PdfButton from 'components/pdfButton.vue'
 
 export default {
   components: {
     RadialAnnotator,
-    SoftValidation
+    SoftValidation,
+    PdfButton
   },
 
   props: {
@@ -107,6 +113,10 @@ export default {
     softDelete: {
       type: Boolean,
       default: false
+    },
+    pdf: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -154,6 +164,7 @@ export default {
         this.$emit('deleteIndex', index)
       }
     },
+  
     getPropertyValue (item, stringPath) {
       let keys = stringPath.split('.')
       if(keys.length === 1) {
@@ -166,6 +177,17 @@ export default {
         })
         return value
       }
+    },
+
+    pdfExist(item) {
+      if (item.hasOwnProperty('target_document')) {
+        return item.target_document
+      }
+      if (item.hasOwnProperty('document')) {
+        return item.document
+      }
+
+      return 
     }
   }
 }
@@ -195,15 +217,14 @@ export default {
   }
 
   .table-entrys-list {
-    overflow-y: auto;
     padding: 0px;
     position: relative;
 
     li {
       margin: 0px;
-      padding: 6px;
+      padding: 1em 0;
       border: 0px;
-      border-top: 1px solid #f5f5f5;
+      border-bottom: 1px solid #f5f5f5;
     }
   }
 

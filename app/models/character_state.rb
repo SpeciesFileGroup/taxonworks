@@ -24,7 +24,7 @@ class CharacterState < ApplicationRecord
 
   include SoftValidation
 
-  acts_as_list scope: [:descriptor_id]
+  acts_as_list scope: [:descriptor_id, :project_id]
 
   ALTERNATE_VALUES_FOR = [:name, :label, :description_name, :key_name].freeze
 
@@ -39,8 +39,9 @@ class CharacterState < ApplicationRecord
 
   validate :descriptor_kind
 
-  ## retrunrs string, name of the character_state in a particular language
-  # target: :key, :description, nil
+  # @return [String] name of the character_state in a particular language
+  # @parm :target
+  #   one of :key, :description, nil
   def target_name(target, language_id)
     n = self.name
     a = nil

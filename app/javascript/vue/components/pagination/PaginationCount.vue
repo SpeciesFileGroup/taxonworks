@@ -2,7 +2,8 @@
   <div class="horizontal-left-content">
     <span
       v-if="haveRecords"
-      class="horizontal-left-content">
+      class="horizontal-left-content"
+    >
       {{ recordsAtCurrentPage }} - 
       {{ recordsAtNextPage }} of {{ pagination.total }} records.
     </span>
@@ -12,7 +13,8 @@
         <option
           v-for="records in maxRecords"
           :key="records"
-          :value="records">
+          :value="records"
+        >
           {{ records }}
         </option>
       </select>
@@ -32,16 +34,15 @@ export default {
     modelValue: {
       type: [String, Number],
       required: true
+    },
+
+    maxRecords: {
+      type: Array,
+      default: () => [50, 100, 250, 500, 1000]
     }
   },
 
   emits: ['update:modelValue'],
-
-  data () {
-    return {
-      maxRecords: [50, 100, 250, 500, 1000]
-    }
-  },
 
   computed: {
     recordsAtCurrentPage () {

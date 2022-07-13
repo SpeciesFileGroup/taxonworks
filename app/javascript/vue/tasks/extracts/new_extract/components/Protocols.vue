@@ -21,8 +21,9 @@
       </div>
       <display-list
         :list="protocols"
+        :label="['protocol', 'object_label']"
         @deleteIndex="removeProtocol"
-        label="object_tag"/>
+      />
     </template>
   </block-layout>
 </template>
@@ -61,14 +62,16 @@ export default {
 
   methods: {
     addProtocol ({ id, object_tag }) {
-      this.$store.commit(MutationNames.AddProtocol, { protocol_id: id, object_tag })
+      this.$store.commit(MutationNames.AddProtocol, { protocol_id: id, protocol: { object_label: object_tag } })
     },
 
     removeProtocol (index) {
-      if (this.protocols[index].id) {
-        ProtocolRelationship.destroy(this.protocols[index].id)
+      const protocol = this.protocols[index]
+
+      if (protocol.id) {
+        ProtocolRelationship.destroy(protocol.id)
       }
-      this.$store.commit(MutationNames.RemoveProtocol, this.protocols[index].id)
+      this.$store.commit(MutationNames.RemoveProtocol, protocol)
     }
   }
 }

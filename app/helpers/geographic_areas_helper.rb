@@ -5,6 +5,11 @@ module GeographicAreasHelper
     geographic_area.name
   end
 
+  def label_for_geographic_area(geographic_area)
+    return nil if geographic_area.nil?
+    geographic_area.name
+  end
+
   def geographic_area_autocomplete_tag(geographic_area, term)
     return nil if geographic_area.nil?
 

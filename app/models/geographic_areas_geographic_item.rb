@@ -56,7 +56,6 @@ class GeographicAreasGeographicItem < ApplicationRecord
   end
 
   def self.origin_order_clause(table_alias = nil)
-
     t = arel_table
     t = t.alias(table_alias) if !table_alias.blank?
 
@@ -71,11 +70,12 @@ class GeographicAreasGeographicItem < ApplicationRecord
   def self.default_geographic_item_data
     q =  "WITH summary AS (
              SELECT p.id,
-             p.geographic_area_id,
-             p.geographic_item_id,
-             ROW_NUMBER() OVER(PARTITION BY p.geographic_area_id
-                           ORDER BY #{origin_order_clause('p').to_sql}) AS rk
-                           FROM geographic_areas_geographic_items p)
+                    p.geographic_area_id,
+                    p.geographic_item_id,
+                    ROW_NUMBER() OVER(
+                      PARTITION BY p.geographic_area_id
+                      ORDER BY #{origin_order_clause('p').to_sql}) AS rk
+             FROM geographic_areas_geographic_items p)
           SELECT s.*
             FROM summary s
             WHERE s.rk = 1"

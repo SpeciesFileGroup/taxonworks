@@ -47,7 +47,7 @@ class AlternateValuesController < ApplicationController
       @alternate_value.project_id = sessions_current_project_id if params[:project_members_only] == 'checked'
       if @alternate_value.update(alternate_value_params)
         format.html { redirect_to url_for(@alternate_value.alternate_value_object.metamorphosize), notice: 'Alternate value was successfully updated.' }
-        format.json { render json: @alternate_value, status: :ok, location: @alternate_value.metamorphosize }
+        format.json { render action: :show, status: :ok, location: @alternate_value.metamorphosize }
       else
         format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Alternate value was NOT successfully updated.')}
         format.json { render json: @alternate_value.errors, status: :unprocessable_entity }

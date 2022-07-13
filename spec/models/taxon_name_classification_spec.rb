@@ -191,7 +191,7 @@ describe TaxonNameClassification, type: :model, group: [:nomenclature] do
       expect(c.soft_validations.messages_on(:type).size).to eq(1)
     end
     specify 'unapplicable year' do
-      c = FactoryBot.build_stubbed(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::ElectronicPublicationNotInPdfFormat')
+      c = FactoryBot.build_stubbed(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::ElectronicPublicationNotInPdfFormat')
       c.soft_validate(only_sets: :proper_classification)
       expect(c.soft_validations.messages_on(:type).size).to eq(1)
     end

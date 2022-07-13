@@ -12,7 +12,7 @@ export default () => {
     ImageGallery: {
       title: 'Images',
       status: 'prototype',
-      rankGroup: ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup']
+      rankGroup: ['GenusGroup', 'SpeciesGroup', 'SpeciesAndInfraspeciesGroup']
     },
     CommonNames: {
       title: 'Common names',

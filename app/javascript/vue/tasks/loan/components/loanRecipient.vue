@@ -4,13 +4,24 @@
       <h3>Loan information</h3>
     </template>
     <template #options>
-      <a
-        v-if="loan.id"
-        :href="`/loans/${loan.id}`"
-        target="_blank"
-        class="taxonname separate-right">
-        Show
-      </a>
+      <ul class="no_bullets context-menu">
+        <li>
+          <a
+            v-if="loan.id"
+            :href="`/loans/${loan.id}/recipient_form`">
+            Recipient form
+          </a>
+        </li>
+        <li>
+          <a
+            v-if="loan.id"
+            :href="`/loans/${loan.id}`"
+            target="_blank"
+            class="taxonname separate-right">
+            Show
+          </a>
+        </li>
+      </ul>
       <button
         v-if="loan.id"
         @click="showModal = true"
@@ -89,6 +100,15 @@
               v-model="loan.date_return_expected"
               type="date"
               class="normal-input">
+          </div>
+          <div class="field">
+            <label>
+              <input
+                v-model="loan.is_gift"
+                type="checkbox"
+              >
+              Gift
+            </label>
           </div>
           <div class="field label-above">
             <label>Date closed</label>
@@ -265,7 +285,8 @@ export default {
         date_closed: undefined,
         recipient_honorific: undefined,
         lender_address: undefined,
-        clone_from: undefined
+        clone_from: undefined,
+        is_gift: undefined
       }
     }
   },

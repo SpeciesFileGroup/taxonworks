@@ -1,9 +1,26 @@
 require 'rails_helper'
 
-RSpec.describe Depiction, type: :model, groups: [:images] do
+RSpec.describe Depiction, type: :model, groups: [:images, :observation_matrix] do
   let(:depiction) { Depiction.new() }
   let(:image_file) { Rack::Test::UploadedFile.new( Spec::Support::Utilities::Files.generate_png, 'image/png') }
   let(:specimen) { FactoryBot.create(:valid_specimen) }
+
+  specify 'destroying depiction does not destroy related Observation::Media 2 when not last' do
+    o = FactoryBot.create(:valid_observation, type: 'Observation::Media', descriptor: Descriptor::Media.create!(name: 'test')) 
+    d = FactoryBot.create(:valid_depiction, depiction_object: o)
+
+    FactoryBot.create(:valid_depiction, depiction_object: o)
+
+    d.destroy!
+    expect(Observation.find(o.id)).to be_truthy
+  end
+
+  specify 'destroying depiction destroys related Observation::Media 1' do
+    o = FactoryBot.create(:valid_observation, type: 'Observation::Media', descriptor: Descriptor::Media.create!(name: 'test')) 
+    d = FactoryBot.create(:valid_depiction, depiction_object: o)
+    d.destroy!
+    expect {Observation.find(o.id)}.to raise_error ActiveRecord::RecordNotFound
+  end
 
   specify 'new depiction also creates new (nested) image' do
     depiction.image_attributes = {image_file: image_file}

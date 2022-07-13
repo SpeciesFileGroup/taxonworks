@@ -1,13 +1,12 @@
 module Queries
   module CollectingEvent
-
     class Filter
-
       include Queries::Helpers
 
       include Queries::Concerns::Tags
       include Queries::Concerns::DateRanges
       include Queries::Concerns::Identifiers
+      include Queries::Concerns::Users
 
       # TODO: likely move to model (replicated in Source too)
       # Params exists for all CollectingEvent attributes except these
@@ -16,7 +15,8 @@ module Queries
         class_eval { attr_accessor a.to_sym }
       end
 
-      PARAMS = %w{collector_id
+      PARAMS = %w{
+        collector_id
         collector_ids_or
         spatial_geographic_areas
         wkt
@@ -29,6 +29,7 @@ module Queries
         in_verbatim_locality
         in_labels
         geo_json
+        collecting_event_wildcards
       }
 
       # Wildcard wrapped matching any label
@@ -92,28 +93,36 @@ module Queries
       #  whether the CollectingEvent has associated CollectionObjects
       attr_accessor :collection_objects
 
+      # @return [True, False, nil]
+      #   true - index is built
+      #   false - index is not built
+      #   nil - not applied
+      attr_accessor :depictions
+
       def initialize(params)
         # @spatial_geographic_area_ids = params[:spatial_geographic_areas].blank? ? [] : params[:spatial_geographic_area_ids]
 
         @collecting_event_wildcards = params[:collecting_event_wildcards] || []
-        @collector_id = params[:collector_id].blank? ? [] : params[:collector_id]
+        @collector_id = params[:collector_id]
         @collector_ids_or = boolean_param(params, :collector_ids_or )
         @collection_objects = boolean_param(params, :collection_objects )
+        @depictions = boolean_param(params, :depictions)
         @geo_json = params[:geo_json]
         @geographic_area_id = params[:geographic_area_id]
         @in_labels = params[:in_labels]
         @in_verbatim_locality = params[:in_verbatim_locality]
-        @md5_verbatim_label = (params[:md5_verbatim_label]&.downcase == 'true' ? true : false) if !params[:md5_verbatim_label].nil?
+        @md5_verbatim_label = params[:md5_verbatim_label]&.to_s&.downcase == 'true'
         @otu_id = params[:otu_id].blank? ? [] : params[:otu_id]
         @radius = params[:radius].blank? ? 100 : params[:radius]
         @recent = params[:recent].blank? ? nil : params[:recent].to_i
-        @spatial_geographic_areas = (params[:spatial_geographic_areas]&.downcase == 'true' ? true : false) if !params[:spatial_geographic_areas].nil?
+        @spatial_geographic_areas = params[:spatial_geographic_areas]&.to_s&.downcase == 'true'
         @wkt = params[:wkt]
 
         set_identifier(params)
         set_tags_params(params)
         set_attributes(params)
         set_dates(params)
+        set_user_dates(params)
       end
 
       def set_attributes(params)
@@ -149,7 +158,7 @@ module Queries
           if v = send(a)
             if !v.blank?
               if collecting_event_wildcards.include?(a)
-                c.push table[a.to_sym].matches('%' + v.to_s + '%')
+                c.push Arel::Nodes::NamedFunction.new("CAST", [table[a.to_sym].as("TEXT")]).matches('%' + v.to_s + '%')
               else
                 c.push table[a.to_sym].eq(v)
               end
@@ -157,6 +166,18 @@ module Queries
           end
         end
         c
+      end
+
+      def depictions_facet
+        return nil if depictions.nil?
+
+        if depictions
+          ::CollectingEvent.joins(:depictions).distinct
+        else
+          ::CollectingEvent.left_outer_joins(:depictions)
+            .where(depictions: {id: nil})
+            .distinct
+        end
       end
 
       # @return Scope
@@ -182,7 +203,7 @@ module Queries
             a[:id].eq(c[:role_object_id])
           .and(c[:role_object_type].eq('CollectingEvent'))
           .and(c[:type].eq('Collector'))
-        )
+          )
 
         e = c[:id].not_eq(nil)
         f = c[:person_id].eq_any(collector_id)
@@ -196,12 +217,12 @@ module Queries
       end
 
 
-     ## TODO: what is it @param value [String] ?!
-     ## In
-     #def shape=(value)
-     #  @shape = ::RGeo::GeoJSON.decode(value, json_parser: :json)
-     #  @shape
-     #end
+      ## TODO: what is it @param value [String] ?!
+      ## In
+      #def shape=(value)
+      #  @shape = ::RGeo::GeoJSON.decode(value, json_parser: :json)
+      #  @shape
+      #end
 
       def wkt_facet
         return nil if wkt.blank?
@@ -213,8 +234,11 @@ module Queries
       # Shape is a Hash in GeoJSON format
       def geo_json_facet
         return nil if geo_json.nil?
-        a = RGeo::GeoJSON.decode(geo_json)
-        spatial_query(a.geometry_type.to_s, a.to_s)
+        if a = RGeo::GeoJSON.decode(geo_json)
+          return spatial_query(a.geometry_type.to_s, a.to_s)
+        else
+          return nil
+        end
       end
 
       def spatial_query(geometry_type, wkt)
@@ -232,10 +256,10 @@ module Queries
         end
       end
 
-       # TODO: throttle by size?
-       def matching_spatial_via_geographic_area_ids
-          return nil unless spatial_geographic_areas && !geographic_area_id.empty?
-          a = ::GeographicItem.default_by_geographic_area_ids(geographic_area_id).ids
+      # TODO: throttle by size?
+      def matching_spatial_via_geographic_area_ids
+        return nil unless spatial_geographic_areas && !geographic_area_id.empty?
+        a = ::GeographicItem.default_by_geographic_area_ids(geographic_area_id).ids
         ::CollectingEvent.joins(:geographic_items).where( ::GeographicItem.contained_by_where_sql( a ) )
       end
 
@@ -297,6 +321,8 @@ module Queries
           identifier_between_facet,
           identifier_facet, # See Queries::Concerns::Identifiers
           identifier_namespace_facet,
+          depictions_facet,
+          created_updated_facet
         ].compact!
         clauses
       end
@@ -344,6 +370,5 @@ module Queries
         q
       end
     end
-
   end
 end

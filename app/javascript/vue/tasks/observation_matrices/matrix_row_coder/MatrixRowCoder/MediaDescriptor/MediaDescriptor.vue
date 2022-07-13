@@ -2,14 +2,16 @@
   <div class="qualitative-descriptor">
     <summary-view
       :index="index"
-      :descriptor="descriptor">
+      :descriptor="descriptor"
+    >
       <smart-selector
         model="images"
         :autocomplete="false"
         :search="false"
-        :target="matrixRow.row_object.base_class"
-        :addTabs="['new', 'filter']"
-        @selected="createObservation">
+        :target="matrixRow.observation_object.base_class"
+        :add-tabs="['new', 'filter']"
+        @selected="createObservation"
+      >
         <template #new>
           <dropzone-component
             class="dropzone-card"
@@ -19,22 +21,24 @@
             :use-custom-dropzone-options="true"
             @vdropzone-sending="sending"
             @vdropzone-success="success"
-            :dropzone-options="dropzoneObservation"/>
+            :dropzone-options="dropzoneObservation"
+          />
         </template>
         <template #filter>
           <div class="horizontal-left-content align-start">
-            <filter-image
-              @result="loadList"/>
+            <filter-image @result="loadList" />
             <div class="margin-small-left flex-wrap-row">
               <div
                 v-for="image in filterList"
                 :key="image.id"
                 class="thumbnail-container margin-small cursor-pointer"
-                @click="createObservation(image)">
+                @click="createObservation(image)"
+              >
                 <img
                   :width="image.alternatives.thumb.width"
                   :height="image.alternatives.thumb.height"
-                  :src="image.alternatives.thumb.image_file_url">
+                  :src="image.alternatives.thumb.image_file_url"
+                >
               </div>
             </div>
           </div>
@@ -47,20 +51,27 @@
         <li
           v-for="observation in observations"
           :key="observation.id"
-          class="horizontal-left-content">
+          class="horizontal-left-content"
+        >
           <image-viewer
             v-for="depiction in observation.depictions"
             :key="depiction.id"
-            :depiction="depiction">
+            :depiction="depiction"
+          >
             <template #thumbfooter>
               <div class="horizontal-left-content">
+                <time-fields
+                  :observation="observation"
+                  :descriptor="descriptor"
+                />
                 <radial-annotator
                   type="annotations"
-                  :global-id="depiction.image.global_id"/>
+                  :global-id="depiction.image.global_id"
+                />
                 <button
                   class="button circle-button btn-delete"
                   type="button"
-                  @click="destroyObservation(observation.id)"
+                  @click="removeObservation(observation)"
                 />
               </div>
             </template>
@@ -76,39 +87,44 @@
 <script>
 import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
-
+import { MutationNames } from '../../store/mutations/mutations'
+import ObservationTypes from '../../store/helpers/ObservationTypes'
+import makeObservation from '../../store/helpers/makeObservation'
 import summaryView from '../SummaryView/SummaryView.vue'
 import FilterImage from 'tasks/images/filter/components/filter'
 import SmartSelector from 'components/ui/SmartSelector'
 import DropzoneComponent from 'components/dropzone'
 import ImageViewer from 'components/ui/ImageViewer/ImageViewer.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator'
+import TimeFields from '../Time/TimeFields.vue'
 
 export default {
   name: 'MediaDescriptor',
 
-  props: ['descriptor', 'index'],
-
-  created () {
-    const descriptorId = this.$props.descriptor.id
-    const otuId = this.matrixRow.row_object.global_id
-
-    this.$store.dispatch(ActionNames.RequestObservations, { descriptorId, otuId })
-      .then(_ => this.$store.getters[GetterNames.GetObservationsFor](descriptorId))
-      .then(observations => {
-        this.observations = observations
-      })
+  components: {
+    ImageViewer,
+    summaryView,
+    FilterImage,
+    SmartSelector,
+    DropzoneComponent,
+    RadialAnnotator,
+    TimeFields
   },
 
-  computed: {
-    matrixRow () {
-      return this.$store.getters[GetterNames.GetMatrixRow]
+  props: {
+    descriptor: {
+      type: Object,
+      required: true
+    },
+
+    index: {
+      type: Number,
+      required: true
     }
   },
 
   data () {
     return {
-      observations: [],
       filterList: [],
       dropzoneObservation: {
         paramName: 'observation[images_attributes][][image_file]',
@@ -123,26 +139,40 @@ export default {
     }
   },
 
+  computed: {
+    matrixRow () {
+      return this.$store.getters[GetterNames.GetMatrixRow]
+    },
+
+    observations () {
+      return this.$store.getters[GetterNames.GetObservations].filter(o => o.descriptorId === this.descriptor.id)
+    }
+  },
+
+  created () {
+    const descriptorId = this.descriptor.id
+    const otuId = this.matrixRow.observation_object.global_id
+
+    this.$store.dispatch(ActionNames.RequestObservations, { descriptorId, otuId })
+      .then(_ => this.$store.getters[GetterNames.GetObservationsFor](descriptorId))
+  },
+
   methods: {
     loadList (newList) {
       this.filterList = newList
     },
 
     success (file, response) {
-      this.observations.push(response)
+      this.addObservation(response)
       this.$refs.depictionObs.removeFile(file)
     },
 
     sending (file, xhr, formData) {
       formData.append('observation[descriptor_id]', this.descriptor.id)
       formData.append('observation[type]', 'Observation::Media')
-      formData.append(`observation[${this.matrixRow.row_object.base_class === 'Otu' ? 'otu_id' : 'collection_object_id'}]`, this.matrixRow.row_object.id)
-    },
-
-    destroyObservation (observationId) {
-      this.$store.state.request.removeObservation(observationId).then(() => {
-        this.observations.splice(this.observations.findIndex(o => o.id === observationId), 1)
-      })
+      formData.append('observation[observation_object_type]', this.matrixRow.observation_object.base_class)
+      formData.append('observation[observation_object_id]', this.matrixRow.observation_object.id)
+      formData.append('extend[]', 'depictions')
     },
 
     createObservation (image) {
@@ -152,21 +182,33 @@ export default {
           depictions_attributes: [{
             image_id: image.id
           }],
-          type: 'Observation::Media',
-          [(this.matrixRow.row_object.base_class === 'Otu' ? 'otu_id' : 'collection_object_id')]: this.matrixRow.row_object.id
-        }
+          type: ObservationTypes.Media,
+          observation_object_id: this.matrixRow.observation_object.id,
+          observation_object_type: this.matrixRow.observation_object.base_class
+        },
+        extend: ['depictions']
       }).then(response => {
-        this.observations.push(response)
+        this.addObservation(response)
+      })
+    },
+
+    addObservation (observation) {
+      const args = {
+        id: observation.id,
+        type: ObservationTypes.Media,
+        descriptorId: this.descriptor.id,
+        depictions: observation.depictions
+      }
+
+      this.$store.commit(MutationNames.AddObservation, makeObservation(args))
+    },
+
+    removeObservation (observation) {
+      this.$store.dispatch(ActionNames.RemoveObservation, {
+        descriptorId: this.descriptor.id,
+        obsId: observation.id
       })
     }
-  },
-  components: {
-    ImageViewer,
-    summaryView,
-    FilterImage,
-    SmartSelector,
-    DropzoneComponent,
-    RadialAnnotator
   }
 }
 </script>

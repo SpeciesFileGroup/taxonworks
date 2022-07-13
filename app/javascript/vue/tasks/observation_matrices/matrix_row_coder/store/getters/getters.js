@@ -1,3 +1,4 @@
+import areDescriptorsUnsaved from './areDescriptorsUnsaved'
 import getDescription from './getDescription'
 import getFreeTextValueFor from './getFreeTextValueFor'
 import getObservationsFor from './getObservationsFor'
@@ -18,8 +19,10 @@ import isDescriptorSaving from './isDescriptorSaving'
 import doesDescriptorNeedCountdown from './doesDescriptorNeedCountdown'
 import getMatrixRow from './getMatrixRow'
 import getUnits from './getUnits'
+import getObservations from './getObservations'
 
 export const GetterNames = {
+  AreDescriptorsUnsaved: 'areDescriptorsUnsaved',
   GetDescription: 'getDescription',
   GetFreeTextValueFor: 'getFreeTextValueFor',
   GetObservationsFor: 'getObservationsFor',
@@ -39,10 +42,12 @@ export const GetterNames = {
   IsDescriptorUnsaved: 'isDescriptorUnsaved',
   IsDescriptorSaving: 'isDescriptorSaving',
   DoesDescriptorNeedCountdown: 'doesDescriptorNeedCountdown',
-  GetUnits: 'getUnits'
+  GetUnits: 'getUnits',
+  GetObservations: 'getObservations'
 }
 
 export const GetterFunctions = {
+  [GetterNames.AreDescriptorsUnsaved]: areDescriptorsUnsaved,
   [GetterNames.GetDescription]: getDescription,
   [GetterNames.GetFreeTextValueFor]: getFreeTextValueFor,
   [GetterNames.GetObservationsFor]: getObservationsFor,
@@ -62,5 +67,6 @@ export const GetterFunctions = {
   [GetterNames.IsDescriptorUnsaved]: isDescriptorUnsaved,
   [GetterNames.IsDescriptorSaving]: isDescriptorSaving,
   [GetterNames.DoesDescriptorNeedCountdown]: doesDescriptorNeedCountdown,
-  [GetterNames.GetUnits]: getUnits
+  [GetterNames.GetUnits]: getUnits,
+  [GetterNames.GetObservations]: getObservations
 }

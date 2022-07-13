@@ -9,4 +9,14 @@ class Georeference::GoogleMap < Georeference
     # self.geographic_item = GeographicItem.new(point: Gis::FACTORY.point(coordinates[0], coordinates[1]))
   end
 
+  def dwc_georeference_attributes
+    h = {}
+    super(h)
+    h.merge!(
+      georeferenceSources: 'Google Maps',
+      georeferenceRemarks: 'Created from a TaxonWorks interface that integrates Google Maps.')
+    h[:georeferenceProtocol] = 'Shape "drawn" on a Google Map.' if h[:georeferenceProtocol].blank? 
+    h
+  end
+
 end

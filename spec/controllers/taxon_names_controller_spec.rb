@@ -161,21 +161,6 @@ describe TaxonNamesController, type: :controller do
       end
     end
 
-    describe 'DELETE destroy' do
-      it 'destroys the requested taxon_name' do
-        taxon_name = TaxonName.create! valid_attributes
-        expect {
-          delete :destroy, params: {id: taxon_name.to_param}, session: valid_session
-        }.to change(TaxonName, :count).by(-1)
-      end
-
-      it 'redirects to the taxon_name list' do
-        request.env['HTTP_REFERER'] = taxon_names_url
-        taxon_name = TaxonName.create! valid_attributes
-        delete :destroy, params: {id: taxon_name.to_param}, session: valid_session
-        expect(response).to redirect_to(taxon_names_url)
-      end
-    end
-
+    include_examples 'DELETE #destroy', TaxonName
   end
 end

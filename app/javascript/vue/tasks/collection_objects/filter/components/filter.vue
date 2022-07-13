@@ -37,6 +37,10 @@
       <otu-component
         class="margin-large-bottom"
         v-model="params.determination"/>
+      <FacetCurrentRepository
+        class="margin-large-bottom"
+        v-model="params.repository.current_repository_id"
+      />
       <repository-component
         class="margin-large-bottom"
         v-model="params.repository.repository_id"/>
@@ -62,7 +66,8 @@
         v-model="params.collectors"/>
       <keywords-component
         class="margin-large-bottom"
-        v-model="params.keywords" />
+        v-model="params.keywords"
+        target="CollectionObject" />
       <types-component
         class="margin-large-bottom"
         v-model="params.types"/>
@@ -76,6 +81,10 @@
         class="margin-large-bottom"
         @onUserslist="usersList = $event"
         v-model="params.user"/>
+      <facet-notes
+        class="margin-large-bottom"
+        v-model="params.notes"
+      />
       <buffered-component v-model="params.buffered"/>
       <with-component
         class="margin-large-bottom"
@@ -105,6 +114,9 @@ import WithComponent from 'tasks/sources/filter/components/filters/with'
 import BufferedComponent from './filters/buffered.vue'
 import PreparationTypes from './filters/preparationTypes'
 import CollectorsComponent from './filters/shared/people'
+import FacetNotes from './filters/FacetNotes.vue'
+import FacetCurrentRepository from './filters/FacetCurrentRepository.vue'
+import { chunkArray } from 'helpers/arrays.js'
 
 import SpinnerComponent from 'components/spinner'
 import platformKey from 'helpers/getPlatformKey.js'
@@ -128,7 +140,9 @@ export default {
     RepositoryComponent,
     WithComponent,
     PreparationTypes,
-    CollectorsComponent
+    CollectorsComponent,
+    FacetNotes,
+    FacetCurrentRepository
   },
 
   emits: [
@@ -150,7 +164,7 @@ export default {
     },
 
     parseParams () {
-      return Object.assign({}, { preparation_type_id: this.params.preparation_type_id }, this.params.collectors, this.params.settings, this.params.buffered.text, this.params.buffered.exact, this.params.byRecordsWith, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.repository, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
+      return Object.assign({}, { preparation_type_id: this.params.preparation_type_id }, this.params.notes, this.params.collectors, this.params.settings, this.params.buffered.text, this.params.buffered.exact, this.params.byRecordsWith, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.repository, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
     },
 
     isParamsEmpty () {
@@ -166,11 +180,13 @@ export default {
         this.params.determination.determiner_id.length ||
         this.params.determination.ancestor_id ||
         this.params.repository.repository_id ||
+        this.params.repository.current_repository_id ||
         this.params.collectingEvents.collecting_event_ids.length ||
         this.params.preparation_type_id.length ||
         Object.keys(this.params.collectingEvents.fields).length ||
         Object.values(this.params.collectingEvents).find(item => item && item.length) ||
         Object.values(this.params.user).find(item => item) ||
+        Object.values(this.params.notes).find(item => item) ||
         Object.values(this.params.loans).find(item => item) ||
         Object.values(this.params.identifier).find(item => item) ||
         Object.values(this.params.byRecordsWith).some(item => item !== undefined) ||
@@ -219,7 +235,7 @@ export default {
         this.DWCACount = 0
         if (response.body.data.length) {
           this.result = response.body.data
-          this.DWCASearch = response.body.data.filter(item => { return !this.isIndexed(item)})
+          this.DWCASearch = response.body.data.filter(item => !this.isIndexed(item))
           if (this.DWCASearch.length) {
             this.getDWCATable(this.DWCASearch)
           } else {
@@ -258,8 +274,11 @@ export default {
           identifiers: undefined,
           taxon_determinations: undefined,
           type_material: undefined,
+          current_repository: undefined,
           repository: undefined,
+          preparation_type: undefined,
           dwc_indexed: undefined,
+          notes: undefined,
           with_buffered_collecting_event: undefined,
           with_buffered_determinations: undefined,
           with_buffered_other_labels: undefined
@@ -276,13 +295,18 @@ export default {
             exact_buffered_other_labels: undefined
           }
         },
+        notes: {
+          note_text: undefined,
+          note_exact: undefined
+        },
         relationships: {
           biological_relationship_ids: []
         },
         loans: {
           on_loan: undefined,
           loaned: undefined,
-          never_loaned: undefined
+          never_loaned: undefined,
+          loan_id: []
         },
         preparation_type_id: [],
         types: {
@@ -308,6 +332,7 @@ export default {
           determiner_id_or: [],
           determiner_id: [],
           otu_ids: [],
+          determiner_name_regex: undefined,
           current_determinations: undefined,
           ancestor_id: undefined,
           validity: undefined
@@ -333,6 +358,7 @@ export default {
           geographic_area_id: []
         },
         repository: {
+          current_repository_id: undefined,
           repository_id: undefined
         }
       }
@@ -349,7 +375,7 @@ export default {
       return date.toISOString().slice(0, 10)
     },
 
-    filterEmptyParams(object) {
+    filterEmptyParams (object) {
       const keys = Object.keys(object)
       keys.forEach(key => {
         if (object[key] === '') {
@@ -366,15 +392,9 @@ export default {
     },
 
     getDWCATable (list) {
-      const IDS = list.map(item => item[0])
-      const chunk = IDS.length / this.perRequest
-      const chunkArray = []
-      let i, j
+      const IDs = chunkArray(list.map(item => item[0]), this.perRequest)
 
-      for (i = 0,j = IDS.length; i < j; i += chunk) {
-        chunkArray.push(IDS.slice(i, i + chunk))
-      }
-      this.getDWCA(chunkArray)
+      this.getDWCA(IDs)
     },
 
     isIndexed (object) {
@@ -383,21 +403,24 @@ export default {
 
     getDWCA (ids) {
       if (ids.length) {
-        this.loadingDWCA = true
-        const promises = []
-        ids[0].forEach(id => {
-          promises.push(CollectionObject.dwc(id).then(response => {
-            const index = this.coList.data.findIndex(item => item[0] === id)
+        const failedRequestIds = []
+        const idArray = ids.shift(0)
+        const promises = idArray.map(id => CollectionObject.dwc(id).then(response => {
+          const index = this.coList.data.findIndex(item => item[0] === id)
 
-            this.DWCACount++
-            this.coList.data[index] = response.body
-          }, (response) => {
-            this.loadingDWCA = false
-            TW.workbench.alert.create(`Error: ${response}`, 'warning')
-          }))
-        })
-        Promise.all(promises).then(() => {
-          ids.splice(0, 1)
+          this.DWCACount++
+          this.coList.data[index] = response.body
+        }, _ => {
+          failedRequestIds.push(id)
+        }))
+
+        this.loadingDWCA = true
+
+        Promise.allSettled(promises).then(_ => {
+          if (failedRequestIds.length) {
+            ids.push(failedRequestIds)
+          }
+
           this.$emit('result', { column_headers: this.coList.column_headers, data: this.result })
           this.getDWCA(ids)
         })

@@ -19,6 +19,7 @@ class ImportDatasetsController < ApplicationController
   def import
     params.permit(:record_id, :retry_errored, filter: {})
 
+    @filters = params[:filter]
     @results = @import_dataset.import(5000, 100,
       retry_errored: params[:retry_errored],
       filters: params[:filter],
@@ -28,6 +29,9 @@ class ImportDatasetsController < ApplicationController
 
   # POST /import_datasets/1/stop_import.json
   def stop_import
+    params.permit(:record_id, :retry_errored, filter: {})
+
+    @filters = params[:filter]
     @import_dataset.stop_import
   end
 
@@ -43,7 +47,7 @@ class ImportDatasetsController < ApplicationController
   # POST /import_datasets
   # POST /import_datasets.json
   def create
-    # TODO: Must not default to DwC-A Checklist.
+    # TODO: Must not default to DwC-A dataset.
     @import_dataset = ImportDataset::DarwinCore.create_with_subtype_detection(import_dataset_params)
 
     respond_to do |format|
@@ -99,7 +103,8 @@ class ImportDatasetsController < ApplicationController
         :source,
         :description,
         import_settings: [
-          :nomenclatural_code
+          :nomenclatural_code,
+          :row_type
         ])
     end
 end

@@ -26,7 +26,7 @@
       </thead>
       <tbody>
       <% @observation_matrices.each do |om| %>
-        <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%> 
+        <%= content_tag(:tr, class: :contextMenuCells) do -%> 
           <td> <%= om.name -%> </td>
           <td> <%= om.observation_matrix_rows.count -%> </td> 
           <td> <%= om.observation_matrix_columns.count -%> </td> 
@@ -37,6 +37,7 @@
             <%= link_to('Interactive key', interactive_key_task_path(observation_matrix_id: om.id)) unless om.is_media_matrix? -%>
           </td>
           <td> <%= pin_item_to_pinboard_link(om, sessions_current_user) -%></td>
+          <%= fancy_options_cells_tag(om) -%>
         <% end %>
       <% end %>
       </tbody>

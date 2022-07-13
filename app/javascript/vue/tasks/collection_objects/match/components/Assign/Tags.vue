@@ -2,7 +2,8 @@
   <div class="panel content">
     <spinner-component
       v-if="isSaving"
-      legend="Saving..."/>
+      legend="Saving..."
+    />
     <h2>Tags</h2>
     <smart-selector
       autocomplete-url="/controlled_vocabulary_terms/autocomplete"
@@ -10,7 +11,28 @@
       get-url="/controlled_vocabulary_terms/"
       model="keywords"
       klass="Tag"
-      @selected="addTag"/>
+      target="CollectionObject"
+      @selected="addTag"
+    />
+
+    <display-list
+      :list="tags"
+      :delete-warning="false"
+      label="object_tag"
+      soft-delete
+      @delete-index="tags.splice(index, 1)"
+    />
+
+    <div class="margin-medium-top">
+      <button
+        type="button"
+        class="button normal-input button-submit"
+        :disabled="!tags.length"
+        @click="setTags()"
+      >
+        Set tags
+      </button>
+    </div>
   </div>
 </template>
 
@@ -18,10 +40,12 @@
 
 import SmartSelector from 'components/ui/SmartSelector'
 import SpinnerComponent from 'components/spinner'
+import DisplayList from 'components/displayList.vue'
 import { Tag } from 'routes/endpoints'
 
 export default {
   components: {
+    DisplayList,
     SmartSelector,
     SpinnerComponent
   },
@@ -37,30 +61,30 @@ export default {
     return {
       view: undefined,
       maxPerCall: 5,
-      isSaving: false
+      isSaving: false,
+      tags: []
     }
   },
 
   methods: {
-    addTag (selectedTag, arrayIds = this.ids) {
-      const ids = arrayIds.slice(0, 5)
-      const nextIds = arrayIds.slice(5)
-      const promises = ids.map(id => Tag.create({
-        tag: {
-          keyword_id: selectedTag.id,
-          tag_object_id: id,
-          tag_object_type: 'CollectionObject'
-        }
-      }))
+    addTag (tag) {
+      this.tags.push(tag)
+    },
+
+    setTags () {
+      const promises = this.tags.map(tag =>
+        Tag.createBatch({
+          keyword_id: tag.id,
+          object_ids: this.ids,
+          object_type: 'CollectionObject'
+        })
+      )
+
+      this.isSaving = true
 
       Promise.allSettled(promises).then(() => {
-        if (nextIds.length) {
-          console.log(nextIds)
-          this.addTag(selectedTag, nextIds)
-        } else {
-          this.isSaving = false
-          TW.workbench.alert.create('Tag items was successfully created.', 'notice')
-        }
+        this.isSaving = false
+        TW.workbench.alert.create('Tag items was successfully created.', 'notice')
       })
     }
   }

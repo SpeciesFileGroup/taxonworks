@@ -66,16 +66,6 @@ class GeographicItem < ApplicationRecord
     .when('GeographicItem::GeometryCollection').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:geometry_collection].as('geometry')]))
     .freeze
 
-    # "CASE geographic_items.type
-    #        WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry
-    #        WHEN 'GeographicItem::Point' THEN point::geometry
-    #        WHEN 'GeographicItem::LineString' THEN line_string::geometry
-    #        WHEN 'GeographicItem::Polygon' THEN polygon::geometry
-    #        WHEN 'GeographicItem::MultiLineString' THEN multi_line_string::geometry
-    #        WHEN 'GeographicItem::MultiPoint' THEN multi_point::geometry
-    #        WHEN 'GeographicItem::GeometryCollection' THEN geometry_collection::geometry
-    #     END".freeze
-
   GEOGRAPHY_SQL = "CASE geographic_items.type
     WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon
     WHEN 'GeographicItem::Point' THEN point
@@ -969,9 +959,9 @@ class GeographicItem < ApplicationRecord
 
   # @return [Array]
   #   the lat, long, as STRINGs for the centroid of this geographic item
-  #  TODO:  Probably way to many decimals
   def center_coords
-    r = GeographicItem.find_by_sql("Select split_part(ST_AsLatLonText(ST_Centroid(#{GeographicItem::GEOMETRY_SQL.to_sql}), " \
+    r = GeographicItem.find_by_sql(
+      "Select split_part(ST_AsLatLonText(ST_Centroid(#{GeographicItem::GEOMETRY_SQL.to_sql}), " \
                     "'D.DDDDDD'), ' ', 1) latitude, split_part(ST_AsLatLonText(ST_Centroid" \
                     "(#{GeographicItem::GEOMETRY_SQL.to_sql}), 'D.DDDDDD'), ' ', 2) " \
                     "longitude from geographic_items where id = #{id};")[0]
@@ -1006,19 +996,19 @@ class GeographicItem < ApplicationRecord
   def st_distance_spheroid(geographic_item_id)
     q1 = "ST_DistanceSpheroid((#{GeographicItem.select_geometry_sql(id)})," \
       "(#{GeographicItem.select_geometry_sql(geographic_item_id)}),'#{Gis::SPHEROID}') as distance"
-    _q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_DistanceSpheroid((?),(?),?) as distance',
+    _q2 = ActiveRecord::Base.send(:sanitize_sql_array,
+                                  ['ST_DistanceSpheroid((?),(?),?) as distance',
                                                         GeographicItem.select_geometry_sql(id),
                                                         GeographicItem.select_geometry_sql(geographic_item_id),
                                                         Gis::SPHEROID])
+    # TODO: what is _q2?
     GeographicItem.where(id: id).pluck(Arel.sql(q1)).first
   end
 
   # @return [String]
   #   a WKT POINT representing the centroid of the geographic item
   def st_centroid
-    GeographicItem.where(id: to_param)
-        .pluck(Arel.sql("ST_AsEWKT(ST_Centroid(#{GeographicItem::GEOMETRY_SQL.to_sql}))"))
-        .first.gsub(/SRID=\d*;/, '')
+    GeographicItem.where(id: to_param).pluck(Arel.sql("ST_AsEWKT(ST_Centroid(#{GeographicItem::GEOMETRY_SQL.to_sql}))")).first.gsub(/SRID=\d*;/, '')
   end
 
   # @return [Integer]
@@ -1043,10 +1033,14 @@ class GeographicItem < ApplicationRecord
   # @return [RGeo instance, nil]
   #  the Rgeo shape (See http://rubydoc.info/github/dazuma/rgeo/RGeo/Feature)
   def geo_object
-    if r = geo_object_type # rubocop:disable Lint/AssignmentInCondition
-      send(r)
-    else
-      false
+    begin
+      if r = geo_object_type # rubocop:disable Lint/AssignmentInCondition
+        send(r)
+      else
+        false
+      end
+    rescue RGeo::Error::InvalidGeometry
+      return nil # TODO: we need to render proper error for this!
     end
   end
 
@@ -1096,12 +1090,21 @@ class GeographicItem < ApplicationRecord
 
   # @return [Hash]
   #   in GeoJSON format
-  #   Computed via "raw" PostGIS (much faster).
+  #   Computed via "raw" PostGIS (much faster). This 
+  #   requires the geo_object_type and id.
+  #
   def to_geo_json
     JSON.parse(
-      GeographicItem.connection.select_all(
+      GeographicItem.connection.select_one(
         "SELECT ST_AsGeoJSON(#{geo_object_type}::geometry) a " \
-        "FROM geographic_items WHERE id=#{id};").first['a'])
+        "FROM geographic_items WHERE id=#{id};")['a'])
+  end
+
+  # We don't need to serialize to/from JSON
+  def to_geo_json_string
+    GeographicItem.connection.select_one(
+      "SELECT ST_AsGeoJSON(#{geo_object_type}::geometry) a " \
+      "FROM geographic_items WHERE id=#{id};")['a']
   end
 
   # @return [Hash]
@@ -1138,6 +1141,19 @@ class GeographicItem < ApplicationRecord
     end
   end
 
+  # @return [String]
+  def to_wkt
+    #  10k  #<Benchmark::Tms:0x00007fb0dfd30fd0 @label="", @real=25.237487000005785, @cstime=0.0, @cutime=0.0, @stime=1.1704609999999995, @utime=5.507929999999988, @total=6.678390999999987>
+    #  GeographicItem.select("ST_AsText( #{GeographicItem::GEOMETRY_SQL.to_sql}) wkt").where(id: id).first.wkt
+
+    # 10k <Benchmark::Tms:0x00007fb0e02f7540 @label="", @real=21.619827999995323, @cstime=0.0, @cutime=0.0, @stime=0.8850890000000007, @utime=3.2958549999999605, @total=4.180943999999961>
+    if a =  ApplicationRecord.connection.execute( "SELECT ST_AsText( #{GeographicItem::GEOMETRY_SQL.to_sql} ) wkt from geographic_items where geographic_items.id = #{id}").first
+      return a['wkt']
+    else
+      return nil
+    end
+  end
+
   protected
 
   # @return [Symbol]
@@ -1160,6 +1176,7 @@ class GeographicItem < ApplicationRecord
 
   # @param [RGeo::Point] point
   # @return [Array] of a point
+  #   Longitude |, Latitude -
   def point_to_a(point)
     data = []
     data.push(point.x, point.y)

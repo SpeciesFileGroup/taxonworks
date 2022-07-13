@@ -2,10 +2,14 @@
 
 <ul class="context-menu">
   <li> View </li>
-  <%= content_tag(:li, link_to('Observation matrix hub', observation_matrices_hub_task_path)) -%>
-  <%= content_tag(:li, link_to('Edit', new_matrix_task_path(@observation_matrix))) -%>
-  <%= content_tag(:li, link_to('TNT', tnt_observation_matrix_path(@observation_matrix))) -%>
-  <%= content_tag(:li, link_to('nexus', nexus_observation_matrix_path(@observation_matrix))) -%>
+  <%= tag.li link_to('Observation matrix hub', observation_matrices_hub_task_path) %>
+  <%= tag.li link_to('Edit', new_matrix_task_path(@observation_matrix)) %>
+  <%= tag.li link_to('TNT', tnt_observation_matrix_path(@observation_matrix)) %>
+  <%= tag.li link_to('nexus', nexus_observation_matrix_path(@observation_matrix)) %>
+  <%= tag.li link_to('CSV', csv_observation_matrix_path(@observation_matrix)) %>
+  <%= tag.li link_to('Descriptor list', descriptor_list_observation_matrix_path(@observation_matrix)) %>
+  <%# tag.li tag.em('OTU contents') %>
+  <%= tag.li link_to('OTU contents', otu_contents_observation_matrix_path(@observation_matrix, format: :text)) -%>
 </ul>
 
 <ul class="context-menu">
@@ -13,48 +17,57 @@
   <%= content_tag(:li, link_to('TNT', tnt_observation_matrix_path(@observation_matrix, format: :text))) -%>
   <%= content_tag(:li, link_to('nexus', nexus_observation_matrix_path(@observation_matrix, format: :text))) -%>
   <%= content_tag(:li, link_to('NeXML', nexml_observation_matrix_path(@observation_matrix, format: :text))) -%>
+  <%= content_tag(:li, link_to('CSV', csv_observation_matrix_path(@observation_matrix, format: :text))) -%>
+  <%= content_tag(:li, link_to('Descriptor list', descriptor_list_observation_matrix_path(@observation_matrix, format: :text))) -%>
   <%= content_tag(:li, link_to('OTU contents', otu_contents_observation_matrix_path(@observation_matrix, format: :text))) -%>
 </ul>
 
 <br>
 <br>
 <br>
-<br>
-<% if @observation_matrix.cell_count < 10000 %>
+<% if (@observation_matrix.cell_count < 10000) || (params[:view_large_matrix] == 'true')   %>
 
-<table id="observation_matrices">
-  <thead>
-    <tr>
-      <th class="header-slanted-cell"></th>
-      <th class="header-slanted-cell">
-        <span class="header-slanted-label">Code</span>
-      </th>
-      <th class="header-slanted-cell" style="column-width: auto;" >
-        <span class="header-slanted-label"> OTUs </span>
-      </th>
-      <% @observation_matrix.observation_matrix_columns.order(:position).each do |d| -%>
-        <%= content_tag(:th, content_tag(:label, descriptor_matrix_column_link(d.descriptor), class: ['header-slanted-label']), class: ['header-slanted-cell']) -%>
-      <% end %>
-    </tr>
-  </thead>
-
-  <tbody>
-    <% @observation_matrix.observation_matrix_rows.order(:position).each_with_index do |row, i| -%>
+  <table id="observation_matrices">
+    <thead>
       <tr>
-        <%= content_tag(:td, (i + 1).to_s) -%>
-        <%= content_tag(:td, link_to('code', index_row_coder_task_path(observation_matrix_row_id: row.id) , class: ['circle-button', 'btn-row-coder'] )) -%>
-        <%= content_tag(:td, object_link(row.row_object), class: 'otu_column') -%>
-
-        <% @observation_matrix.observation_matrix_columns.order(:position).each do |col| -%>
-          <%= content_tag(:td, observation_matrix_cell_tag(row.row_object, col.descriptor)) -%>
-        <% end %> 
+        <th class="header-slanted-cell"></th>
+        <th class="header-slanted-cell">
+          <span class="header-slanted-label">Code</span>
+        </th>
+        <th class="header-slanted-cell" style="column-width: auto;" >
+          <span class="header-slanted-label"> OTUs </span>
+        </th>
+        <% @observation_matrix.observation_matrix_columns.order(:position).each do |d| -%>
+          <%= tag.th tag.label(descriptor_matrix_column_link(d.descriptor), class: ['header-slanted-label']), class: ['header-slanted-cell'] -%>
+        <% end %>
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </thead>
+
+    <tbody>
+      <% @observation_matrix.observation_matrix_rows.order(:position).each_with_index do |row, i| -%>
+        <tr>
+          <%= tag.td (i + 1).to_s -%>
+          <%= tag.td link_to('code', index_row_coder_task_path(observation_matrix_row_id: row.id) , class: ['circle-button', 'btn-row-coder'] ) -%>
+          <%= tag.td object_link(row.observation_object), class: 'otu_column' -%>
+
+          <% @observation_matrix.observation_matrix_columns.order(:position).each do |col| -%>
+            <%= tag.td observation_matrix_cell_tag(row.observation_object, col.descriptor) -%>
+          <% end %> 
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 
 <% else %>
-  <div>
-    <span class="feedback feedback-info"> Matrix is too large (&gt; 10k cells) to currently display. </span>
+  <div> 
+    <span class="feedback feedback-info feedback-thin"> Matrix is large (&gt; 10k cells). Click Show to display.</span>
+    <br><br>
+    <%= form_tag( observation_matrix_view_task_path, method: :get) do %>
+      <%= hidden_field_tag(:view_large_matrix, true) -%>
+      <%= hidden_field_tag(:observation_matrix_id, @observation_matrix.id) -%>
+      <div class="actions"> <%= tag.input(type: :submit, value: 'Show', class: 'button-default') -%> </div>
+    <% end %>
   </div>
 <% end %>
+
+

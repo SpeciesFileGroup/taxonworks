@@ -25,7 +25,7 @@
         <p>
           <span
             target="_blank"
-            v-html="citation.source.object_tag"
+            v-html="citation.source.cached"
           />
           <soft-validation
             :validate-object="citation"
@@ -119,7 +119,7 @@ export default {
     setSource (source) {
       const newSource = {
         id: source?.id || source,
-        pages: source?.pages || null
+        pages: this.citation?.pages || null
       }
       this.$store.dispatch(ActionNames.ChangeTaxonSource, newSource)
       this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)

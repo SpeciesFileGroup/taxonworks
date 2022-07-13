@@ -48,8 +48,7 @@ export default {
     newDigitalization () {
       this.$store.dispatch(ActionNames.NewCollectionObject)
       this.$store.dispatch(ActionNames.NewIdentifier)
-      this.$store.commit(MutationNames.NewTaxonDetermination)
-      this.$store.commit(MutationNames.SetTaxonDeterminations, [])
+      this.$store.dispatch(ActionNames.ResetTaxonDetermination)
     },
 
     addToContainer () {

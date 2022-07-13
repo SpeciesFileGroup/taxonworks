@@ -180,19 +180,5 @@ describe GeoreferencesController, type: :controller do
   #   end
   # end
 
-  describe 'DELETE destroy' do
-    it 'destroys the requested georeference' do
-      georeference = Georeference.create! valid_attributes
-      expect {
-        delete :destroy, params: {id: georeference.to_param}, session: valid_session
-      }.to change(Georeference, :count).by(-1)
-    end
-
-    it 'redirects to the georeferences list' do
-      georeference = Georeference.create! valid_attributes
-      delete :destroy, params: {id: georeference.to_param}, session: valid_session
-      expect(response).to redirect_to(georeferences_url)
-    end
-  end
-
+  include_examples 'DELETE #destroy', Georeference
 end

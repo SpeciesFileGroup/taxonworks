@@ -27,7 +27,9 @@
             <radial-object
               v-if="otu"
               :global-id="otu.global_id"/>
-            <select-topic-otu class="separate-left"/>
+            <select-topic-otu
+              class="separate-left"
+              @close="$refs.contentText.setFocus()"/>
           </div>
         </div>
         <div
@@ -41,7 +43,7 @@
             :configs="config"
             @input="handleInput"
             ref="contentText"
-            @dblclick="addCitation"/>
+          />
         </template>
       </div>
       <div
@@ -77,21 +79,11 @@
         <span class="tiny_space">Save</span>
       </div>
       <clone-content
-        :class="{ disabled : !content }"
-        @addCloneCitation="addClone"
+        @addCloneCitation="addText"
         class="item menu-item"/>
       <compare-content
         class="item menu-item"
         @showCompareContent="showCompare"/>
-      <div
-        class="item flex-wrap-column middle menu-item menu-button"
-        @click="ChangeStateCitations()"
-        :class="{ active : activeCitations, disabled : citations < 1 }">
-        <span
-          data-icon="citation"
-          class="big-icon"/>
-        <span class="tiny_space">Citation</span>
-      </div>
       <div
         class="item flex-wrap-column middle menu-item menu-button"
         @click="ChangeStateFigures()"
@@ -115,7 +107,9 @@ import RadialObject from 'components/radials/navigation/radial'
 import OtuButton from 'components/otu/otu'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { Citation, Content } from 'routes/endpoints'
+import { Content } from 'routes/endpoints'
+
+const extend = ['otu', 'topic']
 
 export default {
   components: {
@@ -165,28 +159,28 @@ export default {
       return !this.topic || !this.otu
     },
 
-    citations () {
-      return this.$store.getters[GetterNames.GetCitationsList]
-    },
-
-    activeCitations () {
-      return this.$store.getters[GetterNames.PanelCitations]
-    },
-
     activeFigures () {
       return this.$store.getters[GetterNames.PanelFigures]
     }
   },
 
   watch: {
-    otu (val, oldVal) {
-      if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
+    otu (newVal, oldVal) {
+      if (
+        newVal?.id &&
+        newVal.id !== oldVal?.id &&
+        this.topic?.id
+      ) {
         this.loadContent()
       }
     },
 
-    topic (val, oldVal) {
-      if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
+    topic (newVal, oldVal) {
+      if (
+        newVal?.id &&
+        newVal.id !== oldVal?.id &&
+        this.otu?.id
+      ) {
         this.loadContent()
       }
     }
@@ -202,7 +196,7 @@ export default {
       }
     },
 
-    addClone (text) {
+    addText (text) {
       this.record.content.text += text
       this.autoSave()
     },
@@ -216,14 +210,6 @@ export default {
       this.$store.commit(MutationNames.ChangeStateFigures)
     },
 
-    ChangeStateCitations () {
-      this.$store.commit(MutationNames.ChangeStateCitations)
-    },
-
-    existCitation (citation) {
-      return this.$store.getters[GetterNames.GetCitationsBySource](citation.source_id).length
-    },
-
     copyCompareContent () {
       if (window.getSelection) {
         if (window.getSelection().toString().length > 0) {
@@ -231,44 +217,6 @@ export default {
           this.autoSave()
         }
       }
-    },
-
-    addCitation (cursorPosition) {
-      this.record.content.text = [this.record.content.text.slice(0, cursorPosition),
-        document.querySelector('[data-panel-name="pinboard"]').getAttribute('data-clipboard'),
-        this.record.content.text.slice(cursorPosition)].join('')
-
-      if (this.newRecord) {
-        if (!this.record.content.id) {
-          Content.find(this.record.content.id).then(response => {
-            this.record.content.id = response.body.id
-            this.newRecord = false
-            this.createCitation()
-          })
-        }
-      } else {
-        this.update()
-        this.createCitation()
-      }
-    },
-
-    createCitation () {
-      const sourcePDF = document.querySelector('[data-pdf-source-id]').getAttribute('data-pdf-source-id')
-
-      if (sourcePDF === undefined) return
-      this.currentSourceID = Number(sourcePDF)
-
-      const citation = {
-        pages: '',
-        citation_object_type: 'Content',
-        citation_object_id: this.record.content.id,
-        source_id: this.currentSourceID
-      }
-      if (this.existCitation(citation)) return
-
-      Citation.create({ citation }).then(response => {
-        this.$store.commit(MutationNames.AddCitationToList, response.body)
-      })
     },
 
     handleInput () {
@@ -299,9 +247,9 @@ export default {
       if (this.disabled || (this.record.content.text === '')) return
 
       if (this.record.content.id) {
-        Content.update(this.record.content.id, this.record)
+        Content.update(this.record.content.id, { ...this.record, extend })
       } else {
-        Content.create(this.record).then(response => {
+        Content.create({ ...this.record, extend }).then(response => {
           this.record.content.id = response.body.id
           this.$store.commit(MutationNames.SetContentSelected, response.body)
         })
@@ -313,11 +261,13 @@ export default {
 
       const params = {
         otu_id: this.otu.id,
-        topic_id: this.topic.id
+        topic_id: this.topic.id,
+        extend
       }
 
       this.firstInput = true
       this.resetAutoSave()
+
       Content.where(params).then(response => {
         if (response.body.length > 0) {
           const record = response.body[0]
@@ -331,15 +281,18 @@ export default {
 
           this.newRecord = false
           this.$store.commit(MutationNames.SetContentSelected, response.body[0])
+          this.$refs.contentText.setFocus()
         } else {
-          const content = this.initContent()
-
-          content.topic_id = this.topic.id
-          content.otu_id = this.otu.id
+          const content = {
+            ...this.initContent(),
+            topic_id: this.topic.id,
+            otu_id: this.otu.id
+          }
 
           this.record.content = content
           this.$store.commit(MutationNames.SetContent, undefined)
           this.newRecord = true
+          this.$refs.contentText.setFocus()
         }
       })
       this.loadMarkwdown = false

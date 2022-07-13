@@ -39,6 +39,7 @@
             ref="smartSelector"
             model="taxon_names"
             klass="TypeMaterial"
+            target="TypeMaterial"
             :params="{ 'nomenclature_group[]': 'SpeciesGroup' }"
             :autocomplete-params="{ 'nomenclature_group[]': 'SpeciesGroup' }"
             pin-section="TaxonNames"
@@ -68,21 +69,24 @@
             klass="TypeMaterial"
             pin-section="Sources"
             pin-type="Source"
+            label="cached"
             @selected="selectSource"
           />
-          <div
-            v-if="sourceSelected"
-            class="horizontal-left-content margin-medium-top">
-            <span v-html="sourceSelected.object_tag"/>
-            <span
-              class="button circle-button btn-undo button-default"
-              @click="newCitation(); sourceSelected = undefined"/>
-          </div>
-          <input
-            class="margin-small-top"
-            type="text"
-            v-model="origin_citation_attributes.pages"
-            placeholder="Pages">
+          <template v-if="sourceSelected">
+            <hr>
+            <div
+              class="horizontal-left-content margin-medium-top">
+              <span v-html="sourceSelected.cached"/>
+              <span
+                class="button circle-button btn-undo button-default"
+                @click="newCitation(); sourceSelected = undefined"/>
+            </div>
+            <input
+              class="margin-small-top"
+              type="text"
+              v-model="origin_citation_attributes.pages"
+              placeholder="Pages">
+          </template>
         </fieldset>
       </div>
     </template>
@@ -120,11 +124,6 @@ export default {
       keys[`${platformKey()}+b`] = this.switchBrowseNomenclature
 
       return keys
-    },
-
-    taxonIdFormOtu () {
-      const otu = this.$store.getters[GetterNames.GetTmpData].otu
-      return otu?.taxon_name_id
     },
 
     typeMaterial: {

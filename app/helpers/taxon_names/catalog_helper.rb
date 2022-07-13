@@ -115,7 +115,9 @@ module TaxonNames::CatalogHelper
       other_str = nil
 
       if catalog_item.other_name == reference_taxon_name
-        other_str = full_original_taxon_name_tag(catalog_item.other_name) 
+        other_str = full_original_taxon_name_tag(catalog_item.other_name)
+      elsif catalog_item.object.subject_status_tag == 'classified as'
+        other_str = link_to(taxon_name_tag(catalog_item.other_name), browse_nomenclature_task_path(taxon_name_id: catalog_item.other_name.id) ) + ' ' + original_author_year(catalog_item.other_name)
       else
         other_str = link_to(original_taxon_name_tag(catalog_item.other_name), browse_nomenclature_task_path(taxon_name_id: catalog_item.other_name.id) ) + ' ' + original_author_year(catalog_item.other_name)
       end
@@ -173,8 +175,15 @@ module TaxonNames::CatalogHelper
       a = history_author_year_tag(t) 
       b = source_author_year_tag(c.source)
 
+      tn = t.type == 'Combination' ? t.protonyms.last : t
+      if tn.nomenclatural_code == :icn
+        in_str = ' ex '
+      else
+        in_str = ' in '
+      end
+
       if a != b || i.from_relationship?
-        content_tag(:em, ' in ') + link_to(content_tag(:span, b, title: strip_tags(c.source.cached), class: :history__subject_original_citation), send(:nomenclature_by_source_task_path, source_id: c.source.id) )
+        content_tag(:em, in_str) + link_to(content_tag(:span, b, title: strip_tags(c.source.cached), class: :history__subject_original_citation), send(:nomenclature_by_source_task_path, source_id: c.source.id) )
 #        return content_tag(:span,  content_tag(:em, ' in ') + b, class: [:history__in])
       end
     end
@@ -196,6 +205,19 @@ module TaxonNames::CatalogHelper
 
     #      history_in(entry_item.base_object&.type_taxon_name_relationship&.source)
     ].compact.join.html_safe
+  end
+
+  def taxon_name_synonym_li(syn)
+    label = [
+      content_tag(:span, "= "), 
+      link_to(full_original_taxon_name_tag(syn) || taxon_name_tag(syn), browse_nomenclature_task_path(taxon_name_id: syn.id))
+    ].compact.join.html_safe
+
+    content_tag(:li, label)
+  end
+
+  def taxon_name_synonyms_list(taxon_name)
+    synonyms = taxon_name&.synonyms.where(type: 'Protonym').where.not(id: taxon_name.id)&.order(:cached, :cached_author_year).uniq
   end
 
 end

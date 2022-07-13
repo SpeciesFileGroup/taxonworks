@@ -1,4 +1,4 @@
-<h2> Administration </h2>
+<h1> Administration </h1>
 
 <div class="flexbox panels-container ">
   <div class="item panel separate-left separate-right">
@@ -18,17 +18,14 @@
     <div class="title nav-line"> 
       <span data-icon="users">Users</span>
     </div>
-    <nav class="content flexbox">
-      <div class="item item1 horizontal-center-content">
-        <%= link_to("New", signup_path, "data-icon" => "new") -%>
-      </div>
-      <div class="item item2" style="display:flex; justify-content: center;">
-        <%= link_to("List", users_path, "data-icon" => "list") %>
-      </div>
-      <div class="item item3" style="display:flex; justify-content: center;">
-        <%= link_to("Activity", user_activity_path, data: { turbolinks: false }, "data-icon" => "list") %>
-      </div>
-    </nav>
+    <div class="content">
+      <ul class="no_bullets list list-arrow">
+        <%= content_tag(:li, link_to("New", signup_path, data: { icon: "new" })) -%>
+        <%= content_tag(:li, link_to("Batch add new", batch_add_users_task_path, data: { turbolinks: false, icon: "new" })) -%>
+        <%= content_tag(:li, link_to("List", users_path, data: { icon: "list" })) -%>
+        <%= content_tag(:li, link_to("Activity", user_activity_path, data: { turbolinks: false, icon: "list" })) -%>
+      </ul>
+    </div>
   </div>
 
   <div class="item panel separate-left separate-right">
@@ -39,6 +36,7 @@
       <ul class="no_bullets list list-arrow">
         <%= content_tag(:li, link_to("Overview", data_overview_path, data: { turbolinks: false })) -%>
         <%= content_tag(:li, link_to("Health", data_health_path, data: { turbolinks: false })) -%>
+        <%= content_tag(:li, link_to("Reindex", data_reindex_path, data: { turbolinks: false })) -%>
       </ul>
     </div>
   </div>

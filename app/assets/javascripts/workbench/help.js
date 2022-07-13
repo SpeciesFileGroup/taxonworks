@@ -183,9 +183,14 @@ Object.assign(TW.workbench.help, {
   },
 
   disableHelp () {
+    const helpElements = document.querySelectorAll('[data-help]')
     this.elementBackground.classList.remove('help-background__active')
     this.elementButton.classList.remove('help-button-active')
     this.elementLegend.classList.remove('.help-legend__active')
+
+    helpElements.forEach(element => {
+      element.classList.remove('help-tip')
+    })
 
     this.removeAllElements('.help-bubble-tip')
   },

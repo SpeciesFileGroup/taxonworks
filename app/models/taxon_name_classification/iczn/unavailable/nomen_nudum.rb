@@ -15,7 +15,7 @@ class TaxonNameClassification::Iczn::Unavailable::NomenNudum < TaxonNameClassifi
     self.parent.disjoint_taxon_name_classes +
         self.collect_descendants_and_itself_to_s(TaxonNameClassification::Iczn::Unavailable::Excluded,
             TaxonNameClassification::Iczn::Unavailable::Suppressed,
-            TaxonNameClassification::Iczn::Unavailable::NonBinomial) +
+            TaxonNameClassification::Iczn::Unavailable::NonBinominal) +
         self.collect_to_s(TaxonNameClassification::Iczn::Unavailable)
   end
 
@@ -227,13 +227,13 @@ class TaxonNameClassification::Iczn::Unavailable::NomenNudum < TaxonNameClassifi
 
   class NoTypeGenusCitationAfter1999 < TaxonNameClassification::Iczn::Unavailable::NomenNudum
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000188'.freeze
+    NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000188'.freeze
 
     extend InnerClassAfter1999FamilyGroup
 
-  def sv_not_specific_classes
-    true
-  end
+    def sv_not_specific_classes
+      true
+    end
   end
 
   class NoTypeSpecimenFixationAfter1999 < TaxonNameClassification::Iczn::Unavailable::NomenNudum
@@ -322,54 +322,6 @@ class TaxonNameClassification::Iczn::Unavailable::NomenNudum < TaxonNameClassifi
     NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000179'.freeze
 
     extend InnerClassSpeciesGroup
-
-    def sv_not_specific_classes
-      true
-    end
-  end
-
-  class ElectronicOnlyPublicationBefore2012 < TaxonNameClassification::Iczn::Unavailable::NomenNudum
-
-    NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000038'.freeze
-
-    extend InnerClass
-
-    def self.code_applicability_end_year
-      2011
-    end
-
-    def sv_not_specific_classes
-      true
-    end
-  end
-
-  class ElectronicPublicationNotInPdfFormat < TaxonNameClassification::Iczn::Unavailable::NomenNudum
-
-    NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000040'.freeze
-
-    extend InnerClassStart2012
-
-    def sv_not_specific_classes
-      true
-    end
-  end
-
-  class ElectronicPublicationWithoutIssnOrIsbn < TaxonNameClassification::Iczn::Unavailable::NomenNudum
-
-    NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000039'.freeze
-
-    extend InnerClassStart2012
-
-    def sv_not_specific_classes
-      true
-    end
-  end
-
-  class ElectronicPublicationNotRegisteredInZoobank < TaxonNameClassification::Iczn::Unavailable::NomenNudum
-
-    NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000041'.freeze
-
-    extend InnerClassStart2012
 
     def sv_not_specific_classes
       true

@@ -7,7 +7,7 @@ class SequenceRelationshipsController < ApplicationController
   # GET /sequence_relationships.json
   def index
     @recent_objects = SequenceRelationship.recent_from_project_id(sessions_current_project_id)
-                        .order(updated_at: :desc).limit(10)
+      .order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -64,13 +64,18 @@ class SequenceRelationshipsController < ApplicationController
   # DELETE /sequence_relationships/1
   # DELETE /sequence_relationships/1.json
   def destroy
-    @sequence_relationship.destroy!
+    @sequence_relationship.destroy
     respond_to do |format|
-      format.html { redirect_to sequence_relationships_url,
-                                notice: 'Sequence relationship was successfully destroyed.' }
-      format.json { head :no_content }
+      if @sequence_relationship.destroyed?
+        format.html { destroy_redirect @sequence_relationship, notice: 'Sequence relationship was successfully destroyed.' }
+        format.json { head :no_content}
+      else
+        format.html { destroy_redirect @sequence_relationship, notice: 'Sequence relationship was not destroyed, ' + @sequence_relationship.errors.full_messages.join('; ') }
+        format.json { render json: @sequence_relationship.errors, status: :unprocessable_entity }
+      end
     end
   end
+
 
   def search
     if params[:id].blank?

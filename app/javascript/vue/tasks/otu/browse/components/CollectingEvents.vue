@@ -147,7 +147,7 @@ const populateShapes = () => {
   })
 }
 
-const getCollectionObjectByGeoId = georeference => collectionObjects.value.filter(co => co.collecting_event_id === this.getCEByGeo(georeference).id)
+const getCollectionObjectByGeoId = georeference => collectionObjects.value.filter(co => co.collecting_event_id === getCEByGeo(georeference).id)
 
 const composePopup = geo => {
   const ce = getCEByGeo(geo)

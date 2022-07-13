@@ -15,9 +15,12 @@ module TaxonWorks
 
         def apply(value)
           if value.is_a? String
-            value = value.gsub(/\$\\less\$\/?\w+\$\\greater\$/,
+            value = value.gsub(/(?:\$\\less|{\\&}lt\$\\mathsemicolon)\$\/?\w+(?:\$\\greater|{\\&}gt\$\\mathsemicolon)\$/,
               '$\less$i$\greater$' => '<i>', '$\less$/i$\greater$' => '</i>',
-              '$\less$em$\greater$' => '<i>', '$\less$/em$\greater$' => '</i>' # Some times <em> is used for scientific names, making sense to translate to TW-supported <i>
+              '{\&}lt$\mathsemicolon$i{\&}gt$\mathsemicolon$' => '<i>', '{\&}lt$\mathsemicolon$/i{\&}gt$\mathsemicolon$' => '</i>',
+              # Some times <em> is used for scientific names, making sense to translate to TW-supported <i>
+              '$\less$em$\greater$' => '<i>', '$\less$/em$\greater$' => '</i>',
+              '{\&}lt$\mathsemicolon$em{\&}gt$\mathsemicolon$' => '<i>', '{\&}lt$\mathsemicolon$/em{\&}gt$\mathsemicolon$' => '</i>',
             )
           end
           ::LaTeX.decode(value)
@@ -47,23 +50,21 @@ module TaxonWorks
       def self.new_from_citation(citation: nil)
         citation&.strip!
         return false if citation.length < 6
-
         # check string encoding, if not UTF-8, check if compatible with UTF-8,
         # if so convert to UTF-8 and parse with latex, else use type verbatim
-        a = get_bibtex_string(citation) 
+        a = get_bibtex_string(citation, 'bibtex')
         b = ::Utilities::Strings.encode_with_utf8(a) if a
-
         if b
-          Source::Bibtex.new_from_bibtex(
-            BibTeX::Bibliography.parse(b, filter: CrossRefLaTeX.instance).first
-          )
+          bibtex = Source::Bibtex.new_from_bibtex(BibTeX::Bibliography.parse(b, filter: CrossRefLaTeX.instance).first)
+          citeproc = get_bibtex_string(citation, 'citeproc')
+          bibtex_from_citproc(citeproc, bibtex)
         else
           Source::Verbatim.new(verbatim: a ? a : citation)
         end
       end
 
-      # @return [String, nil]
-      def self.get_bibtex_string(citation)
+      # @return [String, nil] ; format == 'bibtex' or 'citeproc'
+      def self.get_bibtex_string(citation, format = 'bibtex')
         begin
           # Convert citation to DOI if it isn't already
           if !citation_is_valid_doi?(citation)
@@ -75,12 +76,68 @@ module TaxonWorks
             citation = (score >= CUTOFF) ? res&.dig("DOI") : nil
           end
 
-          bibtex = ::Serrano.content_negotiation(ids: unurize_doi(citation), format: "bibtex") unless citation.nil?
-
-          return bibtex =~ /^\s*@/ ? bibtex : nil
+          if format == 'bibtex'
+            bibtex = ::Serrano.content_negotiation(ids: unurize_doi(citation), format: "bibtex") unless citation.nil?
+            return bibtex =~ /^\s*@/ ? bibtex : nil
+          elsif format == 'citeproc'
+            citeproc = ::Serrano.content_negotiation(ids: unurize_doi(citation), format: "citeproc-json") unless citation.nil?
+            return citeproc
+          else
+            return nil
+          end
         rescue
           return nil
         end
+      end
+
+      def self.bibtex_from_citproc(c, b)
+        return nil unless c.present? && b.present?
+        c = JSON.parse(c)
+
+        b[:address] = ::Utilities::Strings.encode_with_utf8(c['address']) unless c['address'].blank?
+        #b[:author]
+        b[:booktitle] = ::Utilities::Strings.encode_with_utf8(c['booktitle']) unless c['booktitle'].blank?
+        b[:chapter] = c['chapter'] unless c['chapter'].blank?
+        b[:edition] = c['edition'] unless c['edition'].blank?
+        #b[:editor]
+        b[:howpublished] = ::Utilities::Strings.encode_with_utf8(c['how-published']) unless c['how-published'].blank?
+        b[:institution] = ::Utilities::Strings.encode_with_utf8(c['institution']) unless c['institution'].blank?
+        b[:journal] = ::Utilities::Strings.encode_with_utf8(c['container-title']) unless c['container-title'].blank?
+        #b[:month]
+        b[:note] = ::Utilities::Strings.encode_with_utf8(c['note']) unless c['note'].blank?
+        #b[:number] = c['number'] unless c['volume'].blank?
+        b[:organization] = ::Utilities::Strings.encode_with_utf8(c['organization']) unless c['organization'].blank?
+        b[:pages] = c['page'] unless c['page'].blank?
+        b[:publisher] = ::Utilities::Strings.encode_with_utf8(c['publisher']) unless c['publisher'].blank?
+        b[:school] = ::Utilities::Strings.encode_with_utf8(c['school']) unless c['school'].blank?
+        b[:series] = c['series'] unless c['series'].blank?
+        #b[:title] = c['title']
+        # b[:typeb]  # "Source::Bibtex"
+        #b[:volume] = c['volume'] unless c['volume'].blank?
+        #b[:doi] = c['DOI']
+        unless c['abstract'].blank?
+          b[:abstract] = ::Utilities::Strings.encode_with_utf8(c['abstract']).
+            gsub('</jats:p>', '').
+            gsub('<jats:p>', '').
+            gsub('</jats:sec>', '').
+            gsub('<jats:sec>', '').
+            gsub('</jats:title>', '</b>').
+            gsub('<jats:title>', '<b>').
+            gsub('</jats:italic>', '</i>').
+            gsub('<jats:italic>', '<i>').
+            gsub('</jats:bold>', '</b>').
+            gsub('<jats:bold>', '<b>')
+        end
+        b[:copyright] = c['copyright'] unless c['copyright'].blank?
+        #b[:bibtex_type] = c['type'] unless c['type'].blank?
+        b[:day]  = c['issued']['date-parts'][0][2] if c['issued'] && c['issued']['date-parts'] && c['issued']['date-parts'][0] && c['issued']['date-parts'][0][2]
+        b[:year] = c['issued']['date-parts'][0][0] if c['issued'] && c['issued']['date-parts'] && c['issued']['date-parts'][0] && c['issued']['date-parts'][0][0]
+        b[:isbn] = c['ISBN'].first unless c['ISBN'].blank?
+        b[:issn] = c['ISSN'].first unless c['ISSN'].blank?
+        #b[:translator]
+        #b[:url]
+        b[:serial_id] = Serial.where(name: b[:journal]).first.try(:id) unless b[:journal].blank?
+        b
       end
 
       # @return [String]

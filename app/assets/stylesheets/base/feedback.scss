@@ -52,7 +52,7 @@
   border-color: $color-secondary-1-3;
 }
 
-// brighter blue
+// brighter blue !! Same as feedback-primary, why?
 .feedback-info {
   color: $color-blue-4;
   background-color: $color-blue-0;
@@ -109,7 +109,7 @@
 
 .mx-spinner {
   position: absolute;
-  background-image: image-url('spinner.gif'); 
+  background-image: image-url('spinner.gif');
   background-position: 50% 50%;
   background-repeat: no-repeat;
   background-color: #aeaeae;

@@ -26,7 +26,7 @@
               type="button"
               class="button normal-input button-delete"
               @click="deleteLabels">
-              Destroy all selected
+              Destroy selected labels
             </button>
           </th>
         </tr>
@@ -34,14 +34,14 @@
       <tbody>
         <tr
           v-for="(item, index) in sortedList"
-          class="contextMenuCells btn btn-neutral"
+          class="contextMenuCells"
           :class="{ even: index % 2 }"
           :key="item.id">
           <td>
             <input
               type="checkbox"
               v-model="selected"
-              :value="item">
+              :value="item.id">
           </td>
           <td>
             <pre v-html="item.label"/>
@@ -155,13 +155,13 @@ export default {
     },
 
     removeRow (label) {
-      if (window.confirm('You\'re trying to delete this record(s). Are you sure want to proceed?')) {
+      if (window.confirm("You're trying to delete this label. Are you sure want to proceed?")) {
         this.$emit('onRemove', label)
       }
     },
 
     deleteLabels () {
-      if (window.confirm('You\'re trying to delete this record(s). Are you sure want to proceed?')) {
+      if (window.confirm("You're trying to delete this label(s). Are you sure want to proceed?")) {
         this.$emit('onRemoveAll')
       }
     },

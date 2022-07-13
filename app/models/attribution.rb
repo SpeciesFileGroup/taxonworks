@@ -12,7 +12,6 @@ class Attribution < ApplicationRecord
   include Housekeeping
   include Shared::Notes
   include Shared::Confidences
-  include Shared::HasRoles
   include Shared::Tags
   include Shared::IsData
   include Shared::PolymorphicAnnotator

@@ -1,83 +1,79 @@
 <h1><%= @project.name -%></h1>
-<div> 
-  
-  <div class="row1">
-    <div class="flexbox">
-      <div class="item item1">
+<div class="simple_flexbox">
+  <div>
+    <h2> Edit </h2>
+    <ul class="no_bullets list list-arrow">
+      <%= content_tag(:li, link_to('Edit', edit_project_path(@project)) ) %>
+      <%= content_tag(:li, link_to('Preferences', project_preferences_task_path, data: { turbolinks: false } ) ) %>
+    </ul>
 
-        <h2> Edit </h2>
-        <ul class="no_bullets list list-arrow">
-          <%= content_tag(:li, link_to('Edit', edit_project_path(@project)) ) %> 
-          <%= content_tag(:li, link_to('Preferences', project_preferences_task_path, data: { turbolinks: false } ) ) %>
-        </ul>
-
-        <h2> Project attributes </h2>
-        <div class="attributes">
-          <%= render partial: 'attributes' -%>
-        </div>
-
-      </div>
-
-      <div class="item item2">
-        <h2> Members </h2>
-
-        <ul class="no_bullets list list-arrow">
-          <%= content_tag(:li, add_project_member_link(@project))  -%>
-          <%= content_tag(:li, link_to('Add many project members', many_new_project_members_path(project_member: {project_id: @project}) )) -%>
-          <%= content_tag(:li, link_to('Add new user', signup_path)) -%>
-        </ul>
-
-        <% if @project.users.any? -%>
-          <table> 
-            <tr> 
-              <th> Name </th> 
-
-              <th> Member since </th> 
-              <th> Last seen </th> 
-              <th> Project administrator? </th> 
-              <th> </th> 
-            </tr>
-
-            <tbody>
-              <% @project.project_members.includes(:user).order('users.name').each do |pm| -%>
-                <tr> 
-                  <td> <%= pm.user.name -%> </td>
-                  <td> <%= time_ago_in_words(pm.created_at) -%> ago </td>
-                  <td> <%= user_last_seen_tag(pm.user) -%> </td>
-                  <td> 
-                    <%= form_for(pm) do |f| -%>
-                      <div class="actions">
-                      <%= f.check_box(:is_project_administrator) -%>
-                        <%= f.submit 'Update' %>
-                      </div>
-                    <% end %> 
-                  </td>
-                  <td>
-
-                    <%= form_for(pm, method: :delete) do |f| -%>
-                      <%= f.hidden_field :_destroy, value: :true -%>
-                        <%= f.submit 'Remove', method: :delete, class: ['button-delete'] %>
-                      
-                    <% end %> 
-
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-
-        <% else  %>
-          <em> No members added yet! </em>
-        <% end %>
-
-      </div>
-
-      <div class="item item3">
-        <h2> Metadata </h2>
-
-        <ul class="no_bullets list list-arrow">
-          <%= content_tag(:li, link_to('Stats', stats_project_path, data: { turbolinks: false })) -%>
-        </ul>
-      </div>
+    <h2> Project attributes </h2>
+    <div class="attributes">
+      <%= render partial: 'attributes' -%>
     </div>
   </div>
+
+  <div>
+    <h2> Members </h2>
+    <ul class="no_bullets list list-arrow">
+      <%= content_tag(:li, add_project_member_link(@project))  -%>
+      <%= content_tag(:li, link_to('Add many project members', many_new_project_members_path(project_member: {project_id: @project}) )) -%>
+      <%= content_tag(:li, link_to('Add new user', signup_path)) -%>
+    </ul>
+
+    <% if @project.users.any? -%>
+      <table>
+        <tr>
+          <th> Name </th>
+          <th> Member since </th>
+          <th> Last seen </th>
+          <th> Project administrator? </th>
+          <th> </th>
+        </tr>
+
+        <tbody>
+          <% @project.project_members.includes(:user).order('users.name').each do |pm| -%>
+            <tr>
+              <td> <%= pm.user.name -%> </td>
+              <td> <%= time_ago_in_words(pm.created_at) -%> ago </td>
+              <td> <%= user_last_seen_tag(pm.user) -%> </td>
+              <td>
+                <%= form_for(pm) do |f| -%>
+                  <div class="actions">
+                    <%= f.check_box(:is_project_administrator) -%>
+                    <%= f.submit 'Update' %>
+                  </div>
+                <% end %>
+              </td>
+              <td>
+                <%= form_for(pm, method: :delete) do |f| -%>
+                  <%= f.hidden_field :_destroy, value: :true -%>
+                  <%= f.submit 'Remove', method: :delete, class: ['button-delete'] %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else  %>
+      <em> No members added yet! </em>
+    <% end %>
+  </div>
+
+  <div>
+    <div>
+      <h2> Data </h2>
+      <ul class="no_bullets list list-arrow">
+        <%= content_tag(:li, link_to('Download project task', export_taxonworks_project_task_path, data: { turbolinks: false } ) ) %>
+      </ul>
+    </div>
+
+    <div>
+      <h2> Metadata </h2>
+      <ul class="no_bullets list list-arrow">
+        <%= content_tag(:li, link_to('Stats', project_activity_task_path, data: { turbolinks: false })) -%>
+      </ul>
+    </div>
+  </div>
+
 </div>

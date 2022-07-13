@@ -1,11 +1,17 @@
 <table border="1">
-  <tr>
-    <th></th> <%= csv.headers.collect { |h| content_tag(:th, h) }.join.html_safe -%>
-  </tr>
+  <% if csv.respond_to? :headers %>
+    <tr>
+      <th></th> <%= csv.headers.collect { |h| content_tag(:th, h) }.join.html_safe -%>
+    </tr>
+  <% end %>
   <% csv.each_with_index do |row, i| -%>
     <tr>
       <td><%= link_to(i + 1, "#parse_#{i + 1}", id: "line_#{i + 1}", data: {turbolinks: false}).html_safe -%></td>
-      <%= row.fields.collect { |c| content_tag(:td, c) }.join.html_safe -%>
+      <% if row.respond_to? :fields %>
+        <%= row.fields.collect { |c| content_tag(:td, c) }.join.html_safe -%>
+      <% else %>
+        <%= row.collect { |c| tag.td(c) }.join.html_safe -%>
+      <% end %>
     </tr>
   <% end %>
 </table>

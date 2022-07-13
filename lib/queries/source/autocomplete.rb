@@ -24,7 +24,7 @@ module Queries
       # @return [ActiveRecord::Relation]
       #   if and only iff author string matches
       def autocomplete_exact_author
-        a = table[:cached_author_string].eq(query_string)
+        a = table[:cached_author_string].matches(query_string)
         base_query.where(a.to_sql)
       end
 
@@ -94,29 +94,45 @@ module Queries
       # @return [ActiveRecord::Relation, nil]
       def autocomplete_exact_author_year_letter
         a = match_exact_author
-        b = match_year_suffix
+        d = match_year_suffix
         c = match_year
-        return nil if [a,b,c].include?(nil)
-        d = a.and(b).and(c)
-        base_query.where(d.to_sql)
+        return nil if [a,d,c].include?(nil)
+        z = a.and(d).and(c)
+        base_query.where(z.to_sql)
       end
 
       # @return [ActiveRecord::Relation, nil]
       def autocomplete_exact_author_year
         a = match_exact_author
-        b = match_year
-        return nil if a.nil? || b.nil?
-        c = a.and(b)
-        base_query.where(c.to_sql)
+        d = match_year
+        return nil if a.nil? || d.nil?
+        z = a.and(d)
+        base_query.where(z.to_sql)
+      end
+
+      # @return [ActiveRecord::Relation, nil]
+      def autocomplete_start_author_year
+        a = match_start_author
+        d = match_year
+        return nil if a.nil? || d.nil?
+        z = a.and(d)
+        base_query.where(z.to_sql)
       end
 
       # @return [ActiveRecord::Relation, nil]
       def autocomplete_wildcard_author_exact_year
         a = match_year
-        b = match_wildcard_author
-        return nil if a.nil? || b.nil?
-        c = a.and(b)
-        base_query.where(c.to_sql)
+        d = match_wildcard_author
+        return nil if a.nil? || d.nil?
+        z = a.and(d)
+        base_query.where(z.to_sql)
+      end
+
+      # @return [ActiveRecord::Relation, nil]
+      def autocomplete_exact_in_cached
+        a = with_cached_like
+        return nil if a.nil?
+        base_query.where(a.to_sql)
       end
 
       # @return [ActiveRecord::Relation, nil]
@@ -138,7 +154,14 @@ module Queries
 
       # @return [Arel::Nodes::Equatity]
       def match_exact_author
-        table[:cached_author_string].eq(author_from_author_year)
+        table[:cached_author_string].matches(author_from_author_year)
+      end
+
+      # @return [Arel::Nodes::Equatity]
+      def match_start_author
+        a = author_from_author_year
+        return nil if a.blank?
+        table[:cached_author_string].matches(a + '%')
       end
 
       # @return [Arel::Nodes::Equatity]
@@ -155,7 +178,8 @@ module Queries
 
       # @return [String]
       def author_from_author_year
-        query_string.match(/^(.+?)\W/).to_a.last
+        query_string.match(/[[[:word:]]]+/).to_a.last
+        #query_string.match(/^(.+?)\W/).to_a.last
       end
 
       # @return [Arel::Nodes::Equatity]
@@ -180,23 +204,25 @@ module Queries
 
         # [ query, order by use if true- don't if nil ]
         queries = [
-          [ autocomplete_exact_id, nil],
-          [ autocomplete_identifier_identifier_exact, nil],
-          [ autocomplete_exact_author_year_letter&.limit(2), nil],
-          [ autocomplete_exact_author_year&.limit(10), nil],
-          [ autocomplete_identifier_cached_exact, nil],
-          [ autocomplete_wildcard_author_exact_year&.limit(10), true],
+          [ autocomplete_exact_id, false],
+          [ autocomplete_identifier_identifier_exact, false],
+          [ autocomplete_exact_author_year_letter&.limit(20), true],
+          [ autocomplete_exact_author_year&.limit(20), true],
+          [ autocomplete_identifier_cached_exact, false],
+          [ autocomplete_start_author_year&.limit(20), true],
+          [ autocomplete_wildcard_author_exact_year&.limit(20), true],
           [ autocomplete_exact_author&.limit(20), true],
-          [ autocomplete_start_of_author.limit(8), true],
-          [ autocomplete_wildcard_anywhere_exact_year&.limit(10), true],
+          [ autocomplete_start_of_author&.limit(20), true],
+          #[ autocomplete_wildcard_anywhere_exact_year&.limit(10), true],
           [ autocomplete_identifier_cached_like, true],
-          [ autocomplete_ordered_wildcard_pieces_in_cached&.limit(5), true],
+          [ autocomplete_exact_in_cached&.limit(20), true],
+          [ autocomplete_ordered_wildcard_pieces_in_cached&.limit(20), true],
           [ autocomplete_cached_wildcard_anywhere&.limit(20), true],
-          [ autocomplete_start_of_title&.limit(5), true],
-          [ autocomplete_wildcard_of_title_alternate&.limit(5), true]
+          [ autocomplete_start_of_title&.limit(20), true],
+          [ autocomplete_wildcard_of_title_alternate&.limit(20), true]
         ]
 
-        queries.delete_if{|a,b| a.nil?} # compact!
+        queries.delete_if{|a,b| a.nil?} # Note this pattern differs because [[]] so we don't use compact. /lib/queries/repository/autocomplete.rb follows same pattern
 
         result = []
 
@@ -212,7 +238,7 @@ module Queries
           if project_id && scope
             a = a.left_outer_joins(:citations)
               .select('sources.*, COUNT(citations.id) AS use_count, NULLIF(citations.project_id, NULL) as in_project')
-              .where('citations.project_id = ? OR citations.project_id IS NULL', project_id)
+              .where('citations.project_id = ? OR citations.project_id IS DISTINCT FROM ?', project_id, project_id)
               .group('sources.id, citations.project_id')
               .order('use_count DESC')
           end
@@ -222,7 +248,6 @@ module Queries
           result.uniq!
           break if result.count > 19
         end
-
         result[0..19]
       end
 

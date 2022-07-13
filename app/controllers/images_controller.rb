@@ -1,8 +1,8 @@
 class ImagesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-  after_action -> { set_pagination_headers(:images) }, only: [:index, :api_index], if: :json_request?
+  after_action -> { set_pagination_headers(:images) }, only: [:index, :api_index, :api_image_inventory], if: :json_request?
 
-  before_action :set_image, only: [:show, :api_show, :edit, :update, :destroy, :rotate]
+  before_action :set_image, only: [:show, :edit, :update, :destroy, :rotate]
 
   # GET /images
   # GET /images.json
@@ -20,6 +20,16 @@ class ImagesController < ApplicationController
     end
   end
 
+  # GET /api/v1/otus/:id/inventory/images
+  #  - routed here to take advantage of Pagination
+  def api_image_inventory
+    @images = ::Queries::Image::Filter.new(
+      params.permit(
+        :otu_id, otu_scope: [])
+    ).all.page(params[:page]).per(params[:per])
+    render '/images/api/v1/index'
+  end
+
   # GET /images/1
   # GET /images/1.json
   def show
@@ -35,6 +45,11 @@ class ImagesController < ApplicationController
 
   # GET /api/v1/images/:id
   def api_show
+    @image = Image.where(project_id: sessions_current_project_id).find_by(id: params[:id])
+    @image ||= Image.where(project_id: sessions_current_project_id).find_by(image_file_fingerprint: params[:id])
+
+    render plain: 'Not found. You may need to add a &project_token= param to the URL currently in your address bar to access these data. See https://api.taxonworks.org/ for more.', status: 404 and return if @image.nil?
+
     render '/images/api/v1/show'
   end
 
@@ -111,9 +126,10 @@ class ImagesController < ApplicationController
 
   # GET /images/download
   def download
-    send_data(Export::Download.generate_csv(Image.where(project_id: sessions_current_project_id)),
-              type: 'text',
-              filename: "images_#{DateTime.now}.csv")
+    send_data(
+      Export::Download.generate_csv(Image.where(project_id: sessions_current_project_id)),
+      type: 'text',
+      filename: "images_#{DateTime.now}.csv")
   end
 
   # GET /images/:id/extract/:x/:y/:height/:width
@@ -185,7 +201,8 @@ class ImagesController < ApplicationController
         keyword_id_or: [],
         otu_id: [],
         sled_image_id: [],
-        taxon_name_id: []
+        taxon_name_id: [],
+        otu_scope: [],
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
@@ -215,7 +232,8 @@ class ImagesController < ApplicationController
       keyword_id_or: [],
       otu_id: [],
       sled_image_id: [],
-      taxon_name_id: []
+      taxon_name_id: [],
+      otu_scope: [],
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 

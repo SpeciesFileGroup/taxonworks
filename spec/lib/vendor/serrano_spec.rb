@@ -67,7 +67,7 @@ describe TaxonWorks::Vendor::Serrano, type: :model, group: [:sources] do
         end
       end
 
-      specify 'remove html tags encoded as $\less$TAG$\greater$ except for <em>/<i>' do
+      specify 'remove html tags with special pseudo-LaTeX encodings except for <em>/<i>' do
         VCR.use_cassette('source_from_naked_doi') do
           s = TaxonWorks::Vendor::Serrano.new_from_citation(citation: naked_doi)
           expect(s.title).to include('<i>Tachycines</i>')
@@ -95,20 +95,20 @@ describe TaxonWorks::Vendor::Serrano, type: :model, group: [:sources] do
       expect(src1.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. G. Fischer, Available from https://doi.org/10.5962%2Fbhl.title.1086')
     end
 
+    specify 'html1' do
+      expect(src1.cached_string('html')).to eq(
+        'Brauer, A. (1909) <i>Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer.</i> G. Fischer, Available from https://doi.org/10.5962%2Fbhl.title.1086')
+    end
+
     # Hacked Zootaxa format
     # specify 'text2' do
     #   expect(src2.cached_string('text')).to eq('Kevan, D.K.M.E. & Wighton, D.C. (1981) Paleocene orthopteroids from south-central Alberta, Canada. Canadian Journal of Earth Sciences 18(12), 1824–1837.')
     # end
 
     specify 'text2' do
-      expect(src2.cached_string('text')).to eq(
-        'Kevan, D.K.M.E. & Wighton, D.C. (1981) Paleocene orthopteroids from south-central Alberta, Canada. Canadian Journal of Earth Sciences, 18(12), 1824–1837. Available from https://doi.org/10.1139%2Fe81-170'
+      expect(src2.cached_string('text')).to start_with(
+        'Kevan, D.K.M.E. & Wighton, D.C. (1981) Paleocene orthopteroids from south-central Alberta, Canada.'
       )
-    end
-
-    specify 'html1' do
-      expect(src1.cached_string('html')).to eq(
-        'Brauer, A. (1909) <i>Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer.</i> G. Fischer, Available from https://doi.org/10.5962%2Fbhl.title.1086')
     end
 
     # Hacked Zootaxa format
@@ -117,8 +117,8 @@ describe TaxonWorks::Vendor::Serrano, type: :model, group: [:sources] do
     # end
 
     specify 'html2' do
-      expect(src2.cached_string('html')).to eq(
-        'Kevan, D.K.M.E. &amp; Wighton, D.C. (1981) Paleocene orthopteroids from south-central Alberta, Canada. <i>Canadian Journal of Earth Sciences</i>, 18(12), 1824–1837. Available from https://doi.org/10.1139%2Fe81-170'
+      expect(src2.cached_string('html')).to start_with(
+        'Kevan, D.K.M.E. &amp; Wighton, D.C. (1981) Paleocene orthopteroids from south-central Alberta, Canada.'
       )
     end
   end

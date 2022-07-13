@@ -22,6 +22,7 @@ function makeInitialState () {
     },
     startRow: undefined,
     dataset: {},
+    namespaces: {},
     datasetRecords: [],
     selectedRowIds: [],
     table: undefined,

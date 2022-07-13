@@ -48,6 +48,7 @@ function makeInitialState () {
     repository: undefined,
     source: undefined,
     tags: [],
+    tagsForImage: [],
     taxonDetermination: makeTaxonDetermination(),
     taxon_determinations: [],
     yearCopyright: undefined

@@ -14,7 +14,7 @@
 
   <tbody>
   <% @observation_matrix_row_items.each do |observation_matrix_row_item| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= observation_matrix_tag(observation_matrix_row_item.observation_matrix) %></td>
           <td><%= otu_tag(observation_matrix_row_item.otu) if observation_matrix_row_item.respond_to?(:otu) -%></td>
           <td><%= collection_object_tag(observation_matrix_row_item.collection_object) if observation_matrix_row_item.respond_to?(:collection_object) -%></td>

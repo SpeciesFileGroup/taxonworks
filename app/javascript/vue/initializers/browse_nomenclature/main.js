@@ -8,23 +8,30 @@ function initSearch () {
   app.mount('#vue-browse-nomenclature-search')
 }
 
-function initValidations () {
+function initValidations (element) {
   const globalIds = {
-    'Taxon name': Array.from(document.querySelectorAll('#taxon-validations div')).map(node => node.getAttribute('data-global-id')),
-    Status: Array.from(document.querySelectorAll('#status-validations div')).map(node => node.getAttribute('data-global-id')),
-    Relationships: Array.from(document.querySelectorAll('#relationships-validations div')).map(node => node.getAttribute('data-global-id'))
+    'Taxon name': Array.from(document.querySelectorAll('#taxon-validations [data-global-id]')).map(node => node.getAttribute('data-global-id')),
+    Status: Array.from(document.querySelectorAll('#status-validations [data-global-id]')).map(node => node.getAttribute('data-global-id')),
+    Relationships: Array.from(document.querySelectorAll('#relationships-validations [data-global-id]')).map(node => node.getAttribute('data-global-id')),
+    'Original combination': Array.from(document.querySelectorAll('#taxon-original-combination [data-global-id]')).map(node => node.getAttribute('data-global-id'))
   }
-  const props = { globalIds }
-  const app = createApp(SoftValidation, props)
 
-  app.mount('#vue-browse-validation-panel')
+  if ([].concat(...Object.values(globalIds)).length) {
+    const app = createApp(SoftValidation, { globalIds })
+
+    app.mount(element)
+  } else {
+    element.remove()
+  }
 }
 
 document.addEventListener('turbolinks:load', () => {
-  if (document.querySelector('#vue-browse-nomenclature-search')) {
-    initSearch()
+  const searchElement = document.querySelector('#vue-browse-nomenclature-search')
+  const validationElement = document.querySelector('#vue-browse-validation-panel')
+  if (searchElement) {
+    initSearch(searchElement)
   }
-  if (document.querySelector('#vue-browse-validation-panel')) {
-    initValidations()
+  if (validationElement) {
+    initValidations(validationElement)
   }
 })

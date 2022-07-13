@@ -1,4 +1,7 @@
-<div id="vue-browse-validation-panel"></div>
+<div
+  id="vue-browse-validation-panel"
+  class="full_width">
+</div>
 <div class="d-none">
 
   <div id="taxon-validations">
@@ -18,5 +21,15 @@
       <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: { object: classification }) -%>  
     <% end %>
   </div>
+
+  <% unless @taxon_name.is_combination? %>
+    <div id="taxon-original-combination">
+      <%= content_tag(:h3, 'Original combination') if @taxon_name.original_combination_relationships.any? %>
+      <% @taxon_name.original_combination_relationships.each do |combination| %>
+        <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: { object: combination }) -%>
+      <% end %>
+    </div>
+  <% end %>
 </div>
+
 

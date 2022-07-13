@@ -1,0 +1,36 @@
+<%= content_for :head do -%>
+  <%= javascript_include_tag("https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.js",
+    "https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js")  %>
+<% end %>
+
+<h1> Collection object classification summary </h1>
+
+<p><%= tag.span('Click to generate', class: [:feedback, 'feedback-info', 'feedback-thin']) %></p>
+
+<div style="float: left;" class="padding-small">
+  <%= form_tag classification_summary_report_path, method: :get, remote: true do |f| %>
+    <%= hidden_field_tag(:rank, '::ClassRank') %>
+    <%= tag.input(type: 'submit', value: 'By class', class: ['button', 'button-default'], ) %> 
+  <% end %>
+</div>
+
+<div style="float: left;" class="padding-small">
+  <%= form_tag classification_summary_report_path, method: :get, remote: true do |f| %>
+    <%= hidden_field_tag(:rank, '::Order') %>
+    <%= tag.input(type: 'submit', value: 'By order', class: ['button', 'button-default'], ) %> 
+  <% end %>
+</div>
+
+<div style="clear:both">
+<%= form_tag classification_summary_report_path, method: :get, remote: true do |f| %>
+  <div class="field">
+    <h3> By family for order </h3>
+    <%= hidden_field_tag(:rank, '::Family') %>
+    <%= select_tag(:ancestor_id, options_from_collection_for_select( ::Queries::TaxonName::Filter.new(project_id: sessions_current_project_id, rank: '::Order').all.distinct.order(:cached), 'id', 'name'), include_blank: true) %>
+  </div>
+
+  <%= tag.input(type: 'submit', value: 'Report', class: ['button', 'button-default'], ) %> 
+<% end %>
+</div>
+
+<div id='report'></div>

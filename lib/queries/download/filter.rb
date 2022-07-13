@@ -29,6 +29,7 @@ module Queries
       # @return [ActiveRecord::Relation]
       def and_clauses
         clauses = [
+          download_type_facet
         ].compact
 
         a = clauses.shift

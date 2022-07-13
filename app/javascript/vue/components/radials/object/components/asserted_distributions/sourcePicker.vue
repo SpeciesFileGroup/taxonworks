@@ -2,27 +2,27 @@
   <fieldset class="separate-bottom">
     <legend>Source</legend>
     <div class="separate-bottom">
-      <div
-        class="horizontal-left-content align-start"
-        v-show="!citation.id"
-      >
+      <div class="horizontal-left-content align-start">
         <smart-selector
           model="sources"
           target="AssertedDistribution"
           klass="AssertedDistribution"
           pin-section="Sources"
           pin-type="Source"
+          label="cached"
+          v-model="selectedSource"
           @selected="setSource"
         />
         <lock-component
           class="margin-small-left"
-          v-model="lock" />
+          v-model="lock"
+        />
       </div>
       <hr>
       <div class="margin-small-top">
         <span
-          v-if="citation.source_id && !citation.id"
-          v-html="sourceLabel"
+          v-if="selectedSource"
+          v-html="selectedSource.cached"
         />
       </div>
       <span
@@ -49,10 +49,10 @@
             Is original
           </label>
         </li>
-        <li>
+        <li v-if="absentField">
           <label class="inline middle">
             <input
-              v-model="citation.is_absent"
+              v-model="isAbsent"
               type="checkbox"
             >
             Is absent
@@ -67,6 +67,7 @@
 
 import LockComponent from 'components/ui/VLock/index.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
+import { Source } from 'routes/endpoints'
 import { convertType } from 'helpers/types'
 
 export default {
@@ -76,41 +77,79 @@ export default {
   },
 
   props: {
-    display: {
-      type: String,
-      default: ''
+    absent: {
+      type: Boolean,
+      default: false
+    },
+
+    modelValue: {
+      type: Object,
+      required: true
+    },
+
+    absentField: {
+      type: Boolean,
+      default: false
     }
   },
 
   emits: [
     'lock',
-    'create'
+    'update:absent',
+    'update:modelValue'
   ],
 
   computed: {
     validateFields () {
+      return this.citation.source_id
+    },
+
+    isAbsent: {
+      get () {
+        return this.absent
+      },
+
+      set (value) {
+        this.$emit('update:absent', value)
+      }
+    },
+
+    citation: {
+      get () {
+        return this.modelValue
+      },
+
+      set (value) {
+        this.$emit('update:modelValue', value)
+      }
+    },
+
+    sourceId () {
       return this.citation.source_id
     }
   },
 
   data () {
     return {
-      sourceLabel: undefined,
-      citation: this.newCitation(),
-      lock: false
+      lock: false,
+      selectedSource: undefined
     }
   },
 
   watch: {
-    citation: {
-      handler () {
-        this.sendCitation()
+    sourceId: {
+      handler (newVal, oldVal) {
+        if (newVal) {
+          if (newVal !== oldVal) {
+            Source.find(newVal).then(({ body }) => {
+              this.selectedSource = body
+            })
+          }
+        } else {
+          this.selectedSource = undefined
+        }
       },
       deep: true
-    },
-
-    display (newVal) {
-      this.sourceLabel = newVal
     },
 
     lock (newVal) {
@@ -121,6 +160,7 @@ export default {
 
   mounted () {
     const value = convertType(sessionStorage.getItem('radialObject::source::lock'))
+
     if (value !== null) {
       this.lock = value === true
     }
@@ -128,57 +168,17 @@ export default {
     if (this.lock) {
       this.citation.source_id = convertType(sessionStorage.getItem('radialObject::source::id'))
       this.citation.pages = convertType(sessionStorage.getItem('radialObject::source::pages'))
-      this.sourceLabel = convertType(sessionStorage.getItem('radialObject::source::label'))
     }
   },
 
   methods: {
-    newCitation () {
-      return {
-        id: undefined,
-        source_id: undefined,
-        is_absent: false,
-        pages: undefined,
-        is_original: undefined,
-        citation_source_body: undefined
-      }
-    },
-
-    sendCitation () {
-      if (this.validateFields) {
-        this.$emit('create', this.citation)
-      }
-    },
-
-    cleanInput () {
-      this.$refs.autocomplete.cleanInput()
-      this.cleanCitation()
-    },
-
-    cleanCitation () {
-      this.sourceLabel = undefined
-      this.citation = this.newCitation()
-      this.sourceLabel = ''
-      this.$emit('create', this.citation)
-    },
-
-    setCitation (citation) {
-      this.citation = citation
-    },
-
     setSource (source) {
       sessionStorage.setItem('radialObject::source::id', source.id)
-      sessionStorage.setItem('radialObject::source::label', source.object_tag)
       this.citation.source_id = source.id
-      this.sourceLabel = source.object_tag
     },
 
-    setPage (value) {
-      sessionStorage.setItem('radialObject::source::pages', this.citation.pages)
-    },
-
-    setFocus () {
-      this.$refs.autocomplete.setFocus()
+    setPage (e) {
+      sessionStorage.setItem('radialObject::source::pages', e.target.value)
     }
   }
 }

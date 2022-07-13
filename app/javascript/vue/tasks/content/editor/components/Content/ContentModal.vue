@@ -9,8 +9,8 @@
 
   <v-modal
     v-if="isOpen"
+    :container-style="{ width: '600px', height: '70vh' }"
     @close="isOpen = false"
-    :containerStyle="{ width: '600px', height: '70vh' }"
   >
     <template #header>
       <h3>Select Content</h3>
@@ -18,6 +18,7 @@
     <template #body>
       <smart-selector
         model="contents"
+        :extend="['otu', 'topic']"
         @selected="selected"
       />
     </template>
@@ -44,7 +45,7 @@ export default {
   },
 
   computed: {
-    otu: {
+    content: {
       get () {
         return this.$store.getters[GetterNames.GetContentSelected]
       },
@@ -54,15 +55,16 @@ export default {
     },
 
     buttonLabel () {
-      return this.otu
+      return this.content
         ? 'Change Content'
         : 'Content'
     }
   },
 
   methods: {
-    selected (otu) {
-      this.otu = otu
+    selected (content) {
+      console.log(content)
+      this.content = content
       this.isOpen = false
     }
   }

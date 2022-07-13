@@ -9,7 +9,6 @@
       klass="CollectingEvent"
       @selected="selectGeographicArea"
     />
-    <template>
       <div v-if="areasByCoors.length">
         <h4>By coordinates</h4>
         <p>
@@ -59,7 +58,6 @@
           </ul>
         </template>
       </modal-component>
-    </template>
     <template v-if="geographicArea">
       <div class="middle separate-top">
         <span data-icon="ok" />
@@ -141,7 +139,7 @@ export default {
     },
 
     getByCoords (lat, long) {
-      GeographicArea.coordinates({ latitude: lat, longitude: long, geo_json: true }).then(response => {
+      GeographicArea.coordinates({ latitude: lat, longitude: long, embed: ['shape'] }).then(response => {
         this.areasByCoors = response.body
       })
     },
@@ -150,7 +148,9 @@ export default {
       if (this.collectingEvent.geographic_area_id) return
       if (convertDMS(this.verbatimLatitude) && convertDMS(this.verbatimLongitude)) {
         clearTimeout(this.ajaxCall)
-        this.ajaxCall = setTimeout(() => { this.getByCoords(convertDMS(this.verbatimLatitude), convertDMS(this.verbatimLongitude)) }, this.delay)
+        this.ajaxCall = setTimeout(() => { 
+          this.getByCoords(convertDMS(this.verbatimLatitude), convertDMS(this.verbatimLongitude)) 
+        }, this.delay)
       }
     }
   }

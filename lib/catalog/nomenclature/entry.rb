@@ -3,7 +3,7 @@
 
 # EntryItems for this Entry must follow the pattern:
 # * The `base_object` is always a TaxonName
-# * The `object` may be a Protony, TaxonNameRelationship, or Combination
+# * The `object` may be a Protonym, TaxonNameRelationship, or Combination
 #
 
 require 'catalog/entry'
@@ -21,7 +21,7 @@ class Entry < ::Catalog::Entry
 
     base_names.each do |t|
 
-      matches_target = entry_item_matches_target?(t, object) # maybe 'v'
+      matches_target = entry_item_matches_target?(t, object)
 
       if !t.citations.load.any?
         items << Catalog::Nomenclature::EntryItem.new(
@@ -47,7 +47,7 @@ class Entry < ::Catalog::Entry
 
       ::TaxonNameRelationship.where_subject_is_taxon_name(t).with_type_array(STATUS_TAXON_NAME_RELATIONSHIP_NAMES + TAXON_NAME_RELATIONSHIP_NAMES_CLASSIFICATION).each do |r|
 
-        matches_target = entry_item_matches_target?(r.subject_taxon_name, object) # maybe 'v'
+        matches_target = entry_item_matches_target?(r.subject_taxon_name, object)
 
         if !r.citations.load.any?
           items << Catalog::Nomenclature::EntryItem.new(
@@ -73,13 +73,16 @@ class Entry < ::Catalog::Entry
           )
         end
       end
+
+
+
     end
 
     true
   end
 
   # @return [Boolean]
-  #   this is the MM result.  Only return true 
+  #   this is the MM result.  Only return true
   #   when the protonym that is the focus of the Entry
   #   is referenced in the EntryItem
   def entry_item_matches_target?(item_object, reference_object)
@@ -97,7 +100,7 @@ class Entry < ::Catalog::Entry
         return true if item_object.subject_taxon_name.id == reference_object.id
       end
       return false
-    end 
+    end
   end
 
   # @return [Array of NomenclatureCatalog::EntryItem]
@@ -122,7 +125,7 @@ class Entry < ::Catalog::Entry
   end
 
   # @return [Array of TaxonName]
-  #   a summary of all names referenced in this entry 
+  #   a summary of all names referenced in this entry
   #
   def all_names
     n = [ object ]
@@ -134,7 +137,7 @@ class Entry < ::Catalog::Entry
   end
 
   # @return [Array of Sources]
-  #   as extracted for all EntryItems, orderd alphabetically by full citation
+  #   as extracted for all EntryItems, ordered alphabetically by full citation
   def all_sources
     s  = items.collect{|i| i.source}
     if !object.nil?
@@ -144,18 +147,45 @@ class Entry < ::Catalog::Entry
       end
     end
 
+    # TODO: Why aren't these first-class EntryItems?  I think they should be.
     # This is here because they are cross-referenced in HTML rendering
     s += ::TaxonNameClassification.where(taxon_name_id: all_protonyms.collect{|p| p.object}).all.
       collect{|tnc| tnc.citations.collect{|c| c.source}}.flatten
 
     s += TaxonNameRelationship::Typification.where(object_taxon_name_id: all_protonyms.collect{|p| p.object}).all.
-        collect{|tnc| tnc.citations.collect{|c| c.source}}.flatten
+      collect{|tnc| tnc.citations.collect{|c| c.source}}.flatten
 
     s += TypeMaterial.where(protonym_id: all_protonyms.collect{|p| p.object}).all.
-        collect{|tnc| tnc.citations.collect{|c| c.source}}.flatten
+      collect{|tnc| tnc.citations.collect{|c| c.source}}.flatten
 
     s.compact.uniq.sort_by{|s| s.cached}
   end
+
+  # @return [Array of Citations]
+  def all_citations
+    c  = items.collect{|i| i.citation}
+    if !object.nil?
+      relationship_items.each do |i|
+        c << i.object.object_taxon_name.origin_citation if i.object.subject_taxon_name != object  # base_object?
+        c << i.object.subject_taxon_name.origin_citation if i.object.object_taxon_name != object
+      end
+    end
+
+    # TODO: Why aren't these first-class EntryItems? I think they should be.
+    # This is here because they are cross-referenced in HTML rendering
+    c += ::TaxonNameClassification.where(taxon_name_id: all_protonyms.collect{|p| p.object}).all.
+      collect{|tnc| tnc.citations}
+
+    c += TaxonNameRelationship::Typification.where(object_taxon_name_id: all_protonyms.collect{|p| p.object}).all.
+      collect{|tnc| tnc.citations}
+
+    c += TypeMaterial.where(protonym_id: all_protonyms.collect{|p| p.object}).all.
+      collect{|tnc| tnc.citations}
+
+    c.flatten.compact.uniq.sort_by{|s| s.source.cached}
+  end
+
+
 
   # @return [Array]
   def all_protonyms

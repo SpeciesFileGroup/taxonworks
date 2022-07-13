@@ -1,42 +1,32 @@
 <template>
-  <div id="matrix_row_coder" class="matrix-row-coder">
+  <div
+    id="matrix-row-coder-app"
+    class="matrix-row-coder">
     <spinner
       legend="Loading..."
-      :full-screen="true"
+      full-screen
       :logo-size="{ width: '50px', height: '50px'}"
-      v-if="isLoading"/>
-    <div class="flex-separate">
-      <h1 class="matrix-row-coder__title" v-html="title"/>
-    </div>
-    <div>
-      <div class="flex-separate margin-medium-bottom">
-        <div>
-          <div class="align-start">
-            <ul
-              class="matrix-row-coder__descriptor-menu flex-wrap-column"
-              v-for="descriptorGroup in descriptors.chunk(Math.ceil(descriptors.length/3))">
-              <li v-for="descriptor in descriptorGroup">
-                <div>
-                  <a
-                    class="matrix-row-coder__descriptor-item"
-                    :data-icon="observationsCount(descriptor.id) ? 'ok' : false"
-                    @click="zoomDescriptor(descriptor.id)"
-                    v-html="descriptor.title"/>
-                </div>
-              </li>
-            </ul>
-          </div>
-          <description-main/>
-        </div>
-        <div>
-          <destroy-all-observations
-            @onConfirm="destroyAllObservations"/>
+      v-if="isLoading"
+    />
+    <navbar-component>
+      <div class="flex-separate middle">
+        <h3
+          class="matrix-row-coder__title"
+          v-html="title"
+        />
+        <div class="horizontal-left-content">
+          <diagnosis-component class="margin-small-right"/>
+          <descriptors-list class="margin-small-right"/>
+          <description-main class="margin-small-right"/>
           <clone-scoring
-            @onCopy="copyScorings"
-            @onClone="cloneScorings"/>
+            class="margin-small-right"
+            @on-copy="copyScorings"
+            @on-clone="cloneScorings"
+          />
+          <destroy-all-observations @on-confirm="destroyAllObservations"/>
         </div>
       </div>
-    </div>
+    </navbar-component>
 
     <ul class="matrix-row-coder__descriptor-list no_bullets">
       <li
@@ -57,19 +47,21 @@
 
 <script>
 import { mapState } from 'vuex'
-import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
-import ContinuousDescriptor from './SingleObservationDescriptor/ContinuousDescriptor/ContinuousDescriptor.vue'
+import ContinuousDescriptor from './ContinuousDescriptor/ContinuousDescriptor.vue'
 import FreeTextDescriptor from './SingleObservationDescriptor/FreeText/FreeText.vue'
 import PresenceDescriptor from './SingleObservationDescriptor/PresenceDescriptor/PresenceDescriptor.vue'
+import SampleDescriptor from './SampleDescriptor/SampleDescriptor.vue'
 import QualitativeDescriptor from './QualitativeDescriptor/QualitativeDescriptor.vue'
-import SampleDescriptor from './SingleObservationDescriptor/SampleDescriptor/SampleDescriptor.vue'
 import MediaDescriptor from './MediaDescriptor/MediaDescriptor.vue'
 import Spinner from 'components/spinner'
 import CloneScoring from './Clone/Clone'
 import DestroyAllObservations from './ObservationRow/destroyObservationRow'
 import DescriptionMain from './Description/DescriptionMain.vue'
+import DescriptorsList from './Descriptors/DescriptorsList.vue'
+import DiagnosisComponent from './Diagnosis/Diagnosis.vue'
+import NavbarComponent from 'components/layout/NavBar.vue'
 
 const computed = mapState({
   title: state => state.taxonTitle,
@@ -77,80 +69,11 @@ const computed = mapState({
 })
 
 export default {
-  created () {
-    this.loadMatrixRow({
-      rowId: this.$props.rowId,
-      otuId: this.$props.otuId
-    })
-    this.$store.dispatch(ActionNames.RequestUnits)
-  },
-  data () {
-    return {
-      isLoading: false
-    }
-  },
   name: 'MatrixRowCoder',
-  props: {
-    rowId: Number,
-    otuId: Number,
-    apiBase: String,
-    apiParams: Object
-  },
-  computed,
-  methods: {
-    setApiValues () {
-      this.$store.state.request.setApi({
-        apiBase: this.$props.apiBase,
-        apiParams: this.$props.apiParams
-      })
-    },
-    zoomDescriptor (descriptorId) {
-      const top = document.querySelector(`[data-descriptor-id="${descriptorId}"]`).getBoundingClientRect().top
-      window.scrollTo(0, top)
-    },
-    observationsCount (descriptorId) {
-      return this.$store.getters[GetterNames.GetObservationsFor](descriptorId).find((item) => {
-        return item.id != null
-      })
-    },
-    loadMatrixRow (matrixRow) {
-      this.$store.commit(MutationNames.ResetState)
-      this.setApiValues()
-      this.isLoading = true
-      this.$store.dispatch(ActionNames.RequestMatrixRow, matrixRow).then(() => {
-        this.isLoading = false
-      })
-      this.$store.dispatch(ActionNames.RequestDescription, matrixRow.rowId)
-      this.$store.dispatch(ActionNames.RequestConfidenceLevels)
-    },
-    destroyAllObservations () {
-      this.$store.dispatch(ActionNames.RemoveObservationsRow, this.rowId).then(() => {
-        this.loadMatrixRow({
-          rowId: this.rowId,
-          otuId: this.otuId
-        })
-      })
-    },
-    cloneScorings(args) {
-      this.isLoading = true
-      this.$store.dispatch(ActionNames.CreateClone, args).finally(() => {
-        this.isLoading = false
-      })
-    },
-    copyScorings(args) {
-      this.isLoading = true
-      this.$store.dispatch(ActionNames.CreateClone, args).then(() => {
-        this.isLoading = false
-        this.loadMatrixRow({
-          rowId: this.rowId,
-          otuId: this.otuId
-        })
-      }, () => {
-        this.isLoading = false
-      })
-    }
-  },
+
   components: {
+    DescriptorsList,
+    NavbarComponent,
     CloneScoring,
     ContinuousDescriptor,
     FreeTextDescriptor,
@@ -160,7 +83,66 @@ export default {
     MediaDescriptor,
     Spinner,
     DestroyAllObservations,
-    DescriptionMain
+    DescriptionMain,
+    DiagnosisComponent
+  },
+
+  props: {
+    rowId: {
+      type: Number,
+      default: undefined
+    }
+  },
+
+  data () {
+    return {
+      isLoading: false
+    }
+  },
+
+  computed,
+
+  watch: {
+    rowId () {
+      this.loadMatrixRow(this.rowId)
+    }
+  },
+
+  created () {
+    this.$store.dispatch(ActionNames.RequestUnits)
+  },
+
+  methods: {
+    loadMatrixRow (matrixRow) {
+      this.$store.commit(MutationNames.ResetState)
+      this.isLoading = true
+      this.$store.dispatch(ActionNames.RequestMatrixRow, matrixRow).then(() => {
+        this.isLoading = false
+      })
+      this.$store.dispatch(ActionNames.RequestDescription, matrixRow)
+    },
+
+    destroyAllObservations () {
+      this.$store.dispatch(ActionNames.RemoveObservationsRow, this.rowId).then(() => {
+        this.loadMatrixRow(this.rowId)
+      })
+    },
+
+    cloneScorings (args) {
+      this.isLoading = true
+      this.$store.dispatch(ActionNames.CreateClone, args).finally(() => {
+        this.isLoading = false
+      })
+    },
+
+    copyScorings (args) {
+      this.isLoading = true
+      this.$store.dispatch(ActionNames.CreateClone, args).then(() => {
+        this.loadMatrixRow(this.rowId)
+      }).finally(() => {
+        this.isLoading = false
+      })
+    }
   }
 }
 </script>

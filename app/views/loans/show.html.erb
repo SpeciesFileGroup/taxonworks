@@ -35,7 +35,7 @@
   <h3> Documentation </h3>
   <ul>
     <% @loan.documents.each do |d| %>
-      <li> 
+      <li>
         <%=  object_link(d) %>
         <%= link_to "Download", d.document_file.url(:original, false) %>
       </li>

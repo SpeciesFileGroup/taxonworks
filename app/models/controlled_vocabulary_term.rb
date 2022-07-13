@@ -42,17 +42,16 @@ class ControlledVocabularyTerm < ApplicationRecord
 
   validates_uniqueness_of :name, scope: [:type, :project_id]
   validates_uniqueness_of :definition, scope: [:project_id]
+
   validates_uniqueness_of :uri, scope: [:project_id, :uri_relation], allow_blank: true
   validates_presence_of :uri, unless: -> {uri_relation.blank?}, message: 'must be provided if uri_relation is provided'
 
   validate :uri_relation_is_a_skos_relation, unless: -> {uri_relation.blank?}
 
-  has_many :observation_matrix_row_items, inverse_of: :controlled_vocabulary_term, class_name: 'ObservationMatrixRowItem::Dynamic::Tag', dependent: :destroy
+  has_many :observation_matrix_row_items, as: :observation_object, inverse_of: :observation_object,  class_name: 'ObservationMatrixRowItem::Dynamic::Tag', dependent: :destroy
   has_many :observation_matrix_column_items, inverse_of: :controlled_vocabulary_term, class_name: 'ObservationMatrixColumnItem::Dynamic::Tag', dependent: :destroy
   
   has_many :observation_matrices, through: :observation_matrix_row_items
-
-
 
   scope :of_type, -> (type) { where(type: type.to_s.capitalize) } # TODO, capitalize is not the right method for things like `:foo_bar`
 

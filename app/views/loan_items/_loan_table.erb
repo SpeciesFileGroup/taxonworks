@@ -1,27 +1,31 @@
-
+<% contains_types = @loan.contains_types? %>
 <table class="tablesorter">
   <thead>
-  <tr>
-    <%= fancy_th_tag(name: 'Loaned item') -%>
-    <%= fancy_th_tag(name: 'Date returned') -%>
-    <%= fancy_th_tag(name: 'Collection object status') -%>
-    <%= fancy_th_tag(name: 'Total') -%>
-    <%= fancy_th_tag(name: 'Type') -%>
-    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
-    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
-  </tr>
+    <tr>
+      <%= fancy_th_tag(name: 'Loaned item') -%>
+      <%= fancy_th_tag(name: 'Date<br>returned'.html_safe) -%>
+      <%= fancy_th_tag(name: 'Status') -%>
+      <%= fancy_th_tag(name: 'Total') -%>
+      <%= fancy_th_tag(name: 'Loan item<br>type'.html_safe) -%>
+      <%= fancy_th_tag(name: 'Types?') if contains_types -%>
+    </tr>
   </thead>
 
   <tbody>
-  <% loan_items.each do |loan_item| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+    <% loan_items.each do |loan_item| %>
+      <%= content_tag(:tr, class: :contextMenuCells) do %>
         <td><%= object_tag(loan_item.loan_item_object) %></td>
         <td><%= loan_item.date_returned %></td>
         <td><%= loan_item.disposition %></td>
         <td><%= loan_item_total_string(loan_item) %></td>
         <td><%= loan_item.loan_item_object_type %></td>
-        <%= fancy_metadata_cells_tag(loan_item) -%>
+        <td><%= loan_item_type_status(loan_item) if contains_types %></td>
       <% end %>
-  <% end %>
+
+      <% if loan_item.notes.load.any? %>
+        <%= tag.tr(tag.td(  loan_item.notes.collect{|n| '&nbsp;&nbsp; &nbsp;&nbsp;' + n.text}.join(' | ').html_safe, colspan: 6)) -%>
+      <% end %>
+
+    <% end %>
   </tbody>
 </table>
