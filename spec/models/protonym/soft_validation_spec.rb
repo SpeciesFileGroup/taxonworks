@@ -159,6 +159,30 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         expect(@species.soft_validations.messages_on(:base).empty?).to be_truthy
       end
 
+      specify 'role_vs_year_of_publication 1' do
+        person= FactoryBot.create(:person, first_name: 'J.', last_name: 'McDonald', year_born: 1800, year_died: 1900)
+        @species.taxon_name_authors << person
+        @species.save
+        @species.soft_validate(only_sets: :person_vs_year_of_publication)
+        expect(@species.soft_validations.messages_on(:base).empty?).to be_truthy
+      end
+
+      specify 'role_vs_year_of_publication 2' do
+        person= FactoryBot.create(:person, first_name: 'J.', last_name: 'McDonald', year_born: 1825, year_died: 1900)
+        @species.taxon_name_authors << person
+        @species.save
+        @species.soft_validate(only_sets: :person_vs_year_of_publication)
+        expect(@species.soft_validations.messages_on(:base).empty?).to be_falsey
+      end
+
+      specify 'role_vs_year_of_publication 3' do
+        person= FactoryBot.create(:person, first_name: 'J.', last_name: 'McDonald', year_born: 1700, year_died: 1800)
+        @species.taxon_name_authors << person
+        @species.save
+        @species.soft_validate(only_sets: :person_vs_year_of_publication)
+        expect(@species.soft_validations.messages_on(:base).empty?).to be_falsey
+      end
+
       specify 'year is not required' do
         @genus.verbatim_author = @genus.source.authority_name
         @genus.year_of_publication = @genus.source.year

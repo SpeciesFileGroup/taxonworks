@@ -169,7 +169,7 @@ module Queries
         @descendants_max_depth = params[:descendants_max_depth]
         @ancestors = boolean_param(params,:ancestors )
         @exact = boolean_param(params, :exact)
-        @leaves = boolean_param(params, :leves)
+        @leaves = boolean_param(params, :leaves)
         @name = params[:name]
         @not_specified = boolean_param(params, :not_specified)
         @nomenclature_code = params[:nomenclature_code] if !params[:nomenclature_code].nil?

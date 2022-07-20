@@ -8,9 +8,36 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.27.3] - 2022-07-20
+### Added
+- Soft_validation for the year of taxon description compared to person years of life [#2595]
+- Pagination to Image matrix task
+
+### Fixed
+- Fixes rendering the author string in the catalogue [#2825]
+- Include facet is not working properly in Filter nomenclature [#3023]
+- Role picker changes order of roles after removing one [#3003]
+- Observation matrix TNT export failed due to undefined method error [#3034]
+- Date start and Date end display flipped in "Filter Collecting Events" [#3039]
+- Role picker list doesn't display suffix and preffix
+- By user facet is passing member id
+- Project user last seen at correctly reported
+
+### Changed
+- ElectronicPulbications moved from NomenNudum to Unavailable.
+- Updated Ruby gems and Node packages
+- OTU name string into link in Observation matrices dashboard task
+
+[#3003]: https://github.com/SpeciesFileGroup/taxonworks/issues/3003
+[#3023]: https://github.com/SpeciesFileGroup/taxonworks/issues/3023
+[#3034]: https://github.com/SpeciesFileGroup/taxonworks/issues/3034
+[#3039]: https://github.com/SpeciesFileGroup/taxonworks/issues/3039
+
 ## [0.27.2] - 2022-06-22
 
 ### Fixed
+
+- Updated csv output for an observation matrix [#3040]
 - Content panel in browse OTU not working properly
 - Darwin Core Export failing on specific combinations of data attributes selection.
 
@@ -2746,7 +2773,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.2...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.3...development
+[0.27.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.2...v0.27.3
 [0.27.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.1...v0.27.2
 [0.27.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.0...v0.27.1
 [0.27.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.26.2...v0.27.0

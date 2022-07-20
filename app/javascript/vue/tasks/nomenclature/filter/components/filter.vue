@@ -33,7 +33,10 @@
         v-model="params.authors"/>
       <scope-component
         class="margin-medium-bottom"
-        :autocomplete-params="{ no_leaves: true }"
+        :autocomplete-params="{
+          type: 'Protonym',
+          valid: true
+        }"
         v-model="params.base.taxon_name_id"/>
       <related-component
         class="margin-medium-bottom"
@@ -75,13 +78,16 @@
         v-model="params.base.updated_since"/>
       <citations-component
         class="margin-medium-bottom"
-        v-model="params.base.citations"/>
+        v-model="params.base.citations"
+      />
       <with-component
         v-for="(param, key) in params.with"
         :key="key"
         :param="key"
-        :title="key.replaceAll('_', ' ')"
-        v-model="params.with[key]"/>
+        :title="(withTitles[key] && withTitles[key].title) || key.replaceAll('_', ' ')"
+        :inverted="withTitles[key] && withTitles[key].inverted"
+        v-model="params.with[key]"
+      />
     </div>
   </div>
 </template>
@@ -159,7 +165,19 @@ export default {
     return {
       params: this.initParams(),
       result: [],
-      searching: false
+      searching: false,
+      withTitles: {
+        type_metadata: {
+          title: 'Type information'
+        },
+        not_specified: {
+          title: 'Incomplete combination relationships'
+        },
+        leaves: {
+          title: 'Descendants',
+          inverted: true
+        }
+      }
     }
   },
 

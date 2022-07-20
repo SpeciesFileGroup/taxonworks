@@ -5,7 +5,7 @@
       class="button normal-input button-submit"
       :class="{ 'button-default': otuSelected }"
       @click="openModal">
-      Matrix row coder
+      Open in matrix
     </button>
     <modal-component
       v-if="show"

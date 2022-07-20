@@ -4,7 +4,7 @@
       <spinner-component
         :legend="('Loading...')"
         v-if="isLoading"/>
-      <div v-show="existObservations">
+      <div v-if="existObservations">
         <dropzone-component
           class="dropzone-card"
           ref="depictionDepic"
@@ -14,7 +14,7 @@
           @vdropzone-success="successDepic"
           :dropzone-options="dropzoneDepiction"/>
       </div>
-      <div v-show="!existObservations">
+      <div v-else>
         <dropzone-component
           class="dropzone-card"
           ref="depictionObs"

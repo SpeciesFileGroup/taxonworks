@@ -44,7 +44,7 @@ module ObservationMatrixRowsHelper
   def observation_matrix_row_label_csv(observation_matrix_row)
     return observation_matrix_row.name unless observation_matrix_row.name.blank?
     o = observation_matrix_row.observation_object
-    '"' + label_for(o).gsub('"', "'") + '"'
+    ('"' + label_for(o).gsub('"', "'") + '"').html_safe
   end
 
   # ONLY CACHE IF count == 1 ?!

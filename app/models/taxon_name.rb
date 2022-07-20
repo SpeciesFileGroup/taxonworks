@@ -597,8 +597,8 @@ class TaxonName < ApplicationRecord
   def author_string
     return verbatim_author if !verbatim_author.nil?
     if taxon_name_authors.any?
-      # TODO: Technically not correct if prefix/suffix involved.
       return Utilities::Strings.authorship_sentence( taxon_name_authors.pluck(:last_name) )
+      #return Utilities::Strings.authorship_sentence( taxon_name_authors.collect{|a| [a.prefix, a.last_name, a.suffix].compact.join(' ')} )
     end
 
     return source.authority_name if !source.nil?

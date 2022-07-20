@@ -857,7 +857,8 @@ class Source::Bibtex < Source
         return Utilities::Strings.authorship_sentence(b.author.tokens.collect{ |t| t.last })
       end
     else # use normalized records
-      return Utilities::Strings.authorship_sentence(authors.collect{ |a| a.full_last_name })
+      #      return Utilities::Strings.authorship_sentence(authors.collect{ |a| a.full_last_name })
+      return Utilities::Strings.authorship_sentence(authors.collect{ |a| a.last_name })
     end
   end
 

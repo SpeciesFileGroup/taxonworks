@@ -312,6 +312,13 @@ module Protonym::SoftValidationExtensions
         resolution:  [:new_taxon_name_task]
       },
 
+      sv_person_vs_year_of_publication: {
+        set: :person_vs_year_of_publication,
+        name: 'The taxon author deceased',
+        description: "The taxon year of description does not match with the author's years of life",
+        resolution:  [:new_taxon_name_task]
+      },
+
       sv_year_is_not_required: {
         set: :year_is_not_required,
         fix: :sv_fix_year_is_not_required,
@@ -346,6 +353,7 @@ module Protonym::SoftValidationExtensions
         name: 'Verbatim year is not required for misspelling',
         description: 'Verbatim year is not required for misspelling. The year of the misspelling is inherited from the correctly spelled protonym. The Fix will delete the year'
       },
+
       sv_missing_otu: {
         set: :missing_otu,
         fix: :sv_fix_misspelling_otu,
@@ -1513,6 +1521,22 @@ module Protonym::SoftValidationExtensions
     def sv_missing_roles
       if self.roles.empty? && !has_misspelling_relationship? && !name_is_misapplied? && is_family_or_genus_or_species_rank?
         soft_validations.add(:base, 'Taxon name author role is not selected')
+      end
+    end
+
+    def sv_person_vs_year_of_publication
+      if self.cached_nomenclature_date
+        year = self.cached_nomenclature_date.year
+        self.roles.each do |r|
+          person = r.person
+          if person.year_died && year > person.year_died + 2
+            soft_validations.add(:base, "The year of description does not fit the years of #{person.last_name}'s life (#{person.year_born}–#{person.year_died})")
+          elsif person.year_born && year > person.year_born + 105
+            soft_validations.add(:base, "The year of description does not fit the years of #{person.last_name}'s life (#{person.year_born}–#{person.year_died})")
+          elsif person.year_born && year < person.year_born + 10
+            soft_validations.add(:base, "The year of description does not fit the years of #{person.last_name}'s life (#{person.year_born}–#{person.year_died})")
+          end
+        end
       end
     end
 
