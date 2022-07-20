@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Date start and Date end display flipped in "Filter Collecting Events" [#3039]
 - Role picker list doesn't display suffix and preffix
 - By user facet is passing member id
+- Project user last seen at correctly reported
 
 ### Changed
 - ElectronicPulbications moved from NomenNudum to Unavailable.
