@@ -447,7 +447,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
   private
 
-  # @return [DatasetRecord::DarwinCore::Taxon, Array<DatasetRecord::DarwinCore::Taxon>]
+  # @return Optional[DatasetRecord::DarwinCore::Taxon, Array<DatasetRecord::DarwinCore::Taxon>]
   def get_parent
     DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
                                                              .at(get_field_mapping(:taxonID))
@@ -456,7 +456,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
     ).first
   end
 
-  # @return [DatasetRecord::DarwinCore::Taxon, Array<DatasetRecord::DarwinCore::Taxon>]
+  # @return Optional[DatasetRecord::DarwinCore::Taxon, Array<DatasetRecord::DarwinCore::Taxon>]
   def get_original_combination
     DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
                                                              .at(get_field_mapping(:taxonID))
@@ -465,7 +465,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
     ).first
   end
 
-  # @return [DatasetRecord::DarwinCore::Taxon, Array<DatasetRecord::DarwinCore::Taxon>]
+  # @return Optional[DatasetRecord::DarwinCore::Taxon, Array<DatasetRecord::DarwinCore::Taxon>]
   def find_by_taxonID(taxon_id)
     DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
                                                              .at(get_field_mapping(:taxonID))
