@@ -208,6 +208,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
               iczn: {
                 synonym: 'TaxonNameRelationship::Iczn::Invalidating::Synonym',
                 homonym: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym',
+                misspelling: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling'
               },
               # TODO support other nomenclatural codes
               # icnp: {
@@ -252,7 +253,8 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
               unavailable: 'TaxonNameClassification::Iczn::Unavailable',
               excluded: 'TaxonNameClassification::Iczn::Unavailable::Excluded',
               'nomen nudum': 'TaxonNameClassification::Iczn::Unavailable::NomenNudum',
-              ichnotaxon: 'TaxonNameClassification::Iczn::Fossil::Ichnotaxon'
+              ichnotaxon: 'TaxonNameClassification::Iczn::Fossil::Ichnotaxon',
+              'nomen dubium': 'TaxonNameClassification::Iczn::Available::Valid::NomenDubium'
             }.freeze
 
             if (status = get_field_value(:taxonomicStatus)&.downcase)
