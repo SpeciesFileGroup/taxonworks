@@ -137,6 +137,10 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
               original_combination_parents << next_parent
             end
 
+            # in cases where the taxon original combination is subgenus of self eg Sima (Sima), the first parent of the list
+            # should be dropped because it hasn't been imported yet
+            original_combination_parents = original_combination_parents.drop_while {|p| p.status != "Imported" }
+
             # convert DatasetRecords into list of Protonyms
             original_combination_parents.map! do |p|
               h = {}
@@ -185,6 +189,15 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             TaxonNameRelationship.create_with(subject_taxon_name: taxon_name).find_or_create_by!(
               type: ORIGINAL_COMBINATION_RANKS[oc_protonym_rank],
               object_taxon_name: taxon_name)
+
+            # detect if current name rank is genus and original combination is with self at subgenus level, eg Aus (Aus)
+            # if so, generate OC relationship with genus (since oc_protonym_rank will be subgenus)
+            if oc_protonym_rank == :subgenus && get_field_value('taxonRank').downcase == "genus" &&
+              (get_original_combination.metadata['parent'] == get_field_value('taxonID'))
+              TaxonNameRelationship.create_with(subject_taxon_name: taxon_name).find_or_create_by!(
+                type: ORIGINAL_COMBINATION_RANKS[:genus],
+                object_taxon_name: taxon_name)
+            end
           end
 
           # if taxonomicStatus is a synonym or homonym, create the relationship to acceptedNameUsageID
@@ -398,11 +411,12 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
           # loop over dependants, see if all other dependencies are met, if so mark them as ready
           metadata['dependants'].each do |dependant_taxonID|
             if dependencies_imported?(dependant_taxonID)
-              DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
+              DatasetRecord::DarwinCore::Taxon.where(status: "NotReady",
+                                                     id: import_dataset.core_records_fields
                                                                        .at(get_field_mapping(:taxonID))
                                                                        .where(value: dependant_taxonID)
                                                                        .select(:dataset_record_id)
-              ).first.update!(status: 'Ready')
+              ).first&.update!(status: 'Ready')
             end
           end
         end

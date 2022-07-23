@@ -831,6 +831,53 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     end
   end
 
+  context 'when importing a nominate subgenus synonym' do
+    before(:all) { import_checklist_tsv('genus_subgenus_oc.tsv', 5, 'nominate synonym') }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:valid) { TaxonName.find_by(cached: 'Strumigenys') }
+    let(:synonym) { TaxonName.find_by({ name: 'Smithistruma' }) }
+
+    it 'should create and import 5 records' do
+      verify_all_records_imported(5)
+    end
+
+    it 'should have a synonym relationship ' do
+      relationship = TaxonNameRelationship.find_by({ subject_taxon_name_id: synonym.id, object_taxon_name_id: valid.id })
+      expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym')
+    end
+
+    # Strumigenys genus
+    # Smithistruma (Smithistruma) genus subgenus
+    it 'should have two original combinations' do
+      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 3
+    end
+
+    it 'should have original combination Smithistruma (Smithistruma)' do
+      original_ranks = TaxonNameRelationship.where({ subject_taxon_name: synonym, object_taxon_name: synonym }).map(&:type_name)
+      expect(original_ranks).to contain_exactly('TaxonNameRelationship::OriginalCombination::OriginalGenus', 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus')
+    end
+
+    it 'should be cached invalid' do
+      expect(synonym.cached_is_valid).to be false
+    end
+
+    it 'the synonym should have cached valid taxon id' do
+      expect(synonym.cached_valid_taxon_name_id).to eq valid.id
+    end
+
+    it "should not create a combination, Smithistruma (Smithistruma) is the original combination" do
+      expect(Combination.count).to eq 0
+    end
+
+    it "should have cached original combination Smithistruma (Smithistruma)" do
+      expect(synonym.cached_original_combination).to eq "Smithistruma (Smithistruma)"
+    end
+  end
+
   # TODO test missing parent
   #
   # TODO test protonym is unavailable --- set classification on unsaved TaxonName
