@@ -6,9 +6,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-
 ### Fixed
 - Bad logic check on adding new user to project
+- Dependency loop problem in DwC checklist importer
 
 ## [0.27.3] - 2022-07-20
 ### Added
