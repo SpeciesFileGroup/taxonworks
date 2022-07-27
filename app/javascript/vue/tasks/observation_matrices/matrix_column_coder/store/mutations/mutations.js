@@ -1,20 +1,20 @@
-import setCollectionObjects from './setCollectionObjects'
-import setObservations from './setObservations'
+import setObservation from './setObservation'
 import setObservationMatrix from './setObservationMatrix'
-import setOtus from './setOtus'
+import setObservations from './setObservations'
+import setRowObjectUnsaved from './setRowObjectUnsaved'
 
 const MutationNames = {
-  SetCollectionObjects: 'setCollectionObjects',
+  SetObservation: 'setObservation',
   SetObservations: 'setObservations',
   SetObservationMatrix: 'setObservationMatrix',
-  SetOtus: 'setOtus'
+  SetRowObjectUnsaved: 'setRowObjectUnsaved'
 }
 
 const MutationFunctions = {
-  [MutationNames.SetCollectionObjects]: setCollectionObjects,
+  [MutationNames.SetObservation]: setObservation,
   [MutationNames.SetObservations]: setObservations,
   [MutationNames.SetObservationMatrix]: setObservationMatrix,
-  [MutationNames.SetOtus]: setOtus
+  [MutationNames.SetRowObjectUnsaved]: setRowObjectUnsaved
 }
 
 export {

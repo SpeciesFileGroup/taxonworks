@@ -1,4 +1,3 @@
-import { Observation } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 import ActionNames from './actionNames'
 import ObservationTypes from 'tasks/observation_matrices/matrix_row_coder/store/helpers/ObservationTypes'

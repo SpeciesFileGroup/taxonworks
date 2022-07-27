@@ -1,20 +1,26 @@
-import getCollectionObjects from './getCollectionObjects.js'
+import doesRowObjectNeedCountdown from './doesRowObjectNeedCountdown.js'
 import getObservationMatrix from './getObservationMatrix.js'
 import getObservations from './getObservations.js'
-import getOtus from './getOtus.js'
+import getRowObjects from './getRowObjects.js'
+import isRowObjectSaving from './isRowObjectSaving.js'
+import isRowObjectUnsaved from './isRowObjectUnsaved.js'
 
 const GetterNames = {
-  GetCollectionObjects: 'getCollectionObjects',
+  DoesRowObjectNeedCountdown: 'doesRowObjectNeedCountdown',
   GetObservationMatrix: 'getObservationMatrix',
   GetObservations: 'getObservations',
-  GetOtus: 'getOtus'
+  GetRowObjects: 'getRowObjects',
+  IsRowObjectSaving: 'isRowObjectSaving',
+  IsRowObjectUnsaved: 'isRowObjectUnsaved'
 }
 
 const GetterFunctions = {
-  [GetterNames.GetCollectionObjects]: getCollectionObjects,
+  [GetterNames.DoesRowObjectNeedCountdown]: doesRowObjectNeedCountdown,
   [GetterNames.GetObservationMatrix]: getObservationMatrix,
   [GetterNames.GetObservations]: getObservations,
-  [GetterNames.GetOtus]: getOtus
+  [GetterNames.GetRowObjects]: getRowObjects,
+  [GetterNames.IsRowObjectSaving]: isRowObjectSaving,
+  [GetterNames.IsRowObjectUnsaved]: isRowObjectUnsaved
 }
 
 export {

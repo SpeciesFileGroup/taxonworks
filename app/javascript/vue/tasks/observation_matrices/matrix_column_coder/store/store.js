@@ -6,10 +6,12 @@ import { MutationFunctions } from './mutations/mutations'
 const makeInitialState = () => ({
   observationColumnId: undefined,
   observationMatrix: undefined,
-  descriptor: undefined,
+  descriptor: {},
   otus: [],
   collectionObjects: [],
-  observations: []
+  rowObjects: [],
+  observations: [],
+  units: undefined
 })
 
 const newStore = () => createStore({
