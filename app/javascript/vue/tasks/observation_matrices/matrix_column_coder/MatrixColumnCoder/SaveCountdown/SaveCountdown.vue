@@ -2,25 +2,29 @@
   <div class="save-countdown">
     <transition
       name="save-countdown__duration-bar-animation"
-      @after-enter="doSave">
+      @after-enter="doSave"
+    >
       <div
         v-if="isCountingDown"
-        class="save-countdown__duration-bar"/>
+        class="save-countdown__duration-bar"
+      />
     </transition>
 
     <div
       v-if="!isCountingDown"
       class="save-countdown__status-bar"
       :class="{
-        'save-countdown__status-bar--saving': isSaving, 
-        'save-countdown__status-bar--failed': failed, 
-        'save-countdown__status-bar--saved-at-least-once': savedAtLeastOnce }"/>
+        'save-countdown__status-bar--saving': isSaving,
+        'save-countdown__status-bar--failed': failed,
+        'save-countdown__status-bar--saved-at-least-once': savedAtLeastOnce }"
+    />
 
     <button
+      type="button"
       class="save-countdown__save-button"
       :class="{ 'save-countdown__save-button--showing': isCountingDown }"
       @click="doSave"
-      type="button">
+    >
       Save Changes
     </button>
   </div>
@@ -69,7 +73,10 @@ export default {
         requestAnimationFrame(_ => {
           this.failed = false
           this.isCountingDown = true
-          this.$store.commit(MutationNames.CountdownStartedFor, this.rowObject.id)
+          this.$store.commit(MutationNames.CountdownStartedFor, {
+            rowObjectId: this.rowObject.id,
+            rowObjectType: this.rowObject.type
+          })
         })
       }
     }
@@ -78,7 +85,10 @@ export default {
   methods: {
     doSave () {
       this.isCountingDown = false
-      this.$store.dispatch(ActionNames.SaveObservationsFor, this.rowObject.id).then(response => {
+      this.$store.dispatch(ActionNames.SaveObservationsFor, {
+        rowObjectId: this.rowObject.id,
+        rowObjectType: this.rowObject.type
+      }).then(response => {
         if (response.includes(false)) {
           this.failed = true
         }

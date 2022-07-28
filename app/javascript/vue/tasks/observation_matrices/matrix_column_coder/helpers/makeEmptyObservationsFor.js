@@ -17,7 +17,7 @@ export default function (descriptor, rowObject) {
   const emptyObservationData = {
     descriptorId: descriptor.id,
     rowObjectId: rowObject.id,
-    rowObjectType: rowObject.base_class,
+    rowObjectType: rowObject.type,
     type: ComponentNamesToObservations[descriptor.componentName]
   }
 
@@ -35,8 +35,6 @@ export default function (descriptor, rowObject) {
   } else {
     observations.push(makeObservation(emptyObservationData))
   }
-
-  console.log(observations)
 
   return observations
 }

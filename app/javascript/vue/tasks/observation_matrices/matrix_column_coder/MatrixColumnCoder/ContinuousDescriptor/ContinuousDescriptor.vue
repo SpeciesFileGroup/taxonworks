@@ -10,7 +10,7 @@
         :key="obs.id || obs.internalId"
         class="margin-small-bottom"
         :observation="obs"
-        :descriptor="descriptor"
+        :row-object="rowObject"
       />
       <v-btn
         color="primary"

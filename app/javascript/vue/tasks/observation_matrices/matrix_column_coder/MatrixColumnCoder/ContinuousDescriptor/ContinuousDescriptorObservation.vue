@@ -11,10 +11,11 @@
       </label>
       <unit-selector
         class="margin-small-right"
-        v-model="continuousUnit" />
+        v-model="continuousUnit"
+      />
       <TimeFields
         inline
-        :descriptor="descriptor"
+        :row-object="rowObject"
         :observation="observation"
       />
       <template v-if="observation.id">
@@ -22,7 +23,8 @@
         <v-btn
           color="destroy"
           circle
-          @click="removeObservation">
+          @click="removeObservation"
+        >
           <v-icon
             x-small
             name="trash"
@@ -52,7 +54,7 @@ export default {
   },
 
   props: {
-    descriptor: {
+    rowObject: {
       type: Object,
       required: true
     },
@@ -74,7 +76,8 @@ export default {
       },
       set (unit) {
         this.$store.commit(MutationNames.SetContinuousUnit, {
-          descriptorId: this.descriptor.id,
+          rowObjectId: this.rowObject.id,
+          rowObjectType: this.rowObject.type,
           observationId: this.observation.id || this.observation.internalId,
           continuousUnit: unit
         })
@@ -85,7 +88,8 @@ export default {
   methods: {
     updateContinuousValue (event) {
       this.$store.commit(MutationNames.SetContinuousValue, {
-        descriptorId: this.descriptor.id,
+        rowObjectId: this.rowObject.id,
+        rowObjectType: this.rowObject.type,
         continuousValue: event.target.value,
         observationId: this.observation.id || this.observation.internalId
       })
@@ -93,7 +97,8 @@ export default {
 
     removeObservation () {
       this.$store.dispatch(ActionNames.RemoveObservation, {
-        descriptorId: this.descriptor.id,
+        rowObjectId: this.rowObject.id,
+        rowObjectType: this.rowObject.type,
         obsId: this.observation.id
       })
     }
