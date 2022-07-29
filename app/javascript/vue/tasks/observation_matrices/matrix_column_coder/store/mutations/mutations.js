@@ -6,6 +6,7 @@ import setCharacterStateChecked from './setCharacterStateChecked'
 import setContinuousUnit from './setContinuousUnit'
 import setContinuousValue from './setContinuousValue'
 import setDayFor from './setDayFor'
+import setFreeTextValue from './setFreeTextValue'
 import setMonthFor from './setMonthFor'
 import setTimeFor from './setTimeFor'
 import setObservation from './setObservation'
@@ -23,6 +24,7 @@ import setSampleStandardDeviation from './setSampleStandardDeviation'
 import setSampleStandardError from './setSampleStandardError'
 import setSampleStandardMean from './setSampleStandardMean'
 import setSampleUnitFor from './setSampleUnitFor'
+import setPresence from './setPresence'
 import setYearFor from './setYearFor'
 
 const MutationNames = {
@@ -34,6 +36,7 @@ const MutationNames = {
   SetContinuousUnit: 'setContinuousUnit',
   SetContinuousValue: 'setContinuousValue',
   SetDayFor: 'setDayFor',
+  SetFreeTextValue: 'setFreeTextValue',
   SetMonthFor: 'setMonthFor',
   SetTimeFor: 'setTimeFor',
   SetObservation: 'setObservation',
@@ -51,6 +54,7 @@ const MutationNames = {
   SetSampleStandardError: 'setSampleStandardError',
   SetSampleStandardMean: 'setSampleStandardMean',
   SetSampleUnitFor: 'setSampleUnitFor',
+  SetPresence: 'setPresence',
   SetYearFor: 'setYearFor'
 }
 
@@ -60,6 +64,7 @@ const MutationFunctions = {
   [MutationNames.CountdownStartedFor]: countdownStartedFor,
   [MutationNames.SetCharacterStateChecked]: setCharacterStateChecked,
   [MutationNames.SetDayFor]: setDayFor,
+  [MutationNames.SetFreeTextValue]: setFreeTextValue,
   [MutationNames.SetMonthFor]: setMonthFor,
   [MutationNames.SetObservation]: setObservation,
   [MutationNames.SetObservationId]: setObservationId,
@@ -80,6 +85,7 @@ const MutationFunctions = {
   [MutationNames.SetSampleStandardError]: setSampleStandardError,
   [MutationNames.SetSampleStandardMean]: setSampleStandardMean,
   [MutationNames.SetSampleUnitFor]: setSampleUnitFor,
+  [MutationNames.SetPresence]: setPresence,
   [MutationNames.SetYearFor]: setYearFor
 }
 

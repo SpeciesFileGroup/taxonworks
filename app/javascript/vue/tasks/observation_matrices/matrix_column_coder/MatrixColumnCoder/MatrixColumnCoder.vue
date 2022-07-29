@@ -35,8 +35,6 @@
   </div>
 </template>
 
-<style lang="stylus" src="./MatrixColumnCoder.styl"></style>
-
 <script>
 import { mapState } from 'vuex'
 import { ActionNames } from '../store/actions/actions'
