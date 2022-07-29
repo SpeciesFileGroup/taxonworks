@@ -1,17 +1,21 @@
 <template>
-  <div class="continuous-descriptor">
+  <div class="sample-descriptor">
     <summary-view
-      :index="index"
-      :descriptor="descriptor"
       :row-object="rowObject"
+      :index="index"
     >
-      <ContinousDescriptorObservation
-        v-for="obs in observations"
-        :key="obs.id || obs.internalId"
-        class="margin-small-bottom"
-        :observation="obs"
-        :row-object="rowObject"
-      />
+      <div>
+        <template
+          v-for="o in observations"
+          :key="o.id || o.internalId"
+        >
+          <SampleDescriptorObservation
+            :observation="o"
+            :row-object="rowObject"
+          />
+          <hr>
+        </template>
+      </div>
       <v-btn
         color="primary"
         :disabled="!!emptyObservation"
@@ -27,29 +31,29 @@
 
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
+import SampleDescriptorObservation from './SampleDescriptorObservation.vue'
+import ObservationTypes from '../../helpers/ObservationTypes'
+import makeObservation from '../../helpers/makeObservation'
 import VBtn from 'components/ui/VBtn/index.vue'
 import SummaryView from '../SummaryView/SummaryView.vue'
-import ContinousDescriptorObservation from './ContinuousDescriptorObservation.vue'
-import makeObservation from '../../helpers/makeObservation'
-import ObservationTypes from '../../helpers/ObservationTypes'
 
 export default {
-  name: 'continuous-descriptor',
+  name: 'SampleDescriptor',
 
   components: {
+    SampleDescriptorObservation,
     SummaryView,
-    VBtn,
-    ContinousDescriptorObservation
+    VBtn
   },
 
   props: {
-    descriptor: {
-      type: Object,
+    index: {
+      type: Number,
       required: true
     },
 
-    index: {
-      type: Number,
+    descriptor: {
+      type: Object,
       required: true
     },
 
@@ -75,10 +79,10 @@ export default {
   methods: {
     addEmptyObservation () {
       const args = {
-        type: ObservationTypes.Continuous,
-        rowObjectType: this.rowObject.type,
+        type: ObservationTypes.Sample,
         rowObjectId: this.rowObject.id,
-        continuous_unit: this.descriptor.default_unit
+        rowObjectType: this.rowObject.type,
+        default_unit: this.descriptor.default_unit
       }
 
       this.$store.commit(MutationNames.AddObservation, makeObservation(args))

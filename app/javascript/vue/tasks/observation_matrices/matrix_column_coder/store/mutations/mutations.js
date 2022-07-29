@@ -15,6 +15,14 @@ import setObservations from './setObservations'
 import setRowObjectSavedOnce from './setRowObjectSavedOnce'
 import setRowObjectSaving from './setRowObjectSaving'
 import setRowObjectUnsaved from './setRowObjectUnsaved'
+import setSampleMaxFor from './setSampleMaxFor'
+import setSampleMedian from './setSampleMedian'
+import setSampleMinFor from './setSampleMinFor'
+import setSampleNFor from './setSampleNFor'
+import setSampleStandardDeviation from './setSampleStandardDeviation'
+import setSampleStandardError from './setSampleStandardError'
+import setSampleStandardMean from './setSampleStandardMean'
+import setSampleUnitFor from './setSampleUnitFor'
 import setYearFor from './setYearFor'
 
 const MutationNames = {
@@ -35,6 +43,14 @@ const MutationNames = {
   SetRowObjectSavedOnce: 'setRowObjectSavedOnce',
   SetRowObjectSaving: 'setRowObjectSaving',
   SetRowObjectUnsaved: 'setRowObjectUnsaved',
+  SetSampleMaxFor: 'setSampleMaxFor',
+  SetSampleMedian: 'setSampleMedian',
+  SetSampleMinFor: 'setSampleMinFor',
+  SetSampleNFor: 'setSampleNFor',
+  SetSampleStandardDeviation: 'setSampleStandardDeviation',
+  SetSampleStandardError: 'setSampleStandardError',
+  SetSampleStandardMean: 'setSampleStandardMean',
+  SetSampleUnitFor: 'setSampleUnitFor',
   SetYearFor: 'setYearFor'
 }
 
@@ -56,6 +72,14 @@ const MutationFunctions = {
   [MutationNames.RemoveObservation]: removeObservation,
   [MutationNames.SetContinuousUnit]: setContinuousUnit,
   [MutationNames.SetContinuousValue]: setContinuousValue,
+  [MutationNames.SetSampleMaxFor]: setSampleMaxFor,
+  [MutationNames.SetSampleMedian]: setSampleMedian,
+  [MutationNames.SetSampleMinFor]: setSampleMinFor,
+  [MutationNames.SetSampleNFor]: setSampleNFor,
+  [MutationNames.SetSampleStandardDeviation]: setSampleStandardDeviation,
+  [MutationNames.SetSampleStandardError]: setSampleStandardError,
+  [MutationNames.SetSampleStandardMean]: setSampleStandardMean,
+  [MutationNames.SetSampleUnitFor]: setSampleUnitFor,
   [MutationNames.SetYearFor]: setYearFor
 }
 

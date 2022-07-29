@@ -4,6 +4,7 @@ import getObservationMatrix from './getObservationMatrix.js'
 import getObservations from './getObservations.js'
 import getObservationsFor from './getObservationsFor.js'
 import getRowObjects from './getRowObjects.js'
+import getUnits from './getUnits'
 import isRowObjectSaving from './isRowObjectSaving.js'
 import isRowObjectUnsaved from './isRowObjectUnsaved.js'
 
@@ -25,6 +26,7 @@ const GetterFunctions = {
   [GetterNames.GetObservations]: getObservations,
   [GetterNames.GetObservationsFor]: getObservationsFor,
   [GetterNames.GetRowObjects]: getRowObjects,
+  [GetterNames.GetUnits]: getUnits,
   [GetterNames.IsRowObjectSaving]: isRowObjectSaving,
   [GetterNames.IsRowObjectUnsaved]: isRowObjectUnsaved
 }
