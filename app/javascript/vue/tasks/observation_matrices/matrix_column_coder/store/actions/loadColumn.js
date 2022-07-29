@@ -36,11 +36,17 @@ function getComponentNameForDescriptorType (descriptorData) {
 }
 
 function makeDescriptor (descriptorData) {
-  return {
+  const descriptor = {
     id: descriptorData.id,
     componentName: getComponentNameForDescriptorType(descriptorData),
     title: descriptorData.object_tag,
     globalId: descriptorData.global_id,
     type: getComponentNameForDescriptorType(descriptorData)
   }
+
+  if (descriptor.type === ComponentNames.Qualitative) {
+    Object.assign(descriptor, { characterStates: descriptorData.character_states })
+  }
+
+  return descriptor
 }

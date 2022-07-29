@@ -2,6 +2,7 @@ import addObservation from './addObservation'
 import cleanObservation from './cleanObservation'
 import countdownStartedFor from './countdownStartedFor'
 import removeObservation from './removeObservation'
+import setCharacterStateChecked from './setCharacterStateChecked'
 import setContinuousUnit from './setContinuousUnit'
 import setContinuousValue from './setContinuousValue'
 import setObservation from './setObservation'
@@ -17,6 +18,7 @@ const MutationNames = {
   CleanObservation: 'cleanObservation',
   CountdownStartedFor: 'countdownStartedFor',
   RemoveObservation: 'removeObservation',
+  SetCharacterStateChecked: 'setCharacterStateChecked',
   SetContinuousUnit: 'setContinuousUnit',
   SetContinuousValue: 'setContinuousValue',
   SetObservation: 'setObservation',
@@ -32,6 +34,7 @@ const MutationFunctions = {
   [MutationNames.AddObservation]: addObservation,
   [MutationNames.CleanObservation]: cleanObservation,
   [MutationNames.CountdownStartedFor]: countdownStartedFor,
+  [MutationNames.SetCharacterStateChecked]: setCharacterStateChecked,
   [MutationNames.SetObservation]: setObservation,
   [MutationNames.SetObservationId]: setObservationId,
   [MutationNames.SetObservations]: setObservations,
