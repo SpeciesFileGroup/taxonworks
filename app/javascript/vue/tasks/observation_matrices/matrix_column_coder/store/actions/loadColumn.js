@@ -18,7 +18,11 @@ export default async ({ dispatch, state }, id) => {
       state.observations = [...state.observations, ...makeEmptyObservationsFor(state.descriptor, rowObject)]
     })
 
-    dispatch(ActionNames.LoadObservations, body.descriptor.id)
+    const observationParams = state.descriptor.type === DescriptorTypes.Media
+      ? { descriptorId: state.descriptor.id }
+      : { descriptorId: state.descriptor.id, extend: ['depictions'] }
+
+    dispatch(ActionNames.LoadObservations, observationParams)
   })
 }
 
