@@ -2,7 +2,6 @@
   <div class="qualitative-descriptor">
     <summary-view
       :index="index"
-      :descriptor="descriptor"
       :row-object="rowObject"
       :observations="observations"
     >
@@ -20,11 +19,10 @@
             >
             {{ characterState.label }}: {{ characterState.name }}
           </label>
-
           <template v-if="getObservationFromCharacterId(characterState.id)">
             <TimeFields
               inline
-              :descriptor="descriptor"
+              :row-object="rowObject"
               :observation="getCharacterStateObservation(characterState.id)"
             />
             <radial-annotator :global-id="getObservationFromCharacterId(characterState.id).global_id" />
@@ -69,9 +67,12 @@ export default {
     }
   },
 
-  data () {
-    return {
-      observations: []
+  computed: {
+    observations () {
+      return this.$store.getters[GetterNames.GetObservations].filter(o =>
+        o.rowObjectId === this.rowObject.id &&
+        o.rowObjectType === this.rowObject.type
+      )
     }
   },
 

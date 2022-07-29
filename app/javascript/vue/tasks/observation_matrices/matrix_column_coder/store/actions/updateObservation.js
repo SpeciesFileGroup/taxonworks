@@ -1,6 +1,6 @@
-import ObservationTypes from '../../helpers/ObservationTypes'
 import { MutationNames } from '../mutations/mutations'
 import { Observation } from 'routes/endpoints'
+import ObservationTypes from '../../helpers/ObservationTypes'
 
 export default function ({ state, commit }, { rowObjectId, rowObjectType, observationId }) {
   const observation = state.observations.find(o => o.id === observationId)

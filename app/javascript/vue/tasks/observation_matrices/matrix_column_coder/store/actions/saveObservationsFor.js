@@ -34,7 +34,6 @@ function isQualitativeObservation (observation) {
 
 function makeObservationArgs (observation) {
   const args = {
-    descriptorId: observation.descriptorId,
     observationId: observation.id || observation.internalId,
     characterStateId: observation.characterStateId,
     rowObjectId: observation.rowObjectId,
