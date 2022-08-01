@@ -263,7 +263,7 @@ class Tools::ImageMatrix
   end
 
   def descriptors_with_keywords
-    if observation_matrix_id.to_i == 0 && !otu_filter.blank? # @proceps, Why 0, it should never be this, but rather nil
+    if observation_matrix_id.to_i == 0 && !otu_filter.blank?
       d = observation_depictions_from_otu_filter.pluck(:descriptor_id).uniq
       ds = Descriptor.where("descriptors.type = 'Descriptor::Media' AND descriptors.id IN (?)", d).not_weight_zero
     elsif keyword_ids
@@ -287,7 +287,13 @@ class Tools::ImageMatrix
   def rows_with_filter
     return @rows_with_filter if !@rows_with_filter.nil?
     @rows_with_fitler = [] if observation_matrix.nil?
-    @rows_with_filter ||= observation_matrix.observation_matrix_rows.order(:position)
+    if !row_id_filter_array.nil?
+      @rows_with_filter ||= observation_matrix.observation_matrix_rows.where('observation_matrix_rows.id in (?)', row_id_filter_array).order(:position)
+    elsif !otu_id_filter_array.nil?
+      @rows_with_filter ||= observation_matrix.observation_matrix_rows.where('observation_matrix_rows.otu_id in (?)', otu_id_filter_array).order(:position)
+    else
+      @rows_with_filter ||= observation_matrix.observation_matrix_rows.order(:position)
+    end
   end
 
   def row_hash_initiate
@@ -314,7 +320,6 @@ class Tools::ImageMatrix
     @pagination_next_page = @pagination_total_pages > @pagination_page ? @pagination_page + 1 : nil
     @pagination_previous_page = @pagination_page > 1 ? @pagination_page - 1 : nil
     @pagination_per_page = per
-
     rows.each do |r|
       i += 1
       next if i < per * (page - 1) + 1
@@ -477,7 +482,6 @@ class Tools::ImageMatrix
       .where(citation_object_type: 'Image')
       .where('citation_object_id IN (?)', list_of_image_ids )
 
-    # @proceps this is over-writing the citations data in a weird way!!
     cit.each do |c|
       i = {}
       i[:id] = c.id
