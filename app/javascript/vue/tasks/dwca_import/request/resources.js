@@ -14,6 +14,8 @@ const UpdateRow = (importId, rowId, data) => AjaxCall('patch', `/import_datasets
 
 const UpdateCatalogueNumber = (data) => AjaxCall('post', '/tasks/dwca_import/update_catalog_number_namespace', data)
 
+const UpdateCatalogueNumberInstitutionCodeNamespace = (data) => AjaxCall('post', '/tasks/dwca_import/update_catalog_number_collection_code_namespace', data)
+
 const UpdateImportSettings = (data) => AjaxCall('post', '/tasks/dwca_import/set_import_settings', data)
 
 const UpdateColumnField = (importId, params) => AjaxCall('patch', `/import_datasets/${importId}/dataset_records/set_field_value`, params)
@@ -33,5 +35,6 @@ export {
   UpdateRow,
   UpdateCatalogueNumber,
   UpdateColumnField,
-  UpdateImportSettings
+  UpdateImportSettings,
+  UpdateCatalogueNumberInstitutionCodeNamespace
 }
