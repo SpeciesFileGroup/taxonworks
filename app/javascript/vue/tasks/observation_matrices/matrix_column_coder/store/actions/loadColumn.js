@@ -18,11 +18,7 @@ export default async ({ dispatch, state }, id) => {
       state.observations = [...state.observations, ...makeEmptyObservationsFor(state.descriptor, rowObject)]
     })
 
-    const observationParams = state.descriptor.type === DescriptorTypes.Media
-      ? { descriptorId: state.descriptor.id }
-      : { descriptorId: state.descriptor.id, extend: ['depictions'] }
-
-    dispatch(ActionNames.LoadObservations, observationParams)
+    dispatch(ActionNames.LoadObservations, getObservationParameters(state.descriptor))
   })
 }
 
@@ -53,4 +49,17 @@ function makeDescriptor (descriptorData) {
   }
 
   return descriptor
+}
+
+function getObservationParameters (descriptor) {
+  const payload = {
+    descriptor_id: descriptor.id,
+    per: 5000
+  }
+
+  if (descriptor.type === ComponentNames.Media) {
+    Object.assign(payload, { extend: ['depictions'] })
+  }
+
+  return payload
 }
