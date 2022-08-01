@@ -37,10 +37,10 @@ class Tasks::DwcaImport::DwcaImportController < ApplicationController
   end
 
   # POST
-  def update_catalog_number_institution_code_namespace
+  def update_catalog_number_collection_code_namespace
     ImportDataset::DarwinCore::Occurrences
       .find(params[:import_dataset_id])
-      .update_catalog_number_institution_code_namespace(params[:collectionCode], params[:namespace_id])
+      .update_catalog_number_collection_code_namespace(params[:collectionCode], params[:namespace_id])
 
     render json: {success: true}
   end
