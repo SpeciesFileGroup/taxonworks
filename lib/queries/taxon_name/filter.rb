@@ -6,8 +6,11 @@ module Queries
 
       include Queries::Helpers
 
+      include Queries::Concerns::Notes
       include Queries::Concerns::Tags
       include Queries::Concerns::Users
+      include Queries::Concerns::Users
+      include Queries::Concerns::DataAttributes
 
       # @param name [String]
       #  Matches against cached.  See also exact.
@@ -193,7 +196,9 @@ module Queries
 
         @taxon_name_author_ids = params[:taxon_name_author_ids].blank? ? [] : params[:taxon_name_author_ids]
         @taxon_name_author_ids_or = boolean_param(params, :taxon_name_author_ids_or)
-
+     
+        set_notes_params(params)
+        set_data_attributes_params(params)
         set_tags_params(params)
         set_user_dates(params)
       end
@@ -506,16 +511,21 @@ module Queries
 
       def merge_clauses
         clauses = [
-          combination_taxon_name_id_facet,
           ancestor_facet,
           authors_facet,
           citations_facet,
+          combination_taxon_name_id_facet,
           created_updated_facet,
+          data_attribute_predicate_facet, 
+          data_attribute_value_facet,
+          data_attributes_facet,
           descendant_facet,
           keyword_id_facet,
           leaves_facet,
           matching_taxon_name_author_ids,
           not_specified_facet,
+          note_text_facet,        # See Queries::Concerns::Notes
+          notes_facet,            # See Queries::Concerns::Notes
           otus_facet,
           taxon_name_classification_facet,
           taxon_name_relationship_type_facet,

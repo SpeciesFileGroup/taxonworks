@@ -360,11 +360,15 @@ class CollectingEventsController < ApplicationController
       :user_target,
       :user_date_start,
       :user_date_end,
+      :data_attribute_exact_value,  # DataAttributes concern
+      :data_attributes,             # DataAttributes concern
       collector_id: [],
       geographic_area_id: [],
       keyword_id_and: [],
       keyword_id_or: [],
       otu_id: [],
+      data_attribute_predicate_id: [], # DataAttributes concern
+      data_attribute_value: [],        # DataAttributes concern
     )
   end
 

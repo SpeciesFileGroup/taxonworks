@@ -201,21 +201,6 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     expect(query.all.pluck(:id)).to contain_exactly(s.id)
   end
 
-  specify '#identifiers' do
-    s = FactoryBot.create(:valid_specimen)
-    d = FactoryBot.create(:valid_identifier, identifier_object: s)
-    query.identifiers = false
-    expect(query.all.pluck(:id)).to contain_exactly()
-  end
-
-  specify '#identifiers 1' do
-    FactoryBot.create(:valid_specimen)
-    s = FactoryBot.create(:valid_specimen)
-    d = FactoryBot.create(:valid_identifier, identifier_object: s)
-    query.identifiers = true
-    expect(query.all.pluck(:id)).to contain_exactly(s.id)
-  end
-
   specify '#collecting_event' do
     s = FactoryBot.create(:valid_specimen)
     query.collecting_event = false
@@ -593,12 +578,82 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       end
     end
 
+    context 'data_attributes' do
+      let(:p1) { FactoryBot.create(:valid_predicate) }
+      let(:p2) { FactoryBot.create(:valid_predicate) }
+
+      specify '#data_attributes' do
+        d = InternalAttribute.create!(predicate: p1, value: 1, attribute_subject: Specimen.create!)
+        Specimen.create!
+
+        query.data_attributes = true
+        expect(query.all.pluck(:id)).to contain_exactly(d.attribute_subject.id)
+      end
+
+      specify '#data_attribute_predicate_id' do
+        d = InternalAttribute.create!(predicate: p1, value: 1, attribute_subject: Specimen.create!)
+        InternalAttribute.create!(predicate: p2, value: 1, attribute_subject: Specimen.create!)
+
+        query.data_attribute_predicate_id = [p1.id]
+        expect(query.all.pluck(:id)).to contain_exactly(d.attribute_subject.id)
+      end
+
+      specify '#data_attribute_value' do
+        d = InternalAttribute.create!(predicate: p1, value: 1, attribute_subject: Specimen.create!)
+        Specimen.create!
+
+        query.data_attribute_value = 1
+        expect(query.all.pluck(:id)).to contain_exactly(d.attribute_subject.id)
+      end
+
+      specify '#value 2' do
+        d = InternalAttribute.create!(predicate: p1, value: '212', attribute_subject: Specimen.create!)
+        Specimen.create!
+
+        query.data_attribute_value = 1
+        expect(query.all.pluck(:id)).to contain_exactly(d.attribute_subject.id)
+      end
+
+      specify '#data_attribute_exact_value' do
+        d = InternalAttribute.create!(predicate: p1, value: '212', attribute_subject: Specimen.create!)
+        Specimen.create!
+
+        query.data_attribute_value = 1
+        query.data_attribute_exact_value = true
+        expect(query.all.pluck(:id)).to contain_exactly()
+      end
+
+      specify '#data_attribute_exact_value 2' do
+        d = InternalAttribute.create!(predicate: p1, value: '212', attribute_subject: Specimen.create!)
+        Specimen.create!
+
+        query.data_attribute_value = 212
+        query.data_attribute_exact_value = true
+        expect(query.all.pluck(:id)).to contain_exactly(d.attribute_subject.id)
+      end
+    end
+
     context 'identifiers' do
       let!(:n1) { Namespace.create!(name: 'First', short_name: 'second')}
       let!(:n2) { Namespace.create!(name: 'Third', short_name: 'fourth')}
 
       let!(:i1) { Identifier::Local::CatalogNumber.create!(namespace: n1, identifier: '123', identifier_object: co1) }
       let!(:i2) { Identifier::Local::CatalogNumber.create!(namespace: n2, identifier: '453', identifier_object: co2) }
+
+      specify '#identifiers' do
+        s = FactoryBot.create(:valid_specimen)
+        d = FactoryBot.create(:valid_identifier, identifier_object: s)
+        query.identifiers = false
+        expect(query.all.pluck(:id)).to contain_exactly()
+      end
+
+      specify '#identifiers 1' do
+        FactoryBot.create(:valid_specimen)
+        s = FactoryBot.create(:valid_specimen)
+        d = FactoryBot.create(:valid_identifier, identifier_object: s)
+        query.identifiers = true
+        expect(query.all.pluck(:id)).to contain_exactly(s.id)
+      end
 
       specify '#namespace_id' do
         query.namespace_id = n1.id
