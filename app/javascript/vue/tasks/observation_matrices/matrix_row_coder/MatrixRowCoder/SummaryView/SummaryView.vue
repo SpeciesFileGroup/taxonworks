@@ -24,7 +24,6 @@
         </h2>
         <a
           type="button"
-          target="_blank"
           class="circle-button btn-row-coder"
           title="Matrix column coder"
           :href="`/tasks/observation_matrices/matrix_column_coder/index?observation_matrix_column_id=${descriptor.columnId}`"
