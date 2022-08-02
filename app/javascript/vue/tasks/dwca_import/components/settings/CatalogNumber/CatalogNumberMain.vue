@@ -46,4 +46,6 @@ onUnmounted(() => {
   }
 })
 
+store.dispatch(ActionNames.LoadDataset, dataset.value.id)
+
 </script>
