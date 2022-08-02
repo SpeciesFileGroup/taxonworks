@@ -6,11 +6,21 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Matrix Column Coder [#1385]
+
+### Changed
+- Remove search box in observation matrix hub [#3032]
+
 ### Fixed
 - Bad logic check on adding new user to project
 - Dependency loop problem in DwC checklist importer
 
+[#3032]: https://github.com/SpeciesFileGroup/taxonworks/issues/3032
+[#1385]: https://github.com/SpeciesFileGroup/taxonworks/issues/1385
+
 ## [0.27.3] - 2022-07-20
+
 ### Added
 - Soft_validation for the year of taxon description compared to person years of life [#2595]
 - Pagination to Image matrix task
