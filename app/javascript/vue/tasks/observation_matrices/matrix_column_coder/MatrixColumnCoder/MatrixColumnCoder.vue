@@ -16,7 +16,10 @@
           class="matrix-row-coder__title"
           v-html="descriptor.title"
         />
-        <NavigationColumn />
+        <div class="horizontal-right-content middle">
+          <NavigationColumn />
+          <RowObjectList class="margin-medium-left" />
+        </div>
       </div>
     </navbar-component>
 
@@ -25,6 +28,7 @@
         class="matrix-row-coder__descriptor-container"
         v-for="(rowObject, index) in rowObjects"
         :key="rowObject.id"
+        :data-row-object-id="rowObject.id"
       >
         <component
           :is="descriptor.componentName"
@@ -50,6 +54,7 @@ import Spinner from 'components/spinner'
 import NavbarComponent from 'components/layout/NavBar.vue'
 import NavigationMatrix from './Navigation/NavigationMatrix.vue'
 import NavigationColumn from './Navigation/NavigationColumn.vue'
+import RowObjectList from './RowObjects/RowObjects.vue'
 
 const computed = mapState({
   descriptor: state => state.descriptor,
@@ -69,6 +74,7 @@ export default {
     MediaDescriptor,
     NavigationMatrix,
     NavigationColumn,
+    RowObjectList,
     Spinner
   },
 
