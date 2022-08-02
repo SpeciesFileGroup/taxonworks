@@ -12,10 +12,13 @@
     <NavigationMatrix class="margin-medium-bottom" />
     <navbar-component>
       <div class="flex-separate middle">
-        <h3
-          class="matrix-row-coder__title"
-          v-html="descriptor.title"
-        />
+        <div class="horizontal-left-content middle">
+          <h3
+            class="matrix-row-coder__title"
+            v-html="descriptor.title"
+          />
+          <RadialNavigator :global-id="descriptor.globalId" />
+        </div>
         <div class="horizontal-right-content middle">
           <NavigationColumn />
           <RowObjectList class="margin-medium-left" />
@@ -54,6 +57,7 @@ import Spinner from 'components/spinner'
 import NavbarComponent from 'components/layout/NavBar.vue'
 import NavigationMatrix from './Navigation/NavigationMatrix.vue'
 import NavigationColumn from './Navigation/NavigationColumn.vue'
+import RadialNavigator from 'components/radials/navigation/radial.vue'
 import RowObjectList from './RowObjects/RowObjects.vue'
 
 const computed = mapState({
@@ -75,6 +79,7 @@ export default {
     NavigationMatrix,
     NavigationColumn,
     RowObjectList,
+    RadialNavigator,
     Spinner
   },
 
