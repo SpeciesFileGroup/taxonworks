@@ -22,6 +22,13 @@
             {{ index }} {{ descriptor.title }}
           </span>
         </h2>
+        <a
+          type="button"
+          target="_blank"
+          class="circle-button btn-row-coder"
+          title="Matrix column coder"
+          :href="`/tasks/observation_matrices/matrix_column_coder/index?observation_matrix_column_id=${descriptor.columnId}`"
+        />
         <RadialAnnotator :global-id="descriptor.globalId" />
         <RadialObject :global-id="descriptor.globalId" />
       </div>
