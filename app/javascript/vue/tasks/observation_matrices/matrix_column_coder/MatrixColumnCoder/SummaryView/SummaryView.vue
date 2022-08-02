@@ -21,6 +21,13 @@
             {{ index }} <span v-html="rowObject.title" />
           </span>
         </h3>
+        <a
+          type="button"
+          target="_blank"
+          class="circle-button btn-row-coder"
+          title="Matrix row coder"
+          :href="`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${rowObject.rowId}`"
+        />
         <RadialAnnotator :global-id="rowObject.globalId" />
         <RadialObject :global-id="rowObject.globalId" />
       </div>

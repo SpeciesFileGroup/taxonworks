@@ -11,7 +11,9 @@ const makeInitialState = () => ({
   collectionObjects: [],
   rowObjects: [],
   observations: [],
-  units: undefined
+  units: undefined,
+  nextColumn: {},
+  previousColumn: {}
 })
 
 const newStore = () => createStore({

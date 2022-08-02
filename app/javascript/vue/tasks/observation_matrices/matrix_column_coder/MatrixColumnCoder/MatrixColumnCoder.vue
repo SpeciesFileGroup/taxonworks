@@ -16,6 +16,7 @@
           class="matrix-row-coder__title"
           v-html="descriptor.title"
         />
+        <NavigationColumn />
       </div>
     </navbar-component>
 
@@ -47,11 +48,11 @@ import QualitativeDescriptor from './QualitativeDescriptor/QualitativeDescriptor
 import MediaDescriptor from './MediaDescriptor/MediaDescriptor.vue'
 import Spinner from 'components/spinner'
 import NavbarComponent from 'components/layout/NavBar.vue'
-import NavigationMatrix from './NavigationMatrix/NavigationMatrix.vue'
+import NavigationMatrix from './Navigation/NavigationMatrix.vue'
+import NavigationColumn from './Navigation/NavigationColumn.vue'
 
 const computed = mapState({
   descriptor: state => state.descriptor,
-  otus: state => state.otus,
   rowObjects: state => state.rowObjects
 })
 
@@ -67,6 +68,7 @@ export default {
     SampleDescriptor,
     MediaDescriptor,
     NavigationMatrix,
+    NavigationColumn,
     Spinner
   },
 
@@ -88,7 +90,7 @@ export default {
   watch: {
     columnId: {
       handler () {
-        this.loadMatrixRow(this.columnId)
+        this.loadMatrixColumn(this.columnId)
       },
       immediate: true
     }
@@ -99,7 +101,7 @@ export default {
   },
 
   methods: {
-    loadMatrixRow (columnId) {
+    loadMatrixColumn (columnId) {
       this.isLoading = true
       this.$store.dispatch(ActionNames.LoadColumns, columnId).then(() => {
         this.isLoading = false

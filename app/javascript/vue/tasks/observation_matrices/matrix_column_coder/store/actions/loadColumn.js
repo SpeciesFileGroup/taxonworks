@@ -4,11 +4,14 @@ import ComponentNames from 'tasks/observation_matrices/matrix_row_coder/store/he
 import DescriptorTypes from 'tasks/observation_matrices/matrix_row_coder/store/helpers/DescriptorTypes'
 import makeEmptyObservationsFor from '../../helpers/makeEmptyObservationsFor.js'
 import makeRowObject from '../../helpers/makeRowObject'
+import makeColumnObject from '../../helpers/makeColumnObject'
 
 export default async ({ dispatch, state }, id) => {
   ObservationMatrix.objectsByColumnId(id).then(({ body }) => {
     state.observationMatrix = body.observation_matrix
     state.descriptor = makeDescriptor(body.descriptor)
+    state.previousColumn = makeColumnObject(body.previous_column || {})
+    state.nextColumn = makeColumnObject(body.next_column || {})
     state.rowObjects = [
       ...body.otus,
       ...body.collection_objects
