@@ -202,15 +202,15 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
   def add_catalog_number_namespace(institution_code, collection_code, namespace_id = nil)
     unless get_catalog_number_namespace_mapping(institution_code, collection_code)
       self.metadata["catalog_numbers_namespaces"] << [[institution_code, collection_code], namespace_id]
-      self.metadata["catalog_numbers_namespaces"].sort { |a, b| a[0].map(&:to_s) <=> b[0].map(&:to_s) }
+      self.metadata["catalog_numbers_namespaces"].sort! { |a, b| a[0].map(&:to_s) <=> b[0].map(&:to_s) }
     end
     save!
   end
 
   def add_catalog_number_collection_code_namespace(collection_code, namespace_id = nil)
-    unless get_catalog_number_namespace_mapping(nil, collection_code)
+    unless collection_code.nil? || get_catalog_number_collection_code_namespace_mapping(collection_code)
       self.metadata["catalog_numbers_collection_code_namespaces"] << [collection_code, namespace_id]
-      self.metadata["catalog_numbers_collection_code_namespaces"].sort { |a, b| a[0].to_s <=> b[0].to_s }
+      self.metadata["catalog_numbers_collection_code_namespaces"].sort! { |a, b| a[0].to_s <=> b[0].to_s }
     end
     save!
   end
