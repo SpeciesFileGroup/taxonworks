@@ -9,6 +9,7 @@
       :logo-size="{ width: '50px', height: '50px'}"
       v-if="isLoading"
     />
+    <NavigationMatrix class="margin-medium-bottom" />
     <navbar-component>
       <div class="flex-separate middle">
         <h3
@@ -46,6 +47,7 @@ import QualitativeDescriptor from './QualitativeDescriptor/QualitativeDescriptor
 import MediaDescriptor from './MediaDescriptor/MediaDescriptor.vue'
 import Spinner from 'components/spinner'
 import NavbarComponent from 'components/layout/NavBar.vue'
+import NavigationMatrix from './NavigationMatrix/NavigationMatrix.vue'
 
 const computed = mapState({
   descriptor: state => state.descriptor,
@@ -64,6 +66,7 @@ export default {
     QualitativeDescriptor,
     SampleDescriptor,
     MediaDescriptor,
+    NavigationMatrix,
     Spinner
   },
 
