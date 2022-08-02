@@ -286,11 +286,14 @@ class Tools::ImageMatrix
 
   def rows_with_filter
     return @rows_with_filter if !@rows_with_filter.nil?
-    @rows_with_fitler = [] if observation_matrix.nil?
+    @rows_with_filter = [] if observation_matrix.nil?
     if !row_id_filter_array.nil?
-      @rows_with_filter ||= observation_matrix.observation_matrix_rows.where('observation_matrix_rows.id in (?)', row_id_filter_array).order(:position)
+      @rows_with_filter ||= observation_matrix.observation_matrix_rows.where(id: row_id_filter_array).order(:position)
     elsif !otu_id_filter_array.nil?
-      @rows_with_filter ||= observation_matrix.observation_matrix_rows.where('observation_matrix_rows.otu_id in (?)', otu_id_filter_array).order(:position)
+      @rows_with_filter ||= observation_matrix.observation_matrix_rows
+        .where(observation_object_type: 'Otu')
+        .where(observation_object_id: otu_id_filter_array)
+        .order(:position)
     else
       @rows_with_filter ||= observation_matrix.observation_matrix_rows.order(:position)
     end
