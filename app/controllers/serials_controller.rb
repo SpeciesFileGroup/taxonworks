@@ -148,6 +148,7 @@ class SerialsController < ApplicationController
       :first_year_of_issue,
       :last_year_of_issue,
       :translated_from_serial_id,
+      :electronic_only,
       alternate_values_attributes: [
         :id,
         :value,

@@ -25,6 +25,10 @@
             link_to(translation.name, show_serial_path(translation)) -%></li>
   <% ) unless @serial.translated_from_serial.blank? -%>
 
+  <% ( -%>
+    <li><dfn class="dfn_bold">electronic only:</dfn> <%= @serial.electronic_only -%></li>
+  <% ) unless @serial.electronic.blank? -%>
+
   <% if (@serial.notes.any?) -%>
       <li><dfn class="dfn_bold">notes (internal to project):</dfn> <%= @serial.concatenated_notes_string -%></li>
   <% end -%>

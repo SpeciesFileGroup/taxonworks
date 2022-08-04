@@ -54,7 +54,13 @@
       <br>
       <%= f.number_field :last_year_of_issue %>
     </div>
-    <div class="actions">
+    <div class="field">
+      <%= f.label :electronic_only %>
+      <br>
+      <%= f.check_box :electronic_only %>
+    </div>
+
+  <div class="actions">
       <%= f.submit %>
     </div>
 <% end %>
