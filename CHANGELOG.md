@@ -6,9 +6,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Adds `data_attributes`, `data_attribute_value`, `data_attribute_predicate_id`, `data_attribute_exact` in filter concern [#2922]
 
 ### Fixed
 - Bad logic check on adding new user to project
+
+[#2922]: https://github.com/SpeciesFileGroup/taxonworks/issues/2922
 
 ## [0.27.3] - 2022-07-20
 ### Added
