@@ -930,16 +930,6 @@ class Protonym < TaxonName
     end
   end
 
-  def check_new_parent_class
-    if parent_id != parent_id_was && !parent_id_was.nil? && nomenclatural_code == :iczn
-      if old_parent = TaxonName.find_by(id: parent_id_was)
-        if (rank_name == 'subgenus' || rank_name == 'subspecies') && old_parent.name == name
-          errors.add(:parent_id, "The nominotypical #{rank_name} #{name} can not be moved out of the nominal #{old_parent.rank_name}")
-        end
-      end
-    end
-  end
-
   def validate_rank_class_class
     errors.add(:rank_class, 'Rank not found') unless RANKS.include?(rank_string)
   end
