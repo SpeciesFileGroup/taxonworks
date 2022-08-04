@@ -11,13 +11,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Remove search box in observation matrix hub [#3032]
+- Type material form allows multiple type species in comprehensive task. [#2584]
 
 ### Fixed
 - Bad logic check on adding new user to project
 - Dependency loop problem in DwC checklist importer
 
-[#3032]: https://github.com/SpeciesFileGroup/taxonworks/issues/3032
 [#1385]: https://github.com/SpeciesFileGroup/taxonworks/issues/1385
+[#2584]: https://github.com/SpeciesFileGroup/taxonworks/issues/2584
+[#3032]: https://github.com/SpeciesFileGroup/taxonworks/issues/3032
 
 ## [0.27.3] - 2022-07-20
 
