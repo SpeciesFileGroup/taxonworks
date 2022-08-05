@@ -8,6 +8,7 @@
       target="TypeMaterial"
       :params="{ 'nomenclature_group[]': 'SpeciesGroup' }"
       :autocomplete-params="{ 'nomenclature_group[]': 'SpeciesGroup' }"
+      :filter="item => item.nomenclatural_code"
       pin-section="TaxonNames"
       pin-type="TaxonName"
       @selected="store.dispatch(ActionNames.SetTypeMaterialTaxonName, $event.id)"
