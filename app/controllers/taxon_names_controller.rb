@@ -351,6 +351,8 @@ class TaxonNamesController < ApplicationController
       :author,
       :authors,
       :citations,
+      :data_attribute_exact_value,
+      :data_attributes,
       :descendants,
       :descendants_max_depth,
       :etymology,
@@ -359,16 +361,18 @@ class TaxonNamesController < ApplicationController
       :name,
       :nomenclature_code,
       :nomenclature_group, # !! different than autocomplete
-      :otus,
       :not_specified,
-#     :page, # TODO: yes or no?
-#     :per,
+      :otus,
       :taxon_name_type,
       :type_metadata,
       :updated_since,
       :validity,
       :year,
+#     :page, # TODO: yes or no?
+#     :per,
       combination_taxon_name_id: [],
+      data_attribute_predicate_id: [], # DataAttributes concern
+      data_attribute_value: [],        # DataAttributes concern
       keyword_id_and: [],
       keyword_id_or: [],
       parent_id: [],

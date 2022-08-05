@@ -300,18 +300,20 @@ class CollectingEventsController < ApplicationController
       :collection_objects,
       :collector_id,
       :collector_ids_or,
-      :determiner_name_regex,
+      :data_attribute_exact_value,  # DataAttributes concern
+      :data_attributes,             # DataAttributes concern
       :depictions,
+      :determiner_name_regex,
       :end_date,   # used in date range
       :geo_json,
       :geographic_area_id,
-      :in_labels,
-      :in_verbatim_locality,
       :identifier,
       :identifier_end,
       :identifier_exact,
       :identifier_start,
       :identifiers,
+      :in_labels,
+      :in_verbatim_locality,
       :md5_verbatim_label,
       :otu_id,
       :partial_overlap_dates,
@@ -319,16 +321,18 @@ class CollectingEventsController < ApplicationController
       :recent,
       :spatial_geographic_areas,
       :start_date, # used in date range
-      :wkt,
-      :user_target,
-      :user_date_start,
       :user_date_end,
+      :user_date_start,
+      :user_target,
+      :wkt,
       collecting_event_wildcards: [],
       collector_id: [],
       geographic_area_id: [],
       keyword_id_and: [],
       keyword_id_or: [],
       otu_id: [],
+      data_attribute_predicate_id: [], # DataAttributes concern
+      data_attribute_value: [],        # DataAttributes concern
     )
   end
 
