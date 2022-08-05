@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Remove search box in observation matrix hub [#3032]
 - Type material form allows multiple type species in comprehensive task. [#2584]
+- Updated Ruby gems.
 
 ### Fixed
 - Bad logic check on adding new user to project

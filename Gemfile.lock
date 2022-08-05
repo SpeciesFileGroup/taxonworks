@@ -221,7 +221,7 @@ GEM
       unf (>= 0.0.5, < 1.0.0)
     dropzonejs-rails (0.8.5)
       rails (> 3.1)
-    dwc_agent (3.0.0.10)
+    dwc_agent (3.0.1.0)
       namae (~> 1)
       namecase (~> 2)
     erubi (1.11.0)
