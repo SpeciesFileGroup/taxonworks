@@ -7,7 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Added pagination in the image_matrix
 - Matrix Column Coder [#1385]
+- Soft validation and fix for adding subsequen combination when original combination is different [#3051]
+- Added 'electronic only' field for the source to flag sources published in electronic only format
+
 
 ### Changed
 - Remove search box in observation matrix hub [#3032]
