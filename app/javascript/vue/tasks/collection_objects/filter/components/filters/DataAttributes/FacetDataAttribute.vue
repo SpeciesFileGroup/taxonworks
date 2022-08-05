@@ -15,8 +15,9 @@
     />
     <display-list
       :list="predicates"
-      @delete="removeFromArray(predicates, $event)"
+      :delete-warning="false"
       label="name"
+      @delete="removeFromArray(predicates, $event)"
     />
     <label>Value</label>
     <div class="field">
