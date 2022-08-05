@@ -193,7 +193,7 @@ module Source::Bibtex::SoftValidationExtensions
     end
 
     def sv_electronic_only
-      soft_validations.add(:serial_id, 'This article is from the serial which publishes in electronic only format') if self&.serial&.electronic_only
+      soft_validations.add(:serial_id, 'This article is from the serial which publishes in electronic only format') if self&.serial&.is_electronic_only
     end
 
     def sv_duplicate_title

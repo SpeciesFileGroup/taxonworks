@@ -26,8 +26,8 @@
   <% ) unless @serial.translated_from_serial.blank? -%>
 
   <% ( -%>
-    <li><dfn class="dfn_bold">electronic only:</dfn> <%= @serial.electronic_only -%></li>
-  <% ) unless @serial.electronic.blank? -%>
+    <li><dfn class="dfn_bold">is_electronic only:</dfn> <%= @serial.is_electronic_only -%></li>
+  <% ) unless @serial.is_electronic_only.blank? -%>
 
   <% if (@serial.notes.any?) -%>
       <li><dfn class="dfn_bold">notes (internal to project):</dfn> <%= @serial.concatenated_notes_string -%></li>
