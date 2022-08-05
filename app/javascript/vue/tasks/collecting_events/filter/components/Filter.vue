@@ -59,7 +59,13 @@
         v-model="params.user"
       />
       <filter-attributes
-        v-model="params.collectingEvents"/>
+        class="margin-large-bottom"
+        v-model="params.collectingEvents"
+      />
+      <FacetDataAttribute
+        v-model="params.dataAttributes"
+        class="margin-large-bottom"
+      />
       <with-component
         class="margin-large-bottom"
         v-for="(item, key) in params.byRecordsWith"
@@ -86,6 +92,7 @@ import FilterKeywords from 'tasks/sources/filter/components/filters/tags'
 import FilterDeterminations from 'tasks/collection_objects/filter/components/filters/otu'
 import FilterMaterial from 'tasks/collection_objects/filter/components/filters/types'
 import FilterCollectors from 'tasks/collection_objects/filter/components/filters/shared/people'
+import FacetDataAttribute from 'tasks/collection_objects/filter/components/filters/DataAttributes/FacetDataAttribute.vue'
 
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { CollectingEvent } from 'routes/endpoints'
@@ -101,7 +108,8 @@ export default {
     FilterIdentifiers,
     FilterKeywords,
     FilterMaterial,
-    FilterCollectors
+    FilterCollectors,
+    FacetDataAttribute
   },
 
   emits: [
@@ -153,7 +161,7 @@ export default {
 
     searchCollectingEvents () {
       if (this.emptyParams) return
-      const params = this.filterEmptyParams(Object.assign({}, this.params.keywords, this.params.identifier, this.params.determination, this.params.geographic, this.params.byRecordsWith, this.params.user, this.params.settings, this.flatObject(this.params.collectingEvents, 'fields')))
+      const params = this.filterEmptyParams(Object.assign({}, this.params.keywords, this.params.dataAttributes, this.params.identifier, this.params.determination, this.params.geographic, this.params.byRecordsWith, this.params.user, this.params.settings, this.flatObject(this.params.collectingEvents, 'fields')))
 
       this.getCollectingEvents(params)
     },
@@ -187,6 +195,7 @@ export default {
         byRecordsWith: {
           collection_objects: undefined,
           depictions: undefined,
+          data_attributes: undefined,
           geographic_area: undefined,
           georeferences: undefined,
           identifiers: undefined
@@ -197,6 +206,11 @@ export default {
           identifier_start: undefined,
           identifier_end: undefined,
           namespace_id: undefined
+        },
+        dataAttributes: {
+          data_attribute_value: [],
+          data_attribute_predicate_id: [],
+          data_attribute_exact: undefined
         },
         determination: {
           determiner_id_or: [],
@@ -238,7 +252,7 @@ export default {
         types: {
           is_type: [],
           type_type: []
-        },
+        }
       }
     },
 
