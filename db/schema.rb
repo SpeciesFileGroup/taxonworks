@@ -10,7 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+<<<<<<< HEAD
 ActiveRecord::Schema.define(version: 2022_07_07_120000) do
+=======
+ActiveRecord::Schema.define(version: 2022_08_05_084500) do
+>>>>>>> development
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -1662,6 +1666,7 @@ ActiveRecord::Schema.define(version: 2022_07_07_120000) do
     t.integer "translated_from_serial_id"
     t.text "publisher"
     t.text "name", null: false
+    t.boolean "is_electronic_only"
     t.index ["created_by_id"], name: "index_serials_on_created_by_id"
     t.index ["primary_language_id"], name: "index_serials_on_primary_language_id"
     t.index ["translated_from_serial_id"], name: "index_serials_on_translated_from_serial_id"

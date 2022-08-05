@@ -94,7 +94,10 @@ class IdentifiersController < ApplicationController
   # GET /api/v1/identifiers
   def api_index
     @identifiers = Queries::Identifier::Filter.new(api_params).all
-      .order('identifiers.id').page(params[:page]).per(params[:per])
+      .where(project_id: sessions_current_project_id)
+      .order('identifiers.id')
+      .page(params[:page])
+      .per(params[:per])
     render '/identifiers/api/v1/index'
   end
 
@@ -140,7 +143,7 @@ class IdentifiersController < ApplicationController
       :type,
       identifier_object_id: [],
       identifier_object_type: [],
-    )
+    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
   def identifier_params

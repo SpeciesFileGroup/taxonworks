@@ -842,5 +842,25 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         expect(g.soft_validations.messages_on(:base).empty?).to be_truthy
       end
     end
+
+    context 'missing subsequent combination' do
+      specify 'create subsequent combination' do
+        g = FactoryBot.create(:relationship_genus, name: 'Aus')
+        og = FactoryBot.create(:relationship_genus, name: 'Bus', parent_id: g.parent_id)
+        s = FactoryBot.create(:relationship_species, name: 'aus', parent: g)
+        s.original_genus = og
+        s.original_species = s
+        s.save
+        s.soft_validate(only_sets: :presence_of_combination)
+        expect(s.soft_validations.messages_on(:base).empty?).to be_truthy
+        s.soft_validate(only_sets: :presence_of_combination, include_flagged: true)
+        expect(s.soft_validations.messages_on(:base).size).to eq(1)
+        s.fix_soft_validations
+        s.reload
+        expect(Combination.where(cached_valid_taxon_name_id: s.id).any?).to be_truthy
+        s.soft_validate(only_sets: :presence_of_combination, include_flagged: true)
+        expect(s.soft_validations.messages_on(:base).empty?).to be_truthy
+      end
+    end
   end
 end

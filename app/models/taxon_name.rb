@@ -931,34 +931,6 @@ class TaxonName < ApplicationRecord
     return n
   end
 
-  # def create_new_combination_if_absent
-  # return true unless type == 'Protonym'
-  # if !TaxonName.with_cached_html(cached_html).count == 0 (was intent to make this always fail?!)
-  #
-  #  if TaxonName.where(cached: cached, project_id: project_id).any?
-  #    begin
-  #      TaxonName.transaction do
-  #        c = Combination.new
-  #        safe_self_and_ancestors.each do |i|
-  #          case i.rank
-  #            when 'genus'
-  #              c.genus = i
-  #            when 'subgenus'
-  #              c.subgenus = i
-  #            when 'species'
-  #              c.species = i
-  #            when 'subspecies'
-  #              c.subspecies = i
-  #          end
-  #        end
-  #        c.save
-  #      end
-  #    rescue
-  #    end
-  #    false
-  #  end
-  # end
-
   def clear_cached(update: false)
     assign_attributes(
       cached_html: nil,

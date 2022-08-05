@@ -56,6 +56,7 @@
         :attributes="[['descriptor', 'object_tag']]"
         :global-id-path="['descriptor', 'global_id']"
         :filter-remove="item => item.cached_observation_matrix_column_item_id"
+        code
         @delete="removeColumn($event.cached_observation_matrix_column_item_id)"
         @order="updateColumnsOrder"/>
       <pagination-component

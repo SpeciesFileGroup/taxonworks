@@ -8,13 +8,31 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - Adds `data_attributes`, `data_attribute_value`, `data_attribute_predicate_id`, `data_attribute_exact` in filter concern [#2922]
+- `/api/v1/tags` endpoint with `tag_object_type[]`,`tag_object_id[]`, `tag_object_type`, `object_global_id`, `keyword_id[]` [#3061]
+- Added pagination in the image_matrix
+- Matrix Column Coder - coding by descriptor [#1385]
+- Soft validation and fix for adding subsequen combination when original combination is different [#3051]
+- Added 'electronic only' field for the source to flag sources published in electronic only format
+
+### Changed
+- Remove search box in observation matrix hub [#3032]
+- Type material form allows multiple type species in comprehensive task. [#2584]
+- Updated Ruby gems.
 
 ### Fixed
+- Object global id param in identifiers API/filter
 - Bad logic check on adding new user to project
+- Dependency loop problem in DwC checklist importer
+
+[#3061]: https://github.com/SpeciesFileGroup/taxonworks/issues/3061
+[#1385]: https://github.com/SpeciesFileGroup/taxonworks/issues/1385
+[#2584]: https://github.com/SpeciesFileGroup/taxonworks/issues/2584
+[#3032]: https://github.com/SpeciesFileGroup/taxonworks/issues/3032
 
 [#2922]: https://github.com/SpeciesFileGroup/taxonworks/issues/2922
 
 ## [0.27.3] - 2022-07-20
+
 ### Added
 - Soft_validation for the year of taxon description compared to person years of life [#2595]
 - Pagination to Image matrix task
