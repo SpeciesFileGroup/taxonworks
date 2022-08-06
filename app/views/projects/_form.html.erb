@@ -7,6 +7,11 @@
   </div>
 
   <div class="field">
+    <%= check_box_tag('project[create_with_current_user]', '1', true) %>
+    <%= f.label :add_me_to_the_project  %>
+  </div>
+
+  <div class="field">
     <%= f.label :api_access_token %><br>
     <%= radio_button_tag 'project[set_new_api_access_token]', true %> <%= f.label :generate_new_token %>
     <br>
