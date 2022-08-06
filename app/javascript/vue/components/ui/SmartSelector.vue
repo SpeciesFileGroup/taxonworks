@@ -244,6 +244,11 @@ export default {
       default: 'id'
     },
 
+    filter: {
+      type: Function,
+      default: undefined
+    },
+
     lockView: {
       type: Boolean,
       default: true
@@ -325,14 +330,23 @@ export default {
         this.sendObject(response.body)
       })
     },
+
     sendObject (item) {
       this.lastSelected = item
       this.selectedItem = item
       this.$emit('selected', item)
     },
+
     filterItem (item) {
-      return Array.isArray(this.filterIds) ? !this.filterIds.includes(item[this.filterBy]) : this.filterIds !== item[this.filterBy]
+      if (this.filter) {
+        return this.filter(item)
+      }
+
+      return Array.isArray(this.filterIds)
+        ? !this.filterIds.includes(item[this.filterBy])
+        : this.filterIds !== item[this.filterBy]
     },
+
     refresh (forceUpdate = false) {
       if (this.alreadyOnLists() && !forceUpdate) return
       AjaxCall('get', `/${this.model}/select_options`, { params: Object.assign({}, { klass: this.klass, target: this.target }, { extend: this.extend }, this.params) }).then(response => {

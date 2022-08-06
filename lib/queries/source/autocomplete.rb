@@ -103,6 +103,7 @@ module Queries
 
       # @return [ActiveRecord::Relation, nil]
       def autocomplete_exact_author_year
+        return nil if query_string.split(' ').count > 2
         a = match_exact_author
         d = match_year
         return nil if a.nil? || d.nil?
@@ -112,6 +113,7 @@ module Queries
 
       # @return [ActiveRecord::Relation, nil]
       def autocomplete_start_author_year
+        return nil if query_string.split(' ').count > 2
         a = match_start_author
         d = match_year
         return nil if a.nil? || d.nil?
@@ -121,6 +123,7 @@ module Queries
 
       # @return [ActiveRecord::Relation, nil]
       def autocomplete_wildcard_author_exact_year
+        return nil if query_string.split(' ').count > 2
         a = match_year
         d = match_wildcard_author
         return nil if a.nil? || d.nil?
@@ -166,6 +169,7 @@ module Queries
 
       # @return [Arel::Nodes::Equatity]
       def match_year_suffix
+        return nil if year_letter.blank?
         table[:year_suffix].eq(year_letter)
       end
 
@@ -207,8 +211,8 @@ module Queries
           [ autocomplete_exact_id, false],
           [ autocomplete_identifier_identifier_exact, false],
           [ autocomplete_exact_author_year_letter&.limit(20), true],
-          [ autocomplete_exact_author_year&.limit(20), true],
           [ autocomplete_identifier_cached_exact, false],
+          [ autocomplete_exact_author_year&.limit(20), true],
           [ autocomplete_start_author_year&.limit(20), true],
           [ autocomplete_wildcard_author_exact_year&.limit(20), true],
           [ autocomplete_exact_author&.limit(20), true],
@@ -243,7 +247,6 @@ module Queries
               .order('use_count DESC')
           end
           a ||= q
-
           result += a.to_a
           result.uniq!
           break if result.count > 19

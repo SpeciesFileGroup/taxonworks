@@ -25,10 +25,6 @@ module Queries
         [@role_type].flatten.compact
       end
 
-      # def object_global_id_value
-      #   object_global_id ? GlobalID::Locator.locate(object_global_id).id : nil
-      # end
-
       # @return [Arel::Table]
       def table
         ::Role.arel_table

@@ -17,9 +17,9 @@ module Queries::Concerns::Polymorphic
       set_polymorphic_ids(hash)
     end
 
-   def object_global_id=(value)
+    def object_global_id=(value)
       @object_global_id = value
-   end
+    end
   end
 
   def set_polymorphic_ids(hash)
@@ -42,22 +42,33 @@ module Queries::Concerns::Polymorphic
 
   def global_object_type
     if object_for
-      object_for&.class.name
+      object_for&.class.base_class.name
     else
       nil
     end
   end
 
   # TODO: Dry with polymorphic_params
-   # @return [Arel::Node, nil]
-   def matching_polymorphic_ids
-     nodes = Queries::Annotator.polymorphic_nodes(polymorphic_ids, self.class.annotating_class)
-     return nil if nodes.nil?
-     a = nodes.shift
-     nodes.each do |b|
-       a = a.and(b)
-     end
-     a
-   end
+  # @return [Arel::Node, nil]
+  def matching_polymorphic_ids
+    nodes = Queries::Annotator.polymorphic_nodes(polymorphic_ids, self.class.annotating_class)
+    return nil if nodes.nil?
+    a = nodes.shift
+    nodes.each do |b|
+      a = a.and(b)
+    end
+    a
+  end
+
+  # Not necessary, handled by splitting out id/type
+  # TODO: remove paradigm from Notes facets
+  def object_global_id_facet
+    return nil if object_global_id.nil?
+    o = GlobalID::Locator.locate(object_global_id)
+    k = o.class.base_class.name
+    id = o.id
+    t = self.class.annotating_class.table_name.singularize + '_object'
+    table["#{t}_id".to_sym].eq(o.id).and(table["#{t}_type".to_sym].eq(k))
+  end
 
 end
