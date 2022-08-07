@@ -1,0 +1,50 @@
+.save-countdown
+    $bar
+        background-color transparent
+        left 0
+        height 3px
+        position absolute
+        transform-origin 0 50%
+        transition background-color 250ms
+        top 0
+        right 0
+
+    &__duration-bar
+        @extend .save-countdown $bar
+
+    &__duration-bar-animation
+        &-enter-active
+            animation countdown 3333ms linear
+
+    &__status-bar
+        @extend .save-countdown $bar
+
+        &--saved-at-least-once
+            background-color green
+
+        &--saving
+            background-color yellow
+
+        &--failed
+            background-color red
+
+    &__save-button
+        opacity 0
+        pointer-events none
+        position absolute
+        right 1vmin
+        top 1vmin
+        transition opacity 250ms
+
+        &--showing
+            opacity 1
+            pointer-events auto
+
+@keyframes countdown
+    from
+        background-color red
+        transform scaleX(0)
+
+    to
+        background-color red
+        transform scaleX(1)

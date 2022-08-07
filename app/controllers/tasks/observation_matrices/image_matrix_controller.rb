@@ -7,14 +7,14 @@ class Tasks::ObservationMatrices::ImageMatrixController < ApplicationController
 
   # GET /tasks/observation_matrices/image_matrix/37/key
   def key
-    @key = Tools::ImageMatrix.new(**key_params)
+    @key = Tools::ImageMatrix.new(**image_key_params)
   end
 
   protected
 
   #params[:observation_matrix_id, :project_id, :observation_matrix, :language_id, :keyword_ids, :row_filter,
-  #       :otu_filter, :identified_to_rank]
-  def key_params
+  #       :per, :page, :otu_filter, :identified_to_rank]
+  def image_key_params
     params.permit(
         :observation_matrix_id,
         :language_id,
@@ -25,6 +25,8 @@ class Tasks::ObservationMatrices::ImageMatrixController < ApplicationController
         :error_tolerance,
         :identified_to_rank,
         :selected_descriptors,
+        :per,
+        :page,
         keyword_ids: [] # arrays must be at the end
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end

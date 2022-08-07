@@ -49,8 +49,7 @@ module Export::Dwca
       @core_scope = get_scope(core_scope)
       @biological_extension_scope = extension_scopes[:biological_extension_scope] #  = get_scope(core_scope)
 
-      @data_predicate_ids = predicate_extension_params
-      @data_predicate_ids = {collection_object_predicate_id: [], collecting_event_predicate_id: []} if @data_predicate_ids.empty?
+      @data_predicate_ids = { collection_object_predicate_id: [], collecting_event_predicate_id: [] }.merge!(predicate_extension_params)
     end
 
     def predicate_options_present?

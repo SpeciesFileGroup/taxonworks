@@ -74,10 +74,15 @@ module CollectionObjects
         :with_buffered_determinations,
         :with_buffered_other_labels,
         :wkt,
+        :data_attribute_exact_value,     # DataAttributes concern
+        :data_attributes, # DataAttributes concern
         biocuration_class_ids: [],
         biological_relationship_ids: [],
         collecting_event_ids: [],
+        collecting_event_wildcards: [], # !! TODO, factor into CONSTANT
         collector_id: [], #
+        data_attribute_predicate_id: [], # DataAttributes concern
+        data_attribute_value: [],        # DataAttributes concern
         determiner_id: [],
         geographic_area_id: [],
         is_type: [],
@@ -86,8 +91,6 @@ module CollectionObjects
         loan_id: [],
         otu_ids: [],
         preparation_type_id: [],
-
-        collecting_event_wildcards: [] # !! TODO, factor into CONSTANT
         #  user_id: []
         #  collecting_event: {
         #   :recent,
@@ -130,11 +133,11 @@ module CollectionObjects
         :identifiers,
         :in_labels,
         :in_verbatim_locality,
-        :note_exact,
         :loaned,
         :md5_verbatim_label, # CE filter
         :namespace_id,
         :never_loaned,
+        :note_exact,
         :note_text,
         :notes,
         :on_loan,

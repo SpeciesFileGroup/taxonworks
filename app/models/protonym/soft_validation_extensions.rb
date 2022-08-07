@@ -290,7 +290,6 @@ module Protonym::SoftValidationExtensions
         resolution: [:new_taxon_name_task]
       },
 
-      # TODO: names are not taxa, should this be here?
       sv_extant_children: {
         set: :extant_children,
         name: 'Extinct taxon has extant children taxa',
@@ -300,8 +299,16 @@ module Protonym::SoftValidationExtensions
       sv_protonym_to_combination: {
         set: :protonym_to_combination,
         fix: :becomes_combination,
-        name: 'Invalid protonym could be converted into a combination',
+        name: 'Protonym with unavailable/invalid relationship which could potentially be converted into a combination',
         description: 'Detection of protonyms, which could be not synonym, but subsequent combinations of another protonym. The Fix could convert the protonym into combination. The Fix require manual trigger',
+        flagged: true
+      },
+
+      sv_presence_of_combination: {
+        set: :presence_of_combination,
+        fix: :sv_fix_presence_of_combination,
+        name: 'Missing subsequent combination.',
+        description: 'Missing subsequent combination. Current classification of the taxon is different from original combination. The Fix require manual trigger',
         flagged: true
       },
 
@@ -309,6 +316,13 @@ module Protonym::SoftValidationExtensions
         set: :missing_roles,
         name: 'Missing taxon author roles',
         description: 'Taxon author roles are not set',
+        resolution:  [:new_taxon_name_task]
+      },
+
+      sv_person_vs_year_of_publication: {
+        set: :person_vs_year_of_publication,
+        name: 'The taxon author deceased',
+        description: "The taxon year of description does not match with the author's years of life",
         resolution:  [:new_taxon_name_task]
       },
 
@@ -346,6 +360,7 @@ module Protonym::SoftValidationExtensions
         name: 'Verbatim year is not required for misspelling',
         description: 'Verbatim year is not required for misspelling. The year of the misspelling is inherited from the correctly spelled protonym. The Fix will delete the year'
       },
+
       sv_missing_otu: {
         set: :missing_otu,
         fix: :sv_fix_misspelling_otu,
@@ -1505,7 +1520,7 @@ module Protonym::SoftValidationExtensions
     def sv_protonym_to_combination
       if convertable_to_combination?
         soft_validations.add(
-          :base, "Invalid #{self.cached_original_combination_html} could be converted into a Combination",
+          :base, "Unavailable or Invalid #{self.cached_original_combination_html} could potentially be converted into a combination (Fix will try to convert protonym into combination)",
           success_message: "Protonym #{self.cached_original_combination_html} was successfully converted into a combination", failure_message:  'Failed to convert protonym into combination')
       end
     end
@@ -1513,6 +1528,22 @@ module Protonym::SoftValidationExtensions
     def sv_missing_roles
       if self.roles.empty? && !has_misspelling_relationship? && !name_is_misapplied? && is_family_or_genus_or_species_rank?
         soft_validations.add(:base, 'Taxon name author role is not selected')
+      end
+    end
+
+    def sv_person_vs_year_of_publication
+      if self.cached_nomenclature_date
+        year = self.cached_nomenclature_date.year
+        self.roles.each do |r|
+          person = r.person
+          if person.year_died && year > person.year_died + 2
+            soft_validations.add(:base, "The year of description does not fit the years of #{person.last_name}'s life (#{person.year_born}–#{person.year_died})")
+          elsif person.year_born && year > person.year_born + 105
+            soft_validations.add(:base, "The year of description does not fit the years of #{person.last_name}'s life (#{person.year_born}–#{person.year_died})")
+          elsif person.year_born && year < person.year_born + 10
+            soft_validations.add(:base, "The year of description does not fit the years of #{person.last_name}'s life (#{person.year_born}–#{person.year_died})")
+          end
+        end
       end
     end
 
@@ -1598,6 +1629,7 @@ module Protonym::SoftValidationExtensions
           failure_message:  'Failed to create OTU')
       end
     end
+
     def sv_fix_misspelling_otu
       if is_available? && otus.empty?
         otus.create(taxon_name_id: id)
@@ -1605,6 +1637,39 @@ module Protonym::SoftValidationExtensions
       end
       return false
     end
+
+    def sv_presence_of_combination
+      if is_genus_or_species_rank? && !cached_original_combination.nil? && cached != cached_original_combination
+        unless Combination.where("cached = ? AND cached_valid_taxon_name_id = ?", cached, cached_valid_taxon_name_id).any?
+          soft_validations.add(
+            :base, "Protonym #{self.cached_html} missing corresponding subsequent combination. Current classification of the taxon is different from original combination. (Fix will create a new combination)",
+            success_message: "Combination #{self.cached_html} was successfully create",
+            failure_message:  'Failed to create a new combination')
+        end
+      end
+    end
+
+    def sv_fix_presence_of_combination
+          begin
+            TaxonName.transaction do
+              c = Combination.new
+              safe_self_and_ancestors.each do |i|
+                case i.rank
+                  when 'genus'
+                    c.genus = i
+                  when 'subgenus'
+                    c.subgenus = i
+                  when 'species'
+                    c.species = i
+                  when 'subspecies'
+                    c.subspecies = i
+                end
+              end
+              c.save
+            end
+          rescue
+          end
+        end
   end
 end
 

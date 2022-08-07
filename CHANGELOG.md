@@ -7,6 +7,81 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Adds `data_attributes`, `data_attribute_value`, `data_attribute_predicate_id`, `data_attribute_exact` in filter concern [#2922]
+- `/api/v1/tags` endpoint with `tag_object_type[]`,`tag_object_id[]`, `tag_object_type`, `object_global_id`, `keyword_id[]` [#3061]
+- Added pagination in the image_matrix
+- Matrix Column Coder - coding by descriptor [#1385]
+- Soft validation and fix for adding subsequen combination when original combination is different [#3051]
+- Added 'electronic only' field for the source to flag sources published in electronic only format
+
+### Changed
+- Remove search box in observation matrix hub [#3032]
+- Type material form allows multiple type species in comprehensive task. [#2584]
+- Updated Ruby gems.
+
+### Fixed
+- Object global id param in identifiers API/filter
+- Bad logic check on adding new user to project
+- Dependency loop problem in DwC checklist importer
+
+[#3061]: https://github.com/SpeciesFileGroup/taxonworks/issues/3061
+[#1385]: https://github.com/SpeciesFileGroup/taxonworks/issues/1385
+[#2584]: https://github.com/SpeciesFileGroup/taxonworks/issues/2584
+[#3032]: https://github.com/SpeciesFileGroup/taxonworks/issues/3032
+
+[#2922]: https://github.com/SpeciesFileGroup/taxonworks/issues/2922
+
+## [0.27.3] - 2022-07-20
+
+### Added
+- Soft_validation for the year of taxon description compared to person years of life [#2595]
+- Pagination to Image matrix task
+
+### Fixed
+- Fixes rendering the author string in the catalogue [#2825]
+- Include facet is not working properly in Filter nomenclature [#3023]
+- Role picker changes order of roles after removing one [#3003]
+- Observation matrix TNT export failed due to undefined method error [#3034]
+- Date start and Date end display flipped in "Filter Collecting Events" [#3039]
+- Role picker list doesn't display suffix and preffix
+- By user facet is passing member id
+- Project user last seen at correctly reported
+
+### Changed
+- ElectronicPulbications moved from NomenNudum to Unavailable.
+- Updated Ruby gems and Node packages
+- OTU name string into link in Observation matrices dashboard task
+
+[#2825]: https://github.com/SpeciesFileGroup/taxonworks/issues/2825
+[#2595]: https://github.com/SpeciesFileGroup/taxonworks/issues/2595
+[#3003]: https://github.com/SpeciesFileGroup/taxonworks/issues/3003
+[#3023]: https://github.com/SpeciesFileGroup/taxonworks/issues/3023
+[#3034]: https://github.com/SpeciesFileGroup/taxonworks/issues/3034
+[#3039]: https://github.com/SpeciesFileGroup/taxonworks/issues/3039
+
+## [0.27.2] - 2022-06-22
+
+### Fixed
+
+- Updated csv output for an observation matrix [#3040]
+- Content panel in browse OTU not working properly
+- Darwin Core Export failing on specific combinations of data attributes selection.
+
+### Changed
+- Updated Ruby gems and Node packages
+
+## [0.27.1] - 2022-06-21
+### Changed
+- People/Name toggle remove historical option for name [#3028]
+
+### Fixed 
+- Content attributes response
+
+[#3028]: https://github.com/SpeciesFileGroup/taxonworks/issues/3028
+
+## [0.27.0] - 2022-06-17
+
+### Added
 - Task to manage pubilcation of Content to PublicContent [#3004] in part
 - Task to merge taxon name relationships from one taxon to another [#3022]
 - Add `determiner_name_regex` to collection object filter [#3026]
@@ -28,7 +103,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Annotations panel doesn't display notes in Browse nomenclature
 - Geographic areas download failing to generate CSV
 - Flip is not working propertly in Uniquify people task
-
 
 [#3004]: https://github.com/SpeciesFileGroup/taxonworks/issues/3004
 [#3022]: https://github.com/SpeciesFileGroup/taxonworks/issues/3022
@@ -2725,7 +2799,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.26.2...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.3...development
+[0.27.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.2...v0.27.3
+[0.27.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.1...v0.27.2
+[0.27.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.0...v0.27.1
+[0.27.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.26.2...v0.27.0
 [0.26.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.26.1...v0.26.2
 [0.26.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.26.0...v0.26.1
 [0.26.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.25.0...v0.26.0

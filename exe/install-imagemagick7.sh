@@ -27,7 +27,7 @@ make -j${MAKE_JOBS-3}
 make install
 cd ..
 
-[ ! -d ImageMagick-7* ] && curl -sL https://www.imagemagick.org/download/ImageMagick.tar.gz | tar xzf - && \
+[ ! -d ImageMagick-7* ] && curl -sL https://imagemagick.org/archive/ImageMagick.tar.gz | tar xzf - && \
   cd ImageMagick-7*
   ./configure --with-modules=yes --with-heic=yes && \
   cd ..

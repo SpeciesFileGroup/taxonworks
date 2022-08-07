@@ -10,6 +10,7 @@ import getCollectingEventLabel from './getCollectingEventLabel'
 import getComponentsOrder from './getComponentsOrder'
 import getTypeMaterial from './getTypeMaterial'
 import getTypeMaterials from './getTypeMaterials'
+import getTypeSpecimens from './getTypeSpecimens'
 import getDepictions from './getDepictions'
 import getIdentifier from './getIdentifier'
 import getIdentifiers from './getIdentifiers'
@@ -45,6 +46,7 @@ const GetterNames = {
   GetGeographicArea: 'getGeographicArea',
   GetTypeMaterial: 'getTypeMaterial',
   GetTypeMaterials: 'getTypeMaterials',
+  GetTypeSpecimens: 'getTypeSpecimens',
   GetDepictions: 'getDepictions',
   GetIdentifier: 'getIdentifier',
   GetIdentifiers: 'getIdentifiers',
@@ -78,6 +80,7 @@ const GetterFunctions = {
   [GetterNames.GetCollectionObjects]: getCollectionObjects,
   [GetterNames.GetTypeMaterial]: getTypeMaterial,
   [GetterNames.GetTypeMaterials]: getTypeMaterials,
+  [GetterNames.GetTypeSpecimens]: getTypeSpecimens,
   [GetterNames.GetDepictions]: getDepictions,
   [GetterNames.GetIdentifier]: getIdentifier,
   [GetterNames.GetIdentifiers]: getIdentifiers,

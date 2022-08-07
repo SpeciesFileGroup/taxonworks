@@ -14,6 +14,7 @@ module Queries
       include Queries::Concerns::Users
       include Queries::Concerns::Identifiers
       include Queries::Concerns::Notes
+      include Queries::Concerns::DataAttributes
 
       # TODO: look for name collisions with CE filter
 
@@ -266,6 +267,7 @@ module Queries
         @with_buffered_determinations =  boolean_param(params, :with_buffered_determinations)
         @with_buffered_other_labels = boolean_param(params, :with_buffered_other_labels)
 
+        set_data_attributes_params(params)
         set_identifier(params)
         set_notes_params(params)
         set_tags_params(params)
@@ -605,40 +607,43 @@ module Queries
         clauses += collecting_event_merge_clauses + collecting_event_and_clauses
 
         clauses += [
-          determiner_name_regex_facet,
-          with_buffered_collecting_event_facet,
-          with_buffered_other_labels_facet,
-          with_buffered_determinations_facet,
-          determiner_facet,
-          geographic_area_facet,
-          collecting_event_facet,
-          repository_facet,
-          current_repository_facet,
-          preparation_type_facet,
-          type_material_facet,
-          georeferences_facet,
-          taxon_determinations_facet,
-          otus_facet,
-          type_by_taxon_name_facet,
-          type_material_type_facet,
           ancestors_facet,
-          notes_facet,            # See Queries::Concerns::Notes
-          note_text_facet,        # See Queries::Concerns::Notes
-          keyword_id_facet,       # See Queries::Concerns::Tags
-          created_updated_facet,  # See Queries::Concerns::Users
-          identifiers_facet,      # See Queries::Concerns::Identifiers
-          identifier_between_facet,
-          identifier_facet, # See Queries::Concerns::Identifiers
-          identifier_namespace_facet,
-          loaned_facet,
-          on_loan_facet,
-          dwc_indexed_facet,
-          never_loaned_facet,
           biocuration_facet,
           biological_relationship_ids_facet,
-          sled_image_facet,
-          loan_facet,
+          collecting_event_facet,
+          created_updated_facet,  # See Queries::Concerns::Users
+          current_repository_facet,
+          data_attribute_predicate_facet,
+          data_attribute_value_facet,
+          data_attributes_facet,
           depictions_facet,
+          determiner_facet,
+          determiner_name_regex_facet,
+          dwc_indexed_facet,
+          geographic_area_facet,
+          georeferences_facet,
+          identifier_between_facet,
+          identifier_facet,       # See Queries::Concerns::Identifiers
+          identifier_namespace_facet,
+          identifiers_facet,
+          keyword_id_facet,       # See Queries::Concerns::Tags
+          loan_facet,
+          loaned_facet,
+          never_loaned_facet,
+          note_text_facet,        # See Queries::Concerns::Notes
+          notes_facet,
+          on_loan_facet,
+          otus_facet,
+          preparation_type_facet,
+          repository_facet,
+          sled_image_facet,
+          taxon_determinations_facet,
+          type_by_taxon_name_facet,
+          type_material_facet,
+          type_material_type_facet,
+          with_buffered_collecting_event_facet,
+          with_buffered_determinations_facet,
+          with_buffered_other_labels_facet,
         ]
 
         clauses.compact!

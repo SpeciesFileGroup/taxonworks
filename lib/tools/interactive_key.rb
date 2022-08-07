@@ -438,7 +438,7 @@ class Tools::InteractiveKey
         list_of_remaining_taxa[r_value[:object_at_rank] ] = true
       end
     end
-    number_of_taxa = list_of_remaining_taxa.count
+    number_of_taxa = list_of_remaining_taxa.count.to_i
     array_of_descriptors = []
 
     descriptors_hash.each do |d_key, d_value|
@@ -508,7 +508,7 @@ class Tools::InteractiveKey
       s = 0
       case d_value[:descriptor].type
       when 'Descriptor::Qualitative'
-        number_of_states = d_value[:state_ids].count
+        number_of_states = d_value[:state_ids].count.to_i
         descriptor[:states] = []
         d_value[:state_ids].each do |s_key, s_value|
           c = CharacterState.find(s_key.to_i)
@@ -557,12 +557,12 @@ class Tools::InteractiveKey
         #                               sum of all i
         #                               if numMax = numMin then numMax = numMax + 0.00001
         #                               weight = rem_taxa * (sum of i / number of measuments for taxon / (numMax - numMin) ) * (2 - number of measuments for taxon / rem_taxa)
-        if d_value[:max] != d_value[:min]
+        if d_value[:max] != d_value[:min] && number_of_measurements > 0
           d_value[:state_ids].each do |s_key, s_value|
             if s_value[:o_min] == s_value[:o_max] || s_value[:o_max].blank?
-              s += (s_value[:o_max] - s_value[:o_min]) / number_of_measurements / (d_value[:max] - d_value[:min])
-            else
               s += (s_value[:o_min] - (s_value[:o_min] / 10)) / number_of_measurements / (d_value[:max] - d_value[:min])
+            else
+              s += (s_value[:o_max] - s_value[:o_min]) / number_of_measurements / (d_value[:max] - d_value[:min])
             end
             if descriptor[:status] != 'used' && (s_value[:o_min] != d_value[:min] || (!s_value[:o_max].blank? && s_value[:o_max] != d_value[:max]))
               d_value[:status] = 'useful'
@@ -571,7 +571,6 @@ class Tools::InteractiveKey
           end
         end
         descriptor[:usefulness] = number_of_taxa * s * (2 - (number_of_measurements / number_of_taxa)) if number_of_taxa > 0
-
       when 'Descriptor::PresenceAbsence'
         number_of_states = 2
         descriptor[:states] = []
@@ -595,6 +594,8 @@ class Tools::InteractiveKey
         descriptor[:usefulness] = number_of_taxa / number_of_states + Math.sqrt(s) if number_of_states > 0
         descriptor[:states].sort_by!{|i| -i[:name]}
       end
+      descriptor[:min] = nil if descriptor[:min] == 999999
+      descriptor[:max] = nil if descriptor[:max] == -999999
       descriptor[:min] = "%g" % descriptor[:min] if descriptor[:min]
       descriptor[:max] = "%g" % descriptor[:max] if descriptor[:max]
       array_of_descriptors += [descriptor]
@@ -608,7 +609,6 @@ class Tools::InteractiveKey
     when 'optimized'
       array_of_descriptors.sort_by!{|i| i[:usefulness]}
     end
-
   end
 
 end

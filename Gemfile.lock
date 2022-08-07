@@ -761,6 +761,7 @@ DEPENDENCIES
   sassc-rails (~> 2.1.0)
   sdoc (~> 2.2.0)
   seedbank (~> 0.5.0)
+  selenium-webdriver (~> 4.2.0)
   serrano!
   shakapacker (~> 6.3)
   shortener (~> 0.8.0)

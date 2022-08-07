@@ -113,6 +113,9 @@ namespace :api, defaults: {format: :json} do
       get '/images/:id/file', to: '/images#api_file', as: :image_file
       get '/images/:id', to: '/images#api_show'
 
+      get '/tags', to: '/tags#api_index'
+      get '/tags/:id', to: '/tags#api_show'
+
       # get '/controlled_vocabulary_terms'
     end
 

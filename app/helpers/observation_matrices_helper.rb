@@ -91,6 +91,14 @@ module ObservationMatricesHelper
       end
     when 'Observation::Continuous'
       observation.converted_value.to_s
+    when 'Observation::Sample'
+      if observation.sample_max && observation.sample_max && observation.sample_max.to_f != observation.sample_min.to_f
+        ("%g" % observation.sample_min).to_s + '-' + ("%g" % observation.sample_max).to_s
+      elsif observation.sample_min
+        ("%g" % observation.sample_min).to_s
+      else
+        '?'
+      end
     else
       '-' # ? not sure
     end

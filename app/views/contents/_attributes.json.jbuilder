@@ -22,5 +22,3 @@ if extend_response_with('topic')
   end
 end
 
-
-

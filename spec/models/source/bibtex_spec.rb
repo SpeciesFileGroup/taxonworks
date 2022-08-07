@@ -1004,7 +1004,8 @@ describe Source::Bibtex, type: :model, group: :sources do
 
             src1.authors << vp2
             expect(src1.reload.cached).to eq('Smith &amp; Von Adams, J. (1700) I am a soft valid article. <i>Journal of Test Articles</i>.')
-            expect(src1.cached_author_string).to eq('Smith & Von Adams')
+            #expect(src1.cached_author_string).to eq('Smith & Von Adams')
+            expect(src1.cached_author_string).to eq('Smith & Adams')
           end
 
           specify 'editors' do

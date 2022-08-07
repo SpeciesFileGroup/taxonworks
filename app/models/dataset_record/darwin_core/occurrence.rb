@@ -219,8 +219,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             new_tags = attributes[:collecting_event][:tags_attributes].reject { |t| current_tags.member?(t[:keyword].id) }
 
             # add tags if there were any new ones
-            collecting_event.tags.build(new_tags)
-            collecting_event.save!
+            unless new_tags.empty?
+              collecting_event.tags.build(new_tags)
+              collecting_event.save!
+            end
           end
 
           specimen.update!(collecting_event: collecting_event)
