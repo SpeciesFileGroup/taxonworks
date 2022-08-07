@@ -9,6 +9,7 @@ scope :tasks do
     get :index, as: 'dwca_import_task'
     post 'upload'
     post 'update_catalog_number_namespace'
+    post 'update_catalog_number_collection_code_namespace'
     post 'set_import_settings'
   end
 
