@@ -33,7 +33,7 @@ json.metadata do
     json.set!("Past week: New sources", Source.where(created_at: 1.week.ago..).count)
     json.set!("Past week: New taxon names", TaxonName.where(created_at: 1.week.ago..).count)
     json.set!("Past week: New collection objects", CollectionObject.where(created_at: 1.week.ago..).count)
-    json.set!("Past week: New taxon determinations", TaxonDetermination.where(created_at: 1.week.ago.., project_id: @project_id).count)
+    json.set!("Past week: New taxon determinations", TaxonDetermination.where(created_at: 1.week.ago..).count)
     json.set!("Past week: New collecting events", CollectingEvent.where(created_at: 1.week.ago..).count)
     json.set!("Past week: New observations", Observation.where(created_at: 1.week.ago..).count)
     json.set!("Past week: New citations", Citation.where(created_at: 1.week.ago..).count)
