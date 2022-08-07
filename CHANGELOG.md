@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Matrix Column Coder - coding by descriptor [#1385]
 - Soft validation and fix for adding subsequen combination when original combination is different [#3051]
 - Added 'electronic only' field for the source to flag sources published in electronic only format
+- Default `collectionCode` namespace mappings as falback when `institutionCode`:`collectionCode` mappings do not contain a match in DwC occurrences importer.
 
 ### Changed
 - Remove search box in observation matrix hub [#3032]
@@ -20,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated Ruby gems.
 - wikidata-client dependency is now fetching from RubyGems rather than custom fork.
 - serrano has been changed to a new custom branch which is identical to official gem except `thor` dependency has been downgraded for TW compatibility.
+- DwC occurrences importer mappings are not sorted by `institutionCode`:`collectionCode`
 
 ### Fixed
 - Object global id param in identifiers API/filter
