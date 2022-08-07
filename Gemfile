@@ -128,8 +128,7 @@ gem 'namecase', '~> 2.0'
 gem 'zaru', '~> 0.3.0'
 
 # www
-#gem 'wikidata-client', github:'LocoDelAssembly/wikidata-client', branch: 'bump-dependencies', require: 'wikidata'
-gem 'wikidata-client', '~> 0.1.0.pre.rc1'
+gem 'wikidata-client', '~> 0.1.0.pre.rc1', require: 'wikidata'
 
 group :test, :development do
   gem 'faker', '~> 2.10'
