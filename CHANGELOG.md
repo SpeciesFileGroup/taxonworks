@@ -18,6 +18,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Remove search box in observation matrix hub [#3032]
 - Type material form allows multiple type species in comprehensive task. [#2584]
 - Updated Ruby gems.
+- wikidata-client dependency is now fetching from RubyGems rather than custom fork.
+- serrano has been changed to a new custom branch which is identical to official gem except `thor` dependency has been downgraded for TW compatibility.
 
 ### Fixed
 - Object global id param in identifiers API/filter

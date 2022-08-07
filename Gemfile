@@ -84,7 +84,7 @@ gem 'csl', '~> 1.6.0'
 gem 'bibtex-ruby', '~> 6.0'
 gem 'citeproc-ruby', '~> 1.1.10'
 gem 'csl-styles', '~> 1.0.1.8'
-gem 'serrano', github: 'LocoDelAssembly/serrano', branch: 'fixes' #gem 'serrano', '~> 1.0.0'
+gem 'serrano', github: 'LocoDelAssembly/serrano', branch: 'older_thor' #gem 'serrano', '~> 1.0.0'
 # gem 'latex-decode', '~> 0.2.2'
 gem 'pdf-reader', '~> 2.2'
 
@@ -128,7 +128,8 @@ gem 'namecase', '~> 2.0'
 gem 'zaru', '~> 0.3.0'
 
 # www
-gem 'wikidata-client', github:'LocoDelAssembly/wikidata-client', branch: 'bump-dependencies', require: 'wikidata'
+#gem 'wikidata-client', github:'LocoDelAssembly/wikidata-client', branch: 'bump-dependencies', require: 'wikidata'
+gem 'wikidata-client', '~> 0.1.0.pre.rc1'
 
 group :test, :development do
   gem 'faker', '~> 2.10'
