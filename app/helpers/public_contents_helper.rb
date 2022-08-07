@@ -1,18 +1,28 @@
 module PublicContentsHelper
 
+  LINK_REGEX = Regexp.new('\[(.*)\]\(\/(otus|sources|taxon_names)\/(\d+)\)')
+
   def public_content_renderer(public_content, style = :default)
 
-    case style.to_sym
-    when :default
-      MARKDOWN_HTML.render(public_content.text).html_safe  
-    when :linked_otu # only link OTU
+    t  = public_content.text
 
-    when :linked_all
-
+    if style
+      case style.to_sym
+      when :linked_otu # only link OTU
+        r = Regexp.new('\[(.*)\]\(\/(sources|taxon_names)\/(\d+)\)')
+        t.gsub!(r, '\1')
+      when :none
+        t.gsub!(LINK_REGEX, '\1')
+      else
+        # do nothing
+      end
     end
+
+    MARKDOWN_HTML.render(t).html_safe
   end
 
-  def foo
-  end
+  private
+
+  # TODO, provide options for generating labels
 
 end

@@ -7,6 +7,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Add `/api/v1/otus/123/inventory/content`, includes `embed[]=depictions`  [#3004]
 - Adds `data_attributes`, `data_attribute_value`, `data_attribute_predicate_id`, `data_attribute_exact` in filter concern [#2922]
 - `/api/v1/tags` endpoint with `tag_object_type[]`,`tag_object_id[]`, `tag_object_type`, `object_global_id`, `keyword_id[]` [#3061]
 - Added pagination in the image_matrix
@@ -24,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Bad logic check on adding new user to project
 - Dependency loop problem in DwC checklist importer
 
+[#3004]: https://github.com/SpeciesFileGroup/taxonworks/issues/3004
 [#3061]: https://github.com/SpeciesFileGroup/taxonworks/issues/3061
 [#1385]: https://github.com/SpeciesFileGroup/taxonworks/issues/1385
 [#2584]: https://github.com/SpeciesFileGroup/taxonworks/issues/2584

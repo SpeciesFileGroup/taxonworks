@@ -109,13 +109,4 @@ module Otus::CatalogHelper
     return o.collect{|a| {name: a.name, language: a.language.english_name } }
   end
 
-  def otu_inventory_public_content(otu, topic_id = [])
-    return nil if otu.nil?
-    c = PublicContent.where(otu: otu, is_public: true, project_id: sessions_current_project_id)
-    c = c.joins(:topics).where(topic_id: topic_id) unless topic_id.empty?
-
-    return c.inject({}){|hsh, d| hsh[d.topic.name] = d.text; hsh }
-  end
-
-
 end
