@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_04_21_212203) do
+ActiveRecord::Schema.define(version: 2022_08_05_084500) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -1662,6 +1662,7 @@ ActiveRecord::Schema.define(version: 2022_04_21_212203) do
     t.integer "translated_from_serial_id"
     t.text "publisher"
     t.text "name", null: false
+    t.boolean "is_electronic_only"
     t.index ["created_by_id"], name: "index_serials_on_created_by_id"
     t.index ["primary_language_id"], name: "index_serials_on_primary_language_id"
     t.index ["translated_from_serial_id"], name: "index_serials_on_translated_from_serial_id"
@@ -1950,10 +1951,6 @@ ActiveRecord::Schema.define(version: 2022_04_21_212203) do
     t.index ["created_by_id"], name: "index_test_classes_on_created_by_id"
     t.index ["project_id"], name: "index_test_classes_on_project_id"
     t.index ["updated_by_id"], name: "index_test_classes_on_updated_by_id"
-  end
-
-  create_table "testing", id: false, force: :cascade do |t|
-    t.geography "geog", limit: {:srid=>4267, :type=>"geometry", :geographic=>true}
   end
 
   create_table "type_materials", id: :serial, force: :cascade do |t|

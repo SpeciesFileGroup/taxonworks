@@ -37,9 +37,6 @@ import setCollectingEventIdentifier from './CollectingEvent/setCollectingEventId
 
 import setTypeMaterial from './TypeMaterial/setTypeMaterial'
 import setTypeMaterials from './TypeMaterial/setTypeMaterials'
-import setTypeMaterialBiologicalObjectId from './TypeMaterial/setTypeMaterialBiologicalObjectId'
-import setTypeMaterialProtonymId from './TypeMaterial/setTypeMaterialProtonymId'
-import setTypeMaterialTaxon from './TypeMaterial/setTypeMaterialTaxon'
 import addTypeMaterial from './TypeMaterial/addMaterialTypes'
 import newTypeMaterial from './TypeMaterial/newTypeMaterial'
 import removeTypeMaterial from './TypeMaterial/removeTypeMaterial'
@@ -97,9 +94,6 @@ const MutationNames = {
 
   SetTypeMaterial: 'setTypeMaterial',
   SetTypeMaterials: 'setTypeMaterials',
-  SetTypeMaterialBiologicalObjectId: 'setTypeMaterialBiologicalObjectId',
-  SetTypeMaterialProtonymId: 'setTypeMaterialProtonymId',
-  SetTypeMaterialTaxon: 'setTypeMaterialTaxon',
   AddTypeMaterial: 'addTypeMaterial',
   NewTypeMaterial: 'newTypeMaterial',
   RemoveTypeMaterial: 'removeTypeMaterial',
@@ -156,9 +150,6 @@ const MutationFunctions = {
   [MutationNames.AddTypeMaterial]: addTypeMaterial,
   [MutationNames.NewTypeMaterial]: newTypeMaterial,
   [MutationNames.RemoveTypeMaterial]: removeTypeMaterial,
-  [MutationNames.SetTypeMaterialBiologicalObjectId]: setTypeMaterialBiologicalObjectId,
-  [MutationNames.SetTypeMaterialProtonymId]: setTypeMaterialProtonymId,
-  [MutationNames.SetTypeMaterialTaxon]: setTypeMaterialTaxon,
   [MutationNames.SetTypeMaterial]: setTypeMaterial,
   [MutationNames.SetTypeMaterials]: setTypeMaterials,
 

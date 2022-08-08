@@ -14,7 +14,7 @@ module UsersHelper
   end
 
   def user_last_seen_tag(user)
-    if !user.last_sign_in_at.blank?
+    if !user.last_seen_at.blank?
       time_ago_in_words(user.last_seen_at) + '  ago'
     else
       content_tag(:em, 'never')

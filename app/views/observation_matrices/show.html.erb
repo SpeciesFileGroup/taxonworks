@@ -7,14 +7,14 @@
 <%= content_for :associated do -%>
   <h3> Rows </h3>
   <ul>
-  <% @observation_matrix.observation_matrix_rows.each do |mri| -%>
+  <% @observation_matrix.observation_matrix_rows.order(:position).each do |mri| -%>
     <%= content_tag :li, object_link(mri) -%>
   <% end %>
   </ul>
 
   <h3> Columns </h3>
   <ul>
-    <% @observation_matrix.observation_matrix_columns.each do |mrc| -%>
+    <% @observation_matrix.observation_matrix_columns.order(:position).each do |mrc| -%>
       <%= content_tag :li, object_link(mrc) -%>
     <% end %>
   </ul>

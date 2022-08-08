@@ -80,6 +80,10 @@
         class="margin-medium-bottom"
         v-model="params.base.citations"
       />
+      <FacetDataAttribute
+        class="margin-medium-bottom"
+        v-model="params.dataAttributes"
+      />
       <with-component
         v-for="(param, key) in params.with"
         :key="key"
@@ -111,6 +115,7 @@ import UsersComponent from 'tasks/collection_objects/filter/components/filters/u
 import TagsComponent from 'tasks/sources/filter/components/filters/tags'
 import WithComponent from 'tasks/sources/filter/components/filters/with'
 import AuthorsComponent from './filters/authors.vue'
+import FacetDataAttribute from 'tasks/collection_objects/filter/components/filters/DataAttributes/FacetDataAttribute.vue'
 
 import SpinnerComponent from 'components/spinner'
 import platformKey from 'helpers/getPlatformKey.js'
@@ -136,7 +141,8 @@ export default {
     TaxonNameTypeComponent,
     UsersComponent,
     TagsComponent,
-    WithComponent
+    WithComponent,
+    FacetDataAttribute
   },
 
   emits: [
@@ -155,7 +161,7 @@ export default {
       return keys
     },
     parseParams () {
-      const params = Object.assign({}, this.filterEmptyParams(this.params.taxon), this.params.authors, this.params.with, this.params.keywords, this.params.related, this.params.base, this.params.user, this.params.includes, this.params.settings)
+      const params = Object.assign({}, this.filterEmptyParams(this.params.taxon), this.params.dataAttributes, this.params.authors, this.params.with, this.params.keywords, this.params.related, this.params.base, this.params.user, this.params.includes, this.params.settings)
       params.updated_since = params.updated_since ? this.setDays(params.updated_since) : undefined
       return params
     }
@@ -216,7 +222,7 @@ export default {
       return {
         authors: {
           taxon_name_author_ids: [],
-          taxon_name_author_ids_or: undefined,
+          taxon_name_author_ids_or: undefined
         },
         taxon: {
           name: undefined,
@@ -225,6 +231,7 @@ export default {
         },
         with: {
           leaves: undefined,
+          data_attributes: undefined,
           type_metadata: undefined,
           otus: undefined,
           authors: undefined,
@@ -244,6 +251,11 @@ export default {
           taxon_name_relationship: [],
           taxon_name_relationship_type: [],
           taxon_name_classification: []
+        },
+        dataAttributes: {
+          data_attribute_value: [],
+          data_attribute_predicate_id: [],
+          data_attribute_exact: undefined
         },
         keywords: {
           keyword_id_and: [],
