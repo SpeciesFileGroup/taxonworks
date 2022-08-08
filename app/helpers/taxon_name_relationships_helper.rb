@@ -3,12 +3,12 @@ module TaxonNameRelationshipsHelper
   def taxon_name_relationship_tag(taxon_name_relationship)
     return nil if taxon_name_relationship.nil?
     [
-      taxon_name_browse_link(taxon_name_relationship.subject_taxon_name),
+      original_taxon_name_link(taxon_name_relationship.subject_taxon_name),
       content_tag(:span, ( defined?(taxon_name_relationship.class.inverse_assignment_method) ? 
                           taxon_name_relationship.class.inverse_assignment_method.to_s.humanize : 
-                          taxon_name_relationship.type ),
+                          taxon_name_relationship.type ) + taxon_name_relationship.subject_status_connector_to_object.to_s,
                           class: :subtle),
-                          taxon_name_browse_link(taxon_name_relationship.object_taxon_name)
+      taxon_name_browse_link(taxon_name_relationship.object_taxon_name)
     ].compact.join(' ')
   end
 
