@@ -38,7 +38,7 @@ GIT
 
 GIT
   remote: https://github.com/LocoDelAssembly/serrano.git
-  revision: 806c567b3a012d2a0ed3bd62c1e01da4cd24101b
+  revision: 6b5ce4abb016b628eae881437caf7d6a4e4de089
   branch: older_thor
   specs:
     serrano (1.4)
@@ -46,7 +46,7 @@ GIT
       faraday-follow_redirects (>= 0.1, < 0.4)
       multi_json (~> 1.15)
       rexml (~> 3.2, >= 3.2.5)
-      thor (~> 1.1.0, >= 1.1.0)
+      thor (~> 1.2.0, >= 1.2.0)
 
 GIT
   remote: https://github.com/mjy/rqrcode.git
@@ -348,7 +348,7 @@ GEM
     parallel (1.22.1)
     parallel_tests (3.11.1)
       parallel
-    parser (3.1.2.0)
+    parser (3.1.2.1)
       ast (~> 2.4.1)
     parslet (2.0.0)
     passenger (6.0.14)

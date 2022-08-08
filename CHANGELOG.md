@@ -9,6 +9,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 - Settings modal is scrolled to the bottom when the modal is open.
 
+### Changed
+- Updated Ruby gems.
+
 ## [0.28.0] - 2022-08-08
 
 ### Added
