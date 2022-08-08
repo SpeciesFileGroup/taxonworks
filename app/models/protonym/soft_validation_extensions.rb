@@ -1639,7 +1639,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_presence_of_combination
-      if is_genus_or_species_rank? && !cached_original_combination.nil? && cached != cached_original_combination
+      if is_genus_or_species_rank? && is_valid? && !cached_original_combination.nil? && cached != cached_original_combination
         unless Combination.where("cached = ? AND cached_valid_taxon_name_id = ?", cached, cached_valid_taxon_name_id).any?
           soft_validations.add(
             :base, "Protonym #{self.cached_html} missing corresponding subsequent combination. Current classification of the taxon is different from original combination. (Fix will create a new combination)",
@@ -1650,26 +1650,26 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_fix_presence_of_combination
-          begin
-            TaxonName.transaction do
-              c = Combination.new
-              safe_self_and_ancestors.each do |i|
-                case i.rank
-                  when 'genus'
-                    c.genus = i
-                  when 'subgenus'
-                    c.subgenus = i
-                  when 'species'
-                    c.species = i
-                  when 'subspecies'
-                    c.subspecies = i
-                end
-              end
-              c.save
+      begin
+        TaxonName.transaction do
+          c = Combination.new
+          safe_self_and_ancestors.each do |i|
+            case i.rank
+              when 'genus'
+                c.genus = i
+              when 'subgenus'
+                c.subgenus = i
+              when 'species'
+                c.species = i
+              when 'subspecies'
+                c.subspecies = i
             end
-          rescue
           end
+          c.save
         end
+      rescue
+      end
+    end
   end
 end
 
