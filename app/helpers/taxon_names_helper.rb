@@ -81,7 +81,7 @@ module TaxonNamesHelper
   def full_original_taxon_name_label(taxon_name)
     return nil if taxon_name.nil? || taxon_name.cached_original_combination.nil?
     [ taxon_name.cached_original_combination,
-      taxon_name.cached_author_year
+      taxon_name.original_author_year
     ].compact.join(' ')
   end
 
