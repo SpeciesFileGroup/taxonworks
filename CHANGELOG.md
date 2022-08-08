@@ -6,6 +6,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.28.0] - 2022-08-08
+
 ### Added
 - Adds `data_attributes`, `data_attribute_value`, `data_attribute_predicate_id`, `data_attribute_exact` in filter concern [#2922]
 - `/api/v1/tags` endpoint with `tag_object_type[]`,`tag_object_id[]`, `tag_object_type`, `object_global_id`, `keyword_id[]` [#3061]
@@ -32,7 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1385]: https://github.com/SpeciesFileGroup/taxonworks/issues/1385
 [#2584]: https://github.com/SpeciesFileGroup/taxonworks/issues/2584
 [#3032]: https://github.com/SpeciesFileGroup/taxonworks/issues/3032
-
+[#3051]: https://github.com/SpeciesFileGroup/taxonworks/issues/3051
 [#2922]: https://github.com/SpeciesFileGroup/taxonworks/issues/2922
 
 ## [0.27.3] - 2022-07-20
@@ -2803,7 +2807,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.3...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.28.0...development
+[0.28.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.3...v0.28.0
 [0.27.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.2...v0.27.3
 [0.27.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.1...v0.27.2
 [0.27.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.0...v0.27.1
