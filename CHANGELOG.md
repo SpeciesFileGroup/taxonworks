@@ -6,7 +6,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+- Settings modal is scrolled to the bottom when the modal is open.
 
 ## [0.28.0] - 2022-08-08
 
