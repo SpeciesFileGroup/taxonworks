@@ -271,7 +271,7 @@ export default {
     },
 
     openImageMatrix ({ matrixId, otuIds }) {
-      window.open(`${RouteNames.ImageMatrix}?observation_matrix_id=${matrixId}&otu_filter=${otuIds.join('|')}`, '_blank')
+      window.open(`${RouteNames.ImageMatrix}?observation_matrix_id=${matrixId}&edit=true&otu_filter=${otuIds.join('|')}`, '_blank')
       this.showModal = false
     },
 
