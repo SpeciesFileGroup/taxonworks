@@ -3,7 +3,7 @@ json.extract! taxon_name_relationship, :id, :subject_taxon_name_id, :object_taxo
 json.inverse_assignment_method taxon_name_relationship.class.inverse_assignment_method
 json.assignment_method taxon_name_relationship.class.assignment_method
 
-json.subject_object_tag full_original_taxon_name_label(taxon_name_relationship.subject_taxon_name)
+json.subject_object_tag full_original_taxon_name_tag(taxon_name_relationship.subject_taxon_name)
 json.object_object_tag full_taxon_name_tag(taxon_name_relationship.object_taxon_name)
 
 json.object_tag taxon_name_relationship_tag(taxon_name_relationship.metamorphosize)
