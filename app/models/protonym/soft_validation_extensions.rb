@@ -1639,7 +1639,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_presence_of_combination
-      if is_genus_or_species_rank? && is_valid? && !cached_original_combination.nil? && cached != cached_original_combination
+      if is_genus_or_species_rank? && is_valid? && self.id == self.lowest_rank_coordinated_taxon.id && !cached_original_combination.nil? && cached != cached_original_combination
         unless Combination.where("cached = ? AND cached_valid_taxon_name_id = ?", cached, cached_valid_taxon_name_id).any?
           soft_validations.add(
             :base, "Protonym #{self.cached_html} missing corresponding subsequent combination. Current classification of the taxon is different from original combination. (Fix will create a new combination)",
