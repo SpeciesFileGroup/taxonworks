@@ -17,4 +17,9 @@ json.array! @images do |i|
       json.label label_for_attribution(i.attribution)
     end
   end
+
+  if extend_response_with('source')
+    json.partial! '/sources/api/v1/brief', source: i.source
+  end
+
 end

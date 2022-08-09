@@ -79,4 +79,15 @@ module Workbench::DisplayHelper
     object.class.base_class.name.tableize.to_s
   end
 
+  # @return [String, nil]
+  #   use `mark` tags to highlight the position of the term in the text
+  def regex_mark_tag(text, term)
+    return text if term.nil?
+    if t = text[/#{Regexp.escape(term)}/i]  # probably some look-ahead (behind) magic could be used here
+      text.gsub(/#{Regexp.escape(term)}/i, "<mark>#{t}</mark>")
+    else
+      text
+    end
+  end
+
 end

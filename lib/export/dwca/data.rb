@@ -49,8 +49,7 @@ module Export::Dwca
       @core_scope = get_scope(core_scope)
       @biological_extension_scope = extension_scopes[:biological_extension_scope] #  = get_scope(core_scope)
 
-      @data_predicate_ids = predicate_extension_params
-      @data_predicate_ids = {collection_object_predicate_id: [], collecting_event_predicate_id: []} if @data_predicate_ids.empty?
+      @data_predicate_ids = { collection_object_predicate_id: [], collecting_event_predicate_id: [] }.merge!(predicate_extension_params)
     end
 
     def predicate_options_present?
@@ -222,20 +221,21 @@ module Export::Dwca
       identifier = SecureRandom.uuid
 
       # This should be build elsewhere, and ultimately derived from a TaxonWorks::Dataset model
-      builder = Nokogiri::XML::Builder.new do |xml|
+      # !! Order matters in these sections vs. validation !!
+      builder = Nokogiri::XML::Builder.new(encoding: 'utf-8', namespace_inheritance: false) do |xml|
         xml['eml'].eml(
           'xmlns:eml' => 'eml://ecoinformatics.org/eml-2.1.1',
           'xmlns:dc' => 'http://purl.org/dc/terms/',
           'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
-          'xsi:schemaLocation' => 'eml://ecoinformatics.org/eml-2.1.1 http://rs.gbif.org/schema/eml-gbif-profile/1.1/eml.xsd',
+          'xsi:schemaLocation' => 'eml://ecoinformatics.org/eml-2.1.1 http://rs.gbif.org/schema/eml-gbif-profile/1.1/eml-gbif-profile.xsd',
           'packageId' => identifier,
-          'system' => 'http://taxonworks.org',
-          'core_scope' => 'system',
-          'xml:lang' => 'eng'
+          'system' => 'https://taxonworks.org',
+          'scope' => 'system',
+          'xml:lang' => 'en'
         ) {
           xml.dataset {
-            xml.alternate_identifier identifier
-            xml.title('xml:lang' => 'eng').text 'STUB - YOUR TITLE HERE'
+            xml.alternateIdentifier identifier
+            xml.title("STUB YOUR TITLE HERE")['xmlns:lang'] = 'en'
             xml.creator {
               xml.individualName {
                 xml.givenName 'STUB'
@@ -247,31 +247,48 @@ module Export::Dwca
             xml.metadataProvider {
               xml.organizationName 'STUB'
               xml.electronicMailAddress 'EMAIL@EXAMPLE.COM'
-              xml.onlineURL 'STUB'
+              xml.onlineUrl 'STUB'
+            }
+            xml.associatedParty {
+              xml.organizationName 'STUB'
+              xml.address {
+                xml.deliveryPoint 'SEE address above for other fields'
+              }
+              xml.role 'distributor'
             }
             xml.pubDate Time.new.strftime('%Y-%m-%d')
             xml.language 'eng'
             xml.abstract {
               xml.para 'Abstract text here.'
             }
+            xml.intellectualRights {
+              xml.para 'STUB. License here.'
+            }
             # ...
             xml.contact {
               xml.organizationName 'STUB'
+              xml.address {
+                xml.deliveryPoint 'STUB'
+                xml.city 'STUB'
+                xml.administrativeArea 'STUB'
+                xml.postalCode 'STUB'
+                xml.country 'STUB'
+              }
               xml.electronicMailAddress 'EMAIL@EXAMPLE.COM'
-              xml.onlineURL 'STUB'
+              xml.onlineUrl 'STUB'
             }
             # ...
-            xml.additionalMetadata {
-              xml.metadata {
-                xml.gbif {
-                  xml.dateStamp
-                  xml.hierarchyLevel
-                  xml.citation(identifier: 'STUB').text 'DATASET CITATION STUB'
-                  xml.resourceLogoURL 'SOME RESOURCE LOGO URL'
-                  xml.formationPeriod 'SOME FORMAATION PERIOD'
-                  xml.livingTimePeriod 'SOME LIVINGI TIME PERIOD'
-                  xml[:dc].replaces 'PRIOR IDENTIFIER'
-                }
+          } # end dataset
+          xml.additionalMetadata {
+            xml.metadata {
+              xml.gbif {
+                xml.dateStamp DateTime.parse(Time.now.to_s).to_s
+                xml.hierarchyLevel 'dataset'
+                xml.citation("STUB DATASET")[:identifier] = 'Identifier STUB'
+                xml.resourceLogoUrl 'SOME RESOURCE LOGO URL'
+                xml.formationPeriod 'SOME FORMATION PERIOD'
+                xml.livingTimePeriod 'SOME LIVING TIME PERIOD'
+                xml[:dc].replaces 'PRIOR IDENTIFIER'
               }
             }
           }

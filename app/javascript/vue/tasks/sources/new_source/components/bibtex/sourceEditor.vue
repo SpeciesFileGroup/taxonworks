@@ -3,7 +3,7 @@
     <legend>Editors</legend>
     <smart-selector
       model="people"
-      target="Source"
+      target="SourceEditor"
       klass="Source"
       label="cached"
       :filter-ids="peopleIds"
@@ -37,10 +37,8 @@
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 import { findRole } from 'helpers/people/people.js'
-import makePerson from 'factory/Person.js'
 import RolePicker from 'components/role_picker.vue'
 import SmartSelector from 'components/ui/SmartSelector'
-import { ROLE_SOURCE_EDITOR } from 'constants/index.js'
 
 export default {
   components: {
@@ -75,13 +73,7 @@ export default {
   methods: {
     addRole (person) {
       if (!findRole(this.source.roles_attributes, person.id)) {
-        this.$refs.rolePicker.setPerson(
-          makePerson(
-            person.first_name,
-            person.last_name,
-            person.id,
-            ROLE_SOURCE_EDITOR)
-        )
+        this.$refs.rolePicker.setPerson(person)
       }
     }
   }

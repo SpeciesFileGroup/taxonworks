@@ -5,7 +5,7 @@
       class="button normal-input button-submit"
       :class="{ 'button-default': otuSelected }"
       @click="openModal">
-      Matrix row coder
+      Open in matrix
     </button>
     <modal-component
       v-if="show"
@@ -158,7 +158,7 @@ export default {
       })
       if (this.otuSelected) {
         ObservationMatrixRow.where({
-          observation_object_type: 'Otu',
+          observation_object_type: OTU,
           observation_object_id: this.otuSelected
         }).then(response => {
           this.rows = response.body
@@ -192,7 +192,10 @@ export default {
             }
 
             ObservationMatrixRowItem.create({ observation_matrix_row_item: data }).then(() => {
-              ObservationMatrixRow.where({ otu_id: this.otuSelected }).then(response => {
+              ObservationMatrixRow.where({
+                observation_object_type: OTU,
+                observation_object_id: this.otuSelected
+              }).then(response => {
                 this.rows = response.body
                 resolve(response)
               })
@@ -223,11 +226,11 @@ export default {
 
     openImageMatrix () {
       if (this.alreadyInCurrentMatrix.length) {
-        window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_filter=${this.alreadyInCurrentMatrix[0].id}`, '_blank')
+        window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&edit=true&row_filter=${this.alreadyInCurrentMatrix[0].id}`, '_blank')
         this.show = false
       } else {
         this.createRow().then(() => {
-          window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_filter=${this.alreadyInCurrentMatrix[0].id}`, '_blank')
+          window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&edit=true&row_filter=${this.alreadyInCurrentMatrix[0].id}`, '_blank')
           this.show = false
         })
       }

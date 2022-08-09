@@ -2,15 +2,21 @@
   <div class="right-section">
     <div
       class="overflow-y-auto"
-      ref="section">
+      ref="section"
+    >
       <documents-component
         ref="documents"
-        class="panel"/>
+        class="panel"
+      />
       <soft-validation
         v-if="validations"
         class="margin-medium-top soft-validation-panel"
-        :validations="validations"/>
-      <matches-component ref="matches"/>
+        :validations="validations"
+      />
+      <matches-component
+        class="margin-medium-top"
+        ref="matches"
+      />
     </div>
   </div>
 </template>

@@ -281,7 +281,8 @@ module ObservationMatrices::Export::NexmlHelper
     otus = m.otus
     im = Tools::ImageMatrix.new(
       project_id: m.project_id,
-      otu_filter: m.otus.pluck(:id).join('|'))
+      otu_filter: m.otus.pluck(:id).join('|'),
+      per: 1000000)
     descriptors = im.list_of_descriptors.values
     row_hash = m.observation_matrix_rows.map{|i| [i.otu_id, i.id]}.to_h
 

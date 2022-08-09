@@ -41,8 +41,12 @@ namespace :api, defaults: {format: :json} do
     defaults authenticate_user_or_project: true do
       get '/otus', to: '/otus#api_index'
       get '/otus/autocomplete', to: '/otus#api_autocomplete'
-      get '/otus/:id/inventory/descendants', to: '/otus#api_descendants', as: :api_descendants
-      get '/otus/:otu_id/inventory/images', to: '/images#api_image_inventory', as: :api_images
+      get '/otus/:id/inventory/content', to: '/otus#api_content', as: :api_content
+      get '/otus/:id/inventory/distribution', to: '/otus#api_distribution', as: :api_distribution
+      get '/otus/:id/inventory/taxonomy', to: '/otus#api_taxonomy_inventory', as: :taxonomy_inventory
+      get '/otus/:otu_id/inventory/images', to: '/images#api_image_inventory', as: :images_inventory
+      get '/otus/:id/inventory/type_material', to: '/otus#api_type_material_inventory', as: :type_material_inventory
+      get '/otus/:id/inventory/nomenclature_citations', to: '/otus#api_nomenclature_citations', as: :nomenclature_citations_inventory
       get '/otus/:id', to: '/otus#api_show'
 
       get '/downloads/:id', to: '/downloads#api_show'
@@ -96,9 +100,12 @@ namespace :api, defaults: {format: :json} do
       get '/data_attributes', to: '/data_attributes#api_index'
       get '/data_attributes/:id', to: '/data_attributes#api_show'
 
+      get '/depictions/:id', to: '/depictions#api_show'
+
       get '/observations', to: '/observations#api_index'
       get '/observations/:id', to: '/observations#api_show'
 
+      get '/observation_matrices/:observation_matrix_id/key', to: '/tasks/observation_matrices/interactive_key#api_key'
       get '/observation_matrices', to: '/observation_matrices#api_index'
       get '/observation_matrices/:id', to: '/observation_matrices#api_show'
 
@@ -106,6 +113,8 @@ namespace :api, defaults: {format: :json} do
       get '/images/:id/file', to: '/images#api_file', as: :image_file
       get '/images/:id', to: '/images#api_show'
 
+      get '/tags', to: '/tags#api_index'
+      get '/tags/:id', to: '/tags#api_show'
 
       # get '/controlled_vocabulary_terms'
     end

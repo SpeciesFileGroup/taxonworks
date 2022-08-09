@@ -12,7 +12,7 @@ class ProtocolsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @protocols = @recent_objects
+        @protocols = Protocol.where(project_id: sessions_current_project_id).order(:name).all
       }
     end
   end
@@ -84,16 +84,16 @@ class ProtocolsController < ApplicationController
   end
 
   def autocomplete
-    @protocol = Protocol.where(project_id: sessions_current_project_id).where('name ILIKE ?', "#{params[:term]}%")
+    @protocols = Protocol.where(project_id: sessions_current_project_id).where('name ILIKE ?', "#{params[:term]}%").order(:name)
 
-    data = @protocol.collect do |t|
-      {id:              t.id,
-       label:           t.name,
-       gid:             t.to_global_id.to_s,
+    data = @protocols.collect do |t|
+      {id: t.id,
+       label: t.name,
+       gid: t.to_global_id.to_s,
        response_values: {
          params[:method] => t.id
        },
-       label_html:      t.name
+       label_html: t.name
       }
     end
 

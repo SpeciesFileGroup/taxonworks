@@ -5,6 +5,57 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
   let(:query) { Queries::CollectionObject::Filter.new({}) }
 
+
+  specify '#determiner_name_regex' do
+    s = Specimen.create!
+    a = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s, determiners: [ FactoryBot.create(:valid_person, last_name: 'Smith') ] )
+
+    s1 = Specimen.create! # not this one
+    b = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s1, determiners: [ FactoryBot.create(:valid_person, last_name: 'htims') ] )
+
+    query.determiner_name_regex = 'i.*h'
+    expect(query.all.pluck(:id)).to contain_exactly(s.id)
+  end
+
+  context 'lib/queries/concerns/notes.rb' do
+    specify '#notes present' do
+      s = Specimen.create!
+      Specimen.create! # not this one
+      n = s.notes << Note.new(text: 'my text')
+      query.notes = true
+
+      expect(query.all.pluck(:id)).to contain_exactly(s.id)
+    end
+
+    specify '#notes absent' do
+      s = Specimen.create!  # not this one
+      n = Specimen.create!
+      s.notes << Note.new(text: 'my text')
+      query.notes = false
+
+      expect(query.all.pluck(:id)).to contain_exactly(n.id)
+    end
+
+    specify '#note_text matches' do
+      s = Specimen.create!
+      Specimen.create! # not this
+      s.notes << Note.new(text: 'my text')
+      query.note_text = 'text'
+
+      expect(query.all.pluck(:id)).to contain_exactly(s.id)
+    end
+
+    specify '#note_text exact matches' do
+      s = Specimen.create!
+      Specimen.create! # not this
+      s.notes << Note.new(text: 'my text')
+      query.note_text = 'text'
+      query.note_exact = true
+
+      expect(query.all.pluck(:id)).to be_empty
+    end
+  end
+
   specify '#loan_id' do
     t1 = Specimen.create!
     l = FactoryBot.create(:valid_loan)
@@ -150,21 +201,6 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     expect(query.all.pluck(:id)).to contain_exactly(s.id)
   end
 
-  specify '#identifiers' do
-    s = FactoryBot.create(:valid_specimen)
-    d = FactoryBot.create(:valid_identifier, identifier_object: s)
-    query.identifiers = false
-    expect(query.all.pluck(:id)).to contain_exactly()
-  end
-
-  specify '#identifiers 1' do
-    FactoryBot.create(:valid_specimen)
-    s = FactoryBot.create(:valid_specimen)
-    d = FactoryBot.create(:valid_identifier, identifier_object: s)
-    query.identifiers = true
-    expect(query.all.pluck(:id)).to contain_exactly(s.id)
-  end
-
   specify '#collecting_event' do
     s = FactoryBot.create(:valid_specimen)
     query.collecting_event = false
@@ -190,11 +226,25 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     expect(query.all.pluck(:id)).to contain_exactly(s.id)
   end
 
-  specify '#taxon_determinations' do
+  specify '#taxon_determinations 1' do
     s = FactoryBot.create(:valid_specimen)
     d = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s)
+    a = Specimen.create! # this one
     query.taxon_determinations = false
-    expect(query.all.pluck(:id)).to contain_exactly()
+    expect(query.all.pluck(:id)).to contain_exactly(a.id)
+  end
+
+  specify '#taxon_determinations #buffered_determinations' do
+    s = FactoryBot.create(:valid_specimen, buffered_determinations: 'Foo')
+    d = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s)
+
+    a = Specimen.create!(buffered_determinations: 'Foo')  # this one
+
+    query.taxon_determinations = false
+    query.exact_buffered_determinations = true
+    query.buffered_determinations = 'Foo'
+
+    expect(query.all.pluck(:id)).to contain_exactly(a.id)
   end
 
   specify '#georeferences' do
@@ -240,7 +290,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     # let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
 
     specify '#depictions' do
-     t = FactoryBot.create(:valid_depiction, depiction_object: co1)
+      t = FactoryBot.create(:valid_depiction, depiction_object: co1)
       query.depictions = true
       expect(query.all.pluck(:id)).to contain_exactly(co1.id)
     end
@@ -528,12 +578,86 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       end
     end
 
+    context 'data_attributes' do
+      let(:p1) { FactoryBot.create(:valid_predicate) }
+      let(:p2) { FactoryBot.create(:valid_predicate) }
+
+      specify '#data_attributes' do
+        d = InternalAttribute.create!(predicate: p1, value: 1, attribute_subject: Specimen.create!)
+        Specimen.create!
+
+        query.data_attributes = true
+        expect(query.all.pluck(:id)).to contain_exactly(d.attribute_subject.id)
+      end
+
+      specify '#data_attribute_predicate_id' do
+        d = InternalAttribute.create!(predicate: p1, value: 1, attribute_subject: Specimen.create!)
+        InternalAttribute.create!(predicate: p2, value: 1, attribute_subject: Specimen.create!)
+
+        query.data_attribute_predicate_id = [p1.id]
+        expect(query.all.pluck(:id)).to contain_exactly(d.attribute_subject.id)
+      end
+
+      specify '#data_attribute_value' do
+        d = InternalAttribute.create!(predicate: p1, value: 1, attribute_subject: Specimen.create!)
+        Specimen.create!
+
+        query.data_attribute_value = 1
+        expect(query.all.pluck(:id)).to contain_exactly(d.attribute_subject.id)
+      end
+
+      specify '#value 2' do
+        d = InternalAttribute.create!(predicate: p1, value: '212', attribute_subject: Specimen.create!)
+        Specimen.create!
+
+        query.data_attribute_value = 1
+        expect(query.all.pluck(:id)).to contain_exactly(d.attribute_subject.id)
+      end
+
+      specify '#data_attribute_exact_value' do
+        d = InternalAttribute.create!(predicate: p1, value: '212', attribute_subject: Specimen.create!)
+        Specimen.create!
+
+        query.data_attribute_value = 1
+        query.data_attribute_exact_value = true
+        expect(query.all.pluck(:id)).to contain_exactly()
+      end
+
+      specify '#data_attribute_exact_value 2' do
+        d = InternalAttribute.create!(predicate: p1, value: '212', attribute_subject: Specimen.create!)
+        Specimen.create!
+
+        query.data_attribute_value = 212
+        query.data_attribute_exact_value = true
+        expect(query.all.pluck(:id)).to contain_exactly(d.attribute_subject.id)
+      end
+    end
+
+    # Concerns
+
     context 'identifiers' do
       let!(:n1) { Namespace.create!(name: 'First', short_name: 'second')}
       let!(:n2) { Namespace.create!(name: 'Third', short_name: 'fourth')}
 
       let!(:i1) { Identifier::Local::CatalogNumber.create!(namespace: n1, identifier: '123', identifier_object: co1) }
       let!(:i2) { Identifier::Local::CatalogNumber.create!(namespace: n2, identifier: '453', identifier_object: co2) }
+
+      specify '#identifiers' do
+        s = FactoryBot.create(:valid_specimen)
+        d = FactoryBot.create(:valid_identifier, identifier_object: s)
+        query.identifiers = false
+        expect(query.all.pluck(:id)).to contain_exactly()
+      end
+
+      specify '#identifiers 1' do
+        t =  FactoryBot.create(:valid_specimen)
+
+        Identifier.destroy_all # purge random dwc_occurrence based identifiers that might match
+        s = FactoryBot.create(:valid_specimen)
+        d = FactoryBot.create(:valid_identifier, identifier_object: s)
+        query.identifiers = true
+        expect(query.all.pluck(:id)).to contain_exactly(s.id)
+      end
 
       specify '#namespace_id' do
         query.namespace_id = n1.id
@@ -585,7 +709,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       end
     end
 
-    # Concerns
+
 
     specify '#tags on collecting_event' do
       t = FactoryBot.create(:valid_tag, tag_object: ce1)
@@ -619,53 +743,53 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
   #   before { [co_a, co_b, gr_a, gr_b].each }
 
-#   context 'area search' do
-#     context 'named area' do
-#       let(:params) { {geographic_area_ids: [area_e.id]} }
+  #   context 'area search' do
+  #     context 'named area' do
+  #       let(:params) { {geographic_area_ids: [area_e.id]} }
 
-#       specify 'collection objects count' do
-#         result = Queries::CollectionObject::Filter.new(params).all
-#         expect(result.count).to eq(2)
-#       end
+  #       specify 'collection objects count' do
+  #         result = Queries::CollectionObject::Filter.new(params).all
+  #         expect(result.count).to eq(2)
+  #       end
 
-#       specify 'specific collection objects' do
-#         result = Queries::CollectionObject::Filter.new(params).all
-#         expect(result).to include(
-#           abra.collection_objects.first,
-#           nuther_dog.collection_objects.first)
-#       end
-#     end
+  #       specify 'specific collection objects' do
+  #         result = Queries::CollectionObject::Filter.new(params).all
+  #         expect(result).to include(
+  #           abra.collection_objects.first,
+  #           nuther_dog.collection_objects.first)
+  #       end
+  #     end
 
-#     # context 'area shapes' do
-#     #   context 'area shape area b' do
-#     #     let(:params) { {drawn_area_shape: area_b.to_geo_json_feature} }
+  #     # context 'area shapes' do
+  #     #   context 'area shape area b' do
+  #     #     let(:params) { {drawn_area_shape: area_b.to_geo_json_feature} }
 
-#     #     specify 'collection objects count' do
-#     #       result = Queries::CollectionObject::Filter.new(params).all
-#     #       expect(result.count).to eq(1)
-#     #     end
+  #     #     specify 'collection objects count' do
+  #     #       result = Queries::CollectionObject::Filter.new(params).all
+  #     #       expect(result.count).to eq(1)
+  #     #     end
 
-#     #     specify 'specific collection objects' do
-#     #       result = Queries::CollectionObject::Filter.new(params).all
-#     #       expect(result).to include(spooler.collection_objects.first)
-#     #     end
-#     #   end
+  #     #     specify 'specific collection objects' do
+  #     #       result = Queries::CollectionObject::Filter.new(params).all
+  #     #       expect(result).to include(spooler.collection_objects.first)
+  #     #     end
+  #     #   end
 
-#     #   context 'area shape area a' do
-#     #     let(:params) { {drawn_area_shape: area_a.to_geo_json_feature} }
+  #     #   context 'area shape area a' do
+  #     #     let(:params) { {drawn_area_shape: area_a.to_geo_json_feature} }
 
-#     #     specify 'collection objects count' do
-#     #       result = Queries::CollectionObject::Filter.new(params).all
-#     #       expect(result.count).to eq(1)
-#     #     end
+  #     #     specify 'collection objects count' do
+  #     #       result = Queries::CollectionObject::Filter.new(params).all
+  #     #       expect(result.count).to eq(1)
+  #     #     end
 
-#     #     specify 'specific collection objects' do
-#     #       result = Queries::CollectionObject::Filter.new(params).all
-#     #       expect(result).to include(otu_a.collection_objects.first)
-#     #     end
-#     #   end
-#     # end
-#   end
+  #     #     specify 'specific collection objects' do
+  #     #       result = Queries::CollectionObject::Filter.new(params).all
+  #     #       expect(result).to include(otu_a.collection_objects.first)
+  #     #     end
+  #     #   end
+  #     # end
+  #   end
 
 
   # context 'combined search' do

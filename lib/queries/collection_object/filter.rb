@@ -13,6 +13,8 @@ module Queries
       include Queries::Concerns::Tags
       include Queries::Concerns::Users
       include Queries::Concerns::Identifiers
+      include Queries::Concerns::Notes
+      include Queries::Concerns::DataAttributes
 
       # TODO: look for name collisions with CE filter
 
@@ -81,6 +83,9 @@ module Queries
       # @return [Repository#id, nil]
       attr_accessor :repository_id
 
+      # @return [CurrentRepository#id, nil]
+      attr_accessor :current_repository_id
+
       # @return [Array, nil]
       #  one of `holotype`, `lectotype` etc.
       #   nil - not applied
@@ -122,10 +127,19 @@ module Queries
       attr_accessor :repository
 
       # @return [True, False, nil]
+      #   true - has current_repository_id
+      #   false - does not have current_repository_id
+      #   nil - not applied
+      attr_accessor :current_repository
+
+      # @return [True, False, nil]
       #   true - has preparation_type
       #   false - does not have preparation_type
       #   nil - not applied
       attr_accessor :preparation_type
+
+      # @return [Array]
+      attr_accessor :preparation_type_id
 
       # @return [True, False, nil]
       # @param collecting_event ['true', 'false']
@@ -191,6 +205,12 @@ module Queries
       # See with_buffered_determinations
       attr_accessor :with_buffered_other_labels
 
+      # @return String
+      # A PostgreSQL valid regular expression. Note that
+      # simple strings evaluate as wildcard matches.
+      # !! Probably shouldn't expose to external API.
+      attr_accessor :determiner_name_regex
+
       # @param [Hash] args are permitted params
       def initialize(params)
         params.reject!{ |_k, v| v.blank? } # dump all entries with empty values
@@ -213,9 +233,12 @@ module Queries
         @collecting_event_ids = params[:collecting_event_ids] || []
         @collection_object_type = params[:collection_object_type].blank? ? nil : params[:collection_object_type]
         @current_determinations = boolean_param(params, :current_determinations)
+        @current_repository = boolean_param(params, :current_repository)
+        @current_repository_id = params[:current_repository_id].blank? ? nil : params[:current_repository_id]
         @depictions = boolean_param(params, :depictions)
         @determiner_id = params[:determiner_id]
         @determiner_id_or = boolean_param(params, :determiner_id_or)
+        @determiner_name_regex = params[:determiner_name_regex]
         @dwc_indexed = boolean_param(params, :dwc_indexed)
         @exact_buffered_collecting_event = boolean_param(params, :exact_buffered_collecting_event)
         @exact_buffered_determinations = boolean_param(params, :exact_buffered_determinations)
@@ -244,7 +267,9 @@ module Queries
         @with_buffered_determinations =  boolean_param(params, :with_buffered_determinations)
         @with_buffered_other_labels = boolean_param(params, :with_buffered_other_labels)
 
+        set_data_attributes_params(params)
         set_identifier(params)
+        set_notes_params(params)
         set_tags_params(params)
         set_user_dates(params)
       end
@@ -340,6 +365,11 @@ module Queries
         ::CollectionObject.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['biological_collection_object_id'].eq(tt['id']))))
       end
 
+      def determiner_name_regex_facet
+        return nil if determiner_name_regex.nil?
+        ::CollectionObject.joins(:determiners).where('people.cached ~* ?',  determiner_name_regex)
+      end
+
       def georeferences_facet
         return nil if georeferences.nil?
         if georeferences
@@ -370,6 +400,15 @@ module Queries
           ::CollectionObject.where.not(repository_id: nil)
         else
           ::CollectionObject.where(repository_id: nil)
+        end
+      end
+
+      def current_repository_facet
+        return nil if current_repository.nil?
+        if current_repository
+          ::CollectionObject.where.not(current_repository_id: nil)
+        else
+          ::CollectionObject.where(current_repository_id: nil)
         end
       end
 
@@ -506,6 +545,11 @@ module Queries
         table[:repository_id].eq(repository_id)
       end
 
+      def current_repository_id_facet
+        return nil if current_repository_id.blank?
+        table[:current_repository_id].eq(current_repository_id)
+      end
+
       def collecting_event_merge_clauses
         c = []
 
@@ -551,6 +595,7 @@ module Queries
           preparation_type_id_facet,
           type_facet,
           repository_id_facet,
+          current_repository_id_facet,
           object_global_id_facet
         ]
         clauses.compact!
@@ -562,36 +607,43 @@ module Queries
         clauses += collecting_event_merge_clauses + collecting_event_and_clauses
 
         clauses += [
-          with_buffered_collecting_event_facet,
-          with_buffered_other_labels_facet,
-          with_buffered_determinations_facet,
-          determiner_facet,
-          geographic_area_facet,
-          collecting_event_facet,
-          repository_facet,
-          preparation_type_facet,
-          type_material_facet,
-          georeferences_facet,
-          taxon_determinations_facet,
-          otus_facet,
-          type_by_taxon_name_facet,
-          type_material_type_facet,
           ancestors_facet,
-          keyword_id_facet,       # See Queries::Concerns::Tags
-          created_updated_facet,  # See Queries::Concerns::Users
-          identifiers_facet,      # See Queries::Concerns::Identifiers
-          identifier_between_facet,
-          identifier_facet, # See Queries::Concerns::Identifiers
-          identifier_namespace_facet,
-          loaned_facet,
-          on_loan_facet,
-          dwc_indexed_facet,
-          never_loaned_facet,
           biocuration_facet,
           biological_relationship_ids_facet,
-          sled_image_facet,
-          loan_facet,
+          collecting_event_facet,
+          created_updated_facet,  # See Queries::Concerns::Users
+          current_repository_facet,
+          data_attribute_predicate_facet,
+          data_attribute_value_facet,
+          data_attributes_facet,
           depictions_facet,
+          determiner_facet,
+          determiner_name_regex_facet,
+          dwc_indexed_facet,
+          geographic_area_facet,
+          georeferences_facet,
+          identifier_between_facet,
+          identifier_facet,       # See Queries::Concerns::Identifiers
+          identifier_namespace_facet,
+          identifiers_facet,
+          keyword_id_facet,       # See Queries::Concerns::Tags
+          loan_facet,
+          loaned_facet,
+          never_loaned_facet,
+          note_text_facet,        # See Queries::Concerns::Notes
+          notes_facet,
+          on_loan_facet,
+          otus_facet,
+          preparation_type_facet,
+          repository_facet,
+          sled_image_facet,
+          taxon_determinations_facet,
+          type_by_taxon_name_facet,
+          type_material_facet,
+          type_material_type_facet,
+          with_buffered_collecting_event_facet,
+          with_buffered_determinations_facet,
+          with_buffered_other_labels_facet,
         ]
 
         clauses.compact!

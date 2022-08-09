@@ -7,13 +7,12 @@
 // To reference this file, add <%= javascript_pack_tag 'application' %> to the appropriate
 // layout file, like app/views/layouts/application.html.erb
 
-import 'core-js/stable'
-import 'regenerator-runtime/runtime'
+/* import 'core-js/stable'
+import 'regenerator-runtime/runtime' */
 // Styles
 import 'leaflet/dist/leaflet.css'
 import 'tippy.js/dist/tippy.css'
 
-/* require('../vue/config.js') */
 require('../vue/tasks/citations/otus/main.js')
 require('../vue/tasks/content/editor/main.js')
 require('../vue/tasks/nomenclature/new_taxon_name/main.js')
@@ -51,7 +50,6 @@ require('../vue/tasks/images/filter/main.js')
 require('../vue/tasks/sources/hub/main.js')
 require('../vue/tasks/nomenclature/filter/main.js')
 require('../vue/tasks/observation_matrices/image/main.js')
-require('../vue/tasks/observation_matrices/hub/main.js')
 require('../vue/tasks/observation_matrices/dashboard/main.js')
 require('../vue/tasks/nomenclature/stats/main.js')
 require('../vue/tasks/otu/browse_asserted_distributions/main.js')
@@ -70,8 +68,11 @@ require('../vue/tasks/extracts/new_extract/main.js')
 require('../vue/tasks/namespaces/new_namespace/main.js')
 require('../vue/data/downloads/index.js')
 require('../vue/tasks/dwca_import/main.js')
+require('../vue/tasks/observation_matrices/matrix_column_coder/main.js')
 require('../vue/tasks/dwc/dashboard/index.js')
 require('../vue/tasks/administration/data/index.js')
 require('../vue/tasks/graph/object_graph/main.js')
 require('../vue/tasks/controlled_vocabularies/biocurations/main.js')
 require('../vue/tasks/extracts/filter/main.js')
+require('../vue/tasks/collection_objects/stepwise/determinations/main.js')
+require('../vue/tasks/content/publisher/main.js')

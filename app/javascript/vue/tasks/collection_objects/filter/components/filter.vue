@@ -37,6 +37,10 @@
       <otu-component
         class="margin-large-bottom"
         v-model="params.determination"/>
+      <FacetCurrentRepository
+        class="margin-large-bottom"
+        v-model="params.repository.current_repository_id"
+      />
       <repository-component
         class="margin-large-bottom"
         v-model="params.repository.repository_id"/>
@@ -75,9 +79,21 @@
         v-model="params.loans"/>
       <user-component
         class="margin-large-bottom"
+        v-model="params.user"
         @onUserslist="usersList = $event"
-        v-model="params.user"/>
-      <buffered-component v-model="params.buffered"/>
+      />
+      <facet-notes
+        class="margin-large-bottom"
+        v-model="params.notes"
+      />
+      <buffered-component
+        class="margin-large-bottom"
+        v-model="params.buffered"
+      />
+      <FacetDataAttribute
+        class="margin-large-bottom"
+        v-model="params.dataAttributes"
+      />
       <with-component
         class="margin-large-bottom"
         v-for="(item, key) in params.byRecordsWith"
@@ -106,6 +122,9 @@ import WithComponent from 'tasks/sources/filter/components/filters/with'
 import BufferedComponent from './filters/buffered.vue'
 import PreparationTypes from './filters/preparationTypes'
 import CollectorsComponent from './filters/shared/people'
+import FacetNotes from './filters/FacetNotes.vue'
+import FacetCurrentRepository from './filters/FacetCurrentRepository.vue'
+import FacetDataAttribute from './filters/DataAttributes/FacetDataAttribute.vue'
 import { chunkArray } from 'helpers/arrays.js'
 
 import SpinnerComponent from 'components/spinner'
@@ -130,7 +149,10 @@ export default {
     RepositoryComponent,
     WithComponent,
     PreparationTypes,
-    CollectorsComponent
+    CollectorsComponent,
+    FacetNotes,
+    FacetCurrentRepository,
+    FacetDataAttribute
   },
 
   emits: [
@@ -152,7 +174,7 @@ export default {
     },
 
     parseParams () {
-      return Object.assign({}, { preparation_type_id: this.params.preparation_type_id }, this.params.collectors, this.params.settings, this.params.buffered.text, this.params.buffered.exact, this.params.byRecordsWith, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.repository, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
+      return Object.assign({}, { preparation_type_id: this.params.preparation_type_id }, this.params.dataAttributes, this.params.notes, this.params.collectors, this.params.settings, this.params.buffered.text, this.params.buffered.exact, this.params.byRecordsWith, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.repository, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
     },
 
     isParamsEmpty () {
@@ -168,11 +190,13 @@ export default {
         this.params.determination.determiner_id.length ||
         this.params.determination.ancestor_id ||
         this.params.repository.repository_id ||
+        this.params.repository.current_repository_id ||
         this.params.collectingEvents.collecting_event_ids.length ||
         this.params.preparation_type_id.length ||
         Object.keys(this.params.collectingEvents.fields).length ||
         Object.values(this.params.collectingEvents).find(item => item && item.length) ||
         Object.values(this.params.user).find(item => item) ||
+        Object.values(this.params.notes).find(item => item) ||
         Object.values(this.params.loans).find(item => item) ||
         Object.values(this.params.identifier).find(item => item) ||
         Object.values(this.params.byRecordsWith).some(item => item !== undefined) ||
@@ -235,7 +259,7 @@ export default {
         const urlParams = new URLSearchParams(response.request.responseURL.split('?')[1])
         history.pushState(null, null, `/tasks/collection_objects/filter?${urlParams.toString()}`)
         this.searching = false
-        if(this.result.length === this.params.settings.per) {
+        if (this.result.length === this.params.settings.per) {
           TW.workbench.alert.create('Results may be truncated.', 'notice')
         }
       }, () => {
@@ -254,15 +278,18 @@ export default {
         },
         byRecordsWith: {
           collecting_event: undefined,
+          data_attributes: undefined,
           depictions: undefined,
           geographic_area: undefined,
           georeferences: undefined,
           identifiers: undefined,
           taxon_determinations: undefined,
           type_material: undefined,
+          current_repository: undefined,
           repository: undefined,
           preparation_type: undefined,
           dwc_indexed: undefined,
+          notes: undefined,
           with_buffered_collecting_event: undefined,
           with_buffered_determinations: undefined,
           with_buffered_other_labels: undefined
@@ -278,6 +305,15 @@ export default {
             exact_buffered_determinations: undefined,
             exact_buffered_other_labels: undefined
           }
+        },
+        notes: {
+          note_text: undefined,
+          note_exact: undefined
+        },
+        dataAttributes: {
+          data_attribute_value: [],
+          data_attribute_predicate_id: [],
+          data_attribute_exact: undefined
         },
         relationships: {
           biological_relationship_ids: []
@@ -312,6 +348,7 @@ export default {
           determiner_id_or: [],
           determiner_id: [],
           otu_ids: [],
+          determiner_name_regex: undefined,
           current_determinations: undefined,
           ancestor_id: undefined,
           validity: undefined
@@ -337,6 +374,7 @@ export default {
           geographic_area_id: []
         },
         repository: {
+          current_repository_id: undefined,
           repository_id: undefined
         }
       }

@@ -61,9 +61,19 @@
   </div>
 
   <div>
-    <h2> Metadata </h2>
-    <ul class="no_bullets list list-arrow">
-      <%= content_tag(:li, link_to('Stats', project_activity_task_path, data: { turbolinks: false })) -%>
-    </ul>
+    <div>
+      <h2> Data </h2>
+      <ul class="no_bullets list list-arrow">
+        <%= content_tag(:li, link_to('Download project task', export_taxonworks_project_task_path, data: { turbolinks: false } ) ) %>
+      </ul>
+    </div>
+
+    <div>
+      <h2> Metadata </h2>
+      <ul class="no_bullets list list-arrow">
+        <%= content_tag(:li, link_to('Stats', project_activity_task_path, data: { turbolinks: false })) -%>
+      </ul>
+    </div>
   </div>
+
 </div>

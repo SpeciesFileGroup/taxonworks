@@ -3,8 +3,7 @@
     <legend>Authors</legend>
     <smart-selector
       model="people"
-      @onTabSelected="view = $event"
-      target="Source"
+      target="SourceAuthor"
       klass="Source"
       label="cached"
       :params="{ role_type: 'SourceAuthor' }"
@@ -13,7 +12,9 @@
       }"
       :filter-ids="peopleIds"
       :autocomplete="false"
-      @selected="addRole">
+      @selected="addRole"
+      @on-tab-selected="view = $event"
+    >
       <template #header>
         <role-picker
           ref="rolePicker"
@@ -21,14 +22,16 @@
           :autofocus="false"
           :hidden-list="true"
           :filter-by-role="true"
-          role-type="SourceAuthor"/>
+          role-type="SourceAuthor"
+        />
       </template>
       <role-picker
-        :create-form="false"
         v-model="roleAttributes"
+        :create-form="false"
         :autofocus="false"
         :filter-by-role="true"
-        role-type="SourceAuthor"/>
+        role-type="SourceAuthor"
+      />
     </smart-selector>
   </fieldset>
 </template>
@@ -82,16 +85,7 @@ export default {
   methods: {
     addRole (person) {
       if (!findRole(this.source.roles_attributes, person.id)) {
-        this.$refs.rolePicker.setPerson(this.createPerson(person, 'SourceAuthor'))
-      }
-    },
-
-    createPerson (person, roleType) {
-      return {
-        first_name: person.first_name,
-        last_name: person.last_name,
-        person_id: person.id,
-        type: roleType
+        this.$refs.rolePicker.setPerson(person)
       }
     }
   }

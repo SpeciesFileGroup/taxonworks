@@ -1,49 +1,49 @@
 <template>
-  <div>
-    <div v-show="show">
-      <spinner-component
-        :legend="('Loading...')"
-        v-if="isLoading"/>
-      <div v-show="existObservations">
-        <dropzone-component
-          class="dropzone-card"
-          ref="depictionDepic"
-          url="/depictions"
-          :use-custom-dropzone-options="true"
-          @vdropzone-sending="sendingDepic"
-          @vdropzone-success="successDepic"
-          :dropzone-options="dropzoneDepiction"/>
-      </div>
-      <div v-show="!existObservations">
-        <dropzone-component
-          class="dropzone-card"
-          ref="depictionObs"
-          url="/observations"
-          :use-custom-dropzone-options="true"
-          @vdropzone-sending="sending"
-          @vdropzone-success="success"
-          :dropzone-options="dropzoneObservation"/>
-      </div>
-
+  <div title="Drop image here">
+    <spinner-component
+      :legend="('Uploading...')"
+      v-if="isLoading"
+    />
+    <dropzone-component
+      v-show="show"
+      class="dropzone-card"
+      ref="dropzone"
+      url="/observations"
+      use-custom-dropzone-options
+      @vdropzone-sending="sending"
+      @vdropzone-success="success"
+      @click="openInputFile"
+      :dropzone-options="
+        existObservations
+          ? dropzoneDepiction
+          : dropzoneObservation
+      "
+    >
       <draggable-component
         class="flex-wrap-row matrix-image-draggable"
         group="cells"
         item-key="id"
         :list="depictions"
+        @click.stop="openInputFile"
         @add="movedDepiction"
         @choose="setObservationDragged"
       >
         <template #item="{ element }">
-          <div class="drag-container">
+          <div
+            @click.stop
+            title=""
+            class="drag-container"
+          >
             <image-viewer
               edit
               :depiction="element"
             >
               <template #thumbfooter>
-                <div class="horizontal-left-content">
+                <div class="horizontal-left-content margin-small-top">
                   <radial-annotator
                     type="annotations"
-                    :global-id="element.image.global_id"/>
+                    :global-id="element.image.global_id"
+                  />
                   <button-citation
                     :global-id="element.image.global_id"
                     :citations="element.image.citations"
@@ -59,10 +59,11 @@
           </div>
         </template>
       </draggable-component>
-    </div>
+    </dropzone-component>
     <v-icon
       v-if="!show && existObservations"
-      name="image"/>
+      name="image"
+    />
   </div>
 </template>
 
@@ -163,7 +164,6 @@ export default {
         headers: {
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
-        dictDefaultMessage: 'Drop image here',
         acceptedFiles: 'image/*,.heic'
       },
       dropzoneDepiction: {
@@ -173,7 +173,6 @@ export default {
         headers: {
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
-        dictDefaultMessage: 'Drop image here',
         acceptedFiles: 'image/*,.heic'
       }
     }
@@ -195,6 +194,10 @@ export default {
       } else {
         this.updateDepiction()
       }
+    },
+
+    openInputFile () {
+      this.$refs.dropzone.$el.click()
     },
 
     updateDepiction (observationId) {
@@ -254,48 +257,68 @@ export default {
     },
 
     success (file, response) {
-      this.$emit('addDepiction', response.depictions[0])
-      this.$refs.depictionObs.removeFile(file)
+      this.$emit('addDepiction', response.base_class === 'Depiction' ? response : response.depictions[0])
+      this.$refs.dropzone.removeFile(file)
+
+      this.isLoading = false
     },
 
     sending (file, xhr, formData) {
-      formData.append('observation[descriptor_id]', this.column.id)
-      formData.append('observation[type]', 'Observation::Media')
-      formData.append('observation[observation_object_id]', this.rowObjectId)
-      formData.append('observation[observation_object_type]', this.rowObjectBaseCassParam)
-      formData.append('extend[]', 'depictions')
-    },
+      if (this.existObservations) {
+        formData.append('depiction[depiction_object_id]', this.observationId)
+        formData.append('depiction[depiction_object_type]', 'Observation')
+      } else {
+        formData.append('observation[descriptor_id]', this.column.id)
+        formData.append('observation[type]', 'Observation::Media')
+        formData.append('observation[observation_object_id]', this.rowObjectId)
+        formData.append('observation[observation_object_type]', this.rowObjectBaseCassParam)
+        formData.append('extend[]', 'depictions')
+      }
 
-    successDepic (file, response) {
-      this.$emit('addDepiction', response)
-      this.$refs.depictionDepic.removeFile(file)
-    },
-
-    sendingDepic (file, xhr, formData) {
-      formData.append('depiction[depiction_object_id]', this.observationId)
-      formData.append('depiction[depiction_object_type]', 'Observation')
+      this.isLoading = true
     }
   }
 }
 </script>
 
 <style scoped>
-  .drag-container {
-    padding-top: 0.5em;
-  }
-
   .dropzone-card {
-    min-height: 100px !important;
-    height: 100px;
+    align-items: stretch;
+    flex: 1
   }
 
   :deep(.dz-message) {
     margin: 1em 0 !important;
     font-size: 16px !important;
+    display: none !important;
   }
 
   .matrix-image-draggable {
-    min-height: 100px;
     box-sizing: content-box;
+    align-items: stretch;
+    flex: 1;
+    height: 100%;
+    cursor: pointer;
   }
+
+  .vue-dropzone {
+    padding: 0px !important;
+    min-width: 100px;
+    cursor: pointer !important;
+    align-items: stretch;
+    flex: 1;
+  }
+
+  .dropzone {
+    height: 100%;
+  }
+
+  .image-draggable {
+    cursor: pointer;
+  }
+
+  :deep(.dz-preview) {
+    display: none !important;
+  }
+
 </style>

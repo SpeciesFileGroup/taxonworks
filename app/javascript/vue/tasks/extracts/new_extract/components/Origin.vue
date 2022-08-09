@@ -5,31 +5,31 @@
     </template>
     <template #body>
       <div>
-        <template v-if="!originRelationship.oldObject">
+        <template v-if="!originRelationship.old_object_id">
           <div class="horizontal-left-content middle margin-small-bottom">
             <switch-component
               v-model="tabSelected"
-              :options="tabsOptions"/>
+              :options="Object.keys(smartTypes)"/>
             <lock-component
               class="margin-small-left"
-              v-model="settings.lock.originRelationship"/>
+              v-model="settings.lock.originRelationships"/>
           </div>
 
           <smart-selector
-            :model="smartConfig.model"
+            :model="smartTypes[tabSelected]"
             klass="Extract"
             target="Extract"
             @selected="setOrigin"/>
         </template>
 
         <div
-          v-if="originRelationship.object_tag"
+          v-if="originRelationship.label"
           class="horizontal-left-content">
-          <span v-html="originRelationship.object_tag"/>
+          <span v-html="originRelationship.label"/>
           <button
             class="button circle-button btn-undo button-default"
             type="button"
-            @click="originRelationship = {}"/>
+            @click="store.commit(MutationNames.SetOriginRelationship, makeOriginRelationship())"/>
           <lock-component
             class="margin-small-left"
             v-model="settings.lock.originRelationship"/>
@@ -43,98 +43,102 @@
             type="text"
             v-model="extract.verbatim_anatomical_origin">
         </div>
+        
+        <v-btn
+          color="create"
+          medium
+          @click="addOriginToList"
+        >
+          Add
+        </v-btn>
+
+        <DisplayList
+          :list="list"
+          label="label"
+          @delete="removeOriginRelationship"
+        />
       </div>
     </template>
   </block-layout>
 </template>
 
-<script>
+<script setup>
 
 import SmartSelector from 'components/ui/SmartSelector'
 import SwitchComponent from 'components/switch'
 import LockComponent from 'components/ui/VLock/index.vue'
 import BlockLayout from 'components/layout/BlockLayout'
-import componentExtend from './mixins/componentExtend'
+import useSettings from '../composables/useSettings.js'
+import useExtract from '../composables/useExtract.js'
+import VBtn from 'components/ui/VBtn/index.vue'
+import DisplayList from 'components/displayList.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
+import { ActionNames } from '../store/actions/actions'
+import { COLLECTION_OBJECT, EXTRACT, OTU } from 'constants/index.js'
+import { ref, computed, watch } from 'vue'
+import { useStore } from 'vuex'
+import makeOriginRelationship from '../helpers/makeOriginRelationship'
 
-const smartTypes = [
-  {
-    label: 'CollectionObject',
-    model: 'collection_objects'
-  },
-  {
-    label: 'Extract',
-    model: 'extracts'
-  },
-  {
-    label: 'Otu',
-    model: 'otus'
-  }
-]
-
-export default {
-  mixins: [componentExtend],
-  components: {
-    BlockLayout,
-    LockComponent,
-    SmartSelector,
-    SwitchComponent
-  },
-
-  data () {
-    return {
-      smartTypes: smartTypes,
-      tabSelected: smartTypes[0].label
-    }
-  },
-
-  computed: {
-    smartConfig () {
-      return this.smartTypes.find(type => type.label === this.tabSelected)
-    },
-
-    tabsOptions () {
-      return this.smartTypes.map(({ label }) => label)
-    },
-
-    isExtract () {
-      return this.tabSelected === smartTypes[1].label
-    },
-
-    originRelationship: {
-      get () {
-        return this.$store.getters[GetterNames.GetOriginRelationship]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetOriginRelationship, value)
-      }
-    }
-  },
-
-  watch: {
-    isExtract (newVal) {
-      if (newVal) {
-        this.extract.verbatim_anatomical_origin = undefined
-      }
-    },
-    originRelationship ({ oldObject }) {
-      if (oldObject) {
-        this.tabSelected = oldObject.old_object_type
-      }
-    }
-  },
-
-  methods: {
-    setOrigin ({ base_class, id, object_tag }) {
-      this.originRelationship = {
-        object_tag,
-        oldObject: {
-          old_object_id: id,
-          old_object_type: base_class || 'CollectionObject'
-        }
-      }
-    }
-  }
+const smartTypes = {
+  [COLLECTION_OBJECT]: 'collection_objects',
+  [EXTRACT]: 'extracts',
+  [OTU]: 'otus'
 }
+
+const store = useStore()
+
+const tabSelected = ref(COLLECTION_OBJECT)
+const settings = useSettings()
+const extract = useExtract()
+
+const isExtract = computed(() => tabSelected.value === EXTRACT)
+const list = computed(() => store.getters[GetterNames.GetOriginRelationships])
+
+const originRelationship = computed({
+  get () {
+    return store.getters[GetterNames.GetOriginRelationship]
+  },
+  set (value) {
+    store.commit(MutationNames.SetOriginRelationship, value)
+  }
+})
+
+watch(
+  () => isExtract.value,
+  newVal => {
+    if (newVal) {
+      extract.value.verbatim_anatomical_origin = undefined
+    }
+  }
+)
+
+watch(
+  () => originRelationship.value,
+  ({ old_object_type }) => {
+    if (old_object_type) {
+      tabSelected.value = old_object_type
+    }
+  }
+)
+
+const setOrigin = ({ base_class, id, object_tag }) => {
+  store.commit(MutationNames.SetOriginRelationship, {
+    ...originRelationship.value,
+    label: object_tag,
+    old_object_id: id,
+    old_object_type: base_class || COLLECTION_OBJECT,
+    isUnsaved: true
+  })
+}
+
+const addOriginToList = () => {
+  store.commit(MutationNames.AddOriginToList, originRelationship.value)
+  store.commit(MutationNames.SetOriginRelationship, makeOriginRelationship())
+}
+
+const removeOriginRelationship = relationship => {
+  store.dispatch(ActionNames.RemoveOriginRelationship, relationship)
+}
+
 </script>

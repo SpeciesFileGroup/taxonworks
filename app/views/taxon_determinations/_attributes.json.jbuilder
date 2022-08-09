@@ -12,9 +12,18 @@ end
 if taxon_determination.roles.any?
   json.determiner_roles do
     json.array! taxon_determination.determiner_roles.each do |role|
-      json.extract! role, :id, :position
-      json.person do
-        json.partial! '/people/base_attributes', person: role.person
+      json.extract! role, :id, :position, :type
+      case role.agent_type
+      when :person
+        json.person do
+          json.partial! '/people/base_attributes', person: role.person
+        end
+      when :organization
+        json.organization do
+          json.partial! '/organizations/attributes', organization: role.organization
+        end
+      else
+        json.error true
       end
     end
   end

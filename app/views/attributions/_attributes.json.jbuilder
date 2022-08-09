@@ -4,7 +4,7 @@ json.url attribution_url(attribution, format: :json)
 json.partial! '/shared/data/all/metadata', object: attribution
 
 json.annotated_object do
-  json.partial! '/shared/data/all/metadata', object: metamorphosize_if(attribution.attribution_object)
+  json.partial! '/shared/data/all/metadata', object: metamorphosize_if(attribution.attribution_object), extensions: false
 end
 
 if attribution.roles.load.any?

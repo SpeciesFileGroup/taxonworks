@@ -136,7 +136,7 @@ class TaxonNamesController < ApplicationController
   end
 
   def rank_table
-    @q = Queries::TaxonName::Tabular.new(
+    @query = Queries::TaxonName::Tabular.new(
       ancestor_id: params.require(:ancestor_id),
       ranks: params.require(:ranks),
       fieldsets: params[:fieldsets],
@@ -302,6 +302,8 @@ class TaxonNamesController < ApplicationController
       :author,
       :authors,
       :citations,
+      :data_attribute_exact_value,
+      :data_attributes,
       :descendants,
       :descendants_max_depth,
       :etymology,
@@ -311,6 +313,9 @@ class TaxonNamesController < ApplicationController
       :nomenclature_code,
       :nomenclature_group, # !! different than autocomplete
       :not_specified,
+      :note_exact, # Notes concern
+      :note_text,
+      :notes,
       :otus,
       :page,
       :per,
@@ -325,6 +330,8 @@ class TaxonNamesController < ApplicationController
       :validity,
       :year,
       combination_taxon_name_id: [],
+      data_attribute_predicate_id: [], # DataAttributes concern
+      data_attribute_value: [],        # DataAttributes concern
       keyword_id_and: [],
       keyword_id_or: [],
       parent_id: [],
@@ -333,7 +340,7 @@ class TaxonNamesController < ApplicationController
       taxon_name_id: [],
       taxon_name_relationship: [],
       taxon_name_relationship_type: [],
-      type: []
+      type: [],
       # user_id: []
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
@@ -344,6 +351,8 @@ class TaxonNamesController < ApplicationController
       :author,
       :authors,
       :citations,
+      :data_attribute_exact_value,
+      :data_attributes,
       :descendants,
       :descendants_max_depth,
       :etymology,
@@ -352,16 +361,18 @@ class TaxonNamesController < ApplicationController
       :name,
       :nomenclature_code,
       :nomenclature_group, # !! different than autocomplete
-      :otus,
       :not_specified,
-#     :page, # TODO: yes or no?
-#     :per,
+      :otus,
       :taxon_name_type,
       :type_metadata,
       :updated_since,
       :validity,
       :year,
+#     :page, # TODO: yes or no?
+#     :per,
       combination_taxon_name_id: [],
+      data_attribute_predicate_id: [], # DataAttributes concern
+      data_attribute_value: [],        # DataAttributes concern
       keyword_id_and: [],
       keyword_id_or: [],
       parent_id: [],

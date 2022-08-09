@@ -392,14 +392,16 @@ class Protonym < TaxonName
     r.constantize
   end
 
+  # temporary method to get a number of taxa described by year
   def number_of_taxa_by_year
+    file_name = '/tmp/taxa_by_year' + '_' + Time.now.to_i.to_s + '.csv'
     a = {}
     descendants.find_each do |z|
       year = z.year_integer
       year = 0 if year.nil?
       a[year] = {:valid => 0, :synonyms => 0} unless a[year]
       if z.rank_string == 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
-        if z.id == z.cached_valid_taxon_name_id
+        if z.cached_is_valid
           a[year][:valid] = a[year][:valid] += 1
         elsif TaxonNameRelationship.where_subject_is_taxon_name(z.id).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).any?
           a[year][:synonyms] = a[year][:synonyms] += 1
@@ -410,7 +412,8 @@ class Protonym < TaxonName
       a[i] = {:valid => 0, :synonyms => 0} unless a[i]
     end
     b = a.sort.to_h
-    CSV.generate do |csv|
+    CSV.open(file_name, 'w') do |csv|
+      #CSV.generate do |csv|
       csv << ['year', 'valid species', 'synonyms']
       b.keys.each do |i|
         csv << [i, b[i][:valid], b[i][:synonyms]]
@@ -923,16 +926,6 @@ class Protonym < TaxonName
     unless r.blank?
       if self.parent != r.object_taxon_name
         errors.add(:parent_id, "Taxon has an 'Incertae sedis' relationship, which prevent the parent modifications, change the relationship to 'Source classified as' before updating the parent")
-      end
-    end
-  end
-
-  def check_new_parent_class
-    if parent_id != parent_id_was && !parent_id_was.nil? && nomenclatural_code == :iczn
-      if old_parent = TaxonName.find_by(id: parent_id_was)
-        if (rank_name == 'subgenus' || rank_name == 'subspecies') && old_parent.name == name
-          errors.add(:parent_id, "The nominotypical #{rank_name} #{name} can not be moved out of the nominal #{old_parent.rank_name}")
-        end
       end
     end
   end

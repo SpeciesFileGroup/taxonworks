@@ -9,6 +9,3 @@ if extend_response_with('parents')
     end
   end
 end
-if extend_response_with('type_materials_catalog_labels')
-  json.type_materials_catalog_labels @otu.type_materials.map { |t| {type_type: t.type_type, label: type_material_catalog_label(t) } }
-end

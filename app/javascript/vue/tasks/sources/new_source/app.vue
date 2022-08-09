@@ -10,13 +10,15 @@
             placeholder="Search a source..."
             label="label_html"
             clear-after
-            @getItem="loadSource($event.id)"/>
+            @get-item="loadSource($event.id)"
+          />
         </li>
         <li>
           <label>
             <input
               type="checkbox"
-              v-model="settings.sortable">
+              v-model="settings.sortable"
+            >
             Reorder fields
           </label>
         </li>
@@ -28,94 +30,112 @@
     <nav-bar class="source-navbar">
       <div class="flex-separate full_width">
         <div class="middle">
-          <span
-            class="word_break"
-            v-if="source.id"
-            v-html="source.cached"/>
-          <span v-else>New record</span>
           <template v-if="source.id">
-            <pin-component
-              class="margin-medium-left"
-              :object-id="source.id"
-              type="Source"/>
-            <radial-annotator :global-id="source.global_id"/>
-            <radial-object :global-id="source.global_id"/>
-            <add-source
-              :project-source-id="source.project_source_id"
-              :id="source.id"/>
+            <span
+              class="word_break"
+              v-html="source.cached"
+            />
+
+            <div class="flex-wrap-row nav__source-buttons margin-small-left">
+              <pin-component
+                class="circle-button"
+                type="Source"
+                :object-id="source.id"
+              />
+              <radial-annotator :global-id="source.global_id" />
+              <radial-object :global-id="source.global_id" />
+              <add-source
+                :project-source-id="source.project_source_id"
+                :id="source.id"
+              />
+            </div>
           </template>
+          <span v-else>New record</span>
         </div>
         <div
-          class="horizontal-right-content"
-          v-hotkey="shortcuts">
-          <span
+          class="nav__buttons"
+          v-hotkey="shortcuts"
+        >
+          <v-icon
             v-if="unsave"
-            class="medium-icon margin-small-right"
+            name="attention"
+            color="attention"
             title="You have unsaved changes."
-            data-icon="warning"/>
+          />
           <button
             @click="saveSource"
             :disabled="source.type === 'Source::Bibtex' && !source.bibtex_type"
-            class="button normal-input button-submit button-size separate-right separate-left"
-            type="button">
+            class="button normal-input button-submit button-size margin-small-left margin-small-top margin-small-bottom"
+            type="button"
+          >
             Save
           </button>
+          <clone-source />
           <button
             v-if="source.type === 'Source::Verbatim' && source.id"
+            class="button normal-input button-submit button-size margin-small-left margin-small-top margin-small-bottom"
             type="button"
-            @click="convert">
+            @click="convert"
+          >
             To BibTeX
           </button>
-          <clone-source/>
           <button
             v-help.section.navBar.crossRef
-            class="button normal-input button-default button-size separate-left"
+            class="button normal-input button-default button-size margin-small-left"
             type="button"
-            @click="showModal = true">
+            @click="showModal = true"
+          >
             CrossRef
           </button>
           <button
-            class="button normal-input button-default button-size separate-left"
+            class="button normal-input button-default button-size margin-small-left margin-small-top margin-small-bottom"
             type="button"
-            @click="showBibtex = true">
+            @click="showBibtex = true"
+          >
             BibTeX
           </button>
           <button
             @click="showRecent = true"
-            class="button normal-input button-default button-size separate-left"
-            type="button">
+            class="button normal-input button-default button-size margin-small-left"
+            type="button"
+          >
             Recent
           </button>
           <button
             @click="reset"
-            class="button normal-input button-default button-size separate-left"
-            type="button">
+            class="button normal-input button-default button-size margin-small-left margin-small-top margin-small-bottom"
+            type="button"
+          >
             New
           </button>
         </div>
       </div>
     </nav-bar>
-    <source-type class="margin-medium-bottom"/>
+    <source-type class="margin-medium-bottom" />
     <recent-component
       v-if="showRecent"
-      @close="showRecent = false"/>
+      @close="showRecent = false"
+    />
     <div class="horizontal-left-content align-start">
       <div class="full_width">
-        <component :is="section"/>
+        <component :is="section" />
       </div>
-      <right-section class="margin-medium-left"/>
+      <right-section class="margin-medium-left" />
     </div>
     <cross-ref
       v-if="showModal"
-      @close="showModal = false"/>
+      @close="showModal = false"
+    />
     <bibtex-button
       v-if="showBibtex"
-      @close="showBibtex = false"/>
+      @close="showBibtex = false"
+    />
     <spinner-component
       v-if="settings.isConverting"
       :full-screen="true"
       :logo-size="{ width: '100px', height: '100px'}"
-      legend="Converting verbatim to BiBTeX..."/>
+      legend="Converting verbatim to BiBTeX..."
+    />
   </div>
 </template>
 
@@ -129,12 +149,12 @@ import CrossRef from './components/crossRef'
 import BibtexButton from './components/bibtex'
 import Verbatim from './components/verbatim/main'
 import Bibtex from './components/bibtex/main'
-import Human from './components/person/main'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial'
 import AddSource from 'components/addToProjectSource'
 import Autocomplete from 'components/ui/Autocomplete'
 import CloneSource from './components/cloneSource'
+import VIcon from 'components/ui/VIcon/index.vue'
 
 import PinComponent from 'components/ui/Pinboard/VPin.vue'
 
@@ -159,14 +179,14 @@ export default {
     SourceType,
     Verbatim,
     Bibtex,
-    Human,
     CrossRef,
     RightSection,
     BibtexButton,
     AddSource,
     NavBar,
     RecentComponent,
-    SpinnerComponent
+    SpinnerComponent,
+    VIcon
   },
 
   computed: {
@@ -197,7 +217,7 @@ export default {
       }
     },
 
-    unsave() {
+    unsave () {
       const settings = this.$store.getters[GetterNames.GetSettings]
       return settings.lastSave < settings.lastEdit
     }
@@ -262,5 +282,23 @@ export default {
 <style scoped>
   .button-size {
     width: 100px;
+  }
+
+  .nav__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: end;
+    align-items: center;
+  }
+
+  @media (min-width: 1520px) {
+    .nav__buttons {
+      min-width: 800px;
+    }
+
+    .nav__source-buttons {
+      min-width: 150px;
+    }
   }
 </style>
