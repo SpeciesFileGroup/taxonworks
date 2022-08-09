@@ -7,18 +7,20 @@ module Shared::Identifiers
     Identifier.related_foreign_keys.push self.name.foreign_key
 
     # Validation happens on the parent side!
-    has_many :identifiers, as: :identifier_object, validate: true, dependent: :destroy
+    has_many :identifiers, as: :identifier_object, validate: true, dependent: :destroy # TODO: add for validation, inverse_of: :identifier_object
     accepts_nested_attributes_for :identifiers, reject_if: :reject_identifiers, allow_destroy: true
 
     scope :with_identifier_type, ->(identifier_type) { joins(:identifiers).where('identifiers.type = ?', identifier_type).references(:identifiers) }
     scope :with_identifier_namespace, ->(namespace_id) { joins(:identifiers).where('identifiers.namespace_id = ?', namespace_id).references(:identifiers) }
 
     # !! This only is able to match numeric identifiers, other results are excluded !!
-    # Careful, a potential security issue here
-    scope :with_identifiers_sorted, -> (o = 'ASC') { includes(:identifiers)
-      .where("LENGTH(identifier) < 10 AND identifiers.identifier ~ '\^\\d{1,9}\$'")
-      .order(Arel.sql("CAST(identifiers.identifier AS bigint) #{o}"))
-      .references(:identifiers) }
+    def self.with_identifiers_sorted(sort_order = 'ASC')
+      raise "illegal sort_order" if !['ASC', 'DESC'].include?(sort_order)
+      includes(:identifiers)
+        .where("LENGTH(identifier) < 10 AND identifiers.identifier ~ '\^\\d{1,9}\$'")
+        .order(Arel.sql("CAST(identifiers.identifier AS bigint) #{sort_order}"))
+        .references(:identifiers)
+    end
 
     scope :with_identifier_type_and_namespace, ->(identifier_type = nil, namespace_id = nil, sorted = nil) {
       with_identifier_type_and_namespace_method(identifier_type, namespace_id, sorted)
@@ -67,11 +69,16 @@ module Shared::Identifiers
     # !! Note that adding a sort also adds a where clause that constrains results to those that have numeric identifier.identifier
     def with_identifier_type_and_namespace_method(identifier_type, namespace_id, sorted = nil)
       return self.none if identifier_type.blank? && namespace_id.blank? && sorted.blank?
+      q = nil
       q = with_identifier_type(identifier_type) if !identifier_type.blank?
       q = (!q.nil? ? q.with_identifier_namespace(namespace_id) :  with_identifier_namespace(namespace_id) ) if !namespace_id.blank?
       q = (!q.nil? ? q.with_identifiers_sorted(sorted) :  with_identifiers_sorted(sorted) ) if !sorted.blank?
       q
     end
+  end
+
+  def dwc_occurrence_id
+    identifiers.where('identifiers.type like ?', 'Identifier::Global::Uuid%').order('identifiers.position ASC').first&.identifier
   end
 
   def identified?

@@ -8,25 +8,29 @@
         <smart-selector
           class="separate-bottom"
           :options="options"
-          v-model="view"/>
+          v-model="view"
+        />
         <role-picker
           v-if="view == 'someone else'"
           v-model="roles_attributes"
-          :role-type="roleType"/>
+          :role-type="roleType"
+        />
         <autocomplete
           v-else
           placeholder="Select an organization"
           url="/organizations/autocomplete"
           param="term"
-          @getItem="setOrganization"
-          label="label_html"/>
+          @get-item="setOrganization"
+          label="label_html"
+        />
       </div>
       <div class="separate-left">
         <label>
           Year of copyright
           <input
             type="number"
-            v-model="year">
+            v-model="year"
+          >
         </label>
       </div>
     </div>
@@ -37,9 +41,9 @@
 
 import SmartSelector from 'components/switch'
 import RolePicker from 'components/role_picker'
+import Autocomplete from 'components/ui/Autocomplete'
 import { GetterNames } from '../store/getters/getters.js'
 import { MutationNames } from '../store/mutations/mutations.js'
-import Autocomplete from 'components/autocomplete'
 
 export default {
   components: {
@@ -47,42 +51,47 @@ export default {
     RolePicker,
     Autocomplete
   },
+
   props: {
     title: {
       type: String,
       required: true
     },
     roleType: {
-      type:String,
+      type: String,
       required: true
     }
   },
+
   computed: {
     roles_attributes: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetPeople].copyrightHolder
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetCopyrightHolder, value)
       }
     },
+
     year: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetYearCopyright]
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetYearCopyright, value)
       }
     }
   },
-  data() {
+
+  data () {
     return {
       options: ['someone else', 'an organization'],
       view: 'someone else'
     }
   },
+
   methods: {
-    setOrganization(organization) {
+    setOrganization (organization) {
       this.roles_attributes = [{
         type: this.roleType,
         label: organization.label,

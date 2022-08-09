@@ -1,4 +1,6 @@
-<div class="soft_validation list">
+<% object.soft_validate -%>
+<% if !object.soft_validations.soft_validations.empty? %>
+<div class="soft_validation list" data-global-id="<%= object.to_global_id.to_s -%>">
   <% object.soft_validate -%>
   <ul class="no_bullets"> 
     <% object.soft_validations.soft_validations.each do |a| -%>
@@ -6,3 +8,4 @@
     <% end %>
   </ul>
 </div>
+<% end %>

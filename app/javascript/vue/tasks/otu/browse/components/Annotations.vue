@@ -2,10 +2,10 @@
   <section-panel
     :status="status"
     :title="title">
-    <template v-for="(item, key) in annotations">
-      <div
-        v-if="existAnnotations(item)"
-        :key="key">
+    <template 
+      v-for="(item, key) in annotations"
+      :key="key">
+      <div v-if="existAnnotations(item)">
         <h4 v-html="otus.find(otu => otu.id == key).object_tag"/>
         <list-component
           class="margin-medium-left"
@@ -37,7 +37,7 @@
 import SectionPanel from './shared/sectionPanel'
 import ListComponent from './shared/list'
 import extendSection from './shared/extendSections'
-import { GetIdentifiers, GetNotes, GetTags, GetDataAttributes } from '../request/resources.js'
+import { Otu } from 'routes/endpoints'
 import { GetterNames } from '../store/getters/getters'
 
 export default {
@@ -64,9 +64,9 @@ export default {
     otus: {
       handler (newVal) {
         const that = this
-        async function processArray(array) {
+        async function processArray (array) {
           for (const item of array) {
-            that.$set(that.annotations, item.id, await that.loadAnnotations(item.id))
+            that.annotations[item.id] = await that.loadAnnotations(item.id)
           }
         }
         processArray(newVal)
@@ -79,16 +79,17 @@ export default {
       return new Promise((resolve, reject) => {
         const promises = []
         const annotations = {}
-        promises.push(GetIdentifiers(id).then(response => {
+
+        promises.push(Otu.identifiers(id).then(response => {
           annotations.identifiers = response.body
         }))
-        promises.push(GetTags(id).then(response => {
+        promises.push(Otu.tags(id).then(response => {
           annotations.tags = response.body
         }))
-        promises.push(GetNotes(id).then(response => {
+        promises.push(Otu.notes(id).then(response => {
           annotations.notes = response.body
         }))
-        promises.push(GetDataAttributes(id).then(response => {
+        promises.push(Otu.dataAttributes(id).then(response => {
           annotations.dataAttributes = response.body
         }))
         Promise.all(promises).then(() => {

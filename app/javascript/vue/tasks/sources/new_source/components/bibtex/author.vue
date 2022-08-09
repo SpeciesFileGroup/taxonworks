@@ -2,32 +2,36 @@
   <fieldset v-help.section.BibTeX.authors>
     <legend>Authors</legend>
     <smart-selector
-      ref="smartSelector"
       model="people"
-      @onTabSelected="view = $event"
-      target="Source"
+      target="SourceAuthor"
       klass="Source"
+      label="cached"
       :params="{ role_type: 'SourceAuthor' }"
       :autocomplete-params="{
         roles: ['SourceAuthor']
       }"
       :filter-ids="peopleIds"
       :autocomplete="false"
-      @selected="addRole">
+      @selected="addRole"
+      @on-tab-selected="view = $event"
+    >
+      <template #header>
+        <role-picker
+          ref="rolePicker"
+          v-model="roleAttributes"
+          :autofocus="false"
+          :hidden-list="true"
+          :filter-by-role="true"
+          role-type="SourceAuthor"
+        />
+      </template>
       <role-picker
-        slot="header"
-        ref="rolePicker"
         v-model="roleAttributes"
-        :autofocus="false"
-        :hidden-list="true"
-        :filter-by-role="true"
-        role-type="SourceAuthor"/>
-      <role-picker
         :create-form="false"
-        v-model="roleAttributes"
         :autofocus="false"
         :filter-by-role="true"
-        role-type="SourceAuthor"/>
+        role-type="SourceAuthor"
+      />
     </smart-selector>
   </fieldset>
 </template>
@@ -36,8 +40,8 @@
 
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
-
-import SmartSelector from 'components/smartSelector.vue'
+import { findRole } from 'helpers/people/people.js'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 import RolePicker from 'components/role_picker.vue'
 
 export default {
@@ -45,6 +49,7 @@ export default {
     RolePicker,
     SmartSelector
   },
+
   computed: {
     source: {
       get () {
@@ -66,41 +71,21 @@ export default {
       }
     },
     peopleIds () {
-      return this.roleAttributes.filter(item => item.person_id || item.person).map(item => item.person_id ? item.person_id : item.person.id)
+      return this.roleAttributes.filter(item => item.person_id || item.person).map(item => item?.person_id || item.person.id)
     }
   },
+
   data () {
     return {
       options: [],
       view: undefined
     }
   },
-  watch: {
-    lastSave: {
-      handler (newVal, oldVal) {
-        if (newVal !== oldVal) {
-          this.$refs.smartSelector.refresh()
-        }
-      }
-    }
-  },
+
   methods: {
-    roleExist (id) {
-      return (this.source.roles_attributes.find((role) => {
-        return !role.hasOwnProperty('_destroy') && (role.person_id === id || (role.hasOwnProperty('person') && role.person.id === id))
-      }) ? true : false)
-    },
     addRole (person) {
-      if (!this.roleExist(person.id)) {
-        this.$refs.rolePicker.setPerson(this.createPerson(person, 'SourceAuthor'))
-      }
-    },
-    createPerson (person, roleType) {
-      return {
-        first_name: person.first_name,
-        last_name: person.last_name,
-        person_id: person.id,
-        type: roleType
+      if (!findRole(this.source.roles_attributes, person.id)) {
+        this.$refs.rolePicker.setPerson(person)
       }
     }
   }

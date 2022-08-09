@@ -1,0 +1,6 @@
+var content;
+
+content = $('<%= escape_javascript(render(partial: 'report') ) %>');
+
+$('#report').html(content);
+$("body").mx_spinner('hide');

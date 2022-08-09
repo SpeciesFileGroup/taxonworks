@@ -1,0 +1,12 @@
+<% content_for :tasks do %>
+  <%= content_tag(:li, link_to(
+    content_tag(:span, 'DwC-A Import (task)', 'data-icon' => 'edit', class: 'small-icon'),
+    dwca_import_task_path(import_dataset_id: @import_dataset.id), class: 'navigation-item', 'data-task' => 'dwca_import')
+  ) -%>
+<% end %>
+
+<%= content_for :icon_navigation do -%>
+  <li><%= import_dataset_download(@import_dataset) %></li>
+<% end %>
+
+<%= render(partial: 'shared/data/project/show', locals: { object: @import_dataset }) -%>

@@ -1,13 +1,11 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from './app.vue'
+import { newStore } from './store/store.js'
 
 function init () {
-  new Vue({
-    el: '#nomenclature_by_source',
-    render: function (createElement) {
-      return createElement(App);
-    }
-  })
+  const app = createApp(App)
+  app.use(newStore())
+  app.mount('#nomenclature_by_source')
 }
 
 document.addEventListener('turbolinks:load', (event) => {

@@ -3,33 +3,32 @@
     <modal
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Confirm delete</h3>
-      <div slot="body">Are you sure you want to delete <span v-html="parent.object_tag"/> {{ taxon.name }} ?</div>
-      <div slot="footer">
+      <template #header>
+        <h3>Confirm delete</h3>
+      </template>
+      <template #body>
+        <div>Are you sure you want to delete <span v-html="parent.object_tag"/> {{ taxon.name }} ?</div>
+      </template>
+      <template #footer>
         <button
           @click="deleteTaxon()"
           type="button"
           class="normal-input button button-delete">Delete</button>
-      </div>
+      </template>
     </modal>
-    <div class="panel basic-information">
-      <div class="content header">
+    <div class="panel">
+      <div class="content">
         <div
           v-if="taxon.id"
           class="flex-separate middle">
           <a
-            v-shortkey="[getMacKey(), 'b']"
-            @shortkey="switchBrowse()"
+            v-hotkey="shortcuts"
             :href="`/tasks/nomenclature/browse?taxon_name_id=${taxon.id}`"
-            class="taxonname">
-            <span v-html="taxon.cached_html"/>
-            <span v-html="taxon.cached_author_year"/>
-          </a>
+            class="taxonname"
+            v-html="taxonNameAndAuthor"
+          />
           <div class="flex-wrap-column">
-            <div
-              v-shortkey="[getMacKey(), 'o']"
-              @shortkey="switchBrowseOtu()"
-              class="horizontal-right-content">
+            <div class="horizontal-right-content">
               <radial-annotator :global-id="taxon.global_id" />
               <otu-radial
                 :object-id="taxon.id"
@@ -41,13 +40,15 @@
                 :taxon-name="taxon.object_tag"/>
               <radial-object :global-id="taxon.global_id" />
             </div>
-            <div class="horizontal-right-content">
+            <div class="horizontal-right-content margin-small-top">
               <pin-object
                 v-if="taxon.id"
-                :pin-object="taxon['pinboard_item']"
+                class="circle-button"
                 :object-id="taxon.id"
-                :type="taxon.base_class"/>
-              <default-confidence :global-id="taxon.global_id"/>
+                type="TaxonName"/>
+              <default-confidence
+                class="circle-button"
+                :global-id="taxon.global_id"/>
               <span
                 v-if="taxon.id"
                 @click="showModal = true"
@@ -68,13 +69,12 @@ import OtuRadial from 'components/otu/otu.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/navigation/radial.vue'
 import DefaultConfidence from 'components/defaultConfidence.vue'
-import PinObject from 'components/pin.vue'
-
+import PinObject from 'components/ui/Pinboard/VPin.vue'
+import Modal from 'components/ui/Modal.vue'
+import platformKey from 'helpers/getPlatformKey'
+import { TaxonName } from 'routes/endpoints'
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
-import Modal from 'components/modal.vue'
-import getMacKey from 'helpers/getMacKey'
-import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
@@ -85,7 +85,7 @@ export default {
     PinObject,
     DefaultConfidence
   },
-  data: function () {
+  data () {
     return {
       showModal: false
     }
@@ -94,61 +94,72 @@ export default {
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
     },
+
+    taxonNameAndAuthor () {
+      return `${this.taxon.cached_html} ${this.taxon.cached_author_year || ''}`
+    },
+
     parent () {
       return this.$store.getters[GetterNames.GetParent]
     },
+
     citation () {
       return this.$store.getters[GetterNames.GetCitation]
     },
-    showParent () {
-      if (this.taxon.rank == 'genus') return false
 
-      let groups = ['SpeciesGroup', 'GenusGroup']
-      return (this.taxon.rank_string ? (groups.indexOf(this.taxon.rank_string.split('::')[2]) > -1) : false)
-    },
     roles () {
-      let roles = this.$store.getters[GetterNames.GetRoles]
-      let count = (roles == undefined ? 0 : roles.length)
+      const roles = this.$store.getters[GetterNames.GetRoles] || []
+      const count = roles.length
       let stringRoles = ''
 
-      if (count > 0) {
-        roles.forEach(function (element, index) {
-          stringRoles = stringRoles + element.person.last_name
+      roles.forEach((element, index) => {
+        stringRoles = stringRoles + element.person.last_name
 
-          if (index < (count - 2)) {
-            stringRoles = stringRoles + ', '
-          } else {
-            if (index == (count - 2)) { stringRoles = stringRoles + ' & ' }
-          }
-        })
-      }
+        if (index < (count - 2)) {
+          stringRoles += ', '
+        } else if (index === (count - 2)) {
+          stringRoles += ' & '
+        }
+      })
+
       return stringRoles
+    },
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+b`] = this.switchBrowse
+      keys[`${platformKey()}+o`] = this.switchBrowseOtu
+
+      return keys
     }
   },
-  mounted: function () {
-    TW.workbench.keyboard.createLegend((getMacKey() + '+' + 'b'), 'Go to browse nomenclature', 'New taxon name')
-    TW.workbench.keyboard.createLegend((getMacKey() + '+' + 'o'), 'Go to browse otus', 'New taxon name')
+
+  created () {
+    TW.workbench.keyboard.createLegend((platformKey() + '+' + 'b'), 'Go to browse nomenclature', 'New taxon name')
+    TW.workbench.keyboard.createLegend((platformKey() + '+' + 'o'), 'Go to browse otus', 'New taxon name')
   },
+
   methods: {
-    deleteTaxon: function () {
-      AjaxCall('delete', `/taxon_names/${this.taxon.id}`).then(response => {
+    deleteTaxon () {
+      TaxonName.destroy(this.taxon.id).then(() => {
         this.reloadPage()
       })
     },
-    reloadPage: function () {
+
+    reloadPage () {
       window.location.href = '/tasks/nomenclature/new_taxon_name/'
     },
-    showAuthor: function () {
-      if (this.roles.length) {
-        return this.roles
-      } else {
-        return (this.taxon.verbatim_author ? (this.taxon.verbatim_author + (this.taxon.year_of_publication ? (', ' + this.taxon.year_of_publication) : '')) : (this.citation ? this.citation.source.author_year : ''))
-      }
+
+    showAuthor () {
+      return this.roles.length
+        ? this.roles
+        : (this.taxon.verbatim_author ? (this.taxon.verbatim_author + (this.taxon.year_of_publication ? (', ' + this.taxon.year_of_publication) : '')) : (this.citation ? this.citation.source.author_year : ''))
     },
-    switchBrowse: function () {
+
+    switchBrowse () {
       window.location.replace(`/tasks/nomenclature/browse?taxon_name_id=${this.taxon.id}`)
     },
-    getMacKey: getMacKey,
+
     loadParent () {
       if (this.taxon.id && this.parent.id) {
         this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon).then((response) => {
@@ -156,26 +167,16 @@ export default {
         })
       }
     },
+
     switchBrowseOtu () {
       this.$refs.browseOtu.openApp()
     }
   }
 }
 </script>
+
 <style lang="scss">
 #taxonNameBox {
-  .annotator {
-    width:30px;
-    margin-left: 14px;
-  }
-  .separate-options {
-    margin-left: 4px;
-    margin-right: 4px;
-  }
-  .header {
-    padding: 1em;
-    border: 1px solid #f5f5f5;
-  }
   .taxonname {
     font-size: 14px;
   }

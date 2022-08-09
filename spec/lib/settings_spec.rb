@@ -150,7 +150,9 @@ describe Settings do
 
         it 'sets ActionMailer delivery method to SMTP with supplied config' do
           expect(rails_config.action_mailer).to receive('delivery_method=').with(:smtp)
-          expect(rails_config.action_mailer).to receive('smtp_settings=').with(valid_smtp[:action_mailer_smtp_settings])
+          expect(rails_config.action_mailer).to receive('smtp_settings=').with(
+            {openssl_verify_mode: 'none'}.merge(valid_smtp[:action_mailer_smtp_settings])
+          )
           Settings.load_from_hash(rails_config, valid_smtp)
         end
 

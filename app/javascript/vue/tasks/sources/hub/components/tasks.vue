@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>All tasks</h2>
+    <h3>All tasks</h3>
     <div class="flex-wrap-row">
       <a
         v-for="task in tasks"
@@ -21,12 +21,13 @@
 import { GetMetadata } from '../request/resources.js'
 
 export default {
-  data() {
+  data () {
     return {
       tasks: []
     }
   },
-  mounted() {
+
+  mounted () {
     GetMetadata().then(response => {
       this.tasks = response.body
     })

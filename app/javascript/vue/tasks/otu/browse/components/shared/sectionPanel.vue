@@ -10,18 +10,18 @@
       :class="{ [status]: status }"
       class="header flex-separate middle">
       <div>
-        <span class="section-title">{{ title }}</span>
+        <h3 class="section-title">{{ title }}</h3>
         <slot name="title" />
       </div>
       <div class="horizontal-left-content">
         <div
           v-help.section.options.drag
           data-icon="w_scroll-v"
-          class="option-box button-default cursor-pointer handle"
+          class="option-box button-default circle-button cursor-pointer handle"
         />
         <button
           type="button"
-          class="option-box cursor-pointer"
+          class="option-box cursor-pointer circle-button"
           :class="{ 'button-default': menu }"
           :disabled="!menu"
           v-help.section.options.filter
@@ -47,11 +47,7 @@ export default {
   components: {
     SpinnerComponent
   },
-  computed: {
-    linkName () {
-      return this.name ? this.name : this.title
-    }
-  },
+
   props: {
     title: {
       type: String,
@@ -74,6 +70,15 @@ export default {
       default: false
     }
   },
+
+  emits: ['menu'],
+
+  computed: {
+    linkName () {
+      return this.name || this.title
+    }
+  },
+
   data () {
     return {
       hidden: false
@@ -84,8 +89,8 @@ export default {
 <style scoped>
   .option-box {
     position: relative;
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     margin:0 auto;
     margin-left: 4px;
     padding: 0px;
@@ -117,5 +122,9 @@ export default {
 
   .prototype {
     border-left-color: #fc615d;
+  }
+
+  .basic-information {
+    border-top-left-radius: 0px;
   }
 </style>

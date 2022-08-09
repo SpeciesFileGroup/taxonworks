@@ -3,14 +3,16 @@
     <li 
       v-for="tag in tags"
       :key="tag.id">
-      <span class="annotation__tag" v-html="tag.keyword.object_tag"/>
+      <span
+        class="annotation__tag"
+        v-html="tag.keyword.object_tag"/>
     </li>
   </ul>
 </template>
 
 <script>
 
-import { GetSourceTags } from '../request/resources.js'
+import { Source } from 'routes/endpoints'
 
 export default {
   props: {
@@ -18,13 +20,15 @@ export default {
       type: [String, Number]
     }
   },
-  data() {
+
+  data () {
     return {
       tags: []
     }
   },
-  mounted() {
-    GetSourceTags(this.sourceId).then(response => {
+
+  mounted () {
+    Source.tags(this.sourceId).then(response => {
       this.tags = response.body
     })
   }

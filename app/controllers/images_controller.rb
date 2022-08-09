@@ -1,6 +1,6 @@
 class ImagesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-  after_action -> { set_pagination_headers(:images) }, only: [:index, :api_index], if: :json_request?
+  after_action -> { set_pagination_headers(:images) }, only: [:index, :api_index, :api_image_inventory], if: :json_request?
 
   before_action :set_image, only: [:show, :edit, :update, :destroy, :rotate]
 
@@ -20,9 +20,37 @@ class ImagesController < ApplicationController
     end
   end
 
+  # GET /api/v1/otus/:id/inventory/images
+  #  - routed here to take advantage of Pagination
+  def api_image_inventory
+    @images = ::Queries::Image::Filter.new(
+      params.permit(
+        :otu_id, otu_scope: [])
+    ).all.page(params[:page]).per(params[:per])
+    render '/images/api/v1/index'
+  end
+
   # GET /images/1
   # GET /images/1.json
   def show
+  end
+
+  # GET /api/v1/images
+  def api_index
+    @images = Queries::Image::Filter.new(api_params).all
+      .where(project_id: sessions_current_project_id)
+      .page(params[:page]).per(params[:per])
+    render '/images/api/v1/index'
+  end
+
+  # GET /api/v1/images/:id
+  def api_show
+    @image = Image.where(project_id: sessions_current_project_id).find_by(id: params[:id])
+    @image ||= Image.where(project_id: sessions_current_project_id).find_by(image_file_fingerprint: params[:id])
+
+    render plain: 'Not found. You may need to add a &project_token= param to the URL currently in your address bar to access these data. See https://api.taxonworks.org/ for more.', status: 404 and return if @image.nil?
+
+    render '/images/api/v1/show'
   end
 
   # GET /images/new
@@ -86,7 +114,7 @@ class ImagesController < ApplicationController
   # TODO: remove for /images.json
   def search
     if params[:id].blank?
-      redirect_to images_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to images_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to image_path(params[:id])
     end
@@ -98,9 +126,10 @@ class ImagesController < ApplicationController
 
   # GET /images/download
   def download
-    send_data(Export::Download.generate_csv(Image.where(project_id: sessions_current_project_id)),
-              type: 'text',
-              filename: "images_#{DateTime.now}.csv")
+    send_data(
+      Export::Download.generate_csv(Image.where(project_id: sessions_current_project_id)),
+      type: 'text',
+      filename: "images_#{DateTime.now}.csv")
   end
 
   # GET /images/:id/extract/:x/:y/:height/:width
@@ -149,32 +178,64 @@ class ImagesController < ApplicationController
 
   def filter_params
     params.permit(
-      :taxon_name_id,
+        :ancestor_id_target,
+        :biocuration_class_id,
+        :collection_object_id,
+        :depiction,
+        :identifier,
+        :identifier_end,
+        :identifier_exact,
+        :identifier_start,
+        :image_id,
+        :otu_id,
+        :sled_image_id,
+        :taxon_name_id,
+        :user_date_end,
+        :user_date_start,
+        :user_id, # user
+        :user_target,
+        biocuration_class_id: [],
+        collection_object_id: [],
+        image_id: [],
+        keyword_id_and: [],
+        keyword_id_or: [],
+        otu_id: [],
+        sled_image_id: [],
+        taxon_name_id: [],
+        otu_scope: [],
+    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
+  end
+
+  # TODO: need `is_public` here
+  def api_params
+    params.permit(
       :ancestor_id_target,
-      :otu_id,
-      :collection_object_id,
-      :image_id,
       :biocuration_class_id,
-      :sled_image_id,
+      :collection_object_id,
       :depiction,
-      :user_id, # user
-      :user_target,
-      :user_date_start,
-      :user_date_end,
       :identifier,
       :identifier_end,
       :identifier_exact,
       :identifier_start,
-      keyword_ids: [],
-      taxon_name_id: [],
-      sled_image_id: [],
+      :image_id,
+      :otu_id,
+      :sled_image_id,
+      :taxon_name_id,
+      :user_date_end,
+      :user_date_start,
+      :user_id, # user
+      :user_target,
       biocuration_class_id: [],
-      image_id: [],
       collection_object_id: [],
-      otu_id: []
+      image_id: [],
+      keyword_id_and: [],
+      keyword_id_or: [],
+      otu_id: [],
+      sled_image_id: [],
+      taxon_name_id: [],
+      otu_scope: [],
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
-
 
   def set_image
     @image = Image.with_project_id(sessions_current_project_id).find(params[:id])

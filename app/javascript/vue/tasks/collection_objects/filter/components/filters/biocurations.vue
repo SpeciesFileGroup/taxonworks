@@ -1,7 +1,9 @@
 <template>
   <div>
-    <h2>Biocurations</h2>
-    <ul class="no_bullets">
+    <h3>Biocurations</h3>
+    <ul
+      v-if="biocurations.length"
+      class="no_bullets">
       <li
         v-for="item in biocurations"
         :key="item.id"
@@ -15,28 +17,34 @@
         </label>
       </li>
     </ul>
+    <a
+      v-else
+      href="/tasks/controlled_vocabularies/biocuration/build_collection">Create new</a>
   </div>
 </template>
 
 <script>
 
-import { GetBiocurations } from '../../request/resources'
+import { ControlledVocabularyTerm } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Array,
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     selectedBiocurations: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
@@ -46,11 +54,10 @@ export default {
     }
   },
   mounted () {
-    GetBiocurations().then(response => {
-      this.biocurations = response.body
-    })
     const urlParams = URLParamsToJSON(location.href)
-    this.selectedBiocurations = urlParams.biocuration_class_ids ? urlParams.biocuration_class_ids : []
+
+    this.selectedBiocurations = urlParams.biocuration_class_ids || []
+    ControlledVocabularyTerm.where({ type: ['BiocurationClass'] }).then(response => { this.biocurations = response.body })
   }
 }
 </script>

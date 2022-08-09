@@ -2,7 +2,9 @@ require_dependency Rails.root.to_s + '/lib/queries/citation/filter'
 
 class CitationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+
   before_action :set_citation, only: [:update, :destroy, :show]
+  after_action -> { set_pagination_headers(:citations) }, only: [:index, :api_index ], if: :json_request?
 
   # GET /citations
   # GET /citations.json
@@ -16,7 +18,6 @@ class CitationsController < ApplicationController
         @citations = Queries::Citation::Filter.new(params).all.where(project_id: sessions_current_project_id).includes(:source)
           .order(:source_id, :pages)
           .page(params[:page]).per(params[:per] || 500)
-        @verbose_object = params[:verbose_object]
       }
     end
   end
@@ -74,11 +75,11 @@ class CitationsController < ApplicationController
     @citation.destroy
     respond_to do |format|
       if @citation.destroyed?
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation was successfully destroyed.')}
-        format.json {head :no_content}
+        format.html { destroy_redirect @citation, notice: 'Citation was successfully destroyed.' }
+        format.json { head :no_content }
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation was not destroyed, ' + @citation.errors.full_messages.join('; '))}
-        format.json {render json: @citation.errors, status: :unprocessable_entity}
+        format.html { destroy_redirect @citation, notice: 'Citation was not destroyed, ' + @citation.errors.full_messages.join('; ') }
+        format.json { render json: @citation.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -89,7 +90,7 @@ class CitationsController < ApplicationController
 
   def search
     if params[:id].blank?
-      redirect_to citations_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to citations_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to citation_path(params[:id])
     end
@@ -121,6 +122,7 @@ class CitationsController < ApplicationController
       .where(project_id: sessions_current_project_id).includes(:source)
       .order('sources.cached, sources.pages')
       .page(params[:page]).per(params[:per] || 50)     ### error when 500 !!
+
     @verbose_object = params[:verbose_object]
     render '/citations/api/v1/index'
   end

@@ -1,6 +1,9 @@
 export default () => {
   return {
-    NomenclatureHistory: { title: 'Timeline', status: 'stable' },
+    NomenclatureHistory: {
+      title: 'Timeline',
+      status: 'stable'
+    },
     Descendants: {
       title: 'Descendants',
       status: 'prototype',
@@ -9,7 +12,7 @@ export default () => {
     ImageGallery: {
       title: 'Images',
       status: 'prototype',
-      rankGroup: ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup']
+      rankGroup: ['GenusGroup', 'SpeciesGroup', 'SpeciesAndInfraspeciesGroup']
     },
     CommonNames: {
       title: 'Common names',
@@ -30,6 +33,10 @@ export default () => {
       status: 'prototype',
       otu: true,
       rankGroup: ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup']
+    },
+    DescriptionComponent: {
+      title: 'Description',
+      status: 'prototype'
     },
     ContentComponent: {
       title: 'Content',

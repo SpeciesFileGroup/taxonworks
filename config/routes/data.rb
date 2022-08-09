@@ -34,6 +34,7 @@ resources :asserted_distributions do
     post :preview_simple_batch_load # should be get
     post :create_simple_batch_load
   end
+  resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
 
 resources :biocuration_classifications, only: [:create, :update, :destroy] do
@@ -102,6 +103,7 @@ resources :collection_objects do
     get 'containerize'
     get 'dwca', defaults: {format: :json}
     get 'metadata_badge', defaults: {format: :json}
+    get :navigation, defaults: {format: :json}
   end
 
   collection do
@@ -116,6 +118,8 @@ resources :collection_objects do
     get :select_options, defaults: {format: :json}
     get :preview, defaults: {format: :json}
   end
+
+  resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
 match 'collection_objects/by_identifier/:identifier', to: 'collection_objects#by_identifier', via: :get
 
@@ -175,6 +179,9 @@ end
 
 resources :contents do
   concerns [:data_routes]
+  collection do
+    get :select_options, defaults: {format: :json}
+  end
 end
 
 resources :controlled_vocabulary_terms do
@@ -207,9 +214,11 @@ resources :descriptors do
     get :annotations, defaults: {format: :json}
   end
   collection do
+    get :units
     post :preview_modify_gene_descriptor_batch_load
     post :create_modify_gene_descriptor_batch_load
-    get :units
+    post :preview_qualitative_descriptor_batch_load
+    post :create_qualitative_descriptor_batch_load
   end
 end
 
@@ -224,7 +233,7 @@ resources :documents do
   concerns [:data_routes]
 end
 
-resources :downloads, except: [:edit, :new, :create] do
+resources :downloads, except: [:new, :create] do
   collection do
     get 'list'
   end
@@ -233,8 +242,25 @@ resources :downloads, except: [:edit, :new, :create] do
   end
 end
 
+# TODO: these should default json?
+resources :dwc_occurrences, only: [:create] do
+  collection do
+    get :index, defaults: {format: :json}
+    get 'metadata', defaults: {format: :json}
+    get 'predicates', defaults: {format: :json}
+    get 'status', defaults: {format: :json}
+    get 'collector_id_metadata', defaults: {format: :json}
+  end
+end
+
 resources :extracts do
   concerns [:data_routes]
+  collection do
+    get :autocomplete, defaults: {format: :json}
+    get :select_options, defaults: {format: :json}
+  end
+
+  resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
 
 resources :geographic_areas, only: [:index, :show] do
@@ -305,10 +331,22 @@ resources :images do
   end
 end
 
+resources :import_datasets do
+  concerns [:data_routes]
+  member do
+    post 'import'
+    post 'stop_import'
+  end
+  resources :dataset_records, only: [:index, :create, :show, :update, :destroy] do
+    collection do
+      get 'autocomplete_data_fields'
+      patch 'set_field_value'
+    end
+  end
+end
+
 resources :keywords, only: [] do
   collection do
-    get :autocomplete
-    get :lookup_keyword
     get :select_options, defaults: {format: :json}
   end
 end
@@ -359,6 +397,7 @@ resources :namespaces do
 end
 
 match 'observation_matrices/row/', to: 'observation_matrices#row', via: :get, method: :json
+match 'observation_matrices/column/', to: 'observation_matrices#column', via: :get, method: :json
 resources :observation_matrices do
   concerns [:data_routes]
 
@@ -368,16 +407,26 @@ resources :observation_matrices do
   resources :observation_matrix_column_items, shallow: true, only: [:index], defaults: {format: :json}
 
   member do
-    get :nexml, defaults: {format: :rdf}
-    get :tnt
-    get :nexus
-    #  get :csv
-    #  get :biom
+    scope :export do
+      get :nexml, defaults: {format: :rdf}
+      get :tnt
+      get :nexus
+      get :otu_contents
+      get :csv
+      get :descriptor_list
+      #  get :biom
+    end
 
     get :reorder_rows, defaults: {format: :json}
     get :reorder_columns, defaults: {format: :json}
+
+    get :row_labels, defaults: {format: :json}
+    get :column_labels, defaults: {format: :json}
   end
 
+  collection do
+    get :otus_used_in_matrices, {format: :json}
+  end
 end
 
 resources :observation_matrix_columns, only: [:index, :show] do
@@ -394,14 +443,14 @@ resources :observation_matrix_rows, only: [:index, :show] do
   end
 end
 
-resources :observation_matrix_column_items do
+resources :observation_matrix_column_items, except: [:new] do
   concerns [:data_routes]
   collection do
     post :batch_create
   end
 end
 
-resources :observation_matrix_row_items do
+resources :observation_matrix_row_items, except: [:new] do
   concerns [:data_routes]
   collection do
     post :batch_create
@@ -521,6 +570,9 @@ end
 
 resources :protocols do
   concerns [:data_routes]
+  collection do
+    get :select_options, defaults: {format: :json}
+  end
 end
 
 resources :protocol_relationships do
@@ -539,6 +591,8 @@ resources :repositories do
     get :select_options, defaults: {format: :json}
   end
 end
+
+resources :roles, only: [:index, :create, :update, :destroy], defaults: {format: :json}
 
 resources :serials do
   concerns [:data_routes]
@@ -564,6 +618,8 @@ resources :sequences do
     post :preview_primers_batch_load
     post :create_primers_batch_load
   end
+
+  resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
 
 resources :sequence_relationships do
@@ -581,6 +637,7 @@ end
 resources :sources do
   concerns [:data_routes]
   collection do
+    get :attributes, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
     post :preview_bibtex_batch_load # should be get
     post :create_bibtex_batch_load
@@ -593,6 +650,8 @@ resources :sources do
   member do
     post :clone
   end
+
+  resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
 
 resources :sqed_depictions, only: [:update] do
@@ -615,6 +674,9 @@ end
 resources :tagged_section_keywords, only: [:create, :update, :destroy]
 
 resources :taxon_determinations do
+  collection do
+    post :batch_create, defaults: {format: :json}
+  end
   concerns [:data_routes]
 end
 
@@ -640,7 +702,6 @@ resources :taxon_names do
 
     get :rank_table, defaults: {format: :json}
     get :predicted_rank, {format: :json}
-
   end
 
   member do

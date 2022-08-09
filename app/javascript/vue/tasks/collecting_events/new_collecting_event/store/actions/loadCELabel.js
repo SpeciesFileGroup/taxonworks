@@ -1,8 +1,8 @@
-import { GetLabelsFromCE } from '../../request/resources'
+import { Label } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
-import makeLabel from '../../const/makeLabel'
+import makeLabel from 'factory/Label.js'
 
 export default async ({ commit }, id) => {
-  const label = (await GetLabelsFromCE(id)).body[0] || makeLabel()
+  const label = (await Label.where({ label_object_id: id,label_object_type: 'CollectingEvent' })).body[0] || makeLabel('CollectingEvent')
   commit(MutationNames.SetCELabel, label)
 }

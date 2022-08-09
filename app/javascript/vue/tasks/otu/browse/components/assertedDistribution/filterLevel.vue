@@ -17,22 +17,26 @@
 <script>
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Array,
       default: () => []
     },
+
     levels: {
       type: Array,
       default: () => []
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     selected: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   }

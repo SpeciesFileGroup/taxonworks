@@ -6,8 +6,15 @@ class NamespacesController < ApplicationController
   # GET /namespaces
   # GET /namespaces.json
   def index
-    @recent_objects = Namespace.order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = Namespace.order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @namespaces = Queries::Namespace::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
+      }
+    end
   end
 
   # GET /namespaces/1
@@ -17,11 +24,13 @@ class NamespacesController < ApplicationController
 
   # GET /namespaces/new
   def new
-    @namespace = Namespace.new
+    redirect_to new_namespace_task_path
+    # @namespace = Namespace.new
   end
 
   # GET /namespaces/1/edit
   def edit
+    redirect_to new_namespace_task_path(namespace_id: @namespace.to_param)
   end
 
   # POST /namespaces
@@ -46,7 +55,7 @@ class NamespacesController < ApplicationController
     respond_to do |format|
       if @namespace.update(namespace_params)
         format.html { redirect_to @namespace, notice: 'Namespace was successfully updated.' }
-        format.json { head :no_content }
+        format.json { render action: 'show', status: :ok, location: @namespace }
       else
         format.html { render action: 'edit' }
         format.json { render json: @namespace.errors, status: :unprocessable_entity }
@@ -70,7 +79,7 @@ class NamespacesController < ApplicationController
 
   def search
     if params[:id].blank?
-      redirect_to namespace_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to namespace_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to namespace_path(params[:id])
     end
@@ -93,14 +102,14 @@ class NamespacesController < ApplicationController
   def batch_load
   end
 
-  def preview_simple_batch_load 
-    if params[:file] 
+  def preview_simple_batch_load
+    if params[:file]
       @result = BatchLoad::Import::Namespaces::SimpleInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :Simple_namespaces_md5)
       render 'namespaces/batch_load/simple/preview'
     else
       flash[:notice] = 'No file provided!'
-      redirect_to action: :batch_load 
+      redirect_to action: :batch_load
     end
   end
 
@@ -119,8 +128,11 @@ class NamespacesController < ApplicationController
     render :batch_load
   end
 
-
   private
+
+  def filter_params
+    params.permit(:name, :short_name, :verbatim_name, :institution, :is_virtual)
+  end
 
   def set_namespace
     @namespace = Namespace.find(params[:id])
@@ -128,7 +140,7 @@ class NamespacesController < ApplicationController
   end
 
   def namespace_params
-    params.require(:namespace).permit(:institution, :name, :short_name, :verbatim_short_name, :delimiter)
+    params.require(:namespace).permit(:institution, :name, :short_name, :verbatim_short_name, :delimiter, :is_virtual)
   end
 
   def batch_params

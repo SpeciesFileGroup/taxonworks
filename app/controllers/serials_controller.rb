@@ -78,15 +78,15 @@ class SerialsController < ApplicationController
         format.html { redirect_to serials_url }
         format.json { head :no_content }
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Serial was not destroyed, ' + @serial.errors.full_messages.join('; '))}
-        format.json {render json: @serial.errors, status: :unprocessable_entity}
+        format.html { destroy_redirect @serial, notice: 'Serial was not destroyed, ' + @serial.errors.full_messages.join('; ') }
+        format.json { render json: @serial.errors, status: :unprocessable_entity }
       end
     end
   end
 
   def search
     if params[:id].blank?
-      redirect_to serials_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to serials_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to serial_path(params[:id])
     end
@@ -148,6 +148,7 @@ class SerialsController < ApplicationController
       :first_year_of_issue,
       :last_year_of_issue,
       :translated_from_serial_id,
+      :is_electronic_only,
       alternate_values_attributes: [
         :id,
         :value,

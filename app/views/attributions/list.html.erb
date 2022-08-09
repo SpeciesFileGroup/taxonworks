@@ -17,7 +17,7 @@
 
   <tbody>
     <% @attributions.each do |attribution| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
         <td><%= attribution.attribution_object_type %></td>
         <td><%= object_tag(attribution.attribution_object) %></td>
         <td><%= attribution.copyright_year %></td>

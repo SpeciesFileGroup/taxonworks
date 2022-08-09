@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>By records with</h2>
+    <h3>By records with</h3>
     <ul class="no_bullets">
       <li v-for="(item, key) in params">
         <label class="capitalize">
@@ -8,8 +8,8 @@
             :key="key"
             :value="item"
             type="checkbox"
-            v-model="value[key]">
-            {{ key }}
+            v-model="params[key]">
+          {{ key }}
         </label>
       </li>
     </ul>
@@ -19,24 +19,23 @@
 <script>
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     params: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   }
 }
 </script>
-
-<style>
-
-</style>

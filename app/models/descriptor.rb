@@ -1,3 +1,4 @@
+# require_dependency Rails.root.to_s +  '/app/models/observation.rb'
 # Descriptors are the general mechanism for describing CollectionObjects (individual specimens) or Otus (taxa).
 #
 # They come in various types, reflecting the approaches commonly used to describe specimens and OTUs:
@@ -31,8 +32,8 @@ class Descriptor < ApplicationRecord
   validate :type_is_subclassed
   validate :short_name_is_shorter
 
+  # See also /app/models/concerns/shared/observations.rb for additional has_many definitions
   has_many :observations, inverse_of: :descriptor, dependent: :restrict_with_error
-  has_many :otus, through: :observations, inverse_of: :descriptors
   has_many :observation_matrix_column_items, dependent: :destroy, class_name: 'ObservationMatrixColumnItem::Single::Descriptor'
   has_many :observation_matrix_columns, inverse_of: :descriptor
 
@@ -48,7 +49,6 @@ class Descriptor < ApplicationRecord
 
   # @return [String] name of the descriptor in a particular language
   # @params target [Symbol] one of :key, :description, nil
-  # TODO: This should be a helper method, not a model method
   def target_name(target, language_id)
     n = self.name
     a = nil
@@ -61,16 +61,22 @@ class Descriptor < ApplicationRecord
     unless language_id.nil?
       case target
       when :key
-        a = AlternateValue::Translation.where(alternate_value_object: self, language_id: language_id, alternate_value_object_attribute: 'key_name').first
+        a = AlternateValue::Translation.
+          where(alternate_value_object: self, language_id: language_id).
+          where("(alternate_values.alternate_value_object_attribute = 'key_name' OR alternate_values.alternate_value_object_attribute = 'name')").
+          order(:alternate_value_object_attribute).pluck(:value).first
       when :description
-        a = AlternateValue::Translation.where(alternate_value_object: self, language_id: language_id, alternate_value_object_attribute: 'description_name').first
+        a = AlternateValue::Translation.
+          where(alternate_value_object: self, language_id: language_id).
+          where("(alternate_values.alternate_value_object_attribute = 'description_name' OR alternate_values.alternate_value_object_attribute = 'name')").
+          order(:alternate_value_object_attribute).pluck(:value).first
       end
-      a = AlternateValue::Translation.where(alternate_value_object: self, language_id: language_id, alternate_value_object_attribute: 'name').first if a.nil?
-      n = a.value unless a.nil?
     end
-    return n
+    return a.nil? ? n : a
   end
 
+  # TODO: these should be `is_` to follow design pattern
+  
   def qualitative?
     type == 'Descriptor::Qualitative'
   end

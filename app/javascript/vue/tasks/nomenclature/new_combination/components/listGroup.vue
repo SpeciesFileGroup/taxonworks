@@ -30,7 +30,7 @@
 
               </span>
               <span
-                v-if="taxon.id != taxon.cached_valid_taxon_name_id"
+                v-if="!taxon.cached_is_valid"
                 class="separate-left"
                 title="Invalid"
                 data-icon="warning"/>
@@ -86,8 +86,8 @@
 </template>
 <script>
 
-import Autocomplete from 'components/autocomplete.vue'
-import { GetTaxonName } from '../request/resources'
+import Autocomplete from 'components/ui/Autocomplete.vue'
+import { TaxonName } from 'routes/endpoints'
 
 export default {
   components: {
@@ -109,9 +109,16 @@ export default {
     },
     acceptTaxonIds: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
+
+  emits: [
+    'rankPicked',
+    'addToList',
+    'onTaxonSelect'
+  ],
+
   computed: {
     rankChoose: {
       get () {
@@ -122,26 +129,28 @@ export default {
         this.selectTaxon(taxon)
       }
     },
-    searchGroup() {
-      switch(this.rankName) {
+    searchGroup () {
+      switch (this.rankName) {
         case 'subgenus':
-        return 'genus'
+          return 'genus'
         case 'subspecies':
-        return 'species'
+          return 'species'
         case 'variety':
-        return 'species'
+          return 'species'
         default:
-        return this.rankName
+          return this.rankName
       }
     }
   },
-  data: function () {
+
+  data () {
     return {
       expanded: true,
       haltWatcher: false,
       displaySearch: false
     }
   },
+
   watch: {
     list: {
       handler (newVal) {
@@ -166,19 +175,20 @@ export default {
       immediate: true
     }
   },
+
   methods: {
     checkRankSelected (taxon) {
-      if (this.rankChoose && taxon.id == this.rankChoose.id) {
-        return true
-      }
-      return false
+      return this.rankChoose && taxon.id === this.rankChoose.id
     },
-    expandList: function () {
-      this.displaySearch = false;
+
+    expandList () {
+      this.displaySearch = false
       this.expanded = true
     },
+
     inOrder (list) {
-      let newOrder = list.slice(0)
+      const newOrder = list.slice(0)
+
       newOrder.sort((a, b) => {
         if (a.original_combination < b.original_combination) { return -1 }
         if (a.original_combination > b.original_combination) { return 1 }
@@ -186,24 +196,25 @@ export default {
       })
       return newOrder
     },
+
     getFromAutocomplete (event) {
-      GetTaxonName(event.id).then(response => {
+      TaxonName.find(event.id).then(response => {
         this.selectTaxon(response.body)
         this.haltWatcher = true
         this.displaySearch = false
         this.$emit('addToList', { rank:this.rankName, taxon: response.body })
       })
     },
+
     selectTaxon (taxon) {
       this.expanded = false
       this.$emit('onTaxonSelect', taxon)
     },
+
     setFocus () {
       if (this.$refs.rankRadio.length > 1) {
         if (this.selected) {
-          this.$refs.rankRadio[this.list.findIndex((taxon) => {
-            return taxon == this.selected
-          })].$el.focus()
+          this.$refs.rankRadio[this.list.findIndex((taxon) => taxon === this.selected)].$el.focus()
         } else {
           this.$refs.rankRadio[0].$el.focus()
         }
@@ -211,11 +222,9 @@ export default {
         this.$refs.rankRadio.$el.focus()
       }
     },
+
     isSelected (taxon) {
-      if (this.selected) {
-        return this.selected.id == taxon.id
-      }
-      return false
+      return this.selected?.id === taxon.id
     }
   }
 }

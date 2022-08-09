@@ -2,17 +2,18 @@
   <button
     type="button"
     ref="saveButton"
-    :disabled="!validateCreate()"
-    v-shortkey="[getMacKey(), 's']"
-    @shortkey="save()"
     class="button normal-input button-submit create-new-combination"
+    v-hotkey="shortcuts"
+    :disabled="!validateCreate()"
     @click="save()">
     {{ (newCombination.hasOwnProperty('id') ? 'Update' : 'Create') }}
   </button>
 </template>
 <script>
 
-import { CreateCombination, UpdateCombination } from '../request/resources'
+import { Combination } from 'routes/endpoints'
+import { EXTEND_PARAMS } from '../constants/extend.js'
+import platformKey from 'helpers/getPlatformKey'
 
 export default {
   props: {
@@ -21,31 +22,45 @@ export default {
       required: true
     }
   },
+
+  emits: [
+    'processing',
+    'save',
+    'success'
+  ],
+
+  computed: {
+    shortcuts () {
+      const keys = {}
+      keys[`${platformKey()}+s`] = this.save
+
+      return keys
+    }
+  },
+
   methods: {
+
     validateCreate () {
-      return (this.newCombination.protonyms.genus && this.newCombination.protonyms.species)
+      return this.newCombination.protonyms.genus
     },
-    getMacKey: function () {
-      return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
-    },
-    setFocus: function () {
+
+    setFocus () {
       if (this.validateCreate()) {
         this.$refs.saveButton.focus()
       }
     },
+
     save () {
       if (this.validateCreate()) {
         (this.newCombination.hasOwnProperty('id') ? this.update(this.newCombination.id) : this.create())
       }
     },
+
     createRecordCombination () {
-      let keys = Object.keys(this.newCombination.protonyms)
-      let combination = {}
-
-      combination['verbatim_name'] = this.newCombination.verbatim_name
-
-      if (this.newCombination.hasOwnProperty('origin_citation_attributes')) {
-        combination['origin_citation_attributes'] = this.newCombination.origin_citation_attributes
+      const keys = Object.keys(this.newCombination.protonyms)
+      const combination = {
+        verbatim_name: this.newCombination.verbatim_name,
+        origin_citation_attributes: this.newCombination?.origin_citation_attributes
       }
 
       keys.forEach((rank) => {
@@ -58,7 +73,7 @@ export default {
     },
     create () {
       this.$emit('processing', true)
-      CreateCombination({ combination: this.createRecordCombination() }).then(response => {
+      Combination.create({ combination: this.createRecordCombination(), ...EXTEND_PARAMS }).then(response => {
         this.$emit('save', response.body)
         this.$emit('processing', false)
         this.$emit('success', true)
@@ -70,7 +85,8 @@ export default {
     },
     update (id) {
       this.$emit('processing', true)
-      UpdateCombination(id, { combination: this.createRecordCombination() }).then((response) => {
+      Combination.update(id, { 
+        combination: this.createRecordCombination(), ...EXTEND_PARAMS }).then((response) => {
         this.$emit('save', response.body)
         this.$emit('processing', false)
         this.$emit('success', true)

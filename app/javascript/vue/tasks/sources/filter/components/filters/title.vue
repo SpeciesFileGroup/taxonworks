@@ -1,8 +1,8 @@
 <template>
   <div>
-    <h2>Keywords</h2>
+    <h3>Text in</h3>
     <div class="field label-above">
-      <label>Search text</label>
+      <label>Full citation</label>
       <input
         type="text"
         class="full_width"
@@ -32,21 +32,25 @@ import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Object,
       default: undefined
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     source: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   mounted () {
     const urlParams = URLParamsToJSON(location.href)
     this.source.title = urlParams.title

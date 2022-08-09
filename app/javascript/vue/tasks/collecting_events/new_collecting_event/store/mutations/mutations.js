@@ -5,11 +5,13 @@ import setCollectingEvent from './setCollectingEvent'
 import setGeographicArea from './setGeographicArea'
 import setGeoreferences from './setGeoreferences'
 import setIdentifier from './setIdentifier'
+import setIncrementIdentifier from './setIncrementIdentifier'
 import setQueueGeoreferences from './setQueueGeoreferences'
 import setSoftValidations from './setSoftValidations'
 import setStore from './setStore'
 import updateLastChange from './updateLastChange'
 import updateLastSave from './updateLastSave'
+import setUnit from './setUnit'
 
 const MutationNames = {
   AddGeoreference: 'addGeoreference',
@@ -19,11 +21,13 @@ const MutationNames = {
   SetGeographicArea: 'setGeographicArea',
   SetGeoreferences: 'setGeoreferences',
   SetIdentifier: 'setIdentifier',
+  SetIncrementIdentifier: 'setIncrementIdentifier',
   SetQueueGeoreferences: 'setQueueGeoreferences',
   SetSoftValidations: 'setSoftValidations',
   SetStore: 'setStore',
   UpdateLastChange: 'updateLastChange',
-  UpdateLastSave: 'updateLastSave'
+  UpdateLastSave: 'updateLastSave',
+  SetUnit: 'setUnit'
 }
 
 const MutationFunctions = {
@@ -34,9 +38,11 @@ const MutationFunctions = {
   [MutationNames.SetGeographicArea]: setGeographicArea,
   [MutationNames.SetGeoreferences]: setGeoreferences,
   [MutationNames.SetIdentifier]: setIdentifier,
+  [MutationNames.SetIncrementIdentifier]: setIncrementIdentifier,
   [MutationNames.SetQueueGeoreferences]: setQueueGeoreferences,
   [MutationNames.SetSoftValidations]: setSoftValidations,
   [MutationNames.SetStore]: setStore,
+  [MutationNames.SetUnit]: setUnit,
   [MutationNames.UpdateLastChange]: updateLastChange,
   [MutationNames.UpdateLastSave]: updateLastSave
 }

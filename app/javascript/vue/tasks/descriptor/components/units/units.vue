@@ -14,35 +14,39 @@
 </template>
 <script>
 
-import { GetUnits } from '../../request/resources'
+import { Descriptor } from 'routes/endpoints'
 
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true
     }
   },
+
   computed: {
     validateFields () {
       return this.descriptor.name && this.descriptor.default_unit
     },
+
     descriptor: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set () {
-        this.$emit('input', this.value)
+        this.$emit('update:modelValue', this.value)
       }
     }
   },
+
   data () {
     return {
       list: undefined
     }
   },
-  mounted () {
-    GetUnits().then(response => {
+
+  created () {
+    Descriptor.units().then(response => {
       this.list = response.body
     })
   }

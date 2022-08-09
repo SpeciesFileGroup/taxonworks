@@ -1,9 +1,10 @@
 import { MutationNames } from '../mutations/mutations'
-import { getLoanItems } from '../../request/resources'
+import { LoanItem } from 'routes/endpoints'
+import extend from '../../const/extend.js'
 
-export default function ({ commit, state }, id) {
+export default ({ commit }, id) => {
   commit(MutationNames.SetLoading, true)
-  getLoanItems(id).then(response => {
+  LoanItem.where({ loan_id: id, extend }).then(response => {
     commit(MutationNames.SetLoanItems, response.body)
     commit(MutationNames.SetLoading, false)
   })

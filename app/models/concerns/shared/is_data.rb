@@ -12,6 +12,9 @@ module Shared::IsData
     include Annotation
     include Scopes
     include Navigation
+    include Metamorphosize
+    include HasRoles
+    include Shared::Verifiers
   end
 
   module ClassMethods
@@ -19,6 +22,14 @@ module Shared::IsData
     # @return [Boolean]
     def is_community?
       self < Shared::SharedAcrossProjects ? true : false
+    end
+
+    def dwc_occurrence_eligible?
+      self < Shared::IsDwcOccurrence
+    end
+
+    def is_observable?
+      self < Shared::Observations
     end
 
     # @return [Array] of strings of only the non-cached and non-housekeeping column names
@@ -81,7 +92,7 @@ module Shared::IsData
   end  # END CLASS METHODS
 
   # Returns whether it is permissible to try to destroy
-  # they record based on it's relationships to projects
+  # the record based on its relationships to projects
   # the user is in.  I.e. false if it is related to data in
   # a project in which they user is not a member.
   # !! Does not look at :dependendant assertions
@@ -94,6 +105,7 @@ module Shared::IsData
     return true if user.is_administrator?
 
     p = user.projects.pluck(:id)
+
     self.class.reflect_on_all_associations(:has_many).each do |r|
       if r.klass.column_names.include?('project_id')
         # If this has any related data in another project, we can't destroy it
@@ -105,14 +117,13 @@ module Shared::IsData
 
     self.class.reflect_on_all_associations(:has_one).each do |r|
       if is_community? # *this* object is community, others we don't care about
-        if o = t.send(r.name)
-          return false if o.respond_to(:project_id) && !p.include?(o.project)
+        if o = send(r.name)
+          return false if o.respond_to?(:project_id) && !p.include?(o.project)
         end
       end
     end
     true
   end
-
 
   def is_editable?(user)
     user = User.find(user) if !user.kind_of?(User)

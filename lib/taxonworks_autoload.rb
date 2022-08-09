@@ -13,4 +13,6 @@ module TaxonWorksAutoload
     a = Dir[Rails.root.to_s + path].sort
     a.each {|file| require_dependency file }
   end
+
+  require 'dwc_archive'
 end

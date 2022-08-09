@@ -47,16 +47,16 @@
       <draggable
         class="container"
         handle=".handle"
+        :item-key="element => element"
         v-model="preferences.sections">
-        <template v-for="component in preferences.sections">
+        <template #item="{ element }">
           <component
-            v-if="showForRanks(componentNames[component])"
+            v-if="showForRanks(componentNames[element])"
             class="separate-bottom full_width"
-            :key="component"
-            :title="componentNames[component].title"
-            :status="componentNames[component].status"
+            :title="componentNames[element].title"
+            :status="componentNames[element].status"
             :otu="otu"
-            :is="component"/>
+            :is="element"/>
         </template>
       </draggable>
     </template>
@@ -76,20 +76,20 @@ import ContentComponent from './components/Content'
 import AssertedDistribution from './components/AssertedDistribution'
 import BiologicalAssociations from './components/BiologicalAssociations'
 import AnnotationsComponent from './components/Annotations'
-import NomenclatureHistory from './components/NomenclatureHistory'
+import NomenclatureHistory from './components/timeline/Timeline.vue'
 import CollectingEvents from './components/CollectingEvents'
 import CollectionObjects from './components/CollectionObjects'
 import TypeSpecimens from './components/specimens/Type'
 import TypeSection from './components/TypeSection.vue'
 import CommonNames from './components/CommonNames'
+import DescriptionComponent from './components/Description.vue'
 import Descendants from './components/descendants'
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import SearchOtu from './components/SearchOtu'
 import Draggable from 'vuedraggable'
 import SelectOtu from './components/selectOtu'
 import { ActionNames } from './store/actions/actions'
-
-import { GetOtus, GetNavigationOtu, UpdateUserPreferences } from './request/resources.js'
+import { TaxonName, Otu, User } from 'routes/endpoints'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 import COMPONENT_NAMES from './const/componentNames'
@@ -102,6 +102,7 @@ export default {
     ImageGallery,
     SpinnerComponent,
     ContentComponent,
+    DescriptionComponent,
     AssertedDistribution,
     BiologicalAssociations,
     AnnotationsComponent,
@@ -158,28 +159,28 @@ export default {
       handler (newVal, oldVal) {
         if (newVal && JSON.stringify(newVal) !== JSON.stringify(this.tmp)) {
           this.tmp = newVal
-          UpdateUserPreferences(this.$store.getters[GetterNames.GetUserId], { 'browseOtu': newVal }).then(response => {
-            this.preferences = response.body.preferences.layout['browseOtu']
+          User.update(this.$store.getters[GetterNames.GetUserId], { user: { layout: { browseOtu: newVal } } }).then(response => {
+            this.preferences = response.body.preferences.layout?.browseOtu
           })
         }
       },
       deep: true
     }
   },
-  mounted () {
-    let urlParams = new URLSearchParams(window.location.search)
+  created () {
+    const urlParams = new URLSearchParams(window.location.search)
+    const otuId = urlParams.get('otu_id') ? urlParams.get('otu_id') : location.pathname.split('/')[4]
+    const taxonId = urlParams.get('taxon_name_id')
 
-    let otuId = urlParams.get('otu_id') ? urlParams.get('otu_id') : location.pathname.split('/')[4]
-    let taxonId = urlParams.get('taxon_name_id')
     if (/^\d+$/.test(otuId)) {
       this.$store.dispatch(ActionNames.LoadOtus, otuId).then(() => {
         this.isLoading = false
       })
-      GetNavigationOtu(otuId).then(response => {
+      Otu.navigation(otuId).then(response => {
         this.navigate = response.body
       })
     } else if (taxonId) {
-      GetOtus(taxonId).then(response => {
+      TaxonName.otus(taxonId).then(response => {
         if (response.body.length > 1) {
           this.otuList = response.body
         } else {
@@ -197,7 +198,7 @@ export default {
       window.open(`/tasks/otus/browse?otu_id=${event.id}`, '_self')
     },
     updatePreferences () {
-      UpdateUserPreferences(this.preferences.id, { [this.keyStorage]: this.componentsOrder }).then(response => {
+      User.update(this.preferences.id, { user: { layout: { [this.keyStorage]: this.componentsOrder } } }).then(response => {
         this.preferences.layout = response.preferences
         this.componentsOrder = response.preferences.layout[this.keyStorage]
       })
@@ -219,12 +220,11 @@ export default {
     }
     .section-title {
       text-transform: uppercase;
-      color: #888;
       font-size: 14px;
     }
     .expand-box {
-      width: 18px;
-      height: 18px;
+      width: 24px;
+      height: 24px;
       padding: 0px;
       background-size: 10px;
       background-position: center;

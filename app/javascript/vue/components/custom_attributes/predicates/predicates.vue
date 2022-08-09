@@ -19,7 +19,7 @@
       </template>
       <a
         v-else
-        href="/controlled_vocabulary_terms/new">Create a term (Predicate) 
+        href="/tasks/projects/preferences/index">Select visible predicates
       </a>
     </fieldset>
   </div>
@@ -29,7 +29,12 @@
 
 import SpinnerComponent from 'components/spinner'
 import PredicateRow from './components/predicateRow'
-import { GetPredicates, GetPredicatesCreated, GetProjectPreferences } from './request/resources.js'
+import {
+  Project,
+  ControlledVocabularyTerm,
+  DataAttribute
+} from 'routes/endpoints'
+import { addToArray } from 'helpers/arrays'
 
 export default {
   components: {
@@ -41,91 +46,93 @@ export default {
       type: String,
       required: true
     },
+
     objectId: {
       required: true
     },
+
     objectType: {
       type: String,
       required: true
     },
+
     modelPreferences: {
-      type: [Array],
+      type: Array,
       required: false
     }
   },
-  data() {
+
+  emits: ['onUpdate'],
+
+  data () {
     return {
       loading: true,
       createdList: [],
-      predicatesList: [],
       list: [],
       data_attributes: [],
-      modelPreferencesIds: undefined
+      modelPreferencesIds: undefined,
+      predicatesList: [],
+      sortedIds: []
     }
   },
+
   watch: {
-    objectId(newVal) {
-      if(newVal && this.objectType) {
+    objectId (newVal) {
+      if (newVal && this.objectType) {
         this.loading = true
-        GetPredicatesCreated(this.objectType, this.objectId).then(response => {
+        DataAttribute.where({
+          attribute_subject_type: this.objectType,
+          attribute_subject_id: this.objectId,
+          type: 'InternalAttribute'
+        }).then(response => {
           this.createdList = response.body
           this.loading = false
-        }) 
-      }
-      else {
+        })
+      } else {
         this.createdList = []
       }
     }
   },
-  mounted() {
+
+  created () {
     this.loadPreferences()
   },
+
   methods: {
-    loadPreferences() {
-      if(Array.isArray(this.modelPreferences) && this.modelPreferences.length) {
-        this.loadPredicates(this.modelPreferences)
-      }
-      else {
-        GetProjectPreferences().then(response => {
-          this.modelPreferencesIds = response.body.model_predicate_sets[this.model]
-          this.loadPredicates(this.modelPreferencesIds)
+    loadPreferences () {
+      Project.preferences().then(response => {
+        this.modelPreferencesIds = response.body.model_predicate_sets[this.model]
+        this.sortedIds = response.body.model_predicate_sets?.predicate_index || []
+        this.loadPredicates(this.modelPreferencesIds)
+      })
+    },
+
+    async loadPredicates (ids) {
+      this.predicatesList = ids?.length
+        ? (await ControlledVocabularyTerm.where({ type: ['Predicate'], id: ids })).body
+        : []
+
+      this.predicatesList.sort((a, b) => this.sortedIds.indexOf(a.id) - this.sortedIds.indexOf(b.id))
+
+      if (this.objectId) {
+        await DataAttribute.where({
+          attribute_subject_type: this.objectType,
+          attribute_subject_id: this.objectId,
+          type: 'InternalAttribute'
+        }).then(response => {
+          this.createdList = response.body
         })
       }
-    },
-    loadPredicates(ids) {
-      let promises = []
-      if(ids.length)
-        promises.push(GetPredicates(ids).then(response => {
-          this.predicatesList = response.body
-        }))
 
-      if(this.objectId) {
-        promises.push(GetPredicatesCreated(this.objectType, this.objectId).then(response => {
-          this.createdList = response.body
-        }))
-      }
-
-      Promise.all(promises).then(() => {
-        this.loading = false
-      })
+      this.loading = false
     },
-    findExisting(id) {
-      return this.createdList.find(item => {
-        return item.controlled_vocabulary_term_id == id
-      })
-    },
-    addDataAttribute(dataAttribute) {
-      let index = this.data_attributes.findIndex(item => {
-        return item.controlled_vocabulary_term_id == dataAttribute.controlled_vocabulary_term_id
-      })
 
-      if(index > -1) {
-        this.$set(this.data_attributes, index, dataAttribute)
-      }
-      else {
-        this.data_attributes.push(dataAttribute)
-      }
-      
+    findExisting (id) {
+      return this.createdList.find(item => item.controlled_vocabulary_term_id === id)
+    },
+
+    addDataAttribute (dataAttribute) {
+      addToArray(this.data_attributes, dataAttribute, 'controlled_vocabulary_term_id')
       this.$emit('onUpdate', this.data_attributes)
     }
   }

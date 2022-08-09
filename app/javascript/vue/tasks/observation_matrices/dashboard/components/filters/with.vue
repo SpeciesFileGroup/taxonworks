@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2 class="capitalize">{{ title.replace(/_/g, ' ') }}</h2>
+    <h3 class="capitalize">{{ title.replace(/_/g, ' ') }}</h3>
     <ul class="no_bullets context-menu">
       <li
         v-for="option in options">
@@ -23,27 +23,31 @@ export default {
   props: {
     name: {
       type: String,
-      default: () => { return (Math.random().toString(36).substr(2, 5)) }
+      default: () => Math.random().toString(36).substr(2, 5)
     },
+
     title: {
       type: String,
       required: true
     },
-    value: {
+
+    modelValue: {
       type: Boolean,
       default: undefined
     }
   },
+
   computed: {
     optionValue: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       options: [

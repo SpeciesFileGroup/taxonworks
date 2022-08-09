@@ -30,7 +30,7 @@ class GeneAttribute < ApplicationRecord
   include Shared::Tags
   include Shared::IsData
 
-  acts_as_list scope: [:descriptor_id]
+  acts_as_list scope: [:descriptor_id, :project_id]
 
   belongs_to :descriptor, class_name: 'Descriptor::Gene', inverse_of: :gene_attributes
   belongs_to :sequence, inverse_of: :gene_attributes

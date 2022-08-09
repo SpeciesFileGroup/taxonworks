@@ -44,64 +44,11 @@
 
 <script>
 import extendCE from '../mixins/extendCE.js'
-import DOMPurify from 'dompurify'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
-
-const verbatimProperties = {
-  Label: 'verbatim_label',
-  Locality: 'verbatim_locality',
-  Latitude: 'verbatim_latitude',
-  Longitude: 'verbatim_longitude',
-  Geolocation: 'verbatim_geolocation_uncertainty',
-  Habitat: 'verbatim_habitat',
-  DateComponent: 'verbatim_date',
-  Collectors: 'verbatim_collectors',
-  Method: 'verbatim_method',
-  TripIdentifier: 'verbatim_trip_identifier'
-}
-
-const romanNumbers = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x', 'xi', 'xii']
-
-const parsedProperties = {
-  GeographicArea: ({ ce }) => ce.geographicArea?.name,
-
-  Dates: ({ ce }) => [
-    [
-      ce.start_date_day,
-      romanNumbers[Number(ce.start_date_month) - 1],
-      ce.start_date_year],
-    [
-      ce.end_date_day,
-      romanNumbers[Number(ce.end_date_month) - 1],
-      ce.end_date_year
-    ]
-  ].map(dates => dates.filter(date => date).join('.')).filter(arr => arr.length).join('\n'),
-
-  Elevation: ({ ce }) => [
-    ce.minimum_elevation,
-    ce.maximum_elevation,
-    ce.elevation_precision
-  ].filter(item => item).map(item => `${item}m`).join(' '),
-
-  Time: ({ ce }) => [
-    [
-      ce.time_start_hour,
-      ce.time_start_minute,
-      ce.time_start_second
-    ],
-    [
-      ce.time_end_hour,
-      ce.time_end_minute,
-      ce.time_end_second
-    ]
-  ].map(times =>
-    times.filter(time => time).map(time => time < 10 ? `0${time}` : time).join(':')).filter(arr => arr.length).join('\n'),
-
-  CollectorsComponent: ({ ce }) => ce.roles_attributes.map(role => role.person.cached).join('; '),
-
-  TripCode: ({ ce, tripCode }) => DOMPurify.sanitize(tripCode.object_tag, { FORBID_TAGS: ['span'], KEEP_CONTENT: true })
-}
+import { parsedProperties } from '../../helpers/parsedProperties.js'
+import { verbatimProperties } from '../../helpers/verbatimProperties.js'
+import { sortArrayByArray } from 'helpers/arrays.js'
 
 export default {
   mixins: [extendCE],
@@ -119,20 +66,53 @@ export default {
     },
     tripCode () {
       return this.$store.getters[GetterNames.GetIdentifier]
+    },
+    georeferences () {
+      return [].concat(this.$store.getters[GetterNames.GetGeoreferences], this.$store.getters[GetterNames.GetQueueGeoreferences])
     }
   },
   methods: {
     copyLabel () {
       this.label.text = this.collectingEvent.verbatim_label
     },
+
     generateVerbatimLabel () {
-      return this.componentsOrder.componentVerbatim.map(componentName => this.collectingEvent[verbatimProperties[componentName]]).filter(item => item)
+      return this.componentsOrder.componentVerbatim.map(componentName =>
+        ({ [componentName]: 
+          typeof verbatimProperties[componentName] !== 'function'
+          ? this.collectingEvent[verbatimProperties[componentName]]
+          : verbatimProperties[componentName](this.collectingEvent)
+        })).filter(item => item)
     },
+
     generateParsedLabel () {
-      return this.componentsOrder.componentParse.map(componentName => parsedProperties[componentName]).filter(func => func).map(func => func(Object.assign({}, { ce: this.collectingEvent, tripCode: this.tripCode })))
+      return this.componentsOrder.componentParse
+        .map(componentName => ({ [componentName]: parsedProperties[componentName] }))
+        .filter(item => Object.values(item)[0])
+        .map(item => {
+          const [key, func] = Object.entries(item)[0]
+
+          return {
+            [key]: func({ ce: this.collectingEvent, tripCode: this.tripCode, georeferences: this.georeferences })
+          }
+        })
     },
+
     generateLabel () {
-      this.label.text = [].concat(this.generateVerbatimLabel(), this.generateParsedLabel().filter(label => label)).join('\n')
+      const objectLabels = Object.assign({},
+        ...this.generateVerbatimLabel(),
+        ...this.generateParsedLabel()
+      )
+
+      const AtStart = [
+        'TripIdentifier',
+        'TripCode',
+      ]
+
+      const sortedObjectLabelKeys = sortArrayByArray(Object.keys(objectLabels), AtStart)
+      const sortedLabels = sortedObjectLabelKeys.map(key => objectLabels[key]).filter(Boolean)
+
+      this.label.text = [...new Set(sortedLabels)].join('\n')
     }
   }
 }

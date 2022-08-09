@@ -14,7 +14,7 @@
                            object:     'biological_association',
                            method:     'biological_association_subject_id',
                            tag_id:     'otu_id1_for_biological_association_subject',
-                           display:    (@biological_association.biological_association_subject ? object_tag(@biological_association.biological_association_subject) : nil)} %>
+                           display:    (@biological_association.biological_association_subject && @biological_association.biological_association_subject.class.base_class.name == 'Otu' ? strip_tags(object_tag(@biological_association.biological_association_subject)) : nil)} %>
     </div>
 
 
@@ -25,7 +25,7 @@
                            object:     'biological_association',
                            method:     'biological_association_subject_id',
                            tag_id:     'collection_object_id1_for_biological_association_object_id',
-                           display:    (@biological_association.biological_association_subject ? object_tag(@biological_association.biological_association_subject) : nil)} %>
+                           display:    (@biological_association.biological_association_subject && @biological_association.biological_association_subject.class.base_class.name == 'CollectionObject' ? strip_tags(object_tag(@biological_association.biological_association_subject)) : nil)} %>
     </div>
 
     <div class="field">
@@ -46,7 +46,6 @@
       Collection object <%= f.radio_button :biological_association_object_type, 'CollectionObject', id: :collection_object %> <br>
     </div>
 
-
     <div id='fields_for_object_otu'>
       <%= f.label :biological_association_object_id, 'Otu' %><br>
       <%= render partial: 'workbench/elements/forms/ajax_select',
@@ -54,7 +53,7 @@
                            object:     'biological_association',
                            method:     'biological_association_object_id',
                            tag_id:     'otu_id1_for_biological_association_object',
-                           display:    (@biological_association.biological_association_object ? object_tag(@biological_association.biological_association_object) : nil)} %>
+                           display:    (@biological_association.biological_association_object && @biological_association.biological_association_object.class.base_class.name == 'Otu' ? strip_tags(object_tag(@biological_association.biological_association_object)) : nil)} %>
     </div>
 
 
@@ -65,7 +64,7 @@
                            object:     'biological_association',
                            method:     'biological_association_object_id',
                            tag_id:     'collection_object_id1_for_biological_association_object_id',
-                           display:    (@biological_association.biological_association_object ? object_tag(@biological_association.biological_association_object) : nil)} %>
+                           display:    (@biological_association.biological_association_object && @biological_association.biological_association_object.class.base_class.name == 'CollectionObject' ? strip_tags(object_tag(@biological_association.biological_association_object)) : nil)} %>
     </div>
 
 

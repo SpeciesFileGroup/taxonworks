@@ -5,8 +5,13 @@ module ObservationsHelper
     "#{observation.descriptor.name}: #{observation.id}"
   end
 
-  def observation_matrix_cell_tag(row_object, descriptor)
-    q = Observation.object_scope(row_object).where(descriptor: descriptor)
+  def label_for_observation(observation)
+    return nil if observation.nil?
+    observation.descriptor.name # TODO: add values
+  end
+
+  def observation_matrix_cell_tag(observation_object, descriptor)
+    q = Observation.object_scope(observation_object).where(descriptor: descriptor)
     q.collect{|o| observation_cell_tag(o)}.sort.join(' ').html_safe
   end
 
@@ -20,9 +25,21 @@ module ObservationsHelper
       sample_observation_cell_tag(observation)
     when 'Observation::PresenceAbsence'
       presence_absence_observation_cell_tag(observation)
-    else 
+
+    when 'Observation::Working' # TODO: Validate in format
+      tag.span('X', title: observation.description)
+    else
       '!! display not done !!'
     end
+  end
+
+  def observation_made_on_tag(observation)
+    return nil if observation.nil?
+
+    [observation.year_made,
+     observation.month_made,
+     observation.day_made,
+     observation.time_made ].compact.join('-')
   end
 
   def qualitative_observation_cell_tag(observation)
@@ -35,17 +52,17 @@ module ObservationsHelper
 
   def presence_absence_observation_cell_tag(observation)
     # TODO: messing with visualization here, do something more clean
-    observation.presence ? '&#10003;' : '&#x274c;' 
+    observation.presence ? '&#10003;' : '&#x274c;'
   end
 
   def sample_observation_cell_tag(observation)
-    o = observation 
+    o = observation
     r = []
 
     r.push [o.sample_min, o.sample_max].compact.join('-')
     r.push "#{o.sample_units}" if o.sample_units.present?
 
-    m = []  
+    m = []
 
     m.push "median = #{o.sample_median}" if o.sample_median.present?
     m.push "&#956; = #{o.sample_mean}" if o.sample_mean.present?

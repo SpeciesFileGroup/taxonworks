@@ -13,6 +13,26 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     Source.destroy_all
   end
 
+  context 'quick test' do
+    let(:genus) { Protonym.create(name: 'Erasmoneura', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
+    let(:original_genus) { Protonym.create(name: 'Bus', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
+    let!(:species) { Protonym.create!(
+      name: 'vulnerata',
+      rank_class: Ranks.lookup(:iczn, 'species'),
+      parent: genus,
+      original_genus: original_genus,
+      verbatim_author: 'Fitch & Say',
+      year_of_publication: 1800) }
+
+    specify '#not_specified 1' do
+      species.update!(parent: root, original_genus: nil)
+
+      # !! At this point species.cached == "</i>[<i></i>GENUS NOT SPECIFIED<i></i>]<i> vulnerata". See #2236
+
+      expect(species.reload.cached).to eq('[GENUS NOT SPECIFIED] vulnerata')
+    end
+  end
+
   context 'when #no_cached = true then NO_CACHED_MESSAGE is used with' do
     let(:n) {Protonym.create(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: root, no_cached: true) }
 
@@ -48,9 +68,9 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       let(:subspecies) { Protonym.create(name: 'aus', rank_class: Ranks.lookup(:iczn, :subspecies), parent: species) }
       let(:t) {species.created_at}
 
-      specify '#not binomial' do
-        genus1.taxon_name_classifications.create!(type: 'TaxonNameClassification::Iczn::Unavailable::NonBinomial')
-        species.taxon_name_classifications.create!(type: 'TaxonNameClassification::Iczn::Unavailable::NonBinomial')
+      specify '#not binominal' do
+        genus1.taxon_name_classifications.create!(type: 'TaxonNameClassification::Iczn::Unavailable::NonBinominal')
+        species.taxon_name_classifications.create!(type: 'TaxonNameClassification::Iczn::Unavailable::NonBinominal')
         species.update( original_species: species)
         genus1.update( original_genus: genus1)
         expect(species.cached_original_combination).to eq('aus')
@@ -228,10 +248,10 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               expect(species.cached_html).to eq('<i>Cus aus</i>')
             end
 
-            specify '#not_binomial' do
-              expect(species.not_binomial?).to be_falsey
-              species.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Unavailable::NonBinomial')
-              expect(species.not_binomial?).to be_truthy
+            specify '#not_binominal' do
+              expect(species.not_binominal?).to be_falsey
+              species.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Unavailable::NonBinominal')
+              expect(species.not_binominal?).to be_truthy
               species.reload
               species.save
               expect(species.cached_html).to eq('<i>Cus aus</i>')
@@ -363,12 +383,12 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             end
           end
 
-          context 'not binomial cached' do
-            let!(:c1) { FactoryBot.create(:taxon_name_classification, taxon_name: genus1, type: 'TaxonNameClassification::Iczn::Unavailable::NonBinomial')}
+          context 'not binominal cached' do
+            let!(:c1) { FactoryBot.create(:taxon_name_classification, taxon_name: genus1, type: 'TaxonNameClassification::Iczn::Unavailable::NonBinominal')}
             let!(:species) { FactoryBot.create(:relationship_species, name: 'aus', parent: genus1, verbatim_author: 'Linnaeus', year_of_publication: 1758)}
-            let!(:c2) { FactoryBot.create(:taxon_name_classification, taxon_name: species, type: 'TaxonNameClassification::Iczn::Unavailable::NonBinomial')}
+            let!(:c2) { FactoryBot.create(:taxon_name_classification, taxon_name: species, type: 'TaxonNameClassification::Iczn::Unavailable::NonBinominal')}
 
-            specify 'not binomial genus' do
+            specify 'not binominal genus' do
               genus1.save!
               species.save!
               expect(genus1.cached).to eq('Aus')
@@ -389,6 +409,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               species.reload
               combination.reload
               expect(species.cached_valid_taxon_name_id).to eq(species_syn.id)
+              expect(species.cached_is_valid).to be_falsey
               expect(combination.cached_valid_taxon_name_id).to eq(species_syn.id)
             end
           end

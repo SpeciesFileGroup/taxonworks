@@ -8,83 +8,100 @@
         type="button"
         :value="item.type"
         @click="selectItem(item)"
-        :disabled="((item.disabled || (findExist(item) != undefined)) || isForThisRank(item))"
+        :disabled="((item.disabled || !!alreadyCreated(item)) || isForThisRank(item))"
         class="button button-submit normal-input">
         {{ item[display] }}
       </button>
       <recursive-list
         v-if="isObject(item)"
-        :getter-list="getterList"
+        :created-list="createdList"
         :display="display"
         :valid-property="validProperty"
+        :object-list="item"
+        :taxon-rank="taxonRank"
         @selected="$emit('selected', $event)"
-        :modal-mutation-name="modalMutationName"
-        :action-mutation-name="actionMutationName"
-        :object-list="item"/>
+      />
     </li>
   </ul>
 </template>
 
 <script>
 import RecursiveList from './recursiveList.vue'
-import { MutationNames } from '../store/mutations/mutations'
-import { GetterNames } from '../store/getters/getters'
 
 export default {
-  components: {
-    RecursiveList
-  },
   name: 'RecursiveList',
-  props: ['objectList', 'modalMutationName', 'actionMutationName', 'display', 'getterList', 'validProperty'],
-  computed: {
-    savedList () {
-      if (this.getterList != undefined) {
-        return this.$store.getters[GetterNames[this.getterList]]
-      } else {
-        return []
-      }
-    },
-    orderList() {
-      let sortable = []
-      let sortableObject = {}
 
-      for (var key in this.objectList) {
-          sortable.push([key, this.objectList[key]]);
+  components: { RecursiveList },
+
+  props: {
+    objectList: {
+      type: Object,
+      required: true
+    },
+
+    display: {
+      type: String,
+      required: true
+    },
+
+    validProperty: {
+      type: String,
+      required: true
+    },
+
+    createdList: {
+      type: Array,
+      default: () => []
+    },
+
+    taxonRank: {
+      type: String,
+      required: true
+    }
+  },
+
+  emits: ['selected'],
+
+  computed: {
+    orderList () {
+      const sortable = []
+      const sortableObject = {}
+
+      for (const key in this.objectList) {
+        sortable.push([key, this.objectList[key]])
       }
 
       sortable.sort((a, b) => {
         if (a[1][this.display] > b[1][this.display]) {
-          return 1;
+          return 1
         }
         if (a[1][this.display] < b[1][this.display]) {
-          return -1;
+          return -1
         }
-        return 0;
+        return 0
       })
-      
+
       sortable.forEach(item => {
         sortableObject[item[0]] = item[1]
       })
-      
+
       return sortableObject
-    },
-    taxon() {
-      return this.$store.getters[GetterNames.GetTaxon]
     }
   },
+
   methods: {
-    selectItem: function (optionSelected) {
+    selectItem (optionSelected) {
       this.$emit('selected', optionSelected)
-      this.$store.commit(MutationNames[this.modalMutationName], false)
     },
-    findExist: function (status) {
-      return this.savedList.find(function (element) {
-        return (element.type == status.type)
-      })
+
+    alreadyCreated (status) {
+      return this.createdList.find(element => element.type === status.type)
     },
+
     isForThisRank (item) {
-      return (item.hasOwnProperty(this.validProperty) ? !(item[this.validProperty].includes(this.taxon.rank_string)) : false)
+      return item[this.validProperty] && !(item[this.validProperty].includes(this.taxonRank))
     },
+
     isObject (item) {
       return typeof item === 'object'
     }

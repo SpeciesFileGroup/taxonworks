@@ -1,13 +1,14 @@
 import { MutationNames } from '../mutations/mutations'
-import { DestroyTypeMaterial } from '../../request/resources'
+import { TypeMaterial } from 'routes/endpoints'
 
-export default function ({ commit, state }, typeMaterial) {
-  return new Promise((resolve, reject) => {
-    if(typeMaterial.hasOwnProperty('id')) {
-      DestroyTypeMaterial(typeMaterial.id).then(response => {
+export default ({ commit, state }, typeMaterial) =>
+  new Promise((resolve, reject) => {
+    if (typeMaterial.id) {
+      TypeMaterial.destroy(typeMaterial.id).then(response => {
         commit(MutationNames.RemoveTypeMaterial, typeMaterial.id)
         resolve(response.body)
       })
+    } else {
+      commit(MutationNames.RemoveTypeMaterial, typeMaterial.internalId)
     }
   })
-}

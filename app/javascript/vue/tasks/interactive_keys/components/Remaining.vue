@@ -26,10 +26,12 @@ import RowFilter from './RowFilter'
 
 export default {
   mixins: [ExtendResult],
+
   components: {
     RowComponent,
     RowFilter
   },
+
   computed: {
     remaining () {
       return this.observationMatrix ? this.observationMatrix.remaining : []

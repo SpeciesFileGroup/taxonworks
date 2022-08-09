@@ -11,6 +11,7 @@ class Topic < ControlledVocabularyTerm
   has_many :sources, through: :citations, inverse_of: :topics
   has_many :citation_objects, through: :citations, source_type: 'Citation'
   has_many :contents, inverse_of: :topic, dependent: :destroy
+  has_many :public_contents, inverse_of: :topic, dependent: :destroy
   has_many :otus, through: :contents
 
   # TODO: Layout handling as a concern
@@ -43,7 +44,7 @@ class Topic < ControlledVocabularyTerm
 
     # i is a select manager
     i = t.project(t['topic_id'], t['created_at']).from(t)
-      .where(t['created_at'].gt(1.weeks.ago))
+      .where(t['created_at'].gt(10.weeks.ago))
       .where(t['created_by_id'].eq(user_id))
       .where(t['project_id'].eq(project_id))
       .order(t['created_at'].desc)

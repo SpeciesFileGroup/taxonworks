@@ -4,6 +4,7 @@
     <select v-model="filters.sorting">
       <option
         v-for="(rank, index) in ranks"
+        :value="rank"
         :key="index">
         {{ rank }}
       </option>
@@ -29,7 +30,12 @@ export default {
   },
   data () {
     return {
-      ranks: [undefined, 'ordered', 'weighted', 'optimized']
+      ranks: [
+        undefined,
+        'ordered',
+        'weighted',
+        'optimized'
+      ]
     }
   }
 }

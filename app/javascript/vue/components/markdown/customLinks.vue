@@ -1,9 +1,15 @@
 <template>
-  <modal-component @close="$emit('close')">
-    <h3 slot="header">Data links</h3>
-    <div slot="body">
+  <modal-component
+    :container-style="{ width: '500px' }"
+    @close="$emit('close')">
+    <template #header>
+      <h3>Data links</h3>
+    </template>
+    <template #body>
       <ul class="no_bullets context-menu">
-        <li v-for="button in links">
+        <li
+          v-for="button in links"
+          :key="button.label">
           <button
             type="button"
             class="button normal-input button-default"
@@ -12,43 +18,64 @@
           </button>
         </li>
       </ul>
-      <div v-if="selected">
+      <div
+        class="margin-medium-top">
         <smart-selector
           target="Otu"
           :model="selected.model"
-          @selected="sendObject"/>
+          :label="selected.labelProperty"
+          autofocus
+          @selected="sendObject"
+        />
       </div>
-    </div>
+    </template>
   </modal-component>
 </template>
 
 <script>
 
-import buttonLinks from './buttonLinks.js'
-import ModalComponent from 'components/modal'
-import SmartSelector from 'components/smartSelector'
+import BUTTON_LINKS from './buttonLinks.js'
+import ModalComponent from 'components/ui/Modal'
+import SmartSelector from 'components/ui/SmartSelector'
 
 export default {
   components: {
     ModalComponent,
     SmartSelector
   },
+
+  emits: [
+    'selected',
+    'close'
+  ],
+
   data () {
     return {
-      links: buttonLinks(),
-      selected: undefined
+      links: BUTTON_LINKS,
+      selected: BUTTON_LINKS[0]
     }
   },
+
   methods: {
     setSelected (item) {
       this.selected = item
     },
+
     sendObject (item) {
-      const data = {
-        label: item[this.selected.propertyLabel],
-        link: `${window.location.href.split('/').slice(0, 3).join('/')}${this.selected.link}?${this.selected.param}=${item.id}`
+      const {
+        labelFunction,
+        labelProperty,
+        model
+      } = this.selected
+
+      const label = labelFunction ? labelFunction(item) : item[labelProperty]
+
+      const payload = {
+        label,
+        link: `/${model}/${item.id}`
       }
-      this.$emit('selected', data)
+
+      this.$emit('selected', payload)
       this.$emit('close')
     }
   }

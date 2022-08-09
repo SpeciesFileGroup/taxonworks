@@ -2,10 +2,11 @@
   <div class="identifier_annotator">
     <div>
       <div v-if="namespace">
-
         <div class="separate-bottom">
           <span class="capitalize">{{ namespace }}</span>
-          <button type="button" @click="reset()">Change</button>
+          <button
+            type="button"
+            @click="reset()">Change</button>
         </div>
         <fieldset>
           <legend>Type</legend>
@@ -47,8 +48,10 @@
               class="transparent-modal"
               v-if="display == 'show all'"
               @close="display = 'common'">
-              <h3 slot="header">Types</h3>
-              <div slot="body">
+              <template #header>
+                <h3>Types</h3>
+              </template>
+              <template #body>
                 <ul>
                   <li
                     class="modal-list-item"
@@ -62,7 +65,7 @@
                     </button>
                   </li>
                 </ul>
-              </div>
+              </template>
             </modal>
           </div>
 
@@ -73,7 +76,7 @@
         </fieldset>
         <div>
           <spinner-component
-            v-if="!isTypeSelected" 
+            v-if="!isTypeSelected"
             :show-spinner="false"
             :show-legend="false"
           />
@@ -112,7 +115,7 @@
         </div>
       </div>
 
-      <div 
+      <div
         v-else
         class="field">
         <ul class="no_bullets">
@@ -141,33 +144,36 @@
 
 import CRUD from '../../request/crud.js'
 import AnnotatorExtend from '../../components/annotatorExtend.js'
-import Modal from 'components/modal.vue'
+import Modal from 'components/ui/Modal.vue'
 import TableList from 'components/table_list.vue'
 import NamespaceComponent from './namespace'
 import SpinnerComponent from 'components/spinner.vue'
 
 export default {
   mixins: [CRUD, AnnotatorExtend],
+
   components: {
     TableList,
     Modal,
     NamespaceComponent,
     SpinnerComponent
   },
+
   computed: {
     validateFields () {
       return this.identifier.identifier &&
-						(this.identifier.type) &&
-						((this.namespace == 'local' && this.identifier.namespace_id) || (this.namespace != 'local'))
+              (this.identifier.type) &&
+              ((this.namespace === 'local' && this.identifier.namespace_id) || (this.namespace !== 'local'))
     },
     isTypeSelected() {
       return this.identifier.type
     },
     isLocal() {
-      return this.namespace == 'local'
+      return this.namespace === 'local'
     }
   },
-  data: function () {
+
+  data () {
     return {
       namespaceSelectedLabel: '',
       showAll: false,
@@ -178,28 +184,29 @@ export default {
       typeList: []
     }
   },
+
   watch: {
-    'namespace': function (newVal) {
-      if (newVal == 'unknown') {
+    namespace (newVal) {
+      if (newVal === 'unknown') {
         this.identifier.type = this.typeList[newVal].common[0]
       }
     }
   },
-  mounted: function () {
+
+  mounted () {
     this.getList('/identifiers/identifier_types').then(response => {
       this.typeList = response.body
     })
   },
+
   methods: {
     createArrayList (obj) {
-      var result = Object.keys(obj).map(function (key) {
-        return {
-          value: key,
-          label: obj[key].label
-        }
-      })
-      return result
+      return Object.keys(obj).map((key) => ({
+        value: key,
+        label: obj[key].label
+      }))
     },
+
     newIdentifier () {
       return {
         type: undefined,
@@ -208,6 +215,7 @@ export default {
         annotated_global_entity: decodeURIComponent(this.globalId)
       }
     },
+
     createNew () {
       this.create('/identifiers', { identifier: this.identifier }).then(response => {
         this.list.push(response.body)
@@ -215,50 +223,52 @@ export default {
         this.identifier = this.newIdentifier()
       })
     },
+
     reset () {
       this.identifier = this.newIdentifier()
       this.namespace = undefined
       this.display = 'common'
     },
+
     namespaceAlreadyCreated (namespace) {
-      return this.list.find(item => { return namespace.id == item.namespace_id })
+      return this.list.find(item => namespace.id === item.namespace_id)
     }
   }
 }
 </script>
 <style lang="scss">
 .radial-annotator {
-	.identifier_annotator {
-		button {
-			min-width: 100px;
-		}
-		.identifier {
-			width: 100%;
-		}
-		textarea {
-			padding-top: 14px;
-			padding-bottom: 14px;
-			width: 100%;
-			height: 100px;
-		}
-		.vue-autocomplete-input, .input {
-			width: 100%;
-		}
-		li {
-			border-right: 0px;
-			padding-left: 0px;
-		}
-		.modal-button {
-			min-width: auto;
-		}
-		.modal-list-item {
-			margin-top: 6px;
-		}
+  .identifier_annotator {
+    button {
+      min-width: 100px;
+    }
+    .identifier {
+      width: 100%;
+    }
+    textarea {
+      padding-top: 14px;
+      padding-bottom: 14px;
+      width: 100%;
+      height: 100px;
+    }
+    .vue-autocomplete-input, .input {
+      width: 100%;
+    }
+    li {
+      border-right: 0px;
+      padding-left: 0px;
+    }
+    .modal-button {
+      min-width: auto;
+    }
+    .modal-list-item {
+      margin-top: 6px;
+    }
     .switch-radio {
       label {
         width: 100%;
       }
     }
-	}
+  }
 }
 </style>

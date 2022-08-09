@@ -42,67 +42,77 @@ export default {
     RadialAnnotator,
     CitationsCount
   },
+
   props: {
     list: {
       type: Array,
       default: () => []
     },
-    annotator: {
-      type: Boolean,
-      default: true
-    },
+
     targetCitations: {
       type: String,
       required: true
     },
+
     label: {
       type: [String, Array],
       required: true
     },
+
     edit: {
       type: Boolean,
       default: false
     },
+
     remove: {
       type: Boolean,
       default: true
     },
+
     annotator: {
       type: Boolean,
       default: false
     },
+
     highlight: {
       type: Object,
       default: undefined
     }
   },
-  mounted() {
+
+  emits: [
+    'delete',
+    'edit'
+  ],
+
+  mounted () {
     this.$options.components['RadialAnnotator'] = RadialAnnotator
   },
+
   methods: {
     displayName (item) {
       if (typeof this.label === 'string') {
         return item[this.label]
       } else {
         let tmp = item
-        this.label.forEach(function (label) {
+        this.label.forEach(label => {
           tmp = tmp[label]
         })
         return tmp
       }
     },
+
     checkHighlight (item) {
       if (this.highlight) {
-        if (this.highlight.key) {
-          return item[this.highlight.key] == this.highlight.value
-        } else {
-          return item == this.highlight.value
-        }
+        return this.highlight.key
+          ? item[this.highlight.key] === this.highlight.value
+          : item === this.highlight.value
       }
       return false
     },
-    deleteItem(item) {
-      if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+
+    deleteItem (item) {
+      if (window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
         this.$emit('delete', item)
       }
     }
@@ -134,15 +144,14 @@ export default {
   }
 
   .table-entrys-list {
-    overflow-y: scroll;
     padding: 0px;
     position: relative;
 
     li {
       margin: 0px;
-      padding: 6px;
+      padding: 1em 0;
       border: 0px;
-      border-top: 1px solid #f5f5f5;
+      border-bottom: 1px solid #f5f5f5;
     }
   }
 

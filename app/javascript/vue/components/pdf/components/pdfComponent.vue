@@ -1,202 +1,181 @@
 <template>
   <div>
-    <slot v-if="loading" name="loading"/>
-    <div id="viewerContainer" ref="container">
-
-    </div>
+    <slot
+      v-if="isLoading"
+      name="loading"
+    />
+    <div
+      id="viewerContainer"
+      ref="pdfContainer"
+    />
   </div>
 </template>
-<script>
-'use strict'
-
+<script setup>
 import 'pdfjs-dist/web/pdf_viewer.css'
-import pdfjsLib from 'pdfjs-dist/webpack.js'
-import { PDFLinkService, PDFPageView, PDFFindController, DefaultAnnotationLayerFactory, DefaultTextLayerFactory } from 'pdfjs-dist/web/pdf_viewer.js'
-//import resizeSensor from 'vue-resize-sensor'
+import {
+  PDFPageView,
+  DefaultAnnotationLayerFactory,
+  DefaultTextLayerFactory,
+  createLoadingTask,
+  isPDFDocumentLoadingTask,
+  EventBus
+} from './pdfLibraryComponents.js'
+import { ref, watch, onMounted, onUnmounted, toRaw } from 'vue'
 
-const DEFAULT_SCALE_DELTA = 1.1
-const MIN_SCALE = 0.25
-const MAX_SCALE = 10.0
-const DEFAULT_SCALE_VALUE = 'auto'
-const CSS_UNITS = 96.0 / 72.0
+const props = defineProps({
+  src: {
+    type: [String, Object],
+    default: ''
+  },
 
-function isPDFDocumentLoadingTask (obj) {
-  return typeof (obj) === 'object' && obj !== null && obj.__PDFDocumentLoadingTask === true
-}
+  page: {
+    type: Number,
+    default: 1
+  },
 
-function createLoadingTask (src, options) {
-  if(document.querySelector('#viewerContainer'))
-    document.querySelector('#viewerContainer').innerHTML = ''
+  rotate: {
+    type: Number,
+    default: 0
+  },
 
-  var source
-  if (typeof (src) === 'string') { source = { url: src } } else
-  if (typeof (src) === 'object' && src !== null) { source = Object.assign({}, src) } else { throw new TypeError('invalid src type') }
+  scale: {
+    type: [Number, String],
+    default: 1
+  },
 
-  // see https://github.com/mozilla/pdf.js/blob/628e70fbb5dea3b9066aa5c34cca70aaafef8db2/src/display/dom_utils.js#L64
-  source.CMapReaderFactory = function () {
-    this.fetch = function (query) {
-      return import('raw-loader!pdfjs-dist/cmaps/' + query.name + '.bcmap' /* webpackChunkName: "noprefetch-[request]" */)
-        .then(function (bcmap) {
-          return {
-            cMapData: bcmap,
-            compressionType: CMapCompressionType.BINARY
-          }
-        })
-    }
+  resize: {
+    type: Boolean,
+    default: false
+  },
+
+  annotation: {
+    type: Boolean,
+    default: false
+  },
+
+  text: {
+    type: Boolean,
+    default: true
   }
+})
 
-  var loadingTask = pdfjsLib.getDocument(source)
-  loadingTask.__PDFDocumentLoadingTask = true // since PDFDocumentLoadingTask is not public
+const pdf = ref(null)
+const isLoading = ref(true)
+const pdfContainer = ref(null)
 
-  if (options && options.onPassword) { loadingTask.onPassword = options.onPassword }
+let pdfInstance = null
+let pdfViewPage = null
 
-  if (options && options.onProgress) { loadingTask.onProgress = options.onProgress }
+const emit = defineEmits([
+  'numpages',
+  'loading'
+])
 
-  return loadingTask
+watch(
+  pdf,
+  val => {
+    const pdfInfo = val.pdfInfo || val._pdfInfo
+    emit('numpages', pdfInfo.numPages)
+  }
+)
+
+watch(
+  () => props.page,
+  val => {
+    pdf.value.getPage(val).then((pdfPage) => {
+      pdfViewPage.setPdfPage(pdfPage)
+      pdfViewPage.draw()
+    })
+  }
+)
+
+watch(
+  [
+    () => props.scale,
+    () => props.rotate
+  ],
+  val => {
+    updatePage(val)
+  }
+)
+
+watch(
+  () => props.src,
+  newVal => {
+    loadPdf(newVal)
+  }
+)
+
+const calculateScale = (width = -1, height = -1) => {
+  pdfViewPage.update(1, props.rotate)
+  if (width === -1 && height === -1) {
+    width = pdfContainer.value.offsetWidth
+    height = pdfContainer.value.height
+  }
+  const pageWidthScale = width / pdfViewPage.viewport.width * 1
+  const pageHeightScale = height / pdfViewPage.viewport.height * 1
+
+  return pageWidthScale
 }
 
-export default {
-  createLoadingTask: createLoadingTask,
-  components: {
-    //resizeSensor
-  },
-  data () {
-    return {
-      internalSrc: this.src,
-      pdf: null,
-      pdfViewer: null,
-      loading: true
+const updatePage = newScale => {
+  if (pdfViewPage) {
+    if (newScale === 'page-width') {
+      newScale = calculateScale()
     }
-  },
-  props: {
-    src: {
-      type: [String, Object],
-      default: ''
-    },
-    page: {
-      type: Number,
-      default: 1
-    },
-    rotate: {
-      type: Number,
-      default: 0
-    },
-    scale: {
-      type: [Number, String],
-      default: 1
-    },
-    resize: {
-      type: Boolean,
-      default: false
-    },
-    annotation: {
-      type: Boolean,
-      default: false
-    },
-    text: {
-      type: Boolean,
-      default: true
-    }
-  },
-  watch: {
-    pdf: function (val) {
-      var pdfInfo = val.pdfInfo || val._pdfInfo
-      this.$emit('numpages', pdfInfo.numPages)
-    },
-    page: function (val) {
-      var self = this
-      this.pdf.getPage(val).then(function (pdfPage) {
-        self.pdfViewer.setPdfPage(pdfPage)
-        self.pdfViewer.draw()
-      })
-    },
-    scale: function (val) {
-      this.drawScaled(val)
-    },
-    rotate: function (newRotate) {
-      if (this.pdfViewer) {
-        this.pdfViewer.update(this.scale, newRotate)
-        this.pdfViewer.draw()
-      }
-    },
-    src(newVal) {
-      this.internalSrc = newVal
-      this.loadPdf()
-    }
-  },
-  methods: {
-    calculateScale: function (width = -1, height = -1) {
-      this.pdfViewer.update(1, this.rotate)
-      if (width === -1 && height === -1) {
-        width = this.$refs.container.offsetWidth
-        height = this.$refs.container.height
-      }
-      let pageWidthScale = width / this.pdfViewer.viewport.width * 1
-      let pageHeightScale = height / this.pdfViewer.viewport.height * 1
-      return pageWidthScale
-    },
-    drawScaled: function (newScale) {
-      if (this.pdfViewer) {
-        if (newScale === 'page-width') {
-          newScale = this.calculateScale()
-        }
-        this.pdfViewer.update(newScale, this.rotate)
-        this.pdfViewer.draw()
-        this.loading = false
-        this.$emit('loading', false)
-      }
-    },
-    resizeScale(size) {
-      if (this.resize) {
-        this.drawScaled('page-width')
-      }
-    },
-    loadPdf() {
-      var self = this
-      //this.resetPdf()
-      if (!isPDFDocumentLoadingTask(self.internalSrc)) {
-        self.internalSrc = createLoadingTask(self.internalSrc)
-        self.$emit('loading', true)
-      }
 
-      var SEARCH_FOR = 'Mozilla' // try 'Mozilla';
+    pdfViewPage.update({
+      scale: props.scale,
+      rotate: props.rotate
+    })
 
-      var container = this.$refs.container
-
-      var pdfLinkService = new PDFLinkService()
-      let annotationLayer; let textLayer
-      if (self.annotation) {
-        annotationLayer = new DefaultAnnotationLayerFactory()
-      }
-      if (self.text) {
-        textLayer = new DefaultTextLayerFactory()
-      }
-
-      self.internalSrc
-        .then(function (pdfDocument) {
-        // Document loaded, retrieving the page.
-          self.pdf = pdfDocument
-          return pdfDocument.getPage(self.page)
-        }).then(function (pdfPage) {
-        // Creating the page view with default parameters.
-          self.pdfViewer = new PDFPageView({
-            container: container,
-            id: self.page,
-            scale: 1,
-            defaultViewport: pdfPage.getViewport(1),
-            // We can enable text/annotations layers, if needed
-            textLayerFactory: textLayer,
-            annotationLayerFactory: annotationLayer
-          })
-          // Associates the actual page with the view, and drawing it
-          self.pdfViewer.setPdfPage(pdfPage)
-          pdfLinkService.setViewer(self.pdfViewer)
-          self.drawScaled(self.scale)
-        })
-    }
-  },
-  mounted() {
-    this.loadPdf()
+    pdfViewPage.draw()
   }
 }
+
+const loadPdf = async pdfInstance => {
+  const container = pdfContainer.value
+  let annotationLayerFactory
+  let textLayerFactory
+
+  if (props.annotation) {
+    annotationLayerFactory = new DefaultAnnotationLayerFactory()
+  }
+
+  if (props.text) {
+    textLayerFactory = new DefaultTextLayerFactory()
+  }
+
+  const eventBus = new EventBus()
+
+  const pdfDocument = await pdfInstance
+  const pdfPage = await pdfDocument.getPage(props.page)
+
+  pdfViewPage = new PDFPageView({
+    container,
+    id: props.page,
+    scale: props.scale,
+    defaultViewport: pdfPage.getViewport({ scale: props.scale }),
+    textLayerFactory,
+    annotationLayerFactory,
+    eventBus
+  })
+
+  isLoading.value = false
+
+  pdfViewPage.setPdfPage(pdfPage)
+  return pdfViewPage.draw()
+}
+
+onMounted(() => {
+  document.addEventListener('turbolinks:load', _ => {
+    pdfViewPage?.destroy()
+  })
+
+  loadPdf(props.src)
+})
+
+onUnmounted(() => {
+  pdfViewPage?.destroy()
+})
 </script>

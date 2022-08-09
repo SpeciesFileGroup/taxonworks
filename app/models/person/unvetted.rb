@@ -1,8 +1,8 @@
 # Unvetted person definition...
 #
 class Person::Unvetted < Person
-  # def foo
-  #   puts 'bar'
-  # end
+  originates_from *[
+    ImportDataset::DarwinCore::Checklist,
+    ImportDataset::DarwinCore::Occurrences
+  ].map(&:to_s)
 end
-

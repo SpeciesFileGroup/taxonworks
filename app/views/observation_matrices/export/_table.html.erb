@@ -2,9 +2,9 @@
 <table >
   <% rows.each do |r| -%>
     <tr>
-      <td>'<%= observation_matrix_row_label(r) %>'&nbsp;</td>
+      <td>'<%= observation_matrix_row_label_nexml(r) %>'&nbsp;</td>
       <% descriptors.where(type: %w{Descriptor::Continuous Descriptor::Qualitative Descriptor::PresenceAbsence }).each do |d| -%>
-        <td><%= observations_cell_label(observations_hash, d, r.row_object_global_id, format) %></td>
+        <td><%= observations_cell_label(observations_hash, d, r.observation_index, format) %></td>
       <% end %>          
     </tr>
   <% end %>

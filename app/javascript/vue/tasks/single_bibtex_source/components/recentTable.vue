@@ -6,7 +6,7 @@
         :key="item.id"
         class="contextMenuCells">
         <td>
-          <a 
+          <a
             :href="`/sources/${item.id}`"
             v-html="item.object_tag"/>
         </td>
@@ -17,7 +17,7 @@
           <radial-annotator :global-id="item.global_id"/>
         </td>
         <td>
-          <pin-component 
+          <pin-component
             :object-id="item.id"
             :type="item.base_class"/>
         </td>
@@ -29,7 +29,7 @@
 <script>
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import AddToProject from 'components/addToProjectSource'
-import PinComponent from 'components/pin'
+import PinComponent from 'components/ui/Pinboard/VPin.vue'
 
 export default {
   components: {
@@ -37,6 +37,7 @@ export default {
     AddToProject,
     PinComponent
   },
+
   props: {
     list: {
       type: Array,

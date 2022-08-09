@@ -32,26 +32,27 @@
 
 <script>
 
-import { GetMetadataSource, GetMetadataProjectSource } from '../request/resources.js'
+import {
+  GetMetadataSource,
+  GetMetadataProjectSource
+} from '../request/resources.js'
 
 export default {
-  data() {
+  data () {
     return {
       source: undefined,
       projectSource: undefined
     }
   },
-  mounted() {
+
+  mounted () {
     GetMetadataSource().then(response => {
       this.source = response.body
     })
+
     GetMetadataProjectSource().then(response => {
       this.projectSource = response.body
     })
   }
 }
 </script>
-
-<style>
-
-</style>

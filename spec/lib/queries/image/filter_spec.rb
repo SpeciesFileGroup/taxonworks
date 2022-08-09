@@ -16,6 +16,178 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
   let(:t2) { Protonym.create(name: 'Aus', parent: t1, rank_class: Ranks.lookup(:iczn, :genus) ) }
   let(:t3) { Protonym.create(name: 'bus', parent: t2, rank_class: Ranks.lookup(:iczn, :species) ) }
 
+  specify '#otu_scope :type_material_observations' do
+    t = FactoryBot.create(:valid_type_material)
+
+    c = FactoryBot.create(:valid_observation, observation_object: t.collection_object)
+    c.images << i1
+
+    o.update!(taxon_name: t.protonym)
+    i2 # not this one
+    q.otu_id = o.id
+    q.otu_scope = [:type_material_observations]
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
+  specify '#otu_scope :type_material' do
+    t = FactoryBot.create(:valid_type_material)
+    t.collection_object.images << i1
+    o.update!(taxon_name: t.protonym)
+    i2 # not this one
+    q.otu_id = o.id
+    q.otu_scope = [:type_material]
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
+  specify '#coordinate_otu_ids' do
+    o.update!(taxon_name: t3)
+
+    t = Protonym.create(name: 'cus', parent: t2, rank_class: Ranks.lookup(:iczn, :species) )
+    t.synonymize_with(t3)
+    o1 = Otu.create!(taxon_name: t)
+
+    q.otu_id = o1.id
+
+    expect(q.coordinate_otu_ids).to contain_exactly(o.id, o1.id)
+  end
+
+
+  specify '#otu_scope :coordinate_otus, :collection_object_observations' do
+    # First image, on valid
+    o.update!(taxon_name: t3)
+    TaxonDetermination.create!(otu: o, biological_collection_object: co)
+
+    b = FactoryBot.create(:valid_observation, observation_object: co)
+    b.images << i1
+
+    # Second image, on invalid
+    t = Protonym.create(name: 'cus', parent: t2, rank_class: Ranks.lookup(:iczn, :species) )
+    t.synonymize_with(t3)
+    o1 = Otu.create!(taxon_name: t)
+    td = TaxonDetermination.create!(otu: o1, biological_collection_object: Specimen.create!)
+
+    c = FactoryBot.create(:valid_observation, observation_object: td.biological_collection_object)
+    c.images << i2
+
+    i3 # not this image
+
+    # Map to invalid
+    q.otu_id = o1.id
+
+    q.otu_scope = [:coordinate_otus, :collection_object_observations]
+    expect(q.coordinate_otu_ids).to contain_exactly(o.id, o1.id)
+    expect(q.all.map(&:id)).to contain_exactly(i1.id, i2.id)
+  end
+
+  specify '#otu_scope :coordinate_otus, :otus' do
+    o.images << i1
+
+    t = Protonym.create(name: 'cus', parent: t2, rank_class: Ranks.lookup(:iczn, :species) )
+    t.synonymize_with(t3)
+
+    o.update(taxon_name: t3)
+
+    o1 = Otu.create!(taxon_name: t)
+    o1.images << i2
+
+    i3 # not this one
+
+    q.otu_id = [o.id]
+
+    q.otu_scope = [:coordinate_otus, :otus]
+    expect(q.all.map(&:id)).to contain_exactly(i1.id, i2.id)
+  end
+
+  specify '#otu_scope :coordinate_otus, :collection_objects' do
+    TaxonDetermination.create!(otu: o, biological_collection_object: co)
+    co.images << i1
+
+    t = Protonym.create(name: 'cus', parent: t2, rank_class: Ranks.lookup(:iczn, :species) )
+    t.synonymize_with(t3)
+
+    o.update(taxon_name: t3)
+    o1 = Otu.create!(taxon_name: t)
+
+    td = TaxonDetermination.create!(otu: o1, biological_collection_object: Specimen.create!)
+    td.biological_collection_object.images << i2
+
+    i3 # not this one
+
+    q.otu_id = o.id
+
+    q.otu_scope = [:coordinate_otus, :collection_objects]
+    expect(q.all.map(&:id)).to contain_exactly(i1.id, i2.id)
+  end
+
+  specify '#otu_scope :coordinate_otus, :otus' do
+    o.images << i1
+
+    t = Protonym.create(name: 'cus', parent: t2, rank_class: Ranks.lookup(:iczn, :species) )
+    t.synonymize_with(t3)
+
+    o.update(taxon_name: t3)
+    o1 = Otu.create!(taxon_name: t)
+
+    o1.images << i2
+
+    i3 # not this one
+
+    q.otu_id = o.id
+
+    q.otu_scope = [:coordinate_otus, :otus]
+    expect(q.all.map(&:id)).to contain_exactly(i1.id, i2.id)
+  end
+
+  specify '#otu_scope :all' do
+    b = FactoryBot.create(:valid_observation, observation_object: co)
+    b.images << i1
+    TaxonDetermination.create!(otu: o, biological_collection_object: co)
+
+    o.images << i2
+
+    i3 # not this one
+    q.otu_id = o.id
+    q.otu_scope = [:all]
+    expect(q.all.map(&:id)).to contain_exactly(i1.id, i2.id)
+  end
+
+  specify '#otu_scope :collection_object_observations' do
+    b = FactoryBot.create(:valid_observation, observation_object: co)
+    b.images << i1
+    TaxonDetermination.create!(otu: o, biological_collection_object: co)
+    i2 # not this one
+    q.otu_id = o.id
+    q.otu_scope = [:collection_object_observations]
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
+  specify '#otu_scope :otu_observations' do
+    b = FactoryBot.create(:valid_observation, observation_object: o)
+    b.images << i1
+    i2 # not this one
+    q.otu_id = o.id
+    q.otu_scope = [:otu_observations]
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
+  specify '#otu_scope :otus' do
+    o.images << i1
+    FactoryBot.create(:valid_otu)
+    i2 # not this one
+    q.otu_id = o.id
+    q.otu_scope = [:otus]
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
+  specify '#otu_scope :collection_objects' do
+    t = TaxonDetermination.create!(otu: o, biological_collection_object: co)
+    co.images << i1
+    i2 # not this one
+    q.otu_id = o.id
+    q.otu_scope = [:collection_objects]
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
   specify '#otu_id one' do
     o.images << i1
     q.otu_id = o.id
@@ -52,17 +224,22 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
+  specify '#image_id id' do
+    q.image_id = i1.id
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
   specify '#image_id array' do
     q.image_id = [i1.id]
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
-  specify '#image_id array' do
-    q.image_id = i1.id
-    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  specify '#image_id array nontrivial' do
+    q.image_id = [i1.id, i3.id, i2.id]
+    expect(q.all.map(&:id)).to contain_exactly(i1.id, i2.id, i3.id)
   end
 
-  specify '#biocuration_class_id array' do
+  specify '#biocuration_class_id id' do
     co.images << i1
     a = FactoryBot.create(:valid_biocuration_classification, biological_collection_object: co)
     q.biocuration_class_id = a.id

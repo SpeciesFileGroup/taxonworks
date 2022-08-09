@@ -7,12 +7,11 @@
 <br><br>
 
 <h2> Has many </h2>
-<% @object.class.reflect_on_all_associations(:has_many).sort { |a, b| a.name <=> b.name }.each do |r| -%>
+<% ApplicationEnumeration.klass_reflections(@object.class, :has_many).each do |r| -%>
   <% next if r.name =~ /_hierarchies|project/ %>
   <% if @object.respond_to?(r.name) -%>
-
     <% q = @object.send(r.name.to_s) %>
-    <% q = q.where(project_id: sessions_current_project_id) if r.klass.column_names.include?('project_id')  %>
+    <% q = q.where(r.table_name => {project_id: sessions_current_project_id}) if r.klass.column_names.include?('project_id')  %>
 
     <% t = q.load.count %>
     <% if t > 0 %>
@@ -20,7 +19,7 @@
 
       <table> 
         <tr> <th> object </th> <th> id </th> <th> global id </th> </tr>
-        <% @object.send(r.name.to_s).limit(500).all.each do |o| -%>
+        <% q.limit(500).all.each do |o| -%>
           <tr> 
             <td> <%= object_link(o) %> </td> 
             <td> <%= o.id %> </td> 
@@ -37,7 +36,7 @@
 
 <h2> Has one </h2>
 <table>
-  <% @object.class.reflect_on_all_associations(:has_one).sort { |a, b| a.name <=> b.name }.each do |r| -%>
+  <% ApplicationEnumeration.klass_reflections(@object.class, :has_one).each do |r| -%>
     <% if t = @object.send(r.name.to_s) -%>
       <tr>
         <td> <%= r.name.to_s.humanize -%> </td>
@@ -51,7 +50,7 @@
 
 <h2> Belongs to </h2>
 <table>
-  <% @object.class.reflect_on_all_associations(:belongs_to).sort { |a, b| a.name <=> b.name }.each do |r| -%>
+  <% ApplicationEnumeration.klass_reflections(@object.class, :belongs_to).each do |r| -%>
     <% if t = @object.send(r.name.to_s) -%>
       <tr>
         <td> <%= r.name.to_s.humanize -%> </td>

@@ -13,6 +13,44 @@ module AttributionsHelper
     a.compact.join('. ').html_safe
   end
 
+  # @return [String, nil]
+  #   no html in _label
+  # !! if _tag labels add HTML then they must be removed here
+  def label_for_attribution(attribution)
+    return nil if attribution.nil?
+
+    a = [
+      attribution_copyright_label(attribution),
+      attribution_creators_tag(attribution),
+      attribution_editors_tag(attribution),
+      attribution_owners_tag(attribution),
+      attribution.license,
+    ]
+
+    a.compact.join('. ').html_safe
+  end
+
+  # @return [String, nil]
+  def attribution_copyright_label(attribution)
+    a = attribution.copyright_year
+    b = attribution.attribution_copyright_holders
+    return nil unless a or b.any?
+    s = '(c)'
+    s << [a, Utilities::Strings.authorship_sentence(b.collect{|c| c.name})].join(' ')
+    s
+  end
+
+  def attribution_nexml_label(attribution)
+    return nil if attribution.nil?
+    a = [
+      attribution_creators_tag(attribution),
+      attribution_owners_tag(attribution),
+      attribution.copyright_year
+    ]
+
+    a.compact.join(', ').html_safe
+  end
+
   def attribution_copyright_tag(attribution)
     a = attribution.copyright_year
     b = attribution.attribution_copyright_holders

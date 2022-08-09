@@ -1,8 +1,8 @@
 import { MutationNames } from '../mutations/mutations'
-import { destroyLoanItem } from '../../request/resources'
+import { LoanItem } from 'routes/endpoints'
 
-export default function ({ commit, state }, id) {
-  destroyLoanItem(id).then(response => {
+export default ({ commit }, id) => {
+  LoanItem.destroy(id).then(() => {
     commit(MutationNames.RemoveLoanItem, id)
   })
-};
+}

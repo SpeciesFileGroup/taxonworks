@@ -2,114 +2,101 @@ var TW = TW || {};
 TW.views = TW.views || {};
 TW.views.annotations = TW.views.annotations || {};
 
-
 Object.assign(TW.views.annotations, {
 
-	init: function() {
-		var annotations = [];
-		var that = this;
-		var metadata = undefined;
+  init () {
+    this.handleAnnotatorEvent = this.handleAnnotator.bind(this)
+    document.addEventListener('radialAnnotator:close', this.handleAnnotatorEvent)
+  },
 
-		$(document).off('annotator:close');
-		$(document).on('annotator:close', function(event) {
-			var metadata = event.detail.metadata;
-			var annotationDOMElement = document.querySelector(`[data-annotator-list-object-id="${metadata.object_id}"]`);
+  getAnnotationOptions (url, annotations) {
+    return annotations.map(element => ({
+      label: element,
+      url: `${url}/${element}.json`,
+      list: []
+    }))
+  },
 
-			if(annotationDOMElement) {
-				if(metadata.annotation_types) {
-					annotations = that.getAnnotationOptions(metadata.url, Object.keys(metadata.annotation_types));
-					that.getLists(annotations).then(response => {
-						that.createAllLists(response, annotationDOMElement);
-					});
-				}
-			}
-		});
-	},
+  handleAnnotator (event) {
+    const metadata = event.detail.metadata
+    const annotationDOMElement = document.querySelector(`[data-annotator-list-object-id="${metadata.object_id}"]`)
 
-	getAnnotationOptions: function(url, annotations) {
-		var list = []
+    if (annotationDOMElement && metadata.endpoints) {
+      const annotations = this.getAnnotationOptions(metadata.url, Object.keys(metadata.endpoints))
 
-		annotations.forEach(function(element) {
-			list.push({
-				label: element,
-				url: `${url}/${element}.json`,
-				list: []
-			})
-		});
-		return list;
-	},
+      this.getLists(annotations).then(response => {
+        this.createAllLists(response, annotationDOMElement)
+      })
+    }
+  },
 
-	getLists: function(annotations) {
-		var that = this;
+  removeEvents () {
+    document.removeEventListener('radialAnnotator:close', this.handleAnnotatorEvent)
+  },
 
-		return new Promise(function(resolve,reject) {
-			var list = [];
+  getLists (annotations) {
+    return new Promise((resolve, reject) => {
+      const promises = annotations.map(annotation => this.getAnnotationList(annotation.url))
 
-			annotations.forEach(function(element) {
-				list.push(that.makeAjaxCall('get', element.url))
-			})
+      Promise.all(promises).then(values => {
+        annotations.forEach((element, index) => {
+          element.list = values[index]
+        })
+        return resolve(annotations)
+      })
+    })
+  },
 
-			Promise.all(list).then(values => { 
-				annotations.forEach(function(element, index) {
-					annotations[index].list = values[index];
-				})
-			  	return resolve(annotations);
-			});
-		});
-	},
+  createAllLists (objectList, annotationDOMElement) {
+    const completeList = document.createElement('div')
 
-	createAllLists: function(objectList, annotationDOMElement) {
-		var that = this;
-		var completeList = document.createElement('div');
+    objectList.forEach(element => {
+      if (element.list.length) {
+        const title = document.createElement('h3')
 
-		objectList.forEach(function(element) {
-			if(element.list.length) {
-				var title = document.createElement('h3');
-			
-				title.classList.add('capitalize');
-				title.innerHTML = element.label;
+        title.classList.add('capitalize')
+        title.innerHTML = element.label
 
-				completeList.appendChild(title);
-				completeList.appendChild(that.createAnnotatorList(element));
-			}
-		});
+        completeList.appendChild(title)
+        completeList.appendChild(this.createAnnotatorList(element))
+      }
+    })
 
-		annotationDOMElement.innerHTML = '';
-		annotationDOMElement.appendChild(completeList);		
-	},
+    annotationDOMElement.innerHTML = ''
+    annotationDOMElement.appendChild(completeList)
+  },
 
-	createAnnotatorList: function(annotatorList) {
-		var list = document.createElement('ul');
+  createAnnotatorList (annotatorList) {
+    const list = document.createElement('ul')
 
-		annotatorList.list.forEach(function(element) {
-			var li = document.createElement('li');
-			li.innerHTML = element.object_tag;
-			list.appendChild(li);
-		});
+    annotatorList.list.forEach(element => {
+      const li = document.createElement('li')
 
-		return list;
-	},
+      li.innerHTML = element.object_tag
+      list.appendChild(li)
+    })
 
-	makeAjaxCall: function(type, url, data) {
-		return new Promise(function(resolve, reject) {
-			$.ajax({
-			    url: url,
-			    type: type,
-			    data: data,
-			    dataType: 'json',
-			    success: function(data) {
-			        return resolve(data);
-			    },
-			    complete: function() {
-			    	return resolve([]);
-			    }
-			});
-		});
-	},
-});
+    return list
+  },
 
-$(document).on('turbolinks:load', function() {
-  if($(".annotations_summary_list").length) {
-  	TW.views.annotations.init();
+  getAnnotationList (url) {
+    return new Promise((resolve, reject) => {
+      fetch(url, {
+        method: 'GET'
+      })
+        .then(response => response.json())
+        .then(data => {
+          resolve(data)
+        }).catch(error => {
+          reject(error)
+        })
+    })
   }
-});
+})
+
+document.addEventListener('turbolinks:load', () => {
+  if (document.querySelectorAll('.annotations_summary_list').length) {
+    TW.views.annotations.removeEvents()
+    TW.views.annotations.init()
+  }
+})

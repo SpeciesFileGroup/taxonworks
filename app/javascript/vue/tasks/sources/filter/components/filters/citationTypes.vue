@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Citations type</h2>
+    <h3>Citations type</h3>
     <ul class="no_bullets">
       <li v-for="type in types">
         <label class="capitalize">
@@ -23,33 +23,40 @@ import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     citationTypes: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       types: []
     }
   },
+
   mounted () {
     GetCitationTypes().then(response => {
       this.types = response.body
     })
+
     const urlParams = URLParamsToJSON(location.href)
     this.citationTypes = urlParams.citation_object_type ? urlParams.citation_object_type : []
   },
+
   methods: {
     decamelize: Decamelize
   }

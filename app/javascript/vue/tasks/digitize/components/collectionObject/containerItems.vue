@@ -6,10 +6,9 @@
           :disabled="!collectionObjects.length"
           type="button"
           @click="addToContainer"
-          v-shortkey="[getMacKey(), 'p']"
-          @shortkey="addToContainer"
-          class="button normal-input button-default separate-bottom">Add to container
-        </button>      
+          v-hotkey="shortcuts"
+          class="button normal-input button-default">Add to container
+        </button>
       </div>
     </h2>
     <table-collection-objects/>
@@ -22,40 +21,47 @@ import TableCollectionObjects from '../collectionObject/tableCollectionObjects'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions'
-import GetMacKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getPlatformKey.js'
 
 export default {
-  components: {
-    TableCollectionObjects,
-  },
+  components: { TableCollectionObjects },
+
   computed: {
     collectionObject () {
       return this.$store.getters[GetterNames.GetCollectionObject]
     },
-    collectionObjects() {
+
+    collectionObjects () {
       return this.$store.getters[GetterNames.GetCollectionObjects]
     },
+
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+p`] = this.addToContainer
+
+      return keys
+    }
   },
+
   methods: {
-    newDigitalization() {
+    newDigitalization () {
       this.$store.dispatch(ActionNames.NewCollectionObject)
       this.$store.dispatch(ActionNames.NewIdentifier)
-      this.$store.commit(MutationNames.NewTaxonDetermination)
-      this.$store.commit(MutationNames.SetTaxonDeterminations, [])
+      this.$store.dispatch(ActionNames.ResetTaxonDetermination)
     },
-    addToContainer() {
-      if(!this.collectionObjects.length) return
+
+    addToContainer () {
+      if (!this.collectionObjects.length) return
       this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
-        let that = this
         this.$store.dispatch(ActionNames.AddToContainer, this.collectionObject).then(() => {
-          that.newDigitalization()
+          this.newDigitalization()
           this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
             this.$store.dispatch(ActionNames.AddToContainer, this.collectionObject)
           })
         })
       })
-    },
-    getMacKey: GetMacKey,
+    }
   }
 }
 </script>

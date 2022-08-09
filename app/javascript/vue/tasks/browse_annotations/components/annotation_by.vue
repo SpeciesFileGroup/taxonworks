@@ -4,49 +4,61 @@
       v-for="member in membersList"
       :key="member.id"
       type="button"
-      :class="{ 'button-default': !(selectedList.hasOwnProperty(member.id))}"
+      :class="{ 'button-default': !selectedMembers.includes(member.user_id) }"
       class="button normal-input biocuration-toggle-button"
       @click="selectMember(member)"
-      v-html="member.user.name"/>
+      v-html="member.user.name"
+    />
   </div>
 </template>
 
 <script>
-  import AjaxCall from 'helpers/ajaxCall'
+import { ProjectMember } from 'routes/endpoints'
 
-  export default {
-    props: {
-      value: {
-        type: Object,
-        required: true
+export default {
+  props: {
+    modelValue: {
+      type: Object,
+      required: true
+    }
+  },
+
+  emits: ['update:modelValue'],
+
+  data () {
+    return {
+      membersList: []
+    }
+  },
+
+  computed: {
+    selectedMembers: {
+      get () {
+        return this.modelValue
+      },
+
+      set (value) {
+        this.$emits('update:modelValue', value)
       }
-    },
-    data: function () {
-      return {
-        membersList: [],
-        selectedList: {}
-      }
-    },
-    watch: {
-      value(newVal) {
-        this.selectedList = newVal
-      }
-    },
-    mounted: function () {
-      AjaxCall('get', '/project_members.json').then(response => {
-        this.membersList = response.body
-      })
-    },
-    methods: {
-      selectMember(item) {
-        if (this.selectedList.hasOwnProperty(item.id)) {
-          this.$delete(this.selectedList, item.id)
-        }
-        else {
-          this.$set(this.selectedList, item.id, item);
-        }
-        this.$emit('input', this.selectedList);
+    }
+  },
+
+  created () {
+    ProjectMember.all().then(response => {
+      this.membersList = response.body
+    })
+  },
+
+  methods: {
+    selectMember (item) {
+      const index = this.selectedMembers.findIndex(memberId => memberId === item.user_id)
+
+      if (index > -1) {
+        this.selectedMembers.splice(index, 1)
+      } else {
+        this.selectedMembers.push(item.user_id)
       }
     }
   }
+}
 </script>

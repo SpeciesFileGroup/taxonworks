@@ -6,26 +6,30 @@
         v-model="authors"
         :options="['someone else']"
         role-type="AttributionCreator"
-        title="Author/Creator"/>
+        title="Author/Creator"
+      />
       <person-box
         class="separate-left separate-right panel-section"
         v-model="editors"
         :options="['someone else']"
         role-type="AttributionEditor"
-        title="Editor"/>
+        title="Editor"
+      />
       <person-box
         class="separate-left panel-section"
         v-model="owners"
         role-type="AttributionOwner"
-        title="Owner"/>
+        title="Owner"
+      />
     </div>
     <div class="flexbox">
-      <licenses-section class="separate-right panel-section"/>
+      <licenses-section class="separate-right panel-section" />
       <source-component class="separate-left separate-right" />
       <copyright-holder
         class="separate-left"
         role-type="AttributionCopyrightHolder"
-        title="Copyright holder"/>
+        title="Copyright holder"
+      />
     </div>
   </div>
 </template>
@@ -39,7 +43,6 @@ import { GetterNames } from '../store/getters/getters.js'
 import { MutationNames } from '../store/mutations/mutations.js'
 import SourceComponent from './source'
 
-
 export default {
   components: {
     PersonBox,
@@ -47,28 +50,31 @@ export default {
     CopyrightHolder,
     SourceComponent
   },
+
   computed: {
     owners: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetPeople].owners
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetOwners, value)
       }
     },
+
     authors: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetPeople].authors
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetAuthors, value)
       }
     },
+
     editors: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetPeople].editors
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetEditors, value)
       }
     }

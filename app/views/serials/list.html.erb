@@ -9,6 +9,7 @@
     <%= fancy_th_tag(name: 'Primary language') -%>
     <%= fancy_th_tag(name: 'First year of issue') -%>
     <%= fancy_th_tag(name: 'Last year of issue') -%>
+    <%= fancy_th_tag(name: 'Electronic only') -%>
     <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
     <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
@@ -16,13 +17,14 @@
 
   <tbody>
   <% @serials.each do |serial| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= serial.name %></td>
           <td><%= serial.publisher %></td>
           <td><%= serial.place_published %></td>
           <td><%= serial.primary_language_id %></td>
           <td><%= serial.first_year_of_issue %></td>
           <td><%= serial.last_year_of_issue %></td>
+          <td><%= serial.is_electronic_only %></td>
           <%= fancy_metadata_cells_tag(serial) -%>
       <% end %>
   <% end %>

@@ -5,17 +5,16 @@
     tag="ul">
     <li
       v-for="(item, index) in list"
-      :key="setKey ? item[setKey] : item.hasOwnProperty('id') ? item.id : JSON.stringify(item)"
+      :key="setKey ? item[setKey] : item.id || JSON.stringify(item)"
       class="list-complete-item flex-separate middle"
       :class="{ 'highlight': checkHighlight(item) }">
       <span>
+        <soft-validation
+          v-if="validations"
+          :global-id="item.global_id"/>
         <span
           class="list-item"
           v-html="displayName(item)"/>
-        <soft-validation
-          v-if="validations"
-          class="margin-small-left"
-          :global-id="item.global_id"/>
       </span>
       <div class="list-controls">
         <slot
@@ -25,7 +24,12 @@
           v-if="download"
           class="btn-download circle-button"
           :href="getPropertyValue(item, download)"
-          download/>
+          download
+        />
+        <pdf-button
+          v-if="pdf && pdfExist(item)"
+          :pdf="pdfExist(item)"
+        />
         <radial-annotator
           v-if="annotator"
           :global-id="item.global_id"/>
@@ -40,6 +44,7 @@
         <span
           v-if="remove"
           class="circle-button btn-delete"
+          :class="{ 'button-default': softDelete }"
           @click="deleteItem(item, index)">Remove
         </span>
       </div>
@@ -51,12 +56,15 @@
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/navigation/radial.vue'
 import SoftValidation from 'components/soft_validations/objectValidation.vue'
+import PdfButton from 'components/pdfButton.vue'
 
 export default {
   components: {
     RadialAnnotator,
-    SoftValidation
+    SoftValidation,
+    PdfButton
   },
+
   props: {
     list: {
       type: Array,
@@ -68,7 +76,7 @@ export default {
     },
     label: {
       type: [String, Array],
-      required: true
+      default: undefined
     },
     setKey: {
       type: String,
@@ -101,14 +109,27 @@ export default {
     validations: {
       type: Boolean,
       default: false
+    },
+    softDelete: {
+      type: Boolean,
+      default: false
+    },
+    pdf: {
+      type: Boolean,
+      default: false
     }
   },
-  beforeCreate() {
+
+  emits: ['delete', 'edit', 'deleteIndex'],
+
+  beforeCreate () {
     this.$options.components['RadialAnnotator'] = RadialAnnotator
     this.$options.components['RadialObject'] = RadialObject
   },
+
   methods: {
     displayName (item) {
+      if (!this.label) return item
       if (typeof this.label === 'string') {
         return item[this.label]
       } else {
@@ -119,6 +140,7 @@ export default {
         return tmp
       }
     },
+
     checkHighlight (item) {
       if (this.highlight) {
         if (this.highlight.key) {
@@ -129,7 +151,8 @@ export default {
       }
       return false
     },
-    deleteItem(item, index) {
+
+    deleteItem (item, index) {
       if(this.deleteWarning) {
         if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
           this.$emit('delete', item)
@@ -141,7 +164,8 @@ export default {
         this.$emit('deleteIndex', index)
       }
     },
-    getPropertyValue(item, stringPath) {
+  
+    getPropertyValue (item, stringPath) {
       let keys = stringPath.split('.')
       if(keys.length === 1) {
         return item[stringPath]
@@ -153,6 +177,17 @@ export default {
         })
         return value
       }
+    },
+
+    pdfExist(item) {
+      if (item.hasOwnProperty('target_document')) {
+        return item.target_document
+      }
+      if (item.hasOwnProperty('document')) {
+        return item.document
+      }
+
+      return 
     }
   }
 }
@@ -182,15 +217,14 @@ export default {
   }
 
   .table-entrys-list {
-    overflow-y: scroll;
     padding: 0px;
     position: relative;
 
     li {
       margin: 0px;
-      padding: 6px;
+      padding: 1em 0;
       border: 0px;
-      border-top: 1px solid #f5f5f5;
+      border-bottom: 1px solid #f5f5f5;
     }
   }
 

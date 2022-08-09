@@ -36,7 +36,7 @@ class AssertedDistributionsController < ApplicationController
 
   # GET /asserted_distributions/1/edit
   def edit
-    @asserted_distribution.origin_citation.source = Source.new if !@asserted_distribution.origin_citation.source
+    @asserted_distribution.source = Source.new if !@asserted_distribution.source
   end
 
   # POST /asserted_distributions
@@ -72,11 +72,16 @@ class AssertedDistributionsController < ApplicationController
   # DELETE /asserted_distributions/1.json
   def destroy
     @asserted_distribution.mark_citations_for_destruction
-    @asserted_distribution.destroy!
 
+    @asserted_distribution.destroy
     respond_to do |format|
-      format.html { redirect_to asserted_distributions_url, notice: 'Asserted distribution was successfully destroyed.' }
-      format.json { head :no_content }
+      if @asserted_distribution.destroyed?
+        format.html { destroy_redirect @asserted_distribution, notice: 'Asserted distribution was successfully destroyed.' }
+        format.json { head :no_content}
+      else
+        format.html { destroy_redirect @asserted_distribution, notice: 'Asserted distribution was not destroyed, ' + @asserted_distribution.errors.full_messages.join('; ') }
+        format.json { render json: @asserted_distribution.errors, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -91,7 +96,7 @@ class AssertedDistributionsController < ApplicationController
   # TODO: deprecate
   def search
     if params[:id].blank?
-      redirect_to asserted_distributions_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to asserted_distributions_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to asserted_distribution_path(params[:id])
     end

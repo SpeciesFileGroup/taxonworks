@@ -29,7 +29,7 @@ RSpec.describe DownloadsController, type: :controller, group: [:downloads] do
   }
 
   # TODO: Avoid having to merge file_path when factory already provides this
-  let(:valid_attributes) { 
+  let(:valid_attributes) {
     strip_housekeeping_attributes(FactoryBot.build(:valid_download).attributes.merge({ source_file_path: Rails.root.join('spec/files/downloads/Sample.zip') }))
   }
   let(:valid_attributes_no_file) {
@@ -95,19 +95,6 @@ RSpec.describe DownloadsController, type: :controller, group: [:downloads] do
     end
   end
 
-  describe "DELETE #destroy" do
-    it "destroys the requested download" do
-      download = Download.create! valid_attributes
-      expect {
-        delete :destroy, params: {id: download.to_param}, session: valid_session
-      }.to change(Download, :count).by(-1)
-    end
-
-    it "redirects to the downloads list" do
-      download = Download.create! valid_attributes
-      delete :destroy, params: {id: download.to_param}, session: valid_session
-      expect(response).to redirect_to(downloads_url)
-    end
-  end
+  include_examples 'DELETE #destroy', Download
 
 end

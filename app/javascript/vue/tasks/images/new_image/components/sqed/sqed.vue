@@ -35,7 +35,7 @@
             :style="{ 'background-color': sqed_depiction_attributes.boundary_color }"
             :class="{ hasBorder: sqed_depiction_attributes.has_border }"
           />
-          <div 
+          <div
             v-else
             class="panel horizontal-center-content middle pattern-box">
             <h3>Choose a pattern</h3>
@@ -75,15 +75,18 @@ import HorizontalOffsetCrossLayout from './layouts/horizontal_offset_cross'
 import VerticalOffsetCrossLayout from './layouts/vertical_offset_cross'
 import SevenSlotLayout from './layouts/seven_slot'
 import LepStageLayout from './layouts/lep_stage'
+import LepStage2Layout from './layouts/lep_stage2'
+import TLayout from './layouts/t.vue'
+import InvertedTLayout from './layouts/t_inverted.vue'
 import VerticalSplitLayout from './layouts/vertical_split'
 import SpinnerComponent from 'components/spinner'
 
-import TagsComponent from '../tags'
+import TagsComponent from '../sqed/tags'
 import DataAttributes from '../dataAttributes'
 
-import { GetSqedMetadata } from '../../request/resources.js'
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
+import { SqedDepiction } from 'routes/endpoints'
 
 export default {
   components: {
@@ -101,65 +104,75 @@ export default {
     VerticalSplitLayout,
     SpinnerComponent,
     TagsComponent,
-    DataAttributes
+    DataAttributes,
+    LepStage2Layout,
+    TLayout,
+    InvertedTLayout
   },
+
   computed: {
-    componentExist() {
-      return this.$options.components[this.layoutName] ? true : false
+    componentExist () {
+      return !!this.$options.components[this.layoutName]
     },
-    disabledSection() {
-      let objects = this.$store.getters[GetterNames.GetObjectsForDepictions]
-      return objects.length > 1 || objects.find(item => { return item.base_class != 'CollectionObject' })
+
+    disabledSection () {
+      const objects = this.$store.getters[GetterNames.GetObjectsForDepictions]
+      return objects.length > 1 || objects.find(item => item.base_class !== 'CollectionObject')
     },
-    layoutName() {
-      if(this.sqed_depiction_attributes.layout) {
-        return `${this.sqed_depiction_attributes.layout.toPascalCase().replace(/_/g, '')}Layout`
-      }
-      return undefined
+
+    layoutName () {
+      return this.sqed_depiction_attributes.layout
+        ? `${this.sqed_depiction_attributes.layout.toPascalCase().replace(/_/g, '')}Layout`
+        : undefined
     },
-    extractionPatterns() {
-      let exist = this.metadata.hasOwnProperty('extraction_patterns')
-      return (exist ? this.metadata.extraction_patterns : {})
+
+    extractionPatterns () {
+      return this.metadata?.extraction_patterns || {}
     },
-    colors() {
-      let exist = this.metadata.hasOwnProperty('boundary_colors')
-      return (exist ? this.metadata.boundary_colors : [])
+
+    colors () {
+      return this.metadata?.boundary_colors || []
     },
+
     pattern: {
-      get() {
+      get () {
         return this.sqed_depiction_attributes
       },
-      set(value) {
+      set (value) {
         value.boundary_finder = 'Sqed::BoundaryFinder::ColorLineFinder'
         this.sqed_depiction_attributes = Object.assign(this.sqed_depiction_attributes, value)
       }
     },
+
     sqed_depiction_attributes: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetSqed]
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetSqed, value)
       }
     }
   },
-  data() {
+
+  data () {
     return {
-      metadata: {},
+      metadata: {}
     }
   },
-  mounted() {
-    GetSqedMetadata().then(response => {
+
+  created () {
+    SqedDepiction.metadata().then(response => {
       this.metadata = response.body
     })
   },
+
   methods: {
-    resetSqed() {
+    resetSqed () {
       this.$store.commit(MutationNames.SetSqed, {
         id: undefined,
         boundary_color: undefined,
         boundary_finder: undefined,
-        has_border: false, 
+        has_border: false,
         layout: undefined,
         metadata_map: []
       })

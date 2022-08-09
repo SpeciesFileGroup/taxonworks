@@ -17,7 +17,7 @@
     <new-combination
       class="separate-top"
       ref="combination"
-      @save="resetInput(); addToList($event)"
+      @save="addToList"
       @onSearchStart="searching = true"
       @onSearchEnd="searching = false"
       :accept-taxon-ids="accept_taxon_name_ids"
@@ -36,8 +36,9 @@ import NewCombination from './components/newCombination.vue'
 import InputSearch from './components/inputSearch.vue'
 import DisplayList from './components/displayList.vue'
 import Spinner from 'components/spinner.vue'
-
-import { GetLastCombinations, DestroyCombination, GetCombination, GetTaxonName } from './request/resources'
+import { addToArray } from 'helpers/arrays.js'
+import { Combination, TaxonName } from 'routes/endpoints'
+import { EXTEND_PARAMS } from './constants/extend'
 
 export default {
   components: {
@@ -46,7 +47,8 @@ export default {
     InputSearch,
     Spinner
   },
-  data: function () {
+
+  data () {
     return {
       searching: false,
       taxon: null,
@@ -55,71 +57,71 @@ export default {
       accept_taxon_name_ids: []
     }
   },
-  mounted: function () {
+
+  created () {
     this.loadCombination()
-    TW.workbench.keyboard.createLegend(((navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') + '+' + 's'), 'Save new combination', 'New combination')
-    GetLastCombinations().then(response => {
+
+    Combination.all({ ...EXTEND_PARAMS }).then(response => {
       this.combinations = response.body
     })
+
+    TW.workbench.keyboard.createLegend(((navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') + '+' + 's'), 'Save new combination', 'New combination')
   },
+
   methods: {
     setTaxon (event) {
       this.accept_taxon_name_ids = []
       this.taxon = event
     },
+
     resetInput () {
       this.$refs.inputSearch.reset()
       this.$refs.inputSearch.focusInput()
     },
+
     editCombination (combination) {
-      let keys = Object.keys(combination.protonyms)
-      this.accept_taxon_name_ids = keys.map(key => { return combination.protonyms[key].id })
-      this.$refs.combination.editCombination(combination.name_string, combination)
+      const keys = Object.keys(combination.protonyms)
+
+      this.accept_taxon_name_ids = keys.map(key => combination.protonyms[key].id)
+      this.$refs.combination.editCombination(combination.object_label, combination)
       this.$refs.inputSearch.disabledButton(true)
     },
-    addToList (combination) {
-      let position = this.combinations.findIndex((item) => { return combination.id == item.id })
 
-      if (position > -1) {
-        this.$set(this.combinations, position, combination)
-      } else {
-        this.combinations.push(combination)
-      }
+    addToList (combination) {
+      this.resetInput()
+      addToArray(this.combinations, combination)
     },
+
     updatePlacement (combination) {
-      this.combinations[this.combinations.findIndex((item) => {
-        return item.id == combination.id
-      })].placement.same = true
+      this.combinations[this.combinations.findIndex(item => item.id === combination.id)].placement.same = true
     },
+
     deleteCombination (combination) {
-      DestroyCombination(combination.id).then(() => {
-        this.combinations.splice(this.combinations.findIndex((item) => {
-          return item.id == combination.id
-        }), 1)
+      Combination.destroy(combination.id).then(() => {
+        this.combinations.splice(this.combinations.findIndex(item => item.id === combination.id), 1)
         TW.workbench.alert.create('Combination was successfully deleted.', 'notice')
       })
     },
+
     loadCombination () {
-      let urlParams = new URLSearchParams(window.location.search)
-      let combinationId = urlParams.get('id') || urlParams.get('taxon_name_id') || urlParams.get('combination_id')
+      const urlParams = new URLSearchParams(window.location.search)
+      const combinationId = urlParams.get('id') || urlParams.get('taxon_name_id') || urlParams.get('combination_id')
 
       if (/^\d+$/.test(combinationId)) {
         this.loading = true
-        GetCombination(combinationId).then(response => {
-          let keys = Object.keys(response.body.protonyms)
-          this.accept_taxon_name_ids = keys.map(key => { return response.body.protonyms[key].id })
+        Combination.find(combinationId, { ...EXTEND_PARAMS }).then(response => {
+          const protonyms = Object.values(response.body.protonyms)
+          this.accept_taxon_name_ids = protonyms.map(taxon => taxon.id)
           this.editCombination(response.body)
           this.loading = false
-        }, () => {
+        }, _ => {
           history.pushState(null, null, window.location.href.split('?')[0])
-          GetTaxonName(combinationId).then(response => {
+          TaxonName.find(combinationId, { ...EXTEND_PARAMS }).then(response => {
             this.$refs.inputSearch.processString(`${response.body.parent.name} ${response.body.name}`)
             this.accept_taxon_name_ids.push(response.body.id)
-            this.loading = false
-          }, () => {
+          }).finally(_ => {
             this.loading = false
           })
-          
         })
       }
     }

@@ -1,19 +1,18 @@
 <template>
   <div v-if="taxonName">
-    <h2>Select ranks</h2>
+    <h3>Select ranks</h3>
     <template
-      v-for="(group, key, index) in ranks[taxonName.nomenclatural_code]">
+      v-for="(group, key, index) in ranks[taxonName.nomenclatural_code]"
+      :key="key">
       <div
         v-if="index >= rankGroup.groupIndex"
-        class="separate-top capitalize"
-        :key="key">
+        class="separate-top capitalize">
         <ul class="no_bullets">
-          <template v-for="(rank, rIndex) in group">
-            <template
-              v-if="!(index == rankGroup.groupIndex && rankGroup.rankIndex > rIndex)">
-              <li
-                :key="rank.name"
-                v-if="(typicalUse ? (rank.typical_use) : true)">
+          <template
+            v-for="(rank, rIndex) in group"
+            :key="rank.name">
+            <template v-if="!(index == rankGroup.groupIndex && rankGroup.rankIndex > rIndex)">
+              <li v-if="(typicalUse ? rank.typical_use : true)">
                 <label>
                   <input
                     v-model="ranksSelected"
@@ -38,7 +37,7 @@
 
 <script>
 
-import { LoadRanks } from '../../request/resources'
+import { TaxonName } from 'routes/endpoints'
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
 
@@ -48,18 +47,18 @@ export default {
       type: Object,
       default: undefined
     },
-    value: {
+    modelValue: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
   computed: {
     ranksSelected: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', this.orderRanks(value))
+        this.$emit('update:modelValue', this.orderRanks(value))
       }
     },
     ranks: {
@@ -75,16 +74,14 @@ export default {
       let group
       let rankIndex
       for (const groupKey in groups) {
-        const index = groups[groupKey].findIndex(item => {
-          return item.name === this.taxonName.rank
-        })
+        const index = groups[groupKey].findIndex(item => item.name === this.taxonName.rank)
         if (index >= 0) {
           rankIndex = index
           group = groupKey
           break
         }
       }
-      return { group: group, groupIndex: Object.keys(groups).findIndex(item => { return item === group }), rankIndex: rankIndex }
+      return { group: group, groupIndex: Object.keys(groups).findIndex(item => item === group), rankIndex: rankIndex }
     }
   },
   data () {
@@ -93,7 +90,7 @@ export default {
     }
   },
   mounted () {
-    LoadRanks().then(response => {
+    TaxonName.ranks().then(response => {
       this.ranks = response.body
     })
   },

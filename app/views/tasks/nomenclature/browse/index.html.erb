@@ -1,4 +1,4 @@
-<h1 class="task_header"> Browse nomenclature </h1>
+<h1 class="task_header"> Browse nomenclature and classification </h1>
 
 <div id="browse-view" data-taxon-id="<%= @taxon_name.id %>">
   <div class="panel content">
@@ -6,11 +6,11 @@
 
       <div class="middle">
         <div
-          class="separate-right"
-          id="vue-browse-nomenclature-search"></div>
+            class="separate-right"
+            id="vue-browse-nomenclature-search"></div>
 
         <div class="separate-left separate-right">
-        <%= render('/taxon_names/breadcrumb_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
+          <%= render('/taxon_names/breadcrumb_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
         </div>
       </div>
 
@@ -18,7 +18,7 @@
         <span class="margin-medium-right">OTU</span>
         <div class="square-brackets">
           <ul class="no_bullets context-menu">
-            <li><%= otus_redirect(@taxon_name) %></li>
+            <li><%= browse_otu_link(@taxon_name) %></li>
             <li><%= otus_radial_disambiguate(@taxon_name) %></li>
           </ul>
         </div>
@@ -32,14 +32,13 @@
           </li>
           <li><%= radial_navigation_tag(@taxon_name) %></li>
         </ul>
-      </span>    
+      </span>
     </div>
   </div>
 
   <div id="show" class="panels-container">
     <div class="item item1 nav-column">
       <div class="panel separate-right">
-        <%# render('/taxon_names/classification_navigator', taxon_name: @taxon_name) -%>
         <%= render('/taxon_names/parent_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
       </div>
     </div>
@@ -48,60 +47,62 @@
       <div class="flexbox separate-bottom">
         <div class="panel separate-left separate-right">
           <div>
-            <div id="browse-nomenclature-taxon-name" class="content subtitle filter middle"> 
-            <h3 class="item center_text">
-              <%= content_tag(:span, rank_tag(@taxon_name), class: :subtle) -%>
-              <%= content_tag(:span, full_taxon_name_tag(@taxon_name), class: :name) -%>
-            </h3>
+            <div id="browse-nomenclature-taxon-name" class="content subtitle filter middle">
+              <h3 class="item center_text">
+                <%= tag.span(rank_tag(@taxon_name), class: :subtle) -%>
+                <%= tag.span(full_taxon_name_tag(@taxon_name), class: :name) -%>
+                <%= tag.span(taxon_name_inferred_combination_tag(@taxon_name), class: :subtle) -%>
+              </h3>
             </div>
             <div class="horizontal-center-content filter">
               <div id="filterBrowse_button" class="circle-button open" title="Reveal metadata and filter timeline"></div>
             </div>
             <%= render "filter" %>
             <div class="content">
-              <div class="attributes"> 
+              <div class="attributes">
                 <h3>History (<%= @data.ordered_by_nomenclature_date.length  -%>)</h3>
                 <ul class="taxonomic_history">
                   <% @data.ordered_by_nomenclature_date.each do |c| -%>
-                    <%= nomenclature_catalog_li_tag(c, @data.object, :browse_nomenclature_task_path) -%> 
+                    <%= nomenclature_catalog_li_tag(c, @data.object, :browse_nomenclature_task_path) -%>
                   <% end %>
                 </ul>
                 <br/>
-                <% if @data.sources.any? %> 
+                <% if @data.sources.any? %>
                   <%= content_tag(:h3, 'References')-%>
                   <ul class="citations">
                     <% @data.sources.each do |s| -%>
                       <%= content_tag(:li, source_nomenclature_tag(s, @data.topics_for_source(s)), class: 'horizontal-left-content') -%>
-                    <% end %> 
-                  </ul>                          
+                    <% end %>
+                  </ul>
                 <% end %>
               </div>
             </div>
           </div>
         </div>
         <div id="third-column">
-          <div class="flex-wrap-row"> 
+          <div class="flex-wrap-row margin-small-left">
             <%= render "summary" %>
             <%= render "soft_validation" %>
-            <div class="panel content fullSize separate-left">
+            <%= annotations_summary_tag(@taxon_name) %>
+            <div class="panel content fullSize">
               <div class="attributes">
-                <%= render(partial: '/shared/data/all/show/housekeeping', locals: {object: @taxon_name}) -%> 
+                <%= render(partial: '/shared/data/all/show/housekeeping', locals: {object: @taxon_name}) -%>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-    <% if @taxon_name.depictions.any? %>
-      <div>
-        <div id="depiction-panel" class="panel content separate-left">
-          <h2> Depictions </h2>
-          <div class="horizontal-left-content flexbox"> 
-          <%= thumb_list_tag(@taxon_name) -%>
+      <% if @taxon_name.depictions.any? %>
+        <div>
+          <div id="depiction-panel" class="panel content separate-left">
+            <h2> Depictions </h2>
+            <div class="horizontal-left-content flexbox">
+              <%= thumb_list_tag(@taxon_name) -%>
+            </div>
           </div>
         </div>
-      </div> 
-    <% end %>
+      <% end %>
 
     </div>
 

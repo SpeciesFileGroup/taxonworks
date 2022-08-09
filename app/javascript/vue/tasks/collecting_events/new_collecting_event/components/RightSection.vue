@@ -2,8 +2,8 @@
   <div class="right-section">
     <div ref="section">
       <soft-validation
-        :soft-validation="softValidation"
-        class="soft-validation-box margin-medium-top "/>
+        :validations="softValidation"
+        class="soft-validation-box margin-medium-top"/>
       <matches-component
         class="margin-medium-top"
         @select="$emit('select', $event)"
@@ -14,27 +14,33 @@
 
 <script>
 
-import SoftValidation from './SoftValidation'
+import SoftValidation from 'components/soft_validations/panel'
+import { GetterNames } from '../store/getters/getters'
 import MatchesComponent from './Matches'
 import extendCE from './mixins/extendCE'
 
 export default {
   mixins: [extendCE],
+
   components: {
     SoftValidation,
     MatchesComponent
   },
-  props: {
-    softValidation: {
-      type: Array,
-      default: () => []
+
+  emits: ['select'],
+
+  computed: {
+    softValidation () {
+      return this.$store.getters[GetterNames.GetSoftValidations]
     }
   },
+
   mounted () {
     window.addEventListener('scroll', this.scrollBox)
   },
+
   methods: {
-    scrollBox (event) {
+    scrollBox () {
       const element = this.$el
       if (element) {
         if (element.offsetTop < document.documentElement.scrollTop + 50) {

@@ -1,50 +1,6 @@
-FROM phusion/passenger-ruby27:latest AS base
+FROM sfgrp/taxonworks-base:latest AS base
 ARG BUNDLER_WORKERS=1
-
-# From Phusion
-ENV HOME /root
-RUN rm /etc/nginx/sites-enabled/default
-ADD config/docker/nginx/gzip_max.conf /etc/nginx/conf.d/gzip_max.conf
-
-# Update repos
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
-
-# Until we move to update Ubuntu
-RUN apt install wget
-RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main' >> /etc/apt/sources.list.d/pgdg.list
-RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-
-# TaxonWorks dependancies
-RUN apt-get update && \
-      apt-get install -y locales software-properties-common \ 
-      postgresql-client-12 \
-      git gcc build-essential \
-      libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev libcurl4-openssl-dev \
-      pkg-config imagemagick libmagickcore-dev libmagickwand-dev poppler-utils \
-      libpq-dev libproj-dev libgeos-dev libgeos++-dev \
-      tesseract-ocr \
-      cmake \
-      zip \
-      nodejs \
-      redis-server libhiredis-dev && \
-      apt clean && \ 
-      rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-RUN locale-gen en_US.UTF-8
-
-# Set up ImageMagick
-RUN sed -i 's/name="disk" value="1GiB"/name="disk" value="8GiB"/' /etc/ImageMagick-6/policy.xml \
-&&  identify -list resource | grep Disk | grep 8GiB # Confirm the setting is active
-
-
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
 ENV RAILS_ENV production
-
-RUN echo 'gem: --no-rdoc --no-ri >> "$HOME/.gemrc"'
-RUN gem update --system
-RUN gem install bundler
 
 ADD package.json /app/
 ADD package-lock.json /app/
@@ -55,7 +11,8 @@ ADD Gemfile.lock /app/
 WORKDIR /app
 
 RUN bundle config --local build.sassc --disable-march-tune-native # https://github.com/sass/sassc-ruby/issues/146
-RUN bundle install -j$BUNDLER_WORKERS --without=development test
+RUN bundle config set --local without 'development test'
+RUN bundle install -j$BUNDLER_WORKERS
 RUN npm install
 
 COPY . /app

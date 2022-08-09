@@ -13,7 +13,10 @@ class Hybrid < TaxonName
 
   validates_presence_of :rank_class, message: 'is a required field'
 
-  soft_validate(:sv_hybrid_name_relationships, set: :hybrid_name_relationships, has_fix: false)
+  soft_validate(:sv_hybrid_name_relationships,
+                set: :hybrid_name_relationships,
+                name: 'Hybrid taxon relationships',
+                description: 'Hybrid should be linked to at least two non hybrid taxa.' )
 
   accepts_nested_attributes_for :hybrid_relationships
 
@@ -26,6 +29,11 @@ class Hybrid < TaxonName
   def get_full_name
     hr = hybrid_relationships.reload
     hr.empty? ? '[HYBRID TAXA NOT SELECTED]' : hr.collect{|i| i.subject_taxon_name.cached}.sort.join(' x ')
+  end
+
+  # Overridden here, not applicable to this class
+  def set_cached_is_valid
+    true
   end
 
   # Overridden here, not applicable to this class

@@ -26,7 +26,7 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 
 export default {
   components: {
@@ -71,7 +71,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  /deep/ .vue-autocomplete-input {
+  :deep(.vue-autocomplete-input) {
     width: 100%;
   }
   .card-new {

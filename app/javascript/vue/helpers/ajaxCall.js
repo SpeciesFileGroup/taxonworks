@@ -2,6 +2,15 @@
 import Axios from 'axios'
 import { capitalize } from './strings'
 
+const REQUEST_TYPE = {
+  Get: 'get',
+  Patch: 'patch',
+  Post: 'post',
+  Put: 'put',
+  Delete: 'delete'
+}
+const CancelToken = Axios.CancelToken
+const previousTokenRequests = []
 const axios = Axios.create({
   headers: {
     'Content-Type': 'application/json',
@@ -9,35 +18,67 @@ const axios = Axios.create({
   }
 })
 
-const CancelToken = Axios.CancelToken
-const previousTokenRequests = []
-
-const ajaxCall = function (type, url, data = {}, config = {}) {
+const ajaxCall = (type, url, data = {}, config = {}) => {
+  const cancelFunction = config.cancelRequest || data.cancelRequest
   const requestId = config.requestId || data.requestId
-  axios.defaults.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+  const CSRFToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+  const defaultHeaders = { 'X-CSRF-Token': CSRFToken }
+
+  if (
+    type === REQUEST_TYPE.Get ||
+    type === REQUEST_TYPE.Delete) {
+    data = {
+      headers: defaultHeaders,
+      ...data
+    }
+  } else {
+    config = {
+      headers: defaultHeaders,
+      ...config
+    }
+  }
 
   if (requestId) {
     const source = CancelToken.source()
+    const previousToken = previousTokenRequests[requestId]
+
     Object.assign(config, { cancelToken: source.token })
 
-    if (previousTokenRequests[requestId]) { previousTokenRequests[requestId].cancel() }
+    if (previousToken) {
+      previousToken.cancel()
+    }
+
     previousTokenRequests[requestId] = source
   }
 
-  return new Promise(function (resolve, reject) {
+  if (cancelFunction) {
+    const cancelToken = { cancelToken: new CancelToken(cancelFunction) }
+
+    if (
+      type === REQUEST_TYPE.Get ||
+      type === REQUEST_TYPE.Delete) {
+      Object.assign(data, cancelToken)
+    } else {
+      Object.assign(config, cancelToken)
+    }
+
+    delete config.cancelRequest
+    delete data.cancelRequest
+  }
+
+  return new Promise((resolve, reject) => {
     axios[type](url, data, config).then(response => {
-      response.body = response.data
-      delete response.data
-      if (process.env.NODE_ENV !== 'production') {
-        console.log(response)
+      response = setDataProperty(response)
+      printDevelopmentResponse(response)
+
+      resolve(response)
+    }).catch(error => {
+      if (Axios.isCancel(error)) {
+        return reject(error)
       }
-      return resolve(response)
-    }, error => {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log(error.response)
-      }
-      error.response.body = error.response.data
-      delete error.response.data
+
+      error.response = setDataProperty(error.response)
+      printDevelopmentResponse(error.response)
 
       switch (error.response.status) {
         case 404:
@@ -45,16 +86,36 @@ const ajaxCall = function (type, url, data = {}, config = {}) {
         default:
           handleError(error.response.body)
       }
-      return reject(error.response)
+
+      reject(error.response)
     })
   })
 }
 
-const handleError = function (json) {
+const handleError = (json) => {
   if (typeof json !== 'object') return
-  TW.workbench.alert.create(Object.keys(json).map(key => {
-    return `<span data-icon="warning">${key}:</span> <ul><li>${Array.isArray(json[key]) ? json[key].map(line => capitalize(line)).join('</li><li>') : json[key]}</li></ul>`
-  }).join(''), 'error')
+
+  const removeTitleFor = ['base']
+
+  TW.workbench.alert.create(Object.entries(json).map(([key, errors]) => `
+    ${removeTitleFor.includes(key) ? '' : `<span data-icon="warning">${key}:</span>`}
+      <ul>
+        <li>${Array.isArray(errors) ? errors.map(line => capitalize(line)).join('</li><li>') : errors}</li>
+      </ul>`
+  ).join(''), 'error')
+}
+
+const setDataProperty = (response) => {
+  response.body = response.data
+  delete response.data
+
+  return response
+}
+
+const printDevelopmentResponse = (response) => {
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(response)
+  }
 }
 
 export default ajaxCall

@@ -1,167 +1,56 @@
 <template>
   <div>
-    <div slot="header">
-      <h3>Determinations</h3>
-    </div>
-    <div
-      slot="body"
-      id="taxon-determination-digitize">
-      <fieldset
-        class="separate-bottom">
-        <legend>OTU</legend>
-        <smart-selector
-          class="margin-medium-bottom"
-          model="otus"
-          pin-section="Otus"
-          pin-type="Otu"
-          target="TaxonDetermination"
-          @selected="setOtu"
-        />
-        <p
-          v-if="selectedOtu"
-          class="middle">
-          <span
-            class="margin-small-right"
-            v-html="selectedOtu.object_tag"/>
-          <span
-            class="button-circle button-default btn-undo"
-            @click="selectedOtu = undefined"/>
-        </p>
-      </fieldset>
-      <fieldset>
-        <legend>Determiner</legend>
-        <smart-selector
-          model="people"
-          target="Determiner"
-          :autocomplete="false"
-          @selected="addRole">
-          <role-picker
-            class="margin-medium-top"
-            roleType="Determiner"
-            v-model="taxon_determination.roles_attributes"/>
-        </smart-selector>
-      </fieldset>
-      <div class="horizontal-left-content date-fields separate-bottom separate-top">
-        <div class="separate-right">
-          <label>Year</label>
-          <input
-            type="number"
-            v-model="taxon_determination.year_made">
-        </div>
-        <div class="separate-right separate-left">
-          <label>Month</label>
-          <input
-            type="number"
-            v-model="taxon_determination.month_made">
-        </div>
-        <div class="separate-left">
-          <label>Day</label>
-          <input
-            type="number"
-            v-model="taxon_determination.day_made">
-        </div>
-        <div>
-          <label>&nbsp</label>
-          <div class="align-start">
-            <button
-              type="button"
-              class="button normal-input button-default separate-left separate-right"
-              @click="setActualDate">
-              Now
-            </button>
-          </div>
-        </div>
-      </div>
-      <button
-        type="button"
-        id="determination-add-button"
-        :disabled="!taxon_determination.otu_id"
-        class="button normal-input button-submit separate-top"
-        @click="addDetermination">Add</button>
-      <display-list
-        :list="list"
-        @delete="removeTaxonDetermination"
-        :radial-object="true"
-        set-key="otu_id"
-        label="object_tag"/>
-    </div>
+    <h3>Determinations</h3>
+    <taxon-determination-form 
+      create-form
+      @on-add="addDetermination"
+    />
+    <display-list
+      :list="list"
+      @delete="removeTaxonDetermination"
+      :radial-object="true"
+      set-key="otu_id"
+      label="object_tag"
+    />
   </div>
 </template>
 
 <script>
 
-import RolePicker from 'components/role_picker.vue'
+import TaxonDeterminationForm from 'components/TaxonDetermination/TaxonDeterminationForm.vue'
 import DisplayList from 'components/displayList.vue'
-import orderSmartSelector from 'helpers/smartSelector/orderSmartSelector.js'
-import selectFirstSmartOption from 'helpers/smartSelector/selectFirstSmartOption'
-import SmartSelector from 'components/smartSelector'
 import CRUD from '../../request/crud.js'
 import AnnotatorExtend from '../annotatorExtend.js'
+import { TaxonDetermination } from 'routes/endpoints'
 
 export default {
   mixins: [CRUD, AnnotatorExtend],
+
   components: {
-    SmartSelector,
-    RolePicker,
+    TaxonDeterminationForm,
     DisplayList
   },
-  data() {
-    return {
-      taxon_determination: this.newDetermination(),
-      selectedOtu: undefined
-    }
-  },
+
   methods: {
-    setOtu (otu) {
-      this.taxon_determination.otu_id = otu.id
-      this.selectedOtu = otu
-    },
-    newDetermination () {
-      return {
-        biological_collection_object_id: this.metadata.object_id,
-        otu_id: undefined,
-        year_made: undefined,
-        month_made: undefined,
-        day_made: undefined,
-        roles_attributes: [],
-      }
-    },
-    createPerson (person, roleType) {
-      return {
-        first_name: person.first_name,
-        last_name: person.last_name,
-        person_id: person.id,
-        type: roleType
-      }
-    },
-    roleExist(id) {
-      return (this.taxon_determination.roles_attributes.find((role) => {
-        return !role.hasOwnProperty('_destroy') && role.person_id == id
-      }) ? true : false)
-    },
-    addRole(role) {
-      if(!this.roleExist(role.id)) {
-        this.taxon_determination.roles_attributes.push(this.createPerson(role, 'Determiner'))
-      }
-    },
-    addDetermination() {
-      if(this.list.find((determination) => { return determination.otu_id === this.taxonDetermination.otu_id && (determination.year_made === this.year) })) { return }
-      
-      this.create(`/taxon_determinations.json`, { taxon_determination: this.taxon_determination }).then(response => {
+    addDetermination (taxon_determination) {
+      if (
+        this.list.find(determination =>
+          determination.otu_id === taxon_determination.otu_id &&
+          determination.year_made === taxon_determination.year_made)
+      ) { return }
+
+      Object.assign(taxon_determination, { biological_collection_object_id: this.metadata.object_id})
+
+      TaxonDetermination.create({ taxon_determination }).then(response => {
         TW.workbench.alert.create('Taxon determination was successfully created.', 'notice')
         this.list.push(response.body)
       })
     },
-    removeTaxonDetermination(determination) {
-      this.removeItem(determination).then(response => {
-        TW.workbench.alert.create('Taxon determination was successfully destroyed.', 'notice')        
+
+    removeTaxonDetermination (determination) {
+      this.removeItem(determination).then(_ => {
+        TW.workbench.alert.create('Taxon determination was successfully destroyed.', 'notice')
       })
-    },
-    setActualDate() {
-      let today = new Date()
-      this.taxon_determination.day_made = today.getDate()
-      this.taxon_determination.month_made = today.getMonth() + 1
-      this.taxon_determination.year_made = today.getFullYear()
     }
   }
 }

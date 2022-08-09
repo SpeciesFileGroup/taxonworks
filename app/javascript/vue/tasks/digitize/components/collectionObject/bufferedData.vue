@@ -1,67 +1,23 @@
 <template>
   <div
     v-help.sections.collectionObject.buffered
-    class="flexbox buffered-component">
-    <div class="separate-right">
-      <label>Buffered determination</label>
-      <br>
-      <div class="horizontal-left-content align-start">
-        <textarea
-          class="buffered-textarea separate-right"
-          v-model="bufferedDetermination"
-          rows="5"/>
-        <div>
-          <lock-component
-            v-model="locked.collection_object.buffered_determinations"/>
-          <button 
-            type="button"
-            @click="bufferedDetermination = setInline(bufferedDetermination)"
-            class="button button-default margin-small-top">
-            Trim
-          </button>
-        </div>
-      </div>
-    </div>
-    <div class="separate-right separate-left">
-      <label>Buffered collecting event</label>
-      <br>
-      <div class="horizontal-left-content align-start">
-        <textarea
-          class="buffered-textarea separate-right"
-          v-model="bufferedCollectionEvent"
-          style="width: 100%"
-          rows="5"/>
-        <div>
-          <lock-component v-model="locked.collection_object.buffered_collecting_event"/>
-          <button 
-            type="button"
-            @click="bufferedCollectionEvent = setInline(bufferedCollectionEvent)"
-            class="button button-default margin-small-top">
-            Trim
-          </button>
-        </div>
-      </div>
-    </div>
-    <div class="separate-left">
-      <label>Buffered other labels</label>
-      <br>
-      <div class="horizontal-left-content align-start">
-        <textarea
-          class="buffered-textarea separate-right"
-          v-model="bufferedOtherLabels"
-          rows="5"/>
-        <div>
-          <lock-component
-            v-model="locked.collection_object.buffered_other_labels"/>
-          <button 
-            type="button"
-            @click="bufferedOtherLabels = setInline(bufferedOtherLabels)"
-            class="button button-default margin-small-top">
-            Trim
-          </button>
-        </div>
-      </div>
-    </div>
+    class="buffered"
+  >
+    <buffered-field
+      title="Buffered determination"
+      v-model="collectionObject.buffered_determinations"
+      v-model:lock="locked.collection_object.buffered_determinations"
+    />
+    <buffered-field
+      title="Buffered collecting event"
+      v-model="collectionObject.buffered_collecting_event"
+      v-model:lock="locked.collection_object.buffered_collecting_event"
+    />
+    <buffered-field
+      title="Buffered other labels"
+      v-model="collectionObject.buffered_other_labels"
+      v-model:lock="locked.collection_object.buffered_other_labels"
+    />
   </div>
 </template>
 
@@ -69,60 +25,37 @@
 
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
-import LockComponent from 'components/lock.vue'
+import BufferedField from './BufferedField.vue'
 
 export default {
-  components: {
-    LockComponent
-  },
+  components: { BufferedField },
+
   computed: {
     locked: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetLocked]
       },
-      set(value) {
-        this.$store.commit([MutationNames.SetLocked, value])
+      set (value) {
+        this.$store.commit(MutationNames.SetLocked, value)
       }
     },
-    bufferedDetermination: {
-      get() {
-        return this.$store.getters[GetterNames.GetCollectionObject].buffered_determinations
+
+    collectionObject: {
+      get () {
+        return this.$store.getters[GetterNames.GetCollectionObject]
       },
-      set(value) {
-        this.$store.commit(MutationNames.SetCollectionObjectBufferedDeterminations, value)
+      set (value) {
+        this.$store.commit(MutationNames.SetCollectionObject, value)
       }
-    },
-    bufferedOtherLabels: {
-      get() {
-        return this.$store.getters[GetterNames.GetCollectionObject].buffered_other_labels
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetCollectionObjectBufferedOtherLabel, value)
-      }
-    },
-    bufferedCollectionEvent: {
-      get() {
-        return this.$store.getters[GetterNames.GetCollectionObject].buffered_collecting_event
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetCollectionObjectBufferedCollectionEvent, value)
-      }
-    }
-  },
-  methods: {
-    setInline (text) {
-      return text.replace(/\s+|\n|\r/g, " ").trim()
     }
   }
 }
 </script>
-<style lang="scss" scoped>
-  .buffered-component {
-    width: 100%;
 
-    .buffered-textarea {
-      width: 100%
-    }
+<style scoped>
+  .buffered {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 0.5em;
   }
-
 </style>

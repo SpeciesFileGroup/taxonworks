@@ -62,17 +62,19 @@ export default {
     RadialAnnotator,
     CitationCount
   },
+
   props: {
     list: {
       type: Array,
-      default: () => {
-        return []
-      }
+      default: () => []
     }
   },
-  mounted () {
-    this.$options.components.RadialAnnotator = RadialAnnotator
-  },
+
+  emits: [
+    'delete',
+    'edit'
+  ],
+
   methods: {
     deleteItem (item) {
       if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {

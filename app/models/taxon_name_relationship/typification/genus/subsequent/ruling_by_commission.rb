@@ -8,11 +8,11 @@ class TaxonNameRelationship::Typification::Genus::Subsequent::RulingByCommission
 end
 
   def object_status
-    'type of genus by ruling by Commission'
+    'type of genus by ruling by the Commission'
   end
 
   def subject_status
-    'type species by ruling by Commission'
+    'type species by ruling by the Commission'
   end
 
   def self.assignment_method

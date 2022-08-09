@@ -32,16 +32,15 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
-import { GetTaxonName } from '../../request/resources'
+import Autocomplete from 'components/ui/Autocomplete'
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
 import { RouteNames } from 'routes/routes'
+import { TaxonName } from 'routes/endpoints'
 
 export default {
-  components: {
-    Autocomplete
-  },
+  components: { Autocomplete },
+
   computed: {
     taxon: {
       get () {
@@ -51,13 +50,16 @@ export default {
         this.$store.commit(MutationNames.SetTaxon, value)
       }
     },
+
     ranksList () {
       return this.$store.getters[GetterNames.GetRanks]
     }
   },
+
   mounted () {
     this.GetParams()
   },
+
   methods: {
     GetParams () {
       const urlParams = new URLSearchParams(window.location.search)
@@ -67,22 +69,25 @@ export default {
         this.getTaxon({ id: taxonId })
       }
     },
+
     checkRank (taxon) {
       const ranksFilter = [...new Set(this.getRankNames(this.ranksList))]
-      return ranksFilter.find(rank => { return taxon.rank === rank })
+      return ranksFilter.find(rank => taxon.rank === rank)
     },
+
     getTaxon (event) {
-      GetTaxonName(event.id).then(response => {
+      TaxonName.find(event.id).then(response => {
         if (this.checkRank(response.body)) {
           this.taxon = response.body
           history.pushState(null, null, `${RouteNames.NomenclatureStats}?taxon_name_id=${this.taxon.id}`)
         } else {
-          TW.workbench.alert.create(`Please choose a taxon with a governed code of nomenclature.`, 'alert')
+          TW.workbench.alert.create('Please choose a taxon with a governed code of nomenclature.', 'alert')
         }
       })
     },
+
     getRankNames (list, nameList = []) {
-      for (var key in list) {
+      for (const key in list) {
         if (typeof list[key] === 'object') {
           this.getRankNames(list[key], nameList)
         } else {
@@ -106,7 +111,7 @@ export default {
   .field-year {
     width: 60px;
   }
-  /deep/ .vue-autocomplete-list {
+  :deep(.vue-autocomplete-list) {
     min-width: 800px;
   }
 </style>

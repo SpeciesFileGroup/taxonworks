@@ -39,6 +39,7 @@
           v-for="depiction in depictions"
           :key="depiction.id"
           :depiction="depiction"
+          edit
         />
       </div>
     </div>
@@ -48,69 +49,80 @@
 <script>
 
 import {
-  GetCollectionObject,
-  GetTaxonDeterminations,
-  GetTaxonDeterminationCitations,
-  GetBiocurations,
-  GetDepictions,
-  GetRepository,
-  GetCitations
-} from '../../request/resources'
+  BiocurationClassification,
+  CollectionObject,
+  TaxonDetermination,
+  Repository
+} from 'routes/endpoints'
 
 import { GetterNames } from '../../store/getters/getters'
-import ImageViewer from '../gallery/ImageViewer'
+import ImageViewer from 'components/ui/ImageViewer/ImageViewer'
 
 export default {
   components: {
     ImageViewer
   },
+
   props: {
     specimen: {
       type: Object,
       required: true
     }
   },
+
   computed: {
     citationsLabel () {
-      return this.citations.length ? this.citations.map(item => { return item.source.cached }).join('; ') : 'not specified'
+      return this.citations.length
+        ? this.citations.map(item => item.citation_source_body).join('; ')
+        : 'not specified'
     },
+
     countAndBiocurations () {
-      return this.biocurations.length ? `${this.specimen.individualCount} ${this.biocurations.map(item => { return item.object_tag.toLowerCase() }).join(', ')}` : this.specimen.individualCount
+      return this.biocurations.length
+        ? `${this.specimen.individualCount} ${this.biocurations.map(item => item.object_tag.toLowerCase()).join(', ')}`
+        : this.specimen.individualCount
     },
+
     collectingEvents () {
       return this.$store.getters[GetterNames.GetCollectingEvents]
     },
+
     collectingEventLabel () {
-      const ce = this.collectingEvents.find(item => {
-        return this.collectionObject.collecting_event_id === item.id
-      })
+      const ce = this.collectingEvents.find(item => this.collectionObject.collecting_event_id === item.id)
+
       return ce ? ce.object_tag : 'not specified'
     },
+
     repositoryLabel () {
       return this.repository ? this.repository.name : 'not specified'
     },
+
     ceLabel () {
       const levels = ['country', 'stateProvince', 'county', 'verbatimLocality']
-      let tmp = []
+      const tmp = []
+
       levels.forEach(item => {
-        if(this.specimen[item]) { tmp.push(this.specimen[item]) }
+        if (this.specimen[item]) { tmp.push(this.specimen[item]) }
       })
+
       return tmp.join(', ')
     }
   },
+
   data () {
     return {
-      depictions: [],
-      biocurations: [],
-      repository: undefined,
-      determinations: [],
-      determinationCitations: [],
-      citations: [],
-      expand: false,
       alreadyLoaded: false,
-      collectionObject: {}
+      biocurations: [],
+      citations: [],
+      collectionObject: {},
+      depictions: [],
+      determinationCitations: [],
+      determinations: [],
+      expand: false,
+      repository: undefined
     }
   },
+
   watch: {
     expand (newVal) {
       if (!this.alreadyLoaded) {
@@ -119,36 +131,38 @@ export default {
       }
     }
   },
-  mounted () {
+
+  created () {
     this.loadData()
   },
+
   methods: {
     loadData () {
-      GetCollectionObject(this.specimen.collection_objects_id).then(response => {
+      CollectionObject.find(this.specimen.collection_objects_id, { extend: ['citations'] }).then(response => {
         const repositoryId = response.body.repository_id
 
         this.collectionObject = response.body
         if (repositoryId) {
-          GetRepository(repositoryId).then(response => {
+          Repository.find(repositoryId).then(response => {
             this.repository = response.body
           })
         }
       })
-      GetBiocurations(this.specimen.collection_objects_id).then(response => {
+      BiocurationClassification.where({ biological_collection_object_id: this.specimen.collection_objects_id }).then(response => {
         this.biocurations = response.body
       })
-      GetDepictions('collection_objects', this.specimen.collection_objects_id).then(response => {
+      CollectionObject.depictions(this.specimen.collection_objects_id).then(response => {
         this.depictions = response.body
       })
-      GetCitations('collection_objects', this.specimen.collection_objects_id).then(response => {
+      CollectionObject.citations(this.specimen.collection_objects_id).then(response => {
         this.citations = response.body
       })
-      GetTaxonDeterminations({ collection_object_id: this.specimen.collection_objects_id }).then(response => {
+      TaxonDetermination.where({ collection_object_id: this.specimen.collection_objects_id }).then(response => {
         const determinations = response.body
 
         this.determinations = determinations
         determinations.forEach(item => {
-          GetTaxonDeterminationCitations(item.id).then(citationResponse => {
+          TaxonDetermination.citations(item.id).then(citationResponse => {
             citationResponse.body.forEach(c => {
               this.determinationCitations.push(c)
             })

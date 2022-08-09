@@ -9,6 +9,7 @@
         v-for="(item, index) in json"
         v-if="maxResults == 0 || index < maxResults">
         <a
+          tabindex="-1"
           target="_blank"
           :href="makeUrl(item.id)"
           v-html="item[label]"/>
@@ -35,51 +36,61 @@ export default {
       type: String,
       required: true
     },
+
     search: {
       required: true
     },
+
     label: {
       type: String
     },
+
     time: {
       type: String,
       default: '500'
     },
+
     maxResults: {
       type: Number,
       default: 10
     },
+
     addParams: {
       type: Object
     },
+
     param: {
       type: String,
       default: 'value'
     },
+
     taxon: {
       type: Object,
       default: undefined
     }
   },
-  data: function () {
+
+  data () {
     return {
       json: [],
       spinner: false,
       getRequest: 0
     }
   },
+
   watch: {
-    search: function (newVal, oldVal) {
+    search (newVal, oldVal) {
       if (oldVal != undefined) {
         this.checkTime()
       }
     },
-    taxon: function (val) {
+    taxon (val) {
       this.json = []
     }
   },
+
   methods: {
-    ajaxUrl: function () {
+    ajaxUrl () {
       var tempUrl = this.url + '?' + this.param + '=' + this.search
       var params = ''
       if (this.addParams) {
@@ -89,25 +100,29 @@ export default {
       }
       return tempUrl + params
     },
-    makeUrl: function (id) {
+
+    makeUrl (id) {
       return `/tasks/nomenclature/new_taxon_name?taxon_name_id=${id}`
     },
-    sendItem: function (item) {
+
+    sendItem (item) {
       this.$emit('getItem', item)
     },
-    clearResults: function () {
+
+    clearResults () {
       this.json = []
     },
-    checkTime: function () {
-      var that = this
+
+    checkTime () {
       if (this.getRequest) {
         clearTimeout(this.getRequest)
       }
-      this.getRequest = setTimeout(function () {
-        that.update()
-      }, that.time)
+      this.getRequest = setTimeout(() => {
+        this.update()
+      }, this.time)
     },
-    update: function () {
+
+    update () {
       if (this.search.length < Number(this.min)) return
       this.spinner = true
       this.clearResults()
@@ -125,17 +140,8 @@ export default {
           }))
         this.spinner = false
         this.$emit('existing', this.json)
-      }, response => {
       })
     },
-    activeClass: function activeClass (index) {
-      return {
-        active: this.current === index
-      }
-    },
-    activeSpinner: function () {
-      return 'ui-autocomplete-loading'
-    }
   }
 }
 </script>

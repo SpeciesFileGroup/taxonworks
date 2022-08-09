@@ -1,0 +1,40 @@
+<%= tag.h1 "Task - Merge (data from) taxon names" %>
+
+<h2> Merge taxon name relationships </h2>
+
+<%= form_tag taxon_name_merge_report_path, method: :get, remote: true, data: {turbolinks: false} do |f| %>
+  <div class="field">
+    <h3> From taxon name </h3>
+
+    <%= render partial: '/workbench/elements/forms/ajax_select',
+      locals: {
+        controller: '/taxon_names',
+        object: nil,
+        method: 'from_taxon_name_id',
+        tag_id: 'from_taxon_name_id_for_quick_search_form',
+        size: 60,
+        autofocus: true,
+        display: ''} %>
+  </div>
+
+  <div class="field">
+    <h3> To taxon name </h3>
+    <%= render partial: '/workbench/elements/forms/ajax_select',
+      locals: {
+        controller: '/taxon_names',
+        object: nil,
+        method: 'to_taxon_name_id',
+        tag_id: 'to_taxon_name_id_for_quick_search_form',
+        size: 60,
+        display: ''} %>
+  </div>
+
+  <br>
+  <%= tag.input(type: 'submit', value: 'Report', class: ['button', 'button-default'], ) %>
+<% end %>
+
+<br>
+
+<div id="report" >
+  <%= tag.span 'Select to/from taxon names options above.', class: ['feedback', 'feedback-notice']  %>
+</div>

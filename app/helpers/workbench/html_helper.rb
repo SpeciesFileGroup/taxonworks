@@ -3,6 +3,7 @@
 # they should go into Utilities
 module Workbench::HtmlHelper
 
+  # TODO: see also highlight()
   # @return [String, nil]
   #   markup a string
   def mark_tag(string, term)

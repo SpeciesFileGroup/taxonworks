@@ -1,4 +1,5 @@
 import getAllRanks from './getAllRanks'
+import getCombinations from './getCombinations'
 import activeModalStatus from './activeModalStatus'
 import activeModalType from './activeModalType'
 import activeModalRelationship from './activeModalRelationship'
@@ -34,6 +35,7 @@ import getAutosave from './getAutosave'
 
 const GetterNames = {
   GetAllRanks: 'getAllRanks',
+  GetCombinations: 'getCombinations',
   ActiveModalStatus: 'activeModalStatus',
   ActiveModalType: 'activeModalType',
   ActiveModalRelationship: 'activeModalRelationship',
@@ -72,6 +74,7 @@ const GetterFunctions = {
   [GetterNames.ActiveModalStatus]: activeModalStatus,
   [GetterNames.ActiveModalType]: activeModalType,
   [GetterNames.ActiveModalRelationship]: activeModalRelationship,
+  [GetterNames.GetCombinations]: getCombinations,
   [GetterNames.GetAllRanks]: getAllRanks,
   [GetterNames.GetParent]: getParent,
   [GetterNames.GetSaving]: getSaving,

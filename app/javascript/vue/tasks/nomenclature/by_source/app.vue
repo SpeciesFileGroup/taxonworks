@@ -1,113 +1,82 @@
 <template>
   <div id="nomenclature-by-source-task">
-    <spinner
-      v-if="isLoading"
-      :full-screen="true"
-      legend="Loading..."
-      :logo-size="{ width: '100px', height: '100px'}"/>
-    <div>
-      <div class="flex-separate middle">
-        <h1 class="task_header">Citations by source</h1>
-        <a href="/tasks/sources/hub">Back to source hub</a>
-      </div>
-      <nomen-source @sourceID="lists = initStoreList(); sourceID = $event"/>
+    <div class="flex-separate middle">
+      <h1>Citations by source</h1>
+      <ul class="context-menu">
+        <li>
+          <SourcePicker/>
+        </li>
+        <li>
+          <a href="/tasks/sources/hub">Back to source hub</a>
+        </li>
+      </ul>
     </div>
+
+    <HeaderBar />
+
     <div class="flexbox">
-      <div class="flexbox">
-        <div class="first-column separate-right">
-          <taxon-names
-            :sourceID="sourceID"
-            :newTaxon="newTaxonNameCitation"
-            @summarize="summarize = $event"
+      <div class="margin-small-right">
+        <template
+          v-for="({ title, summarizeParam }, type) in CITATION_BLOCKS"
+          :key="type"
+        >
+          <CitationSummary
+            :title="title"
+            :summarize-param="summarizeParam"
+            :type="type"
           />
-          <taxon-name-relationships
-            :sourceID="sourceID"
-            @summarize="summarize = $event"
-          />
-          <taxon-name-classifications
-            :sourceID="sourceID"
-            @summarize="summarize = $event"
-          />
-          <biological-associations
-            :sourceID="sourceID"
-            @summarize="summarize = $event"
-          />
-          <asserted-distributions
-            :sourceID="sourceID"
-            @summarize="summarize = $event"
-          />
-          <otus-by-match
-            :sourceID="sourceID"
-            @summarize="summarize = $event"
-          />
-        </div>
-        <div class="second-column separate-left">
-          <otus-match-proxy
-            :sourceID="sourceID"
-            :summarize="summarize"
-          />
-        </div>
+        </template>
       </div>
+      <OtusMatchProxy class="margin-small-left" />
     </div>
   </div>
 </template>
 <script>
+export default {
+  name: 'CitationsBySource',
+}
+</script>
+<script setup>
 
-  import NomenSource from './components/nomen_source'
-  import CiteTaxonName from './components/cite_taxon_name'
-  import OtusByMatch from './components/otus_by_match'
-  import TaxonNames from './components/taxon_names'
-  import TaxonNameRelationships from './components/taxon_name_relationships'
-  import TaxonNameClassifications from './components/taxon_name_classifications'
-  import BiologicalAssociations from './components/biological_associations'
-  import AssertedDistributions from './components/asserted_distributions'
-  import OtusMatchProxy from './components/otus_match_proxy'
-  import Spinner from 'components/spinner.vue'
+import HeaderBar from './components/HeaderBar.vue'
+import CitationSummary from './components/CitationSummary.vue'
+import OtusMatchProxy from './components/OtusMatchProxy'
+import SourcePicker from './components/SourcePicker.vue'
+import { 
+  TAXON_NAME,
+  TAXON_NAME_RELATIONSHIP,
+  TAXON_NAME_CLASSIFICATION,
+  BIOLOGICAL_ASSOCIATION,
+  ASSERTED_DISTRIBUTION,
+  OTU 
+} from 'constants/index.js'
 
-  export default {
-    components: {
-      NomenSource,
-      OtusByMatch,
-      TaxonNames,
-      TaxonNameRelationships,
-      TaxonNameClassifications,
-      BiologicalAssociations,
-      AssertedDistributions,
-      OtusMatchProxy,
-      Spinner
-    },
-    data() {
-      return {
-        sourceID: undefined,
-        isLoading: false,
-        newTaxonNameCitation: {},
-        lists: this.initStoreList(),
-        summarize: undefined
-      }
-    },
-    methods: {
-      enableButton() {
-        this.updateOtus = true;
-      },
-      initStoreList() {
-        return {
-          otu_names_cites: [],
-          taxon_names_cites: [],
-          taxon_relationship_cites: [],
-          taxon_classification_cites: [],
-          biological_association_cites: [],
-          distribution_cites: [],
-        }
-      }
-    }
-  }
+const CITATION_BLOCKS = {
+  [TAXON_NAME]: { 
+    title: 'Taxon names',
+    summarizeParam: 'taxon_name_ids'
+  },
+  [TAXON_NAME_CLASSIFICATION]: { 
+    title: 'Nomenclature status',
+    summarizeParam: 'taxon_name_classification_ids'
+  },
+  [TAXON_NAME_RELATIONSHIP]: { 
+    title: 'Taxon name relationships',
+    summarizeParam: 'taxon_name_relationship_ids'
+  },
+  [BIOLOGICAL_ASSOCIATION]: { 
+    title: 'Biological associations',
+    summarizeParam: 'biological_association_ids'
+  },
+  [ASSERTED_DISTRIBUTION]: { 
+    title: 'Asserted distributions',
+    summarizeParam: 'asserted_distribution_ids'
+  },
+  [OTU]: { 
+    title: 'OTUs',
+    summarizeParam: 'otu_ids'
+  },
+}
+
 </script>
 
-<style lang="scss">
-  #nomenclature-by-source-task {
-    table {
-      width: 100%;
-      max-width: 800px;
-    }
-  }
-</style>

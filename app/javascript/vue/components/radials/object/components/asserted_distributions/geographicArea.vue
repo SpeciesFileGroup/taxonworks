@@ -20,30 +20,22 @@
 </template>
 
 <script>
-
-import SmartSelector from 'components/smartSelector'
-import CRUD from '../../request/crud'
+import SmartSelector from 'components/ui/SmartSelector'
 
 export default {
-  mixins: [CRUD],
-  components: {
-    SmartSelector
-  },
+  components: { SmartSelector },
+
   props: {
     sourceLock: {
       type: Boolean,
       required: true
     }
   },
-  data () {
-    return {
-      smartGeographics: [],
-      selected: undefined
-    }
-  },
+
+  emits: ['select'],
+
   methods: {
     sendGeographic (item) {
-      this.selected = ''
       this.$emit('select', item.id)
       if (this.sourceLock) {
         this.$refs.smartSelector.setFocus()

@@ -1,7 +1,7 @@
 <template>
   <div class="panel content panel-section">
     <h2>{{ title }}</h2>
-    <smart-selector
+    <switch-component
       class="separate-bottom"
       :options="options"
       v-model="view"
@@ -16,63 +16,74 @@
       placeholder="Select an organization"
       url="/organizations/autocomplete"
       param="term"
-      @getItem="setOrganization"
-      label="label_html"/>
+      @get-item="setOrganization"
+      label="label_html"
+    />
   </div>
 </template>
 
 <script>
 
-import SmartSelector from 'components/switch'
+import SwitchComponent from 'components/switch'
 import RolePicker from 'components/role_picker'
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 
 export default {
   components: {
-    SmartSelector,
+    SwitchComponent,
     RolePicker,
     Autocomplete
   },
+
   props: {
     title: {
       type: String,
       required: true
     },
+
     roleType: {
-      type:String,
+      type: String,
       required: true
     },
+
     options: {
       type: Array,
-      default: () => { return ['someone else', 'an organization'] }
+      default: () => ['someone else', 'an organization']
     },
-    value: {
+
+    modelValue: {
       type: Array,
       required: true
     }
   },
-  data() {
+
+  emits: ['update:modelValue'],
+
+  data () {
     return {
       view: 'someone else',
       roles_attributes: []
     }
   },
+
   watch: {
     roles_attributes: {
-      handler(newVal) {
-        this.$emit('input', newVal)
-      }, 
+      handler (newVal) {
+        this.$emit('update:modelValue', newVal)
+      },
       deep: true
     },
-    value: {
-      handler(newVal) {
+
+    modelValue: {
+      handler (newVal) {
         this.roles_attributes = newVal
       },
       deep: true
     }
   },
+
   methods: {
-    setOrganization(organization) {
+    setOrganization (organization) {
       this.roles_attributes = [{
         type: this.roleType,
         label: organization.label,

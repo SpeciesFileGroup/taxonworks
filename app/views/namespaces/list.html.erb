@@ -14,7 +14,7 @@
 
   <tbody>
   <% @namespaces.each do |namespace| %>
-      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= namespace.institution %></td>
           <td><%= namespace.name %></td>
           <td><%= namespace.short_name %></td>

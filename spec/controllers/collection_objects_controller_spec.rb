@@ -48,7 +48,7 @@ describe ::CollectionObjectsController, type: :controller do
             depictions_attributes: [
               {
                 image_attributes: {
-                  image_file: fixture_file_upload((Rails.root + 'spec/files/images/tiny.png'),
+                  image_file: Rack::Test::UploadedFile.new((Rails.root + 'spec/files/images/tiny.png'),
                                                   'image/png')
                 }
               }
@@ -239,20 +239,5 @@ describe ::CollectionObjectsController, type: :controller do
     end
   end
 
-  describe 'DELETE destroy' do
-    it 'destroys the requested collection_object' do
-      collection_object = CollectionObject.create! valid_attributes
-      expect {
-        delete :destroy, params: {id: collection_object.to_param}, session: valid_session
-      }.to change(CollectionObject, :count).by(-1)
-    end
-
-    it 'redirects to the collection_objects list' do
-      request.env['HTTP_REFERER'] = collection_objects_url
-      collection_object = CollectionObject.create! valid_attributes
-      delete :destroy, params: {id: collection_object.to_param}, session: valid_session
-      expect(response).to redirect_to(collection_objects_url)
-    end
-  end
-
+  include_examples 'DELETE #destroy', CollectionObject
 end

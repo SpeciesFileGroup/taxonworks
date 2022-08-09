@@ -77,7 +77,7 @@ class LoansController < ApplicationController
 
   def search
     if params[:id].blank?
-      redirect_to loan_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to loan_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to loan_path(params[:id])
     end
@@ -111,7 +111,9 @@ class LoansController < ApplicationController
       :recipient_email, :recipient_phone, :recipient_country, :supervisor_person_id,
       :supervisor_email, :supervisor_phone, :date_closed, :recipient_honorific,
       :lender_address,
+      :is_gift,
       :clone_from,
+      :is_gift,
       loan_items_attributes: [
         :_destroy,
         :id,

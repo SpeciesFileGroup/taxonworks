@@ -20,15 +20,17 @@
           <error-tolerance />
         </li>
         <li>
-          <identifier-rank />
+          <identifier-rank v-model="filters.identified_to_rank" />
         </li>
-        <li v-if="observationMatrix && observationMatrix.descriptor_available_languages && observationMatrix.descriptor_available_languages.length">
-          <language-component />
+        <li v-if="existLanguages">
+          <language-component
+            :language-list="observationMatrix.descriptor_available_languages"
+            v-model="filters.language_id" />
         </li>
         <li>
           <sorting-component />
         </li>
-        <li v-if="observationMatrix && observationMatrix.descriptor_available_keywords && observationMatrix.descriptor_available_keywords.length">
+        <li v-if="existKeywords">
           <keywords-component />
         </li>
       </ul>
@@ -66,8 +68,8 @@
 
 <script>
 
-import NavComponent from 'components/navBar'
-import Autocomplete from 'components/autocomplete'
+import NavComponent from 'components/layout/NavBar'
+import Autocomplete from 'components/ui/Autocomplete'
 import SetParam from 'helpers/setParam'
 import SortingComponent from './Filters/Sorting.vue'
 import IdentifierRank from './Filters/IdentifierRank'
@@ -76,6 +78,7 @@ import LanguageComponent from './Filters/Language'
 import EliminateUnknowns from './Filters/EliminateUnknowns'
 import RefreshComponent from './Filters/Refresh'
 import KeywordsComponent from './Filters/Keywords'
+import scrollToTop from '../utils/scrollToTop.js'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
@@ -92,10 +95,20 @@ export default {
     SortingComponent,
     RefreshComponent
   },
+
   computed: {
     observationMatrix () {
       return this.$store.getters[GetterNames.GetObservationMatrix]
     },
+
+    existLanguages () {
+      return !!this.observationMatrix?.descriptor_available_languages?.length
+    },
+
+    existKeywords () {
+      return !!this.observationMatrix?.descriptor_available_keywords?.length
+    },
+
     settings: {
       get () {
         return this.$store.getters[GetterNames.GetSettings]
@@ -103,8 +116,18 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetSettings, value)
       }
+    },
+
+    filters: {
+      get () {
+        return this.$store.getters[GetterNames.GetParamsFilter]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetParamsFilter, value)
+      }
     }
   },
+
   data () {
     return {
       layouts: {
@@ -113,27 +136,32 @@ export default {
       }
     }
   },
+
   methods: {
     setLayout (layout) {
       this.settings.gridLayout = this.layouts[layout]
     },
+
     loadMatrix (id) {
-      if (!this.observationMatrix || id !== this.observationMatrix.observation_matrix_id) {
+      if (!this.observationMatrix || id !== this.observationMatrix?.observation_matrix_id) {
         SetParam('/tasks/observation_matrices/interactive_key', 'observation_matrix_id', id)
       }
+      this.$store.commit(MutationNames.SetObservationMatrix, undefined)
       this.$store.commit(MutationNames.SetDescriptorsFilter, {})
       this.$store.dispatch(ActionNames.LoadObservationMatrix, id)
-      document.querySelector('.descriptors-view div').scrollIntoView(0)
+      scrollToTop()
     },
+
     proceed (id) {
       this.$store.dispatch(ActionNames.LoadObservationMatrix, id)
-      document.querySelector('.descriptors-view div').scrollIntoView(0)
+      scrollToTop()
     },
+
     resetView () {
       this.$store.commit(MutationNames.SetDescriptorsFilter, {})
       this.$store.commit(MutationNames.SetRowFilter, [])
       this.$store.dispatch(ActionNames.LoadObservationMatrix, this.observationMatrix.observation_matrix_id)
-      document.querySelector('.descriptors-view div').scrollIntoView(0)
+      scrollToTop()
     }
   }
 }

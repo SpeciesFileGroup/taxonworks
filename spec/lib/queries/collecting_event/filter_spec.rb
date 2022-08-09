@@ -8,30 +8,42 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     verbatim_locality: 'Out there',
     start_date_year: 2010,
     start_date_month: 2,
-    start_date_day: 18) 
+    start_date_day: 18)
   }
 
   let!(:ce2) { CollectingEvent.create(
-    verbatim_locality: 'Out there, under the stars', 
+    verbatim_locality: 'Out there, under the stars',
     verbatim_trip_identifier: 'Foo manchu',
-    start_date_year: 2000, 
-    start_date_month: 2, 
+    start_date_year: 2000,
+    start_date_month: 2,
     start_date_day: 18,
     print_label: 'THERE: under the stars:18-2-2000') }
+
+  # let!(:namespace) { FactoryBot.create(:valid_namespace, short_name: 'Foo') }
+  # let!(:i1) { Identifier::Local::TripCode.create!(identifier_object: ce1, identifier: '123', namespace: namespace) }
+  # let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
 
   context 'otus' do
     let!(:o) { Otu.create!(name: 'foo') }
     let!(:s) { Specimen.create!(collecting_event: ce1, taxon_determinations_attributes: [{otu: o}]) }
 
     specify '#otu_ids' do
-      q = Queries::CollectingEvent::Filter.new(otu_ids: [o.id])
+      q = Queries::CollectingEvent::Filter.new(otu_id: [o.id])
       expect(q.all).to contain_exactly(ce1)
     end
   end
 
-  # let!(:namespace) { FactoryBot.create(:valid_namespace, short_name: 'Foo') }
-  # let!(:i1) { Identifier::Local::TripCode.create!(identifier_object: ce1, identifier: '123', namespace: namespace) }
-  # let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
+  specify '#collection_objects' do
+    CollectionObject.create!(collecting_event: ce1, total: 1)
+    query.collection_objects = true
+    expect(query.all.map(&:id)).to contain_exactly(ce1.id)
+  end
+
+  specify '#collection_objects' do
+    CollectionObject.create!(collecting_event: ce1, total: 1)
+    query.collection_objects = false 
+    expect(query.all.map(&:id)).to contain_exactly(ce2.id)
+  end
 
   specify 'auto added accessors 1' do
     expect(query).to respond_to(:field_notes)
@@ -101,31 +113,47 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
   end
 
   specify '#recent' do
-    query.recent = 1 
+    query.recent = 1
     expect(query.all.map(&:id)).to contain_exactly(ce2.id)
   end
 
-  context 'annotations' do
-    let(:keyword) { FactoryBot.create(:valid_keyword) }
-    let!(:tag) { Tag.create(tag_object: ce1, keyword: keyword) }
-
-    specify '#keyword_ids[]' do
-      query.keyword_ids = [keyword.id]
-      expect(query.all.map(&:id)).to contain_exactly(ce1.id)
-    end
+  specify '#keyword_id_and[]' do
+    t = Tag.create(tag_object: ce1, keyword: FactoryBot.create(:valid_keyword))
+    query.keyword_id_and = [t.keyword_id]
+    expect(query.all.map(&:id)).to contain_exactly(ce1.id)
   end
 
-  specify '#geographic_area_ids' do
-    ce1.update(geographic_area: FactoryBot.create(:valid_geographic_area))
-    query.geographic_area_ids = [ce1.geographic_area_id]
+  specify '#geographic_area_id[]' do
+    ce1.update!(geographic_area: FactoryBot.create(:valid_geographic_area))
+    query.geographic_area_id = [ce1.geographic_area_id]
     expect(query.all.map(&:id)).to contain_exactly(ce1.id)
+  end
+
+  context 'collecting_event_wildcards' do
+    specify '#start_date_year (integer field test)' do
+      query.start_date_year = 20
+      query.collecting_event_wildcards << 'start_date_year'
+      expect(query.all.map(&:id)).to contain_exactly(ce1.id, ce2.id)
+
+      query.start_date_year = 201
+      expect(query.all.map(&:id)).to contain_exactly(ce1.id)
+    end
+
+    specify '#verbatim_locality (string field test)' do
+      query.verbatim_locality = 'Out there'
+      query.collecting_event_wildcards << 'verbatim_locality'
+      expect(query.all.map(&:id)).to contain_exactly(ce1.id, ce2.id)
+
+      query.verbatim_locality = 'Out there, '
+      expect(query.all.map(&:id)).to contain_exactly(ce2.id)
+    end
   end
 
   context 'geo' do
     let(:point_lat) { '10.0' }
     let(:point_long) { '10.0' }
 
-   
+
    # let(:factory_polygon) { RSPEC_GEO_FACTORY.polygon(point_lat, point_long) }
    let(:factory_point) { RSPEC_GEO_FACTORY.point(point_lat, point_long) }
     let(:geographic_item) { GeographicItem::Point.create!( point: factory_point ) }
@@ -142,18 +170,18 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     let(:wkt_multipolygon) { 'MULTIPOLYGON ( ((5 5, 15 5, 15 15, 5 15, 5 5)), ((20 35, 35 35, 40 40, 20 35)) )' }
 
     let(:geo_json_polygon) {
-      '{ "type": "Polygon","coordinates": [[ [5.0, 5.0], [15.0, 5.0], [15.0, 15.0], [5.0, 15.0], [5.0, 5.0] ]] }' 
+      '{ "type": "Polygon","coordinates": [[ [5.0, 5.0], [15.0, 5.0], [15.0, 15.0], [5.0, 15.0], [5.0, 5.0] ]] }'
     }
 
     specify '#wkt (POINT)' do
       query.wkt = wkt_point
       expect(query.all.map(&:id)).to contain_exactly(ce1.id)
-    end 
+    end
 
     specify '#wkt (POLYGON)' do
       query.wkt = wkt_point
       expect(query.all.map(&:id)).to contain_exactly(ce1.id)
-    end 
+    end
 
     specify '#wkt (MULTIPOLYGON)' do
       query.wkt = wkt_multipolygon

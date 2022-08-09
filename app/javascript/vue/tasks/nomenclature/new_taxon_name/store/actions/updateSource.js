@@ -1,10 +1,9 @@
-import { updateTaxonName } from '../../request/resources'
+import { TaxonName } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
 export default function ({ commit, state, dispatch }, citation) {
   return new Promise(function (resolve, reject) {
-
-    const taxonName = {
+    const taxon_name = {
       id: state.taxon_name.id,
       origin_citation_attributes: {
         id: citation.id,
@@ -13,7 +12,7 @@ export default function ({ commit, state, dispatch }, citation) {
       }
     }
 
-    updateTaxonName(taxonName).then(response => {
+    TaxonName.update(taxon_name.id, { taxon_name, extend: ['origin_citation', 'roles'] }).then(response => {
       dispatch('loadSoftValidation', 'taxon_name')
       state.taxon_name.origin_citation = response.body.origin_citation
       commit(MutationNames.UpdateLastSave)

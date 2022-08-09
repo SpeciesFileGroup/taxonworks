@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Date</h2>
+    <h3>Date</h3>
     <div class="horizontal-left-content">
       <div class="field label-above margin-medium-right">
         <label>Start year</label>
@@ -28,26 +28,31 @@ import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Object,
       default: undefined
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     source: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       authors: []
     }
   },
+
   watch: {
     authors: {
       handler (newVal) {
@@ -56,11 +61,13 @@ export default {
       deep: true
     }
   },
+
   mounted () {
     const urlParams = URLParamsToJSON(location.href)
     this.source.year_start = urlParams.year_start
     this.source.year_end = urlParams.year_end
   },
+
   methods: {
     addAuthor (author) {
       this.authors.push(author)

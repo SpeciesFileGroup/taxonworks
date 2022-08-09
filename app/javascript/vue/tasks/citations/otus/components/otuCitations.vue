@@ -8,7 +8,7 @@
         v-for="item in items"
         @click="setSource(item)"
         class="flex-separate middle slide-panel-category-item">
-        <span v-html="item.source.object_tag"/>
+        <span v-html="item.source.cached"/>
       </li>
     </ul>
   </div>
@@ -17,7 +17,7 @@
 <script>
 
 import { MutationNames } from '../store/mutations/mutations'
-import AjaxCall from 'helpers/ajaxCall'
+import { Citation, Source } from 'routes/endpoints'
 
 export default {
   computed: {
@@ -27,13 +27,13 @@ export default {
   },
   methods: {
     removeCitation: function (item) {
-      AjaxCall('delete', `/citations/${item.id}`).then(() => {
+      Citation.destroy(item.id).then(() => {
         this.$store.commit(MutationNames.RemoveOtuFormCitationList, item.id)
         this.$store.commit(MutationNames.RemoveSourceFormCitationList, item.id)
       })
     },
     setSource(item) {
-      AjaxCall('get', `/sources/${item.source.id}.json`).then(response => {
+      Source.find(item.source.id).then(response => {
         this.$store.commit(MutationNames.SetSourceSelected, response.body)
       })
     }

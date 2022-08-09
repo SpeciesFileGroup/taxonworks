@@ -1,13 +1,13 @@
 <template>
-  <div>
-    <label class="display-block">
+  <descriptor-container :descriptor="descriptor">
+    <template #title>
       {{ descriptor.name }} ({{ descriptor.min }}-{{ descriptor.max }} {{ descriptor.default_unit }})
-    </label>
+    </template>
     <input
       v-model="fieldValue"
       @blur="setValue"
       type="text">
-  </div>
+  </descriptor-container>
 </template>
 
 <script>
@@ -16,13 +16,15 @@ import ExtendDescriptor from './shared.js'
 
 export default {
   mixins: [ExtendDescriptor],
+
   data () {
     return {
       fieldValue: undefined
     }
   },
+
   watch: {
-    value: {
+    modelValue: {
       handler (newVal) {
         if (newVal[this.descriptor.id] !== this.fieldValue) {
           this.fieldValue = newVal[this.descriptor.id]
@@ -32,9 +34,10 @@ export default {
       immediate: true
     }
   },
+
   methods: {
     setValue () {
-      this.$set(this.selected, this.descriptor.id, this.fieldValue)
+      this.selected[this.descriptor.id] = this.fieldValue
     }
   }
 }

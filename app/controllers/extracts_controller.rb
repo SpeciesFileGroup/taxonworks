@@ -2,12 +2,22 @@ class ExtractsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_extract, only: [:show, :edit, :update, :destroy]
+  after_action -> { set_pagination_headers(:extracts) }, only: [:index], if: :json_request?
 
   # GET /extracts
   # GET /extracts.json
   def index
-    @recent_objects = Extract.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = Extract.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @extracts = Queries::Extract::Filter
+          .new(filter_params).all.where(project_id: sessions_current_project_id)
+          .page(params[:page]).per(params[:per] || 500)
+      }
+    end
   end
 
   # GET /extracts/1
@@ -68,22 +78,116 @@ class ExtractsController < ApplicationController
     end
   end
 
+  def autocomplete
+    @extracts = ::Queries::Extract::Autocomplete.new(
+      params[:term],
+      project_id: sessions_current_project_id
+    ).autocomplete
+  end
+
   def search
     if params[:id].blank?
-      redirect_to extracts_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to extracts_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to extract_path(params[:id])
     end
   end
 
-  private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_extract
-      @extract = Extract.where(project_id: sessions_current_project_id).find(params[:id])
-    end
+  # GET /extracts/select_options
+  def select_options
+    @extracts = Extract.select_optimized(sessions_current_user_id, sessions_current_project_id)
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def extract_params
-      params.require(:extract).permit(:quantity_value, :quantity_unit, :concentration_value, :concentration_unit, :verbatim_anatomical_origin, :year_made, :month_made, :day_made)
-    end
+  private
+  def set_extract
+    @extract = Extract.where(project_id: sessions_current_project_id).find(params[:id])
+  end
+
+  def filter_params
+    params.permit(
+      :id,
+      :user_date_end,
+      :user_date_start,
+      :user_id,
+      :identifier,
+      :identifier_end,
+      :identifier_exact,
+      :identifier_start,
+      :identifier_type,
+      :recent,
+      :otu_id,
+      :collection_object_id,
+      :repository_id,
+      :extract_start_date_range,
+      :extract_end_date_range,
+      :ancestor_id,
+      :sequences,
+      :extract_origin,
+      :verbatim_anatomical_origin,
+      :exact_verbatim_anatomical_origin,
+      :protocol_id,
+      collection_object_id: [],
+      otu_id: [],
+      protocol_id_and: [],
+      protocol_id_or: [],
+      keyword_id_and: [],
+      keyword_id_or: [],
+      repository_id: [],
+    )
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def extract_params
+    params.require(:extract).permit(
+      :repository_id,
+      :verbatim_anatomical_origin,
+      :year_made,
+      :month_made,
+      :day_made,
+
+      roles_attributes: [
+        :id,
+        :_destroy,
+        :type,
+        :person_id,
+        :position,
+        person_attributes: [
+          :last_name,
+          :first_name,
+          :suffix, :prefix
+        ]
+      ],
+
+      identifiers_attributes: [
+        :id,
+        :namespace_id,
+        :identifier,
+        :type,
+        :_destroy
+      ],
+
+      data_attributes_attributes: [
+        :id,
+        :_destroy,
+        :controlled_vocabulary_term_id,
+        :type,
+        :attribute_subject_id,
+        :attribute_subject_type,
+        :value
+      ],
+
+      protocol_relationships_attributes: [
+        :id,
+        :_destroy,
+        :protocol_id
+      ],
+
+      origin_relationships_attributes: [
+        :id,
+        :_destroy,
+        :old_object_id,
+        :old_object_type
+      ]
+    )
+  end
 end

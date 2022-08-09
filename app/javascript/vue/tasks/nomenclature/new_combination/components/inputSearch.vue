@@ -30,55 +30,64 @@ export default {
       default: undefined
     }
   },
-  data: function () {
+
+  emits: ['onTaxonName'],
+
+  data () {
     return {
       type: '',
       disabled: false,
       timeOut: undefined
     }
   },
+
   mounted () {
     this.focusInput()
   },
+
   methods: {
     reset () {
       this.type = ''
       this.sendTaxonName()
       this.disabledButton(false)
     },
+
     focusInput () {
       this.$refs.search.focus()
     },
+
     disabledButton (status) {
       this.disabled = status
     },
+
     processString (str) {
       str = this.removeSpaces(str)
       this.capitalize(str)
-      if (this.GenusAndSpecies()) {
-        this.addTimer()
-      }
+      this.addTimer()
     },
+
     removeSpaces (str) {
       str = str.replace(/^\s+|\s{2,}$|\s\.\s/g, '')
       str = str.replace(/\s{2,}/g, ' ')
       return str
     },
+
     capitalize (str) {
       this.type = str.charAt(0).toUpperCase() + str.substring(1)
     },
+
     GenusAndSpecies () {
       return (this.type.split(' ').length > 1 && this.type.split(' ')[1].length > 2)
     },
+
     sendTaxonName () {
       this.$emit('onTaxonName', this.type)
     },
-    addTimer () {
-      var that = this
 
+    addTimer () {
       clearTimeout(this.timeOut)
-      this.timeOut = setTimeout(function () {
-        that.sendTaxonName()
+      this.timeOut = setTimeout(() => {
+        this.sendTaxonName()
       }, this.timeBeforeSend)
     }
   }

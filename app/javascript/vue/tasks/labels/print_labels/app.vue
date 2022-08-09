@@ -15,7 +15,7 @@
     <navbar-component>
       <div class="horizontal-right-content middle">
         <preview-labels
-          :disabled="!(styleSelected && labels.length)"
+          :disabled="!(styleSelected && selectedLabels.length)"
           class="margin-small-right"
           :class-selected="styleSelected"
           :rows="layout.rows"
@@ -23,28 +23,30 @@
           :divisor="layout.divisor"
           :separator="layout.separator"
           :custom-style="customStyle"
-          :labels="labels"/>
+          :labels="selectedLabels"/>
         <label-form
           v-model="label"
           @save="saveLabel"/>
       </div>
     </navbar-component>
     <block-layout class="margin-medium-bottom">
-      <h3 slot="header">Settings</h3>
-      <div
-        slot="body"
-        class="horizontal-left-content align-start">
-        <style-selector
-          class="full_width"
-          @onNewStyle="customStyle = $event"
-          v-model="styleSelected"/>
-        <layout-component
-          class="full_width"
-          @onRowsChange="layout.rows = $event"
-          @onColumnsChange="layout.columns = $event"
-          @onSeparatorChange="layout.separator = $event"
-          @onDivisorChange="layout.divisor = $event"/>
-      </div>
+      <template #header>
+        <h3>Settings</h3>
+      </template>
+      <template #body>
+        <div class="horizontal-left-content align-start">
+          <style-selector
+            class="full_width"
+            @onNewStyle="customStyle = $event"
+            v-model="styleSelected"/>
+          <layout-component
+            class="full_width"
+            @onRowsChange="layout.rows = $event"
+            @onColumnsChange="layout.columns = $event"
+            @onSeparatorChange="layout.separator = $event"
+            @onDivisorChange="layout.divisor = $event"/>
+        </div>
+      </template>
     </block-layout>
     <table-component
       :list="list"
@@ -58,15 +60,15 @@
 
 <script>
 
-import BlockLayout from 'components/blockLayout'
+import BlockLayout from 'components/layout/BlockLayout'
 import StyleSelector from './components/StyleSelector'
 import LayoutComponent from './components/Layout'
 import TableComponent from './components/Table/TableComponent'
 import PreviewLabels from './components/PreviewLabels'
-import NavbarComponent from 'components/navBar'
+import NavbarComponent from 'components/layout/NavBar'
 import LabelForm from './components/LabelForm'
 import { RouteNames } from 'routes/routes'
-import { GetLabels, GetLabel, RemoveLabel, UpdateLabel, CreateLabel } from './request/resources.js'
+import { Label } from 'routes/endpoints'
 
 export default {
   components: {
@@ -78,6 +80,7 @@ export default {
     NavbarComponent,
     LabelForm
   },
+
   data () {
     return {
       label: undefined,
@@ -101,14 +104,21 @@ export default {
       customStyle: ''
     }
   },
+
+  computed: {
+    selectedLabels () {
+      return this.list.filter(item => this.labels.includes(item.id))
+    }
+  },
+
   created () {
     const urlParams = new URLSearchParams(window.location.search)
     const labelId = urlParams.get('label_id')
 
-    GetLabels().then(response => {
+    Label.all().then(response => {
       this.list = response.body
       if (/^\d+$/.test(labelId)) {
-        GetLabel(labelId).then(r => {
+        Label.find(labelId).then(r => {
           const index = this.list.findIndex(item => item.id === Number(labelId))
 
           if (index > -1) {
@@ -120,32 +130,32 @@ export default {
       }
     })
   },
+
   methods: {
     removeLabel (label) {
-      RemoveLabel(label.id).then(() => {
+      Label.destroy(label.id).then(() => {
         this.list.splice(this.list.findIndex(item => item.id === label.id), 1)
         TW.workbench.alert.create('Label item was successfully destroyed.', 'notice')
       })
     },
     deleteLabels () {
-      this.labels.forEach((label, index) => {
+      this.labels.forEach(label => {
         this.removeLabel(label)
       })
       this.labels = []
     },
     createLabel (label) {
-      CreateLabel(label).then(response => {
+      Label.create({ label }).then(response => {
         this.list.unshift(response.body)
         TW.workbench.alert.create('Label item was successfully created.', 'notice')
       })
     },
     updateLabel (label) {
-      UpdateLabel(label).then(response => {
-        const index = this.list.findIndex(item => {
-          return item.id === label.id
-        })
+      Label.update(label.id, { label }).then(response => {
+        const index = this.list.findIndex(item => item.id === label.id)
+
+        this.list[index] = response.body
         TW.workbench.alert.create('Label item was successfully updated.', 'notice')
-        this.$set(this.list, index, response.body)
       })
     },
     editLabel (label) {

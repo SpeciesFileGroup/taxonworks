@@ -3,7 +3,6 @@
 #
 # AssertedDistributions can be asserts that the source indicates that a taxon is NOT present in an area.  This is a "positive negative" in , i.e. the Source can be thought of recording evidence that a taxon is not present. TaxonWorks does not differentiate between types of negative evidence.
 #
-#
 # @!attribute otu_id
 #   @return [Integer]
 #   the OTU ID
@@ -28,10 +27,14 @@ class AssertedDistribution < ApplicationRecord
   include Shared::DataAttributes
   include Shared::Citations
   include Shared::Confidences
+  include Shared::OriginRelationship
+  include Shared::Identifiers
   include Shared::IsData
 
   include Shared::IsDwcOccurrence
   include AssertedDistribution::DwcExtensions
+
+  originates_from 'Specimen', 'Lot'
 
   belongs_to :otu, inverse_of: :asserted_distributions
   has_one :taxon_name, through: :otu
@@ -50,15 +53,21 @@ class AssertedDistribution < ApplicationRecord
 
   validate :new_records_include_citation
 
+  # TODO: deprecate scopes referencing single wheres
   scope :with_otu_id, -> (otu_id) { where(otu_id: otu_id) }
-  scope :with_geographic_area_id, -> (geographic_area_id) { where(geographic_area_id: geographic_area_id) }
-  scope :with_geographic_area_array, -> (geographic_area_array) { where('geographic_area_id IN (?)', geographic_area_array) }
+  
   scope :with_is_absent, -> { where('is_absent = true') }
+ 
+  scope :with_geographic_area_array, -> (geographic_area_array) { where('geographic_area_id IN (?)', geographic_area_array) }
+  
   scope :without_is_absent, -> { where('is_absent = false OR is_absent is Null') }
 
   accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: proc { |attributes| attributes['name'].blank? && attributes['taxon_name_id'].blank? }
 
-  soft_validate(:sv_conflicting_geographic_area, set: :conflicting_geographic_area)
+  soft_validate(:sv_conflicting_geographic_area,
+                set: :conflicting_geographic_area,
+                name: 'Conflicting geographic area',
+                description: 'Conflicting geographic area' )
 
   # @param [ActionController::Parameters] params
   # @return [Scope]
@@ -73,14 +82,14 @@ class AssertedDistribution < ApplicationRecord
   # @return [AssertedDistribution]
   #   used to also stub an #origin_citation, as required
   def self.stub(defaults: {})
-    a                 = AssertedDistribution.new(
-      otu_id:                     defaults[:otu_id],
-      origin_citation_attributes: {source_id: defaults[:source_id]}
-    )
+    a = AssertedDistribution.new(
+      otu_id: defaults[:otu_id],
+      origin_citation_attributes: {source_id: defaults[:source_id]})
     a.origin_citation = Citation.new if defaults[:source_id].blank?
     a
   end
 
+  # TODO: DRY with helper methods 
   # rubocop:disable Style/StringHashKeys
   # @return [Hash] GeoJSON feature
   def to_geo_json_feature
@@ -104,6 +113,10 @@ class AssertedDistribution < ApplicationRecord
     geographic_area.default_geographic_item
   end
 
+  def has_shape?
+    geographic_area.geographic_items.any?
+  end
+
   protected
 
   # @return [Boolean]
@@ -119,14 +132,19 @@ class AssertedDistribution < ApplicationRecord
 
   # @return [Boolean]
   def sv_conflicting_geographic_area
-    ga = self.geographic_area
-    unless ga.nil?
-      if self.is_absent == true # this returns an array, not a single GA so test below is not right
-        presence = AssertedDistribution.without_is_absent.with_geographic_area_id(self.geographic_area_id)
+    unless geographic_area.nil?
+      areas = [geographic_area.level0_id, geographic_area.level1_id, geographic_area.level2_id].compact
+      if is_absent # this returns an array, not a single GA so test below is not right
+        presence = AssertedDistribution
+          .without_is_absent
+          .with_geographic_area_array(areas)
+          .where(otu_id: otu_id)
         soft_validations.add(:geographic_area_id, "Taxon is reported as present in #{presence.first.geographic_area.name}") unless presence.empty?
       else
-        areas    = [ga.level0_id, ga.level1_id, ga.level2_id].compact
-        presence = AssertedDistribution.with_is_absent.with_geographic_area_array(areas)
+        presence = AssertedDistribution
+          .with_is_absent 
+          .where(otu_id: otu_id)
+          .with_geographic_area_array(areas)
         soft_validations.add(:geographic_area_id, "Taxon is reported as missing in #{presence.first.geographic_area.name}") unless presence.empty?
       end
     end

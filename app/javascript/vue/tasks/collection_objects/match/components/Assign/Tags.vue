@@ -2,7 +2,8 @@
   <div class="panel content">
     <spinner-component
       v-if="isSaving"
-      legend="Saving..."/>
+      legend="Saving..."
+    />
     <h2>Tags</h2>
     <smart-selector
       autocomplete-url="/controlled_vocabulary_terms/autocomplete"
@@ -10,64 +11,82 @@
       get-url="/controlled_vocabulary_terms/"
       model="keywords"
       klass="Tag"
-      @selected="addTag"/>
+      target="CollectionObject"
+      @selected="addTag"
+    />
+
+    <display-list
+      :list="tags"
+      :delete-warning="false"
+      label="object_tag"
+      soft-delete
+      @delete-index="tags.splice(index, 1)"
+    />
+
+    <div class="margin-medium-top">
+      <button
+        type="button"
+        class="button normal-input button-submit"
+        :disabled="!tags.length"
+        @click="setTags()"
+      >
+        Set tags
+      </button>
+    </div>
   </div>
 </template>
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
-import { CreateTag } from '../../request/resources'
+import SmartSelector from 'components/ui/SmartSelector'
 import SpinnerComponent from 'components/spinner'
+import DisplayList from 'components/displayList.vue'
+import { Tag } from 'routes/endpoints'
 
 export default {
   components: {
+    DisplayList,
     SmartSelector,
     SpinnerComponent
   },
+
   props: {
     ids: {
       type: Array,
       required: true
     }
   },
+
   data () {
     return {
       view: undefined,
       maxPerCall: 5,
-      isSaving: false
+      isSaving: false,
+      tags: []
     }
   },
-  methods: {
-    addTag (selectedTag, position = 0) {
-      let promises = []
 
-      for(let i = 0; i < this.maxPerCall; i++) {
-        if(position < this.ids.length) {
-          promises.push(new Promise((resolve, reject) => {
-            const tag = {
-              keyword_id: selectedTag.id,
-              tag_object_id: this.ids[i],
-              tag_object_type: 'CollectionObject'
-            }
-            CreateTag(tag).then(response => {
-              resolve()
-            }, () => {
-              resolve()
-            })
-          }))
-          position++
-        }
-      }
-      Promise.all(promises).then(response => {
-        if(position < this.ids.length)
-          this.addTag(selectedTag, position)
-        else {
-          this.isSaving = false
-          TW.workbench.alert.create('Tag items was successfully created.', 'notice')
-        }
-      })
+  methods: {
+    addTag (tag) {
+      this.tags.push(tag)
     },
+
+    setTags () {
+      const promises = this.tags.map(tag =>
+        Tag.createBatch({
+          keyword_id: tag.id,
+          object_ids: this.ids,
+          object_type: 'CollectionObject'
+        })
+      )
+
+      this.isSaving = true
+
+      Promise.allSettled(promises).then(() => {
+        this.isSaving = false
+        TW.workbench.alert.create('Tag items was successfully created.', 'notice')
+      })
+    }
   }
 }
 </script>

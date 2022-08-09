@@ -1,8 +1,9 @@
 <template>
   <div>
     <spinner-component
-      :full-screen="true"
-      v-if="isLoading"/>
+      v-if="isLoading"
+      full-screen
+    />
     <button
       @click="showModalView(true)"
       class="button normal-input button-default button-size separate-left"
@@ -10,10 +11,12 @@
       Recent
     </button>
     <modal-component
-      :container-style="{ width: '800px' }"
+      :container-style="{ width: '90%' }"
       @close="showModalView(false)">
-      <h3 slot="header">Recent collecting events</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Recent collecting events</h3>
+      </template>
+      <template #body>
         <table class="full_width">
           <thead>
             <tr>
@@ -40,22 +43,28 @@
             </tr>
           </tbody>
         </table>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
 
 <script>
 
-import { GetCollectingEvents, DestroyCollectingEvent } from '../request/resources'
 import SpinnerComponent from 'components/spinner'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
+import { CollectingEvent } from 'routes/endpoints'
 
 export default {
   components: {
     SpinnerComponent,
     ModalComponent
   },
+
+  emits: [
+    'close',
+    'select'
+  ],
+
   data () {
     return {
       collectingEvents: [],
@@ -63,25 +72,29 @@ export default {
       showModal: false
     }
   },
-  mounted () {
+
+  created () {
     this.isLoading = true
-    GetCollectingEvents({ per: 10, recent: true }).then(response => {
+    CollectingEvent.where({ per: 10, recent: true }).then(response => {
       this.collectingEvents = response.body
     }).finally(() => {
       this.isLoading = false
     })
   },
+
   methods: {
     showModalView (value) {
       this.$emit('close', value)
     },
+
     removeCollectingEvent (index) {
-      if (window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
-        DestroyCollectingEvent(this.collectingEvents[index].id).then(response => {
+      if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
+        CollectingEvent.destroy(this.collectingEvents[index].id).then(() => {
           this.collectingEvents.splice(index, 1)
         })
       }
     },
+
     selectCollectingEvent (collectingEvent) {
       this.$emit('select', collectingEvent)
       this.showModalView(false)

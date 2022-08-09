@@ -7,5 +7,5 @@ json.array! @serials do |s|
     if params[:method]
       json.set! params[:method], s.id
     end
-  end 
+  end
 end

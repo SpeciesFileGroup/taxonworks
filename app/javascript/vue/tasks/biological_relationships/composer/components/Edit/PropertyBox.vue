@@ -5,15 +5,17 @@
       v-model="properties"
       :group="{ name: 'property', put: true }"
       class="item item1 column-medium flex-wrap-column full_width ">
-      <div
-        v-for="(item, index) in properties" class="horizontal-left-content"
-        v-if="!item['_destroy']">
-        <span
-          class="cursor-pointer button circle-button btn-delete"
-          @click="removeProperty(index)"/>
-        <span
-          v-html="item['biological_property'] ? item.biological_property.object_tag : item.object_tag"/>
-      </div>
+      <template #item="{ element }">
+        <div
+          v-if="!element._destroy"
+          class="horizontal-left-content">
+          <span
+            class="cursor-pointer button circle-button btn-delete"
+            @click="removeProperty(index)"/>
+          <span
+            v-html="element['biological_property'] ? element.biological_property.object_tag : element.object_tag"/>
+        </div>
+      </template>
     </draggable>
   </div>
 </template>
@@ -27,30 +29,35 @@ export default {
     Draggable
   },
   props: {
-    value: {
+    modelValue: {
       type: Array,
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     properties: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       property: []
     }
   },
+
   methods: {
     removeProperty(index) {
-      if(this.properties[index]['created']) {
-        this.$set(this.properties[index], '_destroy', true)
+      if (this.properties[index]['created']) {
+        this.properties[index]['_destroy'] = true
       }
       else {
         this.properties.splice(index, 1)

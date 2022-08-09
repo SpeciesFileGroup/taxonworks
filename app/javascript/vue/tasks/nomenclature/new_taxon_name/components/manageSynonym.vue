@@ -4,11 +4,12 @@
       anchor="original-combination"
       v-if="isInvalid && validTaxon && childrenList.length"
       v-help.section.originalCombination.container>
-      <h3 slot="header">Manage synonymy</h3>
-      <div
-        slot="body">
+      <template #header>
+        <h3>Manage synonymy</h3>
+      </template>
+      <template #body>
         <spinner-component
-          :full-screen="true"
+          full-screen
           legend="Saving changes..."
           :logo-size="{ width: '100px', height: '100px'}"
           v-if="saving"/>
@@ -42,33 +43,33 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="children in childrenList">
+              <tr v-for="child in childrenList">
                 <td>
-                  {{ children.name }}
+                  {{ child.name }}
                 </td>
                 <td>
-                  {{ children.id == children.cached_valid_taxon_name_id ? 'Yes' : 'No' }}
+                  {{ child.cached_is_valid ? 'Yes' : 'No' }}
                 </td>
-                <td v-html="children.parent.name"/>
+                <td v-html="child.parent.name"/>
                 <td>
                   <autocomplete
                     url="/taxon_names/autocomplete"
                     param="term"
                     min="2"
                     label="label"
-                    @getItem="addPreSelected(children.id, $event.id)"
+                    @getItem="addPreSelected(child.id, $event.id)"
                     :add-params="{ type: 'Protonym', 'nomenclature_group[]': 'Genus' }"
                     :placeholder="validTaxon.name"/>
                 </td>
                 <td class="horizontal-left-content">
                   <span
                     class="circle-button btn-edit"
-                    @click="loadTaxon(children.id)"/>
-                  <radial-annotator :global-id="children.global_id"/>
+                    @click="loadTaxon(child.id)"/>
+                  <radial-annotator :global-id="child.global_id"/>
                 </td>
                 <td>
                   <input
-                    :value="children.id"
+                    :value="child.id"
                     type="checkbox"
                     v-model="selected">
                 </td>
@@ -82,13 +83,15 @@
             Save
           </button>
         </div>
-      </div>
+      </template>
     </block-layout>
     <modal-component
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Move taxon names</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Move taxon names</h3>
+      </template>
+      <template #body>
         <p>
           This will change all taxon parents. Are you sure you want to proceed? Type "MOVE" to proceed.
         </p>
@@ -97,8 +100,8 @@
           class="full_width"
           v-model="moveInput"
           placeholder="Wirte MOVE to continue">
-      </div>
-      <div slot="footer">
+      </template>
+      <template #footer>
         <button
           type="button"
           class="button normal-input button-submit"
@@ -106,7 +109,7 @@
           @click="saveTaxonNames()">
           Move all
         </button>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
@@ -114,12 +117,12 @@
 <script>
 
 import { GetterNames } from '../store/getters/getters'
+import { TaxonName } from 'routes/endpoints'
 import RadialAnnotator from 'components/radials/annotator/annotator'
-import BlockLayout from './blockLayout'
-import ModalComponent from 'components/modal'
+import BlockLayout from 'components/layout/BlockLayout'
+import ModalComponent from 'components/ui/Modal'
 import SpinnerComponent from 'components/spinner'
-import Autocomplete from 'components/autocomplete'
-import AjaxCall from 'helpers/ajaxCall'
+import Autocomplete from 'components/ui/Autocomplete'
 
 export default {
   components: {
@@ -134,39 +137,39 @@ export default {
       return this.$store.getters[GetterNames.GetTaxon]
     },
     isInvalid() {
-      return this.taxon.id != this.taxon.cached_valid_taxon_name_id
+      return !this.taxon.cached_is_valid
     },
     checkInput() {
-      return this.moveInput.toUpperCase() != 'MOVE'
+      return this.moveInput.toUpperCase() !== 'MOVE'
     }
   },
   data() {
     return {
       childrenList: [],
       selected: [],
-      expanded: true,
       validTaxon: undefined,
       showModal: false,
       moveInput: '',
       saving: false,
       preSelected: [],
-      isLoading: false
+      isLoading: false,
+      maxSelect: 10
     }
   },
   watch: {
     taxon: {
       handler(newVal) {
-        if(newVal && newVal.id != newVal.cached_valid_taxon_name_id) {
-          AjaxCall('get', `/taxon_names/${this.taxon.cached_valid_taxon_name_id}.json`).then(res => {
+        if (newVal && !newVal.cached_is_valid) {
+          TaxonName.find(this.taxon.cached_valid_taxon_name_id).then(res => {
             this.validTaxon = res.body
             this.isLoading = true
-            AjaxCall('get', '/taxon_names.json', {
-              params: {
-                taxon_name_id: [this.taxon.id],
-                descendants: true,
-                taxon_name_type: 'Protonym'
-              }}).then(response => {
-              this.childrenList = response.body.filter(item => { return item.id !== this.taxon.id })
+            TaxonName.where({
+              parent_id: [this.taxon.id],
+              taxon_name_type: 'Protonym',
+              per: 500,
+              extend: ['parent']
+            }).then(response => {
+              this.childrenList = response.body.filter(item => item.id !== this.taxon.id)
               this.isLoading = false
             })
           })
@@ -176,23 +179,26 @@ export default {
     }
   },
   methods: {
-    selectAll() {
-      this.selected = this.childrenList.map((children) => { return children.id })
+    selectAll () {
+      this.selected = this.childrenList.map((children) => children.id)
     },
-    loadTaxon(id) {
-      if(window.confirm(`Are you sure you want to load this taxon name?`)) {
+
+    loadTaxon (id) {
+      if (window.confirm('Are you sure you want to load this taxon name?')) {
         window.open(`/tasks/nomenclature/new_taxon_name/${id}`,`_self`)
       }
     },
-    confirmSave() {
-      if(this.selected.length >= 10) {
+
+    confirmSave () {
+      if (this.selected.length >= this.maxSelect) {
         this.showModal = true
       } else {
-        if(window.confirm(`Are you sure you want to proceed?`)) {
+        if (window.confirm('Are you sure you want to proceed?')) {
           this.saveTaxonNames()
         }
       }
     },
+
     saveTaxonNames() {
       const promises = []
 
@@ -201,30 +207,31 @@ export default {
       this.moveInput = ''
 
       this.selected.forEach((id, index) => {
-        console.log(id)
         const findPreSelected = this.preSelected.find(children => {
           return children.childrenId === id
         })
-        if (findPreSelected) {
-          promises.push(AjaxCall('patch', `/taxon_names/${id}`, { taxon_name: { parent_id: findPreSelected.parentId } }))
-        } else {
-          promises.push(AjaxCall('patch', `/taxon_names/${id}`, { taxon_name: { parent_id: this.taxon.cached_valid_taxon_name_id } }))
-        }
+
+        promises.push(TaxonName.update(id, {
+          taxon_name: {
+            parent_id: findPreSelected
+              ? findPreSelected.parentId
+              : this.taxon.cached_valid_taxon_name_id
+          }
+        }))
       })
 
       Promise.all(promises).then(() => {
-        this.childrenList = this.childrenList.filter(children => {
-          return !this.selected.includes(children.id)
-        })
+        this.childrenList = this.childrenList.filter(children => !this.selected.includes(children.id))
         this.selected = []
         this.preSelected = []
         this.saving = false
-        TW.workbench.alert.create(`Taxon name was successfully moved.`, 'notice')
+        TW.workbench.alert.create('Taxon name was successfully moved.', 'notice')
       }, (response) => {
         this.saving = false
       })
     },
-    addPreSelected(childrenId, parentId) {
+
+    addPreSelected (childrenId, parentId) {
       this.preSelected.push({
         childrenId: childrenId,
         parentId: parentId

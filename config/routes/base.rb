@@ -30,6 +30,7 @@ end
 
 scope :graph, controller: :graph do
   get ':global_id/metadata', action: :metadata, defaults: {format: :json}
+  get ':global_id/object', action: :object, as: :object_graph, defaults: {format: :json}
 end
 
 resources :projects do
@@ -42,9 +43,7 @@ resources :projects do
   member do
     get 'select'
     get 'settings_for'
-    get 'stats'
     get 'recently_created_stats'
-    get 'per_relationship_recent_stats/:relationship', action: :per_relationship_recent_stats, as: :per_relationship_recent_stats
   end
 end
 
@@ -53,6 +52,8 @@ scope :administration, controller: :administration do
   get 'user_activity'
   get 'data_overview'
   get 'data_health'
+  get 'data_reindex'
+  get 'data_class_summary'
 end
 
 resources :project_members, except: [:index] do
@@ -73,16 +74,13 @@ resources :pinboard_items, only: [:create, :destroy, :update] do
   end
 end
 
-# constraints subdomain: 's' do
-#   get '/:id' => "shortener/shortened_urls#show"
-# end
-
 scope :s do
   get ':id' => 'shortener/shortened_urls#show'
 end
 
 resources :users, except: :new do
   collection do
+    post 'batch_create'
     get :autocomplete, defaults: {format: :json}
   end
   member do
@@ -100,7 +98,7 @@ post '/send_password_reset', to: 'users#send_password_reset', as: 'send_password
 get '/password_reset/:token', to: 'users#password_reset', as: 'password_reset'
 patch '/set_password/:token', to: 'users#set_password', as: 'set_password'
 
-match '/papertrail', to: 'papertrail#papertrail', via: :get
+match '/papertrail', to: 'papertrail#index', via: :get
 match '/papertrail/compare/', to: 'papertrail#compare', as: 'papertrail_compare', via: :get
 match '/papertrail/:id', to: 'papertrail#show', as: 'paper_trail_version', via: :get
 match '/papertrail/update/', to: 'papertrail#update', as: 'papertrail_update', via: :put

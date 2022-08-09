@@ -32,7 +32,8 @@
       <filter-table
         v-for="(item, key) in tableFilter"
         :key="key"
-        :title="key" v-model="tableFilter[key]"/>
+        :title="key"
+        v-model="tableFilter[key]"/>
     </div>
   </div>
 </template>
@@ -45,7 +46,7 @@ import RanksFilter from './filters/ranks'
 import OtuFilter from './filters/otus'
 import FilterTable from './filters/with.vue'
 import CombinationsFilter from './filters/combinations'
-import { GetTaxonName } from '../request/resources'
+import { TaxonName } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { GetterNames } from '../store/getters/getters'
 
@@ -58,29 +59,40 @@ export default {
     taxonName,
     FilterTable
   },
+
   props: {
     fieldSet: {
       type: Array,
       required: true
     }
   },
+
+  emits: [
+    'onSearch',
+    'onTableFilter',
+    'onTaxon',
+    'reset'
+  ],
+
   computed: {
     rankList () {
       return this.$store.getters[GetterNames.GetRanks]
     }
   },
+
   data () {
     return {
       taxonName: undefined,
       searching: false,
       params: this.initParams(),
       tableFilter: {
-        observation_count: undefined,
-        observation_depictions: undefined,
-        descriptors_scored: undefined
+        otu_observation_count: undefined,
+        otu_observation_depictions: undefined,
+        descriptors_scored_for_otu: undefined
       }
     }
   },
+
   watch: {
     taxonName: {
       handler (newVal) {
@@ -105,24 +117,28 @@ export default {
       immediate: true
     }
   },
+
   mounted () {
     const urlParams = URLParamsToJSON(location.href)
     if (Object.keys(urlParams).length) {
-      GetTaxonName(urlParams.ancestor_id).then(response => {
+      TaxonName.find(urlParams.ancestor_id).then(response => {
         this.taxonName = response.body
         this.params = Object.assign({}, this.params, urlParams)
         this.sendParams()
       })
     }
   },
+
   methods: {
     sendParams () {
       this.$emit('onSearch', this.params)
     },
+
     setTaxon (taxon) {
       this.taxonName = taxon
       this.params.ancestor_id = taxon.id
     },
+
     initParams () {
       return {
         ancestor_id: undefined,
@@ -132,6 +148,7 @@ export default {
         fieldsets: ['observations']
       }
     },
+
     resetFilter () {
       this.taxonName = undefined
       this.params = this.initParams()
@@ -141,7 +158,7 @@ export default {
 }
 </script>
 <style scoped>
-  /deep/ .vue-autocomplete-input {
+  :deep(.vue-autocomplete-input) {
     width: 100%;
   }
 </style>

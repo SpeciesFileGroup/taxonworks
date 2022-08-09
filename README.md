@@ -8,7 +8,11 @@
 
 ## Overview
 
-To get a general overview on the project, its vision, and scope see [taxonworks.org][9].  Documentation for TaxonWorks exists in companion repositories [taxonworks_doc][13], [taxonworks_api][12], [install_taxonworks][11] and websites ([code documentation][10]).
+To get a general overview on the project, its vision, and scope see [taxonworks.org][9].
+
+See [docs.taxonworks.org][22] for documentation.
+
+Documentation for TaxonWorks exists in companion repositories [taxonworks_doc][13], [taxonworks_api][12], [install_taxonworks][11] and websites ([code documentation][10]).
 
 ## Learn more, collaborate
 
@@ -40,4 +44,4 @@ The foundation of TaxonWorks is funded by an endowment of the [Species File Grou
 [19]: https://gitter.im/SpeciesFileGroup/taxonworks?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge
 [20]: https://badges.gitter.im/SpeciesFileGroup/taxonworks.svg
 [21]: https://speciesfilegroup.org
-
+[22]: https://docs.taxonworks.org

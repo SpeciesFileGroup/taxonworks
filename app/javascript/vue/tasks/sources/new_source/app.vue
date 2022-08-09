@@ -10,14 +10,16 @@
             placeholder="Search a source..."
             label="label_html"
             clear-after
-            @getItem="loadSource($event.id)"/>
+            @get-item="loadSource($event.id)"
+          />
         </li>
         <li>
           <label>
             <input
               type="checkbox"
-              v-model="settings.sortable">
-            Sortable fields
+              v-model="settings.sortable"
+            >
+            Reorder fields
           </label>
         </li>
         <li>
@@ -28,102 +30,112 @@
     <nav-bar class="source-navbar">
       <div class="flex-separate full_width">
         <div class="middle">
-          <span
-            class="word_break"
-            v-if="source.id"
-            v-html="source.cached"/>
-          <span v-else>New record</span>
           <template v-if="source.id">
-            <pin-component
-              :object-id="source.id"
-              type="Source"/>
-            <radial-annotator :global-id="source.global_id"/>
-            <radial-object :global-id="source.global_id"/>
-            <add-source
-              :project-source-id="source.project_source_id"
-              :id="source.id"/>
+            <span
+              class="word_break"
+              v-html="source.cached"
+            />
+
+            <div class="flex-wrap-row nav__source-buttons margin-small-left">
+              <pin-component
+                class="circle-button"
+                type="Source"
+                :object-id="source.id"
+              />
+              <radial-annotator :global-id="source.global_id" />
+              <radial-object :global-id="source.global_id" />
+              <add-source
+                :project-source-id="source.project_source_id"
+                :id="source.id"
+              />
+            </div>
           </template>
+          <span v-else>New record</span>
         </div>
-        <div class="horizontal-right-content">
-          <span
+        <div
+          class="nav__buttons"
+          v-hotkey="shortcuts"
+        >
+          <v-icon
             v-if="unsave"
-            class="medium-icon margin-small-right"
+            name="attention"
+            color="attention"
             title="You have unsaved changes."
-            data-icon="warning"/>
+          />
           <button
-            v-shortkey="[getMacKey(), 's']"
-            @shortkey="saveSource"
             @click="saveSource"
             :disabled="source.type === 'Source::Bibtex' && !source.bibtex_type"
-            class="button normal-input button-submit button-size separate-right separate-left"
-            type="button">
+            class="button normal-input button-submit button-size margin-small-left margin-small-top margin-small-bottom"
+            type="button"
+          >
             Save
           </button>
+          <clone-source />
           <button
             v-if="source.type === 'Source::Verbatim' && source.id"
-            class="button normal-input button-submit button-size margin-small-right"
+            class="button normal-input button-submit button-size margin-small-left margin-small-top margin-small-bottom"
             type="button"
-            @click="convert">
+            @click="convert"
+          >
             To BibTeX
           </button>
           <button
-            :disabled="!source.id"
-            v-shortkey="[getMacKey(), 'c']"
-            @shortkey="cloneSource"
-            @click="cloneSource"
-            class="button normal-input button-submit button-size"
-            type="button">
-            Clone
-          </button>
-          <button
             v-help.section.navBar.crossRef
-            class="button normal-input button-default button-size separate-left"
+            class="button normal-input button-default button-size margin-small-left"
             type="button"
-            @click="showModal = true">
+            @click="showModal = true"
+          >
             CrossRef
           </button>
           <button
-            class="button normal-input button-default button-size separate-left"
+            class="button normal-input button-default button-size margin-small-left margin-small-top margin-small-bottom"
             type="button"
-            @click="showBibtex = true">
+            @click="showBibtex = true"
+          >
             BibTeX
           </button>
           <button
             @click="showRecent = true"
-            class="button normal-input button-default button-size separate-left"
-            type="button">
+            class="button normal-input button-default button-size margin-small-left"
+            type="button"
+          >
             Recent
           </button>
           <button
-            v-shortkey="[getMacKey(), 'n']"
-            @shortkey="reset"
             @click="reset"
-            class="button normal-input button-default button-size separate-left"
-            type="button">
+            class="button normal-input button-default button-size margin-small-left margin-small-top margin-small-bottom"
+            type="button"
+          >
             New
           </button>
         </div>
       </div>
     </nav-bar>
-    <source-type class="margin-medium-bottom"/>
+    <source-type class="margin-medium-bottom" />
     <recent-component
       v-if="showRecent"
-      @close="showRecent = false"/>
+      @close="showRecent = false"
+    />
     <div class="horizontal-left-content align-start">
-      <component class="full_width" :is="section"/>
-      <right-section class="separate-left"/>
+      <div class="full_width">
+        <component :is="section" />
+      </div>
+      <right-section class="margin-medium-left" />
     </div>
     <cross-ref
       v-if="showModal"
-      @close="showModal = false"/>
+      @close="showModal = false"
+    />
     <bibtex-button
       v-if="showBibtex"
-      @close="showBibtex = false"/>
+      @close="showBibtex = false"
+    />
     <spinner-component
       v-if="settings.isConverting"
       :full-screen="true"
       :logo-size="{ width: '100px', height: '100px'}"
-      legend="Converting verbatim to BiBTeX..."/>
+      legend="Converting verbatim to BiBTeX..."
+    />
   </div>
 </template>
 
@@ -137,50 +149,65 @@ import CrossRef from './components/crossRef'
 import BibtexButton from './components/bibtex'
 import Verbatim from './components/verbatim/main'
 import Bibtex from './components/bibtex/main'
-import Human from './components/person/main'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial'
-import GetMacKey from 'helpers/getMacKey'
 import AddSource from 'components/addToProjectSource'
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
+import CloneSource from './components/cloneSource'
+import VIcon from 'components/ui/VIcon/index.vue'
 
-import PinComponent from 'components/pin'
+import PinComponent from 'components/ui/Pinboard/VPin.vue'
 
-import { GetUserPreferences } from './request/resources'
-
+import { User } from 'routes/endpoints'
 import { GetterNames } from './store/getters/getters'
 import { ActionNames } from './store/actions/actions'
 import { MutationNames } from './store/mutations/mutations'
 
 import RightSection from './components/rightSection'
-import NavBar from 'components/navBar'
+import NavBar from 'components/layout/NavBar'
+import platformKey from 'helpers/getPlatformKey'
 
 export default {
+  name: 'NewSource',
+
   components: {
     Autocomplete,
+    CloneSource,
     RadialAnnotator,
     RadialObject,
     PinComponent,
     SourceType,
     Verbatim,
     Bibtex,
-    Human,
     CrossRef,
     RightSection,
     BibtexButton,
     AddSource,
     NavBar,
     RecentComponent,
-    SpinnerComponent
+    SpinnerComponent,
+    VIcon
   },
+
   computed: {
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+s`] = this.saveSource
+      keys[`${platformKey()}+n`] = this.reset
+
+      return keys
+    },
+
     section () {
       const type = this.$store.getters[GetterNames.GetType]
       return type ? type.split('::')[1] : undefined
     },
+
     source () {
       return this.$store.getters[GetterNames.GetSource]
     },
+
     settings: {
       get () {
         return this.$store.getters[GetterNames.GetSettings]
@@ -189,11 +216,13 @@ export default {
         this.$store.commit(MutationNames.SetSettings, value)
       }
     },
-    unsave() {
-      let settings = this.$store.getters[GetterNames.GetSettings]
+
+    unsave () {
+      const settings = this.$store.getters[GetterNames.GetSettings]
       return settings.lastSave < settings.lastEdit
     }
   },
+
   data () {
     return {
       showModal: false,
@@ -201,6 +230,7 @@ export default {
       showRecent: false
     }
   },
+
   watch: {
     source: {
       handler (newVal, oldVal) {
@@ -211,10 +241,11 @@ export default {
       deep: true
     }
   },
+
   mounted () {
-    TW.workbench.keyboard.createLegend(`${this.getMacKey()}+s`, 'Save', 'New source')
-    TW.workbench.keyboard.createLegend(`${this.getMacKey()}+n`, 'New', 'New source')
-    TW.workbench.keyboard.createLegend(`${this.getMacKey()}+c`, 'Clone source', 'New source')
+    TW.workbench.keyboard.createLegend(`${platformKey()}+s`, 'Save', 'New source')
+    TW.workbench.keyboard.createLegend(`${platformKey()}+n`, 'New', 'New source')
+    TW.workbench.keyboard.createLegend(`${platformKey()}+c`, 'Clone source', 'New source')
 
     const urlParams = new URLSearchParams(window.location.search)
     const sourceId = urlParams.get('source_id')
@@ -223,10 +254,11 @@ export default {
       this.$store.dispatch(ActionNames.LoadSource, sourceId)
     }
 
-    GetUserPreferences().then(response => {
+    User.preferences().then(response => {
       this.$store.commit(MutationNames.SetPreferences, response.body)
     })
   },
+
   methods: {
     reset () {
       this.$store.dispatch(ActionNames.ResetSource)
@@ -243,13 +275,30 @@ export default {
     },
     loadSource (sourceId) {
       this.$store.dispatch(ActionNames.LoadSource, sourceId)
-    },
-    getMacKey: GetMacKey
+    }
   }
 }
 </script>
 <style scoped>
   .button-size {
     width: 100px;
+  }
+
+  .nav__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: end;
+    align-items: center;
+  }
+
+  @media (min-width: 1520px) {
+    .nav__buttons {
+      min-width: 800px;
+    }
+
+    .nav__source-buttons {
+      min-width: 150px;
+    }
   }
 </style>

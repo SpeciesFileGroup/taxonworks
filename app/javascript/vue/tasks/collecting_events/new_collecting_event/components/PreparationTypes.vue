@@ -26,28 +26,39 @@
 
 <script>
 
-import { GetPreparationTypes } from '../request/resources'
+import { PreparationType } from 'routes/endpoints'
+
 export default {
+  props: {
+    modelValue: {
+      type: [String, Number],
+      default: undefined
+    }
+  },
+
   computed: {
     preparationGroups () {
       return this.preparationTypes.chunk(Math.ceil(this.preparationTypes.length/3))
     },
+
     preparationType: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   async mounted () {
-    this.preparationTypes = (await GetPreparationTypes()).body
+    this.preparationTypes = (await PreparationType.all()).body
     this.preparationTypes.push({
       id: undefined,
       name: 'None'
     })
   },
+
   data () {
     return {
       preparationTypes: []

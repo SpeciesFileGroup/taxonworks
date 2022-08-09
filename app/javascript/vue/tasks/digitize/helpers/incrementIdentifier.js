@@ -1,11 +1,14 @@
-export default function(textString) {
-  if(textString == undefined || !(/(\d+)/g).test(textString)) return textString
+export default (textString) => {
+  if (textString === undefined || !(/(\d+)/g).test(textString)) return textString
 
-  let numbers = textString.match(/(\d+)/g).map(Number)
-  let index = numbers.length-1
-  let newValue = numbers[index] + 1
-  let start = textString.lastIndexOf(numbers[index])
-  let numberLength = numbers[index].toString().length
+  const numberString = textString.match(/(\d+)/g).pop() // get the last group of numbers in the string
 
-  return textString.substring(0, start) + newValue + textString.substring((start + numberLength), textString.length)
+  const number = parseInt(numberString, 10) + 1
+  const newValue = number.toString().padStart(numberString.length, '0') // keep the number the same length as before
+
+  const start = textString.lastIndexOf(numberString)
+  const prefix = textString.substring(0, start)
+  const postfix = textString.substring(start + numberString.length)
+
+  return prefix + newValue + postfix
 }

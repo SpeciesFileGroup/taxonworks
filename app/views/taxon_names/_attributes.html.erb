@@ -63,29 +63,18 @@
     <strong>Cached author year:</strong>
     <%= @taxon_name.cached_author_year %>
   </p>
-
-  <!---
-  <p>
-  <strong>Cached higher classification:</strong>
-  <%# @taxon_name.cached_higher_classification %>
-  </p>
-  --->
-
   <p>
     <strong>Cached classified as:</strong>
     <%= @taxon_name.cached_classified_as %>
   </p>
-  
   <p>
     <strong>Cached original combination:</strong>
     <%= @taxon_name.cached_original_combination %>
   </p>
-
   <p>
   <strong>Cached original combination HTML:</strong>
   <%= @taxon_name.cached_original_combination_html.html_safe if @taxon_name.cached_original_combination_html %>
   </p>
-
   <p>
     <strong>Cached secondary homonym:</strong>
     <%= @taxon_name.cached_secondary_homonym %>
@@ -102,10 +91,22 @@
     <strong>Cached primary homonym alt:</strong>
     <%= @taxon_name.cached_primary_homonym_alternative_spelling %>
   </p>
-
-    <p>
+  <p>
     <strong>Cached valid taxon name id:</strong>
     <%= link_to(@taxon_name.cached_valid_taxon_name_id, @taxon_name.valid_taxon_name.metamorphosize) %>
   </p>
+  <p>
+    <strong>Cached is valid:</strong>
+    <%= @taxon_name.cached_is_valid %>
+  </p>
+  <p>
+    <strong>Cached nomenclature date:</strong>
+    <%= @taxon_name.cached_nomenclature_date %>
+  </p>
+  <p>
+    <strong>Rank class:</strong>
+    <%= @taxon_name.rank_class -%>
+  </p>
+
 </div>
 

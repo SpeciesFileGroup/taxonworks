@@ -1,13 +1,7 @@
-import { GetNamespace } from '../../request/resources'
+import { Namespace } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
-export default function ({ commit }, id) {
-  return new Promise((resolve, reject) => {
-    GetNamespace(id).then(response => {
-      commit(MutationNames.SetNamespaceSelected, response.body.name)
-      return resolve(response.body)
-    }, error => {
-      reject(error)
-    })
+export default ({ commit }, id) =>
+  Namespace.find(id).then(response => {
+    commit(MutationNames.SetNamespaceSelected, response.body)
   })
-}

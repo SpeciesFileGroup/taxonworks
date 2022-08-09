@@ -4,21 +4,23 @@
     <smart-selector
       ref="smartSelector"
       model="people"
-      target="CollectingEvent"
+      target="Collector"
       klass="CollectingEvent"
       :params="{ role_type: 'Collector' }"
       :autocomplete-params="{
         roles: ['Collector']
       }"
+      label="cached"
       :autocomplete="false"
       @selected="addRole">
-      <role-picker
-        slot="header"
-        :hidden-list="true"
-        v-model="collectingEvent.roles_attributes"
-        ref="rolepicker"
-        :autofocus="false"
-        role-type="Collector"/>
+      <template #header>
+        <role-picker
+          hidden-list
+          v-model="collectingEvent.roles_attributes"
+          ref="rolepicker"
+          :autofocus="false"
+          role-type="Collector"/>
+      </template>
       <role-picker
         :create-form="false"
         v-model="collectingEvent.roles_attributes"
@@ -30,22 +32,22 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 import RolePicker from 'components/role_picker.vue'
 import extendCE from '../mixins/extendCE.js'
+import { findRole } from 'helpers/people/people.js'
 
 export default {
   mixins: [extendCE],
+
   components: {
     SmartSelector,
     RolePicker
   },
+
   methods: {
-    roleExist (id) {
-      this.collectingEvent.roles_attributes.find(role => !role?._destroy && role.person_id === id)
-    },
     addRole (role) {
-      if (!this.roleExist(role.id)) {
+      if (!findRole(this.collectingEvent.roles_attributes, role.id)) {
         this.$refs.rolepicker.addCreatedPerson({ object_id: role.id, label: role.cached })
       }
     }

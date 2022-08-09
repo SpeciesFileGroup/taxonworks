@@ -9,6 +9,8 @@
 #
 class Source::Verbatim < Source
 
+  include Shared::OriginRelationship
+
   IGNORE_IDENTICAL = [:serial_id, :address, :annote, :booktitle, :chapter, :crossref,
                       :edition, :editor, :howpublished, :institution, :journal, :key,
                       :month, :note, :number, :organization, :pages, :publisher, :school,
@@ -19,6 +21,8 @@ class Source::Verbatim < Source
                       :cached_nomenclature_date].freeze
   IGNORE_SIMILAR = IGNORE_IDENTICAL.dup.freeze
 
+  is_origin_for 'Source::Bibtex', 'Source::Verbatim'
+  originates_from 'Source::Bibtex', 'Source::Verbatim'
 
   attr_accessor :convert_to_bibtex
 
@@ -104,7 +108,11 @@ class Source::Verbatim < Source
 
   # @return [Ignored]
   def set_cached
-    update_column(:cached, verbatim)
+    update_column(:cached, get_cached)
+  end
+
+  def get_cached
+    verbatim
   end
 
   # @return [Ignored]
@@ -115,4 +123,10 @@ class Source::Verbatim < Source
     end
   end
 
+  def sv_cached_names # this cannot be moved to soft_validation_extensions
+    soft_validations.add(
+      :base, 'Cached values should be updated',
+      success_message: 'Cached values were updated',
+      failure_message:  'Failed to update cached values') if cached != verbatim
+  end
 end

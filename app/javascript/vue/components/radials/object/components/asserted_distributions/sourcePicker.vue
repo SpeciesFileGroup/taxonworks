@@ -2,42 +2,27 @@
   <fieldset class="separate-bottom">
     <legend>Source</legend>
     <div class="separate-bottom">
-      <div
-        class="horizontal-left-content"
-        v-show="!citation.id"
-      >
-        <autocomplete
-          url="/sources/autocomplete"
-          label="label_html"
-          min="2"
-          ref="autocomplete"
-          :clear-after="true"
-          @getItem="setSource"
-          placeholder="Select a source"
-          param="term"
+      <div class="horizontal-left-content align-start">
+        <smart-selector
+          model="sources"
+          target="AssertedDistribution"
+          klass="AssertedDistribution"
+          pin-section="Sources"
+          pin-type="Source"
+          label="cached"
+          v-model="selectedSource"
+          @selected="setSource"
         />
-        <template>
-          <default-element
-            v-if="!citation.source_id"
-            class="separate-left"
-            label="source"
-            type="Source"
-            @getItem="setSource"
-            section="Sources"
-          />
-          <span
-            v-else
-            @click="cleanCitation"
-            class="separate-left"
-            data-icon="reset"
-          />
-          <lock-component v-model="lock" />
-        </template>
+        <lock-component
+          class="margin-small-left"
+          v-model="lock"
+        />
       </div>
+      <hr>
       <div class="margin-small-top">
         <span
-          v-if="citation.source_id && !citation.id"
-          v-html="autocompleteLabel"
+          v-if="selectedSource"
+          v-html="selectedSource.cached"
         />
       </div>
       <span
@@ -64,10 +49,10 @@
             Is original
           </label>
         </li>
-        <li>
+        <li v-if="absentField">
           <label class="inline middle">
             <input
-              v-model="citation.is_absent"
+              v-model="isAbsent"
               type="checkbox"
             >
             Is absent
@@ -79,52 +64,103 @@
 </template>
 
 <script>
-import DefaultElement from 'components/getDefaultPin.vue'
-import Autocomplete from 'components/autocomplete.vue'
-import LockComponent from 'components/lock'
+
+import LockComponent from 'components/ui/VLock/index.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
+import { Source } from 'routes/endpoints'
 import { convertType } from 'helpers/types'
 
 export default {
   components: {
-    DefaultElement,
-    Autocomplete,
-    LockComponent
+    LockComponent,
+    SmartSelector
   },
+
   props: {
-    display: {
-      type: String,
-      default: ''
+    absent: {
+      type: Boolean,
+      default: false
+    },
+
+    modelValue: {
+      type: Object,
+      required: true
+    },
+
+    absentField: {
+      type: Boolean,
+      default: false
     }
   },
+
+  emits: [
+    'lock',
+    'update:absent',
+    'update:modelValue'
+  ],
+
   computed: {
     validateFields () {
       return this.citation.source_id
+    },
+
+    isAbsent: {
+      get () {
+        return this.absent
+      },
+
+      set (value) {
+        this.$emit('update:absent', value)
+      }
+    },
+
+    citation: {
+      get () {
+        return this.modelValue
+      },
+
+      set (value) {
+        this.$emit('update:modelValue', value)
+      }
+    },
+
+    sourceId () {
+      return this.citation.source_id
     }
   },
+
   data () {
     return {
-      autocompleteLabel: undefined,
-      citation: this.newCitation(),
-      lock: false
+      lock: false,
+      selectedSource: undefined
     }
   },
+
   watch: {
-    citation: {
+    sourceId: {
       handler (newVal, oldVal) {
-        this.sendCitation()
+        if (newVal) {
+          if (newVal !== oldVal) {
+            Source.find(newVal).then(({ body }) => {
+              this.selectedSource = body
+            })
+          }
+        } else {
+          this.selectedSource = undefined
+        }
       },
       deep: true
     },
-    display (newVal) {
-      this.autocompleteLabel = newVal
-    },
+
     lock (newVal) {
       sessionStorage.setItem('radialObject::source::lock', newVal)
       this.$emit('lock', newVal)
     }
   },
+
   mounted () {
     const value = convertType(sessionStorage.getItem('radialObject::source::lock'))
+
     if (value !== null) {
       this.lock = value === true
     }
@@ -132,49 +168,17 @@ export default {
     if (this.lock) {
       this.citation.source_id = convertType(sessionStorage.getItem('radialObject::source::id'))
       this.citation.pages = convertType(sessionStorage.getItem('radialObject::source::pages'))
-      this.autocompleteLabel = convertType(sessionStorage.getItem('radialObject::source::label'))
     }
   },
+
   methods: {
-    newCitation () {
-      return {
-        id: undefined,
-        source_id: undefined,
-        is_absent: false,
-        pages: undefined,
-        is_original: undefined,
-        citation_source_body: undefined
-      }
-    },
-    sendCitation () {
-      if (this.validateFields) {
-        this.$emit('create', this.citation)
-      }
-    },
-    cleanInput () {
-      this.$refs.autocomplete.cleanInput()
-      this.cleanCitation()
-    },
-    cleanCitation () {
-      this.autocompleteLabel = undefined
-      this.citation = this.newCitation()
-      this.autocompleteLabel = ''
-      this.$emit('create', this.citation)
-    },
-    setCitation (citation) {
-      this.citation = citation
-    },
     setSource (source) {
       sessionStorage.setItem('radialObject::source::id', source.id)
-      sessionStorage.setItem('radialObject::source::label', source.label)
       this.citation.source_id = source.id
-      this.autocompleteLabel = source.label
     },
-    setPage (value) {
-      sessionStorage.setItem('radialObject::source::pages', this.citation.pages)
-    },
-    setFocus () {
-      this.$refs.autocomplete.setFocus()
+
+    setPage (e) {
+      sessionStorage.setItem('radialObject::source::pages', e.target.value)
     }
   }
 }

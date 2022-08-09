@@ -148,19 +148,5 @@ describe PeopleController, type: :controller do
     end
   end
 
-  describe 'DELETE destroy' do
-    it 'destroys the requested person' do
-      person = Person.create! valid_attributes
-      expect {
-        delete :destroy, params: {id: person.to_param}, session: valid_session
-      }.to change(Person, :count).by(-1)
-    end
-
-    it 'redirects to the people list' do
-      person = Person.create! valid_attributes
-      delete :destroy, params: {id: person.to_param}, session: valid_session
-      expect(response).to redirect_to(people_url)
-    end
-  end
-
+  include_examples 'DELETE #destroy', Person
 end

@@ -1,15 +1,16 @@
 import { MutationNames } from '../mutations/mutations'
-import { CreateContainer } from '../../request/resources'
-import Containers from '../../helpers/ContainersType'
+import { Container } from 'routes/endpoints'
+import { CONTAINER_VIRTUAL } from 'constants/index.js'
 
-export default function ({ commit, state }) {
-  return new Promise((resolve, reject) => {
-    let item = {
-      type: Containers.Virtual
+export default ({ commit }) =>
+  new Promise((resolve, reject) => {
+    const container = {
+      type: CONTAINER_VIRTUAL
     }
-    CreateContainer(item).then(response => {
+    Container.create({ container }).then(response => {
       commit(MutationNames.SetContainer, response.body)
       return resolve(response.body)
+    }).then(error => {
+      return reject(error)
     })
   })
-}

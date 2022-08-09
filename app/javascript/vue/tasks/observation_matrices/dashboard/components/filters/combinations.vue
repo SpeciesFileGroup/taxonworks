@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Combinations</h2>
+    <h3>Combinations</h3>
     <label>
       <input
         type="checkbox"
@@ -14,18 +14,21 @@
 
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Boolean,
       default: undefined
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     combination: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   }

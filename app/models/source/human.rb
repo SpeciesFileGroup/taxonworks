@@ -84,9 +84,13 @@ class Source::Human < Source
 
   protected
 
+  def get_cached
+    [authority_name, year].compact.join(', ')
+  end
+
   # @return [Ignored]
   def set_cached
-    update_column(:cached, authority_name)
+    update_column(:cached, get_cached)
   end
 
   # @return [Ignored]
@@ -94,5 +98,12 @@ class Source::Human < Source
     if people.size < 1 && source_source_roles.size < 1 && roles.size < 1 # size not count
       errors.add(:base, 'at least one person must be provided')
     end
+  end
+
+  def sv_cached_names # this cannot be moved to soft_validation_extensions
+    soft_validations.add(
+      :base, 'Cached values should be updated',
+      success_message: 'Cached values were updated',
+      failure_message:  'Failed to update cached values') if cached != get_cached
   end
 end

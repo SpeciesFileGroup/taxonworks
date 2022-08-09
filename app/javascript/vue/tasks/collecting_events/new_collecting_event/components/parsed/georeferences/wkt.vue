@@ -6,8 +6,10 @@
     <modal-component
       v-if="show"
       @close="setModalView(false)">
-      <h3 slot="header">Create WKT georeference</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Create WKT georeference</h3>
+      </template>
+      <template #body>
         <div class="field label-above">
           <label>WKT data</label>
           <textarea
@@ -15,46 +17,50 @@
             rows="8"
             v-model="wkt"/>
         </div>
-      </div>
-      <div slot="footer">
+      </template>
+      <template #footer>
         <button
           type="button"
           class="normal-input button button-submit"
           @click="createShape">
           Add
         </button>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
 
 <script>
 
-import ModalComponent from 'components/modal'
-import GeoreferenceTypes from '../../../const/georeferenceTypes'
+import ModalComponent from 'components/ui/Modal'
+import { GEOREFERENCE_WKT } from 'constants/index.js'
 
 export default {
-  components: {
-    ModalComponent
-  },
+  components: { ModalComponent },
+
+  emits: ['create'],
+
   data () {
     return {
       show: false,
       wkt: undefined
     }
   },
+
   methods: {
     createShape () {
       this.$emit('create', {
         tmpId: Math.random().toString(36).substr(2, 5),
         wkt: this.wkt,
-        type: GeoreferenceTypes.Wkt
+        type: GEOREFERENCE_WKT
       })
       this.show = false
     },
+
     resetShape () {
       this.wkt = undefined
     },
+
     setModalView (value) {
       this.resetShape()
       this.show = value

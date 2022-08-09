@@ -6,18 +6,19 @@
     <modal-component
       v-if="show"
       @close="setModalView(false)">
-      <h3 slot="header">GEOLocate</h3>
-      <div slot="body">
+      <template #header>
+        <h3>GEOLocate</h3>
+      </template>
+      <template #body>
         <div class="field">
           <label>Coordinates:</label>
           <textarea
             class="full_width"
             rows="5"
-            v-model="iframe_response">
-          </textarea>
+            v-model="iframe_response"/>
         </div>
-      </div>
-      <div slot="footer">
+      </template>
+      <template #footer>
         <button
           type="button"
           class="normal-input button button-submit"
@@ -25,44 +26,49 @@
           @click="createShape">
           Add
         </button>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
 
 <script>
 
-import ModalComponent from 'components/modal'
-import GeoreferenceTypes from '../../../const/georeferenceTypes'
+import ModalComponent from 'components/ui/Modal'
+import { GEOREFERENCE_GEOLOCATE } from 'constants/index.js'
 
 export default {
-  components: {
-    ModalComponent
-  },
+  components: { ModalComponent },
+
+  emits: ['create'],
+
   computed: {
     validateFields () {
       return this.iframe_response
     }
   },
+
   data () {
     return {
       show: false,
       iframe_response: undefined
     }
   },
+
   methods: {
     createShape () {
       this.$emit('create', {
         tmpId: Math.random().toString(36).substr(2, 5),
         iframe_response: this.iframe_response,
-        type: GeoreferenceTypes.Geolocate
+        type: GEOREFERENCE_GEOLOCATE
       })
       this.iframe_response = undefined
       this.show = false
     },
+
     resetShape () {
       this.iframe_response = undefined
     },
+
     setModalView (value) {
       this.resetShape()
       this.show = value

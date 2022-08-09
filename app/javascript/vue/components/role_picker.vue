@@ -1,368 +1,428 @@
 <template>
   <div>
-    <div
-      v-if="createForm"
-      class="horizontal-left-content align-start">
-      <div class="horizontal-left-content">
-        <autocomplete
-          :autofocus="autofocus"
-          class="separate-right"
-          url="/people/autocomplete"
-          label="label_html"
-          display="label"
-          min="2"
-          @getInput="setInput"
-          ref="autocomplete"
-          @getItem="addCreatedPerson"
-          :clear-after="true"
-          placeholder="Family name, given name"
-          param="term"/>
-        <default-pin
-          class="button-circle"
-          type="People"
-          @getItem="addCreatedPerson({ object_id: $event.id, label: $event.label })"
-          section="People"/>
+    <template v-if="createForm">
+      <div v-if="organization">
+        <organization-picker @get-item="addOrganization" />
       </div>
+
       <div
-        class="flex-wrap-column separate-left"
-        v-if="searchPerson.length > 0">
-        <div>
-          <input
-            class="normal-input"
-            disabled
-            :value="newNamePerson">
-          <button
-            type="button"
-            class="normal-input button button-submit"
-            @click="createPerson()">Add new
-          </button>
-          <button
-            type="button"
-            class=" normal-input button button-default"
-            @click="switchName(newNamePerson)">Switch
-          </button>
-          <button
-            type="button"
-            class="normal-input button button-default"
-            @click="expandPerson = !expandPerson">Expand
-          </button>
+        v-else
+        class="horizontal-left-content align-start"
+      >
+        <div class="horizontal-left-content">
+          <autocomplete
+            ref="autocomplete"
+            :autofocus="autofocus"
+            class="separate-right"
+            url="/people/autocomplete"
+            label="label_html"
+            display="label"
+            min="2"
+            clear-after="true"
+            placeholder="Family name, given name"
+            param="term"
+            @get-input="setInput"
+            @get-item="addCreatedPerson"
+          />
+          <default-pin
+            class="button-circle"
+            type="People"
+            @get-item="addCreatedPerson({ object_id: $event.id })"
+            section="People"
+          />
         </div>
-        <hr>
         <div
-          class="flex-wrap-column"
-          v-if="expandPerson">
-          <div class="field label-above">
-            <label>Given name</label>
+          class="flex-wrap-column separate-left"
+          v-if="searchPerson.length > 0"
+        >
+          <div>
             <input
-              v-model="person_attributes.first_name"
-              type="text">
+              class="normal-input"
+              disabled
+              :value="newNamePerson"
+            >
+            <button
+              type="button"
+              class="normal-input button button-submit"
+              @click="createPerson()"
+            >
+              Add new
+            </button>
+            <button
+              type="button"
+              class=" normal-input button button-default"
+              @click="switchName(newNamePerson)"
+            >
+              Switch
+            </button>
+            <button
+              type="button"
+              class="normal-input button button-default"
+              @click="expandPerson = !expandPerson"
+            >
+              Expand
+            </button>
           </div>
-          <div class="field label-above">
-            <label>Family name prefix</label>
-            <input
-              v-model="person_attributes.prefix"
-              type="text">
-          </div>
-          <div class="field label-above">
-            <label>Family name</label>
-            <input
-              v-model="person_attributes.last_name"
-              type="text">
-          </div>
-          <div class="field label-above">
-            <label>Family name suffix</label>
-            <input
-              v-model="person_attributes.suffix"
-              type="text">
+          <hr>
+          <div
+            class="flex-wrap-column"
+            v-if="expandPerson"
+          >
+            <div class="field label-above">
+              <label>Given name</label>
+              <input
+                v-model="person_attributes.first_name"
+                type="text"
+              >
+            </div>
+            <div class="field label-above">
+              <label>Family name prefix</label>
+              <input
+                v-model="person_attributes.prefix"
+                type="text"
+              >
+            </div>
+            <div class="field label-above">
+              <label>Family name</label>
+              <input
+                v-model="person_attributes.last_name"
+                type="text"
+              >
+            </div>
+            <div class="field label-above">
+              <label>Family name suffix</label>
+              <input
+                v-model="person_attributes.suffix"
+                type="text"
+              >
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </template>
+
     <draggable
       v-if="!hiddenList"
       class="table-entrys-list"
       element="ul"
       v-model="roles_attributes"
-      @end="onSortable">
-      <li
-        class="list-complete-item flex-separate middle"
-        v-for="(role, index) in roles_attributes"
-        v-if="!role.hasOwnProperty('_destroy') && filterRole(role)">
-        <template>
+      item-key="id"
+      @end="onSortable"
+    >
+      <template #item="{ element, index }">
+        <li
+          class="list-complete-item flex-separate middle"
+          v-if="!element._destroy && filterRole(element)"
+        >
           <a
-            v-if="(role.hasOwnProperty('person_id') || role.hasOwnProperty('person'))"
-            :href="getUrl(role)"
+            v-if="(element.hasOwnProperty('person_id') || element.hasOwnProperty('person'))"
+            :href="getUrl(element)"
             target="_blank"
-            v-html="getLabel(role)"/>
+            v-html="getLabel(element)"
+          />
           <span
             v-else
-            v-html="getLabel(role)"/>
-        </template>
-        <span
-          class="circle-button btn-delete"
-          @click="removePerson(index)"/>
-      </li>
+            v-html="getLabel(element)"
+          />
+
+          <v-btn
+            circle
+            color="destroy"
+            @click="removePerson(index)"
+          >
+            <v-icon
+              x-small
+              color="white"
+              name="trash"
+            />
+          </v-btn>
+        </li>
+      </template>
     </draggable>
   </div>
 </template>
 
 <script>
 
-  import Autocomplete from './autocomplete.vue'
-  import Draggable from 'vuedraggable'
-  import DefaultPin from './getDefaultPin'
-  import AjaxCall from 'helpers/ajaxCall'
+import Autocomplete from 'components/ui/Autocomplete.vue'
+import Draggable from 'vuedraggable'
+import DefaultPin from './getDefaultPin'
+import OrganizationPicker from 'components/organizationPicker.vue'
+import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
+import { sortArray } from 'helpers/arrays'
+import { People } from 'routes/endpoints'
 
-  export default {
-    components: {
-      Autocomplete,
-      Draggable,
-      DefaultPin
+export default {
+  components: {
+    Autocomplete,
+    Draggable,
+    DefaultPin,
+    OrganizationPicker,
+    VBtn,
+    VIcon
+  },
+
+  props: {
+    roleType: {
+      type: String,
+      default: undefined
     },
-    props: {
-      roleType: {
-        type: String,
-        default: undefined
+    autofocus: {
+      type: Boolean,
+      default: true
+    },
+    modelValue: {
+      type: Array,
+      default: () => []
+    },
+    filterByRole: {
+      type: Boolean,
+      default: false
+    },
+    createForm: {
+      type: Boolean,
+      default: true
+    },
+    hiddenList: {
+      type: Boolean,
+      default: false
+    },
+    organization: {
+      type: Boolean,
+      default: false
+    }
+  },
+
+  emits: [
+    'update:modelValue',
+    'sortable',
+    'create',
+    'delete'
+  ],
+
+  data () {
+    return {
+      expandPerson: false,
+      searchPerson: '',
+      newNamePerson: '',
+      person_attributes: this.makeNewPerson(),
+      roles_attributes: []
+    }
+  },
+
+  watch: {
+    modelValue: {
+      handler (newVal) {
+        this.roles_attributes = sortArray(this.processedList(newVal), 'position')
       },
-      autofocus: {
-        type: Boolean,
-        default: true
-      },
-      value: { 
-        type: Array,
-        default: () => { return [] }
-      },
-      filterByRole: {
-        type: Boolean,
-        default: false
-      },
-      createForm: {
-        type: Boolean,
-        default: true
-      },
-      hiddenList: {
-        type: Boolean,
-        default: false
+      deep: true,
+      immediate: true
+    },
+    searchPerson (newVal) {
+      if (newVal.length > 0) {
+        this.newNamePerson = newVal
+        this.fillFields(newVal)
       }
     },
-    data: function () {
+    person_attributes: {
+      handler (newVal) {
+        this.newNamePerson = this.getFullName(newVal.first_name, newVal.last_name)
+      },
+      deep: true
+    }
+  },
+  methods: {
+    reset () {
+      this.expandPerson = false
+      this.searchPerson = ''
+      this.person_attributes = this.makeNewPerson()
+      this.$refs.autocomplete.cleanInput()
+    },
+
+    getUrl (role) {
+      return (role?.person_id || role?.person)
+        ? `/people/${role?.person_id || role.person.id}`
+        : '#'
+    },
+
+    filterRole (role) {
+      return this.filterByRole
+        ? role.type === this.roleType
+        : true
+    },
+
+    makeNewPerson () {
       return {
-        expandPerson: false,
-        searchPerson: '',
-        newNamePerson: '',
-        person_attributes: this.makeNewPerson(),
-        roles_attributes: []
+        first_name: '',
+        last_name: '',
+        suffix: '',
+        prefix: ''
       }
     },
-    watch: {
-      value: {
-        handler(newVal) {
-          this.roles_attributes = this.sortPosition(this.processedList(newVal))
-        },
-        deep: true,
-        immediate: true
-      },
-      searchPerson: function (newVal) {
-        if (newVal.length > 0) {
-          this.newNamePerson = newVal
-          this.fillFields(newVal)
-        }
-      },
-      person_attributes: {
-        handler: function (newVal) {
-          this.newNamePerson = this.getFullName(newVal.first_name, newVal.last_name)
-        },
-        deep: true
-      }
-    },
-    methods: {
-      reset() {
-        this.expandPerson = false,
-        this.searchPerson = '',
-        this.person_attributes = this.makeNewPerson(),
-        this.$refs.autocomplete.cleanInput()
-      },
-      getUrl(role) {
-        if (role.hasOwnProperty('person_id') || role.hasOwnProperty('person')) {
-          return `/people/${role.hasOwnProperty('person_id') ? role.person_id : role.person.id}`
-        } else {
-          return '#'
-        }
-      },
-      filterRole(role) {
-        if(this.filterByRole) {
-          return (role.type == this.roleType)
-        }
-        return true
-      },
-      makeNewPerson: function () {
-        return {
-          first_name: '',
-          last_name: '',
-          suffix: '',
-          prefix: ''
-        }
-      },
-      getLabel: function (person) {
-        if (person.hasOwnProperty('person_attributes')) {
-          return this.getFullName(person.person_attributes.first_name, person.person_attributes.last_name)
-        } else if (person.hasOwnProperty('person')) {
-          return this.getFullName(person.person.first_name, person.person.last_name)
-        } else {
-          return this.getFullName(person.first_name, person.last_name)
-        }
-      },
-      switchName: function (name) {
-        let tmp = this.person_attributes.first_name
-        this.person_attributes.first_name = this.person_attributes.last_name
-        this.person_attributes.last_name = tmp
-        return this.getFullName(this.person_attributes.first_name, tmp)
-      },
-      fillFields: function (name) {
-        this.person_attributes.first_name = this.getFirstName(name)
-        this.person_attributes.last_name = this.getLastName(name)
-      },
-      removePerson: function (index) {
-        if(this.roles_attributes[index].hasOwnProperty('id') && this.roles_attributes[index].id) {
-          this.$set(this.roles_attributes, index, {id: this.roles_attributes[index].id, _destroy: true })
-          this.$emit('input', this.roles_attributes)
-          this.$emit('delete', this.roles_attributes[index])
-        }
-        else {
-          let person = this.roles_attributes[index]
-          this.roles_attributes.splice(index, 1)
-          this.$emit('input', this.roles_attributes)
-          this.$emit('delete', person)          
-        }
-      },
-      setInput: function (text) {
-        this.searchPerson = text
-      },
-      sortPosition: function (list) {
-        list.sort(function (a, b) {
-          if (a.position > b.position) {
-            return 1
-          }
-          return -1
-        })
-        return list
-      },
-      alreadyExist: function (personId) {
-        return (this.roles_attributes.find(function (item) {
-          return (personId == item['person_id'])
-        }) != undefined)
-      },
-      processedList: function (list) {
-        if (list == undefined) return []
-        let tmp = []
 
-        list.forEach(function (element, index) {
-          let item = {
-            id: (element.hasOwnProperty('id') ? element.id : undefined),
-            type: element.type,
-            first_name: (element['first_name'] ? element.first_name : undefined),
-            last_name: (element['last_name'] ? element.last_name : undefined),
-            position: element.position
-          }
-          if(element.hasOwnProperty('person_attributes')) {
-            item.person_attributes = element.person_attributes            
-          }
-          if(element.hasOwnProperty('person_id')) {
-            item.person_id = element.person_id
-          }
-          if(element.hasOwnProperty('person')) {
-            item.person = element.person
-          }
-          if(element.hasOwnProperty('_destroy')) {
-            item['_destroy'] = element._destroy
-          }
-          tmp.push(item)
-        })
-        return tmp
-      },
-      updateIndex: function () {
-        var that = this
-        this.roles_attributes.forEach(function (element, index) {
-          that.roles_attributes[index].position = (index + 1)
-        })
-      },
-      onSortable: function () {
-        this.updateIndex()
-        this.$emit('input', this.roles_attributes)
-        this.$emit('sortable', this.roles_attributes)
-      },
-      findName: function (string, position) {
-        var delimiter
-        if (string.indexOf(',') > 1) {
-          delimiter = ','
-        }
-        if (string.indexOf(', ') > 1) {
-          delimiter = ', '
-        }
-        if (string.indexOf(' ') > 1 && delimiter != ', ') {
-          delimiter = ' '
-        }
-        return string.split(delimiter, 2)[position]
-      },
-      getFirstName: function (string) {
-        if ((string.indexOf(',') > 1) || (string.indexOf(' ') > 1)) {
-          return this.findName(string, 1)
-        } else {
-          return ''
-        }
-      },
-      getLastName: function (string) {
-        if ((string.indexOf(',') > 1) || (string.indexOf(' ') > 1)) {
-          return this.findName(string, 0)
-        } else {
-          return string
-        }
-      },
-      getFullName: function (first_name, last_name) {
-        var separator = ''
-        if (!!last_name && !!first_name) {
-          separator = ', '
-        }
-        return (last_name + separator + (first_name != null ? first_name : ''))
-      },
-      createPerson: function () {
-        AjaxCall('post', `/people.json`, { person: this.person_attributes }).then(response => {
-          let person = response.body
-          person.label = person.object_tag
-          person.object_id = person.id
-          this.roles_attributes.push(this.addPerson(person))
-          this.$emit('input', this.roles_attributes)
-          this.$refs.autocomplete.cleanInput()
-          this.expandPerson = false
-          this.person_attributes = this.makeNewPerson()
-          this.$emit('create', person)
-        })
-      },
-      addPerson: function (item) {
-        return {
-          type: this.roleType,
-          person_id: item.object_id,
-          first_name: this.getFirstName(item.label),
-          last_name: this.getLastName(item.label),
-          position: (this.roles_attributes.length + 1)
-        }
-      },
-      addCreatedPerson: function (item) {
-        if (!this.alreadyExist(item.object_id)) {
-          this.roles_attributes.push(this.addPerson(item))
-          this.$emit('input', this.roles_attributes)
-          this.$emit('create', this.addPerson(item))
-          this.person_attributes = this.makeNewPerson()
-          this.searchPerson = ''
-        }
-      },
-      setPerson: function (person) {
-        person.position = (this.roles_attributes.length + 1)
-        this.roles_attributes.push(person)
-        this.$emit('input', this.roles_attributes)
+    getLabel (item) {
+      if (item.organization_id) {
+        return item.name
+      } else if (item.person) {
+        return item.person.cached || this.getFullName(item.person.first_name, item.person.last_name)
+      } else {
+        return item.cached || this.getFullName(item.first_name, item.last_name)
       }
+    },
+
+    switchName () {
+      const tmp = this.person_attributes.first_name
+      this.person_attributes.first_name = this.person_attributes.last_name
+      this.person_attributes.last_name = tmp
+
+      return this.getFullName(this.person_attributes.first_name, tmp)
+    },
+
+    fillFields (name) {
+      this.person_attributes.first_name = this.findName(name, 1)
+      this.person_attributes.last_name = this.findName(name, 0)
+    },
+
+    removePerson (index) {
+      const role = this.roles_attributes[index]
+
+      if (role?.id) {
+        this.roles_attributes[index] = {
+          id: role.id,
+          _destroy: true
+        }
+      } else {
+        this.roles_attributes.splice(index, 1)
+      }
+
+      this.$emit('update:modelValue', this.roles_attributes)
+      this.$emit('delete', role)
+    },
+
+    setInput (text) {
+      this.searchPerson = text
+    },
+
+    alreadyExist (personId) {
+      return !!this.roles_attributes.find(item => personId === item?.person_id)
+    },
+
+    findName (string, position) {
+      let delimiter
+
+      if (string.indexOf(',') > 1) {
+        delimiter = ','
+      }
+      if (string.indexOf(', ') > 1) {
+        delimiter = ', '
+      }
+      if (string.indexOf(' ') > 1 && delimiter != ', ') {
+        delimiter = ' '
+      }
+      return string.split(delimiter, 2)[position]
+    },
+
+    processedList (list) {
+      return (list || []).map(element => ({
+        id: element.id,
+        type: element.type,
+        first_name: element.first_name,
+        last_name: element.last_name,
+        position: element.position,
+        person_attributes: element.person_attributes,
+        person_id: element.person_id,
+        person: element.person,
+        cached: element.cached,
+        _destroy: element._destroy,
+        organization_id: element.organization_id || element?.organization?.id,
+        name: element.name || element?.organization?.name
+      }))
+    },
+
+    updateIndex () {
+      this.roles_attributes.forEach((role, index) => {
+        role.position = (index + 1)
+      })
+    },
+
+    onSortable () {
+      this.updateIndex()
+      this.$emit('update:modelValue', this.roles_attributes)
+      this.$emit('sortable', this.roles_attributes)
+    },
+
+    getFirstName (person) {
+      return person.first_name
+    },
+
+    getLastName (person) {
+      return person.last_name
+    },
+
+    getFullName (firstName, lastName) {
+      return [lastName, firstName].filter(Boolean).join(', ')
+    },
+
+    createPerson () {
+      People.create({ person: this.person_attributes }).then(response => {
+        const person = this.adapterPerson(response.body)
+
+        this.roles_attributes.push(person)
+        this.$emit('update:modelValue', this.roles_attributes)
+        this.$refs.autocomplete.cleanInput()
+        this.expandPerson = false
+        this.person_attributes = this.makeNewPerson()
+        this.$emit('create', person)
+      })
+    },
+
+    adapterPerson (item) {
+      return {
+        type: this.roleType,
+        person_id: item.id,
+        cached: item.cached,
+        first_name: this.getFirstName(item),
+        last_name: this.getLastName(item),
+        position: (this.roles_attributes.length + 1)
+      }
+    },
+
+    async addCreatedPerson ({ object_id }) {
+      if (!this.alreadyExist(object_id)) {
+        const person = (await People.find(object_id)).body
+        const personData = this.adapterPerson(person)
+
+        this.roles_attributes.push(personData)
+        this.$emit('update:modelValue', this.roles_attributes)
+        this.$emit('create', personData)
+        this.person_attributes = this.makeNewPerson()
+        this.searchPerson = ''
+      }
+    },
+
+    addOrganization (organization) {
+      const alreadyExist = !!this.roles_attributes.find(role => organization.id === role?.organization_id)
+
+      if (!alreadyExist) {
+        this.roles_attributes.push({
+          organization_id: organization.id,
+          name: organization.label,
+          type: this.roleType
+        })
+        this.$emit('update:modelValue', this.roles_attributes)
+      }
+    },
+
+    setPerson (data) {
+      const person = this.adapterPerson(data)
+
+      person.position = (this.roles_attributes.length + 1)
+      this.roles_attributes.push(person)
+      this.$emit('update:modelValue', this.roles_attributes)
     }
   }
+}
 </script>
 <style lang="scss">
   .table-entrys-list {
@@ -371,10 +431,10 @@
 
     li {
       margin: 0px;
-      padding: 6px;
+      padding: 1em 0;
       display: flex;
       justify-content: space-between;
-      border-top: 1px solid #f5f5f5;
+      border-bottom: 1px solid #f5f5f5;
     }
   }
 </style>

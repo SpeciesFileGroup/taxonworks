@@ -15,6 +15,18 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     verbatim_author: 'Fitch & Say',
     year_of_publication: 1800) }
 
+  specify '#not_specified 1' do
+    query.not_specified = false
+    species.update!(parent: root, original_genus: nil)
+    expect(query.all.map(&:id)).to_not include(species.id)
+  end
+
+  specify '#not_specified' do
+    query.not_specified = true
+    species.update!(parent: root, original_genus: nil)
+    expect(query.all.map(&:id)).to contain_exactly(species.id)
+  end
+
   specify '#parent_id[] 1' do
     query.parent_id = [genus.id, root.id]
     expect(query.all.map(&:id)).to contain_exactly(species.id, genus.id, original_genus.id)
@@ -49,12 +61,12 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
 
   specify '#nomenclature_group 1' do
     query.nomenclature_group = 'Species'
-    expect(query.all.map(&:id)).to contain_exactly(species.id) 
+    expect(query.all.map(&:id)).to contain_exactly(species.id)
   end
 
   specify '#nomenclature_code 1' do
     query.nomenclature_group = 'Icnb'
-    expect(query.all.map(&:id)).to contain_exactly() 
+    expect(query.all.map(&:id)).to contain_exactly()
   end
 
   specify '#nomenclature_code 2' do
@@ -63,24 +75,24 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
   end
 
   specify '#citations 1' do
-    query.citations = 'without_citations' 
+    query.citations = 'without_citations'
     expect(query.all.map(&:id).size).to eq(4)
   end
 
   specify '#citations 2' do
-    query.citations = 'without_citations' 
+    query.citations = 'without_citations'
     Citation.create!(citation_object: species, source: FactoryBot.create(:valid_source))
     expect(query.all.map(&:id).size).to eq(3)
   end
 
   specify '#citations 3' do
-    query.citations = 'without_origin_citation' 
+    query.citations = 'without_origin_citation'
     Citation.create!(citation_object: species, source: FactoryBot.create(:valid_source))
     expect(query.all.map(&:id).size).to eq(4)
   end
 
   specify '#citations 4' do
-    query.citations = 'without_origin_citation' 
+    query.citations = 'without_origin_citation'
     Citation.create!(citation_object: species, is_original: true, source: FactoryBot.create(:valid_source))
     expect(query.all.map(&:id).size).to eq(3)
   end
@@ -97,7 +109,7 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
   end
 
   specify '#authors 1' do
-    query.authors = true 
+    query.authors = true
     expect(query.all.map(&:id)).to contain_exactly(species.id)
   end
 
@@ -107,21 +119,21 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
   end
 
   specify '#type_metadata 2' do
-    query.type_metadata = false 
-    expect(query.all.map(&:id).size).to eq(4)  
+    query.type_metadata = false
+    expect(query.all.map(&:id).size).to eq(4)
   end
 
   specify '#type_metadata 3' do
     query.type_metadata = true
     query.name = species.name
-    TypeMaterial.create!(protonym: species, type_type: 'holotype', collection_object:  FactoryBot.create(:valid_specimen)) 
-    expect(query.all.map(&:id)).to contain_exactly(species.id)  
+    TypeMaterial.create!(protonym: species, type_type: 'holotype', collection_object:  FactoryBot.create(:valid_specimen))
+    expect(query.all.map(&:id)).to contain_exactly(species.id)
   end
 
   specify '#type_metadata 4' do
-    query.type_metadata = false 
-    TypeMaterial.create!(protonym: species, type_type: 'holotype', collection_object:  FactoryBot.create(:valid_specimen)) 
-    expect(query.all.map(&:id)).to contain_exactly(root.id, genus.id, original_genus.id)  
+    query.type_metadata = false
+    TypeMaterial.create!(protonym: species, type_type: 'holotype', collection_object:  FactoryBot.create(:valid_specimen))
+    expect(query.all.map(&:id)).to contain_exactly(root.id, genus.id, original_genus.id)
   end
 
   specify '#taxon_name_classification[]' do
@@ -129,6 +141,24 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     query.taxon_name_classification = [ 'TaxonNameClassification::Iczn::Available' ]
     expect(query.all.map(&:id)).to contain_exactly(genus.id)
   end
+
+  specify '#combination_taxon_name_id[] ' do
+    g = Protonym.create!(name: 'Era', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root)
+    a = Combination.create!(genus: g, species: species)
+    b = Combination.create!(genus: original_genus)
+    query.combination_taxon_name_id = [species.id]
+    expect(query.all.map(&:id)).to contain_exactly(a.id)
+  end
+
+  specify '#taxon_name_relationship[] 0' do
+    g = Protonym.create!(name: 'Era', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root)
+    a = Combination.create!(genus: g, species: species)
+
+    query.taxon_name_type = 'Combination'
+    query.taxon_name_relationship = [ { 'subject_taxon_name_id' => species.id.to_s, 'type' => 'TaxonNameRelationship::Combination::Species' } ]
+    expect(query.all.map(&:id)).to contain_exactly(a.id)
+  end
+
 
   specify '#taxon_name_relationship[] 1' do
     query.taxon_name_relationship = [ { 'subject_taxon_name_id' => genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' } ]
@@ -207,24 +237,24 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
   end
 
   specify '#name' do
-    query.name = 'vulner' 
+    query.name = 'vulner'
     expect(query.all.map(&:id)).to contain_exactly(species.id)
   end
 
   specify '#name, #exact' do
-    query.name = 'vulnerata' 
+    query.name = 'vulnerata'
     query.exact = true
     expect(query.all.map(&:id)).to contain_exactly()
   end
 
   specify '#author' do
-    query.author = 'Fitch & S' 
+    query.author = 'Fitch & S'
     expect(query.all.map(&:id)).to contain_exactly(species.id)
   end
 
   specify '#author, #exact' do
     query.author = 'Fit'
-    query.exact = true 
+    query.exact = true
     expect(query.all.map(&:id)).to contain_exactly()
   end
 
@@ -237,7 +267,7 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
   specify '#updated_since' do
     species.update(updated_at: '2050/1/1')
     query.updated_since = '2049-12-01'
-    expect(query.all.map(&:id)).to contain_exactly(species.id) 
+    expect(query.all.map(&:id)).to contain_exactly(species.id)
   end
 
   specify '#validity 1' do
@@ -246,7 +276,7 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
   end
 
   specify '#validity 2' do
-    query.validity = false 
+    query.validity = false
     expect(query.all.map(&:id)).to contain_exactly()
   end
 

@@ -10,7 +10,7 @@
 Begin taxa;
 Dimensions Ntax=<%= m.observation_matrix_rows.load.size -%>;
 Taxlabels <% m.observation_matrix_rows.each do |r| -%>
-<%= as_file ? '  ' : nb -%>'<%= observation_matrix_row_label(r) -%>'<% end -%>
+<%= as_file ? '  ' : nb -%>'<%= observation_matrix_row_label_nexus(r) -%>'<% end -%>
 ;
 end;
 
@@ -30,8 +30,8 @@ Charstatelabels
 ;
 Matrix
 <% m.observation_matrix_rows.each do |r| -%>
-'<%= observation_matrix_row_label(r) %>'<%= as_file ? ' ' : '&nbsp;' -%> 
-<% descriptors.each do |d| -%><%= observations_cell_label(observations_hash, d, r.row_object_global_id, :nexus) %><% end %>
+'<%= observation_matrix_row_label_nexus(r) %>'<%= as_file ? ' ' : '&nbsp;' -%>
+<% descriptors.each do |d| -%><%= observations_cell_label(observations_hash, d, r.observation_index, :nexus) %><% end %>
 <% end %>
 ;
 end; 
@@ -52,8 +52,8 @@ Begin characters;
 ;
 matrix
 <% m.observation_matrix_rows.each do |r| -%>
-'<%= observation_matrix_row_label(r) %>'<%= as_file ? ' ' : '&nbsp;' -%> 
-<% m.continuous_descriptors.each do |d| -%><%= observations_cell_label(observations_hash, d, r.row_object_global_id, :nexus) %><% end %>
+'<%= observation_matrix_row_label_nexus(r) %>'<%= as_file ? ' ' : '&nbsp;' -%>
+<% m.continuous_descriptors.each do |d| -%><%= observations_cell_label(observations_hash, d, r.observation_index, :nexus) %><% end %>
 <% end %>
 ;
 end;

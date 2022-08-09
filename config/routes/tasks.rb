@@ -1,4 +1,34 @@
 scope :tasks do
+  scope :administrator do
+    scope :batch_add_users, controller: 'tasks/administrator/batch_add_users' do
+      get '/', as: 'batch_add_users_task', action: :index
+    end
+  end
+
+  scope :dwca_import, controller: 'tasks/dwca_import/dwca_import' do
+    get :index, as: 'dwca_import_task'
+    post 'upload'
+    post 'update_catalog_number_namespace'
+    post 'update_catalog_number_collection_code_namespace'
+    post 'set_import_settings'
+  end
+
+  scope :namespaces do
+    scope :new_namespace, controller: 'tasks/namespaces/new_namespace' do
+      get '/', action: :index, as: 'new_namespace_task'
+    end
+  end
+
+  scope :extracts do
+      scope :filter, controller: 'tasks/extracts/filter' do
+        get '/', as: 'filter_extract_task', action: :index
+      end
+
+    scope :new_extract, controller: 'tasks/extracts/new_extract' do
+      get '/', action: :index, as: 'new_extract_task'
+    end
+  end
+
   scope :asserted_distributions do
     scope :basic_endemism, controller: 'tasks/asserted_distributions/basic_endemism' do
       get '/', action: :index, as: 'asserted_distributions_basic_endemism_task'
@@ -12,6 +42,16 @@ scope :tasks do
       get 'new', action: 'new', as: 'new_asserted_distribution_from_map_task'
       get 'generate_choices'
       post 'create', action: 'create', as: 'create_asserted_distribution_from_map_task'
+    end
+  end
+
+  scope :dwc do
+    scope :dashboard, controller: 'tasks/dwc/dashboard' do
+      get '/', action: :index, as: 'dwc_dashboard_task'
+      get :index_versions, defaults: {format: :json}
+
+      post 'generate_download', as: 'generate_dwc_download_task', defaults: {format: :json}
+      post :create_index, as: 'create_dwc_index_task', defaults: {format: :json}
     end
   end
 
@@ -55,6 +95,18 @@ scope :tasks do
   end
 
   scope :content do
+      scope :publisher, controller: 'tasks/content/publisher' do
+        get 'summary', as: :publisher_summary,  defaults: {format: :json}
+        get 'topic_table', as: :publisher_topic_table, defaults: {format: :json}
+        get '/', action: :index, as: 'publisher_task'
+        post 'publish_all', defaults: {format: :json}
+        post 'unpublish_all', defaults: {format: :json}
+      end
+
+      scope :by_nomenclature, controller: 'tasks/content/by_nomenclature' do
+        get '/', action: :index, as: 'content_by_nomenclature_task'
+      end
+
     scope :editor, controller: 'tasks/content/editor' do
       get 'index', as: 'index_editor_task'
       get 'recent_topics', as: 'content_editor_recent_topics_task'
@@ -78,15 +130,6 @@ scope :tasks do
     end
   end
 
-  scope :import do
-    scope :dwca do
-      scope :psu_import, controller: 'tasks/import/dwca/psu_import' do
-        get 'index', as: 'psu_import_task'
-        post 'do_psu_import', as: 'do_psu_import'
-      end
-    end
-  end
-
   scope :labels do
     scope :print_labels, controller: 'tasks/labels/print_labels' do
       get '/',  as: 'print_labels_task', action: :index
@@ -105,6 +148,11 @@ scope :tasks do
   end
 
   scope :projects do
+    scope :activity, controller: 'tasks/projects/activity' do
+      get :index, as: :project_activity_task
+      get :type_report, as: :project_activity_type_report
+    end
+
     scope :preferences, controller: 'tasks/projects/preferences' do
       get :index, as: 'project_preferences_task'
     end
@@ -173,6 +221,18 @@ scope :tasks do
   end
 
   scope :collection_objects do
+    scope :stepwise do
+      scope :determinations, controller: 'tasks/collection_objects/stepwise/determinations' do
+        get '/', action: :index, as: 'stepwise_determinations_task'
+        get :data, defaults: {format: :json}
+      end
+    end
+
+    scope :classification_summary, controller: 'tasks/collection_objects/classification_summary' do
+      get '/', action: :index, as: 'classification_summary_task'
+      get :report, as: 'classification_summary_report',  defaults: {format: :js}
+    end
+
     scope :match, controller: 'tasks/collection_objects/match' do
       get '/', action: :index, as: 'match_collection_objects_task'
     end
@@ -200,11 +260,6 @@ scope :tasks do
     end
 
     scope :report do
-      scope :work, controller: 'tasks/accessions/report/work' do
-        get '/', action: :index, as: 'work_report_task'
-        get :data, as: 'work_data_task'
-      end
-
       scope :dwc, controller: 'tasks/accessions/report/dwc' do
         get '', action: :index, as: 'report_dwc_task'
         get 'row/:id', action: :row
@@ -347,6 +402,10 @@ scope :tasks do
   end
 
   scope :observation_matrices do
+      scope :matrix_column_coder, controller: 'tasks/observation_matrices/matrix_column_coder' do
+        get :index, as: 'index_matrix_column_coder_task'
+      end
+
     scope :dashboard, controller: 'tasks/observation_matrices/dashboard' do
       get '', as: 'observation_matrices_dashboard_task', action: :index
     end
@@ -369,6 +428,10 @@ scope :tasks do
     scope :row_coder, controller: 'tasks/observation_matrices/row_coder' do
       get 'index', as: 'index_row_coder_task'
       get 'set', as: 'set_row_coder_task'
+    end
+
+    scope :description_from_observation_matrix, controller: 'tasks/observation_matrices/description_from_observation_matrix' do
+      get 'description', action: :description, defaults: {format: :json}
     end
 
     scope :interactive_key, controller: 'tasks/observation_matrices/interactive_key' do
@@ -412,6 +475,12 @@ scope :tasks do
   end
 
   scope :taxon_names do
+      scope :merge, controller: 'tasks/taxon_names/merge' do
+        get '/', action: :index, as: 'taxon_name_merge_task'
+        get 'report', as: 'taxon_name_merge_report'
+        post 'merge', as: 'taxon_name_merge'
+      end
+
     scope :syncronize_otus, controller: 'tasks/taxon_names/syncronize_otus' do
       get 'index', as: 'syncronize_otus_to_nomenclature_task'
       post 'index', as: 'preview_syncronize_otus_to_nomenclature_task'
@@ -436,4 +505,11 @@ scope :tasks do
   scope :usage, controller: 'tasks/usage/user_activity' do
     get ':id', action: 'report', as: 'user_activity_report_task'
   end
+
+  scope :graph do
+    scope :object, controller: 'tasks/graph/object_graph' do
+      get '/', action: :index, as: 'object_graph_task'
+    end
+  end
+
 end

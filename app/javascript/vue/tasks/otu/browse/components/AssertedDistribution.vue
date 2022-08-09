@@ -5,10 +5,12 @@
     :title="title"
     menu
     @menu="setModalView(true)">
-    <a
-      v-if="currentOtu"
-      :href="`/tasks/otus/browse_asserted_distributions/index?otu_id=${currentOtu.id}`"
-      slot="title">Expand</a>
+    <template #title>
+      <a
+        v-if="currentOtu"
+        :href="`/tasks/otus/browse_asserted_distributions/index?otu_id=${currentOtu.id}`"
+      >Expand</a>
+    </template>
     <table class="full_width">
       <thead>
         <tr>
@@ -30,12 +32,26 @@
           <td>{{ assertedDistribution.geographic_area.level0_name }}</td>
           <td>{{ assertedDistribution.geographic_area.level1_name }}</td>
           <td>{{ assertedDistribution.geographic_area.level2_name }}</td>
-          <td>{{ assertedDistribution.geographic_area.name }}</td>
+          <td>
+            <a
+              :href="`/asserted_distributions/${assertedDistribution.id}`"
+              title="Edit">
+              <span v-html="assertedDistribution.geographic_area.name"/>
+            </a>
+          </td>
           <td>{{ assertedDistribution.geographic_area.geographic_area_type.name }}</td>
           <td>{{ assertedDistribution.is_absent ? '✕' : '✓' }}</td>
-          <td>{{ assertedDistribution.geographic_area.geo_json ? '✓' : '✕' }}</td>
-          <td v-html="assertedDistribution.citations.map(citation => (`${citation.source.author_year}` + (citation.pages ? `:${citation.pages}` : ''))).sort().join('; ')"/>
-          <td>{{ assertedDistribution.otu.object_label }}</td>
+          <td>{{ assertedDistribution.geographic_area.shape ? '✓' : '✕' }}</td>
+          <td>
+            <a
+              v-for="citation in assertedDistribution.citations"
+              :key="citation.id"
+              :href="`/tasks/nomenclature/by_source?source_id=${citation.source_id}`"
+              :title="citation.source.cached">
+              <span v-html="authorString(citation)"/>&nbsp;
+            </a>
+          </td>
+          <td v-html="assertedDistribution.otu.object_tag"/>
         </tr>
       </tbody>
     </table>
@@ -43,8 +59,10 @@
       v-if="showModal"
       @close="setModalView(false)"
       :containerStyle="{ width: '900px' }">
-      <h3 slot="header">Filter</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Filter</h3>
+      </template>
+      <template #body>
         <div class="horizontal-left-content align-start">
           <div class="full_width margin-left-margin">
             <h4>Level 0</h4>
@@ -68,7 +86,7 @@
               v-model="level2Filter"/>
           </div>
         </div>
-      </div>
+      </template>
     </modal-component>
   </section-panel>
 </template>
@@ -76,7 +94,7 @@
 <script>
 
 import SectionPanel from './shared/sectionPanel'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import extendSection from './shared/extendSections'
 import { GetterNames } from '../store/getters/getters'
 import { getUnique } from 'helpers/arrays'
@@ -124,6 +142,14 @@ export default {
   methods: {
     setModalView (value) {
       this.showModal = value
+    },
+
+    authorString (citation) {
+      const pages = citation.pages
+        ? `:${citation.pages}`
+        : ''
+
+      return `${citation.source.author_year}${citation.source.year_suffix || ''}${pages}`
     }
   }
 }

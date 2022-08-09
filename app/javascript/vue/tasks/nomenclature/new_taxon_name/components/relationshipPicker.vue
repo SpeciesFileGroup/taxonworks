@@ -2,10 +2,12 @@
   <block-layout
     anchor="relationship"
     :warning="checkValidation"
+    :spinner="!taxon.id"
     v-help.section.relationship.container>
-    <h3 slot="header">Relationship</h3>
-    <div
-      slot="body">
+    <template #header>
+      <h3>Relationship</h3>
+    </template>
+    <template #body>
       <div v-if="editMode">
         <p class="inline">
           <span class="separate-right">Editing relationship: </span>
@@ -17,9 +19,7 @@
         </p>
       </div>
       <div v-if="!taxonRelation">
-        <div
-          class="horizontal-left-content"
-          slot="body">
+        <div class="horizontal-left-content">
           <autocomplete
             url="/taxon_names/autocomplete"
             label="label_html"
@@ -52,17 +52,16 @@
         </div>
         <div v-else>
           <tree-display
-            :tree-list="treeList"
-            :parent="parent"
-            :object-lists="objectLists"
-            :show-modal="showModal"
+            v-if="showModal"
+            :taxon-rank="taxon.rank_string"
+            :list="objectLists.tree"
             valid-property="valid_subject_ranks"
-            @close="view = 'Common'"
+            :list-created="GetRelationshipsCreated"
+            title="Relationship"
+            display-name="subject_status_tag"
+            @close="view = 'Common'; showModal = false"
             @selected="addEntry"
-            mutation-name-add="AddTaxonRelationship"
-            mutation-name-modal="SetModalRelationship"
-            name-module="Relationship"
-            display-name="subject_status_tag"/>
+          />
 
           <switch-component
             v-model="view"
@@ -103,7 +102,7 @@
         @edit="editRelationship"
         :list="GetRelationshipsCreated"
         :display="['subject_status_tag', { link: '/tasks/nomenclature/browse?taxon_name_id=', label: 'object_object_tag', param: 'object_taxon_name_id'}]"/>
-    </div>
+    </template>
   </block-layout>
 </template>
 <script>
@@ -111,13 +110,22 @@
 import { ActionNames } from '../store/actions/actions'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
+import { TAXON_RELATIONSHIP_CURRENT_COMBINATION } from 'constants/index.js'
 import TreeDisplay from './treeDisplay.vue'
 import ListEntrys from './listEntrys.vue'
 import ListCommon from './commonList.vue'
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import getRankGroup from '../helpers/getRankGroup'
 import SwitchComponent from 'components/switch'
-import BlockLayout from './blockLayout'
+import BlockLayout from 'components/layout/BlockLayout'
+
+const FILTER_RELATIONSHIPS = [
+  TAXON_RELATIONSHIP_CURRENT_COMBINATION,
+  'OriginalCombination',
+  'Typification',
+  'UncertainPlacement',
+  'SourceClassifiedAs'
+]
 
 export default {
   components: {
@@ -129,41 +137,40 @@ export default {
     BlockLayout
   },
   computed: {
-    taxonLabel() {
-      return this.taxonRelation.hasOwnProperty('label_html') ? this.taxonRelation.label_html : this.taxonRelation.object_tag
+    taxonLabel () {
+      return this.taxonRelation.label_html || this.taxonRelation.object_tag
     },
+
     treeList () {
       return this.$store.getters[GetterNames.GetRelationshipList]
     },
+
     getRankGroup () {
       return getRankGroup(this.$store.getters[GetterNames.GetTaxon].rank_string)
     },
+
     GetRelationshipsCreated () {
-      return this.$store.getters[GetterNames.GetTaxonRelationshipList].filter(function (item) {
-        return (
-          item.type.split('::')[1] !== 'OriginalCombination' &&
-          item.type.split('::')[1] !== 'Typification' &&
-          !item.type.endsWith('::UncertainPlacement') &&
-          !item.type.endsWith('::SourceClassifiedAs'))
-      })
+      return this.$store.getters[GetterNames.GetTaxonRelationshipList].filter(item => !FILTER_RELATIONSHIPS.some(filterType => item.type.includes(filterType)))
     },
+
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
     },
+
     parent () {
       return this.$store.getters[GetterNames.GetParent]
     },
+
     softValidation () {
       return this.$store.getters[GetterNames.GetSoftValidation].taxonRelationshipList.list
     },
+
     checkValidation () {
-      return this.softValidation ? this.softValidation.find(item => this.GetRelationshipsCreated.find(created => created.id === item.validations.instance.id)) : undefined
+      return !!this.softValidation.filter(item => this.GetRelationshipsCreated.find(created => created.id === item.instance.id)).length
     },
+
     nomenclaturalCode () {
       return this.$store.getters[GetterNames.GetNomenclaturalCode]
-    },
-    showModal () {
-      return this.$store.getters[GetterNames.ActiveModalRelationship]
     }
   },
   data () {
@@ -180,17 +187,26 @@ export default {
       incertaeSedis: {
         iczn: { type: 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement' },
         icvcn: { type: 'TaxonNameRelationship::Icvcn::Accepting::UncertainPlacement' }
-      }
+      },
+      showModal: false
     }
   },
   watch: {
+    taxon: {
+      handler (newVal, oldVal) {
+        if(newVal.id && newVal.id !== oldVal.id) {
+          this.refresh()
+        }
+      }
+    },
     parent: {
-      handler: function (newVal) {
+      handler (newVal) {
         if (newVal == null) return true
         this.refresh()
       },
       immediate: true
     },
+
     view (newVal) {
       if (newVal === 'Show all') {
         this.activeModal(true)
@@ -198,47 +214,55 @@ export default {
     }
   },
   methods: {
-    setInsertaeSedis: function () {
+    setInsertaeSedis () {
       this.isInsertaeSedis = true
       this.taxonRelation = this.parent
     },
-    loadTaxonRelationships: function () {
+
+    loadTaxonRelationships () {
       this.$store.dispatch(ActionNames.LoadTaxonRelationships, this.taxon.id)
     },
-    removeRelationship: function (item) {
+
+    removeRelationship (item) {
       this.$store.dispatch(ActionNames.RemoveTaxonRelationship, item).then(() => {
         this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
       })
     },
+
     setRelationship (item) {
       this.$store.dispatch(ActionNames.UpdateTaxonRelationship, item)
     },
-    refresh: function () {
-      let copyList = Object.assign({}, this.treeList[this.nomenclaturalCode])
-      this.objectLists.tree = Object.assign({}, JSON.parse(JSON.stringify(copyList.tree)))
-      this.objectLists.commonList = Object.assign({}, JSON.parse(JSON.stringify(copyList.common)))
-      this.objectLists.allList = Object.assign({}, JSON.parse(JSON.stringify(copyList.all)))
+
+    refresh () {
+      const copyList = JSON.parse(JSON.stringify(this.treeList[this.nomenclaturalCode] || {}))
+
+      this.objectLists.tree = copyList.tree || {}
+      this.objectLists.commonList = copyList.common || {}
+      this.objectLists.allList = copyList.all || {}
       this.addType(this.objectLists.allList)
       this.objectLists.allList = Object.keys(this.objectLists.allList).map(key => this.objectLists.allList[key])
       this.getTreeList(this.objectLists.tree, copyList.all)
       this.addType(this.objectLists.commonList)
     },
-    activeModal: function (value) {
-      this.$store.commit(MutationNames.SetModalRelationship, value)
+
+    activeModal (value) {
+      this.showModal = value
     },
-    makeLists: function () {
+
+    makeLists () {
       return {
         tree: undefined,
         commonList: [],
-        allList: [],
+        allList: []
       }
     },
-    addEntry: function (item) {
-      if(this.editMode) {
-        let relationship = {
+
+    addEntry (item) {
+      if (this.editMode) {
+        const relationship = {
           id: this.editMode.id,
           subject_taxon_name_id: this.taxon.id,
-          object_taxon_name_id: this.taxonRelation.hasOwnProperty('object_taxon_name_id') ? this.taxonRelation.object_taxon_name_id : this.taxonRelation.id,
+          object_taxon_name_id: this.taxonRelation?.object_taxon_name_id || this.taxonRelation.id,
           type: item.type
         }
 
@@ -251,44 +275,48 @@ export default {
       else {
         this.$store.dispatch(ActionNames.AddTaxonRelationship, {
           type: item.type,
-          taxonRelationshipId: this.taxonRelation.id
+          object_taxon_name_id: this.taxonRelation.id,
+          subject_taxon_name_id: this.taxon.id
         }).then(() => {
           this.taxonRelation = undefined
           this.$store.commit(MutationNames.UpdateLastChange)
-        }, (errors) => {})
+        })
       }
       this.isInsertaeSedis = false
     },
-    closeEdit() {
+
+    closeEdit () {
       this.editMode = undefined
       this.taxonRelation = undefined
     },
-    editRelationship(value) {
+
+    editRelationship (value) {
       this.taxonRelation = value
       this.editMode = this.taxonRelation
     },
+
     getTreeList (list, ranksList) {
-      for (var key in list) {
+      for (const key in list) {
         if (key in ranksList) {
-          Object.defineProperty(list[key], 'type', { value: key })
-          Object.defineProperty(list[key], 'object_status_tag', { value: ranksList[key].object_status_tag })
-          Object.defineProperty(list[key], 'subject_status_tag', { value: ranksList[key].subject_status_tag })
-          Object.defineProperty(list[key], 'valid_subject_ranks', { value: ranksList[key].valid_subject_ranks })
+          Object.defineProperty(list[key], 'type', { writable: true, value: key })
+          Object.defineProperty(list[key], 'object_status_tag', { writable: true, value: ranksList[key].object_status_tag })
+          Object.defineProperty(list[key], 'subject_status_tag', { writable: true, value: ranksList[key].subject_status_tag })
+          Object.defineProperty(list[key], 'valid_subject_ranks', { writable: true, value: ranksList[key].valid_subject_ranks })
         }
         else {
-          let label = key.split('::')
+          const label = key.split('::')
 
-          Object.defineProperty(list[key], 'type', { value: key })
-          Object.defineProperty(list[key], 'object_status_tag', { value: label[label.length-1].replace(/\.?([A-Z])/g, function (x,y){return " " + y.toLowerCase()}).replace(/^_/, "").toLowerCase().trim() })
-          Object.defineProperty(list[key], 'subject_status_tag', { value: label[label.length-1].replace(/\.?([A-Z])/g, function (x,y){return " " + y.toLowerCase()}).replace(/^_/, "").toLowerCase().trim() })
-          Object.defineProperty(list[key], 'valid_subject_ranks', { value: [] })    
+          Object.defineProperty(list[key], 'type', { writable: true, value: key })
+          Object.defineProperty(list[key], 'object_status_tag', { writable: true, value: label[label.length - 1].replace(/\.?([A-Z])/g, (x, y) => ' ' + y.toLowerCase()).replace(/^_/, '').toLowerCase().trim() })
+          Object.defineProperty(list[key], 'subject_status_tag', { writable: true, value: label[label.length - 1].replace(/\.?([A-Z])/g, (x, y) => ' ' + y.toLowerCase()).replace(/^_/, '').toLowerCase().trim() })
+          Object.defineProperty(list[key], 'valid_subject_ranks', { writable: true, value: [] })
         }
         this.getTreeList(list[key], ranksList)
       }
     },
     addType (list) {
-      for (var key in list) {
-        Object.defineProperty(list[key], 'type', { value: key })
+      for (const key in list) {
+        Object.defineProperty(list[key], 'type', { writable: true, value: key })
       }
     }
   }

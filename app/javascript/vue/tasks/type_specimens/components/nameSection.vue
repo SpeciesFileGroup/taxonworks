@@ -33,8 +33,8 @@
 
 <script>
 
-import Expand from './expand.vue'
-import Autocomplete from 'components/autocomplete.vue'
+import Expand from 'components/expand.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import DisplayList from 'components/displayList.vue'
 
 import { GetterNames } from '../store/getters/getters'

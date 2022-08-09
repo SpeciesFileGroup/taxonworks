@@ -180,7 +180,7 @@ describe Person, type: :model, group: :people do
     specify 'source is nil' do
       person1.update(prefix: nil)
       person1.merge_with(person1b.id)
-      expect(person1.prefix).to eq(person1b.prefix)
+      expect(person1.prefix).to eq(nil) # eq(person1b.prefix) #DD removed to preserve properly curated names
     end
   end
 
@@ -193,7 +193,7 @@ describe Person, type: :model, group: :people do
       person1.update(suffix: nil)
       # expect(person1.suffix).to eq(nil)
       person1.merge_with(person1b.id)
-      expect(person1.suffix).to eq(person1b.suffix)
+      expect(person1.suffix).to eq(nil) # eq(person1b.suffix) #DD removed to preserve properly curated names
     end
   end
 
@@ -297,7 +297,7 @@ describe Person, type: :model, group: :people do
       specify 'cached get updated' do
         person1.update(prefix: nil)
         person1.merge_with(person1b.id)
-        expect(person1.cached.include?('Dr.')).to be_truthy
+        expect(person1.cached.include?('Dr.')).to be_falsey # be_truthy #DD removed to preserve properly curated names
       end
     end
   end
@@ -326,11 +326,19 @@ describe Person, type: :model, group: :people do
     let!(:role1) { SourceAuthor.create(person: person1, role_object: role_object) }
     let!(:role2) { SourceAuthor.create(person: person1b, role_object: role_object) }
 
-
     specify 'can not be merged' do
       expect(person1.merge_with(person1b.id)).to be_falsey
     end
   end 
 
+  specify '#hard_merge, #first_name is preserved' do
+    p_keep = Person.create!(first_name: 'Simon', last_name: 'Smith')
+    p_destroy = Person.create!(first_name: 'S.', last_name: 'Smith')
+
+    p_keep.hard_merge(p_destroy.id)
+    p_keep.reload
+    
+    expect(p_keep.first_name).to eq('Simon')
+  end
   
 end

@@ -1,31 +1,30 @@
 <template>
   <block-layout
     anchor="gender"
-    :spinner="saving"
+    :spinner="saving || !taxon.id"
   >
-    <h3 slot="header">
-      Gender and form
-    </h3>
-    <div
-      slot="body"
-      v-if="taxon.id"
-    >
+    <template #header>
+      <h3>Gender and form</h3>
+    </template>
+    <template
+      #body
+      v-if="taxon.id">
       <ul class="flex-wrap-column no_bullets">
-        <li
-          v-for="item in list"
-        >
-          <label class="status-item">
-            <input
-              class="separate-right"
-              type="radio"
-              name="gender"
-              @click="addEntry(item)"
-              :checked="checkExist(item.type)"
-              :value="item.type"
-            >
-            <span>{{ item.name }}</span>
-          </label>
-        </li>
+        <template v-for="item in list">
+          <li>
+            <label class="status-item">
+              <input
+                class="separate-right"
+                type="radio"
+                name="gender"
+                @click="addEntry(item)"
+                :checked="checkExist(item.type)"
+                :value="item.type"
+              >
+              <span>{{ item.name }}</span>
+            </label>
+          </li>
+        </template>
       </ul>
       <div v-if="inSpeciesGroup && adjectiveOrParticiple">
         <div class="field label-above">
@@ -56,14 +55,14 @@
         :list="getStatusGender"
         :display="['object_tag']"
       />
-    </div>
+    </template>
   </block-layout>
 </template>
 <script>
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
-import BlockLayout from './blockLayout.vue'
+import BlockLayout from 'components/layout/BlockLayout.vue'
 import ListEntrys from './listEntrys.vue'
 
 import getRankGroup from '../helpers/getRankGroup'
@@ -73,7 +72,7 @@ export default {
     BlockLayout,
     ListEntrys
   },
-  data: function () {
+  data () {
     return {
       list: [],
       filterList: ['gender', 'part of speech'],
@@ -93,7 +92,7 @@ export default {
       ]
     }
   },
-  mounted: function () {
+  mounted () {
     this.getList()
   },
   computed: {

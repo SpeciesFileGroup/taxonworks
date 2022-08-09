@@ -1,10 +1,7 @@
-export default function (state, depiction) {
-  var position = state.depictions.findIndex(item => {
-    if (depiction.id === item.id) {
-      return true
-    }
-  })
-  if (position >= 0) {
-    state.depictions.splice(position, 1)
+export default (state, depiction) => {
+  const index = state.depictions.findIndex(item => depiction.id === item.id)
+
+  if (index >= 0) {
+    state.depictions.splice(index, 1)
   }
 }

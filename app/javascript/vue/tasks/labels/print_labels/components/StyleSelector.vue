@@ -8,7 +8,8 @@
         <label
           @click="onSelectedStyle(item.value)">
           <input
-            :checked="value == item.value"
+            v-model="selectedStyle"
+            :value="item.value"
             type="radio"
             name="style-selector">
           {{ item.label }}
@@ -16,9 +17,12 @@
       </li>
     </ul>
     <div
-      v-show="value == 'custom_style'"
+      v-show="modelValue == 'custom_style'"
       class="separate-top">
-      <custom-style @onNewStyle="$emit('onNewStyle', $event)"/>
+      <custom-style
+        @new-style="$emit('onNewStyle', $event)"
+        @new-name="styleName = $event"
+      />
     </div>
   </div>
 </template>
@@ -28,38 +32,67 @@
 import CustomStyle from './customStyle'
 
 export default {
-  components: {
-    CustomStyle
-  },
+  components: { CustomStyle },
+
   props: {
-    value: {
+    modelValue: {
       type: String,
       required: true
     }
   },
-  data() {
+
+  emits: [
+    'update:modelValue',
+    'onNewStyle'
+  ],
+
+  data () {
     return {
-      list: [{
-        label: '4pt Insect (TAMU style)',
-        value: 'ce_lbl_insect_compressed'
-      },
-      {
-        label: '4pt Insect (NCSU style, uncompressed)',
-        value: 'ce_lbl_insect'
-      },
-      {
-        label: '4 dram Alchohol vial',
-        value: 'ce_lbl_4_dram_ETOH'
-      },
-      {
-        label: 'Custom style',
-        value: 'custom_style'
-      }]
+      styleName: ''
     }
   },
+
+  computed: {
+    selectedStyle: {
+      get () {
+        return this.modelValue
+      },
+      set (value) {
+        this.$emit('update:modelValue', value)
+      }
+    },
+
+    customName () {
+      return this.styleName
+        ? `(${this.styleName})`
+        : ''
+    },
+
+    list () {
+      return [
+        {
+          label: '4pt Insect (TAMU style)',
+          value: 'ce_lbl_insect_compressed'
+        },
+        {
+          label: '4pt Insect (NCSU style, uncompressed)',
+          value: 'ce_lbl_insect'
+        },
+        {
+          label: '4 dram Alchohol vial',
+          value: 'ce_lbl_4_dram_ETOH'
+        },
+        {
+          label: `Custom style ${this.customName}`,
+          value: 'custom_style'
+        }
+      ]
+    }
+  },
+
   methods: {
-    onSelectedStyle(value) {
-      this.$emit('input', value)
+    onSelectedStyle (value) {
+      this.$emit('update:modelValue', value)
     }
   }
 }

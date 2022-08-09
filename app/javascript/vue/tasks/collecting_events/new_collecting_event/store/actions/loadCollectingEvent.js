@@ -1,14 +1,17 @@
 import ActionNames from './actionNames'
 import { MutationNames } from '../mutations/mutations'
-import { GetCollectingEvent } from '../../request/resources'
+import { CollectingEvent } from 'routes/endpoints'
 import { RouteNames } from 'routes/routes'
 import SetParam from 'helpers/setParam'
+import extend from '../../const/extendRequest.js'
 
 export default ({ state, dispatch, commit }, ceId) => {
   state.settings.isLoading = true
 
-  GetCollectingEvent(ceId).then(async response => {
+  CollectingEvent.find(ceId, { extend }).then(async response => {
     const collectingEvent = response.body
+
+    if (collectingEvent.units === undefined) collectingEvent.units = 'm'
 
     collectingEvent.roles_attributes = collectingEvent.collector_roles || []
     commit(MutationNames.SetCollectingEvent, collectingEvent)

@@ -6,11 +6,11 @@
         <label>{{ group.name }}</label>
         <br>
         <template
-          v-for="item in group.list">
+          v-for="item in group.list"
+          :key="item.id">
           <button
             class="bottom normal-input biocuration-toggle-button"
             type="button"
-            :key="item.id"
             :class="{ 'button-default': !biocurations.includes(item.id) }"
             @click="toggleBiocuration(item)">{{ item.name }}
           </button>
@@ -23,39 +23,44 @@
 <script>
 
 import {
-  GetBiocurationsTypes,
-  GetBiocurationsGroupTypes,
-  GetBiocurationsTags
-} from '../request/resources'
+  ControlledVocabularyTerm,
+  Tag
+} from 'routes/endpoints'
 
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Array,
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     biocurations: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       biocurationTypes: [],
       biocurationGroups: []
     }
   },
-  async mounted () {
-    this.biocurationTypes = (await GetBiocurationsTypes()).body
-    this.biocurationGroups = (await GetBiocurationsGroupTypes()).body
+
+  async created () {
+    this.biocurationTypes = (await ControlledVocabularyTerm.where({ type: ['BiocurationClass'] })).body
+    this.biocurationGroups = (await ControlledVocabularyTerm.where({ type: ['BiocurationGroup'] })).body
     this.splitGroups()
   },
+
   methods: {
     toggleBiocuration (biocuration) {
       const index = this.biocurations.findIndex(id => id === biocuration.id)
@@ -66,11 +71,12 @@ export default {
         this.biocurations.push(biocuration.id)
       }
     },
+
     splitGroups () {
       this.biocurationGroups.forEach((item, index) => {
-        GetBiocurationsTags(item.id).then(response => {
+        Tag.where({ keyword_id: item.id }).then(response => {
           const list = this.biocurationTypes.filter(biocurationType => response.body.find(item => biocurationType.id === item.tag_object_id))
-          this.$set(this.biocurationGroups[index], 'list', list)
+          this.biocurationGroups[index]['list'] = list
         })
       })
     }

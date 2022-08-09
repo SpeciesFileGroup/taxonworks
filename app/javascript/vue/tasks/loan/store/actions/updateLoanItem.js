@@ -1,9 +1,10 @@
 import { MutationNames } from '../mutations/mutations'
-import { updateLoanItem } from '../../request/resources'
+import { LoanItem } from 'routes/endpoints'
+import extend from '../../const/extend.js'
 
-export default function ({ commit, state }, object) {
+export default ({ commit }, object) => {
   commit(MutationNames.SetSaving, true)
-  updateLoanItem({ loan_item: object }).then(response => {
+  LoanItem.update(object.id, { loan_item: object, extend }).then(response => {
     commit(MutationNames.AddLoanItem, response.body)
     commit(MutationNames.SetSaving, false)
   })

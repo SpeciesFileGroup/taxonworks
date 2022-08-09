@@ -1,21 +1,13 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-
 import { GetterFunctions } from './getters/getters'
 import { MutationFunctions } from './mutations/mutations'
 import { ActionFunctions } from './actions/actions'
-
-import Identifier from '../const/identifier'
-
-Vue.use(Vuex)
+import { createStore } from 'vuex'
 
 function makeInitialState () {
   return {
     settings: {
       loading: false,
-      saving: false,
-      materialTab: 'new',
-      saveIdentifier: false
+      saving: false
     },
     taxon_name: undefined,
     type_material: {
@@ -40,14 +32,13 @@ function makeInitialState () {
       },
       type_designator_roles: []
     },
-    identifier: Identifier(),
     type_materials: [],
     softValidation: []
   }
 }
 
 function newStore () {
-  return new Vuex.Store({
+  return createStore({
     state: makeInitialState(),
     getters: GetterFunctions,
     mutations: MutationFunctions,

@@ -1,6 +1,5 @@
-export default function(state, id) {
-  let index = state.materialTypes.findIndex((item) => {
-    return item.id == id
-  })
-  state.materialTypes.splice(index, 1)
+export default (state, id) => {
+  const index = state.typeSpecimens.findIndex(item => item.id === id || item.internalId === id)
+
+  state.typeSpecimens.splice(index, 1)
 }

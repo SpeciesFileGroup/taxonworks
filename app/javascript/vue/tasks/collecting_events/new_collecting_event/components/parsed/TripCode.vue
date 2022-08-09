@@ -26,7 +26,8 @@
               <span
                 v-if="tripCode.id"
                 @click="removeIdentifier"
-                class="circle-button btn-delete"/>
+                class="circle-button btn-delete"
+              />
               <span
                 v-else
                 class="circle-button button-default btn-undo"
@@ -43,6 +44,13 @@
             type="text"
             v-model="tripCode.identifier"
           >
+          <label>
+            <input
+              type="checkbox"
+              v-model="incrementIdentifier"
+            >
+            Increment
+          </label>
         </div>
       </div>
     </div>
@@ -51,55 +59,75 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 import extendCE from '../mixins/extendCE'
-import { GetNamespace, RemoveIdentifier } from '../../request/resources'
+import { Namespace, Identifier } from 'routes/endpoints'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 
 export default {
   mixins: [extendCE],
+
   components: {
     SmartSelector
   },
+
   computed: {
     tripCode: {
       get () {
         return this.$store.getters[GetterNames.GetIdentifier]
       },
+
       set (value) {
         this.$store.commit(MutationNames.SetIdentifier, value)
       }
     },
+
+    incrementIdentifier: {
+      get () {
+        return this.$store.getters[GetterNames.GetPreferences].incrementIdentifier
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetIncrementIdentifier, value)
+      }
+    },
+
     namespace_id () {
       return this.tripCode.namespace_id
     }
   },
+
   data () {
     return {
       namespace: undefined,
     }
   },
+
   watch: {
     namespace_id (newVal) {
       if (newVal) {
-        GetNamespace(newVal).then(response => {
+        Namespace.find(newVal).then(response => {
           this.namespace = response.body
         })
+      } else {
+        this.namespace = undefined
       }
     }
   },
+
   methods: {
     setNamespace (namespace) {
       this.tripCode.namespace_id = namespace.id
     },
+
     unsetIdentifier () {
       this.tripCode.namespace_id = undefined
       this.tripCode.identifier = undefined
       this.namespace = undefined
     },
+
     removeIdentifier () {
-      RemoveIdentifier(this.tripCode.id).then(() => {
+      Identifier.destroy(this.tripCode.id).then(() => {
         this.unsetIdentifier()
       })
     }

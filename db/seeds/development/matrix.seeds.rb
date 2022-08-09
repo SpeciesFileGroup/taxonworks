@@ -44,32 +44,32 @@ unless $matrix_seed_ran ||= false
       cs8 = CharacterState.create(descriptor: d3, name: 'green cheese', label: '2')
 
       # row 1
-      o1 = Observation::Qualitative.create(otu: r1, descriptor: d1, character_state: cs1)
-      o2 = Observation::Qualitative.create(otu: r1, descriptor: d2, character_state: cs3)
-      o3 = Observation::Qualitative.create(otu: r1, descriptor: d3, character_state: cs7)
-      o4 = Observation::Continuous.create(otu: r1, continuous_value: 9)
-      o5 = Observation::Continuous.create(otu: r1, sample_min: 1, sample_max: 3)
+      o1 = Observation::Qualitative.create(observation_object: r1, descriptor: d1, character_state: cs1)
+      o2 = Observation::Qualitative.create(observation_object: r1, descriptor: d2, character_state: cs3)
+      o3 = Observation::Qualitative.create(observation_object: r1, descriptor: d3, character_state: cs7)
+      o4 = Observation::Continuous.create(observation_object: r1, continuous_value: 9)
+      o5 = Observation::Continuous.create(observation_object: r1, sample_min: 1, sample_max: 3)
 
       # row 2
-      o6 = Observation::Qualitative.create(otu: r2, descriptor: d1, character_state: cs2)
-      o7 = Observation::Qualitative.create(otu: r2, descriptor: d2, character_state: cs4)
-      o8 = Observation::Qualitative.create(otu: r2, descriptor: d3, character_state: cs7)
-      o9 = Observation::Continuous.create(otu: r2, continuous_value: 8)
-      o10 = Observation::Continuous.create(otu: r2, sample_min: 1)
+      o6 = Observation::Qualitative.create(observation_object: r2, descriptor: d1, character_state: cs2)
+      o7 = Observation::Qualitative.create(observation_object: r2, descriptor: d2, character_state: cs4)
+      o8 = Observation::Qualitative.create(observation_object: r2, descriptor: d3, character_state: cs7)
+      o9 = Observation::Continuous.create(observation_object: r2, continuous_value: 8)
+      o10 = Observation::Continuous.create(observation_object: r2, sample_min: 1)
 
       # row 3
-      o11 = Observation::Qualitative.create(otu: r3, descriptor: d1, character_state: cs2)
-      o12 = Observation::Qualitative.create(otu: r3, descriptor: d2, character_state: cs4)
-      o13 = Observation::Qualitative.create(otu: r3, descriptor: d3, character_state: cs8)
-      o14 = Observation::Continuous.create(otu: r3, continuous_value: 2)
-      o15 = Observation::Continuous.create(otu: r3, sample_min: 9)
+      o11 = Observation::Qualitative.create(observation_object: r3, descriptor: d1, character_state: cs2)
+      o12 = Observation::Qualitative.create(observation_object: r3, descriptor: d2, character_state: cs4)
+      o13 = Observation::Qualitative.create(observation_object: r3, descriptor: d3, character_state: cs8)
+      o14 = Observation::Continuous.create(observation_object: r3, continuous_value: 2)
+      o15 = Observation::Continuous.create(observation_object: r3, sample_min: 9)
 
       # row 4
-      o11 = Observation::Qualitative.create(collection_object: r4, descriptor: d1, character_state: cs2)
-      o12 = Observation::Qualitative.create(collection_object: r4, descriptor: d2, character_state: cs4)
-      o13 = Observation::Qualitative.create(collection_object: r4, descriptor: d3, character_state: cs8)
-      o14 = Observation::Continuous.create(collection_object: r4, continuous_value: 2)
-      o15 = Observation::Continuous.create(collection_object: r4, sample_min: 9)
+      o11 = Observation::Qualitative.create(observation_object: r4, descriptor: d1, character_state: cs2)
+      o12 = Observation::Qualitative.create(observation_object: r4, descriptor: d2, character_state: cs4)
+      o13 = Observation::Qualitative.create(observation_object: r4, descriptor: d3, character_state: cs8)
+      o14 = Observation::Continuous.create(observation_object: r4, continuous_value: 2)
+      o15 = Observation::Continuous.create(observation_object: r4, sample_min: 9)
 
       # row 5
       # is empty
@@ -79,11 +79,11 @@ unless $matrix_seed_ran ||= false
       end
 
       [r1, r2, r3].each do |r|
-        m.observation_matrix_row_items << ObservationMatrixRowItem::Single::Otu.new(otu: r)
+        m.observation_matrix_row_items << ObservationMatrixRowItem::Single.new(observation_object: r)
       end
 
       [r4, r5].each do |r|
-        m.observation_matrix_row_items << ObservationMatrixRowItem::Single::CollectionObject.new(collection_object: r)
+        m.observation_matrix_row_items << ObservationMatrixRowItem::Single.new(observation_object: r)
       end
 
       puts Rainbow("in Project #{Current.project_id}").purple

@@ -53,8 +53,8 @@
 
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
-import { GetDepictions, DestroyDepiction } from '../../request/resources.js'
-import GeoreferenceTypes from '../../const/georeferenceTypes'
+import { CollectingEvent, Depiction } from 'routes/endpoints'
+import { GEOREFERENCE_EXIF } from 'constants/index.js'
 import Dropzone from 'components/dropzone.vue'
 import extendCE from '../mixins/extendCE.js'
 import ParseDMS from 'helpers/parseDMS.js'
@@ -115,7 +115,7 @@ export default {
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
         dictDefaultMessage: 'Drop image or click to browse',
-        acceptedFiles: 'image/*'
+        acceptedFiles: 'image/*,.heic'
       },
       coordinatesEXIF: []
     }
@@ -126,7 +126,7 @@ export default {
         this.$refs.depiction.setOption('autoProcessQueue', true)
         this.$refs.depiction.processQueue()
         this.coordinatesEXIF = []
-        GetDepictions(newVal.id).then(response => {
+        CollectingEvent.depictions(newVal.id).then(response => {
           this.figuresList = response.body
         })
       } else {
@@ -171,7 +171,7 @@ export default {
             latitude: ParseDMS(this.parseEXIFCoordinate(allMetaData.GPSLatitude) + allMetaData.GPSLatitudeRef),
             longitude: ParseDMS(this.parseEXIFCoordinate(allMetaData.GPSLongitude) + allMetaData.GPSLongitudeRef)
           }
-          const geojson = addGeoreference(createGeoJSONFeature(coordinates.longitude, coordinates.latitude), GeoreferenceTypes.Exif)
+          const geojson = addGeoreference(createGeoJSONFeature(coordinates.longitude, coordinates.latitude), GEOREFERENCE_EXIF)
 
           this.coordinatesEXIF.push(geojson)
           if (this.autogeo) {
@@ -196,7 +196,7 @@ export default {
     },
     removeDepiction (depiction) {
       if (window.confirm('Are you sure want to proceed?')) {
-        DestroyDepiction(depiction.id).then(response => {
+        Depiction.destroy(depiction.id).then(response => {
           TW.workbench.alert.create('Depiction was successfully deleted.', 'notice')
           this.figuresList.splice(this.figuresList.findIndex((figure) => { return figure.id == depiction.id }), 1)
           this.$emit('delete', depiction)

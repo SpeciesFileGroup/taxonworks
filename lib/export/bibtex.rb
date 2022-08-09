@@ -21,7 +21,7 @@ module Export
     def self.download(sources, request = nil, is_public = false, style_id = 'http://www.zotero.org/styles/bibtex')
       file_path = ::Export::Bibtex.export(sources, style_id)
 
-      ::Download.create!(
+      ::Download::Bibtex.create!(
         name: name,
         description: DESCRIPTION,
         filename: filename,

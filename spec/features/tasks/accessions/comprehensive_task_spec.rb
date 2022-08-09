@@ -23,7 +23,7 @@ describe 'Task - Comprehensive digitization', type: :feature, group: :collection
 
       specify 'clicking save saves' do
         click_button 'Save'
-        expect(page).to have_text('no identifier assigned')
+        expect(page).to_not have_text('New record')
       end
 
       context 'catalog numbers' do
@@ -33,14 +33,14 @@ describe 'Task - Comprehensive digitization', type: :feature, group: :collection
           fill_in('namespace-autocomplete', with: 'INHS')
 
           # TODO: Improve this. Possibly adding more HTML to easily identify fields.
-          catalog_number = find('div.separate-right', text: 'Catalog number')
+          catalog_number = find('#namespace-autocomplete').find(:xpath, '..')
           catalog_number.find('li', text: 'INHS').hover.click
-          catalog_number.fill_in("identifier-field", with: '1234')
+          fill_in(id: "identifier-field", with: '1234')
 
           click_button 'Save'
 
           expect(page).to_not have_text('New record')
-          expect(page).to_not have_text('no identifier assigned')
+          expect(page).to_not have_text('no catalog number assigned') # all records auto-get an occurrenceID
           expect(page).to have_text('INHS 1234')
         end
       end
@@ -55,13 +55,13 @@ describe 'Task - Comprehensive digitization', type: :feature, group: :collection
         let!(:o) { Otu.create!(name: 'Foo', by: @user, project: @project) } 
 
         specify 'adds taxon determinations' do
-          fill_in('determination-otu-autocomplete', with: 'Foo')
+          find('#taxon-determination-digitize .vue-otu-picker .vue-autocomplete-input').set('Foo')
 
           find('.vue-autocomplete-list li', text: 'Foo').hover.click
 
           click_button 'determination-add-button'
 
-          find('body').send_keys([OS.mac? ? :control : :alt, 's'])
+          find('#comprehensive-navbar').send_keys([OS.mac? ? :control : :alt, 's'])
           expect(page).to have_text('det. Foo')
         end
       end

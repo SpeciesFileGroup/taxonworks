@@ -1,60 +1,68 @@
 <template>
-  <span
+  <VBtn
     v-if="!createdSourceID"
-    @click="create"
+    color="create"
+    class="btn-add-to-project circle-button"
     title="Add to project"
-    class="button circle-button button-submit btn-add-to-project">
+    @click="addToProject"
+  >
     Add to project
-  </span>
-  <span
+  </VBtn>
+
+  <VBtn
     v-else
-    @click="remove"
+    color="destroy"
+    class="btn-remove-from-project circle-button"
     title="Remove from project"
-    class="button circle-button button-delete btn-remove-from-project">
+    @click="removeFromProject"
+  >
     Remove from project
-  </span>
+  </VBtn>
 </template>
 
-<script>
+<script setup>
+import { ref, watch } from 'vue'
+import { ProjectSource } from 'routes/endpoints'
+import VBtn from 'components/ui/VBtn/index.vue'
 
-import AjaxCall from 'helpers/ajaxCall'
+const props = defineProps({
+  id: {
+    type: [Number, String],
+    required: true
+  },
 
-export default {
-  props: {
-    id: {
-      type: [Number, String],
-      required: true
-    },
-    projectSourceId: {
-      type: [Number, String]
-    }
-  },
-  data () {
-    return {
-      project_source: {
-        source_id: this.id
-      },
-      createdSourceID: undefined
-    }
-  },
-  methods: {
-    create () {
-      AjaxCall('post', '/project_sources.json', {project_source: this.project_source}).then(response => {
-        this.createdSourceID = response.body.id
-        TW.workbench.alert.create('Source was added to project successfully', 'notice')
-      })
-    },
-    remove () {
-      AjaxCall('delete', `/project_sources/${this.createdSourceID}.json`).then(response => {
-        this.createdSourceID = undefined
-        TW.workbench.alert.create('Source was removed from project successfully', 'notice')
-      }, (response) => {
-
-      })
-    }
-  },
-  mounted: function () {
-    this.createdSourceID = this.projectSourceId
+  projectSourceId: {
+    type: [Number, String],
+    default: undefined
   }
+})
+
+const createdSourceID = ref(undefined)
+
+const addToProject = () => {
+  const payload = {
+    project_source: {
+      source_id: props.id
+    }
+  }
+
+  ProjectSource.create(payload).then(({ body }) => {
+    createdSourceID.value = body.id
+    TW.workbench.alert.create('Source was added to project successfully', 'notice')
+  })
 }
+
+const removeFromProject = () => {
+  ProjectSource.destroy(createdSourceID.value).then(_ => {
+    createdSourceID.value = undefined
+    TW.workbench.alert.create('Source was removed from project successfully', 'notice')
+  })
+}
+
+watch(
+  () => props.projectSourceId,
+  newVal => { createdSourceID.value = newVal },
+  { immediate: true }
+)
+
 </script>

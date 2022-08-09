@@ -14,7 +14,7 @@ module Queries
       # project_id - the target project in general
 
       # @param [Hash] args
-      def initialize(string, params = {})
+      def initialize(string, **params)
         @limit_to_roles = params[:roles] # roles
         set_identifier(params)
         set_tags_params(params)
@@ -24,7 +24,7 @@ module Queries
 
       # @return [Scope]
       def base_query
-        ::Person.select('people.*')
+        ::Person #.select('people.*')
       end
 
       # @return [Arel::Nodes::Equatity]
@@ -43,35 +43,37 @@ module Queries
       def autocomplete_exact_match
         base_query.where(
           table[:cached].eq(normalize_name).to_sql
-        ).limit(20)
+        )
       end
 
       def autocomplete_exact_last_name_match
         base_query.where(
           table[:last_name].eq(query_string).to_sql
-        ).limit(20)
+        )
       end
 
       # @return [Scope]
       def autocomplete_exact_inverted
         base_query.where(
           table[:cached].eq(invert_name).to_sql
-        ).limit(20)
+        )
       end
 
       def autocomplete_alternate_values_last_name
-        matching_alternate_value_on(:last_name).limit(20) 
+        matching_alternate_value_on(:last_name)
       end
 
       def autocomplete_alternate_values_first_name
-        matching_alternate_value_on(:first_name).limit(20) 
+        matching_alternate_value_on(:first_name)
       end
 
       # TODO: Use bibtex parser!!
       # @param [String] string
       # @return [String]
       def normalize(string)
-        string.strip.split(/\s*\,\s*/, 2).join(', ')
+        n = string.strip.split(/\s*\,\s*/, 2).join(', ')
+        n = 'nothing to match' unless n.include?(' ')
+        n
       end
 
       # @return [String] simple name inversion
@@ -96,35 +98,46 @@ module Queries
       def autocomplete
         return [] if query_string.blank?
         queries = [
-          autocomplete_exact_match,
-          autocomplete_exact_inverted,
-          autocomplete_identifier_cached_exact,
-          autocomplete_identifier_identifier_exact,
-          autocomplete_exact_id,
-          autocomplete_exact_last_name_match,
-          autocomplete_alternate_values_last_name,
-          autocomplete_alternate_values_first_name,
-          autocomplete_ordered_wildcard_pieces_in_cached,
-          autocomplete_cached_wildcard_anywhere, # in Queries::Query
-          autocomplete_cached
+          [ autocomplete_exact_id, false ],
+          [ autocomplete_exact_match.limit(5), true ],
+          [ autocomplete_exact_inverted.limit(5), true ],
+          [ autocomplete_identifier_cached_exact, false ],
+          [ autocomplete_identifier_identifier_exact, false ],
+          [ autocomplete_exact_last_name_match.limit(20), true ],
+          [ autocomplete_alternate_values_last_name.limit(20), true ],
+          [ autocomplete_alternate_values_first_name.limit(20), true ],
+          [ autocomplete_ordered_wildcard_pieces_in_cached&.limit(5), true ],
+          [ autocomplete_cached_wildcard_anywhere&.limit(20), true ], # in Queries::Query
+          [ autocomplete_cached, true ]
         ]
 
         queries.compact!
 
         updated_queries = []
-        queries.each_with_index do |q ,i|
-          a = q.joins(:roles).where(role_match.to_sql) if roles_assigned?
-          a ||= q
+        queries.each_with_index do |q, i|
+          if q[0].nil?
+            #do nothing
+          elsif roles_assigned?
+            a = q[0].joins(:roles).where(role_match.to_sql)
+          elsif Current.project_id && q[1] # do not use extended query for identifiers
+            a = q[0].left_outer_joins(:roles)
+                  .joins("LEFT OUTER JOIN sources ON roles.role_object_id = sources.id AND roles.role_object_type = 'Source'")
+                  .joins('LEFT OUTER JOIN project_sources ON sources.id = project_sources.source_id')
+                  .select("people.*, COUNT(roles.id) AS use_count, CASE WHEN MAX(roles.project_id) = #{Current.project_id} THEN MAX(roles.project_id) ELSE MAX(project_sources.project_id) END AS in_project_id")
+                  .where('roles.project_id = ? OR project_sources.project_id = ? OR (roles.project_id IS DISTINCT FROM ? AND project_sources.project_id IS DISTINCT FROM ?)', Current.project_id, Current.project_id, Current.project_id, Current.project_id)
+                  .group('people.id')
+                  .order('in_project_id, use_count DESC')
+          end
+          a ||= q[0]
           updated_queries[i] = a
         end
-
         result = []
         updated_queries.each do |q|
           result += q.to_a
           result.uniq!
           break if result.count > 19
         end
-        result[0..19]
+        result = result[0..19]
       end
 
       # @return [Arel::Table]

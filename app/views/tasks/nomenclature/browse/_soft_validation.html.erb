@@ -1,14 +1,35 @@
-<div id="validation-panel" class="panel fullSize content separate-left separate-bottom">
-  <%= render(partial: '/shared/data/all/show/soft_validation', locals: { object: @taxon_name }) -%> 
-
-  <%= content_tag(:h3, 'Relationships') if @taxon_name.taxon_name_relationships.any? %>
-  <% @taxon_name.taxon_name_relationships.each do |relationship| %>
-    <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: { object: relationship }) -%>  
-  <% end %>
-
-  <%= content_tag(:h3, 'Status') if @taxon_name.taxon_name_classifications.any? %>
-  <% @taxon_name.taxon_name_classifications.each do |classification| %>
-    <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: { object: classification }) -%>  
-  <% end %> 
+<div
+  id="vue-browse-validation-panel"
+  class="full_width">
 </div>
+<div class="d-none">
+
+  <div id="taxon-validations">
+    <%= render(partial: '/shared/data/all/show/soft_validation', locals: { object: @taxon_name }) -%> 
+  </div>
+
+  <div id="relationships-validations">
+    <%= content_tag(:h3, 'Relationships') if @taxon_name.taxon_name_relationships.any? %>
+    <% @taxon_name.taxon_name_relationships.each do |relationship| %>
+      <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: { object: relationship }) -%>  
+    <% end %>
+  </div>
+
+  <div id="status-validations">
+    <%= content_tag(:h3, 'Status') if @taxon_name.taxon_name_classifications.any? %>
+    <% @taxon_name.taxon_name_classifications.each do |classification| %>
+      <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: { object: classification }) -%>  
+    <% end %>
+  </div>
+
+  <% unless @taxon_name.is_combination? %>
+    <div id="taxon-original-combination">
+      <%= content_tag(:h3, 'Original combination') if @taxon_name.original_combination_relationships.any? %>
+      <% @taxon_name.original_combination_relationships.each do |combination| %>
+        <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: { object: combination }) -%>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
 

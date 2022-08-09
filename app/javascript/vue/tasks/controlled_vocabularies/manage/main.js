@@ -1,13 +1,17 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from './app.vue'
+import HelpSystem from 'plugins/help/help'
+import en from './lang/help/en'
 
-function init (){
-  new Vue({
-    el: '#vue-task-manage-controlled-vocabulary',
-    render: function (createElement) {
-      return createElement(App)
+function init () {
+  const app = createApp(App)
+
+  app.use(HelpSystem, {
+    languages: {
+      en: en
     }
   })
+  app.mount('#vue-task-manage-controlled-vocabulary')
 }
 
 document.addEventListener('turbolinks:load', () => {

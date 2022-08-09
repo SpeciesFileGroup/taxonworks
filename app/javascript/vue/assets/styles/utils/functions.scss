@@ -1,0 +1,3 @@
+@function tw-color($key: 'primary') {
+  @return map-get($scotch-colors, $key);
+}

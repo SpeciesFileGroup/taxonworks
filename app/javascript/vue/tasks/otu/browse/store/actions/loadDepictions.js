@@ -1,8 +1,8 @@
 import { MutationNames } from '../mutations/mutations'
-import { GetDepictions } from '../../request/resources'
+import { Otu } from 'routes/endpoints'
 
 export default ({ commit, state }, id) => {
-  GetDepictions('otus', id).then(response => {
+  Otu.depictions(id).then(response => {
     commit(MutationNames.SetDepictions, state.depictions.concat(response.body))
   })
 }

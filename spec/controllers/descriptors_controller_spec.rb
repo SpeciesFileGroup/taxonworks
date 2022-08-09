@@ -144,19 +144,5 @@ RSpec.describe DescriptorsController, type: :controller do
     end
   end
 
-  describe 'DELETE #destroy' do
-    it 'destroys the requested descriptor' do
-      descriptor = Descriptor.create! valid_attributes
-      expect {
-        delete :destroy, params: {id: descriptor.to_param}, session: valid_session
-      }.to change(Descriptor, :count).by(-1)
-    end
-
-    it 'redirects to the descriptors list' do
-      descriptor = Descriptor.create! valid_attributes
-      delete :destroy, params: {id: descriptor.to_param}, session: valid_session
-      expect(response).to redirect_to(descriptors_url)
-    end
-  end
-
+  include_examples 'DELETE #destroy', Descriptor
 end

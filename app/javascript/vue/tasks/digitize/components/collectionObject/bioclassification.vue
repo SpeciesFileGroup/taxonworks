@@ -7,16 +7,24 @@
         <template
           v-for="item in group.list">
           <button
+            v-if="(biologicalId ? !isCreated(item.id) : !isInQueue(item.id))"
             type="button"
-            class="bottom button-submit normal-input biocuration-toggle-button"
+            class="bottom normal-input button-submit biocuration-toggle-button"
+            :class="{ 'biocuration-toggle-button__disabled': disabled }"
+            :disabled="disabled"
             @click="addToQueue(item.id)"
-            v-if="(biologicalId ? !checkExist(item.id) : !checkInQueue(item.id))">{{ item.name }}
+          >
+            {{ item.name }}
           </button>
           <button
+            v-else
             type="button"
-            class="bottom button-delete normal-input biocuration-toggle-button"
+            class="bottom normal-input button-delete biocuration-toggle-button"
+            :class="{ 'biocuration-toggle-button__disabled': disabled }"
+            :disabled="disabled"
             @click="(biologicalId ? removeEntry(item) : removeFromQueue(item.id))"
-            v-else>{{ item.name }}
+          >
+            {{ item.name }}
           </button>
         </template>
       </div>
@@ -27,37 +35,42 @@
 <script>
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
-
-import {
-  GetBiocurationsCreated,
-  CreateBiocurationClassification,
-  DestroyBiocuration } from '../../request/resources.js'
+import { BiocurationClassification } from 'routes/endpoints'
 
 export default {
   props: {
     biologicalId: {
       type: [String, Number]
     },
+
     biocutarionsType: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     },
+
     biocurationsGroups: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
+    },
+
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
+
   computed: {
     locked: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetLocked]
       },
-      set(value) {
+      set (value) {
         this.$store.commit([MutationNames.SetLocked, value])
       }
-    },
+    }
   },
-  data() {
+
+  data () {
     return {
       addQueue: [],
       createdBiocutarions: [],
@@ -65,10 +78,11 @@ export default {
       tags: []
     }
   },
+
   watch: {
     biologicalId: {
       handler (newVal, oldVal) {
-        if((this.locked.biocuration) && newVal == undefined) {
+        if ((this.locked.biocuration) && newVal == undefined) {
           this.addQueue = this.addQueue.concat(this.getCreatedBiocurationIds())
         }
         this.createdBiocutarions = []
@@ -77,68 +91,67 @@ export default {
         }
         if (newVal != undefined && newVal != oldVal) {
           this.addQueue = []
-          let that = this
 
           setTimeout(() => {
-            GetBiocurationsCreated(newVal).then(response => {
-              that.createdBiocutarions = response.body
-              that.$forceUpdate()
+            BiocurationClassification.where({ biological_collection_object_id: newVal }).then(response => {
+              this.createdBiocutarions = response.body
+              this.$forceUpdate()
             })
           }, this.delay)
-        } 
+        }
       },
       immediate: true
     },
+
     addQueue: {
       handler () {
         if (this.biologicalId && this.addQueue.length) {
           this.processQueue()
         }
-      }
+      },
+      deep: true
     }
   },
+
   methods: {
-    getCreatedBiocurationIds() {
-      return this.createdBiocutarions.map(item => {
-        return item.biocuration_class_id 
-      })
+    getCreatedBiocurationIds () {
+      return this.createdBiocutarions.map(item => item.biocuration_class_id)
     },
+
     addToQueue (biocuration) {
       this.addQueue.push(biocuration)
     },
+
     processQueue () {
       this.addQueue.forEach((id) => {
-        CreateBiocurationClassification(this.createBiocurationObject(id)).then(response => {
+        BiocurationClassification.create(this.createBiocurationObject(id)).then(response => {
           this.createdBiocutarions.push(response.body)
         })
         this.addQueue = []
       })
     },
-    checkExist (id) {
-      let found = this.createdBiocutarions.find((bio) => {
-        return id == bio.biocuration_class_id
-      })
-      return (found != undefined)
-    },
-    checkInQueue (id) {
-      let found = this.addQueue.find((biocurationId) => {
-        return id == biocurationId
-      })
-      return (found != undefined)
-    },
-    removeFromQueue (id) {
-      this.addQueue.splice(this.addQueue.findIndex((itemId) => { return itemId == id }), 1)
-    },
-    removeEntry (biocurationClass) {
-      let index = this.createdBiocutarions.findIndex((item) => {
-        return (item.biocuration_class_id == biocurationClass.id)
-      })
 
-      DestroyBiocuration(this.createdBiocutarions[index].id).then(response => {
+    isCreated (id) {
+      return !!this.createdBiocutarions.find(bio => id === bio.biocuration_class_id)
+    },
+
+    isInQueue (id) {
+      return !!this.addQueue.find(biocurationId => id === biocurationId)
+    },
+
+    removeFromQueue (id) {
+      this.addQueue.splice(this.addQueue.findIndex(itemId => itemId === id), 1)
+    },
+
+    removeEntry (biocurationClass) {
+      const index = this.createdBiocutarions.findIndex(item => item.biocuration_class_id === biocurationClass.id)
+
+      BiocurationClassification.destroy(this.createdBiocutarions[index].id).then(() => {
         this.$store.commit(MutationNames.RemoveBiocuration, this.createdBiocutarions[index].id)
         this.createdBiocutarions.splice(index, 1)
       })
     },
+
     createBiocurationObject (id) {
       return {
         biocuration_classification: {
@@ -151,7 +164,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
   .total-input {
     width: 50px;
   }
@@ -162,5 +175,10 @@ export default {
     margin-bottom: 6px;
     border-top-left-radius: 14px;
     border-bottom-left-radius: 14px;
+
+    &__disabled {
+      opacity: 0.3;
+    }
   }
+
 </style>

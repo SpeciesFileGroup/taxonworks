@@ -1,13 +1,21 @@
-import { GetBiologicalAssociations } from '../../request/resources'
 import { MutationNames } from '../mutations/mutations'
+import { BiologicalAssociation } from 'routes/endpoints'
 
-export default ({ state, commit }, globalId) => {
-  return new Promise((resolve, reject) => {
-    GetBiologicalAssociations(globalId).then(response => {
+const extend = [
+  'citations',
+  'object',
+  'subject',
+  'biological_relationship',
+  'source',
+  'family_names'
+]
+
+export default ({ state, commit }, globalId) =>
+  new Promise((resolve, reject) => {
+    BiologicalAssociation.where({ any_global_id: globalId, extend }).then(response => {
       commit(MutationNames.SetBiologicalAssociations, state.biologicalAssociations.concat(response.body))
       resolve(response)
     }, error => {
       reject(error)
     })
   })
-}

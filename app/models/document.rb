@@ -46,7 +46,6 @@ class Document < ApplicationRecord
   before_destroy :check_for_documentation, prepend: true
 
   has_many :documentation, dependent: :destroy, inverse_of: :document
-
   has_many :sources, through: :documentation, source_type: 'Source', source: 'documentation_object'
 
   has_attached_file :document_file,
@@ -131,6 +130,10 @@ class Document < ApplicationRecord
       end
     rescue PDF::Reader::MalformedPDFError
       errors.add(:base, 'pdf is malformed')
+    rescue PDF::Reader::EncryptedPDFError
+      errors.add(:base, 'pdf is encrypted')
+    rescue PDF::Reader::UnsupportedFeatureError
+      errors.add(:base, 'pdf contains features not supported by the software')
     end
     set_pages_by_start(initialize_start_page) if initialize_start_page
   end

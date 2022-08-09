@@ -5,7 +5,6 @@ require 'support/shared_contexts/shared_geo'
 describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_objects] do
   include_context 'stuff for complex geo tests'
 
-
   context 'dwc_occurrence' do
     let(:collection_object) { CollectionObject.new() }
     specify 'saves' do
@@ -18,10 +17,6 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
     let(:ranged_lot_category) { FactoryBot.create(:valid_ranged_lot_category) }
 
     context 'validation' do
-      specify '.valid_new_object_classes' do
-        expect(CollectionObject.valid_new_object_classes).to contain_exactly('CollectionObject', 'Extract', 'AssertedDistribution')
-      end
-
       specify 'type is not set when total/ranged_lot are not provided' do
         collection_object.valid?
         expect(collection_object.type).to eq(nil)
@@ -133,13 +128,13 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
       end
     end
 
-    context '#origin_relationships' do
-      specify '#derived_extracts' do
-        expect(collection_object).to respond_to(:derived_extracts)
+    context 'via #origin_relationships' do
+      specify '#extracts' do
+        expect(collection_object).to respond_to(:extracts)
       end
 
-      specify 'joins #derived_extracts' do
-        expect(CollectionObject.joins(:derived_extracts).count).to eq(0)
+      specify 'joins #extracts' do
+        expect(CollectionObject.joins(:extracts).count).to eq(0)
       end
     end
 
@@ -172,10 +167,10 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
           expect(collection_object.taxon_determinations.first).to be_truthy
         end
 
-        specify 'type_designations' do
-          collection_object.type_designations << FactoryBot.create(:valid_type_material)
+        specify 'type_materials' do
+          collection_object.type_materials << FactoryBot.create(:valid_type_material)
           collection_object.save!
-          expect(collection_object.type_designations.count).to eq(1)
+          expect(collection_object.type_materials.count).to eq(1)
         end
       end
     end
@@ -204,8 +199,6 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
       end
     end
 
-
-
     context 'soft validation' do
       let(:o) { Specimen.new }
       let(:p) { Person.new }
@@ -213,13 +206,13 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
       context 'accession fields are missing' do
         specify 'accessioned_at is missing' do
           o.accession_provider = p
-          o.soft_validate(:missing_accession_fields)
+          o.soft_validate(only_sets: :missing_accession_fields)
           expect(o.soft_validations.messages_on(:accessioned_at).count).to eq(1)
         end
 
         specify 'accession_recipient is missing' do
           o.accessioned_at = '12/12/2014'
-          o.soft_validate(:missing_accession_fields)
+          o.soft_validate(only_sets: :missing_accession_fields)
           expect(o.soft_validations.messages_on(:base).count).to eq(1)
         end
 
@@ -229,20 +222,20 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
         specify 'deaccession_reason is missing' do
           o.deaccessioned_at      = '12/12/2014'
           o.deaccession_recipient = p
-          o.soft_validate(:missing_deaccession_fields)
+          o.soft_validate(only_sets: :missing_deaccession_fields)
           expect(o.soft_validations.messages_on(:deaccession_reason).count).to eq(1)
 
         end
         specify 'deaccessioned_at is missing' do
           o.deaccession_reason = 'Because.'
-          o.soft_validate(:missing_deaccession_fields)
+          o.soft_validate(only_sets: :missing_deaccession_fields)
           expect(o.soft_validations.messages_on(:deaccessioned_at).count).to eq(1)
         end
 
         specify 'deaccessioned_at is missing' do
           o.deaccession_reason = 'Because.'
           o.deaccessioned_at   = '12/12/2014'
-          o.soft_validate(:missing_deaccession_fields)
+          o.soft_validate(only_sets: [:missing_deaccession_fields])
           expect(o.soft_validations.messages_on(:base).count).to eq(1)
         end
       end
@@ -273,8 +266,9 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
         describe 'spanning a single year' do
           specify 'should find 2 records' do
             [co_m1, co_m1a]
-            collection_objects = CollectionObject.in_date_range(search_start_date: '1971-01-01',
-                                                                search_end_date:   '1971-12-31')
+            collection_objects = CollectionObject.in_date_range(
+              search_start_date: '1971-01-01',
+              search_end_date:   '1971-12-31')
             expect(collection_objects.map(&:collecting_event)).to contain_exactly(ce_m1, ce_m1a)
           end
         end
@@ -461,12 +455,27 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
         )
       }
 
-      (1..5).each do  |identifier|
+      (1..5).each do |identifier|
         n = "sp_#{identifier}".to_sym
         i = "id_#{identifier}".to_sym
 
-        let!(n){ Specimen.create!(id: 999 - identifier) } # Force strange id order so we don't assume anything
-        let!(i){ Identifier::Local::CatalogNumber.create!(
+        let!(n) {
+
+          # Generate random ids that never duplicate
+          new = true
+          id = nil
+          while new
+            id = rand(99999) + 10 - identifier
+            if !Specimen.where(id: id).any?
+              new = false
+            end
+          end
+
+          # Force strange id order so we don't assume anything
+          Specimen.create!(id: id)
+        }
+
+        let!(i) { Identifier::Local::CatalogNumber.create!(
           identifier_object: send(n),
           namespace: (identifier.even? ? ns2 : ns1),
           identifier: identifier) }
@@ -475,11 +484,8 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
       let(:evens) { [sp_2, sp_4] }
       let(:odds) { [ sp_1, sp_3, sp_5] }
 
-      let(:all_specimens) { [s1, s2, sp_1, sp_2, sp_3, sp_4, sp_5]  }
-      let(:only_numeric_identifiers) { [ sp_1, sp_2, sp_3, sp_4, sp_5]  }
-
-
-      # TODO: something not working still, likely need to create specimens out of order
+      let(:all_specimens) { [s1, s2, sp_1, sp_2, sp_3, sp_4, sp_5] }
+      let(:only_numeric_identifiers) { [ sp_1, sp_2, sp_3, sp_4, sp_5] }
 
       specify '#next_by_identifier 1' do
         expect(sp_1.next_by_identifier).to eq(sp_3)
@@ -510,7 +516,7 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
       end
 
       specify '#next_by_identifier, no identifier' do 
-        collection_object.update!(total: 1) 
+        collection_object.update!(total: 1)
         expect(collection_object.next_by_identifier).to eq(nil)
       end
 
@@ -559,7 +565,7 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
 
       describe 'with sorted identifiers' do
         specify 'without restriction' do
-          expect(CollectionObject.with_identifiers_sorted.map(&:id)).to eq( only_numeric_identifiers.map(&:id).sort.reverse ) 
+          expect(CollectionObject.with_identifiers_sorted.map(&:id)).to eq( only_numeric_identifiers.map(&:id) )
         end
       end
 
@@ -590,15 +596,15 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
         end
 
         specify 'with namespace_id, sort ASC' do
-          expect(CollectionObject.with_identifier_type_and_namespace(nil, ns2.id, 'ASC').map(&:id) ).to eq(evens.map(&:id).sort.reverse)
+          expect(CollectionObject.with_identifier_type_and_namespace(nil, ns2.id, 'ASC').map(&:id) ).to eq(evens.map(&:id))
         end
 
         specify 'with namespace_id, sort DESC' do
-          expect(CollectionObject.with_identifier_type_and_namespace(nil, ns2.id, 'DESC').map(&:id)).to eq(evens.map(&:id).sort)
+          expect(CollectionObject.with_identifier_type_and_namespace(nil, ns2.id, 'DESC').map(&:id)).to eq(evens.map(&:id).reverse)
         end
 
         specify 'with identifier_type, namespace_id, sort DESC (all)' do
-          expect(CollectionObject.with_identifier_type_and_namespace(type_cat_no, ns2.id, 'DESC').map(&:id)).to eq(evens.map(&:id).sort)
+          expect(CollectionObject.with_identifier_type_and_namespace(type_cat_no, ns2.id, 'DESC').map(&:id)).to eq(evens.map(&:id).reverse)
         end
 
         specify 'with identifier_type, namespace_id, sort DESC (none)' do

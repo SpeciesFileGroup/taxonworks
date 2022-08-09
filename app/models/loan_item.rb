@@ -36,7 +36,7 @@
 #     when type is OTU an arbitrary total can be provided
 #
 class LoanItem < ApplicationRecord
-  acts_as_list scope: :loan
+  acts_as_list scope: [:loan, :project_id]
 
   include Housekeeping
   include Shared::DataAttributes
@@ -48,16 +48,20 @@ class LoanItem < ApplicationRecord
 
   STATUS = ['Destroyed', 'Donated', 'Loaned on', 'Lost', 'Retained', 'Returned'].freeze
 
-  belongs_to :loan
+  belongs_to :loan, inverse_of: :loan_items
   belongs_to :loan_item_object, polymorphic: true
 
   validates_presence_of :loan_item_object
 
   validates :loan, presence: true
-  validates_uniqueness_of :loan, scope: [:loan_item_object_type, :loan_item_object_id]
+
+  # validates_uniqueness_of :loan, scope: [:loan_item_object_type, :loan_item_object_id]
 
   validate :total_provided_only_when_otu
+
   validate :loan_object_is_loanable
+ 
+  validate :available_for_loan
 
   validates_inclusion_of :disposition, in: STATUS, if: -> {!disposition.blank?}
 
@@ -164,7 +168,7 @@ class LoanItem < ApplicationRecord
           end
         else
           Tag.where(keyword_id: keyword_id).where(tag_object_type: ['Container', 'Otu', 'CollectionObject']).distinct.all.each do |o|
-            created.push LoanItem.create!(loan_item_object: o, loan_id: loan_id)
+            created.push LoanItem.create!(loan_item_object: o.tag_object, loan_id: loan_id)
           end
         end
       rescue ActiveRecord::RecordInvalid
@@ -198,12 +202,36 @@ class LoanItem < ApplicationRecord
 
   protected
 
+  def object_loanable_check
+    loan_item_object && loan_item_object.respond_to?(:is_loanable?)
+  end
+
   def total_provided_only_when_otu
     errors.add(:total, 'only providable when item is an OTU.') if total && loan_item_object_type != 'Otu'
   end
 
+  # Code, not out-on-loan check
   def loan_object_is_loanable
-    loan_item_object && loan_item_object.respond_to?(:loanable?)
+    if !persisted? # if it is, then this check should not be necessary
+      if !object_loanable_check
+        errors.add(:loan_item_object, 'is not loanble')
+      end
+    end
+  end
+
+  # Is not already in a loan item if CollectionObject/Container
+  def available_for_loan
+    if !persisted? # if it is, then this check should not be necessary 
+      if object_loanable_check
+        if loan_item_object_type == 'Otu'
+          true
+        else
+          if loan_item_object.on_loan? #loan_item_object.loan_items.where.not(id: id).any?
+            errors.add(:loan_item_object, 'is already on loan')
+          end
+        end
+      end
+    end
   end
 
 end

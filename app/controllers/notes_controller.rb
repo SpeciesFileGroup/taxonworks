@@ -4,6 +4,7 @@ class NotesController < ApplicationController
   include ShallowPolymorphic
 
   before_action :set_note, only: [:update, :destroy, :api_show]
+  after_action -> { set_pagination_headers(:notes) }, only: [:index, :api_index ], if: :json_request?
 
   # GET /notes
   # GET /notes.json
@@ -71,8 +72,7 @@ class NotesController < ApplicationController
     @note.destroy
     respond_to do |format|
       # TODO: probably needs to be changed
-      format.html { redirect_back(fallback_location: (request.referer || root_path),
-                                  notice:            'Note was successfully destroyed.') }
+      format.html { destroy_redirect @note, notice: 'Note was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
@@ -90,7 +90,7 @@ class NotesController < ApplicationController
       if @note = Note.find(params[:id])
         redirect_to url_for(@note.note_object.metamorphosize)
       else
-        redirect_to note_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+        redirect_to note_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
       end
     end
   end

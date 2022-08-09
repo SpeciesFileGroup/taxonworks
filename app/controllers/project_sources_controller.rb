@@ -55,7 +55,8 @@ class ProjectSourcesController < ApplicationController
   def autocomplete
     @sources = Queries::Source::Autocomplete.new(
       params.require(:term),
-      {project_id: sessions_current_project_id, limit_to_project: true}
+      project_id: sessions_current_project_id,
+      limit_to_project: true
     ).autocomplete
 
     render 'sources/autocomplete'

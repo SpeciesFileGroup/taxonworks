@@ -1,4 +1,5 @@
-# A Tag links a ControlledVocabularyTerm::Keyword to a Data object.
+# A Tag links a ControlledVocabularyTerm::Keyword to a Data object. They are in essence a way to informally group data
+# for future operation.  See also DataAttribute Predicates.
 #
 # @!attribute keyword_id
 #   @return [Integer]
@@ -28,17 +29,15 @@ class Tag < ApplicationRecord
   
   # Tags can not be cited.
   include Housekeeping
-  include Shared::IsData
   include Shared::AttributeAnnotations
-
+  include Shared::IsData
 
   include Shared::MatrixHooks::Dynamic # Must preceed Tag::MatrixHooks
   include Tag::MatrixHooks # Must come after Shared::MatrixHooks::Dynamic 
 
-
   include Shared::PolymorphicAnnotator
   polymorphic_annotates(:tag_object)
-  acts_as_list scope: [:tag_object_id, :tag_object_type, :keyword_id]
+  acts_as_list scope: [:tag_object_id, :tag_object_type, :keyword_id, :project_id]
 
   belongs_to :keyword, inverse_of: :tags, validate: true
   belongs_to :controlled_vocabulary_term, foreign_key: :keyword_id, inverse_of: :tags # Not all tagged subclasses are Keyword based, use this object for display.
@@ -49,7 +48,9 @@ class Tag < ApplicationRecord
 
   validates_uniqueness_of :keyword_id, scope: [:tag_object_id, :tag_object_type]
 
-  accepts_nested_attributes_for :keyword, reject_if: :reject_keyword, allow_destroy: true
+  accepts_nested_attributes_for :keyword, reject_if: :reject_keyword # , allow_destroy: true
+
+  after_create :add_source_to_project, if: Proc.new { |tag| tag.tag_object.is_a?(Source) }
 
   def self.tag_objects(objects, keyword_id = nil)
     return nil if keyword_id.nil? or objects.empty?
@@ -101,14 +102,6 @@ class Tag < ApplicationRecord
     attributed['name'].blank? || attributed['definition'].blank?
   end
 
-  def self.tag_objects(objects, keyword_id = nil)
-    return nil if keyword_id.nil? or !objects.any?
-    raise 'cross project tagging of objects detected' if objects.first.project_id != Keyword.find(keyword_id).project_id
-    objects.each do |o|
-      o.tags << Tag.new(keyword_id: keyword_id)
-    end
-  end
-
   # @return [Boolean]
   #   destroy all tags with the keyword_id provided, true if success, false if failure
   def self.batch_remove(keyword_id, klass = nil)
@@ -121,22 +114,8 @@ class Tag < ApplicationRecord
     false
   end
 
-  def keyword_is_allowed_on_object
-    return true if keyword.nil? || tag_object.nil? || !keyword.respond_to?(:can_tag)
-    if !keyword.can_tag.include?(tag_object.class.name)
-      errors.add(:keyword, "this keyword class (#{tag_object.class}) can not be attached to a #{tag_object_type}")
-    end
-  end
-
-  def object_can_be_tagged_with_keyword
-    return true if keyword.nil? || tag_object.nil? || !tag_object.respond_to?(:taggable_with)
-    if !tag_object.taggable_with.include?(keyword.class.name)
-      errors.add(:tag_object, "this tag_object_type (#{tag_object.class}) can not be tagged with this keyword class (#{keyword.class})")
-    end
-  end
-
-  def reject_keyword(attributed)
-    attributed['name'].blank? || attributed['definition'].blank?
+  def add_source_to_project
+    !!ProjectSource.find_or_create_by(project: project, source: tag_object)
   end
 
 end

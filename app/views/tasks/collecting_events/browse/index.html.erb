@@ -17,9 +17,6 @@
         <% end %>
         </div>
 
-        <div class="separate-left separate-right">
-          <%# render('/taxon_names/breadcrumb_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
-        </div>
       </div>
 
       <span class="right_float flex-separate">
@@ -28,6 +25,7 @@
           <li><%= confidence_default_icon(@collecting_event) %></li>
           <li><%= tag_default_icon(@collecting_event) %></li>
           <li><%= pin_item_to_pinboard_link(@collecting_event, sessions_current_user) %></li>
+          <li><%= link_to('', new_collecting_event_task_path(collecting_event_id: @collecting_event.id), class: "circle-button btn-edit") -%></li>
           <li><%= radial_navigation_tag(@collecting_event) %></li>
         </ul>
       </span>
@@ -40,10 +38,6 @@
 
         <div class="title nav-line">
           Navigate
-        </div>
-
-        <div class="navigation-controls">
-          <%= link_to('Edit', edit_collecting_event_path(  @collecting_event ), class: 'navigation-item') -%>
         </div>
 
         <div class="navigation-controls">

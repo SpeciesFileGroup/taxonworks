@@ -47,6 +47,14 @@
     flex: 1 auto;
   } 
 
+  #vue-validation-panel {
+    .soft-validation-box {
+      height: 100%;
+      box-sizing: border-box;
+    }
+    margin-bottom: 1em;
+  }
+
   .fullSize {
     width: 100%;
     flex: 1 auto;

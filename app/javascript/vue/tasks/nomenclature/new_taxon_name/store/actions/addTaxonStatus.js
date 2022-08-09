@@ -1,12 +1,9 @@
-import { createTaxonStatus } from '../../request/resources'
+import { TaxonNameClassification } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
-export default function ({ dispatch, commit, state }, status) {
-  var position = state.taxonStatusList.findIndex(item => {
-    if (item.type === status.type) {
-      return true
-    }
-  })
+export default ({ dispatch, commit, state }, status) => {
+  const position = state.taxonStatusList.findIndex(item => item.type === status.type)
+
   if (position < 0) {
     const newClassification = {
       taxon_name_classification: {
@@ -15,7 +12,7 @@ export default function ({ dispatch, commit, state }, status) {
       }
     }
     return new Promise(function (resolve, reject) {
-      createTaxonStatus(newClassification).then(response => {
+      TaxonNameClassification.create(newClassification).then(response => {
         Object.defineProperty(response.body, 'type', { value: status.type })
         Object.defineProperty(response.body, 'object_tag', { value: status.name })
         commit(MutationNames.AddTaxonStatus, response.body)

@@ -2,9 +2,9 @@ class UsersController < ApplicationController
 
   before_action :require_sign_in, only: [:recently_created_stats, :recently_created]
 
-  before_action :require_administrator_sign_in, only: [:index, :destroy]
+  before_action :require_administrator_sign_in, only: [:index, :destroy, :batch_create]
   before_action :require_superuser_sign_in, only: [:new, :create, :autocomplete]
-  
+
   before_action :set_user, only: [:show, :edit, :update, :destroy, :recently_created_stats, :recently_created_data]
 
   # GET /users
@@ -61,20 +61,20 @@ class UsersController < ApplicationController
     flash[:success] = 'Account has been deleted.'
     redirect_to root_url
   end
-  
+
   # GET /forgot_password
   def forgot_password
   end
 
   # POST /send_password_reset
   def send_password_reset
-    if params[:email] 
+    if params[:email]
       user = User.find_by_email(params[:email].downcase)
     end
-    
-    if user.nil? 
+
+    if user.nil?
       redirect_to :forgot_password
-    
+
       if params[:email].blank?
         flash[:alert] = 'No e-mail was given'
       else
@@ -92,13 +92,13 @@ class UsersController < ApplicationController
       end
     end
   end
-  
+
   # GET /password_reset
   def password_reset
     @user = User.find_by_password_reset_token(Utilities::RandomToken.digest(params[:token]))
-    render 'invalid_token.html.erb' unless @user && @user.password_reset_token_date > 1.day.ago
+    render 'invalid_token' unless @user && @user.password_reset_token_date > 1.day.ago
   end
-  
+
   # PATCH /set_password
   def set_password
     @user = User.find_by_password_reset_token!(Utilities::RandomToken.digest(params[:token]))
@@ -106,7 +106,7 @@ class UsersController < ApplicationController
     Current.user_id = @user.id #  WHY?
 
     @user.require_password_presence
-    
+
     @user.password_reset_token = nil
     @user.is_flagged_for_password_reset = false
 
@@ -114,7 +114,7 @@ class UsersController < ApplicationController
       flash[:notice] = 'Password successfuly changed.'
       redirect_to root_path
     else
-      render 'password_reset.html.erb'
+      render 'password_reset'
     end
   end
 
@@ -127,10 +127,23 @@ class UsersController < ApplicationController
 
   def preferences
     @user = sessions_current_user
+    redirect_to hub_path and return if @user.nil?
   end
 
   def autocomplete
     @users = Queries::User::Autocomplete.new(params.require(:term)).autocomplete
+  end
+
+  def batch_create
+    @users = User.batch_create(
+      users: params[:users],
+      create_api_token: params[:create_api_token],
+      is_administrator: params[:is_administrator],
+      project_id: params[:project_id],
+      created_by: sessions_current_user_id
+    )
+
+    render '/tasks/administrator/batch_add_users/index'
   end
 
   private
@@ -140,9 +153,10 @@ class UsersController < ApplicationController
     basic = [
       :name,
       :email,
+      :person_id,
       :password,
       :password_confirmation,
-      :set_new_api_access_token] 
+      :set_new_api_access_token]
 
     basic += [:is_project_administrator, :is_flagged_for_password_reset] if is_superuser?
     basic += [:is_administrator] if is_administrator?
@@ -154,7 +168,7 @@ class UsersController < ApplicationController
     own_id = (params[:id].to_i == sessions_current_user_id)
 
     @user = User.find((is_superuser? || own_id) ? params[:id] : nil)
-    @recent_object = @user 
+    @recent_object = @user
   end
 
 end

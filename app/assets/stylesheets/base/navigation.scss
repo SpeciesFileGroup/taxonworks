@@ -22,12 +22,11 @@
 
 // see navigation_emphasis in palette
 a, .link {
+  text-decoration: none;
   transition: background-color 0.4s ease,
   color 0.4s ease;
   color: $color-secondary-2-4;
-  &:visited {
-    color: $color-secondary-2-4;
-  }
+
   &:hover {
     color: $default_text;
   }

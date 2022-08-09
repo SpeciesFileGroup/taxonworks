@@ -1,23 +1,21 @@
 
 import cssStyle from '!!css-loader!sass-loader!../stylesheets/ce.scss'
+import {
+  LABEL_CODE_128,
+  LABEL_QR_CODE
+} from 'constants/index.js'
 
-function createLabel(label, cssStyle) {
-  return `<div class="${cssStyle}">${label.label}</div>`
+const labelTypes = {
+  [LABEL_CODE_128]: 2.75,
+  [LABEL_QR_CODE]: 3.05
 }
 
-function getLinesCount(str) {   // (str, labelType)
-  // case labelType
-  // nil, other
-  return str.split(/\r\n|\r|\n/).length
-  //   QRcode
-  // 3 (?)
-  //   128
-  // 2 (?)
-}
+const createLabel = (label, cssStyle) => `<div class="${cssStyle}">${label.label}</div>`
 
+const getLinesCount = (str, labelType) => labelTypes[labelType] ? labelTypes[labelType] : str.split(/\r\n|\r|\n/).length
 
-function createHeader(customClass) {
-  return `<html xmlns="http://www.w3.org/1999/xhtml">
+const createHeader = (customClass) =>
+`<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
     <title>TW - Labels</title>
@@ -27,7 +25,6 @@ function createHeader(customClass) {
     div.custom_style { ${customClass} }
     </style>
   </head>`
-}
 
 function addSeparator(separator, spaceAround) {
   if(separator.length) {
@@ -44,10 +41,11 @@ function addSeparator(separator, spaceAround) {
 function createPages(labels, maxColumns, maxRows, divisor, cssStye, customStyle, separator = '', spaceAround) { // add labelType ?
   let columns = 1
   let pages = `${createHeader(customStyle)}<body><div class="ce_label_pg"><div class="ce_label_col">`
+  let rowLines = 0
 
   labels.forEach(label => {
-    const labelLines = getLinesCount(label.text)
-    let rowLines = 0
+    const labelLines = getLinesCount(label.text, label.type)
+
     for(var i = 0; i < label.total; i++) {
       rowLines = rowLines + labelLines
       pages = pages + createLabel(label, cssStye)

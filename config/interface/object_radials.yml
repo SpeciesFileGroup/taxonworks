@@ -5,10 +5,13 @@
 # Valid attributes (* required)
 #   tasks: - A named task (see user_tasks.yml) !! Limit this to 3 or 4 
 #   recent: - defaults to true if not provided, if false no recent list is shown
-#   allow_destroy: - false if no
 #   edit: over-ride data->edit
 #   new: over-ride data->new
-#   home: where requested, use this path rather than show
+#   home: where requested, use this path rather than show (?! Not implemented !?)
+#   destroy_redirect: if destoyed, go here
+#
+# `:config:`
+#    recent: true !! TODO: what is this?!
 #
 # `:tasks` should be ordered consistently when possible:
 #    * hub
@@ -32,6 +35,8 @@ Combination:
     - otu_distribution_data_task
   edit: new_combination_task
   new: new_combination_task
+  home: browse_nomenclature_task
+  destroyed_redirect: browse_nomenclature_task 
   config:
     recent: true
 CollectionObject:
@@ -47,6 +52,7 @@ CollectionObject:
     recent: true
   edit: comprehensive_collection_object_task
   new: comprehensive_collection_object_task
+  home: comprehensive_collection_object_task
 CollectingEvent:
   tasks:
     - browse_collecting_events_task
@@ -57,14 +63,23 @@ CollectingEvent:
     recent: true
   edit: new_collecting_event_task
   new: new_collecting_event_task
+  home: new_collecting_event_task
 Descriptor:
   tasks:
     - observation_matrices_hub_task
   new: new_descriptor_task
   edit: new_descriptor_task
+  home: new_descriptor_task
 Document:
   tasks:
     - gnfinder_task
+  config: 
+    recent: true
+Extract:
+  tasks:
+    - new_extract_task 
+  new: new_extract_task
+  edit: new_extract_task 
   config: 
     recent: true
 GeographicArea:
@@ -94,6 +109,7 @@ Otu:
     - cite_otus_task
     - index_browse_asserted_distributions_task 
     - otu_distribution_data_task
+  home: browse_otus_task
   config:
     recent: true
 Person:
@@ -110,6 +126,13 @@ Source:
     - gnfinder_task
   new: new_source_task
   edit: new_source_task
+  home: new_source_task
+  config:
+    recent: true
+TaxonDetermination:
+  tasks:
+    - comprehensive_collection_object_task
+  home: comprehensive_collection_object_task
   config:
     recent: true
 TaxonName:
@@ -127,5 +150,6 @@ TaxonName:
     - paper_catalog_preview_task
   edit: new_taxon_name_task
   new: new_taxon_name_task
+  home: browse_nomenclature_task
   config:
     recent: true

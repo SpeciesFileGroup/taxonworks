@@ -1,7 +1,5 @@
 module Queries
   module DataAttribute
-
-    # !! does not inherit from base query
     class Filter
 
       # General annotator options handling
@@ -13,15 +11,23 @@ module Queries
       # Params specific to DataAttribute
       attr_accessor :value
 
-      # @return [Array] 
+      # @return [Array]
       attr_accessor :controlled_vocabulary_term_id
 
-      attr_accessor :import_predicate, :type, :object_global_id, :attribute_subject_type, :attribute_subject_id
+      attr_accessor :import_predicate
+
+      attr_accessor :type
+
+      attr_accessor :object_global_id
+
+      attr_accessor :attribute_subject_type
+
+      attr_accessor :attribute_subject_id
 
       # @params params [ActionController::Parameters]
       def initialize(params)
         @value = params[:value]
-        @controlled_vocabulary_term_id = [params[:controlled_vocabulary_term_id]].flatten.compact
+        @controlled_vocabulary_term_id = params[:controlled_vocabulary_term_id]
         @import_predicate = params[:import_predicate]
         @type = params[:type]
 
@@ -31,10 +37,14 @@ module Queries
         @options = params
       end
 
+      def controlled_vocabulary_term_id
+        [@controlled_vocabulary_term_id].flatten.compact
+      end
+
       # @return [ActiveRecord::Relation]
       def and_clauses
         clauses = [
-          Queries::Annotator.annotator_params(options, ::DataAttribute),
+          ::Queries::Annotator.annotator_params(options, ::DataAttribute),
           matching_type,
           matching_value,
           matching_import_predicate,

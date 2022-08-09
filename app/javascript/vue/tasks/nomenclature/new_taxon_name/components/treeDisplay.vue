@@ -1,63 +1,69 @@
 <template>
-  <form v-if="parent">
-    <modal
-      class="transparent-modal"
-      v-if="showModal"
-      @close="activeModal(false)">
-      <h3 slot="header">{{ nameModule }}</h3>
+  <modal
+    class="transparent-modal"
+    @close="$emit('close', true)">
+    <template #header>
+      <h3>{{ title }}</h3>
+    </template>
+    <template #body>
       <div
-        slot="body"
         class="tree-list">
         <recursive-list
-          :getter-list="getterList"
+          :created-list="createdList"
           :display="displayName"
           @selected="$emit('selected', $event)"
-          :modal-mutation-name="mutationNameModal"
-          :action-mutation-name="mutationNameAdd"
           :valid-property="validProperty"
-          :object-list="objectLists.tree"/>
+          :object-list="list"
+          :taxon-rank="taxonRank"/>
       </div>
-    </modal>
-  </form>
+    </template>
+  </modal>
 </template>
 <script>
 
-import { GetterNames } from '../store/getters/getters'
-import { MutationNames } from '../store/mutations/mutations'
 import RecursiveList from './recursiveList.vue'
-import Modal from 'components/modal.vue'
+import Modal from 'components/ui/Modal.vue'
 
 export default {
+  name: 'TreeDisplay',
+
   components: {
     RecursiveList,
     Modal
   },
-  name: 'TreeDisplay',
-  props: ['treeList', 'parent', 'showModal', 'mutationNameAdd', 'mutationNameModal', 'objectLists', 'displayName', 'nameModule', 'getterList', 'validProperty'],
-  data: function () {
-    return {
-      showAdvance: false
+
+  props: {
+    taxonRank: {
+      type: String,
+      required: true
+    },
+
+    list: {
+      type: Object,
+      required: true
+    },
+
+    displayName: {
+      type: String,
+      required: true
+    },
+
+    title: {
+      type: String,
+      required: true
+    },
+
+    validProperty: {
+      type: String,
+      required: true
+    },
+
+    createdList: {
+      type: Array,
+      default: () => []
     }
   },
-  computed: {
-    taxon () {
-      return this.$store.getters[GetterNames.GetTaxon]
-    }
-  },
-  mounted: function () {
-    var that = this
-    this.$on('closeModal', function () {
-      that.showModal = false
-    })
-    this.$on('autocompleteStatusSelected', function (status) {
-      that.addEntry(status)
-    })
-  },
-  methods: {
-    activeModal: function (value) {
-      this.$emit('close', true)
-      this.$store.commit(MutationNames[this.mutationNameModal], value)
-    }
-  }
+
+  emits: ['close', 'selected']
 }
 </script>

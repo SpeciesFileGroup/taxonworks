@@ -9,7 +9,6 @@
       klass="CollectingEvent"
       @selected="selectGeographicArea"
     />
-    <template>
       <div v-if="areasByCoors.length">
         <h4>By coordinates</h4>
         <p>
@@ -35,10 +34,12 @@
         v-if="showModal"
         @close="showModal = false"
       >
-        <h3 slot="header">
-          Select geographic area
-        </h3>
-        <div slot="body">
+        <template #header>
+          <h3>
+            Select geographic area
+          </h3>
+        </template>
+        <template #body>
           <ul class="no_bullets">
             <li
               class="separate-bottom"
@@ -55,9 +56,8 @@
               </label>
             </li>
           </ul>
-        </div>
+        </template>
       </modal-component>
-    </template>
     <template v-if="geographicArea">
       <div class="middle separate-top">
         <span data-icon="ok" />
@@ -75,33 +75,39 @@
 
 import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
-import SmartSelector from 'components/smartSelector.vue'
-import { GetGeographicAreaByCoords } from '../../request/resources.js'
+import { GeographicArea } from 'routes/endpoints'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 import convertDMS from 'helpers/parseDMS.js'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 
 import extendCE from '../mixins/extendCE'
 
 export default {
   mixins: [extendCE],
+
   components: {
     SmartSelector,
     ModalComponent
   },
+
   computed: {
     geographicAreaId () {
       return this.collectingEvent.geographic_area_id
     },
+
     verbatimLatitude () {
       return this.collectingEvent.verbatim_latitude
     },
+
     verbatimLongitude () {
       return this.collectingEvent.verbatim_longitude
     },
+
     geographicArea () {
       return this.$store.getters[GetterNames.GetGeographicArea]
     }
   },
+
   data () {
     return {
       selected: undefined,
@@ -112,31 +118,39 @@ export default {
       delay: 1000
     }
   },
+
   watch: {
     geographicAreaId (newVal) {
       this.$store.dispatch(ActionNames.LoadGeographicArea, newVal)
     },
+
     verbatimLongitude () {
       this.getGeographicByVerbatim()
     },
+
     verbatimLatitude () {
       this.getGeographicByVerbatim()
     }
   },
+
   methods: {
     selectGeographicArea (item) {
       this.$store.dispatch(ActionNames.LoadGeographicArea, item?.id)
     },
+
     getByCoords (lat, long) {
-      GetGeographicAreaByCoords(lat, long).then(response => {
+      GeographicArea.coordinates({ latitude: lat, longitude: long, embed: ['shape'] }).then(response => {
         this.areasByCoors = response.body
       })
     },
+
     getGeographicByVerbatim () {
       if (this.collectingEvent.geographic_area_id) return
       if (convertDMS(this.verbatimLatitude) && convertDMS(this.verbatimLongitude)) {
         clearTimeout(this.ajaxCall)
-        this.ajaxCall = setTimeout(() => { this.getByCoords(convertDMS(this.verbatimLatitude), convertDMS(this.verbatimLongitude)) }, this.delay)
+        this.ajaxCall = setTimeout(() => { 
+          this.getByCoords(convertDMS(this.verbatimLatitude), convertDMS(this.verbatimLongitude)) 
+        }, this.delay)
       }
     }
   }

@@ -1,6 +1,4 @@
 #content_editor {
-  margin-left: $standard_margin * -2;
-  margin-top: 0px;
   box-sizing: border-box;
   #new-topic {
     textarea {
@@ -11,16 +9,6 @@
   }
   .otu_tag_taxon_name {
     border-radius: 3px;
-  }
-  #panels-content {
-    width: 100%;
-    margin: $standard_margin;
-    display: flexbox;
-    position: relative;
-    .item2 {
-      margin-left: 1em;
-      margin-right: 1em;
-    }
   }
 
   .figures-container, .dropzone-card {
@@ -75,16 +63,20 @@
         height: 30px;
       }
       .figures-delete {
-        background-image: image-url("w_trash.svg");
         position: absolute;
         top: 12px;
         right: 12px;
       }
       .figures-edit {
-        background-image: image-url("w_pencil.svg");
         position: absolute;
-        bottom: -15px;
+        bottom: -12px;
         right: 12px;
+      }
+
+      .figures-link {
+        position: absolute;
+        top: 12px;
+        left: 24px;
       }
     }
   }
@@ -167,10 +159,7 @@
 
   #panel-editor {
     position: relative;
-    padding-left: $standard_padding;
-    padding-right: $standard_padding;
     display: flex;
-    align-items: stretch;
 
     .left, .right {
       display: flex;
@@ -202,36 +191,6 @@
       padding: 0px;
       color: #42b983;
       height: 60px;
-    }
-  }
-
-  #otu_panel {
-    position: relative;
-    z-index: 2000 !important;
-    margin-top: $standard_margin;
-    margin-right: $standard_margin * -1;
-    margin-left: $standard_margin;
-  }
-
-  .slide-panel {
-    top: 0px;
-    max-width: 400px;
-    min-width: 400px;
-    .slide-panel-header {
-      font-weight: 500;
-      color: #42b983;
-      background-color: #FFF;
-      border-bottom: 1px solid $navigation_border;
-      padding-right: $standard_padding;
-    }
-    .slide-panel-category-item:hover {
-      cursor: pointer;
-    }
-  }
-  #topics {
-    left: -400px;
-    .selected {
-      background-color: $color-complement-2;
     }
   }
 

@@ -42,9 +42,10 @@ class TaxonDetermination < ApplicationRecord
   include Shared::Notes
   include Shared::Confidences
   include Shared::Labels
-  include Shared::HasRoles
   include Shared::Depictions
+  include Shared::ProtocolRelationships
   include Shared::IsData
+  include SoftValidation
   ignore_whitespace_on(:print_label)
 
   belongs_to :otu, inverse_of: :taxon_determinations
@@ -52,6 +53,7 @@ class TaxonDetermination < ApplicationRecord
 
   has_many :determiner_roles, class_name: 'Determiner', as: :role_object
   has_many :determiners, through: :determiner_roles, source: :person
+  has_many :determiners_organization, through: :determiner_roles, source: :organization
 
   validates :biological_collection_object, presence: true
   validates :otu, presence: true
@@ -62,12 +64,43 @@ class TaxonDetermination < ApplicationRecord
   # Careful, position must be reset with :update_column!
   validates_uniqueness_of :position, scope: [:biological_collection_object_id, :project_id]
 
+  # TODO: Add uniquiness constraint that also checks roles
+
   accepts_nested_attributes_for :determiners
   accepts_nested_attributes_for :determiner_roles, allow_destroy: true
   accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: :reject_otu
 
-  scope :current, -> { where(position: 1)}
+  scope :current, -> { where(position: 1)} 
   scope :historical, -> { where.not(position: 1)}
+
+  # @params params [Hash]
+  # @params collection_objectt_id [Array, Integer]
+  #   an Array or single id 
+  # @return Hash
+  def self.batch_create(collection_object_id, params)
+    collection_object_ids = [collection_object_id].flatten.compact.uniq
+    result = {
+      failed: [],
+      total_created: 0
+    }
+
+    collection_object_ids.each do |id|
+      begin
+        TaxonDetermination.create!(
+          params.merge(
+            biological_collection_object_id: id
+          )
+        )
+
+        result[:total_created] += 1
+
+      rescue ActiveRecord::RecordInvalid
+        result[:failed].push id
+        next
+      end
+    end
+    result
+  end
 
   # @return [String]
   def date

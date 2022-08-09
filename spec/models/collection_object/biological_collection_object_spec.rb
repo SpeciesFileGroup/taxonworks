@@ -4,10 +4,6 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
   let(:biological_collection_object) { CollectionObject::BiologicalCollectionObject.new }
   let(:otu) {Otu.create(name: 'zzz')}
 
-  specify '.valid_new_object_classes' do
-    expect(CollectionObject::BiologicalCollectionObject.valid_new_object_classes).to contain_exactly('Extract', 'CollectionObject::BiologicalCollectionObject')
-  end
-
   context 'associations' do
     context 'has_many' do
       specify 'biocuration_classifications' do
@@ -95,23 +91,32 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
     end
 
     specify 'can be destroyed' do
-      s.update(taxon_determinations_attributes: [{id: s.taxon_determinations.first.id, _destroy: '1'}])
-      s.save
+      s.update!(taxon_determinations_attributes: [{id: s.taxon_determinations.first.id, _destroy: '1'}])
       expect(s.taxon_determinations.reload.count).to eq(1)
     end
   end
 
   context 'ordering deteriminations' do
-    let!(:o) {
-      Specimen.create!(total: 1, otus_attributes: [{name: 'one'}, {name: 'two'}, {name: 'three'}])
-    }
+    let!(:o) { Specimen.create!(total: 1, otus_attributes: [{name: 'one'}, {name: 'two'}, {name: 'three'}]) }
+
+    specify 'three determinations' do
+      expect(o.taxon_determinations.count).to eq(3)
+    end
 
     specify '#current_taxon_determination, last created, first on list by default' do
-      expect(o.current_taxon_determination.reload.position).to eq(1)
+      expect(o.current_taxon_determination.otu.name).to eq('three')
+    end
+
+    specify 'three determinations' do
+      expect(o.taxon_determinations.count).to eq(3)
+    end
+
+    specify '#current_taxon_determination, last created, first on list by default' do
+      expect(o.current_taxon_determination.position).to eq(1)
     end
 
     specify '#current_otu (is last created)' do
-      expect(o.current_otu.reload.name).to eq('three')
+      expect(o.current_otu.name).to eq('three')
     end
 
     specify '#reorder_determinations_by(:year)' do
@@ -145,28 +150,39 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
     let(:o) {Specimen.create}
 
     specify 'determination is missing' do
-      o.soft_validate(:missing_determination)
+      o.soft_validate(only_sets: :missing_determination)
       expect(o.soft_validations.messages_on(:base).count).to eq(1)
     end
 
     specify 'determination not missing' do
       o.update(otus_attributes: [{name: 'name'}])
-      o.soft_validate(:missing_determination)
+      o.soft_validate(only_sets: :missing_determination)
+      expect(o.soft_validations.messages_on(:base).count).to eq(0)
+    end
+
+    specify 'determination is preceding collecting' do
+      o.taxon_determinations << FactoryBot.create(:valid_taxon_determination, year_made: 2000)
+      o.collecting_event = FactoryBot.create(:valid_collecting_event)
+      o.collecting_event.start_date_year = 2001
+      o.soft_validate(only_sets: :determined_before_collected)
+      expect(o.soft_validations.messages_on(:base).count).to eq(1)
+      o.collecting_event.start_date_year = 1999
+      o.soft_validate(only_sets: :determined_before_collected)
       expect(o.soft_validations.messages_on(:base).count).to eq(0)
     end
 
     specify 'collecting_event missing' do
-      o.soft_validate(:missing_collecting_event)
+      o.soft_validate(only_sets: :missing_collecting_event)
       expect(o.soft_validations.messages_on(:collecting_event_id).count).to eq(1)
     end
 
     specify 'preparation_type missing' do
-      o.soft_validate(:missing_preparation_type)
+      o.soft_validate(only_sets: :missing_preparation_type)
       expect(o.soft_validations.messages_on(:preparation_type_id).count).to eq(1)
     end
 
     specify 'repository missing' do
-      o.soft_validate(:missing_repository)
+      o.soft_validate(only_sets: :missing_repository)
       expect(o.soft_validations.messages_on(:repository_id).count).to eq(1)
     end
   end

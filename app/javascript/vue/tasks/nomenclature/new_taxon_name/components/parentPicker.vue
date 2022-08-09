@@ -15,11 +15,12 @@
         :send-label="parent.object_label"
         param="term"/>
       <default-taxon
+        class="margin-small-left"
         section="TaxonNames"
         @getId="parentSelected"
         type="TaxonName"/>
       <div
-        v-if="parent && parent.id != parent.cached_valid_taxon_name_id"
+        v-if="parent && !parent.cached_is_valid"
         class="horizontal-left-content separate-left">
         <span
           data-icon="warning"
@@ -38,7 +39,9 @@
       v-if="!taxon.id && parent && parent.parent_id == null">
       <h4>Nomenclature code</h4>
       <ul class="no_bullets">
-        <li v-for="code in getCodes">
+        <li
+          v-for="code in getCodes"
+          :key="code">
           <label class="middle uppercase">
             <input
               type="radio"
@@ -56,33 +59,37 @@
 <script>
 
 import DefaultTaxon from 'components/getDefaultPin.vue'
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
-import AjaxCall from 'helpers/ajaxCall'
+import { TaxonName } from 'routes/endpoints'
 
 export default {
   components: {
     Autocomplete,
     DefaultTaxon
   },
+
   computed: {
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
     },
+
     parent: {
       get () {
-        let value = this.$store.getters[GetterNames.GetParent]
-        return (value != undefined ? value : '')
+        const parent = this.$store.getters[GetterNames.GetParent]
+        return parent || ''
       }
     },
+
     getCodes: {
       get () {
-        let codes = Object.keys(this.$store.getters[GetterNames.GetRankList])
-        return (codes != undefined ? codes : '')
+        const codes = Object.keys(this.$store.getters[GetterNames.GetRankList])
+        return codes || ''
       }
     },
+
     nomenclatureCode: {
       get () {
         return this.$store.getters[GetterNames.GetNomenclatureCode]
@@ -92,47 +99,54 @@ export default {
         this.setParentRank(this.parent)
       }
     },
+
     getInitLoad() {
       return this.$store.getters[GetterNames.GetInitLoad]
     }
   },
-  data: function () {
+
+  data () {
     return {
-      code: undefined,
       validParent: undefined
     }
   },
+
   watch: {
-    getInitLoad(newVal) {
+    getInitLoad (newVal) {
       if(newVal)
         this.loadWithParentID()
     },
-    parent(newVal) {
-      if(newVal && newVal.id != newVal.cached_valid_taxon_name_id) {
-        AjaxCall('get', `/taxon_names/${newVal.cached_valid_taxon_name_id}.json`).then(response => {
+
+    parent (newVal) {
+      if (newVal && !newVal.cached_is_valid) {
+        TaxonName.find(newVal.cached_valid_taxon_name_id).then(response => {
           this.validParent = response.body
         })
       }
     }
   },
+
   methods: {
     loadWithParentID() {
-      var url = new URL(window.location.href);
-      var parentId = url.searchParams.get("parent_id");
+      const url = new URL(window.location.href);
+      const parentId = url.searchParams.get('parent_id')
+
       if(parentId != null && Number.isInteger(Number(parentId)))
         this.parentSelected(parentId)
     },
-    setParentRank: function (parent) {
+
+    setParentRank (parent) {
       this.$store.dispatch(ActionNames.SetParentAndRanks, parent)
       this.$store.commit(MutationNames.UpdateLastChange)
     },
-    parentSelected(id, saveToo = false) {
+
+    parentSelected (id, saveToo = false) {
       this.$store.commit(MutationNames.SetParentId, id)
-      AjaxCall('get', `/taxon_names/${id}.json`).then(response => {
+      TaxonName.find(id).then(response => {
         if (response.body.parent_id != null) {
           this.$store.commit(MutationNames.SetNomenclaturalCode, response.body.nomenclatural_code)
           this.setParentRank(response.body)
-          if(saveToo) {
+          if (saveToo) {
             this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
           }
         } else {

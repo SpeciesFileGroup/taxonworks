@@ -10,9 +10,11 @@
     <modal-component
       v-if="showModal"
       @close="setModalView(false)"
-      :containerStyle="{ width: '500px'}">
-      <h3 slot="header">Navigate</h3>
-      <div slot="body">
+      :container-style="{ width: '500px'}">
+      <template #header>
+        <h3>Navigate</h3>
+      </template>
+      <template #body>
         <p>Current: <span v-html="collectingEvent.object_tag"/></p>
         <spinner-component v-if="isLoading"/>
         <table class="full_width">
@@ -47,33 +49,38 @@
             </tr>
           </tbody>
         </table>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import SpinnerComponent from 'components/spinner'
-import { NavigateCollectingEvents } from '../request/resources'
+import { CollectingEvent } from 'routes/endpoints'
 
 export default {
   components: {
     ModalComponent,
     SpinnerComponent
   },
+
   props: {
     collectingEvent: {
       type: Object,
       required: true
     }
   },
+
+  emits: ['select'],
+
   computed: {
     collectingEventId () {
       return this.collectingEvent.id
     }
   },
+
   data () {
     return {
       isLoading: false,
@@ -81,11 +88,12 @@ export default {
       showModal: false
     }
   },
+
   watch: {
     collectingEventId (newVal) {
       if (newVal) {
         this.isLoading = true
-        NavigateCollectingEvents(this.collectingEvent.id).then(response => {
+        CollectingEvent.navigation(this.collectingEvent.id).then(response => {
           this.navigate = response.body
         }).finally(() => {
           this.isLoading = false
@@ -93,10 +101,12 @@ export default {
       }
     }
   },
+
   methods: {
-    setModalView(value) {
+    setModalView (value) {
       this.showModal = value
     },
+
     loadCE (id) {
       this.$emit('select', id)
     }

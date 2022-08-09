@@ -1,33 +1,44 @@
 import { MutationNames } from '../mutations/mutations'
-import { CreateIdentifier, UpdateIdentifier } from '../../request/resources'
-import Vue from 'vue'
+import { Identifier } from 'routes/endpoints'
+import {
+  COLLECTION_OBJECT,
+  CONTAINER
+} from 'constants/index.js'
 
-export default function ({ commit, state }) {
-  return new Promise((resolve, reject) => {
-    let identifier = state.identifier
+export default ({ commit, state }, id) =>
+  new Promise((resolve, reject) => {
+    const identifier = state.identifier
+    const index = state.collection_objects.findIndex(item => item.id === id)
 
-    identifier.identifier_object_type = state.container ? 'Container' : 'CollectionObject'
-    if (state.collection_object.id && identifier.namespace_id && identifier.identifier && state.settings.saveIdentifier) {
-      commit(MutationNames.SetIdentifierObjectId, state.container ? state.container.id : state.collection_object.id)
+    identifier.identifier_object_type = state.container
+      ? CONTAINER
+      : COLLECTION_OBJECT
+
+    if (id && identifier.namespace_id && identifier.identifier && state.settings.saveIdentifier) {
+      commit(MutationNames.SetIdentifierObjectId, state.container ? state.container.id : id)
       if (identifier.id) {
-        UpdateIdentifier(identifier).then(response => {
+        Identifier.update(identifier.id, { identifier }).then(response => {
           commit(MutationNames.SetIdentifier, response.body)
-          const index = state.identifiers.findIndex(item => {
-            return item.id === response.body.id
-          })
-          Vue.set(state.identifiers, index, response.body)
+          const identifierIndex = state.identifiers.findIndex(item => item.id === response.body.id)
+          state.identifiers[identifierIndex] = response.body
           return resolve(response.body)
         }, (response) => {
           reject(response.body)
         })
       } else {
         if (!state.identifiers.length) {
-          CreateIdentifier(identifier).then(response => {
+          Identifier.create({ identifier }).then(response => {
             if (state.settings.increment) {
               response.body.identifier = state.identifier.identifier
             }
             commit(MutationNames.SetIdentifier, response.body)
-            state.collection_object.object_tag = state.identifier.identifier_object.object_tag
+
+            if (state.collection_object.id === id) {
+              state.collection_object.object_tag = state.identifier.identifier_object.object_tag
+            } else {
+              state.collection_objects[index].object_tag = state.identifier.identifier_object.object_tag
+            }
+
             state.identifiers.push(response.body)
             return resolve(response.body)
           }, (response) => {
@@ -37,9 +48,7 @@ export default function ({ commit, state }) {
           return resolve()
         }
       }
-    }
-    else {
+    } else {
       resolve()
     }
   })
-}

@@ -1,0 +1,70 @@
+<%= content_for :head do -%>
+  <%= javascript_include_tag "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js", "chartjs" %>
+<% end %> 
+
+<h1> Administration - User activity </h1>
+
+<%= link_to 'Back', administration_path() %> 
+
+<div class="flexbox">
+
+  <div class="item item1">
+    <h2> Last 20 logins </h2>
+    <ol>
+      <% User.limit(20).order(current_sign_in_at: :desc).where('current_sign_in_at IS NOT NULL').each do |u| -%>
+        <li> <%= user_link(u) %> <%= content_tag :span, time_ago_in_words(u.current_sign_in_at) + " ago", class: :subtle -%> </li> 
+      <% end %> 
+    </ol>
+  </div>
+
+  <div class="item item2">
+    <h2> Recently seen </h2>
+    <ol>
+      <% User.limit(20).order(last_seen_at: :desc).where('last_seen_at IS NOT NULL').each do |u| -%>
+        <li> <%= user_link(u) %> <%= content_tag :span, time_ago_in_words(u.last_seen_at) + " ago", class: :subtle -%> </li> 
+      <% end %> 
+    </ol>
+  </div>
+
+  <div class="item item3">
+    <h2> Most active </h2>
+    <p> Estimate. If sequential requests are less than 5 minutes appart time between requests is summed to total. <p>
+    <ol>
+      <% User.limit(20).order(time_active: :desc).where('time_active IS NOT NULL').each do |u| -%>
+        <li> <%= user_link(u) %> <%= distance_of_time_in_words(u.time_active) -%>
+        or <%= (u.time_active.to_f / 3600.to_f || 0).round(0) -%> hours</li>
+      <% end %> 
+    </ol>
+  </div>
+</div>
+
+<div class="flexbox">
+  <div class="item item1">
+    <h2> Last seen - past week </h2>
+    <%= column_chart User.where('last_seen_at > ?', 1.week.ago).group_by_day_of_week(:last_seen_at, format: "%a").count, 
+      discrete: true, ytitle: 'Count', xtitle: 'Last seen day'
+    %>
+
+  <h2> Sign in count - past year by hour</h2>
+  <%= pie_chart User.where('last_sign_in_at > ?', 1.year.ago).group_by_hour(:last_seen_at, format: "%H").count.sort, discrete: true %>
+
+  </div>
+</div>
+
+# Find the number of users per propject 
+
+<div class="flexbox">
+  <div class="item item1">
+    <h2> Users per project ---</h2>
+    <%= column_chart Project.joins(:users).group(:id).count.to_a.sort_by(&:second).reverse!, xtitle: 'Project', ytitle: 'Number of users', discrete: true %>
+  </div>
+</div>
+
+# A graph of user activity over time limit to 20 users
+<div class="flexbox">
+  <div class="item item1">
+    <h2> User activity over time </h2>
+    <%= column_chart User.group_by_day(:last_seen_at, format: "%a").count, xtitle: 'Day', ytitle: 'Number of users' %>
+  </div>
+</div>
+

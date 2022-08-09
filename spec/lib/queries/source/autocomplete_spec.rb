@@ -66,7 +66,7 @@ describe Queries::Source::Autocomplete, type: :model, group: [:sources] do
 
   specify '#autocomplete_year_letter 2' do
     query.terms = '1921'
-    expect(query.autocomplete_year_letter.map(&:id)).to contain_exactly()
+    expect(query.autocomplete_year_letter.nil?).to be_truthy
   end
 
   specify '#autocomplete_exact_author_year_letter 1' do
@@ -85,10 +85,10 @@ describe Queries::Source::Autocomplete, type: :model, group: [:sources] do
     expect(query.autocomplete_wildcard_pieces_and_year.map(&:id).first).to eq(s4.id)
   end
 
-  specify 'autocomplete_wildcard_author_exact_year' do
-    query.terms = 'ones andt 1924'
-    expect(query.autocomplete_wildcard_author_exact_year.map(&:id).first).to eq(s4.id)
-  end
+  #  specify 'autocomplete_wildcard_author_exact_year' do # query removed from the list (not useful)
+  #  query.terms = 'ones andt 1924'
+  #  expect(query.autocomplete_wildcard_author_exact_year.map(&:id).first).to eq(s4.id)
+  # end
 
   specify 'autocomplete_cached_wildcard_anywhere 1' do
     query.terms = 'andt Things about'
@@ -120,9 +120,9 @@ describe Queries::Source::Autocomplete, type: :model, group: [:sources] do
     expect(query.autocomplete.map(&:id).first).to eq(s3.id)
   end
 
-  specify '#autocomplete 2' do
-    query.terms = 'Smith 1921z'
-    expect(query.autocomplete.map(&:id).first).to eq(s3.id)
-  end
+  #specify '#autocomplete 2' do ## query removed from the list (not useful)
+  #  query.terms = 'Smith 1921z'
+  #  expect(query.autocomplete.map(&:id).first).to eq(s3.id)
+  #end
 
 end

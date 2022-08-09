@@ -1,71 +1,76 @@
 <template>
   <div>
-    <template>
-      <h3>Type</h3>
-      <ul class="no_bullets">
-        <li
-          v-for="item in sequenceRelationshipTypes"
-          :key="item.value">
-          <label>
-            <input
-              type="radio"
-              :value="item.value"
-              v-model="type">
-            {{ item.label }}
-          </label>
-        </li>
-      </ul> 
-      <primer-component
-        class="separate-top"
-        :title="title"
-        @selected="addSequence"/>
-    </template>
-    <template>
-      <h3>Expression</h3>
-      <div class="panel content">
-        <div class="flex-separate">
-          <ul class="no_bullets context-menu">
-            <li v-for="operator in operators">
-              <button
-                type="button"
-                @click="addOperator(operator.value)">
-                {{ operator.label }}
-              </button>
-            </li>
-          </ul>
-          <div
-            class="delete-box"
-            @click="removeAll">
-            <draggable
-              class="delete-drag-box"
-              title="Remove all"
-              v-model="trashExpressions"
-              :group="randomGroup"/>
-          </div>
+    <h3>Type</h3>
+    <ul class="no_bullets">
+      <li
+        v-for="item in sequenceRelationshipTypes"
+        :key="item.value">
+        <label>
+          <input
+            type="radio"
+            :value="item.value"
+            v-model="type">
+          {{ item.label }}
+        </label>
+      </li>
+    </ul> 
+    <primer-component
+      class="separate-top"
+      :title="title"
+      @selected="addSequence"/>
+
+    <h3>Expression</h3>
+    <div class="panel content">
+      <div class="flex-separate">
+        <ul class="no_bullets context-menu">
+          <li
+            v-for="operator in operators"
+            :key="operator">
+            <button
+              type="button"
+              @click="addOperator(operator)">
+              {{ operator }}
+            </button>
+          </li>
+        </ul>
+        <div
+          class="delete-box"
+          @click="removeAll">
+          <draggable
+            class="delete-drag-box"
+            title="Remove all"
+            v-model="trashExpressions"
+            :group="randomGroup">
+            <template #item="{ element }">
+              <div class="d-none"/>
+            </template>
+          </draggable>
         </div>
-      </div> 
-    </template>
+      </div>
+    </div>
+
     <div
       v-if="expression.length">
       <div class="separate-bottom horizontal-left-content">
         <draggable
           class="horizontal-left-content expression-box full_width"
-          :class="{ 'warning-box': (isParensOpen || !validateExpression)}"
+          :class="{ 'warning-box': (isParensOpen || !validateExpression) }"
           v-model="expression"
+          item-key="key"
           :group="randomGroup">
-          <div
-            class="drag-expression-element horizontal-left-content feedback"
-            :class="`${(element.type == 'Operator' ? 'feedback-secondary' : 'feedback-primary')}`"
-            v-for="element in expression"
-            :key="element.key">
-            {{ element.name }}
-          </div>
+          <template #item="{ element }">
+            <div
+              class="drag-expression-element horizontal-left-content feedback"
+              :class="element.type == 'Operator' ? 'feedback-secondary' : 'feedback-primary'">
+              {{ element.name }}
+            </div>
+          </template>
         </draggable>
       </div>
       <div
         v-if="isParensOpen || !validateExpression"
         class="warning-message">
-        Invalid expression: 
+        Invalid expression:
         <span
           v-if="isParensOpen">
           Close parentheses.
@@ -100,110 +105,101 @@ export default {
       type: String,
       required: true
     },
-    value: {
+    modelValue: {
       type: Object,
       required: true
     }
   },
+
+  emits: [
+    'update:modelValue',
+    'save'
+  ],
+
   computed: {
     descriptor: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set () {
-        this.$emit('input', this.value)
+        this.$emit('update:modelValue', this.value)
       }
     },
-    composeExpression() {
-      let formatExpression = []
-      this.expression.forEach(item => {
-        if(item.type == 'Sequence') {
-          formatExpression.push(`${item.relationshipType}.${item.value}`)
-        }
-        else {
-          formatExpression.push(` ${item.value} `)
-        }
-      })
+
+    composeExpression () {
+      const formatExpression = this.expression.map(item =>
+        item.type === 'Sequence'
+          ? `${item.relationshipType}.${item.value}`
+          : ` ${item.value} `
+      )
+
       return formatExpression.join('')
     },
-    geneAttributes() {
-      let attributes = []
-      let index = 0
-      this.expression.forEach((item) => {
-        if(item.type == 'Sequence') {
-          attributes.push({
-            id: item['id'],
-            sequence_relationship_type: item.relationshipType,
-            sequence_id: item.value, 
-            position: index
-          })
-          index++
-        }
-      })
-      return attributes
+    geneAttributes () {
+      return this.expression
+        .filter(item => item.type === 'Sequence')
+        .map((item, index) => ({
+          id: item?.id,
+          sequence_relationship_type: item.relationshipType,
+          sequence_id: item.value,
+          position: index
+        }))
     },
-    isParensOpen() {
+    isParensOpen () {
       let parenOpen = false
       let parenClose = false
-      let parensOpen = []
-      let parensClosed = []
-
-      let foundedParens = this.expression.filter(item => {
-        return item.type == 'Operator' && (item.value == '(' ||  item.value == ')')
-      })
+      const parensOpen = []
+      const parensClosed = []
+      const foundedParens = this.expression.filter(item => item.type === 'Operator' && (item.value === '(' || item.value === ')'))
 
       for (let i = 0; i < foundedParens.length; i++) {
-        if(foundedParens[i].value == ')') {
+        if (foundedParens[i].value === ')') {
           parensClosed.push(i)
-          if(parenOpen) {
+          if (parenOpen) {
             parenOpen = false
             parenClose = false
-          }
-          else {
-            if(parensClosed.length != parensOpen.length)
-              parenClose = true
+          } else if (parensClosed.length !== parensOpen.length) {
+            parenClose = true
           }
         }
         else {
-          if(foundedParens[i].value == '(') {
+          if (foundedParens[i].value === '(') {
             parensOpen.push(i)
             parenOpen = true
           }
         }
       }
-      if((parenOpen || parenClose) || (parensOpen.length != parensClosed.length) || (parensOpen[parensOpen.length-1] > parensClosed[parensClosed.length-1]))
-        return true
-      return false
+      return ((parenOpen || parenClose) || (parensOpen.length != parensClosed.length) || (parensOpen[parensOpen.length - 1] > parensClosed[parensClosed.length - 1]))
     },
-    validateExpression() {
+    validateExpression () {
       let previousOperator = true
       let currentOperator = false
       let validated = true
 
       for (let i = 0; i < this.expression.length; i++) {
-        if(this.expression[i].type == 'Operator') {
-          if(this.expression[i].value != ')' && this.expression[i].value != '(') {
+        if (this.expression[i].type === 'Operator') {
+          if (this.expression[i].value !== ')' && this.expression[i].value !== '(') {
             currentOperator = true
-            if(previousOperator) {
+            if (previousOperator) {
+              validated = false
+              break
+            }
+          } else {
+            if (this.expression[i].value === ')' && previousOperator) {
               validated = false
               break
             }
           }
-          else {
-            if(this.expression[i].value == ')' && previousOperator) {
-              validated = false
-              break
-            }
-          }
-        }
-        else {
+        } else {
           currentOperator = false
         }
         previousOperator = currentOperator
       }
-      if(currentOperator && previousOperator) {
+
+      if (currentOperator && previousOperator) {
         return false
       }
+
       return validated
     }
   },
@@ -227,24 +223,7 @@ export default {
           value: 'SequenceRelationship::ReferenceSequenceForAssembly'
         }
       ],
-      operators: [
-        {
-          label: 'AND',
-          value: 'AND'
-        },
-        {
-          label: 'OR',
-          value: 'OR'
-        },
-        {
-          label: '(',
-          value: '('
-        },
-        {
-          label: ')',
-          value: ')'
-        }
-      ],
+      operators: ['AND', 'OR', '(', ')'],
       type: 'SequenceRelationship::ForwardPrimer',
       operatorMode: false,
       randomGroup: Math.random().toString(36).substr(2, 1).toUpperCase(),
@@ -259,28 +238,28 @@ export default {
   },
   watch: {
     descriptor: {
-      handler(newVal) {
-        if(newVal.hasOwnProperty('gene_attribute_logic')) {
+      handler (newVal) {
+        if (newVal?.gene_attribute_logic) {
           this.expression = []
+
           newVal.gene_attribute_logic.split(' ').forEach(item => {
-            if(item.includes('.')) {
-              let sequence = item.split('.')
-              let sequenceObject = newVal.gene_attributes.find((seq) => { return seq.sequence_id == sequence[1] })
+            if (item.includes('.')) {
+              const [sequenceType, sequenceId] = item.split('.')
+              const sequenceObject = newVal.gene_attributes.find(seq => seq.sequence_id == sequenceId)
+
               this.expression.push({
                 key: (Math.random().toString(36).substr(2, 5)),
                 id: sequenceObject.id,
                 type: 'Sequence',
                 name: sequenceObject.sequence.name,
-                relationshipType: sequence[0],
-                value: Number(sequence[1])
+                relationshipType: sequenceType,
+                value: Number(sequenceId)
               })
-            }
-            else {
-              let foundedOperator = this.operators.find(operator => {
-                return operator.label == item
-              })
-              if(foundedOperator) {
-                this.addOperator(foundedOperator.value)
+            } else {
+              const foundedOperator = this.operators.find(operator => operator === item)
+
+              if (foundedOperator) {
+                this.addOperator(foundedOperator)
               }
             }
           })
@@ -291,25 +270,27 @@ export default {
     }
   },
   methods: {
-    addSequence(sequence, sequenceType = undefined) {
-      let item = {
+    addSequence (sequence, sequenceType = undefined) {
+      const item = {
         key: (Math.random().toString(36).substr(2, 5)),
         name: sequence.name,
         type: 'Sequence',
-        relationshipType: sequenceType ? sequenceType : this.type,
-        value: sequence.hasOwnProperty('sequence_id') ? sequence.sequence_id : sequence.id
+        relationshipType: sequenceType || this.type,
+        value: sequence?.sequence_id || sequence.id
       }
 
       this.expression.push(item)
       this.operatorMode = true
     },
+
     addOperator (operator) {
-      let item = {
+      const item = {
         key: (Math.random().toString(36).substr(2, 5)),
         type: 'Operator',
         name: operator,
         value: operator
       }
+
       this.expression.push(item)
       this.operatorMode = false
     },
@@ -318,20 +299,25 @@ export default {
         .map((e, i, final) => final.indexOf(e) === i && i)
         .filter(e => sequencesArray[e]).map(e => sequencesArray[e])
     },
+
     removeAll () {
-      this.trashExpressions = this.geneAttributes.filter(item => {
-        return item.id
-      })
+      this.trashExpressions = this.geneAttributes.filter(item => item.id)
       this.expression = []
-      this.sendDescriptor()
+      if (this.descriptor.id) {
+        this.sendDescriptor()
+      }
     },
+
     sendDescriptor () {
       this.descriptor.gene_attribute_logic = this.composeExpression
       this.descriptor.gene_attributes_attributes = this.filterDuplicates(this.geneAttributes)
 
       this.trashExpressions.forEach(item => {
-        if (item.hasOwnProperty('id')) {
-          this.descriptor.gene_attributes_attributes.push({ id: item.id, _destroy: true })
+        if (item?.id) {
+          this.descriptor.gene_attributes_attributes.push({
+            id: item.id,
+            _destroy: true
+          })
         }
       })
 

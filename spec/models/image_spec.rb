@@ -28,10 +28,20 @@ describe Image, type: :model, group: [:images] do
     it { is_expected.to have_attached_file(:image_file) }
     it { is_expected.to validate_attachment_presence(:image_file) }
     it { is_expected.to validate_attachment_content_type(:image_file).
-                  allowing('image/png', 'image/gif').
-                  rejecting('text/plain', 'text/xml') }
-    it { is_expected.to validate_attachment_size(:image_file).
-                  greater_than(1.kilobytes) }
+         allowing('image/png', 'image/gif').
+         rejecting('text/plain', 'text/xml') }
+  end
+
+  context 'dimensions validation' do
+    it 'rejects tiny images' do
+      image = FactoryBot.build(:very_tiny_image)
+      image.save
+      expect(image.errors[:image_file]).to contain_exactly("height must be at least 16 pixels", "width must be at least 16 pixels")
+    end
+
+    it 'accepts larger images' do
+      expect(i).to be_valid
+    end
   end
 
   # paperclip MD5 add-on tests
@@ -59,7 +69,7 @@ describe Image, type: :model, group: [:images] do
       k.destroy
       k.run_callbacks(:commit)
     }
-    
+
     specify 'once saved, it should soft validate for duplicate images already saved to database' do
       expect(i.soft_validations.messages).to include 'This image is a duplicate of an image already stored.'
       expect(k.soft_validations.messages).to include 'This image is a duplicate of an image already stored.'
@@ -73,7 +83,6 @@ describe Image, type: :model, group: [:images] do
     specify '#duplicate_images' do
       expect(i.duplicate_images).to eq([k])
     end
-
   end
 
   specify 'TW attributes should be set before save' do
@@ -81,7 +90,7 @@ describe Image, type: :model, group: [:images] do
     expect(i.save).to be_truthy
     expect(weird.save).to be_truthy
 
-    #'valid images have an unmodified user_file_name' do
+    # 'valid images have an unmodified user_file_name' do
     expect(i.user_file_name).to eq('tiny.png')
     expect(weird.user_file_name).to eq('W3$rd fi(le%=name!.png')
 
@@ -91,7 +100,7 @@ describe Image, type: :model, group: [:images] do
     expect(weird.height).to eq(68)
     expect(weird.width).to eq(400)
 
-    #'the image_file_file_name should not contain any special characters'
+    # 'the image_file_file_name should not contain any special characters'
     expect(i.image_file_file_name).to eq('tiny.png')
     expect(weird.image_file_file_name).to eq('w3_rd_fi_le__name_.png')
  

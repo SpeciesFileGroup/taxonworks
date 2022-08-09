@@ -32,58 +32,71 @@
 </template>
 <script>
 
-  import PdfButton from '../../pdfButton.vue'
-  import RadialAnnotator from '../annotator.vue'
+import PdfButton from '../../pdfButton.vue'
+import RadialAnnotator from '../annotator.vue'
 
-  export default {
-    components: {
-      PdfButton,
-      RadialAnnotator
+export default {
+  components: {
+    PdfButton,
+    RadialAnnotator
+  },
+
+  props: {
+    list: {
+      type: Array,
+      default: () => []
     },
-    props: {
-      list: {
-        type: Array,
-        default: () => []
-      },
-      label: {
-        type: [String, Array],
-        required: true
-      },
-      edit: {
-        type: Boolean,
-        default: false
-      },
-      pdf: {
-        type: Boolean,
-        default: false
-      },
-      annotator: {
-        type: Boolean,
-        default: false
+
+    label: {
+      type: [String, Array],
+      required: true
+    },
+
+    edit: {
+      type: Boolean,
+      default: false
+    },
+
+    pdf: {
+      type: Boolean,
+      default: false
+    },
+
+    annotator: {
+      type: Boolean,
+      default: false
+    }
+  },
+
+  emits: [
+    'delete',
+    'edit'
+  ],
+
+  mounted () {
+    this.$options.components['RadialAnnotator'] = RadialAnnotator
+  },
+
+  methods: {
+    displayName (item) {
+      if (typeof this.label === 'string') {
+        return item[this.label]
+      } else {
+        let tmp = item
+        this.label.forEach(label => {
+          tmp = tmp[label]
+        })
+        return tmp
       }
     },
-    mounted() {
-      this.$options.components['RadialAnnotator'] = RadialAnnotator
-    },
-    methods: {
-      displayName(item) {
-        if (typeof this.label === 'string') {
-          return item[this.label]
-        } else {
-          let tmp = item
-          this.label.forEach(function (label) {
-            tmp = tmp[label]
-          })
-          return tmp
-        }
-      },
-      deleteItem(item) {
-        if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
-          this.$emit('delete', item)
-        }
+
+    deleteItem (item) {
+      if (window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+        this.$emit('delete', item)
       }
     }
   }
+}
 </script>
 <style lang="scss" scoped>
 
@@ -106,15 +119,14 @@
   }
 
   .table-entrys-list {
-    overflow-y: scroll;
     padding: 0px;
     position: relative;
 
     li {
       margin: 0px;
-      padding: 6px;
+      padding: 1em 0;
       border: 0px;
-      border-top: 1px solid #f5f5f5;
+      border-bottom: 1px solid #f5f5f5;
     }
   }
 

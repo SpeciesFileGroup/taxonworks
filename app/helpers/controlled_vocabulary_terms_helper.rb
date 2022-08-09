@@ -12,6 +12,11 @@ module ControlledVocabularyTermsHelper
       data: { 'global-id' => (controlled_vocabulary_term.persisted? ? controlled_vocabulary_term.metamorphosize.to_global_id.to_s : nil) } ) # need to preview CVTs that are not saved
   end
 
+  def label_for_controlled_vocabulary_term(controlled_vocabulary_term)
+    return nil if controlled_vocabulary_term.nil?
+    controlled_vocabulary_term.name
+  end
+
   def controlled_vocabulary_term_autocomplete_tag(controlled_vocabulary_term)
     [ controlled_vocabulary_term_tag(controlled_vocabulary_term),
       content_tag(:span, controlled_vocabulary_term.type, class: [:feedback, 'feedback-secondary', 'feedback-thin']),

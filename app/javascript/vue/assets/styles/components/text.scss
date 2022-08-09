@@ -1,0 +1,51 @@
+.square-brackets {
+  background-image: linear-gradient(tw-color('navigationBorder'), tw-color('navigationBorder')),
+    linear-gradient(tw-color('navigationBorder'), tw-color('navigationBorder')),
+    linear-gradient(tw-color('navigationBorder'), tw-color('navigationBorder')),
+    linear-gradient(tw-color('navigationBorder'), tw-color('navigationBorder'));
+  
+  background-repeat: no-repeat;
+  background-size: 8px 1px;
+  background-position: top left, top right, bottom left, bottom right;
+
+  border: solid tw-color('navigationBorder');
+  text-align: justify;
+  border-width: 0 1px;
+  display: inline-block;
+  vertical-align: top;
+  padding: 0px 12px;
+
+  @include themify($themes) {
+    background-image: linear-gradient(themed('borderColor'), themed('borderColor')),
+    linear-gradient(themed('borderColor'), themed('borderColor')),
+    linear-gradient(themed('borderColor'), themed('borderColor')),
+    linear-gradient(themed('borderColor'), themed('borderColor'));
+
+    border: solid themed('borderColor');
+    border-width: 0 1px;
+  }
+}
+
+.EasyMDEContainer {
+  @include themify($themes) {
+    .editor-toolbar {
+      border-color: themed('borderColor');
+    }
+
+    .editor-preview {
+      background-color: themed('backgroundInputColor');
+    }
+
+    .fa {
+      color: themed('textColor');
+    }
+  }
+}
+
+.CodeMirror {
+  @include themify($themes) {
+    background-color: themed('backgroundInputColor');
+    color: themed('textColor');
+    border-color: themed('borderColor');
+  }
+}

@@ -1,9 +1,13 @@
 const ActionNames = {
-  SaveSource: 'saveSource',
-  ResetSource: 'resetSource',
-  LoadSource: 'loadSource',
   CloneSource: 'cloneSource',
-  ConvertToBibtex: 'convertToBibtex'
+  ConvertToBibtex: 'convertToBibtex',
+  LoadSource: 'loadSource',
+  LoadSoftValidations: 'loadSoftValidations',
+  ResetSource: 'resetSource',
+  SaveDocument: 'saveDocument',
+  SaveDocumentation: 'saveDocumentation',
+  SaveSource: 'saveSource',
+  RemoveDocumentation: 'removeDocumentation'
 }
 
 export default ActionNames

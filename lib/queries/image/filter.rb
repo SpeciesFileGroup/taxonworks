@@ -20,6 +20,26 @@ module Queries
       attr_accessor :otu_id
 
       # @return [Array]
+      # A sub scope of sorts. Purpose is to gather all images
+      # possible under an OTU that are of an OTU, CollectionObject or Observation.
+      #
+      # !! Must be used with an otu_id !!
+      # @param otu_scope
+      #   options
+      #     :all (default, includes all below)
+      #
+      #     :otu (those on the OTU)
+      #     :otu_observations (those on just the OTU)
+      #     :collection_object_observations (those on just those determined as the OTU)
+      #     :collection_objects (those on just those on the collection objects)
+      #     :type_material (those on CollectionObjects that have TaxonName used in OTU)
+      #     :type_material_observations (those on CollectionObjects that have TaxonName used in OTU)
+      #
+      #     :coordinate_otus  If present adds both.  Use downstream substraction to to diffs of with/out?
+      #
+      attr_accessor :otu_scope
+
+      # @return [Array]
       attr_accessor :image_id
 
       # @return [Array]
@@ -62,8 +82,8 @@ module Queries
       def initialize(params)
         params.reject!{ |_k, v| v.blank? } # dump all entries with empty values
 
-        # DONE
         @otu_id = params[:otu_id]
+        @otu_scope = params[:otu_scope]&.map(&:to_sym)
         @collection_object_id = params[:collection_object_id]
         @collecting_event_id = params[:collecting_event_id]
         @image_id = params[:image_id]
@@ -100,6 +120,10 @@ module Queries
 
       def otu_id
         [ @otu_id ].flatten.compact
+      end
+
+      def otu_scope
+        [ @otu_scope ].flatten.compact.map(&:to_sym)
       end
 
       def collection_object_id
@@ -187,25 +211,84 @@ module Queries
         ::Image.joins(depictions: [:sqed_depiction]).where(sqed_depictions: {id: sqed_depiction_id})
       end
 
-      #     def collecting_event_merge_clauses
-      #       c = []
+      def otu_facet
+        return nil if otu_id.empty? || !otu_scope.empty?
+        build_depiction_facet('Otu', otu_id)
+      end
 
-      #       # Convert base and clauses to merge clauses
-      #       collecting_event_query.base_merge_clauses.each do |i|
-      #         c.push ::Image.joins(:collecting_event).merge( i )
-      #       end
-      #       c
-      #     end
+      def coordinate_otu_ids
+        ids = []
+        otu_id.each do |id|
+          ids += ::Otu.coordinate_otus(id).pluck(:id)
+        end
+        ids.uniq
+      end
 
-      #     def collecting_event_and_clauses
-      #       c = []
+      def otu_scope_facet
+        return nil if otu_id.empty? || otu_scope.empty?
 
-      #       # Convert base and clauses to merge clauses
-      #       collecting_event_query.base_and_clauses.each do |i|
-      #         c.push ::Image.joins(:collecting_event).where( i )
-      #       end
-      #       c
-      #     end
+        otu_ids = otu_id
+        otu_ids += coordinate_otu_ids if otu_scope.include?(:coordinate_otus)
+
+        otu_ids.uniq!
+
+        selected = []
+
+        if otu_scope.include?(:all)
+          selected = [
+            :otu_facet_otus,
+            :otu_facet_collection_objects,
+            :otu_facet_otu_observations,
+            :otu_facet_collection_object_observations,
+            :otu_facet_type_material,
+            :otu_facet_type_material_observations
+          ]
+        else
+          selected.push :otu_facet_otus if otu_scope.include?(:otus)
+          selected.push :otu_facet_collection_objects if otu_scope.include?(:collection_objects)
+          selected.push :otu_facet_collection_object_observations if otu_scope.include?(:collection_object_observations)
+          selected.push :otu_facet_otu_observations if otu_scope.include?(:otu_observations)
+          selected.push :otu_facet_type_material if otu_scope.include?(:type_material)
+          selected.push :otu_facet_type_material_observations if otu_scope.include?(:type_material_observations)
+        end
+
+        q = selected.collect{|a| '(' + send(a, otu_ids).to_sql + ')'}.join(' UNION ')
+
+        d = ::Image.from('(' + q + ')' + ' as images')
+        d
+      end
+
+      def otu_facet_type_material_observations(otu_ids)
+        ::Image.joins(:observations)
+          .joins("INNER JOIN type_materials on type_materials.collection_object_id = observations.observation_object_id AND observations.observation_object_type = 'CollectionObject'")
+          .joins('INNER JOIN otus on otus.taxon_name_id = type_materials.protonym_id')
+          .where(otus: {id: otu_ids})
+      end
+
+      def otu_facet_type_material(otu_ids)
+        ::Image.joins(collection_objects: [type_materials: [protonym: [:otus]]])
+          .where(otus: {id: otu_ids})
+      end
+
+      def otu_facet_otus(otu_ids)
+        ::Image.joins(:depictions).where(depictions: {depiction_object_type: 'Otu', depiction_object_id: otu_ids})
+      end
+
+      def otu_facet_collection_objects(otu_ids)
+        ::Image.joins(collection_objects: [:taxon_determinations])
+          .where(taxon_determinations: {otu_id: otu_ids})
+      end
+
+      def otu_facet_collection_object_observations(otu_ids)
+        ::Image.joins(:observations)
+          .joins('INNER JOIN taxon_determinations on taxon_determinations.biological_collection_object_id = observations.observation_object_id')
+          .where(taxon_determinations: {otu_id: otu_ids}, observations: {observation_object_type: 'CollectionObject'})
+      end
+
+      def otu_facet_otu_observations(otu_ids)
+        ::Image.joins(:observations)
+          .where(observations: {observation_object_id: otu_ids, observation_object_type: 'Otu'})
+      end
 
       # @return [ActiveRecord::Relation]
       def and_clauses
@@ -235,16 +318,17 @@ module Queries
 
       def base_merge_clauses
         clauses = []
-        #        clauses += collecting_event_merge_clauses + collecting_event_and_clauses
+        #  clauses += collecting_event_merge_clauses + collecting_event_and_clauses
 
         clauses += [
-          build_depiction_facet('Otu', otu_id),
+          otu_facet,
+          otu_scope_facet,
           build_depiction_facet('CollectionObject', collection_object_id),
           build_depiction_facet('CollectingEvent', collecting_event_id),
           #    type_material_facet,
           #    type_material_type_facet,
           ancestors_facet,
-          matching_keyword_ids,  # See Queries::Concerns::Tags
+          keyword_id_facet,  # See Queries::Concerns::Tags
           created_updated_facet, # See Queries::Concerns::Users
           #   identifier_between_facet,
           #   identifier_facet,
@@ -319,7 +403,7 @@ module Queries
 
       def build_depiction_facet(kind, ids)
         return nil if ids.empty?
-        ::Image.joins(:depictions).where(depictions: {depiction_object_id: ids, depiction_object_type:  kind})
+        ::Image.joins(:depictions).where(depictions: {depiction_object_id: ids, depiction_object_type: kind})
       end
 
       def ancestors_facet
@@ -387,5 +471,3 @@ module Queries
     end
   end
 end
-
-

@@ -13,7 +13,6 @@
     flex-direction: column;
 
     li {
-      display: flex;
       width: 1040px;
       padding: 5px;
       border-bottom:1px solid $navigation_border;
@@ -24,7 +23,6 @@
       display: flex;
       flex-direction: row;
       justify-content: space-between;
-
     }
 
     li:hover {
@@ -32,8 +30,6 @@
       opacity: 1 !important;
     }
     a {
-      display: flex;
-      align-items: center;
       text-align: left;
       text-decoration: none;
     }
@@ -43,7 +39,7 @@
       text-decoration: none;
       display: none;
 
-    }    
+    }
   }
 }
 

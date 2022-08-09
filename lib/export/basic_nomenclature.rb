@@ -49,7 +49,7 @@ module Export
             a['species'],
             a['subspecies'],
             t.cached_author,
-            t.cached_year,
+            t.cached_nomenclature_date&.year,
             syn.blank? ? nil : syn,
           ]
         end
@@ -60,7 +60,7 @@ module Export
       file_path = ::Export::BasicNomenclature.export(taxon_name.id)
       name = "basic_nomenclature_taxon_name_id_#{taxon_name.id}_#{DateTime.now}.zip"
 
-      ::Download.create!(
+      ::Download::BasicNomenclature.create!(
         name: "Basic nomenclature for #{taxon_name.cached} on #{Time.now}.",
         description: 'A zip file containing a simple CSV export of nomenclature.',
         filename: name,
@@ -73,7 +73,7 @@ module Export
     def self.download_async(taxon_name, request = nil)
       name = "basic_nomenclature_taxon_name_id_#{taxon_name.id}_#{DateTime.now}.zip"
 
-      download = ::Download.create!(
+      download = ::Download::BasicNomenclature.create!(
         name: "Basic nomenclature for #{taxon_name.cached} on #{Time.now}.",
         description: 'A zip file containing a simple CSV export of nomenclature.',
         filename: name,

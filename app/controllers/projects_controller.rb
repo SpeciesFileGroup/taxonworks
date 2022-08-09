@@ -29,10 +29,19 @@ class ProjectsController < ApplicationController
   # POST /projects
   # POST /projects.json
   def create
+    # can't use project_params here because :create_with_current_user param will be rejected
+    # (as it should, it's a one off that shouldn't be accepted anywhere else)
+    create_with_current_user = params.dig(:project, :create_with_current_user)
+
     @project = Project.new(project_params)
 
     respond_to do |format|
       if @project.save
+
+        if create_with_current_user
+          ProjectMember.create(project_id: @project.id, user_id: Current.user_id)
+        end
+
         format.html { redirect_to @project, notice: 'Project was successfully created.' }
         format.json { render action: 'show', status: :created, location: @project }
       else
@@ -64,6 +73,9 @@ class ProjectsController < ApplicationController
 
   def preferences
     @project = sessions_current_project
+    if @project.nil?
+      render json: {success: false}, status: :not_found and return
+    end
   end
 
   def select
@@ -80,22 +92,13 @@ class ProjectsController < ApplicationController
     redirect_to edit_project_path(sessions_current_project)
   end
 
-  def stats
-    Rails.application.eager_load!
-  end
-
-  def per_relationship_recent_stats
-    Rails.application.eager_load!
-    @relationship = params.require(:relationship) # params.permit(:relationship)[:relationship]
-  end
-
   def list
     @projects = Project.order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
   def search
     if params[:id].blank?
-      redirect_to projects_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to projects_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to project_path(params[:id])
     end
@@ -108,7 +111,7 @@ class ProjectsController < ApplicationController
       {id: t.id,
        label: ApplicationController.helpers.project_tag(t),
        response_values: {
-           params[:method] => t.id
+         params[:method] => t.id
        },
        label_html: ApplicationController.helpers.project_tag(t)
       }
@@ -123,13 +126,14 @@ class ProjectsController < ApplicationController
   end
 
   private
+
   def set_project
     @project = Project.find(params[:id])
     @recent_object = @project
   end
 
   def project_params
-      params.require(:project).permit(:name, :set_new_api_access_token, :clear_api_access_token, Project.key_value_preferences, Project.array_preferences, Project.hash_preferences)
+    params.require(:project).permit(:name, :set_new_api_access_token, :clear_api_access_token, Project.key_value_preferences, Project.array_preferences, Project.hash_preferences)
   end
 
   def go_to

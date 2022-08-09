@@ -1,22 +1,21 @@
 <template>
-  <div
-    v-shortkey="[getOSKey(), 'g']"
-    @shortkey="openModal">
+  <div v-hotkey="shortcuts">
     <modal-component
       @close="showModal = false"
       v-if="showModal">
-      <h3 slot="header">Pinboard navigator - Browse tasks</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Pinboard navigator - Browse tasks</h3>
+      </template>
+      <template #body>
         <ul
           v-if="Object.keys(defaultItems).length"
           class="no_bullets">
-          <template v-for="(item, key) in sections">
+          <template
+            v-for="(item, key) in sections"
+            :key="key">
             <li
               class="margin-small-bottom"
-              v-if="defaultItems[key]"
-              :key="key"
-              v-shortkey="[item.shortcut]"
-              @shortkey="selectItem(key, defaultItems[key])">
+              v-if="defaultItems[key]">
               <transition
                 v-if="selected && selected.klass == key"
                 name="bounce"
@@ -43,22 +42,37 @@
           </template>
         </ul>
         <h4 v-else>Nothing is on your pinboard yet</h4>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import Shortcuts from './const/shortcuts.js'
+import platformKey from 'helpers/getPlatformKey.js'
 import { shorten } from 'helpers/strings.js'
-import GetOSKey from 'helpers/getMacKey.js'
 
 export default {
-  components: {
-    ModalComponent
+  name: 'PinboardNavigator',
+
+  components: { ModalComponent },
+
+  computed: {
+    shortcuts () {
+      const keys = {}
+
+      for (const key in this.sections) {
+        keys[this.sections[key].shortcut] = () => { this.selectItem(key, this.defaultItems[key]) }
+      }
+
+      keys[`${platformKey()}+g`] = this.openModal
+
+      return keys
+    }
   },
+
   data () {
     return {
       showModal: false,
@@ -67,17 +81,22 @@ export default {
       selected: undefined
     }
   },
+
   mounted () {
-    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+p`, 'Open pinboard navigator', 'Pinboard')
+    TW.workbench.keyboard.createLegend(`${platformKey()}+g`, 'Open pinboard navigator', 'Pinboard')
   },
+
   methods: {
     redirect () {
       const klass = this.selected.klass
+
       window.open(`${this.sections[klass].path}?${this.sections[klass].param}=${this.selected.object.id}`, '_self')
     },
+
     selectItem (key, item) {
       this.selected = { klass: key, object: item }
     },
+
     openModal () {
       this.defaultItems = {}
       document.querySelectorAll('[data-pinboard-section]').forEach(node => {
@@ -93,11 +112,12 @@ export default {
       this.selected = undefined
       this.showModal = true
     },
+
     shorten: shorten,
-    getOSKey: GetOSKey,
+
     orderShortcuts (sections) {
       const ordered = {}
-      Object.keys(sections).sort((a, b) => a.shortcut - b.shortcut).forEach((key) => {
+      Object.keys(sections).sort((a, b) => a.shortcut - b.shortcut).forEach(key => {
         ordered[key] = sections[key]
       })
       return ordered

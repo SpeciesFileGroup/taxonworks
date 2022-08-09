@@ -1,10 +1,10 @@
-FROM ruby:2.7.2
+FROM ruby:3.1.2
 
 RUN apt-get update 
 RUN apt-get install -y curl bzip2 unzip default-jre \
                        libgtk-3-0 libgtk-3-dev libdbus-glib-1-2 libxt6 # Firefox requirements
 
-RUN curl -sL 'https://download.mozilla.org/?product=firefox-79.0&lang=en-US&os=linux64' | \
+RUN curl -sL 'https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&lang=en-US' | \
     tar -xjf - -C /usr/bin
   
 RUN /usr/bin/firefox/firefox --version

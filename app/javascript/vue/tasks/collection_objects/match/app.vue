@@ -3,38 +3,44 @@
     <h1>Collection object match</h1>
     <spinner-component
       v-if="isLoading"
-      :full-screen="true"/>
+      :full-screen="true"
+    />
     <div class="horizontal-left-content align-start">
       <div class="full_width margin-small-right">
-        <input-component @lines="lines = $event"/>
+        <input-component @lines="lines = $event" />
         <div class="flex-separate margin-medium-bottom">
           <button
             class="button normal-input button-default"
             type="button"
             :disabled="!lines.length"
-            @click="processList">
+            @click="processList"
+          >
             Match
           </button>
           <ul class="no_bullets context-menu">
-            <li v-for="option in searchParams">
+            <li
+              v-for="option in searchParams"
+              :key="option.value"
+            >
               <label>
                 <input
                   v-model="paramSelected"
                   :value="option.value"
-                  type="radio">
-                  {{ option.label }}
+                  type="radio"
+                >
+                {{ option.label }}
               </label>
             </li>
           </ul>
         </div>
-        <assign-component
-          :ids="ids"/>
+        <assign-component :ids="ids" />
       </div>
       <div class="full_width margin-small-left">
         <line-component
           @selected="ids = $event"
           class="margin-small-bottom"
-          :match-list="matches"/>
+          :match-list="matches"
+        />
       </div>
     </div>
   </div>
@@ -45,16 +51,20 @@
 import InputComponent from './components/InputComponent'
 import LineComponent from './components/LineComponent'
 import AssignComponent from './components/AssignComponent'
-import { GetCollectionObject, GetCollectionObjectById } from './request/resources'
 import SpinnerComponent from 'components/spinner'
+import { CollectionObject } from 'routes/endpoints'
+import { URLParamsToJSON } from 'helpers/url/parse'
 
 export default {
+  name: 'CollectionObjectMatch',
+
   components: {
     InputComponent,
     LineComponent,
     AssignComponent,
-    SpinnerComponent,
+    SpinnerComponent
   },
+
   data () {
     return {
       lines: [],
@@ -66,59 +76,94 @@ export default {
       searchParams: [
         {
           label: 'By ID',
-          value: undefined
+          value: 'GetMatchesById'
         },
         {
           label: 'Identifier exact',
-          value: 'identifier_exact'
+          value: 'GetMatchesByIdentifier'
         }
       ],
-      paramSelected: undefined
+      paramSelected: 'GetMatchesByIdentifier'
     }
   },
-  methods: {
-    GetMatches (position) {
-        let promises = []
 
-        for(let i = 0; i < this.maxPerCall; i++) {
-          if(position < this.lines.length) {
-            promises.push(new Promise((resolve, reject) => {
-              let value = this.lines[position]
-              if(this.paramSelected) {
-                GetCollectionObject({ [this.paramSelected]: true, identifier: value }).then(response => {
-                  this.$set(this.matches, value, response.body)
-                  resolve()
-                }, () => {
-                  this.$set(this.matches, value, {})
-                  reject()
-                })
-              } else {
-                if(!Number(value)) return reject()
-                  GetCollectionObjectById(value).then(response => {
-                    this.$set(this.matches, value, [response.body])
-                    resolve()
-                  }, () => {
-                    this.$set(this.matches, value, {})
-                    reject()
-                  })
-              }
-            }).catch(e => {}))
-            position++
-          }
-          
-        }
-        Promise.all(promises).then(response => {
-          if(position < this.lines.length)
-            this.GetMatches(position)
-          else {
-            this.isLoading = false
-          }
+  created () {
+    const urlParams = URLParamsToJSON(location.href)
+    const coIds = urlParams.collection_object_ids || []
+    const identifierIds = urlParams.identifier_ids || []
+
+    if (Object.keys(urlParams).length) {
+      if (
+        identifierIds.length ||
+        coIds.length
+      ) {
+        this.GetMatchesById(coIds)
+        this.GetMatchesByIdentifier(identifierIds)
+      } else {
+        this.GetMatchByParams(urlParams)
+      }
+    }
+  },
+
+  methods: {
+    GetMatchesById (arrayIds = this.lines.filter(line => Number(line))) {
+      const ids = arrayIds.splice(0, this.maxPerCall)
+      const promises = ids.map(id =>
+        CollectionObject.find(id).then(response => {
+          this.matches[id] = [response.body]
+        }, () => {
+          this.matches[id] = []
         })
+      )
+
+      this.isLoading = true
+
+      Promise.allSettled(promises).then(() => {
+        if (arrayIds.length) {
+          this.GetMatchesById(arrayIds)
+        } else {
+          this.isLoading = false
+        }
+      })
     },
+
+    GetMatchesByIdentifier (arrayIdentifiers = this.lines.filter(line => line)) {
+      const identifiers = arrayIdentifiers.splice(0, this.maxPerCall)
+      const promises = identifiers.map(identifier =>
+        CollectionObject.where({
+          identifier_exact: true,
+          identifier
+        }).then(response => {
+          this.matches[identifier] = response.body
+        }, () => {
+          this.matches[identifier] = []
+        })
+      )
+
+      this.isLoading = true
+
+      Promise.allSettled(promises).then(() => {
+        if (arrayIdentifiers.length) {
+          this.GetMatchesByIdentifier(arrayIdentifiers)
+        } else {
+          this.isLoading = false
+        }
+      })
+    },
+
+    GetMatchByParams (params) {
+      this.isLoading = true
+
+      CollectionObject.where(params).then(({ body }) => {
+        this.matches = Object.fromEntries(body.map(co => [co.id, [co]]))
+        this.isLoading = false
+      })
+    },
+
     processList () {
       this.matches = {}
       this.isLoading = true
-      this.GetMatches(0)
+      this[this.paramSelected]()
     }
   }
 }

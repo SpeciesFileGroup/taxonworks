@@ -1,28 +1,42 @@
 import { MutationNames } from '../mutations/mutations'
-import { UpdateTypeMaterial, CreateTypeMaterial } from '../../request/resources'
-import ValidateTypeMaterial from '../../validations/typeMaterial'
+import { TypeMaterial } from 'routes/endpoints'
+import makeTypeSpecimen from '../../helpers/makeTypeSpecimen'
 
-export default function ({ commit, state }) {
-  return new Promise((resolve, reject) => {
-    commit(MutationNames.SetTypeMaterialBiologicalObjectId, state.collection_object.id)
-    let type_material = state.type_material
-    if(ValidateTypeMaterial(type_material)) {
-      if(type_material.id) {
-        UpdateTypeMaterial(type_material).then(response => {
-          commit(MutationNames.NewTypeMaterial)
-          return resolve(response.body)
-        })
-      }
-      else {
-        CreateTypeMaterial(type_material).then(response => {
-          commit(MutationNames.AddTypeMaterial, response.body)
-          commit(MutationNames.NewTypeMaterial, response.body)
-          return resolve(response.body)
-        })
-      }
-    }
-    else {
-      resolve()
-    }
+export default ({ commit, state }) => {
+  const { typeSpecimens } = state
+  const promises = []
+
+  typeSpecimens.forEach(typeSpecimen => {
+    if (!typeSpecimen.isUnsaved) return
+
+    const saveRequest = typeSpecimen.id
+      ? TypeMaterial.update(typeSpecimen.id, { type_material: makeTypeSpecimenPayback(state, typeSpecimen), extend: ['origin_citation'] })
+      : TypeMaterial.create({ type_material: makeTypeSpecimenPayback(state, typeSpecimen), extend: ['origin_citation'] })
+
+    promises.push(saveRequest)
+
+    saveRequest.then(({ body }) => commit(MutationNames.AddTypeMaterial, makeTypeSpecimen({ ...typeSpecimen, ...body })))
   })
+
+  return Promise.all(promises)
+}
+
+function makeTypeSpecimenPayback (state, typeSpecimen) {
+  const payload = {
+    id: typeSpecimen.id,
+    protonym_id: typeSpecimen.protonymId,
+    type_type: typeSpecimen.type,
+    collection_object_id: state.collection_object.id
+  }
+
+  if (typeSpecimen.originCitation) {
+    Object.assign(payload, {
+      origin_citation_attributes: {
+        source_id: typeSpecimen.originCitation.source_id,
+        pages: typeSpecimen.originCitation.pages
+      }
+    })
+  }
+
+  return payload
 }

@@ -38,15 +38,28 @@ class TaxonNameClassification < ApplicationRecord
   scope :with_type_array, -> (base_array) {where('taxon_name_classifications.type IN (?)', base_array ) }
   scope :with_type_contains, -> (base_string) {where('taxon_name_classifications.type LIKE ?', "%#{base_string}%" ) }
 
-  soft_validate(:sv_proper_classification, set: :proper_classification, has_fix: false)
-  soft_validate(:sv_proper_year, set: :proper_classification, has_fix: false)
-  soft_validate(:sv_validate_disjoint_classes, set: :validate_disjoint_classes, has_fix: false)
-  soft_validate(:sv_not_specific_classes, set: :not_specific_classes, has_fix: false)
+  soft_validate(:sv_proper_classification,
+                set: :proper_classification,
+                name: 'Applicable status',
+                description: 'Check the status applicability.' )
+
+  soft_validate(:sv_proper_year,
+                set: :proper_classification,
+                name: 'Applicable protonym year',
+                description: 'Check that the status is compatible with the year of publication of taxon.' )
+
+  soft_validate(:sv_validate_disjoint_classes,
+                set: :validate_disjoint_classes,
+                name: 'Conflicting status',
+                description: 'Taxon has two conflicting statuses' )
+
+  soft_validate(:sv_not_specific_classes,
+                set: :not_specific_classes,
+                name: 'Not specific status',
+                description: 'More specific statuses are preffered, for example: "Nomen nudum, no description" is better than "Nomen nudum".' )
 
   after_save :set_cached
   after_destroy :set_cached
-  #  after_save :set_cached_names_for_taxon_names
-  # after_destroy :set_cached_names_for_taxon_names
 
   def nomenclature_code
     return :iczn if type.match(/::Iczn/)
@@ -56,7 +69,6 @@ class TaxonNameClassification < ApplicationRecord
     return nil
   end
 
-  # TODO: helper method
   def self.label
     name.demodulize.underscore.humanize.downcase.gsub(/\d+/, ' \0 ').squish
   end
@@ -168,88 +180,94 @@ class TaxonNameClassification < ApplicationRecord
     set_cached_names_for_taxon_names
   end
 
+  # TODO: move these to individual classes?!
   def set_cached_names_for_taxon_names
     begin
       TaxonName.transaction_with_retry do
         t = taxon_name
 
         if type_name =~ /(Fossil|Hybrid|Candidatus)/
+          n = t.get_full_name
           t.update_columns(
-            cached: t.get_full_name,
-            cached_html: t.get_full_name_html,
+            cached: n,
+            cached_html: t.get_full_name_html(n),
             cached_original_combination: t.get_original_combination,
             cached_original_combination_html: t.get_original_combination_html
           )
-        elsif type_name =~ /Latinized::PartOfSpeach/
+        elsif type_name =~ /Latinized::PartOfSpeech/
+          n = t.get_full_name
           t.update_columns(
-              cached: t.get_full_name,
-              cached_html: t.get_full_name_html,
+              cached: n,
+              cached_html: t.get_full_name_html(n),
               cached_original_combination: t.get_original_combination,
               cached_original_combination_html: t.get_original_combination_html
           )
+
           TaxonNameRelationship::OriginalCombination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
             t1.update_cached_original_combinations
           end
+
           TaxonNameRelationship::Combination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
             t1.update_column(:verbatim_name, t1.cached) if t1.verbatim_name.nil?
+            n = t1.get_full_name
             t1.update_columns(
-                cached: t1.get_full_name,
-                cached_html: t1.get_full_name_html
+                cached: n,
+                cached_html: t1.get_full_name_html(n)
             )
           end
         elsif type_name =~ /Latinized::Gender/
-          t.descendants.select{|t| t.id == t.cached_valid_taxon_name_id}.uniq.each do |t1|
+          t.descendants.with_same_cached_valid_id.each do |t1|
+            n = t1.get_full_name
             t1.update_columns(
-                cached: t1.get_full_name,
-                cached_html: t1.get_full_name_html
+                cached: n,
+                cached_html: t1.get_full_name_html(n)
             )
           end
+
           TaxonNameRelationship::OriginalCombination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
             t1.update_cached_original_combinations
           end
+
           TaxonNameRelationship::Combination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
             t1.update_column(:verbatim_name, t1.cached) if t1.verbatim_name.nil?
+            n = t1.get_full_name
             t1.update_columns(
-                cached: t1.get_full_name,
-                cached_html: t1.get_full_name_html
+                cached: n,
+                cached_html: t1.get_full_name_html(n)
             )
           end
         elsif TAXON_NAME_CLASS_NAMES_VALID.include?(type_name)
 #          TaxonName.where(cached_valid_taxon_name_id: t.cached_valid_taxon_name_id).each do |vn|
-#            vn.update_column(:cached_valid_taxon_name_id, vn.get_valid_taxon_name.id)  # update self too!
-#          end
+          #            vn.update_column(:cached_valid_taxon_name_id, vn.get_valid_taxon_name.id)  # update self too!
+          #          end
           vn = t.get_valid_taxon_name
-          vn.update_column(:cached_valid_taxon_name_id, vn.id)  # update self too!
+          vn.update_columns(
+            cached_valid_taxon_name_id: vn.id,
+            cached_is_valid: !vn.unavailable_or_invalid?) # Do not change!
           vn.list_of_invalid_taxon_names.each do |s|
-            s.update_column(:cached_valid_taxon_name_id, vn.id)
+            s.update_columns(
+              cached_valid_taxon_name_id: vn.id,
+              cached_is_valid: false)
             s.combination_list_self.each do |c|
-              c.update_column(:cached_valid_taxon_name_id, vn.id)
+              c.update_columns(cached_valid_taxon_name_id: vn.id)
             end
           end
           t.combination_list_self.each do |c|
-            c.update_column(:cached_valid_taxon_name_id, vn.id)
+            c.update_columns(cached_valid_taxon_name_id: vn.id)
           end
+        else
+          t.update_columns(cached_is_valid: false)
         end
       end
     rescue ActiveRecord::RecordInvalid
-      # should return false here, right?
+      false
     end
-#    false # TODO: why false, success == true?
+    true
   end
 
   #region Validation
   def validate_uniqueness_of_latinized
     true # moved to subclasses
-#    if /Latinized/.match(self.type_name)
-#      lat = TaxonNameClassification.where(taxon_name_id: self.taxon_name_id).with_type_contains('Latinized').not_self(self)
-#      unless lat.empty?
-#        if /Gender/.match(lat.first.type_name)
-#          errors.add(:taxon_name_id, 'The Gender is already selected')
-#        elsif /PartOfSpeech/.match(lat.first.type_name)
-#          errors.add(:taxon_name_id, 'The Part of speech is already selected')
-#        end
-#      end
-#    end
   end
 
   #endregion
@@ -260,7 +278,7 @@ class TaxonNameClassification < ApplicationRecord
     if TAXON_NAME_CLASSIFICATION_NAMES.include?(self.type)
       # self.type_class is a Class
       if not self.type_class.applicable_ranks.include?(self.taxon_name.rank_string)
-        soft_validations.add(:type, "The status '#{self.type_class.label}' is unapplicable to the taxon #{self.taxon_name.cached_html} at the rank of #{self.taxon_name.rank_class.rank_name}")
+        soft_validations.add(:type, "The status '#{self.classification_label}' is unapplicable to the taxon #{self.taxon_name.cached_html} at the rank of #{self.taxon_name.rank_class.rank_name}")
       end
     end
   end
@@ -268,74 +286,19 @@ class TaxonNameClassification < ApplicationRecord
   def sv_proper_year
     y = self.taxon_name.year_of_publication
     if !y.nil? && (y > self.type_class.code_applicability_end_year || y < self.type_class.code_applicability_start_year)
-      soft_validations.add(:type, "The status '#{self.type_class.label}' is unapplicable to the taxon #{self.taxon_name.cached_html} published in the year #{y}")
+      soft_validations.add(:type, "The status '#{self.classification_label}' is unapplicable to the taxon #{self.taxon_name.cached_html} published in the year #{y}")
     end
   end
 
   def sv_validate_disjoint_classes
     classifications = TaxonNameClassification.where_taxon_name(self.taxon_name).not_self(self)
     classifications.each  do |i|
-      soft_validations.add(:type, "The status  '#{self.type_class.label}' conflicting with another status: '#{i.type_class.label}'") if self.type_class.disjoint_taxon_name_classes.include?(i.type_name)
+      soft_validations.add(:type, "The status  '#{self.classification_label}' conflicting with another status: '#{i.classification_label}'") if self.type_class.disjoint_taxon_name_classes.include?(i.type_name)
     end
   end
 
   def sv_not_specific_classes
     true # moved to subclasses
-=begin
-    case self.type_name
-      when 'TaxonNameClassification::Iczn::Available'
-        soft_validations.add(:type, 'Please specify if the name is Valid or Invalid')
-      when 'TaxonNameClassification::Iczn::Unavailable'
-        soft_validations.add(:type, 'Please specify the reasons for the name being Unavailable')
-      when 'TaxonNameClassification::Iczn::Available::Invalid'
-        soft_validations.add(:type, 'Although this status can be used, it is better to replace it with appropriate relationship (for example Synonym relationship)')
-      when 'TaxonNameClassification::Iczn::Available::Invalid::Homonym'
-        soft_validations.add(:type, 'Although this status can be used, it is better to replace it with with appropriate relationship (for example Primary Homonym)')
-      when 'TaxonNameClassification::Iczn::Available::Valid'
-        soft_validations.add(:type, 'This status should only be used when one or more conflicting invalidating relationships present in the database (for example, a taxon was used as a synonym in the past, but not now, and a synonym relationship is stored in the database for a historical record). Otherwise, this status should not be used. By default, any name which does not have invalidating relationship is a valid name')
-      when 'TaxonNameClassification::Iczn::Unavailable::Suppressed'
-        soft_validations.add(:type, 'Please specify the reasons for the name being Suppressed')
-      when 'TaxonNameClassification::Iczn::Unavailable::Excluded'
-        soft_validations.add(:type, 'Please specify the reasons for the name being Excluded')
-      when 'TaxonNameClassification::Iczn::Unavailable::NomenNudum'
-        soft_validations.add(:type, 'Please specify the reasons for the name being Nomen Nudum')
-      when 'TaxonNameClassification::Iczn::Unavailable::NonBinomial'
-        soft_validations.add(:type, 'Please specify the reasons for the name being Non Binomial')
-      when 'TaxonNameClassification::Icn::EffectivelyPublished'
-        soft_validations.add(:type, 'Please specify if the name is validly or Invalidly Published')
-      when 'TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished'
-        soft_validations.add(:type, 'Please specify the reasons for the name being Invalidly Published')
-      when 'TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished'
-        soft_validations.add(:type, 'Please specify if the name is Legitimate or Illegitimate')
-      when 'TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate'
-        soft_validations.add(:type, 'Please specify the reasons for the name being Legitimate')
-      when 'TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate'
-        soft_validations.add(:type, 'Please specify the reasons for the name being Illegitimate')
-      when 'TaxonNameClassification::Icnp::EffectivelyPublished'
-        soft_validations.add(:type, 'Please specify if the name is validly or Invalidly Published')
-      when 'TaxonNameClassification::Icnp::EffectivelyPublished::InvalidlyPublished'
-        soft_validations.add(:type, 'Please specify the reasons for the name being Invalidly Published')
-      when 'TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished'
-        soft_validations.add(:type, 'Please specify if the name is Legitimate or Illegitimate')
-      when 'TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished::Legitimate'
-        soft_validations.add(:type, 'Please specify the reasons for the name being Legitimate')
-      # when 'TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate'
-      #   soft_validations.add(:type, 'Please specify the reasons for the name being Illegitimate')
-      when 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective' ||
-           'TaxonNameClassification::Latinized::PartOfSpeech::Participle'
-        t = taxon_name.name
-        if !t.end_with?('us') &&
-          !t.end_with?('a') &&
-          !t.end_with?('um') &&
-          !t.end_with?('is') &&
-          !t.end_with?('e') &&
-          !t.end_with?('or') &&
-          !t.end_with?('er')
-          soft_validations.add(:type, 'Adjective or participle name should end with one of the ' \
-                                              'following endings: -us, -a, -um, -is, -e, -er, -or')
-        end
-    end
-=end
   end
 
   #endregion
@@ -352,7 +315,9 @@ class TaxonNameClassification < ApplicationRecord
 
   def nomenclature_code_matches
     if taxon_name && type && nomenclature_code
-      errors.add(:taxon_name, "#{taxon_name.cached_html} belongs to #{taxon_name.rank_class.nomenclatural_code} nomenclatural code, but the status used from #{nomenclature_code} nomenclature code") if nomenclature_code != taxon_name.rank_class.nomenclatural_code
+      tn = taxon_name.type == 'Combination' ? taxon_name.protonyms.last : taxon_name
+      nc = tn.rank_class.nomenclatural_code
+      errors.add(:taxon_name, "#{taxon_name.cached_html} belongs to #{taxon_name.rank_class.nomenclatural_code} nomenclatural code, but the status used from #{nomenclature_code} nomenclature code") if nomenclature_code != nc
     end
   end
 

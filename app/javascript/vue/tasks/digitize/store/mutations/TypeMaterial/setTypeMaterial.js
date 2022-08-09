@@ -1,3 +1,3 @@
-export default function(state, value) {
-  state.type_material = value
+export default (state, value) => {
+  state.typeMaterial = value
 }

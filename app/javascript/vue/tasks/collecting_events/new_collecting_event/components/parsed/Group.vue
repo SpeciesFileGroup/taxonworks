@@ -1,13 +1,14 @@
 <template>
   <div>
-    <div>
+    <div class="field">
       <label>Group</label>
       <autocomplete
         url="https://paleobiodb.org/data1.2/strata/auto.json"
         min="3"
         label="name"
         nested="records"
-        @getItem="collectingEvent.group = $event"
+        :send-label="collectingEvent.group"
+        @getItem="collectingEvent.group = $event.name"
         :headers="externalHeaders"
         :add-params="{
           limit: 30,
@@ -15,13 +16,16 @@
           rank: 'group'
         }"
         param="name"/>
+    </div>
+    <div class="field">
       <label>Formation</label>
       <autocomplete
         url="https://paleobiodb.org/data1.2/strata/auto.json"
         min="3"
         label="name"
         nested="records"
-        @getItem="collectingEvent.formation = $event"
+        :send-label="collectingEvent.formation"
+        @getItem="collectingEvent.formation = $event.name"
         :headers="externalHeaders"
         :add-params="{
           limit: 30,
@@ -29,18 +33,18 @@
           rank: 'formation'
         }"
         param="name"/>
-      <div class="field label-above">
-        <label>Member</label>
-        <input
-          type="text"
-          v-model="collectingEvent.member">
-      </div>
-      <div class="field label-above">
-        <label>Lithology</label>
-        <input
-          type="text"
-          v-model="collectingEvent.lithology">
-      </div>
+    </div>
+    <div class="field label-above">
+      <label>Member</label>
+      <input
+        type="text"
+        v-model="collectingEvent.member">
+    </div>
+    <div class="field label-above">
+      <label>Lithology</label>
+      <input
+        type="text"
+        v-model="collectingEvent.lithology">
     </div>
     <div class="horizontal-left-content ma-fields">
       <div class="separate-right label-above">
@@ -61,7 +65,7 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import extendCE from '../mixins/extendCE'
 
 export default {

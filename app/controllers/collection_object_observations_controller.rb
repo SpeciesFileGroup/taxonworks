@@ -7,7 +7,7 @@ class CollectionObjectObservationsController < ApplicationController
   # GET /collection_object_observations.json
   def index
     @recent_objects = CollectionObjectObservation.recent_from_project_id(sessions_current_project_id)
-                        .order(updated_at: :desc).limit(10)
+      .order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -63,7 +63,7 @@ class CollectionObjectObservationsController < ApplicationController
     @collection_object_observation.destroy!
     respond_to do |format|
       format.html { redirect_to collection_object_observations_url,
-                                notice: 'Collection object observation was successfully destroyed.' }
+                    notice: 'Collection object observation was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
@@ -91,7 +91,7 @@ class CollectionObjectObservationsController < ApplicationController
   def search
     if params[:id].blank?
       redirect_to collection_object_observations_path,
-                  notice: 'You must select an item from the list with a click or tab press before clicking show.'
+                  alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to collection_object_observation_path(params[:id])
     end

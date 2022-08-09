@@ -8,8 +8,10 @@
     <table class="full_width">
       <thead>
         <tr>
+          <th>Family name</th>
           <th>Subject</th>
           <th>Relationship</th>
+          <th>Family name</th>
           <th>Object</th>
           <th>Citations</th>
         </tr>
@@ -18,10 +20,20 @@
         <tr
           v-for="biologicalAssociation in filteredList"
           :key="biologicalAssociation.id">
+          <td v-html="biologicalAssociation.subject.family_name"/>
           <td v-html="biologicalAssociation.subject.object_tag"/>
-          <td v-html="biologicalAssociation.biological_relationship.object_tag"/>
+          <td>
+            <a :href="`/biological_associations/${biologicalAssociation.id}`" :title="`Edit`">
+              <span v-html="biologicalAssociation.biological_relationship.object_tag"/>
+            </a>
+          </td>
+          <td v-html="biologicalAssociation.object.family_name"/>
           <td v-html="biologicalAssociation.object.object_tag"/>
-          <td v-html="biologicalAssociation.citations.map(citation => (`${citation.source.author_year}` + (citation.pages ? `:${citation.pages}` : ''))).sort().join('; ')"/>
+          <td>
+            <a v-for="citation in biologicalAssociation.citations" :key="citation.id" :href="`/tasks/nomenclature/by_source?source_id=${citation.source.id}`" :title="`${citation.source.cached}`">
+              <span v-html="authorString(citation)"/>&nbsp;
+            </a>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -29,8 +41,10 @@
       v-if="showModal"
       @close="setModalView(false)"
       :containerStyle="{ width: '900px' }">
-      <h3 slot="header">Filter</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Filter</h3>
+      </template>
+      <template #body>
         <div class="horizontal-left-content align-start">
           <div class="full_width margin-small-right">
             <h4>Year</h4>
@@ -62,7 +76,7 @@
             :list="sourcesList"
             v-model="sourcesFilter"/>
         </div>
-      </div>
+      </template>
     </modal-component>
   </section-panel>
 </template>
@@ -71,11 +85,11 @@
 
 import SectionPanel from './shared/sectionPanel'
 import extendSection from './shared/extendSections'
-import ModalComponent from 'components/modal'
-import { GetterNames } from '../store/getters/getters'
-import YearPicker from './nomenclature/yearsPick'
+import ModalComponent from 'components/ui/Modal'
+import YearPicker from './timeline/TimelineYearsPick.vue'
 import FilterList from './biologicalAssociations/filterList'
 import { getUnique } from 'helpers/arrays.js'
+import { GetterNames } from '../store/getters/getters'
 
 export default {
   mixins: [extendSection],
@@ -149,6 +163,13 @@ export default {
       } else {
         return Array.isArray(item) ? item.find(obj => filterList === obj[property]) : filterList === item[property]
       }
+    },
+    authorString (citation) {
+      const pages = citation.pages
+        ? `:${citation.pages}`
+        : ''
+
+      return `${citation.source.author_year}${citation.source.year_suffix || ''}${pages}`
     }
   }
 }

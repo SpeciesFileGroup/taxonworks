@@ -2,7 +2,7 @@
   <div class="find-taxonname-picker">
     <spinner
       legend="Saving new combination..."
-      :full-screen="true"
+      full-screen
       :logo-size="{ width: '100px', height: '100px'}"
       v-if="saving"/>
     <spinner
@@ -12,7 +12,6 @@
     <div
       class="panel new-combination-box separate-bottom"
       v-if="Object.keys(rankLists).length">
-
       <div
         class="header flex-separate middle"
         :class="{ 'header-warning': !(rankLists['genus'] && rankLists['genus'].length) }">
@@ -22,24 +21,28 @@
       <div>
         <div v-if="!isCombinationEmpty()">
           <preview-view
-          @onVerbatimChange="newCombination.verbatim_name = $event"
-          :combination="newCombination"/>
+            @onVerbatimChange="newCombination.verbatim_name = $event"
+            :combination="newCombination"
+            :incomplete="incompleteMatch"/>
         </div>
 
         <div class="flexbox">
-          <list-group
-            class="item1"
-            v-for="(list, key) in rankLists"
-            :key="key"
-            ref="listGroup"
-            @onTaxonSelect="newCombination.protonyms[key] = $event"
-            @addToList="addTaxonToList"
-            :selected="newCombination.protonyms[key]"
-            :rank-name="key"
-            :parse-string="parseRanks[key]"
-            :accept-taxon-ids="acceptTaxonIds"
-            :list="list"
-            v-if="parseRanks[key]"/>
+          <template
+            v-for="(list, key, index) in rankLists"
+            :key="key">
+            <list-group
+              v-if="parseRanks[key]"
+              class="item1"
+              :ref="(el) => listGroup[index] = el"
+              @onTaxonSelect="newCombination.protonyms[key] = $event"
+              @addToList="addTaxonToList"
+              :selected="newCombination.protonyms[key]"
+              :rank-name="key"
+              :parse-string="parseRanks[key]"
+              :accept-taxon-ids="acceptTaxonIds"
+              :list="list"
+            />
+          </template>
         </div>
         <hr>
         <div class="content">
@@ -56,7 +59,7 @@
             ref="saveButton"
             :new-combination="newCombination"/>
           <button
-            class="normal-input button button-default"
+            class="normal-input button button-default margin-small-left"
             @click="expandAll()"
             tabindex="-1"
             type="button"><span data-icon="reset">Unlock</span>
@@ -73,27 +76,28 @@
         <h3>Other matches</h3>
       </div>
       <div class="flexbox">
-        <match-group
+        <template
           v-for="(list, key) in otherMatches"
-          v-if="list.length"
-          :key="key"
-          :rank-name="key"
-          :list="list"/>
+          :key="key">
+          <match-group
+            v-if="list.length"
+            :rank-name="key"
+            :list="list"/>
+        </template>
       </div>
     </div>
-
   </div>
 </template>
 
 <script>
 
-import { GetParse, GetCombination } from '../request/resources'
 import ListGroup from './listGroup.vue'
 import SaveCombination from './saveCombination.vue'
 import PreviewView from './previewView.vue'
 import SourcePicker from './sourcePicker.vue'
 import Spinner from 'components/spinner.vue'
 import MatchGroup from './matchGroup.vue'
+import { Combination, TaxonName } from 'routes/endpoints'
 
 export default {
   components: {
@@ -113,34 +117,48 @@ export default {
     },
     acceptTaxonIds: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
+
+  emits: [
+    'save',
+    'onSearchStart',
+    'onSearchEnd'
+  ],
+
   computed: {
     enableEdit () {
-      return (Object.keys(this.rankLists).find((rank) => {
-        return this.rankLists[rank] && this.rankLists[rank].length > 1
-      }) == undefined)
+      return !Object.keys(this.rankLists).find((rank) => this.rankLists[rank] && this.rankLists[rank].length > 1)
     },
-    existMatches() {
-      for(var key in this.otherMatches) {
-        if(this.otherMatches[key].length) {
+
+    existMatches () {
+      for (const key in this.otherMatches) {
+        if (this.otherMatches[key].length) {
           return true
         }
       }
       return false
+    },
+
+    incompleteMatch () {
+      const ranks = Object.entries(this.parseRanks).filter(([key, value]) => value).map(([key, value]) => key)
+      return !!ranks.find(rank => !this.newCombination.protonyms[rank])
     }
   },
-  data: function () {
+
+  data () {
     return {
       rankLists: {},
       parseRanks: {},
       otherMatches: {},
       searching: false,
       saving: false,
-      newCombination: this.createNewCombination()
+      newCombination: this.createNewCombination(),
+      listGroup: []
     }
   },
+
   watch: {
     taxonName (newVal) {
       this.newCombination = this.createNewCombination()
@@ -148,7 +166,7 @@ export default {
       if (newVal) {
         this.setRankList(newVal).then(response => {
           if (response.body.data.existing_combination_id) {
-            GetCombination(response.body.data.existing_combination_id).then(response => {
+            Combination.find(response.body.data.existing_combination_id).then(response => {
               this.newCombination = response.body
             })
           }
@@ -158,6 +176,7 @@ export default {
       }
     }
   },
+
   methods: {
     reset () {
       this.otherMatches = []
@@ -165,16 +184,17 @@ export default {
       this.rankLists = {}
       this.parseRanks = {}
     },
+
     setRankList (literalString, combination = undefined) {
       return new Promise((resolve, reject) => {
         this.$emit('onSearchStart', true)
         this.searching = true
-        GetParse(literalString).then(response => {
+        TaxonName.parse({ query_string: literalString }).then(response => {
           if (combination) {
-            let ranks = Object.keys(combination.protonyms)
+            const ranks = Object.keys(combination.protonyms)
             ranks.forEach(rank => {
-              let protonym = combination.protonyms[rank]
-              if (!response.body.data.protonyms[rank].find(item => { item.id === protonym.id })) {
+              const protonym = combination.protonyms[rank]
+              if (!response.body.data.protonyms[rank].find(item => item.id === protonym.id)) {
                 response.body.data.protonyms[rank].push(protonym)
               }
             })
@@ -193,51 +213,57 @@ export default {
         })
       })
     },
+
     addTaxonToList(event) {
       this.rankLists[event.rank].push(event.taxon)
     },
+
     editCombination (literalString, combination) {
       this.newCombination = combination
       this.setRankList(literalString, combination)
     },
+
     expandAll () {
-      this.$refs.listGroup.forEach(component => {
-        component.expandList()
+      this.listGroup.forEach(component => {
+        if (component) {
+          component.expandList()
+        }
       })
     },
+
     setSavedCombination (combination) {
       this.$emit('save', combination)
       this.setNewCombination(combination)
     },
+
     setNewCombination (combination) {
-      let newCombination = Object.assign({}, 
-        { id: combination.id }, 
-        { origin_citation: (combination['origin_citation'] ? combination.origin_citation : undefined)}, 
+      const newCombination = Object.assign({},
+        { id: combination.id },
+        { origin_citation: combination?.origin_citation },
         { protonyms: combination.protonyms },
         { verbatim_name: combination.verbatim_name })
+
       this.newCombination = newCombination
     },
+
     createNewCombination () {
       return {
         verbatim_name: undefined,
         protonyms: {
-          subspecies: undefined,
-          species: undefined,
+          genus: undefined,
           subgenus: undefined,
-          genus: undefined
+          species: undefined,
+          subspecies: undefined
         }
       }
     },
+
     setSource (citation) {
       this.newCombination = Object.assign(this.newCombination, citation)
     },
+
     isCombinationEmpty () {
-      for (var rank in this.newCombination.protonyms) {
-        if (this.newCombination.protonyms[rank]) {
-          return false
-        }
-      }
-      return true
+      return !Object.values(this.newCombination.protonyms).find(rank => rank)
     }
   }
 }

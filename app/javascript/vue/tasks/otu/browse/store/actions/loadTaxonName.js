@@ -1,8 +1,8 @@
-import { GetTaxonName } from '../../request/resources'
+import { TaxonName } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
 export default ({ commit }, id) => {
-  GetTaxonName(id).then(response => {
+  TaxonName.find(id, { extend: ['type_taxon_name_relationship' ]}).then(response => {
     commit(MutationNames.SetTaxonName, response.body)
   })
 }

@@ -4,9 +4,9 @@
   position: relative;
   cursor: pointer;
   color: #444;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: none;
   background-color: $navigation-background;
-  border-radius: 3px;
+  border-radius: 8px;
   &:disabled {
     color: #999;
     background-color: $color-button-disabled !important;
@@ -131,7 +131,6 @@
 .button-circle {
   @extend .circle-button;
   display: inline-block;
-  margin: 0px;
 }
 
 .btn-add {
@@ -172,9 +171,10 @@
 }
 
 .btn-radial-object {
-  background-size: 16px;
+  background-size: 12px;
   background-color: $color-secondary-2-4;
-  background-image: image-url("radial-object.svg");
+  background-image: image-url("compass.svg");
+  background-position: 45% 55%;
 }
 
 .btn-locked {
@@ -275,7 +275,8 @@
 }
 
 .circle-button-margin {
-  margin: 5px;
+  margin-left: 4px;
+  margin-right: 4px;
 }
 .box-button {
   cursor: pointer;

@@ -1,12 +1,9 @@
-import { updateTaxonRelationship } from '../../request/resources'
+import { TaxonNameRelationship } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
-export default function ({ commit, state, dispatch }, relationship) {
-  return new Promise((resolve, reject) => {
-    let patchRelationship = {
-      taxon_name_relationship: relationship
-    }
-    updateTaxonRelationship(patchRelationship).then(response => {
+export default ({ commit, dispatch }, taxon_name_relationship) =>
+  new Promise((resolve, reject) => {
+    TaxonNameRelationship.update(taxon_name_relationship.id, { taxon_name_relationship }).then(response => {
       commit(MutationNames.AddTaxonRelationship, response.body)
       dispatch('loadSoftValidation', 'taxon_name')
       dispatch('loadSoftValidation', 'taxonRelationshipList')
@@ -17,4 +14,3 @@ export default function ({ commit, state, dispatch }, relationship) {
       reject(error)
     })
   })
-}

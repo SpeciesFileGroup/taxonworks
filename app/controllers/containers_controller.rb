@@ -71,14 +71,19 @@ class ContainersController < ApplicationController
   def destroy
     @container.destroy
     respond_to do |format|
-      format.html {redirect_back(fallback_location: containers_path, notice: 'Container was successfully destroyed.')}
-      format.json { head :no_content }
+      if @container.destroyed?
+        format.html { destroy_redirect @container, notice: 'Container was successfully destroyed.' }
+        format.json { head :no_content }
+      else
+        format.html { destroy_redirect @container, notice: 'Container was not destroyed, ' + @container.errors.full_messages.join('; ') }
+        format.json { render json: @container.errors, status: :unprocessable_entity }
+      end
     end
   end
 
   def search
     if params[:id].blank?
-      redirect_to containers_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to containers_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to container_path(params[:id])
     end
@@ -87,7 +92,7 @@ class ContainersController < ApplicationController
   def autocomplete
     @containers = Queries::Container::Autocomplete.new(
       params.require(:term), 
-      {project_id: sessions_current_project_id}
+      project_id: sessions_current_project_id
     ).autocomplete
   end
 

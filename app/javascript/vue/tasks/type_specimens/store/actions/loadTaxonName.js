@@ -1,16 +1,15 @@
 import { MutationNames } from '../mutations/mutations'
-import { GetTypeMaterial, GetTaxonName } from '../../request/resources'
+import { TaxonName } from 'routes/endpoints'
 
-export default function ({ commit, state }, id) {
-  return new Promise((resolve, rejected) => {
+export default ({ commit }, id) =>
+  new Promise((resolve, reject) => {
     commit(MutationNames.SetLoading, true)
-    GetTaxonName(id).then(response => {
+    TaxonName.find(id).then(response => {
       commit(MutationNames.SetProtonymId, id)
       commit(MutationNames.SetTaxon, response.body)
       return resolve(response.body)
-    }, () => {
+    }, (error) => {
       commit(MutationNames.SetLoading, false)
-      return rejected()
+      return reject(error)
     })
   })
-};

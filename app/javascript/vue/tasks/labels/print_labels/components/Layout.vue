@@ -20,7 +20,7 @@
         type="text">
       <button
         type="button"
-        class="button normal-input button-default"
+        class="button normal-input button-default margin-small-left"
         @click="onClear">
         Clear
       </button>
@@ -35,7 +35,7 @@
 </template>
 <script>
 export default {
-  data() {
+  data () {
     return {
       rows: 151,
       columns: 9,
@@ -43,22 +43,33 @@ export default {
       separator: ''
     }
   },
+
+  emits: [
+    'onRowsChange',
+    'onColumnsChange',
+    'onDivisorChange',
+    'onSeparatorChange'
+  ],
+
   watch: {
-    rows(newVal) {
+    rows (newVal) {
       this.$emit('onRowsChange', newVal)
     },
-    columns(newVal) {
+
+    columns (newVal) {
       this.$emit('onColumnsChange', newVal)
     },
-    divisor(newVal) {
+
+    divisor (newVal) {
       this.$emit('onDivisorChange', newVal)
     },
-    separator(newVal) {
+
+    separator (newVal) {
       this.$emit('onSeparatorChange', newVal)
-    },
+    }
   },
   methods: {
-    onClear() {
+    onClear () {
       this.separator = ''
     }
   }

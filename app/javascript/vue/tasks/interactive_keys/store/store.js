@@ -1,11 +1,7 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-
+import { createStore } from 'vuex'
 import { GetterFunctions } from './getters/getters'
 import { MutationFunctions } from './mutations/mutations'
 import { ActionFunctions } from './actions/actions'
-
-Vue.use(Vuex)
 
 function makeInitialState () {
   return {
@@ -26,13 +22,14 @@ function makeInitialState () {
       sorting: undefined,
       language_id: undefined,
       eliminate_unknown: undefined,
-      keyword_ids: []
+      otu_filter: [],
+      keyword_id_and: []
     }
   }
 }
 
 function newStore () {
-  return new Vuex.Store({
+  return createStore({
     state: makeInitialState(),
     getters: GetterFunctions,
     mutations: MutationFunctions,

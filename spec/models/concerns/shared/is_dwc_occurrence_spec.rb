@@ -6,6 +6,29 @@ describe 'IsDwcOccurrence', type: :model, group: :darwin_core do
   let(:collection_object) { FactoryBot.create(:valid_specimen) }
   let(:dwc_occurrence) {class_with_dwc_occurrence.dwc_occurrence}
 
+  specify '.dwc_attribute_vector' do
+    expect(TestIsDwcOccurrence.dwc_attribute_vector.first).to eq(TestIsDwcOccurrence.arel_table[:id])
+  end
+
+  specify '.dwc_attribute_vector(:view)' do
+    expect(TestIsDwcOccurrence.dwc_attribute_vector(:view).first).to eq(TestIsDwcOccurrence.arel_table[:id])
+  end
+
+  specify '.dwc_not_indexed 1' do
+    TestIsDwcOccurrence.create!(no_dwc_occurrence: true)
+    expect(TestIsDwcOccurrence.dwc_not_indexed.all.count).to eq(1)
+  end
+
+  specify '.dwc_not_indexed 2' do
+    TestIsDwcOccurrence.create!(no_dwc_occurrence: false)
+    expect(TestIsDwcOccurrence.dwc_not_indexed.all.count).to eq(0)
+  end
+
+  specify '.dwc_indexed' do
+    TestIsDwcOccurrence.create!
+    expect(TestIsDwcOccurrence.dwc_indexed.count).to eq(1)
+  end
+
   specify 'has one #dwc_occurrence' do
     expect(class_with_dwc_occurrence).to respond_to(:dwc_occurrence)
   end
@@ -22,14 +45,22 @@ describe 'IsDwcOccurrence', type: :model, group: :darwin_core do
         expect(class_with_dwc_occurrence.set_dwc_occurrence).to be_kind_of(DwcOccurrence)
       end
 
-      specify '#stale?' do
-        expect(class_with_dwc_occurrence.dwc_occurrence.stale?).to be_falsey
+      specify '#is_stale?' do
+        expect(class_with_dwc_occurrence.dwc_occurrence.is_stale?).to be_falsey
       end
 
       specify 'updating #dwc_occurrence uses the existing record' do
         old_id = class_with_dwc_occurrence.dwc_occurrence.id
         class_with_dwc_occurrence.set_dwc_occurrence
         expect( class_with_dwc_occurrence.dwc_occurrence.id).to eq(old_id)
+      end
+
+      specify 'updating an existing #dwc_occurrence touches updated_at' do
+        a = class_with_dwc_occurrence.dwc_occurrence.updated_at
+        class_with_dwc_occurrence.set_dwc_occurrence
+
+        # More recent times are less than more distant times, the `<=>` opperator returns -1, 0, 1 respectively
+        expect( class_with_dwc_occurrence.updated_at <=> a).to eq(-1)
       end
     end
 
@@ -61,6 +92,10 @@ end
 class TestIsDwcOccurrence < ApplicationRecord
   include FakeTable
   include Shared::IsDwcOccurrence
+
+  include Shared::Identifiers
+  include Shared::IsData
+
   include Housekeeping
 
   DWC_OCCURRENCE_MAP = {

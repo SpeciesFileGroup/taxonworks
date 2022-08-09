@@ -3,268 +3,403 @@
     data-panel-name="pdfviewer"
     data-panel-open="false"
     class="slide-panel slide-document"
-    :style="styleWidth">
+    :style="styleWidth"
+  >
     <div class="slide-panel-header flex-separate">
-      <span>PDF Document viewer</span> 
+      <span>PDF Document viewer</span>
       <a
-        v-if="documentUrl"
+        v-if="state.documentUrl"
         class="margin-medium-right"
-        :href="documentUrl"
-        :data-pdf-source-id="sourceId"
-        download>Download</a>
+        :href="state.documentUrl"
+        :data-pdf-source-id="state.sourceId"
+        download
+      >
+        Download
+      </a>
     </div>
     <resize-handle
       side="left"
-      :size="width"
-      @resize="setWidth"/>
+      :size="state.width"
+      @resize="setWidth"
+    />
     <div>
       <div class="toolbar-pdf">
         <button
           id="prevbutton"
           type="button"
           :disabled="page <= 1"
-          @click="setPage(-1)"
+          @click="setPage(showPage - 1)"
         />
         <button
           id="nextbutton"
           type="button"
-          :disabled="page >= numPages"
-          @click="setPage(1)"
+          :disabled="page >= state.numPages"
+          @click="setPage(showPage + 1)"
         />
         <button
           id="zoominbutton"
           type="button"
-          @click="setScale(1)"/>
+          @click="setScale(state.scale + 1)"
+        />
         <button
           id="zoomoutbutton"
           type="button"
-          @click="setScale(-1)"/>
+          @click="setScale(state.scale - 1)"
+        />
         <input
           type="number"
-          id="pageNumber"
           class="toolbarField pageNumber"
           title="Page"
-          size="4"
-          min="1"
-          v-model="showPage"
-          tabindex="15"
-          max="0">
-        <span id="numPages" class="toolbarLabel"></span>
+          :value="state.displayPage"
+          :min="1"
+          :max="state.numPages"
+          @keydown.enter="setPage(Number($event.target.value))"
+        >
+        <span
+          id="numPages"
+          class="toolbarLabel"
+        />
       </div>
-      <div class="slide-panel-content" id="pdfViewerContainer">
-        <div id="viewer" class="pdfViewer">
-          <template v-if="pdfdata">
+      <div
+        class="slide-panel-content"
+        id="pdfViewerContainer"
+      >
+        <div
+          id="viewer"
+          class="pdfViewer"
+        >
+          <template v-if="state.pdfDocument">
             <pdf-viewer
-              :src="pdfdata"
-              v-for="i in numPages"
+              v-for="i in state.numPages"
               :key="i"
+              :src="state.pdfDocument"
               :id="i"
               :page="i"
-              :scale="scale">
-              <template slot="loading">
+              :scale="state.scale"
+            >
+              <template #loading>
                 Loading content here...
               </template>
             </pdf-viewer>
           </template>
-          <h2 v-else id="pdfEmptyMessage">Select a document from Pinboard</h2>
+          <h2
+            v-else
+            id="pdfEmptyMessage"
+          >
+            Select a document from Pinboard
+          </h2>
         </div>
       </div>
       <div class="slide-panel-circle-icon">
-        <div class="slide-panel-description">PDF Document viewer</div>
+        <div class="slide-panel-description">
+          PDF Document viewer
+        </div>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-
+<script setup>
 import PdfViewer from './components/pdfComponent'
 import ResizeHandle from '../resizeHandle'
+import IndexedDBStorage from 'storage/indexddb.js'
+import { blobToArrayBuffer } from 'helpers/files.js'
+import { createLoadingTask } from './components/pdfLibraryComponents'
+import {
+  computed,
+  watch,
+  reactive,
+  onMounted,
+  onUnmounted,
+  nextTick,
+  ref
+} from 'vue'
 
-export default {
-  components: {
-    PdfViewer,
-    ResizeHandle
+const styleWidth = computed(() => ({
+  width: state.width !== 400
+    ? `${state.width}px`
+    : ''
+}))
+
+const showPage = computed({
+  get () {
+    return state.displayPage
   },
-  computed: {
-    styleWidth() {
-      return this.width != 400 ? { width: `${this.width}px` } : undefined
-    },
-    showPage: {
-      get() {
-        return this.displayPage
-      },
-      set(value) {
-        this.displayPage = Number(value)
-        this.page = Number(value)
-      }
-    }
-  },
-  data () {
-    return {
-      displayPage: 1,
-      page: 1,
-      numPages: 0,
-      pdfdata: undefined,
-      errors: [],
-      scale: 1,
-      eventLoadPDFName: 'pdfViewer:load',
-      width: 400,
-      viewerActive: false,
-      cursorPosition: undefined,
-      textCopy: '',
-      noTrigger: false,
-      checkScroll: undefined,
-      documentUrl: undefined,
-      loadingPdf: false,
-      sourceId: undefined
-    }
-  },
-  mounted() {
-    this.eventsListens()
-  },
-  destroyed() {
-    document.removeEventListener("mouseover", this.loadPDF); 
-  },
-  watch: {
-    show(s) {
-      if (s) {
-        this.getPdf()
-      }
-    },
-    page(p) {
-      if(this.noTrigger) {
-        this.noTrigger = false
-      }
-      else {
-        if(p > 0 && p <= this.numPages) {
-          let containerPosition = Math.abs(document.querySelector('#viewer').getBoundingClientRect().y) + 120
-          if ((containerPosition <= this.findPos(document.getElementById(p)) || p == 1) || (document.getElementById(p + 1) && containerPosition >= this.findPos(document.getElementById(p + 1)))) {
-            document.getElementById(p).scrollIntoView()
-          }
+  set (value) {
+    state.displayPage = Number(value)
+    page.value = Number(value)
+  }
+})
+
+const state = reactive({
+  displayPage: 1,
+  numPages: 0,
+  pdfDocument: undefined,
+  errors: [],
+  scale: 1,
+  eventLoadPDFName: 'pdfViewer:load',
+  width: 400,
+  cursorPosition: undefined,
+  noTrigger: false,
+  checkScroll: undefined,
+  documentUrl: undefined,
+  loadingPdf: false,
+  sourceId: undefined
+})
+
+const page = ref(1)
+const textCopy = ref('')
+const viewerActive = ref(false)
+
+onMounted(() => {
+  eventListeners()
+  isOpenInStorage()
+
+  document.addEventListener('turbolinks:load', _ => {
+    document.removeEventListener(state.eventLoadPDFName, handlePdfLoadEvent)
+  })
+})
+
+onUnmounted(() => {
+  document.removeEventListener('mouseover', loadPDF)
+  state.pdfDocument?.destroy()
+})
+
+watch(
+  page,
+  p => {
+    if (state.noTrigger) {
+      state.noTrigger = false
+    } else {
+      if (p > 0 && p <= state.numPages) {
+        const containerPosition = Math.abs(document.querySelector('#viewer').getBoundingClientRect().y) + 120
+        const currentPage = document.getElementById(p)
+        const nextPageElement = document.getElementById(p + 1)
+
+        if (
+          (containerPosition <= findPos(currentPage) || p === 1) ||
+          (nextPageElement && containerPosition >= findPos(nextPageElement))
+        ) {
+          currentPage.scrollIntoView()
         }
       }
-    },
-    textCopy(newVal) {
-      document.querySelector('[data-panel-name="pinboard"]').setAttribute('data-clipboard', newVal)
-    }
-  },
-  methods: {
-    setWidth(style) {
-      this.width = style
-    },
-    setPage(value) {
-      this.showPage = Number(this.page) + Number(value)
-    },
-    setScale(value) {
-      this.scale = this.scale + value
-    },
-    getPdf (url) {
-      var self = this
-
-      self.documentUrl = url
-      self.pdfdata = PdfViewer.createLoadingTask(url)
-      this.loadingPdf = true
-      self.pdfdata.then(pdf => {
-        this.loadingPdf = false
-        self.numPages = pdf.numPages
-        document.querySelector('#pdfViewerContainer').onscroll = (event) => {
-          changePage(event)
-        }
-
-        function changePage (event) {
-          var i = 1
-          var count = Number(pdf.numPages)
-          if(count > 1) {
-            let containerPosition = Math.abs(document.querySelector('#viewer').getBoundingClientRect().y) + 120
-
-            do {
-              if (containerPosition >= self.findPos(document.getElementById(i)) && containerPosition <= self.findPos(document.getElementById(i + 1))) {
-                self.displayPage = i
-              }
-              i++
-            } while (i < count)
-            if (containerPosition >= self.findPos(document.getElementById(i))) {
-              self.displayPage = i
-            }
-          }
-        }
-      })
-    },
-    findPos (obj) {
-      return obj.offsetTop
-    },
-    eventsListens() {
-      var that = this
-
-      document.addEventListener(this.eventLoadPDFName, (event) => {
-        that.loadPDF(event)
-        that.viewerActive = true
-        document.querySelector('[data-panel-name="pinboard"]').classList.remove("slice-panel-show")
-        document.querySelector('[data-panel-name="pinboard"]').classList.add("slice-panel-hide")
-        document.querySelector('[data-panel-name="pdfviewer"]').classList.remove("slice-panel-hide")
-        document.querySelector('[data-panel-name="pdfviewer"]').classList.add("slice-panel-show")
-      })
-      document.addEventListener('onSlidePanelClose', (event) => {
-        if(event.detail.name == 'pdfviewer') {
-          this.setWidth(400)
-          that.viewerActive = false
-        }
-      })
-
-      document.addEventListener('onSlidePanelOpen', (event) => {
-        if(event.detail.name == 'pdfviewer')
-          that.viewerActive = true
-      })
-
-
-      // Events
-      //Copy text to input or textarea
-
-      document.body.addEventListener("click", function (event) {
-        let name = event.target.nodeName
-        if (name == "INPUT" || name == "TEXTAREA") {
-          if (that.viewerActive) {
-            if (event.target.selectionStart === event.target.selectionEnd) {
-              that.cursorPosition = event.target.selectionStart;
-            }
-          }
-        }
-      })
-
-      document.querySelector('#viewer').addEventListener('mouseup', () => {
-        that.textCopy = that.getSelectedText()
-      })
-
-      document.addEventListener('dblclick', (event) => {
-        let name = event.target.nodeName
-        if (name == "INPUT" || name == "TEXTAREA") {
-          if (that.viewerActive) {
-            let inputText = event.target.value
-            event.target.value = insertStringInPosition(inputText, that.textCopy, that.cursorPosition);
-          }
-        }
-      })
-    },
-    getSelectedText() {
-      if (window.getSelection) {
-        return window.getSelection().toString()
-      } else if (document.selection) {
-        return document.selection.createRange().text
-      }
-      return ''
-    },
-    loadPDF (event) {
-      if (this.loadingPdf) return
-      this.showPage = 1
-      this.numPages = 0
-      this.pdfdata = undefined
-      this.sourceId = event.detail.sourceId
-      this.$nextTick(() => {
-        this.getPdf(event.detail.url)
-      })
     }
   }
+)
+
+watch(
+  textCopy,
+  newVal => {
+    document.querySelector('[data-panel-name="pinboard"]').setAttribute('data-clipboard', newVal)
+  }
+)
+
+watch(
+  viewerActive,
+  async newVal => {
+    const pdfStored = await IndexedDBStorage.get('Pdf', getUserAndProjectIds())
+
+    if (pdfStored) {
+      pdfStored.isOpen = newVal
+      IndexedDBStorage.put('Pdf', pdfStored)
+    }
+  }
+)
+
+const isOpenInStorage = async () => {
+  const pdfStored = await IndexedDBStorage.get('Pdf', getUserAndProjectIds())
+
+  if (pdfStored?.isOpen) {
+    getPdf(pdfStored.url)
+    openPanel()
+  }
 }
+
+const setWidth = style => {
+  state.width = style
+}
+
+const setPage = value => {
+  if (value > state.numPages) {
+    showPage.value = state.numPages
+  } else if (value < 1) {
+    showPage.value = 1
+  } else {
+    showPage.value = value
+  }
+}
+
+const setScale = value => {
+  state.scale = value > 0
+    ? value
+    : 1
+}
+
+const getPdf = async url => {
+  const pdfStored = await IndexedDBStorage.get('Pdf', getUserAndProjectIds())
+  const isAlreadyStored = pdfStored?.url === url
+  const pdfBuffer = isAlreadyStored
+    ? pdfStored.pdfBuffer
+    : await downloadPdf(url)
+
+  state.documentUrl = url
+  state.loadingPdf = true
+
+  if (!isAlreadyStored) {
+    savePdfInStorage(url, pdfBuffer, true)
+  }
+
+  state.pdfDocument?.destroy()
+  state.pdfDocument = createLoadingTask({ data: pdfBuffer })
+
+  state.pdfDocument.then(pdf => {
+    state.loadingPdf = false
+    state.numPages = pdf.numPages
+
+    const changePage = _ => {
+      const count = Number(state.numPages)
+      let i = 1
+
+      if (count > 1) {
+        const containerPosition = Math.abs(document.querySelector('#viewer').getBoundingClientRect().y) + 120
+
+        do {
+          const currentElement = document.getElementById(i)
+          const nextElement = document.getElementById(i + 1)
+
+          if (
+            containerPosition >= findPos(currentElement) &&
+            containerPosition <= findPos(nextElement)
+          ) {
+            state.displayPage = i
+          }
+
+          i++
+        } while (i < count)
+
+        if (containerPosition >= findPos(document.getElementById(i))) {
+          state.displayPage = i
+        }
+      }
+    }
+
+    document.querySelector('#pdfViewerContainer').onscroll = changePage
+  })
+}
+
+const findPos = obj => obj.offsetTop
+
+const getUserAndProjectIds = () => {
+  const userId = document.querySelector('[data-current-user-id]').getAttribute('data-current-user-id')
+  const projectId = document.querySelector('[data-project-id]').getAttribute('data-project-id')
+
+  return `${userId}-${projectId}`
+}
+
+const savePdfInStorage = (url, pdfBuffer, isOpen) => {
+  IndexedDBStorage.put('Pdf', {
+    userAndProjectId: getUserAndProjectIds(),
+    url,
+    pdfBuffer,
+    isOpen
+  })
+}
+
+const openPanel = () => {
+  viewerActive.value = true
+  TW.views.shared.slideout.closePanel('pinboard')
+  TW.views.shared.slideout.openPanel('pdfviewer')
+}
+
+const eventListeners = () => {
+  document.addEventListener(state.eventLoadPDFName, handlePdfLoadEvent)
+
+  document.addEventListener('onSlidePanelClose', event => {
+    if (event.detail.name === 'pdfviewer') {
+      setWidth(400)
+      viewerActive.value = false
+    }
+  })
+
+  document.addEventListener('onSlidePanelOpen', event => {
+    if (event.detail.name === 'pdfviewer') {
+      viewerActive.value = true
+    }
+  })
+
+  document.body.addEventListener('click', event => {
+    const name = event.target.nodeName
+
+    if (name === 'INPUT' || name === 'TEXTAREA') {
+      if (viewerActive.value) {
+        if (event.target.selectionStart === event.target.selectionEnd) {
+          state.cursorPosition = event.target.selectionStart
+        }
+      }
+    }
+  })
+
+  document.querySelector('#viewer').addEventListener('mouseup', () => {
+    textCopy.value = getSelectedText()
+  })
+
+  document.addEventListener('dblclick', event => {
+    const name = event.target.nodeName
+
+    if (name === 'INPUT' || name === 'TEXTAREA') {
+      if (viewerActive.value) {
+        const inputText = event.target.value
+        event.target.value = insertStringInPosition(inputText, textCopy.value, state.cursorPosition)
+      }
+    }
+  })
+}
+
+const handlePdfLoadEvent = event => {
+  loadPDF(event)
+  openPanel()
+}
+
+const getSelectedText = () => {
+  if (window.getSelection) {
+    return window.getSelection().toString()
+  } else if (document.selection) {
+    return document.selection.createRange().text
+  }
+
+  return ''
+}
+
+const loadPDF = event => {
+  if (state.loadingPdf) return
+  showPage.value = 1
+  state.numPages = 0
+  state.pdfDocument = undefined
+  state.sourceId = event.detail.sourceId
+
+  nextTick(() => {
+    getPdf(event.detail.url)
+  })
+}
+
+const downloadPdf = url =>
+  new Promise((resolve, reject) => {
+    fetch(url)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok')
+        }
+        return response.blob()
+      })
+      .then(async blobObject => {
+        resolve(await blobToArrayBuffer(blobObject))
+      })
+  })
+
 </script>
 
+<script>
+export default {
+  name: 'PdfSlideout'
+}
+</script>

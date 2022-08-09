@@ -64,7 +64,7 @@ module TaxonWorks
       config.default = RGeo::Geographic.projected_factory(
         srid:                    4326,
         projection_srid:         4326,
-        projection_proj4:        '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs',
+        projection_proj4:        "EPSG:4326",
         uses_lenient_assertions: true,
         has_z_coordinate:        true,
         wkb_parser:              {support_ewkb: true},
@@ -92,5 +92,6 @@ module TaxonWorks
       end
     end
 
+    config.autoloader = :classic
   end
 end

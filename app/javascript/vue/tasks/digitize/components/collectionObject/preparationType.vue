@@ -3,15 +3,17 @@
     <h2>Preparation</h2>
     <div class="horizontal-left-content align-start">
       <ul
-        v-for="itemsGroup in coTypes.chunk(Math.ceil(coTypes.length/3))"
+        v-for="(itemsGroup, index) in chunkList"
+        :key="index"
         class="no_bullets preparation-list">
-        <li v-for="type in itemsGroup">
+        <li
+          v-for="type in itemsGroup"
+          :key="type.id">
           <label>
             <input
               type="radio"
-              :checked="type.id == preparationType"
               :value="type.id"
-              v-model="preparationType"
+              v-model="collectionObject.preparation_type_id"
               name="collection-object-type">
             {{ type.name }}
           </label>
@@ -24,55 +26,48 @@
 
 <script>
 
-  import { MutationNames } from '../../store/mutations/mutations.js'
-  import { GetterNames } from '../../store/getters/getters.js'
-  import { GetPreparationTypes } from '../../request/resources.js'
-  import LockComponent from 'components/lock'
+import { MutationNames } from '../../store/mutations/mutations.js'
+import { GetterNames } from '../../store/getters/getters.js'
+import { PreparationType } from 'routes/endpoints'
+import LockComponent from 'components/ui/VLock/index.vue'
+import extendCO from './mixins/extendCO.js'
 
-  export default {
-    components: {
-      LockComponent
-    },
-    computed: {
-      locked: {
-        get() {
-          return this.$store.getters[GetterNames.GetLocked]
-        },
-        set(value) {
-          this.$store.commit(MutationNames.SetLocked, value)
-        }
+export default {
+  mixins: [extendCO],
+
+  components: { LockComponent },
+
+  data () {
+    return {
+      coTypes: []
+    }
+  },
+
+  computed: {
+    locked: {
+      get () {
+        return this.$store.getters[GetterNames.GetLocked]
       },
-      collectionObjects() {
-        return this.$store.getters[GetterNames.GetCollectionObjects]
-      },
-      preparationType: {
-        get() {
-          return this.$store.getters[GetterNames.GetCollectionObject].preparation_type_id
-        },
-        set(value) {
-          this.$store.commit(MutationNames.SetCollectionObjectPreparationId, value)
-        }
-      },
-      coTypes: {
-        get() {
-          return this.$store.getters[GetterNames.GetCollectionObjectTypes]
-        },
-        set(value) {
-          this.$store.commit(MutationNames.SetCollectionObjectTypes, value)
-        }
+      set (value) {
+        this.$store.commit(MutationNames.SetLocked, value)
       }
     },
-    mounted() {
-      GetPreparationTypes().then(response => {
-        this.coTypes = response.body
-        this.coTypes.unshift(
-          {
-            id: null,
-            name: 'None'
-          })
-      })
+
+    chunkList () {
+      return this.coTypes.chunk(Math.ceil(this.coTypes.length/3))
     }
+  },
+
+  created () {
+    PreparationType.all().then(response => {
+      this.coTypes = response.body
+      this.coTypes.unshift({
+        id: null,
+        name: 'None'
+      })
+    })
   }
+}
 </script>
 
 <style scoped>

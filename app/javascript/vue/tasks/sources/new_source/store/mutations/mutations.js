@@ -1,3 +1,5 @@
+import addDocumentation from './addDocumentation'
+import setDocumentation from './setDocumentation'
 import setType from './setType'
 import setVerbatim from './setVerbatim'
 import setBibtexType from './setBibtexType'
@@ -12,6 +14,8 @@ import setSerialId from './setSerialId'
 import setLanguageId from './setLanguageId'
 
 const MutationNames = {
+  AddDocumentation: 'addDocumentation',
+  SetDocumentation: 'setDocumentation',
   SetType: 'setType',
   SetVerbatim: 'setVerbatim',
   SetBibtexType: 'setBibtexType',
@@ -27,6 +31,8 @@ const MutationNames = {
 }
 
 const MutationFunctions = {
+  [MutationNames.AddDocumentation]: addDocumentation,
+  [MutationNames.SetDocumentation]: setDocumentation,
   [MutationNames.SetType]: setType,
   [MutationNames.SetVerbatim]: setVerbatim,
   [MutationNames.SetBibtexType]: setBibtexType,

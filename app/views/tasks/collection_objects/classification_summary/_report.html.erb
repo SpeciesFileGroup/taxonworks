@@ -1,0 +1,58 @@
+<% a = collection_object_count_by_classification(@data) %>
+
+<%= column_chart a[:data], height: '400px', stacked: true, download: true, descrete: true, ytitle: 'Total', xtitle: 'Order', title: "Total enumerated by #{@rank.gsub('::', '').downcase}" %>
+
+<div style=";">
+  <% v = collection_object_preparation_by_classification(@data)  %>
+
+  <h2> Preparation </h2>
+  <p><%= tag.span('Note each graph has its own legend, colors are currently NOT shared across graphs!', class: [:feedback, 'feedback-warning']) %></p>
+  <div>
+    <% v[:data].keys.each do |t| %>
+      <div style="float: left;">
+        <%= tag.b t %>
+        <%= pie_chart v[:data][t], height: '200px', width: '200px', download: true,  donut: true   %>
+      </div>
+    <% end %>
+  </div>
+
+  <div style="clear: both;">
+    <br>
+    <p> Without any preparation data: <%= v[:no_data].collect{|id, n| link_to(n, collection_objects_filter_task_path(ancestor_id: id)) }.join(', ').html_safe %>.</p>
+  </div>
+
+<div style="clear: both;">
+  <h2> Preparation data </h2>
+  <table>
+    <thead>
+      <tr>
+        <th><%= @rank.gsub('::', '') %></th>
+        <%= v[:labels].collect{|l| tag.th(l) }.join.html_safe %>
+      </tr>
+    </thead>
+    <tbody>
+      <% v[:data].keys.each do |n| %>
+        <tr>
+          <td><%= n %></td>
+          <%= v[:labels].collect{|l| tag.td( v[:data][n].select{|h| h[0] == l}.first&.second ) }.join.html_safe %>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<div style="float: left;">
+  <h2> Total data </h2>
+  <p> Total enumerated for <%= taxon_name_tag(@ancestor) %>: <%=  a[:total_index].collect{|z| z[1]}.sum %>.</p>
+  <table>
+    <thead><tr><th><%= @rank.gsub('::', '') %></th><th>Total from specimens</th> <th>Total from lots</th><th>Total</th></tr></thead>
+    <tbody>
+      <% a[:total_index].each do |n, total| %>
+        <tr>
+          <td><%= n %></td>
+          <td><%= a[:data][0][:data][n]  %></td>
+          <td><%= a[:data][1][:data][n]  %></td>
+          <td><%= total %></td></tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

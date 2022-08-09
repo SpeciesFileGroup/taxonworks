@@ -1,5 +1,3 @@
-
-
 <p id="notice"><%= notice %></p>
 
 <p>
@@ -8,15 +6,29 @@
 </p>
 
 <p>
-  <strong>Otu:</strong>
-  <%= otu_tag( @observation.otu ) %>
+  <strong>Observation object:</strong>
+  <%= object_link(@observation.observation_object) %> [<%= @observation.observation_object_type %>]
 </p>
 
 <p>
-  <strong>Collection object:</strong>
-  <%= collection_object_tag( @observation.collection_object ) %>
+  <strong>Year made:</strong>
+  <%= @observation.year_made %>
 </p>
 
+<p>
+  <strong>Month made:</strong>
+  <%= @observation.month_made %>
+</p>
+
+<p>
+  <strong>Day made:</strong>
+  <%= @observation.day_made %>
+</p>
+
+<p>
+  <strong>Time made:</strong>
+  <%= @observation.time_made&.to_formatted_s(:hour_minutes_seconds) %>
+</p>
 
 <% if @observation.type =~ /Qualitative/ -%>
 

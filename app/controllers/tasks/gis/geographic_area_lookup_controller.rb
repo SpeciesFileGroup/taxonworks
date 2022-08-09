@@ -7,7 +7,11 @@ class Tasks::Gis::GeographicAreaLookupController < ApplicationController
 
   # GET /tasks/gis/geographic_area_lookup/resolve.js
   def resolve 
-    @matches = GeographicArea.matching(params.require(:terms), has_shape_param, invert_param) 
+    begin
+      @matches = GeographicArea.matching(params.require(:terms), has_shape_param, invert_param) 
+    rescue ActionController::ParameterMissing
+      @matches = []
+    end
   end
 
   protected

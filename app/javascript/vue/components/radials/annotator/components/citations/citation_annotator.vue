@@ -19,7 +19,7 @@
         @update="updateCitation"
         @new="citation = newCitation()"
       />
-      <citation-topic
+      <citation-topic-component
         v-if="!disabledFor.includes(objectType)"
         :object-type="objectType"
         :global-id="globalId"
@@ -35,7 +35,9 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in citation.citation_topics">
+          <tr
+            v-for="(item, index) in citation.citation_topics"
+            :key="item.id">
             <td v-html="item.topic.object_tag" />
             <td>
               <topic-pages
@@ -70,16 +72,19 @@ import annotatorExtend from '../annotatorExtend.js'
 import TableList from './table.vue'
 import CitationNew from './new.vue'
 import CitationEdit from './edit.vue'
-import CitationTopic from './topic.vue'
+import CitationTopicComponent from './topic.vue'
 import TopicPages from './pagesUpdate'
 import HandleCitations from './handleOriginalModal'
+import { Citation, CitationTopic } from 'routes/endpoints'
+
+const EXTEND_PARAMS = ['source', 'citation_topics']
 
 export default {
   mixins: [CRUD, annotatorExtend],
   components: {
     CitationNew,
     CitationEdit,
-    CitationTopic,
+    CitationTopicComponent,
     TableList,
     TopicPages,
     HandleCitations
@@ -98,11 +103,23 @@ export default {
       disabledFor: ['Content'],
       showModal: false,
       existingOriginal: [],
-      currentCitation: undefined
+      currentCitation: undefined,
+      loadOnMounted: false
     }
   },
+
+  created () {
+    Citation.where({
+      citation_object_id: this.metadata.object_id,
+      citation_object_type: this.metadata.object_type,
+      extend: EXTEND_PARAMS
+    }).then(({ body }) => {
+      this.list = body
+    })
+  },
+
   methods: {
-    setCitation(citation) {
+    setCitation (citation) {
       this.resetCitations()
       this.citation = citation
       this.loadObjectsList()
@@ -128,49 +145,48 @@ export default {
       }
     },
     deleteTopic (topic) {
-      const object = {
+      const citation = {
         id: this.citation.id,
         citation_topics_attributes: [{
           id: topic.id,
           _destroy: true
         }]
       }
-      this.update(`/citations/${object.id}`, { citation: object }).then(response => {
+      Citation.update(citation.id, { citation, extend: EXTEND_PARAMS }).then(_ => {
         this.citation.citation_topics.splice(
-          this.citation.citation_topics.findIndex(element => element.id == topic.id), 1)
+          this.citation.citation_topics.findIndex(element => element.id === topic.id), 1)
       })
     },
-    updateCitation (editCitation) {
-      this.update(`/citations/${editCitation.id}`, { citation: editCitation }).then(response => {
+    updateCitation (citation) {
+      Citation.update(citation.id, { citation, extend: EXTEND_PARAMS }).then(response => {
         this.citation = response.body
-        this.list[this.list.findIndex(element => element.id == editCitation.id)] = response.body
+        this.list[this.list.findIndex(element => element.id === citation.id)] = response.body
         TW.workbench.alert.create('Citation was successfully updated.', 'notice')
       })
     },
-    async createNew (newCitation) {
-      if (newCitation.is_original) {
-        const loadCitations = await this.getList('/citations.json', {
-          params: {
-            citation_object_type: this.objectType,
-            citation_object_id: this.metadata.object_id,
-            is_original: true
-          }
+    async createNew (citation) {
+      if (citation.is_original) {
+        const loadCitations = await Citation.where({
+          citation_object_type: this.objectType,
+          citation_object_id: this.metadata.object_id,
+          is_original: true,
+          extend: EXTEND_PARAMS
         })
         this.existingOriginal = loadCitations.body
-        this.currentCitation = newCitation
+        this.currentCitation = citation
       }
       if (this.existingOriginal.length) {
         this.showModal = true
       } else {
-        this.create('/citations', { citation: newCitation }).then(response => {
+        Citation.create({ citation, extend: EXTEND_PARAMS }).then(response => {
           this.list.push(response.body)
           this.citation = response.body
           TW.workbench.alert.create('Citation was successfully created.', 'notice')
         })
       }
     },
-    updateTopic (topic) {
-      this.update(`/citation_topics/${topic.id}.json`, { citation_topic: topic }).then(response => {
+    updateTopic (citation_topic) {
+      CitationTopic.update(citation_topic.id, { citation_topic }).then(_ => {
         TW.workbench.alert.create('Topic was successfully updated.', 'notice')
       })
     }
@@ -181,9 +197,7 @@ export default {
   .radial-annotator {
     .citation_annotator {
       overflow-y: scroll;
-      button {
-        min-width: 100px;
-      }
+
       textarea {
         padding-top: 14px;
         padding-bottom: 14px;

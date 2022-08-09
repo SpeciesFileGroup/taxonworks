@@ -15,8 +15,16 @@ br.clear_both {
   text-align: center;
 }
 
-.inline {
+.inline, .d-inline {
   display: inline;
+}
+
+.d-inline-block {
+  display: inline-block;
+}
+
+.d-none {
+  display: none !important;
 }
 
 .middle_align {
@@ -35,6 +43,10 @@ br.clear_both {
   position: fixed;
 }
 
+.position-sticky {
+  position: sticky;
+}
+
 .display-block {
   display: block;
 }
@@ -49,6 +61,10 @@ br.clear_both {
 
 .dislay-inline-flex {
   display: inline-flex;
+}
+
+.display-none {
+  display: none;
 }
 
 .align-center {

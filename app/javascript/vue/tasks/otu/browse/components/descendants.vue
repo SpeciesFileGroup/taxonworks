@@ -12,8 +12,10 @@
     <modal-component
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Filter</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Filter</h3>
+      </template>
+      <template #body>
         <ul class="no_bullets">
           <li>
             <label>
@@ -32,7 +34,7 @@
             </label>
           </li>
         </ul>
-      </div>
+      </template>
     </modal-component>
   </section-panel>
 </template>
@@ -40,7 +42,7 @@
 <script>
 
 import SectionPanel from './shared/sectionPanel'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import TreeView from './TreeView'
 import extendSection from './shared/extendSections'
 import { GetterNames } from '../store/getters/getters'
@@ -60,7 +62,7 @@ export default {
   },
   computed: {
     childOfCurrentName () {
-      return (this.onlyChildrens ? this.children.filter(child => { return this.otu.taxon_name_id === child.parent_id }) : this.children).sort(function (a, b) {
+      return (this.onlyChildrens ? this.children.filter(child => this.otu.taxon_name_id === child.parent_id) : this.children).sort((a, b) => {
         if (a.cached > b.cached) {
           return 1
         }

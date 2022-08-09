@@ -1,12 +1,12 @@
 <template>
-  <div class="panel basic-information">
-    <div class="header">
+  <block-layout>
+    <template #header>
       <h3>Type</h3>
-    </div>
-    <div class="body">
+    </template>
+    <template #body>
       <ul class="no_bullets">
         <li
-          v-for="(label, key) in types"
+          v-for="(label, key) in TYPES"
           :key="key">
           <label>
             <input
@@ -19,37 +19,45 @@
           </label>
         </li>
       </ul>
-    </div>
-  </div>
+    </template>
+  </block-layout>
 </template>
 <script>
 
+import BlockLayout from 'components/layout/BlockLayout.vue'
 import TYPES from '../../const/types'
 
 export default {
+  components: { BlockLayout },
+
   props: {
-    value: {
+    modelValue: {
       type: String,
       default: undefined
     },
+
     descriptorId: {
       type: [String, Number],
       default: undefined
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     selection: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
-      types: TYPES()
+      TYPES
     }
   }
 }

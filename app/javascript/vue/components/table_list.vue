@@ -12,9 +12,10 @@
         name="list-complete"
         tag="tbody">
         <tr
-          v-for="item in list"
+          v-for="(item, index) in list"
           :key="rowKey ? item[rowKey] : item.id"
-          class="list-complete-item">
+          class="list-complete-item contextMenuCells"
+          :class="{ even: index % 2 }">
           <td
             v-for="attr in attributes"
             v-html="getValue(item, attr)"/>
@@ -47,93 +48,98 @@
 </template>
 <script>
 
-  import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-  import PdfComponent from 'components/pdfButton'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import PdfComponent from 'components/pdfButton'
 
-  export default {
-    components: {
-      RadialAnnotator,
-      PdfComponent
-    },
-    props: {
-      list: {
-        type: Array,
-        default: () => {
-          return []
-        }
-      },
-      attributes: {
-        type: Array,
-        required: true
-      },
-      header: {
-        type: Array,
-        default: () => {
-          return []
-        }
-      },
-      rowKey: {
-        type: String,
-        default: undefined
-      },
-      destroy: {
-        type: Boolean,
-        default: true
-      },
-      deleteWarning: {
-        type: Boolean,
-        default: true
-      },
-      annotator: {
-        type: Boolean,
-        default: true
-      },
-      edit: {
-        type: Boolean,
-        default: false
-      },
-      pdf: {
-        type: Boolean,
-        default: false
+export default {
+  components: {
+    RadialAnnotator,
+    PdfComponent
+  },
+  props: {
+    list: {
+      type: Array,
+      default: () => {
+        return []
       }
     },
-    created() {
-      this.$options.components['RadialAnnotator'] = RadialAnnotator
+    attributes: {
+      type: Array,
+      required: true
     },
-    methods: {
-      getValue(object, attributes) {
-        if (Array.isArray(attributes)) {
-          let obj = object
+    header: {
+      type: Array,
+      default: () => {
+        return []
+      }
+    },
+    rowKey: {
+      type: String,
+      default: undefined
+    },
+    destroy: {
+      type: Boolean,
+      default: true
+    },
+    deleteWarning: {
+      type: Boolean,
+      default: true
+    },
+    annotator: {
+      type: Boolean,
+      default: true
+    },
+    edit: {
+      type: Boolean,
+      default: false
+    },
+    pdf: {
+      type: Boolean,
+      default: false
+    }
+  },
 
-          for (var i = 0; i < attributes.length; i++) {
-            if(obj.hasOwnProperty(attributes[i])) {
-              obj = obj[attributes[i]]
-            }
-            else {
-              return null
-            }
+  emits: ['delete'],
+
+  created () {
+    this.$options.components['RadialAnnotator'] = RadialAnnotator
+  },
+
+  methods: {
+    getValue (object, attributes) {
+      if (Array.isArray(attributes)) {
+        let obj = object
+
+        for (var i = 0; i < attributes.length; i++) {
+          if (obj.hasOwnProperty(attributes[i])) {
+            obj = obj[attributes[i]]
           }
-          return obj
-        }
-        else {
-          if(attributes.substr(0,1) === "@") {
-            return attributes.substr(1, attributes.length)
-          }
-        }
-        return object[attributes]
-      },
-      deleteItem(item) {
-        if(this.deleteWarning) {
-          if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
-            this.$emit('delete', item)
+          else {
+            return null
           }
         }
-        else {
+        return obj
+      }
+      else {
+        if (attributes.substr(0,1) === "@") {
+          return attributes.substr(1, attributes.length)
+        }
+      }
+      return object[attributes]
+    },
+
+    deleteItem (item) {
+      if (this.deleteWarning) {
+        if (window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
           this.$emit('delete', item)
         }
       }
+      else {
+        this.$emit('delete', item)
+      }
     }
   }
+}
 </script>
 <style lang="scss">
   .vue-table-container {

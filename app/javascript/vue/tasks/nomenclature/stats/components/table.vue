@@ -38,19 +38,20 @@
       v-if="tableRanks">
       <thead>
         <tr>
-          <th 
-            v-if="index >= renderPosition"
-            v-for="(header, index) in tableRanks.column_headers"
-            @click="sortBy(header)">
-            <span v-html="header.replace('_', '<br>')"/>
-          </th>
+          <template v-for="(header, index) in tableRanks.column_headers">
+            <th 
+              v-if="index >= renderPosition"
+              @click="sortBy(header)">
+              <span v-html="header.replace('_', '<br>')"/>
+            </th>
+          </template>
           <th @click="sortBy('cached')">Show</th>
         </tr>
       </thead>
       <tbody>
         <tr 
           v-for="(row, index) in tableRanks.data"
-          class="contextMenuCells btn btn-neutral"
+          class="contextMenuCells"
           :class="{ even: (index % 2)}">
           <template v-for="(header, hindex) in tableRanks.column_headers">
             <td v-if="hindex >= renderPosition">
@@ -81,13 +82,14 @@ export default {
   props: {
     tableList: {
       type: Object,
-      default: () => { return {} }
+      default: () => ({})
     }
   },
   computed: {
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
     },
+
     csvFields () {
       if (!Object.keys(this.tableRanks).length) return []
       return this.tableRanks.column_headers.map((item, index) => {
@@ -99,9 +101,10 @@ export default {
       })
     }
   },
+
   data () {
     return {
-      renderPosition: 4,
+      renderPosition: 6,
       tableRanks: {},
       fieldset: [
         {
@@ -119,6 +122,7 @@ export default {
       sorting: false
     }
   },
+
   watch: {
     tableList: {
       handler (newVal) {
@@ -133,36 +137,33 @@ export default {
       deep: true
     }
   },
+
   methods: {
     getBrowseUrl (id) {
       return `${RouteNames.BrowseNomenclature}?taxon_name_id=${id}`
     },
+
     resetList () {
       this.tableRanks = this.tableList
     },
+
     getValueFromTable (header, rowIndex) {
-      const otuIndex = this.tableRanks.column_headers.findIndex(item => {
-        return item === header
-      })
+      const otuIndex = this.tableRanks.column_headers.findIndex(item => item === header)
       return this.tableRanks.data[rowIndex][otuIndex]
     },
+
     sortBy (headerName) {
       this.sorting = true
       setTimeout(() => {
-        const index = this.tableRanks.column_headers.findIndex(item => {
-          return item === headerName
-        })
-        if (this.ascending) {
-          this.tableRanks.data.sort(function (a, b) {
-            return (a[index] === null) - (b[index] === null) || +(a[index] > b[index]) || -(a[index] < b[index])
-          })
-          this.ascending = false
-        } else {
-          this.tableRanks.data.sort(function (a, b) {
-            return (a[index] === null) - (b[index] === null) || -(a[index] > b[index]) || +(a[index] < b[index])
-          })
-          this.ascending = true
-        }
+        const index = this.tableRanks.column_headers.findIndex(item => item === headerName)
+
+        this.tableRanks.data.sort((a, b) =>
+          this.ascending
+            ? (a[index] === null) - (b[index] === null) || +(a[index] > b[index]) || -(a[index] < b[index])
+            : (a[index] === null) - (b[index] === null) || -(a[index] > b[index]) || +(a[index] < b[index])
+        )
+        this.ascending = !this.ascending
+
         this.$nextTick(() => {
           this.sorting = false
         })

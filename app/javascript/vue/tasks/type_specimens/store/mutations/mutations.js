@@ -7,11 +7,9 @@ import setSaving from './setSaving'
 import setLoading from './setLoading'
 import setTypeMaterial from './setTypeMaterial'
 import setTypeMaterials from './setTypeMaterials'
-import setMaterialTab from './setMaterialTab'
 import removeTypeMaterial from './removeTypeMaterial'
 import addTypeMaterial from './addTypeMaterial'
 import setSoftValidation from './setSoftValidation'
-import setIdentifier from './setIdentifier'
 import setSettings from './setSettings'
 
 import setCollectionObjectBufferedDeterminations from './setCollectionObjectBufferedDeterminations'
@@ -34,7 +32,6 @@ const MutationNames = {
   SetLoading: 'setLoading',
   SetTypeMaterial: 'setTypeMaterial',
   SetTypeMaterials: 'setTypeMaterials',
-  SetMaterialTab: 'setMaterialTab',
   RemoveTypeMaterial: 'removeTypeMaterial',
   AddTypeMaterial: 'addTypeMaterial',
   SetCollectionObjectBufferedDeterminations: 'setCollectionObjectBufferedDeterminations',
@@ -47,7 +44,6 @@ const MutationNames = {
   SetCollectionObjectTotal: 'setCollectionObjectTotal',
   SetCollectionObject: 'setCollectionObject',
   SetSoftValidation: 'setSoftValidation',
-  SetIdentifier: 'setIdentifier',
   SetSettings: 'setSettings'
 }
 
@@ -61,7 +57,6 @@ const MutationFunctions = {
   [MutationNames.SetLoading]: setLoading,
   [MutationNames.SetTypeMaterial]: setTypeMaterial,
   [MutationNames.SetTypeMaterials]: setTypeMaterials,
-  [MutationNames.SetMaterialTab]: setMaterialTab,
   [MutationNames.RemoveTypeMaterial]: removeTypeMaterial,
   [MutationNames.AddTypeMaterial]: addTypeMaterial,
   [MutationNames.SetCollectionObjectBufferedDeterminations]: setCollectionObjectBufferedDeterminations,
@@ -74,7 +69,6 @@ const MutationFunctions = {
   [MutationNames.SetCollectionObjectTotal]: setCollectionObjectTotal,
   [MutationNames.SetCollectionObject]: setCollectionObject,
   [MutationNames.SetSoftValidation]: setSoftValidation,
-  [MutationNames.SetIdentifier]: setIdentifier,
   [MutationNames.SetSettings]: setSettings
 }
 

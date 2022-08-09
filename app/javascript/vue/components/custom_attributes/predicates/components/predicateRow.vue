@@ -16,7 +16,7 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 
 export default {
   components: {
@@ -27,65 +27,71 @@ export default {
       type: Object,
       required: true
     },
+
     objectId: {
-      required: true,
-      validator(value) {
-        return value === undefined || typeof value === 'string' || typeof value === 'number'
-      }
+      type: [String, Number]
     },
+
     objectType: {
       type: String,
       required: true
     },
+
     existing: {
       type: Object,
-      required: false
+      default: undefined
     }
   },
-  data() {
+
+  emits: ['onUpdate'],
+
+  data () {
     return {
-      data_attribute: this.newDataAttribute() 
+      data_attribute: this.newDataAttribute()
     }
   },
+
   watch: {
-    existing(newVal) {
-      if(newVal) {
-        this.data_attribute = newVal
-      }
-      else {
-        this.data_attribute = this.newDataAttribute()
-      }
+    existing (newVal) {
+      this.data_attribute = newVal || this.newDataAttribute()
     },
+
     data_attribute: {
-      handler(newVal) {
+      handler () {
         this.updatePredicate()
       },
       deep: true
+    },
+
+    objectId (newVal) {
+      if (!newVal) {
+        this.data_attribute.value = undefined
+      }
     }
   },
+
   methods: {
-    newDataAttribute() {
+    newDataAttribute () {
       return {
         type: 'InternalAttribute',
         controlled_vocabulary_term_id: this.predicateObject.id,
         attribute_subject_id: this.objectId,
         attribute_subject_type: this.objectType,
-        value: this.value
+        value: undefined
       }
     },
-    updatePredicate() {
+
+    updatePredicate () {
       let data
 
-      if(this.data_attribute.value.length == 0 && this.data_attribute.hasOwnProperty('id')) {
+      if (!this.data_attribute?.value?.length && this.data_attribute?.id) {
         data = {
           id: this.data_attribute.id,
           _destroy: true
         }
-      }
-      else {
+      } else {
         data = this.data_attribute
       }
-      
       this.$emit('onUpdate', data)
     }
   }

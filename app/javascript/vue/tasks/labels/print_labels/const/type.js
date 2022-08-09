@@ -1,14 +1,20 @@
+import {
+  LABEL,
+  LABEL_QR_CODE,
+  LABEL_CODE_128
+} from 'constants/labelTypes'
+
 const types = [{
   label: 'Text',
-  value: 'Label'
+  value: LABEL
 },
 {
   label: 'QR Code',
-  value: 'Label::QrCode'
+  value: LABEL_QR_CODE
 },
 {
   label: 'Barcode',
-  value: 'Label::Code128'
+  value: LABEL_CODE_128
 }]
 
 export default types

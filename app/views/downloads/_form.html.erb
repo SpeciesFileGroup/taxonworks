@@ -1,0 +1,33 @@
+<%= form_for(@download.metamorphosize) do |f| %>
+  <%= render 'shared/errors', object: @download %>
+
+  <div class="required">
+    <div class="field">
+      <%= f.label :name %>
+      <br>
+      <%= f.text_field :name, size: 120 %>
+    </div>
+
+    <div class="field">
+      <%= f.label :description %>
+      <br>
+      <%= f.text_area :name, rows: 5, cols: 60 %>
+    </div>
+
+
+    <div class="field">
+      <%= f.label :expires %>
+      <br>
+      <%= f.date_select :expires %>
+    </div>
+
+    <div class="field">
+      <%= f.label :is_public %>
+      <br>
+      <%= f.check_box :is_public %>
+    </div>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

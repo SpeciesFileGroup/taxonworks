@@ -1,13 +1,24 @@
 class OriginRelationshipsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+  include ShallowPolymorphic
 
   before_action :set_origin_relationship, only: [:show, :edit, :update, :destroy]
 
   # GET /origin_relationships
   # GET /origin_relationships.json
   def index
-    @recent_objects = OriginRelationship.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html{
+        @recent_objects = OriginRelationship.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      }
+      format.json{
+        @origin_relationships = Queries::OriginRelationship::Filter.new(filter_params)
+          .all
+          .where(project_id: sessions_current_project_id)
+          .page(params[:page])
+      }
+    end
   end
 
   # GET /origin_relationships/1
@@ -70,12 +81,13 @@ class OriginRelationshipsController < ApplicationController
 
   def search
     if params[:id].blank?
-      redirect_to origin_relationships_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to origin_relationships_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to origin_relationship_path(params[:id])
     end
   end
 
+  # TODO: remove
   def autocomplete
     @origin_relationships = origin_relationship.where(project_id: sessions_current_project_id).where('origin_relationship ILIKE ?', "#{params[:term]}%")
 
@@ -94,6 +106,17 @@ class OriginRelationshipsController < ApplicationController
   end
 
   private
+
+  def filter_params
+    params.permit(
+      :new_object_global_id,
+      :old_object_global_id,
+    ).to_h
+      .merge(
+        old_object_global_id: shallow_object_global_param[:object_global_id],
+        project_id: sessions_current_project_id
+      )
+  end
 
   # Use callbacks to share common setup or constraints between actions.
   def set_origin_relationship

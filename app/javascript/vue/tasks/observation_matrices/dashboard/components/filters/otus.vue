@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Otu</h2>
+    <h3>Otu</h3>
     <label>
       <input
         type="checkbox"
@@ -14,7 +14,7 @@
 
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Boolean,
       default: false
     }
@@ -22,10 +22,10 @@ export default {
   computed: {
     validity: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   }

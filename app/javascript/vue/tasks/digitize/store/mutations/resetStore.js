@@ -1,11 +1,21 @@
-import { makeInitialState }  from '../store.js'
+import { makeInitialState } from '../store.js'
+import { EVENT_TAXON_DETERMINATION_FORM_RESET } from 'constants/index.js'
 
-export default function(state) {
-  let preferences = state.preferences
-  let COTypes = state.COTypes
+const resetTaxonDeterminationForm = () => {
+  const event = new CustomEvent(EVENT_TAXON_DETERMINATION_FORM_RESET)
+  document.dispatchEvent(event)
+}
 
-  history.pushState(null, null, `/tasks/accessions/comprehensive`)
+export default state => {
+  const {
+    preferences,
+    project_preferences
+  } = state
+
+  history.replaceState(null, null, '/tasks/accessions/comprehensive')
   state = Object.assign(state, makeInitialState())
   state.preferences = preferences
-  state.COTypes = COTypes
+  state.project_preferences = project_preferences
+
+  resetTaxonDeterminationForm()
 }

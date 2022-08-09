@@ -27,7 +27,7 @@ module BatchLoad
       @also_create_otu = also_create_otu
       @parent_taxon_name_id = parent_taxon_name_id
 
-      super(args)
+      super(**args)
     end
 
     # @return [TaxonName]
@@ -66,7 +66,7 @@ module BatchLoad
     def build_name_collection
       begin
         @name_collection ||= ::Taxonifi::Lumper.create_name_collection(csv: csv)
-      rescue Taxonifi::Assessor::RowAssessor::RowAssessorError
+      rescue Taxonifi::Assessor::RowAssessor::RowAssessorError => e
         @file_errors.push 'Error assessing a row of data in the inputfile.'
       end
     end

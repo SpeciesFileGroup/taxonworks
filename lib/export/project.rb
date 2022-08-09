@@ -34,7 +34,7 @@ module Export::Project
         generate_dump(project, zipfile)
       end
       buffer.flush
-      Download.create!(
+      Download::SqlProjectDump.create!(
         name: "#{project.name} export on #{Time.now}.",
         description: 'A zip file containing SQL dump of community data + project-specific data',
         filename: Zaru::sanitize!("#{project.name}.zip").gsub(' ', '_').downcase,
@@ -46,6 +46,10 @@ module Export::Project
   end
 
   private
+
+  def self.setup_pk_sequence(table, io)
+    io.write("SELECT setval('public.#{table}_id_seq', (SELECT COALESCE(MAX(id), 0)+1 FROM public.#{table}));\n\n")
+  end
 
   def self.dump_table(table, io, project_id)
     conn = ActiveRecord::Base.connection.raw_connection
@@ -70,7 +74,7 @@ module Export::Project
 
     io.puts('\.')
     io.puts
-    io.write("SELECT setval('public.#{table}_id_seq', (SELECT MAX(id) FROM public.#{table}));\n\n") if cols.include?('"id"')
+    setup_pk_sequence(table, io) if cols.include?('"id"')
   end
 
   def self.export_users(io, project)
@@ -103,5 +107,6 @@ module Export::Project
       io.puts("INSERT INTO public.users(#{attributes.keys.join(', ')})\nVALUES (#{attributes.values.join(', ')});")
     end
     io.puts
+    setup_pk_sequence('users', io)
   end
 end
