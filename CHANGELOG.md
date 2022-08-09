@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Updated Ruby gems.
+- Expanded drag and drop section in observation cell in Image matrix
 
 ## [0.28.0] - 2022-08-08
 
