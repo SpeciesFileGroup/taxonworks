@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - Settings modal is scrolled to the bottom when the modal is open.
+- `Edit in image matrix` and `Open in matrix` buttons don't open image matrix task on edit mode.
 
 ### Changed
 - Updated Ruby gems.
