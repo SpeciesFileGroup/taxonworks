@@ -875,7 +875,8 @@ class TaxonName < ApplicationRecord
 
   # @return [Array of TaxonName]
   #  returns list of invalid names for a given taxon.
-  # TODO: Can't we just use #valid_id now?
+  # Can't we just use #valid_id now?
+  # DD: no this is used for validation of multiple conflicting relationships
   # this list does not return combinations
   def list_of_invalid_taxon_names
     first_pass = true
@@ -891,9 +892,9 @@ class TaxonName < ApplicationRecord
           elsif r == r.subject_taxon_name.first_possible_valid_taxon_name_relationship
             list[r.subject_taxon_name] = false if list[r.subject_taxon_name].nil?
           end
-
         end
         list[t] = true if list[t] == false
+        byebug
       end
     end
     return [] if list.empty?
