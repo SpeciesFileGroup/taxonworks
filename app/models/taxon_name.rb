@@ -894,7 +894,6 @@ class TaxonName < ApplicationRecord
           end
         end
         list[t] = true if list[t] == false
-        byebug
       end
     end
     return [] if list.empty?
