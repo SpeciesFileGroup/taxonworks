@@ -16,8 +16,18 @@ import 'leaflet.pattern/src/PatternShape'
 import 'leaflet.pattern/src/PatternShape.SVG'
 import 'leaflet.pattern/src/PatternPath'
 import 'leaflet.pattern/src/PatternCircle'
+import iconRetina from 'leaflet/dist/images/marker-icon-2x.png'
+import iconUrl from 'leaflet/dist/images/marker-icon.png'
+import shadowUrl from 'leaflet/dist/images/marker-shadow.png'
 import { Icon } from 'components/georeferences/icons'
 import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
+
+delete L.Icon.Default.prototype._getIconUrl
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: iconRetina,
+  iconUrl,
+  shadowUrl
+})
 
 let drawnItems
 let mapObject
