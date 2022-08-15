@@ -299,11 +299,11 @@ const addGeoJsonLayer = geoJsonLayers => {
 
     onEachFeature: onMyFeatures,
     pointToLayer: (feature, latlng) => {
-      const shape = feature.properties.hasOwnProperty('radius')
+      const shape = feature.properties?.radius
         ? addJsonCircle(feature)
         : createMarker(feature, latlng)
 
-      Object.assign(shape, { feature: feature })
+      Object.assign(shape, { feature })
 
       return shape
     }
@@ -321,7 +321,7 @@ const centerShapesInMap = () => {
 
   nextTick(() => {
     if (Object.keys(bounds).length) {
-      mapObject.fitBounds(bounds, fitBoundsOptions)
+      mapObject.fitBounds(bounds, fitBoundsOptions.value)
     }
   })
 }
@@ -331,12 +331,6 @@ const createMarker = (feature, latlng) => {
   const marker = L.marker(latlng, { icon })
 
   return marker
-}
-
-const getLayersCount = group => {
-  return group.getLayers()[0]._layers
-    ? Object.keys(group.getLayers()[0]._layers).length
-    : undefined
 }
 
 const generateHue = index => {
@@ -385,7 +379,7 @@ const onMyFeatures = (feature, layer) => {
     'pm:edit': editedLayer,
     click: zoomToFeature
   })
-  if (feature.properties.hasOwnProperty('popup')) {
+  if (feature.properties?.popup) {
     layer.bindPopup(feature.properties.popup)
   }
   layer.pm.disable()
@@ -396,9 +390,9 @@ const zoomToFeature = e => {
   const layer = e.target
   if (props.fitBounds) {
     if (layer instanceof L.Marker || layer instanceof L.Circle) {
-      mapObject.fitBounds([layer.getLatLng()], fitBoundsOptions)
+      mapObject.fitBounds([layer.getLatLng()], fitBoundsOptions.value)
     } else {
-      mapObject.fitBounds(e.target.getBounds(), fitBoundsOptions)
+      mapObject.fitBounds(e.target.getBounds(), fitBoundsOptions.value)
     }
   }
 }
