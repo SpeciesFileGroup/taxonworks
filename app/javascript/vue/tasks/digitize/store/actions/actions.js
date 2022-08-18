@@ -2,6 +2,7 @@ import ActionNames from './actionNames'
 
 import addToContainer from './AddToContainer'
 import addTypeSpecimen from './addTypeSpecimen'
+import cloneCollectingEvent from './cloneCollectingEvent'
 import createDeterminationFromParams from './createDeterminationFromParams'
 import getCOCitations from './getCOCitations'
 import getCollectingEvent from './getCollectingEvent'
@@ -49,6 +50,7 @@ import updateLayoutPreferences from './updateLayoutPreferences'
 const ActionFunctions = {
   [ActionNames.AddToContainer]: addToContainer,
   [ActionNames.AddTypeSpecimen]: addTypeSpecimen,
+  [ActionNames.CloneCollectingEvent]: cloneCollectingEvent,
   [ActionNames.CreateDeterminationFromParams]: createDeterminationFromParams,
   [ActionNames.GetCollectingEvent]: getCollectingEvent,
   [ActionNames.GetCollectionObject]: getCollectionObject,

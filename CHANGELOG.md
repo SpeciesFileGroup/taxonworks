@@ -11,12 +11,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `Edit in image matrix` and `Open in matrix` buttons don't open image matrix task on edit mode.
 - `Create verbatim coordinates` button dissapears after create request fails in New collecting event task
 - Depictions are not displayed correctly in Browse collecting event [#3012]
+- Cloned georeference are not loaded after cloning a collecting event [#3076]
 
 ### Changed
 - Updated Ruby gems.
 - Expanded drag and drop section in observation cell in Image matrix
 
 [#3012]: https://github.com/SpeciesFileGroup/taxonworks/issues/3012
+[#3076]: https://github.com/SpeciesFileGroup/taxonworks/issues/3076
 
 ## [0.28.0] - 2022-08-08
 

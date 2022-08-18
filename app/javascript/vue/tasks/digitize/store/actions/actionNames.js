@@ -1,6 +1,7 @@
 const ActionNames = {
   AddToContainer: 'addToContainer',
   AddTypeSpecimen: 'addTypeSpecimen',
+  CloneCollectingEvent: 'cloneCollectingEvent',
   CreateDeterminationFromParams: 'createDeterminationFromParams',
   GetCOCitations: 'getCOCitations',
   GetCollectingEvent: 'getCollectingEvent',
