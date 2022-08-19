@@ -989,6 +989,25 @@ class GeographicItem < ApplicationRecord
     deg * Utilities::Geo::ONE_WEST
   end
 
+  # @param [GeographicItem] geographic_item
+  # @return [Double] distance in meters
+  # Like st_distance but works with changed and non persisted objects
+  def st_distance_to_geographic_item(geographic_item)
+    unless !persisted? || changed?
+      a = "(#{GeographicItem.select_geography_sql(id)})"
+    else
+      a = "'#{geo_object.to_s}'::geography"
+    end
+
+    unless !geographic_item.persisted? || geographic_item.changed?
+      b = "(#{GeographicItem.select_geography_sql(geographic_item.id)})"
+    else
+      b = "'#{geographic_item.geo_object.to_s}'::geography"
+    end
+
+    ActiveRecord::Base.connection.select_value("SELECT ST_Distance(#{a}, #{b})")
+  end
+
   alias_method :distance_to, :st_distance
 
   # @param [Integer] geographic_item_id
@@ -1067,7 +1086,7 @@ class GeographicItem < ApplicationRecord
   # @param [geo_object]
   # @return [Boolean]
   def distance?(target_geo_object)
-    self.geo_object.distance?(target_geo_object)
+    self.geo_object.distance(target_geo_object)
   end
 
   # @param [geo_object, Double]
