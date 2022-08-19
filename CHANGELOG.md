@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Updated Ruby gems.
+- Updated Node packages.
 - Expanded drag and drop section in observation cell in Image matrix
 
 [#3012]: https://github.com/SpeciesFileGroup/taxonworks/issues/3012

@@ -18,7 +18,7 @@
     "parse-dms": "0.0.5",
     "pdfjs-dist": "2.14.305",
     "qs": "^6.11.0",
-    "shakapacker": "6.5.0",
+    "shakapacker": "6.5.1",
     "v-hotkey": "^0.9.0",
     "vue": "^3.2.37",
     "vue-handy-scroll": "^3.0.1",
