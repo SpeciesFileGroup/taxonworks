@@ -10,7 +10,7 @@ RSpec.describe Download::DwcArchive::Complete, type: :model do
     strip_housekeeping_attributes(FactoryBot.build(:valid_download_no_file).attributes)
   }
 
-  let(:download) { DownloadDwC.create! valid_attributes }
+  let(:download) { Download.create! valid_attributes }
   let(:download_no_file) { Download.create! valid_attributes_no_file }
   let(:file_path) { Download.storage_path.join(*download.id.to_s.rjust(9, '0').scan(/.../), download.filename) }
 
@@ -23,6 +23,12 @@ RSpec.describe Download::DwcArchive::Complete, type: :model do
   specify 'init' do
     expect(Download::DwcArchive::Complete.new.save!).to be_truthy
   end 
+
+  specify 'sha2' do
+    # $ sha256sum spec/files/downloads/Sample.zip
+    # 26a2c50757bd7068e82b6698d7dfd5974ebe68e950b5454034593741c925023d  spec/files/downloads/Sample.zip
+    expect(download.sha2).to eq('26a2c50757bd7068e82b6698d7dfd5974ebe68e950b5454034593741c925023d')
+  end
 =begin
 describe "default scope" do
 let(:expiry_dates) { [1.day.ago, 2.day.ago, 1.minute.from_now, 1.day.from_now, 1.week.from_now] }
