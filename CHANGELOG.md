@@ -6,6 +6,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.28.1] - 2022-08-19
+
 ### Fixed
 - Settings modal is scrolled to the bottom when the modal is open.
 - `Edit in image matrix` and `Open in matrix` buttons don't open image matrix task on edit mode.
@@ -2822,7 +2826,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.28.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.28.1...development
+[0.28.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.28.0...v0.28.1
 [0.28.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.3...v0.28.0
 [0.27.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.2...v0.27.3
 [0.27.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.1...v0.27.2
