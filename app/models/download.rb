@@ -108,16 +108,9 @@ class Download < ApplicationRecord
 
   STORAGE_PATH = Rails.root.join(Rails.env.test? ? 'tmp' : '', "downloads#{ENV['TEST_ENV_NUMBER']}").freeze
 
-  # TODO: check performance on 50-100mb files
   def set_sha2
     if @source_file_path
-      s = ::Digest::SHA2.new
-      File.open(@source_file_path) do |f|
-        while chunk = f.read(256) # only load 256 bytes at a time
-          s << chunk
-        end
-      end
-      self.update_column(:sha2, s.hexdigest)
+      self.update_column(:sha2, Digest::SHA256.file(@source_file_path).to_s)
     end
   end
 
