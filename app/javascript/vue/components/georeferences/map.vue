@@ -16,8 +16,18 @@ import 'leaflet.pattern/src/PatternShape'
 import 'leaflet.pattern/src/PatternShape.SVG'
 import 'leaflet.pattern/src/PatternPath'
 import 'leaflet.pattern/src/PatternCircle'
+import iconRetina from 'leaflet/dist/images/marker-icon-2x.png'
+import iconUrl from 'leaflet/dist/images/marker-icon.png'
+import shadowUrl from 'leaflet/dist/images/marker-shadow.png'
 import { Icon } from 'components/georeferences/icons'
 import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
+
+delete L.Icon.Default.prototype._getIconUrl
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: iconRetina,
+  iconUrl,
+  shadowUrl
+})
 
 let drawnItems
 let mapObject
@@ -299,11 +309,11 @@ const addGeoJsonLayer = geoJsonLayers => {
 
     onEachFeature: onMyFeatures,
     pointToLayer: (feature, latlng) => {
-      const shape = feature.properties.hasOwnProperty('radius')
+      const shape = feature.properties?.radius
         ? addJsonCircle(feature)
         : createMarker(feature, latlng)
 
-      Object.assign(shape, { feature: feature })
+      Object.assign(shape, { feature })
 
       return shape
     }
@@ -321,7 +331,7 @@ const centerShapesInMap = () => {
 
   nextTick(() => {
     if (Object.keys(bounds).length) {
-      mapObject.fitBounds(bounds, fitBoundsOptions)
+      mapObject.fitBounds(bounds, fitBoundsOptions.value)
     }
   })
 }
@@ -331,12 +341,6 @@ const createMarker = (feature, latlng) => {
   const marker = L.marker(latlng, { icon })
 
   return marker
-}
-
-const getLayersCount = group => {
-  return group.getLayers()[0]._layers
-    ? Object.keys(group.getLayers()[0]._layers).length
-    : undefined
 }
 
 const generateHue = index => {
@@ -385,7 +389,7 @@ const onMyFeatures = (feature, layer) => {
     'pm:edit': editedLayer,
     click: zoomToFeature
   })
-  if (feature.properties.hasOwnProperty('popup')) {
+  if (feature.properties?.popup) {
     layer.bindPopup(feature.properties.popup)
   }
   layer.pm.disable()
@@ -396,9 +400,9 @@ const zoomToFeature = e => {
   const layer = e.target
   if (props.fitBounds) {
     if (layer instanceof L.Marker || layer instanceof L.Circle) {
-      mapObject.fitBounds([layer.getLatLng()], fitBoundsOptions)
+      mapObject.fitBounds([layer.getLatLng()], fitBoundsOptions.value)
     } else {
-      mapObject.fitBounds(e.target.getBounds(), fitBoundsOptions)
+      mapObject.fitBounds(e.target.getBounds(), fitBoundsOptions.value)
     }
   }
 }

@@ -23,7 +23,7 @@ class TaxonNameRelationship::Typification < TaxonNameRelationship
   end
 
   def subject_status_connector_to_object
-    ''
+    ' of'
   end
 
 

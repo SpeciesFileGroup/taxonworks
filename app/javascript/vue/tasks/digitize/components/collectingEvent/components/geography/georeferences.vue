@@ -354,7 +354,6 @@ export default {
 
     createVerbatimShape () {
       if (this.verbatimGeoreferenceAlreadyCreated || this.creatingShape) return
-      this.creatingShape = true
       const shape = {
         type: 'Feature',
         properties: {},
@@ -369,6 +368,8 @@ export default {
         type: GEOREFERENCE_VERBATIM,
         error_radius: this.geolocationUncertainty
       }
+
+      this.creatingShape = true
       this.isLoading = true
 
       Georeference.create({ georeference }).then(({ body }) => {

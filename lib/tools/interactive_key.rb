@@ -277,7 +277,7 @@ class Tools::InteractiveKey
       else
         h[otu_collection_object][:object_at_rank] = r
       end
-      h[otu_collection_object][:otu_id] = r.otu_id ? r.otu_id : r.current_otu.id # TODO: maybe this problem
+      h[otu_collection_object][:otu_id] = r.observation_object_type == 'Otu' ? r.observation_object_id : r.current_otu.id
       h[otu_collection_object][:errors] = 0
       h[otu_collection_object][:error_descriptors] = []
       h[otu_collection_object][:status] = 'remaining' ### if number of errors > @error_tolerance, replaced to 'eliminated'

@@ -38,4 +38,11 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHom
     ' for'
   end
 
+  def sv_specific_relationship
+    tr = TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym.where(object_taxon_name_id: subject_taxon_name_id).first
+    unless tr.nil?
+      soft_validations.add(:subject_taxon_name_id, "A new replacement name could not be proposed for another replacement name. The relationship should move from #{subject_taxon_name.cached_html} to the older objective synonym: #{tr.subject_taxon_name.cached_html}")
+    end
+  end
+
 end

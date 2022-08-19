@@ -85,17 +85,15 @@
         v-for="(depictions, columnIndex) in row.depictions"
         :key="`${columnIndex}-${row.object.id}`"
       >
-        <div class="observation-cell padding-small edit-cell">
-          <cell-observation
-            class="full_width"
-            :column="imageColums[columnIndex]"
-            :show="!filterCell(columnIndex, rowIndex)"
-            :row-object="row.object"
-            :depictions="depictions"
-            @addDepiction="addDepiction({ rowIndex, columnIndex, depiction: $event })"
-            @removeDepiction="removeDepiction({ rowIndex, columnIndex, index: $event })"
-          />
-        </div>
+        <cell-observation
+          class="observation-cell padding-small edit-cell full_width"
+          :column="imageColums[columnIndex]"
+          :show="!filterCell(columnIndex, rowIndex)"
+          :row-object="row.object"
+          :depictions="depictions"
+          @addDepiction="addDepiction({ rowIndex, columnIndex, depiction: $event })"
+          @removeDepiction="removeDepiction({ rowIndex, columnIndex, index: $event })"
+        />
       </template>
     </template>
   </table-grid>
@@ -198,10 +196,11 @@ export default {
 #vue-matrix-image {
   .observation-cell {
     display: flex;
-    align-items: center;
+    align-items: stretch;
     justify-content: center;
     flex-direction: column;
     background-color: white;
+    box-sizing: border-box;
   }
 
   .otu-cell {

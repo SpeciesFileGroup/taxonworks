@@ -409,9 +409,9 @@ module Protonym::SoftValidationExtensions
 
     def sv_validate_parent_rank
       if self.rank_class && self.id == self.cached_valid_taxon_name_id
-        if rank_string == 'NomenclaturalRank' || self.parent.rank_string == 'NomenclaturalRank' || !!self.iczn_uncertain_placement_relationship
+        if rank_string == 'NomenclaturalRank' || self.parent&.rank_string == 'NomenclaturalRank' || !!self.iczn_uncertain_placement_relationship
           true
-        elsif !self.rank_class.valid_parents.include?(self.parent.rank_string)
+        elsif !self.rank_class&.valid_parents.include?(self.parent.rank_string)
           soft_validations.add(:rank_class, "The rank #{self.rank_class.rank_name} is not compatible with the rank of parent (#{self.parent.rank_class.rank_name}). The name should be marked as 'Incertae sedis'")
         end
       end
@@ -636,7 +636,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_fix_coordinated_names_author
-      return false if !self.verbatim_author.nil? || !self.roles.empty?
+      return false if !self.verbatim_author.nil? || !self.taxon_name_author_roles.empty?
       list_of_coordinated_names.each do |t|
         if self.verbatim_author.nil? && !t.verbatim_author.nil?
           self.update_column(:verbatim_author, t.verbatim_author)
@@ -952,17 +952,17 @@ module Protonym::SoftValidationExtensions
     def sv_validate_coordinated_names_roles
       return true unless is_available?
       list_of_coordinated_names.each do |t|
-        if self.roles.collect{|i| i.person_id} != t.roles.collect{|i| i.person_id}
+        if self.taxon_name_author_roles.collect{|i| i.person_id} != t.taxon_name_author_roles.collect{|i| i.person_id}
           soft_validations.add(:base, "The author roles do not match with the author roles of the coordinate #{t.rank_class.rank_name}", success_message: 'Author roles were updated', failure_message:  'Author roles were not updated')
         end
       end
     end
 
     def sv_fix_coordinated_names_roles
-      return false unless self.roles.empty?
+      return false unless self.taxon_name_author_roles.empty?
       list_of_coordinated_names.each do |t|
-        if !t.roles.empty?
-          t.roles.each do |r|
+        if !t.taxon_name_author_roles.empty?
+          t.taxon_name_author_roles.each do |r|
             TaxonNameAuthor.create(person_id: r.person_id, role_object: self, position: r.position)
           end
           return true
@@ -1526,7 +1526,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_missing_roles
-      if self.roles.empty? && !has_misspelling_relationship? && !name_is_misapplied? && is_family_or_genus_or_species_rank?
+      if self.taxon_name_author_roles.empty? && !has_misspelling_relationship? && !name_is_misapplied? && is_family_or_genus_or_species_rank?
         soft_validations.add(:base, 'Taxon name author role is not selected')
       end
     end
@@ -1534,7 +1534,7 @@ module Protonym::SoftValidationExtensions
     def sv_person_vs_year_of_publication
       if self.cached_nomenclature_date
         year = self.cached_nomenclature_date.year
-        self.roles.each do |r|
+        self.taxon_name_author_roles.each do |r|
           person = r.person
           if person.year_died && year > person.year_died + 2
             soft_validations.add(:base, "The year of description does not fit the years of #{person.last_name}'s life (#{person.year_born}–#{person.year_died})")
@@ -1562,7 +1562,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_author_is_not_required
-      if self.verbatim_author && (!self.roles.empty? || (self.source && self.verbatim_author == self.source.authority_name))
+      if self.verbatim_author && (!self.taxon_name_author_roles.empty? || (self.source && self.verbatim_author == self.source.authority_name))
         soft_validations.add(
           :verbatim_author, 'Verbatim author is not required, it is derived from the source and taxon name author roles',
           success_message: 'Verbatim author was deleted',
@@ -1578,7 +1578,7 @@ module Protonym::SoftValidationExtensions
     def sv_misspelling_roles_are_not_required
       #DD: do not use .has_misspelling_relationship?
       misspellings = taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING).any?
-      if !self.roles.empty? && self.source && misspellings
+      if !self.taxon_name_author_roles.empty? && self.source && misspellings
         soft_validations.add(
           :base, 'Taxon name author role is not required for misspellings and misapplications',
           success_message: 'Roles were deleted',
@@ -1587,7 +1587,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_fix_misspelling_roles_are_not_required
-      self.roles.each do |r|
+      self.taxon_name_author_roles.each do |r|
         r.destroy
       end
       return true
@@ -1639,7 +1639,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_presence_of_combination
-      if is_genus_or_species_rank? && !cached_original_combination.nil? && cached != cached_original_combination
+      if is_genus_or_species_rank? && is_valid? && self.id == self.lowest_rank_coordinated_taxon.id && !cached_original_combination.nil? && cached != cached_original_combination
         unless Combination.where("cached = ? AND cached_valid_taxon_name_id = ?", cached, cached_valid_taxon_name_id).any?
           soft_validations.add(
             :base, "Protonym #{self.cached_html} missing corresponding subsequent combination. Current classification of the taxon is different from original combination. (Fix will create a new combination)",
@@ -1650,26 +1650,26 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_fix_presence_of_combination
-          begin
-            TaxonName.transaction do
-              c = Combination.new
-              safe_self_and_ancestors.each do |i|
-                case i.rank
-                  when 'genus'
-                    c.genus = i
-                  when 'subgenus'
-                    c.subgenus = i
-                  when 'species'
-                    c.species = i
-                  when 'subspecies'
-                    c.subspecies = i
-                end
-              end
-              c.save
+      begin
+        TaxonName.transaction do
+          c = Combination.new
+          safe_self_and_ancestors.each do |i|
+            case i.rank
+              when 'genus'
+                c.genus = i
+              when 'subgenus'
+                c.subgenus = i
+              when 'species'
+                c.species = i
+              when 'subspecies'
+                c.subspecies = i
             end
-          rescue
           end
+          c.save
         end
+      rescue
+      end
+    end
   end
 end
 

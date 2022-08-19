@@ -17,7 +17,7 @@ gem 'redis', '~> 4.5'
 gem 'rdf', '~> 3.0'
 
 # System
-gem 'thor', '~> 1.1.0'
+gem 'thor', '~> 1.2'
 gem 'rubyzip', '~> 2.3.0'
 gem 'zip_tricks', '~> 5.6'
 gem 'daemons', '~> 1.4.1'

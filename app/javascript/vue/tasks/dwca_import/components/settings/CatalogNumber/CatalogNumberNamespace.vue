@@ -3,7 +3,6 @@
     v-if="!namespace"
     class="full_width"
     placeholder="Search a namespace..."
-    autofocus
     clear-after
     url="/namespaces/autocomplete"
     param="term"
