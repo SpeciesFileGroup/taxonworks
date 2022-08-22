@@ -734,6 +734,7 @@ namespace :tw do
 
             distribution_topic = Topic.create!(
               name: 'Distribution text',
+              uri: 'https://github.com/catalogueoflife/coldp#area',
               definition: 'List of documented place names',
               project_id: project_id
             )
