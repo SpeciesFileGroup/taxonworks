@@ -996,13 +996,13 @@ class GeographicItem < ApplicationRecord
     unless !persisted? || changed?
       a = "(#{GeographicItem.select_geography_sql(id)})"
     else
-      a = "'#{geo_object.to_s}'::geography"
+      a = "ST_GeographyFromText('#{geo_object.to_s}')"
     end
 
     unless !geographic_item.persisted? || geographic_item.changed?
       b = "(#{GeographicItem.select_geography_sql(geographic_item.id)})"
     else
-      b = "'#{geographic_item.geo_object.to_s}'::geography"
+      b = "ST_GeographyFromText('#{geographic_item.geo_object.to_s}')"
     end
 
     ActiveRecord::Base.connection.select_value("SELECT ST_Distance(#{a}, #{b})")
