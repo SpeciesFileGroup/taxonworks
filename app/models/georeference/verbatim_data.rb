@@ -8,6 +8,7 @@
 # @param error_radius
 #   is taken from collecting_event#verbatim_geolocation_uncertainty
 class Georeference::VerbatimData < Georeference
+  GEO_AREA_TOLERANCE = 10000.0 # Meters. Maximum allowed distance to consider geographic area valid.Exif
 
   # @param [ActionController::Parameters] params
   def initialize(params = {})
@@ -92,7 +93,7 @@ class Georeference::VerbatimData < Georeference
 
   # @return [Boolean] true iff collecting_event contains georeference geographic_item.
   def add_obj_inside_area
-    unless check_obj_within_distance_from_area(10000.0)
+    unless check_obj_within_distance_from_area(GEO_AREA_TOLERANCE)
       errors.add(
         :geographic_item,
         'for georeference is not contained in the geographic area bound to the collecting event')
