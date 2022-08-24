@@ -1082,13 +1082,6 @@ class GeographicItem < ApplicationRecord
     self.geo_object.intersects?(target_geo_object)
   end
 
-  # @TODO doesn't work?
-  # @param [geo_object]
-  # @return [Boolean]
-  def distance?(target_geo_object)
-    self.geo_object.distance(target_geo_object)
-  end
-
   # @param [geo_object, Double]
   # @return [Boolean]
   def near(target_geo_object, distance)
