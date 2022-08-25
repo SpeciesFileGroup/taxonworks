@@ -1,6 +1,8 @@
 import ActionNames from './actionNames'
 
 import addToContainer from './AddToContainer'
+import addTypeSpecimen from './addTypeSpecimen'
+import cloneCollectingEvent from './cloneCollectingEvent'
 import createDeterminationFromParams from './createDeterminationFromParams'
 import getCOCitations from './getCOCitations'
 import getCollectingEvent from './getCollectingEvent'
@@ -9,9 +11,10 @@ import getIdentifier from './getIdentifier'
 import getIdentifiers from './getIdentifiers'
 import getLabels from './getLabels'
 import getNamespace from './getNamespace'
-import getTaxon from './getTaxon'
+import setTypeMaterial from './setTypeMaterial'
+import setTypeMaterialTaxonName from './setTypeMaterialTaxonName'
 import getTaxonDeterminations from './getTaxonDeterminations'
-import getTypeMaterial from './getTypeMaterial'
+import loadTypeSpecimens from './loadTypeSpecimens'
 import loadBiologicalAssociations from './loadBiologicalAssociations'
 import loadContainer from './loadContainer'
 import loadDigitalization from './loadDigitalization'
@@ -46,6 +49,8 @@ import updateLayoutPreferences from './updateLayoutPreferences'
 
 const ActionFunctions = {
   [ActionNames.AddToContainer]: addToContainer,
+  [ActionNames.AddTypeSpecimen]: addTypeSpecimen,
+  [ActionNames.CloneCollectingEvent]: cloneCollectingEvent,
   [ActionNames.CreateDeterminationFromParams]: createDeterminationFromParams,
   [ActionNames.GetCollectingEvent]: getCollectingEvent,
   [ActionNames.GetCollectionObject]: getCollectionObject,
@@ -54,8 +59,9 @@ const ActionFunctions = {
   [ActionNames.GetLabels]: getLabels,
   [ActionNames.GetNamespace]: getNamespace,
   [ActionNames.GetTaxonDeterminations]: getTaxonDeterminations,
-  [ActionNames.GetTaxon]: getTaxon,
-  [ActionNames.GetTypeMaterial]: getTypeMaterial,
+  [ActionNames.SetTypeMaterial]: setTypeMaterial,
+  [ActionNames.SetTypeMaterialTaxonName]: setTypeMaterialTaxonName,
+  [ActionNames.LoadTypeSpecimens]: loadTypeSpecimens,
   [ActionNames.LoadContainer]: loadContainer,
   [ActionNames.GetCOCitations]: getCOCitations,
   [ActionNames.LoadDigitalization]: loadDigitalization,

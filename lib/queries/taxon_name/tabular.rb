@@ -96,6 +96,8 @@ module Queries
         @columns.push({header: 'taxon_name_id', projected: table[:id].as('taxon_name_id') } )
         @columns.push({header: 'cached_valid_taxon_name_id', projected: table[:cached_valid_taxon_name_id].as('cached_valid_taxon_name_id') } )
         @columns.push({header: 'cached', projected: table[:cached].as('cached') } )
+        @columns.push({header: 'cached_author_year', projected: table[:cached_author_year].as('cached_author_year') } )
+        @columns.push({header: 'cached_is_valid', projected: table[:cached_is_valid].as('cached_is_valid') } )
 
         if fieldsets.include?('observations')
           @columns.push({header: 'otu_id', projected: otu_table[:id].as('otu_id')  } )
@@ -156,7 +158,8 @@ module Queries
         # Scope all names in the result
         a = table[:id].eq(h[:descendant_id])
           .and(h[:ancestor_id].eq(ancestor_id) )
-        a = a.and(table[:cached_valid_taxon_name_id].eq(table[:id])) if validity
+        a = a.and(table[:cached_is_valid].eq(true)) if validity
+        #a = a.and(table[:cached_valid_taxon_name_id].eq(table[:id])) if validity
 
         # Start a query
         q = q.join(h, Arel::Nodes::InnerJoin).on(a)

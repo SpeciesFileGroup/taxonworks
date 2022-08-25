@@ -23,8 +23,8 @@ function sortFunction (a, b, asc) {
 
   if (isNaN(result)) {
     return (asc)
-      ? a.toString().localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
-      : b.toString().localeCompare(a, undefined, { numeric: true, sensitivity: 'base' })
+      ? a?.toString().localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+      : b?.toString().localeCompare(a, undefined, { numeric: true, sensitivity: 'base' })
   } else {
     return (asc) ? result : -result
   }

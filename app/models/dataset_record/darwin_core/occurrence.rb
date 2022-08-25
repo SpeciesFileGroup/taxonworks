@@ -219,8 +219,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             new_tags = attributes[:collecting_event][:tags_attributes].reject { |t| current_tags.member?(t[:keyword].id) }
 
             # add tags if there were any new ones
-            collecting_event.tags.build(new_tags)
-            collecting_event.save!
+            unless new_tags.empty?
+              collecting_event.tags.build(new_tags)
+              collecting_event.save!
+            end
           end
 
           specimen.update!(collecting_event: collecting_event)
@@ -283,8 +285,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       else
         self.status = 'NotReady'
         self.metadata["error_data"] = { messages: { catalogNumber: ["Record cannot be imported until namespace is set, see \"Settings\"."] } }
-        self.import_dataset.add_catalog_number_namespace(get_field_value('institutionCode'), get_field_value('collectionCode'))
       end
+
+      self.import_dataset.add_catalog_number_namespace(get_field_value('institutionCode'), get_field_value('collectionCode'))
+      self.import_dataset.add_catalog_number_collection_code_namespace(get_field_value('collectionCode'))
 
       self.save!
     end

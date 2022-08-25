@@ -1,9 +1,12 @@
-export default (state, value) => {
-  const index = state.materialTypes.findIndex(item => item.id === value.id)
+export default (state, typeMaterial) => {
+  const { typeSpecimens } = state
+  const createdTypeMaterial = typeSpecimens.find(item =>
+    item.internalId === typeMaterial.internalId
+  )
 
-  if (index > -1) {
-    state.materialTypes[index] = value
+  if (createdTypeMaterial) {
+    Object.assign(createdTypeMaterial, { ...typeMaterial })
   } else {
-    state.materialTypes.push(value)
+    typeSpecimens.push(typeMaterial)
   }
 }

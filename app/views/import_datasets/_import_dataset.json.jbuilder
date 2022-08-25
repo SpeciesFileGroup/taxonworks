@@ -12,6 +12,10 @@ if ["Ready", "Staging", "Importing"].include? import_dataset.status
       json.collectionCode mapping[0][1]
       json.namespace_id mapping[1]
     end
+    json.catalog_numbers_collection_code_namespaces(import_dataset.metadata["catalog_numbers_collection_code_namespaces"]) do |mapping|
+      json.collectionCode mapping[0]
+      json.namespace_id mapping[1]
+    end
     if import_dataset.status == "Importing"
       json.import_filters import_dataset.metadata['import_filters']
       json.import_retry_errored import_dataset.metadata['import_retry_errored']

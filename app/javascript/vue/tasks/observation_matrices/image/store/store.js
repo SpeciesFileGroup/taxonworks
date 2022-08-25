@@ -5,6 +5,7 @@ import { ActionFunctions } from './actions/actions'
 
 function makeInitialState () {
   return {
+    isLoading: false,
     isSaving: false,
     languages: [],
     observationRows: [],
@@ -12,7 +13,8 @@ function makeInitialState () {
     observationMatrix: undefined,
     observations: [],
     observationMoved: undefined,
-    depictionMoved: undefined
+    depictionMoved: undefined,
+    pagination: {}
   }
 }
 

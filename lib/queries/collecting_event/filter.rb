@@ -4,9 +4,11 @@ module Queries
       include Queries::Helpers
 
       include Queries::Concerns::Tags
+      include Queries::Concerns::Notes
       include Queries::Concerns::DateRanges
       include Queries::Concerns::Identifiers
       include Queries::Concerns::Users
+      include Queries::Concerns::DataAttributes
 
       # TODO: likely move to model (replicated in Source too)
       # Params exists for all CollectingEvent attributes except these
@@ -123,6 +125,8 @@ module Queries
         set_attributes(params)
         set_dates(params)
         set_user_dates(params)
+        set_data_attributes_params(params)
+        set_notes_params(params)
       end
 
       def set_attributes(params)
@@ -311,18 +315,23 @@ module Queries
       def base_merge_clauses
         clauses = [
           collection_objects_facet,
+          collector_ids_facet,
+          created_updated_facet,
+          data_attribute_predicate_facet,
+          data_attribute_value_facet,
+          data_attributes_facet,
+          depictions_facet,
+          geo_json_facet,
+          identifier_between_facet,
+          identifier_facet,       # See Queries::Concerns::Identifiers
+          identifier_namespace_facet,
+          identifiers_facet,      # See Queries::Concerns::Identifiers
           keyword_id_facet,
           matching_otu_ids,
-          wkt_facet,
-          geo_json_facet,
-          collector_ids_facet,
           matching_spatial_via_geographic_area_ids,
-          identifiers_facet,      # See Queries::Concerns::Identifiers
-          identifier_between_facet,
-          identifier_facet, # See Queries::Concerns::Identifiers
-          identifier_namespace_facet,
-          depictions_facet,
-          created_updated_facet
+          note_text_facet,        # See Queries::Concerns::Notes
+          notes_facet,            # See Queries::Concerns::Notes
+          wkt_facet,
         ].compact!
         clauses
       end

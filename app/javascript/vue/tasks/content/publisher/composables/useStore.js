@@ -4,7 +4,8 @@ import { reactive, toRefs } from 'vue'
 
 const state = reactive({
   topics: [],
-  contents: {}
+  contents: {},
+  isLoading: false
 })
 
 function getTopicById (topicId) {
@@ -15,15 +16,24 @@ export const useStore = () => {
   const actions = {
 
     requestTopics: async () => {
+      state.isLoading = true
+
       const { body } = await Content.summary()
 
+      state.isLoading = false
       state.topics = body
+
+      return body
     },
 
     requestTopicTable: async (topicId) => {
+      state.isLoading = true
+
       const { body } = await Content.topicTable({ topic_id: topicId, extend: ['public_content'] })
 
+      state.isLoading = false
       state.contents[topicId] = body
+      return body
     },
 
     updateContent: async ({ contentId, isPublic, topicId }) => {

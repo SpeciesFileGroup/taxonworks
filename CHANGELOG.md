@@ -7,6 +7,100 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Changed
+- Updated Ruby gems.
+- Upgraded to newer Gnfinder service.
+- Enabled 10km tolerance to geographic area validation for verbatim georeferences.
+## [0.28.1] - 2022-08-19
+
+### Fixed
+- Settings modal is scrolled to the bottom when the modal is open.
+- `Edit in image matrix` and `Open in matrix` buttons don't open image matrix task on edit mode.
+- `Create verbatim coordinates` button dissapears after create request fails in New collecting event task
+- Depictions are not displayed correctly in Browse collecting event [#3012]
+- Cloned georeference are not loaded after cloning a collecting event [#3076]
+
+### Changed
+- Updated Ruby gems.
+- Updated Node packages.
+- Expanded drag and drop section in observation cell in Image matrix
+
+[#3012]: https://github.com/SpeciesFileGroup/taxonworks/issues/3012
+[#3076]: https://github.com/SpeciesFileGroup/taxonworks/issues/3076
+
+## [0.28.0] - 2022-08-08
+
+### Added
+- Add `/api/v1/otus/123/inventory/content`, includes `embed[]=depictions`  [#3004]
+- Adds `data_attributes`, `data_attribute_value`, `data_attribute_predicate_id`, `data_attribute_exact` in filter concern [#2922]
+- `/api/v1/tags` endpoint with `tag_object_type[]`,`tag_object_id[]`, `tag_object_type`, `object_global_id`, `keyword_id[]` [#3061]
+- Added pagination in the image_matrix
+- Matrix Column Coder - coding by descriptor [#1385]
+- Soft validation and fix for adding subsequen combination when original combination is different [#3051]
+- Added 'electronic only' field for the source to flag sources published in electronic only format
+- Default `collectionCode` namespace mappings as falback when `institutionCode`:`collectionCode` mappings do not contain a match in DwC occurrences importer.
+
+### Changed
+- Remove search box in observation matrix hub [#3032]
+- Type material form allows multiple type species in comprehensive task. [#2584]
+- Updated Ruby gems.
+- wikidata-client dependency is now fetching from RubyGems rather than custom fork.
+- serrano has been changed to a new custom branch which is identical to official gem except `thor` dependency has been downgraded for TW compatibility.
+- DwC occurrences importer mappings are not sorted by `institutionCode`:`collectionCode`
+
+### Fixed
+- Object global id param in identifiers API/filter
+- Bad logic check on adding new user to project
+- Dependency loop problem in DwC checklist importer
+
+[#3004]: https://github.com/SpeciesFileGroup/taxonworks/issues/3004
+[#3061]: https://github.com/SpeciesFileGroup/taxonworks/issues/3061
+[#1385]: https://github.com/SpeciesFileGroup/taxonworks/issues/1385
+[#2584]: https://github.com/SpeciesFileGroup/taxonworks/issues/2584
+[#3032]: https://github.com/SpeciesFileGroup/taxonworks/issues/3032
+[#3051]: https://github.com/SpeciesFileGroup/taxonworks/issues/3051
+[#2922]: https://github.com/SpeciesFileGroup/taxonworks/issues/2922
+
+## [0.27.3] - 2022-07-20
+
+### Added
+- Soft_validation for the year of taxon description compared to person years of life [#2595]
+- Pagination to Image matrix task
+
+### Fixed
+- Fixes rendering the author string in the catalogue [#2825]
+- Include facet is not working properly in Filter nomenclature [#3023]
+- Role picker changes order of roles after removing one [#3003]
+- Observation matrix TNT export failed due to undefined method error [#3034]
+- Date start and Date end display flipped in "Filter Collecting Events" [#3039]
+- Role picker list doesn't display suffix and preffix
+- By user facet is passing member id
+- Project user last seen at correctly reported
+
+### Changed
+- ElectronicPulbications moved from NomenNudum to Unavailable.
+- Updated Ruby gems and Node packages
+- OTU name string into link in Observation matrices dashboard task
+
+[#2825]: https://github.com/SpeciesFileGroup/taxonworks/issues/2825
+[#2595]: https://github.com/SpeciesFileGroup/taxonworks/issues/2595
+[#3003]: https://github.com/SpeciesFileGroup/taxonworks/issues/3003
+[#3023]: https://github.com/SpeciesFileGroup/taxonworks/issues/3023
+[#3034]: https://github.com/SpeciesFileGroup/taxonworks/issues/3034
+[#3039]: https://github.com/SpeciesFileGroup/taxonworks/issues/3039
+
+## [0.27.2] - 2022-06-22
+
+### Fixed
+
+- Updated csv output for an observation matrix [#3040]
+- Content panel in browse OTU not working properly
+- Darwin Core Export failing on specific combinations of data attributes selection.
+
+### Changed
+- Updated Ruby gems and Node packages
+
+## [0.27.1] - 2022-06-21
+### Changed
 - People/Name toggle remove historical option for name [#3028]
 
 ### Fixed 
@@ -2734,7 +2828,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.28.1...development
+[0.28.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.28.0...v0.28.1
+[0.28.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.3...v0.28.0
+[0.27.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.2...v0.27.3
+[0.27.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.1...v0.27.2
+[0.27.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.0...v0.27.1
 [0.27.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.26.2...v0.27.0
 [0.26.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.26.1...v0.26.2
 [0.26.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.26.0...v0.26.1

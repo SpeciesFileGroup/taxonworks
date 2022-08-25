@@ -370,10 +370,6 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
         expect(geographic_item).to respond_to(:within?)
       end
 
-      specify '#distance? - to see how far one object is from another.' do
-        expect(geographic_item).to respond_to(:distance?)
-      end
-
       specify '#near' do
         expect(geographic_item).to respond_to(:near)
       end

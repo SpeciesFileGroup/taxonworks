@@ -6,6 +6,7 @@ import setObservationRows from './setObservationRows'
 import setObservationMoved from './setObservationMoved'
 import setIsSaving from './setIsSaving'
 import setDepictionMoved from './setDepictionMoved'
+import setPagination from './setPagination'
 import addDepiction from './addDepiction'
 import removeDepiction from './removeDepiction'
 import removeOtuDepiction from './removeOtuDepiction'
@@ -21,7 +22,8 @@ const MutationNames = {
   SetIsSaving: 'setIsSaving',
   SetDepictionMoved: 'setDepictionMoved',
   RemoveDepiction: 'removeDepiction',
-  RemoveOtuDepiction: 'removeOtuDepiction'
+  RemoveOtuDepiction: 'removeOtuDepiction',
+  SetPagination: 'setPagination'
 }
 
 const MutationFunctions = {
@@ -34,6 +36,7 @@ const MutationFunctions = {
   [MutationNames.SetObservationMoved]: setObservationMoved,
   [MutationNames.SetIsSaving]: setIsSaving,
   [MutationNames.SetDepictionMoved]: setDepictionMoved,
+  [MutationNames.SetPagination]: setPagination,
   [MutationNames.RemoveDepiction]: removeDepiction,
   [MutationNames.RemoveOtuDepiction]: removeOtuDepiction
 }

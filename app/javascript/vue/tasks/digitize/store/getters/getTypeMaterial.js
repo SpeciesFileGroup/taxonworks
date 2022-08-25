@@ -1,1 +1,1 @@
-export default state => state.type_material
+export default state => state.typeMaterial

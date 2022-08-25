@@ -18,7 +18,10 @@
         <image-viewer
           :depiction="depiction"
         >
-          <img :src="depiction.image.alternatives.medium.image_file_url">
+          <img
+            class="img-thumb"
+            :src="depiction.image.alternatives.medium.image_file_url"
+          >
           <template #infoColumn>
             <div class="panel content full_width margin-small-right">
               <h3>Image matrix</h3>
@@ -70,3 +73,13 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+
+@media screen and (max-width: 1200px) {
+  .depiction-thumb-container .img-thumb {
+    width: 200px;
+  }
+}
+
+</style>

@@ -83,8 +83,8 @@ export default {
       properties: {
         id: 'ID',
         verbatim_locality: 'Locality',
-        end_date: 'Date start',
-        start_date: 'Date end',
+        start_date: 'Date start',
+        end_date: 'Date end',
         verbatim_collectors: 'Collectors',
         verbatim_method: 'Method',
         verbatim_trip_identifier: 'Trip Identifier',
