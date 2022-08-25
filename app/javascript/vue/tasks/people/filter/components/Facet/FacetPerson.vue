@@ -12,7 +12,7 @@
         <input
           v-model="params.exact"
           type="checkbox"
-          value="cached"
+          value="name"
         >
         Exact
       </label>

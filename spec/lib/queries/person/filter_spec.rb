@@ -134,13 +134,13 @@ describe Queries::Person::Filter, type: :model, group: :people do
 
   specify '#name' do
     query.name = 'Smith'
-    expect(query.all.pluck(:id)).to contain_exactly(p1.id)
+    expect(query.all.pluck(:id)).to contain_exactly(p1.id, p2.id)
   end
 
   specify '#name' do
     query.name = 'Smith'
     query.exact = ['name']
-    expect(query.all.pluck(:id)).to contain_exactly(p1.id, p2.id)
+    expect(query.all.pluck(:id)).to contain_exactly(p1.id)
   end
 
   specify '#name, #levenshtein_cuttoff 1' do

@@ -257,9 +257,9 @@ module Queries
       def name_facet
         return nil if name.nil? || !levenshtein_cuttoff.blank?
         if exact.include?('name')
-          table[:cached].matches('%' + name + '%')
-        else
           table[:cached].eq(name)
+        else
+          table[:cached].matches('%' + name + '%')
         end
       end
 
