@@ -79,6 +79,14 @@
         class="margin-large-bottom"
         :param="param"
       />
+      <WithComponent
+        class="margin-large-bottom"
+        v-for="(item, key) in params.with"
+        :key="key"
+        :title="key"
+        :param="key"
+        v-model="params.with[key]"
+      />
     </div>
   </div>
 </template>
@@ -101,6 +109,7 @@ import FacetRegex from './Facet/FacetRegex.vue'
 import FacetNotes from 'tasks/collection_objects/filter/components/filters/FacetNotes.vue'
 import FacetDataAttributes from 'tasks/collection_objects/filter/components/filters/DataAttributes/FacetDataAttribute.vue'
 import FacetWith from './Facet/FacetWith.vue'
+import WithComponent from 'tasks/sources/filter/components/filters/with'
 import { computed, ref } from 'vue'
 
 const withFilter = ['first_name', 'suffix', 'prefix']
@@ -126,6 +135,7 @@ const parseParams = computed(() =>
     ...params.value.roles,
     ...params.value.notes,
     ...params.value.dataAttributes,
+    ...params.value.with,
     ...filterEmptyParams(params.value.user)
   })
 )
@@ -159,6 +169,10 @@ const initParams = () => ({
     project_id: [],
     with: [],
     without: []
+  },
+  with: {
+    identifiers: undefined,
+    data_attributes: undefined
   },
   dataAttributes: {
     data_attribute_value: [],
