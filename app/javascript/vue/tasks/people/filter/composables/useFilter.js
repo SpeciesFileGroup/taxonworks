@@ -44,6 +44,7 @@ export default function (service) {
   const resetFilter = () => {
     state.list = []
     state.isLoading = false
+    state.urlRequest = ''
     history.pushState(null, null, `${window.location.pathname}`)
   }
 
