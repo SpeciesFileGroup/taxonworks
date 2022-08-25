@@ -152,55 +152,88 @@ class PeopleController < ApplicationController
 
   def filter_params
     params.permit(
-      :name,
-      :last_name,
-      :first_name,
-      :last_name_starts_with,
-      :born_after_year, :born_before_year,
       :active_after_year, :active_before_year,
+      :born_after_year, :born_before_year,
+      :data_attribute_exact_value,     # DataAttributes concern
+      :data_attributes, # DataAttributes concern
       :died_before_year, :died_after_year,
-      :levenshtein_cuttoff,
+      :first_name,
       :identifier,
       :identifier_end,
       :identifier_exact,
       :identifier_start,
+      :last_name,
+      :last_name_starts_with,
+      :levenshtein_cuttoff,
+      :name,
+      :note_exact,
+      :note_text,
+      :notes,
+      :prefix,
+      :regex, # !! DO NOT EXPOSE TO EXTERNAL API
+      :repeated_total,
+      :role_total_max,
+      :role_total_min,
+      :suffix,
       :user_date_end,
       :user_date_start,
       :user_id,
       :user_target,
-      used_in_project_id: [],
+      data_attribute_predicate_id: [], # DataAttributes concern
+      data_attribute_value: [],        # DataAttributes concern
+      exact: [],
+      except_project_id: [],
+      except_role: [],
       keyword_id_and: [],
       keyword_id_or: [],
+      project_id: [],
       role: [],
-      person_wildcard: [],
-      user_id: []
+      user_id: [],
+      with: [],
+      without: []
     )
   end
 
   def api_params
     params.permit(
-      :name,
-      :last_name,
-      :first_name,
-      :last_name_starts_with,
-      :born_after_year, :born_before_year,
+      # :regex, # !! DO NOT EXPOSE TO EXTERNAL API
       :active_after_year, :active_before_year,
+      :born_after_year, :born_before_year,
+      :data_attribute_exact_value,     # DataAttributes concern
       :died_before_year, :died_after_year,
-      :role,
+      :first_name,
       :identifier,
       :identifier_end,
       :identifier_exact,
       :identifier_start,
+      :last_name,
+      :last_name_starts_with,
+      :levenshtein_cuttoff,
+      :name,
+      :note_exact,
+      :note_text,
+      :notes,
+      :prefix,
+      :repeated_total,
+      :role_total_max,
+      :role_total_min,
+      :suffix,
       :user_date_end,
       :user_date_start,
       :user_id,
       :user_target,
-      :tags,
-      # user_id: [],
+      :data_attributes, # DataAttributes concern
+      data_attribute_predicate_id: [], # DataAttributes concern
+      data_attribute_value: [],        # DataAttributes concern
+      exact: [],
+      except_project_id: [],
+      except_role: [],
       keyword_id_and: [],
       keyword_id_or: [],
+      project_id: [],
       role: [],
-      person_wildcard: []
+      user_id: [],
+      without: []
     )
   end
 

@@ -690,6 +690,13 @@ project_activity_task:
     - image
   status: prototype
   description: 'Overview project and member activity, recent records, totals, member contributions, and more.'
+filter_people_task:
+  hub: true
+  name: 'Filter people'
+  related:
+  categories:
+  status: prototype
+  description: 'Filter people.'
 stepwise_determinations_task:
   hub: true
   name: 'Stepwise determinations'

@@ -283,7 +283,7 @@ export default {
 
     otuLabel (row) {
       return `
-        <a href="${row.otu_id}">
+        <a href="/tasks/otus/browse?otu_id=${row.otu_id}">
           <span class="otu_tag">
             <span
               class="otu_tag_otu_name"
@@ -293,7 +293,7 @@ export default {
               class="otu_tag_taxon_name" 
               title="${row.taxon_name_id}"
             >
-              <i>${row.cached}</i> ${row.cached_author_year}
+              <i>${row.cached}</i> ${row.cached_author_year || ''}
             </span> ${this.getValidMark(row.cached_is_valid)}
           </span>
         </a>`

@@ -161,6 +161,7 @@ export default {
         paramName: 'observation[images_attributes][][image_file]',
         url: '/observations',
         autoProcessQueue: true,
+        parallelUploads: 1,
         headers: {
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
@@ -257,9 +258,14 @@ export default {
     },
 
     success (file, response) {
-      this.$emit('addDepiction', response.base_class === 'Depiction' ? response : response.depictions[0])
-      this.$refs.dropzone.removeFile(file)
+      if (!this.existObservations) {
+        this.$refs.dropzone.setOption('url', this.dropzoneDepiction.url)
+        this.$refs.dropzone.setOption('paramName', this.dropzoneDepiction.paramName)
+      }
 
+      this.$emit('addDepiction', response.base_class === 'Depiction' ? response : response.depictions[0])
+
+      this.$refs.dropzone.removeFile(file)
       this.isLoading = false
     },
 

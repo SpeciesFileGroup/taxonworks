@@ -1,19 +1,20 @@
 <template>
   <div class="range">
-    <input 
+    <input
       class="range__slider"
       ref="rangeInput"
-      type="range" 
+      type="range"
       v-model.number="inputValue"
-      :min="min" 
+      :min="min"
       :max="max"
       :step="step"
       @mouseup="emit('input:mouseup', $event)"
-    />
-    <output 
+    >
+    <output
       ref="rangeTooltip"
-      :value="inputValue" 
+      :value="inputValue"
       class="range__slider-tooltip"
+      :class="{'range__slider-tooltip-only-hover': hover }"
     >
       {{ inputValue }}
     </output>
@@ -42,6 +43,11 @@ const props = defineProps({
   step: {
     type: [Number, String],
     default: 1
+  },
+
+  hover: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -87,7 +93,7 @@ onMounted(() => {
 <style scoped lang="scss">
 .range {
   position: relative;
-  
+
   &__slider-tooltip {
     padding: 4px 12px;
     position: absolute;
@@ -114,10 +120,18 @@ onMounted(() => {
     border-color: transparent transparent #122C35 transparent;
   }
 
+  &__slider-tooltip-only-hover {
+    display: none;
+  }
+
   &__slider {
     width: 100%;
     padding: 0px;
     border: 0px
+  }
+
+  &__slider:hover ~ &__slider-tooltip-only-hover {
+    display: block;
   }
 }
 </style>

@@ -113,7 +113,7 @@ gem 'biodiversity', github: 'GlobalNamesArchitecture/biodiversity', branch: 'pip
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 
 # Global Names
-gem 'gnfinder', '~> 0.16'
+gem 'gnfinder', '~> 1.0'
 
 # Minor Utils/helpers
 gem 'amazing_print', '~> 1.4.0'

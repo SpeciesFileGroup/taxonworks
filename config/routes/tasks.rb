@@ -466,9 +466,20 @@ scope :tasks do
     end
   end
 
-  scope :people, controller: 'tasks/people/author' do
-    get 'author', action: 'list', as: 'author_list_task'
-    get 'source_list_for_author/:id', action: 'source_list_for_author', as: 'author_source_list_task'
+  scope :people do 
+    scope :author, controller: 'tasks/people/author' do
+      get '/', action: :index, as: 'author_list_task'
+      get 'source_list_for_author/:id', action: 'source_list_for_author', as: 'author_source_list_task'
+    end
+
+    scope :filter, controller: 'tasks/people/filter' do
+      get '/', action: :index, as: :filter_people_task
+    end
+  end
+
+  # TODO: nest in peopl
+  scope :uniquify_people, controller: 'tasks/uniquify/people' do
+    get 'index', as: 'uniquify_people_task'
   end
 
   scope :serials, controller: 'tasks/serials/similar' do
@@ -497,10 +508,6 @@ scope :tasks do
     scope :edit_type_material, controller: 'tasks/type_material/edit_type_material' do
       get '/', as: 'edit_type_material_task', action: :index
     end
-  end
-
-  scope :uniquify_people, controller: 'tasks/uniquify/people' do
-    get 'index', as: 'uniquify_people_task'
   end
 
   scope :usage, controller: 'tasks/usage/user_activity' do

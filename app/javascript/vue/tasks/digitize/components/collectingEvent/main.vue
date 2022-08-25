@@ -88,15 +88,11 @@
 
 <script>
 
-import {
-  IDENTIFIER_LOCAL_TRIP_CODE,
-  COLLECTING_EVENT
-} from 'constants/index.js'
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions.js'
 import { RouteNames } from 'routes/routes'
-import { CollectingEvent, CollectionObject } from 'routes/endpoints'
+import { CollectionObject } from 'routes/endpoints'
 import BlockVerbatin from './components/verbatimLayout.vue'
 import BlockGeography from './components/GeographyLayout.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
@@ -106,8 +102,6 @@ import BlockLayout from 'components/layout/BlockLayout.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/navigation/radial.vue'
 import PinComponent from 'components/ui/Pinboard/VPin.vue'
-import makeCollectingEvent from 'factory/CollectingEvent.js'
-import makeIdentifier from 'factory/Identifier.js'
 import platformKey from 'helpers/getPlatformKey'
 
 export default {
@@ -201,11 +195,7 @@ export default {
     },
 
     cloneCE () {
-      CollectingEvent.clone(this.collectingEvent.id, { extend: ['roles'] }).then(response => {
-        this.$store.commit(MutationNames.SetCollectingEvent, Object.assign(makeCollectingEvent(), response.body))
-        this.$store.commit(MutationNames.SetCollectingEventIdentifier, response.body?.identifiers[0] || makeIdentifier(IDENTIFIER_LOCAL_TRIP_CODE, COLLECTING_EVENT))
-        this.$store.dispatch(ActionNames.SaveDigitalization)
-      })
+      this.$store.dispatch(ActionNames.CloneCollectingEvent, this.collectingEvent.id)
     },
 
     openBrowse () {

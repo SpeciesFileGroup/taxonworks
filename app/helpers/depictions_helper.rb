@@ -8,7 +8,7 @@ module DepictionsHelper
       # depiction_svg_tag(depiction)
     else
       tag.figure do
-        tag.image(depiction.image.image_file.url(size)) +
+        image_tag(depiction.image.image_file.url(size)) +
           tag.figcaption(image_context_depiction_tag(depiction))
       end
     end

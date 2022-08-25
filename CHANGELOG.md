@@ -6,13 +6,32 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-### Fixed
-- Settings modal is scrolled to the bottom when the modal is open.
-- `Edit in image matrix` and `Open in matrix` buttons don't open image matrix task on edit mode.
+### Added
+- People filter, with many facets [#2876]
 
 ### Changed
 - Updated Ruby gems.
+- Upgraded to newer Gnfinder service.
+- Enabled 10km tolerance to geographic area validation for verbatim georeferences.
+
+[#2876]: https://github.com/SpeciesFileGroup/taxonworks/issues/2876
+
+## [0.28.1] - 2022-08-19
+
+### Fixed
+- Settings modal is scrolled to the bottom when the modal is open.
+- `Edit in image matrix` and `Open in matrix` buttons don't open image matrix task on edit mode.
+- `Create verbatim coordinates` button dissapears after create request fails in New collecting event task
+- Depictions are not displayed correctly in Browse collecting event [#3012]
+- Cloned georeference are not loaded after cloning a collecting event [#3076]
+
+### Changed
+- Updated Ruby gems.
+- Updated Node packages.
 - Expanded drag and drop section in observation cell in Image matrix
+
+[#3012]: https://github.com/SpeciesFileGroup/taxonworks/issues/3012
+[#3076]: https://github.com/SpeciesFileGroup/taxonworks/issues/3076
 
 ## [0.28.0] - 2022-08-08
 
@@ -2815,7 +2834,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.28.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.28.1...development
+[0.28.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.28.0...v0.28.1
 [0.28.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.3...v0.28.0
 [0.27.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.2...v0.27.3
 [0.27.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.1...v0.27.2
