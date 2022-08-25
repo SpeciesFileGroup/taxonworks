@@ -17,14 +17,18 @@
         Exact
       </label>
     </div>
-    <div class="field">
+    <div class="field label-above">
       <label>Near (Levenshtein)</label>
-      <InputRange
-        v-model="params.levenshtein_cuttoff"
-        :min="1"
-        :max="5"
-        hover
-      />
+      <select v-model="params.levenshtein_cuttoff">
+        <option :value="undefined" />
+        <option
+          v-for="n in 5"
+          :key="n"
+          :value="n"
+        >
+          {{ n }}
+        </option>
+      </select>
     </div>
     <h4>Parts</h4>
     <div

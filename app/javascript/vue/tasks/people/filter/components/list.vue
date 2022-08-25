@@ -13,11 +13,11 @@
                 type="checkbox"
               >
             </th>
-            <th>ID</th>
             <th>First name</th>
-            <th>Last name</th>
             <th>Prefix</th>
+            <th>Last name</th>
             <th>Suffix</th>
+            <th>ID</th>
             <th />
           </tr>
         </thead>
@@ -35,11 +35,11 @@
                 type="checkbox"
               >
             </td>
-            <td>{{ item.id }}</td>
             <td v-html="item.first_name" />
-            <td v-html="item.last_name" />
             <td v-html="item.prefix" />
+            <td v-html="item.last_name" />
             <td v-html="item.suffix" />
+            <td>{{ item.id }}</td>
             <td>
               <radial-navigation
                 :global-id="item.global_id"
