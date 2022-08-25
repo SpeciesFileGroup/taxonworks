@@ -6,7 +6,6 @@ module Queries
       include Queries::Concerns::Tags
       include Queries::Concerns::Notes
       include Queries::Concerns::DateRanges
-      include Queries::Concerns::Identifiers
       include Queries::Concerns::Users
       include Queries::Concerns::DataAttributes
 
@@ -326,6 +325,7 @@ module Queries
           identifier_facet,       # See Queries::Concerns::Identifiers
           identifier_namespace_facet,
           identifiers_facet,      # See Queries::Concerns::Identifiers
+          match_identifiers_facet,
           keyword_id_facet,
           matching_otu_ids,
           matching_spatial_via_geographic_area_ids,

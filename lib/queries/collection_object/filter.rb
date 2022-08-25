@@ -622,10 +622,14 @@ module Queries
           dwc_indexed_facet,
           geographic_area_facet,
           georeferences_facet,
+         
+          # See Queries::Concerns::Identifiers
           identifier_between_facet,
-          identifier_facet,       # See Queries::Concerns::Identifiers
+          identifier_facet,
           identifier_namespace_facet,
           identifiers_facet,
+          match_identifiers_facet,
+
           keyword_id_facet,       # See Queries::Concerns::Tags
           loan_facet,
           loaned_facet,

@@ -285,10 +285,6 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       updated_at: '2015-01-01'
     ) }
 
-    # let!(:namespace) { FactoryBot.create(:valid_namespace, short_name: 'Foo') }
-    # let!(:i1) { Identifier::Local::TripCode.create!(identifier_object: ce1, identifier: '123', namespace: namespace) }
-    # let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
-
     specify '#depictions' do
       t = FactoryBot.create(:valid_depiction, depiction_object: co1)
       query.depictions = true
@@ -635,12 +631,34 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
     # Concerns
 
-    context 'identifiers' do
+    context 'lib/queries/concerns/identifiers.rb' do
       let!(:n1) { Namespace.create!(name: 'First', short_name: 'second')}
       let!(:n2) { Namespace.create!(name: 'Third', short_name: 'fourth')}
 
       let!(:i1) { Identifier::Local::CatalogNumber.create!(namespace: n1, identifier: '123', identifier_object: co1) }
       let!(:i2) { Identifier::Local::CatalogNumber.create!(namespace: n2, identifier: '453', identifier_object: co2) }
+
+      specify '#match_identifiers_delimiter' do
+        expect(query.match_identifiers_delimiter).to eq(',')
+      end
+      
+      specify '#match_identifiers' do
+        query.match_identifiers = "a,b,   c, #{co1.id}, 99"
+        query.match_identifiers_type = 'internal'
+        expect(query.identifiers_to_match).to contain_exactly(co1.to_param, '99')
+      end
+
+      specify '#match_identifiers 1' do
+        query.match_identifiers = "a,b,   c, #{co1.id}, 99"
+        query.match_identifiers_type = 'internal'
+        expect(query.all.pluck(:id)).to contain_exactly(co1.id)
+      end
+
+      specify '#match_identifiers 2' do
+        query.match_identifiers = "a,b,  #{n1.short_name} 123 \n\n,  c, #{co1.id}, 99"
+        query.match_identifiers_type = 'identifier'
+        expect(query.all.pluck(:id)).to contain_exactly(co1.id)
+      end
 
       specify '#identifiers' do
         s = FactoryBot.create(:valid_specimen)
@@ -709,8 +727,6 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       end
     end
 
-
-
     specify '#tags on collecting_event' do
       t = FactoryBot.create(:valid_tag, tag_object: ce1)
       query.collecting_event_query.keyword_id_and = [t.keyword_id]
@@ -738,130 +754,5 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
   end
 
-  # context 'with properly built collection of objects' do
-  #   include_context 'stuff for complex geo tests'
-
-  #   before { [co_a, co_b, gr_a, gr_b].each }
-
-  #   context 'area search' do
-  #     context 'named area' do
-  #       let(:params) { {geographic_area_ids: [area_e.id]} }
-
-  #       specify 'collection objects count' do
-  #         result = Queries::CollectionObject::Filter.new(params).all
-  #         expect(result.count).to eq(2)
-  #       end
-
-  #       specify 'specific collection objects' do
-  #         result = Queries::CollectionObject::Filter.new(params).all
-  #         expect(result).to include(
-  #           abra.collection_objects.first,
-  #           nuther_dog.collection_objects.first)
-  #       end
-  #     end
-
-  #     # context 'area shapes' do
-  #     #   context 'area shape area b' do
-  #     #     let(:params) { {drawn_area_shape: area_b.to_geo_json_feature} }
-
-  #     #     specify 'collection objects count' do
-  #     #       result = Queries::CollectionObject::Filter.new(params).all
-  #     #       expect(result.count).to eq(1)
-  #     #     end
-
-  #     #     specify 'specific collection objects' do
-  #     #       result = Queries::CollectionObject::Filter.new(params).all
-  #     #       expect(result).to include(spooler.collection_objects.first)
-  #     #     end
-  #     #   end
-
-  #     #   context 'area shape area a' do
-  #     #     let(:params) { {drawn_area_shape: area_a.to_geo_json_feature} }
-
-  #     #     specify 'collection objects count' do
-  #     #       result = Queries::CollectionObject::Filter.new(params).all
-  #     #       expect(result.count).to eq(1)
-  #     #     end
-
-  #     #     specify 'specific collection objects' do
-  #     #       result = Queries::CollectionObject::Filter.new(params).all
-  #     #       expect(result).to include(otu_a.collection_objects.first)
-  #     #     end
-  #     #   end
-  #     # end
-  #   end
-
-
-  # context 'combined search' do
-  #   let!(:pat_admin) {
-  #     peep = FactoryBot.create(:valid_user, name: 'Pat Project Administrator', by: joe)
-  #     ProjectMember.create!(project: geo_project, user: peep, by: joe)
-  #     peep
-  #   }
-  #   let!(:pat) {
-  #     peep = FactoryBot.create(:valid_user, name: 'Pat The Other', by: joe)
-  #     ProjectMember.create!(project: geo_project, user: peep, by: joe)
-  #     peep
-  #   }
-  #   let!(:joe) { User.find(1) }
-  #   let!(:joe2) {
-  #     peep = FactoryBot.create(:valid_user, name: 'Joe Number Two', by: joe)
-  #     ProjectMember.create!(project: geo_project, user: peep, by: joe)
-  #     peep
-  #   }
-
-  #   specify 'selected object' do
-  #     c_objs = [co_a, co_b]
-
-  #     # Specimen creation/update dates and Identifier/namespace
-  #     2.times { FactoryBot.create(:valid_namespace, creator: geo_user, updater: geo_user) }
-  #     ns1 = Namespace.first
-  #     ns2 = Namespace.second
-  #     2.times { FactoryBot.create(:valid_specimen, creator: pat_admin, updater: pat_admin, project: geo_project) }
-  #     c_objs.each_with_index { |sp, index|
-  #       sp.update_column(:created_by_id, (index.odd? ? joe.id : pat.id))
-  #       sp.update_column(:created_at, "200#{index}/01/#{index + 1}")
-  #       sp.update_column(:updated_at, "200#{index}/07/#{index + 1}")
-  #       sp.update_column(:updated_by_id, (index.odd? ? pat.id : joe.id))
-  #       sp.update_column(:project_id, geo_project.id)
-  #       sp.save!
-  #       FactoryBot.create(:identifier_local_catalog_number,
-  #                         updater:           geo_user,
-  #                         project:           geo_project,
-  #                         creator:           geo_user,
-  #                         identifier_object: sp,
-  #                         namespace:         (index.even? ? ns1 : ns2),
-  #                         identifier:        (index + 1).to_s)
-  #     }
-
-  #     # We are expecting to get only one collection_object, the one from QTM2
-  #     # when this test is run along with all the rest, there are otus which have been deleted, but are still attached
-  #     # to collection objects. As a result, we select the *last* one (the one *most recently* created),
-  #     # rather than the first.
-  #     ot        = co_b.otus.order(:id).last
-  #     tn        = ot.taxon_name
-  #     test_name = tn.name
-  #     params    = {}
-  #     params.merge!({otu_id: ot.id})
-  #     params.merge!({user:                  joe,
-  #                    date_type_select:      'created_at',
-  #                    user_date_range_start: '2001-01-01',
-  #                    user_date_range_end:   '2004-02-01'
-  #                   })
-  #     params.merge!({id_namespace:   ns2.short_name,
-  #                    id_range_start: '2',
-  #                    id_range_stop:  '8'
-  #                   })
-  #     params.merge!({geographic_area_ids: [area_b.id]})
-  #    # params.merge!({search_start_date: '1970-01-01', search_end_date: '1986-12-31'})
-
-  #     result = Queries::CollectionObject::Filter.new(params).all
-  #     expect(result).to contain_exactly(co_b)
-  #     expect(result.first.otus.count).to eq(3)
-  #     expect(result.first.otus.order(:id).last.taxon_name.name).to eq(test_name)
-  #   end
-
-  # end
-  # end
 end
 
