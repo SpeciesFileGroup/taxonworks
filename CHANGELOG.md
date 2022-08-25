@@ -6,8 +6,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
-
+### Changed
+- Updated Ruby gems.
+- Upgraded to newer Gnfinder service.
+- Enabled 10km tolerance to geographic area validation for verbatim georeferences.
 ## [0.28.1] - 2022-08-19
 
 ### Fixed
