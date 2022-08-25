@@ -172,7 +172,8 @@ const initParams = () => ({
   },
   with: {
     identifiers: undefined,
-    data_attributes: undefined
+    data_attributes: undefined,
+    notes: undefined
   },
   dataAttributes: {
     data_attribute_value: [],
