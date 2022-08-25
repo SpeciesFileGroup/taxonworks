@@ -21,28 +21,28 @@
       >
         Search
       </button>
-      <FacetProjects
-        class="margin-large-bottom"
-        v-model="params.base"
-      />
       <FacetPerson
         class="margin-large-bottom"
         v-model="params.base"
       />
+      <FacetRegex v-model="params.base" />
       <FacetActiveYear v-model="params.base" />
       <FacetBorn v-model="params.base" />
       <FacetDied v-model="params.base" />
-      <FacetRegex v-model="params.base" />
       <FacetRoles
         v-model="params.roles"
         title="Roles"
         param="role"
       />
+      <FacetTimesRepeated
+        class="margin-large-bottom"
+        v-model="params.base"
+      />
       <FacetRolesTotalUsed
         v-model="params.roles"
         class="margin-large-bottom"
       />
-      <FacetTimesRepeated
+      <FacetProjects
         class="margin-large-bottom"
         v-model="params.base"
       />

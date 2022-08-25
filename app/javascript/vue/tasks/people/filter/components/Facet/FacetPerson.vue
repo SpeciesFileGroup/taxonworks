@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3>Person</h3>
+    <h3>Name</h3>
     <div class="field">
       <label class="display-block">Full name</label>
       <input
