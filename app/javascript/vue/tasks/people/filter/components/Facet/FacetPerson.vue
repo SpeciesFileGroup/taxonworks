@@ -27,11 +27,11 @@
     </div>
     <h4>Parts</h4>
     <div
-      v-for="({ title, param, exact }) in fields"
+      v-for="({ label, param }) in fields"
       :key="param"
       class="field"
     >
-      <label class="display-block">{{ title }}</label>
+      <label class="display-block">{{ label }}</label>
       <input
         class="full_width"
         type="text"
@@ -40,7 +40,7 @@
       <label>
         <input
           type="checkbox"
-          :value="exact || param"
+          :value="param"
           v-model="params.exact"
         >
         Exact
