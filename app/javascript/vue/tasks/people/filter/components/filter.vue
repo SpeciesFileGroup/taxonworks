@@ -154,7 +154,7 @@ const initParams = () => ({
     prefix: undefined,
     exact: [],
     near_name: undefined,
-    levenshtein_cuttoff: 1,
+    levenshtein_cuttoff: undefined,
     regex: undefined,
     with_role: [],
     without_role: [],
