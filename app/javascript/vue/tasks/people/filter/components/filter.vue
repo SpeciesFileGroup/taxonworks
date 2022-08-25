@@ -15,7 +15,7 @@
 
     <div class="content">
       <button
-        class="button button-default normal-input full_width margin-medium-bottom "
+        class="button button-default normal-input full_width margin-medium-bottom"
         type="button"
         @click="handleSearch"
       >
@@ -42,6 +42,11 @@
         v-model="params.roles"
         class="margin-large-bottom"
       />
+      <FacetRoles
+        v-model="params.roles"
+        title="Without roles"
+        param="except_role"
+      />
       <FacetProjects
         class="margin-large-bottom"
         v-model="params.base"
@@ -50,15 +55,14 @@
         class="margin-large-bottom"
         v-model="params.notes"
       />
-      <FacetRoles
-        v-model="params.roles"
-        title="Without roles"
-        param="except_role"
-      />
       <keywords-component
         class="margin-large-bottom"
         v-model="params.keywords"
         target="CollectionObject"
+      />
+      <FacetDataAttributes
+        class="margin-large-bottom"
+        v-model="params.dataAttributes"
       />
       <identifier-component
         class="margin-large-bottom"
@@ -95,6 +99,7 @@ import FacetTimesRepeated from './Facet/FacetTimesRepeated.vue'
 import FacetProjects from './Facet/FacetProjects.vue'
 import FacetRegex from './Facet/FacetRegex.vue'
 import FacetNotes from 'tasks/collection_objects/filter/components/filters/FacetNotes.vue'
+import FacetDataAttributes from 'tasks/collection_objects/filter/components/filters/DataAttributes/FacetDataAttribute.vue'
 import FacetWith from './Facet/FacetWith.vue'
 import { computed, ref } from 'vue'
 
@@ -120,6 +125,7 @@ const parseParams = computed(() =>
     ...params.value.with,
     ...params.value.roles,
     ...params.value.notes,
+    ...params.value.dataAttributes,
     ...filterEmptyParams(params.value.user)
   })
 )
@@ -153,6 +159,11 @@ const initParams = () => ({
     project_id: [],
     with: [],
     without: []
+  },
+  dataAttributes: {
+    data_attribute_value: [],
+    data_attribute_predicate_id: [],
+    data_attribute_exact: undefined
   },
   notes: {
     note_exact: undefined,

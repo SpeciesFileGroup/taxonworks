@@ -23,6 +23,7 @@
         v-model="params.levenshtein_cuttoff"
         :min="1"
         :max="5"
+        hover
       />
     </div>
     <h4>Parts</h4>
