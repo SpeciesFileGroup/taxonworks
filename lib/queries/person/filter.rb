@@ -4,6 +4,8 @@ module Queries
     class Filter < Queries::Query
       include Queries::Concerns::Tags
       include Queries::Concerns::Users
+      include Queries::Concerns::Notes
+      include Queries::Concerns::DataAttributes
 
       # @return [String, nil]
       attr_accessor :active_after_year
@@ -143,6 +145,8 @@ module Queries
 
         @repeated_total = params[:repeated_total]
 
+        set_data_attributes_params(params)
+        set_notes_params(params)
         set_identifier(params)
         set_tags_params(params)
         set_user_dates(params)
@@ -413,6 +417,13 @@ module Queries
           identifier_between_facet,
           identifier_facet,
           identifier_namespace_facet,
+
+          note_text_facet,        # See Queries::Concerns::Notes
+          notes_facet,
+
+          data_attribute_predicate_facet,
+          data_attribute_value_facet,
+          data_attributes_facet,
 
           keyword_id_facet,
           tag_facet,

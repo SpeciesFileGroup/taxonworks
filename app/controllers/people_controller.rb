@@ -154,6 +154,8 @@ class PeopleController < ApplicationController
     params.permit(
       :active_after_year, :active_before_year,
       :born_after_year, :born_before_year,
+      :data_attribute_exact_value,     # DataAttributes concern
+      :data_attributes, # DataAttributes concern
       :died_before_year, :died_after_year,
       :first_name,
       :identifier,
@@ -164,6 +166,9 @@ class PeopleController < ApplicationController
       :last_name_starts_with,
       :levenshtein_cuttoff,
       :name,
+      :note_exact,
+      :note_text,
+      :notes,
       :prefix,
       :regex, # !! DO NOT EXPOSE TO EXTERNAL API
       :repeated_total,
@@ -174,6 +179,8 @@ class PeopleController < ApplicationController
       :user_date_start,
       :user_id,
       :user_target,
+      data_attribute_predicate_id: [], # DataAttributes concern
+      data_attribute_value: [],        # DataAttributes concern
       exact: [],
       except_project_id: [],
       except_role: [],
@@ -189,8 +196,10 @@ class PeopleController < ApplicationController
 
   def api_params
     params.permit(
+      # :regex, # !! DO NOT EXPOSE TO EXTERNAL API
       :active_after_year, :active_before_year,
       :born_after_year, :born_before_year,
+      :data_attribute_exact_value,     # DataAttributes concern
       :died_before_year, :died_after_year,
       :first_name,
       :identifier,
@@ -201,8 +210,10 @@ class PeopleController < ApplicationController
       :last_name_starts_with,
       :levenshtein_cuttoff,
       :name,
+      :note_exact,
+      :note_text,
+      :notes,
       :prefix,
-      # :regex, # !! DO NOT EXPOSE TO EXTERNAL API
       :repeated_total,
       :role_total_max,
       :role_total_min,
@@ -211,6 +222,9 @@ class PeopleController < ApplicationController
       :user_date_start,
       :user_id,
       :user_target,
+      :data_attributes, # DataAttributes concern
+      data_attribute_predicate_id: [], # DataAttributes concern
+      data_attribute_value: [],        # DataAttributes concern
       exact: [],
       except_project_id: [],
       except_role: [],
