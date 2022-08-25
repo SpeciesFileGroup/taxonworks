@@ -39,6 +39,13 @@ module Queries::Concerns::Identifiers
     #   nil - not applied
     attr_accessor :identifiers
 
+    attr_accessor :match_identifiers
+
+    attr_accessor :match_identifiers_delimiter
+
+    attr_accessor :match_identifiers_type
+
+
     def identifier_start
       ( @identifier_start.to_i - 1 ).to_s
     end
@@ -57,6 +64,11 @@ module Queries::Concerns::Identifiers
 
     @identifier_exact = boolean_param(params, :identifier_exact)
     @identifier_type = params[:identifier_type] || []
+
+    @match_identifiers = params[:match_identifiers]
+    @match_identifiers_delimiter = params[:match_identifiers_delimiter]
+    @match_identifiers_type = params[:match_identifiers_type]
+
   end
 
   # @return [Arel::Table]
@@ -80,6 +92,15 @@ module Queries::Concerns::Identifiers
           Arel::Nodes::SqlLiteral.new(identifier_end) ]
       )
     )
+  end
+
+  def match_identifiers_delimiter
+
+  end
+
+  def match_identifiers_facet
+    return nil if match_identifiers 
+
   end
 
   def identifiers_facet
