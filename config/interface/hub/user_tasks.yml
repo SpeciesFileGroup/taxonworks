@@ -722,7 +722,7 @@ taxon_name_merge_task:
     - nomenclature 
   status: prototype
   description: 'Basic tools that faclitate merging taxon names.'
-paper_catalog_preview_task:
+paper_catalog_generator_task:
   hub: true
   name: 'Paper catalog preview'
   related:

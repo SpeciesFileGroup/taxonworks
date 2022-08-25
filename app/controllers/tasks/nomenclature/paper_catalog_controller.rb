@@ -10,4 +10,8 @@ class Tasks::Nomenclature::PaperCatalogController < ApplicationController
     end
   end
 
+  def preview
+    @taxon_name = TaxonName.where(project_id: sessions_current_project_id).find(params[:taxon_name_id])
+  end
+
 end

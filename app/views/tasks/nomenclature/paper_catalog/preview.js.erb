@@ -1,0 +1,6 @@
+var content;
+
+content = $('<%= escape_javascript(render(partial: 'preview', locals: {project: @project, taxon_name: @taxon_name}) ) %>');
+
+$('#type_report').html(content);
+

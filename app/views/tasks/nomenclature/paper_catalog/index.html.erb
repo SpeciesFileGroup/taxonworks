@@ -1,9 +1,24 @@
+<%= tag.h1 "Task - Basic paper catalog", id: :top -%>
 
-<% if !@taxon_name %>
-  To set taxon name use ?taxon_name_id=123 in the URL.
-<% else %>
-  <%= link_to('up', paper_catalog_preview_task_path(taxon_name_id: @taxon_name.parent_id)) -%><br>
+<em>To set taxon name use ?taxon_name_id=123 in the URL.</em>
+
+<%= form_tag paper_catalog_preview_task_path, method: :get, remote: true do |f| %>
+  <div class="field">
+    <h3> Generate catalog for taxon name</h3>
+
+    <%= render partial: 'workbench/elements/forms/ajax_select',
+      locals: {
+      controller: '/taxon_names',
+      object: '',
+      method:  'taxon_name_id',
+      tag_id: 'taxon_name_id_for_catalog',
+      display: nil,
+      size: 60} %>
+  </div>
+  <%= tag.input(type: 'submit', value: 'Preview', class: ['button', 'button-default'], ) %>
 <% end %>
 
 
-<%= recursive_catalog_tag(@taxon_name) -%>
+<div id="type_report">
+  something was here
+</div>

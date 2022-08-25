@@ -30,6 +30,7 @@ class DataAttribute < ApplicationRecord
   include Housekeeping
   include Shared::Citations
   include Shared::DualAnnotator
+  # include Shared::Protocol
   include Shared::IsData
   include Shared::PolymorphicAnnotator
   polymorphic_annotates('attribute_subject')

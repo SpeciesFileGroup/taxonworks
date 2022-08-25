@@ -1,160 +1,203 @@
+# for tommy
+#  * Type inline or not
+
+# Styling
+#  - Species as unbreakable blocks?
+#  - blocks/lines
+#  -
+#  -
+
 # Helpers for rendering a paper catalog.
 module TaxonNames::PaperCatalogHelper
 
-  def recursive_catalog_tag(taxon_name, body = '', depth = 0)
-    body << ['&nbsp;&nbsp;' * depth].join.html_safe + taxon_name_tag(taxon_name) + '<br>'.html_safe
+  # Scaffold by by unique synonyms
+  def recursive_catalog_tag2(taxon_name, body = '', depth = 0)
+    body << ['&nbsp;&nbsp;' * depth].join.html_safe + full_taxon_name_tag(taxon_name) + '<br>'.html_safe
     taxon_name.children.that_is_valid.order(:cached).each do |t|
+
+      t.children.that_is_invalid.order(:cached).each do |i|
+        body << ['&nbsp;&nbsp;' * (depth + 3), '= '].join.html_safe + full_original_taxon_name_tag(i) + '<br>'.html_safe
+      end
       recursive_catalog_tag(t, body, depth + 1)
     end
     body.html_safe
   end
 
+  # Scaffold with chronological
+  def recursive_catalog_tag(taxon_name, body = '', depth = 0, sources = [])
+    #  return body if depth == 3
+    body << ['&nbsp;&nbsp;' * depth].join.html_safe + full_taxon_name_tag(taxon_name) + '<br>'.html_safe
 
-=begin
-  def nomenclature_catalog_entry_item_tag(catalog_entry_item) # may need reference_object
+    data = ::Catalog::Nomenclature::Entry.new(taxon_name)
+    sources.push(data.sources)
+
+    depth_string = '&nbsp;&nbsp;' * (depth + 3)
+
+    # type of primary name
+    #  if t = paper_history_type_material(c)
+    #    body << [depth_string, 'Type: ', t].join.html_safe + tag.br
+    #  end
+
+    # synonymy
+    data.ordered_by_nomenclature_date.each do |c|
+      body <<  ['&nbsp;&nbsp;' * (depth + 3)].join.html_safe + paper_catalog_li_tag(c, data.object, :browse_nomenclature_task_path).html_safe + tag.br
+      if t = paper_history_type_material(c)
+        body << [depth_string, 'Type: ', t].join.html_safe + tag.br
+      end
+    end
+
+    # distribution
+    if d = paper_distribution(taxon_name)
+      body << [depth_string, 'Distribution: ', d].join.html_safe + tag.br
+    end
+
+    taxon_name.children.that_is_valid.order(:cached).each do |t|
+      recursive_catalog_tag(t, body, depth + 1, sources)
+    end
+
+    return body.html_safe, sources.flatten.uniq.collect{|s| s.cached}.sort.join('<br>').html_safe
+  end
+
+  # Part 1 TODO:
+  # * accumulate References
+  # * option to set CSL style for references?
+  # * create standardized " action " prefix
+  # * create standardized " in " tag, follows action
+  # * Develop Markdown pattern
+  # * Illustrate Pandoc translation
+  # * change HTML to markdown markup
+
+  # Part 2 TODO (post first pass)
+  # * link out and accumulate OTU Topics/Citations
+
+
+  def paper_catalog_entry_item_tag(catalog_entry_item) # may need reference_object
     nomenclature_line_tag(catalog_entry_item, catalog_entry_item.base_object) # second param might be wrong!
   end
 
-  # TODO: rename reference_taxon_name
-  def nomenclature_catalog_li_tag(nomenclature_catalog_item, reference_taxon_name, target = :browse_nomenclature_task_path)
-    content_tag(
-      :li,
-      (content_tag(:span, nomenclature_line_tag(nomenclature_catalog_item, reference_taxon_name, target)) + ' ' + radial_annotator(nomenclature_catalog_item.object)).html_safe, 
-      class: [:history__record, :middle, :inline],
-      data: nomenclature_catalog_li_tag_data_attributes(nomenclature_catalog_item)
-    ) 
-  end
-
-  # TODO: move to Catalog json data attributes helper
-  def nomenclature_catalog_li_tag_data_attributes(nomenclature_catalog_item)
-    n = nomenclature_catalog_item
-    data = {
-      'history-origin' => n.origin,
-      'history-object-id' => n.object.id,
-      'history-valid-name' => (n.is_valid_name? && n.is_first), # marks the single current valid name for this record
-      'history-is-subsequent' => !n.is_first # is_subsequent?
-    }
-    data
+  # TODO: Add depth, Markdown
+  def paper_catalog_li_tag(nomenclature_catalog_item, reference_taxon_name, target = :browse_nomenclature_task_path)
+    # Depth
+    # Style
+    paper_line_tag(nomenclature_catalog_item, reference_taxon_name, target)
   end
 
   # TODO: rename reference_taxon_name
-  def nomenclature_line_tag(nomenclature_catalog_entry_item, reference_taxon_name, target = :browse_nomenclature_task_path)
+  def paper_line_tag(nomenclature_catalog_entry_item, reference_taxon_name, target = :browse_nomenclature_task_path)
     i = nomenclature_catalog_entry_item
-    t = i.base_object # was taxon_name 
+
+    t = i.base_object
     c = i.citation
     r = reference_taxon_name
 
-    [ 
-      history_taxon_name(t, r, c, target),        # the subject, or protonym
-      history_author_year(t, c),                  ## author year of the subject, or protonym
-      history_subject_original_citation(i),       ##
-      history_other_name(i, r),                   # The TaxonNameRelaltionship
-      history_in_taxon_name(t, c, i),                ##  citation for related name
-      history_pages(c),                           ##  pages for citation of related name
-      history_statuses(i),                        # TaxonNameClassification summary
-      history_citation_notes(c),                  # Notes on the citation
-      history_topics(c),                          # Topics on the citation
-      history_type_material(i),
+    [
+      paper_history_taxon_name(t, r, c, target),        # the subject, or protonym
+      paper_history_author_year(t, c),                  ## author year of the subject, or protonym
+      paper_history_subject_original_citation(i),       ##
+      paper_history_other_name(i, r),                   # The TaxonNameRelaltionship
+      paper_history_in_taxon_name(t, c, i),             ##  citation for related name
+      paper_history_pages(c),                           ##  pages for citation of related name
+      paper_history_statuses(i),                        # TaxonNameClassification summary
+      #  history_citation_notes(c),                     # Notes on the citation
+      paper_history_topics(c),                          # Topics on the citation
+      # history_type_material(i), # TODO: could still be OK here
     ].compact.join.html_safe
   end
 
-  def history_taxon_name(taxon_name, r, c, target = nil)
-    name = original_taxon_name_tag(taxon_name)
-    body = nil
-    css = nil
-    soft_validation = nil
-
-    if target
-      body = link_to(name, send(target, taxon_name_id: taxon_name.id) )
-    else
-      body = name 
-    end
-
-    if taxon_name == r
-      css = 'history__reference_taxon_name'
-    else
-      css = 'history__related_taxon_name' 
-      soft_validation = soft_validation_alert_tag(taxon_name)
-    end
-
-    content_tag(:span, body + soft_validation.to_s, class: [css, original_citation_css(taxon_name, c), :history__taxon_name ]) 
+  def paper_history_taxon_name(taxon_name, r, c, target = nil)
+    original_taxon_name_tag(taxon_name)
   end
 
-  # @return [String]
-  #   the name, or citation author year, prioritized by original/new with punctuation
-  def history_author_year(taxon_name, citation)
-    return content_tag(:span, 'Source is verbatim, requires parsing', class: 'feedback feedback-thin feedback-warning') if citation.try(:source).try(:type) == 'Source::Verbatim'
-    str =  history_author_year_tag(taxon_name)
-    return nil if str.blank?
-    if citation
-      a = history_author_year_tag(taxon_name)
-      b = source_author_year_tag(citation.source)
-    end
+  # TODO: always displayed inline, consider target
+  def paper_history_type_material(entry_item)
+    return nil if entry_item.object_class != 'Protonym' || !entry_item.is_first # is_subsequent?
 
-    if citation.blank? || a != b
-      content_tag(:span, ' ' + str, class: [:history_author_year])
-    else
-      content_tag(:em, ' ') + link_to(content_tag(:span, str, title: citation.source.cached, class: 'history__pages'), send(:nomenclature_by_source_task_path, source_id: citation.source.id) )
-    end
-#    str.blank? ? nil :
-#      content_tag(:span, ' ' + str, class: [:history_author_year])
-  end
-
-  # @return [String, nil]
-  #   variably return the author year for taxon name in question
-  #   !! NO span, is used in comparison !!
-  def history_author_year_tag(taxon_name)
-    return nil if taxon_name.nil? || taxon_name.cached_author_year.nil?
-   
-    body =  case taxon_name.type
-    when 'Combination'
-      current_author_year(taxon_name)
-    when 'Protonym'
-      original_author_year(taxon_name)
-    else
-      'HYBRID NOT YET HANDLED'
-    end
-  end
-
-  # @return [String, nil]
-  #   a parenthesized line item containing relationship and related name
-  def history_other_name(catalog_item, reference_taxon_name)
-    if catalog_item.from_relationship? 
-      other_str = nil
-
-      if catalog_item.other_name == reference_taxon_name
-        other_str = full_original_taxon_name_tag(catalog_item.other_name) 
+    # Species type
+    if entry_item.object.is_species_rank?
+      types = entry_item.object.get_primary_type
+      if types.any?
+        return types.collect{|t| type_material_catalog_label(t)}.join('. ')
       else
-        other_str = link_to(original_taxon_name_tag(catalog_item.other_name), browse_nomenclature_task_path(taxon_name_id: catalog_item.other_name.id) ) + ' ' + original_author_year(catalog_item.other_name)
+        return nil
       end
-      content_tag(:span, " (#{catalog_item.object.subject_status_tag} #{other_str})#{soft_validation_alert_tag(catalog_item.object)}".html_safe, class: [:history__other_name])
+    else
+      if type_taxon_name_relationship = entry_item.base_object&.type_taxon_name_relationship
+        str = citations_tag(type_taxon_name_relationship)
+
+        [ ' ' + type_taxon_name_relationship_label(entry_item.base_object.type_taxon_name_relationship),
+          (type_taxon_name_relationship.citations&.load&.any? ?  ' in ' : nil),
+          str
+        ].compact.join.html_safe
+      else
+        nil
+      end
     end
   end
 
-  # @return [String, nil]
-  #   A brief summary of the validity of the name (e.g. 'Valid')
-  #     ... think this has to be refined, it doesn't quite make sense to show multiple status per relationship
-  def history_statuses(nomenclature_catalog_entry_item)
+  #   # @return [String, nil]
+  #   #   A brief summary of the validity of the name (e.g. 'Valid')
+  #   #     ... think this has to be refined, it doesn't quite make sense to show multiple status per relationship
+  def paper_history_statuses(nomenclature_catalog_entry_item)
     i = nomenclature_catalog_entry_item
     s = i.base_object.taxon_name_classifications_for_statuses
     return nil if (s.empty? || !i.is_first) # is_subsequent?
     return nil if i.from_relationship?
 
-    content_tag(:span, class: [:history__statuses]) do
-      (' (' +
-       s.collect{|tnc|
-        content_tag(:span, (tnc.classification_label + soft_validation_alert_tag(tnc).to_s + (tnc.citations.load.any? ? (content_tag(:em, ' in ') + citations_tag(tnc)).html_safe : '') ).html_safe, class: ['history__status'])
-      }.join('; ')
-      ).html_safe +
-      ')'
-    end.to_s
+    (' (' +
+     s.collect{|tnc|
+       tnc.classification_label + (tnc.citations.load.any? ? (' in ' + citations_tag(tnc)).html_safe : '')
+     }.join('; ')
+    ).html_safe +
+    ')'
+
   end
 
-  # @return [String, nil]
-  #   the taxon name author year for the citation in question
-  #   if the same as the author/year for the catalog_item taxon name then this
-  #   only renders the pages in that citation
-  def history_subject_original_citation(catalog_item)
+  # @return [String]
+  #   the name, or citation author year, prioritized by original/new with punctuation
+  def paper_history_author_year(taxon_name, citation)
+    return 'Source is verbatim, requires parsing' if citation&.source&.type == 'Source::Verbatim'
+
+    str = ' ' + paper_history_author_year_tag(taxon_name)
+
+    #   return nil if str.blank?
+    #
+    #   if citation
+    #     a = history_author_year_tag(taxon_name)
+    #     b = source_author_year_tag(citation.source)
+    #   end
+    #
+    #   s
+    #   if citation.blank? || a != b
+    #     content_tag(:span, ' ' + str, class: [:history_author_year])
+    #   else
+    #     content_tag(:em, ' ') + link_to(content_tag(:span, str, title: citation.source.cached, class: 'history__pages'), send(:nomenclature_by_source_task_path, source_id: citation.source.id) )
+    #   end
+    #    str.blank? ? nil :
+    #      content_tag(:span, ' ' + str, class: [:history_author_year])
+  end
+
+
+  #   # @return [String, nil]
+  #   #   variably return the author year for taxon name in question
+  #   #   !! NO span, is used in comparison !!
+  def paper_history_author_year_tag(taxon_name)
+    return nil if taxon_name.nil? || taxon_name.cached_author_year.nil?
+
+    body =  case taxon_name.type
+            when 'Combination'
+              current_author_year(taxon_name)
+            when 'Protonym'
+              original_author_year(taxon_name)
+            else
+              'HYBRID NOT YET HANDLED'
+            end
+  end
+
+  #   # @return [String, nil]
+  #   #   the taxon name author year for the citation in question
+  #   #   if the same as the author/year for the catalog_item taxon name then this
+  #   #   only renders the pages in that citation
+  def paper_history_subject_original_citation(catalog_item)
     return nil if !catalog_item.from_relationship? || catalog_item.object.subject_taxon_name.origin_citation.blank?
     return nil if catalog_item.from_relationship?
     t = catalog_item.object.subject_taxon_name
@@ -169,42 +212,65 @@ module TaxonNames::PaperCatalogHelper
     ].compact.join.html_safe
 
     unless body.blank?
-      content_tag(:em, ': ') + link_to(content_tag(:span, body, title: c.source.cached, class: :history__subject_original_citation), send(:nomenclature_by_source_task_path, source_id: c.source.id) )
+      ': ' + body
     end
-#    content_tag(:span, body, class: :history__subject_original_citation) unless body.blank?
+    #    content_tag(:span, body, class: :history__subject_original_citation) unless body.blank?
   end
 
-  # @return [String, nil]
-  #    return the citation author/year if differeing from the taxon name author year 
-  def history_in_taxon_name(t, c, i)
+  #   # @return [String, nil]
+  #   #    return the citation author/year if differeing from the taxon name author year
+  def paper_history_in_taxon_name(t, c, i)
     if c
-      a = history_author_year_tag(t) 
+      a = history_author_year_tag(t)   # TODO: probably label
       b = source_author_year_tag(c.source)
 
       if a != b || i.from_relationship?
-        content_tag(:em, ' in ') + link_to(content_tag(:span, b, title: c.source.cached, class: :history__subject_original_citation), send(:nomenclature_by_source_task_path, source_id: c.source.id) )
-#        return content_tag(:span,  content_tag(:em, ' in ') + b, class: [:history__in])
+        ' in ' +  b
       end
     end
   end
-  
-  def history_type_material(entry_item)
-    return nil if entry_item.object_class != 'Protonym' || !entry_item.is_first # is_subsequent?
-    type_taxon_name_relationship = entry_item.base_object&.type_taxon_name_relationship
-    
-    str = citations_tag(type_taxon_name_relationship) if type_taxon_name_relationship
 
-    [ content_tag(:span, ' '.html_safe + type_taxon_name_relationship_tag(entry_item.base_object.type_taxon_name_relationship), class: 'history__type_information'),
+  # @return [String, nil]
+  #   a parenthesized line item containing relationship and related name
+  def paper_history_other_name(catalog_item, reference_taxon_name)
+    if catalog_item.from_relationship?
+      other_str = nil
 
-#      citations_tag(entry_item.base_object&.type_taxon_name_relationship)
-#      (entry_item.base_object&.type_taxon_name_relationship&.citations&.load&.any? ? (content_tag(:em, ' in ') + citations_tag(entry_item.base_object&.type_taxon_name_relationship)) : '')
-    (type_taxon_name_relationship&.citations&.load&.any? ? (content_tag(:em, ' in ') +
-        link_to(content_tag(:span, str, title: type_taxon_name_relationship&.citations&.first&.source&.cached, class: 'history__pages'), send(:nomenclature_by_source_task_path, source_id: type_taxon_name_relationship&.citations&.first&.source&.id) )  ) : '')
-
-
-    #      history_in(entry_item.base_object&.type_taxon_name_relationship&.source)
-    ].compact.join.html_safe
+      if catalog_item.other_name == reference_taxon_name
+        other_str = full_original_taxon_name_tag(catalog_item.other_name)
+      else
+        other_str = original_taxon_name_tag(catalog_item.other_name) + ' ' + original_author_year(catalog_item.other_name)
+      end
+      " (#{catalog_item.object.subject_status_tag} #{other_str})".html_safe
+    end
   end
-=end
 
+  #
+  # def nomenclature_catalog_entry_item_tag(catalog_entry_item) # may need reference_object
+  #   nomenclature_line_tag(catalog_entry_item, catalog_entry_item.base_object) # second param might be wrong!
+  # end
+  #
+  # # TODO: rename reference_taxon_name
+  # def nomenclature_catalog_li_tag(nomenclature_catalog_item, reference_taxon_name, target = :browse_nomenclature_task_path)
+  #   content_tag(
+  #     :li,
+  #     (content_tag(:span, nomenclature_line_tag(nomenclature_catalog_item, reference_taxon_name, target)) + ' ' + radial_annotator(nomenclature_catalog_item.object)).html_safe,
+  #     class: [:history__record, :middle, :inline],
+  #       data: nomenclature_catalog_li_tag_data_attributes(nomenclature_catalog_item)
+  #     )
+  #   end
+  #
+
+  #
+
+  #
+
+  #
+
+  #
+
+  #
+
+
+  #end
 end

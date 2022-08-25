@@ -908,7 +908,7 @@ class GeographicItem < ApplicationRecord
   #   !! Note this just takes the first referenced GeographicArea, which should be safe most cases
   def quick_geographic_name_hierarchy
     v = {}
-    a = geographic_areas.first.try(:geographic_name_classification)
+    a = geographic_areas.first&.geographic_name_classification
     v = a unless a.nil?
     v
   end
