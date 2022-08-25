@@ -42,9 +42,14 @@
         v-model="params.roles"
         class="margin-large-bottom"
       />
-
-      <FacetTimesRepeated v-model="params.base" />
-
+      <FacetTimesRepeated
+        class="margin-large-bottom"
+        v-model="params.base"
+      />
+      <FacetNotes
+        class="margin-large-bottom"
+        v-model="params.notes"
+      />
       <FacetRoles
         v-model="params.roles"
         title="Without roles"
@@ -89,6 +94,7 @@ import FacetDied from 'tasks/uniquify/people/components/Filter/Facets/FacetDied.
 import FacetTimesRepeated from './Facet/FacetTimesRepeated.vue'
 import FacetProjects from './Facet/FacetProjects.vue'
 import FacetRegex from './Facet/FacetRegex.vue'
+import FacetNotes from 'tasks/collection_objects/filter/components/filters/FacetNotes.vue'
 import FacetWith from './Facet/FacetWith.vue'
 import { computed, ref } from 'vue'
 
@@ -113,6 +119,7 @@ const parseParams = computed(() =>
     ...params.value.base,
     ...params.value.with,
     ...params.value.roles,
+    ...params.value.notes,
     ...filterEmptyParams(params.value.user)
   })
 )
@@ -146,6 +153,10 @@ const initParams = () => ({
     project_id: [],
     with: [],
     without: []
+  },
+  notes: {
+    note_exact: undefined,
+    note_text: undefined
   },
   roles: {
     role: [],
