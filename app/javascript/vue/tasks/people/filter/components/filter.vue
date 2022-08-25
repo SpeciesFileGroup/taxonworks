@@ -43,6 +43,8 @@
         class="margin-large-bottom"
       />
 
+      <FacetTimesRepeated v-model="params.base" />
+
       <FacetRoles
         v-model="params.roles"
         title="Without roles"
@@ -84,6 +86,7 @@ import FacetPerson from './Facet/FacetPerson.vue'
 import FacetActiveYear from 'tasks/uniquify/people/components/Filter/Facets/FacetActive.vue'
 import FacetBorn from 'tasks/uniquify/people/components/Filter/Facets/FacetBorn.vue'
 import FacetDied from 'tasks/uniquify/people/components/Filter/Facets/FacetDied.vue'
+import FacetTimesRepeated from './Facet/FacetTimesRepeated.vue'
 import FacetProjects from './Facet/FacetProjects.vue'
 import FacetRegex from './Facet/FacetRegex.vue'
 import FacetWith from './Facet/FacetWith.vue'
