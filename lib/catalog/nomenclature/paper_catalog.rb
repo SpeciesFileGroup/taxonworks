@@ -95,7 +95,7 @@ class PaperCatalog < Catalog::Nomenclature
     @otu_id_filter_array = otu_filter_array
 
     #Main logic
-    @results_hash = {names: {}, literature: {}}
+    @results_hash = {names: {}, sources: {}}
     @position = 0
 
     build_the_list
@@ -119,6 +119,10 @@ class PaperCatalog < Catalog::Nomenclature
     end
     if results_hash.names.count > 0 && accepted_only.to_s != 'true'
       synonyms = get_synonyms
+    end
+    if taxon_name_ids.count > 0
+      statuses = get_taxon_name_classifications
+      relationships = get_taxon_name_relationships
     end
   end
 
@@ -161,18 +165,112 @@ class PaperCatalog < Catalog::Nomenclature
                                 #original_author_year: t.original_author_year,
                                 global_id: t.to_global_id.to_s,
                                 prosition: @position,
-                                statuses: [],
-                                synonyms: [],
+                                synonyms: {},
     }
+    taxon_name_ids.push(t.id)
   end
 
   def get_synonyms
-    TaxonName.select('taxon_names.*, citations.pages, sources.id AS source_id, sources.cached_author_string, sources.year, sources.cached AS source_cached')
+    TaxonName.select('taxon_names.*, citations.pages, sources.id AS source_id, sources.cached_author_string, sources.year, sources.cached AS source_cached, sources.cached_nomenclature_date AS source_nomenclature_date')
              .joins("LEFT OUTER JOIN citations ON citations.citation_object_id = taxon_names.id AND citations.citation_object_type = 'TaxonName'")
              .joins("LEFT OUTER JOIN sources ON citations.source_id = sources.id")
-             .where(cached_valid_taxon_name_id: results_hash.names.keys)
-             .order(:cached_nomenclature_date, :cached_is_valid).each do |t|
+             .where(cached_valid_taxon_name_id: taxon_name_ids.keys)
+             .order('taxon_names.cached_nomenclature_date, taxon_names.cached_is_valid, sources.cached_nomenclature_date')
+             .each do |t|
+      if results_hash.names[t.cached_valid_taxon_name_id].synonyms[t.id].nil?
+        if t.type == 'Combination'
+          name, year = t.cached_html, t.author_year
+        else
+          name, year = t.cached_original_combination_html, t.original_author_year
+        end
+        syn = {name: name,
+               author_year: year,
+               global_id: t.to_global_id.to_s,
+               cached_is_valid: t.cached_is_valid,
+               cached_nomenclature_date: t.cached_nomenclature_date,
+               statuses: {},
+               relationships: {},
+               citations: [],
+        }
+        results_hash.names[t.cached_valid_taxon_name_id].synonyms[t.id] = syn
+        taxon_name_ids.push(t.id)
+      end
+      unless t.source_id.nil?
+        citation = get_citation_hash(t)
+        results_hash.names[t.cached_valid_taxon_name_id].synonyms[t.id].citations.push(citation)
+        if results_hash.sources[t.source_id].nil?
+          results_hash.sources[t.source_id] = get_source_hash(t)
+        end
+      end
+    end
+  end
 
+  def get_citation_hash(t)
+    {  source_author: t.cached_author_string,
+       source_year: t.year,
+       source_pages: t.pages,
+       source_id: t.source_id,
+       source_cached: t.source_cached,
+       source_nomenclature_date: t.source_nomenclature_date
+    }
+  end
+
+  def get_source_hash(t)
+    { source_author: t.cached_author_string,
+      source_year: t.year,
+      source_id: t.source_id,
+      source_cached: t.source_cached,
+      source_nomenclature_date: t.source_nomenclature_date
+    }
+  end
+
+  def get_taxon_name_classifications
+    TaxonNameClassification.select('taxon_name_classifications.*, citations.pages, sources.id AS source_id, sources.cached_author_string, sources.year, sources.cached AS source_cached, sources.cached_nomenclature_date AS source_nomenclature_date, taxon_names.cached_valid_taxon_name_id')
+             .joins("LEFT OUTER JOIN citations ON citations.citation_object_id = taxon_name_classifications.id AND citations.citation_object_type = 'TaxonNameClassification'")
+             .joins("LEFT OUTER JOIN sources ON citations.source_id = sources.id")
+             .joins("LEFT OUTER JOIN taxon_names ON taxon_name_classifications.taxon_name_id = taxon_names.id")
+             .where(cached_valid_taxon_name_id: taxon_name_ids)
+             .where(type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID)
+             .order('sources.cached_nomenclature_date')
+             .each do |t|
+      if results_hash.names[t.cached_valid_taxon_name_id].synonyms[t.taxon_name_id].statuses[t.id].nil?
+        results_hash.names[t.cached_valid_taxon_name_id].synonyms[t.taxon_name_id].statuses[t.id] = {
+          label: t.label,
+          citations: [],
+        }
+      end
+      unless t.source_id.nil?
+        citation = get_citation_hash(t)
+        results_hash.names[t.cached_valid_taxon_name_id].synonyms[t.taxon_name_id].statuses[t.id].citations.push(citation)
+        if results_hash.sources[t.source_id].nil?
+          results_hash.sources[t.source_id] = get_source_hash(t)
+        end
+      end
+    end
+  end
+
+  def get_taxon_name_relationships
+    TaxonNameRelationship.select('taxon_name_relationships.*, citations.pages, sources.id AS source_id, sources.cached_author_string, sources.year, sources.cached AS source_cached, sources.cached_nomenclature_date AS source_nomenclature_date, taxon_names.cached_valid_taxon_name_id')
+                           .joins("LEFT OUTER JOIN citations ON citations.citation_object_id = taxon_name_relationships.id AND citations.citation_object_type = 'TaxonNameRelationship'")
+                           .joins("LEFT OUTER JOIN sources ON citations.source_id = sources.id")
+                           .joins("LEFT OUTER JOIN taxon_names ON taxon_name_relationships.subject_taxon_name_id = taxon_names.id")
+                           .where(cached_valid_taxon_name_id: taxon_name_ids)
+                           .where(type: TAXON_NAME_RELATIONSHIP_NAMES_INVALID)
+                           .order('sources.cached_nomenclature_date')
+                           .each do |t|
+      if results_hash.names[t.cached_valid_taxon_name_id].synonyms[t.taxon_name_id].relationships[t.id].nil?
+        results_hash.names[t.cached_valid_taxon_name_id].synonyms[t.taxon_name_id].relationships[t.id] = {
+          label: t.subject_status_tag,
+          citations: [],
+        }
+      end
+      unless t.source_id.nil?
+        citation = get_citation_hash(t)
+        results_hash.names[t.cached_valid_taxon_name_id].synonyms[t.taxon_name_id].relationships[t.id].citations.push(citation)
+        if results_hash.sources[t.source_id].nil?
+          results_hash.sources[t.source_id] = get_source_hash(t)
+        end
+      end
     end
   end
 

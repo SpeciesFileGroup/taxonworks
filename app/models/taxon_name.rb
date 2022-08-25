@@ -1644,7 +1644,8 @@ class TaxonName < ApplicationRecord
     end
   end
 
-  # TODO: does this make sense now, with #valid_taxon_name_id in place?
+  # MY: does this make sense now, with #valid_taxon_name_id in place?
+  # DD: valid_taxon_name_id does not show if conflict exists
   def sv_not_synonym_of_self
     if list_of_invalid_taxon_names.include?(self)
       soft_validations.add(:base, "Taxon has two conflicting relationships (invalidating and validating). To resolve a conflict, add a status 'Valid' to a valid taxon.")
