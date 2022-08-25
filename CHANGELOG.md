@@ -6,10 +6,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- People filter, with many facets [#2876]
+
 ### Changed
 - Updated Ruby gems.
 - Upgraded to newer Gnfinder service.
 - Enabled 10km tolerance to geographic area validation for verbatim georeferences.
+
+[#2876]: https://github.com/SpeciesFileGroup/taxonworks/issues/2876
+
 ## [0.28.1] - 2022-08-19
 
 ### Fixed
