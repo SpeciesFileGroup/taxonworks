@@ -344,7 +344,7 @@ module Queries
       def levenshtein_facet
         return nil unless levenshtein_cuttoff && (!name.blank?)
         ::Person.where(
-          levenshtein_distance(:cached, name).lt(levenshtein_cuttoff).to_sql
+          levenshtein_distance(:cached, name).lteq(levenshtein_cuttoff).to_sql
         )
       end
 
