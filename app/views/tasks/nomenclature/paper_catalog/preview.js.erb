@@ -1,6 +1,3 @@
 var content;
-
-content = $('<%= escape_javascript(render(partial: 'preview', locals: {project: @project, taxon_name: @taxon_name}) ) %>');
-
-$('#type_report').html(content);
-
+content = '<%= escape_javascript(render(partial: 'preview', locals: {project: @project, body: @body, sources: @sources, taxon_name: @taxon_name} ) ) %>';
+document.querySelector('#catalog_preview').innerHTML = content;

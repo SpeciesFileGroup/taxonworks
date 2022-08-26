@@ -1,5 +1,4 @@
-
-<% body, sources = recursive_catalog_tag(taxon_name) %>
-
-<%= body %>
-<%= sources %>
+= Catalog of the Species of <%= full_original_taxon_name_tag(taxon_name) %>
+<%= body.html_safe %>
+= References
+<%= sources.html_safe %>

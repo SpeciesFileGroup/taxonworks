@@ -2,7 +2,7 @@
 
 <em>To set taxon name use ?taxon_name_id=123 in the URL.</em>
 
-<%= form_tag paper_catalog_preview_task_path, method: :get, remote: true do |f| %>
+<%= form_tag paper_catalog_preview_task_path, method: :get, remote: true, data: {turbolinks: false} do |f| %>
   <div class="field">
     <h3> Generate catalog for taxon name</h3>
 
@@ -15,10 +15,12 @@
       display: nil,
       size: 60} %>
   </div>
-  <%= tag.input(type: 'submit', value: 'Preview', class: ['button', 'button-default'], ) %>
+  
+  <%= tag.input(type: 'submit', value: 'Go', class: ['button', 'button-default'], ) %>
+  <%= tag.input(type: 'submit', value: 'Download', class: ['button', 'button-default'], ) %>
 <% end %>
 
 
-<div id="type_report">
-  something was here
-</div>
+<pre id="catalog_preview">
+  Select a taxon name to start.
+</pre>
