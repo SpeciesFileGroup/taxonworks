@@ -465,7 +465,7 @@ class Tools::ImageMatrix
     imgs = Image.where('id IN (?)', list_of_image_ids )
     imgs.each do |d|
       i = {}
-      i[:global_id] = d.to_global_id.to_s  # Why this?
+      i[:global_id] = d.to_global_id.to_s
       i[:image_file_file_name] = d.image_file_file_name
       i[:image_file_file_size] = d.image_file_file_size
       i[:image_file_content_type] = d.image_file_content_type

@@ -23,6 +23,7 @@ json.depiction_matrix (@key.depiction_matrix) do |d, v|
   json.object do
     json.object_tag object_tag(v[:object])
     json.global_id v[:object].to_global_id.to_s
+    json.base_class v[:object].class.base_class.name
     json.merge! v[:object].attributes
   end
   json.extract! v, :row_id

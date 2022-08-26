@@ -61,7 +61,10 @@
           <template
             v-for="item in lists[view]"
             :key="item.id">
-            <li v-if="filterItem(item)">
+            <li
+              v-if="filterItem(item)"
+              class="list__item"
+            >
               <template
                 v-if="buttons">
                 <button
@@ -412,5 +415,9 @@ export default {
 <style scoped>
   input:focus + span {
     font-weight: bold;
+  }
+
+  .list__item {
+    padding:2px 0;
   }
 </style>

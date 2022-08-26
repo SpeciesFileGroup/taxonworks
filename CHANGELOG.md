@@ -6,10 +6,21 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- People filter, with many facets [#2876]
+- Matches identifiers facet [#3080]
+- `Open in filter collection object` button in Filter collecting event task
+
+### Fixed
+- Object type is missing when otu filter param is passed instead observation matrix id in Image matrix task
+
 ### Changed
 - Updated Ruby gems.
 - Upgraded to newer Gnfinder service.
 - Enabled 10km tolerance to geographic area validation for verbatim georeferences.
+
+[#2876]: https://github.com/SpeciesFileGroup/taxonworks/issues/2876
+
 ## [0.28.1] - 2022-08-19
 
 ### Fixed
