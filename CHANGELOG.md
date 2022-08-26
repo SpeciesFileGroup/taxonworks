@@ -9,6 +9,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - People filter, with many facets [#2876]
 
+### Fixed
+- Object type is missing when otu filter param is passed instead observation matrix id in Image matrix task
+
 ### Changed
 - Updated Ruby gems.
 - Upgraded to newer Gnfinder service.
