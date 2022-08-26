@@ -8,6 +8,7 @@ module Queries
       include Queries::Concerns::DateRanges
       include Queries::Concerns::Users
       include Queries::Concerns::DataAttributes
+      include Queries::Concerns::Identifiers
 
       # TODO: likely move to model (replicated in Source too)
       # Params exists for all CollectingEvent attributes except these
