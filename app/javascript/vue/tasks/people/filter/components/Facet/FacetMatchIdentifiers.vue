@@ -35,6 +35,7 @@
 <script setup>
 import { computed } from 'vue'
 import VToggle from 'tasks/observation_matrices/new/components/newMatrix/switch.vue'
+import { URLParamsToJSON } from 'helpers/url/parse'
 
 const props = defineProps({
   modelValue: {
@@ -57,6 +58,14 @@ const toggleType = computed({
       ? 'Identifier'
       : 'Internal'
   }
+})
+
+const urlParams = URLParamsToJSON(location.href)
+
+Object.assign(params.value, {
+  match_identifiers: urlParams.match_identifiers,
+  match_identifiers_delimiter: urlParams.match_identifiers_delimiter,
+  match_identifiers_type: urlParams.match_identifiers_type
 })
 
 </script>
