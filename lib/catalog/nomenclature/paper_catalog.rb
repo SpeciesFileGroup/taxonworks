@@ -157,7 +157,7 @@ class PaperCatalog < Catalog::Nomenclature
   end
 
   def add_taxon_to_results(t)
-    next if !rank_filter.empty? && !rank_filter.include?(t.rank_name)
+    return if !rank_filter.empty? && !rank_filter.include?(t.rank_name)
     @position += 1
     results_hash.names[t.id] = {name: t.cached_html,
                                 author_year: t.author_year,
