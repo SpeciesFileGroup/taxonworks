@@ -64,7 +64,7 @@ const urlParams = URLParamsToJSON(location.href)
 
 Object.assign(params.value, {
   match_identifiers: urlParams.match_identifiers,
-  match_identifiers_delimiter: urlParams.match_identifiers_delimiter,
+  match_identifiers_delimiter: urlParams.match_identifiers_delimiter || ',',
   match_identifiers_type: urlParams.match_identifiers_type
 })
 

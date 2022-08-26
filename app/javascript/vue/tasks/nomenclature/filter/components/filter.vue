@@ -121,6 +121,7 @@ import WithComponent from 'tasks/sources/filter/components/filters/with'
 import AuthorsComponent from './filters/authors.vue'
 import FacetDataAttribute from 'tasks/collection_objects/filter/components/filters/DataAttributes/FacetDataAttribute.vue'
 import FacetMatchIdentifiers from 'tasks/people/filter/components/Facet/FacetMatchIdentifiers.vue'
+import checkMatchIdentifiersParams from 'tasks/people/filter/helpers/checkMatchIdentifiersParams'
 
 import SpinnerComponent from 'components/spinner'
 import platformKey from 'helpers/getPlatformKey.js'
@@ -167,7 +168,7 @@ export default {
       return keys
     },
     parseParams () {
-      const params = Object.assign({}, this.params.matchIdentifiers, this.filterEmptyParams(this.params.taxon), this.params.dataAttributes, this.params.authors, this.params.with, this.params.keywords, this.params.related, this.params.base, this.params.user, this.params.includes, this.params.settings)
+      const params = Object.assign({}, checkMatchIdentifiersParams(this.params.matchIdentifiers), this.filterEmptyParams(this.params.taxon), this.params.dataAttributes, this.params.authors, this.params.with, this.params.keywords, this.params.related, this.params.base, this.params.user, this.params.includes, this.params.settings)
       params.updated_since = params.updated_since ? this.setDays(params.updated_since) : undefined
       return params
     }

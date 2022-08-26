@@ -115,6 +115,7 @@ import FacetDataAttributes from 'tasks/collection_objects/filter/components/filt
 import FacetWith from './Facet/FacetWith.vue'
 import FacetMatchIdentifiers from './Facet/FacetMatchIdentifiers.vue'
 import WithComponent from 'tasks/sources/filter/components/filters/with'
+import checkMatchIdentifiersParams from '../helpers/checkMatchIdentifiersParams'
 import { computed, ref } from 'vue'
 
 const withFilter = ['first_name', 'suffix', 'prefix']
@@ -141,7 +142,7 @@ const parseParams = computed(() =>
     ...params.value.notes,
     ...params.value.dataAttributes,
     ...params.value.with,
-    ...params.value.matchIdentifiers,
+    ...checkMatchIdentifiersParams(params.value.matchIdentifiers),
     ...filterEmptyParams(params.value.user)
   })
 )

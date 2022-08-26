@@ -131,6 +131,7 @@ import FacetNotes from './filters/FacetNotes.vue'
 import FacetCurrentRepository from './filters/FacetCurrentRepository.vue'
 import FacetDataAttribute from './filters/DataAttributes/FacetDataAttribute.vue'
 import FacetMatchIdentifiers from 'tasks/people/filter/components/Facet/FacetMatchIdentifiers.vue'
+import checkMatchIdentifiersParams from 'tasks/people/filter/helpers/checkMatchIdentifiersParams'
 import { chunkArray } from 'helpers/arrays.js'
 
 import SpinnerComponent from 'components/spinner'
@@ -181,7 +182,7 @@ export default {
     },
 
     parseParams () {
-      return Object.assign({}, { preparation_type_id: this.params.preparation_type_id }, this.params.matchIdentifiers, this.params.dataAttributes, this.params.notes, this.params.collectors, this.params.settings, this.params.buffered.text, this.params.buffered.exact, this.params.byRecordsWith, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.repository, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
+      return Object.assign({}, { preparation_type_id: this.params.preparation_type_id }, checkMatchIdentifiersParams(this.params.matchIdentifiers), this.params.dataAttributes, this.params.notes, this.params.collectors, this.params.settings, this.params.buffered.text, this.params.buffered.exact, this.params.byRecordsWith, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.repository, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
     },
 
     isParamsEmpty () {
