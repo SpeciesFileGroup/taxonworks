@@ -180,7 +180,7 @@ const initParams = () => ({
   matchIdentifiers: {
     match_identifiers: undefined,
     match_identifiers_delimiter: ',',
-    match_identifiers_type: 'Internal'
+    match_identifiers_type: 'internal'
   },
   with: {
     identifiers: undefined,
