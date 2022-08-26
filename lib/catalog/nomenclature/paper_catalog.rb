@@ -114,18 +114,18 @@ class PaperCatalog < Catalog::Nomenclature
         add_taxon_to_results(t) if t.id == t.cached_valid_taxon_name_id
       end
     elsif !taxon.nil?
-      ancestors = get_ancestors(taxon)
-      descendants = get_descendants(taxon)
+      #   ancestors = get_ancestors(taxon)
+      # descendants = get_descendants(taxon)
     end
     if results_hash.names.count > 0 && accepted_only.to_s != 'true'
-      synonyms = get_synonyms
+      # synonyms = get_synonyms
     end
     if taxon_name_ids.count > 0
-      statuses = get_taxon_name_classifications
-      relationships = get_taxon_name_relationships
+      # statuses = get_taxon_name_classifications
+      # relationships = get_taxon_name_relationships
     end
   end
-
+=begin
   def otu_filter_array
     otu_filter.blank? ? nil : otu_filter.to_s.split('|').map(&:to_i)
   end
@@ -273,5 +273,5 @@ class PaperCatalog < Catalog::Nomenclature
       end
     end
   end
-
+=end
 end
