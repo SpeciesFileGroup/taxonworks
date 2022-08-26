@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - People filter, with many facets [#2876]
 - Matches identifiers facet [#3080]
+- `Open in filter collection object` button in Filter collecting event task
 
 ### Fixed
 - Object type is missing when otu filter param is passed instead observation matrix id in Image matrix task
