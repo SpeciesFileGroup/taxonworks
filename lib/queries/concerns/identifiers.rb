@@ -115,10 +115,9 @@ module Queries::Concerns::Identifiers
 
   def match_identifiers_facet
     return nil if match_identifiers.blank?
-    byebug
     ids = identifiers_to_match
     if !ids.empty?
-      case match_identifiers_type
+      case match_identifiers_type&.downcase
       when 'internal'
         query_base.where(id: ids)
       when 'identifier'
