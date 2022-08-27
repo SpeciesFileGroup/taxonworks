@@ -95,6 +95,12 @@ module Queries
       #  whether the CollectingEvent has associated CollectionObjects
       attr_accessor :collection_objects
 
+
+      # @return Array
+      # @param collection_object_id [Array, Integer, String]
+      #    all collecting events matching collection objects
+      attr_accessor :collection_object_id
+
       # @return [True, False, nil]
       #   true - index is built
       #   false - index is not built
@@ -108,6 +114,7 @@ module Queries
         @collector_id = params[:collector_id]
         @collector_ids_or = boolean_param(params, :collector_ids_or )
         @collection_objects = boolean_param(params, :collection_objects )
+        @collection_object_id = params[:collection_object_id]
         @depictions = boolean_param(params, :depictions)
         @geo_json = params[:geo_json]
         @geographic_area_id = params[:geographic_area_id]
@@ -133,6 +140,10 @@ module Queries
         ATTRIBUTES.each do |a|
           send("#{a}=", params[a.to_sym])
         end
+      end
+
+      def collection_object_id
+        [@collection_object_id.flatten.compact
       end
 
       def collector_id
@@ -287,7 +298,12 @@ module Queries
 
       def matching_otu_ids
         return nil if otu_id.empty?
-        ::CollectingEvent.joins(:otus).where(otus: {id: otu_id}) #  table[:geographic_area_id].eq_any(geographic_area_ids)
+        ::CollectingEvent.joins(:otus).where(otus: {id: otu_id})
+      end
+
+      def matching_collection_object_id
+        return nil if collection_object_id.empty?
+        ::CollectingEvent.joins(:collection_objects).where(collection_objects: {id: collection_object_id})
       end
 
       def matching_verbatim_locality
@@ -329,6 +345,7 @@ module Queries
           match_identifiers_facet,
           keyword_id_facet,
           matching_otu_ids,
+          matching_collection_object_id,
           matching_spatial_via_geographic_area_ids,
           note_text_facet,        # See Queries::Concerns::Notes
           notes_facet,            # See Queries::Concerns::Notes

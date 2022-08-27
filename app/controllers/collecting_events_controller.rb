@@ -328,6 +328,7 @@ class CollectingEventsController < ApplicationController
       :user_date_start,
       :user_target,
       :wkt,
+      collection_object_id: [],
       collecting_event_wildcards: [],
       collector_id: [],
       geographic_area_id: [],
@@ -372,6 +373,7 @@ class CollectingEventsController < ApplicationController
       :user_date_end,
       :data_attribute_exact_value,  # DataAttributes concern
       :data_attributes,             # DataAttributes concern
+      collection_object_id: [],
       collector_id: [],
       geographic_area_id: [],
       keyword_id_and: [],
