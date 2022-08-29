@@ -9,12 +9,21 @@ class AlternateValuesController < ApplicationController
   def index
     respond_to do |format|
       format.html {
-        @recent_objects = AlternateValue.where(project_id: sessions_current_project_id).order(updated_at: :desc).limit(10)
-        render '/shared/data/all/index'
+        # !! This is project-only, it will be tricky to find all created at this point. We would have
+        # to reference all project members and link through created/modified on all community opbjects.
+        # These would show up throughout the Users project as well, confusing things across project.
+        @recent_objects = Queries::AlternateValue::Filter.new(params.merge(project_id: sessions_current_project_id))
+          .all
+          .order(updated_at: :desc).limit(10)
+          render '/shared/data/all/index'
       }
       format.json {
-        @alternate_values = Queries::AlternateValue::Filter.new(params).all
-          .where(project_id: sessions_current_project_id).page(params[:page]).per(500)
+        # !! You must merge project_id to handle community data exceptions.  This is a contrast to other filter patterns
+        # where the project_id is scoped here.
+        @alternate_values = Queries::AlternateValue::Filter.new(
+          params.merge(project_id: sessions_current_project_id)
+        )
+        .all.page(params[:page]).per(500)
       }
     end
   end
@@ -85,9 +94,9 @@ class AlternateValuesController < ApplicationController
     data = @alternate_values.collect do |t|
       str = render_to_string(partial: 'tag', locals: {alternate_value: t})
       {id:              t.id,
-       label:           str,
-       response_values: {params[:method] => t.id},
-       label_html:      str
+        label:           str,
+        response_values: {params[:method] => t.id},
+        label_html:      str
       }
     end
 

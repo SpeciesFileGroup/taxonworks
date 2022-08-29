@@ -2,11 +2,18 @@ module AlternateValuesHelper
 
   def alternate_value_tag(alternate_value)
     return nil if alternate_value.nil?
-    [alternate_value_string(alternate_value), " (on '#{alternate_value.alternate_value_object_attribute}') ('#{alternate_value.project_id.nil? ? "public" : "project only"}')"].join(' ')
+    [ alternate_value_string(alternate_value),
+      tag.span("on '#{alternate_value.alternate_value_object_attribute}'", class: [:feedback, 'feedback-thin', 'feedback-secondary']),
+      tag.span((alternate_value.project_id.nil? ? 'public' : 'project only'), class: [:feedback, 'feedback-thin', 'feedback-warning'])
+    ].join('  ').html_safe
   end
 
   def alternate_value_string(alternate_value)
-    ["\"#{alternate_value.value}\" ",  alternate_value.klass_name, ' of ', "#{alternate_value.alternate_value_object_attribute}", " \"#{alternate_value.original_value}\""].join
+    ["\"#{alternate_value.value}\" ",
+     alternate_value.klass_name,
+     ' of ',
+     # "#{alternate_value.alternate_value_object_attribute}",
+     " \"#{alternate_value.original_value}\""].join
   end
 
   def alternate_value_annotation_tag(alternate_value)
@@ -20,11 +27,9 @@ module AlternateValuesHelper
     return nil unless object.has_alternate_values? && object.alternate_values.any?
     content_tag(:h3, 'Alternate values') +
       content_tag(:ul, class: 'annotations__alternate_value_list') do
-      object.alternate_values.collect { |a| content_tag(:li, alternate_value_annotation_tag(a)) }.join.html_safe
-    end
+        object.alternate_values.collect { |a| content_tag(:li, alternate_value_annotation_tag(a)) }.join.html_safe
+      end
   end
-
-
 
   def link_to_destroy_alternate_value(link_text, alternate_value)
     link_to(link_text, '', class: 'alternate-value-destroy', alternate_value_id: alternate_value.id)
@@ -37,14 +42,14 @@ module AlternateValuesHelper
   def link_to_add_alternate_value(link_text, f)
     new_object =
       f.object.class.reflect_on_association(:alternate_values)
-        .klass.new({alternate_value_object_type:      f.object.class.base_class.name,
-                    alternate_value_object_id:        f.object.id,
-                    alternate_value_object_attribute: 'name'})
+      .klass.new({alternate_value_object_type: f.object.class.base_class.name,
+                  alternate_value_object_id: f.object.id,
+                  alternate_value_object_attribute: 'name'})
     if f.object.alternate_values.any?
       fields = f.fields_for(:alternate_values, new_object,
                             child_index: 'new_alternate_values') do |builder|
-        render('alternate_values/alternate_value_fields', avf: builder)
-      end
+                              render('alternate_values/alternate_value_fields', avf: builder)
+                            end
     else
       fields = nil
     end
@@ -53,9 +58,9 @@ module AlternateValuesHelper
 
   def add_alternate_value_link(object: nil, attribute: nil)
     link_to('Add alternate value', new_alternate_value_path(
-                                   alternate_value: {alternate_value_object_type:      object.class.base_class.name,
-                                                     alternate_value_object_id:        object.id,
-                                                     alternate_value_object_attribute: attribute})) if object.has_alternate_values?
+      alternate_value: {alternate_value_object_type: object.class.base_class.name,
+                        alternate_value_object_id: object.id,
+                        alternate_value_object_attribute: attribute})) if object.has_alternate_values?
   end
 
   def edit_alternate_value_link(alternate_value)

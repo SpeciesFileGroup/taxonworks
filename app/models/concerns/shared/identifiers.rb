@@ -17,15 +17,20 @@ module Shared::Identifiers
     def self.with_identifiers_sorted(sort_order = 'ASC')
       raise "illegal sort_order" if !['ASC', 'DESC'].include?(sort_order)
       includes(:identifiers)
+      #  .where("identifiers.type not ILIKE 'Identifier::Global%'") # 
         .where("LENGTH(identifier) < 10 AND identifiers.identifier ~ '\^\\d{1,9}\$'")
         .order(Arel.sql("CAST(identifiers.identifier AS bigint) #{sort_order}"))
         .references(:identifiers)
     end
 
+
     scope :with_identifier_type_and_namespace, ->(identifier_type = nil, namespace_id = nil, sorted = nil) {
       with_identifier_type_and_namespace_method(identifier_type, namespace_id, sorted)
     }
-  end
+
+    # Used to memoize identifier for navigating purposes
+    attr_accessor :navigating_identifier
+end
 
   module ClassMethods
     def of_type(type_name)
@@ -82,17 +87,23 @@ module Shared::Identifiers
   end
 
   def identified?
-    self.identifiers.any?
+    if respond_to?(:project_id)
+    self.identifiers.visible(project_id).any?
+    else
+      self.identifiers.any?
+    end
   end
 
   def next_by_identifier
-    if i = identifiers.order(:position).first
+    # TODO: Memoize i so it can be shared with previous etc.
+    # LIke attr_accessor @navigating_identifier
+    if @navigating_identifier ||= identifiers.where("type ILIKE 'Identifier::Local%'").order(:position).first
       self.class
         .where(project_id: project_id)
         .where.not(id: id)
-        .with_identifier_type_and_namespace_method(i.type, i.namespace_id, 'ASC')
-        .where(Utilities::Strings.is_i?(i.identifier) ?
-               ["CAST(identifiers.identifier AS bigint) > #{i.identifier}"] : ["identifiers.identifier > ?", i.identifier])
+        .with_identifier_type_and_namespace_method(navigating_identifier.type, navigating_identifier.namespace_id, 'ASC')
+        .where(Utilities::Strings.is_i?(navigating_identifier.identifier) ?
+               ["CAST(identifiers.identifier AS bigint) > #{navigating_identifier.identifier}"] : ["identifiers.identifier > ?", navigating_identifier.identifier])
         .first
     else
       nil
@@ -100,13 +111,13 @@ module Shared::Identifiers
   end
 
   def previous_by_identifier
-    if i = identifiers.order(:position).first
+    if @navigating_identifier ||= identifiers.where("type ILIKE 'Identifier::Local%'").order(:position).first
       self.class
         .where(project_id: project_id)
         .where.not(id: id)
-        .with_identifier_type_and_namespace_method(i.type, i.namespace_id, 'DESC')
-        .where(Utilities::Strings.is_i?(i.identifier) ?
-               ["CAST(identifiers.identifier AS bigint) < #{i.identifier}"] : ["identifiers.identifier < ?", i.identifier])
+        .with_identifier_type_and_namespace_method(navigating_identifier.type, navigating_identifier.namespace_id, 'DESC')
+        .where(Utilities::Strings.is_i?(navigating_identifier.identifier) ?
+               ["CAST(identifiers.identifier AS bigint) < #{navigating_identifier.identifier}"] : ["identifiers.identifier < ?", navigating_identifier.identifier])
         .first
     else
       nil
