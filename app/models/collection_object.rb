@@ -648,7 +648,8 @@ class CollectionObject < ApplicationRecord
       s = a.stateProvince
       y = a.county
 
-      c = v if v = ::Utilities::Geo::DICTIONARY[c]
+      v = ::Utilities::Geo::DICTIONARY[c]
+      c = v if v
       # s = v if v = ::Utilities::Geo::DICTIONARY[s] # None in there yet
       # y = v if v = ::Utilities::Geo::DICTIONARY[y] # None in there yet
 

@@ -170,8 +170,10 @@ module TaxonNames::PaperCatalogHelper
   #   the name, or citation author year, prioritized by original/new with punctuation
   def paper_history_author_year(taxon_name, citation)
     return 'Source is verbatim, requires parsing' if citation&.source&.type == 'Source::Verbatim'
-    
-    str = ' ' + paper_history_author_year_tag(taxon_name)
+   
+    a = paper_history_author_year_tag(taxon_name)
+    return str = ' ' + a unless a.nil?
+    nil
     
     #   return nil if str.blank?
     #
@@ -253,7 +255,10 @@ module TaxonNames::PaperCatalogHelper
       if catalog_item.other_name == reference_taxon_name
         other_str = full_original_taxon_name_tag(catalog_item.other_name)
       else
-        other_str = original_taxon_name_tag(catalog_item.other_name) + ' ' + original_author_year(catalog_item.other_name)
+        other_str = [
+           original_taxon_name_tag(catalog_item.other_name) || 'MISSING',
+           (original_author_year(catalog_item.other_name) || 'MISSING') 
+        ].join(' ')
       end
       " (#{catalog_item.object.subject_status_tag} #{other_str})".html_safe
     end
