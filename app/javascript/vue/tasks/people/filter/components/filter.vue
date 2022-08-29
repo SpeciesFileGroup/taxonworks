@@ -51,6 +51,10 @@
         class="margin-large-bottom"
         v-model="params.base"
       />
+      <FacetMatchIdentifiers
+        class="margin-large-bottom"
+        v-model="params.matchIdentifiers"
+      />
       <FacetNotes
         class="margin-large-bottom"
         v-model="params.notes"
@@ -109,6 +113,7 @@ import FacetRegex from './Facet/FacetRegex.vue'
 import FacetNotes from 'tasks/collection_objects/filter/components/filters/FacetNotes.vue'
 import FacetDataAttributes from 'tasks/collection_objects/filter/components/filters/DataAttributes/FacetDataAttribute.vue'
 import FacetWith from './Facet/FacetWith.vue'
+import FacetMatchIdentifiers from './Facet/FacetMatchIdentifiers.vue'
 import WithComponent from 'tasks/sources/filter/components/filters/with'
 import { computed, ref } from 'vue'
 
@@ -136,6 +141,7 @@ const parseParams = computed(() =>
     ...params.value.notes,
     ...params.value.dataAttributes,
     ...params.value.with,
+    ...params.value.matchIdentifiers,
     ...filterEmptyParams(params.value.user)
   })
 )
@@ -169,6 +175,11 @@ const initParams = () => ({
     project_id: [],
     with: [],
     without: []
+  },
+  matchIdentifiers: {
+    match_identifiers: undefined,
+    match_identifiers_delimiter: ',',
+    match_identifiers_type: 'Internal'
   },
   with: {
     identifiers: undefined,

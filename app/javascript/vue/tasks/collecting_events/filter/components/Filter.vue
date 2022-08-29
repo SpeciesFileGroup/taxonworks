@@ -49,6 +49,10 @@
         class="margin-large-bottom"
         v-model="params.types"
       />
+      <FacetMatchIdentifiers
+        class="margin-large-bottom"
+        v-model="params.matchIdentifiers"
+      />
       <filter-keywords
         class="margin-large-bottom"
         target="CollectingEvent"
@@ -93,6 +97,7 @@ import FilterDeterminations from 'tasks/collection_objects/filter/components/fil
 import FilterMaterial from 'tasks/collection_objects/filter/components/filters/types'
 import FilterCollectors from 'tasks/collection_objects/filter/components/filters/shared/people'
 import FacetDataAttribute from 'tasks/collection_objects/filter/components/filters/DataAttributes/FacetDataAttribute.vue'
+import FacetMatchIdentifiers from 'tasks/people/filter/components/Facet/FacetMatchIdentifiers.vue'
 
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { CollectingEvent } from 'routes/endpoints'
@@ -109,7 +114,8 @@ export default {
     FilterKeywords,
     FilterMaterial,
     FilterCollectors,
-    FacetDataAttribute
+    FacetDataAttribute,
+    FacetMatchIdentifiers
   },
 
   emits: [
@@ -161,7 +167,7 @@ export default {
 
     searchCollectingEvents () {
       if (this.emptyParams) return
-      const params = this.filterEmptyParams(Object.assign({}, this.params.keywords, this.params.dataAttributes, this.params.identifier, this.params.determination, this.params.geographic, this.params.byRecordsWith, this.params.user, this.params.settings, this.flatObject(this.params.collectingEvents, 'fields')))
+      const params = this.filterEmptyParams(Object.assign({}, this.params.matchIdentifiers, this.params.keywords, this.params.dataAttributes, this.params.identifier, this.params.determination, this.params.geographic, this.params.byRecordsWith, this.params.user, this.params.settings, this.flatObject(this.params.collectingEvents, 'fields')))
 
       this.getCollectingEvents(params)
     },
@@ -220,6 +226,11 @@ export default {
           current_determinations: undefined,
           ancestor_id: undefined,
           validity: undefined
+        },
+        matchIdentifiers: {
+          match_identifiers: undefined,
+          match_identifiers_delimiter: ',',
+          match_identifiers_type: 'Internal'
         },
         keywords: {
           keyword_id_and: [],
