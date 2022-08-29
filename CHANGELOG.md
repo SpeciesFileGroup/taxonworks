@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - People filter, with many facets [#2876]
 - Matches identifiers facet [#3080]
 - `Open in filter collection object` button in Filter collecting event task
+- Added `verbatim_label` support for Collecting Event Castor batch load. [#3059]
 
 ### Fixed
 - Object type is missing when otu filter param is passed instead observation matrix id in Image matrix task
@@ -19,9 +20,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Upgraded to newer Gnfinder service.
 - Enabled 10km tolerance to geographic area validation for verbatim georeferences.
 
-[#3080]: https://github.com/SpeciesFileGroup/taxonworks/issues/3080
 [#2876]: https://github.com/SpeciesFileGroup/taxonworks/issues/2876
-
+[#3059]: https://github.com/SpeciesFileGroup/taxonworks/pull/3059
+[#3080]: https://github.com/SpeciesFileGroup/taxonworks/issues/3080
 ## [0.28.1] - 2022-08-19
 
 ### Fixed
