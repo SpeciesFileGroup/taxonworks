@@ -7,6 +7,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- A simple paper catalog generator (preview!) [#1473]
+- Functions to summarize distributions for catalogs
 - GeographicAreas autocomplete references alternate values
 - People filter, with many facets [#2876]
 - Matches identifiers (results by delimited list of some identifier type) facet, to most filters [#3080]
@@ -30,7 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Data
 - Migrates annotations on Community objects to be accessilbe across projects
 
-
+[#1473]: https://github.com/SpeciesFileGroup/taxonworks/issues/1473
 [#2506]: https://github.com/SpeciesFileGroup/taxonworks/issues/2506
 [#3078]: https://github.com/SpeciesFileGroup/taxonworks/issues/3078
 [#2876]: https://github.com/SpeciesFileGroup/taxonworks/issues/2876
