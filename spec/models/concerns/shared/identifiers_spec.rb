@@ -16,6 +16,7 @@ describe 'Identifiable', type: :model, group: [:identifiers] do
     end
 
     specify '#identified? with some identifiers' do
+      identifiable_instance.save!
       identifiable_instance.identifiers << Identifier::Global::Uri.new(identifier: 'http:/uri.org/foo/123')
       expect(identifiable_instance.identified?).to eq(true)
     end
@@ -46,6 +47,7 @@ describe 'Identifiable', type: :model, group: [:identifiers] do
       end
 
       specify '#identified?' do
+        identifiable_instance.project_id = 1
         expect(identifiable_instance.identified?).to eq(true)
       end
 

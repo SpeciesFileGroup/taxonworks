@@ -53,12 +53,21 @@ module Shared::IsData::Annotation
   end
 
   # @return [Hash]
-  def annotation_metadata
-   h = (available_annotation_types - [:attribution]).inject({}){|hsh, a| hsh.merge!(a => {total: send(a).count})}
+  def annotation_metadata(project_id = nil)
+   h = (available_annotation_types - [:attribution, :identifiers]).inject({}){|hsh, a| hsh.merge!(a => {total: send(a).count})}
    if has_attribution?
-     h[:attribution] = {total: (send(:attribution).present? ? 1 : 0)} 
+     h[:attribution] = {total: (send(:attribution).present? ? 1 : 0)}
    end
-   h 
+
+   if has_identifiers?
+     if project_id
+       h[:identifiers] = {total: ( send(:identifiers).visible(project_id).count)}
+     else
+       h[:identifiers] = {total: ( send(:identifiers).count) }
+     end
+   end
+
+   h
   end
 
   protected
@@ -69,7 +78,7 @@ module Shared::IsData::Annotation
     result = {}
     result['citations'] = citations if has_citations? && citations.load.any? # Use load since we nearly always are going ot reference the result
     result['data attributes'] = data_attributes if has_data_attributes? && data_attributes.load.any?
-    result['identifiers'] = identifiers if has_identifiers? && identifiers.load.any?
+    result['identifiers'] = identifiers if has_identifiers? && identifiers.load.any? # !! TODO:  Load is broken here.
     result['notes'] = notes if has_notes? && notes.load.any?
     result['tags'] = tags if has_tags? && tags.load.any?
     result['depictions'] = depictions.order('depictions.position') if has_depictions? && depictions.load.any?

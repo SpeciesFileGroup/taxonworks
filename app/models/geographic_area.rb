@@ -50,8 +50,12 @@ class GeographicArea < ApplicationRecord
   include Housekeeping::Timestamps
   include Shared::IsData
   include Shared::IsApplicationData
+  include Shared::AlternateValues
+  include Shared::Identifiers
 
   include GeographicArea::DwcSerialization
+
+  ALTERNATE_VALUES_FOR = [:name].freeze
 
   # @return class
   #   this method calls Module#module_parent
@@ -374,7 +378,7 @@ class GeographicArea < ApplicationRecord
       'type' => 'Feature',
       'properties' => {}
     }
-    area = geographic_items.order(:id) # Not prioritized!? 
+    area = geographic_items.order(:id) # Not prioritized!?
 
     result['geometry'] = area.first.to_geo_json unless area.empty?
     result
