@@ -24,8 +24,8 @@
 class Otu < ApplicationRecord
   include Housekeeping
   include SoftValidation
-  # include Shared::AlternateValues   # No alternate values on Name!!
-  include Shared::Citations          # TODO: have to think hard about this vs. using Nico's framework
+  # include Shared::AlternateValues   # No alternate values on Name!! Consequences - search cumbersome, names not unified and controllable ... others?
+  include Shared::Citations
   include Shared::DataAttributes
   include Shared::Identifiers
   include Shared::Notes
@@ -471,6 +471,3 @@ class Otu < ApplicationRecord
   end
 
 end
-
-
-

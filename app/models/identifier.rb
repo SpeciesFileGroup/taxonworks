@@ -73,6 +73,8 @@ class Identifier < ApplicationRecord
     position ASC
   SQL
 
+  scope :visible, -> (project_id) { where("identifiers.project_id = ? OR identifiers.type ILIKE 'Identifier::Global%'", project_id) }
+
   # @return [String, Identifer]
   def self.prototype_identifier(project_id, created_by_id)
     identifiers = Identifier.where(project_id: project_id, created_by_id: created_by_id).limit(1)
