@@ -6,6 +6,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.29.0] - 2022-08-30
+
 ### Added
 - A simple paper catalog generator (preview!) [#1473]
 - Functions to summarize distributions for catalogs
@@ -2859,7 +2863,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.28.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.0...development
+[0.29.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.28.1...v0.29.0
 [0.28.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.28.0...v0.28.1
 [0.28.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.3...v0.28.0
 [0.27.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.2...v0.27.3
