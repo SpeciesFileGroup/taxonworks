@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Crosslink by ID between CollectionObject and CollectingEvent filters
 - `Open in filter collection object` button in Filter collecting event task
 - Added `verbatim_label` support for Collecting Event Castor batch load. [#3059]
+- Lock `is_original` and `is_absent` for Asserted distribution form in OTU quick forms [#3085]
 
 ### Fixed
 - Local identifiers on community objects were displayed across projects
