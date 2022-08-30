@@ -1,5 +1,7 @@
-# Read about factories at https://github.com/thoughtbot/factory_bot
 
+# TODO: Create a YAML file (use a rake task to re/generate) and pre-load all types so 
+# that they are identical to the production constants 
+# we use.
 FactoryBot.define do
 
   trait :planet_gat do
@@ -10,19 +12,19 @@ FactoryBot.define do
 
   trait :country_gat do
     geographic_area_type {
-      GeographicAreaType.find_or_create_by(name: 'Country')
+      GeographicAreaType.find_or_create_by(name: 'Country', id: 3)
     }
   end
 
   trait :state_gat do
     geographic_area_type {
-      GeographicAreaType.find_or_create_by(name: 'State')
+      GeographicAreaType.find_or_create_by(name: 'State', id: 63)
     }
   end
 
   trait :county_gat do
     geographic_area_type {
-      GeographicAreaType.find_or_create_by(name: 'County')
+      GeographicAreaType.find_or_create_by(name: 'County', id: 33)
     }
   end
 

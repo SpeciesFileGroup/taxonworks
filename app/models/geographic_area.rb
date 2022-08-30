@@ -72,6 +72,7 @@ class GeographicArea < ApplicationRecord
    2 => 'Unknown',
    3 => 'Country',
    15 => 'Parish',
+   18 => 'Province',
    33 => 'County',
    63 => 'State'
   }
@@ -252,7 +253,9 @@ class GeographicArea < ApplicationRecord
       s = m
     end
 
+     # TODO: Wrap this a pre-loading constant. This makes specs very fragile.
      n = CACHED_GEOGRAPHIC_AREA_TYPES[geographic_area_type_id]
+
      n ||= GeographicAreaType.where(id: geographic_area_type_id).limit(1).pluck(:name).first
 
     return {country: s} if GeographicAreaType::COUNTRY_LEVEL_TYPES.include?(n) || (id == level0_id)
@@ -285,10 +288,10 @@ class GeographicArea < ApplicationRecord
     return {country: 'Chile'} if name =~ /Chile.Central/
 
     if g = GeographicArea
-      .where(name: name) # shares the same name
-      .where('level0_id = id') # self is a country
-      .where.not(geographic_area_type: [111,112]).any? # not another TDWG record
-    return {country: name}
+        .where(name: name) # shares the same name
+        .where('level0_id = id') # self is a country
+        .where.not(geographic_area_type: [111,112]).any? # not another TDWG record
+      return {country: name}
     end
     {}
   end
