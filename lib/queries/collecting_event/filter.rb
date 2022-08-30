@@ -143,7 +143,7 @@ module Queries
       end
 
       def collection_object_id
-        [@collection_object_id.flatten.compact
+        [@collection_object_id].flatten.compact
       end
 
       def collector_id
