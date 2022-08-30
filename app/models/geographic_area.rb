@@ -50,8 +50,12 @@ class GeographicArea < ApplicationRecord
   include Housekeeping::Timestamps
   include Shared::IsData
   include Shared::IsApplicationData
+  include Shared::AlternateValues
+  include Shared::Identifiers
 
   include GeographicArea::DwcSerialization
+
+  ALTERNATE_VALUES_FOR = [:name].freeze
 
   # @return class
   #   this method calls Module#module_parent

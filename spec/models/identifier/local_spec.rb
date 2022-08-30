@@ -10,6 +10,20 @@ describe Identifier::Local, type: :model, group: :identifiers do
   let(:specimen1) {FactoryBot.create(:valid_specimen)}
   let(:specimen2) {FactoryBot.create(:valid_specimen)}
 
+
+  specify 'community shared 1' do
+    o = FactoryBot.create(:valid_otu)
+    i = FactoryBot.create(:valid_identifier_local, identifier_object: o)
+    expect(i.project_id.blank?).to be_falsey
+  end
+
+  # Local identifiers are not shared
+  specify 'community shared 2' do
+    o = FactoryBot.create(:valid_source)
+    i = FactoryBot.create(:valid_identifier_local, identifier_object: o)
+    expect(i.project_id.blank?).to be_falsey
+  end
+
   context 'validation' do
     before(:each) { local_identifier.valid? }
 

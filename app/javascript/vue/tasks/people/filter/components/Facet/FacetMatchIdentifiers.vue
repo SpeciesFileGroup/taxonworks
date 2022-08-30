@@ -37,6 +37,11 @@ import { computed } from 'vue'
 import VToggle from 'tasks/observation_matrices/new/components/newMatrix/switch.vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
 
+const TYPE_PARAMETERS = {
+  Internal: 'internal',
+  Identifier: 'identifier'
+}
+
 const props = defineProps({
   modelValue: {
     type: Object,
@@ -52,11 +57,11 @@ const params = computed({
 })
 
 const toggleType = computed({
-  get: () => props.modelValue.match_identifiers_type === 'Identifier',
+  get: () => props.modelValue.match_identifiers_type === TYPE_PARAMETERS.Identifier,
   set: value => {
     params.value.match_identifiers_type = value
-      ? 'Identifier'
-      : 'Internal'
+      ? TYPE_PARAMETERS.Identifier
+      : TYPE_PARAMETERS.Internal
   }
 })
 
@@ -64,8 +69,8 @@ const urlParams = URLParamsToJSON(location.href)
 
 Object.assign(params.value, {
   match_identifiers: urlParams.match_identifiers,
-  match_identifiers_delimiter: urlParams.match_identifiers_delimiter,
-  match_identifiers_type: urlParams.match_identifiers_type
+  match_identifiers_delimiter: urlParams.match_identifiers_delimiter || ',',
+  match_identifiers_type: urlParams.match_identifiers_type || TYPE_PARAMETERS.Internal
 })
 
 </script>

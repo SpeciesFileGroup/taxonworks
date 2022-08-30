@@ -197,6 +197,7 @@ module Queries
         @taxon_name_author_ids = params[:taxon_name_author_ids].blank? ? [] : params[:taxon_name_author_ids]
         @taxon_name_author_ids_or = boolean_param(params, :taxon_name_author_ids_or)
      
+        set_identifier(params)
         set_notes_params(params)
         set_data_attributes_params(params)
         set_tags_params(params)
@@ -522,6 +523,12 @@ module Queries
           descendant_facet,
           keyword_id_facet,
           leaves_facet,
+         
+          identifier_between_facet,
+          identifier_facet,
+          identifier_namespace_facet,
+          match_identifiers_facet,
+          
           matching_taxon_name_author_ids,
           not_specified_facet,
           note_text_facet,        # See Queries::Concerns::Notes

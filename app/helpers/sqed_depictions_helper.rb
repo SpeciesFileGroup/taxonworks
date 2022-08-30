@@ -161,7 +161,7 @@ module SqedDepictionsHelper
   def sqed_waxy_metadata(sqed_depiction)
     o = sqed_depiction.depiction_object
     [
-      (o.identifiers.any? ? 1 : 0),
+      (o.identifiers.visible(sessions_current_project_id).any? ? 1 : 0),
       (o.buffered_collecting_event.blank? ? 0 : 1),
       (o.buffered_determinations.blank? ? 0 : 1),
       (o.buffered_other_labels.blank? ? 0 : 1),

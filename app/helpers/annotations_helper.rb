@@ -30,7 +30,7 @@ module AnnotationsHelper
 
   def annotations_exist(object)
     return (object.has_citations? && object.citations.any?) ||
-      (object.has_identifiers? && object.identifiers.any?) ||
+      (object.has_identifiers? && object.identifiers.visible(sessions_current_project_id).any?) ||
       (object.has_data_attributes? && object.data_attributes.any?) ||
       (object.has_notes? && object.notes.any?) ||
       (object.has_tags? && object.tags.load.any?) ||

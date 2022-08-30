@@ -417,6 +417,7 @@ module Queries
           identifier_between_facet,
           identifier_facet,
           identifier_namespace_facet,
+          match_identifiers_facet,
 
           note_text_facet,        # See Queries::Concerns::Notes
           notes_facet,

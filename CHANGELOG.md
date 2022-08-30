@@ -7,22 +7,36 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- GeographicAreas autocomplete references alternate values
 - People filter, with many facets [#2876]
-- Matches identifiers facet [#3080]
+- Matches identifiers (results by delimited list of some identifier type) facet, to most filters [#3080]
+- Crosslink by ID between CollectionObject and CollectingEvent filters
 - `Open in filter collection object` button in Filter collecting event task
 - Added `verbatim_label` support for Collecting Event Castor batch load. [#3059]
 
 ### Fixed
+- Local identifiers on community objects were displayed across projects
 - Object type is missing when otu filter param is passed instead observation matrix id in Image matrix task
 
 ### Changed
+- Alternate values can be used on GeographicAreas [#2506]
+- Alternate values on community objects are shared by all projects
+- Global identifiers on community objects are shared across all projects
+- Optimized identifier next/previous, not fully resolved [#3078]
 - Updated Ruby gems.
 - Upgraded to newer Gnfinder service.
 - Enabled 10km tolerance to geographic area validation for verbatim georeferences.
 
+### Data
+- Migrates annotations on Community objects to be accessilbe across projects
+
+
+[#2506]: https://github.com/SpeciesFileGroup/taxonworks/issues/2506
+[#3078]: https://github.com/SpeciesFileGroup/taxonworks/issues/3078
 [#2876]: https://github.com/SpeciesFileGroup/taxonworks/issues/2876
 [#3059]: https://github.com/SpeciesFileGroup/taxonworks/pull/3059
 [#3080]: https://github.com/SpeciesFileGroup/taxonworks/issues/3080
+
 ## [0.28.1] - 2022-08-19
 
 ### Fixed

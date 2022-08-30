@@ -39,12 +39,31 @@ module Queries::Concerns::Identifiers
     #   nil - not applied
     attr_accessor :identifiers
 
+    attr_accessor :match_identifiers
+
+    attr_accessor :match_identifiers_delimiter
+
+    attr_accessor :match_identifiers_type
+
     def identifier_start
       ( @identifier_start.to_i - 1 ).to_s
     end
 
     def identifier_end
       ( @identifier_end.to_i + 1 ).to_s
+    end
+
+    def match_identifiers_delimiter
+      return ',' if @match_identifiers_delimiter.nil?
+
+      case @match_identifiers_delimiter
+      when '\n'
+        return "\n"
+      when '\t'
+        return "\t"
+      else
+        return @match_identifiers_delimiter
+      end
     end
   end
 
@@ -57,6 +76,10 @@ module Queries::Concerns::Identifiers
 
     @identifier_exact = boolean_param(params, :identifier_exact)
     @identifier_type = params[:identifier_type] || []
+
+    @match_identifiers = params[:match_identifiers]
+    @match_identifiers_delimiter = params[:match_identifiers_delimiter]
+    @match_identifiers_type = params[:match_identifiers_type]
   end
 
   # @return [Arel::Table]
@@ -80,6 +103,31 @@ module Queries::Concerns::Identifiers
           Arel::Nodes::SqlLiteral.new(identifier_end) ]
       )
     )
+  end
+
+  def identifiers_to_match 
+    ids = match_identifiers.strip.split(match_identifiers_delimiter).flatten.map(&:strip).uniq
+    if match_identifiers_type == 'internal'
+      ids = ids.select{|i| i =~ /^\d+$/}
+    end
+    ids
+  end
+
+  def match_identifiers_facet
+    return nil if match_identifiers.blank?
+    ids = identifiers_to_match
+    if !ids.empty?
+      case match_identifiers_type&.downcase
+      when 'internal'
+        query_base.where(id: ids)
+      when 'identifier'
+        query_base.joins(:identifiers).where(identifiers: {cached: ids})
+      else
+        return nil
+      end
+    else
+      return nil
+    end
   end
 
   def identifiers_facet

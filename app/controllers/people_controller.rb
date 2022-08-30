@@ -179,6 +179,10 @@ class PeopleController < ApplicationController
       :user_date_start,
       :user_id,
       :user_target,
+      :match_identifiers,
+      :match_identifiers_delimiter,
+      :match_identifiers_type,
+      :tags,
       data_attribute_predicate_id: [], # DataAttributes concern
       data_attribute_value: [],        # DataAttributes concern
       exact: [],
@@ -188,6 +192,7 @@ class PeopleController < ApplicationController
       keyword_id_or: [],
       project_id: [],
       role: [],
+      used_in_project_id: [],
       user_id: [],
       with: [],
       without: []
@@ -222,6 +227,11 @@ class PeopleController < ApplicationController
       :user_date_start,
       :user_id,
       :user_target,
+      :tags,
+      :match_identifiers,
+      :match_identifiers_delimiter,
+      :match_identifiers_type,
+      # user_id: [],
       :data_attributes, # DataAttributes concern
       data_attribute_predicate_id: [], # DataAttributes concern
       data_attribute_value: [],        # DataAttributes concern
