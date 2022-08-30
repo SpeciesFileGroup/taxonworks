@@ -254,7 +254,10 @@ class GeographicArea < ApplicationRecord
     end
 
      # TODO: Wrap this a pre-loading constant. This makes specs very fragile.
-     n = CACHED_GEOGRAPHIC_AREA_TYPES[geographic_area_type_id]
+     
+     unless Rails.env == 'test'
+       n = CACHED_GEOGRAPHIC_AREA_TYPES[geographic_area_type_id]
+     end
 
      n ||= GeographicAreaType.where(id: geographic_area_type_id).limit(1).pluck(:name).first
 

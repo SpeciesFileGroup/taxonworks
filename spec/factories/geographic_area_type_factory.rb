@@ -12,19 +12,19 @@ FactoryBot.define do
 
   trait :country_gat do
     geographic_area_type {
-      GeographicAreaType.find_or_create_by(name: 'Country', id: 3)
+      GeographicAreaType.find_or_create_by(name: 'Country')
     }
   end
 
   trait :state_gat do
     geographic_area_type {
-      GeographicAreaType.find_or_create_by(name: 'State', id: 63)
+      GeographicAreaType.find_or_create_by(name: 'State')
     }
   end
 
   trait :county_gat do
     geographic_area_type {
-      GeographicAreaType.find_or_create_by(name: 'County', id: 33)
+      GeographicAreaType.find_or_create_by(name: 'County')
     }
   end
 
