@@ -1,9 +1,10 @@
 = Catalog of the Species of <%= ::Utilities::Strings.asciify(full_original_taxon_name_tag(taxon_name) ) %>
-:doctype: book
 :hardbreaks-option:
+
+== Nomenclature
 
 <%= body&.html_safe %>
 
-= References
+== References
 
 <%= sources&.html_safe %>

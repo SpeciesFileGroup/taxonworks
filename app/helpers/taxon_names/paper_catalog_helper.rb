@@ -1,11 +1,15 @@
-# for tommy
-#  * Type inline or not
+# Part 1 TODO:
+# * types inline, or not?
+# * use of unbreakable block sections
+# * option to set CSL style for references?
+# * create standardized " action " prefix
+# * create standardized " in " tag, follows action
+# * Develop Markdown pattern
+# * Illustrate Pandoc translation
+# * change HTML to markdown markup
 
-# Styling
-#  - Species as unbreakable blocks?
-#  - blocks/lines
-#  -
-#  -
+# Part 2 TODO (post first pass)
+# * link out and accumulate OTU Topics/Citations
 
 # Helpers for rendering a paper catalog.
 module TaxonNames::PaperCatalogHelper
@@ -15,7 +19,7 @@ module TaxonNames::PaperCatalogHelper
     #  return body if depth == 3
     #  body << ['&nbsp;&nbsp;' * depth].join.html_safe + full_taxon_name_tag(taxon_name) + '<br>'.html_safe
     
-    body << ['== ', full_taxon_name_tag(taxon_name), + "\n\n"].join
+    body << ['=== ', full_taxon_name_tag(taxon_name), + "\n\n"].join
     
     data = ::Catalog::Nomenclature::Entry.new(taxon_name)
     sources.push(data.sources)
@@ -57,7 +61,8 @@ module TaxonNames::PaperCatalogHelper
     return body, sources.flatten.uniq.collect{|s| s.cached}.sort.join("\n").gsub!(/<i>|<\/i>/, '_')
   end
   
-  
+ 
+  # !! Unused
   # Scaffold by by unique synonyms
   def recursive_catalog_tag2(taxon_name, body = '', depth = 0)
     body << '== ' + full_taxon_name_tag(taxon_name) + '<br>'.html_safe
@@ -72,27 +77,12 @@ module TaxonNames::PaperCatalogHelper
     body.html_safe
   end
   
-  # Part 1 TODO:
-  # * accumulate References
-  # * option to set CSL style for references?
-  # * create standardized " action " prefix
-  # * create standardized " in " tag, follows action
-  # * Develop Markdown pattern
-  # * Illustrate Pandoc translation
-  # * change HTML to markdown markup
-  
-  # Part 2 TODO (post first pass)
-  # * link out and accumulate OTU Topics/Citations
-  
-  
   def paper_catalog_entry_item_tag(catalog_entry_item) # may need reference_object
     nomenclature_line_tag(catalog_entry_item, catalog_entry_item.base_object) # second param might be wrong!
   end
   
   # TODO: Add depth, Markdown
   def paper_catalog_li_tag(nomenclature_catalog_item, reference_taxon_name, target = :browse_nomenclature_task_path)
-    # Depth
-    # Style
     paper_line_tag(nomenclature_catalog_item, reference_taxon_name, target)
   end
   
@@ -173,7 +163,6 @@ module TaxonNames::PaperCatalogHelper
    
     a = paper_history_author_year_tag(taxon_name)
     return str = ' ' + a unless a.nil?
-    nil
     
     #   return nil if str.blank?
     #
