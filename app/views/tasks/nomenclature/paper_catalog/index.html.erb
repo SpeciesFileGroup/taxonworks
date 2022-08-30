@@ -1,0 +1,27 @@
+<%= tag.h1 "Task - Basic paper catalog", id: :top -%>
+
+<%= tag.span('EXPERIMENTAL ONLY.  Target formatting is asciidoc/asciidoctor.', class: [:feedback, 'feedback-thin', 'feedback-danger']) %>
+
+<%= tag.span('Please do not use, currently, with targets > 1000 taxa.', class: [:feedback, 'feedback-thin', 'feedback-warning']) %>
+
+<%= form_tag paper_catalog_preview_task_path, method: :get, remote: true, data: {turbolinks: false} do |f| %>
+  <div class="field">
+    <h3> Generate catalog for taxon name</h3>
+
+    <%= render partial: 'workbench/elements/forms/ajax_select',
+      locals: {
+      controller: '/taxon_names',
+      object: '',
+      method:  'taxon_name_id',
+      tag_id: 'taxon_name_id_for_catalog',
+      display: nil,
+      size: 60} %>
+  </div>
+  
+  <%= tag.input(type: 'submit', value: 'Preview and Download', name: :submit, class: ['button', 'button-default'], ) %>
+<% end %>
+
+
+<pre id="catalog_preview">
+  Select a taxon name to start.
+</pre>

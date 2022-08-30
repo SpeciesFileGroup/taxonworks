@@ -365,6 +365,7 @@ module Queries
           identifier_between_facet,
           identifier_facet,
           identifier_namespace_facet,
+          match_identifiers_facet,
           created_updated_facet, # See Queries::Concerns::Users
           empty_fields_facet,    # See Queries::Concerns::Empty
           not_empty_fields_facet,

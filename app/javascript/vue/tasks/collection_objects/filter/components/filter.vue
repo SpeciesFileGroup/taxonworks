@@ -63,7 +63,12 @@
         klass="CollectingEvent"
         param-people="collector_id"
         param-any="collector_ids_or"
-        v-model="params.collectors"/>
+        v-model="params.collectors"
+      />
+      <FacetMatchIdentifiers
+        class="margin-large-bottom"
+        v-model="params.matchIdentifiers"
+      />
       <keywords-component
         class="margin-large-bottom"
         v-model="params.keywords"
@@ -125,6 +130,8 @@ import CollectorsComponent from './filters/shared/people'
 import FacetNotes from './filters/FacetNotes.vue'
 import FacetCurrentRepository from './filters/FacetCurrentRepository.vue'
 import FacetDataAttribute from './filters/DataAttributes/FacetDataAttribute.vue'
+import FacetMatchIdentifiers from 'tasks/people/filter/components/Facet/FacetMatchIdentifiers.vue'
+import checkMatchIdentifiersParams from 'tasks/people/filter/helpers/checkMatchIdentifiersParams'
 import { chunkArray } from 'helpers/arrays.js'
 
 import SpinnerComponent from 'components/spinner'
@@ -152,7 +159,8 @@ export default {
     CollectorsComponent,
     FacetNotes,
     FacetCurrentRepository,
-    FacetDataAttribute
+    FacetDataAttribute,
+    FacetMatchIdentifiers
   },
 
   emits: [
@@ -174,7 +182,7 @@ export default {
     },
 
     parseParams () {
-      return Object.assign({}, { preparation_type_id: this.params.preparation_type_id }, this.params.dataAttributes, this.params.notes, this.params.collectors, this.params.settings, this.params.buffered.text, this.params.buffered.exact, this.params.byRecordsWith, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.repository, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
+      return Object.assign({}, { preparation_type_id: this.params.preparation_type_id }, checkMatchIdentifiersParams(this.params.matchIdentifiers), this.params.dataAttributes, this.params.notes, this.params.collectors, this.params.settings, this.params.buffered.text, this.params.buffered.exact, this.params.byRecordsWith, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.repository, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
     },
 
     isParamsEmpty () {
@@ -309,6 +317,11 @@ export default {
         notes: {
           note_text: undefined,
           note_exact: undefined
+        },
+        matchIdentifiers: {
+          match_identifiers: undefined,
+          match_identifiers_delimiter: ',',
+          match_identifiers_type: 'internal'
         },
         dataAttributes: {
           data_attribute_value: [],

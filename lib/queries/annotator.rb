@@ -31,8 +31,7 @@ module Queries
     def self.polymorphic_params(params, klass)
       t = klass.arel_table
 
-      # TODO- remove this? Force the filter up to controller? i.e. in `filter_params`?
-      h = params.permit(klass.related_foreign_keys).to_h
+      h = shallow_id(params, klass) 
       
       return nil if h.size != 1
 
@@ -42,6 +41,20 @@ module Queries
         n = n.and(b)
       end
       n
+    end
+
+    # @return String
+    #   name of the class being Annotated
+    def self.annotated_class(params, klass)
+      h = shallow_id(params, klass)
+      return nil if h.size != 1
+      h.keys.first.to_s.gsub(/_id$/, '').camelize
+    end
+
+    # @return Hash
+    def self.shallow_id(params, klass)
+      return {} unless params.class.name == 'ActionController::Parameters'
+      params.permit(klass.related_foreign_keys).to_h
     end
 
     # @params params [ActionController::Parameters]

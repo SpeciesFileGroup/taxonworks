@@ -148,7 +148,6 @@ class ObservationMatricesController < ApplicationController
     end
   end
 
-
   def tnt
     respond_to do |format|
       base = '/observation_matrices/export/tnt/'

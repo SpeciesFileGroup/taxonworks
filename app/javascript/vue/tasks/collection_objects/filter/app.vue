@@ -72,6 +72,7 @@
               :params="$refs.filterComponent.parseParams"
               :total="pagination.total"
             />
+            <OpenCollectingEventFilter :ids="ids" />
             <match-button
               :ids="ids"
               :url="urlRequest"
@@ -122,6 +123,7 @@ import DwcDownload from './components/dwcDownload.vue'
 import DwcReindex from './components/dwcReindex.vue'
 import SelectAll from './components/selectAll.vue'
 import MatchButton from './components/matchButton.vue'
+import OpenCollectingEventFilter from './components/OpenCollectingEventFilter.vue'
 
 export default {
   name: 'FilterCollectionObjects',
@@ -135,7 +137,8 @@ export default {
     DwcDownload,
     DwcReindex,
     SelectAll,
-    MatchButton
+    MatchButton,
+    OpenCollectingEventFilter
   },
 
   computed: {

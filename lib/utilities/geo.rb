@@ -2,6 +2,16 @@
 module Utilities
   # Special general routines for Geo-specific itams
   module Geo
+
+    # !!
+    # A series of values that are used
+    # to unify geographic name strings *for display* (e.g. generating print).
+    # These ultimately all belong somewhere else,
+    # and are arbitrary decisions made by TaxonWorks collaborators.
+    DICTIONARY = {
+      'United States of America' => 'United States',
+    }
+
 =begin
 To add a new (discovered) symbol:
   1) To find the Unicode string for any character, use Utilities::Geo.uni_string('c') (remove the first '\').
@@ -10,19 +20,20 @@ To add a new (discovered) symbol:
   3) Add the Unicode to the proper section in the regexp in the corresponding section (degrees, minutes, or seconds).
       NB: all the minutes symbols are duplicated in the seconds section because sometimes two successive tickmarks
           (for minutes) are used for seconds.
+
+  degree symbols, in addition to 'd', 'o', and '*'
+  \u00b0  "°"  \u00ba  "º"  \u02da  "˚"  \u030a  "?"  \u221e "∞"  \u222b "∫"
+
+  tick symbols, in addition to "'" ("\u0027""), and '"' ("\u0022")
+  \u00a5  "¥"  \u00b4  "´"
+  \u02B9  "ʹ"  \u02BA  "ʺ"  \u02BB  "ʻ"  \u02BC  "ʼ"  \u02CA "ˊ"
+  \u02EE  "ˮ"  \u2032  "′"  \u2033  "″"
+  \u2019  "’"  \u201D  "”"    added June 2020
+
+  Significant figures/digits: any of the digits of a number beginning with the digit farthest to the left
+  that is not zero and ending with the last digit farthest to the right that is either not zero
+  or that is a zero but is considered to be exact
 =end
-    # degree symbols, in addition to 'd', 'o', and '*'
-    # \u00b0  "°"  \u00ba  "º"  \u02da  "˚"  \u030a  "?"  \u221e "∞"  \u222b "∫"
-    #
-    # tick symbols, in addition to "'" ("\u0027""), and '"' ("\u0022")
-    # \u00a5  "¥"  \u00b4  "´"
-    # \u02B9  "ʹ"  \u02BA  "ʺ"  \u02BB  "ʻ"  \u02BC  "ʼ"  \u02CA "ˊ"
-    # \u02EE  "ˮ"  \u2032  "′"  \u2033  "″"
-    # \u2019  "’"  \u201D  "”"    added June 2020
-    #
-    # Significant figures/digits: any of the digits of a number beginning with the digit farthest to the left
-    # that is not zero and ending with the last digit farthest to the right that is either not zero
-    # or that is a zero but is considered to be exact
 
     SPECIAL_LATLONG_SYMBOLS = "do*\u00b0\u00ba\u02DA\u030a\u221e\u222b\u0027\u00b4\u02B9\u02BA\u02BB\u02BC\u02CA\u02EE\u2032\u2033\u0022\u2019\u201D".freeze
 
@@ -139,36 +150,36 @@ To add a new (discovered) symbol:
     #  ' = \u0027, converted so that the regex can be used for SQL
     # Added Unicode right single (u2019) and double (u201D) quote as minutes seconds
     REGEXP_COORD   = {
-        # tt1: /\D?(?<lat>\d+\.\d+\s*(?<ca>[NS])*)\s(?<long>\d+\.\d+\s*(?<co>[EW])*)/i,
-        dd1a: {reg: /(?<lat>\d+\.\d+\s*[NS])\s*(?<long>\d+\.\d+\s*[EW])/i,
-               hlp: 'decimal degrees, trailing ordinal, e.g. 23.23N  44.44W'},
+      # tt1: /\D?(?<lat>\d+\.\d+\s*(?<ca>[NS])*)\s(?<long>\d+\.\d+\s*(?<co>[EW])*)/i,
+      dd1a: {reg: /(?<lat>\d+\.\d+\s*[NS])\s*(?<long>\d+\.\d+\s*[EW])/i,
+             hlp: 'decimal degrees, trailing ordinal, e.g. 23.23N  44.44W'},
 
-        dd1b: {reg: /(?<lat>[NS]\s*\d+\.\d+)\s*(?<long>[EW]\s*\d+\.\d+)/i,
-               hlp: 'decimal degrees, leading ordinal, e.g. N23.23  W44.44'},
+             dd1b: {reg: /(?<lat>[NS]\s*\d+\.\d+)\s*(?<long>[EW]\s*\d+\.\d+)/i,
+                    hlp: 'decimal degrees, leading ordinal, e.g. N23.23  W44.44'},
 
-        dd2:  {reg: /(?<lat>\d+[\. ]\d+\u0027?\s*[NS]),?\s*(?<long>\d+[\. ]\d+\u0027?\s*[EW])/i,
-               hlp: "decimal degrees, trailing ordinal, e.g. 43.836' N, 89.258' W"},
+                    dd2:  {reg: /(?<lat>\d+[\. ]\d+\u0027?\s*[NS]),?\s*(?<long>\d+[\. ]\d+\u0027?\s*[EW])/i,
+                           hlp: "decimal degrees, trailing ordinal, e.g. 43.836' N, 89.258' W"},
 
-        dm1:  {reg: /(?<lat>\d+\s*[\*°o\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?\s*[NS])[\.,;]?\s*(?<long>\d+\s*[\*°ºo\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?\s*[WE])/i,
-               hlp: "degrees, decimal minutes, trailing ordinal, e.g. 45 54.2'N, 78 43.5'E"},
+                           dm1:  {reg: /(?<lat>\d+\s*[\*°o\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?\s*[NS])[\.,;]?\s*(?<long>\d+\s*[\*°ºo\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?\s*[WE])/i,
+                                  hlp: "degrees, decimal minutes, trailing ordinal, e.g. 45 54.2'N, 78 43.5'E"},
 
-        dms2: {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]\s*(\d+[\.,]\d+|\d+)\s*[ "´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA\u201D][´\u0027\u02B9\u02BC\u02CA]?)[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ \u0027´\u02B9\u02BC\u02CA\u2019]\s*(\d+[\.,]\d+|\d+)\s*[ "´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA\u201D]?[´\u0027\u02B9\u02BC\u02CA]?)/i,
-               hlp: "degrees, minutes, decimal seconds, leading ordinal, e.g. S42°5'18.1\" W88º11'43.3\""},
+                                  dms2: {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]\s*(\d+[\.,]\d+|\d+)\s*[ "´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA\u201D][´\u0027\u02B9\u02BC\u02CA]?)[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ \u0027´\u02B9\u02BC\u02CA\u2019]\s*(\d+[\.,]\d+|\d+)\s*[ "´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA\u201D]?[´\u0027\u02B9\u02BC\u02CA]?)/i,
+                                         hlp: "degrees, minutes, decimal seconds, leading ordinal, e.g. S42°5'18.1\" W88º11'43.3\""},
 
-        dm3:  {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*([ ´\u0027\u02B9\u02BC\u02CA\u2019]))[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?)/i,
-               hlp: "degrees, decimal minutes, leading ordinal, e.g. S42º5.18' W88°11.43'"},
+                                         dm3:  {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*([ ´\u0027\u02B9\u02BC\u02CA\u2019]))[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?)/i,
+                                                hlp: "degrees, decimal minutes, leading ordinal, e.g. S42º5.18' W88°11.43'"},
 
-        dms4: {reg: /(?<lat>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?\s*(\d+[\.,]\d+|\d+)["\u201D]?\s*[NS])\s*(?<long>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?\s*(\d+[\.,]\d+|\d+)+["\u201D]?\s*[EW])/i,
-               hlp: "degrees, minutes, decimal seconds, trailing ordinal, e.g. 24º7'2.0\"S65º24'13.1\"W"},
+                                                dms4: {reg: /(?<lat>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?\s*(\d+[\.,]\d+|\d+)["\u201D]?\s*[NS])\s*(?<long>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?\s*(\d+[\.,]\d+|\d+)+["\u201D]?\s*[EW])/i,
+                                                       hlp: "degrees, minutes, decimal seconds, trailing ordinal, e.g. 24º7'2.0\"S65º24'13.1\"W"},
 
-        dd5:  {reg: /(?<lat>[NS]\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ])[\.,;]?\s*(?<long>([WE])\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ]?)/i,
-               hlp: 'decimal degrees, leading ordinal, e.g. S42.18° W88.34°'},
+                                                       dd5:  {reg: /(?<lat>[NS]\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ])[\.,;]?\s*(?<long>([WE])\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ]?)/i,
+                                                              hlp: 'decimal degrees, leading ordinal, e.g. S42.18° W88.34°'},
 
-        dd6:  {reg: /(?<lat>(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ]\s*[NS])[\.,;]?\s*(?<long>(\d+[\.|,]\d+|\d+)\s*[\*°ºo\u02DA ]\s*[WE])/i,
-               hlp: 'decimal degrees, trailing ordinal, e.g. 42.18°S 88.43°W'},
+                                                              dd6:  {reg: /(?<lat>(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ]\s*[NS])[\.,;]?\s*(?<long>(\d+[\.|,]\d+|\d+)\s*[\*°ºo\u02DA ]\s*[WE])/i,
+                                                                     hlp: 'decimal degrees, trailing ordinal, e.g. 42.18°S 88.43°W'},
 
-        dd7:  {reg: /\[(?<lat>-?\d+[\.,]\d+|\-?d+),.*?(?<long>-?\d+[\.,]\d+|\-?d+)\]/i,
-               hlp: 'decimal degrees, no ordinal, specific format, e.g. [12.263, -49.398]'}
+                                                                     dd7:  {reg: /\[(?<lat>-?\d+[\.,]\d+|\-?d+),.*?(?<long>-?\d+[\.,]\d+|\-?d+)\]/i,
+                                                                            hlp: 'decimal degrees, no ordinal, specific format, e.g. [12.263, -49.398]'}
     }.freeze
     # @param [String] label
     # @param [String] filters
@@ -308,14 +319,14 @@ To add a new (discovered) symbol:
       dms.each_char {|c|
         next unless SPECIAL_LATLONG_SYMBOLS.include?(c)
         /^(?<degrees>-*\d{0,3}(\.\d+)*) # + or - three-digit number with optional '.' and additional decimal digits
-            [do*\u00b0\u00ba\u02DA\u030a\u221e\u222b\uc2ba]*\s* # optional special degrees symbol, optional space
-          (?<minutes>\d+\.*\d*)* # optional number, integer or floating-point
-            ['\u00a5\u00b4\u02b9\u02bb\u02bc\u02ca\u2032\uc2ba\u2019]*\s* # optional special minutes symbol, optional space
-          ((?<seconds>\d+\.*\d*) # optional number, integer or floating-point
-            ['\u00a5\u00b4\u02b9\u02ba\u02bb\u02bc\u02ca\u02ee\u2032\u2033\uc2ba"\u201D]+)* # optional special seconds symbol, optional space
+        [do*\u00b0\u00ba\u02DA\u030a\u221e\u222b\uc2ba]*\s* # optional special degrees symbol, optional space
+        (?<minutes>\d+\.*\d*)* # optional number, integer or floating-point
+        ['\u00a5\u00b4\u02b9\u02bb\u02bc\u02ca\u2032\uc2ba\u2019]*\s* # optional special minutes symbol, optional space
+        ((?<seconds>\d+\.*\d*) # optional number, integer or floating-point
+        ['\u00a5\u00b4\u02b9\u02ba\u02bb\u02bc\u02ca\u02ee\u2032\u2033\uc2ba"\u201D]+)* # optional special seconds symbol, optional space
         /x =~ dms # '/(regexp)/x' modifier permits inline comments for regexp
         match_string = $&
-        break # bail on the first character match
+          break # bail on the first character match
       }
       degrees = dms.to_f if match_string.nil? && no_point
 
@@ -566,11 +577,11 @@ To add a new (discovered) symbol:
     def self.coordinates_regex_from_verbatim_label(text)
       return nil if text.blank?
       text = text.gsub("''", '"')
-          .gsub("´´", '"')
-          .gsub("ʹʹ", '"')
-          .gsub("ʼʼ", '"')
-          .gsub("ˊˊ", '"')
-          .squish
+        .gsub("´´", '"')
+        .gsub("ʹʹ", '"')
+        .gsub("ʼʼ", '"')
+        .gsub("ˊˊ", '"')
+        .squish
       text = ' ' + text + ' '
 
       coordinates = {}
@@ -681,9 +692,9 @@ To add a new (discovered) symbol:
       long_dec = '-' + long_dec if coordinates[:long_we] == 'W'
 
       c = {
-          verbatim: {verbatim_latitude: lat_string, verbatim_longitude: long_string},
-          decimal: {decimal_latitude: lat_dec, decimal_longitude: long_dec},
-          parsed: coordinates
+        verbatim: {verbatim_latitude: lat_string, verbatim_longitude: long_string},
+        decimal: {decimal_latitude: lat_dec, decimal_longitude: long_dec},
+        parsed: coordinates
       }
       return c
     end

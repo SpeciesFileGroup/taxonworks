@@ -1,4 +1,5 @@
 module TypeMaterials::CatalogHelper
+  # TODO: we should, perhaps, drive this off dwc_occurrence
 
   # Return text only, no HTML.
   # To be used in paper catalogs, this is to be human readable.

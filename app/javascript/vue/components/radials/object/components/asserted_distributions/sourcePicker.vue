@@ -44,7 +44,9 @@
           <label class="inline middle">
             <input
               v-model="citation.is_original"
+              :value="citation.is_original"
               type="checkbox"
+              @change="setIsOriginal"
             >
             Is original
           </label>
@@ -53,6 +55,7 @@
           <label class="inline middle">
             <input
               v-model="isAbsent"
+              :value="isAbsent"
               type="checkbox"
             >
             Is absent
@@ -69,6 +72,14 @@ import LockComponent from 'components/ui/VLock/index.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import { Source } from 'routes/endpoints'
 import { convertType } from 'helpers/types'
+
+const STORAGE = {
+  lock: 'radialObject::source::lock',
+  sourceId: 'radialObject::source::id',
+  pages: 'radialObject::source::pages',
+  isOriginal: 'radialObject::source::isOriginal',
+  isAbsent: 'radialObject::assertedDistribution::isAbsent'
+}
 
 export default {
   components: {
@@ -152,33 +163,43 @@ export default {
       deep: true
     },
 
+    isAbsent (newVal) {
+      sessionStorage.setItem(STORAGE.isAbsent, newVal)
+    },
+
     lock (newVal) {
-      sessionStorage.setItem('radialObject::source::lock', newVal)
+      sessionStorage.setItem(STORAGE.lock, newVal)
       this.$emit('lock', newVal)
     }
   },
 
   mounted () {
-    const value = convertType(sessionStorage.getItem('radialObject::source::lock'))
+    const value = convertType(sessionStorage.getItem(STORAGE.lock))
 
     if (value !== null) {
       this.lock = value === true
     }
 
     if (this.lock) {
-      this.citation.source_id = convertType(sessionStorage.getItem('radialObject::source::id'))
-      this.citation.pages = convertType(sessionStorage.getItem('radialObject::source::pages'))
+      this.citation.source_id = convertType(sessionStorage.getItem(STORAGE.sourceId))
+      this.citation.is_original = convertType(sessionStorage.getItem(STORAGE.isOriginal))
+      this.citation.pages = convertType(sessionStorage.getItem(STORAGE.pages))
+      this.isAbsent = convertType(sessionStorage.getItem(STORAGE.isAbsent))
     }
   },
 
   methods: {
     setSource (source) {
-      sessionStorage.setItem('radialObject::source::id', source.id)
+      sessionStorage.setItem(STORAGE.sourceId, source.id)
       this.citation.source_id = source.id
     },
 
     setPage (e) {
-      sessionStorage.setItem('radialObject::source::pages', e.target.value)
+      sessionStorage.setItem(STORAGE.pages, e.target.value)
+    },
+
+    setIsOriginal (e) {
+      sessionStorage.setItem(STORAGE.isOriginal, e.target.value)
     }
   }
 }

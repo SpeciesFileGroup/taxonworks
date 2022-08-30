@@ -8,6 +8,43 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.29.0] - 2022-08-30
+
+### Added
+- A simple paper catalog generator (preview!) [#1473]
+- Functions to summarize distributions for catalogs
+- GeographicAreas autocomplete references alternate values
+- People filter, with many facets [#2876]
+- Matches identifiers (results by delimited list of some identifier type) facet, to most filters [#3080]
+- Crosslink by ID between CollectionObject and CollectingEvent filters
+- `Open in filter collection object` button in Filter collecting event task
+- Added `verbatim_label` support for Collecting Event Castor batch load. [#3059]
+- Lock `is_original` and `is_absent` for Asserted distribution form in OTU quick forms [#3085]
+
+### Fixed
+- Local identifiers on community objects were displayed across projects
+- Object type is missing when otu filter param is passed instead observation matrix id in Image matrix task
+
+### Changed
+- Alternate values can be used on GeographicAreas [#2506]
+- Alternate values on community objects are shared by all projects
+- Global identifiers on community objects are shared across all projects
+- Optimized identifier next/previous, not fully resolved [#3078]
+- Updated Ruby gems.
+- Upgraded to newer Gnfinder service.
+- Enabled 10km tolerance to geographic area validation for verbatim georeferences.
+
+### Data
+- Migrates annotations on Community objects to be accessilbe across projects
+
+[#1473]: https://github.com/SpeciesFileGroup/taxonworks/issues/1473
+[#2506]: https://github.com/SpeciesFileGroup/taxonworks/issues/2506
+[#3078]: https://github.com/SpeciesFileGroup/taxonworks/issues/3078
+[#2876]: https://github.com/SpeciesFileGroup/taxonworks/issues/2876
+[#3059]: https://github.com/SpeciesFileGroup/taxonworks/pull/3059
+[#3080]: https://github.com/SpeciesFileGroup/taxonworks/issues/3080
+[#3085]: https://github.com/SpeciesFileGroup/taxonworks/issues/3085
+
 ## [0.28.1] - 2022-08-19
 
 ### Fixed
@@ -2826,7 +2863,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.28.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.0...development
+[0.29.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.28.1...v0.29.0
 [0.28.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.28.0...v0.28.1
 [0.28.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.3...v0.28.0
 [0.27.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.27.2...v0.27.3

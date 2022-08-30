@@ -7,6 +7,7 @@ const RouteNames = {
   DwcDashboard: '/tasks/dwc/dashboard',
   DwcImport: '/tasks/dwca_import/index',
   FilterCollectionObjects: '/tasks/collection_objects/filter',
+  FilterCollectingEvents: '/tasks/collecting_events/filter',
   ImageMatrix: '/tasks/matrix_image/matrix_image/index',
   InteractiveKeys: '/tasks/observation_matrices/interactive_key',
   ManageBiocurationTask: '/tasks/controlled_vocabularies/biocuration/build_collection',
