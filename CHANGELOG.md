@@ -9,7 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - GeographicAreas autocomplete references alternate values
 - People filter, with many facets [#2876]
-- Matches identifiers facet [#3080]
+- Matches identifiers (results by delimited list of some identifier type) facet, to most filters [#3080]
 - Crosslink by ID between CollectionObject and CollectingEvent filters
 - `Open in filter collection object` button in Filter collecting event task
 - Added `verbatim_label` support for Collecting Event Castor batch load. [#3059]
