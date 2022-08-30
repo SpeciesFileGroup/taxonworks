@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - Radial navigator for TaxonName broken [#3087]
+- OTU link in New asserted distribution
 
 \-
 
