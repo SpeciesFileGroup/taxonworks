@@ -69,8 +69,11 @@
           v-if="list.length"
           class="horizontal-left-content flex-separate separate-left separate-bottom">
           <div class="horizontal-left-content">
-            <csv-button
-              :list="list"/>
+            <csv-button :list="list" />
+            <OpenCollectionObjectFilter
+              class="margin-small-left"
+              :ids="selectedCEIds"
+            />
           </div>
         </div>
         <div
@@ -92,7 +95,7 @@
             :geojson="geojson" />
           <list-component
             v-if="showList"
-            v-model="ids"
+            v-model="selectedCEIds"
             :class="{ 'separate-left': activeFilter }"
             :list="list"
             @onRowHover="setRowHover"
@@ -117,6 +120,7 @@ import PaginationComponent from 'components/pagination'
 import PaginationCount from 'components/pagination/PaginationCount'
 import GetPagination from 'helpers/getPagination'
 import MapComponent from './components/Map.vue'
+import OpenCollectionObjectFilter from './components/OpenCollectionObjectFilter.vue'
 import { Georeference } from 'routes/endpoints'
 import { chunkArray } from 'helpers/arrays'
 
@@ -129,7 +133,8 @@ export default {
     ListComponent,
     CsvButton,
     PaginationCount,
-    MapComponent
+    MapComponent,
+    OpenCollectionObjectFilter
   },
 
   computed: {
@@ -160,6 +165,7 @@ export default {
   data () {
     return {
       list: [],
+      selectedCEIds: [],
       georeferences: [],
       urlRequest: '',
       activeFilter: true,
@@ -197,6 +203,7 @@ export default {
       this.list = []
       this.urlRequest = ''
       this.pagination = undefined
+      this.selectedCEIds = []
       history.pushState(null, null, '/tasks/collecting_events/filter')
     },
 

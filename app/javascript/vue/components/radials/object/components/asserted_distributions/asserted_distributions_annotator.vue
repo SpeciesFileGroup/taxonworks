@@ -231,11 +231,15 @@ export default {
     },
 
     resetForm () {
-      this.asserted_distribution = this.newAsserted()
+      this.asserted_distribution = {
+        ...this.newAsserted(),
+        is_absent: this.lock.source ? this.asserted_distribution.is_absent : undefined
+      }
       this.citation = {
         ...makeEmptyCitation(),
         source_id: this.lock.source ? this.citation.source_id : undefined,
-        pages: this.lock.source ? this.citation.pages : undefined
+        pages: this.lock.source ? this.citation.pages : undefined,
+        is_original: this.lock.source ? this.citation.is_original : undefined
       }
     }
   }

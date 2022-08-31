@@ -224,6 +224,7 @@ describe Person, type: :model, group: :people do
   end
 
   context 'alternate values' do
+    
     specify 'moving alternate value from one to another' do
       av1
       person1.merge_with(person1b.id)

@@ -24,8 +24,8 @@
 class Otu < ApplicationRecord
   include Housekeeping
   include SoftValidation
-  # include Shared::AlternateValues   # No alternate values on Name!!
-  include Shared::Citations          # TODO: have to think hard about this vs. using Nico's framework
+  # include Shared::AlternateValues   # No alternate values on Name!! Consequences - search cumbersome, names not unified and controllable ... others?
+  include Shared::Citations
   include Shared::DataAttributes
   include Shared::Identifiers
   include Shared::Notes
@@ -68,7 +68,10 @@ class Otu < ApplicationRecord
   has_many :collecting_events, -> { distinct }, through: :collection_objects
   has_many :common_names, dependent: :destroy
   has_many :collection_profiles, dependent: :restrict_with_error  # @proceps dependent: what? DD: profile should never be update, a new profile should be created insted
+  
   has_many :contents, inverse_of: :otu, dependent: :destroy
+  has_many :public_contents, inverse_of: :otu, dependent: :destroy
+
   has_many :geographic_areas_from_asserted_distributions, through: :asserted_distributions, source: :geographic_area
   has_many :geographic_areas_from_collecting_events, through: :collecting_events, source: :geographic_area
   has_many :georeferences, through: :collecting_events
@@ -380,6 +383,72 @@ class Otu < ApplicationRecord
     end
   end
 
+  # temporary method to gent list of taxa from a geographic area and save it to csv file
+  def taxa_by_geographic_area
+    area = 'China'
+    file_name1 = '/tmp/' + area + '_geographic_area_' + Time.now.to_i.to_s + '.csv'
+    file_name2 = '/tmp/' + area + '_collection_object_' + Time.now.to_i.to_s + '.csv'
+    c1 = GeographicArea.where(name: area).pluck(:id)
+    c2 = GeographicArea.where("parent_id in (?)", c1).pluck(:id)
+    c3 = GeographicArea.where("parent_id in (?)", c2).pluck(:id)
+    c = c1 + c2 + c3
+    ad = AssertedDistribution.where("geographic_area_id in (?)", c)
+
+    CSV.open(file_name1, 'w') do |csv|
+      csv << ['genus', 'species', 'geographic_area']
+      ad.find_each do |z|
+        tn = z.otu&.taxon_name&.valid_taxon_name
+        unless tn.nil?
+          ga, gn, sp = nil, nil, nil
+          if z.geographic_area.name == area
+            ga = area
+          elsif z.geographic_area.parent.name == area
+            ga = area + ', ' + z.geographic_area.name
+          elsif z.geographic_area.parent.parent.name == area
+            ga = area + ', ' + z.geographic_area.parent.name + ', ' + z.geographic_area.name
+          end
+          sp = tn.cached.to_s + ' ' + tn.cached_author_year.to_s
+          tn1 = tn.ancestor_at_rank('genus')
+          unless tn1.nil?
+            gn = tn1&.cached.to_s + ' ' + tn1&.cached_author_year.to_s
+            csv << [gn, sp, ga]
+          end
+        end
+      end
+    end
+
+    co = CollectionObject.joins(:collecting_event).where("collecting_events.geographic_area_id in (?)", c)
+
+    CSV.open(file_name2, 'w') do |csv|
+      csv << ['genus', 'species', 'geographic_area', 'lat', 'long']
+      co.find_each do |z|
+        tn = z.taxon_determinations.last&.otu&.taxon_name&.valid_taxon_name
+        unless tn.nil?
+          ga, gn, sp, lat, long = nil, nil, nil, nil, nil
+          ce = z.collecting_event.geographic_area
+          if ce.name == area
+            ga = area
+          elsif ce.parent.name == area
+            ga = area + ', ' + ce.name
+          elsif ce.parent.parent.name == area
+            ga = area + ', ' + ce.parent.name + ', ' + ce.name
+          end
+          lat_long = z.collecting_event&.georeferences&.last&.geographic_item&.to_a
+          if !lat_long.nil? && lat_long.length == 2
+            lat = lat_long[1]
+            long = lat_long[0]
+          end
+
+          sp = tn.cached.to_s + ' ' + tn.cached_author_year.to_s
+          tn1 = tn.ancestor_at_rank('genus')
+          unless tn1.nil?
+            gn = tn1&.cached.to_s + ' ' + tn1&.cached_author_year.to_s
+            csv << [gn, sp, ga, lat, long]
+          end
+        end
+      end
+    end
+  end
 
   protected
 
@@ -402,6 +471,3 @@ class Otu < ApplicationRecord
   end
 
 end
-
-
-

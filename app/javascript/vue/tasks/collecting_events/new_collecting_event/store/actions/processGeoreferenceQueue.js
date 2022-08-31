@@ -5,21 +5,22 @@ export default async ({ state: { collectingEvent, queueGeoreferences }, commit }
   new Promise((resolve, reject) => {
     if (!collectingEvent.id) return resolve()
 
-    const promises = []
+    const requests = queueGeoreferences.map(item => {
+      const georeference = {
+        ...item,
+        collecting_event_id: collectingEvent.id
+      }
 
-    queueGeoreferences.forEach(georeference => {
-      georeference.collecting_event_id = collectingEvent.id
-      promises.push(
-        (georeference.id
-          ? Georeference.update(georeference.id, { georeference: georeference })
-          : Georeference.create({ georeference: georeference })
-        ).then(response => {
-          commit(MutationNames.AddGeoreference, response.body)
-        })
-      )
+      const request = georeference.id
+        ? Georeference.update(georeference.id, { georeference })
+        : Georeference.create({ georeference })
+
+      request.then(({ body }) => commit(MutationNames.AddGeoreference, body))
+
+      return request
     })
 
-    Promise.all(promises).then(() => {
+    Promise.allSettled(requests).then(_ => {
       commit(MutationNames.SetQueueGeoreferences, [])
       resolve()
     }).catch(error => {

@@ -597,8 +597,8 @@ class TaxonName < ApplicationRecord
   def author_string
     return verbatim_author if !verbatim_author.nil?
     if taxon_name_authors.any?
-      # TODO: Technically not correct if prefix/suffix involved.
       return Utilities::Strings.authorship_sentence( taxon_name_authors.pluck(:last_name) )
+      #return Utilities::Strings.authorship_sentence( taxon_name_authors.collect{|a| [a.prefix, a.last_name, a.suffix].compact.join(' ')} )
     end
 
     return source.authority_name if !source.nil?
@@ -875,7 +875,8 @@ class TaxonName < ApplicationRecord
 
   # @return [Array of TaxonName]
   #  returns list of invalid names for a given taxon.
-  # TODO: Can't we just use #valid_id now?
+  # Can't we just use #valid_id now?
+  # DD: no this is used for validation of multiple conflicting relationships
   # this list does not return combinations
   def list_of_invalid_taxon_names
     first_pass = true
@@ -891,7 +892,6 @@ class TaxonName < ApplicationRecord
           elsif r == r.subject_taxon_name.first_possible_valid_taxon_name_relationship
             list[r.subject_taxon_name] = false if list[r.subject_taxon_name].nil?
           end
-
         end
         list[t] = true if list[t] == false
       end
@@ -930,34 +930,6 @@ class TaxonName < ApplicationRecord
     n = n.blank? ? name : n
     return n
   end
-
-  # def create_new_combination_if_absent
-  # return true unless type == 'Protonym'
-  # if !TaxonName.with_cached_html(cached_html).count == 0 (was intent to make this always fail?!)
-  #
-  #  if TaxonName.where(cached: cached, project_id: project_id).any?
-  #    begin
-  #      TaxonName.transaction do
-  #        c = Combination.new
-  #        safe_self_and_ancestors.each do |i|
-  #          case i.rank
-  #            when 'genus'
-  #              c.genus = i
-  #            when 'subgenus'
-  #              c.subgenus = i
-  #            when 'species'
-  #              c.species = i
-  #            when 'subspecies'
-  #              c.subspecies = i
-  #          end
-  #        end
-  #        c.save
-  #      end
-  #    rescue
-  #    end
-  #    false
-  #  end
-  # end
 
   def clear_cached(update: false)
     assign_attributes(
@@ -1479,6 +1451,35 @@ class TaxonName < ApplicationRecord
     id.to_s + '-' + Digest::MD5.hexdigest(cached_original_combination)
   end
 
+  def merge_to(to_taxon_name, kind)
+    @result = {
+      failed: 0,
+      passed: 0,
+      kind: kind
+    }
+
+    case kind
+    when :taxon_name_relationships
+      all_taxon_name_relationships.each do |r|
+        begin
+          if r.subject_taxon_name_id == id
+            r.update!(subject_taxon_name: to_taxon_name)
+          elsif  r.object_taxon_name_id == id
+            r.update!(object_taxon_name: to_taxon_name)
+          else
+            @result[:failed] += 1
+          end
+          @result[:passed] += 1
+        rescue ActiveRecord::RecordInvalid
+          @result[:failed] += 1
+        end
+      end
+    else
+    end
+
+    @result
+  end
+
   protected
 
   def check_for_children
@@ -1643,7 +1644,8 @@ class TaxonName < ApplicationRecord
     end
   end
 
-  # TODO: does this make sense now, with #valid_taxon_name_id in place?
+  # MY: does this make sense now, with #valid_taxon_name_id in place?
+  # DD: valid_taxon_name_id does not show if conflict exists
   def sv_not_synonym_of_self
     if list_of_invalid_taxon_names.include?(self)
       soft_validations.add(:base, "Taxon has two conflicting relationships (invalidating and validating). To resolve a conflict, add a status 'Valid' to a valid taxon.")

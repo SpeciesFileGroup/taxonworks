@@ -15,8 +15,20 @@ const addImagesToDepictions = (rows, images) => rows
         })))
   }))
 
-export default ({ commit, dispatch }, params) => {
+const parsePagination = values => ({
+  paginationPage: Number(values.pagination_page),
+  nextPage: Number(values.pagination_next_page),
+  previousPage: Number(values.pagination_previous_page),
+  perPage: Number(values.pagination_per_page),
+  total: Number(values.pagination_total),
+  totalPages: Number(values.pagination_total_pages)
+})
+
+export default ({ commit, dispatch, state }, params) => {
+  state.isLoading = true
+
   AjaxCall('get', `/tasks/observation_matrices/image_matrix/${params.observation_matrix_id}/key`, { params }).then(({ body }) => {
+    commit(MutationNames.SetPagination, parsePagination(body.pagination))
     commit(MutationNames.SetObservationMatrix, body.observation_matrix)
     commit(MutationNames.SetObservationColumns, body.list_of_descriptors)
     commit(MutationNames.SetObservationLanguages, body.descriptor_available_languages)
@@ -26,5 +38,7 @@ export default ({ commit, dispatch }, params) => {
         body.image_hash
       ))
     dispatch(ActionNames.LoadOtuDepictions)
+  }).finally(_ => {
+    state.isLoading = false
   })
 }

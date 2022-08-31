@@ -2,6 +2,7 @@ module Queries::Helpers
 
   # @params params []
   # @params attribute [Symbol]
+  # @return [Boolean, nil]
   def boolean_param(params, attribute)
     return nil if attribute.nil? || params[attribute].nil?
     case params[attribute].class.name

@@ -4,7 +4,7 @@
 # !! or `build` may not inherit correctly (would otherwise need to be above `def initialize`
 class Catalog::Entry
 
-  # The target object for this entry
+  # The target object(s) for this entry
   attr_accessor :object
 
   # @return [Array]
@@ -43,7 +43,7 @@ class Catalog::Entry
   end
 
   # Redefined in subclasses!
-  # !! This is default only, it should be defined in subclasses.
+  # !! This is default only, it should be (re)defined in subclasses.
   def build
     @items << Catalog::EntryItem.new(object: object, citation: object.origin_citation)
     true
@@ -212,3 +212,4 @@ end
 
 require_dependency Rails.root.to_s + '/lib/catalog/nomenclature/entry.rb'
 require_dependency Rails.root.to_s + '/lib/catalog/otu/entry.rb'
+require_dependency Rails.root.to_s + '/lib/catalog/distribution/entry.rb'

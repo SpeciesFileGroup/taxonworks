@@ -1,6 +1,17 @@
 # Methods that recieve or generate a String. This methods in this library should be completely independant (i.e. ultimately gemifiable) from TaxonWorks.
 module Utilities::Strings
 
+  # @return String, nil
+  #   replace <br>, <i>, <b> tags with their asciidoc equivalents
+  def self.asciify(string)
+    return nil if string.to_s.length == 0
+
+    string.gsub!(/<br>/, "\n")
+    string.gsub!(/<i>|<\/i>/, "_")
+    string.gsub!(/<b>|<\/b>/, "**")
+    string
+  end
+
   def self.linearize(string, separator = ' | ')
     return nil if string.to_s.length == 0
     string.gsub(/\n|(\r\n)/, separator)

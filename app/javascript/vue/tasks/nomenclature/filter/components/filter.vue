@@ -33,7 +33,10 @@
         v-model="params.authors"/>
       <scope-component
         class="margin-medium-bottom"
-        :autocomplete-params="{ no_leaves: true }"
+        :autocomplete-params="{
+          type: 'Protonym',
+          valid: true
+        }"
         v-model="params.base.taxon_name_id"/>
       <related-component
         class="margin-medium-bottom"
@@ -63,6 +66,10 @@
         class="margin-medium-bottom"
         v-model="params.base.taxon_name_relationship_type"
         :nomenclature-code="params.base.nomenclature_code"/>
+      <FacetMatchIdentifiers
+        class="margin-medium-bottom"
+        v-model="params.matchIdentifiers"
+      />
       <tags-component
         class="margin-medium-bottom"
         target="TaxonName"
@@ -75,13 +82,20 @@
         v-model="params.base.updated_since"/>
       <citations-component
         class="margin-medium-bottom"
-        v-model="params.base.citations"/>
+        v-model="params.base.citations"
+      />
+      <FacetDataAttribute
+        class="margin-medium-bottom"
+        v-model="params.dataAttributes"
+      />
       <with-component
         v-for="(param, key) in params.with"
         :key="key"
         :param="key"
-        :title="key.replaceAll('_', ' ')"
-        v-model="params.with[key]"/>
+        :title="(withTitles[key] && withTitles[key].title) || key.replaceAll('_', ' ')"
+        :inverted="withTitles[key] && withTitles[key].inverted"
+        v-model="params.with[key]"
+      />
     </div>
   </div>
 </template>
@@ -105,6 +119,9 @@ import UsersComponent from 'tasks/collection_objects/filter/components/filters/u
 import TagsComponent from 'tasks/sources/filter/components/filters/tags'
 import WithComponent from 'tasks/sources/filter/components/filters/with'
 import AuthorsComponent from './filters/authors.vue'
+import FacetDataAttribute from 'tasks/collection_objects/filter/components/filters/DataAttributes/FacetDataAttribute.vue'
+import FacetMatchIdentifiers from 'tasks/people/filter/components/Facet/FacetMatchIdentifiers.vue'
+import checkMatchIdentifiersParams from 'tasks/people/filter/helpers/checkMatchIdentifiersParams'
 
 import SpinnerComponent from 'components/spinner'
 import platformKey from 'helpers/getPlatformKey.js'
@@ -130,7 +147,9 @@ export default {
     TaxonNameTypeComponent,
     UsersComponent,
     TagsComponent,
-    WithComponent
+    WithComponent,
+    FacetDataAttribute,
+    FacetMatchIdentifiers
   },
 
   emits: [
@@ -149,7 +168,7 @@ export default {
       return keys
     },
     parseParams () {
-      const params = Object.assign({}, this.filterEmptyParams(this.params.taxon), this.params.authors, this.params.with, this.params.keywords, this.params.related, this.params.base, this.params.user, this.params.includes, this.params.settings)
+      const params = Object.assign({}, checkMatchIdentifiersParams(this.params.matchIdentifiers), this.filterEmptyParams(this.params.taxon), this.params.dataAttributes, this.params.authors, this.params.with, this.params.keywords, this.params.related, this.params.base, this.params.user, this.params.includes, this.params.settings)
       params.updated_since = params.updated_since ? this.setDays(params.updated_since) : undefined
       return params
     }
@@ -159,7 +178,19 @@ export default {
     return {
       params: this.initParams(),
       result: [],
-      searching: false
+      searching: false,
+      withTitles: {
+        type_metadata: {
+          title: 'Type information'
+        },
+        not_specified: {
+          title: 'Incomplete combination relationships'
+        },
+        leaves: {
+          title: 'Descendants',
+          inverted: true
+        }
+      }
     }
   },
 
@@ -198,7 +229,7 @@ export default {
       return {
         authors: {
           taxon_name_author_ids: [],
-          taxon_name_author_ids_or: undefined,
+          taxon_name_author_ids_or: undefined
         },
         taxon: {
           name: undefined,
@@ -207,6 +238,7 @@ export default {
         },
         with: {
           leaves: undefined,
+          data_attributes: undefined,
           type_metadata: undefined,
           otus: undefined,
           authors: undefined,
@@ -226,6 +258,16 @@ export default {
           taxon_name_relationship: [],
           taxon_name_relationship_type: [],
           taxon_name_classification: []
+        },
+        matchIdentifiers: {
+          match_identifiers: undefined,
+          match_identifiers_delimiter: ',',
+          match_identifiers_type: 'internal'
+        },
+        dataAttributes: {
+          data_attribute_value: [],
+          data_attribute_predicate_id: [],
+          data_attribute_exact: undefined
         },
         keywords: {
           keyword_id_and: [],

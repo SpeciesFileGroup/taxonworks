@@ -469,11 +469,11 @@ class Combination < TaxonName
 
     if  is_cached && (
         cached_is_valid.nil? ||
+        cached != get_full_name ||
         cached_html != get_full_name_html ||
         cached_nomenclature_date != nomenclature_date)
       is_cached = false
     end
-
     soft_validations.add(
       :base, 'Cached values should be updated',
       success_message: 'Cached values were updated',

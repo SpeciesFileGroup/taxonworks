@@ -10,7 +10,8 @@ function makeInitialState () {
       isLoading: false,
       isProcessing: false,
       retryErrored: false,
-      stopRequested: false
+      stopRequested: false,
+      namespaceUpdated: false
     },
     paramsFilter: {
       per: 50,

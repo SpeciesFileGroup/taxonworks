@@ -61,7 +61,10 @@
           <template
             v-for="item in lists[view]"
             :key="item.id">
-            <li v-if="filterItem(item)">
+            <li
+              v-if="filterItem(item)"
+              class="list__item"
+            >
               <template
                 v-if="buttons">
                 <button
@@ -244,6 +247,11 @@ export default {
       default: 'id'
     },
 
+    filter: {
+      type: Function,
+      default: undefined
+    },
+
     lockView: {
       type: Boolean,
       default: true
@@ -252,6 +260,11 @@ export default {
     autofocus: {
       type: Boolean,
       default: false
+    },
+
+    extend: {
+      type: Array,
+      default: () => []
     }
   },
 
@@ -316,21 +329,30 @@ export default {
 
   methods: {
     getObject (id) {
-      AjaxCall('get', this.getUrl ? `${this.getUrl}${id}.json` : `/${this.model}/${id}.json`).then(response => {
+      AjaxCall('get', this.getUrl ? `${this.getUrl}${id}.json` : `/${this.model}/${id}.json`, { params: { extend: this.extend } }).then(response => {
         this.sendObject(response.body)
       })
     },
+
     sendObject (item) {
       this.lastSelected = item
       this.selectedItem = item
       this.$emit('selected', item)
     },
+
     filterItem (item) {
-      return Array.isArray(this.filterIds) ? !this.filterIds.includes(item[this.filterBy]) : this.filterIds !== item[this.filterBy]
+      if (this.filter) {
+        return this.filter(item)
+      }
+
+      return Array.isArray(this.filterIds)
+        ? !this.filterIds.includes(item[this.filterBy])
+        : this.filterIds !== item[this.filterBy]
     },
+
     refresh (forceUpdate = false) {
       if (this.alreadyOnLists() && !forceUpdate) return
-      AjaxCall('get', `/${this.model}/select_options`, { params: Object.assign({}, { klass: this.klass, target: this.target }, this.params) }).then(response => {
+      AjaxCall('get', `/${this.model}/select_options`, { params: Object.assign({}, { klass: this.klass, target: this.target }, { extend: this.extend }, this.params) }).then(response => {
         this.lists = response.body
         this.addCustomElements()
         this.options = Object.keys(this.lists).concat(this.addTabs)
@@ -393,5 +415,9 @@ export default {
 <style scoped>
   input:focus + span {
     font-weight: bold;
+  }
+
+  .list__item {
+    padding:2px 0;
   }
 </style>

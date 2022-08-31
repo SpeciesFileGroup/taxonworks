@@ -39,6 +39,7 @@
                 <input
                   type="checkbox"
                   :value="person"
+                  :disabled="isSelectedPerson(person.id)"
                   v-model="selectedMergePerson"
                 >
               </td>
@@ -68,10 +69,9 @@
 </template>
 <script>
 
-import { People } from 'routes/endpoints'
-import { ActionNames } from '../store/actions/actions'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
+import { ActionNames } from '../store/actions/actions'
 import Autocomplete from 'components/ui/Autocomplete'
 import getRoles from '../utils/getRoles.js'
 
@@ -108,39 +108,26 @@ export default {
       },
 
       set (value) {
-        this.selectedMergePerson = value ? this.matchList : []
-      }
-    }
-  },
-
-  watch: {
-    selectedPerson (newVal) {
-      if (newVal.id) {
-        this.$store.dispatch(ActionNames.FindMatchPeople, {
-          name: newVal.cached,
-          levenshtein_cuttoff: 3
-        })
+        this.selectedMergePerson = value
+          ? this.matchList.filter(item => item.id !== this.selectedPerson.id)
+          : []
       }
     }
   },
 
   methods: {
     addToList (person) {
-      const isAlreadyInList = this.selectedMergePerson.find(p => p.id === person.id)
-
-      if (!isAlreadyInList) {
-        person.cached = person.label
-        People.find(person.id, { extend: ['roles'] }).then(response => {
-          this.matchList.push(response.body)
-          this.selectedMergePerson.push(response.body)
-        })
-      }
+      this.$store.dispatch(ActionNames.AddMatchPerson, person)
     },
 
     getRoles,
 
     yearValue (value) {
       return value || '?'
+    },
+
+    isSelectedPerson (id) {
+      return this.selectedPerson.id === id
     }
   }
 }

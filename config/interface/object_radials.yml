@@ -147,6 +147,7 @@ TaxonName:
     - nomenclature_stats_task
     - otu_distribution_data_task
     - asserted_distributions_basic_endemism_task
+    - paper_catalog_generator_task
   edit: new_taxon_name_task
   new: new_taxon_name_task
   home: browse_nomenclature_task

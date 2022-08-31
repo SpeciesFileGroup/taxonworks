@@ -4,9 +4,11 @@ module Queries
       include Queries::Helpers
 
       include Queries::Concerns::Tags
+      include Queries::Concerns::Notes
       include Queries::Concerns::DateRanges
-      include Queries::Concerns::Identifiers
       include Queries::Concerns::Users
+      include Queries::Concerns::DataAttributes
+      include Queries::Concerns::Identifiers
 
       # TODO: likely move to model (replicated in Source too)
       # Params exists for all CollectingEvent attributes except these
@@ -15,7 +17,8 @@ module Queries
         class_eval { attr_accessor a.to_sym }
       end
 
-      PARAMS = %w{collector_id
+      PARAMS = %w{
+        collector_id
         collector_ids_or
         spatial_geographic_areas
         wkt
@@ -28,6 +31,7 @@ module Queries
         in_verbatim_locality
         in_labels
         geo_json
+        collecting_event_wildcards
       }
 
       # Wildcard wrapped matching any label
@@ -91,6 +95,12 @@ module Queries
       #  whether the CollectingEvent has associated CollectionObjects
       attr_accessor :collection_objects
 
+
+      # @return Array
+      # @param collection_object_id [Array, Integer, String]
+      #    all collecting events matching collection objects
+      attr_accessor :collection_object_id
+
       # @return [True, False, nil]
       #   true - index is built
       #   false - index is not built
@@ -104,6 +114,7 @@ module Queries
         @collector_id = params[:collector_id]
         @collector_ids_or = boolean_param(params, :collector_ids_or )
         @collection_objects = boolean_param(params, :collection_objects )
+        @collection_object_id = params[:collection_object_id]
         @depictions = boolean_param(params, :depictions)
         @geo_json = params[:geo_json]
         @geographic_area_id = params[:geographic_area_id]
@@ -121,12 +132,18 @@ module Queries
         set_attributes(params)
         set_dates(params)
         set_user_dates(params)
+        set_data_attributes_params(params)
+        set_notes_params(params)
       end
 
       def set_attributes(params)
         ATTRIBUTES.each do |a|
           send("#{a}=", params[a.to_sym])
         end
+      end
+
+      def collection_object_id
+        [@collection_object_id].flatten.compact
       end
 
       def collector_id
@@ -281,7 +298,12 @@ module Queries
 
       def matching_otu_ids
         return nil if otu_id.empty?
-        ::CollectingEvent.joins(:otus).where(otus: {id: otu_id}) #  table[:geographic_area_id].eq_any(geographic_area_ids)
+        ::CollectingEvent.joins(:otus).where(otus: {id: otu_id})
+      end
+
+      def matching_collection_object_id
+        return nil if collection_object_id.empty?
+        ::CollectingEvent.joins(:collection_objects).where(collection_objects: {id: collection_object_id})
       end
 
       def matching_verbatim_locality
@@ -309,18 +331,25 @@ module Queries
       def base_merge_clauses
         clauses = [
           collection_objects_facet,
+          collector_ids_facet,
+          created_updated_facet,
+          data_attribute_predicate_facet,
+          data_attribute_value_facet,
+          data_attributes_facet,
+          depictions_facet,
+          geo_json_facet,
+          identifier_between_facet,
+          identifier_facet,       # See Queries::Concerns::Identifiers
+          identifier_namespace_facet,
+          identifiers_facet,      # See Queries::Concerns::Identifiers
+          match_identifiers_facet,
           keyword_id_facet,
           matching_otu_ids,
-          wkt_facet,
-          geo_json_facet,
-          collector_ids_facet,
+          matching_collection_object_id,
           matching_spatial_via_geographic_area_ids,
-          identifiers_facet,      # See Queries::Concerns::Identifiers
-          identifier_between_facet,
-          identifier_facet, # See Queries::Concerns::Identifiers
-          identifier_namespace_facet,
-          depictions_facet,
-          created_updated_facet
+          note_text_facet,        # See Queries::Concerns::Notes
+          notes_facet,            # See Queries::Concerns::Notes
+          wkt_facet,
         ].compact!
         clauses
       end

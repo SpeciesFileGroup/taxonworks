@@ -37,6 +37,7 @@
       <authors-component class="margin-large-bottom" v-model="params.source"/>
       <date-component class="margin-large-bottom" v-model="params.source"/>
       <serials-component class="margin-large-bottom" v-model="params.source.serial_ids"/>
+      <FacetMatchIdentifiers class="margin-large-bottom" v-model="params.matchIdentifiers"/>
       <tags-component class="margin-large-bottom" v-model="params.keywords" target="Source"/>
       <topics-component class="margin-large-bottom" v-model="params.source.topic_ids"/>
       <identifier-component class="margin-large-bottom" v-model="params.identifier"/>
@@ -77,6 +78,8 @@ import TopicsComponent from './filters/topics'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
 import SomeValueComponent from './filters/SomeValue/SomeValue'
 import TaxonNameComponent from './filters/TaxonName'
+import FacetMatchIdentifiers from 'tasks/people/filter/components/Facet/FacetMatchIdentifiers.vue'
+import checkMatchIdentifiersParams from 'tasks/people/filter/helpers/checkMatchIdentifiersParams'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { Source } from 'routes/endpoints'
 
@@ -101,7 +104,8 @@ export default {
     TopicsComponent,
     SerialsComponent,
     SomeValueComponent,
-    TaxonNameComponent
+    TaxonNameComponent,
+    FacetMatchIdentifiers
   },
 
   emits: [
@@ -153,7 +157,7 @@ export default {
     },
     searchSources () {
       if (this.emptyParams) return
-      const params = this.filterEmptyParams(Object.assign({}, this.params.source, parseAttributeParams(this.params.attributes), this.params.keywords, this.params.byRecordsWith, this.params.nomenclature, this.params.identifier, this.params.user, this.params.settings))
+      const params = this.filterEmptyParams(Object.assign({}, checkMatchIdentifiersParams(this.params.matchIdentifiers), this.params.source, parseAttributeParams(this.params.attributes), this.params.keywords, this.params.byRecordsWith, this.params.nomenclature, this.params.identifier, this.params.user, this.params.settings))
 
       this.getSources(params)
     },
@@ -220,6 +224,11 @@ export default {
           identifiers_start: undefined,
           identifiers_end: undefined,
           identifier_exact: undefined
+        },
+        matchIdentifiers: {
+          match_identifiers: undefined,
+          match_identifiers_delimiter: ',',
+          match_identifiers_type: 'internal'
         },
         nomenclature: {
           ancestor_id: undefined,

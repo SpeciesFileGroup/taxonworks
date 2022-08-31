@@ -30,7 +30,8 @@
       />
       <filter-determinations
         class="margin-large-bottom"
-        v-model="params.determination"/>
+        v-model="params.determination"
+      />
       <filter-identifiers
         class="margin-large-bottom"
         v-model="params.identifier"
@@ -48,6 +49,10 @@
         class="margin-large-bottom"
         v-model="params.types"
       />
+      <FacetMatchIdentifiers
+        class="margin-large-bottom"
+        v-model="params.matchIdentifiers"
+      />
       <filter-keywords
         class="margin-large-bottom"
         target="CollectingEvent"
@@ -58,7 +63,13 @@
         v-model="params.user"
       />
       <filter-attributes
-        v-model="params.collectingEvents"/>
+        class="margin-large-bottom"
+        v-model="params.collectingEvents"
+      />
+      <FacetDataAttribute
+        v-model="params.dataAttributes"
+        class="margin-large-bottom"
+      />
       <with-component
         class="margin-large-bottom"
         v-for="(item, key) in params.byRecordsWith"
@@ -85,6 +96,9 @@ import FilterKeywords from 'tasks/sources/filter/components/filters/tags'
 import FilterDeterminations from 'tasks/collection_objects/filter/components/filters/otu'
 import FilterMaterial from 'tasks/collection_objects/filter/components/filters/types'
 import FilterCollectors from 'tasks/collection_objects/filter/components/filters/shared/people'
+import FacetDataAttribute from 'tasks/collection_objects/filter/components/filters/DataAttributes/FacetDataAttribute.vue'
+import FacetMatchIdentifiers from 'tasks/people/filter/components/Facet/FacetMatchIdentifiers.vue'
+import checkMatchIdentifiersParams from 'tasks/people/filter/helpers/checkMatchIdentifiersParams'
 
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { CollectingEvent } from 'routes/endpoints'
@@ -100,7 +114,9 @@ export default {
     FilterIdentifiers,
     FilterKeywords,
     FilterMaterial,
-    FilterCollectors
+    FilterCollectors,
+    FacetDataAttribute,
+    FacetMatchIdentifiers
   },
 
   emits: [
@@ -152,7 +168,7 @@ export default {
 
     searchCollectingEvents () {
       if (this.emptyParams) return
-      const params = this.filterEmptyParams(Object.assign({}, this.params.keywords, this.params.identifier, this.params.determination, this.params.geographic, this.params.byRecordsWith, this.params.user, this.params.settings, this.flatObject(this.params.collectingEvents, 'fields')))
+      const params = this.filterEmptyParams(Object.assign({}, checkMatchIdentifiersParams(this.params.matchIdentifiers), this.params.keywords, this.params.dataAttributes, this.params.identifier, this.params.determination, this.params.geographic, this.params.byRecordsWith, this.params.user, this.params.settings, this.flatObject(this.params.collectingEvents, 'fields')))
 
       this.getCollectingEvents(params)
     },
@@ -186,6 +202,7 @@ export default {
         byRecordsWith: {
           collection_objects: undefined,
           depictions: undefined,
+          data_attributes: undefined,
           geographic_area: undefined,
           georeferences: undefined,
           identifiers: undefined
@@ -197,13 +214,24 @@ export default {
           identifier_end: undefined,
           namespace_id: undefined
         },
+        dataAttributes: {
+          data_attribute_value: [],
+          data_attribute_predicate_id: [],
+          data_attribute_exact: undefined
+        },
         determination: {
           determiner_id_or: [],
           determiner_id: [],
           otu_ids: [],
+          determiner_name_regex: undefined,
           current_determinations: undefined,
           ancestor_id: undefined,
           validity: undefined
+        },
+        matchIdentifiers: {
+          match_identifiers: undefined,
+          match_identifiers_delimiter: ',',
+          match_identifiers_type: 'internal'
         },
         keywords: {
           keyword_id_and: [],
@@ -236,7 +264,7 @@ export default {
         types: {
           is_type: [],
           type_type: []
-        },
+        }
       }
     },
 

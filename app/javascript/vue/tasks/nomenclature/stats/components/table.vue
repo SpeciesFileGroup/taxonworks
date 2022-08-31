@@ -51,7 +51,7 @@
       <tbody>
         <tr 
           v-for="(row, index) in tableRanks.data"
-          class="contextMenuCells btn btn-neutral"
+          class="contextMenuCells"
           :class="{ even: (index % 2)}">
           <template v-for="(header, hindex) in tableRanks.column_headers">
             <td v-if="hindex >= renderPosition">
@@ -104,7 +104,7 @@ export default {
 
   data () {
     return {
-      renderPosition: 4,
+      renderPosition: 6,
       tableRanks: {},
       fieldset: [
         {

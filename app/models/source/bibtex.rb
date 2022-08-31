@@ -793,7 +793,7 @@ class Source::Bibtex < Source
     end
 
     a['year-suffix'] = year_suffix unless year_suffix.blank?
-    a['original-date'] = {"date-parts" => [[ stated_year ]]} unless stated_year.blank?
+    a['original-date'] = {"date-parts" => [[ stated_year ]]} if !stated_year.blank? && stated_year.to_s != year.to_s
     a['language'] = Language.find(language_id).english_name.to_s unless language_id.nil?
     a['translated-title'] = alternate_values.where(type: "AlternateValue::Translation", alternate_value_object_attribute: 'title').pluck(:value).first
     a['note'] = note
@@ -857,7 +857,8 @@ class Source::Bibtex < Source
         return Utilities::Strings.authorship_sentence(b.author.tokens.collect{ |t| t.last })
       end
     else # use normalized records
-      return Utilities::Strings.authorship_sentence(authors.collect{ |a| a.full_last_name })
+      #      return Utilities::Strings.authorship_sentence(authors.collect{ |a| a.full_last_name })
+      return Utilities::Strings.authorship_sentence(authors.collect{ |a| a.last_name })
     end
   end
 

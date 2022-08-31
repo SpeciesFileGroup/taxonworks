@@ -132,7 +132,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
           }
 
           specify 'summarized in first line' do
-            expect(collecting_event.cached).to eq('United States of America: Illinois: Champaign')
+            expect(collecting_event.cached).to eq('United States: Illinois: Champaign')
           end
         end
 

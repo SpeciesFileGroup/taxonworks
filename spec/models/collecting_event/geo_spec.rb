@@ -195,7 +195,6 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
                 FactoryBot.create(:georeference_verbatim_data,
                                   collecting_event: collecting_event,
                                   geographic_item: GeographicItem.new(point: area_a.default_geographic_item
-                                                                                .geo_object
                                                                                 .centroid))
                 collecting_event.reload
               }
@@ -205,7 +204,7 @@ describe CollectingEvent, type: :model, group: [:geo, :shared_geo, :collecting_e
               end
 
               specify 'return georeference#geographic_item centroid' do
-                expect(collecting_event.map_center).to eq(area_a.default_geographic_item.geo_object.centroid)
+                expect(collecting_event.map_center).to eq(area_a.default_geographic_item.centroid)
               end
             end
           end

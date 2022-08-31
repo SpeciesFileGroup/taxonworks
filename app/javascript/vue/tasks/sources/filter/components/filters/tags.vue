@@ -13,11 +13,13 @@
         pin-type="Keyword"
         :target="target"
         :custom-list="allFiltered"
-        @selected="addKeyword"/>
+        @selected="addKeyword"
+      />
     </fieldset>
     <table
       v-if="keywords.length"
-      class="vue-table">
+      class="vue-table"
+    >
       <thead>
         <tr>
           <th>Name</th>
@@ -27,11 +29,12 @@
       </thead>
       <transition-group
         name="list-complete"
-        tag="tbody">
+        tag="tbody"
+      >
         <template
           v-for="(item, index) in keywords"
           :key="index"
-          class="table-entrys-list">
+        >
           <row-item
             class="list-complete-item"
             :item="item"

@@ -83,6 +83,12 @@ module Source::Bibtex::SoftValidationExtensions
         set: :missing_fields,
         name: 'Missing BibTeX required field note',
         description: 'Valid BibTeX for this type requires note'
+      },
+
+      sv_electronic_only: {
+        set: :electronic_only,
+        name: 'Electronic only publication',
+        description: 'Validate if the article is published in electronic only journal'
       }
     }
 
@@ -184,6 +190,10 @@ module Source::Bibtex::SoftValidationExtensions
           soft_validations.add(:serial_id, 'This article is missing a serial.')
         end
       end
+    end
+
+    def sv_electronic_only
+      soft_validations.add(:serial_id, 'This article is from the serial which publishes in electronic only format') if self&.serial&.is_electronic_only
     end
 
     def sv_duplicate_title

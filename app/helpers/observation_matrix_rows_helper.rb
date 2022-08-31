@@ -22,15 +22,15 @@ module ObservationMatrixRowsHelper
     return observation_matrix_row.name unless observation_matrix_row.name.blank?
     o = observation_matrix_row.observation_object
     s = label_for(o)
-    s.gsub!(/[^\w]/, '_')
-    s[0..11] + "_#{o.id}"
+    s.gsub!(/[^\w]/, '_').gsub('__', '_')
+    #s[0..11] + "_#{o.id}"
   end
 
   def observation_matrix_row_label_nexus(observation_matrix_row)
     return observation_matrix_row.name unless observation_matrix_row.name.blank?
     o = observation_matrix_row.observation_object
     s = label_for(o)
-    s.gsub!(/[^\w]/, '_')
+    s.gsub!(/[^\w]/, '_').gsub('__', '_')
   end
 
   def observation_matrix_row_label_nexml(observation_matrix_row)
@@ -44,7 +44,7 @@ module ObservationMatrixRowsHelper
   def observation_matrix_row_label_csv(observation_matrix_row)
     return observation_matrix_row.name unless observation_matrix_row.name.blank?
     o = observation_matrix_row.observation_object
-    '"' + label_for(o).gsub('"', "'") + '"'
+    ('"' + label_for(o).gsub('"', "'") + '"').html_safe
   end
 
   # ONLY CACHE IF count == 1 ?!
