@@ -389,6 +389,7 @@ class Protonym < TaxonName
     else
       return nil
     end
+    return nil if r.nil?
     r.constantize
   end
 
