@@ -194,7 +194,13 @@ module ObservationMatrices::Export::NexmlHelper
           # * It draws images and data from all matrices, # not just this one
           # * Depictions are on Observation::Media, not OTU, i.e. we could be more granular throughout
           # * Citations are on Image, not Depiction
-          im = Tools::ImageMatrix.new(project_id: r.project_id, otu_filter: r.otu_id.to_s)
+
+          if r.observation_object_type == 'Otu'
+            otu_id = r.observation_object_id.to_s
+          else
+            otu_id = r.current_otu.id.to_s
+          end
+          im = Tools::ImageMatrix.new(project_id: r.project_id, otu_filter: otu_id)
           descriptors = im.list_of_descriptors.values
           if !im.blank? && !im.depiction_matrix.empty?
             object = im.depiction_matrix.first
