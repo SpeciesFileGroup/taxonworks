@@ -107,7 +107,7 @@ resources :collection_objects do
   end
 
   collection do
-    post :index
+    post :filter, action: :index
     get :dwc_index, defaults: {format: :json}
     get :report, defaults: {format: :json}
     post :preview_castor_batch_load # should be get
@@ -143,7 +143,7 @@ resources :collecting_events do
   end
 
   collection do
-    post :index
+    post :filter, action: :index
     get :attributes, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
     get :parse_verbatim_label, defaults: {format: :json}
@@ -258,7 +258,7 @@ end
 resources :extracts do
   concerns [:data_routes]
   collection do
-    post :index
+    post :filter, action: :index
     get :autocomplete, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
   end
@@ -330,7 +330,7 @@ resources :images do
     patch 'rotate', action: 'rotate'
   end
   collection do
-    post :index
+    post :filter, action: :index
     get :select_options, defaults: {format: :json}
   end
 end
@@ -542,7 +542,7 @@ resources :people do
   concerns [:data_routes]
 
   collection do
-    post :index
+    post :filter, action: :index
     get :select_options, defaults: {format: :json}
   end
 
@@ -642,7 +642,7 @@ end
 resources :sources do
   concerns [:data_routes]
   collection do
-    post :index
+    post :filter, action: :index
     get :attributes, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
     post :preview_bibtex_batch_load # should be get
@@ -695,7 +695,7 @@ resources :taxon_names do
   resources :taxon_name_relationships, shallow: true, only: [:index], defaults: {format: :json}, param: :subject_taxon_name_id
 
   collection do
-    post :index
+    post :filter, action: :index
     get :select_options, defaults: {format: :json}
     post :preview_simple_batch_load # should be get
     post :create_simple_batch_load
