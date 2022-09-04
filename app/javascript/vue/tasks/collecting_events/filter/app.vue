@@ -90,7 +90,7 @@
 
         <div class="full_width">
           <map-component
-            class="panel content margin-small-left full_width"
+            class="margin-small-left full_width"
             v-if="showMap"
             :geojson="geojson" />
           <list-component
@@ -189,9 +189,13 @@ export default {
     },
 
     list (newVal, oldList) {
-      const ids = newVal.map(item => item.id)
+      const currIds = newVal.map(item => item.id)
+      const prevIds = oldList.map(item => item.id)
 
-      if (!oldList.every(item => ids.includes(item.id))) {
+      if (
+        currIds.length &&
+        currIds.some(id => !prevIds.includes(id))
+      ) {
         this.loadGeoreferences(newVal)
       }
     }
@@ -243,6 +247,7 @@ export default {
 
       Promise.all(promises).then(responses => {
         const lists = responses.map(response => response.body)
+
         this.georeferences = lists.flat()
         this.setCEWithGeoreferences()
       })
@@ -253,16 +258,16 @@ export default {
     },
 
     setCEWithGeoreferences () {
-      this.list.forEach((ce, index) => {
-        this.list[index]['georeferencesCount'] = this.georeferences.filter(item => item.collecting_event_id === ce.id).length
+      this.list.forEach(ce => {
+        ce.georeferencesCount = this.georeferences.filter(item => item.collecting_event_id === ce.id).length
       })
     },
 
-    parseStartDate(ce) {
+    parseStartDate (ce) {
       return [ce.start_date_day, ce.start_date_month, ce.start_date_year].filter(date => date).join('/')
     },
 
-    parseEndDate(ce) {
+    parseEndDate (ce) {
       return [ce.end_date_day, ce.end_date_month, ce.end_date_year].filter(date => date).join('/')
     },
 

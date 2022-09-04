@@ -132,6 +132,7 @@ import FacetCurrentRepository from './filters/FacetCurrentRepository.vue'
 import FacetDataAttribute from './filters/DataAttributes/FacetDataAttribute.vue'
 import FacetMatchIdentifiers from 'tasks/people/filter/components/Facet/FacetMatchIdentifiers.vue'
 import checkMatchIdentifiersParams from 'tasks/people/filter/helpers/checkMatchIdentifiersParams'
+import qs from 'qs'
 import { chunkArray } from 'helpers/arrays.js'
 
 import SpinnerComponent from 'components/spinner'
@@ -244,11 +245,14 @@ export default {
 
     searchForCollectionObjects (params = this.parseParams) {
       if (this.loadingDWCA) return
+
+      const queryString = qs.stringify(params, { arrayFormat: 'brackets' })
+
       this.searching = true
       this.result = []
       this.$emit('newSearch')
 
-      CollectionObject.dwcIndex(params).then(response => {
+      CollectionObject.filter(params).then(response => {
         this.coList = response.body
         this.DWCACount = 0
         if (response.body.data.length) {
@@ -257,15 +261,19 @@ export default {
           if (this.DWCASearch.length) {
             this.getDWCATable(this.DWCASearch)
           } else {
-            this.$emit('result', { column_headers: this.coList.column_headers, data: this.result })
+            this.$emit('result', {
+              column_headers: this.coList.column_headers,
+              data: this.result
+            })
           }
         } else {
           this.$emit('result', this.coList)
         }
-        this.$emit('urlRequest', response.request.responseURL)
+        this.$emit('urlRequest', response.request.responseURL + '?' + queryString)
         this.$emit('pagination', response)
-        const urlParams = new URLSearchParams(response.request.responseURL.split('?')[1])
-        history.pushState(null, null, `/tasks/collection_objects/filter?${urlParams.toString()}`)
+
+        history.pushState(null, null, `/tasks/collection_objects/filter?${queryString}`)
+
         this.searching = false
         if (this.result.length === this.params.settings.per) {
           TW.workbench.alert.create('Results may be truncated.', 'notice')
