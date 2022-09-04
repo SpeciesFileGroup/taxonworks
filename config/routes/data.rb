@@ -107,7 +107,7 @@ resources :collection_objects do
   end
 
   collection do
-    post :filter, action: :index
+    post :filter, action: :dwc_index, defaults: {format: :json}
     get :dwc_index, defaults: {format: :json}
     get :report, defaults: {format: :json}
     post :preview_castor_batch_load # should be get
