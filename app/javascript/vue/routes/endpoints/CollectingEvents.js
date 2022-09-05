@@ -84,6 +84,8 @@ export const CollectingEvent = {
 
   clone: (id, params) => AjaxCall('post', `/${controller}/${id}/clone`, params),
 
+  filter: params => AjaxCall('post', `/${controller}/filter`, params),
+
   navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`),
 
   parseVerbatimLabel: (params) => AjaxCall('get', '/collecting_events/parse_verbatim_label', { params })

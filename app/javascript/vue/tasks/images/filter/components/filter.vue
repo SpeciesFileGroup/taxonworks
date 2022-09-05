@@ -6,7 +6,9 @@
         data-icon="reset"
         class="cursor-pointer"
         v-hotkey="shortcuts"
-        @click="resetFilter">Reset
+        @click="resetFilter"
+      >
+        Reset
       </span>
     </div>
     <spinner-component
@@ -20,35 +22,44 @@
         class="button button-default normal-input full_width"
         type="button"
         :disabled="emptyParams"
-        @click="searchDepictions">
+        @click="searchDepictions"
+      >
         Search
       </button>
       <otus-component
         class="margin-large-bottom"
-        v-model="params.base.otu_id"/>
+        v-model="params.base.otu_id"
+      />
       <scope-component
         class="margin-large-bottom"
-        v-model="params.base.taxon_name_id"/>
+        v-model="params.base.taxon_name_id"
+      />
       <ancestor-target
         class="margin-large-bottom"
         v-model="params.base.ancestor_id_target"
-        :taxon-name="params.base.taxon_name_id"/>
+        :taxon-name="params.base.taxon_name_id"
+      />
       <collection-object-component
         class="margin-large-bottom"
-        v-model="params.base.collection_object_id"/>
+        v-model="params.base.collection_object_id"
+      />
       <biocurations-component
         class="margin-large-bottom"
-        v-model="params.base.biocuration_class_id"/>
+        v-model="params.base.biocuration_class_id"
+      />
       <identifier-component
         class="margin-large-bottom"
-        v-model="params.identifier"/>
+        v-model="params.identifier"
+      />
       <tags-component
         class="margin-large-bottom"
         target="Image"
-        v-model="params.keywords"/>
+        v-model="params.keywords"
+      />
       <users-component
         class="margin-large-bottom"
-        v-model="params.user"/>
+        v-model="params.user"
+      />
     </div>
   </div>
 </template>
@@ -66,6 +77,7 @@ import OtusComponent from './filters/otus'
 import CollectionObjectComponent from './filters/collectionObjects'
 import AncestorTarget from './filters/ancestorTarget'
 import hotkey from 'plugins/v-hotkey'
+import qs from 'qs'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { Image } from 'routes/endpoints'
 
@@ -93,7 +105,8 @@ export default {
     'reset',
     'response',
     'result',
-    'urlRequest'
+    'urlRequest',
+    'urlparams'
   ],
 
   computed: {
@@ -102,7 +115,7 @@ export default {
       return !this.params.depictions
     },
 
-    shortcuts() {
+    shortcuts () {
       const keys = {}
 
       keys[`${platformKey()}+f`] = this.searchDepictions
@@ -111,6 +124,7 @@ export default {
       return keys
     }
   },
+
   data () {
     return {
       params: this.initParams(),
@@ -118,31 +132,44 @@ export default {
       searching: false
     }
   },
-  mounted () {
+
+  created () {
     const urlParams = URLParamsToJSON(location.href)
 
     if (Object.keys(urlParams).length) {
       this.getDepictions(urlParams)
     }
   },
+
   methods: {
     resetFilter () {
       this.$emit('reset')
       this.params = this.initParams()
     },
+
     searchDepictions () {
       if (this.emptyParams) return
-      const params = this.filterEmptyParams(Object.assign({}, this.params.identifier, this.params.depictions, this.params.keywords, this.params.base, this.params.user, this.params.settings))
+      const params = this.filterEmptyParams({
+        ...this.params.identifier,
+        ...this.params.depictions,
+        ...this.params.keywords,
+        ...this.params.base,
+        ...this.params.user,
+        ...this.params.settings
+      })
 
       this.getDepictions(params)
     },
+
     getDepictions (params) {
+      const urlParams = qs.stringify(params, { arrayFormat: 'brackets' })
+
       this.searching = true
       this.$emit('newSearch')
-      Image.where(params).then(response => {
+      Image.filter(params).then(response => {
         this.$emit('result', response.body)
-        this.$emit('urlRequest', response.request.responseURL)
-        this.$emit('response', response)
+        this.$emit('urlRequest', response.request.responseURL + '?' + urlParams)
+        this.$emit('urlparams', urlParams)
         this.$emit('pagination', response)
         this.$emit('params', params)
         this.searching = false
@@ -153,6 +180,7 @@ export default {
         this.searching = false
       })
     },
+
     initParams () {
       return {
         settings: {
@@ -189,6 +217,7 @@ export default {
         }
       }
     },
+
     filterEmptyParams (object) {
       const keys = Object.keys(object)
       keys.forEach(key => {
@@ -198,15 +227,17 @@ export default {
       })
       return object
     },
+
     flatObject (object, key) {
       const tmp = Object.assign({}, object, object[key])
       delete tmp[key]
       return tmp
     },
+
     loadPage (page) {
       this.params.settings.page = page
       this.searchDepictions()
-    },
+    }
   }
 }
 </script>

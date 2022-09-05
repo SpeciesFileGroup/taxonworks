@@ -80,6 +80,7 @@ import SomeValueComponent from './filters/SomeValue/SomeValue'
 import TaxonNameComponent from './filters/TaxonName'
 import FacetMatchIdentifiers from 'tasks/people/filter/components/Facet/FacetMatchIdentifiers.vue'
 import checkMatchIdentifiersParams from 'tasks/people/filter/helpers/checkMatchIdentifiersParams'
+import qs from 'qs'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { Source } from 'routes/endpoints'
 
@@ -157,21 +158,33 @@ export default {
     },
     searchSources () {
       if (this.emptyParams) return
-      const params = this.filterEmptyParams(Object.assign({}, checkMatchIdentifiersParams(this.params.matchIdentifiers), this.params.source, parseAttributeParams(this.params.attributes), this.params.keywords, this.params.byRecordsWith, this.params.nomenclature, this.params.identifier, this.params.user, this.params.settings))
+      const params = this.filterEmptyParams({
+        ...checkMatchIdentifiersParams(this.params.matchIdentifiers),
+        ...this.params.source,
+        ...parseAttributeParams(this.params.attributes),
+        ...this.params.keywords,
+        ...this.params.byRecordsWith,
+        ...this.params.nomenclature,
+        ...this.params.identifier,
+        ...this.params.user,
+        ...this.params.settings
+      })
 
       this.getSources(params)
     },
     getSources (params) {
+      const urlParams = qs.stringify(params, { arrayFormat: 'brackets' })
+
       this.searching = true
       this.$emit('newSearch')
-      Source.where(params).then(response => {
+      Source.filter(params).then(response => {
         this.$emit('result', response.body)
-        this.$emit('urlRequest', response.request.responseURL)
+        this.$emit('urlRequest', response.request.responseURL + '?' + urlParams)
         this.$emit('pagination', response)
         this.$emit('params', params)
         this.searching = false
-        const urlParams = new URLSearchParams(response.request.responseURL.split('?')[1])
-        history.pushState(null, null, `/tasks/sources/filter?${urlParams.toString()}`)
+
+        history.pushState(null, null, `/tasks/sources/filter?${urlParams}`)
         if (response.body.length === this.params.settings.per) {
           TW.workbench.alert.create('Results may be truncated.', 'notice')
         }

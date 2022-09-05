@@ -123,6 +123,7 @@ import FacetDataAttribute from 'tasks/collection_objects/filter/components/filte
 import FacetMatchIdentifiers from 'tasks/people/filter/components/Facet/FacetMatchIdentifiers.vue'
 import checkMatchIdentifiersParams from 'tasks/people/filter/helpers/checkMatchIdentifiersParams'
 
+import qs from 'qs'
 import SpinnerComponent from 'components/spinner'
 import platformKey from 'helpers/getPlatformKey.js'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
@@ -168,8 +169,24 @@ export default {
       return keys
     },
     parseParams () {
-      const params = Object.assign({}, checkMatchIdentifiersParams(this.params.matchIdentifiers), this.filterEmptyParams(this.params.taxon), this.params.dataAttributes, this.params.authors, this.params.with, this.params.keywords, this.params.related, this.params.base, this.params.user, this.params.includes, this.params.settings)
-      params.updated_since = params.updated_since ? this.setDays(params.updated_since) : undefined
+      const params = {
+        ...checkMatchIdentifiersParams(this.params.matchIdentifiers),
+        ...this.filterEmptyParams(this.params.taxon),
+        ...this.params.dataAttributes,
+        ...this.params.authors,
+        ...this.params.with,
+        ...this.params.keywords,
+        ...this.params.related,
+        ...this.params.base,
+        ...this.params.user,
+        ...this.params.includes,
+        ...this.params.settings
+      }
+
+      params.updated_since = params.updated_since
+        ? this.setDays(params.updated_since)
+        : undefined
+
       return params
     }
   },
@@ -194,8 +211,9 @@ export default {
     }
   },
 
-  mounted () {
+  created () {
     const params = URLParamsToJSON(location.href)
+
     if (Object.keys(params).length) {
       this.searchForTaxonNames(params)
     }
@@ -207,19 +225,20 @@ export default {
       this.params = this.initParams()
     },
     searchForTaxonNames (params = this.parseParams) {
+      const urlParams = qs.stringify(params, { arrayFormat: 'brackets' })
+
       this.searching = true
 
-      TaxonName.where(params).then(response => {
+      TaxonName.filter(params).then(response => {
         this.result = response.body
         this.$emit('result', this.result)
-        this.$emit('urlRequest', response.request.responseURL)
+        this.$emit('urlRequest', response.request.responseURL + '?' + urlParams)
         this.$emit('pagination', response)
         this.searching = false
         if (this.result.length === 500) {
           TW.workbench.alert.create('Results may be truncated.', 'notice')
         }
-        const urlParams = new URLSearchParams(response.request.responseURL.split('?')[1])
-        history.pushState(null, null, `/tasks/taxon_names/filter?${urlParams.toString()}`)
+        history.pushState(null, null, `/tasks/taxon_names/filter?${urlParams}`)
       }, () => {
         this.searching = false
       })
@@ -292,17 +311,20 @@ export default {
 
     setDays (days) {
       const date = new Date()
+
       date.setDate(date.getDate() - days)
-      return date.toISOString().slice(0,10)
+      return date.toISOString().slice(0, 10)
     },
 
     filterEmptyParams (object) {
       const keys = Object.keys(object)
+
       keys.forEach(key => {
         if (object[key] === '') {
           delete object[key]
         }
       })
+
       return object
     },
 
