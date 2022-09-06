@@ -17,9 +17,20 @@ const isJSON = (str) => {
 
 const isObject = (value) => typeof value === 'object' && value !== null
 
+const removeEmptyProperties = object => {
+  const keys = Object.keys(object)
+  keys.forEach(key => {
+    if (object[key] === '' || object[key] === undefined || (Array.isArray(object[key]) && !object[key].length)) {
+      delete object[key]
+    }
+  })
+  return object
+}
+
 export {
   copyObject,
   copyObjectByProperties,
   isJSON,
-  isObject
+  isObject,
+  removeEmptyProperties
 }

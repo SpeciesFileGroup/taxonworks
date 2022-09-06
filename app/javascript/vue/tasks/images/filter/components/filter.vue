@@ -66,6 +66,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { removeEmptyProperties } from 'helpers/objects'
 import SpinnerComponent from 'components/spinner'
 import platformKey from 'helpers/getPlatformKey.js'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
@@ -93,7 +94,7 @@ const shortcuts = computed(() => {
 })
 
 const parseParams = computed(() =>
-  ({
+  removeEmptyProperties({
     ...params.value.identifier,
     ...params.value.depictions,
     ...params.value.keywords,

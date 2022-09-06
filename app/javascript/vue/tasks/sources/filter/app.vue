@@ -1,5 +1,11 @@
 <template>
   <div>
+    <VSpinner
+      full-screen
+      legend="Searching..."
+      :logo-size="{ width: '100px', height: '100px'}"
+      v-if="isLoading"
+    />
     <div class="flex-separate middle">
       <h1>Filter sources</h1>
       <ul class="context-menu">
@@ -10,7 +16,8 @@
           <label>
             <input
               type="checkbox"
-              v-model="activeFilter">
+              v-model="preferences.activeFilter"
+            >
             Show filter
           </label>
         </li>
@@ -18,15 +25,18 @@
           <label>
             <input
               type="checkbox"
-              v-model="activeJSONRequest">
+              v-model="preferences.activeJSONRequest"
+            >
             Show JSON Request
           </label>
         </li>
       </ul>
     </div>
+
     <div
-      v-show="activeJSONRequest"
-      class="panel content separate-bottom">
+      v-show="preferences.activeJSONRequest"
+      class="panel content separate-bottom"
+    >
       <div class="flex-separate middle">
         <span>
           JSON Request: {{ urlRequest }}
@@ -35,207 +45,135 @@
     </div>
 
     <div class="horizontal-left-content align-start">
-      <filter-component
+      <FilterComponent
         class="separate-right"
-        ref="filterComponent"
-        v-show="activeFilter"
-        @params="params = $event"
-        @newSearch="newSearch"
-        @urlRequest="urlRequest = $event"
-        @pagination="pagination = getPagination($event)"
-        @result="loadList"
-        @reset="resetTask"/>
+        v-show="preferences.activeFilter"
+        @reset="resetFilter"
+        @parameters="makeFilterRequest"
+      />
       <div class="full_width">
         <div
-          v-if="recordsFound"
-          class="horizontal-left-content flex-separate separate-left separate-bottom">
-          <div class="horizontal-left-content">
-            <button
-              v-if="ids.length"
-              type="button"
-              @click="ids = []"
-              class="button normal-input button-default">
-              Unselect all
-            </button>
-            <button
-              v-else
-              type="button"
-              @click="ids = sourceIDs"
-              class="button normal-input button-default">
-              Select all
-            </button>
-            <span class="separate-left separate-right">|</span>
-            <csv-button :list="csvList"/>
-            <span class="separate-left separate-right">|</span>
-            <bibliography-button
-              :selected-list="ids"
-              :pagination="pagination"
-              :params="params"/>
-            <span class="separate-left separate-right">|</span>
-            <bibtex-button
-              :selected-list="ids"
-              :pagination="pagination"
-              :params="params"/>
-          </div>
+          v-if="list.length"
+          class="horizontal-left-content flex-separate separate-left separate-bottom"
+        >
+          <ul class="context-menu middle no_bullets">
+            <li>
+              <button
+                type="button"
+                class="button normal-input button-default"
+                @click="selectedIds = selectedIds.length
+                  ? []
+                  : list.map(item => item.id)"
+              >
+                {{ selectedIds.length ? 'Unselect all ' :'Select all' }}
+              </button>
+            </li>
+            <li>
+              <CsvButton :list="csvList" />
+            </li>
+            <li>
+              <BibliographyButton
+                :selected-list="selectedIds"
+                :pagination="pagination"
+                :params="parameters"
+              />
+            </li>
+            <li>
+              <BibtexButton
+                :selected-list="selectedIds"
+                :pagination="pagination"
+                :params="parameters"
+              />
+            </li>
+          </ul>
         </div>
         <div
           class="flex-separate margin-medium-bottom"
-          :class="{ 'separate-left': activeFilter }">
-          <pagination-component
-            v-if="pagination && list.length"
-            @nextPage="loadPage"
-            :pagination="pagination"/>
-          <div
-            v-if="list.length"
-            class="horizontal-left-content">
-            <span
-              class="horizontal-left-content">
-              {{ recordsAtCurrentPage }} - 
-              {{ recordsAtNextPage }} of {{ pagination.total }} records.
-            </span>
-            <div class="margin-small-left">
-              <select v-model="per">
-                <option
-                  v-for="records in maxRecords"
-                  :key="records"
-                  :value="records">
-                  {{ records }}
-                </option>
-              </select>
-              records per page.
-            </div>
-          </div>
+          v-if="pagination"
+        >
+          <PaginationComponent
+            :pagination="pagination"
+            @next-page="loadPage"
+          />
+          <PaginationCount
+            v-model="per"
+            :pagination="pagination"
+          />
         </div>
-        <list-component
-          v-model="ids"
-          :class="{ 'separate-left': activeFilter }"
+        <ListComponent
+          v-model="selectedIds"
+          :class="{ 'separate-left': preferences.activeFilter }"
           :list="list"
-          @onSort="list = $event"/>
-        <h3
-          v-if="alreadySearch && !list.length"
-          class="subtle middle horizontal-center-content no-found-message">No records found.
-        </h3>
+          @on-sort="list = $event"
+        />
+        <h2
+          v-if="!list.length"
+          class="subtle middle horizontal-center-content no-found-message"
+        >
+          No records found.
+        </h2>
       </div>
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
 
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
 import CsvButton from 'components/csvButton'
 import PaginationComponent from 'components/pagination'
-import GetPagination from 'helpers/getPagination'
+import PaginationCount from 'components/pagination/PaginationCount.vue'
 import BibtexButton from './components/bibtex'
 import BibliographyButton from './components/bibliography.vue'
 import PlatformKey from 'helpers/getPlatformKey'
+import VSpinner from 'components/spinner.vue'
+import useFilter from 'tasks/people/filter/composables/useFilter.js'
+import { Source } from 'routes/endpoints'
+import { computed, reactive, ref } from 'vue'
+import { URLParamsToJSON } from 'helpers/url/parse'
 
+const selectedIds = ref([])
+const preferences = reactive({
+  activeFilter: true,
+  activeJSONRequest: false
+})
+
+const {
+  isLoading,
+  list,
+  pagination,
+  per,
+  urlRequest,
+  loadPage,
+  parameters,
+  makeFilterRequest,
+  resetFilter
+} = useFilter(Source)
+
+const csvList = computed(() =>
+  selectedIds.value.length
+    ? list.value.filter(item => selectedIds.value.includes(item.id))
+    : list.value
+)
+
+const urlParams = URLParamsToJSON(location.href)
+
+if (Object.keys(urlParams).length) {
+  makeFilterRequest(urlParams)
+}
+
+TW.workbench.keyboard.createLegend(`${PlatformKey()}+f`, 'Search', 'Filter sources')
+TW.workbench.keyboard.createLegend(`${PlatformKey()}+r`, 'Reset task', 'Filter sources')
+
+</script>
+
+<script>
 export default {
-  components: {
-    PaginationComponent,
-    FilterComponent,
-    ListComponent,
-    CsvButton,
-    BibtexButton,
-    BibliographyButton
-  },
-
-  computed: {
-    csvFields () {
-      return []
-    },
-
-    recordsFound () {
-      return this.list.length
-    },
-
-    sourceIDs () {
-      return this.list.map(item => item.id)
-    },
-
-    csvList () {
-      return this.ids.length
-        ? this.list.filter(item => this.ids.includes(item.id))
-        : this.list
-    },
-
-    recordsAtCurrentPage () {
-      return ((this.pagination.paginationPage - 1) * this.pagination.perPage) || 1
-    },
-
-    recordsAtNextPage () {
-      const recordsCount = this.pagination.paginationPage * this.pagination.perPage
-      return recordsCount > this.pagination.total ? this.pagination.total : recordsCount
-    }
-  },
-
-  data () {
-    return {
-      list: [],
-      urlRequest: '',
-      activeFilter: true,
-      activeJSONRequest: false,
-      append: false,
-      alreadySearch: false,
-      ids: [],
-      pagination: undefined,
-      maxRecords: [50, 100, 250, 500, 1000],
-      per: 500,
-      params: undefined
-    }
-  },
-
-  watch: {
-    per (newVal) {
-      this.$refs.filterComponent.params.settings.per = newVal
-      this.loadPage(1)
-    }
-  },
-
-  created () {
-    TW.workbench.keyboard.createLegend(`${PlatformKey()}+f`, 'Search', 'Filter sources')
-    TW.workbench.keyboard.createLegend(`${PlatformKey()}+r`, 'Reset task', 'Filter sources')
-  },
-
-  methods: {
-    resetTask () {
-      this.alreadySearch = false
-      this.list = []
-      this.urlRequest = ''
-      this.pagination = undefined
-      history.pushState(null, null, '/tasks/sources/filter')
-    },
-
-    loadList (newList) {
-      if (this.append && this.list) {
-        let concat = newList.data.concat(this.list.data)
-        concat = concat.filter((item, index, self) =>
-          index === self.findIndex((i) => (
-            i[0] === item[0]
-          ))
-        )
-        newList.data = concat
-        this.list = newList
-      } else {
-        this.list = newList
-      }
-      this.alreadySearch = true
-    },
-
-    newSearch () {
-      if (!this.append) {
-        this.list = []
-      }
-    },
-
-    loadPage (event) {
-      this.$refs.filterComponent.loadPage(event.page)
-    },
-    getPagination: GetPagination
-  }
+  name: 'FilterSources'
 }
 </script>
+
 <style scoped>
   .no-found-message {
     height: 70vh;
