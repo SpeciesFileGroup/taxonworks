@@ -22,7 +22,7 @@
         class="button button-default normal-input full_width"
         type="button"
         :disabled="emptyParams"
-        @click="searchDepictions"
+        @click="handleSearch"
       >
         Search
       </button>
@@ -64,8 +64,8 @@
   </div>
 </template>
 
-<script>
-
+<script setup>
+import { ref, computed } from 'vue'
 import SpinnerComponent from 'components/spinner'
 import platformKey from 'helpers/getPlatformKey.js'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
@@ -76,168 +76,82 @@ import ScopeComponent from 'tasks/nomenclature/filter/components/filters/scope'
 import OtusComponent from './filters/otus'
 import CollectionObjectComponent from './filters/collectionObjects'
 import AncestorTarget from './filters/ancestorTarget'
-import hotkey from 'plugins/v-hotkey'
-import qs from 'qs'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { Image } from 'routes/endpoints'
+import vHotkey from 'plugins/v-hotkey'
 
-export default {
-  components: {
-    AncestorTarget,
-    BiocurationsComponent,
-    CollectionObjectComponent,
-    IdentifierComponent,
-    SpinnerComponent,
-    UsersComponent,
-    OtusComponent,
-    TagsComponent,
-    ScopeComponent
-  },
+const emit = defineEmits([
+  'parameters',
+  'reset'
+])
 
-  directives: {
-    hotkey
-  },
+const shortcuts = computed(() => {
+  const keys = {}
 
-  emits: [
-    'newSearch',
-    'pagination',
-    'params',
-    'reset',
-    'response',
-    'result',
-    'urlRequest',
-    'urlparams'
-  ],
+  keys[`${platformKey()}+r`] = resetFilter
+  keys[`${platformKey()}+f`] = handleSearch
 
-  computed: {
-    emptyParams () {
-      if (!this.params) return
-      return !this.params.depictions
-    },
+  return keys
+})
 
-    shortcuts () {
-      const keys = {}
+const parseParams = computed(() =>
+  ({
+    ...params.value.identifier,
+    ...params.value.depictions,
+    ...params.value.keywords,
+    ...params.value.base,
+    ...params.value.user,
+    ...params.value.settings
+  })
+)
 
-      keys[`${platformKey()}+f`] = this.searchDepictions
-      keys[`${platformKey()}+r`] = this.resetFilter
-
-      return keys
-    }
-  },
-
-  data () {
-    return {
-      params: this.initParams(),
-      result: [],
-      searching: false
-    }
-  },
-
-  created () {
-    const urlParams = URLParamsToJSON(location.href)
-
-    if (Object.keys(urlParams).length) {
-      this.getDepictions(urlParams)
-    }
-  },
-
-  methods: {
-    resetFilter () {
-      this.$emit('reset')
-      this.params = this.initParams()
-    },
-
-    searchDepictions () {
-      if (this.emptyParams) return
-      const params = this.filterEmptyParams({
-        ...this.params.identifier,
-        ...this.params.depictions,
-        ...this.params.keywords,
-        ...this.params.base,
-        ...this.params.user,
-        ...this.params.settings
-      })
-
-      this.getDepictions(params)
-    },
-
-    getDepictions (params) {
-      const urlParams = qs.stringify(params, { arrayFormat: 'brackets' })
-
-      this.searching = true
-      this.$emit('newSearch')
-      Image.filter(params).then(response => {
-        this.$emit('result', response.body)
-        this.$emit('urlRequest', response.request.responseURL + '?' + urlParams)
-        this.$emit('urlparams', urlParams)
-        this.$emit('pagination', response)
-        this.$emit('params', params)
-        this.searching = false
-        if (response.body.length === this.params.settings.per) {
-          TW.workbench.alert.create('Results may be truncated.', 'notice')
-        }
-      }, () => {
-        this.searching = false
-      })
-    },
-
-    initParams () {
-      return {
-        settings: {
-          per: 50,
-          page: 1
-        },
-        base: {
-          otu_id: [],
-          taxon_name_id: [],
-          biocuration_class_id: [],
-          collection_object_id: [],
-          ancestor_id_target: undefined
-        },
-        identifier: {
-          identifier: undefined,
-          identifier_exact: undefined,
-          identifier_start: undefined,
-          identifier_end: undefined,
-          namespace_id: undefined
-        },
-        keywords: {
-          keyword_id_and: [],
-          keyword_id_or: []
-        },
-        depictions: {},
-        collectingEvent: {},
-        collectionObject: {},
-        nomenclature: {},
-        user: {
-          user_id: undefined,
-          user_target: undefined,
-          user_date_start: undefined,
-          user_date_end: undefined
-        }
-      }
-    },
-
-    filterEmptyParams (object) {
-      const keys = Object.keys(object)
-      keys.forEach(key => {
-        if (object[key] === '' || object[key] === undefined || (Array.isArray(object[key]) && !object[key].length)) {
-          delete object[key]
-        }
-      })
-      return object
-    },
-
-    flatObject (object, key) {
-      const tmp = Object.assign({}, object, object[key])
-      delete tmp[key]
-      return tmp
-    },
-
-    loadPage (page) {
-      this.params.settings.page = page
-      this.searchDepictions()
-    }
-  }
+const resetFilter = () => {
+  emit('reset')
+  params.value = initParams()
 }
+
+const initParams = () => ({
+  settings: {
+    per: 50,
+    page: 1
+  },
+  base: {
+    otu_id: [],
+    taxon_name_id: [],
+    biocuration_class_id: [],
+    collection_object_id: [],
+    ancestor_id_target: undefined
+  },
+  identifier: {
+    identifier: undefined,
+    identifier_exact: undefined,
+    identifier_start: undefined,
+    identifier_end: undefined,
+    namespace_id: undefined
+  },
+  keywords: {
+    keyword_id_and: [],
+    keyword_id_or: []
+  },
+  depictions: {},
+  collectingEvent: {},
+  collectionObject: {},
+  nomenclature: {},
+  user: {
+    user_id: undefined,
+    user_target: undefined,
+    user_date_start: undefined,
+    user_date_end: undefined
+  }
+})
+
+const params = ref(initParams())
+
+const handleSearch = () => {
+  emit('parameters', parseParams.value)
+}
+
 </script>
+<style scoped>
+:deep(.btn-delete) {
+  background-color: #5D9ECE;
+}
+</style>

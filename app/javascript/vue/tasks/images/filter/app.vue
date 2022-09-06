@@ -1,5 +1,11 @@
 <template>
   <div>
+    <VSpinner
+      v-if="isLoading"
+      full-screen
+      legend="Searching..."
+      :logo-size="{ width: '100px', height: '100px'}"
+    />
     <div class="flex-separate middle">
       <h1>Filter images</h1>
       <ul class="context-menu">
@@ -35,24 +41,18 @@
     </div>
 
     <div class="horizontal-left-content align-start">
-      <filter-component
+      <FilterComponent
         class="separate-right"
-        ref="filterComponent"
-        v-show="activeFilter"
-        @params="params = $event"
-        @new-search="newSearch"
-        @url-request="urlRequest = $event"
-        @urlparams="updateUrl"
-        @result="loadList"
-        @pagination="pagination = getPagination($event)"
-        @reset="resetTask"
+        v-show="preferences.activeFilter"
+        @parameters="makeFilterRequest"
+        @reset="resetFilter"
       />
       <div class="full_width">
         <div
           class="flex-separate margin-medium-bottom"
           :class="{ 'separate-left': activeFilter }"
         >
-          <pagination-component
+          <PaginationComponent
             v-if="pagination && list.length"
             :pagination="pagination"
             @next-page="loadPage"
@@ -81,26 +81,26 @@
         >
           <div class="panel content margin-medium-bottom">
             <div class="horizontal-left-content">
-              <tag-all
+              <TagAll
                 type="Image"
                 :ids="idsSelected"
               />
-              <attribution-component
+              <AttributionComponent
                 class="margin-small-left margin-small-right"
                 :ids="idsSelected"
                 type="Image"
               />
               <span>|</span>
               <div class="margin-small-left">
-                <select-all
-                  v-model="idsSelected"
+                <SelectAll
+                  v-model="selectedIds"
                   :ids="list.map(({id}) => id)"
                 />
               </div>
             </div>
           </div>
-          <list-component
-            v-model="idsSelected"
+          <ListComponent
+            v-model="selectedIds"
             :list="list"
           />
           <h2
@@ -115,102 +115,63 @@
   </div>
 </template>
 
-<script>
+<script setup>
 
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
 import PaginationComponent from 'components/pagination'
-import getPagination from 'helpers/getPagination'
 import PlatformKey from 'helpers/getPlatformKey'
 import TagAll from 'tasks/collection_objects/filter/components/tagAll.vue'
 import SelectAll from 'tasks/collection_objects/filter/components/selectAll.vue'
 import AttributionComponent from './components/attributions/main.vue'
+import VSpinner from 'components/spinner.vue'
+import useFilter from 'tasks/people/filter/composables/useFilter.js'
 
+import { Image } from 'routes/endpoints'
+import { reactive, ref } from 'vue'
+import { URLParamsToJSON } from 'helpers/url/parse'
+
+const selectedIds = ref([])
+
+const preferences = reactive({
+  activeFilter: true,
+  activeJSONRequest: false
+})
+
+const {
+  isLoading,
+  list,
+  pagination,
+  per,
+  urlRequest,
+  loadPage,
+  makeFilterRequest,
+  resetFilter
+} = useFilter(Image)
+
+const urlParams = URLParamsToJSON(location.href)
+
+if (Object.keys(urlParams).length) {
+  makeFilterRequest(urlParams)
+}
+
+TW.workbench.keyboard.createLegend(`${PlatformKey()}+f`, 'Search', 'Filter images')
+TW.workbench.keyboard.createLegend(`${PlatformKey()}+r`, 'Reset task', 'Filter images')
+
+</script>
+
+<script>
 export default {
-  components: {
-    PaginationComponent,
-    FilterComponent,
-    ListComponent,
-    TagAll,
-    SelectAll,
-    AttributionComponent
-  },
-
-  data () {
-    return {
-      list: [],
-      urlRequest: '',
-      activeFilter: true,
-      activeJSONRequest: false,
-      append: false,
-      alreadySearch: false,
-      ids: [],
-      pagination: undefined,
-      maxRecords: [50, 100, 250, 500, 1000],
-      per: 500,
-      params: undefined,
-      idsSelected: []
-    }
-  },
-
-  watch: {
-    per (newVal) {
-      this.$refs.filterComponent.params.settings.per = newVal
-      this.loadPage(1)
-    }
-  },
-
-  created () {
-    TW.workbench.keyboard.createLegend(`${PlatformKey()}+f`, 'Search', 'Filter sources')
-    TW.workbench.keyboard.createLegend(`${PlatformKey()}+r`, 'Reset task', 'Filter sources')
-  },
-
-  methods: {
-    resetTask () {
-      this.alreadySearch = false
-      this.list = []
-      this.urlRequest = ''
-      this.pagination = undefined
-      history.pushState(null, null, '/tasks/images/filter')
-    },
-
-    loadList (newList) {
-      if (this.append && this.list) {
-        let concat = newList.data.concat(this.list.data)
-
-        concat = concat.filter((item, index, self) =>
-          index === self.findIndex((i) => (
-            i[0] === item[0]
-          ))
-        )
-
-        newList.data = concat
-        this.list = newList
-      } else {
-        this.list = newList
-      }
-
-      this.alreadySearch = true
-    },
-
-    newSearch () {
-      if (!this.append) {
-        this.list = []
-      }
-    },
-
-    loadPage (event) {
-      this.$refs.filterComponent.loadPage(event.page)
-    },
-
-    updateUrl (urlParams) {
-      history.pushState(null, null, `/tasks/images/filter?${urlParams}`)
-    },
-
-    getPagination
-  }
+  name: 'FilterImages'
 }
 </script>
+
+<style scoped>
+  .no-found-message {
+    height: 70vh;
+  }
+</style>
+
 <style scoped>
   .no-found-message {
     height: 70vh;
