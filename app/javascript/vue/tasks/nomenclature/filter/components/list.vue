@@ -31,7 +31,8 @@
           <td>
             <a
               :href="`/tasks/nomenclature/browse?taxon_name_id=${item.parent.id}`"
-              v-html="item.parent.object_label"/>
+              v-html="item.parent.object_label"
+            />
           </td>
           <td class="options-column">
             <div class="horizontal-left-content">
