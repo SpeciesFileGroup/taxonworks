@@ -26,7 +26,7 @@
         </template>
         <template #filter>
           <div class="horizontal-left-content align-start">
-            <filter-image @result="loadList" />
+            <FilterImage @parameters="loadList" />
             <div class="margin-small-left flex-wrap-row">
               <div
                 v-for="image in filterList"
@@ -88,6 +88,7 @@
 import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
+import { Image } from 'routes/endpoints'
 import ObservationTypes from '../../store/helpers/ObservationTypes'
 import makeObservation from '../../store/helpers/makeObservation'
 import summaryView from '../SummaryView/SummaryView.vue'
@@ -158,10 +159,6 @@ export default {
   },
 
   methods: {
-    loadList (newList) {
-      this.filterList = newList
-    },
-
     success (file, response) {
       this.addObservation(response)
       this.$refs.depictionObs.removeFile(file)
@@ -207,6 +204,12 @@ export default {
       this.$store.dispatch(ActionNames.RemoveObservation, {
         descriptorId: this.descriptor.id,
         obsId: observation.id
+      })
+    },
+
+    loadList (params) {
+      Image.filter(params).then(({ body }) => {
+        this.filterList = body
       })
     }
   }
