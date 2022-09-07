@@ -15,7 +15,6 @@
     <strong>Verbatim keywords:</strong>
     <%= @source.verbatim_keywords %>
   </p>
-
 </div>
 
 <div class="attribute_set" data-title="TaxonWorks">
@@ -28,6 +27,15 @@
     <strong>Language (TW):</strong>
     <%= language_tag(@source.source_language) if @source.try(:source_language) %>
   </p>
+
+
+  <div class="attribute_set" data-title="BibTeX">
+    <p>
+      <strong>BiBTeX:</strong>
+      <pre><%= @source.to_bibtex %></pre>
+    </p>
+  </div>
+
 </div>
 
 <div data-view="development">
