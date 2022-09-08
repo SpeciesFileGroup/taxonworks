@@ -1143,11 +1143,19 @@ class GeographicItem < ApplicationRecord
       geom = RGeo::GeoJSON.decode(value, json_parser: :json)
       this_type = JSON.parse(value)['geometry']['type']
 
-      # TODO: @tuckerjd isn't this set automatically? Or perhaps the callback isn't hit in this approach?
+      # TODO: isn't this set automatically? Or perhaps the callback isn't hit in this approach?
       self.type = GeographicItem.eval_for_type(this_type) unless geom.nil?
+
       raise('GeographicItem.type not set.') if type.blank?
 
-      object = Gis::FACTORY.parse_wkt(geom.geometry.to_s)
+      object = nil
+
+      begin
+        object = Gis::FACTORY.parse_wkt(geom.geometry.to_s)
+      rescue RGeo::Error::InvalidGeometry 
+        return false
+      end
+
       write_attribute(this_type.underscore.to_sym, object)
       geom
     end
@@ -1291,14 +1299,19 @@ class GeographicItem < ApplicationRecord
   # @return [Boolean] iff there is one and only one shape column set
   def some_data_is_provided
     data = []
+
     DATA_TYPES.each do |item|
       data.push(item) unless send(item).blank?
     end
 
-    errors.add(:base, 'must contain at least one of [point, line_string, etc.].') if data.count == 0
-    if data.length > 1
+    case data.count
+    when 0
+      errors.add(:base, 'No shape provided or provided shape is invalid') 
+    when 1
+      return true 
+    else
       data.each do |object|
-        errors.add(object, 'Only one of [point, line_string, etc.] can be provided.')
+        errors.add(object, 'More than one shape type provided')
       end
     end
     true
