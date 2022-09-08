@@ -12,10 +12,6 @@ module Queries
       # @param otu_id [Array, Integer, String]
       attr_accessor :geographic_area_id
 
-      # @return [Array]
-      # @param otu_id [Array, Integer, String]
-      attr_accessor :geographic_area_id
-
       # @return [Boolean, nil]
       # @params recent ['true', 'false', nil]
       attr_accessor :recent
