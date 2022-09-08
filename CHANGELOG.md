@@ -32,6 +32,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Radial navigator for TaxonName broken [#3087]
 - OTU link in New asserted distribution
 
+[#3087]: https://github.com/SpeciesFileGroup/taxonworkseissues/3087
+
 ## [0.29.0] - 2022-08-30
 
 ### Added
