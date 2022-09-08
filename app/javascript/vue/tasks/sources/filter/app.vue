@@ -33,16 +33,11 @@
       </ul>
     </div>
 
-    <div
+    <JsonRequestUrl
       v-show="preferences.activeJSONRequest"
       class="panel content separate-bottom"
-    >
-      <div class="flex-separate middle">
-        <span>
-          JSON Request: {{ urlRequest }}
-        </span>
-      </div>
-    </div>
+      :url="urlRequest"
+    />
 
     <div class="horizontal-left-content align-start">
       <FilterComponent
@@ -129,6 +124,7 @@ import BibliographyButton from './components/bibliography.vue'
 import PlatformKey from 'helpers/getPlatformKey'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'tasks/people/filter/composables/useFilter.js'
+import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import { Source } from 'routes/endpoints'
 import { computed, reactive, ref } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'

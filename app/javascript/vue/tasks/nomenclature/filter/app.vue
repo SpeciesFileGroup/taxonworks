@@ -32,16 +32,12 @@
         </li>
       </ul>
     </div>
-    <div
+
+    <JsonRequestUrl
       v-show="preferences.activeJSONRequest"
       class="panel content separate-bottom"
-    >
-      <div class="flex-separate middle">
-        <span>
-          JSON Request: {{ urlRequest }}
-        </span>
-      </div>
-    </div>
+      :url="urlRequest"
+    />
 
     <div class="horizontal-left-content align-start">
       <FilterComponent
@@ -89,6 +85,7 @@ import PaginationComponent from 'components/pagination'
 import PaginationCount from 'components/pagination/PaginationCount'
 import SpinnerComponent from 'components/spinner.vue'
 import useFilter from 'tasks/people/filter/composables/useFilter.js'
+import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import { TaxonName } from 'routes/endpoints'
 import { reactive } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'

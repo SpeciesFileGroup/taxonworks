@@ -29,15 +29,12 @@
         </li>
       </ul>
     </div>
-    <div
+
+    <JsonRequestUrl
       v-show="activeJSONRequest"
-      class="panel content separate-bottom">
-      <div class="flex-separate middle">
-        <span>
-          JSON Request: {{ urlRequest }}
-        </span>
-      </div>
-    </div>
+      class="panel content separate-bottom"
+      :url="urlRequest"
+    />
 
     <div class="horizontal-left-content align-start">
       <filter-component
@@ -124,6 +121,7 @@ import DwcReindex from './components/dwcReindex.vue'
 import SelectAll from './components/selectAll.vue'
 import MatchButton from './components/matchButton.vue'
 import OpenCollectingEventFilter from './components/OpenCollectingEventFilter.vue'
+import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 
 export default {
   name: 'FilterCollectionObjects',
@@ -138,7 +136,8 @@ export default {
     DwcReindex,
     SelectAll,
     MatchButton,
-    OpenCollectingEventFilter
+    OpenCollectingEventFilter,
+    JsonRequestUrl
   },
 
   computed: {

@@ -45,15 +45,11 @@
         </li>
       </ul>
     </div>
-    <div
+    <JsonRequestUrl
       v-show="activeJSONRequest"
-      class="panel content separate-bottom">
-      <div class="flex-separate middle">
-        <span>
-          JSON Request: {{ urlRequest }}
-        </span>
-      </div>
-    </div>
+      class="panel content separate-bottom"
+      :url="urlRequest"
+    />
 
     <div class="horizontal-left-content align-start">
       <filter-component
@@ -121,6 +117,7 @@ import PaginationCount from 'components/pagination/PaginationCount'
 import GetPagination from 'helpers/getPagination'
 import MapComponent from './components/Map.vue'
 import OpenCollectionObjectFilter from './components/OpenCollectionObjectFilter.vue'
+import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import { Georeference } from 'routes/endpoints'
 import { chunkArray } from 'helpers/arrays'
 
@@ -134,7 +131,8 @@ export default {
     CsvButton,
     PaginationCount,
     MapComponent,
-    OpenCollectionObjectFilter
+    OpenCollectionObjectFilter,
+    JsonRequestUrl
   },
 
   computed: {

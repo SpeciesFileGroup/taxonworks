@@ -29,16 +29,11 @@
         </li>
       </ul>
     </div>
-    <div
-      v-show="activeJSONRequest"
+    <JsonRequestUrl
+      v-show="preferences.activeJSONRequest"
       class="panel content separate-bottom"
-    >
-      <div class="flex-separate middle">
-        <span>
-          JSON Request: {{ urlRequest }}
-        </span>
-      </div>
-    </div>
+      :url="urlRequest"
+    />
 
     <div class="horizontal-left-content align-start">
       <FilterComponent
@@ -126,6 +121,7 @@ import SelectAll from 'tasks/collection_objects/filter/components/selectAll.vue'
 import AttributionComponent from './components/attributions/main.vue'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'tasks/people/filter/composables/useFilter.js'
+import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 
 import { Image } from 'routes/endpoints'
 import { reactive, ref } from 'vue'
