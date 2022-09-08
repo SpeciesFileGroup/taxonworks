@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - Rendering type material label with document label failed
+- Failed attempts at destroying a Predicate no longer raise
 
 [#3092]: https://github.com/SpeciesFileGroup/taxonworks/issues/3092
 
