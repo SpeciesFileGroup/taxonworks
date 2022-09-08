@@ -1,5 +1,9 @@
 scope :tasks do
   scope :administrator do
+      scope :project_classification, controller: 'tasks/administrator/project_classification' do
+      get '/', as: 'project_classification_task', action: :index
+      end
+
     scope :batch_add_users, controller: 'tasks/administrator/batch_add_users' do
       get '/', as: 'batch_add_users_task', action: :index
     end
