@@ -8,13 +8,17 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - Administration level project classification visualization [#3092]
+- Recent paramter to asserted distribution filter [#3086]
 
 ### Fixed
 - Rendering type material label with document label failed
 - Failed attempts at destroying a Predicate no longer raise
 - Prevent some breaking raises for Georeferences with invalid shapes
+- Select all button doesn't work in Print labels task [#3093]
 
+[#3086]: https://github.com/SpeciesFileGroup/taxonworks/issues/3086
 [#3092]: https://github.com/SpeciesFileGroup/taxonworks/issues/3092
+[#3093]: https://github.com/SpeciesFileGroup/taxonworks/issues/3093
 
 ## [0.29.1] - 2022-08-31
 

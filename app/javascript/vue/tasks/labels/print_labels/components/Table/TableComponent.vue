@@ -41,7 +41,8 @@
             <input
               type="checkbox"
               v-model="selected"
-              :value="item.id">
+              :value="item.id"
+            >
           </td>
           <td>
             <pre v-html="item.label"/>
@@ -129,8 +130,10 @@ export default {
         return this.list.length === this.selected.length
       },
 
-      set (value) {
-        this.selected = value ? this.list.slice(0) : []
+      set (isChecked) {
+        this.selected = isChecked
+          ? this.list.map(label => label.id)
+          : []
       }
     }
   },
