@@ -10,6 +10,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Administration level project classification visualization [#3092]
 - Recent paramter to asserted distribution filter [#3086]
 
+### Changed
+- Handle long queries to match facets in filters [#3088]
+
 ### Fixed
 - Collecting event filter matching user creator/updator broken [#3008]
 - Rendering type material label with document label failed
@@ -17,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Prevent some breaking raises for Georeferences with invalid shapes
 - Select all button doesn't work in Print labels task [#3093]
 
+[#3088]: https://github.com/SpeciesFileGroup/taxonworks/issues/3088
 [#3008]: https://github.com/SpeciesFileGroup/taxonworks/issues/3008
 [#3086]: https://github.com/SpeciesFileGroup/taxonworks/issues/3086
 [#3092]: https://github.com/SpeciesFileGroup/taxonworks/issues/3092
