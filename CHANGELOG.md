@@ -9,6 +9,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - Administration level project classification visualization [#3092]
 
+### Fixed
+- Rendering type material label with document label failed
+
 [#3092]: https://github.com/SpeciesFileGroup/taxonworks/issues/3092
 
 ## [0.29.1] - 2022-08-31
