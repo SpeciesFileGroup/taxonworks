@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Recent paramter to asserted distribution filter [#3086]
 
 ### Changed
+- Updated Gemfile
 - Handle long queries to match facets in filters [#3088]
 
 ### Fixed
