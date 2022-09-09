@@ -8,11 +8,35 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.29.2] - 2022-09-08
+### Added
+- Administration level project classification visualization [#3092]
+- Recent paramter to asserted distribution filter [#3086]
+
+### Changed
+- Updated Gemfile
+- Handle long queries to match facets in filters [#3088]
+
+### Fixed
+- Collecting event filter matching user creator/updator broken [#3008]
+- Rendering type material label with document label failed
+- Failed attempts at destroying a Predicate no longer raise
+- Prevent some breaking raises for Georeferences with invalid shapes
+- Select all button doesn't work in Print labels task [#3093]
+
+[#3088]: https://github.com/SpeciesFileGroup/taxonworks/issues/3088
+[#3008]: https://github.com/SpeciesFileGroup/taxonworks/issues/3008
+[#3086]: https://github.com/SpeciesFileGroup/taxonworks/issues/3086
+[#3092]: https://github.com/SpeciesFileGroup/taxonworks/issues/3092
+[#3093]: https://github.com/SpeciesFileGroup/taxonworks/issues/3093
+
 ## [0.29.1] - 2022-08-31
 
 ### Fixed
 - Radial navigator for TaxonName broken [#3087]
 - OTU link in New asserted distribution
+
+[#3087]: https://github.com/SpeciesFileGroup/taxonworkseissues/3087
 
 ## [0.29.0] - 2022-08-30
 
@@ -2869,7 +2893,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.2...development
+[0.29.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.1...v0.29.2
 [0.29.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.0...v0.29.1
 [0.29.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.28.1...v0.29.0
 [0.28.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.28.0...v0.28.1

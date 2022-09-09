@@ -1,5 +1,7 @@
 import baseCRUD, { annotations } from './base'
+import AjaxCall from 'helpers/ajaxCall.js'
 
+const controller = 'extracts'
 const permitParams = {
   extract: {
     repository_id: Number,
@@ -35,6 +37,8 @@ const permitParams = {
 }
 
 export const Extract = {
-  ...baseCRUD('extracts', permitParams),
-  ...annotations('extracts')
+  ...baseCRUD(controller, permitParams),
+  ...annotations(controller),
+
+  filter: params => AjaxCall('post', `/${controller}/filter`, params)
 }

@@ -9,7 +9,6 @@ module Queries
       include Queries::Concerns::Notes
       include Queries::Concerns::Tags
       include Queries::Concerns::Users
-      include Queries::Concerns::Users
       include Queries::Concerns::DataAttributes
 
       # @param name [String]

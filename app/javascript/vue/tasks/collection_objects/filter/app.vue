@@ -29,15 +29,12 @@
         </li>
       </ul>
     </div>
-    <div
+
+    <JsonRequestUrl
       v-show="activeJSONRequest"
-      class="panel content separate-bottom">
-      <div class="flex-separate middle">
-        <span>
-          JSON Request: {{ urlRequest }}
-        </span>
-      </div>
-    </div>
+      class="panel content separate-bottom"
+      :url="urlRequest"
+    />
 
     <div class="horizontal-left-content align-start">
       <filter-component
@@ -124,6 +121,7 @@ import DwcReindex from './components/dwcReindex.vue'
 import SelectAll from './components/selectAll.vue'
 import MatchButton from './components/matchButton.vue'
 import OpenCollectingEventFilter from './components/OpenCollectingEventFilter.vue'
+import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 
 export default {
   name: 'FilterCollectionObjects',
@@ -138,7 +136,8 @@ export default {
     DwcReindex,
     SelectAll,
     MatchButton,
-    OpenCollectingEventFilter
+    OpenCollectingEventFilter,
+    JsonRequestUrl
   },
 
   computed: {
@@ -178,7 +177,7 @@ export default {
   },
 
   watch: {
-    per(newVal) {
+    per (newVal) {
       this.$refs.filterComponent.params.settings.per = newVal
       this.loadPage(1)
     }
@@ -193,8 +192,8 @@ export default {
       history.pushState(null, null, '/tasks/collection_objects/filter')
     },
 
-    loadList(newList) {
-      if(this.append && this.list) {
+    loadList (newList) {
+      if (this.append && this.list) {
         let concat = newList.data.concat(this.list.data)
 
         concat = concat.filter((item, index, self) =>
@@ -204,20 +203,20 @@ export default {
         )
         newList.data = concat
         this.list = newList
-      }
-      else {
+      } else {
         this.list = newList
       }
       this.alreadySearch = true
     },
 
-    loadPage(event) {
+    loadPage (event) {
       this.$refs.filterComponent.loadPage(event.page)
     },
     getPagination: GetPagination
   }
 }
 </script>
+
 <style scoped>
   .no-found-message {
     height: 70vh;

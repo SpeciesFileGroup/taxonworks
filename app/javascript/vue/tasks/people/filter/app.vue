@@ -8,18 +8,14 @@
     />
     <div class="flex-separate middle">
       <h1>Filter people</h1>
-      <menu-preferences v-model="preferences"/>
+      <menu-preferences v-model="preferences" />
     </div>
 
-    <div
+    <JsonRequestUrl
       v-show="preferences.activeJSONRequest"
-      class="panel content separate-bottom">
-      <div class="flex-separate middle">
-        <span>
-          JSON Request: {{ urlRequest }}
-        </span>
-      </div>
-    </div>
+      class="panel content separate-bottom"
+      :url="urlRequest"
+    />
 
     <div class="horizontal-left-content align-start">
       <filter-component
@@ -74,8 +70,9 @@ import PaginationComponent from 'components/pagination'
 import PaginationCount from 'components/pagination/PaginationCount'
 import MenuPreferences from './components/MenuPreferences.vue'
 import SpinnerComponent from 'components/spinner.vue'
-import { People } from 'routes/endpoints'
 import useFilter from './composables/useFilter.js'
+import JsonRequestUrl from './components/JsonRequestUrl.vue'
+import { People } from 'routes/endpoints'
 import { computed, reactive, ref } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
 

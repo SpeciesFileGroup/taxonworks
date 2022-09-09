@@ -1616,7 +1616,7 @@
               </group>
             </if>
           </choose>
-          <text variable="URL" prefix="Available from "/>
+          <text variable="URL" prefix="Available at "/>
         </group>
       </else-if>
     </choose>

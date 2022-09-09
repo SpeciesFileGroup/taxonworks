@@ -1,0 +1,18 @@
+<%= content_for :head do -%>
+  <%= javascript_include_tag "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js", "chartjs" %>
+<% end %> 
+
+<h1>Task [Admin] - Project classification</h1>
+
+<div>
+<%= pie_chart @data[:taxonworks][:data], title: 'TaxonWorks', download: true  %>
+</div>
+
+<br>
+
+<% @data[:projects].each do |p, d| %>
+  <div style="float:left; text-align: center; height: 200px; width: 200px;">
+  <%= pie_chart d[:data], download: true, legend: false, height: "180px", width: "180px"  %>
+  <%= tag.span p %>
+  </div>
+<% end %>

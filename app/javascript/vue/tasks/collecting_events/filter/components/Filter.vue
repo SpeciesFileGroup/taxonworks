@@ -86,6 +86,7 @@
 
 import SpinnerComponent from 'components/spinner'
 import platformKey from 'helpers/getPlatformKey.js'
+import qs from 'qs'
 
 import FilterIdentifiers from 'tasks/collection_objects/filter/components/filters/identifier'
 import GeographicArea from 'tasks/collection_objects/filter/components/filters/geographic'
@@ -168,23 +169,34 @@ export default {
 
     searchCollectingEvents () {
       if (this.emptyParams) return
-      const params = this.filterEmptyParams(Object.assign({}, checkMatchIdentifiersParams(this.params.matchIdentifiers), this.params.keywords, this.params.dataAttributes, this.params.identifier, this.params.determination, this.params.geographic, this.params.byRecordsWith, this.params.user, this.params.settings, this.flatObject(this.params.collectingEvents, 'fields')))
+      const params = this.filterEmptyParams({
+        ...checkMatchIdentifiersParams(this.params.matchIdentifiers),
+        ...this.params.keywords,
+        ...this.params.dataAttributes,
+        ...this.params.identifier,
+        ...this.params.determination,
+        ...this.params.geographic,
+        ...this.params.byRecordsWith,
+        ...this.params.user,
+        ...this.params.settings,
+        ...this.flatObject(this.params.collectingEvents, 'fields')
+      })
 
       this.getCollectingEvents(params)
     },
 
     getCollectingEvents (params) {
+      const urlParams = qs.stringify(params, { arrayFormat: 'brackets' })
+
       this.searching = true
       this.$emit('newSearch')
-      CollectingEvent.where({ ...params, extend: ['roles'] }).then(response => {
-        const urlParams = new URLSearchParams(response.request.responseURL.split('?')[1])
-
+      CollectingEvent.filter({ ...params, extend: ['roles'] }).then(response => {
         this.$emit('result', response.body)
-        this.$emit('urlRequest', response.request.responseURL)
+        this.$emit('urlRequest', response.request.responseURL + '?' + urlParams)
         this.$emit('pagination', response)
         this.$emit('params', params)
 
-        history.pushState(null, null, `/tasks/collecting_events/filter?${urlParams.toString()}`)
+        history.pushState(null, null, `/tasks/collecting_events/filter?${urlParams}`)
         if (response.body.length === this.params.settings.per) {
           TW.workbench.alert.create('Results may be truncated.', 'notice')
         }

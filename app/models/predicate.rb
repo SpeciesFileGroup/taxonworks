@@ -1,8 +1,8 @@
 class Predicate < ControlledVocabularyTerm
 
-  has_many :internal_attributes, inverse_of: :predicate, foreign_key: :controlled_vocabulary_term_id
+  has_many :internal_attributes, inverse_of: :predicate, foreign_key: :controlled_vocabulary_term_id, dependent: :restrict_with_error
 
-  scope :used_on_klass, -> (klass) { joins(:internal_attributes).where(data_attributes: {attribute_subject_type: klass}) } 
+  scope :used_on_klass, -> (klass) { joins(:internal_attributes).where(data_attributes: {attribute_subject_type: klass}) }
 
   # @return [Scope]
   #    the max 10 most recently used predicates 

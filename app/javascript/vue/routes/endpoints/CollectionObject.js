@@ -56,6 +56,8 @@ export const CollectionObject = {
 
   dwcIndex: (params) => AjaxCall('get', `/${controller}/dwc_index`, { params }),
 
+  filter: (params) => AjaxCall('post', `/${controller}/filter`, params),
+
   metadataBadge: (id) => AjaxCall('get', `/${controller}/${id}/metadata_badge`),
 
   stepwiseDeterminations: (params) => AjaxCall('get', '/tasks/collection_objects/stepwise/determinations/data.json', { params })

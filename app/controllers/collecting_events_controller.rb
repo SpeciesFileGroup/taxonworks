@@ -327,6 +327,7 @@ class CollectingEventsController < ApplicationController
       :user_date_end,
       :user_date_start,
       :user_target,
+      :user_id,
       :wkt,
       collection_object_id: [],
       collecting_event_wildcards: [],
