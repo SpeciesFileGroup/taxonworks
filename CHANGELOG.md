@@ -6,7 +6,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+- View image matrix button doesn't work in Interactive key task
 
 ## [0.29.2] - 2022-09-08
 ### Added
