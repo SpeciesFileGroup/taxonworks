@@ -6,6 +6,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.29.2] - 2022-09-08
 ### Added
 - Administration level project classification visualization [#3092]
 - Recent paramter to asserted distribution filter [#3086]
@@ -2890,7 +2893,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.2...development
+[0.29.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.1...v0.29.2
 [0.29.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.0...v0.29.1
 [0.29.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.28.1...v0.29.0
 [0.28.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.28.0...v0.28.1
