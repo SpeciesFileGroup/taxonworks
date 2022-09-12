@@ -171,6 +171,7 @@ export default {
       if (this.emptyParams) return
       const params = this.filterEmptyParams({
         ...checkMatchIdentifiersParams(this.params.matchIdentifiers),
+        ...this.params.collectors,
         ...this.params.keywords,
         ...this.params.dataAttributes,
         ...this.params.identifier,
@@ -179,6 +180,7 @@ export default {
         ...this.params.byRecordsWith,
         ...this.params.user,
         ...this.params.settings,
+        ...this.params.types,
         ...this.flatObject(this.params.collectingEvents, 'fields')
       })
 

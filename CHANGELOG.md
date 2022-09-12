@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - View image matrix button doesn't work in Interactive key task
+- Missing collectors parameters in Filter collecting events.
 
 ## [0.29.2] - 2022-09-08
 ### Added
