@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing collectors parameters in Filter collecting events.
 - Pagination on Image Matrix task
 - Project Preferences task causing internal server errors
+- Boolean params not handled correctly on specific conditions in some filters
 
 ## [0.29.2] - 2022-09-08
 ### Added
