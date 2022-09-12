@@ -216,8 +216,9 @@ export default {
 
     loadPage ({ page }) {
       this.$store.dispatch(ActionNames.LoadObservationMatrix, {
-        observation_matrix_id: this.matrixId,
+        observation_matrix_id: this.matrixId || 0,
         page,
+        otu_filter: this.otuFilter,
         per: this.per
       })
       setParam(RouteNames.ImageMatrix, 'observation_matrix_id', this.matrixId)
