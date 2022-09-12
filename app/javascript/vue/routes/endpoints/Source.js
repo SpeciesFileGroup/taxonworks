@@ -73,7 +73,7 @@ export const Source = {
 
   clone: (id, params) => AjaxCall('post', `/${model}/${id}/clone`, params),
 
-  filter: params => AjaxCall('post', `/${model}/filter`, params),
+  filter: params => AjaxCall('post', `/${model}/filter.json`, params),
 
   parse: params => AjaxCall('get', `/${model}/parse.json`, { params })
 }

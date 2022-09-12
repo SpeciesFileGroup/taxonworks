@@ -42,7 +42,7 @@ const permitParams = {
 export const TaxonName = {
   ...baseCRUD(model, permitParams),
 
-  filter: params => AjaxCall('post', `/${model}/filter`, params),
+  filter: params => AjaxCall('post', `/${model}/filter.json`, params),
 
   ranks: () => AjaxCall('get', `/${model}/ranks`),
 

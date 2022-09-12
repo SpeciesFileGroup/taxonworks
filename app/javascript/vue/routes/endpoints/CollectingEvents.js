@@ -84,7 +84,7 @@ export const CollectingEvent = {
 
   clone: (id, params) => AjaxCall('post', `/${controller}/${id}/clone`, params),
 
-  filter: params => AjaxCall('post', `/${controller}/filter`, params),
+  filter: params => AjaxCall('post', `/${controller}/filter.json`, params),
 
   navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`),
 
