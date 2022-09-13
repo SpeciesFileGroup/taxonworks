@@ -48,7 +48,6 @@ class Source::Verbatim < Source
   def generate_bibtex
     return false if verbatim.blank?
     result = TaxonWorks::Vendor::Serrano.new_from_citation(citation: verbatim)
-    byebug
     if result.type == 'Source::Bibtex'
       result
     else

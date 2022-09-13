@@ -114,29 +114,29 @@ module Queries
         @author = params[:author]
         @author_ids = params[:author_ids] || []
 
-        @author_ids_or = (params[:author_ids_or]&.downcase == 'true' ? true : false) if !params[:author_ids_or].nil?
+        @author_ids_or = (params[:author_ids_or]&.to_s&.downcase == 'true' ? true : false) if !params[:author_ids_or].nil?
 
         @ids = params[:ids] || []
         @topic_ids = params[:topic_ids] || []
         @serial_ids = params[:serial_ids] || []
         @citation_object_type = params[:citation_object_type] || []
-        @citations = (params[:citations]&.downcase == 'true' ? true : false) if !params[:citations].nil?
-        @documents = (params[:documents]&.downcase == 'true' ? true : false) if !params[:documents].nil?
-        @exact_author = (params[:exact_author]&.downcase == 'true' ? true : false) if !params[:exact_author].nil?
-        @exact_title = (params[:exact_title]&.downcase == 'true' ? true : false) if !params[:exact_title].nil?
-        @in_project = (params[:in_project]&.downcase == 'true' ? true : false) if !params[:in_project].nil?
-        @nomenclature = (params[:nomenclature]&.downcase == 'true' ? true : false) if !params[:nomenclature].nil?
-        @notes = (params[:notes]&.downcase == 'true' ? true : false) if !params[:notes].nil?
+        @citations = (params[:citations]&.to_s&.downcase == 'true' ? true : false) if !params[:citations].nil?
+        @documents = (params[:documents]&.to_s&.downcase == 'true' ? true : false) if !params[:documents].nil?
+        @exact_author = (params[:exact_author]&.to_s&.downcase == 'true' ? true : false) if !params[:exact_author].nil?
+        @exact_title = (params[:exact_title]&.to_s&.downcase == 'true' ? true : false) if !params[:exact_title].nil?
+        @in_project = (params[:in_project]&.to_s&.downcase == 'true' ? true : false) if !params[:in_project].nil?
+        @nomenclature = (params[:nomenclature]&.to_s&.downcase == 'true' ? true : false) if !params[:nomenclature].nil?
+        @notes = (params[:notes]&.to_s&.downcase == 'true' ? true : false) if !params[:notes].nil?
         @project_id = params[:project_id] # TODO: also in Queries::Query
-        @roles = (params[:roles]&.downcase == 'true' ? true : false) if !params[:roles].nil?
+        @roles = (params[:roles]&.to_s&.downcase == 'true' ? true : false) if !params[:roles].nil?
         @source_type = params[:source_type]
         @title = params[:title]
-        @with_doi = (params[:with_doi]&.downcase == 'true' ? true : false) if !params[:with_doi].nil?
+        @with_doi = (params[:with_doi]&.to_s&.downcase == 'true' ? true : false) if !params[:with_doi].nil?
         @year_end = params[:year_end]
         @year_start = params[:year_start]
-        @recent = (params[:recent]&.downcase == 'true' ? true : false) if !params[:recent].nil?
+        @recent = (params[:recent]&.to_s&.downcase == 'true' ? true : false) if !params[:recent].nil?
 
-        @citations_on_otus = (params[:citations_on_otus]&.downcase == 'true' ? true : false) if !params[:citations_on_otus].nil?
+        @citations_on_otus = (params[:citations_on_otus]&.to_s&.downcase == 'true' ? true : false) if !params[:citations_on_otus].nil?
         @ancestor_id = params[:ancestor_id]
 
         build_terms

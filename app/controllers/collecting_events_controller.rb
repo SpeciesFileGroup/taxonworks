@@ -307,6 +307,8 @@ class CollectingEventsController < ApplicationController
       :end_date,   # used in date range
       :geo_json,
       :geographic_area_id,
+      :georeferences,
+      :geographic_area,
       :identifier,
       :identifier_end,
       :identifier_exact,
@@ -350,7 +352,9 @@ class CollectingEventsController < ApplicationController
       :depictions,
       :end_date, # used in date range
       :geo_json,
+      :georeferences,
       :geographic_area_id,
+      :geographic_area,
       :identifier,
       :identifier_end,
       :identifier_exact,

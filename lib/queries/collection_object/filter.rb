@@ -215,7 +215,7 @@ module Queries
 
       # @param [Hash] args are permitted params
       def initialize(params)
-        params.reject!{ |_k, v| v.blank? } # dump all entries with empty values
+        params.reject!{ |_k, v| v.nil? || (v == '') } # dump all entries with empty values
 
         # Only CollectingEvent fields are permitted now.
         # (Perhaps) TODO: allow concern attributes nested inside as well, e.g. show me all COs with this Tag on CE.

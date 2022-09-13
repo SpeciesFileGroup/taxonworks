@@ -25,7 +25,7 @@ export const People = {
 
   roles: id => AjaxCall('get', `/${controller}/${id}/roles.json`),
 
-  filter: params => AjaxCall('post', `/${controller}/filter`, params),
+  filter: params => AjaxCall('post', `/${controller}/filter.json`, params),
 
   merge: (id, params) => AjaxCall('post', `/people/${id}/merge`, params)
 }

@@ -29,5 +29,5 @@ export const Image = {
   ...baseCRUD(controller, permitParams),
   ...annotations(controller),
 
-  filter: params => AjaxCall('post', `/${controller}/filter`, params)
+  filter: params => AjaxCall('post', `/${controller}/filter.json`, params)
 }
