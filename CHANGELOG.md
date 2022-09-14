@@ -6,6 +6,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Changed
+- Remove New OTU link from New observation matrix task [#3101]
+
 \-
 
 ## [0.29.3] - 2022-09-13
