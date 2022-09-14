@@ -3,13 +3,14 @@
     :descriptor="descriptor"
     v-model="selected"
   >
-    <select @change="setValue(Number($event.target.value))">
-      <option :value="undefined"/>
+    <select @change="setValue">
+      <option :value="undefined" />
       <option
         v-for="state in descriptor.states"
         :value="state.id"
         :selected="selectedOption(state)"
-        :key="state.id">
+        :key="state.id"
+      >
         <span v-if="selectedOption(state)">></span> <span v-if="state.status === 'useless'">-</span> {{ state.name }} ({{ state.number_of_objects }})
       </option>
     </select>
@@ -24,11 +25,25 @@ export default {
 
   methods: {
     selectedOption (character) {
-      return this.selected[this.descriptor.id] ? Array.isArray(this.selected[this.descriptor.id]) ? this.selected[this.descriptor.id].includes(character.id) : this.selected[this.descriptor.id] === character.id : false
+      const selectedCharacters = this.selected[this.descriptor.id]
+
+      if (selectedCharacters) {
+        return Array.isArray(selectedCharacters)
+          ? selectedCharacters.includes(character.id)
+          : selectedCharacters === character.id
+      }
+
+      return undefined
     },
 
-    setValue (value) {
-      this.selected[this.descriptor.id] = value
+    setValue (event) {
+      const value = event.target.value
+
+      if (value) {
+        this.selected[this.descriptor.id] = Number(value)
+      } else {
+        delete this.selected[this.descriptor.id]
+      }
     }
   }
 }
