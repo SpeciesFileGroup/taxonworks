@@ -6,10 +6,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Fixed
+- Presence Descriptor is not saving in Matrix row coder [#3099]
+
 ### Changed
 - Remove New OTU link from New observation matrix task [#3101]
 
-\-
+[#3099]: https://github.com/SpeciesFileGroup/taxonworks/issues/3099
 
 ## [0.29.3] - 2022-09-13
 
