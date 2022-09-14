@@ -14,7 +14,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing number of objects for presence/absence descriptors on Interactive keys [#3102]
 
 ### Changed
-- Remove New OTU link from New observation matrix task [#3101]
+- Removed New OTU link from New observation matrix task [#3101]
+- Disabled horizontal resizing for textarea inputs on comprehensive
 
 [#3099]: https://github.com/SpeciesFileGroup/taxonworks/issues/3099
 [#3102]: https://github.com/SpeciesFileGroup/taxonworks/issues/3102
