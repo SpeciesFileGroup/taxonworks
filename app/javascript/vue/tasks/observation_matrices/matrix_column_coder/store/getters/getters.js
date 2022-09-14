@@ -1,5 +1,6 @@
 import doesRowObjectNeedCountdown from './doesRowObjectNeedCountdown.js'
 import getCharacterStateChecked from './getCharacterStateChecked.js'
+import getDisplayUnsecoredRows from './options/GetDisplayUnsecoredRows.js'
 import getFreeTextValueFor from './getFreeTextValueFor.js'
 import getNextColumn from './getNextColumn.js'
 import getObservationMatrix from './getObservationMatrix.js'
@@ -30,6 +31,7 @@ const GetterNames = {
 const GetterFunctions = {
   [GetterNames.DoesRowObjectNeedCountdown]: doesRowObjectNeedCountdown,
   [GetterNames.GetCharacterStateChecked]: getCharacterStateChecked,
+  [GetterNames.GetDisplayUnsecoredRows]: getDisplayUnsecoredRows,
   [GetterNames.GetFreeTextValueFor]: getFreeTextValueFor,
   [GetterNames.GetNextColumn]: getNextColumn,
   [GetterNames.GetObservationMatrix]: getObservationMatrix,

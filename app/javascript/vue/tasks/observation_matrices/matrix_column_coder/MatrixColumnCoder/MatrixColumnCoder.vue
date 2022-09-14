@@ -20,6 +20,7 @@
           <RadialNavigator :global-id="descriptor.globalId" />
         </div>
         <div class="horizontal-right-content middle">
+          <OptionUnsecoredRows class="margin-medium-right" />
           <NavigationColumn />
           <RowObjectList class="margin-medium-left" />
         </div>
@@ -30,12 +31,13 @@
       <li
         class="matrix-row-coder__descriptor-container"
         v-for="(rowObject, index) in rowObjects"
+        v-show="onlyScoredRows ? !observations.filter(obs => obs.rowObjectId === rowObject.id && obs.id).length : true"
         :key="rowObject.id"
         :data-row-object-id="rowObject.id"
       >
         <component
           :is="descriptor.componentName"
-          :index="(index+1)"
+          :index="(index + 1)"
           :descriptor="descriptor"
           :row-object="rowObject"
         />
@@ -47,6 +49,7 @@
 <script>
 import { mapState } from 'vuex'
 import { ActionNames } from '../store/actions/actions'
+import OptionUnsecoredRows from './Option/OptionUnsecoredRows.vue'
 import ContinuousDescriptor from './ContinuousDescriptor/ContinuousDescriptor.vue'
 import FreeTextDescriptor from './SingleObservationDescriptor/FreeText/FreeText.vue'
 import PresenceDescriptor from './SingleObservationDescriptor/PresenceDescriptor/PresenceDescriptor.vue'
@@ -62,6 +65,8 @@ import RowObjectList from './RowObjects/RowObjects.vue'
 
 const computed = mapState({
   descriptor: state => state.descriptor,
+  observations: state => state.observations,
+  onlyScoredRows: state => state.options.showOnlyUnsecoredRows,
   rowObjects: state => state.rowObjects
 })
 
@@ -80,6 +85,7 @@ export default {
     NavigationColumn,
     RowObjectList,
     RadialNavigator,
+    OptionUnsecoredRows,
     Spinner
   },
 
