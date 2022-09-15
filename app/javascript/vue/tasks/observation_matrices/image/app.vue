@@ -9,12 +9,6 @@
       "
       :logo-size="{ width: '100px', height: '100px'}"
     />
-    <row-modal
-      v-if="showRowModal"
-      :matrix-id="observationMatrix.id"
-      @close="showRowModal = false"
-      @create="addRow"
-    />
     <column-modal
       v-if="showColumnModal"
       :matrix-id="observationMatrix.id"
@@ -98,14 +92,12 @@
 </template>
 
 <script>
-import { Otu } from 'routes/endpoints'
 import { GetterNames } from './store/getters/getters'
 import { RouteNames } from 'routes/routes'
 import { ActionNames } from './store/actions/actions'
 
 import MatrixTable from './components/MatrixTable.vue'
 import SpinnerComponent from 'components/spinner.vue'
-import RowModal from './components/RowModal.vue'
 import ColumnModal from './components/ColumnModal.vue'
 import ViewComponent from './components/View/Main.vue'
 import setParam from 'helpers/setParam'
@@ -117,7 +109,6 @@ export default {
     ViewComponent,
     MatrixTable,
     SpinnerComponent,
-    RowModal,
     ColumnModal,
     PaginationComponent,
     PaginationCount
@@ -150,7 +141,6 @@ export default {
 
   data () {
     return {
-      showRowModal: false,
       showColumnModal: false,
       maxPerPage: 3,
       editMode: true,
@@ -196,16 +186,6 @@ export default {
 
     collapseAll () {
       this.$refs.matrixTable.collapseAll()
-    },
-
-    addRow (row) {
-      this.showRowModal = false
-      if (row.otu_id) {
-        Otu.find(row.otu_id).then(response => {
-          row.observation_object = response.body
-          this.observationRows.push(row)
-        })
-      }
     },
 
     loadPage ({ page }) {
