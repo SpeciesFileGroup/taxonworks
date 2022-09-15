@@ -14,9 +14,12 @@ module ImagesHelper
   # Return a ShortenedUrl to the original file image
   # @params image [Image, Integer]
   def image_short_url(image, api: true)
-    if !image.kind_of?(::Image)
-      image = ::Image.find(image)
+    if image.kind_of?(::Image)
+      image = ::Image.find(image.id)
     end
+    #if !image.kind_of?(::Image) ### DD: not sure what it did before, it tried to convert url to Image and failed
+    #  image = ::Image.find(image)
+    #end
 
     if api
       short_url( api_v1_image_file_path( image) )
