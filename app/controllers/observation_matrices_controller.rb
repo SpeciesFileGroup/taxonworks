@@ -118,7 +118,7 @@ class ObservationMatricesController < ApplicationController
     respond_to do |format|
       base =  '/observation_matrices/export/nexml/nexml'
       format.html { render base }
-      format.text {
+      format.rdf {
         s = render_to_string(base, layout: false, formats: [:rdf])
         send_data(s, filename: "nexml_#{DateTime.now}.xml", type: 'text/plain')
       }
