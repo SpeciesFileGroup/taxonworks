@@ -346,7 +346,11 @@ class TaxonNamesController < ApplicationController
       taxon_name_author_ids: [],
       taxon_name_classification: [],
       taxon_name_id: [],
-      taxon_name_relationship: [],
+      taxon_name_relationship: [
+        :subject_taxon_name_id,
+        :object_taxon_name_id,
+        :type
+      ],
       taxon_name_relationship_type: [],
       type: [],
       # user_id: []
@@ -394,7 +398,11 @@ class TaxonNamesController < ApplicationController
       parent_id: [],
       taxon_name_classification: [],
       taxon_name_id: [],
-      taxon_name_relationship: [],
+      taxon_name_relationship: [
+        :subject_taxon_name_id,
+        :object_taxon_name_id,
+        :type
+      ],
       taxon_name_relationship_type: [],
       type: []
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)

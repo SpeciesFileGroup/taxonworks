@@ -16,12 +16,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing number of objects for presence/absence descriptors on Interactive keys [#3102]
 - `New column` button deson't add the new column to the interface [#3109]
 - Taxonomy inventory API failing with common names when language is not set
+- Missing taxon_name_relationships parameters [#3096]
 
 ### Changed
 - Removed New OTU link from New observation matrix task [#3101]
 - Disabled horizontal resizing for textarea inputs on comprehensive
 
 [#3089]: https://github.com/SpeciesFileGroup/taxonworks/issues/3089
+[#3096]: https://github.com/SpeciesFileGroup/taxonworks/issues/3096
 [#3099]: https://github.com/SpeciesFileGroup/taxonworks/issues/3099
 [#3102]: https://github.com/SpeciesFileGroup/taxonworks/issues/3102
 [#3103]: https://github.com/SpeciesFileGroup/taxonworks/issues/3103
