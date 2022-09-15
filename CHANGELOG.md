@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Presence Descriptor is not saving in Matrix row coder [#3099]
 - Missing number of objects for presence/absence descriptors on Interactive keys [#3102]
 - `New column` button deson't add the new column to the interface [#3109]
+- Taxonomy inventory API failing with common names when language is not set
 
 ### Changed
 - Removed New OTU link from New observation matrix task [#3101]

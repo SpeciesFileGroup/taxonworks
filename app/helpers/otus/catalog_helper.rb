@@ -64,7 +64,7 @@ module Otus::CatalogHelper
     data: {},
     similar_otus: [],
     common_names: false,
-    langage_alpha2: nil,
+    language_alpha2: nil,
     max_descendants_depth: Float::INFINITY
   )
     s = Otu.where(taxon_name: otu.taxon_name).where.not(id: otu.id).where.not(name: otu.name.present? ? otu.name : nil).to_a
@@ -78,7 +78,7 @@ module Otus::CatalogHelper
              otu_clones: Otu.where(name: otu.name, taxon_name: otu.taxon_name).where.not(id: otu.id).pluck(:id),
              similar_otus: s.inject({}){|hsh, n| hsh[n.id] = label_for_otu(n) ; hsh },
              nomenclatural_synonyms: ( (synonyms&.collect{|l| full_original_taxon_name_tag(l) || full_taxon_name_tag(l) } || []) - [a]).uniq, # This is labels, combinations can duplicate
-             common_names: (common_names ? otu_inventory_common_names(otu, langage_alpha2) : []),
+             common_names: (common_names ? otu_inventory_common_names(otu, language_alpha2) : []),
              descendants: []}
 
     if otu.taxon_name
@@ -106,7 +106,7 @@ module Otus::CatalogHelper
     return nil if otu.nil?
     o = CommonName.where(project_id: sessions_current_project_id, otu: otu)
     o = o.where(language: Language.where(alpha_2: language_alpha_2.downcase)) unless language_alpha_2.blank?
-    return o.collect{|a| {name: a.name, language: a.language.english_name } }
+    return o.collect{|a| {name: a.name, language: a&.language&.english_name } }
   end
 
 end
