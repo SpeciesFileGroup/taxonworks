@@ -7,8 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-- Add "Display only unsecored rows" on Matrix column coder [#3103]
-- Add previous and next links in Matrix row coder [#3107]
+- "Display only unsecored rows" on Matrix column coder [#3103]
+- Previous and next links in Matrix row coder [#3107]
+- Match identifiers facet to Filter extract task  [#3089]
 
 ### Fixed
 - Presence Descriptor is not saving in Matrix row coder [#3099]
@@ -19,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Removed New OTU link from New observation matrix task [#3101]
 - Disabled horizontal resizing for textarea inputs on comprehensive
 
+[#3089]: https://github.com/SpeciesFileGroup/taxonworks/issues/3089
 [#3099]: https://github.com/SpeciesFileGroup/taxonworks/issues/3099
 [#3102]: https://github.com/SpeciesFileGroup/taxonworks/issues/3102
 [#3103]: https://github.com/SpeciesFileGroup/taxonworks/issues/3103
