@@ -20,6 +20,7 @@
           <textarea
             class="full_width"
             v-model="descriptor.description"
+            rows="5"
           />
         </div>
         <button
