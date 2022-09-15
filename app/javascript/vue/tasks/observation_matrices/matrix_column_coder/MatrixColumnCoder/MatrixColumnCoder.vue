@@ -21,7 +21,6 @@
         </div>
         <div class="horizontal-right-content middle">
           <OptionUnsecoredRows class="margin-medium-right" />
-          <NavigationColumn />
           <RowObjectList class="margin-medium-left" />
         </div>
       </div>
@@ -59,7 +58,6 @@ import MediaDescriptor from './MediaDescriptor/MediaDescriptor.vue'
 import Spinner from 'components/spinner'
 import NavbarComponent from 'components/layout/NavBar.vue'
 import NavigationMatrix from './Navigation/NavigationMatrix.vue'
-import NavigationColumn from './Navigation/NavigationColumn.vue'
 import RadialNavigator from 'components/radials/navigation/radial.vue'
 import RowObjectList from './RowObjects/RowObjects.vue'
 
@@ -82,7 +80,6 @@ export default {
     SampleDescriptor,
     MediaDescriptor,
     NavigationMatrix,
-    NavigationColumn,
     RowObjectList,
     RadialNavigator,
     OptionUnsecoredRows,
