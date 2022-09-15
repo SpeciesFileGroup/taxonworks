@@ -106,6 +106,7 @@ import CellDepiction from './CellDepiction'
 import TableGrid from 'components/layout/Table/TableGrid'
 import CellLink from './CellLink.vue'
 import { MutationNames } from '../store/mutations/mutations'
+import { DESCRIPTOR_MEDIA } from 'constants/index'
 
 export default {
   components: {
@@ -139,7 +140,7 @@ export default {
     },
 
     imageColums () {
-      return this.columns.filter(column => column.type === 'Descriptor::Media')
+      return this.columns.filter(column => column.type === DESCRIPTOR_MEDIA)
     },
 
     staticColumns () {

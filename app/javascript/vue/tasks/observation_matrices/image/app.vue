@@ -19,7 +19,6 @@
       v-if="showColumnModal"
       :matrix-id="observationMatrix.id"
       @close="showColumnModal = false"
-      @create="addColumn"
     />
     <div class="flex-separate">
       <h1>Image matrix</h1>
@@ -207,11 +206,6 @@ export default {
           this.observationRows.push(row)
         })
       }
-    },
-
-    addColumn (column) {
-      this.showColumnModal = false
-      this.observationColumns.push(column)
     },
 
     loadPage ({ page }) {

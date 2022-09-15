@@ -1,32 +1,33 @@
 <template>
   <modal-component @close="$emit('close', true)">
-    <spinner-component v-if="saving"/>
     <template #header>
       <h3>Create new column</h3>
     </template>
     <template #body>
-      <div
-        class="separate-top">
+      <div class="separate-top">
         <div class="field">
           <label>Name</label>
           <br>
           <input
             v-model="descriptor.name"
             class="full_width"
-            type="text">
+            type="text"
+          >
         </div>
         <div class="field">
           <label>Description</label>
           <br>
           <textarea
             class="full_width"
-            v-model="descriptor.description_name" />
+            v-model="descriptor.description"
+          />
         </div>
         <button
           type="button"
           class="button normal-input button-submit"
           :disabled="!validateFields"
-          @click="createColumn">
+          @click="createColumn"
+        >
           Create
         </button>
       </div>
@@ -37,26 +38,14 @@
 <script>
 
 import ModalComponent from 'components/ui/Modal.vue'
-import SpinnerComponent from 'components/spinner'
-import { ObservationMatrixColumnItem, Descriptor } from 'routes/endpoints'
+import { ActionNames } from '../store/actions/actions'
 
 export default {
   components: {
-    ModalComponent,
-    SpinnerComponent
+    ModalComponent
   },
 
-  props: {
-    matrixId: {
-      type: [Number, String],
-      required: true
-    }
-  },
-
-  emits: [
-    'close',
-    'create'
-  ],
+  emits: ['close'],
 
   computed: {
     validateFields () {
@@ -68,34 +57,17 @@ export default {
     return {
       descriptor: {
         name: '',
-        description_name: '',
-        type: 'Descriptor::Media'
-      },
-      saving: false
+        description: ''
+      }
     }
   },
 
   methods: {
     createColumn () {
-      this.saving = true
-
-      Descriptor.create({ descriptor: this.descriptor }).then(responseDescriptor => {
-        const data = {
-          observation_matrix_id: this.matrixId,
-          descriptor_id: responseDescriptor.body.id,
-          type: 'ObservationMatrixColumnItem::Single::Descriptor'
-        }
-
-        ObservationMatrixColumnItem.create({ observation_matrix_column_item: data }).then(response => {
-          response.body.descriptor = responseDescriptor.body
-          TW.workbench.alert.create('Column item was successfully created.', 'notice')
-          this.$emit('create', response.body)
-        }).finally(() => {
-          this.saving = false
-        })
-      }, () => {
-        this.saving = false
-      })
+      this.$store.dispatch(ActionNames.CreateNewColumn, {
+        descriptorName: this.descriptor.name,
+        description: this.descriptor.description
+      }).then(_ => this.$emit('close'))
     }
   }
 }
