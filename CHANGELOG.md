@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - "Display only unsecored rows" on Matrix column coder [#3103]
 - Previous and next links in Matrix row coder [#3107]
 - Match identifiers facet to Filter extract task  [#3089]
+- `Clone previous citation` to citation panels [#3097]
 
 ### Fixed
 - Presence Descriptor is not saving in Matrix row coder [#3099]
@@ -24,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#3089]: https://github.com/SpeciesFileGroup/taxonworks/issues/3089
 [#3096]: https://github.com/SpeciesFileGroup/taxonworks/issues/3096
+[#3097]: https://github.com/SpeciesFileGroup/taxonworks/issues/3097
 [#3099]: https://github.com/SpeciesFileGroup/taxonworks/issues/3099
 [#3102]: https://github.com/SpeciesFileGroup/taxonworks/issues/3102
 [#3103]: https://github.com/SpeciesFileGroup/taxonworks/issues/3103
