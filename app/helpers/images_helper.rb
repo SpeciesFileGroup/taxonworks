@@ -14,12 +14,13 @@ module ImagesHelper
   # Return a ShortenedUrl to the original file image
   # @params image [Image, Integer]
   def image_short_url(image, api: true)
+    if !image.kind_of?(::Image) && image.is_numeric?
+      image = ::Image.find(image)
+    end
+
     if api
       short_url( api_v1_image_file_path( image) )
     else
-      if !image.kind_of?(::Image)
-        image = ::Image.find(image)
-      end
       short_url( image.image_file.url(:original) )
     end
   end
