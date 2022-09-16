@@ -12,6 +12,7 @@
         :value="source"
         @selected="setSource"
       />
+      <slot name="smart-selector-right" />
       <VLock
         v-if="lockButton"
         class="margin-small-left"
@@ -23,7 +24,7 @@
       label="cached"
       @unset="setSource({})"
     />
-    <div class="margin-medium-bottom">
+    <div class="margin-medium-bottom margin-medium-top">
       <ul class="context-menu no_bullets">
         <li>
           <input
@@ -34,7 +35,7 @@
             @input="setPage"
           >
         </li>
-        <li>
+        <li v-if="!original">
           <label>
             <input
               v-model="citation.is_original"
@@ -58,13 +59,13 @@
     </div>
     <div class="horizontal-left-content">
       <VBtn
-        v-if="saveButton"
+        v-if="submitButton"
         class="margin-small-right"
-        color="create"
+        :color="submitButton.color"
         medium
         @click="emit('submit', citation)"
       >
-        Save
+        {{ submitButton.label }}
       </VBtn>
       <VBtn
         color="primary"
@@ -116,25 +117,31 @@ const props = defineProps({
     default: false
   },
 
-  saveButton: {
-    type: Boolean,
-    default: false
+  submitButton: {
+    type: Object,
+    default: undefined
   },
 
   klass: {
     type: String,
-    default: ''
+    default: undefined
   },
 
   target: {
     type: String,
-    default: ''
+    default: undefined
+  },
+
+  original: {
+    type: Boolean,
+    default: false
   }
 })
 
 const emit = defineEmits([
   'lock',
   'submit',
+  'source',
   'update:modelValue',
   'update:absent'
 ])
@@ -186,6 +193,8 @@ function setSource (value) {
   source.value = value
   sessionStorage.setItem(STORAGE.sourceId, value.id)
   citation.value.source_id = value.id
+
+  emit('source', value)
 }
 
 function setPage (e) {

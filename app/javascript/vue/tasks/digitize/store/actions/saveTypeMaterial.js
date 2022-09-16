@@ -9,9 +9,14 @@ export default ({ commit, state }) => {
   typeSpecimens.forEach(typeSpecimen => {
     if (!typeSpecimen.isUnsaved) return
 
+    const payload = {
+      type_material: makeTypeSpecimenPayback(state, typeSpecimen),
+      extend: ['origin_citation']
+    }
+
     const saveRequest = typeSpecimen.id
-      ? TypeMaterial.update(typeSpecimen.id, { type_material: makeTypeSpecimenPayback(state, typeSpecimen), extend: ['origin_citation'] })
-      : TypeMaterial.create({ type_material: makeTypeSpecimenPayback(state, typeSpecimen), extend: ['origin_citation'] })
+      ? TypeMaterial.update(typeSpecimen.id, payload)
+      : TypeMaterial.create(payload)
 
     promises.push(saveRequest)
 
@@ -32,6 +37,7 @@ function makeTypeSpecimenPayback (state, typeSpecimen) {
   if (typeSpecimen.originCitation) {
     Object.assign(payload, {
       origin_citation_attributes: {
+        id: typeSpecimen.originCitation.id,
         source_id: typeSpecimen.originCitation.source_id,
         pages: typeSpecimen.originCitation.pages
       }
