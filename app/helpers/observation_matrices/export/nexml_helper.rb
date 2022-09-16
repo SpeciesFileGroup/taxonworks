@@ -24,7 +24,7 @@ module ObservationMatrices::Export::NexmlHelper
                       xml.meta(
                         'xsi:type' => 'ResourceMeta',
                         'rel' => 'foaf:depiction',
-                        'href' => image_short_url(d.image), # see app/helpers/images_helper.rb
+                        'href' => image_short_url(d.image, true), # see app/helpers/images_helper.rb
                         'label' => c.target_name(:description, nil) + ' ' + cs.target_name(:description, nil)
                       )
                     end
@@ -222,7 +222,7 @@ module ObservationMatrices::Export::NexmlHelper
                   'xsi:type' => 'ResourceMeta',
                   'rel' => 'foaf:depiction',
                   'about' => "row_#{r.id}",
-                  'href' => image_short_url( im.image_hash[depiction[:image_id]][:original_url] ),
+                  'href' => image_short_url( im.image_hash[depiction[:image_id]][:original_url], true ),
                   'label' => lbl
                   #'object' => object[1][:object].otu_name,
                   #'label' => descriptors[index][:name], ###
