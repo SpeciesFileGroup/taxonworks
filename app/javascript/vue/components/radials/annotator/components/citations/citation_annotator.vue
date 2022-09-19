@@ -177,7 +177,6 @@ export default {
     },
 
     saveCitation (citation) {
-      console.log(citation)
       const payload = {
         ...citation,
         citation_object_type: this.objectType,
