@@ -138,9 +138,9 @@ export default {
     loadMatrix (matrix) {
       this.selectedMatrix = matrix
       if (matrix.is_media_matrix) {
-        this.openImageMatrix()
+        this.openImageMatrix(matrix.id)
       } else {
-        this.openMatrixRowCoder()
+        this.openMatrixRowCoder(matrix.id)
       }
     },
 
@@ -150,27 +150,24 @@ export default {
       this.show = false
     },
 
-    createRow () {
-      return new Promise((resolve, reject) => {
-        if (window.confirm(`Are you sure you want to add this ${this.metadata.object_type} to this matrix?`)) {
-          const data = {
-            observation_matrix_id: this.selectedMatrix.id,
-            observation_object_type: this.metadata.object_type,
-            observation_object_id: this.metadata.object_id,
-            type: OBSERVATION_MATRIX_ROW_SINGLE
-          }
+    async createRow () {
+      const data = {
+        observation_matrix_id: this.selectedMatrix.id,
+        observation_object_type: this.metadata.object_type,
+        observation_object_id: this.metadata.object_id,
+        type: OBSERVATION_MATRIX_ROW_SINGLE
+      }
 
-          ObservationMatrixRowItem.create({ observation_matrix_row_item: data }).then(response => {
-            ObservationMatrixRow.where({
-              observation_matrix_id: this.selectedMatrix.id,
-              observation_object_type: this.metadata.object_type
-            }).then(response => {
-              this.rows = response.body
-              resolve(response)
-            })
-          })
-        }
-      })
+      await ObservationMatrixRowItem.create({ observation_matrix_row_item: data })
+
+      const rowList = (await ObservationMatrixRow.where({
+        observation_object_id: this.metadata.object_id,
+        observation_object_type: this.metadata.object_type
+      }))
+
+      this.rows = rowList.body
+
+      return rowList
     },
 
     setMatrix (id) {
@@ -180,25 +177,29 @@ export default {
       })
     },
 
-    openMatrixRowCoder () {
+    getRowId (observationMatrixId) {
+      return this.rows.find(m => m.observation_matrix_id === observationMatrixId).id
+    },
+
+    openMatrixRowCoder (observationMatrixId) {
       if (this.alreadyInCurrentMatrix.length) {
-        window.open(`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${this.alreadyInCurrentMatrix[0].id}`, '_blank')
+        window.open(`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${this.getRowId(observationMatrixId)}`, '_blank')
         this.$emit('close')
       } else {
-        this.createRow().then(() => {
-          window.open(`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${this.alreadyInCurrentMatrix[0].id}`, '_blank')
+        this.createRow().then(_ => {
+          window.open(`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${this.getRowId(observationMatrixId)}`, '_blank')
           this.$emit('close')
         })
       }
     },
 
-    openImageMatrix () {
+    openImageMatrix (observationMatrixId) {
       if (this.alreadyInCurrentMatrix.length) {
-        window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_filter=${this.alreadyInCurrentMatrix[0].id}`, '_blank')
+        window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_filter=${this.getRowId(observationMatrixId)}`, '_blank')
         this.$emit('close')
       } else {
         this.createRow().then(() => {
-          window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_filter=${this.alreadyInCurrentMatrix[0].id}`, '_blank')
+          window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_filter=${this.getRowId(observationMatrixId)}`, '_blank')
           this.$emit('close')
         })
       }

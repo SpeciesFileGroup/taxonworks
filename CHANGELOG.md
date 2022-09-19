@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `New column` button deson't add the new column to the interface [#3109]
 - Taxonomy inventory API failing with common names when language is not set
 - Missing taxon_name_relationships parameters [#3096]
+- Create matrix row button redirects to wrong OTU in OTU radial
 
 ### Changed
 - Removed New OTU link from New observation matrix task [#3101]
