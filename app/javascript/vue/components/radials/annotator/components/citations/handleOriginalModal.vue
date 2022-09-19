@@ -7,14 +7,26 @@
     <template #body>
       <p>A new citation is marked as original, but another original citation already exists. Select one of the following actions to proceed:</p>
       <ul class="no_bullets">
-        <li v-for="option in options">
+        <li>
           <label>
             <input
               name="handle-original"
               type="radio"
-              :value="option.value"
-              v-model="keepOriginal">
-            <span v-html="option.label"/>
+              :value="true"
+              v-model="keepOriginal"
+            >
+            <span>Keep <b v-html="originalSource.cached" /> as original, save <b v-html="currentSource.cached" /> as non original.</span>
+          </label>
+        </li>
+        <li>
+          <label>
+            <input
+              name="handle-original"
+              type="radio"
+              :value="false"
+              v-model="keepOriginal"
+            >
+            <span>Save <b v-html="currentSource.cached" /> as original citation.</span>
           </label>
         </li>
       </ul>
@@ -23,7 +35,8 @@
       <button
         type="button"
         class="button normal-input button-submit"
-        @click="handleCitation">
+        @click="handleCitation"
+      >
         Save
       </button>
     </template>
@@ -31,7 +44,7 @@
 </template>
 
 <script>
-
+import { Citation, Source } from 'routes/endpoints'
 import ModalComponent from 'components/ui/Modal'
 import CRUD from '../../request/crud.js'
 
@@ -59,31 +72,32 @@ export default {
 
   data () {
     return {
-      options: [
-        {
-          label: `Keep <b>${this.originalCitation.source.author_year}</b> as original, save <b>${this.citation.author_year}</b> as non original.`,
-          value: true
-        },
-        {
-          label: `Save <b>${this.citation.author_year}</b> as original citation.`,
-          value: false
-        }
-      ],
+      currentSource: {},
+      originalSource: {},
       keepOriginal: true
     }
   },
 
+  async created () {
+    this.currentSource = (await Source.find(this.citation.source_id)).body
+    this.originalSource = (await Source.find(this.originalCitation.source_id)).body
+  },
+
   methods: {
     createNonOriginal () {
-      this.create('/citations.json', { citation: Object.assign({}, this.citation, { is_original: false }) }).then(response => {
+      const payload = { ...this.citation, is_original: false }
+
+      Citation.create({ citation: payload }).then(response => {
         this.$emit('create', response.body)
         this.$emit('close')
       })
     },
 
     changeOriginal () {
-      this.update(`/citations/${this.originalCitation.id}.json`, { citation: Object.assign({}, this.originalCitation, { is_original: false }) }).then(response => {
-        this.create('/citations.json', { citation: this.citation }).then(response => {
+      const payload = { ...this.originalCitation, is_original: false }
+
+      Citation.update(this.originalCitation.id, { citation: payload }).then(_ => {
+        Citation.create({ citation: this.citation }).then(response => {
           this.$emit('create', response.body)
           this.$emit('close')
         })

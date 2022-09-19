@@ -9,7 +9,7 @@
         pin-section="Sources"
         pin-type="Source"
         label="cached"
-        :value="source"
+        v-model="source"
         @selected="setSource"
       />
       <slot name="smart-selector-right" />
@@ -62,6 +62,7 @@
         v-if="submitButton"
         class="margin-small-right"
         :color="submitButton.color"
+        :disabled="!citation.source_id"
         medium
         @click="emit('submit', citation)"
       >
@@ -74,6 +75,7 @@
       >
         Clone previous created
       </VBtn>
+      <slot name="footer" />
     </div>
   </fieldset>
 </template>
