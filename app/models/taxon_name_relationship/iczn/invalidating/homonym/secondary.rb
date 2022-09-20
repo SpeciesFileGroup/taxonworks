@@ -75,4 +75,11 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary < TaxonNameR
   def sv_not_specific_relationship
     true
   end
+
+  def sv_synonym_relationship
+    unless self.source
+      soft_validations.add(:base, 'The original publication is not selected')
+    end
+  end
+
 end

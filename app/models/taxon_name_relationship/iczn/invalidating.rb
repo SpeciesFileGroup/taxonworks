@@ -80,4 +80,10 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
       soft_validations.add(:type, 'Please specify the reason for the name being Invalid')
     end
   end
+
+  def sv_synonym_relationship
+    unless self.source
+      soft_validations.add(:base, 'The original publication is not selected')
+    end
+  end
 end

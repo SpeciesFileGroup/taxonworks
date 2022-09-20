@@ -150,4 +150,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
     false
   end
 
+  def sv_synonym_relationship
+    true
+  end
 end
