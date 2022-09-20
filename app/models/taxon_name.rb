@@ -724,6 +724,10 @@ class TaxonName < ApplicationRecord
     combination_list_all.select{|c| c.protonyms_by_rank[c.protonyms_by_rank.keys.last] == self}
   end
 
+
+  # TODO: should be moved to helpers
+  # and referenced in models with helper.
+
   # @return [String]
   #   combination of cached_html and cached_author_year.
   def cached_html_name_and_author_year

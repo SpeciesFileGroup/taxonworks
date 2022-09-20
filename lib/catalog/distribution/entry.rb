@@ -4,7 +4,7 @@ class Catalog::Distribution < ::Catalog
   
   class Entry < ::Catalog::Entry
     
-    def initialize(otus)
+    def initialize(otus = [] )
       super(otus) # object set to otus!
       true
     end
@@ -37,15 +37,13 @@ class Catalog::Distribution < ::Catalog
       [current_collection_objects, asserted_distributions, type_materials].flatten.each do |c|
         @items << Catalog::Distribution::EntryItem.new(
           object: c,
-          #            base_object: otu,
+          #  base_object: otu,
           citation: c.origin_citation,
           nomenclature_date: c.source&.nomenclature_date,
-          #            current_target: entry_item_matches_target?(o, otu)
+          # current_target: entry_item_matches_target?(o, otu)
         )
       end
     end
-    #    end
-    # end
     
     # @return [Boolean]
     def entry_item_matches_target?(item_object, reference_object)

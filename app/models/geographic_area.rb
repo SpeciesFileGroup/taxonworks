@@ -247,7 +247,6 @@ class GeographicArea < ApplicationRecord
   #   !! This is an estimation, although likely highly accurate.  It uses assumptions about how data are stored in GeographicAreas
   #   to derive additional data, particularly for State
   def categorize
-
     s = name
     if m = ::Utilities::Geo::DICTIONARY[s]
       s = m

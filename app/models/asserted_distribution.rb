@@ -31,10 +31,15 @@ class AssertedDistribution < ApplicationRecord
   include Shared::Identifiers
   include Shared::IsData
 
+  include Shared::Taxonomy # at present must be before IsDwcOccurence
   include Shared::IsDwcOccurrence
   include AssertedDistribution::DwcExtensions
 
   originates_from 'Specimen', 'Lot'
+
+  # @return [Hash]
+  #   of known country/state/county values
+  attr_accessor :geographic_names
 
   belongs_to :otu, inverse_of: :asserted_distributions
   has_one :taxon_name, through: :otu
@@ -55,27 +60,22 @@ class AssertedDistribution < ApplicationRecord
 
   # TODO: deprecate scopes referencing single wheres
   scope :with_otu_id, -> (otu_id) { where(otu_id: otu_id) }
-  
+
   scope :with_is_absent, -> { where('is_absent = true') }
- 
+
   scope :with_geographic_area_array, -> (geographic_area_array) { where('geographic_area_id IN (?)', geographic_area_array) }
-  
+
   scope :without_is_absent, -> { where('is_absent = false OR is_absent is Null') }
 
   accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: proc { |attributes| attributes['name'].blank? && attributes['taxon_name_id'].blank? }
 
-  soft_validate(:sv_conflicting_geographic_area,
-                set: :conflicting_geographic_area,
-                name: 'Conflicting geographic area',
-                description: 'Conflicting geographic area' )
+  soft_validate(:sv_conflicting_geographic_area, set: :conflicting_geographic_area, name: 'conflicting geographic area', description: 'conflicting geographic area')
 
-  # @param [ActionController::Parameters] params
-  # @return [Scope]
-  def self.find_for_autocomplete(params)
-    term = params[:term]
-    include(:geographic_area, :otu)
-      .where(geographic_areas: {name: term}, otus: {name: term})
-      .with_project_id(params[:project_id])
+  # getter for attr :geographic_names
+  def geographic_names
+    return @geographic_names if !@geographic_names.nil?
+    @geographic_names ||= geographic_area.geographic_name_classification.delete_if{|k,v| v.nil?}
+    @geographic_names ||= {}
   end
 
   # @param [Hash] defaults
@@ -85,85 +85,87 @@ class AssertedDistribution < ApplicationRecord
     a = AssertedDistribution.new(
       otu_id: defaults[:otu_id],
       origin_citation_attributes: {source_id: defaults[:source_id]})
-    a.origin_citation = Citation.new if defaults[:source_id].blank?
-    a
-  end
-
-  # TODO: DRY with helper methods 
-  # rubocop:disable Style/StringHashKeys
-  # @return [Hash] GeoJSON feature
-  def to_geo_json_feature
-    retval = {
-      'type'       => 'Feature',
-      'geometry'   => RGeo::GeoJSON.encode(self.geographic_area.geographic_items.first.geo_object),
-      'properties' => {'asserted_distribution' => {'id' => self.id}}
-    }
-    retval
-  end
-
-  # rubocop:enable Style/StringHashKeys
-
-  # @return [True]
-  #   see citable.rb
-  def requires_citation?
-    true
-  end
-
-  def geographic_item
-    geographic_area.default_geographic_item
-  end
-
-  def has_shape?
-    geographic_area.geographic_items.any?
-  end
-
-  protected
-
-  # @return [Boolean]
-  def new_records_include_citation
-    if new_record? && source.blank? && origin_citation.blank? && !citations.any?
-      errors.add(:base, 'required citation is not provided')
+      a.origin_citation = Citation.new if defaults[:source_id].blank?
+      a
     end
-  end
 
-  # @return [Nil]
-  def new_records_include_otu
-  end
+    # rubocop:disable Style/StringHashKeys
+    # TODO: DRY with helper methods
+    # @return [Hash] GeoJSON feature
+    def to_geo_json_feature
+      retval = {
+        'type'       => 'Feature',
+        'geometry'   => RGeo::GeoJSON.encode(self.geographic_area.geographic_items.first.geo_object),
+        'properties' => {'asserted_distribution' => {'id' => self.id}}
+      }
+      retval
+    end
 
-  # @return [Boolean]
-  def sv_conflicting_geographic_area
-    unless geographic_area.nil?
-      areas = [geographic_area.level0_id, geographic_area.level1_id, geographic_area.level2_id].compact
-      if is_absent # this returns an array, not a single GA so test below is not right
-        presence = AssertedDistribution
+    # rubocop:enable Style/StringHashKeys
+
+    # @return [True]
+    #   see citable.rb
+    def requires_citation?
+      true
+    end
+
+    def geographic_item
+      geographic_area.default_geographic_item
+    end
+
+    def has_shape?
+      geographic_area.geographic_items.any?
+    end
+
+    protected
+
+    # @return [Boolean]
+    def new_records_include_citation
+      if new_record? && source.blank? && origin_citation.blank? && !citations.any?
+        errors.add(:base, 'required citation is not provided')
+      end
+    end
+
+    # @return [Nil]
+    def new_records_include_otu
+    end
+
+    # @return [Boolean]
+    def sv_conflicting_geographic_area
+      unless geographic_area.nil?
+        areas = [geographic_area.level0_id, geographic_area.level1_id, geographic_area.level2_id].compact
+        if is_absent # this returns an array, not a single GA so test below is not right
+          presence = AssertedDistribution
           .without_is_absent
           .with_geographic_area_array(areas)
           .where(otu_id: otu_id)
-        soft_validations.add(:geographic_area_id, "Taxon is reported as present in #{presence.first.geographic_area.name}") unless presence.empty?
-      else
-        presence = AssertedDistribution
-          .with_is_absent 
+          soft_validations.add(:geographic_area_id, "Taxon is reported as present in #{presence.first.geographic_area.name}") unless presence.empty?
+        else
+          presence = AssertedDistribution
+          .with_is_absent
           .where(otu_id: otu_id)
           .with_geographic_area_array(areas)
-        soft_validations.add(:geographic_area_id, "Taxon is reported as missing in #{presence.first.geographic_area.name}") unless presence.empty?
+          soft_validations.add(:geographic_area_id, "Taxon is reported as missing in #{presence.first.geographic_area.name}") unless presence.empty?
+        end
       end
     end
-  end
 
-  # @param [Hash] options of e.g., {otu_id: 5, source_id: 5, geographic_areas: Array of {GeographicArea}}
-  # @return [Array] an array of AssertedDistributions
-  def self.stub_new(options = {})
-    options.symbolize_keys!
-    result = []
-    options[:geographic_areas].each do |ga|
-      result.push(
-        AssertedDistribution.new(
-          otu_id: options[:otu_id],
-          geographic_area: ga,
-          origin_citation_attributes: {source_id: options[:source_id]})
-      )
+    # @param [Hash] options of e.g., {otu_id: 5, source_id: 5, geographic_areas: Array of {GeographicArea}}
+    # @return [Array] an array of AssertedDistributions
+    def self.stub_new(options = {})
+      options.symbolize_keys!
+      result = []
+      options[:geographic_areas].each do |ga|
+        result.push(
+          AssertedDistribution.new(
+            otu_id: options[:otu_id],
+            geographic_area: ga,
+            origin_citation_attributes: {source_id: options[:source_id]})
+          )
+        end
+        result
+      end
+
     end
-    result
-  end
 
-end
+
