@@ -1,8 +1,8 @@
 require 'rails_helper'
 # TODO: Uses of contain_exactly here might not produce intended behaviour as this matcher doesn't care about order.
-describe Vendor::Gnfinder::Name, type: [:model]  do
+describe TaxonWorks::Vendor::Gnfinder::Name, type: [:model]  do
 
-  let(:finder) { Vendor::Gnfinder.finder }
+  let(:finder) { TaxonWorks::Vendor::Gnfinder.finder }
 
   let(:monominal_string) { 'The ACRIDIDAE of the World' }
   let(:binominal_string) { 'Turripria woldai sp. nov. is the same as Turripria woldaii' }
@@ -10,8 +10,8 @@ describe Vendor::Gnfinder::Name, type: [:model]  do
   let(:gnfinder_monominal) { finder.find_names(monominal_string, verification: true, words_around: 3).names.first }
   let(:gnfinder_binominal) { finder.find_names(binominal_string, verification: true, words_around: 3).names.first }
 
-  let(:mn) { ::Vendor::Gnfinder::Name.new(gnfinder_monominal) }
-  let(:bn) { ::Vendor::Gnfinder::Name.new(gnfinder_binominal) }
+  let(:mn) { TaxonWorks::Vendor::Gnfinder::Name.new(gnfinder_monominal) }
+  let(:bn) { TaxonWorks::Vendor::Gnfinder::Name.new(gnfinder_binominal) }
 
   specify '#project_id' do
     expect(mn.project_id).to eq([])

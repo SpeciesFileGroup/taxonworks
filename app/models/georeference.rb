@@ -577,4 +577,4 @@ class Georeference < ApplicationRecord
   end
 end
 
-Dir[Rails.root.to_s + '/app/models/georeference/**/*.rb'].each { |file| require_dependency file }
+#Dir[Rails.root.to_s + '/app/models/georeference/**/*.rb'].each { |file| require_dependency file }

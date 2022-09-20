@@ -2,7 +2,6 @@ namespace :tw do
   namespace :development do
     namespace :data do
       namespace :geo do
-        require_relative '../../../support/database'
 
         # Presently benchmarks at under 10 minutes.
         desc "Loads shape files related to GeographicAreas by querying against temporarily loaded source shapefiles in SFGs /gaz repo.\n

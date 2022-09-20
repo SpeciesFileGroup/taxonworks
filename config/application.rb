@@ -36,7 +36,7 @@ module TaxonWorks
     config.assets.precompile += %w( separated_application.js )
 
     # Breaks rake/loading becahse of existing Rails.application.eager_load! statements
-    # config.eager_load_paths += %W(#{config.root}/lib) # #{config.root}/extras
+    config.eager_load_paths += config.autoload_paths
 
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.
     # Run "rake -D time" for a list of tasks for finding time zone names. Default is UTC.
@@ -92,6 +92,6 @@ module TaxonWorks
       end
     end
 
-    config.autoloader = :classic
+    config.autoloader = :zeitwerk
   end
 end

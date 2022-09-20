@@ -1,5 +1,5 @@
 # Generate new TaxonWorks tasks
-class Taxonworks::TaskGenerator < Rails::Generators::Base
+class Generators::TaxonWorks::Task::TaskGenerator < Rails::Generators::Base
   desc 'Used to stub out a TaxonWorks task'
 
   source_root File.expand_path('../templates', __FILE__)

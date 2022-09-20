@@ -10,7 +10,7 @@ TaxonWorks::Application.configure do
   config.cache_classes = false
 
   # Do not eager load code on boot.
-  config.eager_load = false 
+  config.eager_load = true 
 
   # Show full error reports and disable caching.
   config.consider_all_requests_local       = true
@@ -46,7 +46,7 @@ TaxonWorks::Application.configure do
   BetterErrors.editor='x-mine://open?file=%{file}&line=%{line}' if defined? BetterErrors
 
   require 'taxonworks'
-  require 'taxonworks_autoload'
+  require 'taxonworks/taxonworks_autoload'
 end
 
 
