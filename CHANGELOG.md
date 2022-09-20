@@ -19,11 +19,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Taxonomy inventory API failing with common names when language is not set
 - Missing taxon_name_relationships parameters [#3096]
 - Create matrix row button redirects to wrong OTU in OTU radial
+- Determinations not added to containers in "Edit Loan"task [#1935]
 
 ### Changed
 - Removed New OTU link from New observation matrix task [#3101]
 - Disabled horizontal resizing for textarea inputs on comprehensive
 
+[#1935]: https://github.com/SpeciesFileGroup/taxonworks/issues/1935
 [#3089]: https://github.com/SpeciesFileGroup/taxonworks/issues/3089
 [#3096]: https://github.com/SpeciesFileGroup/taxonworks/issues/3096
 [#3097]: https://github.com/SpeciesFileGroup/taxonworks/issues/3097
