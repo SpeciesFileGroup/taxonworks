@@ -26,7 +26,10 @@ gem 'psych', '~> 3.3'
 gem 'rmagick', '~> 4.2', '>= 4.2.2'
 gem 'roo', '~> 2.8', '>= 2.8.3'
 gem 'roo-xls', '~> 1.2'
+
 gem 'net-smtp', '~> 0.3.1'
+gem 'net-pop'
+gem 'net-imap'
 gem "matrix", "~> 0.4.2"
 
 # Geo

@@ -212,4 +212,5 @@ end
 
 require_dependency Rails.root.to_s + '/lib/catalog/nomenclature/entry.rb'
 require_dependency Rails.root.to_s + '/lib/catalog/otu/entry.rb'
-require_dependency Rails.root.to_s + '/lib/catalog/distribution/entry.rb'
+
+# require_dependency Rails.root.to_s + '/lib/catalog/distribution/entry.rb'

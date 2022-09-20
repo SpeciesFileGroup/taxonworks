@@ -8,7 +8,7 @@ module Workbench::LayoutHelper
 
   def taxonworks_version_tag
     unless Settings.sandbox_mode?
-      link_to("v#{Taxonworks::VERSION}", "https://github.com/SpeciesFileGroup/taxonworks/releases/tag/v#{Taxonworks::VERSION}", id: 'taxonworks_version')
+      link_to("v#{TaxonWorks::VERSION}", "https://github.com/SpeciesFileGroup/taxonworks/releases/tag/v#{TaxonWorks::VERSION}", id: 'taxonworks_version')
     end
   end
 

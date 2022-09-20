@@ -1,8 +1,6 @@
 # A Catalog::Entry has many entry items.  Together CatalogEntrys form a Catalog
-require 'catalog/entry'
-class Catalog::Distribution < ::Catalog
-  
-  class Entry < ::Catalog::Entry
+# require 'catalog/entry'
+  class ::Catalog::Distribution::Entry < ::Catalog::Entry
     
     def initialize(otus)
       super(otus) # object set to otus!
@@ -151,4 +149,3 @@ class Catalog::Distribution < ::Catalog
     
   end
   
-end
