@@ -225,6 +225,10 @@ scope :tasks do
   end
 
   scope :collection_objects do
+    scope :freeform_digitize, controller: 'tasks/collection_objects/freeform_digitize' do
+      get '/', action: :index, as: 'freeform_digitize_task'
+    end
+
     scope :stepwise do
       scope :determinations, controller: 'tasks/collection_objects/stepwise/determinations' do
         get '/', action: :index, as: 'stepwise_determinations_task'

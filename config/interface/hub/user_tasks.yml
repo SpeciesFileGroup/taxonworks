@@ -738,3 +738,11 @@ paper_catalog_generator_task:
     - export
   status: prototype
   description: 'Experimenting with rendering nomenclature as a paper catalog'
+freeform_digitize_task:
+  hub: true
+  name: 'Task - freeform digitize'
+  related:
+  categories:
+    - collection_object
+  status: prototype
+  description: 'Digitize specimen by drawing free-form shapes on images.'
