@@ -9,11 +9,11 @@ p {
 }
 
 .type {
-  padding-left: 1.5em;
+  margin-left: 1.5em;
 }
 
 .distribution {
-  margin: 1em;
+  margin-left: 1.5em;
 }
 </style>
 ++++
@@ -32,24 +32,14 @@ p {
 
 == Supplementary Material 1 - Distributions
 
+<% if data[:supplementary_distribution].items.any? %>
 [cols="1,1,1,1,1,1,1,1,1,1,1,1,1"]
 |===
 |kingdom |family |genus |specificEpithet |infraspecificEpithet |scientificName |scientificNameAuthorship |taxonRank |country |stateProvince |county |occurrenceStatus |associatedReferences
 <% data[:supplementary_distribution].items.uniq.each do |i| %>
-|<%= i.object.dwc_occurrence.attributes.slice(
-'kingdom',
-'family',
-'genus',
-'specificEpithet',
-'infraspecificEpithet',
-'scientificName',
-'scientificNameAuthorship',
-'taxonRank',
-'country',
-'stateProvince',
-'county',
-'occurrenceStatus',
-).values.join('| ') %>
-|<%= i.object.sources.collect{|s| source_author_year_label(s)}.join('; ') %>
+<%= paper_distribution_row (i) %>
 <% end %>
 |===
+<% else %>
+None recorded.
+<% end %>

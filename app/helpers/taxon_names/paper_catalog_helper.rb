@@ -78,7 +78,8 @@ module TaxonNames::PaperCatalogHelper
       end
 
       # distribution is only species level here!!
-      if d = paper_distribution_entry(taxon_name)
+       d = paper_distribution_entry(taxon_name)
+       if d && d.items.any?
         #body << [depth_string, 'Distribution: ', d].join.html_safe + tag.br
         data[:body] << ['[.distribution]**Distribution:** ', d.to_s, "\n\n"].join
         data[:supplementary_distribution].items += d.items
@@ -296,6 +297,38 @@ module TaxonNames::PaperCatalogHelper
         ].join(' ')
       end
       " (#{catalog_item.object.subject_status_tag} #{other_str})".html_safe
+    end
+  end
+
+  def paper_distribution_row(entry_item)
+    o = case entry_item.object.class.name
+    when 'TypeMaterial'
+      entry_item.object.collection_object
+    else
+      entry_item.object     
+    end
+
+    if o.dwc_occurrence
+      [ '| ',
+        o.dwc_occurrence.attributes.slice(
+          'kingdom',
+          'family',
+          'genus',
+          'specificEpithet',
+          'infraspecificEpithet',
+          'scientificName',
+          'scientificNameAuthorship',
+          'taxonRank',
+          'country',
+          'stateProvince',
+          'county',
+          'occurrenceStatus',
+        ).values.join('| '),
+        '| ',
+        o.sources.collect{|s| source_author_year_label(s)}.join('; ')
+      ].join(' ')
+    else
+     "| Record not indexed: #{label_for(o)}" + (['|'] * 12).join
     end
   end
 
