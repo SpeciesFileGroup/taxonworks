@@ -32,6 +32,7 @@
 <script>
 
 import { BiologicalRelationship } from 'routes/endpoints'
+import { extend } from '../constants/extend.js'
 import NewRelationship from './NewRelationship'
 
 export default {
@@ -48,7 +49,7 @@ export default {
   },
 
   created () {
-    BiologicalRelationship.where({ extend: ['object_biological_relationship_types', 'subject_biological_relationship_types'] }).then(response => {
+    BiologicalRelationship.where({ extend }).then(response => {
       const urlParams = new URLSearchParams(window.location.search)
       const relationshipIdParam = Number(urlParams.get('biological_relationship_id'))
 
