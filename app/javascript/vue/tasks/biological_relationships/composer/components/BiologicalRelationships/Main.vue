@@ -48,7 +48,7 @@ export default {
   },
 
   created () {
-    BiologicalRelationship.all().then(response => {
+    BiologicalRelationship.where({ extend: ['object_biological_relationship_types', 'subject_biological_relationship_types'] }).then(response => {
       const urlParams = new URLSearchParams(window.location.search)
       const relationshipIdParam = Number(urlParams.get('biological_relationship_id'))
 
