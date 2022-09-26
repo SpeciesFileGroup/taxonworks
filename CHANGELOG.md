@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `Clone previous citation` to citation panels [#3097]
 
 ### Fixed
+- Visible identifiers raising (e.g. broken object graph)
 - Presence Descriptor is not saving in Matrix row coder [#3099]
 - Missing number of objects for presence/absence descriptors on Interactive keys [#3102]
 - `New column` button deson't add the new column to the interface [#3109]

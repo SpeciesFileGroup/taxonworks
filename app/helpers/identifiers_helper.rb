@@ -129,7 +129,7 @@ module IdentifiersHelper
 
   def visible_identifiers(object)
     if object.has_identifiers?
-      object.identifiers.visible(sessions_current_project_id)
+      object.identifiers.visible(Current.project_id)
     else
       ::Identifier.none
     end 
