@@ -13,8 +13,10 @@
       </thead>
       <tbody>
         <tr
-          v-for="item in list"
+          v-for="item, index in list"
           :key="item.id"
+          class="contextMenuCells"
+          :class="{ even: index % 2 }"
         >
           <td v-html="item.object_tag" />
         </tr>
