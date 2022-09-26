@@ -1,4 +1,5 @@
 # Part 1 TODO:
+# * Sources in distribution are not in references cited
 # * use of unbreakable block sections
 # * option to set CSL style for references?
 # * create standardized " action " prefix
@@ -13,9 +14,58 @@
 module TaxonNames::PaperCatalogHelper
 
   OPTIONS = {
-    nest_rank_headers: true, # added
-    hanging_indents: false,
+    nest_rank_headers: true, # in
+    hanging_indents: false,  # does nothing
   }
+
+  # @return [Hash] like {
+  #   body: HTML,
+  #   sources: [],
+  #   repositories; [] }
+  #
+  # The body format is "chronological", i.e. each citation
+  def recursive_catalog_tag(taxon_name, data = { body: '', sources: [], supplementary_distribution: ::Catalog::Distribution::Entry.new, repositories: [], options: OPTIONS}, depth = 0 )
+
+    data[:body] << [
+      paper_header_prefix(taxon_name, data[:options]),
+      full_taxon_name_tag(taxon_name),
+      "\n\n"].join
+
+      cat = ::Catalog::Nomenclature::Entry.new(taxon_name)
+      data[:sources].push(cat.sources)
+
+      # type of primary name
+      #  if t = paper_history_type_material(c)
+      #    body << [depth_string, 'Type: ', t].join.html_safe + tag.br
+      #  end
+
+      # synonymy
+      cat.ordered_by_nomenclature_date.each do |c|
+        data[:body] << [ paper_catalog_li_tag(c, cat.object, :browse_nomenclature_task_path), "\n\n"].join.html_safe
+
+        if t = paper_history_type_material(c)
+          data[:body] << ['[.type]**Type:** ', t, "\n\n"].join
+          if r = paper_repositories(c)
+            data[:repositories].push r
+          end
+        end
+      end
+
+      # distribution is only calculated for species level here!!
+      d = paper_distribution_entry(taxon_name)
+      if d && d.items.any?
+       data[:body] << ['[.distribution]**Distribution:** ', d.to_s, "\n\n"].join
+       data[:supplementary_distribution].items += d.items
+     end
+
+     data[:body] << "\n"
+
+     taxon_name.children.that_is_valid.order(:cached).each do |t|
+       recursive_catalog_tag(t, data, depth + 1)
+     end
+
+    data
+  end
 
   def paper_header_prefix(taxon_name, options)
     r = nil
@@ -39,60 +89,6 @@ module TaxonNames::PaperCatalogHelper
     end
   end
 
-  # @return [Hash] like {
-  #   body: HTML,
-  #   sources: [],
-  #   repositories; [] }
-  #
-  # The body format is "chronological", i.e. each citation
-  def recursive_catalog_tag(taxon_name, data = { body: '', sources: [], supplementary_distribution: ::Catalog::Distribution::Entry.new, repositories: [], options: OPTIONS}, depth = 0 )
-
-    data[:body] << [
-      paper_header_prefix(taxon_name, data[:options]),
-      full_taxon_name_tag(taxon_name),
-      "\n\n"].join
-
-      cat = ::Catalog::Nomenclature::Entry.new(taxon_name)
-      data[:sources].push(cat.sources)
-
-      # depth_string = '&nbsp;&nbsp;' * (depth + 3)
-
-      # type of primary name
-      #  if t = paper_history_type_material(c)
-      #    body << [depth_string, 'Type: ', t].join.html_safe + tag.br
-      #  end
-
-      # synonymy
-      cat.ordered_by_nomenclature_date.each do |c|
-        # body <<  ['&nbsp;&nbsp;' * (depth + 3)].join.html_safe + paper_catalog_li_tag(c, data.object, :browse_nomenclature_task_path).html_safe + tag.br
-
-        data[:body] << [ paper_catalog_li_tag(c, cat.object, :browse_nomenclature_task_path), "\n\n"].join.html_safe
-
-        if t = paper_history_type_material(c)
-          # body << [depth_string, 'Type: ', t].join.html_safe + tag.br
-          data[:body] << ['[.type]**Type:** ', t, "\n\n"].join
-          if r = paper_repositories(c)
-            data[:repositories].push r
-          end
-        end
-      end
-
-      # distribution is only species level here!!
-       d = paper_distribution_entry(taxon_name)
-       if d && d.items.any?
-        #body << [depth_string, 'Distribution: ', d].join.html_safe + tag.br
-        data[:body] << ['[.distribution]**Distribution:** ', d.to_s, "\n\n"].join
-        data[:supplementary_distribution].items += d.items
-      end
-
-      data[:body] << "\n"
-
-      taxon_name.children.that_is_valid.order(:cached).each do |t|
-        recursive_catalog_tag(t, data, depth + 1)
-      end
-
-      data
-  end
 
   # @return [Array] of [acronym, name] pairs
   def paper_repositories(entry_item)
