@@ -1278,7 +1278,7 @@ namespace :tw do
               .collect { |n| row["Level#{n}ID"] }
               .map { |l| l.strip.gsub('-', '') }
               .reject { |l| l.blank? }
-            tdwg_id = [tdwg_id[0..2].join, tdwg_id[3]].compact.join('-')
+            tdwg_id = [tdwg_id[0..2].join, tdwg_id[3] =~ /[0-9]/ ? nil : tdwg_id[3]].compact.join('-')
             geographic_area_id = geographic_area_id_hash[tdwg_id]
             if geographic_area_id # not nil, is there a level 4?
               level3_id = row['Level3ID']
@@ -1293,7 +1293,7 @@ namespace :tw do
                 end
               end
             elsif row['Level1ID'] != '0' # is nil, if Level1ID = '0', ignore; otherwise bad data, record as attribute, including level 4 info?
-              data_attributes_bucket[:notes_attributes] = [{text: "Bad locality data; TDWG id (#{tdwg_id} does not resolve", project_id: project_id}]
+              data_attributes_bucket[:notes_attributes] = [{text: "Bad locality data; TDWG id (#{tdwg_id} does not resolve)", project_id: project_id}]
             end
 
 
