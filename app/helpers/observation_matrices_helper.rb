@@ -1,4 +1,31 @@
 module ObservationMatricesHelper
+  LABEL_REPLACEMENT = {
+    '10' => 'A',
+    '11' => 'B',
+    '12' => 'C',
+    '13' => 'D',
+    '14' => 'E',
+    '15' => 'F',
+    '16' => 'G',
+    '17' => 'H',
+    '18' => 'I',
+    '19' => 'J',
+    '20' => 'K',
+    '21' => 'L',
+    '22' => 'M',
+    '23' => 'N',
+    '24' => 'O',
+    '25' => 'P',
+    '26' => 'R',
+    '27' => 'S',
+    '28' => 'T',
+    '29' => 'U',
+    '30' => 'V',
+    '31' => 'W',
+    '32' => 'X',
+    '33' => 'Y',
+    '34' => 'Z',
+  }
 
   def observation_matrix_tag(observation_matrix)
     return nil if observation_matrix.nil?
@@ -46,14 +73,16 @@ module ObservationMatricesHelper
   #   show states in tnt or nexus format for a 'cell' (e.g. [ab])
   #   Mx.print_codings in mx
   def observations_cell_label(observations_hash, descriptor, hash_index, style = :tnt)
+
     case observations_hash[descriptor.id][hash_index].size
     when 0
       "?"
     when 1
       o = observations_hash[descriptor.id][hash_index][0]
       s = observation_export_value(o)
+      s = LABEL_REPLACEMENT[s].nil? ? s : LABEL_REPLACEMENT[s]
 
-      if s.length > 1 && style == :nexus && o.type == 'Observation::Qualitative'
+      if s.length > 1 && (style == :nexus && style == :tnt) && o.type == 'Observation::Qualitative'
         "#{s} [WARNING STATE '#{s}' is TOO LARGE FOR PAUP (0-9, A-Z only).]"
       else
         s
@@ -77,7 +106,7 @@ module ObservationMatricesHelper
   def observation_export_value(observation)
     case observation.type
     when 'Observation::Qualitative'
-      observation.character_state.label
+      LABEL_REPLACEMENT[observation.character_state.label].nil? ? observation.character_state.label : LABEL_REPLACEMENT[observation.character_state.label]
     when 'Observation::PresenceAbsence'
       case observation.presence
       when true
@@ -106,7 +135,7 @@ module ObservationMatricesHelper
 
   def descriptor_list(observation_matrix)
     rows = []
-    observation_matrix.descriptors.order(:position).each do |d|
+    observation_matrix.descriptors.each do |d|
       l = d.name + ': '
       if d.qualitative?
         l << d.character_states.order(:position).collect{|cs| "#{cs.label}: " + cs.name }.join('; ')
