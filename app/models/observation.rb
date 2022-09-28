@@ -277,6 +277,30 @@ class Observation < ApplicationRecord
     true
   end
 
+  def self.code_column(observation_matrix_id, observation_matrix_column_id, observation_params)
+    o = ObservationMatrix.find(observation_matrix_id)
+    c = ObservationMatrixColumn.find(observation_matrix_column_id)
+    descriptor = c.descriptor
+
+    p = observation_params
+
+    Observation.transaction do 
+      begin
+        o.observation_matrix_rows.each do |r|
+          o.descriptors.each do |d|
+            Observation.create!(
+              p.merge(
+                observation_object: r.observation_object,
+                descriptor: d,
+              )
+            )
+          end
+        end
+      rescue ActiveRecord::RecordInvalid
+      end
+    end
+  end
+
   protected
 
   def set_type_from_descriptor

@@ -19,6 +19,33 @@ RSpec.describe Observation, type: :model, group: :observation_matrix do
     end
   end
 
+  context '#code_column' do
+    let(:observation_matrix) { FactoryBot.create(:valid_observation_matrix) }
+
+    let!(:d1) { Descriptor::Qualitative.new(name: 'foo') }
+    let!(:cs) { CharacterState.new(label: 0, name: 'foo', descriptor: d1) }
+
+    let!(:c1) { FactoryBot.create(:valid_observation_matrix_column, observation_matrix: observation_matrix, descriptor: d1 ) }
+    let!(:r1) { FactoryBot.create(:valid_observation_matrix_row, observation_matrix: observation_matrix, observation_object: otu) }
+    let!(:r2) { FactoryBot.create(:valid_observation_matrix_row, observation_matrix: observation_matrix) }
+
+    specify '#code_column 1' do 
+      p = {character_state: cs} 
+      Observation.code_column(observation_matrix.id, c1.id, p)
+
+      expect(Observation.all.count).to eq(2)
+    end
+
+    specify '#code_column 2' do 
+      p = {character_state: cs} 
+      Observation.code_column(observation_matrix.id, c1.id, p)
+
+      expect(r2.observation_object.observations.count).to eq(1)
+    end
+
+  end
+
+
   xspecify '#time_made 1' do
     observation.time_made = '12:99:12'
     observation.valid?
