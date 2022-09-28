@@ -756,6 +756,9 @@ class CollectingEvent < ApplicationRecord
     @geographic_names ||= {}
   end
 
+  # @return Hash
+  #  a geographic_name_classification.
+  # This prioritizes Georeferences over GeographicAreas!
   def get_geographic_name_classification
     case geographic_name_classification_method
     when :preferred_georeference
@@ -764,9 +767,11 @@ class CollectingEvent < ApplicationRecord
       # slow
       r = preferred_georeference.geographic_item.inferred_geographic_name_hierarchy if r == {} # therefor defaults to slow
     when :geographic_area_with_shape # geographic_area.try(:has_shape?)
-      # quick
+      # very quick
       r = geographic_area.geographic_name_classification # do not round trip to the geographic_item, it just points back to the geographic area
       # slow
+      #   rarely hit, this uses the geographic_area shape itself to then find what contains it, and then classify using that
+      #   it will by definition be partial
       r = geographic_area.default_geographic_item.inferred_geographic_name_hierarchy if r == {}
     when :geographic_area # elsif geographic_area
       # quick
@@ -1036,7 +1041,8 @@ class CollectingEvent < ApplicationRecord
   end
 
   def set_cached
-    set_cached_geographic_names if saved_change_to_attribute?(:geographic_area_id)
+    # TODO: Once caching is stabilized we can turn this back on
+    set_cached_geographic_names # if saved_change_to_attribute?(:geographic_area_id)
 
     c = {}
     v = [verbatim_label, print_label, document_label].compact.first

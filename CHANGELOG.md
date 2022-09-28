@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `Clone previous citation` to citation panels [#3097]
 
 ### Fixed
+- CollectingEvent cached geo-names (e.g. used in DwC export) missclassified [#2614]
 - Visible identifiers raising (e.g. broken object graph)
 - Presence Descriptor is not saving in Matrix row coder [#3099]
 - Missing number of objects for presence/absence descriptors on Interactive keys [#3102]
@@ -27,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Removed New OTU link from New observation matrix task [#3101]
 - Disabled horizontal resizing for textarea inputs on comprehensive
 
+[#2614]: https://github.com/SpeciesFileGroup/taxonworks/issues/2614
 [#1935]: https://github.com/SpeciesFileGroup/taxonworks/issues/1935
 [#3089]: https://github.com/SpeciesFileGroup/taxonworks/issues/3089
 [#3096]: https://github.com/SpeciesFileGroup/taxonworks/issues/3096
