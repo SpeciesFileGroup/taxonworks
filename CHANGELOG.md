@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `Clone previous citation` to citation panels [#3097]
 
 ### Fixed
+- Destroying a Georefernce re-indexes related CollectingEvent [#3114]
 - CollectingEvent cached geo-names (e.g. used in DwC export) missclassified [#2614]
 - Order of tescriptors in nexus and tnt output is updated to reflect the column ordering
 - Homonyms without replacement name are now marked as invalid
@@ -30,6 +31,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Removed New OTU link from New observation matrix task [#3101]
 - Disabled horizontal resizing for textarea inputs on comprehensive
 
+[#3114]: https://github.com/SpeciesFileGroup/taxonworks/issues/3114
 [#2614]: https://github.com/SpeciesFileGroup/taxonworks/issues/2614
 [#1935]: https://github.com/SpeciesFileGroup/taxonworks/issues/1935
 [#3089]: https://github.com/SpeciesFileGroup/taxonworks/issues/3089
