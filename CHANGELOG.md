@@ -14,6 +14,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - CollectingEvent cached geo-names (e.g. used in DwC export) missclassified [#2614]
+- Order of tescriptors in nexus and tnt output is updated to reflect the column ordering
+- Homonyms without replacement name are now marked as invalid
 - Visible identifiers raising (e.g. broken object graph)
 - Presence Descriptor is not saving in Matrix row coder [#3099]
 - Missing number of objects for presence/absence descriptors on Interactive keys [#3102]

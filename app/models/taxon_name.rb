@@ -772,7 +772,7 @@ class TaxonName < ApplicationRecord
   # @return [Boolean]
   #   true if there is a relationship where then name is asserted to be invalid
   def relationship_invalid?
-    !first_possible_valid_taxon_name_relationship.nil?
+    !first_possible_invalid_taxan_name_relationship.nil?
   end
 
   # @return [Boolean]
@@ -863,6 +863,10 @@ class TaxonName < ApplicationRecord
   #  returns youngest taxon name relationship where self is the subject.
   def first_possible_valid_taxon_name_relationship
     taxon_name_relationships.reload.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).youngest_by_citation
+  end
+
+  def first_possible_invalid_taxan_name_relationship
+    taxon_name_relationships.reload.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).youngest_by_citation
   end
 
   # @return [TaxonName]
