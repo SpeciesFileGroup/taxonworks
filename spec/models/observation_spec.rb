@@ -31,14 +31,14 @@ RSpec.describe Observation, type: :model, group: :observation_matrix do
 
     specify '#code_column 1' do 
       p = {character_state: cs} 
-      Observation.code_column(observation_matrix.id, c1.id, p)
+      Observation.code_column(c1.id, p)
 
       expect(Observation.all.count).to eq(2)
     end
 
     specify '#code_column 2' do 
       p = {character_state: cs} 
-      Observation.code_column(observation_matrix.id, c1.id, p)
+      Observation.code_column(c1.id, p)
 
       expect(r2.observation_object.observations.count).to eq(1)
     end

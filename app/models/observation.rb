@@ -277,9 +277,10 @@ class Observation < ApplicationRecord
     true
   end
 
-  def self.code_column(observation_matrix_id, observation_matrix_column_id, observation_params)
-    o = ObservationMatrix.find(observation_matrix_id)
+  def self.code_column(observation_matrix_column_id, observation_params)
     c = ObservationMatrixColumn.find(observation_matrix_column_id)
+    o = ObservationMatrix.find(c.observation_matrix_id)
+
     descriptor = c.descriptor
 
     p = observation_params

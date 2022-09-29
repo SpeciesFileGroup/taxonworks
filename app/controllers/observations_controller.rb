@@ -115,9 +115,9 @@ class ObservationsController < ApplicationController
     end
   end
 
-  # POST /observations/code_row.json?observation_matrix_column_id=123&observation_matrix_id=456&<observation params>
-  def code_row
-    if Observation.code_row(params[:observation_matrix_id], params[:observation_matrix_column_id], observation_params )
+  # POST /observations/code_column.json?observation_matrix_column_id=123&observation_matrix_id=456&<observation params>
+  def code_column
+    if Observation.code_column(params[:observation_matrix_column_id], observation_params )
       render json: {success: true}
     else
       render json: {success: false}
