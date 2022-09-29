@@ -100,7 +100,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
   end
 
   def sv_not_specific_relationship
-    if SPECIES_RANK_NAMES_ICZN.include?(self.subject_taxon_name.rank_string)
+    if self.subject_taxon_name.is_species_rank?
       soft_validations.add(
         :type, 'Please specify if this is a primary or secondary homonym',
         success_message: 'Homonym updated to being primary or secondary',
