@@ -25,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Create matrix row button redirects to wrong OTU in OTU radial
 - Determinations not added to containers in "Edit Loan"task [#1935]
 - OTU images disappear when moving other images to observation cells [#3111]
+- Basic nomenclature failing to redirect when no name was selected
 
 ### Changed
 - Removed New OTU link from New observation matrix task [#3101]
