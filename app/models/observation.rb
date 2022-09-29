@@ -288,15 +288,13 @@ class Observation < ApplicationRecord
     Observation.transaction do 
       begin
         o.observation_matrix_rows.each do |r|
-          o.descriptors.each do |d|
             Observation.create!(
               p.merge(
                 observation_object: r.observation_object,
-                descriptor: d,
+                descriptor: descriptor,
               )
             )
           end
-        end
       rescue ActiveRecord::RecordInvalid
       end
     end
