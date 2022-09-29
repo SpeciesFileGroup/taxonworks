@@ -19,9 +19,16 @@
           />
           <RadialNavigator :global-id="descriptor.globalId" />
         </div>
-        <div class="horizontal-right-content middle">
+        <div
+          v-if="descriptor.id"
+          class="horizontal-right-content middle"
+        >
           <OptionUnsecoredRows class="margin-medium-right" />
-          <RowObjectList class="margin-medium-left" />
+          <RowObjectList class="margin-small-right" />
+          <CodeColumn
+            :descriptor="descriptor"
+            :column-id="observationColumnId"
+          />
         </div>
       </div>
     </navbar-component>
@@ -60,12 +67,14 @@ import NavbarComponent from 'components/layout/NavBar.vue'
 import NavigationMatrix from './Navigation/NavigationMatrix.vue'
 import RadialNavigator from 'components/radials/navigation/radial.vue'
 import RowObjectList from './RowObjects/RowObjects.vue'
+import CodeColumn from './CodeColumn/CodeColumn.vue'
 
 const computed = mapState({
   descriptor: state => state.descriptor,
   observations: state => state.observations,
   onlyScoredRows: state => state.options.showOnlyUnsecoredRows,
-  rowObjects: state => state.rowObjects
+  rowObjects: state => state.rowObjects,
+  observationColumnId: state => state.observationColumnId
 })
 
 export default {
@@ -83,7 +92,8 @@ export default {
     RowObjectList,
     RadialNavigator,
     OptionUnsecoredRows,
-    Spinner
+    Spinner,
+    CodeColumn
   },
 
   props: {

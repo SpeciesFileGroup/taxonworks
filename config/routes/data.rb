@@ -465,7 +465,7 @@ resources :observations do
   concerns [:data_routes]
   collection do
     delete :destroy_row, defaults: {format: :json}
-    post :code_row, defaults: {format: :json}
+    post :code_column, defaults: {format: :json}
   end
 
   member do
