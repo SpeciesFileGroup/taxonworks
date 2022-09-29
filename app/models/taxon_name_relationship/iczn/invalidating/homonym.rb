@@ -120,7 +120,8 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
       new_relationship_name = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
     end
     if new_relationship_name && self.type_name != new_relationship_name
-      self.update_columns(type: new_relationship_name)
+      self.type = new_relationship_name
+      self.save
       return true
     end
     false
