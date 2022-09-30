@@ -412,7 +412,7 @@ module Protonym::SoftValidationExtensions
         if rank_string == 'NomenclaturalRank' || self.parent&.rank_string == 'NomenclaturalRank' || !!self.iczn_uncertain_placement_relationship
           true
         elsif !self.rank_class&.valid_parents.include?(self.parent&.rank_string)
-          soft_validations.add(:rank_class, "The rank #{self.rank_class.rank_name} is not compatible with the rank of parent (#{self.parent.rank_class.rank_name}). The name should be marked as 'Incertae sedis'")
+          soft_validations.add(:rank_class, "The rank #{self.rank_class&.rank_name} is not compatible with the rank of parent (#{self.parent&.rank_class&.rank_name}). The name should be marked as 'Incertae sedis'")
         end
       end
     end
