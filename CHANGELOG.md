@@ -7,7 +7,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-- "Display only unsecored rows" on Matrix column coder [#3103]
+- "Display only unsccored rows" on Matrix column coder [#3103]
 - Previous and next links in Matrix row coder [#3107]
 - Match identifiers facet to Filter extract task  [#3089]
 - `Clone previous citation` to citation panels [#3097]
