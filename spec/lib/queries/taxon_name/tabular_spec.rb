@@ -295,9 +295,9 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
 
       observation_matrix.save!
       o1 = Observation::Continuous.create!(observation_object: otu1, descriptor: descriptor1, continuous_value: 5)
-      o2 = Observation::Continuous.create!(observation_object: otu1, descriptor: descriptor2)
+      o2 = Observation::Media.create!(observation_object: otu1, descriptor: descriptor2)
       o3 = Observation::Continuous.create!(observation_object: otu1, descriptor: descriptor1, continuous_value: 6)
-      o4 = Observation::Continuous.create!(observation_object: otu1, descriptor: descriptor3)
+      o4 = Observation::Media.create!(observation_object: otu1, descriptor: descriptor3)
 
       FactoryBot.create(:valid_depiction, depiction_object: o2)
       FactoryBot.create(:valid_depiction, depiction_object: o2)
