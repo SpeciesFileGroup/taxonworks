@@ -97,6 +97,7 @@ class GeographicItem < ApplicationRecord
   has_many :collecting_events_through_georeference_error_geographic_item,
            through: :georeferences_through_error_geographic_item, source: :collecting_event
 
+  # TODO: THIS IS NOT GOOD
   before_validation :set_type_if_geography_present
 
   validate :some_data_is_provided

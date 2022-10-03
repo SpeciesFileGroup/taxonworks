@@ -146,7 +146,7 @@ class Observation < ApplicationRecord
   belongs_to :observation_object, polymorphic: true
 
   # before_validation :convert_observation_object_global_id
-  before_validation :set_type_from_descriptor
+
   validates_presence_of :descriptor_id, :type
   validates_presence_of :observation_object
   validate :type_matches_descriptor
@@ -277,36 +277,42 @@ class Observation < ApplicationRecord
     true
   end
 
+  # @return [Hash]
+  #  { created: 1, failed: 2 }
   def self.code_column(observation_matrix_column_id, observation_params)
     c = ObservationMatrixColumn.find(observation_matrix_column_id)
     o = ObservationMatrix.find(c.observation_matrix_id)
 
     descriptor = c.descriptor
 
-    p = observation_params
+    # Type is required on the onset
+    p = observation_params.merge(
+      type: descriptor.observation_type
+    )
 
-    Observation.transaction do 
+    r = Hash.new(0)
+
+    Observation.transaction do
       begin
         o.observation_matrix_rows.each do |r|
-            Observation.create!(
-              p.merge(
-                observation_object: r.observation_object,
-                descriptor: descriptor,
-              )
+          Observation.create!(
+            p.merge(
+              observation_object: r.observation_object,
+              descriptor: descriptor,
             )
-          end
+          )
+        end
+
+        r[:passed] += 1
       rescue ActiveRecord::RecordInvalid
+        r[:failed] += 1
+        next
       end
     end
+    r
   end
 
   protected
-
-  def set_type_from_descriptor
-    if type.blank? && descriptor&.type
-      write_attribute(:type, 'Observation::' + descriptor.type.split('::').last)
-    end
-  end
 
   def type_matches_descriptor
     a = type&.split('::')&.last
