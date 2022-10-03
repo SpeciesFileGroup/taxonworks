@@ -10,25 +10,38 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - "Display only unsecored rows" on Matrix column coder [#3103]
 - Previous and next links in Matrix row coder [#3107]
 - Match identifiers facet to Filter extract task  [#3089]
+- `Clone previous citation` to citation panels [#3097]
 
 ### Fixed
+- CollectingEvent cached geo-names (e.g. used in DwC export) missclassified [#2614]
+- Order of tescriptors in nexus and tnt output is updated to reflect the column ordering
+- Homonyms without replacement name are now marked as invalid
+- Visible identifiers raising (e.g. broken object graph)
 - Presence Descriptor is not saving in Matrix row coder [#3099]
 - Missing number of objects for presence/absence descriptors on Interactive keys [#3102]
 - `New column` button deson't add the new column to the interface [#3109]
 - Taxonomy inventory API failing with common names when language is not set
 - Missing taxon_name_relationships parameters [#3096]
+- Create matrix row button redirects to wrong OTU in OTU radial
+- Determinations not added to containers in "Edit Loan"task [#1935]
+- OTU images disappear when moving other images to observation cells [#3111]
+- Basic nomenclature failing to redirect when no name was selected
 
 ### Changed
 - Removed New OTU link from New observation matrix task [#3101]
 - Disabled horizontal resizing for textarea inputs on comprehensive
 
+[#2614]: https://github.com/SpeciesFileGroup/taxonworks/issues/2614
+[#1935]: https://github.com/SpeciesFileGroup/taxonworks/issues/1935
 [#3089]: https://github.com/SpeciesFileGroup/taxonworks/issues/3089
 [#3096]: https://github.com/SpeciesFileGroup/taxonworks/issues/3096
+[#3097]: https://github.com/SpeciesFileGroup/taxonworks/issues/3097
 [#3099]: https://github.com/SpeciesFileGroup/taxonworks/issues/3099
 [#3102]: https://github.com/SpeciesFileGroup/taxonworks/issues/3102
 [#3103]: https://github.com/SpeciesFileGroup/taxonworks/issues/3103
 [#3107]: https://github.com/SpeciesFileGroup/taxonworks/issues/3107
 [#3109]: https://github.com/SpeciesFileGroup/taxonworks/issues/3109
+[#3111]: https://github.com/SpeciesFileGroup/taxonworks/issues/3111
 
 ## [0.29.3] - 2022-09-13
 

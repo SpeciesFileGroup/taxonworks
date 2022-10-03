@@ -24,4 +24,8 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage < TaxonNameRelationship::
   def sv_not_specific_relationship
     true
   end
+
+  def sv_synonym_relationship
+    true
+  end
 end

@@ -44,9 +44,10 @@
 </template>
 <script>
 
-import DateFields from 'components/ui/Date/DateFields.vue'
-import { TaxonDetermination } from 'routes/endpoints'
+import { COLLECTION_OBJECT, CONTAINER } from 'constants/index.js'
+import { TaxonDetermination, Container } from 'routes/endpoints'
 import { MutationNames } from '../store/mutations/mutations'
+import DateFields from 'components/ui/Date/DateFields.vue'
 import rolePicker from 'components/role_picker.vue'
 import OtuPicker from 'components/otu/otu_picker/otu_picker'
 
@@ -56,14 +57,14 @@ export default {
     rolePicker,
     DateFields
   },
+
   props: {
     list: {
       type: Array,
-      default: () => {
-        return []
-      }
+      default: () => []
     }
   },
+
   computed: {
     validateFields () {
       return this.determination.otu_id &&
@@ -78,6 +79,7 @@ export default {
       }
     }
   },
+
   data () {
     return {
       otuSelected: undefined,
@@ -91,21 +93,46 @@ export default {
       }
     }
   },
+
   methods: {
     setDeterminations () {
-      const newDetermination = this.determination
       const promises = []
 
       this.$store.commit(MutationNames.SetSaving, true)
       this.list.forEach(item => {
-        if (item.loan_item_object_type === 'CollectionObject') {
-          newDetermination.biological_collection_object_id = item.loan_item_object_id
-          promises.push(TaxonDetermination.create({ taxon_determination: newDetermination }))
+        if (item.loan_item_object_type === CONTAINER) {
+          this.getCollectionOjectsFromContainer(item.loan_item_object_id).then(ids => {
+            ids.forEach(id => {
+              promises.push(this.createDetermination({ biological_collection_object_id: id }))
+            })
+          })
+        } else if (item.loan_item_object_type === COLLECTION_OBJECT) {
+          promises.push(this.createDetermination({ biological_collection_object_id: item.loan_item_object_id }))
         }
       })
+
       Promise.all(promises).then(() => {
         this.$store.commit(MutationNames.SetSaving, false)
         TW.workbench.alert.create('Loan item was successfully updated.', 'notice')
+      })
+    },
+
+    createDetermination (params = {}) {
+      const payload = {
+        ...this.determination,
+        ...params
+      }
+
+      return TaxonDetermination.create({ taxon_determination: payload })
+    },
+
+    getCollectionOjectsFromContainer (containerId) {
+      return new Promise((resolve, reject) => {
+        Container.find(containerId).then(({ body }) => {
+          const containerItems = body.container_items
+
+          resolve(containerItems.map(item => item.container_item.contained_object_id))
+        })
       })
     }
   }

@@ -27,7 +27,7 @@ class ObservationMatrix < ApplicationRecord
   has_many :extracts, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'Extract'
 
   # TODO: restrict these- you can not directly create these!
-  has_many :descriptors, through: :observation_matrix_columns, inverse_of: :observation_matrices
+  has_many :descriptors, -> { order('observation_matrix_columns.position') }, through: :observation_matrix_columns, inverse_of: :observation_matrices
 
   scope :with_otu_id_array, ->  (otu_id_array) { joins('LEFT OUTER JOIN "observation_matrix_rows" ON "observation_matrix_rows"."observation_matrix_id" = "observation_matrices"."id"').where("otu_id in (?)", otu_id_array) }
 

@@ -83,11 +83,13 @@
             class="separate-bottom separate-top"
             @select="biologicalRelation = $event"/>
         </div>
-        <new-citation
+        <FormCitation
+          v-model="citation"
           class="separate-top"
-          ref="citation"
-          @create="citation = $event"
-          :global-id="'globalId'"/>
+          :klass="BIOLOGICAL_ASSOCIATION"
+          original
+          @source="addLabel"
+        />
 
         <div class="separate-top">
           <button
@@ -109,11 +111,12 @@
 
 import Biological from './biological.vue'
 import Related from './related.vue'
-import NewCitation from './newCitation.vue'
+import FormCitation from 'components/Form/FormCitation.vue'
 import TableList from './table.vue'
 import BlockLayout from 'components/layout/BlockLayout.vue'
 import LockComponent from 'components/ui/VLock/index.vue'
-
+import makeCitation from 'factory/Citation.js'
+import { BIOLOGICAL_ASSOCIATION } from 'constants/index'
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations'
 import { BiologicalAssociation } from 'routes/endpoints'
@@ -122,7 +125,7 @@ export default {
   components: {
     Biological,
     Related,
-    NewCitation,
+    FormCitation,
     BlockLayout,
     TableList,
     LockComponent
@@ -164,9 +167,10 @@ export default {
     return {
       biologicalRelationship: undefined,
       biologicalRelation: undefined,
-      citation: undefined,
+      citation: makeCitation(),
       queueAssociations: [],
       flip: false,
+      BIOLOGICAL_ASSOCIATION
     }
   },
 
@@ -182,6 +186,10 @@ export default {
   },
 
   methods: {
+    addLabel (source) {
+      this.citation.source = source
+    },
+
     addAssociation () {
       const data = {
         biological_relationship: this.biologicalRelationship,
@@ -193,10 +201,11 @@ export default {
       }
 
       this.list.push(data)
-      this.biologicalRelationship = this.settings.locked.biological_association.relationship ? this.biologicalRelationship : undefined
-      this.biologicalRelation = this.settings.locked.biological_association.related ? this.biologicalRelation : undefined
-      this.citation = undefined
-      this.$refs.citation.cleanCitation()
+
+      if (!this.settings.locked.biological_association.relationship) { this.biologicalRelationship = undefined }
+      if (!this.settings.locked.biological_association.related) { this.biologicalRelation = undefined }
+
+      this.citation = makeCitation()
     },
 
     removeBiologicalRelationship (index) {

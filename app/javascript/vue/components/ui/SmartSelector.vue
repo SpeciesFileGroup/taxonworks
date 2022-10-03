@@ -84,8 +84,8 @@
                     @keyup="changeTab"
                     @keyup.enter="sendObject(item)"
                     @keyup.space="sendObject(item)"
-                    :value="item"
-                    :checked="selectedItem && item.id == selectedItem.id"
+                    :value="item.id"
+                    :checked="selectedItem && item.id === selectedItem.id"
                     type="radio">
                   <span v-html="item[label]"/>
                 </label>
@@ -110,7 +110,6 @@ import OrderSmart from 'helpers/smartSelector/orderSmartSelector'
 import SelectFirst from 'helpers/smartSelector/selectFirstSmartOption'
 import DefaultPin from 'components/getDefaultPin'
 import OtuPicker from 'components/otu/otu_picker/otu_picker'
-import getPlatformKey from 'helpers/getPlatformKey'
 
 export default {
   components: {

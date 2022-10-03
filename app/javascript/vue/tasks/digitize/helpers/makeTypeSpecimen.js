@@ -1,4 +1,5 @@
 import { useRandomUUID } from 'helpers/random'
+import makeCitation from 'factory/Citation'
 
 export default (typeData = {}) => ({
   id: typeData.id,
@@ -8,23 +9,22 @@ export default (typeData = {}) => ({
   label: typeData.object_tag,
   collectionObjectId: typeData.collection_object_id,
   roles: typeData.roles || [],
-  originCitation: typeData.origin_citation_attributes,
+  originCitation: getCitation(typeData),
   globalId: typeData.global_id,
   taxon: undefined,
   isUnsaved: false
 })
 
-/* 
-const asdf = () => ({
-  id: undefined,
-  global_id: undefined,
-  protonym_id: undefined,
-  taxon: undefined,
-  collection_object_id: undefined,
-  type_type: undefined,
-  roles_attributes: [],
-  collection_object: undefined,
-  origin_citation_attributes: undefined,
-  type_designator_roles: []
-})
- */
+function getCitation (data) {
+  const citation = data.origin_citation_attributes || data.origin_citation || makeCitation()
+
+  if (citation.source) {
+    citation.source_id = citation.source.id
+  }
+
+  return {
+    id: citation.id,
+    source_id: citation.source_id,
+    pages: citation.pages
+  }
+}
