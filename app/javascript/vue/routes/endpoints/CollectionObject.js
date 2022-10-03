@@ -52,6 +52,8 @@ export const CollectionObject = {
 
   dwc: (id) => AjaxCall('get', `/${controller}/${id}/dwc`),
 
+  dwca: (id) => AjaxCall('get', `/${controller}/${id}/dwca`),
+
   reportDwc: (params) => AjaxCall('get', '/tasks/accessions/report/dwc.json', { params }),
 
   dwcIndex: (params) => AjaxCall('get', `/${controller}/dwc_index`, { params }),

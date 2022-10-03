@@ -7,6 +7,7 @@ const makeInitialState = () => {
   return {
     isLoading: false,
     collectionObject: {},
+    dwc: {},
     collectingEvent: {},
     identifiers: []
   }

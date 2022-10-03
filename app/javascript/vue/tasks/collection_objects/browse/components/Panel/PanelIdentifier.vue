@@ -1,6 +1,13 @@
 <template>
-  <div class="panel content">
-    <h2>Identifiers</h2>
+  <div class="panel panel__content margin-small-left">
+    <h2 class="panel__title">Identifiers</h2>
+    <ul class="no_bullets">
+      <li
+        v-for="identifier in identifiers"
+        :key="identifier.id"
+        v-html="identifier.objectTag"
+      />
+    </ul>
   </div>
 </template>
 
@@ -10,5 +17,5 @@ import { computed } from 'vue'
 import { GetterNames } from '../../store/getters/getters'
 
 const store = useStore()
-const identifier = computed(() => store.dispatch(GetterNames.GetIdentifier))
+const identifiers = computed(() => store.getters[GetterNames.GetIdentifiers])
 </script>

@@ -1,1 +1,2 @@
-export * from './collectionObject'
+export * from './makeCollectionObject'
+export * from './makeIdentifier'

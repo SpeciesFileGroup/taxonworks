@@ -3,16 +3,17 @@
     <h1>Browse collection object</h1>
     <div>
       <PanelBuffered />
+      <PanelIdentifier />
     </div>
   </div>
 </template>
 
 <script setup>
 import { useStore } from 'vuex'
-import { ref } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
 import { ActionNames } from './store/actions/actions'
 import PanelBuffered from './components/Panel/PanelBuffered/PanelBuffered.vue'
+import PanelIdentifier from './components/Panel/PanelIdentifier.vue'
 
 const store = useStore()
 const { collection_object_id: coId } = URLParamsToJSON(location.href)
