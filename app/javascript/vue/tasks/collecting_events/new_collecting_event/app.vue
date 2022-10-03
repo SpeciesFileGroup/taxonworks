@@ -260,6 +260,7 @@ export default {
         message: 'This will clone the current collecting event. Are you sure you want to proceed?',
         confirmationWord: 'CLONE',
         okButton: 'Clone',
+        cancelButton: 'Cancel',
         typeButton: 'submit'
       })
 

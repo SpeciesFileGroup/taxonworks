@@ -1,15 +1,17 @@
 <template>
-  <label>
-    Amount:
-    <input
-      type="number"
-      v-model="observation.continuousValue"
-    >
-  </label>
-  <UnitSelector
-    class="margin-small-right"
-    v-model="observation.continuousUnit"
-  />
+  <div>
+    <label>
+      Amount:
+      <input
+        type="number"
+        v-model="observation.continuousValue"
+      >
+    </label>
+    <UnitSelector
+      class="margin-small-right"
+      v-model="observation.continuousUnit"
+    />
+  </div>
 </template>
 
 <script setup>

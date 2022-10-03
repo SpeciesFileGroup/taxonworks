@@ -40,6 +40,7 @@
       fullscreen
       legend="Populating rows..."
     />
+    <ConfirmationModal ref="confirmationModal" />
   </div>
 </template>
 
@@ -55,6 +56,7 @@ import FormPresenceAbsent from '../Form/FormPresenceAbsent.vue'
 import FormQualitative from '../Form/FormQualitative.vue'
 import populateRows from './populateRows'
 import VSpinner from 'components/spinner.vue'
+import ConfirmationModal from 'components/ConfirmationModal.vue'
 
 const components = {
   [ComponentName.Continuous]: FormContinuousDescriptorObservation,
@@ -69,6 +71,7 @@ const props = defineProps({
     type: Object,
     required: true
   },
+
   columnId: {
     type: Number,
     required: true
@@ -91,6 +94,7 @@ const makeEmptyObservation = () => {
 
 const isPopulating = ref(false)
 const showModal = ref(false)
+const confirmationModal = ref(null)
 const observation = ref(makeEmptyObservation())
 const isObservationEmpty = computed(() => !Object.keys(observation.value).length)
 
@@ -101,8 +105,16 @@ const handleClick = () => {
     descriptorType: props.descriptor.type,
     columnId: props.columnId,
     observation: observation.value
-  }).then(() => {
+  }).then(async ({ failed, passed }) => {
     isPopulating.value = false
+
+    await confirmationModal.value.show({
+      title: 'Result',
+      message: `Passed: ${passed}<br>Failed: ${failed}`,
+      okButton: 'OK',
+      typeButton: 'default'
+    })
+
     window.location.reload()
   })
 }

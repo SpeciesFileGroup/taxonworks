@@ -39,9 +39,28 @@ export default function ({
     })
   )
 
-  return Promise.allSettled(requests)
+  return new Promise((resolve, reject) => {
+    Promise.allSettled(requests).then(responses => {
+      const responsesData = responses.map(r => r.value.body)
+
+      resolve(getResultFromResponses(responsesData))
+    })
+  })
 }
 
 function getPayloadObservationFor (descriptorType, payload) {
   return adaptPayload[descriptorType](payload)
+}
+
+function getResultFromResponses (responses) {
+  const data = responses.reduce((acc, curr) => ({
+    failed: acc.failed + curr.failed || 0,
+    passed: acc.passed + curr.passed || 0
+  }),
+  {
+    failed: 0,
+    passed: 0
+  })
+
+  return data
 }
