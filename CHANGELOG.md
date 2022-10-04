@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Determinations not added to containers in "Edit Loan"task [#1935]
 - OTU images disappear when moving other images to observation cells [#3111]
 - Basic nomenclature failing to redirect when no name was selected
+- List of All Topics is not displayed [#3125]
 
 ### Changed
 - Removed New OTU link from New observation matrix task [#3101]
@@ -42,6 +43,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3107]: https://github.com/SpeciesFileGroup/taxonworks/issues/3107
 [#3109]: https://github.com/SpeciesFileGroup/taxonworks/issues/3109
 [#3111]: https://github.com/SpeciesFileGroup/taxonworks/issues/3111
+[#3125]: https://github.com/SpeciesFileGroup/taxonworks/issues/3125
 
 ## [0.29.3] - 2022-09-13
 
