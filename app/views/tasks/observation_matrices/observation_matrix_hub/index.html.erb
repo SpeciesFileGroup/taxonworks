@@ -9,15 +9,17 @@
 
 <div class="panels-container content">
 
-  <div class="panel"> 
+  <div class="panel half_width"> 
     <div class="content">
-      <h2> Observation matrices </h2>
-      <div> <%= link_to 'New', new_matrix_task_path(), target: :blank -%> </div>
+      <div class="flex-separate middle">
+        <h2> Observation matrices </h2>
+        <div> <%= link_to 'New', new_matrix_task_path(), target: :blank, class: 'button button-default btn-link btn-medium-size' -%> </div>
+      </div>
       <div id="vue-task-observation-matrix-row"></div>
-      <table class="tablesorter">
+      <table class="tablesorter full_width">
         <thead>
           <tr> 
-            <th> Name </th>
+            <th class="full_width"> Name </th>
             <th> Rows </th> 
             <th> Columns </th> 
             <th> </th> 
@@ -47,10 +49,12 @@
     </div>
   </div>
 
-  <div class="panel">
+  <div class="panel margin-medium-left one_quarter_width">
     <div class="content">
-      <h2> Recently created descriptors </h2> 
-      <div> <%= link_to 'New', new_descriptor_task_path(), target: :blank, class: 'button button-default'  -%> </div>
+      <div class="flex-separate middle">
+        <h2> Recently created descriptors </h2> 
+        <div> <%= link_to 'New', new_descriptor_task_path(), target: :blank, class: 'button button-default btn-link btn-medium-size'  -%> </div>
+      </div>
       <ul>
         <% Descriptor.recent_from_project_id(sessions_current_project_id)
           .order(updated_at: :desc).limit(20).each do |d| %>
@@ -60,7 +64,7 @@
     </div>
   </div>
 
-  <div class="panel">
+  <div class="panel margin-medium-left one_quarter_width">
     <div class="content">
       <h2> Recently coded </h2> 
       <% [Otu, CollectionObject].each do |c| -%>
