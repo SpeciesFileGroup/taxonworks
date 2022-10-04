@@ -27,7 +27,7 @@
         min="2"
         :placeholder="`Select a ${type}`"
         label="label_html"
-        :clear-after="true"
+        clear-after
         @get-item="createRowItem"
         :url="autocompleteType[type]"
         param="term"
