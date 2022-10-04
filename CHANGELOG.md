@@ -27,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - OTU images disappear when moving other images to observation cells [#3111]
 - Basic nomenclature failing to redirect when no name was selected
 - List of All Topics is not displayed [#3125]
+- Refactor confidence form [#3129]
 
 ### Changed
 - Removed New OTU link from New observation matrix task [#3101]
@@ -44,6 +45,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3109]: https://github.com/SpeciesFileGroup/taxonworks/issues/3109
 [#3111]: https://github.com/SpeciesFileGroup/taxonworks/issues/3111
 [#3125]: https://github.com/SpeciesFileGroup/taxonworks/issues/3125
+[#3129]: https://github.com/SpeciesFileGroup/taxonworks/issues/3129
 
 ## [0.29.3] - 2022-09-13
 
