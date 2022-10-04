@@ -9,6 +9,7 @@ import getObservationsFor from './getObservationsFor.js'
 import getPresenceFor from './getPresenceFor'
 import getPreviousColumn from './getPreviousColumn.js'
 import getRowObjects from './getRowObjects.js'
+import getObservationColumnId from './getObservationColumnId.js'
 import getUnits from './getUnits'
 import isRowObjectSaving from './isRowObjectSaving.js'
 import isRowObjectUnsaved from './isRowObjectUnsaved.js'
@@ -18,6 +19,7 @@ const GetterNames = {
   GetCharacterStateChecked: 'getCharacterStateChecked',
   GetFreeTextValueFor: 'getFreeTextValueFor',
   GetNextColumn: 'getNextColumn',
+  GetObservationColumnId: 'getObservationColumnId',
   GetObservationMatrix: 'getObservationMatrix',
   GetObservations: 'getObservations',
   GetObservationsFor: ' getObservationsFor',
@@ -34,6 +36,7 @@ const GetterFunctions = {
   [GetterNames.GetDisplayUnsecoredRows]: getDisplayUnsecoredRows,
   [GetterNames.GetFreeTextValueFor]: getFreeTextValueFor,
   [GetterNames.GetNextColumn]: getNextColumn,
+  [GetterNames.GetObservationColumnId]: getObservationColumnId,
   [GetterNames.GetObservationMatrix]: getObservationMatrix,
   [GetterNames.GetObservationsFor]: getObservationsFor,
   [GetterNames.GetObservations]: getObservations,

@@ -26,9 +26,11 @@
           <OptionUnsecoredRows class="margin-medium-right" />
           <RowObjectList class="margin-small-right" />
           <CodeColumn
+            class="margin-small-right"
             :descriptor="descriptor"
             :column-id="observationColumnId"
           />
+          <ObservationRowDestroy />
         </div>
       </div>
     </navbar-component>
@@ -68,6 +70,7 @@ import NavigationMatrix from './Navigation/NavigationMatrix.vue'
 import RadialNavigator from 'components/radials/navigation/radial.vue'
 import RowObjectList from './RowObjects/RowObjects.vue'
 import CodeColumn from './CodeColumn/CodeColumn.vue'
+import ObservationRowDestroy from './ObservationRow/ObservationRowDestroy.vue'
 
 const computed = mapState({
   descriptor: state => state.descriptor,
@@ -93,7 +96,8 @@ export default {
     RadialNavigator,
     OptionUnsecoredRows,
     Spinner,
-    CodeColumn
+    CodeColumn,
+    ObservationRowDestroy
   },
 
   props: {

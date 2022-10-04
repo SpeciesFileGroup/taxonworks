@@ -56,5 +56,9 @@ export const Observation = {
   ...baseCRUD(controller, permitParams),
   ...annotations(controller),
 
-  codeRow: params => ajaxCall('post', `/${controller}/code_column`, params)
+  codeRow: params => ajaxCall('post', `/${controller}/code_column`, params),
+
+  destroyColumn: params => ajaxCall('delete', '/observations/destroy_column.json', { params }),
+
+  destroyRow: params => ajaxCall('delete', '/observations/destroy_row.json', { params })
 }
