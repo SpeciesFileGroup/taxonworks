@@ -7,21 +7,22 @@ class ConfidenceLevel < ControlledVocabularyTerm
   # @return [Scope]
   #    the max 10 most recently used confidence levels
   def self.used_recently(user_id, project_id, klass)
-    t = ConfidenceLevel.arel_table 
-    c = Confidence.arel_table
+    t = Confidence.arel_table
+    k = ConfidenceLevel.arel_table
 
     # i is a select manager
-    i = c.project(c['confidence_level_id'], c['created_at']).from(c)
-      .where(c['created_at'].gt( 1.weeks.ago ))
-      .where(c['created_by_id'].eq(user_id))
-      .where(c['project_id'].eq(project_id))
-      .order(c['created_at'].desc)
-     
-    # z is a table alias 
-    z = i.as('recent_c')
+    i = t.project(t['confidence_level_id'], t['created_at']).from(t)
+         .where(t['confidence_object_type'].eq(klass))
+         .where(t['created_at'].gt( 1.months.ago ))
+         .where(t['created_by_id'].eq(user_id))
+         .where(t['project_id'].eq(project_id))
+         .order(t['created_at'].desc)
 
-    ConfidenceLevel.used_on_klass(klass).joins(
-      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['confidence_level_id'].eq(t['id'])))
+    # z is a table alias 
+    z = i.as('recent_t')
+
+    ConfidenceLevel.joins(
+      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['confidence_level_id'].eq(k['id'])))
     ).pluck(:id).uniq
   end
 
