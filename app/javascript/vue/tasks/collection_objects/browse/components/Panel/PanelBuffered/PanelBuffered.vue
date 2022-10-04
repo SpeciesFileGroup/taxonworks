@@ -31,5 +31,5 @@ import PanelBufferedSection from './PanelBufferedSection.vue'
 
 const store = useStore()
 
-const collectionObject = computed(() => store.getters[GetterNames.GetCollectonObject])
+const collectionObject = computed(() => store.getters[GetterNames.GetCollectionObject])
 </script>

@@ -3,7 +3,9 @@
     <thead>
       <tr class="cell-head">
         <th>Field</th>
-        <th>Value</th>
+        <th class="full_width">
+          Value
+        </th>
       </tr>
     </thead>
     <tbody>

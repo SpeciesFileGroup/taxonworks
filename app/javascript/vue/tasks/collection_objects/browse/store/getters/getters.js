@@ -6,7 +6,7 @@ import getDwc from './getDwc'
 
 const GetterNames = {
   GetCollectingEvent: 'getCollectingEvent',
-  GetCollectonObject: 'getCollectionObject',
+  GetCollectionObject: 'getCollectionObject',
   GetDwc: 'getDwc',
   GetGeoreferences: 'loadGeoreferences',
   GetIdentifiers: 'getIdentifiers'
@@ -14,7 +14,7 @@ const GetterNames = {
 
 const GetterFunctions = {
   [GetterNames.GetCollectingEvent]: getCollectingEvent,
-  [GetterNames.GetCollectonObject]: getCollectionObject,
+  [GetterNames.GetCollectionObject]: getCollectionObject,
   [GetterNames.GetDwc]: getDwc,
   [GetterNames.GetGeoreferences]: getGeoreferences,
   [GetterNames.GetIdentifiers]: getIdentifiers
