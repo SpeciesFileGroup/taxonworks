@@ -1,4 +1,3 @@
-
 <div class="flex-separate middle">
   <h1> Observation matrix hub </h1>
   <ul class="context-menu">
@@ -7,66 +6,74 @@
     </li>
   </ul>
 </div>
-<div class="flexbox">
-  <div class="item item1"> 
-    <h2> Observation matrices </h2>
-    <div> <%= link_to 'New', new_matrix_task_path(), target: :blank -%> </div>
-    <div id="vue-task-observation-matrix-row"></div>
-    <table class="tablesorter">
-      <thead>
-        <tr> 
-          <th> Name </th>
-          <th> Rows </th> 
-          <th> Columns </th> 
-          <th> </th> 
-          <th> </th> 
-          <th> </th> 
-          <th> </th>
-        </tr>
-      </thead>
-      <tbody>
-      <% @observation_matrices.each do |om| %>
-        <%= content_tag(:tr, class: :contextMenuCells) do -%> 
-          <td> <%= om.name -%> </td>
-          <td> <%= om.observation_matrix_rows.count -%> </td> 
-          <td> <%= om.observation_matrix_columns.count -%> </td> 
-          <td> <%= link_to('View', observation_matrix_view_task_path(observation_matrix_id: om.id)) -%> </td> 
-          <td> <%= link_to('Edit', new_matrix_task_path(observation_matrix_id: om.id)) -%> </td>
-          <td>
-            <%= link_to('Image matrix', index_matrix_image_task_path(observation_matrix_id: om.id)) if om.is_media_matrix? -%>
-            <%= link_to('Interactive key', interactive_key_task_path(observation_matrix_id: om.id)) unless om.is_media_matrix? -%>
-          </td>
-          <td> <%= pin_item_to_pinboard_link(om, sessions_current_user) -%></td>
-          <%= fancy_options_cells_tag(om) -%>
-        <% end %>
-      <% end %>
-      </tbody>
-    </table>
+
+<div class="panels-container content">
+
+  <div class="panel"> 
+    <div class="content">
+      <h2> Observation matrices </h2>
+      <div> <%= link_to 'New', new_matrix_task_path(), target: :blank -%> </div>
+      <div id="vue-task-observation-matrix-row"></div>
+      <table class="tablesorter">
+        <thead>
+          <tr> 
+            <th> Name </th>
+            <th> Rows </th> 
+            <th> Columns </th> 
+            <th> </th> 
+            <th> </th> 
+            <th> </th> 
+            <th> </th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @observation_matrices.each do |om| %>
+            <%= content_tag(:tr, class: :contextMenuCells) do -%> 
+              <td> <%= om.name -%> </td>
+              <td> <%= om.observation_matrix_rows.count -%> </td> 
+              <td> <%= om.observation_matrix_columns.count -%> </td> 
+              <td> <%= link_to('View', observation_matrix_view_task_path(observation_matrix_id: om.id)) -%> </td> 
+              <td> <%= link_to('Edit', new_matrix_task_path(observation_matrix_id: om.id)) -%> </td>
+              <td>
+                <%= link_to('Image matrix', index_matrix_image_task_path(observation_matrix_id: om.id)) if om.is_media_matrix? -%>
+                <%= link_to('Interactive key', interactive_key_task_path(observation_matrix_id: om.id)) unless om.is_media_matrix? -%>
+              </td>
+              <td> <%= pin_item_to_pinboard_link(om, sessions_current_user) -%></td>
+              <%= fancy_options_cells_tag(om) -%>
+            <% end %>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
   </div>
 
-  <div class="item item2">
-    <h2> Recently created descriptors </h2> 
-    <div> <%= link_to 'New', new_descriptor_task_path(), target: :blank -%> </div>
-    <ul>
-      <% Descriptor.recent_from_project_id(sessions_current_project_id)
-        .order(updated_at: :desc).limit(20).each do |d| %>
-        <%= content_tag(:li, link_to(d.name, new_descriptor_task_path(d))) -%>
-      <% end %>
-    </ul>
-  </div>
-
-  <div class="item item2">
-    <h2> Recently coded </h2> 
-    <% [Otu, CollectionObject].each do |c| -%>
-
-      <h3> <%= c.name -%>s </h3>
-
+  <div class="panel">
+    <div class="content">
+      <h2> Recently created descriptors </h2> 
+      <div> <%= link_to 'New', new_descriptor_task_path(), target: :blank, class: 'button button-default'  -%> </div>
       <ul>
-        <% c.recently_observed.where(project_id: sessions_current_project_id).limit(10).distinct.each do |o| %>
-          <%= content_tag(:li, object_link(o)) -%>
+        <% Descriptor.recent_from_project_id(sessions_current_project_id)
+          .order(updated_at: :desc).limit(20).each do |d| %>
+          <%= content_tag(:li, link_to(d.name, new_descriptor_task_path(d))) -%>
         <% end %>
       </ul>
-    <% end %>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="content">
+      <h2> Recently coded </h2> 
+      <% [Otu, CollectionObject].each do |c| -%>
+
+        <h3> <%= c.name -%>s </h3>
+
+        <ul>
+          <% c.recently_observed.where(project_id: sessions_current_project_id).limit(10).distinct.each do |o| %>
+            <%= content_tag(:li, object_link(o)) -%>
+          <% end %>
+        </ul>
+      <% end %>
+    </div>
   </div>
 </div>
 
