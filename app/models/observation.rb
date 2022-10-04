@@ -279,7 +279,7 @@ class Observation < ApplicationRecord
   # Destroy observations for the set of descriptors in a given column
   def self.destroy_column(observation_matrix_column_id)
     c = ObservationMatrixColumn.find(observation_matrix_column_id)
-    byebug
+
     begin
       Observation.transaction do
         c.observations.destroy_all
