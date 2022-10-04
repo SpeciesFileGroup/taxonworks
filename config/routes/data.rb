@@ -94,6 +94,8 @@ resources :collection_objects do
   resources :taxon_determinations, shallow: true, only: [:index], defaults: {format: :json}
 
   member do
+    get :timeline, defaults: {format: :json}
+
     # pseudo shallow
     get 'biocuration_classifications', defaults: {format: :json}
 

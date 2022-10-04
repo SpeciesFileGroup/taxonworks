@@ -5,6 +5,7 @@ class CollectionObjectsController < ApplicationController
   before_action :set_collection_object, only: [
     :show, :edit, :update, :destroy, :navigation, :containerize,
     :depictions, :images, :geo_json, :metadata_badge, :biocuration_classifications,
+    :timeline,
     :api_show, :api_dwc]
   after_action -> { set_pagination_headers(:collection_objects) }, only: [:index], if: :json_request?
 
@@ -29,6 +30,11 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_objects/1
   # GET /collection_objects/1.json
   def show
+  end
+
+  # GET /collection_objects/1/timeline.json
+  def timeline
+    @data = ::Catalog::CollectionObject.data_for(@collection_object)
   end
 
   def biocuration_classifications

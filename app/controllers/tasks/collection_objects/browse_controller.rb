@@ -5,7 +5,7 @@ class Tasks::CollectionObjects::BrowseController < ApplicationController
 
   # GET
   def index
-    @data = ::Catalog::CollectionObject.data_for(@collection_object)
+   #  @data = ::Catalog::CollectionObject.data_for(@collection_object)
   end
 
   protected
