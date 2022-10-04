@@ -263,10 +263,22 @@ class Observation < ApplicationRecord
     true
   end
 
-  # TODO: Does this belong here?
-  # Remove all observations for the set of descriptors in a given row
+  # Destroy all observations for the set of descriptors in a given row
   def self.destroy_row(observation_matrix_row_id)
     r = ObservationMatrixRow.find(observation_matrix_row_id)
+    begin
+      Observation.transaction do
+        r.observations.destroy_all
+      end
+    rescue
+      raise
+    end
+    true
+  end
+
+  # Destroy observations for the set of descriptors in a given column
+  def self.destroy_column(observation_matrix_column_id)
+    r = ObservationMatrixColumn.find(observation_matrix_column_id)
     begin
       Observation.transaction do
         r.observations.destroy_all
