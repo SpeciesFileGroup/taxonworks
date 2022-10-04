@@ -32,7 +32,7 @@ const handleClick = async () => {
 
   if (ok) {
     await Observation.destroyColumn({ observation_matrix_column_id: store.getters[GetterNames.GetObservationColumnId] })
-    //window.location.reload()
+    window.location.reload()
   }
 }
 </script>
