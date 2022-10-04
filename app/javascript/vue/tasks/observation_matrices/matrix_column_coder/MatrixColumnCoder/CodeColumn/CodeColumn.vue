@@ -5,7 +5,7 @@
       color="primary"
       medium
     >
-      Code column
+      Populate column
     </VBtn>
     <VModal
       v-if="showModal"
@@ -98,8 +98,19 @@ const confirmationModal = ref(null)
 const observation = ref(makeEmptyObservation())
 const isObservationEmpty = computed(() => !Object.keys(observation.value).length)
 
-const handleClick = () => {
+const handleClick = async () => {
   isPopulating.value = true
+
+  const ok = await confirmationModal.value.show({
+    title: 'Populate column',
+    message: 'Are you sure you want to proceed?',
+    confirmationWord: 'POPULATE',
+    okButton: 'Create',
+    cancelButton: 'Cancel',
+    typeButton: 'submit'
+  })
+
+  if (!ok) { return }
 
   populateRows({
     descriptorType: props.descriptor.type,

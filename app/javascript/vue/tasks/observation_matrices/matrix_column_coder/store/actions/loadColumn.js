@@ -13,10 +13,7 @@ export default async ({ dispatch, state }, id) => {
     state.descriptor = makeDescriptor(body.descriptor)
     state.previousColumn = makeColumnObject(body.previous_column || {})
     state.nextColumn = makeColumnObject(body.next_column || {})
-    state.rowObjects = [
-      ...body.otus,
-      ...body.collection_objects
-    ].map(o => makeRowObject(o))
+    state.rowObjects = body.rows.map(o => makeRowObject(o))
 
     state.rowObjects.forEach(rowObject => {
       state.observations = [...state.observations, ...makeEmptyObservationsFor(state.descriptor, rowObject)]
