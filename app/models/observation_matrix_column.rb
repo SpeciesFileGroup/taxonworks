@@ -1,6 +1,7 @@
 # An ObservationMatrixColumn defines the column in an observation matrix.
 # ObservationMatrixColumn items are only created and destroyed through references to ObservationMatrixColumnItems, never directly!
-
+#
+#
 # @!attribute observation_matrix_id
 #   @return [Integer]
 #     the observation matrix
@@ -29,12 +30,18 @@ class ObservationMatrixColumn < ApplicationRecord
 
   belongs_to :observation_matrix, inverse_of: :observation_matrix_columns
   belongs_to :descriptor, inverse_of: :observation_matrix_columns
-  has_many :observations, foreign_key: :descriptor_id
 
   after_initialize :set_reference_count
 
   validates_presence_of :observation_matrix, :descriptor
   validates_uniqueness_of :descriptor_id, scope: [:observation_matrix_id, :project_id]
+
+  def observations
+    observation_object.observations
+      .joins(descriptor:  [:observation_matrix_columns])
+      .where(observation_matrix_columns: {observation_matrix_id: observation_matrix_id})
+      .order('observation_matrix_columns.position ASC')
+  end
 
   # @param array [Array]
   # @return true

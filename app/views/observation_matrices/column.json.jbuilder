@@ -20,6 +20,18 @@ if a = @observation_matrix_column.previous_column
   end
 end
 
+json.rows do |rows|
+  rows.array!(@observation_matrix_column.observation_matrix.observation_matrix_rows.order(:position)) do |r|
+    json.id r.id
+    # no row_id
+    json.object_tag object_tag(r.observation_object)
+    json.observation_object_type r.observation_object_type
+    json.observation_object_id r.observation_object_id
+    json.position r.position
+  end
+end
+
+=begin
 json.otus do |otus|
   otus.array!(@observation_matrix_column.observation_matrix.otus.select('otus.*, observation_matrix_rows.id AS row_id').includes(:observation_matrix_rows).order('observation_matrix_rows.position ASC')) do |otu|
     otus.partial! '/otus/attributes', otu: otu
@@ -33,3 +45,4 @@ json.collection_objects do |collection_objects|
     json.row_id collection_object.row_id
   end
 end
+=end
