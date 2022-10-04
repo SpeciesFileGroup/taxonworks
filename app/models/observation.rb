@@ -290,26 +290,24 @@ class Observation < ApplicationRecord
       type: descriptor.observation_type
     )
 
-    r = Hash.new(0)
+    h = Hash.new(0)
 
     Observation.transaction do
-      begin
-        o.observation_matrix_rows.each do |r|
+      o.observation_matrix_rows.each do |r|
+        begin
           Observation.create!(
             p.merge(
               observation_object: r.observation_object,
               descriptor: descriptor,
             )
           )
+          h[:passed] += 1
+        rescue ActiveRecord::RecordInvalid
+          h[:failed] += 1
         end
-
-        r[:passed] += 1
-      rescue ActiveRecord::RecordInvalid
-        r[:failed] += 1
-        next
       end
     end
-    r
+    h
   end
 
   protected
