@@ -1,5 +1,5 @@
 <template>
-  <div class="panel panel__content margin-small-left">
+  <div class="panel panel__content">
     <h2 class="panel__title">Identifiers</h2>
     <ul class="no_bullets">
       <li

@@ -9,7 +9,8 @@ const makeInitialState = () => {
     collectionObject: {},
     dwc: {},
     collectingEvent: {},
-    identifiers: []
+    identifiers: [],
+    georeferences: []
   }
 }
 

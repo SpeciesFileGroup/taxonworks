@@ -1,1 +1,1 @@
-export default state => state.collectngEvent
+export default state => state.collectingEvent
