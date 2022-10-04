@@ -4,7 +4,7 @@
       type="checkbox"
       v-model="onlyUnsecored"
     >
-    Display only unsecored rows
+    Display only unscored rows
   </label>
 </template>
 
