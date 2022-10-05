@@ -2,7 +2,7 @@
   <label class="middle">
     <input
       type="checkbox"
-      v-model="onlyUnsecored"
+      v-model="onlyUnscored"
     >
     Display only unscored rows
   </label>
@@ -16,7 +16,7 @@ import { GetterNames } from '../../store/getters/getters'
 
 const store = useStore()
 
-const onlyUnsecored = computed({
+const onlyUnscored = computed({
   get: () => {
     return store.getters[GetterNames.GetDisplayUnscoredRows]
   },
