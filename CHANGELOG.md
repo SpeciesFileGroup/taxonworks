@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `Clone previous citation` to citation panels [#3097]
 
 ### Fixed
+- Numerous issues in "Castor" TaxonName batch load
 - CollectingEvent cached geo-names (e.g. used in DwC export) missclassified [#2614]
 - Order of tescriptors in nexus and tnt output is updated to reflect the column ordering
 - Homonyms without replacement name are now marked as invalid

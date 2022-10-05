@@ -12,7 +12,7 @@
         <li>Taxon name names with no parent id will be attached to the root taxon name.</li>
         <li><em>Parent taxon names must be before child taxon names.</em></li>
         <li>An OTU with name of "taxon_concept_name" column is created if the "guid" column is not blank.</li> 
-        <li>An Identifier Global::Uri will be attached with the value of the "guid" column if not blank to the Otu.</li>
+        <li>An Identifier Global::Uri will be attached with the value of the "guid" column if not blank to the OTU.  <em> If the identifier is not legal it will not be created, no warning is given (e.g. duplicate URIs).</em></li>
         <li>Creates a taxon name relationship (values are <%= link_to('NOMEN class names in TaxonWorks', 'https://github.com/SpeciesFileGroup/taxonworks/tree/development/app/models/taxon_name_relationship', target: :blank) -%>, e.g. "TaxonNameRelationship::Iczn::Invalidating::Synonym") with class type specified in the "related_name_nomen_class" column between the taxon name at that row and the taxon name with the id in "related_name_id".</li>
         <li>Creates taxon name classification (values are <%= link_to('NOMEN class names in TaxonWorks', 'https://github.com/SpeciesFileGroup/taxonworks/tree/development/app/models/taxon_name_classification', target: :blank,) %>, e.g. "TaxonNameClassification::Iczn::Available::Valid") with class type specfied in the "name_nomen_clasification" column for the taxon name at that row.</li>
         <li>`rank` is a lowercase like "species", "genus", "family" etc.</li> 
