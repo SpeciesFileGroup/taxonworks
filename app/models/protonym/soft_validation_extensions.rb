@@ -363,7 +363,7 @@ module Protonym::SoftValidationExtensions
 
       sv_missing_otu: {
         set: :missing_otu,
-        fix: :sv_fix_misspelling_otu,
+        fix: :sv_fix_missing_otu,
         name: 'Missing OTU',
         description: 'Missing OTU prevents proper migration to Catalog of Life'
       }
@@ -412,7 +412,7 @@ module Protonym::SoftValidationExtensions
         if rank_string == 'NomenclaturalRank' || self.parent&.rank_string == 'NomenclaturalRank' || !!self.iczn_uncertain_placement_relationship
           true
         elsif !self.rank_class&.valid_parents.include?(self.parent&.rank_string)
-          soft_validations.add(:rank_class, "The rank #{self.rank_class.rank_name} is not compatible with the rank of parent (#{self.parent.rank_class.rank_name}). The name should be marked as 'Incertae sedis'")
+          soft_validations.add(:rank_class, "The rank #{self.rank_class&.rank_name} is not compatible with the rank of parent (#{self.parent&.rank_class&.rank_name}). The name should be marked as 'Incertae sedis'")
         end
       end
     end
@@ -1630,7 +1630,7 @@ module Protonym::SoftValidationExtensions
       end
     end
 
-    def sv_fix_misspelling_otu
+    def sv_fix_missing_otu
       if is_available? && otus.empty?
         otus.create(taxon_name_id: id)
         return true

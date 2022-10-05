@@ -79,7 +79,7 @@ import spinner from 'components/spinner.vue'
 
 import CRUD from './request/crud'
 
-import confidencesAnnotator from './components/confidence_annotator.vue'
+import confidencesAnnotator from './components/confidence/confidence_annotator.vue'
 import depictionsAnnotator from './components/depiction_annotator.vue'
 import documentationAnnotator from './components/documentation_annotator.vue'
 import identifiersAnnotator from './components/identifier/identifier_annotator.vue'
