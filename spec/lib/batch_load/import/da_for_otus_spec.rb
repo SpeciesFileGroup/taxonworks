@@ -13,62 +13,52 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
   let(:project) { Project.find(1) }
 
   let(:upload_file) { Rack::Test::UploadedFile.new(file_name) }
-
-  let(:import) { BatchLoad::Import::Otus.new(
-    project_id: project.id,
-    user_id: user.id,
-    file: upload_file)
+  let(:import) { BatchLoad::Import::Otus.new(project_id: project.id,
+                                             user_id: user.id,
+                                             file: upload_file)
   }
 
   let(:source) { FactoryBot.create(:valid_source_verbatim) }
   let(:upload_file_2) { Rack::Test::UploadedFile.new(file_ph_2) }
-  let(:import_2_im) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(
-    project_id: project.id,
-    user_id: user.id,
-    file: upload_file_2,
-    type_select: 'import',
-    source_id: source.id,
-    create_new_predicate: 'on',
-    create_new_otu: '1')
+  let(:import_2_im) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
+                                                                             user_id: user.id,
+                                                                             file: upload_file_2,
+                                                                             type_select: 'import',
+                                                                             source_id: source.id,
+                                                                             create_new_predicate: 'on',
+                                                                             create_new_otu: '1')
   }
-
-  let(:import_2_in) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(
-    project_id: project.id,
-    user_id: user.id,
-    file: upload_file_2,
-    type_select: 'internal',
-    source_id: source.id,
-    create_new_predicate: 'on',
-    create_new_otu: '1')
+  let(:import_2_in) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
+                                                                             user_id: user.id,
+                                                                             file: upload_file_2,
+                                                                             type_select: 'internal',
+                                                                             source_id: source.id,
+                                                                             create_new_predicate: 'on',
+                                                                             create_new_otu: '1')
   }
-  let(:import_no_new_predicate) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(
-    project_id: project.id,
-    user_id: user.id,
-    file: upload_file_2,
-    type_select: 'import',
-    create_new_otu: '1')
+  let(:import_no_new_predicate) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
+                                                                                         user_id: user.id,
+                                                                                         file: upload_file_2,
+                                                                                         type_select: 'import',
+                                                                                         create_new_otu: '1')
   }
-
-  let(:import_no_source_id) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(
-    project_id: project.id,
-    user_id: user.id,
-    file: upload_file_2,
-    type_select: 'import'
+  let(:import_no_source_id) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
+                                                                                     user_id: user.id,
+                                                                                     file: upload_file_2,
+                                                                                     type_select: 'import'
   )
   }
-  let(:import_no_new_otus) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(
-    project_id: project.id,
-    user_id: user.id,
-    file: upload_file_2,
-    type_select: 'import',
-    source_id: source.id)
+  let(:import_no_new_otus) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
+                                                                                    user_id: user.id,
+                                                                                    file: upload_file_2,
+                                                                                    type_select: 'import',
+                                                                                    source_id: source.id)
   }
-  let(:import_create_unmatched_otus) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(
-    project_id: project.id,
-    user_id: user.id,
-    file: upload_file_2,
-    type_select: 'import',
-    create_new_otu: '1')
+  let(:import_create_unmatched_otus) { BatchLoad::Import::Otus::DataAttributesInterpreter.new(project_id: project.id,
+                                                                                              user_id: user.id,
+                                                                                              file: upload_file_2,
+                                                                                              type_select: 'import',
+                                                                                              create_new_otu: '1')
   }
 
   # rubocop:disable Rails/SaveBang
@@ -107,7 +97,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           an_otu.data_attributes << a_da
           bingo = import_2_im
           expect(bingo.processed_rows[1].parse_errors.flatten)
-            .to include('otu/predicate/value combination already exists.')
+              .to include('otu/predicate/value combination already exists.')
         end
       end
 
@@ -133,7 +123,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
             start # check object count
             bingo = import_2_im
             bingo.create
-            expect(Otu.count).to eq(start[:otus] + 5)
+            expect(Otu.count).to eq(start[:otus] + 4)
           end
 
           specify 'check data_attributes' do
@@ -142,7 +132,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
             start # check object count
             bingo = import_2_im
             bingo.create
-            expect(ImportAttribute.count).to eq(start[:das] + 5)
+            expect(ImportAttribute.count).to eq(start[:das] + 4)
           end
         end
       end
@@ -156,9 +146,9 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           names
           bingo = import_2_im
           bingo.create
-          # names creates 7 otus, and import_2_im finds one (not^d NOW  added), four new ones (two were not saved because of
+          # names creates 7 otus, and import_2_im finds one (not added), four new ones (two were not saved because of
           # errors in predicate or value)
-          expect(Otu.count).to eq(12)
+          expect(Otu.count).to eq(11)
         end
       end
 
@@ -167,13 +157,13 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           names
           bingo = import_2_im
           bingo.create
-          expect(DataAttribute.count).to eq(6)
+          expect(DataAttribute.count).to eq(5)
         end
 
         specify 'no otu creation attempted for error lines' do
           bingo = import_2_im
           bingo.create
-          expect(Otu.count).to eq(6)
+          expect(Otu.count).to eq(5)
         end
       end
     end
@@ -198,7 +188,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           # one data attribute is created here,
           # import_2_im creates four data attributes directly by otu name,
           # and one by reference to a taxon_name
-          expect(DataAttribute.count).to eq(start + 6)
+          expect(DataAttribute.count).to eq(start + 5)
         end
       end
 
@@ -221,7 +211,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           # one data attribute is created here,
           # import_2_im creates four data attributes directly by otu name,
           # and one by reference to a taxon_name
-          expect(Otu.count).to eq(start + 4)
+          expect(Otu.count).to eq(start + 3)
         end
       end
     end
@@ -233,7 +223,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           start = Otu.count
           bingo = import_create_unmatched_otus
           bingo.create
-          expect(Otu.count).to eq(start + 5)
+          expect(Otu.count).to eq(start + 4)
         end
 
         specify 'is false' do
@@ -280,7 +270,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
         specify 'is specified' do
           bingo = import_2_im
           bingo.create
-          expect(Citation.count).to eq(6)
+          expect(Citation.count).to eq(5)
         end
 
         specify 'is not specified' do
@@ -358,7 +348,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           end
 
           specify '#valid_objects' do
-            expect(import_2_in.valid_objects.count).to eq(22)
+            expect(import_2_in.valid_objects.count).to eq(19)
           end
 
           specify '#successful_rows' do
@@ -366,7 +356,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           end
 
           specify '#total_records_created' do
-            expect(import_2_in.total_records_created).to eq(22)
+            expect(import_2_in.total_records_created).to eq(19)
           end
         end
       end
@@ -380,7 +370,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           end
 
           specify '#valid_objects' do
-            expect(import_2_im.valid_objects.count).to eq(18)
+            expect(import_2_im.valid_objects.count).to eq(15)
           end
 
           specify '#successful_rows' do
@@ -388,7 +378,7 @@ describe BatchLoad::Import::Otus::DataAttributesInterpreter, type: :model do
           end
 
           specify '#total_records_created' do
-            expect(import_2_im.total_records_created).to eq(18)
+            expect(import_2_im.total_records_created).to eq(15)
           end
         end
       end
