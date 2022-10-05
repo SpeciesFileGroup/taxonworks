@@ -453,7 +453,7 @@ class Otu < ApplicationRecord
   protected
 
   def check_required_fields
-    if taxon_name_id.blank? && name.blank?
+    if taxon_name_id.blank? && name.blank? && !(taxon_name && taxon_name.persisted?) # true, true, nil is not true
       errors.add(:taxon_name_id, 'and/or name should be selected')
       errors.add(:name, 'and/or taxon name should be selected')
     end

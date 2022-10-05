@@ -19,9 +19,18 @@
           />
           <RadialNavigator :global-id="descriptor.globalId" />
         </div>
-        <div class="horizontal-right-content middle">
+        <div
+          v-if="descriptor.id"
+          class="horizontal-right-content middle"
+        >
           <OptionUnsecoredRows class="margin-medium-right" />
-          <RowObjectList class="margin-medium-left" />
+          <RowObjectList class="margin-small-right" />
+          <CodeColumn
+            class="margin-small-right"
+            :descriptor="descriptor"
+            :column-id="observationColumnId"
+          />
+          <ObservationRowDestroy />
         </div>
       </div>
     </navbar-component>
@@ -30,7 +39,7 @@
       <li
         class="matrix-row-coder__descriptor-container"
         v-for="(rowObject, index) in rowObjects"
-        v-show="onlyScoredRows ? !observations.filter(obs => obs.rowObjectId === rowObject.id && obs.id).length : true"
+        v-show="!onlyScoredRows || !observations.find(obs => obs.rowObjectId === rowObject.id && obs.id)"
         :key="rowObject.id"
         :data-row-object-id="rowObject.id"
       >
@@ -60,12 +69,15 @@ import NavbarComponent from 'components/layout/NavBar.vue'
 import NavigationMatrix from './Navigation/NavigationMatrix.vue'
 import RadialNavigator from 'components/radials/navigation/radial.vue'
 import RowObjectList from './RowObjects/RowObjects.vue'
+import CodeColumn from './CodeColumn/CodeColumn.vue'
+import ObservationRowDestroy from './ObservationRow/ObservationRowDestroy.vue'
 
 const computed = mapState({
   descriptor: state => state.descriptor,
   observations: state => state.observations,
-  onlyScoredRows: state => state.options.showOnlyUnsecoredRows,
-  rowObjects: state => state.rowObjects
+  onlyScoredRows: state => state.options.showOnlyUnscoredRows,
+  rowObjects: state => state.rowObjects,
+  observationColumnId: state => state.observationColumnId
 })
 
 export default {
@@ -83,7 +95,9 @@ export default {
     RowObjectList,
     RadialNavigator,
     OptionUnsecoredRows,
-    Spinner
+    Spinner,
+    CodeColumn,
+    ObservationRowDestroy
   },
 
   props: {

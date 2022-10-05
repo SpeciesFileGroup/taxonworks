@@ -177,7 +177,7 @@ export default {
       const keys = {}
 
       keys[`${platformKey()}+r`] = this.resetFilter
-      keys[`${platformKey()}+f`] = this.searchForCollectionObjects
+      keys[`${platformKey()}+f`] = () => this.searchForCollectionObjects(this.parseParams)
 
       return keys
     },

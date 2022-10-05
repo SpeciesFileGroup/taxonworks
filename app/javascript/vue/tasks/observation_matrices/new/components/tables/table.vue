@@ -77,6 +77,12 @@
         </template>
       </draggable>
     </table>
+    <div
+      v-if="!list.length"
+      class="padding-medium"
+    >
+      None
+    </div>
   </div>
 </template>
 

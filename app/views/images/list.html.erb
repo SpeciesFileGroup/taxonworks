@@ -4,30 +4,30 @@
   <thead>
   <tr>
     <%= fancy_th_tag(name: 'Image') -%>
+    <%= fancy_th_tag(name: 'Image file user file name') -%>
+    <%= fancy_th_tag(name: 'Image file content type') -%>
     <%= fancy_th_tag(name: 'Height') -%>
     <%= fancy_th_tag(name: 'Width') -%>
-    <%= fancy_th_tag(name: 'Image file fingerprint') -%>
-    <%= fancy_th_tag(name: 'Image file content type') -%>
     <%= fancy_th_tag(name: 'Image file file size') -%>
     <%= fancy_th_tag(name: 'Image file updated at') -%>
+    <%= fancy_th_tag(name: 'Image file fingerprint') -%>
     <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
     <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
   </thead>
 
-  <!-- todo @mjy Do you want all these fields displayed in the list? -->
-
   <tbody>
   <% @images.each do |image| %>
       <%= content_tag(:tr, class: :contextMenuCells) do -%>
-          <td><%= image_tag(image.image_file.url(:thumb)) -%> </td>
-          <td><%= image.height %></td>
-          <td><%= image.width %></td>
-          <td><%= image.image_file_fingerprint %></td>
-          <td><%= image.image_file_content_type %></td>
-          <td><%= image.image_file_file_size %></td>
-          <td><%= image.image_file_updated_at %></td>
-          <%= fancy_metadata_cells_tag(image) -%>
+        <td><%= image_tag(image.image_file.url(:thumb)) -%> </td>
+        <td><%= image.user_file_name %></td>
+        <td><%= image.image_file_content_type %></td>
+        <td><%= image.height %></td>
+        <td><%= image.width %></td>
+        <td><%= image.image_file_file_size %></td>
+        <td><%= image.image_file_updated_at %></td>
+        <td><%= image.image_file_fingerprint %></td>
+        <%= fancy_metadata_cells_tag(image) -%>
       <% end %>
   <% end %>
   </tbody>

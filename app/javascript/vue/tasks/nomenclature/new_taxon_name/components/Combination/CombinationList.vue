@@ -119,6 +119,7 @@ const destroyRelationship = async () => {
   const ok = await confirmationModal.value.show({
     title: 'Destroy relationship',
     message: 'Are you sure you want to delete the current combination relationship?',
+    cancelButton: 'Cancel',
     typeButton: 'delete'
   })
 
@@ -136,6 +137,7 @@ const deleteCombination = async combination => {
     message: isCurrent
       ? `Are you sure you want to delete ${combination.object_label}. This will destroy the current combination relationship too.`
       : `Are you sure you want to delete ${combination.object_label}`,
+    cancelButton: 'Cancel',
     typeButton: 'delete'
   })
 
