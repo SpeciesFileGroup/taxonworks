@@ -99,8 +99,6 @@ const observation = ref(makeEmptyObservation())
 const isObservationEmpty = computed(() => !Object.keys(observation.value).length)
 
 const handleClick = async () => {
-  isPopulating.value = true
-
   const ok = await confirmationModal.value.show({
     title: 'Populate column',
     message: 'Are you sure you want to proceed?',
@@ -111,6 +109,8 @@ const handleClick = async () => {
   })
 
   if (!ok) { return }
+
+  isPopulating.value = true
 
   populateRows({
     descriptorType: props.descriptor.type,
