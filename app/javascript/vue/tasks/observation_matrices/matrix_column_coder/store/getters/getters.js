@@ -1,5 +1,6 @@
 import doesRowObjectNeedCountdown from './doesRowObjectNeedCountdown.js'
 import getCharacterStateChecked from './getCharacterStateChecked.js'
+import getDescriptor from './getDescriptor.js'
 import getDisplayUnscoredRows from './options/GetDisplayUnscoredRows.js'
 import getFreeTextValueFor from './getFreeTextValueFor.js'
 import getNextColumn from './getNextColumn.js'
@@ -17,6 +18,7 @@ import isRowObjectUnsaved from './isRowObjectUnsaved.js'
 const GetterNames = {
   DoesRowObjectNeedCountdown: 'doesRowObjectNeedCountdown',
   GetCharacterStateChecked: 'getCharacterStateChecked',
+  GetDescriptor: 'getDescriptor',
   GetDisplayUnscoredRows: 'getDisplayUnscoredRows',
   GetFreeTextValueFor: 'getFreeTextValueFor',
   GetNextColumn: 'getNextColumn',
@@ -34,6 +36,7 @@ const GetterNames = {
 const GetterFunctions = {
   [GetterNames.DoesRowObjectNeedCountdown]: doesRowObjectNeedCountdown,
   [GetterNames.GetCharacterStateChecked]: getCharacterStateChecked,
+  [GetterNames.GetDescriptor]: getDescriptor,
   [GetterNames.GetDisplayUnscoredRows]: getDisplayUnscoredRows,
   [GetterNames.GetFreeTextValueFor]: getFreeTextValueFor,
   [GetterNames.GetNextColumn]: getNextColumn,
