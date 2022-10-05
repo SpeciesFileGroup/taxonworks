@@ -27,6 +27,7 @@ json.rows do |rows|
     json.object_tag object_tag(r.observation_object)
     json.observation_object_type r.observation_object_type
     json.observation_object_id r.observation_object_id
+    json.observation_object_global_id r.observation_object.to_global_id.to_s
     json.position r.position
   end
 end
