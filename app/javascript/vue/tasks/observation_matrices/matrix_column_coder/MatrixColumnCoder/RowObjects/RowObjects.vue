@@ -1,11 +1,16 @@
 <template>
   <div>
     <v-btn
+      class="middle"
       medium
       color="primary"
       @click="setModalView(true)"
     >
-      Row objects
+      <VIcon
+        name="compass"
+        x-small
+      />
+      <span class="margin-small-left">Row objects</span>
     </v-btn>
     <v-modal
       v-if="isVisible"
@@ -20,6 +25,7 @@
           <li
             v-for="rowObject in rowObjects"
             :key="rowObject.id"
+            class="margin-small-bottom"
           >
             <div>
               <a
@@ -42,6 +48,7 @@ import { ref, computed } from 'vue'
 import { GetterNames } from '../../store/getters/getters'
 import VModal from 'components/ui/Modal.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
 
 const store = useStore()
 const rowObjects = computed(() => store.getters[GetterNames.GetRowObjects])
