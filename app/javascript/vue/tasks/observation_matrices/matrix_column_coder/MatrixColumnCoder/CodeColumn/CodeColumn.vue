@@ -31,7 +31,7 @@
           :disabled="isObservationEmpty"
           @click="handleClick"
         >
-          Populate
+          Code
         </VBtn>
       </template>
     </VModal>
