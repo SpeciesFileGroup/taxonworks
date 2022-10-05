@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Previous and next links in Matrix row coder [#3107]
 - Match identifiers facet to Filter extract task  [#3089]
 - `Clone previous citation` to citation panels [#3097]
+- Populate column button for Matrix Column Coder [#3117]
 
 ### Fixed
 - Destroying a Georefernce re-indexes related CollectingEvent [#3114]
