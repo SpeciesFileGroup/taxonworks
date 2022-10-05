@@ -36,11 +36,10 @@ class ObservationMatrixColumn < ApplicationRecord
   validates_presence_of :observation_matrix, :descriptor
   validates_uniqueness_of :descriptor_id, scope: [:observation_matrix_id, :project_id]
 
+  # @return Scope
+  #  There is no order to these Observations!  They do not follow the row order.
   def observations
-    observation_object.observations
-      .joins(descriptor:  [:observation_matrix_columns])
-      .where(observation_matrix_columns: {observation_matrix_id: observation_matrix_id})
-      .order('observation_matrix_columns.position ASC')
+    Observation.in_observation_matrix(observation_matrix_id).where(descriptor_id: descriptor_id)
   end
 
   # @param array [Array]
