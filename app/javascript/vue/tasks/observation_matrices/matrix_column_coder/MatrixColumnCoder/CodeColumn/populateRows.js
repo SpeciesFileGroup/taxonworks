@@ -55,11 +55,13 @@ function getPayloadObservationFor (descriptorType, payload) {
 function getResultFromResponses (responses) {
   const data = responses.reduce((acc, curr) => ({
     failed: acc.failed + curr.failed || 0,
-    passed: acc.passed + curr.passed || 0
+    passed: acc.passed + curr.passed || 0,
+    exists: acc.exists + curr.exists || 0
   }),
   {
     failed: 0,
-    passed: 0
+    passed: 0,
+    exists: 0
   })
 
   return data

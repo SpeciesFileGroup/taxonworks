@@ -116,12 +116,12 @@ const handleClick = async () => {
     descriptorType: props.descriptor.type,
     columnId: props.columnId,
     observation: observation.value
-  }).then(async ({ failed, passed }) => {
+  }).then(async ({ failed, passed, exists }) => {
     isPopulating.value = false
 
     await confirmationModal.value.show({
       title: 'Result',
-      message: `Passed: ${passed}<br>Failed: ${failed}`,
+      message: `Passed: ${passed}<br>Failed: ${failed}<br>Exists: ${exists}`,
       okButton: 'OK',
       typeButton: 'default'
     })
