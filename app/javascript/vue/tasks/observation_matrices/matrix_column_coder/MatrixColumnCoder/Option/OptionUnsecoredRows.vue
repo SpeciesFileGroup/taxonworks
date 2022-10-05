@@ -18,11 +18,11 @@ const store = useStore()
 
 const onlyUnsecored = computed({
   get: () => {
-    return store.getters[GetterNames.GetDisplayUnsecoredRows]
+    return store.getters[GetterNames.GetDisplayUnscoredRows]
   },
 
   set: value => {
-    store.commit(MutationNames.SetDisplayOnlyUnsecored, value)
+    store.commit(MutationNames.SetDisplayOnlyUnscored, value)
   }
 })
 </script>

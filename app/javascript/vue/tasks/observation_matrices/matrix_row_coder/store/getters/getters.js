@@ -4,6 +4,7 @@ import getFreeTextValueFor from './getFreeTextValueFor'
 import getObservationsFor from './getObservationsFor'
 import getContinuousValueFor from './getContinuousValueFor'
 import getContinuousUnitFor from './getContinuousUnitFor'
+import getDisplayUnscoredRows from './getDisplayUnscoredRows'
 import getPresenceFor from './getPresenceFor'
 import getSampleMinFor from './getSampleMinFor'
 import getSampleMaxFor from './getSampleMaxFor'
@@ -28,6 +29,7 @@ export const GetterNames = {
   GetObservationsFor: 'getObservationsFor',
   GetContinuousValueFor: 'getContinuousValueFor',
   GetContinuousUnitFor: 'getContinuousUnitFor',
+  GetDisplayUnscoredRows: 'getDisplayUnscoredRows',
   GetPresenceFor: 'getPresenceFor',
   GetSampleMinFor: 'getSampleMinFor',
   GetSampleMaxFor: 'getSampleMaxFor',
@@ -53,6 +55,7 @@ export const GetterFunctions = {
   [GetterNames.GetObservationsFor]: getObservationsFor,
   [GetterNames.GetContinuousValueFor]: getContinuousValueFor,
   [GetterNames.GetContinuousUnitFor]: getContinuousUnitFor,
+  [GetterNames.GetDisplayUnscoredRows]: getDisplayUnscoredRows,
   [GetterNames.GetPresenceFor]: getPresenceFor,
   [GetterNames.GetSampleMinFor]: getSampleMinFor,
   [GetterNames.GetSampleMaxFor]: getSampleMaxFor,

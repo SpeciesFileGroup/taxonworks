@@ -264,4 +264,5 @@ class ObservationMatrix < ApplicationRecord
     #observations.each {|o| h[o.descriptor_id][o.observation_object_global_id].push(o) } ### potentially useful but extra compute slower
     h
   end
+
 end

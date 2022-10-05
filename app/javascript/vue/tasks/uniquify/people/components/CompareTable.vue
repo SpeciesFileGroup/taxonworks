@@ -209,6 +209,7 @@ export default {
         message: 'This will merge all selected match people to selected person.',
         okButton: 'Merge',
         confirmationWord: 'merge',
+        cancelButton: 'Cancel',
         typeButton: 'submit'
       })
 
