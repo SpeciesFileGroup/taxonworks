@@ -308,13 +308,17 @@ class Observation < ApplicationRecord
     Observation.transaction do
       o.observation_matrix_rows.each do |r|
         begin
-          Observation.create!(
-            p.merge(
-              observation_object: r.observation_object,
-              descriptor: descriptor,
+          if !Observation.where(observation_object: r.observation_object, descriptor: descriptor).any?
+            Observation.create!(
+              p.merge(
+                observation_object: r.observation_object,
+                descriptor: descriptor,
+              )
             )
-          )
-          h[:passed] += 1
+            h[:passed] += 1
+          else
+            h[:exists] += 1
+          end
         rescue ActiveRecord::RecordInvalid
           h[:failed] += 1
         end
