@@ -7,7 +7,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-- "Display only unsecored rows" on Matrix column coder [#3103]
+- "Display only unscored rows" on Matrix column coder [#3103]
 - Previous and next links in Matrix row coder [#3107]
 - Match identifiers facet to Filter extract task  [#3089]
 - `Clone previous citation` to citation panels [#3097]
@@ -15,12 +15,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 - Numerous issues in "Castor" TaxonName batch load
 - CollectingEvent cached geo-names (e.g. used in DwC export) missclassified [#2614]
-- Order of tescriptors in nexus and tnt output is updated to reflect the column ordering
+- Order of descriptors in nexus and tnt output is updated to reflect the column ordering
 - Homonyms without replacement name are now marked as invalid
 - Visible identifiers raising (e.g. broken object graph)
 - Presence Descriptor is not saving in Matrix row coder [#3099]
 - Missing number of objects for presence/absence descriptors on Interactive keys [#3102]
-- `New column` button deson't add the new column to the interface [#3109]
+- `New column` button doesn't add the new column to the interface [#3109]
 - Taxonomy inventory API failing with common names when language is not set
 - Missing taxon_name_relationships parameters [#3096]
 - Create matrix row button redirects to wrong OTU in OTU radial
