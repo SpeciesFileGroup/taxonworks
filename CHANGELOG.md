@@ -7,6 +7,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Code full columns, destroy all observations in a column [#3117]
 - "Display only unscored rows" on Matrix column coder [#3103]
 - Previous and next links in Matrix row coder [#3107]
 - Match identifiers facet to Filter extract task  [#3089]
@@ -35,6 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Removed New OTU link from New observation matrix task [#3101]
 - Disabled horizontal resizing for textarea inputs on comprehensive
 
+[#3117]: https://github.com/SpeciesFileGroup/taxonworks/issues/3117
 [#3114]: https://github.com/SpeciesFileGroup/taxonworks/issues/3114
 [#2614]: https://github.com/SpeciesFileGroup/taxonworks/issues/2614
 [#1935]: https://github.com/SpeciesFileGroup/taxonworks/issues/1935
