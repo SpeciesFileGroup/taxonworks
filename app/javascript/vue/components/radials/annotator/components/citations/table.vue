@@ -71,7 +71,7 @@ export default {
     'edit'
   ],
 
-  mounted () {
+  created () {
     this.$options.components['RadialAnnotator'] = RadialAnnotator
   },
 
