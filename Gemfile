@@ -127,6 +127,10 @@ gem 'chunky_png', '~> 1.4.0'
 gem 'namecase', '~> 2.0'
 gem 'zaru', '~> 0.3.0'
 
+# Export
+gem 'asciidoctor', '~> 2.0'
+# gem 'asciidoctor-epub3', '~> 1.5'
+
 # www
 gem 'wikidata-client', '~> 0.1.0.pre.rc1', require: 'wikidata'
 

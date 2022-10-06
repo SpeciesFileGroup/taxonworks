@@ -131,13 +131,13 @@ class Catalog::Entry
     [dates.first, dates.last].compact
   end
 
-  # @return [Scope]
+  # @return [Array]
   def dates
     @dates ||= all_dates
     @dates
   end
 
-  # @return [Scope]
+  # @return [Array]
   def sources
     @sources ||= all_sources
     @sources
@@ -176,13 +176,18 @@ class Catalog::Entry
   protected
 
   # @return [Array of Source]
+  #
+  # Here .source is item.source, not item.object.source, i.e.
+  # it comes from a specific citation, not one of many citations
+  # for the object.
+  #
   # !! Redefined in some subclasses
   def all_sources
-    items.collect{|i| i.source} || []
+    items.collect{|i| i.source}.compact
   end
 
   def all_citations
-    items.map(&:citation) || []
+    items.map(&:citation).compact
   end
 
   # @return [Array]

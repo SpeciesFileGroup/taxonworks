@@ -1,5 +1,5 @@
 var content;
-content = '<%= escape_javascript(render(partial: 'preview', locals: {project: @project, body: @body, sources: @sources, taxon_name: @taxon_name} ) ) %>';
+content = '<%= escape_javascript(render(partial: 'preview', locals: {project: @project, data: @data, taxon_name: @taxon_name} ) ) %>';
 document.querySelector('#catalog_preview').innerHTML = content;
 
 function downloadTextFile (text, fileType, fileName) {
