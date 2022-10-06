@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Match identifiers facet to Filter extract task  [#3089]
 - `Clone previous citation` to citation panels [#3097]
 - Populate column button for Matrix Column Coder [#3117]
+- `scientificName` is now implied in `typeStatus` when only the type of type is specified in DwC checklist importer
 
 ### Fixed
 - Destroying a Georefernce re-indexes related CollectingEvent [#3114]
@@ -35,7 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Refactor confidence form [#3129]
 - Destroy selected Labels does not work [#3127]
 - Creating multiple type materials in comprehensive task [#3131]
-
+- DwC occurrences importer not reporting error when `typeStatus` is non-empty and yet it doesn't have correct format
 ### Changed
 - Removed New OTU link from New observation matrix task [#3101]
 - Disabled horizontal resizing for textarea inputs on comprehensive
