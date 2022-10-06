@@ -7,6 +7,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Distribution, Material Examined sections, and zip download for paper catalog [#3098]
 - Code full columns, destroy all observations in a column [#3117]
 - "Display only unscored rows" on Matrix column coder [#3103]
 - Previous and next links in Matrix row coder [#3107]
