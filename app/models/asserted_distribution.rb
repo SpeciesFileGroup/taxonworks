@@ -85,87 +85,86 @@ class AssertedDistribution < ApplicationRecord
     a = AssertedDistribution.new(
       otu_id: defaults[:otu_id],
       origin_citation_attributes: {source_id: defaults[:source_id]})
-      a.origin_citation = Citation.new if defaults[:source_id].blank?
-      a
+    a.origin_citation = Citation.new if defaults[:source_id].blank?
+    a
+  end
+
+  # rubocop:disable Style/StringHashKeys
+  # TODO: DRY with helper methods
+  # @return [Hash] GeoJSON feature
+  def to_geo_json_feature
+    retval = {
+      'type'       => 'Feature',
+      'geometry'   => RGeo::GeoJSON.encode(self.geographic_area.geographic_items.first.geo_object),
+      'properties' => {'asserted_distribution' => {'id' => self.id}}
+    }
+    retval
+  end
+
+  # rubocop:enable Style/StringHashKeys
+
+  # @return [True]
+  #   see citable.rb
+  def requires_citation?
+    true
+  end
+
+  def geographic_item
+    geographic_area.default_geographic_item
+  end
+
+  def has_shape?
+    geographic_area.geographic_items.any?
+  end
+
+  protected
+
+  # @return [Boolean]
+  def new_records_include_citation
+    if new_record? && source.blank? && origin_citation.blank? && !citations.any?
+      errors.add(:base, 'required citation is not provided')
     end
+  end
 
-    # rubocop:disable Style/StringHashKeys
-    # TODO: DRY with helper methods
-    # @return [Hash] GeoJSON feature
-    def to_geo_json_feature
-      retval = {
-        'type'       => 'Feature',
-        'geometry'   => RGeo::GeoJSON.encode(self.geographic_area.geographic_items.first.geo_object),
-        'properties' => {'asserted_distribution' => {'id' => self.id}}
-      }
-      retval
-    end
+  # @return [Nil]
+  def new_records_include_otu
+  end
 
-    # rubocop:enable Style/StringHashKeys
-
-    # @return [True]
-    #   see citable.rb
-    def requires_citation?
-      true
-    end
-
-    def geographic_item
-      geographic_area.default_geographic_item
-    end
-
-    def has_shape?
-      geographic_area.geographic_items.any?
-    end
-
-    protected
-
-    # @return [Boolean]
-    def new_records_include_citation
-      if new_record? && source.blank? && origin_citation.blank? && !citations.any?
-        errors.add(:base, 'required citation is not provided')
-      end
-    end
-
-    # @return [Nil]
-    def new_records_include_otu
-    end
-
-    # @return [Boolean]
-    def sv_conflicting_geographic_area
-      unless geographic_area.nil?
-        areas = [geographic_area.level0_id, geographic_area.level1_id, geographic_area.level2_id].compact
-        if is_absent # this returns an array, not a single GA so test below is not right
-          presence = AssertedDistribution
+  # @return [Boolean]
+  def sv_conflicting_geographic_area
+    unless geographic_area.nil?
+      areas = [geographic_area.level0_id, geographic_area.level1_id, geographic_area.level2_id].compact
+      if is_absent # this returns an array, not a single GA so test below is not right
+        presence = AssertedDistribution
           .without_is_absent
           .with_geographic_area_array(areas)
           .where(otu_id: otu_id)
-          soft_validations.add(:geographic_area_id, "Taxon is reported as present in #{presence.first.geographic_area.name}") unless presence.empty?
-        else
-          presence = AssertedDistribution
+        soft_validations.add(:geographic_area_id, "Taxon is reported as present in #{presence.first.geographic_area.name}") unless presence.empty?
+      else
+        presence = AssertedDistribution
           .with_is_absent
           .where(otu_id: otu_id)
           .with_geographic_area_array(areas)
-          soft_validations.add(:geographic_area_id, "Taxon is reported as missing in #{presence.first.geographic_area.name}") unless presence.empty?
-        end
+        soft_validations.add(:geographic_area_id, "Taxon is reported as missing in #{presence.first.geographic_area.name}") unless presence.empty?
       end
     end
+  end
 
-    # @param [Hash] options of e.g., {otu_id: 5, source_id: 5, geographic_areas: Array of {GeographicArea}}
-    # @return [Array] an array of AssertedDistributions
-    def self.stub_new(options = {})
-      options.symbolize_keys!
-      result = []
-      options[:geographic_areas].each do |ga|
-        result.push(
-          AssertedDistribution.new(
-            otu_id: options[:otu_id],
-            geographic_area: ga,
-            origin_citation_attributes: {source_id: options[:source_id]})
-          )
-        end
-        result
-      end
-
+  # @param [Hash] options of e.g., {otu_id: 5, source_id: 5, geographic_areas: Array of {GeographicArea}}
+  # @return [Array] an array of AssertedDistributions
+  def self.stub_new(options = {})
+    options.symbolize_keys!
+    result = []
+    options[:geographic_areas].each do |ga|
+      result.push(
+        AssertedDistribution.new(
+          otu_id: options[:otu_id],
+          geographic_area: ga,
+          origin_citation_attributes: {source_id: options[:source_id]})
+      )
     end
+    result
+  end
+end
 
 

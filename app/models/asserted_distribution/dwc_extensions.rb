@@ -60,6 +60,7 @@ module AssertedDistribution::DwcExtensions
     otu.taxon_name&.valid_taxon_name&.rank
   end
 
+  # TODO: If this is altered there are implications for sources section in PaperCatalog.
   def dwc_associated_references
     sources.order(:cached_nomenclature_date).map(&:cached).uniq.join(AssertedDistribution::DWC_DELIMITER)
   end

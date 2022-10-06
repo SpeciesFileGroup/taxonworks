@@ -16,6 +16,7 @@ module TaxonNames::PaperCatalogHelper
   OPTIONS = {
     nest_rank_headers: true, # in
     hanging_indents: false,  # does nothing
+    only_origin_sources: true,
   }
 
   # @return [Hash] like {
@@ -24,7 +25,7 @@ module TaxonNames::PaperCatalogHelper
   #   repositories; [] }
   #
   # The body format is "chronological", i.e. each citation
-  def recursive_catalog_tag(taxon_name, data = { body: '', sources: [], supplementary_distribution: ::Catalog::Distribution::Entry.new, repositories: [], options: OPTIONS}, depth = 0 )
+  def recursive_catalog_tag(taxon_name, data = { body: '', sources: [], supplementary_distribution: ::Catalog::Distribution::Entry.new([]), repositories: [], options: OPTIONS}, depth = 0 )
 
     data[:body] << [
       paper_header_prefix(taxon_name, data[:options]),
@@ -301,7 +302,7 @@ module TaxonNames::PaperCatalogHelper
     when 'TypeMaterial'
       entry_item.object.collection_object
     else
-      entry_item.object     
+      entry_item.object
     end
 
     if o.dwc_occurrence

@@ -3,8 +3,12 @@ require 'catalog/entry'
 class Catalog::Distribution < ::Catalog
   
   class Entry < ::Catalog::Entry
-    
-    def initialize(otus = [] )
+
+    # @param object
+    # @return Array
+    #    of OTUs
+
+    def initialize(otus = [])
       super(otus) # object set to otus!
       true
     end
@@ -19,32 +23,36 @@ class Catalog::Distribution < ::Catalog
     end
     
     def from_self
-      #object.each do |otu|
-      # a = ::Otu.coordinate_otus(otu.id).load
-      
       # scoping should be done outside this function !
       # a = ::Otu.descendant_of_taxon_name(otu.taxon_name_id).load #  coordinate_otus(otu.id).load
       
       a = object # an Array of Otus, predetermined at this point
       
-      #      puts Rainbow(o.name + otu.taxon_name.cached).yellow
-      
       current_collection_objects = CollectionObject.joins(:taxon_determinations).where(taxon_determinations: {position: 1, otu: a})
       asserted_distributions = AssertedDistribution.where(otu: a)
       type_materials = TypeMaterial.joins(protonym: [:otus]).where('otus.id' => a)
       
-      #      a.each do |o|
       [current_collection_objects, asserted_distributions, type_materials].flatten.each do |c|
         @items << Catalog::Distribution::EntryItem.new(
           object: c,
-          #  base_object: otu,
+          # base_object: otu,
           citation: c.origin_citation,
           nomenclature_date: c.source&.nomenclature_date,
           # current_target: entry_item_matches_target?(o, otu)
         )
       end
     end
-    
+
+    def asserted_distribution_items
+      items.select{|i| i.object.class.name == 'AssertedDistribution'}
+    end
+
+    # #sources is origin sources for TypeMaterial and CollectionObject
+    # Otherwise we report all sources.  See asserted_distribution/dwc_extensions.rb #dwc_associated_references if this is modified.
+    def paper_catalog_sources
+      (sources + asserted_distribution_items.collect{|a| a.object.sources }.flatten).uniq
+    end
+
     # @return [Boolean]
     def entry_item_matches_target?(item_object, reference_object)
       item_object.id == reference_object.id
@@ -148,5 +156,4 @@ class Catalog::Distribution < ::Catalog
     end
     
   end
-  
 end

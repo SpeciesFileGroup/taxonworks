@@ -1,4 +1,4 @@
-= Catalog of the Species of <%= ::Utilities::Strings.asciify(full_original_taxon_name_tag(taxon_name) ) %>
+= Catalog of the Species of <%= ::Utilities::Strings.asciify(full_taxon_name_tag(taxon_name) ) %>
 
 ++++
 <style>
@@ -28,7 +28,7 @@ p {
 
 == References
 
-<%= data[:sources].flatten.uniq.collect{|s| s.cached}.sort.join("\n\n").gsub!(/<i>|<\/i>/, '_').html_safe %>
+<%= (data[:sources] + data[:supplementary_distribution].paper_catalog_sources).flatten.uniq.collect{|s| s.cached}.sort.join("\n\n").gsub(/<i>|<\/i>/, '_').html_safe %>
 
 == Supplementary Material 1 - Distributions
 
@@ -41,5 +41,5 @@ p {
 <% end %>
 |===
 <% else %>
-None recorded.
+_None recorded._
 <% end %>
