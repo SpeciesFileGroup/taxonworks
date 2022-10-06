@@ -137,6 +137,7 @@ GEM
       public_suffix (>= 2.0.2, < 6.0)
     afm (0.2.2)
     amazing_print (1.4.0)
+    asciidoctor (2.0.17)
     ast (2.4.2)
     babel-source (5.8.35)
     babel-transpiler (0.7.0)
@@ -646,6 +647,7 @@ DEPENDENCIES
   activerecord-postgis-adapter (~> 7.0)
   acts_as_list (~> 1.0)
   amazing_print (~> 1.4.0)
+  asciidoctor (~> 2.0)
   barby (~> 0.6.8)
   bcrypt (~> 3.1.11)
   best_in_place!
