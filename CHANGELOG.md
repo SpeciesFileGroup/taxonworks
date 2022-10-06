@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Previous and next links in Matrix row coder [#3107]
 - Match identifiers facet to Filter extract task  [#3089]
 - `Clone previous citation` to citation panels [#3097]
+- Populate column button for Matrix Column Coder [#3117]
 
 ### Fixed
 - Destroying a Georefernce re-indexes related CollectingEvent [#3114]
@@ -31,6 +32,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Basic nomenclature failing to redirect when no name was selected
 - List of All Topics is not displayed [#3125]
 - Refactor confidence form [#3129]
+- Destroy selected Labels does not work [#3127]
+- Creating multiple type materials in comprehensive task [#3131]
 
 ### Changed
 - Removed New OTU link from New observation matrix task [#3101]
@@ -50,7 +53,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3109]: https://github.com/SpeciesFileGroup/taxonworks/issues/3109
 [#3111]: https://github.com/SpeciesFileGroup/taxonworks/issues/3111
 [#3125]: https://github.com/SpeciesFileGroup/taxonworks/issues/3125
+[#3127]: https://github.com/SpeciesFileGroup/taxonworks/issues/3127
 [#3129]: https://github.com/SpeciesFileGroup/taxonworks/issues/3129
+[#3131]: https://github.com/SpeciesFileGroup/taxonworks/issues/3131
 
 ## [0.29.3] - 2022-09-13
 
