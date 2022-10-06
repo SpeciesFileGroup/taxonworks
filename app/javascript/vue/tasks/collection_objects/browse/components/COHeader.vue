@@ -1,13 +1,16 @@
 <template>
   <NavBar>
-    <template v-if="collectionObject.id">
+    <div
+      v-if="collectionObject.id"
+      class="flex-separate middle"
+    >
       <span v-html="collectionObject.objectTag" />
       <div class="horizontal-right-content">
         <RadialAnnotator :global-id="collectionObject.globalId" />
         <RadialObject :global-id="collectionObject.globalId" />
         <RadialNavigator :global-id="collectionObject.globalId" />
       </div>
-    </template>
+    </div>
   </NavBar>
 </template>
 

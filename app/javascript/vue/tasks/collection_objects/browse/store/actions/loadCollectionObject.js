@@ -11,6 +11,10 @@ export default ({ state }, coId) => {
     state.dwc = body
   })
 
+  CollectionObject.timeline(coId).then(({ body }) => {
+    state.timeline = body
+  })
+
   CollectingEvent.where({ collection_object_id: [coId] }).then(({ body }) => {
     const ce = body[0]
     if (ce) {

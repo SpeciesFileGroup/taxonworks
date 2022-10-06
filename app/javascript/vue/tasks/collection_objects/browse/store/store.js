@@ -10,7 +10,8 @@ const makeInitialState = () => {
     dwc: {},
     collectingEvent: {},
     identifiers: [],
-    georeferences: []
+    georeferences: [],
+    timeline: {}
   }
 }
 
