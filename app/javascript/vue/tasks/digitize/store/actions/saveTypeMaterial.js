@@ -3,7 +3,7 @@ import { TypeMaterial } from 'routes/endpoints'
 import makeTypeSpecimen from '../../helpers/makeTypeSpecimen'
 
 export default ({ commit, state }) => {
-  const { typeSpecimens } = state
+  const typeSpecimens = [...state.typeSpecimens]
   const promises = []
 
   typeSpecimens.forEach(typeSpecimen => {

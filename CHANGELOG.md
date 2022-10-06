@@ -32,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - List of All Topics is not displayed [#3125]
 - Refactor confidence form [#3129]
 - Destroy selected Labels does not work [#3127]
+- Creating multiple type materials in comprehensive task [#3131]
 
 ### Changed
 - Removed New OTU link from New observation matrix task [#3101]
@@ -52,6 +53,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3125]: https://github.com/SpeciesFileGroup/taxonworks/issues/3125
 [#3127]: https://github.com/SpeciesFileGroup/taxonworks/issues/3127
 [#3129]: https://github.com/SpeciesFileGroup/taxonworks/issues/3129
+[#3131]: https://github.com/SpeciesFileGroup/taxonworks/issues/3131
 
 ## [0.29.3] - 2022-09-13
 
