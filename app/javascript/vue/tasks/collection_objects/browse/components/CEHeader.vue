@@ -1,5 +1,5 @@
 <template>
-  <NavBar>
+  <NavBar :scroll-fix="false">
     <div
       v-if="collectingEvent.id"
       class="flex-separate middle"

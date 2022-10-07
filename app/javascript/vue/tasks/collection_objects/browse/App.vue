@@ -8,9 +8,9 @@
       gap="1em"
       :column-width="{
         default: 'min-content',
-        0: '25%',
-        1: '25%',
-        2: '50%'
+        0: '1fr',
+        1: '1fr',
+        2: '2fr'
       }"
     >
       <TableGrid
@@ -61,9 +61,9 @@
       :columns="3"
       :column-width="{
         default: 'min-content',
-        0: '25%',
-        1: '25%',
-        2: '50%'
+        0: '1fr',
+        1: '1fr',
+        2: '2fr'
       }"
       gap="1em"
     >
