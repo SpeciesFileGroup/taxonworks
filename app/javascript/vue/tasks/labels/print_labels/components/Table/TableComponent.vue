@@ -159,7 +159,7 @@ export default {
 
     removeRow (label) {
       if (window.confirm("You're trying to delete this label. Are you sure want to proceed?")) {
-        this.$emit('onRemove', label)
+        this.$emit('onRemove', label.id)
       }
     },
 

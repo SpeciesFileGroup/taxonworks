@@ -6,7 +6,7 @@ class Catalog::Distribution::EntryItem < ::Catalog::EntryItem
 
   def initialize(params = {})
     super(**params)
-    geographic_name_classification
+    # geographic_name_classification
     true
   end
 
@@ -31,6 +31,7 @@ class Catalog::Distribution::EntryItem < ::Catalog::EntryItem
   end
 
   def geographic_name_classification
+    return @geographic_name_classification if @geographic_name_classification
     case object.class.base_class.name
     when "AssertedDistribution"
       @geographic_name_classification ||= object.geographic_area.geographic_name_classification

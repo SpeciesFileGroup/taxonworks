@@ -15,11 +15,7 @@
         </li>
       </ul>
     </div>
-    <ul class="context-menu">
-      <li>
-        <a href="/tasks/observation_matrices/observation_matrix_hub">Observation matrix hub</a>
-      </li>
-    </ul>
+    <NavigationColumn />
   </div>
 </template>
 
@@ -27,6 +23,7 @@
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 import { GetterNames } from '../../store/getters/getters.js'
+import NavigationColumn from '../Navigation/NavigationColumn.vue'
 
 const store = useStore()
 const observationMatrix = computed(() => store.getters[GetterNames.GetObservationMatrix] || {})

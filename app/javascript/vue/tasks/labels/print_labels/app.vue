@@ -132,15 +132,15 @@ export default {
   },
 
   methods: {
-    removeLabel (label) {
-      Label.destroy(label.id).then(() => {
-        this.list.splice(this.list.findIndex(item => item.id === label.id), 1)
+    removeLabel (labelId) {
+      Label.destroy(labelId).then(() => {
+        this.list.splice(this.list.findIndex(item => item.id === labelId), 1)
         TW.workbench.alert.create('Label item was successfully destroyed.', 'notice')
       })
     },
     deleteLabels () {
-      this.labels.forEach(label => {
-        this.removeLabel(label)
+      this.labels.forEach(id => {
+        this.removeLabel(id)
       })
       this.labels = []
     },

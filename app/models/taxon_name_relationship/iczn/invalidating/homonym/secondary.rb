@@ -73,6 +73,28 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary < TaxonNameR
   end
 
   def sv_not_specific_relationship
-    true
+    if self.source && self.source.year < 1961
+      soft_validations.add(
+        :type, "The relationship should change to the 'Secondary homonym replaced before 1961'",
+        success_message: "The relationship updated to 'Secondary homonym replaced before 1961'",
+        failure_message:  'Failed to update the homonym relationship')
+    end
   end
+
+  def sv_fix_not_specific_relationship
+    new_relationship_name = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961'
+    if new_relationship_name && self.type_name != new_relationship_name
+      self.type = new_relationship_name
+      self.save
+      return true
+    end
+    false
+  end
+
+  def sv_synonym_relationship
+    unless self.source
+      soft_validations.add(:base, 'The original publication is not selected')
+    end
+  end
+
 end

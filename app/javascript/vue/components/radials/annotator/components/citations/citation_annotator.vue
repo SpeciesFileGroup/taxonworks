@@ -1,11 +1,25 @@
 <template>
   <div class="citation_annotator">
-    <div v-if="!citation.hasOwnProperty('id')">
-      <citation-new
-        :global-id="globalId"
-        :object-type="objectType"
-        @create="createNew"
-      />
+    <FormCitation
+      v-model="citation"
+      :submit-button="{
+        label: 'Save',
+        color: 'create'
+      }"
+      @submit="saveCitation(citation)"
+    >
+      <template #footer>
+        <VBtn
+          class="margin-small-left"
+          color="primary"
+          medium
+          @click="citation = newCitation()"
+        >
+          New
+        </VBtn>
+      </template>
+    </FormCitation>
+    <div v-if="!citation.id">
       <table-list
         :list="list"
         @edit="citation = $event"
@@ -13,18 +27,12 @@
       />
     </div>
     <div v-else>
-      <citation-edit
-        :global-id="globalId"
-        :citation="citation"
-        @update="updateCitation"
-        @new="citation = newCitation()"
-      />
       <citation-topic-component
         v-if="!disabledFor.includes(objectType)"
         :object-type="objectType"
         :global-id="globalId"
         :citation="citation"
-        @create="updateCitation"
+        @create="saveCitation"
       />
       <table class="full_width">
         <thead>
@@ -37,7 +45,8 @@
         <tbody>
           <tr
             v-for="(item, index) in citation.citation_topics"
-            :key="item.id">
+            :key="item.id"
+          >
             <td v-html="item.topic.object_tag" />
             <td>
               <topic-pages
@@ -58,8 +67,8 @@
     </div>
     <handle-citations
       v-if="showModal"
-      :citation="currentCitation"
-      :original-citation="existingOriginal[0]"
+      :citation="citation"
+      :original-citation="originalCitation"
       @create="setCitation"
       @close="resetCitations"
     />
@@ -70,28 +79,34 @@
 import CRUD from '../../request/crud.js'
 import annotatorExtend from '../annotatorExtend.js'
 import TableList from './table.vue'
-import CitationNew from './new.vue'
-import CitationEdit from './edit.vue'
+import FormCitation from 'components/Form/FormCitation.vue'
 import CitationTopicComponent from './topic.vue'
 import TopicPages from './pagesUpdate'
 import HandleCitations from './handleOriginalModal'
+import VBtn from 'components/ui/VBtn/index.vue'
+import makeCitation from 'factory/Citation'
 import { Citation, CitationTopic } from 'routes/endpoints'
+import { addToArray } from 'helpers/arrays'
 
 const EXTEND_PARAMS = ['source', 'citation_topics']
 
 export default {
   mixins: [CRUD, annotatorExtend],
   components: {
-    CitationNew,
-    CitationEdit,
     CitationTopicComponent,
     TableList,
     TopicPages,
-    HandleCitations
+    HandleCitations,
+    FormCitation,
+    VBtn
   },
   computed: {
     validateFields () {
       return this.citation.source_id
+    },
+
+    originalCitation () {
+      return this.list.find(c => c.is_original)
     }
   },
   data () {
@@ -124,26 +139,29 @@ export default {
       this.citation = citation
       this.loadObjectsList()
     },
+
     resetCitations () {
       this.showModal = false
       this.currentCitation = undefined
       this.existingOriginal = []
     },
+
     newCitation () {
       return {
-        annotated_global_entity: decodeURIComponent(this.globalId),
-        source_id: undefined,
-        is_original: false,
-        pages: undefined,
+        ...makeCitation(),
+        citation_object_id: this.metadata.object_id,
+        citation_object_type: this.metadata.object_type,
         citation_topics_attributes: []
       }
     },
+
     newTopic () {
       return {
         topic_id: undefined,
         pages: undefined
       }
     },
+
     deleteTopic (topic) {
       const citation = {
         id: this.citation.id,
@@ -157,34 +175,36 @@ export default {
           this.citation.citation_topics.findIndex(element => element.id === topic.id), 1)
       })
     },
-    updateCitation (citation) {
-      Citation.update(citation.id, { citation, extend: EXTEND_PARAMS }).then(response => {
-        this.citation = response.body
-        this.list[this.list.findIndex(element => element.id === citation.id)] = response.body
-        TW.workbench.alert.create('Citation was successfully updated.', 'notice')
+
+    saveCitation (citation) {
+      const payload = {
+        ...citation,
+        citation_object_type: this.objectType,
+        citation_object_id: this.metadata.object_id,
+        extend: EXTEND_PARAMS
+      }
+
+      if (
+        payload.is_original &&
+        this.originalCitation &&
+        this.originalCitation.id !== payload.id
+      ) {
+        this.showModal = true
+
+        return
+      }
+
+      const request = payload.id
+        ? Citation.update(payload.id, { citation: payload })
+        : Citation.create({ citation: payload })
+
+      request.then(({ body }) => {
+        addToArray(this.list, body)
+        this.citation = body
+        TW.workbench.alert.create('Citation was successfully saved.', 'notice')
       })
     },
-    async createNew (citation) {
-      if (citation.is_original) {
-        const loadCitations = await Citation.where({
-          citation_object_type: this.objectType,
-          citation_object_id: this.metadata.object_id,
-          is_original: true,
-          extend: EXTEND_PARAMS
-        })
-        this.existingOriginal = loadCitations.body
-        this.currentCitation = citation
-      }
-      if (this.existingOriginal.length) {
-        this.showModal = true
-      } else {
-        Citation.create({ citation, extend: EXTEND_PARAMS }).then(response => {
-          this.list.push(response.body)
-          this.citation = response.body
-          TW.workbench.alert.create('Citation was successfully created.', 'notice')
-        })
-      }
-    },
+
     updateTopic (citation_topic) {
       CitationTopic.update(citation_topic.id, { citation_topic }).then(_ => {
         TW.workbench.alert.create('Topic was successfully updated.', 'notice')

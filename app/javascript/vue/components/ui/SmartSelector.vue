@@ -15,8 +15,7 @@
     </div>
     <slot name="header"/>
     <template v-if="!addTabs.includes(view)">
-      <div
-        class="margin-medium-bottom">
+      <div class="margin-medium-bottom">
         <autocomplete
           ref="autocomplete"
           v-if="autocomplete"
@@ -31,7 +30,8 @@
           display="label"
           :autofocus="autofocus"
           @keyEvent="changeTab"
-          @getItem="getObject($event.id)"/>
+          @getItem="getObject($event.id)"
+        />
         <otu-picker
           v-if="otuPicker"
           :input-id="inputId"
@@ -55,7 +55,7 @@
       </template>
       <template v-else>
         <ul
-          v-if="view && view != 'search'"
+          v-if="view"
           class="no_bullets"
           :class="{ 'flex-wrap-row': inline }">
           <template
@@ -84,8 +84,8 @@
                     @keyup="changeTab"
                     @keyup.enter="sendObject(item)"
                     @keyup.space="sendObject(item)"
-                    :value="item"
-                    :checked="selectedItem && item.id == selectedItem.id"
+                    :value="item.id"
+                    :checked="selectedItem && item.id === selectedItem.id"
                     type="radio">
                   <span v-html="item[label]"/>
                 </label>
@@ -110,7 +110,6 @@ import OrderSmart from 'helpers/smartSelector/orderSmartSelector'
 import SelectFirst from 'helpers/smartSelector/selectFirstSmartOption'
 import DefaultPin from 'components/getDefaultPin'
 import OtuPicker from 'components/otu/otu_picker/otu_picker'
-import getPlatformKey from 'helpers/getPlatformKey'
 
 export default {
   components: {
@@ -189,11 +188,6 @@ export default {
     target: {
       type: String,
       default: undefined
-    },
-
-    search: {
-      type: Boolean,
-      default: true
     },
 
     selected: {
@@ -360,12 +354,6 @@ export default {
 
         this.view = SelectFirst(this.lists, this.options)
 
-        if (this.search) {
-          this.options.push('search')
-          if (!this.view) {
-            this.view = 'search'
-          }
-        }
       }).catch(() => {
         this.options = []
         this.lists = []

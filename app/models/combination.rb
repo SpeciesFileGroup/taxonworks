@@ -454,7 +454,9 @@ class Combination < TaxonName
     if parent_id && check && check.parent_id && parent_id != check.parent_id
       begin
         TaxonName.transaction do
-          update_column(:parent_id, check.parent_id)
+          # update_column(:parent_id, check.parent_id) ## do not use this, it breaks the taxon_name_hierarchies
+          parent_id = check.parent_id
+          self.save
           return true
         end
       rescue

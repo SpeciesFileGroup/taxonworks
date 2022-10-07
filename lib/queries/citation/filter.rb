@@ -6,7 +6,7 @@ module Queries
 
     # !! does not inherit from base query
     class Filter
-      
+      include Queries::Helpers
       # General annotator options handling 
       # happens directly on the params as passed
       # through to the controller, keep them
@@ -15,6 +15,10 @@ module Queries
 
       # Array, Integer
       attr_accessor :citation_object_type, :citation_object_id, :source_id
+
+    # @return [Boolean, nil]
+      # @params recent ['true', 'false', nil]
+      attr_accessor :recent
 
       # Boolean
       attr_accessor :is_original
@@ -27,6 +31,7 @@ module Queries
         @source_id = params[:source_id]
         @is_original = params[:is_original]
         @options = params
+        @recent = boolean_param(params, :recent)
       end
 
       # @return [ActiveRecord::Relation, nil]
@@ -70,10 +75,13 @@ module Queries
       # @return [ActiveRecord::Relation]
       def all
         if a = and_clauses
-          ::Citation.where(and_clauses).distinct
+          q = ::Citation.where(and_clauses).distinct
         else
-          ::Citation.all
+          q =::Citation.all
         end
+
+        q = q.order(updated_at: :desc) if recent
+        q
       end
 
       # @return [Arel::Table]

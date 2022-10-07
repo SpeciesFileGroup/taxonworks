@@ -1,7 +1,8 @@
 <template>
   <div
     id="matrix-row-coder-app"
-    class="matrix-row-coder">
+    class="matrix-row-coder"
+  >
     <spinner
       legend="Loading..."
       full-screen
@@ -15,15 +16,22 @@
           v-html="title"
         />
         <div class="horizontal-left-content">
-          <diagnosis-component class="margin-small-right"/>
-          <descriptors-list class="margin-small-right"/>
-          <description-main class="margin-small-right"/>
+          <ul class="context-menu">
+            <li>
+              <option-unscored-rows />
+            </li>
+            <li>
+              <diagnosis-component class="margin-small-right" />
+            </li>
+          </ul>
+          <descriptors-list class="margin-small-right" />
+          <description-main class="margin-small-right" />
           <clone-scoring
             class="margin-small-right"
             @on-copy="copyScorings"
             @on-clone="cloneScorings"
           />
-          <destroy-all-observations @on-confirm="destroyAllObservations"/>
+          <destroy-all-observations @on-confirm="destroyAllObservations" />
         </div>
       </div>
     </navbar-component>
@@ -33,11 +41,14 @@
         class="matrix-row-coder__descriptor-container"
         v-for="(descriptor, index) in descriptors"
         :key="descriptor.id"
-        :data-descriptor-id="descriptor.id">
+        :data-descriptor-id="descriptor.id"
+        v-show="!onlyScoredRows || !observations.find(obs => obs.descriptorId === descriptor.id && obs.id)"
+      >
         <component
           :is="descriptor.componentName"
           :index="(index+1)"
-          :descriptor="descriptor"/>
+          :descriptor="descriptor"
+        />
       </li>
     </ul>
   </div>
@@ -62,10 +73,13 @@ import DescriptionMain from './Description/DescriptionMain.vue'
 import DescriptorsList from './Descriptors/DescriptorsList.vue'
 import DiagnosisComponent from './Diagnosis/Diagnosis.vue'
 import NavbarComponent from 'components/layout/NavBar.vue'
+import OptionUnscoredRows from './Options/OptionUnscoredRows.vue'
 
 const computed = mapState({
   title: state => state.taxonTitle,
-  descriptors: state => state.descriptors
+  descriptors: state => state.descriptors,
+  onlyScoredRows: state => state.options.showOnlyUnsecoredRows,
+  observations: state => state.observations
 })
 
 export default {
@@ -84,7 +98,8 @@ export default {
     Spinner,
     DestroyAllObservations,
     DescriptionMain,
-    DiagnosisComponent
+    DiagnosisComponent,
+    OptionUnscoredRows
   },
 
   props: {

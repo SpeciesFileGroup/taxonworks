@@ -159,6 +159,8 @@ class GeographicArea < ApplicationRecord
     end
   }
 
+  scope :ordered_by_area, -> (direction = :ASC) { joins(:geographic_items).order("geographic_items.cached_total_area #{direction || 'ASC'}") }
+
   before_destroy :check_for_children
 
   # @param array [Array] of strings of names for areas
@@ -247,7 +249,6 @@ class GeographicArea < ApplicationRecord
   #   !! This is an estimation, although likely highly accurate.  It uses assumptions about how data are stored in GeographicAreas
   #   to derive additional data, particularly for State
   def categorize
-
     s = name
     if m = ::Utilities::Geo::DICTIONARY[s]
       s = m
@@ -296,10 +297,11 @@ class GeographicArea < ApplicationRecord
         .where.not(geographic_area_type: [111,112]).any? # not another TDWG record
       return {country: name}
     end
+
     {}
   end
 
-    # @return [Hash]
+  # @return [Hash]
   #   use the parent/child relationships of the this GeographicArea to return a country/state/county categorization
   def geographic_name_classification
     v = {}

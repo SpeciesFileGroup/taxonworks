@@ -2,29 +2,23 @@
   <div>
     <table
       class="full_width"
-      v-if="list.length">
+      v-if="list.length"
+    >
       <thead>
         <tr>
           <th>
-            {{ subjectString }}
-            <br>
-            Subject
-          </th>
-          <th>Relationship</th>
-          <th>
-            {{ objectString }}
-            <br>
-            Object
+            Biological assocations
           </th>
         </tr>
       </thead>
       <tbody>
         <tr
-          v-for="item in list"
-          :key="item.id">
-          <td v-html="item.subject.object_tag"></td>
-          <td v-html="item.biological_relationship.object_tag"></td>
-          <td v-html="item.object.object_tag"></td>
+          v-for="item, index in list"
+          :key="item.id"
+          class="contextMenuCells"
+          :class="{ even: index % 2 }"
+        >
+          <td v-html="item.object_tag" />
         </tr>
       </tbody>
     </table>
@@ -34,7 +28,8 @@
 
 <script>
 
-import { BiologicalRelationship } from 'routes/endpoints'
+import { BiologicalAssociation } from 'routes/endpoints'
+import { extend } from '../constants/extend.js'
 
 export default {
   props: {
@@ -61,7 +56,11 @@ export default {
   watch: {
     biologicalRelationship (newVal) {
       if (newVal) {
-        BiologicalRelationship.find(newVal.id).then(response => {
+        BiologicalAssociation.where({
+          biological_relationship_id: newVal.id,
+          per: 10,
+          extend: [...extend, 'bioloical_relationship']
+        }).then(response => {
           this.list = response.body
         })
       } else {
@@ -71,3 +70,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+  td {
+    line-height: 1.75rem;
+  }
+</style>
