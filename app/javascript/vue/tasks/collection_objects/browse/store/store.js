@@ -5,12 +5,14 @@ import { MutationFunctions } from './mutations/mutations'
 
 const makeInitialState = () => {
   return {
-    isLoading: false,
-    collectionObject: {},
-    dwc: {},
     collectingEvent: {},
-    identifiers: [],
+    collectionObject: {},
+    depictions: [],
+    dwc: {},
     georeferences: [],
+    identifiers: [],
+    isLoading: false,
+    softValidations: {},
     timeline: {}
   }
 }

@@ -1,6 +1,5 @@
 <template>
-  <div class="panel panel__content">
-    <h2 class="panel__title">Identifiers</h2>
+  <PanelContainer title="Identifiers">
     <ul class="no_bullets">
       <li
         v-for="identifier in identifiers"
@@ -8,13 +7,14 @@
         v-html="identifier.objectTag"
       />
     </ul>
-  </div>
+  </PanelContainer>
 </template>
 
 <script setup>
 import { useStore } from 'vuex'
 import { computed } from 'vue'
 import { GetterNames } from '../../store/getters/getters'
+import PanelContainer from './PanelContainer.vue'
 
 const store = useStore()
 const identifiers = computed(() => store.getters[GetterNames.GetIdentifiers])

@@ -1,6 +1,8 @@
 const ActionNames = {
+  LoadBiocurations: 'loadBiocurations',
   LoadCollectionObject: 'loadCollectionObject',
-  LoadIdentifiers: 'loadIdentifiers'
+  LoadIdentifiers: 'loadIdentifiers',
+  LoadSoftValidation: 'loadSoftValidation'
 }
 
 export default ActionNames

@@ -1,6 +1,5 @@
 <template>
-  <div class="panel content">
-    <h3>Timeline</h3>
+  <PanelContainer title="Timeline">
     <table>
       <thead>
         <tr>
@@ -20,22 +19,39 @@
           <td
             v-for="property in HEADER"
             :key="property"
-          >
-            {{ item[property] }}
-          </td>
+            v-html="item[property]"
+          />
         </tr>
       </tbody>
     </table>
-  </div>
+  </PanelContainer>
 </template>
 
 <script setup>
 import { useStore } from 'vuex'
 import { computed } from 'vue'
 import { GetterNames } from '../../store/getters/getters'
+import PanelContainer from './PanelContainer.vue'
 
 const store = useStore()
 const timeline = computed(() => store.getters[GetterNames.GetTimeline])
 
 const HEADER = ['type', 'event', 'object', 'derived_from', 'object']
 </script>
+
+<style scoped>
+table {
+  box-shadow: none;
+}
+
+tr {
+  border-bottom: 1px solid #eaeaea;
+}
+
+th {
+  border-bottom: 2px solid #eaeaea;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+</style>

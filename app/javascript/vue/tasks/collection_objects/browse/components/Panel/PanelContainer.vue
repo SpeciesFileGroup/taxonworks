@@ -1,20 +1,16 @@
 <template>
-  <div>
-    <h3 class="panel__subtitle">
+  <div class="panel panel__content">
+    <h2 class="panel__title">
       {{ title }}
-    </h3>
-    <pre>{{ text }}</pre>
+    </h2>
+    <hr>
+    <slot />
   </div>
 </template>
 
 <script setup>
 defineProps({
   title: {
-    type: String,
-    required: true
-  },
-
-  text: {
     type: String,
     required: true
   }

@@ -1,19 +1,16 @@
 <template>
-  <div class="panel panel__content">
-    <h3 class="panel__title">
-      Dwc
-    </h3>
+  <PanelContainer title="Dwc">
     <TableAttributes :items="dwcItems" />
-  </div>
+  </PanelContainer>
 </template>
 
 <script setup>
-import TableAttributes from '../Table/TableAttributes.vue'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
-import { GetterNames } from '../../store/getters/getters';
+import { GetterNames } from '../../store/getters/getters'
+import PanelContainer from './PanelContainer.vue'
+import TableAttributes from '../Table/TableAttributes.vue'
 
 const store = useStore()
-
 const dwcItems = computed(() => store.getters[GetterNames.GetDwc])
 </script>

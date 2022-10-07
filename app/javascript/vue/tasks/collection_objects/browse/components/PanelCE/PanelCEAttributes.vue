@@ -1,6 +1,8 @@
 <template>
   <div class="panel panel__content">
-    <h3 class="panel__tite">Collecting events</h3>
+    <h3 class="panel__title">
+      Collecting events
+    </h3>
     <TableAttributes :items="collectingEvent" />
   </div>
 </template>
