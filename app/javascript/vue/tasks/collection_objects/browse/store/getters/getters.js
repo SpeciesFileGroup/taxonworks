@@ -6,6 +6,7 @@ import getGeoreferences from './getGeoreferences'
 import getIdentifiers from './getIdentifiers'
 import getSoftValidationFor from './getSoftValidationFor'
 import getTimeline from './getTimeline'
+import getBiocurations from './getBiocurations'
 
 const GetterNames = {
   GetCollectingEvent: 'getCollectingEvent',
@@ -15,7 +16,8 @@ const GetterNames = {
   GetGeoreferences: 'loadGeoreferences',
   GetIdentifiers: 'getIdentifiers',
   GetSoftValidationFor: 'getSoftValidationFor',
-  GetTimeline: 'getTimeline'
+  GetTimeline: 'getTimeline',
+  GetBiocurations: 'getBiocurations'
 }
 
 const GetterFunctions = {
@@ -26,7 +28,8 @@ const GetterFunctions = {
   [GetterNames.GetGeoreferences]: getGeoreferences,
   [GetterNames.GetIdentifiers]: getIdentifiers,
   [GetterNames.GetSoftValidationFor]: getSoftValidationFor,
-  [GetterNames.GetTimeline]: getTimeline
+  [GetterNames.GetTimeline]: getTimeline,
+  [GetterNames.GetBiocurations]: getBiocurations
 }
 
 export {

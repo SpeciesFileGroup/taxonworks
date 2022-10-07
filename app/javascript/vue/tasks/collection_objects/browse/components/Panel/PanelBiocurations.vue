@@ -1,22 +1,23 @@
 <template>
-  <div class="panel panel__content">
-    <h2 class="panel_title">Biocurations</h2>
-    <ul>
+  <PanelContainer title="Biocurations">
+    <ul class="no_bullets">
+      <li
+        v-for="({ groupName, items }) in biocurations"
+        :key="groupName"
+      >
+        {{ groupName }}: <b>{{ items.map(item => item.object_tag).join(', ') }}</b>
+      </li>
     </ul>
-  </div>
+  </PanelContainer>
 </template>
 
 <script setup>
-import { BiocurationClassification } from 'routes/endpoints'
 import { GetterNames } from '../../store/getters/getters.js'
 import { useStore } from 'vuex'
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
+import PanelContainer from './PanelContainer.vue'
 
 const store = useStore()
-const collectionObject = computed(() => store.getters[GetterNames.GetCollectionObject])
-watch(collectionObject)
+const biocurations = computed(() => store.getters[GetterNames.GetBiocurations])
 
-BiocurationClassification.where({ biological_collection_object_id: newVal }).then(response => {
-  this.createdBiocutarions = response.body
-})
 </script>

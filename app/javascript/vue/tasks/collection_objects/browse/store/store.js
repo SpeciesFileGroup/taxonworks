@@ -13,7 +13,8 @@ const makeInitialState = () => {
     identifiers: [],
     isLoading: false,
     softValidations: {},
-    timeline: {}
+    timeline: {},
+    biocurations: {}
   }
 }
 

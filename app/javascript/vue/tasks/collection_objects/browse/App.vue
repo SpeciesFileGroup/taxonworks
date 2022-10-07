@@ -20,6 +20,7 @@
         gap="1em"
       >
         <PanelIdentifier />
+        <PanelBiocurations />
         <SoftValidations
           class="column-validation"
           :validations="store.getters[GetterNames.GetSoftValidationFor](COLLECTION_OBJECT)"
@@ -71,6 +72,7 @@ import { COLLECTING_EVENT, COLLECTION_OBJECT } from 'constants/index.js'
 import PanelBuffered from './components/Panel/PanelBuffered/PanelBuffered.vue'
 import PanelIdentifier from './components/Panel/PanelIdentifier.vue'
 import PanelDwc from './components/Panel/PanelDwc.vue'
+import PanelBiocurations from './components/Panel/PanelBiocurations.vue'
 import PanelCEAttributes from './components/PanelCE/PanelCEAttributes.vue'
 import PanelMap from './components/Panel/PanelMap.vue'
 import PanelTimeline from './components/Panel/PanelTimeline.vue'
