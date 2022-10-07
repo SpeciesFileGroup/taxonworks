@@ -51,7 +51,7 @@ tr {
 th {
   border-bottom: 2px solid #eaeaea;
   text-transform: uppercase;
-  font-weight: 400;
+
 }
 
 </style>

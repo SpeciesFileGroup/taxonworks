@@ -17,6 +17,11 @@
         <TableGrid
           :columns="2"
           gap="1em"
+          :column-width="{
+            default: 'min-content',
+            0: '.5fr',
+            1: '1fr'
+          }"
         >
           <PanelCEAttributes />
           <TableGrid
