@@ -49,6 +49,7 @@ th {
 }
 .cell-value {
   font-weight: 500;
+  word-break: break-all;
 }
 
 .cell-head {

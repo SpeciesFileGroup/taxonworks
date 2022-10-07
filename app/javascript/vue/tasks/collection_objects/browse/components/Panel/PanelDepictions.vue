@@ -1,10 +1,12 @@
 <template>
   <PanelContainer title="Depictions">
-    <ImageViewer
-      v-for="depiction in depictions"
-      :key="depiction.id"
-      :depiction="depiction"
-    />
+    <div class="flex-wrap-row">
+      <ImageViewer
+        v-for="depiction in depictions"
+        :key="depiction.id"
+        :depiction="depiction"
+      />
+    </div>
   </PanelContainer>
 </template>
 

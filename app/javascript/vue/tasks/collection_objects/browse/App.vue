@@ -6,6 +6,12 @@
       class="margin-medium-bottom"
       :columns="ce.id ? 3 : 2"
       gap="1em"
+      :column-width="{
+        default: 'min-content',
+        0: '25%',
+        1: '25%',
+        2: '50%'
+      }"
     >
       <TableGrid
         :columns="1"
@@ -53,6 +59,12 @@
 
     <TableGrid
       :columns="3"
+      :column-width="{
+        default: 'min-content',
+        0: '25%',
+        1: '25%',
+        2: '50%'
+      }"
       gap="1em"
     >
       <PanelDwc />

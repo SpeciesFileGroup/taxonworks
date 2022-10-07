@@ -3,7 +3,7 @@
     <h3 class="panel__subtitle">
       {{ title }}
     </h3>
-    <pre>{{ text }}</pre>
+    <pre class="break_words_pre">{{ text }}</pre>
   </div>
 </template>
 
