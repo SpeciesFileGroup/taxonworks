@@ -2,13 +2,13 @@ import ActionNames from './actionNames.js'
 
 import loadBiocurations from './loadBiocurations.js'
 import loadCollectionObject from './loadCollectionObject'
-import loadIdentifiers from './loadIdentifiers'
 import loadSoftValidation from './loadSoftValidation.js'
+import loadIdentifiersFor from './loadIdentifiersFor.js'
 
 const ActionFunctions = {
   [ActionNames.LoadBiocurations]: loadBiocurations,
   [ActionNames.LoadCollectionObject]: loadCollectionObject,
-  [ActionNames.LoadIdentifiers]: loadIdentifiers,
+  [ActionNames.LoadIdentifiersFor]: loadIdentifiersFor,
   [ActionNames.LoadSoftValidation]: loadSoftValidation
 }
 

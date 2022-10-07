@@ -10,7 +10,7 @@ const makeInitialState = () => {
     depictions: [],
     dwc: {},
     georeferences: [],
-    identifiers: [],
+    identifiers: {},
     isLoading: false,
     softValidations: {},
     timeline: {},

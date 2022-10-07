@@ -4,7 +4,7 @@
     <COHeader />
     <TableGrid
       class="margin-medium-bottom"
-      :columns="3"
+      :columns="ce.id ? 3 : 2"
       gap="1em"
     >
       <TableGrid
@@ -19,7 +19,7 @@
         :columns="1"
         gap="1em"
       >
-        <PanelIdentifier />
+        <PanelIdentifier :type="COLLECTION_OBJECT" />
         <PanelBiocurations />
         <SoftValidations
           class="column-validation"
@@ -41,7 +41,7 @@
             :columns="1"
             gap="1em"
           >
-            <PanelIdentifier />
+            <PanelIdentifier :type="COLLECTING_EVENT" />
             <SoftValidations
               class="column-validation"
               :validations="store.getters[GetterNames.GetSoftValidationFor](COLLECTING_EVENT)"

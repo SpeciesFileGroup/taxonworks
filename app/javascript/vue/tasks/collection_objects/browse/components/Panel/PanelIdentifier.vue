@@ -16,6 +16,13 @@ import { computed } from 'vue'
 import { GetterNames } from '../../store/getters/getters'
 import PanelContainer from './PanelContainer.vue'
 
+const props = defineProps({
+  type: {
+    type: String,
+    required: true
+  }
+})
+
 const store = useStore()
-const identifiers = computed(() => store.getters[GetterNames.GetIdentifiers])
+const identifiers = computed(() => store.getters[GetterNames.GetIdentifiersFor](props.type))
 </script>

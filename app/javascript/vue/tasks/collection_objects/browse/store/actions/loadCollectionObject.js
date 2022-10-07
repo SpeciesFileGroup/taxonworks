@@ -1,14 +1,9 @@
 import {
   CollectionObject,
-  Identifier,
   CollectingEvent,
-  Georeference,
-  Depiction
+  Georeference
 } from 'routes/endpoints'
-import {
-  makeCollectionObject,
-  makeIdentifier
-} from 'adapters/index.js'
+import { makeCollectionObject } from 'adapters/index.js'
 import {
   COLLECTION_OBJECT,
   COLLECTING_EVENT
@@ -50,14 +45,16 @@ export default ({ state, dispatch }, coId) => {
         globalId: ce.global_id,
         objectType: COLLECTING_EVENT
       })
+      dispatch(ActionNames.LoadIdentifiersFor, {
+        objectType: COLLECTING_EVENT,
+        id: ce.id
+      })
     }
   })
 
-  Identifier.where({
-    identifier_object_id: coId,
-    identifier_object_type: COLLECTION_OBJECT
-  }).then(({ body }) => {
-    state.identifiers = body.map(item => makeIdentifier(item))
+  dispatch(ActionNames.LoadIdentifiersFor, {
+    objectType: COLLECTION_OBJECT,
+    id: coId
   })
 
   CollectionObject.depictions(coId).then(({ body }) => {
