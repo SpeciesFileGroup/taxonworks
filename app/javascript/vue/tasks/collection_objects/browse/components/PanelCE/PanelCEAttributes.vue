@@ -1,18 +1,19 @@
 <template>
-  <div class="panel panel__content">
-    <h3 class="panel__title">
-      Attributes
-    </h3>
+  <PanelContainer title="Attributes">
     <TableAttributes :items="list" />
-  </div>
+  </PanelContainer>
 </template>
 
 <script setup>
 import { useStore } from 'vuex'
 import { computed } from 'vue'
 import { GetterNames } from '../../store/getters/getters'
-import { PRIORITIZE_ATTRIBUTES, HIDE_ATTRIBUTES } from '../../constants/collectingEvents.js'
+import {
+  PRIORITIZE_ATTRIBUTES,
+  HIDE_ATTRIBUTES
+} from '../../constants/collectingEvents.js'
 import TableAttributes from '../Table/TableAttributes.vue'
+import PanelContainer from '../Panel/PanelContainer.vue'
 
 const store = useStore()
 const collectingEvent = computed(() => store.getters[GetterNames.GetCollectingEvent])

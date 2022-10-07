@@ -12,7 +12,7 @@ const makeInitialState = () => {
     georeferences: [],
     identifiers: {},
     isLoading: false,
-    softValidations: {},
+    softValidations: [],
     timeline: {},
     biocurations: {}
   }

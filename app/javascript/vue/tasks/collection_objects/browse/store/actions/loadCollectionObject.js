@@ -15,10 +15,7 @@ export default ({ state, dispatch }, coId) => {
     const co = makeCollectionObject(body)
 
     state.collectionObject = co
-    dispatch(ActionNames.LoadSoftValidation, {
-      globalId: co.globalId,
-      objectType: COLLECTION_OBJECT
-    })
+    dispatch(ActionNames.LoadSoftValidation, co.globalId)
   })
 
   dispatch(ActionNames.LoadBiocurations, coId)
@@ -41,10 +38,7 @@ export default ({ state, dispatch }, coId) => {
         state.georeferences = body
       })
 
-      dispatch(ActionNames.LoadSoftValidation, {
-        globalId: ce.global_id,
-        objectType: COLLECTING_EVENT
-      })
+      dispatch(ActionNames.LoadSoftValidation, ce.global_id)
       dispatch(ActionNames.LoadIdentifiersFor, {
         objectType: COLLECTING_EVENT,
         id: ce.id

@@ -2,9 +2,9 @@
   <table>
     <thead>
       <tr class="cell-head">
-        <th>Field</th>
-        <th class="full_width">
-          Value
+        <th>{{ header[0] }}</th>
+        <th>
+          {{ header[1] }}
         </th>
       </tr>
     </thead>
@@ -14,7 +14,7 @@
         :key="key"
       >
         <tr v-if="value">
-          <td>{{ key }}</td>
+          <td v-html="key" />
           <td
             class="cell-value"
             v-html="value"
@@ -30,6 +30,10 @@ defineProps({
   items: {
     type: Object,
     required: true
+  },
+  header: {
+    type: Array,
+    default: () => ['Field', 'Value']
   }
 })
 </script>
@@ -53,7 +57,6 @@ th {
 }
 
 .cell-head {
-  font-weight: 200;
   text-transform: uppercase;
 }
 </style>

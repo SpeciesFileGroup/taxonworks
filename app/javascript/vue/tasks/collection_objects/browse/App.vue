@@ -7,33 +7,21 @@
       gap="1em"
     >
       <TableGrid
-        class="margin-medium-bottom"
-        :columns="collectingEvent.id ? 2 : 1"
+        :columns="collectingEvent.id ? 3 : 2"
         gap="1em"
         :column-width="{
           default: 'min-content',
           0: '1fr',
           1: '2fr',
+          2: '1fr'
         }"
       >
         <PanelCO />
         <PanelCE />
+        <ColumnThree />
       </TableGrid>
 
-      <TableGrid
-        :columns="3"
-        :column-width="{
-          default: 'min-content',
-          0: '1fr',
-          1: '1fr',
-          2: '2fr'
-        }"
-        gap="1em"
-      >
-        <PanelDwc />
-        <PanelDepictions />
-        <PanelTimeline />
-      </TableGrid>
+      <PanelDerived />
     </TableGrid>
   </div>
 </template>
@@ -50,6 +38,8 @@ import TableGrid from 'components/layout/Table/TableGrid.vue'
 import PanelDepictions from './components/Panel/PanelDepictions.vue'
 import PanelCE from './components/PanelCE/PanelCE.vue'
 import PanelCO from './components/Panel/PanelCO.vue'
+import ColumnThree from './components/ColumnThree.vue'
+import PanelDerived from './components/Panel/PanelDerived.vue'
 import { GetterNames } from './store/getters/getters'
 
 const store = useStore()
