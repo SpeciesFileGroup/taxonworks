@@ -15,8 +15,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `Clone previous citation` to citation panels [#3097]
 - Populate column button for Matrix Column Coder [#3117]
 - `scientificName` is now implied in `typeStatus` when only the type of type is specified in DwC occurrences importer
+- Additional DwC classification terms [#3118]
 
 ### Fixed
+- Broken URL for images in NeXML [#2811]
+- Improved Confidence annotation speed [#3126]
 - Destroying a Georefernce re-indexes related CollectingEvent [#3114]
 - Numerous issues in "Castor" TaxonName batch load
 - CollectingEvent cached geo-names (e.g. used in DwC export) missclassified [#2614]
@@ -37,10 +40,17 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Destroy selected Labels does not work [#3127]
 - Creating multiple type materials in comprehensive task [#3131]
 - DwC occurrences importer not reporting error when `typeStatus` is non-empty and yet it doesn't have correct format
+- Interactive key - Presence / absence descriptors are placed in non relevant list [#3100]
+
 ### Changed
 - Removed New OTU link from New observation matrix task [#3101]
 - Disabled horizontal resizing for textarea inputs on comprehensive
 
+[#3100]: https://github.com/SpeciesFileGroup/taxonworks/issues/3100
+[#3101]: https://github.com/SpeciesFileGroup/taxonworks/issues/3101
+[#2811]: https://github.com/SpeciesFileGroup/taxonworks/issues/2811
+[#3118]: https://github.com/SpeciesFileGroup/taxonworks/issues/3118
+[#3126]: https://github.com/SpeciesFileGroup/taxonworks/issues/3126
 [#3117]: https://github.com/SpeciesFileGroup/taxonworks/issues/3117
 [#3114]: https://github.com/SpeciesFileGroup/taxonworks/issues/3114
 [#2614]: https://github.com/SpeciesFileGroup/taxonworks/issues/2614
