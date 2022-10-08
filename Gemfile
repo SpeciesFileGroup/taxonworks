@@ -134,6 +134,9 @@ gem 'asciidoctor', '~> 2.0'
 # www
 gem 'wikidata-client', '~> 0.1.0.pre.rc1', require: 'wikidata'
 
+# Maintenance
+gem 'parallel', '~> 1.22'
+
 group :test, :development do
   gem 'faker', '~> 2.10'
   gem 'rspec-rails', '~> 5.0'

@@ -93,7 +93,7 @@ namespace :tw do
         puts Rainbow("Processed #{i} records.").yellow
       end
 
-      # nohup export PARALLEL_PROCESSOR_COUNT=4 && rake tw:maintenance:dwc_occurrences:rebuild_asserted_distributions total=1500000 project_id=16 &
+      # nohup export PARALLEL_PROCESSOR_COUNT=4 && bundle exec rake tw:maintenance:dwc_occurrences:rebuild_asserted_distributions total=1500000 project_id=16 &
       desc 'Reindex AssertedDistribution into dwc_occurrence records, all objects, with our without dwc_occcurrences'
       task rebuild_asserted_distributions: [:environment] do |t|
         if ENV['total']
