@@ -16,7 +16,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Previous and next links in Matrix row coder [#3107]
 - Match identifiers facet to Filter extract task  [#3089]
 - `Clone previous citation` to citation panels [#3097]
-- Populate column button for Matrix Column Coder [#3117]
 - `scientificName` is now implied in `typeStatus` when only the type of type is specified in DwC occurrences importer
 - Additional DwC classification terms [#3118]
 
