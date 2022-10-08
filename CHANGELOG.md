@@ -6,6 +6,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.29.4] - 2022-10-07
 ### Added
 - Distribution, Material Examined sections, and zip download for paper catalog [#3098]
 - Code full columns, destroy all observations in a column [#3117]
@@ -2963,7 +2966,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.3...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.4...development
+[0.29.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.3...v0.29.4
 [0.29.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.2...v0.29.3
 [0.29.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.1...v0.29.2
 [0.29.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.0...v0.29.1
