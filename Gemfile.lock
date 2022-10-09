@@ -696,6 +696,7 @@ DEPENDENCIES
   paper_trail (~> 12.0)
   paperclip!
   paperclip-meta (~> 3.0)
+  parallel (~> 1.22)
   parallel_tests
   passenger (~> 6.0.2)
   pdf-reader (~> 2.2)
