@@ -8,6 +8,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Changed author labels on Filter source [#3134]
+- Minor changes to plots on administration activity dashboard 
+- Parallelize some indexing rake tasks
 
 ### Fixed
 - Recent and Quick list are empty on Citation annotator [#3133]
