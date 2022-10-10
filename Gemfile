@@ -136,6 +136,7 @@ gem 'wikidata-client', '~> 0.1.0.pre.rc1', require: 'wikidata'
 
 # Maintenance
 gem 'parallel', '~> 1.22'
+gem 'ruby-progressbar', '~> 1.11'
 
 group :test, :development do
   gem 'faker', '~> 2.10'
