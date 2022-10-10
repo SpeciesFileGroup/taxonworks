@@ -6,7 +6,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Changed
+- Changed author labels on Filter source [#3134]
+
+### Fixed
+- Recent and Quick list are empty on Citation annotator [#3133]
+
+[#3133]: https://github.com/SpeciesFileGroup/taxonworks/issues/3133
+[#3134]: https://github.com/SpeciesFileGroup/taxonworks/issues/3134
 
 ## [0.29.4] - 2022-10-07
 ### Added
