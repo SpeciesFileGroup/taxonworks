@@ -6,7 +6,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+- Recent and Quick list are empty on Citation annotator [#3133]
+
+[#3133]: https://github.com/SpeciesFileGroup/taxonworks/issues/3133
 
 ## [0.29.4] - 2022-10-07
 ### Added
