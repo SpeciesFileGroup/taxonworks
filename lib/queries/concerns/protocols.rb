@@ -31,7 +31,7 @@ module Queries::Concerns::Protocols
     @protocol_id_and = params[:protocol_id_and].blank? ? [] : params[:protocol_id_and]
     @protocol_id_or = params[:protocol_id_or].blank? ? [] : params[:protocol_id_or]
 
-    @protocols = (params[:protocols]&.downcase == 'true' ? true : false) if !params[:protocols].nil?
+    @protocols = (params[:protocols]&.to_s&.downcase == 'true' ? true : false) if !params[:protocols].nil?
   end
 
   def protocol_id_and

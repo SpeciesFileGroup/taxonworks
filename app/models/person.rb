@@ -267,7 +267,7 @@ class Person < ApplicationRecord
 
           r_person.annotations_hash.each do |r_kee, r_objects|
             r_objects.each do |r_o|
-              skip   = false
+              skip  = false
               l_test = l_person_hash[r_kee]
               if l_test.present?
                 l_test.each do |l_o| # only look at same-type annotations

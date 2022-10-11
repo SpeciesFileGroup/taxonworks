@@ -33,7 +33,7 @@ module Queries::Concerns::Tags
     @keyword_id_and = params[:keyword_id_and].blank? ? [] : params[:keyword_id_and]
     @keyword_id_or = params[:keyword_id_or].blank? ? [] : params[:keyword_id_or]
 
-    @tags = (params[:tags]&.downcase == 'true' ? true : false) if !params[:tags].nil?
+    @tags = (params[:tags]&.to_s&.downcase == 'true' ? true : false) if !params[:tags].nil?
   end
 
   def keyword_id_and

@@ -1,13 +1,31 @@
 <template>
-  <div class="horizontal-left-content">
-    <a
-      v-if="matrixRow.previous_row && matrixRow.previous_row.row_object"
-      class="margin-small-right"
-      href="#"
-      v-html="matrixRow.previous_row.row_object.object_tag"
-      @click="emit('select', matrixRow.previous_row.id)"
-    />
-    <autocomplete
+  <div class="horizontal-right-content">
+    <ul class="context-menu no_bullets">
+      <li>
+        <component
+          :is="previousRowId
+            ? 'a'
+            : 'span'
+          "
+          :href="`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${previousRowId}`"
+        >
+          ‹ Previous
+        </component>
+      </li>
+      <li>
+        <component
+          :is="nextRowId
+            ? 'a'
+            : 'span'
+          "
+          :href="`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${nextRowId}`"
+        >
+          Next ›
+        </component>
+      </li>
+    </ul>
+    <Autocomplete
+      class="margin-medium-left"
       :array-list="rowLabels"
       placeholder="Search..."
       param="label"
@@ -16,33 +34,32 @@
       time="0"
       @select="emit('select', $event.id)"
     />
-    <a
-      v-if="matrixRow.next_row && matrixRow.next_row.row_object"
-      class="margin-small-left"
-      href="#"
-      v-html="matrixRow.next_row.row_object.object_tag"
-      @click="emit('select', matrixRow.next_row.id)"
-    />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { useStore } from 'vuex'
+import { GetterNames } from '../../store/getters/getters'
 import { ObservationMatrix } from 'routes/endpoints'
 import Autocomplete from 'components/ui/Autocomplete.vue'
 
-const props = defineProps({
-  matrixRow: {
-    type: Object,
-    default: undefined
-  }
-})
+const emit = defineEmits('select')
 
-const emit = defineEmits(['select'])
+const store = useStore()
+const previousRowId = computed(() => store.getters[GetterNames.GetMatrixRow]?.previous_row?.id)
+const nextRowId = computed(() => store.getters[GetterNames.GetMatrixRow]?.next_row?.id)
+const observationMatrixId = computed(() => store.getters[GetterNames.GetMatrixRow]?.observation_matrix?.id)
 
 const rowLabels = ref([])
 
-ObservationMatrix.rowLabels(props.matrixRow.observation_matrix.id).then(({ body }) => {
-  rowLabels.value = body
-})
+watch(
+  observationMatrixId,
+  () => {
+    ObservationMatrix.rowLabels(observationMatrixId.value).then(({ body }) => {
+      rowLabels.value = body
+    })
+  }
+)
+
 </script>

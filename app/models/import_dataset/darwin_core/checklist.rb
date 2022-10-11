@@ -184,7 +184,8 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
         end
 
         # make protonym depend on original combination's parent, if protonym is not the original combination
-        if current_record[:index] != oc_index
+        # do not make valid record depend on self if OC's parent is the valid name. Ex: Aus with OC Aus (Aus)
+        if current_record[:index] != oc_index && (core_records[oc_index][:parent] != current_record[:src_data]["taxonID"])
           current_record[:dependencies] << records_lut[core_records[oc_index][:parent]][:index]
           records_lut[core_records[oc_index][:parent]][:dependants] << current_record[:index]
         end

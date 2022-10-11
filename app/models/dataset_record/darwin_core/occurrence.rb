@@ -211,6 +211,20 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
         # TODO: If all attributes are equal assume it is the same event and share it with other specimens? (eventID is an alternate method to detect duplicates)
         if collecting_event
+          # if tags have been specified to be added, update the collecting event
+          if attributes[:collecting_event][:tags_attributes]
+            # get list of preexisting tags, exclude them from update
+            current_tags = collecting_event.tags.pluck(:keyword_id).to_set
+
+            new_tags = attributes[:collecting_event][:tags_attributes].reject { |t| current_tags.member?(t[:keyword].id) }
+
+            # add tags if there were any new ones
+            unless new_tags.empty?
+              collecting_event.tags.build(new_tags)
+              collecting_event.save!
+            end
+          end
+
           specimen.update!(collecting_event: collecting_event)
         else
           collecting_event = CollectingEvent.create!({
@@ -271,8 +285,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       else
         self.status = 'NotReady'
         self.metadata["error_data"] = { messages: { catalogNumber: ["Record cannot be imported until namespace is set, see \"Settings\"."] } }
-        self.import_dataset.add_catalog_number_namespace(get_field_value('institutionCode'), get_field_value('collectionCode'))
       end
+
+      self.import_dataset.add_catalog_number_namespace(get_field_value('institutionCode'), get_field_value('collectionCode'))
+      self.import_dataset.add_catalog_number_collection_code_namespace(get_field_value('collectionCode'))
 
       self.save!
     end
@@ -781,24 +797,28 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # identificationQualifier: [Mapped as part of otu name in parse_taxon_class]
 
     # typeStatus: [Type material only if scientific name matches scientificName and type term is recognized by TW vocabulary]
-    type_status = get_field_value(:typeStatus)&.match(/(?<type>\w+)\s+OF\s+(?<scientificName>.*)/i)
+    type_status = get_field_value(:typeStatus)
+    type_status_parsed = type_status&.match(/^(?<type>\w+)$/i) || type_status&.match(/(?<type>\w+)(\s+OF\s+(?<scientificName>.*))/i)
     scientific_name = get_field_value(:scientificName)&.gsub(/\s+/, ' ')
-    type_scientific_name = type_status&.[](:scientificName)&.gsub(/\s+/, ' ')
+    type_scientific_name = (type_status_parsed&.[](:scientificName)&.gsub(/\s+/, ' ') rescue nil) || scientific_name
 
-
-    if scientific_name && type_scientific_name.present?
+    if type_status_parsed && scientific_name && type_scientific_name.present?
 
       # if type_scientific_name matches the current name of the occurrence, use that
       if type_scientific_name&.delete_prefix!(scientific_name)&.match(/^\W*$/)
         type_material = {
-          type_type: type_status[:type].downcase
+          type_type: type_status_parsed[:type].downcase
         }
       elsif (original_combination_protonym = Protonym.find_by(cached_original_combination: type_scientific_name, project_id: self.project_id))
         type_material = {
-          type_type: type_status[:type].downcase,
+          type_type: type_status_parsed[:type].downcase,
           protonym: original_combination_protonym
         }
       end
+    end
+
+    if type_status && type_material.nil?
+      raise DarwinCore::InvalidData.new({ "typeStatus": ["Unprocessable typeStatus information"] }) if self.import_dataset.require_type_material_success?
     end
 
     # identifiedBy: determiners of taxon determination
@@ -1024,30 +1044,65 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
   def parse_tw_collection_object_data_attributes
     attributes = []
+    tags = []
 
     get_tw_data_attribute_fields_for('CollectionObject').each do |attribute|
       append_data_attribute(attributes, attribute)
     end
 
+    get_tw_tag_fields_for('CollectionObject').each do |tag|
+      append_tag_attribute(tags, tag)
+    end
+
     {
       specimen: {
-        data_attributes_attributes: attributes
+        data_attributes_attributes: attributes,
+        tags_attributes: tags
       }
     }
   end
 
   def parse_tw_collecting_event_data_attributes
     attributes = []
+    tags = []
 
     get_tw_data_attribute_fields_for('CollectingEvent').each do |attribute|
       append_data_attribute(attributes, attribute)
     end
 
+    get_tw_tag_fields_for('CollectingEvent').each do |tag|
+      append_tag_attribute(tags, tag)
+    end
+
     {
       collecting_event: {
-        data_attributes_attributes: attributes
+        data_attributes_attributes: attributes,
+        tags_attributes: tags
       }
     }
+  end
+
+  def append_tag_attribute(tags, tag)
+    value = get_field_value(tag[:field])
+    return unless value
+
+    keyword = Keyword.find_by(uri: tag[:selector], project: self.project)
+    keyword ||= Keyword.where(project: project).find_by(
+      Keyword.arel_table[:name].matches(ApplicationRecord.sanitize_sql_like(tag[:selector]))
+    )
+
+    if value
+      raise DarwinCore::InvalidData.new({ tag[:field] => ["Tag with #{tag[:selector]} URI or name not found"] }) unless keyword
+
+      if value.downcase == "true" || value == "1"
+        tags.append({keyword: keyword})
+        return
+      end
+
+      unless value.downcase == "false" || value == "0"
+        raise DarwinCore::InvalidData.new({ tag[:field] => ["Tag value must be \"true\" or \"1\" to apply, or blank, \"false\", or \"0\", to not apply"] })
+      end
+    end
   end
 
   def append_data_attribute(attributes, attribute)

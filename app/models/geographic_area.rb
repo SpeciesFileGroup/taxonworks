@@ -50,8 +50,12 @@ class GeographicArea < ApplicationRecord
   include Housekeeping::Timestamps
   include Shared::IsData
   include Shared::IsApplicationData
+  include Shared::AlternateValues
+  include Shared::Identifiers
 
   include GeographicArea::DwcSerialization
+
+  ALTERNATE_VALUES_FOR = [:name].freeze
 
   # @return class
   #   this method calls Module#module_parent
@@ -62,6 +66,16 @@ class GeographicArea < ApplicationRecord
   end
 
   has_closure_tree
+
+  # !! If this table changes we need to update this
+  CACHED_GEOGRAPHIC_AREA_TYPES = {
+   2 => 'Unknown',
+   3 => 'Country',
+   15 => 'Parish',
+   18 => 'Province',
+   33 => 'County',
+   63 => 'State'
+  }
 
   belongs_to :geographic_area_type, inverse_of: :geographic_areas
   belongs_to :level0, class_name: 'GeographicArea', foreign_key: :level0_id
@@ -144,6 +158,8 @@ class GeographicArea < ApplicationRecord
         .where(['gb.name = ?', names[2]])
     end
   }
+
+  scope :ordered_by_area, -> (direction = :ASC) { joins(:geographic_items).order("geographic_items.cached_total_area #{direction || 'ASC'}") }
 
   before_destroy :check_for_children
 
@@ -228,15 +244,27 @@ class GeographicArea < ApplicationRecord
   end
 
   # @return [Hash]
-  #   a key valus pair that classifies this geographic
-  #   area into country, state, county categories.
+  #   A key/value pair that classify this GeographicArea
+  #   into  a country, state, our county
   #   !! This is an estimation, although likely highly accurate.  It uses assumptions about how data are stored in GeographicAreas
   #   to derive additional data, particularly for State
   def categorize
-    n = geographic_area_type.name
-    return {country: name} if GeographicAreaType::COUNTRY_LEVEL_TYPES.include?(n) || (id == level0_id)
-    return {state: name} if GeographicAreaType::STATE_LEVEL_TYPES.include?(n) || (data_origin == 'ne_states') || (id == level1_id) || (!parent.nil? && (parent.try(:id) == parent.try(:level0_id)))
-    return {county: name} if GeographicAreaType::COUNTY_LEVEL_TYPES.include?(n)
+    s = name
+    if m = ::Utilities::Geo::DICTIONARY[s]
+      s = m
+    end
+
+     # TODO: Wrap this a pre-loading constant. This makes specs very fragile.
+     
+     unless Rails.env == 'test'
+       n = CACHED_GEOGRAPHIC_AREA_TYPES[geographic_area_type_id]
+     end
+
+     n ||= GeographicAreaType.where(id: geographic_area_type_id).limit(1).pluck(:name).first
+
+    return {country: s} if GeographicAreaType::COUNTRY_LEVEL_TYPES.include?(n) || (id == level0_id)
+    return {state: s} if GeographicAreaType::STATE_LEVEL_TYPES.include?(n) || (data_origin == 'ne_states') || (id == level1_id) || (!parent.nil? && (parent&.id) == parent&.level0_id)
+    return {county: s} if GeographicAreaType::COUNTY_LEVEL_TYPES.include?(n)
 
     if data_origin =~ /tdwg/
       if o = categorize_tdwg
@@ -255,6 +283,8 @@ class GeographicArea < ApplicationRecord
     return {state: name}
     end
 
+    # !! Do not use ::Utilities::Geo::DICTIONARY here, this is particular to TDWG's names
+
     # TODO: more manual checks can be added here intermediate areas like "Western Canada"
     # Many other countries are a mess here.
     return {country: 'United States'} if name =~ /U\.S\.A/
@@ -262,15 +292,16 @@ class GeographicArea < ApplicationRecord
     return {country: 'Chile'} if name =~ /Chile.Central/
 
     if g = GeographicArea
-      .where(name: name) # shares the same name
-      .where('level0_id = id') # self is a country
-      .where.not(geographic_area_type: [111,112]).any? # not another TDWG record
-    return {country: name}
+        .where(name: name) # shares the same name
+        .where('level0_id = id') # self is a country
+        .where.not(geographic_area_type: [111,112]).any? # not another TDWG record
+      return {country: name}
     end
+
     {}
   end
 
-    # @return [Hash]
+  # @return [Hash]
   #   use the parent/child relationships of the this GeographicArea to return a country/state/county categorization
   def geographic_name_classification
     v = {}
@@ -374,7 +405,7 @@ class GeographicArea < ApplicationRecord
       'type' => 'Feature',
       'properties' => {}
     }
-    area = geographic_items.order(:id) # Not prioritized!? 
+    area = geographic_items.order(:id) # Not prioritized!?
 
     result['geometry'] = area.first.to_geo_json unless area.empty?
     result
@@ -397,18 +428,23 @@ class GeographicArea < ApplicationRecord
   # @return [Hash]
   #   this instance's attributes applicable to GeoLocate
   def geolocate_attributes
-    parameters = {
-      'county'  => level2.try(:name),
-      'state'   => level1.try(:name),
-      'country' => level0.try(:name)
-    }
+    h = name_hash
 
     if item = geographic_area_map_focus # rubocop:disable Lint/AssignmentInCondition
-      parameters['Longitude'] = item.point.x
-      parameters['Latitude']  = item.point.y
+      h['Longitude'] = item.point.x
+      h['Latitude']  = item.point.y
     end
 
-    parameters
+    h
+  end
+
+  # @return [Hash]
+  def name_hash
+     return {
+      'country' => level0&.name,
+      'state'   => level1&.name,
+      'county'  => level2&.name
+    }
   end
 
   def geolocate_ui_params

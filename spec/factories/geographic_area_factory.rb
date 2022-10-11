@@ -67,7 +67,7 @@ FactoryBot.define do
       end
 
       factory :level0_geographic_area do
-        name { 'United States of America' }
+        name { 'United States' }
         iso_3166_a3 { 'USA' }
         iso_3166_a2 { 'US' }
         parent_earth

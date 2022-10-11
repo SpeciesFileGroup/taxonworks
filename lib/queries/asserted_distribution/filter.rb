@@ -36,9 +36,15 @@ module Queries
       #   `expanded` - start with spatial, then for each spatial use parent
       #   `inverse_expanded` - start with parent, then for each use spatial (only make sense for non-spatial parents with some spatial children)
       
+      # @return [Boolean, nil]
+      # @params recent ['true', 'false', nil]
+      attr_accessor :recent
+
       def initialize(params)
         @otu_id = params[:otu_id]
         @geographic_area_id = params[:geographic_area_id]
+  
+        @recent = params[:recent].blank? ? nil : params[:recent].to_i
 
         set_citations_params(params)
       end
@@ -104,6 +110,7 @@ module Queries
           q = ::AssertedDistribution.all
         end
 
+        q = q.order(updated_at: :desc).limit(recent) if recent
         q
       end
   

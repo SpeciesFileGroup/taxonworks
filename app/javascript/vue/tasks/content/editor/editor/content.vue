@@ -109,6 +109,8 @@ import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { Content } from 'routes/endpoints'
 
+const extend = ['otu', 'topic']
+
 export default {
   components: {
     CloneContent,
@@ -245,9 +247,9 @@ export default {
       if (this.disabled || (this.record.content.text === '')) return
 
       if (this.record.content.id) {
-        Content.update(this.record.content.id, this.record)
+        Content.update(this.record.content.id, { ...this.record, extend })
       } else {
-        Content.create(this.record).then(response => {
+        Content.create({ ...this.record, extend }).then(response => {
           this.record.content.id = response.body.id
           this.$store.commit(MutationNames.SetContentSelected, response.body)
         })
@@ -259,7 +261,8 @@ export default {
 
       const params = {
         otu_id: this.otu.id,
-        topic_id: this.topic.id
+        topic_id: this.topic.id,
+        extend
       }
 
       this.firstInput = true

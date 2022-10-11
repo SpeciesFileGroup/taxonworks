@@ -3,7 +3,9 @@
     :action="url"
     class="dropzone vue-dropzone"
     :id="id"
-  />
+  >
+    <slot />
+  </form>
 </template>
 
 <script>
@@ -123,8 +125,27 @@ export default {
       } else {
         return ' <i class="material-icons">error</i>'
       }
+    },
+
+    defaultConfiguration () {
+      return {
+        maxFilesize: this.maxFileSizeInMB,
+        timeout: this.timeout
+      }
     }
   },
+
+  watch: {
+    dropzoneOptions: {
+      handler (newVal) {
+        if (this.dropzone) {
+          Object.assign(this.dropzone.options, this.defaultConfiguration, this.dropzoneOptions)
+        }
+      },
+      deep: true
+    }
+  },
+
   mounted () {
     if (this.$isServer) {
       return
@@ -159,12 +180,7 @@ export default {
         dictResponseError: this.language.dictResponseError
       })
     } else {
-      const defaultConfiguration = { 
-        maxFilesize: this.maxFileSizeInMB,
-        timeout: this.timeout
-      }
-
-      this.dropzone = new Dropzone(element, Object.assign({}, defaultConfiguration, this.dropzoneOptions))
+      this.dropzone = new Dropzone(element, Object.assign({}, this.defaultConfiguration, this.dropzoneOptions))
     }
     // Handle the dropzone events
     const vm = this

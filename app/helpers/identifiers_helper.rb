@@ -62,34 +62,36 @@ module IdentifiersHelper
   # @return [String]
   #   assumes the display context is on the object in question
   def identifier_list_tag(object)
-    return nil unless object.has_identifiers? && object.identifiers.any?
+    ids = visible_identifiers(object).load
+    return nil unless ids.any?
     content_tag(:h3, 'Identifiers') +
       content_tag(:ul, class: 'annotations_identifier_list') do
-      object.identifiers.collect{|a| content_tag(:li, identifier_annotation_tag(a)) }.join.html_safe
-    end
+        ids.collect{|a| content_tag(:li, identifier_annotation_tag(a)) }.join.html_safe
+      end
   end
 
   # @return [String, nil]
   #   a list of identifiers *with* HTML
   def simple_identifier_list_tag(object)
-    return nil if !object.identifiers.any?
-    object.identifiers.collect{|a| tag.span(identifier_annotation_tag(a)) }.join.html_safe
+    ids = visible_identifiers(object).load
+    return nil unless ids.any?
+    ids.collect{|a| tag.span(identifier_annotation_tag(a)) }.join.html_safe
   end
 
   # @return [String, nil]
   #   a list of identifiers *without* HTML
   def identifier_list_labels(object)
-    return nil if !object.identifiers.any?
-    object.identifiers.collect{|a| a.cached }.join(', ')
+    ids = visible_identifiers(object).pluck(:cached)
+    return nil unless ids.any?
+    ids.join(', ')
   end
 
   # @return [String, nil]
   #    identifiers for object with HTML
   def identifiers_tag(object)
-    if object.identifiers.any?
-      return object.identifiers.collect{|a| content_tag(:span, identifier_tag(a))}.join('; ').html_safe
-    end
-    nil
+    ids = visible_identifiers(object)
+    return nil unless ids.any?
+    return ids.collect{|a| content_tag(:span, identifier_tag(a))}.join('; ').html_safe
   end
 
   def add_identifier_link(object: nil)
@@ -123,4 +125,15 @@ module IdentifiersHelper
     a
   end
 
+  private
+
+  def visible_identifiers(object)
+    if object.has_identifiers?
+      object.identifiers.visible(Current.project_id)
+    else
+      ::Identifier.none
+    end 
+  end
+
 end
+

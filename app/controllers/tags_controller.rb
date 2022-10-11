@@ -3,7 +3,7 @@ require_dependency 'queries/tag/filter'
 class TagsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_tag, only: [:update, :destroy]
+  before_action :set_tag, only: [:update, :destroy, :api_show]
   after_action -> { set_pagination_headers(:tags) }, only: [:index, :api_index ], if: :json_request?
   # GET /tags
   # GET /tags.json
@@ -18,6 +18,19 @@ class TagsController < ApplicationController
         page(params[:page]).per(params[:per] || 500)
       }
     end
+  end
+
+  def api_index
+    @tags = Queries::Tag::Filter.new(api_params).all
+      .where(project_id: sessions_current_project_id)
+      .order('tags.id')
+      .page(params[:page])
+      .per(params[:per])
+    render '/tags/api/v1/index'
+  end
+
+  def api_show
+    render '/tags/api/v1/show'
   end
 
   def new
@@ -131,6 +144,18 @@ class TagsController < ApplicationController
   def set_tag
     @tag = Tag.with_project_id(sessions_current_project_id).find(params[:id])
   end
+
+  def api_params
+    params.permit(
+      :tag_object_id,
+      :tag_object_type,
+      :object_global_id,
+      tag_object_id: [],
+      tag_object_type: [],
+      keyword_id: []
+    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
+  end
+
 
   def tag_params
     params.require(:tag).permit(

@@ -5,7 +5,6 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHom
   def self.disjoint_taxon_name_relationships
     parent.disjoint_taxon_name_relationships +
       self.collect_to_s(
-        TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective,
         TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation,
         TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName,
         TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::SynonymicHomonym
@@ -36,6 +35,13 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHom
 
   def object_status_connector_to_subject
     ' for'
+  end
+
+  def sv_specific_relationship
+    tr = TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym.where(object_taxon_name_id: subject_taxon_name_id).first
+    unless tr.nil?
+      soft_validations.add(:subject_taxon_name_id, "A new replacement name could not be proposed for another replacement name. The relationship should move from #{subject_taxon_name.cached_html} to the older objective synonym: #{tr.subject_taxon_name.cached_html}")
+    end
   end
 
 end

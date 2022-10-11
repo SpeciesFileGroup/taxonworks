@@ -3,14 +3,43 @@ require 'rails_helper'
 describe AlternateValue, group: :annotators do
   let(:alternate_value) { AlternateValue.new }
 
+  context 'Dual::Annotator' do
+
+    specify '#force_community_check, with is_community_annotation' do
+      g = FactoryBot.create(:valid_geographic_area)
+      a = AlternateValue::Abbreviation.create!(
+        alternate_value_object: g,
+        value: 'A.',
+        alternate_value_object_attribute: :name,
+        is_community_annotation: true)
+      expect(a.project_id.nil?).to be_truthy
+    end
+
+    specify '#force_community_check, without is_community_annotation' do
+      g = FactoryBot.create(:valid_geographic_area)
+      a = AlternateValue::Abbreviation.create!(alternate_value_object: g, value: 'A.', alternate_value_object_attribute: :name )
+      expect(a.project_id.nil?).to be_truthy
+    end
+
+    specify '#force_community_check, subclasses' do
+      o = FactoryBot.create(:valid_common_name)
+      a = AlternateValue::Abbreviation.create!(
+        alternate_value_object: o,
+        value: 'A.',
+        alternate_value_object_attribute: :name,
+        is_community_annotation: true)
+      expect(a.project_id.nil?).to be_truthy
+    end
+  end
+
   context 'associations' do
     context 'belongs_to' do
       specify 'language' do
-        expect(alternate_value.language = Language.new).to be_truthy 
+        expect(alternate_value.language = Language.new).to be_truthy
       end
 
       specify 'alternate_value_object' do
-        expect(alternate_value.alternate_value_object = Serial.new).to be_truthy 
+        expect(alternate_value.alternate_value_object = Serial.new).to be_truthy
       end
     end
   end
@@ -21,7 +50,7 @@ describe AlternateValue, group: :annotators do
         alternate_value.valid?
       }
 
-      specify 'alternate_value_object' do 
+      specify 'alternate_value_object' do
         # This eliminate all model based validation requirements
         alternate_value.type = 'AlternateValue::Abbreviation'
         alternate_value.value = 'asdf'
@@ -61,9 +90,9 @@ describe AlternateValue, group: :annotators do
       alternate_value.alternate_value_object = FactoryBot.build(:valid_serial, name: 'foo')
       alternate_value.alternate_value_object_attribute = 'name'
       alternate_value.value = 'foo'
-     
+
       alternate_value.valid?
-      
+
       expect(alternate_value.errors.include?(:alternate_value_object_attribute)).to be_truthy
 
       alternate_value.value = 'bar'
@@ -110,12 +139,12 @@ describe AlternateValue, group: :annotators do
 
       specify 'with nested_attributes' do
         s = Sequence.new(
-          sequence: 'ACGT', 
-          name: 'foo', 
+          sequence: 'ACGT',
+          name: 'foo',
           sequence_type: 'DNA',
           alternate_values_attributes: [
-            {type: 'AlternateValue::Abbreviation', 
-             value: 'fo.', 
+            {type: 'AlternateValue::Abbreviation',
+             value: 'fo.',
              alternate_value_object_attribute: :name}
           ])
         expect(s.save!).to be_truthy
@@ -131,7 +160,7 @@ describe AlternateValue, group: :annotators do
       expect(v.original_value).to eq(tmp) # see the serial_factory
     end
 
-    context 'for community data project_id is not set when is_community_annotation == true' do 
+    context 'for community data project_id is not set when is_community_annotation == true' do
       specify 'on save' do
         o                                                = FactoryBot.build(:valid_serial, name: 'The Serial')
         alternate_value.alternate_value_object           = o  # setting object let's current schema work
@@ -169,7 +198,7 @@ describe AlternateValue, group: :annotators do
       alternate_value.value                            = 'T.S.'
       alternate_value.type                             = 'AlternateValue::Abbreviation'
       expect(alternate_value.valid?).to be(true)
-      alternate_value.save! 
+      alternate_value.save!
       expect(alternate_value.project_id).to eq(1)
     end
   end

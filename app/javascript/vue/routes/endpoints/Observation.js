@@ -1,4 +1,5 @@
 import baseCRUD, { annotations } from './base'
+import ajaxCall from 'helpers/ajaxCall.js'
 
 const controller = 'observations'
 const permitParams = {
@@ -24,6 +25,10 @@ const permitParams = {
     sample_standard_error: String,
     sample_units: String,
     type: String,
+    day_made: Number,
+    month_made: Number,
+    year_made: Number,
+    time_made: String,
     images_attributes: {
       id: Number,
       _destroy: Boolean,
@@ -49,5 +54,11 @@ const permitParams = {
 
 export const Observation = {
   ...baseCRUD(controller, permitParams),
-  ...annotations(controller)
+  ...annotations(controller),
+
+  codeRow: params => ajaxCall('post', `/${controller}/code_column`, params),
+
+  destroyColumn: params => ajaxCall('delete', '/observations/destroy_column.json', { params }),
+
+  destroyRow: params => ajaxCall('delete', '/observations/destroy_row.json', { params })
 }

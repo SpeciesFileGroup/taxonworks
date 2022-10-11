@@ -64,25 +64,33 @@
     </div>
     <div class="field">
       <determiner-component
+        v-model="determination"
         role="Determiner"
         title="Determiner"
         klass="CollectionObject"
         param-people="determiner_id"
         param-any="determiner_id_or"
-        v-model="determination"/>
+        toggle
+        @toggle="isCurrentDeterminationVisible = $event"
+      />
     </div>
 
-    <div class="field">
+    <div
+      v-if="isCurrentDeterminationVisible"
+      class="field"
+    >
       <ul class="no_bullets">
         <li
           v-for="item in currentDeterminationsOptions"
-          :key="item.value">
+          :key="item.value"
+        >
           <label>
             <input
               type="radio"
               :value="item.value"
               name="current-determination"
-              v-model="determination.current_determinations">
+              v-model="determination.current_determinations"
+            >
             {{ item.label }}
           </label>
         </li>
@@ -110,7 +118,7 @@ export default {
   props: {
     modelValue: {
       type: Object,
-      default: undefined
+      default: () => ({})
     }
   },
 
@@ -121,6 +129,7 @@ export default {
       otusStore: [],
       determiners: [],
       taxon: undefined,
+      isCurrentDeterminationVisible: true,
       currentDeterminationsOptions: [
         {
           label: 'Current and historical',
@@ -174,6 +183,10 @@ export default {
         }
       },
       deep: true
+    },
+
+    isCurrentDeterminationVisible () {
+      this.determination.current_determinations = undefined
     }
   },
 

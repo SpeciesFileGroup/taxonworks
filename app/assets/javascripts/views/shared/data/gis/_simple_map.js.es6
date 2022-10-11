@@ -18,10 +18,10 @@ Object.assign(TW.views.shared.gis.simple_map, {
   }
 });
 
-$(document).on('turbolinks:load', function() {
+/* $(document).on('turbolinks:load', function() {
   if($('#_simple_map_outer').length) {
     TW.vendor.lib.google.maps.loadGoogleMapsAPI().then( resolve => {
       TW.views.shared.gis.simple_map.init();
     });
   }
-});
+}); */

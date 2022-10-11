@@ -4,7 +4,7 @@
       v-for="member in membersList"
       :key="member.id"
       type="button"
-      :class="{ 'button-default': !selectedMembers.includes(member.id) }"
+      :class="{ 'button-default': !selectedMembers.includes(member.user_id) }"
       class="button normal-input biocuration-toggle-button"
       @click="selectMember(member)"
       v-html="member.user.name"
@@ -51,12 +51,12 @@ export default {
 
   methods: {
     selectMember (item) {
-      const index = this.selectedMembers.findIndex(memberId => memberId === item.id)
+      const index = this.selectedMembers.findIndex(memberId => memberId === item.user_id)
 
       if (index > -1) {
         this.selectedMembers.splice(index, 1)
       } else {
-        this.selectedMembers.push(item.id)
+        this.selectedMembers.push(item.user_id)
       }
     }
   }

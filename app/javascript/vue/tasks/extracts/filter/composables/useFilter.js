@@ -1,4 +1,5 @@
 import { reactive, toRefs } from 'vue'
+import qs from 'qs'
 import getPagination from 'helpers/getPagination'
 
 export default function (service) {
@@ -12,26 +13,28 @@ export default function (service) {
   })
 
   const makeFilterRequest = params => {
+    const payload = {
+      per: state.per,
+      ...params
+    }
+
     state.parameters = params
     state.isLoading = true
 
-    service.where({
-      per: state.per,
-      ...params
-    }).then((response) => {
+    service.filter(params).then(response => {
       state.list = response.body
       state.isLoading = false
       state.pagination = getPagination(response)
       state.urlRequest = response.request.url
-      setRequestUrl(response.request)
+      setRequestUrl(response.request.responseURL, payload)
     })
   }
 
-  const setRequestUrl = request => {
-    const urlParams = new URLSearchParams(request.responseURL.split('?')[1])
+  const setRequestUrl = (url, params) => {
+    const urlParams = qs.stringify(params, { arrayFormat: 'brackets' })
 
-    state.urlRequest = request.responseURL
-    history.pushState(null, null, `${window.location.pathname}?${urlParams.toString()}`)
+    state.urlRequest = [url, urlParams].join('?')
+    history.pushState(null, null, `${window.location.pathname}?${urlParams}`)
   }
 
   const loadPage = params => {

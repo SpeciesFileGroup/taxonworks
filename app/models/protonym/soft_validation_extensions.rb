@@ -290,7 +290,6 @@ module Protonym::SoftValidationExtensions
         resolution: [:new_taxon_name_task]
       },
 
-      # TODO: names are not taxa, should this be here?
       sv_extant_children: {
         set: :extant_children,
         name: 'Extinct taxon has extant children taxa',
@@ -300,8 +299,16 @@ module Protonym::SoftValidationExtensions
       sv_protonym_to_combination: {
         set: :protonym_to_combination,
         fix: :becomes_combination,
-        name: 'Invalid protonym could be converted into a combination',
+        name: 'Protonym with unavailable/invalid relationship which could potentially be converted into a combination',
         description: 'Detection of protonyms, which could be not synonym, but subsequent combinations of another protonym. The Fix could convert the protonym into combination. The Fix require manual trigger',
+        flagged: true
+      },
+
+      sv_presence_of_combination: {
+        set: :presence_of_combination,
+        fix: :sv_fix_presence_of_combination,
+        name: 'Missing subsequent combination.',
+        description: 'Missing subsequent combination. Current classification of the taxon is different from original combination. The Fix require manual trigger',
         flagged: true
       },
 
@@ -309,6 +316,13 @@ module Protonym::SoftValidationExtensions
         set: :missing_roles,
         name: 'Missing taxon author roles',
         description: 'Taxon author roles are not set',
+        resolution:  [:new_taxon_name_task]
+      },
+
+      sv_person_vs_year_of_publication: {
+        set: :person_vs_year_of_publication,
+        name: 'The taxon author deceased',
+        description: "The taxon year of description does not match with the author's years of life",
         resolution:  [:new_taxon_name_task]
       },
 
@@ -346,9 +360,10 @@ module Protonym::SoftValidationExtensions
         name: 'Verbatim year is not required for misspelling',
         description: 'Verbatim year is not required for misspelling. The year of the misspelling is inherited from the correctly spelled protonym. The Fix will delete the year'
       },
+
       sv_missing_otu: {
         set: :missing_otu,
-        fix: :sv_fix_misspelling_otu,
+        fix: :sv_fix_missing_otu,
         name: 'Missing OTU',
         description: 'Missing OTU prevents proper migration to Catalog of Life'
       }
@@ -394,10 +409,10 @@ module Protonym::SoftValidationExtensions
 
     def sv_validate_parent_rank
       if self.rank_class && self.id == self.cached_valid_taxon_name_id
-        if rank_string == 'NomenclaturalRank' || self.parent.rank_string == 'NomenclaturalRank' || !!self.iczn_uncertain_placement_relationship
+        if rank_string == 'NomenclaturalRank' || self.parent&.rank_string == 'NomenclaturalRank' || !!self.iczn_uncertain_placement_relationship
           true
-        elsif !self.rank_class.valid_parents.include?(self.parent.rank_string)
-          soft_validations.add(:rank_class, "The rank #{self.rank_class.rank_name} is not compatible with the rank of parent (#{self.parent.rank_class.rank_name}). The name should be marked as 'Incertae sedis'")
+        elsif !self.rank_class&.valid_parents.include?(self.parent&.rank_string)
+          soft_validations.add(:rank_class, "The rank #{self.rank_class&.rank_name} is not compatible with the rank of parent (#{self.parent&.rank_class&.rank_name}). The name should be marked as 'Incertae sedis'")
         end
       end
     end
@@ -621,7 +636,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_fix_coordinated_names_author
-      return false if !self.verbatim_author.nil? || !self.roles.empty?
+      return false if !self.verbatim_author.nil? || !self.taxon_name_author_roles.empty?
       list_of_coordinated_names.each do |t|
         if self.verbatim_author.nil? && !t.verbatim_author.nil?
           self.update_column(:verbatim_author, t.verbatim_author)
@@ -937,17 +952,17 @@ module Protonym::SoftValidationExtensions
     def sv_validate_coordinated_names_roles
       return true unless is_available?
       list_of_coordinated_names.each do |t|
-        if self.roles.collect{|i| i.person_id} != t.roles.collect{|i| i.person_id}
+        if self.taxon_name_author_roles.collect{|i| i.person_id} != t.taxon_name_author_roles.collect{|i| i.person_id}
           soft_validations.add(:base, "The author roles do not match with the author roles of the coordinate #{t.rank_class.rank_name}", success_message: 'Author roles were updated', failure_message:  'Author roles were not updated')
         end
       end
     end
 
     def sv_fix_coordinated_names_roles
-      return false unless self.roles.empty?
+      return false unless self.taxon_name_author_roles.empty?
       list_of_coordinated_names.each do |t|
-        if !t.roles.empty?
-          t.roles.each do |r|
+        if !t.taxon_name_author_roles.empty?
+          t.taxon_name_author_roles.each do |r|
             TaxonNameAuthor.create(person_id: r.person_id, role_object: self, position: r.position)
           end
           return true
@@ -1505,14 +1520,30 @@ module Protonym::SoftValidationExtensions
     def sv_protonym_to_combination
       if convertable_to_combination?
         soft_validations.add(
-          :base, "Invalid #{self.cached_original_combination_html} could be converted into a Combination",
+          :base, "Unavailable or Invalid #{self.cached_original_combination_html} could potentially be converted into a combination (Fix will try to convert protonym into combination)",
           success_message: "Protonym #{self.cached_original_combination_html} was successfully converted into a combination", failure_message:  'Failed to convert protonym into combination')
       end
     end
 
     def sv_missing_roles
-      if self.roles.empty? && !has_misspelling_relationship? && !name_is_misapplied? && is_family_or_genus_or_species_rank?
+      if self.taxon_name_author_roles.empty? && !has_misspelling_relationship? && !name_is_misapplied? && is_family_or_genus_or_species_rank?
         soft_validations.add(:base, 'Taxon name author role is not selected')
+      end
+    end
+
+    def sv_person_vs_year_of_publication
+      if self.cached_nomenclature_date
+        year = self.cached_nomenclature_date.year
+        self.taxon_name_author_roles.each do |r|
+          person = r.person
+          if person.year_died && year > person.year_died + 2
+            soft_validations.add(:base, "The year of description does not fit the years of #{person.last_name}'s life (#{person.year_born}–#{person.year_died})")
+          elsif person.year_born && year > person.year_born + 105
+            soft_validations.add(:base, "The year of description does not fit the years of #{person.last_name}'s life (#{person.year_born}–#{person.year_died})")
+          elsif person.year_born && year < person.year_born + 10
+            soft_validations.add(:base, "The year of description does not fit the years of #{person.last_name}'s life (#{person.year_born}–#{person.year_died})")
+          end
+        end
       end
     end
 
@@ -1531,7 +1562,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_author_is_not_required
-      if self.verbatim_author && (!self.roles.empty? || (self.source && self.verbatim_author == self.source.authority_name))
+      if self.verbatim_author && (!self.taxon_name_author_roles.empty? || (self.source && self.verbatim_author == self.source.authority_name))
         soft_validations.add(
           :verbatim_author, 'Verbatim author is not required, it is derived from the source and taxon name author roles',
           success_message: 'Verbatim author was deleted',
@@ -1547,7 +1578,7 @@ module Protonym::SoftValidationExtensions
     def sv_misspelling_roles_are_not_required
       #DD: do not use .has_misspelling_relationship?
       misspellings = taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING).any?
-      if !self.roles.empty? && self.source && misspellings
+      if !self.taxon_name_author_roles.empty? && self.source && misspellings
         soft_validations.add(
           :base, 'Taxon name author role is not required for misspellings and misapplications',
           success_message: 'Roles were deleted',
@@ -1556,7 +1587,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_fix_misspelling_roles_are_not_required
-      self.roles.each do |r|
+      self.taxon_name_author_roles.each do |r|
         r.destroy
       end
       return true
@@ -1598,12 +1629,46 @@ module Protonym::SoftValidationExtensions
           failure_message:  'Failed to create OTU')
       end
     end
-    def sv_fix_misspelling_otu
+
+    def sv_fix_missing_otu
       if is_available? && otus.empty?
         otus.create(taxon_name_id: id)
         return true
       end
       return false
+    end
+
+    def sv_presence_of_combination
+      if is_genus_or_species_rank? && is_valid? && self.id == self.lowest_rank_coordinated_taxon.id && !cached_original_combination.nil? && cached != cached_original_combination
+        unless Combination.where("cached = ? AND cached_valid_taxon_name_id = ?", cached, cached_valid_taxon_name_id).any?
+          soft_validations.add(
+            :base, "Protonym #{self.cached_html} missing corresponding subsequent combination. Current classification of the taxon is different from original combination. (Fix will create a new combination)",
+            success_message: "Combination #{self.cached_html} was successfully create",
+            failure_message:  'Failed to create a new combination')
+        end
+      end
+    end
+
+    def sv_fix_presence_of_combination
+      begin
+        TaxonName.transaction do
+          c = Combination.new
+          safe_self_and_ancestors.each do |i|
+            case i.rank
+              when 'genus'
+                c.genus = i
+              when 'subgenus'
+                c.subgenus = i
+              when 'species'
+                c.species = i
+              when 'subspecies'
+                c.subspecies = i
+            end
+          end
+          c.save
+        end
+      rescue
+      end
     end
   end
 end

@@ -1,5 +1,11 @@
 <template>
   <div>
+    <spinner-component
+      v-if="isLoading"
+      full-screen
+      legend="Searching..."
+      :logo-size="{ width: '100px', height: '100px'}"
+    />
     <div class="flex-separate middle">
       <h1>Filter nomenclature</h1>
       <ul class="context-menu">
@@ -7,7 +13,8 @@
           <label>
             <input
               type="checkbox"
-              v-model="activeFilter">
+              v-model="preferences.activeFilter"
+            >
             Show filter
           </label>
         </li>
@@ -15,132 +22,106 @@
           <label>
             <input
               type="checkbox"
-              v-model="activeJSONRequest">
+              v-model="preferences.activeJSONRequest"
+            >
             Show JSON Request
           </label>
         </li>
         <li>
-          <label>
-            <input
-              type="checkbox"
-              v-model="append">
-            Append results
-          </label>
-        </li>
-        <li>
-          <csv-component :list="list"/>
+          <CsvComponent :list="list" />
         </li>
       </ul>
     </div>
-    <div
-      v-show="activeJSONRequest"
-      class="panel content separate-bottom">
-      <div class="flex-separate middle">
-        <span>
-          JSON Request: {{ urlRequest }}
-        </span>
-      </div>
-    </div>
+
+    <JsonRequestUrl
+      v-show="preferences.activeJSONRequest"
+      class="panel content separate-bottom"
+      :url="urlRequest"
+    />
 
     <div class="horizontal-left-content align-start">
-      <filter-component
-        class="separate-right"
-        v-show="activeFilter"
-        ref="filterComponent"
-        @urlRequest="urlRequest = $event"
-        @result="loadList"
-        @pagination="pagination = getPagination($event)"
-        @reset="resetTask"/>
+      <FilterComponent
+        v-show="preferences.activeFilter"
+        @parameters="makeFilterRequest"
+        @reset="resetFilter"
+      />
       <div class="full_width">
         <div
           class="flex-separate margin-medium-bottom"
-          :class="{ 'separate-left': activeFilter }">
+          :class="{ 'separate-left': preferences.activeFilter }"
+        >
           <template v-if="pagination && list.length">
-            <pagination-component
-              @nextPage="loadPage"
-              :pagination="pagination"/>
-            <pagination-count
+            <PaginationComponent
               :pagination="pagination"
-              v-model="per"/>
+              @next-page="loadPage"
+            />
+            <PaginationCount
+              :pagination="pagination"
+              v-model="per"
+            />
           </template>
         </div>
-        <list-component
-          :class="{ 'separate-left': activeFilter }"
+        <ListComponent
+          :class="{ 'margin-medium-left': preferences.activeFilter }"
           :list="list"
-          @onSort="list = $event"/>
+          @on-sort="list = $event"
+        />
         <h3
-          v-if="alreadySearch && !list.length"
-          class="subtle middle horizontal-center-content">No records found.
+          v-if="!list.length"
+          class="subtle middle horizontal-center-content"
+        >
+          No records found.
         </h3>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-
+<script setup>
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
-import CsvComponent from './components/convertCsv'
+import CsvComponent from './components/convertCsv.vue'
 import PaginationComponent from 'components/pagination'
 import PaginationCount from 'components/pagination/PaginationCount'
-import GetPagination from 'helpers/getPagination'
+import SpinnerComponent from 'components/spinner.vue'
+import useFilter from 'tasks/people/filter/composables/useFilter.js'
+import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
+import { TaxonName } from 'routes/endpoints'
+import { reactive } from 'vue'
+import { URLParamsToJSON } from 'helpers/url/parse'
 
+const preferences = reactive({
+  activeFilter: true,
+  activeJSONRequest: false
+})
+
+const {
+  isLoading,
+  list,
+  pagination,
+  per,
+  urlRequest,
+  loadPage,
+  makeFilterRequest,
+  resetFilter
+} = useFilter(TaxonName)
+
+const urlParams = URLParamsToJSON(location.href)
+
+if (Object.keys(urlParams).length) {
+  makeFilterRequest(urlParams)
+}
+
+</script>
+
+<script>
 export default {
-  name: 'FilterNomenclature',
-  components: {
-    FilterComponent,
-    ListComponent,
-    CsvComponent,
-    PaginationComponent,
-    PaginationCount
-  },
-  data () {
-    return {
-      list: [],
-      urlRequest: '',
-      activeFilter: true,
-      activeJSONRequest: false,
-      append: false,
-      alreadySearch: false,
-      pagination: undefined,
-      maxRecords: [50, 100, 250, 500, 1000],
-      per: 500
-    }
-  },
-  watch: {
-    per (newVal) {
-      this.$refs.filterComponent.params.settings.per = newVal
-      this.loadPage(1)
-    }
-  },
-  methods: {
-    resetTask () {
-      this.alreadySearch = false
-      this.list = []
-      this.urlRequest = ''
-      history.pushState(null, null, '/tasks/taxon_names/filter')
-    },
-    loadList(newList) {
-      if(this.append) {
-        let concat = newList.concat(this.list)
-
-        concat = concat.filter((item, index, self) =>
-          index === self.findIndex((i) => (
-            i.id === item.id
-          ))
-        )
-        this.list = concat
-      }
-      else {
-        this.list = newList
-      }
-      this.alreadySearch = true
-    },
-    loadPage (event) {
-      this.$refs.filterComponent.loadPage(event.page)
-    },
-    getPagination: GetPagination
-  }
+  name: 'FilterNomenclature'
 }
 </script>
+
+<style scoped>
+  .no-found-message {
+    height: 70vh;
+  }
+</style>

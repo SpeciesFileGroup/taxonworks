@@ -177,6 +177,9 @@ module Queries
       @asserted_distribution_ids = params[:asserted_distribution_ids] || []
       @project_id = params[:project_id]
 
+      # TODO: could be incorrect 
+      params.reject!{ |_k, v| v.nil? || (v == '') }
+
       # set_tags_params(params)
       # set_user_dates(params)
     end
@@ -759,3 +762,4 @@ module Queries
 
   end
 end
+

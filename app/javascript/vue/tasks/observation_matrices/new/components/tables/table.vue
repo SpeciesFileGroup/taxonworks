@@ -54,7 +54,10 @@
                   target="_blank"
                   class="circle-button btn-row-coder"
                   title="Matrix row coder"
-                  :href="`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${element.id}`"
+                  :href="row
+                    ? `/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${element.id}`
+                    : `/tasks/observation_matrices/matrix_column_coder/index?observation_matrix_column_id=${element.id}`
+                  "
                 />
                 <radial-annotator :global-id="getValue(element, globalIdPath)" />
                 <radial-object :global-id="getValue(element, globalIdPath)" />
@@ -74,6 +77,12 @@
         </template>
       </draggable>
     </table>
+    <div
+      v-if="!list.length"
+      class="padding-medium"
+    >
+      None
+    </div>
   </div>
 </template>
 

@@ -8,5 +8,7 @@ export default ({ commit, state }, typeMaterial) =>
         commit(MutationNames.RemoveTypeMaterial, typeMaterial.id)
         resolve(response.body)
       })
+    } else {
+      commit(MutationNames.RemoveTypeMaterial, typeMaterial.internalId)
     }
   })

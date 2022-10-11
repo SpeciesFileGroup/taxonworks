@@ -1,10 +1,16 @@
 <template>
   <div>
     <v-btn
+      class="middle"
       medium
       color="primary"
-      @click="setModalView(true)">
-      Descriptors
+      @click="setModalView(true)"
+    >
+      <VIcon
+        name="compass"
+        x-small
+      />
+      <span class="margin-small-left">Descriptors</span>
     </v-btn>
     <v-modal
       v-if="isVisible"
@@ -37,6 +43,7 @@ import { mapState } from 'vuex'
 import { GetterNames } from '../../store/getters/getters'
 import VModal from 'components/ui/Modal.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
 
 const computed = mapState({
   title: state => state.taxonTitle,
@@ -46,7 +53,8 @@ const computed = mapState({
 export default {
   components: {
     VModal,
-    VBtn
+    VBtn,
+    VIcon
   },
 
   data () {

@@ -16,7 +16,7 @@ module Queries
       end
 
       def autocomplete_verbatim_label_md5
-        return nil if query_string.length < 4
+        return nil if query_string.to_s.length < 4
         md5 = Utilities::Strings.generate_md5(query_string)
         base_query.where( table[:md5_of_verbatim_label].eq(md5)).limit(3)
       end

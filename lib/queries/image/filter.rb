@@ -80,7 +80,7 @@ module Queries
 
       # @param params [Hash]
       def initialize(params)
-        params.reject!{ |_k, v| v.blank? } # dump all entries with empty values
+        params.reject!{ |_k, v| v.nil? || (v == '') } # dump all entries with empty values
 
         @otu_id = params[:otu_id]
         @otu_scope = params[:otu_scope]&.map(&:to_sym)

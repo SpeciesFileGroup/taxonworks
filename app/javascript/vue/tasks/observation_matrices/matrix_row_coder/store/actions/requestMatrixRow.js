@@ -41,6 +41,7 @@ function makeBaseDescriptor (descriptorData) {
     globalId: descriptorData.global_id,
     description: getDescription(descriptorData),
     type: getComponentNameForDescriptorType(descriptorData),
+    columnId: descriptorData.column_id,
     isUnsaved: false,
     needsCountdown: false,
     isSaving: false,

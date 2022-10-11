@@ -110,7 +110,6 @@ class ObservationMatricesController < ApplicationController
   def column_labels
   end
 
-
   # TODO export formats can move to a concern controller
 
   def nexml
@@ -147,7 +146,6 @@ class ObservationMatricesController < ApplicationController
       }
     end
   end
-
 
   def tnt
     respond_to do |format|
@@ -191,7 +189,6 @@ class ObservationMatricesController < ApplicationController
   def column
     @observation_matrix_column = ObservationMatrixColumn.where(project_id: sessions_current_project_id).find(params.require(:observation_matrix_column_id))
   end
-
 
   def download
     send_data Export::Download.generate_csv(ObservationMatrix.where(project_id: sessions_current_project_id)), type: 'text', filename: "observation_matrices_#{DateTime.now}.csv"

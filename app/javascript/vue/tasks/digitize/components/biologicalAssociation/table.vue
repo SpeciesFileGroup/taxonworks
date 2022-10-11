@@ -86,16 +86,17 @@ export default {
       }
     },
 
-    getCitationString(object) {
-      if (object?.citation) {
-        return object.citation.label
-      } else if (object.hasOwnProperty('origin_citation')) {
-        const citation = object.origin_citation.source.cached_author_string
+    getCitationString (object) {
+      const citation = object?.origin_citation || object?.origin_citation_attributes
 
-        return object.origin_citation.source.hasOwnProperty('year')
-          ? `${citation}, ${object.origin_citation.source.year}`
-          : citation
+      if (citation) {
+        const authorString = citation.source.cached_author_string
+
+        return citation.source?.year
+          ? `${authorString}, ${citation.source.year}`
+          : authorString
       }
+
       return ''
     }
   }

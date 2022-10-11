@@ -91,7 +91,6 @@ module CollectingEvent::Georeference
     end
   end
 
-
   # @return [Symbol, nil]
   #   the name of the method that will return an Rgeo object that represent
   #   the "preferred" centroid for this collecing event
@@ -110,7 +109,7 @@ module CollectingEvent::Georeference
     when :verbatim_map_center
       verbatim_map_center
     when :geographic_area
-      geographic_area.default_geographic_item.geo_object.centroid
+      geographic_area.default_geographic_item.centroid
     else
       nil
     end

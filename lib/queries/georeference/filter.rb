@@ -8,7 +8,7 @@ module Queries
 
     # @param [Hash] params
     def initialize(params)
-      params.reject! { |_k, v| v.blank? }
+      params.reject!{ |_k, v| v.nil? || (v == '') } 
 
       @collecting_event_id = params[:collecting_event_id]
       @collecting_event_ids = [params[:collecting_event_ids]].flatten

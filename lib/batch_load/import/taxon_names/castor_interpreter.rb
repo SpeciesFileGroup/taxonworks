@@ -16,6 +16,8 @@ module BatchLoad
     # Required to handle some defaults
     attr_accessor :project_id
 
+    SAVE_ORDER = [:original_taxon_name, :taxon_name, :taxon_name_relationship, :otu]
+
     # @param [Hash] args
     def initialize(nomenclature_code: nil, parent_taxon_name_id: nil, also_create_otu: false, **args)
       @nomenclature_code = nomenclature_code
@@ -65,7 +67,6 @@ module BatchLoad
             year_of_publication: year_of_publication(row['author_year']),
             rank_class: Ranks.lookup(@nomenclature_code.to_sym, row['rank']),
             by: @user,
-            also_create_otu: false,
             project: @project,
             verbatim_author: verbatim_author(row['author_year']),
             taxon_name_authors_attributes: taxon_name_authors_attributes(verbatim_author(row['author_year']))
@@ -79,7 +80,6 @@ module BatchLoad
               rank_class: Ranks.lookup(@nomenclature_code.to_sym, row['original_rank']),
               parent: parent_taxon_name,
               by: @user,
-              also_create_otu: false,
               project: @project,
               verbatim_author: verbatim_author(row['author_year']),
               taxon_name_authors_attributes: taxon_name_authors_attributes(verbatim_author(row['author_year']))
@@ -131,22 +131,33 @@ module BatchLoad
           end
 
           # TaxonNameClassification
-          name_nomen_classification = row['name_nomen_classification']
-          p.taxon_name_classifications.new(type: name_nomen_classification) if EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(name_nomen_classification)
 
-          taxon_concept_identifier_castor_text = row['guid']
+          if name_nomen_classification = row['name_nomen_classification']
+            if c = name_nomen_classification.safe_constantize
+              # if EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(name_nomen_classification)
+              p.taxon_name_classifications_attributes = [ {type: name_nomen_classification} ]
+            end
+          end
 
-          if taxon_concept_identifier_castor_text.present?
-            taxon_concept_identifier_castor = {
-              type: 'Identifier::Global::Uri',
-              identifier: taxon_concept_identifier_castor_text
-            }
+          # There is an OTU linked to the taxon name
+          if !row['taxon_concept_name'].blank? || !row['guid'].blank?
+            taxon_concept_identifier_castor = {}
 
-            taxon_concept_identifiers = []
-            taxon_concept_identifiers.push(taxon_concept_identifier_castor)
+            if !row['guid'].blank?
+              taxon_concept_identifier_castor = {
+                type: 'Identifier::Global::Uri',
+                identifier: row['guid'] }
+            end
 
-            otu = Otu.new(name: row['taxon_concept_name'], taxon_name: p, identifiers_attributes: taxon_concept_identifiers)
+            otu = Otu.new(name: row['taxon_concept_name'], taxon_name: p, identifiers_attributes: [taxon_concept_identifier_castor] )
+
             parse_result.objects[:otu].push(otu)
+          else
+            # Note we are not technically using the param like TaxonName.new(), so we can't just set the attribute
+            # So we hack in the OTUs 'manually".  This also lets us see them in the result
+            if also_create_otu == '1'
+              parse_result.objects[:otu].push( Otu.new(taxon_name: p) )
+            end
           end
 
           parse_result.objects[:taxon_name].push p
@@ -178,12 +189,10 @@ module BatchLoad
     end
 
     # @param [String] author_year
-    # @return [String, nil]
+    # @return [String, nil] just the author name, wiht parens left on
     def verbatim_author(author_year)
       return nil if author_year.blank?
-      author_end_index = author_year.rindex(' ')
-      author_end_index ||= author_year.length
-      author_year[0...author_end_index]
+      author_year.gsub(/\,+\s*\d\d\d\d/, '')
     end
 
     # @param [String] author_info

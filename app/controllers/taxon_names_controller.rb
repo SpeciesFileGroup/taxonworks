@@ -302,6 +302,8 @@ class TaxonNamesController < ApplicationController
       :author,
       :authors,
       :citations,
+      :data_attribute_exact_value,
+      :data_attributes,
       :descendants,
       :descendants_max_depth,
       :etymology,
@@ -311,6 +313,9 @@ class TaxonNamesController < ApplicationController
       :nomenclature_code,
       :nomenclature_group, # !! different than autocomplete
       :not_specified,
+      :note_exact, # Notes concern
+      :note_text,
+      :notes,
       :otus,
       :page,
       :per,
@@ -324,16 +329,30 @@ class TaxonNamesController < ApplicationController
       :user_target,
       :validity,
       :year,
+      :identifier,
+      :identifier_end,
+      :identifier_exact,
+      :identifier_start,
+      :identifiers,
+      :match_identifiers,
+      :match_identifiers_delimiter,
+      :match_identifiers_type,
       combination_taxon_name_id: [],
+      data_attribute_predicate_id: [], # DataAttributes concern
+      data_attribute_value: [],        # DataAttributes concern
       keyword_id_and: [],
       keyword_id_or: [],
       parent_id: [],
       taxon_name_author_ids: [],
       taxon_name_classification: [],
       taxon_name_id: [],
-      taxon_name_relationship: [],
+      taxon_name_relationship: [
+        :subject_taxon_name_id,
+        :object_taxon_name_id,
+        :type
+      ],
       taxon_name_relationship_type: [],
-      type: []
+      type: [],
       # user_id: []
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
@@ -344,30 +363,46 @@ class TaxonNamesController < ApplicationController
       :author,
       :authors,
       :citations,
+      :data_attribute_exact_value,
+      :data_attributes,
       :descendants,
       :descendants_max_depth,
       :etymology,
       :exact,
+      :identifier,
+      :identifier_end,
+      :identifier_exact,
+      :identifier_start,
+      :identifiers,
+      :match_identifiers,
+      :match_identifiers_delimiter,
+      :match_identifiers_type,
       :leaves,
       :name,
       :nomenclature_code,
       :nomenclature_group, # !! different than autocomplete
-      :otus,
       :not_specified,
-#     :page, # TODO: yes or no?
-#     :per,
+      :otus,
       :taxon_name_type,
       :type_metadata,
       :updated_since,
       :validity,
       :year,
+#     :page, # TODO: yes or no?
+#     :per,
       combination_taxon_name_id: [],
+      data_attribute_predicate_id: [], # DataAttributes concern
+      data_attribute_value: [],        # DataAttributes concern
       keyword_id_and: [],
       keyword_id_or: [],
       parent_id: [],
       taxon_name_classification: [],
       taxon_name_id: [],
-      taxon_name_relationship: [],
+      taxon_name_relationship: [
+        :subject_taxon_name_id,
+        :object_taxon_name_id,
+        :type
+      ],
       taxon_name_relationship_type: [],
       type: []
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)

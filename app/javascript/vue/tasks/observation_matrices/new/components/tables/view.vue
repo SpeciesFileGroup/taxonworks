@@ -1,6 +1,6 @@
 <template>
-  <div class="horizontal-left-content align-start">
-    <div class="matrix-tables">
+  <div class="horizontal-left-content align-start full_width">
+    <div class="matrix-tables full_width">
       <rows-table
         class="margin-medium-bottom"
         :list="rowsListDynamic"
@@ -32,7 +32,7 @@
         @nextPage="loadRowPage"
         :pagination="fixedRowPagination"/>
     </div>
-    <div class="margin-medium-left matrix-tables">
+    <div class="margin-medium-left matrix-tables full_width">
       <columns-table
         class="margin-medium-bottom"
         :list="columnsListDynamic"
@@ -56,6 +56,7 @@
         :attributes="[['descriptor', 'object_tag']]"
         :global-id-path="['descriptor', 'global_id']"
         :filter-remove="item => item.cached_observation_matrix_column_item_id"
+        code
         @delete="removeColumn($event.cached_observation_matrix_column_item_id)"
         @order="updateColumnsOrder"/>
       <pagination-component

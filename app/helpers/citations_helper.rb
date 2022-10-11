@@ -31,7 +31,6 @@ module CitationsHelper
     ].compact.join(' ')
   end
 
-
   def citation_topics_label(citation)
     return nil unless citation.topics.any?
     [

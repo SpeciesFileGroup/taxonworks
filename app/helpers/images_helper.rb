@@ -14,7 +14,7 @@ module ImagesHelper
   # Return a ShortenedUrl to the original file image
   # @params image [Image, Integer]
   def image_short_url(image, api: true)
-    if !image.kind_of?(::Image)
+    if !image.kind_of?(::Image) && (Integer(image) rescue false)
       image = ::Image.find(image)
     end
 
@@ -40,16 +40,10 @@ module ImagesHelper
     end
   end
 
-  # <div class="easyzoom easyzoom--overlay">
-  #   <a href="<%= @image.image_file.url(:medium) %>">
-  #     <%= image_tag(@image.image_file.url(:medium), 'class' => 'imageZoom') %>
-  #   </a>
-  # </div>
-
   def thumb_list_tag(object)
     if object.depictions.any?
       object.depictions.collect{|a|
-        content_tag(:div, class: [:easyzoom, 'easyzoom--overlay'])  do
+        content_tag(:div)  do
           link_to( depiction_tag(a, size: :medium), a.image.image_file.url())
         end
       }.join.html_safe

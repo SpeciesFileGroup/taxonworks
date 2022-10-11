@@ -17,7 +17,7 @@ gem 'redis', '~> 4.5'
 gem 'rdf', '~> 3.0'
 
 # System
-gem 'thor', '~> 1.1.0'
+gem 'thor', '~> 1.2'
 gem 'rubyzip', '~> 2.3.0'
 gem 'zip_tricks', '~> 5.6'
 gem 'daemons', '~> 1.4.1'
@@ -27,6 +27,7 @@ gem 'rmagick', '~> 4.2', '>= 4.2.2'
 gem 'roo', '~> 2.8', '>= 2.8.3'
 gem 'roo-xls', '~> 1.2'
 gem 'net-smtp', '~> 0.3.1'
+gem "matrix", "~> 0.4.2"
 
 # Geo
 gem 'ffi-geos', '~> 2.3.0'
@@ -76,14 +77,14 @@ gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
 gem 'turbolinks', '~> 5.2.0'
 gem 'jquery-turbolinks', '~> 2.1'
-gem "shakapacker", '6.3'
+gem "shakapacker", '~>6.3'
 
 # BibTeX handling
 gem 'csl', '~> 1.6.0'
 gem 'bibtex-ruby', '~> 6.0'
 gem 'citeproc-ruby', '~> 1.1.10'
 gem 'csl-styles', '~> 1.0.1.8'
-gem 'serrano', github: 'LocoDelAssembly/serrano', branch: 'fixes' #gem 'serrano', '~> 1.0.0'
+gem 'serrano', github: 'LocoDelAssembly/serrano', branch: 'older_thor' #gem 'serrano', '~> 1.0.0'
 # gem 'latex-decode', '~> 0.2.2'
 gem 'pdf-reader', '~> 2.2'
 
@@ -105,14 +106,14 @@ gem 'ruby-graphviz', '~> 1.2.5', require: false
 
 # "Bio" and SFG gems
 gem 'taxonifi', '~> 0.6.0'
-gem 'sqed', '0.7.0'
+gem 'sqed', '~>0.7.0'
 gem 'dwc_agent', '~> 3.0'
 gem 'dwc-archive', github: 'LocoDelAssembly/dwc-archive', branch: 'overhaul' # '~> 1.1', '>= 1.1.2'
 gem 'biodiversity', github: 'GlobalNamesArchitecture/biodiversity', branch: 'pipe_approach' # '~> 5.1', '>= 5.1.1'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 
 # Global Names
-gem 'gnfinder', '~> 0.16'
+gem 'gnfinder', '~> 1.0'
 
 # Minor Utils/helpers
 gem 'amazing_print', '~> 1.4.0'
@@ -126,8 +127,16 @@ gem 'chunky_png', '~> 1.4.0'
 gem 'namecase', '~> 2.0'
 gem 'zaru', '~> 0.3.0'
 
+# Export
+gem 'asciidoctor', '~> 2.0'
+# gem 'asciidoctor-epub3', '~> 1.5'
+
 # www
-gem 'wikidata-client', github:'LocoDelAssembly/wikidata-client', branch: 'bump-dependencies', require: 'wikidata'
+gem 'wikidata-client', '~> 0.1.0.pre.rc1', require: 'wikidata'
+
+# Maintenance
+gem 'parallel', '~> 1.22'
+gem 'ruby-progressbar', '~> 1.11'
 
 group :test, :development do
   gem 'faker', '~> 2.10'
@@ -136,6 +145,7 @@ group :test, :development do
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 6.2'
   gem 'webdrivers', '~> 5.0', require: false
+  gem 'selenium-webdriver', '~> 4.2.0'
   gem 'prawn', '~> 2.4.0'
   gem 'puma', '~> 5.5'
 end
@@ -181,5 +191,3 @@ group :production do
   gem 'execjs', '~> 2.8.1'
   gem 'passenger', '~> 6.0.2'
 end
-
-
