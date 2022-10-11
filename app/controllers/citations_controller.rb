@@ -141,7 +141,7 @@ class CitationsController < ApplicationController
   def citation_params
     params.require(:citation).permit(
       :citation_object_type, :citation_object_id, :source_id, :pages, :is_original,
-      :annotated_global_entity,
+      :annotated_global_entity, :user_id,
       citation_topics_attributes: [
         :id, :_destroy, :pages, :topic_id,
         topic_attributes: [:id, :_destroy, :name, :definition]
