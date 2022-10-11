@@ -2,6 +2,7 @@
   <div class="citation_annotator">
     <FormCitation
       v-model="citation"
+      :klass="objectType"
       :submit-button="{
         label: 'Save',
         color: 'create'

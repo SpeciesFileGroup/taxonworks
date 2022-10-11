@@ -6,8 +6,9 @@
 
 <%= link_to 'Back', administration_path() %>
 
-<div class="flexbox">
-  <div class="item item1">
+<div class="flexbox separate-bottom">
+
+  <div class="panel content separate-left">
     <h2> Last 20 logins </h2>
     <ol>
       <% User.limit(20).order(current_sign_in_at: :desc).where('current_sign_in_at IS NOT NULL').each do |u| -%>
@@ -16,7 +17,7 @@
     </ol>
   </div>
 
-  <div class="item item2">
+  <div class="panel content separate-left">
     <h2> Recently seen </h2>
     <ol>
       <% User.limit(20).order(last_seen_at: :desc).where('last_seen_at IS NOT NULL').each do |u| -%>
@@ -25,7 +26,8 @@
     </ol>
   </div>
 
-  <div class="item item3">
+
+  <div class="panel content separate-left">
     <h2> Most active </h2>
     <p> Estimate. If sequential requests are less than 5 minutes appart time between requests is summed to total. <p>
     <ol>
@@ -38,41 +40,39 @@
 </div>
 
 <div class="simple_flexbox">
-  <div>
-    <h2> Activity today by hour</h2>
-    <p> For the past 24 hrs. Hours are UTC.</p>
-    <%= pie_chart User.where('last_seen_at > ?', 1.day.ago).group_by_hour(:last_seen_at, format: "%H").count.sort, discrete: true %>
+  <% days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] %>
+
+  <div class="panel content">
+    <h2> Active users in past </h2>
+    <ul>
+      <li> 24 hours: <%= tag.strong User.where('last_seen_at > ?', 24.hours.ago).count %></li>
+      <li> Week: <%= tag.strong User.where('last_seen_at > ?', 1.week.ago).count %></li>
+      <li> Month: <%= tag.strong User.where('last_seen_at > ?', 1.month.ago).count %></li>
+      <li> Half year: <%= tag.strong User.where('last_seen_at > ?', 6.months.ago).count %></li>
+      <li> Year: <%= tag.strong User.where('last_seen_at > ?', 1.year.ago).count %></li>
+      <li> 3 Years: <%= tag.strong User.where('last_seen_at > ?', 3.years.ago).count %></li>
+      <li> All time: <%= tag.strong User.where('last_seen_at > ?', 1000.years.ago).count %></li>
+    </ul>
   </div>
 
-  <div>
+  <%= render partial: 'users_past_day' %>
+
+  <div class="panel content">
     <h2> Last seen - past week </h2>
-    <% data = User.where('last_seen_at > ?', 1.week.ago).group_by_day_of_week(:last_seen_at, format: "%a").count %>
+    <% data = User.where('last_seen_at > ?', 1.week.ago).group_by_day_of_week(:last_seen_at, format: "%a").count  %>
     <p><%= data.values.sum %> users were seen last week.</p>
-    <%= column_chart data, discrete: true, ytitle: 'Count', xtitle: 'Last seen day', width: '400px' %>
-  </div>
-
-  <div>
-    <h2> All time user activity activity by last seen at per week </h2>
-    <p> This describes when all users were <em>last</em> active across all time. </p>
-    <%= column_chart User.group_by_day(:last_seen_at, format: "%a").count, xtitle: 'Day', ytitle: 'Number of users', width: '400px' %>
+    <%= column_chart data.to_a.sort{|a,b| days.index(a[0]) <=> days.index(b[0]) }, discrete: true, ytitle: 'Count', xtitle: 'Last seen day', width: '400px' %>
   </div>
 </div>
 
-<div class="flexbox">
-  <div class="item item1">
+  <div class="panel content separate-top">
     <h2> Users per project</h2>
     <%= column_chart Project.joins(:users).group(:id).count.to_a.collect{|a,b| [Project.find(a).name, b] }.sort_by(&:second).reverse!, xtitle: 'Project', ytitle: 'Number of users', discrete: true, height: '400px' %>
   </div>
-</div>
 
-<div class="flexbox">
-  <div class="item item1">
+  <div class="panel content separate-top">
     <h2> Estimated activity per project </h2>
     <p>Important: this plot is an estimate based on user activity.  Active users in multiple projects will skew this estimate as their toal activity throughout is added to both projects. </p>
     <%= column_chart Project.joins(:users).where('last_seen_at > ?', 1.week.ago).group(:id).sum(:time_active).to_a.collect{|a,b| [Project.find(a).name, (b.to_f / 3600.0).round(0) ]}.sort_by(&:second).reverse!, xtitle: 'Project', ytitle: 'Time active (hours)', discrete: true, height: '400px' %>
-  </div>
 </div>
-
-
-
 

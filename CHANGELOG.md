@@ -8,6 +8,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.29.5] - 2022-10-10
+
+### Changed
+- Changed author labels on Filter source [#3134]
+- Minor changes to plots on administration activity dashboard 
+- Parallelize some indexing rake tasks
+
+### Fixed
+- Recent and Quick list are empty on Citation annotator [#3133]
+
+[#3133]: https://github.com/SpeciesFileGroup/taxonworks/issues/3133
+[#3134]: https://github.com/SpeciesFileGroup/taxonworks/issues/3134
+
 ## [0.29.4] - 2022-10-07
 ### Added
 - Distribution, Material Examined sections, and zip download for paper catalog [#3098]
@@ -16,7 +29,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Previous and next links in Matrix row coder [#3107]
 - Match identifiers facet to Filter extract task  [#3089]
 - `Clone previous citation` to citation panels [#3097]
-- Populate column button for Matrix Column Coder [#3117]
 - `scientificName` is now implied in `typeStatus` when only the type of type is specified in DwC occurrences importer
 - Additional DwC classification terms [#3118]
 
@@ -2966,7 +2978,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.4...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.5...development
+[0.29.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.4...v0.29.5
 [0.29.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.3...v0.29.4
 [0.29.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.2...v0.29.3
 [0.29.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.1...v0.29.2

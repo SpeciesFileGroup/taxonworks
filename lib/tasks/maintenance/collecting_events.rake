@@ -2,6 +2,40 @@ namespace :tw do
   namespace :maintenance do
     namespace :collecting_events do
 
+      #  # Removed from CollectingEvent
+      #  # @return [Boolean] always true
+      #  #   A development method only. Attempts to create a verbatim georeference for every
+      #  #   collecting event record that doesn't have one.
+      #  #   TODO: this needs to be in a curate rake task or somewhere else
+      #  def self.update_verbatim_georeferences
+      #    if Rails.env == 'production'
+      #      puts "You can't run this in #{Rails.env} mode."
+      #      exit
+      #    end
+
+      #    passed = 0
+      #    failed = 0
+      #    attempted = 0
+
+      #    CollectingEvent.includes(:georeferences).where(georeferences: {id: nil}).each do |c|
+      #      next if c.verbatim_latitude.blank? || c.verbatim_longitude.blank?
+      #      attempted += 1
+      #      g = c.generate_verbatim_data_georeference(true)
+      #      if g.errors.empty?
+      #        passed += 1
+      #        puts "created for #{c.id}"
+      #      else
+      #        failed += 1
+      #        puts "failed for #{c.id}, #{g.errors.full_messages.join('; ')}"
+      #      end
+      #    end
+      #    puts "passed: #{passed}"
+      #    puts "failed: #{failed}"
+      #    puts "attempted: #{attempted}"
+      #    true
+      #  end
+
+      # export PARALLEL_PROCESSOR_COUNT=2 && rake tw:maintenance:collecting_events:tested_reindex_geographic_name_cached_values
       desc 'check cached geographic names and re-indx where ncessary'
       task tested_reindex_geographic_name_cached_values: [:environment] do |t|
         updated = 0
