@@ -6,7 +6,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+- Browse nomenclature crashing when taxon name descendants have no cached author year
 
 ## [0.29.5] - 2022-10-10
 
