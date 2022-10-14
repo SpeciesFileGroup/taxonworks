@@ -9,6 +9,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - Character state filter in Matrix Column Coder [#3141]
 
+### Changed
+- Reload New source task by pressing New and load source.
+
 ### Fixed
 - Browse nomenclature crashing when taxon name descendants have no cached author year
 
