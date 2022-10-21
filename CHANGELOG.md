@@ -10,11 +10,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Character state filter in Matrix Column Coder [#3141]
 
 ### Changed
-- Reload New source task by pressing New and load source.
-- Updated Ruby gems.
+- Reload New source task by pressing New and load source
+- Updated Ruby gems
 
 ### Fixed
 - Browse nomenclature crashing when taxon name descendants have no cached author year
+- Soft validation crashing when cached nomenclature date is absent
 
 [#3141]: https://github.com/SpeciesFileGroup/taxonworks/issues/3141
 
