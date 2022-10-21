@@ -32,8 +32,7 @@ module Queries
         start_date
         wkt
         collecting_event_wildcards
-      }
-
+      }.freeze
 
       # @param collecting_event_id [ Array, Integer, nil] 
       #   One or more collecting_event_ids 
@@ -123,9 +122,9 @@ module Queries
       #   nil - not applied
       attr_accessor :geographic_area
 
+      
+      # @spatial_geographic_area_ids = params[:spatial_geographic_areas].blank? ? [] : params[:spatial_geographic_area_ids]
       def initialize(params)
-        # @spatial_geographic_area_ids = params[:spatial_geographic_areas].blank? ? [] : params[:spatial_geographic_area_ids]
-
         @collecting_event_wildcards = params[:collecting_event_wildcards] || []
         @collector_id = params[:collector_id]
         @collector_ids_or = boolean_param(params, :collector_ids_or )
@@ -139,8 +138,8 @@ module Queries
         @in_labels = params[:in_labels]
         @in_verbatim_locality = params[:in_verbatim_locality]
         @md5_verbatim_label = params[:md5_verbatim_label]&.to_s&.downcase == 'true'
-        @otu_id = params[:otu_id].blank? ? [] : params[:otu_id]
-        @radius = params[:radius].blank? ? 100 : params[:radius]
+        @otu_id = params[:otu_id].presence || []
+        @radius = params[:radius].presence || 100
         @recent = params[:recent].blank? ? nil : params[:recent].to_i
         @spatial_geographic_areas = params[:spatial_geographic_areas]&.to_s&.downcase == 'true'
         @wkt = params[:wkt]
@@ -174,6 +173,10 @@ module Queries
         [@geographic_area_id].flatten.compact
       end
 
+      def collector_id
+        [@collector_id].flatten.compact
+      end
+
       def otu_id
         [@otu_id].flatten.compact
       end
@@ -191,9 +194,9 @@ module Queries
         c = []
         ATTRIBUTES.each do |a|
           if v = send(a)
-            if !v.blank?
+            if v.present?
               if collecting_event_wildcards.include?(a)
-                c.push Arel::Nodes::NamedFunction.new("CAST", [table[a.to_sym].as("TEXT")]).matches('%' + v.to_s + '%')
+                c.push Arel::Nodes::NamedFunction.new('CAST', [table[a.to_sym].as('TEXT')]).matches('%' + v.to_s + '%')
               else
                 c.push table[a.to_sym].eq(v)
               end
@@ -249,7 +252,7 @@ module Queries
         o = table
         r = ::Role.arel_table
 
-        a = o.alias("a_")
+        a = o.alias('a_')
         b = o.project(a[Arel.star]).from(a)
 
         c = r.alias('r1')
@@ -326,7 +329,7 @@ module Queries
       end
 
       def matching_verbatim_label_md5
-        return nil unless md5_verbatim_label && !in_labels.blank?
+        return nil unless md5_verbatim_label && in_labels.present?
         md5 = ::Utilities::Strings.generate_md5(in_labels)
 
         table[:md5_of_verbatim_label].eq(md5)

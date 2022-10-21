@@ -17,7 +17,27 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
 
   let(:query) { Queries::BiologicalAssociation::Filter }
 
-    specify 'by #subject_global_id' do
+  specify '#collecting_event_id' do
+    a = BiologicalAssociation.create!(
+      biological_association_subject: Specimen.create!(collecting_event: FactoryBot.create(:valid_collecting_event)),
+      biological_association_object: o3,
+      biological_relationship: r2)
+    o = {collecting_event_id: a.biological_association_subject.collecting_event.id}
+    expect(query.new(o).all.map(&:id)).to contain_exactly( a.id )
+  end
+
+  specify '#otu_id' do
+    o = {otu_id: o1.id}
+    expect(query.new(o).all.map(&:id)).to contain_exactly( ba1.id, ba2.id )
+  end
+
+  specify '#collection_object_id' do
+    a = BiologicalAssociation.create!(biological_association_subject: Specimen.create!, biological_association_object: o3, biological_relationship: r2)
+    o = {collection_object_id: a.biological_association_subject.id}
+    expect(query.new(o).all.map(&:id)).to contain_exactly( a.id )
+  end
+
+    specify '#subject_global_id' do
       o = {subject_global_id: o1.to_global_id.to_s}
       expect(query.new(o).all.map(&:id)).to contain_exactly(ba1.id, ba2.id )
     end
@@ -42,17 +62,38 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
       expect(query.new(o).all.map(&:id)).to contain_exactly(ba1.id, ba2.id)
     end
 
-    specify '#taxon_name_query (both)' do
+    specify '#subject_taxon_name_id)' do
       g1 =  Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
       s1 =  Protonym.create!(name: 'eus', rank_class: Ranks.lookup(:iczn, :species), parent: g1)
 
       g2 =  Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
       s2 =  Protonym.create!(name: 'dus', rank_class: Ranks.lookup(:iczn, :species), parent: g2)
 
-      o1.update(taxon_name_id: s1)
+      o1.update!(taxon_name: s1)
 
-      o = {parent_id: g1.id}
-      
+      o = {subject_taxon_name_id: g1.id}
       expect(query.new(o).all.map(&:id)).to contain_exactly(ba1.id, ba2.id)
+    end
+
+    specify '#object_taxon_name_id' do
+      g1 =  Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+      s1 =  Protonym.create!(name: 'eus', rank_class: Ranks.lookup(:iczn, :species), parent: g1)
+
+      g2 =  Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+      s2 =  Protonym.create!(name: 'dus', rank_class: Ranks.lookup(:iczn, :species), parent: g2)
+
+      o2.update!(taxon_name: s1)
+
+      o = {object_taxon_name_id: g1.id}
+      expect(query.new(o).all.map(&:id)).to contain_exactly(ba1.id)
+    end
+
+    specify '#biological_association_graph_id' do
+      g = FactoryBot.create(:valid_biological_associations_graph)
+      g.biological_associations << ba1
+
+      expect(query.new(biological_associations_graph_id: [g.id]).all.map(&:id)).to contain_exactly(ba1.id)
+    end
+ 
+
   end
-end

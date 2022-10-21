@@ -12,6 +12,8 @@ module Queries
       include Queries::Concerns::Users
       include Queries::Concerns::DataAttributes
 
+      # TODO: merge taxon_name_ids
+
       PARAMS = %w{
         ancestors
         author
@@ -33,7 +35,6 @@ module Queries
         taxon_name_author_ids_or
         taxon_name_classification
         taxon_name_id 
-        taxon_name_ids
         taxon_name_relationship
         taxon_name_relationship_type
         taxon_name_type

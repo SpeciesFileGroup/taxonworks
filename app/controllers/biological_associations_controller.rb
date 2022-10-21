@@ -12,11 +12,10 @@ class BiologicalAssociationsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @biological_associations = Queries::BiologicalAssociation::Filter
-          .new(filter_params)
+        @biological_associations = Queries::BiologicalAssociation::Filter.new(filter_params)
           .all
           .where(project_id: sessions_current_project_id)
-          .page(params[:page] || 1).per(params[:per] || 500)
+          .page(params[:page]).per(params[:per])
       }
     end
   end
@@ -103,10 +102,44 @@ class BiologicalAssociationsController < ApplicationController
   private
 
   def filter_params
-    params.permit(:subject_global_id, :object_global_id, :any_global_id, :biological_relationship_id)
+    params.permit(
+      :subject_global_id,
+      :object_global_id,
+      :any_global_id,
+      :biological_relationship_id,
+      :biological_association_id,
+      :otu_id,
+      :collection_object_id,
+      :spatial_geographic_area_id,
+      :biological_associations_graph_id,
+      :collecting_event_id,
+      :taxon_name_id,
+
+      :identifier,
+      :identifier_end,
+      :identifier_exact,
+      :identifier_start,
+      :identifiers,
+      :match_identifiers,
+      :match_identifiers_delimiter,
+      :match_identifiers_type,
+
+      :note_exact, # Notes concern
+      :note_text,
+      :notes,
+
+      taxon_name_id: [],
+      collecting_event_id: [],
+      keyword_id_and: [],
+      keyword_id_or: [],
+
+      biological_association_id: [],
+      collection_object_id: [],
+      otu_id: [],
+    )
 
     # Shallow resource hack
-    if !params[:collection_object_id].blank? && c = CollectionObject.where(project_id: sessions_current_project_id).find(params[:collection_object_id])
+    if params[:collection_object_id].present? && c = CollectionObject.where(project_id: sessions_current_project_id).find(params[:collection_object_id])
       params[:any_global_id] = c.to_global_id.to_s
     end
     params

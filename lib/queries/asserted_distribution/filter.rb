@@ -3,8 +3,7 @@ module Queries
 
     # !! does not inherit from base query
     class Filter 
-
-
+      
       include Queries::Concerns::Citations
 
       # @param otu_id [Array, Integer, String]

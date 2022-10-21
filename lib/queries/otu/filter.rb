@@ -1,7 +1,6 @@
 module Queries
-
-  # TODO: Unify all and filter
-  class Otu::Filter < Queries::Query
+  module Otu
+    class Filter < Queries::Query
 
     # Changelog
     # `name` now handles one or more of Otu#name
@@ -56,8 +55,6 @@ module Queries
     attr_accessor :depictions
 
     attr_accessor :author # was verbatim_author_string
-
-
    
     attr_accessor :biological_association_ids
     attr_accessor :taxon_name_classification_ids
@@ -78,7 +75,7 @@ module Queries
    
     # @param name [Integer, Array]
     # @return Array
-    #   one or more Otu taxo_name_id 
+    #   one or more Otu taxon_name_id 
     attr_accessor :taxon_name_id
 
     # @return [Hash]
@@ -760,6 +757,7 @@ module Queries
       end
     end
 
+  end
   end
 end
 

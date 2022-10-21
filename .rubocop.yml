@@ -8,7 +8,7 @@ require:
 # Documentation: http://www.rubydoc.info/gems/rubocop
 
 AllCops:
-  TargetRubyVersion: 2.7
+  TargetRubyVersion: 3.1
   DisabledByDefault: true
   MaxFilesInCache: 8000 # Limit growth of cache
   Exclude:
@@ -51,7 +51,7 @@ Layout/LineLength:
 Metrics/MethodLength:
   Enabled: true
   CountComments: false
-  Max: 25
+  Max: 50 # was 25 
 
 Metrics/ClassLength:
   Enabled: true

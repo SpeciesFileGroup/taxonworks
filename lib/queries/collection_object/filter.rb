@@ -27,14 +27,15 @@ module Queries
       attr_accessor :collection_object_type
 
       # [Array]
-      #   only return objects with this collecting event ID
+      # TODO: singularize
+      #   only return objects with these collecting event ID
       attr_accessor :collecting_event_ids
 
       # All params managed by CollectingEvent filter are available here as well
       attr_accessor :collecting_event_query
 
       # @return [Array, nil]
-      #    a list of Otu ids, matches one ot one only
+      #  a list of Otu ids, matches on the
       attr_accessor :otu_ids
 
       # @return [Protonym.id, nil]
@@ -480,6 +481,7 @@ end
         end
       end
 
+      # This is not spatial
       def geographic_area_facet
         return nil if geographic_area.nil?
 
