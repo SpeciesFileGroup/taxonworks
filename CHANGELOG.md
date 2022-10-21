@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Reload New source task by pressing New and load source.
+- Updated Ruby gems.
 
 ### Fixed
 - Browse nomenclature crashing when taxon name descendants have no cached author year
