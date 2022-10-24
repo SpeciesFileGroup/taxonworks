@@ -20,14 +20,14 @@
           >
           <span v-html="areasByCoors[0].label_html" />
         </label>
+        <a
+          v-if="areasByCoors.length > 1"
+          class="cursor-pointer"
+          @click="showModal = true"
+        >
+          Show other options
+        </a>
       </p>
-      <a
-        v-if="areasByCoors.length > 1"
-        class="cursor-pointer"
-        @click="showModal = true"
-      >
-        Show other options
-      </a>
     </div>
 
     <modal-component
@@ -40,7 +40,7 @@
       <template #body>
         <ul class="no_bullets">
           <li
-            class="separate-bottom"
+            class="margin-small-bottom"
             v-for="item in areasByCoors"
             :key="item.id"
           >
@@ -56,25 +56,25 @@
         </ul>
       </template>
     </modal-component>
-    <template v-if="selected">
-      <hr>
-      <div class="middle flex-separate">
-        <p>
-          <span data-icon="ok" />
-          <span class="separate-right"> {{ (selected['label'] ? selected.label : selected.name) }}</span>
-        </p>
-        <span
-          class="circle-button button-default btn-undo"
-          @click="clearSelection"
-        />
-      </div>
-    </template>
+    <hr v-if="selected">
+    <SmartSelectorItem
+      v-if="selected"
+      :item="selected"
+      label="name"
+      @unset="clearSelection"
+    />
+    <MetaPrioritizeGeographicArea
+      v-model="collectingEvent.meta_prioritize_geographic_area"
+      :disabled="!geographicAreaShape"
+    />
   </fieldset>
 </template>
 
 <script>
 
 import SmartSelector from 'components/ui/SmartSelector.vue'
+import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
+import MetaPrioritizeGeographicArea from 'tasks/collecting_events/new_collecting_event/components/Meta/MetaPrioritizeGeographicArea.vue'
 import { GetterNames } from '../../../../store/getters/getters.js'
 import { MutationNames } from '../../../../store/mutations/mutations.js'
 import { GeographicArea } from 'routes/endpoints'
@@ -88,12 +88,19 @@ export default {
 
   components: {
     SmartSelector,
-    ModalComponent
+    ModalComponent,
+    SmartSelectorItem,
+    MetaPrioritizeGeographicArea
   },
 
   computed: {
-    collectingEvent () {
-      return this.$store.getters[GetterNames.GetCollectingEvent]
+    collectingEvent: {
+      get () {
+        return this.$store.getters[GetterNames.GetCollectingEvent]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetCollectingEvent, value)
+      }
     },
 
     geographicAreaShape: {

@@ -39,6 +39,7 @@ export default () => ({
   max_ma: undefined,
   min_ma: undefined,
   field_notes: undefined,
+  meta_prioritize_geographic_area: undefined,
   roles_attributes: [],
   identifiers_attributes: []
 })
