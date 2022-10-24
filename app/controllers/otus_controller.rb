@@ -295,9 +295,8 @@ class OtusController < ApplicationController
   # GET /api/v1/otus/:id/inventory/nomenclature_citations
   def api_nomenclature_citations
     if @otu.taxon_name
-      data = ::Catalog::Nomenclature::Entry.new(@otu.taxon_name)
-      @citations = data.citations
-      render '/citations/api/v1/index'
+      @data = ::Catalog::Nomenclature::Entry.new(@otu.taxon_name)
+      render '/otus/api/v1/inventory/nomenclature_citations'
     else
       render json: {}, status: :unprocessable_entity
     end
