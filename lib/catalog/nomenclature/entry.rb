@@ -118,6 +118,7 @@ class Catalog::Nomenclature < Catalog
     end
 
     # @return [Hash]
+    #   this is a very object heavy summary
     def citations_with_names
       return @citations_with_names if !@citations_with_names.nil?
 
@@ -130,16 +131,16 @@ class Catalog::Nomenclature < Catalog
         case i.object.class.name
         when 'Protonym'
           next if i.citation.nil?
-          d[i.citation.source.cached].push i.object
+          d[i.citation.source].push i.object
         when /TaxonNameRelationship/
           if i.object.subject_taxon_name != object  # base_object?
             if c = i.object.object_taxon_name.origin_citation
-              d[c.source.cached].push i.object.object_taxon_name
+              d[c.source].push i.object.object_taxon_name
             end
           end
           if i.object.object_taxon_name != object
             if c = i.object.subject_taxon_name.origin_citation
-              d[c.source.cached].push i.object.subject_taxon_name # i.object.object_taxon_name
+              d[c.source].push i.object.subject_taxon_name # i.object.object_taxon_name
             end
           end
         end
@@ -147,21 +148,21 @@ class Catalog::Nomenclature < Catalog
 
       ::TaxonNameClassification.where(taxon_name_id: all_protonyms.collect{|p| p.object}).all.each do |tnc|
         tnc.citations.each do |c|
-          d[c.source.cached].push tnc.taxon_name
+          d[c.source].push tnc.taxon_name
         end
       end
 
       ::TaxonNameRelationship::Typification.where(object_taxon_name_id: all_protonyms.collect{|p| p.object})
         .all.each do |trt|
           trt.citations.each do |c|
-            d[c.source.cached].push trt.object_taxon_name # TODO: confirm
+            d[c.source].push trt.object_taxon_name # TODO: confirm
           end
         end
 
       ::TypeMaterial.where(protonym_id: all_protonyms.collect{|p| p.object}).all.
         each do |tm|
           tm.citations.each do |c|
-            d[c.source.cached].push tm.protonym
+            d[c.source].push tm.protonym
           end
         end
 
