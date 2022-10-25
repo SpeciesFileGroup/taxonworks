@@ -103,8 +103,7 @@ class BiologicalAssociationsController < ApplicationController
 
   def filter_params
     params.permit(
-      *::Queries::BiologicalAssocation::PARAMS
-
+      ::Queries::BiologicalAssocation::PARAMS,
       :identifier,
       :identifier_end,
       :identifier_exact,
@@ -113,11 +112,9 @@ class BiologicalAssociationsController < ApplicationController
       :match_identifiers,
       :match_identifiers_delimiter,
       :match_identifiers_type,
-
       :note_exact, # Notes concern
       :note_text,
       :notes,
-
       keyword_id_and: [],
       keyword_id_or: [],
 
@@ -144,7 +141,7 @@ class BiologicalAssociationsController < ApplicationController
 
   def api_params
     params.permit(
-      *::Queries::BiologicalAssocation::PARAMS
+      ::Queries::BiologicalAssocation::PARAMS,
 
       :identifier,
       :identifier_end,

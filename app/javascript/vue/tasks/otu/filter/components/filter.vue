@@ -46,7 +46,7 @@
 <script>
 
 import SpinnerComponent from 'components/spinner'
-import platformKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getPlatformKey.js'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { Otu } from 'routes/endpoints'
 
