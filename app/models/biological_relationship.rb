@@ -45,7 +45,7 @@ class BiologicalRelationship < ApplicationRecord
   # @return [Scope]
   #    the max 10 most recently used biological relationships 
   def self.used_recently(user_id, project_id)
-      t = BiologicalAssociation.arel_table
+    t = BiologicalAssociation.arel_table
     k = BiologicalRelationship.arel_table 
 
     # i is a select manager
@@ -69,9 +69,9 @@ class BiologicalRelationship < ApplicationRecord
     r = used_recently(user_id, project_id)
 
     h = {
-        quick: [],
-        pinboard: BiologicalRelationship.pinned_by(user_id).where(project_id: project_id).to_a,
-        recent: []
+      quick: [],
+      pinboard: BiologicalRelationship.pinned_by(user_id).where(project_id: project_id).to_a,
+      recent: []
     }
 
     if r.empty?
@@ -79,7 +79,7 @@ class BiologicalRelationship < ApplicationRecord
     else
       h[:recent] = BiologicalRelationship.where('"biological_relationships"."id" IN (?)', r.first(10) ).order(:name).to_a
       h[:quick] = (BiologicalRelationship.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
-          BiologicalRelationship.where('"biological_relationships"."id" IN (?)', r.first(5) ).order(:name).to_a).uniq
+                   BiologicalRelationship.where('"biological_relationships"."id" IN (?)', r.first(5) ).order(:name).to_a).uniq
     end
 
     h

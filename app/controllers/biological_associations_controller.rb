@@ -103,17 +103,7 @@ class BiologicalAssociationsController < ApplicationController
 
   def filter_params
     params.permit(
-      :subject_global_id,
-      :object_global_id,
-      :any_global_id,
-      :biological_relationship_id,
-      :biological_association_id,
-      :otu_id,
-      :collection_object_id,
-      :spatial_geographic_area_id,
-      :biological_associations_graph_id,
-      :collecting_event_id,
-      :taxon_name_id,
+      *::Queries::BiologicalAssocation::PARAMS
 
       :identifier,
       :identifier_end,
@@ -128,14 +118,21 @@ class BiologicalAssociationsController < ApplicationController
       :note_text,
       :notes,
 
-      taxon_name_id: [],
-      collecting_event_id: [],
       keyword_id_and: [],
       keyword_id_or: [],
 
+      any_global_id: [],
       biological_association_id: [],
+      biological_associations_graph_id: [],
+      biological_relationship_id: [],
+      collecting_event_id: [],
       collection_object_id: [],
+      object_biological_property_id: [],
+      object_global_id: [],
       otu_id: [],
+      subject_biological_property_id: [],
+      subject_global_id: [],
+      taxon_name_id: [],
     )
 
     # Shallow resource hack
@@ -146,7 +143,38 @@ class BiologicalAssociationsController < ApplicationController
   end
 
   def api_params
-    params.permit(:subject_global_id, :object_global_id, :any_global_id, :biological_relationship_id)
+    params.permit(
+      *::Queries::BiologicalAssocation::PARAMS
+
+      :identifier,
+      :identifier_end,
+      :identifier_exact,
+      :identifier_start,
+      :identifiers,
+      :match_identifiers,
+      :match_identifiers_delimiter,
+      :match_identifiers_type,
+
+      :note_exact, # Notes concern
+      :note_text,
+      :notes,
+
+      keyword_id_and: [],
+      keyword_id_or: [],
+
+      any_global_id: [],
+      biological_association_id: [],
+      biological_associations_graph_id: [],
+      biological_relationship_id: [],
+      collecting_event_id: [],
+      collection_object_id: [],
+      object_biological_property_id: [],
+      object_global_id: [],
+      otu_id: [],
+      subject_biological_property_id: [],
+      subject_global_id: [],
+      taxon_name_id: [],
+    )
 
     # Shallow resource hack
     if !params[:collection_object_id].blank? && c = CollectionObject.where(project_id: sessions_current_project_id).find(params[:collection_object_id])
@@ -161,7 +189,7 @@ class BiologicalAssociationsController < ApplicationController
 
   def biological_association_params
     params.require(:biological_association).permit(
-      :biological_relationship_id, :biological_association_subject_id, :biological_association_subject_type, 
+      :biological_relationship_id, :biological_association_subject_id, :biological_association_subject_type,
       :biological_association_object_id, :biological_association_object_type,
       :subject_global_id,
       :object_global_id,

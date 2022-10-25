@@ -40,8 +40,11 @@ class BiologicalAssociation < ApplicationRecord
 
   belongs_to :biological_relationship, inverse_of: :biological_associations
 
-  has_many :subject_biological_relationship_types, through: :biological_relationship 
-  has_many :object_biological_relationship_types, through: :biological_relationship 
+  has_many :subject_biological_relationship_types, through: :biological_relationship
+  has_many :object_biological_relationship_types, through: :biological_relationship
+
+  has_many :subject_biological_properties, through: :subject_biological_relationship_types, source: :biological_property
+  has_many :object_biological_properties, through: :object_biological_relationship_types, source: :biological_property
 
   belongs_to :biological_association_subject, polymorphic: true
   belongs_to :biological_association_object, polymorphic: true
@@ -88,10 +91,10 @@ class BiologicalAssociation < ApplicationRecord
    #end
 
   # @return [ActiveRecord::Relation]
-  def self.targeted_join(target: 'subject', target_class: ::Otu )  
+  def self.targeted_join(target: 'subject', target_class: ::Otu )
     a = arel_table
     b = target_class.arel_table
-    
+
     j = a.join(b).on(a["biological_association_#{target}_type".to_sym].eq(target_class.name).and(a["biological_assoication_#{target}_id".to_sym].eq(b[:id])))
     joins(j.join_sources)
   end
