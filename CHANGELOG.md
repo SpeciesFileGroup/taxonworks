@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - Character state filter in Matrix Column Coder [#3141]
+- Better error handling and reporting when parsing BibTeX
 
 ### Changed
 - Reload New source task by pressing New and load source

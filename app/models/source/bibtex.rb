@@ -407,25 +407,38 @@ class Source::Bibtex < Source
     p
   end
 
-  # @return [BibTeX::Entry]
+  # @return [Source::Bibtex.new]
+  #   Adds errors if parse error exists. Note these
+  # errors are lost if save/valid? is called again on the object.
   def self.new_from_bibtex_text(text = nil)
-    a = BibTeX::Bibliography.parse(text, filter: :latex).first
-    new_from_bibtex(a)
+    source = Source::Bibtex.new
+    begin
+      a = BibTeX::Bibliography.parse(text, filter: :latex).first
+      if a.class.name == 'BibTeX::Error'
+        source.errors.add(:base, 'Unable to parse BibTeX entry. Possible error at end of: ' + a.content)
+        return source
+      else
+        return new_from_bibtex(a)
+      end
+    rescue BibTeX::ParseError => e
+      source.errors.add(:base, 'Unable to parse BibTeX entry: ' + e.to_s)
+      return source
+    end
   end
 
   # Instantiates a Source::Bibtex instance from a BibTeX::Entry
   # Note:
-  #    * note conversion is handled in note setter.
-  #    * identifiers are handled in associated setter.
-  #    * !! Unrecognized attributes are added as import attributes.
+  #   * note conversion is handled in note setter.
+  #   * identifiers are handled in associated setter.
+  #   * !! Unrecognized attributes are added as import attributes.
   #
   # Usage:
-  #    a = BibTeX::Entry.new(bibtex_type: 'book', title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
-  #    b = Source::Bibtex.new_from_bibtex(a)
+  #   a = BibTeX::Entry.new(bibtex_type: 'book', title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
+  #   b = Source::Bibtex.new_from_bibtex(a)
   #
   # @param [BibTex::Entry] bibtex_entry the BibTex::Entry to convert
-  # @return [Source::BibTex.new] a new instance
-  # TODO annote to project specific note?
+  # @return [Source::Bibtex.new] a new instance
+  # TODO: Annote to project specific note?
   # TODO: Serial with alternate_value on name .count = 1 assign .first
   def self.new_from_bibtex(bibtex_entry = nil)
     return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
