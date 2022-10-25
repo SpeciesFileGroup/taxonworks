@@ -32,14 +32,6 @@
     <nav-bar v-hotkey="shortcuts">
       <div class="flex-separate full_width">
         <div class="middle margin-small-left">
-          <template v-if="collectingEvent.id">
-            <pin-component
-              :object-id="collectingEvent.id"
-              type="CollectingEvent"
-            />
-            <radial-annotator :global-id="collectingEvent.global_id" />
-            <radial-object :global-id="collectingEvent.global_id" />
-          </template>
           <span
             v-if="collectingEvent.id"
             class="margin-small-left"
@@ -51,6 +43,18 @@
           >
             New record
           </span>
+          <div
+            v-if="collectingEvent.id"
+            class="horizontal-left-content margin-small-left"
+          >
+            <pin-component
+              class="circle-button"
+              :object-id="collectingEvent.id"
+              type="CollectingEvent"
+            />
+            <radial-annotator :global-id="collectingEvent.global_id" />
+            <radial-object :global-id="collectingEvent.global_id" />
+          </div>
         </div>
         <ul class="context-menu no_bullets">
           <li class="horizontal-right-content">
