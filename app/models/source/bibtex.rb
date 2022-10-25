@@ -642,18 +642,11 @@ class Source::Bibtex < Source
       s = Serial.where(name: journal).first
       i = Identifier::Global::Issn.where(identifier: value, identifier_object_type: 'Serial').first
 
-      # Found an Existing Serial identically named with
-      # an Identical ISSN
-      if s && i
+      # Found an Existing Serial identically named with an assigned Identical ISSN
+      if !s.nil? && (s == i&.identifier_object)
         write_attribute(:serial_id, s.id)
-      elsif i && s.nil? # Found an identifier, but not on a identically named Serial, assign it anyways
+      elsif i && s.nil? # Found a Serial with an Identifier, but not identically named, assign it anyway
         write_attribute(:serial_id, i.identifier_object_id)
-      elsif i.nil? && s.nil? && !journal.blank? && !value.blank?
-        # Found neither, but provided ISSN and Serial, this will get caught in new_from_bibtex to create a new serial
-      else
-        # Some other strange combination has occurred, add some erorrs (not tested)
-        errors.add(:journal, 'Conflict between ISSN and article type')
-        errors.add(:issn, 'Conflict between ISSN and article type')
       end
     end
   end
