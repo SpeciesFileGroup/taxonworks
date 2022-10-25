@@ -276,7 +276,7 @@ class CollectingEventsController < ApplicationController
       :start_date_month, :start_date_year, :end_date_day, :end_date_month,
       :group, :member, :formation, :lithology, :max_ma, :min_ma,
       :end_date_year, :verbatim_habitat, :field_notes, :verbatim_datum,
-      :verbatim_elevation,
+      :verbatim_elevation, :meta_prioritize_geographic_area,
       roles_attributes: [:id, :_destroy, :type, :person_id, :position,
                          person_attributes: [:last_name, :first_name, :suffix, :prefix]],
     identifiers_attributes: [:id, :namespace_id, :identifier, :type, :_destroy],

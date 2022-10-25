@@ -2,6 +2,7 @@ import doesRowObjectNeedCountdown from './doesRowObjectNeedCountdown.js'
 import getCharacterStateChecked from './getCharacterStateChecked.js'
 import getDescriptor from './getDescriptor.js'
 import getDisplayUnscoredRows from './options/GetDisplayUnscoredRows.js'
+import getDisplayCharacterStates from './options/GetFilterCharacterStates.js'
 import getFreeTextValueFor from './getFreeTextValueFor.js'
 import getNextColumn from './getNextColumn.js'
 import getObservationMatrix from './getObservationMatrix.js'
@@ -20,6 +21,7 @@ const GetterNames = {
   GetCharacterStateChecked: 'getCharacterStateChecked',
   GetDescriptor: 'getDescriptor',
   GetDisplayUnscoredRows: 'getDisplayUnscoredRows',
+  GetDisplayCharacterStates: 'getDisplayCharacterStates',
   GetFreeTextValueFor: 'getFreeTextValueFor',
   GetNextColumn: 'getNextColumn',
   GetObservationColumnId: 'getObservationColumnId',
@@ -38,6 +40,7 @@ const GetterFunctions = {
   [GetterNames.GetCharacterStateChecked]: getCharacterStateChecked,
   [GetterNames.GetDescriptor]: getDescriptor,
   [GetterNames.GetDisplayUnscoredRows]: getDisplayUnscoredRows,
+  [GetterNames.GetDisplayCharacterStates]: getDisplayCharacterStates,
   [GetterNames.GetFreeTextValueFor]: getFreeTextValueFor,
   [GetterNames.GetNextColumn]: getNextColumn,
   [GetterNames.GetObservationColumnId]: getObservationColumnId,

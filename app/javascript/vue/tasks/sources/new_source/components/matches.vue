@@ -11,7 +11,7 @@
         label="object_tag"
         :remove="false"
         :edit="true"
-        @edit="source = $event"
+        @edit="loadSource"
       />
     </div>
   </div>
@@ -20,8 +20,8 @@
 <script>
 
 import { GetterNames } from '../store/getters/getters'
-import { MutationNames } from '../store/mutations/mutations'
 import { Source } from 'routes/endpoints'
+import { RouteNames } from 'routes/routes.js'
 import DisplayList from 'components/displayList'
 import SpinnerComponent from 'components/spinner'
 
@@ -32,13 +32,8 @@ export default {
   },
 
   computed: {
-    source: {
-      get () {
-        return this.$store.getters[GetterNames.GetSource]
-      },
-      set (value) {
-        return this.$store.commit(MutationNames.SetSource, value)
-      }
+    source () {
+      return this.$store.getters[GetterNames.GetSource]
     },
 
     saving () {
@@ -91,6 +86,10 @@ export default {
       }).finally(() => {
         this.searching = false
       })
+    },
+
+    loadSource (source) {
+      window.open(`${RouteNames.NewSource}?source_id=${source.id}`, '_self')
     }
   }
 }

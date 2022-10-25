@@ -162,6 +162,7 @@ import { User } from 'routes/endpoints'
 import { GetterNames } from './store/getters/getters'
 import { ActionNames } from './store/actions/actions'
 import { MutationNames } from './store/mutations/mutations'
+import { RouteNames } from 'routes/routes'
 
 import RightSection from './components/rightSection'
 import NavBar from 'components/layout/NavBar'
@@ -261,7 +262,7 @@ export default {
 
   methods: {
     reset () {
-      this.$store.dispatch(ActionNames.ResetSource)
+      window.open(RouteNames.NewSource, '_self')
     },
     saveSource () {
       if (this.source.type === 'Source::Bibtex' && !this.source.bibtex_type) return

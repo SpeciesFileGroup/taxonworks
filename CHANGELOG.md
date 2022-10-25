@@ -6,7 +6,21 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+- Option to force DwC indexing to prioritize names from Geogrpahic Area [#3143]
+- Character state filter in Matrix Column Coder [#3141]
+- Better error handling and reporting when parsing BibTeX
+
+### Changed
+- Reload New source task by pressing New and load source
+- Updated Ruby gems
+
+### Fixed
+- Browse nomenclature crashing when taxon name descendants have no cached author year
+- Soft validation crashing when cached nomenclature date is absent
+
+[#3143]: https://github.com/SpeciesFileGroup/taxonworks/issues/3143
+[#3141]: https://github.com/SpeciesFileGroup/taxonworks/issues/3141
 
 ## [0.29.5] - 2022-10-10
 
