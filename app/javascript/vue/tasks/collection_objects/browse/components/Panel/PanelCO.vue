@@ -13,7 +13,7 @@
         1: '1fr',
       }"
     >
-      <PanelIdentifier />
+      <PanelDeterminations />
       <PanelBiocurations />
     </TableGrid>
   </TableGrid>
@@ -21,7 +21,7 @@
 
 <script setup>
 import PanelBuffered from './PanelBuffered/PanelBuffered.vue'
-
+import PanelDeterminations from './PanelDeterminations.vue'
 import PanelBiocurations from './PanelBiocurations.vue'
 import TableGrid from 'components/layout/Table/TableGrid.vue'
 </script>

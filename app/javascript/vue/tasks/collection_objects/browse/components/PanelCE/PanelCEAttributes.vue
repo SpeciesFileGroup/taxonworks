@@ -1,7 +1,5 @@
 <template>
-  <PanelContainer title="Attributes">
     <TableAttributes :items="list" />
-  </PanelContainer>
 </template>
 
 <script setup>

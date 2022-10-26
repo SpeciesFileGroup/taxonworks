@@ -1,8 +1,8 @@
 <template>
-  <div class="panel panel__content">
-    <h2 class="panel__title">
+  <div class="panel content">
+    <h3 class="">
       {{ title }}
-    </h2>
+    </h3>
     <hr>
     <slot />
   </div>

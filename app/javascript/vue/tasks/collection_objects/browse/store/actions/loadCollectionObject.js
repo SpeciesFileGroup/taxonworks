@@ -1,7 +1,8 @@
 import {
   CollectionObject,
   CollectingEvent,
-  Georeference
+  Georeference,
+  TaxonDetermination
 } from 'routes/endpoints'
 import { makeCollectionObject } from 'adapters/index.js'
 import {
@@ -19,14 +20,19 @@ export default ({ state, dispatch }, coId) => {
   })
 
   dispatch(ActionNames.LoadBiocurations, coId)
+  
 
   CollectionObject.dwca(coId).then(({ body }) => {
     state.dwc = body
   })
 
-  CollectionObject.timeline(coId).then(({ body }) => {
-    state.timeline = body
-  })
+  CollectionObject
+    .timeline(coId)
+    .then(({ body }) => { state.timeline = body })
+
+  TaxonDetermination
+    .where({ biological_collection_object_ids: [coId] })
+    .then(({ body }) => { state.determinations = body })
 
   CollectingEvent.where({ collection_object_id: [coId] }).then(({ body }) => {
     const ce = body[0]

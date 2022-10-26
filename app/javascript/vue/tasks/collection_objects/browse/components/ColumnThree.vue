@@ -1,5 +1,8 @@
 <template>
-  <TableGrid :columns="1">
+  <TableGrid
+    :columns="1"
+    gap="1em"
+  >
     <SoftValidations
       class="column-validation"
       :validations="store.getters[GetterNames.GetSoftValidations]"

@@ -31,11 +31,8 @@ import { computed } from 'vue'
 import { useStore } from 'vuex'
 import { URLParamsToJSON } from 'helpers/url/parse'
 import { ActionNames } from './store/actions/actions'
-import PanelDwc from './components/Panel/PanelDwc.vue'
-import PanelTimeline from './components/Panel/PanelTimeline.vue'
 import COHeader from './components/COHeader.vue'
 import TableGrid from 'components/layout/Table/TableGrid.vue'
-import PanelDepictions from './components/Panel/PanelDepictions.vue'
 import PanelCE from './components/PanelCE/PanelCE.vue'
 import PanelCO from './components/Panel/PanelCO.vue'
 import ColumnThree from './components/ColumnThree.vue'
@@ -56,7 +53,7 @@ if (coId) {
 
   .panel {
     border-radius: 0px;
-    box-shadow: 0 3 6 0 rgba(0,0,0, .18);
+    //box-shadow: 0 3 6 0 rgba(0,0,0, .18);
 
     &__title {
       padding: 0px;

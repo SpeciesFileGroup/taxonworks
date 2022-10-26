@@ -7,6 +7,7 @@ import getIdentifiers from './getIdentifiers'
 import getSoftValidations from './getSoftValidations'
 import getTimeline from './getTimeline'
 import getBiocurations from './getBiocurations'
+import getDeterminations from './getDeterminations'
 
 const GetterNames = {
   GetCollectingEvent: 'getCollectingEvent',
@@ -17,7 +18,8 @@ const GetterNames = {
   GetIdentifiers: 'getIdentifiers',
   GetSoftValidations: 'getSoftValidations',
   GetTimeline: 'getTimeline',
-  GetBiocurations: 'getBiocurations'
+  GetBiocurations: 'getBiocurations',
+  GetDeterminations: 'getDeterminations'
 }
 
 const GetterFunctions = {
@@ -29,7 +31,8 @@ const GetterFunctions = {
   [GetterNames.GetIdentifiers]: getIdentifiers,
   [GetterNames.GetSoftValidations]: getSoftValidations,
   [GetterNames.GetTimeline]: getTimeline,
-  [GetterNames.GetBiocurations]: getBiocurations
+  [GetterNames.GetBiocurations]: getBiocurations,
+  [GetterNames.GetDeterminations]: getDeterminations
 }
 
 export {
