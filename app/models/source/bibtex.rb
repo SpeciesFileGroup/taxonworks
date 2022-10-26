@@ -659,7 +659,7 @@ class Source::Bibtex < Source
   # turn bibtex URL field into a Ruby URI object
   # @return [URI]
   def url_as_uri
-    URI(self.url) unless self.url.blank?
+    URI(self.url) if self.url.present?
   end
 
   # @param [String] type_value
