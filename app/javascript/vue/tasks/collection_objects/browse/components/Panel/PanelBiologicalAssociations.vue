@@ -1,6 +1,7 @@
 <template>
   <PanelContainer title="Biological associations">
     <ListITems
+      class="no_bullets"
       :list="biologicalAssociations"
       label="object_tag"
       :remove="false"

@@ -7,6 +7,7 @@ const makeInitialState = () => {
   return {
     collectingEvent: {},
     collectionObject: {},
+    container: {},
     depictions: [],
     determinations: [],
     dwc: {},

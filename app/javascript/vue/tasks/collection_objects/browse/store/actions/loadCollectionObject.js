@@ -1,9 +1,11 @@
 import {
   CollectionObject,
   CollectingEvent,
+  Container,
   Georeference,
   TaxonDetermination,
-  BiologicalAssociation
+  BiologicalAssociation,
+  TypeMaterial
 } from 'routes/endpoints'
 import { makeCollectionObject } from 'adapters/index.js'
 import {
@@ -25,12 +27,22 @@ export default ({ state, dispatch }, coId) => {
         extend: ['origin_citation', 'object', 'biological_relationship']
       })
       .then(({ body }) => { state.biologicalAssociations = body })
+
+    Container
+      .for(co.globalId)
+      .then(({ body }) => {
+        state.container = body
+      })
   })
 
   dispatch(ActionNames.LoadBiocurations, coId)
 
   CollectionObject.dwca(coId).then(({ body }) => {
     state.dwc = body
+  })
+
+  CollectionObject.depictions(coId).then(({ body }) => {
+    state.depictions = body
   })
 
   CollectionObject
@@ -40,6 +52,13 @@ export default ({ state, dispatch }, coId) => {
   TaxonDetermination
     .where({ biological_collection_object_ids: [coId] })
     .then(({ body }) => { state.determinations = body })
+
+  TypeMaterial
+    .where({
+      collection_object_id: coId,
+      extend: ['roles', 'origin_citation']
+    })
+    .then(({ body }) => { state.typeMaterials = body })
 
   CollectingEvent.where({ collection_object_id: [coId] }).then(({ body }) => {
     const ce = body[0]
@@ -62,9 +81,5 @@ export default ({ state, dispatch }, coId) => {
   dispatch(ActionNames.LoadIdentifiersFor, {
     objectType: COLLECTION_OBJECT,
     id: coId
-  })
-
-  CollectionObject.depictions(coId).then(({ body }) => {
-    state.depictions = body
   })
 }

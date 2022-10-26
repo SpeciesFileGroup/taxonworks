@@ -36,7 +36,7 @@ import PanelContainer from './PanelContainer.vue'
 const store = useStore()
 const timeline = computed(() => store.getters[GetterNames.GetTimeline])
 
-const HEADER = ['type', 'event', 'object', 'derived_from', 'object']
+const HEADER = ['event', 'object', 'derived_from', 'object']
 </script>
 
 <style scoped>

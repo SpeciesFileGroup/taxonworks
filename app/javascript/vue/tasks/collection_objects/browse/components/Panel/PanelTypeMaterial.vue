@@ -1,8 +1,7 @@
 <template>
-  <PanelContainer title="Determinations">
+  <PanelContainer title="Type materials">
     <ListITems
-      class="no_bullets"
-      :list="determinations"
+      :list="typeMaterials"
       label="object_tag"
       :remove="false"
     />
@@ -17,5 +16,5 @@ import PanelContainer from './PanelContainer.vue'
 import ListITems from 'components/displayList.vue'
 
 const store = useStore()
-const determinations = computed(() => store.getters[GetterNames.GetDeterminations])
+const typeMaterials = computed(() => store.getters[GetterNames.GetTypeMaterials])
 </script>

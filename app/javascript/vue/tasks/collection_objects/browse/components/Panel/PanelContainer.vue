@@ -1,9 +1,6 @@
 <template>
   <div class="panel content">
-    <h3 class="">
-      {{ title }}
-    </h3>
-    <hr>
+    <h3>{{ title }}</h3>
     <slot />
   </div>
 </template>

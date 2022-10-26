@@ -1,6 +1,5 @@
 <template>
   <PanelContainer title="Buffered">
-    <hr>
     <PanelBufferedSection
       class="margin-small-bottom"
       v-if="collectionObject.bufferedCollectingEvent"
