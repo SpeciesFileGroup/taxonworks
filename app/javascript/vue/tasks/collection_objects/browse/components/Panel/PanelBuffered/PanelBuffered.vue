@@ -16,7 +16,7 @@
     <PanelBufferedSection
       v-if="collectionObject.bufferedLabels"
       class="margin-small-bottom"
-      title="Othjer labels"
+      title="Other labels"
       :text="collectionObject.bufferedLabels"
     />
   </PanelContainer>
