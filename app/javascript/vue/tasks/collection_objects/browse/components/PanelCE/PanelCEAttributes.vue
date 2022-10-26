@@ -1,5 +1,5 @@
 <template>
-    <TableAttributes :items="list" />
+  <TableAttributes :items="list" />
 </template>
 
 <script setup>
@@ -11,7 +11,6 @@ import {
   HIDE_ATTRIBUTES
 } from '../../constants/collectingEvents.js'
 import TableAttributes from '../Table/TableAttributes.vue'
-import PanelContainer from '../Panel/PanelContainer.vue'
 
 const store = useStore()
 const collectingEvent = computed(() => store.getters[GetterNames.GetCollectingEvent])

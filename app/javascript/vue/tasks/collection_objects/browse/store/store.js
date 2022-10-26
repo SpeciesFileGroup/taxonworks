@@ -15,7 +15,8 @@ const makeInitialState = () => {
     isLoading: false,
     softValidations: [],
     timeline: {},
-    biocurations: {}
+    biocurations: {},
+    biologicalAssociations: []
   }
 }
 

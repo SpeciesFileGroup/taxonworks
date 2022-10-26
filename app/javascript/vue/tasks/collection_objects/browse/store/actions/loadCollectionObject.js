@@ -2,7 +2,8 @@ import {
   CollectionObject,
   CollectingEvent,
   Georeference,
-  TaxonDetermination
+  TaxonDetermination,
+  BiologicalAssociation
 } from 'routes/endpoints'
 import { makeCollectionObject } from 'adapters/index.js'
 import {
@@ -17,10 +18,16 @@ export default ({ state, dispatch }, coId) => {
 
     state.collectionObject = co
     dispatch(ActionNames.LoadSoftValidation, co.globalId)
+
+    BiologicalAssociation
+      .where({
+        subject_global_id: co.globalId,
+        extend: ['origin_citation', 'object', 'biological_relationship']
+      })
+      .then(({ body }) => { state.biologicalAssociations = body })
   })
 
   dispatch(ActionNames.LoadBiocurations, coId)
-  
 
   CollectionObject.dwca(coId).then(({ body }) => {
     state.dwc = body

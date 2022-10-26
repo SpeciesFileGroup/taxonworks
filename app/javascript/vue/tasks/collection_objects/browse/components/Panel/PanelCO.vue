@@ -16,6 +16,7 @@
       <PanelDeterminations />
       <PanelBiocurations />
     </TableGrid>
+    <PanelBiologicalAssociations />
   </TableGrid>
 </template>
 
@@ -23,5 +24,6 @@
 import PanelBuffered from './PanelBuffered/PanelBuffered.vue'
 import PanelDeterminations from './PanelDeterminations.vue'
 import PanelBiocurations from './PanelBiocurations.vue'
+import PanelBiologicalAssociations from './PanelBiologicalAssociations.vue'
 import TableGrid from 'components/layout/Table/TableGrid.vue'
 </script>
