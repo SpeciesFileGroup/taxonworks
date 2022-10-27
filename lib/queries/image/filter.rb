@@ -65,7 +65,7 @@ module Queries
 
       # @return [Array]
       #   one or both of 'Otu', 'CollectionObject', defaults to both if nothing provided
-      # Only used when `ancestor_id` provided
+      # Only used when `taxon_name_id` provided
       attr_accessor :ancestor_id_target
 
       # @return [Array]
