@@ -1,5 +1,8 @@
 <template>
-  <TableAttributes :items="list" />
+  <TableAttributes
+    :items="list"
+    filter-attributes
+  />
 </template>
 
 <script setup>

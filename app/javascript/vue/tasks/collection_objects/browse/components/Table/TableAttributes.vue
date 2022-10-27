@@ -3,9 +3,7 @@
     <thead>
       <tr class="cell-head">
         <th>{{ header[0] }}</th>
-        <th>
-          {{ header[1] }}
-        </th>
+        <th>{{ header[1] }}</th>
       </tr>
     </thead>
     <tbody>
@@ -13,7 +11,10 @@
         v-for="(value, key) in items"
         :key="key"
       >
-        <tr v-if="value">
+        <tr
+          v-if="value"
+          :[getFilterAttribute(key)]="value"
+        >
           <td v-html="key" />
           <td
             class="cell-value"
@@ -26,16 +27,26 @@
 </template>
 
 <script setup>
-defineProps({
+import { DATA_ATTRIBUTE_FILTER_PROPERTY } from 'constants/index.js'
+
+const props = defineProps({
   items: {
     type: Object,
     required: true
   },
+
   header: {
     type: Array,
     default: () => ['Field', 'Value']
+  },
+
+  filterAttributes: {
+    type: Boolean,
+    default: false
   }
 })
+
+const getFilterAttribute = (atrr) => props.filterAttributes && `${DATA_ATTRIBUTE_FILTER_PROPERTY}-${atrr}`
 </script>
 
 <style scoped>
