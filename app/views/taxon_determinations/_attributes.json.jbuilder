@@ -31,4 +31,5 @@ end
 
 json.otu do
   json.partial! '/shared/data/all/metadata', object: taxon_determination.otu
+  json.taxon_name_id taxon_determination.otu.taxon_name_id
 end
