@@ -3,6 +3,7 @@
     <template #header>
       <div class="flex-separate middle full_width">
         <h3>Collecting event</h3>
+        <RadialFilterAttribute :parameters="{ collecting_event_id: collectingEvent.id }" />
         <div class="horizontal-right-content">
           <RadialAnnotator :global-id="collectingEvent.global_id" />
           <RadialObject :global-id="collectingEvent.global_id" />
@@ -30,6 +31,7 @@ import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/object/radial.vue'
 import RadialNavigator from 'components/radials/navigation/radial.vue'
 import TableGrid from 'components/layout/Table/TableGrid.vue'
+import RadialFilterAttribute from 'components/radials/filter/RadialFilterAttribute.vue'
 
 const store = useStore()
 const collectingEvent = computed(() => store.getters[GetterNames.GetCollectingEvent])

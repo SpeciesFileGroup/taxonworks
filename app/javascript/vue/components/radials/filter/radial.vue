@@ -73,7 +73,16 @@ const parameters = ref(getFilterAttributes())
 
 const menuOptions = computed(() => {
   const links = LINKER_LIST[props.objectType]
-  const sliceLinks = links.map(link => addSlice(link))
+  const slices = []
+
+  links.forEach(item => {
+    const objParameters = copyObjectByArray(parameters.value, item.params)
+    const link = item.link + '?' + transformObjectToParams(objParameters)
+
+    if (Object.values(objParameters).some(Boolean)) {
+      slices.push(addSlice({ ...item, link }))
+    }
+  })
 
   return {
     width: 400,
@@ -89,24 +98,19 @@ const menuOptions = computed(() => {
       fontSize: 11,
       class: 'slice'
     },
-    slices: sliceLinks
+    slices
   }
 })
 
 const isVisible = ref(false)
 
-function addSlice ({ label, link, params }, attr = {}) {
-  const objParameters = copyObjectByArray(parameters.value, params)
-  const composedLink = link + '?' + transformObjectToParams(objParameters)
-
+function addSlice ({ label, link, params }) {
   return {
     label,
-    name: link,
-    link: composedLink,
+    link,
     svgAttributes: {
       class: 'slice'
-    },
-    ...attr
+    }
   }
 }
 

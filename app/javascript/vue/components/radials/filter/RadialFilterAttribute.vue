@@ -1,19 +1,29 @@
 <template>
   <span
-    v-for="(value, key) in parameters"
-    :key="key"
-    :[getFilterAttribute(key)]="parseValue(value)"
+    v-bind="attributes"
     hidden
   />
 </template>
 
 <script setup>
 import { DATA_ATTRIBUTE_FILTER_PROPERTY } from 'constants/index.js'
-defineProps({
+import { computed } from 'vue'
+
+const props = defineProps({
   parameters: {
     type: Object,
     default: () => {}
   }
+})
+
+const attributes = computed(() => {
+  const obj = {}
+
+  for (const key in props.parameters) {
+    obj[getFilterAttribute(key)] = parseValue(props.parameters[key])
+  }
+
+  return obj
 })
 
 function getFilterAttribute (attr) {
