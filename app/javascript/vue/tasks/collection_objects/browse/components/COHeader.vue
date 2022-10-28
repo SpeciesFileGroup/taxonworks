@@ -6,6 +6,9 @@
     >
       <span v-html="collectionObject.objectTag" />
       <div class="horizontal-right-content">
+        <BrowseOTU
+          v-if="otu"
+          :otu="otu" />
         <RadialAnnotator :global-id="collectionObject.globalId" />
         <RadialObject :global-id="collectionObject.globalId" />
         <RadialNavigator :global-id="collectionObject.globalId" />
@@ -26,7 +29,14 @@ import RadialObject from 'components/radials/object/radial.vue'
 import RadialNavigator from 'components/radials/navigation/radial.vue'
 import RadialFilter from 'components/radials/filter/radial.vue'
 import RadialFilterAttribute from 'components/radials/filter/RadialFilterAttribute.vue'
+import BrowseOTU from 'components/otu/otu.vue'
 
 const store = useStore()
 const collectionObject = computed(() => store.getters[GetterNames.GetCollectionObject])
+const otu = computed(() => {
+  const determinations = store.getters[GetterNames.GetDeterminations]
+  const d = determinations[0]
+
+  return d && { id: d.otu_id }
+})
 </script>

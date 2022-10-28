@@ -3,7 +3,7 @@
     <h1>Browse collection object</h1>
     <COHeader />
     <TableGrid
-      :columns="collectingEvent.id ? 1 : 2"
+      :columns="1"
       gap="1em"
     >
       <TableGrid

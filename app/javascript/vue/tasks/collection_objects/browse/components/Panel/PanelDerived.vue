@@ -19,7 +19,7 @@
       }"
     >
       <PanelDepictions />
-      <PanelMap height="500px" />
+      <PanelMap />
     </TableGrid>
     <PanelTimeline />
   </TableGrid>
