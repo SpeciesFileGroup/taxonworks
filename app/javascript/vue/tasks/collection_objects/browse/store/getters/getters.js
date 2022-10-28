@@ -11,6 +11,7 @@ import getBiocurations from './getBiocurations'
 import getDeterminations from './getDeterminations'
 import getBiologicalAssociations from './getBiologicalAssociations'
 import getTypeMaterials from './getTypeMaterials'
+import getNavigation from './getNavigation'
 
 const GetterNames = {
   GetCollectingEvent: 'getCollectingEvent',
@@ -25,7 +26,8 @@ const GetterNames = {
   GetBiocurations: 'getBiocurations',
   GetDeterminations: 'getDeterminations',
   GetBiologicalAssociations: 'getBiologicalAssociations',
-  GetTypeMaterials: 'getTypeMaterials'
+  GetTypeMaterials: 'getTypeMaterials',
+  GetNavigation: 'getNavigation'
 }
 
 const GetterFunctions = {
@@ -41,7 +43,8 @@ const GetterFunctions = {
   [GetterNames.GetBiocurations]: getBiocurations,
   [GetterNames.GetDeterminations]: getDeterminations,
   [GetterNames.GetBiologicalAssociations]: getBiologicalAssociations,
-  [GetterNames.GetTypeMaterials]: getTypeMaterials
+  [GetterNames.GetTypeMaterials]: getTypeMaterials,
+  [GetterNames.GetNavigation]: getNavigation
 }
 
 export {

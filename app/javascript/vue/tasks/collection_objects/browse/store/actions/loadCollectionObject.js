@@ -41,6 +41,10 @@ export default ({ state, dispatch }, coId) => {
     state.dwc = body
   })
 
+  CollectionObject.navigation(coId).then(({ body }) => {
+    state.navigation = body
+  })
+
   CollectionObject.depictions(coId).then(({ body }) => {
     state.depictions = body
   })

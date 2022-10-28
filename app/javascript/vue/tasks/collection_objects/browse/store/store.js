@@ -17,6 +17,7 @@ const makeInitialState = () => {
     softValidations: [],
     timeline: {},
     biocurations: {},
+    navigation: {},
     biologicalAssociations: []
   }
 }

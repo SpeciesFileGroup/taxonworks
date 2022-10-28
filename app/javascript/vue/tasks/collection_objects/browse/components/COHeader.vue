@@ -13,6 +13,7 @@
         <RadialObject :global-id="collectionObject.globalId" />
         <RadialNavigator :global-id="collectionObject.globalId" />
         <RadialFilter object-type="CollectionObject" />
+        <CONavegation />
       </div>
       <RadialFilterAttribute :parameters="{ collection_object_id: [collectionObject.id] }" />
     </div>
@@ -24,6 +25,7 @@ import { useStore } from 'vuex'
 import { computed } from 'vue'
 import { GetterNames } from '../store/getters/getters'
 import NavBar from 'components/layout/NavBar.vue'
+import CONavegation from './CONavegation.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/object/radial.vue'
 import RadialNavigator from 'components/radials/navigation/radial.vue'
