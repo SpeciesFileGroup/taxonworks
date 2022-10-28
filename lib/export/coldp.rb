@@ -1,4 +1,5 @@
 require 'zip'
+require 'yaml'
 
 module Export
 
@@ -28,12 +29,26 @@ module Export
 
     def self.export(otu_id, prefer_unlabelled_otus: true)
       otus = otus(otu_id)
+      Current.project_id = Otu.find(otu_id).project_id
 
       # source_id: [csv_array]
       ref_csv = {}
 
       # TODO: This will likely have to change, it is renamed on serving the file.
       zip_file_path = "/tmp/_#{SecureRandom.hex(8)}_coldp.zip"
+
+      metadata_path = Zaru::sanitize!("/tmp/#{::Project.find(Current.project_id).name}_#{DateTime.now}_metadata.yaml").gsub(' ', '_').downcase
+      version = Taxonworks::VERSION
+      if Settings.sandbox_mode?
+        version = Settings.sandbox_commit_sha
+      end
+      metadata = {"title" =>::Project.find(Current.project_id).name,
+                  "version" => version,
+                  "issued" => DateTime.now.strftime('%Y-%m-%d'),
+      }
+      metadata_file = Tempfile.new(metadata_path)
+      metadata_file.write(metadata.to_yaml)
+      metadata_file.close
 
       Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
         (FILETYPES - ['Name']).each do |ft|
@@ -57,6 +72,7 @@ module Export
         end
 
         zipfile.get_output_stream('References.csv') { |f| f.write d }
+        zipfile.add("metadata.yaml", metadata_file.path)
       end
 
       zip_file_path
