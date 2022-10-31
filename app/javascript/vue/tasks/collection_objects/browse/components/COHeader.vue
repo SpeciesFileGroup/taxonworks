@@ -6,14 +6,15 @@
     >
       <span v-html="collectionObject.objectTag" />
       <div class="horizontal-right-content">
+        <CONavegation class="margin-small-right" />
         <BrowseOTU
           v-if="otu"
-          :otu="otu" />
+          :otu="otu"
+        />
         <RadialAnnotator :global-id="collectionObject.globalId" />
         <RadialObject :global-id="collectionObject.globalId" />
-        <RadialNavigator :global-id="collectionObject.globalId" />
         <RadialFilter object-type="CollectionObject" />
-        <CONavegation />
+        <RadialNavigator :global-id="collectionObject.globalId" />
       </div>
       <RadialFilterAttribute :parameters="{ collection_object_id: [collectionObject.id] }" />
     </div>
