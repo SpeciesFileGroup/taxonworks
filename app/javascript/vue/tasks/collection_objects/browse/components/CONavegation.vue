@@ -6,7 +6,7 @@
       @click="isVisible = true"
       :disabled="!navigate.current_collection_object"
     >
-      Navigate
+      Go
     </button>
     <modal-component
       v-if="isVisible"
