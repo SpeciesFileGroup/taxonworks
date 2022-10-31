@@ -305,6 +305,10 @@ scope :tasks do
   end
 
   scope :biological_associations do
+      scope :filter, controller: 'tasks/biological_associations/filter' do
+        get :index, as: 'index_filter_task'
+      end
+
     scope :dot, controller: 'tasks/biological_associations/dot' do
       get 'by_project/:project_id', action: :project_dot_graph, as: :biological_associations_dot_graph_task
     end

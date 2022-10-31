@@ -738,3 +738,11 @@ paper_catalog_generator_task:
     - export
   status: prototype
   description: 'Experimenting with rendering nomenclature as a paper catalog'
+
+index_filter_task:
+  hub: true
+  name: 'Filter biological associations'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'

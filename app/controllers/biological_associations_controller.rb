@@ -2,6 +2,7 @@ class BiologicalAssociationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_biological_association, only: [:show, :edit, :update, :destroy, :api_show]
+  after_action -> { set_pagination_headers(:biological_associations) }, only: [:index], if: :json_request?
 
   # GET /biological_associations
   # GET /biological_associations.json
@@ -103,7 +104,7 @@ class BiologicalAssociationsController < ApplicationController
 
   def filter_params
     params.permit(
-      ::Queries::BiologicalAssocation::PARAMS,
+      ::Queries::BiologicalAssociation::Filter::PARAMS,
       :identifier,
       :identifier_end,
       :identifier_exact,
