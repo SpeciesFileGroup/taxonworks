@@ -24,16 +24,19 @@
         </div>
       </template>
     </modal>
-    <span
-      v-if="showBottom"
-      :title="buttonTitle"
-      type="button"
+    <VBtn
       class="circle-button"
-      :class="[buttonClass]"
-      @click="displayRadialObject()"
+      color="primary"
+      title="Radial filter"
+      circle
+      @click="openRadialMenu()"
     >
-      Radial annotator
-    </span>
+      <VIcon
+        title="Radial filter"
+        name="funnel"
+        x-small
+      />
+    </VBtn>
   </div>
 </template>
 
@@ -42,6 +45,8 @@ import { computed, ref, watch } from 'vue'
 import { transformObjectToParams } from 'helpers/setParam'
 import { copyObjectByArray } from 'helpers/objects.js'
 import RadialMenu from 'components/radials/RadialMenu.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
+import VBtn from 'components/ui/VBtn/index.vue'
 import Modal from 'components/ui/Modal.vue'
 import getFilterAttributes from './composition/getFilterAttributes'
 import * as LINKER_LIST from './links/index.js'
@@ -119,7 +124,7 @@ function closeModal () {
   emit('close')
 }
 
-function displayRadialObject () {
+function openRadialMenu () {
   isVisible.value = true
 }
 
