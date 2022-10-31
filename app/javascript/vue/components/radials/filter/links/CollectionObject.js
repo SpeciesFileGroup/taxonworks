@@ -2,7 +2,7 @@ export const CollectionObject = [
   {
     label: 'By collecting event',
     link: '/tasks/collection_objects/filter',
-    params: ['collecting_event_id']
+    params: ['collecting_event_ids']
   },
   {
     label: 'By verbatim locality',

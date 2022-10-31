@@ -3,7 +3,7 @@
     <template #header>
       <div class="flex-separate middle full_width">
         <h3>Collecting event</h3>
-        <RadialFilterAttribute :parameters="{ collecting_event_id: collectingEvent.id }" />
+        <RadialFilterAttribute :parameters="{ collecting_event_ids: [collectingEvent.id] }" />
         <div class="horizontal-right-content">
           <RadialAnnotator :global-id="collectingEvent.global_id" />
           <RadialObject :global-id="collectingEvent.global_id" />
