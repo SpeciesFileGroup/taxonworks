@@ -51,8 +51,8 @@ jobs:
     - name: Get startup date
       id: datetime
       run: |
-        echo "::set-output name=iso_date::$(date --iso-8601 -u)"
-        echo "::set-output name=year_week::$(date -u +'%Y-%U')"
+        echo "iso_date=$(date --iso-8601 -u)" >> $GITHUB_OUTPUT
+        echo "year_week=$(date -u +'%Y-%U')" >> $GITHUB_OUTPUT
 
     - name: Git checkout
       uses: actions/checkout@v3

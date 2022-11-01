@@ -30,7 +30,7 @@ jobs:
     steps:
     - name: Get startup date
       id: datetime
-      run: echo "::set-output name=year_week::$(date -u +'%Y-%U')"
+      run: echo "year_week=$(date -u +'%Y-%U')" >> $GITHUB_OUTPUT
 
     - name: Git checkout
       uses: actions/checkout@v3
