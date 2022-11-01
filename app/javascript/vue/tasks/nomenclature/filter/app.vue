@@ -28,6 +28,12 @@
           </label>
         </li>
         <li>
+          <RadialLabel
+            :object-type="TAXON_NAME"
+            :ids="selectedIds"
+          />
+        </li>
+        <li>
           <CsvComponent :list="list" />
         </li>
       </ul>
@@ -64,6 +70,7 @@
         <ListComponent
           :class="{ 'margin-medium-left': preferences.activeFilter }"
           :list="list"
+          v-model="selectedIds"
           @on-sort="list = $event"
         />
         <h3
@@ -86,9 +93,11 @@ import PaginationCount from 'components/pagination/PaginationCount'
 import SpinnerComponent from 'components/spinner.vue'
 import useFilter from 'tasks/people/filter/composables/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
+import RadialLabel from 'components/radials/label/radial.vue'
 import { TaxonName } from 'routes/endpoints'
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
+import { TAXON_NAME } from 'constants/index.js'
 
 const preferences = reactive({
   activeFilter: true,
@@ -105,6 +114,8 @@ const {
   makeFilterRequest,
   resetFilter
 } = useFilter(TaxonName)
+
+const selectedIds = ref([])
 
 const urlParams = URLParamsToJSON(location.href)
 
