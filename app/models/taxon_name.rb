@@ -176,6 +176,11 @@ class TaxonName < ApplicationRecord
     iczn: 'http://purl.obolibrary.org/obo/NOMEN_0000224'
   }
 
+  # See related concept in concerns/shared/taxonomy, this may belong there.
+  #
+  # @return [Hash]
+  attr_reader :taxonomy
+
   # @return [Boolean]
   #   When true, also creates an OTU that is tied to this taxon name
   attr_accessor :also_create_otu
@@ -499,6 +504,15 @@ class TaxonName < ApplicationRecord
          WHERE #{rank_classes.collect{|c| "rank_class = '#{c}'" }.join(' OR ')}
          ) as taxon_names
     SQL
+  end
+
+  # See attr_reader.
+  def taxonomy(rebuild = false)
+    if rebuild
+      @taxonomy = full_name_hash
+    else
+      @taxonomy ||= full_name_hash
+    end
   end
 
   # @return [String]

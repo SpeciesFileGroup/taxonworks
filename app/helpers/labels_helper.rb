@@ -3,10 +3,9 @@ require 'barby'
 require 'barby/barcode/code_128'
 require 'barby/outputter/svg_outputter'
 
-
 module LabelsHelper
 
-  # !! Note that `label_tag` is a Rails reserved word, so we have to append and make exceptions
+  # !! Note that `label_tag` is a Rails method, so we have to append and make exceptions
   def taxonworks_label_tag(label)
     return nil if label.nil?
     case label.type
@@ -14,6 +13,8 @@ module LabelsHelper
       label_svg_tag(label)
     when 'Label::Code128'
       label_code_128_tag(label)
+    when 'Label::UnitTray::Header1'
+      label_unit_tray_header1_tag(label)
     else
       content_tag(:span, label.text, style: label.style) # TODO: properly reference style
     end
@@ -26,6 +27,20 @@ module LabelsHelper
     else
       link_to(content_tag(:span, label.text), print_labels_task_path(label_id: label.to_param))
     end
+  end
+
+  def label_unit_tray_header1_tag(label)
+    o = label.label_object
+    tag.span(
+      tag.span(
+        tag.span(full_taxon_name_tag(o), class: 'unit_tray_header1_left') +
+        tag.span(o.id, class: 'unit_tray_header1_right'),
+        class: 'unit_tray_header1_top'
+      ) +
+      "\n" +
+      tag.span(
+        [o.taxonomy['order'], o.taxonomy['family']].compact.join(': '), class: 'unit_tray_header1_bottom'
+      ), class: 'foo') 
   end
 
   def label_svg_tag(label)

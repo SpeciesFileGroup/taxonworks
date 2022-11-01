@@ -358,6 +358,9 @@ end
 resources :labels do
   collection do
     get :list
+    scope :factory do
+      post :unit_tray_header1, controller: 'labels/factory', defaults: {format: :json}
+    end
   end
   # is data?
 end
