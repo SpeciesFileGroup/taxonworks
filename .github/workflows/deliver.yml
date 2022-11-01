@@ -33,11 +33,11 @@ jobs:
       run: echo "::set-output name=year_week::$(date -u +'%Y-%U')"
 
     - name: Git checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Set up Docker images cache
       id: docker_cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: .github/.docker-cache
         key: ${{ runner.os }}-docker-${{ steps.datetime.outputs.year_week }}-${{ hashFiles('**/package-lock.json', '**/Gemfile.lock') }}
@@ -56,7 +56,7 @@ jobs:
 
     - name: Wait build workflow to complete successfully
       if: ${{ github.event_name != 'pull_request' }}
-      uses: actions/github-script@v3
+      uses: actions/github-script@v6
       with:
         script: |
           const suiteId = (
@@ -92,14 +92,14 @@ jobs:
 
     - name: Login to DockerHub
       if: ${{ github.event_name != 'pull_request' }}
-      uses: docker/login-action@v1
+      uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Get tag for docker image
       id: docker_tag
-      uses: actions/github-script@v3
+      uses: actions/github-script@v6
       with:
         result-encoding: string
         script: |
