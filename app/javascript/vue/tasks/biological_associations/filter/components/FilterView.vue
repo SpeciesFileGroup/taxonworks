@@ -29,13 +29,11 @@
       <FacetOtu
         class="margin-large-bottom"
         v-model="params.base.otu_id"
-        target="Extract"
+        target="BiologicalAssociation"
       />
-      <with-component
+      <FacetBiologicalRelationship
+        v-model="params.base.biological_relationship_id"
         class="margin-large-bottom"
-        title="Sequences"
-        param="sequences"
-        v-model="params.base.sequences"
       />
       <FacetMatchIdentifiers
         class="margin-large-bottom"
@@ -63,9 +61,9 @@
 import UserComponent from 'tasks/collection_objects/filter/components/filters/user'
 import IdentifierComponent from 'tasks/collection_objects/filter/components/filters/identifier'
 import FacetMatchIdentifiers from 'tasks/people/filter/components/Facet/FacetMatchIdentifiers.vue'
+import FacetBiologicalRelationship from './Facet/FacetBiologicalRelationship.vue'
 import KeywordsComponent from 'tasks/sources/filter/components/filters/tags'
 import platformKey from 'helpers/getPlatformKey.js'
-import WithComponent from 'tasks/sources/filter/components/filters/with'
 import checkMatchIdentifiersParams from 'tasks/people/filter/helpers/checkMatchIdentifiersParams'
 import FacetCollectingEvent from './Facet/FacetCollectingEvent.vue'
 import FacetTaxonName from './Facet/FacetTaxonName.vue'
@@ -90,14 +88,9 @@ const parseParams = computed(() =>
   ({
     ...params.value.determination,
     ...params.value.identifier,
-    ...params.value.geographic,
-    ...params.value.repository,
     ...params.value.base,
-    ...params.value.date,
     ...params.value.keywords,
     ...params.value.protocols,
-    ...params.value.taxon,
-    ...params.value.verbatimAnatomical,
     ...checkMatchIdentifiersParams(params.value.matchIdentifiers),
     ...filterEmptyParams(params.value.user)
   })
@@ -112,9 +105,8 @@ const initParams = () => ({
   base: {
     collection_object_ids: [],
     collecting_event_id: [],
-    extract_origin: undefined,
-    sequences: undefined,
-    otu_id: []
+    otu_id: [],
+    biological_relationship_id: []
   },
   identifier: {
     identifier: undefined,
@@ -129,38 +121,18 @@ const initParams = () => ({
     user_date_start: undefined,
     user_date_end: undefined
   },
-  geographic: {
-    geo_json: [],
-    radius: undefined,
-    spatial_geographic_areas: undefined,
-    geographic_area_id: []
-  },
   matchIdentifiers: {
     match_identifiers: undefined,
     match_identifiers_delimiter: ',',
     match_identifiers_type: 'internal'
   },
-  repository: {
-    repository_id: undefined
-  },
-  date: {
-    extract_start_date_range: undefined,
-    extract_end_date_range: undefined
-  },
   keywords: {
     keyword_id_and: [],
     keyword_id_or: []
   },
-  taxon: {
-    ancestor_id: undefined
-  },
   protocols: {
     protocol_id_and: [],
     protocol_id_or: []
-  },
-  verbatimAnatomical: {
-    verbatim_anatomical_origin: undefined,
-    exact_verbatim_anatomical_origin: undefined
   }
 })
 
