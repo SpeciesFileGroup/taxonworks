@@ -1,33 +1,19 @@
 <template>
   <TableGrid
-    :columns="3"
+    :columns="2"
     :column-width="{
       default: 'min-content',
       0: '1fr',
       1: '1fr',
-      2: '1fr'
     }"
     gap="1em"
   >
     <PanelDwc />
-    <TableGrid
-      :columns="1"
-      gap="1em"
-      :column-width="{
-        default: 'min-content',
-        0: '1fr'
-      }"
-    >
-      <PanelDepictions />
-      <PanelMap />
-    </TableGrid>
     <PanelTimeline />
   </TableGrid>
 </template>
 
 <script setup>
-import PanelDepictions from './PanelDepictions.vue'
-import PanelMap from './PanelMap.vue'
 import PanelTimeline from './PanelTimeline.vue'
 import PanelDwc from './PanelDwc.vue'
 import TableGrid from 'components/layout/Table/TableGrid.vue'

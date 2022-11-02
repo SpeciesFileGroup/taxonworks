@@ -12,7 +12,7 @@
         :column-width="{
           default: 'min-content',
           0: '1fr',
-          1: '2fr',
+          1: collectingEvent.id ? '2fr' : '1fr',
           2: '1fr'
         }"
       >
