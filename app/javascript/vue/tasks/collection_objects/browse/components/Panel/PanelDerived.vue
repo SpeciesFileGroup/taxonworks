@@ -3,8 +3,8 @@
     :columns="2"
     :column-width="{
       default: 'min-content',
-      0: '1fr',
-      1: '1fr',
+      0: '50%',
+      1: '50%',
     }"
     gap="1em"
   >
