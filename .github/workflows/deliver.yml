@@ -60,7 +60,7 @@ jobs:
       with:
         script: |
           const suiteId = (
-            await github.checks.listForRef({
+            await github.rest.checks.listForRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: process.env.REF_SHA,
@@ -78,7 +78,7 @@ jobs:
           do {
             core.info(`Checking suite completed successfully (${attempts} remaining). [check_suite_id = ${suiteId}]`)
             suite = (
-              await github.checks.getSuite({
+              await github.rest.checks.getSuite({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 check_suite_id: suiteId
