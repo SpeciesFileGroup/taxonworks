@@ -1,10 +1,42 @@
 export const PRIORITIZE_ATTRIBUTES = [
-
+  'catalogNumber',
+  'country',
+  'stateProvince',
+  'county',
+  'verbatimLocality',
+  'eventDate',
+  'year',
+  'month',
+  'day',
+  'startDayOfYear',
+  'recordedBy',
+  'identifiedBy',
+  'lifeStage',
+  'sex',
+  'preparations',
+  'scientificName',
+  'scientificNameAuthorship',
+  'taxonRank',
+  'higherClassification',
+  'kingdom',
+  'phylum',
+  'dwcClass',
+  'order',
+  'family',
+  'genus',
+  'speciesEpithet',
+  'basisOfRecord',
+  'associatedMedia'
 ]
 
 export const HIDE_ATTRIBUTES = [
+  'dwc_occurrence_object_id',
+  'dwc_occurrence_object_type',
   'wkt_footprint',
   'created_at',
   'updated_at',
-  'id'
+  'id',
+  'project_id',
+  'created_by_id',
+  'updated_by_id'
 ]
