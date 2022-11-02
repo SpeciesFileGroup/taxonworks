@@ -1,7 +1,6 @@
 <template>
   <VMap
     width="100%"
-
     :geojson="georeferences"
     resize
   />

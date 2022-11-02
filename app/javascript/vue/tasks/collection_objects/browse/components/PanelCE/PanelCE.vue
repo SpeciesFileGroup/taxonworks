@@ -12,11 +12,8 @@
       </div>
     </template>
     <template #body>
-      <TableGrid
-        :columns="1"
-      >
+      <TableGrid :columns="1">
         <PanelCEAttributes />
-        <PanelMap />
       </TableGrid>
     </template>
   </BlockLayout>
@@ -33,7 +30,6 @@ import RadialObject from 'components/radials/object/radial.vue'
 import RadialNavigator from 'components/radials/navigation/radial.vue'
 import TableGrid from 'components/layout/Table/TableGrid.vue'
 import RadialFilterAttribute from 'components/radials/filter/RadialFilterAttribute.vue'
-import PanelMap from '../Panel/PanelMap.vue'
 
 const store = useStore()
 const collectingEvent = computed(() => store.getters[GetterNames.GetCollectingEvent])
