@@ -6,7 +6,7 @@ json.nomenclatural_code @taxon_name.nomenclatural_code
 json.short_status taxon_name_short_status_label(@taxon_name)
 json.status taxon_name_status_label(@taxon_name)
 json.rank @taxon_name.rank
-
+json.rank_string @taxon_name.rank_string
 json.author @taxon_name.author_string
 json.year @taxon_name.cached_nomenclature_date&.year
 json.pages @taxon_name.origin_citation&.pages
