@@ -5,6 +5,7 @@ export const PRIORITIZE_ATTRIBUTES = [
   'county',
   'verbatimLocality',
   'eventDate',
+  'verbatimCoordinates',
   'year',
   'month',
   'day',
@@ -16,6 +17,7 @@ export const PRIORITIZE_ATTRIBUTES = [
   'preparations',
   'scientificName',
   'scientificNameAuthorship',
+  'dateIdentified',
   'taxonRank',
   'higherClassification',
   'kingdom',
@@ -24,7 +26,7 @@ export const PRIORITIZE_ATTRIBUTES = [
   'order',
   'family',
   'genus',
-  'speciesEpithet',
+  'nomenclaturalCode',
   'basisOfRecord',
   'associatedMedia'
 ]
@@ -32,7 +34,7 @@ export const PRIORITIZE_ATTRIBUTES = [
 export const HIDE_ATTRIBUTES = [
   'dwc_occurrence_object_id',
   'dwc_occurrence_object_type',
-  'wkt_footprint',
+  'footprintWKT',
   'created_at',
   'updated_at',
   'id',

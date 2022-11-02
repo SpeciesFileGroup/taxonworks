@@ -10,6 +10,7 @@ export const PRIORITIZE_ATTRIBUTES = [
   'verbatim_date'
 ]
 export const HIDE_ATTRIBUTES = [
+  'global_id',
   'geographic_area_id',
   'identifiers',
   'url_for',
