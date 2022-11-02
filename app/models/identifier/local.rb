@@ -74,8 +74,4 @@ class Identifier::Local < Identifier
     [namespace&.verbatim_short_name, namespace&.short_name, ''].compact.first + delimiter
   end
 
-  def set_cached
-    update_column(:cached, build_cached)
-  end
-
 end

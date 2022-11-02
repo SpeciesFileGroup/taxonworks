@@ -6,13 +6,13 @@
 </template>
 
 <script setup>
-import { useStore } from 'vuex'
-import { computed } from 'vue'
-import { GetterNames } from '../../store/getters/getters'
 import {
   PRIORITIZE_ATTRIBUTES,
   HIDE_ATTRIBUTES
 } from '../../constants/collectingEvents.js'
+import { useStore } from 'vuex'
+import { computed } from 'vue'
+import { GetterNames } from '../../store/getters/getters'
 import TableAttributes from '../Table/TableAttributes.vue'
 
 const store = useStore()
