@@ -12,6 +12,7 @@ const makeInitialState = () => {
     determinations: [],
     dwc: {},
     georeferences: [],
+    geographicArea: {},
     identifiers: {},
     isLoading: false,
     softValidations: [],

@@ -35,7 +35,7 @@ const parameters = computed(() => {
 const list = computed(() => {
   return determinations.value.map(d => ({
     otu: d.otu.object_tag,
-    roles: d.determiner_roles.map(r => r.person.cached).join('; '),
+    roles: d.determiner_roles.map(r => r?.person?.cached).join('; '),
     date: [d.day_made, d.month_made, d.year_made].filter(Boolean).join('/')
   }))
 })

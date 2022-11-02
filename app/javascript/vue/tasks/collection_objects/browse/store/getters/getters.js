@@ -12,6 +12,7 @@ import getDeterminations from './getDeterminations'
 import getBiologicalAssociations from './getBiologicalAssociations'
 import getTypeMaterials from './getTypeMaterials'
 import getNavigation from './getNavigation'
+import getGeographicArea from './getGeographicArea'
 
 const GetterNames = {
   GetCollectingEvent: 'getCollectingEvent',
@@ -19,6 +20,7 @@ const GetterNames = {
   GetContainer: 'getContainer',
   GetDepictions: 'getDepictions',
   GetDwc: 'getDwc',
+  GetGeographicArea: 'getGeographicArea',
   GetGeoreferences: 'loadGeoreferences',
   GetIdentifiers: 'getIdentifiers',
   GetSoftValidations: 'getSoftValidations',
@@ -37,6 +39,7 @@ const GetterFunctions = {
   [GetterNames.GetDepictions]: getDepictions,
   [GetterNames.GetDwc]: getDwc,
   [GetterNames.GetGeoreferences]: getGeoreferences,
+  [GetterNames.GetGeographicArea]: getGeographicArea,
   [GetterNames.GetIdentifiers]: getIdentifiers,
   [GetterNames.GetSoftValidations]: getSoftValidations,
   [GetterNames.GetTimeline]: getTimeline,

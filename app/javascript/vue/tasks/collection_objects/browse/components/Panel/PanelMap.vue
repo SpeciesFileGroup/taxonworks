@@ -3,7 +3,7 @@
     width="100%"
     height="100%"
     style="min-height: 500px"
-    :geojson="georeferences"
+    :geojson="geoJson"
     resize
   />
 </template>
@@ -16,5 +16,12 @@ import VMap from 'components/georeferences/map.vue'
 
 const store = useStore()
 const georeferences = computed(() => store.getters[GetterNames.GetGeoreferences].map(g => g.geo_json))
+const geographicAreaShape = computed(() => store.getters[GetterNames.GetGeographicArea]?.shape)
+
+const geoJson = computed(() =>
+  geographicAreaShape.value
+    ? [geographicAreaShape.value, ...georeferences.value]
+    : [...georeferences.value]
+)
 
 </script>

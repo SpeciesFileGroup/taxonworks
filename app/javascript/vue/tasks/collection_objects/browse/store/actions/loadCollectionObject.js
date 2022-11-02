@@ -5,7 +5,8 @@ import {
   Georeference,
   TaxonDetermination,
   BiologicalAssociation,
-  TypeMaterial
+  TypeMaterial,
+  GeographicArea
 } from 'routes/endpoints'
 import { makeCollectionObject } from 'adapters/index.js'
 import {
@@ -73,6 +74,12 @@ export default ({ state, dispatch }, coId) => {
       Georeference.where({ collecting_event_id: ce.id }).then(({ body }) => {
         state.georeferences = body
       })
+
+      if (ce.geographic_area_id) {
+        GeographicArea.find(ce.geographic_area_id, { embed: ['shape'] }).then(({ body }) => {
+          state.geographicArea = body
+        })
+      }
 
       dispatch(ActionNames.LoadSoftValidation, ce.global_id)
       dispatch(ActionNames.LoadIdentifiersFor, {
