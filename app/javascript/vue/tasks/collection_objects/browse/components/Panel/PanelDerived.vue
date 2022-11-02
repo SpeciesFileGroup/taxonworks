@@ -5,7 +5,7 @@
       default: 'min-content',
       0: '1fr',
       1: '1fr',
-      2: '2fr'
+      2: '1fr'
     }"
     gap="1em"
   >

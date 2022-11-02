@@ -29,7 +29,7 @@ const list = computed(() => {
     return (index1 > -1 ? index1 : Infinity) - (index2 > -1 ? index2 : Infinity)
   })
 
-  return Object.fromEntries(entries)
+  return Object.fromEntries(filteredList)
 })
 
 </script>
