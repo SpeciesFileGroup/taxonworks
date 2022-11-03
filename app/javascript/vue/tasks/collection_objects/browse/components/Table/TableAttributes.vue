@@ -14,6 +14,7 @@
         <tr
           v-if="value"
           :[getFilterAttribute(key)]="value"
+          @click="emit('rowClick', { field: key, value })"
         >
           <td v-html="key" />
           <td
@@ -45,8 +46,9 @@ const props = defineProps({
     default: false
   }
 })
-
+const emit = defineEmits(['rowClick'])
 const getFilterAttribute = (atrr) => props.filterAttributes && `${DATA_ATTRIBUTE_FILTER_PROPERTY}-${atrr}`
+
 </script>
 
 <style scoped>
