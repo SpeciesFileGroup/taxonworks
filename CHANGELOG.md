@@ -18,9 +18,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 - Browse nomenclature crashing when taxon name descendants have no cached author year
 - Soft validation crashing when cached nomenclature date is absent
+- Role picker is missing after create a source from BibTeX [#3180]
 
 [#3143]: https://github.com/SpeciesFileGroup/taxonworks/issues/3143
 [#3141]: https://github.com/SpeciesFileGroup/taxonworks/issues/3141
+[#3180]: https://github.com/SpeciesFileGroup/taxonworks/issues/3180
 
 ## [0.29.5] - 2022-10-10
 
