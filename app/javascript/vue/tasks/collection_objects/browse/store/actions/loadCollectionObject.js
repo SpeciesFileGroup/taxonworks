@@ -37,10 +37,8 @@ export default ({ state, dispatch }, coId) => {
   })
 
   dispatch(ActionNames.LoadBiocurations, coId)
-
-  CollectionObject.dwca(coId).then(({ body }) => {
-    state.dwc = body
-  })
+  dispatch(ActionNames.LoadDwc, coId)
+  dispatch(ActionNames.LoadTimeline, coId)
 
   CollectionObject.navigation(coId).then(({ body }) => {
     state.navigation = body
@@ -49,10 +47,6 @@ export default ({ state, dispatch }, coId) => {
   CollectionObject.depictions(coId).then(({ body }) => {
     state.depictions = body
   })
-
-  CollectionObject
-    .timeline(coId)
-    .then(({ body }) => { state.timeline = body })
 
   TaxonDetermination
     .where({ biological_collection_object_ids: [coId] })

@@ -28,7 +28,7 @@
           full-screen
         />
       </div>
-      <confirmation-modal ref="confirmationModal" />
+      <ConfirmationModal ref="confirmationModal" />
     </template>
     <template #footer>
       <VBtn
@@ -57,6 +57,7 @@ import { ref } from 'vue'
 import { CollectionObject } from 'routes/endpoints'
 import { useStore } from 'vuex'
 import { ActionNames } from '../../store/actions/actions'
+import { GetterNames } from '../../store/getters/getters'
 import VModal from 'components/ui/Modal.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
@@ -107,11 +108,17 @@ async function updateCE () {
     store.dispatch(ActionNames.UpdateCollectingEvent, {
       collectingEventId: props.collectingEventId,
       payload: { [props.param.field]: fieldValue.value }
-    }).then(_ => {
-      isUpdating.value = false
-      TW.workbench.alert.create('Collecting event was successfully updated', 'notice')
-      emit('close')
     })
+      .then(_ => {
+        const coId = store.getters[GetterNames.GetCollectionObject].id
+
+        store.dispatch(ActionNames.LoadDwc, coId)
+        store.dispatch(ActionNames.LoadTimeline, coId)
+
+        isUpdating.value = false
+        TW.workbench.alert.create('Collecting event was successfully updated', 'notice')
+        emit('close')
+      })
   }
 }
 
