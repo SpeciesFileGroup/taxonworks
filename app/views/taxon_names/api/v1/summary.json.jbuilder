@@ -1,6 +1,7 @@
 json.extract! @taxon_name, :id, :parent_id, :name
 json.is_valid @taxon_name.cached_is_valid
-json.full_name full_taxon_name_tag(@taxon_name)
+json.full_name label_for_taxon_name(@taxon_name)
+json.full_name_tag full_taxon_name_tag(@taxon_name)
 
 json.nomenclatural_code @taxon_name.nomenclatural_code
 json.short_status taxon_name_short_status_label(@taxon_name)
