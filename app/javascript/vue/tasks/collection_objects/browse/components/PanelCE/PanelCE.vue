@@ -18,6 +18,7 @@
       <PanelCEModal
         v-if="row"
         :param="row"
+        :textarea="textareaFields.includes(row.field)"
         :collecting-event-id="collectingEvent.id"
         @close="row = undefined"
       />
@@ -46,6 +47,13 @@ const notEditableFields = [
   'cached_level0_geographic_name',
   'cached_level1_geographic_name',
   'cached_level2_geographic_name'
+]
+
+const textareaFields = [
+  'document_label',
+  'print_label',
+  'verbatim_label',
+  'verbatim_locality'
 ]
 
 function setRow (rowObject) {

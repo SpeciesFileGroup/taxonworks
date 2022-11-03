@@ -6,21 +6,29 @@
     <template #body>
       <div>
         <div class="field label-above">
-          <label>
-            {{ param.field }}
-          </label>
+
+          <textarea
+            v-if="textarea"
+            v-model="fieldValue"
+            class="full_width"
+            rows="5"
+          />
           <input
+            v-else
             type="text"
+            class="full_width"
             v-model="fieldValue"
           >
-          <span class="margin-small-left">
+          <div class="margin-small-top middle">
             <VIcon
               name="attention"
               color="attention"
               x-small
             />
-            {{ collectionObjects.length }} linked collection objects
-          </span>
+            <span class="margin-small-left">
+              {{ collectionObjects.length }} linked collection objects
+            </span>
+          </div>
         </div>
 
         <VSpinner
@@ -73,6 +81,11 @@ const props = defineProps({
   param: {
     type: Object,
     required: true
+  },
+
+  textarea: {
+    type: Boolean,
+    default: false
   }
 })
 
