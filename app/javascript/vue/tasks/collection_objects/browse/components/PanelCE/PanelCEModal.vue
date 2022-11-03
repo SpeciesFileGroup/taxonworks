@@ -1,7 +1,7 @@
 <template>
   <VModal :container-style="{ width: '600px' }">
     <template #header>
-      <h3>Collection Object</h3>
+      <h3>Collecting event - {{ param.field }}</h3>
     </template>
     <template #body>
       <div>
