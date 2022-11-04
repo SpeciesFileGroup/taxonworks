@@ -1,204 +1,146 @@
 <template>
-  <div class="panel vue-filter-container">
+  <div
+    class="panel vue-filter-container"
+    v-hotkey="shortcuts"
+  >
     <div class="flex-separate content middle action-line">
       <span>Filter</span>
-      <span
-        data-icon="reset"
-        class="cursor-pointer"
-        @click="resetFilter">Reset
-      </span>
+      <button
+        type="button"
+        data-icon="w_reset"
+        class="button circle-button button-default center-icon no-margin"
+        @click="resetFilter"
+      />
     </div>
-    <spinner-component
-      full-screen
-      legend="Searching..."
-      :logo-size="{ width: '100px', height: '100px'}"
-      v-if="searching"
-    />
 
-    <spinner-component
-      full-screen
-      :legend="`Building ${ DWCACount } ... ${ DWCASearch.length } unindexed records`"
-      :logo-size="{ width: '100px', height: '100px'}"
-      v-if="loadingDWCA"
-    />
     <div class="content">
       <button
-        class="button button-default normal-input full_width"
+        class="button button-default normal-input full_width margin-medium-bottom "
         type="button"
-        @click="searchOtus(parseParams)">
+        @click="handleSearch"
+      >
         Search
       </button>
-      <geographic-areas v-model="params.geographic" input-id="area_picker_autocomplete"/>
-      <taxon-name-component v-model="params.base.taxon_name_ids"/>
-      <author-component v-model="params.author"/>
+      <FacetGeographicArea
+        class="margin-large-bottom"
+        v-model="params.geographic"
+        input-id="area_picker_autocomplete"
+      />
+      <FacetWKT
+        class="margin-large-bottom"
+        v-model="params.base.wkt"
+      />
+      <FacetTaxonName
+        class="margin-large-bottom"
+        v-model="params.base"
+      />
+      <FacetBiologicalRelationship
+        class="margin-large-bottom"
+        v-model="params.base.biological_relationship_id"
+      />
+      <taxon-name-component
+        v-model="params.base.taxon_name_ids"
+        class="margin-large-bottom"
+      />
+      <author-component
+        v-model="params.author"
+        class="margin-large-bottom"
+      />
       <citations-component
         title="Citations"
-        v-model="params.base.citations"/>
+        v-model="params.base.citations"
+        class="margin-large-bottom"
+      />
       <with-component
-        v-for="(item, key) in params.with"
+        v-for="(_, key) in params.with"
         :key="key"
         :title="key"
-        v-model="params.with[key]"/>
+        v-model="params.with[key]"
+        class="margin-small-bottom"
+      />
     </div>
   </div>
 </template>
 
-<script>
-
-import SpinnerComponent from 'components/spinner'
+<script setup>
+import { removeEmptyProperties } from 'helpers/objects'
+import { computed, ref } from 'vue'
 import platformKey from 'helpers/getPlatformKey.js'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { Otu } from 'routes/endpoints'
-
-import TaxonNameComponent from './filters/TaxonName'
-import GeographicAreas from 'tasks/collection_objects/filter/components/filters/geographic'
+import vHotkey from 'plugins/v-hotkey.js'
+import FacetTaxonName from 'tasks/extracts/filter/components/filters/TaxonNameFacet.vue'
+import FacetGeographicArea from 'tasks/collection_objects/filter/components/filters/geographic'
 import CitationsComponent from 'tasks/nomenclature/filter/components/filters/citations'
 import WithComponent from 'tasks/observation_matrices/dashboard/components/filters/with'
-import AuthorComponent from './filters/authors.vue'
+import FacetWKT from './filters/Facet/FacetWKT.vue'
+import FacetBiologicalRelationship from 'tasks/biological_associations/filter/components/Facet/FacetBiologicalRelationship.vue'
 
-export default {
-  components: {
-    AuthorComponent,
-    SpinnerComponent,
-    GeographicAreas,
-    TaxonNameComponent,
-    CitationsComponent,
-    WithComponent
-  },
+const emit = defineEmits([
+  'parameters',
+  'reset'
+])
 
-  computed: {
-    shortcuts () {
-      const keys = {}
+const shortcuts = computed(() => {
+  const keys = {}
 
-      keys[`${platformKey()}+r`] = this.resetFilter
-      keys[`${platformKey()}+f`] = this.searchOtus
+  keys[`${platformKey()}+r`] = resetFilter
+  keys[`${platformKey()}+f`] = handleSearch
 
-      return keys
-    },
+  return keys
+})
 
-    parseParams () {
-      return Object.assign({}, this.params.settings, this.filterEmptyParams(this.params.author), this.params.base, this.params.with)
-    },
+const parseParams = computed(() =>
+  removeEmptyProperties({
+    ...params.value.base,
+    ...params.value.geographic,
+    ...params.value.with
+  })
+)
 
-    emptyParams () {
-      if (!this.params) return
-      return !this.params.base.otu_id &&
-        !this.params.base.biological_association_ids.length &&
-        !this.params.base.taxon_name_relationship_ids.length &&
-        !this.params.base.taxon_name_classification_ids.length &&
-        !this.params.base.asserted_distribution_ids.length &&
-        !this.params.base.data_attributes_attributes.length
-    }
-  },
-
-  data () {
-    return {
-      params: this.initParams(),
-      result: [],
-      searching: false,
-      perRequest: 10,
-      coList: [],
-      usersList: [],
-      loadingDWCA: false,
-      DWCACount: 0,
-      DWCASearch: 0
-    }
-  },
-
-  mounted () {
-    const urlParams = URLParamsToJSON(location.href)
-    if (Object.keys(urlParams).length) {
-      urlParams.geo_json = urlParams.geo_json ? JSON.stringify(urlParams.geo_json) : []
-      this.searchOtus(urlParams)
-    }
-  },
-
-  methods: {
-    resetFilter () {
-      this.$emit('reset')
-      this.params = this.initParams()
-    },
-
-    searchOtus (params = this.parseParams) {
-      this.searching = true
-
-      Otu.where(params).then(response => {
-        this.result = response.body
-        this.$emit('result', this.result)
-        this.$emit('urlRequest', response.request.responseURL)
-        this.$emit('pagination', response)
-        this.searching = false
-        if (this.result.length === 500) {
-          TW.workbench.alert.create('Results may be truncated.', 'notice')
-        }
-        const urlParams = new URLSearchParams(response.request.responseURL.split('?')[1])
-        history.pushState(null, null, `/tasks/otus/filter/index?${urlParams.toString()}`)
-      }, () => {
-        this.searching = false
-      })
-    },
-
-    initParams () {
-      return {
-        settings: {
-          per: 500,
-          page: 1
-        },
-        author: {
-          author: undefined,
-          exact_author: undefined,
-          author_ids: []
-        },
-        base: {
-          taxon_name_ids: [],
-          biological_association_ids: [],
-          taxon_name_relationship_ids: [],
-          taxon_name_classification_ids: [],
-          asserted_distribution_ids: [],
-          data_attributes_attributes: [],
-          citations: undefined
-        },
-        geographic: {
-          geo_json: [],
-          radius: undefined,
-          spatial_geographic_areas: undefined,
-          geographic_area_id: []
-        },
-        with: {
-          biological_associations: undefined,
-          asserted_distributions: undefined,
-          daterminations: undefined,
-          depictions: undefined,
-          observations: undefined,
-        }
-      }
-    },
-
-    loadPage(page) {
-      this.params.settings.page = page
-      this.searchOtus(this.parseParams)
-    },
-
-    filterEmptyParams(object) {
-      let keys = Object.keys(object)
-      keys.forEach(key => {
-        if(object[key] === '') {
-          delete object[key]
-        }
-      })
-      return object
-    },
-
-    flatObject(object, key) {
-      let tmp = Object.assign({}, object, object[key])
-      delete tmp[key]
-      return tmp
-    }
-  }
+const resetFilter = () => {
+  emit('reset')
+  params.value = initParams()
 }
+
+const initParams = () => ({
+  settings: {
+    per: 500,
+    page: 1
+  },
+  base: {
+    taxon_name_ids: [],
+    biological_association_ids: [],
+    biological_relationship_id: [],
+    asserted_distribution_ids: [],
+    data_attributes_attributes: [],
+    citations: undefined,
+    wkt: undefined,
+    ancestor_id: undefined
+  },
+  geographic: {
+    geo_json: [],
+    radius: undefined,
+    spatial_geographic_areas: undefined,
+    geographic_area_id: []
+  },
+  with: {
+    biological_associations: undefined,
+    asserted_distributions: undefined,
+    daterminations: undefined,
+    depictions: undefined,
+    observations: undefined
+  }
+})
+
+const params = ref(initParams())
+
+const handleSearch = () => {
+  emit('parameters', parseParams.value)
+}
+
 </script>
+
 <style scoped>
 :deep(.btn-delete) {
-    background-color: #5D9ECE;
-  }
+  background-color: #5D9ECE;
+}
 </style>

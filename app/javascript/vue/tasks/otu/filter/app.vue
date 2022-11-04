@@ -1,171 +1,114 @@
 <template>
   <div>
+    <spinner-component
+      v-if="isLoading"
+      full-screen
+      legend="Searching..."
+      :logo-size="{ width: '100px', height: '100px'}"
+    />
     <div class="flex-separate middle">
-      <h1>Filter OTUs</h1>
-      <ul class="context-menu">
-        <li>
-          <label>
-            <input
-              type="checkbox"
-              v-model="activeFilter">
-            Show filter
-          </label>
-        </li>
-        <li>
-          <label>
-            <input
-              type="checkbox"
-              v-model="activeJSONRequest">
-            Show JSON Request
-          </label>
-        </li>
-        <li>
-          <label>
-            <input
-              type="checkbox"
-              v-model="append">
-            Append results
-          </label>
-        </li>
-      </ul>
+      <h1>Filter extracts</h1>
+      <menu-preferences v-model="preferences" />
     </div>
-    <div
-      v-show="activeJSONRequest"
-      class="panel content separate-bottom">
-      <div class="flex-separate middle">
-        <span>
-          JSON Request: {{ urlRequest }}
-        </span>
-      </div>
-    </div>
+
+    <JsonRequestUrl
+      v-show="preferences.activeJSONRequest"
+      class="panel content separate-bottom"
+      :url="urlRequest"
+    />
 
     <div class="horizontal-left-content align-start">
       <filter-component
         class="separate-right"
-        ref="filterComponent"
-        v-show="activeFilter"
-        @urlRequest="urlRequest = $event"
-        @result="loadList"
-        @pagination="pagination = getPagination($event)"
-        @reset="resetTask"/>
-      <div class="full_width">
+        v-show="preferences.activeFilter"
+        @parameters="makeFilterRequest({ ...$event, extend })"
+        @reset="resetFilter"
+      />
+      <div class="full_width overflow-x-auto">
+        <div
+          v-if="list.length"
+          class="horizontal-left-content flex-separate separate-bottom"
+        >
+          <csv-button :list="csvFields" />
+        </div>
+
         <div
           class="flex-separate margin-medium-bottom"
-          v-if="pagination">
+          v-if="pagination"
+        >
           <pagination-component
-            v-if="pagination"
-            @nextPage="loadPage"
-            :pagination="pagination"/>
-          <div class="horizontal-left-content">
-            <span
-              v-if="list.length"
-              class="horizontal-left-content">{{ list.length }} records.
-            </span>
-            <div class="margin-small-left">
-              <select v-model="per">
-                <option
-                  v-for="records in maxRecords"
-                  :key="records"
-                  :value="records">
-                  {{ records }}
-                </option>
-              </select>
-              records per page.
-            </div>
-          </div>
+            :pagination="pagination"
+            @next-page="loadPage"
+          />
+          <pagination-count
+            v-model="per"
+            :pagination="pagination"
+          />
         </div>
+
         <list-component
-          v-model="ids"
-          :class="{ 'separate-left': activeFilter }"
-          :list="list"/>
+          v-if="list.length"
+          v-model="selectedIds"
+          :list="list"
+        />
         <h2
-          v-if="alreadySearch && !list"
-          class="subtle middle horizontal-center-content no-found-message">No records found.
+          v-if="!list.length"
+          class="subtle middle horizontal-center-content no-found-message"
+        >
+          No records found.
         </h2>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-
+<script setup>
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
+import CsvButton from 'components/csvButton'
 import PaginationComponent from 'components/pagination'
-import GetPagination from 'helpers/getPagination'
+import PaginationCount from 'components/pagination/PaginationCount'
+import MenuPreferences from 'tasks/extracts/filter/components/MenuPreferences.vue'
+import SpinnerComponent from 'components/spinner.vue'
+import useFilter from 'tasks/extracts/filter/composables/useFilter.js'
+import extend from 'tasks/extracts/new_extract/const/extendRequest'
+import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
+import { Otu } from 'routes/endpoints'
+import { computed, reactive, ref } from 'vue'
+import { URLParamsToJSON } from 'helpers/url/parse'
 
-export default {
-  components: {
-    PaginationComponent,
-    FilterComponent,
-    ListComponent
-  },
-  computed: {
-    csvFields () {
-      return undefined
-    },
-    coIds () {
-      return Object.keys(this.list).length
-        ? this.list.data.map(item => item[0])
-        : []
-    },
-    recordsFound() {
-      return this.list.length
-    }
-  },
-  data () {
-    return {
-      list: [],
-      urlRequest: '',
-      activeFilter: true,
-      activeJSONRequest: false,
-      append: false,
-      alreadySearch: false,
-      ids: [],
-      pagination: undefined,
-      maxRecords: [50, 100, 250, 500, 1000],
-      per: 500
-    }
-  },
-  watch: {
-    per(newVal) {
-      this.$refs.filterComponent.params.settings.per = newVal
-      this.loadPage(1)
-    }
-  },
-  methods: {
-    resetTask () {
-      this.alreadySearch = false
-      this.list = {}
-      this.urlRequest = ''
-      this.pagination = undefined
-      history.pushState(null, null, '/tasks/collection_objects/filter')
-    },
-    loadList(newList) {
-      if(this.append && this.list) {
-        let concat = newList.data.concat(this.list.data)
+const csvFields = computed(() =>
+  selectedIds.value.length
+    ? list.value
+    : []
+)
 
-        concat = concat.filter((item, index, self) =>
-          index === self.findIndex((i) => (
-            i[0] === item[0]
-          ))
-        )
-        newList.data = concat
-        this.list = newList
-      }
-      else {
-        this.list = newList
-      }
-      this.alreadySearch = true
-    },
+const selectedIds = ref([])
 
-    loadPage (event) {
-      this.$refs.filterComponent.loadPage(event.page)
-    },
-    getPagination: GetPagination
-  }
+const preferences = reactive({
+  activeFilter: true,
+  activeJSONRequest: false
+})
+
+const {
+  isLoading,
+  list,
+  pagination,
+  per,
+  urlRequest,
+  loadPage,
+  makeFilterRequest,
+  resetFilter
+} = useFilter(Otu)
+
+const urlParams = URLParamsToJSON(location.href)
+
+if (Object.keys(urlParams).length) {
+  makeFilterRequest({ ...urlParams, extend })
 }
+
 </script>
+
 <style scoped>
   .no-found-message {
     height: 70vh;

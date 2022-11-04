@@ -1,14 +1,16 @@
 <template>
   <div>
-    <h2>Taxon names</h2>
+    <h3>Taxon names</h3>
     <smart-selector
       model="taxon_names"
-      @selected="addTaxonName"/>
+      @selected="addTaxonName"
+    />
     <display-list
       label="object_tag"
       :delete-warning="false"
       :list="selectedTaxonNames"
-      @delete="removeItem"/>
+      @delete="removeItem"
+    />
   </div>
 </template>
 

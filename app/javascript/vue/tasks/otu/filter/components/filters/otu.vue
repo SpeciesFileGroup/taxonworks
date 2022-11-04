@@ -1,10 +1,11 @@
 <template>
   <div>
-    <h2>Otu</h2>
+    <h3>Otu</h3>
     <smart-selector
       model="otus"
       target="TaxonName"
-      @select="setOtu"/>
+      @select="setOtu"
+    />
   </div>
 </template>
 
@@ -39,7 +40,7 @@ export default {
 
   data () {
     return {
-      otuSelected: undefined,
+      otuSelected: undefined
     }
   },
 
