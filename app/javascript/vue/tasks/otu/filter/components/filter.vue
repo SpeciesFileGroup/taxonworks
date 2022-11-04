@@ -30,6 +30,9 @@
         class="margin-large-bottom"
         v-model="params.base.wkt"
       />
+      <FacetCollectingEvent
+        v-model="params.base.collecting_event_id"
+      />
       <FacetTaxonName
         class="margin-large-bottom"
         v-model="params.base"
@@ -73,6 +76,7 @@ import CitationsComponent from 'tasks/nomenclature/filter/components/filters/cit
 import WithComponent from 'tasks/observation_matrices/dashboard/components/filters/with'
 import FacetWKT from './filters/Facet/FacetWKT.vue'
 import FacetBiologicalRelationship from 'tasks/biological_associations/filter/components/Facet/FacetBiologicalRelationship.vue'
+import FacetCollectingEvent from 'tasks/biological_associations/filter/components/Facet/FacetCollectingEvent.vue'
 
 const emit = defineEmits([
   'parameters',
@@ -112,6 +116,7 @@ const initParams = () => ({
     biological_relationship_id: [],
     asserted_distribution_ids: [],
     data_attributes_attributes: [],
+    collecting_event_id: [],
     citations: undefined,
     wkt: undefined,
     ancestor_id: undefined
