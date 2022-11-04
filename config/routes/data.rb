@@ -94,6 +94,10 @@ resources :collection_objects do
   resources :taxon_determinations, shallow: true, only: [:index], defaults: {format: :json}
 
   member do
+    scope :inventory do
+      get :images, action: :images, defaults: {format: :json}
+    end
+
     get :timeline, defaults: {format: :json}
 
     # pseudo shallow

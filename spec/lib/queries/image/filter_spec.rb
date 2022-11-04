@@ -16,6 +16,15 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
   let(:t2) { Protonym.create(name: 'Aus', parent: t1, rank_class: Ranks.lookup(:iczn, :genus) ) }
   let(:t3) { Protonym.create(name: 'bus', parent: t2, rank_class: Ranks.lookup(:iczn, :species) ) }
 
+  specify '#collection_object_scope :observations' do
+    t = FactoryBot.create(:valid_observation, observation_object: co)
+    t.images << i1
+    i2 # not this one
+    q.collection_object_id = co.id
+    q.collection_object_scope = [:observations]
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
   specify '#otu_scope :type_material_observations' do
     t = FactoryBot.create(:valid_type_material)
 

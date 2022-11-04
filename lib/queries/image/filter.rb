@@ -39,6 +39,16 @@ module Queries
       #
       attr_accessor :otu_scope
 
+      # @param collection_object_scope
+      #   options
+      #     :all (default, includes all below)
+      #
+      #     :collection_objects (those on the collection_object)
+      #     :observations (those on just the CollectionObject observations)
+      #      collecting_events (those on the associated collecting event)
+      #     # maybe those on the CE
+      attr_accessor :collection_object_scope
+
       # @return [Array]
       attr_accessor :image_id
 
@@ -84,6 +94,7 @@ module Queries
 
         @otu_id = params[:otu_id]
         @otu_scope = params[:otu_scope]&.map(&:to_sym)
+        @collection_object_scope = params[:collection_object_scope]&.map(&:to_sym)
         @collection_object_id = params[:collection_object_id]
         @collecting_event_id = params[:collecting_event_id]
         @image_id = params[:image_id]
@@ -124,6 +135,10 @@ module Queries
 
       def otu_scope
         [ @otu_scope ].flatten.compact.map(&:to_sym)
+      end
+
+      def collection_object_scope
+        [ @collection_object_scope ].flatten.compact.map(&:to_sym)
       end
 
       def collection_object_id
@@ -216,6 +231,11 @@ module Queries
         build_depiction_facet('Otu', otu_id)
       end
 
+      def collection_object_facet
+        return nil if collection_object_id.empty? || !collection_object_scope.empty?
+        build_depiction_facet('CollectionObject', collection_object_id)
+      end
+
       def coordinate_otu_ids
         ids = []
         otu_id.each do |id|
@@ -256,6 +276,45 @@ module Queries
 
         d = ::Image.from('(' + q + ')' + ' as images')
         d
+      end
+
+      def collection_object_scope_facet
+        return nil if collection_object_id.empty? || collection_object_scope.empty?
+
+        selected = []
+
+        if collection_object_scope.include?(:all)
+          selected = [
+            :collection_object_facet_collection_objects,
+            :collection_object_facet_observations,
+            :collection_object_facet_collecting_events,
+          ]
+        else
+
+          selected.push :collection_object_facet_collection_objects if collection_object_scope.include?(:collection_objects)
+          selected.push :collection_object_facet_observations if collection_object_scope.include?(:observations)
+          selected.push :collection_object_facet_collecting_events if collection_object_scope.include?(:collecting_events)
+        end
+
+        q = selected.collect{|a| '(' + send(a).to_sql + ')'}.join(' UNION ')
+
+        d = ::Image.from('(' + q + ')' + ' as images')
+        d
+      end
+
+      def collection_object_facet_collection_objects
+        ::Image.joins(:collection_objects).where(collection_objects: {id: collection_object_id})
+      end
+
+      def collection_object_facet_observations
+        ::Image.joins(:observations).where(observations: {observation_object_type: 'CollectionObject', observation_object_id: collection_object_id })
+      end
+
+      def collection_object_facet_collecting_events
+        ::Image.joins(:observations)
+          .joins("INNER JOIN collecting_events on collecting_events.id = observations.observation_object_id AND observations.observation_object_type = 'CollectingEvent'")
+          .joins('INNER JOIN collection_objects on collection_objects.collecting_event_id = collecting_events.id')
+          .where(collection_objects: {id: collection_object_id})
       end
 
       def otu_facet_type_material_observations(otu_ids)
@@ -323,16 +382,17 @@ module Queries
         clauses += [
           otu_facet,
           otu_scope_facet,
-          build_depiction_facet('CollectionObject', collection_object_id),
+          collection_object_scope_facet,
+          collection_object_facet,
           build_depiction_facet('CollectingEvent', collecting_event_id),
           #    type_material_facet,
           #    type_material_type_facet,
           ancestors_facet,
           keyword_id_facet,  # See Queries::Concerns::Tags
           created_updated_facet, # See Queries::Concerns::Users
-          #   identifier_between_facet,
-          #   identifier_facet,
-          #   identifier_namespace_facet,
+          identifier_between_facet,
+          identifier_facet,
+          identifier_namespace_facet,
           sqed_depiction_facet,
           sled_image_facet,
           biocuration_facet,
