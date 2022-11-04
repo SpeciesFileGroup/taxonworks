@@ -1,11 +1,7 @@
 <template>
   <TableGrid
     :columns="2"
-    :column-width="{
-      default: 'min-content',
-      0: '50%',
-      1: '50%',
-    }"
+    :column-width="{ default: 'minmax(100px, auto)' }"
     gap="1em"
   >
     <PanelDwc />
