@@ -41,6 +41,10 @@
         class="margin-large-bottom"
         v-model="params.base.biological_relationship_id"
       />
+      <FacetDataAttribute
+        class="margin-large-bottom"
+        v-model="params.dataAttributes"
+      />
       <taxon-name-component
         v-model="params.base.taxon_name_ids"
         class="margin-large-bottom"
@@ -77,6 +81,7 @@ import WithComponent from 'tasks/observation_matrices/dashboard/components/filte
 import FacetWKT from './filters/Facet/FacetWKT.vue'
 import FacetBiologicalRelationship from 'tasks/biological_associations/filter/components/Facet/FacetBiologicalRelationship.vue'
 import FacetCollectingEvent from 'tasks/biological_associations/filter/components/Facet/FacetCollectingEvent.vue'
+import FacetDataAttribute from 'tasks/collection_objects/filter/components/filters/DataAttributes/FacetDataAttribute.vue'
 
 const emit = defineEmits([
   'parameters',
@@ -95,6 +100,7 @@ const shortcuts = computed(() => {
 const parseParams = computed(() =>
   removeEmptyProperties({
     ...params.value.base,
+    ...params.value.dataAttributes,
     ...params.value.geographic,
     ...params.value.with
   })
@@ -120,6 +126,11 @@ const initParams = () => ({
     citations: undefined,
     wkt: undefined,
     ancestor_id: undefined
+  },
+  dataAttributes: {
+    data_attribute_value: [],
+    data_attribute_predicate_id: [],
+    data_attribute_exact: undefined
   },
   geographic: {
     geo_json: [],
