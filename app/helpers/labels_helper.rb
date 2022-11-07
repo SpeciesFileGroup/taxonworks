@@ -11,12 +11,13 @@ module LabelsHelper
     if label.is_generated?
       case label.type
       when 'Label::QrCode'
-        label_svg_tag(label)
+        return label_svg_tag(label)
       when 'Label::Code128'
-        label_code_128_tag(label)
+        return label_code_128_tag(label)
       else
-        send('label_' + label.type.split('::').last.tableize.singularize + '_tag', label)
+        return send('label_' + label.type.split('::').last.tableize.singularize + '_tag', label)
       end
+    else
       content_tag(:span, label.text, style: label.style) # TODO: properly reference style
     end
   end
