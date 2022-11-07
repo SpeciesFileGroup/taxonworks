@@ -11,17 +11,10 @@
         Reset
       </span>
     </div>
-    <spinner-component
-      :full-screen="true"
-      legend="Searching..."
-      :logo-size="{ width: '100px', height: '100px'}"
-      v-if="searching"
-    />
     <div class="content">
       <button
         class="button button-default normal-input full_width"
         type="button"
-        :disabled="emptyParams"
         @click="handleSearch"
       >
         Search
@@ -67,7 +60,6 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { removeEmptyProperties } from 'helpers/objects'
-import SpinnerComponent from 'components/spinner'
 import platformKey from 'helpers/getPlatformKey.js'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
 import BiocurationsComponent from 'tasks/collection_objects/filter/components/filters/biocurations'

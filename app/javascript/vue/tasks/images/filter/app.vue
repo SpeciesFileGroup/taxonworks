@@ -13,7 +13,7 @@
           <label>
             <input
               type="checkbox"
-              v-model="activeFilter"
+              v-model="preferences.activeFilter"
             >
             Show filter
           </label>
@@ -22,7 +22,7 @@
           <label>
             <input
               type="checkbox"
-              v-model="activeJSONRequest"
+              v-model="preferences.activeJSONRequest"
             >
             Show JSON Request
           </label>
@@ -44,45 +44,32 @@
       />
       <div class="full_width">
         <div
+          v-if="pagination"
           class="flex-separate margin-medium-bottom"
-          :class="{ 'separate-left': activeFilter }"
+          :class="{ 'separate-left': preferences.activeFilter }"
         >
           <PaginationComponent
             v-if="pagination && list.length"
             :pagination="pagination"
             @next-page="loadPage"
           />
-          <div
-            v-if="list.length"
-            class="horizontal-left-content"
-          >
-            <span class="horizontal-left-content">{{ list.length }} records.</span>
-            <div class="margin-small-left">
-              <select v-model="per">
-                <option
-                  v-for="records in maxRecords"
-                  :key="records"
-                  :value="records"
-                >
-                  {{ records }}
-                </option>
-              </select>
-              records per page.
-            </div>
-          </div>
+          <PaginationCount
+            :pagination="pagination"
+            v-model="per"
+          />
         </div>
         <div
-          :class="{ 'separate-left': activeFilter }"
+          :class="{ 'separate-left': preferences.activeFilter }"
         >
           <div class="panel content margin-medium-bottom">
             <div class="horizontal-left-content">
               <TagAll
                 type="Image"
-                :ids="idsSelected"
+                :ids="selectedIds"
               />
               <AttributionComponent
                 class="margin-small-left margin-small-right"
-                :ids="idsSelected"
+                :ids="selectedIds"
                 type="Image"
               />
               <span>|</span>
@@ -99,7 +86,7 @@
             :list="list"
           />
           <h2
-            v-if="alreadySearch && !list.length"
+            v-if="!list.length"
             class="subtle middle horizontal-center-content no-found-message"
           >
             No records found.
@@ -122,6 +109,7 @@ import AttributionComponent from './components/attributions/main.vue'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'tasks/people/filter/composables/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
+import PaginationCount from 'components/pagination/PaginationCount.vue'
 
 import { Image } from 'routes/endpoints'
 import { reactive, ref } from 'vue'

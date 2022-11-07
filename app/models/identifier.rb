@@ -28,10 +28,6 @@
 #   @return [Integer]
 #   The project ID.
 #
-# @!attribute cached
-#   @return [String]
-#   The full identifier, for display, i.e. namespace + identifier (local), or identifier (global).
-#
 # @!attribute identifier_object_id
 #   @return [Integer]
 #   The id of the identified object, used in a polymorphic relationship.
@@ -40,6 +36,25 @@
 #   @return [String]
 #   The type of the identified object, used in a polymorphic relationship.
 #
+# @!attribute cached
+#   @return [String]
+#   The full identifier, for display, i.e. namespace + identifier (local), or identifier (global).
+#
+# @!attribute cached_numeric_identifier
+#   @return [Float, nil]
+#     If `identifier` contains a numeric string, then record this as a float.  
+#     !! This should never be exposed, it's used for internal next/previous options only. 
+#  See `build_cached_numeric_identifier`.
+#     This does account for identifiers like:
+#       123,123
+#       123,123.12
+#       123.12
+#       .12
+#     This does not account for identifiers like (though this could be hacked in if it becomes necessary by ordering alphanumerics into decimal additions to the float):
+#       123,123a
+#       123a
+#       123.123a
+#        
 class Identifier < ApplicationRecord
   acts_as_list scope: [:project_id, :identifier_object_type, :identifier_object_id ], add_new_at: :top
 
@@ -95,10 +110,30 @@ class Identifier < ApplicationRecord
   end
 
   protected
+ 
+  # See subclasses 
+  def build_cached
+    nil
+  end
+
+  def build_cached_numeric_identifier
+    return nil if is_global?
+    if a = identifier.match(/\A[\d\.\,]+\z/)  
+      b = a.to_s.gsub(',', '')
+      b.to_f
+    else
+      nil
+    end
+  end
 
   def set_cached
-    # See subclasses.
+    update_columns(
+      cached: build_cached,
+      cached_numeric_identifier: build_cached_numeric_identifier
+    )
   end
+
+
 end
 
 Dir[Rails.root.to_s + '/app/models/identifier/**/*.rb'].sort.each{ |file| require_dependency file }

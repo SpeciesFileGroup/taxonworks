@@ -447,6 +447,8 @@ class Source::Bibtex < Source
     import_attributes = []
 
     bibtex_entry.fields.each do |key, value|
+      next if key == :serial # Raises if it hits the belongs_to
+
       if key == :keywords
         s.verbatim_keywords = value
         next
