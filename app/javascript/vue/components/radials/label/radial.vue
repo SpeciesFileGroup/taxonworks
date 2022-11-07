@@ -111,7 +111,10 @@ function openRadialMenu () {
 function createLabels ({ name }) {
   const { link, param } = SLICES[props.objectType].find(slice => slice.link === name)
 
-  AjaxCall('post', link, { [param]: props.ids })
+  AjaxCall('post', link, { [param]: props.ids }).then(_ => {
+    TW.workbench.alert.create('Label was successfully created.', 'notice')
+    closeModal()
+  })
 }
 
 </script>
