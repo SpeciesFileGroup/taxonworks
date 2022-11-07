@@ -471,6 +471,8 @@ resources :observations do
   concerns [:data_routes]
   collection do
     delete :destroy_row, defaults: {format: :json}
+    delete :destroy_column, defaults: {format: :json}
+    post :code_column, defaults: {format: :json}
   end
 
   member do
@@ -756,5 +758,3 @@ resources :type_materials do
     get :type_types, {format: :json}
   end
 end
-
-

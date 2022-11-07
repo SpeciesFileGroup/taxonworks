@@ -16,6 +16,7 @@ export default ({ dispatch, state }) => {
   state.determinations = []
   state.identifiers = []
   state.materialTypes = []
+  state.typeSpecimens = []
   state.preparation_type_id = undefined
 
   if (!locked.collecting_event) {

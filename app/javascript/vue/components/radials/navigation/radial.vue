@@ -47,14 +47,13 @@
           </div>
         </template>
       </modal>
-      <span
+      <VBtn
         v-if="showBottom"
-        :title="buttonTitle"
-        type="button"
-        class="circle-button"
-        :class="[buttonClass]"
-        @click="displayRadialObject()">Radial annotator
-      </span>
+        circle
+        :class="[buttonClass, 'circle-button']"
+        color="primary"
+        @click="displayRadialObject()"
+      />
     </div>
   </div>
 </template>
@@ -63,6 +62,7 @@
 import RadialMenu from 'components/radials/RadialMenu.vue'
 import Modal from 'components/ui/Modal.vue'
 import Spinner from 'components/spinner.vue'
+import VBtn from 'components/ui/VBtn/index.vue'
 
 import CRUD from './request/crud'
 import Icons from './images/icons.js'
@@ -95,7 +95,8 @@ export default {
     RadialMenu,
     Modal,
     Spinner,
-    DestroyConfirmation
+    DestroyConfirmation,
+    VBtn
   },
 
   props: {

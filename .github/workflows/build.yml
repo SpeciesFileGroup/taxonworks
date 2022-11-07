@@ -51,11 +51,11 @@ jobs:
     - name: Get startup date
       id: datetime
       run: |
-        echo "::set-output name=iso_date::$(date --iso-8601 -u)"
-        echo "::set-output name=year_week::$(date -u +'%Y-%U')"
+        echo "iso_date=$(date --iso-8601 -u)" >> $GITHUB_OUTPUT
+        echo "year_week=$(date -u +'%Y-%U')" >> $GITHUB_OUTPUT
 
     - name: Git checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     
     - name: Set up Ruby 3.1
       uses: ruby/setup-ruby@v1
@@ -63,18 +63,18 @@ jobs:
         ruby-version: 3.1
         
     - name: Set up Ruby Bundler gems cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: vendor/bundle
         key: ${{ runner.os }}-gems-rev6-${{ hashFiles('**/Gemfile.lock') }}
 
     - name: Set up Node 16 LTS
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
         node-version: '16'
 
     - name: Set up Node packages cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: |
           ~/.npm
@@ -82,7 +82,7 @@ jobs:
         key: ${{ runner.os }}-node-rev6-${{ hashFiles('**/package-lock.json') }}
 
     - name: Set up assets cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: |
           tmp/cache/webpacker
@@ -93,7 +93,7 @@ jobs:
           ${{ runner.os }}-assets-${{ steps.datetime.outputs.iso_date }}
 
     - name: Set up VCR cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: spec/fixtures/vcr_cassettes
         key: ${{ runner.os }}-vcr-rev2-${{ steps.datetime.outputs.year_week }}-${{ hashFiles('**/Gemfile.lock') }}-${{ matrix.worker }}
@@ -108,7 +108,7 @@ jobs:
       run: sudo chown $(id -u) /usr/src
 
     - name: Set up imagemagick cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: |
           /usr/src/libheif-*

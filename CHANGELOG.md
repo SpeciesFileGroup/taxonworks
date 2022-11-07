@@ -7,30 +7,83 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-- "Display only unsccored rows" on Matrix column coder [#3103]
+- Option to force DwC indexing to prioritize names from Geogrpahic Area [#3143]
+- Character state filter in Matrix Column Coder [#3141]
+- Better error handling and reporting when parsing BibTeX
+
+### Changed
+- Reload New source task by pressing New and load source
+- Updated Ruby gems
+
+### Fixed
+- Browse nomenclature crashing when taxon name descendants have no cached author year
+- Soft validation crashing when cached nomenclature date is absent
+- Role picker is missing after create a source from BibTeX [#3180]
+
+[#3143]: https://github.com/SpeciesFileGroup/taxonworks/issues/3143
+[#3141]: https://github.com/SpeciesFileGroup/taxonworks/issues/3141
+[#3180]: https://github.com/SpeciesFileGroup/taxonworks/issues/3180
+
+## [0.29.5] - 2022-10-10
+
+### Changed
+- Changed author labels on Filter source [#3134]
+- Minor changes to plots on administration activity dashboard 
+- Parallelize some indexing rake tasks
+
+### Fixed
+- Recent and Quick list are empty on Citation annotator [#3133]
+
+[#3133]: https://github.com/SpeciesFileGroup/taxonworks/issues/3133
+[#3134]: https://github.com/SpeciesFileGroup/taxonworks/issues/3134
+
+## [0.29.4] - 2022-10-07
+### Added
+- Distribution, Material Examined sections, and zip download for paper catalog [#3098]
+- Code full columns, destroy all observations in a column [#3117]
+- "Display only unscored rows" on Matrix column coder [#3103]
 - Previous and next links in Matrix row coder [#3107]
 - Match identifiers facet to Filter extract task  [#3089]
 - `Clone previous citation` to citation panels [#3097]
+- `scientificName` is now implied in `typeStatus` when only the type of type is specified in DwC occurrences importer
+- Additional DwC classification terms [#3118]
 
 ### Fixed
+- Broken URL for images in NeXML [#2811]
+- Improved Confidence annotation speed [#3126]
+- Destroying a Georefernce re-indexes related CollectingEvent [#3114]
+- Numerous issues in "Castor" TaxonName batch load
 - CollectingEvent cached geo-names (e.g. used in DwC export) missclassified [#2614]
-- Order of tescriptors in nexus and tnt output is updated to reflect the column ordering
+- Order of descriptors in nexus and tnt output is updated to reflect the column ordering
 - Homonyms without replacement name are now marked as invalid
 - Visible identifiers raising (e.g. broken object graph)
 - Presence Descriptor is not saving in Matrix row coder [#3099]
 - Missing number of objects for presence/absence descriptors on Interactive keys [#3102]
-- `New column` button deson't add the new column to the interface [#3109]
+- `New column` button doesn't add the new column to the interface [#3109]
 - Taxonomy inventory API failing with common names when language is not set
 - Missing taxon_name_relationships parameters [#3096]
 - Create matrix row button redirects to wrong OTU in OTU radial
 - Determinations not added to containers in "Edit Loan"task [#1935]
 - OTU images disappear when moving other images to observation cells [#3111]
 - Basic nomenclature failing to redirect when no name was selected
+- List of All Topics is not displayed [#3125]
+- Refactor confidence form [#3129]
+- Destroy selected Labels does not work [#3127]
+- Creating multiple type materials in comprehensive task [#3131]
+- DwC occurrences importer not reporting error when `typeStatus` is non-empty and yet it doesn't have correct format
+- Interactive key - Presence / absence descriptors are placed in non relevant list [#3100]
 
 ### Changed
 - Removed New OTU link from New observation matrix task [#3101]
 - Disabled horizontal resizing for textarea inputs on comprehensive
 
+[#3100]: https://github.com/SpeciesFileGroup/taxonworks/issues/3100
+[#3101]: https://github.com/SpeciesFileGroup/taxonworks/issues/3101
+[#2811]: https://github.com/SpeciesFileGroup/taxonworks/issues/2811
+[#3118]: https://github.com/SpeciesFileGroup/taxonworks/issues/3118
+[#3126]: https://github.com/SpeciesFileGroup/taxonworks/issues/3126
+[#3117]: https://github.com/SpeciesFileGroup/taxonworks/issues/3117
+[#3114]: https://github.com/SpeciesFileGroup/taxonworks/issues/3114
 [#2614]: https://github.com/SpeciesFileGroup/taxonworks/issues/2614
 [#1935]: https://github.com/SpeciesFileGroup/taxonworks/issues/1935
 [#3089]: https://github.com/SpeciesFileGroup/taxonworks/issues/3089
@@ -42,6 +95,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3107]: https://github.com/SpeciesFileGroup/taxonworks/issues/3107
 [#3109]: https://github.com/SpeciesFileGroup/taxonworks/issues/3109
 [#3111]: https://github.com/SpeciesFileGroup/taxonworks/issues/3111
+[#3125]: https://github.com/SpeciesFileGroup/taxonworks/issues/3125
+[#3127]: https://github.com/SpeciesFileGroup/taxonworks/issues/3127
+[#3129]: https://github.com/SpeciesFileGroup/taxonworks/issues/3129
+[#3131]: https://github.com/SpeciesFileGroup/taxonworks/issues/3131
 
 ## [0.29.3] - 2022-09-13
 
@@ -2937,7 +2994,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.3...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.5...development
+[0.29.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.4...v0.29.5
+[0.29.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.3...v0.29.4
 [0.29.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.2...v0.29.3
 [0.29.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.1...v0.29.2
 [0.29.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.0...v0.29.1

@@ -73,7 +73,7 @@
         medium
         @click="setLastCitation"
       >
-        Clone previous created
+        Clone last citation
       </VBtn>
       <slot name="footer" />
     </div>
@@ -208,7 +208,7 @@ function setIsOriginal (e) {
 }
 
 function setLastCitation () {
-  Citation.where({ recent: true, per: 1 }).then(({ body }) => {
+  Citation.where({ recent: true, per: 1, user_id: true }).then(({ body }) => {
     const [mostRecentCitation] = body
 
     if (mostRecentCitation) {

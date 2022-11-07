@@ -15,7 +15,8 @@ const makeInitialState = () => ({
   nextColumn: {},
   previousColumn: {},
   options: {
-    showOnlyUnsecoredRows: false
+    showOnlyUnscoredRows: false,
+    characterStates: []
   }
 })
 
