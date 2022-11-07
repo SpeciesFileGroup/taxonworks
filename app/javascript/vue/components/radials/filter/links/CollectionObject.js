@@ -17,7 +17,7 @@ export const CollectionObject = [
   {
     label: 'By taxon name',
     link: '/tasks/collection_objects/filter',
-    params: ['taxon_name_id']
+    params: ['ancestor_id']
   },
   {
     label: 'Images',

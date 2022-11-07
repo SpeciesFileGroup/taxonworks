@@ -42,7 +42,7 @@
         role="Collector"
         title="Collectors"
         klass="CollectingEvent"
-        param-people="collector_id"
+        param-people="collector_ids"
         param-any="collector_ids_or"
       />
       <filter-material
@@ -239,7 +239,7 @@ export default {
           otu_ids: [],
           determiner_name_regex: undefined,
           current_determinations: undefined,
-          taxon_name_id: undefined,
+          ancestor_id: undefined,
           validity: undefined
         },
         matchIdentifiers: {

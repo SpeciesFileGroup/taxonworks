@@ -178,7 +178,7 @@ export default {
         if (!newVal.otu_ids.length) {
           this.otusStore = []
         }
-        if (!newVal.taxon_name_id) {
+        if (!newVal.ancestor_id) {
           this.taxon = undefined
         }
       },
@@ -192,13 +192,13 @@ export default {
 
   created () {
     const {
-      taxon_name_id,
+      ancestor_id,
       validity,
       current_determinations,
       otu_ids = []
     } = URLParamsToJSON(location.href)
-    if (taxon_name_id) {
-      this.setTaxon(taxon_name_id)
+    if (ancestor_id) {
+      this.setTaxon(ancestor_id)
     }
 
     otu_ids.forEach(id => { this.addOtu(id) })
@@ -218,13 +218,13 @@ export default {
     setTaxon (id) {
       TaxonName.find(id).then(response => {
         this.taxon = response.body
-        this.determination.taxon_name_id = response.body.id
+        this.determination.ancestor_id = response.body.id
       })
     },
 
     removeTaxon () {
       this.taxon = undefined
-      this.determination.taxon_name_id = undefined
+      this.determination.ancestor_id = undefined
     },
 
     removePerson (index) {

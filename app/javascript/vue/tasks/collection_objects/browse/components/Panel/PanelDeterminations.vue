@@ -27,7 +27,7 @@ const parameters = computed(() => {
   return d
     ? {
         otu_ids: [d.otu_id],
-        taxon_name_id: d.otu.taxon_name_id
+        ancestor_id: d.otu.taxon_name_id
       }
     : {}
 })
