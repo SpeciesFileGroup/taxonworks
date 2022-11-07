@@ -21,7 +21,7 @@
       <filter-component
         class="separate-right"
         v-show="preferences.activeFilter"
-        @parameters="makeFilterRequest({ ...$event, extend })"
+        @parameters="makeFilterRequest({ ...$event })"
         @reset="resetFilter"
       />
       <div class="full_width overflow-x-auto">
@@ -71,7 +71,6 @@ import PaginationCount from 'components/pagination/PaginationCount'
 import MenuPreferences from 'tasks/extracts/filter/components/MenuPreferences.vue'
 import SpinnerComponent from 'components/spinner.vue'
 import useFilter from 'tasks/extracts/filter/composables/useFilter.js'
-import extend from 'tasks/extracts/new_extract/const/extendRequest'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import { Otu } from 'routes/endpoints'
 import { computed, reactive, ref } from 'vue'
@@ -104,7 +103,7 @@ const {
 const urlParams = URLParamsToJSON(location.href)
 
 if (Object.keys(urlParams).length) {
-  makeFilterRequest({ ...urlParams, extend })
+  makeFilterRequest({ ...urlParams })
 }
 
 </script>

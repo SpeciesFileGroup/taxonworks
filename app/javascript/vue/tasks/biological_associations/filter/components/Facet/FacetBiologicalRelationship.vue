@@ -4,12 +4,14 @@
     <div class="field">
       <smart-selector
         model="biological_relationships"
-        @selected="taxon = $event"
+        @selected="addBiologicalRelationship"
       />
       <DisplayList
-        :item="taxon"
+        :list="biologicalRelationships"
         label="object_tag"
-        @unset="taxon = undefined"
+        :warning-message="false"
+        :delete-warning="false"
+        @delete="removeDescriptor"
       />
     </div>
   </div>
@@ -21,11 +23,12 @@ import DisplayList from 'components/displayList.vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { BiologicalRelationship } from 'routes/endpoints'
 import { ref, computed, watch } from 'vue'
+import { removeFromArray } from 'helpers/arrays'
 
 const props = defineProps({
   modelValue: {
-    type: Object,
-    default: undefined
+    type: Array,
+    default: () => []
   }
 })
 
@@ -40,7 +43,7 @@ const params = computed({
 watch(
   params,
   newVal => {
-    if (!newVal) {
+    if (!newVal.length) {
       biologicalRelationships.value = []
     }
   }
@@ -49,6 +52,13 @@ watch(
 function addBiologicalRelationship (item) {
   params.value.push(item.id)
   biologicalRelationships.value.push(item)
+}
+
+function removeDescriptor (biologicalRelationship) {
+  const index = params.value.findIndex(item => item.id === biologicalRelationship.id)
+
+  removeFromArray(biologicalRelationships.value, biologicalRelationship)
+  params.value.splice(index, 1)
 }
 
 const { biological_relationship_id = [] } = URLParamsToJSON(location.href)
