@@ -16,7 +16,7 @@ import PanelContainer from './PanelContainer.vue'
 import RadialFilterAttribute from 'components/radials/filter/RadialFilterAttribute.vue'
 import TableData from '../Table/TableData.vue'
 
-const HEADERS = ['OTU', 'Determiners', 'Data']
+const HEADERS = ['OTU', 'Determiners', 'Date']
 
 const store = useStore()
 const determinations = computed(() => store.getters[GetterNames.GetDeterminations])
