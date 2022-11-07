@@ -41,17 +41,13 @@
         class="margin-large-bottom"
         v-model="params.base.biological_relationship_id"
       />
+      <FacetDescriptor
+        class="margin-large-bottom"
+        v-model="params.base.descriptor_id"
+      />
       <FacetDataAttribute
         class="margin-large-bottom"
         v-model="params.dataAttributes"
-      />
-      <taxon-name-component
-        v-model="params.base.taxon_name_ids"
-        class="margin-large-bottom"
-      />
-      <author-component
-        v-model="params.author"
-        class="margin-large-bottom"
       />
       <citations-component
         title="Citations"
@@ -78,10 +74,11 @@ import FacetTaxonName from 'tasks/extracts/filter/components/filters/TaxonNameFa
 import FacetGeographicArea from 'tasks/collection_objects/filter/components/filters/geographic'
 import CitationsComponent from 'tasks/nomenclature/filter/components/filters/citations'
 import WithComponent from 'tasks/observation_matrices/dashboard/components/filters/with'
-import FacetWKT from './filters/Facet/FacetWKT.vue'
+import FacetWKT from './Facet/FacetWKT.vue'
 import FacetBiologicalRelationship from 'tasks/biological_associations/filter/components/Facet/FacetBiologicalRelationship.vue'
 import FacetCollectingEvent from 'tasks/biological_associations/filter/components/Facet/FacetCollectingEvent.vue'
 import FacetDataAttribute from 'tasks/collection_objects/filter/components/filters/DataAttributes/FacetDataAttribute.vue'
+import FacetDescriptor from './Facet/FacetDescriptor.vue'
 
 const emit = defineEmits([
   'parameters',
@@ -123,6 +120,7 @@ const initParams = () => ({
     asserted_distribution_ids: [],
     data_attributes_attributes: [],
     collecting_event_id: [],
+    descriptor_id: [],
     citations: undefined,
     wkt: undefined,
     ancestor_id: undefined

@@ -20,5 +20,7 @@ export const Otu = {
 
   navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`),
 
-  timeline: (id) => AjaxCall('get', `/${controller}/${id}/timeline`)
+  timeline: (id) => AjaxCall('get', `/${controller}/${id}/timeline`),
+
+  filter: params => AjaxCall('get', `/${controller}.json`, params)
 }

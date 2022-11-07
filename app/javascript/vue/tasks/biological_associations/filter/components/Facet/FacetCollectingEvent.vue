@@ -2,7 +2,6 @@
   <div>
     <h3>Collecting Event</h3>
     <div class="field">
-      <h3>Collecting events</h3>
       <smart-selector
         model="collecting_events"
         klass="CollectionObject"
