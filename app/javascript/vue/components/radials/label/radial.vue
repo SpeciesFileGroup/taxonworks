@@ -36,7 +36,7 @@
     >
       <VIcon
         title="Radial filter"
-        name="funnel"
+        name="label"
         x-small
       />
     </VBtn>
