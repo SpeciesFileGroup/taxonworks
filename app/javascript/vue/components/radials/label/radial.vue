@@ -32,6 +32,7 @@
       color="primary"
       title="Radial filter"
       circle
+      :disabled="disabled"
       @click="openRadialMenu()"
     >
       <VIcon
@@ -53,6 +54,11 @@ import AjaxCall from 'helpers/ajaxCall'
 import * as SLICES from './model/index.js'
 
 const props = defineProps({
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+
   ids: {
     type: Array,
     default: () => []

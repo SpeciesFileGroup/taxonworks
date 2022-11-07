@@ -31,6 +31,7 @@
           <RadialLabel
             :object-type="TAXON_NAME"
             :ids="selectedIds"
+            :disabled="!selectedIds.length"
           />
         </li>
         <li>
