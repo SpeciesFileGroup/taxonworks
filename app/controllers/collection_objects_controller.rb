@@ -22,7 +22,7 @@ class CollectionObjectsController < ApplicationController
       end
       format.json {
         # see app/controllers/collection_objects/filter_params.rb
-        @collection_objects = filtered_collection_objects.order('collection_objects.id').page(params[:page]).per(params[:per] || 500)
+        @collection_objects = filtered_collection_objects.order('collection_objects.id').page(params[:page]).per(params[:per] || 50)
       }
     end
   end
