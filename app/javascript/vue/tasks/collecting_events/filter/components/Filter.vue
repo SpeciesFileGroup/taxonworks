@@ -239,7 +239,7 @@ export default {
           otu_ids: [],
           determiner_name_regex: undefined,
           current_determinations: undefined,
-          ancestor_id: undefined,
+          taxon_name_id: undefined,
           validity: undefined
         },
         matchIdentifiers: {

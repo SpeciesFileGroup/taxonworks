@@ -197,7 +197,7 @@ export default {
         this.params.collectors.collector_id.length ||
         this.params.determination.otu_ids.length ||
         this.params.determination.determiner_id.length ||
-        this.params.determination.ancestor_id ||
+        this.params.determination.taxon_name_id ||
         this.params.repository.repository_id ||
         this.params.repository.current_repository_id ||
         this.params.collectingEvents.collecting_event_ids.length ||
@@ -371,7 +371,7 @@ export default {
           otu_ids: [],
           determiner_name_regex: undefined,
           current_determinations: undefined,
-          ancestor_id: undefined,
+          taxon_name_id: undefined,
           validity: undefined
         },
         collectingEvents: {
