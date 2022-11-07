@@ -15,7 +15,7 @@ module LabelsHelper
       when 'Label::Code128'
         label_code_128_tag(label)
       else
-        send('label_' + label.type.split('::').last.tableize.singularize + 'tag')
+        send('label_' + label.type.split('::').last.tableize.singularize + '_tag', label)
       end
       content_tag(:span, label.text, style: label.style) # TODO: properly reference style
     end
@@ -74,7 +74,7 @@ module LabelsHelper
       "\n" +
       tag.span(
         [o.taxonomy['order'], o.taxonomy['family']].compact.join(': '), class: 'unit_tray_header1_bottom'
-      ), class: 'foo')
+      ), class: 'unit_tray_header1')
   end
 
   # Object is a Container

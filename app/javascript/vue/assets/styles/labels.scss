@@ -3,3 +3,14 @@
     max-height: 50px;
   }
 }
+
+.unit_tray_header1 {
+  height: 38mm; 
+  width: 74mm;
+  border: 2px solid black;
+
+  .unit_tray_header1_left {};
+  .unit_tray_header1_right {};
+  .unit_tray_header1_top {};
+  .unit_tray_header1_bottom {};
+}
