@@ -1,5 +1,13 @@
 import { DATA_ATTRIBUTE_FILTER_PROPERTY } from 'constants/index.js'
 
+function toJSON (str) {
+  try {
+    return JSON.parse(str)
+  } catch (_) {
+    return str
+  }
+}
+
 export default () => {
   const parameters = {}
   const elements = [...document.querySelectorAll('*')]
@@ -23,7 +31,12 @@ export default () => {
           parameters[key] = [parameter, value]
         }
       } else {
-        parameters[key] = value
+        const parsedValue = toJSON(value)
+        const isArray = Array.isArray(parsedValue)
+
+        if ((isArray && parsedValue.length) || !isArray) {
+          parameters[key] = toJSON(value)
+        }
       }
     })
   })

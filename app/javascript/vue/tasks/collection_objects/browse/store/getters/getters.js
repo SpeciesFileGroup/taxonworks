@@ -13,6 +13,8 @@ import getBiologicalAssociations from './getBiologicalAssociations'
 import getTypeMaterials from './getTypeMaterials'
 import getNavigation from './getNavigation'
 import getGeographicArea from './getGeographicArea'
+import getRepository from './getRepository'
+import getCurrentRepository from './getCurrentRepository'
 
 const GetterNames = {
   GetCollectingEvent: 'getCollectingEvent',
@@ -29,7 +31,9 @@ const GetterNames = {
   GetDeterminations: 'getDeterminations',
   GetBiologicalAssociations: 'getBiologicalAssociations',
   GetTypeMaterials: 'getTypeMaterials',
-  GetNavigation: 'getNavigation'
+  GetNavigation: 'getNavigation',
+  GetRepository: 'getRepository',
+  GetCurrentRepository: 'getCurrentRepository'
 }
 
 const GetterFunctions = {
@@ -47,7 +51,9 @@ const GetterFunctions = {
   [GetterNames.GetDeterminations]: getDeterminations,
   [GetterNames.GetBiologicalAssociations]: getBiologicalAssociations,
   [GetterNames.GetTypeMaterials]: getTypeMaterials,
-  [GetterNames.GetNavigation]: getNavigation
+  [GetterNames.GetNavigation]: getNavigation,
+  [GetterNames.GetRepository]: getRepository,
+  [GetterNames.GetCurrentRepository]: getCurrentRepository
 }
 
 export {

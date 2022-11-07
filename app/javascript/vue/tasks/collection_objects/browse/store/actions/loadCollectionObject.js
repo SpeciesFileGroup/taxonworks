@@ -6,7 +6,8 @@ import {
   TaxonDetermination,
   BiologicalAssociation,
   TypeMaterial,
-  GeographicArea
+  GeographicArea,
+  Repository
 } from 'routes/endpoints'
 import { makeCollectionObject } from 'adapters/index.js'
 import {
@@ -34,6 +35,22 @@ export default ({ state, dispatch }, coId) => {
       .then(({ body }) => {
         state.container = body
       })
+
+    if (co.repositoryId) {
+      Repository
+        .find(co.repositoryId)
+        .then(({ body }) => {
+          state.repository = body
+        })
+    }
+
+    if (co.currentRepositoryId) {
+      Repository
+        .find(co.currentRepositoryId)
+        .then(({ body }) => {
+          state.currentRepository = body
+        })
+    }
   })
 
   dispatch(ActionNames.LoadBiocurations, coId)

@@ -6,17 +6,15 @@
     <PanelBuffered />
     <TableGrid
       gap="1em"
-      :columns="2"
+      :columns="1"
       :column-width="{
-        default: 'min-content',
-        0: '1fr',
-        1: '1fr',
+        default: '1fr'
       }"
     >
       <PanelBiocurations />
-      <PanelContainers />
     </TableGrid>
     <PanelDeterminations />
+    <PanelDisposition />
     <PanelBiologicalAssociations />
     <PanelTypeMaterial />
   </TableGrid>
@@ -28,6 +26,6 @@ import PanelDeterminations from './PanelDeterminations.vue'
 import PanelBiocurations from './PanelBiocurations.vue'
 import PanelBiologicalAssociations from './PanelBiologicalAssociations.vue'
 import PanelTypeMaterial from './PanelTypeMaterial.vue'
-import PanelContainers from './PanelContainers.vue'
+import PanelDisposition from './PanelDisposition.vue'
 import TableGrid from 'components/layout/Table/TableGrid.vue'
 </script>

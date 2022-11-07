@@ -6,6 +6,10 @@
     :geojson="geoJson"
     resize
   />
+  <RadialFilterAttribute
+    v-if="geographicArea.id"
+    :parameters="{ geographic_area_id: [geographicArea.id] }"
+  />
 </template>
 
 <script setup>
@@ -13,14 +17,15 @@ import { useStore } from 'vuex'
 import { computed } from 'vue'
 import { GetterNames } from '../../store/getters/getters'
 import VMap from 'components/georeferences/map.vue'
+import RadialFilterAttribute from 'components/radials/filter/RadialFilterAttribute.vue'
 
 const store = useStore()
 const georeferences = computed(() => store.getters[GetterNames.GetGeoreferences].map(g => g.geo_json))
-const geographicAreaShape = computed(() => store.getters[GetterNames.GetGeographicArea]?.shape)
+const geographicArea = computed(() => store.getters[GetterNames.GetGeographicArea])
 
 const geoJson = computed(() =>
-  geographicAreaShape.value
-    ? [geographicAreaShape.value, ...georeferences.value]
+  geographicArea.value?.shape
+    ? [geographicArea.value.shape, ...georeferences.value]
     : [...georeferences.value]
 )
 

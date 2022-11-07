@@ -5,21 +5,23 @@ import { MutationFunctions } from './mutations/mutations'
 
 const makeInitialState = () => {
   return {
+    biocurations: {},
+    biologicalAssociations: [],
     collectingEvent: {},
     collectionObject: {},
     container: {},
+    currentRepository: {},
     depictions: [],
     determinations: [],
     dwc: {},
-    georeferences: [],
     geographicArea: {},
+    georeferences: [],
     identifiers: {},
     isLoading: false,
-    softValidations: [],
-    timeline: {},
-    biocurations: {},
     navigation: {},
-    biologicalAssociations: []
+    repository: {},
+    softValidations: [],
+    timeline: {}
   }
 }
 

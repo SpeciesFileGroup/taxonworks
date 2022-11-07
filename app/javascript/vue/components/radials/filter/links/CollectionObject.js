@@ -28,5 +28,10 @@ export const CollectionObject = [
     label: 'Images by taxon name',
     link: '/tasks/images/filter',
     params: ['taxon_name_id']
+  },
+  {
+    label: 'By geographic area',
+    link: '/tasks/collection_objects/filter',
+    params: ['geographic_area_id']
   }
 ]

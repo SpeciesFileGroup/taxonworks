@@ -77,7 +77,7 @@ const menuOptions = computed(() => {
   const slices = []
 
   links.forEach(item => {
-    const filteredParameters = copyObjectByArray({ ...objParameters.value, ...props.parameters }, item.params)
+    const filteredParameters = filterEmptyParams(copyObjectByArray({ ...objParameters.value, ...props.parameters }, item.params))
     const link = item.link + '?' + transformObjectToParams(filteredParameters)
 
     if (Object.values(filteredParameters).some(Boolean)) {
@@ -105,7 +105,7 @@ const menuOptions = computed(() => {
 
 const isVisible = ref(false)
 
-function addSlice ({ label, link, params }) {
+function addSlice ({ label, link }) {
   return {
     label,
     link,
@@ -122,6 +122,23 @@ function closeModal () {
 
 function openRadialMenu () {
   isVisible.value = true
+}
+
+function filterEmptyParams (object) {
+  const obj = { ...object }
+
+  for (const key in obj) {
+    const value = obj[key]
+
+    if (
+      value === '' ||
+      (Array.isArray(value) && !value.length)
+    ) {
+      delete obj[key]
+    }
+  }
+
+  return obj
 }
 
 watch(
