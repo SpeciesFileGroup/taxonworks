@@ -29,6 +29,7 @@
       color="primary"
       title="Radial filter"
       circle
+      :disabled="disabled"
       @click="openRadialMenu()"
     >
       <VIcon
@@ -52,39 +53,34 @@ import getFilterAttributes from './composition/getFilterAttributes'
 import * as LINKER_LIST from './links/index.js'
 
 const props = defineProps({
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+
   objectType: {
     type: String,
     required: true
   },
 
-  showBottom: {
-    type: Boolean,
-    default: true
-  },
-
-  buttonClass: {
-    type: String,
-    default: 'btn-radial-object'
-  },
-
-  buttonTitle: {
-    type: String,
-    default: 'Navigate radial'
+  parameters: {
+    type: Object,
+    default: undefined
   }
 })
 
 const emit = defineEmits(['close'])
-const parameters = ref(getFilterAttributes())
+const objParameters = ref(getFilterAttributes())
 
 const menuOptions = computed(() => {
   const links = LINKER_LIST[props.objectType]
   const slices = []
 
   links.forEach(item => {
-    const objParameters = copyObjectByArray(parameters.value, item.params)
-    const link = item.link + '?' + transformObjectToParams(objParameters)
+    const filteredParameters = copyObjectByArray({ ...objParameters.value, ...props.parameters }, item.params)
+    const link = item.link + '?' + transformObjectToParams(filteredParameters)
 
-    if (Object.values(objParameters).some(Boolean)) {
+    if (Object.values(filteredParameters).some(Boolean)) {
       slices.push(addSlice({ ...item, link }))
     }
   })
@@ -132,7 +128,7 @@ watch(
   isVisible,
   (newVal) => {
     if (newVal) {
-      parameters.value = getFilterAttributes()
+      objParameters.value = getFilterAttributes()
     }
   }
 )
