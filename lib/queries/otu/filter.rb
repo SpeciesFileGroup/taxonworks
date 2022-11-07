@@ -17,24 +17,44 @@ module Queries
 
     # include Queries::Concerns::Citations
 
+    # @param name [String, Array]
+    # @return Array
+    #   literal match against one or more Otu#name
+    attr_accessor :name
+
+    attr_accessor :name_exact
+
+    # @param otu_id [Integer, Array]
+    # @return Array
+    #   one or more Otu ids
+    attr_accessor :otu_id
+
+    # @param taxon_name_id [Integer, Array]
+    # @return Array
+    #   one or more Otu taxon_name_id
+    attr_accessor :taxon_name_id
+
+    # -- done to here
+
+
     # matching some nomenclature query
     # taxon_name_params
-   
-    # matching some set of CollectionObjects 
+
+    # matching some set of CollectionObjects
     # collection_object_params
     #   collecting_event_params <- objects
-   
+
     # matching some set of AssertedDistributions
-     
+
     # @param geographic_area_id [String, Array]
-    # @return [Array] 
+    # @return [Array]
     attr_accessor :geographic_area_id
 
     attr_accessor :shape
 
     # NOT USED!
     # via taxon_determinations (collection_object)
-    # 
+    #
     attr_accessor :selection_objects
 
     attr_accessor :descendants
@@ -55,58 +75,41 @@ module Queries
     attr_accessor :depictions
 
     attr_accessor :author # was verbatim_author_string
-   
+
     attr_accessor :biological_association_ids
     attr_accessor :taxon_name_classification_ids
     attr_accessor :taxon_name_relationship_ids
     attr_accessor :asserted_distribution_ids
 
-    # @param name [String, Array]
-    # @return Array
-    #   literal match against one or more Otu#name  
-    attr_accessor :name
-
-    attr_accessor :name_exact
-
-    # @param name [Integer, Array]
-    # @return Array
-    #   one or more Otu ids 
-    attr_accessor :otu_id
-   
-    # @param name [Integer, Array]
-    # @return Array
-    #   one or more Otu taxon_name_id 
-    attr_accessor :taxon_name_id
-
     # @return [Hash]
     #   All params managed in Queries::TaxonName::Filter
-    # 
+    #
     # Return all Otus matching a TaxonName in this query
     attr_accessor :taxon_name_query
 
     # @return [Hash]
     #   All params managed in Queries::CollectionObject::Filter
-    # 
+    #
     # Return all OTUs matching a CollectionObject in this query
     attr_accessor :collection_object_query
 
     # @return [Hash]
     #   All params managed in Queries::CollectingEvent::Filter
-    # 
+    #
     # Return all OTUs matching a CollectingEvent in this query, i.e.
     # through Determinations on CollectionObjects in this CollectingEvent
     attr_accessor :collecting_event_query
 
     # @return [Hash]
     #   All params managed in Queries::AssertedDistribution::Filter
-    # 
+    #
     # Return all OTUs in these AssertedDistributions
     attr_accessor :asserted_distribution_query
 
     # @return [Hash]
     #   All params managed in Queries::AssertedDistribution::Filter
-    # 
-    # Return all OTUs in these BiologicalAssociation 
+    #
+    # Return all OTUs in these BiologicalAssociation
     attr_accessor :biological_association_query
 
 
@@ -115,10 +118,12 @@ module Queries
       #  params.reject! { |_k, v| v.blank? }
 
       @otu_id = params[:otu_id]
+      @taxon_name_id = params[:taxon_name_id]
+
       @name = params[:name]
       @name_exact = boolean_param(params, :name_exact)
-      
-      @taxon_name_id = params[:taxon_name_id]
+
+
 
       # TODO: set taxon_name_params
       @taxon_name_query = Queries::TaxonName::Filter.new(
@@ -130,17 +135,17 @@ module Queries
         params.select{|a,b| collection_object_params.include?(a.to_s) }
       )
 
-      # TODO: set collecting event params 
+      # TODO: set collecting event params
       @collecting_event_query = Queries::CollectingEvent::Filter.new(
         params.select{|a,b| collecting_event_params.include?(a.to_s) }
       )
-      
-      # TODO: set asserted distribution params 
+
+      # TODO: set asserted distribution params
       @asserted_distribution_query = Queries::AssertedDistribution::Filter.new(
         params.select{|a,b| asserted_distribution_params.include?(a.to_s) }
       )
- 
-      # TODO: set biological association params 
+
+      # TODO: set biological association params
       @biological_association_query = Queries::BiologicalAssociation::Filter.new(
         params.select{|a,b| biological_association_params.include?(a.to_s) }
       )
@@ -166,7 +171,7 @@ module Queries
 
       @rank_class = params[:rank_class]
       @descendants = params[:descendants]
-        
+
       @biological_association_ids = params[:biological_association_ids] || []
 
       @taxon_name_classification_ids = params[:taxon_name_classification_ids] || []
@@ -174,7 +179,7 @@ module Queries
       @asserted_distribution_ids = params[:asserted_distribution_ids] || []
       @project_id = params[:project_id]
 
-      # TODO: could be incorrect 
+      # TODO: could be incorrect
       params.reject!{ |_k, v| v.nil? || (v == '') }
 
       # set_tags_params(params)
@@ -190,43 +195,41 @@ module Queries
     end
 
     def name
-      [@name].flatten.compact
+      [@name].flatten.compact.collect{|n| n.strip})
     end
 
-    def geographic_area_id 
+    def geographic_area_id
       [@geographic_area_id].flatten.compact
     end
 
-    def otu_id 
+    def otu_id
       [@otu_id].flatten.compact
     end
 
-    def taxon_name_id 
+    def taxon_name_id
       [@taxon_name_id].flatten.compact
     end
-      
-    def matching_otu_id
+
+    def otu_id_facet
       return nil if otu_id.empty?
       table[:id].eq_any(otu_id)
     end
 
-    def matching_name
+    def name_facet
       return nil if name.empty?
       if name_exact
-        table[:name].eq_any(name.collect{|n| n.strip})
+        table[:name].eq_any(name)
       else
-        table[:name].matches_any( name.collect{|n| '%' + n.strip.gsub(/\s+/, '%') + '%' } )
+        table[:name].matches_any( name.collect{|n| '%' + n.gsub(/\s+/, '%') + '%' } )
       end
     end
 
-
-    # Query::TaxonName::Filter integration
-    #
-    def matching_taxon_name_id
+    def taxon_name_id_facet
       return nil if taxon_name_id.empty?
       table[:taxon_name_id].eq_any(taxon_name_id)
     end
 
+    # Query::TaxonName::Filter integration
     def taxon_name_merge_clauses
       c = []
 
@@ -244,7 +247,7 @@ module Queries
         c.push ::Otu.joins(:taxon_name).where( i )
       end
       c
-    end  
+    end
 
     # Query::CollectionObject::Filter integration
     #
@@ -265,7 +268,7 @@ module Queries
         c.push ::Otu.joins(:collection_objects).where( i )
       end
       c
-    end  
+    end
 
     # Query::CollectingEvent::Filter integration
     #
@@ -378,7 +381,7 @@ module Queries
       ::Otu.where(id: (::Otu.joins(:asserted_distributions)
         .where(asserted_distributions: {id: ::AssertedDistribution.joins(:geographic_items)
         .where(gi_sql).distinct})) +
-  
+
       (::Otu.joins(:collection_objects)
         .where(collection_objects: {id: ::CollectionObject.joins(:geographic_items)
         .where(gi_sql).distinct})).distinct)
@@ -423,7 +426,7 @@ module Queries
       return nil if author.blank?
       if exact_author
         ::Otu.joins(:taxon_name).where(::TaxonName.arel_table[:cached_author_year].eq(author.strip))
-      else 
+      else
         ::Otu.joins(:taxon_name).where(::TaxonName.arel_table[:cached_author_year].matches('%' + author.strip.gsub(/\s/, '%') + '%'))
       end
     end
@@ -535,6 +538,9 @@ module Queries
     end
 
     # TODO: biological associations filter
+    # TODO:
+    #   All OTUs in these biological Associations
+    #   First determination of OTUs in CollectionObjects
     def matching_biological_association_ids
       return nil if biological_association_ids.empty?
       o = table
@@ -622,9 +628,9 @@ module Queries
 
       ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
     end
- 
+
     # TODO: citations plugin?
-    def citations_facet 
+    def citations_facet
       return nil if @citations.nil?
 
       citation_conditions = ::Citation.arel_table[:citation_object_id].eq(::Otu.arel_table[:id]).and(
@@ -684,9 +690,9 @@ module Queries
     # @return [ActiveRecord::Relation, nil]
     def and_clauses
       clauses = [
-        matching_taxon_name_id,
-        matching_otu_id,
-        matching_name,
+        otu_id_facet,
+        taxon_name_id_facet,
+        name_facet,
 
         # matching_verbatim_author
         # Queries::Annotator.annotator_params(options, ::Citation),
