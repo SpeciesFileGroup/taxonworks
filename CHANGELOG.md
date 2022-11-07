@@ -7,6 +7,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Print unit-tray headers from TaxonNames via Filter nomenclature [#3160]
 - New radial "Filter" navigators facilitating cross-linking to filters [#2297]
 - Option to force DwC indexing to prioritize names from Geogrpahic Area [#3143]
 - Character state filter in Matrix Column Coder [#3141]
@@ -22,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Soft validation crashing when cached nomenclature date is absent
 - Role picker is missing after create a source from BibTeX [#3180]
 
+[#3160]: https://github.com/SpeciesFileGroup/taxonworks/issues/3160
 [#2297]: https://github.com/SpeciesFileGroup/taxonworks/issues/2297
 [#3143]: https://github.com/SpeciesFileGroup/taxonworks/issues/3143
 [#3141]: https://github.com/SpeciesFileGroup/taxonworks/issues/3141
