@@ -44,7 +44,8 @@
         @urlRequest="urlRequest = $event"
         @result="loadList"
         @pagination="pagination = getPagination($event)"
-        @reset="resetTask"/>
+        @reset="resetTask"
+      />
       <div class="full_width overflow-x-auto">
         <div
           v-if="recordsFound"
@@ -75,6 +76,7 @@
               :url="urlRequest"
               class="margin-small-left"
             />
+            <DeleteCollectionObjects :ids="ids" />
             <RadialFilter
               :disabled="!ids.length"
               object-type="CollectingEvent"
@@ -127,6 +129,7 @@ import SelectAll from './components/selectAll.vue'
 import MatchButton from './components/matchButton.vue'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import RadialFilter from 'components/radials/filter/radial.vue'
+import DeleteCollectionObjects from './components/DeleteCollectionObjects.vue'
 
 export default {
   name: 'FilterCollectionObjects',
@@ -142,7 +145,8 @@ export default {
     SelectAll,
     MatchButton,
     JsonRequestUrl,
-    RadialFilter
+    RadialFilter,
+    DeleteCollectionObjects
   },
 
   computed: {
