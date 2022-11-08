@@ -9,13 +9,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - Print unit-tray headers from TaxonNames via Filter nomenclature [#3160]
 - New radial "Filter" navigators facilitating cross-linking to filters [#2297]
-- Option to force DwC indexing to prioritize names from Geogrpahic Area [#3143]
+- Option to force DwC indexing to prioritize names from Geographic Area [#3143]
+- Functionality to update CollectingEvents in the context of Browse collection object
 - Character state filter in Matrix Column Coder [#3141]
 - Better error handling and reporting when parsing BibTeX
+- Index for caching the numeric component of Identifiers
 
 ### Changed
-- New Browse collection object interface [#2297]
-- Reload New source task by pressing New and load source
+- Updated Browse collection object interface [#2297]
+- Reload New source task by pressing New and loading source
 - Updated Ruby gems
 
 ### Fixed
