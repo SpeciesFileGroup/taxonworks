@@ -35,7 +35,7 @@
                   type="button"
                   class="button normal-input button-default"
                   :disabled="!navigate.previous_by[key]"
-                  @click="openCO(navigate.previous_by[key])"
+                  @click="loadCO(navigate.previous_by[key])"
                 >
                   {{ key.replaceAll('_', ' ') }}
                 </button>
@@ -45,7 +45,7 @@
                   class="button normal-input button-default"
                   type="button"
                   :disabled="!navigate.next_by[key]"
-                  @click="openCO(navigate.next_by[key])"
+                  @click="loadCO(navigate.next_by[key])"
                 >
                   {{ key.replaceAll('_', ' ') }}
                 </button>
@@ -63,8 +63,8 @@
 import { useStore } from 'vuex'
 import { computed, ref } from 'vue'
 import { GetterNames } from '../store/getters/getters'
-import { RouteNames } from 'routes/routes'
 import ModalComponent from 'components/ui/Modal'
+import loadCO from '../utils/loadCO.js'
 
 const store = useStore()
 const navigate = computed(() => store.getters[GetterNames.GetNavigation])
@@ -72,7 +72,5 @@ const collectionObject = computed(() => store.getters[GetterNames.GetCollectionO
 
 const isVisible = ref(false)
 
-function openCO (id) {
-  window.open(`${RouteNames.BrowseCollectionObject}?collection_object_id=${id}`, '_self')
-}
+
 </script>

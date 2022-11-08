@@ -7,6 +7,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Autocomplete on Browse collection object [#3189]
+
+[#3189]: https://github.com/SpeciesFileGroup/taxonworks/issues/3189
+
+## [0.29.6] - 2022-11-08
+
+### Added
 - Print unit-tray headers from TaxonNames via Filter nomenclature [#3160]
 - New radial "Filter" navigators facilitating cross-linking to filters [#2297]
 - Option to force DwC indexing to prioritize names from Geographic Area [#3143]
