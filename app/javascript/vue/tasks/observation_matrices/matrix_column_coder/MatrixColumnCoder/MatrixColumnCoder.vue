@@ -24,6 +24,10 @@
           class="horizontal-right-content middle"
         >
           <OptionUnsecoredRows class="margin-medium-right" />
+          <OptionCharacterStateFilter
+            v-if="descriptor.type === componentName.Qualitative"
+            class="margin-small-right"
+          />
           <RowObjectList class="margin-small-right" />
           <CodeColumn
             class="margin-small-right"
@@ -39,7 +43,6 @@
       <li
         class="matrix-row-coder__descriptor-container"
         v-for="(rowObject, index) in rowObjects"
-        v-show="!onlyScoredRows || !observations.find(obs => obs.rowObjectId === rowObject.id && obs.id)"
         :key="rowObject.id"
         :data-row-object-id="rowObject.id"
       >
@@ -57,7 +60,10 @@
 <script>
 import { mapState } from 'vuex'
 import { ActionNames } from '../store/actions/actions'
+import { GetterNames } from '../store/getters/getters'
+import componentName from '../helpers/ComponentNames'
 import OptionUnsecoredRows from './Option/OptionUnsecoredRows.vue'
+import OptionCharacterStateFilter from './Option/OptionCharacterStateFilter.vue'
 import ContinuousDescriptor from './ContinuousDescriptor/ContinuousDescriptor.vue'
 import FreeTextDescriptor from './SingleObservationDescriptor/FreeText/FreeText.vue'
 import PresenceDescriptor from './SingleObservationDescriptor/PresenceDescriptor/PresenceDescriptor.vue'
@@ -71,14 +77,6 @@ import RadialNavigator from 'components/radials/navigation/radial.vue'
 import RowObjectList from './RowObjects/RowObjects.vue'
 import CodeColumn from './CodeColumn/CodeColumn.vue'
 import ObservationRowDestroy from './ObservationRow/ObservationRowDestroy.vue'
-
-const computed = mapState({
-  descriptor: state => state.descriptor,
-  observations: state => state.observations,
-  onlyScoredRows: state => state.options.showOnlyUnscoredRows,
-  rowObjects: state => state.rowObjects,
-  observationColumnId: state => state.observationColumnId
-})
 
 export default {
   name: 'MatrixColumnCoder',
@@ -95,6 +93,7 @@ export default {
     RowObjectList,
     RadialNavigator,
     OptionUnsecoredRows,
+    OptionCharacterStateFilter,
     Spinner,
     CodeColumn,
     ObservationRowDestroy
@@ -109,11 +108,22 @@ export default {
 
   data () {
     return {
-      isLoading: false
+      isLoading: false,
+      componentName
     }
   },
 
-  computed,
+  computed: {
+    ...mapState({
+      descriptor: state => state.descriptor,
+      observations: state => state.observations,
+      onlyScoredRows: state => state.options.showOnlyUnscoredRows,
+      observationColumnId: state => state.observationColumnId
+    }),
+    rowObjects () {
+      return this.$store.getters[GetterNames.GetRowObjects]
+    },
+  },
 
   watch: {
     columnId: {

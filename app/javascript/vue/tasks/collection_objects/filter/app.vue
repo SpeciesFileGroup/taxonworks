@@ -48,7 +48,8 @@
       <div class="full_width overflow-x-auto">
         <div
           v-if="recordsFound"
-          class="horizontal-left-content flex-separate separate-bottom">
+          class="horizontal-left-content flex-separate separate-bottom"
+        >
           <div class="horizontal-left-content">
             <select-all
               v-model="ids"
@@ -69,11 +70,15 @@
               :params="$refs.filterComponent.parseParams"
               :total="pagination.total"
             />
-            <OpenCollectingEventFilter :ids="ids" />
             <match-button
               :ids="ids"
               :url="urlRequest"
               class="margin-small-left"
+            />
+            <RadialFilter
+              :disabled="!ids.length"
+              object-type="CollectingEvent"
+              :parameters="{ collection_object_id: ids }"
             />
           </div>
         </div>
@@ -120,8 +125,8 @@ import DwcDownload from './components/dwcDownload.vue'
 import DwcReindex from './components/dwcReindex.vue'
 import SelectAll from './components/selectAll.vue'
 import MatchButton from './components/matchButton.vue'
-import OpenCollectingEventFilter from './components/OpenCollectingEventFilter.vue'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
+import RadialFilter from 'components/radials/filter/radial.vue'
 
 export default {
   name: 'FilterCollectionObjects',
@@ -136,8 +141,8 @@ export default {
     DwcReindex,
     SelectAll,
     MatchButton,
-    OpenCollectingEventFilter,
-    JsonRequestUrl
+    JsonRequestUrl,
+    RadialFilter
   },
 
   computed: {

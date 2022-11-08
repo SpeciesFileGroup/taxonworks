@@ -54,8 +54,8 @@
 #
 # @!attribute is_virtual
 # @return [Boolean]
-#   Defaults to false. If false then
-#
+#   Defaults to false. If true then the namespace short name is not part of the "physical" identifier.  Required to handle identifiers incoming 
+# from DwC in some contexts.
 #
 class Namespace < ApplicationRecord
   include Housekeeping::Users
@@ -69,7 +69,7 @@ class Namespace < ApplicationRecord
   validates_presence_of :name, :short_name
   validates_uniqueness_of :name, :short_name, case_sensitive: false
 
-  # autosave should resave all, but it clearly doesn't
+  # Autosave should resave all, but it clearly doesn't
   # we also don't want to validte the identifiers on this resave, but rather
   # just trigger the rebuild of identifiers#cache.  Will have to add an after_save here.
   has_many :identifiers, autosave: true, dependent: :restrict_with_error, inverse_of: :namespace

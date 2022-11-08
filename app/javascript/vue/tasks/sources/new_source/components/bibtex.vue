@@ -40,6 +40,7 @@
 
 import SpinnerComponent from 'components/spinner'
 import ModalComponent from 'components/ui/Modal'
+import newSource from '../const/source'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 import { Source } from 'routes/endpoints'
@@ -67,7 +68,7 @@ export default {
       Source.create({ bibtex_input: this.bibtexInput }).then(response => {
         this.bibtexInput = ''
         this.$emit('close', true)
-        this.$store.commit(MutationNames.SetSource, response.body)
+        this.$store.commit(MutationNames.SetSource, Object.assign(newSource(), response.body))
         TW.workbench.alert.create('New source from BibTeX created.', 'notice')
       }).finally(() => {
         this.creating = false

@@ -6,7 +6,30 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+- Print unit-tray headers from TaxonNames via Filter nomenclature [#3160]
+- New radial "Filter" navigators facilitating cross-linking to filters [#2297]
+- Option to force DwC indexing to prioritize names from Geographic Area [#3143]
+- Functionality to update CollectingEvents in the context of Browse collection object
+- Character state filter in Matrix Column Coder [#3141]
+- Better error handling and reporting when parsing BibTeX
+- Index for caching the numeric component of Identifiers
+
+### Changed
+- Updated Browse collection object interface [#2297]
+- Reload New source task by pressing New and loading source
+- Updated Ruby gems
+
+### Fixed
+- Browse nomenclature crashing when taxon name descendants have no cached author year
+- Soft validation crashing when cached nomenclature date is absent
+- Role picker is missing after create a source from BibTeX [#3180]
+
+[#3160]: https://github.com/SpeciesFileGroup/taxonworks/issues/3160
+[#2297]: https://github.com/SpeciesFileGroup/taxonworks/issues/2297
+[#3143]: https://github.com/SpeciesFileGroup/taxonworks/issues/3143
+[#3141]: https://github.com/SpeciesFileGroup/taxonworks/issues/3141
+[#3180]: https://github.com/SpeciesFileGroup/taxonworks/issues/3180
 
 ## [0.29.5] - 2022-10-10
 

@@ -45,7 +45,14 @@
             >
           </td>
           <td>
-            <pre v-html="item.label"/>
+            <div
+              v-if="item.is_generated"
+              v-html="item.label"
+            />
+            <pre
+              v-else
+              v-html="item.label"
+            />
           </td>
           <td v-html="item.total"/>
           <td>

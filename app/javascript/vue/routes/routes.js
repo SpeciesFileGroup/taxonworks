@@ -18,6 +18,7 @@ const RouteNames = {
   NewExtract: '/tasks/extracts/new_extract',
   NewNamespace: '/tasks/namespaces/new_namespace',
   NewTaxonName: '/tasks/nomenclature/new_taxon_name',
+  NewSource: '/tasks/sources/new_source',
   NomenclatureBySource: '/tasks/nomenclature/by_source',
   NomenclatureStats: '/tasks/nomenclature/stats',
   ObservationMatricesDashboard: '/tasks/observation_matrices/dashboard',
