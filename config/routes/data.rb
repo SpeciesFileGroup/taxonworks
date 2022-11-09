@@ -491,6 +491,7 @@ resources :otus do
   resources :contents, only: [:index]
 
   collection do
+    match 'filter', to: 'otus#index', via: [:get, :post]
     # TODO: this is get
     post :preview_data_attributes_batch_load
     post :create_data_attributes_batch_load
