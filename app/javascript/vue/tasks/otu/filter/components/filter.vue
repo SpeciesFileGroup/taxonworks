@@ -37,6 +37,10 @@
         class="margin-large-bottom"
         v-model="params.base.taxon_name_id"
       />
+      <FacetHistorialDeterminations
+        class="margin-large-bottom"
+        v-model="params.base.historical_determinations"
+      />
       <FacetBiologicalRelationship
         class="margin-large-bottom"
         v-model="params.base.biological_relationship_id"
@@ -79,6 +83,7 @@ import FacetBiologicalRelationship from 'tasks/biological_associations/filter/co
 import FacetCollectingEvent from 'tasks/biological_associations/filter/components/Facet/FacetCollectingEvent.vue'
 import FacetDataAttribute from 'tasks/collection_objects/filter/components/filters/DataAttributes/FacetDataAttribute.vue'
 import FacetDescriptor from './Facet/FacetDescriptor.vue'
+import FacetHistorialDeterminations from './Facet/FacetHistorialDeterminations.vue'
 
 const emit = defineEmits([
   'parameters',
@@ -121,6 +126,7 @@ const initParams = () => ({
     data_attributes_attributes: [],
     collecting_event_id: [],
     descriptor_id: [],
+    historical_determinations: undefined,
     citations: undefined,
     wkt: undefined
   },
