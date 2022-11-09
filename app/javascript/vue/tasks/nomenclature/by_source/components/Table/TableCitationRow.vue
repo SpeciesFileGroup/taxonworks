@@ -17,7 +17,7 @@
       >
     </td>
     <td class="full_width">
-      <a 
+      <a
         :href="citation.citation_object.object_url"
         v-html="citation.citation_object.object_tag"
       />

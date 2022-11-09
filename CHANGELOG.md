@@ -9,6 +9,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - Autocomplete on Browse collection object [#3189]
 
+### Fixed
+- Citation link in Biological association panel on Browse OTU
+
 [#3189]: https://github.com/SpeciesFileGroup/taxonworks/issues/3189
 
 ## [0.29.6] - 2022-11-08
