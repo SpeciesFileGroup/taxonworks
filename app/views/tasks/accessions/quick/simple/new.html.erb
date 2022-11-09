@@ -1,3 +1,5 @@
+<div id="vue-simple-new-specimen"></div>
+
 <h2> Task: Simple new specimen </h2>
 
 <%= form_for(@specimen, as: :specimen, url: create_simple_specimen_task_path, html: {class: :dropzone, id: 'simple-specimen-task'}) do |f| -%>
@@ -67,7 +69,7 @@
 
 
           <hr>
-          <div class="flex-wrap-row" data-help="These fields are used to create a related collecting event."> <!---- collecting event block ---->
+          <div class="flex-wrap-row" data-help="These fields are used to create a related collecting event."> 
             <div class="flex-wrap-column">
               <div id="collecting_event_fields" <%= 'hidden' if @specimen.collecting_event_id -%> >
                 <%= f.fields_for(:collecting_event, CollectingEvent.new, include_id: false) do |c| -%>
@@ -110,7 +112,7 @@
               <%= link_to("return", "#", id: 'collecting_event_form_toggle', data: { turbolinks: false }, class: ['button-undo'], hidden: (@specimen.collecting_event_id ? false : true)) -%>
             </div>
           </div>
-        </div> <!---- end column 1 ---->
+        </div> 
 
 
     <div class="flex-wrap-column small_space">
