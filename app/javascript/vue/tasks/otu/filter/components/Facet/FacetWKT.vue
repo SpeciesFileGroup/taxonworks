@@ -2,6 +2,7 @@
   <div>
     <h3>By WKT</h3>
     <input
+      class="full_width"
       type="text"
       v-model="wkt"
     >
