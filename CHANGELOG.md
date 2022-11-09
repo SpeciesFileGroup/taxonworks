@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - Citation link in Biological association panel on Browse OTU
+- Type relationship text/rendering is inverted in New taxon name [#3182]
 
 [#3189]: https://github.com/SpeciesFileGroup/taxonworks/issues/3189
 
