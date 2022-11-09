@@ -7,7 +7,7 @@
       :logo-size="{ width: '100px', height: '100px'}"
     />
     <div class="flex-separate middle">
-      <h1>Filter extracts</h1>
+      <h1>Filter OTUs</h1>
       <menu-preferences v-model="preferences" />
     </div>
 

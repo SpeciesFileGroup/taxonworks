@@ -35,7 +35,7 @@
       />
       <FacetTaxonName
         class="margin-large-bottom"
-        v-model="params.base"
+        v-model="params.base.taxon_name_id"
       />
       <FacetBiologicalRelationship
         class="margin-large-bottom"
@@ -70,7 +70,7 @@ import { removeEmptyProperties } from 'helpers/objects'
 import { computed, ref } from 'vue'
 import platformKey from 'helpers/getPlatformKey.js'
 import vHotkey from 'plugins/v-hotkey.js'
-import FacetTaxonName from 'tasks/extracts/filter/components/filters/TaxonNameFacet.vue'
+import FacetTaxonName from './Facet/FacetTaxonName.vue'
 import FacetGeographicArea from 'tasks/collection_objects/filter/components/filters/geographic'
 import CitationsComponent from 'tasks/nomenclature/filter/components/filters/citations'
 import WithComponent from 'tasks/observation_matrices/dashboard/components/filters/with'
@@ -114,7 +114,7 @@ const initParams = () => ({
     page: 1
   },
   base: {
-    taxon_name_ids: [],
+    taxon_name_id: [],
     biological_association_ids: [],
     biological_relationship_id: [],
     asserted_distribution_ids: [],
@@ -122,8 +122,7 @@ const initParams = () => ({
     collecting_event_id: [],
     descriptor_id: [],
     citations: undefined,
-    wkt: undefined,
-    ancestor_id: undefined
+    wkt: undefined
   },
   dataAttributes: {
     data_attribute_value: [],
