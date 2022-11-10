@@ -39,9 +39,14 @@
             <td v-text="item.biological_relationship.object_tag" />
             <td v-html="item.object.object_tag" />
             <td>
-              <radial-navigation
-                :global-id="item.global_id"
-              />
+              <div class="horizontal-right-content">
+                <RadialAnnotator
+                  :global-id="item.global_id"
+                />
+                <RadialNavigation
+                  :global-id="item.global_id"
+                />
+              </div>
             </td>
           </tr>
         </tbody>
@@ -57,10 +62,7 @@ import { sortArray } from 'helpers/arrays.js'
 import HandyScroll from 'vue-handy-scroll'
 import { vResizeColumn } from 'directives/resizeColumn.js'
 import RadialNavigation from 'components/radials/navigation/radial.vue'
-import {
-  TABLE_ATTRIBUTES,
-  TABLE_HEADERS
-} from 'tasks/extracts/new_extract/const/table.js'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 
 const props = defineProps({
   list: {
@@ -107,7 +109,6 @@ const sortTable = sortProperty => {
   ascending.value = !ascending.value
 }
 
-delete TABLE_ATTRIBUTES.global_id
 </script>
 
 <style lang="scss" scoped>
