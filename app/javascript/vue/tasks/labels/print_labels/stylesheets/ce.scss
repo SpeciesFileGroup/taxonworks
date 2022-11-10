@@ -129,3 +129,30 @@ div.ce_label_pg {
     white-space: normal;
   }
 }
+
+.unit_tray_header1 {
+  padding-left: 2pt;
+  padding-right: 2pt;
+  font-family: Arial, sans-serif;
+  height: 38mm; 
+  width: 74mm;
+  border: 2px solid black;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-size: 12pt;
+  margin-bottom: .5mm;
+
+  .unit_tray_header1_left {};
+
+  .unit_tray_header1_right { 
+    margin-left: 8pt;
+  };
+
+  .unit_tray_header1_top {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between
+  };
+  .unit_tray_header1_bottom {};
+}

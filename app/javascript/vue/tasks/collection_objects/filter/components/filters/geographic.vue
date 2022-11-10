@@ -56,6 +56,7 @@
         @geoJsonLayerCreated="addShape"
       />
     </div>
+    <RadialFilterAttribute :parameters="{ geographic_area_id: geographic.geographic_area_id }" />
   </div>
 </template>
 
@@ -66,12 +67,14 @@ import Autocomplete from 'components/ui/Autocomplete'
 import GeoreferenceMap from 'components/georeferences/map'
 import { GeographicArea } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
+import RadialFilterAttribute from 'components/radials/filter/RadialFilterAttribute.vue'
 
 export default {
   components: {
     SwitchComponent,
     Autocomplete,
-    GeoreferenceMap
+    GeoreferenceMap,
+    RadialFilterAttribute
   },
 
   props: {

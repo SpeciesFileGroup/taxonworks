@@ -7,20 +7,40 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-- Option to force DwC indexing to prioritize names from Geogrpahic Area [#3143]
+- Autocomplete on Browse collection object [#3189]
+
+### Fixed
+- Citation link in Biological association panel on Browse OTU
+- Type relationship text/rendering is inverted in New taxon name [#3182]
+
+[#3189]: https://github.com/SpeciesFileGroup/taxonworks/issues/3189
+
+## [0.29.6] - 2022-11-08
+
+### Added
+- Print unit-tray headers from TaxonNames via Filter nomenclature [#3160]
+- New radial "Filter" navigators facilitating cross-linking to filters [#2297]
+- Option to force DwC indexing to prioritize names from Geographic Area [#3143]
+- Functionality to update CollectingEvents in the context of Browse collection object
 - Character state filter in Matrix Column Coder [#3141]
 - Better error handling and reporting when parsing BibTeX
+- Index for caching the numeric component of Identifiers
 
 ### Changed
-- Reload New source task by pressing New and load source
+- Updated Browse collection object interface [#2297]
+- Reload New source task by pressing New and loading source
 - Updated Ruby gems
 
 ### Fixed
 - Browse nomenclature crashing when taxon name descendants have no cached author year
 - Soft validation crashing when cached nomenclature date is absent
+- Role picker is missing after create a source from BibTeX [#3180]
 
+[#3160]: https://github.com/SpeciesFileGroup/taxonworks/issues/3160
+[#2297]: https://github.com/SpeciesFileGroup/taxonworks/issues/2297
 [#3143]: https://github.com/SpeciesFileGroup/taxonworks/issues/3143
 [#3141]: https://github.com/SpeciesFileGroup/taxonworks/issues/3141
+[#3180]: https://github.com/SpeciesFileGroup/taxonworks/issues/3180
 
 ## [0.29.5] - 2022-10-10
 

@@ -447,6 +447,8 @@ class Source::Bibtex < Source
     import_attributes = []
 
     bibtex_entry.fields.each do |key, value|
+      next if key == :serial # Raises if it hits the belongs_to
+
       if key == :keywords
         s.verbatim_keywords = value
         next
@@ -659,7 +661,7 @@ class Source::Bibtex < Source
   # turn bibtex URL field into a Ruby URI object
   # @return [URI]
   def url_as_uri
-    URI(self.url) unless self.url.blank?
+    URI(self.url) if self.url.present?
   end
 
   # @param [String] type_value
