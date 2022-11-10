@@ -97,6 +97,12 @@ resources :collection_objects do
   resources :taxon_determinations, shallow: true, only: [:index], defaults: {format: :json}
 
   member do
+    scope :inventory do
+      get :images, action: :images, defaults: {format: :json}
+    end
+
+    get :timeline, defaults: {format: :json}
+
     # pseudo shallow
     get 'biocuration_classifications', defaults: {format: :json}
 
@@ -361,6 +367,9 @@ end
 resources :labels do
   collection do
     get :list
+    scope :factory do
+      post :unit_tray_header1, controller: 'labels/factory', defaults: {format: :json}
+    end
   end
   # is data?
 end

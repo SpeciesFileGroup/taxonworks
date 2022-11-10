@@ -42,7 +42,7 @@
         role="Collector"
         title="Collectors"
         klass="CollectingEvent"
-        param-people="collector_id"
+        param-people="collector_ids"
         param-any="collector_ids_or"
       />
       <filter-material

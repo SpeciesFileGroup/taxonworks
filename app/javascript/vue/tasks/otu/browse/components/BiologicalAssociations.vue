@@ -30,7 +30,7 @@
           <td v-html="biologicalAssociation.object.family_name"/>
           <td v-html="biologicalAssociation.object.object_tag"/>
           <td>
-            <a v-for="citation in biologicalAssociation.citations" :key="citation.id" :href="`/tasks/nomenclature/by_source?source_id=${citation.source.id}`" :title="`${citation.source.cached}`">
+            <a v-for="citation in biologicalAssociation.citations" :key="citation.id" :href="`/tasks/nomenclature/by_source?source_id=${citation.source_id}`" :title="`${citation.source.cached}`">
               <span v-html="authorString(citation)"/>&nbsp;
             </a>
           </td>

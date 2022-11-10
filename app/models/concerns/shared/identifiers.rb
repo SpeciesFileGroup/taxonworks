@@ -17,10 +17,9 @@ module Shared::Identifiers
     def self.with_identifiers_sorted(sort_order = 'ASC')
       raise "illegal sort_order" if !['ASC', 'DESC'].include?(sort_order)
       includes(:identifiers)
-      #  .where("identifiers.type not ILIKE 'Identifier::Global%'") # 
-      .where("LENGTH(identifier) < 10 AND identifiers.identifier ~ '\^\\d{1,9}\$'")
-      .order(Arel.sql("CAST(identifiers.identifier AS bigint) #{sort_order}"))
-      .references(:identifiers)
+        .where('identifiers.cached_numeric_identifier is not null')
+        .order(cached_numeric_identifier: sort_order)
+        .references(:identifiers)
     end
     
     
@@ -99,12 +98,11 @@ module Shared::Identifiers
     # LIke attr_accessor @navigating_identifier
     if @navigating_identifier ||= identifiers.where("type ILIKE 'Identifier::Local%'").order(:position).first
       self.class
-      .where(project_id: project_id)
-      .where.not(id: id)
-      .with_identifier_type_and_namespace_method(navigating_identifier.type, navigating_identifier.namespace_id, 'ASC')
-      .where(Utilities::Strings.is_i?(navigating_identifier.identifier) ?
-      ["CAST(identifiers.identifier AS bigint) > #{navigating_identifier.identifier}"] : ["identifiers.identifier > ?", navigating_identifier.identifier])
-      .first
+        .where(project_id: project_id)
+        .where.not(id: id)
+        .with_identifier_type_and_namespace_method(navigating_identifier.type, navigating_identifier.namespace_id, 'ASC')
+        .where('cached_numeric_identifier > ?', navigating_identifier.cached_numeric_identifier)
+        .first
     else
       nil
     end
@@ -113,12 +111,11 @@ module Shared::Identifiers
   def previous_by_identifier
     if @navigating_identifier ||= identifiers.where("type ILIKE 'Identifier::Local%'").order(:position).first
       self.class
-      .where(project_id: project_id)
-      .where.not(id: id)
-      .with_identifier_type_and_namespace_method(navigating_identifier.type, navigating_identifier.namespace_id, 'DESC')
-      .where(Utilities::Strings.is_i?(navigating_identifier.identifier) ?
-      ["CAST(identifiers.identifier AS bigint) < #{navigating_identifier.identifier}"] : ["identifiers.identifier < ?", navigating_identifier.identifier])
-      .first
+        .where(project_id: project_id)
+        .where.not(id: id)
+        .with_identifier_type_and_namespace_method(navigating_identifier.type, navigating_identifier.namespace_id, 'DESC')
+        .where('cached_numeric_identifier < ?', navigating_identifier.cached_numeric_identifier)
+        .first
     else
       nil
     end

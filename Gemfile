@@ -178,7 +178,7 @@ group :test do
   gem 'rspec', '~> 3.6'
   gem 'codecov', '~> 0.6.0'
   gem 'simplecov', :require => false
-  gem 'capybara', '~> 3.18'
+  gem 'capybara', '3.37.1' # TODO: Fix features/tasks/otus/filter_spec to remove strict version locking
   gem 'timecop', '~> 0.9.1'
   gem 'webmock', '~> 3.8' # , '>= 3.6.2'
   gem 'vcr', '~> 6.0'

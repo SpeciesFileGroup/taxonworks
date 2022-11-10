@@ -10,14 +10,17 @@
         class="list-complete-item flex-separate middle">
         <span class="list-item">
           <template v-for="show in display">
-            <a
-              v-if="isLink(show)"
-              target="_blank"
-              :href="composeLink(item, show)"
-              v-html="item[show.label]"/>
+            <span v-if="isLink(show)">
+              <a
+                target="_blank"
+                :href="composeLink(item, show)"
+                v-html="item[show.label]"
+              />
+            </span>
             <span
               v-else
-              v-html="item[show]"/>
+              v-html="item[show]"
+            />
           </template>
         </span>
         <div class="list-controls">
@@ -59,10 +62,10 @@ export default {
     RadialAnnotator
   },
   props: {
-    list: { 
+    list: {
       type: Array,
-      default: () => { return [] }
-    }, 
+      default: () => []
+    },
     display: {
       type: Array
     },
@@ -133,12 +136,13 @@ export default {
 .pages:disabled {
   background-color: #F5F5F5;
 }
+
 .list-item {
-  a {
-    padding-left: 4px;
-    padding-right: 4px;
+  span {
+    margin-right: 4px;
   }
 }
+
 .table-entrys-list {
   padding: 0px;
   position: relative;

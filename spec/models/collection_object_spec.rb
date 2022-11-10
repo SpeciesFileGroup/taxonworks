@@ -295,7 +295,7 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
           specify 'should find 2 records' do
             [co_m2, co_p1b, co_m1a]
             collection_objects = CollectionObject.in_date_range(search_start_date: '1974-03-01',
-                                                                 search_end_date:   '1975-06-30')
+                                                                search_end_date:   '1975-06-30')
             expect(collection_objects.map(&:collecting_event)).to contain_exactly(ce_m2, ce_p1b)
           end
         end
@@ -438,7 +438,7 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
       let!(:s1) {Specimen.create}
       let!(:s2) {Specimen.create}
 
-      let!(:i1) { 
+      let!(:i1) {
         FactoryBot.create(
           :identifier_local_import,
           identifier_object: s1,
@@ -515,7 +515,7 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
         expect(sp_4.previous_by_identifier).to eq(sp_2)
       end
 
-      specify '#next_by_identifier, no identifier' do 
+      specify '#next_by_identifier, no identifier' do
         collection_object.update!(total: 1)
         expect(collection_object.next_by_identifier).to eq(nil)
       end

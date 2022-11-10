@@ -7,6 +7,13 @@ const copyObjectByProperties = (objSource, objProperties) => {
   return newObj
 }
 
+const copyObjectByArray = (objSource, arrProperties) => {
+  const objKeys = arrProperties
+  const newObj = Object.fromEntries(Object.entries(objSource).filter(([key]) => objKeys.includes(key)))
+
+  return newObj
+}
+
 const isJSON = (str) => {
   try {
     return (typeof str === 'object' || (JSON.parse(str) && !!str))
@@ -29,6 +36,7 @@ const removeEmptyProperties = object => {
 
 export {
   copyObject,
+  copyObjectByArray,
   copyObjectByProperties,
   isJSON,
   isObject,
