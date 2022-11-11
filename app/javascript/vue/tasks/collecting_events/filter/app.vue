@@ -70,6 +70,11 @@
               class="margin-small-left"
               :ids="selectedCEIds"
             />
+            <RadialFilter
+              object-type="CollectionObject"
+              :disabled="!selectedCEIds.length"
+              :parameters="{ collecting_event_ids: selectedCEIds }"
+            />
           </div>
         </div>
         <div
@@ -116,6 +121,7 @@ import PaginationComponent from 'components/pagination'
 import PaginationCount from 'components/pagination/PaginationCount'
 import GetPagination from 'helpers/getPagination'
 import MapComponent from './components/Map.vue'
+import RadialFilter from 'components/radials/filter/radial.vue'
 import OpenCollectionObjectFilter from './components/OpenCollectionObjectFilter.vue'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import { Georeference } from 'routes/endpoints'
@@ -132,7 +138,8 @@ export default {
     PaginationCount,
     MapComponent,
     OpenCollectionObjectFilter,
-    JsonRequestUrl
+    JsonRequestUrl,
+    RadialFilter
   },
 
   computed: {
