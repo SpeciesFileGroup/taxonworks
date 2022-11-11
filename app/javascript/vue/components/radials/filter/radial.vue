@@ -76,6 +76,8 @@ const menuOptions = computed(() => {
   const links = LINKER_LIST[props.objectType]
   const slices = []
 
+  console.log(links)
+
   links.forEach(item => {
     const filteredParameters = filterEmptyParams(copyObjectByArray({ ...objParameters.value, ...props.parameters }, item.params))
     const link = item.link + '?' + transformObjectToParams(filteredParameters)
