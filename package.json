@@ -17,6 +17,7 @@
     "leaflet.pattern": "^0.1.0",
     "parse-dms": "0.0.5",
     "pdfjs-dist": "3.0.279",
+    "pinia": "^2.0.23",
     "qs": "^6.11.0",
     "shakapacker": "6.5.4",
     "v-hotkey": "^0.9.0",
