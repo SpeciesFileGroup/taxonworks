@@ -362,8 +362,6 @@ class OtusController < ApplicationController
     # taxon_name_classification_ids: [],
     # asserted_distribution_ids: [],
 
-
-
     # data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
     )
   end

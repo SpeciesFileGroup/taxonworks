@@ -13,16 +13,16 @@
 import { computed } from 'vue'
 
 const props = defineProps({
-  modalValue: {
+  modelValue: {
     type: String,
     default: undefined
   }
 })
 
-const emit = defineEmits(['update:modalValue'])
+const emit = defineEmits(['update:modelValue'])
 
 const wkt = computed({
-  get: () => props.modalValue,
-  set: value => emit('update:modalValue', value)
+  get: () => props.modelValue,
+  set: value => emit('update:modelValue', value)
 })
 </script>
