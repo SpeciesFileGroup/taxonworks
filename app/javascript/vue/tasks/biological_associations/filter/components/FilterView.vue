@@ -24,7 +24,7 @@
       <FacetCollectingEvent v-model="params.base.collecting_event_id" />
       <FacetTaxonName
         class="margin-large-bottom"
-        v-model="params.taxon_name_id"
+        v-model="params.base.taxon_name_id"
       />
       <FacetOtu
         class="margin-large-bottom"
