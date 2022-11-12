@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3>Histoiral determinations</h3>
+    <h3>Historical determinations</h3>
     <ul class="no_bullets">
       <li
         v-for="(value, label) in OPTIONS"
@@ -10,7 +10,7 @@
           <input
             type="radio"
             :value="value"
-            v-model="historialDetermination"
+            v-model="historicalDetermination"
           >
           {{ label }}
         </label>
@@ -38,10 +38,10 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
-const historialDetermination = computed({
+const historicalDetermination = computed({
   get: () => props.modelValue,
   set: value => emit('update:modelValue', value)
 })
 
-historialDetermination.value = URLParamsToJSON(location.href)?.historical_determinations
+historicalDetermination.value = URLParamsToJSON(location.href)?.historical_determinations
 </script>

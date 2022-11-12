@@ -5,8 +5,116 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
 
   let(:q) { Queries::Otu::Filter.new({}) }
 
-  let!(:o1) { Otu.create!(name: 'Abc 1') }
-  let!(:o2) { Otu.create!(name: 'Def 2') }
+  let(:o1) { Otu.create!(name: 'Abc 1') }
+  let(:o2) { Otu.create!(name: 'Def 2') }
+
+  specify 'biological_association_id' do
+    s1 = Specimen.create
+
+    s1.taxon_determinations << TaxonDetermination.new(otu: o1)
+
+    b1 = FactoryBot.create(
+      :valid_biological_association,
+      biological_association_subject: s1,
+      biological_association_object: o2)
+    b2 = FactoryBot.create(:valid_biological_association) # 
+
+    q.biological_association_id = [b1.id]
+    expect(q.all).to contain_exactly(o1, o2)
+  end
+
+  specify 'biological_association_id historical_determinations 1' do
+    s1 = Specimen.create
+
+    s1.taxon_determinations << TaxonDetermination.new(otu: o1)
+    s1.taxon_determinations << TaxonDetermination.new(otu: o2)
+
+    b1 = FactoryBot.create(
+      :valid_biological_association,
+      biological_association_subject: s1,
+      biological_association_object: o2)
+    
+    FactoryBot.create(:valid_biological_association)
+
+    q.biological_association_id = [b1.id]
+    expect(q.all).to contain_exactly(o2)
+  end
+
+  specify 'biological_association_id historical_determinations 2' do
+    s1 = Specimen.create
+
+    s1.taxon_determinations << TaxonDetermination.new(otu: o1)
+    s1.taxon_determinations << TaxonDetermination.new(otu: o2)
+
+    b1 = FactoryBot.create(
+      :valid_biological_association,
+      biological_association_subject: s1,
+      biological_association_object: o2)
+
+    FactoryBot.create(:valid_biological_association) 
+
+    q.biological_association_id = [b1.id]
+    q.historical_determinations = false 
+
+    expect(q.all).to contain_exactly(o1, o2)
+  end
+
+  specify 'biological_association_id historical_determinations 3' do
+    s1 = Specimen.create
+    s2 = Specimen.create
+
+    s1.taxon_determinations << TaxonDetermination.new(otu: o1)
+    s1.taxon_determinations << TaxonDetermination.new(otu: o2)
+
+    b1 = FactoryBot.create(
+      :valid_biological_association,
+      biological_association_subject: s1,
+      biological_association_object: s2)
+
+    FactoryBot.create(:valid_biological_association)
+
+    q.biological_association_id = [b1.id]
+    q.historical_determinations = true
+    expect(q.all).to contain_exactly(o1)
+  end
+
+  specify 'collecting_event_id' do
+    s1 = Specimen.create(collecting_event: FactoryBot.create(:valid_collecting_event))
+    s2 = Specimen.create(collecting_event: FactoryBot.create(:valid_collecting_event))
+
+    s1.taxon_determinations << TaxonDetermination.new(otu: o1)
+    s1.taxon_determinations << TaxonDetermination.new(otu: o2) # should be current
+    s2.taxon_determinations << TaxonDetermination.new(otu: o1)
+   
+    q.collecting_event_id = s1.collecting_event_id
+    expect(q.all.map(&:id)).to contain_exactly(o2.id)
+  end
+
+  specify 'collecting_event_id, historical_determinations 1' do
+    s1 = Specimen.create(collecting_event: FactoryBot.create(:valid_collecting_event))
+    s2 = Specimen.create(collecting_event: FactoryBot.create(:valid_collecting_event))
+
+    s1.taxon_determinations << TaxonDetermination.new(otu: o1)
+    s1.taxon_determinations << TaxonDetermination.new(otu: o2) # should be current
+    s2.taxon_determinations << TaxonDetermination.new(otu: o1)
+   
+    q.collecting_event_id = s1.collecting_event_id
+    q.historical_determinations = true
+    expect(q.all.map(&:id)).to contain_exactly(o1.id)
+  end
+
+  specify 'collecting_event_id, historical_determinations 1' do
+    s1 = Specimen.create(collecting_event: FactoryBot.create(:valid_collecting_event))
+    s2 = Specimen.create(collecting_event: FactoryBot.create(:valid_collecting_event))
+
+    s1.taxon_determinations << TaxonDetermination.new(otu: o1)
+    s1.taxon_determinations << TaxonDetermination.new(otu: o2) # should be current
+    s2.taxon_determinations << TaxonDetermination.new(otu: o1)
+   
+    q.collecting_event_id = s1.collecting_event_id
+    q.historical_determinations = false
+    expect(q.all.map(&:id)).to contain_exactly(o1.id, o2.id)
+  end
 
   specify 'otu_id' do
     q.otu_id = o1.id

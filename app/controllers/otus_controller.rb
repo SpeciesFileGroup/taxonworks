@@ -16,7 +16,12 @@ class OtusController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @otus = ::Queries::Otu::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 50)
+        @otus = ::Queries::Otu::Filter.new(filter_params).all
+          .where(project_id: sessions_current_project_id)
+          .page(params[:page])
+          .per(params[:per] || 50)
+          .includes(:taxon_name)
+          .order('taxon_names.cached, otus.name')
       }
     end
   end
@@ -339,6 +344,7 @@ class OtusController < ApplicationController
       :taxon_name_id,
       :collecting_event_id,
       :wkt,
+      :geo_json,
 
       collecting_event_id: [],
       otu_id: [],

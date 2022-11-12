@@ -3,7 +3,7 @@ json.partial! '/shared/data/all/metadata', object: biological_association
 
 if extend_response_with('biological_relationship')
   json.biological_relationship do
-    json.partial! '/biological_relationships/attributes', biological_relationship: biological_association.biological_relationship
+    json.partial! '/shared/data/all/metadata', object: biological_association.biological_relationship, extensions: false
   end
 end
 

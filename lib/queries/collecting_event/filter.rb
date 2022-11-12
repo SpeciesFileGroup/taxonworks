@@ -122,7 +122,6 @@ module Queries
       #   nil - not applied
       attr_accessor :geographic_area
 
-      
       # @spatial_geographic_area_ids = params[:spatial_geographic_areas].blank? ? [] : params[:spatial_geographic_area_ids]
       def initialize(params)
         @collecting_event_wildcards = params[:collecting_event_wildcards] || []
@@ -164,7 +163,7 @@ module Queries
       def collecting_event_id 
         [@collecting_event_id].flatten.compact
       end
-      
+
       def collection_object_id
         [@collection_object_id].flatten.compact
       end
@@ -285,7 +284,7 @@ module Queries
 
       def wkt_facet
         return nil if wkt.blank?
-        a = RGeo::WKRep::WKTParser.new
+        a = RGeo::WKRep::WKTParser.new(Gis::FACTORY, support_wkt12: true)
         b = a.parse(wkt)
         spatial_query(b.geometry_type.to_s, wkt)
       end
@@ -305,7 +304,7 @@ module Queries
         when 'Point'
           ::CollectingEvent
             .joins(:geographic_items)
-            .where(::GeographicItem.within_radius_of_wkt_sql(wkt, radius ))
+            .where(::GeographicItem.within_radius_of_wkt_sql(wkt, radius )) # !! TODO: radius is not defined
         when 'Polygon', 'MultiPolygon'
           ::CollectingEvent
             .joins(:geographic_items)

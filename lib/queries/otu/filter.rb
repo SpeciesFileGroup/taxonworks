@@ -34,8 +34,49 @@ module Queries
     #   one or more Otu taxon_name_id
     attr_accessor :taxon_name_id
 
-    # -- done to here
+    # @param collecting_event_id [Integer, Array]
+    # @return Array
+    #   one or more collecting_event_id
+    # Finds all OTUs that are the current determination of
+    # a CollectionObject that was collecting in these
+    # Collecting events.
+    # Altered by historical_determinations.
+    attr_accessor :collecting_event_id
 
+    # @param historical_determinations [Boolean]
+    # @return [Boolean, nil]
+    # Where applicable:
+    #   true - include only historical determinations (ignores only determinations)
+    #   false - include both current and historical 
+    #   nil - include only current determinations
+    # Impacts all TaxonDetermination referencing queries
+    attr_accessor :historical_determinations
+
+    # @param biological_association_id [Integer, Array]
+    # @return Array
+    #   one or more biological_association_id 
+    # Finds all OTUs that are the current determination of
+    # a CollectionObject that is in the BiologicalAssociation 
+    # or are part of the Biological association itself.
+    # Altered by historical_determinations.
+    attr_accessor :biological_association_id
+
+
+    # @param asserted_distribution_id [Integer, Array]
+    # @return Array
+    #   one or more asserted_distribution_id 
+    # Finds all OTUs that are in these asserted distributions
+    attr_accessor :asserted_distribution_id
+
+    # @param wkt [String]
+    #  A Spatial area in WKT format
+    attr_accessor :wkt
+       
+    # @return [Hash, nil]
+    #  in geo_json format (no Feature ...) ?!
+    attr_accessor :geo_json
+
+    # -- done to here
 
     # matching some nomenclature query
     # taxon_name_params
@@ -112,7 +153,6 @@ module Queries
     # Return all OTUs in these BiologicalAssociation
     attr_accessor :biological_association_query
 
-
     # @param [Hash] params
     def initialize(params)
       #  params.reject! { |_k, v| v.blank? }
@@ -123,32 +163,45 @@ module Queries
       @name = params[:name]
       @name_exact = boolean_param(params, :name_exact)
 
+      @collecting_event_id = params[:collecting_event_id]
+      
+      @historical_determinations = boolean_param(params, :historical_determinations)
 
+      @biological_association_id = params[:biological_association_id]
+      
+      @asserted_distribution_id = params[:asserted_distribution_id]
+
+      @wkt = params[:wkt]
+
+      @geo_json = params[:geo_json]
+
+
+      # ---
 
       # TODO: set taxon_name_params
-      @taxon_name_query = Queries::TaxonName::Filter.new(
-        params.select{|a,b| taxon_name_params.include?(a.to_s) }
-      )
+      #  @taxon_name_query = Queries::TaxonName::Filter.new(
+      #    params.select{|a,b| taxon_name_params.include?(a.to_s) }
+   #  )
 
-      # TODO: set collection_object_pqrqms
-      @collection_object_query = Queries::CollectionObject::Filter.new(
-        params.select{|a,b| collection_object_params.include?(a.to_s) }
-      )
+   #  # TODO: set collection_object_pqrqms
+   #  @collection_object_query = Queries::CollectionObject::Filter.new(
+   #    params.select{|a,b| collection_object_params.include?(a.to_s) }
+   #  )
 
-      # TODO: set collecting event params
-      @collecting_event_query = Queries::CollectingEvent::Filter.new(
-        params.select{|a,b| collecting_event_params.include?(a.to_s) }
-      )
+   #  # TODO: set collecting event params
+   #  @collecting_event_query = Queries::CollectingEvent::Filter.new(
+   #    params.select{|a,b| collecting_event_params.include?(a.to_s) }
+   #  )
 
-      # TODO: set asserted distribution params
-      @asserted_distribution_query = Queries::AssertedDistribution::Filter.new(
-        params.select{|a,b| asserted_distribution_params.include?(a.to_s) }
-      )
+   #  # TODO: set asserted distribution params
+   #  @asserted_distribution_query = Queries::AssertedDistribution::Filter.new(
+   #    params.select{|a,b| asserted_distribution_params.include?(a.to_s) }
+   #  )
 
-      # TODO: set biological association params
-      @biological_association_query = Queries::BiologicalAssociation::Filter.new(
-        params.select{|a,b| biological_association_params.include?(a.to_s) }
-      )
+   #  # TODO: set biological association params
+   #  @biological_association_query = Queries::BiologicalAssociation::Filter.new(
+   #    params.select{|a,b| biological_association_params.include?(a.to_s) }
+   #  )
 
       @and_or_select = params[:and_or_select]
 
@@ -195,7 +248,7 @@ module Queries
     end
 
     def name
-      [@name].flatten.compact.collect{|n| n.strip})
+      [@name].flatten.compact.collect{|n| n.strip}
     end
 
     def geographic_area_id
@@ -208,6 +261,18 @@ module Queries
 
     def taxon_name_id
       [@taxon_name_id].flatten.compact
+    end
+
+    def collecting_event_id
+      [@collecting_event_id].flatten.compact
+    end
+
+    def biological_association_id
+      [@biological_association_id].flatten.compact
+    end
+
+    def asserted_distribution_id
+      [@asserted_distribution_id].flatten.compact
     end
 
     def otu_id_facet
@@ -228,6 +293,115 @@ module Queries
       return nil if taxon_name_id.empty?
       table[:taxon_name_id].eq_any(taxon_name_id)
     end
+
+    # TODO: could be optimized with full join pathway perhaps
+    def collecting_event_id_facet
+      return nil if collecting_event_id.empty?
+      q = ::Queries::CollectionObject::Filter.new(collecting_event_id: collecting_event_id)
+      if historical_determinations.nil? 
+        ::Otu.joins(:collection_objects).where(collection_objects: q.all, taxon_determinations: {position: 1})
+      elsif historical_determinations
+        ::Otu.joins(:collection_objects).where(collection_objects: q.all).where.not(taxon_determinations: {position: 1})
+      else 
+        ::Otu.joins(:collection_objects).where(collection_objects: q.all)
+      end
+    end
+
+    # TODO: could be optimized with full join pathway perhaps
+    def biological_association_id_facet
+      return nil if biological_association_id.empty?
+
+      q = ::BiologicalAssociation.where(id: biological_association_id)
+
+      q1 = ::Otu.joins(:biological_associations).where(biological_associations: {id: q, biological_association_subject_type: 'Otu'})
+      q2 = ::Otu.joins(:related_biological_associations).where(related_biological_associations: {id:  q, biological_association_object_type: 'Otu'} )
+      q3 = ::Otu.joins(collection_objects: [:biological_associations] ).where(biological_associations: {id: q, biological_association_subject_type: 'CollectionObject'})
+      q4 = ::Otu.joins(collection_objects: [:related_biological_associations] ).where(related_biological_associations: {id: q, biological_association_object_type: 'CollectionObject'})
+
+      if historical_determinations.nil? 
+        q3 = q3.where(taxon_determinations: {position: 1})
+        q4 = q4.where(taxon_determinations: {position: 1})
+      elsif historical_determinations
+        q3 = q3.where.not(taxon_determinations: {position: 1})
+        q4 = q4.where.not(taxon_determinations: {position: 1})
+      end
+
+      query =  [q1,q2,q3,q4].collect{|s| '(' + s.to_sql + ')'}.join(' UNION ')
+
+      ::Otu.from("(#{query}) as otus")
+    end
+
+
+    # TODO:
+    # Unused, proper full join example contrasting by ID
+    #   All OTUs in these biological Associations
+    #   First determination of OTUs in CollectionObjects
+    def matching_biological_association_ids
+      return nil if biological_association_ids.empty?
+      o = table
+      ba = biological_associations_table
+
+      a = o.alias("a_")
+      b = o.project(a[Arel.star]).from(a)
+
+      c = ba.alias('b1')
+      d = ba.alias('b2')
+
+      b = b.join(c, Arel::Nodes::OuterJoin)
+        .on(
+          a[:id].eq(c[:biological_association_subject_id])
+        .and(c[:biological_association_subject_type].eq('Otu'))
+        )
+
+      b = b.join(d, Arel::Nodes::OuterJoin)
+        .on(
+          a[:id].eq(d[:biological_association_object_id])
+        .and(d[:biological_association_object_type].eq('Otu'))
+        )
+
+      e = c[:biological_association_subject_id].not_eq(nil)
+      f = d[:biological_association_object_id].not_eq(nil)
+
+      g = c[:id].eq_any(biological_association_ids)
+      h = d[:id].eq_any(biological_association_ids)
+
+      b = b.where(e.or(f).and(g.or(h)))
+      b = b.group(a['id'])
+      b = b.as('z2_')
+
+      ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
+    end
+
+    def asserted_distribution_id_facet
+      return nil if asserted_distribution_id.empty?
+      ::Otu.joins(:asserted_distributions).where(asserted_distributions: {id: asserted_distribution_id})
+    end
+
+    def wkt_facet
+      return nil if wkt.nil?
+      c = ::Queries::CollectingEvent::Filter.new(wkt: wkt)
+      a = ::Queries::AssertedDistribution::Filter.new(wkt: wkt)
+
+      q1 = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: c.all)
+      q2 = ::Otu.joins(:asserted_distributions).where(asserted_distributions: a.all) 
+
+      ::Otu.from("((#{q1.to_sql}) UNION (#{q1.to_sql})) as otus")
+    end
+
+    # Shape is a Hash in GeoJSON format
+    def geo_json_facet
+      return nil if geo_json.nil?
+
+      c = ::Queries::CollectingEvent::Filter.new(geo_json: geo_json)
+      a = ::Queries::AssertedDistribution::Filter.new(geo_json: geo_json)
+
+      q1 = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: c.all)
+      q2 = ::Otu.joins(:asserted_distributions).where(asserted_distributions: a.all) 
+
+      ::Otu.from("((#{q1.to_sql}) UNION (#{q1.to_sql})) as otus")
+    end
+
+    # ----
 
     # Query::TaxonName::Filter integration
     def taxon_name_merge_clauses
@@ -537,46 +711,6 @@ module Queries
       ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
     end
 
-    # TODO: biological associations filter
-    # TODO:
-    #   All OTUs in these biological Associations
-    #   First determination of OTUs in CollectionObjects
-    def matching_biological_association_ids
-      return nil if biological_association_ids.empty?
-      o = table
-      ba = biological_associations_table
-
-      a = o.alias("a_")
-      b = o.project(a[Arel.star]).from(a)
-
-      c = ba.alias('b1')
-      d = ba.alias('b2')
-
-      b = b.join(c, Arel::Nodes::OuterJoin)
-        .on(
-          a[:id].eq(c[:biological_association_subject_id])
-        .and(c[:biological_association_subject_type].eq('Otu'))
-        )
-
-      b = b.join(d, Arel::Nodes::OuterJoin)
-        .on(
-          a[:id].eq(d[:biological_association_object_id])
-        .and(d[:biological_association_object_type].eq('Otu'))
-        )
-
-      e = c[:biological_association_subject_id].not_eq(nil)
-      f = d[:biological_association_object_id].not_eq(nil)
-
-      g = c[:id].eq_any(biological_association_ids)
-      h = d[:id].eq_any(biological_association_ids)
-
-      b = b.where(e.or(f).and(g.or(h)))
-      b = b.group(a['id'])
-      b = b.as('z2_')
-
-      ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
-    end
-
     # TODO: nomenclature filter
     def matching_taxon_name_classification_ids
       return nil if taxon_name_classification_ids.empty?
@@ -713,24 +847,29 @@ module Queries
     def base_merge_clauses
       clauses = []
 
-      clauses += taxon_name_merge_clauses + taxon_name_and_clauses
-      clauses += collection_object_merge_clauses + collection_object_and_clauses
-      clauses += collecting_event_merge_clauses + collecting_event_and_clauses
-      clauses += asserted_distribution_merge_clauses + asserted_distribution_and_clauses
+    # clauses += taxon_name_merge_clauses + taxon_name_and_clauses
+    # clauses += collection_object_merge_clauses + collection_object_and_clauses
+    # clauses += collecting_event_merge_clauses + collecting_event_and_clauses
+    # clauses += asserted_distribution_merge_clauses + asserted_distribution_and_clauses
 
       clauses += [
-        matching_biological_association_ids,
-        matching_asserted_distribution_ids,
-        matching_taxon_name_classification_ids,
-        matching_taxon_name_relationship_ids,
-        asserted_distributions_facet,
-        biological_associations_facet,
-        citations_facet,
-        contents_facet,
-        depictions_facet,
-        determinations_facet,
-        observations_facet,
-        verbatim_author_facet
+        geo_json_facet,
+        collecting_event_id_facet,
+        biological_association_id_facet,
+        asserted_distribution_id_facet,
+        wkt_facet,
+     #  matching_biological_association_ids,
+     #  matching_asserted_distribution_ids,
+     #  matching_taxon_name_classification_ids,
+     #  matching_taxon_name_relationship_ids,
+     #  asserted_distributions_facet,
+     #  biological_associations_facet,
+     #  citations_facet,
+     #  contents_facet,
+     #  depictions_facet,
+     #  determinations_facet,
+     #  observations_facet,
+     #  verbatim_author_facet
         # matching_verbatim_author
       ].compact
     end

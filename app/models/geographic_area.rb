@@ -183,7 +183,7 @@ class GeographicArea < ApplicationRecord
 
   # @return [Scope] GeographicAreas which are countries.
   def self.countries
-    includes([:geographic_area_type]).where(geographic_area_types: {name: 'Country'})
+    includes(:geographic_area_type).where(geographic_area_types: {name: 'Country'})
   end
 
   # @param [GeographicArea]

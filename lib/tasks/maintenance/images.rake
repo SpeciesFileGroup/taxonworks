@@ -5,6 +5,7 @@ namespace :tw do
 
     namespace :images do
 
+      # TODO: Capture raises on frequency stats vi Sqed::Error hopefully.
       desc 'Re-calculate the boundaries for Sqed depictions'
       task recalculate_sqed_boundaries: [:environment, :project_id, :id_start, :id_end] do |t|
         project_id = ENV['project_id']

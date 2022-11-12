@@ -6,6 +6,9 @@ module Queries
     # - use date processing? / DateConcern
     # - syncronize with GIS/GEO
 
+    # Changed:
+    # - collecting_event_ids -> collecting_event_id
+
     class Filter < Queries::Query
 
       include Queries::Helpers
@@ -27,9 +30,8 @@ module Queries
       attr_accessor :collection_object_type
 
       # [Array]
-      # TODO: singularize
       #   only return objects with these collecting event ID
-      attr_accessor :collecting_event_ids
+      attr_accessor :collecting_event_id
 
       # All params managed by CollectingEvent filter are available here as well
       attr_accessor :collecting_event_query
@@ -239,7 +241,7 @@ module Queries
         @buffered_determinations = params[:buffered_determinations]
         @buffered_other_labels = params[:buffered_other_labels]
         @collecting_event = boolean_param(params, :collecting_event)
-        @collecting_event_ids = params[:collecting_event_ids] || []
+        @collecting_event_id = params[:collecting_event_id]
         @collection_object_type = params[:collection_object_type].blank? ? nil : params[:collection_object_type]
         @current_determinations = boolean_param(params, :current_determinations)
         @current_repository = boolean_param(params, :current_repository)
@@ -317,6 +319,9 @@ module Queries
         ::TaxonDetermination.arel_table
       end
 
+      def collecting_event_id 
+        [@collecting_event_id].flatten.compact
+      end
 
       def collection_object_id
         [@collection_object_id].flatten.compact
@@ -554,9 +559,9 @@ end
       end
 
       # @return Scope
-      def collecting_event_ids_facet
-        return nil if collecting_event_ids.empty?
-        table[:collecting_event_id].eq_any(collecting_event_ids)
+      def collecting_event_id_facet
+        return nil if collecting_event_id.empty?
+        table[:collecting_event_id].eq_any(collecting_event_id)
       end
 
       def preparation_type_id_facet
@@ -614,7 +619,7 @@ end
           attribute_exact_facet(:buffered_determinations),
           attribute_exact_facet(:buffered_collecting_event),
           attribute_exact_facet(:buffered_other_labels),
-          collecting_event_ids_facet,
+          collecting_event_id_facet,
           preparation_type_id_facet,
           type_facet,
           repository_id_facet,

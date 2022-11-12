@@ -317,6 +317,7 @@ class TaxonNamesController < ApplicationController
       :note_text,
       :notes,
       :otus,
+      :otu_id,
       :page,
       :per,
       :taxon_name_author_ids_or,
@@ -337,6 +338,7 @@ class TaxonNamesController < ApplicationController
       :match_identifiers,
       :match_identifiers_delimiter,
       :match_identifiers_type,
+      otu_id: [],
       combination_taxon_name_id: [],
       data_attribute_predicate_id: [], # DataAttributes concern
       data_attribute_value: [],        # DataAttributes concern

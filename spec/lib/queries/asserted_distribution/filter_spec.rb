@@ -18,14 +18,13 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
     expect(q.all.map(&:id)).to contain_exactly(a.id)
   end
 
-  # Source query integration
-  specify '#source_id' do
-    FactoryBot.create(:valid_asserted_distribution)
-    o = a.source.id
-    q.citation_query.source_id = o
+  # # Source query integration
+  # specify '#source_id' do
+  #   FactoryBot.create(:valid_asserted_distribution)
+  #   o = a.source.id
+  #   q.source_id = o
 
-    expect(q.all.map(&:id)).to contain_exactly(a.id)
-
-  end
+  #   expect(q.all.map(&:id)).to contain_exactly(a.id)
+  # end
 
 end
