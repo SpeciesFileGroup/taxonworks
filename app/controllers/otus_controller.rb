@@ -343,6 +343,7 @@ class OtusController < ApplicationController
       :taxon_determinations,
       :observations,
       :author,
+      :wkt,
       biological_association_ids: [],
       taxon_name_ids: [],
       otu_ids: [],
