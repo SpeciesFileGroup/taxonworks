@@ -16,7 +16,7 @@ class OtusController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @otus = Queries::Otu::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
+        @otus = ::Queries::Otu::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 50)
       }
     end
   end
@@ -332,24 +332,39 @@ class OtusController < ApplicationController
 
   def filter_params
     params.permit(
-      :asserted_distributions,
-      :biological_associations,
-      :citations,
-      :contents,
-      :depictions,
-      :exact_author,
-      :taxon_name_id,
+      :name,
+      :name_exact,
+
       :otu_id,
-      :taxon_determinations,
-      :observations,
-      :author,
-      biological_association_ids: [],
-      taxon_name_ids: [],
-      otu_ids: [],
-      taxon_name_relationship_ids: [],
-      taxon_name_classification_ids: [],
-      asserted_distribution_ids: [],
-      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
+      :taxon_name_id,
+      :collecting_event_id,
+      :wkt,
+
+      collecting_event_id: [],
+      otu_id: [],
+      taxon_name_id: [],
+      name: []
+
+    # :asserted_distributions,
+    # :biological_associations,
+    # :citations,
+    # :contents,
+    # :depictions,
+    # :exact_author,
+
+    # :taxon_determinations,
+    # :observations,
+    # :author,
+    # biological_association_ids: [],
+    # taxon_name_ids: [],
+    # otu_ids: [],
+    # taxon_name_relationship_ids: [],
+    # taxon_name_classification_ids: [],
+    # asserted_distribution_ids: [],
+
+
+
+    # data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
     )
   end
 
