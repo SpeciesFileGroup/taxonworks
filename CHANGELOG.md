@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - Autocomplete on Browse collection object [#3189]
+- Task - Collection object chronology, a plot of object by year collected
 
 ### Fixed
 - Citation link in Biological association panel on Browse OTU
