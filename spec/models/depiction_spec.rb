@@ -15,6 +15,14 @@ RSpec.describe Depiction, type: :model, groups: [:images, :observation_matrix] d
     expect(Observation.find(o.id)).to be_truthy
   end
 
+  specify 'updating depiction destroys related Observation::Media 1 if there are no others' do
+    o = FactoryBot.create(:valid_observation, type: 'Observation::Media', descriptor: Descriptor::Media.create!(name: 'test')) 
+    d = FactoryBot.create(:valid_depiction, depiction_object: o)
+    d.update!(depiction_object: FactoryBot.create(:valid_observation, type: 'Observation::Media', descriptor: Descriptor::Media.create!(name: 'test2') ) )
+
+    expect {Observation.find(o.id)}.to raise_error ActiveRecord::RecordNotFound
+  end
+
   specify 'destroying depiction destroys related Observation::Media 1' do
     o = FactoryBot.create(:valid_observation, type: 'Observation::Media', descriptor: Descriptor::Media.create!(name: 'test')) 
     d = FactoryBot.create(:valid_depiction, depiction_object: o)

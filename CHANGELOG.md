@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Task - Collection object chronology, a plot of object by year collected
 
 ### Fixed
+- Media observations removed if they have no more depictions via updates
 - Citation link in Biological association panel on Browse OTU
 - Type relationship text/rendering is inverted in New taxon name [#3182]
 
