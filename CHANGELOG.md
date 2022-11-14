@@ -15,6 +15,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Citation link in Biological association panel on Browse OTU
 - Type relationship text/rendering is inverted in New taxon name [#3182]
 
+### Changed
+- Refactored observation cell component for Image matrix
+
 [#3189]: https://github.com/SpeciesFileGroup/taxonworks/issues/3189
 
 ## [0.29.6] - 2022-11-08
