@@ -24,6 +24,8 @@ module Queries
         taxon_name_id
         subject_biological_property_id
         object_biological_property_id
+        wkt
+        geo_json
       }.freeze
 
       # TODO: Consider implementing passed queries
@@ -114,6 +116,11 @@ module Queries
       # @return [Array]
       attr_accessor :any_global_id
 
+      # ---
+      attr_accessor :wkt
+
+      attr_accessor :geo_json
+
       def initialize(params)
         params.reject!{ |_k, v| v.blank? } # dump all entries with empty values
 
@@ -145,6 +152,11 @@ module Queries
         @biological_associations_graph_id = params[:biological_associations_graph_id]
 
         @spatial_geographic_area_id = params[:spatial_geographic_area_id]
+
+
+        @wkt = params[:wkt]
+        @geo_json = params[:geo_json]
+
         @collecting_event_id = params[:collecting_event_id]
 
         @object_biological_property_id = params[:object_biological_property_id]
@@ -281,6 +293,29 @@ module Queries
         geographic_areas = GeographicArea.are_contained_in(area)
 
         otus = ::Otu.joins(:asserted_distributions).where(asserted_distributions: {geographic_area_id: geographic_areas})
+
+        a = ::BiologicalAssociation.where(biological_association_subject: [otus, collection_objects] )
+        b = ::BiologicalAssociation.where(biological_association_object: [otus, collection_objects] )
+
+        ::BiologicalAssociation.from("((#{a.to_sql}) UNION (#{b.to_sql})) as biological_associations")
+      end
+
+      def wkt_facet
+        return nil if wkt.nil?
+
+        otus = ::Queries::Otu::Filter.new(wkt: wkt).all
+        collection_objects = ::Queries::CollectionObject::Filter.new(wkt: wkt).all
+
+        a = ::BiologicalAssociation.where(biological_association_subject: [otus, collection_objects] )
+        b = ::BiologicalAssociation.where(biological_association_object: [otus, collection_objects] )
+
+        ::BiologicalAssociation.from("((#{a.to_sql}) UNION (#{b.to_sql})) as biological_associations")
+      end
+
+      def geo_json_facet
+        return nil if geo_json.nil?
+        otus = ::Queries::Otu::Filter.new(geo_json: geo_json).all
+        collection_objects = ::Queries::CollectionObject::Filter.new(geo_json: geo_json).all
 
         a = ::BiologicalAssociation.where(biological_association_subject: [otus, collection_objects] )
         b = ::BiologicalAssociation.where(biological_association_object: [otus, collection_objects] )
@@ -430,6 +465,8 @@ module Queries
         # clauses += taxon_name_merge_clauses + taxon_name_and_clauses
 
         clauses += [
+          wkt_facet,
+          geo_json_facet,
           object_biological_property_id_facet,
           subject_biological_property_id_facet,
           taxon_name_id_facet,
