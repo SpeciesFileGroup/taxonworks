@@ -35,7 +35,7 @@ module Queries
         sort
         taxon_name_author_ids_or
         taxon_name_classification
-        taxon_name_id 
+        taxon_name_id
         taxon_name_relationship
         taxon_name_relationship_type
         taxon_name_type
@@ -43,6 +43,7 @@ module Queries
         updated_since
         validity
         year
+        geo_json
       }
 
       # @param name [String]
@@ -123,8 +124,8 @@ module Queries
       attr_accessor :project_id
 
       # @param otu_id [Boolean, nil]
-      # @return [Array, nil] 
-      #   one or more OTU ids 
+      # @return [Array, nil]
+      #   one or more OTU ids
       attr_accessor :otu_id
 
       # @param otus [Boolean, nil]
@@ -191,8 +192,9 @@ module Queries
       #   taxon_name_ids for which all Combinations will be returned
       attr_accessor :combination_taxon_name_id
 
-
       attr_accessor :rank
+
+      attr_accessor :geo_json
 
       # @param params [Params]
       #   as permitted via controller
@@ -228,7 +230,9 @@ module Queries
 
         @taxon_name_author_ids = params[:taxon_name_author_ids].blank? ? [] : params[:taxon_name_author_ids]
         @taxon_name_author_ids_or = boolean_param(params, :taxon_name_author_ids_or)
-     
+
+        @geo_json = params[:geo_json]
+
         set_identifier(params)
         set_notes_params(params)
         set_data_attributes_params(params)
@@ -553,7 +557,7 @@ module Queries
 
         clauses
       end
-        
+
       # @return [ActiveRecord::Relation]
       def and_clauses
         clauses = base_and_clauses
@@ -573,18 +577,18 @@ module Queries
           citations_facet,
           combination_taxon_name_id_facet,
           created_updated_facet,
-          data_attribute_predicate_facet, 
+          data_attribute_predicate_facet,
           data_attribute_value_facet,
           data_attributes_facet,
           descendant_facet,
           keyword_id_facet,
           leaves_facet,
-         
+
           identifier_between_facet,
           identifier_facet,
           identifier_namespace_facet,
           match_identifiers_facet,
-          
+
           matching_taxon_name_author_ids,
           not_specified_facet,
           note_text_facet,        # See Queries::Concerns::Notes
@@ -603,7 +607,7 @@ module Queries
         end
 
         clauses.compact
-      end 
+      end
 
       def merge_clauses
         clauses = base_merge_clauses
