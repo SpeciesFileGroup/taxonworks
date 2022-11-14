@@ -63,9 +63,9 @@
               v-html="parseRank(item.subject.taxonomy[rank])"
             />
             <td v-html="item.subject.object_tag" />
-            <td v-text="item.biological_relationship_types.find(r => r.target === 'object').biological_property.name" />
+            <td v-text="getBiologicalProperty(item.biological_relationship_types, 'object')" />
             <td v-text="item.biological_relationship.object_tag" />
-            <td v-text="item.biological_relationship_types.find(r => r.target === 'subject').biological_property.name" />
+            <td v-text="getBiologicalProperty(item.biological_relationship_types, 'subject')" />
             <td
               v-for="rank in RANKS"
               :key="rank"
@@ -144,6 +144,9 @@ const sortTable = sortProperty => {
   emit('onSort', sortArray(this.list, sortProperty, ascending.value))
   ascending.value = !ascending.value
 }
+
+const getBiologicalProperty = (biologicalRelationshipTypes, type) =>
+  biologicalRelationshipTypes.find(r => r.target === 'object')?.biological_property?.name
 
 const parseRank = rank => {
   return Array.isArray(rank)
