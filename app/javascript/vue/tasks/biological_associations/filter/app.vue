@@ -78,7 +78,7 @@ import { BiologicalAssociation } from 'routes/endpoints'
 import { computed, reactive, ref } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
 
-const extend = ['object', 'subject', 'biological_relationship', 'taxonomy']
+const extend = ['object', 'subject', 'biological_relationship', 'taxonomy', 'biological_relationship_types']
 
 const csvFields = computed(() =>
   selectedIds.value.length

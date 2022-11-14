@@ -7,16 +7,39 @@
       >
         <thead>
           <tr>
+            <td colspan="1" />
+            <th
+              colspan="5"
+              scope="colgroup"
+            >
+              Subject
+            </th>
+            <td colspan="1" />
+            <th
+              colspan="5"
+              scope="colgroup"
+            >
+              Object
+            </th>
+          </tr>
+          <tr>
             <th>
               <input
                 v-model="selectIds"
                 type="checkbox"
               >
             </th>
-            <th>ID</th>
-            <th>Subject</th>
+            <th>Order</th>
+            <th>Family</th>
+            <th>Genus</th>
+            <th>Object tag</th>
+            <th>Biological properties</th>
             <th>Biological relationship</th>
-            <th>Object</th>
+            <th>Biological properties</th>
+            <th>Order</th>
+            <th>Family</th>
+            <th>Genus</th>
+            <th>Object tag</th>
             <th />
           </tr>
         </thead>
@@ -34,9 +57,20 @@
                 type="checkbox"
               >
             </td>
-            <td v-text="item.id" />
+            <td
+              v-for="rank in RANKS"
+              :key="rank"
+              v-html="parseRank(item.subject.taxonomy[rank])"
+            />
             <td v-html="item.subject.object_tag" />
+            <td v-text="item.biological_relationship_types.find(r => r.target === 'object').biological_property.name" />
             <td v-text="item.biological_relationship.object_tag" />
+            <td v-text="item.biological_relationship_types.find(r => r.target === 'subject').biological_property.name" />
+            <td
+              v-for="rank in RANKS"
+              :key="rank"
+              v-html="parseRank(item.object.taxonomy[rank])"
+            />
             <td v-html="item.object.object_tag" />
             <td>
               <div class="horizontal-right-content">
@@ -63,6 +97,8 @@ import HandyScroll from 'vue-handy-scroll'
 import { vResizeColumn } from 'directives/resizeColumn.js'
 import RadialNavigation from 'components/radials/navigation/radial.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+
+const RANKS = ['order', 'family', 'genus']
 
 const props = defineProps({
   list: {
@@ -107,6 +143,12 @@ const ascending = ref(false)
 const sortTable = sortProperty => {
   emit('onSort', sortArray(this.list, sortProperty, ascending.value))
   ascending.value = !ascending.value
+}
+
+const parseRank = rank => {
+  return Array.isArray(rank)
+    ? rank.filter(Boolean).join(' ')
+    : rank
 }
 
 </script>
