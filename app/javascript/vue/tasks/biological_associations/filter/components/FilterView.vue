@@ -21,7 +21,9 @@
       >
         Search
       </button>
+      <FacetGeographic v-model="params.geographic" />
       <FacetCollectingEvent v-model="params.base.collecting_event_id" />
+      <FacetWKT v-model="params.base.wkt" />
       <FacetTaxonName
         class="margin-large-bottom"
         v-model="params.base.taxon_name_id"
@@ -38,6 +40,9 @@
       <FacetMatchIdentifiers
         class="margin-large-bottom"
         v-model="params.matchIdentifiers"
+      />
+      <FacetNotes
+        v-model="params.notes"
       />
       <keywords-component
         class="margin-large-bottom"
@@ -57,12 +62,14 @@
 </template>
 
 <script setup>
-
+import FacetGeographic from 'tasks/collection_objects/filter/components/filters/geographic.vue'
+import FacetWKT from 'tasks/otu/filter/components/Facet/FacetWKT.vue'
 import UserComponent from 'tasks/collection_objects/filter/components/filters/user'
 import IdentifierComponent from 'tasks/collection_objects/filter/components/filters/identifier'
 import FacetMatchIdentifiers from 'tasks/people/filter/components/Facet/FacetMatchIdentifiers.vue'
 import FacetBiologicalRelationship from './Facet/FacetBiologicalRelationship.vue'
 import KeywordsComponent from 'tasks/sources/filter/components/filters/tags'
+import FacetNotes from 'tasks/collection_objects/filter/components/filters/FacetNotes.vue'
 import platformKey from 'helpers/getPlatformKey.js'
 import checkMatchIdentifiersParams from 'tasks/people/filter/helpers/checkMatchIdentifiersParams'
 import FacetCollectingEvent from './Facet/FacetCollectingEvent.vue'
@@ -88,7 +95,9 @@ const parseParams = computed(() =>
   ({
     ...params.value.determination,
     ...params.value.identifier,
+    ...params.value.geographic,
     ...params.value.base,
+    ...params.value.notes,
     ...params.value.keywords,
     ...params.value.protocols,
     ...checkMatchIdentifiersParams(params.value.matchIdentifiers),
@@ -106,7 +115,8 @@ const initParams = () => ({
     collection_object_ids: [],
     collecting_event_id: [],
     otu_id: [],
-    biological_relationship_id: []
+    biological_relationship_id: [],
+    wkt: undefined
   },
   identifier: {
     identifier: undefined,
@@ -115,11 +125,21 @@ const initParams = () => ({
     identifier_end: undefined,
     namespace_id: undefined
   },
+  geographic: {
+    geo_json: [],
+    radius: undefined,
+    spatial_geographic_areas: undefined,
+    geographic_area_id: []
+  },
   user: {
     user_id: undefined,
     user_target: undefined,
     user_date_start: undefined,
     user_date_end: undefined
+  },
+  notes: {
+    note_exact: undefined,
+    note_text: undefined
   },
   matchIdentifiers: {
     match_identifiers: undefined,
