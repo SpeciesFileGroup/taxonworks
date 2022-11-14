@@ -24,6 +24,7 @@
       <FacetGeographic v-model="params.geographic" />
       <FacetCollectingEvent v-model="params.base.collecting_event_id" />
       <FacetWKT v-model="params.base.wkt" />
+      <FacetCollectionObject v-model="params.base.collection_object_id" />
       <FacetTaxonName
         class="margin-large-bottom"
         v-model="params.base.taxon_name_id"
@@ -70,6 +71,7 @@ import FacetMatchIdentifiers from 'tasks/people/filter/components/Facet/FacetMat
 import FacetBiologicalRelationship from './Facet/FacetBiologicalRelationship.vue'
 import KeywordsComponent from 'tasks/sources/filter/components/filters/tags'
 import FacetNotes from 'tasks/collection_objects/filter/components/filters/FacetNotes.vue'
+import FacetCollectionObject from 'tasks/extracts/filter/components/filters/CollectionObjectFacet.vue'
 import platformKey from 'helpers/getPlatformKey.js'
 import checkMatchIdentifiersParams from 'tasks/people/filter/helpers/checkMatchIdentifiersParams'
 import FacetCollectingEvent from './Facet/FacetCollectingEvent.vue'
@@ -112,7 +114,7 @@ const resetFilter = () => {
 
 const initParams = () => ({
   base: {
-    collection_object_ids: [],
+    collection_object_id: [],
     collecting_event_id: [],
     otu_id: [],
     biological_relationship_id: [],
