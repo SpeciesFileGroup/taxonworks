@@ -14,10 +14,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Media observations removed if they have no more depictions via updates
 - Citation link in Biological association panel on Browse OTU
 - Type relationship text/rendering is inverted in New taxon name [#3182]
+- Sqed processing failing to encode HEIC images [#3188]
 
 ### Changed
 - Refactored observation cell component for Image matrix
 
+[#3182]: https://github.com/SpeciesFileGroup/taxonworks/issues/3182
+[#3188]: https://github.com/SpeciesFileGroup/taxonworks/issues/3188
 [#3189]: https://github.com/SpeciesFileGroup/taxonworks/issues/3189
 
 ## [0.29.6] - 2022-11-08
