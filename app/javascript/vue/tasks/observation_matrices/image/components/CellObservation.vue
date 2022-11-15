@@ -164,7 +164,7 @@ const observationId = computed(() => props.depictions.length && props.depictions
 const isLoading = ref(false)
 
 function movedDepiction (_) {
-  if (props.depictions.length === 1) {
+  if (props.depictions.length === 1 && props.depictions[0].depiction_object_id === observationId.value) {
     const observation = {
       descriptor_id: props.descriptorId,
       type: OBSERVATION_MEDIA,
