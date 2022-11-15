@@ -2,7 +2,7 @@
 
 <p> Overview: 
 <%= sqed_done_tag(sessions_current_project_id) -%> done. <%= sqed_not_done_tag(sessions_current_project_id) -%> remaining. <br>
-<%= page_entries_info @sqed_depictions %>.  <%= SqedDepiction.where(project_id: sessions_current_project_id).where.not(in_progress: nil).count(:all) -%> in progress.</p>
+<%= page_entries_info @sqed_depictions %>. <%= SqedDepiction.where(project_id: sessions_current_project_id).where.not(in_progress: nil).count(:all) -%> in progress.</p>
 
 <fieldset title="Navigate">
   <legend> Navigate </legend>

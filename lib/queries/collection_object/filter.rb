@@ -12,7 +12,6 @@ module Queries
 
       include Queries::Concerns::Tags
       include Queries::Concerns::Users
-      include Queries::Concerns::Identifiers
       include Queries::Concerns::Notes
       include Queries::Concerns::DataAttributes
 
