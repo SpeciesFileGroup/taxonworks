@@ -133,10 +133,6 @@ class BiologicalAssociationsController < ApplicationController
       taxon_name_id: [],
     )
 
-    # Shallow resource hack
-    if params[:collection_object_id].present? && c = CollectionObject.where(project_id: sessions_current_project_id).find(params[:collection_object_id])
-      params[:any_global_id] = c.to_global_id.to_s
-    end
     params
   end
 
