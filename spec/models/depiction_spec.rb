@@ -6,7 +6,7 @@ RSpec.describe Depiction, type: :model, groups: [:images, :observation_matrix] d
   let(:specimen) { FactoryBot.create(:valid_specimen) }
 
   specify 'destroying depiction does not destroy related Observation::Media 2 when not last' do
-    o = FactoryBot.create(:valid_observation, type: 'Observation::Media', descriptor: Descriptor::Media.create!(name: 'test')) 
+    o = FactoryBot.create(:valid_observation, type: 'Observation::Media', descriptor: Descriptor::Media.create!(name: 'test'))
     d = FactoryBot.create(:valid_depiction, depiction_object: o)
 
     FactoryBot.create(:valid_depiction, depiction_object: o)
@@ -16,8 +16,9 @@ RSpec.describe Depiction, type: :model, groups: [:images, :observation_matrix] d
   end
 
   specify 'updating depiction destroys related Observation::Media 1 if there are no others' do
-    o = FactoryBot.create(:valid_observation, type: 'Observation::Media', descriptor: Descriptor::Media.create!(name: 'test')) 
+    o = FactoryBot.create(:valid_observation, type: 'Observation::Media', descriptor: Descriptor::Media.create!(name: 'test'))
     d = FactoryBot.create(:valid_depiction, depiction_object: o)
+
     d.update!(depiction_object: FactoryBot.create(:valid_observation, type: 'Observation::Media', descriptor: Descriptor::Media.create!(name: 'test2') ) )
 
     expect {Observation.find(o.id)}.to raise_error ActiveRecord::RecordNotFound
@@ -25,7 +26,7 @@ RSpec.describe Depiction, type: :model, groups: [:images, :observation_matrix] d
   end
 
   specify 'destroying depiction destroys related Observation::Media 1' do
-    o = FactoryBot.create(:valid_observation, type: 'Observation::Media', descriptor: Descriptor::Media.create!(name: 'test')) 
+    o = FactoryBot.create(:valid_observation, type: 'Observation::Media', descriptor: Descriptor::Media.create!(name: 'test'))
     d = FactoryBot.create(:valid_depiction, depiction_object: o)
     d.destroy!
     expect {Observation.find(o.id)}.to raise_error ActiveRecord::RecordNotFound
