@@ -62,7 +62,7 @@ class Depiction < ApplicationRecord
   validates_presence_of :depiction_object
   validates_uniqueness_of :sled_image_id, scope: [:project_id, :sled_image_x_position, :sled_image_y_position], allow_nil: true, if: Proc.new {|n| !n.sled_image_id.nil?}
 
-  after_update :remove_media_observation2, if: Proc.new {|d| d.depiction_object_type == 'Observation' && d.depiction_object.type == 'Observation::Media' }
+  after_update :remove_media_observation2, if: Proc.new {|d| d.depiction_object_type_previously_was == 'Observation' && d.depiction_object.type_was == 'Observation::Media' }
   after_destroy :remove_media_observation, if: Proc.new {|d| d.depiction_object_type == 'Observation' && d.depiction_object.type == 'Observation::Media' }
 
   def from_sled?
@@ -92,8 +92,8 @@ class Depiction < ApplicationRecord
   private
 
   def remove_media_observation2
-    if v = previous_changes['depiction_object_id']
-      o = Observation::Media.find(v[0])
+    if v = depiction_object_id_previously_was
+      o = Observation::Media.find(v)
       if o.depictions.size == 0
         o.destroy!
       end
