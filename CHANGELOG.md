@@ -35,6 +35,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated Browse collection object interface [#2297]
 - Reload New source task by pressing New and loading source
 - Updated Ruby gems
+- Updated node packages
 
 ### Fixed
 - Browse nomenclature crashing when taxon name descendants have no cached author year
