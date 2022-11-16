@@ -21,18 +21,6 @@
       >
         Search
       </button>
-      <FacetGeographic v-model="params.geographic" />
-      <FacetCollectingEvent v-model="params.base.collecting_event_id" />
-      <FacetWKT v-model="params.base.wkt" />
-      <FacetCollectionObject v-model="params.base.collection_object_id" />
-      <FacetBiologicalProperty
-        v-model:object="params.base.object_biological_property_id"
-        v-model:subject="params.base.subject_biological_property_id"
-      />
-      <FacetBiologicalProperty
-        v-model:object="params.base.object_taxon_name_id"
-        v-model:subject="params.base.subject_taxon_name_id"
-      />
       <FacetNomenclatureRelation
         v-model:object="params.base.object_taxon_name_id"
         v-model:subject="params.base.subject_taxon_name_id"
@@ -41,30 +29,37 @@
         class="margin-large-bottom"
         v-model="params.base.taxon_name_id"
       />
+      <FacetGeographic v-model="params.geographic" />
+
+      <FacetWKT v-model="params.base.wkt" />
+      <FacetBiologicalRelationship
+        v-model="params.base.biological_relationship_id"
+        class="margin-large-bottom"
+      />
+      <FacetBiologicalProperty
+        v-model:object="params.base.object_taxon_name_id"
+        v-model:subject="params.base.subject_taxon_name_id"
+      />
       <FacetOtu
         class="margin-large-bottom"
         v-model="params.base.otu_id"
         target="BiologicalAssociation"
       />
-      <FacetBiologicalRelationship
-        v-model="params.base.biological_relationship_id"
-        class="margin-large-bottom"
+      <FacetCollectionObject v-model="params.base.collection_object_id" />
+      <FacetCollectingEvent v-model="params.base.collecting_event_id" />
+      <FacetBiologicalProperty
+        v-model:object="params.base.object_biological_property_id"
+        v-model:subject="params.base.subject_biological_property_id"
       />
-      <FacetMatchIdentifiers
+      <FacetNotes v-model="params.notes" />
+      <FacetIdentifier
         class="margin-large-bottom"
-        v-model="params.matchIdentifiers"
-      />
-      <FacetNotes
-        v-model="params.notes"
+        v-model="params.identifier"
       />
       <keywords-component
         class="margin-large-bottom"
         v-model="params.keywords"
         target="CollectionObject"
-      />
-      <identifier-component
-        class="margin-large-bottom"
-        v-model="params.identifier"
       />
       <user-component
         class="margin-large-bottom"
@@ -78,8 +73,7 @@
 import FacetGeographic from 'tasks/collection_objects/filter/components/filters/geographic.vue'
 import FacetWKT from 'tasks/otu/filter/components/Facet/FacetWKT.vue'
 import UserComponent from 'tasks/collection_objects/filter/components/filters/user'
-import IdentifierComponent from 'tasks/collection_objects/filter/components/filters/identifier'
-import FacetMatchIdentifiers from 'tasks/people/filter/components/Facet/FacetMatchIdentifiers.vue'
+import FacetIdentifier from 'tasks/collection_objects/filter/components/filters/identifier'
 import FacetBiologicalRelationship from './Facet/FacetBiologicalRelationship.vue'
 import KeywordsComponent from 'tasks/sources/filter/components/filters/tags'
 import FacetNotes from 'tasks/collection_objects/filter/components/filters/FacetNotes.vue'
