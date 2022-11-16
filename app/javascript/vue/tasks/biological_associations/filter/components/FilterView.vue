@@ -24,10 +24,7 @@
       <FacetNomenclatureRelation
         v-model:object="params.base.object_taxon_name_id"
         v-model:subject="params.base.subject_taxon_name_id"
-      />
-      <FacetTaxonName
-        class="margin-large-bottom"
-        v-model="params.base.taxon_name_id"
+        v-model:both="params.base.taxon_name_id"
       />
       <FacetGeographic v-model="params.geographic" />
 
@@ -81,7 +78,6 @@ import FacetCollectionObject from 'tasks/extracts/filter/components/filters/Coll
 import platformKey from 'helpers/getPlatformKey.js'
 import checkMatchIdentifiersParams from 'tasks/people/filter/helpers/checkMatchIdentifiersParams'
 import FacetCollectingEvent from './Facet/FacetCollectingEvent.vue'
-import FacetTaxonName from './Facet/FacetTaxonName.vue'
 import FacetBiologicalProperty from './Facet/FacetBiologicalProperty.vue'
 import FacetNomenclatureRelation from './Facet/FacetNomenclatureRelation.vue'
 import FacetOtu from 'tasks/extracts/filter/components/filters/OtuFacet'
@@ -130,6 +126,7 @@ const initParams = () => ({
     object_biological_property_id: [],
     object_taxon_name_id: [],
     subject_taxon_name_id: [],
+    taxon_name_id: [],
     wkt: undefined
   },
   identifier: {
