@@ -5,6 +5,7 @@
       <smart-selector
         model="taxon_names"
         @selected="addTaxonName"
+        :filter-ids="[...objectIds, ...subjectIds, ...bothIds]"
       />
       <table
         v-if="taxonNames.length"
@@ -31,7 +32,8 @@
               label="object_tag"
               :options="{
                 subject: true,
-                object: false
+                object: false,
+                both: undefined
               }"
               v-model="item.isSubject"
               @remove="removeBiologicalProperty(item)"
@@ -52,6 +54,11 @@ import { ref, computed, watch } from 'vue'
 import { removeFromArray } from 'helpers/arrays'
 
 const props = defineProps({
+  both: {
+    type: Array,
+    default: () => []
+  },
+
   object: {
     type: Array,
     default: () => []
@@ -63,22 +70,32 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:object', 'update:subject'])
+const emit = defineEmits([
+  'update:object',
+  'update:subject',
+  'update:both'
+])
 
 const taxonNames = ref([])
 const objectIds = computed({
   get: () => props.object,
   set: value => emit('update:object', value)
 })
+
 const subjectIds = computed({
   get: () => props.object,
   set: value => emit('update:subject', value)
 })
 
+const bothIds = computed({
+  get: () => props.both,
+  set: value => emit('update:both', value)
+})
+
 watch(
   [objectIds, subjectIds],
   () => {
-    if (!props.object.length && !props.subject.length && taxonNames.value.length) {
+    if (!props.object.length && !props.both.length && !props.subject.length && taxonNames.value.length) {
       taxonNames.value = []
     }
   }
@@ -87,7 +104,8 @@ watch(
 watch(
   taxonNames,
   newVal => {
-    objectIds.value = newVal.filter(item => !item.isSubject).map(item => item.id)
+    bothIds.value = newVal.filter(item => item.isSubject === undefined).map(item => item.id)
+    objectIds.value = newVal.filter(item => item.isSubject === false).map(item => item.id)
     subjectIds.value = newVal.filter(item => item.isSubject).map(item => item.id)
   },
   { deep: true }
@@ -96,7 +114,7 @@ watch(
 function addTaxonName (item) {
   taxonNames.value.push({
     ...item,
-    isSubject: false
+    isSubject: undefined
   })
 }
 
@@ -106,7 +124,8 @@ function removeBiologicalProperty (biologicalRelationship) {
 
 const {
   subject_taxon_name_id = [],
-  object_taxon_name_id = []
+  object_taxon_name_id = [],
+  taxon_name_id = []
 } = URLParamsToJSON(location.href)
 
 subject_taxon_name_id.forEach(id => {
@@ -118,6 +137,12 @@ subject_taxon_name_id.forEach(id => {
 object_taxon_name_id.forEach(id => {
   TaxonName.find(id).then(({ body }) => {
     addTaxonName({ ...body, isSubject: false })
+  })
+})
+
+taxon_name_id.forEach(id => {
+  TaxonName.find(id).then(({ body }) => {
+    addTaxonName({ ...body, isSubject: undefined })
   })
 })
 

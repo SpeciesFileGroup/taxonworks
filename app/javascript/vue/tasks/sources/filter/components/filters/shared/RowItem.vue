@@ -44,7 +44,7 @@ export default {
 
     modelValue: {
       type: Boolean,
-      default: false
+      default: undefined
     },
 
     options: {

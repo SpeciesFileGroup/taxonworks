@@ -24,10 +24,7 @@
       <FacetNomenclatureRelation
         v-model:object="params.base.object_taxon_name_id"
         v-model:subject="params.base.subject_taxon_name_id"
-      />
-      <FacetTaxonName
-        class="margin-large-bottom"
-        v-model="params.base.taxon_name_id"
+        v-model:both="params.base.taxon_name_id"
       />
       <FacetGeographic v-model="params.geographic" />
 
@@ -65,6 +62,14 @@
         class="margin-large-bottom"
         v-model="params.user"
       />
+      <WithComponent
+        class="margin-large-bottom"
+        v-for="(_, key) in params.with"
+        :key="key"
+        :title="key"
+        :param="key"
+        v-model="params.with[key]"
+      />
     </div>
   </div>
 </template>
@@ -81,10 +86,10 @@ import FacetCollectionObject from 'tasks/extracts/filter/components/filters/Coll
 import platformKey from 'helpers/getPlatformKey.js'
 import checkMatchIdentifiersParams from 'tasks/people/filter/helpers/checkMatchIdentifiersParams'
 import FacetCollectingEvent from './Facet/FacetCollectingEvent.vue'
-import FacetTaxonName from './Facet/FacetTaxonName.vue'
 import FacetBiologicalProperty from './Facet/FacetBiologicalProperty.vue'
 import FacetNomenclatureRelation from './Facet/FacetNomenclatureRelation.vue'
 import FacetOtu from 'tasks/extracts/filter/components/filters/OtuFacet'
+import WithComponent from 'tasks/sources/filter/components/filters/with.vue'
 import { computed, ref } from 'vue'
 
 const emit = defineEmits([
@@ -109,7 +114,7 @@ const parseParams = computed(() =>
     ...params.value.base,
     ...params.value.notes,
     ...params.value.keywords,
-    ...params.value.protocols,
+    ...params.value.with,
     ...checkMatchIdentifiersParams(params.value.matchIdentifiers),
     ...filterEmptyParams(params.value.user)
   })
@@ -130,6 +135,7 @@ const initParams = () => ({
     object_biological_property_id: [],
     object_taxon_name_id: [],
     subject_taxon_name_id: [],
+    taxon_name_id: [],
     wkt: undefined
   },
   identifier: {
@@ -164,9 +170,8 @@ const initParams = () => ({
     keyword_id_and: [],
     keyword_id_or: []
   },
-  protocols: {
-    protocol_id_and: [],
-    protocol_id_or: []
+  with: {
+    citations: undefined
   }
 })
 
