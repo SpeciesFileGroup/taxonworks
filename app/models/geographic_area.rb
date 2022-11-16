@@ -239,9 +239,9 @@ class GeographicArea < ApplicationRecord
   end
 
   # @return [Scope] of areas which have at least one shape
-  def self.have_shape?
-    joins(:geographic_areas_geographic_items).select('distinct(geographic_areas.id)')
-  end
+  # def self.have_shape?
+  #  joins(:geographic_areas_geographic_items)
+  # end
 
   # @return [Hash]
   #   A key/value pair that classify this GeographicArea
@@ -353,7 +353,7 @@ class GeographicArea < ApplicationRecord
 
   # @return [Boolean]
   def has_shape?
-    geographic_items.any?
+    geographic_areas_geographic_items.any?
   end
 
   # @return [RGeo object] of the default GeographicItem

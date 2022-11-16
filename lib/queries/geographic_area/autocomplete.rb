@@ -45,8 +45,8 @@ module Queries
         queries.compact!
 
         result = []
-        queries.each_with_index do |q, i|
-          result += q.to_a
+        queries.each do |q|
+          result += q.includes(:geographic_areas_geographic_items).to_a
           result.uniq!
           break if result.count > 19
         end

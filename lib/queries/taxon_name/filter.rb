@@ -280,6 +280,17 @@ module Queries
         "NomenclaturalRank::#{@nomenclature_code}%"
       end
 
+      def geo_json_facet
+        return nil if geo_json.nil?
+        otus = ::Queries::Otu::Filter.new(geo_json: geo_json).all
+        collection_objects = ::Queries::CollectionObject::Filter.new(geo_json: geo_json).all
+
+        a = ::TaxonName.joins(:taxon_taxon_determinations).where(taxon_determinations: { biological_collection_object: collection_objects} )
+        b = ::TaxonName.joins(:otus).where(otus: otus)
+        
+        ::TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
+      end
+
       def not_specified_facet
         return nil if not_specified.nil?
         if not_specified
