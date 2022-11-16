@@ -25,6 +25,10 @@
       <FacetCollectingEvent v-model="params.base.collecting_event_id" />
       <FacetWKT v-model="params.base.wkt" />
       <FacetCollectionObject v-model="params.base.collection_object_id" />
+      <FacetBiologicalProperty
+        v-model:object="params.base.object_biological_property_id"
+        v-model:subject="params.base.subject_biological_property_id"
+      />
       <FacetTaxonName
         class="margin-large-bottom"
         v-model="params.base.taxon_name_id"
@@ -76,6 +80,7 @@ import platformKey from 'helpers/getPlatformKey.js'
 import checkMatchIdentifiersParams from 'tasks/people/filter/helpers/checkMatchIdentifiersParams'
 import FacetCollectingEvent from './Facet/FacetCollectingEvent.vue'
 import FacetTaxonName from './Facet/FacetTaxonName.vue'
+import FacetBiologicalProperty from './Facet/FacetBiologicalProperty.vue'
 import FacetOtu from 'tasks/extracts/filter/components/filters/OtuFacet'
 import { computed, ref } from 'vue'
 
@@ -118,6 +123,8 @@ const initParams = () => ({
     collecting_event_id: [],
     otu_id: [],
     biological_relationship_id: [],
+    subject_biological_property_id: [],
+    object_biological_property_id: [],
     wkt: undefined
   },
   identifier: {
