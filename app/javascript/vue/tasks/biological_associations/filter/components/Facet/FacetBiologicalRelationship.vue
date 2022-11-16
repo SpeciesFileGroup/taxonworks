@@ -11,7 +11,7 @@
         label="object_tag"
         :warning-message="false"
         :delete-warning="false"
-        @delete="removeDescriptor"
+        @delete="removeBiologicalRelationship"
       />
     </div>
   </div>
@@ -54,7 +54,7 @@ function addBiologicalRelationship (item) {
   biologicalRelationships.value.push(item)
 }
 
-function removeDescriptor (biologicalRelationship) {
+function removeBiologicalRelationship (biologicalRelationship) {
   const index = params.value.findIndex(item => item.id === biologicalRelationship.id)
 
   removeFromArray(biologicalRelationships.value, biologicalRelationship)

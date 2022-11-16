@@ -29,6 +29,14 @@
         v-model:object="params.base.object_biological_property_id"
         v-model:subject="params.base.subject_biological_property_id"
       />
+      <FacetBiologicalProperty
+        v-model:object="params.base.object_taxon_name_id"
+        v-model:subject="params.base.subject_taxon_name_id"
+      />
+      <FacetNomenclatureRelation
+        v-model:object="params.base.object_taxon_name_id"
+        v-model:subject="params.base.subject_taxon_name_id"
+      />
       <FacetTaxonName
         class="margin-large-bottom"
         v-model="params.base.taxon_name_id"
@@ -81,6 +89,7 @@ import checkMatchIdentifiersParams from 'tasks/people/filter/helpers/checkMatchI
 import FacetCollectingEvent from './Facet/FacetCollectingEvent.vue'
 import FacetTaxonName from './Facet/FacetTaxonName.vue'
 import FacetBiologicalProperty from './Facet/FacetBiologicalProperty.vue'
+import FacetNomenclatureRelation from './Facet/FacetNomenclatureRelation.vue'
 import FacetOtu from 'tasks/extracts/filter/components/filters/OtuFacet'
 import { computed, ref } from 'vue'
 
@@ -125,6 +134,8 @@ const initParams = () => ({
     biological_relationship_id: [],
     subject_biological_property_id: [],
     object_biological_property_id: [],
+    object_taxon_name_id: [],
+    subject_taxon_name_id: [],
     wkt: undefined
   },
   identifier: {
