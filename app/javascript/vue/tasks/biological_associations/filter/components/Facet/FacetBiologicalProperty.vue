@@ -34,7 +34,7 @@
                 object: false
               }"
               v-model="item.isSubject"
-              @remove="removeBiologicalProperty(index)"
+              @remove="removeBiologicalProperty(item)"
             />
           </template>
         </transition-group>
