@@ -62,6 +62,14 @@
         class="margin-large-bottom"
         v-model="params.user"
       />
+      <WithComponent
+        class="margin-large-bottom"
+        v-for="(_, key) in params.with"
+        :key="key"
+        :title="key"
+        :param="key"
+        v-model="params.with[key]"
+      />
     </div>
   </div>
 </template>
@@ -81,6 +89,7 @@ import FacetCollectingEvent from './Facet/FacetCollectingEvent.vue'
 import FacetBiologicalProperty from './Facet/FacetBiologicalProperty.vue'
 import FacetNomenclatureRelation from './Facet/FacetNomenclatureRelation.vue'
 import FacetOtu from 'tasks/extracts/filter/components/filters/OtuFacet'
+import WithComponent from 'tasks/sources/filter/components/filters/with.vue'
 import { computed, ref } from 'vue'
 
 const emit = defineEmits([
@@ -105,7 +114,7 @@ const parseParams = computed(() =>
     ...params.value.base,
     ...params.value.notes,
     ...params.value.keywords,
-    ...params.value.protocols,
+    ...params.value.with,
     ...checkMatchIdentifiersParams(params.value.matchIdentifiers),
     ...filterEmptyParams(params.value.user)
   })
@@ -161,9 +170,8 @@ const initParams = () => ({
     keyword_id_and: [],
     keyword_id_or: []
   },
-  protocols: {
-    protocol_id_and: [],
-    protocol_id_or: []
+  with: {
+    citations: undefined
   }
 })
 
