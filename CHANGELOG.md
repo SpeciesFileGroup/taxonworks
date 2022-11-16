@@ -7,6 +7,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Collection object Autocomplete has loan and deaccession banners [#3192]
 - Autocomplete on Browse collection object [#3189]
 - Task - Collection object chronology, a plot of object by year collected
 
@@ -20,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Refactored observation cell component for Image matrix
 
+[#3192]: https://github.com/SpeciesFileGroup/taxonworks/issues/3192
 [#3182]: https://github.com/SpeciesFileGroup/taxonworks/issues/3182
 [#3188]: https://github.com/SpeciesFileGroup/taxonworks/issues/3188
 [#3189]: https://github.com/SpeciesFileGroup/taxonworks/issues/3189
