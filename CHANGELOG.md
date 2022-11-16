@@ -7,12 +7,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Collection object Autocomplete has loan and deaccession banners [#3192]
 - Autocomplete on Browse collection object [#3189]
 
 ### Fixed
 - Citation link in Biological association panel on Browse OTU
 - Type relationship text/rendering is inverted in New taxon name [#3182]
 
+[#3192]: https://github.com/SpeciesFileGroup/taxonworks/issues/3192
 [#3189]: https://github.com/SpeciesFileGroup/taxonworks/issues/3189
 
 ## [0.29.6] - 2022-11-08
