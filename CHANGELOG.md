@@ -44,6 +44,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated node packages
 
 ### Fixed
+- Incorrect soft validation message on TaxonName relationship [#3184]
 - Browse nomenclature crashing when taxon name descendants have no cached author year
 - Soft validation crashing when cached nomenclature date is absent
 - Role picker is missing after create a source from BibTeX [#3180]
