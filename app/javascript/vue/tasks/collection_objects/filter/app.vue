@@ -76,7 +76,10 @@
               :url="urlRequest"
               class="margin-small-left"
             />
-            <DeleteCollectionObjects :ids="ids" />
+            <DeleteCollectionObjects
+              :ids="ids"
+              @delete="list.data = list.data.filter(r => !$event.includes(r[0]))"
+            />
             <RadialFilter
               :disabled="!ids.length"
               object-type="CollectingEvent"
