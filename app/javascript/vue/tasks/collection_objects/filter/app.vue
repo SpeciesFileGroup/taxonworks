@@ -52,10 +52,11 @@
           class="horizontal-left-content flex-separate separate-bottom"
         >
           <div class="horizontal-left-content">
-            <select-all
-              v-model="ids"
-              :ids="coIds"
+            <tag-all
+              :ids="ids"
+              type="CollectionObject"
             />
+
             <span class="separate-left separate-right">|</span>
             <csv-button
               :url="urlRequest"
@@ -77,6 +78,7 @@
               class="margin-small-left"
             />
             <DeleteCollectionObjects
+              class="margin-small-left"
               :ids="ids"
               @delete="list.data = list.data.filter(r => !$event.includes(r[0]))"
             />
@@ -128,7 +130,7 @@ import PaginationCount from 'components/pagination/PaginationCount'
 import GetPagination from 'helpers/getPagination'
 import DwcDownload from './components/dwcDownload.vue'
 import DwcReindex from './components/dwcReindex.vue'
-import SelectAll from './components/selectAll.vue'
+import TagAll from './components/tagAll'
 import MatchButton from './components/matchButton.vue'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import RadialFilter from 'components/radials/filter/radial.vue'
@@ -145,7 +147,7 @@ export default {
     PaginationCount,
     DwcDownload,
     DwcReindex,
-    SelectAll,
+    TagAll,
     MatchButton,
     JsonRequestUrl,
     RadialFilter,

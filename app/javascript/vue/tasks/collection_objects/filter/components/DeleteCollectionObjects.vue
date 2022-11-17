@@ -1,12 +1,14 @@
 <template>
-  <ConfirmationModal ref="confirmationModal" />
-  <VBtn
-    color="primary"
-    medium
-    @click="openModal"
-  >
-    Delete collection objects
-  </VBtn>
+  <div>
+    <ConfirmationModal ref="confirmationModal" />
+    <VBtn
+      color="primary"
+      medium
+      @click="openModal"
+    >
+      Delete collection objects
+    </VBtn>
+  </div>
 </template>
 
 <script setup>
