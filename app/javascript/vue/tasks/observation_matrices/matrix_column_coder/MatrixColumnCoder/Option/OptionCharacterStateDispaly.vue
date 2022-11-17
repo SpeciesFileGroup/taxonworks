@@ -5,7 +5,7 @@
       @close="showModal = false"
     >
       <template #header>
-        <h3>Show scored character states</h3>
+        <h3>Show character states</h3>
       </template>
       <template #body>
         <ul class="no_bullets">
@@ -30,7 +30,7 @@
       medium
       @click="showModal = true"
     >
-      Show scored character states
+      Show character states
     </VBtn>
   </div>
 </template>
@@ -46,8 +46,8 @@ import VBtn from 'components/ui/VBtn/index.vue'
 const store = useStore()
 const showModal = ref(false)
 const filterCharacterStates = computed({
-  get: () => store.getters[GetterNames.GetDisplayScoredCharacterStates],
-  set: value => store.commit(MutationNames.SetDisplayScoredCharacterStates, value)
+  get: () => store.getters[GetterNames.GetDisplayCharacterStates],
+  set: value => store.commit(MutationNames.SetDisplayCharacterStates, value)
 })
 
 const descriptor = computed(() => store.getters[GetterNames.GetDescriptor])
