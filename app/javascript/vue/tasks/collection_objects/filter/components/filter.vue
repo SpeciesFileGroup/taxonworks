@@ -304,6 +304,7 @@ export default {
           current_repository: undefined,
           repository: undefined,
           preparation_type: undefined,
+          deaccessioned: undefined,
           dwc_indexed: undefined,
           notes: undefined,
           with_buffered_collecting_event: undefined,
