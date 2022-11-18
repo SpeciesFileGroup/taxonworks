@@ -78,12 +78,9 @@ const {
 } = useFilter({ filter: CollectionObject.sqedFilter })
 
 const sqedResult = computed(() => Array.isArray(list.value) ? {} : list.value)
-
 const urlParams = URLParamsToJSON(location.href)
 
-if (Object.keys(urlParams).length) {
-  makeFilterRequest(urlParams)
-}
+makeFilterRequest(urlParams)
 
 </script>
 
