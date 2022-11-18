@@ -58,6 +58,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [0.29.5] - 2022-10-10
 
 ### Changed
+- Source cached_value calculation [#3181]
 - Changed author labels on Filter source [#3134]
 - Minor changes to plots on administration activity dashboard 
 - Parallelize some indexing rake tasks
