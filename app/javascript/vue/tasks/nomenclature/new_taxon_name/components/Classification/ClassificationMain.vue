@@ -34,6 +34,6 @@ watch([taxonRank, parent], () => {
     taxon.value.rank_string,
     parent.value.rank_string
   )
-}, { immediate: true })
+})
 
 </script>
