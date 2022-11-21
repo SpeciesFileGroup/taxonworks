@@ -298,7 +298,6 @@ export default {
           depictions: undefined,
           geographic_area: undefined,
           georeferences: undefined,
-          identifiers: undefined,
           local_identifiers: undefined,
           taxon_determinations: undefined,
           type_material: undefined,
