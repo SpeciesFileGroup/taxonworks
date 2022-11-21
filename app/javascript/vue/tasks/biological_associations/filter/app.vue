@@ -31,6 +31,7 @@
         >
           <csv-button
             :list="csvFields"
+            :options="{ fields }"
           />
         </div>
 
@@ -85,6 +86,54 @@ const csvFields = computed(() =>
     ? list.value
     : []
 )
+
+const fields = [
+  'id',
+  {
+    label: 'Order',
+    value: 'subject.taxonomy.order'
+  },
+  {
+    label: 'Family',
+    value: 'subject.taxonomy.family'
+  },
+  {
+    label: 'Genus',
+    value: item => item.subject.taxonomy.genus.filter(Boolean).join(' ')
+  },
+  {
+    label: 'Subject',
+    value: 'subject.object_label'
+  },
+  {
+    label: 'Biological properties',
+    value: item => item.biological_relationship_types.filter(b => b.target === 'subject').map(b => b.biological_property.name).join(', ')
+  },
+  {
+    label: 'Biological relationship',
+    value: 'biological_relationship.object_label'
+  },
+  {
+    label: 'Biological properties',
+    value: item => item.biological_relationship_types.filter(b => b.target === 'object').map(b => b.biological_property.name).join(', ')
+  },
+  {
+    label: 'Order',
+    value: 'object.taxonomy.order'
+  },
+  {
+    label: 'Family',
+    value: 'object.taxonomy.family'
+  },
+  {
+    label: 'Genus',
+    value: item => item.object.taxonomy.genus.filter(Boolean).join(' ')
+  },
+  {
+    label: 'Object',
+    value: 'object.object_label'
+  }
+]
 
 const selectedIds = ref([])
 
