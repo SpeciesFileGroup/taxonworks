@@ -39,6 +39,12 @@ module Queries::Concerns::Identifiers
     #   nil - not applied
     attr_accessor :identifiers
 
+    # @return [True, False, nil]
+    #   true - has an local identifier
+    #   false - does not have an local identifier
+    #   nil - not applied
+    attr_accessor :local_identifiers
+
     attr_accessor :match_identifiers
 
     attr_accessor :match_identifiers_delimiter
@@ -73,6 +79,7 @@ module Queries::Concerns::Identifiers
     @identifier_end = params[:identifier_end]
     @identifier = params[:identifier]
     @identifiers = boolean_param(params, :identifiers)
+    @local_identifiers = boolean_param(params, :local_identifiers)
 
     @identifier_exact = boolean_param(params, :identifier_exact)
     @identifier_type = params[:identifier_type] || []
@@ -137,6 +144,18 @@ module Queries::Concerns::Identifiers
     else
       query_base.left_outer_joins(:identifiers)
         .where(identifiers: {id: nil})
+        .distinct
+    end
+  end
+
+  def local_identifiers_facet
+    return nil if local_identifiers.nil?
+    if local_identifiers
+      query_base.joins(:identifiers).where("identifiers.type ILIKE 'Identifier::Local%'").distinct
+    else
+      query_base.left_outer_joins(:identifiers)
+        .where(identifiers: {id: nil})
+        .where.not("identifiers.type ILIKE 'Identifier::Local%'")
         .distinct
     end
   end

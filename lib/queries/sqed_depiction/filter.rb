@@ -30,7 +30,7 @@ module Queries
       end
 
       def base_query
-        ::SqedDepiction.select('sqed_depiction.*')
+        ::SqedDepiction.select('sqed_depictions.*')
       end
 
       def collection_object_query_facet
@@ -64,6 +64,7 @@ module Queries
 
         clauses += [
           created_updated_facet,  # See Queries::Concerns::Users
+          local_identifiers_facet,
           identifiers_facet,
           collection_object_query_facet,
         ]
@@ -89,9 +90,9 @@ module Queries
         b = merge_clauses
         # q = nil
         if a && b
-          q = b.where(a)
+          q = b.where(a).distinct
         elsif a
-          q = ::SqedDepiction.where(a)
+          q = ::SqedDepiction.where(a).distinct
         elsif b
           q = b
         else
