@@ -84,7 +84,7 @@ const initParams = () => ({
   base: {
   },
   with: {
-    identifiers: undefined,
+    local_identifiers: undefined,
     collecting_event: undefined,
     taxon_determinations: undefined,
     with_buffered_determinations: undefined,

@@ -299,6 +299,7 @@ export default {
           geographic_area: undefined,
           georeferences: undefined,
           identifiers: undefined,
+          local_identifiers: undefined,
           taxon_determinations: undefined,
           type_material: undefined,
           current_repository: undefined,
