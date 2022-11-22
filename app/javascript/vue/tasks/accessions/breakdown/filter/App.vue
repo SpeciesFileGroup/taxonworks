@@ -80,6 +80,8 @@ const {
 const sqedResult = computed(() => Array.isArray(list.value) ? {} : list.value)
 const urlParams = URLParamsToJSON(location.href)
 
+per.value = 50
+
 makeFilterRequest(urlParams)
 
 </script>
