@@ -19,6 +19,7 @@
       </div>
       <classification-main
         @select="saveClassification"
+        :created="getStatusCreated"
       />
       <ul
         v-if="!getStatusCreated.length && taxon.cached_is_valid"
