@@ -187,7 +187,7 @@ module SqedDepictionsHelper
 
     tag.figure do
       c.to_svg.html_safe +
-        tag.fig_caption(label)
+        tag.figcaption(label)
     end
   end
 
