@@ -13,18 +13,16 @@ export default async ({ state, commit }, { observationId, columnIndex, rowIndex 
 
   commit(MutationNames.SetIsSaving, true)
 
-  const { body } = await Depiction.update(depiction.id, { depiction })
+  Depiction.update(depiction.id, { depiction }).then(({ body }) => {
+    commit(MutationNames.AddDepiction, {
+      rowIndex,
+      columnIndex,
+      depiction: body
+    })
+  }).finally(_ => {
+    state.depictionMoved = undefined
+    state.observationMoved = undefined
 
-  commit(MutationNames.AddDepiction, {
-    rowIndex,
-    columnIndex,
-    depiction: body
+    commit(MutationNames.SetIsSaving, false)
   })
-
-  state.depictionMoved = undefined
-  state.observationMoved = undefined
-
-  commit(MutationNames.SetIsSaving, false)
-
-  console.log('Depiction moved')
 }

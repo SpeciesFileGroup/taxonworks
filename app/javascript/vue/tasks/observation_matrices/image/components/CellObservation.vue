@@ -159,12 +159,18 @@ const depictionMoved = computed({
 const existObservations = computed(() => props.depictions.length > 0)
 const rowObjectId = computed(() => props.rowObject.observation_object_id || props.rowObject.id)
 const rowObjectType = computed(() => props.rowObject.observation_object_type || props.rowObject.base_class)
-const observationId = computed(() => props.depictions.length && props.depictions[0].depiction_object_id)
+const observationId = computed(() => {
+  const depictions = props.depictions
+
+  return depictionMoved.value
+    ? depictions.find(d => d.depiction_object_id !== depictionMoved.value.depiction_object_id)?.depiction_object_id
+    : depictions[0].depiction_object_id
+})
 
 const isLoading = ref(false)
 
 function movedDepiction (_) {
-  if (props.depictions.length === 1 && (depictionMoved.value.depiction_object_id === observationId.value || depictionMoved.value.depiction_object_type !== 'Observation')) {
+  if (props.depictions.length === 1) {
     const observation = {
       descriptor_id: props.descriptorId,
       type: OBSERVATION_MEDIA,
@@ -174,7 +180,7 @@ function movedDepiction (_) {
 
     store.commit(MutationNames.SetIsSaving, true)
 
-    Observation.create({ observation, extend: ['depictions'] })
+    Observation.create({ observation })
       .then(({ body }) => {
         store.dispatch(ActionNames.MoveDepiction, {
           columnIndex: props.columnIndex,
@@ -182,7 +188,9 @@ function movedDepiction (_) {
           observationId: body.id
         })
       })
-      .catch(() => store.commit(MutationNames.SetIsSaving, false))
+      .catch(() =>
+        store.commit(MutationNames.SetIsSaving, false)
+      )
   } else {
     store.dispatch(ActionNames.MoveDepiction, {
       columnIndex: props.columnIndex,

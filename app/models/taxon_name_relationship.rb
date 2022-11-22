@@ -1,4 +1,4 @@
-require_dependency Rails.root.to_s + '/app/models/taxon_name_classification.rb'  
+require_dependency Rails.root.to_s + '/app/models/taxon_name_classification.rb'
 
 # A NOMEN https://github.com/SpeciesFileGroup/nomen relationship between two Protonyms.
 #
@@ -388,7 +388,7 @@ class TaxonNameRelationship < ApplicationRecord
   end
 
   ##### Protonym historically could be listed as a synonym to different taxa
-  #def validate_uniqueness_of_synonym_subject 
+  #def validate_uniqueness_of_synonym_subject
   #  if !self.type.nil? && /Synonym/.match(self.type_name) && !TaxonNameRelationship.where(subject_taxon_name_id: self.subject_taxon_name_id).with_type_contains('Synonym').not_self(self).empty?
   #    errors.add(:subject_taxon_name_id, 'Only one synonym relationship is allowed')
   #  end
@@ -422,7 +422,7 @@ class TaxonNameRelationship < ApplicationRecord
       TaxonName.transaction do
         if is_invalidating?
           t = subject_taxon_name
-          
+
           if type_name =~/Misspelling/
             t.update_column(:cached_misspelling, t.get_cached_misspelling)
             t.update_columns(
@@ -581,7 +581,7 @@ class TaxonNameRelationship < ApplicationRecord
     o = object_taxon_name
     s_new = s.lowest_rank_coordinated_taxon
     if s != s_new
-      soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} #{s.cached_html} to #{s_new.rank_class.rank_name} #{s.cached_html}",
+      soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} #{s.cached_html} to #{s_new.rank_class.rank_name} #{s_new.cached_html}",
                            success_message: "Relationship moved to  #{s_new.rank_class.rank_name}", failure_message:  'Failed to update relationship')
     end
   end
@@ -591,7 +591,7 @@ class TaxonNameRelationship < ApplicationRecord
     o = object_taxon_name
     o_new = o.lowest_rank_coordinated_taxon
     if o != o_new && type_name != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
-      soft_validations.add(:object_taxon_name_id, "Relationship should move from #{o.rank_class.rank_name} #{o.cached_html} to #{o_new.rank_class.rank_name} #{o.cached_html}",
+      soft_validations.add(:object_taxon_name_id, "Relationship should move from #{o.rank_class.rank_name} #{o.cached_html} to #{o_new.rank_class.rank_name} #{o_new.cached_html}",
                            success_message: "Relationship moved to  #{o_new.rank_class.rank_name}", failure_message:  'Failed to update relationship')
     end
   end
