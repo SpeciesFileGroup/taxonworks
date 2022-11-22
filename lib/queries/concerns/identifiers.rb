@@ -148,17 +148,14 @@ module Queries::Concerns::Identifiers
     end
   end
 
-  # TODOL presently very slow
   def local_identifiers_facet
     return nil if local_identifiers.nil?
     if local_identifiers
       query_base.joins(:identifiers).where("identifiers.type ILIKE 'Identifier::Local%'").distinct
     else
-
       i = ::Identifier.arel_table[:identifier_object_id].eq(table[:id]).and(
         ::Identifier.arel_table[:identifier_object_type].eq( table.name.classify.to_s )
       )
-
       query_base.where.not(::Identifier::Local.where(i).arel.exists)
     end
   end
