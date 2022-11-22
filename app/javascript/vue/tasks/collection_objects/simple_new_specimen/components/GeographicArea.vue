@@ -1,22 +1,26 @@
 <template>
-  <div>
+  <fieldset>
+    <legend>Geographic area</legend>
     <SmartSelector
       ref="smartSelector"
       model="geographic_areas"
       target="CollectingEvent"
       label="name"
       klass="CollectingEvent"
-      @selected="selectGeographicArea"
+      @selected="store.geographicArea = $event"
     />
     <SmartSelectorItem
-      :item="geographicArea"
+      :item="store.geographicArea"
       label="object_tag"
       @unset="state.geographicArea = undefined"
     />
-  </div>
+  </fieldset>
 </template>
 
 <script setup>
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
+import { useStore } from '../store/useStore'
+
+const store = useStore()
 </script>
