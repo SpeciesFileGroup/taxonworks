@@ -7,7 +7,7 @@
       :logo-size="{ width: '100px', height: '100px'}"
     />
     <div class="flex-separate middle">
-      <h1>Collection object image breakdown (sqed) TODO list</h1>
+      <h1>Filter staged images</h1>
       <menu-preferences v-model="preferences" />
     </div>
 
