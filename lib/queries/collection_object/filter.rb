@@ -629,6 +629,7 @@ module Queries
           identifier_facet,
           identifier_namespace_facet,
           identifiers_facet,
+          local_identifiers_facet,
           match_identifiers_facet,
 
           keyword_id_facet,       # See Queries::Concerns::Tags

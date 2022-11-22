@@ -112,7 +112,7 @@ module Queries::Concerns::Identifiers
     )
   end
 
-  def identifiers_to_match 
+  def identifiers_to_match
     ids = match_identifiers.strip.split(match_identifiers_delimiter).flatten.map(&:strip).uniq
     if match_identifiers_type == 'internal'
       ids = ids.select{|i| i =~ /^\d+$/}
@@ -148,15 +148,18 @@ module Queries::Concerns::Identifiers
     end
   end
 
+  # TODOL presently very slow
   def local_identifiers_facet
     return nil if local_identifiers.nil?
     if local_identifiers
       query_base.joins(:identifiers).where("identifiers.type ILIKE 'Identifier::Local%'").distinct
     else
-      query_base.left_outer_joins(:identifiers)
-        .where(identifiers: {id: nil})
-        .where.not("identifiers.type ILIKE 'Identifier::Local%'")
-        .distinct
+
+      i = ::Identifier.arel_table[:identifier_object_id].eq(table[:id]).and(
+        ::Identifier.arel_table[:identifier_object_type].eq( table.name.classify.to_s )
+      )
+
+      query_base.where.not(::Identifier::Local.where(i).arel.exists)
     end
   end
 

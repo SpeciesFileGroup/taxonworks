@@ -10,7 +10,9 @@ module Queries
        with_buffered_determinations
        with_buffered_collecting_event
        with_buffered_other_labels
-      }  
+       identifiers
+       local_identifiers
+      }
 
       attr_accessor :collection_object_filter_params
 
@@ -19,8 +21,7 @@ module Queries
       def initialize(params)
         @recent = params[:recent]
         @collection_object_filter_params = params.permit(COLLECTION_OBJECT_FILTER_PARAMS).to_h.select{|k,v| COLLECTION_OBJECT_FILTER_PARAMS.include?(k) ? k : nil}
-      
-        set_identifier(params)
+
         set_user_dates(params)
       end
 
@@ -29,13 +30,13 @@ module Queries
         ::SqedDepiction.arel_table
       end
 
-      def base_query
+      def query_base
         ::SqedDepiction.select('sqed_depictions.*')
       end
 
       def collection_object_query_facet
         q = ::Queries::CollectionObject::Filter.new(collection_object_filter_params).all
-        ::SqedDepiction.joins(:collection_object).where(collection_objects: q)  
+        ::SqedDepiction.joins(:collection_object).where(collection_objects: q)
       end
 
       # @return [ActiveRecord::Relation]
@@ -64,8 +65,6 @@ module Queries
 
         clauses += [
           created_updated_facet,  # See Queries::Concerns::Users
-          local_identifiers_facet,
-          identifiers_facet,
           collection_object_query_facet,
         ]
 

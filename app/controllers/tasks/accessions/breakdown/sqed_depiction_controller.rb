@@ -75,7 +75,6 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
   def filter_params
     a = params.permit(
       ::Queries::SqedDepiction::Filter::COLLECTION_OBJECT_FILTER_PARAMS,
-      :local_identifiers,
       :recent,
       :user_date_end,
       :user_date_start,

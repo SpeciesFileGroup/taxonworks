@@ -22,7 +22,7 @@ module SqedDepictionsHelper
         depiction_id: sqed_depiction.depiction.id,
       )
 
-     return image_tag(result.image_path_for_large_image(section), id: 'little1', class: 'little_image clickable')
+      return image_tag(result.image_path_for_large_image(section), id: 'little1', class: 'little_image clickable')
     rescue
       return content_tag(:div, link_to('Error parsing.', depiction_path(sqed_depiction.depiction)), class: :warning)
     end
@@ -123,7 +123,7 @@ module SqedDepictionsHelper
       .with_collection_object_data
       .order('collection_objects.updated_at')
       .first
-      content_tag(:span, ('Last update by you: ' + sqed_card_link(o)).html_safe, class: [:feedback, 'feedback-success', 'feedback-thin'])
+    content_tag(:span, ('Last update by you: ' + sqed_card_link(o)).html_safe, class: [:feedback, 'feedback-success', 'feedback-thin'])
     else
       nil
     end
@@ -161,7 +161,7 @@ module SqedDepictionsHelper
   def sqed_waxy_metadata(sqed_depiction)
     o = sqed_depiction.depiction_object
     [
-      (o.identifiers.visible(sessions_current_project_id).any? ? 1 : 0),
+      (o.identifiers.local.any? ? 1 : 0),
       (o.buffered_collecting_event.blank? ? 0 : 1),
       (o.buffered_determinations.blank? ? 0 : 1),
       (o.buffered_other_labels.blank? ? 0 : 1),
@@ -173,8 +173,8 @@ module SqedDepictionsHelper
   def sqed_waxy_legend_section_tag(position, label)
     layout = Waxy::Geometry::Layout.new(
       Waxy::Geometry::Orientation::LAYOUT_POINTY,
-      Waxy::Geometry::Point.new(15,15), # size
-      Waxy::Geometry::Point.new(15,15), # start
+      Waxy::Geometry::Point.new(10,10), # size
+      Waxy::Geometry::Point.new(10,10), # start
     )
 
     a = Waxy::Meta.new
@@ -185,16 +185,16 @@ module SqedDepictionsHelper
     c = Waxy::Render::Svg::Canvas.new(35, 35)
     c.body << Waxy::Render::Svg.rectangle(layout, meta)
 
-    content_tag(:figure) do
+    tag.figure do
       c.to_svg.html_safe +
-        content_tag(:figcaption, label)
+        tag.fig_caption(label)
     end
   end
 
   def sqed_waxy_legend_tag
     l = ''
     {
-      0 => 'Identifier(s)',
+      0 => 'Local identifier(s)',
       1 => 'Buffered collecting event',
       2 => 'Buffered determination',
       3 => 'Buffered other labels',
@@ -203,10 +203,9 @@ module SqedDepictionsHelper
     }.each do |i,label|
       l << sqed_waxy_legend_section_tag(i, label)
     end
-    content_tag(:div) do
-      content_tag(:h3, 'Legend') +
-        content_tag(:p, content_tag(:em, 'Triangle indicates data presence')) +
-        content_tag(:div, l.html_safe)
+    tag.div do
+      tag.h3('Legend') +
+        l.html_safe
     end
   end
 
