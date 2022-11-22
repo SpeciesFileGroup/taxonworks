@@ -195,11 +195,11 @@ export default {
 
     openImageMatrix (observationMatrixId) {
       if (this.alreadyInCurrentMatrix.length) {
-        window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_filter=${this.getRowId(observationMatrixId)}`, '_blank')
+        window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_filter=${this.getRowId(observationMatrixId)}&edit=true`, '_blank')
         this.$emit('close')
       } else {
         this.createRow().then(() => {
-          window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_filter=${this.getRowId(observationMatrixId)}`, '_blank')
+          window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_filter=${this.getRowId(observationMatrixId)}&edit=true`, '_blank')
           this.$emit('close')
         })
       }

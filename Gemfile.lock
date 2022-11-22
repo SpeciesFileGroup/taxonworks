@@ -157,7 +157,7 @@ GEM
     brakeman (5.3.1)
     builder (3.2.4)
     byebug (11.1.3)
-    capybara (3.37.1)
+    capybara (3.38.0)
       addressable
       matrix
       mini_mime (>= 0.1.3)
@@ -217,7 +217,7 @@ GEM
     exception_notification (4.5.0)
       actionmailer (>= 5.2, < 8)
       activesupport (>= 5.2, < 8)
-    excon (0.93.1)
+    excon (0.94.0)
     execjs (2.8.1)
     factory_bot (6.2.1)
       activesupport (>= 5.0.0)
@@ -427,7 +427,7 @@ GEM
     rdoc (6.3.3)
     redcarpet (3.5.1)
     redis (4.8.0)
-    regexp_parser (1.8.2)
+    regexp_parser (2.6.0)
     request_store (1.5.1)
       rack (>= 1.4)
     require_all (3.0.0)
@@ -529,7 +529,7 @@ GEM
       rdoc (>= 5.0)
     seedbank (0.5.0)
       rake (>= 10.0)
-    selenium-webdriver (4.2.1)
+    selenium-webdriver (4.6.1)
       childprocess (>= 0.5, < 5.0)
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 3.0)
@@ -633,7 +633,7 @@ GEM
     xpath (3.2.0)
       nokogiri (~> 1.8)
     zaru (0.3.0)
-    zeitwerk (2.6.5)
+    zeitwerk (2.6.6)
     zip_tricks (5.6.0)
 
 PLATFORMS
@@ -655,7 +655,7 @@ DEPENDENCIES
   brakeman (~> 5.1, >= 4.6.1)
   bundler (~> 2.0)
   byebug (~> 11.1)
-  capybara (= 3.37.1)
+  capybara (~> 3.18)
   chartkick (~> 4.0)
   chronic (~> 0.10.2)
   chunky_png (~> 1.4.0)
@@ -740,7 +740,7 @@ DEPENDENCIES
   sassc-rails (~> 2.1.0)
   sdoc (~> 2.2.0)
   seedbank (~> 0.5.0)
-  selenium-webdriver (~> 4.2.0)
+  selenium-webdriver (~> 4.6, >= 4.6.1)
   serrano!
   shakapacker (~> 6.3)
   shortener (~> 0.8.0)

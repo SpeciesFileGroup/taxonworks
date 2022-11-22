@@ -17,8 +17,8 @@
 
     <div class="field">
       <%= label_tag :also_create_otu, 'Also create OTU:' -%>
-      <%= tag.strong(@result.also_create_otu&.to_i == 1 ? 'yes' : 'no') %>
-      <%= hidden_field_tag(:also_create_otu, @result.also_create_otu&.to_i == 1 ? '1' : '0' )  -%>
+      <%= tag.strong(@result.also_create_otu ? 'yes' : 'no') %>
+      <%= hidden_field_tag(:also_create_otu, @result.also_create_otu ? '1' : '0' )  -%>
     </div>
 
   <% else %>

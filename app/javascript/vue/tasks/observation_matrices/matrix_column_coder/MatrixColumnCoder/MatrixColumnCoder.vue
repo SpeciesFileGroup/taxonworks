@@ -24,10 +24,10 @@
           class="horizontal-right-content middle"
         >
           <OptionUnsecoredRows class="margin-medium-right" />
-          <OptionCharacterStateFilter
-            v-if="descriptor.type === componentName.Qualitative"
-            class="margin-small-right"
-          />
+          <template v-if="descriptor.type === componentName.Qualitative">
+            <OptionCharacterStatDisplay class="margin-small-right" />
+            <OptionCharacterStateFilter class="margin-small-right" />
+          </template>
           <RowObjectList class="margin-small-right" />
           <CodeColumn
             class="margin-small-right"
@@ -64,6 +64,7 @@ import { GetterNames } from '../store/getters/getters'
 import componentName from '../helpers/ComponentNames'
 import OptionUnsecoredRows from './Option/OptionUnsecoredRows.vue'
 import OptionCharacterStateFilter from './Option/OptionCharacterStateFilter.vue'
+import OptionCharacterStatDisplay from './Option/OptionCharacterStateDispaly.vue'
 import ContinuousDescriptor from './ContinuousDescriptor/ContinuousDescriptor.vue'
 import FreeTextDescriptor from './SingleObservationDescriptor/FreeText/FreeText.vue'
 import PresenceDescriptor from './SingleObservationDescriptor/PresenceDescriptor/PresenceDescriptor.vue'
@@ -77,6 +78,7 @@ import RadialNavigator from 'components/radials/navigation/radial.vue'
 import RowObjectList from './RowObjects/RowObjects.vue'
 import CodeColumn from './CodeColumn/CodeColumn.vue'
 import ObservationRowDestroy from './ObservationRow/ObservationRowDestroy.vue'
+
 
 export default {
   name: 'MatrixColumnCoder',
@@ -94,6 +96,7 @@ export default {
     RadialNavigator,
     OptionUnsecoredRows,
     OptionCharacterStateFilter,
+    OptionCharacterStatDisplay,
     Spinner,
     CodeColumn,
     ObservationRowDestroy

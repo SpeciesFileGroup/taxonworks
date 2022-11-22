@@ -10,6 +10,7 @@ module BatchLoad
     # The code (Rank Class) that new names will use
     attr_accessor :nomenclature_code
 
+    # @return Boolean
     # Whether to create an OTU as well
     attr_accessor :also_create_otu
 
@@ -25,6 +26,11 @@ module BatchLoad
       @also_create_otu = also_create_otu
 
       super(**args)
+    end
+
+    def also_create_otu
+      return true if [1, '1', true].include?(@also_create_otu)
+      false
     end
 
     # @return [String]
@@ -155,7 +161,7 @@ module BatchLoad
           else
             # Note we are not technically using the param like TaxonName.new(), so we can't just set the attribute
             # So we hack in the OTUs 'manually".  This also lets us see them in the result
-            if also_create_otu == '1'
+            if also_create_otu 
               parse_result.objects[:otu].push( Otu.new(taxon_name: p) )
             end
           end

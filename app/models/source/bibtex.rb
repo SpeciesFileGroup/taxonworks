@@ -870,24 +870,30 @@ class Source::Bibtex < Source
     end
   end
 
-  protected
-
-  def validate_year_suffix
-    a = get_author
-    unless year_suffix.blank? || year.blank? || a.blank?
-      if new_record?
-        s = Source.where(author: a, year: year, year_suffix: year_suffix).first
-      else
-        s = Source.where(author: a, year: year, year_suffix: year_suffix).not_self(self).first
-      end
-      errors.add(:year_suffix, " '#{year_suffix}' is already used for #{a} #{year}") unless s.nil?
+  # TODO: Replace with taxonworks.csl.  Move unsupported fields to
+  # wrappers in vue rendering.
+  # set cached values and copies active record relations into bibtex values
+  # @return [Ignored]
+  def set_cached
+    if errors.empty?
+      attributes_to_update = {}
+      attributes_to_update[:author] = get_bibtex_names('author') if authors.reload.size > 0
+      attributes_to_update[:editor] = get_bibtex_names('editor') if editors.reload.size > 0
+      attributes_to_update.merge!(
+        cached: get_cached,
+        cached_nomenclature_date: nomenclature_date,
+        cached_author_string: authority_name(false)
+      )
+      update_columns(attributes_to_update)
     end
   end
 
-  def italics_are_paired
-    l = title.scan('<i>')&.count
-    r = title.scan('</i>')&.count
-    errors.add(:title, 'italic markup is not paired') unless l == r
+  def get_cached
+    if errors.empty?
+      c = cached_string('html') # preserves our convention of <i>
+      return c
+    end
+    nil
   end
 
   # @param [String] type either `author` or `editor`
@@ -915,30 +921,24 @@ class Source::Bibtex < Source
     end
   end
 
-  # TODO: Replace with taxonworks.csl.  Move unsupported fields to
-  # wrappers in vue rendering.
-  # set cached values and copies active record relations into bibtex values
-  # @return [Ignored]
-  def set_cached
-    if errors.empty?
-      attributes_to_update = {}
-      attributes_to_update[:author] = get_bibtex_names('author') if authors.reload.size > 0
-      attributes_to_update[:editor] = get_bibtex_names('editor') if editors.reload.size > 0
-      attributes_to_update.merge!(
-        cached: get_cached,
-        cached_nomenclature_date: nomenclature_date,
-        cached_author_string: authority_name(false)
-      )
-      update_columns(attributes_to_update)
+  protected
+
+  def validate_year_suffix
+    a = get_author
+    unless year_suffix.blank? || year.blank? || a.blank?
+      if new_record?
+        s = Source.where(author: a, year: year, year_suffix: year_suffix).first
+      else
+        s = Source.where(author: a, year: year, year_suffix: year_suffix).not_self(self).first
+      end
+      errors.add(:year_suffix, " '#{year_suffix}' is already used for #{a} #{year}") unless s.nil?
     end
   end
 
-  def get_cached
-    if errors.empty?
-      c = cached_string('html') # preserves our convention of <i>
-      return c
-    end
-    nil
+  def italics_are_paired
+    l = title.scan('<i>')&.count
+    r = title.scan('</i>')&.count
+    errors.add(:title, 'italic markup is not paired') unless l == r
   end
 
   #region hard validations
@@ -983,3 +983,11 @@ class Source::Bibtex < Source
   end
 end
 
+def aaa
+  ids = []
+  Source.joins(:project_sources).where('project_sources.project_id = 13').first(100).each do |s|
+    s.soft_validate
+    ids.append(s.id) if s.soft_validations.messages.include?('Cached values should be updated')
+  end
+  ids
+end
