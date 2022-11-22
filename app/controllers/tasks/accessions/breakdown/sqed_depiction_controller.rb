@@ -10,7 +10,7 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
     @base_query = ::Queries::SqedDepiction::Filter.new(filter_params).all
       .where(project_id: sessions_current_project_id)
       .order(:id)
-    @sqed_depictions = @base_query.page(params[:page]).per(50)
+    @sqed_depictions = @base_query.page(params[:page]).per(params[:per] || 50)
     respond_to do |format|
       format.html {}
       format.json {}

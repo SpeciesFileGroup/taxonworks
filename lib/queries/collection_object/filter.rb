@@ -623,7 +623,7 @@ module Queries
           dwc_indexed_facet,
           geographic_area_facet,
           georeferences_facet,
-         
+
           # See Queries::Concerns::Identifiers
           identifier_between_facet,
           identifier_facet,

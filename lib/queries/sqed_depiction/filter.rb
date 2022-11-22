@@ -30,7 +30,7 @@ module Queries
         ::SqedDepiction.arel_table
       end
 
-      def query_base
+      def base_query
         ::SqedDepiction.select('sqed_depictions.*')
       end
 

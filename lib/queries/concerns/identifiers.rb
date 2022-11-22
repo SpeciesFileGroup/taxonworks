@@ -1,7 +1,7 @@
 # Helpers for queries that reference Identifier
 #
 # For filter queries:
-# !! requires a `query_base` method
+# !! Note that query_base here is *not* the same as base_query
 # !! requires `set_identifiers` be called in initialize()
 #
 # See spec/lib/queries/collection_object/filter_spec.rb for existing spec tests
@@ -257,6 +257,7 @@ module Queries::Concerns::Identifiers
 
   private
 
+  # !! This is not the same as base_query !!
   def query_base
     table.name.classify.safe_constantize
   end
