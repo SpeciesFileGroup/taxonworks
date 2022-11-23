@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import {
   CollectionObject,
   CollectingEvent,
+  TaxonDetermination,
   Identifier
 } from 'routes/endpoints'
 import { IDENTIFIER_LOCAL_CATALOG_NUMBER, COLLECTION_OBJECT } from 'constants/index'
@@ -32,8 +33,8 @@ const makeInitialState = () => ({
     identifier_object_id: undefined,
     identifier_object_type: COLLECTION_OBJECT,
     namespace_id: undefined,
-    type: IDENTIFIER_LOCAL_CATALOG_NUMBER
   },
+  namespace: undefined,
   otu: undefined
 })
 
@@ -63,11 +64,23 @@ export const useStore = defineStore('main', {
 
       Identifier.where({
         type: IDENTIFIER_LOCAL_CATALOG_NUMBER,
-        namespace_id: this.identifier.namespace_id,
+        namespace_id: this.namespace.id,
         identifier: this.identifier.identifier
       }).then(({ body }) => {
         this.createdIdentifiers = body
       })
+    },
+
+    createIdentifier (coId) {
+      const payload = {
+        identifier: this.identifier,
+        namespace_id: this.namespace.id,
+        type: IDENTIFIER_LOCAL_CATALOG_NUMBER,
+        identifier_object_id: coId,
+        identifier_object_type: COLLECTION_OBJECT
+      }
+
+      Identifier.create({ identifier: payload })
     }
   }
 })

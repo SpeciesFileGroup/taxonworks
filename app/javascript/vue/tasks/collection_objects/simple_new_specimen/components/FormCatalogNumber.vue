@@ -6,7 +6,7 @@
       <SmartSelector
         model="namespaces"
         :klass="COLLECTION_OBJECT"
-        @get-item="setNamespace"
+        v-model="store.namespace"
       >
         <template #tabs-right>
           <VLock
@@ -15,6 +15,11 @@
           />
         </template>
       </SmartSelector>
+      <SmartSelectorItem
+        :item="store.namespace"
+        label="name"
+        @unset="store.namespace = undefined"
+      />
     </fieldset>
 
     <div class="separate-top">
@@ -36,7 +41,7 @@
         </label>
       </div>
       <span
-        v-if="!store.identifier.namespace_id"
+        v-if="!store.namespace && store.identifier.identifier"
         style="color: red"
       >
         Namespace is needed.
@@ -58,6 +63,7 @@
 import { useStore } from '../store/useStore'
 import { COLLECTION_OBJECT } from 'constants/index'
 import SmartSelector from 'components/ui/SmartSelector.vue'
+import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
 import VLock from 'components/ui/VLock/index.vue'
 
 const store = useStore()

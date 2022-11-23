@@ -7,7 +7,7 @@
         model="otus"
         :target="TAXON_DETERMINATION"
         :klass="TAXON_DETERMINATION"
-        @get-item="setOtu"
+        v-model="store.otu"
       >
         <template #tabs-right>
           <VLock
@@ -16,6 +16,11 @@
           />
         </template>
       </SmartSelector>
+      <hr>
+      <SmartSelectorItem
+        :item="store.otu"
+        @unset="store.otu = undefined"
+      />
     </fieldset>
   </div>
 </template>
@@ -24,12 +29,9 @@
 import { TAXON_DETERMINATION } from 'constants/index'
 import { useStore } from '../store/useStore'
 import SmartSelector from 'components/ui/SmartSelector.vue'
+import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
 import VLock from 'components/ui/VLock/index.vue'
 
 const store = useStore()
-
-function setOtu (value) {
-  store.otu = value
-}
 
 </script>
