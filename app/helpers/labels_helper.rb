@@ -75,7 +75,9 @@ module LabelsHelper
       "\n" +
       tag.span(
         [o.taxonomy['order'], o.taxonomy['family']].compact.join(': '), class: 'unit_tray_header1_bottom'
-      ), class: 'unit_tray_header1')
+      ) +
+      tag.div('', class: 'unit_tray_header1_footer'),
+      class: 'unit_tray_header1')
   end
 
   # Object is a Container
