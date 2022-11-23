@@ -11,10 +11,11 @@
         <template #tabs-right>
           <VLock
             class="margin-small-left"
-            v-model="store.settings.lock.identifier"
+            v-model="store.settings.lock.namespace"
           />
         </template>
       </SmartSelector>
+      <hr v-if="store.namespace">
       <SmartSelectorItem
         :item="store.namespace"
         label="name"
@@ -30,7 +31,7 @@
           :class="{ 'validate-identifier': store.createdIdentifiers.length }"
           type="text"
           @input="checkIdentifier"
-          v-model="store.identifier.identifier"
+          v-model="store.identifier"
         >
         <label>
           <input
@@ -41,7 +42,7 @@
         </label>
       </div>
       <span
-        v-if="!store.namespace && store.identifier.identifier"
+        v-if="!store.namespace && store.identifier"
         style="color: red"
       >
         Namespace is needed.
@@ -76,10 +77,6 @@ function checkIdentifier () {
   timeoutRequest = setTimeout(() => {
     store.getIdentifiers()
   }, DELAY)
-}
-
-function setNamespace ({ id }) {
-  store.identifier.namespace_id = id
 }
 
 </script>

@@ -2,17 +2,18 @@
   <fieldset>
     <legend>Geographic area</legend>
     <SmartSelector
+      v-model="store.geographicArea"
       ref="smartSelector"
       model="geographic_areas"
       target="CollectingEvent"
       label="name"
       klass="CollectingEvent"
-      @selected="store.geographicArea = $event"
     />
+    <hr v-if="store.geographicArea">
     <SmartSelectorItem
       :item="store.geographicArea"
-      label="object_tag"
-      @unset="state.geographicArea = undefined"
+      label="name"
+      @unset="store.geographicArea = undefined"
     />
   </fieldset>
 </template>

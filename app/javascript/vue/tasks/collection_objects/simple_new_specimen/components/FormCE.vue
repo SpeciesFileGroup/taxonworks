@@ -2,7 +2,7 @@
   <div class="panel content">
     <div class="flex-separate middle">
       <h2>Collecting event</h2>
-      <VLock v-model="store.settings.lock.collectingEvent"/>
+      <VLock v-model="store.settings.lock.collectingEvent" />
     </div>
     <div class="field label-above">
       <label>Verbatim label</label>
@@ -25,9 +25,21 @@
 </template>
 
 <script setup>
+import { watch } from 'vue'
 import { useStore } from '../store/useStore'
 import GeographicArea from './GeographicArea.vue'
 import VLock from 'components/ui/VLock/index.vue'
 
 const store = useStore()
+
+watch(
+  [
+    () => store.geographicArea,
+    store.collectingEvent
+  ],
+  () => {
+    store.createdCE = undefined
+  },
+  { deep: true }
+)
 </script>

@@ -2,7 +2,7 @@
   <div class="panel content">
     <div class="flex-separate middle">
       <h2>Preparation</h2>
-      <VLock v-model="store.settings.lock.preparationType" />
+      <VLock v-model="store.settings.lock.preparationTypeId" />
     </div>
     <div class="horizontal-left-content align-start">
       <ul
@@ -18,7 +18,7 @@
             <input
               type="radio"
               :value="preparationType.id"
-              v-model="store.collectionObject.preparation_type_id"
+              v-model="store.preparationTypeId"
               name="collection-object-type"
             >
             {{ preparationType.name }}

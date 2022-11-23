@@ -12,11 +12,11 @@
         <template #tabs-right>
           <VLock
             class="margin-small-left"
-            v-model="store.settings.lock.determination"
+            v-model="store.settings.lock.otu"
           />
         </template>
       </SmartSelector>
-      <hr>
+      <hr v-if="store.otu">
       <SmartSelectorItem
         :item="store.otu"
         @unset="store.otu = undefined"

@@ -4,6 +4,15 @@
     <template #header>
       <h3>Form</h3>
     </template>
+    <template #options>
+      <VBtn
+        color="create"
+        medium
+        @click="store.createNewSpecimen()"
+      >
+        Create
+      </VBtn>
+    </template>
     <template #body>
       <div
         class="margin-medium-bottom"
@@ -26,6 +35,11 @@ import FormCatalogNumber from './components/FormCatalogNumber.vue'
 import FormDepictions from './components/FormDepictions.vue'
 import FormDetermination from './components/FormDetermination.vue'
 import BlockLayout from 'components/layout/BlockLayout.vue'
+import VBtn from 'components/ui/VBtn/index.vue'
+
+import { useStore } from './store/useStore'
+
+const store = useStore()
 </script>
 
 <style lang="scss">
