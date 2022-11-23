@@ -22,7 +22,8 @@ const makeInitialState = () => ({
   geographicArea: undefined,
   identifier: undefined,
   namespace: undefined,
-  otu: undefined
+  otu: undefined,
+  recentList: []
 })
 
 export const useStore = defineStore('main', {

@@ -5,5 +5,6 @@ export default {
   CreateNewSpecimen: 'createNewSpecimen',
   CreateTaxonDetermination: 'createTaxonDetermination',
   GetIdentifiers: 'getIdentifiers',
+  GetRecent: 'getRecent',
   ResetStore: 'resetStore'
 }

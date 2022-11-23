@@ -1,3 +1,5 @@
+import ActionNames from './actionNames.js'
+
 export default async function () {
   if (
     !this.createdCE &&
@@ -7,22 +9,23 @@ export default async function () {
       this.geographicArea
     )
   ) {
-    await this.createCollectingEvent()
+    await this[ActionNames.CreateCollectingEvent]()
   }
 
-  this.createdCO = (await this.createCollectionObject()).body
+  this.createdCO = (await this[ActionNames.CreateCollectionObject]()).body
 
   if (
     this.identifier &&
     this.namespace &&
     !this.createdIdentifiers.length
   ) {
-    this.createIdentifier()
+    this[ActionNames.CreateIdentifier]()
   }
 
   if (this.otu) {
-    this.createTaxonDetermination()
+    this[ActionNames.CreateTaxonDetermination]()
   }
 
-  this.resetStore()
+  this[ActionNames.GetRecent]()
+  this[ActionNames.ResetStore]()
 }
