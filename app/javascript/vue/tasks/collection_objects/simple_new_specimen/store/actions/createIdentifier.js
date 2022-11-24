@@ -13,5 +13,5 @@ export default function () {
     identifier_object_type: COLLECTION_OBJECT
   }
 
-  Identifier.create({ identifier: payload })
+  return Identifier.create({ identifier: payload })
 }

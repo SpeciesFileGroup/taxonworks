@@ -1,36 +1,34 @@
 <template>
-  <div class="panel content">
+  <div>
     <div class="flex-separate middle">
-      <h2>Preparation</h2>
-      <VLock v-model="store.settings.lock.preparationTypeId" />
+      <span>Preparation type</span>
     </div>
     <div class="horizontal-left-content align-start">
-      <ul
-        v-for="(itemsGroup, index) in chunkList"
-        :key="index"
-        class="no_bullets full_width"
+      <select
+        class="half_width"
+        v-model="store.preparationTypeId"
       >
-        <li
-          v-for="preparationType in itemsGroup"
-          :key="preparationType.id"
+        <option :value="undefined">
+          None
+        </option>
+        <option
+          v-for="(item) in preparationTypes"
+          :key="item.id"
+          :value="item.id"
         >
-          <label>
-            <input
-              type="radio"
-              :value="preparationType.id"
-              v-model="store.preparationTypeId"
-              name="collection-object-type"
-            >
-            {{ preparationType.name }}
-          </label>
-        </li>
-      </ul>
+          {{ item.name }}
+        </option>
+      </select>
+      <VLock
+        class="margin-small-left"
+        v-model="store.settings.lock.preparationTypeId"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { PreparationType } from 'routes/endpoints'
 import { useStore } from '../store/useStore.js'
 import VLock from 'components/ui/VLock/index.vue'
@@ -47,9 +45,5 @@ PreparationType.where({}).then(({ body }) => {
     }
   ]
 })
-
-const chunkList = computed(() =>
-  preparationTypes.value.chunk(Math.ceil(preparationTypes.value.length / 3))
-)
 
 </script>

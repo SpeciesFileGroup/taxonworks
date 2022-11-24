@@ -1,37 +1,40 @@
 <template>
-  <div class="panel content">
-    <h2>Catalog number</h2>
-    <fieldset>
-      <legend>Namespace</legend>
-      <SmartSelector
-        model="namespaces"
-        :klass="COLLECTION_OBJECT"
-        v-model="store.namespace"
-      >
-        <template #tabs-right>
-          <VLock
-            class="margin-small-left"
-            v-model="store.settings.lock.namespace"
-          />
-        </template>
-      </SmartSelector>
-      <hr v-if="store.namespace">
-      <SmartSelectorItem
+  <div>
+    <label>Namespace</label>
+    <div class="horizontal-left-content middle field">
+      <SelectedItem
+        v-if="store.namespace"
+        class="full_width"
+        label="label"
         :item="store.namespace"
-        label="name"
         @unset="store.namespace = undefined"
       />
-    </fieldset>
+      <Autocomplete
+        v-else
+        ref="autocompleteComponent"
+        class="full_width"
+        url="/namespaces/autocomplete"
+        param="term"
+        label="label_html"
+        clear-after
+        autofocus
+        placeholder="Search a namespace..."
+        @get-item="store.namespace = $event"
+      />
+      <VLock
+        class="margin-small-left"
+        v-model="store.settings.lock.namespace"
+      />
+    </div>
 
-    <div class="separate-top">
+    <div class="">
       <label>Identifier</label>
-      <div class="horizontal-left-content field">
+      <div class="horizontal-left-content">
         <input
-          id="identifier-field"
-          :class="{ 'validate-identifier': store.createdIdentifiers.length }"
           type="text"
-          @input="checkIdentifier"
+          class="half_width"
           v-model="store.identifier"
+          @input="checkIdentifier"
         >
         <label>
           <input
@@ -61,12 +64,13 @@
 </template>
 
 <script setup>
+import { onMounted, ref } from 'vue'
 import { useStore } from '../store/useStore'
-import { COLLECTION_OBJECT } from 'constants/index'
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
+import SelectedItem from './SelectedItem.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import VLock from 'components/ui/VLock/index.vue'
 
+const autocompleteComponent = ref(null)
 const store = useStore()
 const DELAY = 1000
 let timeoutRequest
@@ -78,5 +82,9 @@ function checkIdentifier () {
     store.getIdentifiers()
   }, DELAY)
 }
+
+onMounted(() => {
+  setTimeout(() => autocompleteComponent.value.setFocus(), 250)
+})
 
 </script>

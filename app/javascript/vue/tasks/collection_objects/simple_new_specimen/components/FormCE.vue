@@ -1,7 +1,8 @@
 <template>
-  <div class="panel content">
+  <div>
+    <hr>
     <div class="flex-separate middle">
-      <h2>Collecting event</h2>
+      <h3>Collecting event</h3>
       <VLock v-model="store.settings.lock.collectingEvent" />
     </div>
     <div class="field label-above">

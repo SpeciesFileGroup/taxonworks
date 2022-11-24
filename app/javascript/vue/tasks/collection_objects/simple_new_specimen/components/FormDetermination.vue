@@ -1,35 +1,35 @@
 <template>
-  <div class="panel content">
-    <h2>Determination</h2>
-    <fieldset>
-      <legend>OTU</legend>
-      <SmartSelector
-        model="otus"
-        :target="TAXON_DETERMINATION"
-        :klass="TAXON_DETERMINATION"
-        v-model="store.otu"
-      >
-        <template #tabs-right>
-          <VLock
-            class="margin-small-left"
-            v-model="store.settings.lock.otu"
-          />
-        </template>
-      </SmartSelector>
-      <hr v-if="store.otu">
-      <SmartSelectorItem
+  <div>
+    <label>OTU</label>
+    <div class="horizontal-left-content middle field">
+      <SelectedItem
+        v-if="store.otu"
+        class="full_width"
         :item="store.otu"
         @unset="store.otu = undefined"
       />
-    </fieldset>
+      <Autocomplete
+        v-else
+        class="full_width"
+        url="/otus/autocomplete"
+        placeholder="Search an OTU"
+        label="label_html"
+        display="label"
+        param="term"
+        @get-item="store.otu = $event"
+      />
+      <VLock
+        class="margin-small-left"
+        v-model="store.settings.lock.otu"
+      />
+    </div>
   </div>
 </template>
 
 <script setup>
-import { TAXON_DETERMINATION } from 'constants/index'
 import { useStore } from '../store/useStore'
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
+import SelectedItem from './SelectedItem.vue'
 import VLock from 'components/ui/VLock/index.vue'
 
 const store = useStore()

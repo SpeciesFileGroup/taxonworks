@@ -6,5 +6,5 @@ export default function () {
     biological_collection_object_id: this.createdCO.id
   }
 
-  TaxonDetermination.create({ taxon_determination: payload })
+  return TaxonDetermination.create({ taxon_determination: payload })
 }

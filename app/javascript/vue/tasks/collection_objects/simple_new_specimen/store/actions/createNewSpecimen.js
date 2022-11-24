@@ -1,6 +1,8 @@
 import ActionNames from './actionNames.js'
 
 export default async function () {
+  const promises = []
+
   if (
     !this.createdCE &&
     (
@@ -19,13 +21,15 @@ export default async function () {
     this.namespace &&
     !this.createdIdentifiers.length
   ) {
-    this[ActionNames.CreateIdentifier]()
+    promises.push(this[ActionNames.CreateIdentifier]())
   }
 
   if (this.otu) {
-    this[ActionNames.CreateTaxonDetermination]()
+    promises.push(this[ActionNames.CreateTaxonDetermination]())
   }
 
-  this[ActionNames.GetRecent]()
-  this[ActionNames.ResetStore]()
+  Promise.allSettled(promises).then(_ => {
+    this[ActionNames.GetRecent]()
+    this[ActionNames.ResetStore]()
+  })
 }

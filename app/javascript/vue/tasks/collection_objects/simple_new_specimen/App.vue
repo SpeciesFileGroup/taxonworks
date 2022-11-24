@@ -3,28 +3,32 @@
     <h1>Simple new specimen</h1>
     <BlockLayout>
       <template #header>
-        <h3>Form</h3>
-      </template>
-      <template #options>
-        <VBtn
-          color="create"
-          medium
-          @click="store.createNewSpecimen()"
-        >
-          Create
-        </VBtn>
+        <h3>Information</h3>
       </template>
       <template #body>
         <div
           class="margin-medium-bottom"
           id="collection-object-form"
+          ref="root"
         >
-          <FormCatalogNumber />
-          <FormPreparationType />
-          <FormDetermination />
+          <div>
+            <FormCatalogNumber class="margin-medium-bottom" />
+            <FormPreparationType class="margin-medium-bottom" />
+            <FormDetermination class="margin-medium-bottom" />
+            <FormCE />
+          </div>
           <FormDepictions />
+          <div>
+            <VBtn
+              color="create"
+              medium
+              @click="store.createNewSpecimen()"
+              @keydown.tab.prevent="setFristAutofocusElement"
+            >
+              Create
+            </VBtn>
+          </div>
         </div>
-        <FormCE />
       </template>
     </BlockLayout>
   </div>
@@ -40,12 +44,36 @@ import FormDetermination from './components/FormDetermination.vue'
 import BlockLayout from 'components/layout/BlockLayout.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import RecentTable from './components/RecentTable.vue'
+import { ref } from 'vue'
 import { useStore } from './store/useStore'
 import { ActionNames } from './store/actions/actions'
 
 const store = useStore()
+const root = ref(null)
 
 store[ActionNames.GetRecent]()
+
+const setFristAutofocusElement = () => {
+  const element = root.value.querySelector('#collection-object-form input[type="text"]:not([disabled])')
+
+  if (element) {
+    element.focus()
+  }
+}
+
+const unsubscribe = store.$onAction(
+  ({
+    name,
+    after
+  }) => {
+    if (name !== ActionNames.CreateNewSpecimen) {
+      return
+    }
+
+    after(_ => {
+      setFristAutofocusElement()
+    })
+  })
 </script>
 
 <style lang="scss">
