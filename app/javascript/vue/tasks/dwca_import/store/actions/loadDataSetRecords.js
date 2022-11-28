@@ -21,10 +21,10 @@ export default ({ state, commit, getters }, page) => {
     GetDatasetRecords(state.dataset.id, {
       params: {
         page: loadPage,
-        ...state.paramsFilter,
-        paramsSerializer: {
-          serialize: (params) => Qs.stringify(params, { arrayFormat: 'brackets' })
-        }
+        ...state.paramsFilter
+      },
+      paramsSerializer: {
+        serialize: (params) => Qs.stringify(params, { arrayFormat: 'brackets' })
       }
     }).then(response => {
       commit(MutationNames.SetPagination, GetPagination(response))
