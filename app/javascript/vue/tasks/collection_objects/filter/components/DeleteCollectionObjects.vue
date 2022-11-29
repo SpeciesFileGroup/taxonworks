@@ -2,12 +2,16 @@
   <div>
     <ConfirmationModal ref="confirmationModal" />
     <VBtn
+      class="circle-button"
       color="primary"
-      medium
+      circle
       :disabled="disabled"
       @click="openModal"
     >
-      Delete collection objects
+      <VIcon
+        name="trash"
+        x-small
+      />
     </VBtn>
   </div>
 </template>
@@ -16,6 +20,7 @@
 import { ref } from 'vue'
 import { CollectionObject } from 'routes/endpoints'
 import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
 import ConfirmationModal from 'components/ConfirmationModal.vue'
 
 const CONFIRM_WORD = 'DELETE'
