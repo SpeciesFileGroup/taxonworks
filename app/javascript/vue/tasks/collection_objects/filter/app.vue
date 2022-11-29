@@ -53,8 +53,19 @@
         >
           <div class="horizontal-left-content">
             <tag-all
+              class="circle-button"
               :ids="ids"
               type="CollectionObject"
+            />
+            <DeleteCollectionObjects
+              :ids="ids"
+              :disabled="!ids.length"
+              @delete="removeCOFromList"
+            />
+            <RadialFilter
+              :disabled="!ids.length"
+              object-type="CollectingEvent"
+              :parameters="{ collection_object_id: ids }"
             />
 
             <span class="separate-left separate-right">|</span>
@@ -76,17 +87,6 @@
               :ids="ids"
               :url="urlRequest"
               class="margin-small-left"
-            />
-            <DeleteCollectionObjects
-              class="margin-small-left"
-              :ids="ids"
-              :disabled="!ids.length"
-              @delete="removeCOFromList"
-            />
-            <RadialFilter
-              :disabled="!ids.length"
-              object-type="CollectingEvent"
-              :parameters="{ collection_object_id: ids }"
             />
           </div>
         </div>
