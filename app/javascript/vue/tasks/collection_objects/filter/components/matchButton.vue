@@ -5,7 +5,7 @@
     :disabled="!urlParams"
     @click="openTask"
   >
-    Send this filter to Match collection object
+    Send result to Match collection object
   </v-btn>
 </template>
 <script setup>
