@@ -49,7 +49,7 @@ function deleteCOs () {
 
   Promise.allSettled(requests).then(_ => {
     const message = failedCount
-      ? `Deleted: ${destroyedIds.length} object(s). Failed to delete: ${failedCount}`
+      ? `Deleted: ${destroyedIds.length} object(s). Failed to delete: ${failedCount}.`
       : `Deleted: ${destroyedIds.length} object(s).`
 
     TW.workbench.alert.create(message, 'notice')
@@ -66,7 +66,7 @@ async function openModal () {
 
   const ok = await confirmationModal.value.show({
     title: 'Delete collection objects',
-    message: `This will delete ${props.ids.length} collection objects. Are you sure you want to proceed?`,
+    message: `This will delete ${props.ids.length} collection objects and their associated determinations and annotations (e.g. Notes). Are you sure you want to proceed?`,
     confirmationWord: props.ids.length >= MIN_CONFIRM ? CONFIRM_WORD : '',
     okButton: 'Delete',
     cancelButton: 'Cancel',
