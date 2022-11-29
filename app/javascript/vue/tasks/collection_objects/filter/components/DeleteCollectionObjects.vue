@@ -65,6 +65,14 @@ function deleteCOs () {
   })
 }
 
+function makeList (title, obj) {
+  const entries = Object.entries(obj)
+
+  return entries.length
+    ? `<h3>${title}</h3>` + entries.map(([type, count]) => `<li>${humanize(type)}: ${count}</li>`).join('')
+    : ''
+}
+
 async function openModal () {
   if (props.ids.length > MAX) {
     TW.workbench.alert.create(`Select a maximum of ${MAX} objects to delete.`, 'error')
@@ -82,14 +90,9 @@ async function openModal () {
     message: `
       This will delete ${props.ids.length} collection objects and their associated determinations and annotations (e.g. Notes).
       <br>
-      <h3>Related records that will be destroyed:</h3>
-      <ul>
-        ${Object.entries(metadata.value.destroy).map(([type, count]) => `<li>${humanize(type)}: ${count}</li>`).join('')}
-      </ul>
-      <h3>Records preventing the destruction of one or more objects exist:</h3>
-      <ul>
-        ${Object.entries(metadata.value.restrict).map(([type, count]) => `<li>${humanize(type)}: ${count}</li>`).join('')}
-      </ul>      
+      ${makeList('Related records that will be destroyed:', metadata.value.destroy)}
+      ${makeList('Records preventing the destruction of one or more objects exist:', metadata.value.restrict)}
+      <br>
       Are you sure you want to proceed?`,
     confirmationWord: props.ids.length >= MIN_CONFIRM ? CONFIRM_WORD : '',
     okButton: 'Delete',
