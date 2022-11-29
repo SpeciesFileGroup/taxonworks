@@ -10,7 +10,11 @@ module Export::Coldp::Files::SpeciesInteraction
   def self.taxon_id(ba)
     subject_otu = nil
     if ba.biological_association_subject_type == "Otu"
-      subject_otu = Otu.find(ba.biological_association_subject_id).id
+      begin
+        subject_otu = Otu.find(ba.biological_association_subject_id).id
+      rescue ActiveRecord::RecordNotFound
+        subject_otu = nil
+      end
     end
     subject_otu
   end
@@ -18,18 +22,26 @@ module Export::Coldp::Files::SpeciesInteraction
   def self.related_taxon_id(ba)
     object_otu = nil
     if ba.biological_association_object_type == "Otu"
-      object_otu = Otu.find(ba.biological_association_object_id).id
+      begin
+        object_otu = Otu.find(ba.biological_association_object_id).id
+      rescue ActiveRecord::RecordNotFound
+        object_otu = nil
+      end
     end
     object_otu
   end
 
   def self.related_taxon_scientific_name(otu_id)
     object_taxon_name = nil
-    o = Otu.find(otu_id)
+    begin
+      o = Otu.find(otu_id)
+    rescue ActiveRecord::RecordNotFound
+      return nil
+    end
     if !o.taxon_name_id.nil?
       object_taxon_name = TaxonName.find(o.taxon_name_id).cached
     else
-      unless object_otu.name.nil?
+      unless o.name.nil?
         object_taxon_name = o.name
       end
     end
@@ -56,7 +68,7 @@ module Export::Coldp::Files::SpeciesInteraction
         remarks
       }
 
-      otus.joins(:biological_associations).distinct.each do |o|
+      otus.joins(:biological_associations).where("biological_associations.biological_association_subject_type = 'Otu' and biological_associations.biological_association_object_type = 'Otu'").distinct.each do |o|
         o.biological_associations.each do |ba|
 
           taxon_id = taxon_id(ba)
@@ -73,19 +85,6 @@ module Export::Coldp::Files::SpeciesInteraction
             reference_id,                                             # referenceID
             nil,                                                      # remarks
           ]
-
-          # TODO: Should inverted relationship be included, too?
-          inverted_type = species_interaction_type(ba, true)
-          unless inverted_type.nil?
-            csv << [
-              related_taxon_id,                                       # taxonID
-              taxon_id,                                               # relatedTaxonID
-              related_taxon_scientific_name(taxon_id),                # relatedTaxonScientificName
-              inverted_type,                                          # type
-              reference_id,                                           # referenceID
-              nil,                                                    # remarks
-            ]
-          end
 
           Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv) if reference_csv
         end
