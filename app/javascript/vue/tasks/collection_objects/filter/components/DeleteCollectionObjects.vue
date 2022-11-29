@@ -18,7 +18,9 @@
 
 <script setup>
 import { ref } from 'vue'
-import { CollectionObject } from 'routes/endpoints'
+import { CollectionObject, Metadata } from 'routes/endpoints'
+import { COLLECTION_OBJECT } from 'constants/index'
+import { humanize } from 'helpers/strings'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
 import ConfirmationModal from 'components/ConfirmationModal.vue'
@@ -41,6 +43,7 @@ const props = defineProps({
 
 const emit = defineEmits(['delete'])
 const confirmationModal = ref(null)
+const metadata = ref({})
 
 function deleteCOs () {
   let failedCount = 0
@@ -69,9 +72,25 @@ async function openModal () {
     return
   }
 
+  metadata.value = (await Metadata.relatedSummary({
+    id: props.ids,
+    klass: COLLECTION_OBJECT
+  })).body
+
   const ok = await confirmationModal.value.show({
     title: 'Delete collection objects',
-    message: `This will delete ${props.ids.length} collection objects and their associated determinations and annotations (e.g. Notes). Are you sure you want to proceed?`,
+    message: `
+      This will delete ${props.ids.length} collection objects and their associated determinations and annotations (e.g. Notes).
+      <br>
+      <h3>Related records that will be destroyed:</h3>
+      <ul>
+        ${Object.entries(metadata.value.destroy).map(([type, count]) => `<li>${humanize(type)}: ${count}</li>`).join('')}
+      </ul>
+      <h3>Records preventing the destruction of one or more objects exist:</h3>
+      <ul>
+        ${Object.entries(metadata.value.restrict).map(([type, count]) => `<li>${humanize(type)}: ${count}</li>`).join('')}
+      </ul>      
+      Are you sure you want to proceed?`,
     confirmationWord: props.ids.length >= MIN_CONFIRM ? CONFIRM_WORD : '',
     okButton: 'Delete',
     cancelButton: 'Cancel',
