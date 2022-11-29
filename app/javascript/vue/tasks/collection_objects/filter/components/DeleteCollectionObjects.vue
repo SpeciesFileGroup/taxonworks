@@ -88,7 +88,7 @@ async function openModal () {
   const ok = await confirmationModal.value.show({
     title: 'Delete collection objects',
     message: `
-      This will delete ${props.ids.length} collection objects and their associated determinations and annotations (e.g. Notes).
+      This will delete ${props.ids.length} collection objects and their associate records (see below).
       <br>
       ${makeList('Related records that will be destroyed:', metadata.value.destroy)}
       ${makeList('Records preventing the destruction of one or more objects exist:', metadata.value.restrict)}
