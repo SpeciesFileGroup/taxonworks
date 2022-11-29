@@ -84,11 +84,9 @@ module Export::Coldp::Files::Taxon
   def self.link(otu)
     # API or public interface
   end
-
-  # TODO: flag/exclude ! is_public
-  def self.remarks(otu)
-    if otu.notes.load.any?
-      otu.notes.pluck(:text).join('|')
+  def self.remarks(otu, taxon_remarks_vocab_id)
+    if !otu.data_attributes.find_by(controlled_vocabulary_term_id: taxon_remarks_vocab_id).nil?
+      otu.data_attributes.find_by(controlled_vocabulary_term_id: taxon_remarks_vocab_id).value
     else
       nil
     end
@@ -129,6 +127,15 @@ module Export::Coldp::Files::Taxon
         link
         remarks
       }
+
+      if root_otu_id.nil?
+        Current.project_id = otus[0].project_id
+      else
+        Current.project_id = Otu.find(root_otu_id).project_id
+      end
+
+      taxon_remarks_vocab_id = Predicate.find_by(uri: 'https://github.com/catalogueoflife/coldp#Taxon.remarks',
+                                                 project_id: Current.project_id)&.id
 
       otus.each do |o|
         # !! When a name is a synonmy (combination), but that combination has no OTU
@@ -179,7 +186,7 @@ module Export::Coldp::Files::Taxon
           predicate_value(o, :temporal_range_end),   # temporalRangeEnd
           predicate_value(o, :lifezone),             # lifezone
           link(o),                                   # link
-          remarks(o)                                 # remarks
+          remarks(o, taxon_remarks_vocab_id)         # remarks
         ]
 
         Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv) if reference_csv
