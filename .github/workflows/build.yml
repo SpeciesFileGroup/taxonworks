@@ -30,7 +30,7 @@ jobs:
       RAILS_ENV: test
       CROSSREF_EMAIL: ${{ secrets.CROSSREF_EMAIL }}
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         worker: [0, 1, 2, 3]
@@ -66,7 +66,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: vendor/bundle
-        key: ${{ runner.os }}-gems-rev6-${{ hashFiles('**/Gemfile.lock') }}
+        key: ${{ runner.os }}-gems-rev6-${{ hashFiles('**/Gemfile.lock', 'exe/install-imagemagick7.sh') }}
 
     - name: Set up Node 16 LTS
       uses: actions/setup-node@v3

@@ -1,7 +1,7 @@
 <div class="panel content">
   <h2> Activity of past 24 hours</h2>
 
-  <% d = User.where('last_seen_at > ?', 1.day.ago).group_by_hour_of_day(:last_seen_at, format: "%H").count.sort.collect{|a,b| b} %><br>
+<% d = User.where('last_seen_at > ?', 1.day.ago).order(:last_seen_at).pluck(:last_seen_at).collect{|t| ((Time.now - t) / 3600).to_i  }.inject(Hash.new(0)){|hsh, v| hsh[v] += 1; hsh} %><br>
 
   <div style="height: 280px; width: 420px;">
     <canvas id="myChart"></canvas>
@@ -14,10 +14,10 @@
     type: 'polarArea',
 
     data:  {
-      labels: [<%= (1..24).collect{|t| ('"' + t.to_s + '"').html_safe}.join(', ').html_safe %>],
+      labels: [<%= (0..23).collect{|t| ('"' + t.to_s + '"').html_safe}.join(', ').html_safe %>],
       datasets: [{
         label: 'Users in past 24 hours',
-        data: <%= d %> ,
+        data: <%=  (0..23).collect{|h| d[h] || 0} %> ,
         backgroundColor: [
           'rgb(250, 250, 110)',
           'rgb(228, 245, 112)',
@@ -46,6 +46,14 @@
       }]
     },
     options: {
+      scales: {
+        r: {
+         ticks: {
+           stepSize: 2.0
+          }
+        }
+      },
+
       responsibe: true,
       maintainAspectRatio: false,
       plugins: {

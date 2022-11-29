@@ -9,12 +9,23 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - Collection object Autocomplete has loan and deaccession banners [#3192]
 - Autocomplete on Browse collection object [#3189]
+- Task - Collection object chronology, a plot of object by year collected
 
 ### Fixed
+- 'Also create OTU' on batch taxon name upload causing raise
+- Media observations removed if they have no more depictions via updates
 - Citation link in Biological association panel on Browse OTU
 - Type relationship text/rendering is inverted in New taxon name [#3182]
+- Sqed processing failing to encode HEIC images [#3188]
+- Common list component doesn't filter created status on New taxon name task [#3205]
+
+### Changed
+- Refactored observation cell component for Image matrix
+- Updated Ruby gems
 
 [#3192]: https://github.com/SpeciesFileGroup/taxonworks/issues/3192
+[#3182]: https://github.com/SpeciesFileGroup/taxonworks/issues/3182
+[#3188]: https://github.com/SpeciesFileGroup/taxonworks/issues/3188
 [#3189]: https://github.com/SpeciesFileGroup/taxonworks/issues/3189
 
 ## [0.29.6] - 2022-11-08
@@ -32,8 +43,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated Browse collection object interface [#2297]
 - Reload New source task by pressing New and loading source
 - Updated Ruby gems
+- Updated node packages
 
 ### Fixed
+- Incorrect soft validation message on TaxonName relationship [#3184]
 - Browse nomenclature crashing when taxon name descendants have no cached author year
 - Soft validation crashing when cached nomenclature date is absent
 - Role picker is missing after create a source from BibTeX [#3180]
@@ -47,6 +60,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [0.29.5] - 2022-10-10
 
 ### Changed
+- Source cached_value calculation [#3181]
 - Changed author labels on Filter source [#3134]
 - Minor changes to plots on administration activity dashboard 
 - Parallelize some indexing rake tasks
@@ -3014,7 +3028,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.5...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.6...development
+[0.29.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.5...v0.29.6
 [0.29.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.4...v0.29.5
 [0.29.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.3...v0.29.4
 [0.29.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.2...v0.29.3

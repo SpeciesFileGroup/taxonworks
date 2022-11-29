@@ -738,3 +738,11 @@ paper_catalog_generator_task:
     - export
   status: prototype
   description: 'Experimenting with rendering nomenclature as a paper catalog'
+collection_object_chronology_task:
+  hub: true
+  name: 'Collection object chronology'
+  related:
+  categories:
+  - collection_object
+  status: prototype
+  description: 'All collection objects by year collected.'

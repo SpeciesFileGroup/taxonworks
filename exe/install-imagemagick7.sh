@@ -2,6 +2,7 @@
 set -e
 set -x
 apt-get update
+apt-get install -y libx265-dev
 apt-get build-dep -y libmagickcore-dev
 
 cd /usr/src/
