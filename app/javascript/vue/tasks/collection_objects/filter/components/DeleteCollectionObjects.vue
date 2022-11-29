@@ -4,6 +4,7 @@
     <VBtn
       color="primary"
       medium
+      :disabled="disabled"
       @click="openModal"
     >
       Delete collection objects
@@ -25,6 +26,11 @@ const props = defineProps({
   ids: {
     type: Array,
     default: () => []
+  },
+
+  disabled: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -32,11 +38,21 @@ const emit = defineEmits(['delete'])
 const confirmationModal = ref(null)
 
 function deleteCOs () {
+  let failedCount = 0
   const ids = [...props.ids]
   const destroyedIds = []
-  const requests = ids.map(id => CollectionObject.destroy(id).then(_ => destroyedIds.push(id)))
+  const requests = ids.map(id =>
+    CollectionObject.destroy(id)
+      .then(_ => destroyedIds.push(id))
+      .catch(_ => failedCount++)
+  )
 
   Promise.allSettled(requests).then(_ => {
+    const message = failedCount
+      ? `Deleted: ${destroyedIds.length} object(s). Failed to delete: ${failedCount}`
+      : `Deleted: ${destroyedIds.length} object(s).`
+
+    TW.workbench.alert.create(message, 'notice')
     emit('delete', destroyedIds)
   })
 }

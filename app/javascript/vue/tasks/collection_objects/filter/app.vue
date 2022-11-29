@@ -80,7 +80,8 @@
             <DeleteCollectionObjects
               class="margin-small-left"
               :ids="ids"
-              @delete="list.data = list.data.filter(r => !$event.includes(r[0]))"
+              :disabled="!ids.length"
+              @delete="removeCOFromList"
             />
             <RadialFilter
               :disabled="!ids.length"
@@ -226,6 +227,12 @@ export default {
     loadPage (event) {
       this.$refs.filterComponent.loadPage(event.page)
     },
+
+    removeCOFromList (ids) {
+      this.list.data = this.list.data.filter(r => !ids.includes(r[0]))
+      this.ids = this.ids.filter(id => !ids.includes(id))
+    },
+
     getPagination: GetPagination
   }
 }
