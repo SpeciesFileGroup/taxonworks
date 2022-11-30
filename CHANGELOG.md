@@ -7,6 +7,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- With/out local identifier facet for collection objects and stagd images [#3173]
+- Filter by housekeeping and staged-image data attributes [#3171]
 - Delete selected collection objects (and their related data) from filter [#3174]
 - Collection object Autocomplete has loan and deaccession banners [#3192]
 - Autocomplete on Browse collection object [#3189]
@@ -22,10 +24,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Common list component doesn't filter created status on New taxon name task [#3205]
 
 ### Changed
+- "TODO list" now a faceted search [#3171]
 - Refactored observation cell component for Image matrix
 - Updated Ruby gems
 - Webpack binaries: Replaced `npm bin` for `npm root` to allow compatibility with recent NPM versions
 
+[#3173]: https://github.com/SpeciesFileGroup/taxonworks/issues/3173
+[#3171]: https://github.com/SpeciesFileGroup/taxonworks/issues/3171
 [#3174]: https://github.com/SpeciesFileGroup/taxonworks/issues/3174
 [#3192]: https://github.com/SpeciesFileGroup/taxonworks/issues/3192
 [#3182]: https://github.com/SpeciesFileGroup/taxonworks/issues/3182
