@@ -26,7 +26,7 @@ module Export::Coldp::Files::Name
     original ? taxon_name.original_author_year : taxon_name.cached_author_year
   end
 
-  # https://api.catalogue.life/vocab/nomStatus
+  # https://api.checklistbank.org/vocab/nomStatus
   # @return [String, nil]
   # @params taxon_name [TaxonName]
   #   any TaxonName
@@ -122,12 +122,12 @@ module Export::Coldp::Files::Name
       subgenus,                                                  # subgenus (no parens)
       species,                                                   # species
       infraspecific_element ? infraspecific_element.last : nil,  # infraspecificEpithet
-      origin_citation&.source_id,                                # publishedInID    |
+      origin_citation&.source_id,                                # referenceID    |
       origin_citation&.pages,                                    # publishedInPage  | !! All origin citations get added to reference_csv via the main loop, not here
       t.year_of_publication,                                     # publishedInYear  |
       true,                                                      # original
       code_field(t),                                             # code
-      nil,                                                       # status https://api.catalogue.life/vocab/nomStatus
+      nil,                                                       # status https://api.checklistbank.org/vocab/nomStatus
       nil,                                                       # link (probably TW public or API)
       remarks_field(t),                                          # remarks
     ]
@@ -153,7 +153,7 @@ module Export::Coldp::Files::Name
         infragenericEpithet
         specificEpithet
         infraspecificEpithet
-        publishedInID
+        referenceID
         publishedInPage
         publishedInYear
         original
