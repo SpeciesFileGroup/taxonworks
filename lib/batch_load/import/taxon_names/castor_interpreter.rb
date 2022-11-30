@@ -62,18 +62,14 @@ module BatchLoad
         @processed_rows[i] = parse_result
 
         begin
-          next if row['rank'] == 'complex'
-          next if row['rank'] == 'species group'
-          next if row['rank'] == 'series'
-          next if row['rank'] == 'variety'
-          next if row['taxon_name'] == 'unidentified'
+          next if ['complex', 'species group', 'series', 'variety', 'unidentified'].include?(row['rank'])
 
           protonym_attributes = {
             name: row['taxon_name'],
             year_of_publication: year_of_publication(row['author_year']),
             rank_class: Ranks.lookup(@nomenclature_code.to_sym, row['rank']),
-            by: @user,
-            project: @project,
+            by: user,
+            project: project,
             verbatim_author: verbatim_author(row['author_year']),
             taxon_name_authors_attributes: taxon_name_authors_attributes(verbatim_author(row['author_year']))
           }
@@ -85,8 +81,8 @@ module BatchLoad
               year_of_publication: year_of_publication(row['author_year']),
               rank_class: Ranks.lookup(@nomenclature_code.to_sym, row['original_rank']),
               parent: parent_taxon_name,
-              by: @user,
-              project: @project,
+              by: user,
+              project: project,
               verbatim_author: verbatim_author(row['author_year']),
               taxon_name_authors_attributes: taxon_name_authors_attributes(verbatim_author(row['author_year']))
             }
@@ -119,17 +115,18 @@ module BatchLoad
 
           # TaxonNameRelationship
           related_name_id = row['related_name_id']
-
-          if !taxon_names[related_name_id].nil?
+          
+          if !taxon_names[related_name_id].blank?
             related_name_nomen_class = nil
 
             begin
-              related_name_nomen_class = row['related_name_nomen_class'].constantize
+              related_name_nomen_class = row['related_name_nomen_class'].safe_constantize
 
               if related_name_nomen_class.ancestors.include?(TaxonNameRelationship)
-                p.name = row['taxon_name'].split(' ')[-1]
-                p.verbatim_name = row['taxon_name']
-                taxon_name_relationship = related_name_nomen_class.new(subject_taxon_name: p, object_taxon_name: taxon_names[related_name_id])
+                
+                taxon_name_relationship = related_name_nomen_class.new(
+                  subject_taxon_name: p, object_taxon_name: taxon_names[related_name_id]
+                )
                 parse_result.objects[:taxon_name_relationship].push taxon_name_relationship
               end
             rescue NameError
@@ -138,6 +135,7 @@ module BatchLoad
 
           # TaxonNameClassification
 
+          # TODO: add to index, not here
           if name_nomen_classification = row['name_nomen_classification']
             if c = name_nomen_classification.safe_constantize
               # if EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(name_nomen_classification)
