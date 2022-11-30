@@ -17,7 +17,7 @@ module TaxonNames::PaperCatalogHelper
     nest_rank_headers: true, # in
     hanging_indents: false,  # does nothing
     only_origin_sources: true,
-  }
+  }.freeze
 
   # @return [Hash] like {
   #   body: HTML,
@@ -55,9 +55,9 @@ module TaxonNames::PaperCatalogHelper
       # distribution is only calculated for species level here!!
       d = paper_distribution_entry(taxon_name)
       if d && d.items.any?
-       data[:body] << ['[.distribution]**Distribution:** ', d.to_s, "\n\n"].join
-       data[:supplementary_distribution].items += d.items
-     end
+        data[:body] << ['[.distribution]**Distribution:** ', d.to_s, "\n\n"].join
+        data[:supplementary_distribution].items += d.items
+      end
 
      data[:body] << "\n"
 
@@ -172,7 +172,7 @@ module TaxonNames::PaperCatalogHelper
       paper_history_in_taxon_name(t, c, i),             ##  citation for related name
       paper_history_pages(c),                           ##  pages for citation of related name
       paper_history_statuses(i),                        # TaxonNameClassification summary
-      #  history_citation_notes(c),                     # Notes on the citation
+      # history_citation_notes(c),                      # Notes on the citation
       paper_history_topics(c),                          # Topics on the citation
       # history_type_material(i), # TODO: could still be OK here
     ].compact.join.html_safe

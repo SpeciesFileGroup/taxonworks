@@ -241,6 +241,11 @@ class TaxonNamesController < ApplicationController
     render '/taxon_names/api/v1/summary'
   end
 
+  # GET /api/v1/taxon_names/:id/inventory/catalog
+  def api_catalog
+    render '/taxon_names/api/v1/catalog'
+  end
+
   def api_parse
     @combination = Combination.where(project_id: sessions_current_project_id).find(params[:combination_id]) if params[:combination_id]
     @result = TaxonWorks::Vendor::Biodiversity::Result.new(
