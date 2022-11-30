@@ -219,7 +219,8 @@ export default {
           data_attributes: undefined,
           geographic_area: undefined,
           georeferences: undefined,
-          identifiers: undefined
+          identifiers: undefined,
+          local_identifiers: undefined
         },
         identifier: {
           identifier: undefined,
