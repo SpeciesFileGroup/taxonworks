@@ -288,6 +288,7 @@ resources :geographic_areas, only: [:index, :show] do
 
   member do
     get 'related'
+    get 'png', defaults: {format: :json}
   end
 
 end
