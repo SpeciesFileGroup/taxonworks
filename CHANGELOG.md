@@ -24,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Refactored observation cell component for Image matrix
 - Updated Ruby gems
+- Webpack binaries: Replaced `npm bin` for `npm root` to allow compatibility with recent NPM versions
 
 [#3174]: https://github.com/SpeciesFileGroup/taxonworks/issues/3174
 [#3192]: https://github.com/SpeciesFileGroup/taxonworks/issues/3192
