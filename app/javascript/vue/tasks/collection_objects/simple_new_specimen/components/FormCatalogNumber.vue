@@ -64,7 +64,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useStore } from '../store/useStore'
 import SelectedItem from './SelectedItem.vue'
 import Autocomplete from 'components/ui/Autocomplete.vue'
@@ -86,5 +86,14 @@ function checkIdentifier () {
 onMounted(() => {
   setTimeout(() => autocompleteComponent.value.setFocus(), 250)
 })
+
+watch(
+  () => store.settings.lock.namespace,
+  newVal => {
+    if (!newVal) {
+      store.namespace = undefined
+    }
+  }
+)
 
 </script>
