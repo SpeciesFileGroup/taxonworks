@@ -94,17 +94,13 @@ module Queries::Concerns::Identifiers
     ::Identifier.arel_table
   end
 
-  def cast
-    Arel::Nodes::NamedFunction.new('CAST', [substring])
-  end
-
-  def substring
-    Arel::Nodes::NamedFunction.new('SUBSTRING', [ identifier_table[:identifier], Arel::Nodes::SqlLiteral.new("'([\\d]{1,9})$'") ]).as('integer')
-  end
+  # def substring
+  #   Arel::Nodes::NamedFunction.new('SUBSTRING', [ identifier_table[:identifier], Arel::Nodes::SqlLiteral.new("'([\\d]{1,9})$'") ]).as('integer')
+  # end
 
   def between
     Arel::Nodes::Between.new(
-      cast,
+      identifier_table[:cached_numeric_identifier],
       Arel::Nodes::And.new(
         [ Arel::Nodes::SqlLiteral.new(identifier_start),
           Arel::Nodes::SqlLiteral.new(identifier_end) ]
