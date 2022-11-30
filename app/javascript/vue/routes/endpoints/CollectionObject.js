@@ -66,5 +66,7 @@ export const CollectionObject = {
 
   stepwiseDeterminations: (params) => AjaxCall('get', '/tasks/collection_objects/stepwise/determinations/data.json', { params }),
 
-  timeline: (id) => AjaxCall('get', `/${controller}/${id}/timeline`)
+  timeline: (id) => AjaxCall('get', `/${controller}/${id}/timeline`),
+
+  sqedFilter: (params) => AjaxCall('get', '/tasks/accessions/breakdown/sqed_depiction/todo_map.json', { params })
 }
