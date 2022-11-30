@@ -101,6 +101,4 @@ module ProjectsHelper
     }
   end
 
-
->>>>>>> development
 end
