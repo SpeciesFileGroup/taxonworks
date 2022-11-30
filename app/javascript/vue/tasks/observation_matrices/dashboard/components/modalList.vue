@@ -5,7 +5,7 @@
       class="button normal-input button-submit"
       :class="{ 'button-default': otuSelected }"
       @click="openModal">
-      Matrix row coder
+      Open in matrix
     </button>
     <modal-component
       v-if="show"
@@ -226,11 +226,11 @@ export default {
 
     openImageMatrix () {
       if (this.alreadyInCurrentMatrix.length) {
-        window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_filter=${this.alreadyInCurrentMatrix[0].id}`, '_blank')
+        window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&edit=true&row_filter=${this.alreadyInCurrentMatrix[0].id}`, '_blank')
         this.show = false
       } else {
         this.createRow().then(() => {
-          window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_filter=${this.alreadyInCurrentMatrix[0].id}`, '_blank')
+          window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&edit=true&row_filter=${this.alreadyInCurrentMatrix[0].id}`, '_blank')
           this.show = false
         })
       }

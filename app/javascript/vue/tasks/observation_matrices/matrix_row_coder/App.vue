@@ -2,18 +2,19 @@
   <div>
     <div class="flex-separate middle">
       <h1>Matrix row coder</h1>
-      <NavigationRows
-        v-if="matrixRow"
-        :matrix-row="matrixRow"
-        @select="loadRow"
-      />
+      <ul class="context-menu">
+        <li>
+          <a href="/tasks/observation_matrices/observation_matrix_hub">Observation matrix hub</a>
+        </li>
+      </ul>
     </div>
-
-    <NavigationMatrix
+    <div
       v-if="matrixRow"
-      class="margin-medium-bottom"
-      :matrix-row="matrixRow"
-    />
+      class="flex-separate middle margin-medium-bottom"
+    >
+      <NavigationMatrix :matrix-row="matrixRow" />
+      <NavigationRows @select="loadRow" />
+    </div>
     <MatrixRowCoder :row-id="rowId" />
   </div>
 </template>

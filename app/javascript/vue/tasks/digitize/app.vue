@@ -53,7 +53,7 @@ import TaskHeader from './components/taskHeader/main.vue'
 import CollectionObject from './components/collectionObject/main.vue'
 import TaxonDeterminationLayout from './components/taxonDetermination/main.vue'
 import CollectingEventLayout from './components/collectingEvent/main.vue'
-import TypeMaterial from './components/typeMaterial/typeMaterial.vue'
+import TypeMaterial from './components/typeMaterial/TypeMaterialMain.vue'
 import BiologicalAssociation from './components/biologicalAssociation/main.vue'
 import SettingsCollectionObject from './components/settings/SettingCollectionObject.vue'
 import SortComponent from './components/shared/sortComponenets.vue'
@@ -189,6 +189,10 @@ export default {
 
     .otu_tag_taxon_name {
       white-space: pre-wrap !important;
+    }
+
+    textarea {
+      resize: vertical
     }
   }
 </style>

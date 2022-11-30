@@ -154,15 +154,16 @@ a, .link {
     content: none;
   }
 
-  &> li:first-child {
-    padding-left: 0px;
-  }
-
   &> li:last-child {
     border-right: none;
     padding-right: 0px;
     padding-left: $standard_padding;
   }
+
+  &> li:first-child {
+    padding-left: 0px;
+  }
+
 
   &> li {
     justify-content: center;

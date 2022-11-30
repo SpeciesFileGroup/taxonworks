@@ -61,11 +61,14 @@
                     :add-params="{ type: 'Protonym', 'nomenclature_group[]': 'Genus' }"
                     :placeholder="validTaxon.name"/>
                 </td>
-                <td class="horizontal-left-content">
-                  <span
-                    class="circle-button btn-edit"
-                    @click="loadTaxon(child.id)"/>
-                  <radial-annotator :global-id="child.global_id"/>
+                <td>
+                  <div class="horizontal-left-content">
+                    <span
+                      class="circle-button btn-edit"
+                      @click="loadTaxon(child.id)"
+                    />
+                    <radial-annotator :global-id="child.global_id" />
+                  </div>
                 </td>
                 <td>
                   <input

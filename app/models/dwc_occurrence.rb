@@ -133,11 +133,14 @@ class DwcOccurrence < ApplicationRecord
         return 'PreservedSpecimen'
       end
     when 'AssertedDistribution'
-      case dwc_occurrence_object.source.try(:type)
+      # Used to fork b/b Source::Human and Source::Bibtex:
+      case dwc_occurrence_object.source&.type || dwc_occurrence_object.sources.order(cached_nomenclature_date: :DESC).first.type
       when 'Source::Bibtex'
-        return 'Occurrence'
-      when 'Source::Human'
+        return 'MaterialCitation'
+      when 'Source::Human'  
         return 'HumanObservation'
+      else # Not recommended at this point
+        return 'Occurrence'
       end
     end
     'Undefined'
@@ -193,7 +196,6 @@ class DwcOccurrence < ApplicationRecord
       project_id: dwc_occurrence_object&.project_id, # Current.project_id,  # revisit, why required?
       is_generated: true)
   end
-
 
   def set_metadata_attributes
     write_attribute( :basisOfRecord, basis)

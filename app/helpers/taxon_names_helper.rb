@@ -81,7 +81,7 @@ module TaxonNamesHelper
   def full_original_taxon_name_label(taxon_name)
     return nil if taxon_name.nil? || taxon_name.cached_original_combination.nil?
     [ taxon_name.cached_original_combination,
-      taxon_name.cached_author_year
+      taxon_name.original_author_year
     ].compact.join(' ')
   end
 
@@ -148,7 +148,7 @@ module TaxonNamesHelper
   def taxon_name_short_status_label(taxon_name)
     if taxon_name.is_combination?
       n = taxon_name.finest_protonym
-      s = ["This name is subsequent combination of"]
+      s = ['This name is subsequent combination of']
       if n.is_valid?
         s += [
           original_taxon_name_tag(n),
@@ -159,7 +159,7 @@ module TaxonNamesHelper
         s += [
           original_taxon_name_tag(n),
           history_author_year_tag(n),
-          "whose valid/accepted name is",
+          'whose valid/accepted name is',
           taxon_name_tag(v),
           v.cached_author_year
         ]
@@ -168,7 +168,7 @@ module TaxonNamesHelper
       (s.join(' ') + '.')
     else
       if taxon_name.is_valid? # taxon_name.unavailable_or_invalid?
-         'This name is valid/accepted.'
+        'This name is valid/accepted.'
       else
         if taxon_name.is_ambiguously_invalid?
           'This name is not valid/accepted.'
@@ -226,7 +226,7 @@ module TaxonNamesHelper
 
   def original_taxon_name_link(taxon_name)
     return nil if taxon_name.nil?
-    link_to(original_taxon_name_tag(taxon_name).html_safe, browse_nomenclature_task_path(taxon_name_id: taxon_name.id))
+    [ link_to(original_taxon_name_tag(taxon_name).html_safe, browse_nomenclature_task_path(taxon_name_id: taxon_name.id)).html_safe, taxon_name.original_author_year].compact.join(' ').html_safe
   end
 
   def taxon_name_for_select(taxon_name)
@@ -344,11 +344,11 @@ module TaxonNamesHelper
   def taxon_name_otus_links(taxon_name)
     if taxon_name.otus.load.any?
       ('The following Otus are linked to this name: ' +
-      content_tag(:ul, class: 'no_bullets') do
-       taxon_name.otus.each do |o|
-          concat(content_tag(:li, otu_link(o) ))
-        end
-      end.html_safe).html_safe
+       content_tag(:ul, class: 'no_bullets') do
+         taxon_name.otus.each do |o|
+           concat(content_tag(:li, otu_link(o) ))
+         end
+       end.html_safe).html_safe
     else
       content_tag(:em, 'There are no Otus linked to this name.')
     end

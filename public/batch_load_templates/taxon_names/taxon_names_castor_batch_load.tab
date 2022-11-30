@@ -2,10 +2,10 @@ id	taxon_name	parent_id	rank	related_name_id	related_name_nomen_class	name_nomen
 1	Aidae		family						
 2	Bidae		family						
 3	Cus	1	genus				Jones		
-4	Dus	2	genus			 TaxonNameClassification::Iczn::Unavailable			
-5	eus	3	species						
+4	Dus	2	genus			TaxonNameClassification::Iczn::Unavailable			
+5	eus123	3	species			TaxonNameClassification::Iczn::Unavailable::NotLatin			
 6	fus	4	species						
-7	gus	3	species	5	TaxonNameRelationship::Iczn::Invalidating::Synonym		(Smith, 1920)		Cus nr. gus 22x
-8	hus	4	species	6	TaxonNameRelationship::Iczn::Invalidating::Synonym				
+7	gus	3	species	5	TaxonNameRelationship::Iczn::Invalidating::Synonym		(Smith, 1920)	https://my.uri/123	Cus nr. gus 22x
+8	hus	4	species	6	TaxonNameRelationship::Iczn::Invalidating::Synonym		(Jones)			
 9	ius	3	species	5	TaxonNameRelationship::Iczn::Invalidating::Synonym				
 10	jus	3	species	6	TaxonNameRelationship::Iczn::Invalidating::Synonym				my_otu_name_22

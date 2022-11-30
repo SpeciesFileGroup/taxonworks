@@ -43,6 +43,12 @@ module CollectionObject::DwcExtensions
       dateIdentified: :dwc_date_identified,
       nomenclaturalCode: :dwc_nomenclatural_code,
       kingdom: :dwc_kingdom,
+
+      phylum: :dwc_phylum,
+      dwcClass: :dwc_class,
+      order: :dwc_order,
+      higherClassification: :dwc_higher_classification,
+
       family: :dwc_family,
       genus: :dwc_genus,
       specificEpithet: :dwc_specific_epithet,
@@ -334,8 +340,28 @@ module CollectionObject::DwcExtensions
     current_taxon_determination&.date.presence
   end
 
+  def dwc_higher_classification
+    v = taxonomy.values.collect{|a| a.kind_of?(Array) ? a.second : a}
+    v.shift
+    v.pop
+    v.compact
+    v.join(CollectionObject::DWC_DELIMITER)
+  end
+
   def dwc_kingdom
     taxonomy['kingdom']
+  end
+
+  def dwc_phylum
+    taxonomy['phylum']
+  end
+
+  def dwc_class
+    taxonomy['class']
+  end
+
+  def dwc_order
+    taxonomy['order']
   end
 
   # http://rs.tdwg.org/dwc/terms/family

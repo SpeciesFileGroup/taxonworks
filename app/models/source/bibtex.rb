@@ -407,25 +407,38 @@ class Source::Bibtex < Source
     p
   end
 
-  # @return [BibTeX::Entry]
+  # @return [Source::Bibtex.new]
+  #   Adds errors if parse error exists. Note these
+  # errors are lost if save/valid? is called again on the object.
   def self.new_from_bibtex_text(text = nil)
-    a = BibTeX::Bibliography.parse(text, filter: :latex).first
-    new_from_bibtex(a)
+    source = Source::Bibtex.new
+    begin
+      a = BibTeX::Bibliography.parse(text, filter: :latex).first
+      if a.class.name == 'BibTeX::Error'
+        source.errors.add(:base, 'Unable to parse BibTeX entry. Possible error at end of: ' + a.content)
+        return source
+      else
+        return new_from_bibtex(a)
+      end
+    rescue BibTeX::ParseError => e
+      source.errors.add(:base, 'Unable to parse BibTeX entry: ' + e.to_s)
+      return source
+    end
   end
 
   # Instantiates a Source::Bibtex instance from a BibTeX::Entry
   # Note:
-  #    * note conversion is handled in note setter.
-  #    * identifiers are handled in associated setter.
-  #    * !! Unrecognized attributes are added as import attributes.
+  #   * note conversion is handled in note setter.
+  #   * identifiers are handled in associated setter.
+  #   * !! Unrecognized attributes are added as import attributes.
   #
   # Usage:
-  #    a = BibTeX::Entry.new(bibtex_type: 'book', title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
-  #    b = Source::Bibtex.new_from_bibtex(a)
+  #   a = BibTeX::Entry.new(bibtex_type: 'book', title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
+  #   b = Source::Bibtex.new_from_bibtex(a)
   #
   # @param [BibTex::Entry] bibtex_entry the BibTex::Entry to convert
-  # @return [Source::BibTex.new] a new instance
-  # TODO annote to project specific note?
+  # @return [Source::Bibtex.new] a new instance
+  # TODO: Annote to project specific note?
   # TODO: Serial with alternate_value on name .count = 1 assign .first
   def self.new_from_bibtex(bibtex_entry = nil)
     return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
@@ -434,6 +447,8 @@ class Source::Bibtex < Source
     import_attributes = []
 
     bibtex_entry.fields.each do |key, value|
+      next if key == :serial # Raises if it hits the belongs_to
+
       if key == :keywords
         s.verbatim_keywords = value
         next
@@ -629,18 +644,11 @@ class Source::Bibtex < Source
       s = Serial.where(name: journal).first
       i = Identifier::Global::Issn.where(identifier: value, identifier_object_type: 'Serial').first
 
-      # Found an Existing Serial identically named with
-      # an Identical ISSN
-      if s && i
+      # Found an Existing Serial identically named with an assigned Identical ISSN
+      if !s.nil? && (s == i&.identifier_object)
         write_attribute(:serial_id, s.id)
-      elsif i && s.nil? # Found an identifier, but not on a identically named Serial, assign it anyways
+      elsif i && s.nil? # Found a Serial with an Identifier, but not identically named, assign it anyway
         write_attribute(:serial_id, i.identifier_object_id)
-      elsif i.nil? && s.nil? && !journal.blank? && !value.blank?
-        # Found neither, but provided ISSN and Serial, this will get caught in new_from_bibtex to create a new serial
-      else
-        # Some other strange combination has occurred, add some erorrs (not tested)
-        errors.add(:journal, 'Conflict between ISSN and article type')
-        errors.add(:issn, 'Conflict between ISSN and article type')
       end
     end
   end
@@ -653,7 +661,7 @@ class Source::Bibtex < Source
   # turn bibtex URL field into a Ruby URI object
   # @return [URI]
   def url_as_uri
-    URI(self.url) unless self.url.blank?
+    URI(self.url) if self.url.present?
   end
 
   # @param [String] type_value
@@ -704,7 +712,7 @@ class Source::Bibtex < Source
   # @return [Integer]
   #  The effective year of publication as per nomenclatural rules
   def nomenclature_year
-    cached_nomenclature_date.year
+    cached_nomenclature_date&.year
   end
 
   # @return [Date || Time] <sigh>
@@ -793,7 +801,7 @@ class Source::Bibtex < Source
     end
 
     a['year-suffix'] = year_suffix unless year_suffix.blank?
-    a['original-date'] = {"date-parts" => [[ stated_year ]]} unless stated_year.blank?
+    a['original-date'] = {"date-parts" => [[ stated_year ]]} if !stated_year.blank? && stated_year.to_s != year.to_s
     a['language'] = Language.find(language_id).english_name.to_s unless language_id.nil?
     a['translated-title'] = alternate_values.where(type: "AlternateValue::Translation", alternate_value_object_attribute: 'title').pluck(:value).first
     a['note'] = note
@@ -857,52 +865,8 @@ class Source::Bibtex < Source
         return Utilities::Strings.authorship_sentence(b.author.tokens.collect{ |t| t.last })
       end
     else # use normalized records
-      return Utilities::Strings.authorship_sentence(authors.collect{ |a| a.full_last_name })
-    end
-  end
-
-  protected
-
-  def validate_year_suffix
-    a = get_author
-    unless year_suffix.blank? || year.blank? || a.blank?
-      if new_record?
-        s = Source.where(author: a, year: year, year_suffix: year_suffix).first
-      else
-        s = Source.where(author: a, year: year, year_suffix: year_suffix).not_self(self).first
-      end
-      errors.add(:year_suffix, " '#{year_suffix}' is already used for #{a} #{year}") unless s.nil?
-    end
-  end
-
-  def italics_are_paired
-    l = title.scan('<i>')&.count
-    r = title.scan('</i>')&.count
-    errors.add(:title, 'italic markup is not paired') unless l == r
-  end
-
-  # @param [String] type either `author` or `editor`
-  # @return [String]
-  #   The BibTeX version of the name strings created from People
-  #   BibTeX format is 'lastname, firstname and lastname, firstname and lastname, firstname'
-  #   This only references People, i.e. `authors` and `editors`.
-  #   !! Do not adapt to reference the BibTeX attributes `author` or `editor`
-  def get_bibtex_names(role_type)
-    # so, we can not reload here
-    send("#{role_type}s").collect{ |a| a.bibtex_name}.join(' and ')
-  end
-
-  # @return [Ignored]
-  def create_authors
-    begin
-      Person.transaction do
-        authors_to_create.each do |shs|
-          p = Person.create!(shs)
-          author_roles.build(person: p)
-        end
-      end
-    rescue
-      errors.add(:base, 'invalid author parameters')
+      #      return Utilities::Strings.authorship_sentence(authors.collect{ |a| a.full_last_name })
+      return Utilities::Strings.authorship_sentence(authors.collect{ |a| a.last_name })
     end
   end
 
@@ -930,6 +894,51 @@ class Source::Bibtex < Source
       return c
     end
     nil
+  end
+
+  # @param [String] type either `author` or `editor`
+  # @return [String]
+  #   The BibTeX version of the name strings created from People
+  #   BibTeX format is 'lastname, firstname and lastname, firstname and lastname, firstname'
+  #   This only references People, i.e. `authors` and `editors`.
+  #   !! Do not adapt to reference the BibTeX attributes `author` or `editor`
+  def get_bibtex_names(role_type)
+    # so, we can not reload here
+    send("#{role_type}s").collect{ |a| a.bibtex_name}.join(' and ')
+  end
+
+  # @return [Ignored]
+  def create_authors
+    begin
+      Person.transaction do
+        authors_to_create.each do |shs|
+          p = Person.create!(shs)
+          author_roles.build(person: p)
+        end
+      end
+    rescue
+      errors.add(:base, 'invalid author parameters')
+    end
+  end
+
+  protected
+
+  def validate_year_suffix
+    a = get_author
+    unless year_suffix.blank? || year.blank? || a.blank?
+      if new_record?
+        s = Source.where(author: a, year: year, year_suffix: year_suffix).first
+      else
+        s = Source.where(author: a, year: year, year_suffix: year_suffix).not_self(self).first
+      end
+      errors.add(:year_suffix, " '#{year_suffix}' is already used for #{a} #{year}") unless s.nil?
+    end
+  end
+
+  def italics_are_paired
+    l = title.scan('<i>')&.count
+    r = title.scan('</i>')&.count
+    errors.add(:title, 'italic markup is not paired') unless l == r
   end
 
   #region hard validations
@@ -974,3 +983,11 @@ class Source::Bibtex < Source
   end
 end
 
+def aaa
+  ids = []
+  Source.joins(:project_sources).where('project_sources.project_id = 13').first(100).each do |s|
+    s.soft_validate
+    ids.append(s.id) if s.soft_validations.messages.include?('Cached values should be updated')
+  end
+  ids
+end

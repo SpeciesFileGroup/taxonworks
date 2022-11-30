@@ -7,8 +7,8 @@
           <button
             type="button"
             class="button normal-input button-default separate-right"
-            :disabled="!(Object.keys(selected).length && selectedMergePerson)"
-            @click="$emit('flip', personIndex)"
+            :disabled="!(selected.id && selectedMergePerson.id)"
+            @click="flipPeople"
           >
             Flip
           </button>
@@ -209,6 +209,7 @@ export default {
         message: 'This will merge all selected match people to selected person.',
         okButton: 'Merge',
         confirmationWord: 'merge',
+        cancelButton: 'Cancel',
         typeButton: 'submit'
       })
 
@@ -219,6 +220,10 @@ export default {
 
     humanizeValue (value) {
       return capitalize(humanize(value))
+    },
+
+    flipPeople () {
+      this.$store.dispatch(ActionNames.FlipPeople, this.personIndex)
     }
   }
 }

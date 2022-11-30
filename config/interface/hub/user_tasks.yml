@@ -649,6 +649,13 @@ new_namespace_task:
     - collecting_event
   status: prototype
   description: 'Create new Namespaces, used in identifiers.'
+index_matrix_column_coder_task:
+  hub: true
+  name: 'Matrix column coder'
+  related:
+  categories:
+  status: prototype
+  description: 'Code a matrix column'
 object_graph_task:
   hub: false
   name: 'Task - Object graph'
@@ -683,6 +690,13 @@ project_activity_task:
     - image
   status: prototype
   description: 'Overview project and member activity, recent records, totals, member contributions, and more.'
+filter_people_task:
+  hub: true
+  name: 'Filter people'
+  related:
+  categories:
+  status: prototype
+  description: 'Filter people.'
 stepwise_determinations_task:
   hub: true
   name: 'Stepwise determinations'
@@ -700,3 +714,35 @@ classification_summary_task:
     - collection_object
   status: prototype
   description: 'Summarize collection objects totals and preparation by classification (by class, order, family).'
+publisher_task:
+  hub: true
+  name: 'Content publisher'
+  related:
+  categories:
+  status: prototype
+  description: 'Manage the publishing of OTU content (text per topic).'
+taxon_name_merge_task:
+  hub: true
+  name: 'Merge taxon names'
+  related:
+  categories:
+    - nomenclature 
+  status: prototype
+  description: 'Basic tools that faclitate merging taxon names.'
+paper_catalog_generator_task:
+  hub: true
+  name: 'Paper catalog preview'
+  related:
+  categories:
+    - nomenclature
+    - export
+  status: prototype
+  description: 'Experimenting with rendering nomenclature as a paper catalog'
+collection_object_chronology_task:
+  hub: true
+  name: 'Collection object chronology'
+  related:
+  categories:
+  - collection_object
+  status: prototype
+  description: 'All collection objects by year collected.'

@@ -11,15 +11,11 @@
       <menu-preferences v-model="preferences"/>
     </div>
 
-    <div
+    <JsonRequestUrl
       v-show="preferences.activeJSONRequest"
-      class="panel content separate-bottom">
-      <div class="flex-separate middle">
-        <span>
-          JSON Request: {{ urlRequest }}
-        </span>
-      </div>
-    </div>
+      class="panel content separate-bottom"
+      :url="urlRequest"
+    />
 
     <div class="horizontal-left-content align-start">
       <filter-component
@@ -76,6 +72,7 @@ import MenuPreferences from './components/MenuPreferences.vue'
 import SpinnerComponent from 'components/spinner.vue'
 import useFilter from './composables/useFilter.js'
 import extend from 'tasks/extracts/new_extract/const/extendRequest'
+import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import { Extract } from 'routes/endpoints'
 import { computed, reactive, ref } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'

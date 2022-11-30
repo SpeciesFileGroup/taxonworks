@@ -1,4 +1,5 @@
 module TypeMaterials::CatalogHelper
+  # TODO: we should, perhaps, drive this off dwc_occurrence
 
   # Return text only, no HTML.
   # To be used in paper catalogs, this is to be human readable.
@@ -46,7 +47,7 @@ module TypeMaterials::CatalogHelper
     missing = '[TODO: A document (preferred) or verbatim label in a collecting event must be provided]'
     if ce = collecting_event
       if ce.document_label
-        return ::Utilities::Strings.linearize(document_label)
+        return ::Utilities::Strings.linearize(ce.document_label)
       elsif ce.verbatim_label
         return  ::Utilities::Strings.linearize(ce.verbatim_label)
       end

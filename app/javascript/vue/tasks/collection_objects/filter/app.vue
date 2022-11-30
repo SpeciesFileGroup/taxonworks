@@ -29,15 +29,12 @@
         </li>
       </ul>
     </div>
-    <div
+
+    <JsonRequestUrl
       v-show="activeJSONRequest"
-      class="panel content separate-bottom">
-      <div class="flex-separate middle">
-        <span>
-          JSON Request: {{ urlRequest }}
-        </span>
-      </div>
-    </div>
+      class="panel content separate-bottom"
+      :url="urlRequest"
+    />
 
     <div class="horizontal-left-content align-start">
       <filter-component
@@ -47,16 +44,30 @@
         @urlRequest="urlRequest = $event"
         @result="loadList"
         @pagination="pagination = getPagination($event)"
-        @reset="resetTask"/>
+        @reset="resetTask"
+      />
       <div class="full_width overflow-x-auto">
         <div
           v-if="recordsFound"
-          class="horizontal-left-content flex-separate separate-bottom">
+          class="horizontal-left-content flex-separate separate-bottom"
+        >
           <div class="horizontal-left-content">
-            <select-all
-              v-model="ids"
-              :ids="coIds"
+            <tag-all
+              class="circle-button"
+              :ids="ids"
+              type="CollectionObject"
             />
+            <DeleteCollectionObjects
+              :ids="ids"
+              :disabled="!ids.length"
+              @delete="removeCOFromList"
+            />
+            <RadialFilter
+              :disabled="!ids.length"
+              object-type="CollectingEvent"
+              :parameters="{ collection_object_id: ids }"
+            />
+
             <span class="separate-left separate-right">|</span>
             <csv-button
               :url="urlRequest"
@@ -120,8 +131,11 @@ import PaginationCount from 'components/pagination/PaginationCount'
 import GetPagination from 'helpers/getPagination'
 import DwcDownload from './components/dwcDownload.vue'
 import DwcReindex from './components/dwcReindex.vue'
-import SelectAll from './components/selectAll.vue'
+import TagAll from './components/tagAll'
 import MatchButton from './components/matchButton.vue'
+import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
+import RadialFilter from 'components/radials/filter/radial.vue'
+import DeleteCollectionObjects from './components/DeleteCollectionObjects.vue'
 
 export default {
   name: 'FilterCollectionObjects',
@@ -134,8 +148,11 @@ export default {
     PaginationCount,
     DwcDownload,
     DwcReindex,
-    SelectAll,
-    MatchButton
+    TagAll,
+    MatchButton,
+    JsonRequestUrl,
+    RadialFilter,
+    DeleteCollectionObjects
   },
 
   computed: {
@@ -175,7 +192,7 @@ export default {
   },
 
   watch: {
-    per(newVal) {
+    per (newVal) {
       this.$refs.filterComponent.params.settings.per = newVal
       this.loadPage(1)
     }
@@ -190,8 +207,8 @@ export default {
       history.pushState(null, null, '/tasks/collection_objects/filter')
     },
 
-    loadList(newList) {
-      if(this.append && this.list) {
+    loadList (newList) {
+      if (this.append && this.list) {
         let concat = newList.data.concat(this.list.data)
 
         concat = concat.filter((item, index, self) =>
@@ -201,20 +218,26 @@ export default {
         )
         newList.data = concat
         this.list = newList
-      }
-      else {
+      } else {
         this.list = newList
       }
       this.alreadySearch = true
     },
 
-    loadPage(event) {
+    loadPage (event) {
       this.$refs.filterComponent.loadPage(event.page)
     },
+
+    removeCOFromList (ids) {
+      this.list.data = this.list.data.filter(r => !ids.includes(r[0]))
+      this.ids = this.ids.filter(id => !ids.includes(id))
+    },
+
     getPagination: GetPagination
   }
 }
 </script>
+
 <style scoped>
   .no-found-message {
     height: 70vh;

@@ -28,7 +28,7 @@ class TaxonNameClassification < ApplicationRecord
   before_validation :validate_uniqueness_of_latinized
   validates_presence_of :taxon_name
   validates_presence_of :type
-  validates_uniqueness_of :taxon_name_id, scope: :type
+  validates_uniqueness_of :taxon_name_id, scope: [:type, :project_id]
 
   validate :nomenclature_code_matches
 
@@ -321,6 +321,7 @@ class TaxonNameClassification < ApplicationRecord
     end
   end
 
+  # TODO: unnecessary! Type handling will raise here
   def validate_taxon_name_classification
     errors.add(:type, 'Status not found') if !self.type.nil? and !TAXON_NAME_CLASSIFICATION_NAMES.include?(self.type.to_s)
   end

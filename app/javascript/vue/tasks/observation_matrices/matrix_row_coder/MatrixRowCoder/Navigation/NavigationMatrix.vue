@@ -15,17 +15,12 @@
         </li>
       </ul>
     </div>
-    <ul class="context-menu">
-      <li>
-        <a href="/tasks/observation_matrices/observation_matrix_hub">Observation matrix hub</a>
-      </li>
-    </ul>
   </div>
 </template>
 
 <script setup>
 
-const props = defineProps({
+defineProps({
   matrixRow: {
     type: Object,
     required: true

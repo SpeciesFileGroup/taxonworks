@@ -30,7 +30,6 @@
         <div class="flex-separate top">
           <div>
             <compare-table
-              @flip="flipPerson"
               :selected="selectedPerson"
               :merge-list="mergeList"
             />
@@ -76,8 +75,14 @@ export default {
   },
 
   computed: {
-    selectedPerson () {
-      return this.$store.getters[GetterNames.GetSelectedPerson]
+    selectedPerson: {
+      get () {
+        return this.$store.getters[GetterNames.GetSelectedPerson]
+      },
+
+      set (value) {
+        this.$store.commit(MutationNames.SetSelectedPerson, value)
+      }
     },
 
     mergeList: {
@@ -118,13 +123,6 @@ export default {
   },
 
   methods: {
-    flipPerson (personIndex) {
-      const tmp = this.selectedPerson
-
-      this.selectedPerson = this.mergeList[personIndex]
-      this.mergeList[personIndex] = tmp
-    },
-
     findPeople (params) {
       this.$store.dispatch(ActionNames.FindPeople, params)
     },

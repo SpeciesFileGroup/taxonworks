@@ -45,15 +45,11 @@
         </li>
       </ul>
     </div>
-    <div
+    <JsonRequestUrl
       v-show="activeJSONRequest"
-      class="panel content separate-bottom">
-      <div class="flex-separate middle">
-        <span>
-          JSON Request: {{ urlRequest }}
-        </span>
-      </div>
-    </div>
+      class="panel content separate-bottom"
+      :url="urlRequest"
+    />
 
     <div class="horizontal-left-content align-start">
       <filter-component
@@ -69,8 +65,11 @@
           v-if="list.length"
           class="horizontal-left-content flex-separate separate-left separate-bottom">
           <div class="horizontal-left-content">
-            <csv-button
-              :list="list"/>
+            <csv-button :list="list" />
+            <OpenCollectionObjectFilter
+              class="margin-small-left"
+              :ids="selectedCEIds"
+            />
           </div>
         </div>
         <div
@@ -87,12 +86,12 @@
 
         <div class="full_width">
           <map-component
-            class="panel content margin-small-left full_width"
+            class="margin-small-left full_width"
             v-if="showMap"
             :geojson="geojson" />
           <list-component
             v-if="showList"
-            v-model="ids"
+            v-model="selectedCEIds"
             :class="{ 'separate-left': activeFilter }"
             :list="list"
             @onRowHover="setRowHover"
@@ -117,6 +116,8 @@ import PaginationComponent from 'components/pagination'
 import PaginationCount from 'components/pagination/PaginationCount'
 import GetPagination from 'helpers/getPagination'
 import MapComponent from './components/Map.vue'
+import OpenCollectionObjectFilter from './components/OpenCollectionObjectFilter.vue'
+import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import { Georeference } from 'routes/endpoints'
 import { chunkArray } from 'helpers/arrays'
 
@@ -129,7 +130,9 @@ export default {
     ListComponent,
     CsvButton,
     PaginationCount,
-    MapComponent
+    MapComponent,
+    OpenCollectionObjectFilter,
+    JsonRequestUrl
   },
 
   computed: {
@@ -160,6 +163,7 @@ export default {
   data () {
     return {
       list: [],
+      selectedCEIds: [],
       georeferences: [],
       urlRequest: '',
       activeFilter: true,
@@ -183,9 +187,13 @@ export default {
     },
 
     list (newVal, oldList) {
-      const ids = newVal.map(item => item.id)
+      const currIds = newVal.map(item => item.id)
+      const prevIds = oldList.map(item => item.id)
 
-      if (!oldList.every(item => ids.includes(item.id))) {
+      if (
+        currIds.length &&
+        currIds.some(id => !prevIds.includes(id))
+      ) {
         this.loadGeoreferences(newVal)
       }
     }
@@ -197,6 +205,7 @@ export default {
       this.list = []
       this.urlRequest = ''
       this.pagination = undefined
+      this.selectedCEIds = []
       history.pushState(null, null, '/tasks/collecting_events/filter')
     },
 
@@ -236,6 +245,7 @@ export default {
 
       Promise.all(promises).then(responses => {
         const lists = responses.map(response => response.body)
+
         this.georeferences = lists.flat()
         this.setCEWithGeoreferences()
       })
@@ -246,16 +256,16 @@ export default {
     },
 
     setCEWithGeoreferences () {
-      this.list.forEach((ce, index) => {
-        this.list[index]['georeferencesCount'] = this.georeferences.filter(item => item.collecting_event_id === ce.id).length
+      this.list.forEach(ce => {
+        ce.georeferencesCount = this.georeferences.filter(item => item.collecting_event_id === ce.id).length
       })
     },
 
-    parseStartDate(ce) {
+    parseStartDate (ce) {
       return [ce.start_date_day, ce.start_date_month, ce.start_date_year].filter(date => date).join('/')
     },
 
-    parseEndDate(ce) {
+    parseEndDate (ce) {
       return [ce.end_date_day, ce.end_date_month, ce.end_date_year].filter(date => date).join('/')
     },
 

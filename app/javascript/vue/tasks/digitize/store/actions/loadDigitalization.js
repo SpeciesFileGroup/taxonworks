@@ -35,7 +35,7 @@ export default ({ commit, dispatch, state }, coId) =>
         dispatch(ActionNames.NewLabel)
       }
 
-      promises.push(dispatch(ActionNames.GetTypeMaterial, coId))
+      promises.push(dispatch(ActionNames.LoadTypeSpecimens, coId))
       promises.push(dispatch(ActionNames.GetCOCitations, coId))
       promises.push(dispatch(ActionNames.GetTaxonDeterminations, coId))
       promises.push(dispatch(ActionNames.LoadBiologicalAssociations))

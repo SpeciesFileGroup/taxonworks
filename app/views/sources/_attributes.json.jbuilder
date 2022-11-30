@@ -10,6 +10,6 @@ end
 
 if extend_response_with('documents')
   json.documents do |d|
-    d.array! source.documents, partial: '/documents/attributes', as: :document
+    d.array! source.documents.where(documents: {project_id: sessions_current_project_id}), partial: '/documents/attributes', as: :document
   end
 end

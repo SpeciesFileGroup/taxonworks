@@ -5,6 +5,7 @@ class CollectionObjectsController < ApplicationController
   before_action :set_collection_object, only: [
     :show, :edit, :update, :destroy, :navigation, :containerize,
     :depictions, :images, :geo_json, :metadata_badge, :biocuration_classifications,
+    :timeline,
     :api_show, :api_dwc]
   after_action -> { set_pagination_headers(:collection_objects) }, only: [:index], if: :json_request?
 
@@ -21,7 +22,7 @@ class CollectionObjectsController < ApplicationController
       end
       format.json {
         # see app/controllers/collection_objects/filter_params.rb
-        @collection_objects = filtered_collection_objects.order('collection_objects.id').page(params[:page]).per(params[:per] || 500)
+        @collection_objects = filtered_collection_objects.order('collection_objects.id').page(params[:page]).per(params[:per] || 50)
       }
     end
   end
@@ -29,6 +30,11 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_objects/1
   # GET /collection_objects/1.json
   def show
+  end
+
+  # GET /collection_objects/1/timeline.json
+  def timeline
+    @data = ::Catalog::CollectionObject.data_for(@collection_object)
   end
 
   def biocuration_classifications
@@ -104,20 +110,32 @@ class CollectionObjectsController < ApplicationController
   end
 
   # GET /collection_objects/depictions/1
-  # GET /collection_objects/depictions/1.json
+  # GET /collection_objects/depictions/1.html
+  # This is
   def depictions
   end
 
   def metadata_badge
   end
 
-  # GET /collection_objects/1/images
+  # GET /collection_objects/1/inventory/images.html
   # GET /collection_objects/1/images.json
   def images
-    @images = @collection_object.images
+    @images = ::Queries::Image::Filter.new(
+      collection_object_id: [ params.require(:id)],
+      collection_object_scope: [:all]
+    )
+
+    respond_to do |format|
+      format.html { @images = @images.all }
+      format.json do  # rendered as Depictions for now
+        @depictions = @iamges.derived_depictions
+        render '/depictions/index' and return
+      end
+    end
   end
 
-  # TODO: render in view 
+  # TODO: render in view
   # GET /collection_objects/1/geo_json
   # GET /collection_objects/1/geo_json.json
   def geo_json

@@ -52,11 +52,19 @@ export const CollectionObject = {
 
   dwc: (id) => AjaxCall('get', `/${controller}/${id}/dwc`),
 
+  dwca: (id) => AjaxCall('get', `/${controller}/${id}/dwca`),
+
   reportDwc: (params) => AjaxCall('get', '/tasks/accessions/report/dwc.json', { params }),
 
   dwcIndex: (params) => AjaxCall('get', `/${controller}/dwc_index`, { params }),
 
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
+
   metadataBadge: (id) => AjaxCall('get', `/${controller}/${id}/metadata_badge`),
 
-  stepwiseDeterminations: (params) => AjaxCall('get', '/tasks/collection_objects/stepwise/determinations/data.json', { params })
+  navigation: id => AjaxCall('get', `/${controller}/${id}/navigation`),
+
+  stepwiseDeterminations: (params) => AjaxCall('get', '/tasks/collection_objects/stepwise/determinations/data.json', { params }),
+
+  timeline: (id) => AjaxCall('get', `/${controller}/${id}/timeline`)
 }

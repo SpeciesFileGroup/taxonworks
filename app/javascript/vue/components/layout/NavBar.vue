@@ -2,8 +2,9 @@
   <div
     class="separate-bottom"
     :style="barStyle"
-    :class="{ 'navbar-fixed-top': isFixed }"
-    ref="navbar">
+    :class="{ 'navbar-fixed-top': scrollFix && isFixed }"
+    ref="navbar"
+  >
     <div class="panel">
       <div class="content">
         <slot />
@@ -19,11 +20,12 @@ import { useScroll, useWindowSize } from 'compositions/index.js'
 const props = defineProps({
   componentStyle: {
     type: Object,
-    default: () => ({
-      top: '0',
-      position: 'fixed',
-      zIndex: 200
-    })
+    default: () => ({})
+  },
+
+  scrollFix: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -42,7 +44,7 @@ const barStyle = computed(() => isFixed.value
   : {}
 )
 
-watch([scroll.y, windowSize.width], _ => { setFixeable() })
+watch([scroll.y, windowSize.width], _ => { props.scrollFix && setFixeable() })
 
 const setFixeable = () => {
   isFixed.value = scroll.y.value > position.value

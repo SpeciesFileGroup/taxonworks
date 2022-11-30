@@ -9,7 +9,7 @@ ENV["RAILS_ENV"] ||= "development"
 ENV["NODE_ENV"]  ||= ENV["RAILS_ENV"]
 ENV["BUNDLE_GEMFILE"] ||= File.expand_path("../../Gemfile", Pathname.new(__FILE__).realpath)
 
-ENV["WEBPACKER_NODE_MODULES_BIN_PATH"] = `npm bin`.chomp
+ENV["WEBPACKER_NODE_MODULES_BIN_PATH"] = `npm root`.chomp + '/.bin'
 
 APP_ROOT = File.expand_path("..", __dir__)
 Dir.chdir(APP_ROOT) do

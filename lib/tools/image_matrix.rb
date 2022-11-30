@@ -1,5 +1,6 @@
 # Contains methods used to build an image_matrix table
 #
+# endpoint: http://localhost:3000/tasks/observation_matrices/image_matrix/36/key?observation_matrix_id=36&page=5
 # http://localhost:3000/tasks/observation_matrices/image_matrix/0/key?otu_filter=30947|22978|23065
 #
 class Tools::ImageMatrix
@@ -46,6 +47,11 @@ class Tools::ImageMatrix
   #   @return [String or null]
   # Optional attribute to limit identification to OTU or a particular nomenclatural rank. Valid values are 'otu', 'species', 'genus', etc.
   attr_accessor :identified_to_rank
+
+  # @!per
+  #   @return [Integer or null]
+  # Optional attribute. Number of rows displayed per page
+  attr_accessor :per
 
   #
   ##### RETURNED DATA ######
@@ -131,6 +137,36 @@ class Tools::ImageMatrix
   #temporary array of image.ids; used to build the @image_hash
   attr_accessor :list_of_image_ids
 
+  # @!pagination_page
+  #   @return [Integer]
+  # Returns the page number
+  attr_accessor :pagination_page
+
+  # @!pagination_next_page
+  #   @return [Integer or null]
+  # Returns the next page number
+  attr_accessor :pagination_next_page
+
+  # @!pagination_previous_page
+  #   @return [Integer or null]
+  # Returns the previous page number
+  attr_accessor :pagination_previous_page
+
+  # @!pagination_per_page
+  #   @return [Integer or null]
+  # Returns number of records per page
+  attr_accessor :pagination_per_page
+
+  # @!pagination_total
+  #   @return [Integer or null]
+  # Returns total number of records
+  attr_accessor :pagination_total
+
+  # @!pagination_total_pages
+  #   @return [Integer or null]
+  # Returns total number of pages
+  attr_accessor :pagination_total_pages
+
   def initialize(
     observation_matrix_id: nil,
     project_id: nil,
@@ -138,7 +174,15 @@ class Tools::ImageMatrix
     keyword_ids: nil,
     row_filter: nil,
     otu_filter: nil,
-    identified_to_rank: nil)
+    identified_to_rank: nil,
+    per: nil,
+    page: nil,
+    pagination_page: nil,
+    pagination_next_page: nil,
+    pagination_previous_page: nil,
+    pagination_per_page: nil,
+    pagination_total: nil,
+    pagination_total_pages: nil)
 
     @observation_matrix_id = observation_matrix_id
     @project_id = project_id
@@ -146,6 +190,8 @@ class Tools::ImageMatrix
     @observation_matrix_citation = @observation_matrix&.source
     @language_id = language_id
     @keyword_ids = keyword_ids
+    @per = per.blank? ? 250 : per
+    @page = page.blank? ? 1 : page
     @descriptor_available_keywords = descriptor_available_keywords
     @row_filter = row_filter
     @otu_filter = otu_filter
@@ -163,6 +209,7 @@ class Tools::ImageMatrix
     @descriptor_available_languages = descriptor_available_languages_list
     @language_to_use = language_to_use
 
+
     ###main_logic
     @list_of_image_ids = []
 
@@ -171,14 +218,12 @@ class Tools::ImageMatrix
 
     @depiction_matrix = descriptors_hash_initiate
     @image_hash = build_image_hash
+
     ###delete temporary data
     @row_hash = nil
     @rows_with_filter = []
-
-    # This was here twice!
-    # @list_of_image_ids = nil
-
-    @descriptors_with_filter = nil #!?@#
+    @list_of_image_ids = nil
+    @descriptors_with_filter = nil
   end
 
   def find_observation_matrix
@@ -218,7 +263,7 @@ class Tools::ImageMatrix
   end
 
   def descriptors_with_keywords
-    if observation_matrix_id.to_i == 0 && !otu_filter.blank? # @proceps, Why 0, it should never be this, but rather nil
+    if observation_matrix_id.to_i == 0 && !otu_filter.blank?
       d = observation_depictions_from_otu_filter.pluck(:descriptor_id).uniq
       ds = Descriptor.where("descriptors.type = 'Descriptor::Media' AND descriptors.id IN (?)", d).not_weight_zero
     elsif keyword_ids
@@ -241,8 +286,17 @@ class Tools::ImageMatrix
 
   def rows_with_filter
     return @rows_with_filter if !@rows_with_filter.nil?
-    @rows_with_fitler = [] if observation_matrix.nil?
-    @rows_with_filter ||= observation_matrix.observation_matrix_rows.order(:position)
+    @rows_with_filter = [] if observation_matrix.nil?
+    if !row_id_filter_array.nil?
+      @rows_with_filter ||= observation_matrix.observation_matrix_rows.where(id: row_id_filter_array).order(:position)
+    elsif !otu_id_filter_array.nil?
+      @rows_with_filter ||= observation_matrix.observation_matrix_rows
+        .where(observation_object_type: 'Otu')
+        .where(observation_object_id: otu_id_filter_array)
+        .order(:position)
+    else
+      @rows_with_filter ||= observation_matrix.observation_matrix_rows.order(:position)
+    end
   end
 
   def row_hash_initiate
@@ -259,7 +313,21 @@ class Tools::ImageMatrix
       rows = rows_with_filter
     end
 
+    i = 0
+    per = @per.to_i
+    page = @page.to_i
+
+    @pagination_page = page
+    @pagination_total = rows.count
+    @pagination_total_pages = (@pagination_total.to_f / per).ceil
+    @pagination_next_page = @pagination_total_pages > @pagination_page ? @pagination_page + 1 : nil
+    @pagination_previous_page = @pagination_page > 1 ? @pagination_page - 1 : nil
+    @pagination_per_page = per
     rows.each do |r|
+      i += 1
+      next if i < per * (page - 1) + 1
+      break if i > per * page
+
       case r.class.to_s
       when 'Otu'
         otu_collection_object = 'Otu' + r.id.to_s
@@ -311,20 +379,25 @@ class Tools::ImageMatrix
 
     descriptors_count = list_of_descriptors.count
 
+    otu_ids = {}
     row_hash.each do |r_key, r_value|
       if (row_id_filter_array.nil? && otu_id_filter_array.nil?) ||
           (row_id_filter_array && row_id_filter_array.include?(r_value[:object].id)) ||
-          (otu_id_filter_array && otu_id_filter_array.include?(r_value[:otu_id])) # !! TODO !!!
+          (otu_id_filter_array && otu_id_filter_array.include?(r_value[:otu_id]))
         h[r_key] = {object: r_value[:object_at_rank],
                     row_id: r_value[:object].id,
-                    otu_id: r_value[:otu_id], ## TODO !!
+                    otu_id: r_value[:otu_id],
                     depictions: Array.new(descriptors_count) {Array.new},
         } if h[r_key].nil?
+        otu_ids[r_value[:otu_id]] = true
       end
     end
 
     depictions.each do |o|
-      next if otu_id_filter_array && (o.observation_object_type == 'Otu' && !otu_id_filter_array.include?(o.observation_object_id)) # TODO: check this
+      if (o.observation_object_type == 'Otu' && otu_ids[o.observation_object_id].nil?) ||
+        (otu_id_filter_array && (o.observation_object_type == 'Otu' && !otu_id_filter_array.include?(o.observation_object_id)))
+        next
+      end
 
       otu_collection_object = o.observation_object_type + o.observation_object_id.to_s # id.to_s + '|' + o.collection_object_id.to_s
       if h[otu_collection_object]
@@ -392,7 +465,7 @@ class Tools::ImageMatrix
     imgs = Image.where('id IN (?)', list_of_image_ids )
     imgs.each do |d|
       i = {}
-      i[:global_id] = d.to_global_id.to_s  # Why this?
+      i[:global_id] = d.to_global_id.to_s
       i[:image_file_file_name] = d.image_file_file_name
       i[:image_file_file_size] = d.image_file_file_size
       i[:image_file_content_type] = d.image_file_content_type
@@ -412,7 +485,6 @@ class Tools::ImageMatrix
       .where(citation_object_type: 'Image')
       .where('citation_object_id IN (?)', list_of_image_ids )
 
-    # @proceps this is over-writing the citations data in a weird way!!
     cit.each do |c|
       i = {}
       i[:id] = c.id
@@ -422,6 +494,7 @@ class Tools::ImageMatrix
       i[:cached] = c.cached
       i[:cached_author_string] = c.cached_author_string
       i[:year] = c.year
+      i[:global_id] = c.to_global_id.to_s
       #i[:citation_object_id] = c.citation_object_id
       #i[:citation_object_type] = c.citation_object_type
       h[c.citation_object_id][:citations].push(i)

@@ -49,6 +49,7 @@ namespace :api, defaults: {format: :json} do
 
       get '/otus', to: '/otus#api_index'
       get '/otus/autocomplete', to: '/otus#api_autocomplete'
+      get '/otus/:id/inventory/content', to: '/otus#api_content', as: :api_content
       get '/otus/:id/inventory/distribution', to: '/otus#api_distribution', as: :api_distribution
       get '/otus/:id/inventory/taxonomy', to: '/otus#api_taxonomy_inventory', as: :taxonomy_inventory
       get '/otus/:otu_id/inventory/images', to: '/images#api_image_inventory', as: :images_inventory
@@ -103,6 +104,8 @@ namespace :api, defaults: {format: :json} do
       get '/data_attributes', to: '/data_attributes#api_index'
       get '/data_attributes/:id', to: '/data_attributes#api_show'
 
+      get '/depictions/:id', to: '/depictions#api_show'
+
       get '/observations', to: '/observations#api_index'
       get '/observations/:id', to: '/observations#api_show'
 
@@ -114,6 +117,8 @@ namespace :api, defaults: {format: :json} do
       get '/images/:id/file', to: '/images#api_file', as: :image_file
       get '/images/:id', to: '/images#api_show'
 
+      get '/tags', to: '/tags#api_index'
+      get '/tags/:id', to: '/tags#api_show'
 
       # get '/controlled_vocabulary_terms'
     end

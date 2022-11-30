@@ -42,6 +42,7 @@
 
 import CRUD from '../../request/crud'
 import SmartSelector from 'components/ui/SmartSelector'
+import { ControlledVocabularyTerm } from 'routes/endpoints'
 
 export default {
   mixins: [CRUD],
@@ -51,12 +52,14 @@ export default {
   props: {
     globalId: {
       type: String,
-      required: true,
+      required: true
     },
+
     citation: {
       type: Object,
       required: true
     },
+
     objectType: {
       type: String,
       required: true
@@ -71,7 +74,7 @@ export default {
     }
   },
 
-  data() {
+  data () {
     return {
       topicsSelected: [],
       topicsAllList: undefined
@@ -79,7 +82,7 @@ export default {
   },
 
   mounted () {
-    this.getList('/controlled_vocabulary_terms.json?type[]=Topic').then(response => {
+    ControlledVocabularyTerm.where({ type: ['Topic'] }).then(response => {
       this.topicsAllList = response.body
     })
   },
@@ -87,7 +90,7 @@ export default {
   methods: {
     sendTopic (topic) {
       this.$emit('create', {
-        id: this.citation.id,
+        ...this.citation,
         citation_topics_attributes: [{ topic_id: topic.id }]
       })
     }

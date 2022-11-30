@@ -49,9 +49,14 @@
     cursor: pointer;
     margin-left: 5px;
   }
-  .annotation__note {
-    display: none;
+
+  .taxonomic_history,
+  .citations {
+    .annotation__note {
+      display: none;
+    }
   }
+
   .modal-container {
     width: 600px;
   }

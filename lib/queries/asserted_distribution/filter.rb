@@ -12,6 +12,10 @@ module Queries
       # @param otu_id [Array, Integer, String]
       attr_accessor :geographic_area_id
 
+      # @return [Boolean, nil]
+      # @params recent ['true', 'false', nil]
+      attr_accessor :recent
+
       def initialize(params)
         if p = params[:otu_id]
           if p.kind_of? Array
@@ -29,7 +33,7 @@ module Queries
           end
         end
 
-        @recent = params[:recent] ? true : nil
+        @recent = params[:recent].blank? ? nil : params[:recent].to_i
       end
 
       # @return [Arel::Table]
@@ -79,6 +83,7 @@ module Queries
           q = ::AssertedDistribution.all
         end
 
+        q = q.order(updated_at: :desc).limit(recent) if recent
         q
       end
   

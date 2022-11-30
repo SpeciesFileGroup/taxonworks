@@ -18,7 +18,7 @@
         :key="item.id">
         <td>
           <a
-            :href="browseOtu(item.otu.id)"
+            :href="browseOtu(item.otu_id)"
             v-html="item.otu.object_tag"/>
         </td>
         <td v-html="item.geographic_area.name"/>

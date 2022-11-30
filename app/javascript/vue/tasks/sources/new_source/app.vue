@@ -149,7 +149,6 @@ import CrossRef from './components/crossRef'
 import BibtexButton from './components/bibtex'
 import Verbatim from './components/verbatim/main'
 import Bibtex from './components/bibtex/main'
-import Human from './components/person/main'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial'
 import AddSource from 'components/addToProjectSource'
@@ -163,6 +162,7 @@ import { User } from 'routes/endpoints'
 import { GetterNames } from './store/getters/getters'
 import { ActionNames } from './store/actions/actions'
 import { MutationNames } from './store/mutations/mutations'
+import { RouteNames } from 'routes/routes'
 
 import RightSection from './components/rightSection'
 import NavBar from 'components/layout/NavBar'
@@ -180,7 +180,6 @@ export default {
     SourceType,
     Verbatim,
     Bibtex,
-    Human,
     CrossRef,
     RightSection,
     BibtexButton,
@@ -263,7 +262,7 @@ export default {
 
   methods: {
     reset () {
-      this.$store.dispatch(ActionNames.ResetSource)
+      window.open(RouteNames.NewSource, '_self')
     },
     saveSource () {
       if (this.source.type === 'Source::Bibtex' && !this.source.bibtex_type) return

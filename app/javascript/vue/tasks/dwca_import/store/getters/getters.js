@@ -8,9 +8,13 @@ import getSettings from './getSettings'
 import getVirtualPages from './getVirtualPages'
 import getCurrentVirtualPage from './getCurrentVirtualPage'
 import getNamespaceFor from './getNamespaceFor'
+import getCollectionCodeNamespaces from './getCollectionCodeNamespaces'
+import getDefaultCollectionCodeNamespaces from './getDefaultCollectionCodeNamespaces'
 
 const GetterNames = {
+  GetCollectionCodeNamespaces: 'getCollectionCodeNamespaces',
   GetDataset: 'getDataset',
+  GetDefaultCollectionCodeNamespaces: 'getDefaultCollectionCodeNamespaces',
   GetPagination: 'getPagination',
   GetParamsFilter: 'getParamsFilter',
   GetSelectedRowIds: 'getSelectedRowIds',
@@ -19,11 +23,13 @@ const GetterNames = {
   GetRowPositionById: 'getRowPositionById',
   GetSettings: 'getSettings',
   GetVirtualPages: 'getVirtualPages',
-  GetCurrentVirtualPage: 'getCurrentVirtualPage',
+  GetCurrentVirtualPage: 'getCurrentVirtualPage'
 }
 
 const GetterFunctions = {
+  [GetterNames.GetCollectionCodeNamespaces]: getCollectionCodeNamespaces,
   [GetterNames.GetDataset]: getDataset,
+  [GetterNames.GetDefaultCollectionCodeNamespaces]: getDefaultCollectionCodeNamespaces,
   [GetterNames.GetPagination]: getPagination,
   [GetterNames.GetParamsFilter]: getParamsFilter,
   [GetterNames.GetSelectedRowIds]: getSelectedRowIds,

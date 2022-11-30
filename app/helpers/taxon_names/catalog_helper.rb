@@ -11,10 +11,10 @@ module TaxonNames::CatalogHelper
   def nomenclature_catalog_li_tag(nomenclature_catalog_item, reference_taxon_name, target = :browse_nomenclature_task_path)
     content_tag(
       :li,
-      (content_tag(:span, nomenclature_line_tag(nomenclature_catalog_item, reference_taxon_name, target)) + ' ' + radial_annotator(nomenclature_catalog_item.object)).html_safe, 
+      (content_tag(:span, nomenclature_line_tag(nomenclature_catalog_item, reference_taxon_name, target)) + ' ' + radial_annotator(nomenclature_catalog_item.object)).html_safe,
       class: [:history__record, :middle, :inline],
       data: nomenclature_catalog_li_tag_data_attributes(nomenclature_catalog_item)
-    ) 
+    )
   end
 
   # TODO: move to Catalog json data attributes helper
@@ -32,11 +32,11 @@ module TaxonNames::CatalogHelper
   # TODO: rename reference_taxon_name
   def nomenclature_line_tag(nomenclature_catalog_entry_item, reference_taxon_name, target = :browse_nomenclature_task_path)
     i = nomenclature_catalog_entry_item
-    t = i.base_object # was taxon_name 
+    t = i.base_object # was taxon_name
     c = i.citation
     r = reference_taxon_name
 
-    [ 
+    [
       history_taxon_name(t, r, c, target),        # the subject, or protonym
       history_author_year(t, c),                  ## author year of the subject, or protonym
       history_subject_original_citation(i),       ##
@@ -59,17 +59,17 @@ module TaxonNames::CatalogHelper
     if target
       body = link_to(name, send(target, taxon_name_id: taxon_name.id) )
     else
-      body = name 
+      body = name
     end
 
     if taxon_name == r
       css = 'history__reference_taxon_name'
     else
-      css = 'history__related_taxon_name' 
+      css = 'history__related_taxon_name'
       soft_validation = soft_validation_alert_tag(taxon_name)
     end
 
-    content_tag(:span, body + soft_validation.to_s, class: [css, original_citation_css(taxon_name, c), :history__taxon_name ]) 
+    content_tag(:span, body + soft_validation.to_s, class: [css, original_citation_css(taxon_name, c), :history__taxon_name ])
   end
 
   # @return [String]
@@ -97,7 +97,7 @@ module TaxonNames::CatalogHelper
   #   !! NO span, is used in comparison !!
   def history_author_year_tag(taxon_name)
     return nil if taxon_name.nil? || taxon_name.cached_author_year.nil?
-   
+
     body =  case taxon_name.type
     when 'Combination'
       current_author_year(taxon_name)
@@ -111,7 +111,7 @@ module TaxonNames::CatalogHelper
   # @return [String, nil]
   #   a parenthesized line item containing relationship and related name
   def history_other_name(catalog_item, reference_taxon_name)
-    if catalog_item.from_relationship? 
+    if catalog_item.from_relationship?
       other_str = nil
 
       if catalog_item.other_name == reference_taxon_name
@@ -169,10 +169,10 @@ module TaxonNames::CatalogHelper
   end
 
   # @return [String, nil]
-  #    return the citation author/year if differeing from the taxon name author year 
+  #    return the citation author/year if differeing from the taxon name author year
   def history_in_taxon_name(t, c, i)
     if c
-      a = history_author_year_tag(t) 
+      a = history_author_year_tag(t)
       b = source_author_year_tag(c.source)
 
       tn = t.type == 'Combination' ? t.protonyms.last : t
@@ -188,28 +188,31 @@ module TaxonNames::CatalogHelper
       end
     end
   end
-  
+
   def history_type_material(entry_item)
     return nil if entry_item.object_class != 'Protonym' || !entry_item.is_first # is_subsequent?
     type_taxon_name_relationship = entry_item.base_object&.type_taxon_name_relationship
-    
-    str = citations_tag(type_taxon_name_relationship) if type_taxon_name_relationship
+    if type_taxon_name_relationship
+      str = citations_tag(type_taxon_name_relationship)
 
-    [ content_tag(:span, ' '.html_safe + type_taxon_name_relationship_tag(entry_item.base_object.type_taxon_name_relationship), class: 'history__type_information'),
+      [ content_tag(:span, ' '.html_safe + type_taxon_name_relationship_tag(entry_item.base_object.type_taxon_name_relationship), class: 'history__type_information'),
 
-#      citations_tag(entry_item.base_object&.type_taxon_name_relationship)
-#      (entry_item.base_object&.type_taxon_name_relationship&.citations&.load&.any? ? (content_tag(:em, ' in ') + citations_tag(entry_item.base_object&.type_taxon_name_relationship)) : '')
-    (type_taxon_name_relationship&.citations&.load&.any? ? (content_tag(:em, ' in ') +
-        link_to(content_tag(:span, str, title: strip_tags(type_taxon_name_relationship&.citations&.first&.source&.cached), class: 'history__pages'), send(:nomenclature_by_source_task_path, source_id: type_taxon_name_relationship&.citations&.first&.source&.id) )  ) : '')
+        #      citations_tag(entry_item.base_object&.type_taxon_name_relationship)
+        #      (entry_item.base_object&.type_taxon_name_relationship&.citations&.load&.any? ? (content_tag(:em, ' in ') + citations_tag(entry_item.base_object&.type_taxon_name_relationship)) : '')
+        (type_taxon_name_relationship.citations&.load&.any? ? (content_tag(:em, ' in ') +
+                                                               link_to(content_tag(:span, str, title: strip_tags(type_taxon_name_relationship.citations&.first&.source&.cached), class: 'history__pages'), send(:nomenclature_by_source_task_path, source_id: type_taxon_name_relationship.citations&.first&.source&.id) )  ) : '')
 
 
-    #      history_in(entry_item.base_object&.type_taxon_name_relationship&.source)
-    ].compact.join.html_safe
+      #      history_in(entry_item.base_object&.type_taxon_name_relationship&.source)
+      ].compact.join.html_safe
+    else
+      nil
+    end
   end
 
   def taxon_name_synonym_li(syn)
     label = [
-      content_tag(:span, "= "), 
+      content_tag(:span, "= "),
       link_to(full_original_taxon_name_tag(syn) || taxon_name_tag(syn), browse_nomenclature_task_path(taxon_name_id: syn.id))
     ].compact.join.html_safe
 

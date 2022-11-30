@@ -27,6 +27,7 @@ class Protonym < TaxonName
   validates_presence_of :rank_class, message: 'is a required field'
 
   validate :validate_rank_class_class,
+    :validate_same_nomenclatural_code,
     :validate_parent_rank_is_higher,
     :validate_child_rank_is_equal_or_lower,
     :check_new_rank_class,
@@ -203,7 +204,7 @@ class Protonym < TaxonName
         TaxonNameRelationship::Icnp::Unaccepting::Synonym.create!(subject_taxon_name: self, object_taxon_name: protonym)
       when :icvnc
         TaxonNameRelationship::Icnp::Unaccepting::SupressedSynony.create!(subject_taxon_name: self, object_taxon_name: protonym)
-      else 
+      else
         return false
       end
     rescue ActiveRecord::RecordInvalid
@@ -389,17 +390,20 @@ class Protonym < TaxonName
     else
       return nil
     end
+    return nil if r.nil?
     r.constantize
   end
 
+  # temporary method to get a number of taxa described by year
   def number_of_taxa_by_year
+    file_name = '/tmp/taxa_by_year' + '_' + Time.now.to_i.to_s + '.csv'
     a = {}
     descendants.find_each do |z|
       year = z.year_integer
       year = 0 if year.nil?
       a[year] = {:valid => 0, :synonyms => 0} unless a[year]
       if z.rank_string == 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
-        if z.id == z.cached_valid_taxon_name_id
+        if z.cached_is_valid
           a[year][:valid] = a[year][:valid] += 1
         elsif TaxonNameRelationship.where_subject_is_taxon_name(z.id).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).any?
           a[year][:synonyms] = a[year][:synonyms] += 1
@@ -410,7 +414,8 @@ class Protonym < TaxonName
       a[i] = {:valid => 0, :synonyms => 0} unless a[i]
     end
     b = a.sort.to_h
-    CSV.generate do |csv|
+    CSV.open(file_name, 'w') do |csv|
+      #CSV.generate do |csv|
       csv << ['year', 'valid species', 'synonyms']
       b.keys.each do |i|
         csv << [i, b[i][:valid], b[i][:synonyms]]
@@ -927,16 +932,6 @@ class Protonym < TaxonName
     end
   end
 
-  def check_new_parent_class
-    if parent_id != parent_id_was && !parent_id_was.nil? && nomenclatural_code == :iczn
-      if old_parent = TaxonName.find_by(id: parent_id_was)
-        if (rank_name == 'subgenus' || rank_name == 'subspecies') && old_parent.name == name
-          errors.add(:parent_id, "The nominotypical #{rank_name} #{name} can not be moved out of the nominal #{old_parent.rank_name}")
-        end
-      end
-    end
-  end
-
   def validate_rank_class_class
     errors.add(:rank_class, 'Rank not found') unless RANKS.include?(rank_string)
   end
@@ -964,9 +959,16 @@ class Protonym < TaxonName
     end
   end
 
+  def validate_same_nomenclatural_code
+    if parent&.nomenclatural_code && nomenclatural_code != parent.nomenclatural_code
+      errors.add(:rank_class, "The parent nomenclatural code (#{parent.nomenclatural_code.to_s.upcase}) is not matching to the nomenclatural code (#{nomenclatural_code.to_s.upcase}) of this taxon")
+    end
+  end
+
   # This is a *very* expensive soft validation, it should be fragemented into individual parts likely
   # It should also not be necessary by default our code should be good enough to handle these
   # issues in the long run.
+  # DD: rules for cached tend to evolve, what was good in the past, may not be true today
   def sv_cached_names # this cannot be moved to soft_validation_extensions
   is_cached = true
   is_cached = false if cached_author_year != get_author_and_year

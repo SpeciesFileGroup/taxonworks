@@ -4,7 +4,7 @@ class OtusController < ApplicationController
   before_action :set_otu, only: [
     :show, :edit, :update, :destroy, :collection_objects, :navigation,
     :breadcrumbs, :timeline, :coordinate,
-    :api_show, :api_taxonomy_inventory, :api_type_material_inventory, :api_nomenclature_citations, :api_distribution ]
+    :api_show, :api_taxonomy_inventory, :api_type_material_inventory, :api_nomenclature_citations, :api_distribution, :api_content ]
   after_action -> { set_pagination_headers(:otus) }, only: [:index, :api_index], if: :json_request?
 
   # GET /otus
@@ -276,6 +276,17 @@ class OtusController < ApplicationController
     render '/otus/api/v1/inventory/taxonomy'
   end
 
+  # GET /api/v1/otus/:id/inventory/content
+  def api_content
+
+    topic_ids = [params[:topic_id]].flatten.compact.uniq
+
+    @public_content =  PublicContent.where(otu: @otu, project_id: sessions_current_project_id)
+    @public_content = @public_content.joins(:topic).where(topic_id: topic_ids) unless topic_ids.empty?
+
+    render '/otus/api/v1/inventory/content'
+  end
+
   # GET /api/v1/otus/:id/inventory/type_material
   def api_type_material_inventory
     render '/otus/api/v1/inventory/type_material'
@@ -284,9 +295,8 @@ class OtusController < ApplicationController
   # GET /api/v1/otus/:id/inventory/nomenclature_citations
   def api_nomenclature_citations
     if @otu.taxon_name
-      data = ::Catalog::Nomenclature::Entry.new(@otu.taxon_name)
-      @citations = data.citations
-      render '/citations/api/v1/index'
+      @data = ::Catalog::Nomenclature::Entry.new(@otu.taxon_name)
+      render '/otus/api/v1/inventory/nomenclature_citations'
     else
       render json: {}, status: :unprocessable_entity
     end

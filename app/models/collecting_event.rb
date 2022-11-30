@@ -175,6 +175,10 @@
 #   @return [String, nil]
 #     the auto-calculated level2 value (e.g. county) drawn from GeographicNames, never directly user supplied
 #
+# @!attribute meta_prioritize_geographic_area
+#   @return [Boolean, nil]
+#      A meta attribute. When true then DwcOccurence indexing will use the geographic name hierarchy from GeographicArea, _not_ as inferred by geospatial (Georeference) calculation.
+#      The is used when reverse georefencing fails because of the lack of precision of the GeographicItem (shapes) for GeographicAreas.
 #
 class CollectingEvent < ApplicationRecord
   include Housekeeping
@@ -287,6 +291,8 @@ class CollectingEvent < ApplicationRecord
 
   validates :start_date_day, date_day: {year_sym: :start_date_year, month_sym: :start_date_month},
     unless: -> { start_date_year.nil? || start_date_month.nil? }
+
+  validates_presence_of :geographic_area_id, if: -> { meta_prioritize_geographic_area }
 
   soft_validate(
     :sv_minimally_check_for_a_label,
@@ -756,6 +762,9 @@ class CollectingEvent < ApplicationRecord
     @geographic_names ||= {}
   end
 
+  # @return Hash
+  #  a geographic_name_classification.
+  # This prioritizes Georeferences over GeographicAreas!
   def get_geographic_name_classification
     case geographic_name_classification_method
     when :preferred_georeference
@@ -764,9 +773,11 @@ class CollectingEvent < ApplicationRecord
       # slow
       r = preferred_georeference.geographic_item.inferred_geographic_name_hierarchy if r == {} # therefor defaults to slow
     when :geographic_area_with_shape # geographic_area.try(:has_shape?)
-      # quick
+      # very quick
       r = geographic_area.geographic_name_classification # do not round trip to the geographic_item, it just points back to the geographic area
       # slow
+      #   rarely hit, this uses the geographic_area shape itself to then find what contains it, and then classify using that
+      #   it will by definition be partial
       r = geographic_area.default_geographic_item.inferred_geographic_name_hierarchy if r == {}
     when :geographic_area # elsif geographic_area
       # quick
@@ -783,6 +794,9 @@ class CollectingEvent < ApplicationRecord
   #   determines (prioritizes) the method to be used to decided the geographic name classification
   #   (string labels for country, state, county) for this collecting_event.
   def geographic_name_classification_method
+    # Over-ride first 
+    return :geographic_area if meta_prioritize_geographic_area
+
     return :preferred_georeference if !preferred_georeference.nil?
     return :geographic_area_with_shape if geographic_area.try(:has_shape?)
     return :geographic_area if geographic_area
@@ -1036,7 +1050,8 @@ class CollectingEvent < ApplicationRecord
   end
 
   def set_cached
-    set_cached_geographic_names if saved_change_to_attribute?(:geographic_area_id)
+    # TODO: Once caching is stabilized we can turn this back on
+    set_cached_geographic_names # if saved_change_to_attribute?(:geographic_area_id)
 
     c = {}
     v = [verbatim_label, print_label, document_label].compact.first

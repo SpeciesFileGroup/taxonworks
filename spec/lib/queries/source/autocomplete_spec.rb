@@ -66,7 +66,7 @@ describe Queries::Source::Autocomplete, type: :model, group: [:sources] do
 
   specify '#autocomplete_year_letter 2' do
     query.terms = '1921'
-    expect(query.autocomplete_year_letter.map(&:id)).to contain_exactly()
+    expect(query.autocomplete_year_letter.nil?).to be_truthy
   end
 
   specify '#autocomplete_exact_author_year_letter 1' do

@@ -103,12 +103,13 @@ module BatchLoad
         @csv ||= CSV.parse(
           @file.tempfile.read.force_encoding('utf-8'), # force encoding is likely a very bad idea, but instructinos say "utf-8"
           headers: true,
-          header_converters: [:downcase,
-                              lambda { |h| h.strip },
-                              lambda { |h| user_map(h) }],
-        col_sep: "\t",
-        encoding: 'UTF-8',
-        skip_blanks: true)
+          header_converters: [
+            :downcase,
+            lambda { |h| h.strip },
+            lambda { |h| user_map(h) }],
+          col_sep: "\t",
+          encoding: 'UTF-8',
+          skip_blanks: true)
 
         #  rescue Encoding::UndefinedConversionError => e
 
@@ -179,9 +180,9 @@ module BatchLoad
     def create
       @create_attempted = true
       if ready_to_create?
-
         # TODO: DRY
         if a = save_order
+
           sorted_processed_rows.each_value do |rp|
             a.each do |k|
               rp.objects[k].each do |o|
@@ -189,7 +190,7 @@ module BatchLoad
               end
             end
           end
-
+          
         else
           sorted_processed_rows.each_value do |rp|
             rp.objects.each_value do |objs|
@@ -199,7 +200,6 @@ module BatchLoad
             end
           end
         end
-
       else
         @errors << "Import level #{import_level} has prevented creation." unless import_level_ok?
         @errors << 'CSV has not been processed.' unless processed?
@@ -240,7 +240,7 @@ module BatchLoad
     # return [Hash] processed rows, sorted by line number
     #  ?! key order might not persist ?!
     def sorted_processed_rows
-      @processed_rows.sort.to_h
+      processed_rows.sort.to_h
     end
 
     # return [Array] all objects (parsed records) that are .valid?
@@ -253,6 +253,7 @@ module BatchLoad
       processed_rows.collect { |_i, rp| rp.all_objects }.flatten
     end
 
+    # Save order is by ROW only, not by type
     def save_order
       self.class.const_defined?('SAVE_ORDER') ? self.class::SAVE_ORDER : nil
     end

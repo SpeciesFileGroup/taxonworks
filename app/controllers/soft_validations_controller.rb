@@ -5,12 +5,12 @@ class SoftValidationsController < ApplicationController
 
   # GET /soft_validations/validate
   def validate
-    @object.soft_validate(**soft_validate_params)
+    @object.soft_validate(**soft_validate_params, include_flagged: true)
   end
 
   # POST /soft_validations/fix?global_id=<>
   def fix
-    @object.soft_validate(**soft_validate_params)
+    @object.soft_validate(**soft_validate_params, include_flagged: true) ## Use 'include_flagged: false' on all automatic fixes
     @object.fix_soft_validations
     render :validate
   end
@@ -29,6 +29,7 @@ class SoftValidationsController < ApplicationController
       only_methods: [],
       except_methods: [],
       except_sets: [],
+      include_flagged: [],
     ).to_h.symbolize_keys
   end
 

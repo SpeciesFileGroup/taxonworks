@@ -13,8 +13,10 @@
       <br>
     </template>
 
-    <form-citation 
+    <form-citation
       v-model="citation"
+      :klass="BIOLOGICAL_ASSOCIATION"
+      lock-button
       @lock="lockSource = $event"
     />
     <display-list
@@ -133,7 +135,7 @@ import TableList from './table.vue'
 import LockComponent from 'components/ui/VLock/index.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
-import FormCitation from '../asserted_distributions/sourcePicker.vue'
+import FormCitation from 'components/Form/FormCitation.vue'
 import makeEmptyCitation from '../../helpers/makeEmptyCitation.js'
 import displayList from 'components/displayList.vue'
 import { convertType } from 'helpers/types'
@@ -142,6 +144,7 @@ import {
   BiologicalAssociation,
   BiologicalRelationship
 } from 'routes/endpoints'
+import { BIOLOGICAL_ASSOCIATION } from 'constants/index.js'
 
 const EXTEND_PARAMS = [
   'origin_citation',
@@ -195,7 +198,8 @@ export default {
       flip: false,
       lockSource: false,
       lockRelationship: false,
-      loadOnMounted: false
+      loadOnMounted: false,
+      BIOLOGICAL_ASSOCIATION
     }
   },
 

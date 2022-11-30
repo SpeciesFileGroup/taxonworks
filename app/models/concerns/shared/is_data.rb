@@ -89,6 +89,45 @@ module Shared::IsData
       scope
     end
 
+    # @return Hash
+    #  { restrict: {}, destroy: {} }
+    #
+    #  Summarizes the count of records that will be destroyed if these ids are destroyed, or records that
+    #  will prevent destruction.
+    def related_summary(ids)
+      h = { restrict: {}, destroy: {} }
+      objects = self.where(id: ids)
+
+      base = self.table_name.to_sym
+
+      [ self.reflect_on_all_associations(:has_many),
+        self.reflect_on_all_associations(:has_one)
+      ].each do |rt|
+
+        rt.each do |r|
+          d = r.options.dig(:dependent)
+          next if d.nil?
+
+          c = nil
+          if r.type
+            c =  r.klass.where(r.type.to_sym =>  self.name, r.type.gsub('_type', '_id').to_sym => objects.map(&:id)).count
+          else
+            c = r.klass.where(r.foreign_key.to_sym => objects.map(&:id)).count
+          end
+
+          if c > 0
+            case d
+            when :destroy
+              h[:destroy][r.name] = c
+            when :restrict_with_error
+              h[:restrict][r.name] = c
+            end
+          end
+        end
+      end
+      h
+    end
+
   end  # END CLASS METHODS
 
   # Returns whether it is permissible to try to destroy

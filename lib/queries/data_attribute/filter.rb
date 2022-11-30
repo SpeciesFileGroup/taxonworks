@@ -1,7 +1,5 @@
 module Queries
   module DataAttribute
-
-    # !! does not inherit from base query
     class Filter
 
       # General annotator options handling

@@ -69,6 +69,7 @@ const handleClick = async () => {
       message: 'This will add the current taxon determination to all collection object selected. Are you sure you want to proceed?',
       confirmationWord: 'CREATE',
       okButton: 'Create',
+      cancelButton: 'Cancel',
       typeButton: 'submit'
     })
 

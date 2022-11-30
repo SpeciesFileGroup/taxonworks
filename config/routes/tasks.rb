@@ -1,5 +1,9 @@
 scope :tasks do
   scope :administrator do
+    scope :project_classification, controller: 'tasks/administrator/project_classification' do
+      get '/', as: 'project_classification_task', action: :index
+    end
+
     scope :batch_add_users, controller: 'tasks/administrator/batch_add_users' do
       get '/', as: 'batch_add_users_task', action: :index
     end
@@ -9,6 +13,7 @@ scope :tasks do
     get :index, as: 'dwca_import_task'
     post 'upload'
     post 'update_catalog_number_namespace'
+    post 'update_catalog_number_collection_code_namespace'
     post 'set_import_settings'
   end
 
@@ -19,9 +24,9 @@ scope :tasks do
   end
 
   scope :extracts do
-      scope :filter, controller: 'tasks/extracts/filter' do
-        get '/', as: 'filter_extract_task', action: :index
-      end
+    scope :filter, controller: 'tasks/extracts/filter' do
+      get '/', as: 'filter_extract_task', action: :index
+    end
 
     scope :new_extract, controller: 'tasks/extracts/new_extract' do
       get '/', action: :index, as: 'new_extract_task'
@@ -55,10 +60,10 @@ scope :tasks do
   end
 
   scope :exports do
-      scope :taxonworks_project, controller: 'tasks/exports/taxonworks_project' do
-        get '/', action: :index, as: 'export_taxonworks_project_task'
-        get 'download', as: 'download_taxonworks_project_task'
-      end
+    scope :taxonworks_project, controller: 'tasks/exports/taxonworks_project' do
+      get '/', action: :index, as: 'export_taxonworks_project_task'
+      get 'download', as: 'download_taxonworks_project_task'
+    end
 
     scope :coldp, controller: 'tasks/exports/coldp' do
       get '/', action: :index, as: 'export_coldp_task'
@@ -94,9 +99,17 @@ scope :tasks do
   end
 
   scope :content do
-      scope :by_nomenclature, controller: 'tasks/content/by_nomenclature' do
-        get '/', action: :index, as: 'content_by_nomenclature_task'
-      end
+    scope :publisher, controller: 'tasks/content/publisher' do
+      get 'summary', as: :publisher_summary,  defaults: {format: :json}
+      get 'topic_table', as: :publisher_topic_table, defaults: {format: :json}
+      get '/', action: :index, as: 'publisher_task'
+      post 'publish_all', defaults: {format: :json}
+      post 'unpublish_all', defaults: {format: :json}
+    end
+
+    scope :by_nomenclature, controller: 'tasks/content/by_nomenclature' do
+      get '/', action: :index, as: 'content_by_nomenclature_task'
+    end
 
     scope :editor, controller: 'tasks/content/editor' do
       get 'index', as: 'index_editor_task'
@@ -176,9 +189,9 @@ scope :tasks do
   end
 
   scope :collecting_events do
-      scope :new_collecting_event, controller: 'tasks/collecting_events/new_collecting_event' do
-        get '/', action: :index, as: 'new_collecting_event_task'
-      end
+    scope :new_collecting_event, controller: 'tasks/collecting_events/new_collecting_event' do
+      get '/', action: :index, as: 'new_collecting_event_task'
+    end
 
     scope :browse, controller: 'tasks/collecting_events/browse' do
       get '/', action: :index, as: 'browse_collecting_events_task'
@@ -212,6 +225,10 @@ scope :tasks do
   end
 
   scope :collection_objects do
+      scope :chronology, controller: 'tasks/collection_objects/chronology' do
+        get '/', action: :index, as: 'collection_object_chronology_task'
+      end
+
     scope :stepwise do
       scope :determinations, controller: 'tasks/collection_objects/stepwise/determinations' do
         get '/', action: :index, as: 'stepwise_determinations_task'
@@ -363,6 +380,11 @@ scope :tasks do
   end
 
   scope :nomenclature do
+    scope :paper_catalog, controller: 'tasks/nomenclature/paper_catalog' do
+      get '/', action: :index, as: 'paper_catalog_generator_task'
+      get :preview, as: 'paper_catalog_preview_task'
+    end
+
     scope :match, controller: 'tasks/nomenclature/match' do
       get :index, as: 'match_nomenclature_task'
     end
@@ -389,6 +411,10 @@ scope :tasks do
   end
 
   scope :observation_matrices do
+    scope :matrix_column_coder, controller: 'tasks/observation_matrices/matrix_column_coder' do
+      get :index, as: 'index_matrix_column_coder_task'
+    end
+
     scope :dashboard, controller: 'tasks/observation_matrices/dashboard' do
       get '', as: 'observation_matrices_dashboard_task', action: :index
     end
@@ -448,9 +474,20 @@ scope :tasks do
     end
   end
 
-  scope :people, controller: 'tasks/people/author' do
-    get 'author', action: 'list', as: 'author_list_task'
-    get 'source_list_for_author/:id', action: 'source_list_for_author', as: 'author_source_list_task'
+  scope :people do
+    scope :author, controller: 'tasks/people/author' do
+      get '/', action: :index, as: 'author_list_task'
+      get 'source_list_for_author/:id', action: 'source_list_for_author', as: 'author_source_list_task'
+    end
+
+    scope :filter, controller: 'tasks/people/filter' do
+      get '/', action: :index, as: :filter_people_task
+    end
+  end
+
+  # TODO: nest in peopl
+  scope :uniquify_people, controller: 'tasks/uniquify/people' do
+    get 'index', as: 'uniquify_people_task'
   end
 
   scope :serials, controller: 'tasks/serials/similar' do
@@ -458,6 +495,12 @@ scope :tasks do
   end
 
   scope :taxon_names do
+    scope :merge, controller: 'tasks/taxon_names/merge' do
+      get '/', action: :index, as: 'taxon_name_merge_task'
+      get 'report', as: 'taxon_name_merge_report'
+      post 'merge', as: 'taxon_name_merge'
+    end
+
     scope :syncronize_otus, controller: 'tasks/taxon_names/syncronize_otus' do
       get 'index', as: 'syncronize_otus_to_nomenclature_task'
       post 'index', as: 'preview_syncronize_otus_to_nomenclature_task'
@@ -473,10 +516,6 @@ scope :tasks do
     scope :edit_type_material, controller: 'tasks/type_material/edit_type_material' do
       get '/', as: 'edit_type_material_task', action: :index
     end
-  end
-
-  scope :uniquify_people, controller: 'tasks/uniquify/people' do
-    get 'index', as: 'uniquify_people_task'
   end
 
   scope :usage, controller: 'tasks/usage/user_activity' do

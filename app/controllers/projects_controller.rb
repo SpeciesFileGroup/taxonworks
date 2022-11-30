@@ -29,10 +29,19 @@ class ProjectsController < ApplicationController
   # POST /projects
   # POST /projects.json
   def create
+    # can't use project_params here because :create_with_current_user param will be rejected
+    # (as it should, it's a one off that shouldn't be accepted anywhere else)
+    create_with_current_user = params.dig(:project, :create_with_current_user)
+
     @project = Project.new(project_params)
 
     respond_to do |format|
       if @project.save
+
+        if create_with_current_user
+          ProjectMember.create(project_id: @project.id, user_id: Current.user_id)
+        end
+
         format.html { redirect_to @project, notice: 'Project was successfully created.' }
         format.json { render action: 'show', status: :created, location: @project }
       else

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_04_21_212203) do
+ActiveRecord::Schema.define(version: 2022_11_01_203023) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -274,6 +274,7 @@ ActiveRecord::Schema.define(version: 2022_04_21_212203) do
     t.string "lithology"
     t.decimal "max_ma"
     t.decimal "min_ma"
+    t.boolean "meta_prioritize_geographic_area"
     t.index ["created_at"], name: "index_collecting_events_on_created_at"
     t.index ["created_by_id"], name: "index_collecting_events_on_created_by_id"
     t.index ["geographic_area_id"], name: "index_collecting_events_on_geographic_area_id"
@@ -957,6 +958,7 @@ ActiveRecord::Schema.define(version: 2022_04_21_212203) do
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.string "type", null: false
+    t.decimal "cached_total_area"
     t.index "st_centroid(\nCASE type\n    WHEN 'GeographicItem::MultiPolygon'::text THEN (multi_polygon)::geometry\n    WHEN 'GeographicItem::Point'::text THEN (point)::geometry\n    WHEN 'GeographicItem::LineString'::text THEN (line_string)::geometry\n    WHEN 'GeographicItem::Polygon'::text THEN (polygon)::geometry\n    WHEN 'GeographicItem::MultiLineString'::text THEN (multi_line_string)::geometry\n    WHEN 'GeographicItem::MultiPoint'::text THEN (multi_point)::geometry\n    WHEN 'GeographicItem::GeometryCollection'::text THEN (geometry_collection)::geometry\n    ELSE NULL::geometry\nEND)", name: "idx_centroid", using: :gist
     t.index ["created_by_id"], name: "index_geographic_items_on_created_by_id"
     t.index ["geometry_collection"], name: "geometry_collection_gix", using: :gist
@@ -1014,7 +1016,9 @@ ActiveRecord::Schema.define(version: 2022_04_21_212203) do
     t.string "identifier_object_type", null: false
     t.string "relation"
     t.integer "position"
+    t.float "cached_numeric_identifier"
     t.index ["cached"], name: "index_identifiers_on_cached"
+    t.index ["cached_numeric_identifier"], name: "index_identifiers_on_cached_numeric_identifier"
     t.index ["created_at"], name: "index_identifiers_on_created_at"
     t.index ["created_by_id"], name: "index_identifiers_on_created_by_id"
     t.index ["identifier"], name: "index_identifiers_on_identifier"
@@ -1242,8 +1246,6 @@ ActiveRecord::Schema.define(version: 2022_04_21_212203) do
   create_table "observation_matrix_row_items", id: :serial, force: :cascade do |t|
     t.integer "observation_matrix_id", null: false
     t.string "type", null: false
-    t.integer "collection_object_id"
-    t.integer "otu_id"
     t.integer "controlled_vocabulary_term_id"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1254,12 +1256,10 @@ ActiveRecord::Schema.define(version: 2022_04_21_212203) do
     t.bigint "taxon_name_id"
     t.integer "observation_object_id"
     t.string "observation_object_type"
-    t.index ["collection_object_id"], name: "omri_co_index"
     t.index ["controlled_vocabulary_term_id"], name: "omri_cvt_index"
     t.index ["created_by_id"], name: "index_observation_matrix_row_items_on_created_by_id"
     t.index ["observation_matrix_id"], name: "omri_om_index"
     t.index ["observation_object_id", "observation_object_type"], name: "omrowitem_oo_polymorphic_index"
-    t.index ["otu_id"], name: "index_observation_matrix_row_items_on_otu_id"
     t.index ["project_id"], name: "index_observation_matrix_row_items_on_project_id"
     t.index ["taxon_name_id"], name: "index_observation_matrix_row_items_on_taxon_name_id"
     t.index ["updated_by_id"], name: "index_observation_matrix_row_items_on_updated_by_id"
@@ -1267,8 +1267,6 @@ ActiveRecord::Schema.define(version: 2022_04_21_212203) do
 
   create_table "observation_matrix_rows", id: :serial, force: :cascade do |t|
     t.integer "observation_matrix_id", null: false
-    t.integer "otu_id"
-    t.integer "collection_object_id"
     t.integer "position"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1280,19 +1278,15 @@ ActiveRecord::Schema.define(version: 2022_04_21_212203) do
     t.string "name"
     t.integer "observation_object_id"
     t.string "observation_object_type"
-    t.index ["collection_object_id"], name: "index_observation_matrix_rows_on_collection_object_id"
     t.index ["created_by_id"], name: "index_observation_matrix_rows_on_created_by_id"
     t.index ["observation_matrix_id"], name: "omr_om_index"
     t.index ["observation_object_id", "observation_object_type"], name: "obmxrow_polymorphic_obj_index"
-    t.index ["otu_id"], name: "index_observation_matrix_rows_on_otu_id"
     t.index ["project_id"], name: "index_observation_matrix_rows_on_project_id"
     t.index ["updated_by_id"], name: "index_observation_matrix_rows_on_updated_by_id"
   end
 
   create_table "observations", id: :serial, force: :cascade do |t|
     t.integer "descriptor_id"
-    t.integer "otu_id"
-    t.integer "collection_object_id"
     t.integer "character_state_id"
     t.string "frequency"
     t.decimal "continuous_value"
@@ -1323,10 +1317,8 @@ ActiveRecord::Schema.define(version: 2022_04_21_212203) do
     t.integer "day_made"
     t.time "time_made"
     t.index ["character_state_id"], name: "index_observations_on_character_state_id"
-    t.index ["collection_object_id"], name: "index_observations_on_collection_object_id"
     t.index ["descriptor_id"], name: "index_observations_on_descriptor_id"
     t.index ["observation_object_id", "observation_object_type"], name: "observation_polymorphic_index"
-    t.index ["otu_id"], name: "index_observations_on_otu_id"
     t.index ["project_id"], name: "index_observations_on_project_id"
     t.index ["updated_at"], name: "index_observations_on_updated_at"
   end
@@ -1663,6 +1655,7 @@ ActiveRecord::Schema.define(version: 2022_04_21_212203) do
     t.integer "translated_from_serial_id"
     t.text "publisher"
     t.text "name", null: false
+    t.boolean "is_electronic_only"
     t.index ["created_by_id"], name: "index_serials_on_created_by_id"
     t.index ["primary_language_id"], name: "index_serials_on_primary_language_id"
     t.index ["translated_from_serial_id"], name: "index_serials_on_translated_from_serial_id"
@@ -2205,23 +2198,17 @@ ActiveRecord::Schema.define(version: 2022_04_21_212203) do
   add_foreign_key "observation_matrix_columns", "projects"
   add_foreign_key "observation_matrix_columns", "users", column: "created_by_id"
   add_foreign_key "observation_matrix_columns", "users", column: "updated_by_id"
-  add_foreign_key "observation_matrix_row_items", "collection_objects"
   add_foreign_key "observation_matrix_row_items", "controlled_vocabulary_terms"
   add_foreign_key "observation_matrix_row_items", "observation_matrices"
-  add_foreign_key "observation_matrix_row_items", "otus"
   add_foreign_key "observation_matrix_row_items", "projects"
   add_foreign_key "observation_matrix_row_items", "taxon_names"
   add_foreign_key "observation_matrix_row_items", "users", column: "created_by_id"
   add_foreign_key "observation_matrix_row_items", "users", column: "updated_by_id"
-  add_foreign_key "observation_matrix_rows", "collection_objects"
   add_foreign_key "observation_matrix_rows", "observation_matrices"
-  add_foreign_key "observation_matrix_rows", "otus"
   add_foreign_key "observation_matrix_rows", "projects"
   add_foreign_key "observation_matrix_rows", "users", column: "created_by_id"
   add_foreign_key "observation_matrix_rows", "users", column: "updated_by_id"
-  add_foreign_key "observations", "collection_objects"
   add_foreign_key "observations", "descriptors"
-  add_foreign_key "observations", "otus"
   add_foreign_key "observations", "projects"
   add_foreign_key "observations", "users", column: "created_by_id"
   add_foreign_key "observations", "users", column: "updated_by_id"

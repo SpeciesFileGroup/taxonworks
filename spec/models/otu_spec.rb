@@ -63,6 +63,16 @@ describe Otu, type: :model, group: :otu do
     expect(otu.valid?).to be_falsey
   end
 
+  specify 'valid assigned a taxon_name, not taxon_name_id, nor id' do
+    otu.taxon_name = Protonym.create!(name: 'Ayo', rank_class: Ranks.lookup(:iczn, :order), parent: FactoryBot.create(:root_taxon_name))
+    expect(otu.valid?).to be_truthy
+  end
+
+  specify 'invalid assigned a non-persisted taxon_name' do
+    otu.taxon_name = Protonym.new
+    expect(otu.valid?).to be_falsey
+  end
+
   specify '#name' do
     expect(otu).to respond_to(:name)
   end

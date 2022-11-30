@@ -15,8 +15,7 @@
     </div>
     <slot name="header"/>
     <template v-if="!addTabs.includes(view)">
-      <div
-        class="margin-medium-bottom">
+      <div class="margin-medium-bottom">
         <autocomplete
           ref="autocomplete"
           v-if="autocomplete"
@@ -31,7 +30,8 @@
           display="label"
           :autofocus="autofocus"
           @keyEvent="changeTab"
-          @getItem="getObject($event.id)"/>
+          @getItem="getObject($event.id)"
+        />
         <otu-picker
           v-if="otuPicker"
           :input-id="inputId"
@@ -55,13 +55,16 @@
       </template>
       <template v-else>
         <ul
-          v-if="view && view != 'search'"
+          v-if="view"
           class="no_bullets"
           :class="{ 'flex-wrap-row': inline }">
           <template
             v-for="item in lists[view]"
             :key="item.id">
-            <li v-if="filterItem(item)">
+            <li
+              v-if="filterItem(item)"
+              class="list__item"
+            >
               <template
                 v-if="buttons">
                 <button
@@ -81,8 +84,8 @@
                     @keyup="changeTab"
                     @keyup.enter="sendObject(item)"
                     @keyup.space="sendObject(item)"
-                    :value="item"
-                    :checked="selectedItem && item.id == selectedItem.id"
+                    :value="item.id"
+                    :checked="selectedItem && item.id === selectedItem.id"
                     type="radio">
                   <span v-html="item[label]"/>
                 </label>
@@ -107,7 +110,6 @@ import OrderSmart from 'helpers/smartSelector/orderSmartSelector'
 import SelectFirst from 'helpers/smartSelector/selectFirstSmartOption'
 import DefaultPin from 'components/getDefaultPin'
 import OtuPicker from 'components/otu/otu_picker/otu_picker'
-import getPlatformKey from 'helpers/getPlatformKey'
 
 export default {
   components: {
@@ -188,11 +190,6 @@ export default {
       default: undefined
     },
 
-    search: {
-      type: Boolean,
-      default: true
-    },
-
     selected: {
       type: [Array, String],
       default: undefined
@@ -244,6 +241,11 @@ export default {
       default: 'id'
     },
 
+    filter: {
+      type: Function,
+      default: undefined
+    },
+
     lockView: {
       type: Boolean,
       default: true
@@ -252,6 +254,11 @@ export default {
     autofocus: {
       type: Boolean,
       default: false
+    },
+
+    extend: {
+      type: Array,
+      default: () => []
     }
   },
 
@@ -316,21 +323,30 @@ export default {
 
   methods: {
     getObject (id) {
-      AjaxCall('get', this.getUrl ? `${this.getUrl}${id}.json` : `/${this.model}/${id}.json`).then(response => {
+      AjaxCall('get', this.getUrl ? `${this.getUrl}${id}.json` : `/${this.model}/${id}.json`, { params: { extend: this.extend } }).then(response => {
         this.sendObject(response.body)
       })
     },
+
     sendObject (item) {
       this.lastSelected = item
       this.selectedItem = item
       this.$emit('selected', item)
     },
+
     filterItem (item) {
-      return Array.isArray(this.filterIds) ? !this.filterIds.includes(item[this.filterBy]) : this.filterIds !== item[this.filterBy]
+      if (this.filter) {
+        return this.filter(item)
+      }
+
+      return Array.isArray(this.filterIds)
+        ? !this.filterIds.includes(item[this.filterBy])
+        : this.filterIds !== item[this.filterBy]
     },
+
     refresh (forceUpdate = false) {
       if (this.alreadyOnLists() && !forceUpdate) return
-      AjaxCall('get', `/${this.model}/select_options`, { params: Object.assign({}, { klass: this.klass, target: this.target }, this.params) }).then(response => {
+      AjaxCall('get', `/${this.model}/select_options`, { params: Object.assign({}, { klass: this.klass, target: this.target }, { extend: this.extend }, this.params) }).then(response => {
         this.lists = response.body
         this.addCustomElements()
         this.options = Object.keys(this.lists).concat(this.addTabs)
@@ -338,12 +354,6 @@ export default {
 
         this.view = SelectFirst(this.lists, this.options)
 
-        if (this.search) {
-          this.options.push('search')
-          if (!this.view) {
-            this.view = 'search'
-          }
-        }
       }).catch(() => {
         this.options = []
         this.lists = []
@@ -393,5 +403,9 @@ export default {
 <style scoped>
   input:focus + span {
     font-weight: bold;
+  }
+
+  .list__item {
+    padding:2px 0;
   }
 </style>

@@ -30,7 +30,8 @@
       />
       <filter-determinations
         class="margin-large-bottom"
-        v-model="params.determination"/>
+        v-model="params.determination"
+      />
       <filter-identifiers
         class="margin-large-bottom"
         v-model="params.identifier"
@@ -41,12 +42,16 @@
         role="Collector"
         title="Collectors"
         klass="CollectingEvent"
-        param-people="collector_id"
+        param-people="collector_ids"
         param-any="collector_ids_or"
       />
       <filter-material
         class="margin-large-bottom"
         v-model="params.types"
+      />
+      <FacetMatchIdentifiers
+        class="margin-large-bottom"
+        v-model="params.matchIdentifiers"
       />
       <filter-keywords
         class="margin-large-bottom"
@@ -58,7 +63,13 @@
         v-model="params.user"
       />
       <filter-attributes
-        v-model="params.collectingEvents"/>
+        class="margin-large-bottom"
+        v-model="params.collectingEvents"
+      />
+      <FacetDataAttribute
+        v-model="params.dataAttributes"
+        class="margin-large-bottom"
+      />
       <with-component
         class="margin-large-bottom"
         v-for="(item, key) in params.byRecordsWith"
@@ -75,6 +86,7 @@
 
 import SpinnerComponent from 'components/spinner'
 import platformKey from 'helpers/getPlatformKey.js'
+import qs from 'qs'
 
 import FilterIdentifiers from 'tasks/collection_objects/filter/components/filters/identifier'
 import GeographicArea from 'tasks/collection_objects/filter/components/filters/geographic'
@@ -85,6 +97,9 @@ import FilterKeywords from 'tasks/sources/filter/components/filters/tags'
 import FilterDeterminations from 'tasks/collection_objects/filter/components/filters/otu'
 import FilterMaterial from 'tasks/collection_objects/filter/components/filters/types'
 import FilterCollectors from 'tasks/collection_objects/filter/components/filters/shared/people'
+import FacetDataAttribute from 'tasks/collection_objects/filter/components/filters/DataAttributes/FacetDataAttribute.vue'
+import FacetMatchIdentifiers from 'tasks/people/filter/components/Facet/FacetMatchIdentifiers.vue'
+import checkMatchIdentifiersParams from 'tasks/people/filter/helpers/checkMatchIdentifiersParams'
 
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { CollectingEvent } from 'routes/endpoints'
@@ -100,7 +115,9 @@ export default {
     FilterIdentifiers,
     FilterKeywords,
     FilterMaterial,
-    FilterCollectors
+    FilterCollectors,
+    FacetDataAttribute,
+    FacetMatchIdentifiers
   },
 
   emits: [
@@ -152,23 +169,36 @@ export default {
 
     searchCollectingEvents () {
       if (this.emptyParams) return
-      const params = this.filterEmptyParams(Object.assign({}, this.params.keywords, this.params.identifier, this.params.determination, this.params.geographic, this.params.byRecordsWith, this.params.user, this.params.settings, this.flatObject(this.params.collectingEvents, 'fields')))
+      const params = this.filterEmptyParams({
+        ...checkMatchIdentifiersParams(this.params.matchIdentifiers),
+        ...this.params.collectors,
+        ...this.params.keywords,
+        ...this.params.dataAttributes,
+        ...this.params.identifier,
+        ...this.params.determination,
+        ...this.params.geographic,
+        ...this.params.byRecordsWith,
+        ...this.params.user,
+        ...this.params.settings,
+        ...this.params.types,
+        ...this.flatObject(this.params.collectingEvents, 'fields')
+      })
 
       this.getCollectingEvents(params)
     },
 
     getCollectingEvents (params) {
+      const urlParams = qs.stringify(params, { arrayFormat: 'brackets' })
+
       this.searching = true
       this.$emit('newSearch')
-      CollectingEvent.where({ ...params, extend: ['roles'] }).then(response => {
-        const urlParams = new URLSearchParams(response.request.responseURL.split('?')[1])
-
+      CollectingEvent.filter({ ...params, extend: ['roles'] }).then(response => {
         this.$emit('result', response.body)
-        this.$emit('urlRequest', response.request.responseURL)
+        this.$emit('urlRequest', response.request.responseURL + '?' + urlParams)
         this.$emit('pagination', response)
         this.$emit('params', params)
 
-        history.pushState(null, null, `/tasks/collecting_events/filter?${urlParams.toString()}`)
+        history.pushState(null, null, `/tasks/collecting_events/filter?${urlParams}`)
         if (response.body.length === this.params.settings.per) {
           TW.workbench.alert.create('Results may be truncated.', 'notice')
         }
@@ -186,6 +216,7 @@ export default {
         byRecordsWith: {
           collection_objects: undefined,
           depictions: undefined,
+          data_attributes: undefined,
           geographic_area: undefined,
           georeferences: undefined,
           identifiers: undefined
@@ -197,13 +228,24 @@ export default {
           identifier_end: undefined,
           namespace_id: undefined
         },
+        dataAttributes: {
+          data_attribute_value: [],
+          data_attribute_predicate_id: [],
+          data_attribute_exact: undefined
+        },
         determination: {
           determiner_id_or: [],
           determiner_id: [],
           otu_ids: [],
+          determiner_name_regex: undefined,
           current_determinations: undefined,
           ancestor_id: undefined,
           validity: undefined
+        },
+        matchIdentifiers: {
+          match_identifiers: undefined,
+          match_identifiers_delimiter: ',',
+          match_identifiers_type: 'internal'
         },
         keywords: {
           keyword_id_and: [],
@@ -236,7 +278,7 @@ export default {
         types: {
           is_type: [],
           type_type: []
-        },
+        }
       }
     },
 

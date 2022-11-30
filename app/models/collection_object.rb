@@ -83,7 +83,7 @@ class CollectionObject < ApplicationRecord
 
   include CollectionObject::BiologicalExtensions
 
-  include CollectionObject::Taxonomy # at present must be before IsDwcOccurence
+  include Shared::Taxonomy # at present must be before IsDwcOccurence
   include Shared::IsDwcOccurrence
   include CollectionObject::DwcExtensions
 
@@ -152,7 +152,7 @@ class CollectionObject < ApplicationRecord
     name: 'Missing deaccesson fields',
     description: 'Date, recipient, or reason are not specified')
 
-    scope :with_sequence_name, ->(name) { joins(sequence_join_hack_sql).where(sequences: {name: name}) }
+  scope :with_sequence_name, ->(name) { joins(sequence_join_hack_sql).where(sequences: {name: name}) }
   scope :via_descriptor, ->(descriptor) { joins(sequence_join_hack_sql).where(sequences: {id: descriptor.sequences}) }
 
   has_many :extracts, through: :origin_relationships, source: :new_object, source_type: 'Extract'
@@ -637,6 +637,27 @@ class CollectionObject < ApplicationRecord
       else
         nil
       end
+    end
+  end
+
+  def geographic_name_classification
+    # don't load the whole object, just the fields we need
+    if a = DwcOccurrence.where(dwc_occurrence_object: self).select(:country, :stateProvince, :county).first
+
+      c = a.country
+      s = a.stateProvince
+      y = a.county
+
+      v = ::Utilities::Geo::DICTIONARY[c]
+      c = v if v
+      # s = v if v = ::Utilities::Geo::DICTIONARY[s] # None in there yet
+      # y = v if v = ::Utilities::Geo::DICTIONARY[y] # None in there yet
+
+      return {
+        country: c,
+        state: s,
+        county: y
+      }
     end
   end
 

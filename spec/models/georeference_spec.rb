@@ -235,7 +235,23 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
             g.valid?
 
             expect(g.errors[:geographic_item]).to be_present
-          end
+        end
+
+        specify 'If point is within 10km from collecting event''s geographic area georeference is valid' do
+          g = Georeference::VerbatimData.new(
+            collecting_event: ce_e1, # p0 is outside of both e_g_i and ce.geographic_area
+            geographic_item: GeographicItem.new(point: RSPEC_GEO_FACTORY.point(-9.0, 9.0904, 0.0)) # e_g_i is test_box_1
+          )
+          expect(g).to be_valid
+        end
+
+        specify 'If point is exceeds 10km from collecting event''s geographic area georeference is valid' do
+          g = Georeference::VerbatimData.new(
+            collecting_event: ce_e1, # p0 is outside of both e_g_i and ce.geographic_area
+            geographic_item: GeographicItem.new(point: RSPEC_GEO_FACTORY.point(-9.0, 9.0907, 0.0)) # e_g_i is test_box_1
+          )
+          expect(g).to_not be_valid
+        end
 
         specify 'an error is added to #error_geographic_item if collecting_event.geographic_area.geo_object ' \
                           'does not contain #error_geographic_item' do
