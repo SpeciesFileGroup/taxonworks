@@ -58,12 +58,14 @@ class TaxonNameRelationship < ApplicationRecord
   after_save :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
   after_destroy :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
 
+  # TODO: remove, it's required by STI
   validates_presence_of :type, message: 'Relationship type should be specified'
+  
   validates_presence_of :subject_taxon_name, message: 'Missing taxon name on the left side'
   validates_presence_of :object_taxon_name, message: 'Missing taxon name on the right side'
 
-  validates_uniqueness_of :object_taxon_name_id, scope: :type, if: :is_combination?
-  validates_uniqueness_of :object_taxon_name_id, scope: [:type, :subject_taxon_name_id], unless: :is_combination?
+  validates_uniqueness_of :object_taxon_name_id, scope: [:type, :project_id], if: :is_combination?
+  validates_uniqueness_of :object_taxon_name_id, scope: [:type, :subject_taxon_name_id, :project_id], unless: :is_combination?
 
   validate :validate_type, :validate_subject_and_object_are_not_identical
 
@@ -321,6 +323,7 @@ class TaxonNameRelationship < ApplicationRecord
   end
 
   def validate_type
+    # TODO: Remove, handled by STI
     if type && !TAXON_NAME_RELATIONSHIP_NAMES.include?(type.to_s)
       errors.add(:type, "'#{type}' is not a valid taxon name relationship")
     elsif self.type_class && object_taxon_name.class.to_s == 'Protonym' && !self.type_class.valid_object_ranks.include?(object_taxon_name.rank_string)

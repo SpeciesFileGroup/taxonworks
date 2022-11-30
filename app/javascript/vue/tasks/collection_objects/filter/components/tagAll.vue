@@ -1,72 +1,75 @@
 <template>
   <div>
-    <spinner-component 
+    <VSpinner
       v-if="showSpinner"
-      :full-screen="true"
-      legend="Creating tags..."/>
-    <button
-      class="button normal-input button-submit"
-      type="button"
-      @click="tagAll"
-      :disabled="!keywordId || !ids.length">
-      Tag
-    </button>
+      full-screen
+      legend="Creating tags..."
+    />
+    <VBtn
+      circle
+      color="create"
+      @click="createTags"
+      :disabled="!keywordId || !ids.length"
+    >
+      <VIcon
+        x-small
+        name="label"
+      />
+    </VBtn>
   </div>
 </template>
 
-<script>
-
+<script setup>
+import { ref, onUnmounted } from 'vue'
 import { Tag } from 'routes/endpoints'
-import SpinnerComponent from 'components/spinner'
+import { CONTROLLED_VOCABULARY_TERM } from 'constants/index'
+import VSpinner from 'components/spinner'
+import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
 
-export default {
-  components: {
-    SpinnerComponent
+const props = defineProps({
+  ids: {
+    type: Array,
+    default: () => []
   },
 
-  props: {
-    ids: {
-      type: Array,
-      default: () => []
-    },
-    type: {
-      type: String,
-      required: true
-    }
-  },
+  type: {
+    type: String,
+    required: true
+  }
+})
 
-  data () {
-    return {
-      keywordId: this.getDefault(),
-      showSpinner: false
-    }
-  },
+const keywordId = ref(getDefault())
+const showSpinner = ref(false)
 
-  created () {
-    document.addEventListener('pinboard:insert', (event) => {
-      if (event.detail.type === 'ControlledVocabularyTerm') {
-        this.keywordId = this.getDefault()
-      }
-    })
-  },
+function getDefault () {
+  const defaultTag = document.querySelector('[data-pinboard-section="Keywords"] [data-insert="true"]')
 
-  methods: {
-    getDefault () {
-      const defaultTag = document.querySelector('[data-pinboard-section="Keywords"] [data-insert="true"]')
-      return defaultTag ? defaultTag.getAttribute('data-pinboard-object-id') : undefined
-    },
+  return defaultTag && defaultTag.getAttribute('data-pinboard-object-id')
+}
 
-    tagAll () {
-      this.showSpinner = true
-      Tag.createBatch({
-        object_type: this.type,
-        keyword_id: this.keywordId,
-        object_ids: this.ids
-      }).then(() => {
-        this.showSpinner = false
-        TW.workbench.alert.create('Tags was successfully created', 'notice')
-      })
-    }
+function createTags () {
+  showSpinner.value = true
+
+  Tag.createBatch({
+    object_type: props.type,
+    keyword_id: keywordId.value,
+    object_ids: props.ids
+  }).then(() => {
+    showSpinner.value = false
+    TW.workbench.alert.create('Tags was successfully created', 'notice')
+  })
+}
+
+function handleEvent (event) {
+  if (event.detail.type === CONTROLLED_VOCABULARY_TERM) {
+    keywordId.value = getDefault()
   }
 }
+
+document.addEventListener('pinboard:insert', handleEvent)
+
+onUnmounted(() => {
+  document.removeEventListener('pinboard:insert', handleEvent)
+})
 </script>

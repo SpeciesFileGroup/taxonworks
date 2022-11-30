@@ -1,6 +1,7 @@
 <template>
   <classification-list
     :lists="objectLists"
+    :created="created"
     @select="emit('select', $event)"
   />
 </template>
@@ -11,6 +12,13 @@ import { createStatusLists } from '../../helpers/createStatusLists'
 import { ref, computed, watch } from 'vue'
 import { useStore } from 'vuex'
 import ClassificationList from './ClassificationList.vue'
+
+defineProps({
+  created: {
+    type: Array,
+    default: () => []
+  }
+})
 
 const emit = defineEmits(['select'])
 

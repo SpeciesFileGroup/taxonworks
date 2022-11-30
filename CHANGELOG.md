@@ -7,9 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Delete selected collection objects (and their related data) from filter [#3174]
 - Collection object Autocomplete has loan and deaccession banners [#3192]
 - Autocomplete on Browse collection object [#3189]
 - Task - Collection object chronology, a plot of object by year collected
+- Endpoint to return related data preventing or included in destroy, e.g. `/metadata/related_summary?klass=CollectionObject&id[]=16701&id[]...`
 
 ### Fixed
 - 'Also create OTU' on batch taxon name upload causing raise
@@ -17,10 +19,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Citation link in Biological association panel on Browse OTU
 - Type relationship text/rendering is inverted in New taxon name [#3182]
 - Sqed processing failing to encode HEIC images [#3188]
+- Common list component doesn't filter created status on New taxon name task [#3205]
 
 ### Changed
 - Refactored observation cell component for Image matrix
+- Updated Ruby gems
+- Webpack binaries: Replaced `npm bin` for `npm root` to allow compatibility with recent NPM versions
 
+[#3174]: https://github.com/SpeciesFileGroup/taxonworks/issues/3174
 [#3192]: https://github.com/SpeciesFileGroup/taxonworks/issues/3192
 [#3182]: https://github.com/SpeciesFileGroup/taxonworks/issues/3182
 [#3188]: https://github.com/SpeciesFileGroup/taxonworks/issues/3188
