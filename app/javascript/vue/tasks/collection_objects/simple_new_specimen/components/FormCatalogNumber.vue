@@ -34,6 +34,7 @@
           type="text"
           class="half_width"
           v-model="store.identifier"
+          :data-locked="store.settings.lock.namespace"
           @input="checkIdentifier"
         >
         <label>

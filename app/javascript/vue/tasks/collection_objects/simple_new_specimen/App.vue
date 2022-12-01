@@ -55,7 +55,11 @@ const root = ref(null)
 store[ActionNames.GetRecent]()
 
 const setFristAutofocusElement = () => {
-  const element = root.value.querySelector('#collection-object-form input[type="text"]:not([disabled])')
+  const element = root.value.querySelector(`
+    input[type="text"]:not([disabled], [data-locked="true"]), 
+    textarea[type="text"]:not([disabled], [data-locked="true"]), 
+    select:not([disabled], [data-locked="true"])`
+  )
 
   if (!store[GetterNames.IsAllLocked] && element) {
     element.focus()
