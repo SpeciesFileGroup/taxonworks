@@ -194,7 +194,8 @@ const initParams = () => ({
     nomenclature: undefined,
     with_doi: undefined,
     tags: undefined,
-    notes: undefined
+    notes: undefined,
+    serial: undefined
   },
   identifier: {
     namespace_id: undefined,
