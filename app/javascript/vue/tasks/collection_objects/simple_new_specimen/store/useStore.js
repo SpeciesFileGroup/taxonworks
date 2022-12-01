@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { GetterFunctions } from './getters/getters'
 import { ActionFunctions } from './actions/actions'
 
 const makeInitialState = () => ({
@@ -28,5 +29,6 @@ const makeInitialState = () => ({
 
 export const useStore = defineStore('main', {
   state: makeInitialState,
+  getters: GetterFunctions,
   actions: ActionFunctions
 })
