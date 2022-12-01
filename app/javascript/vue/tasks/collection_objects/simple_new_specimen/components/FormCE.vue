@@ -10,6 +10,7 @@
       <textarea
         class="full_width"
         rows="5"
+        :data-locked="store.settings.lock.collectingEvent"
         v-model="store.collectingEvent.verbatim_label"
       />
     </div>
@@ -17,6 +18,7 @@
       <label>Verbatim locality</label>
       <input
         class="full_width"
+        :data-locked="store.settings.lock.collectingEvent"
         v-model="store.collectingEvent.verbatim_locality"
         type="text"
       >

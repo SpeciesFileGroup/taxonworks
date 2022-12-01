@@ -7,6 +7,7 @@
       <select
         class="half_width"
         v-model="store.preparationTypeId"
+        :data-locked="store.settings.lock.preparationTypeId"
       >
         <option :value="undefined">
           None
