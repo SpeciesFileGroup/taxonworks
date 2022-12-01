@@ -107,6 +107,12 @@ module Queries
       #   ignored if ancestor_id is not provided; if true then also include sources linked to OTUs that are in the scope of ancestor_id
       attr_accessor :citations_on_otus
 
+      # @return [Boolean, nil]
+      attr_accessor :serial
+      # true - with serial_id
+      # false - without_serial_id
+      # nil - both
+
       # @param [Hash] params
       def initialize(params)
         @query_string = params[:query_term]&.delete("\u0000") # TODO, we need to sanitize params in general.
@@ -135,6 +141,8 @@ module Queries
         @year_end = params[:year_end]
         @year_start = params[:year_start]
         @recent = (params[:recent]&.to_s&.downcase == 'true' ? true : false) if !params[:recent].nil?
+
+        @serial = boolean_param(params,:serial)
 
         @citations_on_otus = (params[:citations_on_otus]&.to_s&.downcase == 'true' ? true : false) if !params[:citations_on_otus].nil?
         @ancestor_id = params[:ancestor_id]
@@ -326,6 +334,16 @@ module Queries
         end
       end
 
+      def serial_facet
+        return nil if serial.nil?
+
+        if serial
+          table[:serial_id].not_eq(nil)
+        else
+          table[:serial_id].eq(nil)
+        end
+      end
+
       # TODO: move to citation concern
       def citation_object_type_facet
         return nil if citation_object_type.empty?
@@ -386,6 +404,7 @@ module Queries
 
         clauses += [
           cached,
+          serial_facet,
           source_ids_facet,
           serial_ids_facet,
           attribute_exact_facet(:author),
