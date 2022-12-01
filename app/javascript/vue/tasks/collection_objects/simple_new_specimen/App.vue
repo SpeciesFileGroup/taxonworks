@@ -47,6 +47,7 @@ import RecentTable from './components/RecentTable.vue'
 import { ref } from 'vue'
 import { useStore } from './store/useStore'
 import { ActionNames } from './store/actions/actions'
+import { GetterNames } from './store/getters/getters'
 
 const store = useStore()
 const root = ref(null)
@@ -56,7 +57,7 @@ store[ActionNames.GetRecent]()
 const setFristAutofocusElement = () => {
   const element = root.value.querySelector('#collection-object-form input[type="text"]:not([disabled])')
 
-  if (element) {
+  if (!store[GetterNames.IsAllLocked] && element) {
     element.focus()
   }
 }

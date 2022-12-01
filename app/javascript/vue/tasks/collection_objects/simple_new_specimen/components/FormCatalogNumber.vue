@@ -7,7 +7,7 @@
         class="full_width"
         label="label"
         :item="store.namespace"
-        @unset="store.namespace = undefined"
+        @unset="unsetNamespace"
       />
       <Autocomplete
         v-else
@@ -83,6 +83,11 @@ function checkIdentifier () {
   }, DELAY)
 }
 
+function unsetNamespace () {
+  store.namespace = undefined
+  store.identifier = undefined
+}
+
 onMounted(() => {
   setTimeout(() => autocompleteComponent.value.setFocus(), 250)
 })
@@ -91,7 +96,7 @@ watch(
   () => store.settings.lock.namespace,
   newVal => {
     if (!newVal) {
-      store.namespace = undefined
+      unsetNamespace()
     }
   }
 )
