@@ -8,15 +8,11 @@
         :item="store.otu"
         @unset="store.otu = undefined"
       />
-      <Autocomplete
+      <OtuPicker
         v-else
         class="full_width"
-        url="/otus/autocomplete"
-        placeholder="Search an OTU"
-        label="label_html"
-        display="label"
-        param="term"
-        @get-item="store.otu = $event"
+        clear-after
+        @get-item="store.otu = { ...$event, label: $event.name || $event.label }"
       />
       <VLock
         class="margin-small-left"
@@ -28,10 +24,20 @@
 
 <script setup>
 import { useStore } from '../store/useStore'
-import Autocomplete from 'components/ui/Autocomplete.vue'
+import { watch } from 'vue'
+import OtuPicker from 'components/otu/otu_picker/otu_picker.vue'
 import SelectedItem from './SelectedItem.vue'
 import VLock from 'components/ui/VLock/index.vue'
 
 const store = useStore()
+
+watch(
+  () => store.settings.lock.otu,
+  newVal => {
+    if (!newVal) {
+      store.otu = undefined
+    }
+  }
+)
 
 </script>

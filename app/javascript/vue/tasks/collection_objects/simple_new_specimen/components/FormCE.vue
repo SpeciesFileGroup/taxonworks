@@ -43,4 +43,19 @@ watch(
   },
   { deep: true }
 )
+
+watch(
+  () => store.settings.lock.collectingEvent,
+  newVal => {
+    if (!newVal) {
+      store.$patch({
+        collectingEvent: {
+          verbatim_locality: undefined,
+          verbatim_label: undefined
+        },
+        geographicArea: undefined
+      })
+    }
+  }
+)
 </script>
