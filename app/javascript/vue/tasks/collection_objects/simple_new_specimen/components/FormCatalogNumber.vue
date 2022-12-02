@@ -19,6 +19,9 @@
         clear-after
         autofocus
         placeholder="Search a namespace..."
+        :input-attributes="{
+          'data-locked': store.settings.lock.namespace
+        }"
         @get-item="store.namespace = $event"
       />
       <VLock

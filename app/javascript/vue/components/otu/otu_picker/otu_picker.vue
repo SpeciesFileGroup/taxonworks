@@ -7,12 +7,14 @@
       label="label_html"
       min="2"
       display="label"
-      @getItem="emitOtu"
-      @getInput="callbackInput"
-      @found="found = $event"
       :clear-after="clearAfter"
+      :input-attributes="inputAttributes"
       placeholder="Select an OTU"
-      param="term"/>
+      param="term"
+      @found="found = $event"
+      @get-item="emitOtu"
+      @get-input="callbackInput"
+    />
     <div class="flex-wrap-column create-otu-panel">
       <match-taxon-name
         v-if="!found"
@@ -49,13 +51,14 @@
           <template v-else>
             <autocomplete
               url="/taxon_names/autocomplete"
-              :autofocus="true"
+              autofocus
               label="label"
               min="2"
-              :clear-after="true"
-              @getItem="setTaxon"
+              clear-after
+              @get-item="setTaxon"
               placeholder="Select a taxon name"
-              param="term"/>
+              param="term"
+            />
           </template>
         </div>
         <button
@@ -88,6 +91,10 @@ export default {
     clearAfter: {
       type: Boolean,
       default: false
+    },
+    inputAttributes: {
+      type: Object,
+      default: () => ({})
     }
   },
 
