@@ -1,7 +1,7 @@
 # Helpers for queries that reference Identifier
 #
 # For filter queries:
-# !! requires a `query_base` method
+# !! Note that query_base here is *not* the same as base_query
 # !! requires `set_identifiers` be called in initialize()
 #
 # See spec/lib/queries/collection_object/filter_spec.rb for existing spec tests
@@ -39,6 +39,12 @@ module Queries::Concerns::Identifiers
     #   nil - not applied
     attr_accessor :identifiers
 
+    # @return [True, False, nil]
+    #   true - has an local identifier
+    #   false - does not have an local identifier
+    #   nil - not applied
+    attr_accessor :local_identifiers
+
     attr_accessor :match_identifiers
 
     attr_accessor :match_identifiers_delimiter
@@ -73,6 +79,7 @@ module Queries::Concerns::Identifiers
     @identifier_end = params[:identifier_end]
     @identifier = params[:identifier]
     @identifiers = boolean_param(params, :identifiers)
+    @local_identifiers = boolean_param(params, :local_identifiers)
 
     @identifier_exact = boolean_param(params, :identifier_exact)
     @identifier_type = params[:identifier_type] || []
@@ -87,17 +94,13 @@ module Queries::Concerns::Identifiers
     ::Identifier.arel_table
   end
 
-  def cast
-    Arel::Nodes::NamedFunction.new('CAST', [substring])
-  end
-
-  def substring
-    Arel::Nodes::NamedFunction.new('SUBSTRING', [ identifier_table[:identifier], Arel::Nodes::SqlLiteral.new("'([\\d]{1,9})$'") ]).as('integer')
-  end
+  # def substring
+  #   Arel::Nodes::NamedFunction.new('SUBSTRING', [ identifier_table[:identifier], Arel::Nodes::SqlLiteral.new("'([\\d]{1,9})$'") ]).as('integer')
+  # end
 
   def between
     Arel::Nodes::Between.new(
-      cast,
+      identifier_table[:cached_numeric_identifier],
       Arel::Nodes::And.new(
         [ Arel::Nodes::SqlLiteral.new(identifier_start),
           Arel::Nodes::SqlLiteral.new(identifier_end) ]
@@ -105,7 +108,7 @@ module Queries::Concerns::Identifiers
     )
   end
 
-  def identifiers_to_match 
+  def identifiers_to_match
     ids = match_identifiers.strip.split(match_identifiers_delimiter).flatten.map(&:strip).uniq
     if match_identifiers_type == 'internal'
       ids = ids.select{|i| i =~ /^\d+$/}
@@ -138,6 +141,18 @@ module Queries::Concerns::Identifiers
       query_base.left_outer_joins(:identifiers)
         .where(identifiers: {id: nil})
         .distinct
+    end
+  end
+
+  def local_identifiers_facet
+    return nil if local_identifiers.nil?
+    if local_identifiers
+      query_base.joins(:identifiers).where("identifiers.type ILIKE 'Identifier::Local%'").distinct
+    else
+      i = ::Identifier.arel_table[:identifier_object_id].eq(table[:id]).and(
+        ::Identifier.arel_table[:identifier_object_type].eq( table.name.classify.to_s )
+      )
+      query_base.where.not(::Identifier::Local.where(i).arel.exists)
     end
   end
 
@@ -238,6 +253,7 @@ module Queries::Concerns::Identifiers
 
   private
 
+  # !! This is not the same as base_query !!
   def query_base
     table.name.classify.safe_constantize
   end

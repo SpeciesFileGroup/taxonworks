@@ -384,12 +384,12 @@ module Queries
 
     def autocomplete_common_name_exact
       return nil if no_terms?
-      query_base.joins(:common_names).where(common_name_name.to_sql).limit(1)
+      base_query.joins(:common_names).where(common_name_name.to_sql).limit(1)
     end
 
     def autocomplete_common_name_like
       return nil if no_terms?
-      query_base.joins(:common_names).where(common_name_wild_pieces.to_sql).limit(5)
+      base_query.joins(:common_names).where(common_name_wild_pieces.to_sql).limit(5)
     end
 
   end
