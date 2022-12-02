@@ -44,6 +44,8 @@ import FormDetermination from './components/FormDetermination.vue'
 import BlockLayout from 'components/layout/BlockLayout.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import RecentTable from './components/RecentTable.vue'
+import useHotkey from 'vue3-hotkey'
+import platformKey from 'helpers/getPlatformKey'
 import { ref } from 'vue'
 import { useStore } from './store/useStore'
 import { ActionNames } from './store/actions/actions'
@@ -57,7 +59,7 @@ store[ActionNames.GetRecent]()
 const setFristAutofocusElement = () => {
   const element = root.value.querySelector(`
     input[type="text"]:not([disabled], [data-locked="true"]), 
-    textarea[type="text"]:not([disabled], [data-locked="true"]), 
+    textarea:not([disabled], [data-locked="true"]), 
     select:not([disabled], [data-locked="true"])`
   )
 
@@ -66,6 +68,25 @@ const setFristAutofocusElement = () => {
   }
 }
 
+const hotkeys = [
+  {
+    keys: [platformKey(), 'n'],
+    preventDefault: true,
+    handler () {
+      resetStore()
+      setFristAutofocusElement()
+    }
+  },
+  {
+    keys: [platformKey(), 's'],
+    preventDefault: true,
+    handler () {
+      store.createNewSpecimen()
+    }
+  }
+]
+
+const stop = useHotkey(hotkeys)
 const unsubscribe = store.$onAction(
   ({
     name,
@@ -79,6 +100,16 @@ const unsubscribe = store.$onAction(
       setFristAutofocusElement()
     })
   })
+
+const resetStore = () => {
+  const recent = store.recentList
+
+  store.$reset()
+  store.recentList = recent
+}
+
+TW.workbench.keyboard.createLegend(`${platformKey()}+s`, 'Save', 'Simple new specimen')
+TW.workbench.keyboard.createLegend(`${platformKey()}+n`, 'New', 'Simple new specimen')
 </script>
 
 <style lang="scss">

@@ -12,6 +12,9 @@
         v-else
         class="full_width"
         clear-after
+        :input-attributes="{
+          'data-locked': store.settings.lock.otu
+        }"
         @get-item="store.otu = { ...$event, label: $event.name || $event.label }"
       />
       <VLock

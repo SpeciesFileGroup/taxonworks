@@ -13,6 +13,9 @@
     autofocus
     placeholder="Search a geographic area"
     clear-after
+    :input-attributes="{
+      'data-locked': store.settings.lock.collectingEvent
+    }"
     @get-item="store.geographicArea = $event"
   />
 </template>

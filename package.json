@@ -26,6 +26,7 @@
     "vue-hotkeys": "0.0.1",
     "vue-tippy": "^6.0.0-alpha.58",
     "vue-turbolinks": "^2.2.2",
+    "vue3-hotkey": "^1.0.2",
     "vuedraggable": "^4.1.0",
     "vuex": "^4.1.0"
   },
