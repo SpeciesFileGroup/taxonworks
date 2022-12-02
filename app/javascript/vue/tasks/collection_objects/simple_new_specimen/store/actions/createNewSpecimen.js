@@ -31,5 +31,7 @@ export default async function () {
   Promise.allSettled(promises).then(_ => {
     this[ActionNames.GetRecent]()
     this[ActionNames.ResetStore]()
+
+    TW.workbench.alert.create('New specimen was successfully created', 'notice')
   })
 }

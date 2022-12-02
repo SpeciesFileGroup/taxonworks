@@ -23,7 +23,6 @@
     "v-hotkey": "^0.9.0",
     "vue": "^3.2.45",
     "vue-handy-scroll": "^3.0.1",
-    "vue-hotkeys": "0.0.1",
     "vue-tippy": "^6.0.0-alpha.58",
     "vue-turbolinks": "^2.2.2",
     "vue3-hotkey": "^1.0.2",
