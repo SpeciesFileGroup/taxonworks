@@ -24,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Type relationship text/rendering is inverted in New taxon name [#3182]
 - Sqed processing failing to encode HEIC images [#3188]
 - Common list component doesn't filter created status on New taxon name task [#3205]
+- Collectors facet doesn't work on Filter collecting event [#3216]
 
 ### Changed
 - "TODO list" now a faceted search [#3171]
@@ -31,13 +32,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated Ruby gems
 - Webpack binaries: Replaced `npm bin` for `npm root` to allow compatibility with recent NPM versions
 
-[#3173]: https://github.com/SpeciesFileGroup/taxonworks/issues/3173
 [#3171]: https://github.com/SpeciesFileGroup/taxonworks/issues/3171
+[#3173]: https://github.com/SpeciesFileGroup/taxonworks/issues/3173
 [#3174]: https://github.com/SpeciesFileGroup/taxonworks/issues/3174
-[#3192]: https://github.com/SpeciesFileGroup/taxonworks/issues/3192
 [#3182]: https://github.com/SpeciesFileGroup/taxonworks/issues/3182
 [#3188]: https://github.com/SpeciesFileGroup/taxonworks/issues/3188
 [#3189]: https://github.com/SpeciesFileGroup/taxonworks/issues/3189
+[#3192]: https://github.com/SpeciesFileGroup/taxonworks/issues/3192
 [#3212]: https://github.com/SpeciesFileGroup/taxonworks/issues/3212
 
 ## [0.29.6] - 2022-11-08

@@ -42,7 +42,7 @@
         role="Collector"
         title="Collectors"
         klass="CollectingEvent"
-        param-people="collector_ids"
+        param-people="collector_id"
         param-any="collector_ids_or"
       />
       <filter-material
@@ -253,7 +253,7 @@ export default {
           keyword_id_or: []
         },
         collectors: {
-          collector_ids: [],
+          collector_id: [],
           collector_ids_or: false
         },
         collectingEvents: {
