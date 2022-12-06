@@ -423,6 +423,36 @@ class Protonym < TaxonName
     end
   end
 
+  # temporary method to collect soft_validations on protonyms
+  def soft_validations_by_protonym
+    exclude = [ 'Confidence level is missing',
+                'Primary type is not selected',
+                'Etymology is missing',
+                'Cached values should be updated',
+                'Part of speech is not specified. Please select if the name is a noun or an adjective.'
+    ].freeze
+    file_name = '/tmp/soft_validations' + '_' + Time.now.to_i.to_s + '.csv'
+    a = {}
+    i = 0
+    j = 0
+    CSV.open(file_name, 'w') do |csv|
+      csv << ['taxon_name_id', 'name', 'author_year', 'type', 'is_valid', 'soft_validations']
+      descendants.find_each do |t|
+        i += 1
+        print "\r#{i}     Soft validations: #{j}"
+        t.soft_validate
+        z = t.soft_validations.messages
+        exclude.each do |e|
+          z.delete(e)
+        end
+        unless z.empty?
+          j += 1
+          csv << [t.id.to_s, t.cached, t.cached_author_year, t.type.to_s, t.cached_is_valid.to_s, z]
+        end
+      end
+    end
+  end
+
   # !! TODO: Should not be possible- fix the incoming data
   # @return [Boolean]
   #    true if taxon2 has the same primary type
@@ -555,8 +585,8 @@ class Protonym < TaxonName
       n = n[0..-3] + 'ra' if n =~ /^[a-z]*er$/ # -er > -ra
       n = n[0..-7] + 'ensis' if n =~ /^[a-z]*iensis$/ # -iensis > -ensis
       n = n[0..-5] + 'ana' if n =~ /^[a-z]*iana$/ # -iana > -ana
-      n = n.gsub('ae', 'e').
-            gsub('oe', 'e').
+      n = n.gsub('ae', 'e') if n =~ /^[a-z]*ae[a-z]+$/ # -ae-
+      n = n.gsub('oe', 'e')
             gsub('ai', 'i').
             gsub('ei', 'i').
             gsub('ej', 'i').

@@ -241,11 +241,12 @@ module Queries
           # Order results by number of times used *in this project*
           if project_id && scope
             a = a.left_outer_joins(:citations)
-              .select('sources.*, COUNT(citations.id) AS use_count, NULLIF(citations.project_id, NULL) as in_project')
+              .select("sources.*, COUNT(citations.id) AS use_count, CASE WHEN citations.project_id = #{Current.project_id} THEN citations.project_id ELSE NULL END AS in_project")
               .where('citations.project_id = ? OR citations.project_id IS DISTINCT FROM ?', project_id, project_id)
               .group('sources.id, citations.project_id')
-              .order('use_count DESC')
+              .order('in_project, use_count DESC')
           end
+
           a ||= q
           result += a.to_a
           result.uniq!

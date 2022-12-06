@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Serial facet to Filter sources [#3211]
 
 ### Fixed
+- Source in n project autocopmlete response [#3142]
 - 'Also create OTU' on batch taxon name upload causing raise
 - Media observations removed if they have no more depictions via updates
 - Citation link in Biological association panel on Browse OTU
