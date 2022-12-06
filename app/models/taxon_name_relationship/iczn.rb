@@ -19,8 +19,8 @@ class TaxonNameRelationship::Iczn < TaxonNameRelationship
   end
 
   def self.disjoint_object_classes
-    ICN_TAXON_NAME_CLASSIFICATION_NAMES + ICNP_TAXON_NAME_CLASSIFICATION_NAMES +
-        self.collect_descendants_and_itself_to_s(TaxonNameClassification::Iczn::Unavailable)
+    ICN_TAXON_NAME_CLASSIFICATION_NAMES + ICNP_TAXON_NAME_CLASSIFICATION_NAMES + ICVCN_TAXON_NAME_CLASSIFICATION_NAMES +
+      self.collect_descendants_and_itself_to_s(TaxonNameClassification::Iczn::Unavailable)
   end
 
   def sv_validate_priority

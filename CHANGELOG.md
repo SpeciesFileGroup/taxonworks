@@ -7,6 +7,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Added softvalidation for dublicate family group name forms and misspellings [#3185]
 - With/out local identifier facet for collection objects and stagd images [#3173]
 - Filter by housekeeping and staged-image data attributes [#3171]
 - Delete selected collection objects (and their related data) from filter [#3174]
