@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Serial facet to Filter sources [#3211]
 
 ### Fixed
+- OTU smart selector did not include items from the pinboard [#3139]
 - Source in n project autocopmlete response [#3142]
 - 'Also create OTU' on batch taxon name upload causing raise
 - Media observations removed if they have no more depictions via updates
