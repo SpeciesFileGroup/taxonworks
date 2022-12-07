@@ -1637,6 +1637,7 @@ module Protonym::SoftValidationExtensions
 
     def sv_potential_usage_duplicates
       usage = TaxonNameRelationship::Iczn::Invalidating::Usage.where(subject_taxon_name_id: self.id).first
+      return true if usage.nil?
       TaxonNameRelationship::Iczn::Invalidating::Usage.where(object_taxon_name_id: usage.object_taxon_name_id).not_self(usage).each do |tr|
         soft_validations.add(:base, "'#{name}' is a dubplicate #{usage.subject_status + ' ' + usage.subject_status_connector_to_object} #{tr.object_taxon_name.cached_html}",) if usage.object_taxon_name.name == tr.object_taxon_name.name
       end
