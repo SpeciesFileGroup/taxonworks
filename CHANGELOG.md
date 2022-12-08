@@ -29,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Common list component doesn't filter created status on New taxon name task [#3205]
 - Collectors facet doesn't work on Filter collecting event [#3216]
 - original combination label disappears when relationship doesn't include the current taxon name [#3067]
+- Sometimes keyboard table is duplicating shortcuts
 
 ### Changed
 - "TODO list" now a faceted search [#3171]
