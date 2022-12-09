@@ -534,7 +534,7 @@ export_basic_nomenclature_task:
   description: 'Download (also generate for API) a CSV table of the nomenclature with just the name, and a subset of the hierarchy'
 match_nomenclature_task:
   hub: true
-  name: 'Match names'
+  name: 'Nomenclature match'
   related:
   categories:
     - nomenclature
