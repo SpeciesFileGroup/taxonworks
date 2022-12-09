@@ -6,15 +6,37 @@
     >
       <span v-html="collectionObject.objectTag" />
       <div class="horizontal-right-content">
-        <CONavegation class="margin-small-right" />
-        <BrowseOTU
-          v-if="otu"
-          :otu="otu"
-        />
-        <RadialAnnotator :global-id="collectionObject.globalId" />
-        <RadialObject :global-id="collectionObject.globalId" />
-        <RadialFilter object-type="CollectionObject" />
-        <RadialNavigator :global-id="collectionObject.globalId" />
+        <ul class="context-menu">
+          <li>
+            <CONavegation class="margin-small-right" />
+          </li>
+          <li v-if="otu">
+            <BrowseOTU :otu="otu" />
+          </li>
+          <li>
+            <RadialAnnotator :global-id="collectionObject.globalId" />
+          </li>
+          <li>
+            <RadialObject :global-id="collectionObject.globalId" />
+          </li>
+          <li>
+            <RadialFilter object-type="CollectionObject" />
+          </li>
+          <li>
+            <VBtn
+              circle
+              color="submit"
+            >
+              <VIcon
+                x-small
+                name="pencil"
+              />
+            </VBtn>
+          </li>
+          <li>
+            <RadialNavigator :global-id="collectionObject.globalId" />
+          </li>
+        </ul>
       </div>
       <RadialFilterAttribute :parameters="{ collection_object_id: [collectionObject.id] }" />
     </div>
@@ -25,6 +47,8 @@
 import { useStore } from 'vuex'
 import { computed } from 'vue'
 import { GetterNames } from '../store/getters/getters'
+import VBtn from 'components/ui/VBtn'
+import VIcon from 'components/ui/VIcon'
 import NavBar from 'components/layout/NavBar.vue'
 import CONavegation from './CONavegation.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
