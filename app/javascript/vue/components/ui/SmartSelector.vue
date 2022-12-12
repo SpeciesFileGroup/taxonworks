@@ -5,13 +5,16 @@
         class="full_width capitalize"
         v-model="view"
         ref="tabselector"
-        :options="options"/>
+        :options="options"
+      />
       <default-pin
         v-if="pinSection"
         class="margin-small-left"
         :section="pinSection"
         :type="pinType"
-        @getId="getObject"/>
+        @get-id="getObject"
+      />
+      <slot name="tabs-right" />
     </div>
     <slot name="header"/>
     <template v-if="!addTabs.includes(view)">
