@@ -2,6 +2,21 @@ namespace :tw do
   namespace :maintenance do
     namespace :cached do
 
+      desc 'forces rebuild of all GeographicItem cached fields'
+      task parallel_reset_geographic_item_cached_ids: [:environment] do |t|
+
+        q = GeographicItem.all
+
+        Parallel.each(q.limit(100).find_each, progress: 'update_geographic_item_cached_fields', in_processes: cached_rebuild_processes ) do |gi|
+            begin
+              gi.set_cached
+            rescue => exception
+              puts Rainbow(" FAILED #{exception}").red.bold
+            end
+          end
+      end
+ 
+
       # This task does not touch Housekeeping!a
       desc 'rake tw:maintenance:cached:parallel_rebuild_cached_original_combinations project_id=1 cached_rebuild_processes=16'
       task parallel_rebuild_cached_original_combinations: [:environment, :project_id] do |t|
@@ -22,11 +37,10 @@ namespace :tw do
           begin
             n.update_cached_original_combinations
           rescue => exception
-            puts Rainbow(" FAILED #{e}").red.bold
+            puts Rainbow(" FAILED #{exception}").red.bold
           end
         end
       end
-
 
       # This task does not touch Housekeeping!
       desc 'rake tw:maintenance:cached:rebuild_cached_original_combinations project_id=1'

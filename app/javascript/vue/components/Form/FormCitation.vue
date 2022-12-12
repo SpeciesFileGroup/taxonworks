@@ -73,7 +73,7 @@
         medium
         @click="setLastCitation"
       >
-        Clone last citation
+        Clone my last citation
       </VBtn>
       <slot name="footer" />
     </div>

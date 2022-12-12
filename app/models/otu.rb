@@ -53,6 +53,8 @@ class Otu < ApplicationRecord
   belongs_to :taxon_name, inverse_of: :otus
   belongs_to :protonym, -> { where(type: 'Protonym') }, foreign_key: :taxon_name_id
 
+  has_many :cached_maps, dependent: :destroy
+
   has_many :asserted_distributions, inverse_of: :otu, dependent: :restrict_with_error
 
   has_many :biological_associations, as: :biological_association_subject, inverse_of: :biological_association_subject, dependent: :restrict_with_error
