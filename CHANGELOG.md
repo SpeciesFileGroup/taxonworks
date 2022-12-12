@@ -32,12 +32,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Sometimes keyboard table is duplicating shortcuts
 
 ### Changed
+- Lock, navigation, UI, and code refreshments to Simple new specimen [#3190]
 - "TODO list" now a faceted search [#3171]
 - Refactored observation cell component for Image matrix
 - Updated Ruby gems
 - Webpack binaries: Replaced `npm bin` for `npm root` to allow compatibility with recent NPM versions
 - Nomenclature match updates [#2176]
 
+[#3190]: https://github.com/SpeciesFileGroup/taxonworks/issues/3190
 [#2176]: https://github.com/SpeciesFileGroup/taxonworks/issues/2176
 [#3171]: https://github.com/SpeciesFileGroup/taxonworks/issues/3171
 [#3173]: https://github.com/SpeciesFileGroup/taxonworks/issues/3173
