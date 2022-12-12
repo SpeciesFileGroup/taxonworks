@@ -56,7 +56,7 @@ module Export::Project
     cols = ActiveRecord::Base.connection.columns(table).map { |c| "\"#{c.name}\"" }
 
     if cols.include?('"project_id"')
-      where_clause = "WHERE project_id = #{project_id}"
+      where_clause = "WHERE project_id IN (#{project_id}, NULL)"
     elsif table == 'projects'
       where_clause = "WHERE id = #{project_id}"
     else

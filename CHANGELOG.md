@@ -30,6 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Collectors facet doesn't work on Filter collecting event [#3216]
 - original combination label disappears when relationship doesn't include the current taxon name [#3067]
 - Sometimes keyboard table is duplicating shortcuts
+- Export Project Database task not exporting rows whose `project_id` is `NULL` [#3203]
 
 ### Changed
 - Lock, navigation, UI, and code refreshments to Simple new specimen [#3190]
