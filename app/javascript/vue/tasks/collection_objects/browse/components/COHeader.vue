@@ -26,9 +26,12 @@
             <VBtn
               circle
               color="submit"
+              title="Edit on comprehensive task"
+              @click="openComprehenseive(collectionObject.id)"
             >
               <VIcon
                 x-small
+                title="Edit on comprehensive task"
                 name="pencil"
               />
             </VBtn>
@@ -57,6 +60,7 @@ import RadialNavigator from 'components/radials/navigation/radial.vue'
 import RadialFilter from 'components/radials/filter/radial.vue'
 import RadialFilterAttribute from 'components/radials/filter/RadialFilterAttribute.vue'
 import BrowseOTU from 'components/otu/otu.vue'
+import { RouteNames } from 'routes/routes'
 
 const store = useStore()
 const collectionObject = computed(() => store.getters[GetterNames.GetCollectionObject])
@@ -66,4 +70,8 @@ const otu = computed(() => {
 
   return d && { id: d.otu_id }
 })
+
+const openComprehenseive = (id) => {
+  window.open(`${RouteNames.DigitizeTask}?collection_object_id=${id}`, '_self')
+}
 </script>
