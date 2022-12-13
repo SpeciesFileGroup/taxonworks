@@ -16,7 +16,7 @@
       />
       <slot name="tabs-right" />
     </div>
-    <slot name="header"/>
+    <slot name="header" />
     <template v-if="!addTabs.includes(view)">
       <div class="margin-medium-bottom">
         <autocomplete
@@ -32,27 +32,30 @@
           :clear-after="clear"
           display="label"
           :autofocus="autofocus"
-          @keyEvent="changeTab"
-          @getItem="getObject($event.id)"
+          @key-event="changeTab"
+          @get-item="getObject($event.id)"
         />
         <otu-picker
           v-if="otuPicker"
           :input-id="inputId"
           :clear-after="true"
-          @getItem="getObject($event.id)"/>
+          @get-item="getObject($event.id)"
+        />
       </div>
-      <slot name="body"/>
+      <slot name="body" />
       <template v-if="isImageModel">
         <div class="flex-wrap-row">
           <div
             v-for="image in lists[view]"
             :key="image.id"
             class="thumbnail-container margin-small cursor-pointer"
-            @click="sendObject(image)">
+            @click="sendObject(image)"
+          >
             <img
               :width="image.alternatives.thumb.width"
               :height="image.alternatives.thumb.height"
-              :src="image.alternatives.thumb.image_file_url">
+              :src="image.alternatives.thumb.image_file_url"
+            >
           </div>
         </div>
       </template>
@@ -60,28 +63,30 @@
         <ul
           v-if="view"
           class="no_bullets"
-          :class="{ 'flex-wrap-row': inline }">
+          :class="{ 'flex-wrap-row': inline }"
+        >
           <template
             v-for="item in lists[view]"
-            :key="item.id">
+            :key="item.id"
+          >
             <li
               v-if="filterItem(item)"
               class="list__item"
             >
-              <template
-                v-if="buttons">
+              <template v-if="buttons">
                 <button
                   type="button"
                   class="button normal-input tag_button"
                   :class="buttonClass"
                   v-html="item[label]"
-                  @click.prevent="sendObject(item)"/>
+                  @click.prevent="sendObject(item)"
+                />
               </template>
-              <template
-                v-else>
+              <template v-else>
                 <label
                   class="cursor-pointer"
-                  @mousedown="sendObject(item)">
+                  @mousedown="sendObject(item)"
+                >
                   <input
                     :name="name"
                     @keyup="changeTab"
@@ -89,8 +94,12 @@
                     @keyup.space="sendObject(item)"
                     :value="item.id"
                     :checked="selectedItem && item.id === selectedItem.id"
-                    type="radio">
-                  <span v-html="item[label]"/>
+                    type="radio"
+                  >
+                  <span
+                    :title="item[label]"
+                    v-html="showLabel(item[label])"
+                  />
                 </label>
               </template>
             </li>
@@ -100,7 +109,7 @@
     </template>
     <slot :name="view" />
     <slot />
-    <slot name="footer"/>
+    <slot name="footer" />
   </div>
 </template>
 
@@ -113,6 +122,7 @@ import OrderSmart from 'helpers/smartSelector/orderSmartSelector'
 import SelectFirst from 'helpers/smartSelector/selectFirstSmartOption'
 import DefaultPin from 'components/getDefaultPin'
 import OtuPicker from 'components/otu/otu_picker/otu_picker'
+import { shorten } from 'helpers/strings'
 
 export default {
   components: {
@@ -210,6 +220,11 @@ export default {
 
     pinType: {
       type: String,
+      default: undefined
+    },
+
+    shorten: {
+      type: [Number, String],
       default: undefined
     },
 
@@ -345,6 +360,12 @@ export default {
       return Array.isArray(this.filterIds)
         ? !this.filterIds.includes(item[this.filterBy])
         : this.filterIds !== item[this.filterBy]
+    },
+
+    showLabel (label) {
+      return this.shorten
+        ? shorten(label, Number(this.shorten))
+        : label
     },
 
     refresh (forceUpdate = false) {
