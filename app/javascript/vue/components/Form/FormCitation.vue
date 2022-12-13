@@ -8,6 +8,7 @@
         :klass="klass"
         pin-section="Sources"
         pin-type="Source"
+        :shorten="100"
         label="cached"
         v-model="source"
         @selected="setSource"
