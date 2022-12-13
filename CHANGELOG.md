@@ -39,6 +39,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated Ruby gems
 - Webpack binaries: Replaced `npm bin` for `npm root` to allow compatibility with recent NPM versions
 - Nomenclature match updates [#2176]
+- Navigation key combination for radial annotator [#3233]
 
 [#3190]: https://github.com/SpeciesFileGroup/taxonworks/issues/3190
 [#2176]: https://github.com/SpeciesFileGroup/taxonworks/issues/2176
