@@ -20,11 +20,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - OTU smart selector did not include items from the pinboard [#3139]
-- Source in n project autocopmlete response [#3142]
+- Source in n project autocomplete response [#3142]
 - 'Also create OTU' on batch taxon name upload causing raise
 - Media observations removed if they have no more depictions via updates
-- Citation link in Biological association panel on Browse OTU
-- Type relationship text/rendering is inverted in New taxon name [#3182]
+- Citation link in biological association panel on Browse OTU
+- Type relationship text/rendering is inverted in New taxon name task [#3182]
 - Sqed processing failing to encode HEIC images [#3188]
 - Common list component doesn't filter created status on New taxon name task [#3205]
 - Collectors facet doesn't work on Filter collecting event [#3216]
