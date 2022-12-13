@@ -211,8 +211,33 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
     expect(query.all.map(&:id)).to contain_exactly( *(all_source_ids - [s1.id]) )
   end
 
-  specify '#title, #exact_title' do
+  specify '#title, #exact_title 1' do
     query.title = 'Creatures from the Black Lagoon.'
+    query.exact_title = true
+    expect(query.all.map(&:id)).to contain_exactly(s5.id)
+  end
+
+  specify '#title, #exact_title 2 (whitespace ignored)' do
+    query.title = "Creatures from \n the Black Lagoon."
+    query.exact_title = true
+    byebug
+    expect(query.all.map(&:id)).to contain_exactly(s5.id)
+  end
+
+  specify '#title, #exact_title 3 (whitespace ignored)' do
+    query.title = "Creatures from the Black Lagoon. "
+    query.exact_title = true
+    expect(query.all.map(&:id)).to contain_exactly(s5.id)
+  end
+
+  specify '#title, #exact_title 4 (whitespace ignored)' do
+    query.title = " \nCreatures from the Black Lagoon."
+    query.exact_title = true
+    expect(query.all.map(&:id)).to contain_exactly(s5.id)
+  end
+
+  specify '#title, #exact_title 5 (whitespace ignored)' do
+    query.title = "Creatures from      the Black Lagoon.\n\n "
     query.exact_title = true
     expect(query.all.map(&:id)).to contain_exactly(s5.id)
   end
