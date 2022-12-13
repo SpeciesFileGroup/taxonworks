@@ -30,6 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Collectors facet doesn't work on Filter collecting event [#3216]
 - original combination label disappears when relationship doesn't include the current taxon name [#3067]
 - Sometimes keyboard table is duplicating shortcuts
+- Export Project Database task not exporting rows whose `project_id` is `NULL` [#3203]
 
 ### Changed
 - Lock, navigation, UI, and code refreshments to Simple new specimen [#3190]
@@ -38,6 +39,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated Ruby gems
 - Webpack binaries: Replaced `npm bin` for `npm root` to allow compatibility with recent NPM versions
 - Nomenclature match updates [#2176]
+- Navigation key combination for radial annotator [#3233]
 
 [#3190]: https://github.com/SpeciesFileGroup/taxonworks/issues/3190
 [#2176]: https://github.com/SpeciesFileGroup/taxonworks/issues/2176
@@ -48,6 +50,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3188]: https://github.com/SpeciesFileGroup/taxonworks/issues/3188
 [#3189]: https://github.com/SpeciesFileGroup/taxonworks/issues/3189
 [#3192]: https://github.com/SpeciesFileGroup/taxonworks/issues/3192
+[#3203]: https://github.com/SpeciesFileGroup/taxonworks/issues/3203
 [#3212]: https://github.com/SpeciesFileGroup/taxonworks/issues/3212
 
 ## [0.29.6] - 2022-11-08
