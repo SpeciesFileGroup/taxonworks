@@ -7,8 +7,6 @@ export function useOnResize (element) {
   const resizeListener = ({ width, height }) => {
     elementSize.width = width
     elementSize.height = height
-
-    console.log(width, height)
   }
 
   onMounted(() => {
