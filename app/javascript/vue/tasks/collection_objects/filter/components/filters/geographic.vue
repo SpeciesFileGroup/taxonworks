@@ -37,7 +37,7 @@
     </div>
     <div v-else>
       <georeference-map
-        width="330px"
+        width="100%"
         height="300px"
         ref="leaflet"
         :geojson="geojson"

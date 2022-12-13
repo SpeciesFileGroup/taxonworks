@@ -1,66 +1,65 @@
 <template>
   <fieldset>
     <legend>Otu</legend>
-    <smart-selector
-      v-model="otu"
-      model="otus"
-      klass="AssertedDistribution"
-      target="AssertedDistribution"
-      ref="smartSelector"
-      pin-section="Otus"
-      pin-type="Otu"
-      :search="true"
-      :autocomplete="false"
-      :otu-picker="true">
-      <template v-if="otu">
-        <p class="horizontal-left-content">
-          <span data-icon="ok"/>
-          <span v-html="otu.object_tag"/>
-          <span
-            class="button circle-button btn-undo button-default"
-            @click="unset"/>
-        </p>
-      </template>
-    </smart-selector>
+    <div class="horizontal-left-content align-start">
+      <smart-selector
+        v-model="otu"
+        class="full_width"
+        model="otus"
+        klass="AssertedDistribution"
+        target="AssertedDistribution"
+        pin-section="Otus"
+        pin-type="Otu"
+        search
+        :autocomplete="false"
+        otu-picker
+      />
+      <VLock
+        v-model="lock"
+        class="margin-small-left"
+      />
+    </div>
+    <SmartSelectorItem
+      :item="otu"
+      label="object_tag"
+      @unset="otu = undefined"
+    />
   </fieldset>
 </template>
 
-<script>
-
+<script setup>
+import { computed } from 'vue'
 import SmartSelector from 'components/ui/SmartSelector'
+import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
+import VLock from 'components/ui/VLock/index.vue'
 
-export default {
-  components: { SmartSelector },
-
-  props: {
-    modelValue: {
-      type: Object,
-      default: undefined
-    }
+const props = defineProps({
+  modelValue: {
+    type: Object,
+    default: undefined
   },
 
-  emits: ['update:modelValue'],
-
-  computed: {
-    otu: {
-      get () {
-        return this.modelValue
-      },
-      set (value) {
-        this.$emit('update:modelValue', value)
-      }
-    }
-  },
-
-  methods: {
-    refresh () {
-      this.$refs.smartSelector.refresh()
-    },
-    unset () {
-      this.otu = undefined
-    }
+  lock: {
+    type: Boolean,
+    default: false
   }
-}
+})
+
+const emit = defineEmits([
+  'update:modelValue',
+  'update:lock'
+])
+
+const otu = computed({
+  get: () => props.modelValue,
+  set: value => emit('update:modelValue', value)
+})
+
+const lock = computed({
+  get: () => props.lock,
+  set: value => emit('update:lock', value)
+})
+
 </script>
 
 <style scoped>
