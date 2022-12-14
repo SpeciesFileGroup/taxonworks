@@ -34,6 +34,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - original combination label disappears when relationship doesn't include the current taxon name [#3067]
 - Sometimes keyboard table is duplicating shortcuts
 - Export Project Database task not exporting rows whose `project_id` is `NULL` [#3203]
+- Close icon is difficult to distinguish when modal background is transparent [#3245]
 
 ### Changed
 - Lock, navigation, UI, and code refreshments to Simple new specimen [#3190]
@@ -61,6 +62,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3212]: https://github.com/SpeciesFileGroup/taxonworks/issues/3212
 [#3234]: https://github.com/SpeciesFileGroup/taxonworks/issues/3234
 [#3238]: https://github.com/SpeciesFileGroup/taxonworks/issues/3238
+[#3245]: https://github.com/SpeciesFileGroup/taxonworks/issues/3245
 
 ## [0.29.6] - 2022-11-08
 

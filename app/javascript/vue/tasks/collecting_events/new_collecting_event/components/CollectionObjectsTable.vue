@@ -18,20 +18,22 @@
         type="button"
         class="button normal-input button-default"
         :disabled="!ceId"
-        @click="showModal = true">
+        @click="showModal = true"
+      >
         Add/Current ({{ list.length }})
       </button>
     </div>
     <modal-component
       v-if="showModal"
       @close="showModal = false"
+      transparent
       :container-style="{
         width: '1100px',
         height: '90vh',
         overflowX: 'auto',
-        background: 'transparent',
         boxShadow: 'none'
-      }">
+      }"
+    >
       <template #header>
         <h3>Create collection objects</h3>
       </template>
@@ -39,7 +41,10 @@
         <div class="horizontal-left-content align-start">
           <spinner-component
             v-if="isLoading || isSaving"
-            :legend="isSaving ? `Creating ${index} of ${count} collection object(s)...` : 'Loading...'"/>
+            :legend="isSaving
+              ? `Creating ${index} of ${count} collection object(s)...`
+              : 'Loading...'"
+          />
           <div class="full_width margin-medium-right">
             <div class="panel content margin-medium-bottom">
               <h3>Number to create</h3>
@@ -49,13 +54,15 @@
                     min="1"
                     type="number"
                     max="100"
-                    v-model.number="count">
+                    v-model.number="count"
+                  >
                 </div>
                 <div class="field">
                   <button
                     class="button normal-input button-submit"
                     type="button"
-                    @click="noCreated = []; createCOs(0)">
+                    @click="noCreated = []; createCOs(0)"
+                  >
                     Create
                   </button>
                 </div>
@@ -63,33 +70,38 @@
             </div>
             <label-component
               class="margin-medium-bottom panel content"
-              v-model="labelType"/>
+              v-model="labelType"
+            />
             <identifiers-component
               class="margin-medium-bottom panel content"
               v-model="identifier"
-              :count="count"/>
+              :count="count"
+            />
             <preparation-types
               class="margin-medium-bottom panel content"
-              v-model="preparationType"/>
+              v-model="preparationType"
+            />
             <repository-component
               class="margin-medium-bottom panel content"
-              v-model="repositoryId"/>
+              v-model="repositoryId"
+            />
             <biocuration-component
               class="margin-medium-bottom panel content"
-              v-model="biocurations"/>
+              v-model="biocurations"
+            />
             <determiner-component
               class="margin-medium-bottom panel content"
-              v-model="determinations"/>
+              v-model="determinations"
+            />
             <tag-component
               class="margin-medium-bottom panel content"
-              v-model="tagList"/>
+              v-model="tagList"
+            />
           </div>
-          <div
-            class="full_width panel content">
+          <div class="full_width panel content">
             <template v-if="noCreated.length">
               <h3>Creation errors ({{ noCreated.length }})</h3>
-              <table
-                class="full_width margin-medium-bottom">
+              <table class="full_width margin-medium-bottom">
                 <thead>
                   <tr>
                     <th>Identifier</th>
@@ -100,7 +112,8 @@
                   <tr
                     v-for="(item, index) in noCreated"
                     :key="index"
-                    class="contextMenuCells feedback feedback-warning">
+                    class="contextMenuCells feedback feedback-warning"
+                  >
                     <td>{{ item.namespace }} {{ item.identifier }}</td>
                     <td>{{ Object.keys(item.error).map(k => item.error[k]).join(', ') }}</td>
                   </tr>
@@ -109,7 +122,7 @@
             </template>
             <span>{{ list.length }} object(s) are already associated with this collecting event</span>
             <h3>Existing</h3>
-            <table class="full_width">
+            <table class="full_width table-striped">
               <thead>
                 <tr>
                   <th>ID</th>
@@ -120,19 +133,20 @@
               </thead>
               <tbody>
                 <tr
-                  v-for="(item, index) in list"
+                  v-for="item in list"
                   :key="item.id"
                   class="contextMenuCells"
-                  :class="{ 'even': (index % 2 == 0) }">
+                >
                   <td>{{ item.id }}</td>
-                  <td v-html="item.catalogNumber"/>
-                  <td v-html="item.scientificName"/>
+                  <td v-html="item.catalogNumber" />
+                  <td v-html="item.scientificName" />
                   <td>
                     <div
                       v-if="item.global_id"
-                      class="horizontal-left-content">
-                      <radial-annotator :global-id="item.global_id"/>
-                      <radial-navigation :global-id="item.global_id"/>
+                      class="horizontal-left-content"
+                    >
+                      <radial-annotator :global-id="item.global_id" />
+                      <radial-navigation :global-id="item.global_id" />
                     </div>
                   </td>
                 </tr>
