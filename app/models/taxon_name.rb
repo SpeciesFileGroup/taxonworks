@@ -1582,7 +1582,7 @@ class TaxonName < ApplicationRecord
       elsif self.origin_citation.try(:pages).blank?
         soft_validations.add(:base, 'Original citation pages are not recorded')
       elsif !self.source.pages.blank?
-        matchdata1 = self.origin_citation.pages.match(/(\d+) ?[-–] ?(\d+)|(\d+)/)
+        matchdata1 = self.origin_citation.pages.match(/^(\d+) ?[-–] ?(\d+)$|^(\d+)$/)
         if matchdata1
           citMinP = matchdata1[1] ? matchdata1[1].to_i : matchdata1[3].to_i
           citMaxP = matchdata1[2] ? matchdata1[2].to_i : matchdata1[3].to_i

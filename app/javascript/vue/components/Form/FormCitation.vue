@@ -3,6 +3,7 @@
     <legend>Source</legend>
     <div class="horizontal-left-content align-start">
       <SmartSelector
+        class="full_width"
         model="sources"
         :target="target"
         :klass="klass"

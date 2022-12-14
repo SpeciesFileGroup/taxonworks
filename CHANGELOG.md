@@ -40,6 +40,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Webpack binaries: Replaced `npm bin` for `npm root` to allow compatibility with recent NPM versions
 - Nomenclature match updates [#2176]
 - Navigation key combination for radial annotator [#3233]
+- Truncate smart selector lists
+- Allow compare n objects in collection object match [#3238]
+- Include total of match/unmatched in Collection object match [#3237]
 
 [#3190]: https://github.com/SpeciesFileGroup/taxonworks/issues/3190
 [#2176]: https://github.com/SpeciesFileGroup/taxonworks/issues/2176
@@ -52,6 +55,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3192]: https://github.com/SpeciesFileGroup/taxonworks/issues/3192
 [#3203]: https://github.com/SpeciesFileGroup/taxonworks/issues/3203
 [#3212]: https://github.com/SpeciesFileGroup/taxonworks/issues/3212
+[#3238]: https://github.com/SpeciesFileGroup/taxonworks/issues/3238
 
 ## [0.29.6] - 2022-11-08
 

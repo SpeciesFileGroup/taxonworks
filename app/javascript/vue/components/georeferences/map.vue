@@ -78,6 +78,10 @@ const props = defineProps({
     type: Boolean,
     default: true
   },
+  drawText: {
+    type: Boolean,
+    default: false
+  },
   editMode: {
     type: Boolean,
     default: true
@@ -228,6 +232,7 @@ const addDrawControllers = () => {
       drawPolyline: props.drawPolyline,
       drawPolygon: props.drawPolygon,
       drawRectangle: props.drawRectangle,
+      drawText: props.drawText,
       editMode: props.editMode,
       dragMode: props.dragMode,
       cutPolygon: props.cutPolygon,
