@@ -267,7 +267,7 @@ namespace :tw do
                 )
                 # ap ad.citations
 
-                unless get_sf_locality_metadata[row['LocalityID']]['dataflags'].to_i & 16 == 0
+                unless row['DataFlags'].to_i & 16 == 0
                   begin
                     ad.save!
                     logger.info " AssertedDistribution ! CREATED ! for SpecimenID = '#{specimen_id}', FileID = '#{sf_file_id}', otu_id = '#{otu_id}', source_id = '#{source_id}' [ asserted_dist_counter = #{asserted_dist_counter += 1} ]"
