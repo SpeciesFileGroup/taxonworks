@@ -577,13 +577,13 @@ class CollectionObject < ApplicationRecord
                 t['biological_association_subject_type'].eq('CollectionObject') # !! note it's not biological_collection_object_id
               )
             )
-              .where(t['created_by_id'].eq(user_id))
+              .where(t['updated_by_id'].eq(user_id))
               .where(t['project_id'].eq(project_id))
               .order(t['updated_at'].desc)
         else
           t.project(t['biological_collection_object_id'], t['updated_at']).from(t)
             .where(t['updated_at'].gt( 1.weeks.ago ))
-            .where(t['created_by_id'].eq(user_id))
+            .where(t['updated_by_id'].eq(user_id))
             .where(t['project_id'].eq(project_id))
             .order(t['updated_at'].desc)
         end
