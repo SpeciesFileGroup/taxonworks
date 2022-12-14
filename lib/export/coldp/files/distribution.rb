@@ -27,10 +27,10 @@ module Export::Coldp::Files::Distribution
         remarks
       }
 
-      otus.joins(:asserted_distributions).distinct.each do |o|
-        o.asserted_distributions.each do |ad|
+      otus.each do |o|
+        o.asserted_distributions.includes(:geographic_area).each do |ad|
 
-          ga = GeographicArea.find(ad.geographic_area_id)
+          ga = ad.geographic_area
           if !ga.iso_3166_a3.blank?
             gazetteer = 'iso'
             area_id = ga.iso_3166_a3
