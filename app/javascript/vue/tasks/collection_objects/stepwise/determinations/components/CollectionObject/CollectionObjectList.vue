@@ -28,12 +28,13 @@
           >
         </th>
         <th>ID</th>
-        <th>
-          Images
-        </th>
+        <th>Images</th>
         <th>DwC</th>
-        <th class="full_width">
-          Object tag
+        <th class="half_width">
+          Collection object
+        </th>
+        <th class="half_width">
+          Buffered determination
         </th>
         <th />
       </tr>
@@ -88,6 +89,7 @@ const list = computed(() => collectionObjects.value.map(co => ({
   id: co.id,
   object_tag: co.object_tag,
   global_id: co.global_id,
+  bufferedDeterminations: co.buffered_determinations,
   images: co.determination_images.map(image => adaptImage(image))
 })))
 
