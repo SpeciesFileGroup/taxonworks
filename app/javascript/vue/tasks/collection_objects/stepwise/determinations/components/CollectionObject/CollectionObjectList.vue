@@ -1,10 +1,24 @@
 <template>
   <h3>Collection objects</h3>
-  <VPagination
-    :pagination="pagination.collectionObjects"
-    @next-page="loadCollectionObjects($event.page)"
-  />
-  <table class="full_width">
+  <div class="flex-separate middle margin-medium-bottom">
+    <ul class="context-menu no_bullets">
+      <li>
+        <VPagination
+          :pagination="pagination.collectionObjects"
+          @next-page="loadCollectionObjects($event.page)"
+        />
+      </li>
+      <li v-if="ghostCount">
+        <WarningGhost :count="ghostCount" />
+      </li>
+    </ul>
+    <VPaginationCount
+      :pagination="pagination.collectionObjects"
+      v-model="collectionObjectParams.per"
+    />
+  </div>
+
+  <table class="table-striped full_width">
     <thead>
       <tr>
         <th>
@@ -26,11 +40,10 @@
     </thead>
     <tbody>
       <CollectionObjectRow
-        v-for="(co, index) in list"
+        v-for="co in list"
         :key="co.id"
         v-model="selectedCOIds"
         :collection-object="co"
-        :class="{ even: index % 2}"
       />
     </tbody>
   </table>
@@ -41,13 +54,16 @@ import { computed, watch } from 'vue'
 import useStore from '../../composables/useStore'
 import VPagination from 'components/pagination.vue'
 import CollectionObjectRow from './CollectionObjectRow.vue'
+import VPaginationCount from 'components/pagination/PaginationCount.vue'
+import WarningGhost from '../WarningGhost.vue'
 
 const {
   collectionObjects,
   selectedCOIds,
-  selectedLabel,
   loadCollectionObjects,
-  getPages
+  getPages,
+  collectionObjectParams,
+  ghostCount
 } = useStore()
 
 const pagination = getPages()
@@ -62,11 +78,9 @@ const selectedAll = computed({
 })
 
 watch(
-  selectedLabel,
-  label => {
-    if (label) {
-      loadCollectionObjects(1)
-    }
+  () => collectionObjectParams.value.per,
+  () => {
+    loadCollectionObjects(1)
   }
 )
 

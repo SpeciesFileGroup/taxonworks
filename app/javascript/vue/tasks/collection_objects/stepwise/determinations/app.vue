@@ -16,7 +16,7 @@
     <div class="horizontal-left-content align-start">
       <div class="full_width">
         <LabelList class="margin-medium-bottom" />
-        <CollectionObjectList />
+        <CollectionObjectList v-if="selectedLabel" />
       </div>
 
       <div class="margin-medium-left">
@@ -38,7 +38,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import TaxonDetermination from './components/TaxonDetermination.vue'
 import CollectionObjectList from './components/CollectionObject/CollectionObjectList.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
@@ -56,6 +56,8 @@ const {
   createDeterminations,
   collectionObjects,
   taxonDetermination,
+  loadCollectionObjects,
+  ghostCount,
   selectedCOIds
 } = useStore()
 
@@ -77,6 +79,19 @@ const handleClick = async () => {
     createDeterminations()
   }
 }
+
+watch(
+  selectedLabel,
+  label => {
+    if (label) {
+      loadCollectionObjects(1).then(_ => {
+        if (ghostCount.value) {
+          TW.workbench.alert.create(`Warning, ${ghostCount.value} additional specimens identical except for whitepace are included`, 'notice')
+        }
+      })
+    }
+  }
+)
 
 </script>
 
