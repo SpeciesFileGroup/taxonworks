@@ -51,7 +51,6 @@
         :tiles-selection="false"
         :edit-mode="false"
         :zoom="1"
-        :tooltips="false"
         @geoJsonLayerCreated="addShape"
       />
     </div>

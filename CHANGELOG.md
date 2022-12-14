@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Endpoint to return related data preventing or included in destroy, e.g. `/metadata/related_summary?klass=CollectionObject&id[]=16701&id[]...`
 - Gender and form classifications to filter nomenclature
 - Serial facet to Filter sources [#3211]
+- `tooltips` and `actions` configuration props to Map component [#3234]
 
 ### Fixed
 - Stepwise determinations confounded by invisible whitespace [#3009]
@@ -46,18 +47,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Allow compare n objects in collection object match [#3238]
 - Include total of match/unmatched in Collection object match [#3237]
 
-[#3009]: https://github.com/SpeciesFileGroup/taxonworks/issues/3009
-[#3190]: https://github.com/SpeciesFileGroup/taxonworks/issues/3190
 [#2176]: https://github.com/SpeciesFileGroup/taxonworks/issues/2176
+[#3009]: https://github.com/SpeciesFileGroup/taxonworks/issues/3009
 [#3171]: https://github.com/SpeciesFileGroup/taxonworks/issues/3171
 [#3173]: https://github.com/SpeciesFileGroup/taxonworks/issues/3173
 [#3174]: https://github.com/SpeciesFileGroup/taxonworks/issues/3174
 [#3182]: https://github.com/SpeciesFileGroup/taxonworks/issues/3182
 [#3188]: https://github.com/SpeciesFileGroup/taxonworks/issues/3188
 [#3189]: https://github.com/SpeciesFileGroup/taxonworks/issues/3189
+[#3190]: https://github.com/SpeciesFileGroup/taxonworks/issues/3190
 [#3192]: https://github.com/SpeciesFileGroup/taxonworks/issues/3192
 [#3203]: https://github.com/SpeciesFileGroup/taxonworks/issues/3203
 [#3212]: https://github.com/SpeciesFileGroup/taxonworks/issues/3212
+[#3234]: https://github.com/SpeciesFileGroup/taxonworks/issues/3234
 [#3238]: https://github.com/SpeciesFileGroup/taxonworks/issues/3238
 
 ## [0.29.6] - 2022-11-08
