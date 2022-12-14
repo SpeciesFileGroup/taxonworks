@@ -4,13 +4,12 @@
 # language
 # country
 # area
-# lifestage
 # sex
 # reference_id
 #
 module Export::Coldp::Files::VernacularName
 
-  # @return [String, nil] 
+  # @return [String, nil]
   #   the 'English' translation(s) if available
   def self.transliteration(common_name)
     n = common_name.alternate_values.where(type: 'AlternateValue::Translation', alternate_value_object_attribute: :name).load
@@ -23,11 +22,6 @@ module Export::Coldp::Files::VernacularName
 
   def self.area(common_name)
     common_name.geographic_area&.self_and_ancestors&.collect{|a| a.name}&.join('; ')
-  end
-
-  # TODO: Map to biocuration attribute via URI
-  def self.life_stage(common_name)
-    nil
   end
 
   # TODO: Map to biocuration attribute via URI
@@ -48,8 +42,7 @@ module Export::Coldp::Files::VernacularName
   def self.generate(otus, reference_csv = nil )
     CSV.generate(col_sep: "\t") do |csv|
 
-      # TODO: Biocuration attributes on these two 
-      # lifestage
+      # TODO: Biocuration attributes on these two
       # sex
 
       csv << %w{
