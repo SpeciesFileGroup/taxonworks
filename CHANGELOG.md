@@ -42,6 +42,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Navigation key combination for radial annotator [#3233]
 - Truncate smart selector lists
 - Allow compare n objects in collection object match [#3238]
+- Include total of match/unmatched in Collection object match [#3237]
 
 [#3190]: https://github.com/SpeciesFileGroup/taxonworks/issues/3190
 [#2176]: https://github.com/SpeciesFileGroup/taxonworks/issues/2176

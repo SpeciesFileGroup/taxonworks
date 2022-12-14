@@ -12,9 +12,9 @@
               <input
                 type="radio"
                 :value="item"
-                v-model="filter"
+                v-model="view"
               >
-              {{ item }}
+              {{ item }} ({{ listCount[item] }})
             </label>
           </li>
         </ul>
@@ -111,6 +111,19 @@ export default {
       } else {
         return []
       }
+    },
+
+    listCount () {
+      const matchList = Object.values(this.matchList)
+      const matches = matchList.filter(match => (Array.isArray(match) && match.length) || Object.keys(match).length).length
+      const unmatched = matchList.filter(match => !(Array.isArray(match) && match.length) || !Object.keys(match).length).length
+      const both = matches + unmatched
+
+      return {
+        matches,
+        unmatched,
+        both
+      }
     }
   },
 
@@ -118,7 +131,7 @@ export default {
     return {
       selected: [],
       show: ['matches', 'unmatched', 'both'],
-      filter: 'both'
+      view: 'both'
     }
   },
 
@@ -137,7 +150,7 @@ export default {
     },
 
     filterView (record) {
-      switch (this.filter) {
+      switch (this.view) {
         case 'matches':
           return record.length
         case 'unmatched':
