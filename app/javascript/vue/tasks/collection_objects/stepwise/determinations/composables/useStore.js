@@ -29,7 +29,7 @@ const updateBufferedTable = count => {
   const label = labels[index]
   const newCount = label.count_buffered - count
 
-  if (newCount) {
+  if (newCount > 0) {
     label.count_buffered = newCount
   } else {
     labels.splice(index, 1)
