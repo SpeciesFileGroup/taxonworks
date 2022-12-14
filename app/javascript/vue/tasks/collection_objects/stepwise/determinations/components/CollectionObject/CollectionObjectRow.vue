@@ -60,6 +60,7 @@
         <VIcon
           v-if="selectedLabel !== collectionObject.bufferedDeterminations"
           class="margin-small-left"
+          title="Whitespace difference"
           name="attention"
           color="attention"
           small
