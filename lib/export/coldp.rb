@@ -29,7 +29,6 @@ module Export
 
     def self.export(otu_id, prefer_unlabelled_otus: true)
       otus = otus(otu_id)
-      Current.project_id = Otu.find(otu_id).project_id
 
       # source_id: [csv_array]
       ref_csv = {}
@@ -37,12 +36,12 @@ module Export
       # TODO: This will likely have to change, it is renamed on serving the file.
       zip_file_path = "/tmp/_#{SecureRandom.hex(8)}_coldp.zip"
 
-      metadata_path = Zaru::sanitize!("/tmp/#{::Project.find(Current.project_id).name}_#{DateTime.now}_metadata.yaml").gsub(' ', '_').downcase
+      metadata_path = Zaru::sanitize!("/tmp/#{::Project.find(otus[0].project_id).name}_#{DateTime.now}_metadata.yaml").gsub(' ', '_').downcase
       version = Taxonworks::VERSION
       if Settings.sandbox_mode?
         version = Settings.sandbox_commit_sha
       end
-      metadata = {"title" =>::Project.find(Current.project_id).name,
+      metadata = {"title" =>::Project.find(otus[0].project_id).name,
                   "version" => version,
                   "issued" => DateTime.now.strftime('%Y-%m-%d'),
       }
@@ -79,7 +78,7 @@ module Export
     end
 
     def self.filename(otu)
-      Zaru::sanitize!("#{::Project.find(Current.project_id).name}_coldp_otu_id_#{otu.id}_#{DateTime.now}.zip").gsub(' ', '_').downcase
+      Zaru::sanitize!("#{::Project.find(otu.project_id).name}_coldp_otu_id_#{otu.id}_#{DateTime.now}.zip").gsub(' ', '_').downcase
     end
 
     def self.download(otu, request = nil, prefer_unlabelled_otus: true)
