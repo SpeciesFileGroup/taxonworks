@@ -129,14 +129,8 @@ module Export::Coldp::Files::Taxon
         remarks
       }
 
-      if root_otu_id.nil?
-        Current.project_id = otus[0].project_id
-      else
-        Current.project_id = Otu.find(root_otu_id).project_id
-      end
-
       taxon_remarks_vocab_id = Predicate.find_by(uri: 'https://github.com/catalogueoflife/coldp#Taxon.remarks',
-                                                 project_id: Current.project_id)&.id
+                                                 project_id: otus[0]&.project_id)&.id
 
       otus.each do |o|
         # !! When a name is a synonmy (combination), but that combination has no OTU
