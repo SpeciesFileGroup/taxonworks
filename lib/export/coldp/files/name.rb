@@ -18,8 +18,8 @@ module Export::Coldp::Files::Name
   end
 
   def self.remarks(name, name_remarks_vocab_id)
-    if !name.data_attributes.find_by(controlled_vocabulary_term_id: name_remarks_vocab_id).nil?
-      name.data_attributes.find_by(controlled_vocabulary_term_id: name_remarks_vocab_id).value
+    if name.data_attributes.where(controlled_vocabulary_term_id: name_remarks_vocab_id).any?
+      name.data_attributes.where(controlled_vocabulary_term_id: name_remarks_vocab_id).pluck(:value).join('|')
     else
       nil
     end
