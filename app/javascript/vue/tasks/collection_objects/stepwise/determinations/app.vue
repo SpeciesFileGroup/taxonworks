@@ -19,7 +19,9 @@
         <CollectionObjectList v-if="selectedLabel" />
       </div>
 
-      <div class="margin-medium-left">
+      <div
+        id="right-column"
+        class="margin-medium-left">
         <CuttoffInput class="margin-medium-bottom" />
         <TaxonDetermination />
       </div>
@@ -100,3 +102,9 @@ export default {
   name: 'StepwiseDeterminations'
 }
 </script>
+
+<style scoped>
+#right-column {
+  width: 600px;
+}
+</style>
