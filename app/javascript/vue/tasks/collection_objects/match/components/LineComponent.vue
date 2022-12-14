@@ -28,8 +28,7 @@
             @click="selected = []">
             Unselect all
           </button>
-          <compare-component
-            :compare="compare"/>
+          <compare-component :compare="compare" />
         </div>
       </div>
     </navbar-component>
@@ -92,15 +91,11 @@ export default {
 
   computed: {
     compare () {
-      if (this.selected.length === 2) {
+      if (this.selected.length > 1) {
         const list = [].concat(...Object.values(this.matchList).filter(item => Array.isArray(item)))
 
-        return [
-          list.find(item => item.id === this.selected[0]),
-          list.find(item => item.id === this.selected[1])
-        ]
-      }
-      else {
+        return list.filter(item => this.selected.includes(item.id))
+      } else {
         return []
       }
     }
