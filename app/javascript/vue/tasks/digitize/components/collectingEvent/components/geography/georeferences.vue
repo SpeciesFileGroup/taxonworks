@@ -68,6 +68,8 @@
               fit-bounds
               resize
               draw-controls
+              tooltips
+              actions
               :draw-polyline="false"
               :cut-polygon="false"
               :removal-mode="false"

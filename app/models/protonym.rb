@@ -555,8 +555,8 @@ class Protonym < TaxonName
       n = n[0..-3] + 'ra' if n =~ /^[a-z]*er$/ # -er > -ra
       n = n[0..-7] + 'ensis' if n =~ /^[a-z]*iensis$/ # -iensis > -ensis
       n = n[0..-5] + 'ana' if n =~ /^[a-z]*iana$/ # -iana > -ana
-      n = n.gsub('ae', 'e').
-            gsub('oe', 'e').
+      n = n.gsub('ae', 'e') if n =~ /^[a-z]*ae[a-z]+$/ # -ae-
+      n = n.gsub('oe', 'e').
             gsub('ai', 'i').
             gsub('ei', 'i').
             gsub('ej', 'i').

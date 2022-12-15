@@ -57,7 +57,7 @@
 #
 class Combination < TaxonName
 
-  # The ranks that can be used to build combinations.  
+  # The ranks that can be used to build combinations.
   APPLICABLE_RANKS = %w{genus subgenus section subsection series subseries species subspecies variety subvariety form subform}.freeze
 
   before_validation :set_parent
@@ -127,7 +127,7 @@ class Combination < TaxonName
     }, through: "#{rank}_taxon_name_relationship".to_sym, source: :subject_taxon_name
 
     accepts_nested_attributes_for rank.to_sym
-    
+
     accepts_nested_attributes_for "#{rank}_taxon_name_relationship".to_sym, allow_destroy: true
 
     attr_accessor "#{rank}_id".to_sym
@@ -191,6 +191,13 @@ class Combination < TaxonName
     fix: :sv_fix_combination_parent_update,
     name: 'Combination has valid parent',
     description: 'The combination should have the same parent as protonym' )
+
+  soft_validate(
+    :sv_author_and_year_is_not_required,
+    set: :year_is_not_required,
+    fix: :sv_fix_author_and_year_is_not_required,
+    name: 'Verbatim author and year are not required',
+    description: 'Verbatim author and year are not required. The Fix will delete both' )
 
   # @return [Protonym Scope]
   # @params protonym_ids [Hash] like `{genus: 4, species: 5}`
@@ -437,7 +444,7 @@ class Combination < TaxonName
   end
 
   def sv_combination_duplicates
-    duplicate = Combination.not_self(self).where(cached: cached)
+    duplicate = Combination.not_self(self).where(cached: cached, cached_author_year: cached_author_year)
     soft_validations.add(:base, 'Combination is a duplicate') unless duplicate.empty?
   end
 
@@ -480,6 +487,20 @@ class Combination < TaxonName
       :base, 'Cached values should be updated',
       success_message: 'Cached values were updated',
       failure_message:  'Failed to update cached values') if !is_cached
+  end
+
+  def sv_author_and_year_is_not_required
+    if !self.year_of_publication.nil? || !self.verbatim_author.nil?
+      soft_validations.add(
+        :base, 'Verbatim author and year of publication are not required, they both derive from the source',
+        success_message: 'Verbatim author and year were deleted',
+        failure_message: 'Failed to delete verbatim author and year')
+    end
+  end
+
+  def sv_fix_author_and_year_is_not_required
+    self.update_columns(year_of_publication: nil, verbatim_author: nil)
+    return true
   end
 
   def set_parent

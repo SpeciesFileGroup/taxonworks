@@ -167,7 +167,7 @@ Object.assign(TW.views.shared.list, {
 });
 
 $(document).on('turbolinks:load', function() {
-  if ($("table").length) {
+  if ($("#main .tablesorter").length) {
     TW.views.shared.list.init();
   }
 });

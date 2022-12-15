@@ -7,26 +7,66 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- More details to steps in stepwise determinations task
+- Added softvalidation for duplicate family group name forms and misspellings [#3185]
+- With/out local identifier facet for collection objects and stagd images [#3173]
+- Filter by housekeeping and staged-image data attributes [#3171]
+- Delete selected collection objects (and their related data) from filter [#3174]
 - Collection object Autocomplete has loan and deaccession banners [#3192]
 - Autocomplete on Browse collection object [#3189]
 - Task - Collection object chronology, a plot of object by year collected
+- Endpoint to return related data preventing or included in destroy, e.g. `/metadata/related_summary?klass=CollectionObject&id[]=16701&id[]...`
+- Gender and form classifications to filter nomenclature
+- Serial facet to Filter sources [#3211]
+- `tooltips` and `actions` configuration props to Map component [#3234]
 
 ### Fixed
+- Whitepace around unit-tray headers [#3191]
+- Stepwise determinations confounded by invisible whitespace [#3009]
+- OTU smart selector did not include items from the pinboard [#3139]
+- Source in n project autocomplete response [#3142]
 - 'Also create OTU' on batch taxon name upload causing raise
 - Media observations removed if they have no more depictions via updates
-- Citation link in Biological association panel on Browse OTU
-- Type relationship text/rendering is inverted in New taxon name [#3182]
+- Citation link in biological association panel on Browse OTU
+- Type relationship text/rendering is inverted in New taxon name task [#3182]
 - Sqed processing failing to encode HEIC images [#3188]
 - Common list component doesn't filter created status on New taxon name task [#3205]
+- Collectors facet doesn't work on Filter collecting event [#3216]
+- original combination label disappears when relationship doesn't include the current taxon name [#3067]
+- Sometimes keyboard table is duplicating shortcuts
+- Export Project Database task not exporting rows whose `project_id` is `NULL` [#3203]
+- Close icon is difficult to distinguish when modal background is transparent [#3245]
+- Missing identifiers and determinations on collection object table in New collecting event task [#3246]
 
 ### Changed
+- Lock, navigation, UI, and code refreshments to Simple new specimen [#3190]
+- "TODO list" now a faceted search [#3171]
 - Refactored observation cell component for Image matrix
 - Updated Ruby gems
+- Webpack binaries: Replaced `npm bin` for `npm root` to allow compatibility with recent NPM versions
+- Nomenclature match updates [#2176]
+- Navigation key combination for radial annotator [#3233]
+- Truncate smart selector lists
+- Allow compare n objects in collection object match [#3238]
+- Include total of match/unmatched in Collection object match [#3237]
 
-[#3192]: https://github.com/SpeciesFileGroup/taxonworks/issues/3192
+[#3191]: https://github.com/SpeciesFileGroup/taxonworks/issues/3191
+[#2176]: https://github.com/SpeciesFileGroup/taxonworks/issues/2176
+[#3009]: https://github.com/SpeciesFileGroup/taxonworks/issues/3009
+[#3171]: https://github.com/SpeciesFileGroup/taxonworks/issues/3171
+[#3173]: https://github.com/SpeciesFileGroup/taxonworks/issues/3173
+[#3174]: https://github.com/SpeciesFileGroup/taxonworks/issues/3174
 [#3182]: https://github.com/SpeciesFileGroup/taxonworks/issues/3182
 [#3188]: https://github.com/SpeciesFileGroup/taxonworks/issues/3188
 [#3189]: https://github.com/SpeciesFileGroup/taxonworks/issues/3189
+[#3190]: https://github.com/SpeciesFileGroup/taxonworks/issues/3190
+[#3192]: https://github.com/SpeciesFileGroup/taxonworks/issues/3192
+[#3203]: https://github.com/SpeciesFileGroup/taxonworks/issues/3203
+[#3212]: https://github.com/SpeciesFileGroup/taxonworks/issues/3212
+[#3234]: https://github.com/SpeciesFileGroup/taxonworks/issues/3234
+[#3238]: https://github.com/SpeciesFileGroup/taxonworks/issues/3238
+[#3245]: https://github.com/SpeciesFileGroup/taxonworks/issues/3245
+[#3246]: https://github.com/SpeciesFileGroup/taxonworks/issues/3246
 
 ## [0.29.6] - 2022-11-08
 
@@ -62,7 +102,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Source cached_value calculation [#3181]
 - Changed author labels on Filter source [#3134]
-- Minor changes to plots on administration activity dashboard 
+- Minor changes to plots on administration activity dashboard
 - Parallelize some indexing rake tasks
 
 ### Fixed
@@ -303,7 +343,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - People/Name toggle remove historical option for name [#3028]
 
-### Fixed 
+### Fixed
 - Content attributes response
 
 [#3028]: https://github.com/SpeciesFileGroup/taxonworks/issues/3028
@@ -315,7 +355,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Task to merge taxon name relationships from one taxon to another [#3022]
 - Add `determiner_name_regex` to collection object filter [#3026]
 - API interactive key engine endpoint `/api/v1/observation_matrices/123/key.json`
-- API depictions endpoint `api/v1/depictions/123.json?extend[]=image&extend[]=sqed_depiction&extend[]=figures` 
+- API depictions endpoint `api/v1/depictions/123.json?extend[]=image&extend[]=sqed_depiction&extend[]=figures`
 - Taxon determinations stats in stats API
 - Setting tags for collecting events and collection objects in DwC occurrences importer [#3019], [#2855]
 
@@ -356,7 +396,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3011]: https://github.com/SpeciesFileGroup/taxonworks/pull/3011
 
 ## [0.26.0] - 2022-05-30
-### Added 
+### Added
 - Task - Stepwise determinations, facilitate verbatim to parsed determinations en masse [#2911]
 - Two more digitization stage types, "T" and "Inverted T" [#2863]
 - Added soft_validation fix to missing collection_object determination, when the type is designated [#2907]

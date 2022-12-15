@@ -4,14 +4,16 @@
       class="radial-annotator">
       <modal
         v-if="display"
-        :container-style="{ backgroundColor: 'transparent', boxShadow: 'none' }"
-        @close="closeModal()">
+        transparent
+        @close="closeModal()"
+      >
         <template #header>
           <h3 class="flex-separate">
             <span v-html="title" />
             <span
               v-if="metadata"
-              class="separate-right">
+              class="separate-right"
+            >
               {{ metadata.object_type }}
             </span>
           </h3>

@@ -27,6 +27,7 @@ gem 'rmagick', '~> 4.2', '>= 4.2.2'
 gem 'roo', '~> 2.8', '>= 2.8.3'
 gem 'roo-xls', '~> 1.2'
 gem 'net-smtp', '~> 0.3.1'
+gem 'mail', '~> 2.7', '< 2.8' # Locked while https://github.com/mikel/mail/issues/1516 is not resolved
 gem "matrix", "~> 0.4.2"
 
 # Geo

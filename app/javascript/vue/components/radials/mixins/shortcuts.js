@@ -1,4 +1,5 @@
 import EventStack from '../utils/eventStack'
+import { isMac } from 'helpers/os'
 
 export default {
   computed: {
@@ -38,6 +39,13 @@ export default {
       const titles = this.shortcutList[key]
       const activeElement = document.activeElement.tagName
 
+      if (
+        (isMac() && !e.ctrlKey) ||
+        (!isMac() && !e.altKey)
+      ) {
+        return
+      }
+
       if (activeElement === 'INPUT' || activeElement === 'TEXTAREA') {
         return
       }
@@ -53,6 +61,7 @@ export default {
           this.currentAnnotator = titles[0]
         }
 
+        e.preventDefault()
         e.stopImmediatePropagation()
       }
     }

@@ -21,6 +21,12 @@ Object.assign(TW.workbench.keyboard, {
   keyCodeReplace: ['↑', '↓', '←', '→', '⌘'],
 
   init_keyShortcuts () {
+    const keyboardTable = document.querySelector('#keyShortcuts')
+
+    if (keyboardTable) {
+      keyboardTable.remove()
+    }
+
     this.keyShortcutElement = this.createTable()
     this.btnClose = this.keyShortcutElement.querySelector('.close')
     this.legendLink = this.keyShortcutElement.querySelector('.legend')
@@ -28,6 +34,7 @@ Object.assign(TW.workbench.keyboard, {
     this.keyShortcutsPanel = this.keyShortcutElement.querySelector('.panel')
 
     document.body.append(this.keyShortcutElement)
+
     this.generalShortcuts()
     this.fillTable()
     this.handleEvents()
@@ -94,12 +101,18 @@ Object.assign(TW.workbench.keyboard, {
     const legendElement = this.createLegendElement(key, description, section, isLeft)
 
     document.body.append(legendElement)
-    this.addNewShortcut(legendElement)
+    if (!this.isShortcutInTable(key)) {
+      this.addNewShortcut(legendElement)
+    }
   },
 
   fillTable () {
     document.querySelectorAll('[data-shortcut-key]').forEach(element => {
-      TW.workbench.keyboard.addNewShortcut(TW.workbench.keyboard.checkReplaceKeyCode(element))
+      const key = element.getAttribute('data-shortcut-key')
+
+      if (!this.isShortcutInTable(key)) {
+        TW.workbench.keyboard.addNewShortcut(TW.workbench.keyboard.checkReplaceKeyCode(element))
+      }
     })
   },
 
@@ -128,20 +141,25 @@ Object.assign(TW.workbench.keyboard, {
   },
 
   addRowShortcut (shortcutKey, description) {
-    const rowElement = document.createElement('tr');
-    const shortcutColumn = document.createElement('td');
-    const descriptionColumn = document.createElement('td');
-    const keyDiv = document.createElement('div');
+    const rowElement = document.createElement('tr')
+    const shortcutColumn = document.createElement('td')
+    const descriptionColumn = document.createElement('td')
+    const keyDiv = document.createElement('div')
 
-    keyDiv.classList.add('key');
-    keyDiv.textContent = shortcutKey;
-    descriptionColumn.textContent = description;
+    keyDiv.classList.add('key')
+    keyDiv.setAttribute('data-table-shortcut-key', shortcutKey)
+    keyDiv.textContent = shortcutKey
+    descriptionColumn.textContent = description
 
-    shortcutColumn.append(keyDiv);
-    rowElement.append(shortcutColumn);
-    rowElement.append(descriptionColumn);
+    shortcutColumn.append(keyDiv)
+    rowElement.append(shortcutColumn)
+    rowElement.append(descriptionColumn)
 
     return rowElement
+  },
+
+  isShortcutInTable (shortcutKey) {
+    return document.querySelector(`[data-table-shortcut-key="${shortcutKey}"]`)
   },
 
   addNewShortcut (element) {
@@ -180,10 +198,6 @@ Object.assign(TW.workbench.keyboard, {
 })
 
 document.addEventListener('turbolinks:load', () => {
-  if (document.querySelectorAll('[data-shortcut-key]').length) {
-    if (!document.querySelectorAll('[data-help]').length) {
-      TW.workbench.help.init()
-    }
-    TW.workbench.keyboard.init_keyShortcuts()
-  }
+  TW.workbench.help.init()
+  TW.workbench.keyboard.init_keyShortcuts()
 })

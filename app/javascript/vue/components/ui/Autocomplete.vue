@@ -33,6 +33,7 @@ Parameters:
       :placeholder="placeholder"
       @input="checkTime(), sendType()"
       v-model="type"
+      v-bind="inputAttributes"
       @keydown.down="downKey"
       @keydown.up="upKey"
       @keydown.enter="enterKey"
@@ -165,6 +166,11 @@ export default {
     },
 
     inputStyle: {
+      type: Object,
+      default: () => ({})
+    },
+
+    inputAttributes: {
       type: Object,
       default: () => ({})
     }

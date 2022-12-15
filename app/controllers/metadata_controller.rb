@@ -9,7 +9,7 @@ class MetadataController < ApplicationController
   end
 
   # :klass is a base class name, like "Otu"
-  def object_radial 
+  def object_radial
     get_klass
     @data = OBJECT_RADIALS[@klass]
     render '/workbench/navigation/object_radial'
@@ -17,7 +17,12 @@ class MetadataController < ApplicationController
 
   def object_navigation
     @object = GlobalID::Locator.locate(params.require(:global_id))
-    render json: {status: 200} 
+    render json: {status: 200}
+  end
+
+  def related_summary
+    @klass = params.require(:klass).safe_constantize
+    render json: @klass.related_summary(params.require(:id))
   end
 
   protected
@@ -26,7 +31,7 @@ class MetadataController < ApplicationController
     render json: {status: 400} if (params[:type] && params[:global_id]) || (params[:type].blank? && params[:global_id].blank?)
 
     if params[:type]
-      @klass = params[:type] 
+      @klass = params[:type]
       @object = nil
     else
       @object = GlobalID::Locator.locate(params.require(:global_id))

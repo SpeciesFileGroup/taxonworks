@@ -2,10 +2,7 @@
   <div class="radial-annotator">
     <modal
       v-if="isVisible"
-      :container-style="{
-        backgroundColor: 'transparent',
-        boxShadow: 'none'
-      }"
+      transparent
       @close="closeModal"
     >
       <template #header>

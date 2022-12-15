@@ -1,8 +1,8 @@
 require 'rails_helper'
 
 describe Keyword, type: :model, group: :tags do
-  
-  let(:keyword) { Keyword.new } 
+
+  let(:keyword) { Keyword.new }
   let(:otu) { FactoryBot.create(:valid_otu) }
 
   specify '#tags' do
@@ -21,12 +21,12 @@ describe Keyword, type: :model, group: :tags do
       expect {c = CitationTopic.new(topic: k)}.to raise_error(ActiveRecord::AssociationTypeMismatch)
     end
   end
-  
+
   context 'scopes' do
     let(:k) { FactoryBot.create(:valid_keyword) }
     let(:k2) { FactoryBot.create(:valid_keyword) }
-    let!(:tag) { Tag.create(keyword: k, tag_object: otu) } 
-    let!(:old_tag) { Tag.create(keyword: k2, tag_object: otu, created_at: 4.years.ago) } 
+    let!(:tag) { Tag.create(keyword: k, tag_object: otu) }
+    let!(:old_tag) { Tag.create(keyword: k2, tag_object: otu, created_at: 4.years.ago, updated_at: 4.years.ago) }
 
     specify '#used_on_klass 1' do
       expect(Keyword.used_on_klass('Otu')).to contain_exactly(k, k2)

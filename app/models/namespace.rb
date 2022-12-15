@@ -54,7 +54,7 @@
 #
 # @!attribute is_virtual
 # @return [Boolean]
-#   Defaults to false. If true then the namespace short name is not part of the "physical" identifier.  Required to handle identifiers incoming 
+#   Defaults to false. If true then the namespace short name is not part of the "physical" identifier.  Required to handle identifiers incoming
 # from DwC in some contexts.
 #
 class Namespace < ApplicationRecord
@@ -75,7 +75,7 @@ class Namespace < ApplicationRecord
   has_many :identifiers, autosave: true, dependent: :restrict_with_error, inverse_of: :namespace
 
   scope :used_on_klass, -> (klass) { joins(:identifiers).where(identifiers: {identifier_object_type: klass} ) }
-  scope :used_recently, -> { joins(:identifiers).includes(:identifiers).where(identifiers: { created_at: 10.weeks.ago..Time.now } ).order('"identifiers"."created_at" DESC') }
+  scope :used_recently, -> { joins(:identifiers).includes(:identifiers).where(identifiers: { updated_at: 10.weeks.ago..Time.now } ).order('"identifiers"."created_at" DESC') }
   scope :used_in_project, -> (project_id) { joins(:identifiers).where( identifiers: { project_id: project_id } ) }
 
   def is_virtual?
