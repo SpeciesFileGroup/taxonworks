@@ -28,10 +28,10 @@
       @close="showModal = false"
       transparent
       :container-style="{
-        width: '1100px',
+        width: '100%',
+        maxWidth: '1400px',
         height: '90vh',
         overflowX: 'auto',
-        boxShadow: 'none'
       }"
     >
       <template #header>
@@ -45,7 +45,7 @@
               ? `Creating ${index} of ${count} collection object(s)...`
               : 'Loading...'"
           />
-          <div class="full_width margin-medium-right">
+          <div class="margin-medium-right max-w-md full_width">
             <div class="panel content margin-medium-bottom">
               <h3>Number to create</h3>
               <div class="flex-separate align-end">
@@ -98,7 +98,7 @@
               v-model="tagList"
             />
           </div>
-          <div class="full_width panel content">
+          <div class="panel content flex-grow-2">
             <template v-if="noCreated.length">
               <h3>Creation errors ({{ noCreated.length }})</h3>
               <table class="full_width margin-medium-bottom">
@@ -126,8 +126,12 @@
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Identifier</th>
-                  <th>Determination</th>
+                  <th class="half_width">
+                    Identifier
+                  </th>
+                  <th class="half_width">
+                    Determination
+                  </th>
                   <th />
                 </tr>
               </thead>
@@ -138,8 +142,8 @@
                   class="contextMenuCells"
                 >
                   <td>{{ item.id }}</td>
-                  <td v-html="item.catalogNumber" />
-                  <td v-html="item.scientificName" />
+                  <td v-html="item.identifiers.join('<br>')" />
+                  <td v-html="item.taxon_determinations.map(t => t.object_tag).join('<br>')" />
                   <td>
                     <div
                       v-if="item.global_id"
@@ -179,6 +183,8 @@ import {
   CollectionObject,
   TaxonDetermination
 } from 'routes/endpoints'
+
+const extend = ['taxon_determinations', 'identifiers']
 
 export default {
   components: {
@@ -270,7 +276,7 @@ export default {
         }
         const promises = []
 
-        await CollectionObject.create({ collection_object: co }).then(response => {
+        await CollectionObject.create({ collection_object: co, extend }).then(response => {
           this.determinations.forEach(determination => {
             determination.biological_collection_object_id = response.body.id
             promises.push(TaxonDetermination.create({ taxon_determination: determination }))
@@ -301,12 +307,19 @@ export default {
         this.loadTable()
       }
     },
+
     openComprehensive (id) {
       window.open(`${RouteNames.DigitizeTask}?collection_object_id=${id}`, '_self')
     },
+
     loadTable () {
+      const params = {
+        collecting_event_ids: [this.ceId],
+        extend
+      }
+
       this.isLoading = true
-      CollectionObject.where({ collecting_event_ids: [this.ceId] }).then(response => {
+      CollectionObject.where(params).then(response => {
         this.list = response.body
         this.isLoading = false
       })

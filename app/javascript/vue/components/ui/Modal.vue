@@ -40,8 +40,9 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
-const props = defineProps({
+import { onMounted, onUnmounted } from 'vue'
+
+defineProps({
   containerClass: {
     type: Object,
     default: () => ({})
@@ -60,18 +61,12 @@ const props = defineProps({
 
 const emit = defineEmits(['close'])
 
-onMounted(() => {
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      this.$emit('close')
-    }
-  })
-})
-</script>
-
-<style scoped>
-.invert-color {
-  filter: invert(1);
-  opacity: 1;
+const handleKeys = (e) => {
+  if (e.key === 'Escape') {
+    emit('close')
+  }
 }
-</style>
+
+onMounted(() => { document.addEventListener('keydown', handleKeys) })
+onUnmounted(() => { document.removeEventListener('keydown', handleKeys) })
+</script>
