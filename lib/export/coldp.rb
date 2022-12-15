@@ -33,17 +33,21 @@ module Export
       # source_id: [csv_array]
       ref_csv = {}
 
+      otu = ::Otu.find(otu_id)
+      project = ::Project.find(otu.project_id)
+
       # TODO: This will likely have to change, it is renamed on serving the file.
       zip_file_path = "/tmp/_#{SecureRandom.hex(8)}_coldp.zip"
 
-      metadata_path = Zaru::sanitize!("/tmp/#{::Project.find(otus[0].project_id).name}_#{DateTime.now}_metadata.yaml").gsub(' ', '_').downcase
+      metadata_path = Zaru::sanitize!("/tmp/#{project.name}_#{DateTime.now}_metadata.yaml").gsub(' ', '_').downcase
       version = Taxonworks::VERSION
       if Settings.sandbox_mode?
         version = Settings.sandbox_commit_sha
       end
-      metadata = {"title" =>::Project.find(otus[0].project_id).name,
-                  "version" => version,
-                  "issued" => DateTime.now.strftime('%Y-%m-%d'),
+      metadata = {
+        'title' => project.name,
+        'version' => version,
+        'issued' => DateTime.now.strftime('%Y-%m-%d'),
       }
       metadata_file = Tempfile.new(metadata_path)
       metadata_file.write(metadata.to_yaml)
@@ -55,7 +59,7 @@ module Export
           zipfile.get_output_stream("#{ft}.csv") { |f| f.write m.generate(otus, ref_csv) }
         end
 
-        zipfile.get_output_stream('Name.csv') { |f| f.write Export::Coldp::Files::Name.generate(Otu.find(otu_id), ref_csv) }
+        zipfile.get_output_stream('Name.csv') { |f| f.write Export::Coldp::Files::Name.generate(otu, ref_csv) }
         zipfile.get_output_stream('Taxon.csv') do |f|
           f.write Export::Coldp::Files::Taxon.generate(otus, otu_id, ref_csv, prefer_unlabelled_otus: prefer_unlabelled_otus)
         end
