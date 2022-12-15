@@ -17,3 +17,9 @@
 .shadow-none {
   box-shadow: none;
 }
+
+@for $i from 1 through 3 {
+  .flex-grow-#{$i} {
+    flex-grow: $i;
+  }
+}
