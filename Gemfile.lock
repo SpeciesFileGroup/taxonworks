@@ -197,7 +197,6 @@ GEM
       activerecord (>= 5.a)
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
-    date (3.3.1)
     debug_inspector (1.1.0)
     delayed_job (4.1.11)
       activesupport (>= 3.0, < 8.0)
@@ -308,11 +307,8 @@ GEM
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     lumberjack (1.2.8)
-    mail (2.8.0)
+    mail (2.7.1)
       mini_mime (>= 0.1.1)
-      net-imap
-      net-pop
-      net-smtp
     marcel (1.0.2)
     matrix (0.4.2)
     method_source (1.0.0)
@@ -329,11 +325,6 @@ GEM
     namae (1.1.1)
     namecase (2.0.0)
     nenv (0.3.0)
-    net-imap (0.3.2)
-      date
-      net-protocol
-    net-pop (0.1.2)
-      net-protocol
     net-protocol (0.2.1)
       timeout
     net-smtp (0.3.3)
@@ -695,6 +686,7 @@ DEPENDENCIES
   kaminari (~> 1.2.0)
   logic_tools
   logical_query_parser
+  mail (~> 2.7, < 2.8)
   matrix (~> 0.4.2)
   modularity (~> 3.0.0)
   namecase (~> 2.0)
