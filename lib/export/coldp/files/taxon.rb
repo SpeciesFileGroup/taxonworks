@@ -94,10 +94,9 @@ module Export::Coldp::Files::Taxon
     # API or public interface
   end
 
-  # TODO: flag/exclude ! is_public
-  def self.remarks(otu)
-    if otu.notes.load.any?
-      otu.notes.pluck(:text).join('|')
+  def self.remarks(otu, taxon_remarks_vocab)
+    if otu.data_attributes.where(controlled_vocabulary_term_id: taxon_remarks_vocab).any?
+      otu.data_attributes.where(controlled_vocabulary_term_id: taxon_remarks_vocab).pluck(:value).join('|')
     else
       nil
     end
@@ -143,15 +142,8 @@ module Export::Coldp::Files::Taxon
         remarks
       }
 
-      if root_otu_id.nil?
-        Current.project_id = otus[0].project_id
-      else
-        Current.project_id = Otu.find(root_otu_id).project_id
-      end
-
-      name_phrase_vocab_id =  Predicate.find_by(uri: 'https://github.com/catalogueoflife/coldp#namephrase',
-                                                project_id: Current.project_id)&.id
-
+      taxon_remarks_vocab_id = Predicate.find_by(uri: 'https://github.com/catalogueoflife/coldp#Taxon.remarks',
+                                                 project_id: otus[0]&.project_id)&.id
       otus.each do |o|
         # !! When a name is a synonmy (combination), but that combination has no OTU
         # !! then the parent of the name in the taxon table is nil
@@ -202,7 +194,7 @@ module Export::Coldp::Files::Taxon
           predicate_value(o, :temporal_range_end),   # temporalRangeEnd
           predicate_value(o, :lifezone),             # environment (formerly named lifezone)
           link(o),                                   # link
-          remarks(o)                                 # remarks
+          remarks(o, taxon_remarks_vocab_id)         # remarks
         ]
 
         Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv) if reference_csv
