@@ -8,7 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - More details to steps in stepwise determinations task
-- Added softvalidation for dublicate family group name forms and misspellings [#3185]
+- Added soft validation for dublicate family group name forms and misspellings [#3185]
 - With/out local identifier facet for collection objects and stagd images [#3173]
 - Filter by housekeeping and staged-image data attributes [#3171]
 - Delete selected collection objects (and their related data) from filter [#3174]
@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `tooltips` and `actions` configuration props to Map component [#3234]
 
 ### Fixed
+- Whitepace around unit-tray headers [#3191] {CONFIRM}
 - Stepwise determinations confounded by invisible whitespace [#3009]
 - OTU smart selector did not include items from the pinboard [#3139]
 - Source in n project autocomplete response [#3142]
@@ -47,6 +48,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Allow compare n objects in collection object match [#3238]
 - Include total of match/unmatched in Collection object match [#3237]
 
+[#3191]: https://github.com/SpeciesFileGroup/taxonworks/issues/3191
 [#2176]: https://github.com/SpeciesFileGroup/taxonworks/issues/2176
 [#3009]: https://github.com/SpeciesFileGroup/taxonworks/issues/3009
 [#3171]: https://github.com/SpeciesFileGroup/taxonworks/issues/3171
