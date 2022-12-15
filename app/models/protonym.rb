@@ -437,7 +437,7 @@ class Protonym < TaxonName
     j = 0
     CSV.open(file_name, 'w') do |csv|
       csv << ['taxon_name_id', 'name', 'author_year', 'type', 'is_valid', 'soft_validations']
-      descendants.find_each do |t|
+      Parallel.each(descendants.find_each, in_processes: 4) do |t|
         i += 1
         print "\r#{i}     Soft validations: #{j}"
         t.soft_validate
