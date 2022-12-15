@@ -296,15 +296,15 @@ class Source < ApplicationRecord
 
   # @param used_on [String] a model name
   # @return [Scope]
-  #    the max 10 most recently used (1 week, could parameterize) TaxonName, as used 
+  #    the max 10 most recently used (1 week, could parameterize) TaxonName, as used
   def self.used_recently(user_id, project_id, used_on = 'TaxonName')
    Source.select('sources.id').
      joins(:citations)
-         .where(citations: {created_by_id: user_id,
+         .where(citations: {updated_by_id: user_id,
                 project_id: project_id,
                 citation_object_type: used_on,
-                created_at: 1.week.ago..})
-        .order('citations.created_at DESC')
+                updated_at: 1.week.ago..})
+        .order('citations.updated_at DESC')
       .pluck(:id).uniq
   end
 

@@ -1,4 +1,6 @@
 $font-prefix: '../../../node_modules/@ibm/plex';
+@import '../vue//assets/styles/utilities.scss';
+@import '../vue//assets/styles/utilities/width.scss';
 @import '../vue/assets/styles/variables/_palette.scss';
 @import '../vue/assets/styles/variables/_exports.scss';
 @import '../vue/assets/styles/components/buttons.scss';

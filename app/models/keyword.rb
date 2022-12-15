@@ -1,8 +1,8 @@
-class Keyword < ControlledVocabularyTerm 
+class Keyword < ControlledVocabularyTerm
 
   has_many :tags, foreign_key: :keyword_id, dependent: :destroy, inverse_of: :keyword, validate: true
 
-  scope :used_on_klass, -> (klass) { joins(:tags).where(tags: {tag_object_type: klass} ) } # remember to .distinct 
+  scope :used_on_klass, -> (klass) { joins(:tags).where(tags: {tag_object_type: klass} ) } # remember to .distinct
 
   def tagged_objects
     tags.collect{|t| t.tag_object}
@@ -24,21 +24,21 @@ class Keyword < ControlledVocabularyTerm
 
     # i is a select manager
     if target.blank?
-      i = t.project(t['keyword_id'], t['created_at']).from(t)
-        .where(t['created_at'].gt( 1.months.ago ))
-        .where(t['created_by_id'].eq(user_id))
+      i = t.project(t['keyword_id'], t['updated_at']).from(t)
+        .where(t['updated_at'].gt( 1.months.ago ))
+        .where(t['updated_by_id'].eq(user_id))
         .where(t['project_id'].eq(project_id))
-        .order(t['created_at'].desc)
+        .order(t['updated_at'].desc)
     else
-      i = t.project(t['keyword_id'], t['created_at']).from(t)
+      i = t.project(t['keyword_id'], t['updated_at']).from(t)
            .where(t['tag_object_type'].eq(target))
-           .where(t['created_at'].gt( 1.months.ago ))
-           .where(t['created_by_id'].eq(user_id))
+           .where(t['updated_at'].gt( 1.months.ago ))
+           .where(t['updated_by_id'].eq(user_id))
            .where(t['project_id'].eq(project_id))
-           .order(t['created_at'].desc)
+           .order(t['updated_at'].desc)
     end
 
-    # z is a table alias 
+    # z is a table alias
     z = i.as('recent_t')
 
     ControlledVocabularyTerm.joins(

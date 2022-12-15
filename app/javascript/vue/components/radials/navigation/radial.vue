@@ -3,7 +3,7 @@
     <div class="radial-annotator">
       <modal
         v-if="display"
-        :container-style="{ backgroundColor: 'transparent', boxShadow: 'none' }"
+        transparent
         @close="closeModal()"
       >
         <template #header>
