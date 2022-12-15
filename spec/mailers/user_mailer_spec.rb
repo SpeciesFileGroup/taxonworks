@@ -16,7 +16,7 @@ RSpec.describe UserMailer, type: :mailer do
     end
 
     it 'renders "TaxonWorks <noreply@#{Settings.mail_domain}>" as mail sender' do
-      expect(mail.header[:from].value).to eq('TaxonWorks <noreply@example.com>')
+      expect(mail.header[:from].value).to eq(['TaxonWorks <noreply@example.com>'])
     end
 
     it 'shows the user\'s e-mail address in the e-mail body' do
@@ -33,7 +33,7 @@ RSpec.describe UserMailer, type: :mailer do
     end
 
     it 'renders "TaxonWorks <noreply@#{Settings.mail_domain}>" as mail sender' do
-      expect(mail.header[:from].value).to eq('TaxonWorks <noreply@example.com>')
+      expect(mail.header[:from].value).to eq(['TaxonWorks <noreply@example.com>'])
     end
   end
 
@@ -50,7 +50,7 @@ RSpec.describe UserMailer, type: :mailer do
     end
 
     it 'renders "TaxonWorks <noreply@#{Settings.mail_domain}>" as mail sender' do
-      expect(mail.header[:from].value).to eq('TaxonWorks <noreply@example.com>')
+      expect(mail.header[:from].value).to eq(['TaxonWorks <noreply@example.com>'])
     end
 
     it 'shows the user\'s e-mail address in the e-mail body' do
