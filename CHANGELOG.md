@@ -7,6 +7,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Next/previous navigation arrows to Browse collection object [#3229]
 - More details to steps in stepwise determinations task
 - Added softvalidation for duplicate family group name forms and misspellings [#3185]
 - With/out local identifier facet for collection objects and stagd images [#3173]
@@ -40,7 +41,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Lock, navigation, UI, and code refreshments to Simple new specimen [#3190]
-- "TODO list" now a faceted search [#3171]
+- "TODO list" now a faceted search named 'Filter staged images' [#3171]
 - Refactored observation cell component for Image matrix
 - Updated Ruby gems
 - Webpack binaries: Replaced `npm bin` for `npm root` to allow compatibility with recent NPM versions
@@ -50,6 +51,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Allow compare n objects in collection object match [#3238]
 - Include total of match/unmatched in Collection object match [#3237]
 
+[#3229]: https://github.com/SpeciesFileGroup/taxonworks/issues/3229
 [#3191]: https://github.com/SpeciesFileGroup/taxonworks/issues/3191
 [#2176]: https://github.com/SpeciesFileGroup/taxonworks/issues/2176
 [#3009]: https://github.com/SpeciesFileGroup/taxonworks/issues/3009
