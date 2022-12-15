@@ -21,7 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `tooltips` and `actions` configuration props to Map component [#3234]
 
 ### Fixed
-- Whitepace around unit-tray headers [#3191] {CONFIRM}
+- Whitepace around unit-tray headers [#3191]
 - Stepwise determinations confounded by invisible whitespace [#3009]
 - OTU smart selector did not include items from the pinboard [#3139]
 - Source in n project autocomplete response [#3142]
@@ -102,7 +102,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Source cached_value calculation [#3181]
 - Changed author labels on Filter source [#3134]
-- Minor changes to plots on administration activity dashboard 
+- Minor changes to plots on administration activity dashboard
 - Parallelize some indexing rake tasks
 
 ### Fixed
@@ -343,7 +343,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - People/Name toggle remove historical option for name [#3028]
 
-### Fixed 
+### Fixed
 - Content attributes response
 
 [#3028]: https://github.com/SpeciesFileGroup/taxonworks/issues/3028
@@ -355,7 +355,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Task to merge taxon name relationships from one taxon to another [#3022]
 - Add `determiner_name_regex` to collection object filter [#3026]
 - API interactive key engine endpoint `/api/v1/observation_matrices/123/key.json`
-- API depictions endpoint `api/v1/depictions/123.json?extend[]=image&extend[]=sqed_depiction&extend[]=figures` 
+- API depictions endpoint `api/v1/depictions/123.json?extend[]=image&extend[]=sqed_depiction&extend[]=figures`
 - Taxon determinations stats in stats API
 - Setting tags for collecting events and collection objects in DwC occurrences importer [#3019], [#2855]
 
@@ -396,7 +396,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3011]: https://github.com/SpeciesFileGroup/taxonworks/pull/3011
 
 ## [0.26.0] - 2022-05-30
-### Added 
+### Added
 - Task - Stepwise determinations, facilitate verbatim to parsed determinations en masse [#2911]
 - Two more digitization stage types, "T" and "Inverted T" [#2863]
 - Added soft_validation fix to missing collection_object determination, when the type is designated [#2907]
