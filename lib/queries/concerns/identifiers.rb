@@ -162,7 +162,7 @@ module Queries::Concerns::Identifiers
     q = query_base.joins(:identifiers)
     w = identifier_exact ?
       identifier_table[:cached].eq(identifier) :
-      identifier_table[:cached].matches('%' + identifier + '%')
+      identifier_table[:cached].matches('%' + identifier.to_s + '%')
 
     w = w.and(identifier_table[:namespace_id].eq(namespace_id)) if namespace_id
     q.where(w)
