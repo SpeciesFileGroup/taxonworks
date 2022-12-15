@@ -20,6 +20,13 @@ const props = defineProps({
   source: {
     type: Object,
     required: true
+  },
+
+  headers: {
+    type: Object,
+    default: () => ({
+      source: 'Source (TaxonWorks)'
+    })
   }
 })
 
