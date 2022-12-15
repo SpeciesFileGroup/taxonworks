@@ -1,6 +1,14 @@
 <template>
   <PanelContainer title="Darwin core">
-    <TableAttributes :items="list" />
+    <TableGbifference
+      v-if="ocurrenceId"
+      class="full_width"
+      :source="gbifferenceSourceOptions(dwcObject)"
+    />
+    <TableAttributes
+      v-else
+      :items="dwcObject"
+    />
   </PanelContainer>
 </template>
 
@@ -14,11 +22,12 @@ import { computed } from 'vue'
 import { GetterNames } from '../../store/getters/getters'
 import PanelContainer from './PanelContainer.vue'
 import TableAttributes from '../Table/TableAttributes.vue'
+import TableGbifference from 'components/ui/Table/TableGbifference.vue'
 
 const store = useStore()
 const dwcItems = computed(() => store.getters[GetterNames.GetDwc])
 
-const list = computed(() => {
+const dwcObject = computed(() => {
   const entries = Object.entries(dwcItems.value)
   const filteredList = entries.filter(([property, _]) => !HIDE_ATTRIBUTES.includes(property))
 
@@ -32,4 +41,40 @@ const list = computed(() => {
   return Object.fromEntries(filteredList)
 })
 
+const ocurrenceId = computed(() => dwcObject.value.occurrenceID)
+
+const gbifferenceSourceOptions = (obj) => ({
+  dwcObject: {
+    ...obj,
+    occurrenceID: 'urn:uuid:' + obj.occurrenceID
+  }
+})
+
 </script>
+
+<style scoped lang="scss">
+
+:deep(.table-gbifference) {
+
+  table {
+    box-shadow: none;
+  }
+
+  tr {
+    border-bottom: 1px solid #eaeaea;
+  }
+
+  th {
+    text-transform: capitalize;
+    border-bottom: 2px solid #eaeaea;
+  }
+  .cell-value {
+    font-weight: 500;
+    word-break: break-all;
+  }
+
+  .cell-head {
+    text-transform: uppercase;
+  }
+}
+</style>
