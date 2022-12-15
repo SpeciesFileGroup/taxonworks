@@ -37,6 +37,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Export Project Database task not exporting rows whose `project_id` is `NULL` [#3203]
 - Close icon is difficult to distinguish when modal background is transparent [#3245]
 - Missing identifiers and determinations on collection object table in New collecting event task [#3246]
+- Click "Manage Synonymy" in Edit Taxon Name task does not redirect [#3250]
 
 ### Changed
 - Lock, navigation, UI, and code refreshments to Simple new specimen [#3190]
@@ -67,6 +68,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#3238]: https://github.com/SpeciesFileGroup/taxonworks/issues/3238
 [#3245]: https://github.com/SpeciesFileGroup/taxonworks/issues/3245
 [#3246]: https://github.com/SpeciesFileGroup/taxonworks/issues/3246
+[#3250]: https://github.com/SpeciesFileGroup/taxonworks/issues/3250
 
 ## [0.29.6] - 2022-11-08
 

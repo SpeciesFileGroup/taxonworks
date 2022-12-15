@@ -155,13 +155,13 @@ export default {
         Author: true,
         Status: true,
         Relationship: true,
-        'Manage synonymy': showForThisGroup(['GenusGroup', 'FamilyGroup'], this.getTaxon),
+        'Manage synonymy': showForThisGroup(['GenusGroup', 'FamilyGroup'], this.getTaxon) && !this.getTaxon.cached_is_valid,
         Type: showForThisGroup(['SpeciesGroup', 'GenusGroup', 'FamilyGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon),
         'Original combination': showForThisGroup(['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon),
         'Subsequent Combination': showForThisGroup(['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon),
         Classification: true,
         Gender: showForThisGroup(['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon),
-        Etymology: showForThisGroup(['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon),
+        Etymology: showForThisGroup(['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon)
       }
     }
   },
