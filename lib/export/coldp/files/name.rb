@@ -17,8 +17,12 @@ module Export::Coldp::Files::Name
     end
   end
 
-  def self.remarks_field(taxon_name)
-    Utilities::Strings.nil_squish_strip(taxon_name.notes.collect{|n| n.text}.join('; ')) # remarks - !! check for tabs
+  def self.remarks(name, name_remarks_vocab_id)
+    if name.data_attributes.where(controlled_vocabulary_term_id: name_remarks_vocab_id).any?
+      name.data_attributes.where(controlled_vocabulary_term_id: name_remarks_vocab_id).pluck(:value).join('|')
+    else
+      nil
+    end
   end
 
   # @return String
@@ -54,7 +58,7 @@ module Export::Coldp::Files::Name
   # Invalid Protonyms are rendered only as their original Combination
   # @param t [Protonym]
   #    only place that var./frm can be handled.
-  def self.add_original_combination(t, csv, origin_citation)
+  def self.add_original_combination(t, csv, origin_citation, name_remarks_vocab_id)
     e = t.original_combination_elements
 
     infraspecific_element = t.original_combination_infraspecific_element(e)
@@ -129,7 +133,7 @@ module Export::Coldp::Files::Name
       code_field(t),                                             # code
       nil,                                                       # status https://api.checklistbank.org/vocab/nomStatus
       nil,                                                       # link (probably TW public or API)
-      remarks_field(t),                                          # remarks
+      remarks(t, name_remarks_vocab_id),                         # remarks
     ]
   end
 
@@ -162,6 +166,10 @@ module Export::Coldp::Files::Name
         link
         remarks
       }
+
+      Current.project_id = otu.project_id
+      name_remarks_vocab_id = Predicate.find_by(uri: 'https://github.com/catalogueoflife/coldp#Name.remarks',
+                                                project_id: Current.project_id)&.id
 
       otu.taxon_name.self_and_descendants.that_is_valid
         .pluck(:id, :cached)
@@ -238,14 +246,14 @@ module Export::Coldp::Files::Name
               code_field(t),                            # code
               nom_status_field(t),                      # nomStatus
               nil,                                      # link (probably TW public or API)
-              remarks_field(t),                         # remarks
+              remarks(t, name_remarks_vocab_id),        # remarks
             ]
           end
 
           # Here we truly want no higher
           if !t.cached_original_combination.blank? && (is_genus_species && !t.is_combination? && (!t.is_valid? || t.has_alternate_original?))
             name_total += 1
-            add_original_combination(t, csv, origin_citation)
+            add_original_combination(t, csv, origin_citation, name_remarks_vocab_id)
           end
 
           Export::Coldp::Files::Reference.add_reference_rows([origin_citation.source].compact, reference_csv) if reference_csv && origin_citation
