@@ -1,3 +1,5 @@
+export * from './Paths/arrowLeft.js'
+export * from './Paths/arrowRight.js'
 export * from './Paths/attention.js'
 export * from './Paths/confidence'
 export * from './Paths/download'

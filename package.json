@@ -4,6 +4,7 @@
   "dependencies": {
     "@geoman-io/leaflet-geoman-free": "^2.13.1",
     "@ibm/plex": "^6.1.1",
+    "@sfgrp/gbifference": "^0.0.4",
     "@sfgrp/sled": "^1.0.3",
     "@sfgrp/svg-radial-menu": "^1.0.7",
     "axios": "^1.2.1",
@@ -16,8 +17,8 @@
     "leaflet": "^1.9.3",
     "leaflet.pattern": "^0.1.0",
     "parse-dms": "0.0.5",
-    "pinia": "^2.0.28",
     "pdfjs-dist": "3.1.81",
+    "pinia": "^2.0.28",
     "qs": "^6.11.0",
     "shakapacker": "6.5.4",
     "v-hotkey": "^0.9.0",
