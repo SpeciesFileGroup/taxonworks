@@ -423,36 +423,6 @@ class Protonym < TaxonName
     end
   end
 
-  # temporary method to collect soft_validations on protonyms
-  def soft_validations_by_protonym
-    exclude = [ 'Confidence level is missing',
-                'Primary type is not selected',
-                'Etymology is missing',
-                'Cached values should be updated',
-                'Part of speech is not specified. Please select if the name is a noun or an adjective.'
-    ].freeze
-    file_name = '/tmp/soft_validations' + '_' + Time.now.to_i.to_s + '.csv'
-    a = {}
-    i = 0
-    j = 0
-    CSV.open(file_name, 'w') do |csv|
-      csv << ['taxon_name_id', 'name', 'author_year', 'type', 'is_valid', 'soft_validations']
-      Parallel.each(descendants.find_each, in_processes: 4) do |t|
-        i += 1
-        print "\r#{i}     Soft validations: #{j}"
-        t.soft_validate
-        z = t.soft_validations.messages
-        exclude.each do |e|
-          z.delete(e)
-        end
-        unless z.empty?
-          j += 1
-          csv << [t.id.to_s, t.cached, t.cached_author_year, t.type.to_s, t.cached_is_valid.to_s, z]
-        end
-      end
-    end
-  end
-
   # !! TODO: Should not be possible- fix the incoming data
   # @return [Boolean]
   #    true if taxon2 has the same primary type
