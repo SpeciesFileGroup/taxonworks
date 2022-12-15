@@ -3,7 +3,7 @@
     <TableGbifference
       v-if="ocurrenceId"
       class="full_width"
-      :source="gbifferenceSourceOptions(dwcObject)"
+      :source="{ dwcObject }"
     />
     <TableAttributes
       v-else
@@ -42,13 +42,6 @@ const dwcObject = computed(() => {
 })
 
 const ocurrenceId = computed(() => dwcObject.value.occurrenceID)
-
-const gbifferenceSourceOptions = (obj) => ({
-  dwcObject: {
-    ...obj,
-    occurrenceID: 'urn:uuid:' + obj.occurrenceID
-  }
-})
 
 </script>
 
