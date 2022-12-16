@@ -754,7 +754,6 @@ collection_object_chronology_task:
   name: 'Collection object chronology'
   related:
   categories:
-  - collection_object
+    - collection_object
   status: prototype
   description: 'All collection objects by year collected.'
->>>>>>> development
