@@ -113,6 +113,12 @@ module Queries
       # false - without_serial_id
       # nil - both
 
+      # @return [Boolean, nil]
+      attr_accessor :with_title
+      # true - with a title 
+      # false - without a title
+      # nil - both
+
       # @param [Hash] params
       def initialize(params)
         @query_string = params[:query_term]&.delete("\u0000") # TODO, we need to sanitize params in general.
@@ -139,7 +145,8 @@ module Queries
         @source_type = params[:source_type]
         @title = params[:title]
         @topic_ids = params[:topic_ids] || []
-        @with_doi = boolean_param(params,:with_doi)
+        @with_doi = boolean_param(params, :with_doi)
+        @with_title = boolean_param(params, :with_title)
         @year_end = params[:year_end]
         @year_start = params[:year_start]
 
@@ -293,6 +300,16 @@ module Queries
         end
       end
 
+      def with_title_facet
+        return nil if with_title.nil?
+
+        if with_title
+          table[:title].not_eq(nil)
+        else
+          table[:title].eq(nil)
+        end
+      end
+
       # TODO: move to a concern
       def role_facet
         return nil if roles.nil?
@@ -406,7 +423,8 @@ module Queries
           attribute_exact_facet(:author),
           attribute_exact_facet(:title),
           source_type_facet,
-          year_facet
+          year_facet,
+          with_title_facet,
         ].compact
 
         return nil if clauses.empty?
