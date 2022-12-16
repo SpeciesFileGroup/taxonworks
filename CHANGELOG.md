@@ -8,20 +8,20 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - BibTeX type facet for Filter sources task [#3218]
-- with/without Source::Bibtex title in Filter source task [#3219]
+- With/without Source::Bibtex title in Filter source task [#3219]
+- Hyperling names in Nomenclature match
 
 ### Fixed
-- Browse OTU navigation dead ends [#3056]
 - "Remarks" column displays in Browse collection object DwC/gbifference panel
+- Browse OTU navigation dead ends [#3056]
 - Setting a Namespace to virtual updates cache properly [#3256]
 - Virtual namespaces identifier tags don't include duplicated Namespace [#3256]
 - Virtual namespace identifier preview does not render namespace
 - Incorrect valid name in Nomenclature match task
 
-[#3256]: https://github.com/SpeciesFileGroup/taxonworks/issues/3256
+
 [#3056]: https://github.com/SpeciesFileGroup/taxonworks/issues/3056
-
-
+[#3256]: https://github.com/SpeciesFileGroup/taxonworks/issues/3256
 [#3218]: https://github.com/SpeciesFileGroup/taxonworks/issues/3218
 [#3219]: https://github.com/SpeciesFileGroup/taxonworks/issues/3219
 
