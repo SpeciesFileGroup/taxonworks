@@ -6,12 +6,17 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- BibTeX type facet for Filter sources task [#3218]
+
 ### Fixed
 - "Remarks" column displays in Browse collection object DwC/gbifference panel
 - Setting a Namespace to virtual updates cache properly [#3256]
 - Virtual namespaces identifier tags don't include duplicated Namespace [#3256]
 - Virtual namespace identifier preview does not render namespace
 - Incorrect valid name in Nomenclature match task
+
+[#3218]: https://github.com/SpeciesFileGroup/taxonworks/issues/3218
 
 ## [0.30.0] - 2022-12-15
 
