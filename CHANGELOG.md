@@ -6,6 +6,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.30.1] - 2022-12-16
+
 ### Added
 - BibTeX type facet for Filter sources task [#3218]
 - With/without Source::Bibtex title in Filter source task [#3219]
@@ -3104,7 +3108,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.1...development
+[0.30.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.0...v0.30.1
 [0.30.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.6...v0.30.0
 [0.29.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.5...v0.29.6
 [0.29.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.4...v0.29.5
