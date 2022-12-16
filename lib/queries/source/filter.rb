@@ -108,16 +108,20 @@ module Queries
       attr_accessor :citations_on_otus
 
       # @return [Boolean, nil]
-      attr_accessor :serial
       # true - with serial_id
       # false - without_serial_id
       # nil - both
+      attr_accessor :serial
 
       # @return [Boolean, nil]
-      attr_accessor :with_title
       # true - with a title 
       # false - without a title
       # nil - both
+      attr_accessor :with_title
+
+      # @return [Array, String, nil]
+      # one of the allowed BibTeX types 
+      attr_accessor :bibtex_type
 
       # @param [Hash] params
       def initialize(params)
@@ -127,6 +131,7 @@ module Queries
         @author = params[:author]
         @author_ids = params[:author_ids] || []
         @author_ids_or =  boolean_param(params,:author_ids_or)
+        @bibtex_type = params[:bibtex_type]
         @citation_object_type = params[:citation_object_type] || []
         @citations =  boolean_param(params,:citations)
         @citations_on_otus = boolean_param(params,:citations_on_otus)
@@ -170,6 +175,15 @@ module Queries
 
       def base_query
         ::Source.select('sources.*')
+      end
+
+      def bibtex_type
+        [@bibtex_type].flatten.compact.uniq
+      end
+
+      def bibtex_type_facet
+        return nil if bibtex_type.empty?
+        table[:type].eq('Source::Bibtex').and(table[:bibtex_type].eq_any(bibtex_type))
       end
 
       # @return [ActiveRecord::Relation, nil]
@@ -379,7 +393,7 @@ module Queries
       end
 
       def merge_clauses
-        clauses = [
+        clauses = [ 
           ancestors_facet,
           author_ids_facet,
           topic_ids_facet,
@@ -416,6 +430,7 @@ module Queries
         clauses = []
 
         clauses += [
+          bibtex_type_facet,
           cached,
           serial_facet,
           source_ids_facet,
