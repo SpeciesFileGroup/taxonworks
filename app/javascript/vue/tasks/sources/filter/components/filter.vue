@@ -58,6 +58,10 @@
         v-model="params.keywords"
         target="Source"
       />
+      <FacetBibtexType
+        class="margin-large-bottom"
+        v-model="params.source.bibtex_type"
+      />
       <TopicsComponent
         class="margin-large-bottom"
         v-model="params.source.topic_ids"
@@ -115,6 +119,7 @@ import SomeValueComponent from './filters/SomeValue/SomeValue'
 import TaxonNameComponent from './filters/TaxonName'
 import FacetMatchIdentifiers from 'tasks/people/filter/components/Facet/FacetMatchIdentifiers.vue'
 import checkMatchIdentifiersParams from 'tasks/people/filter/helpers/checkMatchIdentifiersParams'
+import FacetBibtexType from './filters/FacetBibtexType.vue'
 import vHotkey from 'plugins/v-hotkey'
 
 const extend = ['documents']
@@ -180,7 +185,8 @@ const initParams = () => ({
     citation_object_type: [],
     topic_ids: [],
     users: [],
-    serial_ids: []
+    serial_ids: [],
+    bibtex_type: []
   },
   keywords: {
     keyword_id_and: [],
