@@ -193,9 +193,10 @@ author_list_task:
   status: stable
 sqed_depiction_breakdown_todo_map_task:
   hub: true
-  name: 'Collection object image breakdown TODO list'
-  description: 'Lists all collection objects currently being processed through depictions.  Indicates those that have transcribed provisional ("buffered") collecting event data.'
+  name: 'Filter staged images'
+  description: 'Filter staged images currently being processed. Visualize current data extracted from an image. Was "TODO list".'
   categories:
+    - filters
     - collecting_event
     - collection_object
     - image
@@ -533,7 +534,7 @@ export_basic_nomenclature_task:
   description: 'Download (also generate for API) a CSV table of the nomenclature with just the name, and a subset of the hierarchy'
 match_nomenclature_task:
   hub: true
-  name: 'Match names'
+  name: 'Nomenclature match'
   related:
   categories:
     - nomenclature
@@ -695,6 +696,7 @@ filter_people_task:
   name: 'Filter people'
   related:
   categories:
+    - filters
   status: prototype
   description: 'Filter people.'
 stepwise_determinations_task:
@@ -738,11 +740,21 @@ paper_catalog_generator_task:
     - export
   status: prototype
   description: 'Experimenting with rendering nomenclature as a paper catalog'
-
-index_filter_task:
+filter_biological_associations_task:
   hub: true
   name: 'Filter biological associations'
   related:
   categories:
+    - collection_object
+    - biology 
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Facet search on biological associations.'
+collection_object_chronology_task:
+  hub: true
+  name: 'Collection object chronology'
+  related:
+  categories:
+  - collection_object
+  status: prototype
+  description: 'All collection objects by year collected.'
+>>>>>>> development

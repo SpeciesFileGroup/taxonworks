@@ -1,6 +1,6 @@
 <template>
   <TableGrid
-    :columns="2"
+    :columns="1"
     :column-width="{ default: 'minmax(100px, auto)' }"
     gap="1em"
   >

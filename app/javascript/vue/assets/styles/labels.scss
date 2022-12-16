@@ -5,8 +5,7 @@
 }
 
 .unit_tray_header1 {
-  padding-left: 2pt;
-  padding-right: 2pt;
+
   font-family: Arial, sans-serif;
   height: 38mm; 
   width: 74mm;
@@ -26,7 +25,18 @@
   .unit_tray_header1_top {
     display: flex;
     flex-direction: row;
-    justify-content: space-between
+    justify-content: space-between;
+    height: 100%;
+    padding-left: 2pt;
+    padding-right: 2pt;
   };
-  .unit_tray_header1_bottom {};
+  .unit_tray_header1_bottom {
+    padding-left: 2pt;
+    padding-right: 2pt;
+  };
+
+  .unit_tray_header1_footer {
+    border-top: 2px solid black;
+    height: 6.35mm;
+  }
 }

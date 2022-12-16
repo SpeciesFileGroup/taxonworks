@@ -44,17 +44,30 @@
         @urlRequest="urlRequest = $event"
         @result="loadList"
         @pagination="pagination = getPagination($event)"
-        @reset="resetTask"/>
+        @reset="resetTask"
+      />
       <div class="full_width overflow-x-auto">
         <div
           v-if="recordsFound"
           class="horizontal-left-content flex-separate separate-bottom"
         >
           <div class="horizontal-left-content">
-            <select-all
-              v-model="ids"
-              :ids="coIds"
+            <tag-all
+              class="circle-button"
+              :ids="ids"
+              type="CollectionObject"
             />
+            <DeleteCollectionObjects
+              :ids="ids"
+              :disabled="!ids.length"
+              @delete="removeCOFromList"
+            />
+            <RadialFilter
+              :disabled="!ids.length"
+              object-type="CollectingEvent"
+              :parameters="{ collection_object_id: ids }"
+            />
+
             <span class="separate-left separate-right">|</span>
             <csv-button
               :url="urlRequest"
@@ -74,11 +87,6 @@
               :ids="ids"
               :url="urlRequest"
               class="margin-small-left"
-            />
-            <RadialFilter
-              :disabled="!ids.length"
-              object-type="CollectingEvent"
-              :parameters="{ collection_object_id: ids }"
             />
           </div>
         </div>
@@ -123,10 +131,11 @@ import PaginationCount from 'components/pagination/PaginationCount'
 import GetPagination from 'helpers/getPagination'
 import DwcDownload from './components/dwcDownload.vue'
 import DwcReindex from './components/dwcReindex.vue'
-import SelectAll from './components/selectAll.vue'
+import TagAll from './components/tagAll'
 import MatchButton from './components/matchButton.vue'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import RadialFilter from 'components/radials/filter/radial.vue'
+import DeleteCollectionObjects from './components/DeleteCollectionObjects.vue'
 
 export default {
   name: 'FilterCollectionObjects',
@@ -139,10 +148,11 @@ export default {
     PaginationCount,
     DwcDownload,
     DwcReindex,
-    SelectAll,
+    TagAll,
     MatchButton,
     JsonRequestUrl,
-    RadialFilter
+    RadialFilter,
+    DeleteCollectionObjects
   },
 
   computed: {
@@ -217,6 +227,12 @@ export default {
     loadPage (event) {
       this.$refs.filterComponent.loadPage(event.page)
     },
+
+    removeCOFromList (ids) {
+      this.list.data = this.list.data.filter(r => !ids.includes(r[0]))
+      this.ids = this.ids.filter(id => !ids.includes(id))
+    },
+
     getPagination: GetPagination
   }
 }

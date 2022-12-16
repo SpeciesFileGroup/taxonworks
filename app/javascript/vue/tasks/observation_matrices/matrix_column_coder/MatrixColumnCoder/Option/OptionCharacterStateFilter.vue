@@ -46,8 +46,8 @@ import VBtn from 'components/ui/VBtn/index.vue'
 const store = useStore()
 const showModal = ref(false)
 const filterCharacterStates = computed({
-  get: () => store.getters[GetterNames.GetDisplayCharacterStates],
-  set: value => store.commit(MutationNames.SetDisplayCharacterStates, value)
+  get: () => store.getters[GetterNames.GetDisplayScoredCharacterStates],
+  set: value => store.commit(MutationNames.SetDisplayScoredCharacterStates, value)
 })
 
 const descriptor = computed(() => store.getters[GetterNames.GetDescriptor])

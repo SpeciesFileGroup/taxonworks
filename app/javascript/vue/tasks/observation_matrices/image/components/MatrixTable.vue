@@ -20,7 +20,8 @@
       <div class="header-cell">
         <label
           class="header-label cursor-pointer ellipsis"
-          title="OTU depictions">
+          title="OTU depictions"
+        >
           <input
             type="checkbox"
             value="otu"
@@ -79,7 +80,7 @@
         class="observation-cell padding-small edit-cell"
         :show="!filterCell('otu', rowIndex)"
         :depictions="row.objectDepictions || []"
-        @removeDepiction="removeOtuDepiction({ rowIndex, index: $event })"
+        @remove-depiction="removeOtuDepiction({ rowIndex, index: $event })"
       />
       <template
         v-for="(depictions, columnIndex) in row.depictions"
@@ -87,12 +88,13 @@
       >
         <cell-observation
           class="observation-cell padding-small edit-cell full_width"
-          :column="imageColums[columnIndex]"
+          :descriptor-id="imageColums[columnIndex].id"
           :show="!filterCell(columnIndex, rowIndex)"
           :row-object="row.object"
           :depictions="depictions"
-          @addDepiction="addDepiction({ rowIndex, columnIndex, depiction: $event })"
-          @removeDepiction="removeDepiction({ rowIndex, columnIndex, index: $event })"
+          :column-index="columnIndex"
+          :row-index="rowIndex"
+          @remove-depiction="removeDepiction({ rowIndex, columnIndex, index: $event })"
         />
       </template>
     </template>
@@ -165,14 +167,6 @@ export default {
 
     filterCell (cIndex, index) {
       return this.collapseColumns.includes(cIndex) || this.collapseRows.includes(index)
-    },
-
-    addDepiction ({ rowIndex, columnIndex, depiction }) {
-      this.$store.commit(MutationNames.AddDepiction, {
-        rowIndex,
-        columnIndex,
-        depiction
-      })
     },
 
     removeDepiction ({ rowIndex, columnIndex, index }) {

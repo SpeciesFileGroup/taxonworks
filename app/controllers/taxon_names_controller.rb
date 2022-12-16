@@ -186,7 +186,7 @@ class TaxonNamesController < ApplicationController
   def preview_castor_batch_load
     if params[:file]
       @result = BatchLoad::Import::TaxonNames::CastorInterpreter.new(**batch_params)
-      digest_cookie(params[:file].tempfile, :Castor_taxon_names_md5)
+      digest_cookie(params[:file].tempfile, :nomen_taxon_names_md5)
       render 'taxon_names/batch_load/castor/preview'
     else
       flash[:notice] = 'No file provided!'
@@ -195,7 +195,7 @@ class TaxonNamesController < ApplicationController
   end
 
   def create_castor_batch_load
-    if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Castor_taxon_names_md5)
+    if params[:file] && digested_cookie_exists?(params[:file].tempfile, :nomen_taxon_names_md5)
       @result = BatchLoad::Import::TaxonNames::CastorInterpreter.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} items were created."

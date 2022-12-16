@@ -1,2 +1,5 @@
 export * from './makeCollectionObject'
+export * from './makeCollectingEvent'
 export * from './makeIdentifier'
+export * from './payload/makeCollectingEventPayload'
+export * from './payload/makeCollectionObjectPayload'

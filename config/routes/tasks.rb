@@ -225,6 +225,10 @@ scope :tasks do
   end
 
   scope :collection_objects do
+      scope :chronology, controller: 'tasks/collection_objects/chronology' do
+        get '/', action: :index, as: 'collection_object_chronology_task'
+      end
+
     scope :stepwise do
       scope :determinations, controller: 'tasks/collection_objects/stepwise/determinations' do
         get '/', action: :index, as: 'stepwise_determinations_task'

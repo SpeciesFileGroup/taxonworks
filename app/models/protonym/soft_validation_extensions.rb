@@ -1,5 +1,5 @@
 module Protonym::SoftValidationExtensions
-  
+
   module Klass
     VALIDATIONS = {
       sv_validate_name: {
@@ -37,6 +37,12 @@ module Protonym::SoftValidationExtensions
         set: :potential_homonyms,
         name: 'Potential species-group name homonyms',
         description: 'Detect potential homonyms or duplicates in the species-group names'
+      },
+
+      sv_potential_usage_duplicates: {
+        set: :potential_usage_duplicates,
+        name: 'Potential usage duplicates',
+        description: 'Detect duplicate name usage (misspelling, family group name form).'
       },
 
       sv_missing_original_genus: {
@@ -563,7 +569,7 @@ module Protonym::SoftValidationExtensions
     #    end
 
     def sv_validate_coordinated_names_source
-      return true unless is_available?
+      return true unless is_valid?
       s = self.source
       list_of_coordinated_names.each do |t|
         if ((s && t.source && s.id != t.source.id) || (s.nil? && t.source))
@@ -597,7 +603,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_validate_coordinated_names_page
-      return true unless is_available?
+      return true unless is_valid?
       s = self.origin_citation
       list_of_coordinated_names.each do |t|
         ts = t.origin_citation
@@ -708,7 +714,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_validate_coordinated_names_original_genus
-      return true if !is_genus_or_species_rank? || !is_available?
+      return true if !is_genus_or_species_rank? || !is_valid?
       list_of_coordinated_names.each do |t|
         if self.original_genus.try(:name) != t.original_genus.try(:name)
           soft_validations.add(:base, "The original genus does not match with the original genus of coordinate #{t.rank_class.rank_name}", success_message: 'Original genus was updated', failure_message:  'Failed to update original genus')
@@ -888,7 +894,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_validate_coordinated_names_type_species
-      return true unless is_available?
+      return true unless is_valid?
       return true unless is_genus_rank?
       list_of_coordinated_names.each do |t|
         if self.type_species != t.type_species
@@ -950,7 +956,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_validate_coordinated_names_roles
-      return true unless is_available?
+      return true unless is_valid?
       list_of_coordinated_names.each do |t|
         if self.taxon_name_author_roles.collect{|i| i.person_id} != t.taxon_name_author_roles.collect{|i| i.person_id}
           soft_validations.add(:base, "The author roles do not match with the author roles of the coordinate #{t.rank_class.rank_name}", success_message: 'Author roles were updated', failure_message:  'Author roles were not updated')
@@ -1007,7 +1013,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_validate_coordinated_names_type_genus
-      return true unless is_available?
+      return true unless is_valid?
       return true unless is_family_rank?
       list_of_coordinated_names.each do |t|
         if self.type_genus != t.type_genus
@@ -1038,7 +1044,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_validate_coordinated_names_type_specimen
-      return true if !is_species_rank? || !is_available?
+      return true if !is_species_rank? || !is_valid?
       list_of_coordinated_names.each do |t|
         if !self.has_same_primary_type(t)
           soft_validations.add(:base, "The type specimen does not match with the type specimen of the coordinate #{t.rank_class.rank_name}", success_message: 'Type specimen was updated', failure_message:  'Failed to update type specimen')
@@ -1346,23 +1352,14 @@ module Protonym::SoftValidationExtensions
       if persisted? && is_family_rank? && is_available?
         if TaxonNameRelationship.where_subject_is_taxon_name(self).homonym_or_suppressed.empty?
           if self.id == self.lowest_rank_coordinated_taxon.id
-#            name1 = self.cached_primary_homonym ? self.cached_primary_homonym : nil
-#            possible_primary_homonyms = name1 ? Protonym.with_primary_homonym(name1).without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).without_homonym_or_suppressed.not_self(self).with_base_of_rank_class('NomenclaturalRank::Iczn::FamilyGroup').with_project(self.project_id) : []
-#            list1 = reduce_list_of_synonyms(possible_primary_homonyms)
-#            if !list1.empty?
-#              list1.each do |s|
-#                soft_validations.add(:base, "Missing relationship: #{self.cached_html_name_and_author_year} should be a homonym or duplicate of #{s.cached_html_name_and_author_year}")
-#              end
-#            else
-              name2 = self.cached_primary_homonym_alternative_spelling ? self.cached_primary_homonym_alternative_spelling : nil
-              possible_primary_homonyms_alternative_spelling = name2 ? Protonym.with_primary_homonym_alternative_spelling(name2).without_homonym_or_suppressed.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self).with_base_of_rank_class('NomenclaturalRank::Iczn::FamilyGroup').with_project(self.project_id) : []
-              list2 = reduce_list_of_synonyms(possible_primary_homonyms_alternative_spelling)
-              if !list2.empty?
-                list2.each do |s|
-                  soft_validations.add(:base, "Missing relationship: #{self.cached_html_name_and_author_year} should be a homonym or duplicate of #{s.cached_html_name_and_author_year}")
-                end
+            name2 = self.cached_primary_homonym_alternative_spelling ? self.cached_primary_homonym_alternative_spelling : nil
+            possible_primary_homonyms_alternative_spelling = name2 ? Protonym.with_primary_homonym_alternative_spelling(name2).without_homonym_or_suppressed.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self).with_base_of_rank_class('NomenclaturalRank::Iczn::FamilyGroup').with_project(self.project_id) : []
+            list2 = reduce_list_of_synonyms(possible_primary_homonyms_alternative_spelling)
+            if !list2.empty?
+              list2.each do |s|
+                soft_validations.add(:base, "Missing relationship: #{self.cached_html_name_and_author_year} should be a homonym or duplicate of #{s.cached_html_name_and_author_year}")
               end
- #           end
+            end
           end
         end
       end
@@ -1637,6 +1634,15 @@ module Protonym::SoftValidationExtensions
       end
       return false
     end
+
+    def sv_potential_usage_duplicates
+      usage = TaxonNameRelationship::Iczn::Invalidating::Usage.where(subject_taxon_name_id: self.id).first
+      return true if usage.nil?
+      TaxonNameRelationship::Iczn::Invalidating::Usage.where(object_taxon_name_id: usage.object_taxon_name_id).not_self(usage).each do |tr|
+        soft_validations.add(:base, "'#{name}' is a duplicate #{usage.subject_status + ' ' + usage.subject_status_connector_to_object} #{tr.object_taxon_name.cached_html}",) if usage.subject_taxon_name.name == tr.subject_taxon_name.name
+      end
+    end
+
 
     def sv_presence_of_combination
       if is_genus_or_species_rank? && is_valid? && self.id == self.lowest_rank_coordinated_taxon.id && !cached_original_combination.nil? && cached != cached_original_combination

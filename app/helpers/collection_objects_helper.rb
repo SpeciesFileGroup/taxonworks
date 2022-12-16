@@ -5,6 +5,7 @@ module CollectionObjectsHelper
   def collection_object_tag(collection_object)
     return nil if collection_object.nil?
     a = [
+      collection_object_loan_tag(collection_object),
       collection_object_deaccession_tag(collection_object),
       collection_object_identifier_tag(collection_object),
       taxon_determination_tag(collection_object.taxon_determinations.order(:position).first)
@@ -41,8 +42,11 @@ module CollectionObjectsHelper
 
   def collection_object_autocomplete_tag(collection_object)
     return nil if collection_object.nil?
-    [collection_object_identifier_tag(collection_object),
-     collection_object_taxon_determination_tag(collection_object)
+    [
+      collection_object_loan_tag(collection_object),
+      collection_object_deaccession_tag(collection_object),
+      collection_object_identifier_tag(collection_object),
+      collection_object_taxon_determination_tag(collection_object)
     ].join(' ').html_safe
   end
 
@@ -76,6 +80,17 @@ module CollectionObjectsHelper
       'feedback-danger'
     ]).html_safe
   end
+
+  def collection_object_loan_tag(collection_object)
+    return nil if collection_object.nil? || !collection_object.on_loan?
+    msg = ['On Loan until', collection_object.loan_return_date].compact.join(' ')
+    content_tag(:span, msg, class: [
+      :feedback,
+      'feedback-thin',
+      'feedback-warning'
+    ]).html_safe
+  end
+
 
   # @return [Array [Identifier, String (type)], nil]
   #    also checks virtual container for identifier by proxy

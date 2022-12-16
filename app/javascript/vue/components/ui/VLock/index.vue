@@ -43,7 +43,7 @@ $primary: #FFDA44;
 $lightGrey: #99A3BA;
 
 .switch-lock {
-  height: 26px;
+  height: 28px;
   display: block;
   position: relative;
   cursor: pointer;
@@ -51,8 +51,8 @@ $lightGrey: #99A3BA;
     display: none;
     & + span {
       padding-left: 50px;
-      min-height: 26px;
-      line-height: 26px;
+      min-height: 28px;
+      line-height: 28px;
       display: block;
       color: $lightGrey;
       position: relative;
@@ -89,7 +89,7 @@ $lightGrey: #99A3BA;
         background: $lightGrey;
         position: absolute;
         left: 11px;
-        bottom: 7px;
+        bottom: 8px;
         border-radius: 2px;
         display: block;
         z-index: 1;

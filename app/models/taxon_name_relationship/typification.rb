@@ -34,4 +34,10 @@ class TaxonNameRelationship::Typification < TaxonNameRelationship
   def sv_coordinated_taxa_object
     true # not applicable
   end
+
+  def sv_specific_relationship
+    unless self.object_taxon_name.is_available?
+      soft_validations.add(:object_taxon_name_id, "'#{self.object_taxon_name.cached_html}' is not an available name, it should not have typification relationship")
+    end
+  end
 end

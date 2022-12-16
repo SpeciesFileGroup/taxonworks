@@ -65,7 +65,7 @@ class Otu < ApplicationRecord
   has_many :collecting_events, -> { distinct }, through: :collection_objects
   has_many :common_names, dependent: :destroy
   has_many :collection_profiles, dependent: :restrict_with_error  # @proceps dependent: what? DD: profile should never be update, a new profile should be created insted
-  
+
   has_many :contents, inverse_of: :otu, dependent: :destroy
   has_many :public_contents, inverse_of: :otu, dependent: :destroy
 
@@ -132,7 +132,7 @@ class Otu < ApplicationRecord
     end
   end
 
-  # TODO: This is coordinate otus with children, 
+  # TODO: This is coordinate otus with children,
   #       It should probably be renamed coordinate
   # @return [Otu::ActiveRecordRelation]
   #   all OTUs linked to the taxon_name_id, it descendants, and
@@ -220,13 +220,13 @@ class Otu < ApplicationRecord
                 t['biological_association_object_type'].eq('Otu')
               )
             )
-              .where(t['created_by_id'].eq(user_id))
+              .where(t['updated_by_id'].eq(user_id))
               .where(t['project_id'].eq(project_id))
               .order(t['updated_at'].desc)
         else
           t.project(t['otu_id'], t['updated_at']).from(t)
             .where(t['updated_at'].gt( 1.weeks.ago ))
-            .where(t['created_by_id'].eq(user_id))
+            .where(t['updated_by_id'].eq(user_id))
             .where(t['project_id'].eq(project_id))
             .order(t['updated_at'].desc)
         end
@@ -251,7 +251,7 @@ class Otu < ApplicationRecord
     r = used_recently(user_id, project_id, target)
     h = {
       quick: [],
-      pinboard: Otu.pinned_by(user_id).where(project_id: project_id).to_a,
+      pinboard: Otu.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a,
       recent: []
     }
 
@@ -263,11 +263,11 @@ class Otu < ApplicationRecord
         .limit(3).to_a
       ).uniq.sort{|a,b| a.otu_name <=> b.otu_name}
       h[:quick] = (
-        Otu.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
+        Otu.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a +
         Otu.where('"otus"."id" IN (?)', r.first(4) ).to_a).uniq.sort{|a,b| a.otu_name <=> b.otu_name}
     else
       h[:recent] = Otu.where(project_id: project_id).order('updated_at DESC').limit(10).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
-      h[:quick] = Otu.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
+      h[:quick] = Otu.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
     end
 
     h
@@ -309,7 +309,7 @@ class Otu < ApplicationRecord
     if taxon_name_id.nil?
       Otu.coordinate_otus(id)
     else
-      Otu.descendant_of_taxon_name(taxon_name.valid_taxon_name.id)     
+      Otu.descendant_of_taxon_name(taxon_name.valid_taxon_name.id)
     end
   end
 

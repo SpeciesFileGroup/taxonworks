@@ -134,37 +134,53 @@ module Queries
       #   ignored if ancestor_id is not provided; if true then also include sources linked to OTUs that are in the scope of ancestor_id
       attr_accessor :citations_on_otus
 
+      # @return [Boolean, nil]
+      # true - with serial_id
+      # false - without_serial_id
+      # nil - both
+      attr_accessor :serial
+
+      # @return [Boolean, nil]
+      # true - with a title 
+      # false - without a title
+      # nil - both
+      attr_accessor :with_title
+
+      # @return [Array, String, nil]
+      # one of the allowed BibTeX types 
+      attr_accessor :bibtex_type
+
       # @param [Hash] params
       def initialize(params)
         @query_string = params[:query_term]&.delete("\u0000") # TODO, we need to sanitize params in general.
 
+        @ancestor_id = params[:ancestor_id]
         @author = params[:author]
         @author_ids = params[:author_ids] || []
-
-        @author_ids_or = (params[:author_ids_or]&.to_s&.downcase == 'true' ? true : false) if !params[:author_ids_or].nil?
-
-        @ids = params[:ids] || []
-        @topic_ids = params[:topic_ids] || []
-        @serial_ids = params[:serial_ids] || []
+        @author_ids_or =  boolean_param(params,:author_ids_or)
+        @bibtex_type = params[:bibtex_type]
         @citation_object_type = params[:citation_object_type] || []
-        @citations = (params[:citations]&.to_s&.downcase == 'true' ? true : false) if !params[:citations].nil?
-        @documents = (params[:documents]&.to_s&.downcase == 'true' ? true : false) if !params[:documents].nil?
-        @exact_author = (params[:exact_author]&.to_s&.downcase == 'true' ? true : false) if !params[:exact_author].nil?
-        @exact_title = (params[:exact_title]&.to_s&.downcase == 'true' ? true : false) if !params[:exact_title].nil?
-        @in_project = (params[:in_project]&.to_s&.downcase == 'true' ? true : false) if !params[:in_project].nil?
-        @nomenclature = (params[:nomenclature]&.to_s&.downcase == 'true' ? true : false) if !params[:nomenclature].nil?
-        @notes = (params[:notes]&.to_s&.downcase == 'true' ? true : false) if !params[:notes].nil?
+        @citations =  boolean_param(params,:citations)
+        @citations_on_otus = boolean_param(params,:citations_on_otus)
+        @documents = boolean_param(params,:documents)
+        @exact_author = boolean_param(params,:exact_author)
+        @exact_title = boolean_param(params,:exact_title)
+        @ids = params[:ids] || []
+        @in_project = boolean_param(params,:in_project) 
+        @nomenclature = boolean_param(params,:nomenclature)
+        @notes = boolean_param(params,:notes)
         @project_id = params[:project_id] # TODO: also in Queries::Query
-        @roles = (params[:roles]&.to_s&.downcase == 'true' ? true : false) if !params[:roles].nil?
+        @recent =  boolean_param(params,:recent)
+        @roles = boolean_param(params,:roles)
+        @serial = boolean_param(params,:serial)
+        @serial_ids = params[:serial_ids] || []
         @source_type = params[:source_type]
         @title = params[:title]
-        @with_doi = (params[:with_doi]&.to_s&.downcase == 'true' ? true : false) if !params[:with_doi].nil?
+        @topic_ids = params[:topic_ids] || []
+        @with_doi = boolean_param(params, :with_doi)
+        @with_title = boolean_param(params, :with_title)
         @year_end = params[:year_end]
         @year_start = params[:year_start]
-        @recent = (params[:recent]&.to_s&.downcase == 'true' ? true : false) if !params[:recent].nil?
-
-        @citations_on_otus = (params[:citations_on_otus]&.to_s&.downcase == 'true' ? true : false) if !params[:citations_on_otus].nil?
-        @ancestor_id = params[:ancestor_id]
 
         build_terms
         set_identifier(params)
@@ -186,6 +202,15 @@ module Queries
 
       def base_query
         ::Source.select('sources.*')
+      end
+
+      def bibtex_type
+        [@bibtex_type].flatten.compact.uniq
+      end
+
+      def bibtex_type_facet
+        return nil if bibtex_type.empty?
+        table[:type].eq('Source::Bibtex').and(table[:bibtex_type].eq_any(bibtex_type))
       end
 
       # @return [ActiveRecord::Relation, nil]
@@ -316,6 +341,16 @@ module Queries
         end
       end
 
+      def with_title_facet
+        return nil if with_title.nil?
+
+        if with_title
+          table[:title].not_eq(nil)
+        else
+          table[:title].eq(nil)
+        end
+      end
+
       # TODO: move to a concern
       def role_facet
         return nil if roles.nil?
@@ -350,6 +385,16 @@ module Queries
           ::Source.left_outer_joins(:documents)
             .where(documents: {id: nil})
             .distinct
+        end
+      end
+
+      def serial_facet
+        return nil if serial.nil?
+
+        if serial
+          table[:serial_id].not_eq(nil)
+        else
+          table[:serial_id].eq(nil)
         end
       end
 
@@ -419,13 +464,16 @@ module Queries
         clauses = []
 
         clauses += [
+          bibtex_type_facet,
           cached,
+          serial_facet,
           source_ids_facet,
           serial_ids_facet,
           attribute_exact_facet(:author),
           attribute_exact_facet(:title),
           source_type_facet,
-          year_facet
+          year_facet,
+          with_title_facet,
         ].compact
 
         return nil if clauses.empty?

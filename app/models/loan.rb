@@ -190,10 +190,10 @@ class Loan < ApplicationRecord
     k = Loan.arel_table
 
     # i is a select manager
-    i = t.project(t['loan_id'], t['created_at']).from(t)
-      .where(t['created_at'].gt( 3.weeks.ago ))
+    i = t.project(t['loan_id'], t['updated_at']).from(t)
+      .where(t['updated_at'].gt( 3.weeks.ago ))
       .where(t['project_id'].eq(project_id))
-      .order(t['created_at'].desc)
+      .order(t['updated_at'].desc)
 
     # z is a table alias
     z = i.as('recent_t')

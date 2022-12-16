@@ -232,7 +232,7 @@ module Queries
         @taxon_name_author_ids_or = boolean_param(params, :taxon_name_author_ids_or)
 
         @geo_json = params[:geo_json]
-
+        
         set_identifier(params)
         set_notes_params(params)
         set_data_attributes_params(params)

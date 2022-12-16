@@ -13,7 +13,6 @@ class GeographicAreasController < ApplicationController
   # GET /geographic_areas/1
   # GET /geographic_areas/1.json
   def show
-    # GeographicArea.idontknow()
   end
 
   def display_coordinates

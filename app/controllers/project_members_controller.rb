@@ -10,7 +10,7 @@ class ProjectMembersController < ApplicationController
 
   # GET /project_members.json
   def index
-    @project_members = ProjectMember.joins(:user).where(project_id: sessions_current_project_id).order('users.name ASC')
+    @project_members = ProjectMember.joins(:user).where(project_id: sessions_current_project_id).order('users.name ASC').includes(:user)
   end
 
   # GET /project_members/new

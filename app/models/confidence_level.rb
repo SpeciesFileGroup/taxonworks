@@ -1,4 +1,4 @@
-# A user-defined level of data quality vi Confidences.  
+# A user-defined level of data quality vi Confidences.
 class ConfidenceLevel < ControlledVocabularyTerm
   has_many :confidences, foreign_key: :confidence_level_id, dependent: :destroy, inverse_of: :confidence_level
 
@@ -11,14 +11,14 @@ class ConfidenceLevel < ControlledVocabularyTerm
     k = ConfidenceLevel.arel_table
 
     # i is a select manager
-    i = t.project(t['confidence_level_id'], t['created_at']).from(t)
+    i = t.project(t['confidence_level_id'], t['updated_at']).from(t)
          .where(t['confidence_object_type'].eq(klass))
-         .where(t['created_at'].gt( 1.months.ago ))
-         .where(t['created_by_id'].eq(user_id))
+         .where(t['updated_at'].gt( 1.months.ago ))
+         .where(t['updated_by_id'].eq(user_id))
          .where(t['project_id'].eq(project_id))
-         .order(t['created_at'].desc)
+         .order(t['updated_at'].desc)
 
-    # z is a table alias 
+    # z is a table alias
     z = i.as('recent_t')
 
     ConfidenceLevel.joins(

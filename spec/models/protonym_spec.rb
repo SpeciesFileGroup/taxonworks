@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
-  # TODO: cleanup don't leave dirty .... 
+  # TODO: cleanup don't leave dirty ....
   before(:all) do
     TaxonNameRelationship.delete_all
     TaxonNameClassification.delete_all
@@ -22,7 +22,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
   let(:protonym) { Protonym.new }
   let(:root) { Protonym.where(name: 'Root').first  }
- 
+
   context 'validation' do
 
     specify '#verbatim_author without digits' do
@@ -92,6 +92,16 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         t.valid?
         expect(t.errors.include?(:project_id)).to be_truthy
       end
+
+      specify 'parent in different code' do
+        genus = FactoryBot.create(:iczn_genus)
+        genus.valid?
+        expect(genus.errors.include?(:rank_class)).to be_falsey
+        genus.rank_class = Ranks.lookup(:icn, 'genus')
+        genus.valid?
+        expect(genus.errors.include?(:rank_class)).to be_truthy
+      end
+
     end
 
     specify 'name' do
@@ -99,7 +109,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         expect(protonym.errors.include?(:name)).to be_truthy
     end
 
-    context 'latinization requires' do 
+    context 'latinization requires' do
       let(:error_message) {  'Name must be latinized, no digits or spaces allowed' }
       specify 'no digits are present at end' do
         protonym.name = 'aus1'
@@ -118,7 +128,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         protonym.valid?
         expect(protonym.errors.messages[:name]).to include(error_message)
       end
-        
+
       specify 'no spaces are present' do
         protonym.name = 'ab us'
         protonym.valid?
@@ -126,7 +136,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       end
     end
   end
-  
+
   context 'usage' do
     before(:each) do
       @f = FactoryBot.create(:relationship_family, name: 'Aidae', parent: @order)
@@ -151,7 +161,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         subject_taxon_name: @o,
         object_taxon_name: @s,
         type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
-      
+
       # Recast as the subclass
       # first_original_genus_relation = temp_relation.becomes(temp_relation.type_class)
       expect(@s.original_combination_relationships.count).to eq(1)
@@ -283,7 +293,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     let(:p) {Protonym.new(parent: @order , name: 'Aus', rank_class: Ranks.lookup(:iczn, 'genus')) }
 
     specify '#also_create_otu with new creates an otu after_create' do
-      expect(Otu.count).to eq(0) 
+      expect(Otu.count).to eq(0)
       p.also_create_otu = true
       p.save!
       expect(Otu.first.taxon_name_id).to eq(p.id)
@@ -344,7 +354,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     end
 
     context 'verbatim references' do
-      let(:v) { FactoryBot.create(:valid_source_verbatim) } 
+      let(:v) { FactoryBot.create(:valid_source_verbatim) }
       specify 'are not allowed via nested attributes' do
         expect(g1.update(origin_citation_attributes: { source_id: v.id })).to be_falsey
       end

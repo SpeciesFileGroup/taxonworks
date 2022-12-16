@@ -7,14 +7,14 @@ export default state => {
 
   const {
     showOnlyUnscoredRows,
-    characterStates
+    showScoredCharacterStates
   } = state.options
 
-  const rowObjectIdsWithObservations = characterStates.length
-    ? getRowObjectIdsByCharacterStateCreated(observations, characterStates)
+  const rowObjectIdsWithObservations = showScoredCharacterStates.length
+    ? getRowObjectIdsByCharacterStateCreated(observations, showScoredCharacterStates)
     : getRowObjectIdsByObservationCreated(observations)
 
-  if (characterStates.length) {
+  if (showScoredCharacterStates.length) {
     return rowObjects.filter(item => rowObjectIdsWithObservations.includes(item.id))
   }
 

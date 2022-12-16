@@ -27,6 +27,7 @@ class Protonym < TaxonName
   validates_presence_of :rank_class, message: 'is a required field'
 
   validate :validate_rank_class_class,
+    :validate_same_nomenclatural_code,
     :validate_parent_rank_is_higher,
     :validate_child_rank_is_equal_or_lower,
     :check_new_rank_class,
@@ -203,7 +204,7 @@ class Protonym < TaxonName
         TaxonNameRelationship::Icnp::Unaccepting::Synonym.create!(subject_taxon_name: self, object_taxon_name: protonym)
       when :icvnc
         TaxonNameRelationship::Icnp::Unaccepting::SupressedSynony.create!(subject_taxon_name: self, object_taxon_name: protonym)
-      else 
+      else
         return false
       end
     rescue ActiveRecord::RecordInvalid
@@ -554,8 +555,8 @@ class Protonym < TaxonName
       n = n[0..-3] + 'ra' if n =~ /^[a-z]*er$/ # -er > -ra
       n = n[0..-7] + 'ensis' if n =~ /^[a-z]*iensis$/ # -iensis > -ensis
       n = n[0..-5] + 'ana' if n =~ /^[a-z]*iana$/ # -iana > -ana
-      n = n.gsub('ae', 'e').
-            gsub('oe', 'e').
+      n = n.gsub('ae', 'e') if n =~ /^[a-z]*ae[a-z]+$/ # -ae-
+      n = n.gsub('oe', 'e').
             gsub('ai', 'i').
             gsub('ei', 'i').
             gsub('ej', 'i').
@@ -958,9 +959,16 @@ class Protonym < TaxonName
     end
   end
 
+  def validate_same_nomenclatural_code
+    if parent&.nomenclatural_code && nomenclatural_code != parent.nomenclatural_code
+      errors.add(:rank_class, "The parent nomenclatural code (#{parent.nomenclatural_code.to_s.upcase}) is not matching to the nomenclatural code (#{nomenclatural_code.to_s.upcase}) of this taxon")
+    end
+  end
+
   # This is a *very* expensive soft validation, it should be fragemented into individual parts likely
   # It should also not be necessary by default our code should be good enough to handle these
   # issues in the long run.
+  # DD: rules for cached tend to evolve, what was good in the past, may not be true today
   def sv_cached_names # this cannot be moved to soft_validation_extensions
   is_cached = true
   is_cached = false if cached_author_year != get_author_and_year
