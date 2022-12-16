@@ -1361,7 +1361,7 @@ class TaxonName < ApplicationRecord
 
   # TODO: this should be paginated, not all IDs!
   def next_sibling
-    if siblings.where(project_id: project_id).load.any?
+    if siblings.where(project_id: project_id).any?
       sibs = self_and_siblings.order(:cached).pluck(:id)
       s = sibs.index(id)
       TaxonName.find(sibs[ s + 1] ) if s < sibs.length - 1
@@ -1372,8 +1372,9 @@ class TaxonName < ApplicationRecord
 
   # TODO: this should be paginated, not all IDs!
   def previous_sibling
-    if siblings.where(project_id: project_id).load.any?
+    if siblings.where(project_id: project_id).any?
       sibs = self_and_siblings.order(:cached).pluck(:id)
+
       s = sibs.index(id)
       TaxonName.find(sibs[s - 1]) if s != 0
     else

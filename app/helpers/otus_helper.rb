@@ -66,15 +66,31 @@ module OtusHelper
   #   of OTUs
   def next_otus(otu)
     if otu.taxon_name_id
-      otu.taxon_name.next_sibling&.otus || []
+      o = [] 
+      t = otu.taxon_name.next_sibling
+      while o.empty?
+        o = t&.otus.to_a
+        t = t.next_sibling
+      end
+      o
     else
       Otu.where(project_id: otu.id).where('id > ?', otu.id).all
     end
   end
 
+  # @return [Array]
+  #   of OTUs
+  # Some OTUs don't have TaxonName, skip along 
+  # until we hit one.
   def previous_otus(otu)
     if otu.taxon_name_id
-      otu.taxon_name.previous_sibling&.otus || []
+      o = [] 
+      t = otu.taxon_name.previous_sibling
+      while o.empty?
+        o = t&.otus.to_a
+        t = t.previous_sibling
+      end
+      o
     else
       Otu.where(project_id: otu.id).where('id < ?', otu.id).all
     end
