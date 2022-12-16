@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Setting a Namespace to virtual updates cache properly [#3256]
 - Virtual namespaces identifier tags don't include duplicated Namespace [#3256]
 - Virtual namespace identifier preview does not render namespace
+- Incorrect valid name in Nomenclature match task
 
 ## [0.30.0] - 2022-12-15
 
