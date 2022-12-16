@@ -6,6 +6,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.30.0] - 2022-12-15
+
 ### Added
 - CoL data package improvements for Remarks, metadata,  
 - Integrated GBIF remarks flags into Browse collection object [#3136]
@@ -3083,7 +3087,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.6...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.0...development
+[0.30.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.6...v0.30.0
 [0.29.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.5...v0.29.6
 [0.29.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.4...v0.29.5
 [0.29.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.3...v0.29.4
