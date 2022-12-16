@@ -27,6 +27,7 @@ gem 'rmagick', '~> 4.2', '>= 4.2.2'
 gem 'roo', '~> 2.8', '>= 2.8.3'
 gem 'roo-xls', '~> 1.2'
 gem 'net-smtp', '~> 0.3.1'
+gem 'mail', '~> 2.7', '< 2.8' # Locked while https://github.com/mikel/mail/issues/1516 is not resolved
 gem "matrix", "~> 0.4.2"
 
 # Geo
@@ -145,7 +146,7 @@ group :test, :development do
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 6.2'
   gem 'webdrivers', '~> 5.0', require: false
-  gem 'selenium-webdriver', '~> 4.2.0'
+  gem 'selenium-webdriver', '~> 4.6', '>= 4.6.1'
   gem 'prawn', '~> 2.4.0'
   gem 'puma', '~> 5.5'
 end
@@ -178,7 +179,7 @@ group :test do
   gem 'rspec', '~> 3.6'
   gem 'codecov', '~> 0.6.0'
   gem 'simplecov', :require => false
-  gem 'capybara', '3.37.1' # TODO: Fix features/tasks/otus/filter_spec to remove strict version locking
+  gem 'capybara', '~> 3.18'
   gem 'timecop', '~> 0.9.1'
   gem 'webmock', '~> 3.8' # , '>= 3.6.2'
   gem 'vcr', '~> 6.0'

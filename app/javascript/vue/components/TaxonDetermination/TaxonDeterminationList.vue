@@ -26,15 +26,17 @@
       <template #item="{ element }">
         <tr>
           <td>
-            <a
-              v-if="element.id"
-              v-html="element.object_tag"
-              :href="`${RouteNames.BrowseOtu}?otu_id=${element.otu_id}`"
-            />
-            <span
-              v-else
-              v-html="element.object_tag"
-            />
+            <div class="padding-small-top">
+              <a
+                v-if="element.id"
+                v-html="element.object_tag"
+                :href="`${RouteNames.BrowseOtu}?otu_id=${element.otu_id}`"
+              />
+              <span
+                v-else
+                v-html="element.object_tag"
+              />
+            </div>
           </td>
           <td>
             <div class="horizontal-right-content">

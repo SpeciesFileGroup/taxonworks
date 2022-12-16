@@ -1,6 +1,17 @@
 <template>
   <div id="vue-browse-collection-object">
-    <h1>Browse collection object</h1>
+    <div class="flex flex-separate middle">
+      <h1>Browse collection object</h1>
+      <VAutocomplete
+        class="autocomplete"
+        url="/collection_objects/autocomplete"
+        placeholder="Search a collection object"
+        param="term"
+        label="label_html"
+        clear-after
+        @get-item="loadCO($event.id)"
+      />
+    </div>
     <COHeader />
     <TableGrid
       :columns="1"
@@ -31,13 +42,15 @@ import { computed } from 'vue'
 import { useStore } from 'vuex'
 import { URLParamsToJSON } from 'helpers/url/parse'
 import { ActionNames } from './store/actions/actions'
+import { GetterNames } from './store/getters/getters'
+import VAutocomplete from 'components/ui/Autocomplete.vue'
 import COHeader from './components/COHeader.vue'
 import TableGrid from 'components/layout/Table/TableGrid.vue'
 import PanelCE from './components/PanelCE/PanelCE.vue'
 import PanelCO from './components/Panel/PanelCO.vue'
 import ColumnThree from './components/ColumnThree.vue'
 import PanelDerived from './components/Panel/PanelDerived.vue'
-import { GetterNames } from './store/getters/getters'
+import loadCO from './utils/loadCO.js'
 
 const store = useStore()
 const collectingEvent = computed(() => store.getters[GetterNames.GetCollectingEvent])
@@ -71,6 +84,10 @@ if (coId) {
     &__content {
       padding: 2em;
     }
+  }
+
+  .autocomplete {
+    width: 600px;
   }
 }
 </style>

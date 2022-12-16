@@ -45,4 +45,4 @@ COPY --from=imagemagick /etc/ImageMagick-6 /usr/local/etc/ImageMagick-7
 
 # Set up ImageMagick
 RUN sed -i 's/name="disk" value="1GiB"/name="disk" value="8GiB"/' /usr/local/etc/ImageMagick-7/policy.xml && \
-      identify -list resource | grep Disk | grep 8GiB && identify --version | grep heic # Confirm HEIC support and that 8GB disk setting is active
+      identify -list resource | grep Disk | grep 8GiB && magick -list format | grep "HEIC      rw+" # Confirm HEIC support and that 8GB disk setting is active

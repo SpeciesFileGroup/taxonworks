@@ -1,4 +1,4 @@
-import { reactive, toRefs } from 'vue'
+import { reactive, toRefs, computed } from 'vue'
 import { CollectionObject, TaxonDetermination } from 'routes/endpoints'
 import getPagination from 'helpers/getPagination'
 
@@ -14,6 +14,9 @@ const state = reactive({
     count_cutoff: 100,
     per: 10
   },
+  collectionObjectParams: {
+    per: 500
+  },
   pagination: {
     stepwise: {},
     collectionObjects: {}
@@ -26,7 +29,7 @@ const updateBufferedTable = count => {
   const label = labels[index]
   const newCount = label.count_buffered - count
 
-  if (newCount) {
+  if (newCount > 0) {
     label.count_buffered = newCount
   } else {
     labels.splice(index, 1)
@@ -79,7 +82,7 @@ const actions = {
       exact_buffered_determinations: true,
       taxon_determinations: false,
       extend: ['taxon_determination_images'],
-      per: 500,
+      per: state.collectionObjectParams.per,
       page
     }
     const request = CollectionObject.where(params)
@@ -107,7 +110,13 @@ const actions = {
 }
 
 const getters = {
-  getPages: () => state.pagination
+  getPages: () => state.pagination,
+
+  ghostCount: computed(() => {
+    const countBuffered = state.labels.find(label => label.buffered_determinations === state.selectedLabel)?.count_buffered
+
+    return state.pagination.collectionObjects.total - countBuffered
+  })
 }
 
 export default () => {

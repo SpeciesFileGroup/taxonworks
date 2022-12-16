@@ -107,37 +107,41 @@ module Queries
       #   ignored if ancestor_id is not provided; if true then also include sources linked to OTUs that are in the scope of ancestor_id
       attr_accessor :citations_on_otus
 
+      # @return [Boolean, nil]
+      attr_accessor :serial
+      # true - with serial_id
+      # false - without_serial_id
+      # nil - both
+
       # @param [Hash] params
       def initialize(params)
         @query_string = params[:query_term]&.delete("\u0000") # TODO, we need to sanitize params in general.
 
+        @ancestor_id = params[:ancestor_id]
         @author = params[:author]
         @author_ids = params[:author_ids] || []
-
-        @author_ids_or = (params[:author_ids_or]&.to_s&.downcase == 'true' ? true : false) if !params[:author_ids_or].nil?
-
-        @ids = params[:ids] || []
-        @topic_ids = params[:topic_ids] || []
-        @serial_ids = params[:serial_ids] || []
+        @author_ids_or =  boolean_param(params,:author_ids_or)
         @citation_object_type = params[:citation_object_type] || []
-        @citations = (params[:citations]&.to_s&.downcase == 'true' ? true : false) if !params[:citations].nil?
-        @documents = (params[:documents]&.to_s&.downcase == 'true' ? true : false) if !params[:documents].nil?
-        @exact_author = (params[:exact_author]&.to_s&.downcase == 'true' ? true : false) if !params[:exact_author].nil?
-        @exact_title = (params[:exact_title]&.to_s&.downcase == 'true' ? true : false) if !params[:exact_title].nil?
-        @in_project = (params[:in_project]&.to_s&.downcase == 'true' ? true : false) if !params[:in_project].nil?
-        @nomenclature = (params[:nomenclature]&.to_s&.downcase == 'true' ? true : false) if !params[:nomenclature].nil?
-        @notes = (params[:notes]&.to_s&.downcase == 'true' ? true : false) if !params[:notes].nil?
+        @citations =  boolean_param(params,:citations)
+        @citations_on_otus = boolean_param(params,:citations_on_otus)
+        @documents = boolean_param(params,:documents)
+        @exact_author = boolean_param(params,:exact_author)
+        @exact_title = boolean_param(params,:exact_title)
+        @ids = params[:ids] || []
+        @in_project = boolean_param(params,:in_project) 
+        @nomenclature = boolean_param(params,:nomenclature)
+        @notes = boolean_param(params,:notes)
         @project_id = params[:project_id] # TODO: also in Queries::Query
-        @roles = (params[:roles]&.to_s&.downcase == 'true' ? true : false) if !params[:roles].nil?
+        @recent =  boolean_param(params,:recent)
+        @roles = boolean_param(params,:roles)
+        @serial = boolean_param(params,:serial)
+        @serial_ids = params[:serial_ids] || []
         @source_type = params[:source_type]
         @title = params[:title]
-        @with_doi = (params[:with_doi]&.to_s&.downcase == 'true' ? true : false) if !params[:with_doi].nil?
+        @topic_ids = params[:topic_ids] || []
+        @with_doi = boolean_param(params,:with_doi)
         @year_end = params[:year_end]
         @year_start = params[:year_start]
-        @recent = (params[:recent]&.to_s&.downcase == 'true' ? true : false) if !params[:recent].nil?
-
-        @citations_on_otus = (params[:citations_on_otus]&.to_s&.downcase == 'true' ? true : false) if !params[:citations_on_otus].nil?
-        @ancestor_id = params[:ancestor_id]
 
         build_terms
         set_identifier(params)
@@ -326,6 +330,16 @@ module Queries
         end
       end
 
+      def serial_facet
+        return nil if serial.nil?
+
+        if serial
+          table[:serial_id].not_eq(nil)
+        else
+          table[:serial_id].eq(nil)
+        end
+      end
+
       # TODO: move to citation concern
       def citation_object_type_facet
         return nil if citation_object_type.empty?
@@ -386,6 +400,7 @@ module Queries
 
         clauses += [
           cached,
+          serial_facet,
           source_ids_facet,
           serial_ids_facet,
           attribute_exact_facet(:author),

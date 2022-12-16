@@ -1388,10 +1388,10 @@ class TaxonName < ApplicationRecord
   # @return [Scope]
   #   All taxon names attached to relationships recently created by user
   def self.used_recently_in_classifications(user_id, project_id)
-    TaxonName.where(project_id: project_id, created_by_id: user_id)
+    TaxonName.where(project_id: project_id, updated_by_id: user_id)
       .joins(:taxon_name_classifications)
       .includes(:taxon_name_classifications)
-      .where(taxon_name_classifications: { created_at: 1.weeks.ago..Time.now } )
+      .where(taxon_name_classifications: { updated_at: 1.weeks.ago..Time.now } )
       .order('taxon_name_classifications.updated_at DESC')
   end
 
@@ -1406,8 +1406,8 @@ class TaxonName < ApplicationRecord
       .or(t2[:updated_by_id].eq(user_id).or(t2[:created_by_id].eq(user_id))
     ).to_sql
 
-    sql2 = t1[:created_at].between( 1.weeks.ago..Time.now )
-      .or( t2[:created_at].between( 1.weeks.ago..Time.now ) ).to_sql
+    sql2 = t1[:updated_at].between( 1.weeks.ago..Time.now )
+      .or( t2[:updated_at].between( 1.weeks.ago..Time.now ) ).to_sql
 
     TaxonName.with_taxon_name_relationships
       .where(taxon_names: {project_id: project_id})
@@ -1582,7 +1582,7 @@ class TaxonName < ApplicationRecord
       elsif self.origin_citation.try(:pages).blank?
         soft_validations.add(:base, 'Original citation pages are not recorded')
       elsif !self.source.pages.blank?
-        matchdata1 = self.origin_citation.pages.match(/(\d+) ?[-–] ?(\d+)|(\d+)/)
+        matchdata1 = self.origin_citation.pages.match(/^(\d+) ?[-–] ?(\d+)$|^(\d+)$/)
         if matchdata1
           citMinP = matchdata1[1] ? matchdata1[1].to_i : matchdata1[3].to_i
           citMaxP = matchdata1[2] ? matchdata1[2].to_i : matchdata1[3].to_i

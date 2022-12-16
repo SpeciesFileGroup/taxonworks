@@ -1,5 +1,5 @@
 <template>
-  <table>
+  <table class="table-attributes">
     <thead>
       <tr class="cell-head">
         <th>{{ header[0] }}</th>
@@ -51,25 +51,26 @@ const getFilterAttribute = (atrr) => props.filterAttributes && `${DATA_ATTRIBUTE
 
 </script>
 
-<style scoped>
-table {
+<style lang="scss">
+
+.table-attributes {
   box-shadow: none;
-}
 
-tr {
-  border-bottom: 1px solid #eaeaea;
-}
+  tr {
+    border-bottom: 1px solid #eaeaea;
+  }
 
-th {
+  th {
 
-  border-bottom: 2px solid #eaeaea;
-}
-.cell-value {
-  font-weight: 500;
-  word-break: break-all;
-}
+    border-bottom: 2px solid #eaeaea;
+  }
+  .cell-value {
+    font-weight: 500;
+    word-break: break-all;
+  }
 
-.cell-head {
-  text-transform: uppercase;
+  .cell-head {
+    text-transform: uppercase;
+  }
 }
 </style>

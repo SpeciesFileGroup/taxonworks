@@ -1,0 +1,24 @@
+<%= content_for :head do -%>
+  <%= javascript_include_tag "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.js",
+    "https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"  %>
+<% end %>
+
+<%= tag.h1 'Task - Collection object chronology', id: :top -%>
+
+<div class="flexbox">
+  <div class="item item1">
+    <h2> Collection objects per start year collected </h2>
+    <%= column_chart CollectionObject.joins(:collecting_event)
+    .where(project_id: sessions_current_project_id)
+    .where('collecting_events.start_date_year is not null')
+    .group('collecting_events.start_date_year')
+    .count, 
+      discrete: true, ytitle: 'Count', xtitle: 'Year collected', height: '400px', download: true
+    %>
+
+    <%= tag.em CollectionObject.joins(:collecting_event)
+    .where(project_id: sessions_current_project_id)
+    .where('collecting_events.start_date_year is null')
+    .group('collecting_events.start_date_year').count.first.last.to_s + ' Collection object records without collecting event date start year.' %>
+  </div>
+</div>

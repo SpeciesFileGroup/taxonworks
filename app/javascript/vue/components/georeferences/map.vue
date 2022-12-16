@@ -78,6 +78,10 @@ const props = defineProps({
     type: Boolean,
     default: true
   },
+  drawText: {
+    type: Boolean,
+    default: false
+  },
   editMode: {
     type: Boolean,
     default: true
@@ -94,13 +98,17 @@ const props = defineProps({
     type: Boolean,
     default: true
   },
+  rotateMode: {
+    type: Boolean,
+    default: false
+  },
   tilesSelection: {
     type: Boolean,
     default: true
   },
   tooltips: {
     type: Boolean,
-    default: true
+    default: false
   },
   center: {
     type: Array,
@@ -125,6 +133,10 @@ const props = defineProps({
   zoomBounds: {
     type: Number,
     default: undefined
+  },
+  actions: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -180,6 +192,8 @@ onMounted(() => {
   addDrawControllers()
   handleEvents()
 
+  mapObject.pm.setGlobalOptions({ tooltips: props.tooltips })
+
   if (props.geojson.length) {
     geoJSON(props.geojson)
   }
@@ -228,10 +242,18 @@ const addDrawControllers = () => {
       drawPolyline: props.drawPolyline,
       drawPolygon: props.drawPolygon,
       drawRectangle: props.drawRectangle,
+      drawText: props.drawText,
       editMode: props.editMode,
       dragMode: props.dragMode,
       cutPolygon: props.cutPolygon,
-      removalMode: props.removalMode
+      removalMode: props.removalMode,
+      rotateMode: props.rotateMode
+    })
+  }
+
+  if (!props.actions) {
+    mapObject.pm.Toolbar.getControlOrder().forEach(control => {
+      mapObject.pm.Toolbar.changeActionsOfControl(control, [])
     })
   }
 }

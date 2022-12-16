@@ -45,7 +45,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
           find('#label_toggle_slide_area').click
           # TODO: Helper method to calculate x-y and perform interaction
           [[256, 128], [270, 128], [270, 143], [256, 143], [256, 128]]
-            .inject(find('#drawable_map_canvas')) { |e, (x, y)| sleep 1; e.hover.click(x: x, y: y) }
+            .inject(find('#drawable_map_canvas')) { |e, (x, y)| sleep 1; e.hover.click(x: x-256, y: y-128) }
           click_button('Set area')
           expect(page).to have_css('#area_count', text: '4')
         end
@@ -55,7 +55,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
           find('#label_toggle_slide_area').click
           # TODO: Helper method to calculate x-y and perform interaction
           [[256, 113], [270, 113], [270, 143], [256, 143], [256, 113]]
-            .inject(find('#drawable_map_canvas')) { |e, (x, y)| sleep 1; e.hover.click(x: x, y: y) }
+            .inject(find('#drawable_map_canvas')) { |e, (x, y)| sleep 1; e.hover.click(x: x-256, y: y-128) }
           click_button('Set area')
           expect(page).to have_css('#area_count', text: '9')
         end
