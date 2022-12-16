@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - BibTeX type facet for Filter sources task [#3218]
+- with/without Source::Bibtex title in Filter source task [#3219]
 
 ### Fixed
 - "Remarks" column displays in Browse collection object DwC/gbifference panel
@@ -17,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Incorrect valid name in Nomenclature match task
 
 [#3218]: https://github.com/SpeciesFileGroup/taxonworks/issues/3218
+[#3219]: https://github.com/SpeciesFileGroup/taxonworks/issues/3219
 
 ## [0.30.0] - 2022-12-15
 

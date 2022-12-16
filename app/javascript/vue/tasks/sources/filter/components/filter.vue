@@ -92,7 +92,7 @@
         class="margin-large-bottom"
         v-for="(item, key) in params.byRecordsWith"
         :key="key"
-        :title="key"
+        :title="withTitles[key] || key"
         :param="key"
         v-model="params.byRecordsWith[key]"
       />
@@ -123,6 +123,9 @@ import FacetBibtexType from './filters/FacetBibtexType.vue'
 import vHotkey from 'plugins/v-hotkey'
 
 const extend = ['documents']
+const withTitles = {
+  with_title: 'BibTeX title'
+}
 
 const parseAttributeParams = (attributes) => ({
   empty: attributes.filter(item => item.empty).map(item => item.name),
@@ -201,7 +204,8 @@ const initParams = () => ({
     with_doi: undefined,
     tags: undefined,
     notes: undefined,
-    serial: undefined
+    serial: undefined,
+    with_title: undefined
   },
   identifier: {
     namespace_id: undefined,
