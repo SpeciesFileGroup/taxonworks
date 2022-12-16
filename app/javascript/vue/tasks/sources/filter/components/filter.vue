@@ -58,6 +58,10 @@
         v-model="params.keywords"
         target="Source"
       />
+      <FacetBibtexType
+        class="margin-large-bottom"
+        v-model="params.source.bibtex_type"
+      />
       <TopicsComponent
         class="margin-large-bottom"
         v-model="params.source.topic_ids"
@@ -88,7 +92,7 @@
         class="margin-large-bottom"
         v-for="(item, key) in params.byRecordsWith"
         :key="key"
-        :title="key"
+        :title="withTitles[key] || key"
         :param="key"
         v-model="params.byRecordsWith[key]"
       />
@@ -115,9 +119,13 @@ import SomeValueComponent from './filters/SomeValue/SomeValue'
 import TaxonNameComponent from './filters/TaxonName'
 import FacetMatchIdentifiers from 'tasks/people/filter/components/Facet/FacetMatchIdentifiers.vue'
 import checkMatchIdentifiersParams from 'tasks/people/filter/helpers/checkMatchIdentifiersParams'
+import FacetBibtexType from './filters/FacetBibtexType.vue'
 import vHotkey from 'plugins/v-hotkey'
 
 const extend = ['documents']
+const withTitles = {
+  with_title: 'BibTeX title'
+}
 
 const parseAttributeParams = (attributes) => ({
   empty: attributes.filter(item => item.empty).map(item => item.name),
@@ -180,7 +188,8 @@ const initParams = () => ({
     citation_object_type: [],
     topic_ids: [],
     users: [],
-    serial_ids: []
+    serial_ids: [],
+    bibtex_type: []
   },
   keywords: {
     keyword_id_and: [],
@@ -195,7 +204,8 @@ const initParams = () => ({
     with_doi: undefined,
     tags: undefined,
     notes: undefined,
-    serial: undefined
+    serial: undefined,
+    with_title: undefined
   },
   identifier: {
     namespace_id: undefined,

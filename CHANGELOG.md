@@ -8,6 +8,27 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.30.1] - 2022-12-16
+
+### Added
+- BibTeX type facet for Filter sources task [#3218]
+- With/without Source::Bibtex title in Filter source task [#3219]
+- Hyperling names in Nomenclature match
+
+### Fixed
+- "Remarks" column displays in Browse collection object DwC/gbifference panel
+- Browse OTU navigation dead ends [#3056]
+- Setting a Namespace to virtual updates cache properly [#3256]
+- Virtual namespaces identifier tags don't include duplicated Namespace [#3256]
+- Virtual namespace identifier preview does not render namespace
+- Incorrect valid name in Nomenclature match task
+
+
+[#3056]: https://github.com/SpeciesFileGroup/taxonworks/issues/3056
+[#3256]: https://github.com/SpeciesFileGroup/taxonworks/issues/3256
+[#3218]: https://github.com/SpeciesFileGroup/taxonworks/issues/3218
+[#3219]: https://github.com/SpeciesFileGroup/taxonworks/issues/3219
+
 ## [0.30.0] - 2022-12-15
 
 ### Added
@@ -3087,7 +3108,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.1...development
+[0.30.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.0...v0.30.1
 [0.30.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.6...v0.30.0
 [0.29.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.5...v0.29.6
 [0.29.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.4...v0.29.5

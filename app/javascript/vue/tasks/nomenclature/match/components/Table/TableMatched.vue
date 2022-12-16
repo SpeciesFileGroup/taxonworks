@@ -14,19 +14,45 @@
       >
         <td>{{ match }}</td>
         <td>
-          <span v-html="taxon.object_tag" /> {{ taxon.cached_author_year }}
+          <a :href="makeBrowseNomenclatureLink(taxon.id)">
+            <span v-html="taxon.object_tag" /> {{ taxon.cached_author_year }}
+          </a>
         </td>
-        <td v-html="taxon.original_combination" />
+        <td>
+          <a
+            v-if="taxon.cached_is_valid"
+            :href="makeBrowseNomenclatureLink(taxon.id)"
+          >
+            <span v-html="taxon.object_tag" /> {{ taxon.cached_author_year }}
+          </a>
+
+          <a
+            v-if="validNames[taxon.cached_valid_taxon_name_id]"
+            :href="makeBrowseNomenclatureLink(taxon.cached_valid_taxon_name_id)"
+          >
+            <span v-html="validNames[taxon.cached_valid_taxon_name_id].object_tag" />
+            {{ validNames[taxon.cached_valid_taxon_name_id].cached_author_year }}
+          </a>
+        </td>
       </tr>
     </tbody>
   </table>
 </template>
 
 <script setup>
+import { RouteNames } from 'routes/routes'
 defineProps({
   list: {
     type: Array,
     required: true
+  },
+
+  validNames: {
+    type: Object,
+    default: () => ({})
   }
 })
+
+const makeBrowseNomenclatureLink = (id) => `${RouteNames.BrowseNomenclature}?taxon_name_id=${id}`
+
 </script>

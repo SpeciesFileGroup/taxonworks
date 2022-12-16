@@ -4,7 +4,7 @@
   "dependencies": {
     "@geoman-io/leaflet-geoman-free": "^2.13.1",
     "@ibm/plex": "^6.1.1",
-    "@sfgrp/gbifference": "^0.0.4",
+    "@sfgrp/gbifference": "^0.0.5",
     "@sfgrp/sled": "^1.0.3",
     "@sfgrp/svg-radial-menu": "^1.0.7",
     "axios": "^1.2.1",

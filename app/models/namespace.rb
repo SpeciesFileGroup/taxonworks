@@ -54,7 +54,7 @@
 #
 # @!attribute is_virtual
 # @return [Boolean]
-#   Defaults to false. If true then the namespace short name is not part of the "physical" identifier.  Required to handle identifiers incoming
+#   Defaults to false. If true then the namespace short name is not part of the "physical" identifier. Required to handle identifiers incoming
 # from DwC in some contexts.
 #
 class Namespace < ApplicationRecord

@@ -55,6 +55,7 @@
     />
     <TableMatched
       v-if="(tableView === tableComponent.Matches || tableView === tableComponent.Both)"
+      :valid-names="validTaxonNames"
       :list="matches"
       class="full_width"
     />
@@ -91,14 +92,26 @@ const unmatched = ref([])
 const isLoading = ref(false)
 const lines = ref([])
 const tableView = ref(tableComponent.Both)
+const validTaxonNames = ref({})
 
 function GetMatches () {
   const requests = lines.value.map(name => TaxonName.where({ name, exact: exact.value }))
 
   isLoading.value = true
-  Promise.all(requests).then(responses => {
+  Promise.all(requests).then(async responses => {
     const taxonNames = [].concat(...responses.map(r => r.body))
     const uniqueList = getUnique(taxonNames, 'id')
+    const validTaxonNameIDs = uniqueList
+      .filter(taxon => !taxon.cached_is_valid)
+      .map(taxon => taxon.cached_valid_taxon_name_id)
+
+    const validNames = validTaxonNameIDs.length
+      ? (await TaxonName.where({ taxon_name_id: validTaxonNameIDs })).body
+      : []
+
+    validNames.forEach(taxon => {
+      validTaxonNames.value[taxon.id] = taxon
+    })
 
     matches.value = uniqueList.map(taxon =>
       ({

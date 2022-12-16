@@ -108,10 +108,20 @@ module Queries
       attr_accessor :citations_on_otus
 
       # @return [Boolean, nil]
-      attr_accessor :serial
       # true - with serial_id
       # false - without_serial_id
       # nil - both
+      attr_accessor :serial
+
+      # @return [Boolean, nil]
+      # true - with a title 
+      # false - without a title
+      # nil - both
+      attr_accessor :with_title
+
+      # @return [Array, String, nil]
+      # one of the allowed BibTeX types 
+      attr_accessor :bibtex_type
 
       # @param [Hash] params
       def initialize(params)
@@ -121,6 +131,7 @@ module Queries
         @author = params[:author]
         @author_ids = params[:author_ids] || []
         @author_ids_or =  boolean_param(params,:author_ids_or)
+        @bibtex_type = params[:bibtex_type]
         @citation_object_type = params[:citation_object_type] || []
         @citations =  boolean_param(params,:citations)
         @citations_on_otus = boolean_param(params,:citations_on_otus)
@@ -139,7 +150,8 @@ module Queries
         @source_type = params[:source_type]
         @title = params[:title]
         @topic_ids = params[:topic_ids] || []
-        @with_doi = boolean_param(params,:with_doi)
+        @with_doi = boolean_param(params, :with_doi)
+        @with_title = boolean_param(params, :with_title)
         @year_end = params[:year_end]
         @year_start = params[:year_start]
 
@@ -163,6 +175,15 @@ module Queries
 
       def base_query
         ::Source.select('sources.*')
+      end
+
+      def bibtex_type
+        [@bibtex_type].flatten.compact.uniq
+      end
+
+      def bibtex_type_facet
+        return nil if bibtex_type.empty?
+        table[:type].eq('Source::Bibtex').and(table[:bibtex_type].eq_any(bibtex_type))
       end
 
       # @return [ActiveRecord::Relation, nil]
@@ -293,6 +314,16 @@ module Queries
         end
       end
 
+      def with_title_facet
+        return nil if with_title.nil?
+
+        if with_title
+          table[:title].not_eq(nil)
+        else
+          table[:title].eq(nil)
+        end
+      end
+
       # TODO: move to a concern
       def role_facet
         return nil if roles.nil?
@@ -362,7 +393,7 @@ module Queries
       end
 
       def merge_clauses
-        clauses = [
+        clauses = [ 
           ancestors_facet,
           author_ids_facet,
           topic_ids_facet,
@@ -399,6 +430,7 @@ module Queries
         clauses = []
 
         clauses += [
+          bibtex_type_facet,
           cached,
           serial_facet,
           source_ids_facet,
@@ -406,7 +438,8 @@ module Queries
           attribute_exact_facet(:author),
           attribute_exact_facet(:title),
           source_type_facet,
-          year_facet
+          year_facet,
+          with_title_facet,
         ].compact
 
         return nil if clauses.empty?
