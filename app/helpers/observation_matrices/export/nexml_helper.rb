@@ -21,10 +21,16 @@ module ObservationMatrices::Export::NexmlHelper
                 if cs.depictions.load.any?
                   xml.state(id: "cs#{cs.id}", label: cs.target_name(:key, nil), symbol: "#{i}") do
                     cs.depictions.each do |d|
+                      img = d.image
+                      if img.image_file_content_type == 'image/tiff'
+                        href = img.image_file.url(:medium_url)
+                      else
+                        href = img.image_file.url(:original)
+                      end
                       xml.meta(
                         'xsi:type' => 'ResourceMeta',
                         'rel' => 'foaf:depiction',
-                        'href' => short_url(d.image.image_file.url(:original)), # see app/helpers/images_helper.rb
+                        'href' => short_url(href), # see app/helpers/images_helper.rb
                         'label' => c.target_name(:description, nil) + ' ' + cs.target_name(:description, nil)
                       )
                     end
@@ -218,11 +224,16 @@ module ObservationMatrices::Export::NexmlHelper
                 lbl.push(attribution_nexml_label(img_attr)) unless img_attr.nil?
                 lbl = lbl.compact.join('; ')
 
+                if im.image_hash[depiction[:image_id]][:image_file_content_type] == 'image/tiff'
+                  href = im.image_hash[depiction[:image_id]][:medium_url]
+                else
+                  href = im.image_hash[depiction[:image_id]][:original_url]
+                end
                 xml.meta(
                   'xsi:type' => 'ResourceMeta',
                   'rel' => 'foaf:depiction',
                   'about' => "row_#{r.id}",
-                  'href' => short_url( im.image_hash[depiction[:image_id]][:original_url]),
+                  'href' => short_url(href),
                   'label' => lbl
                   #'object' => object[1][:object].otu_name,
                   #'label' => descriptors[index][:name], ###
@@ -331,11 +342,17 @@ module ObservationMatrices::Export::NexmlHelper
           label:  "Character state depictions for matrix #{m.name}"
         ) do
           ::Depiction.joins(image: [:character_states]).merge(m.character_states).each do |d|
+            img = d.image
+            if img.image_file_content_type == 'image/tiff'
+              href = img.image_file.url(:medium_url)
+            else
+              href = img.image_file.url(:original)
+            end
             xml.meta(
               'xsi:type' => 'ResourceMeta',
               'rel' => 'foaf:depiction',
               'about' => "cs#{d.depiction_object_id}",
-              'href' => short_url(d.image.image_file.url(:original)) # root_url + d.image.image_file.url(:original)[1..-1]
+              'href' => short_url(href) # root_url + d.image.image_file.url(:original)[1..-1]
             )
           end
         end
