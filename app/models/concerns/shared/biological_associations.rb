@@ -1,16 +1,4 @@
-=begin
-Shared code for extending data classes with an OriginRelationship
-
-  How to use this concern:
-    1) In BOTH related models, Include this concern (`include Shared::OriginRelationship`)
-    2) In the "old" model call "is_origin_for" with valid class names, as strings, e.g.:
-       `is_origin_for 'CollectionObject', 'CollectionObject::BiologicalCollectionObject'`
-    3) has_many :derived_<foo> associations are created for each is_origin_for()
-
-    !! You must redundantly provide STI subclasses and parent classes if you want to allow both.  Providing
-       a superclass does *not* provide the subclasses.
-
-=end
+# Shared code for extending data classes to be referencable in a BiologicalAssociation
 module Shared::BiologicalAssociations
   extend ActiveSupport::Concern
 
@@ -68,7 +56,4 @@ module Shared::BiologicalAssociations
     # end
 
   end
-
-  private
-
 end

@@ -386,7 +386,7 @@ module Queries
         b = ::Queries::CollectionObject::Filter.new(ancestor_id: subject_taxon_name_id).all
 
         ::BiologicalAssociation.where(
-          biological_association_subject: [a, b].flatten
+          biological_association_subject: a + b, #  [a, b].flatten
         )
       end
 

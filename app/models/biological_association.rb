@@ -57,6 +57,9 @@ class BiologicalAssociation < ApplicationRecord
 
   validates_uniqueness_of :biological_association_subject_id, scope: [:biological_association_subject_type, :biological_association_object_id, :biological_association_object_type, :biological_relationship_id]
 
+  validate :biological_association_subject_type_is_allowed
+  validate :biological_association_object_type_is_allowed
+
   attr_accessor :subject_global_id
   attr_accessor :object_global_id
 
@@ -97,6 +100,16 @@ class BiologicalAssociation < ApplicationRecord
 
     j = a.join(b).on(a["biological_association_#{target}_type".to_sym].eq(target_class.name).and(a["biological_assoication_#{target}_id".to_sym].eq(b[:id])))
     joins(j.join_sources)
+  end
+
+  private
+
+  def biological_association_subject_type_is_allowed
+    errors.add(:biological_association_subject_type, 'is not permitted') unless biological_association_subject && biological_association_subject.class.is_biologically_relatable?
+  end
+
+  def biological_association_object_type_is_allowed
+    errors.add(:biological_association_object_type, 'is not permitted') unless biological_association_object && biological_association_object.class.is_biologically_relatable?
   end
 
 end

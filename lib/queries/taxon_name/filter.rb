@@ -123,7 +123,7 @@ module Queries
       # TODO: unify globally as to whether param belongs here, or at controller level.
       attr_accessor :project_id
 
-      # @param otu_id [Boolean, nil]
+      # @param otu_id [Array, nil]
       # @return [Array, nil]
       #   one or more OTU ids
       attr_accessor :otu_id
@@ -212,7 +212,7 @@ module Queries
         @nomenclature_group = params[:nomenclature_group] if !params[:nomenclature_group].nil?
         @rank = params[:rank]
         @otus = boolean_param(params, :otus)
-        @otu_id = boolean_param(params, :otu_id)
+        @otu_id = params[:otu_id] 
         @etymology = boolean_param(params, :etymology)
         @project_id = params[:project_id]
         @taxon_name_classification = params[:taxon_name_classification] || []
@@ -256,6 +256,10 @@ module Queries
 
       def taxon_name_id
         [@taxon_name_id].flatten.compact
+      end
+
+      def otu_id
+        [@otu_id].flatten.compact
       end
 
       def combination_taxon_name_id
