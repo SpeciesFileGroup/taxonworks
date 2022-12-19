@@ -149,7 +149,8 @@ const initParams = () => ({
     geo_json: [],
     radius: undefined,
     spatial_geographic_areas: undefined,
-    geographic_area_id: []
+    geographic_area_id: [],
+    descendant_geographic_areas: undefined
   },
   user: {
     user_id: undefined,

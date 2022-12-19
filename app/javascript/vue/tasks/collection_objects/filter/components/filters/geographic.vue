@@ -19,8 +19,17 @@
       <label>
         <input
           v-model="geographic.spatial_geographic_areas"
-          type="checkbox"/>
+          type="checkbox"
+        >
         Treat geographic areas as spatial
+      </label>
+      <br>
+      <label>
+        <input
+          type="checkbox"
+          v-model="geographic.descendant_geographic_areas"
+        >
+        Include child areas
       </label>
       <div class="field separate-top">
         <ul class="no_bullets table-entrys-list">
