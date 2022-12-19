@@ -34,8 +34,8 @@
         class="margin-large-bottom"
       />
       <FacetBiologicalProperty
-        v-model:object="params.base.object_taxon_name_id"
-        v-model:subject="params.base.subject_taxon_name_id"
+        v-model:object="params.base.object_biological_property_id"
+        v-model:subject="params.base.subject_biological_property_id"
       />
       <FacetOtu
         class="margin-large-bottom"

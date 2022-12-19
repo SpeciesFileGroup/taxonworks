@@ -2,8 +2,9 @@
   <div>
     <h3>Biological property</h3>
     <div class="field">
-      <smart-selector
-        model="biological_relationships"
+      <SmartSelector
+        model="controlled_vocabulary_terms"
+        :autocomplete-params="{ type: ['BiologicalProperty'] }"
         @selected="addBiologicalProperty"
       />
       <table
@@ -22,10 +23,10 @@
           tag="tbody"
         >
           <template
-            v-for="(item, index) in biologicalProperties"
-            :key="index"
+            v-for="item in biologicalProperties"
+            :key="item.id"
           >
-            <row-item
+            <RowItem
               class="list-complete-item"
               :item="item"
               label="object_tag"
@@ -47,7 +48,7 @@
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import RowItem from 'tasks/sources/filter/components/filters/shared/RowItem.vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { BiologicalRelationship } from 'routes/endpoints'
+import { ControlledVocabularyTerm } from 'routes/endpoints'
 import { ref, computed, watch } from 'vue'
 import { removeFromArray } from 'helpers/arrays'
 
@@ -93,10 +94,10 @@ watch(
   { deep: true }
 )
 
-function addBiologicalProperty (item) {
+function addBiologicalProperty (item, isSubject = false) {
   biologicalProperties.value.push({
     ...item,
-    isSubject: false
+    isSubject
   })
 }
 
@@ -110,14 +111,14 @@ const {
 } = URLParamsToJSON(location.href)
 
 subject_biological_property_id.forEach(id => {
-  BiologicalRelationship.find(id).then(({ body }) => {
-    addBiologicalProperty({ ...body, isSubject: true })
+  ControlledVocabularyTerm.find(id).then(({ body }) => {
+    addBiologicalProperty(body, true)
   })
 })
 
 object_biological_property_id.forEach(id => {
-  BiologicalRelationship.find(id).then(({ body }) => {
-    addBiologicalProperty({ ...body, isSubject: false })
+  ControlledVocabularyTerm.find(id).then(({ body }) => {
+    addBiologicalProperty(body, false)
   })
 })
 
