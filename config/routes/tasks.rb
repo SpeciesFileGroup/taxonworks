@@ -310,7 +310,7 @@ scope :tasks do
 
   scope :biological_associations do
       scope :filter, controller: 'tasks/biological_associations/filter' do
-        get :index, as: 'index_filter_task'
+        get :index, as: 'filter_biological_associations_task'
       end
 
     scope :dot, controller: 'tasks/biological_associations/dot' do
