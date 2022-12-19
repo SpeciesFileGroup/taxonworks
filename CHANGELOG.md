@@ -6,7 +6,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+- Asserted distribution citation label in Browse OTU
 
 ## [0.30.1] - 2022-12-16
 
