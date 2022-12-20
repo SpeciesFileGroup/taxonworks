@@ -8,6 +8,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - Asserted distribution citation label in Browse OTU
+- Records per page selector doesn't work in Filter Stage Images [#3259]
+
+[#3259]: https://github.com/SpeciesFileGroup/taxonworks/issues/3259
 
 ## [0.30.1] - 2022-12-16
 
