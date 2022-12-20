@@ -29,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Virtual namespaces identifier tags don't include duplicated Namespace [#3256]
 - Virtual namespace identifier preview does not render namespace
 - Incorrect valid name in Nomenclature match task
+- in NeXML output, TIFF images are custed as JPG
 
 
 [#3056]: https://github.com/SpeciesFileGroup/taxonworks/issues/3056
