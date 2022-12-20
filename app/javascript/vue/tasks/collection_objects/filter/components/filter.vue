@@ -392,8 +392,7 @@ export default {
         geographic: {
           geo_json: [],
           radius: undefined,
-          spatial_geographic_areas: undefined,
-          descendant_geographic_areas: undefined,
+          geographic_area_mode: undefined,
           geographic_area_id: []
         },
         repository: {
