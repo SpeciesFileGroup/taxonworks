@@ -21,7 +21,7 @@ export default function (service) {
     state.parameters = params
     state.isLoading = true
 
-    service.filter(params).then(response => {
+    service.filter(payload).then(response => {
       state.list = response.body
       state.isLoading = false
       state.pagination = getPagination(response)

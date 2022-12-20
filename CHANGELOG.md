@@ -8,6 +8,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.30.2] - 2022-12-20
+
+### Fixed
+- Asserted distribution citation label in Browse OTU
+- Records per page selector doesn't work in Filter Stage Images [#3259]
+- In NeXML output, TIFF images were not converted to JPG
+- Error when calculating previous OTU for navigation
+
+### Changed
+- Updated Ruby gems.
+
+[#3259]: https://github.com/SpeciesFileGroup/taxonworks/issues/3259
+
 ## [0.30.1] - 2022-12-16
 
 ### Added
@@ -22,7 +35,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Virtual namespaces identifier tags don't include duplicated Namespace [#3256]
 - Virtual namespace identifier preview does not render namespace
 - Incorrect valid name in Nomenclature match task
-
 
 [#3056]: https://github.com/SpeciesFileGroup/taxonworks/issues/3056
 [#3256]: https://github.com/SpeciesFileGroup/taxonworks/issues/3256
@@ -3108,7 +3120,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.2...development
+[0.30.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.1...v0.30.2
 [0.30.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.0...v0.30.1
 [0.30.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.6...v0.30.0
 [0.29.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.5...v0.29.6

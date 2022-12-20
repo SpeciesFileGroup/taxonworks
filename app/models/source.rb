@@ -235,6 +235,13 @@ class Source < ApplicationRecord
     description: 'Check if cached values need to be updated' )
 
   soft_validate(
+    :sv_stated_year,
+    set: :stated_year,
+    fix: :sv_fix_stated_year,
+    name: 'Stated year',
+    description: "'Stated year' is not needed if identical to 'year'" )
+
+  soft_validate(
     :sv_html_tags,
     set: :html_tags,
     name: 'html tags',
@@ -404,7 +411,7 @@ class Source < ApplicationRecord
 
   def sv_fix_cached_names
     begin
-      TaxonName.transaction do
+      Source.transaction do
         self.set_cached
       end
       true
@@ -413,7 +420,27 @@ class Source < ApplicationRecord
     end
   end
 
-  def sv_html_tags
+  def sv_stated_year
+    soft_validations.add(
+      :base, "'Stated year' is not needed if identical to 'year'; applying the Fix will delete it",
+      success_message: "'Stated year' was deleted",
+      failure_message:  "Failed to delete 'Stated year'") if year.to_s == stated_year.to_s
+  end
+
+  def sv_fix_stated_year
+    begin
+      Source.transaction do
+        self.stated_year = nil
+        self.save
+      end
+      true
+    rescue
+      false
+    end
+  end
+
+
+    def sv_html_tags
     unless title.blank?
       str = title.squish.gsub(/\<i>[^<>]*?<\/i>/, '')
       soft_validations.add(:title, 'The title contains unmatched html tags') if str.include?('<i>') || str.include?('</i>')
