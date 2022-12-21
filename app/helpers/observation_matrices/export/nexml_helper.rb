@@ -27,7 +27,6 @@ module ObservationMatrices::Export::NexmlHelper
                       else
                         href = img.image_file.url(:original)
                       end
-                      #byebug #if short_url(href) == 'https://sfg.taxonworks.org/s/xot0bo'
                       xml.meta(
                         'xsi:type' => 'ResourceMeta',
                         'rel' => 'foaf:depiction',
@@ -228,7 +227,7 @@ module ObservationMatrices::Export::NexmlHelper
                 if im.image_hash[depiction[:image_id]][:image_file_content_type] == 'image/tiff'
                   href = im.image_hash[depiction[:image_id]][:medium]
                 else
-                  href = im.image_hash[depiction[:image_id]][:original_url]
+                  href = im.image_hash[depiction[:image_id]][:original]
                 end
                 xml.meta(
                   'xsi:type' => 'ResourceMeta',
@@ -254,7 +253,7 @@ module ObservationMatrices::Export::NexmlHelper
                 'xsi:type' => 'ResourceMeta',
                 'rel' => 'foaf:depiction',
                 'about' => "row_#{r.id}",
-                'href' => short_url(d.image.image_file.url),  #  root_url + im.image_hash[depiction[:image_id]][:original_url],
+                'href' => short_url(d.image.image_file.url),  #  root_url + im.image_hash[depiction[:image_id]][:original],
                 # 'object' => observation_matrix_row_label_nexml(r), # label_for_otu(o) #  o.otu.otu_name, #  object[1][:object].otu_name,  -- redundant with label=""
                 'description' => dscr, #  descriptors[index][:name],
                 'label' => lbl, # epiction[:figure_label],
@@ -313,7 +312,7 @@ module ObservationMatrices::Export::NexmlHelper
               'xsi:type' => 'ResourceMeta',
               'rel' => 'foaf:depiction',
               'about' => "row_#{row_hash[object[1][:otu_id].to_i].to_s}",
-              'href' => root_url + im.image_hash[depiction[:image_id]][:original_url],
+              'href' => root_url + im.image_hash[depiction[:image_id]][:original],
               'object' => object[1][:object].otu_name,
               'description' => descriptors[index][:caption],
               'label' => depiction[:figure_label],
