@@ -126,9 +126,9 @@ module ObservationMatrices::Export::OtuContentsHelper
               lbl = lbl.compact.join('; ')
 
               if im.image_hash[depiction[:image_id]][:image_file_content_type] == 'image/tiff'
-                href = im.image_hash[depiction[:image_id]][:medium_url]
+                href = im.image_hash[depiction[:image_id]][:medium]
               else
-                href = im.image_hash[depiction[:image_id]][:original_url]
+                href = im.image_hash[depiction[:image_id]][:original]
               end
 
               list += "<span class='tw_depiction'><br>\n"

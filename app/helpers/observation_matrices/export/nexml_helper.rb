@@ -23,10 +23,11 @@ module ObservationMatrices::Export::NexmlHelper
                     cs.depictions.each do |d|
                       img = d.image
                       if img.image_file_content_type == 'image/tiff'
-                        href = img.image_file.url(:medium_url)
+                        href = img.image_file.url(:medium)
                       else
                         href = img.image_file.url(:original)
                       end
+                      #byebug #if short_url(href) == 'https://sfg.taxonworks.org/s/xot0bo'
                       xml.meta(
                         'xsi:type' => 'ResourceMeta',
                         'rel' => 'foaf:depiction',
@@ -225,7 +226,7 @@ module ObservationMatrices::Export::NexmlHelper
                 lbl = lbl.compact.join('; ')
 
                 if im.image_hash[depiction[:image_id]][:image_file_content_type] == 'image/tiff'
-                  href = im.image_hash[depiction[:image_id]][:medium_url]
+                  href = im.image_hash[depiction[:image_id]][:medium]
                 else
                   href = im.image_hash[depiction[:image_id]][:original_url]
                 end
@@ -344,7 +345,7 @@ module ObservationMatrices::Export::NexmlHelper
           ::Depiction.joins(image: [:character_states]).merge(m.character_states).each do |d|
             img = d.image
             if img.image_file_content_type == 'image/tiff'
-              href = img.image_file.url(:medium_url)
+              href = img.image_file.url(:medium)
             else
               href = img.image_file.url(:original)
             end
