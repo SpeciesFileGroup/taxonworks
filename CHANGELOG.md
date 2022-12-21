@@ -6,6 +6,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Search panel in New source task
+
 \-
 
 ## [0.30.2] - 2022-12-20
