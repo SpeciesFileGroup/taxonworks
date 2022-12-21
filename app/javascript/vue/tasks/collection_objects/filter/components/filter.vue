@@ -188,7 +188,7 @@ export default {
 
     isParamsEmpty () {
       return !(this.params.biocurations.biocuration_class_ids.length ||
-        this.params.geographic.geographic_area_id?.length ||
+        this.params.geographic.geographic_area_id.length ||
         this.params.geographic.geo_json?.length ||
         this.params.relationships.biological_relationship_ids.length ||
         this.params.types.is_type.length ||

@@ -179,14 +179,10 @@ const convertGeoJSONParam = (urlParams) => {
 }
 
 watch(
-  geographic,
+  () => geographic.value.geo_json,
   (newVal, oldVal) => {
-    if (!newVal?.geo_json?.length && oldVal?.geo_json?.length) {
+    if (!newVal?.length && oldVal?.length) {
       geojson.value = []
-    }
-
-    if (!newVal.geographic_area_id.length && oldVal.geographic_area_id.length) {
-      geographicAreas.value = []
     }
   },
   { deep: true }
@@ -201,6 +197,16 @@ watch(
     geographic.value.geographic_area_id = geographic.value.geographic_area_mode === GEOGRAPHIC_OPTIONS.Spatial
       ? geographicAreas.value.filter(item => item.has_shape).map(item => item.id)
       : geographicAreas.value.map(item => item.id)
+  },
+  { deep: true }
+)
+
+watch(
+  () => geographic.value.geographic_area_id,
+  (newVal, oldVal) => {
+    if (!newVal.length && oldVal.length) {
+      geographicAreas.value = []
+    }
   },
   { deep: true }
 )
