@@ -3,7 +3,18 @@ module ObservationMatrices::Export::OtuContentsHelper
     opt = {otus: []}.merge!(options)
     m = opt[:observation_matrix]
 
-    otu_ids = m.otus.collect{|i| i.id}
+    otus = Otu.select('otus.*, observation_matrix_rows.id AS row_id').
+            joins('INNER JOIN observation_matrix_rows ON observation_matrix_rows.observation_object_id = otus.id').
+            where("observation_matrix_rows.observation_object_type = 'Otu'").
+            where('observation_matrix_rows.observation_matrix_id = (?)', m.id).
+            order(:observation_object_id)
+    otu_rows = {}
+    otus.each do |i|
+      otu_rows[i.id] = i.row_id
+    end
+    otu_ids = otu_rows.keys
+
+    #otu_ids = m.otus.collect{|i| i.id}
     CSV.generate do |csv|
       csv << ['otu_id', 'topic', 'text']
 
@@ -140,7 +151,7 @@ module ObservationMatrices::Export::OtuContentsHelper
               list += "</span>\n"
             end
           end
-          csv << ['row_' + object[1][:row_id].to_s, 'Illustrations', list ] unless list.blank?
+          csv << ['row_' + otu_rows[object[1][:otu_id]].to_s, 'Illustrations', list ] unless list.blank?
         end
       end
 
