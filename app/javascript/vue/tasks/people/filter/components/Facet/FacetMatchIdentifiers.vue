@@ -4,10 +4,9 @@
     <div class="field label-above">
       <textarea
         class="full_width"
-        v-model="params.match_identifiers"
+        v-model="matchIdentifiers"
         rows="5"
-      >
-      </textarea>
+      />
     </div>
 
     <div class="field label-above">
@@ -16,7 +15,7 @@
         <i>Use \n for newlines, \t for tabs.</i>
       </span>
       <input
-        v-model="params.match_identifiers_delimiter"
+        v-model="delimiterIdentifier"
         type="text"
         class="full_width"
       >
@@ -33,7 +32,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onBeforeMount } from 'vue'
 import VToggle from 'tasks/observation_matrices/new/components/newMatrix/switch.vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
 
@@ -49,6 +48,8 @@ const props = defineProps({
   }
 })
 
+const type = ref(TYPE_PARAMETERS.Internal)
+const delimiter = ref(',')
 const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
@@ -56,21 +57,51 @@ const params = computed({
   set: value => emit('update:modelValue', value)
 })
 
-const toggleType = computed({
-  get: () => props.modelValue.match_identifiers_type === TYPE_PARAMETERS.Identifier,
+const matchIdentifiers = computed({
+  get: () => props.modelValue.match_identifiers,
   set: value => {
-    params.value.match_identifiers_type = value
-      ? TYPE_PARAMETERS.Identifier
-      : TYPE_PARAMETERS.Internal
+    if (value) {
+      params.value.match_identifiers = value
+      params.value.match_identifiers_type = type.value
+      params.value.match_identifiers_delimiter = delimiter.value
+    } else {
+      params.value.match_identifiers = undefined
+      params.value.match_identifiers_type = undefined
+      params.value.match_identifiers_delimiter = undefined
+    }
   }
 })
 
-const urlParams = URLParamsToJSON(location.href)
+const delimiterIdentifier = computed({
+  get: () => props.modelValue.match_identifiers_delimiter,
+  set: value => {
+    delimiter.value = value
 
-Object.assign(params.value, {
-  match_identifiers: urlParams.match_identifiers,
-  match_identifiers_delimiter: urlParams.match_identifiers_delimiter || ',',
-  match_identifiers_type: urlParams.match_identifiers_type || TYPE_PARAMETERS.Internal
+    if (!matchIdentifiers.value) {
+      params.value.match_identifiers_delimiter = undefined
+    }
+  }
+})
+
+const toggleType = computed({
+  get: () => type.value === TYPE_PARAMETERS.Identifier,
+  set: value => {
+    type.value = value
+      ? TYPE_PARAMETERS.Identifier
+      : TYPE_PARAMETERS.Internal
+
+    if (matchIdentifiers.value) {
+      params.value.match_identifiers_type = type.value
+    }
+  }
+})
+
+onBeforeMount(() => {
+  const urlParams = URLParamsToJSON(location.href)
+
+  params.value.match_identifiers = urlParams.match_identifiers
+  params.value.match_identifiers_delimiter = urlParams.match_identifiers_delimiter
+  params.value.match_identifiers_type = urlParams.match_identifiers_type
 })
 
 </script>

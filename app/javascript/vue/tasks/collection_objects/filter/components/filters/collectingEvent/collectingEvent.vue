@@ -8,7 +8,8 @@
         <br>
         <input
           type="date"
-          v-model="cEvent.start_date">
+          v-model="params.start_date"
+        >
       </div>
 
       <div class="field">
@@ -16,14 +17,16 @@
         <br>
         <input
           type="date"
-          v-model="cEvent.end_date">
+          v-model="params.end_date"
+        >
       </div>
     </div>
     <div class="field">
       <label>
         <input
           type="checkbox"
-          v-model="cEvent.partial_overlap_dates">
+          v-model="params.partial_overlap_dates"
+        >
         Allow partial overlaps
       </label>
     </div>
@@ -34,103 +37,105 @@
         klass="CollectionObject"
         pin-section="CollectingEvents"
         pin-type="CollectingEvent"
-        @selected="addCe"/>
+        @selected="addCe"
+      />
       <ul class="no_bullets table-entrys-list">
         <li
           class="middle flex-separate list-complete-item"
           v-for="(ce, index) in collectingEvents"
-          :key="ce.id">
-          <span v-html="ce.object_tag"/>
+          :key="ce.id"
+        >
+          <span v-html="ce.object_tag" />
           <span
             class="btn-delete button-circle"
-            @click="removeCe(index)"/>
+            @click="removeCe(index)"
+          />
         </li>
       </ul>
     </div>
     <add-field
-      ref="fields"
-      :list="cEvent.fields"
-      @fields="cEvent.fields = $event"/>
+      ref="addFieldRef"
+      :list="params.fields"
+      @fields="setFields"
+    />
   </div>
 </template>
 
-<script>
-
+<script setup>
+import { ref, computed, watch, onBeforeMount } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import SmartSelector from 'components/ui/SmartSelector'
 import AddField from './addFields'
 import { CollectingEvent } from 'routes/endpoints'
 
-export default {
-  components: {
-    SmartSelector,
-    AddField
+const props = defineProps({
+  modelValue: {
+    type: Object,
+    required: true
+  }
+})
+
+const emit = defineEmits(['update:modelValue'])
+const addFieldRef = ref(null)
+
+const params = computed({
+  get () {
+    return props.modelValue
   },
+  set (value) {
+    emit('update:modelValue', value)
+  }
+})
 
-  props: {
-    modelValue: {
-      type: Object,
-      required: true
-    }
-  },
-
-  emits: ['update:modelValue'],
-
-  computed: {
-    cEvent: {
-      get () {
-        return this.modelValue
-      },
-      set (value) {
-        this.$emit('update:modelValue', value)
-      }
-    }
-  },
-
-  watch: {
-    cEvent: {
-      handler (newVal) {
-        if (!newVal.fields) {
-          this.$refs.fields.cleanList()
-        }
-      },
-      deep: true
-    }
-  },
-
-  data () {
-    return {
-      collectingEvents: []
-    }
-  },
-
-  created () {
-    const urlParams = URLParamsToJSON(location.href)
-    if (urlParams.collecting_event_ids) {
-      urlParams.collecting_event_ids.forEach(id => {
-        CollectingEvent.find(id).then(response => {
-          this.addCe(response.body)
-        })
-      })
-    }
-    this.cEvent.start_date = urlParams.start_date
-    this.cEvent.end_date = urlParams.end_date
-    this.cEvent.partial_overlap_dates = urlParams.partial_overlap_dates
-  },
-
-  methods: {
-    addCe (ce) {
-      if (this.cEvent.collecting_event_ids.includes(ce.id)) return
-      this.cEvent.collecting_event_ids.push(ce.id)
-      this.collectingEvents.push(ce)
-    },
-
-    removeCe (index) {
-      this.cEvent.collecting_event_ids.splice(index, 1)
-      this.collectingEvents.splice(index, 1)
+watch(
+  params,
+  newVal => {
+    if (!newVal.fields) {
+      addFieldRef.value.fields?.cleanList()
     }
   }
+)
+
+const collectingEvents = ref([])
+
+watch(
+  collectingEvents,
+  newVal => {
+    params.value.collecting_event_ids = newVal.map(ce => ce.id)
+  }
+)
+
+onBeforeMount(() => {
+  const urlParams = URLParamsToJSON(location.href)
+
+  if (urlParams.collecting_event_ids) {
+    urlParams.collecting_event_ids.forEach(id => {
+      CollectingEvent.find(id).then(response => {
+        addCe(response.body)
+      })
+    })
+  }
+
+  params.value.start_date = urlParams.start_date
+  params.value.end_date = urlParams.end_date
+  params.value.partial_overlap_dates = urlParams.partial_overlap_dates
+})
+
+const addCe = (ce) => {
+  collectingEvents.value.push(ce)
 }
+
+const removeCe = (index) => {
+  collectingEvents.value.splice(index, 1)
+}
+
+const setFields = (fields) => {
+  params.value = {
+    ...params.value,
+    ...fields
+  }
+}
+
 </script>
 <style scoped>
   :deep(.vue-autocomplete-input) {

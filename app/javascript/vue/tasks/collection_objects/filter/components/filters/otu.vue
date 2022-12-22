@@ -175,7 +175,7 @@ export default {
   watch: {
     determination: {
       handler (newVal) {
-        if (!newVal.otu_ids.length) {
+        if (!newVal.otu_ids?.length) {
           this.otusStore = []
         }
         if (!newVal.ancestor_id) {

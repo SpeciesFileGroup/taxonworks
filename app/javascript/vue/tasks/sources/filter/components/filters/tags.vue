@@ -102,7 +102,7 @@ export default {
 
   watch: {
     modelValue (newVal) {
-      if (!newVal.keyword_id_and.length && !newVal.keyword_id_or.length && this.keywords.length) {
+      if (!newVal?.keyword_id_and?.length && !newVal?.keyword_id_or?.length && this.keywords.length) {
         this.keywords = []
       }
     },

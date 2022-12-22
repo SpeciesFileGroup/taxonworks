@@ -4,11 +4,12 @@
       Housekeeping
     </h3>
     <div class="field">
-      <select v-model="user.user_id">
+      <select v-model="params.user_id">
         <option
-          v-for="u in users"
+          v-for="u in usersList"
           :key="u.id"
-          :value="u.user.id">
+          :value="u.user.id"
+        >
           {{ u.user.name }}
         </option>
       </select>
@@ -17,13 +18,15 @@
     <div class="field">
       <ul class="no_bullets">
         <li
-          v-for="item in options"
-          :key="item.value">
+          v-for="item in OPTIONS"
+          :key="item.value"
+        >
           <label>
             <input
               :value="item.value"
-              v-model="user.user_target"
-              type="radio">
+              v-model="params.user_target"
+              type="radio"
+            >
             {{ item.label }}
           </label>
         </li>
@@ -37,7 +40,8 @@
         <input
           type="date"
           class="date-input"
-          v-model="user.user_date_start">
+          v-model="params.user_date_start"
+        >
       </div>
       <div class="field">
         <label>End date:</label>
@@ -46,7 +50,8 @@
           <input
             type="date"
             class="date-input"
-            v-model="user.user_date_end">
+            v-model="params.user_date_end"
+          >
           <button
             type="button"
             class="button normal-input button-default margin-small-left"
@@ -60,86 +65,71 @@
   </div>
 </template>
 
-<script>
-
+<script setup>
+import { ref, computed, watch, onBeforeMount } from 'vue'
 import { ProjectMember } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
-export default {
-  props: {
-    modelValue: {
-      type: Object,
-      required: true
-    }
+const OPTIONS = [
+  {
+    label: 'Both',
+    value: undefined
   },
+  {
+    label: 'Created at',
+    value: 'created'
+  },
+  {
+    label: 'Updated at',
+    value: 'updated'
+  }
+]
 
-  computed: {
-    user: {
-      get () {
-        return this.modelValue
-      },
-      set (value) {
-        this.$emit('update:modelValue', value)
-      }
-    },
-    startDate () {
-      return this.user.user_date_start
-    }
-  },
+const props = defineProps({
+  modelValue: {
+    type: Object,
+    required: true
+  }
+})
 
-  emits: [
-    'update:modelValue',
-    'onUserslist'
-  ],
+const emit = defineEmits([
+  'update:modelValue',
+  'onUserslist'
+])
 
-  data () {
-    return {
-      users: [],
-      options: [
-        {
-          label: 'Both',
-          value: undefined
-        },
-        {
-          label: 'Created at',
-          value: 'created'
-        },
-        {
-          label: 'Updated at',
-          value: 'updated'
-        }
-      ]
-    }
-  },
-  watch: {
-    startDate (newVal) {
-      if (!newVal) {
-        this.user.user_date_end = undefined
-      }
-    }
-  },
-  mounted () {
-    ProjectMember.all().then(response => {
-      this.users = response.body
-      this.$emit('onUserslist', this.users)
-      this.users.unshift({ user: { name: '--none--', id: undefined } })
-    })
+const params = computed({
+  get: () => props.modelValue,
+  set: value => emit('update:modelValue', value)
+})
 
-    const urlParams = URLParamsToJSON(location.href)
-    if (Object.keys(urlParams).length) {
-      this.user.user_id = urlParams.user_id
-      this.user.user_date_start = urlParams.user_date_start
-      this.user.user_date_end = urlParams.user_date_end
-      this.user.user_target = urlParams.user_target
-    }
-  },
-  methods: {
-    setActualDateStart () {
-      this.user.user_date_start = new Date().toISOString().split('T')[0]
-    },
-    setActualDateEnd () {
-      this.user.user_date_end = new Date().toISOString().split('T')[0]
+const usersList = ref([])
+const startDate = computed(() => params.value.user_date_start)
+
+watch(
+  startDate,
+  newVal => {
+    if (!newVal) {
+      params.value.user_date_end = undefined
     }
   }
+)
+
+onBeforeMount(() => {
+  ProjectMember.all().then(response => {
+    usersList.value = response.body
+    usersList.value.unshift({ user: { name: '--none--', id: undefined } })
+  })
+
+  const urlParams = URLParamsToJSON(location.href)
+  if (Object.keys(urlParams).length) {
+    params.value.user_id = urlParams.user_id
+    params.value.user_date_start = urlParams.user_date_start
+    params.value.user_date_end = urlParams.user_date_end
+    params.value.user_target = urlParams.user_target
+  }
+})
+
+const setActualDateEnd = () => {
+  params.value.user_date_end = new Date().toISOString().split('T')[0]
 }
 </script>

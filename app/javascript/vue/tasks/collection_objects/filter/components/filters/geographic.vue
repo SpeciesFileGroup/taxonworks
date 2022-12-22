@@ -204,7 +204,7 @@ watch(
 watch(
   () => geographic.value.geographic_area_id,
   (newVal, oldVal) => {
-    if (!newVal.length && oldVal.length) {
+    if (!newVal?.length && oldVal?.length) {
       geographicAreas.value = []
     }
   },

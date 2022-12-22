@@ -122,7 +122,7 @@ export default {
 
   watch: {
     modelValue (newVal) {
-      if (!newVal[this.paramPeople].length && this.list.length) {
+      if (!newVal[this.paramPeople]?.length && this.list.length) {
         this.list = []
       }
     },

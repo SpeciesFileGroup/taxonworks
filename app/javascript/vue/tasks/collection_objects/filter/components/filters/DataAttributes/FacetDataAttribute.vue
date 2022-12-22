@@ -93,8 +93,8 @@ watch(
   () => props.modelValue,
   (newVal, oldVal) => {
     if (
-      !newVal.data_attribute_predicate_id.length &&
-      newVal.data_attribute_predicate_id.length !== oldVal.data_attribute_predicate_id.length
+      !newVal?.data_attribute_predicate_id?.length &&
+      newVal?.data_attribute_predicate_id?.length !== oldVal?.data_attribute_predicate_id?.length
     ) {
       predicates.value = []
     }
@@ -105,7 +105,7 @@ watch(
 const inputValue = ref('')
 
 const addValue = () => {
-  params.value.data_attribute_value.push(inputValue.value)
+  (params.value.data_attribute_value ||= []).push(inputValue.value)
   inputValue.value = ''
 }
 
