@@ -9,7 +9,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - Search panel in New source task
 
-\-
+### Fixed
+- Programming error breaking loop with `exit` instead of `break` when calculating previous OTU.
 
 ## [0.30.2] - 2022-12-20
 

@@ -92,7 +92,7 @@ module OtusHelper
       unless t.nil?
         while o.empty?
           o = t&.otus.to_a
-          exit if t.nil?
+          break if t.nil?
           t = t.previous_sibling
         end
       end
