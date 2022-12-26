@@ -12,7 +12,7 @@
           <input
             :value="option.value"
             :name="name"
-            v-model="optionValue"
+            v-model="optionValue[param]"
             type="radio"
           >
           {{ option.label }}
@@ -32,22 +32,27 @@ const props = defineProps({
     type: String,
     default: () => Math.random().toString(36).substr(2, 5)
   },
+
   title: {
     type: String,
     required: true
   },
+
   modelValue: {
-    type: Boolean,
-    default: undefined
+    type: Object,
+    default: () => ({})
   },
+
   values: {
     type: Array,
     default: () => []
   },
+
   param: {
     type: String,
     default: undefined
   },
+
   inverted: {
     type: Boolean,
     default: false
@@ -105,6 +110,6 @@ if (props.values.length) {
 
 if (props.param) {
   const params = URLParamsToJSON(location.href)
-  optionValue.value = params[props.param]
+  optionValue.value[props.param] = params[props.param]
 }
 </script>

@@ -46,11 +46,11 @@
     >
       <slot name="facets">
         <component
-          v-for="({ component, bind }) in facets"
-          :key="component"
-          :is="component"
+          v-for="(facet, index) in facets"
+          :key="index"
+          :is="facet.component"
+          v-bind="facet.props"
           v-model="parameters"
-          v-bind="bind"
         />
       </slot>
     </div>

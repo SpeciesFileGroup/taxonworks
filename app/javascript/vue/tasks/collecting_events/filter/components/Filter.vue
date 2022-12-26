@@ -53,7 +53,7 @@
         :key="param"
         :title="param"
         :param="param"
-        v-model="params[param]"
+        v-model="params"
       />
     </div>
   </div>

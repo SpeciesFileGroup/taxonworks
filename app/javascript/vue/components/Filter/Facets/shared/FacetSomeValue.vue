@@ -80,8 +80,8 @@ const filteredList = computed(() =>
 watch(
   selectedAttributes,
   () => {
-    params.value.empty = selectedAttributes.value.filter(attr => attr.empty)
-    params.value.not_empty = selectedAttributes.value.filter(attr => !attr.empty)
+    params.value.empty = selectedAttributes.value.filter(attr => attr.empty).map(item => item.name)
+    params.value.not_empty = selectedAttributes.value.filter(attr => !attr.empty).map(item => item.name)
   },
   { deep: true }
 )

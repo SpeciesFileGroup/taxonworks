@@ -3,7 +3,7 @@
     title="In project"
     :values="['Both', 'Yes', 'No']"
     param="in_project"
-    v-model="params.in_project"
+    v-model="params"
   />
   <FacetTitle v-model="params" />
   <FacetSourceType v-model="params" />
@@ -31,7 +31,7 @@
     :key="param"
     :title="WITH_TITLES[param] || param"
     :param="param"
-    v-model="params[param]"
+    v-model="params"
   />
 </template>
 
@@ -84,8 +84,3 @@ const params = computed({
 })
 
 </script>
-<style scoped>
-:deep(.btn-delete) {
-  background-color: #5D9ECE;
-}
-</style>
