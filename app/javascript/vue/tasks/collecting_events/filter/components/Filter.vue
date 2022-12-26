@@ -62,15 +62,15 @@
 <script setup>
 import FacetIdentifiers from 'tasks/collection_objects/filter/components/filters/identifier'
 import FacetGeographic from 'tasks/collection_objects/filter/components/filters/geographic'
-import FacetUsers from 'tasks/collection_objects/filter/components/filters/user'
+import FacetUsers from 'components/Filter/Facets/shared/FacetUsers.vue'
 import FacetCollectingEventAttributes from 'tasks/collection_objects/filter/components/filters/collectingEvent/collectingEvent'
-import FacetKeywords from 'tasks/sources/filter/components/filters/tags'
+import FacetKeywords from 'components/Filter/Facets/shared/FacetTags.vue'
 import FaceDeterminations from 'tasks/collection_objects/filter/components/filters/otu'
 import FacetMaterial from 'tasks/collection_objects/filter/components/filters/types'
 import FacetCollectors from 'tasks/collection_objects/filter/components/filters/shared/people'
 import FacetDataAttribute from 'tasks/collection_objects/filter/components/filters/DataAttributes/FacetDataAttribute.vue'
-import FacetMatchIdentifiers from 'tasks/people/filter/components/Facet/FacetMatchIdentifiers.vue'
-import FacetWith from 'tasks/sources/filter/components/filters/with'
+import FacetMatchIdentifiers from 'components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
+import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
 import { computed } from 'vue'
 
 const props = defineProps({

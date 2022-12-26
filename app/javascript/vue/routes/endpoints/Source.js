@@ -75,5 +75,15 @@ export const Source = {
 
   filter: params => AjaxCall('post', `/${model}/filter.json`, params),
 
-  parse: params => AjaxCall('get', `/${model}/parse.json`, { params })
+  parse: params => AjaxCall('get', `/${model}/parse.json`, { params }),
+
+  citationTypes: () => AjaxCall('get', '/sources/citation_object_types.json'),
+
+  bibtex: params => AjaxCall('get', '/sources.bib', params),
+
+  bibtexStyle: () => AjaxCall('get', '/sources/csl_types'),
+
+  bibliography: params => AjaxCall('get', '/sources/generate.json', params),
+
+  generateLinks: params => AjaxCall('get', '/sources/generate', { params })
 }

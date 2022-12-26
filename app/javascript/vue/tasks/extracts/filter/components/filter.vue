@@ -82,7 +82,7 @@
 
 <script setup>
 
-import UserComponent from 'tasks/collection_objects/filter/components/filters/user'
+import UserComponent from 'components/Filter/Facets/shared/FacetUsers.vue'
 import IdentifierComponent from 'tasks/collection_objects/filter/components/filters/identifier'
 import RepositoryComponent from 'tasks/collection_objects/filter/components/filters/repository.vue'
 import ProtocolFacet from './filters/ProtocolFacet.vue'
@@ -92,10 +92,10 @@ import DateRangeFacet from './filters/DateRangeFacet.vue'
 import CollectionObjectFacet from './filters/CollectionObjectFacet.vue'
 import ExtractOriginFacet from './filters/ExtractOriginFacet.vue'
 import ExtractVerbatimAnatomicalFacet from './filters/ExtractVerbatimAnatomicalFacet.vue'
-import FacetMatchIdentifiers from 'tasks/people/filter/components/Facet/FacetMatchIdentifiers.vue'
-import KeywordsComponent from 'tasks/sources/filter/components/filters/tags'
+import FacetMatchIdentifiers from 'components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
+import KeywordsComponent from 'components/Filter/Facets/shared/FacetTags.vue'
 import platformKey from 'helpers/getPlatformKey.js'
-import WithComponent from 'tasks/sources/filter/components/filters/with'
+import WithComponent from 'components/Filter/Facets/shared/FacetWith.vue'
 import checkMatchIdentifiersParams from 'tasks/people/filter/helpers/checkMatchIdentifiersParams'
 import { computed, ref } from 'vue'
 

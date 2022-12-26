@@ -41,9 +41,9 @@
 
 <script setup>
 
-import UserComponent from 'tasks/collection_objects/filter/components/filters/user'
+import UserComponent from 'components/Filter/Facets/shared/FacetUsers.vue'
 import platformKey from 'helpers/getPlatformKey.js'
-import WithComponent from 'tasks/sources/filter/components/filters/with'
+import WithComponent from 'components/Filter/Facets/shared/FacetWith.vue'
 import { removeEmptyProperties } from 'helpers/objects'
 import { computed, ref } from 'vue'
 

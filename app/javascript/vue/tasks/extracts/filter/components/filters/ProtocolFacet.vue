@@ -51,7 +51,7 @@ import { computed, ref, watch } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { Protocol } from 'routes/endpoints'
 import { addToArray, removeFromArray } from 'helpers/arrays'
-import RowItem from 'tasks/sources/filter/components/filters//shared/RowItem'
+import RowItem from 'components/Filter/Facets/shared/RowItem.vue'
 
 const props = defineProps({
   modelValue: {

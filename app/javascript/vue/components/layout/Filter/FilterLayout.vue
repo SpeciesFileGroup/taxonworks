@@ -42,11 +42,17 @@
   <div class="grid-filter">
     <div
       v-if="filter"
-      class="vue-filter-container"
+      class="grid-filter__facets"
     >
-      <div>
-        <slot name="facets" />
-      </div>
+      <slot name="facets">
+        <component
+          v-for="({ component, bind }) in facets"
+          :key="component"
+          :is="component"
+          v-model="parameters"
+          v-bind="bind"
+        />
+      </slot>
     </div>
 
     <slot name="table" />
@@ -77,19 +83,35 @@ const props = defineProps({
   per: {
     type: Number,
     default: 500
+  },
+
+  facets: {
+    type: Array,
+    default: () => []
+  },
+
+  modelValue: {
+    type: Object,
+    default: () => ({})
   }
 })
 
 const emit = defineEmits([
   'reset',
   'filter',
+  'nextpage',
   'update:per',
-  'nextpage'
+  'update:modelValue'
 ])
 
 const perValue = computed({
   get: () => props.per,
   set: value => emit('update:per', value)
+})
+
+const parameters = computed({
+  get: () => props.modelValue,
+  set: value => emit('update:modelValue', value)
 })
 
 const hotkeys = ref([
@@ -121,15 +143,18 @@ const stop = useHotkey(hotkeys.value)
   grid-template-columns: 400px 1fr;
 }
 
+.grid-filter__facets {
+  width: 400px;
+  max-width: 400px;
+  flex-direction: column;
+  display: flex;
+  gap: 1em;
+}
+
 .grid-filter__nav {
   display: grid;
   grid-template-columns: 380px 2px 1fr 1fr;
   gap: 1em;
-}
-
-.vue-filter-container {
-  width: 400px;
-  max-width: 400px;
 }
 
 :deep(.btn-delete) {

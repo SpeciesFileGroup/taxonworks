@@ -77,10 +77,10 @@
 <script setup>
 import FacetGeographic from 'tasks/collection_objects/filter/components/filters/geographic.vue'
 import FacetWKT from 'tasks/otu/filter/components/Facet/FacetWKT.vue'
-import UserComponent from 'tasks/collection_objects/filter/components/filters/user'
+import UserComponent from 'components/Filter/Facets/shared/FacetUsers.vue'
 import FacetIdentifier from 'tasks/collection_objects/filter/components/filters/identifier'
 import FacetBiologicalRelationship from './Facet/FacetBiologicalRelationship.vue'
-import KeywordsComponent from 'tasks/sources/filter/components/filters/tags'
+import KeywordsComponent from 'components/Filter/Facets/shared/FacetTags.vue'
 import FacetNotes from 'tasks/collection_objects/filter/components/filters/FacetNotes.vue'
 import FacetCollectionObject from 'tasks/extracts/filter/components/filters/CollectionObjectFacet.vue'
 import platformKey from 'helpers/getPlatformKey.js'
@@ -89,7 +89,7 @@ import FacetCollectingEvent from './Facet/FacetCollectingEvent.vue'
 import FacetBiologicalProperty from './Facet/FacetBiologicalProperty.vue'
 import FacetNomenclatureRelation from './Facet/FacetNomenclatureRelation.vue'
 import FacetOtu from 'tasks/extracts/filter/components/filters/OtuFacet'
-import WithComponent from 'tasks/sources/filter/components/filters/with.vue'
+import WithComponent from 'components/Filter/Facets/shared/FacetWith.vue'
 import { computed, ref } from 'vue'
 
 const emit = defineEmits([

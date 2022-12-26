@@ -46,7 +46,7 @@
 
 <script setup>
 import SmartSelector from 'components/ui/SmartSelector.vue'
-import RowItem from 'tasks/sources/filter/components/filters/shared/RowItem.vue'
+import RowItem from 'components/Filter/Facets/shared/RowItem.vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { ControlledVocabularyTerm } from 'routes/endpoints'
 import { ref, computed, watch } from 'vue'

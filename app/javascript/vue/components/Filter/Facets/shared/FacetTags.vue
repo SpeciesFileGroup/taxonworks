@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Tags</h3>
     <fieldset>
       <legend>Keywords</legend>
@@ -49,20 +49,21 @@
         </template>
       </transition-group>
     </table>
-  </div>
+  </FacetContainer>
 </template>
 
 <script>
-
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import SmartSelector from 'components/ui/SmartSelector'
-import RowItem from './shared/RowItem'
+import RowItem from './RowItem'
 import { ControlledVocabularyTerm } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
   components: {
     SmartSelector,
-    RowItem
+    RowItem,
+    FacetContainer
   },
 
   props: {

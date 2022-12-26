@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Serials</h3>
     <fieldset>
       <legend>Serials</legend>
@@ -7,33 +7,37 @@
         model="serials"
         klass="Source"
         target="Source"
-        @selected="addSerial"/>
+        @selected="addSerial"
+      />
     </fieldset>
     <display-list
       :list="serials"
       label="object_tag"
       :delete-warning="false"
-      @deleteIndex="removeSerial"/>
-  </div>
+      @delete-index="removeSerial"
+    />
+  </FacetContainer>
 </template>
 
 <script>
 
 import SmartSelector from 'components/ui/SmartSelector'
 import DisplayList from 'components/displayList'
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { Serial } from 'routes/endpoints'
 
 export default {
   components: {
     SmartSelector,
-    DisplayList
+    DisplayList,
+    FacetContainer
   },
 
   props: {
     modelValue: {
-      type: Array,
-      default: () => []
+      type: Object,
+      default: () => ({})
     }
   },
 

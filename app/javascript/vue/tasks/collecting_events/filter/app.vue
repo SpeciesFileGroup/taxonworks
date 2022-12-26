@@ -171,7 +171,7 @@ watch(
 )
 
 const loadList = () => {
-  makeFilterRequest().then(_ => {
+  makeFilterRequest({ ...parameters.value, extend: ['roles'] }).then(_ => {
     list.value = list.value.map(item => ({
       ...item,
       roles: (item?.collector_roles || []).map(role => role.person.cached).join('; '),
@@ -214,7 +214,7 @@ const parseEndDate = ce => {
 
 const urlParams = URLParamsToJSON(location.href)
 if (Object.keys(urlParams).length) {
-  makeFilterRequest(urlParams)
+  makeFilterRequest({ ...urlParams, extend: ['roles'] })
 }
 
 </script>

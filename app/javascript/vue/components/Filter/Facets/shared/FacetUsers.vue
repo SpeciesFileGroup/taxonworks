@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3 class="flex-separate">
       Housekeeping
     </h3>
@@ -62,13 +62,14 @@
         </div>
       </div>
     </div>
-  </div>
+  </FacetContainer>
 </template>
 
 <script setup>
 import { ref, computed, watch, onBeforeMount } from 'vue'
 import { ProjectMember } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 
 const OPTIONS = [
   {

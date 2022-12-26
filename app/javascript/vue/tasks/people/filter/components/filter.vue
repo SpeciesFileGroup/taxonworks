@@ -97,9 +97,9 @@
 
 <script setup>
 
-import UserComponent from 'tasks/collection_objects/filter/components/filters/user'
+import UserComponent from 'components/Filter/Facets/shared/FacetUsers.vue'
 import IdentifierComponent from 'tasks/collection_objects/filter/components/filters/identifier'
-import KeywordsComponent from 'tasks/sources/filter/components/filters/tags'
+import KeywordsComponent from 'components/Filter/Facets/shared/FacetTags.vue'
 import platformKey from 'helpers/getPlatformKey.js'
 import FacetRoles from './Facet/FacetRoles.vue'
 import FacetRolesTotalUsed from './Facet/FacetRolesTotalUsed.vue'
@@ -113,8 +113,8 @@ import FacetRegex from './Facet/FacetRegex.vue'
 import FacetNotes from 'tasks/collection_objects/filter/components/filters/FacetNotes.vue'
 import FacetDataAttributes from 'tasks/collection_objects/filter/components/filters/DataAttributes/FacetDataAttribute.vue'
 import FacetWith from './Facet/FacetWith.vue'
-import FacetMatchIdentifiers from './Facet/FacetMatchIdentifiers.vue'
-import WithComponent from 'tasks/sources/filter/components/filters/with'
+import FacetMatchIdentifiers from 'components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
+import WithComponent from 'components/Filter/Facets/shared/FacetWith.vue'
 import checkMatchIdentifiersParams from '../helpers/checkMatchIdentifiersParams'
 import { removeEmptyProperties } from 'helpers/objects'
 import { computed, ref } from 'vue'

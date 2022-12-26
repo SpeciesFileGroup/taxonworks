@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Matching identifiers</h3>
     <div class="field label-above">
       <textarea
@@ -28,13 +28,14 @@
         :options="['Identifier', 'Internal']"
       />
     </div>
-  </div>
+  </FacetContainer>
 </template>
 
 <script setup>
 import { computed, ref, onBeforeMount } from 'vue'
 import VToggle from 'tasks/observation_matrices/new/components/newMatrix/switch.vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 
 const TYPE_PARAMETERS = {
   Internal: 'internal',

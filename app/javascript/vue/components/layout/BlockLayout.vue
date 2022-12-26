@@ -3,28 +3,33 @@
     <spinner-component
       :show-spinner="false"
       :show-legend="false"
-      v-if="spinner"/>
+      v-if="spinner"
+    />
     <a
       v-if="anchor"
       :name="anchor"
-      class="anchor"/>
-    <div 
+      class="anchor"
+    />
+    <div
       class="header flex-separate middle"
-      :class="{ 'validation-warning': warning }">
+      :class="{ 'validation-warning': warning }"
+    >
       <slot name="header">
         <h3>Default title</h3>
       </slot>
       <div class="horizontal-left-content">
-        <slot name="options"/>
+        <slot name="options" />
         <expand-component
           v-if="expand"
-          v-model="expanded"/>
+          v-model="expanded"
+        />
       </div>
     </div>
     <div
       class="body"
-      v-show="expanded">
-      <slot name="body"/>
+      v-show="expanded"
+    >
+      <slot name="body" />
     </div>
   </div>
 </template>

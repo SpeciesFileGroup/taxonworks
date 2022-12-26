@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>BybTeX type</h3>
     <div class="field">
       <ul class="no_bullets">
@@ -11,19 +11,20 @@
             <input
               type="checkbox"
               :value="type"
-              v-model="selectedTypes"
+              v-model="params.bibtex_type"
             >
             {{ type }}
           </label>
         </li>
       </ul>
     </div>
-  </div>
+  </FacetContainer>
 </template>
 
 <script setup>
 import { computed } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 
 const TYPES = [
   'article',
@@ -44,19 +45,19 @@ const TYPES = [
 
 const props = defineProps({
   modelValue: {
-    type: Array,
-    default: () => []
+    type: Object,
+    default: () => ({})
   }
 })
 
 const emit = defineEmits(['update:modelValue'])
 
-const selectedTypes = computed({
+const params = computed({
   get: () => props.modelValue,
   set: value => emit('update:modelValue', value)
 })
 
 const urlParams = URLParamsToJSON(location.href)
 
-selectedTypes.value = urlParams.bibtex_type || []
+params.value.bibtex_type = urlParams.bibtex_type || []
 </script>
