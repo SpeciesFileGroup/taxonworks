@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Determinations</h3>
     <h4>Taxon name</h4>
     <div class="field">
@@ -9,29 +9,26 @@
         label="label_html"
         clear-after
         placeholder="Search a taxon name"
-        @getItem="setTaxon($event.id)"
+        @get-item="setTaxon($event.id)"
       />
-      <p
-        v-if="taxon"
-        class="field middle">
-        <span
-          class="margin-small-right"
-          v-html="taxon.object_tag"/>
-        <span
-          class="separate-left button button-circle btn-undo button-default"
-          @click="removeTaxon"/>
-      </p>
+      <SmartSelectorItem
+        :item="taxon"
+        label="object_tag"
+        @unset="removeTaxon"
+      />
       <div class="field separate-top">
         <ul class="no_bullets">
-          <li 
+          <li
             v-for="item in validityOptions"
-            :key="item.value">
+            :key="item.value"
+          >
             <label>
               <input
                 type="radio"
                 :value="item.value"
                 name="taxon-validity"
-                v-model="determination.validity">
+                v-model="determination.validity"
+              >
               {{ item.label }}
             </label>
           </li>
@@ -47,23 +44,27 @@
         label="label_html"
         clear-after
         display="label"
-        @getItem="addOtu($event.id)" />
+        @get-item="addOtu($event.id)"
+      />
     </div>
     <div class="field separate-top">
       <ul class="no_bullets table-entrys-list">
         <li
           class="middle flex-separate list-complete-item"
           v-for="(otu, index) in otusStore"
-          :key="otu.id">
-          <span v-html="otu.object_tag"/>
+          :key="otu.id"
+        >
+          <span v-html="otu.object_tag" />
           <span
             class="btn-delete button-circle"
-            @click="removeOtu(index)"/>
+            @click="removeOtu(index)"
+          />
         </li>
       </ul>
     </div>
     <div class="field">
       <determiner-component
+        class="no-shadow no-padding"
         v-model="determination"
         role="Determiner"
         title="Determiner"
@@ -96,13 +97,15 @@
         </li>
       </ul>
     </div>
-  </div>
+  </FacetContainer>
 </template>
 
 <script>
 
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import Autocomplete from 'components/ui/Autocomplete'
-import DeterminerComponent from './shared/people'
+import DeterminerComponent from '../../shared/FacetPeople.vue'
+import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import {
   TaxonName,
@@ -112,7 +115,9 @@ import {
 export default {
   components: {
     Autocomplete,
-    DeterminerComponent
+    DeterminerComponent,
+    SmartSelectorItem,
+    FacetContainer
   },
 
   props: {

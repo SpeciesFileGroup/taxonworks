@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <FacetContainer>
     <div class="flex-separate middle">
       <h3>{{ title }}</h3>
       <SwitchButtom
@@ -41,7 +41,7 @@
         type="text"
       >
     </div>
-  </div>
+  </FacetContainer>
 </template>
 
 <script>
@@ -49,6 +49,7 @@
 import SwitchButtom from 'tasks/observation_matrices/new/components/newMatrix/switch.vue'
 import SmartSelector from 'components/ui/SmartSelector'
 import DisplayList from 'components/displayList'
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import { People } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
@@ -56,7 +57,8 @@ export default {
   components: {
     SmartSelector,
     DisplayList,
-    SwitchButtom
+    SwitchButtom,
+    FacetContainer
   },
 
   props: {

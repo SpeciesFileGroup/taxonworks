@@ -31,10 +31,10 @@
         @click="searchForCollectionObjects(parseParams)">
         Search
       </button>
-      <geographic-component
+      <FacetGeographic
         class="margin-large-bottom margin-medium-top"
         v-model="params.geographic"/>
-      <otu-component
+      <FacetDetermination
         class="margin-large-bottom"
         v-model="params.determination"/>
       <FacetCurrentRepository
@@ -105,20 +105,21 @@
         :key="key"
         :title="key.replace('with_', '')"
         :param="key"
-        v-model="params.byRecordsWith[key]"/>
+        v-model="params"
+      />
     </div>
   </div>
 </template>
 
 <script>
 
-import OtuComponent from './filters/otu'
-import CollectingEvent from './filters/collectingEvent/collectingEvent'
+import FacetDetermination from 'components/Filter/Facets/CollectionObject/Determiner/FacetDetermination.vue'
+import CollectingEvent from 'components/Filter/Facets/CollectingEvent/FacetCollectingEvent/FacetCollectingEvent.vue'
 import UserComponent from 'components/Filter/Facets/shared/FacetUsers.vue'
-import GeographicComponent from './filters/geographic'
+import FacetGeographic from 'components/Filter/Facets/shared/FacetGeographic.vue'
 import KeywordsComponent from 'components/Filter/Facets/shared/FacetTags.vue'
 import IdentifierComponent from './filters/identifier'
-import TypesComponent from './filters/types'
+import TypesComponent from 'components/Filter/Facets/CollectionObject/FacetTypeMaterial.vue'
 import LoanComponent from './filters/loan'
 import InRelationship from './filters/relationship/in_relationship'
 import BiocurationsComponent from './filters/biocurations'
@@ -126,10 +127,10 @@ import RepositoryComponent from './filters/repository.vue'
 import WithComponent from 'components/Filter/Facets/shared/FacetWith.vue'
 import BufferedComponent from './filters/buffered.vue'
 import PreparationTypes from './filters/preparationTypes'
-import CollectorsComponent from './filters/shared/people'
+import CollectorsComponent from 'components/Filter/Facets/shared/FacetPeople.vue'
 import FacetNotes from './filters/FacetNotes.vue'
 import FacetCurrentRepository from './filters/FacetCurrentRepository.vue'
-import FacetDataAttribute from './filters/DataAttributes/FacetDataAttribute.vue'
+import FacetDataAttribute from '../../../../components/Filter/Facets/shared/FacetDataAttribute.vue'
 import FacetMatchIdentifiers from 'components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 import checkMatchIdentifiersParams from 'tasks/people/filter/helpers/checkMatchIdentifiersParams'
 import qs from 'qs'
@@ -144,10 +145,10 @@ export default {
   components: {
     BufferedComponent,
     SpinnerComponent,
-    OtuComponent,
+    FacetDetermination,
     CollectingEvent,
     UserComponent,
-    GeographicComponent,
+    FacetGeographic,
     KeywordsComponent,
     IdentifierComponent,
     TypesComponent,

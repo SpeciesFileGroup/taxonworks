@@ -139,7 +139,7 @@ const stop = useHotkey(hotkeys.value)
 
 .grid-filter {
   display: grid;
-  gap: .5em;
+  gap: 1em;
   grid-template-columns: 400px 1fr;
 }
 

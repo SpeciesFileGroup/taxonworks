@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Data attributes</h3>
     <label>Predicate</label>
     <smart-selector
@@ -25,7 +25,7 @@
         v-model="inputValue"
         class="full_width"
         rows="5"
-      ></textarea>
+      />
       <div class="flex-separate middle">
         <VBtn
           color="primary"
@@ -49,7 +49,7 @@
       :delete-warning="false"
       @delete-index="params.data_attribute_value.splice($event, 1)"
     />
-  </div>
+  </FacetContainer>
 </template>
 
 <script setup>
@@ -57,6 +57,7 @@ import { computed, ref, watch } from 'vue'
 import { ControlledVocabularyTerm } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { addToArray, removeFromArray } from 'helpers/arrays.js'
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import displayList from 'components/displayList.vue'
 import VBtn from 'components/ui/VBtn/index.vue'

@@ -49,7 +49,6 @@
     </div>
     <h3>Namespace</h3>
     <smart-selector
-      class="margin-medium-top"
       model="namespaces"
       klass="Source"
       pin-section="Namespaces"

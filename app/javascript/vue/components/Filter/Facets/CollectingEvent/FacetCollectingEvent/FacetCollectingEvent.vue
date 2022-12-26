@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Collecting Event</h3>
     <h4>Date range</h4>
     <div class="horizontal-left-content">
@@ -58,7 +58,7 @@
       :list="params.fields"
       @fields="setFields"
     />
-  </div>
+  </FacetContainer>
 </template>
 
 <script setup>
@@ -66,6 +66,7 @@ import { ref, computed, watch, onBeforeMount } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import SmartSelector from 'components/ui/SmartSelector'
 import AddField from './addFields'
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import { CollectingEvent } from 'routes/endpoints'
 
 const props = defineProps({

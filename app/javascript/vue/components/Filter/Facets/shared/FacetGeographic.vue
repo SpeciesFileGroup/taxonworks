@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Geographic area</h3>
     <switch-component
       class="separate-bottom"
@@ -79,7 +79,7 @@
       />
     </div>
     <RadialFilterAttribute :parameters="{ geographic_area_id: geographic.geographic_area_id }" />
-  </div>
+  </FacetContainer>
 </template>
 
 <script setup>
@@ -88,6 +88,7 @@ import SwitchComponent from 'components/switch'
 import Autocomplete from 'components/ui/Autocomplete'
 import GeoreferenceMap from 'components/georeferences/map'
 import RadialFilterAttribute from 'components/radials/filter/RadialFilterAttribute.vue'
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import { GeographicArea } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { computed, ref, watch, onBeforeMount } from 'vue'

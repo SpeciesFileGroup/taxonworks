@@ -75,7 +75,7 @@
 </template>
 
 <script setup>
-import FacetGeographic from 'tasks/collection_objects/filter/components/filters/geographic.vue'
+import FacetGeographic from 'components/Filter/Facets/shared/FacetGeographic.vue'
 import FacetWKT from 'tasks/otu/filter/components/Facet/FacetWKT.vue'
 import UserComponent from 'components/Filter/Facets/shared/FacetUsers.vue'
 import FacetIdentifier from 'tasks/collection_objects/filter/components/filters/identifier'
