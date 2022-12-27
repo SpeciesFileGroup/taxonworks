@@ -1,19 +1,13 @@
 <template>
   <div>
     <div class="flex-separate middle">
-      <h1>Filter sources</h1>
+      <h1>Filter extracts</h1>
       <FilterSettings
         v-model:filter="preferences.activeFilter"
         v-model:url="preferences.activeJSONRequest"
         v-model:append="append"
         v-model:list="preferences.showList"
-      >
-        <template #first>
-          <li>
-            <a href="/tasks/sources/hub">Source hub</a>
-          </li>
-        </template>
-      </FilterSettings>
+      />
     </div>
 
     <JsonRequestUrl
@@ -26,7 +20,7 @@
       :filter="preferences.activeFilter"
       :pagination="pagination"
       v-model:per="per"
-      @filter="makeFilterRequest({ ...parameters, extend: ['documents'] })"
+      @filter="makeFilterRequest({ ...parameters, extend })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
@@ -35,38 +29,7 @@
           v-if="list.length"
           class="horizontal-right-content"
         >
-          <div class="horizontal-left-content">
-            <ul class="context-menu middle no_bullets">
-              <li>
-                <button
-                  type="button"
-                  class="button normal-input button-default"
-                  @click="selectedIds = selectedIds.length
-                    ? []
-                    : list.map(item => item.id)"
-                >
-                  {{ selectedIds.length ? 'Unselect all ' :'Select all' }}
-                </button>
-              </li>
-              <li>
-                <CsvButton :list="csvList" />
-              </li>
-              <li>
-                <BibliographyButton
-                  :selected-list="selectedIds"
-                  :pagination="pagination"
-                  :params="parameters"
-                />
-              </li>
-              <li>
-                <BibtexButton
-                  :selected-list="selectedIds"
-                  :pagination="pagination"
-                  :params="parameters"
-                />
-              </li>
-            </ul>
-          </div>
+          <CsvButton :list="csvList" />
         </div>
       </template>
       <template #facets>
@@ -76,7 +39,6 @@
         <div class="full_width">
           <ListComponent
             v-model="selectedIds"
-            :class="{ 'separate-left': preferences.activeFilter }"
             :list="list"
             @on-sort="list = $event"
           />
@@ -94,17 +56,15 @@
 
 <script setup>
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
-import FilterComponent from './components/filter.vue'
+import FilterComponent from './components/Filter.vue'
 import ListComponent from './components/list'
 import CsvButton from 'components/csvButton'
-import BibtexButton from './components/bibtex'
-import BibliographyButton from './components/bibliography.vue'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
-
-import { Source } from 'routes/endpoints'
+import extend from 'tasks/extracts/new_extract/const/extendRequest'
+import { Extract } from 'routes/endpoints'
 import { computed, reactive, ref } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
 
@@ -125,7 +85,7 @@ const {
   parameters,
   makeFilterRequest,
   resetFilter
-} = useFilter(Source)
+} = useFilter(Extract)
 
 const csvList = computed(() =>
   selectedIds.value.length
@@ -136,14 +96,14 @@ const csvList = computed(() =>
 const urlParams = URLParamsToJSON(location.href)
 
 if (Object.keys(urlParams).length) {
-  makeFilterRequest({ ...urlParams, extend: ['documents'] })
+  makeFilterRequest({ ...urlParams, extend })
 }
 
 </script>
 
 <script>
 export default {
-  name: 'FilterSources'
+  name: 'FilterExtracts'
 }
 </script>
 

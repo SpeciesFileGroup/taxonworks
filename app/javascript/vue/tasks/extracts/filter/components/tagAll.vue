@@ -1,14 +1,16 @@
 <template>
   <div>
-    <spinner-component 
+    <spinner-component
       v-if="showSpinner"
       :full-screen="true"
-      legend="Creating tags..."/>
+      legend="Creating tags..."
+    />
     <button
       class="button normal-input button-submit"
       type="button"
       @click="tagAll"
-      :disabled="!keywordId || !ids.length">
+      :disabled="!keywordId || !ids.length"
+    >
       Tag
     </button>
   </div>

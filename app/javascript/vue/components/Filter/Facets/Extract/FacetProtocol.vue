@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Protocols</h3>
     <fieldset>
       <legend>Protocol</legend>
@@ -8,11 +8,13 @@
         klass="Tags"
         pin-section="Protocols"
         pin-type="Protocol"
-        @selected="addToArray(protocols, $event)"/>
+        @selected="addToArray(protocols, $event)"
+      />
     </fieldset>
     <table
       v-if="protocols.length"
-      class="vue-table">
+      class="vue-table"
+    >
       <thead>
         <tr>
           <th>Name</th>
@@ -23,7 +25,8 @@
       <transition-group
         class="table-entrys-list"
         name="list-complete"
-        tag="tbody">
+        tag="tbody"
+      >
         <template
           v-for="(item, index) in protocols"
           :key="index"
@@ -42,16 +45,17 @@
         </template>
       </transition-group>
     </table>
-  </div>
+  </FacetContainer>
 </template>
 
 <script setup>
-import SmartSelector from 'components/ui/SmartSelector.vue'
 import { computed, ref, watch } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { Protocol } from 'routes/endpoints'
 import { addToArray, removeFromArray } from 'helpers/arrays'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 import RowItem from 'components/Filter/Facets/shared/RowItem.vue'
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 
 const props = defineProps({
   modelValue: {
@@ -73,8 +77,8 @@ watch(
   () => props.modelValue,
   newVal => {
     if (
-      !newVal.protocol_id_and.length &&
-      !newVal.protocol_id_or.length &&
+      !newVal?.protocol_id_and?.length &&
+      !newVal?.protocol_id_or?.length &&
       protocols.value.length) {
       protocols.value = []
     }
@@ -84,10 +88,8 @@ watch(
 watch(
   protocols,
   () => {
-    params.value = {
-      protocol_id_and: protocols.value.filter(protocol => protocol.and).map(protocol => protocol.id),
-      protocol_id_or: protocols.value.filter(protocol => !protocol.and).map(protocol => protocol.id)
-    }
+    params.value.protocol_id_and = protocols.value.filter(protocol => protocol.and).map(protocol => protocol.id)
+    params.value.protocol_id_or = protocols.value.filter(protocol => !protocol.and).map(protocol => protocol.id)
   },
   { deep: true }
 )

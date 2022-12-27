@@ -123,7 +123,7 @@ import TypesComponent from 'components/Filter/Facets/CollectionObject/FacetTypeM
 import LoanComponent from './filters/loan'
 import InRelationship from './filters/relationship/in_relationship'
 import BiocurationsComponent from './filters/biocurations'
-import RepositoryComponent from './filters/repository.vue'
+import RepositoryComponent from '../../../../components/Filter/Facets/CollectionObject/FacetRepository.vue'
 import WithComponent from 'components/Filter/Facets/shared/FacetWith.vue'
 import BufferedComponent from './filters/buffered.vue'
 import PreparationTypes from './filters/preparationTypes'

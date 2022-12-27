@@ -10,7 +10,8 @@
             <th>
               <input
                 v-model="selectIds"
-                type="checkbox">
+                type="checkbox"
+              >
             </th>
             <th v-for="label in TABLE_HEADERS">
               {{ label }}
@@ -29,7 +30,8 @@
               <input
                 v-model="ids"
                 :value="item.id"
-                type="checkbox">
+                type="checkbox"
+              >
             </td>
             <td
               v-for="attr in TABLE_ATTRIBUTES"
@@ -49,13 +51,12 @@
 </template>
 
 <script setup>
-
-import { computed, ref, watch } from 'vue'
-import { sortArray } from 'helpers/arrays.js'
 import HandyScroll from 'vue-handy-scroll'
-import { vResizeColumn } from 'directives/resizeColumn.js'
 import RadialNavigation from 'components/radials/navigation/radial.vue'
 import makeExtractList from 'tasks/extracts/new_extract/helpers/makeExtractList'
+import { computed, ref, watch } from 'vue'
+import { sortArray } from 'helpers/arrays.js'
+import { vResizeColumn } from 'directives/resizeColumn.js'
 import {
   TABLE_ATTRIBUTES,
   TABLE_HEADERS
@@ -98,13 +99,6 @@ watch(
   () => { HandyScroll.EventBus.emit('update', { sourceElement: element.value }) },
   { immediate: true }
 )
-
-const ascending = ref(false)
-
-const sortTable = sortProperty => {
-  emit('onSort', sortArray(this.list, sortProperty, ascending.value))
-  ascending.value = !ascending.value
-}
 
 delete TABLE_ATTRIBUTES.global_id
 </script>

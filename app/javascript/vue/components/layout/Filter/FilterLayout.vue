@@ -133,6 +133,9 @@ const hotkeys = ref([
 
 const stop = useHotkey(hotkeys.value)
 
+TW.workbench.keyboard.createLegend(`${platformKey()}+f`, 'Search', 'Filter sources')
+TW.workbench.keyboard.createLegend(`${platformKey()}+r`, 'Reset task', 'Filter sources')
+
 </script>
 
 <style scoped>

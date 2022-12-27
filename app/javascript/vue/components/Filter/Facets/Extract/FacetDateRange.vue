@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Extracted date range</h3>
     <div class="horizontal-left-content">
       <div class="field separate-right label-above">
@@ -18,11 +18,12 @@
         >
       </div>
     </div>
-  </div>
+  </FacetContainer>
 </template>
 
 <script setup>
 import { computed } from 'vue'
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 
 const props = defineProps({
   modelValue: {

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Otu</h3>
     <div class="field">
       <smart-selector
@@ -15,7 +15,7 @@
       :delete-warning="false"
       @delete="removeFromArray(otusStore, $event)"
     />
-  </div>
+  </FacetContainer>
 </template>
 
 <script setup>
@@ -23,6 +23,7 @@ import { computed, ref, watch } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { Otu } from 'routes/endpoints'
 import { addToArray, removeFromArray } from 'helpers/arrays'
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import DisplayList from 'components/displayList.vue'
 
@@ -41,7 +42,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 const otusStore = ref([])
 
-const otuIds = computed({
+const params = computed({
   get: () => props.modelValue,
   set: value => { emit('update:modelValue', value) }
 })
@@ -58,7 +59,7 @@ watch(
 watch(
   otusStore,
   newVal => {
-    otuIds.value = newVal.map(otu => otu.id)
+    params.value.otu_id = newVal.map(otu => otu.id)
   },
   { deep: true }
 )

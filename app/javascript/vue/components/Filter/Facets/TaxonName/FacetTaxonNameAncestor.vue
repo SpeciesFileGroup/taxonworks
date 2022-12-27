@@ -1,21 +1,22 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Taxon name</h3>
     <div class="field">
-      <smart-selector
+      <SmartSelector
         model="taxon_names"
         @selected="taxon = $event"
       />
-      <smart-selector-item
+      <SmartSelectorItem
         :item="taxon"
         label="object_tag"
         @unset="taxon = undefined"
       />
     </div>
-  </div>
+  </FacetContainer>
 </template>
 
 <script setup>
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
@@ -40,9 +41,7 @@ const params = computed({
 watch(
   taxon,
   newVal => {
-    params.value.ancestor_id = newVal
-      ? newVal.id
-      : undefined
+    params.value.ancestor_id = newVal?.id
   }
 )
 

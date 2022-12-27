@@ -1,11 +1,9 @@
 import { createApp } from 'vue'
-import App from './app.vue'
-import hotkey from 'plugins/v-hotkey'
+import App from './App.vue'
 
 function initApp (element) {
   const app = createApp(App)
 
-  app.directive('hotkey', hotkey)
   app.mount(element)
 }
 

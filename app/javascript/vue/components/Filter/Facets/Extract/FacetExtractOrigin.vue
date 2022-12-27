@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Origin</h3>
     <ul class="no_bullets">
       <li>
@@ -7,7 +7,7 @@
           <input
             type="radio"
             :value="undefined"
-            v-model="origin"
+            v-model="params.extract_origin"
           >
           All
         </label>
@@ -19,19 +19,20 @@
         <label>
           <input
             type="radio"
-            v-model="origin"
+            v-model="params.extract_origin"
             :value="item"
           >
           {{ item }}
         </label>
       </li>
     </ul>
-  </div>
+  </FacetContainer>
 </template>
 
 <script setup>
-import { URLParamsToJSON } from 'helpers/url/parse';
-import { ref, computed } from 'vue'
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import { URLParamsToJSON } from 'helpers/url/parse'
+import { computed } from 'vue'
 import {
   COLLECTION_OBJECT,
   EXTRACT,
@@ -50,18 +51,18 @@ const options = [
 
 const props = defineProps({
   modelValue: {
-    type: String,
-    default: undefined
+    type: Object,
+    default: () => ({})
   }
 })
 
 const emit = defineEmits(['update:modelValue'])
 
-const origin = computed({
+const params = computed({
   get: () => props.modelValue,
   set: value => emit('update:modelValue', value)
 })
 
-origin.value = URLParamsToJSON(location.href).extract_origin
+params.value.extract_origin = URLParamsToJSON(location.href).extract_origin
 
 </script>

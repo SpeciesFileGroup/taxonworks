@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Collection objects</h3>
     <smart-selector
       model="collection_objects"
@@ -13,22 +13,28 @@
       soft-delete
       @delete="removeFromArray(collectionObjects, $event)"
     />
-  </div>
+  </FacetContainer>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { addToArray, removeFromArray } from 'helpers/arrays'
 import { URLParamsToJSON } from 'helpers/url/parse'
 import { CollectionObject } from 'routes/endpoints'
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import DisplayList from 'components/displayList.vue'
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 
 const props = defineProps({
   modelValue: {
-    type: Array,
-    default: () => []
+    type: Object,
+    default: () => ({})
   }
+})
+
+const params = computed({
+  get: () => props.modelValue,
+  set: value => emit('update:modelValue', value)
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -46,14 +52,14 @@ if (coIds) {
 
 watch(
   collectionObjects,
-  newVal => { emit('update:modelValue', newVal.map(co => co.id)) },
+  newVal => { params.value.collection_object_id = newVal.map(co => co.id) },
   { deep: true }
 )
 
 watch(
   () => props.modelValue,
   (newVal, oldVal) => {
-    if (!newVal.length && oldVal.length) {
+    if (!newVal?.collection_object_id?.length && oldVal?.collection_object_id?.length) {
       collectionObjects.value = []
     }
   }
