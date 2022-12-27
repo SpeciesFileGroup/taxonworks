@@ -110,7 +110,7 @@ import FacetDied from 'tasks/uniquify/people/components/Filter/Facets/FacetDied.
 import FacetTimesRepeated from './Facet/FacetTimesRepeated.vue'
 import FacetProjects from './Facet/FacetProjects.vue'
 import FacetRegex from './Facet/FacetRegex.vue'
-import FacetNotes from 'tasks/collection_objects/filter/components/filters/FacetNotes.vue'
+import FacetNotes from 'components/Filter/Facets/shared/FacetNotes.vue'
 import FacetDataAttributes from 'components/Filter/Facets/shared/FacetDataAttribute.vue'
 import FacetWith from './Facet/FacetWith.vue'
 import FacetMatchIdentifiers from 'components/Filter/Facets/shared/FacetMatchIdentifiers.vue'

@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Notes</h3>
     <div class="field label-above">
-      <input 
+      <input
         class="full_width"
         type="text"
         v-model="params.note_text"
@@ -10,14 +10,16 @@
       <label>
         <input
           v-model="params.note_exact"
-          type="checkbox">
+          type="checkbox"
+        >
         Exact
       </label>
     </div>
-  </div>
+  </FacetContainer>
 </template>
 
 <script setup>
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
 import { computed } from 'vue'
 

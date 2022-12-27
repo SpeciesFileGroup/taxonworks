@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Biological property</h3>
     <div class="field">
       <SmartSelector
@@ -41,45 +41,44 @@
         </transition-group>
       </table>
     </div>
-  </div>
+  </FacetContainer>
 </template>
 
 <script setup>
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import RowItem from 'components/Filter/Facets/shared/RowItem.vue'
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { ControlledVocabularyTerm } from 'routes/endpoints'
 import { ref, computed, watch } from 'vue'
 import { removeFromArray } from 'helpers/arrays'
 
 const props = defineProps({
-  object: {
-    type: Array,
-    default: () => []
-  },
-
-  subject: {
-    type: Array,
-    default: () => []
+  modelValue: {
+    type: Object,
+    default: () => ({})
   }
 })
 
-const emit = defineEmits(['update:object', 'update:subject'])
+const emit = defineEmits(['update:modelValue'])
 
 const biologicalProperties = ref([])
-const objectIds = computed({
-  get: () => props.object,
-  set: value => emit('update:object', value)
-})
-const subjectIds = computed({
-  get: () => props.object,
-  set: value => emit('update:subject', value)
+const params = computed({
+  get: () => props.modelValue,
+  set: value => emit('update:modelValue', value)
 })
 
 watch(
-  [objectIds, subjectIds],
+  [
+    () => params.value.object_biological_property_id,
+    () => params.value.subject_biological_property_id
+  ],
   () => {
-    if (!props.object.length && !props.subject.length && biologicalProperties.value.length) {
+    if (
+      !params.value.object_biological_property_id?.length &&
+      !params.value.subject_biological_property_id?.length &&
+      biologicalProperties.value.length
+    ) {
       biologicalProperties.value = []
     }
   }
@@ -88,8 +87,8 @@ watch(
 watch(
   biologicalProperties,
   newVal => {
-    objectIds.value = newVal.filter(item => !item.isSubject).map(item => item.id)
-    subjectIds.value = newVal.filter(item => item.isSubject).map(item => item.id)
+    params.value.object_biological_property_id = newVal.filter(item => !item.isSubject).map(item => item.id)
+    params.value.subject_biological_property_id = newVal.filter(item => item.isSubject).map(item => item.id)
   },
   { deep: true }
 )

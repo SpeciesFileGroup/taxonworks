@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Nomenclature relation</h3>
     <div class="field">
       <smart-selector
@@ -42,10 +42,11 @@
         </transition-group>
       </table>
     </div>
-  </div>
+  </FacetContainer>
 </template>
 
 <script setup>
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import RowItem from 'components/Filter/Facets/shared/RowItem.vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
@@ -54,48 +55,51 @@ import { ref, computed, watch } from 'vue'
 import { removeFromArray } from 'helpers/arrays'
 
 const props = defineProps({
-  both: {
-    type: Array,
-    default: () => []
-  },
-
-  object: {
-    type: Array,
-    default: () => []
-  },
-
-  subject: {
-    type: Array,
-    default: () => []
+  modelValue: {
+    type: Object,
+    default: () => ({})
   }
 })
 
-const emit = defineEmits([
-  'update:object',
-  'update:subject',
-  'update:both'
-])
+const emit = defineEmits(['update:modelValue'])
 
 const taxonNames = ref([])
+
+const params = computed({
+  get: () => props.modelValue,
+  set: value => emit('update:modelValue', value)
+})
+
 const objectIds = computed({
-  get: () => props.object,
-  set: value => emit('update:object', value)
+  get: () => params.value.object_taxon_name_id || [],
+  set: value => {
+    params.value.object_taxon_name_id = value
+  }
 })
 
 const subjectIds = computed({
-  get: () => props.object,
-  set: value => emit('update:subject', value)
+  get: () => params.value.subject_taxon_name_id || [],
+  set: value => {
+    params.value.subject_taxon_name_id = value
+  }
 })
 
 const bothIds = computed({
-  get: () => props.both,
-  set: value => emit('update:both', value)
+  get: () => params.value.taxon_name_id || [],
+  set: value => {
+    params.value.taxon_name_id = value
+  }
 })
 
 watch(
   [objectIds, subjectIds],
   () => {
-    if (!props.object.length && !props.both.length && !props.subject.length && taxonNames.value.length) {
+    if (
+      !objectIds.value?.length &&
+      !bothIds.value?.length &&
+      !subjectIds.value?.length &&
+      taxonNames.value.length
+    ) {
       taxonNames.value = []
     }
   }

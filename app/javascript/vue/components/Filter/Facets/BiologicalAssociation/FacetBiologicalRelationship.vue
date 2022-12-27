@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Biological relationships</h3>
     <div class="field">
-      <smart-selector
+      <SmartSelector
         model="biological_relationships"
         @selected="addBiologicalRelationship"
       />
@@ -14,10 +14,11 @@
         @delete="removeBiologicalRelationship"
       />
     </div>
-  </div>
+  </FacetContainer>
 </template>
 
 <script setup>
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import DisplayList from 'components/displayList.vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
@@ -41,24 +42,27 @@ const params = computed({
 })
 
 watch(
-  params,
-  newVal => {
-    if (!newVal.length) {
+  () => params.value.biological_relationship_id,
+  (newVal, oldVal) => {
+    if (!newVal?.length && oldVal?.length) {
       biologicalRelationships.value = []
     }
   }
 )
 
+watch(
+  biologicalRelationships,
+  newVal => {
+    params.value.biological_relationship_id = newVal.map(item => item.id)
+  }
+)
+
 function addBiologicalRelationship (item) {
-  params.value.push(item.id)
   biologicalRelationships.value.push(item)
 }
 
 function removeBiologicalRelationship (biologicalRelationship) {
-  const index = params.value.findIndex(item => item.id === biologicalRelationship.id)
-
   removeFromArray(biologicalRelationships.value, biologicalRelationship)
-  params.value.splice(index, 1)
 }
 
 const { biological_relationship_id = [] } = URLParamsToJSON(location.href)

@@ -1,14 +1,13 @@
 <template>
   <div>
-    <spinner-component
-      v-if="isLoading"
-      full-screen
-      legend="Searching..."
-      :logo-size="{ width: '100px', height: '100px'}"
-    />
     <div class="flex-separate middle">
       <h1>Filter biological associations</h1>
-      <menu-preferences v-model="preferences" />
+      <FilterSettings
+        v-model:filter="preferences.activeFilter"
+        v-model:url="preferences.activeJSONRequest"
+        v-model:append="append"
+        v-model:list="preferences.showList"
+      />
     </div>
 
     <JsonRequestUrl
@@ -17,64 +16,56 @@
       :url="urlRequest"
     />
 
-    <div class="horizontal-left-content align-start">
-      <filter-component
-        class="separate-right"
-        v-show="preferences.activeFilter"
-        @parameters="makeFilterRequest({ ...$event, extend })"
-        @reset="resetFilter"
-      />
-      <div class="full_width overflow-x-auto">
+    <FilterLayout
+      :filter="preferences.activeFilter"
+      :pagination="pagination"
+      v-model:per="per"
+      @filter="makeFilterRequest({ ...parameters, extend })"
+      @nextpage="loadPage"
+      @reset="resetFilter"
+    >
+      <template #nav-right>
         <div
           v-if="list.length"
-          class="horizontal-left-content flex-separate separate-bottom"
+          class="horizontal-right-content"
         >
-          <csv-button
+          <CsvButton
             :list="csvFields"
             :options="{ fields }"
           />
         </div>
-
-        <div
-          class="flex-separate margin-medium-bottom"
-          v-if="pagination"
-        >
-          <pagination-component
-            :pagination="pagination"
-            @next-page="loadPage"
-          />
-          <pagination-count
-            v-model="per"
-            :pagination="pagination"
+      </template>
+      <template #facets>
+        <FilterComponent v-model="parameters" />
+      </template>
+      <template #table>
+        <div class="full_width">
+          <ListComponent
+            v-model="selectedIds"
+            :list="list"
+            @on-sort="list = $event"
           />
         </div>
-
-        <list-component
-          v-if="list.length"
-          v-model="selectedIds"
-          :list="list"
-        />
-        <h2
-          v-if="!list.length"
-          class="subtle middle horizontal-center-content no-found-message"
-        >
-          No records found.
-        </h2>
-      </div>
-    </div>
+      </template>
+    </FilterLayout>
+    <VSpinner
+      v-if="isLoading"
+      full-screen
+      legend="Searching..."
+      :logo-size="{ width: '100px', height: '100px'}"
+    />
   </div>
 </template>
 
 <script setup>
+import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/FilterView.vue'
 import ListComponent from './components/ListResults.vue'
 import CsvButton from 'components/csvButton'
-import PaginationComponent from 'components/pagination'
-import PaginationCount from 'components/pagination/PaginationCount'
-import MenuPreferences from 'tasks/extracts/filter/components/MenuPreferences.vue'
-import SpinnerComponent from 'components/spinner.vue'
 import useFilter from 'tasks/extracts/filter/composables/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
+import VSpinner from 'components/spinner.vue'
+import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
 import { BiologicalAssociation } from 'routes/endpoints'
 import { computed, reactive, ref } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
@@ -147,8 +138,10 @@ const {
   list,
   pagination,
   per,
+  append,
   urlRequest,
   loadPage,
+  parameters,
   makeFilterRequest,
   resetFilter
 } = useFilter(BiologicalAssociation)
@@ -161,8 +154,8 @@ if (Object.keys(urlParams).length) {
 
 </script>
 
-<style scoped>
-  .no-found-message {
-    height: 70vh;
-  }
-</style>
+<script>
+export default {
+  name: 'FilterBiologicalAssociations'
+}
+</script>

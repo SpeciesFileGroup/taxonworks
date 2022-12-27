@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Collecting Event</h3>
     <div class="field">
       <smart-selector
@@ -23,10 +23,11 @@
         </li>
       </ul>
     </div>
-  </div>
+  </FacetContainer>
 </template>
 
 <script setup>
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import { computed, watch, ref } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { CollectingEvent } from 'routes/endpoints'
@@ -42,32 +43,34 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 const collectingEvents = ref([])
 
-const collectingEventIds = computed({
-  get () {
-    return props.modelValue
-  },
-  set (value) {
-    emit('update:modelValue', value)
-  }
+const params = computed({
+  get: () => props.modelValue,
+  set: value => emit('update:modelValue', value)
 })
 
 watch(
-  collectingEventIds,
+  collectingEvents,
   newVal => {
-    if (!newVal.length) {
+    params.value.collecting_event_id = newVal.map(ce => ce.id)
+  }
+)
+
+watch(
+  () => props.modelValue.collecting_event_id,
+  (newVal, oldVal) => {
+    if (!newVal?.length && oldVal?.length) {
       collectingEvents.value = []
     }
   }
 )
 
 function addCe (ce) {
-  if (collectingEventIds.value.includes(ce.id)) return
-  collectingEventIds.value.push(ce.id)
+  if (params.value?.collecting_event_id?.includes(ce.id)) return
+
   collectingEvents.value.push(ce)
 }
 
 function removeCe (index) {
-  collectingEventIds.value.splice(index, 1)
   collectingEvents.value.splice(index, 1)
 }
 
