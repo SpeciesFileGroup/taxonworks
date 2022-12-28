@@ -1,15 +1,16 @@
 <template>
-  <div class="field">
+  <FacetContainer>
     <h3>Regular expression</h3>
     <input
       class="full_width"
       v-model="params.regex"
       type="text"
     >
-  </div>
+  </FacetContainer>
 </template>
 
 <script setup>
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import { computed } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
 

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Project scope</h3>
     <div class="flex-separate margin-medium-bottom">
       <div class="fields">
@@ -30,7 +30,7 @@
         </li>
       </ul>
     </div>
-  </div>
+  </FacetContainer>
 </template>
 
 <script setup>
@@ -39,6 +39,7 @@ import { User } from 'routes/endpoints'
 import { getCurrentUserId } from 'helpers/user.js'
 import { URLParamsToJSON } from 'helpers/url/parse'
 import VToggle from 'tasks/observation_matrices/new/components/newMatrix/switch.vue'
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 
 const props = defineProps({
   modelValue: {

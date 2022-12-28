@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <FacetContainer>
     <div class="field label-above">
       <label>Used more than</label>
       <input
@@ -16,10 +16,11 @@
         class="input-xsmall-width"
       >
     </div>
-  </div>
+  </FacetContainer>
 </template>
 
 <script setup>
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import { computed } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
 
