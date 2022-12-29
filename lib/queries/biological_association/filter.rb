@@ -8,6 +8,7 @@ module Queries
       include Queries::Concerns::Tags
       include Queries::Concerns::Users
 
+      # TODO: can't handle []
       PARAMS = %w{
         any_global_id
         biological_association_id
@@ -15,17 +16,18 @@ module Queries
         biological_relationship_id
         collecting_event_id
         collection_object_id
+        geo_json
+        geographic_area_id
+        geographic_area_mode
+        object_biological_property_id
         object_global_id
         object_taxon_name_id
         otu_id
-        spatial_geographic_area_id
+        subject_biological_property_id
         subject_global_id
         subject_taxon_name_id
         taxon_name_id
-        subject_biological_property_id
-        object_biological_property_id
         wkt
-        geo_json
       }.freeze
 
       # TODO: Consider implementing passed queries
@@ -42,12 +44,6 @@ module Queries
       #   All BiologicalAssociations with CollectionObjects
       # linked to one or more CollectingEvent
       attr_accessor :collecting_event_id
-
-      # @param spatial_geographic_area_id
-      # @return Integer
-      #   All BiologicalAssociations within the _spatial_
-      # area of the geographic_area
-      attr_accessor :spatial_geographic_area_id
 
       # @param otu_id
       # @return [Array]
@@ -116,13 +112,16 @@ module Queries
       # @return [Array]
       attr_accessor :any_global_id
 
-      # ---
+      # See lib/queries/otu/filter.rb
       attr_accessor :wkt
-
       attr_accessor :geo_json
+      attr_accessor :geographic_area_id
+
+      attr_accessor :geographic_area_mode
 
       def initialize(params)
-        params.reject!{ |_k, v| v.blank? } # dump all entries with empty values
+        # TODO: should be handled prior likely
+        params.reject!{ |_k, v| v.nil? || v == '' }
 
         # TODO: perhaps remove
         taxon_name_params = ::Queries::TaxonName::Filter::PARAMS
@@ -151,9 +150,6 @@ module Queries
 
         @biological_associations_graph_id = params[:biological_associations_graph_id]
 
-        @spatial_geographic_area_id = params[:spatial_geographic_area_id]
-
-
         @wkt = params[:wkt]
         @geo_json = params[:geo_json]
 
@@ -161,6 +157,9 @@ module Queries
 
         @object_biological_property_id = params[:object_biological_property_id]
         @subject_biological_property_id = params[:subject_biological_property_id]
+
+        @geographic_area_id = params[:geographic_area_id]
+        @geographic_area_mode = boolean_param(params, :geographic_area_mode)
 
         set_identifier(params)
         set_notes_params(params)
@@ -230,6 +229,10 @@ module Queries
         [@any_global_id].flatten.compact
       end
 
+      def geographic_area_id
+        [@geographic_area_id].flatten.compact
+      end
+
       # @return [ActiveRecord object, nil]
       # TODO: DRY
       def object_for(global_id)
@@ -263,53 +266,92 @@ module Queries
         q
       end
 
+      def geographic_area_id_facet 
+        return nil if geographic_area_id.empty?
+
+        a = nil
+
+        case geographic_area_mode
+        when nil, true # exact and spatial start the same
+          a = ::GeographicArea.where(id: geographic_area_id)
+        when false # descendants
+          # TODO: check for Homonyms here?
+          a = ::GeographicArea.descendants_of_any(geographic_area_id)
+        end
+
+        b = nil # from AssertedDistributions 
+        c = nil # from CollectionObjects
+        case geographic_area_mode
+        when nil, false # exact, descendants
+
+          gids = a.pluck(:id)
+
+          otus = ::Queries::Otu::Filter.new(
+            geographic_area_id: gids,
+          ).all
+        
+          collection_objects = ::Queries::CollectionObject::Filter.new(
+            geographic_area_id: gids,
+          ).all
+
+          d = ::BiologicalAssociation.where(biological_association_subject: [otus, collection_objects] )
+          e = ::BiologicalAssociation.where(biological_association_object: [otus, collection_objects] )
+
+          return ::BiologicalAssociation.from("((#{d.to_sql}) UNION (#{e.to_sql})) as biological_associations")
+        when true # spatial
+          i = ::GeographicItem.joins(:geographic_areas).where(geographic_areas: a)
+          wkt_shape = ::GeographicItem.st_union(i).to_a.first['collection'].to_s
+          return from_wkt(wkt_shape)
+        end
+      end
+
       # Not spatial
       def collecting_event_id_facet
         return nil if collecting_event_id.empty?
 
         collection_objects = ::Queries::CollectionObject::Filter.new(
-          collecting_event_ids: collecting_event_id
+          collecting_event_id: collecting_event_id
         ).all
+
+        # if collection_objects.any?
 
         a = ::BiologicalAssociation.where(biological_association_subject: collection_objects )
         b = ::BiologicalAssociation.where(biological_association_object: collection_objects )
 
-        # Not merge()
-        ::BiologicalAssociation.from("((#{a.to_sql}) UNION (#{b.to_sql})) as biological_associations")
-      end
-
-      def spatial_geographic_area_id_facet
-        return nil if spatial_geographic_area_id.nil?
-
-        area = GeographicArea.includes(:geographic_items).find(spatial_geographic_area_id)
-
-        # TODO: confirm this works, it is not speced
-        collection_objects = ::Queries::CollectionObject::Filter.new(
-          geographic_area_id: spatial_geographic_area_id, # CollectingEvent params
-          spatial_geographic_areas: true
-        )
-
-        # TODO: remove initial sub-queries
-        geographic_areas = GeographicArea.are_contained_in(area)
-
-        otus = ::Otu.joins(:asserted_distributions).where(asserted_distributions: {geographic_area_id: geographic_areas})
-
-        a = ::BiologicalAssociation.where(biological_association_subject: [otus, collection_objects] )
-        b = ::BiologicalAssociation.where(biological_association_object: [otus, collection_objects] )
+        # else
+        # return nil
+        # end
 
         ::BiologicalAssociation.from("((#{a.to_sql}) UNION (#{b.to_sql})) as biological_associations")
       end
 
       def wkt_facet
         return nil if wkt.nil?
+        from_wkt(wkt)
+      end
 
-        otus = ::Queries::Otu::Filter.new(wkt: wkt).all
-        collection_objects = ::Queries::CollectionObject::Filter.new(wkt: wkt).all
+      # TODO: remove N + 1
+      def from_wkt(wkt_shape)
+        otus = ::Queries::Otu::Filter.new(wkt: wkt_shape).all.pluck(:id)
+        collection_objects = ::Queries::CollectionObject::Filter.new(wkt: wkt_shape).all.pluck(:id)
 
-        a = ::BiologicalAssociation.where(biological_association_subject: [otus, collection_objects] )
-        b = ::BiologicalAssociation.where(biological_association_object: [otus, collection_objects] )
+        # b = ::BiologicalAssociation.where(biological_association_object: [otus, collection_objects] )
 
-        ::BiologicalAssociation.from("((#{a.to_sql}) UNION (#{b.to_sql})) as biological_associations")
+        a,b,c,d = nil, nil, nil, nil
+
+        if !otus.empty?
+          a = ::BiologicalAssociation.where(biological_association_subject_type: 'Otu', biological_association_subject_id: otus)
+          c = ::BiologicalAssociation.where(biological_association_object_type: 'Otu', biological_association_object_id: otus)
+        end
+
+        if !collection_objects.empty?
+          b = ::BiologicalAssociation.where(biological_association_subject_type: 'CollectionObject', biological_association_subject_id: collection_objects)
+          d = ::BiologicalAssociation.where(biological_association_object_type: 'CollectionObject', biological_association_object_id: collection_objects)
+        end
+
+        q = [a,b,c,d].compact
+
+        ::BiologicalAssociation.from('(' +  q.collect{|e| '(' + e.to_sql + ')' }.join(' UNION ') + ') as biological_associations')
       end
 
       def geo_json_facet
@@ -320,7 +362,7 @@ module Queries
         a = ::BiologicalAssociation.where(biological_association_subject: [otus, collection_objects] )
         b = ::BiologicalAssociation.where(biological_association_object: [otus, collection_objects] )
 
-        ::BiologicalAssociation.from("((#{a.to_sql}) UNION (#{b.to_sql})) as biological_associations")
+        ::BiologicalAssociation.from("((#{a.to_sql}) UNION (#{b.to_sql})) as biological_associations").distinct
       end
 
       def object_biological_property_id_facet
@@ -338,6 +380,24 @@ module Queries
       def biological_associations_graph_id_facet
         return nil if biological_associations_graph_id.empty?
         ::BiologicalAssociation.joins(:biological_associations_graphs).where(biological_associations_graphs: {id: biological_associations_graph_id})
+      end
+
+
+      def otu_params
+      end
+
+      def otu_facet
+      end
+
+      def collection_object_params
+      end
+
+      def collection_objects_facet
+#        if !collection_object_params.empty?
+
+#::Queries::CollectionObject::Filter.new(ancestor_id: id).all
+
+
       end
 
       def taxon_name_id_facet
@@ -471,7 +531,7 @@ module Queries
           subject_biological_property_id_facet,
           taxon_name_id_facet,
           collecting_event_id_facet,
-          spatial_geographic_area_id_facet,
+          geographic_area_id_facet,
           otu_id_facet,
           collection_object_id_facet,
           subject_taxon_name_id_facet,
@@ -500,6 +560,7 @@ module Queries
         clauses = base_merge_clauses
         return nil if clauses.empty?
         a = clauses.shift
+        
         clauses.each do |b|
           a = a.merge(b)
         end
@@ -510,18 +571,15 @@ module Queries
       def all
         a = and_clauses
         b = merge_clauses
-        # q = nil
         if a && b
           q = b.where(a).distinct
         elsif a
-          q = ::BiologicalAssociation.where(a).distinct
+          q = :BiologicalAssociation.where(a).distinct
         elsif b
           q = b.distinct
         else
           q = ::BiologicalAssociation.all
         end
-
-        q
       end
 
       # TaxonName - Query handling stubs
