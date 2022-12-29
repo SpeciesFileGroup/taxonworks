@@ -97,8 +97,3 @@ const params = computed({
 })
 
 </script>
-<style scoped>
-:deep(.btn-delete) {
-  background-color: #5D9ECE;
-}
-</style>

@@ -1,115 +1,86 @@
+
 <template>
   <div>
-    <VSpinner
-      v-if="isLoading"
-      full-screen
-      legend="Searching..."
-      :logo-size="{ width: '100px', height: '100px'}"
-    />
     <div class="flex-separate middle">
       <h1>Filter images</h1>
-      <ul class="context-menu">
-        <li>
-          <label>
-            <input
-              type="checkbox"
-              v-model="preferences.activeFilter"
-            >
-            Show filter
-          </label>
-        </li>
-        <li>
-          <label>
-            <input
-              type="checkbox"
-              v-model="preferences.activeJSONRequest"
-            >
-            Show JSON Request
-          </label>
-        </li>
-      </ul>
+      <FilterSettings
+        v-model:filter="preferences.activeFilter"
+        v-model:url="preferences.activeJSONRequest"
+        v-model:append="append"
+        v-model:list="preferences.showList"
+      />
     </div>
+
     <JsonRequestUrl
       v-show="preferences.activeJSONRequest"
       class="panel content separate-bottom"
       :url="urlRequest"
     />
 
-    <div class="horizontal-left-content align-start">
-      <FilterComponent
-        class="separate-right"
-        v-show="preferences.activeFilter"
-        @parameters="makeFilterRequest"
-        @reset="resetFilter"
-      />
-      <div class="full_width">
+    <FilterLayout
+      :filter="preferences.activeFilter"
+      :pagination="pagination"
+      v-model:per="per"
+      @filter="makeFilterRequest()"
+      @nextpage="loadPage"
+      @reset="resetFilter"
+    >
+      <template #nav-right>
         <div
-          v-if="pagination"
-          class="flex-separate margin-medium-bottom"
-          :class="{ 'separate-left': preferences.activeFilter }"
+          v-if="list.length"
+          class="horizontal-right-content"
         >
-          <PaginationComponent
-            v-if="pagination && list.length"
-            :pagination="pagination"
-            @next-page="loadPage"
+          <TagAll
+            type="Image"
+            :ids="selectedIds"
           />
-          <PaginationCount
-            :pagination="pagination"
-            v-model="per"
+          <AttributionComponent
+            class="margin-small-left margin-small-right"
+            :ids="selectedIds"
+            type="Image"
           />
-        </div>
-        <div
-          :class="{ 'separate-left': preferences.activeFilter }"
-        >
-          <div class="panel content margin-medium-bottom">
-            <div class="horizontal-left-content">
-              <TagAll
-                type="Image"
-                :ids="selectedIds"
-              />
-              <AttributionComponent
-                class="margin-small-left margin-small-right"
-                :ids="selectedIds"
-                type="Image"
-              />
-              <span>|</span>
-              <div class="margin-small-left">
-                <SelectAll
-                  v-model="selectedIds"
-                  :ids="list.map(({id}) => id)"
-                />
-              </div>
-            </div>
+          <span>|</span>
+          <div class="margin-small-left">
+            <SelectAll
+              v-model="selectedIds"
+              :ids="list.map(({id}) => id)"
+            />
           </div>
+        </div>
+      </template>
+      <template #facets>
+        <FilterComponent v-model="parameters" />
+      </template>
+      <template #table>
+        <div class="full_width">
           <ListComponent
             v-model="selectedIds"
             :list="list"
+            @on-sort="list = $event"
           />
-          <h2
-            v-if="!list.length"
-            class="subtle middle horizontal-center-content no-found-message"
-          >
-            No records found.
-          </h2>
         </div>
-      </div>
-    </div>
+      </template>
+    </FilterLayout>
+    <VSpinner
+      v-if="isLoading"
+      full-screen
+      legend="Searching..."
+      :logo-size="{ width: '100px', height: '100px'}"
+    />
   </div>
 </template>
 
 <script setup>
-
+import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
+import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
-import PaginationComponent from 'components/pagination'
-import PlatformKey from 'helpers/getPlatformKey'
 import TagAll from 'tasks/collection_objects/filter/components/tagAll.vue'
 import SelectAll from 'tasks/collection_objects/filter/components/selectAll.vue'
 import AttributionComponent from './components/attributions/main.vue'
 import VSpinner from 'components/spinner.vue'
-import useFilter from 'tasks/people/filter/composables/useFilter.js'
+import useFilter from 'shared/Filter/composition/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
-import PaginationCount from 'components/pagination/PaginationCount.vue'
 
 import { Image } from 'routes/endpoints'
 import { reactive, ref } from 'vue'
@@ -127,8 +98,10 @@ const {
   list,
   pagination,
   per,
+  append,
   urlRequest,
   loadPage,
+  parameters,
   makeFilterRequest,
   resetFilter
 } = useFilter(Image)
@@ -138,10 +111,6 @@ const urlParams = URLParamsToJSON(location.href)
 if (Object.keys(urlParams).length) {
   makeFilterRequest(urlParams)
 }
-
-TW.workbench.keyboard.createLegend(`${PlatformKey()}+f`, 'Search', 'Filter images')
-TW.workbench.keyboard.createLegend(`${PlatformKey()}+r`, 'Reset task', 'Filter images')
-
 </script>
 
 <script>
@@ -149,15 +118,3 @@ export default {
   name: 'FilterImages'
 }
 </script>
-
-<style scoped>
-  .no-found-message {
-    height: 70vh;
-  }
-</style>
-
-<style scoped>
-  .no-found-message {
-    height: 70vh;
-  }
-</style>

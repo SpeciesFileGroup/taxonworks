@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Taxon name</h3>
     <div class="field">
       <SmartSelector
@@ -13,10 +13,11 @@
         @delete="removeTaxonName"
       />
     </div>
-  </div>
+  </FacetContainer>
 </template>
 
 <script setup>
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import DisplayList from 'components/displayList.vue'
 import { ref, computed, watch } from 'vue'
