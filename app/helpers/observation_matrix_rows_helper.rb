@@ -24,7 +24,7 @@ module ObservationMatrixRowsHelper
     s = label_for(o)
     s.gsub!(/[^\w]/, '_').to_s
     s = '_' if s.blank?
-    s.gsub!('__', '_')
+    s.gsub!(/_+/, '_')
     #s[0..11] + "_#{o.id}"
   end
 
@@ -34,7 +34,7 @@ module ObservationMatrixRowsHelper
     s = label_for(o)
     s.gsub!(/[^\w]/, '_').to_s
     s = '_' if s.blank?
-    s.gsub!('__', '_')
+    s.gsub!(/_+/, '_')
   end
 
   def observation_matrix_row_label_nexml(observation_matrix_row)
