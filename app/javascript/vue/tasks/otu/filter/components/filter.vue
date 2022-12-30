@@ -53,17 +53,16 @@
         class="margin-large-bottom"
         v-model="params.dataAttributes"
       />
-      <citations-component
+      <FacetCitations
         title="Citations"
         v-model="params.base.citations"
         class="margin-large-bottom"
       />
-      <with-component
+      <FacetWith
         v-for="(_, key) in params.with"
         :key="key"
         :title="key"
-        v-model="params.with[key]"
-        class="margin-small-bottom"
+        v-model="params"
       />
     </div>
   </div>
@@ -76,8 +75,8 @@ import platformKey from 'helpers/getPlatformKey.js'
 import vHotkey from 'plugins/v-hotkey.js'
 import FacetTaxonName from 'components/Filter/Facets/TaxonName/FacetTaxonName.vue'
 import FacetGeographicArea from 'components/Filter/Facets/shared/FacetGeographic.vue'
-import CitationsComponent from 'tasks/nomenclature/filter/components/filters/citations'
-import WithComponent from 'tasks/observation_matrices/dashboard/components/filters/with'
+import FacetCitations from 'components/Filter/Facets/Citations/FacetCitations.vue'
+import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
 import FacetWKT from 'components/Filter/Facets/Otu/FacetWKT.vue'
 import FacetBiologicalRelationship from 'components/Filter/Facets/BiologicalAssociation/FacetBiologicalRelationship.vue'
 import FacetCollectingEvent from 'tasks/biological_associations/filter/components/Facet/FacetCollectingEvent.vue'

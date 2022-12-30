@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <h3>In relationship</h3>
+  <FacetContainer>
+    <h3>Status</h3>
     <smart-selector
       class="separate-bottom"
       :options="options"
@@ -13,7 +13,7 @@
         :object-lists="mergeLists"
         modal-title="Relationships"
         display="name"
-        @selected="addRelationship"
+        @selected="addStatus"
       />
       <ul
         v-if="view == smartOptions.common"
@@ -21,13 +21,15 @@
       >
         <template
           v-for="(item, key) in mergeLists.common"
-          :key="key">
+          :key="key"
+        >
           <li v-if="!filterAlreadyPicked(item.type)">
             <label>
               <input
                 :value="key"
-                @click="addRelationship(item)"
-                type="radio">
+                @click="addStatus(item)"
+                type="radio"
+              >
               {{ item.name }}
             </label>
           </li>
@@ -38,10 +40,10 @@
         url=""
         :array-list="Object.keys(mergeLists.all).map(key => mergeLists.all[key])"
         label="name"
-        clear-after
+        :clear-after="true"
         min="3"
         time="0"
-        @getItem="addRelationship"
+        @get-item="addStatus"
         placeholder="Search"
         event-send="autocompleteRelationshipSelected"
         param="term"
@@ -51,19 +53,20 @@
       label="name"
       set-key="type"
       :delete-warning="false"
-      :list="relationshipSelected"
-      @delete="removeItem"/>
-  </div>
+      :list="statusSelected"
+      @delete="removeItem"
+    />
+  </FacetContainer>
 </template>
 
 <script>
-
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import SmartSelector from 'components/switch'
 import TreeDisplay from '../treeDisplay'
 import Autocomplete from 'components/ui/Autocomplete'
 import DisplayList from 'components/displayList.vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { TaxonNameRelationship } from 'routes/endpoints'
+import { TaxonNameClassification } from 'routes/endpoints'
 
 const OPTIONS = {
   common: 'common',
@@ -76,18 +79,14 @@ export default {
     SmartSelector,
     TreeDisplay,
     Autocomplete,
-    DisplayList
+    DisplayList,
+    FacetContainer
   },
 
   props: {
     modelValue: {
       type: Array,
       required: true
-    },
-
-    nomenclatureCode: {
-      type: String,
-      default: undefined
     }
   },
 
@@ -96,6 +95,23 @@ export default {
   computed: {
     smartOptions () {
       return OPTIONS
+    },
+
+    params: {
+      get () {
+        return this.modelValue
+      },
+      set (value) {
+        this.$emit('update:modelValue', value)
+      }
+    },
+
+    classifications () {
+      return this.params.taxon_name_classification
+    },
+
+    nomenclatureCode () {
+      return this.modelValue.nomenclature_code
     }
   },
 
@@ -105,8 +121,8 @@ export default {
       lists: [],
       paramRelationships: undefined,
       view: OPTIONS.common,
-      relationshipsList: {},
-      relationshipSelected: [],
+      statusList: {},
+      statusSelected: [],
       mergeLists: {},
       relationships: [],
       typeSelected: undefined
@@ -114,21 +130,23 @@ export default {
   },
 
   watch: {
-    modelValue (newVal) {
-      if (newVal.length || !this.relationshipSelected.length) return
-      this.relationshipSelected = []
+    classifications (newVal) {
+      if (newVal?.length || !this.statusSelected.length) return
+
+      this.statusSelected = []
     },
 
-    relationshipSelected: {
+    statusSelected: {
       handler (newVal) {
-        this.$emit('update:modelValue', newVal.map(relationship => relationship.type))
+        this.params.taxon_name_classification = newVal.map(status => status.type)
       },
+
       deep: true
     },
 
     nomenclatureCode: {
       handler () {
-        if (this.relationshipsList.length) {
+        if (Object.keys(this.statusList).length) {
           this.merge()
         }
       }
@@ -136,17 +154,14 @@ export default {
   },
 
   created () {
-    TaxonNameRelationship.types().then(response => {
-      this.relationshipsList = response.body
+    TaxonNameClassification.types().then(response => {
+      this.statusList = response.body
       this.merge()
 
       const params = URLParamsToJSON(location.href)
-      if (params.taxon_name_relationship_type) {
-        params.taxon_name_relationship_type.forEach(type => {
-          const data = this.mergeLists.all[type]
-          data.type = type
-          data.name = this.mergeLists.all[type].subject_status_tag
-          this.addRelationship(data)
+      if (params.taxon_name_classification) {
+        params.taxon_name_classification.forEach(classification => {
+          this.addStatus(this.mergeLists.all[classification])
         })
       }
     })
@@ -154,7 +169,7 @@ export default {
 
   methods: {
     merge () {
-      const relationshipsList = JSON.parse(JSON.stringify(this.relationshipsList))
+      const statusList = JSON.parse(JSON.stringify(this.statusList))
       const newList = {
         all: {},
         common: {},
@@ -162,16 +177,17 @@ export default {
       }
       const nomenclatureCodes = this.nomenclatureCode
         ? [this.nomenclatureCode.toLowerCase()]
-        : Object.keys(relationshipsList)
+        : Object.keys(statusList)
 
       nomenclatureCodes.forEach(key => {
-        newList.all = Object.assign(newList.all, relationshipsList[key].all)
-        newList.tree = Object.assign(newList.tree, relationshipsList[key].tree)
-        for (const keyType in relationshipsList[key].common) {
-          relationshipsList[key].common[keyType].name = `${relationshipsList[key].common[keyType].subject_status_tag} (${key})`
-          relationshipsList[key].common[keyType].type = keyType
+        if (statusList[key]) {
+          newList.all = { ...newList.all, ...statusList[key].all, ...statusList?.latinized?.all }
+          newList.tree = { ...newList.tree, ...statusList[key].tree, ...statusList?.latinized?.tree }
+          for (const keyType in statusList[key].common) {
+            statusList[key].common[keyType].name = `${statusList[key].common[keyType].name} (${key})`
+          }
+          newList.common = { ...newList.common, ...statusList[key].common, ...statusList?.latinized?.common }
         }
-        newList.common = Object.assign(newList.common, relationshipsList[key].common)
       })
       this.getTreeList(newList.tree, newList.all)
       this.mergeLists = newList
@@ -181,23 +197,23 @@ export default {
       for (const key in list) {
         if (key in ranksList) {
           Object.defineProperty(list[key], 'type', { writable: true, value: key })
-          Object.defineProperty(list[key], 'name', { writable: true, value: ranksList[key].subject_status_tag })
+          Object.defineProperty(list[key], 'name', { writable: true, value: ranksList[key].name })
         }
         this.getTreeList(list[key], ranksList)
       }
     },
 
-    removeItem (relationship) {
-      this.relationshipSelected.splice(this.relationshipSelected.findIndex(item => item.type === relationship.type), 1)
+    removeItem (status) {
+      this.statusSelected.splice(this.statusSelected.findIndex(item => item.type === status.type), 1)
     },
 
-    addRelationship (item) {
-      this.relationshipSelected.push(item)
+    addStatus (item) {
+      this.statusSelected.push(item)
       this.view = OPTIONS.common
     },
 
     filterAlreadyPicked (type) {
-      return this.relationshipSelected.find(item => item.type === type)
+      return this.statusSelected.find(item => item.type === type)
     }
   }
 }
