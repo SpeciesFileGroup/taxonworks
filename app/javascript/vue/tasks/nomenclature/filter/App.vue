@@ -27,7 +27,7 @@
       <template #nav-right>
         <ul
           v-if="list.length"
-          class="context-menu no_bullets"
+          class="context-menu no_bullets horizontal-right-content"
         >
           <li>
             <RadialLabel
@@ -71,6 +71,7 @@ import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
+import RadialLabel from 'components/radials/label/radial.vue'
 import { TaxonName } from 'routes/endpoints'
 import { reactive, ref, computed } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
@@ -117,4 +118,3 @@ export default {
   name: 'FilterNomenclature'
 }
 </script>
-
