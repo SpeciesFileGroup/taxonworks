@@ -1,8 +1,7 @@
-
 <template>
   <div>
     <div class="flex-separate middle">
-      <h1>Filter images</h1>
+      <h1>Filter extracts</h1>
       <FilterSettings
         v-model:filter="preferences.activeFilter"
         v-model:url="preferences.activeJSONRequest"
@@ -21,32 +20,26 @@
       :filter="preferences.activeFilter"
       :pagination="pagination"
       v-model:per="per"
-      @filter="makeFilterRequest()"
+      @filter="makeFilterRequest({ ...parameters, extend })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
       <template #nav-right>
-        <div
+        <ul
           v-if="list.length"
-          class="horizontal-right-content"
+          class="context-menu no_bullets horizontal-right-content"
         >
-          <TagAll
-            type="Image"
-            :ids="selectedIds"
-          />
-          <AttributionComponent
-            class="margin-small-left margin-small-right"
-            :ids="selectedIds"
-            type="Image"
-          />
-          <span>|</span>
-          <div class="margin-small-left">
-            <SelectAll
-              v-model="selectedIds"
-              :ids="list.map(({id}) => id)"
+          <li>
+            <RadialLabel
+              :object-type="TAXON_NAME"
+              :ids="selectedIds"
+              :disabled="!selectedIds.length"
             />
-          </div>
-        </div>
+          </li>
+          <li>
+            <CsvButton :list="csvList" />
+          </li>
+        </ul>
       </template>
       <template #facets>
         <FilterComponent v-model="parameters" />
@@ -69,24 +62,22 @@
     />
   </div>
 </template>
-
 <script setup>
-import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
-import FilterComponent from './components/filter.vue'
+import FilterComponent from './components/FilterView.vue'
 import ListComponent from './components/list'
-import TagAll from 'tasks/collection_objects/filter/components/tagAll.vue'
-import SelectAll from 'tasks/collection_objects/filter/components/selectAll.vue'
-import AttributionComponent from './components/attributions/main.vue'
+import CsvButton from 'components/csvButton'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
-
-import { Image } from 'routes/endpoints'
-import { reactive, ref } from 'vue'
+import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
+import RadialLabel from 'components/radials/label/radial.vue'
+import { TaxonName } from 'routes/endpoints'
+import { reactive, ref, computed } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
+import { TAXON_NAME } from 'constants/index.js'
 
-const selectedIds = ref([])
+const extend = ['parent']
 
 const preferences = reactive({
   activeFilter: true,
@@ -104,17 +95,26 @@ const {
   parameters,
   makeFilterRequest,
   resetFilter
-} = useFilter(Image)
+} = useFilter(TaxonName)
+
+const selectedIds = ref([])
+
+const csvList = computed(() =>
+  selectedIds.value.length
+    ? list.value.filter(item => selectedIds.value.includes(item.id))
+    : list.value
+)
 
 const urlParams = URLParamsToJSON(location.href)
 
 if (Object.keys(urlParams).length) {
-  makeFilterRequest(urlParams)
+  makeFilterRequest({ ...urlParams, extend })
 }
+
 </script>
 
 <script>
 export default {
-  name: 'FilterImages'
+  name: 'FilterNomenclature'
 }
 </script>

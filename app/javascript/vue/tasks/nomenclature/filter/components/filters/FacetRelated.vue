@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Include</h3>
     <ul class="no_bullets">
       <li
@@ -9,41 +9,34 @@
         <label>
           <input
             type="radio"
-            :checked="optionValue.ancestors == ancestors && optionValue.descendants == descendants"
-            :disabled="!taxonName.length"
-            @click="Object.assign(optionValue, { ancestors, descendants })"
+            :checked="params.ancestors == ancestors && params.descendants == descendants"
+            :disabled="!(params.taxon_name_id && params.taxon_name_id.length)"
+            @click="Object.assign(params, { ancestors, descendants })"
           >
           {{ label }}
         </label>
       </li>
     </ul>
-  </div>
+  </FacetContainer>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
+import { computed, onBeforeMount } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 const props = defineProps({
   modelValue: {
     type: Object,
     default: undefined
-  },
-  taxonName: {
-    type: Array,
-    required: true
   }
 })
 
 const emit = defineEmits(['update:modelValue'])
 
-const optionValue = computed({
-  get () {
-    return props.modelValue
-  },
-  set (value) {
-    emit('update:modelValue', value)
-  }
+const params = computed({
+  get: () => props.modelValue,
+  set: value => emit('update:modelValue', value)
 })
 
 const options = {
@@ -61,10 +54,10 @@ const options = {
   }
 }
 
-const params = URLParamsToJSON(location.href)
+onBeforeMount(() => {
+  const urlParams = URLParamsToJSON(location.href)
 
-optionValue.value = {
-  descendants: params.descendants,
-  ancestors: params.ancestors
-}
+  params.value.descendants = urlParams.descendants
+  params.value.ancestors = urlParams.ancestors
+})
 </script>

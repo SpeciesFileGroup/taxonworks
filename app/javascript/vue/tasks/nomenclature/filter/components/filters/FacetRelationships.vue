@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Relationships</h3>
     <smart-selector
       v-if="taxon"
@@ -8,15 +8,12 @@
       v-model="view"
     />
     <div>
-      <div
+      <SmartSelectorItem
         v-if="taxon"
-        class="horizontal-left-content">
-        <span v-html="taxon.object_tag"/>
-        <span
-          title="Undo"
-          class="circle-button button-default btn-undo"
-          @click="taxon = undefined"/>
-      </div>
+        :item="taxon"
+        label="object_tag"
+        @unset="taxon = undefined"
+      />
       <autocomplete
         v-else
         placeholder="Select a taxon name for the relationship"
@@ -24,11 +21,13 @@
         param="term"
         label="label_html"
         clear-after
-        @getItem="loadTaxonName"/>
+        @get-item="loadTaxonName"
+      />
     </div>
     <div
       class="separate-top"
-      v-if="taxon">
+      v-if="taxon"
+    >
       <tree-display
         v-if="view == smartOptions.all"
         @close="view = undefined"
@@ -43,12 +42,14 @@
       >
         <li
           v-for="(item, key) in mergeLists.common"
-          :key="key">
+          :key="key"
+        >
           <label>
             <input
               :value="key"
               @click="item.type = key; addRelationshipType(item)"
-              type="radio">
+              type="radio"
+            >
             {{ item[display] }}
           </label>
         </li>
@@ -61,21 +62,23 @@
         :clear-after="true"
         min="3"
         time="0"
-        @getItem="addRelationshipType"
+        @get-item="addRelationshipType"
         placeholder="Search"
         event-send="autocompleteRelationshipSelected"
-        param="term" 
+        param="term"
       />
     </div>
     <list-component
       :list="relationships"
       @flip="flipRelationship"
-      @delete="removeItem"/>
-  </div>
+      @delete="removeItem"
+    />
+  </FacetContainer>
 </template>
 
 <script>
-
+import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import SmartSelector from 'components/switch'
 import TreeDisplay from '../treeDisplay'
 import Autocomplete from 'components/ui/Autocomplete'
@@ -94,20 +97,32 @@ export default {
     SmartSelector,
     TreeDisplay,
     Autocomplete,
-    ListComponent
+    ListComponent,
+    FacetContainer,
+    SmartSelectorItem
   },
 
   props: {
     modelValue: {
-
-    },
+      type: Object,
+      default: () => ({})
+    }
   },
 
   emits: ['update:modelValue'],
 
   computed: {
-    smartOptions() {
+    smartOptions () {
       return OPTIONS
+    },
+
+    params: {
+      get () {
+        return this.modelValue
+      },
+      set (value) {
+        this.$emit('update:modelValue', value)
+      }
     }
   },
   data () {
@@ -137,14 +152,14 @@ export default {
   },
   watch: {
     modelValue (newVal) {
-      if(newVal.length || !this.relationships.length) return
-      this.taxon = undefined,
-      this.typeSelected = undefined,
+      if (newVal?.taxon_name_relationship?.length || !this.relationships.length) return
+      this.taxon = undefined
+      this.typeSelected = undefined
       this.relationships = []
     },
 
     relationships: {
-      handler() {
+      handler () {
         const newList = this.relationships.map(item => {
           const name = item.type_name === 'subject_status_tag'
             ? 'subject_taxon_name_id'
@@ -156,12 +171,13 @@ export default {
           }
         })
 
-        this.$emit('update:modelValue', newList)
+        this.params.taxon_name_relationship = newList
       },
       deep: true
     }
   },
-  mounted () {
+
+  created () {
     TaxonNameRelationship.types().then(response => {
       this.relationshipsList = response.body
       this.merge()
@@ -181,7 +197,7 @@ export default {
                 taxon_label: taxon.body.name,
                 type_label: this.mergeLists.all[relationship.type][(isSubject ? 'subject_status_tag' : 'object_status_tag')],
                 type_name: typeName,
-                taxonId: taxonId
+                taxonId
               }
             )
           })
@@ -247,7 +263,7 @@ export default {
           taxon_label: this.taxon.label,
           type_label: this.typeSelected[this.display],
           type_name: this.display,
-          taxonId: this.taxon.id,
+          taxonId: this.taxon.id
         }
       )
       this.typeSelected = undefined

@@ -50,7 +50,7 @@
       <preparation-types
         class="margin-large-bottom"
         v-model="params.preparation_type_id"/>
-      <biocurations-component
+      <FacetBiocurations
         class="margin-large-bottom"
         v-model="params.biocurations.biocuration_class_ids"/>
       <collecting-event
@@ -122,7 +122,7 @@ import IdentifierComponent from './filters/identifier'
 import TypesComponent from 'components/Filter/Facets/CollectionObject/FacetTypeMaterial.vue'
 import LoanComponent from './filters/loan'
 import InRelationship from './filters/relationship/in_relationship'
-import BiocurationsComponent from './filters/biocurations'
+import FacetBiocurations from 'components/Filter/Facets/CollectionObject/FacetBiocurations.vue'
 import RepositoryComponent from 'components/Filter/Facets/CollectionObject/FacetRepository.vue'
 import WithComponent from 'components/Filter/Facets/shared/FacetWith.vue'
 import BufferedComponent from './filters/buffered.vue'
@@ -154,7 +154,7 @@ export default {
     TypesComponent,
     LoanComponent,
     InRelationship,
-    BiocurationsComponent,
+    FacetBiocurations,
     RepositoryComponent,
     WithComponent,
     PreparationTypes,
