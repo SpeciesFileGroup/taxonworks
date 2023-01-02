@@ -1,10 +1,9 @@
 import { createApp } from 'vue'
 import App from './app.vue'
-import hotkey from 'plugins/v-hotkey'
 
 function init () {
   const app = createApp(App)
-  app.use(hotkey)
+
   app.mount('#vue-task-otu-filter')
 }
 

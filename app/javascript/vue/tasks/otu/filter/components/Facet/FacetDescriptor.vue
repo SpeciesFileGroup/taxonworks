@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Descriptors</h3>
     <VAutocomplete
       url="/descriptors/autocomplete"
@@ -15,7 +15,7 @@
       :delete-warning="false"
       @delete="removeDescriptor"
     />
-  </div>
+  </FacetContainer>
 </template>
 
 <script setup>
@@ -25,25 +25,31 @@ import { removeFromArray } from 'helpers/arrays'
 import { URLParamsToJSON } from 'helpers/url/parse'
 import VAutocomplete from 'components/ui/Autocomplete.vue'
 import DisplayList from 'components/displayList.vue'
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 
 const props = defineProps({
   modelValue: {
-    type: Array,
-    default: () => []
+    type: Object,
+    default: () => ({})
   }
 })
 
 const emit = defineEmits(['update:modelValue'])
 const descriptors = ref([])
 
-const descriptorIds = computed({
+const params = computed({
   get: () => props.modelValue,
   set: value => emit('update:modelValue', value)
 })
 
+const descriptorIds = computed({
+  get: () => params.value.descriptor_id || [],
+  set: value => { params.value.descriptor_id = value }
+})
+
 watch(
-  descriptorIds,
-  (newVal) => {
+  () => descriptorIds,
+  newVal => {
     if (!newVal.length) {
       descriptors.value = []
     }

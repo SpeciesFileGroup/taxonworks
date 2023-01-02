@@ -36,10 +36,11 @@ export default function (service) {
         state.list = response.body
       }
 
-      state.isLoading = false
       state.pagination = getPagination(response)
       state.urlRequest = response.request.url
       setRequestUrl(response.request.responseURL, payload)
+    }).finally(() => {
+      state.isLoading = false
     })
   }
 

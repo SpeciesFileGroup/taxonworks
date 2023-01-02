@@ -1,14 +1,13 @@
 <template>
   <div>
-    <spinner-component
-      v-if="isLoading"
-      full-screen
-      legend="Searching..."
-      :logo-size="{ width: '100px', height: '100px'}"
-    />
     <div class="flex-separate middle">
       <h1>Filter staged images</h1>
-      <menu-preferences v-model="preferences" />
+      <FilterSettings
+        v-model:filter="preferences.activeFilter"
+        v-model:url="preferences.activeJSONRequest"
+        v-model:append="append"
+        v-model:list="preferences.showList"
+      />
     </div>
 
     <JsonRequestUrl
@@ -17,46 +16,44 @@
       :url="urlRequest"
     />
 
-    <div class="horizontal-left-content align-start">
-      <filter-component
-        class="margin-medium-right"
-        v-show="preferences.activeFilter"
-        @parameters="makeFilterRequest"
-        @reset="resetFilter"
-      />
-      <div class="full_width overflow-x-auto">
-        <div
-          class="flex-separate margin-medium-bottom"
-          v-if="pagination"
-        >
-          <pagination-component
-            :pagination="pagination"
-            @next-page="loadPage"
-          />
-          <pagination-count
-            v-model="per"
-            :pagination="pagination"
+    <FilterLayout
+      :filter="preferences.activeFilter"
+      :pagination="pagination"
+      v-model:per="per"
+      @filter="makeFilterRequest({ ...parameters, extend })"
+      @nextpage="loadPage"
+      @reset="resetFilter"
+    >
+      <template #facets>
+        <FilterComponent v-model="parameters" />
+      </template>
+      <template #table>
+        <div class="full_width">
+          <ListComponent
+            v-if="Object.keys(sqedResult).length"
+            :list="list"
+            @on-sort="list = $event"
           />
         </div>
-
-        <list-component
-          v-if="Object.keys(sqedResult).length"
-          :list="list"
-        />
-      </div>
-    </div>
+      </template>
+    </FilterLayout>
+    <VSpinner
+      v-if="isLoading"
+      full-screen
+      legend="Searching..."
+      :logo-size="{ width: '100px', height: '100px'}"
+    />
   </div>
 </template>
 
 <script setup>
+import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
+import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
-import PaginationComponent from 'components/pagination'
-import PaginationCount from 'components/pagination/PaginationCount'
-import MenuPreferences from './components/MenuPreferences.vue'
-import SpinnerComponent from 'components/spinner.vue'
-import useFilter from 'tasks/extracts/filter/composables/useFilter.js'
+import useFilter from 'shared/Filter/composition/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
+import VSpinner from 'components/spinner.vue'
 import { CollectionObject } from 'routes/endpoints'
 import { computed, reactive } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
@@ -71,8 +68,10 @@ const {
   list,
   pagination,
   per,
+  append,
   urlRequest,
   loadPage,
+  parameters,
   makeFilterRequest,
   resetFilter
 } = useFilter({ filter: CollectionObject.sqedFilter })

@@ -34,18 +34,31 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
-const taxonNames = ref([])
-const taxonNameIds = computed({
+const params = computed({
   get: () => props.modelValue,
   set: value => emit('update:modelValue', value)
 })
 
+const taxonNames = ref([])
+const taxonNameIds = computed({
+  get: () => params.value.taxon_name_id || [],
+  set: value => { params.value.taxon_name_id = value }
+})
+
 watch(
-  taxonNameIds,
-  (newVal) => {
-    if (!newVal.length) {
+  () => props.modelValue.taxon_name_id,
+  (newVal, oldVal) => {
+    if (!newVal?.length && oldVal?.length) {
       taxonNames.value = []
     }
+  },
+  { deep: true }
+)
+
+watch(
+  taxonNames,
+  newVal => {
+    params.value.taxon_name_id = newVal.map(taxon => taxon.id)
   },
   { deep: true }
 )
@@ -54,14 +67,10 @@ function addTaxonName (taxonName) {
   if (taxonNameIds.value.includes(taxonName.id)) return
 
   taxonNames.value.push(taxonName)
-  taxonNameIds.value.push(taxonName.id)
 }
 
 function removeTaxonName (taxonName) {
-  const index = taxonNameIds.value.findIndex(item => item.id === taxonName.id)
-
   removeFromArray(taxonNames.value, taxonName)
-  taxonNameIds.value.splice(index, 1)
 }
 
 const { taxon_name_id = [] } = URLParamsToJSON(location.href)

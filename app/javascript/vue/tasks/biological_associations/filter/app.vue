@@ -62,7 +62,7 @@ import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/FilterView.vue'
 import ListComponent from './components/ListResults.vue'
 import CsvButton from 'components/csvButton'
-import useFilter from 'tasks/extracts/filter/composables/useFilter.js'
+import useFilter from 'shared/Filter/composition/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import VSpinner from 'components/spinner.vue'
 import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
@@ -70,7 +70,13 @@ import { BiologicalAssociation } from 'routes/endpoints'
 import { computed, reactive, ref } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
 
-const extend = ['object', 'subject', 'biological_relationship', 'taxonomy', 'biological_relationship_types']
+const extend = [
+  'object',
+  'subject',
+  'biological_relationship',
+  'taxonomy',
+  'biological_relationship_types'
+]
 
 const csvFields = computed(() =>
   selectedIds.value.length
