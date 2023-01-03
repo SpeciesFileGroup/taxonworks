@@ -25,6 +25,7 @@
     <FilterLayout
       :filter="preferences.activeFilter"
       :pagination="pagination"
+      :table="preferences.showList"
       v-model:per="per"
       @filter="makeFilterRequest({ ...parameters, extend: ['documents'] })"
       @nextpage="loadPage"
@@ -111,7 +112,8 @@ import { URLParamsToJSON } from 'helpers/url/parse'
 const selectedIds = ref([])
 const preferences = reactive({
   activeFilter: true,
-  activeJSONRequest: false
+  activeJSONRequest: false,
+  showList: true
 })
 
 const {

@@ -18,6 +18,7 @@
 
     <FilterLayout
       :filter="preferences.activeFilter"
+      :table="preferences.showList"
       :pagination="pagination"
       v-model:per="per"
       @filter="makeFilterRequest({ ...parameters, extend })"
@@ -41,6 +42,7 @@
       <template #table>
         <div class="full_width">
           <ListComponent
+            v-if="preferences.showList"
             v-model="selectedIds"
             :list="list"
             @on-sort="list = $event"
@@ -77,6 +79,12 @@ const extend = [
   'taxonomy',
   'biological_relationship_types'
 ]
+
+const preferences = reactive({
+  activeFilter: true,
+  activeJSONRequest: false,
+  showList: true
+})
 
 const csvFields = computed(() =>
   selectedIds.value.length
@@ -133,11 +141,6 @@ const fields = [
 ]
 
 const selectedIds = ref([])
-
-const preferences = reactive({
-  activeFilter: true,
-  activeJSONRequest: false
-})
 
 const {
   isLoading,

@@ -30,6 +30,7 @@
 
     <FilterLayout
       :filter="preferences.activeFilter"
+      :table="preferences.showList"
       :pagination="pagination"
       v-model:per="per"
       @filter="loadList"
@@ -133,8 +134,7 @@ const preferences = reactive({
   activeFilter: true,
   activeJSONRequest: false,
   showMap: false,
-  showList: true,
-  append: false
+  showList: true
 })
 
 const {

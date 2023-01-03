@@ -19,6 +19,7 @@
 
     <FilterLayout
       :filter="preferences.activeFilter"
+      :table="preferences.showList"
       :pagination="pagination"
       v-model:per="per"
       @filter="makeFilterRequest()"
@@ -90,7 +91,8 @@ const selectedIds = ref([])
 
 const preferences = reactive({
   activeFilter: true,
-  activeJSONRequest: false
+  activeJSONRequest: false,
+  showList: true
 })
 
 const {
