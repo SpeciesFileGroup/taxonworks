@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - Programming error breaking loop with `exit` instead of `break` when calculating previous OTU.
+- Crash when attempting to view a `Verbatim` source because BibTeX panel cannot work with that type of sources.
 
 ## [0.30.2] - 2022-12-20
 
