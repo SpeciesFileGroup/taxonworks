@@ -30,7 +30,17 @@
           v-if="list.length"
           class="horizontal-right-content"
         >
-          <CsvButton :list="csvList" />
+          <ul class="context-menu middle no_bullets">
+            <li>
+              <TagAll
+                :ids="selectedIds"
+                type="Extract"
+              />
+            </li>
+            <li>
+              <CsvButton :list="csvList" />
+            </li>
+          </ul>
         </div>
       </template>
       <template #facets>
@@ -65,6 +75,7 @@ import useFilter from 'shared/Filter/composition/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
 import extend from 'tasks/extracts/new_extract/const/extendRequest'
+import TagAll from 'tasks/collection_objects/filter/components/tagAll.vue'
 import { Extract } from 'routes/endpoints'
 import { computed, reactive, ref } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'

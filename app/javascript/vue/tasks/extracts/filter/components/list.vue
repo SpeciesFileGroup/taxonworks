@@ -7,16 +7,19 @@
       >
         <thead>
           <tr>
-            <th>
+            <th class="w-2">
               <input
                 v-model="selectIds"
                 type="checkbox"
               >
             </th>
-            <th v-for="label in TABLE_HEADERS">
+            <th class="w-2" />
+            <th
+              v-for="label in TABLE_HEADERS"
+              :key="label"
+            >
               {{ label }}
             </th>
-            <th />
           </tr>
         </thead>
         <tbody>
@@ -33,16 +36,17 @@
                 type="checkbox"
               >
             </td>
+            <td>
+              <div class="horizontal-left-content">
+                <RadialAnnotator :global-id="item.global_id" />
+                <RadialNavigation :global-id="item.global_id" />
+              </div>
+            </td>
             <td
               v-for="attr in TABLE_ATTRIBUTES"
               :key="attr"
               v-html="item[attr]"
             />
-            <td>
-              <radial-navigation
-                :global-id="item.global_id"
-              />
-            </td>
           </tr>
         </tbody>
       </table>
@@ -53,9 +57,9 @@
 <script setup>
 import HandyScroll from 'vue-handy-scroll'
 import RadialNavigation from 'components/radials/navigation/radial.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import makeExtractList from 'tasks/extracts/new_extract/helpers/makeExtractList'
 import { computed, ref, watch } from 'vue'
-import { sortArray } from 'helpers/arrays.js'
 import { vResizeColumn } from 'directives/resizeColumn.js'
 import {
   TABLE_ATTRIBUTES,

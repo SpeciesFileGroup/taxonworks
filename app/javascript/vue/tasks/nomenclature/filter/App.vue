@@ -38,7 +38,10 @@
             />
           </li>
           <li>
-            <CsvButton :list="csvList" />
+            <CsvButton
+              :list="csvList"
+              :options="{ fields }"
+            />
           </li>
         </ul>
       </template>
@@ -77,6 +80,15 @@ import { TaxonName } from 'routes/endpoints'
 import { reactive, ref, computed } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
 import { TAXON_NAME } from 'constants/index.js'
+
+const fields = [
+  'id',
+  { label: 'name', value: 'cached' },
+  { label: 'author', value: 'cached_author_year' },
+  { label: 'year of publication', value: 'year_of_publication' },
+  { label: 'original combination', value: 'cached_original_combination' },
+  'rank',
+  { label: 'parent', value: 'parent.cached' }]
 
 const extend = ['parent']
 
