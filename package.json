@@ -20,7 +20,7 @@
     "pdfjs-dist": "3.1.81",
     "pinia": "^2.0.28",
     "qs": "^6.11.0",
-    "shakapacker": "6.5.4",
+    "shakapacker": "6.5.5",
     "v-hotkey": "^0.9.0",
     "vue": "^3.2.45",
     "vue-handy-scroll": "^3.0.2",
