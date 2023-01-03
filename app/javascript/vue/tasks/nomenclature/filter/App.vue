@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="flex-separate middle">
-      <h1>Filter extracts</h1>
+      <h1>Filter nomenclature</h1>
       <FilterSettings
         v-model:filter="preferences.activeFilter"
         v-model:url="preferences.activeJSONRequest"
