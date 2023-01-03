@@ -95,8 +95,8 @@ const {
 
 const urlParams = URLParamsToJSON(location.href)
 
-if (Object.keys(urlParams).length) {
-  makeFilterRequest({ ...urlParams })
-}
-
+makeFilterRequest({
+  ...urlParams,
+  geo_json: JSON.stringify(urlParams.geo_json)
+})
 </script>
