@@ -307,6 +307,7 @@ class CollectingEventsController < ApplicationController
       :end_date,   # used in date range
       :geo_json,
       :geographic_area_id,
+      :geographic_area_mode,
       :georeferences,
       :geographic_area,
       :identifier,
@@ -324,7 +325,6 @@ class CollectingEventsController < ApplicationController
       :partial_overlap_dates,
       :radius,
       :recent,
-      :spatial_geographic_areas,
       :start_date, # used in date range
       :user_date_end,
       :user_date_start,
@@ -355,6 +355,7 @@ class CollectingEventsController < ApplicationController
       :georeferences,
       :geographic_area_id,
       :geographic_area,
+      :geographic_area_mode,
       :identifier,
       :identifier_end,
       :identifier_exact,
@@ -370,7 +371,6 @@ class CollectingEventsController < ApplicationController
       :otu_id,
       :radius,
       :recent,
-      :spatial_geographic_areas,
       :start_date, # used in date range
       :wkt,
       :user_target,

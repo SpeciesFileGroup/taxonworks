@@ -127,22 +127,26 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
   end
 
   specify 'name' do
+    o1; o2
     q.name = 'A' 
     expect(q.all.map(&:id)).to contain_exactly(o1.id)
   end
 
   specify 'name []' do
+    o1; o2
     q.name = ['A']
     expect(q.all.map(&:id)).to contain_exactly(o1.id)
   end
     
-  specify 'name, name_exact' do
+  specify 'name, name_exact 1' do
+    o1; o2
     q.name = ['A']
     q.name_exact = true
     expect(q.all.map(&:id)).to contain_exactly()
   end
 
-  specify 'name, name_exact' do
+  specify 'name, name_exact 2' do
+    o1; o2
     q.name = 'Abc 1'
     q.name_exact = true 
     expect(q.all.map(&:id)).to contain_exactly(o1.id)

@@ -17,6 +17,105 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
 
   let(:query) { Queries::BiologicalAssociation::Filter }
 
+  specify '#geographic_area_id #geographic_area_mode = true (spatial) against AssertedDistribution' do
+
+    # smaller
+    a = FactoryBot.create(:level1_geographic_area)
+    s1 = a.geographic_items << GeographicItem.create!(
+      polygon: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
+    )
+
+    # bigger
+    b = FactoryBot.create(:level1_geographic_area)
+    s2 = b.geographic_items << GeographicItem.create!(
+      polygon: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 10.0, 10.0 )
+    )
+
+    # Use smaller
+    AssertedDistribution.create!(otu: o2, geographic_area: a, source: FactoryBot.create(:valid_source))
+
+    # Use bigger
+    o = {
+      geographic_area_id: b.id,
+      geographic_area_mode: true
+    }
+
+    q = query.new(o)
+
+    expect(q.all).to contain_exactly( ba1, ba3 )
+  end
+
+
+  specify '#geographic_area_id #geographic_area_mode = true (spatial) against Georeference' do
+    a = FactoryBot.create(:level1_geographic_area)
+    s = a.geographic_items << GeographicItem.create!(
+      polygon: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
+    )
+
+    o3.update!(collecting_event: FactoryBot.create(:valid_collecting_event, verbatim_latitude: '7.0', verbatim_longitude: '12.0'))
+    g = Georeference::VerbatimData.create!(collecting_event: o3.collecting_event)
+
+    o = {
+      geographic_area_id: a.id,
+      geographic_area_mode: true
+    }
+
+    q = query.new(o)
+
+    expect(q.all).to contain_exactly( ba2, ba3 )
+  end
+
+  specify '#wkt & #taxon_name_id 2' do
+    o4 = Specimen.create!
+    ba4 = BiologicalAssociation.create!(biological_association_subject: o2, biological_association_object: o4, biological_relationship: r2) 
+
+    # o4 gets spatial, o4 does not
+    o4.update!(collecting_event: FactoryBot.create(:valid_collecting_event, verbatim_latitude: '7.0', verbatim_longitude: '12.0'))
+    g = Georeference::VerbatimData.create!(collecting_event: o4.collecting_event)
+
+    # Both share the same determination
+    o3.taxon_determinations << TaxonDetermination.new(
+      otu: FactoryBot.create(:valid_otu, taxon_name: FactoryBot.create(:valid_protonym))
+    )
+    o4.taxon_determinations << TaxonDetermination.new(
+      otu: o3.taxon_determinations.first.otu
+    )
+
+    o = {
+      taxon_name_id: o3.taxon_determinations.first.otu.taxon_name_id,
+      wkt: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 ).to_s
+    }
+
+    q = query.new(o)
+    expect(q.all).to contain_exactly( ba4 ) # not 2 and 3!
+  end
+
+  specify '#wkt & #taxon_name_id 1' do
+    # Specimen with spatial
+    o3.update!(collecting_event: FactoryBot.create(:valid_collecting_event, verbatim_latitude: '7.0', verbatim_longitude: '12.0'))
+    g = Georeference::VerbatimData.create!(collecting_event: o3.collecting_event)
+
+    o3.taxon_determinations << TaxonDetermination.new(
+      otu: FactoryBot.create(:valid_otu, taxon_name: FactoryBot.create(:valid_protonym))
+    )
+
+    o = {
+      taxon_name_id: o3.taxon_determinations.first.otu.taxon_name_id,
+      wkt: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 ).to_s
+    }
+
+    q = query.new(o)
+    expect(q.all.map(&:id)).to contain_exactly( ba2.id, ba3.id )
+  end
+
+  specify '#wkt spatial against georeference' do
+    o3.update!(collecting_event: FactoryBot.create(:valid_collecting_event, verbatim_latitude: '7.0', verbatim_longitude: '12.0'))
+    g = Georeference::VerbatimData.create!(collecting_event: o3.collecting_event)
+    o = {wkt: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 ).to_s}
+    q =  query.new(o)
+    expect(q.all.map(&:id)).to contain_exactly( ba2.id, ba3.id )
+  end
+
   specify '#object_biological_property_id' do
     p = FactoryBot.create(:valid_biological_property)
     s = FactoryBot.create(:valid_biological_relationship_object_type, biological_relationship: r1, biological_property: p)
@@ -43,8 +142,9 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
   end
 
   specify '#otu_id' do
-    o = {otu_id: o1.id}
-    expect(query.new(o).all.map(&:id)).to contain_exactly( ba1.id, ba2.id )
+  o = {otu_id: o1.id}
+  q = query.new(o)
+  expect(q.all.map(&:id)).to contain_exactly( ba1.id, ba2.id )
   end
 
   specify '#collection_object_id' do
@@ -78,6 +178,19 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
     expect(query.new(o).all.map(&:id)).to contain_exactly(ba1.id, ba2.id)
   end
 
+  specify '#taxon_name_id' do
+    g1 =  Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+    s1 =  Protonym.create!(name: 'eus', rank_class: Ranks.lookup(:iczn, :species), parent: g1)
+
+    g2 =  Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+    s2 =  Protonym.create!(name: 'dus', rank_class: Ranks.lookup(:iczn, :species), parent: g2)
+
+    o1.update!(taxon_name: s1)
+
+    o = {taxon_name_id: g1.id}
+    expect(query.new(o).all.map(&:id)).to contain_exactly(ba1.id, ba2.id)
+  end
+
   specify '#subject_taxon_name_id)' do
     g1 =  Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
     s1 =  Protonym.create!(name: 'eus', rank_class: Ranks.lookup(:iczn, :species), parent: g1)
@@ -101,13 +214,13 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
     o2.update!(taxon_name: s1)
 
     o = {object_taxon_name_id: g1.id}
-    expect(query.new(o).all.map(&:id)).to contain_exactly(ba1.id)
+    q = query.new(o)
+    expect(q.all.map(&:id)).to contain_exactly(ba1.id)
   end
 
   specify '#biological_association_graph_id' do
     g = FactoryBot.create(:valid_biological_associations_graph)
     g.biological_associations << ba1
-
     expect(query.new(biological_associations_graph_id: [g.id]).all.map(&:id)).to contain_exactly(ba1.id)
   end
 

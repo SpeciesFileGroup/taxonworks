@@ -340,12 +340,15 @@ class OtusController < ApplicationController
       :name,
       :name_exact,
 
+      :geographic_area_id,
+      :geographic_area_mode,
       :otu_id,
       :taxon_name_id,
       :collecting_event_id,
       :wkt,
       :geo_json,
 
+      geographic_area_id: [],
       collecting_event_id: [],
       otu_id: [],
       taxon_name_id: [],

@@ -1,4 +1,4 @@
-# A module for composing Queries.
+# A module for composing (TaxonWorks referencing) Queries.
 #
 # For insights, etc. see:
 #  http://www.slideshare.net/camerondutro/advanced-arel-when-activerecord-just-isnt-enough
@@ -18,12 +18,14 @@ module Queries
 
     include Queries::Concerns::Identifiers
 
+    # @return [Array]
+    attr_accessor :project_id
+
     # @return [String, nil]
     #   the initial, unparsed value
     attr_accessor :query_string
 
     attr_accessor :terms
-    attr_accessor :project_id
 
     # parameters from keyword_args, used to group and pass along things like annotator params
     attr_accessor :options
@@ -37,6 +39,14 @@ module Queries
       @options = keyword_args
       @project_id = project_id
       build_terms
+    end
+  
+    def set_query_params(params)
+      @project_id = params[:project_id]
+    end
+
+    def project_id
+      [@project_id].flatten.compact
     end
 
     # @return [Array]

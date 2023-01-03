@@ -236,8 +236,8 @@ require 'namecase'
 #   Non-Bibtex attribute that is cross-referenced.
 #
 # @!attribute bibtex_type
-#   @return [String]
-#    one of VALID_BIBTEX_TYPES (config/initializers/constants/_controlled_vocabularies/bibtex_constants.rb, keys there are symbols)
+#   @return [String]config/initializers/constants/_controlled_vocabularies/bibtex_constants
+#    one of VALID_BIBTEX_TYPES (.rb, keys there are symbols)
 #
 # @!attribute day
 #   @return [Integer]

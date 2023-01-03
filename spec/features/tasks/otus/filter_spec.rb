@@ -4,14 +4,12 @@ require 'support/shared_contexts/shared_geo'
 describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, :shared_geo] do
   context 'using simple_world' do
     let(:page_title) { 'Otus by area' }
-    let(:index_path) { otus_filter_task_path }
+    let(:index_path) { filter_otus_task_path }
 
     it_behaves_like 'a_login_required_and_project_selected_controller'
 
     context 'signed in as a user' do
-      before {
-        sign_in_user_and_select_project
-      }
+      before { sign_in_user_and_select_project }
 
       include_context 'stuff for complex geo tests'
 

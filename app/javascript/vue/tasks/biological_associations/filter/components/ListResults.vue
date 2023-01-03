@@ -146,7 +146,7 @@ const sortTable = sortProperty => {
 }
 
 const getBiologicalProperty = (biologicalRelationshipTypes, type) =>
-  biologicalRelationshipTypes.find(r => r.target === 'object')?.biological_property?.name
+  biologicalRelationshipTypes.find(r => r.target === type)?.biological_property?.name
 
 const parseRank = rank => {
   return Array.isArray(rank)

@@ -163,6 +163,23 @@ class GeographicArea < ApplicationRecord
 
   before_destroy :check_for_children
 
+  # TODO 
+  def self.descendants_of_any(ids = [])
+    ids = [ids].flatten.compact.uniq
+   return nil if ids.empty?
+
+  descendants_subquery = GeographicAreaHierarchy.where(
+    GeographicAreaHierarchy.arel_table[:descendant_id].eq(GeographicArea.arel_table[:id]).and(
+      GeographicAreaHierarchy.arel_table[:ancestor_id].in(ids))
+  )
+
+  #unless descendants_max_depth.nil? || descendants_max_depth.to_i < 0
+  #  descendants_subquery = descendants_subquery.where(GeographicAreaHierarchy.arel_table[:generations].lteq(descendants_max_depth.to_i))
+  #end
+
+  GeographicArea.where(descendants_subquery.arel.exists)
+end
+
   # @param array [Array] of strings of names for areas
   # @return [Scope] of GeographicAreas which match name and parent.name.
   # Route out to a scope given the length of the

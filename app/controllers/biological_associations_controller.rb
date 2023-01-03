@@ -116,6 +116,21 @@ class BiologicalAssociationsController < ApplicationController
       :note_exact, # Notes concern
       :note_text,
       :notes,
+      :geographic_area_mode,
+      :geo_json,
+      :user_date_end,
+      :user_date_start,
+      :user_id,
+      :user_target,
+
+
+      # ^ this too 
+      # TODO reconcile with PARAMS
+      user_id: [],
+      geographic_area_id: [], 
+      object_taxon_name_id: [],
+      subject_taxon_name_id: [],
+      
       keyword_id_and: [],
       keyword_id_or: [],
 
@@ -132,8 +147,6 @@ class BiologicalAssociationsController < ApplicationController
       subject_global_id: [],
       taxon_name_id: [],
     )
-
-    params
   end
 
   def api_params
@@ -153,6 +166,17 @@ class BiologicalAssociationsController < ApplicationController
       :note_text,
       :notes,
 
+      # TODO reconcile with PARAMS
+      :user_date_end,
+      :user_date_start,
+      :user_id,
+      :user_target,
+
+      user_id: [],
+      geographic_area_id: [], 
+      object_taxon_name_id: [],
+      subject_taxon_name_id: [],
+
       keyword_id_and: [],
       keyword_id_or: [],
 
@@ -170,10 +194,13 @@ class BiologicalAssociationsController < ApplicationController
       taxon_name_id: [],
     )
 
+
     # Shallow resource hack
     if !params[:collection_object_id].blank? && c = CollectionObject.where(project_id: sessions_current_project_id).find(params[:collection_object_id])
       params[:any_global_id] = c.to_global_id.to_s
     end
+
+    # TODO: is this permitting anything?! it's not permitted
     params
   end
 

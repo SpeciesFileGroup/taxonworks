@@ -21,26 +21,21 @@ end
 if extend_response_with('subject')
   json.subject do
     json.partial! '/shared/data/all/metadata', object: biological_association.biological_association_subject, extensions: false
-
     if extend_response_with('taxonomy')
       json.taxonomy do
         json.merge! biological_association.biological_association_subject.taxonomy
       end
     end
-
   end
 end
 
 if extend_response_with('object')
   json.object do
     json.partial! '/shared/data/all/metadata', object: biological_association.biological_association_object, extensions: false
-
     if extend_response_with('taxonomy')
       json.taxonomy do
         json.merge! biological_association.biological_association_object.taxonomy
       end
     end
-
   end
 end
-

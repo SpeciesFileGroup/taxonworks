@@ -12,26 +12,28 @@ module Queries
 
       # TODO: likely move to model (replicated in Source too)
       # Params exists for all CollectingEvent attributes except these
+      # collecting_event_id is excluded because we handle it specially in conjunction with `geographic_area_mode``
       ATTRIBUTES = (::CollectingEvent.column_names - %w{project_id created_by_id updated_by_id created_at updated_at geographic_area_id})
+
       ATTRIBUTES.each do |a|
         class_eval { attr_accessor a.to_sym }
       end
 
       PARAMS = %w{
+        collecting_event_wildcards
         collector_id
         collector_ids_or
         end_date
         geo_json
         geographic_area_id
+        geographic_area_mode
         in_labels
         in_verbatim_locality
         md5_verbatim_label
         partial_overlap_dates
         radius
-        spatial_geographic_areas
         start_date
         wkt
-        collecting_event_wildcards
       }.freeze
 
       # @param collecting_event_id [ Array, Integer, nil] 
@@ -61,16 +63,6 @@ module Queries
       # @return [Hash, nil]
       #  in geo_json format (no Feature ...) ?!
       attr_accessor :geo_json
-
-      # @return [True, nil]
-      # Reference geographic areas to do a spatial query
-      attr_accessor :spatial_geographic_areas
-
-      # @return [Array]
-      #   match only CollectionObjects mapped to CollectingEvents that
-      #   have these specific ids.  No spatial calculations are included
-      #   in this parameter by default.  See 'spatial_geographic_areas = true'.
-      attr_accessor :geographic_area_id
 
       # @return [Array]
       #   values are ATTRIBUTES that should be wildcarded
@@ -122,7 +114,10 @@ module Queries
       #   nil - not applied
       attr_accessor :geographic_area
 
-      # @spatial_geographic_area_ids = params[:spatial_geographic_areas].blank? ? [] : params[:spatial_geographic_area_ids]
+      # See /lib/queries/otu/filter.rb
+      attr_accessor :geographic_area_id
+      attr_accessor :geographic_area_mode
+
       def initialize(params)
         @collecting_event_wildcards = params[:collecting_event_wildcards] || []
         @collector_id = params[:collector_id]
@@ -133,6 +128,7 @@ module Queries
         @georeferences = boolean_param(params, :georeferences)
         @geographic_area = boolean_param(params, :geographic_area)
         @geo_json = params[:geo_json]
+        @geographic_area_mode = boolean_param(params, :geographic_area_mode)
         @geographic_area_id = params[:geographic_area_id]
         @in_labels = params[:in_labels]
         @in_verbatim_locality = params[:in_verbatim_locality]
@@ -140,7 +136,6 @@ module Queries
         @otu_id = params[:otu_id].presence || []
         @radius = params[:radius].presence || 100
         @recent = params[:recent].blank? ? nil : params[:recent].to_i
-        @spatial_geographic_areas = params[:spatial_geographic_areas]&.to_s&.downcase == 'true'
         @wkt = params[:wkt]
 
         @collecting_event_id = params[:collecting_event_id]
@@ -214,6 +209,29 @@ module Queries
         end
       end
 
+      def geographic_area_id_facet 
+        return nil if geographic_area_id.empty?
+
+        a = nil
+
+        case geographic_area_mode
+        when nil, true # exact and spatial start the same
+          a = ::GeographicArea.where(id: geographic_area_id)
+        when false # descendants
+          a = ::GeographicArea.descendants_of_any(geographic_area_id)
+        end
+
+        b = nil
+        case geographic_area_mode
+        when nil, false # exact, descendants
+          return ::CollectingEvent.where(geographic_area: a)
+        when true # spatial
+          i = ::GeographicItem.joins(:geographic_areas).where(geographic_areas: a) # .unscope
+          wkt_shape = ::GeographicItem.st_union(i).to_a.first['collection'].to_s
+          return from_wkt(wkt_shape)
+        end
+      end
+
       def depictions_facet
         return nil if depictions.nil?
 
@@ -274,19 +292,16 @@ module Queries
         ::CollectingEvent.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
       end
 
-
-      ## TODO: what is it @param value [String] ?!
-      ## In
-      #def shape=(value)
-      #  @shape = ::RGeo::GeoJSON.decode(value, json_parser: :json)
-      #  @shape
-      #end
-
       def wkt_facet
         return nil if wkt.blank?
+        from_wkt(wkt)
+      end
+
+      # TODO: check, this should be simplifiable.
+      def from_wkt(wkt_shape)
         a = RGeo::WKRep::WKTParser.new(Gis::FACTORY, support_wkt12: true)
-        b = a.parse(wkt)
-        spatial_query(b.geometry_type.to_s, wkt)
+        b = a.parse(wkt_shape)
+        spatial_query(b.geometry_type.to_s, wkt_shape)
       end
 
       # Shape is a Hash in GeoJSON format
@@ -314,13 +329,6 @@ module Queries
         end
       end
 
-      # TODO: throttle by size?
-      def matching_spatial_via_geographic_area_ids
-        return nil unless spatial_geographic_areas && !geographic_area_id.empty?
-        a = ::GeographicItem.default_by_geographic_area_ids(geographic_area_id).ids
-        ::CollectingEvent.joins(:geographic_items).where( ::GeographicItem.contained_by_where_sql( a ) )
-      end
-
       def matching_any_label
         return nil if in_labels.blank?
         t = "%#{in_labels}%"
@@ -337,11 +345,6 @@ module Queries
       def matching_collecting_event_id
         return nil if collecting_event_id.empty?
         table[:id].eq_any(collecting_event_id)
-      end
-
-      def matching_geographic_area_id
-        return nil if geographic_area_id.empty? || spatial_geographic_areas
-        table[:geographic_area_id].eq_any(geographic_area_id)
       end
 
       def matching_otu_ids
@@ -368,7 +371,6 @@ module Queries
         clauses += [
           matching_collecting_event_id,
           between_date_range,
-          matching_geographic_area_id,
           matching_verbatim_label_md5,
           matching_any_label,
           matching_verbatim_locality,
@@ -379,6 +381,7 @@ module Queries
 
       def base_merge_clauses
         clauses = [
+          geographic_area_id_facet,
           collection_objects_facet,
           collector_ids_facet,
           created_updated_facet,
@@ -397,7 +400,6 @@ module Queries
           keyword_id_facet,
           matching_otu_ids,
           matching_collection_object_id,
-          matching_spatial_via_geographic_area_ids,
           note_text_facet,        # See Queries::Concerns::Notes
           notes_facet,            # See Queries::Concerns::Notes
           wkt_facet,

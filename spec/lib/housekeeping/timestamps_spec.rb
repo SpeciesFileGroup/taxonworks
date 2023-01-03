@@ -20,6 +20,8 @@ describe 'Housekeeping::Timestamps' do
       end
     end
 
+    # GeographicItem is used here, which is somewhat a-typical.
+    # It has a combination of housekeeping related concerns.
     context 'class scopes' do
       let!(:sp1) { FactoryBot.create(:valid_geographic_item,
                                       creator:    user,

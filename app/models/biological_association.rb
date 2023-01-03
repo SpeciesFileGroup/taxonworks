@@ -94,11 +94,29 @@ class BiologicalAssociation < ApplicationRecord
    #end
 
   # @return [ActiveRecord::Relation]
-  def self.targeted_join(target: 'subject', target_class: ::Otu )
+  def self.targeted_join(target: 'subject', target_class: ::Otu)
     a = arel_table
     b = target_class.arel_table
 
     j = a.join(b).on(a["biological_association_#{target}_type".to_sym].eq(target_class.name).and(a["biological_assoication_#{target}_id".to_sym].eq(b[:id])))
+    joins(j.join_sources)
+  end
+
+  # @return [ActiveRecord::Relation]
+  def self.targeted_join2(target: 'subject', target_class: ::Otu)
+    a = arel_table
+    b = target_class.arel_table
+
+    j = a.join(b).on(a["biological_association_#{target}_type".to_sym].eq(target_class.name).and(a["biological_assoication_#{target}_id".to_sym].eq(b[:id])))
+  end
+
+  # Not used
+  # @return [ActiveRecord::Relation]
+  def self.targeted_left_join(target: 'subject', target_class: ::Otu )
+    a = arel_table
+    b = target_class.arel_table
+
+    j = a.join(b, Arel::Nodes::OuterJoin).on(a["biological_association_#{target}_type".to_sym].eq(target_class.name).and(a["biological_assoication_#{target}_id".to_sym].eq(b[:id])))
     joins(j.join_sources)
   end
 

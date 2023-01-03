@@ -103,7 +103,7 @@ ObservationMatrix:
 Otu:
   tasks:
     - browse_otus_task
-    - otus_filter_task
+    - filter_otus_task
     - comprehensive_collection_object_task
     - index_editor_task
     - cite_otus_task

@@ -36,13 +36,14 @@ module Queries
       attr_accessor :collecting_event_query
 
       # @return [Array, nil]
-      #  a list of Otu ids, matches on the
-      attr_accessor :otu_ids
+      #  Otu ids, matches on the TaxonDetermination, see also current_determinations 
+      attr_accessor :otu_id
 
-      # @return [Protonym.id, nil]
+      # TODO: API - was 'ancestor_id'
+      # @return [Array of Protonym.id, nil]
       #   return all collection objects determined as an Otu that is self or descendant linked
       #   to this TaxonName
-      attr_accessor :ancestor_id
+      attr_accessor :taxon_name_id
 
       # @return [Boolean, nil]
       #   nil =  Match against all ancestors, valid or invalid
@@ -233,7 +234,7 @@ module Queries
 
         @collection_object_id = params[:collection_object_id]
       
-        @ancestor_id = params[:ancestor_id].blank? ? nil : params[:ancestor_id]
+        @taxon_name_id = params[:taxon_name_id]
         @biocuration_class_ids = params[:biocuration_class_ids] || []
         @biological_relationship_ids = params[:biological_relationship_ids] || []
         @buffered_collecting_event = params[:buffered_collecting_event]
@@ -262,7 +263,7 @@ module Queries
         @on_loan =  boolean_param(params, :on_loan)
         @loan_id = params[:loan_id]
         @otu_descendants = boolean_param(params, :otu_descendants)
-        @otu_ids = params[:otu_ids] || []
+        @otu_id = params[:otu_id]
         @preparation_type_id = params[:preparation_type_id]
         @recent = boolean_param(params, :recent)
         @repository = boolean_param(params, :repository)
@@ -318,6 +319,10 @@ module Queries
         ::TaxonDetermination.arel_table
       end
 
+      def otu_id 
+        [@otu_id].flatten.compact
+      end
+
       def collecting_event_id 
         [@collecting_event_id].flatten.compact
       end
@@ -334,14 +339,10 @@ module Queries
         [@preparation_type_id].flatten.compact
       end
 
-
-
-def collection_object_id_facet
-    return nil if collection_object_id.empty?
-    table[:id].eq_any(collection_object_id)
-end
-
-
+      def collection_object_id_facet
+        return nil if collection_object_id.empty?
+        table[:id].eq_any(collection_object_id)
+      end
 
       def loan_id
         [@loan_id].flatten.compact
@@ -456,7 +457,6 @@ end
           ::CollectionObject.where(collecting_event_id: nil)
         end
       end
-
 
       def with_buffered_collecting_event_facet
         return nil if with_buffered_collecting_event.nil?
@@ -750,10 +750,10 @@ end
 
       # @return [Scope]
       def otus_facet
-        return nil if otu_ids.empty?
+        return nil if otu_id.empty?
 
         w = taxon_determination_table[:biological_collection_object_id].eq(table[:id])
-          .and( taxon_determination_table[:otu_id].eq_any(otu_ids) )
+          .and( taxon_determination_table[:otu_id].eq_any(otu_id) )
 
         if current_determinations
           w = w.and(taxon_determination_table[:position].eq(1))
@@ -766,8 +766,12 @@ end
         )
       end
 
+      def taxon_name_id
+        [@taxon_name_id].flatten.compact.uniq
+      end
+
       def ancestors_facet
-        return nil if ancestor_id.nil?
+        return nil if taxon_name_id.empty?
         h = Arel::Table.new(:taxon_name_hierarchies)
         t = ::TaxonName.arel_table
 
@@ -780,8 +784,7 @@ end
         ).join(h, Arel::Nodes::InnerJoin).on(
           t[:id].eq(h[:descendant_id])
         )
-
-        z = h[:ancestor_id].eq(ancestor_id)
+        z = h[:ancestor_id].eq_any(taxon_name_id)
 
         if validity == true
           z = z.and(t[:cached_valid_taxon_name_id].eq(t[:id]))
@@ -797,20 +800,6 @@ end
 
         ::CollectionObject.joins(q.join_sources).where(z)
       end
-
-      # TODO: is this used?
-      # @return [Scope]
-      #  def geographic_area_scope
-      #    # This could be simplified if the AJAX selector returned a geographic_item_id rather than a GeographicAreaId
-      #    target_geographic_item_ids = []
-      #    geographic_area_ids.each do |ga_id|
-      #      target_geographic_item_ids.push(::GeographicArea.joins(:geographic_items)
-      #        .find(ga_id)
-      #        .default_geographic_item.id)
-      #    end
-      #    ::CollectionObject.joins(:geographic_items)
-      #      .where(::GeographicItem.contained_by_where_sql(target_geographic_item_ids))
-      #  end
     end
 
   end

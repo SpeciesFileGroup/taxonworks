@@ -112,6 +112,16 @@ class GeographicItem < ApplicationRecord
 
   class << self
 
+    def st_union(geographic_item_scope)
+      GeographicItem.select("ST_Union(#{GeographicItem::GEOMETRY_SQL.to_sql}) as collection")
+      .where(id: geographic_item_scope.pluck(:id))
+    end
+
+    def st_collect(geographic_item_scope)
+      GeographicItem.select("ST_Collect(#{GeographicItem::GEOMETRY_SQL.to_sql}) as collection")
+      .where(id: geographic_item_scope.pluck(:id))
+    end
+
     # @return [GeographicItem::ActiveRecord_Relation]
     # @params [Array] array of geographic area ids
     def default_by_geographic_area_ids(geographic_area_ids = [])

@@ -73,6 +73,7 @@ module Queries
       #   to this TaxonName
       attr_accessor :taxon_name_id
 
+      # TODO: taxon_name_id_target?
       # @return [Array]
       #   one or both of 'Otu', 'CollectionObject', defaults to both if nothing provided
       # Only used when `taxon_name_id` provided

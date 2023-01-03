@@ -1,6 +1,12 @@
 module Queries
   module AssertedDistribution
 
+
+   # TODO: 
+   #   add geographic_area_mode
+   #   inherit from queries
+   #   add annotations
+
     # !! does not inherit from base query
     class Filter
 

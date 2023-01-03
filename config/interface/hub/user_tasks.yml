@@ -54,7 +54,7 @@ browse_annotations_task:
     - browse
   status: stable
   description: 'Filter data by annotations (e.g. Notes, Data attributes).  Delete or create additional annotations on filtered objects.  Generate JSON request based on annotations.'
-otus_filter_task:
+filter_otus_task:
   hub: true
   name: 'Filter OTUs'
   related:
