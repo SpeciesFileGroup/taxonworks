@@ -30,7 +30,7 @@ import DisplayList from 'components/displayList.vue'
 const props = defineProps({
   modelValue: {
     type: Object,
-    default: undefined
+    default: () => ({})
   },
 
   target: {
@@ -48,9 +48,9 @@ const params = computed({
 })
 
 watch(
-  () => props.modelValue,
+  () => props.modelValue.otu_id,
   (newVal, oldVal) => {
-    if (!newVal.length && oldVal.length) {
+    if (!newVal?.length && oldVal?.length) {
       otusStore.value = []
     }
   }

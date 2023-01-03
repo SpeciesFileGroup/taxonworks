@@ -39,9 +39,12 @@
       <slot name="nav-right" />
     </div>
   </NavBar>
-  <div class="grid-filter">
+  <div
+    class="grid-filter"
+    :class="{ 'grid-filter--without-facets': !filter }"
+  >
     <div
-      v-if="filter"
+      v-show="filter"
       class="grid-filter__facets"
     >
       <slot name="facets">
@@ -55,7 +58,10 @@
       </slot>
     </div>
 
-    <slot name="table" />
+    <slot
+      v-if="table"
+      name="table"
+    />
   </div>
 </template>
 
@@ -67,10 +73,15 @@ import useHotkey from 'vue3-hotkey'
 import platformKey from 'helpers/getPlatformKey'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
-import { ref, computed } from 'vue'
+import { ref, computed, onBeforeUnmount } from 'vue'
 
 const props = defineProps({
   filter: {
+    type: Boolean,
+    default: false
+  },
+
+  table: {
     type: Boolean,
     default: false
   },
@@ -131,10 +142,14 @@ const hotkeys = ref([
   }
 ])
 
-const stop = useHotkey(hotkeys.value)
-
 TW.workbench.keyboard.createLegend(`${platformKey()}+f`, 'Search', 'Filter sources')
 TW.workbench.keyboard.createLegend(`${platformKey()}+r`, 'Reset task', 'Filter sources')
+
+const stop = useHotkey(hotkeys.value)
+
+onBeforeUnmount(() => {
+  stop()
+})
 
 </script>
 
@@ -144,6 +159,10 @@ TW.workbench.keyboard.createLegend(`${platformKey()}+r`, 'Reset task', 'Filter s
   display: grid;
   gap: 1em;
   grid-template-columns: 400px 1fr;
+}
+
+.grid-filter--without-facets {
+  grid-template-columns: 1fr;
 }
 
 .grid-filter__facets {
