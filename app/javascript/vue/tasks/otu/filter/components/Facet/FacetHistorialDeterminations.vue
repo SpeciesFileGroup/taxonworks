@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Historical determinations</h3>
     <ul class="no_bullets">
       <li
@@ -10,18 +10,19 @@
           <input
             type="radio"
             :value="value"
-            v-model="historicalDetermination"
+            v-model="params.historical_determinations"
           >
           {{ label }}
         </label>
       </li>
     </ul>
-  </div>
+  </FacetContainer>
 </template>
 
 <script setup>
 import { computed } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 
 const OPTIONS = {
   'Only current': undefined,
@@ -31,17 +32,17 @@ const OPTIONS = {
 
 const props = defineProps({
   modelValue: {
-    type: Boolean,
-    default: undefined
+    type: Object,
+    default: () => ({})
   }
 })
 
 const emit = defineEmits(['update:modelValue'])
 
-const historicalDetermination = computed({
+const params = computed({
   get: () => props.modelValue,
   set: value => emit('update:modelValue', value)
 })
 
-historicalDetermination.value = URLParamsToJSON(location.href)?.historical_determinations
+params.value.historical_determinations = URLParamsToJSON(location.href)?.historical_determinations
 </script>

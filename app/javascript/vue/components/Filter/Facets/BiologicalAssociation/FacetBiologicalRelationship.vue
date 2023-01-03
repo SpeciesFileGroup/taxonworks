@@ -28,8 +28,8 @@ import { removeFromArray } from 'helpers/arrays'
 
 const props = defineProps({
   modelValue: {
-    type: Array,
-    default: () => []
+    type: Object,
+    default: () => ({})
   }
 })
 
