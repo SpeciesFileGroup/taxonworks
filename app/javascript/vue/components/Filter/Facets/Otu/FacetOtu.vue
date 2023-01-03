@@ -2,14 +2,15 @@
   <FacetContainer>
     <h3>Otu</h3>
     <div class="field">
-      <smart-selector
+      <SmartSelector
         model="otus"
         klass="otus"
         :target="target"
         @selected="addToArray(otusStore, $event)"
       />
     </div>
-    <display-list
+    <DisplayList
+      v-if="otusStore.length"
       :list="otusStore"
       label="object_label"
       :delete-warning="false"

@@ -34,6 +34,10 @@ scope :tasks do
   end
 
   scope :asserted_distributions do
+      scope :filter, controller: 'tasks/asserted_distributions/filter' do
+        get '/', as: 'filter_asserted_distributions_task', action: :index
+      end
+
     scope :basic_endemism, controller: 'tasks/asserted_distributions/basic_endemism' do
       get '/', action: :index, as: 'asserted_distributions_basic_endemism_task'
     end

@@ -43,7 +43,8 @@ const WITH_PARAM = [
   'asserted_distributions',
   'daterminations',
   'depictions',
-  'observations'
+  'observations',
+  'taxon_name'
 ]
 
 const emit = defineEmits(['update:modelValue'])
