@@ -108,6 +108,7 @@ import { chunkArray } from 'helpers/arrays'
 import { CollectingEvent, Georeference } from 'routes/endpoints'
 
 const CHUNK_ARRAY_SIZE = 40
+const extend = ['roles']
 
 const geojson = computed(() => {
   const ceId = rowHover.value?.id
@@ -171,7 +172,7 @@ watch(
 )
 
 const loadList = () => {
-  makeFilterRequest({ ...parameters.value, extend: ['roles'] }).then(_ => {
+  makeFilterRequest({ ...parameters.value, extend }).then(_ => {
     list.value = list.value.map(item => ({
       ...item,
       roles: (item?.collector_roles || []).map(role => role.person.cached).join('; '),
@@ -214,7 +215,11 @@ const parseEndDate = ce => {
 
 const urlParams = URLParamsToJSON(location.href)
 if (Object.keys(urlParams).length) {
-  makeFilterRequest({ ...urlParams, extend: ['roles'] })
+  makeFilterRequest({
+    ...urlParams,
+    geo_json: JSON.stringify(urlParams.geo_json),
+    extend
+  })
 }
 
 </script>

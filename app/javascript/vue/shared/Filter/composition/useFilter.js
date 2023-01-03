@@ -6,7 +6,7 @@ export default function (service) {
   const state = reactive({
     append: false,
     parameters: {},
-    per: 500,
+    per: 50,
     pagination: undefined,
     list: [],
     isLoading: false,

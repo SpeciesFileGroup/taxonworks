@@ -7,7 +7,7 @@
       >
         <thead>
           <tr>
-            <td colspan="1" />
+            <td colspan="2" />
             <th
               colspan="5"
               scope="colgroup"
@@ -29,6 +29,7 @@
                 type="checkbox"
               >
             </th>
+            <th />
             <th>Order</th>
             <th>Family</th>
             <th>Genus</th>
@@ -40,7 +41,6 @@
             <th>Family</th>
             <th>Genus</th>
             <th>Object tag</th>
-            <th />
           </tr>
         </thead>
         <tbody>
@@ -57,6 +57,16 @@
                 type="checkbox"
               >
             </td>
+            <td>
+              <div class="horizontal-right-content">
+                <RadialAnnotator
+                  :global-id="item.global_id"
+                />
+                <RadialNavigation
+                  :global-id="item.global_id"
+                />
+              </div>
+            </td>
             <td
               v-for="rank in RANKS"
               :key="rank"
@@ -72,16 +82,6 @@
               v-html="parseRank(item.object.taxonomy[rank])"
             />
             <td v-html="item.object.object_tag" />
-            <td>
-              <div class="horizontal-right-content">
-                <RadialAnnotator
-                  :global-id="item.global_id"
-                />
-                <RadialNavigation
-                  :global-id="item.global_id"
-                />
-              </div>
-            </td>
           </tr>
         </tbody>
       </table>

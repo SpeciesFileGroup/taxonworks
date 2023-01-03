@@ -204,7 +204,10 @@ watch(
 const urlParams = URLParamsToJSON(location.href)
 
 if (Object.keys(urlParams).length) {
-  makeFilterRequest({ ...urlParams, geo_json: JSON.stringify(urlParams.geo_json) })
+  makeFilterRequest({
+    ...urlParams,
+    geo_json: JSON.stringify(urlParams.geo_json)
+  })
 }
 </script>
 
