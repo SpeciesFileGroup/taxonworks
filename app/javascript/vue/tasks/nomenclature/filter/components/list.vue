@@ -56,6 +56,7 @@
           <td>{{ item.rank }}</td>
           <td>
             <a
+              v-if="item.parent"
               :href="`/tasks/nomenclature/browse?taxon_name_id=${item.parent.id}`"
               v-html="item.parent.object_label"
             />
