@@ -1,5 +1,7 @@
 import baseCRUD from './base'
+import AjaxCall from 'helpers/ajaxCall'
 
+const controller = 'asserted_distributions'
 const permitParams = {
   asserted_distribution: {
     id: Number,
@@ -40,5 +42,7 @@ const permitParams = {
 }
 
 export const AssertedDistribution = {
-  ...baseCRUD('asserted_distributions', permitParams)
+  ...baseCRUD('controller', permitParams),
+
+  filter: params => AjaxCall('post', `/${controller}/filter.json`, params)
 }

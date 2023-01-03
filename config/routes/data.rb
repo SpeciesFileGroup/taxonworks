@@ -33,6 +33,7 @@ resources :asserted_distributions do
   collection do
     post :preview_simple_batch_load # should be get
     post :create_simple_batch_load
+    match 'filter', to: 'asserted_distributions#index', via: [:get, :post]
   end
   resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end

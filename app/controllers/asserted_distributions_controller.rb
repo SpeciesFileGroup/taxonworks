@@ -2,6 +2,7 @@ class AssertedDistributionsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_asserted_distribution, only: [:show, :edit, :update, :destroy, :api_show]
+  after_action -> { set_pagination_headers(:asserted_distributions) }, only: [:index], if: :json_request?
 
   # GET /asserted_distributions
   # GET /asserted_distributions.json
