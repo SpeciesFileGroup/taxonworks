@@ -173,14 +173,18 @@ watch(
 
 const loadList = () => {
   makeFilterRequest({ ...parameters.value, extend }).then(_ => {
-    list.value = list.value.map(item => ({
-      ...item,
-      roles: (item?.collector_roles || []).map(role => role.person.cached).join('; '),
-      identifiers: (item?.identifiers || []).map(i => i.cached).join('; '),
-      start_date: parseStartDate(item),
-      end_date: parseEndDate(item)
-    }))
+    list.value = parseList(list.value)
   })
+}
+
+const parseList = list => {
+  return list.map(item => ({
+    ...item,
+    roles: (item?.collector_roles || []).map(role => role.person.cached).join('; '),
+    identifiers: (item?.identifiers || []).map(i => i.cached).join('; '),
+    start_date: parseStartDate(item),
+    end_date: parseEndDate(item)
+  }))
 }
 
 const loadGeoreferences = async (list = []) => {
@@ -219,6 +223,8 @@ if (Object.keys(urlParams).length) {
     ...urlParams,
     geo_json: JSON.stringify(urlParams.geo_json),
     extend
+  }).then(_ => {
+    list.value = parseList(list.value)
   })
 }
 

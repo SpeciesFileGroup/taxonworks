@@ -39,15 +39,10 @@
           <div class="horizontal-left-content">
             <ul class="context-menu middle no_bullets">
               <li>
-                <button
-                  type="button"
-                  class="button normal-input button-default"
-                  @click="selectedIds = selectedIds.length
-                    ? []
-                    : list.map(item => item.id)"
-                >
-                  {{ selectedIds.length ? 'Unselect all ' :'Select all' }}
-                </button>
+                <TagAll
+                  :ids="selectedIds"
+                  type="Source"
+                />
               </li>
               <li>
                 <CsvButton :list="csvList" />
@@ -104,6 +99,7 @@ import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
+import TagAll from 'tasks/collection_objects/filter/components/tagAll.vue'
 
 import { Source } from 'routes/endpoints'
 import { computed, reactive, ref } from 'vue'

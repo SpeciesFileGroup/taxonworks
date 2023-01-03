@@ -47,8 +47,8 @@
           />
 
           <span class="separate-left separate-right">|</span>
-          <csv-button
-            :url="urlRequest"
+          <CsvButton
+            :list="coList?.data"
             :options="{ fields: csvFields }"
           />
           <dwc-download
@@ -101,7 +101,7 @@ import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
-import CsvButton from './components/csvDownload'
+import CsvButton from 'components/csvButton'
 import DwcDownload from './components/dwcDownload.vue'
 import DwcReindex from './components/dwcReindex.vue'
 import TagAll from './components/tagAll'
@@ -199,6 +199,8 @@ watch(
       if (dwcaSearch.length) {
         getDWCATable(dwcaSearch)
       }
+    } else {
+      coList.value = {}
     }
   }
 )

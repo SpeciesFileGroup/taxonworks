@@ -2,31 +2,30 @@
   <HandyScroll>
     <div ref="element">
       <table
-        class="full_width"
+        class="full_width table-striped"
         v-resize-column
       >
         <thead>
           <tr>
-            <th>
+            <th class="w-2">
               <input
                 v-model="selectIds"
                 type="checkbox"
               >
             </th>
+            <th class="w-2" />
             <th>First name</th>
             <th>Prefix</th>
             <th>Last name</th>
             <th>Suffix</th>
             <th>ID</th>
-            <th />
           </tr>
         </thead>
         <tbody>
           <tr
-            v-for="(item, index) in list"
+            v-for="item in list"
             :key="item.id"
             class="contextMenuCells"
-            :class="{ even: index % 2 }"
           >
             <td>
               <input
@@ -35,16 +34,17 @@
                 type="checkbox"
               >
             </td>
+            <td>
+              <div class="horizontal-left-content">
+                <RadialAnnotator :global-id="item.global_id" />
+                <RadialNavigation :global-id="item.global_id" />
+              </div>
+            </td>
             <td v-html="item.first_name" />
             <td v-html="item.prefix" />
             <td v-html="item.last_name" />
             <td v-html="item.suffix" />
             <td>{{ item.id }}</td>
-            <td>
-              <radial-navigation
-                :global-id="item.global_id"
-              />
-            </td>
           </tr>
         </tbody>
       </table>
@@ -56,8 +56,9 @@
 
 import { computed, ref, watch } from 'vue'
 import { sortArray } from 'helpers/arrays.js'
-import HandyScroll from 'vue-handy-scroll'
 import { vResizeColumn } from 'directives/resizeColumn.js'
+import HandyScroll from 'vue-handy-scroll'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialNavigation from 'components/radials/navigation/radial.vue'
 
 const props = defineProps({

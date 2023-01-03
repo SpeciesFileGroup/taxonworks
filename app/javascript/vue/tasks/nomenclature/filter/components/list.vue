@@ -1,17 +1,18 @@
 <template>
   <div class="full_width">
     <table
-      class="full_width"
+      class="full_width table-striped"
       v-resize-column
     >
       <thead>
         <tr>
-          <th>
+          <th class="w-2">
             <input
               type="checkbox"
               v-model="selectAll"
             >
           </th>
+          <th class="w-2" />
           <th @click="sortTable('cached')">
             Name
           </th>
@@ -26,7 +27,6 @@
             Rank
           </th>
           <th>Parent</th>
-          <th>Options</th>
         </tr>
       </thead>
 
@@ -35,7 +35,6 @@
           v-for="(item, index) in list"
           :key="item.id"
           class="contextMenuCells"
-          :class="{ even: index % 2 }"
         >
           <td>
             <input
@@ -43,6 +42,15 @@
               :value="item.id"
               type="checkbox"
             >
+          </td>
+          <td>
+            <div class="horizontal-left-content">
+              <RadialAnnotator
+                type="annotations"
+                :global-id="item.global_id"
+              />
+              <RadialNavigation :global-id="item.global_id" />
+            </div>
           </td>
           <td>
             <a
@@ -60,15 +68,6 @@
               :href="`/tasks/nomenclature/browse?taxon_name_id=${item.parent.id}`"
               v-html="item.parent.object_label"
             />
-          </td>
-          <td class="options-column">
-            <div class="horizontal-left-content">
-              <radial-object :global-id="item.global_id" />
-              <radial-annotator
-                type="annotations"
-                :global-id="item.global_id"
-              />
-            </div>
           </td>
         </tr>
       </tbody>
@@ -88,7 +87,7 @@ import { computed, ref } from 'vue'
 import { sortArray } from 'helpers/arrays.js'
 import { vResizeColumn } from 'directives/resizeColumn'
 import RadialAnnotator from 'components/radials/annotator/annotator'
-import RadialObject from 'components/radials/navigation/radial'
+import RadialNavigation from 'components/radials/navigation/radial'
 
 const props = defineProps({
   list: {
@@ -124,9 +123,3 @@ function sortTable (sortProperty) {
   ascending.value = !ascending.value
 }
 </script>
-
-<style lang="scss" scoped>
-  .options-column {
-    width: 130px;
-  }
-</style>
