@@ -24,6 +24,7 @@ module Export::Project
     file.write "\n-- DATA RESTORE\n\n"
     export_users(file, project)
     tables.each { |t| dump_table(t, file, project.id) }
+    tables.each { |t| setup_pk_sequence(t, file) if get_table_cols(t).include?('"id"') }
     file.puts schema_tail
   end
 
@@ -51,10 +52,13 @@ module Export::Project
     io.write("SELECT setval('public.#{table}_id_seq', (SELECT COALESCE(MAX(id), 0)+1 FROM public.#{table}));\n\n")
   end
 
+  def self.get_table_cols(table)
+    ActiveRecord::Base.connection.columns(table).map { |c| "\"#{c.name}\"" }
+  end
+
   def self.dump_table(table, io, project_id)
     conn = ActiveRecord::Base.connection.raw_connection
-    cols = ActiveRecord::Base.connection.columns(table).map { |c| "\"#{c.name}\"" }
-
+    cols = get_table_cols(table)
     if cols.include?('"project_id"')
       where_clause = "WHERE project_id IN (#{project_id}, NULL)"
     elsif table == 'projects'
@@ -74,7 +78,6 @@ module Export::Project
 
     io.puts('\.')
     io.puts
-    setup_pk_sequence(table, io) if cols.include?('"id"')
   end
 
   def self.export_users(io, project)

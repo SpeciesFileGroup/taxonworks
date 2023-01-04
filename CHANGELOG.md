@@ -9,6 +9,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - Figure label in label on image API response
 
+### Fixed
+- PK sequences was not setup in the correct dump stage in Export project task occasionally causing PK constraints errors on usage.
+
 ## [0.30.3] - 2023-01-04
 
 ### Added
