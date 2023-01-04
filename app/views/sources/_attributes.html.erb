@@ -28,14 +28,14 @@
     <%= language_tag(@source.source_language) if @source.try(:source_language) %>
   </p>
 
-
+  <% if @source.is_bibtex? %>
   <div class="attribute_set" data-title="BibTeX">
     <p>
-      <strong>BiBTeX:</strong>
+      <strong>BibTeX:</strong>
       <pre><%= @source.to_bibtex %></pre>
     </p>
   </div>
-
+  <% end %>
 </div>
 
 <div data-view="development">

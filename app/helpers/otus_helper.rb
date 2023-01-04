@@ -68,9 +68,12 @@ module OtusHelper
     if otu.taxon_name_id
       o = []
       t = otu.taxon_name.next_sibling
-      while o.empty?
-        o = t&.otus.to_a
-        t = t.next_sibling
+      unless t.nil?
+        while o.empty?
+          o = t&.otus.to_a
+          break if t.nil?
+          t = t.next_sibling
+        end
       end
       o
     else
@@ -89,7 +92,7 @@ module OtusHelper
       unless t.nil?
         while o.empty?
           o = t&.otus.to_a
-          exit if t.nil?
+          break if t.nil?
           t = t.previous_sibling
         end
       end

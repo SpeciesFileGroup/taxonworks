@@ -4,16 +4,6 @@
       <h1>New source</h1>
       <ul class="context-menu">
         <li>
-          <autocomplete
-            url="/sources/autocomplete"
-            param="term"
-            placeholder="Search a source..."
-            label="label_html"
-            clear-after
-            @get-item="loadSource($event.id)"
-          />
-        </li>
-        <li>
           <label>
             <input
               type="checkbox"
@@ -152,7 +142,6 @@ import Bibtex from './components/bibtex/main'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial'
 import AddSource from 'components/addToProjectSource'
-import Autocomplete from 'components/ui/Autocomplete'
 import CloneSource from './components/cloneSource'
 import VIcon from 'components/ui/VIcon/index.vue'
 
@@ -172,7 +161,6 @@ export default {
   name: 'NewSource',
 
   components: {
-    Autocomplete,
     CloneSource,
     RadialAnnotator,
     RadialObject,
@@ -273,9 +261,6 @@ export default {
     },
     convert () {
       this.$store.dispatch(ActionNames.ConvertToBibtex)
-    },
-    loadSource (sourceId) {
-      this.$store.dispatch(ActionNames.LoadSource, sourceId)
     }
   }
 }

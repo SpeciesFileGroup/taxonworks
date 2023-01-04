@@ -15,7 +15,6 @@ import 'pdfjs-dist/web/pdf_viewer.css'
 import {
   PDFPageView,
   DefaultAnnotationLayerFactory,
-  DefaultTextLayerFactory,
   createLoadingTask,
   isPDFDocumentLoadingTask,
   EventBus
@@ -136,18 +135,12 @@ const updatePage = newScale => {
 const loadPdf = async pdfInstance => {
   const container = pdfContainer.value
   let annotationLayerFactory
-  let textLayerFactory
 
   if (props.annotation) {
     annotationLayerFactory = new DefaultAnnotationLayerFactory()
   }
 
-  if (props.text) {
-    textLayerFactory = new DefaultTextLayerFactory()
-  }
-
   const eventBus = new EventBus()
-
   const pdfDocument = await pdfInstance
   const pdfPage = await pdfDocument.getPage(props.page)
 
@@ -156,7 +149,7 @@ const loadPdf = async pdfInstance => {
     id: props.page,
     scale: props.scale,
     defaultViewport: pdfPage.getViewport({ scale: props.scale }),
-    textLayerFactory,
+    textLayerMode: props.text ? 2 : 0,
     annotationLayerFactory,
     eventBus
   })
