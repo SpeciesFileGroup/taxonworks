@@ -5,6 +5,10 @@
     target="AssertedDistribution"
     v-model="params"
   />
+  <FacetTaxonName
+    v-model="params"
+    coverage
+  />
   <FacetUsers v-model="params" />
 </template>
 
@@ -15,6 +19,7 @@ import FacetGeographic from 'components/Filter/Facets/shared/FacetGeographic'
 import FacetUsers from 'components/Filter/Facets/shared/FacetUsers.vue'
 import FacetOtu from 'components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetWKT from 'components/Filter/Facets/Otu/FacetWKT.vue'
+import FacetTaxonName from 'components/Filter/Facets/TaxonName/FacetTaxonName.vue'
 
 const props = defineProps({
   modelValue: {

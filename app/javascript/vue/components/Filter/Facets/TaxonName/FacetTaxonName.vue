@@ -1,34 +1,58 @@
 <template>
   <FacetContainer>
     <h3>Taxon name</h3>
-    <div class="field">
-      <SmartSelector
-        model="taxon_names"
-        @selected="addTaxonName"
-      />
-      <DisplayList
-        :list="taxonNames"
-        label="object_tag"
-        :delete-warning="false"
-        @delete="removeTaxonName"
-      />
-    </div>
+    <TaxonNameSelector
+      v-model="params"
+      :relation="relation"
+    />
+    <CoverageSelector
+      v-if="coverage"
+      v-model="params"
+    />
+    <IncludeSelector
+      v-if="include"
+      v-model="params"
+    />
+    <ValiditySelector
+      v-if="validity"
+      v-model="params"
+    />
   </FacetContainer>
 </template>
 
 <script setup>
 import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import SmartSelector from 'components/ui/SmartSelector.vue'
-import DisplayList from 'components/displayList.vue'
-import { ref, computed, watch } from 'vue'
+import TaxonNameSelector from './components/TaxonNameSelector.vue'
+import IncludeSelector from './components/IncludeSelector.vue'
+import CoverageSelector from './components/ConverageSelector.vue'
+import ValiditySelector from './components/ValiditySelector.vue'
+import { computed, onBeforeMount } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { TaxonName } from 'routes/endpoints'
-import { removeFromArray } from 'helpers/arrays.js'
 
 const props = defineProps({
   modelValue: {
     type: Object,
     default: undefined
+  },
+
+  coverage: {
+    type: Boolean,
+    default: false
+  },
+
+  include: {
+    type: Boolean,
+    default: false
+  },
+
+  relation: {
+    type: Boolean,
+    default: false
+  },
+
+  validity: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -39,46 +63,12 @@ const params = computed({
   set: value => emit('update:modelValue', value)
 })
 
-const taxonNames = ref([])
-const taxonNameIds = computed({
-  get: () => params.value.taxon_name_id || [],
-  set: value => { params.value.taxon_name_id = value }
-})
+onBeforeMount(() => {
+  const urlParams = URLParamsToJSON(location.href)
 
-watch(
-  () => props.modelValue.taxon_name_id,
-  (newVal, oldVal) => {
-    if (!newVal?.length && oldVal?.length) {
-      taxonNames.value = []
-    }
-  },
-  { deep: true }
-)
-
-watch(
-  taxonNames,
-  newVal => {
-    params.value.taxon_name_id = newVal.map(taxon => taxon.id)
-  },
-  { deep: true }
-)
-
-function addTaxonName (taxonName) {
-  if (taxonNameIds.value.includes(taxonName.id)) return
-
-  taxonNames.value.push(taxonName)
-}
-
-function removeTaxonName (taxonName) {
-  removeFromArray(taxonNames.value, taxonName)
-}
-
-const { taxon_name_id = [] } = URLParamsToJSON(location.href)
-
-taxon_name_id.forEach(id => {
-  TaxonName.find(id).then(({ body }) => {
-    addTaxonName(body)
-  })
+  params.value.descendants = urlParams.descendants
+  params.value.ancestors = urlParams.ancestors
+  params.value.validity = urlParams.validity
 })
 
 </script>

@@ -7,7 +7,10 @@
   <FacetCollectingEvent
     v-model="params"
   />
-  <FacetTaxonName v-model="params" />
+  <FacetTaxonName
+    v-model="params"
+    coverage
+  />
   <FacetHistorialDeterminations v-model="params" />
   <FacetBiologicalRelationship v-model="params" />
   <FacetDescriptor v-model="params" />

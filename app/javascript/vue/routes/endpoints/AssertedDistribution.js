@@ -42,7 +42,7 @@ const permitParams = {
 }
 
 export const AssertedDistribution = {
-  ...baseCRUD('controller', permitParams),
+  ...baseCRUD(controller, permitParams),
 
   filter: params => AjaxCall('post', `/${controller}/filter.json`, params)
 }

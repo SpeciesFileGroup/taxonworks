@@ -1,6 +1,11 @@
 <template>
   <FacetGeographic v-model="params" />
   <FacetDetermination v-model="params" />
+  <FacetTaxonName
+    v-model="params"
+    coverage
+    validity
+  />
   <FacetCurrentRepository v-model="params" />
   <FacetRepository v-model="params" />
   <FacetIdentifiers v-model="params" />
@@ -40,6 +45,7 @@
 import { computed } from 'vue'
 import FacetDetermination from 'components/Filter/Facets/CollectionObject/Determiner/FacetDetermination.vue'
 import FacetCollectingEvent from 'components/Filter/Facets/CollectingEvent/FacetCollectingEvent/FacetCollectingEvent.vue'
+import FacetTaxonName from 'components/Filter/Facets/TaxonName/FacetTaxonName.vue'
 import FacetUsers from 'components/Filter/Facets/shared/FacetUsers.vue'
 import FacetGeographic from 'components/Filter/Facets/shared/FacetGeographic.vue'
 import FacetTags from 'components/Filter/Facets/shared/FacetTags.vue'

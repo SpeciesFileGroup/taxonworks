@@ -2,14 +2,14 @@
   <FacetNameAuthorYear v-model="params" />
   <FacetPrecision v-model="params" />
   <FacetAuthors v-model="params" />
-  <FacetClassificationScope
+  <FacetTaxonName
     :autocomplete-params="{
       type: 'Protonym',
       valid: true
     }"
+    include
     v-model="params"
   />
-  <FacetRelated v-model="params" />
   <FacetNomenclatureGroup v-model="params" />
   <FacetNomenclatureCode v-model="params" />
   <FacetValidity v-model="params" />
@@ -42,10 +42,9 @@ import FacetNameAuthorYear from './filters/FacetNameAuthorYear.vue'
 import FacetPrecision from './filters/FacetPrecision.vue'
 import FacetUpdatedSince from './filters/FacetUpdatedSince'
 import FacetValidity from './filters/FacetValidity.vue'
-import FacetRelated from './filters/FacetRelated'
 import FacetCitations from 'components/Filter/Facets/Citations/FacetCitations.vue'
 import FacetRelationships from './filters/FacetRelationships.vue'
-import FacetClassificationScope from './filters/FacetClassificationScope'
+import FacetTaxonName from 'components/Filter/Facets/TaxonName/FacetTaxonName.vue'
 import FacetStatus from './filters/FacetStatus.vue'
 import FacetNomenclatureGroup from './filters/FacetNomenclatureGroup.vue'
 import FacetNomenclatureCode from './filters/FacetNomenclatureCode.vue'

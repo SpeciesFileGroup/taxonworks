@@ -58,7 +58,7 @@
 <script setup>
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
-import FilterComponent from './components/filter.vue'
+import FilterComponent from './components/FilterView.vue'
 import ListComponent from './components/list'
 import CsvButton from 'components/csvButton'
 import useFilter from 'shared/Filter/composition/useFilter.js'

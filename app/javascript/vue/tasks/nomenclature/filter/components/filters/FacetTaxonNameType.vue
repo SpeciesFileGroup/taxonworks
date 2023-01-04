@@ -32,8 +32,8 @@ const TAXON_TYPES = [
 
 const props = defineProps({
   modelValue: {
-    type: String,
-    default: undefined
+    type: Object,
+    default: () => ({})
   }
 })
 
