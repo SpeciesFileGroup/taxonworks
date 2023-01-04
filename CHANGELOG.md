@@ -6,7 +6,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+- Figure label in label on image API response
 
 ## [0.30.3] - 2023-01-04
 
