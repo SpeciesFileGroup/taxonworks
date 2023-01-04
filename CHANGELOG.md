@@ -6,6 +6,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.30.3] - 2023-01-04
+
 ### Added
 - Search panel in New source task
 
@@ -3128,7 +3132,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.2...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.3...development
+[0.30.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.2...v0.30.3
 [0.30.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.1...v0.30.2
 [0.30.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.30.0...v0.30.1
 [0.30.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.29.6...v0.30.0
