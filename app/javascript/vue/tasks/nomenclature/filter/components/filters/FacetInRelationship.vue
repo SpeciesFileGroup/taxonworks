@@ -85,8 +85,8 @@ export default {
 
   props: {
     modelValue: {
-      type: Array,
-      required: true
+      type: Object,
+      default: () => ({})
     }
   },
 

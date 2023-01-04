@@ -1,40 +1,6 @@
 <template>
   <FacetContainer>
     <h3>Determinations</h3>
-    <h4>Taxon name</h4>
-    <div class="field">
-      <autocomplete
-        url="/taxon_names/autocomplete"
-        param="term"
-        label="label_html"
-        clear-after
-        placeholder="Search a taxon name"
-        @get-item="setTaxon($event.id)"
-      />
-      <SmartSelectorItem
-        :item="taxon"
-        label="object_tag"
-        @unset="removeTaxon"
-      />
-      <div class="field separate-top">
-        <ul class="no_bullets">
-          <li
-            v-for="item in validityOptions"
-            :key="item.value"
-          >
-            <label>
-              <input
-                type="radio"
-                :value="item.value"
-                name="taxon-validity"
-                v-model="determination.validity"
-              >
-              {{ item.label }}
-            </label>
-          </li>
-        </ul>
-      </div>
-    </div>
     <div class="field">
       <h4>Otu</h4>
       <autocomplete
@@ -105,18 +71,13 @@
 import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import Autocomplete from 'components/ui/Autocomplete'
 import DeterminerComponent from '../../shared/FacetPeople.vue'
-import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-import {
-  TaxonName,
-  Otu
-} from 'routes/endpoints'
+import { Otu } from 'routes/endpoints'
 
 export default {
   components: {
     Autocomplete,
     DeterminerComponent,
-    SmartSelectorItem,
     FacetContainer
   },
 
@@ -133,7 +94,6 @@ export default {
     return {
       otusStore: [],
       determiners: [],
-      taxon: undefined,
       isCurrentDeterminationVisible: true,
       currentDeterminationsOptions: [
         {
@@ -146,20 +106,6 @@ export default {
         },
         {
           label: 'Historical only',
-          value: false
-        }
-      ],
-      validityOptions: [
-        {
-          label: 'Both valid/invalid',
-          value: undefined
-        },
-        {
-          label: 'Valid only',
-          value: true
-        },
-        {
-          label: 'Invalid only',
           value: false
         }
       ]
@@ -183,9 +129,6 @@ export default {
         if (!newVal.otu_ids?.length) {
           this.otusStore = []
         }
-        if (!newVal.ancestor_id) {
-          this.taxon = undefined
-        }
       },
       deep: true
     },
@@ -197,18 +140,11 @@ export default {
 
   created () {
     const {
-      ancestor_id,
-      validity,
       current_determinations,
       otu_ids = []
     } = URLParamsToJSON(location.href)
-    if (ancestor_id) {
-      this.setTaxon(ancestor_id)
-    }
 
     otu_ids.forEach(id => { this.addOtu(id) })
-
-    this.determination.validity = validity
     this.determination.current_determinations = current_determinations
   },
 
@@ -218,18 +154,6 @@ export default {
         this.determination.otu_ids.push(response.body.id)
         this.otusStore.push(response.body)
       })
-    },
-
-    setTaxon (id) {
-      TaxonName.find(id).then(response => {
-        this.taxon = response.body
-        this.determination.ancestor_id = response.body.id
-      })
-    },
-
-    removeTaxon () {
-      this.taxon = undefined
-      this.determination.ancestor_id = undefined
     },
 
     removePerson (index) {

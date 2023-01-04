@@ -1,5 +1,9 @@
 <template>
-  <FacetNomenclatureRelation v-model="params" />
+  <FacetTaxonName
+    coverage
+    relation
+    v-model="params"
+  />
   <FacetGeographic v-model="params" />
   <FacetWKT v-model="params" />
   <FacetBiologicalRelationship v-model="params" />
@@ -32,12 +36,12 @@ import FacetWKT from 'components/Filter/Facets/Otu/FacetWKT.vue'
 import FacetUsers from 'components/Filter/Facets/shared/FacetUsers.vue'
 import FacetIdentifier from 'components/Filter/Facets/shared/FacetIdentifiers.vue'
 import FacetBiologicalRelationship from 'components/Filter/Facets/BiologicalAssociation/FacetBiologicalRelationship.vue'
+import FacetTaxonName from 'components/Filter/Facets/TaxonName/FacetTaxonName.vue'
 import FacetTags from 'components/Filter/Facets/shared/FacetTags.vue'
 import FacetNotes from 'components/Filter/Facets/shared/FacetNotes.vue'
 import FacetCollectionObject from 'components/Filter/Facets/CollectionObject/FacetCollectionObject.vue'
 import FacetCollectingEvent from './Facet/FacetCollectingEvent.vue'
 import FacetBiologicalProperty from 'components/Filter/Facets/BiologicalAssociation/FacetBiologicalProperty.vue'
-import FacetNomenclatureRelation from 'components/Filter/Facets/BiologicalAssociation/FacetNomenclatureRelation.vue'
 import FacetOtu from 'components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
 import { computed } from 'vue'
