@@ -1,4 +1,4 @@
-export const numberOnly = {
+export const vNumberOnly = {
   mounted: (el, binding, vnode) => {
     el.handler = () => {
       if (/[^\d]/g.test(el.value)) {

@@ -1,5 +1,1 @@
-import { numberOnly } from './numberOnly.js'
-
-export {
-  numberOnly
-}
+export * from './numberOnly.js'

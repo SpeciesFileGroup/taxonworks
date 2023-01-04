@@ -8,9 +8,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - Figure label in label on image API response
+- Add input to create N records in Simple new specimen [#3269]
 
 ### Fixed
 - PK sequences was not setup in the correct dump stage in Export project task occasionally causing PK constraints errors on usage.
+
+[#3269]: https://github.com/SpeciesFileGroup/taxonworks/issues/3269
 
 ## [0.30.3] - 2023-01-04
 

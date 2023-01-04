@@ -3,29 +3,37 @@ import ActionNames from './actionNames.js'
 export default async function () {
   const promises = []
 
-  if (
-    !this.createdCE &&
-    (
-      this.collectingEvent.verbatim_label ||
-      this.collectingEvent.verbatim_locality ||
-      this.geographicArea
-    )
-  ) {
-    await this[ActionNames.CreateCollectingEvent]()
+  const createObjects = async () => {
+    if (
+      !this.createdCE &&
+      (
+        this.collectingEvent.verbatim_label ||
+        this.collectingEvent.verbatim_locality ||
+        this.geographicArea
+      )
+    ) {
+      await this[ActionNames.CreateCollectingEvent]()
+    }
+
+    const co = (await this[ActionNames.CreateCollectionObject]()).body
+
+    if (
+      this.identifier &&
+      this.namespace &&
+      !this.createdIdentifiers.length
+    ) {
+      promises.push(this[ActionNames.CreateIdentifier](co.id))
+    }
+
+    if (this.otu) {
+      promises.push(this[ActionNames.CreateTaxonDetermination](co.id))
+    }
+
+    this.createdCO = co
   }
 
-  this.createdCO = (await this[ActionNames.CreateCollectionObject]()).body
-
-  if (
-    this.identifier &&
-    this.namespace &&
-    !this.createdIdentifiers.length
-  ) {
-    promises.push(this[ActionNames.CreateIdentifier]())
-  }
-
-  if (this.otu) {
-    promises.push(this[ActionNames.CreateTaxonDetermination]())
+  for (let i = 0; i < this.createTotal; i++) {
+    await createObjects()
   }
 
   Promise.allSettled(promises).then(_ => {
