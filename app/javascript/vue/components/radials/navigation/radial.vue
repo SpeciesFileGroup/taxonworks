@@ -86,7 +86,8 @@ const DEFAULT_OPTIONS = {
   Edit: 'Edit',
   Destroy: 'Destroy',
   Recent: 'Recent',
-  Show: 'Show'
+  Show: 'Show',
+  Related: 'Related'
 }
 
 const CUSTOM_OPTIONS = {
@@ -277,6 +278,7 @@ export default {
       showDestroyModal: false,
       recentTotal: 0,
       defaultSlicesTypes: [
+        DEFAULT_OPTIONS.Related,
         DEFAULT_OPTIONS.New,
         DEFAULT_OPTIONS.Destroy,
         DEFAULT_OPTIONS.Edit,
@@ -326,7 +328,8 @@ export default {
       return {
         [DEFAULT_OPTIONS.Edit]: this.metadata?.edit || `${this.metadata.resource_path}/edit`,
         [DEFAULT_OPTIONS.New]: this.metadata?.new || `${this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf('/'))}/new`,
-        [DEFAULT_OPTIONS.Show]: this.metadata.resource_path
+        [DEFAULT_OPTIONS.Show]: this.metadata.resource_path,
+        [DEFAULT_OPTIONS.Related]: `/tasks/shared/related_data?object_global_id=${encodeURIComponent(this.globalId)}`
       }
     },
 
