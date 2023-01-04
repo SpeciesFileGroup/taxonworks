@@ -225,9 +225,9 @@ module ObservationMatrices::Export::NexmlHelper
                 lbl = lbl.compact.join('; ')
 
                 if im.image_hash[depiction[:image_id]][:image_file_content_type] == 'image/tiff'
-                  href = im.image_hash[depiction[:image_id]][:medium]
+                  href = im.image_hash[depiction[:image_id]][:medium_url]
                 else
-                  href = im.image_hash[depiction[:image_id]][:original]
+                  href = im.image_hash[depiction[:image_id]][:original_url]
                 end
                 xml.meta(
                   'xsi:type' => 'ResourceMeta',
@@ -291,6 +291,7 @@ module ObservationMatrices::Export::NexmlHelper
 
   #
   # NOT USED - current using inline approach to handle depictions
+=begin
   def nexml_otu_depictions(options = {})
     opt = {target:  '', descriptors: []}.merge!(options)
     xml = Builder::XmlMarkup.new(target: opt[:target])
@@ -324,7 +325,7 @@ module ObservationMatrices::Export::NexmlHelper
     end
     return opt[:target]
   end
-
+=end
 
   # TODO: if semantics change we can add them as block later.
   # This is just character state depictions for now.
@@ -352,7 +353,7 @@ module ObservationMatrices::Export::NexmlHelper
               'xsi:type' => 'ResourceMeta',
               'rel' => 'foaf:depiction',
               'about' => "cs#{d.depiction_object_id}",
-              'href' => short_url(href) # root_url + d.image.image_file.url(:original)[1..-1]
+              'href' => short_url(href)
             )
           end
         end
