@@ -7,6 +7,12 @@ if extend_response_with('otu')
   end
 end
 
+if extend_response_with('taxonomy')
+  json.taxonomy do
+    json.merge! otu.taxonomy
+  end
+end
+
 if extend_response_with('geographic_area')
   json.geographic_area do
     json.partial! '/geographic_areas/attributes', geographic_area: asserted_distribution.geographic_area
