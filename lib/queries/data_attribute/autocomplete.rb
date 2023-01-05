@@ -1,6 +1,6 @@
 module Queries
   module DataAttribute
-    class Autocomplete < Queries::Query
+    class Autocomplete < Query::Autocomplete
 
       attr_accessor :term_key, :term_value
 

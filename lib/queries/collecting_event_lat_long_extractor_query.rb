@@ -65,7 +65,6 @@ information. (called from where_sql at
 
     # @return [String]
     def where_sql
-      # with_project_id.and
       # TODO: make sure you select the one of the following lines which suits your purpose: with or without
       # Verbatim_lat/long present (default: Verbatim_lat/long is empty)
       (verbatim_label_not_empty).and(verbatim_lat_long_empty).and(starting_after).and(filter_scopes).to_sql

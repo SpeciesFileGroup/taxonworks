@@ -1,6 +1,6 @@
 module Queries
   module ObservationMatrix 
-    class Filter < Queries::Query
+    class Filter < Query::Filter
 
       attr_accessor :observation_matrix_id
 

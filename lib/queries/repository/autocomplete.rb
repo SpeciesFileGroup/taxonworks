@@ -1,6 +1,6 @@
 module Queries
 
-  class Repository::Autocomplete < Queries::Query
+  class Repository::Autocomplete < Query::Autocomplete
 
     include Queries::Concerns::AlternateValues
 

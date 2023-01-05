@@ -14,7 +14,7 @@ module Queries
     # These were useful references:
     #   * https://sonnym.github.io/2017/06/05/common-table-expressions-in-activerecord-a-case-study-of-quantiles/
     #   * https://blog.codeship.com/folding-postgres-window-functions-into-rails/
-    class Tabular < Queries::Query
+    class Tabular < Query::Autocomplete
 
       include Queries::Helpers
 

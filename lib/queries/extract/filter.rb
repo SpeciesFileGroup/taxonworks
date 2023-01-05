@@ -1,7 +1,7 @@
 module Queries
   module Extract
 
-    class Filter < Queries::Query
+    class Filter < Query::Filter
       include Queries::Helpers
 
       include Queries::Concerns::Tags

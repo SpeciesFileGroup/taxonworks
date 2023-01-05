@@ -1,6 +1,6 @@
 module Queries
   module DataAttribute
-    class Filter
+    class Filter < Query::Filter
 
       # General annotator options handling
       # happens directly on the params as passed

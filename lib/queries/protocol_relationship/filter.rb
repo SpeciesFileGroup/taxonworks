@@ -1,6 +1,6 @@
 module Queries
   module ProtocolRelationship
-    class Filter
+    class Filter < Query::Filter
 
       # TODO: revisit for permitted params
       # General annotator options handling

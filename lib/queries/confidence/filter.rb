@@ -1,8 +1,7 @@
 module Queries
   module Confidence 
 
-    # !! does not inherit from base query
-    class Filter
+    class Filter < Query::Filter
       # Params specific to Confidence
 
       # General annotator options handling

@@ -5,7 +5,8 @@ module Queries
   module Citation
 
     # !! does not inherit from base query
-    class Filter
+    class Filter < Query::Filter
+
       include Queries::Helpers
       # General annotator options handling
       # happens directly on the params as passed
@@ -16,7 +17,7 @@ module Queries
       # Array, Integer
       attr_accessor :citation_object_type, :citation_object_id, :source_id, :user_id
 
-    # @return [Boolean, nil]
+      # @return [Boolean, nil]
       # @params recent ['true', 'false', nil]
       attr_accessor :recent
 
@@ -102,7 +103,7 @@ module Queries
 
       # @return [Arel::Node, nil]
       def matching_source_id
-        source_id.blank? ? nil : table[:source_id].eq_any(source_id)  
+        source_id.blank? ? nil : table[:source_id].eq_any(source_id)
       end
 
       def matching_updated_by_id

@@ -2,26 +2,19 @@ module Queries
   module Serial
 
     # !! does not inherit from base query
-    class Filter
-
-      # General annotator options handling
-      # happens directly on the params as passed
-      # through to the controller, keep them
-      # together here
-      attr_accessor :options
+    class Filter << Query::Filter
 
       # Params specific to Note
       attr_accessor :name
 
       def initialize(params)
         @name = params[:name]
-        @options = params
       end
 
       # @return [ActiveRecord::Relation]
       def and_clauses
         clauses = [
-            matching_name,
+          matching_name,
         ].compact
 
         return nil if clauses.empty?

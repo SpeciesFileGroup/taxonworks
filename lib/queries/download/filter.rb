@@ -1,6 +1,6 @@
 module Queries
-  module Download 
-    class Filter < Queries::Query 
+  module Download
+    class Filter < Query::Filter
 
       # TODO: Add date/expiry facets
 

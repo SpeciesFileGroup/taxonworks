@@ -1,7 +1,7 @@
 module Queries
   module Role
 
-    class Filter < Queries::Query
+    class Filter < Query::Filter
       include Queries::Concerns::Users
 
       include Concerns::Polymorphic

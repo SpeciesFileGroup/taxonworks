@@ -1,6 +1,6 @@
 module Queries
   module AssertedDistribution 
-    class Autocomplete < Queries::Query
+    class Autocomplete < Queries::Query::Autocomplete
       
       def initialize(string, project_id: nil)
         super

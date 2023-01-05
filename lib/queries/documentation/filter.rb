@@ -1,8 +1,7 @@
 module Queries
   module Documentation
 
-    # !! does not inherit from base query
-    class Filter 
+    class Filter < Query::Filter
 
       # General annotator options handling 
       # happens directly on the params as passed

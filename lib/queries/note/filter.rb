@@ -1,7 +1,7 @@
 module Queries
-  module Note 
+  module Note
 
-    class Filter 
+    class Filter < Query::Filter
 
       # @param text [String, nil]
       #   wildcard wrapped, always, to match against `text`
@@ -17,14 +17,14 @@ module Queries
 
       attr_accessor :object_global_id
 
-      attr_accessor :project_id
 
       def initialize(params)
         @text = params[:text]
         @note_object_type = params[:note_object_type]
         @note_object_id = params[:note_object_id]
         @object_global_id = params[:object_global_id]
-        @project_id = params[:project_id]
+
+        super
       end
 
       def note_object_id
@@ -58,8 +58,8 @@ module Queries
         return nil if object_global_id.nil?
         o = GlobalID::Locator.locate(object_global_id)
         k = o.class.base_class.name
-        id = o.id 
-        table[:note_object_id].eq(o.id).and(table[:note_object_type].eq(k)) 
+        id = o.id
+        table[:note_object_id].eq(o.id).and(table[:note_object_type].eq(k))
       end
 
       # @return [ActiveRecord::Relation]
@@ -79,7 +79,7 @@ module Queries
       end
 
       # @return [ActiveRecord::Relation]
-      def all 
+      def all
         q = nil
         if a = and_clauses
           q = ::Note.where(and_clauses)

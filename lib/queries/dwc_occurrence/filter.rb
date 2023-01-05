@@ -1,9 +1,8 @@
 module Queries
   module DwcOccurrence
 
-
     # Keep this minimal, in pricinple filtering should be done on the base objects, not the core here.
-    class Filter < Queries::Query
+    class Filter < Query::Filter
 
       include Queries::Helpers
       include Queries::Concerns::Users

@@ -1,6 +1,6 @@
 module Queries
   module CollectingEvent
-    class Autocomplete < Queries::Query
+    class Autocomplete < Query::Autocomplete
 
       include ::Queries::Concerns::DateRanges
       include ::Queries::Concerns::Roles

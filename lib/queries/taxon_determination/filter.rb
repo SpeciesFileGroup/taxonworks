@@ -1,6 +1,6 @@
 module Queries
-  module TaxonDetermination 
-    class Filter < Queries::Query
+  module TaxonDetermination
+    class Filter < Query::Filter
 
       # all Arrays
       attr_accessor :biological_collection_object_ids, :otu_ids, :determiner_ids
@@ -8,14 +8,14 @@ module Queries
       def initialize(params = {})
         @otu_ids = params[:otu_ids] || []
         @biological_collection_object_ids = params[:biological_collection_object_ids]
-     
-        if !params[:collection_object_id].blank? 
+
+        if !params[:collection_object_id].blank?
           @biological_collection_object_ids ||= []
           @biological_collection_object_ids.push(params[:collection_object_id])
         end
 
         @determiner_ids = params[:determiner_ids]
-        
+
         @otu_ids.push(params[:otu_id]) unless params[:otu_id].blank?
         @biological_collection_object_ids ||= []
         @determiner_ids ||= []
@@ -32,7 +32,7 @@ module Queries
         clauses.each do |b|
           a = a.and(b)
         end
-       
+
         a
       end
 
@@ -68,7 +68,7 @@ module Queries
         ::TaxonDetermination.arel_table
       end
 
-      # TODO: may require specific select('taxon_determinations.*, ...') to function wth order etc. 
+      # TODO: may require specific select('taxon_determinations.*, ...') to function wth order etc.
       def base_query
         ::TaxonDetermination.includes(:determiners)
       end

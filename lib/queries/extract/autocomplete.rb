@@ -1,6 +1,6 @@
 module Queries
   module Extract
-    class Autocomplete < Queries::Query
+    class Autocomplete < Query::Autocomplete
 
       # @return Array
       #   !! Not an external param

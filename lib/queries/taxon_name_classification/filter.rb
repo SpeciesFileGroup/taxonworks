@@ -1,6 +1,6 @@
 module Queries
   module TaxonNameClassification
-    class Filter < Queries::Query
+    class Filter < Query::Filter
 
       # @param taxon_name_id [String, Array, nil]
       #   Match all TaxonNameClassifications a taxon_name_id(s)

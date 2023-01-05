@@ -1,5 +1,6 @@
 module Queries
-  class User::Autocomplete < Queries::Query
+  module User
+   class Autocomplete < Query::Autocomplete
 
     # @return [Scope]
     def where_sql

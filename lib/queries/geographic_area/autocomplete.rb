@@ -1,6 +1,6 @@
 module Queries
   module GeographicArea
-    class Autocomplete <  Queries::Query
+    class Autocomplete < Query::Autocomplete
 
       include Queries::Concerns::AlternateValues
       include Queries::Concerns::Tags

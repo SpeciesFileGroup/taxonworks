@@ -1,7 +1,7 @@
 module Queries
   module Person
 
-    class Filter < Queries::Query
+    class Filter < Query::Filter
       include Queries::Concerns::Tags
       include Queries::Concerns::Users
       include Queries::Concerns::Notes

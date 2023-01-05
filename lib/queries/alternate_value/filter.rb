@@ -1,6 +1,6 @@
 module Queries
   module AlternateValue
-    class Filter
+    class Filter < Query::Filter
 
       include Queries::Helpers
 

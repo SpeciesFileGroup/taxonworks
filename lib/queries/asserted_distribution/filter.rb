@@ -1,14 +1,13 @@
 module Queries
   module AssertedDistribution
 
-
    # TODO: 
    #   add geographic_area_mode
    #   inherit from queries
    #   add annotations
 
     # !! does not inherit from base query
-    class Filter
+    class Filter < Query::Filter
 
       include Queries::Concerns::Citations
 
@@ -20,9 +19,22 @@ module Queries
       # @return [Array]
       attr_accessor :geographic_area_id
 
+      # @return [Boolean, nil]
+      #   How to treat GeographicAreas
+      #     nil - non-spatial match by only those records matching the geographic_area_id exactly
+      #     true - spatial match
+      #     false - non-spatial match (descendants)
+      attr_accessor :geographic_area_mode
+
       attr_accessor :wkt
 
       attr_accessor :geo_json
+
+      # @return [Boolean, nil]
+      #   nil - both
+      #   true - only 't'
+      #   false - only 'f'
+      attr_accessor :presence
 
       # Add citations extension
 
@@ -37,28 +49,20 @@ module Queries
       # TODO: replicate the TaxonName Parenthood params here
       # attr_accessor ancestor
 
-      # TODO add spatial option for ancestor
-      # @param attr_accessor ancestor_scope [String, Symbol, nil]
-      # @return [Symbol, nil]
-      #   `spatial` - treat spatial
-      #   `parent` - use closure tree (parenthood)
-      #   `expanded` - start with spatial, then for each spatial use parent
-      #   `inverse_expanded` - start with parent, then for each use spatial (only make sense for non-spatial parents with some spatial children)
-
-      # @return [Boolean, nil]
-      # @params recent ['true', 'false', nil]
-      attr_accessor :recent
-
       def initialize(params)
         @otu_id = params[:otu_id]
         @geographic_area_id = params[:geographic_area_id]
+        @geographic_area_mode = boolean_param(params, :geographic_area_mode)
 
-        @recent = params[:recent].blank? ? nil : params[:recent].to_i
+        @recent = boolean_param(params, :recent)
 
         @wkt = params[:wkt]
         @geo_json = params[:geo_json]
 
+        @presence = boolean_param(params, :presence)
+
         set_citations_params(params)
+        super
       end
 
       def otu_id
@@ -82,35 +86,35 @@ module Queries
         nil
       end
 
-      def wkt_facet
-        return nil if wkt.nil?
-
-        i = ::GeographicItem.joins(:geographic_areas).where(::GeographicItem.contained_by_wkt_sql(wkt))
-        j = ::GeographicArea.joins(:geographic_items).where(geographic_items: i)
-        k = ::GeographicArea.descendants_of(j)
-
-        ::AssertedDistribution.where(geographic_area: j).or.where(geographic_area: k)
+      def presence_facet
+        return nil if presence.nil?
+        if presence 
+          table[:is_absent].eq_any(['f', nil])
+        else
+          table[:is_absent].eq('t')
+        end
       end
 
-    # def geo_json_facet
-    #   return nil if wkt.nil?
+      # TODO - joins, not n+1
+      def wkt_facet
+        return nil if wkt.nil?
+        from_wkt(wkt)
+      end
 
-    #   i = ::GeographicItem.joins(:geographic_areas).where(::GeographicItem.contained_by_wkt_sql(wkt))
-    #   j = ::GeographicArea.joins(:geographic_items).where(geographic_items: i)
-    #   k = ::GeographicArea.descendants_of(j)
-
-    #   ::AssertedDistribution.where(geographic_area: j).or.where(geographic_area: k)
-    # end
-
-     # Shape is a Hash in GeoJSON format
+      # TODO: Withify
+      # Shape is a Hash in GeoJSON format
       def geo_json_facet
         return nil if geo_json.nil?
         if i = spatial_query
 
+         
+          # All spatial records
           j = ::GeographicArea.joins(:geographic_items).where(geographic_items: i)
-          k = ::GeographicArea.descendants_of(j)
 
-          return ::AssertedDistribution.where(geographic_area: j).or.where(geographic_area: k)
+          # Expand to include all descendants of any spatial match!
+          k = ::GeographicArea.descendants_of_any(j.pluck(:id))
+
+          return ::AssertedDistribution.where(geographic_area: j + k )
         else
           return nil
         end
@@ -120,11 +124,10 @@ module Queries
         if geometry = RGeo::GeoJSON.decode(geo_json)
           case geometry.geometry_type.to_s
           when 'Point'
-            # TODO
-            # radius = WHAT?
-            ::GeographicItem.within_radius_of_wkt_sql(geometry.to_s, radius ) # TODO: FIX THIS, radius is not defined
+            # TODO:  radius = WHAT?
+            ::GeographicItem.where(::GeographicItem.within_radius_of_wkt_sql(geometry.to_s, radius ) ) # TODO: FIX THIS, radius is not defined
           when 'Polygon', 'MultiPolygon'
-            ::GeographicItem.contained_by_wkt_sql(geometry.to_s)
+            ::GeographicItem.where(::GeographicItem.contained_by_wkt_sql(geometry.to_s))
           else
             nil
           end
@@ -133,12 +136,49 @@ module Queries
         end
       end
 
+      # !! TODO: "withify"
+      def from_wkt(wkt_shape)
+
+        i = ::GeographicItem.joins(:geographic_areas).where(::GeographicItem.contained_by_wkt_sql(wkt_shape))
+        j = ::GeographicArea.joins(:geographic_items).where(geographic_items: i)
+
+        k = ::GeographicArea.descendants_of(j) # Add children that might not be caught because they don't have a shapes
+
+        ::AssertedDistribution.where(geographic_area: j + k) # .or.where(geographic_area: k)
+      end
+
+      def geographic_area_id_facet 
+        return nil if geographic_area_id.empty?
+
+        a = nil
+
+        case geographic_area_mode
+        when nil, true # exact and spatial start the same
+          a = ::GeographicArea.where(id: geographic_area_id)
+        when false # descendants
+          a = ::GeographicArea.descendants_of_any(geographic_area_id)
+        end
+
+        b = nil # from AssertedDistributions 
+        
+        case geographic_area_mode
+        when nil, false # exact, descendants
+          b = ::AssertedDistribution.where(geographic_area: a) 
+        when true # spatial
+          i = ::GeographicItem.joins(:geographic_areas).where(geographic_areas: a) # .unscope
+          wkt_shape = ::GeographicItem.st_union(i).to_a.first['collection'].to_s # todo, check
+          return from_wkt(wkt_shape)
+        end
+       
+        b
+      end
+
 
       def base_and_clauses
         clauses = []
         clauses += [
-          asserted_distribution_attribute_equals(:otu_id),
-          asserted_distribution_attribute_equals(:geographic_area_id),
+          presence_facet,
+          asserted_distribution_attribute_equals(:otu_id),  # TODO: handles array?multiple?  
         ].compact
       end
 
@@ -146,6 +186,7 @@ module Queries
         clauses = []
         clauses +=
           [
+            geographic_area_id_facet,
             wkt_facet,
             geo_json_facet,
           ].compact
@@ -187,7 +228,7 @@ module Queries
           q = ::AssertedDistribution.all
         end
 
-        q = q.order(updated_at: :desc).limit(recent) if recent
+        # q = q.order(updated_at: :desc).limit(recent) if recent
         q
       end
 

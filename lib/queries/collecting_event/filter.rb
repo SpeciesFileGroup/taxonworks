@@ -1,6 +1,6 @@
 module Queries
   module CollectingEvent
-    class Filter
+    class Filter < Query::Filter
       include Queries::Helpers
 
       include Queries::Concerns::Tags
@@ -36,8 +36,8 @@ module Queries
         wkt
       }.freeze
 
-      # @param collecting_event_id [ Array, Integer, nil] 
-      #   One or more collecting_event_ids 
+      # @param collecting_event_id [ Array, Integer, nil]
+      #   One or more collecting_event_ids
       attr_accessor :collecting_event_id
 
       # Wildcard wrapped matching any label
@@ -155,7 +155,7 @@ module Queries
         end
       end
 
-      def collecting_event_id 
+      def collecting_event_id
         [@collecting_event_id].flatten.compact
       end
 
@@ -202,14 +202,14 @@ module Queries
 
       def geographic_area_facet
         return nil if geographic_area.nil?
-        if geographic_area 
+        if geographic_area
           ::CollectingEvent.where.not(geographic_area_id: null).distinct
         else
           ::CollectingEvent.where(geographic_area_id: null).distinct
         end
       end
 
-      def geographic_area_id_facet 
+      def geographic_area_id_facet
         return nil if geographic_area_id.empty?
 
         a = nil

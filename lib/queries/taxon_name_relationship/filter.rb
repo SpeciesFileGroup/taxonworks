@@ -1,6 +1,6 @@
 module Queries
   module TaxonNameRelationship
-    class Filter < Queries::Query
+    class Filter < Query::Filter
 
       # @param taxon_name_id [String, Array, nil]
       #   Match all relationships where either subject OR object is taxon_name_id(s)

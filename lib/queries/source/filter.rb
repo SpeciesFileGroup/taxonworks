@@ -1,6 +1,6 @@
 module Queries
   module Source
-    class Filter < Queries::Query
+    class Filter < Query::Filter
 
       # TODO: move to model replicated in CollectingEvent
       # TOOD: confirm cached should not be a target

@@ -2,7 +2,7 @@ module Queries
   module TaxonName
 
     # https://api.taxonworks.org/#/taxon_names
-    class Filter < Queries::Query
+    class Filter < Query::Filter
 
       include Queries::Helpers
 
@@ -86,20 +86,20 @@ module Queries
       #   Return the taxon names with this/these parent_ids
       attr_accessor :parent_id
 
-      # @param descendants [Boolean]
-      # ['true' or 'false'] on initialize
-      #   Ignored when taxon_name_id[].empty? Return descendants of parents as well.
-      attr_accessor :descendants
-
       # @param descendants_max_depth [Integer]
-      # A positive integer indicating how many levels deep of descenants to retrieve.
+      # A positive integer indicating how many levels deep of descendants to retrieve.
       #   Ignored when descentants is false/unspecified
       attr_accessor :descendants_max_depth
 
-      # @param ancestors [Boolean]
-      # ['true' or 'false'] on initialize
+      # @param ancestors [Boolean, 'true', 'false', nil]
+      # @return Boolean
       #   Ignored when taxon_name_id[].empty?  Works as AND clause with descendants :(
       attr_accessor :ancestors
+
+      # @param descendants [Boolean, 'true', 'false', nil]
+      # @return [Boolean]
+      #   Ignored when taxon_name_id[].empty? Return descendants of parents as well.
+      attr_accessor :descendants
 
       # @param taxon_name_relationship [Array]
       #  [ { 'type' => 'TaxonNameRelationship::<>', 'subject|object_taxon_name_id' => '123' } ... {} ]
@@ -212,7 +212,7 @@ module Queries
         @nomenclature_group = params[:nomenclature_group] if !params[:nomenclature_group].nil?
         @rank = params[:rank]
         @otus = boolean_param(params, :otus)
-        @otu_id = params[:otu_id] 
+        @otu_id = params[:otu_id]
         @etymology = boolean_param(params, :etymology)
         @project_id = params[:project_id]
         @taxon_name_classification = params[:taxon_name_classification] || []
@@ -232,7 +232,7 @@ module Queries
         @taxon_name_author_ids_or = boolean_param(params, :taxon_name_author_ids_or)
 
         @geo_json = params[:geo_json]
-        
+
         set_identifier(params)
         set_notes_params(params)
         set_data_attributes_params(params)
@@ -291,7 +291,7 @@ module Queries
 
         a = ::TaxonName.joins(:taxon_taxon_determinations).where(taxon_determinations: { biological_collection_object: collection_objects} )
         b = ::TaxonName.joins(:otus).where(otus: otus)
-        
+
         ::TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
       end
 

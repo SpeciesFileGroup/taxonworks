@@ -1,7 +1,6 @@
 module Queries
   module Otu
-    class Filter < Queries::Query
-
+    class Filter < Query::Filter
 
       # TODO: Likely need to sink some queries together (wkt, ce_id) into CO query
 
@@ -87,8 +86,14 @@ module Queries
       #   How to treat GeographicAreas
       #     nil - non-spatial match by only those records matching the geographic_area_id exactly
       #     true - spatial match
-      #     false - non-spatial match 
+      #     false - non-spatial match (exact and descendants) 
       attr_accessor :geographic_area_mode
+
+      # @return [True, False, nil]
+      #   true - Otu has taxon name
+      #   false - Otu without taxon name
+      #   nil - not applied
+      attr_accessor :taxon_name
 
       # -- done to here
 
@@ -160,6 +165,8 @@ module Queries
       # @param [Hash] params
       def initialize(params)
         #  params.reject! { |_k, v| v.blank? }
+        params.reject!{ |_k, v| v.nil? || (v == '') }
+
 
         @otu_id = params[:otu_id]
         @taxon_name_id = params[:taxon_name_id]
@@ -170,6 +177,8 @@ module Queries
         @collecting_event_id = params[:collecting_event_id]
 
         @historical_determinations = boolean_param(params, :historical_determinations)
+
+        @taxon_name = boolean_param(params, :taxon_name)
 
         @biological_association_id = params[:biological_association_id]
 
@@ -233,11 +242,9 @@ module Queries
         @taxon_name_classification_ids = params[:taxon_name_classification_ids] || []
         @taxon_name_relationship_ids = params[:taxon_name_relationship_ids] || []
         @asserted_distribution_ids = params[:asserted_distribution_ids] || []
-        @project_id = params[:project_id]
-
-        # TODO: could be incorrect
-        params.reject!{ |_k, v| v.nil? || (v == '') }
-
+  
+        super
+   
         # set_tags_params(params)
         # set_user_dates(params)
       end
@@ -390,8 +397,8 @@ module Queries
         from_wkt(wkt)
       end
 
+      # !! TODO: "withify"
       def from_wkt(wkt_shape)
-       
         # !! Need to add nomenclature scope here too ?!
         
         c = ::Queries::CollectingEvent::Filter.new(wkt: wkt_shape)
@@ -404,11 +411,12 @@ module Queries
       end
 
       # !! TODO: Scope to projects
+      # !! TODO: "withify"
       def geo_json_facet
         return nil if geo_json.nil?
 
-        c = ::Queries::CollectingEvent::Filter.new(geo_json: geo_json)
-        a = ::Queries::AssertedDistribution::Filter.new(geo_json: geo_json)
+        c = ::Queries::CollectingEvent::Filter.new(geo_json: geo_json).all.where(project_id: project_id)
+        a = ::Queries::AssertedDistribution::Filter.new(geo_json: geo_json).all.where(project_id: project_id)
 
         q1 = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: c.all)
         q2 = ::Otu.joins(:asserted_distributions).where(asserted_distributions: a.all) 
@@ -430,17 +438,17 @@ module Queries
 
         b = nil # from AssertedDistributions 
         c = nil # from CollectionObjects
+        
         case geographic_area_mode
         when nil, false # exact, descendants
           b = ::Otu.joins(:asserted_distributions).where(asserted_distributions: {geographic_area: a}) 
           c = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: {geographic_area: a} )
         when true # spatial
           i = ::GeographicItem.joins(:geographic_areas).where(geographic_areas: a) # .unscope
-          wkt_shape = ::GeographicItem.st_union(i).to_a.first['collection'].to_s
-          puts Rainbow(wkt_shape)   
+          wkt_shape = ::GeographicItem.st_union(i).to_a.first['collection'].to_s # todo, check
           return from_wkt(wkt_shape)
         end
-
+        
         ::Otu.from("((#{b.to_sql}) UNION (#{c.to_sql})) as otus")
       end
 
@@ -747,6 +755,16 @@ module Queries
         ::Otu.where(taxon_determinations ? subquery : subquery.not)
       end
 
+      def taxon_name_facet
+        return nil if taxon_name.nil?
+
+        if taxon_name
+          table[:taxon_name_id].eq(nil)
+        else
+          table[:taxon_name_id].not_eq(nil)
+        end
+      end
+
       def depictions_facet
         return nil if depictions.nil?
         subquery = ::Depiction.where(::Depiction.arel_table[:depiction_object_id].eq(::Otu.arel_table[:id]).and(
@@ -772,7 +790,9 @@ module Queries
       def and_clauses
         clauses = [
           otu_id_facet,
-          name_facet
+          name_facet,
+          taxon_name_facet
+
           # matching_verbatim_author
           # Queries::Annotator.annotator_params(options, ::Citation),
         ].compact

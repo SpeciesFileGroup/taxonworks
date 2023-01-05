@@ -2,7 +2,7 @@ module Queries
   module Identifier
 
     # !! does not inherit from Queries::Query
-    class Filter
+    class Filter < Query::Filter
 
       include Concerns::Polymorphic
       polymorphic_klass(::Identifier)
@@ -88,7 +88,7 @@ module Queries
       def community_project_id_facet
         return nil if project_id.nil?
           if !ignores_project?
-            # Not a community class 
+            # Not a community class
             return table[:project_id].eq(project_id)
           else
             # Is a community class

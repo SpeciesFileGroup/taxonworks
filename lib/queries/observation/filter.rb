@@ -2,8 +2,7 @@ module Queries
   module Observation
 
     # !! TODO: needs tests
-    # !! does not inherit from base query
-    class Filter
+    class Filter < Query::Filter
 
       attr_accessor :observation_object_global_id
       attr_accessor :otu_id

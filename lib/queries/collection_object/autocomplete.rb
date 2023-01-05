@@ -1,6 +1,6 @@
 module Queries
   module CollectionObject
-    class Autocomplete < Queries::Query
+    class Autocomplete < Query::Autocomplete
 
       # @params string [String]
       # @params [Hash] args

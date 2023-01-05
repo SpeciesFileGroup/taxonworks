@@ -2,7 +2,7 @@ require 'queries/taxon_name/filter'
 module Queries
   module BiologicalAssociation
 
-    class Filter < Queries::Query
+    class Filter < Query::Filter
       include Queries::Concerns::Citations
       include Queries::Concerns::Notes
       include Queries::Concerns::Tags
@@ -43,7 +43,7 @@ module Queries
       # @return [Array]
       #   !! Required.  Because we cross-reference other Filter queries we 
       #   !! Need to scope them here as opposed to in the controller
-      attr_accessor :project_id
+      # attr_accessor :project_id
 
       # TODO: Consider implementing passed queries
       # attr_accessor :taxon_name_query
@@ -176,13 +176,13 @@ module Queries
         @geographic_area_id = params[:geographic_area_id]
         @geographic_area_mode = boolean_param(params, :geographic_area_mode)
 
-        @project_id = params[:project_id] || Current.project_id
-
         set_identifier(params)
         set_notes_params(params)
         set_tags_params(params)
         set_user_dates(params)
         set_citations_params(params)
+
+        super
       end
 
       # @return [Arel::Table]
@@ -197,10 +197,6 @@ module Queries
       # def taxon_name_query_target
       #   @taxon_name_query_target.blank? ? :any : @taxon_name_query_target.to_sym
       # end
-
-      def project_id
-        [@project_id].flatten.compact
-      end
 
       def biological_association_id
         [@biological_association_id].flatten.compact

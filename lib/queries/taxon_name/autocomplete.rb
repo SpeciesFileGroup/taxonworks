@@ -1,7 +1,7 @@
 # TaxonNameAutocompleteQuery
 module Queries
   module TaxonName
-    class Autocomplete < Queries::Query
+    class Autocomplete < Query::Autocomplete
 
       # @return [Array, nil]
       #   &nomenclature_group[]=<<Iczn|Icnp|Icn>::<Higher|Family|Genus|Species>>

@@ -8,8 +8,7 @@ module Queries
 
     # Changed:
     # - collecting_event_ids -> collecting_event_id
-
-    class Filter < Queries::Query
+    class Filter < Query::Filter
 
       include Queries::Helpers
 

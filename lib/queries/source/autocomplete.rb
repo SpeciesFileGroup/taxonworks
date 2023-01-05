@@ -1,6 +1,6 @@
 module Queries
   module Source
-    class Autocomplete < Queries::Query
+    class Autocomplete < Query::Autocomplete
 
       # Either match against all Sources (default) or just those with ProjectSource
       # @return [Boolean]

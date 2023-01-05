@@ -1,6 +1,7 @@
 module Queries
   module Image
-    class Filter
+    class Filter < Query::Filter
+      
       include Queries::Concerns::Tags
       include Queries::Concerns::Users
       include Queries::Concerns::Identifiers

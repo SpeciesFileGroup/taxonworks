@@ -1,7 +1,7 @@
 module Queries
   module Person
     
-    class Autocomplete < Queries::Query
+    class Autocomplete < Query::Autocomplete
 
       include Queries::Concerns::AlternateValues
       include Queries::Concerns::Tags
