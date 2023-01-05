@@ -71,7 +71,8 @@ import { URLParamsToJSON } from 'helpers/url/parse'
 const extend = [
   'otu',
   'citations',
-  'geographic_area'
+  'geographic_area',
+  'taxonomy'
 ]
 
 const selectedIds = ref([])

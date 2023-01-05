@@ -14,10 +14,10 @@ export default function (service) {
   })
 
   const makeFilterRequest = (params = state.parameters) => {
-    const payload = {
+    const payload = removeEmptyParameters({
       per: state.per,
       ...params
-    }
+    })
 
     state.isLoading = true
 
@@ -49,6 +49,24 @@ export default function (service) {
 
     state.urlRequest = [url, urlParams].join('?')
     history.pushState(null, null, `${window.location.pathname}?${urlParams}`)
+  }
+
+  const removeEmptyParameters = (params) => {
+    const cleanedParameters = { ...params }
+
+    for (const key in params) {
+      const value = params[key]
+
+      if (
+        value === undefined ||
+        value === '' ||
+        (Array.isArray(value) && !value.length)
+      ) {
+        delete cleanedParameters[key]
+      }
+    }
+
+    return cleanedParameters
   }
 
   const loadPage = params => {

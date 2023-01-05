@@ -14,6 +14,12 @@
               >
             </th>
             <th class="w-2" />
+            <th
+              v-for="rank in RANKS"
+              :key="rank"
+              class="capitalize"
+              v-text="rank"
+            />
             <th>OTU</th>
             <th>Geographic area</th>
             <th>Citations</th>
@@ -38,6 +44,11 @@
                 <RadialNavigation :global-id="item.global_id" />
               </div>
             </td>
+            <td
+              v-for="rank in RANKS"
+              :key="rank"
+              v-html="parseRank(item.taxonomy[rank])"
+            />
             <td v-html="item.otu.object_tag" />
             <td v-html="item.geographic_area.name" />
             <td v-html="item?.citations?.map(c => c.citation_source_body).join('; ')" />
@@ -54,6 +65,8 @@ import RadialNavigation from 'components/radials/navigation/radial.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import { computed, ref, watch } from 'vue'
 import { vResizeColumn } from 'directives/resizeColumn.js'
+
+const RANKS = ['order', 'family', 'genus']
 
 const props = defineProps({
   list: {
@@ -87,6 +100,12 @@ const ids = computed({
   get: () => props.modelValue,
   set: value => emit('update:modelValue', value)
 })
+
+function parseRank (rank) {
+  return Array.isArray(rank)
+    ? rank.filter(Boolean).join(' ')
+    : rank
+}
 
 watch(
   () => props.list,
