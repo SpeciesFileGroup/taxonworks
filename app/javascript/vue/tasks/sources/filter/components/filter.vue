@@ -1,7 +1,7 @@
 <template>
   <FacetWith
     title="In project"
-    :values="['Both', 'Yes', 'No']"
+    :options="IN_PROJECT_OPTIONS"
     param="in_project"
     v-model="params"
   />
@@ -56,6 +56,21 @@ import FacetBibtexType from 'components/Filter/Facets/Source/FacetBibtexType.vue
 const WITH_TITLES = {
   with_title: 'BibTeX title'
 }
+
+const IN_PROJECT_OPTIONS = [
+  {
+    label: 'Both',
+    value: undefined
+  },
+  {
+    label: 'Yes',
+    value: true
+  },
+  {
+    label: 'No',
+    value: false
+  }
+]
 
 const WIDTH_PARAMS = [
   'citations',

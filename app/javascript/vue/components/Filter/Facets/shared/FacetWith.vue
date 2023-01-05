@@ -56,6 +56,24 @@ const props = defineProps({
   inverted: {
     type: Boolean,
     default: false
+  },
+
+  options: {
+    type: Array,
+    default: () => [
+      {
+        label: 'Both',
+        value: undefined
+      },
+      {
+        label: 'with',
+        value: true
+      },
+      {
+        label: 'without',
+        value: false
+      }
+    ]
   }
 })
 
@@ -69,23 +87,8 @@ const optionValue = computed({
 const list = computed(() =>
   props.inverted
     ? invertedOptions.value
-    : options.value
+    : props.options
 )
-
-const options = ref([
-  {
-    label: 'Both',
-    value: undefined
-  },
-  {
-    label: 'with',
-    value: true
-  },
-  {
-    label: 'without',
-    value: false
-  }
-])
 
 const invertedOptions = ref([
   {
@@ -101,12 +104,6 @@ const invertedOptions = ref([
     value: true
   }
 ])
-
-if (props.values.length) {
-  props.values.forEach((label, index) => {
-    options.value[index].label = label
-  })
-}
 
 if (props.param) {
   const params = URLParamsToJSON(location.href)
