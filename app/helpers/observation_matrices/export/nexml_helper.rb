@@ -106,7 +106,7 @@ module ObservationMatrices::Export::NexmlHelper
     q = m.observation_matrix_rows.order('observation_matrix_rows.position').collect{|i| i.observation_index } # could pluck this string concat from the db
 
     xml.matrix do
-      m.observation_matrix_rows.each do |r|
+      m.observation_matrix_rows.order('observation_matrix_rows.position').each do |r|
         xml.row(id: "multistate_row#{r.id}", otu: "row_#{r.id}") do |row| # use row_id to uniquely identify the row, Otu#id to uniquely id the row Otu
 
           # cell representation
@@ -155,10 +155,10 @@ module ObservationMatrices::Export::NexmlHelper
     # the matrix
     cells = m.observations_in_grid({})[:grid]
 
-    z = m.observation_matrix_rows.collect{|i| i.observation_index }
+    z = m.observation_matrix_rows.order('observation_matrix_rows.position').collect{|i| i.observation_index }
 
     xml.matrix do |mx|
-      m.observation_matrix_rows.each do |o|
+      m.observation_matrix_rows.order('observation_matrix_rows.position').each do |o|
         xml.row(id: "continuous_row#{o.id}", otu: "row_#{o.id}") do |r| # use Otu#id to uniquely id the row
 
           # cell representation
@@ -187,7 +187,7 @@ module ObservationMatrices::Export::NexmlHelper
       id: "otu_block_#{m.id}",
       label: "Otus for matrix #{m.name}"
     ) do
-      m.observation_matrix_rows.each do |r|
+      m.observation_matrix_rows.order('observation_matrix_rows.position').each do |r|
         xml.otu(
           id: "row_#{r.id}",
           about: "#row_#{r.id}", # technically only need this for proper RDFa extraction  !!! Might need this to be different, is it about row, or row object!
@@ -302,7 +302,7 @@ module ObservationMatrices::Export::NexmlHelper
       otu_filter: m.otus.pluck(:id).join('|'),
       per: 1000000)
     descriptors = im.list_of_descriptors.values
-    row_hash = m.observation_matrix_rows.map{|i| [i.otu_id, i.id]}.to_h
+    row_hash = m.observation_matrix_rows.order('observation_matrix_rows.position').map{|i| [i.otu_id, i.id]}.to_h
 
     xml.otu_depictions do |d|
       im.depiction_matrix.each do |object|
