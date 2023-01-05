@@ -11,10 +11,9 @@
   />
   <FacetUsers v-model="params" />
   <FacetWith
-    v-for="param in WITH_PARAMS"
-    :key="param"
-    :title="param.replace('with_', '')"
-    :param="param"
+    :options="PRESENCE_OPTIONS"
+    title="presence"
+    param="presence"
     v-model="params"
   />
 </template>
@@ -28,7 +27,20 @@ import FacetOtu from 'components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetWKT from 'components/Filter/Facets/Otu/FacetWKT.vue'
 import FacetTaxonName from 'components/Filter/Facets/TaxonName/FacetTaxonName.vue'
 
-const WITH_PARAMS = ['presence']
+const PRESENCE_OPTIONS = [
+  {
+    label: 'Both',
+    value: undefined
+  },
+  {
+    label: 'Present',
+    value: true
+  },
+  {
+    label: 'Absent',
+    value: false
+  }
+]
 
 const props = defineProps({
   modelValue: {

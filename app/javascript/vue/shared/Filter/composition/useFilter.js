@@ -63,6 +63,7 @@ export default function (service) {
     state.list = []
     state.isLoading = false
     state.urlRequest = ''
+    state.pagination = undefined
     history.pushState(null, null, `${window.location.pathname}`)
   }
 
