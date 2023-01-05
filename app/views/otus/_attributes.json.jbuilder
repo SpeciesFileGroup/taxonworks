@@ -3,7 +3,7 @@ json.partial! '/shared/data/all/metadata', object: otu
 
 if extend_response_with('taxonomy')
     json.taxonomy do
-      json.merge! asserted_distributionotu.taxonomy
+      json.merge! otu.taxonomy
     end
   end
 end
