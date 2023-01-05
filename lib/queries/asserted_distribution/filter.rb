@@ -128,7 +128,6 @@ module Queries
       # TODO: Withify
       # Shape is a Hash in GeoJSON format
       def geo_json_facet
-        byebug
         return nil if geo_json.nil?
         if i = spatial_query
          
