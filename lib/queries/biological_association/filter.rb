@@ -21,7 +21,8 @@ module Queries
         object_biological_property_id
         object_global_id
         object_taxon_name_id
-        otu_id
+     
+        descendants
         subject_biological_property_id
         subject_global_id
         subject_taxon_name_id
@@ -30,13 +31,13 @@ module Queries
       }.freeze
 
       # Params to consider for OTU scopes
-      #   taxon_name_id, object_taxon_name_id and subject_taxon_name_id are handled seperately
+      #   taxon_name_id, object_taxon_name_id and subject_taxon_name_id and otu_id and descendants are handled seperately
       OTU_PARAMS = %i{
+        otu_id
         collecting_event_id 
         geo_json
         geographic_area_id
         geographic_area_mode
-        otu_id
         wkt
       }.freeze
 
@@ -90,6 +91,8 @@ module Queries
       # their children
       # ??TODO: TaxonNames must be valid!
       attr_accessor :taxon_name_id
+
+      attr_accessor :descendants
 
       # @param biological_associations_graph_id
       #   All BiologicalAssociations in any of the graphs above
@@ -158,6 +161,8 @@ module Queries
         @object_taxon_name_id = params[:object_taxon_name_id]
 
         @taxon_name_id = params[:taxon_name_id]
+
+        @descendants = boolean_param(params, :descendants)
 
         @otu_id = params[:otu_id]
 
@@ -418,10 +423,6 @@ module Queries
         h
       end
 
-      def collection_object_params_blank?
-        collection_object_params.blank?
-      end
-
       def base_collection_object_query
         ::Queries::CollectionObject::Filter.new(collection_object_params)
       end
@@ -439,21 +440,24 @@ module Queries
       end
 
       def subject_collection_object_query
-        return nil if collection_object_params_blank? 
+        return nil if collection_object_params.blank? 
         q = base_collection_object_query
+        q.descendants = descendants
         q.taxon_name_id = subject_taxon_name_ids
         q
       end
 
       def object_collection_object_query
-        return nil if collection_object_params_blank? 
+        return nil if collection_object_params.blank? 
         q = base_collection_object_query
         q.taxon_name_id = object_taxon_name_ids
+        q.descendants = descendants
         q
       end
 
       #----
 
+      # TODO: same as co for now ?!
       def otu_params
         h = {}
         OTU_PARAMS.each do |p|
@@ -487,6 +491,7 @@ module Queries
           return nil
         elsif s.present?
           p[:taxon_name_id] = s
+          p[:descendants] = descendants
         end
 
         base_otu_query(p)
@@ -500,6 +505,7 @@ module Queries
           return nil
         elsif s.present?
           p[:taxon_name_id] = s
+          p[:descendants] = descendants
         end
 
         base_otu_query(p)
@@ -562,28 +568,28 @@ module Queries
         ::BiologicalAssociation.from('(' + s + ') as biological_associations') 
       end
 
-      def taxon_name_id_facet
-        return nil if taxon_name_id.empty?
+   #  def taxon_name_id_facet
+   #    return nil if taxon_name_id.empty?
 
-        otus = []
-        collection_objects = []
+   #    otus = []
+   #    collection_objects = []
 
-        # TODO: turn into joins
-        taxon_name_id.each do |id|
-          otus += ::Otu.descendant_of_taxon_name(id).all
-          collection_objects += ::Queries::CollectionObject::Filter.new(ancestor_id: id).all
-        end
+   #    # TODO: turn into joins
+   #    taxon_name_id.each do |id|
+   #      otus += ::Otu.descendant_of_taxon_name(id).all
+   #      collection_objects += ::Queries::CollectionObject::Filter.new(ancestor_id: id).all
+   #    end
 
-        a = ::BiologicalAssociation.where(
-          biological_association_subject: [otus, collection_objects].flatten
-        )
+   #    a = ::BiologicalAssociation.where(
+   #      biological_association_subject: [otus, collection_objects].flatten
+   #    )
 
-        b = ::BiologicalAssociation.where(
-          biological_association_object: [otus, collection_objects].flatten
-        )
+   #    b = ::BiologicalAssociation.where(
+   #      biological_association_object: [otus, collection_objects].flatten
+   #    )
 
-        ::BiologicalAssociation.from("((#{a.to_sql}) UNION (#{b.to_sql})) as biological_associations")
-      end
+   #    ::BiologicalAssociation.from("((#{a.to_sql}) UNION (#{b.to_sql})) as biological_associations")
+   #  end
 
       def otu_id_facet
         return nil if otu_id.empty?
@@ -764,9 +770,6 @@ module Queries
         else
           q = ::BiologicalAssociation.all
         end
-
-       
-       
       end
 
       # TaxonName - Query handling stubs
@@ -819,7 +822,6 @@ module Queries
 
       #     else # it equals both
 
-      #       byebug
       #     end
 
       #   end

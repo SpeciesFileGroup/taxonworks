@@ -163,7 +163,6 @@ class GeographicArea < ApplicationRecord
 
   before_destroy :check_for_children
 
-  # TODO 
   def self.descendants_of_any(ids = [])
     ids = [ids].flatten.compact.uniq
    return nil if ids.empty?
@@ -457,7 +456,7 @@ end
 
   # @return [Hash]
   def name_hash
-     return {
+    return {
       'country' => level0&.name,
       'state'   => level1&.name,
       'county'  => level2&.name

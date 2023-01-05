@@ -8,6 +8,11 @@ module Queries
 
     # Changed:
     # - collecting_event_ids -> collecting_event_id
+    # - ancestor_id -> taxon_name_id
+    #
+    # Added:
+    # - descendants
+
     class Filter < Query::Filter
 
       include Queries::Helpers
@@ -38,11 +43,12 @@ module Queries
       #  Otu ids, matches on the TaxonDetermination, see also current_determinations 
       attr_accessor :otu_id
 
-      # TODO: API - was 'ancestor_id'
       # @return [Array of Protonym.id, nil]
       #   return all collection objects determined as an Otu that is self or descendant linked
       #   to this TaxonName
       attr_accessor :taxon_name_id
+
+      attr_accessor :descendants
 
       # @return [Boolean, nil]
       #   nil =  Match against all ancestors, valid or invalid
@@ -111,6 +117,12 @@ module Queries
       #   false - does not have any taxon_determinations
       #   nil - not applied
       attr_accessor :taxon_determinations
+
+      # @return [True, False, nil]
+      #   true - Otu has taxon name
+      #   false - Otu without taxon name
+      #   nil - not applied
+      attr_accessor :taxon_name
 
       # @return [True, False, nil]
       #   true - has one ore more georeferences
@@ -234,6 +246,9 @@ module Queries
         @collection_object_id = params[:collection_object_id]
       
         @taxon_name_id = params[:taxon_name_id]
+
+        @descendants = boolean_param(params, :descendants)
+
         @biocuration_class_ids = params[:biocuration_class_ids] || []
         @biological_relationship_ids = params[:biological_relationship_ids] || []
         @buffered_collecting_event = params[:buffered_collecting_event]
@@ -633,7 +648,7 @@ module Queries
         clauses += collecting_event_merge_clauses + collecting_event_and_clauses
 
         clauses += [
-          ancestors_facet,
+          taxon_name_id_facet,
           biocuration_facet,
           biological_relationship_ids_facet,
           collecting_event_facet,
@@ -769,37 +784,55 @@ module Queries
         [@taxon_name_id].flatten.compact.uniq
       end
 
-      def ancestors_facet
+      def taxon_name_id_facet
         return nil if taxon_name_id.empty?
-        h = Arel::Table.new(:taxon_name_hierarchies)
-        t = ::TaxonName.arel_table
 
-        q = table.join(taxon_determination_table, Arel::Nodes::InnerJoin).on(
-          table[:id].eq(taxon_determination_table[:biological_collection_object_id])
-        ).join(otu_table, Arel::Nodes::InnerJoin).on(
-          taxon_determination_table[:otu_id].eq(otu_table[:id])
-        ).join(t, Arel::Nodes::InnerJoin).on(
-          otu_table[:taxon_name_id].eq(t[:id])
-        ).join(h, Arel::Nodes::InnerJoin).on(
-          t[:id].eq(h[:descendant_id])
-        )
-        z = h[:ancestor_id].eq_any(taxon_name_id)
+        q = nil
+        z = nil
 
-        if validity == true
-          z = z.and(t[:cached_valid_taxon_name_id].eq(t[:id]))
-        elsif validity == false
-          z = z.and(t[:cached_valid_taxon_name_id].not_eq(t[:id]))
-        end
+        if descendants
 
-        if current_determinations == true
-          z = z.and(taxon_determination_table[:position].eq(1))
-        elsif current_determinations == false
-          z = z.and(taxon_determination_table[:position].gt(1))
+          h = Arel::Table.new(:taxon_name_hierarchies)
+          t = ::TaxonName.arel_table
+
+          q = table.join(taxon_determination_table, Arel::Nodes::InnerJoin).on(
+            table[:id].eq(taxon_determination_table[:biological_collection_object_id])
+          ).join(otu_table, Arel::Nodes::InnerJoin).on(
+            taxon_determination_table[:otu_id].eq(otu_table[:id])
+          ).join(t, Arel::Nodes::InnerJoin).on(
+            otu_table[:taxon_name_id].eq(t[:id])
+          ).join(h, Arel::Nodes::InnerJoin).on(
+            t[:id].eq(h[:descendant_id])
+          )
+          z = h[:ancestor_id].eq_any(taxon_name_id)
+
+          if validity == true
+            z = z.and(t[:cached_valid_taxon_name_id].eq(t[:id]))
+          elsif validity == false
+            z = z.and(t[:cached_valid_taxon_name_id].not_eq(t[:id]))
+          end
+
+          if current_determinations == true
+            z = z.and(taxon_determination_table[:position].eq(1))
+          elsif current_determinations == false
+            z = z.and(taxon_determination_table[:position].gt(1))
+          end
+
+        else
+          q = ::CollectionObject.joins(taxon_determinations: [:otu])
+                 .where(otus: {taxon_name_id: taxon_name_id})
+
+          if current_determinations
+            q = q.where(taxon_determinations: {position: 1})
+          end
+
+          return q
         end
 
         ::CollectionObject.joins(q.join_sources).where(z)
       end
-    end
 
+
+    end
   end
 end

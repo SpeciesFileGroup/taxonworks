@@ -1,4 +1,11 @@
 scope :tasks do
+  
+  scope :shared do
+    scope :related_data, controller: 'tasks/shared/related_data' do
+      get '/', action: :index, as: 'related_data_task'
+    end
+  end
+
   scope :administrator do
     scope :project_classification, controller: 'tasks/administrator/project_classification' do
       get '/', as: 'project_classification_task', action: :index

@@ -180,23 +180,47 @@ class AssertedDistributionsController < ApplicationController
 
   def filter_params
     params.permit(
-      :otu_id,
-      :geographic_area_id,
-      :recent,
-      :wkt,
+      :descendants,
       :geo_json,
+      :geographic_area_id,
+      :geographic_area_mode,
+      :otu_id,
+      :presence,
+      :recent,
+      :taxon_name_id,
+      :wkt,
+
+      :user_date_end,
+      :user_date_start,
+      :user_id,
+      :user_target,
+
+      geographic_area_id: [],
       otu_id: [],
-      geographic_area_id: [])
+      taxon_name_id: [],
+    )
   end
 
   def api_params
     params.permit(
-      :otu_id,
-      :geographic_area_id,
-      :recent,
+      :descendants,
       :geo_json,
+      :geographic_area_id,
+      :geographic_area_mode,
+      :otu_id,
+      :presence,
+      :recent,
+      :taxon_name_id, 
       :wkt,
-      geographic_area_id: []
+
+      :user_date_end,
+      :user_date_start,
+      :user_id,
+      :user_target,
+
+      geographic_area_id: [],
+      otu_id: [],
+      taxon_name_id: [],
     )
   end
 

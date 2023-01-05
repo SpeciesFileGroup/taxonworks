@@ -10,6 +10,7 @@ module Queries
     class Filter < Query::Filter
 
       include Queries::Concerns::Citations
+      include Queries::Concerns::Users
 
       # @param otu_id [Array, Integer, String]
       # @return [Array]
@@ -36,6 +37,16 @@ module Queries
       #   false - only 'f'
       attr_accessor :presence
 
+      # @return Array
+      # @param [taxon name ids, nil]
+      #   all Otus matching these taxon names
+      attr_accessor :taxon_name_id
+      
+      # @return [Boolean, nil]
+      #  true - include descendants of taxon_name_id in scope
+      #  false, nil - only exact matches
+      attr_accessor :descendants
+
       # Add citations extension
 
       # @param sourceid [Array, Integer, String]
@@ -53,14 +64,19 @@ module Queries
         @otu_id = params[:otu_id]
         @geographic_area_id = params[:geographic_area_id]
         @geographic_area_mode = boolean_param(params, :geographic_area_mode)
+        
+        @taxon_name_id = params[:taxon_name_id]
+        @descendants = boolean_param(params, :descendants)
 
-        @recent = boolean_param(params, :recent)
+        @geographic_area_mode = boolean_param(params, :geographic_area_mode)
 
         @wkt = params[:wkt]
         @geo_json = params[:geo_json]
 
         @presence = boolean_param(params, :presence)
+        @recent = boolean_param(params, :recent)
 
+        set_user_dates(params)
         set_citations_params(params)
         super
       end
@@ -73,9 +89,17 @@ module Queries
         [@geographic_area_id].flatten.compact
       end
 
+      def taxon_name_id
+        [@taxon_name_id].flatten.compact
+      end
+
       # @return [Arel::Table]
       def table
         ::AssertedDistribution.arel_table
+      end
+
+      def base_query
+        ::AssertedDistribution.select('asserted_distributions.*')
       end
 
       def asserted_distribution_attribute_equals(attribute)
@@ -104,15 +128,18 @@ module Queries
       # TODO: Withify
       # Shape is a Hash in GeoJSON format
       def geo_json_facet
+        byebug
         return nil if geo_json.nil?
         if i = spatial_query
-
          
           # All spatial records
           j = ::GeographicArea.joins(:geographic_items).where(geographic_items: i)
 
           # Expand to include all descendants of any spatial match!
           k = ::GeographicArea.descendants_of_any(j.pluck(:id))
+
+          j ||= []
+          k ||= []
 
           return ::AssertedDistribution.where(geographic_area: j + k )
         else
@@ -173,6 +200,20 @@ module Queries
         b
       end
 
+      def taxon_name_id_facet
+        return nil if taxon_name_id.empty?
+        if descendants
+          h = Arel::Table.new(:taxon_name_hierarchies)
+          o = Arel::Table.new(:otus)
+
+          j = o.join(h, Arel::Nodes::InnerJoin).on(o[:taxon_name_id].eq(h[:descendant_id]))
+          z = h[:ancestor_id].eq_any(taxon_name_id)
+          
+          ::AssertedDistribution.joins(:otu).joins(j.join_sources).where(z)
+        else
+          ::AssertedDistribution.joins(:otu).where(otus: {taxon_name_id: taxon_name_id})
+        end
+      end
 
       def base_and_clauses
         clauses = []
@@ -186,6 +227,8 @@ module Queries
         clauses = []
         clauses +=
           [
+            created_updated_facet, # See Queries::Concerns::Users
+            taxon_name_id_facet,
             geographic_area_id_facet,
             wkt_facet,
             geo_json_facet,

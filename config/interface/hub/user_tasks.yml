@@ -757,7 +757,6 @@ collection_object_chronology_task:
     - collection_object
   status: prototype
   description: 'All collection objects by year collected.'
-
 filter_asserted_distributions_task:
   hub: true
   name: 'Filter asserted distributions'
@@ -765,3 +764,11 @@ filter_asserted_distributions_task:
   categories:
   status: prototype
   description: 'TODO: Task description'
+related_data_task:
+  hub: false 
+  name: 'Filter asserted distributions'
+  related:
+  categories:
+  status: prototype
+  description: 'Simple linear report of the data related to this object.'
+

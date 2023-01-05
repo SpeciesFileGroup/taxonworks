@@ -8,8 +8,44 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
   let(:o1) { Otu.create!(name: 'Abc 1') }
   let(:o2) { Otu.create!(name: 'Def 2') }
 
-  specify 'biological_association_id' do
-    s1 = Specimen.create
+
+  specify '#geographic_area_id and #geographic_area_mode, spatial (Query::AssertedDistribution integration)' do
+    o2
+    # smaller
+    a = FactoryBot.create(:level1_geographic_area)
+    s1 = a.geographic_items << GeographicItem.create!(
+      polygon: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
+    )
+
+    # bigger
+    b = FactoryBot.create(:level1_geographic_area)
+    s2 = b.geographic_items << GeographicItem.create!(
+      polygon: RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 10.0, 10.0 )
+    )
+
+    # Use smaller
+    AssertedDistribution.create!(otu: o1, geographic_area: a, source: FactoryBot.create(:valid_source))
+
+    # Use bigger
+    q.geographic_area_id = b.id
+    q.geographic_area_mode = true
+  
+    expect(q.all).to contain_exactly( o1 )
+  end
+
+  specify '#wkt against georeference' do
+    o1
+    s = Specimen.create(
+      collecting_event: FactoryBot.create(:valid_collecting_event, verbatim_latitude: '7.0', verbatim_longitude: '12.0'),
+      taxon_determinations_attributes: [{otu: o2}]
+    )
+    g = Georeference::VerbatimData.create!(collecting_event: o2.collection_objects.first.collecting_event)
+    q.wkt = RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 ).to_s 
+    expect(q.all).to contain_exactly( o2 )
+  end
+
+  specify '#biological_association_id' do
+    s1 = Specimen.create!
 
     s1.taxon_determinations << TaxonDetermination.new(otu: o1)
 
@@ -23,8 +59,8 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     expect(q.all).to contain_exactly(o1, o2)
   end
 
-  specify 'biological_association_id historical_determinations 1' do
-    s1 = Specimen.create
+  specify '#biological_association_id historical_determinations 1' do
+    s1 = Specimen.create!
 
     s1.taxon_determinations << TaxonDetermination.new(otu: o1)
     s1.taxon_determinations << TaxonDetermination.new(otu: o2)
@@ -40,8 +76,8 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     expect(q.all).to contain_exactly(o2)
   end
 
-  specify 'biological_association_id historical_determinations 2' do
-    s1 = Specimen.create
+  specify '#biological_association_id #historical_determinations 2' do
+    s1 = Specimen.create!
 
     s1.taxon_determinations << TaxonDetermination.new(otu: o1)
     s1.taxon_determinations << TaxonDetermination.new(otu: o2)
@@ -59,9 +95,9 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     expect(q.all).to contain_exactly(o1, o2)
   end
 
-  specify 'biological_association_id historical_determinations 3' do
-    s1 = Specimen.create
-    s2 = Specimen.create
+  specify '#biological_association_id #historical_determinations 3' do
+    s1 = Specimen.create!
+    s2 = Specimen.create!
 
     s1.taxon_determinations << TaxonDetermination.new(otu: o1)
     s1.taxon_determinations << TaxonDetermination.new(otu: o2)
@@ -79,8 +115,8 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
   end
 
   specify 'collecting_event_id' do
-    s1 = Specimen.create(collecting_event: FactoryBot.create(:valid_collecting_event))
-    s2 = Specimen.create(collecting_event: FactoryBot.create(:valid_collecting_event))
+    s1 = Specimen.create!(collecting_event: FactoryBot.create(:valid_collecting_event))
+    s2 = Specimen.create!(collecting_event: FactoryBot.create(:valid_collecting_event))
 
     s1.taxon_determinations << TaxonDetermination.new(otu: o1)
     s1.taxon_determinations << TaxonDetermination.new(otu: o2) # should be current
@@ -91,8 +127,8 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
   end
 
   specify 'collecting_event_id, historical_determinations 1' do
-    s1 = Specimen.create(collecting_event: FactoryBot.create(:valid_collecting_event))
-    s2 = Specimen.create(collecting_event: FactoryBot.create(:valid_collecting_event))
+    s1 = Specimen.create!(collecting_event: FactoryBot.create(:valid_collecting_event))
+    s2 = Specimen.create!(collecting_event: FactoryBot.create(:valid_collecting_event))
 
     s1.taxon_determinations << TaxonDetermination.new(otu: o1)
     s1.taxon_determinations << TaxonDetermination.new(otu: o2) # should be current
@@ -104,8 +140,8 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
   end
 
   specify 'collecting_event_id, historical_determinations 1' do
-    s1 = Specimen.create(collecting_event: FactoryBot.create(:valid_collecting_event))
-    s2 = Specimen.create(collecting_event: FactoryBot.create(:valid_collecting_event))
+    s1 = Specimen.create!(collecting_event: FactoryBot.create(:valid_collecting_event))
+    s2 = Specimen.create!(collecting_event: FactoryBot.create(:valid_collecting_event))
 
     s1.taxon_determinations << TaxonDetermination.new(otu: o1)
     s1.taxon_determinations << TaxonDetermination.new(otu: o2) # should be current
@@ -159,7 +195,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
   end
 
   specify 'taxon_name_id []' do
-    o1.update(taxon_name_id: FactoryBot.create(:root_taxon_name).id)
+    o1.update!(taxon_name_id: FactoryBot.create(:root_taxon_name).id)
     q.taxon_name_id = [o1.taxon_name_id]
     expect(q.all.map(&:id)).to contain_exactly(o1.id)
   end
@@ -168,7 +204,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
 
   specify 'Queries::TaxonName::Filter integration' do
     o1.update!(
-      taxon_name:  Protonym.create!(name: 'Aus', rank_class:  Ranks.lookup(:iczn, :genus), parent: find_or_create_root_taxon_name)
+      taxon_name: Protonym.create!(name: 'Aus', rank_class:  Ranks.lookup(:iczn, :genus), parent: find_or_create_root_taxon_name)
     )
     q.taxon_name_query.name = 'Aus'
     expect(q.all.map(&:id)).to contain_exactly(o1.id)

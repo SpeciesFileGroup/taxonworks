@@ -17,8 +17,29 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
 
   let(:query) { Queries::BiologicalAssociation::Filter }
 
-  specify '#geographic_area_id #geographic_area_mode = true (spatial) against AssertedDistribution' do
+  specify '#taxon_name_id descendants = false' do
+    p = FactoryBot.create(:root_taxon_name)
+    o1.update!(taxon_name: FactoryBot.create(:valid_taxon_name, parent: p) )
 
+    q = query.new(taxon_name_id: p.id, descendants: false)
+    expect(q.all).to contain_exactly()
+  end
+
+  specify '#taxon_name_id descendants = true' do
+    p = FactoryBot.create(:root_taxon_name)
+    o1.update!(taxon_name: FactoryBot.create(:valid_taxon_name, parent: p) )
+
+    q = query.new(taxon_name_id: p.id, descendants: true)
+    expect(q.all).to contain_exactly(ba1, ba2)
+  end
+
+  specify '#taxon_name_id' do
+    o1.update!(taxon_name_id: FactoryBot.create(:root_taxon_name).id)
+    q = query.new(taxon_name_id: o1.taxon_name_id)
+    expect(q.all).to contain_exactly(ba1, ba2)
+  end
+
+  specify '#geographic_area_id #geographic_area_mode = true (spatial) against AssertedDistribution' do
     # smaller
     a = FactoryBot.create(:level1_geographic_area)
     s1 = a.geographic_items << GeographicItem.create!(
@@ -142,9 +163,9 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
   end
 
   specify '#otu_id' do
-  o = {otu_id: o1.id}
-  q = query.new(o)
-  expect(q.all.map(&:id)).to contain_exactly( ba1.id, ba2.id )
+    o = {otu_id: o1.id}
+    q = query.new(o)
+    expect(q.all.map(&:id)).to contain_exactly( ba1.id, ba2.id )
   end
 
   specify '#collection_object_id' do
@@ -178,20 +199,17 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
     expect(query.new(o).all.map(&:id)).to contain_exactly(ba1.id, ba2.id)
   end
 
-  specify '#taxon_name_id' do
+  specify '#taxon_name_id 2' do
     g1 =  Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
     s1 =  Protonym.create!(name: 'eus', rank_class: Ranks.lookup(:iczn, :species), parent: g1)
 
-    g2 =  Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
-    s2 =  Protonym.create!(name: 'dus', rank_class: Ranks.lookup(:iczn, :species), parent: g2)
-
     o1.update!(taxon_name: s1)
 
-    o = {taxon_name_id: g1.id}
+    o = {taxon_name_id: s1.id}
     expect(query.new(o).all.map(&:id)).to contain_exactly(ba1.id, ba2.id)
   end
 
-  specify '#subject_taxon_name_id)' do
+  specify '#taxon_name_id 1 (descendants true)' do
     g1 =  Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
     s1 =  Protonym.create!(name: 'eus', rank_class: Ranks.lookup(:iczn, :species), parent: g1)
 
@@ -200,8 +218,22 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
 
     o1.update!(taxon_name: s1)
 
-    o = {subject_taxon_name_id: g1.id}
+    o = {taxon_name_id: g1.id, descendants: true}
     expect(query.new(o).all.map(&:id)).to contain_exactly(ba1.id, ba2.id)
+  end
+
+  specify '#subject_taxon_name_id' do
+    g1 =  Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+    s1 =  Protonym.create!(name: 'eus', rank_class: Ranks.lookup(:iczn, :species), parent: g1)
+
+    g2 =  Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+    s2 =  Protonym.create!(name: 'dus', rank_class: Ranks.lookup(:iczn, :species), parent: g2)
+
+    o1.update!(taxon_name: s1)
+
+    o = {subject_taxon_name_id: g1.id, descendants: true}
+    q = query.new(o)
+    expect(q.all.map(&:id)).to contain_exactly(ba1.id, ba2.id)
   end
 
   specify '#object_taxon_name_id' do
@@ -213,7 +245,7 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
 
     o2.update!(taxon_name: s1)
 
-    o = {object_taxon_name_id: g1.id}
+    o = {object_taxon_name_id: g1.id, descendants: true}
     q = query.new(o)
     expect(q.all.map(&:id)).to contain_exactly(ba1.id)
   end

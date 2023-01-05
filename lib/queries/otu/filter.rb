@@ -36,6 +36,8 @@ module Queries
       #   one or more Otu taxon_name_id
       attr_accessor :taxon_name_id
 
+      attr_accessor :descendants
+
       # @param collecting_event_id [Integer, Array]
       # @return Array
       #   one or more collecting_event_id
@@ -167,9 +169,10 @@ module Queries
         #  params.reject! { |_k, v| v.blank? }
         params.reject!{ |_k, v| v.nil? || (v == '') }
 
-
         @otu_id = params[:otu_id]
         @taxon_name_id = params[:taxon_name_id]
+
+        @descendants = boolean_param(params, :descendants)
 
         @name = params[:name]
         @name_exact = boolean_param(params, :name_exact)
@@ -301,13 +304,15 @@ module Queries
 
       def taxon_name_id_facet
         return nil if taxon_name_id.empty?
-        h = Arel::Table.new(:taxon_name_hierarchies)
-        
-        j = table.join(h, Arel::Nodes::InnerJoin).on(table[:taxon_name_id].eq(h[:descendant_id]))
-        
-        z = h[:ancestor_id].eq_any(taxon_name_id)
-        
-        ::Otu.joins(j.join_sources).where(z)
+        if descendants
+          h = Arel::Table.new(:taxon_name_hierarchies)
+          j = table.join(h, Arel::Nodes::InnerJoin).on(table[:taxon_name_id].eq(h[:descendant_id]))
+          z = h[:ancestor_id].eq_any(taxon_name_id)
+          
+          ::Otu.joins(j.join_sources).where(z)
+        else
+          ::Otu.where(taxon_name_id: taxon_name_id)
+        end
       end
 
       # TODO: could be optimized with full join pathway perhaps
@@ -825,6 +830,9 @@ module Queries
           asserted_distribution_id_facet,
           wkt_facet,
           geographic_area_id_facet,
+
+          # created_updated_facet, # See Queries::Concerns::Users
+          
           #  matching_biological_association_ids,
           #  matching_asserted_distribution_ids,
           #  matching_taxon_name_classification_ids,

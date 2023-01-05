@@ -37,7 +37,8 @@ class Export::Graph
     'Source' => 'pentagon',
     'Citation' => 'octagon',
     'AssertedDistribution' => 'pentagon',
-    'Image' => 'square'
+    'Image' => 'square',
+    'GeographicArea' => 'square'
   }
 
   RENDERABLE_ANNOTATIONS = []
