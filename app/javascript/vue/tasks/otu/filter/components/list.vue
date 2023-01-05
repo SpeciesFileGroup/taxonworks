@@ -13,7 +13,12 @@
             >
           </th>
           <th class="w-2" />
-          <th>Name</th>
+          <th
+            v-for="rank in RANKS"
+            :key="rank"
+            v-text="rank"
+          />
+          <th>OTU</th>
         </tr>
       </thead>
       <tbody>
@@ -36,6 +41,11 @@
               <RadialNavigation :global-id="otu.global_id" />
             </div>
           </td>
+          <td
+            v-for="rank in RANKS"
+            :key="rank"
+            v-html="parseRank(otu.taxonomy[rank])"
+          />
           <td v-html="otu.object_tag" />
         </tr>
       </tbody>
@@ -44,7 +54,6 @@
 </template>
 
 <script setup>
-
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/object/radial'
 import RadialNavigation from 'components/radials/navigation/radial.vue'
@@ -77,5 +86,13 @@ const toggleIds = computed({
       : []
   )
 })
+
+const RANKS = ['order', 'family', 'genus']
+
+function parseRank (rank) {
+  return Array.isArray(rank)
+    ? rank.filter(Boolean).join(' ')
+    : rank
+}
 
 </script>

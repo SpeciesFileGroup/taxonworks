@@ -21,7 +21,7 @@
       :table="preferences.showList"
       :pagination="pagination"
       v-model:per="per"
-      @filter="makeFilterRequest({ ...parameters })"
+      @filter="makeFilterRequest({ ...parameters, extend })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
@@ -68,6 +68,8 @@ import { Otu } from 'routes/endpoints'
 import { computed, reactive, ref } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
 
+const extend = ['taxonomy']
+
 const csvFields = computed(() =>
   selectedIds.value.length
     ? list.value
@@ -97,8 +99,11 @@ const {
 
 const urlParams = URLParamsToJSON(location.href)
 
-makeFilterRequest({
-  ...urlParams,
-  geo_json: JSON.stringify(urlParams.geo_json)
-})
+if (Object.keys(urlParams).length) {
+  makeFilterRequest({
+    ...urlParams,
+    geo_json: JSON.stringify(urlParams.geo_json),
+    extend
+  })
+}
 </script>
