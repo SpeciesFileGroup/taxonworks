@@ -181,7 +181,8 @@ watch(() => props.zoom, newVal => { mapObject.setZoom(newVal) })
 onMounted(() => {
   mapObject = L.map(leafletMap.value, {
     center: props.center,
-    zoom: props.zoom
+    zoom: props.zoom,
+    worldCopyJump: true
   })
 
   drawnItems = new L.FeatureGroup()
