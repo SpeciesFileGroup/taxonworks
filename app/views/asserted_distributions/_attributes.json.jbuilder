@@ -9,7 +9,7 @@ end
 
 if extend_response_with('taxonomy')
   json.taxonomy do
-    json.merge! otu.taxonomy
+    json.merge! asserted_distribution.otu.taxonomy
   end
 end
 
