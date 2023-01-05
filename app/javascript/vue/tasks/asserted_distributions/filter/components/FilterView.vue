@@ -1,13 +1,13 @@
 <template>
   <FacetGeographic v-model="params" />
   <FacetWKT v-model="params" />
-  <FacetOtu
-    target="AssertedDistribution"
-    v-model="params"
-  />
   <FacetTaxonName
     v-model="params"
     coverage
+  />
+  <FacetOtu
+    target="AssertedDistribution"
+    v-model="params"
   />
   <FacetUsers v-model="params" />
   <FacetWith
