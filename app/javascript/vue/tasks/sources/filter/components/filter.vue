@@ -27,7 +27,7 @@
     v-model="params"
   />
   <FacetWith
-    v-for="param in WIDTH_PARAMS"
+    v-for="param in WITH_PARAMS"
     :key="param"
     :title="WITH_TITLES[param] || param"
     :param="param"
@@ -72,7 +72,7 @@ const IN_PROJECT_OPTIONS = [
   }
 ]
 
-const WIDTH_PARAMS = [
+const WITH_PARAMS = [
   'citations',
   'roles',
   'documents',

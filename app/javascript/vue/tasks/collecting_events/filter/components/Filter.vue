@@ -24,7 +24,7 @@
   <FacetCollectingEventAttributes v-model="params" />
   <FacetDataAttribute v-model="params" />
   <FacetWith
-    v-for="param in WIDTH_PARAMS"
+    v-for="param in WITH_PARAMS"
     :key="param"
     :title="param"
     :param="param"
@@ -54,7 +54,7 @@ const props = defineProps({
   }
 })
 
-const WIDTH_PARAMS = [
+const WITH_PARAMS = [
   'citations',
   'origin_citation',
   'collection_objects',
