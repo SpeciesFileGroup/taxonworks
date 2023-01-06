@@ -29,7 +29,7 @@ export const FILTER_LINKS = {
     link: '/tasks/otus/filter'
   },
   [TAXON_NAME]: {
-    label: 'Momenclature',
+    label: 'Nomenclature',
     link: '/tasks/taxon_names/filter'
   },
   [SOURCE]: {
