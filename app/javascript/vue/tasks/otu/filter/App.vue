@@ -65,7 +65,7 @@ import useFilter from 'shared/Filter/composition/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import VSpinner from 'components/spinner.vue'
 import { Otu } from 'routes/endpoints'
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, onBeforeMount } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
 
 const extend = ['taxonomy']
@@ -97,13 +97,20 @@ const {
   resetFilter
 } = useFilter(Otu)
 
-const urlParams = URLParamsToJSON(location.href)
+onBeforeMount(() => {
+  parameters.value = {
+    ...URLParamsToJSON(location.href),
+    ...JSON.parse(sessionStorage.getItem('filterQuery'))
+  }
 
-if (Object.keys(urlParams).length) {
-  makeFilterRequest({
-    ...urlParams,
-    geo_json: JSON.stringify(urlParams.geo_json),
-    extend
-  })
-}
+  sessionStorage.removeItem('filterQuery')
+
+  if (Object.keys(parameters.value).length) {
+    makeFilterRequest({
+      ...parameters.value,
+      geo_json: JSON.stringify(parameters.value.geo_json),
+      extend
+    })
+  }
+})
 </script>

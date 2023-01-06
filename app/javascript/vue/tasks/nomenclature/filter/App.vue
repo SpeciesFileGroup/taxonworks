@@ -77,7 +77,7 @@ import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
 import RadialLabel from 'components/radials/label/radial.vue'
 import { TaxonName } from 'routes/endpoints'
-import { reactive, ref, computed } from 'vue'
+import { reactive, ref, computed, onBeforeMount } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
 import { TAXON_NAME } from 'constants/index.js'
 
@@ -119,12 +119,21 @@ const csvList = computed(() =>
     : list.value
 )
 
-const urlParams = URLParamsToJSON(location.href)
+onBeforeMount(() => {
+  parameters.value = {
+    ...URLParamsToJSON(location.href),
+    ...JSON.parse(sessionStorage.getItem('filterQuery'))
+  }
 
-if (Object.keys(urlParams).length) {
-  makeFilterRequest({ ...urlParams, extend })
-}
+  sessionStorage.removeItem('filterQuery')
 
+  if (Object.keys(parameters.value).length) {
+    makeFilterRequest({
+      ...parameters.value,
+      extend
+    })
+  }
+})
 </script>
 
 <script>

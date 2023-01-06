@@ -41,6 +41,10 @@
             @delete="removeCOFromList"
           />
           <RadialFilter
+            :parameters="parameters"
+            object-type="CollectionObject"
+          />
+          <RadialLinker
             :disabled="!selectedIds.length"
             object-type="CollectingEvent"
             :parameters="{ collection_object_id: selectedIds }"
@@ -92,10 +96,12 @@
 </template>
 
 <script setup>
-import { computed, ref, reactive, watch } from 'vue'
+import { computed, ref, reactive, watch, onBeforeMount } from 'vue'
 import { CollectionObject } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse'
 import { chunkArray } from 'helpers/arrays'
+import RadialLinker from 'components/radials/linker/radial.vue'
+import RadialFilter from 'components/radials/filter/radial.vue'
 import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
@@ -107,7 +113,6 @@ import DwcReindex from './components/dwcReindex.vue'
 import TagAll from './components/tagAll'
 import MatchButton from './components/matchButton.vue'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
-import RadialFilter from 'components/radials/filter/radial.vue'
 import DeleteCollectionObjects from './components/DeleteCollectionObjects.vue'
 import VSpinner from 'components/spinner.vue'
 
@@ -134,7 +139,7 @@ const {
 
 const PER_REQUEST = 10
 
-let dwcaCount = 0
+const dwcaCount = ref(0)
 
 const csvFields = computed(() => {
   if (!Object.keys(coList.value).length) return []
@@ -146,29 +151,29 @@ const csvFields = computed(() => {
   }))
 })
 
-const removeCOFromList = ids => {
+function removeCOFromList (ids) {
   coList.value.data = coList.value.data.filter(r => !ids.includes(r[0]))
   selectedIds.value = selectedIds.value.filter(id => !ids.includes(id))
 }
 
-const getDWCATable = list => {
+function getDWCATable (list) {
   const IDs = chunkArray(list.map(item => item[0]), PER_REQUEST)
 
   getDWCA(IDs)
 }
 
-const isIndexed = object => {
+function isIndexed (object) {
   return object.find((item, index) => item != null && index > 0)
 }
 
-const getDWCA = ids => {
+function getDWCA (ids) {
   if (ids.length) {
     const failedRequestIds = []
     const idArray = ids.shift(0)
     const promises = idArray.map(id => CollectionObject.dwc(id).then(response => {
       const index = coList.value.data.findIndex(item => item[0] === id)
 
-      dwcaCount++
+      dwcaCount.value++
       coList.value.data[index] = response.body
     }, _ => {
       failedRequestIds.push(id)
@@ -184,13 +189,14 @@ const getDWCA = ids => {
       getDWCA(ids)
     })
   } else {
+    dwcaCount.value = 0
     isLoading.value = false
   }
 }
 
 watch(
   list,
-  (newVal, oldVal) => {
+  newVal => {
     if (newVal?.data?.length) {
       const dwcaSearch = newVal.data.filter(item => !isIndexed(item))
 
@@ -205,14 +211,21 @@ watch(
   }
 )
 
-const urlParams = URLParamsToJSON(location.href)
+onBeforeMount(() => {
+  parameters.value = {
+    ...URLParamsToJSON(location.href),
+    ...JSON.parse(sessionStorage.getItem('filterQuery'))
+  }
 
-if (Object.keys(urlParams).length) {
-  makeFilterRequest({
-    ...urlParams,
-    geo_json: JSON.stringify(urlParams.geo_json)
-  })
-}
+  sessionStorage.removeItem('filterQuery')
+
+  if (Object.keys(parameters.value).length) {
+    makeFilterRequest({
+      ...parameters.value,
+      geo_json: JSON.stringify(parameters.value.geo_json)
+    })
+  }
+})
 </script>
 
 <script>

@@ -38,8 +38,8 @@ import { BiologicalRelationship } from 'routes/endpoints'
 
 const props = defineProps({
   modelValue: {
-    type: Array,
-    required: true
+    type: Object,
+    default: () => ({})
   }
 })
 

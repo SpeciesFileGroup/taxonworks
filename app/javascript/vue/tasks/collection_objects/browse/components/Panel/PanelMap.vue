@@ -17,7 +17,7 @@ import { useStore } from 'vuex'
 import { computed } from 'vue'
 import { GetterNames } from '../../store/getters/getters'
 import VMap from 'components/georeferences/map.vue'
-import RadialFilterAttribute from 'components/radials/filter/RadialFilterAttribute.vue'
+import RadialFilterAttribute from 'components/radials/linker/RadialFilterAttribute.vue'
 
 const store = useStore()
 const georeferences = computed(() => store.getters[GetterNames.GetGeoreferences].map(g => g.geo_json))

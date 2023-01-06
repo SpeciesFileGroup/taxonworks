@@ -27,7 +27,7 @@
       :pagination="pagination"
       :table="preferences.showList"
       v-model:per="per"
-      @filter="makeFilterRequest({ ...parameters, extend: ['documents'] })"
+      @filter="makeFilterRequest({ ...parameters, extend })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
@@ -42,6 +42,12 @@
                 <TagAll
                   :ids="selectedIds"
                   type="Source"
+                />
+              </li>
+              <li>
+                <RadialFilter
+                  :parameters="parameters"
+                  object-type="Source"
                 />
               </li>
               <li>
@@ -97,13 +103,15 @@ import BibtexButton from './components/bibtex'
 import BibliographyButton from './components/bibliography.vue'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
+import RadialFilter from 'components/radials/filter/radial.vue'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
 import TagAll from 'tasks/collection_objects/filter/components/tagAll.vue'
-
 import { Source } from 'routes/endpoints'
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, onBeforeMount } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
+
+const extend = ['documents']
 
 const selectedIds = ref([])
 const preferences = reactive({
@@ -131,11 +139,21 @@ const csvList = computed(() =>
     : list.value
 )
 
-const urlParams = URLParamsToJSON(location.href)
+onBeforeMount(() => {
+  parameters.value = {
+    ...URLParamsToJSON(location.href),
+    ...JSON.parse(sessionStorage.getItem('filterQuery'))
+  }
 
-if (Object.keys(urlParams).length) {
-  makeFilterRequest({ ...urlParams, extend: ['documents'] })
-}
+  sessionStorage.removeItem('filterQuery')
+
+  if (Object.keys(parameters.value).length) {
+    makeFilterRequest({
+      ...parameters.value,
+      extend
+    })
+  }
+})
 
 </script>
 

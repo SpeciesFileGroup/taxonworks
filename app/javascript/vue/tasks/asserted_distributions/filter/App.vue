@@ -65,7 +65,7 @@ import useFilter from 'shared/Filter/composition/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
 import { AssertedDistribution } from 'routes/endpoints'
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, onBeforeMount } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
 
 const extend = [
@@ -101,11 +101,22 @@ const csvList = computed(() =>
     : list.value
 )
 
-const urlParams = URLParamsToJSON(location.href)
+onBeforeMount(() => {
+  parameters.value = {
+    ...URLParamsToJSON(location.href),
+    ...JSON.parse(sessionStorage.getItem('filterQuery'))
+  }
 
-if (Object.keys(urlParams).length) {
-  makeFilterRequest({ ...urlParams, extend })
-}
+  sessionStorage.removeItem('filterQuery')
+
+  if (Object.keys(parameters.value).length) {
+    makeFilterRequest({
+      ...parameters.value,
+      geo_json: JSON.stringify(parameters.value.geo_json),
+      extend
+    })
+  }
+})
 
 </script>
 

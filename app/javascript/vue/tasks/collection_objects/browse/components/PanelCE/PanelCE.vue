@@ -36,7 +36,7 @@ import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/object/radial.vue'
 import RadialNavigator from 'components/radials/navigation/radial.vue'
 import TableGrid from 'components/layout/Table/TableGrid.vue'
-import RadialFilterAttribute from 'components/radials/filter/RadialFilterAttribute.vue'
+import RadialFilterAttribute from 'components/radials/linker/RadialFilterAttribute.vue'
 import PanelCEModal from './PanelCEModal.vue'
 
 const notEditableFields = [

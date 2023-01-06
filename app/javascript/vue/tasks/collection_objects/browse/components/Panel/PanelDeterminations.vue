@@ -13,7 +13,7 @@ import { computed } from 'vue'
 import { useStore } from 'vuex'
 import { GetterNames } from '../../store/getters/getters'
 import PanelContainer from './PanelContainer.vue'
-import RadialFilterAttribute from 'components/radials/filter/RadialFilterAttribute.vue'
+import RadialFilterAttribute from 'components/radials/linker/RadialFilterAttribute.vue'
 import TableData from '../Table/TableData.vue'
 
 const HEADERS = ['OTU', 'Determiners', 'Date']

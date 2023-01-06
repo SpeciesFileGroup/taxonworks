@@ -87,7 +87,7 @@
 import SwitchComponent from 'components/switch'
 import Autocomplete from 'components/ui/Autocomplete'
 import GeoreferenceMap from 'components/georeferences/map'
-import RadialFilterAttribute from 'components/radials/filter/RadialFilterAttribute.vue'
+import RadialFilterAttribute from 'components/radials/linker/RadialFilterAttribute.vue'
 import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import { GeographicArea } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse.js'

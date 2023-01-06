@@ -77,7 +77,7 @@ import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
 import extend from 'tasks/extracts/new_extract/const/extendRequest'
 import TagAll from 'tasks/collection_objects/filter/components/tagAll.vue'
 import { Extract } from 'routes/endpoints'
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, onBeforeMount } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
 
 const selectedIds = ref([])
@@ -106,12 +106,21 @@ const csvList = computed(() =>
     : list.value
 )
 
-const urlParams = URLParamsToJSON(location.href)
+onBeforeMount(() => {
+  parameters.value = {
+    ...URLParamsToJSON(location.href),
+    ...JSON.parse(sessionStorage.getItem('filterQuery'))
+  }
 
-if (Object.keys(urlParams).length) {
-  makeFilterRequest({ ...urlParams, extend })
-}
+  sessionStorage.removeItem('filterQuery')
 
+  if (Object.keys(parameters.value).length) {
+    makeFilterRequest({
+      ...parameters.value,
+      extend
+    })
+  }
+})
 </script>
 
 <script>

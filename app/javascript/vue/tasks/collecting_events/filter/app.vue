@@ -96,7 +96,7 @@ import FilterComponent from './components/Filter.vue'
 import ListComponent from './components/List.vue'
 import CsvButton from 'components/csvButton'
 import MapComponent from './components/Map.vue'
-import RadialFilter from 'components/radials/filter/radial.vue'
+import RadialFilter from 'components/radials/linker/radial.vue'
 import OpenCollectionObjectFilter from './components/OpenCollectionObjectFilter.vue'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
@@ -104,7 +104,7 @@ import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import { URLParamsToJSON } from 'helpers/url/parse'
-import { computed, ref, watch, reactive } from 'vue'
+import { computed, ref, watch, reactive, onBeforeMount } from 'vue'
 import { chunkArray } from 'helpers/arrays'
 import { CollectingEvent, Georeference } from 'routes/endpoints'
 
@@ -217,20 +217,23 @@ const parseEndDate = ce => {
   return [ce.end_date_day, ce.end_date_month, ce.end_date_year].filter(date => date).join('/')
 }
 
-const urlParams = URLParamsToJSON(location.href)
-if (Object.keys(urlParams).length) {
-  makeFilterRequest({
-    ...urlParams,
-    geo_json: JSON.stringify(urlParams.geo_json),
-    extend
-  }).then(_ => {
-    list.value = parseList(list.value)
-  })
-}
+onBeforeMount(() => {
+  parameters.value = {
+    ...URLParamsToJSON(location.href),
+    ...JSON.parse(sessionStorage.getItem('filterQuery'))
+  }
+
+  sessionStorage.removeItem('filterQuery')
+
+  if (Object.keys(parameters.value).length) {
+    makeFilterRequest({
+      ...parameters.value,
+      extend,
+      geo_json: JSON.stringify(parameters.value.geo_json)
+    }).then(_ => {
+      list.value = parseList(list.value)
+    })
+  }
+})
 
 </script>
-<style scoped>
-  .no-found-message {
-    height: 70vh;
-  }
-</style>

@@ -7,7 +7,7 @@
     >
       <template #header>
         <h3 class="flex-separate">
-          <span>Radial filters</span>
+          <span>Radial linker</span>
           <span class="separate-right"> {{ objectType }}</span>
         </h3>
       </template>
@@ -15,10 +15,7 @@
         <div class="flex-separate">
           <div class="radial-annotator-menu">
             <div>
-              <RadialMenu
-                :options="menuOptions"
-                @on-click="saveParametersOnStorage"
-              />
+              <radial-menu :options="menuOptions" />
             </div>
           </div>
         </div>
@@ -42,16 +39,15 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
-import Qs from 'qs'
-import { QUERY_PARAM } from './constants/queryParam'
+import { computed, ref, watch } from 'vue'
+import { transformObjectToParams } from 'helpers/setParam'
+import { copyObjectByArray } from 'helpers/objects.js'
 import RadialMenu from 'components/radials/RadialMenu.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import Modal from 'components/ui/Modal.vue'
-import * as FILTER_LINKS from './links'
-
-const MAX_LINK_SIZE = 450
+import getFilterAttributes from './composition/getFilterAttributes'
+import * as LINKER_LIST from './links/index.js'
 
 const props = defineProps({
   disabled: {
@@ -71,25 +67,19 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['close'])
-
-const queryObject = computed(() => ({ [QUERY_PARAM[props.objectType]]: filterEmptyParams(props.parameters) }))
+const objParameters = ref(getFilterAttributes())
 
 const menuOptions = computed(() => {
-  const links = FILTER_LINKS[props.objectType]
+  const links = LINKER_LIST[props.objectType]
   const slices = []
 
   links.forEach(item => {
-    const urlWithParameters = item.link + '?' + Qs.stringify(queryObject.value, { arrayFormat: 'brackets' })
+    const filteredParameters = filterEmptyParams(copyObjectByArray({ ...objParameters.value, ...props.parameters }, item.params))
+    const link = item.link + '?' + transformObjectToParams(filteredParameters)
 
-    slices.push(
-      addSlice(
-        {
-          ...item,
-          link: urlWithParameters.length < MAX_LINK_SIZE
-            ? urlWithParameters
-            : item.link
-        })
-    )
+    if (Object.values(filteredParameters).some(Boolean)) {
+      slices.push(addSlice({ ...item, link }))
+    }
   })
 
   return {
@@ -131,12 +121,6 @@ function openRadialMenu () {
   isVisible.value = true
 }
 
-function saveParametersOnStorage (e) {
-  const state = JSON.stringify(queryObject.value)
-
-  sessionStorage.setItem('filterQuery', state)
-}
-
 function filterEmptyParams (object) {
   const obj = { ...object }
 
@@ -145,7 +129,6 @@ function filterEmptyParams (object) {
 
     if (
       value === '' ||
-      value === undefined ||
       (Array.isArray(value) && !value.length)
     ) {
       delete obj[key]
@@ -155,10 +138,19 @@ function filterEmptyParams (object) {
   return obj
 }
 
+watch(
+  isVisible,
+  (newVal) => {
+    if (newVal) {
+      objParameters.value = getFilterAttributes()
+    }
+  }
+)
+
 </script>
 
 <script>
 export default {
-  name: 'RadialFilter'
+  name: 'RadialLinker'
 }
 </script>

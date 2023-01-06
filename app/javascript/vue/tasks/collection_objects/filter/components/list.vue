@@ -15,7 +15,7 @@
             </th>
             <th>Collection object</th>
             <template
-              v-for="(item, index) in list.column_headers"
+              v-for="(item, index) in list?.column_headers"
               :key="item"
             >
               <th
@@ -31,7 +31,7 @@
           <tr
             class="contextMenuCells"
             :class="{ even: indexR % 2 }"
-            v-for="(row, indexR) in list.data"
+            v-for="(row, indexR) in list?.data"
             :key="row[0]"
           >
             <td>
@@ -65,7 +65,7 @@
 </template>
 
 <script setup>
-import { computed, watch, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { sortArray } from 'helpers/arrays.js'
 import { vResizeColumn } from 'directives/resizeColumn.js'
 import HandyScroll from 'vue-handy-scroll'
@@ -73,7 +73,7 @@ import HandyScroll from 'vue-handy-scroll'
 const props = defineProps({
   list: {
     type: Object,
-    default: undefined
+    default: () => ({})
   },
 
   modelValue: {
@@ -108,12 +108,6 @@ const selectIds = computed({
 })
 
 const ascending = ref(false)
-
-watch(
-  () => props.list,
-  () => {
-    HandyScroll.EventBus.emit('update', { sourceElement: root.value })
-  })
 
 const sortTable = (sortProperty) => {
   emit('onSort', sortArray(props.list.data, sortProperty, ascending.value))
