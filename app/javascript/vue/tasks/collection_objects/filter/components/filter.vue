@@ -65,6 +65,8 @@ import FacetDataAttribute from 'components/Filter/Facets/shared/FacetDataAttribu
 import FacetMatchIdentifiers from 'components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 
 const WITH_PARAMS = [
+  'citations',
+  'origin_citation',
   'collecting_event',
   'data_attributes',
   'depictions',

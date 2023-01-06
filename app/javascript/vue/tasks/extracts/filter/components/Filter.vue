@@ -22,6 +22,13 @@
   <FacetIdentifiers v-model="params" />
   <FacetProtocol v-model="params" />
   <FacetUsers v-model="params" />
+  <FacetWith
+    v-for="param in WITH_PARAMS"
+    :key="param"
+    :title="param"
+    :param="param"
+    v-model="params"
+  />
 </template>
 
 <script setup>
@@ -40,6 +47,11 @@ import FacetVerbatimAnatomical from 'components/Filter/Facets/Extract/FacetVerba
 import FacetMatchIdentifiers from 'components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 import FacetTags from 'components/Filter/Facets/shared/FacetTags.vue'
 import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
+
+const WITH_PARAMS = [
+  'citations',
+  'origin_citation'
+]
 
 const props = defineProps({
   modelValue: {

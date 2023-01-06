@@ -72,14 +72,20 @@ const props = defineProps({
 
 const emit = defineEmits(['close'])
 
-const queryObject = computed(() => ({ [QUERY_PARAM[props.objectType]]: filterEmptyParams(props.parameters) }))
+const filteredParameters = computed(() => filterEmptyParams({ ...props.parameters, per: undefined }))
+const queryObject = computed(() => ({ [QUERY_PARAM[props.objectType]]: filteredParameters.value }))
+const hasParameters = computed(() => !!Object.keys(filteredParameters.value).length)
 
 const menuOptions = computed(() => {
   const links = FILTER_LINKS[props.objectType]
+  const urlParameters = Qs.stringify(queryObject.value, { arrayFormat: 'brackets' })
   const slices = []
 
+  console.log(hasParameters.value)
+  console.log(filteredParameters.value)
+
   links.forEach(item => {
-    const urlWithParameters = item.link + '?' + Qs.stringify(queryObject.value, { arrayFormat: 'brackets' })
+    const urlWithParameters = item.link + (hasParameters.value ? `?${urlParameters}` : '')
 
     slices.push(
       addSlice(
@@ -132,9 +138,11 @@ function openRadialMenu () {
 }
 
 function saveParametersOnStorage (e) {
-  const state = JSON.stringify(queryObject.value)
+  if (hasParameters.value) {
+    const state = JSON.stringify(queryObject.value)
 
-  sessionStorage.setItem('filterQuery', state)
+    sessionStorage.setItem('filterQuery', state)
+  }
 }
 
 function filterEmptyParams (object) {

@@ -11,6 +11,13 @@
   />
   <FacetUsers v-model="params" />
   <FacetWith
+    v-for="param in WITH_PARAMS"
+    :key="param"
+    :title="param"
+    :param="param"
+    v-model="params"
+  />
+  <FacetWith
     :options="PRESENCE_OPTIONS"
     title="presence"
     param="presence"
@@ -41,6 +48,8 @@ const PRESENCE_OPTIONS = [
     value: false
   }
 ]
+
+const WITH_PARAMS = ['origin_citations']
 
 const props = defineProps({
   modelValue: {

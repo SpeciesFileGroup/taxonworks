@@ -22,7 +22,7 @@
   />
   <FacetUsers v-model="params" />
   <FacetWith
-    v-for="param in WIDTH_PARAMS"
+    v-for="param in WITH_PARAMS"
     :key="param"
     :title="param"
     :param="param"
@@ -46,7 +46,10 @@ import FacetOtu from 'components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
 import { computed } from 'vue'
 
-const WIDTH_PARAMS = ['citations']
+const WITH_PARAMS = [
+  'citations',
+  'origin_citation'
+]
 
 const props = defineProps({
   modelValue: {

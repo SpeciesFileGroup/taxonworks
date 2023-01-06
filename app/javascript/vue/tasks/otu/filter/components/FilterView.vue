@@ -32,7 +32,6 @@
 import { computed } from 'vue'
 import FacetTaxonName from 'components/Filter/Facets/TaxonName/FacetTaxonName.vue'
 import FacetGeographicArea from 'components/Filter/Facets/shared/FacetGeographic.vue'
-import FacetCitations from 'components/Filter/Facets/Citations/FacetCitations.vue'
 import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
 import FacetWKT from 'components/Filter/Facets/Otu/FacetWKT.vue'
 import FacetBiologicalRelationship from 'components/Filter/Facets/BiologicalAssociation/FacetBiologicalRelationship.vue'
@@ -42,6 +41,8 @@ import FacetDescriptor from './Facet/FacetDescriptor.vue'
 import FacetHistorialDeterminations from './Facet/FacetHistorialDeterminations.vue'
 
 const WITH_PARAM = [
+  'citations',
+  'origin_citation',
   'biological_associations',
   'asserted_distributions',
   'daterminations',

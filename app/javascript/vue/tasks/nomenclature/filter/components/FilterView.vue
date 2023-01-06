@@ -24,7 +24,6 @@
   />
   <FacetUsers v-model="params" />
   <FacetUpdatedSince v-model="params" />
-  <FacetCitations v-model="params" />
   <FacetDataAttribute v-model="params" />
   <FacetWith
     v-for="param in WITH_PARAMS"
@@ -42,7 +41,6 @@ import FacetNameAuthorYear from './filters/FacetNameAuthorYear.vue'
 import FacetPrecision from './filters/FacetPrecision.vue'
 import FacetUpdatedSince from './filters/FacetUpdatedSince'
 import FacetValidity from './filters/FacetValidity.vue'
-import FacetCitations from 'components/Filter/Facets/Citations/FacetCitations.vue'
 import FacetRelationships from './filters/FacetRelationships.vue'
 import FacetTaxonName from 'components/Filter/Facets/TaxonName/FacetTaxonName.vue'
 import FacetStatus from './filters/FacetStatus.vue'
@@ -72,6 +70,8 @@ const WITH_TITLES = {
 }
 
 const WITH_PARAMS = [
+  'citations',
+  'origin_citation',
   'leaves',
   'data_attributes',
   'type_metadata',

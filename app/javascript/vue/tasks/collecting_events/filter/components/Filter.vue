@@ -55,6 +55,8 @@ const props = defineProps({
 })
 
 const WIDTH_PARAMS = [
+  'citations',
+  'origin_citation',
   'collection_objects',
   'depictions',
   'data_attributes',

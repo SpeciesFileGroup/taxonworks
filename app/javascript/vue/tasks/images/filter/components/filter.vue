@@ -13,6 +13,13 @@
     v-model="params"
   />
   <FacetUsers v-model="params" />
+  <FacetWith
+    v-for="param in WITH_PARAMS"
+    :key="param"
+    :title="param"
+    :param="param"
+    v-model="params"
+  />
 </template>
 
 <script setup>
@@ -32,6 +39,11 @@ const props = defineProps({
     default: () => ({})
   }
 })
+
+const WITH_PARAMS = [
+  'citations',
+  'origin_citation'
+]
 
 const emit = defineEmits(['update:modelValue'])
 
