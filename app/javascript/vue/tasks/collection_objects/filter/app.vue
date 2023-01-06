@@ -44,12 +44,6 @@
             :parameters="parameters"
             object-type="CollectionObject"
           />
-          <RadialLinker
-            :disabled="!selectedIds.length"
-            object-type="CollectingEvent"
-            :parameters="{ collection_object_id: selectedIds }"
-          />
-
           <span class="separate-left separate-right">|</span>
           <CsvButton
             :list="coList?.data"
@@ -100,7 +94,6 @@ import { computed, ref, reactive, watch, onBeforeMount } from 'vue'
 import { CollectionObject } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse'
 import { chunkArray } from 'helpers/arrays'
-import RadialLinker from 'components/radials/linker/radial.vue'
 import RadialFilter from 'components/radials/filter/radial.vue'
 import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
