@@ -73,16 +73,6 @@ module Queries
         ::Loan.joins(:people).where(roles: { type: ['LoanRecipient', 'LoanSupervisor']}).where(o.to_sql)
       end
 
-      # @return [Scope]
-      def base_query
-        ::Loan.select('loans.*')
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::Loan.arel_table
-      end
-
     end
   end
 end

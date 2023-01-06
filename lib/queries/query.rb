@@ -10,24 +10,92 @@
 #    http://blog.arkency.com/2013/12/rails4-preloading/
 #    User.includes(:addresses).where("addresses.country = ?", "Poland").references(:addresses)
 #
-# TODO: Define #all as a stub (Array or AR)
+# TODO:
+#  Define #all as a stub (Array or AR)
+#   * recover class from module
+#
 #
 module Queries
+
   class Query
     include Arel::Nodes
 
     include Queries::Concerns::Identifiers
 
-    # TODO: an include?
+    # @return [Array]
+    #   an expanded search target arary, splitting query_string into a number of wild-carded values
     attr_accessor :terms
 
-    # @param [Hash] args
+    # @return [String]
+    attr_accessor :query_string
+
+    # See subclasses.
     def initialize
-      # do stuff?
     end
 
-    # generic multi-use bits
-    #   table is defined in each query, it is the class of instances being returned
+    def table
+      referenced_klass.arel_table
+    end
+
+    def base_query
+      referenced_klass.select( referenced_klass.name.tableize + '.*'  )
+    end
+
+    def referenced_klass
+      ('::' + self.class.name.split('::').second).safe_constantize
+    end
+
+    def terms=(string)
+      @query_string = string
+      build_terms
+      terms
+    end
+
+    def terms
+      if @terms.blank? && @query_string.present?
+        @terms = build_terms
+      elsif @query_string.blank?
+        @terms = []
+      else
+        @terms
+      end
+    end
+
+    # @return [Array]
+    #   a reasonable (starting) interpretation of any query string
+    # Ultimately we should replace this concept with full text indexing.
+    def build_terms
+      @terms = @query_string.blank? ? [] : [end_wildcard, start_and_end_wildcard]
+    end
+
+    def no_terms?
+      terms.blank?
+    end
+
+    # @return [String]
+    def start_wildcard
+      '%' + query_string
+    end
+
+    # @return [String]
+    def end_wildcard
+      query_string + '%'
+    end
+
+    # @return [String]
+    def start_and_end_wildcard
+      '%' + query_string + '%'
+    end
+
+    # @return [Array]
+    def alphabetic_strings
+      Utilities::Strings.alphabetic_strings(query_string)
+    end
+
+    # @return [Array]
+    def alphanumeric_strings
+      Utilities::Strings.alphanumeric_strings(query_string)
+    end
 
     # params attribute [Symbol]
     #   a facet for use when params include `author`, and `exact_author` pattern combinations
@@ -57,61 +125,6 @@ module Queries
       a = ApplicationRecord.sanitize_sql(value)
       Arel::Nodes::NamedFunction.new("levenshtein", [table[attribute], Arel::Nodes::SqlLiteral.new(a) ] )
     end
-
-    # --- term library confirmed both
-
-    # @return [Array]
-    def terms=(string)
-      @query_string = string
-      build_terms
-      terms
-    end
-
-    # @return [Array]
-    def terms
-      if @terms.nil? || (@terms == [] && !@query_string.blank?)
-        @terms = build_terms
-      end
-      @terms
-    end
-
-    def no_terms?
-      terms.none?
-    end
-
-    # @return [Array]
-    #   a reasonable (starting) interpretation of any query string
-    # Ultimately we should replace this concept with full text indexing.
-    def build_terms
-      @terms = @query_string.blank? ? [] : [end_wildcard, start_and_end_wildcard]
-    end
-
-    # @return [String]
-    def start_wildcard
-      '%' + query_string
-    end
-
-    # @return [String]
-    def end_wildcard
-      query_string + '%'
-    end
-
-    # @return [String]
-    def start_and_end_wildcard
-      '%' + query_string + '%'
-    end
-
-    # @return [Array]
-    def alphabetic_strings
-      Utilities::Strings.alphabetic_strings(query_string) #alphanumeric allows searches by page number, year, etc.
-    end
-
-    # @return [Array]
-    def alphanumeric_strings
-      Utilities::Strings.alphanumeric_strings(query_string) #alphanumeric allows searches by page number, year, etc.
-    end
-
-
 
   end
 end

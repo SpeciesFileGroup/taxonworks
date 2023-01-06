@@ -1,6 +1,6 @@
 module Queries
 
-  class TaxonNameRelationshipsFilterQuery < Queries::Query
+  class TaxonNameRelationshipsFilterQuery < ::Query::Filter
 
     attr_accessor :taxon_name_id
 
@@ -76,11 +76,6 @@ module Queries
       clause = or_clauses
       clause = clause.and(and_clauses) if and_clauses
       clause.to_sql
-    end
-
-    # @return [Arel::Table]
-    def table
-      ::TaxonNameRelationship.arel_table
     end
 
     # @return [ActiveRecord::Relation, nil]

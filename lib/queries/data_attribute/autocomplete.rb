@@ -97,17 +97,9 @@ module Queries
       end
 
       # @return [Arel::Table]
-      def table
-        ::DataAttribute.arel_table
-      end
-
-      # @return [Arel::Table]
       def predicate_table
         ::Predicate.arel_table
       end
-
-
-
 
     end
   end

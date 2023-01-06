@@ -40,7 +40,7 @@ module Queries
         @type = type
         @parent_id = parent_id
         @no_leaves = no_leaves == 'true' ? true : (no_leaves == 'false' ? false : nil)
-        @exact = exact == 'true' ? true : (exact == 'false' ? false : nil)
+        @exact = (exact == 'true' ? true : (exact == 'false' ? false : nil))
         super
       end
 
@@ -316,7 +316,7 @@ module Queries
 
         queries.each_with_index do |q,i|
           a = q
-          a = q.where(project_id: project_id) if project_id
+          a = q.where(project_id: project_id) if project_id.present?
           a = a.where(and_clauses.to_sql) if and_clauses # TODO: duplicates clauses like exact!!
           if !parent_id.empty?
             a = a.descendants_of(::TaxonName.where(id: parent_id))
@@ -352,11 +352,6 @@ module Queries
         ::TaxonName.select('taxon_names.*, char_length(taxon_names.cached)').
           includes(:ancestor_hierarchies).
           order(Arel.sql('char_length(taxon_names.cached), taxon_names.cached ASC')) # TODO: add index to CHAR_LENGTH ?
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::TaxonName.arel_table
       end
 
       # @return [Arel::Table]

@@ -1,15 +1,5 @@
 # Helpers and facets for queries that reference Tags.
 #
-# Test coverage is currently in spec/lib/queries/source/filter_spec.rb.
-#
-# You must define
-#
-#    def table
-#      :;Model.arel_table
-#    end
-#
-# in including modules.
-#
 module Queries::Concerns::Citations
 
   extend ActiveSupport::Concern

@@ -121,11 +121,6 @@ module Queries
         ::AlternateValue.arel_table
       end
 
-      # @return [Arel::Table]
-      def table
-        ::Serial.arel_table
-      end
-
     end
   end
 end

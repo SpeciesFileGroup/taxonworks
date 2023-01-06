@@ -252,10 +252,6 @@ module Queries
         # set_user_dates(params)
       end
 
-      def table
-        ::Otu.arel_table
-      end
-
       def biological_associations_table
         ::BiologicalAssociation.arel_table
       end

@@ -17,7 +17,6 @@ module Queries
 
       attr_accessor :object_global_id
 
-
       def initialize(params)
         @text = params[:text]
         @note_object_type = params[:note_object_type]
@@ -33,10 +32,6 @@ module Queries
 
       def note_object_type
         [@note_object_type].flatten.compact
-      end
-
-      def table
-        ::Note.arel_table
       end
 
       def text_facet

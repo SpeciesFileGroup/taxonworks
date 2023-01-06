@@ -7,11 +7,6 @@ module Queries
         super
       end
 
-      # @return [Scope]
-      def base_query
-        ::Note.select('notes.*')
-      end
-
       # @return [ActiveRecord::Relation]
       def autocomplete_exact_note
         a = table[:text].eq(query_string)
@@ -79,10 +74,6 @@ module Queries
         result[0..40]
       end
 
-      # @return [Arel::Table]
-      def table
-        ::Note.arel_table
-      end
     end
   end
 end

@@ -173,17 +173,8 @@ module Queries
       end
 
       # @return [Arel::Table]
-      def table
-        ::Person.arel_table
-      end
-
-      # @return [Arel::Table]
       def role_table
         ::Role.arel_table
-      end
-
-      def base_query
-        ::Person.select('people.*')
       end
 
       def project_id

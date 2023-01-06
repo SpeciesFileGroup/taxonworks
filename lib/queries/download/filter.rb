@@ -13,10 +13,6 @@ module Queries
         @download_type = params[:download_type]
       end
 
-      def table
-        ::Download.arel_table
-      end
-
       def download_type
         [@download_type].flatten.compact
       end
@@ -48,10 +44,6 @@ module Queries
         end
       end
 
-      # @return [Arel::Table]
-      def table
-        ::Download.arel_table
-      end
     end
   end
 end

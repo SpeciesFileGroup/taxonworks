@@ -2,14 +2,18 @@ module Queries
   module ControlledVocabularyTerm
     class Autocomplete < Query::Autocomplete
 
-      # [Array]
-      #   of :type 
-      attr_accessor :type
+      # @return [Array]
+      #   controlled_vocabulary_term_type 
+      attr_accessor :controlled_vocabulary_term_type
 
       def initialize(string, **keyword_args)
         @query_string = string
         @project_id = keyword_args[:project_id]
-        @type = keyword_args[:type] || []
+        @controlled_vocabulary_term_type = keyword_args[:controlled_vocabulary_term_type] || []
+      end
+
+      def controlled_vocabulary_term_type
+        [@controlled_vocabulary_term_type].flatten.compact.uniq
       end
 
       def and_clauses
@@ -55,16 +59,12 @@ module Queries
           ::ControlledVocabularyTerm.where(b).order(:type, :name).limit(40) 
       end
 
-      def table
-        ::ControlledVocabularyTerm.arel_table
-      end
-
       def keyword_named
         table[:name].matches_any(terms) if terms.any?
       end
 
-      def with_type 
-        table[:type].eq_any(type) if type.any?    
+      def with_type
+        table[:type].eq_any(controlled_vocabulary_term_type) if controlled_vocabulary_term_type.any?    
       end
 
       def uri_equal_to

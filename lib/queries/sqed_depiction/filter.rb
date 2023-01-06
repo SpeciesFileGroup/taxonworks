@@ -25,15 +25,6 @@ module Queries
         set_user_dates(params)
       end
 
-      # @return [Arel::Table]
-      def table
-        ::SqedDepiction.arel_table
-      end
-
-      def base_query
-        ::SqedDepiction.select('sqed_depictions.*')
-      end
-
       def collection_object_query_facet
         q = ::Queries::CollectionObject::Filter.new(collection_object_filter_params).all
         ::SqedDepiction.joins(:collection_object).where(collection_objects: q)

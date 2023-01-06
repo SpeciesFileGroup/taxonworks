@@ -93,10 +93,6 @@ module Queries
         end
       end
 
-      # @return [Arel::Table]
-      def table
-        ::AlternateValue.arel_table
-      end
     end
   end
 end

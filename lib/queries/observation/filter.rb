@@ -126,11 +126,6 @@ module Queries
         q
       end
 
-
-      # @return [Arel::Table]
-      def table
-        ::Observation.arel_table
-      end
     end
   end
 end

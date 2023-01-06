@@ -20,11 +20,6 @@ module Queries
         ::DataAttribute.where(where_sql).order(Arel.sql('LENGTH(value) ASC')).distinct.limit(50).pluck(:value, 'LENGTH(value)').map(&:first)
       end
 
-      # @return [Arel::Table]
-      def table
-        ::DataAttribute.arel_table
-      end
-
       # @return [Arel::Nodes::Matches]
       def matching_value 
         return nil if query_string.nil?

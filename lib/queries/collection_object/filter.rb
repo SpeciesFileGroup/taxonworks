@@ -300,15 +300,6 @@ module Queries
       end
 
       # @return [Arel::Table]
-      def table
-        ::CollectionObject.arel_table
-      end
-
-      def base_query
-        ::CollectionObject.select('collection_objects.*')
-      end
-
-      # @return [Arel::Table]
       def collecting_event_table
         ::CollectingEvent.arel_table
       end

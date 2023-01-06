@@ -190,15 +190,6 @@ module Queries
         super
       end
 
-      # @return [Arel::Table]
-      def table
-        ::BiologicalAssociation.arel_table
-      end
-
-      def base_query
-        ::BiologicalAssociation.select('biological_associations.*')
-      end
-
       # def taxon_name_query_target
       #   @taxon_name_query_target.blank? ? :any : @taxon_name_query_target.to_sym
       # end

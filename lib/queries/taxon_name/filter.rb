@@ -241,15 +241,6 @@ module Queries
         set_citations_params(params)
       end
 
-      # @return [Arel::Table]
-      def table
-        ::TaxonName.arel_table
-      end
-
-      def base_query
-        ::TaxonName.select('taxon_names.*')
-      end
-
       def year=(value)
         @year = value.to_s
       end

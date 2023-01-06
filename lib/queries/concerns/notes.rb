@@ -2,14 +2,6 @@
 #
 # Test coverage is currently in spec/lib/queries/collection_object/filter_spec.rb.
 #
-# You must define
-#
-#    def table
-#      ::Model.arel_table
-#    end
-#
-# in including modules.
-#
 module Queries::Concerns::Notes
 
   extend ActiveSupport::Concern

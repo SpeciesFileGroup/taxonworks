@@ -1,4 +1,3 @@
-
 These are the primary filtering, and autocomplete queries.  The directory is being re-organized to:
 
 * [ ] Refactor all model specific files into their own directory
@@ -8,6 +7,8 @@ These are the primary filtering, and autocomplete queries.  The directory is bei
 
 # Design guidelines
 
+* Directory name (/lib/queries/<directory>/) must `.safe_constantize` to an existing ActiveRecord model
+  * If name does not .safe_constantize then class must provide `.table` and `.query_base` methods.
 * All references to ActiveRecord models must begin with `::`, e.g. `::Otu.all`
 * Params should be passed as a `Hash`, do the permitting of attributes in the controller.
 

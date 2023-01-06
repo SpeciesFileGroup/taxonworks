@@ -24,11 +24,6 @@ module Queries
         @taxon_name_classification_set = params[:taxon_name_classification_set]
       end
 
-      # @return [Arel::Table]
-      def table
-        ::TaxonNameClassification.arel_table
-      end
-
       def taxon_name_id
         [@taxon_name_id].flatten.compact
       end

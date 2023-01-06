@@ -11,14 +11,6 @@ module Queries
         super
       end
 
-      def base_query
-        ::Identifier.select('identifiers.*')
-      end
-
-      def table
-        ::Identifier.arel_table
-      end
-
       # @return [Arel:Nodes, nil]
       def and_clauses
         clauses = [

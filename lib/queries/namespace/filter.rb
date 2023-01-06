@@ -37,10 +37,6 @@ module Queries
         [@verbatim_short_name].flatten.compact
       end
 
-      def table
-        ::Namespace.arel_table
-      end
-
       def matching_name
         return nil if name.empty?
         table[:name].eq_any(name)

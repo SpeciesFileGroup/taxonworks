@@ -1,13 +1,14 @@
 module Queries
   module Person
-    
+
     class Autocomplete < Query::Autocomplete
 
       include Queries::Concerns::AlternateValues
       include Queries::Concerns::Tags
 
       # @return [Array]
-      # @param limit_to_role [String] any Role class, like `TaxonNameAuthor`, `SourceAuthor`, `SourceEditor`, `Collector` ... etc.
+      # @param limit_to_role [String, Array] 
+      #    any Role class, like `TaxonNameAuthor`, `SourceAuthor`, `SourceEditor`, `Collector`, etc.
       attr_accessor :limit_to_roles
 
       # any project == all roles
@@ -22,21 +23,20 @@ module Queries
         super
       end
 
-      # @return [Scope]
-      def base_query
-        ::Person #.select('people.*')
+      def limit_to_roles
+        [@limit_to_roles].flatten.compact.uniq
       end
 
       # @return [Arel::Nodes::Equatity]
       def role_match
         a = roles_table[:type].eq_any(limit_to_roles)
-        a = a.and(roles_table[:project_id].eq(project_id)) if !project_id.blank?
+        a = a.and(roles_table[:project_id].eq_any(project_id)) if project_id.present?
         a
       end
 
       # @return [Arel::Nodes::Equatity]
       def role_project_match
-        roles_table[:project_id].eq(project_id)
+        roles_table[:project_id].eq_any(project_id)
       end
 
       # @return [Scope]
@@ -107,7 +107,7 @@ module Queries
           [ autocomplete_alternate_values_last_name.limit(20), true ],
           [ autocomplete_alternate_values_first_name.limit(20), true ],
           [ autocomplete_ordered_wildcard_pieces_in_cached&.limit(5), true ],
-          [ autocomplete_cached_wildcard_anywhere&.limit(20), true ], # in Queries::Query
+          [ autocomplete_cached_wildcard_anywhere&.limit(20), true ], # in Queries::Query::Autocomplete
           [ autocomplete_cached, true ]
         ]
 
@@ -119,18 +119,21 @@ module Queries
             #do nothing
           elsif roles_assigned?
             a = q[0].joins(:roles).where(role_match.to_sql)
+
+
           elsif Current.project_id && q[1] # do not use extended query for identifiers
             a = q[0].left_outer_joins(:roles)
-                  .joins("LEFT OUTER JOIN sources ON roles.role_object_id = sources.id AND roles.role_object_type = 'Source'")
-                  .joins('LEFT OUTER JOIN project_sources ON sources.id = project_sources.source_id')
-                  .select("people.*, COUNT(roles.id) AS use_count, CASE WHEN MAX(roles.project_id) = #{Current.project_id} THEN MAX(roles.project_id) ELSE MAX(project_sources.project_id) END AS in_project_id")
-                  .where('roles.project_id = ? OR project_sources.project_id = ? OR (roles.project_id IS DISTINCT FROM ? AND project_sources.project_id IS DISTINCT FROM ?)', Current.project_id, Current.project_id, Current.project_id, Current.project_id)
-                  .group('people.id')
-                  .order('in_project_id, use_count DESC')
+              .joins("LEFT OUTER JOIN sources ON roles.role_object_id = sources.id AND roles.role_object_type = 'Source'")
+              .joins('LEFT OUTER JOIN project_sources ON sources.id = project_sources.source_id')
+              .select("people.*, COUNT(roles.id) AS use_count, CASE WHEN MAX(roles.project_id) = #{Current.project_id} THEN MAX(roles.project_id) ELSE MAX(project_sources.project_id) END AS in_project_id")
+              .where('roles.project_id = ? OR project_sources.project_id = ? OR (roles.project_id IS DISTINCT FROM ? AND project_sources.project_id IS DISTINCT FROM ?)', Current.project_id, Current.project_id, Current.project_id, Current.project_id)
+              .group('people.id')
+              .order('in_project_id, use_count DESC')
           end
           a ||= q[0]
           updated_queries[i] = a
         end
+        
         result = []
         updated_queries.each do |q|
           result += q.to_a
@@ -138,11 +141,6 @@ module Queries
           break if result.count > 19
         end
         result = result[0..19]
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::Person.arel_table
       end
 
       # @return [Arel::Table]

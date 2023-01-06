@@ -41,10 +41,6 @@ module Queries
         end
       end
 
-      # @return [Arel::Table]
-      def table
-        ::Documentation.arel_table
-      end
     end
   end
 end

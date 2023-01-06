@@ -33,9 +33,6 @@ module Queries
         ::Namespace.where(where_sql)
       end
 
-      def table
-        ::Namespace.arel_table
-      end
     end
   end
 end

@@ -43,11 +43,6 @@ module Queries
         [@protocol_relationship_object_type].flatten.compact
       end
 
-      # @return [Arel::Table]
-      def table
-        ::ProtocolRelationship.arel_table
-      end
-
       def protocol_id_facet
         return nil if protocol_id.empty?
         table[:protocol_id].eq_any(protocol_id)

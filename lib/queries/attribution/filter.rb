@@ -39,10 +39,6 @@ module Queries
         end
       end
 
-      # @return [Arel::Table]
-      def table
-        ::Attribution.arel_table
-      end
     end
   end
 end

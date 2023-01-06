@@ -93,15 +93,6 @@ module Queries
         [@taxon_name_id].flatten.compact
       end
 
-      # @return [Arel::Table]
-      def table
-        ::AssertedDistribution.arel_table
-      end
-
-      def base_query
-        ::AssertedDistribution.select('asserted_distributions.*')
-      end
-
       def asserted_distribution_attribute_equals(attribute)
         a = send(attribute)
         if a
@@ -137,10 +128,11 @@ module Queries
           # Expand to include all descendants of any spatial match!
           k = ::GeographicArea.descendants_of_any(j.pluck(:id))
 
-          j ||= []
-          k ||= []
-
-          return ::AssertedDistribution.where(geographic_area: j + k )
+          a = []
+          a += j.to_a unless j.nil?
+          a += k.to_a unless k.nil?
+         
+          return ::AssertedDistribution.where( geographic_area: a )
         else
           return nil
         end

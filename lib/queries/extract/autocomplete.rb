@@ -22,15 +22,6 @@ module Queries
         @taxon_name_ids
       end
 
-      def base_query
-        ::Extract.select('extracts.*')
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::Extract.arel_table
-      end
-
       # @return [Array]
       #   !! Returns multiple queries !!
       # Find matching names, get their IDs

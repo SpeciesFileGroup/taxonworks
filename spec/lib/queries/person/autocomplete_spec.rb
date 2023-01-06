@@ -17,17 +17,17 @@ describe Queries::Person::Autocomplete, type: :model, group: :people do
 
     specify '1' do
       query.terms = 'S.'
-      expect(query.autocomplete_alternate_values_last_name.map(&:id)).to contain_exactly(p1.id) 
+      expect(query.autocomplete_alternate_values_last_name.map(&:id)).to contain_exactly(p1.id)
     end
 
     specify '2' do
       query.terms = 'Geerge'
-      expect(query.autocomplete_alternate_values_first_name.map(&:id)).to contain_exactly(p4.id) 
+      expect(query.autocomplete_alternate_values_first_name.map(&:id)).to contain_exactly(p4.id)
     end
 
     specify '3' do
       query.terms = 'Tartero'
-      expect(query.autocomplete.map(&:id)).to contain_exactly(p5.id) 
+      expect(query.autocomplete.map(&:id)).to contain_exactly(p5.id)
     end
   end
 
@@ -88,23 +88,23 @@ describe Queries::Person::Autocomplete, type: :model, group: :people do
     end
 
     specify 'if no roles provided all for project' do
-      expect(query.autocomplete.map(&:id)).to contain_exactly(p1.id, p2.id) 
+      expect(query.autocomplete.map(&:id)).to contain_exactly(p1.id, p2.id)
     end
 
     specify 'project, no roles' do
-      query.project_id = 1     
-      expect(query.autocomplete.map(&:id)).to contain_exactly(p1.id, p2.id) 
+      query.project_id = 1
+      expect(query.autocomplete.map(&:id)).to contain_exactly(p1.id, p2.id)
     end
 
     specify 'roles, no project' do
       query.limit_to_roles = ['Collector']
-      expect(query.autocomplete.map(&:id)).to contain_exactly(p2.id) 
+      expect(query.autocomplete.map(&:id)).to contain_exactly(p2.id)
     end
 
     specify 'roles, project' do
-      query.project_id = 1     
+      query.project_id = 1
       query.limit_to_roles = ['Collector']
-      expect(query.autocomplete.map(&:id)).to contain_exactly(p2.id) 
+      expect(query.autocomplete.map(&:id)).to contain_exactly(p2.id)
     end
   end
 end

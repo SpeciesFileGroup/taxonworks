@@ -47,15 +47,6 @@ module Queries
         end
       end
 
-      # @return [Arel::Table]
-      def table
-        ::ObservationMatrix.arel_table
-      end
-
-      def base_query
-        ::ObservationMatrix.select('observation_matrices.*')
-      end
-
     end
   end
 end

@@ -8,10 +8,6 @@ module Queries
         super
       end
 
-      def base_query
-        ::Organization.select('organizations.*')
-      end
-
       def autocomplete_name_wildcard_end
         return nil if query_string.length < 2 
         base_query.where( table[:name].matches(query_string + '%').to_sql).limit(20)
@@ -36,11 +32,6 @@ module Queries
           break if result.count > 39 
         end
         result[0..39]
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::Organization.arel_table
       end
 
     end

@@ -31,11 +31,6 @@ module Queries
         ::Document.where(where_sql).limit(200).order(:id)
       end
 
-      # @return [Arel::Table]
-      def table
-        ::Document.arel_table
-      end
-
     end
   end
 end

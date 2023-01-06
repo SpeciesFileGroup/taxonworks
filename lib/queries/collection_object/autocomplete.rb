@@ -8,10 +8,6 @@ module Queries
         super
       end
 
-      def base_query
-        ::CollectionObject.select('collection_objects.*')
-      end
-
       # @return [Arel::Table]
       def taxon_name_table
         ::TaxonName.arel_table
@@ -20,11 +16,6 @@ module Queries
       # @return [Arel::Table]
       def otu_table
         ::Otu.arel_table
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::CollectionObject.arel_table
       end
 
       # @return [Arel::Table]

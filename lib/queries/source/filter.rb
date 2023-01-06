@@ -191,17 +191,8 @@ module Queries
       end
 
       # @return [Arel::Table]
-      def table
-        ::Source.arel_table
-      end
-
-      # @return [Arel::Table]
       def project_sources_table
         ::ProjectSource.arel_table
-      end
-
-      def base_query
-        ::Source.select('sources.*')
       end
 
       def bibtex_type

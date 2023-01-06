@@ -18,14 +18,6 @@ module Queries
         @observation_matrix_id = params[:observation_matrix_id]
       end
 
-      def base_query
-        ::ObservationMatrixRow.select('observation_matrices.*')
-      end
-
-      def table
-        ::ObservationMatrixRow.arel_table
-      end
-
       def observation_object_id
         [@observation_object_id].flatten.compact +  
           (observation_object_id_vector.blank? ? [] : observation_object_id_vector.split('|'))

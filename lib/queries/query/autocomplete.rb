@@ -25,19 +25,9 @@ module Queries
       @project_id = project_id
       build_terms
     end
-  
-    def set_query_params(params)
-      @project_id = params[:project_id]
-    end
 
     def project_id
       [@project_id].flatten.compact
-    end
-
-    # @return [Array]
-    #   the results of the query as ActiveRecord objects, see inheriting classes
-    def result
-      []
     end
 
     # @return [Scope]
@@ -46,7 +36,6 @@ module Queries
     def scope
       where('1 = 2')
     end
-
 
     # @return [Array]
     def years
@@ -110,14 +99,6 @@ module Queries
       years.collect{|i| "%#{i}%"}
     end
 
-    # @return [String]
-    #   if `foo, and 123 and stuff` then %foo%and%123%and%stuff%
-    def wildcard_pieces
-      a = '%' + query_string.gsub(/[^[[:word:]]]+/, '%') + '%' ### DD: if query_string is cyrilic or diacritics, it returns '%%%'
-      a = 'NothingToMatch' if a.gsub('%','').gsub(' ', '').blank?
-      a
-    end
-
     # @return [Integer]
     def dynamic_limit
       limit = 10
@@ -132,7 +113,7 @@ module Queries
 
     # @return [Scope]
     def parent_child_join
-      table.join(parent).on(table[:parent_id].eq(parent[:id])).join_sources # !! join_sources ftw
+      table.join(parent).on(table[:parent_id].eq(parent[:id])).join_sources
     end
 
     # Match at two levels, for example, 'wa te" will match "Washington Co., Texas"
@@ -143,7 +124,7 @@ module Queries
       table[:name].matches("#{a}%").and(parent[:name].matches("#{b}%"))
     end
 
-    # @return [Query, nil]
+    # @return [Arel::Nodes, nil]
     #   used in or_clauses
     def with_id
       if integers.any?
@@ -153,7 +134,7 @@ module Queries
       end
     end
 
-    # @return [Query, nil]
+    # @return [Arek::Npdes, nil]
     #   used in or_clauses, match on id only if integers alone provided.
     def only_ids
       if only_integers?
@@ -170,31 +151,23 @@ module Queries
 
     # @return [Arel::Nodes::Matches]
     def exactly_named
-      table[:name].eq(query_string) if !query_string.blank?
+      table[:name].eq(query_string) if query_string.present?
     end
 
-     # @return [Arel::Nodes::TableAlias]
-     #  used in heirarchy joins
-     def parent
-       table.alias
+    # @return [Arel::Nodes::TableAlias]
+    #  used in heirarchy joins
+    def parent
+      table.alias
     end
 
     # TODO: nil/or clause this
     # @return [Arel::Nodes::Equality]
     def with_project_id
-      if project_id
-        table[:project_id].eq(project_id)
+      if project_id.present?
+        table[:project_id].eq_any(project_id)
       else
         nil
       end
-    end
-
-    # !!TODO: rename :cached_matches or similar (this is problematic !!)
-    # @return [ActiveRecord::Relation, nil]
-    #   cached matches full query string wildcarded
-    def cached
-      return nil if no_terms?
-      (table[:cached].matches_any(terms)).or(match_ordered_wildcard_pieces_in_cached)
     end
 
     # @return [Arel::Nodes::Matches]
@@ -205,11 +178,6 @@ module Queries
     # @return [Arel::Nodes::Matches]
     def with_cached_like
       table[:cached].matches(start_and_end_wildcard)
-    end
-
-    # @return [Arel::Nodes::Matches]
-    def match_ordered_wildcard_pieces_in_cached
-      table[:cached].matches(wildcard_pieces)
     end
 
     # match ALL wildcards, but unordered, if 2 - 6 pieces provided

@@ -175,15 +175,6 @@ module Queries
         [@otu_id].flatten.compact
       end
 
-      # @return [Arel::Table]
-      def table
-        ::CollectingEvent.arel_table
-      end
-
-      def base_query
-        ::CollectingEvent.select('collecting_events.*')
-      end
-
       def attribute_clauses
         c = []
         ATTRIBUTES.each do |a|

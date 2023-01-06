@@ -77,15 +77,6 @@ module Queries
         set_protocols_params(params)
       end
 
-      # @return [Arel::Table]
-      def table
-        ::Extract.arel_table
-      end
-
-      def base_query
-        ::Extract.select('extracts.*')
-      end
-
       def repository_id
         [@repository_id].flatten.compact
       end

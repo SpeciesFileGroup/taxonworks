@@ -33,10 +33,5 @@ module Queries
       ::User.where(where_sql).order(name: :asc)
     end
 
-    # @return [Arel::Table]
-    def table
-      ::User.arel_table
-    end
-
   end
 end

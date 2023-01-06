@@ -139,10 +139,6 @@ module Queries
         @limit ||= 1000
       end
 
-      def table
-        ::TaxonName.arel_table
-      end
-
       def hierarchy_table
         Arel::Table.new(:taxon_name_hierarchies)
       end

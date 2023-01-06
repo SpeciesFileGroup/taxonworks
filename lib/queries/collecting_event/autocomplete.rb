@@ -119,11 +119,6 @@ module Queries
         result[0..39]
       end
 
-      # @return [Arel::Table]
-      def table
-        ::CollectingEvent.arel_table
-      end
-
     end
   end
 end

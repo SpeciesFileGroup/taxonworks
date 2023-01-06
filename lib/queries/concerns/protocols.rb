@@ -1,13 +1,5 @@
 # Helpers and facets for queries that reference Protocols.
 #
-# You must define
-#
-#    def table
-#      ::Model.arel_table
-#    end
-#
-# in including modules.
-#
 module Queries::Concerns::Protocols
 
   extend ActiveSupport::Concern

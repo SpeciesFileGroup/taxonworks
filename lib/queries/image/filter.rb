@@ -160,22 +160,8 @@ module Queries
       end
 
       # @return [Arel::Table]
-      def table
-        ::Image.arel_table
-      end
-
-      # @return [Arel::Table]
       def taxon_determination_table
         ::TaxonDetermination.arel_table
-      end
-
-      def base_query
-        ::Image.select('images.*')
-      end
-
-      # @return [Arel::Table]
-      def collecting_event_table
-        ::CollectingEvent.arel_table
       end
 
       # @return [Arel::Table]

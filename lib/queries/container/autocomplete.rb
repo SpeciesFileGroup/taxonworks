@@ -2,15 +2,6 @@ module Queries
   module Container
     class Autocomplete < Query::Autocomplete
 
-      # @return [Arel::Table]
-      def table
-        ::Container.arel_table
-      end
-
-      def base_query
-        ::Container.select('containers.*')
-      end
-
       def base_queries
         queries = [
           autocomplete_identifier_cached_exact,

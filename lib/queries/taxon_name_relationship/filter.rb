@@ -52,11 +52,6 @@ module Queries
         @project_id = params[:project_id]
       end
 
-      # @return [Arel::Table]
-      def table
-        ::TaxonNameRelationship.arel_table
-      end
-
       def taxon_name_id
         [@taxon_name_id].flatten.compact
       end

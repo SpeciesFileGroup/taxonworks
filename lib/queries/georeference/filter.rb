@@ -14,10 +14,6 @@ module Queries
         @collecting_event_ids = [params[:collecting_event_ids]].flatten
       end
 
-      def table
-        ::Georeference.arel_table
-      end
-
       def collecting_event_table 
         ::CollectingEvent.arel_table
       end

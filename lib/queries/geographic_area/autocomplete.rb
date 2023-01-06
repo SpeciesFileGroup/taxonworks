@@ -12,17 +12,11 @@ module Queries
         super
       end
 
-      # @return [Scope]
-      def base_query
-        ::GeographicArea #.select('people.*')
-      end
-
       # TODO: use or_clauses
       # @return [String]
       def where_sql
         named.to_sql
       end
-
 
       def autocomplete_alternate_values_name
         matching_alternate_value_on(:name)
@@ -51,11 +45,6 @@ module Queries
           break if result.count > 19
         end
         result = result[0..19]
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::GeographicArea.arel_table
       end
 
     end

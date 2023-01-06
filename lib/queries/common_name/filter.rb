@@ -13,10 +13,6 @@ module Queries
         @language_id = options[:language_id]
       end
 
-      def table
-        ::CommonName.arel_table
-      end
-
       def matching_otu_id
         otu_id ? table[:otu_id].eq(otu_id) : nil
       end

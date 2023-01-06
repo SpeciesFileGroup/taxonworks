@@ -11,15 +11,6 @@ module Queries
       super
     end
 
-    # @return [Arel::Table]
-    def table
-      ::Repository.arel_table
-    end
-
-    def base_query
-      ::Repository.select('repositories.*')
-    end
-
     # @return [Scope]
     def autocomplete_acronym_match
       base_query.where(

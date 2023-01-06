@@ -126,11 +126,6 @@ module Queries
         q = q.order(updated_at: :desc) if recent
         q
       end
-
-      # @return [Arel::Table]
-      def table
-        ::Citation.arel_table
-      end
     end
   end
 end

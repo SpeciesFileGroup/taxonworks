@@ -121,11 +121,6 @@ module Queries
         end
       end
 
-      # @return [Arel::Table]
-      def table
-        ::DataAttribute.arel_table
-      end
-
     end
   end
 end

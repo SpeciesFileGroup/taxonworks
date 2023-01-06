@@ -75,7 +75,7 @@ module Queries
         [@identifier_object_id, global_object_id].flatten.compact
       end
 
-     def annotated_class
+      def annotated_class
         ::Queries::Annotator.annotated_class(options, ::Identifier)
       end
 
@@ -196,12 +196,6 @@ module Queries
           ::Identifier.all
         end
       end
-
-      # @return [Arel::Table]
-      def table
-        ::Identifier.arel_table
-      end
-
     end
   end
 end

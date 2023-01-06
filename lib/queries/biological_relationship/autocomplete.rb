@@ -33,11 +33,6 @@ module Queries
         table[:inverted_name].matches_any(terms)
       end
 
-      # @return [Arel::Table]
-      def table
-        ::BiologicalRelationship.arel_table
-      end
-
     end
   end
 end

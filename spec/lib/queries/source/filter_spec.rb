@@ -220,7 +220,6 @@ describe Queries::Source::Filter, type: :model, group: [:sources, :filter] do
   specify '#title, #exact_title 2 (whitespace ignored)' do
     query.title = "Creatures from \n the Black Lagoon."
     query.exact_title = true
-    byebug
     expect(query.all.map(&:id)).to contain_exactly(s5.id)
   end
 

@@ -16,11 +16,6 @@ module Queries
         super
       end
 
-      # @return [Scope]
-      def base_query
-        ::Source #.select('sources.*')
-      end
-
       # @return [ActiveRecord::Relation]
       #   if and only iff author string matches
       def autocomplete_exact_author
@@ -253,11 +248,6 @@ module Queries
           break if result.count > 19
         end
         result[0..19]
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::Source.arel_table
       end
 
       # @return [Arel::Table]

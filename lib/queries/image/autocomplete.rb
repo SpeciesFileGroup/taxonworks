@@ -92,7 +92,7 @@ module Queries
       end
 
       def autocomplete_depicting_otu_by_otu_name
-        o = otu_table[:name].matches_any(terms)
+        o = ::Otu.arel_table[:name].matches_any(terms)
 
         ::Image.
           includes(:otus).
@@ -103,7 +103,7 @@ module Queries
       end
 
       def autocomplete_depicting_otu_by_taxon_name
-        o = taxon_name_table[:cached].matches_any(terms)
+        o = ::TaxonName.arel_table[:cached].matches_any(terms)
 
         ::Image.
           includes(:taxon_names).
@@ -111,28 +111,6 @@ module Queries
           where(o.to_sql).
           references(:depictions, :taxon_names).
           order('taxon_names.cached ASC').limit(20)
-      end
-
-      # @return [Scope]
-      def base_query
-        ::Image.select('images.*')
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::Image.arel_table
-      end
-
-      def otu_table
-        ::Otu.arel_table
-      end
-
-      def depiction_table
-        ::Depiction.arel_table
-      end
-
-      def taxon_name_table 
-        ::TaxonName.arel_table
       end
 
     end

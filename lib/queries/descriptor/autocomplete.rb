@@ -31,10 +31,6 @@ module Queries
         ::Descriptor.where(where_sql)
       end
 
-      # @return [Arel::Table]
-      def table
-        ::Descriptor.arel_table
-      end
     end
   end
 end

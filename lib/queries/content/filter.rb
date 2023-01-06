@@ -57,11 +57,6 @@ module Queries
         [@project_id].flatten.compact
       end
 
-      # @return [Arel::Table]
-      def table
-        ::Content.arel_table
-      end
-
       # @return [ActiveRecord::Relation]
       def and_clauses
         clauses = [

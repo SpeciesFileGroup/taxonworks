@@ -9,6 +9,20 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
   let(:o2) { Otu.create!(name: 'Def 2') }
 
 
+  context 'defined in Queries::Query' do 
+    specify '#referenced_klass' do
+      expect(q.referenced_klass).to eq(::Otu)
+    end
+
+    specify '#table' do
+      expect(q.table).to eq(::Otu.arel_table)
+    end
+
+    specify 'base_query' do
+      expect(q.base_query).to eq(::Otu.select('otus.*') )
+    end
+  end
+
   specify '#geographic_area_id and #geographic_area_mode, spatial (Query::AssertedDistribution integration)' do
     o2
     # smaller

@@ -1,13 +1,15 @@
 require 'rails_helper'
 
 describe Queries::Otu::Autocomplete, type: :model do
-  let!(:otu) { Otu.create!(name: name) }
   let(:name) { 'Test' }
-  let(:query) { Queries::Otu::Autocomplete.new('Test') }
+  let!(:otu) { Otu.create!(name: name) }
+
   let(:other_project) { FactoryBot.create(:valid_project, name: 'other') }
 
+  let(:query) { Queries::Otu::Autocomplete.new('Test') }
+
   specify 'named' do
-    expect(query.autocomplete).to include(otu)
+    expect(query.autocomplete).to contain_exactly(otu)
   end
 
   specify '#project_id' do

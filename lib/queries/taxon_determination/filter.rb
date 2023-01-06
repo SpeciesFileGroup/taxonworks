@@ -64,16 +64,6 @@ module Queries
       end
 
       # @return [Arel::Table]
-      def table
-        ::TaxonDetermination.arel_table
-      end
-
-      # TODO: may require specific select('taxon_determinations.*, ...') to function wth order etc.
-      def base_query
-        ::TaxonDetermination.includes(:determiners)
-      end
-
-      # @return [Arel::Table]
       def roles_table
         ::Role.arel_table
       end

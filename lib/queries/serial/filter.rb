@@ -40,10 +40,6 @@ module Queries
         end
       end
 
-      # @return [Arel::Table]
-      def table
-        ::Serial.arel_table
-      end
     end
   end
 end

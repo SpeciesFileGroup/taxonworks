@@ -25,15 +25,6 @@ module Queries
         [@role_type].flatten.compact
       end
 
-      # @return [Arel::Table]
-      def table
-        ::Role.arel_table
-      end
-
-      def base_query
-        ::Role.select('roles.*')
-      end
-
       def role_type_facet
         return nil if role_type.empty?
         table[:type].eq_any(role_type)

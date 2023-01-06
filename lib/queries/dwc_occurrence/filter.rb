@@ -20,15 +20,6 @@ module Queries
         set_user_dates(params)
       end
 
-      # @return [Arel::Table]
-      def table
-        ::DwcOccurrence.arel_table
-      end
-
-      def base_query
-        ::DwcOccurrence.select('dwc_occurrences.*')
-      end
-
       def dwc_occurrence_id
         [@dwc_occurrence_id].flatten.compact
       end
