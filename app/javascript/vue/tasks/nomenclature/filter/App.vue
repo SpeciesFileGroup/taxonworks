@@ -38,6 +38,12 @@
             />
           </li>
           <li>
+            <RadialFilter
+              :parameters="parameters"
+              object-type="TaxonName"
+            />
+          </li>
+          <li>
             <CsvButton
               :list="csvList"
               :options="{ fields }"
@@ -80,6 +86,7 @@ import { TaxonName } from 'routes/endpoints'
 import { reactive, ref, computed, onBeforeMount } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
 import { TAXON_NAME } from 'constants/index.js'
+import RadialFilter from 'components/radials/filter/radial.vue'
 
 const fields = [
   'id',

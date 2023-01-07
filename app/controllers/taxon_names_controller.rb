@@ -297,7 +297,6 @@ class TaxonNamesController < ApplicationController
   end
 
   def filter_params
-    puts Rainbow(request.url).red.bold
     f = ::Queries::TaxonName::Filter.permit(params)
     f.merge(project_id: sessions_current_project_id)
   end

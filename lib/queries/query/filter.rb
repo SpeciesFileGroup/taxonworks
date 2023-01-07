@@ -1,9 +1,36 @@
 module Queries
   class Query::Filter < Queries::Query
 
+    # https://github.com/SpeciesFileGroup/taxonworks/blob/2652_unified_filters/app/javascript/vue/components/radials/filter/constants/queryParam.js
+    # https://github.com/SpeciesFileGroup/taxonworks/blob/2652_unified_filters/app/javascript/vue/components/radials/filter/constants/filterLinks.js    
+    # https://github.com/SpeciesFileGroup/taxonworks/tree/2652_unified_filters/app/javascript/vue/components/radials/filter/links
+    # https://github.com/SpeciesFileGroup/taxonworks/blob/2652_unified_filters/app/javascript/vue/components/radials/filter/links/CollectionObject.js
+
     SUBQUERIES = {
       taxon_name: [:source],
+      otu: [:taxon_name]
     }.freeze
+
+    # include Queries::Concerns::Identifiers
+
+    # @return [Array]
+    attr_accessor :project_id
+
+    # @return [Query::TaxonName::Filter, nil]
+    attr_accessor :taxon_name_query
+
+    def initialize(params)
+      @project_id = params[:project_id] || Current.project_id # TODO: revisit
+
+      if params[:taxon_name_query].present?
+        @taxon_name_query = ::Queries::TaxonName::Filter.new(params[:taxon_name_query]) if params[:taxon_name_query]
+        @taxon_name_query.project_id = project_id
+      end
+    end
+
+    def project_id
+      [@project_id].flatten.compact
+    end
 
     # @params base Symbol
     #   The name of the filter, must match a key in Query::Filter::SUBQUERIES 
@@ -29,7 +56,7 @@ module Queries
       h = ActionController::Parameters.new
       h.merge! base_params(params)
       
-      # TODO: 
+      # TODO: consider adding concern params dynamically here
       
       SUBQUERIES[filter].each do |k|
         q = (k.to_s + '_query').to_sym
@@ -41,19 +68,6 @@ module Queries
       # h.permit!.to_h.deep_symbolize_keys
 
       h.permit!.to_hash.deep_symbolize_keys
-    end
-
-    # include Queries::Concerns::Identifiers
-
-    # @return [Array]
-    attr_accessor :project_id
-
-    def initialize(params)
-      @project_id = params[:project_id] || Current.project_id # TODO: revisit
-    end
-
-    def project_id
-      [@project_id].flatten.compact
     end
 
     # generic multi-use bits

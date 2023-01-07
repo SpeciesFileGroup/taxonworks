@@ -14,5 +14,6 @@ import {
 export const QUERY_PARAM = {
   [SOURCE]: 'source_query',
   [OTU]: 'otu_query',
-  [COLLECTION_OBJECT]: 'collection_object_query'
+  [COLLECTION_OBJECT]: 'collection_object_query',
+  [TAXON_NAME]: 'taxon_name_query'
 }

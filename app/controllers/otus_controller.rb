@@ -336,43 +336,8 @@ class OtusController < ApplicationController
   end
 
   def filter_params
-    params.permit(
-      :name,
-      :name_exact,
-
-      :geographic_area_id,
-      :geographic_area_mode,
-      :otu_id,
-      :taxon_name_id,
-      :collecting_event_id,
-      :wkt,
-      :geo_json,
-
-      geographic_area_id: [],
-      collecting_event_id: [],
-      otu_id: [],
-      taxon_name_id: [],
-      name: []
-
-    # :asserted_distributions,
-    # :biological_associations,
-    # :citations,
-    # :contents,
-    # :depictions,
-    # :exact_author,
-
-    # :taxon_determinations,
-    # :observations,
-    # :author,
-    # biological_association_ids: [],
-    # taxon_name_ids: [],
-    # otu_ids: [],
-    # taxon_name_relationship_ids: [],
-    # taxon_name_classification_ids: [],
-    # asserted_distribution_ids: [],
-
-    # data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
-    )
+    f = ::Queries::Otu::Filter.permit(params)
+    f.merge(project_id: sessions_current_project_id)
   end
 
   def api_params

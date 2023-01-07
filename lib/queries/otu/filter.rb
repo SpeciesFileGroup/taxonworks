@@ -11,6 +11,57 @@ module Queries
       # removed `taxon_name_ids`, allowed Array for `taxon_name_id`
       # created Queries::Concerns::Citations  Citation concern and refactor filters referencing citations accordingly
 
+
+      # @params params ActionController::Parameters
+      # @return ActionController::Parameters
+      def self.base_params(params)
+        params.permit(
+          :name,
+          :name_exact,
+         
+          :geographic_area_id,
+          :geographic_area_mode,
+          :otu_id,
+          :taxon_name_id,
+          :collecting_event_id,
+          :wkt,
+          :geo_json,
+         
+          geographic_area_id: [],
+          collecting_event_id: [],
+          otu_id: [],
+          taxon_name_id: [],
+          name: []
+
+    # :asserted_distributions,
+    # :biological_associations,
+    # :citations,
+    # :contents,
+    # :depictions,
+    # :exact_author,
+
+    # :taxon_determinations,
+    # :observations,
+    # :author,
+    # biological_association_ids: [],
+    # taxon_name_ids: [],
+    # otu_ids: [],
+    # taxon_name_relationship_ids: [],
+    # taxon_name_classification_ids: [],
+    # asserted_distribution_ids: [],
+
+    # data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
+     
+
+        )
+      end
+
+       # @params params ActionController::Parameters
+      def self.permit(params)
+        deep_permit(:otu, params) 
+      end
+
+
       include Queries::Helpers
 
       # include Queries::Concerns::Tags
@@ -132,12 +183,6 @@ module Queries
       attr_accessor :taxon_name_classification_ids
       attr_accessor :taxon_name_relationship_ids
       attr_accessor :asserted_distribution_ids
-
-      # @return [Hash]
-      #   All params managed in Queries::TaxonName::Filter
-      #
-      # Return all Otus matching a TaxonName in this query
-      attr_accessor :taxon_name_query
 
       # @return [Hash]
       #   All params managed in Queries::CollectionObject::Filter
@@ -296,6 +341,17 @@ module Queries
         else
           table[:name].matches_any( name.collect{|n| '%' + n.gsub(/\s+/, '%') + '%' } )
         end
+      end
+
+      def taxon_name_query_facet
+        return nil if taxon_name_query.nil?
+        s = 'WITH query_taxon_names AS (' + taxon_name_query.all.to_sql + ') ' + + + + + 
+        ::Otu
+        .joins(:taxon_name)
+        .joins('JOIN query_taxon_names as query_taxon_names1 on otus.taxon_name_id = query_taxon_names1.id')
+        .to_sql
+
+        ::Otu.from('(' + s + ') as otus') 
       end
 
       def taxon_name_id_facet
@@ -819,6 +875,7 @@ module Queries
         # clauses += asserted_distribution_merge_clauses + asserted_distribution_and_clauses
 
         clauses += [
+          taxon_name_query_facet,
           taxon_name_id_facet,
           geo_json_facet,
           collecting_event_id_facet,
