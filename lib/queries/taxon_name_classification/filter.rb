@@ -22,6 +22,7 @@ module Queries
         @taxon_name_id = params[:taxon_name_id]
         @taxon_name_classification_type = params[:taxon_name_classification_type]
         @taxon_name_classification_set = params[:taxon_name_classification_set]
+        super
       end
 
       def taxon_name_id
@@ -94,7 +95,7 @@ module Queries
           q = ::TaxonNameClassification.all
         end
 
-        q = q.where(project_id: project_id) if project_id
+        q = q.where(project_id: project_id) if project_id.present?
         q
       end
     end

@@ -2,11 +2,11 @@ require 'rails_helper'
 
 describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
 
-  let(:query) { Queries::TaxonName::Filter.new({}) }
+  le!t(:query) { Queries::TaxonName::Filter.new({}) }
 
   let(:root) { FactoryBot.create(:root_taxon_name)}
-  let(:genus) { Protonym.create(name: 'Erasmoneura', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
-  let(:original_genus) { Protonym.create(name: 'Bus', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
+  let(:genus) { Protonym.create!(name: 'Erasmoneura', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
+  let(:original_genus) { Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
   let!(:species) { Protonym.create!(
     name: 'vulnerata',
     rank_class: Ranks.lookup(:iczn, 'species'),
@@ -265,7 +265,7 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
 
   # TODO: deprecate for User concern
   specify '#updated_since' do
-    species.update(updated_at: '2050/1/1')
+    species.update!(updated_at: '2050/1/1')
     query.updated_since = '2049-12-01'
     expect(query.all.map(&:id)).to contain_exactly(species.id)
   end
@@ -286,7 +286,7 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     TypeMaterial.create!(protonym: species, type_type: 'holotype', collection_object: FactoryBot.create(:valid_specimen))
     TaxonNameClassification::Iczn::Available.create!(taxon_name: species)
     TaxonNameRelationship::Typification::Genus.create!(subject_taxon_name_id: species.id, object_taxon_name_id: genus.id)
-    species.update(updated_at: '2050/1/1')
+    species.update!(updated_at: '2050/1/1')
 
     query.nomenclature_group = 'Species'
     query.nomenclature_group = 'Iczn'

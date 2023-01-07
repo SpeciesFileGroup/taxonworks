@@ -14,11 +14,83 @@ module Queries
 
       # TODO: merge taxon_name_ids
 
+      # @params params ActionController::Parameters
+      # @return ActionController::Parameters
+      def self.base_params(params)
+        params.permit(
+          :ancestors,
+          :author,
+          :authors,
+          :citations,
+          :origin_citation,
+          :data_attribute_exact_value,
+          :data_attributes,
+          :descendants,
+          :descendants_max_depth,
+          :etymology,
+          :exact,
+          :leaves,
+          :name,
+          :nomenclature_code,
+          :nomenclature_group, # !! different than autocomplete
+          :not_specified,
+          :note_exact, # Notes concern
+          :note_text,
+          :notes,
+          :otus,
+          :otu_id,
+          :page,
+          :per,
+          :taxon_name_author_ids_or,
+          :taxon_name_type,
+          :type_metadata,
+          :updated_since,
+          :user_date_end,
+          :user_date_start,
+          :user_id,
+          :user_target,
+          :validity,
+          :year,
+          :identifier,
+          :identifier_end,
+          :identifier_exact,
+          :identifier_start,
+          :identifiers,
+          :match_identifiers,
+          :match_identifiers_delimiter,
+          :match_identifiers_type,
+          otu_id: [],
+          combination_taxon_name_id: [],
+          data_attribute_predicate_id: [], # DataAttributes concern
+          data_attribute_value: [],        # DataAttributes concern
+          keyword_id_and: [],
+          keyword_id_or: [],
+          parent_id: [],
+          taxon_name_author_ids: [],
+          taxon_name_classification: [],
+          taxon_name_id: [],
+          taxon_name_relationship: [
+            :subject_taxon_name_id,
+            :object_taxon_name_id,
+           :type
+          ],
+          taxon_name_relationship_type: [],
+          type: [],
+          user_id: []
+        )
+      end
+     
+      # @params params ActionController::Parameters
+      def self.permit(params)
+        deep_permit(:taxon_name, params) 
+      end
+
       PARAMS = %w{
         ancestors
         author
         authors
         citations
+        origin_citation
         descendants
         descendants_max_dept
         etymology
@@ -239,6 +311,7 @@ module Queries
         set_tags_params(params)
         set_user_dates(params)
         set_citations_params(params)
+        super
       end
 
       def year=(value)
@@ -581,6 +654,8 @@ module Queries
           ancestor_facet,
           authors_facet,
           citations_facet,
+          origin_citation_facet,
+          source_query_facet,
           combination_taxon_name_id_facet,
           created_updated_facet,
           data_attribute_predicate_facet,
@@ -643,7 +718,7 @@ module Queries
           q = ::TaxonName.all
         end
 
-        q = q.where(project_id: project_id) if project_id
+        q = q.where(project_id: project_id) if project_id.present?
         q = order_clause(q) if sort
 
         q

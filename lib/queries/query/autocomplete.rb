@@ -226,6 +226,11 @@ module Queries
       end
     end
 
+    # @return [Arel::Nodes::Matches]
+    def match_ordered_wildcard_pieces_in_cached
+      table[:cached].matches(wildcard_pieces)
+    end
+
     # @return [ActiveRecord::Relation]
     def autocomplete_ordered_wildcard_pieces_in_cached
       return nil if no_terms?

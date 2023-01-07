@@ -49,7 +49,7 @@ module Queries
         @taxon_name_relationship_type = [params[:taxon_name_relationship_type]].flatten.compact
         @taxon_name_relationship_set = [params[:taxon_name_relationship_set]].flatten.compact
 
-        @project_id = params[:project_id]
+        super
       end
 
       def taxon_name_id
@@ -139,7 +139,7 @@ module Queries
           q = ::TaxonNameRelationship.all
         end
 
-        q = q.where(project_id: project_id) if project_id
+        q = q.where(project_id: project_id) if project_id.present?
         q
       end
 

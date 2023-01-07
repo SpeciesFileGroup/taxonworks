@@ -126,5 +126,31 @@ module Queries
       Arel::Nodes::NamedFunction.new("levenshtein", [table[attribute], Arel::Nodes::SqlLiteral.new(a) ] )
     end
 
+    # 
+    # TODO: Refactor below (largely remove reference from Source::Filter) to move these to Queries::Query::Autocomplete
+    #       and eliminate them from Filter subclass use.
+    #
+
+    # @return [Arel::Nodes::Matches]
+    def match_ordered_wildcard_pieces_in_cached
+      table[:cached].matches(wildcard_pieces)
+    end
+
+    # !!TODO: rename :cached_matches or similar (this is problematic !!)
+    # @return [ActiveRecord::Relation, nil]
+    #   cached matches full query string wildcarded
+    def cached
+      return nil if no_terms?
+      (table[:cached].matches_any(terms)).or(match_ordered_wildcard_pieces_in_cached)
+    end
+
+    # @return [String]
+    #   if `foo, and 123 and stuff` then %foo%and%123%and%stuff%
+    def wildcard_pieces
+      a = '%' + query_string.gsub(/[^[[:word:]]]+/, '%') + '%' ### DD: if query_string is cyrilic or diacritics, it returns '%%%'
+      a = 'NothingToMatch' if a.gsub('%','').gsub(' ', '').blank?
+      a
+    end
+
   end
 end

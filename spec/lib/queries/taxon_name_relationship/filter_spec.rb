@@ -50,8 +50,8 @@ describe Queries::TaxonNameRelationship::Filter, type: :model, group: [:nomencla
     expect(query.all.map(&:id)).to contain_exactly(r1.id)
   end
 
-# specify 'all filters combined' do
-#   expect(query.all.map(&:id)).to contain_exactly(species.id)
-# end
+  # specify 'all filters combined' do
+  #   expect(query.all.map(&:id)).to contain_exactly(species.id)
+  # end
 
 end

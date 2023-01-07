@@ -297,74 +297,27 @@ class TaxonNamesController < ApplicationController
   end
 
   def filter_params
-    params.permit(
-      :ancestors,
-      :author,
-      :authors,
-      :citations,
-      :data_attribute_exact_value,
-      :data_attributes,
-      :descendants,
-      :descendants_max_depth,
-      :etymology,
-      :exact,
-      :leaves,
-      :name,
-      :nomenclature_code,
-      :nomenclature_group, # !! different than autocomplete
-      :not_specified,
-      :note_exact, # Notes concern
-      :note_text,
-      :notes,
-      :otus,
-      :otu_id,
-      :page,
-      :per,
-      :taxon_name_author_ids_or,
-      :taxon_name_type,
-      :type_metadata,
-      :updated_since,
-      :user_date_end,
-      :user_date_start,
-      :user_id,
-      :user_target,
-      :validity,
-      :year,
-      :identifier,
-      :identifier_end,
-      :identifier_exact,
-      :identifier_start,
-      :identifiers,
-      :match_identifiers,
-      :match_identifiers_delimiter,
-      :match_identifiers_type,
-      otu_id: [],
-      combination_taxon_name_id: [],
-      data_attribute_predicate_id: [], # DataAttributes concern
-      data_attribute_value: [],        # DataAttributes concern
-      keyword_id_and: [],
-      keyword_id_or: [],
-      parent_id: [],
-      taxon_name_author_ids: [],
-      taxon_name_classification: [],
-      taxon_name_id: [],
-      taxon_name_relationship: [
-        :subject_taxon_name_id,
-        :object_taxon_name_id,
-        :type
-      ],
-      taxon_name_relationship_type: [],
-      type: [],
-      # user_id: []
-    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
+    puts Rainbow(request.url).red.bold
+    f = ::Queries::TaxonName::Filter.permit(params)
+    f.merge(project_id: sessions_current_project_id)
   end
 
   def api_params
+    # TODO: implement 
+    not_allowed = {
+      user_id: nil,
+      # ...
+    }
+
+    # f = filter_params
+    # ...
+
     params.permit(
       :ancestors,
       :author,
       :authors,
       :citations,
+      :origin_citation,
       :data_attribute_exact_value,
       :data_attributes,
       :descendants,

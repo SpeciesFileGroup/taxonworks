@@ -36,12 +36,12 @@ module Queries
         updated_queries = []
         queries.each_with_index do |q ,i|
           a = q
-          if project_id
+          if project_id.present?
             # a = q.joins(:project_sources).where(member_of_project_id.to_sql) if project_id && limit_to_project
             a = a.select("serials.*, COUNT(project_sources.source_id) AS use_count, CASE WHEN project_sources.project_id = #{Current.project_id} THEN project_sources.project_id ELSE NULL END AS in_project")
                  .left_outer_joins(:sources)
                  .joins('LEFT OUTER JOIN project_sources ON sources.id = project_sources.source_id')
-                 .where('project_sources.project_id = ? OR project_sources.project_id IS DISTINCT FROM ?', project_id, project_id)
+                 .where('project_sources.project_id IN (?) OR project_sources.project_id IS DISTINCT FROM (?)', project_id, project_id) # TODO: now an array, change
                  .group('serials.id, project_sources.project_id')
                  .order('in_project, use_count DESC')
           end

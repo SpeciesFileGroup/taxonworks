@@ -287,6 +287,7 @@ class GeographicItem < ApplicationRecord
       "ST_DWithin((#{GeographicItem::GEOGRAPHY_SQL}), (#{select_geography_sql(geographic_item_id)}), #{distance})"
     end
 
+    # TODO: 3D is overkill here
     # @param [String] wkt
     # @param [Integer] distance
     # @return [String]

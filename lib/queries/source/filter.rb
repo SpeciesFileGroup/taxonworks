@@ -9,31 +9,136 @@ module Queries
       #    class_eval { attr_accessor a.to_sym }
       #  end
 
-      PARAMS = %w{
-        in_project
-        author
-        ids
-        exact_author
-        author_ids
-        author_ids_or
-        topic_ids
-        year_start
-        year_end
-        title
-        exact_title
-        citations
-        recent
-        roles
-        documents
-        nomenclature
-        with_doi
-        citation_object_type
-        notes
-        source_type
-        serial_ids
-        ancestor_id
-        citations_on_otus
-      }
+#     PARAMS = %w{
+#       in_project
+#       author
+#       ids
+#       exact_author
+#       author_ids
+#       author_ids_or
+#       topic_ids
+#       year_start
+#       year_end
+#       title
+#       exact_title
+#       citations
+#       recent
+#       roles
+#       documents
+#       nomenclature
+#       with_doi
+#       citation_object_type
+#       notes
+#       source_type
+#       serial_ids
+#       ancestor_id
+#       citations_on_otus
+#     }
+
+      def self.permit(params)
+        params.permit( 
+          :author,
+          :ancestor_id,
+          :author_ids_or,
+          :bibtex_type,
+          :citations,
+          :citations_on_otus,
+          :documents,
+          :exact_author,
+          :exact_title,
+          :identifier,
+          :identifier_end,
+          :identifier_exact,
+          :identifier_start,
+          :match_identifiers,
+          :match_identifiers_delimiter,
+          :match_identifiers_type,
+          :in_project,
+          :namespace_id,
+          :nomenclature,
+          :notes,
+          :per,
+          :project_id,
+          :query_term,
+          :recent,
+          :roles,
+          :source_type,
+          :serial,
+          :tags,
+          :title,
+          :user_date_end,
+          :user_date_start,
+          :user_id,
+          :user_target,
+          :with_doi,
+          :with_title,
+          :year_end,
+          :year_start,
+          :keyword_id_and,
+          :keyword_id_or,
+          author_ids: [],
+          bibtex_type: [],
+          citation_object_type: [],
+          ids: [],
+          keyword_id_and: [],
+          keyword_id_or: [],
+          topic_ids: [],
+          serial_ids: [],
+          empty: [],
+          not_empty: []
+        )
+      end
+
+
+      PARAMS = ATTRIBUTES.collect{|a| a.to_sym} + [
+        :author,
+        :ancestor_id,
+        :author_ids_or,
+        :bibtex_type,
+        :citations,
+        :citations_on_otus,
+        :documents,
+        :exact_author,
+        :exact_title,
+        :identifier,
+        :identifier_end,
+        :identifier_exact,
+        :identifier_start,
+        :match_identifiers,
+        :match_identifiers_delimiter,
+        :match_identifiers_type,
+        :in_project,
+        :namespace_id,
+        :nomenclature,
+        :notes,
+        :per,
+        :project_id,
+        :query_term,
+        :recent,
+        :roles,
+        :source_type,
+        :serial,
+        :tags,
+        :title,
+        :user_date_end,
+        :user_date_start,
+        :user_id,
+        :user_target,
+        :with_doi,
+        :with_title,
+        :year_end,
+        :year_start,
+        author_ids: [],
+        bibtex_type: [],
+        citation_object_type: [],
+        ids: [],
+        keyword_id_and: [],
+        keyword_id_or: [],
+        topic_ids: [],
+        serial_ids: [],
+        empty: [],
+        not_empty: []
+      ] 
 
       include Queries::Concerns::Tags
       include Queries::Concerns::Users
@@ -80,6 +185,8 @@ module Queries
       # @return [Boolean, nil]
       # @params exact_title ['true', 'false', nil]
       attr_accessor :exact_title
+
+      # !! TODO - conflicts with citations?  !!
 
       # @return [Boolean, nil]
       # @params citations ['true', 'false', nil]
@@ -183,10 +290,10 @@ module Queries
         @year_start = params[:year_start]
 
         build_terms
+
         set_identifier(params)
         set_tags_params(params)
         set_user_dates(params)
-
         set_empty_params(params)
       end
 

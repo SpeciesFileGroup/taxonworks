@@ -1,6 +1,48 @@
 module Queries
   class Query::Filter < Queries::Query
 
+    SUBQUERIES = {
+      taxon_name: [:source],
+    }.freeze
+
+    # @params base Symbol
+    #   The name of the filter, must match a key in Query::Filter::SUBQUERIES 
+    #   See /lib/queries/query/filter.rb
+    # @params params ActionController::Parameters
+    # @return [Hash]
+    #   all params for this base request
+    #   keys are symbolized
+    #
+    #  This may all be overkill, since we assign individual values from a hash
+    #  one at a time, and we are not writing with params we could replace all
+    #  of this with simply params.permit!
+    #
+    #a The question is whether there are benefits to housekeeping 
+    # (knowing the expected/full list of params ).  For example using permit
+    # tells us when the UI is sending params that we don't expect (not permitted logs).
+    #
+    # Keeping tack of the list or params in one places also helps to build API documentation.
+    #
+    # It should let us inject concern attributes as well (but again, the permit level is olikely overkill).
+    # 
+    def self.deep_permit(filter, params)
+      h = ActionController::Parameters.new
+      h.merge! base_params(params)
+      
+      # TODO: 
+      
+      SUBQUERIES[filter].each do |k|
+        q = (k.to_s + '_query').to_sym
+        h.merge! params.permit( q => {} )
+      end
+  
+      # Note, this throws an error:
+      # RuntimeError Exception: can't add a new key into hash during iteration
+      # h.permit!.to_h.deep_symbolize_keys
+
+      h.permit!.to_hash.deep_symbolize_keys
+    end
+
     # include Queries::Concerns::Identifiers
 
     # @return [Array]
@@ -38,32 +80,6 @@ module Queries
       else
         table[a].matches('%' + send(a).strip.gsub(/\s+/, '%') + '%')
       end
-    end
-
-    # 
-    # TODO: Refactor below (largely update Source::Filter) to move these to Autcomplete
-    #       and eliminate them from Filter subclass use.
-    #
-
-    # @return [Arel::Nodes::Matches]
-    def match_ordered_wildcard_pieces_in_cached
-      table[:cached].matches(wildcard_pieces)
-    end
-
-    # !!TODO: rename :cached_matches or similar (this is problematic !!)
-    # @return [ActiveRecord::Relation, nil]
-    #   cached matches full query string wildcarded
-    def cached
-      return nil if no_terms?
-      (table[:cached].matches_any(terms)).or(match_ordered_wildcard_pieces_in_cached)
-    end
-
-    # @return [String]
-    #   if `foo, and 123 and stuff` then %foo%and%123%and%stuff%
-    def wildcard_pieces
-      a = '%' + query_string.gsub(/[^[[:word:]]]+/, '%') + '%' ### DD: if query_string is cyrilic or diacritics, it returns '%%%'
-      a = 'NothingToMatch' if a.gsub('%','').gsub(' ', '').blank?
-      a
     end
 
     # @return [Arel::Nodes::TableAlias]

@@ -1,29 +1,34 @@
-# Helpers and facets for queries that reference Tags.
+# Helpers and facets for queries that reference Citations.
 #
 module Queries::Concerns::Citations
 
   extend ActiveSupport::Concern
 
   included do
-
     # @params citations [String]
-    #  'without_citations' - names without citations
-    #  'without_origin_citation' - names without an origin citation
+    # @return [Boolean]
+    #  nil - with/out Citations
+    #  true - with Citations
+    #  false - without Citations
     attr_accessor :citations
 
-    # Params from Queries::Source::Filter
+    # @params citations [String]
+    # @return [Boolean]
+    #  nil - with/out Origin Citation
+    #  true - with Origin Citation
+    #  false - without Origin Citations
+    attr_accessor :origin_citation
+
+    # @return [::Query::Source::Filter, nil]
     attr_accessor :source_query
   end
 
   def set_citations_params(params)
-    @citations = params[:citations]
+    @citations = boolean_param(params, :citations)
+    @origin_citation = boolean_param(params, :origin_citation)
 
-    source_params = ::Queries::Source::Filter::PARAMS
-
-    # TODO: write source_params
-    @source_query = Queries::Source::Filter.new(
-      params.select{|a,b| source_params.include?(a.to_s) }
-    )
+    # All params are Hash here
+    @source_query = ::Queries::Source::Filter.new(params[:source_query]) if params[:source_query]
   end
 
   # @return [Arel::Table]
@@ -31,22 +36,36 @@ module Queries::Concerns::Citations
     ::Citation.arel_table
   end
 
-  # @return Scope
   def citations_facet
     return nil if citations.nil?
 
-    n = table.name
-    k = "#{n}".classify.safe_constantize # TODO: removed '::' for outside reference?
-
-    citation_conditions = ::Citation.arel_table[:citation_object_id].eq(k.arel_table[:id]).and(
-      ::Citation.arel_table[:citation_object_type].eq(n))
-
-    if citations == 'without_origin_citation'
-      citation_conditions = citation_conditions.and(::Citation.arel_table[:is_original].eq(true))
+    if citations
+      referenced_klass.joins(:citations)
+    else
+      referenced_klass.where.missing(:citations)
     end
-
-    k.where.not(::Citation.where(citation_conditions).arel.exists)
   end
 
+  def origin_citation_facet
+    return nil if origin_citation.nil?
+
+    if origin_citation
+      referenced_klass.joins(:origin_citation)
+    else
+      referenced_klass.where.missing(:origin_citation)
+    end
+  end
+
+  def source_query_facet
+    return nil if source_query.nil?
+    s = 'WITH query_sources AS (' + source_query.all.to_sql + ')' 
+
+    s << ' ' + referenced_klass
+    .joins(:citations)
+    .joins('JOIN query_sources as query_sources1 on citations.source_id = query_sources1.id')
+    .to_sql
+
+    referenced_klass.from('(' + s + ') as ' + referenced_klass.name.tableize) 
+  end
 
 end

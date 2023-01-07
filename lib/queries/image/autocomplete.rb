@@ -76,7 +76,7 @@ module Queries
         updated_queries = []
         queries.each_with_index do |q,i|
           a = q
-          a = q.where(project_id: project_id) if project_id
+          a = q.where(project_id: project_id) if project_id.present?
           a = a.where(and_clauses.to_sql) if and_clauses
           updated_queries[i] = a
         end

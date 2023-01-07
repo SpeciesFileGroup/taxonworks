@@ -33,7 +33,7 @@ module Queries
         updated_queries = []
         queries.each_with_index do |q,i|
           a = q
-          a = q.where(project_id: project_id) if project_id
+          a = q.where(project_id: project_id) if project_id.present?
           updated_queries[i] = a
         end
 

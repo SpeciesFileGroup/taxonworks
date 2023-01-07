@@ -91,7 +91,7 @@ module Queries
         updated_queries = []
 
         queries.each do |q|
-          a = q.where(project_id: project_id) # if project_id
+          a = q.where(project_id: project_id) if project_id.present?
           updated_queries.push a
         end
         updated_queries

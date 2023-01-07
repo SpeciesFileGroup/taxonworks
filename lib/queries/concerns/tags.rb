@@ -7,7 +7,6 @@ module Queries::Concerns::Tags
   extend ActiveSupport::Concern
 
   included do
-
     # @return [Array]
     # @params keyword_id_and [:keyword_id_and | [keyword_id_and, .. ] ]
     attr_accessor :keyword_id_and
@@ -19,6 +18,14 @@ module Queries::Concerns::Tags
     # @return [Boolean, nil]
     # @params tags ['true', 'false', nil]
     attr_accessor :tags
+
+    def keyword_id_and
+      [@keyword_id_and].flatten.compact.uniq
+    end
+
+    def keyword_id_or
+      [@keyword_id_or].flatten.compact.uniq
+    end
   end
 
   def set_tags_params(params)
@@ -26,14 +33,6 @@ module Queries::Concerns::Tags
     @keyword_id_or = params[:keyword_id_or].blank? ? [] : params[:keyword_id_or]
 
     @tags = (params[:tags]&.to_s&.downcase == 'true' ? true : false) if !params[:tags].nil?
-  end
-
-  def keyword_id_and
-    [@keyword_id_and].flatten
-  end
-
-  def keyword_id_or
-    [@keyword_id_or].flatten
   end
 
   # @return [Arel::Table]

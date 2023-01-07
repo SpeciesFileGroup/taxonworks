@@ -183,7 +183,7 @@ module Queries
 
       # @return [Arel::Nodes::Equatity]
       def member_of_project_id
-        project_sources_table[:project_id].eq(project_id)
+        project_sources_table[:project_id].eq_any(project_id)
       end
 
       # @return [ActiveRecord::Relation, nil]
@@ -229,12 +229,12 @@ module Queries
           a = q
 
           # Limit autocomplete to ONLY project sources if limit_to_project == true
-          if project_id && limit_to_project
+          if project_id.present? && limit_to_project
             a = a.joins(:project_sources).where(member_of_project_id.to_sql)
           end
 
           # Order results by number of times used *in this project*
-          if project_id && scope
+          if project_id.present? && scope
             a = a.left_outer_joins(:citations)
               .select("sources.*, COUNT(citations.id) AS use_count, CASE WHEN citations.project_id = #{Current.project_id} THEN citations.project_id ELSE NULL END AS in_project")
               .where('citations.project_id = ? OR citations.project_id IS DISTINCT FROM ?', project_id, project_id)
