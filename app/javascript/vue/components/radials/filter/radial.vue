@@ -29,6 +29,7 @@
       color="primary"
       title="Radial filter"
       circle
+      medium
       :disabled="disabled"
       @click="openRadialMenu()"
     >
@@ -52,6 +53,10 @@ import Modal from 'components/ui/Modal.vue'
 import * as FILTER_LINKS from './links'
 
 const MAX_LINK_SIZE = 450
+const EXCLUDE_PARAMETERS = [
+  'per',
+  'extend'
+]
 
 const props = defineProps({
   disabled: {
@@ -72,8 +77,21 @@ const props = defineProps({
 
 const emit = defineEmits(['close'])
 
-const filteredParameters = computed(() => filterEmptyParams({ ...props.parameters, per: undefined }))
-const queryObject = computed(() => ({ [QUERY_PARAM[props.objectType]]: filteredParameters.value }))
+const filteredParameters = computed(() => {
+  const params = { ...props.parameters }
+
+  EXCLUDE_PARAMETERS.forEach(param => {
+    delete params[param]
+  })
+
+  return filterEmptyParams(params)
+})
+
+const queryObject = computed(() => QUERY_PARAM[props.objectType]
+  ? ({ [QUERY_PARAM[props.objectType]]: filteredParameters.value })
+  : {}
+)
+
 const hasParameters = computed(() => !!Object.keys(filteredParameters.value).length)
 
 const menuOptions = computed(() => {

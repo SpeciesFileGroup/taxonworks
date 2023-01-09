@@ -21,7 +21,9 @@
       :filter="preferences.activeFilter"
       :table="preferences.showList"
       :pagination="pagination"
+      :object-type="IMAGE"
       v-model:per="per"
+      :parameters="parameters"
       @filter="makeFilterRequest()"
       @nextpage="loadPage"
       @reset="resetFilter"
@@ -82,7 +84,7 @@ import AttributionComponent from './components/attributions/main.vue'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
-
+import { IMAGE } from 'constants/index.js'
 import { Image } from 'routes/endpoints'
 import { reactive, ref, onBeforeMount } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'

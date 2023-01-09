@@ -9,17 +9,30 @@
         >
           Filter
         </VBtn>
-        <VBtn
-          circle
-          medium
-          color="primary"
-          @click="emit('reset')"
-        >
-          <VIcon
-            name="reset"
-            small
-          />
-        </VBtn>
+        <ModalNestedParameters
+          :parameters="parameters"
+        />
+        <ul class="no_bullets context-menu">
+          <li v-if="objectType">
+            <RadialFilter
+              :parameters="parameters"
+              :object-type="objectType"
+            />
+          </li>
+          <li>
+            <VBtn
+              circle
+              medium
+              color="primary"
+              @click="emit('reset')"
+            >
+              <VIcon
+                name="reset"
+                small
+              />
+            </VBtn>
+          </li>
+        </ul>
       </div>
       <span>|</span>
       <div
@@ -53,7 +66,7 @@
           :key="index"
           :is="facet.component"
           v-bind="facet.props"
-          v-model="parameters"
+          v-model="params"
         />
       </slot>
     </div>
@@ -73,6 +86,8 @@ import useHotkey from 'vue3-hotkey'
 import platformKey from 'helpers/getPlatformKey'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
+import RadialFilter from 'components/radials/filter/radial.vue'
+import ModalNestedParameters from 'components/Filter/ModalNestedParameters.vue'
 import { ref, computed, onBeforeUnmount } from 'vue'
 
 const props = defineProps({
@@ -94,6 +109,16 @@ const props = defineProps({
   per: {
     type: Number,
     default: 500
+  },
+
+  objectType: {
+    type: String,
+    default: undefined
+  },
+
+  parameters: {
+    type: Object,
+    default: () => ({})
   },
 
   facets: {
@@ -120,7 +145,7 @@ const perValue = computed({
   set: value => emit('update:per', value)
 })
 
-const parameters = computed({
+const params = computed({
   get: () => props.modelValue,
   set: value => emit('update:modelValue', value)
 })

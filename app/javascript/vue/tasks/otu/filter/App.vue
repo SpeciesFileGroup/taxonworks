@@ -20,6 +20,8 @@
       :filter="preferences.activeFilter"
       :table="preferences.showList"
       :pagination="pagination"
+      :parameters="parameters"
+      :object-type="OTU"
       v-model:per="per"
       @filter="makeFilterRequest({ ...parameters, extend })"
       @nextpage="loadPage"
@@ -64,6 +66,7 @@ import CsvButton from 'components/csvButton'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import VSpinner from 'components/spinner.vue'
+import { OTU } from 'constants/index.js'
 import { Otu } from 'routes/endpoints'
 import { computed, reactive, ref, onBeforeMount } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'

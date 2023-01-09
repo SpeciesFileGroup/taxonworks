@@ -32,6 +32,8 @@
       :filter="preferences.activeFilter"
       :table="preferences.showList"
       :pagination="pagination"
+      :parameters="parameters"
+      :object-type="COLLECTING_EVENT"
       v-model:per="per"
       @filter="loadList"
       @nextpage="loadPage"
@@ -103,6 +105,7 @@ import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
+import { COLLECTING_EVENT } from 'constants/index.js'
 import { URLParamsToJSON } from 'helpers/url/parse'
 import { computed, ref, watch, reactive, onBeforeMount } from 'vue'
 import { chunkArray } from 'helpers/arrays'

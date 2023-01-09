@@ -20,6 +20,8 @@
       :filter="preferences.activeFilter"
       :table="preferences.showList"
       :pagination="pagination"
+      :parameters="parameters"
+      :object-type="PEOPLE"
       v-model:per="per"
       @filter="makeFilterRequest()"
       @nextpage="loadPage"
@@ -64,6 +66,7 @@ import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
+import { PEOPLE } from 'constants/index.js'
 import { People } from 'routes/endpoints'
 import { computed, reactive, ref, onBeforeMount } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'

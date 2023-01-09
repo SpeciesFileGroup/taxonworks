@@ -20,6 +20,8 @@
       :filter="preferences.activeFilter"
       :table="preferences.showList"
       :pagination="pagination"
+      :parameters="parameters"
+      :object-type="COLLECTION_OBJECT"
       v-model:per="per"
       @filter="makeFilterRequest({ ...parameters, extend })"
       @nextpage="loadPage"
@@ -30,7 +32,7 @@
           v-if="Object.keys(coList).length"
           class="horizontal-right-content"
         >
-          <tag-all
+          <TagAll
             class="circle-button"
             :ids="selectedIds"
             type="CollectionObject"
@@ -39,10 +41,6 @@
             :ids="selectedIds"
             :disabled="!selectedIds.length"
             @delete="removeCOFromList"
-          />
-          <RadialFilter
-            :parameters="parameters"
-            object-type="CollectionObject"
           />
           <span class="separate-left separate-right">|</span>
           <CsvButton
@@ -94,7 +92,7 @@ import { computed, ref, reactive, watch, onBeforeMount } from 'vue'
 import { CollectionObject } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse'
 import { chunkArray } from 'helpers/arrays'
-import RadialFilter from 'components/radials/filter/radial.vue'
+import { COLLECTION_OBJECT } from 'constants/index.js'
 import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'

@@ -20,6 +20,8 @@
       :filter="preferences.activeFilter"
       :table="preferences.showList"
       :pagination="pagination"
+      :parameters="parameters"
+      object-type="TaxonName"
       v-model:per="per"
       @filter="makeFilterRequest({ ...parameters, extend })"
       @nextpage="loadPage"
@@ -38,10 +40,7 @@
             />
           </li>
           <li>
-            <RadialFilter
-              :parameters="parameters"
-              object-type="TaxonName"
-            />
+            <ModalNestedParameters :parameters="parameters" />
           </li>
           <li>
             <CsvButton
@@ -82,11 +81,11 @@ import useFilter from 'shared/Filter/composition/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
 import RadialLabel from 'components/radials/label/radial.vue'
+import ModalNestedParameters from 'components/Filter/ModalNestedParameters.vue'
 import { TaxonName } from 'routes/endpoints'
 import { reactive, ref, computed, onBeforeMount } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
 import { TAXON_NAME } from 'constants/index.js'
-import RadialFilter from 'components/radials/filter/radial.vue'
 
 const fields = [
   'id',

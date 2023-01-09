@@ -20,6 +20,8 @@
       :filter="preferences.activeFilter"
       :table="preferences.showList"
       :pagination="pagination"
+      :parameters="parameters"
+      :object-type="EXTRACT"
       v-model:per="per"
       @filter="makeFilterRequest({ ...parameters, extend })"
       @nextpage="loadPage"
@@ -76,6 +78,7 @@ import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
 import extend from 'tasks/extracts/new_extract/const/extendRequest'
 import TagAll from 'tasks/collection_objects/filter/components/tagAll.vue'
+import { EXTRACT } from 'constants/index.js'
 import { Extract } from 'routes/endpoints'
 import { computed, reactive, ref, onBeforeMount } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
