@@ -2,13 +2,14 @@ module Queries
   class Query::Filter < Queries::Query
 
     # https://github.com/SpeciesFileGroup/taxonworks/blob/2652_unified_filters/app/javascript/vue/components/radials/filter/constants/queryParam.js
-    # https://github.com/SpeciesFileGroup/taxonworks/blob/2652_unified_filters/app/javascript/vue/components/radials/filter/constants/filterLinks.js    
+    # https://github.com/SpeciesFileGroup/taxonworks/blob/2652_unified_filters/app/javascript/vue/components/radials/filter/constants/filterLinks.js
     # https://github.com/SpeciesFileGroup/taxonworks/tree/2652_unified_filters/app/javascript/vue/components/radials/filter/links
     # https://github.com/SpeciesFileGroup/taxonworks/blob/2652_unified_filters/app/javascript/vue/components/radials/filter/links/CollectionObject.js
 
+    # This is read as working as  :too <- [:from1, from1] ]
     SUBQUERIES = {
-      taxon_name: [:source],
-      otu: [:taxon_name]
+      taxon_name: [:source, :collection_object],
+      otu: [:taxon_name],
     }.freeze
 
     # include Queries::Concerns::Identifiers
@@ -19,12 +20,20 @@ module Queries
     # @return [Query::TaxonName::Filter, nil]
     attr_accessor :taxon_name_query
 
+    # @return [Query::TaxonName::Filter, nil]
+    attr_accessor :collection_object_query
+
     def initialize(params)
       @project_id = params[:project_id] || Current.project_id # TODO: revisit
 
       if params[:taxon_name_query].present?
-        @taxon_name_query = ::Queries::TaxonName::Filter.new(params[:taxon_name_query]) if params[:taxon_name_query]
+        @taxon_name_query = ::Queries::TaxonName::Filter.new(params[:taxon_name_query])
         @taxon_name_query.project_id = project_id
+      end
+
+      if params[:collection_object_query].present?
+        @collection_object_query = ::Queries::CollectionObject::Filter.new(params[:collection_object_query])
+        @collection_object_query.project_id = project_id
       end
     end
 
@@ -33,7 +42,7 @@ module Queries
     end
 
     # @params base Symbol
-    #   The name of the filter, must match a key in Query::Filter::SUBQUERIES 
+    #   The name of the filter, must match a key in Query::Filter::SUBQUERIES
     #   See /lib/queries/query/filter.rb
     # @params params ActionController::Parameters
     # @return [Hash]
@@ -44,25 +53,25 @@ module Queries
     #  one at a time, and we are not writing with params we could replace all
     #  of this with simply params.permit!
     #
-    #a The question is whether there are benefits to housekeeping 
+    #a The question is whether there are benefits to housekeeping
     # (knowing the expected/full list of params ).  For example using permit
     # tells us when the UI is sending params that we don't expect (not permitted logs).
     #
     # Keeping tack of the list or params in one places also helps to build API documentation.
     #
     # It should let us inject concern attributes as well (but again, the permit level is olikely overkill).
-    # 
+    #
     def self.deep_permit(filter, params)
       h = ActionController::Parameters.new
       h.merge! base_params(params)
-      
+
       # TODO: consider adding concern params dynamically here
-      
+
       SUBQUERIES[filter].each do |k|
         q = (k.to_s + '_query').to_sym
         h.merge! params.permit( q => {} )
       end
-  
+
       # Note, this throws an error:
       # RuntimeError Exception: can't add a new key into hash during iteration
       # h.permit!.to_h.deep_symbolize_keys

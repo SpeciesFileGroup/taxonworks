@@ -41,6 +41,7 @@ module Queries
           :otu_id,
           :page,
           :per,
+          :rank,
           :taxon_name_author_ids_or,
           :taxon_name_type,
           :type_metadata,
@@ -66,23 +67,24 @@ module Queries
           keyword_id_and: [],
           keyword_id_or: [],
           parent_id: [],
+          rank: [],
           taxon_name_author_ids: [],
           taxon_name_classification: [],
           taxon_name_id: [],
           taxon_name_relationship: [
             :subject_taxon_name_id,
             :object_taxon_name_id,
-           :type
+            :type
           ],
           taxon_name_relationship_type: [],
           type: [],
           user_id: []
         )
       end
-     
+
       # @params params ActionController::Parameters
       def self.permit(params)
-        deep_permit(:taxon_name, params) 
+        deep_permit(:taxon_name, params)
       end
 
       PARAMS = %w{
@@ -264,6 +266,11 @@ module Queries
       #   taxon_name_ids for which all Combinations will be returned
       attr_accessor :combination_taxon_name_id
 
+      # @return [Array]
+      # @params rank [String, Array]
+      #   The full rank class, or any base, like
+      #      NomenclaturalRank::Iczn::SpeciesGroup::Species
+      #      Iczn::SpeciesGroup::Species
       attr_accessor :rank
 
       attr_accessor :geo_json
@@ -282,7 +289,9 @@ module Queries
         @not_specified = boolean_param(params, :not_specified)
         @nomenclature_code = params[:nomenclature_code] if !params[:nomenclature_code].nil?
         @nomenclature_group = params[:nomenclature_group] if !params[:nomenclature_group].nil?
+
         @rank = params[:rank]
+
         @otus = boolean_param(params, :otus)
         @otu_id = params[:otu_id]
         @etymology = boolean_param(params, :etymology)
@@ -332,6 +341,10 @@ module Queries
 
       def parent_id
         [@parent_id].flatten.compact
+      end
+
+      def rank
+        [@rank].flatten.compact
       end
 
       # @return [String, nil]
@@ -486,7 +499,7 @@ module Queries
             a[:id].eq(c[:role_object_id])
           .and(c[:role_object_type].eq('TaxonName'))
           .and(c[:type].eq('TaxonNameAuthor'))
-        )
+          )
 
         e = c[:id].not_eq(nil)
         f = c[:person_id].eq_any(taxon_name_author_ids)
@@ -514,21 +527,20 @@ module Queries
       end
 
       # @return [Arel::Nodes::Grouping, nil]
-      #   and clause
       def with_nomenclature_group
         return nil if nomenclature_group.blank?
         table[:rank_class].matches(nomenclature_group)
       end
 
       # @return [Arel::Nodes::Grouping, nil]
-      #   and clause
       def rank_facet
         return nil if rank.blank?
-        table[:rank_class].matches('%' + rank) # We don't wildcard end so that we can isolate to specific ranks and below
+        # We don't wildcard end so that we can isolate to specific ranks and below
+        r = rank.collect{|i| "%#{i}"}
+        table[:rank_class].matches_any(r)
       end
 
       # @return [Arel::Nodes::Grouping, nil]
-      #   and clause
       def with_nomenclature_code
         return nil if nomenclature_code.nil?
         table[:rank_class].matches(nomenclature_code)
@@ -595,6 +607,17 @@ module Queries
               subject_taxon_name_id: combination_taxon_name_id}).distinct
       end
 
+      def collection_object_query_facet
+        return nil if collection_object_query.nil?
+        s = 'WITH query_collection_objects AS (' + collection_object_query.all.to_sql + ') ' +
+          ::TaxonName
+          .joins(:collection_objects)
+          .joins('JOIN query_collection_objects as query_collection_objects1 on collection_objects.id = query_collection_objects1.id')
+          .to_sql
+
+        ::TaxonName.from('(' + s + ') as taxon_names').distinct
+      end
+
       def base_and_clauses
         clauses = []
         # clauses += attribute_clauses
@@ -616,7 +639,7 @@ module Queries
       end
 
       # @return [ActiveRecord::Relation]
-      def and_clauses
+      def base_and_clauses
         clauses = []
         # clauses += attribute_clauses
 
@@ -651,6 +674,7 @@ module Queries
 
       def base_merge_clauses
         clauses = [
+          collection_object_query_facet,
           ancestor_facet,
           authors_facet,
           citations_facet,

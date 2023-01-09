@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
 
-  le!t(:query) { Queries::TaxonName::Filter.new({}) }
+  let!(:query) { Queries::TaxonName::Filter.new({}) }
 
   let(:root) { FactoryBot.create(:root_taxon_name)}
   let(:genus) { Protonym.create!(name: 'Erasmoneura', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
@@ -75,24 +75,24 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
   end
 
   specify '#citations 1' do
-    query.citations = 'without_citations'
+    query.citations = false
     expect(query.all.map(&:id).size).to eq(4)
   end
 
   specify '#citations 2' do
-    query.citations = 'without_citations'
+    query.citations = false
     Citation.create!(citation_object: species, source: FactoryBot.create(:valid_source))
     expect(query.all.map(&:id).size).to eq(3)
   end
 
   specify '#citations 3' do
-    query.citations = 'without_origin_citation'
+    query.origin_citation = false
     Citation.create!(citation_object: species, source: FactoryBot.create(:valid_source))
     expect(query.all.map(&:id).size).to eq(4)
   end
 
   specify '#citations 4' do
-    query.citations = 'without_origin_citation'
+    query.origin_citation = false
     Citation.create!(citation_object: species, is_original: true, source: FactoryBot.create(:valid_source))
     expect(query.all.map(&:id).size).to eq(3)
   end
@@ -194,8 +194,8 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName.create!(subject_taxon_name_id: original_genus.id, object_taxon_name_id: genus.id)
 
     query.taxon_name_relationship = [
-       { 'subject_taxon_name_id' => original_genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName' },
-        { 'object_taxon_name_id' => original_genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' } ]
+      { 'subject_taxon_name_id' => original_genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName' },
+      { 'object_taxon_name_id' => original_genus.id.to_s, 'type' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' } ]
     expect(query.all.map(&:id)).to contain_exactly(genus.id)
   end
 

@@ -18,7 +18,7 @@ module Queries
         params.permit(
           :name,
           :name_exact,
-         
+
           :geographic_area_id,
           :geographic_area_mode,
           :otu_id,
@@ -26,39 +26,39 @@ module Queries
           :collecting_event_id,
           :wkt,
           :geo_json,
-         
+
           geographic_area_id: [],
           collecting_event_id: [],
           otu_id: [],
           taxon_name_id: [],
           name: []
 
-    # :asserted_distributions,
-    # :biological_associations,
-    # :citations,
-    # :contents,
-    # :depictions,
-    # :exact_author,
+          # :asserted_distributions,
+          # :biological_associations,
+          # :citations,
+          # :contents,
+          # :depictions,
+          # :exact_author,
 
-    # :taxon_determinations,
-    # :observations,
-    # :author,
-    # biological_association_ids: [],
-    # taxon_name_ids: [],
-    # otu_ids: [],
-    # taxon_name_relationship_ids: [],
-    # taxon_name_classification_ids: [],
-    # asserted_distribution_ids: [],
+          # :taxon_determinations,
+          # :observations,
+          # :author,
+          # biological_association_ids: [],
+          # taxon_name_ids: [],
+          # otu_ids: [],
+          # taxon_name_relationship_ids: [],
+          # taxon_name_classification_ids: [],
+          # asserted_distribution_ids: [],
 
-    # data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
-     
+          # data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
+
 
         )
       end
 
-       # @params params ActionController::Parameters
+      # @params params ActionController::Parameters
       def self.permit(params)
-        deep_permit(:otu, params) 
+        deep_permit(:otu, params)
       end
 
 
@@ -102,23 +102,23 @@ module Queries
       # @return [Boolean, nil]
       # Where applicable:
       #   true - include only historical determinations (ignores only determinations)
-      #   false - include both current and historical 
+      #   false - include both current and historical
       #   nil - include only current determinations
       # Impacts all TaxonDetermination referencing queries
       attr_accessor :historical_determinations
 
       # @param biological_association_id [Integer, Array]
       # @return Array
-      #   one or more biological_association_id 
+      #   one or more biological_association_id
       # Finds all OTUs that are the current determination of
-      # a CollectionObject that is in the BiologicalAssociation 
+      # a CollectionObject that is in the BiologicalAssociation
       # or are part of the Biological association itself.
       # Altered by historical_determinations.
       attr_accessor :biological_association_id
 
       # @param asserted_distribution_id [Integer, Array]
       # @return Array
-      #   one or more asserted_distribution_id 
+      #   one or more asserted_distribution_id
       # Finds all OTUs that are in these asserted distributions
       attr_accessor :asserted_distribution_id
 
@@ -139,7 +139,7 @@ module Queries
       #   How to treat GeographicAreas
       #     nil - non-spatial match by only those records matching the geographic_area_id exactly
       #     true - spatial match
-      #     false - non-spatial match (exact and descendants) 
+      #     false - non-spatial match (exact and descendants)
       attr_accessor :geographic_area_mode
 
       # @return [True, False, nil]
@@ -290,9 +290,9 @@ module Queries
         @taxon_name_classification_ids = params[:taxon_name_classification_ids] || []
         @taxon_name_relationship_ids = params[:taxon_name_relationship_ids] || []
         @asserted_distribution_ids = params[:asserted_distribution_ids] || []
-  
+
         super
-   
+
         # set_tags_params(params)
         # set_user_dates(params)
       end
@@ -345,13 +345,13 @@ module Queries
 
       def taxon_name_query_facet
         return nil if taxon_name_query.nil?
-        s = 'WITH query_taxon_names AS (' + taxon_name_query.all.to_sql + ') ' + + + + + 
-        ::Otu
-        .joins(:taxon_name)
-        .joins('JOIN query_taxon_names as query_taxon_names1 on otus.taxon_name_id = query_taxon_names1.id')
-        .to_sql
+        s = 'WITH query_taxon_names AS (' + taxon_name_query.all.to_sql + ') ' +
+          ::Otu
+          .joins(:taxon_name)
+          .joins('JOIN query_taxon_names as query_taxon_names1 on otus.taxon_name_id = query_taxon_names1.id')
+          .to_sql
 
-        ::Otu.from('(' + s + ') as otus') 
+        ::Otu.from('(' + s + ') as otus')
       end
 
       def taxon_name_id_facet
@@ -360,7 +360,7 @@ module Queries
           h = Arel::Table.new(:taxon_name_hierarchies)
           j = table.join(h, Arel::Nodes::InnerJoin).on(table[:taxon_name_id].eq(h[:descendant_id]))
           z = h[:ancestor_id].eq_any(taxon_name_id)
-          
+
           ::Otu.joins(j.join_sources).where(z)
         else
           ::Otu.where(taxon_name_id: taxon_name_id)
@@ -371,11 +371,11 @@ module Queries
       def collecting_event_id_facet
         return nil if collecting_event_id.empty?
         q = ::Queries::CollectionObject::Filter.new(collecting_event_id: collecting_event_id)
-        if historical_determinations.nil? 
+        if historical_determinations.nil?
           ::Otu.joins(:collection_objects).where(collection_objects: q.all, taxon_determinations: {position: 1})
         elsif historical_determinations
           ::Otu.joins(:collection_objects).where(collection_objects: q.all).where.not(taxon_determinations: {position: 1})
-        else 
+        else
           ::Otu.joins(:collection_objects).where(collection_objects: q.all)
         end
       end
@@ -391,7 +391,7 @@ module Queries
         q3 = ::Otu.joins(collection_objects: [:biological_associations] ).where(biological_associations: {id: q, biological_association_subject_type: 'CollectionObject'})
         q4 = ::Otu.joins(collection_objects: [:related_biological_associations] ).where(related_biological_associations: {id: q, biological_association_object_type: 'CollectionObject'})
 
-        if historical_determinations.nil? 
+        if historical_determinations.nil?
           q3 = q3.where(taxon_determinations: {position: 1})
           q4 = q4.where(taxon_determinations: {position: 1})
         elsif historical_determinations
@@ -457,12 +457,12 @@ module Queries
       # !! TODO: "withify"
       def from_wkt(wkt_shape)
         # !! Need to add nomenclature scope here too ?!
-        
+
         c = ::Queries::CollectingEvent::Filter.new(wkt: wkt_shape)
         a = ::Queries::AssertedDistribution::Filter.new(wkt: wkt_shape)
 
         q1 = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: c.all)
-        q2 = ::Otu.joins(:asserted_distributions).where(asserted_distributions: a.all) 
+        q2 = ::Otu.joins(:asserted_distributions).where(asserted_distributions: a.all)
 
         ::Otu.from("((#{q1.to_sql}) UNION (#{q2.to_sql})) as otus")
       end
@@ -476,12 +476,12 @@ module Queries
         a = ::Queries::AssertedDistribution::Filter.new(geo_json: geo_json).all.where(project_id: project_id)
 
         q1 = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: c.all)
-        q2 = ::Otu.joins(:asserted_distributions).where(asserted_distributions: a.all) 
+        q2 = ::Otu.joins(:asserted_distributions).where(asserted_distributions: a.all)
 
         ::Otu.from("((#{q1.to_sql}) UNION (#{q2.to_sql})) as otus")
       end
 
-      def geographic_area_id_facet 
+      def geographic_area_id_facet
         return nil if geographic_area_id.empty?
 
         a = nil
@@ -493,19 +493,19 @@ module Queries
           a = ::GeographicArea.descendants_of_any(geographic_area_id)
         end
 
-        b = nil # from AssertedDistributions 
+        b = nil # from AssertedDistributions
         c = nil # from CollectionObjects
-        
+
         case geographic_area_mode
         when nil, false # exact, descendants
-          b = ::Otu.joins(:asserted_distributions).where(asserted_distributions: {geographic_area: a}) 
+          b = ::Otu.joins(:asserted_distributions).where(asserted_distributions: {geographic_area: a})
           c = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: {geographic_area: a} )
         when true # spatial
           i = ::GeographicItem.joins(:geographic_areas).where(geographic_areas: a) # .unscope
           wkt_shape = ::GeographicItem.st_union(i).to_a.first['collection'].to_s # todo, check
           return from_wkt(wkt_shape)
         end
-        
+
         ::Otu.from("((#{b.to_sql}) UNION (#{c.to_sql})) as otus")
       end
 
@@ -885,7 +885,7 @@ module Queries
           geographic_area_id_facet,
 
           # created_updated_facet, # See Queries::Concerns::Users
-          
+
           #  matching_biological_association_ids,
           #  matching_asserted_distribution_ids,
           #  matching_taxon_name_classification_ids,
@@ -917,7 +917,7 @@ module Queries
       def all
         a = and_clauses
         b = merge_clauses
-        
+
         if a && b
           b.where(a).distinct
         elsif a
@@ -929,7 +929,7 @@ module Queries
         end
       end
 
-    end
-  end
-end
+      end
+      end
+      end
 
