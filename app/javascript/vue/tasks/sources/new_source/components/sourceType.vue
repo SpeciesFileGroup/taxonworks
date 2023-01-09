@@ -3,20 +3,22 @@
     <ul class="no_bullets context-menu">
       <li
         v-for="type in types"
-        :key="type.value">
+        :key="type.value"
+      >
         <label v-help="`section|sourceType|${type.label}`">
           <input
             v-model="sourceType"
             :value="type.value"
             name="source-type"
             :disabled="source.id && (!type.available || !type.available.includes(source.type))"
-            type="radio">
+            type="radio"
+          >
           {{ type.label }}
         </label>
       </li>
     </ul>
     <div class="separate-left">
-      <lock-component v-model="settings.lock.type"/>
+      <lock-component v-model="settings.lock.type" />
     </div>
   </div>
 </template>
@@ -94,9 +96,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-  .field-options {
-    width: 390px;
-  }
-</style>

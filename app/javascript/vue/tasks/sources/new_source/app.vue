@@ -101,13 +101,13 @@
         </div>
       </div>
     </nav-bar>
-    <source-type class="margin-medium-bottom" />
     <recent-component
       v-if="showRecent"
       @close="showRecent = false"
     />
     <div class="horizontal-left-content align-start">
-      <div class="full_width">
+      <div class="full_width panel content">
+        <source-type class="margin-medium-bottom" />
         <component :is="section" />
       </div>
       <right-section class="margin-medium-left" />

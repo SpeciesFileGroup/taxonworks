@@ -1,10 +1,7 @@
 <template>
-  <div class="panel content">
-    <h3>Verbatim</h3>
-    <div class="field">
-      <textarea v-model="verbatim">
-      </textarea>
-    </div>
+  <h3>Verbatim</h3>
+  <div class="field">
+    <textarea v-model="verbatim" />
   </div>
 </template>
 
