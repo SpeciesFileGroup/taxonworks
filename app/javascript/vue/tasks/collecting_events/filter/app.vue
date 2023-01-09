@@ -49,7 +49,7 @@
               :ids="selectedCEIds"
             />
             <RadialFilter
-              object-type="CollectionObject"
+              object-type="CollectingEvent"
               :disabled="!selectedCEIds.length"
               :parameters="{ collecting_event_ids: selectedCEIds }"
             />

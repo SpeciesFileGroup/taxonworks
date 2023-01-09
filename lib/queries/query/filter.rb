@@ -6,10 +6,16 @@ module Queries
     # https://github.com/SpeciesFileGroup/taxonworks/tree/2652_unified_filters/app/javascript/vue/components/radials/filter/links
     # https://github.com/SpeciesFileGroup/taxonworks/blob/2652_unified_filters/app/javascript/vue/components/radials/filter/links/CollectionObject.js
 
-    # This is read as working as  :too <- [:from1, from1] ]
+    # 
+    # !! This is cross-referenced in app/views/javascript/vue/components/radials/filter/links/*.js models.
+    # !! When you add a reference here, ensure corresponding js model is aligned.
+    # 
+    # This is read as  :too <- [:from1, from1] ].
     SUBQUERIES = {
       taxon_name: [:source, :collection_object],
       otu: [:taxon_name],
+      collection_object: [:taxon_name],
+      collecting_event: [:collection_object]
     }.freeze
 
     # include Queries::Concerns::Identifiers
@@ -23,6 +29,9 @@ module Queries
     # @return [Query::TaxonName::Filter, nil]
     attr_accessor :collection_object_query
 
+    # @return [Query::CollectingEvent::Filter, nil]
+    attr_accessor :collecting_event_query
+
     def initialize(params)
       @project_id = params[:project_id] || Current.project_id # TODO: revisit
 
@@ -35,6 +44,12 @@ module Queries
         @collection_object_query = ::Queries::CollectionObject::Filter.new(params[:collection_object_query])
         @collection_object_query.project_id = project_id
       end
+
+      if params[:collecting_event_query].present?
+        @collecting_event_query = ::Queries::CollectionEvent::Filter.new(params[:collecting_event_query])
+        @collecting_event_query.project_id = project_id
+      end
+
     end
 
     def project_id

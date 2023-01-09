@@ -295,6 +295,7 @@ module Queries
         set_tags_params(params)
         set_user_dates(params)
         set_empty_params(params)
+        super
       end
 
       # @return [Arel::Table]

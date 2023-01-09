@@ -294,53 +294,10 @@ class CollectingEventsController < ApplicationController
         project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 
+
   def filter_params
-    params.permit(
-      Queries::CollectingEvent::Filter::ATTRIBUTES,
-      :collection_objects,
-      :collector_id,
-      :collector_ids_or,
-      :data_attribute_exact_value,  # DataAttributes concern
-      :data_attributes,             # DataAttributes concern
-      :depictions,
-      :determiner_name_regex,
-      :end_date,   # used in date range
-      :geo_json,
-      :geographic_area_id,
-      :geographic_area_mode,
-      :georeferences,
-      :geographic_area,
-      :identifier,
-      :identifier_end,
-      :identifier_exact,
-      :identifier_start,
-      :identifiers,
-      :in_labels,
-      :in_verbatim_locality,
-      :match_identifiers,
-      :match_identifiers_delimiter,
-      :match_identifiers_type,
-      :md5_verbatim_label,
-      :otu_id,
-      :partial_overlap_dates,
-      :radius,
-      :recent,
-      :start_date, # used in date range
-      :user_date_end,
-      :user_date_start,
-      :user_target,
-      :user_id,
-      :wkt,
-      collection_object_id: [],
-      collecting_event_wildcards: [],
-      collector_id: [],
-      geographic_area_id: [],
-      keyword_id_and: [],
-      keyword_id_or: [],
-      otu_id: [],
-      data_attribute_predicate_id: [], # DataAttributes concern
-      data_attribute_value: [],        # DataAttributes concern
-    )
+    f = ::Queries::CollectingEvent::Filter.permit(params)
+    f.merge(project_id: sessions_current_project_id)
   end
 
   def api_params

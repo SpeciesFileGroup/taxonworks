@@ -5,7 +5,6 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
   let(:query) { Queries::CollectionObject::Filter.new({}) }
 
-
   specify '#determiner_name_regex' do
     s = Specimen.create!
     a = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s, determiners: [ FactoryBot.create(:valid_person, last_name: 'Smith') ] )
@@ -311,8 +310,8 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       expect(query.all.pluck(:id)).to contain_exactly(co2.id)
     end
 
-    specify '#collecting_event_query' do
-      expect(query.collecting_event_query.class.name).to eq('Queries::CollectingEvent::Filter')
+    specify '#base_collecting_event_query' do
+      expect(query.base_collecting_event_query.class.name).to eq('Queries::CollectingEvent::Filter')
     end
 
     specify '#recent' do
@@ -471,30 +470,30 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       c = CollectingEvent.create!(collectors_attributes: [{last_name: 'Jones'}], verbatim_locality: 'Urbana')
       s = Specimen.create!(collecting_event: c)
       s2 = Specimen.create! # dummy to exclude
-      query.collecting_event_query.collector_id = c.collectors.reload.pluck(:id)
+      query.base_collecting_event_query.collector_id = c.collectors.reload.pluck(:id)
       expect(query.all.pluck(:id)).to contain_exactly(s.id)
     end
 
     specify '#geographic_area_id' do
       ce1.update(geographic_area: FactoryBot.create(:valid_geographic_area))
-      query.collecting_event_query.geographic_area_id = [ce1.geographic_area.id]
+      query.base_collecting_event_query.geographic_area_id = [ce1.geographic_area.id]
       expect(query.all.pluck(:id)).to contain_exactly(co1.id)
     end
 
     specify '#verbatim_locality (partial)' do
-      query.collecting_event_query.verbatim_locality = 'Out there'
-      query.collecting_event_query.collecting_event_wildcards = ['verbatim_locality']
+      query.base_collecting_event_query.verbatim_locality = 'Out there'
+      query.base_collecting_event_query.collecting_event_wildcards = ['verbatim_locality']
       expect(query.all.pluck(:id)).to contain_exactly(co1.id, co2.id)
     end
 
     specify '#verbatim_locality (exact)' do
-      query.collecting_event_query.verbatim_locality = 'Out there, under the stars'
+      query.base_collecting_event_query.verbatim_locality = 'Out there, under the stars'
       expect(query.all.pluck(:id)).to contain_exactly(co2.id)
     end
 
     specify '#start_date/#end_date' do
-      query.collecting_event_query.start_date = '1999-1-1'
-      query.collecting_event_query.end_date = '2001-1-1'
+      query.base_collecting_event_query.start_date = '1999-1-1'
+      query.base_collecting_event_query.end_date = '2001-1-1'
       expect(query.all.pluck(:id)).to contain_exactly(co2.id)
     end
 
@@ -576,7 +575,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       let(:wkt_point) { 'POINT (10.0 10.0)'}
 
       specify '#wkt (POINT)' do
-        query.collecting_event_query.wkt = wkt_point
+        query.base_collecting_event_query.wkt = wkt_point
         expect(query.all.pluck(:id)).to contain_exactly(co1.id)
       end
     end
@@ -736,7 +735,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
     specify '#tags on collecting_event' do
       t = FactoryBot.create(:valid_tag, tag_object: ce1)
-      query.collecting_event_query.keyword_id_and = [t.keyword_id]
+      query.base_collecting_event_query.keyword_id_and = [t.keyword_id]
       expect(query.all.pluck(:id)).to contain_exactly(co1.id)
     end
 
@@ -760,6 +759,4 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     end
 
   end
-
 end
-

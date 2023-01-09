@@ -2,15 +2,21 @@ module CollectionObjects
   module FilterParams
     private
 
+    def filter_params
+      f = ::Queries::CollectionObject::Filter.permit(params)
+      f.merge(project_id: sessions_current_project_id)
+    end
+
     def filtered_collection_objects
       # !! Do not add order() here, it breaks DwC integration
       ::Queries::CollectionObject::Filter.
-        new(collection_object_filter_params).all.where(project_id: sessions_current_project_id)
+        new(filter_params).all
 
-        # Apply pagination during use
-        # page(params[:page]).per(params[:per] || 500)
+      # !! Apply pagination during use
+      # page(params[:page]).per(params[:per] || 500)
     end
 
+=begin
     def collection_object_filter_params
       a = params.permit(
         :recent,
@@ -35,6 +41,8 @@ module CollectionObjects
         :exact_buffered_other_labels,
         :geo_json,
         :geographic_area,
+        :geographic_area_id,
+        :geographic_area_mode,
         :georeferences,
         :identifier,
         :identifier_end,
@@ -128,6 +136,8 @@ module CollectionObjects
         :exact_buffered_other_labels,
         :geo_json,
         :geographic_area,
+        :geographic_area_id,
+        :geographic_area_mode,
         :georeferences,
         :identifier,
         :identifier_end,
@@ -190,5 +200,6 @@ module CollectionObjects
       a[:user_id] = params[:user_id] if params[:user_id] && is_project_member_by_id(params[:user_id], sessions_current_project_id) # double check vs. setting project_id from API
       a
     end
+=end
   end
 end

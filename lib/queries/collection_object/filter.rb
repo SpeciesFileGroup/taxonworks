@@ -12,7 +12,6 @@ module Queries
     #
     # Added:
     # - descendants
-
     class Filter < Query::Filter
 
       include Queries::Helpers
@@ -137,7 +136,7 @@ module Queries
       attr_accessor :collecting_event_id
 
       # All params managed by CollectingEvent filter are available here as well
-      attr_accessor :collecting_event_query
+      attr_accessor :base_collecting_event_query
 
       # @return [Array, nil]
       #  Otu ids, matches on the TaxonDetermination, see also current_determinations
@@ -339,7 +338,7 @@ module Queries
         # (Perhaps) TODO: allow concern attributes nested inside as well, e.g. show me all COs with this Tag on CE.
         collecting_event_params = ::Queries::CollectingEvent::Filter::ATTRIBUTES + ::Queries::CollectingEvent::Filter::PARAMS
 
-        @collecting_event_query = ::Queries::CollectingEvent::Filter.new(
+        @base_collecting_event_query = ::Queries::CollectingEvent::Filter.new(
           params.select{|a,b| collecting_event_params.include?(a.to_s) }
         )
 
@@ -397,6 +396,7 @@ module Queries
         set_notes_params(params)
         set_tags_params(params)
         set_user_dates(params)
+        super
       end
 
       # @return [Arel::Table]
@@ -687,7 +687,7 @@ module Queries
         c = []
 
         # Convert base and clauses to merge clauses
-        collecting_event_query.base_merge_clauses.each do |i|
+        base_collecting_event_query.base_merge_clauses.each do |i|
           c.push ::CollectionObject.joins(:collecting_event).merge( i )
         end
         c
@@ -697,7 +697,7 @@ module Queries
         c = []
 
         # Convert base and clauses to merge clauses
-        collecting_event_query.base_and_clauses.each do |i|
+        base_collecting_event_query.base_and_clauses.each do |i|
           c.push ::CollectionObject.joins(:collecting_event).where( i )
         end
         c
@@ -739,6 +739,8 @@ module Queries
         clauses += collecting_event_merge_clauses + collecting_event_and_clauses
 
         clauses += [
+          collecting_event_query_facet,
+          taxon_name_query_facet,
           taxon_name_id_facet,
           biocuration_facet,
           biological_relationship_ids_facet,
@@ -923,7 +925,27 @@ module Queries
         ::CollectionObject.joins(q.join_sources).where(z)
       end
 
+      def taxon_name_query_facet
+        return nil if taxon_name_query.nil?
+        s = 'WITH query_tn_co AS (' + taxon_name_query.all.to_sql + ') ' +
+          ::CollectionObject
+          .joins(:taxon_names)
+          .joins('JOIN query_tn_co as query_tn_co1 on query_tn_co1.id = taxon_names.id')
+          .to_sql
 
+        ::CollectionObject.from('(' + s + ') as collection_objects')
       end
+
+      def collecting_event_query_facet
+        return nil if collecting_event_query.nil?
+        s = 'WITH query_ce_co AS (' + collecting_event_query.all.to_sql + ') ' +
+          ::CollectionObject
+          .joins('JOIN query_ce_co as query_ce_co1 on query_ce_co1.id = collection_objects.collecting_event_id')
+          .to_sql
+
+        ::CollectionObject.from('(' + s + ') as collection_objects')
       end
-      end
+
+    end
+  end
+end

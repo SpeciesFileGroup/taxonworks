@@ -1,18 +1,8 @@
 import { FILTER_LINKS } from '../constants/filterLinks'
 import {
   COLLECTION_OBJECT,
-  SOURCE,
-  EXTRACT,
-  TAXON_NAME,
-  OTU,
-  BIOLOGICAL_ASSOCIATION
 } from 'constants/index.js'
 
 export const CollectingEvent = [
   FILTER_LINKS[COLLECTION_OBJECT],
-  FILTER_LINKS[OTU],
-  FILTER_LINKS[TAXON_NAME],
-  FILTER_LINKS[SOURCE],
-  FILTER_LINKS[EXTRACT],
-  FILTER_LINKS[BIOLOGICAL_ASSOCIATION]
 ]

@@ -11,7 +11,6 @@ module Queries
       # removed `taxon_name_ids`, allowed Array for `taxon_name_id`
       # created Queries::Concerns::Citations  Citation concern and refactor filters referencing citations accordingly
 
-
       # @params params ActionController::Parameters
       # @return ActionController::Parameters
       def self.base_params(params)
@@ -51,8 +50,6 @@ module Queries
           # asserted_distribution_ids: [],
 
           # data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
-
-
         )
       end
 
@@ -60,7 +57,6 @@ module Queries
       def self.permit(params)
         deep_permit(:otu, params)
       end
-
 
       include Queries::Helpers
 
@@ -930,6 +926,6 @@ module Queries
       end
 
       end
-      end
-      end
+    end
+  end
 

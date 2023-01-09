@@ -13,7 +13,7 @@ class TaxonNamesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 50)
+        @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per])
       }
     end
   end
@@ -302,7 +302,7 @@ class TaxonNamesController < ApplicationController
   end
 
   def api_params
-    # TODO: implement 
+    # TODO: implement
     not_allowed = {
       user_id: nil,
       # ...
@@ -342,8 +342,8 @@ class TaxonNamesController < ApplicationController
       :updated_since,
       :validity,
       :year,
-#     :page, # TODO: yes or no?
-#     :per,
+      #     :page, # TODO: yes or no?
+      #     :per,
       combination_taxon_name_id: [],
       data_attribute_predicate_id: [], # DataAttributes concern
       data_attribute_value: [],        # DataAttributes concern
