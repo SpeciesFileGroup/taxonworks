@@ -805,6 +805,12 @@ class TaxonName < ApplicationRecord
     taxon_name_classifications.with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).any?
   end
 
+  # @return [Boolean]
+  #  whether this name has any classification asserting that this the name is unavailable
+  def classification_unavailable?
+    taxon_name_classifications.with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE).any?
+  end
+
   #  @return [Boolean]
   #     return true if name is unavailable OR invalid, else false, checks both classifications and relationships
   # !! Should only be referenced when building cached values, all other uses should rather be `!is_valid?`
