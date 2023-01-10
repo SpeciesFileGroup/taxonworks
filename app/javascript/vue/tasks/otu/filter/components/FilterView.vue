@@ -7,6 +7,7 @@
   <FacetCollectingEvent
     v-model="params"
   />
+  <FacetOtuName v-model="params" />
   <FacetTaxonName
     v-model="params"
     coverage
@@ -39,6 +40,7 @@ import FacetCollectingEvent from 'tasks/biological_associations/filter/component
 import FacetDataAttribute from 'components/Filter/Facets/shared/FacetDataAttribute.vue'
 import FacetDescriptor from './Facet/FacetDescriptor.vue'
 import FacetHistorialDeterminations from './Facet/FacetHistorialDeterminations.vue'
+import FacetOtuName from './Facet/FacetOtuName.vue'
 
 const WITH_PARAM = [
   'citations',
