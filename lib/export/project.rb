@@ -1,5 +1,14 @@
 module Export::Project
 
+  # When adding a new table be sure to check there is nothing different compared to existing ones.
+  HIERARCHIES = [
+    ["container_item_hierarchies", "container_items"],
+    ["geographic_area_hierarchies", "geographic_areas"],
+    ["taxon_name_hierarchies", "taxon_names"]
+  ]
+
+  SPECIAL_TABLES = ['spatial_ref_sys', 'project', 'users', 'versions', 'delayed_jobs', 'imports']
+
   # Restorable with psql -U :username -d :database -f dump.sql. Requires database to be created without tables (rails db:create)
   def self.generate_dump(project, file)
     config = ActiveRecord::Base.connection_config
@@ -18,13 +27,14 @@ module Export::Project
     split_point = schema.index(/\n(--[^\n]*\n)*\s*ALTER\s+TABLE/)
     schema_head, schema_tail = schema[0..split_point-1], schema[split_point..-1]
 
-    tables = (ActiveRecord::Base.connection.tables - ['spatial_ref_sys', 'project', 'users', 'versions']).sort
+    tables = (ActiveRecord::Base.connection.tables - SPECIAL_TABLES - HIERARCHIES.map(&:first)).sort
 
     file.puts schema_head
     file.write "\n-- DATA RESTORE\n\n"
     export_users(file, project)
     tables.each { |t| dump_table(t, file, project.id) }
     tables.each { |t| setup_pk_sequence(t, file) if get_table_cols(t).include?('"id"') }
+    HIERARCHIES.each { |p| dump_hierarchy_table(p, file, project.id) }
     file.puts schema_tail
   end
 
@@ -52,12 +62,15 @@ module Export::Project
     io.write("SELECT setval('public.#{table}_id_seq', (SELECT COALESCE(MAX(id), 0)+1 FROM public.#{table}));\n\n")
   end
 
+  def self.get_connection
+    ActiveRecord::Base.connection.raw_connection
+  end
+
   def self.get_table_cols(table)
     ActiveRecord::Base.connection.columns(table).map { |c| "\"#{c.name}\"" }
   end
 
   def self.dump_table(table, io, project_id)
-    conn = ActiveRecord::Base.connection.raw_connection
     cols = get_table_cols(table)
     if cols.include?('"project_id"')
       where_clause = "WHERE project_id IN (#{project_id}, NULL)"
@@ -67,10 +80,31 @@ module Export::Project
       where_clause = ''
     end
 
+    copy_table(table, io, cols, "SELECT #{cols.join(', ')} FROM #{table} #{where_clause}")
+  end
+
+  def self.dump_hierarchy_table(table_pair, io, project_id)
+    cols_model = get_table_cols(table_pair.second)
+
+    return dump_table(table_pair.first, io, project_id) unless cols_model.include?('"project_id"')
+
+    cols_hierarchy = get_table_cols(table_pair.first)
+    select_query = "SELECT #{cols_hierarchy.map { |c| "#{table_pair.first}.#{c}" }.join(', ')} "\
+                   "FROM #{table_pair.second} INNER JOIN "\
+                       "#{table_pair.first} ON #{table_pair.second}.id IN ("\
+                         "#{table_pair.first}.ancestor_id, #{table_pair.first}.descendant_id"\
+                       ") "\
+                   "WHERE project_id = #{project_id}"
+    copy_table(table_pair.first, io, cols_hierarchy, select_query)
+  end
+
+  def self.copy_table(table, io, cols, select_query)
+    conn = get_connection
+
     io.puts("COPY public.#{table} (#{cols.join(', ')}) FROM stdin;")
 
     # TODO: Consider "WITH CSV HEADER" if dumping to a set of CSV files gets implemented
-    conn.copy_data("COPY (SELECT #{cols.join(', ')} FROM #{table} #{where_clause}) TO STDOUT") do
+    conn.copy_data("COPY (#{select_query}) TO STDOUT") do
       while row = conn.get_copy_data
         io.write(row)
       end
@@ -82,7 +116,7 @@ module Export::Project
 
   def self.export_users(io, project)
     members = project.users.all
-    conn = ActiveRecord::Base.connection.raw_connection
+    conn = get_connection
 
     User.all.each do |user|
       attributes = {

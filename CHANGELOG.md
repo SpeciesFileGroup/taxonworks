@@ -13,7 +13,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 - PK sequences was not setup in the correct dump stage in Export project task occasionally causing PK constraints errors on usage.
 
+### Changed
+- Export project task now removes hierarchies rows that don't belong to selected project [#3271]
+- Export project task no longer includes `delayed_jobs` and `imports` tables.
+
 [#3269]: https://github.com/SpeciesFileGroup/taxonworks/issues/3269
+[#3271]: https://github.com/SpeciesFileGroup/taxonworks/issues/3271
 
 ## [0.30.3] - 2023-01-04
 
