@@ -20,6 +20,8 @@
       :filter="preferences.activeFilter"
       :table="preferences.showList"
       :pagination="pagination"
+      :parameters="parameters"
+      :object-type="BIOLOGICAL_ASSOCIATION"
       v-model:per="per"
       @filter="makeFilterRequest({ ...parameters, extend })"
       @nextpage="loadPage"
@@ -68,6 +70,7 @@ import useFilter from 'shared/Filter/composition/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import VSpinner from 'components/spinner.vue'
 import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
+import { BIOLOGICAL_ASSOCIATION } from 'constants/index.js'
 import { BiologicalAssociation } from 'routes/endpoints'
 import { computed, reactive, ref } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
