@@ -85,6 +85,7 @@ import ModalNestedParameters from 'components/Filter/ModalNestedParameters.vue'
 import { TaxonName } from 'routes/endpoints'
 import { reactive, ref, computed, onBeforeMount } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
+import qs from 'qs'
 import { TAXON_NAME } from 'constants/index.js'
 
 const fields = [
@@ -126,9 +127,11 @@ const csvList = computed(() =>
 )
 
 onBeforeMount(() => {
+  console.log(URLParamsToJSON(location.href))
   parameters.value = {
+    ...qs.stringify(location.search, { arrayFormat: 'brackets' }),
     ...URLParamsToJSON(location.href),
-    ...JSON.parse(sessionStorage.getItem('filterQuery'))
+    //...JSON.parse(sessionStorage.getItem('filterQuery'))
   }
 
   sessionStorage.removeItem('filterQuery')

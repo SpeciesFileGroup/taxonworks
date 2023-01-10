@@ -33,7 +33,7 @@ export default {
 
     download: {
       type: [Boolean, String],
-      default: false
+      default: undefined
     },
 
     href: {

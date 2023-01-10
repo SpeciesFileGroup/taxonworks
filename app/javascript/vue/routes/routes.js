@@ -1,3 +1,16 @@
+import {
+  ASSERTED_DISTRIBUTION,
+  BIOLOGICAL_ASSOCIATION,
+  COLLECTING_EVENT,
+  COLLECTION_OBJECT,
+  EXTRACT,
+  IMAGE,
+  OTU,
+  PEOPLE,
+  SOURCE,
+  TAXON_NAME
+} from 'constants/index.js'
+
 const RouteNames = {
   BrowseCollectionObject: '/tasks/collection_objects/browse',
   BrowseNomenclature: '/tasks/nomenclature/browse',
@@ -27,6 +40,20 @@ const RouteNames = {
   TypeMaterial: '/tasks/type_material/edit_type_material'
 }
 
+const FILTER_ROUTES = {
+  [ASSERTED_DISTRIBUTION]: '/tasks/asserted_distributions/filter',
+  [BIOLOGICAL_ASSOCIATION]: '/tasks/biological_associations/filter',
+  [COLLECTING_EVENT]: '/tasks/collecting_events/filter',
+  [COLLECTION_OBJECT]: '/tasks/collection_objects/filter',
+  [EXTRACT]: '/tasks/extracts/filter',
+  [IMAGE]: '/tasks/images/filter',
+  [OTU]: '/tasks/otus/filter',
+  [PEOPLE]: '/tasks/people/filter',
+  [SOURCE]: '/tasks/sources/filter',
+  [TAXON_NAME]: '/tasks/taxon_names/filter'
+}
+
 export {
-  RouteNames
+  RouteNames,
+  FILTER_ROUTES
 }

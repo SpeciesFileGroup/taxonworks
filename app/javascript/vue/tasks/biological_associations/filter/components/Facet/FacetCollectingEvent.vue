@@ -28,7 +28,7 @@
 
 <script setup>
 import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
-import { computed, watch, ref } from 'vue'
+import { computed, watch, ref, onBeforeMount } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { CollectingEvent } from 'routes/endpoints'
 import SmartSelector from 'components/ui/SmartSelector'
@@ -52,7 +52,8 @@ watch(
   collectingEvents,
   newVal => {
     params.value.collecting_event_id = newVal.map(ce => ce.id)
-  }
+  },
+  { deep: true }
 )
 
 watch(
@@ -74,15 +75,17 @@ function removeCe (index) {
   collectingEvents.value.splice(index, 1)
 }
 
-const urlParams = URLParamsToJSON(location.href)
+onBeforeMount(() => {
+  const urlParams = URLParamsToJSON(location.href)
 
-if (urlParams.collecting_event_ids) {
-  urlParams.collecting_event_ids.forEach(id => {
-    CollectingEvent.find(id).then(response => {
-      addCe(response.body)
+  if (urlParams.collecting_event_ids) {
+    urlParams.collecting_event_ids.forEach(id => {
+      CollectingEvent.find(id).then(response => {
+        addCe(response.body)
+      })
     })
-  })
-}
+  }
+})
 </script>
 <style scoped>
   :deep(.vue-autocomplete-input) {

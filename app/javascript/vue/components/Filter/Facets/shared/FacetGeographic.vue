@@ -165,7 +165,7 @@ const addGeoArea = id => {
 }
 
 const convertGeoJSONParam = (urlParams) => {
-  const geojson = urlParams.geo_json
+  const geojson = JSON.parse(urlParams.geo_json)
 
   return {
     type: 'Feature',
@@ -174,7 +174,7 @@ const convertGeoJSONParam = (urlParams) => {
       type: geojson.type === 'Point' ? 'Point' : 'Polygon'
     },
     properties: {
-      radius: urlParams?.radius
+      radius: geojson?.radius
     }
   }
 }

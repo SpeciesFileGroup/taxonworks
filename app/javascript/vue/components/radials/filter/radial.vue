@@ -44,12 +44,13 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import Qs from 'qs'
 import { QUERY_PARAM } from './constants/queryParam'
+import { FILTER_ROUTES } from 'routes/routes'
 import RadialMenu from 'components/radials/RadialMenu.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import Modal from 'components/ui/Modal.vue'
+import Qs from 'qs'
 import * as FILTER_LINKS from './links'
 
 const MAX_LINK_SIZE = 450
@@ -87,28 +88,39 @@ const filteredParameters = computed(() => {
   return filterEmptyParams(params)
 })
 
-const queryObject = computed(() => QUERY_PARAM[props.objectType]
-  ? ({ [QUERY_PARAM[props.objectType]]: filteredParameters.value })
-  : {}
-)
+const queryObject = computed(() => {
+  const params = { ...filteredParameters.value }
+  const currentQueryParam = QUERY_PARAM[props.objectType]
+  const queryParams = Object.keys(params).filter(param => param.includes('_query'))
+
+  queryParams.forEach(queryParam => {
+    delete params[queryParam]
+  })
+
+  const queryParameters = Object.assign({}, ...queryParams.map(param => ({ [param]: filteredParameters.value[param] })))
+
+  return currentQueryParam && Object.keys(params).length
+    ? { [currentQueryParam]: params, ...queryParameters }
+    : queryParameters
+})
 
 const hasParameters = computed(() => !!Object.keys(filteredParameters.value).length)
 
 const menuOptions = computed(() => {
   const links = FILTER_LINKS[props.objectType]
-  const urlParameters = Qs.stringify(queryObject.value, { arrayFormat: 'brackets' })
   const slices = []
 
-  console.log(hasParameters.value)
-  console.log(filteredParameters.value)
-
   links.forEach(item => {
+    const currentQueryParam = getCurrentQueryParam(item.link)
+    const params = removeParameter(currentQueryParam)
+    const urlParameters = Qs.stringify(params)
     const urlWithParameters = item.link + (hasParameters.value ? `?${urlParameters}` : '')
 
     slices.push(
       addSlice(
         {
           ...item,
+          name: currentQueryParam,
           link: urlWithParameters.length < MAX_LINK_SIZE
             ? urlWithParameters
             : item.link
@@ -136,10 +148,11 @@ const menuOptions = computed(() => {
 
 const isVisible = ref(false)
 
-function addSlice ({ label, link }) {
+function addSlice ({ label, link, name }) {
   return {
     label,
     link,
+    name,
     svgAttributes: {
       class: 'slice'
     }
@@ -155,12 +168,28 @@ function openRadialMenu () {
   isVisible.value = true
 }
 
-function saveParametersOnStorage (e) {
+function saveParametersOnStorage ({ name }) {
   if (hasParameters.value) {
-    const state = JSON.stringify(queryObject.value)
+    const params = removeParameter(name)
+    const state = JSON.stringify(params)
 
     sessionStorage.setItem('filterQuery', state)
   }
+}
+
+function getCurrentQueryParam (link) {
+  const [targetObjectType] = Object.entries(FILTER_ROUTES).find(([key, value]) => value === link)
+  const currentQueryParam = QUERY_PARAM[targetObjectType]
+
+  return currentQueryParam
+}
+
+function removeParameter (param) {
+  const params = { ...queryObject.value }
+
+  delete params[param]
+
+  return params
 }
 
 function filterEmptyParams (object) {

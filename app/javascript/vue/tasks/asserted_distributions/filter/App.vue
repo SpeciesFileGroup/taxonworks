@@ -112,7 +112,6 @@ onBeforeMount(() => {
   if (Object.keys(parameters.value).length) {
     makeFilterRequest({
       ...parameters.value,
-      geo_json: JSON.stringify(parameters.value.geo_json),
       extend
     })
   }

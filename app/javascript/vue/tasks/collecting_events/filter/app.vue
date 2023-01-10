@@ -231,8 +231,7 @@ onBeforeMount(() => {
   if (Object.keys(parameters.value).length) {
     makeFilterRequest({
       ...parameters.value,
-      extend,
-      geo_json: JSON.stringify(parameters.value.geo_json)
+      extend
     }).then(_ => {
       list.value = parseList(list.value)
     })
