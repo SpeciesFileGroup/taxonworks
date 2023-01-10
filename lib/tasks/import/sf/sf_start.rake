@@ -276,7 +276,7 @@ namespace :tw do
 
           count_found = 0
           error_counter = 0
-          # contained_error_counter = 0
+          contained_error_counter = 0
           source_not_found_error = 0
 
           path = @args[:data_directory] + 'tblRefs.txt'
@@ -335,15 +335,16 @@ namespace :tw do
 
             begin
               source.save!
+              source.data_attributes.create!(type: 'ImportAttribute', project_id: get_tw_project_id[row['FileID']], import_predicate: 'SF.RefID', value: ref_id)
 
               puts "RefID = #{ref_id}, PubID = #{pub_id}, serial_id = #{get_tw_serial_id[pub_id]}"
 
               if row['ActualYear'].include?('-') or row['StatedYear'].include?('-')
-                source.data_attributes << ImportAttribute.new(import_predicate: 'SF verbatim reference for year range', value: get_sf_verbatim_ref[ref_id])
+                source.data_attributes.create!(type: 'ImportAttribute', project_id: get_tw_project_id[row['FileID']], import_predicate: 'SF verbatim reference for year range', value: get_sf_verbatim_ref[ref_id])
               end
 
               if pub_type_string == 'unpublished'
-                source.data_attributes << ImportAttribute.new(import_predicate: 'SF verbatim reference for unpublished reference', value: get_sf_verbatim_ref[ref_id])
+                source.data_attributes.create!(type: 'ImportAttribute', project_id: get_tw_project_id[row['FileID']], import_predicate: 'SF verbatim reference for unpublished reference', value: get_sf_verbatim_ref[ref_id])
               end
 
               source_id = source.id.to_s
@@ -425,14 +426,15 @@ namespace :tw do
 
             begin
               source.save!
+              source.data_attributes.create!(type: 'ImportAttribute', project_id: get_tw_project_id[row['FileID']], import_predicate: 'SF.RefID', value: ref_id)
+
+              # Also keep db record of containing_source_id for future reference
+              source.data_attributes.create!(type: 'ImportAttribute', project_id: get_tw_project_id[row['FileID']], import_predicate: 'containing_source_id', value: containing_source_id)
+
 
               source_id = source.id.to_s
               get_tw_source_id[ref_id] = source_id
               get_containing_source_id[source_id] = containing_source_id
-
-              # Also keep db record of containing_source_id for future reference
-              source.data_attributes << ImportAttribute.new(import_predicate: 'containing_source_id', value: containing_source_id)
-
             rescue ActiveRecord::RecordInvalid
               logger.error "Source (Containing_ref_id > 0) ERROR (#{contained_error_counter += 1}): " + source.errors.full_messages.join(';')
             end
