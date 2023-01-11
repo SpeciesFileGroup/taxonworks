@@ -33,6 +33,7 @@
     :inverted="WITH_TITLES[param] && WITH_TITLES[param].inverted"
     v-model="params"
   />
+  <FacetValidify v-model="params" />
 </template>
 
 <script setup>
@@ -51,6 +52,7 @@ import FacetTaxonNameType from './filters/FacetTaxonNameType.vue'
 import FacetUsers from 'components/Filter/Facets/shared/FacetUsers.vue'
 import FacetTags from 'components/Filter/Facets/shared/FacetTags.vue'
 import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
+import FacetValidify from './filters/FacetValidify.vue'
 import FacetAuthors from './filters/FacetAuthors.vue'
 import FacetDataAttribute from 'components/Filter/Facets/shared/FacetDataAttribute.vue'
 import FacetMatchIdentifiers from 'components/Filter/Facets/shared/FacetMatchIdentifiers.vue'

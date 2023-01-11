@@ -58,7 +58,7 @@
   >
     <div
       v-show="filter"
-      class="grid-filter__facets"
+      class="grid-filter__facets margin-medium-bottom"
     >
       <slot name="facets">
         <component
