@@ -111,16 +111,16 @@ const menuOptions = computed(() => {
   const slices = []
 
   links.forEach(item => {
-    const currentQueryParam = getCurrentQueryParam(item.link)
-    const params = unnestParameter(currentQueryParam)
-    const urlParameters = Qs.stringify(params)
+/*     const currentQueryParam = getCurrentQueryParam(item.link)
+    const params = unnestParameter(currentQueryParam) */
+    const urlParameters = Qs.stringify(queryObject.value)
     const urlWithParameters = item.link + (hasParameters.value ? `?${urlParameters}` : '')
 
     slices.push(
       addSlice(
         {
           ...item,
-          name: currentQueryParam,
+          //name: currentQueryParam,
           link: urlWithParameters.length < MAX_LINK_SIZE
             ? urlWithParameters
             : item.link
@@ -170,8 +170,7 @@ function openRadialMenu () {
 
 function saveParametersOnStorage ({ name }) {
   if (hasParameters.value) {
-    const params = unnestParameter(name)
-    const state = JSON.stringify(params)
+    const state = JSON.stringify(queryObject.value)
 
     sessionStorage.setItem('filterQuery', state)
   }
