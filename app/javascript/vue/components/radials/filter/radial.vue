@@ -112,7 +112,7 @@ const menuOptions = computed(() => {
 
   links.forEach(item => {
     const currentQueryParam = getCurrentQueryParam(item.link)
-    const params = removeParameter(currentQueryParam)
+    const params = unnestParameter(currentQueryParam)
     const urlParameters = Qs.stringify(params)
     const urlWithParameters = item.link + (hasParameters.value ? `?${urlParameters}` : '')
 
@@ -170,7 +170,7 @@ function openRadialMenu () {
 
 function saveParametersOnStorage ({ name }) {
   if (hasParameters.value) {
-    const params = removeParameter(name)
+    const params = unnestParameter(name)
     const state = JSON.stringify(params)
 
     sessionStorage.setItem('filterQuery', state)
@@ -184,12 +184,15 @@ function getCurrentQueryParam (link) {
   return currentQueryParam
 }
 
-function removeParameter (param) {
+function unnestParameter (param) {
   const params = { ...queryObject.value }
 
   delete params[param]
 
-  return params
+  return {
+    ...params,
+    ...queryObject.value[param]
+  }
 }
 
 function filterEmptyParams (object) {
