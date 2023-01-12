@@ -33,12 +33,18 @@
     </template>
   </VModal>
   <VBtn
+    class="middle"
     color="primary"
     medium
-    :disabled="!Object.keys(queryParameters).length"
+    :disabled="isEmpty"
     @click="isModalVisible = true"
   >
-    Nested parameters
+    <VIcon
+      x-small
+      :color="isEmpty ? 'currentColor' : 'warning'"
+      name="attention"
+    />
+    <span class="margin-xsmall-left">Nested</span>
   </VBtn>
 </template>
 
@@ -48,6 +54,7 @@ import { QUERY_PARAM } from 'components/radials/filter/constants/queryParam'
 import { FILTER_ROUTES } from 'routes/routes'
 import VModal from 'components/ui/Modal.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
 import qs from 'qs'
 
 const props = defineProps({
@@ -56,6 +63,8 @@ const props = defineProps({
     default: () => ({})
   }
 })
+
+const isEmpty = computed(() => !Object.keys(queryParameters.value).length)
 
 const queryParameters = computed(() => {
   const params = Object.keys(props.parameters).filter(key => key.includes('query'))
