@@ -1,7 +1,4 @@
 <template>
-  <FacetNameAuthorYear v-model="params" />
-  <FacetPrecision v-model="params" />
-  <FacetAuthors v-model="params" />
   <FacetTaxonName
     :autocomplete-params="{
       type: 'Protonym',
@@ -10,6 +7,14 @@
     include
     v-model="params"
   />
+  <FacetParamExact
+    v-model="params"
+    param="name"
+    title="Taxon"
+  />
+  <FacetAuthors v-model="params" />
+  <FacetDateYear v-model="params" />
+  <FacetPrecision v-model="params" />
   <FacetNomenclatureGroup v-model="params" />
   <FacetNomenclatureCode v-model="params" />
   <FacetValidity v-model="params" />
@@ -38,7 +43,6 @@
 
 <script setup>
 
-import FacetNameAuthorYear from './filters/FacetNameAuthorYear.vue'
 import FacetPrecision from './filters/FacetPrecision.vue'
 import FacetUpdatedSince from './filters/FacetUpdatedSince'
 import FacetValidity from './filters/FacetValidity.vue'
@@ -56,6 +60,8 @@ import FacetValidify from './filters/FacetValidify.vue'
 import FacetAuthors from './filters/FacetAuthors.vue'
 import FacetDataAttribute from 'components/Filter/Facets/shared/FacetDataAttribute.vue'
 import FacetMatchIdentifiers from 'components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
+import FacetDateYear from 'components/Filter/Facets/Source/FacetDate.vue'
+import FacetParamExact from 'components/Filter/Facets/shared/FacetParamExact.vue'
 import { computed } from 'vue'
 
 const WITH_TITLES = {

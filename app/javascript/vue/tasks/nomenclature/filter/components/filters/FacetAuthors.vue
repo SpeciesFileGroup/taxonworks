@@ -1,31 +1,46 @@
 <template>
   <FacetContainer>
-    <h3>Authors</h3>
-    <fieldset>
-      <legend>People</legend>
-      <smart-selector
-        model="people"
-        target="Author"
-        :autocomplete-params="{
-          roles: ['TaxonNameAuthor']
-        }"
-        label="cached"
-        @selected="addAuthor"
-      />
-      <label>
-        <input
-          v-model="params.taxon_name_author_ids_or"
-          type="checkbox"
-        >
-        Any
-      </label>
-    </fieldset>
+    <h3>Author(s)</h3>
+
+    <smart-selector
+      model="people"
+      target="Author"
+      :autocomplete-params="{
+        roles: ['TaxonNameAuthor']
+      }"
+      label="cached"
+      @selected="addAuthor"
+    />
+    <label>
+      <input
+        v-model="params.taxon_name_author_ids_or"
+        type="checkbox"
+      >
+      Any
+    </label>
+
     <display-list
       :list="authors"
       label="object_tag"
       :delete-warning="false"
       @delete-index="removeAuthor"
     />
+
+    <div class="field label-above">
+      <label class="capitalize">Author</label>
+      <input
+        class="full_width"
+        v-model="params.author_exact"
+        type="text"
+      >
+      <label>
+        <input
+          v-model="params.author_exact"
+          type="checkbox"
+        >
+        Exact
+      </label>
+    </div>
   </FacetContainer>
 </template>
 
@@ -76,17 +91,19 @@ onBeforeMount(() => {
   const authorIds = urlParams.taxon_name_author_ids || []
 
   params.value.taxon_name_author_ids_or = urlParams.taxon_name_author_ids_or
+  params.value.author = urlParams.author
+  params.value.author_exact = urlParams.author_exact
 
   authorIds.forEach(id => {
     People.find(id).then(response => {
-      this.addAuthor(response.body)
+      addAuthor(response.body)
     })
   })
 })
 
 const addAuthor = author => {
-  if (!this.params.taxon_name_author_ids.includes(author.id)) {
-    this.authors.push(author)
+  if (!params.value.taxon_name_author_ids?.includes(author.id)) {
+    authors.value.push(author)
   }
 }
 
