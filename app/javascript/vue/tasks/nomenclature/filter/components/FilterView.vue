@@ -7,13 +7,13 @@
     include
     v-model="params"
   />
+  <FacetAuthors v-model="params" />
+  <FacetDateYear v-model="params" />
   <FacetParamExact
     v-model="params"
     param="name"
     title="Taxon"
   />
-  <FacetAuthors v-model="params" />
-  <FacetDateYear v-model="params" />
   <FacetPrecision v-model="params" />
   <FacetNomenclatureGroup v-model="params" />
   <FacetNomenclatureCode v-model="params" />
