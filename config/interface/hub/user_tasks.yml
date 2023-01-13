@@ -778,3 +778,10 @@ filter_descriptors_task:
   categories:
   status: prototype
   description: 'TODO: Task description'
+filter_loans_task:
+  hub: true
+  name: 'Filter loans'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'

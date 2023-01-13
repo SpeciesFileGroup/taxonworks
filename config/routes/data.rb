@@ -392,6 +392,7 @@ resources :loans do
   end
 
   collection do
+    match :filter, to: 'loans#index', via: [:get, :post]
     get :select_options, defaults: {format: :json}
   end
 end

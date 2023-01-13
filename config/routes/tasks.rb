@@ -156,6 +156,10 @@ scope :tasks do
   end
 
   scope :loans do
+      scope :filter, controller: 'tasks/loans/filter' do
+        get '/', action: :index, as: 'filter_loans_task'
+      end
+
     scope :edit_loan, controller: 'tasks/loans/edit_loan' do
       get 'loan_item_metadata', as: 'loan_item_metdata', defaults: {format: :json}
       get '(:id)', action: :index, as: 'edit_loan_task'

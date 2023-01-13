@@ -24,7 +24,6 @@
           >
             {{ item }}
           </th>
-          <th>Character states</th>
         </tr>
       </thead>
       <tbody>
@@ -51,11 +50,6 @@
             :key="attr"
             v-text="item[attr]"
           />
-          <td>
-            <ul class="padding-medium-left">
-            <li v-for="c in (item.character_states || [])">{{ c.name }}</li>
-            </ul>
-          </td>
         </tr>
       </tbody>
     </table>
@@ -69,17 +63,7 @@ import { sortArray } from 'helpers/arrays.js'
 import { vResizeColumn } from 'directives/resizeColumn'
 import { computed, ref } from 'vue'
 
-const attributes = [
-  'id',
-  'name',
-  'short_name',
-  'description',
-  'default_unit',
-  'type',
-  'description_name',
-  'key_name',
-  'weight'
-]
+const attributes = []
 
 const props = defineProps({
   list: {
