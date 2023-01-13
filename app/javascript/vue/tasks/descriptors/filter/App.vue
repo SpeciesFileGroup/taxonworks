@@ -49,20 +49,6 @@
               <li>
                 <CsvButton :list="csvList" />
               </li>
-              <li>
-                <BibliographyButton
-                  :selected-list="selectedIds"
-                  :pagination="pagination"
-                  :params="parameters"
-                />
-              </li>
-              <li>
-                <BibtexButton
-                  :selected-list="selectedIds"
-                  :pagination="pagination"
-                  :params="parameters"
-                />
-              </li>
             </ul>
           </div>
         </div>

@@ -9,7 +9,7 @@ import {
   OTU,
   PEOPLE,
   SOURCE,
-  TAXON_NAME,
+  TAXON_NAME
 } from 'constants/index.js'
 
 export const QUERY_PARAM = {
@@ -17,10 +17,11 @@ export const QUERY_PARAM = {
   [BIOLOGICAL_ASSOCIATION]: 'biological_association_query',
   [COLLECTING_EVENT]: 'collecting_event_query,',
   [COLLECTION_OBJECT]: 'collection_object_query',
-  [DESCRIPTOR]: 'descriptor_query'
+  [DESCRIPTOR]: 'descriptor_query',
   [EXTRACT]: 'extract_query,',
   [IMAGE]: 'image_query',
   [OTU]: 'otu_query',
   [SOURCE]: 'source_query',
-  [TAXON_NAME]: 'taxon_name_query'
+  [TAXON_NAME]: 'taxon_name_query',
+  [PEOPLE]: 'people_query'
 }

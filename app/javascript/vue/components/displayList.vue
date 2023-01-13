@@ -106,6 +106,10 @@ export default {
       type: Boolean,
       default: true
     },
+    warning: {
+      type: Boolean,
+      default: true
+    },
     validations: {
       type: Boolean,
       default: false
@@ -153,13 +157,12 @@ export default {
     },
 
     deleteItem (item, index) {
-      if(this.deleteWarning) {
-        if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+      if (this.deleteWarning && this.warning) {
+        if (window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
           this.$emit('delete', item)
           this.$emit('deleteIndex', index)
         }
-      }
-      else {
+      } else {
         this.$emit('delete', item)
         this.$emit('deleteIndex', index)
       }

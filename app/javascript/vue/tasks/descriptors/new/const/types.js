@@ -5,7 +5,7 @@ import {
   DESCRIPTOR_PRESENCE_ABSENCE,
   DESCRIPTOR_QUALITATIVE,
   DESCRIPTOR_SAMPLE,
-  DESCRIPTOR_WORKING,
+  DESCRIPTOR_WORKING
 } from 'constants/index.js'
 
 export default Object.freeze({

@@ -72,7 +72,6 @@
 </template>
 
 <script setup>
-
 import RadialNavigation from 'components/radials/navigation/radial'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import PdfButton from 'components/pdfButton'
