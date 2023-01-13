@@ -1,6 +1,6 @@
 import { MutationNames } from '../mutations/mutations'
 import { Loan } from 'routes/endpoints'
-import ActionNames from '../actions/actionNames'
+import ActionNames from './actionNames'
 
 export default ({ commit, state, dispatch }, id) => {
   commit(MutationNames.SetLoading, true)

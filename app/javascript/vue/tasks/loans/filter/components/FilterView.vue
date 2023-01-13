@@ -1,4 +1,5 @@
 <template>
+  <FacetByAttribute v-model="params" />
   <FacetPerson v-model="params" />
   <FacetTags
     v-model="params"
@@ -14,6 +15,7 @@
     v-model="params"
     target="Loan"
   />
+  <FacetLoanItemStatus v-model="params"/>
   <FacetUsers v-model="params" />
   <FacetNotes v-model="params" />
   <FacetWith
@@ -40,6 +42,8 @@ import FacetNotes from 'components/Filter/Facets/shared/FacetNotes.vue'
 import FacetIdentifiers from 'components/Filter/Facets/shared/FacetIdentifiers.vue'
 import FacetMatchIdentifiers from 'components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 import FacetTaxonName from 'components/Filter/Facets/TaxonName/FacetTaxonName.vue'
+import FacetLoanItemStatus from './Facet/FacetLoanItemStatus.vue'
+import FacetByAttribute from './Facet/FacetByAttribute.vue'
 import FacetOtu from 'components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetPerson from './Facet/FacetPerson.vue'
 
