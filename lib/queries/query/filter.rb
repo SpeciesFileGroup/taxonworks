@@ -1,6 +1,9 @@
 module Queries
   class Query::Filter < Queries::Query
 
+    include Queries::Concerns::Citations
+    include Queries::Concerns::Users
+
     # https://github.com/SpeciesFileGroup/taxonworks/blob/2652_unified_filters/app/javascript/vue/components/radials/filter/constants/queryParam.js
     # https://github.com/SpeciesFileGroup/taxonworks/blob/2652_unified_filters/app/javascript/vue/components/radials/filter/constants/filterLinks.js
     # https://github.com/SpeciesFileGroup/taxonworks/tree/2652_unified_filters/app/javascript/vue/components/radials/filter/links
@@ -12,15 +15,21 @@ module Queries
     # 
     # This is read as  :too <- [:from1, from1] ].
     SUBQUERIES = {
-      taxon_name: [:source, :collection_object],
-      otu: [:taxon_name],
-      collection_object: [:taxon_name],
-      collecting_event: [:collection_object]
+      taxon_name: [:source, :otu, :collection_object, :collecting_event],
+      otu: [:source, :taxon_name, :collection_object, :extract, :collecting_event],
+      collection_object: [:source, :otu, :taxon_name, :extract, :collecting_event],
+      collecting_event: [:source, :collection_object],
+      asserted_distribution: [:source, :otu_query],
+      image: [:source, :otu],
+      biological_association: [:source],
+      extract: [:otu, :collection_object],
+      descriptor: [],
     }.freeze
 
     # include Queries::Concerns::Identifiers
 
     # @return [Array]
+    # @param project_id [Array, Integer]
     attr_accessor :project_id
 
     # @return [Query::TaxonName::Filter, nil]
@@ -32,7 +41,20 @@ module Queries
     # @return [Query::CollectingEvent::Filter, nil]
     attr_accessor :collecting_event_query
 
+    # @return [Query::Otu::Filter, nil]
+    attr_accessor :otu_query
+
+    # @return [Query::Source::Filter, nil]
+    # Note, see also Queries::Concerns::Citations for shared citation-related facets.
+    attr_accessor :source_query
+
+    # @return [Query::Extract::Filter, nil]
+    attr_accessor :extract_query
+
     def initialize(params)
+      set_user_dates(params)
+      set_citations_params(params)
+
       @project_id = params[:project_id] || Current.project_id # TODO: revisit
 
       if params[:taxon_name_query].present?
@@ -50,10 +72,79 @@ module Queries
         @collecting_event_query.project_id = project_id
       end
 
+      if params[:otu_query].present?
+        @otu_query = ::Queries::Otu::Filter.new(params[:otu_query])
+        @otu_query.project_id = project_id
+      end
+
+      if params[:source_query].present?
+        @source_query = ::Queries::Source::Filter.new(params[:source_query])
+        @source_query.project_id = project_id
+      end
     end
+
 
     def project_id
       [@project_id].flatten.compact
+    end
+
+    def project_id_facet
+      table[:project_id].eq_any(project_id)
+    end
+
+    def shared_and_clauses
+      [project_id_facet].compact
+    end
+
+    def base_and_clauses
+      []
+    end
+
+    # @return [ActiveRecord::Relation, nil]
+    def and_clauses
+      clauses = base_and_clauses + shared_and_clauses
+      return nil if clauses.empty?
+
+      a = clauses.shift
+      clauses.each do |b|
+        a = a.and(b)
+      end
+      a
+    end
+
+    def shared_merge_clauses
+      []
+    end
+
+    def base_merge_clauses
+      []
+    end 
+
+    def merge_clauses
+      clauses = base_merge_clauses + shared_merge_clauses 
+      return nil if clauses.empty?
+
+      a = clauses.shift
+      clauses.each do |b|
+        a = a.merge(b)
+      end
+      a
+    end
+
+    # @return [ActiveRecord::Relation]
+    def all
+      a = and_clauses
+      b = merge_clauses
+
+      if a && b
+        b.where(a).distinct
+      elsif a
+        referenced_klass.where(a).distinct
+      elsif b
+        b.distinct
+      else
+        referenced_klass.all
+      end
     end
 
     # @params base Symbol

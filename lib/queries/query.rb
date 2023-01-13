@@ -33,6 +33,20 @@ module Queries
     def initialize
     end
 
+    def self.referenced_klass
+      ('::' + name.split('::').second).safe_constantize
+    end
+
+    def self.base_name
+      referenced_klass.name.tableize.singularize
+    end
+
+    # @params params ActionController::Parameters
+    # @return ActionController::Parameters
+    def self.permit(params)
+      deep_permit(base_name.to_sym, params)
+    end
+
     def table
       referenced_klass.arel_table
     end
