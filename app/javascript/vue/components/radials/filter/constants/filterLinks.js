@@ -55,6 +55,6 @@ export const FILTER_LINKS = {
   },
   [DESCRIPTOR]: {
     label: 'Descriptor',
-    link: 'http://localhost:3000/tasks/descriptors/filter'
+    link: '/tasks/descriptors/filter'
   }
 }
