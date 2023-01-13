@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_11_01_203023) do
+ActiveRecord::Schema.define(version: 2023_01_13_094500) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -1912,6 +1912,7 @@ ActiveRecord::Schema.define(version: 2022_11_01_203023) do
     t.string "cached_original_combination"
     t.date "cached_nomenclature_date"
     t.boolean "cached_is_valid"
+    t.string "cached_author"
     t.index ["cached"], name: "index_taxon_names_on_cached"
     t.index ["cached_is_valid"], name: "index_taxon_names_on_cached_is_valid"
     t.index ["cached_original_combination"], name: "index_taxon_names_on_cached_original_combination"
