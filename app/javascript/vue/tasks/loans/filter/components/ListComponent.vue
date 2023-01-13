@@ -63,7 +63,23 @@ import { sortArray } from 'helpers/arrays.js'
 import { vResizeColumn } from 'directives/resizeColumn'
 import { computed, ref } from 'vue'
 
-const attributes = []
+const attributes = [
+  'lender_address',
+  'date_requested',
+  'request_method',
+  'date_sent',
+  'date_received',
+  'date_return_expected',
+  'is_gift',
+  'recipient_address',
+  'recipient_email',
+  'recipient_phone',
+  'recipient_country',
+  'supervisor_email',
+  'supervisor_phone',
+  'date_closed',
+  'recipient_honorific'
+]
 
 const props = defineProps({
   list: {
