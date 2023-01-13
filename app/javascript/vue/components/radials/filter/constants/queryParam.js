@@ -1,6 +1,7 @@
 import {
   COLLECTION_OBJECT,
   COLLECTING_EVENT,
+  DESCRIPTOR,
   SOURCE,
   EXTRACT,
   IMAGE,
@@ -15,5 +16,6 @@ export const QUERY_PARAM = {
   [SOURCE]: 'source_query',
   [OTU]: 'otu_query',
   [COLLECTION_OBJECT]: 'collection_object_query',
-  [TAXON_NAME]: 'taxon_name_query'
+  [TAXON_NAME]: 'taxon_name_query',
+  [DESCRIPTOR]: 'descriptor_query'
 }

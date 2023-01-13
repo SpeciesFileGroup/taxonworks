@@ -2,6 +2,7 @@ class DescriptorsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_descriptor, only: [:show, :edit, :update, :destroy, :annotations]
+  after_action -> { set_pagination_headers(:descriptors) }, only: [:index], if: :json_request?
 
   # GET /descriptors
   # GET /descriptors.json
@@ -13,7 +14,7 @@ class DescriptorsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @descriptors = Descriptor.where(project_id: sessions_current_project_id).limit(20)
+        @descriptors = Descriptor.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 20)
       }
     end
   end

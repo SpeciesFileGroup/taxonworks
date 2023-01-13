@@ -1,6 +1,7 @@
 import {
   COLLECTION_OBJECT,
   COLLECTING_EVENT,
+  DESCRIPTOR,
   SOURCE,
   EXTRACT,
   IMAGE,
@@ -51,5 +52,9 @@ export const FILTER_LINKS = {
   [PEOPLE]: {
     label: 'People',
     link: '/tasks/people/filter'
+  },
+  [DESCRIPTOR]: {
+    label: 'Descriptor',
+    link: 'http://localhost:3000/tasks/descriptors/filter'
   }
 }

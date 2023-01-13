@@ -771,4 +771,10 @@ related_data_task:
   categories:
   status: prototype
   description: 'Simple linear report of the data related to this object.'
-
+filter_descriptors_task:
+  hub: true
+  name: 'Filter descriptors'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'
