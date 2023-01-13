@@ -8,7 +8,8 @@ import {
   OTU,
   PEOPLE,
   SOURCE,
-  TAXON_NAME
+  TAXON_NAME,
+  DESCRIPTOR
 } from 'constants/index.js'
 
 const RouteNames = {
@@ -50,7 +51,8 @@ const FILTER_ROUTES = {
   [OTU]: '/tasks/otus/filter',
   [PEOPLE]: '/tasks/people/filter',
   [SOURCE]: '/tasks/sources/filter',
-  [TAXON_NAME]: '/tasks/taxon_names/filter'
+  [TAXON_NAME]: '/tasks/taxon_names/filter',
+  [DESCRIPTOR]: '/tasks/descriptors/filter'
 }
 
 export {
