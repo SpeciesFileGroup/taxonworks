@@ -17,13 +17,14 @@
           </th>
           <th />
           <th
-            v-for="item in sort"
+            v-for="item in attributes"
             :key="item"
             class="capitalize"
             @click="sortTable(item)"
           >
             {{ item }}
           </th>
+          <th>Character states</th>
         </tr>
       </thead>
       <tbody>
@@ -41,30 +42,19 @@
           </td>
           <td>
             <div class="horizontal-left-content">
-              <AddToProject
-                :id="item.id"
-                :project-source-id="item.project_source_id"
-              />
-              <PinComponent
-                class="button button-circle"
-                :object-id="item.id"
-                type="Source"
-              />
               <RadialAnnotator :global-id="item.global_id" />
               <RadialNavigation :global-id="item.global_id" />
             </div>
           </td>
+          <td
+            v-for="attr in attributes"
+            :key="attr"
+            v-text="item[attr]"
+          />
           <td>
-            <span>{{ item.id }}</span>
-          </td>
-          <td>
-            <span v-html="item.cached" />
-          </td>
-          <td>
-            <span>{{ item.year }}</span>
-          </td>
-          <td>
-            <span>{{ item.type }}</span>
+            <ul class="padding-medium-left">
+            <li v-for="c in (item.character_states || [])">{{ c.name }}</li>
+            </ul>
           </td>
           <td>
             <div class="flex-wrap-row">
@@ -86,13 +76,21 @@
 import RadialNavigation from 'components/radials/navigation/radial'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import PdfButton from 'components/pdfButton'
-import AddToProject from 'components/addToProjectSource'
-import PinComponent from 'components/ui/Pinboard/VPin.vue'
 import { sortArray } from 'helpers/arrays.js'
 import { vResizeColumn } from 'directives/resizeColumn'
 import { computed, ref } from 'vue'
 
-const sort = ['id', 'cached', 'year', 'type', 'documents']
+const attributes = [
+  'id',
+  'name',
+  'short_name',
+  'description',
+  'default_unit',
+  'type',
+  'description_name',
+  'key_name',
+  'weight'
+]
 
 const props = defineProps({
   list: {
