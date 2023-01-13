@@ -5,7 +5,7 @@
         <VBtn
           color="primary"
           medium
-          @click="emit('filter')"
+          @click="handleClickFilterButton"
         >
           Filter
         </VBtn>
@@ -166,6 +166,11 @@ const hotkeys = ref([
     }
   }
 ])
+
+function handleClickFilterButton () {
+  emit('filter')
+  window.scrollTo(0, 0)
+}
 
 TW.workbench.keyboard.createLegend(`${platformKey()}+f`, 'Search', 'Filter sources')
 TW.workbench.keyboard.createLegend(`${platformKey()}+r`, 'Reset task', 'Filter sources')
