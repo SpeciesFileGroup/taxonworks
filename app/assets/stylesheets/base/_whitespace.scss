@@ -26,19 +26,12 @@ $pane_margin: .2em;
   padding: 8px;
 }
 
-.base_space {
-
-}
-
-.large_space {
-
-}
-
-.x-large_space {
-}
-
 .no-margin {
   margin: 0px !important;
+}
+
+.margin-xsmall {
+  margin: $standard_margin*0.25;
 }
 
 .margin-small {
@@ -51,6 +44,10 @@ $pane_margin: .2em;
 
 .margin-large {
   margin: $standard_margin*1.5;
+}
+
+.margin-xsmall-top {
+  margin-top: $standard_margin*0.25;
 }
 
 .margin-small-top {
@@ -69,6 +66,10 @@ $pane_margin: .2em;
   margin-top: $standard_margin * 2;
 }
 
+.margin-xsmall-left {
+  margin-left: $standard_margin*0.25;
+}
+
 .margin-small-left {
   margin-left: $standard_margin*0.5;
 }
@@ -85,6 +86,10 @@ $pane_margin: .2em;
   margin-left: $standard_margin*2;
 }
 
+.margin-xsmall-right {
+  margin-right: $standard_margin*0.25;
+}
+
 .margin-small-right {
   margin-right: $standard_margin*0.5;
 }
@@ -99,6 +104,10 @@ $pane_margin: .2em;
 
 .margin-xlarge-right {
   margin-right: $standard_margin * 2;
+}
+
+.margin-xsmall-bottom {
+  margin-bottom: $standard_margin*0.25;
 }
 
 .margin-small-bottom {

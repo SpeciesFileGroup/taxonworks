@@ -130,6 +130,10 @@ scope :tasks do
   end
 
   scope :descriptors do
+      scope :filter, controller: 'tasks/descriptors/filter' do
+        get '/', action: :index, as: 'filter_descriptors_task'
+      end
+
     scope :new_descriptor, controller: 'tasks/descriptors/new_descriptor' do
       get '(:descriptor_id)', action: :index, as: 'new_descriptor_task'
     end
