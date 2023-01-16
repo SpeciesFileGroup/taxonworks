@@ -44,7 +44,7 @@ const params = computed({
 watch(
   () => params.value.descriptor_id,
   (newVal, oldVal) => {
-    if (!newVal.length && oldVal?.length) {
+    if (!newVal?.length && oldVal?.length) {
       descriptors.value = []
     }
   },

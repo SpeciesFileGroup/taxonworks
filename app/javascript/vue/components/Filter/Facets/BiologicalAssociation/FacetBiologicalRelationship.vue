@@ -21,9 +21,8 @@
 import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import DisplayList from 'components/displayList.vue'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { BiologicalRelationship } from 'routes/endpoints'
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onBeforeMount } from 'vue'
 import { removeFromArray } from 'helpers/arrays'
 
 const props = defineProps({
@@ -54,7 +53,8 @@ watch(
   biologicalRelationships,
   newVal => {
     params.value.biological_relationship_id = newVal.map(item => item.id)
-  }
+  },
+  { deep: true }
 )
 
 function addBiologicalRelationship (item) {
@@ -65,11 +65,11 @@ function removeBiologicalRelationship (biologicalRelationship) {
   removeFromArray(biologicalRelationships.value, biologicalRelationship)
 }
 
-const { biological_relationship_id = [] } = URLParamsToJSON(location.href)
-
-biological_relationship_id.forEach(id => {
-  BiologicalRelationship.find(id).then(({ body }) => {
-    addBiologicalRelationship(body)
+onBeforeMount(() => {
+  params.value.biological_relationship_id?.forEach(id => {
+    BiologicalRelationship.find(id).then(({ body }) => {
+      addBiologicalRelationship(body)
+    })
   })
 })
 

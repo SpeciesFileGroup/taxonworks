@@ -16,10 +16,6 @@
   <FacetBiologicalRelationship v-model="params" />
   <FacetDescriptor v-model="params" />
   <FacetDataAttribute v-model="params" />
-  <FacetCitations
-    title="Citations"
-    v-model="params"
-  />
   <FacetWith
     v-for="param in WITH_PARAM"
     :key="param"
