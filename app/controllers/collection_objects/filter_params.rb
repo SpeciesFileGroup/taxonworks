@@ -9,8 +9,8 @@ module CollectionObjects
 
     def filtered_collection_objects
       # !! Do not add order() here, it breaks DwC integration
-      ::Queries::CollectionObject::Filter.
-        new(filter_params).all
+      ::Queries::CollectionObject::Filter.new(filter_params).all
+        .where(project_id: sessions_current_project_id)
 
       # !! Apply pagination during use
       # page(params[:page]).per(params[:per] || 500)

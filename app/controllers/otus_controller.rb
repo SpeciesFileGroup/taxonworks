@@ -19,7 +19,7 @@ class OtusController < ApplicationController
         @otus = ::Queries::Otu::Filter.new(filter_params).all
           .where(project_id: sessions_current_project_id)
           .page(params[:page])
-          .per(params[:per] || 50)
+          .per(params[:per])
           .includes(:taxon_name)
           .order('taxon_names.cached, otus.name')
       }

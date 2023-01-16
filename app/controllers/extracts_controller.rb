@@ -104,39 +104,8 @@ class ExtractsController < ApplicationController
   end
 
   def filter_params
-    params.permit(
-      :ancestor_id,
-      :collection_object_id,
-      :exact_verbatim_anatomical_origin,
-      :extract_end_date_range,
-      :extract_origin,
-      :extract_start_date_range,
-      :id,
-      :identifier,
-      :identifier_end,
-      :identifier_exact,
-      :identifier_start,
-      :identifier_type,
-      :match_identifiers,
-      :match_identifiers_delimiter,
-      :match_identifiers_type,
-      :otu_id,
-      :protocol_id,
-      :recent,
-      :repository_id,
-      :sequences,
-      :user_date_end,
-      :user_date_start,
-      :user_id,
-      :verbatim_anatomical_origin,
-      collection_object_id: [],
-      otu_id: [],
-      protocol_id_and: [],
-      protocol_id_or: [],
-      keyword_id_and: [],
-      keyword_id_or: [],
-      repository_id: [],
-    )
+    f = ::Queries::Extract::Filter.permit(params)
+    f.merge(project_id: sessions_current_project_id)
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

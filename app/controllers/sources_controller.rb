@@ -248,10 +248,8 @@ class SourcesController < ApplicationController
   end
 
   def filter_params
-    params[:project_id] = sessions_current_project_id
-    params.permit(
-      ::Queries::Source::Filter::PARAMS,
-    )
+    f = ::Queries::Source::Filter.permit(params)
+    f.merge(project_id: sessions_current_project_id)
   end
 
   def api_params

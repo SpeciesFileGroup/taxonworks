@@ -179,26 +179,8 @@ class AssertedDistributionsController < ApplicationController
   end
 
   def filter_params
-    params.permit(
-      :descendants,
-      :geo_json,
-      :geographic_area_id,
-      :geographic_area_mode,
-      :otu_id,
-      :presence,
-      :recent,
-      :taxon_name_id,
-      :wkt,
-
-      :user_date_end,
-      :user_date_start,
-      :user_id,
-      :user_target,
-
-      geographic_area_id: [],
-      otu_id: [],
-      taxon_name_id: [],
-    )
+    f = ::Queries::AssertedDistribution::Filter.permit(params)
+    f.merge(project_id: sessions_current_project_id)
   end
 
   def api_params

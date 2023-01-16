@@ -177,33 +177,8 @@ class ImagesController < ApplicationController
   private
 
   def filter_params
-    params.permit(
-        :ancestor_id_target,
-        :biocuration_class_id,
-        :collection_object_id,
-        :depiction,
-        :identifier,
-        :identifier_end,
-        :identifier_exact,
-        :identifier_start,
-        :image_id,
-        :otu_id,
-        :sled_image_id,
-        :taxon_name_id,
-        :user_date_end,
-        :user_date_start,
-        :user_id, # user
-        :user_target,
-        biocuration_class_id: [],
-        collection_object_id: [],
-        image_id: [],
-        keyword_id_and: [],
-        keyword_id_or: [],
-        otu_id: [],
-        sled_image_id: [],
-        taxon_name_id: [],
-        otu_scope: [],
-    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
+    f = ::Queries::Image::Filter.permit(params)
+    f.merge(project_id: sessions_current_project_id)
   end
 
   # TODO: need `is_public` here

@@ -103,50 +103,8 @@ class BiologicalAssociationsController < ApplicationController
   private
 
   def filter_params
-    params.permit(
-      ::Queries::BiologicalAssociation::Filter::PARAMS,
-      :identifier,
-      :identifier_end,
-      :identifier_exact,
-      :identifier_start,
-      :identifiers,
-      :match_identifiers,
-      :match_identifiers_delimiter,
-      :match_identifiers_type,
-      :note_exact, # Notes concern
-      :note_text,
-      :notes,
-      :geographic_area_mode,
-      :geo_json,
-      :user_date_end,
-      :user_date_start,
-      :user_id,
-      :user_target,
-
-
-      # ^ this too 
-      # TODO reconcile with PARAMS
-      user_id: [],
-      geographic_area_id: [], 
-      object_taxon_name_id: [],
-      subject_taxon_name_id: [],
-      
-      keyword_id_and: [],
-      keyword_id_or: [],
-
-      any_global_id: [],
-      biological_association_id: [],
-      biological_associations_graph_id: [],
-      biological_relationship_id: [],
-      collecting_event_id: [],
-      collection_object_id: [],
-      object_biological_property_id: [],
-      object_global_id: [],
-      otu_id: [],
-      subject_biological_property_id: [],
-      subject_global_id: [],
-      taxon_name_id: [],
-    )
+    f = ::Queries::BiologicalAssociation::Filter.permit(params)
+    f.merge(project_id: sessions_current_project_id)
   end
 
   def api_params
