@@ -15,7 +15,7 @@
     v-model="params"
     target="Loan"
   />
-  <FacetLoanItemStatus v-model="params"/>
+  <FacetLoanItemStatus v-model="params" />
   <FacetUsers v-model="params" />
   <FacetNotes v-model="params" />
   <FacetWith

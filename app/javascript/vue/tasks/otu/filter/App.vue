@@ -32,6 +32,10 @@
           v-if="list.length"
           class="horizontal-right-content"
         >
+          <RadialMassAnnotator
+            :object-type="OTU"
+            :ids="selectedIds"
+          />
           <CsvButton :list="csvFields" />
         </div>
       </template>
@@ -66,6 +70,7 @@ import CsvButton from 'components/csvButton'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import VSpinner from 'components/spinner.vue'
+import RadialMassAnnotator from 'components/radials/mass/radial.vue'
 import { OTU } from 'constants/index.js'
 import { Otu } from 'routes/endpoints'
 import { computed, reactive, ref, onBeforeMount } from 'vue'
