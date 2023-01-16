@@ -1,6 +1,20 @@
 # Helpers that wrap sets of annotations of different types.
 module AnnotationsHelper
 
+  # @return Hash
+  # Models name as key, annotator names as Array of values
+  #   see /metadata/annotators.json
+  def klass_annotations
+    j = {}
+     ::Project::MANIFEST.sort.each do |m|
+       k = m.safe_constantize
+       if k.respond_to?(:available_annotation_types) 
+        j[k.name] = k.available_annotation_types
+       end
+     end
+    j
+  end
+
   # @return [String]
   # Assumes the context is the object, not a multi-object summary
   def annotations_summary_tag(object)

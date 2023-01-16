@@ -36,7 +36,8 @@ module Shared::IsData
       self < Shared::BiologicalAssociations
     end
 
-    # @return [Array] of strings of only the non-cached and non-housekeeping column names
+    # @return [Array]
+    #   strings of only the non-cached and non-housekeeping column names
     def data_attributes
       column_names.reject { |c| %w{id project_id created_by_id updated_by_id created_at updated_at}
         .include?(c) || c =~ /^cached/ }

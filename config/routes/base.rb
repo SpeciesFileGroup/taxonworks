@@ -18,6 +18,7 @@ resource :hub, controller: 'hub', only: [:index] do
 end
 
 scope :metadata, controller: 'metadata' do
+  get :annotators, defaults: {format: :json}
   get :related_summary
   post :related_summary
   get 'object_radial/', action: :object_radial, defaults: {format: :json}

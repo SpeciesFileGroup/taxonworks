@@ -24,6 +24,12 @@ module Shared::IsData::Annotation
         self < k ? true : false
       end
     end
+
+    def available_annotation_types
+      ::ANNOTATION_TYPES.collect do |a|
+        self.send("has_#{a}?") ? a.to_s.classify : nil
+      end.compact
+    end
   end
 
   # Determines whether the instance can be annotated
@@ -35,21 +41,21 @@ module Shared::IsData::Annotation
     end
   end
 
+  def available_annotation_types
+    ::ANNOTATION_TYPES.select do |a|
+      self.send("has_#{a}?")
+    end
+  end
+
   # Doesn't belong here
   def has_loans?
     self.class < Shared::Loanable ? true : false
   end
 
-  # @return [#annotations_hash]
+  # @return [Hash]
   #   an accessor for the annotations_hash, overwritten by some inheriting classes
   def annotations
     annotations_hash
-  end
-
-  def available_annotation_types
-    ::ANNOTATION_TYPES.select do |a|
-      self.send("has_#{a}?")
-    end
   end
 
   # @return [Hash]
@@ -86,9 +92,9 @@ module Shared::IsData::Annotation
     result['protocol relationships'] = protocols if has_protocol_relationships? && protocolled?
     result['alternate values'] = alternate_values if has_alternate_values? && alternate_values.load.any?
     result['attribution'] = attribution if has_attribution? && attribution.load.any?
+
+    result['verifiers'] = verifiers if has_verifiers? && verifiers.load.any?
     result
   end
 
 end
-
-

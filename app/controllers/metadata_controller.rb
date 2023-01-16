@@ -25,6 +25,11 @@ class MetadataController < ApplicationController
     render json: @klass.related_summary(params.require(:id))
   end
 
+  # /metadata/annotators.json
+  def annotators
+    render json: helpers.klass_annotations
+  end
+
   protected
 
   def get_klass
