@@ -131,7 +131,8 @@ class Loan < ApplicationRecord
   accepts_nested_attributes_for :loan_supervisors, :loan_supervisor_roles, allow_destroy: true
   accepts_nested_attributes_for :loan_recipients, :loan_recipient_roles, allow_destroy: true
 
-  scope :overdue, -> {where('now() > loans.date_return_expected AND date_closed IS NULL', Time.now.to_date)}
+  scope :overdue, -> {where('now() > loans.date_return_expected AND date_closed IS NULL')}
+  scope :not_overdue, -> {where('now() < loans.date_return_expected AND date_closed IS NULL')}
 
   # @return [Scope] of CollectionObject
   def collection_objects
@@ -146,7 +147,7 @@ class Loan < ApplicationRecord
   # @return [Boolean, nil]
   def overdue?
     if date_return_expected.present?
-      Time.now.to_date > date_return_expected && !date_closed.present?
+      Time.current.to_date > date_return_expected && date_closed.blank?
     else
       nil
     end
@@ -155,7 +156,7 @@ class Loan < ApplicationRecord
   # @return [Integer, nil]
   def days_overdue
     if date_return_expected.present?
-      (Time.now.to_date - date_return_expected).to_i
+      (Time.current.to_date - date_return_expected).to_i
     else
       nil
     end
@@ -163,7 +164,7 @@ class Loan < ApplicationRecord
 
   # @return [Integer, false]
   def days_until_due
-    date_return_expected && (date_return_expected - Time.now.to_date ).to_i
+    date_return_expected && (date_return_expected - Time.current.to_date ).to_i
   end
 
   # @return [Array] collection_object ids
@@ -226,6 +227,10 @@ class Loan < ApplicationRecord
       return true if c.type_materials.any?
     end
     false
+  end
+
+  def families
+
   end
 
   protected
