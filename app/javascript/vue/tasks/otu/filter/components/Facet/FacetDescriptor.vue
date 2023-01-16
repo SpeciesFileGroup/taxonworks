@@ -19,10 +19,9 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onBeforeMount } from 'vue'
 import { Descriptor } from 'routes/endpoints'
-import { removeFromArray } from 'helpers/arrays'
-import { URLParamsToJSON } from 'helpers/url/parse'
+import { removeFromArray, addToArray } from 'helpers/arrays'
 import VAutocomplete from 'components/ui/Autocomplete.vue'
 import DisplayList from 'components/displayList.vue'
 import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
@@ -42,41 +41,38 @@ const params = computed({
   set: value => emit('update:modelValue', value)
 })
 
-const descriptorIds = computed({
-  get: () => params.value.descriptor_id || [],
-  set: value => { params.value.descriptor_id = value }
-})
-
 watch(
-  () => descriptorIds,
-  newVal => {
-    if (!newVal.length) {
+  () => params.value.descriptor_id,
+  (newVal, oldVal) => {
+    if (!newVal.length && oldVal?.length) {
       descriptors.value = []
     }
   },
   { deep: true }
 )
 
-function addDescriptor (id) {
-  if (descriptorIds.value.includes(id)) return
+watch(
+  descriptors,
+  newVal => {
+    params.value.descriptor_id = newVal.map(d => d.id)
+  },
+  { deep: true }
+)
 
+function addDescriptor (id) {
   Descriptor.find(id).then(({ body }) => {
-    descriptors.value.push(body)
-    descriptorIds.value.push(body.id)
+    addToArray(descriptors.value, body)
   })
 }
 
 function removeDescriptor (descriptor) {
-  const index = descriptorIds.value.findIndex(item => item.id === descriptor.id)
-
   removeFromArray(descriptors.value, descriptor)
-  descriptorIds.value.splice(index, 1)
 }
 
-const { descriptor_id = [] } = URLParamsToJSON(location.href)
-
-descriptor_id.forEach(id => {
-  addDescriptor(id)
+onBeforeMount(() => {
+  params.value.descriptor_id?.forEach(id => {
+    addDescriptor(id)
+  })
 })
 
 </script>
