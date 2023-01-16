@@ -146,10 +146,18 @@ export default {
     filterOptions: {
       type: [String, Array],
       default: () => []
+    },
+
+    redirect: {
+      type: Boolean,
+      default: true
     }
   },
 
-  emits: ['close'],
+  emits: [
+    'close',
+    'delete'
+  ],
 
   computed: {
     defaultTasks () {
@@ -412,17 +420,21 @@ export default {
       this.showDestroyModal = false
       this.destroy(`${this.metadata.resource_path}.json`).then(_ => {
         TW.workbench.alert.create(`${this.metadata.type} was successfully destroyed.`, 'notice')
+        this.$emit('delete', this.metadata)
+
         if (this.globalId === this.metadata.globalId) {
           this.eventDestroy()
           this.deleted = true
         }
 
-        if (this.metadata.destroyed_redirect) {
-          window.open(this.metadata.destroyed_redirect, '_self')
-        } else if (window.location.pathname === this.metadata.resource_path) {
-          window.open(`/${window.location.pathname.split('/')[1]}`, '_self')
-        } else {
-          window.open(this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf('/')), '_self')
+        if (this.redirect) {
+          if (this.metadata.destroyed_redirect) {
+            window.open(this.metadata.destroyed_redirect, '_self')
+          } else if (window.location.pathname === this.metadata.resource_path) {
+            window.open(`/${window.location.pathname.split('/')[1]}`, '_self')
+          } else {
+            window.open(this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf('/')), '_self')
+          }
         }
       })
     }
