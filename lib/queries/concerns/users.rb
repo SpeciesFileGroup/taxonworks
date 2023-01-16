@@ -10,6 +10,16 @@ module Queries::Concerns::Users
 
   extend ActiveSupport::Concern
 
+  def self.permit(params)
+    params.permit(
+      :user_id,
+      :user_target,
+      :user_date_start,
+      :user_date_end,
+      :updated_since
+    )
+  end
+
   included do
 
     # @param user_id [Array, Integer, String, nil]
@@ -20,13 +30,19 @@ module Queries::Concerns::Users
     #   one of 'updated', 'created'
     attr_accessor :user_target
 
-    # @param user_date_start [String, nil]
+    # @param user_date_start [String]
     #  In format 'yyyy-mm-dd'
     attr_accessor :user_date_start
 
-    # @param user_date_end [String, nil]
+    # @return [String, nil]
+    # @param user_date_end [String]
     #   In format 'yyyy-mm-dd'
     attr_accessor :user_date_end
+
+    # @return [Date, nil] 
+    # @param updated_since [String] in format yyyy-mm-dd
+    #   Records updated (.updated_at) since this date
+    attr_accessor :updated_since
 
     def user_id
       [@user_id].flatten.compact
@@ -35,6 +51,11 @@ module Queries::Concerns::Users
     def user_target
       @user_target&.to_s
     end
+
+    def updated_since
+      return nil if @updated_since.blank?
+      Date.parse(@updated_since)
+    end
   end
 
   def set_user_dates(params)
@@ -42,9 +63,21 @@ module Queries::Concerns::Users
     @user_target = params[:user_target] # Add validation ?
     @user_date_start = params[:user_date_start]
     @user_date_end = params[:user_date_end]
+    @updated_since = params[:updated_since]
   end
 
-  # @return [Scope]
+  def self.merge_clauses
+    [ :created_updated_facet ]
+  end
+
+  def self.and_clauses
+    [ :updated_since_facet ]
+  end
+
+  def updated_since_facet
+    return nil if updated_since.blank?
+    table[:updated_at].gteq(updated_since)
+  end
 
   def created_updated_facet
     return nil if user_id.empty? && user_target.nil? && user_date_start.nil? && user_date_end.nil?

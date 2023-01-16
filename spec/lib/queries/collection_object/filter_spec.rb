@@ -22,7 +22,6 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       Specimen.create! # not this one
       n = s.notes << Note.new(text: 'my text')
       query.notes = true
-
       expect(query.all.pluck(:id)).to contain_exactly(s.id)
     end
 
@@ -731,12 +730,6 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
         query.identifier = '1'
         expect(query.all.pluck(:id)).to contain_exactly(co1.id)
       end
-    end
-
-    specify '#tags on collecting_event' do
-      t = FactoryBot.create(:valid_tag, tag_object: ce1)
-      query.base_collecting_event_query.keyword_id_and = [t.keyword_id]
-      expect(query.all.pluck(:id)).to contain_exactly(co1.id)
     end
 
     specify '#tags on collection_object 2' do

@@ -22,6 +22,7 @@ module Queries
           :geographic_area_mode,
           :otu_id,
           :taxon_name_id,
+          :descendants,
           :collecting_event_id,
           :wkt,
           :geo_json,
@@ -42,7 +43,6 @@ module Queries
           # :taxon_determinations,
           # :observations,
           # :author,
-          # biological_association_ids: [],
           # taxon_name_ids: [],
           # otu_ids: [],
           # taxon_name_relationship_ids: [],
@@ -175,35 +175,9 @@ module Queries
 
       attr_accessor :author # was verbatim_author_string
 
-      attr_accessor :biological_association_ids
       attr_accessor :taxon_name_classification_ids
       attr_accessor :taxon_name_relationship_ids
       attr_accessor :asserted_distribution_ids
-
-      # @return [Hash]
-      #   All params managed in Queries::CollectionObject::Filter
-      #
-      # Return all OTUs matching a CollectionObject in this query
-      attr_accessor :collection_object_query
-
-      # @return [Hash]
-      #   All params managed in Queries::CollectingEvent::Filter
-      #
-      # Return all OTUs matching a CollectingEvent in this query, i.e.
-      # through Determinations on CollectionObjects in this CollectingEvent
-      attr_accessor :collecting_event_query
-
-      # @return [Hash]
-      #   All params managed in Queries::AssertedDistribution::Filter
-      #
-      # Return all OTUs in these AssertedDistributions
-      attr_accessor :asserted_distribution_query
-
-      # @return [Hash]
-      #   All params managed in Queries::AssertedDistribution::Filter
-      #
-      # Return all OTUs in these BiologicalAssociation
-      attr_accessor :biological_association_query
 
       # @param [Hash] params
       def initialize(params)
@@ -224,8 +198,10 @@ module Queries
 
         @taxon_name = boolean_param(params, :taxon_name)
 
+        # TODO: perhaps not needed with subqueries now
         @biological_association_id = params[:biological_association_id]
 
+        # TODO: perhaps not needed with subqueries now
         @asserted_distribution_id = params[:asserted_distribution_id]
 
         @wkt = params[:wkt]
@@ -234,32 +210,7 @@ module Queries
         @geographic_area_id = params[:geographic_area_id]
         @geographic_area_mode = boolean_param(params, :geographic_area_mode)
 
-        # ---
-
-        # TODO: set taxon_name_params
-        #  @taxon_name_query = Queries::TaxonName::Filter.new(
-        #    params.select{|a,b| taxon_name_params.include?(a.to_s) }
-        #  )
-
-        #  # TODO: set collection_object_pqrqms
-        #  @collection_object_query = Queries::CollectionObject::Filter.new(
-        #    params.select{|a,b| collection_object_params.include?(a.to_s) }
-        #  )
-
-        #  # TODO: set collecting event params
-        #  @collecting_event_query = Queries::CollectingEvent::Filter.new(
-        #    params.select{|a,b| collecting_event_params.include?(a.to_s) }
-        #  )
-
-        #  # TODO: set asserted distribution params
-        #  @asserted_distribution_query = Queries::AssertedDistribution::Filter.new(
-        #    params.select{|a,b| asserted_distribution_params.include?(a.to_s) }
-        #  )
-
-        #  # TODO: set biological association params
-        #  @biological_association_query = Queries::BiologicalAssociation::Filter.new(
-        #    params.select{|a,b| biological_association_params.include?(a.to_s) }
-        #  )
+        # --- done till here --- 
 
         @and_or_select = params[:and_or_select]
 
@@ -280,8 +231,6 @@ module Queries
         @exact_author = boolean_param(params, :exact_author)
 
         @rank_class = params[:rank_class]
-
-        @biological_association_ids = params[:biological_association_ids] || []
 
         @taxon_name_classification_ids = params[:taxon_name_classification_ids] || []
         @taxon_name_relationship_ids = params[:taxon_name_relationship_ids] || []
@@ -339,17 +288,6 @@ module Queries
         end
       end
 
-      def taxon_name_query_facet
-        return nil if taxon_name_query.nil?
-        s = 'WITH query_taxon_names AS (' + taxon_name_query.all.to_sql + ') ' +
-          ::Otu
-          .joins(:taxon_name)
-          .joins('JOIN query_taxon_names as query_taxon_names1 on otus.taxon_name_id = query_taxon_names1.id')
-          .to_sql
-
-        ::Otu.from('(' + s + ') as otus')
-      end
-
       def taxon_name_id_facet
         return nil if taxon_name_id.empty?
         if descendants
@@ -376,7 +314,6 @@ module Queries
         end
       end
 
-      # TODO: could be optimized with full join pathway perhaps
       def biological_association_id_facet
         return nil if biological_association_id.empty?
 
@@ -398,46 +335,6 @@ module Queries
         query =  [q1,q2,q3,q4].collect{|s| '(' + s.to_sql + ')'}.join(' UNION ')
 
         ::Otu.from("(#{query}) as otus")
-      end
-
-      # TODO:
-      # Unused, proper full join example contrasting by ID
-      #   All OTUs in these biological Associations
-      #   First determination of OTUs in CollectionObjects
-      def matching_biological_association_ids
-        return nil if biological_association_ids.empty?
-        o = table
-        ba = biological_associations_table
-
-        a = o.alias("a_")
-        b = o.project(a[Arel.star]).from(a)
-
-        c = ba.alias('b1')
-        d = ba.alias('b2')
-
-        b = b.join(c, Arel::Nodes::OuterJoin)
-          .on(
-            a[:id].eq(c[:biological_association_subject_id])
-          .and(c[:biological_association_subject_type].eq('Otu'))
-          )
-
-        b = b.join(d, Arel::Nodes::OuterJoin)
-          .on(
-            a[:id].eq(d[:biological_association_object_id])
-          .and(d[:biological_association_object_type].eq('Otu'))
-          )
-
-        e = c[:biological_association_subject_id].not_eq(nil)
-        f = d[:biological_association_object_id].not_eq(nil)
-
-        g = c[:id].eq_any(biological_association_ids)
-        h = d[:id].eq_any(biological_association_ids)
-
-        b = b.where(e.or(f).and(g.or(h)))
-        b = b.group(a['id'])
-        b = b.as('z2_')
-
-        ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
       end
 
       def asserted_distribution_id_facet
@@ -505,90 +402,53 @@ module Queries
         ::Otu.from("((#{b.to_sql}) UNION (#{c.to_sql})) as otus")
       end
 
+      def taxon_name_query_facet
+        return nil if taxon_name_query.nil?
+        s = 'WITH query_taxon_names AS (' + taxon_name_query.all.to_sql + ') ' +
+          ::Otu
+          .joins(:taxon_name)
+          .joins('JOIN query_taxon_names as query_taxon_names1 on otus.taxon_name_id = query_taxon_names1.id')
+          .to_sql
+
+        ::Otu.from('(' + s + ') as otus')
+      end
+
+      def collection_object_query_facet
+        return nil if collection_object_query.nil?
+        s = 'WITH query_co_otus AS (' + collection_object_query.all.to_sql + ') ' +
+          ::Otu
+          .joins(:collection_objects)
+          .joins('JOIN query_co_otus as query_co_otus1 on collection_objects.id = query_co_otus1.id')
+          .to_sql
+
+        ::Otu.from('(' + s + ') as otus')
+      end
+
+      def collecting_event_query_facet
+        return nil if collecting_event_query.nil?
+        byebug
+        s = 'WITH query_ce_otus AS (' + collecting_event_query.all.to_sql + ') ' +
+          ::Otu
+          .joins(:collecting_events)
+          .joins('JOIN query_ce_otus as query_ce_otus1 on collecting_events.id = query_ce_otus1.id')
+          .to_sql
+
+        ::Otu.from('(' + s + ') as otus')
+      end
+
+      # TODO: Validate
+      def extract_query_facet
+        return nil if extract_query.nil?
+        s = 'WITH query_ex_otus AS (' + extract_query.all.to_sql + ') ' +
+          ::Otu
+          .joins(:extracts) # don't need to go out to sources
+          .joins('JOIN query_ex_otus as query_ex_otu1s on extracts.id = query_ex_otus1.id')
+          .to_sql
+
+        ::Otu.from('(' + s + ') as otus')
+      end
+
       # ----
-
-      # Query::TaxonName::Filter integration
-      def taxon_name_merge_clauses
-        c = []
-
-        # Convert base and clauses to merge clauses
-        taxon_name_query.base_merge_clauses.each do |i|
-          c.push ::Otu.joins(:taxon_name).merge( i )
-        end
-        c
-      end
-
-      def taxon_name_and_clauses
-        c = []
-        # Convert base and clauses to merge clauses
-        taxon_name_query.base_and_clauses.each do |i|
-          c.push ::Otu.joins(:taxon_name).where( i )
-        end
-        c
-      end
-
-      # Query::CollectionObject::Filter integration
-      #
-      def collection_object_merge_clauses
-        c = []
-
-        # Convert base and clauses to merge clauses
-        collection_object_query.base_merge_clauses.each do |i|
-          c.push ::Otu.joins(:collection_objects).merge( i )
-        end
-        c
-      end
-
-      def collection_object_and_clauses
-        c = []
-        # Convert base and clauses to merge clauses
-        collection_object_query.base_and_clauses.each do |i|
-          c.push ::Otu.joins(:collection_objects).where( i )
-        end
-        c
-      end
-
-      # Query::CollectingEvent::Filter integration
-      #
-      def collecting_event_merge_clauses
-        c = []
-
-        # Convert base and clauses to merge clauses
-        collecting_event_query.base_merge_clauses.each do |i|
-          c.push ::Otu.joins(:collecting_events).merge( i )
-        end
-        c
-      end
-
-      def collecting_event_and_clauses
-        c = []
-        # Convert base and clauses to merge clauses
-        collecting_event_query.base_and_clauses.each do |i|
-          c.push ::Otu.joins(:collecting_events).where( i )
-        end
-        c
-      end
-
-      # Query::CollectingEvent::Filter integration
-      #
-      def asserted_distribution_merge_clauses
-        c = []
-
-        # Convert base and clauses to merge clauses
-        asserted_distribution_query.base_merge_clauses.each do |i|
-          c.push ::Otu.joins(:asserted_distributions).merge( i )
-        end
-        c
-      end
-
-      def asserted_distribution_and_clauses
-        c = []
-        # Convert base and clauses to merge clauses
-        asserted_distribution_query.base_and_clauses.each do |i|
-          c.push ::Otu.joins(:asserted_distributions).where( i )
-        end
-        c
-      end
 
       # @return [Boolean]
       def author_set?
@@ -871,6 +731,12 @@ module Queries
         # clauses += asserted_distribution_merge_clauses + asserted_distribution_and_clauses
 
         clauses += [
+          # citations_facet,
+          # origin_citation_facet,
+          source_query_facet,
+          collection_object_query_facet,
+          collecting_event_query_facet,
+
           taxon_name_query_facet,
           taxon_name_id_facet,
           geo_json_facet,
@@ -882,7 +748,6 @@ module Queries
 
           # created_updated_facet, # See Queries::Concerns::Users
 
-          #  matching_biological_association_ids,
           #  matching_asserted_distribution_ids,
           #  matching_taxon_name_classification_ids,
           #  matching_taxon_name_relationship_ids,

@@ -1,5 +1,8 @@
 module Queries
 =begin
+
+# TODO: perhaps a utility class of queries
+
 For example:
 
 start_id.gt(collecting_event_id)

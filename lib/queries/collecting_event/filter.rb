@@ -6,91 +6,81 @@ module Queries
       include Queries::Concerns::Tags
       include Queries::Concerns::Notes
       include Queries::Concerns::DateRanges
-      include Queries::Concerns::Users
       include Queries::Concerns::DataAttributes
-      include Queries::Concerns::Identifiers
 
-   # @params params ActionController::Parameters
+      # TODO: likely move to model (replicated in Source too) and setup via macro?
+      # Params exists for all CollectingEvent attributes except these.
+      # collecting_event_id is excluded because we handle it specially in conjunction with `geographic_area_mode``
+      ATTRIBUTES = (::CollectingEvent.column_names - %w{project_id created_by_id updated_by_id created_at updated_at geographic_area_id})
+
+      # @params params ActionController::Parameters
       # @return ActionController::Parameters
       def self.base_params(params)
         params.permit(
-          Queries::CollectingEvent::Filter::ATTRIBUTES,
+          ATTRIBUTES, # Queries::CollectingEvent::Filter::ATTRIBUTES, # just ATTRIBUTES
           :collection_objects,
           :collector_id,
           :collector_ids_or,
-          :data_attribute_exact_value,  # DataAttributes concern
-          :data_attributes,             # DataAttributes concern
           :depictions,
           :determiner_name_regex,
-          :end_date,   # used in date range
+          :end_date,
           :geo_json,
+          :geographic_area,
           :geographic_area_id,
           :geographic_area_mode,
           :georeferences,
-          :geographic_area,
-          :identifier,
-          :identifier_end,
-          :identifier_exact,
-          :identifier_start,
-          :identifiers,
           :in_labels,
           :in_verbatim_locality,
-          :match_identifiers,
-          :match_identifiers_delimiter,
-          :match_identifiers_type,
           :md5_verbatim_label,
           :otu_id,
           :partial_overlap_dates,
           :radius,
           :recent,
-          :start_date, # used in date range
-          :user_date_end,
-          :user_date_start,
-          :user_target,
-          :user_id,
+          :start_date,
           :wkt,
-          collection_object_id: [],
           collecting_event_wildcards: [],
+          collection_object_id: [],
           collector_id: [],
           geographic_area_id: [],
-          keyword_id_and: [],
-          keyword_id_or: [],
           otu_id: [],
-          data_attribute_predicate_id: [], # DataAttributes concern
-          data_attribute_value: [],        # DataAttributes concern
         )
       end
 
-      # @params params ActionController::Parameters
-      def self.permit(params)
-        deep_permit(:collecting_event, params)
-      end
-
-      # TODO: likely move to model (replicated in Source too)
-      # Params exists for all CollectingEvent attributes except these
-      # collecting_event_id is excluded because we handle it specially in conjunction with `geographic_area_mode``
-      ATTRIBUTES = (::CollectingEvent.column_names - %w{project_id created_by_id updated_by_id created_at updated_at geographic_area_id})
+      # This is still used in CollectionObject query.
+      # !! 
+      # !! There is likely some collision with wkt, other shared variables
+      # !! 
+      PARAMS = %w{
+        :collection_objects,
+        :collector_id,
+        :collector_ids_or,
+        :depictions,
+        :determiner_name_regex,
+        :end_date,
+        :geo_json,
+        :geographic_area,
+        :geographic_area_id,
+        :geographic_area_mode,
+        :georeferences,
+        :in_labels,
+        :in_verbatim_locality,
+        :md5_verbatim_label,
+        :otu_id,
+        :partial_overlap_dates,
+        :radius,
+        :recent,
+        :start_date,
+        :wkt,
+        :collecting_event_wildcards,
+        :collecting_event_object_ids,
+        collector_id,
+        geographic_area_id,
+        otu_id,
+      }.freeze
 
       ATTRIBUTES.each do |a|
         class_eval { attr_accessor a.to_sym }
       end
-
-      PARAMS = %w{
-        collecting_event_wildcards
-        collector_id
-        collector_ids_or
-        end_date
-        geo_json
-        geographic_area_id
-        geographic_area_mode
-        in_labels
-        in_verbatim_locality
-        md5_verbatim_label
-        partial_overlap_dates
-        radius
-        start_date
-        wkt
-      }.freeze
 
       # @param collecting_event_id [ Array, Integer, nil]
       #   One or more collecting_event_ids
@@ -196,11 +186,9 @@ module Queries
 
         @collecting_event_id = params[:collecting_event_id]
 
-        set_identifier(params)
         set_tags_params(params)
         set_attributes(params)
         set_dates(params)
-        set_user_dates(params)
         set_data_attributes_params(params)
         set_notes_params(params)
         super
@@ -417,10 +405,10 @@ module Queries
         clauses += attribute_clauses
 
         clauses += [
-          matching_collecting_event_id,
           between_date_range,
-          matching_verbatim_label_md5,
           matching_any_label,
+          matching_collecting_event_id,
+          matching_verbatim_label_md5,
           matching_verbatim_locality,
         ].compact!
 
@@ -429,74 +417,21 @@ module Queries
 
       def base_merge_clauses
         clauses = [
+          source_query_facet,
           collection_object_query_facet,
-          geographic_area_id_facet,
+
           collection_objects_facet,
           collector_ids_facet,
-          created_updated_facet,
-          data_attribute_predicate_facet,
-          data_attribute_value_facet,
-          data_attributes_facet,
-          geographic_area_facet,
           depictions_facet,
-          georeferences_facet,
           geo_json_facet,
-          identifier_between_facet,
-          identifier_facet,       # See Queries::Concerns::Identifiers
-          identifier_namespace_facet,
-          identifiers_facet,      # See Queries::Concerns::Identifiers
-          match_identifiers_facet,
-          keyword_id_facet,
-          matching_otu_ids,
+          geographic_area_facet,
+          geographic_area_id_facet,
+          georeferences_facet,
           matching_collection_object_id,
-          note_text_facet,        # See Queries::Concerns::Notes
-          notes_facet,            # See Queries::Concerns::Notes
+          matching_otu_ids,
           wkt_facet,
         ].compact!
         clauses
-      end
-
-      # @return [ActiveRecord::Relation]
-      def and_clauses
-        clauses = base_and_clauses
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
-      end
-
-      def merge_clauses
-        clauses = base_merge_clauses
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.merge(b)
-        end
-        a
-      end
-
-      # @return [ActiveRecord::Relation]
-      def all
-        a = and_clauses
-        b = merge_clauses
-
-        q = nil
-        if a && b
-          q = b.where(a).distinct
-        elsif a
-          q = ::CollectingEvent.where(a).distinct
-        elsif b
-          q = b.distinct
-        else
-          q = ::CollectingEvent.includes(:identifiers, :roles, :pinboard_items, :geographic_area, georeferences: [:geographic_item, :error_geographic_item]).all
-        end
-
-        q = q.order(updated_at: :desc).limit(recent) if recent
-        q
       end
 
       def collection_object_query_facet
@@ -504,7 +439,7 @@ module Queries
         s = 'WITH query_co_ce AS (' + collection_object_query.all.to_sql + ') ' +
           ::CollectingEvent
           .joins(:collection_objects)
-          .joins('JOIN query_co_ce as query_co_ce1 on collection_objects.collecting_event_id = query_co_ce1.id')
+          .joins('JOIN query_co_ce as query_co_ce1 on collection_objects.id = query_co_ce1.id')
           .to_sql
 
         ::CollectingEvent.from('(' + s + ') as collecting_events')

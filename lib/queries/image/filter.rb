@@ -3,8 +3,38 @@ module Queries
     class Filter < Query::Filter
       
       include Queries::Concerns::Tags
-      include Queries::Concerns::Users
-      include Queries::Concerns::Identifiers
+
+      # @params params ActionController::Parameters
+      # @return ActionController::Parameters
+      def self.base_params(params)
+        params.permit(
+          :ancestor_id_target,
+          :biocuration_class_id,
+          :collection_object_id,
+          :depiction,
+          :identifier,
+          :identifier_end,
+          :identifier_exact,
+          :identifier_start,
+          :image_id,
+          :otu_id,
+          :sled_image_id,
+          :taxon_name_id,
+          :user_date_end,
+          :user_date_start,
+          :user_id, # user
+          :user_target,
+          biocuration_class_id: [],
+          collection_object_id: [],
+          image_id: [],
+          keyword_id_and: [],
+          keyword_id_or: [],
+          otu_id: [],
+          sled_image_id: [],
+          taxon_name_id: [],
+          otu_scope: [],
+       )
+      end
 
       # @return [Array]
       #   only return objects with this collecting event ID
@@ -108,9 +138,8 @@ module Queries
 
         @depiction = (params[:depiction]&.downcase == 'true' ? true : false) if !params[:depiction].nil?
 
-        set_identifier(params)
         set_tags_params(params)
-        set_user_dates(params)
+        super
       end
 
       def taxon_name_id
@@ -368,6 +397,8 @@ module Queries
         #  clauses += collecting_event_merge_clauses + collecting_event_and_clauses
 
         clauses += [
+          otu_query_facet,
+          source_query_facet,
           otu_facet,
           otu_scope_facet,
           collection_object_scope_facet,
@@ -516,6 +547,19 @@ module Queries
         # end
 
       end
+
+
+      def otu_query_facet
+        return nil if otu_query.nil?
+        s = 'WITH query_otu_img AS (' + otu_query.all.to_sql + ') ' +
+          ::Image
+          .joins(:depictions)
+          .joins("JOIN query_otu_img as query_otu_img1 on depictions.depiction_object_id = query_otu_img.id AND depictions.depiction_object_type = 'Otu'") # Don't change, see `validify`
+          .to_sql
+
+        ::Image.from('(' + s + ') as images').distinct
+      end
+
     end
   end
 end

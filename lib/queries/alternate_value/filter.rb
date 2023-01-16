@@ -14,9 +14,6 @@ module Queries
       # Params specific to AlternateValue
       attr_accessor :value, :language_id, :type, :alternate_value_object_attribute
 
-      # Note that this is always(?) passed in on controller calls
-      attr_accessor :project_id
-
       # @params params [ActionController::Parameters]
       def initialize(params)
         @value = params[:value]
@@ -24,7 +21,6 @@ module Queries
         @type = params[:type]
         @alternate_value_object_attribute = params[:alternate_value_object_attribute]
         @options = params
-        @project_id = params[:project_id]
       end
 
       def annotated_class
@@ -36,12 +32,9 @@ module Queries
       end
 
       def community_project_id_facet
-        return nil if @project_id.nil?
-
-        if @project_id
-          if !ignores_project?
-            return table[:project_id].eq(project_id)
-          end
+        return nil if project_id.empty?
+        if !ignores_project?
+          return table[:project_id].eq_any(project_id)
         end
         nil
       end

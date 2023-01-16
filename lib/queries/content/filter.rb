@@ -12,10 +12,6 @@ module Queries
       # @param otu_id [Array, Integer, String, nil]
       attr_accessor :otu_id
 
-      # @return [Array]
-      # @param project_id [Array, Integer, String, nil]
-      attr_accessor :project_id
-
       # @return [Boolean, nil]
       attr_accessor :exact
 
@@ -31,10 +27,9 @@ module Queries
 
       # @param [Hash] args
       def initialize(params)
-
         @topic_id = params[:topic_id]
         @otu_id = params[:otu_id]
-        @project_id = params[:project_id]
+      
         @text = params[:text]
 
         # TODO: use helper method
@@ -51,10 +46,6 @@ module Queries
 
       def otu_id
         [@otu_id].flatten.compact
-      end
-
-      def project_id
-        [@project_id].flatten.compact
       end
 
       # @return [ActiveRecord::Relation]

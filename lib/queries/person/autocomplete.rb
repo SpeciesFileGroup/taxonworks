@@ -17,7 +17,6 @@ module Queries
       # @param [Hash] args
       def initialize(string, **params)
         @limit_to_roles = params[:roles] # roles
-        set_identifier(params)
         set_tags_params(params)
         set_alternate_value(params)
         super

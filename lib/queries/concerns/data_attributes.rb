@@ -9,6 +9,17 @@
 module Queries::Concerns::DataAttributes
   include Queries::Helpers
 
+  def self.permit(params)
+    params.permit(
+      :data_attribute_exact_value,
+      :data_attribute_predicate_id,
+      :data_attribute_value,
+      :data_attributes,
+      data_attribute_predicate_id: [],
+      data_attribute_value: [],
+    )
+  end
+
   extend ActiveSupport::Concern
 
   included do
@@ -51,6 +62,14 @@ module Queries::Concerns::DataAttributes
     ::DataAttribute.arel_table
   end
 
+  def self.merge_clauses
+    [
+     :data_attribute_predicate_facet,
+     :data_attribute_value_facet,
+     :data_attributes_facet,
+    ]
+  end
+
   def data_attributes_facet
     return nil if data_attributes.nil?
     if data_attributes
@@ -79,12 +98,6 @@ module Queries::Concerns::DataAttributes
       v = self.data_attribute_value.collect{|a| '%' + a.to_s.strip.gsub(/\s+/, '%') + '%' }
       q.where(data_attribute_table[:value].matches_any(v))
     end
-  end
-
-  private
-
-  def base_query
-    table.name.classify.safe_constantize
   end
 
 end

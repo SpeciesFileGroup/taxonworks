@@ -2,20 +2,21 @@ module Queries
   module Descriptor
     class Filter < Query::Filter
 
-     # @params params ActionController::Parameters
+      include Queries::Concerns::Tags
+      include Queries::Concerns::Notes
+
+      # @params params ActionController::Parameters
       # @return ActionController::Parameters
       def self.base_params(params)
         params.permit(
           :term,
           :term_target,
           :term_exact,
+          :descriptor_type,
           :observation_matrix_id,
+          :observation_matrices,
+          :observations,
         )
-      end
-
-      # @params params ActionController::Parameters
-      def self.permit(params)
-        deep_permit(:desriptor, params)
       end
 
       include Queries::Helpers
@@ -42,18 +43,28 @@ module Queries
       #   a full type like Descriptor::Continuous
       attr_accessor :descriptor_type
 
+      # @param observation_matrices [String, Boolean]
+      # @return [Boolean] 
+      attr_accessor :observation_matrices
+
+      # @param observations [String, Boolean]
+      # @return [Boolean] 
+      attr_accessor :observations
+
       # @param [Hash] params
       def initialize(params)
-        @term = params[:name]
-        @term_target = params[:name]
-
+        @term = params[:term]
+        @term_target = params[:term_target]
         @term_exact = boolean_param(params, :term_exact)
-
         @observation_matrix_id = params[:observation_matrix_id]
-
         @descriptor_type = params[:descriptor_type]
+        @observation_matrices = boolean_param(params, :observation_matrices)
+        @observations = boolean_param(params, :observations)
 
-        # set_tags_params(params)
+        set_notes_params(params)
+        set_tags_params(params)
+        set_user_dates(params)
+
         super
       end
 
@@ -66,7 +77,7 @@ module Queries
       end
 
       def term_facet
-        return nil if term.empty?
+        return nil if term.blank?
         w =  '%' + term.gsub(/\s+/, '%') + '%' 
 
         if term_exact
@@ -97,65 +108,45 @@ module Queries
         ::Descriptor.joins(:observation_matrices)
           .where(observation_matrices: {id: :observation_matrix_id})
       end
-     
+
       def descriptor_type_facet
         return nil if descriptor_type.blank?
         table[:type].eq_any(descriptor_type)
       end
 
-      # @return [ActiveRecord::Relation, nil]
-      def and_clauses
-        clauses = [
-          term_facet,
+      def observation_matrices_facet
+        return nil if observation_matrices.nil?
+        if observation_matrices
+          ::Descriptor.joins(:observation_matrices) 
+        else
+          ::Descriptor.where.missing(:observation_matrices) 
+        end
+      end
+
+      def observations_facet
+        return nil if observation_matrices.nil?
+        if observation_matrices
+          ::Descriptor.joins(:observations) 
+        else
+          ::Descriptor.where.missing(:observations) 
+        end
+      end
+
+      def base_and_clauses
+        [ term_facet,
           descriptor_type_facet,
         ].compact
-
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
       end
 
       def base_merge_clauses
-        clauses = []
-
-        clauses += [
-          observatoin_matrix_id_facet,
+        [ observations_facet,
+          observation_matrices_facet,
+          observation_matrix_id_facet,
           source_query_facet,
         ].compact
       end
 
-      def merge_clauses
-        clauses = base_merge_clauses
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.merge(b)
-        end
-        a
-      end
-
-      # @return [ActiveRecord::Relation]
-      def all
-        a = and_clauses
-        b = merge_clauses
-
-        if a && b
-          b.where(a).distinct
-        elsif a
-          ::Descriptor.where(a).distinct
-        elsif b
-          b.distinct
-        else
-          ::Descriptor.all
-        end
-      end
-
-      end
     end
   end
+end
 

@@ -37,8 +37,8 @@ module Queries::Concerns::DateRanges
   end
 
   def set_dates(params)
-    self.start_date = params[:start_date] unless params[:start_date].blank?
-    self.end_date = params[:end_date] unless params[:end_date].blank?
+    start_date = params[:start_date] unless params[:start_date].blank?
+    end_date = params[:end_date] unless params[:end_date].blank?
 
     @partial_overlap_dates = params[:partial_overlap_dates]
     @partial_overlap_dates = true if @partial_overlap_dates.nil?

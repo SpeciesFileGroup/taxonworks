@@ -6,6 +6,16 @@ module Queries::Concerns::Tags
 
   extend ActiveSupport::Concern
 
+  def self.permit(params)
+    params.permit(
+      :keyword_id_and,
+      :keyword_id_or,
+      :tags,
+      keyword_id_and: [],
+      keyword_id_or: []
+    )
+  end
+
   included do
     # @return [Array]
     # @params keyword_id_and [:keyword_id_and | [keyword_id_and, .. ] ]
@@ -26,6 +36,13 @@ module Queries::Concerns::Tags
     def keyword_id_or
       [@keyword_id_or].flatten.compact.uniq
     end
+  end
+
+  def self.merge_clauses
+    [
+      :keyword_id_facet,
+      :tags_facet
+    ]
   end
 
   def set_tags_params(params)
@@ -63,7 +80,19 @@ module Queries::Concerns::Tags
     end
   end
 
-  # merge
+  def tags_facet
+    return nil if tags.nil?
+    k = table.name.classify.safe_constantize
+
+    if tags
+      k.joins(:tags).distinct
+    else
+      k.left_outer_joins(:tags)
+        .where(tags: {id: nil})
+    end
+  end
+
+ 
   def matching_keyword_id_or
     return nil if keyword_id_or.empty?
     k = table.name.classify.safe_constantize
@@ -75,7 +104,6 @@ module Queries::Concerns::Tags
     k.where( ::Tag.where(w).arel.exists )
   end
 
-  # merge
   def matching_keyword_id_and
     return nil if keyword_id_and.empty?
     l = table.name
@@ -109,17 +137,4 @@ module Queries::Concerns::Tags
 
     k.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b[:id].eq(table[:id]))))
   end
-
-  def tag_facet
-    return nil if tags.nil?
-    k = table.name.classify.safe_constantize
-
-    if tags
-      k.joins(:tags).distinct
-    else
-      k.left_outer_joins(:tags)
-        .where(tags: {id: nil})
-    end
-  end
-
 end

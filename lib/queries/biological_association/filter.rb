@@ -3,10 +3,34 @@ module Queries
   module BiologicalAssociation
 
     class Filter < Query::Filter
-      include Queries::Concerns::Citations
       include Queries::Concerns::Notes
       include Queries::Concerns::Tags
-      include Queries::Concerns::Users
+
+      # @params params ActionController::Parameters
+      # @return ActionController::Parameters
+      def self.base_params(params)
+        params.permit(
+          ::Queries::BiologicalAssociation::Filter::PARAMS,
+          :geographic_area_mode,
+          :geo_json,
+
+          any_global_id: [],
+          biological_association_id: [],
+          biological_associations_graph_id: [],
+          biological_relationship_id: [],
+          collecting_event_id: [],
+          collection_object_id: [],
+          geographic_area_id: [], 
+          object_biological_property_id: [],
+          object_global_id: [],
+          object_taxon_name_id: [],
+          otu_id: [],
+          subject_biological_property_id: [],
+          subject_global_id: [],
+          subject_taxon_name_id: [],
+          taxon_name_id: [],
+        )
+      end
 
       # TODO: can't handle []
       PARAMS = %i{
@@ -15,14 +39,13 @@ module Queries
         biological_relationship_id
         collecting_event_id
         collection_object_id
+        descendants
         geo_json
         geographic_area_id
         geographic_area_mode
         object_biological_property_id
         object_global_id
         object_taxon_name_id
-     
-        descendants
         subject_biological_property_id
         subject_global_id
         subject_taxon_name_id
@@ -139,16 +162,7 @@ module Queries
 
       def initialize(params)
         # TODO: should be handled prior likely
-        params.reject!{ |_k, v| v.nil? || v == '' }
-
-        # TODO: perhaps remove
-        taxon_name_params = ::Queries::TaxonName::Filter::PARAMS
-
-        @taxon_name_query = ::Queries::TaxonName::Filter.new(
-          params.select{|a,b| taxon_name_params.include?(a.to_s) }
-        )
-
-        # @taxon_name_query_target = params[:taxon_name_query_target]
+        # params.reject!{ |_k, v| v.nil? || v == '' }
 
         @subject_global_id = params[:subject_global_id]
         @object_global_id = params[:object_global_id]
@@ -181,12 +195,8 @@ module Queries
         @geographic_area_id = params[:geographic_area_id]
         @geographic_area_mode = boolean_param(params, :geographic_area_mode)
 
-        set_identifier(params)
         set_notes_params(params)
         set_tags_params(params)
-        set_user_dates(params)
-        set_citations_params(params)
-
         super
       end
 
@@ -697,6 +707,7 @@ module Queries
         # clauses += taxon_name_merge_clauses + taxon_name_and_clauses
 
         clauses += [
+          source_query_facet,
           subject_object_facet,
           object_biological_property_id_facet,
           subject_biological_property_id_facet,

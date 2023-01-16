@@ -6,7 +6,6 @@ module Queries
       include Queries::Concerns::Tags
 
       def initialize(string, **params)
-        set_identifier(params)
         set_tags_params(params)
         set_alternate_value(params)
         super

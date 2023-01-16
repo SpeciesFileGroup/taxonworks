@@ -1,9 +1,7 @@
 module Queries
   module Tag
 
-    # !! Should likely inerit. Not speced.
-    # !! does not inherit from base query
-    class Filter
+    class Filter < Query::Filter
 
       include Concerns::Polymorphic
       polymorphic_klass(::Tag)

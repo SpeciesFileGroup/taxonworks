@@ -17,7 +17,6 @@ module Queries
       include Queries::Helpers
 
       include Queries::Concerns::Tags
-      include Queries::Concerns::Users
       include Queries::Concerns::Notes
       include Queries::Concerns::DataAttributes
 
@@ -27,7 +26,6 @@ module Queries
         params.permit(
           :recent,
           ::Queries::CollectingEvent::Filter::ATTRIBUTES,
-          :ancestor_id,
           :buffered_collecting_event,
           :buffered_determinations,
           :buffered_other_labels,
@@ -38,6 +36,7 @@ module Queries
           :current_repository,
           :current_repository_id,
           :depictions,
+          :descendants,
           :determiner_id_or,
           :determiner_name_regex,
           :dwc_indexed,
@@ -50,23 +49,11 @@ module Queries
           :geographic_area_id,
           :geographic_area_mode,
           :georeferences,
-          :identifier,
-          :identifier_end,
-          :identifier_exact,
-          :identifier_start,
-          :identifiers,
-          :match_identifiers,
-          :match_identifiers_delimiter,
-          :match_identifiers_type,
           :in_labels,
           :in_verbatim_locality,
           :loaned,
           :md5_verbatim_label,
-          :namespace_id,
           :never_loaned,
-          :note_exact,
-          :note_text,
-          :notes,
           :object_global_id,
           :on_loan,
           :partial_overlap_dates,
@@ -80,45 +67,27 @@ module Queries
           :start_date,  # CE filter
           :taxon_determination_id,
           :taxon_determinations,
+          :taxon_name_id,
           :type_material,
           :type_specimen_taxon_name_id,
-          :user_date_end,
-          :user_date_start,
-          :user_id,
-          :user_target,
           :validity,
           :with_buffered_collecting_event,
           :with_buffered_determinations,
           :with_buffered_other_labels,
           :wkt,
-          :data_attribute_exact_value,     # DataAttributes concern
-          :data_attributes, # DataAttributes concern
           biocuration_class_ids: [],
           biological_relationship_ids: [],
           collecting_event_ids: [],
           collecting_event_wildcards: [], # !! TODO, factor into CONSTANT
           collector_id: [], #
-          data_attribute_predicate_id: [], # DataAttributes concern
-          data_attribute_value: [],        # DataAttributes concern
           determiner_id: [],
           geographic_area_id: [],
           is_type: [],
-          keyword_id_and: [],
-          keyword_id_or: [],
           loan_id: [],
           otu_ids: [],
           preparation_type_id: [],
-          #  user_id: []
-          #  collecting_event: {
-          #   :recent,
-          #   keyword_id_and: []
-          # }
+          taxon_name_id: [],
         )
-      end
-
-      # @params params ActionController::Parameters
-      def self.permit(params)
-        deep_permit(:collection_object, params)
       end
 
       # TODO: look for name collisions with CE filter
@@ -229,6 +198,7 @@ module Queries
       #   nil - not applied
       attr_accessor :georeferences
 
+      # TODO: move to base ...
       # @param [String, nil]
       #  'true' - order by updated_at
       #  'false', nil - do not apply ordering
@@ -332,21 +302,14 @@ module Queries
 
       # @param [Hash] args are permitted params
       def initialize(params)
-        params.reject!{ |_k, v| v.nil? || (v == '') } # dump all entries with empty values
+        # params.reject!{ |_k, v| v.nil? || (v == '') } # dump all entries with empty values
 
-        # Only CollectingEvent fields are permitted now.
-        # (Perhaps) TODO: allow concern attributes nested inside as well, e.g. show me all COs with this Tag on CE.
+        # Only CollectingEvent fields are permitted, for advanced nesting (e.g. tags on CEs), use collecting_event_query
         collecting_event_params = ::Queries::CollectingEvent::Filter::ATTRIBUTES + ::Queries::CollectingEvent::Filter::PARAMS
 
         @base_collecting_event_query = ::Queries::CollectingEvent::Filter.new(
           params.select{|a,b| collecting_event_params.include?(a.to_s) }
         )
-
-        @collection_object_id = params[:collection_object_id]
-
-        @taxon_name_id = params[:taxon_name_id]
-
-        @descendants = boolean_param(params, :descendants)
 
         @biocuration_class_ids = params[:biocuration_class_ids] || []
         @biological_relationship_ids = params[:biological_relationship_ids] || []
@@ -355,11 +318,13 @@ module Queries
         @buffered_other_labels = params[:buffered_other_labels]
         @collecting_event = boolean_param(params, :collecting_event)
         @collecting_event_id = params[:collecting_event_id]
+        @collection_object_id = params[:collection_object_id]
         @collection_object_type = params[:collection_object_type].blank? ? nil : params[:collection_object_type]
         @current_determinations = boolean_param(params, :current_determinations)
         @current_repository = boolean_param(params, :current_repository)
         @current_repository_id = params[:current_repository_id].blank? ? nil : params[:current_repository_id]
         @depictions = boolean_param(params, :depictions)
+        @descendants = boolean_param(params, :descendants)
         @determiner_id = params[:determiner_id]
         @determiner_id_or = boolean_param(params, :determiner_id_or)
         @determiner_name_regex = params[:determiner_name_regex]
@@ -370,20 +335,21 @@ module Queries
         @geographic_area = boolean_param(params, :geographic_area)
         @georeferences = boolean_param(params, :georeferences)
         @is_type = params[:is_type] || []
+        @loan_id = params[:loan_id]
         @loaned = boolean_param(params, :loaned)
         @never_loaned = boolean_param(params, :never_loaned)
         @object_global_id = params[:object_global_id]
         @on_loan =  boolean_param(params, :on_loan)
-        @loan_id = params[:loan_id]
         @otu_descendants = boolean_param(params, :otu_descendants)
         @otu_id = params[:otu_id]
+        @preparation_type = boolean_param(params, :preparation_type)
         @preparation_type_id = params[:preparation_type_id]
         @recent = boolean_param(params, :recent)
         @repository = boolean_param(params, :repository)
-        @preparation_type = boolean_param(params, :preparation_type)
         @repository_id = params[:repository_id].blank? ? nil : params[:repository_id]
         @sled_image_id = params[:sled_image_id].blank? ? nil : params[:sled_image_id]
         @taxon_determinations = boolean_param(params, :taxon_determinations)
+        @taxon_name_id = params[:taxon_name_id]
         @type_material = boolean_param(params, :type_material)
         @type_specimen_taxon_name_id = params[:type_specimen_taxon_name_id].blank? ? nil : params[:type_specimen_taxon_name_id]
         @validity = boolean_param(params, :validity)
@@ -392,10 +358,8 @@ module Queries
         @with_buffered_other_labels = boolean_param(params, :with_buffered_other_labels)
 
         set_data_attributes_params(params)
-        set_identifier(params)
         set_notes_params(params)
         set_tags_params(params)
-        set_user_dates(params)
         super
       end
 
@@ -703,35 +667,19 @@ module Queries
         c
       end
 
-      # @return [ActiveRecord::Relation]
-      def and_clauses
-        clauses = base_and_clauses
-        return nil if clauses.empty?
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
-      end
-
-      # @return [Array]
       def base_and_clauses
-        clauses = []
-
-        clauses += [
-          collection_object_id_facet,
-          attribute_exact_facet(:buffered_determinations),
+        [
           attribute_exact_facet(:buffered_collecting_event),
+          attribute_exact_facet(:buffered_determinations),
           attribute_exact_facet(:buffered_other_labels),
           collecting_event_id_facet,
-          preparation_type_id_facet,
-          type_facet,
-          repository_id_facet,
+          collection_object_id_facet,
           current_repository_id_facet,
-          object_global_id_facet
+          object_global_id_facet,
+          preparation_type_id_facet,
+          repository_id_facet,
+          type_facet,
         ]
-        clauses.compact!
-        clauses
       end
 
       def base_merge_clauses
@@ -739,44 +687,31 @@ module Queries
         clauses += collecting_event_merge_clauses + collecting_event_and_clauses
 
         clauses += [
+          source_query_facet,
           collecting_event_query_facet,
           taxon_name_query_facet,
-          taxon_name_id_facet,
+          otu_query_facet,
+
           biocuration_facet,
           biological_relationship_ids_facet,
           collecting_event_facet,
-          created_updated_facet,  # See Queries::Concerns::Users
           current_repository_facet,
-          data_attribute_predicate_facet,
-          data_attribute_value_facet,
-          data_attributes_facet,
           depictions_facet,
           determiner_facet,
           determiner_name_regex_facet,
           dwc_indexed_facet,
           geographic_area_facet,
           georeferences_facet,
-
-          # See Queries::Concerns::Identifiers
-          identifier_between_facet,
-          identifier_facet,
-          identifier_namespace_facet,
-          identifiers_facet,
-          local_identifiers_facet,
-          match_identifiers_facet,
-
-          keyword_id_facet,       # See Queries::Concerns::Tags
           loan_facet,
           loaned_facet,
           never_loaned_facet,
-          note_text_facet,        # See Queries::Concerns::Notes
-          notes_facet,
           on_loan_facet,
           otus_facet,
           preparation_type_facet,
           repository_facet,
           sled_image_facet,
           taxon_determinations_facet,
+          taxon_name_id_facet,
           type_by_taxon_name_facet,
           type_material_facet,
           type_material_type_facet,
@@ -784,43 +719,8 @@ module Queries
           with_buffered_determinations_facet,
           with_buffered_other_labels_facet,
         ]
-
-        clauses.compact!
-        clauses
       end
 
-      # @return [ActiveRecord::Relation]
-      def merge_clauses
-        clauses = base_merge_clauses
-        return nil if clauses.empty?
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.merge(b)
-        end
-        a
-      end
-
-      # @return [ActiveRecord::Relation]
-      def all
-        a = and_clauses
-        b = merge_clauses
-        # q = nil
-        if a && b
-          q = b.where(a).distinct
-        elsif a
-          q = ::CollectionObject.where(a).distinct
-        elsif b
-          q = b.distinct
-        else
-          q = ::CollectionObject.all
-        end
-
-        # TODO: needs to go, orders mess with chaining.
-        q = q.order(updated_at: :desc) if recent
-        q
-      end
-
-      # @return [Scope]
       def type_by_taxon_name_facet
         return nil if type_specimen_taxon_name_id.nil?
 
@@ -832,7 +732,6 @@ module Queries
         )
       end
 
-      # @return [Scope]
       def type_material_type_facet
         return nil if is_type.empty?
 
@@ -855,7 +754,6 @@ module Queries
         end
       end
 
-      # @return [Scope]
       def otus_facet
         return nil if otu_id.empty?
 
@@ -946,6 +844,17 @@ module Queries
         ::CollectionObject.from('(' + s + ') as collection_objects')
       end
 
+      def otu_query_facet
+        return nil if otu_query.nil?
+        s = 'WITH query_otu_co AS (' + otu_query.all.to_sql + ') ' +
+          ::CollectionObject
+          .joins(:taxon_determinations)
+          .joins('JOIN query_otu_co as query_otu_co1 on query_otu_co1.id = taxon_determinations.otu_id')
+          .where(taxon_determinations: {position: 1})
+          .to_sql
+
+        ::CollectionObject.from('(' + s + ') as collection_objects')
+      end
     end
   end
 end

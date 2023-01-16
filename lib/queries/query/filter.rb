@@ -2,6 +2,7 @@ module Queries
   class Query::Filter < Queries::Query
 
     include Queries::Concerns::Citations
+    # include Queries::Concerns::Identifiers # Presently in Queries for other use in autocompletes
     include Queries::Concerns::Users
 
     # https://github.com/SpeciesFileGroup/taxonworks/blob/2652_unified_filters/app/javascript/vue/components/radials/filter/constants/queryParam.js
@@ -9,10 +10,10 @@ module Queries
     # https://github.com/SpeciesFileGroup/taxonworks/tree/2652_unified_filters/app/javascript/vue/components/radials/filter/links
     # https://github.com/SpeciesFileGroup/taxonworks/blob/2652_unified_filters/app/javascript/vue/components/radials/filter/links/CollectionObject.js
 
-    # 
+    #
     # !! This is cross-referenced in app/views/javascript/vue/components/radials/filter/links/*.js models.
     # !! When you add a reference here, ensure corresponding js model is aligned.
-    # 
+    #
     # This is read as  :too <- [:from1, from1] ].
     SUBQUERIES = {
       taxon_name: [:source, :otu, :collection_object, :collecting_event],
@@ -24,9 +25,8 @@ module Queries
       biological_association: [:source],
       extract: [:otu, :collection_object],
       descriptor: [],
+      loan: [],
     }.freeze
-
-    # include Queries::Concerns::Identifiers
 
     # @return [Array]
     # @param project_id [Array, Integer]
@@ -54,6 +54,7 @@ module Queries
     def initialize(params)
       set_user_dates(params)
       set_citations_params(params)
+      set_identifier_params(params)
 
       @project_id = params[:project_id] || Current.project_id # TODO: revisit
 
@@ -83,13 +84,44 @@ module Queries
       end
     end
 
-
     def project_id
       [@project_id].flatten.compact
     end
 
     def project_id_facet
       table[:project_id].eq_any(project_id)
+    end
+
+    def annotator_merge_clauses
+      a = []
+
+      # !! Interesting `.compact` removes #<ActiveRecord::Relation []>,
+      # so patterns that us collect.flatten.compact return empty,
+      #  `.present?` fails as well, so verbose loops here
+      self.class.included_annotator_facets.each do |c|
+        if c.respond_to?(:merge_clauses)
+          c.merge_clauses.each do |f|
+            if v = send(f)
+              a.push v
+            end
+          end
+        end
+      end
+      a
+    end
+
+    def annotator_and_clauses
+      a = []
+      self.class.included_annotator_facets.each do |c|
+        if c.respond_to?(:and_clauses)
+          c.and_clauses.each do |f|
+            if v = send(f)
+              a.push v
+            end
+          end
+        end
+      end
+      a
     end
 
     def shared_and_clauses
@@ -102,7 +134,8 @@ module Queries
 
     # @return [ActiveRecord::Relation, nil]
     def and_clauses
-      clauses = base_and_clauses + shared_and_clauses
+      clauses = base_and_clauses + shared_and_clauses + annotator_and_clauses
+      clauses.compact!
       return nil if clauses.empty?
 
       a = clauses.shift
@@ -118,10 +151,11 @@ module Queries
 
     def base_merge_clauses
       []
-    end 
+    end
 
     def merge_clauses
-      clauses = base_merge_clauses + shared_merge_clauses 
+      clauses = base_merge_clauses + shared_merge_clauses + annotator_merge_clauses
+      clauses.compact!
       return nil if clauses.empty?
 
       a = clauses.shift
@@ -131,26 +165,35 @@ module Queries
       a
     end
 
-    # @return [ActiveRecord::Relation]
-    def all
-      a = and_clauses
-      b = merge_clauses
+    def self.included_annotator_facets
+      f = [
+        ::Queries::Concerns::Citations,
+        ::Queries::Concerns::Users
+      ]
 
-      if a && b
-        b.where(a).distinct
-      elsif a
-        referenced_klass.where(a).distinct
-      elsif b
-        b.distinct
-      else
-        referenced_klass.all
-      end
+      f.push ::Queries::Concerns::Tags if self < ::Queries::Concerns::Tags
+      f.push ::Queries::Concerns::Notes if self < ::Queries::Concerns::Notes
+      f.push ::Queries::Concerns::DataAttributes if self < ::Queries::Concerns::DataAttributes
+      f.push ::Queries::Concerns::Identifiers if self < ::Queries::Concerns::Identifiers
+      f.push ::Queries::Concerns::Protocols if self < ::Queries::Concerns::Protocols
+
+      f
     end
 
-    # @params base Symbol
-    #   The name of the filter, must match a key in Query::Filter::SUBQUERIES
-    #   See /lib/queries/query/filter.rb
-    # @params params ActionController::Parameters
+    def self.annotator_params(params)
+      h = ActionController::Parameters.new.permit!
+
+      included_annotator_facets.each do |q|
+        h.merge! q.permit(params)
+      end
+      h
+    end
+
+    #
+    # @param filter [Symbol]
+    #   One of SUBQUERIES.keys
+    #
+    # @param params [ActionController::Parameters]
     # @return [Hash]
     #   all params for this base request
     #   keys are symbolized
@@ -160,7 +203,7 @@ module Queries
     #  of this with simply params.permit!
     #
     #a The question is whether there are benefits to housekeeping
-    # (knowing the expected/full list of params ).  For example using permit
+    # (knowing the expected/full list of params ). For example using permit
     # tells us when the UI is sending params that we don't expect (not permitted logs).
     #
     # Keeping tack of the list or params in one places also helps to build API documentation.
@@ -171,7 +214,7 @@ module Queries
       h = ActionController::Parameters.new
       h.merge! base_params(params)
 
-      # TODO: consider adding concern params dynamically here
+      h.merge! annotator_params(params)
 
       SUBQUERIES[filter].each do |k|
         q = (k.to_s + '_query').to_sym
@@ -185,9 +228,6 @@ module Queries
       h.permit!.to_hash.deep_symbolize_keys
     end
 
-    # generic multi-use bits
-    #   table is defined in each query, it is the class of instances being returned
-
     # params attribute [Symbol]
     #   a facet for use when params include `author`, and `exact_author` pattern combinations
     #   See queries/source/filter.rb for example use
@@ -198,17 +238,37 @@ module Queries
       return nil if send(a).blank?
       if send("exact_#{a}".to_sym)
 
+        # TODO: Think we need to handle ' and "
+
         v = send(a)
         v.gsub!(/\s+/, ' ')
         v = ::Regexp.escape(v)
         v.gsub!(/\\\s+/, '\s*') # spaces are escaped, but we need to expand them in case we dont' get them caught
         v = '^\s*' + v + '\s*$'
 
-        # !! May need to add table name here preceeding a.
-        Arel::Nodes::SqlLiteral.new( "#{a} ~ '#{v}'" )
+        table[a].matches_regexp(v)
       else
         table[a].matches('%' + send(a).strip.gsub(/\s+/, '%') + '%')
       end
+    end
+
+    # @return [ActiveRecord::Relation]
+    # super is called on this method
+    def all
+      a = and_clauses
+      b = merge_clauses
+
+      if a && b
+        b.where(a).distinct
+      elsif a
+        referenced_klass.where(a).distinct
+      elsif b
+        b.distinct
+      else
+        referenced_klass.all
+      end
+
+      # q = q.order(updated_at: :desc) if recent
     end
 
     # @return [Arel::Nodes::TableAlias]

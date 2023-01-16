@@ -1,7 +1,6 @@
 require 'rails_helper'
-require 'support/shared_contexts/shared_geo'
 
-describe Queries::Descriptor::Filter, type: :model, group: [:geo, :collection_objects, :otus, :shared_geo] do
+describe Queries::Descriptor::Filter, type: :model, group: [:observation_matrix] do
 
   let(:q) { Queries::Descriptor::Filter.new({}) }
 

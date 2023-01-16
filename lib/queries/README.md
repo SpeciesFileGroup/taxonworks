@@ -10,11 +10,10 @@ These are the primary filtering, and autocomplete queries.  The directory is bei
 * Directory name (/lib/queries/<directory>/) must `.safe_constantize` to an existing ActiveRecord model
   * If name does not .safe_constantize then class must provide `.table` and `.query_base` methods.
 * All references to ActiveRecord models must begin with `::`, e.g. `::Otu.all`
-* Params should be passed as a `Hash`, do the permitting of attributes in the controller.
 
 ## Filter queries
 
-* should have an `#all` method that returns a _Scope_
+* the `#all` returns a _Scope_
 
 ## Autocomplete queries
 
@@ -28,7 +27,3 @@ These are the primary filtering, and autocomplete queries.  The directory is bei
 ## Parameter names
 
 * Array parameters should be singular, like `taxon_name_id[]=`.  This needs to be made consistent throughout.
-* TODO: consider naming convention for boolean paramters
-
-
-

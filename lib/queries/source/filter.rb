@@ -1,6 +1,16 @@
 module Queries
   module Source
+
+    # TODO: UI needs singular updates for:
+    # 
+    #   
+    #
+    #
     class Filter < Query::Filter
+
+      include Queries::Concerns::Tags
+      include Queries::Concerns::Notes
+      include Queries::Concerns::Empty
 
       # TODO: move to model replicated in CollectingEvent
       # TOOD: confirm cached should not be a target
@@ -9,121 +19,63 @@ module Queries
       #    class_eval { attr_accessor a.to_sym }
       #  end
 
-#     PARAMS = %w{
-#       in_project
-#       author
-#       ids
-#       exact_author
-#       author_ids
-#       author_ids_or
-#       topic_ids
-#       year_start
-#       year_end
-#       title
-#       exact_title
-#       citations
-#       recent
-#       roles
-#       documents
-#       nomenclature
-#       with_doi
-#       citation_object_type
-#       notes
-#       source_type
-#       serial_ids
-#       ancestor_id
-#       citations_on_otus
-#     }
-
       def self.permit(params)
         params.permit( 
+          :ancestor_id, # TODO: review vs. taxon_name_id
           :author,
-          :ancestor_id,
-          :author_ids_or,
+          :author_ids_or, # TODO: singularize
           :bibtex_type,
-          :citations,
           :citations_on_otus,
           :documents,
           :exact_author,
           :exact_title,
-          :identifier,
-          :identifier_end,
-          :identifier_exact,
-          :identifier_start,
-          :match_identifiers,
-          :match_identifiers_delimiter,
-          :match_identifiers_type,
           :in_project,
-          :namespace_id,
           :nomenclature,
-          :notes,
           :per,
           :project_id,
           :query_term,
           :recent,
           :roles,
-          :source_type,
           :serial,
-          :tags,
+          :source_type,
           :title,
-          :user_date_end,
-          :user_date_start,
-          :user_id,
-          :user_target,
           :with_doi,
           :with_title,
           :year_end,
           :year_start,
-          :keyword_id_and,
-          :keyword_id_or,
-          author_ids: [],
+          author_ids: [], # TODO: singularize
           bibtex_type: [],
           citation_object_type: [],
-          ids: [],
+          ids: [], # TODO: singularize
           keyword_id_and: [],
           keyword_id_or: [],
-          topic_ids: [],
-          serial_ids: [],
+          topic_ids: [], # TODO: singularize
+          serial_ids: [], # TODO: singularize
           empty: [],
           not_empty: []
         )
       end
 
-
+=begin
       PARAMS = ATTRIBUTES.collect{|a| a.to_sym} + [
-        :author,
         :ancestor_id,
+        :author,
         :author_ids_or,
         :bibtex_type,
-        :citations,
         :citations_on_otus,
         :documents,
         :exact_author,
         :exact_title,
-        :identifier,
-        :identifier_end,
-        :identifier_exact,
-        :identifier_start,
-        :match_identifiers,
-        :match_identifiers_delimiter,
-        :match_identifiers_type,
         :in_project,
-        :namespace_id,
         :nomenclature,
-        :notes,
         :per,
         :project_id,
         :query_term,
         :recent,
         :roles,
-        :source_type,
         :serial,
-        :tags,
+        :source_type,
         :title,
-        :user_date_end,
-        :user_date_start,
-        :user_id,
-        :user_target,
         :with_doi,
         :with_title,
         :year_end,
@@ -139,10 +91,8 @@ module Queries
         empty: [],
         not_empty: []
       ] 
+=end
 
-      include Queries::Concerns::Tags
-      include Queries::Concerns::Users
-      include Queries::Concerns::Empty
 
       # @project_id from Queries::Query
       #   used in context of in_project when provided
@@ -186,8 +136,7 @@ module Queries
       # @params exact_title ['true', 'false', nil]
       attr_accessor :exact_title
 
-      # !! TODO - conflicts with citations?  !!
-
+      # !! TODO - conflicts with citations?  !! - yes, this is *used in citations*
       # @return [Boolean, nil]
       # @params citations ['true', 'false', nil]
       attr_accessor :citations
@@ -219,10 +168,6 @@ module Queries
 
       # From lib/queries/concerns/tags.rb
       # attr_accessor :tags
-
-      # @return [Boolean, nil]
-      # @params notes ['true', 'false', nil]
-      attr_accessor :notes
 
       # @return [String, nil]
       # @params source_type ['Source::Bibtex', 'Source::Human', 'Source::Verbatim']
@@ -267,7 +212,7 @@ module Queries
         @author_ids_or =  boolean_param(params,:author_ids_or)
         @bibtex_type = params[:bibtex_type]
         @citation_object_type = params[:citation_object_type] || []
-        @citations =  boolean_param(params,:citations)
+        @citations = boolean_param(params,:citations) # TODO: rename coming to reflect conflict with Citations concern
         @citations_on_otus = boolean_param(params,:citations_on_otus)
         @documents = boolean_param(params,:documents)
         @exact_author = boolean_param(params,:exact_author)
@@ -275,7 +220,6 @@ module Queries
         @ids = params[:ids] || []
         @in_project = boolean_param(params,:in_project) 
         @nomenclature = boolean_param(params,:nomenclature)
-        @notes = boolean_param(params,:notes)
         @project_id = params[:project_id] # TODO: also in Queries::Query
         @recent =  boolean_param(params,:recent)
         @roles = boolean_param(params,:roles)
@@ -291,7 +235,6 @@ module Queries
 
         build_terms
 
-        set_identifier(params)
         set_tags_params(params)
         set_user_dates(params)
         set_empty_params(params)
@@ -310,18 +253,6 @@ module Queries
       def bibtex_type_facet
         return nil if bibtex_type.empty?
         table[:type].eq('Source::Bibtex').and(table[:bibtex_type].eq_any(bibtex_type))
-      end
-
-      # @return [ActiveRecord::Relation, nil]
-      #   if user provides 5 or fewer strings and any number of years look for any string && year
-      def fragment_year_matches
-        if fragments.any?
-          s = table[:cached].matches_any(fragments)
-          s = s.and(table[:year].eq_any(years)) if !years.empty?
-          s
-        else
-          nil
-        end
       end
 
       # Return all citations on Taxon names and descendants,
@@ -403,40 +334,29 @@ module Queries
 
         if in_project
           ::Source.joins(:project_sources)
-            .where(project_sources: {project_id: project_id})
+            .where(project_sources: {project_id:})
         else
           ::Source.left_outer_joins(:project_sources)
-            .where("project_sources.project_id != ? OR project_sources.id IS NULL", Current.project_id)
+            .where('project_sources.project_id != ? OR project_sources.id IS NULL', Current.project_id) # TODO: probably project_id
             .distinct
         end
       end
 
-      # TODO: move to a concern
-      def citation_facet
-        return nil if citations.nil?
-
-        if citations
-          ::Source.joins(:citations).distinct
-        else
-          ::Source.left_outer_joins(:citations)
-            .where(citations: {id: nil})
-            .distinct
-        end
+      # Over-rides Query::Filter identifier_type_facet to handle with_doi exception
+      def identifier_type_facet
+        return nil if identifier_type.empty? || with_doi
+        q = referenced_klass.joins(:identifiers)
+        w = identifier_table[:type].eq_any(identifier_type)
+        q.where(w)
       end
 
-      # TODO: move to generalized code in identifiers concern
+      # TODO: move to generalized code in Identifiers concern
       def with_doi_facet
         return nil if with_doi.nil?
-
-        # See lib/queries/concerns/identifiers.rb
-        @identifier_type.push 'Identifier::Global::Doi'
-        @identifier_type.uniq!
-
         if with_doi
-          identifier_type_facet
+          ::Source.joins(:identifiers).where(identifiers: {type: 'Identifier::Global::Doi'})
         else
-          ::Source.left_outer_joins(:identifiers)
-            .where("(identifiers.type != 'Identifier::Global::Doi') OR (identifiers.identifier_object_id is null)")
+          ::Source.left_outer_joins(:identifiers).where("(identifiers.type != 'Identifier::Global::Doi') OR (identifiers.identifier_object_id is null)")
         end
       end
 
@@ -463,18 +383,6 @@ module Queries
       end
 
       # TODO: move to a concern
-      def note_facet
-        return nil if notes.nil?
-
-        if notes
-          ::Source.joins(:notes).distinct
-        else
-          ::Source.left_outer_joins(:notes)
-            .where(notes: {id: nil})
-        end
-      end
-
-      # TODO: move to a concern
       def document_facet
         return nil if documents.nil?
 
@@ -497,7 +405,6 @@ module Queries
         end
       end
 
-      # TODO: move to citation concern
       def citation_object_type_facet
         return nil if citation_object_type.empty?
         ::Source.joins(:citations)
@@ -518,90 +425,41 @@ module Queries
         end
       end
 
-      def base_merge_clauses
-        clauses = []
+      # Over-ride the inclusion of this facet at the Filter level.
+      def project_id_facet
+        nil
+      end
 
-        clauses += [
+      def base_merge_clauses
+        [
           ancestors_facet,
           author_ids_facet,
-          topic_ids_facet,
-          citation_facet,
           citation_object_type_facet,
           document_facet,
+          empty_fields_facet,    # See Queries::Concerns::Empty
           in_project_facet,
           nomenclature_facet,
-          role_facet,
-          with_doi_facet,
-          keyword_id_facet,
-          tag_facet,
-          note_facet,
-          identifier_between_facet,
-          identifier_facet,
-          identifier_namespace_facet,
-          match_identifiers_facet,
-          created_updated_facet, # See Queries::Concerns::Users
-          empty_fields_facet,    # See Queries::Concerns::Empty
           not_empty_fields_facet,
+          role_facet,
+          topic_ids_facet,
+          with_doi_facet,
         ]
-        clauses.compact!
-        clauses
       end
 
       # @return [ActiveRecord::Relation]
-      def merge_clauses
-        clauses = base_merge_clauses
-        return nil if clauses.empty?
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.merge(b)
-        end
-        a
-      end
-
-      # @return [ActiveRecord::Relation]
-      def and_clauses
-        clauses = []
-
-        clauses += [
+      def base_and_clauses
+        [
+          attribute_exact_facet(:author),
+          attribute_exact_facet(:title),
           bibtex_type_facet,
           cached,
           serial_facet,
-          source_ids_facet,
           serial_ids_facet,
-          attribute_exact_facet(:author),
-          attribute_exact_facet(:title),
+          source_ids_facet,
           source_type_facet,
-          year_facet,
           with_title_facet,
-        ].compact
-
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
-      end
-
-      # @return [ActiveRecord::Relation]
-      def all
-        a = and_clauses
-        b = merge_clauses
-
-        q = nil
-        if a && b
-          q = b.where(a)
-        elsif a
-          q = ::Source.where(a)
-        elsif b
-          q = b
-        else
-          q = ::Source.all
-        end
-
-        q = q.order(updated_at: :desc) if recent
-        q
+          year_facet,
+        ]
       end
 
       private

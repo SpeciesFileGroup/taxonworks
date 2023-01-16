@@ -4,6 +4,13 @@ module Queries::Concerns::Citations
 
   extend ActiveSupport::Concern
 
+  def self.permit(params)
+    params.permit(
+      :citations,
+      :origin_citation
+    )
+  end
+
   included do
     # @params citations [String]
     # @return [Boolean]
@@ -34,6 +41,13 @@ module Queries::Concerns::Citations
   # @return [Arel::Table]
   def citation_table 
     ::Citation.arel_table
+  end
+
+  def self.merge_clauses
+    [ :citations_facet,
+      :origin_citation_facet,
+      # Do not include source_query_facet here
+    ]
   end
 
   def citations_facet

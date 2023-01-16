@@ -1,39 +1,47 @@
 # Helpers for queries that reference Identifier
 #
-# For filter queries:
-# !! Note that query_base here is *not* the same as base_query
-# !! requires `set_identifiers` be called in initialize()
-#
 # See spec/lib/queries/collection_object/filter_spec.rb for existing spec tests
 #
-#
-#
 # TODO: Some of this is only for autocomplete !!
-# See anything refencing terms, query_string 
+# See anything refencing terms, query_string
 module Queries::Concerns::Identifiers
   include Queries::Helpers
 
   extend ActiveSupport::Concern
 
+  def self.permit(params)
+    params.permit(
+      :identifier,
+      :identifier_end,
+      :identifier_exact,
+      :identifier_start,
+      :identifier_type,
+      :identifiers,
+      :local_identifiers,
+      :match_identifiers,
+      :match_identifiers_delimiter,
+      :match_identifiers_type,
+      :namespace_id,
+      identifier_type: [],
+    )
+  end
+
   included do
-    # Limit to this namespace
-    attr_accessor :namespace_id
+    # USED?!
+    # Match on cached
+    attr_accessor :identifier
+
+    #  matches .identifier
+    attr_accessor :identifier_end
+
+    # Match like or exact on cached
+    attr_accessor :identifier_exact
 
     # @return [String]
     #   matches .identifier
     attr_accessor :identifier_start
 
-    #  matches .identifier
-    attr_accessor :identifier_end
-
-    # USED?!
-    # Match on cached
-    attr_accessor :identifier
-
-    # Match like or exact on cached
-    attr_accessor :identifier_exact
-
-    # param identifier_type [Array]
+    # @param identifier_type [Array]
     #   of identifier types
     attr_accessor :identifier_type
 
@@ -55,6 +63,9 @@ module Queries::Concerns::Identifiers
 
     attr_accessor :match_identifiers_type
 
+    # Limit to this namespace
+    attr_accessor :namespace_id
+
     def identifier_start
       ( @identifier_start.to_i - 1 ).to_s
     end
@@ -75,22 +86,24 @@ module Queries::Concerns::Identifiers
         return @match_identifiers_delimiter
       end
     end
+
+    def identifier_type
+      [@identifier_type].flatten.compact.uniq
+    end
   end
 
-  def set_identifier(params)
-    @namespace_id = params[:namespace_id]
-    @identifier_start = params[:identifier_start]
-    @identifier_end = params[:identifier_end]
+  def set_identifier_params(params)
     @identifier = params[:identifier]
+    @identifier_end = params[:identifier_end]
+    @identifier_exact = boolean_param(params, :identifier_exact)
+    @identifier_start = params[:identifier_start]
+    @identifier_type = params[:identifier_type]
     @identifiers = boolean_param(params, :identifiers)
     @local_identifiers = boolean_param(params, :local_identifiers)
-
-    @identifier_exact = boolean_param(params, :identifier_exact)
-    @identifier_type = params[:identifier_type] || []
-
     @match_identifiers = params[:match_identifiers]
     @match_identifiers_delimiter = params[:match_identifiers_delimiter]
     @match_identifiers_type = params[:match_identifiers_type]
+    @namespace_id = params[:namespace_id]
   end
 
   # @return [Arel::Table]
@@ -102,6 +115,19 @@ module Queries::Concerns::Identifiers
   #   Arel::Nodes::NamedFunction.new('SUBSTRING', [ identifier_table[:identifier], Arel::Nodes::SqlLiteral.new("'([\\d]{1,9})$'") ]).as('integer')
   # end
 
+  def self.merge_clauses
+    [
+      :identifier_between_facet,
+      :identifier_facet,
+      :identifier_namespace_facet,
+      :identifier_type_facet,
+      :identifiers_facet,
+      :local_identifiers_facet,
+      :match_identifiers_facet,
+    ]
+  end
+
+  # TODO: use where.between
   def between
     Arel::Nodes::Between.new(
       identifier_table[:cached_numeric_identifier],
@@ -126,9 +152,9 @@ module Queries::Concerns::Identifiers
     if !ids.empty?
       case match_identifiers_type&.downcase
       when 'internal'
-        query_base.where(id: ids)
+        referenced_klass.where(id: ids)
       when 'identifier'
-        query_base.joins(:identifiers).where(identifiers: {cached: ids})
+        referenced_klass.joins(:identifiers).where(identifiers: {cached: ids})
       else
         return nil
       end
@@ -140,9 +166,9 @@ module Queries::Concerns::Identifiers
   def identifiers_facet
     return nil if identifiers.nil?
     if identifiers
-      query_base.joins(:identifiers).distinct
+      referenced_klass.joins(:identifiers).distinct
     else
-      query_base.left_outer_joins(:identifiers)
+      referenced_klass.left_outer_joins(:identifiers)
         .where(identifiers: {id: nil})
         .distinct
     end
@@ -151,19 +177,19 @@ module Queries::Concerns::Identifiers
   def local_identifiers_facet
     return nil if local_identifiers.nil?
     if local_identifiers
-      query_base.joins(:identifiers).where("identifiers.type ILIKE 'Identifier::Local%'").distinct
+      referenced_klass.joins(:identifiers).where("identifiers.type ILIKE 'Identifier::Local%'").distinct
     else
       i = ::Identifier.arel_table[:identifier_object_id].eq(table[:id]).and(
         ::Identifier.arel_table[:identifier_object_type].eq( table.name.classify.to_s )
       )
-      query_base.where.not(::Identifier::Local.where(i).arel.exists)
+      referenced_klass.where.not(::Identifier::Local.where(i).arel.exists)
     end
   end
 
   def identifier_facet
     return nil if identifier.blank?
 
-    q = query_base.joins(:identifiers)
+    q = referenced_klass.joins(:identifiers)
     w = identifier_exact ?
       identifier_table[:cached].eq(identifier) :
       identifier_table[:cached].matches('%' + identifier.to_s + '%')
@@ -174,14 +200,14 @@ module Queries::Concerns::Identifiers
 
   def identifier_type_facet
     return nil if identifier_type.empty?
-    q = query_base.joins(:identifiers)
+    q = referenced_klass.joins(:identifiers)
     w = identifier_table[:type].eq_any(identifier_type)
     q.where(w)
   end
 
   def identifier_namespace_facet
     return nil if namespace_id.blank?
-    q = query_base.joins(:identifiers)
+    q = referenced_klass.joins(:identifiers)
     q.where(identifier_table[:namespace_id].eq(namespace_id))
   end
 
@@ -192,7 +218,7 @@ module Queries::Concerns::Identifiers
     w = between
     w = w.and(identifier_table[:namespace_id].eq(namespace_id)) if namespace_id
 
-    query_base.joins(:identifiers).where(w)
+    referenced_klass.joins(:identifiers).where(w)
   end
 
   # @return [Arel::Nodes::Equality]
@@ -236,30 +262,23 @@ module Queries::Concerns::Identifiers
   # May need to alter base query here
   #
   def autocomplete_identifier_cached_exact
-    query_base.joins(:identifiers).where(with_identifier_cached.to_sql)
+    referenced_klass.joins(:identifiers).where(with_identifier_cached.to_sql)
   end
 
   def autocomplete_identifier_identifier_exact
-    query_base.joins(:identifiers).where(with_identifier_identifier.to_sql)
+    referenced_klass.joins(:identifiers).where(with_identifier_identifier.to_sql)
   end
 
   def autocomplete_identifier_cached_like
-    query_base.joins(:identifiers).where(with_identifier_cached_wildcarded.to_sql)
+    referenced_klass.joins(:identifiers).where(with_identifier_cached_wildcarded.to_sql)
   end
 
   def autocomplete_identifier_matching_cached_anywhere
-    query_base.joins(:identifiers).where(with_identifier_cached_wildcarded.to_sql)
+    referenced_klass.joins(:identifiers).where(with_identifier_cached_wildcarded.to_sql)
   end
 
   def autocomplete_identifier_matching_cached_fragments_anywhere
-    query_base.joins(:identifiers).where(with_identifier_cached_like_fragments.to_sql)
-  end
-
-  private
-
-  # !! This is not the same as base_query !!
-  def query_base
-    table.name.classify.safe_constantize
+    referenced_klass.joins(:identifiers).where(with_identifier_cached_like_fragments.to_sql)
   end
 
 end

@@ -3,10 +3,11 @@ module Queries
   class Repository::Autocomplete < Query::Autocomplete
 
     include Queries::Concerns::AlternateValues
+    include Queries::Concerns::Identifiers
 
     # @param [Hash] args
     def initialize(string, **params)
-      set_identifier(params)
+      set_identifier_params(params)
       set_alternate_value(params)
       super
     end

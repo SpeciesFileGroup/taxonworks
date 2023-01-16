@@ -1,18 +1,18 @@
 module Queries
   module TaxonName
 
+    # Changed:
+    # * added year_start, :year_end, :name_exact, :author_exact
+    # * removed :exact
+
     # https://api.taxonworks.org/#/taxon_names
     class Filter < Query::Filter
 
       include Queries::Helpers
 
-      include Queries::Concerns::Citations
       include Queries::Concerns::Notes
       include Queries::Concerns::Tags
-      include Queries::Concerns::Users
       include Queries::Concerns::DataAttributes
-
-      # TODO: merge taxon_name_ids
 
       # @params params ActionController::Parameters
       # @return ActionController::Parameters
@@ -20,52 +20,33 @@ module Queries
         params.permit(
           :ancestors,
           :author,
+          :author_exact,
           :authors,
-          :citations,
-          :origin_citation,
-          :data_attribute_exact_value,
-          :data_attributes,
           :descendants,
           :descendants_max_depth,
           :etymology,
-          :exact,
           :leaves,
           :name,
+          :name_exact,
           :nomenclature_code,
           :nomenclature_group, # !! different than autocomplete
           :not_specified,
-          :note_exact, # Notes concern
-          :note_text,
-          :notes,
-          :otus,
           :otu_id,
+          :otus,
           :page,
           :per,
           :rank,
           :taxon_name_author_ids_or,
           :taxon_name_type,
           :type_metadata,
-          :updated_since,
-          :user_date_end,
-          :user_date_start,
-          :user_id,
-          :user_target,
+          :validify,
           :validity,
           :year,
-          :identifier,
-          :identifier_end,
-          :identifier_exact,
-          :identifier_start,
-          :identifiers,
-          :match_identifiers,
-          :match_identifiers_delimiter,
-          :match_identifiers_type,
+          :year_end,
+          :year_start,
+          name: [],
           otu_id: [],
           combination_taxon_name_id: [],
-          data_attribute_predicate_id: [], # DataAttributes concern
-          data_attribute_value: [],        # DataAttributes concern
-          keyword_id_and: [],
-          keyword_id_or: [],
           parent_id: [],
           rank: [],
           taxon_name_author_ids: [],
@@ -82,71 +63,47 @@ module Queries
         )
       end
 
-      # @params params ActionController::Parameters
-      def self.permit(params)
-        deep_permit(:taxon_name, params)
-      end
-
-      PARAMS = %w{
-        ancestors
-        author
-        authors
-        citations
-        origin_citation
-        descendants
-        descendants_max_dept
-        etymology
-        exact
-        leaves
-        name
-        nomenclature_code
-        nomenclature_group
-        not_specified
-        otu_id
-        otus
-        parent_id
-        project_id
-        sort
-        taxon_name_author_ids_or
-        taxon_name_classification
-        taxon_name_id
-        taxon_name_relationship
-        taxon_name_relationship_type
-        taxon_name_type
-        type_metadata
-        updated_since
-        validity
-        year
-        geo_json
-      }
-
-      # @param name [String]
-      #  Matches against cached.  See also exact.
+      # @param name [String, Array]
+      # @return [Array]
+      #  Matches against cached.  See also name_exact.
       attr_accessor :name
 
+      # @return Boolean
+      attr_accessor :name_exact
+
       # @param author [String]
-      #   Use "&" for "and". Matches against cached_author_year.
+      #   Use "&" for "and". Matches against cached_author_year. See also author_exact.
       attr_accessor :author
+
+      # @return Boolean
+      attr_accessor :author_exact
 
       # @param year [String]
       #   "yyyy"
       # Matches against cached_author_year.
       attr_accessor :year
 
-      # @param exact [Boolean]
-      #   true if matching must be exact, false if partial matches are allowed.
-      attr_accessor :exact
+      # @param year_start [String]
+      #   "yyyy"
+      # Matches against cached_nomenclature_date
+      attr_accessor :year_start
 
-      # TODO: deprecate for Queries::Concerns::User
-      #
-      # @param updated_since [String] in format yyyy-mm-dd
-      #  Names updated (.modified_at) since this date.
-      attr_accessor :updated_since
+      # @param year_start [String]
+      #   "yyyy"
+      # Matches against cached_nomenclature_date
+      attr_accessor :year_end
 
-      # @prams validity [ Boolean]
+      # @params validity [ Boolean]
       # ['true' or 'false'] on initialize
       #   true if only valid, false if only invalid, nil if both
       attr_accessor :validity
+
+      # @params validity ['true', True, nil]
+      # @return Boolean
+      #    if true then for each name in the result its valid
+      # name is returned
+      # !! This param is not like the others. !! 
+      attr_accessor :validify
 
       # @params taxon_name_id [Array]
       #   An array of taxon_name_id.
@@ -190,12 +147,6 @@ module Queries
       # @param taxon_name_classification [Array]
       #   Class names of TaxonNameClassification, as strings.
       attr_accessor :taxon_name_classification
-
-      # @param project_id [String]
-      #   The project scope.
-      # TODO: probably should be an array for API purposes.
-      # TODO: unify globally as to whether param belongs here, or at controller level.
-      attr_accessor :project_id
 
       # @param otu_id [Array, nil]
       # @return [Array, nil]
@@ -278,53 +229,59 @@ module Queries
       # @param params [Params]
       #   as permitted via controller
       def initialize(params)
+
+        @ancestors = boolean_param(params,:ancestors )
         @author = params[:author]
+        @author_exact = boolean_param(params, :author_exact)
         @authors = boolean_param(params, :authors )
+        @combination_taxon_name_id = params[:combination_taxon_name_id]
         @descendants = boolean_param(params,:descendants )
         @descendants_max_depth = params[:descendants_max_depth]
-        @ancestors = boolean_param(params,:ancestors )
-        @exact = boolean_param(params, :exact)
+        @etymology = boolean_param(params, :etymology)
+        @geo_json = params[:geo_json]
         @leaves = boolean_param(params, :leaves)
         @name = params[:name]
-        @not_specified = boolean_param(params, :not_specified)
+        @name_exact = boolean_param(params, :name_exact)
         @nomenclature_code = params[:nomenclature_code] if !params[:nomenclature_code].nil?
         @nomenclature_group = params[:nomenclature_group] if !params[:nomenclature_group].nil?
-
-        @rank = params[:rank]
-
-        @otus = boolean_param(params, :otus)
+        @not_specified = boolean_param(params, :not_specified)
         @otu_id = params[:otu_id]
-        @etymology = boolean_param(params, :etymology)
+        @otus = boolean_param(params, :otus)
+        @parent_id = params[:parent_id]
         @project_id = params[:project_id]
+        @rank = params[:rank]
+        @sort = params[:sort]
+        @taxon_name_author_ids = params[:taxon_name_author_ids].blank? ? [] : params[:taxon_name_author_ids]
+        @taxon_name_author_ids_or = boolean_param(params, :taxon_name_author_ids_or)
         @taxon_name_classification = params[:taxon_name_classification] || []
         @taxon_name_id = params[:taxon_name_id]
-        @combination_taxon_name_id = params[:combination_taxon_name_id]
-        @parent_id = params[:parent_id]
-        @sort = params[:sort]
         @taxon_name_relationship = params[:taxon_name_relationship] || []
         @taxon_name_relationship_type = params[:taxon_name_relationship_type] || []
         @taxon_name_type = params[:taxon_name_type]
         @type_metadata = boolean_param(params, :type_metadata)
-        @updated_since = params[:updated_since].to_s
+        @validify = boolean_param(params, :validify)
         @validity = boolean_param(params, :validity)
-        @year = params[:year].to_s
+        @year = params[:year]
+        @year_end = params[:year_end]
+        @year_start = params[:year_start]
 
-        @taxon_name_author_ids = params[:taxon_name_author_ids].blank? ? [] : params[:taxon_name_author_ids]
-        @taxon_name_author_ids_or = boolean_param(params, :taxon_name_author_ids_or)
-
-        @geo_json = params[:geo_json]
-
-        set_identifier(params)
         set_notes_params(params)
         set_data_attributes_params(params)
         set_tags_params(params)
-        set_user_dates(params)
-        set_citations_params(params)
         super
       end
 
-      def year=(value)
-        @year = value.to_s
+      def year
+        return nil if @year.blank?
+        @year.to_s
+      end
+
+      def name
+        [@name].flatten.compact
+      end
+
+      def taxon_name_id
+        [@taxon_name_id].flatten.compact
       end
 
       def taxon_name_id
@@ -345,6 +302,16 @@ module Queries
 
       def rank
         [@rank].flatten.compact
+      end
+
+      def year_start
+        return nil if @year_start.blank?
+        Date.new(@year_start.to_i)
+      end
+
+      def year_end
+        return nil if @year_end.blank?
+        Date.new(@year_end.to_i)
       end
 
       # @return [String, nil]
@@ -428,6 +395,7 @@ module Queries
         ::TaxonName.where(otus ? subquery : subquery.not)
       end
 
+      # This is not true! It includes records that are year only.
       # @return Scope
       def authors_facet
         return nil if authors.nil?
@@ -551,12 +519,13 @@ module Queries
         table[:type].eq(taxon_name_type)
       end
 
-      def cached_name
-        return nil if name.blank?
-        if exact
-          table[:cached].eq(name.strip)
+      # TODO: Identical use in Otu
+      def name_facet
+        return nil if name.empty?
+        if name_exact
+          table[:cached].eq_any(name)
         else
-          table[:cached].matches('%' + name.strip.gsub(/\s+/, '%') + '%')
+          table[:cached].matches_any( name.collect{|n| '%' + n.gsub(/\s+/, '%') + '%' } )
         end
       end
 
@@ -567,21 +536,23 @@ module Queries
 
       def author_facet
         return nil if author.blank?
-        if exact
+        if author_exact
           table[:cached_author_year].eq(author.strip)
         else
           table[:cached_author_year].matches('%' + author.strip.gsub(/\s/, '%') + '%')
         end
       end
 
+      # TODO: should match against cached_nomenclature_date?
       def year_facet
         return nil if year.blank?
         table[:cached_author_year].matches('%' + year + '%')
       end
 
-      def updated_since_facet
-        return nil if updated_since.blank?
-        table[:updated_at].gt(Date.parse(updated_since))
+      def year_range_facet
+        return nil if year_end.nil? && year_start.nil?
+        s, e = [year_start, year_end].compact
+        ::TaxonName.where(cached_nomenclature_date: (s..e))
       end
 
       def validity_facet
@@ -607,6 +578,17 @@ module Queries
               subject_taxon_name_id: combination_taxon_name_id}).distinct
       end
 
+      def otu_query_facet
+        return nil if otu_query.nil?
+        s = 'WITH query_otu_tn AS (' + otu_query.all.to_sql + ') ' +
+          ::TaxonName
+          .joins(:otus)
+          .joins('JOIN query_otu_tn as query_otu_tn1 on otus.id = query_otu_tn1.id') # Don't change, see `validify`
+          .to_sql
+
+        ::TaxonName.from('(' + s + ') as taxon_names').distinct
+      end
+
       def collection_object_query_facet
         return nil if collection_object_query.nil?
         s = 'WITH query_collection_objects AS (' + collection_object_query.all.to_sql + ') ' +
@@ -618,93 +600,53 @@ module Queries
         ::TaxonName.from('(' + s + ') as taxon_names').distinct
       end
 
-      def base_and_clauses
-        clauses = []
-        # clauses += attribute_clauses
+      def collecting_event_query_facet
+        return nil if collecting_event_query.nil?
+        s = 'WITH query_ce_tns AS (' + collecting_event_query.all.to_sql + ') ' +
+          ::TaxonName
+          .joins(:collection_objects)
+          .joins('JOIN query_ce_tns as query_ce_tns1 on collection_objects.collecting_event_id = query_ce_tns.id')
+          .to_sql
 
-        clauses += [
-          parent_id_facet,
-          author_facet,
-          cached_name,
-          year_facet,
-          updated_since_facet,
-          validity_facet,
-          taxon_name_id_facet,
-          with_nomenclature_group,
-          with_nomenclature_code,
-          taxon_name_type_facet
-        ].compact!
-
-        clauses
+        ::TaxonName.from('(' + s + ') as taxon_names').distinct
       end
 
       # @return [ActiveRecord::Relation]
       def base_and_clauses
-        clauses = []
-        # clauses += attribute_clauses
-
-        clauses += [
+        [ 
+          author_facet,
+          name_facet,
+          parent_id_facet,
           rank_facet,
-          parent_id_facet,
-          author_facet,
-          cached_name,
-          year_facet,
-          updated_since_facet,
-          validity_facet,
           taxon_name_id_facet,
-          with_nomenclature_group,
+          taxon_name_type_facet,
+          validity_facet,
           with_nomenclature_code,
-          taxon_name_type_facet
-        ].compact!
-
-        clauses
-      end
-
-      # @return [ActiveRecord::Relation]
-      def and_clauses
-        clauses = base_and_clauses
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
+          with_nomenclature_group,
+          year_facet,
+        ]
       end
 
       def base_merge_clauses
         clauses = [
           collection_object_query_facet,
+          otu_query_facet,
+          source_query_facet,
+          
           ancestor_facet,
           authors_facet,
-          citations_facet,
-          origin_citation_facet,
-          source_query_facet,
           combination_taxon_name_id_facet,
-          created_updated_facet,
-          data_attribute_predicate_facet,
-          data_attribute_value_facet,
-          data_attributes_facet,
           descendant_facet,
-          keyword_id_facet,
           leaves_facet,
-
-          identifier_between_facet,
-          identifier_facet,
-          identifier_namespace_facet,
-          match_identifiers_facet,
-
           matching_taxon_name_author_ids,
           not_specified_facet,
-          note_text_facet,        # See Queries::Concerns::Notes
-          notes_facet,            # See Queries::Concerns::Notes
-
           otu_id_facet,
           otus_facet,
           taxon_name_classification_facet,
           taxon_name_relationship_type_facet,
           type_metadata_facet,
-          with_etymology_facet
+          with_etymology_facet,
+          year_range_facet
         ]
 
         taxon_name_relationship.each do |hsh|
@@ -714,38 +656,14 @@ module Queries
         clauses.compact
       end
 
-      def merge_clauses
-        clauses = base_merge_clauses
+      def validify_result(q)
+        return nil if otu_query.nil?
+        s = 'WITH tn_result_query AS (' + q.to_sql + ') ' +
+          ::TaxonName
+          .joins('JOIN tn_result_query as tn_result_query1 on tn_result_query1.cached_valid_taxon_name_id = taxon_names.id')
+          .to_sql
 
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.merge(b)
-        end
-        a
-      end
-
-      # @return [ActiveRecord::Relation]
-      def all
-        a = and_clauses
-        b = merge_clauses
-
-        q = nil
-        if a && b
-          q = b.where(a)
-        elsif a
-          q = ::TaxonName.where(a)
-        elsif b
-          q = b
-        else
-          q = ::TaxonName.all
-        end
-
-        q = q.where(project_id: project_id) if project_id.present?
-        q = order_clause(q) if sort
-
-        q
+        ::TaxonName.from('(' + s + ') as taxon_names').distinct
       end
 
       def order_clause(query)
@@ -764,6 +682,14 @@ module Queries
         else
           query
         end
+      end
+
+      # @return [ActiveRecord::Relation]
+      def all
+        q = super
+        q = validify_result(q) if validify
+        q = order_clause(q) if sort
+        q
       end
 
     end

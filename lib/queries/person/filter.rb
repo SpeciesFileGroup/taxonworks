@@ -3,7 +3,6 @@ module Queries
 
     class Filter < Query::Filter
       include Queries::Concerns::Tags
-      include Queries::Concerns::Users
       include Queries::Concerns::Notes
       include Queries::Concerns::DataAttributes
 
@@ -147,9 +146,7 @@ module Queries
 
         set_data_attributes_params(params)
         set_notes_params(params)
-        set_identifier(params)
         set_tags_params(params)
-        set_user_dates(params)
       end
 
       def with
@@ -418,7 +415,7 @@ module Queries
           data_attributes_facet,
 
           keyword_id_facet,
-          tag_facet,
+          tags_facet,
 
           project_id_facet,
           except_project_id_facet,

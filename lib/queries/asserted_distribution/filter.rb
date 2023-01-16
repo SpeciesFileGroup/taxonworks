@@ -9,8 +9,35 @@ module Queries
     # !! does not inherit from base query
     class Filter < Query::Filter
 
-      include Queries::Concerns::Citations
-      include Queries::Concerns::Users
+      # @params params ActionController::Parameters
+      # @return ActionController::Parameters
+      def self.base_params(params)
+        params.permit(
+          :descendants,
+          :geo_json,
+          :geographic_area_id,
+          :geographic_area_mode,
+          :otu_id,
+          :presence,
+          :recent,
+          :taxon_name_id,
+          :wkt,
+
+          :user_date_end,
+          :user_date_start,
+          :user_id,
+          :user_target,
+
+          geographic_area_id: [],
+          otu_id: [],
+          taxon_name_id: [],
+        )
+      end
+
+      # @params params ActionController::Parameters
+      def self.permit(params)
+        deep_permit(:asserted_distribution, params)
+      end
 
       # @param otu_id [Array, Integer, String]
       # @return [Array]
@@ -76,8 +103,6 @@ module Queries
         @presence = boolean_param(params, :presence)
         @recent = boolean_param(params, :recent)
 
-        set_user_dates(params)
-        set_citations_params(params)
         super
       end
 
@@ -154,6 +179,15 @@ module Queries
         end
       end
 
+      def otu_query_facet
+        return nil if otu_query.nil?
+        s = 'WITH query_otu_ad AS (' + otu_query.all.to_sql + ') ' +
+          ::AssertedDistribution
+          .joins('JOIN query_otu_ad as query_otu_ad1 on query_otu_ad1.id = asserted_distributions.otu_id')
+          .to_sql
+        ::AssertedDistribution.from('(' + s + ') as asserted_distributions')
+      end
+
       # !! TODO: "withify"
       def from_wkt(wkt_shape)
 
@@ -218,6 +252,8 @@ module Queries
         clauses = []
         clauses +=
           [
+            otu_query_facet,
+            source_query_facet,
             created_updated_facet, # See Queries::Concerns::Users
             taxon_name_id_facet,
             geographic_area_id_facet,
@@ -265,9 +301,6 @@ module Queries
         # q = q.order(updated_at: :desc).limit(recent) if recent
         q
       end
-
-      protected
-
     end
   end
 end

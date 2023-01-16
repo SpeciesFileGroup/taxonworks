@@ -241,9 +241,9 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     expect(query.all.map(&:id)).to contain_exactly(species.id)
   end
 
-  specify '#name, #exact' do
+  specify '#name, #name_exact' do
     query.name = 'vulnerata'
-    query.exact = true
+    query.name_exact = true
     expect(query.all.map(&:id)).to contain_exactly()
   end
 
@@ -252,18 +252,34 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     expect(query.all.map(&:id)).to contain_exactly(species.id)
   end
 
-  specify '#author, #exact' do
+  specify '#author, #author_exact' do
     query.author = 'Fit'
-    query.exact = true
+    query.author_exact = true
     expect(query.all.map(&:id)).to contain_exactly()
   end
 
   specify '#year' do
     query.year = 1800
-    expect(query.all.map(&:id)).to contain_exactly(species.id)
+    expect(query.all).to contain_exactly(species)
   end
 
-  # TODO: deprecate for User concern
+  specify '#year_start' do
+    query.year_start = 1800
+    expect(query.all).to contain_exactly(species)
+  end
+
+  specify '#year_end' do
+    query.year_end = 1800
+    expect(query.all).to contain_exactly(species)
+  end
+
+  specify '#year_start, #year_end' do
+    query.year_start = 1798
+    query.year_end = 1799
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  # From User concern
   specify '#updated_since' do
     species.update!(updated_at: '2050/1/1')
     query.updated_since = '2049-12-01'
@@ -299,7 +315,7 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     query.taxon_name_id = [species.id]
     query.name = 'Erasmoneura vulnerata'
     query.author = '(Fitch & Say, 1800)'
-    query.exact = true
+    query.name_exact = true
     query.year = 1800
     query.updated_since = '2049-12-01'
     query.validity = true
