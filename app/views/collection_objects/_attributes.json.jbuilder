@@ -28,3 +28,10 @@ if extend_response_with('taxon_determinations')
     json.array! collection_object.taxon_determinations, partial: '/taxon_determinations/attributes', as: :taxon_determination
   end
 end
+
+# TODO: partial with object
+if extend_response_with('data_attributes')
+  json.data_attributes do |ct|
+    json.array! collection_object.data_attributes, partial: '/data_attributes/attributes', as: :data_attribute, extensions: false
+  end
+end
