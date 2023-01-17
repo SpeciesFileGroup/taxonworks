@@ -12,6 +12,7 @@
   <FacetPreparationTypes v-model="params" />
   <FacetBiocurations v-model="params" />
   <FacetCollectingEvent v-model="params" />
+  <FacetWKT v-model="params" />
   <FacetPeople
     role="Collector"
     title="Collectors"
@@ -62,6 +63,7 @@ import FacetPeople from 'components/Filter/Facets/shared/FacetPeople.vue'
 import FacetNotes from 'components/Filter/Facets/shared/FacetNotes.vue'
 import FacetCurrentRepository from './filters/FacetCurrentRepository.vue'
 import FacetDataAttribute from 'components/Filter/Facets/shared/FacetDataAttribute.vue'
+import FacetWKT from 'components/Filter/Facets/Otu/FacetWKT.vue'
 import FacetMatchIdentifiers from 'components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 
 const WITH_PARAMS = [
