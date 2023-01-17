@@ -29,6 +29,14 @@ class CollectionObjectsController < ApplicationController
     end
   end
 
+  def index_metadata
+    render json: CollectionObject::BASE_PARAMS.inject({}){|hsh,p| hsh[p] = nil; hsh}
+      .merge( dwc_occurrence:  DwcOccurrence.target_columns.inject({}){|hsh,p| hsh[p] = nil; hsh} )
+      .merge( repository: Repository.data_attributes.inject({}){|hsh,p| hsh[p] = nil; hsh})
+      .merge( current_repository: Repository.data_attributes.inject({}){|hsh,p| hsh[p] = nil; hsh})
+      # .merge( taxon_determination: TaxonDetermination.data_attributes.inject({}){|hsh,p| hsh[p] = nil; hsh})
+  end
+
   # GET /collection_objects/1
   # GET /collection_objects/1.json
   def show
@@ -56,10 +64,10 @@ class CollectionObjectsController < ApplicationController
 
   # Render DWC fields *only*
   def dwc_index
-    objects = filtered_collection_objects.order('collection_objects.id').includes(:dwc_occurrence).page(params[:page]).per(params[:per] || 500).all
+    objects = filtered_collection_objects.order('collection_objects.id').includes(:dwc_occurrence).page(params[:page]).per(params[:per]).all
     assign_pagination(objects)
 
-    # Default to *exclude* some big fields, like geo spatial wkt
+    # Default to *exclude* some big fields, like geo-spatial wkt
     mode = params[:mode] || :view
     @objects = objects.pluck(*::CollectionObject.dwc_attribute_vector(mode))
     @headers = ::CollectionObject.dwc_attribute_vector_names(mode)
