@@ -3,7 +3,6 @@ json.predicate_name data_attribute.predicate_name
 
 json.partial! '/shared/data/all/metadata', object: data_attribute
 
-# TODO 
 if extend_response_with('annotated_object')
   json.annotated_object do
     json.partial! '/shared/data/all/metadata', object: metamorphosize_if(data_attribute.attribute_subject)

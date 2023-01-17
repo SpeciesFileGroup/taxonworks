@@ -117,6 +117,7 @@ resources :collection_objects do
   end
 
   collection do
+    get :index_metadata, defaults: {format: :json}
     match :filter, to: 'collection_objects#dwc_index', via: [:get, :post]
     get :dwc_index, defaults: {format: :json}
     get :report, defaults: {format: :json}
