@@ -33,5 +33,9 @@ export const CollectionObject = [
     label: 'By geographic area',
     link: '/tasks/collection_objects/filter',
     params: ['geographic_area_id']
+  },
+  {
+    label: 'Table',
+    link: '/tasks/collection_objects/table'
   }
 ]

@@ -74,7 +74,7 @@ const menuOptions = computed(() => {
   const slices = []
 
   links.forEach(item => {
-    const filteredParameters = filterEmptyParams(copyObjectByArray({ ...objParameters.value, ...props.parameters }, item.params))
+    const filteredParameters = filterEmptyParams(item.params ? copyObjectByArray({ ...objParameters.value, ...props.parameters }, item.params) : { ...objParameters.value, ...props.parameters })
     const link = item.link + '?' + transformObjectToParams(filteredParameters)
 
     if (Object.values(filteredParameters).some(Boolean)) {

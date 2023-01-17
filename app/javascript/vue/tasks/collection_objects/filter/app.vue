@@ -32,6 +32,10 @@
           v-if="Object.keys(coList).length"
           class="horizontal-right-content"
         >
+          <RadialLinker
+            :parameters="parameters"
+            object-type="CollectionObject"
+          />
           <TagAll
             class="circle-button"
             :ids="selectedIds"
@@ -105,6 +109,7 @@ import TagAll from './components/tagAll'
 import MatchButton from './components/matchButton.vue'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import DeleteCollectionObjects from './components/DeleteCollectionObjects.vue'
+import RadialLinker from 'components/radials/linker/radial.vue'
 import VSpinner from 'components/spinner.vue'
 
 const selectedIds = ref([])
