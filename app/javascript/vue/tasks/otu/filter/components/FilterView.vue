@@ -17,10 +17,6 @@
   <FacetDescriptor v-model="params" />
   <FacetDataAttribute v-model="params" />
   <FacetUsers v-model="params" />
-  <FacetCitations
-    title="Citations"
-    v-model="params"
-  />
   <FacetTags
     v-model="params"
     target="Otu"
