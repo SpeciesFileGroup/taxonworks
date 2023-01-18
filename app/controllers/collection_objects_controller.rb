@@ -29,12 +29,27 @@ class CollectionObjectsController < ApplicationController
     end
   end
 
+  # /collection_objects/index_metadata/.json
   def index_metadata
-    render json: CollectionObject::BASE_PARAMS.inject({}){|hsh,p| hsh[p] = nil; hsh}
-      .merge( dwc_occurrence:  DwcOccurrence.target_columns.inject({}){|hsh,p| hsh[p] = nil; hsh} )
-      .merge( repository: Repository.data_attributes.inject({}){|hsh,p| hsh[p] = nil; hsh})
-      .merge( current_repository: Repository.data_attributes.inject({}){|hsh,p| hsh[p] = nil; hsh})
-      # .merge( taxon_determination: TaxonDetermination.data_attributes.inject({}){|hsh,p| hsh[p] = nil; hsh})
+    render json: metadata_index( {
+      collection_object: CollectionObject,
+      repository: Repository,
+      current_respository: Repository,
+      collecting_event: CollectingEvent,
+      taxon_determinations: TaxonDetermination })
+      .merge( dwc_occurrence:  DwcOccurrence.target_columns.inject({}){|hsh,p| hsh[p] = nil; hsh}.delete_if{|k,v| k =~ /(_id|_type)\z/} )
+      .merge( identifiers: nil ).delete_if{|k,v| k =~ /(_id|_type)\z/}
+  end
+
+  # TODO: Move
+  def metadata_index(models = {})
+    h = {}
+    models.each do |l, m|
+      h.merge!(
+        l => m.core_attributes.inject({}){|hsh,p| hsh[p] = nil; hsh}
+      )
+    end
+    h
   end
 
   # GET /collection_objects/1
