@@ -8,19 +8,19 @@ if extend_response_with('dwc_occurrence')
   end
 end
 
-if extend_response_with('collecting_event')
+if extend_response_with('collecting_event')  && collection_object.collecting_event.present?
   json.collecting_event do
     json.partial! '/collecting_events/attributes', collecting_event: collection_object.collecting_event, extensions: false
   end
 end
 
-if extend_response_with('repository')
+if extend_response_with('repository') && collection_object.repository.present?
   json.repository do
     json.partial! '/repositories/attributes', collecting_event: collection_object.repository, extensions: false
   end
 end
 
-if extend_response_with('current_repository')
+if extend_response_with('current_repository') && collection_object.current_repository.present?
   json.current_repository do
     json.partial! '/repositories/attributes', collecting_event: collection_object.current_repository, extensions: false
   end
