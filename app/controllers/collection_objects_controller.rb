@@ -32,15 +32,20 @@ class CollectionObjectsController < ApplicationController
   # /collection_objects/index_metadata/.json
   def index_metadata
     render json: metadata_index( {
-      collection_object: CollectionObject,
       repository: Repository,
       current_respository: Repository,
       collecting_event: CollectingEvent,
       taxon_determinations: TaxonDetermination })
       .merge( dwc_occurrence:  DwcOccurrence.target_columns.inject({}){|hsh,p| hsh[p] = nil; hsh}.delete_if{|k,v| k =~ /(_id|_type)\z/} )
-      .merge( identifiers: nil ).delete_if{|k,v| k =~ /(_id|_type)\z/}
+      .merge( CollectionObject.core_attributes.inject({}){|hsh,p| hsh[p] = nil; hsh})
+      .merge(
+        identifiers: nil,
+        object_tag: nil,
+        object_label: nil,
+      ).delete_if{|k,v| k =~ /(_id|_type)\z/}
   end
 
+  # TODO: probably some deep clean
   # TODO: Move
   def metadata_index(models = {})
     h = {}
