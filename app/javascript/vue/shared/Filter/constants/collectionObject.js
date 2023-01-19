@@ -1,4 +1,5 @@
 export const COLLECTION_OBJECT_PROPERTIES = [
+  'id',
   'total',
   'type',
   'buffered_collecting_event',

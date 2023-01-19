@@ -1,120 +1,116 @@
 <template>
-  <HandyScroll ref="root">
-    <div>
-      <table
-        ref="tableBar"
-        v-resize-column
-      >
-        <thead>
-          <tr>
-            <td colspan="2" />
-            <template
-              v-for="(properties, key) in layout.properties"
-              :key="key"
-            >
-              <th
-                v-if="properties.length"
-                :colspan="properties.length"
-                scope="colgroup"
-                class="cell-left-border"
-              >
-                {{ humanize(key) }}
-              </th>
-            </template>
+  <HandyScroll>
+    <table
+      ref="tableElement"
+      v-resize-column
+    >
+      <thead>
+        <tr>
+          <td colspan="2" />
+          <template
+            v-for="(properties, key) in layout.properties"
+            :key="key"
+          >
             <th
-              v-if="layout.includes.data_attributes"
-              :colspan="dataAttributeHeaders.length"
+              v-if="properties.length"
+              :colspan="properties.length"
               scope="colgroup"
               class="cell-left-border"
             >
-              Data attributes
+              {{ humanize(key) }}
             </th>
-          </tr>
-          <tr>
-            <th>
-              <input
-                type="checkbox"
-                v-model="selectIds"
-              />
-            </th>
-            <th />
-            <template
-              v-for="(propertiesList, key) in layout.properties"
-              :key="key"
-            >
-              <th
-                v-for="(property, pIndex) in propertiesList"
-                :key="property"
-                :class="{ 'cell-left-border': pIndex === 0 }"
-                @click="
-                  sortTable(
-                    key === props.base ? property : `${key}.${property}`
-                  )
-                "
-              >
-                {{ property }}
-              </th>
-            </template>
-            <th
-              v-for="(header, index) in dataAttributeHeaders"
-              :class="{ 'cell-left-border': index === 0 }"
-              :key="header"
-            >
-              {{ header }}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="(item, index) in list"
-            :key="item.id"
-            class="contextMenuCells"
-            :class="{ even: index % 2 }"
+          </template>
+          <th
+            v-if="layout.includes.data_attributes"
+            :colspan="dataAttributeHeaders.length"
+            scope="colgroup"
+            class="cell-left-border"
           >
-            <td>
-              <input
-                v-model="ids"
-                :value="item.id"
-                type="checkbox"
-              />
-            </td>
-            <td>
-              <div class="horizontal-left-content">
-                <RadialAnnotator :global-id="item.global_id" />
-                <RadialObject :global-id="item.global_id" />
-                <RadialNavigation :global-id="item.global_id" />
-              </div>
-            </td>
-            <template
-              v-for="(properties, key) in props.layout.properties"
-              :key="key"
-            >
-              <td
-                v-for="(property, pIndex) in properties"
-                :key="property"
-                v-html="renderItem(item, key, property)"
-                :class="{ 'cell-left-border': pIndex === 0 }"
-              />
-            </template>
-            <td
-              v-for="(predicateName, dIndex) in dataAttributeHeaders"
-              :key="predicateName"
-              :class="{ 'cell-left-border': dIndex === 0 }"
-              v-text="renderDataAttribute(item.data_attributes, predicateName)"
+            Data attributes
+          </th>
+        </tr>
+        <tr>
+          <th>
+            <input
+              type="checkbox"
+              v-model="selectIds"
             />
-          </tr>
-        </tbody>
-      </table>
-    </div>
+          </th>
+          <th />
+          <template
+            v-for="(propertiesList, key) in layout.properties"
+            :key="key"
+          >
+            <th
+              v-for="(property, pIndex) in propertiesList"
+              :key="property"
+              :class="{ 'cell-left-border': pIndex === 0 }"
+              @click="
+                sortTable(key === props.base ? property : `${key}.${property}`)
+              "
+            >
+              {{ property }}
+            </th>
+          </template>
+          <th
+            v-for="(header, index) in dataAttributeHeaders"
+            :class="{ 'cell-left-border': index === 0 }"
+            :key="header"
+          >
+            {{ header }}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="(item, index) in list"
+          :key="item.id"
+          class="contextMenuCells"
+          :class="{ even: index % 2 }"
+        >
+          <td>
+            <input
+              v-model="ids"
+              :value="item.id"
+              type="checkbox"
+            />
+          </td>
+          <td>
+            <div class="horizontal-left-content">
+              <RadialAnnotator :global-id="item.global_id" />
+              <RadialObject :global-id="item.global_id" />
+              <RadialNavigation :global-id="item.global_id" />
+            </div>
+          </td>
+          <template
+            v-for="(properties, key) in props.layout.properties"
+            :key="key"
+          >
+            <td
+              v-for="(property, pIndex) in properties"
+              :key="property"
+              v-html="renderItem(item, key, property)"
+              :class="{ 'cell-left-border': pIndex === 0 }"
+            />
+          </template>
+          <td
+            v-for="(predicateName, dIndex) in dataAttributeHeaders"
+            :key="predicateName"
+            :class="{ 'cell-left-border': dIndex === 0 }"
+            v-text="renderDataAttribute(item.data_attributes, predicateName)"
+          />
+        </tr>
+      </tbody>
+    </table>
   </HandyScroll>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { sortArray } from 'helpers/arrays.js'
 import { vResizeColumn } from 'directives/resizeColumn.js'
-import HandyScroll from 'vue-handy-scroll'
 import { humanize } from 'helpers/strings'
+import HandyScroll from 'vue-handy-scroll'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/object/radial.vue'
 import RadialNavigation from 'components/radials/navigation/radial.vue'
@@ -142,7 +138,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['onSort', 'update:modelValue'])
-const root = ref(null)
+const tableElement = ref(null)
 const ascending = ref(false)
 
 const ids = computed({
@@ -199,6 +195,13 @@ function sortTable(sortProperty) {
   emit('onSort', sortArray(props.list, sortProperty, ascending.value))
   ascending.value = !ascending.value
 }
+
+watch(
+  () => props.layout,
+  () =>
+    HandyScroll.EventBus.emit('update', { sourceElement: tableElement.value }),
+  { deep: true }
+)
 </script>
 
 <style lang="scss" scoped>

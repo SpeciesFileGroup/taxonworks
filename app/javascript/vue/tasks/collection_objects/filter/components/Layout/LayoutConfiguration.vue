@@ -37,6 +37,7 @@
               class="no_bullets"
               element="ul"
               v-model="properties[key]"
+              :item-key="(item) => item"
               @end="updatePropertiesPositions(key)"
             >
               <template #item="{ element }">

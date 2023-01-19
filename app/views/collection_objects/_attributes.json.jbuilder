@@ -1,4 +1,4 @@
-json.extract! collection_object, *CollectionObject.core_attributes
+json.extract! collection_object, :id, *CollectionObject.core_attributes
 
 json.partial! '/shared/data/all/metadata', object: collection_object
 
