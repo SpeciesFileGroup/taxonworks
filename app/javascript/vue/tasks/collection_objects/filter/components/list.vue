@@ -1,6 +1,7 @@
 <template>
   <HandyScroll>
     <table
+      class="full_width"
       ref="tableElement"
       v-resize-column
     >
@@ -30,13 +31,13 @@
           </th>
         </tr>
         <tr>
-          <th>
+          <th class="w-2">
             <input
               type="checkbox"
               v-model="selectIds"
             />
           </th>
-          <th />
+          <th class="w-2" />
           <template
             v-for="(propertiesList, key) in layout.properties"
             :key="key"

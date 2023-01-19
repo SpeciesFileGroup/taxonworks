@@ -1,5 +1,4 @@
 export const DWC_OCCURRENCE_PROPERTIES = [
-  'id',
   'occurrenceID',
   'basisOfRecord',
   'catalogNumber',

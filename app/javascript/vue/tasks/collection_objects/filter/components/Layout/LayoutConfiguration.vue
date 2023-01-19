@@ -30,7 +30,7 @@
                         : [...propertiesList]
                   "
                 />
-                {{ key }}
+                {{ humanize(key) }}
               </label>
             </h3>
             <VueDraggable
@@ -91,6 +91,7 @@ import VModal from 'components/ui/Modal.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VueDraggable from 'vuedraggable'
 import { useLayoutConfiguration } from './useLayoutConfiguration'
+import { humanize } from 'helpers/strings.js'
 
 const {
   currentLayout,
