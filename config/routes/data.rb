@@ -118,7 +118,7 @@ resources :collection_objects do
 
   collection do
     get :index_metadata, defaults: {format: :json}
-    match :filter, to: 'collection_objects#dwc_index', via: [:get, :post]
+    match :filter, to: 'collection_objects#index', via: [:get, :post]
     get :dwc_index, defaults: {format: :json}
     get :report, defaults: {format: :json}
     post :preview_castor_batch_load # should be get
