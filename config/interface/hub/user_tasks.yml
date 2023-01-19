@@ -746,7 +746,8 @@ filter_biological_associations_task:
   related:
   categories:
     - collection_object
-    - biology 
+    - biology
+    - filters 
   status: prototype
   description: 'Facet search on biological associations.'
 collection_object_chronology_task:
@@ -762,11 +763,12 @@ filter_asserted_distributions_task:
   name: 'Filter asserted distributions'
   related:
   categories:
+    - filters
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Create sets of asserted distributions.'
 related_data_task:
   hub: false 
-  name: 'Filter asserted distributions'
+  name: 'Related data task'
   related:
   categories:
   status: prototype
@@ -776,12 +778,16 @@ filter_descriptors_task:
   name: 'Filter descriptors'
   related:
   categories:
+    - matrix 
+    - filters
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Create sets of descriptors.'
 filter_loans_task:
   hub: true
   name: 'Filter loans'
   related:
   categories:
+    - filters 
+    - loan
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Filter loans'
