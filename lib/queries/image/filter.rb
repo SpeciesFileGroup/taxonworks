@@ -1,40 +1,36 @@
 module Queries
   module Image
     class Filter < Query::Filter
-      
+
       include Queries::Concerns::Tags
 
-      # @params params ActionController::Parameters
-      # @return ActionController::Parameters
-      def self.base_params(params)
-        params.permit(
-          :ancestor_id_target,
-          :biocuration_class_id,
-          :collection_object_id,
-          :depiction,
-          :identifier,
-          :identifier_end,
-          :identifier_exact,
-          :identifier_start,
-          :image_id,
-          :otu_id,
-          :sled_image_id,
-          :taxon_name_id,
-          :user_date_end,
-          :user_date_start,
-          :user_id, # user
-          :user_target,
-          biocuration_class_id: [],
-          collection_object_id: [],
-          image_id: [],
-          keyword_id_and: [],
-          keyword_id_or: [],
-          otu_id: [],
-          sled_image_id: [],
-          taxon_name_id: [],
-          otu_scope: [],
-       )
-      end
+      PARAMS = [
+        :ancestor_id_target,
+        :biocuration_class_id,
+        :collection_object_id,
+        :depiction,
+        :identifier,
+        :identifier_end,
+        :identifier_exact,
+        :identifier_start,
+        :image_id,
+        :otu_id,
+        :sled_image_id,
+        :taxon_name_id,
+        :user_date_end,
+        :user_date_start,
+        :user_id, # user
+        :user_target,
+        biocuration_class_id: [],
+        collection_object_id: [],
+        image_id: [],
+        keyword_id_and: [],
+        keyword_id_or: [],
+        otu_id: [],
+        sled_image_id: [],
+        taxon_name_id: [],
+        otu_scope: [],
+      ].freeze
 
       # @return [Array]
       #   only return objects with this collecting event ID
@@ -379,78 +375,6 @@ module Queries
         a
       end
 
-      # @return [Array]
-      def base_and_clauses
-        clauses = [
-          image_facet
-        ]
-
-        clauses += [
-          #type_facet,
-        ]
-        clauses.compact!
-        clauses
-      end
-
-      def base_merge_clauses
-        clauses = []
-        #  clauses += collecting_event_merge_clauses + collecting_event_and_clauses
-
-        clauses += [
-          otu_query_facet,
-          source_query_facet,
-          otu_facet,
-          otu_scope_facet,
-          collection_object_scope_facet,
-          collection_object_facet,
-          build_depiction_facet('CollectingEvent', collecting_event_id),
-          #    type_material_facet,
-          #    type_material_type_facet,
-          ancestors_facet,
-          keyword_id_facet,  # See Queries::Concerns::Tags
-          created_updated_facet, # See Queries::Concerns::Users
-          identifier_between_facet,
-          identifier_facet,
-          identifier_namespace_facet,
-          sqed_depiction_facet,
-          sled_image_facet,
-          biocuration_facet,
-          depiction_facet,
-        ]
-
-        clauses.compact!
-        clauses
-      end
-
-      # @return [ActiveRecord::Relation]
-      def merge_clauses
-        clauses = base_merge_clauses
-        return nil if clauses.empty?
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.merge(b)
-        end
-        a
-      end
-
-      # @return [ActiveRecord::Relation]
-      def all
-        a = and_clauses
-        b = merge_clauses
-        # q = nil
-        if a && b
-          q = b.where(a).distinct
-        elsif a
-          q = ::Image.where(a).distinct
-        elsif b
-          q = b.distinct
-        else
-          q = ::Image.all
-        end
-
-        q
-      end
-
       # @return [Scope]
       def type_material_facet
         return nil if type_specimen_taxon_name_id.nil?
@@ -558,6 +482,37 @@ module Queries
           .to_sql
 
         ::Image.from('(' + s + ') as images').distinct
+      end
+
+      def and_clauses
+        clauses = [
+          image_facet
+        ]
+      end
+
+      def merge_clauses
+        #  clauses += collecting_event_merge_clauses + collecting_event_and_clauses
+        [
+          otu_query_facet,
+          source_query_facet,
+          otu_facet,
+          otu_scope_facet,
+          collection_object_scope_facet,
+          collection_object_facet,
+          build_depiction_facet('CollectingEvent', collecting_event_id),
+          #    type_material_facet,
+          #    type_material_type_facet,
+          ancestors_facet,
+          keyword_id_facet,  # See Queries::Concerns::Tags
+          created_updated_facet, # See Queries::Concerns::Users
+          identifier_between_facet,
+          identifier_facet,
+          identifier_namespace_facet,
+          sqed_depiction_facet,
+          sled_image_facet,
+          biocuration_facet,
+          depiction_facet,
+        ]
       end
 
     end

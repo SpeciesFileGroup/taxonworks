@@ -2,9 +2,9 @@ module Queries
   module Identifier
 
     # !! Does not inherit from Filter.
-    # !! There are significant collisions with the Identifiers concern 
+    # !! There are significant collisions with the Identifiers concern
     # !! so this is isolated for now
-    class Filter  
+    class Filter
 
       include Concerns::Polymorphic
       polymorphic_klass(::Identifier)
@@ -93,14 +93,14 @@ module Queries
       # Ommits non community klasses of identifiers
       def community_project_id_facet
         return nil if project_id.nil?
-          if !ignores_project?
-            # Not a community class
-            return table[:project_id].eq_any(project_id)
-          else
-            # Is a community class
-            # Identifiers that are not local only
-            return table[:type].matches('Identifier::Global%').or(table[:project_id].eq_any(project_id))
-          end
+        if !ignores_project?
+          # Not a community class
+          return table[:project_id].eq_any(project_id)
+        else
+          # Is a community class
+          # Identifiers that are not local only
+          return table[:type].matches('Identifier::Global%').or(table[:project_id].eq_any(project_id))
+        end
         nil
       end
 
@@ -176,7 +176,7 @@ module Queries
         b = b.join(c, Arel::Nodes::OuterJoin)
           .on(
             a[:namespace_id].eq(c[:id])
-        )
+          )
 
         e = c[:id].not_eq(nil)
         f = c[attribute].eq(v)

@@ -1,18 +1,33 @@
 module Queries
   class Query::Filter < Queries::Query
 
-    include Queries::Concerns::Citations
-    # include Queries::Concerns::Identifiers # Presently in Queries for other use in autocompletes
-    include Queries::Concerns::Users
 
+    # Concerns have corresponding Facets in Vue.
+    # To add the corresponding facet:
+    # In the corresponding FilterVue.vue
+    # E.g. `app/javascript/vue/tasks/otu/filter/components/FilterVue.vue`
+    #
+    # 1- Import the facet:
+    #
+    # `import FacetUsers from 'components/Filter/Facets/shared/FacetUsers.vue'`
+    #
+    #  2- Add it to the layout in the position you want it to appear:
+    #
+    # `<FacetUsers v-model="params" />`
+    #
+    include Queries::Concerns::Citations
+    include Queries::Concerns::Users
+    # include Queries::Concerns::Identifiers # Presently in Queries for other use in autocompletes
+
+    #
+    # !! SUBQUERIES is cross-referenced in app/views/javascript/vue/components/radials/filter/links/*.js models.
+    # !! When you add a reference here, ensure corresponding js model is aligned.
+    #
+    # For example:
     # https://github.com/SpeciesFileGroup/taxonworks/blob/2652_unified_filters/app/javascript/vue/components/radials/filter/constants/queryParam.js
     # https://github.com/SpeciesFileGroup/taxonworks/blob/2652_unified_filters/app/javascript/vue/components/radials/filter/constants/filterLinks.js
     # https://github.com/SpeciesFileGroup/taxonworks/tree/2652_unified_filters/app/javascript/vue/components/radials/filter/links
     # https://github.com/SpeciesFileGroup/taxonworks/blob/2652_unified_filters/app/javascript/vue/components/radials/filter/links/CollectionObject.js
-
-    #
-    # !! This is cross-referenced in app/views/javascript/vue/components/radials/filter/links/*.js models.
-    # !! When you add a reference here, ensure corresponding js model is aligned.
     #
     # This is read as  :too <- [:from1, from1] ].
     SUBQUERIES = {
@@ -27,6 +42,14 @@ module Queries
       descriptor: [],
       loan: [],
     }.freeze
+
+    #
+    # With/out facets
+    #
+    # To add a corresponding With/Out facet in the UI simply
+    # give it a title (must correspond with the param name) in
+    #  const WITH_PARAM = [ 'citations' ];
+    #
 
     # @return [Array]
     # @param project_id [Array, Integer]
@@ -51,10 +74,18 @@ module Queries
     # @return [Query::Extract::Filter, nil]
     attr_accessor :extract_query
 
+    # @return Boolean
+    #   Applies an order on updated.
+    attr_accessor :recent
+
     def initialize(params)
       set_user_dates(params)
       set_citations_params(params)
       set_identifier_params(params)
+
+      @recent = boolean_param(params, :recent) # was checking for 1
+
+      # always on --- but need only checkes
 
       @project_id = params[:project_id] || Current.project_id # TODO: revisit
 
@@ -84,11 +115,19 @@ module Queries
       end
     end
 
+    # See CE, Loan for example.  
+    def set_attributes(params)
+      self.class::ATTRIBUTES.each do |a|
+        send("#{a}=", params[a.to_sym])
+      end
+    end
+
     def project_id
       [@project_id].flatten.compact
     end
 
     def project_id_facet
+      return nil if project_id.empty?
       table[:project_id].eq_any(project_id)
     end
 
@@ -128,13 +167,14 @@ module Queries
       [project_id_facet].compact
     end
 
-    def base_and_clauses
+    # Defined in inheriting classes
+    def and_clauses
       []
     end
 
     # @return [ActiveRecord::Relation, nil]
-    def and_clauses
-      clauses = base_and_clauses + shared_and_clauses + annotator_and_clauses
+    def all_and_clauses
+      clauses = and_clauses + shared_and_clauses + annotator_and_clauses
       clauses.compact!
       return nil if clauses.empty?
 
@@ -149,12 +189,14 @@ module Queries
       []
     end
 
-    def base_merge_clauses
+    # Defined in inheriting classes
+    def merge_clauses
       []
     end
 
-    def merge_clauses
-      clauses = base_merge_clauses + shared_merge_clauses + annotator_merge_clauses
+    # @return [Scope, nil]
+    def all_merge_clauses
+      clauses = merge_clauses + shared_merge_clauses + annotator_merge_clauses
       clauses.compact!
       return nil if clauses.empty?
 
@@ -189,7 +231,6 @@ module Queries
       h
     end
 
-    #
     # @param filter [Symbol]
     #   One of SUBQUERIES.keys
     #
@@ -212,7 +253,7 @@ module Queries
     #
     def self.deep_permit(filter, params)
       h = ActionController::Parameters.new
-      h.merge! base_params(params)
+      h.merge! params.permit(*self::PARAMS)
 
       h.merge! annotator_params(params)
 
@@ -238,7 +279,7 @@ module Queries
       return nil if send(a).blank?
       if send("exact_#{a}".to_sym)
 
-        # TODO: Think we need to handle ' and "
+        # TODO: Think we need to handle ' and '
 
         v = send(a)
         v.gsub!(/\s+/, ' ')
@@ -252,28 +293,33 @@ module Queries
       end
     end
 
+    # @param nil_empty [Boolean]
+    #   If true then if there are no clauses return nil not .all
     # @return [ActiveRecord::Relation]
-    # super is called on this method
-    def all
-      a = and_clauses
-      b = merge_clauses
+    #   super is called on this method
+    def all(nil_empty = false)
+      a = all_and_clauses
+      b = all_merge_clauses
 
+      return nil if nil_empty && a.nil? && b.nil?
+
+      q = nil
       if a && b
-        b.where(a).distinct
+        q = b.where(a).distinct
       elsif a
-        referenced_klass.where(a).distinct
+        q = referenced_klass.where(a).distinct
       elsif b
-        b.distinct
+        q = b.distinct
       else
-        referenced_klass.all
+        q = referenced_klass.all
       end
 
-      # q = q.order(updated_at: :desc) if recent
+      if recent
+        q = referenced_klass.from(q.all, table.name).order(updated_at: :desc)
+      end
+
+      q
     end
 
-    # @return [Arel::Nodes::TableAlias]
-    # def parent
-    #   table.alias
-    # end
   end
 end

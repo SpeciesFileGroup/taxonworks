@@ -4,6 +4,12 @@ module Queries
 
       # TODO: Likely need to sink some queries together (wkt, ce_id) into CO query
 
+      include Queries::Helpers
+      include Queries::Concerns::Citations
+      include Queries::Concerns::DataAttributes
+      include Queries::Concerns::Identifiers
+      include Queries::Concerns::Tags
+
       # Changelog
       # `name` now handles one or more of Otu#name
       # `geographic_area_ids` -> `geographic_area_id
@@ -11,60 +17,41 @@ module Queries
       # removed `taxon_name_ids`, allowed Array for `taxon_name_id`
       # created Queries::Concerns::Citations  Citation concern and refactor filters referencing citations accordingly
 
-      # @params params ActionController::Parameters
-      # @return ActionController::Parameters
-      def self.base_params(params)
-        params.permit(
-          :name,
-          :name_exact,
+      PARAMS = [
+        :name,
+        :name_exact,
 
-          :geographic_area_id,
-          :geographic_area_mode,
-          :otu_id,
-          :taxon_name_id,
-          :descendants,
-          :collecting_event_id,
-          :wkt,
-          :geo_json,
+        :geographic_area_id,
+        :geographic_area_mode,
+        :otu_id,
+        :taxon_name_id,
+        :descendants,
+        :collecting_event_id,
+        :wkt,
+        :geo_json,
+        :descriptor_id,
 
-          geographic_area_id: [],
-          collecting_event_id: [],
-          otu_id: [],
-          taxon_name_id: [],
-          name: []
+        :observations,
 
-          # :asserted_distributions,
-          # :biological_associations,
-          # :citations,
-          # :contents,
-          # :depictions,
-          # :exact_author,
+        descriptor_id: [],
+        geographic_area_id: [],
+        collecting_event_id: [],
+        otu_id: [],
+        taxon_name_id: [],
+        name: []
 
-          # :taxon_determinations,
-          # :observations,
-          # :author,
-          # taxon_name_ids: [],
-          # otu_ids: [],
-          # taxon_name_relationship_ids: [],
-          # taxon_name_classification_ids: [],
-          # asserted_distribution_ids: [],
+        # :asserted_distributions,
+        # :biological_associations,
+        # :contents,
+        # :depictions,
+        # :exact_author,
 
-          # data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
-        )
-      end
-
-      # @params params ActionController::Parameters
-      def self.permit(params)
-        deep_permit(:otu, params)
-      end
-
-      include Queries::Helpers
-
-      # include Queries::Concerns::Tags
-      # include Queries::Concerns::Users
-      # include Queries::Concerns::Identifiers
-
-      # include Queries::Concerns::Citations
+        # :taxon_determinations,
+        # :author,
+        # taxon_name_relationship_ids: [],
+        # taxon_name_classification_ids: [],
+        # asserted_distribution_ids: [],
+      ].freeze
 
       # @param name [String, Array]
       # @return Array
@@ -144,6 +131,10 @@ module Queries
       #   nil - not applied
       attr_accessor :taxon_name
 
+      # @param descriptor_id [String, Array]
+      # @return [Array]
+      attr_accessor :descriptor_id
+
       # -- done to here
 
       # matching some nomenclature query
@@ -181,8 +172,7 @@ module Queries
 
       # @param [Hash] params
       def initialize(params)
-        #  params.reject! { |_k, v| v.blank? }
-        params.reject!{ |_k, v| v.nil? || (v == '') }
+        # params.reject!{ |_k, v| v.nil? || (v == '') }
 
         @otu_id = params[:otu_id]
         @taxon_name_id = params[:taxon_name_id]
@@ -210,7 +200,9 @@ module Queries
         @geographic_area_id = params[:geographic_area_id]
         @geographic_area_mode = boolean_param(params, :geographic_area_mode)
 
-        # --- done till here --- 
+        @descriptor_id = params[:descriptor_id]
+
+        # --- done till here ---
 
         @and_or_select = params[:and_or_select]
 
@@ -237,13 +229,14 @@ module Queries
         @asserted_distribution_ids = params[:asserted_distribution_ids] || []
 
         super
-
-        # set_tags_params(params)
-        # set_user_dates(params)
       end
 
       def biological_associations_table
         ::BiologicalAssociation.arel_table
+      end
+
+      def descriptor_id
+        [@descriptor_id].flatten.compact
       end
 
       def name
@@ -426,7 +419,6 @@ module Queries
 
       def collecting_event_query_facet
         return nil if collecting_event_query.nil?
-        byebug
         s = 'WITH query_ce_otus AS (' + collecting_event_query.all.to_sql + ') ' +
           ::Otu
           .joins(:collecting_events)
@@ -441,8 +433,19 @@ module Queries
         return nil if extract_query.nil?
         s = 'WITH query_ex_otus AS (' + extract_query.all.to_sql + ') ' +
           ::Otu
-          .joins(:extracts) # don't need to go out to sources
+          .joins(:extracts)
           .joins('JOIN query_ex_otus as query_ex_otu1s on extracts.id = query_ex_otus1.id')
+          .to_sql
+
+        ::Otu.from('(' + s + ') as otus')
+      end
+
+      # TODO: Validate
+      def asserted_distributions_facet
+        return nil if asserted_distribution_query.nil?
+        s = 'WITH query_ad_otus AS (' + asserted_distribution_query.all.to_sql + ') ' +
+          ::Otu
+          .joins('JOIN query_ad_otus as query_ad_otus1 on otus.id = query_ad_otus.otu_id')
           .to_sql
 
         ::Otu.from('(' + s + ') as otus')
@@ -685,11 +688,26 @@ module Queries
         ::Otu.where(depictions ? subquery : subquery.not)
       end
 
+      def descriptor_id_facet
+        return nil if descriptor_id.empty?
+
+        q1 = ::Otu.joins(:descriptors).where(descriptors: {id: descriptor_id})
+        q2 = ::Otu.joins(collection_objects: [:descriptors]).where(descriptors: {id: :descriptor_id})
+
+        ::Otu.from("((#{q1.to_sql}) UNION (#{q2.to_sql})) as otus")
+      end
+
       def observations_facet
         return nil if observations.nil?
 
-        subquery = ::ObservationMatrixRow.where(::ObservationMatrixRow.arel_table[:otu_id].eq(::Otu.arel_table[:id])).arel.exists
-        ::Otu.where(observations ? subquery : subquery.not)
+        if observations
+          ::Otu.joins(:observation_matrix_rows)
+        else
+          ::Otu.where.missing(:observation_matrix_rows)
+        end
+
+        #       subquery = ::ObservationMatrixRow.where(::ObservationMatrixRow.arel_table[:otu_id].eq(::Otu.arel_table[:id])).arel.exists
+        #       ::Otu.where(observations ? subquery : subquery.not)
       end
 
       def contents_facet
@@ -709,34 +727,16 @@ module Queries
           # matching_verbatim_author
           # Queries::Annotator.annotator_params(options, ::Citation),
         ].compact
-
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
       end
 
-      # def base_and_clauses
-      # end
-
-      def base_merge_clauses
-        clauses = []
-
-        # clauses += taxon_name_merge_clauses + taxon_name_and_clauses
-        # clauses += collection_object_merge_clauses + collection_object_and_clauses
-        # clauses += collecting_event_merge_clauses + collecting_event_and_clauses
-        # clauses += asserted_distribution_merge_clauses + asserted_distribution_and_clauses
-
-        clauses += [
-          # citations_facet,
-          # origin_citation_facet,
+      def merge_clauses
+        [
           source_query_facet,
           collection_object_query_facet,
           collecting_event_query_facet,
 
+          descriptor_id_facet,
+          observations_facet,
           taxon_name_query_facet,
           taxon_name_id_facet,
           geo_json_facet,
@@ -746,14 +746,11 @@ module Queries
           wkt_facet,
           geographic_area_id_facet,
 
-          # created_updated_facet, # See Queries::Concerns::Users
-
           #  matching_asserted_distribution_ids,
           #  matching_taxon_name_classification_ids,
           #  matching_taxon_name_relationship_ids,
           #  asserted_distributions_facet,
           #  biological_associations_facet,
-          #  citations_facet,
           #  contents_facet,
           #  depictions_facet,
           #  determinations_facet,
@@ -763,34 +760,7 @@ module Queries
         ].compact
       end
 
-      def merge_clauses
-        clauses = base_merge_clauses
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.merge(b)
-        end
-        a
-      end
-
-      # @return [ActiveRecord::Relation]
-      def all
-        a = and_clauses
-        b = merge_clauses
-
-        if a && b
-          b.where(a).distinct
-        elsif a
-          ::Otu.where(a).distinct
-        elsif b
-          b.distinct
-        else
-          ::Otu.all
-        end
-      end
-
-      end
     end
   end
+end
 

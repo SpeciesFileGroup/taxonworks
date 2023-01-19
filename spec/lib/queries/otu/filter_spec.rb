@@ -8,7 +8,6 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
   let(:o1) { Otu.create!(name: 'Abc 1') }
   let(:o2) { Otu.create!(name: 'Def 2') }
 
-
   context 'defined in Queries::Query' do 
     specify '#referenced_klass' do
       expect(q.referenced_klass).to eq(::Otu)
@@ -211,42 +210,6 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
   specify 'taxon_name_id []' do
     o1.update!(taxon_name_id: FactoryBot.create(:root_taxon_name).id)
     q.taxon_name_id = [o1.taxon_name_id]
-    expect(q.all.map(&:id)).to contain_exactly(o1.id)
-  end
-
-  # Queries::TaxonName::Filter integration
-
-  specify 'Queries::TaxonName::Filter integration' do
-    o1.update!(
-      taxon_name: Protonym.create!(name: 'Aus', rank_class:  Ranks.lookup(:iczn, :genus), parent: find_or_create_root_taxon_name)
-    )
-    q.taxon_name_query.name = 'Aus'
-    expect(q.all.map(&:id)).to contain_exactly(o1.id)
-  end
-
-  specify 'Queries::CollectionObject::Filter integration' do
-    a = FactoryBot.create(:valid_taxon_determination, otu: o1)
-    q.collection_object_query.collection_object_id= [a.biological_collection_object_id]
-    expect(q.all.map(&:id)).to contain_exactly(o1.id)
-  end
-
-  specify 'Queries::CollectingEvent::Filter integration' do
-    a = FactoryBot.create(:valid_taxon_determination, otu: o1)
-    a.biological_collection_object.update!(collecting_event: FactoryBot.create(:valid_collecting_event))
-
-    q.collecting_event_query.collecting_event_id = [a.biological_collection_object.collecting_event.id]
-    expect(q.all.map(&:id)).to contain_exactly(o1.id)
-  end
-
-  specify 'Queries::AssertedDistribution::Filter integration' do
-    a = FactoryBot.create(:valid_asserted_distribution, otu: o1)
-    q.asserted_distribution_query.otu_id = [o1.id]
-    expect(q.all.map(&:id)).to contain_exactly(o1.id)
-  end
-
-  specify 'Queries::BiologicalAssociation::Filter integration' do
-    a = FactoryBot.create(:valid_biological_association, biological_association_subject: o1)
-    q.biological_association_query.otu_id = [o1.id]
     expect(q.all.map(&:id)).to contain_exactly(o1.id)
   end
 

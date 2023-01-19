@@ -3,13 +3,13 @@ module Queries
 
     class Filter < Query::Filter
 
-      # General annotator options handling 
+      # General annotator options handling
       # happens directly on the params as passed
       # through to the controller, keep them
       # together here
       attr_accessor :options
 
-      # Params specific to Documentation 
+      # Params specific to Documentation
 
       # Array, Integer
       attr_accessor :source_id

@@ -1,43 +1,33 @@
 module Queries
   module AssertedDistribution
 
-   # TODO: 
-   #   add geographic_area_mode
-   #   inherit from queries
-   #   add annotations
+    # TODO:
+    #   add geographic_area_mode
+    #   inherit from queries
+    #   add annotations
 
     # !! does not inherit from base query
     class Filter < Query::Filter
 
-      # @params params ActionController::Parameters
-      # @return ActionController::Parameters
-      def self.base_params(params)
-        params.permit(
-          :descendants,
-          :geo_json,
-          :geographic_area_id,
-          :geographic_area_mode,
-          :otu_id,
-          :presence,
-          :recent,
-          :taxon_name_id,
-          :wkt,
+      PARAMS = [
+        :descendants,
+        :geo_json,
+        :geographic_area_id,
+        :geographic_area_mode,
+        :otu_id,
+        :presence,
+        :taxon_name_id,
+        :wkt,
 
-          :user_date_end,
-          :user_date_start,
-          :user_id,
-          :user_target,
+        :user_date_end,
+        :user_date_start,
+        :user_id,
+        :user_target,
 
-          geographic_area_id: [],
-          otu_id: [],
-          taxon_name_id: [],
-        )
-      end
-
-      # @params params ActionController::Parameters
-      def self.permit(params)
-        deep_permit(:asserted_distribution, params)
-      end
+        geographic_area_id: [],
+        otu_id: [],
+        taxon_name_id: [],
+      ].freeze
 
       # @param otu_id [Array, Integer, String]
       # @return [Array]
@@ -68,7 +58,7 @@ module Queries
       # @param [taxon name ids, nil]
       #   all Otus matching these taxon names
       attr_accessor :taxon_name_id
-      
+
       # @return [Boolean, nil]
       #  true - include descendants of taxon_name_id in scope
       #  false, nil - only exact matches
@@ -91,7 +81,7 @@ module Queries
         @otu_id = params[:otu_id]
         @geographic_area_id = params[:geographic_area_id]
         @geographic_area_mode = boolean_param(params, :geographic_area_mode)
-        
+
         @taxon_name_id = params[:taxon_name_id]
         @descendants = boolean_param(params, :descendants)
 
@@ -101,8 +91,6 @@ module Queries
         @geo_json = params[:geo_json]
 
         @presence = boolean_param(params, :presence)
-        @recent = boolean_param(params, :recent)
-
         super
       end
 
@@ -128,7 +116,7 @@ module Queries
 
       def presence_facet
         return nil if presence.nil?
-        if presence 
+        if presence
           table[:is_absent].eq_any(['f', nil])
         else
           table[:is_absent].eq('t')
@@ -146,7 +134,7 @@ module Queries
       def geo_json_facet
         return nil if geo_json.nil?
         if i = spatial_query
-         
+
           # All spatial records
           j = ::GeographicArea.joins(:geographic_items).where(geographic_items: i)
 
@@ -156,7 +144,7 @@ module Queries
           a = []
           a += j.to_a unless j.nil?
           a += k.to_a unless k.nil?
-         
+
           return ::AssertedDistribution.where( geographic_area: a )
         else
           return nil
@@ -199,7 +187,7 @@ module Queries
         ::AssertedDistribution.where(geographic_area: j + k) # .or.where(geographic_area: k)
       end
 
-      def geographic_area_id_facet 
+      def geographic_area_id_facet
         return nil if geographic_area_id.empty?
 
         a = nil
@@ -211,17 +199,17 @@ module Queries
           a = ::GeographicArea.descendants_of_any(geographic_area_id)
         end
 
-        b = nil # from AssertedDistributions 
-        
+        b = nil # from AssertedDistributions
+
         case geographic_area_mode
         when nil, false # exact, descendants
-          b = ::AssertedDistribution.where(geographic_area: a) 
+          b = ::AssertedDistribution.where(geographic_area: a)
         when true # spatial
           i = ::GeographicItem.joins(:geographic_areas).where(geographic_areas: a) # .unscope
           wkt_shape = ::GeographicItem.st_union(i).to_a.first['collection'].to_s # todo, check
           return from_wkt(wkt_shape)
         end
-       
+
         b
       end
 
@@ -233,74 +221,32 @@ module Queries
 
           j = o.join(h, Arel::Nodes::InnerJoin).on(o[:taxon_name_id].eq(h[:descendant_id]))
           z = h[:ancestor_id].eq_any(taxon_name_id)
-          
+
           ::AssertedDistribution.joins(:otu).joins(j.join_sources).where(z)
         else
           ::AssertedDistribution.joins(:otu).where(otus: {taxon_name_id: taxon_name_id})
         end
       end
 
-      def base_and_clauses
-        clauses = []
-        clauses += [
+      def and_clauses
+        [
           presence_facet,
-          asserted_distribution_attribute_equals(:otu_id),  # TODO: handles array?multiple?  
-        ].compact
-      end
-
-      def base_merge_clauses
-        clauses = []
-        clauses +=
-          [
-            otu_query_facet,
-            source_query_facet,
-            created_updated_facet, # See Queries::Concerns::Users
-            taxon_name_id_facet,
-            geographic_area_id_facet,
-            wkt_facet,
-            geo_json_facet,
-          ].compact
+          asserted_distribution_attribute_equals(:otu_id),  # TODO: handles array?multiple?
+        ]
       end
 
       def merge_clauses
-        clauses = base_merge_clauses
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.merge(b)
-        end
-        a
+        [
+          otu_query_facet,
+          source_query_facet,
+          created_updated_facet, # See Queries::Concerns::Users
+          taxon_name_id_facet,
+          geographic_area_id_facet,
+          wkt_facet,
+          geo_json_facet,
+        ]
       end
 
-      # @return [ActiveRecord::Relation]
-      def and_clauses
-        clauses = base_and_clauses
-        return nil if clauses.empty?
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
-      end
-
-      def all
-        a = and_clauses
-        b = merge_clauses
-        q = nil
-        if a && b
-          q = b.where(a).distinct
-        elsif a
-          q =  ::AssertedDistribution.where(a).distinct
-        elsif b
-          q = b.distinct
-        else
-          q = ::AssertedDistribution.all
-        end
-
-        # q = q.order(updated_at: :desc).limit(recent) if recent
-        q
-      end
     end
   end
 end

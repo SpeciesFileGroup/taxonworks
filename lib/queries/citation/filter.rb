@@ -15,11 +15,13 @@ module Queries
       attr_accessor :options
 
       # Array, Integer
-      attr_accessor :citation_object_type, :citation_object_id, :source_id, :user_id
+      attr_accessor :citation_object_type
 
-      # @return [Boolean, nil]
-      # @params recent ['true', 'false', nil]
-      attr_accessor :recent
+      attr_accessor :citation_object_id
+
+      attr_accessor :source_id
+
+      attr_accessor :user_id
 
       # Boolean
       attr_accessor :is_original
@@ -35,9 +37,8 @@ module Queries
         @source_id = params[:source_id]
         @user_id = params[:user_id]
         @is_original = params[:is_original]
-        @options = params
 
-        @recent = boolean_param(params, :recent)
+        @options = params
 
         @source_query = Queries::Source::Filter.new(
           params.select{|a,b| source_params.include?(a.to_s) }
@@ -54,7 +55,7 @@ module Queries
       def source_merge_clauses
         c = []
         # Convert base and clauses to merge clauses
-        source_query.base_merge_clauses.each do |i|
+        source_query.merge_clauses.each do |i|
           c.push ::Citation.joins(:source).merge( i )
         end
         c

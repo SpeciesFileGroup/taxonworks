@@ -19,7 +19,7 @@ module Queries
       end
 
       def observation_object_id
-        [@observation_object_id].flatten.compact +  
+        [@observation_object_id].flatten.compact +
           (observation_object_id_vector.blank? ? [] : observation_object_id_vector.split('|'))
       end
 
@@ -34,7 +34,7 @@ module Queries
           matching_observation_object_id,
           matching_observation_object_type,
         ].compact
-      
+
         return nil if clauses.empty?
 
         a = clauses.shift

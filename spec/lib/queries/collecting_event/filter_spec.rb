@@ -23,11 +23,16 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
   # let!(:i1) { Identifier::Local::TripCode.create!(identifier_object: ce1, identifier: '123', namespace: namespace) }
   # let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
 
+  specify '#recent' do
+    query.recent = true 
+    expect(query.all.map(&:id)).to contain_exactly(ce2.id, ce1.id)
+  end
+
   context 'otus' do
     let!(:o) { Otu.create!(name: 'foo') }
     let!(:s) { Specimen.create!(collecting_event: ce1, taxon_determinations_attributes: [{otu: o}]) }
 
-    specify '#otu_ids' do
+    specify '#otu_id' do
       q = Queries::CollectingEvent::Filter.new(otu_id: [o.id])
       expect(q.all).to contain_exactly(ce1)
     end
@@ -112,11 +117,6 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     expect(query.all.map(&:id)).to contain_exactly(ce2.id)
   end
 
-  specify '#recent' do
-    query.recent = 1
-    expect(query.all.map(&:id)).to contain_exactly(ce2.id)
-  end
-
   specify '#keyword_id_and[]' do
     t = Tag.create(tag_object: ce1, keyword: FactoryBot.create(:valid_keyword))
     query.keyword_id_and = [t.keyword_id]
@@ -130,29 +130,32 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
   end
 
   context 'collecting_event_wildcards' do
-    specify '#start_date_year (integer field test)' do
+    specify '#start_date_year (integer field test) 1' do
       query.start_date_year = 20
-      query.collecting_event_wildcards << 'start_date_year'
+      query.collecting_event_wildcards = 'start_date_year'
       expect(query.all.map(&:id)).to contain_exactly(ce1.id, ce2.id)
+    end
 
-      query.start_date_year = 201
+    specify '#start_date_year (integer field test) 2' do
+      query.start_date_year = 2010
       expect(query.all.map(&:id)).to contain_exactly(ce1.id)
     end
 
-    specify '#verbatim_locality (string field test)' do
+    specify '#verbatim_locality (string field test) 1' do
       query.verbatim_locality = 'Out there'
-      query.collecting_event_wildcards << 'verbatim_locality'
+      query.collecting_event_wildcards = 'verbatim_locality'
       expect(query.all.map(&:id)).to contain_exactly(ce1.id, ce2.id)
+    end
 
+    specify '#verbatim_locality (string field test) 2' do
       query.verbatim_locality = 'Out there, '
-      expect(query.all.map(&:id)).to contain_exactly(ce2.id)
+      expect(query.all.map(&:id)).to contain_exactly()
     end
   end
 
   context 'geo' do
     let(:point_lat) { '10.0' }
     let(:point_long) { '10.0' }
-
 
    # let(:factory_polygon) { RSPEC_GEO_FACTORY.polygon(point_lat, point_long) }
    let(:factory_point) { RSPEC_GEO_FACTORY.point(point_lat, point_long) }

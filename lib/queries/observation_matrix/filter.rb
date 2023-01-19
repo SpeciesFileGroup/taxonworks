@@ -1,5 +1,5 @@
 module Queries
-  module ObservationMatrix 
+  module ObservationMatrix
     class Filter < Query::Filter
 
       attr_accessor :observation_matrix_id
@@ -17,7 +17,7 @@ module Queries
         clauses = [
           matching_observation_matrix_id,
         ].compact
-      
+
         return nil if clauses.empty?
 
         a = clauses.shift

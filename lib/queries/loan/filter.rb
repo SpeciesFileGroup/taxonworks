@@ -7,48 +7,44 @@ module Queries
       include Queries::Concerns::Tags
       include Queries::Concerns::Notes
 
-      ATTRIBUTES = (::Loan.column_names - %w{project_id created_by_id updated_by_id created_at updated_at})
+      ATTRIBUTES = ::Loan.core_attributes.map(&:to_sym).freeze
 
-      # @params params ActionController::Parameters
-      # @return ActionController::Parameters
-      def self.base_params(params)
-        params.permit(
-          ATTRIBUTES, # Queries::CollectingEvent::Filter::ATTRIBUTES, # just ATTRIBUTES
-          :loan_wildcards,
-          :role,
-          :person_id,
-          :documentation, # TODO: concern?
-          :overdue,
-          :taxon_name_id,
-          :descendants,
-          :otu_id,
-          :loan_item_disposition,
-          
-          loan_item_disposition: [],
-          otu_id: [],
-          taxon_name_id: [],
-          person_id: [],
-        )
-      end
+      PARAMS = [
+        *ATTRIBUTES,
+        :descendants,
+        :documentation, # TODO: concern?
+        :loan_item_disposition,
+        :loan_wildcards,
+        :otu_id,
+        :overdue,
+        :person_id,
+        :role,
+        :taxon_name_id,
+
+        loan_item_disposition: [],
+        otu_id: [],
+        person_id: [],
+        taxon_name_id: [],
+      ].freeze
 
       ATTRIBUTES.each do |a|
         class_eval { attr_accessor a.to_sym }
       end
 
-      # @return [Array]
+      # @return [Array, of Symbols]
       # @param loan_wildcards [String, Array]
-      #   used with ATTRIBUTE variables, wildcard match if variable 
-      # name is contained in this list
+      #   used with ATTRIBUTE variables, wildcard match if
+      # variable name is contained in this list
       attr_accessor :loan_wildcards
 
       # @return [Boolean, nil]
-      #   nil - all 
+      #   nil - all
       #   true - with Documentation
       #   false - without Documentation
       attr_accessor :documentation
 
       # @return [Boolean, nil]
-      #   nil - all 
+      #   nil - all
       #   true - overdue
       #   false - not overdue
       attr_accessor :overdue
@@ -70,39 +66,39 @@ module Queries
 
       # @param [Hash] params
       def initialize(params)
-        @loan_wildcards = params[:loan_wildcards]
-        @role = params[:role]
-        @person_id = params[:person_id]
-        @documentation = boolean_param(params, :documentation)
-        @overdue = boolean_param(params, :overdue)
-        @taxon_name_id = params[:taxon_name_id]
         @descendants = boolean_param(params, :descendants)
+        @documentation = boolean_param(params, :documentation)
+        @loan_item_disposition = params[:loan_item_disposition]
+        @loan_wildcards = params[:loan_wildcards]
         @otu_id = params[:otu_id]
-        @loan_item_disposition = params[:loan_item_disposition] 
+        @overdue = boolean_param(params, :overdue)
+        @person_id = params[:person_id]
+        @role = params[:role]
+        @taxon_name_id = params[:taxon_name_id]
 
+        set_attributes(params)
         set_notes_params(params)
         set_tags_params(params)
-
         super
       end
 
-      def role 
+      def role
         [@role].flatten.compact.uniq
       end
 
-      def loan_wildcards 
-        [@loan_wildcards].flatten.compact.uniq
+      def loan_wildcards
+        [@loan_wildcards].flatten.compact.uniq.map(&:to_sym)
       end
 
-      def person_id 
+      def person_id
         [@person_id].flatten.compact.uniq
       end
 
-      def otu_id 
+      def otu_id
         [@otu_id].flatten.compact.uniq
       end
 
-      def loan_item_disposition 
+      def loan_item_disposition
         [@loan_item_disposition].flatten.compact.uniq
       end
 
@@ -114,9 +110,9 @@ module Queries
           if v = send(a)
             if v.present?
               if loan_wildcards.include?(a)
-                c.push Arel::Nodes::NamedFunction.new('CAST', [table[a.to_sym].as('TEXT')]).matches('%' + v.to_s + '%')
+                c.push Arel::Nodes::NamedFunction.new('CAST', [table[a].as('TEXT')]).matches('%' + v + '%')
               else
-                c.push table[a.to_sym].eq(v)
+                c.push table[a].eq(v)
               end
             end
           end
@@ -135,7 +131,7 @@ module Queries
 
       def documentation_facet
         return nil if documentation.nil?
-        if documentation 
+        if documentation
           ::Loan.joins(:documentation)
         else
           ::Loan.where.missing(:documentation)
@@ -147,18 +143,15 @@ module Queries
         ::Loan.joins(:loan_items).where(loan_items: {disposition: loan_item_disposition})
       end
 
-      def base_and_clauses
-        (attribute_clauses + 
-          [ 
-          
-        ]).compact
+      def and_clauses
+        attribute_clauses
       end
 
-      def base_merge_clauses
+      def merge_clauses
         [ documentation_facet,
           overdue_facet,
           loan_item_disposition_facet,
-        ].compact
+        ]
       end
 
     end

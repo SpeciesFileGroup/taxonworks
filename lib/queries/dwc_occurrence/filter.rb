@@ -47,69 +47,18 @@ module Queries
         table[:dwc_occurrence_object_type].eq_any(dwc_occurrence_object_type)
       end
 
-      # @return [ActiveRecord::Relation]
-      def and_clauses
-        clauses = base_and_clauses
-
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
-      end
-
       # @return [Array]
       def base_and_clauses
-        clauses = []
-
-        clauses += [
-          dwc_occurrence_id_facet,
+        [ dwc_occurrence_id_facet,
           dwc_occurrence_object_id_facet,
           dwc_occurrence_object_type_facet,
         ]
-
-        clauses.compact!
-        clauses
       end
 
-      def base_merge_clauses
-        clauses = []
-
-        clauses += [
-          created_updated_facet,  # See Queries::Concerns::Users
-        ]
-
-        clauses.compact!
-        clauses
-      end
-
-      # @return [ActiveRecord::Relation]
       def merge_clauses
-        clauses = base_merge_clauses
-        return nil if clauses.empty?
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.merge(b)
-        end
-        a
+        [ created_updated_facet, ]  # See Queries::Concerns::Users
       end
 
-      # @return [ActiveRecord::Relation]
-      def all
-        a = and_clauses
-        b = merge_clauses
-        if a && b
-          b.where(a).distinct
-        elsif a
-          ::DwcOccurrence.where(a).distinct
-        elsif b
-          q = b.distinct
-        else
-          ::DwcOccurrence.all
-        end
-      end
     end
   end
 end

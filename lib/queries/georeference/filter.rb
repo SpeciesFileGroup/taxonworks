@@ -2,19 +2,19 @@ module Queries
   module Georeference
     class Filter < Query::Filter
 
-      # TODO: Unify 
+      # TODO: Unify
       attr_accessor :collecting_event_id
       attr_accessor :collecting_event_ids
 
       # @param [Hash] params
       def initialize(params)
-        params.reject!{ |_k, v| v.nil? || (v == '') } 
+        params.reject!{ |_k, v| v.nil? || (v == '') }
 
         @collecting_event_id = params[:collecting_event_id]
         @collecting_event_ids = [params[:collecting_event_ids]].flatten
       end
 
-      def collecting_event_table 
+      def collecting_event_table
         ::CollectingEvent.arel_table
       end
 

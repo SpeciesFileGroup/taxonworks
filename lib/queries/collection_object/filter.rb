@@ -20,75 +20,70 @@ module Queries
       include Queries::Concerns::Notes
       include Queries::Concerns::DataAttributes
 
-      # @params params ActionController::Parameters
-      # @return ActionController::Parameters
-      def self.base_params(params)
-        params.permit(
-          :recent,
-          ::Queries::CollectingEvent::Filter::ATTRIBUTES,
-          :buffered_collecting_event,
-          :buffered_determinations,
-          :buffered_other_labels,
-          :collecting_event,
-          :collection_object_type,
-          :collector_ids_or,
-          :current_determinations,
-          :current_repository,
-          :current_repository_id,
-          :depictions,
-          :descendants,
-          :determiner_id_or,
-          :determiner_name_regex,
-          :dwc_indexed,
-          :end_date,
-          :exact_buffered_collecting_event,
-          :exact_buffered_determinations,
-          :exact_buffered_other_labels,
-          :geo_json,
-          :geographic_area,
-          :geographic_area_id,
-          :geographic_area_mode,
-          :georeferences,
-          :in_labels,
-          :in_verbatim_locality,
-          :loaned,
-          :md5_verbatim_label,
-          :never_loaned,
-          :object_global_id,
-          :on_loan,
-          :partial_overlap_dates,
-          :preparation_type,
-          :preparation_type_id,
-          :radius,  # CE filter
-          :repository,
-          :repository_id,
-          :sled_image_id,
-          :spatial_geographic_areas,
-          :start_date,  # CE filter
-          :taxon_determination_id,
-          :taxon_determinations,
-          :taxon_name_id,
-          :type_material,
-          :type_specimen_taxon_name_id,
-          :validity,
-          :with_buffered_collecting_event,
-          :with_buffered_determinations,
-          :with_buffered_other_labels,
-          :wkt,
-          biocuration_class_ids: [],
-          biological_relationship_ids: [],
-          collecting_event_ids: [],
-          collecting_event_wildcards: [], # !! TODO, factor into CONSTANT
-          collector_id: [], #
-          determiner_id: [],
-          geographic_area_id: [],
-          is_type: [],
-          loan_id: [],
-          otu_ids: [],
-          preparation_type_id: [],
-          taxon_name_id: [],
-        )
-      end
+      PARAMS = [
+        *::Queries::CollectingEvent::Filter::BASE_PARAMS,
+        :buffered_collecting_event,
+        :buffered_determinations,
+        :buffered_other_labels,
+        :collecting_event,
+        :collection_object_type,
+        :collector_ids_or,
+        :current_determinations,
+        :current_repository,
+        :current_repository_id,
+        :depictions,
+        :descendants,
+        :determiner_id_or,
+        :determiner_name_regex,
+        :dwc_indexed,
+        :end_date,
+        :exact_buffered_collecting_event,
+        :exact_buffered_determinations,
+        :exact_buffered_other_labels,
+        :geographic_area,
+        :geographic_area_id,
+        :geographic_area_mode,
+        :georeferences,
+        :in_labels,
+        :in_verbatim_locality,
+        :loaned,
+        :md5_verbatim_label,
+        :never_loaned,
+        :object_global_id,
+        :on_loan,
+        :partial_overlap_dates,
+        :preparation_type,
+        :preparation_type_id,
+        :radius,  # CE filter
+        :repository,
+        :repository_id,
+        :sled_image_id,
+        :spatial_geographic_areas,
+        :start_date,  # CE filter
+        :taxon_determination_id,
+        :taxon_determinations,
+        :taxon_name_id,
+        :type_material,
+        :type_specimen_taxon_name_id,
+        :validity,
+        :with_buffered_collecting_event,
+        :with_buffered_determinations,
+        :with_buffered_other_labels,
+        biocuration_class_ids: [],
+        biological_relationship_ids: [],
+        collecting_event_ids: [],
+        collecting_event_wildcards: [], # !! TODO, factor into CONSTANT
+        collector_id: [], #
+        determiner_id: [],
+        geographic_area_id: [],
+        is_type: [],
+        loan_id: [],
+        otu_ids: [],
+        preparation_type_id: [],
+        taxon_name_id: [],
+      ].flatten.sort{|a,b| a.is_a?(Hash) ? 1 : 0  <=> b.is_a?(Hash) ? 1 : 0}.uniq!.freeze
+
+      # .flatten.sort{|a,b| a.is_a?(Hash) ? 1 : 0  <=> b.is_a?(Hash) ? 1 : 0}.uniq.freeze
 
       # TODO: look for name collisions with CE filter
 
@@ -198,13 +193,6 @@ module Queries
       #   nil - not applied
       attr_accessor :georeferences
 
-      # TODO: move to base ...
-      # @param [String, nil]
-      #  'true' - order by updated_at
-      #  'false', nil - do not apply ordering
-      # @return [Boolen, nil]
-      attr_accessor :recent
-
       attr_accessor :object_global_id
 
       # @return [True, False, nil]
@@ -308,7 +296,7 @@ module Queries
         collecting_event_params = ::Queries::CollectingEvent::Filter::ATTRIBUTES + ::Queries::CollectingEvent::Filter::PARAMS
 
         @base_collecting_event_query = ::Queries::CollectingEvent::Filter.new(
-          params.select{|a,b| collecting_event_params.include?(a.to_s) }
+          params.select{|a,b| collecting_event_params.include?(a) }
         )
 
         @biocuration_class_ids = params[:biocuration_class_ids] || []
@@ -344,7 +332,6 @@ module Queries
         @otu_id = params[:otu_id]
         @preparation_type = boolean_param(params, :preparation_type)
         @preparation_type_id = params[:preparation_type_id]
-        @recent = boolean_param(params, :recent)
         @repository = boolean_param(params, :repository)
         @repository_id = params[:repository_id].blank? ? nil : params[:repository_id]
         @sled_image_id = params[:sled_image_id].blank? ? nil : params[:sled_image_id]
@@ -647,27 +634,7 @@ module Queries
         table[:current_repository_id].eq(current_repository_id)
       end
 
-      def collecting_event_merge_clauses
-        c = []
-
-        # Convert base and clauses to merge clauses
-        base_collecting_event_query.base_merge_clauses.each do |i|
-          c.push ::CollectionObject.joins(:collecting_event).merge( i )
-        end
-        c
-      end
-
-      def collecting_event_and_clauses
-        c = []
-
-        # Convert base and clauses to merge clauses
-        base_collecting_event_query.base_and_clauses.each do |i|
-          c.push ::CollectionObject.joins(:collecting_event).where( i )
-        end
-        c
-      end
-
-      def base_and_clauses
+      def and_clauses
         [
           attribute_exact_facet(:buffered_collecting_event),
           attribute_exact_facet(:buffered_determinations),
@@ -682,15 +649,14 @@ module Queries
         ]
       end
 
-      def base_merge_clauses
-        clauses = []
-        clauses += collecting_event_merge_clauses + collecting_event_and_clauses
-
-        clauses += [
+      def merge_clauses
+        [
           source_query_facet,
           collecting_event_query_facet,
           taxon_name_query_facet,
           otu_query_facet,
+
+          base_collecting_event_query_facet,
 
           biocuration_facet,
           biological_relationship_ids_facet,
@@ -844,6 +810,23 @@ module Queries
         ::CollectionObject.from('(' + s + ') as collection_objects')
       end
 
+      def base_collecting_event_query_facet
+        # Turn project_id off and check for a truly empty query
+        base_collecting_event_query.project_id = nil
+        return nil if  base_collecting_event_query.all(true).nil?
+
+        # Turn project_id back on
+        base_collecting_event_query.project_id = project_id
+
+
+        s = 'WITH query_ce_base_co AS (' + base_collecting_event_query.all.to_sql + ') ' +
+          ::CollectionObject
+          .joins('JOIN query_ce_base_co as query_ce_base_co1 on query_ce_base_co1.id = collection_objects.collecting_event_id')
+          .to_sql
+
+        ::CollectionObject.from('(' + s + ') as collection_objects')
+      end
+
       def otu_query_facet
         return nil if otu_query.nil?
         s = 'WITH query_otu_co AS (' + otu_query.all.to_sql + ') ' +
@@ -855,6 +838,6 @@ module Queries
 
         ::CollectionObject.from('(' + s + ') as collection_objects')
       end
-    end
-  end
-end
+      end
+      end
+      end

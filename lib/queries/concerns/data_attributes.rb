@@ -46,7 +46,7 @@ module Queries::Concerns::DataAttributes
     end
 
     def data_attribute_value
-      [@data_attribute_value].flatten.compact.select{|a| !a.blank?}
+      [@data_attribute_value].flatten.compact.select{|a| a.present?}
     end
   end
 

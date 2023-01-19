@@ -4,12 +4,10 @@ describe Queries::Loan::Filter, type: :model, group: [:geo, :collection_objects,
 
   let(:q) { Queries::Loan::Filter.new({}) }
 
+  # let!(:l1) { FactoryBot.create(:valid_loan) }
+  # let!(:l2) { FactoryBot.create(:valid_loan) }
 
-# let!(:l1) { FactoryBot.create(:valid_loan) }
-# let!(:l2) { FactoryBot.create(:valid_loan) }
-
-
-  specify '#loan_item_wildcards' do
+  specify '#loan_wildcards' do
     l1 = FactoryBot.create(:valid_loan, recipient_address: 'Mars, home of chocolate bars.') 
     l2 = FactoryBot.create(:valid_loan) 
 

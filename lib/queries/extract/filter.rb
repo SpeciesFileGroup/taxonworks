@@ -7,36 +7,24 @@ module Queries
       include Queries::Concerns::Protocols
       include Queries::Concerns::DateRanges
 
-      # @params params ActionController::Parameters
-      # @return ActionController::Parameters
-      def self.base_params(params)
-        params.permit(
-          :ancestor_id,
-          :collection_object_id,
-          :exact_verbatim_anatomical_origin,
-          :extract_end_date_range,
-          :extract_origin,
-          :extract_start_date_range,
-          :id, # TODO `extract_id`
-          :otu_id,
-          :protocol_id,
-          :recent, # TODO: likely out
-          :repository_id,
-          :sequences,
-          :verbatim_anatomical_origin,
-          collection_object_id: [],
-          otu_id: [],
-          repository_id: [],
-        )
-      end
-
-      # TODO: generalize outside 
-      # @param [String, nil]
-      #  'true' - order by updated_at
-      #  'false', nil - do not apply ordering
-      # @return [Boolen, nil]
-      # !! Likely doesn't do what we think it does when chained with other params
-      attr_accessor :recent
+      PARAMS = [
+        :ancestor_id,
+        :collection_object_id,
+        :exact_verbatim_anatomical_origin,
+        :extract_end_date_range,
+        :extract_origin,
+        :extract_start_date_range,
+        :id, # TODO `extract_id`
+        :otu_id,
+        :protocol_id,
+        :recent, # TODO: likely out
+        :repository_id,
+        :sequences,
+        :verbatim_anatomical_origin,
+        collection_object_id: [],
+        otu_id: [],
+        repository_id: [],
+      ].freeze
 
       # @return [Array of Repository#id]
       attr_accessor :repository_id
@@ -89,7 +77,6 @@ module Queries
         @extract_origin = params[:extract_origin]
         @extract_start_date_range = params[:extract_start_date_range]
         @otu_id = params[:otu_id]
-        @recent = boolean_param(params, :recent)
         @repository_id = params[:repository_id]
         @sequences = boolean_param(params, :sequences)
         @verbatim_anatomical_origin = params[:verbatim_anatomical_origin]
@@ -121,8 +108,8 @@ module Queries
         return nil if otu_id.empty?
         a = ::Extract.joins(:origin_otus).where(otus: {id: otu_id})
         b = ::Extract.joins(origin_collection_objects: [:otus]).where(otus: {id: otu_id})
-        
-       ::Extract.from("((#{a.to_sql}) UNION (#{b.to_sql})) as extracts")
+
+        ::Extract.from("((#{a.to_sql}) UNION (#{b.to_sql})) as extracts")
       end
 
       def extract_origin_facet
@@ -201,15 +188,15 @@ module Queries
         u1 = ::Extract
           .joins(:origin_otus)
           .joins('JOIN query_otu_exs_a as query_otu_exs_a1 on otus.id = query_otu_exs_a1.id')
-          .to_sql        
+          .to_sql
 
         u2 = ::Extract
           .joins(origin_collection_objects: [:taxon_determinations])
           .joins('JOIN query_otu_exs_a as query_otu_exs_a2 on taxon_determinations.otu_id = query_otu_exs_a2.id')
           .where('taxon_determinations.position = 1')
-          .to_sql        
+          .to_sql
 
-         s = w + ::Extract.from("((#{u1}) UNION (#{u2})) as extracts").to_sql
+        s = w + ::Extract.from("((#{u1}) UNION (#{u2})) as extracts").to_sql
 
         ::Extract.from('(' + s + ') as extracts')
       end
@@ -226,7 +213,7 @@ module Queries
       end
 
       # @return [Array]
-      def base_and_clauses
+      def and_clauses
         [
           repository_id_facet,
           date_made_facet,
@@ -234,12 +221,12 @@ module Queries
         ]
       end
 
-      def base_merge_clauses
+      def merge_clauses
         [
           source_query_facet,
           otu_query_facet,
           collection_object_query_facet,
-                    
+
           ancestors_facet,
           collection_object_id_facet,
           extract_origin_facet,
@@ -269,7 +256,7 @@ module Queries
         rescue Date::Error
         end
         d
-      end     
+      end
 
     end
   end

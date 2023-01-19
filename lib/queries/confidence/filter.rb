@@ -1,5 +1,5 @@
 module Queries
-  module Confidence 
+  module Confidence
 
     class Filter < Query::Filter
       # Params specific to Confidence
@@ -56,8 +56,8 @@ module Queries
           matching_confidence_object_id,
         ].compact
 
-        return nil if clauses.empty? 
-        
+        return nil if clauses.empty?
+
         a = clauses.shift
         clauses.each do |b|
           a = a.and(b)

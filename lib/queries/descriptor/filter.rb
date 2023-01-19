@@ -4,22 +4,17 @@ module Queries
 
       include Queries::Concerns::Tags
       include Queries::Concerns::Notes
-
-      # @params params ActionController::Parameters
-      # @return ActionController::Parameters
-      def self.base_params(params)
-        params.permit(
-          :term,
-          :term_target,
-          :term_exact,
-          :descriptor_type,
-          :observation_matrix_id,
-          :observation_matrices,
-          :observations,
-        )
-      end
-
       include Queries::Helpers
+
+      PARAMS = [
+        :term,
+        :term_target,
+        :term_exact,
+        :descriptor_type,
+        :observation_matrix_id,
+        :observation_matrices,
+        :observations,
+      ].freeze
 
       # @param name [String, Symbol]
       #   matches against name, short_name, description, description_name, key_name
@@ -27,7 +22,7 @@ module Queries
       attr_accessor :term
 
       # @param term_exact [String, Boolean]
-      # @return [Boolean] 
+      # @return [Boolean]
       attr_accessor :term_exact
 
       # @return [String, Symbol ni]
@@ -44,11 +39,11 @@ module Queries
       attr_accessor :descriptor_type
 
       # @param observation_matrices [String, Boolean]
-      # @return [Boolean] 
+      # @return [Boolean]
       attr_accessor :observation_matrices
 
       # @param observations [String, Boolean]
-      # @return [Boolean] 
+      # @return [Boolean]
       attr_accessor :observations
 
       # @param [Hash] params
@@ -72,13 +67,13 @@ module Queries
         [@observation_matrix_id].flatten.compact.uniq
       end
 
-      def descriptor_type 
+      def descriptor_type
         [@descriptor_type].flatten.compact.uniq
       end
 
       def term_facet
         return nil if term.blank?
-        w =  '%' + term.gsub(/\s+/, '%') + '%' 
+        w =  '%' + term.gsub(/\s+/, '%') + '%'
 
         if term_exact
           if term_target.nil?
@@ -117,33 +112,33 @@ module Queries
       def observation_matrices_facet
         return nil if observation_matrices.nil?
         if observation_matrices
-          ::Descriptor.joins(:observation_matrices) 
+          ::Descriptor.joins(:observation_matrices)
         else
-          ::Descriptor.where.missing(:observation_matrices) 
+          ::Descriptor.where.missing(:observation_matrices)
         end
       end
 
       def observations_facet
         return nil if observation_matrices.nil?
         if observation_matrices
-          ::Descriptor.joins(:observations) 
+          ::Descriptor.joins(:observations)
         else
-          ::Descriptor.where.missing(:observations) 
+          ::Descriptor.where.missing(:observations)
         end
       end
 
-      def base_and_clauses
+      def and_clauses
         [ term_facet,
           descriptor_type_facet,
-        ].compact
+        ]
       end
 
-      def base_merge_clauses
+      def merge_clauses
         [ observations_facet,
           observation_matrices_facet,
           observation_matrix_id_facet,
           source_query_facet,
-        ].compact
+        ]
       end
 
     end

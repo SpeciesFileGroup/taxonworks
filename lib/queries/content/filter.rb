@@ -29,7 +29,7 @@ module Queries
       def initialize(params)
         @topic_id = params[:topic_id]
         @otu_id = params[:otu_id]
-      
+
         @text = params[:text]
 
         # TODO: use helper method

@@ -11,73 +11,47 @@ module Queries
       # TODO: likely move to model (replicated in Source too) and setup via macro?
       # Params exists for all CollectingEvent attributes except these.
       # collecting_event_id is excluded because we handle it specially in conjunction with `geographic_area_mode``
-      ATTRIBUTES = (::CollectingEvent.column_names - %w{project_id created_by_id updated_by_id created_at updated_at geographic_area_id})
-
-      # @params params ActionController::Parameters
-      # @return ActionController::Parameters
-      def self.base_params(params)
-        params.permit(
-          ATTRIBUTES, # Queries::CollectingEvent::Filter::ATTRIBUTES, # just ATTRIBUTES
-          :collection_objects,
-          :collector_id,
-          :collector_ids_or,
-          :depictions,
-          :determiner_name_regex,
-          :end_date,
-          :geo_json,
-          :geographic_area,
-          :geographic_area_id,
-          :geographic_area_mode,
-          :georeferences,
-          :in_labels,
-          :in_verbatim_locality,
-          :md5_verbatim_label,
-          :otu_id,
-          :partial_overlap_dates,
-          :radius,
-          :recent,
-          :start_date,
-          :wkt,
-          collecting_event_wildcards: [],
-          collection_object_id: [],
-          collector_id: [],
-          geographic_area_id: [],
-          otu_id: [],
-        )
-      end
+      ATTRIBUTES = (::CollectingEvent.core_attributes - %w{geographic_area_id}).map(&:to_sym).freeze
 
       # This is still used in CollectionObject query.
-      # !! 
+      # !!
       # !! There is likely some collision with wkt, other shared variables
-      # !! 
-      PARAMS = %w{
-        :collection_objects,
-        :collector_id,
-        :collector_ids_or,
-        :depictions,
-        :determiner_name_regex,
-        :end_date,
-        :geo_json,
-        :geographic_area,
-        :geographic_area_id,
-        :geographic_area_mode,
-        :georeferences,
-        :in_labels,
-        :in_verbatim_locality,
-        :md5_verbatim_label,
-        :otu_id,
-        :partial_overlap_dates,
-        :radius,
-        :recent,
-        :start_date,
-        :wkt,
-        :collecting_event_wildcards,
-        :collecting_event_object_ids,
-        collector_id,
-        geographic_area_id,
-        otu_id,
+      # !!
+      BASE_PARAMS = %i{
+        collecting_event_object_ids
+        collecting_event_wildcards
+        collection_objects
+        collector_id
+        collector_id_or
+        depictions
+        determiner_name_regex
+        end_date
+        geo_json
+        geographic_area
+        geographic_area_id
+        geographic_area_mode
+        georeferences
+        in_labels
+        in_verbatim_locality
+        md5_verbatim_label
+        otu_id
+        partial_overlap_dates
+        radius
+        start_date
+        wkt
       }.freeze
 
+      PARAMS = [
+        *ATTRIBUTES,
+        *BASE_PARAMS,
+        collecting_event_wildcards: [],
+        collection_object_id: [],
+        collector_id: [],
+        geographic_area_id: [],
+        otu_id: [],
+      ].freeze # not needed right now# .flatten.sort{|a,b| a.is_a?(Hash) ? 1 : 0  <=> b.is_a?(Hash) ? 1 : 0}.uniq!.freeze
+
+      # All collecting event fields have their own accessor.
       ATTRIBUTES.each do |a|
         class_eval { attr_accessor a.to_sym }
       end
@@ -96,21 +70,18 @@ module Queries
       # Wildcard wrapped matching verbatim_locality via ATTRIBUTES
       attr_accessor :in_verbatim_locality
 
-      # TODO: reffactor to Concern or remove (likely doesn't belong here)
-      # @return [True, nil]
-      attr_accessor :recent
-
       # A spatial representation in well known text
       attr_accessor :wkt
 
       # Integer in Meters
+      #   !! defaults to 100m
       attr_accessor :radius
 
       # @return [Hash, nil]
       #  in geo_json format (no Feature ...) ?!
       attr_accessor :geo_json
 
-      # @return [Array]
+      # @return [Array (Symbols)]
       #   values are ATTRIBUTES that should be wildcarded
       attr_accessor :collecting_event_wildcards
 
@@ -123,10 +94,10 @@ module Queries
       attr_accessor :collector_id
 
       # @return [Boolean]
-      # @param collector_ids_or [String]
+      # @param collector_id_or [String]
       #   'true' - all ids treated as "or"
       #   'false', nil - all ids treated as "and"
-      attr_accessor :collector_ids_or
+      attr_accessor :collector_id_or
 
       # @param collection_objects [String, nil]
       #   legal values are 'true', 'false'
@@ -165,39 +136,32 @@ module Queries
       attr_accessor :geographic_area_mode
 
       def initialize(params)
-        @collecting_event_wildcards = params[:collecting_event_wildcards] || []
-        @collector_id = params[:collector_id]
-        @collector_ids_or = boolean_param(params, :collector_ids_or )
-        @collection_objects = boolean_param(params, :collection_objects )
+        @collecting_event_id = params[:collecting_event_id]
+        @collecting_event_wildcards = params[:collecting_event_wildcards]
         @collection_object_id = params[:collection_object_id]
+        @collection_objects = boolean_param(params, :collection_objects )
+        @collector_id = params[:collector_id]
+        @collector_id_or = boolean_param(params, :collector_id_or )
         @depictions = boolean_param(params, :depictions)
-        @georeferences = boolean_param(params, :georeferences)
-        @geographic_area = boolean_param(params, :geographic_area)
         @geo_json = params[:geo_json]
-        @geographic_area_mode = boolean_param(params, :geographic_area_mode)
+        @geographic_area = boolean_param(params, :geographic_area)
         @geographic_area_id = params[:geographic_area_id]
+        @geographic_area_mode = boolean_param(params, :geographic_area_mode)
+        @georeferences = boolean_param(params, :georeferences)
         @in_labels = params[:in_labels]
         @in_verbatim_locality = params[:in_verbatim_locality]
         @md5_verbatim_label = params[:md5_verbatim_label]&.to_s&.downcase == 'true'
-        @otu_id = params[:otu_id].presence || []
+        @otu_id = params[:otu_id].presence
         @radius = params[:radius].presence || 100
-        @recent = params[:recent].blank? ? nil : params[:recent].to_i
         @wkt = params[:wkt]
 
-        @collecting_event_id = params[:collecting_event_id]
+        set_attributes(params)
 
         set_tags_params(params)
-        set_attributes(params)
         set_dates(params)
         set_data_attributes_params(params)
         set_notes_params(params)
         super
-      end
-
-      def set_attributes(params)
-        ATTRIBUTES.each do |a|
-          send("#{a}=", params[a.to_sym])
-        end
       end
 
       def collecting_event_id
@@ -220,15 +184,19 @@ module Queries
         [@otu_id].flatten.compact
       end
 
+      def collecting_event_wildcards
+        [@collecting_event_wildcards].flatten.compact.uniq.map(&:to_sym)
+      end
+
       def attribute_clauses
         c = []
         ATTRIBUTES.each do |a|
           if v = send(a)
             if v.present?
               if collecting_event_wildcards.include?(a)
-                c.push Arel::Nodes::NamedFunction.new('CAST', [table[a.to_sym].as('TEXT')]).matches('%' + v.to_s + '%')
+                c.push Arel::Nodes::NamedFunction.new('CAST', [table[a].as('TEXT')]).matches('%' + v.to_s + '%')
               else
-                c.push table[a.to_sym].eq(v)
+                c.push table[a].eq(v)
               end
             end
           end
@@ -322,7 +290,7 @@ module Queries
 
         b = b.where(e.and(f))
         b = b.group(a['id'])
-        b = b.having(a['id'].count.eq(collector_id.length)) unless collector_ids_or
+        b = b.having(a['id'].count.eq(collector_id.length)) unless collector_id_or
         b = b.as('col_z_')
 
         ::CollectingEvent.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
@@ -400,23 +368,20 @@ module Queries
       end
 
       # @return [Array]
-      def base_and_clauses
-        clauses = []
-        clauses += attribute_clauses
-
+      def and_clauses
+        clauses = attribute_clauses
         clauses += [
           between_date_range,
           matching_any_label,
           matching_collecting_event_id,
           matching_verbatim_label_md5,
           matching_verbatim_locality,
-        ].compact!
-
+        ]
         clauses
       end
 
-      def base_merge_clauses
-        clauses = [
+      def merge_clauses
+        [
           source_query_facet,
           collection_object_query_facet,
 
@@ -430,8 +395,7 @@ module Queries
           matching_collection_object_id,
           matching_otu_ids,
           wkt_facet,
-        ].compact!
-        clauses
+        ]
       end
 
       def collection_object_query_facet

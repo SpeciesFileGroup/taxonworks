@@ -2,8 +2,8 @@ module Queries
   module Source
 
     # TODO: UI needs singular updates for:
-    # 
-    #   
+    #
+    #
     #
     #
     class Filter < Query::Filter
@@ -12,55 +12,19 @@ module Queries
       include Queries::Concerns::Notes
       include Queries::Concerns::Empty
 
-      # TODO: move to model replicated in CollectingEvent
       # TOOD: confirm cached should not be a target
-      ATTRIBUTES = (::Source.column_names - %w{id project_id created_by_id updated_by_id created_at updated_at cached})
+      ATTRIBUTES = ::Source.core_attributes.map(&:to_sym).freeze
+
+      # TODO: are we using this in the filter?
       #  ATTRIBUTES.each do |a|
       #    class_eval { attr_accessor a.to_sym }
       #  end
 
-      def self.permit(params)
-        params.permit( 
-          :ancestor_id, # TODO: review vs. taxon_name_id
-          :author,
-          :author_ids_or, # TODO: singularize
-          :bibtex_type,
-          :citations_on_otus,
-          :documents,
-          :exact_author,
-          :exact_title,
-          :in_project,
-          :nomenclature,
-          :per,
-          :project_id,
-          :query_term,
-          :recent,
-          :roles,
-          :serial,
-          :source_type,
-          :title,
-          :with_doi,
-          :with_title,
-          :year_end,
-          :year_start,
-          author_ids: [], # TODO: singularize
-          bibtex_type: [],
-          citation_object_type: [],
-          ids: [], # TODO: singularize
-          keyword_id_and: [],
-          keyword_id_or: [],
-          topic_ids: [], # TODO: singularize
-          serial_ids: [], # TODO: singularize
-          empty: [],
-          not_empty: []
-        )
-      end
-
-=begin
-      PARAMS = ATTRIBUTES.collect{|a| a.to_sym} + [
-        :ancestor_id,
+      PARAMS = [
+        *ATTRIBUTES,
+        :ancestor_id, # TODO: review vs. taxon_name_id
         :author,
-        :author_ids_or,
+        :author_ids_or, # TODO: singularize
         :bibtex_type,
         :citations_on_otus,
         :documents,
@@ -68,10 +32,7 @@ module Queries
         :exact_title,
         :in_project,
         :nomenclature,
-        :per,
-        :project_id,
         :query_term,
-        :recent,
         :roles,
         :serial,
         :source_type,
@@ -80,19 +41,17 @@ module Queries
         :with_title,
         :year_end,
         :year_start,
-        author_ids: [],
+        author_ids: [], # TODO: singularize
         bibtex_type: [],
         citation_object_type: [],
-        ids: [],
+        ids: [], # TODO: singularize
         keyword_id_and: [],
         keyword_id_or: [],
-        topic_ids: [],
-        serial_ids: [],
+        topic_ids: [], # TODO: singularize
+        serial_ids: [], # TODO: singularize
         empty: [],
         not_empty: []
-      ] 
-=end
-
+      ].freeze
 
       # @project_id from Queries::Query
       #   used in context of in_project when provided
@@ -142,10 +101,6 @@ module Queries
       attr_accessor :citations
 
       # @return [Boolean, nil]
-      # @params recent ['true', 'false', nil]
-      attr_accessor :recent
-
-      # @return [Boolean, nil]
       # @params roles ['true', 'false', nil]
       attr_accessor :roles
 
@@ -193,17 +148,18 @@ module Queries
       attr_accessor :serial
 
       # @return [Boolean, nil]
-      # true - with a title 
+      # true - with a title
       # false - without a title
       # nil - both
       attr_accessor :with_title
 
       # @return [Array, String, nil]
-      # one of the allowed BibTeX types 
+      # one of the allowed BibTeX types
       attr_accessor :bibtex_type
 
       # @param [Hash] params
       def initialize(params)
+
         @query_string = params[:query_term]&.delete("\u0000") # TODO, we need to sanitize params in general.
 
         @ancestor_id = params[:ancestor_id]
@@ -218,10 +174,8 @@ module Queries
         @exact_author = boolean_param(params,:exact_author)
         @exact_title = boolean_param(params,:exact_title)
         @ids = params[:ids] || []
-        @in_project = boolean_param(params,:in_project) 
+        @in_project = boolean_param(params,:in_project)
         @nomenclature = boolean_param(params,:nomenclature)
-        @project_id = params[:project_id] # TODO: also in Queries::Query
-        @recent =  boolean_param(params,:recent)
         @roles = boolean_param(params,:roles)
         @serial = boolean_param(params,:serial)
         @serial_ids = params[:serial_ids] || []
@@ -430,7 +384,7 @@ module Queries
         nil
       end
 
-      def base_merge_clauses
+      def merge_clauses
         [
           ancestors_facet,
           author_ids_facet,
@@ -446,8 +400,7 @@ module Queries
         ]
       end
 
-      # @return [ActiveRecord::Relation]
-      def base_and_clauses
+      def and_clauses
         [
           attribute_exact_facet(:author),
           attribute_exact_facet(:title),

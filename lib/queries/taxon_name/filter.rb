@@ -5,6 +5,9 @@ module Queries
     # * added year_start, :year_end, :name_exact, :author_exact
     # * removed :exact
 
+
+    # TODO: consider merge and search on cached_author
+
     # https://api.taxonworks.org/#/taxon_names
     class Filter < Query::Filter
 
@@ -14,54 +17,47 @@ module Queries
       include Queries::Concerns::Tags
       include Queries::Concerns::DataAttributes
 
-      # @params params ActionController::Parameters
-      # @return ActionController::Parameters
-      def self.base_params(params)
-        params.permit(
-          :ancestors,
-          :author,
-          :author_exact,
-          :authors,
-          :descendants,
-          :descendants_max_depth,
-          :etymology,
-          :leaves,
-          :name,
-          :name_exact,
-          :nomenclature_code,
-          :nomenclature_group, # !! different than autocomplete
-          :not_specified,
-          :otu_id,
-          :otus,
-          :page,
-          :per,
-          :rank,
-          :taxon_name_author_ids_or,
-          :taxon_name_type,
-          :type_metadata,
-          :validify,
-          :validity,
-          :year,
-          :year_end,
-          :year_start,
-          name: [],
-          otu_id: [],
-          combination_taxon_name_id: [],
-          parent_id: [],
-          rank: [],
-          taxon_name_author_ids: [],
-          taxon_name_classification: [],
-          taxon_name_id: [],
-          taxon_name_relationship: [
-            :subject_taxon_name_id,
-            :object_taxon_name_id,
-            :type
-          ],
-          taxon_name_relationship_type: [],
-          type: [],
-          user_id: []
-        )
-      end
+      PARAMS = [ 
+        :ancestors,
+        :author,
+        :author_exact,
+        :authors,
+        :descendants,
+        :descendants_max_depth,
+        :etymology,
+        :leaves,
+        :name,
+        :name_exact,
+        :nomenclature_code,
+        :nomenclature_group, # !! different than autocomplete
+        :not_specified,
+        :otu_id,
+        :otus,
+        :rank,
+        :taxon_name_author_ids_or,
+        :taxon_name_type,
+        :type_metadata,
+        :validify,
+        :validity,
+        :year,
+        :year_end,
+        :year_start,
+        name: [],
+        otu_id: [],
+        combination_taxon_name_id: [],
+        parent_id: [],
+        rank: [],
+        taxon_name_author_ids: [],
+        taxon_name_classification: [],
+        taxon_name_id: [],
+        taxon_name_relationship: [
+          :subject_taxon_name_id,
+          :object_taxon_name_id,
+          :type
+        ],
+        taxon_name_relationship_type: [],
+        type: [],
+      ].freeze
 
       # @param name [String, Array]
       # @return [Array]
@@ -612,7 +608,7 @@ module Queries
       end
 
       # @return [ActiveRecord::Relation]
-      def base_and_clauses
+      def and_clauses
         [ 
           author_facet,
           name_facet,
@@ -627,7 +623,7 @@ module Queries
         ]
       end
 
-      def base_merge_clauses
+      def merge_clauses
         clauses = [
           collection_object_query_facet,
           otu_query_facet,

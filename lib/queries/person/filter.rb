@@ -63,6 +63,7 @@ module Queries
       #   also matches any AlternateValue
       attr_accessor :prefix
 
+      # TODO: may need another param name
       # @return [Array]
       #   only return people with roles in this project(s) or roles through Sources in ProjectSources
       attr_accessor :project_id

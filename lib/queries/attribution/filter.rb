@@ -4,13 +4,13 @@ module Queries
     # !! does not inherit from base query
     class Filter < Query::Filter
 
-      # General annotator options handling 
+      # General annotator options handling
       # happens directly on the params as passed
       # through to the controller, keep them
       # together here
       attr_accessor :options
 
-      # Params specific to Attribution 
+      # Params specific to Attribution
 
       # @params params [ActionController::Parameters]
       def initialize(params)
