@@ -1,4 +1,4 @@
-json.extract! collection_object, *CollectionObject::BASE_PARAMS
+json.extract! collection_object, *CollectionObject.core_attributes
 
 json.partial! '/shared/data/all/metadata', object: collection_object
 
@@ -28,7 +28,9 @@ end
 
 if extend_response_with('identifiers')
   json.identifiers do
-    json.array! collection_object.identifiers.pluck(:cached)
+    json.array! collection_object.identifiers do |i|
+      json.cached i.cached
+    end
   end
 end
 
