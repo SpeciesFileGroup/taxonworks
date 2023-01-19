@@ -20,6 +20,7 @@ module Shared::Taxonomy
 
     protected
 
+    # TODO: analyze and optimize for n+1
     def set_taxonomy
       c = case self.class.base_class.name
           when 'CollectionObject'

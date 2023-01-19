@@ -96,13 +96,6 @@ class CollectionObject < ApplicationRecord
 
   GRAPH_ENTRY_POINTS = [:biological_associations, :data_attributes, :taxon_determinations, :biocuration_classifications, :collecting_event, :origin_relationships, :extracts]
 
-  BASE_PARAMS = [ 
-    :id, :total, :repository_id, :current_repository_id, :preparation_type_id, :collecting_event_id,
-    :buffered_collecting_event, :buffered_determinations, :buffered_other_labels,
-    :accessioned_at, :deaccessioned_at, :deaccession_reason,
-    :created_by_id, :updated_by_id, :created_at, :updated_at
-  ]
-
   # Identifier delegations
   delegate :cached, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
   delegate :namespace, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
@@ -740,8 +733,8 @@ class CollectionObject < ApplicationRecord
 
   def reject_collecting_event(attributed)
     reject = true
-    CollectingEvent.data_attributes.each do |a|
-      if !attributed[a].blank?
+    CollectingEvent.core_attributes.each do |a|
+      if attributed[a].present?
         reject = false
         break
       end

@@ -87,7 +87,7 @@ class DwcOccurrence < ApplicationRecord
   # @return [Array]
   #   of column names as symbols that are blank in *ALL* projects (not just this one)
   def self.empty_fields
-    empty_in_all_projects =  ActiveRecord::Base.connection.execute("select attname
+    empty_in_all_projects = ActiveRecord::Base.connection.execute("select attname
     from pg_stats
     where tablename = 'dwc_occurrences'
     and most_common_vals is null

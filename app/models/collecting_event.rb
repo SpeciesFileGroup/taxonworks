@@ -452,8 +452,8 @@ class CollectingEvent < ApplicationRecord
   # @return [Boolean]
   #   test for minimal data
   def has_data?
-    CollectingEvent.data_attributes.each do |a|
-      return true unless self.send(a).blank?
+    CollectingEvent.core_attributes.each do |a|
+      return true if self.send(a).present?
     end
     return true if georeferences.any?
     false

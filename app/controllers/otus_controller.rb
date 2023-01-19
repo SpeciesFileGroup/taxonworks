@@ -21,6 +21,7 @@ class OtusController < ApplicationController
           .page(params[:page])
           .per(params[:per])
           .includes(:taxon_name)
+          .eager_load(:taxon_name)
           .order('taxon_names.cached, otus.name')
       }
     end
@@ -315,7 +316,7 @@ class OtusController < ApplicationController
   private
 
   def set_otu
-    @otu = Otu.where(project_id: sessions_current_project_id).find(params[:id])
+    @otu = Otu.where(project_id: sessions_current_project_id).eager_load(:taxon_name).find(params[:id])
     @recent_object = @otu
   end
 
