@@ -16,13 +16,13 @@ end
 
 if extend_response_with('repository') && collection_object.repository.present?
   json.repository do
-    json.partial! '/repositories/attributes', collecting_event: collection_object.repository, extensions: false
+    json.partial! '/repositories/attributes', repository: collection_object.repository, extensions: false
   end
 end
 
 if extend_response_with('current_repository') && collection_object.current_repository.present?
   json.current_repository do
-    json.partial! '/repositories/attributes', collecting_event: collection_object.current_repository, extensions: false
+    json.partial! '/repositories/attributes', repository: collection_object.current_repository, extensions: false
   end
 end
 
