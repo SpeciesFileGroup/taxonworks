@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Export project task now removes hierarchies rows that don't belong to selected project [#3271]
 - Export project task no longer includes `delayed_jobs` and `imports` tables.
 - Clipboard hotkey combination [#3273]
+- Updated Ruby gems.
 
 [#3269]: https://github.com/SpeciesFileGroup/taxonworks/issues/3269
 [#3271]: https://github.com/SpeciesFileGroup/taxonworks/issues/3271
