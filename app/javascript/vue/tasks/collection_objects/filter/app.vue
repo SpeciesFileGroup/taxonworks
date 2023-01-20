@@ -90,7 +90,7 @@
 </template>
 
 <script setup>
-import { computed, ref, reactive, onBeforeMount } from 'vue'
+import { computed, ref, reactive, onBeforeMount, watch } from 'vue'
 import { CollectionObject } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse'
 import { COLLECTION_OBJECT } from 'constants/index.js'
@@ -177,6 +177,27 @@ function removeCOFromList(ids) {
   list.value = list.value.filter((item) => !ids.includes(item.id))
   selectedIds.value = selectedIds.value.filter((id) => !ids.includes(id))
 }
+
+watch(list, (newVal) => {
+  const predicateNames = []
+  console.log('Se')
+  list.value.forEach((item, index) => {
+    const da = item?.data_attributes
+
+    if (!Array.isArray(da)) return
+    const obj = {}
+
+    da.forEach(({ predicate_name, value }) => {
+      console.log(predicate_name)
+      obj[predicate_name] = value
+    })
+
+    list.value[index].data_attributes = obj
+    console.log(list.value[index].data_attributes)
+  })
+
+  return predicateNames
+})
 
 onBeforeMount(() => {
   parameters.value = {
