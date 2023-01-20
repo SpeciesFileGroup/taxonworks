@@ -21,6 +21,7 @@
       :table="preferences.showList"
       :pagination="pagination"
       v-model:per="per"
+      :object-type="ASSERTED_DISTRIBUTION"
       @filter="makeFilterRequest({ ...parameters, extend })"
       @nextpage="loadPage"
       @reset="resetFilter"
@@ -50,7 +51,7 @@
       v-if="isLoading"
       full-screen
       legend="Searching..."
-      :logo-size="{ width: '100px', height: '100px'}"
+      :logo-size="{ width: '100px', height: '100px' }"
     />
   </div>
 </template>
@@ -67,13 +68,9 @@ import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
 import { AssertedDistribution } from 'routes/endpoints'
 import { computed, reactive, ref, onBeforeMount } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
+import { ASSERTED_DISTRIBUTION } from 'constants/index.js'
 
-const extend = [
-  'otu',
-  'citations',
-  'geographic_area',
-  'taxonomy'
-]
+const extend = ['otu', 'citations', 'geographic_area', 'taxonomy']
 
 const selectedIds = ref([])
 const preferences = reactive({
@@ -97,7 +94,7 @@ const {
 
 const csvList = computed(() =>
   selectedIds.value.length
-    ? list.value.filter(item => selectedIds.value.includes(item.id))
+    ? list.value.filter((item) => selectedIds.value.includes(item.id))
     : list.value
 )
 
@@ -116,7 +113,6 @@ onBeforeMount(() => {
     })
   }
 })
-
 </script>
 
 <script>
@@ -126,7 +122,7 @@ export default {
 </script>
 
 <style scoped>
-  .no-found-message {
-    height: 70vh;
-  }
+.no-found-message {
+  height: 70vh;
+}
 </style>
