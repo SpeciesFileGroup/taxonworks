@@ -29,7 +29,6 @@
       color="primary"
       title="Radial filter"
       circle
-      medium
       :disabled="disabled"
       @click="openRadialMenu()"
     >
@@ -46,6 +45,7 @@
 import { computed, ref } from 'vue'
 import { QUERY_PARAM } from './constants/queryParam'
 import { FILTER_ROUTES } from 'routes/routes'
+import { ID_PARAM_FOR } from './constants/idParams'
 import RadialMenu from 'components/radials/RadialMenu.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
@@ -54,10 +54,7 @@ import Qs from 'qs'
 import * as FILTER_LINKS from './links'
 
 const MAX_LINK_SIZE = 450
-const EXCLUDE_PARAMETERS = [
-  'per',
-  'extend'
-]
+const EXCLUDE_PARAMETERS = ['per', 'extend']
 
 const props = defineProps({
   disabled: {
@@ -73,6 +70,11 @@ const props = defineProps({
   parameters: {
     type: Object,
     default: undefined
+  },
+
+  ids: {
+    type: Array,
+    default: undefined
   }
 })
 
@@ -81,51 +83,76 @@ const emit = defineEmits(['close'])
 const filteredParameters = computed(() => {
   const params = { ...props.parameters }
 
-  EXCLUDE_PARAMETERS.forEach(param => {
+  EXCLUDE_PARAMETERS.forEach((param) => {
     delete params[param]
   })
 
   return filterEmptyParams(params)
 })
 
+const isOnlyIds = computed(() => Array.isArray(props.ids))
+const filterLinks = computed(() =>
+  isOnlyIds.value
+    ? FILTER_LINKS[props.objectType].ids
+    : FILTER_LINKS[props.objectType].all
+)
 const queryObject = computed(() => {
   const params = { ...filteredParameters.value }
   const currentQueryParam = QUERY_PARAM[props.objectType]
-  const queryParams = Object.keys(params).filter(param => param.includes('_query'))
+  const queryParams = Object.keys(params).filter((param) =>
+    param.includes('_query')
+  )
 
-  queryParams.forEach(queryParam => {
+  queryParams.forEach((queryParam) => {
     delete params[queryParam]
   })
 
-  const queryParameters = Object.assign({}, ...queryParams.map(param => ({ [param]: filteredParameters.value[param] })))
+  const queryParameters = Object.assign(
+    {},
+    ...queryParams.map((param) => ({
+      [param]: filteredParameters.value[param]
+    }))
+  )
 
   return currentQueryParam && Object.keys(params).length
     ? { [currentQueryParam]: params, ...queryParameters }
     : queryParameters
 })
 
-const hasParameters = computed(() => !!Object.keys(filteredParameters.value).length)
+const hasParameters = computed(
+  () => !!Object.keys(filteredParameters.value).length || !!props.ids?.length
+)
+
+function getParametersForAll(link) {
+  const currentQueryParam = getCurrentQueryParam(link)
+  const params = unnestParameter(currentQueryParam)
+
+  return Qs.stringify(params)
+}
+
+function getParametersForId() {
+  const params = {
+    [ID_PARAM_FOR[props.objectType]]: props.ids
+  }
+
+  return Qs.stringify(params)
+}
 
 const menuOptions = computed(() => {
-  const links = FILTER_LINKS[props.objectType]
-  const slices = []
+  const slices = filterLinks.value.map((item) => {
+    const urlParameters = isOnlyIds.value
+      ? getParametersForId()
+      : getParametersForAll(item.link)
 
-  links.forEach(item => {
-    const currentQueryParam = getCurrentQueryParam(item.link)
-    const params = unnestParameter(currentQueryParam)
-    const urlParameters = Qs.stringify(params)
-    const urlWithParameters = item.link + (hasParameters.value ? `?${urlParameters}` : '')
+    const urlWithParameters =
+      item.link + (hasParameters.value ? `?${urlParameters}` : '')
 
-    slices.push(
-      addSlice(
-        {
-          ...item,
-          name: currentQueryParam,
-          link: urlWithParameters.length < MAX_LINK_SIZE
-            ? urlWithParameters
-            : item.link
-        })
-    )
+    return addSlice({
+      ...item,
+      name: getCurrentQueryParam(item.link),
+      link:
+        urlWithParameters.length < MAX_LINK_SIZE ? urlWithParameters : item.link
+    })
   })
 
   return {
@@ -133,7 +160,6 @@ const menuOptions = computed(() => {
     height: 400,
     sliceSize: 130,
     centerSize: 34,
-    innerPosition: 1.7,
     margin: 2,
     svgAttributes: {
       class: 'svg-radial-menu'
@@ -148,7 +174,7 @@ const menuOptions = computed(() => {
 
 const isVisible = ref(false)
 
-function addSlice ({ label, link, name }) {
+function addSlice({ label, link, name }) {
   return {
     label,
     link,
@@ -159,32 +185,36 @@ function addSlice ({ label, link, name }) {
   }
 }
 
-function closeModal () {
+function closeModal() {
   isVisible.value = false
   emit('close')
 }
 
-function openRadialMenu () {
+function openRadialMenu() {
   isVisible.value = true
 }
 
-function saveParametersOnStorage ({ name }) {
+function saveParametersOnStorage({ name }) {
   if (hasParameters.value) {
-    const params = unnestParameter(name)
+    const params = isOnlyIds.value
+      ? getParametersForId()
+      : unnestParameter(name)
     const state = JSON.stringify(params)
 
     sessionStorage.setItem('filterQuery', state)
   }
 }
 
-function getCurrentQueryParam (link) {
-  const [targetObjectType] = Object.entries(FILTER_ROUTES).find(([key, value]) => value === link)
+function getCurrentQueryParam(link) {
+  const [targetObjectType] = Object.entries(FILTER_ROUTES).find(
+    ([key, value]) => value === link
+  )
   const currentQueryParam = QUERY_PARAM[targetObjectType]
 
   return currentQueryParam
 }
 
-function unnestParameter (param) {
+function unnestParameter(param) {
   const params = { ...queryObject.value }
 
   delete params[param]
@@ -195,7 +225,7 @@ function unnestParameter (param) {
   }
 }
 
-function filterEmptyParams (object) {
+function filterEmptyParams(object) {
   const obj = { ...object }
 
   for (const key in obj) {
@@ -212,7 +242,6 @@ function filterEmptyParams (object) {
 
   return obj
 }
-
 </script>
 
 <script>

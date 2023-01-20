@@ -40,13 +40,14 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { transformObjectToParams } from 'helpers/setParam'
 import { copyObjectByArray } from 'helpers/objects.js'
+import { ID_PARAM_FOR } from 'components/radials/filter/constants/idParams.js'
 import RadialMenu from 'components/radials/RadialMenu.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import Modal from 'components/ui/Modal.vue'
 import getFilterAttributes from './composition/getFilterAttributes'
+import qs from 'qs'
 import * as LINKER_LIST from './links/index.js'
 
 const props = defineProps({
@@ -63,19 +64,32 @@ const props = defineProps({
   parameters: {
     type: Object,
     default: undefined
+  },
+
+  ids: {
+    type: Array,
+    default: undefined
   }
 })
 
 const emit = defineEmits(['close'])
 const objParameters = ref(getFilterAttributes())
+const isOnlyIds = computed(() => Array.isArray(props.ids))
+const filterLinks = computed(() =>
+  isOnlyIds.value
+    ? LINKER_LIST[props.objectType].ids
+    : LINKER_LIST[props.objectType].all
+)
 
 const menuOptions = computed(() => {
-  const links = LINKER_LIST[props.objectType]
   const slices = []
 
-  links.forEach(item => {
-    const filteredParameters = filterEmptyParams(item.params ? copyObjectByArray({ ...objParameters.value, ...props.parameters }, item.params) : { ...objParameters.value, ...props.parameters })
-    const link = item.link + '?' + transformObjectToParams(filteredParameters)
+  filterLinks.value.forEach((item) => {
+    const filteredParameters = filterEmptyParams(
+      isOnlyIds.value ? getParametersForId() : getParametersForAll(item.params)
+    )
+
+    const link = item.link + '?' + qs.stringify(filteredParameters)
 
     if (Object.values(filteredParameters).some(Boolean)) {
       slices.push(addSlice({ ...item, link }))
@@ -87,7 +101,6 @@ const menuOptions = computed(() => {
     height: 400,
     sliceSize: 130,
     centerSize: 34,
-    innerPosition: 1.7,
     margin: 2,
     svgAttributes: {
       class: 'svg-radial-menu'
@@ -96,13 +109,35 @@ const menuOptions = computed(() => {
       fontSize: 11,
       class: 'slice'
     },
+    middleButton: {
+      // Middle button
+      radius: 28,
+      name: 'middle',
+      svgAttributes: {
+        fill: 'transparent'
+      }
+    },
     slices
   }
 })
 
 const isVisible = ref(false)
 
-function addSlice ({ label, link }) {
+function getParametersForAll(params) {
+  const filteredParameters = params
+    ? copyObjectByArray({ ...objParameters.value, ...props.parameters }, params)
+    : { ...objParameters.value, ...props.parameters }
+
+  return filteredParameters
+}
+
+function getParametersForId() {
+  return {
+    [ID_PARAM_FOR[props.objectType]]: props.ids
+  }
+}
+
+function addSlice({ label, link }) {
   return {
     label,
     link,
@@ -112,25 +147,22 @@ function addSlice ({ label, link }) {
   }
 }
 
-function closeModal () {
+function closeModal() {
   isVisible.value = false
   emit('close')
 }
 
-function openRadialMenu () {
+function openRadialMenu() {
   isVisible.value = true
 }
 
-function filterEmptyParams (object) {
+function filterEmptyParams(object) {
   const obj = { ...object }
 
   for (const key in obj) {
     const value = obj[key]
 
-    if (
-      value === '' ||
-      (Array.isArray(value) && !value.length)
-    ) {
+    if (value === '' || (Array.isArray(value) && !value.length)) {
       delete obj[key]
     }
   }
@@ -138,15 +170,11 @@ function filterEmptyParams (object) {
   return obj
 }
 
-watch(
-  isVisible,
-  (newVal) => {
-    if (newVal) {
-      objParameters.value = getFilterAttributes()
-    }
+watch(isVisible, (newVal) => {
+  if (newVal) {
+    objParameters.value = getFilterAttributes()
   }
-)
-
+})
 </script>
 
 <script>

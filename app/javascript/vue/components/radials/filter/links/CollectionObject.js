@@ -4,12 +4,22 @@ import {
   COLLECTING_EVENT,
   TAXON_NAME,
   OTU,
-  EXTRACT
+  EXTRACT,
+  SOURCE
 } from 'constants/index.js'
 
-export const CollectionObject = [
-  FILTER_LINKS[TAXON_NAME],
-  FILTER_LINKS[COLLECTING_EVENT],
-  FILTER_LINKS[OTU],
-  FILTER_LINKS[EXTRACT]
-]
+export const CollectionObject = {
+  all: [
+    FILTER_LINKS[TAXON_NAME],
+    FILTER_LINKS[COLLECTING_EVENT],
+    FILTER_LINKS[OTU],
+    FILTER_LINKS[EXTRACT]
+  ],
+  ids: [
+    FILTER_LINKS[TAXON_NAME],
+    FILTER_LINKS[COLLECTING_EVENT],
+    FILTER_LINKS[OTU],
+    FILTER_LINKS[EXTRACT],
+    FILTER_LINKS[SOURCE]
+  ]
+}

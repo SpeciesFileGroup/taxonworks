@@ -32,14 +32,20 @@
           v-if="list.length"
           class="horizontal-right-content"
         >
+          <RadialFilter
+            :ids="selectedIds"
+            :disabled="!selectedIds.length"
+            :object-type="COLLECTION_OBJECT"
+          />
           <RadialLinker
-            :parameters="parameters"
-            object-type="CollectionObject"
+            :ids="selectedIds"
+            :disabled="!selectedIds.length"
+            :object-type="COLLECTION_OBJECT"
           />
           <TagAll
             class="circle-button"
             :ids="selectedIds"
-            type="CollectionObject"
+            :type="COLLECTION_OBJECT"
           />
           <DeleteCollectionObjects
             :ids="selectedIds"
@@ -53,15 +59,10 @@
             :list="coList?.data"
             :options="{ fields: csvFields }"
           />
-          <dwc-download
+          <DwcDownload
             class="margin-small-left"
             :params="parameters"
             :total="pagination?.total"
-          />
-          <match-button
-            :ids="selectedIds"
-            :url="urlRequest"
-            class="margin-small-left"
           />
         </div>
       </template>
@@ -102,7 +103,7 @@ import ListComponent from './components/list'
 import CsvButton from 'components/csvButton'
 import DwcDownload from './components/dwcDownload.vue'
 import TagAll from './components/tagAll'
-import MatchButton from './components/matchButton.vue'
+import RadialFilter from 'components/radials/filter/radial.vue'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import DeleteCollectionObjects from './components/DeleteCollectionObjects.vue'
 import RadialLinker from 'components/radials/linker/radial.vue'
@@ -182,9 +183,10 @@ watch(list, (newVal) => {
   const predicateNames = []
   console.log('Se')
   list.value.forEach((item, index) => {
-    const da = item?.data_attributes
+    const da = item.data_attributes
 
     if (!Array.isArray(da)) return
+
     const obj = {}
 
     da.forEach(({ predicate_name, value }) => {

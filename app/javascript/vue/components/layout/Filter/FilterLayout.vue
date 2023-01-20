@@ -9,36 +9,37 @@
         >
           Filter
         </VBtn>
-        <ModalNestedParameters
-          :parameters="parameters"
-        />
-        <ul class="no_bullets context-menu">
-          <li v-if="objectType">
-            <RadialFilter
-              :parameters="parameters"
-              :object-type="objectType"
+        <ModalNestedParameters :parameters="parameters" />
+        <div class="horizontal-left-content">
+          <RadialFilter
+            v-if="objectType"
+            :parameters="parameters"
+            :object-type="objectType"
+          />
+          <RadialLinker
+            v-if="objectType"
+            :parameters="parameters"
+            object-type="objectType"
+          />
+          <VBtn
+            circle
+            color="primary"
+            class="circle-button"
+            @click="emit('reset')"
+          >
+            <VIcon
+              name="reset"
+              x-small
             />
-          </li>
-          <li>
-            <VBtn
-              circle
-              medium
-              color="primary"
-              @click="emit('reset')"
-            >
-              <VIcon
-                name="reset"
-                small
-              />
-            </VBtn>
-          </li>
-        </ul>
+          </VBtn>
+        </div>
       </div>
       <span>|</span>
       <div
         class="flex-separate"
         v-if="pagination"
       >
+        <slot name="nav-left" />
         <pagination-component
           v-if="pagination"
           :pagination="pagination"
@@ -88,6 +89,8 @@ import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
 import RadialFilter from 'components/radials/filter/radial.vue'
 import ModalNestedParameters from 'components/Filter/ModalNestedParameters.vue'
+import RadialLinker from 'components/radials/linker/radial.vue'
+
 import { ref, computed, onBeforeUnmount } from 'vue'
 
 const props = defineProps({
@@ -142,49 +145,55 @@ const emit = defineEmits([
 
 const perValue = computed({
   get: () => props.per,
-  set: value => emit('update:per', value)
+  set: (value) => emit('update:per', value)
 })
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const hotkeys = ref([
   {
     keys: [platformKey(), 'f'],
     preventDefault: true,
-    handler () {
+    handler() {
       emit('filter')
     }
   },
   {
     keys: [platformKey(), 'r'],
     preventDefault: true,
-    handler () {
+    handler() {
       emit('reset')
     }
   }
 ])
 
-function handleClickFilterButton () {
+function handleClickFilterButton() {
   emit('filter')
   window.scrollTo(0, 0)
 }
 
-TW.workbench.keyboard.createLegend(`${platformKey()}+f`, 'Search', 'Filter sources')
-TW.workbench.keyboard.createLegend(`${platformKey()}+r`, 'Reset task', 'Filter sources')
+TW.workbench.keyboard.createLegend(
+  `${platformKey()}+f`,
+  'Search',
+  'Filter sources'
+)
+TW.workbench.keyboard.createLegend(
+  `${platformKey()}+r`,
+  'Reset task',
+  'Filter sources'
+)
 
 const stop = useHotkey(hotkeys.value)
 
 onBeforeUnmount(() => {
   stop()
 })
-
 </script>
 
 <style scoped>
-
 .grid-filter {
   display: grid;
   gap: 1em;
@@ -210,6 +219,6 @@ onBeforeUnmount(() => {
 }
 
 :deep(.btn-delete) {
-  background-color: #5D9ECE;
+  background-color: #5d9ece;
 }
 </style>

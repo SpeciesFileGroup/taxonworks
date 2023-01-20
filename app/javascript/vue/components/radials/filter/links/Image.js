@@ -1,1 +1,4 @@
-export const Image = []
+export const Image = {
+  all: [],
+  ids: []
+}

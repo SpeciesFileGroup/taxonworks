@@ -1,1 +1,4 @@
-export const People = []
+export const People = {
+  all: [],
+  ids: []
+}

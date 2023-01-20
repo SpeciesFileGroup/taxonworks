@@ -1,8 +1,7 @@
 import { FILTER_LINKS } from '../constants/filterLinks'
-import {
-  OTU
-} from 'constants/index.js'
+import { OTU } from 'constants/index.js'
 
-export const Extract = [
-  FILTER_LINKS[OTU],
-]
+export const Extract = {
+  all: [FILTER_LINKS[OTU]],
+  ids: []
+}

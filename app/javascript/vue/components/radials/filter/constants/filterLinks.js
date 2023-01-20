@@ -35,7 +35,7 @@ export const FILTER_LINKS = {
   },
   [SOURCE]: {
     label: 'Sources',
-    link: '/tasks/collection_objects/filter'
+    link: '/tasks/sources/filter'
   },
   [ASSERTED_DISTRIBUTION]: {
     label: 'Asserted distributions',
