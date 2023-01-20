@@ -57,6 +57,11 @@
             v-for="(header, index) in dataAttributeHeaders"
             :class="{ 'cell-left-border': index === 0 }"
             :key="header"
+            @click="
+              sortTable(
+                key === props.base ? property : `data_attributes.${header}`
+              )
+            "
           >
             {{ header }}
           </th>
@@ -164,14 +169,14 @@ const dataAttributeHeaders = computed(() => {
   const predicateNames = []
 
   props.list.forEach((item) => {
-    item?.data_attributes?.forEach((da) => {
-      if (!predicateNames.includes(da.predicate_name)) {
-        predicateNames.push(da.predicate_name)
+    Object.keys(item.data_attributes || {}).forEach((name) => {
+      if (!predicateNames.includes(name)) {
+        predicateNames.push(name)
       }
     })
   })
 
-  return predicateNames
+  return predicateNames.sort()
 })
 
 function renderItem(item, listType, property) {
@@ -187,9 +192,9 @@ function renderItem(item, listType, property) {
 }
 
 function renderDataAttribute(dataAttributes, predicateName) {
-  const da = dataAttributes.find((d) => d.predicate_name === predicateName)
+  const key = Object.keys(dataAttributes).find((key) => key === predicateName)
 
-  return da && da.value
+  return dataAttributes[key]
 }
 
 function sortTable(sortProperty) {
