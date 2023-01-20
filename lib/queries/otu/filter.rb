@@ -58,6 +58,8 @@ module Queries
       #   literal match against one or more Otu#name
       attr_accessor :name
 
+      # @return Boolean
+      #   if true then match on `name` exactly
       attr_accessor :name_exact
 
       # @param otu_id [Integer, Array]
@@ -147,7 +149,6 @@ module Queries
       # NOT USED!
       # via taxon_determinations (collection_object)
       #
-      attr_accessor :selection_objects
 
       attr_accessor :rank_class
 
@@ -215,8 +216,6 @@ module Queries
         @observations = boolean_param(params, :observations)
 
         # @shape = params[:drawn_area_shape]
-
-        @selection_objects = params[:selection_objects] || ['CollectionObject', 'AssertedDistribution']
 
         @author_ids = params[:author_ids]
         @author = params[:author]
@@ -361,10 +360,25 @@ module Queries
         c = ::Queries::CollectingEvent::Filter.new(geo_json: geo_json).all.where(project_id: project_id)
         a = ::Queries::AssertedDistribution::Filter.new(geo_json: geo_json).all.where(project_id: project_id)
 
-        q1 = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: c.all)
-        q2 = ::Otu.joins(:asserted_distributions).where(asserted_distributions: a.all)
+        #  q1 = 'WITH ces_geo_json AS (' + c.all.to_sql + ')' +
+        #     ::Otu
+        #     .joins(:collecting_events)
+        #     .joins('JOIN ces_geo_json as ces_geo_json1 on collecting_events.id = ces_geo_json1.id')
+        #     .to_sql      
 
-        ::Otu.from("((#{q1.to_sql}) UNION (#{q2.to_sql})) as otus")
+        #  
+        #  q2 = 'WITH ads_geo_json AS (' + a.all.to_sql + ') ' +
+        #     ::Otu
+        #     .joins(:asserted_distributions)
+        #     .joins('JOIN ads_geo_json as ads_geo_json1 on asserted_distributions.id = ads_geo_json1.id')
+        #     .to_sql
+
+
+        # Seems IN or WITH ^ seem to be identical 
+        q1 = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: c.all).to_sql
+        q2 = ::Otu.joins(:asserted_distributions).where(asserted_distributions: a.all).to_sql
+
+        ::Otu.from("((#{q1}) UNION (#{q2})) as otus")
       end
 
       def geographic_area_id_facet
@@ -465,189 +479,6 @@ module Queries
 
       # ---
 
-      # TODO: adapt to nomeclature scope
-      # @return [Scope]
-      def nomen_scope
-        scope1 = ::Otu.joins(:taxon_name).where(taxon_name_id: taxon_name_id)
-        scope = scope1
-        if scope1.any?
-          scope = ::Otu.self_and_descendants_of(scope1.first.id, rank_class) if with_descendants?
-        end
-        scope
-      end
-
-      # TODO: remove/replace with taxon name filter
-      # @return [Scope]
-      def verbatim_author_facet
-        return nil if author.blank?
-        if exact_author
-          ::Otu.joins(:taxon_name).where(::TaxonName.arel_table[:cached_author_year].eq(author.strip))
-        else
-          ::Otu.joins(:taxon_name).where(::TaxonName.arel_table[:cached_author_year].matches('%' + author.strip.gsub(/\s/, '%') + '%'))
-        end
-      end
-
-      # TODO: move/replace with taxon name filter
-      # @return [Scope]
-      #   1. find all selected taxon name authors
-      #   2. find all taxon_names which are associated with result #1
-      #   3. find all otus which are associated with result #2
-      def author_scope
-        r = ::Role.arel_table
-
-        case and_or_select
-        when '_or_', nil
-
-          c = r[:person_id].eq_any(author_ids).and(r[:type].eq('TaxonNameAuthor'))
-          ::Otu.joins(taxon_name: [:roles]).where(c.to_sql).distinct
-
-        when '_and_'
-          table_alias = 'tna' # alias for 'TaxonNameAuthor'
-
-          o = ::Otu.arel_table
-          t = ::TaxonName.arel_table
-
-          b = o.project(o[Arel.star]).from(o)
-            .join(t)
-            .on(t['id'].eq(o['taxon_name_id']))
-            .join(r).on(
-              r['role_object_id'].eq(t['id']).and(
-                r['type'].eq('TaxonNameAuthor')
-              )
-            )
-
-          author_ids.each_with_index do |person_id, i|
-            x = r.alias("#{table_alias}_#{i}")
-            b = b.join(x).on(
-              x['role_object_id'].eq(t['id']),
-              x['type'].eq('TaxonNameAuthor'),
-              x['person_id'].eq(person_id)
-            )
-          end
-
-          b = b.group(o['id']).having(r['person_id'].count.gteq(author_ids.count))
-          b = b.as("z_#{table_alias}")
-
-          # noinspection RubyResolve
-          ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
-        end
-      end
-
-      # rubocop:enable Metrics/MethodLength
-
-      # @return [Array]
-      #   determine which scopes to apply based on parameters provided
-      def applied_scopes
-        scopes = []
-        scopes.push :geographic_area_scope unless geographic_area_id.empty?
-        scopes.push :shape_scope if shape_set?
-        scopes.push :nomen_scope if nomen_set?
-        scopes.push :author_scope if author_set?
-        scopes.push :verbatim_scope if verbatim_set?
-        scopes
-      end
-
-      # TODO: nomenclature filter
-      def matching_taxon_name_relationship_ids
-        return nil if taxon_name_relationship_ids.empty?
-        o = table
-        ba = ::TaxonNameRelationship.arel_table
-
-        a = o.alias("a_")
-        b = o.project(a[Arel.star]).from(a)
-
-        c = ba.alias('b1')
-        d = ba.alias('b2')
-
-        b = b.join(c, Arel::Nodes::OuterJoin)
-          .on(
-            a[:taxon_name_id].eq(c[:subject_taxon_name_id])
-          )
-
-        b = b.join(d, Arel::Nodes::OuterJoin)
-          .on(
-            a[:id].eq(d[:object_taxon_name_id])
-          )
-
-        e = c[:subject_taxon_name_id].not_eq(nil)
-        f = d[:object_taxon_name_id].not_eq(nil)
-
-        g = c[:id].eq_any(taxon_name_relationship_ids)
-        h = d[:id].eq_any(taxon_name_relationship_ids)
-
-        b = b.where(e.or(f).and(g.or(h)))
-        b = b.group(a['id'])
-        b = b.as('z1_')
-
-        ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
-      end
-
-      # TODO: nomenclature filter
-      def matching_taxon_name_classification_ids
-        return nil if taxon_name_classification_ids.empty?
-        o = table
-        tnc = ::TaxonNameClassification.arel_table
-
-        a = o.alias("a_")
-        b = o.project(a[Arel.star]).from(a)
-
-        c = tnc.alias('tnc1')
-
-        b = b.join(c, Arel::Nodes::OuterJoin)
-          .on(
-            a[:taxon_name_id].eq(c[:taxon_name_id])
-          )
-
-        e = c[:id].not_eq(nil)
-        f = c[:id].eq_any(taxon_name_classification_ids)
-
-        b = b.where(e.and(f))
-        b = b.group(a['id'])
-        b = b.as('z3_')
-
-        ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
-      end
-
-      # TODO asserted distribution filter
-      def matching_asserted_distribution_ids
-        return nil if asserted_distribution_ids.empty?
-        o = table
-        ad = ::AssertedDistribution.arel_table
-
-        a = o.alias("a_")
-        b = o.project(a[Arel.star]).from(a)
-
-        c = ad.alias('ad1')
-
-        b = b.join(c, Arel::Nodes::OuterJoin)
-          .on(
-            a[:id].eq(c[:otu_id])
-          )
-
-        e = c[:otu_id].not_eq(nil)
-        f = c[:id].eq_any(asserted_distribution_ids)
-
-        b = b.where(e.and(f))
-        b = b.group(a['id'])
-        b = b.as('z4_')
-
-        ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
-      end
-
-      # TODO: citations plugin?
-      def citations_facet
-        return nil if @citations.nil?
-
-        citation_conditions = ::Citation.arel_table[:citation_object_id].eq(::Otu.arel_table[:id]).and(
-          ::Citation.arel_table[:citation_object_type].eq('Otu'))
-
-        if @citations == 'without_origin_citation'
-          citation_conditions = citation_conditions.and(::Citation.arel_table[:is_original].eq(true))
-        end
-
-        ::Otu.where.not(::Citation.where(citation_conditions).arel.exists)
-      end
-
       # TODO: deprecate to biological associtations.
       def biological_associations_facet
         return nil if biological_associations.nil?
@@ -746,9 +577,6 @@ module Queries
           wkt_facet,
           geographic_area_id_facet,
 
-          #  matching_asserted_distribution_ids,
-          #  matching_taxon_name_classification_ids,
-          #  matching_taxon_name_relationship_ids,
           #  asserted_distributions_facet,
           #  biological_associations_facet,
           #  contents_facet,

@@ -129,7 +129,23 @@ module Queries
         from_wkt(wkt)
       end
 
-      # TODO: Withify
+      def from_wkt(wkt_shape)
+
+        i = ::GeographicItem.joins(:geographic_areas).where(::GeographicItem.contained_by_wkt_sql(wkt_shape))
+      
+        j = ::GeographicArea.joins(:geographic_items).where(geographic_items: i)
+        k = ::GeographicArea.descendants_of(j) # Add children that might not be caught because they don't have a shapes
+
+        l = ::GeographicArea.from("((#{j.to_sql}) UNION (#{k.to_sql})) as geographic_areas").distinct
+
+        s = 'WITH query_wkt_ad AS (' + l.all.to_sql + ') ' +
+          ::AssertedDistribution
+          .joins('JOIN query_wkt_ad as query_wkt_ad1 on query_wkt_ad1.id = asserted_distributions.geographic_area_id')
+          .to_sql
+
+        ::AssertedDistribution.from('(' + s + ') as asserted_distributions')
+      end
+
       # Shape is a Hash in GeoJSON format
       def geo_json_facet
         return nil if geo_json.nil?
@@ -139,18 +155,17 @@ module Queries
           j = ::GeographicArea.joins(:geographic_items).where(geographic_items: i)
 
           # Expand to include all descendants of any spatial match!
-          k = ::GeographicArea.descendants_of_any(j.pluck(:id))
+          k = ::GeographicArea.descendants_of(j)
 
-          a = []
-          a += j.to_a unless j.nil?
-          a += k.to_a unless k.nil?
+          l = ::GeographicArea.from("((#{j.to_sql}) UNION (#{k.to_sql})) as geographic_areas").distinct
 
-          return ::AssertedDistribution.where( geographic_area: a )
+          return ::AssertedDistribution.where( geographic_area: l )
         else
           return nil
         end
       end
 
+      # @return [GeographicItem scope]
       def spatial_query
         if geometry = RGeo::GeoJSON.decode(geo_json)
           case geometry.geometry_type.to_s
@@ -165,26 +180,6 @@ module Queries
         else
           nil
         end
-      end
-
-      def otu_query_facet
-        return nil if otu_query.nil?
-        s = 'WITH query_otu_ad AS (' + otu_query.all.to_sql + ') ' +
-          ::AssertedDistribution
-          .joins('JOIN query_otu_ad as query_otu_ad1 on query_otu_ad1.id = asserted_distributions.otu_id')
-          .to_sql
-        ::AssertedDistribution.from('(' + s + ') as asserted_distributions')
-      end
-
-      # !! TODO: "withify"
-      def from_wkt(wkt_shape)
-
-        i = ::GeographicItem.joins(:geographic_areas).where(::GeographicItem.contained_by_wkt_sql(wkt_shape))
-        j = ::GeographicArea.joins(:geographic_items).where(geographic_items: i)
-
-        k = ::GeographicArea.descendants_of(j) # Add children that might not be caught because they don't have a shapes
-
-        ::AssertedDistribution.where(geographic_area: j + k) # .or.where(geographic_area: k)
       end
 
       def geographic_area_id_facet
@@ -213,6 +208,15 @@ module Queries
         b
       end
 
+      def otu_query_facet
+        return nil if otu_query.nil?
+        s = 'WITH query_otu_ad AS (' + otu_query.all.to_sql + ') ' +
+          ::AssertedDistribution
+          .joins('JOIN query_otu_ad as query_otu_ad1 on query_otu_ad1.id = asserted_distributions.otu_id')
+          .to_sql
+        ::AssertedDistribution.from('(' + s + ') as asserted_distributions')
+      end
+
       def taxon_name_id_facet
         return nil if taxon_name_id.empty?
         if descendants
@@ -237,13 +241,12 @@ module Queries
 
       def merge_clauses
         [
+          geo_json_facet,
+          geographic_area_id_facet,
           otu_query_facet,
           source_query_facet,
-          created_updated_facet, # See Queries::Concerns::Users
           taxon_name_id_facet,
-          geographic_area_id_facet,
           wkt_facet,
-          geo_json_facet,
         ]
       end
 

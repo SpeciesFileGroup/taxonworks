@@ -77,6 +77,8 @@ class GeographicArea < ApplicationRecord
    63 => 'State'
   }
 
+  before_destroy :check_for_children
+
   belongs_to :geographic_area_type, inverse_of: :geographic_areas
   belongs_to :level0, class_name: 'GeographicArea', foreign_key: :level0_id
   belongs_to :level1, class_name: 'GeographicArea', foreign_key: :level1_id
@@ -99,6 +101,8 @@ class GeographicArea < ApplicationRecord
   validates :name, presence: true, length: {minimum: 1}
   validates :data_origin, presence: true
 
+  # @param geographic_area [Array, GeographicArea]
+  #    all descendants of one or more GeographicAreas, *not* including geogrpahic_area
   scope :descendants_of, -> (geographic_area) { with_ancestor(geographic_area) }
   scope :ancestors_of, -> (geographic_area) { joins(:descendant_hierarchies).order('geographic_area_hierarchies.generations DESC').where(geographic_area_hierarchies: {descendant_id: geographic_area.id}).where('geographic_area_hierarchies.ancestor_id != ?', geographic_area.id) }
 
@@ -161,23 +165,22 @@ class GeographicArea < ApplicationRecord
 
   scope :ordered_by_area, -> (direction = :ASC) { joins(:geographic_items).order("geographic_items.cached_total_area #{direction || 'ASC'}") }
 
-  before_destroy :check_for_children
-
+  # Same results as descendant_of but starts with Array of IDs
   def self.descendants_of_any(ids = [])
     ids = [ids].flatten.compact.uniq
    return nil if ids.empty?
 
-  descendants_subquery = GeographicAreaHierarchy.where(
-    GeographicAreaHierarchy.arel_table[:descendant_id].eq(GeographicArea.arel_table[:id]).and(
-      GeographicAreaHierarchy.arel_table[:ancestor_id].in(ids))
-  )
+    descendants_subquery = GeographicAreaHierarchy.where(
+      GeographicAreaHierarchy.arel_table[:descendant_id].eq(GeographicArea.arel_table[:id]).and(
+        GeographicAreaHierarchy.arel_table[:ancestor_id].in(ids))
+    )
 
-  #unless descendants_max_depth.nil? || descendants_max_depth.to_i < 0
-  #  descendants_subquery = descendants_subquery.where(GeographicAreaHierarchy.arel_table[:generations].lteq(descendants_max_depth.to_i))
-  #end
+    #unless descendants_max_depth.nil? || descendants_max_depth.to_i < 0
+    #  descendants_subquery = descendants_subquery.where(GeographicAreaHierarchy.arel_table[:generations].lteq(descendants_max_depth.to_i))
+    #end
 
-  GeographicArea.where(descendants_subquery.arel.exists)
-end
+    GeographicArea.where(descendants_subquery.arel.exists)
+  end
 
   # @param array [Array] of strings of names for areas
   # @return [Scope] of GeographicAreas which match name and parent.name.
