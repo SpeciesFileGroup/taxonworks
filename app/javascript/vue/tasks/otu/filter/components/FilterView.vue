@@ -4,9 +4,7 @@
     input-id="area_picker_autocomplete"
   />
   <FacetWKT v-model="params" />
-  <FacetCollectingEvent
-    v-model="params"
-  />
+  <FacetCollectingEvent v-model="params" />
   <FacetOtuName v-model="params" />
   <FacetTaxonName
     v-model="params"
@@ -36,7 +34,7 @@ import { computed } from 'vue'
 import FacetBiologicalRelationship from 'components/Filter/Facets/BiologicalAssociation/FacetBiologicalRelationship.vue'
 import FacetCollectingEvent from 'tasks/biological_associations/filter/components/Facet/FacetCollectingEvent.vue'
 import FacetDataAttribute from 'components/Filter/Facets/shared/FacetDataAttribute.vue'
-import FacetDescriptor from './Facet/FacetDescriptor.vue'
+import FacetDescriptor from 'components/Filter/Facets/shared/FacetDescriptor.vue'
 import FacetGeographicArea from 'components/Filter/Facets/shared/FacetGeographic.vue'
 import FacetHistorialDeterminations from './Facet/FacetHistorialDeterminations.vue'
 import FacetOtuName from './Facet/FacetOtuName.vue'
@@ -71,7 +69,6 @@ const props = defineProps({
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
-
 </script>

@@ -480,6 +480,7 @@ end
 resources :observations do
   concerns [:data_routes]
   collection do
+    match :filter, to: 'observations#index', via: [:get, :post]
     delete :destroy_row, defaults: {format: :json}
     delete :destroy_column, defaults: {format: :json}
     post :code_column, defaults: {format: :json}
