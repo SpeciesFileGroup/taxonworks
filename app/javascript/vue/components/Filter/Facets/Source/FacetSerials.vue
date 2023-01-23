@@ -20,7 +20,6 @@
 </template>
 
 <script>
-
 import SmartSelector from 'components/ui/SmartSelector'
 import DisplayList from 'components/displayList'
 import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
@@ -45,16 +44,16 @@ export default {
 
   computed: {
     params: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set (value) {
+      set(value) {
         this.$emit('update:modelValue', value)
       }
     }
   },
 
-  data () {
+  data() {
     return {
       serials: [],
       allSerials: undefined
@@ -62,25 +61,25 @@ export default {
   },
 
   watch: {
-    value (newVal, oldVal) {
+    value(newVal, oldVal) {
       if (!newVal.length && oldVal.length) {
         this.serials = []
       }
     },
 
     serials: {
-      handler (newVal) {
-        this.params = this.serials.map(serial => serial.id)
+      handler(newVal) {
+        this.params = this.serials.map((serial) => serial.id)
       },
       deep: true
     }
   },
 
-  mounted () {
+  mounted() {
     const urlParams = URLParamsToJSON(location.href)
-    if (urlParams.serial_ids) {
-      urlParams.serial_ids.forEach(id => {
-        Serial.find(id).then(response => {
+    if (urlParams.serial_id) {
+      urlParams.serial_id.forEach((id) => {
+        Serial.find(id).then((response) => {
           this.addSerial(response.body)
         })
       })
@@ -88,20 +87,20 @@ export default {
   },
 
   methods: {
-    addSerial (serial) {
+    addSerial(serial) {
       if (!this.params.includes(serial.id)) {
         this.serials.push(serial)
       }
     },
 
-    removeSerial (index) {
+    removeSerial(index) {
       this.serials.splice(index, 1)
     }
   }
 }
 </script>
 <style scoped>
-  :deep(.vue-autocomplete-input) {
-    width: 100%
-  }
+:deep(.vue-autocomplete-input) {
+  width: 100%;
+}
 </style>

@@ -7,12 +7,12 @@
         type="text"
         class="full_width"
         v-model="source.author"
-      >
+      />
       <label class="horizontal-left-content">
         <input
           type="checkbox"
           v-model="source.exact_author"
-        >
+        />
         Exact
       </label>
     </div>
@@ -29,9 +29,9 @@
       />
       <label>
         <input
-          v-model="source.author_ids_or"
+          v-model="source.author_id_or"
           type="checkbox"
-        >
+        />
         Any
       </label>
     </fieldset>
@@ -69,16 +69,16 @@ export default {
 
   computed: {
     source: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set (value) {
+      set(value) {
         this.$emit('update:modelValue', value)
       }
     }
   },
 
-  data () {
+  data() {
     return {
       authors: []
     }
@@ -86,8 +86,8 @@ export default {
 
   watch: {
     modelValue: {
-      handler (newVal, oldVal) {
-        if (!newVal?.author_ids?.length && oldVal?.author_ids?.length) {
+      handler(newVal, oldVal) {
+        if (!newVal?.author_id?.length && oldVal?.author_id?.length) {
           this.authors = []
         }
       },
@@ -95,22 +95,22 @@ export default {
     },
 
     authors: {
-      handler (newVal) {
-        this.source.author_ids = this.authors.map(author => author.id)
+      handler(newVal) {
+        this.source.author_id = this.authors.map((author) => author.id)
       },
       deep: true
     }
   },
 
-  mounted () {
+  mounted() {
     const params = URLParamsToJSON(location.href)
 
     this.source.author = params.author
     this.source.exact_author = params.exact_author
-    this.source.author_ids_or = params.author_ids_or
-    if (params.author_ids) {
-      params.author_ids.forEach(id => {
-        People.find(id).then(response => {
+    this.source.author_id_or = params.author_id_or
+    if (params.author_id) {
+      params.author_id.forEach((id) => {
+        People.find(id).then((response) => {
           this.addAuthor(response.body)
         })
       })
@@ -118,20 +118,20 @@ export default {
   },
 
   methods: {
-    addAuthor (author) {
-      if (!this.source.author_ids.includes(author.id)) {
+    addAuthor(author) {
+      if (!this.source.author_id.includes(author.id)) {
         this.authors.push(author)
       }
     },
 
-    removeAuthor (index) {
+    removeAuthor(index) {
       this.authors.splice(index, 1)
     }
   }
 }
 </script>
 <style scoped>
-  :deep(.vue-autocomplete-input) {
-    width: 100%
-  }
+:deep(.vue-autocomplete-input) {
+  width: 100%;
+}
 </style>

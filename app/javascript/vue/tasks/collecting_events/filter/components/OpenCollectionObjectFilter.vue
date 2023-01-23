@@ -21,9 +21,10 @@ const props = defineProps({
 })
 
 const openTask = () => {
-  const ceIdParam = props.ids.map(id => `collecting_event_ids[]=${id}`).join('&')
+  const ceIdParam = props.ids
+    .map((id) => `collecting_event_id[]=${id}`)
+    .join('&')
 
   window.open(`${RouteNames.FilterCollectionObjects}?${ceIdParam}`, '_self')
 }
-
 </script>

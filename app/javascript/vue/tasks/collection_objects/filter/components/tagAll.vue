@@ -42,26 +42,28 @@ const props = defineProps({
 const keywordId = ref(getDefault())
 const showSpinner = ref(false)
 
-function getDefault () {
-  const defaultTag = document.querySelector('[data-pinboard-section="Keywords"] [data-insert="true"]')
+function getDefault() {
+  const defaultTag = document.querySelector(
+    '[data-pinboard-section="Keywords"] [data-insert="true"]'
+  )
 
   return defaultTag && defaultTag.getAttribute('data-pinboard-object-id')
 }
 
-function createTags () {
+function createTags() {
   showSpinner.value = true
 
   Tag.createBatch({
     object_type: props.type,
     keyword_id: keywordId.value,
-    object_ids: props.ids
+    object_id: props.ids
   }).then(() => {
     showSpinner.value = false
     TW.workbench.alert.create('Tags was successfully created', 'notice')
   })
 }
 
-function handleEvent (event) {
+function handleEvent(event) {
   if (event.detail.type === CONTROLLED_VOCABULARY_TERM) {
     keywordId.value = getDefault()
   }

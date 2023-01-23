@@ -5,20 +5,20 @@
     <div class="horizontal-left-content">
       <div class="field separate-right">
         <label>Start date</label>
-        <br>
+        <br />
         <input
           type="date"
           v-model="params.start_date"
-        >
+        />
       </div>
 
       <div class="field">
         <label>End date</label>
-        <br>
+        <br />
         <input
           type="date"
           v-model="params.end_date"
-        >
+        />
       </div>
     </div>
     <div class="field">
@@ -26,7 +26,7 @@
         <input
           type="checkbox"
           v-model="params.partial_overlap_dates"
-        >
+        />
         Allow partial overlaps
       </label>
     </div>
@@ -80,38 +80,32 @@ const emit = defineEmits(['update:modelValue'])
 const addFieldRef = ref(null)
 
 const params = computed({
-  get () {
+  get() {
     return props.modelValue
   },
-  set (value) {
+  set(value) {
     emit('update:modelValue', value)
   }
 })
 
-watch(
-  params,
-  newVal => {
-    if (!newVal.fields) {
-      addFieldRef.value.fields?.cleanList()
-    }
+watch(params, (newVal) => {
+  if (!newVal.fields) {
+    addFieldRef.value.fields?.cleanList()
   }
-)
+})
 
 const collectingEvents = ref([])
 
-watch(
-  collectingEvents,
-  newVal => {
-    params.value.collecting_event_ids = newVal.map(ce => ce.id)
-  }
-)
+watch(collectingEvents, (newVal) => {
+  params.value.collecting_event_id = newVal.map((ce) => ce.id)
+})
 
 onBeforeMount(() => {
   const urlParams = URLParamsToJSON(location.href)
 
-  if (urlParams.collecting_event_ids) {
-    urlParams.collecting_event_ids.forEach(id => {
-      CollectingEvent.find(id).then(response => {
+  if (urlParams.collecting_event_id) {
+    urlParams.collecting_event_id.forEach((id) => {
+      CollectingEvent.find(id).then((response) => {
         addCe(response.body)
       })
     })
@@ -136,10 +130,9 @@ const setFields = (fields) => {
     ...fields
   }
 }
-
 </script>
 <style scoped>
-  :deep(.vue-autocomplete-input) {
-    width: 100%
-  }
+:deep(.vue-autocomplete-input) {
+  width: 100%;
+}
 </style>

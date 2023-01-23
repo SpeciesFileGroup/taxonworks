@@ -57,7 +57,7 @@
               :value="item.value"
               name="current-determination"
               v-model="determination.current_determinations"
-            >
+            />
             {{ item.label }}
           </label>
         </li>
@@ -67,7 +67,6 @@
 </template>
 
 <script>
-
 import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import Autocomplete from 'components/ui/Autocomplete'
 import DeterminerComponent from '../../shared/FacetPeople.vue'
@@ -90,7 +89,7 @@ export default {
 
   emits: ['update:modelValue'],
 
-  data () {
+  data() {
     return {
       otusStore: [],
       determiners: [],
@@ -114,10 +113,10 @@ export default {
 
   computed: {
     determination: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set (value) {
+      set(value) {
         this.$emit('update:modelValue', value)
       }
     }
@@ -125,51 +124,52 @@ export default {
 
   watch: {
     determination: {
-      handler (newVal) {
-        if (!newVal.otu_ids?.length) {
+      handler(newVal) {
+        if (!newVal.otu_id?.length) {
           this.otusStore = []
         }
       },
       deep: true
     },
 
-    isCurrentDeterminationVisible () {
+    isCurrentDeterminationVisible() {
       this.determination.current_determinations = undefined
     }
   },
 
-  created () {
-    const {
-      current_determinations,
-      otu_ids = []
-    } = URLParamsToJSON(location.href)
+  created() {
+    const { current_determinations, otu_id = [] } = URLParamsToJSON(
+      location.href
+    )
 
-    otu_ids.forEach(id => { this.addOtu(id) })
+    otu_id.forEach((id) => {
+      this.addOtu(id)
+    })
     this.determination.current_determinations = current_determinations
   },
 
   methods: {
-    addOtu (id) {
-      Otu.find(id).then(response => {
-        this.determination.otu_ids.push(response.body.id)
+    addOtu(id) {
+      Otu.find(id).then((response) => {
+        this.determination.otu_id.push(response.body.id)
         this.otusStore.push(response.body)
       })
     },
 
-    removePerson (index) {
+    removePerson(index) {
       this.determiners.splice(index, 1)
       this.determination.determiner_id.splice(index, 1)
     },
 
-    removeOtu (index) {
-      this.determination.otu_ids.splice(index, 1)
+    removeOtu(index) {
+      this.determination.otu_id.splice(index, 1)
       this.otusStore.splice(index, 1)
     }
   }
 }
 </script>
 <style scoped>
-  :deep(.vue-autocomplete-input) {
-    width: 100%
-  }
+:deep(.vue-autocomplete-input) {
+  width: 100%;
+}
 </style>

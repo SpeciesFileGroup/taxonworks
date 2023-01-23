@@ -45,13 +45,13 @@ const collectingEvents = ref([])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 watch(
   collectingEvents,
-  newVal => {
-    params.value.collecting_event_id = newVal.map(ce => ce.id)
+  (newVal) => {
+    params.value.collecting_event_id = newVal.map((ce) => ce.id)
   },
   { deep: true }
 )
@@ -65,22 +65,22 @@ watch(
   }
 )
 
-function addCe (ce) {
+function addCe(ce) {
   if (params.value?.collecting_event_id?.includes(ce.id)) return
 
   collectingEvents.value.push(ce)
 }
 
-function removeCe (index) {
+function removeCe(index) {
   collectingEvents.value.splice(index, 1)
 }
 
 onBeforeMount(() => {
   const urlParams = URLParamsToJSON(location.href)
 
-  if (urlParams.collecting_event_ids) {
-    urlParams.collecting_event_ids.forEach(id => {
-      CollectingEvent.find(id).then(response => {
+  if (urlParams.collecting_event_id) {
+    urlParams.collecting_event_id.forEach((id) => {
+      CollectingEvent.find(id).then((response) => {
         addCe(response.body)
       })
     })
@@ -88,7 +88,7 @@ onBeforeMount(() => {
 })
 </script>
 <style scoped>
-  :deep(.vue-autocomplete-input) {
-    width: 100%
-  }
+:deep(.vue-autocomplete-input) {
+  width: 100%;
+}
 </style>

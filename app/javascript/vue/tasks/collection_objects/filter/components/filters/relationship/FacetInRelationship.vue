@@ -7,7 +7,7 @@
         class="no_bullets"
       >
         <li
-          v-for="(item) in biologicalRelationships"
+          v-for="item in biologicalRelationships"
           :key="item.id"
         >
           <label>
@@ -15,8 +15,12 @@
               :value="item.id"
               v-model="relationshipSelected"
               type="checkbox"
-            >
-            {{ item.inverted_name ? `${item.name} / ${item.inverted_name}` : item.name }}
+            />
+            {{
+              item.inverted_name
+                ? `${item.name} / ${item.inverted_name}`
+                : item.name
+            }}
           </label>
         </li>
       </ul>
@@ -49,21 +53,23 @@ const biologicalRelationships = ref([])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const relationshipSelected = computed({
   get: () => props.modelValue || [],
-  set: value => { params.value.biological_relationship_ids = value }
+  set: (value) => {
+    params.value.biological_relationship_id = value
+  }
 })
 
 onBeforeMount(() => {
-  BiologicalRelationship.all().then(response => {
+  BiologicalRelationship.all().then((response) => {
     biologicalRelationships.value = response.body
   })
   const urlParams = URLParamsToJSON(location.href)
 
-  params.value.biological_relationship_ids = urlParams.biological_relationship_ids || []
+  params.value.biological_relationship_id =
+    urlParams.biological_relationship_id || []
 })
-
 </script>

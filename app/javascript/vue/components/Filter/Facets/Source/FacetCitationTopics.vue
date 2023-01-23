@@ -4,7 +4,7 @@
     <fieldset>
       <legend>Topics</legend>
       <smart-selector
-        :autocomplete-params="{'type[]' : 'Topic'}"
+        :autocomplete-params="{ 'type[]': 'Topic' }"
         model="topics"
         target="Citation"
         klass="Topic"
@@ -48,19 +48,16 @@ const params = computed({
 const topics = ref([])
 const topicList = ref([])
 
-watch(
-  params,
-  (newVal, oldVal) => {
-    if (!newVal?.topic_ids?.length && oldVal?.topic_ids?.length) {
-      this.topics = []
-    }
+watch(params, (newVal, oldVal) => {
+  if (!newVal?.topic_id?.length && oldVal?.topic_id?.length) {
+    this.topics = []
   }
-)
+})
 
 watch(
   topics,
   () => {
-    params.value.topic_ids = topics.value.map(topic => topic.id)
+    params.value.topic_id = topics.value.map((topic) => topic.id)
   },
   { deep: true }
 )
@@ -68,32 +65,31 @@ watch(
 onBeforeMount(() => {
   const urlParams = URLParamsToJSON(location.href)
 
-  ControlledVocabularyTerm.where({ type: ['Topic'] }).then(response => {
+  ControlledVocabularyTerm.where({ type: ['Topic'] }).then((response) => {
     topicList.value = { all: response.body }
   })
 
-  if (urlParams.topic_ids) {
-    urlParams.topic_ids.forEach(id => {
-      ControlledVocabularyTerm.find(id).then(response => {
+  if (urlParams.topic_id) {
+    urlParams.topic_id.forEach((id) => {
+      ControlledVocabularyTerm.find(id).then((response) => {
         addTopic(response.body)
       })
     })
   }
 })
 
-const addTopic = topic => {
-  if (!params.value?.topic_ids?.includes(topic.id)) {
+const addTopic = (topic) => {
+  if (!params.value?.topic_id?.includes(topic.id)) {
     topics.value.push(topic)
   }
 }
 
-const removeTopic = index => {
+const removeTopic = (index) => {
   topics.value.splice(index, 1)
 }
-
 </script>
 <style scoped>
-  :deep(.vue-autocomplete-input) {
-    width: 100%
-  }
+:deep(.vue-autocomplete-input) {
+  width: 100%;
+}
 </style>

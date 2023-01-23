@@ -12,7 +12,7 @@
     title="Collectors"
     klass="CollectingEvent"
     param-people="collector_id"
-    param-any="collector_ids_or"
+    param-any="collector_id_or"
   />
   <FacetMaterial v-model="params" />
   <FacetMatchIdentifiers v-model="params" />
@@ -70,7 +70,6 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
-
 </script>

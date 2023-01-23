@@ -2,8 +2,7 @@
   <div class="otu-radial">
     <VBtn
       :title="redirect ? 'Browse OTUs' : 'OTU quick forms'"
-      :class="{ 'btn-radial': !redirect }"
-      :color="[emptyList ? 'create' : 'primary']"
+      :color="[emptyList ? 'create' : redirect ? 'primary' : 'radial']"
       circle
       @click="openApp()"
       @contextmenu.prevent="openApp(true)"
