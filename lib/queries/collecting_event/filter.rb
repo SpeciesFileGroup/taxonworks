@@ -18,7 +18,7 @@ module Queries
       # !! There is likely some collision with wkt, other shared variables
       # !!
       BASE_PARAMS = %i{
-        collecting_event_object_ids
+        collecting_event_object_id
         collecting_event_wildcards
         collection_objects
         collector_id
@@ -49,6 +49,7 @@ module Queries
         collector_id: [],
         geographic_area_id: [],
         otu_id: [],
+        collecting_event_id: [],
       ].freeze # not needed right now# .flatten.sort{|a,b| a.is_a?(Hash) ? 1 : 0  <=> b.is_a?(Hash) ? 1 : 0}.uniq!.freeze
 
       # All collecting event fields have their own accessor.
@@ -57,7 +58,7 @@ module Queries
       end
 
       # @param collecting_event_id [ Array, Integer, nil]
-      #   One or more collecting_event_ids
+      #   One or more collecting_event_id
       attr_accessor :collecting_event_id
 
       # Wildcard wrapped matching any label
@@ -268,7 +269,7 @@ module Queries
       end
 
       # TODO: dry with Source, TaxonName, etc.
-      def collector_ids_facet
+      def collector_id_facet
         return nil if collector_id.empty?
         o = table
         r = ::Role.arel_table
@@ -333,25 +334,25 @@ module Queries
         end
       end
 
-      def matching_any_label
+      def any_label_facet
         return nil if in_labels.blank?
         t = "%#{in_labels}%"
         table[:verbatim_label].matches(t).or(table[:print_label].matches(t)).or(table[:document_label].matches(t))
       end
 
-      def matching_verbatim_label_md5
+      def verbatim_label_md5_facet
         return nil unless md5_verbatim_label && in_labels.present?
         md5 = ::Utilities::Strings.generate_md5(in_labels)
 
         table[:md5_of_verbatim_label].eq(md5)
       end
 
-      def matching_collecting_event_id
+      def collecting_event_id_facet
         return nil if collecting_event_id.empty?
         table[:id].eq_any(collecting_event_id)
       end
 
-      def matching_otu_ids
+      def otu_id_facet
         return nil if otu_id.empty?
         ::CollectingEvent.joins(:otus).where(otus: {id: otu_id})
       end
@@ -361,7 +362,7 @@ module Queries
         ::CollectingEvent.joins(:collection_objects).where(collection_objects: {id: collection_object_id})
       end
 
-      def matching_verbatim_locality
+      def verbatim_locality_facet
         return nil if in_verbatim_locality.blank?
         t = "%#{in_verbatim_locality}%"
         table[:verbatim_locality].matches(t)
@@ -372,10 +373,10 @@ module Queries
         clauses = attribute_clauses
         clauses += [
           between_date_range,
-          matching_any_label,
-          matching_collecting_event_id,
-          matching_verbatim_label_md5,
-          matching_verbatim_locality,
+          any_label_facet,
+          collecting_event_id_facet,
+          verbatim_label_md5_facet,
+          verbatim_locality_facet,
         ]
         clauses
       end
@@ -386,14 +387,14 @@ module Queries
           collection_object_query_facet,
 
           collection_objects_facet,
-          collector_ids_facet,
+          collector_id_facet,
           depictions_facet,
           geo_json_facet,
           geographic_area_facet,
           geographic_area_id_facet,
           georeferences_facet,
           matching_collection_object_id,
-          matching_otu_ids,
+          otu_id_facet
           wkt_facet,
         ]
       end
