@@ -63,10 +63,7 @@
                   <button
                     class="button normal-input button-submit"
                     type="button"
-                    @click="
-                      noCreated = []
-                      createCOs(0)
-                    "
+                    @click="handleClick"
                   >
                     Create
                   </button>
@@ -355,6 +352,11 @@ export default {
         this.list = response.body
         this.isLoading = false
       })
+    },
+
+    handleClick() {
+      this.noCreated = []
+      this.createCOs(0)
     }
   }
 }

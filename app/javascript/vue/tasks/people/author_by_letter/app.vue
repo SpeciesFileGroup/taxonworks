@@ -8,10 +8,7 @@
     />
     <h1>Author by first letter</h1>
     <alphabet-buttons
-      @keypress="
-        key = $event
-        getAuthors()
-      "
+      @keypress="handleKey"
       ref="alphabetButtons"
     />
     <pagination-component
@@ -104,6 +101,11 @@ export default {
             .scrollIntoView({ behavior: 'smooth' })
         })
       })
+    },
+
+    handleKey(e) {
+      this.key = e
+      this.getAuthors()
     }
   }
 }
