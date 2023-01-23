@@ -1,12 +1,20 @@
 <template>
-  <FacetDescriptorTerm v-model="params" />
-  <FacetObservationMatrix v-model="params" />
+  <FacetDescriptor v-model="params" />
   <FacetDescriptorType v-model="params" />
+  <FacetObservationMatrix v-model="params" />
+  <FacetOtu
+    v-model="params"
+    :target="OBSERVATION"
+  />
+  <FacetTaxonName
+    v-model="params"
+    coverage
+  />
+  <FacetCollectionObject v-model="params" />
   <FacetTags
     v-model="params"
     target="Source"
   />
-  <FacetIdentifiers v-model="params" />
   <FacetUsers v-model="params" />
   <FacetNotes v-model="params" />
   <FacetWith
@@ -20,20 +28,19 @@
 
 <script setup>
 import { computed } from 'vue'
+import { OBSERVATION } from 'constants/index.js'
 import FacetTags from 'components/Filter/Facets/shared/FacetTags.vue'
-import FacetIdentifiers from 'components/Filter/Facets/shared/FacetIdentifiers.vue'
 import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
 import FacetUsers from 'components/Filter/Facets/shared/FacetUsers.vue'
-import FacetObservationMatrix from 'components/Filter/Facets/shared/FacetObservationMatrix.vue'
+import FacetObservationMatrix from 'components/Filter/Facets/shared/FacetObservationMatrix'
 import FacetDescriptorType from 'components/Filter/Facets/shared/FacetDescriptorType.vue'
 import FacetNotes from 'components/Filter/Facets/shared/FacetNotes.vue'
-import FacetDescriptorTerm from 'components/Filter/Facets/shared/FacetDescriptorTerm.vue'
+import FacetDescriptor from 'components/Filter/Facets/shared/FacetDescriptor.vue'
+import FacetCollectionObject from 'components/Filter/Facets/CollectionObject/FacetCollectionObject.vue'
+import FacetTaxonName from 'components/Filter/Facets/TaxonName/FacetTaxonName.vue'
+import FacetOtu from 'components/Filter/Facets/Otu/FacetOtu.vue'
 
-const WITH_PARAMS = [
-  'observation_matrices',
-  'observations',
-  'observation_depictions'
-]
+const WITH_PARAMS = ['depictions', 'notes']
 
 const props = defineProps({
   modelValue: {

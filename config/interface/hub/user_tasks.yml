@@ -406,8 +406,8 @@ new_source_task:
   name: 'New source'
   related:
   categories:
-   - source
-   - new
+    - source
+    - new
   status: stable
   description: 'Add a source (person, or reference to a book, serial, publication etc.) via a number of different methods including CrossRef lookup, DOI, or cut-paste of BibTeX.'
 new_bibtex_source_task:
@@ -728,7 +728,7 @@ taxon_name_merge_task:
   name: 'Merge taxon names'
   related:
   categories:
-    - nomenclature 
+    - nomenclature
   status: prototype
   description: 'Basic tools that faclitate merging taxon names.'
 paper_catalog_generator_task:
@@ -747,7 +747,7 @@ filter_biological_associations_task:
   categories:
     - collection_object
     - biology
-    - filters 
+    - filters
   status: prototype
   description: 'Facet search on biological associations.'
 collection_object_chronology_task:
@@ -767,7 +767,7 @@ filter_asserted_distributions_task:
   status: prototype
   description: 'Create sets of asserted distributions.'
 related_data_task:
-  hub: false 
+  hub: false
   name: 'Related data task'
   related:
   categories:
@@ -778,7 +778,7 @@ filter_descriptors_task:
   name: 'Filter descriptors'
   related:
   categories:
-    - matrix 
+    - matrix
     - filters
   status: prototype
   description: 'Create sets of descriptors.'
@@ -787,7 +787,16 @@ filter_loans_task:
   name: 'Filter loans'
   related:
   categories:
-    - filters 
+    - filters
     - loan
   status: prototype
   description: 'Filter loans'
+filter_observations_task:
+  hub: true
+  name: 'Filter observations'
+  related:
+  categories:
+    - filters
+    - matrix
+  status: prototype
+  description: 'TODO: Task description'

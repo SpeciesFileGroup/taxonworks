@@ -1,4 +1,10 @@
 scope :tasks do
+    scope :observations do
+      scope :filter, controller: 'tasks/observations/filter' do
+        get '/', as: 'filter_observations_task', action: :index
+      end
+    end
+
   
   scope :shared do
     scope :related_data, controller: 'tasks/shared/related_data' do
