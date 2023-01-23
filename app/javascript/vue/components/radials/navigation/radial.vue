@@ -30,15 +30,18 @@
             </div>
             <div
               class="radial-annotator-template panel"
-              :style="{ 'max-height': windowHeight(), 'min-height': windowHeight() }"
+              :style="{
+                'max-height': windowHeight(),
+                'min-height': windowHeight()
+              }"
               v-if="currentView"
             >
               <h2 class="capitalize view-title">
-                {{ currentView.replace("_"," ") }}
+                {{ currentView.replace('_', ' ') }}
               </h2>
               <component
                 class="radial-annotator-container"
-                :is="(currentView ? currentView + 'Component' : undefined)"
+                :is="currentView ? currentView + 'Component' : undefined"
                 :type="currentView"
                 :metadata="metadata"
                 :global-id="globalId"
@@ -56,21 +59,28 @@
       </modal>
       <VBtn
         v-if="showBottom"
-        circle
-        color="primary"
-        :class="[buttonClass, 'circle-button']"
         :title="buttonTitle"
-        @click="displayRadialObject()"
-      />
+        class="circle-button"
+        color="radial"
+        circle
+        :disabled="disabled"
+        @click="openRadialMenu()"
+      >
+        <VIcon
+          :title="buttonTitle"
+          name="radialNavigator"
+          x-small
+        />
+      </VBtn>
     </div>
   </div>
 </template>
 <script>
-
 import RadialMenu from 'components/radials/RadialMenu.vue'
 import Modal from 'components/ui/Modal.vue'
 import Spinner from 'components/spinner.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
 
 import CRUD from './request/crud'
 import Icons from './images/icons.js'
@@ -105,7 +115,8 @@ export default {
     Modal,
     Spinner,
     DestroyConfirmation,
-    VBtn
+    VBtn,
+    VIcon
   },
 
   props: {
@@ -122,11 +133,6 @@ export default {
     showBottom: {
       type: Boolean,
       default: true
-    },
-
-    buttonClass: {
-      type: String,
-      default: 'btn-radial-object'
     },
 
     buttonTitle: {
@@ -153,29 +159,33 @@ export default {
   emits: ['close'],
 
   computed: {
-    defaultTasks () {
-      return ({
+    defaultTasks() {
+      return {
         graph_object: {
           name: 'Object graph',
-          path: `/tasks/graph/object?global_id=${encodeURIComponent(this.globalId)}`
+          path: `/tasks/graph/object?global_id=${encodeURIComponent(
+            this.globalId
+          )}`
         }
-      })
+      }
     },
 
-    menuOptions () {
+    menuOptions() {
       const tasks = this.metadata.tasks || {}
-      const taskSlices = Object.entries(tasks).slice(0, this.maxTaskInPie).map(([task, { name, path }]) => ({
-        name: task,
-        label: name,
-        link: path,
-        icon: Icons[task]
-          ? {
-              url: Icons[task],
-              width: '20',
-              height: '20'
-            }
-          : undefined
-      }))
+      const taskSlices = Object.entries(tasks)
+        .slice(0, this.maxTaskInPie)
+        .map(([task, { name, path }]) => ({
+          name: task,
+          label: name,
+          link: path,
+          icon: Icons[task]
+            ? {
+                url: Icons[task],
+                width: '20',
+                height: '20'
+              }
+            : undefined
+        }))
 
       if (Object.keys(tasks).length > this.maxTaskInPie) {
         taskSlices.push({
@@ -193,25 +203,27 @@ export default {
       }
 
       if (this.metadata?.recent_url) {
-        taskSlices.push(this.addSlice(DEFAULT_OPTIONS.Recent,
-          this.recentTotal
-            ? {
-                slices: [{
-                  size: 26,
-                  label: this.recentTotal.toString(),
-                  svgAttributes: {
-                    class: 'slice-total'
-                  }
-                }]
-              }
-            : {}
-        ))
+        taskSlices.push(
+          this.addSlice(
+            DEFAULT_OPTIONS.Recent,
+            this.recentTotal
+              ? {
+                  slices: [
+                    {
+                      size: 26,
+                      label: this.recentTotal.toString(),
+                      svgAttributes: {
+                        class: 'slice-total'
+                      }
+                    }
+                  ]
+                }
+              : {}
+          )
+        )
       }
 
-      const slices = [
-        ...taskSlices,
-        ...this.defaultSlices
-      ]
+      const slices = [...taskSlices, ...this.defaultSlices]
 
       return {
         width: 400,
@@ -232,25 +244,27 @@ export default {
       }
     },
 
-    defaultSlices () {
+    defaultSlices() {
       const filterOptions = this.filterOptions
 
       if (!this.metadata.destroy) {
         filterOptions.push(this.addSlice(DEFAULT_OPTIONS.Destroy))
       }
 
-      return this.defaultSlicesTypes.filter(type => !filterOptions.includes(type)).map(type => this.addSlice(type, { link: this.defaultLinks()[type] }))
+      return this.defaultSlicesTypes
+        .filter((type) => !filterOptions.includes(type))
+        .map((type) => this.addSlice(type, { link: this.defaultLinks()[type] }))
     },
 
-    menuCreated () {
+    menuCreated() {
       return this.metadata
     },
 
-    isPinned () {
+    isPinned() {
       return this.metadata?.pinboard_item
     },
 
-    middleButton () {
+    middleButton() {
       return {
         name: CUSTOM_OPTIONS.CircleButton,
         radius: 30,
@@ -266,7 +280,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       loading: false,
       currentView: undefined,
@@ -288,7 +302,7 @@ export default {
   },
 
   methods: {
-    addSlice (type, attr) {
+    addSlice(type, attr) {
       return {
         label: type,
         name: type,
@@ -305,12 +319,10 @@ export default {
       }
     },
 
-    selectedRadialOption ({ name }) {
+    selectedRadialOption({ name }) {
       switch (name) {
         case CUSTOM_OPTIONS.CircleButton:
-          this.isPinned
-            ? this.destroyPin()
-            : this.createPin()
+          this.isPinned ? this.destroyPin() : this.createPin()
           break
         case DEFAULT_OPTIONS.Recent:
           this.currentView = 'Recent'
@@ -324,33 +336,44 @@ export default {
       }
     },
 
-    defaultLinks () {
+    defaultLinks() {
       return {
-        [DEFAULT_OPTIONS.Edit]: this.metadata?.edit || `${this.metadata.resource_path}/edit`,
-        [DEFAULT_OPTIONS.New]: this.metadata?.new || `${this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf('/'))}/new`,
+        [DEFAULT_OPTIONS.Edit]:
+          this.metadata?.edit || `${this.metadata.resource_path}/edit`,
+        [DEFAULT_OPTIONS.New]:
+          this.metadata?.new ||
+          `${this.metadata.resource_path.substring(
+            0,
+            this.metadata.resource_path.lastIndexOf('/')
+          )}/new`,
         [DEFAULT_OPTIONS.Show]: this.metadata.resource_path,
-        [DEFAULT_OPTIONS.Related]: `/tasks/shared/related_data?object_global_id=${encodeURIComponent(this.globalId)}`
+        [DEFAULT_OPTIONS.Related]: `/tasks/shared/related_data?object_global_id=${encodeURIComponent(
+          this.globalId
+        )}`
       }
     },
 
-    closeModal () {
+    closeModal() {
       this.display = false
       this.eventClose()
       this.$emit('close')
     },
 
-    displayRadialObject () {
+    openRadialMenu() {
       this.display = true
       this.currentView = undefined
       this.loadMetadata(this.globalId)
     },
 
-    loadMetadata (globalId) {
-      if (globalId == this.globalIdSaved && this.menuCreated && !this.reload) return
+    loadMetadata(globalId) {
+      if (globalId == this.globalIdSaved && this.menuCreated && !this.reload)
+        return
       this.globalIdSaved = globalId
       this.loading = true
 
-      this.getList(`/metadata/object_radial?global_id=${encodeURIComponent(globalId)}`).then(({ body }) => {
+      this.getList(
+        `/metadata/object_radial?global_id=${encodeURIComponent(globalId)}`
+      ).then(({ body }) => {
         const { tasks, ...rest } = body
 
         this.metadata = rest
@@ -363,11 +386,11 @@ export default {
       })
     },
 
-    setTotal (total) {
+    setTotal(total) {
       this.recentTotal = total
     },
 
-    eventClose () {
+    eventClose() {
       const event = new CustomEvent('radialObject:close', {
         detail: {
           metadata: this.metadata
@@ -376,7 +399,7 @@ export default {
       document.dispatchEvent(event)
     },
 
-    eventDestroy () {
+    eventDestroy() {
       const event = new CustomEvent('radialObject:destroy', {
         detail: {
           metadata: this.metadata
@@ -385,11 +408,14 @@ export default {
       document.dispatchEvent(event)
     },
 
-    windowHeight () {
-      return ((window.innerHeight - 100) > 650 ? 650 : window.innerHeight - 100) + 'px !important'
+    windowHeight() {
+      return (
+        (window.innerHeight - 100 > 650 ? 650 : window.innerHeight - 100) +
+        'px !important'
+      )
     },
 
-    createPin () {
+    createPin() {
       const pinboard_item = {
         pinned_object_id: this.metadata.id,
         pinned_object_type: this.metadata.type,
@@ -399,22 +425,31 @@ export default {
       PinboardItem.create({ pinboard_item }).then(({ body }) => {
         this.metadata.pinboard_item = { id: body.id }
         TW.workbench.pinboard.addToPinboard(body)
-        TW.workbench.alert.create('Pinboard item was successfully created.', 'notice')
+        TW.workbench.alert.create(
+          'Pinboard item was successfully created.',
+          'notice'
+        )
       })
     },
 
-    destroyPin () {
-      PinboardItem.destroy(this.metadata.pinboard_item.id).then(_ => {
-        TW.workbench.alert.create('Pinboard item was successfully destroyed.', 'notice')
+    destroyPin() {
+      PinboardItem.destroy(this.metadata.pinboard_item.id).then((_) => {
+        TW.workbench.alert.create(
+          'Pinboard item was successfully destroyed.',
+          'notice'
+        )
         TW.workbench.pinboard.removeItem(this.metadata.pinboard_item.id)
         delete this.metadata.pinboard_item
       })
     },
 
-    destroyObject () {
+    destroyObject() {
       this.showDestroyModal = false
-      this.destroy(`${this.metadata.resource_path}.json`).then(_ => {
-        TW.workbench.alert.create(`${this.metadata.type} was successfully destroyed.`, 'notice')
+      this.destroy(`${this.metadata.resource_path}.json`).then((_) => {
+        TW.workbench.alert.create(
+          `${this.metadata.type} was successfully destroyed.`,
+          'notice'
+        )
         if (this.globalId === this.metadata.globalId) {
           this.eventDestroy()
           this.deleted = true
@@ -425,7 +460,13 @@ export default {
         } else if (window.location.pathname === this.metadata.resource_path) {
           window.open(`/${window.location.pathname.split('/')[1]}`, '_self')
         } else {
-          window.open(this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf('/')), '_self')
+          window.open(
+            this.metadata.resource_path.substring(
+              0,
+              this.metadata.resource_path.lastIndexOf('/')
+            ),
+            '_self'
+          )
         }
       })
     }

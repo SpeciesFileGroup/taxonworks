@@ -23,7 +23,7 @@
     </modal>
     <VBtn
       class="circle-button"
-      color="primary"
+      color="radial"
       title="Radial filter"
       circle
       :disabled="disabled"

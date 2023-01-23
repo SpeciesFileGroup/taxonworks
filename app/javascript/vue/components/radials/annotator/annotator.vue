@@ -1,7 +1,6 @@
 <template>
   <div>
-    <div
-      class="radial-annotator">
+    <div class="radial-annotator">
       <modal
         v-if="display"
         transparent
@@ -19,65 +18,86 @@
           </h3>
         </template>
         <template #body>
-          <div
-            class="flex-separate">
+          <div class="flex-separate">
             <spinner v-if="!menuCreated" />
             <div class="radial-annotator-menu">
               <div>
                 <radial-menu
                   v-if="menuCreated"
                   :options="menuOptions"
-                  @onClick="selectComponent"/>
+                  @onClick="selectComponent"
+                />
               </div>
             </div>
             <div
               class="radial-annotator-template panel"
-              :style="{ 'max-height': windowHeight(), 'min-height': windowHeight() }"
-              v-if="currentAnnotator">
+              :style="{
+                'max-height': windowHeight(),
+                'min-height': windowHeight()
+              }"
+              v-if="currentAnnotator"
+            >
               <h2 class="capitalize view-title">
-                {{ currentAnnotator.replace("_"," ") }}
+                {{ currentAnnotator.replace('_', ' ') }}
               </h2>
               <component
                 v-if="metadataLoaded"
                 class="radial-annotator-container"
-                :is="(currentAnnotator ? currentAnnotator + 'Annotator' : undefined)"
+                :is="
+                  currentAnnotator ? currentAnnotator + 'Annotator' : undefined
+                "
                 :type="currentAnnotator"
                 :url="url"
                 :metadata="metadata"
                 :global-id="globalId"
                 :object-type="metadata.object_type"
-                @updateCount="setTotal"/>
+                @updateCount="setTotal"
+              />
             </div>
           </div>
         </template>
       </modal>
-      <span
+
+      <VBtn
         v-if="showBottom"
         :title="globalId ? `${globalId.split('/')[3]} annotator` : buttonTitle"
-        type="button"
         class="circle-button"
-        :class="[buttonClass, pulse ? 'pulse-blue' : '']"
+        :class="[pulse ? 'pulse-blue' : '']"
+        color="radial"
+        circle
+        :disabled="disabled"
         @contextmenu.prevent="loadContextMenu"
-        @click="displayAnnotator()">Radial annotator
-      </span>
+        @click="displayAnnotator()"
+      >
+        <VIcon
+          :title="
+            globalId ? `${globalId.split('/')[3]} annotator` : buttonTitle
+          "
+          name="radialAnnotator"
+          x-small
+        />
+      </VBtn>
       <div
         v-if="metadataCount && showCount"
-        class="circle-count button-submit middle">
+        class="circle-count button-submit middle"
+      >
         <span class="citation-count-text">{{ metadataCount }}</span>
       </div>
       <context-menu
         :metadata="metadata"
         :global-id="globalId"
         v-model="showContextMenu"
-        v-if="showContextMenu"/>
+        v-if="showContextMenu"
+      />
     </div>
   </div>
 </template>
 <script>
-
 import RadialMenu from 'components/radials/RadialMenu.vue'
 import modal from 'components/ui/Modal.vue'
 import spinner from 'components/spinner.vue'
+import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
 
 import CRUD from './request/crud'
 
@@ -122,7 +142,9 @@ export default {
     protocol_relationshipsAnnotator,
     attributionAnnotator,
     verifiersAnnotator,
-    ContextMenu
+    ContextMenu,
+    VBtn,
+    VIcon
   },
 
   emits: ['close'],
@@ -145,7 +167,7 @@ export default {
 
     buttonClass: {
       type: String,
-      default: 'btn-radial'
+      default: 'btn-radial-annotator'
     },
 
     buttonTitle: {
@@ -179,7 +201,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       currentAnnotator: undefined,
       display: false,
@@ -194,43 +216,50 @@ export default {
   },
 
   computed: {
-    metadataLoaded () {
-      return (this.globalId === this.globalIdSaved && this.menuCreated && !this.reload)
+    metadataLoaded() {
+      return (
+        this.globalId === this.globalIdSaved && this.menuCreated && !this.reload
+      )
     },
 
-    menuCreated () {
+    menuCreated() {
       return this.metadata?.endpoints
     },
 
-    menuOptions () {
+    menuOptions() {
       const endpoints = this.metadata.endpoints || {}
 
-      const slices = Object.entries(endpoints).map(([annotator, { total }]) => ({
-        name: annotator,
-        label: (annotator.charAt(0).toUpperCase() + annotator.slice(1)).replace('_', ' '),
-        innerPosition: 1.7,
-        svgAttributes: {
-          class: this.currentAnnotator === annotator
-            ? 'slice active'
-            : 'slice'
-        },
-        slices: total
-          ? [{
-              label: total.toString(),
-              size: 26,
-              svgAttributes: {
-                class: 'slice-total'
+      const slices = Object.entries(endpoints).map(
+        ([annotator, { total }]) => ({
+          name: annotator,
+          label: (
+            annotator.charAt(0).toUpperCase() + annotator.slice(1)
+          ).replace('_', ' '),
+          innerPosition: 1.7,
+          svgAttributes: {
+            class:
+              this.currentAnnotator === annotator ? 'slice active' : 'slice'
+          },
+          slices: total
+            ? [
+                {
+                  label: total.toString(),
+                  size: 26,
+                  svgAttributes: {
+                    class: 'slice-total'
+                  }
+                }
+              ]
+            : [],
+          icon: Icons[annotator]
+            ? {
+                url: Icons[annotator],
+                width: '20',
+                height: '20'
               }
-            }]
-          : [],
-        icon: Icons[annotator]
-          ? {
-              url: Icons[annotator],
-              width: '20',
-              height: '20'
-            }
-          : undefined
-      }))
+            : undefined
+        })
+      )
 
       return {
         width: 400,
@@ -249,7 +278,7 @@ export default {
       }
     },
 
-    metadataCount () {
+    metadataCount() {
       if (this.metadata) {
         let totalCounts = 0
         for (const key in this.metadata.endpoints) {
@@ -263,11 +292,11 @@ export default {
       return undefined
     },
 
-    isTagged () {
+    isTagged() {
       return !!this.defaultTag
     },
 
-    middleButton () {
+    middleButton() {
       return {
         name: MIDDLE_RADIAL_BUTTON,
         radius: 30,
@@ -278,50 +307,64 @@ export default {
         },
         svgAttributes: {
           fontSize: 11,
-          fill: this.getDefault() ? (this.isTagged ? '#F44336' : '#9ccc65') : '#CACACA',
+          fill: this.getDefault()
+            ? this.isTagged
+              ? '#F44336'
+              : '#9ccc65'
+            : '#CACACA',
           style: 'cursor: pointer'
         },
-        backgroundHover: this.getDefault() ? (this.isTagged ? '#CE3430' : '#81a553') : '#CACACA'
+        backgroundHover: this.getDefault()
+          ? this.isTagged
+            ? '#CE3430'
+            : '#81a553'
+          : '#CACACA'
       }
     }
   },
 
   watch: {
-    metadataLoaded () {
+    metadataLoaded() {
       if (this.defaultView) {
         this.currentAnnotator = this.isComponentExist(this.defaultView)
       }
     },
 
-    display (newVal) {
+    display(newVal) {
       if (newVal && this.metadataLoaded) {
         this.currentAnnotator = this.isComponentExist(this.defaultView)
       }
     }
   },
 
-  mounted () {
+  mounted() {
     if (this.showCount) {
       this.loadMetadata()
     }
   },
 
   methods: {
-    isComponentExist (componentName) {
-      return this.$options.components[`${componentName}Annotator`] ? componentName : undefined
+    isComponentExist(componentName) {
+      return this.$options.components[`${componentName}Annotator`]
+        ? componentName
+        : undefined
     },
 
-    loadContextMenu () {
+    loadContextMenu() {
       this.showContextMenu = true
       this.loadMetadata()
     },
 
-    getDefault () {
-      const defaultTag = document.querySelector('[data-pinboard-section="Keywords"] [data-insert="true"]')
-      return defaultTag ? defaultTag.getAttribute('data-pinboard-object-id') : undefined
+    getDefault() {
+      const defaultTag = document.querySelector(
+        '[data-pinboard-section="Keywords"] [data-insert="true"]'
+      )
+      return defaultTag
+        ? defaultTag.getAttribute('data-pinboard-object-id')
+        : undefined
     },
 
-    alreadyTagged () {
+    alreadyTagged() {
       const keyId = this.getDefault()
       if (!keyId) return
 
@@ -335,26 +378,24 @@ export default {
       })
     },
 
-    selectComponent ({ name }) {
+    selectComponent({ name }) {
       if (name === MIDDLE_RADIAL_BUTTON) {
         if (this.getDefault()) {
-          this.isTagged
-            ? this.deleteTag()
-            : this.createTag()
+          this.isTagged ? this.deleteTag() : this.createTag()
         }
       } else {
         this.currentAnnotator = name
       }
     },
 
-    closeModal () {
+    closeModal() {
       this.display = false
       this.$emit('close')
       this.eventClose()
       this.removeListener()
     },
 
-    async displayAnnotator () {
+    async displayAnnotator() {
       this.display = true
       await this.loadMetadata()
       this.alreadyTagged()
@@ -362,22 +403,29 @@ export default {
       this.setShortcutsEvent()
     },
 
-    async loadMetadata () {
-      if (this.globalId === this.globalIdSaved && this.menuCreated && !this.reload) return
+    async loadMetadata() {
+      if (
+        this.globalId === this.globalIdSaved &&
+        this.menuCreated &&
+        !this.reload
+      )
+        return
       this.globalIdSaved = this.globalId
 
-      return this.getList(`/${this.type}/${encodeURIComponent(this.globalId)}/metadata`).then(({ body }) => {
+      return this.getList(
+        `/${this.type}/${encodeURIComponent(this.globalId)}/metadata`
+      ).then(({ body }) => {
         this.metadata = body
         this.title = body.object_tag
         this.url = body.url
       })
     },
 
-    setTotal (total) {
+    setTotal(total) {
       this.metadata.endpoints[this.currentAnnotator].total = total
     },
 
-    eventOpen () {
+    eventOpen() {
       const event = new CustomEvent('radialAnnotator:open', {
         detail: {
           metadata: this.metadata
@@ -386,7 +434,7 @@ export default {
       document.dispatchEvent(event)
     },
 
-    eventClose () {
+    eventClose() {
       const event = new CustomEvent('radialAnnotator:close', {
         detail: {
           metadata: this.metadata
@@ -395,128 +443,137 @@ export default {
       document.dispatchEvent(event)
     },
 
-    windowHeight () {
-      return ((window.innerHeight - 100) > 650 ? 650 : window.innerHeight - 100) + 'px !important'
+    windowHeight() {
+      return (
+        (window.innerHeight - 100 > 650 ? 650 : window.innerHeight - 100) +
+        'px !important'
+      )
     },
 
-    createTag () {
+    createTag() {
       const tag = {
         keyword_id: this.getDefault(),
         annotated_global_entity: this.globalId
       }
 
-      Tag.create({ tag }).then(response => {
+      Tag.create({ tag }).then((response) => {
         this.defaultTag = response.body
-        TW.workbench.alert.create('Tag item was successfully created.', 'notice')
+        TW.workbench.alert.create(
+          'Tag item was successfully created.',
+          'notice'
+        )
       })
     },
 
-    deleteTag () {
-      Tag.destroy(this.defaultTag.id).then(_ => {
+    deleteTag() {
+      Tag.destroy(this.defaultTag.id).then((_) => {
         this.defaultTag = undefined
-        TW.workbench.alert.create('Tag item was successfully destroyed.', 'notice')
+        TW.workbench.alert.create(
+          'Tag item was successfully destroyed.',
+          'notice'
+        )
       })
     }
   }
 }
 </script>
 <style lang="scss">
-  .svg-radial-menu {
-    text-anchor: middle;
+.svg-radial-menu {
+  text-anchor: middle;
 
-    g:hover {
-      cursor: pointer;
-      opacity: 0.9;
-    }
-
-    path.slice {
-      fill: #FFFFFF;
-    }
-
-    path.active {
-      fill:#8F8F8F
-    }
-
-    path.slice-total {
-      fill: #006ebf;
-    }
-
-    tspan.slice-total {
-      fill: #FFFFFF;
-    }
-  }
-
-  .radial-annotator {
-    position: relative;
-    width: initial;
-    color: initial;
-
-    .modal-close {
-      top: 30px;
-      right: 20px;
-    }
-
-    .modal-mask {
-      background-color: rgba(0, 0, 0, 0.7);
-    }
-
-    .modal-container {
-      min-width: 1024px;
-      width: 1200px;
-      overflow-y: hidden;
-    }
-
-    .radial-annotator-template {
-      border-radius: 3px;
-      background: #FFFFFF;
-      padding: 1em;
-      width: 100%;
-      max-width: 100%;
-      min-height: 600px;
-      overflow-y: auto;
-    }
-
-    .radial-annotator-container {
-      display: flex;
-      height: 600px;
-      flex-direction: column;
-      overflow-y: scroll;
-      position: relative;
-    }
-
-    .radial-annotator-inner-modal {
-      height: 700px;
-    }
-
-    .radial-annotator-menu {
-      padding-top: 1em;
-      padding-bottom: 1em;
-      width: 700px;
-      min-height: 650px;
-    }
-
-    .annotator-buttons-list {
-      overflow-y: scroll;
-    }
-
-    .save-annotator-button {
-      width: 100px;
-    }
-
-    .circle-count {
-      bottom: -6px;
-    }
-  }
-
-  .tag_button {
-    padding-left: 12px;
-    padding-right: 8px;
-    width: auto !important;
-    min-width: auto !important;
+  g:hover {
     cursor: pointer;
-    margin: 2px;
-    border: none;
-    border-top-left-radius: 15px;
-    border-bottom-left-radius: 15px;
+    opacity: 0.9;
   }
+
+  path.slice {
+    fill: #ffffff;
+  }
+
+  path.active {
+    fill: #8f8f8f;
+  }
+
+  path.slice-total {
+    fill: #006ebf;
+  }
+
+  tspan.slice-total {
+    fill: #ffffff;
+  }
+}
+
+.radial-annotator {
+  position: relative;
+  width: initial;
+  color: initial;
+
+  .modal-close {
+    top: 30px;
+    right: 20px;
+  }
+
+  .modal-mask {
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+
+  .modal-container {
+    min-width: 1024px;
+    width: 1200px;
+    overflow-y: hidden;
+  }
+
+  .radial-annotator-template {
+    border-radius: 3px;
+    background: #ffffff;
+    padding: 1em;
+    width: 100%;
+    max-width: 100%;
+    min-height: 600px;
+    overflow-y: auto;
+  }
+
+  .radial-annotator-container {
+    display: flex;
+    height: 600px;
+    flex-direction: column;
+    overflow-y: scroll;
+    position: relative;
+  }
+
+  .radial-annotator-inner-modal {
+    height: 700px;
+  }
+
+  .radial-annotator-menu {
+    padding-top: 1em;
+    padding-bottom: 1em;
+    width: 700px;
+    min-height: 650px;
+  }
+
+  .annotator-buttons-list {
+    overflow-y: scroll;
+  }
+
+  .save-annotator-button {
+    width: 100px;
+  }
+
+  .circle-count {
+    bottom: -6px;
+  }
+}
+
+.tag_button {
+  padding-left: 12px;
+  padding-right: 8px;
+  width: auto !important;
+  min-width: auto !important;
+  cursor: pointer;
+  margin: 2px;
+  border: none;
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+}
 </style>

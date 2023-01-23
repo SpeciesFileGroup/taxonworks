@@ -22,7 +22,6 @@
             object-type="objectType"
           />
           <VBtn
-            circle
             color="primary"
             class="circle-button"
             @click="emit('reset')"

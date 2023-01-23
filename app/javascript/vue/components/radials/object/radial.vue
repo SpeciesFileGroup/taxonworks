@@ -4,14 +4,15 @@
       <modal-component
         v-if="display"
         transparent
-        @close="closeModal()">
+        @close="closeModal()"
+      >
         <template #header>
-          <h3
-            class="flex-separate">
+          <h3 class="flex-separate">
             <span v-html="title" />
             <span
               v-if="metadata"
-              class="separate-right">
+              class="separate-right"
+            >
               {{ metadata.object_type }}
             </span>
           </h3>
@@ -24,51 +25,68 @@
                 <radial-menu
                   v-if="menuCreated"
                   :options="menuOptions"
-                  @onClick="selectComponent"/>
+                  @onClick="selectComponent"
+                />
               </div>
             </div>
             <div
               class="radial-annotator-template panel"
-              :style="{ 'max-height': windowHeight(), 'min-height': windowHeight() }"
-              v-if="currentAnnotator">
+              :style="{
+                'max-height': windowHeight(),
+                'min-height': windowHeight()
+              }"
+              v-if="currentAnnotator"
+            >
               <h2 class="capitalize view-title">
-                {{ currentAnnotator.replace("_"," ") }}
+                {{ currentAnnotator.replace('_', ' ') }}
               </h2>
               <component
                 class="radial-annotator-container"
-                :is="(currentAnnotator ? currentAnnotator + 'Annotator' : undefined)"
+                :is="
+                  currentAnnotator ? currentAnnotator + 'Annotator' : undefined
+                "
                 :type="currentAnnotator"
                 :url="url"
                 :metadata="metadata"
                 :global-id="globalId"
                 :object-type="metadata.object_type"
                 @updateCount="setTotal"
-                @close="closeModal"/>
+                @close="closeModal"
+              />
             </div>
           </div>
         </template>
       </modal-component>
-      <span
+      <VBtn
         v-if="showBottom"
         :title="buttonTitle"
-        type="button"
-        class="circle-button button-default"
-        :class="[buttonClass]"
-        @click="displayAnnotator()">Radial annotator
-      </span>
+        class="circle-button"
+        color="radial"
+        circle
+        :disabled="disabled"
+        @click="openRadialMenu()"
+      >
+        <VIcon
+          :title="buttonTitle"
+          name="radialObject"
+          x-small
+        />
+      </VBtn>
       <div
         v-if="metadataCount && showCount"
-        class="circle-count button-submit middle">
+        class="circle-count button-submit middle"
+      >
         <span class="citation-count-text">{{ metadataCount }}</span>
       </div>
     </div>
   </div>
 </template>
 <script>
-
 import RadialMenu from 'components/radials/RadialMenu.vue'
 import ModalComponent from 'components/ui/Modal.vue'
 import SpinnerComponent from 'components/spinner.vue'
+import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
 
 import CRUD from './request/crud'
 
@@ -109,7 +127,9 @@ export default {
     taxon_determinationsAnnotator,
     observation_matricesAnnotator,
     collecting_eventAnnotator,
-    origin_relationshipsAnnotator
+    origin_relationshipsAnnotator,
+    VBtn,
+    VIcon
   },
 
   props: {
@@ -126,11 +146,6 @@ export default {
     showBottom: {
       type: Boolean,
       default: true
-    },
-
-    buttonClass: {
-      type: String,
-      default: 'btn-hexagon-w'
     },
 
     buttonTitle: {
@@ -155,7 +170,7 @@ export default {
 
   emits: ['close'],
 
-  data () {
+  data() {
     return {
       currentAnnotator: undefined,
       display: false,
@@ -174,35 +189,40 @@ export default {
   },
 
   computed: {
-    menuOptions () {
+    menuOptions() {
       const endpoints = this.metadata.endpoints || {}
 
-      const slices = Object.entries(endpoints).map(([annotator, { total }]) => ({
-        name: annotator,
-        label: (annotator.charAt(0).toUpperCase() + annotator.slice(1)).replace('_', ' '),
-        innerPosition: 1.7,
-        svgAttributes: {
-          class: this.currentAnnotator === annotator
-            ? 'slice active'
-            : 'slice'
-        },
-        slices: total
-          ? [{
-              label: total.toString(),
-              size: 26,
-              svgAttributes: {
-                class: 'slice-total'
+      const slices = Object.entries(endpoints).map(
+        ([annotator, { total }]) => ({
+          name: annotator,
+          label: (
+            annotator.charAt(0).toUpperCase() + annotator.slice(1)
+          ).replace('_', ' '),
+          innerPosition: 1.7,
+          svgAttributes: {
+            class:
+              this.currentAnnotator === annotator ? 'slice active' : 'slice'
+          },
+          slices: total
+            ? [
+                {
+                  label: total.toString(),
+                  size: 26,
+                  svgAttributes: {
+                    class: 'slice-total'
+                  }
+                }
+              ]
+            : [],
+          icon: Icons[annotator]
+            ? {
+                url: Icons[annotator],
+                width: '20',
+                height: '20'
               }
-            }]
-          : [],
-        icon: Icons[annotator]
-          ? {
-              url: Icons[annotator],
-              width: '20',
-              height: '20'
-            }
-          : undefined
-      }))
+            : undefined
+        })
+      )
 
       return {
         width: 400,
@@ -222,11 +242,11 @@ export default {
       }
     },
 
-    menuCreated () {
+    menuCreated() {
       return this.metadata?.endpoints
     },
 
-    metadataCount () {
+    metadataCount() {
       if (this.metadata) {
         let totalCounts = 0
         for (const key in this.metadata.endpoints) {
@@ -240,11 +260,11 @@ export default {
       return undefined
     },
 
-    isTagged () {
+    isTagged() {
       return this.defaultTag
     },
 
-    middleButton () {
+    middleButton() {
       return {
         name: MIDDLE_RADIAL_BUTTON,
         radius: 30,
@@ -254,25 +274,33 @@ export default {
           height: '20'
         },
         svgAttributes: {
-          fill: this.getDefault() ? (this.isTagged ? '#F44336' : '#9ccc65') : '#CACACA'
+          fill: this.getDefault()
+            ? this.isTagged
+              ? '#F44336'
+              : '#9ccc65'
+            : '#CACACA'
         }
       }
     }
   },
 
-  mounted () {
+  mounted() {
     if (this.showCount) {
       this.loadMetadata()
     }
   },
 
   methods: {
-    getDefault () {
-      const defaultTag = document.querySelector('[data-pinboard-section="Keywords"] [data-insert="true"]')
-      return defaultTag ? defaultTag.getAttribute('data-pinboard-object-id') : undefined
+    getDefault() {
+      const defaultTag = document.querySelector(
+        '[data-pinboard-section="Keywords"] [data-insert="true"]'
+      )
+      return defaultTag
+        ? defaultTag.getAttribute('data-pinboard-object-id')
+        : undefined
     },
 
-    alreadyTagged () {
+    alreadyTagged() {
       const keyId = this.getDefault()
       if (!keyId) return
 
@@ -281,31 +309,29 @@ export default {
         keyword_id: keyId
       }
 
-      Tag.exists(params).then(response => {
+      Tag.exists(params).then((response) => {
         this.defaultTag = response.body
       })
     },
 
-    selectComponent ({ name }) {
+    selectComponent({ name }) {
       if (name === MIDDLE_RADIAL_BUTTON) {
         if (this.getDefault()) {
-          this.isTagged
-            ? this.deleteTag()
-            : this.createTag()
+          this.isTagged ? this.deleteTag() : this.createTag()
         }
       } else {
         this.currentAnnotator = name
       }
     },
 
-    closeModal () {
+    closeModal() {
       this.display = false
       this.eventClose()
       this.$emit('close')
       this.removeListener()
     },
 
-    async displayAnnotator () {
+    async openRadialMenu() {
       this.display = true
       this.currentAnnotator = undefined
       await this.loadMetadata()
@@ -313,23 +339,34 @@ export default {
       this.setShortcutsEvent()
     },
 
-    async loadMetadata () {
-      if (this.globalId === this.globalIdSaved && this.menuCreated && !this.reload) return
+    async loadMetadata() {
+      if (
+        this.globalId === this.globalIdSaved &&
+        this.menuCreated &&
+        !this.reload
+      )
+        return
       this.globalIdSaved = this.globalId
 
-      return this.getList(`/${this.type}/${encodeURIComponent(this.globalId)}/metadata`).then(response => {
+      return this.getList(
+        `/${this.type}/${encodeURIComponent(this.globalId)}/metadata`
+      ).then((response) => {
         this.metadata = response.body
-        this.metadata.endpoints = Object.assign({}, this.metadata.endpoints, ...this.addHardcodeSections(response.body.object_type))
+        this.metadata.endpoints = Object.assign(
+          {},
+          this.metadata.endpoints,
+          ...this.addHardcodeSections(response.body.object_type)
+        )
         this.title = response.body.object_tag
         this.url = response.body.url
       })
     },
 
-    setTotal (total) {
+    setTotal(total) {
       this.metadata.endpoints[this.currentAnnotator].total = total
     },
 
-    eventClose () {
+    eventClose() {
       const event = new CustomEvent('radialObject:close', {
         detail: {
           metadata: this.metadata
@@ -338,31 +375,42 @@ export default {
       document.dispatchEvent(event)
     },
 
-    windowHeight () {
-      return ((window.innerHeight - 100) > 650 ? 650 : window.innerHeight - 100) + 'px !important'
+    windowHeight() {
+      return (
+        (window.innerHeight - 100 > 650 ? 650 : window.innerHeight - 100) +
+        'px !important'
+      )
     },
 
-    createTag () {
+    createTag() {
       const tag = {
         keyword_id: this.getDefault(),
         annotated_global_entity: this.globalId
       }
 
-      Tag.create({ tag }).then(response => {
+      Tag.create({ tag }).then((response) => {
         this.defaultTag = response.body
-        TW.workbench.alert.create('Tag item was successfully created.', 'notice')
+        TW.workbench.alert.create(
+          'Tag item was successfully created.',
+          'notice'
+        )
       })
     },
 
-    deleteTag () {
-      Tag.destroy(this.defaultTag.id).then(_ => {
+    deleteTag() {
+      Tag.destroy(this.defaultTag.id).then((_) => {
         this.defaultTag = undefined
-        TW.workbench.alert.create('Tag item was successfully destroyed.', 'notice')
+        TW.workbench.alert.create(
+          'Tag item was successfully destroyed.',
+          'notice'
+        )
       })
     },
 
-    addHardcodeSections (type) {
-      return this.hardcodeSections.filter(item => item.objectTypes.includes(type)).map(item => ({ [item.section]: { total: 0 } }))
+    addHardcodeSections(type) {
+      return this.hardcodeSections
+        .filter((item) => item.objectTypes.includes(type))
+        .map((item) => ({ [item.section]: { total: 0 } }))
     }
   }
 }

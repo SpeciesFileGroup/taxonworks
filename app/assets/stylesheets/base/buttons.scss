@@ -19,45 +19,48 @@
 .button-normal {
   border: 1px solid $navigation_border;
   color: #444;
-  background-color: #FFF;
+  background-color: #fff;
 }
 
 .button-default {
-  color: #FFF;
+  color: #fff;
   background-color: $color-secondary-2-4 !important;
 }
 
 .btn-pin {
-  background-image: image-url("b_pin.svg");
+  background-image: image-url('b_pin.svg');
 }
 
-.button-submit, .btn-submit {
-  color: #FFF;
+.button-submit,
+.btn-submit {
+  color: #fff;
   background-color: $color-action-button;
 }
 
-.button-delete, .button-close, .btn-delete {
-  color: #FFF;
+.button-delete,
+.button-close,
+.btn-delete {
+  color: #fff;
   background-color: $color-remove-button;
 }
 
 .button-data {
-  color: #FFF;
-  background-color: #006ebf
+  color: #fff;
+  background-color: #006ebf;
 }
 
 .button-request {
-  color: #FFF;
+  color: #fff;
   background-color: $color-request-button;
   &:hover {
-    color: #FFF;
+    color: #fff;
     background-color: $color-request-button;
     opacity: 0.9;
   }
 }
 
 .actions {
-  input[type="submit"] {
+  input[type='submit'] {
     @extend .button;
     @extend .button-submit;
   }
@@ -87,22 +90,15 @@
   border: 1px solid $color-secondary-2-4;
   box-shadow: 0 1px 3px 0 $color-secondary-2-4;
 
-  transition: background-size 0.3s ease,
-  background-color 0.3s ease,
-  top 0.5s ease,
-  opacity 0.5s ease,
-  padding-left 0.5s ease;
-
+  transition: background-size 0.3s ease, background-color 0.3s ease,
+    top 0.5s ease, opacity 0.5s ease, padding-left 0.5s ease;
 }
 
 .button-collapse-header:hover {
   opacity: 1;
   top: -25px;
-  transition: background-size 0.3s ease,
-  background-color 0.3s ease,
-  top 0.5s ease,
-  opacity 0.5s ease,
-  padding-left 0.5s ease;
+  transition: background-size 0.3s ease, background-color 0.3s ease,
+    top 0.5s ease, opacity 0.5s ease, padding-left 0.5s ease;
   background-size: 35px;
 }
 
@@ -135,113 +131,113 @@
 
 .btn-add {
   background-color: $color-action-button;
-  background-image: image-url("bplus.svg");
+  background-image: image-url('bplus.svg');
 }
 
 .btn-delete {
-  background-color: #F44336;
-  background-image: image-url("w_trash.svg");
+  background-color: #f44336;
+  background-image: image-url('w_trash.svg');
 }
 
 .btn-download {
   background-color: $color-secondary-2-4;
-  background-image: image-url("w_download.svg");
+  background-image: image-url('w_download.svg');
 }
 
 .btn-edit {
   background-color: $color-action-button;
-  background-image: image-url("w_pencil.svg");
+  background-image: image-url('w_pencil.svg');
 }
 
 .btn-citation {
   background-size: 12px;
-  background-image: image-url("w_citation.svg");
+  background-image: image-url('w_citation.svg');
 }
 
 .btn-row-coder {
   background-size: 16px;
   background-color: $color-secondary-2-4;
-  background-image: image-url("w_row_code.svg");
+  background-image: image-url('w_row_code.svg');
 }
 
-.btn-radial {
+.btn-radial-annotator {
   background-size: 16px;
   background-color: $color-secondary-2-4;
-  background-image: image-url("w_radialmenu.svg");
+  background-image: image-url('w_radialmenu.svg');
 }
 
 .btn-radial-object {
   background-size: 12px;
   background-color: $color-secondary-2-4;
-  background-image: image-url("compass.svg");
+  background-image: image-url('compass.svg');
   background-position: 45% 55%;
 }
 
 .btn-locked {
   background-size: 12px;
-  background-image: image-url("w_locked.svg");
+  background-image: image-url('w_locked.svg');
 }
 
 .btn-show {
   background-size: 12px;
-  background-image: image-url("w_show.svg");
+  background-image: image-url('w_show.svg');
 }
 
 .btn-hide {
   background-size: 12px;
-  background-image: image-url("w_hide.svg");
+  background-image: image-url('w_hide.svg');
 }
 
 .btn-unlocked {
   background-size: 12px;
-  background-image: image-url("w_unlocked.svg");
+  background-image: image-url('w_unlocked.svg');
 }
 
 .btn-co-radial {
   background-size: 18px;
-  background-image: image-url("w_co_radial.svg");
+  background-image: image-url('w_co_radial.svg');
 }
 
 .btn-hexagon-w {
   background-size: 16px;
-  background-image: image-url("w_hexagon.svg");
+  background-image: image-url('w_hexagon.svg');
 }
 
 .btn-hexagon-arrow-flip-w {
   background-size: 16px;
   transform: scaleX(-1);
-  background-image: image-url("hexagon_empty_w.svg");
+  background-image: image-url('hexagon_empty_w.svg');
 }
 
 .btn-hexagon-empty-w {
   background-size: 16px;
-  background-image: image-url("hexagon_empty_w.svg");
+  background-image: image-url('hexagon_empty_w.svg');
 }
 
 .btn-tag-delete {
-  background-color: #F44336;
+  background-color: #f44336;
   background-size: 12px;
-  background-image: image-url("label.svg");
+  background-image: image-url('label.svg');
 }
 
 .btn-tag {
   background-size: 12px;
-  background-image: image-url("label.svg");
+  background-image: image-url('label.svg');
 }
 
 .btn-tag-add {
   background-color: $color-action-button;
   background-size: 12px;
-  background-image: image-url("label.svg");
+  background-image: image-url('label.svg');
 }
 
 .btn-confidences {
   background-size: 12px;
-  background-image: image-url("w_confidences.svg");
+  background-image: image-url('w_confidences.svg');
 }
 
 .btn-undo {
-  background-image: image-url("undo.svg");
+  background-image: image-url('undo.svg');
 }
 
 .btn-clipboard {
@@ -295,37 +291,39 @@
 #otu_picker_add_ok {
   @extend .circle-button;
   @extend .circle-button-big;
-  background-color: #AED581;
+  background-color: #aed581;
   background-size: 16px;
-  background-image: image-url("w_ok.svg");
+  background-image: image-url('w_ok.svg');
 }
 
 #otu_picker_new_undo {
   @extend .circle-button;
   @extend .circle-button-big;
-  background-color: #F44336;
-  background-image: image-url("undo.svg");
+  background-color: #f44336;
+  background-image: image-url('undo.svg');
 }
 
-.new_plus, .add_total_row {
+.new_plus,
+.add_total_row {
   @extend .circle-button;
   @extend .circle-button-big;
-  background-color: #AED581;
-  background-image: image-url("bplus.svg");
+  background-color: #aed581;
+  background-image: image-url('bplus.svg');
 }
 
-.delete-circle, .remove_row {
+.delete-circle,
+.remove_row {
   @extend .circle-button;
   @extend .circle-button-big;
-  background-color: #F44336;
-  background-image: image-url("trash.svg");
+  background-color: #f44336;
+  background-image: image-url('trash.svg');
 }
 
 .pin-button {
   @extend .circle-button;
   background-color: $color-action-button;
   background-size: 14px;
-  background-image: image-url("b_pin.svg");
+  background-image: image-url('b_pin.svg');
 }
 
 .unpin-button {
@@ -334,7 +332,8 @@
   background-color: $color-remove-button;
 }
 
-.disable-button, .btn-disabled {
+.disable-button,
+.btn-disabled {
   opacity: 0.5;
   background-color: $navigation_border;
 }
@@ -343,8 +342,8 @@
   display: none;
   @extend .circle-button;
   width: 30px;
-  background-color: #F44336;
-  background-image: image-url("undo.svg");
+  background-color: #f44336;
+  background-image: image-url('undo.svg');
 }
 
 .pdf-button {
@@ -353,10 +352,10 @@
 
 .expand {
   @extend .box-button;
-  background-image: image-url("expand.svg");
+  background-image: image-url('expand.svg');
 }
 
 .contract {
   @extend .box-button;
-  background-image: image-url("contract.svg");
+  background-image: image-url('contract.svg');
 }
