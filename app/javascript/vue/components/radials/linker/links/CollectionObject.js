@@ -3,7 +3,7 @@ export const CollectionObject = {
     {
       label: 'By collecting event',
       link: '/tasks/collection_objects/filter',
-      params: ['collecting_event_ids']
+      params: ['collecting_event_id']
     },
     {
       label: 'By verbatim locality',
@@ -13,7 +13,7 @@ export const CollectionObject = {
     {
       label: 'By OTU',
       link: '/tasks/collection_objects/filter',
-      params: ['otu_ids']
+      params: ['otu_id']
     },
     {
       label: 'By taxon name',

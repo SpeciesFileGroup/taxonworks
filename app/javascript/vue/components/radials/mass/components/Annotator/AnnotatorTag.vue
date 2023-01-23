@@ -11,7 +11,7 @@
     <smart-selector
       class="margin-medium-bottom"
       autocomplete-url="/controlled_vocabulary_terms/autocomplete"
-      :autocomplete-params="{'type[]' : 'Keyword'}"
+      :autocomplete-params="{ 'type[]': 'Keyword' }"
       get-url="/controlled_vocabulary_terms/"
       model="keywords"
       buttons
@@ -44,11 +44,11 @@ const props = defineProps({
 
 const allList = ref([])
 
-function createWithId ({ id }) {
+function createWithId({ id }) {
   Tag.createBatch({
     object_type: props.objectType,
     keyword_id: id,
-    object_ids: props.ids
+    object_id: props.ids
   }).then(() => {
     TW.workbench.alert.create('Tag item(s) were successfully created', 'notice')
   })
@@ -59,5 +59,4 @@ onBeforeMount(() => {
     allList.value = body
   })
 })
-
 </script>

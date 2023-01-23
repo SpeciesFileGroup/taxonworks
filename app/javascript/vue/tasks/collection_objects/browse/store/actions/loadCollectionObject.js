@@ -10,10 +10,7 @@ import {
   Repository
 } from 'routes/endpoints'
 import { makeCollectionObject } from 'adapters/index.js'
-import {
-  COLLECTION_OBJECT,
-  COLLECTING_EVENT
-} from 'constants/index.js'
+import { COLLECTION_OBJECT, COLLECTING_EVENT } from 'constants/index.js'
 import ActionNames from './actionNames'
 
 export default ({ state, dispatch }, coId) => {
@@ -23,33 +20,27 @@ export default ({ state, dispatch }, coId) => {
     state.collectionObject = co
     dispatch(ActionNames.LoadSoftValidation, co.globalId)
 
-    BiologicalAssociation
-      .where({
-        subject_global_id: co.globalId,
-        extend: ['origin_citation', 'object', 'biological_relationship']
-      })
-      .then(({ body }) => { state.biologicalAssociations = body })
+    BiologicalAssociation.where({
+      subject_global_id: co.globalId,
+      extend: ['origin_citation', 'object', 'biological_relationship']
+    }).then(({ body }) => {
+      state.biologicalAssociations = body
+    })
 
-    Container
-      .for(co.globalId)
-      .then(({ body }) => {
-        state.container = body
-      })
+    Container.for(co.globalId).then(({ body }) => {
+      state.container = body
+    })
 
     if (co.repositoryId) {
-      Repository
-        .find(co.repositoryId)
-        .then(({ body }) => {
-          state.repository = body
-        })
+      Repository.find(co.repositoryId).then(({ body }) => {
+        state.repository = body
+      })
     }
 
     if (co.currentRepositoryId) {
-      Repository
-        .find(co.currentRepositoryId)
-        .then(({ body }) => {
-          state.currentRepository = body
-        })
+      Repository.find(co.currentRepositoryId).then(({ body }) => {
+        state.currentRepository = body
+      })
     }
   })
 
@@ -65,16 +56,18 @@ export default ({ state, dispatch }, coId) => {
     state.depictions = body
   })
 
-  TaxonDetermination
-    .where({ biological_collection_object_ids: [coId] })
-    .then(({ body }) => { state.determinations = body })
+  TaxonDetermination.where({ biological_collection_object_id: [coId] }).then(
+    ({ body }) => {
+      state.determinations = body
+    }
+  )
 
-  TypeMaterial
-    .where({
-      collection_object_id: coId,
-      extend: ['roles', 'origin_citation']
-    })
-    .then(({ body }) => { state.typeMaterials = body })
+  TypeMaterial.where({
+    collection_object_id: coId,
+    extend: ['roles', 'origin_citation']
+  }).then(({ body }) => {
+    state.typeMaterials = body
+  })
 
   CollectingEvent.where({ collection_object_id: [coId] }).then(({ body }) => {
     const ce = body[0]
@@ -87,9 +80,11 @@ export default ({ state, dispatch }, coId) => {
       })
 
       if (ce.geographic_area_id) {
-        GeographicArea.find(ce.geographic_area_id, { embed: ['shape'] }).then(({ body }) => {
-          state.geographicArea = body
-        })
+        GeographicArea.find(ce.geographic_area_id, { embed: ['shape'] }).then(
+          ({ body }) => {
+            state.geographicArea = body
+          }
+        )
       }
 
       dispatch(ActionNames.LoadSoftValidation, ce.global_id)

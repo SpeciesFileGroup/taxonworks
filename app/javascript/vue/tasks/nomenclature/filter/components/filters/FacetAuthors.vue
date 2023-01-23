@@ -13,9 +13,9 @@
     />
     <label>
       <input
-        v-model="params.taxon_name_author_ids_or"
+        v-model="params.taxon_name_author_id_or"
         type="checkbox"
-      >
+      />
       Any
     </label>
 
@@ -32,12 +32,12 @@
         class="full_width"
         v-model="params.author_exact"
         type="text"
-      >
+      />
       <label>
         <input
           v-model="params.author_exact"
           type="checkbox"
-        >
+        />
         Exact
       </label>
     </div>
@@ -63,13 +63,13 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const authors = ref([])
 
 watch(
-  () => props.modelValue?.taxon_name_author_ids,
+  () => props.modelValue?.taxon_name_author_id,
   (newVal, oldVal) => {
     if (!newVal?.length && oldVal?.length) {
       authors.value = []
@@ -81,33 +81,33 @@ watch(
 watch(
   authors,
   () => {
-    params.value.taxon_name_author_ids = authors.value.map(author => author.id)
+    params.value.taxon_name_author_id = authors.value.map((author) => author.id)
   },
   { deep: true }
 )
 
 onBeforeMount(() => {
   const urlParams = URLParamsToJSON(location.href)
-  const authorIds = urlParams.taxon_name_author_ids || []
+  const authorIds = urlParams.taxon_name_author_id || []
 
-  params.value.taxon_name_author_ids_or = urlParams.taxon_name_author_ids_or
+  params.value.taxon_name_author_id_or = urlParams.taxon_name_author_id_or
   params.value.author = urlParams.author
   params.value.author_exact = urlParams.author_exact
 
-  authorIds.forEach(id => {
-    People.find(id).then(response => {
+  authorIds.forEach((id) => {
+    People.find(id).then((response) => {
       addAuthor(response.body)
     })
   })
 })
 
-const addAuthor = author => {
-  if (!params.value.taxon_name_author_ids?.includes(author.id)) {
+const addAuthor = (author) => {
+  if (!params.value.taxon_name_author_id?.includes(author.id)) {
     authors.value.push(author)
   }
 }
 
-const removeAuthor = index => {
+const removeAuthor = (index) => {
   authors.value.splice(index, 1)
 }
 </script>

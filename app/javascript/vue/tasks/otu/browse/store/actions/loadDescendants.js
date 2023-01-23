@@ -1,25 +1,34 @@
 import { MutationNames } from '../mutations/mutations'
 import { chunkArray } from 'helpers/arrays.js'
-import {
-  Georeference,
-  TaxonName,
-  CollectingEvent
-} from 'routes/endpoints'
+import { Georeference, TaxonName, CollectingEvent } from 'routes/endpoints'
 
 const MAX_PER_CALL = 50
 
-function getAllCollectingEvents (taxonNames) {
+function getAllCollectingEvents(taxonNames) {
   return new Promise((resolve, reject) => {
-    const chunks = chunkArray(Array.from(new Set(taxonNames.map(tn => tn.otus.map(otu => otu.id)).filter(id => id.length))), MAX_PER_CALL)
+    const chunks = chunkArray(
+      Array.from(
+        new Set(
+          taxonNames
+            .map((tn) => tn.otus.map((otu) => otu.id))
+            .filter((id) => id.length)
+        )
+      ),
+      MAX_PER_CALL
+    )
     const collectingEvents = []
     const promises = []
 
     if (chunks.length) {
-      chunks.forEach(ids => {
+      chunks.forEach((ids) => {
         if (ids.length) {
-          promises.push(CollectingEvent.where({ otu_id: [].concat(...ids) }).then(response => {
-            collectingEvents.push(response.body)
-          }))
+          promises.push(
+            CollectingEvent.where({ otu_id: [].concat(...ids) }).then(
+              (response) => {
+                collectingEvents.push(response.body)
+              }
+            )
+          )
         }
       })
     }
@@ -27,7 +36,7 @@ function getAllCollectingEvents (taxonNames) {
       const seen = new Set()
       const allCEs = [].concat(...collectingEvents)
 
-      const uniqueCEs = allCEs.filter(el => {
+      const uniqueCEs = allCEs.filter((el) => {
         const duplicate = seen.has(el.id)
         seen.add(el.id)
         return !duplicate
@@ -44,10 +53,12 @@ function getAllGeoreferences(CEIds) {
     const promises = []
 
     if (chunks.length) {
-      chunks.forEach(ids => {
-        promises.push(Georeference.where({ collecting_event_ids: ids }).then(response => {
-          georeferences.push(response.body)
-        }))
+      chunks.forEach((ids) => {
+        promises.push(
+          Georeference.where({ collecting_event_id: ids }).then((response) => {
+            georeferences.push(response.body)
+          })
+        )
       })
     }
 
@@ -70,18 +81,26 @@ export default ({ commit, state }, otu) => {
     georeferences: []
   }
 
-  TaxonName.where(params).then(response => {
-    descendants.taxon_names = response.body.filter(tn => tn.id !== otu.taxon_name_id)
+  TaxonName.where(params)
+    .then((response) => {
+      descendants.taxon_names = response.body.filter(
+        (tn) => tn.id !== otu.taxon_name_id
+      )
 
-    getAllCollectingEvents(descendants.taxon_names).then(collectingEvents => {
-      descendants.collecting_events = collectingEvents
-      getAllGeoreferences(collectingEvents.map(ce => ce.id)).then(georeferences => {
-        state.loadState.descendantsDistribution = false
-        descendants.georeferences = georeferences
-        commit(MutationNames.SetDescendants, descendants)
-      })
+      getAllCollectingEvents(descendants.taxon_names).then(
+        (collectingEvents) => {
+          descendants.collecting_events = collectingEvents
+          getAllGeoreferences(collectingEvents.map((ce) => ce.id)).then(
+            (georeferences) => {
+              state.loadState.descendantsDistribution = false
+              descendants.georeferences = georeferences
+              commit(MutationNames.SetDescendants, descendants)
+            }
+          )
+        }
+      )
     })
-  }).finally(() => {
-    state.loadState.descendants = false
-  })
+    .finally(() => {
+      state.loadState.descendants = false
+    })
 }
