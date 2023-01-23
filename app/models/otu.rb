@@ -51,6 +51,8 @@ class Otu < ApplicationRecord
   GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes]
 
   belongs_to :taxon_name, inverse_of: :otus
+ 
+  # Why?  Could be combination too.
   belongs_to :protonym, -> { where(type: 'Protonym') }, foreign_key: :taxon_name_id
 
   has_many :asserted_distributions, inverse_of: :otu, dependent: :restrict_with_error

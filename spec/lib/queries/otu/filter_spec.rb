@@ -8,6 +8,44 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
   let(:o1) { Otu.create!(name: 'Abc 1') }
   let(:o2) { Otu.create!(name: 'Def 2') }
 
+  specify '#collection_objects' do
+    o2
+    c = FactoryBot.create(:valid_collection_object)
+    c.taxon_determinations << TaxonDetermination.new(otu: o1)
+    q.collection_objects = true
+    expect(q.all).to contain_exactly(o1)
+  end
+
+  specify '#depictions' do
+    o2
+    c = FactoryBot.create(:valid_depiction, depiction_object:  o1 ) 
+    q.depictions = true
+    expect(q.all).to contain_exactly(o1)
+  end
+  
+  specify '#contents' do
+    o2
+    c = FactoryBot.create(:valid_content, otu:  o1 ) 
+    q.contents = true
+    expect(q.all).to contain_exactly(o1)
+  end
+
+  specify '#biological_associations 1' do
+    o2
+    ba1 = FactoryBot.create(:valid_biological_association, biological_association_subject: o1, biological_association_object: Otu.create!(name: 'f') ) 
+   
+    q.biological_associations = true
+    expect(q.all).to contain_exactly(o1, ba1.biological_association_object)
+  end
+
+  specify '#biological_associations 2' do
+    o2
+    ba1 = FactoryBot.create(:valid_biological_association, biological_association_object: o1, biological_association_subject: Otu.create!(name: 'f') ) 
+   
+    q.biological_associations = false
+    expect(q.all).to contain_exactly(o2)
+  end
+
   context 'defined in Queries::Query' do 
     specify '#referenced_klass' do
       expect(q.referenced_klass).to eq(::Otu)

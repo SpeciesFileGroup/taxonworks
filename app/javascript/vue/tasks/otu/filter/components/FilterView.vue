@@ -48,13 +48,15 @@ import FacetTags from 'components/Filter/Facets/shared/FacetTags.vue'
 import FacetIdentifiers from 'components/Filter/Facets/shared/FacetIdentifiers.vue'
 
 const WITH_PARAM = [
-  'citations',
-  'origin_citation',
-  'biological_associations',
   'asserted_distributions',
-  'determinations',
+  'biological_associations',
+  'citations',
+  'collection_objects',
+  'contents,',
   'depictions',
+  'determinations',
   'observations',
+  'origin_citation',
   'taxon_name'
 ]
 

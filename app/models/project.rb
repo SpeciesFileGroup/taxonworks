@@ -127,6 +127,36 @@ class Project < ApplicationRecord
     false
   end
 
+  # @return [Hash]
+  #   for each model in manifest list its annotators
+  def annotators
+    known = ApplicationRecord.subclasses.select {|a| a.column_names.include?('project_id')}.map(&:name)
+
+    known.each do |k|
+      next if k.safe_constantize.table_name == 'test_classes' # TODO: a kludge to ignore stubbed classes in testing
+      if !MANIFEST.include?(k)
+        raise "#{k} has not been added to annotators method ."
+      end
+    end
+
+    h = {}
+
+    begin
+      MANIFEST.each do |o|
+        klass = o.safe_constantize
+        
+      end
+
+
+
+      true
+    rescue => e
+      raise e
+    end
+  end
+
+  
+
   # !! This is not production ready.
   # @return [Boolean]
   #   based on whether the project has successfully been deleted.  Can also raise on detected problems with configuration.
@@ -153,6 +183,9 @@ class Project < ApplicationRecord
       raise e
     end
   end
+
+  
+
 
   # TODO: boot load checks
   def root_taxon_name

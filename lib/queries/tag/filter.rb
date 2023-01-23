@@ -3,6 +3,15 @@ module Queries
 
     class Filter < Query::Filter
 
+      PARAMS = [
+        :keyword_id,
+        :tag_object_type,
+        :tag_object_id,
+        keyword_id: [],
+        tag_object_type: [],
+        tag_object_id: [],
+      ]
+
       include Concerns::Polymorphic
       polymorphic_klass(::Tag)
 
@@ -26,6 +35,7 @@ module Queries
         @object_global_id = params[:object_global_id]
 
         set_polymorphic_ids(params)
+        super
       end
 
       def tag_object_type
@@ -36,46 +46,31 @@ module Queries
         [@tag_object_id, global_object_id].flatten.compact
       end
 
-      # @return [ActiveRecord::Relation]
-      def and_clauses
-        clauses = [
-          #  ::Queries::Annotator.annotator_params(options, ::Tag),
-          matching_keyword_id,
-          matching_polymorphic_ids,
-          matching_tag_object_id,
-          matching_tag_object_type,
-        ].compact
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
-      end
-
       # @return [Arel::Node, nil]
-      def matching_keyword_id
+      def keyword_id_facet
         !keyword_id.empty? ? table[:keyword_id].eq_any(keyword_id)  : nil
       end
 
       # @return [Arel::Node, nil]
-      def matching_tag_object_id
+      def object_id_facet
         tag_object_id.empty? ? nil : table[:tag_object_id].eq_any(tag_object_id)
       end
 
       # @return [Arel::Node, nil]
-      def matching_tag_object_type
+      def tag_object_type_facet
         tag_object_type.empty? ? nil : table[:tag_object_type].eq_any(tag_object_type)
       end
 
-      # @return [ActiveRecord::Relation]
-      def all
-        if a = and_clauses
-          ::Tag.where(and_clauses).distinct
-        else
-          ::Tag.all
-        end
-      end
+      def and_clauses
+        [ 
+          #  ::Queries::Annotator.annotator_params(options, ::Tag),
+          keyword_id_facet,
+          matching_polymorphic_ids, # concern
+          object_id_facet,
+          tag_object_type_facet,
+        ]
+     end
+
 
     end
   end

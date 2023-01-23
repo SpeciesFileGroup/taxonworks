@@ -20,7 +20,6 @@ class OtusController < ApplicationController
           .where(project_id: sessions_current_project_id)
           .page(params[:page])
           .per(params[:per])
-          .includes(:taxon_name)
           .eager_load(:taxon_name)
           .order('taxon_names.cached, otus.name')
       }

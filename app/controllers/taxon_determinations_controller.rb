@@ -12,7 +12,8 @@ class TaxonDeterminationsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @taxon_determinations = Queries::TaxonDetermination::Filter.new(filter_params).all.with_project_id(sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
+        @taxon_determinations = Queries::TaxonDetermination::Filter.new(filter_params).all
+        .with_project_id(sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
       }
     end
   end
@@ -132,6 +133,8 @@ class TaxonDeterminationsController < ApplicationController
     end
 
     def filter_params
-      params.permit(:collection_object_id, :otu_id, otu_ids: [], determiner_ids: [], biological_collection_object_ids: [])
+      f = ::Queries::TaxonDetermination::Filter.permit(params)
+      f.merge(project_id: sessions_current_project_id)
     end
+
 end

@@ -126,6 +126,7 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #   @return [Boolean]
 #   Stores if the status of the name is valid based on both taxon_name_relationships and taxon_name_classifications.
 #
+# rubocop:disable Metrics/ClassLength
 class TaxonName < ApplicationRecord
 
   # @return class
@@ -1042,6 +1043,7 @@ class TaxonName < ApplicationRecord
     nil
   end
 
+
   # Returns an Array of ancestors
   #   same as self.ancestors, but also works
   #   for new records when parents specified
@@ -1061,7 +1063,13 @@ class TaxonName < ApplicationRecord
     if new_record?
       ancestors_through_parents
     else
-      self_and_ancestors.reload.to_a.reverse ## .self_and_ancestors returns empty array!!!!!!!
+      # self_and_ancestors.reload.to_a.reverse ## .self_and_ancestors returns empty array!!!!!!!
+
+      self_and_ancestors
+      .unscope(:order)
+      .order(generations: :DESC)
+      .reload # TODO Why needed? Should not be
+      .to_a
     end
   end
 
@@ -1110,7 +1118,10 @@ class TaxonName < ApplicationRecord
   def full_name_hash
     gender = nil
     data = {}
-    safe_self_and_ancestors.each do |i| # !! You can not use self.self_and_ancestors because (this) record is not saved off.
+
+    # !! TODO: create a persisted only version of this for speed
+    # !! You can not use self.self_and_ancestors because (this) record is not saved off.
+    safe_self_and_ancestors.each do |i| 
       rank = i.rank
       gender = i.gender_name if rank == 'genus'
 

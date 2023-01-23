@@ -14,8 +14,9 @@ class TagsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @tags = ::Queries::Tag::Filter.new(params).all.where(project_id: sessions_current_project_id).
-        page(params[:page]).per(params[:per] || 500)
+        @tags = ::Queries::Tag::Filter.new(filter_params).all
+        .page(params[:page])
+        .per(params[:per])
       }
     end
   end
@@ -145,6 +146,12 @@ class TagsController < ApplicationController
     @tag = Tag.with_project_id(sessions_current_project_id).find(params[:id])
   end
 
+  # TODO: polymorphics?!
+  def filter_params
+    f = ::Queries::Tag::Filter.permit(params)
+    f.merge(project_id: sessions_current_project_id)
+  end
+
   def api_params
     params.permit(
       :tag_object_id,
@@ -156,19 +163,21 @@ class TagsController < ApplicationController
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
-
   def tag_params
     params.require(:tag).permit(
-      :keyword_id, :tag_object_id, :tag_object_type, :tag_object_attribute, :annotated_global_entity, :_destroy,
-      :target, keyword_attributes: [:name, :definition, :uri, :uri_relation, :css_color]
+      :keyword_id, :tag_object_id, :tag_object_type,
+      :tag_object_attribute, :annotated_global_entity,
+      :_destroy, :target
+    ] 
+    #   keyword_attributes: [:name, :definition, :uri, :uri_relation, :css_color] # TODO: this almost certainly doesn't belon
     )
   end
 
   def taggable_object_params
     params.require(:taggable_object).permit(
-      tags_attributes: [:_destroy, :id, :keyword_id, :position,
-                        keyword_attributes: [:name, :definition, :uri, :html_color]
-
+      tags_attributes: [
+        :_destroy, :id, :keyword_id, :position,
+        keyword_attributes: [:name, :definition, :uri, :html_color]
     ])
   end
 

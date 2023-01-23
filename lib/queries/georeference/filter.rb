@@ -2,82 +2,30 @@ module Queries
   module Georeference
     class Filter < Query::Filter
 
-      # TODO: Unify
+      PARAMS = [
+        :collecting_event_id,
+        collecting_event_id: [],
+      ]
+
       attr_accessor :collecting_event_id
-      attr_accessor :collecting_event_ids
 
       # @param [Hash] params
       def initialize(params)
-        params.reject!{ |_k, v| v.nil? || (v == '') }
-
         @collecting_event_id = params[:collecting_event_id]
-        @collecting_event_ids = [params[:collecting_event_ids]].flatten
       end
 
-      def collecting_event_table
-        ::CollectingEvent.arel_table
-      end
-
-      def matching_collecting_event_ids
-        a = ids_for_collecting_events
-        a.empty? ? nil : table[:collecting_event_id].eq_any(a)
+      def collecting_event_id
+        [@collecting_event_id].flatten.compact.uniq
       end
 
       def matching_collecting_event_id
-        a = collecting_event_id
-        a.nil? ? nil : table[:collecting_event_id].eq(a)
+        return nil if collecting_event_id.empty?
+        table[:collecting_event_id].eq_any(collecting_event_id)
       end
 
-      # @return [Array]
-      #   of otu_id
-      def ids_for_collecting_events
-        ([collecting_event_id] + collecting_event_ids).compact.uniq
-      end
-
-      # @return [ActiveRecord::Relation, nil]
       def and_clauses
-        clauses = [
-          matching_collecting_event_id,
-          matching_collecting_event_ids,
-          # Queries::Annotator.annotator_params(options, ::Citation),
+       [ matching_collecting_event_id,
         ].compact
-
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
-      end
-
-      def merge_clauses
-        clauses = [
-          # matching_verbatim_author
-        ].compact
-
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.merge(b)
-        end
-        a
-      end
-
-      # @return [ActiveRecord::Relation]
-      def all
-        a = and_clauses
-        b = merge_clauses
-        if a && b
-          b.where(a).distinct
-        elsif a
-          ::Georeference.where(a).distinct
-        elsif b
-          b.distinct
-        else
-          ::Georeference.all
-        end
       end
 
     end

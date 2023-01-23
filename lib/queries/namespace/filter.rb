@@ -2,6 +2,14 @@ module Queries
   module Namespace
     class Filter < Query::Filter
 
+      PARAMS =  [
+        :institution,
+        :is_virtual,
+        :name,
+        :short_name,
+        :verbatim_name,
+      ].freeze
+
       # @param institution [String]
       #   wildcarded to match institution
       attr_accessor :institution
@@ -18,7 +26,11 @@ module Queries
       # @return [Array]
       attr_accessor :verbatim_short_name
 
+      # @return Boolean
+      attr_accessor :is_virtual
+
       def initialize(params)
+        @is_virtual = boolean_param(params, :is_virtual)
         @institution = params[:institution]
         @name = params[:name]
         @short_name = params[:short_name]
@@ -37,72 +49,42 @@ module Queries
         [@verbatim_short_name].flatten.compact
       end
 
-      def matching_name
+      def name_facet
         return nil if name.empty?
         table[:name].eq_any(name)
       end
 
-      def matching_short_name
+      def short_name_facet
         return nil if short_name.empty?
         table[:short_name].eq_any(short_name)
       end
 
-      def matching_verbatim_name
+      def verbatim_name_facet
         return nil if verbatim_short_name.empty?
         table[:verbatim_short_name].eq_any(verbatim_short_name)
       end
 
-      def matching_institution
+      def institution_facet
         return nil if institution.nil?
         table[:institution].matches('%' + insititution + '%')
+      end
+
+      def is_virtual_facet
+        return nil if is_virtual.nil?
+        table[:is_virtual].eq(is_virtual)
       end
 
       # @return [ActiveRecord::Relation, nil]
       def and_clauses
         clauses = [
-          matching_name,
-          matching_short_name,
-          matching_verbatim_name,
-
-          matching_institution,
-        ].compact
-
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
+          name_facet,
+          short_name_facet,
+          verbatim_name_facet,
+          institution_facet,
+          is_virtual_facet
+        ]
       end
-
-      def merge_clauses
-        clauses = [ ].compact
-
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.merge(b)
-        end
-        a
-      end
-
-      # @return [ActiveRecord::Relation]
-      def all
-        a = and_clauses
-        b = merge_clauses
-        if a && b
-          b.where(a).distinct
-        elsif a
-          ::Namespace.where(a).distinct
-        elsif b
-          b.distinct
-        else
-          ::Namespace.all
-        end
-      end
-
+    
     end
   end
 end

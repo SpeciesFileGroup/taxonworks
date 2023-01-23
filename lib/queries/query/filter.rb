@@ -257,9 +257,11 @@ module Queries
 
       h.merge! annotator_params(params)
 
-      SUBQUERIES[filter].each do |k|
-        q = (k.to_s + '_query').to_sym
-        h.merge! params.permit( q => {} )
+      if s = SUBQUERIES[filter] 
+        s.each do |k|
+          q = (k.to_s + '_query').to_sym
+          h.merge! params.permit( q => {} )
+        end
       end
 
       # Note, this throws an error:

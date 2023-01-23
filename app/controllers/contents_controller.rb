@@ -149,20 +149,8 @@ class ContentsController < ApplicationController
   end
 
   def filter_params
-    params.permit(
-      :otu_id,
-      :topic_id,
-      :text,
-      :exact,
-      :citations,
-      :depictions,
-      :user_date_end,
-      :user_date_start,
-      :user_id,
-      :user_target,
-      topic_id: [],
-      otu_id: []
-    ).to_h.merge(project_id: sessions_current_project_id)
+    f = ::Queries::Content::Filter.permit(params)
+    f.merge(project_id: sessions_current_project_id)
   end
 
   def set_content

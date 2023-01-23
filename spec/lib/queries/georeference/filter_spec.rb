@@ -19,8 +19,8 @@ describe Queries::Georeference::Filter, type: :model, group: [:geo, :collecting_
       expect(query.all.map(&:id)).to contain_exactly(g1.id, g2.id)
     end
 
-    specify '#collecting_event_ids 1' do
-      query.collecting_event_ids = [ ce1.id ]
+    specify '#collecting_event_id 1' do
+      query.collecting_event_id = [ ce1.id ]
       expect(query.all.map(&:id)).to contain_exactly(g1.id, g2.id)
     end
   end

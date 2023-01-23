@@ -2,6 +2,19 @@ module Queries
   module TaxonNameRelationship
     class Filter < Query::Filter
 
+      PARAMS = [
+        :object_taxon_name_id,
+        :subject_taxon_name_id,
+        :taxon_name_id,
+        :taxon_name_relationship_set,
+        :taxon_name_relationship_type,
+        object_taxon_name_id: [],
+        subject_taxon_name_id: [],
+        taxon_name_id: [],
+        taxon_name_relationship_set: [],
+        taxon_name_relationship_type: [],
+      ]
+
       # @param taxon_name_id [String, Array, nil]
       #   Match all relationships where either subject OR object is taxon_name_id(s)
       attr_accessor :taxon_name_id
@@ -108,43 +121,14 @@ module Queries
       end
 
       def and_clauses
-        clauses = []
-
-        clauses += [
+        [
           taxon_name_relationship_type_facet,
           taxon_name_relationship_set_facet,
           taxon_name_id_facet,
           as_subject_facet,
           as_object_facet,
-        ].compact
-
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
+        ]
       end     
-
-      # @return [ActiveRecord::Relation]
-      def all
-        a = and_clauses
-        # b = merge_clauses
-
-        q = nil 
-        if a
-          q = ::TaxonNameRelationship.where(a)
-        else
-          q = ::TaxonNameRelationship.all
-        end
-
-        q = q.where(project_id: project_id) if project_id.present?
-        q
-      end
-
-      protected
-    end
 
   end
 end

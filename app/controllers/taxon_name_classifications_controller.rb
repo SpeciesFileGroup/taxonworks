@@ -18,7 +18,7 @@ class TaxonNameClassificationsController < ApplicationController
           .all
           .where(project_id: sessions_current_project_id)
           .page(params[:page])
-          .per(params[:per] || 500)
+          .per(params[:per])
       }
     end
   end
@@ -162,14 +162,8 @@ class TaxonNameClassificationsController < ApplicationController
   end
 
   def filter_params
-    params.permit(
-      :taxon_name_id,
-      :taxon_name_classification_type,
-      :taxon_name_classification_set,
-      taxon_name_id: [],
-      taxon_name_classification_type: [],
-      taxon_name_classification_set: []
-    )
+    f = ::Queries::TaxonNameClassification:Filter.permit(params)
+    f.merge(project_id: sessions_current_project_id)
   end
 
   def set_taxon_name_classification

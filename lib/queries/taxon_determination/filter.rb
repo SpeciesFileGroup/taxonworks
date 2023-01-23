@@ -2,70 +2,71 @@ module Queries
   module TaxonDetermination
     class Filter < Query::Filter
 
+      PARAMS = [
+        :collection_object_id,
+        :otu_id,
+        otu_id: [],
+        determiner_id: [],
+        collection_object_id: [],
+      ]
+
       # all Arrays
-      attr_accessor :biological_collection_object_ids, :otu_ids, :determiner_ids
+      attr_accessor :collection_object_id
+      attr_accessor :otu_id
+      attr_accessor :determiner_id
 
       def initialize(params = {})
-        @otu_ids = params[:otu_ids] || []
-        @biological_collection_object_ids = params[:biological_collection_object_ids]
-
-        if !params[:collection_object_id].blank?
-          @biological_collection_object_ids ||= []
-          @biological_collection_object_ids.push(params[:collection_object_id])
-        end
-
-        @determiner_ids = params[:determiner_ids]
-
-        @otu_ids.push(params[:otu_id]) unless params[:otu_id].blank?
-        @biological_collection_object_ids ||= []
-        @determiner_ids ||= []
+        @otu_id = params[:otu_id]
+        @collection_object_id = params[:collection_object_id]
+        @determiner_id = params[:determiner_id]
+        super
       end
 
-      # @return [ActiveRecord::Relation]
-      def and_clauses
-        clauses = [
-          matching_otu_ids,
-          matching_biological_collection_object_ids,
-        ].compact
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-
-        a
+      def otu_id
+        [@otu_id].flatten.compact.uniq
       end
 
-      def matching_otu_ids
-        otu_ids.empty? ? nil : table[:otu_id].eq_any(otu_ids)
+      def collection_object_id
+        [@collection_object_id].flatten.compact.uniq
       end
 
-      def matching_biological_collection_object_ids
-        biological_collection_object_ids.empty? ? nil : table[:biological_collection_object_id].eq_any(biological_collection_object_ids)
+      def determiner_id
+        [@determiner_id].flatten.compact.uniq
+      end
+      
+      def otu_id_facet
+        return nil if otu_id.empty?
+        table[:otu_id].eq_any(otu_id)
       end
 
-      def matching_determiner_ids
-        determiner_ids.empty? ? nil : roles_table[:person_id].eq_any(determiner_ids)
+      def collection_object_id_facet
+        return nil if collection_object_id.empty?
+         table[:biological_collection_object_id].eq_any(collection_object_id)
       end
 
-      # @return [String]
-      def where_sql
-        return ::TaxonDetermination.none if and_clauses.nil?
-        and_clauses.to_sql
-      end
-
-      # TODO: Ugh, handle join more cleanly
-      def all
-        if determiner_ids.empty?
-          base_query.where(where_sql).distinct
-        else
-          base_query.joins(:roles).where(where_sql).where( roles_table[:person_id].eq_any(determiner_ids).to_sql )
-        end
+      def determiner_id_facet
+        return nil if determiner_id.empty?
+        ::TaxonDetermination.joins(:determiner_roles).where(
+          roles: {person_id: determiner_id}
+        )
       end
 
       # @return [Arel::Table]
       def roles_table
         ::Role.arel_table
+      end
+
+      def merge_clauses
+        [
+          determiner_id_facet
+        ]
+      end
+
+      def and_clauses
+        [
+          otu_id_facet,
+          collection_object_id_facet,
+        ]
       end
 
     end

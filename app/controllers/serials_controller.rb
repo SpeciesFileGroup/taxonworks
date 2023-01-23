@@ -15,7 +15,9 @@ class SerialsController < ApplicationController
       end
       format.json {
         #@serials = Serial.order(updated_at: :desc).limit(10)
-        @serials = Queries::Serial::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
+        @serials = Queries::Serial::Filter.new(filter_params).all
+        .page(params[:page])
+        .per(params[:per])
       }
     end
   end
@@ -118,16 +120,7 @@ class SerialsController < ApplicationController
   private
 
   def filter_params
-    params.permit(
-      :name, :id,
-      data_attributes_attributes: [
-        :id,
-        :_destroy,
-        :controlled_vocabulary_term_id,
-        :type,
-        :attribute_subject_id,
-        :attribute_subject_type,
-        :value ])
+    f = ::Queries::Serial::Filter.permit(params)
   end
 
   def set_serial

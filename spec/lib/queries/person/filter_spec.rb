@@ -240,8 +240,8 @@ describe Queries::Person::Filter, type: :model, group: :people do
     expect(query.all.pluck(:id)).to contain_exactly(p2.id)
   end
 
-  specify '#project_id 1' do
-    query.project_id = [collecting_event.project_id] # Create the collector and reference project in one place
+  specify '#only_project_id 1' do
+    query.only_project_id = [collecting_event.project_id] # Create the collector and reference project in one place
     expect(query.all.map(&:id)).to contain_exactly(p2.id)
   end
 
@@ -250,7 +250,7 @@ describe Queries::Person::Filter, type: :model, group: :people do
     s.authors << p3
     c = ProjectSource.create!(source: s, project_id: Current.project_id)
 
-    query.project_id = [collecting_event.project_id] # Create the collector and reference project in one place
+    query.only_project_id = [collecting_event.project_id] # Create the collector and reference project in one place
 
     expect(query.all.map(&:id)).to contain_exactly(p2.id, p3.id)
   end

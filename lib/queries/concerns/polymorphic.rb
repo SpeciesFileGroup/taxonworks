@@ -2,6 +2,16 @@
 module Queries::Concerns::Polymorphic
   extend ActiveSupport::Concern
 
+  def self.permit(params)
+    params.permit(
+      :keyword_id_and,
+      :keyword_id_or,
+      :tags,
+      keyword_id_and: [],
+      keyword_id_or: []
+    )
+  end
+
   included do
     attr_accessor :polymorphic_ids
 

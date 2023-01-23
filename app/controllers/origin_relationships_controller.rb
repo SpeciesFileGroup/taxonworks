@@ -92,8 +92,8 @@ class OriginRelationshipsController < ApplicationController
     @origin_relationships = origin_relationship.where(project_id: sessions_current_project_id).where('origin_relationship ILIKE ?', "#{params[:term]}%")
 
     data = @origin_relationships.collect do |t|
-      {id:              t.id,
-       label:           t.origin_relationship,
+      {id: t.id,
+       label: t.origin_relationship,
        gid:             t.to_global_id.to_s,
        response_values: {
          params[:method] => t.id

@@ -28,7 +28,7 @@ module Queries
 
       # @return [Scope]
       def all
-        ::Document.where(where_sql).limit(200).order(:id)
+        ::Document.where(where_sql).limit(50).order(:id)
       end
 
     end

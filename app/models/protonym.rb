@@ -965,10 +965,11 @@ class Protonym < TaxonName
     end
   end
 
-  # This is a *very* expensive soft validation, it should be fragemented into individual parts likely
+  # This is a *very* expensive soft validation, it should be fragemented into individual parts likely.
   # It should also not be necessary by default our code should be good enough to handle these
   # issues in the long run.
   # DD: rules for cached tend to evolve, what was good in the past, may not be true today
+  # MJY: If the meaning of cached changes then it should be removed, not changed.
   def sv_cached_names # this cannot be moved to soft_validation_extensions
   is_cached = true
   is_cached = false if cached_author_year != get_author_and_year

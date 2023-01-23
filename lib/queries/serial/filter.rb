@@ -1,44 +1,36 @@
 module Queries
   module Serial
 
-    # !! does not inherit from base query
     class Filter << Query::Filter
 
-      # Params specific to Note
+      include Queries::Concerns::DataAttributes
+
+      PARAMS = [
+        :name
+      ]
+
+      # @param [String]
+      #   matching name exactlyjk 
       attr_accessor :name
 
       def initialize(params)
         @name = params[:name]
+        set_data_attribute_params(params)
+        super
       end
 
-      # @return [ActiveRecord::Relation]
+      def project_id_facet
+        nil
+      end
+
+      def name_facet
+        return nil if nil.blank?
+        table[:name].eq(name)
+      end
+      
       def and_clauses
-        clauses = [
-          matching_name,
-        ].compact
-
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
-      end
-
-      # @return [Arel::Node, nil]
-      def matching_name
-        name.blank? ? nil : table[:name].eq(name)
-      end
-
-      # @return [ActiveRecord::Relation]
-      def all
-        if a = and_clauses
-          ::Serial.where(and_clauses.to_sql)
-        else
-          ::Serial.all
-        end
-      end
+        [ name_facet ]
+     end
 
     end
   end

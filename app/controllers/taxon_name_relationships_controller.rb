@@ -14,7 +14,9 @@ class TaxonNameRelationshipsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @taxon_name_relationships = Queries::TaxonNameRelationship::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
+        @taxon_name_relationships = Queries::TaxonNameRelationship::Filter.new(filter_params).all
+        .page(params[:page])
+        .per(params[:per])
       }
     end
   end
@@ -142,6 +144,11 @@ class TaxonNameRelationshipsController < ApplicationController
     )
   end
 
+  def filter_params
+    f = ::Queries::TaxonNameRelationship:Filter.permit(params)
+    f.merge(project_id: sessions_current_project_id)
+  end
+
   def api_params
     params.permit(
       :object_taxon_name_id,
@@ -154,21 +161,6 @@ class TaxonNameRelationshipsController < ApplicationController
       taxon_name_id: [],
       taxon_name_relationship_set: [],
       taxon_name_relationship_type: []
-    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
-  end
-
-  def filter_params
-    params.permit(
-      :object_taxon_name_id,
-      :subject_taxon_name_id,
-      :taxon_name_id,
-      :taxon_name_relationship_set,
-      :taxon_name_relationship_type,
-      object_taxon_name_id: [],
-      subject_taxon_name_id: [],
-      taxon_name_id: [],
-      taxon_name_relationship_set: [],
-      taxon_name_relationship_type: [],
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 

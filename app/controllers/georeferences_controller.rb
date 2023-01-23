@@ -141,10 +141,8 @@ class GeoreferencesController < ApplicationController
   private
 
   def filter_params
-    params.permit(
-      :collecting_event_id,
-      collecting_event_ids: [],
-    )
+    f = ::Queries::Georeference::Filter.permit(params)
+    f.merge(project_id: sessions_current_project_id)
   end
 
   def set_georeference

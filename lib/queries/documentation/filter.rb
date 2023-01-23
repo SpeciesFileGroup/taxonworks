@@ -3,6 +3,11 @@ module Queries
 
     class Filter < Query::Filter
 
+      PARAMS = [
+        :options,
+        :source_id,
+      ]
+
       # General annotator options handling
       # happens directly on the params as passed
       # through to the controller, keep them
@@ -21,24 +26,7 @@ module Queries
 
       # @return [ActiveRecord::Relation]
       def and_clauses
-        clauses = [
-          ::Queries::Annotator.annotator_params(options, ::Documentation),
-        ].compact
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
-      end
-
-      # @return [ActiveRecord::Relation]
-      def all
-        if a = and_clauses
-          ::Documentation.where(and_clauses)
-        else
-          ::Documentation.all
-        end
+        [ ::Queries::Annotator.annotator_params(options, ::Documentation) ]
       end
 
     end

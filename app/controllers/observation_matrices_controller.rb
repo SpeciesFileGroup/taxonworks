@@ -16,7 +16,10 @@ class ObservationMatricesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @observation_matrices = ObservationMatrix.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per])
+        @observation_matrices = ::Queries::ObservationMatrix::Filter.new(filter_params).all
+          .where(project_id: sessions_current_project_id)
+          .page(params[:page])
+          .per(params[:per])
       }
     end
   end
@@ -226,6 +229,13 @@ class ObservationMatricesController < ApplicationController
   end
 
   private
+
+  def filter_params
+    f = ::Queries::ObservationMatrix::Filter.permit(params)
+    f.merge(project_id: sessions_current_project_id)
+  end
+
+
 
   def api_params
     params.permit(
