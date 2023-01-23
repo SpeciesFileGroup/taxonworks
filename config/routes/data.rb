@@ -193,6 +193,7 @@ end
 resources :contents do
   concerns [:data_routes]
   collection do
+    match :filter, to: 'contents#index', via: [:get, :post]
     get :select_options, defaults: {format: :json}
   end
 end

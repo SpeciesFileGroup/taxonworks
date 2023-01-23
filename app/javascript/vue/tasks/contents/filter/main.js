@@ -8,7 +8,7 @@ function initApp(element) {
 }
 
 document.addEventListener('turbolinks:load', () => {
-  const el = document.querySelector('#vue-filter-observations-task')
+  const el = document.querySelector('#vue-filter-contents-task')
 
   if (el) {
     initApp(el)

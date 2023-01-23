@@ -800,3 +800,12 @@ filter_observations_task:
     - matrix
   status: prototype
   description: 'TODO: Task description'
+filter_contents_task:
+  hub: true
+  name: 'Filter contents'
+  related:
+  categories:
+    - source
+    - filters
+  status: prototype
+  description: 'TODO: Task description'

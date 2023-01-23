@@ -116,6 +116,9 @@ scope :tasks do
   end
 
   scope :content do
+    scope :filter, controller: 'tasks/contents/filter' do
+      get '/', action: :index, as: 'filter_contents_task'
+    end
     scope :publisher, controller: 'tasks/content/publisher' do
       get 'summary', as: :publisher_summary,  defaults: {format: :json}
       get 'topic_table', as: :publisher_topic_table, defaults: {format: :json}
