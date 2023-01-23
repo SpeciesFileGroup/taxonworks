@@ -2,6 +2,8 @@
   <FacetDescriptor v-model="params" />
   <FacetDescriptorType v-model="params" />
   <FacetObservationMatrix v-model="params" />
+  <FacetObservationType v-model="params" />
+  <FacetObservationObjectType v-model="params" />
   <FacetOtu
     v-model="params"
     :target="OBSERVATION"
@@ -39,6 +41,8 @@ import FacetDescriptor from 'components/Filter/Facets/shared/FacetDescriptor.vue
 import FacetCollectionObject from 'components/Filter/Facets/CollectionObject/FacetCollectionObject.vue'
 import FacetTaxonName from 'components/Filter/Facets/TaxonName/FacetTaxonName.vue'
 import FacetOtu from 'components/Filter/Facets/Otu/FacetOtu.vue'
+import FacetObservationType from 'components/Filter/Facets/Observation/FacetObservationType.vue'
+import FacetObservationObjectType from 'components/Filter/Facets/Observation/FacetObservationObjectType.vue'
 
 const WITH_PARAMS = ['depictions', 'notes']
 
