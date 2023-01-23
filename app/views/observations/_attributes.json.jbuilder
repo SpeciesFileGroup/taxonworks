@@ -9,6 +9,12 @@ json.time_made observation.time_made&.to_formatted_s(:hour_minutes_seconds)
 
 json.partial! '/shared/data/all/metadata', object: observation
 
+if extend_response_with('observation_object')
+  json.observation_object do
+    json.object_tag object_tag(observation.observation_object) 
+  end
+end
+
 if extend_response_with('depictions')
   if observation.depictions.any?
     json.depictions do

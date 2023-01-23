@@ -23,7 +23,7 @@ module Shared::BiologicalAssociations
     BiologicalAssociation.find_by_sql(
       "SELECT biological_associations.*
         FROM biological_associations
-        WHERE biological_associations.biological_association_subject_id = #{id} 
+        WHERE biological_associations.biological_association_subject_id = #{id}
           AND biological_associations.biological_association_subject_type = '#{self.class.base_class.name}'
       UNION
       SELECT biological_associations.*
@@ -41,15 +41,15 @@ module Shared::BiologicalAssociations
   module ClassMethods
 
     # @param relationship [Array, String]
-    def with_biological_relationship_ids(biological_relationship_ids) 
+    def with_biological_relationship_id(biological_relationship_ids)
       a = joins(:biological_associations).where(biological_associations: {biological_relationship_id: biological_relationship_ids})
       b = joins(:related_biological_associations).where(biological_associations: {biological_relationship_id: biological_relationship_ids})
-      
+
       from("((#{a.to_sql}) UNION (#{b.to_sql})) as #{base_class.table_name}")
     end
-  
+
     # @param biological_relationship_ids [Array]
-    # def self.with_biological_relationship_ids(biological_relationship_ids)
+    # def self.with_biological_relationship_id(biological_relationship_ids)
     #   a = TaxonName.joins(:taxon_name_relationships).where(taxon_name_relationships: {type: relationship})
     #   b = TaxonName.joins(:related_taxon_name_relationships).where(taxon_name_relationships: {type: relationship})
     #   TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
