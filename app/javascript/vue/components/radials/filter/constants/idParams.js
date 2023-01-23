@@ -10,7 +10,8 @@ import {
   OTU,
   PEOPLE,
   SOURCE,
-  TAXON_NAME
+  TAXON_NAME,
+  OBSERVATION
 } from 'constants/index.js'
 
 export const ID_PARAM_FOR = {
@@ -25,5 +26,6 @@ export const ID_PARAM_FOR = {
   [DESCRIPTOR]: 'descriptor_id',
   [IMAGE]: 'image_id',
   [TAXON_NAME]: 'taxon_name_id',
-  [LOAN]: 'loan_id'
+  [LOAN]: 'loan_id',
+  [OBSERVATION]: 'observation_id'
 }
