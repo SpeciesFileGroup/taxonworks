@@ -4,31 +4,35 @@
       v-if="isLoading"
       :full-screen="true"
       legend="Loading..."
-      :logo-size="{ width: '100px', height: '100px'}"/>
+      :logo-size="{ width: '100px', height: '100px' }"
+    />
     <h1>Author by first letter</h1>
     <alphabet-buttons
-      @keypress="key = $event; getAuthors()"
-      ref="alphabetButtons"/>
+      @keypress="handleKey"
+      ref="alphabetButtons"
+    />
     <pagination-component
       :pagination="pagination"
-      @nextPage="getAuthors"/>
+      @nextPage="getAuthors"
+    />
     <div class="horizontal-left-content align-start">
       <div class="separate-right">
         <author-list
           :list="authorsList"
           :pagination="pagination"
-          @selected="getSources"/>
+          @selected="getSources"
+        />
       </div>
       <div class="separate-left">
         <source-list
           v-show="sourcesList.length"
-          :list="sourcesList"/>
+          :list="sourcesList"
+        />
       </div>
     </div>
   </div>
 </template>
 <script>
-
 import AlphabetButtons from './components/alphabet_buttons'
 import AuthorList from './components/author_list'
 import SourceList from './components/source_list.vue'
@@ -46,7 +50,7 @@ export default {
     PaginationComponent
   },
 
-  data () {
+  data() {
     return {
       authorsList: [],
       sourcesList: [],
@@ -56,7 +60,7 @@ export default {
     }
   },
 
-  mounted () {
+  mounted() {
     const urlParams = new URLSearchParams(window.location.search)
     let letterParam = urlParams.get('letter')
 
@@ -79,7 +83,7 @@ export default {
         extend: ['roles']
       }
       this.isLoading = true
-      People.where({ ...Object.assign({}, args, params) }).then(response => {
+      People.where({ ...Object.assign({}, args, params) }).then((response) => {
         this.authorsList = response.body
         this.pagination = GetPagination(response)
         this.isLoading = false
@@ -88,14 +92,21 @@ export default {
 
     getSources(authorId) {
       this.isLoading = true
-      Source.where({ author_ids: [authorId] }).then(response => {
+      Source.where({ author_id: [authorId] }).then((response) => {
         this.sourcesList = response.body
         this.isLoading = false
         this.$nextTick(() => {
-          document.getElementById('source-table').scrollIntoView({ behavior: 'smooth' })
+          document
+            .getElementById('source-table')
+            .scrollIntoView({ behavior: 'smooth' })
         })
       })
     },
+
+    handleKey(e) {
+      this.key = e
+      this.getAuthors()
+    }
   }
 }
 </script>

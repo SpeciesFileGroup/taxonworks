@@ -1,7 +1,6 @@
 <template>
   <div>
-    <div
-      class="radial-annotator">
+    <div class="radial-annotator">
       <VModal
         v-if="isModalVisible"
         transparent
@@ -28,11 +27,14 @@
             </div>
             <div
               class="radial-annotator-template panel"
-              :style="{ 'max-height': windowHeight(), 'min-height': windowHeight() }"
+              :style="{
+                'max-height': windowHeight(),
+                'min-height': windowHeight()
+              }"
               v-if="currentAnnotator"
             >
               <h2 class="capitalize view-title">
-                {{ currentAnnotator.replaceAll("_"," ") }}
+                {{ currentAnnotator.replaceAll('_', ' ') }}
               </h2>
               <component
                 :is="ANNOTATORS[currentAnnotator]?.component"
@@ -58,7 +60,6 @@
 </template>
 
 <script setup>
-
 import RadialMenu from 'components/radials/RadialMenu.vue'
 import VModal from 'components/ui/Modal.vue'
 import VSpinner from 'components/spinner.vue'
@@ -89,16 +90,17 @@ const currentAnnotator = ref()
 const annotatorTypes = ref({})
 
 const menuOptions = computed(() => {
-  const annotators = annotatorTypes.value[props.objectType]?.filter(type => ANNOTATORS[type].component) || []
+  const annotators =
+    annotatorTypes.value[props.objectType]?.filter(
+      (type) => ANNOTATORS[type].component
+    ) || []
 
-  const slices = annotators.map(type => ({
+  const slices = annotators.map((type) => ({
     name: type,
     label: ANNOTATORS[type].label,
     innerPosition: 1.7,
     svgAttributes: {
-      class: currentAnnotator.value === type
-        ? 'slice active'
-        : 'slice'
+      class: currentAnnotator.value === type ? 'slice active' : 'slice'
     }
   }))
 
@@ -119,7 +121,7 @@ const menuOptions = computed(() => {
   }
 })
 
-function middleButton () {
+function middleButton() {
   return {
     name: MIDDLE_RADIAL_BUTTON,
     radius: 30,
@@ -137,13 +139,15 @@ function middleButton () {
   }
 }
 
-function getDefault () {
-  const defaultTag = document.querySelector('[data-pinboard-section="Keywords"] [data-insert="true"]')
+function getDefault() {
+  const defaultTag = document.querySelector(
+    '[data-pinboard-section="Keywords"] [data-insert="true"]'
+  )
 
   return defaultTag?.getAttribute('data-pinboard-object-id')
 }
 
-function selectComponent ({ name }) {
+function selectComponent({ name }) {
   if (name === MIDDLE_RADIAL_BUTTON) {
     if (getDefault()) {
       createTag()
@@ -153,20 +157,23 @@ function selectComponent ({ name }) {
   }
 }
 
-function closeModal () {
+function closeModal() {
   isModalVisible.value = false
   emit('close')
 }
 
-function windowHeight () {
-  return ((window.innerHeight - 100) > 650 ? 650 : window.innerHeight - 100) + 'px !important'
+function windowHeight() {
+  return (
+    (window.innerHeight - 100 > 650 ? 650 : window.innerHeight - 100) +
+    'px !important'
+  )
 }
 
-function createTag () {
+function createTag() {
   Tag.createBatch({
     object_type: props.objectType,
     keyword_id: this.getDefault(),
-    object_ids: props.ids
+    object_id: props.ids
   }).then(() => {
     TW.workbench.alert.create('Tag item(s) were successfully created', 'notice')
   })

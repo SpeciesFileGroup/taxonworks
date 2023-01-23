@@ -3,7 +3,9 @@
     <template #header>
       <div class="flex-separate middle full_width">
         <h3>Collecting event</h3>
-        <RadialFilterAttribute :parameters="{ collecting_event_ids: [collectingEvent.id] }" />
+        <RadialFilterAttribute
+          :parameters="{ collecting_event_id: [collectingEvent.id] }"
+        />
         <div class="horizontal-right-content">
           <RadialAnnotator :global-id="collectingEvent.global_id" />
           <RadialObject :global-id="collectingEvent.global_id" />
@@ -56,7 +58,7 @@ const textareaFields = [
   'verbatim_locality'
 ]
 
-function setRow (rowObject) {
+function setRow(rowObject) {
   if (!notEditableFields.includes(rowObject.field)) {
     row.value = rowObject
   }
@@ -65,6 +67,7 @@ function setRow (rowObject) {
 const row = ref(undefined)
 
 const store = useStore()
-const collectingEvent = computed(() => store.getters[GetterNames.GetCollectingEvent])
-
+const collectingEvent = computed(
+  () => store.getters[GetterNames.GetCollectingEvent]
+)
 </script>

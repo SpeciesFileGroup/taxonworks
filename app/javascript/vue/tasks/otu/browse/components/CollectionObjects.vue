@@ -2,17 +2,19 @@
   <section-panel
     :status="status"
     :name="title"
-    :title="`${title} (${collectionObjects.length})`">
+    :title="`${title} (${collectionObjects.length})`"
+  >
     <div
       v-if="collectionObjects.length"
-      class="separate-top">
-      <ul
-        class="no_bullets">
+      class="separate-top"
+    >
+      <ul class="no_bullets">
         <template v-for="(co, index) in collectionObjects">
           <li
             v-if="index < max || showAll"
-            :key="co.id">
-            <collection-object-row :specimen="co"/>
+            :key="co.id"
+          >
+            <collection-object-row :specimen="co" />
           </li>
         </template>
       </ul>
@@ -20,12 +22,14 @@
         <a
           v-if="!showAll"
           class="cursor-pointer"
-          @click="showAll = true">Show all
+          @click="showAll = true"
+          >Show all
         </a>
         <a
           v-else
           class="cursor-pointer"
-          @click="showAll = false">Show less
+          @click="showAll = false"
+          >Show less
         </a>
       </p>
     </div>
@@ -33,7 +37,6 @@
 </template>
 
 <script>
-
 import SectionPanel from './shared/sectionPanel'
 import CollectionObjectRow from './specimens/CollectionObjectRow'
 import extendSection from './shared/extendSections'
@@ -54,7 +57,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       collectionObjects: [],
       max: 5,
@@ -63,10 +66,15 @@ export default {
   },
   watch: {
     otu: {
-      handler (newVal) {
+      handler(newVal) {
         if (newVal) {
-          CollectionObject.dwcIndex({ otu_ids: [newVal.id], current_determinations: true }).then(response => {
-            this.collectionObjects = response.body.data.map((item, index) => this.createObject(response.body, index))
+          CollectionObject.dwcIndex({
+            otu_id: [newVal.id],
+            current_determinations: true
+          }).then((response) => {
+            this.collectionObjects = response.body.data.map((item, index) =>
+              this.createObject(response.body, index)
+            )
           })
         }
       },

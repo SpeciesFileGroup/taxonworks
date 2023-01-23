@@ -15,8 +15,8 @@ class TagsController < ApplicationController
       }
       format.json {
         @tags = ::Queries::Tag::Filter.new(filter_params).all
-        .page(params[:page])
-        .per(params[:per])
+          .page(params[:page])
+          .per(params[:per])
       }
     end
   end
@@ -172,7 +172,7 @@ class TagsController < ApplicationController
       :keyword_id, :tag_object_id, :tag_object_type,
       :tag_object_attribute, :annotated_global_entity,
       :_destroy, :target
-    #   keyword_attributes: [:name, :definition, :uri, :uri_relation, :css_color] # TODO: this almost certainly doesn't belon
+      #   keyword_attributes: [:name, :definition, :uri, :uri_relation, :css_color] # TODO: this almost certainly doesn't belon
     )
   end
 
@@ -181,7 +181,7 @@ class TagsController < ApplicationController
       tags_attributes: [
         :_destroy, :id, :keyword_id, :position,
         keyword_attributes: [:name, :definition, :uri, :html_color]
-    ])
+      ])
   end
 
   def taggable_object
