@@ -24,6 +24,7 @@
           >
             {{ item }}
           </th>
+          <th>Observation object</th>
         </tr>
       </thead>
       <tbody>
@@ -50,6 +51,9 @@
             :key="attr"
             v-text="item[attr]"
           />
+          <td>
+            <span v-html="item.observation_object.object_tag" />
+          </td>
         </tr>
       </tbody>
     </table>
