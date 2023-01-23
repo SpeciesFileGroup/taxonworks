@@ -7,7 +7,7 @@ module Queries
     # - syncronize with GIS/GEO
 
     # Changed:
-    # - collecting_event_ids -> collecting_event_id
+    # - numerous _ids -> id
     # - ancestor_id -> taxon_name_id
     #
     # Added:
@@ -27,7 +27,7 @@ module Queries
         :buffered_other_labels,
         :collecting_event,
         :collection_object_type,
-        :collector_ids_or,
+        :collector_id_or,
         :current_determinations,
         :current_repository,
         :current_repository_id,
@@ -69,16 +69,16 @@ module Queries
         :with_buffered_collecting_event,
         :with_buffered_determinations,
         :with_buffered_other_labels,
-        biocuration_class_ids: [],
-        biological_relationship_ids: [],
-        collecting_event_ids: [],
+        biocuration_class_id: [],
+        biological_relationship_id: [],
+        collecting_event_id: [],
         collecting_event_wildcards: [], # !! TODO, factor into CONSTANT
         collector_id: [], #
         determiner_id: [],
         geographic_area_id: [],
         is_type: [],
         loan_id: [],
-        otu_ids: [],
+        otu_id: [],
         preparation_type_id: [],
         taxon_name_id: [],
       ].flatten.sort{|a,b| a.is_a?(Hash) ? 1 : 0  <=> b.is_a?(Hash) ? 1 : 0}.uniq!.freeze
@@ -135,16 +135,16 @@ module Queries
       attr_accessor :never_loaned
 
       # @return [Array]
-      #   an array of loan_ids, all collection objects inside them will be included
+      #   a list of loan#id, all collection objects inside them will be included
       attr_accessor :loan_id
 
       # @return [Array]
       #   of biocuration_class ids
-      attr_accessor :biocuration_class_ids
+      attr_accessor :biocuration_class_id
 
       # @return [Array]
-      #   of biological_relationship_ids
-      attr_accessor :biological_relationship_ids
+      #   of biological_relationship#id
+      attr_accessor :biological_relationship_id
 
       # @return [True, False, nil]
       #   true - index is built
@@ -262,7 +262,7 @@ module Queries
 
       # See Queries::CollectingEvent::Filter
       attr_accessor :collector_id
-      attr_accessor :collector_ids_or
+      attr_accessor :collector_id_or
 
       # @return [True, False, nil]
       #   true - has collecting event that has  geographic_area
@@ -299,8 +299,10 @@ module Queries
           params.select{|a,b| collecting_event_params.include?(a) }
         )
 
-        @biocuration_class_ids = params[:biocuration_class_ids] || []
-        @biological_relationship_ids = params[:biological_relationship_ids] || []
+        @biocuration_class_id = params[:biocuration_class_id] # TODO: no reference?
+
+        @biological_relationship_id = params[:biological_relationship_id] # TODO: no reference?
+
         @buffered_collecting_event = params[:buffered_collecting_event]
         @buffered_determinations = params[:buffered_determinations]
         @buffered_other_labels = params[:buffered_other_labels]
@@ -377,6 +379,14 @@ module Queries
 
       def otu_id
         [@otu_id].flatten.compact
+      end
+
+      def biocuration_class_id
+        [@biocuration_class_id].flatten.compact
+      end
+
+      def biological_relationship_id
+        [@biological_relationship_id].flatten.compact
       end
 
       def collecting_event_id
@@ -555,8 +565,9 @@ module Queries
       end
 
       def biocuration_facet
-        return nil if biocuration_class_ids.empty?
-        ::CollectionObject::BiologicalCollectionObject.joins(:biocuration_classifications).where(biocuration_classifications: {biocuration_class_id: biocuration_class_ids})
+        return nil if biocuration_class_id.empty?
+        ::CollectionObject::BiologicalCollectionObject.joins(:biocuration_classifications)
+          .where(biocuration_classifications: {biocuration_class_id: biocuration_class_id})
       end
 
       def loan_facet
@@ -586,9 +597,9 @@ module Queries
         ::CollectionObject::BiologicalCollectionObject.joins(:depictions).where("depictions.sled_image_id = ?", sled_image_id)
       end
 
-      def biological_relationship_ids_facet
-        return nil if biological_relationship_ids.empty?
-        ::CollectionObject.with_biological_relationship_ids(biological_relationship_ids)
+      def biological_relationship_is_facet
+        return nil if biological_relationship_id.empty?
+        ::CollectionObject.with_biological_relationship_id(biological_relationship_id)
       end
 
       def loaned_facet
@@ -632,59 +643,6 @@ module Queries
       def current_repository_id_facet
         return nil if current_repository_id.blank?
         table[:current_repository_id].eq(current_repository_id)
-      end
-
-      def and_clauses
-        [
-          attribute_exact_facet(:buffered_collecting_event),
-          attribute_exact_facet(:buffered_determinations),
-          attribute_exact_facet(:buffered_other_labels),
-          collecting_event_id_facet,
-          collection_object_id_facet,
-          current_repository_id_facet,
-          object_global_id_facet,
-          preparation_type_id_facet,
-          repository_id_facet,
-          type_facet,
-        ]
-      end
-
-      def merge_clauses
-        [
-          source_query_facet,
-          collecting_event_query_facet,
-          taxon_name_query_facet,
-          otu_query_facet,
-
-          base_collecting_event_query_facet,
-
-          biocuration_facet,
-          biological_relationship_ids_facet,
-          collecting_event_facet,
-          current_repository_facet,
-          depictions_facet,
-          determiner_facet,
-          determiner_name_regex_facet,
-          dwc_indexed_facet,
-          geographic_area_facet,
-          georeferences_facet,
-          loan_facet,
-          loaned_facet,
-          never_loaned_facet,
-          on_loan_facet,
-          otus_facet,
-          preparation_type_facet,
-          repository_facet,
-          sled_image_facet,
-          taxon_determinations_facet,
-          taxon_name_id_facet,
-          type_by_taxon_name_facet,
-          type_material_facet,
-          type_material_type_facet,
-          with_buffered_collecting_event_facet,
-          with_buffered_determinations_facet,
-          with_buffered_other_labels_facet,
-        ]
       end
 
       def type_by_taxon_name_facet
@@ -838,6 +796,59 @@ module Queries
 
         ::CollectionObject.from('(' + s + ') as collection_objects')
       end
+
+      def and_clauses
+        [
+          attribute_exact_facet(:buffered_collecting_event),
+          attribute_exact_facet(:buffered_determinations),
+          attribute_exact_facet(:buffered_other_labels),
+          collecting_event_id_facet,
+          collection_object_id_facet,
+          current_repository_id_facet,
+          object_global_id_facet,
+          preparation_type_id_facet,
+          repository_id_facet,
+          type_facet,
+        ]
       end
+
+      def merge_clauses
+        [
+          source_query_facet,
+          collecting_event_query_facet,
+          taxon_name_query_facet,
+          otu_query_facet,
+          base_collecting_event_query_facet,
+
+          biocuration_facet,
+          biological_relationship_id_facet,
+          collecting_event_facet,
+          current_repository_facet,
+          depictions_facet,
+          determiner_facet,
+          determiner_name_regex_facet,
+          dwc_indexed_facet,
+          geographic_area_facet,
+          georeferences_facet,
+          loan_facet,
+          loaned_facet,
+          never_loaned_facet,
+          on_loan_facet,
+          otus_facet,
+          preparation_type_facet,
+          repository_facet,
+          sled_image_facet,
+          taxon_determinations_facet,
+          taxon_name_id_facet,
+          type_by_taxon_name_facet,
+          type_material_facet,
+          type_material_type_facet,
+          with_buffered_collecting_event_facet,
+          with_buffered_determinations_facet,
+          with_buffered_other_labels_facet,
+        ]
       end
-      end
+
+    end
+  end
+end
