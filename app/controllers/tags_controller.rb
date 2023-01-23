@@ -168,7 +168,6 @@ class TagsController < ApplicationController
       :keyword_id, :tag_object_id, :tag_object_type,
       :tag_object_attribute, :annotated_global_entity,
       :_destroy, :target
-    ] 
     #   keyword_attributes: [:name, :definition, :uri, :uri_relation, :css_color] # TODO: this almost certainly doesn't belon
     )
   end
