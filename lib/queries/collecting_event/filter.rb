@@ -394,7 +394,7 @@ module Queries
           geographic_area_id_facet,
           georeferences_facet,
           matching_collection_object_id,
-          otu_id_facet
+          otu_id_facet,
           wkt_facet,
         ]
       end

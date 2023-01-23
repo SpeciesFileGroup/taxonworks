@@ -70,10 +70,10 @@ class Tag < ApplicationRecord
     :tag_object_attribute
   end
 
-  def self.batch_create(keyword_id: nil, object_type: nil, user_id: nil, project_id: nil, object_ids: [])
+  def self.batch_create(keyword_id: nil, object_type: nil, user_id: nil, project_id: nil, object_id: [])
     begin
       Tag.transaction do 
-        object_ids.each do |id|
+        object_id.each do |id|
           Tag.find_or_create_by(keyword_id: keyword_id, tag_object_type: object_type, tag_object_id: id)
         end
       end
