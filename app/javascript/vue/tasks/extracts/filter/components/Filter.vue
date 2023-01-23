@@ -1,7 +1,10 @@
 <template>
   <FacetExtractOrigin v-model="params" />
   <FacetCollectionObject v-model="params" />
-  <FacetTaxonNameAncestor v-model="params" />
+  <FacetTaxonName
+    v-model="params"
+    coverage
+  />
   <FacetOtu
     v-model="params"
     target="Extract"
@@ -32,14 +35,13 @@
 </template>
 
 <script setup>
-
 import { computed } from 'vue'
 import FacetUsers from 'components/Filter/Facets/shared/FacetUsers.vue'
 import FacetIdentifiers from 'components/Filter/Facets/shared/FacetIdentifiers.vue'
 import FacetRepository from 'components/Filter/Facets/CollectionObject/FacetRepository.vue'
 import FacetProtocol from 'components/Filter/Facets/Extract/FacetProtocol.vue'
 import FacetOtu from 'components/Filter/Facets/Otu/FacetOtu.vue'
-import FacetTaxonNameAncestor from 'components/Filter/Facets/TaxonName/FacetTaxonNameAncestor.vue'
+import FacetTaxonName from 'components/Filter/Facets/TaxonName/FacetTaxonName.vue'
 import FacetDateRange from 'components/Filter/Facets/Extract/FacetDateRange.vue'
 import FacetCollectionObject from 'components/Filter/Facets/CollectionObject/FacetCollectionObject.vue'
 import FacetExtractOrigin from 'components/Filter/Facets/Extract/FacetExtractOrigin.vue'
@@ -48,10 +50,7 @@ import FacetMatchIdentifiers from 'components/Filter/Facets/shared/FacetMatchIde
 import FacetTags from 'components/Filter/Facets/shared/FacetTags.vue'
 import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
 
-const WITH_PARAMS = [
-  'citations',
-  'origin_citation'
-]
+const WITH_PARAMS = ['citations', 'origin_citation']
 
 const props = defineProps({
   modelValue: {
@@ -64,7 +63,6 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
-
 </script>

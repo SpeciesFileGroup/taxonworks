@@ -9,7 +9,9 @@ import {
   OTU,
   PEOPLE,
   SOURCE,
-  TAXON_NAME
+  TAXON_NAME,
+  OBSERVATION,
+  CONTENT
 } from 'constants/index.js'
 
 export const QUERY_PARAM = {
@@ -23,5 +25,7 @@ export const QUERY_PARAM = {
   [OTU]: 'otu_query',
   [SOURCE]: 'source_query',
   [TAXON_NAME]: 'taxon_name_query',
-  [PEOPLE]: 'people_query'
+  [PEOPLE]: 'people_query',
+  [CONTENT]: 'content_query',
+  [OBSERVATION]: 'observation_query'
 }

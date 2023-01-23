@@ -1,15 +1,17 @@
 import {
-  COLLECTION_OBJECT,
+  ASSERTED_DISTRIBUTION,
+  BIOLOGICAL_ASSOCIATION,
   COLLECTING_EVENT,
+  COLLECTION_OBJECT,
+  CONTENT,
   DESCRIPTOR,
-  SOURCE,
   EXTRACT,
   IMAGE,
-  PEOPLE,
-  TAXON_NAME,
+  OBSERVATION,
   OTU,
-  BIOLOGICAL_ASSOCIATION,
-  ASSERTED_DISTRIBUTION
+  PEOPLE,
+  SOURCE,
+  TAXON_NAME
 } from 'constants/index.js'
 
 export const FILTER_LINKS = {
@@ -54,7 +56,15 @@ export const FILTER_LINKS = {
     link: '/tasks/people/filter'
   },
   [DESCRIPTOR]: {
-    label: 'Descriptor',
+    label: 'Descriptors',
     link: '/tasks/descriptors/filter'
+  },
+  [CONTENT]: {
+    label: 'Contents',
+    link: '/tasks/contents/filter'
+  },
+  [OBSERVATION]: {
+    label: 'Observations',
+    link: '/tasks/bbservations/filter'
   }
 }
