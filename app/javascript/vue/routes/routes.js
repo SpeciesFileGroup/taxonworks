@@ -9,7 +9,9 @@ import {
   PEOPLE,
   SOURCE,
   TAXON_NAME,
-  DESCRIPTOR
+  DESCRIPTOR,
+  OBSERVATION,
+  CONTENT
 } from 'constants/index.js'
 
 const RouteNames = {
@@ -24,7 +26,8 @@ const RouteNames = {
   FilterCollectingEvents: '/tasks/collecting_events/filter',
   ImageMatrix: '/tasks/matrix_image/matrix_image/index',
   InteractiveKeys: '/tasks/observation_matrices/interactive_key',
-  ManageBiocurationTask: '/tasks/controlled_vocabularies/biocuration/build_collection',
+  ManageBiocurationTask:
+    '/tasks/controlled_vocabularies/biocuration/build_collection',
   ManageControlledVocabularyTask: '/tasks/controlled_vocabularies/manage',
   MatchCollectionObject: '/tasks/collection_objects/match',
   MatrixRowCoder: '/tasks/observation_matrices/row_coder/index',
@@ -52,10 +55,9 @@ const FILTER_ROUTES = {
   [PEOPLE]: '/tasks/people/filter',
   [SOURCE]: '/tasks/sources/filter',
   [TAXON_NAME]: '/tasks/taxon_names/filter',
-  [DESCRIPTOR]: '/tasks/descriptors/filter'
+  [DESCRIPTOR]: '/tasks/descriptors/filter',
+  [OBSERVATION]: '/tasks/observations/filter',
+  [CONTENT]: '/tasks/contents/filter'
 }
 
-export {
-  RouteNames,
-  FILTER_ROUTES
-}
+export { RouteNames, FILTER_ROUTES }
