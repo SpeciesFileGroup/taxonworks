@@ -1,6 +1,6 @@
 <template>
   <FacetContainer>
-    <h3>Observation matrix</h3>
+    <h3>Descriptor type</h3>
     <ul class="no_bullets">
       <li
         v-for="(label, type) in DescriptorTypes"
@@ -11,7 +11,7 @@
             type="checkbox"
             :value="type"
             v-model="selectedDescriptorTypes"
-          >
+          />
           {{ label }}
         </label>
       </li>
@@ -35,12 +35,12 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const selectedDescriptorTypes = computed({
   get: () => props.modelValue.descriptor_types || [],
-  set: value => {
+  set: (value) => {
     params.value.descriptor_types = value
   }
 })

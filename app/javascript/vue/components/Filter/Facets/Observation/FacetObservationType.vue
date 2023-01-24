@@ -1,6 +1,6 @@
 <template>
   <FacetContainer>
-    <h3>Observation object type</h3>
+    <h3>Observation type</h3>
     <ul class="no_bullets">
       <li
         v-for="(type, label) in observationTypes"

@@ -1,6 +1,5 @@
 <template>
   <FacetDescriptor v-model="params" />
-  <FacetDescriptorType v-model="params" />
   <FacetObservationMatrix v-model="params" />
   <FacetObservationType v-model="params" />
   <FacetObservationObjectType v-model="params" />
@@ -35,7 +34,6 @@ import FacetTags from 'components/Filter/Facets/shared/FacetTags.vue'
 import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
 import FacetUsers from 'components/Filter/Facets/shared/FacetUsers.vue'
 import FacetObservationMatrix from 'components/Filter/Facets/shared/FacetObservationMatrix'
-import FacetDescriptorType from 'components/Filter/Facets/shared/FacetDescriptorType.vue'
 import FacetNotes from 'components/Filter/Facets/shared/FacetNotes.vue'
 import FacetDescriptor from 'components/Filter/Facets/shared/FacetDescriptor.vue'
 import FacetCollectionObject from 'components/Filter/Facets/CollectionObject/FacetCollectionObject.vue'
