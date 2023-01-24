@@ -134,8 +134,8 @@ class Otu < ApplicationRecord
     end
   end
 
-  # TODO: This is coordinate otus with children,
-  #       It should probably be renamed coordinate
+  # TODO: This is coordinate_otus with children,
+  #       it should probably be renamed coordinate.
   # @return [Otu::ActiveRecordRelation]
   #   all OTUs linked to the taxon_name_id, it descendants, and
   #   any synonym of any of the previous
@@ -143,7 +143,9 @@ class Otu < ApplicationRecord
   #   !! Invalid taxon_name_ids return nothing
   #   !! Taxon names with synonyms return the OTUs of their synonyms
   # @param taxon_name_id [The id of a valid TaxonName]
-  def self.descendant_of_taxon_name(taxon_name_id)
+  def self.descendant_of_taxon_name(taxon_name_id = [])
+    ids = [taxon_name_id].flatten.compact.uniq
+  
     o = Otu.arel_table
     t = TaxonName.arel_table
     h = TaxonNameHierarchy.arel_table
@@ -153,7 +155,7 @@ class Otu < ApplicationRecord
       .join(h, Arel::Nodes::InnerJoin).on(
         t[:cached_valid_taxon_name_id].eq(h[:descendant_id]))
 
-    Otu.joins(q.join_sources).where(h[:ancestor_id].eq(taxon_name_id).to_sql)
+    Otu.joins(q.join_sources).where(h[:ancestor_id].eq_any(ids).to_sql)
   end
 
   # return [Scope] the Otus bound to that taxon name and its descendants
