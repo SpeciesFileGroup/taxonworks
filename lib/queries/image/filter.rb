@@ -472,7 +472,6 @@ module Queries
 
       end
 
-
       def otu_query_facet
         return nil if otu_query.nil?
         s = 'WITH query_otu_img AS (' + otu_query.all.to_sql + ') ' +
@@ -484,6 +483,16 @@ module Queries
         ::Image.from('(' + s + ') as images').distinct
       end
 
+      def observation_query_facet
+        return nil if observation_query.nil?
+        s = 'WITH query_ob_i AS (' + observation_query.all.to_sql + ') ' +
+          ::Image.joins(:depictions)
+          .joins("JOIN query_ob_i as query_ob_i1 on query_ob_i1.id = depictions.depiction_object_id AND depictions.depiction_object_type = #{table.name}")
+          .to_sql
+
+        ::Image.from('(' + s + ') as images')
+      end
+
       def and_clauses
         clauses = [
           image_facet
@@ -493,25 +502,22 @@ module Queries
       def merge_clauses
         #  clauses += collecting_event_merge_clauses + collecting_event_and_clauses
         [
-          otu_query_facet,
-          source_query_facet,
-          otu_facet,
-          otu_scope_facet,
-          collection_object_scope_facet,
-          collection_object_facet,
-          build_depiction_facet('CollectingEvent', collecting_event_id),
-          #    type_material_facet,
-          #    type_material_type_facet,
+          # type_material_facet,
+          # type_material_type_facet,
           ancestors_facet,
-          keyword_id_facet,  # See Queries::Concerns::Tags
-          created_updated_facet, # See Queries::Concerns::Users
-          identifier_between_facet,
-          identifier_facet,
-          identifier_namespace_facet,
-          sqed_depiction_facet,
-          sled_image_facet,
           biocuration_facet,
+          build_depiction_facet('CollectingEvent', collecting_event_id),
+          collection_object_facet,
+          collection_object_scope_facet,
           depiction_facet,
+          image_query_facet,
+          observation_query_facet,
+          otu_facet,
+          otu_query_facet,
+          otu_scope_facet,
+          sled_image_facet,
+          source_query_facet,
+          sqed_depiction_facet,
         ]
       end
 

@@ -390,7 +390,7 @@ module Queries
           author_ids_facet,
           citation_object_type_facet,
           document_facet,
-          empty_fields_facet,    # See Queries::Concerns::Empty
+          empty_fields_facet, # See Queries::Concerns::Empty
           in_project_facet,
           nomenclature_facet,
           not_empty_fields_facet,

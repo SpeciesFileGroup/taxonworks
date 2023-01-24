@@ -35,7 +35,7 @@ module Queries
       collection_object: [:source, :otu, :taxon_name, :extract, :collecting_event],
       collecting_event: [:source, :collection_object],
       asserted_distribution: [:source, :otu_query],
-      image: [:source, :otu],
+      image: [:source, :otu, :observation],
       biological_association: [:source],
       extract: [:otu, :collection_object],
       descriptor: [:observation], # TODO: confirm
