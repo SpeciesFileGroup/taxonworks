@@ -6,6 +6,7 @@
       @selected="addObservationMatrix"
     />
     <DisplayList
+      v-if="observationMatrices.length"
       :list="observationMatrices"
       label="name"
       soft-delete
@@ -34,14 +35,14 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => {
+  set: (value) => {
     emit('update:modelValue', value)
   }
 })
 
 const observationMatrices = ref([])
 
-function addObservationMatrix (matrix) {
+function addObservationMatrix(matrix) {
   observationMatrices.value.push(matrix)
 }
 
@@ -56,8 +57,8 @@ watch(
 
 watch(
   observationMatrices,
-  newVal => {
-    params.value.observation_matrix_id = newVal.map(item => item.id)
+  (newVal) => {
+    params.value.observation_matrix_id = newVal.map((item) => item.id)
   },
   { deep: true }
 )
@@ -65,7 +66,7 @@ watch(
 onBeforeMount(() => {
   const ids = params.value.observation_matrix_id || []
 
-  ids.forEach(id => {
+  ids.forEach((id) => {
     ObservationMatrix.find(id).then(({ body }) => {
       addObservationMatrix(body)
     })

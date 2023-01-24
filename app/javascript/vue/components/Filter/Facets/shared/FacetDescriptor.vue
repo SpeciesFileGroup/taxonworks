@@ -5,11 +5,12 @@
       url="/descriptors/autocomplete"
       param="term"
       label="label_html"
-      placeholder="Search a descriptor"
+      placeholder="Search..."
       clear-after
       @get-item="addDescriptor($event.id)"
     />
     <DisplayList
+      v-if="descriptors.length"
       :list="descriptors"
       label="object_tag"
       :delete-warning="false"
@@ -38,7 +39,7 @@ const descriptors = ref([])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 watch(
@@ -53,26 +54,25 @@ watch(
 
 watch(
   descriptors,
-  newVal => {
-    params.value.descriptor_id = newVal.map(d => d.id)
+  (newVal) => {
+    params.value.descriptor_id = newVal.map((d) => d.id)
   },
   { deep: true }
 )
 
-function addDescriptor (id) {
+function addDescriptor(id) {
   Descriptor.find(id).then(({ body }) => {
     addToArray(descriptors.value, body)
   })
 }
 
-function removeDescriptor (descriptor) {
+function removeDescriptor(descriptor) {
   removeFromArray(descriptors.value, descriptor)
 }
 
 onBeforeMount(() => {
-  params.value.descriptor_id?.forEach(id => {
+  params.value.descriptor_id?.forEach((id) => {
     addDescriptor(id)
   })
 })
-
 </script>

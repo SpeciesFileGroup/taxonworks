@@ -4,17 +4,38 @@
     <fieldset>
       <legend>Keywords</legend>
       <smart-selector
+        ref="smartSelectorRef"
         autocomplete-url="/controlled_vocabulary_terms/autocomplete"
-        :autocomplete-params="{'type[]' : 'Keyword'}"
+        :autocomplete-params="{ 'type[]': 'Keyword' }"
         get-url="/controlled_vocabulary_terms/"
         model="keywords"
         klass="Tags"
         pin-section="Keywords"
         pin-type="Keyword"
+        :add-tabs="['all']"
         :target="target"
-        :custom-list="allFiltered"
         @selected="addKeyword"
-      />
+      >
+        <template #all>
+          <VModal @close="smartSelectorRef.setTab('quick')">
+            <template #header>
+              <h3>Tags - all</h3>
+            </template>
+            <template #body>
+              <VBtn
+                v-for="item in allFiltered"
+                :key="item.id"
+                class="margin-small-bottom margin-small-right"
+                color="primary"
+                pill
+                @click="addKeyword(item)"
+              >
+                {{ item.name }}
+              </VBtn>
+            </template>
+          </VModal>
+        </template>
+      </smart-selector>
     </fieldset>
     <table
       v-if="keywords.length"
@@ -52,115 +73,105 @@
   </FacetContainer>
 </template>
 
-<script>
+<script setup>
 import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import SmartSelector from 'components/ui/SmartSelector'
 import RowItem from './RowItem'
+import VModal from 'components/ui/Modal.vue'
+import VBtn from 'components/ui/VBtn/index.vue'
 import { ControlledVocabularyTerm } from 'routes/endpoints'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
+import { computed, ref, watch, onBeforeMount } from 'vue'
 
-export default {
-  components: {
-    SmartSelector,
-    RowItem,
-    FacetContainer
+const props = defineProps({
+  modelValue: {
+    type: Object,
+    default: () => ({})
   },
 
-  props: {
-    modelValue: {
-      type: Object,
-      default: () => ({})
-    },
-    target: {
-      type: String,
-      required: true
-    }
-  },
+  target: {
+    type: String,
+    required: true
+  }
+})
 
-  emits: ['update:modelValue'],
+const emit = defineEmits(['update:modelValue'])
+const smartSelectorRef = ref(null)
 
-  computed: {
-    params: {
-      get () {
-        return this.modelValue
-      },
-      set (value) {
-        this.$emit('update:modelValue', value)
-      }
-    },
+const params = computed({
+  get: () => props.modelValue,
+  set(value) {
+    emit('update:modelValue', value)
+  }
+})
 
-    allFiltered () {
-      const keywordsId = this.keywords.map(({ id }) => id)
-      return { all: this.tags.all.filter(item => !keywordsId.includes(item.id)) }
-    }
-  },
-  data () {
-    return {
-      keywords: [],
-      tags: { all: [] }
-    }
-  },
+const allFiltered = computed(() => {
+  const keywordsId = keywords.value.map(({ id }) => id)
 
-  watch: {
-    modelValue (newVal) {
-      if (!newVal?.keyword_id_and?.length && !newVal?.keyword_id_or?.length && this.keywords.length) {
-        this.keywords = []
-      }
-    },
-    keywords: {
-      handler () {
-        this.params = {
-          keyword_id_and: this.keywords.filter(keyword => keyword.and).map(keyword => keyword.id),
-          keyword_id_or: this.keywords.filter(keyword => !keyword.and).map(keyword => keyword.id)
-        }
-      },
-      deep: true
-    }
-  },
+  return allTags.value.filter((item) => !keywordsId.includes(item.id))
+})
 
-  created () {
-    const urlParams = URLParamsToJSON(location.href)
-    const {
-      keyword_id_and = [],
-      keyword_id_or = []
-    } = urlParams
+const keywords = ref([])
+const allTags = ref([])
 
-    this.loadTags()
-
-    keyword_id_and.forEach(id => {
-      ControlledVocabularyTerm.find(id).then(response => {
-        this.addKeyword(response.body, true)
-      })
-    })
-
-    keyword_id_or.forEach(id => {
-      ControlledVocabularyTerm.find(id).then(response => {
-        this.addKeyword(response.body, false)
-      })
-    })
-  },
-
-  methods: {
-    addKeyword (keyword, and = true) {
-      if (!this.keywords.find(item => item.id === keyword.id)) {
-        this.keywords.push({ ...keyword, and })
-      }
-    },
-
-    removeKeyword (index) {
-      this.keywords.splice(index, 1)
-    },
-
-    loadTags () {
-      ControlledVocabularyTerm.where({ type: ['Keyword'] }).then(response => {
-        this.tags = { all: response.body }
-      })
+watch(
+  [() => props.modelValue.keyword_id_and, () => props.modelValue.keyword_id_or],
+  () => {
+    if (
+      !props.modelValue.keyword_id_and?.length &&
+      !props.modelValue.keyword_id_or?.length &&
+      keywords.value.length
+    ) {
+      keywords.value = []
     }
   }
+)
+watch(
+  keywords,
+  () => {
+    params.value = {
+      keyword_id_and: keywords.value
+        .filter((keyword) => keyword.and)
+        .map((keyword) => keyword.id),
+      keyword_id_or: keywords.value
+        .filter((keyword) => !keyword.and)
+        .map((keyword) => keyword.id)
+    }
+  },
+  { deep: true }
+)
+
+onBeforeMount(() => {
+  const { keyword_id_and = [], keyword_id_or = [] } = props.modelValue
+
+  keyword_id_and.forEach((id) => {
+    ControlledVocabularyTerm.find(id).then((response) => {
+      addKeyword(response.body, true)
+    })
+  })
+
+  keyword_id_or.forEach((id) => {
+    ControlledVocabularyTerm.find(id).then((response) => {
+      addKeyword(response.body, false)
+    })
+  })
+
+  ControlledVocabularyTerm.where({ type: ['Keyword'] }).then(({ body }) => {
+    allTags.value = body
+  })
+})
+
+function addKeyword(keyword, and = true) {
+  if (!keywords.value.find((item) => item.id === keyword.id)) {
+    keywords.value.push({ ...keyword, and })
+  }
+}
+
+function removeKeyword(index) {
+  keywords.value.splice(index, 1)
 }
 </script>
 <style scoped>
-  :deep(.vue-autocomplete-input) {
-    width: 100%
-  }
+:deep(.vue-autocomplete-input) {
+  width: 100%;
+}
 </style>
