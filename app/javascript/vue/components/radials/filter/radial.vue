@@ -129,7 +129,7 @@ function getParametersForAll(link) {
   const currentQueryParam = getCurrentQueryParam(link)
   const params = unnestParameter(currentQueryParam)
 
-  return Qs.stringify(params)
+  return params
 }
 
 function getParametersForId() {
@@ -137,7 +137,7 @@ function getParametersForId() {
     [ID_PARAM_FOR[props.objectType]]: props.ids
   }
 
-  return Qs.stringify(params)
+  return params
 }
 
 const menuOptions = computed(() => {
@@ -147,7 +147,7 @@ const menuOptions = computed(() => {
       : getParametersForAll(item.link)
 
     const urlWithParameters =
-      item.link + (hasParameters.value ? `?${urlParameters}` : '')
+      item.link + (hasParameters.value ? `?${Qs.stringify(urlParameters)}` : '')
 
     return addSlice({
       ...item,
