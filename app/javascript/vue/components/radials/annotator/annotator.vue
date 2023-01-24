@@ -198,6 +198,11 @@ export default {
     pulse: {
       type: Boolean,
       default: false
+    },
+
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
 

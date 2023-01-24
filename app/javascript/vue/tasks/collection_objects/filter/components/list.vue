@@ -46,66 +46,84 @@
               v-for="(property, pIndex) in propertiesList"
               :key="property"
               :class="{ 'cell-left-border': pIndex === 0 }"
-              @click="
-                sortTable(key === props.base ? property : `${key}.${property}`)
-              "
+              @click="sortTable(`${key}.${property}`)"
             >
               {{ property }}
+              <button
+                type="button"
+                v-if="filterValues[`${key}.${property}`]"
+                @click.stop="
+                  () => {
+                    delete filterValues[`${key}.${property}`]
+                  }
+                "
+              >
+                X
+              </button>
             </th>
           </template>
           <th
             v-for="(header, index) in dataAttributeHeaders"
             :class="{ 'cell-left-border': index === 0 }"
             :key="header"
-            @click="
-              sortTable(
-                key === props.base ? property : `data_attributes.${header}`
-              )
-            "
+            @click="sortTable(`data_attributes.${header}`)"
           >
             {{ header }}
           </th>
         </tr>
       </thead>
       <tbody>
-        <tr
+        <template
           v-for="(item, index) in list"
           :key="item.id"
-          class="contextMenuCells"
-          :class="{ even: index % 2 }"
         >
-          <td>
-            <input
-              v-model="ids"
-              :value="item.id"
-              type="checkbox"
-            />
-          </td>
-          <td>
-            <div class="horizontal-left-content">
-              <RadialAnnotator :global-id="item.global_id" />
-              <RadialObject :global-id="item.global_id" />
-              <RadialNavigation :global-id="item.global_id" />
-            </div>
-          </td>
-          <template
-            v-for="(properties, key) in props.layout.properties"
-            :key="key"
+          <tr
+            v-show="rowHasCurrentValues(item)"
+            class="contextMenuCells"
+            :class="{ even: index % 2 }"
           >
+            <td>
+              <input
+                v-model="ids"
+                :value="item.id"
+                type="checkbox"
+              />
+            </td>
+            <td>
+              <div class="horizontal-left-content">
+                <RadialAnnotator :global-id="item.global_id" />
+                <RadialObject :global-id="item.global_id" />
+                <RadialNavigation :global-id="item.global_id" />
+              </div>
+            </td>
+            <template
+              v-for="(properties, key) in props.layout.properties"
+              :key="key"
+            >
+              <td
+                v-for="(property, pIndex) in properties"
+                :key="property"
+                v-html="renderItem(item, key, property)"
+                :class="{ 'cell-left-border': pIndex === 0 }"
+                @dblclick="
+                  () => {
+                    filterValues[
+                      Array.isArray(item[key]) ? `${key}` : `${key}.${property}`
+                    ] = Array.isArray(item[key])
+                      ? item[key]
+                      : item[key][property]
+                  }
+                "
+              />
+            </template>
             <td
-              v-for="(property, pIndex) in properties"
-              :key="property"
-              v-html="renderItem(item, key, property)"
-              :class="{ 'cell-left-border': pIndex === 0 }"
+              v-for="(predicateName, dIndex) in dataAttributeHeaders"
+              :key="predicateName"
+              :class="{ 'cell-left-border': dIndex === 0 }"
+              v-text="renderDataAttribute(item.data_attributes, predicateName)"
             />
-          </template>
-          <td
-            v-for="(predicateName, dIndex) in dataAttributeHeaders"
-            :key="predicateName"
-            :class="{ 'cell-left-border': dIndex === 0 }"
-            v-text="renderDataAttribute(item.data_attributes, predicateName)"
-          />
-        </tr>
+          </tr>
+        </template>
       </tbody>
     </table>
   </HandyScroll>
@@ -134,7 +152,7 @@ const props = defineProps({
 
   base: {
     type: String,
-    default: 'base'
+    default: 'collection_object'
   },
 
   layout: {
@@ -146,6 +164,20 @@ const props = defineProps({
 const emit = defineEmits(['onSort', 'update:modelValue'])
 const tableElement = ref(null)
 const ascending = ref(false)
+
+const filterValues = ref({})
+
+function rowHasCurrentValues(item) {
+  return Object.entries(filterValues.value).every(
+    ([properties, value]) => getValue(item, properties) === value
+  )
+}
+
+function getValue(item, property) {
+  const properties = property.split('.')
+
+  return properties.reduce((acc, curr) => acc[curr], item)
+}
 
 const ids = computed({
   get() {
@@ -180,15 +212,11 @@ const dataAttributeHeaders = computed(() => {
 })
 
 function renderItem(item, listType, property) {
-  if (listType === props.base) {
-    return item[property]
-  } else {
-    const value = item[listType]
+  const value = item[listType]
 
-    return Array.isArray(value)
-      ? value.map((obj) => obj[property]).join('; ')
-      : value && value[property]
-  }
+  return Array.isArray(value)
+    ? value.map((obj) => obj[property]).join('; ')
+    : value && value[property]
 }
 
 function renderDataAttribute(dataAttributes, predicateName) {

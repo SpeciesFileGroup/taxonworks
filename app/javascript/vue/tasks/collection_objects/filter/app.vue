@@ -72,11 +72,11 @@
       <template #table>
         <div class="full_width overflow-x-scroll">
           <ListComponent
-            v-if="list.length"
+            v-if="coList.length"
             v-model="selectedIds"
-            :list="list"
+            :list="coList"
             :layout="currentLayout"
-            @on-sort="list = $event"
+            @on-sort="coList = $event"
           />
         </div>
       </template>
@@ -130,7 +130,7 @@ const extend = [
 
 const defaultLayout = {
   properties: {
-    base: COLLECTION_OBJECT_PROPERTIES,
+    collection_object: COLLECTION_OBJECT_PROPERTIES,
     current_repository: REPOSITORY_PROPERTIES,
     repository: REPOSITORY_PROPERTIES,
     collecting_event: COLLECTING_EVENT_PROPERTIES,
@@ -146,7 +146,7 @@ const defaultLayout = {
 const { currentLayout } = useLayoutConfiguration(defaultLayout)
 
 const selectedIds = ref([])
-const coList = ref({})
+const coList = ref([])
 const preferences = reactive({
   activeFilter: true,
   activeJSONRequest: false,
@@ -179,26 +179,36 @@ function removeCOFromList(ids) {
   selectedIds.value = selectedIds.value.filter((id) => !ids.includes(id))
 }
 
-watch(list, (newVal) => {
-  const predicateNames = []
-  console.log('Se')
-  list.value.forEach((item, index) => {
-    const da = item.data_attributes
+function parseDataAttributes(item) {
+  const da = item.data_attributes
 
-    if (!Array.isArray(da)) return
+  if (!Array.isArray(da)) return
 
-    const obj = {}
+  const obj = {}
 
-    da.forEach(({ predicate_name, value }) => {
-      console.log(predicate_name)
-      obj[predicate_name] = value
-    })
-
-    list.value[index].data_attributes = obj
-    console.log(list.value[index].data_attributes)
+  da.forEach(({ predicate_name, value }) => {
+    obj[predicate_name] = value
   })
 
-  return predicateNames
+  return obj
+}
+
+watch(list, (newVal) => {
+  console.log('SE')
+  coList.value = newVal.map((item) => {
+    const baseAttributes = Object.assign(
+      {},
+      ...COLLECTION_OBJECT_PROPERTIES.map((property) => ({
+        [property]: item[property]
+      }))
+    )
+
+    return {
+      ...item,
+      collection_object: baseAttributes,
+      data_attributes: parseDataAttributes(item)
+    }
+  })
 })
 
 onBeforeMount(() => {

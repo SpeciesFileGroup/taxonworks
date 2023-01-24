@@ -153,6 +153,11 @@ export default {
     filterOptions: {
       type: [String, Array],
       default: () => []
+    },
+
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
 

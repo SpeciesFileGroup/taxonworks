@@ -162,9 +162,15 @@ export default {
       type: Object,
       default: () => ({})
     },
+
     type: {
       type: String,
       default: 'graph'
+    },
+
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
 
