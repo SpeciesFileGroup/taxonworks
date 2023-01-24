@@ -178,16 +178,8 @@ class ObservationsController < ApplicationController
   end
 
   def filter_params
-    params.permit(
-      :collection_object_id,
-      :descriptor_id,
-      :format,
-      :observation_object_global_id,
-      :otu_id
-    )
-    # :authenticate_user_or_project, # WHY?
-    # :project_token,
-    #:token)
+    f = ::Queries::Observation::Filter.permit(params)
+    f.merge(project_id: sessions_current_project_id)
   end
 
   def api_params

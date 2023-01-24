@@ -118,7 +118,7 @@
 #
 # @!attribute sample_standard_units
 #   @return [Boolean]
-#     A controlled vocabulary from Ruby::Units, like 'm".  The unit of the sample observations
+#     A controlled vocabulary from Ruby::Units, like 'm' (meters).  The unit of the sample observation.
 #
 class Observation < ApplicationRecord
   include Housekeeping
@@ -173,7 +173,7 @@ class Observation < ApplicationRecord
   def self.in_observation_matrix(observation_matrix_id)
     Observation.joins('JOIN observation_matrix_rows omr on (omr.observation_object_type = observations.observation_object_type AND omr.observation_object_id = observations.observation_object_id)')
       .joins('JOIN observation_matrix_columns omc on omc.descriptor_id = observations.descriptor_id')
-      .where('omr.observation_matrix_id = ? AND omc.observation_matrix_id = ?', observation_matrix_id, observation_matrix_id)
+      .where('omr.observation_matrix_id IN (?) AND omc.observation_matrix_id IN (?)', observation_matrix_id, observation_matrix_id)
   end
 
   def self.by_matrix_and_position(observation_matrix_id, options = {})
