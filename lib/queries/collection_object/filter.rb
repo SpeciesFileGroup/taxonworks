@@ -299,7 +299,7 @@ module Queries
           params.select{|a,b| collecting_event_params.include?(a) }
         )
 
-        @biocuration_class_id = params[:biocuration_class_id] # TODO: no reference?
+        @biocuration_class_id = params[:biocuration_class_id]
 
         @biological_relationship_id = params[:biological_relationship_id] # TODO: no reference?
 
@@ -375,6 +375,10 @@ module Queries
       # @return [Arel::Table]
       def taxon_determination_table
         ::TaxonDetermination.arel_table
+      end
+
+      def taxon_name_id
+        [@taxon_name_id].flatten.compact.uniq
       end
 
       def otu_id
@@ -597,7 +601,7 @@ module Queries
         ::CollectionObject::BiologicalCollectionObject.joins(:depictions).where("depictions.sled_image_id = ?", sled_image_id)
       end
 
-      def biological_relationship_is_facet
+      def biological_relationship_id_facet
         return nil if biological_relationship_id.empty?
         ::CollectionObject.with_biological_relationship_id(biological_relationship_id)
       end
@@ -693,10 +697,6 @@ module Queries
         ::CollectionObject.where(
           ::TaxonDetermination.where(w).arel.exists
         )
-      end
-
-      def taxon_name_id
-        [@taxon_name_id].flatten.compact.uniq
       end
 
       def taxon_name_id_facet

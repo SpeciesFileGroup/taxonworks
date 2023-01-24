@@ -355,15 +355,15 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       let!(:td5) { FactoryBot.create(:valid_taxon_determination, biological_collection_object: co3, otu: o3) } # current
 
 
-      # collection_objects/dwc_index?collector_ids_or=false&per=500&page=1&determiner_id[]=61279&taxon_name_id=606330
-      specify '#determiner_id, collector_ids_or, taxon_name_id combo' do
+      # collection_objects/dwc_index?collector_id_or=false&per=500&page=1&determiner_id[]=61279&taxon_name_id=606330
+      specify '#determiner_id, collector_id_or, taxon_name_id combo' do
         t1 = Specimen.create!
         t2 = Specimen.create!
         o = Otu.create!(taxon_name: species1)
         a = FactoryBot.create(:valid_taxon_determination, otu: o, biological_collection_object: t1, determiners: [ FactoryBot.create(:valid_person) ] )
 
         query.determiner_id = a.determiners.pluck(:id)
-        query.collector_ids_or = false
+        query.collector_id_or = false
         query.taxon_name_id = genus1.id
         query.descendants = true
 
@@ -500,8 +500,8 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       let!(:co3) { Specimen.create! }
       let!(:br) { FactoryBot.create(:valid_biological_association, biological_association_subject: co1) }
 
-      specify '#biological_relationship_ids' do
-        query.biological_relationship_ids = [ br.biological_relationship_id ]
+      specify '#biological_relationship_id' do
+        query.biological_relationship_id = [ br.biological_relationship_id ]
         expect(query.all.pluck(:id)).to contain_exactly(co1.id)
       end
     end
@@ -509,13 +509,13 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     context 'biocuration' do
       let!(:bc1) { FactoryBot.create(:valid_biocuration_classification, biological_collection_object: co1) }
 
-      specify '#biocuration_class_ids' do
-        query.biocuration_class_ids = [ co1.biocuration_classes.first.id ]
+      specify '#biocuration_class_id' do
+        query.biocuration_class_id = [ co1.biocuration_classes.first.id ]
         expect(query.all.pluck(:id)).to contain_exactly(co1.id)
       end
 
-      specify '#biocuration_class_ids + not bio' do
-        query.biocuration_class_ids = [ co1.biocuration_classes.first.id ]
+      specify '#biocuration_class_id + not bio' do
+        query.biocuration_class_id = [ co1.biocuration_classes.first.id ]
         query.loaned = false
         expect(query.all.pluck(:id)).to contain_exactly(co1.id)
       end
