@@ -63,18 +63,18 @@ describe Queries::Extract::Filter, type: :model, group: [:dna, :collection_objec
     expect(q.all.pluck(:id)).to contain_exactly(e.id) # nothing matches, so *everything* returned!
   end
 
-  specify '#ancestor_id 1 (otus)' do
+  specify '#taxon_name_id 1 (otus)' do
     t = FactoryBot.create(:valid_taxon_name)
 
     o = Otu.create!(taxon_name: t)
     e = FactoryBot.create(:valid_extract, otus: [o])
     FactoryBot.create(:valid_extract)
 
-    q.ancestor_id = t.id
+    q.taxon_name_id = t.id
     expect(q.all.pluck(:id)).to contain_exactly(e.id)
   end
 
-  specify '#ancestor_id 2 (collection_objects)' do
+  specify '#taxon_name_id 2 (collection_objects)' do
     t = FactoryBot.create(:valid_taxon_name)
     o = Otu.create!(taxon_name: t)
     s = Specimen.create!
@@ -82,7 +82,7 @@ describe Queries::Extract::Filter, type: :model, group: [:dna, :collection_objec
     e = FactoryBot.create(:valid_extract, collection_objects: [s])
     FactoryBot.create(:valid_extract)
 
-    q.ancestor_id = t.id
+    q.taxon_name_id = t.id
     expect(q.all.pluck(:id)).to contain_exactly(e.id)
   end
 
