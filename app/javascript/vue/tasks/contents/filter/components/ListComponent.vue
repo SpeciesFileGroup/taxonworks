@@ -17,12 +17,22 @@
           </th>
           <th class="w-2" />
           <th
-            v-for="item in Object.keys(attributes)"
-            :key="item"
             class="capitalize"
-            @click="sortTable(item)"
+            @click="sortTable('otu.object_tag')"
           >
-            {{ item }}
+            OTU
+          </th>
+          <th
+            class="capitalize"
+            @click="sortTable('topic.object_tag')"
+          >
+            Topic
+          </th>
+          <th
+            class="capitalize"
+            @click="sortTable('text')"
+          >
+            Text
           </th>
         </tr>
       </thead>
@@ -45,11 +55,12 @@
               <RadialNavigation :global-id="item.global_id" />
             </div>
           </td>
+          <td v-html="item.otu.object_tag" />
           <td
-            v-for="(renderFunction, key) in attributes"
-            :key="key"
-            v-html="renderFunction(item)"
+            class="line-nowrap"
+            v-html="item.topic.object_tag"
           />
+          <td v-html="marked.parse(item.text)" />
         </tr>
       </tbody>
     </table>
@@ -63,12 +74,6 @@ import { marked } from 'marked'
 import { sortArray } from 'helpers/arrays.js'
 import { vResizeColumn } from 'directives/resizeColumn'
 import { computed, ref } from 'vue'
-
-const attributes = {
-  otu: (item) => item.otu.object_tag,
-  topic: (item) => item.topic.object_tag,
-  text: (item) => marked.parse(item.text)
-}
 
 const props = defineProps({
   list: {
