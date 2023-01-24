@@ -8,19 +8,21 @@ module Queries
       include Queries::Concerns::DateRanges
 
       PARAMS = [
-        :ancestor_id,
+        :taxon_name_id,
         :collection_object_id,
         :exact_verbatim_anatomical_origin,
         :extract_end_date_range,
         :extract_origin,
         :extract_start_date_range,
-        :id, # TODO `extract_id`
+        :descendants,
+        :extract_id,
         :otu_id,
         :protocol_id,
-        :recent, # TODO: likely out
         :repository_id,
         :sequences,
         :verbatim_anatomical_origin,
+        taxon_name_id: [],
+        extract_id: [],
         collection_object_id: [],
         otu_id: [],
         repository_id: [],
@@ -38,7 +40,8 @@ module Queries
       # @return [Protonym.id, nil]
       #   return all extracts linked to OTUs AND CollectionObject that is self or descendant linked
       #   to this TaxonName
-      attr_accessor :ancestor_id
+      attr_accessor :taxon_name_id
+      attr_accessor :descendants
 
       # @param extract_start_date_range [String]
       #  yyyy-mm-dd
@@ -68,23 +71,34 @@ module Queries
       #    'true', 'false', nil
       attr_accessor :exact_verbatim_anatomical_origin
 
+      # @return Array
+      # @param extract_id [Numeric, String, Array]
+      #   a set of extract#id
+      attr_accessor :extract_id
+
       # @param [Hash] args are permitted params
       def initialize(params)
-        @ancestor_id = params[:ancestor_id]
         @collection_object_id = params[:collection_object_id]
+        @descendants = boolean_param(params, :descendants)
         @exact_verbatim_anatomical_origin = params[:exact_verbatim_anatomical_origin]
         @extract_end_date_range = params[:extract_end_date_range]
         @extract_origin = params[:extract_origin]
+        @extact_id = params[:extract_id]
         @extract_start_date_range = params[:extract_start_date_range]
         @otu_id = params[:otu_id]
         @repository_id = params[:repository_id]
         @sequences = boolean_param(params, :sequences)
+        @taxon_name_id = params[:taxon_name_id]
         @verbatim_anatomical_origin = params[:verbatim_anatomical_origin]
 
         set_dates(params)
         set_tags_params(params)
         set_protocols_params(params)
         super
+      end
+
+      def extract_id
+        [@extract_id].flatten.compact
       end
 
       def repository_id
@@ -97,6 +111,15 @@ module Queries
 
       def collection_object_id
         [@collection_object_id].flatten.compact
+      end
+
+      def taxon_name_id 
+        [@taxon_name_id].flatten.compact
+      end
+
+      def extract_id_facet
+        return nil if extract_id.empty?
+        table[:id].eq_any(extract_id)
       end
 
       def repository_id_facet
@@ -171,11 +194,18 @@ module Queries
       # TODO: with()
       # TODO: this is not a join, but an IN x2 UNION, i.e. there
       # is likely room for optimization via a join.
-      def ancestors_facet
-        return nil if ancestor_id.nil?
+      def taxon_name_id_facet
+        return nil if taxon_name_id.empty?
 
-        a = ::Extract.joins(:origin_otus).where(otus: ::Otu.descendant_of_taxon_name(ancestor_id))
-        b = ::Extract.joins(:origin_collection_objects).where(collection_objects: ::CollectionObject.joins(:otus).where(otus: ::Otu.descendant_of_taxon_name(ancestor_id)) )
+        o = nil
+        if descendants
+          o = ::Otu.descendant_of_taxon_name(taxon_name_id)
+        else
+          o = ::Otu.where(taxon_name_id: taxon_name_id)
+        end
+
+        a = ::Extract.joins(:origin_otus).where(otus: o)
+        b = ::Extract.joins(:origin_collection_objects).where(collection_objects: ::CollectionObject.joins(:otus).where(otus: o))
 
         ::Extract.from("((#{a.to_sql}) UNION (#{b.to_sql})) as extracts")
       end
@@ -215,6 +245,7 @@ module Queries
       # @return [Array]
       def and_clauses
         [
+          extract_id_facet, # TODO: remove all to Queries::Filter
           repository_id_facet,
           date_made_facet,
           attribute_exact_facet(:verbatim_anatomical_origin),
@@ -227,7 +258,7 @@ module Queries
           otu_query_facet,
           collection_object_query_facet,
 
-          ancestors_facet,
+          taxon_name_id_facet,
           collection_object_id_facet,
           extract_origin_facet,
           otu_id_facet,
