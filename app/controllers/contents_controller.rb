@@ -2,6 +2,7 @@ class ContentsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_content, only: [:show, :edit, :update, :destroy, :api_show]
+  after_action -> { set_pagination_headers(:contents) }, only: [:index, :api_index], if: :json_request?
 
   # GET /contents
   # GET /contents.json

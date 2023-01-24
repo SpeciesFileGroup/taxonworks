@@ -1,10 +1,7 @@
 class ObservationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  skip_before_action :verify_authenticity_token
-
   before_action :set_observation, only: [:show, :edit, :update, :destroy, :annotations]
-
   after_action -> { set_pagination_headers(:observations) }, only: [:index, :api_index], if: :json_request? 
 
   # GET /observations
@@ -146,23 +143,23 @@ class ObservationsController < ApplicationController
 
   def observation_params
     params.require(:observation).permit(
-      :observation_object_global_id,
-      :descriptor_id,
-      :observation_object_type, :observation_object_id,
       :character_state_id, :frequency,
       :continuous_value, :continuous_unit,
-      :sample_n, :sample_min, :sample_max, :sample_median, :sample_mean, :sample_units, :sample_standard_deviation, :sample_standard_error,
-      :presence,
+      :day_made,
+      :day_made,
       :description,
+      :descriptor_id,
+      :month_made,
+      :month_made,
+      :observation_object_global_id,
+      :observation_object_type, :observation_object_id,
+      :presence,
+      :sample_n, :sample_min, :sample_max, :sample_median, :sample_mean, :sample_units, :sample_standard_deviation, :sample_standard_error,
+      :time_made,
+      :time_made,
       :type,
       :year_made,
-      :month_made,
-      :day_made,
-      :time_made,
-      :day_made,
-      :month_made,
       :year_made,
-      :time_made,
       images_attributes: [:id, :_destroy, :image_file, :rotate],
       depictions_attributes: [
         :id,
