@@ -2,7 +2,7 @@ module ObservationsHelper
 
   def observation_tag(observation)
     return nil if observation.nil?
-    [descriptor_tag(observation.descriptor), observation_cell_tag(observation)].join(': ').html_safe
+    [descriptor_tag(observation.descriptor), observation_cell_tag(observation, true)].join(': ').html_safe
     #"#{observation.descriptor.name}: #{observation.id}"
   end
 
@@ -21,10 +21,10 @@ module ObservationsHelper
     q.collect{|o| observation_cell_tag(o)}.sort.join(' ').html_safe
   end
 
-  def observation_cell_tag(observation)
+  def observation_cell_tag(observation, verbose = false)
     case observation.type
     when 'Observation::Qualitative'
-      qualitative_observation_cell_tag(observation)
+      qualitative_observation_cell_tag(observation, verbose)
     when 'Observation::Continuous'
       continuous_observation_cell_tag(observation)
     when 'Observation::Sample'
@@ -48,8 +48,12 @@ module ObservationsHelper
      observation.time_made ].compact.join('-')
   end
 
-  def qualitative_observation_cell_tag(observation)
-    observation.character_state.label
+  def qualitative_observation_cell_tag(observation, verbose = false)
+    if verbose
+      observation.character_state.label + ': ' + observation.character_state.name
+    else
+      observation.character_state.label
+    end
   end
 
   def continuous_observation_cell_tag(observation)

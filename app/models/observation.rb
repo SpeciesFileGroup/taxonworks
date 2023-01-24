@@ -147,7 +147,9 @@ class Observation < ApplicationRecord
 
   # before_validation :convert_observation_object_global_id
 
-  validates_presence_of :descriptor_id, :type
+  validates_presence_of :descriptor_id # should be :descriptor
+
+  validates_presence_of :type # not required, it's STI
   validates_presence_of :observation_object
   validate :type_matches_descriptor
 

@@ -74,6 +74,12 @@ module Queries
     # @return [Query::Extract::Filter, nil]
     attr_accessor :extract_query
 
+    # @return [Query::Observation::Filter, nil]
+    attr_accessor :observation_query
+
+    # @return [Query::Observation::Filter, nil]
+    attr_accessor :content_query
+
     # @return Boolean
     #   Applies an order on updated.
     attr_accessor :recent
@@ -112,6 +118,16 @@ module Queries
       if params[:source_query].present?
         @source_query = ::Queries::Source::Filter.new(params[:source_query])
         @source_query.project_id = project_id
+      end
+
+      if params[:content_query].present?
+        @content_query = ::Queries::Content::Filter.new(params[:content_query])
+        @content_query.project_id = project_id
+      end
+
+      if params[:observation_query].present?
+        @observation_query = ::Queries::Observation::Filter.new(params[:observation_query])
+        @observation_query.project_id = project_id
       end
     end
 

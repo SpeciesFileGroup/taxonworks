@@ -127,6 +127,16 @@ module Queries
         end
       end
 
+      def observation_query_facet
+        return nil if observation_query.nil?
+        s = 'WITH query_ob_d AS (' + observation_query.all.to_sql + ') ' +
+          ::Descriptor
+          .joins('JOIN query_ob_d as query_ob_d1 on query_ob_d1.descriptor_id = descriptors.id')
+          .to_sql
+
+        ::Descriptor.from('(' + s + ') as descriptors')
+      end
+
       def and_clauses
         [ term_facet,
           descriptor_type_facet,
@@ -134,7 +144,9 @@ module Queries
       end
 
       def merge_clauses
-        [ observations_facet,
+        [ 
+          observation_query_facet,
+          observations_facet,
           observation_matrices_facet,
           observation_matrix_id_facet,
           source_query_facet,
