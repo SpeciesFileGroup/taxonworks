@@ -107,10 +107,10 @@
                 :class="{ 'cell-left-border': pIndex === 0 }"
                 @dblclick="
                   () => {
-                    filterValues[
-                      Array.isArray(item[key]) ? `${key}` : `${key}.${property}`
-                    ] = Array.isArray(item[key])
-                      ? item[key]
+                    filterValues[`${key}.${property}`] = Array.isArray(
+                      item[key]
+                    )
+                      ? item[key].map((obj) => obj[property])
                       : item[key][property]
                   }
                 "
@@ -168,15 +168,21 @@ const ascending = ref(false)
 const filterValues = ref({})
 
 function rowHasCurrentValues(item) {
-  return Object.entries(filterValues.value).every(
-    ([properties, value]) => getValue(item, properties) === value
-  )
+  return Object.entries(filterValues.value).every(([properties, value]) => {
+    const itemValue = getValue(item, properties)
+
+    return Array.isArray(itemValue)
+      ? itemValue.some((i) => value.includes(i))
+      : itemValue === value
+  })
 }
 
 function getValue(item, property) {
   const properties = property.split('.')
 
-  return properties.reduce((acc, curr) => acc[curr], item)
+  return properties.reduce((acc, curr) => {
+    return Array.isArray(acc) ? acc.map((item) => item[curr]) : acc[curr]
+  }, item)
 }
 
 const ids = computed({
