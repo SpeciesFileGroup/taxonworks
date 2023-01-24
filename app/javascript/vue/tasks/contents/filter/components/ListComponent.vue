@@ -17,7 +17,7 @@
           </th>
           <th class="w-2" />
           <th
-            v-for="item in attributes"
+            v-for="item in Object.keys(attributes)"
             :key="item"
             class="capitalize"
             @click="sortTable(item)"
@@ -46,9 +46,9 @@
             </div>
           </td>
           <td
-            v-for="attr in attributes"
-            :key="attr"
-            v-text="item[attr]"
+            v-for="(renderFunction, key) in attributes"
+            :key="key"
+            v-html="renderFunction(item)"
           />
         </tr>
       </tbody>
@@ -59,11 +59,16 @@
 <script setup>
 import RadialNavigation from 'components/radials/navigation/radial'
 import RadialAnnotator from 'components/radials/annotator/annotator'
+import { marked } from 'marked'
 import { sortArray } from 'helpers/arrays.js'
 import { vResizeColumn } from 'directives/resizeColumn'
 import { computed, ref } from 'vue'
 
-const attributes = ['text']
+const attributes = {
+  otu: (item) => item.otu.object_tag,
+  topic: (item) => item.topic.object_tag,
+  text: (item) => marked.parse(item.text)
+}
 
 const props = defineProps({
   list: {

@@ -29,7 +29,7 @@
       color="radial"
       title="Radial filter"
       circle
-      :disabled="disabled"
+      :disabled="disabled || (!Object.keys(filteredParameters).length && !ids)"
       @click="openRadialMenu()"
     >
       <VIcon
@@ -91,11 +91,13 @@ const filteredParameters = computed(() => {
 })
 
 const isOnlyIds = computed(() => Array.isArray(props.ids))
-const filterLinks = computed(() =>
-  isOnlyIds.value
-    ? FILTER_LINKS[props.objectType].ids
-    : FILTER_LINKS[props.objectType].all
-)
+const filterLinks = computed(() => {
+  const objLinks = FILTER_LINKS[props.objectType]
+
+  if (!objLinks) return []
+
+  return isOnlyIds.value ? objLinks.ids : objLinks.all
+})
 const queryObject = computed(() => {
   const params = { ...filteredParameters.value }
   const currentQueryParam = QUERY_PARAM[props.objectType]

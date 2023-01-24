@@ -16,6 +16,7 @@
     "json2csv": "^5.0.7",
     "leaflet": "^1.9.3",
     "leaflet.pattern": "^0.1.0",
+    "marked": "^4.2.12",
     "parse-dms": "0.0.5",
     "pdfjs-dist": "3.1.81",
     "pinia": "^2.0.28",

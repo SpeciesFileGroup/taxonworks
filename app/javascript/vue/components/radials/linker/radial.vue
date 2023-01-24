@@ -75,11 +75,15 @@ const props = defineProps({
 const emit = defineEmits(['close'])
 const objParameters = ref(getFilterAttributes())
 const isOnlyIds = computed(() => Array.isArray(props.ids))
-const filterLinks = computed(() =>
-  isOnlyIds.value
+const filterLinks = computed(() => {
+  const objLinks = LINKER_LIST[props.objectType]
+
+  if (!objLinks) return []
+
+  return isOnlyIds.value
     ? LINKER_LIST[props.objectType].ids
     : LINKER_LIST[props.objectType].all
-)
+})
 
 const menuOptions = computed(() => {
   const slices = []

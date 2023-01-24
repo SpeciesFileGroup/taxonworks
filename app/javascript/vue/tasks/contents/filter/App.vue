@@ -91,7 +91,7 @@ import { CONTENT } from 'constants/index.js'
 import { computed, reactive, ref, onBeforeMount } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
 
-const extend = []
+const extend = ['otu', 'topic']
 
 const selectedIds = ref([])
 const preferences = reactive({
