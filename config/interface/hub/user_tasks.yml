@@ -799,7 +799,7 @@ filter_observations_task:
     - filters
     - matrix
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Create sets of observations. See also the observation matrix hub and multi-key interfaces. '
 filter_contents_task:
   hub: true
   name: 'Filter contents'
@@ -808,4 +808,4 @@ filter_contents_task:
     - source
     - filters
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Content is text blocks, with optional figures, per OTU. Search and return sets by text, topic, or OTU.'

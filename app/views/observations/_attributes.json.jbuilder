@@ -5,6 +5,8 @@ json.extract! observation, :id, :descriptor_id, :observation_object_id, :observa
   :year_made, :month_made, :day_made,
   :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
 
+json.type_label observation_type_label(observation)
+
 json.time_made observation.time_made&.to_formatted_s(:hour_minutes_seconds)
 
 json.partial! '/shared/data/all/metadata', object: observation

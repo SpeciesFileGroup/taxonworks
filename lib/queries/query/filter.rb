@@ -23,10 +23,9 @@ module Queries
     # !! SUBQUERIES is cross-referenced in app/views/javascript/vue/components/radials/filter/links/*.js models.
     # !! When you add a reference here, ensure corresponding js model is aligned.
     #
-    # For example:
+    # For example: (TODO: correct path after merge)
     # https://github.com/SpeciesFileGroup/taxonworks/blob/2652_unified_filters/app/javascript/vue/components/radials/filter/constants/queryParam.js
     # https://github.com/SpeciesFileGroup/taxonworks/blob/2652_unified_filters/app/javascript/vue/components/radials/filter/constants/filterLinks.js
-    # https://github.com/SpeciesFileGroup/taxonworks/tree/2652_unified_filters/app/javascript/vue/components/radials/filter/links
     # https://github.com/SpeciesFileGroup/taxonworks/blob/2652_unified_filters/app/javascript/vue/components/radials/filter/links/CollectionObject.js
     #
     # This is read as  :too <- [:from1, from1] ].
@@ -39,7 +38,8 @@ module Queries
       image: [:source, :otu],
       biological_association: [:source],
       extract: [:otu, :collection_object],
-      descriptor: [],
+      descriptor: [:observation], # TODO: confirm
+      observation: [:descriptor], #  TOOD: confirm
       loan: [],
     }.freeze
 

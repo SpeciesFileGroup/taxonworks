@@ -67,7 +67,7 @@ import { sortArray } from 'helpers/arrays.js'
 import { vResizeColumn } from 'directives/resizeColumn'
 import { computed, ref } from 'vue'
 
-const attributes = ['object_tag', 'type']
+const attributes = ['object_tag', 'type_label']
 
 const props = defineProps({
   list: {

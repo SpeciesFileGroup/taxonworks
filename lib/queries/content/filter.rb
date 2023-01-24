@@ -2,7 +2,17 @@ module Queries
   module Content
     class Filter < Query::Filter
 
-      include Queries::Concerns::Users
+      PARAMS = [
+        :exact,
+        :text,
+        :topic_id,
+        :otu_id,
+        :content_id,
+        :depictions,
+        topic_id: [],
+        otu_id: [],
+        content_id: [],
+      ]
 
       # @return [Array]
       # @param topic_id [Array, Integer, String, nil]
@@ -32,8 +42,7 @@ module Queries
         @otu_id = params[:otu_id]
         @text = params[:text]
         @topic_id = params[:topic_id]
-
-        set_user_dates(params)
+        @content_id = params[:content_id]
         super
       end
 
@@ -44,7 +53,11 @@ module Queries
       def otu_id
         [@otu_id].flatten.compact
       end
-  
+ 
+      def content_id
+        [@content_id].flatten.compact
+      end     
+
       # @return [Arel::Node, nil]
       def text_facet
         return nil if text.blank?
@@ -59,6 +72,12 @@ module Queries
       def otu_id_facet
         return nil if otu_id.empty?
         table[:otu_id].eq_any(otu_id)
+      end
+
+      # @return [Arel::Node, nil]
+      def content_id_facet
+        return nil if content_id.empty?
+        table[:id].eq_any(content_id)
       end
 
       # @return [Arel::Node, nil]
@@ -80,6 +99,7 @@ module Queries
       # @return [ActiveRecord::Relation]
       def and_clauses
         [
+          content_id_facet, # All canonical _id will be macroed out at some point
           text_facet,
           topic_id_facet,
           otu_id_facet,

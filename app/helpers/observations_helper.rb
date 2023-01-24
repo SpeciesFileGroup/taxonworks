@@ -2,7 +2,8 @@ module ObservationsHelper
 
   def observation_tag(observation)
     return nil if observation.nil?
-    "#{observation.descriptor.name}: #{observation.id}"
+    [descriptor_tag(observation.descriptor), observation_cell_tag(observation)].join(': ').html_safe
+    #"#{observation.descriptor.name}: #{observation.id}"
   end
 
   def label_for_observation(observation)
@@ -10,6 +11,11 @@ module ObservationsHelper
     observation.descriptor.name # TODO: add values
   end
 
+  def observation_type_label(observation)
+    observation.type.split('::').last
+  end
+
+  # Joins multiple observations to concat for cells
   def observation_matrix_cell_tag(observation_object, descriptor)
     q = Observation.object_scope(observation_object).where(descriptor: descriptor)
     q.collect{|o| observation_cell_tag(o)}.sort.join(' ').html_safe
