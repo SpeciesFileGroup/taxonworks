@@ -38,19 +38,23 @@
           v-if="list.length"
           class="horizontal-right-content"
         >
-          <div class="horizontal-left-content">
-            <ul class="context-menu middle no_bullets">
-              <li>
-                <TagAll
-                  :ids="selectedIds"
-                  type="Source"
-                />
-              </li>
-              <li>
-                <CsvButton :list="csvList" />
-              </li>
-            </ul>
-          </div>
+          <RadialFilter
+            :ids="selectedIds"
+            :disabled="!selectedIds.length"
+            :object-type="CONTENT"
+          />
+          <RadialLinker
+            :ids="selectedIds"
+            :disabled="!selectedIds.length"
+            :object-type="CONTENT"
+          />
+          <TagAll
+            class="circle-button"
+            :ids="selectedIds"
+            type="Source"
+          />
+          <span class="separate-left separate-right">|</span>
+          <CsvButton :list="csvList" />
         </div>
       </template>
       <template #facets>
@@ -86,6 +90,8 @@ import useFilter from 'shared/Filter/composition/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
 import TagAll from 'tasks/collection_objects/filter/components/tagAll.vue'
+import RadialLinker from 'components/radials/linker/radial.vue'
+import RadialFilter from 'components/radials/filter/radial.vue'
 import { Content } from 'routes/endpoints'
 import { CONTENT } from 'constants/index.js'
 import { computed, reactive, ref, onBeforeMount } from 'vue'
