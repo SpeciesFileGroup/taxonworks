@@ -27,13 +27,13 @@
     <VBtn
       class="circle-button"
       color="radial"
-      title="Radial filter"
+      :title="title"
       circle
       :disabled="disabled || (!Object.keys(filteredParameters).length && !ids)"
       @click="openRadialMenu()"
     >
       <VIcon
-        title="Radial filter"
+        :title="title"
         name="funnel"
         x-small
       />
@@ -89,6 +89,10 @@ const filteredParameters = computed(() => {
 
   return filterEmptyParams(params)
 })
+
+const title = computed(() =>
+  isOnlyIds.value ? 'Radial Filter (IDs)' : 'Radial Filter (Query params)'
+)
 
 const isOnlyIds = computed(() => Array.isArray(props.ids))
 const filterLinks = computed(() => {

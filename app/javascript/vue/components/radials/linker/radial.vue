@@ -24,13 +24,13 @@
     <VBtn
       class="circle-button"
       color="radial"
-      title="Radial filter"
+      :title="title"
       circle
       :disabled="disabled"
       @click="openRadialMenu()"
     >
       <VIcon
-        title="Radial filter"
+        :title="title"
         name="chain"
         x-small
       />
@@ -84,6 +84,10 @@ const filterLinks = computed(() => {
     ? LINKER_LIST[props.objectType].ids
     : LINKER_LIST[props.objectType].all
 })
+
+const title = computed(() =>
+  isOnlyIds.value ? 'Radial Linker (IDs)' : 'Radial Linker (Query params)'
+)
 
 const menuOptions = computed(() => {
   const slices = []
