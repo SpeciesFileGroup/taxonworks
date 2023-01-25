@@ -22,6 +22,7 @@
       :pagination="pagination"
       :parameters="parameters"
       :object-type="PEOPLE"
+      :selected-ids="selectedIds"
       v-model:per="per"
       @filter="makeFilterRequest()"
       @nextpage="loadPage"
@@ -52,7 +53,7 @@
       v-if="isLoading"
       full-screen
       legend="Searching..."
-      :logo-size="{ width: '100px', height: '100px'}"
+      :logo-size="{ width: '100px', height: '100px' }"
     />
   </div>
 </template>
@@ -73,7 +74,7 @@ import { URLParamsToJSON } from 'helpers/url/parse'
 
 const csvList = computed(() =>
   selectedIds.value.length
-    ? list.value.filter(item => selectedIds.value.includes(item.id))
+    ? list.value.filter((item) => selectedIds.value.includes(item.id))
     : list.value
 )
 
@@ -110,7 +111,6 @@ onBeforeMount(() => {
     makeFilterRequest({ ...parameters.value })
   }
 })
-
 </script>
 
 <script>

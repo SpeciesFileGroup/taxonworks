@@ -34,6 +34,7 @@
       :pagination="pagination"
       :parameters="parameters"
       :object-type="COLLECTING_EVENT"
+      :selected-ids="selectedIds"
       v-model:per="per"
       @filter="loadList"
       @nextpage="loadPage"

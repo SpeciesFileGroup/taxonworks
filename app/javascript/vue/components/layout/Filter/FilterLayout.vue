@@ -49,7 +49,21 @@
           v-model="perValue"
         />
       </div>
-      <slot name="nav-right" />
+      <div class="horizontal-right-content">
+        <RadialFilter
+          v-if="selectedIds"
+          :ids="selectedIds"
+          :disabled="!selectedIds.length"
+          :object-type="objectType"
+        />
+        <RadialLinker
+          v-if="selectedIds"
+          :ids="selectedIds"
+          :disabled="!selectedIds.length"
+          :object-type="objectType"
+        />
+        <slot name="nav-right" />
+      </div>
     </div>
   </NavBar>
   <div
@@ -115,6 +129,11 @@ const props = defineProps({
 
   objectType: {
     type: String,
+    default: undefined
+  },
+
+  selectedIds: {
+    type: Array,
     default: undefined
   },
 

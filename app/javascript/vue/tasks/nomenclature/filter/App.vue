@@ -21,7 +21,8 @@
       :table="preferences.showList"
       :pagination="pagination"
       :parameters="parameters"
-      object-type="TaxonName"
+      :selected-ids="selectedIds"
+      :object-type="TAXON_NAME"
       v-model:per="per"
       @filter="makeFilterRequest({ ...parameters, extend })"
       @nextpage="loadPage"
@@ -67,7 +68,7 @@
       v-if="isLoading"
       full-screen
       legend="Searching..."
-      :logo-size="{ width: '100px', height: '100px'}"
+      :logo-size="{ width: '100px', height: '100px' }"
     />
   </div>
 </template>
@@ -95,7 +96,8 @@ const fields = [
   { label: 'year of publication', value: 'year_of_publication' },
   { label: 'original combination', value: 'cached_original_combination' },
   'rank',
-  { label: 'parent', value: 'parent.cached' }]
+  { label: 'parent', value: 'parent.cached' }
+]
 
 const extend = ['parent']
 
@@ -122,7 +124,7 @@ const selectedIds = ref([])
 
 const csvList = computed(() =>
   selectedIds.value.length
-    ? list.value.filter(item => selectedIds.value.includes(item.id))
+    ? list.value.filter((item) => selectedIds.value.includes(item.id))
     : list.value
 )
 
@@ -130,7 +132,7 @@ onBeforeMount(() => {
   console.log(URLParamsToJSON(location.href))
   parameters.value = {
     ...qs.stringify(location.search, { arrayFormat: 'brackets' }),
-    ...URLParamsToJSON(location.href),
+    ...URLParamsToJSON(location.href)
     //...JSON.parse(sessionStorage.getItem('filterQuery'))
   }
 

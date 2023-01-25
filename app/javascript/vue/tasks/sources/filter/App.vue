@@ -28,6 +28,7 @@
       :table="preferences.showList"
       :parameters="parameters"
       :object-type="SOURCE"
+      :selected-ids="selectedIds"
       v-model:per="per"
       @filter="makeFilterRequest({ ...parameters, extend })"
       @nextpage="loadPage"
@@ -85,7 +86,7 @@
       v-if="isLoading"
       full-screen
       legend="Searching..."
-      :logo-size="{ width: '100px', height: '100px'}"
+      :logo-size="{ width: '100px', height: '100px' }"
     />
   </div>
 </template>
@@ -131,7 +132,7 @@ const {
 
 const csvList = computed(() =>
   selectedIds.value.length
-    ? list.value.filter(item => selectedIds.value.includes(item.id))
+    ? list.value.filter((item) => selectedIds.value.includes(item.id))
     : list.value
 )
 
@@ -150,7 +151,6 @@ onBeforeMount(() => {
     })
   }
 })
-
 </script>
 
 <script>
@@ -160,7 +160,7 @@ export default {
 </script>
 
 <style scoped>
-  .no-found-message {
-    height: 70vh;
-  }
+.no-found-message {
+  height: 70vh;
+}
 </style>

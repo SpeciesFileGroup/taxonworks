@@ -28,6 +28,7 @@
       :table="preferences.showList"
       :parameters="parameters"
       :object-type="CONTENT"
+      :selected-ids="selectedIds"
       v-model:per="per"
       @filter="makeFilterRequest({ ...parameters, extend })"
       @nextpage="loadPage"
@@ -38,16 +39,6 @@
           v-if="list.length"
           class="horizontal-right-content"
         >
-          <RadialFilter
-            :ids="selectedIds"
-            :disabled="!selectedIds.length"
-            :object-type="CONTENT"
-          />
-          <RadialLinker
-            :ids="selectedIds"
-            :disabled="!selectedIds.length"
-            :object-type="CONTENT"
-          />
           <TagAll
             class="circle-button"
             :ids="selectedIds"
@@ -90,8 +81,6 @@ import useFilter from 'shared/Filter/composition/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
 import TagAll from 'tasks/collection_objects/filter/components/tagAll.vue'
-import RadialLinker from 'components/radials/linker/radial.vue'
-import RadialFilter from 'components/radials/filter/radial.vue'
 import { Content } from 'routes/endpoints'
 import { CONTENT } from 'constants/index.js'
 import { computed, reactive, ref, onBeforeMount } from 'vue'

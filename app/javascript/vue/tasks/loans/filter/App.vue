@@ -27,6 +27,7 @@
       :pagination="pagination"
       :table="preferences.showList"
       :parameters="parameters"
+      :selected-ids="selectedIds"
       :object-type="LOAN"
       v-model:per="per"
       @filter="makeFilterRequest({ ...parameters })"
@@ -71,7 +72,7 @@
       v-if="isLoading"
       full-screen
       legend="Searching..."
-      :logo-size="{ width: '100px', height: '100px'}"
+      :logo-size="{ width: '100px', height: '100px' }"
     />
   </div>
 </template>
@@ -113,7 +114,7 @@ const {
 
 const csvList = computed(() =>
   selectedIds.value.length
-    ? list.value.filter(item => selectedIds.value.includes(item.id))
+    ? list.value.filter((item) => selectedIds.value.includes(item.id))
     : list.value
 )
 
@@ -131,7 +132,6 @@ onBeforeMount(() => {
     })
   }
 })
-
 </script>
 
 <script>

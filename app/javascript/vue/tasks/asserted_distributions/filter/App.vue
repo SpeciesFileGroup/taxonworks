@@ -21,6 +21,7 @@
       :table="preferences.showList"
       :pagination="pagination"
       v-model:per="per"
+      :selected-ids="selectedIds"
       :object-type="ASSERTED_DISTRIBUTION"
       @filter="makeFilterRequest({ ...parameters, extend })"
       @nextpage="loadPage"

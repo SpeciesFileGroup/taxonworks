@@ -23,6 +23,7 @@
       :parameters="parameters"
       :object-type="OTU"
       v-model:per="per"
+      :selected-ids="selectedIds"
       @filter="makeFilterRequest({ ...parameters, extend })"
       @nextpage="loadPage"
       @reset="resetFilter"
@@ -56,7 +57,7 @@
       v-if="isLoading"
       full-screen
       legend="Searching..."
-      :logo-size="{ width: '100px', height: '100px'}"
+      :logo-size="{ width: '100px', height: '100px' }"
     />
   </div>
 </template>
@@ -78,11 +79,7 @@ import { URLParamsToJSON } from 'helpers/url/parse'
 
 const extend = ['taxonomy']
 
-const csvFields = computed(() =>
-  selectedIds.value.length
-    ? list.value
-    : []
-)
+const csvFields = computed(() => (selectedIds.value.length ? list.value : []))
 
 const selectedIds = ref([])
 

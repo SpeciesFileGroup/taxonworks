@@ -22,6 +22,7 @@
       :pagination="pagination"
       :parameters="parameters"
       :object-type="BIOLOGICAL_ASSOCIATION"
+      :selected-ids="selectedIds"
       v-model:per="per"
       @filter="makeFilterRequest({ ...parameters, extend })"
       @nextpage="loadPage"
@@ -56,7 +57,7 @@
       v-if="isLoading"
       full-screen
       legend="Searching..."
-      :logo-size="{ width: '100px', height: '100px'}"
+      :logo-size="{ width: '100px', height: '100px' }"
     />
   </div>
 </template>
@@ -89,11 +90,7 @@ const preferences = reactive({
   showList: true
 })
 
-const csvFields = computed(() =>
-  selectedIds.value.length
-    ? list.value
-    : []
-)
+const csvFields = computed(() => (selectedIds.value.length ? list.value : []))
 
 const fields = [
   'id',
@@ -107,7 +104,7 @@ const fields = [
   },
   {
     label: 'Genus',
-    value: item => item.subject.taxonomy.genus.filter(Boolean).join(' ')
+    value: (item) => item.subject.taxonomy.genus.filter(Boolean).join(' ')
   },
   {
     label: 'Subject',
@@ -115,7 +112,11 @@ const fields = [
   },
   {
     label: 'Biological properties',
-    value: item => item.biological_relationship_types.filter(b => b.target === 'subject').map(b => b.biological_property.name).join(', ')
+    value: (item) =>
+      item.biological_relationship_types
+        .filter((b) => b.target === 'subject')
+        .map((b) => b.biological_property.name)
+        .join(', ')
   },
   {
     label: 'Biological relationship',
@@ -123,7 +124,11 @@ const fields = [
   },
   {
     label: 'Biological properties',
-    value: item => item.biological_relationship_types.filter(b => b.target === 'object').map(b => b.biological_property.name).join(', ')
+    value: (item) =>
+      item.biological_relationship_types
+        .filter((b) => b.target === 'object')
+        .map((b) => b.biological_property.name)
+        .join(', ')
   },
   {
     label: 'Order',
@@ -135,7 +140,7 @@ const fields = [
   },
   {
     label: 'Genus',
-    value: item => item.object.taxonomy.genus.filter(Boolean).join(' ')
+    value: (item) => item.object.taxonomy.genus.filter(Boolean).join(' ')
   },
   {
     label: 'Object',
@@ -167,7 +172,6 @@ if (Object.keys(urlParams).length) {
     extend
   })
 }
-
 </script>
 
 <script>

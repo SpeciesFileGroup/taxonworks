@@ -21,6 +21,7 @@
       :table="preferences.showList"
       :pagination="pagination"
       :parameters="parameters"
+      :selected-ids="selectedIds"
       :object-type="COLLECTION_OBJECT"
       v-model:per="per"
       @filter="makeFilterRequest({ ...parameters, extend })"
@@ -32,16 +33,6 @@
           v-if="list.length"
           class="horizontal-right-content"
         >
-          <RadialFilter
-            :ids="selectedIds"
-            :disabled="!selectedIds.length"
-            :object-type="COLLECTION_OBJECT"
-          />
-          <RadialLinker
-            :ids="selectedIds"
-            :disabled="!selectedIds.length"
-            :object-type="COLLECTION_OBJECT"
-          />
           <TagAll
             class="circle-button"
             :ids="selectedIds"
@@ -103,10 +94,8 @@ import ListComponent from './components/list'
 import CsvButton from 'components/csvButton'
 import DwcDownload from './components/dwcDownload.vue'
 import TagAll from './components/tagAll'
-import RadialFilter from 'components/radials/filter/radial.vue'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import DeleteCollectionObjects from './components/DeleteCollectionObjects.vue'
-import RadialLinker from 'components/radials/linker/radial.vue'
 import VSpinner from 'components/spinner.vue'
 import LayoutConfiguration from './components/Layout/LayoutConfiguration.vue'
 import { useLayoutConfiguration } from './components/Layout/useLayoutConfiguration'

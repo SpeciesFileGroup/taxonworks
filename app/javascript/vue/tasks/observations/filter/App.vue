@@ -28,6 +28,7 @@
       :table="preferences.showList"
       :parameters="parameters"
       :object-type="OBSERVATION"
+      :selected-ids="selectedIds"
       v-model:per="per"
       @filter="makeFilterRequest({ ...parameters, extend })"
       @nextpage="loadPage"
