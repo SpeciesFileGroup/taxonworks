@@ -96,7 +96,7 @@ const annotatorTypes = ref({})
 const menuOptions = computed(() => {
   const annotators =
     annotatorTypes.value[props.objectType]?.filter(
-      (type) => ANNOTATORS[type].component
+      (type) => ANNOTATORS[type]?.component
     ) || []
 
   const slices = annotators.map((type) => ({
