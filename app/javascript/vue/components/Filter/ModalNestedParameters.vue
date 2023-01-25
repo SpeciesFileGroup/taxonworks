@@ -67,16 +67,22 @@ const props = defineProps({
 const isEmpty = computed(() => !Object.keys(queryParameters.value).length)
 
 const queryParameters = computed(() => {
-  const params = Object.keys(props.parameters).filter(key => key.includes('query'))
+  const params = Object.keys(props.parameters).filter((key) =>
+    key.includes('_query')
+  )
 
-  return Object.fromEntries(params.map(param => {
-    const [objectType] = Object.entries(QUERY_PARAM).find(([_, key]) => param === key)
+  return Object.fromEntries(
+    params.map((param) => {
+      const [objectType] = Object.entries(QUERY_PARAM).find(
+        ([_, key]) => param === key
+      )
 
-    return [objectType, props.parameters[param]]
-  }))
+      return [objectType, props.parameters[param]]
+    })
+  )
 })
 
-function openFilterFor (objType, params) {
+function openFilterFor(objType, params) {
   const url = `${FILTER_ROUTES[objType]}?${qs.stringify(params)}`
 
   window.open(url, '_self')
