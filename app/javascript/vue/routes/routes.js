@@ -57,7 +57,7 @@ const FILTER_ROUTES = {
   [TAXON_NAME]: '/tasks/taxon_names/filter',
   [DESCRIPTOR]: '/tasks/descriptors/filter',
   [OBSERVATION]: '/tasks/observations/filter',
-  [CONTENT]: '/tasks/contents/filter'
+  [CONTENT]: '/tasks/content/filter'
 }
 
 export { RouteNames, FILTER_ROUTES }
