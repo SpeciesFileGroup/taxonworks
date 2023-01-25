@@ -420,6 +420,16 @@ module Queries
         ::Otu.from('(' + s + ') as otus')
       end
 
+      def content_query_facet
+        return nil if content_query.nil?
+        s = 'WITH query_con_otus AS (' + content_query.all.to_sql + ') ' +
+          ::Otu
+          .joins('JOIN query_con_otus as query_con_otus1 on otus.id = query_con_otus1.otu_id')
+          .to_sql
+
+        ::Otu.from('(' + s + ') as otus')
+      end
+
       def asserted_distributions_facet
         return nil if asserted_distributions.nil?
         if asserted_distributions
@@ -523,6 +533,7 @@ module Queries
           source_query_facet,
           collection_object_query_facet,
           collecting_event_query_facet,
+          content_query_facet,
 
           asserted_distribution_id_facet,
           asserted_distributions_facet,
