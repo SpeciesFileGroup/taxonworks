@@ -105,7 +105,7 @@ const filterLinks = computed(() => {
 const queryObject = computed(() => {
   const params = { ...filteredParameters.value }
   const currentQueryParam = QUERY_PARAM[props.objectType]
-  const queryParams = Object.keys(params).filter((param) =>
+  /*   const queryParams = Object.keys(params).filter((param) =>
     param.includes('_query')
   )
 
@@ -118,11 +118,9 @@ const queryObject = computed(() => {
     ...queryParams.map((param) => ({
       [param]: filteredParameters.value[param]
     }))
-  )
+  ) */
 
-  return currentQueryParam && Object.keys(params).length
-    ? { [currentQueryParam]: params, ...queryParameters }
-    : queryParameters
+  return { [currentQueryParam]: params }
 })
 
 const hasParameters = computed(
@@ -222,6 +220,7 @@ function getCurrentQueryParam(link) {
 
 function unnestParameter(param) {
   const params = { ...queryObject.value }
+  return params
 
   delete params[param]
 
