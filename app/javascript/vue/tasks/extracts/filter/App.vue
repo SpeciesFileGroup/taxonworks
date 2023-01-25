@@ -29,22 +29,13 @@
       @reset="resetFilter"
     >
       <template #nav-right>
-        <div
-          v-if="list.length"
-          class="horizontal-right-content"
-        >
-          <ul class="context-menu middle no_bullets">
-            <li>
-              <TagAll
-                :ids="selectedIds"
-                type="Extract"
-              />
-            </li>
-            <li>
-              <CsvButton :list="csvList" />
-            </li>
-          </ul>
-        </div>
+        <TagAll
+          class="circle-button"
+          :ids="selectedIds"
+          type="Extract"
+        />
+        <span class="separate-left separate-right">|</span>
+        <CsvButton :list="csvList" />
       </template>
       <template #facets>
         <FilterComponent v-model="parameters" />

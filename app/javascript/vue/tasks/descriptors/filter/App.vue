@@ -40,17 +40,12 @@
           class="horizontal-right-content"
         >
           <div class="horizontal-left-content">
-            <ul class="context-menu middle no_bullets">
-              <li>
-                <TagAll
-                  :ids="selectedIds"
-                  type="Source"
-                />
-              </li>
-              <li>
-                <CsvButton :list="csvList" />
-              </li>
-            </ul>
+            <TagAll
+              :ids="selectedIds"
+              :type="DESCRIPTOR"
+            />
+            <span class="separate-left separate-right">|</span>
+            <CsvButton :list="csvList" />
           </div>
         </div>
       </template>

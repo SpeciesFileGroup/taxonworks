@@ -29,12 +29,11 @@
       @reset="resetFilter"
     >
       <template #nav-right>
-        <div
-          v-if="list.length"
-          class="horizontal-right-content"
-        >
-          <CsvButton :list="csvList" />
-        </div>
+        <span class="separate-left separate-right">|</span>
+        <CsvButton
+          class="margin-small-left"
+          :list="csvList"
+        />
       </template>
       <template #facets>
         <FilterComponent v-model="parameters" />

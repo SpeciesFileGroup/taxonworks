@@ -29,27 +29,16 @@
       @reset="resetFilter"
     >
       <template #nav-right>
-        <ul
-          v-if="list.length"
-          class="context-menu no_bullets horizontal-right-content"
-        >
-          <li>
-            <RadialLabel
-              :object-type="TAXON_NAME"
-              :ids="selectedIds"
-              :disabled="!selectedIds.length"
-            />
-          </li>
-          <li>
-            <ModalNestedParameters :parameters="parameters" />
-          </li>
-          <li>
-            <CsvButton
-              :list="csvList"
-              :options="{ fields }"
-            />
-          </li>
-        </ul>
+        <RadialLabel
+          :object-type="TAXON_NAME"
+          :ids="selectedIds"
+          :disabled="!selectedIds.length"
+        />
+        <span class="separate-left separate-right">|</span>
+        <CsvButton
+          :list="csvList"
+          :options="{ fields }"
+        />
       </template>
       <template #facets>
         <FilterComponent v-model="parameters" />

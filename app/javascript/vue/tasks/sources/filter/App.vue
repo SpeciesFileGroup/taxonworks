@@ -35,37 +35,24 @@
       @reset="resetFilter"
     >
       <template #nav-right>
-        <div
-          v-if="list.length"
-          class="horizontal-right-content"
-        >
-          <div class="horizontal-left-content">
-            <ul class="context-menu middle no_bullets">
-              <li>
-                <TagAll
-                  :ids="selectedIds"
-                  type="Source"
-                />
-              </li>
-              <li>
-                <CsvButton :list="csvList" />
-              </li>
-              <li>
-                <BibliographyButton
-                  :selected-list="selectedIds"
-                  :pagination="pagination"
-                  :params="parameters"
-                />
-              </li>
-              <li>
-                <BibtexButton
-                  :selected-list="selectedIds"
-                  :pagination="pagination"
-                  :params="parameters"
-                />
-              </li>
-            </ul>
-          </div>
+        <TagAll
+          class="circle-button"
+          :ids="selectedIds"
+          :type="SOURCE"
+        />
+        <span class="separate-left separate-right">|</span>
+        <div class="horizontal-left-content gap-small">
+          <CsvButton :list="csvList" />
+          <BibliographyButton
+            :selected-list="selectedIds"
+            :pagination="pagination"
+            :params="parameters"
+          />
+          <BibtexButton
+            :selected-list="selectedIds"
+            :pagination="pagination"
+            :params="parameters"
+          />
         </div>
       </template>
       <template #facets>

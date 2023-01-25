@@ -41,23 +41,13 @@
       @reset="resetFilter"
     >
       <template #nav-right>
-        <div
-          v-if="list.length"
-          class="horizontal-right-content"
-        >
-          <div class="horizontal-left-content">
-            <csv-button :list="list" />
-            <OpenCollectionObjectFilter
-              class="margin-small-left"
-              :ids="selectedCEIds"
-            />
-            <RadialFilter
-              object-type="CollectingEvent"
-              :disabled="!selectedCEIds.length"
-              :parameters="{ collecting_event_id: selectedCEIds }"
-            />
-          </div>
-        </div>
+        <RadialFilter
+          object-type="CollectingEvent"
+          :disabled="!selectedCEIds.length"
+          :parameters="{ collecting_event_id: selectedCEIds }"
+        />
+        <span class="separate-left separate-right">|</span>
+        <CsvButton :list="list" />
       </template>
       <template #facets>
         <filter-component

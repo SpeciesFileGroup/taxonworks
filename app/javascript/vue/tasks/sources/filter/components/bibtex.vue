@@ -2,24 +2,30 @@
   <div>
     <spinner-component
       :full-screen="true"
-      v-if="isLoading"/>
+      v-if="isLoading"
+    />
     <button
       type="button"
       class="button normal-input button-default"
-      :disabled="params.source_type != sourceType && params.source_type != undefined"
-      @click="loadBibtex">
+      :disabled="
+        params.source_type != sourceType && params.source_type != undefined
+      "
+      @click="loadBibtex"
+    >
       BibTeX
     </button>
     <modal-component
       v-if="showModal"
-      @close="showModal = false">
+      @close="showModal = false"
+    >
       <template #header>
         <h3>Bibtex</h3>
       </template>
       <template #body>
         <textarea
           class="full_width"
-          :value="bibtex"/>
+          :value="bibtex"
+        />
       </template>
       <template #footer>
         <div>
@@ -27,23 +33,28 @@
             v-if="!links"
             type="button"
             class="button normal-input button-default"
-            @click="generateLinks">
+            @click="generateLinks"
+          >
             Generate download
           </button>
           <template v-else>
             <span>Share link:</span>
-            <div
-              class="middle">
-              <pre class="margin-small-right">{{ links.api_file_url ? links.api_file_url : noApiMessage }}</pre>
+            <div class="middle">
+              <pre class="margin-small-right">{{
+                links.api_file_url ? links.api_file_url : noApiMessage
+              }}</pre>
               <clipboard-button
                 v-if="links.api_file_url"
-                :text="links.api_file_url"/>
+                :text="links.api_file_url"
+              />
             </div>
           </template>
           <button
             type="button"
             @click="createDownloadLink()"
-            class="button normal-input button-default">
+            :disabled="!selectedList.length"
+            class="button normal-input button-default"
+          >
             Download Bibtex
           </button>
         </div>
@@ -53,7 +64,6 @@
 </template>
 
 <script>
-
 import ModalComponent from 'components/ui/Modal'
 import SpinnerComponent from 'components/spinner'
 import ClipboardButton from 'components/clipboardButton'
@@ -84,7 +94,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       bibtex: undefined,
       isLoading: false,
@@ -92,13 +102,14 @@ export default {
       showModal: false,
       links: undefined,
       sourceType: 'Source::Bibtex',
-      noApiMessage: 'To share your project administrator must create an API token.'
+      noApiMessage:
+        'To share your project administrator must create an API token.'
     }
   },
 
   watch: {
     params: {
-      handler () {
+      handler() {
         this.links = undefined
       },
       deep: true
@@ -106,17 +117,27 @@ export default {
   },
 
   methods: {
-    loadBibtex () {
+    loadBibtex() {
       this.showModal = true
       this.isLoading = true
-      GetBibtex({ params: this.selectedList.length ? { ids: this.selectedList } : this.params }).then(response => {
+      GetBibtex({
+        params: this.selectedList.length
+          ? { ids: this.selectedList }
+          : this.params
+      }).then((response) => {
         this.bibtex = response.body
         this.isLoading = false
       })
     },
 
-    createDownloadLink () {
-      GetBibtex({ params: Object.assign((this.selectedList.length ? { ids: this.selectedList } : this.params), { per: this.pagination.total }), responseType: 'blob' }).then(({ body }) => {
+    createDownloadLink() {
+      GetBibtex({
+        params: Object.assign(
+          this.selectedList.length ? { ids: this.selectedList } : this.params,
+          { per: this.pagination.total }
+        ),
+        responseType: 'blob'
+      }).then(({ body }) => {
         const downloadUrl = window.URL.createObjectURL(new Blob([body]))
         const link = document.createElement('a')
         link.href = downloadUrl
@@ -127,9 +148,15 @@ export default {
       })
     },
 
-    generateLinks () {
+    generateLinks() {
       this.isLoading = true
-      GetGenerateLinks(Object.assign({}, (this.selectedList.length ? { ids: this.selectedList } : this.params), { is_public: true })).then(response => {
+      GetGenerateLinks(
+        Object.assign(
+          {},
+          this.selectedList.length ? { ids: this.selectedList } : this.params,
+          { is_public: true }
+        )
+      ).then((response) => {
         this.links = response.body
         this.isLoading = false
       })
@@ -138,12 +165,12 @@ export default {
 }
 </script>
 <style scoped>
-  textarea {
-    height: 60vh;
-  }
+textarea {
+  height: 60vh;
+}
 
-  :deep(.modal-container) {
-    min-width: 80vw;
-    min-height: 60vh;
-  }
+:deep(.modal-container) {
+  min-width: 80vw;
+  min-height: 60vh;
+}
 </style>

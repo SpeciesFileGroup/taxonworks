@@ -46,14 +46,17 @@
         </template>
       </VModal>
       <VBtn
+        class="circle-button"
         title="Radial massive annoator"
         circle
-        color="primary"
-        medium
+        color="radial"
         :disabled="!ids.length"
         @click="isModalVisible = true"
       >
-        A
+        <VIcon
+          name="radialMassAnnotator"
+          x-small
+        />
       </VBtn>
     </div>
   </div>
@@ -64,6 +67,7 @@ import RadialMenu from 'components/radials/RadialMenu.vue'
 import VModal from 'components/ui/Modal.vue'
 import VSpinner from 'components/spinner.vue'
 import Icons from 'components/radials/annotator/images/icons.js'
+import VIcon from 'components/ui/VIcon/index.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import { ANNOTATORS } from './constants/annotators.js'
 import { Metadata, Tag } from 'routes/endpoints'

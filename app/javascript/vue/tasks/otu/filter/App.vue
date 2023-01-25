@@ -29,16 +29,12 @@
       @reset="resetFilter"
     >
       <template #nav-right>
-        <div
-          v-if="list.length"
-          class="horizontal-right-content"
-        >
-          <RadialMassAnnotator
-            :object-type="OTU"
-            :ids="selectedIds"
-          />
-          <CsvButton :list="csvFields" />
-        </div>
+        <RadialMassAnnotator
+          :object-type="OTU"
+          :ids="selectedIds"
+        />
+        <span class="separate-left separate-right">|</span>
+        <CsvButton :list="csvFields" />
       </template>
       <template #facets>
         <FilterComponent v-model="parameters" />

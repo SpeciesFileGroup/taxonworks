@@ -42,7 +42,7 @@
           <TagAll
             class="circle-button"
             :ids="selectedIds"
-            type="Source"
+            :type="CONTENT"
           />
           <span class="separate-left separate-right">|</span>
           <CsvButton :list="csvList" />

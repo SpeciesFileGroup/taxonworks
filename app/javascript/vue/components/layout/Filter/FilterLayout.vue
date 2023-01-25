@@ -34,17 +34,15 @@
         </div>
       </div>
       <span>|</span>
-      <div
-        class="flex-separate"
-        v-if="pagination"
-      >
-        <slot name="nav-left" />
+      <slot name="nav-left" />
+      <div class="flex-separate">
         <pagination-component
           v-if="pagination"
           :pagination="pagination"
           @next-page="emit('nextpage', $event)"
         />
         <pagination-count
+          v-if="pagination"
           :pagination="pagination"
           v-model="perValue"
         />
