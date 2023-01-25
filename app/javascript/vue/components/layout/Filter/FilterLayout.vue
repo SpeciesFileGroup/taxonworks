@@ -60,6 +60,11 @@
           :disabled="!selectedIds.length"
           :object-type="objectType"
         />
+        <RadialMassAnnotator
+          v-if="selectedIds"
+          :object-type="objectType"
+          :ids="selectedIds"
+        />
         <slot name="nav-right" />
       </div>
     </div>
@@ -101,6 +106,7 @@ import VIcon from 'components/ui/VIcon/index.vue'
 import RadialFilter from 'components/radials/filter/radial.vue'
 import ModalNestedParameters from 'components/Filter/ModalNestedParameters.vue'
 import RadialLinker from 'components/radials/linker/radial.vue'
+import RadialMassAnnotator from 'components/radials/mass/radial.vue'
 
 import { ref, computed, onBeforeUnmount } from 'vue'
 
