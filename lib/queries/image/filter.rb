@@ -510,7 +510,6 @@ module Queries
           collection_object_facet,
           collection_object_scope_facet,
           depiction_facet,
-          image_query_facet,
           observation_query_facet,
           otu_facet,
           otu_query_facet,
