@@ -14,7 +14,10 @@ class PeopleController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @people = Queries::Person::Filter.new(filter_params).all.order(:cached).page(params[:page]).per(params[:per])
+        @people = Queries::Person::Filter.new(params).all
+        .order(:cached)
+        .page(params[:page])
+        .per(params[:per])
       }
     end
   end
@@ -149,11 +152,6 @@ class PeopleController < ApplicationController
   end
 
   private
-
-  def filter_params
-    f = ::Queries::Person::Filter.permit(params)
-    f.merge(project_id: sessions_current_project_id)
-  end
 
   def api_params
     params.permit(

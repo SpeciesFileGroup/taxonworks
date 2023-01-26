@@ -13,7 +13,9 @@ class TaxonNamesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per])
+        @taxon_names = Queries::TaxonName::Filter.new(params).all
+        .page(params[:page])
+        .per(params[:per])
       }
     end
   end
@@ -294,11 +296,6 @@ class TaxonNamesController < ApplicationController
         user_id: sessions_current_user_id,
         project_id: sessions_current_project_id
       ).to_h.symbolize_keys
-  end
-
-  def filter_params
-    f = ::Queries::TaxonName::Filter.permit(params)
-    f.merge(project_id: sessions_current_project_id)
   end
 
   def api_params

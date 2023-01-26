@@ -13,10 +13,11 @@ class BiologicalAssociationsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @biological_associations = Queries::BiologicalAssociation::Filter.new(filter_params)
+        @biological_associations = Queries::BiologicalAssociation::Filter.new(params)
           .all
           .where(project_id: sessions_current_project_id)
-          .page(params[:page]).per(params[:per])
+          .page(params[:page])
+          .per(params[:per])
       }
     end
   end
@@ -101,11 +102,6 @@ class BiologicalAssociationsController < ApplicationController
   end
 
   private
-
-  def filter_params
-    f = ::Queries::BiologicalAssociation::Filter.permit(params)
-    f.merge(project_id: sessions_current_project_id)
-  end
 
   def api_params
     params.permit(

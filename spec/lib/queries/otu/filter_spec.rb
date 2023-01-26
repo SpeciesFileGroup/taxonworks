@@ -8,6 +8,65 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
   let(:o1) { Otu.create!(name: 'Abc 1') }
   let(:o2) { Otu.create!(name: 'Def 2') }
 
+  # TODO: This block tests Queries::Query::Filter
+  context '<sub>_query initialization' do
+    specify '.permit' do
+      expect(q.class.annotator_params).to include(:identifier)
+      expect(q.class.annotator_params.last.keys).to include(:identifier_type)
+    end
+
+    specify '.annotator_params' do
+      expect(q.class.annotator_params).to include(:identifier)
+      expect(q.class.annotator_params.last.keys).to include(:identifier_type)
+    end
+
+    specify '#deep_permit 1' do
+      h = {collecting_event_query: {otu_id: 1, otu_query: {otu_id: 10, taxon_name_query: {name: 'foo'}  }} }
+      p = ActionController::Parameters.new( h  )
+      expect(q.deep_permit(p).to_hash.deep_symbolize_keys).to eq( h )
+    end
+
+    specify '#permitted_params 1' do
+      h = ActionController::Parameters.new({unpermitted_bad: nil, collecting_event_query: {otu_id: 1, otu_query: {otu_id: 10, taxon_name_query: {name: 'foo'}  }} }  )
+      a = q.permitted_params(h)
+      expect(a.last[:collecting_event_query].last[:otu_query].last[:taxon_name_query].last[:identifier_type]).to eq([])
+    end
+
+    specify '#subquery_vector' do
+      h = ActionController::Parameters.new( {collecting_event_query: {otu_id: 1, otu_query: {otu_id: 10, taxon_name_query: {name: 'foo'}  }} }  )
+      expect(q.subquery_vector(h.to_unsafe_hash)).to eq([:collecting_event_query, :otu_query, :taxon_name_query])
+    end
+
+    specify 'initialize with ActionController::Parameters' do
+      s = FactoryBot.create(:valid_specimen, collecting_event: FactoryBot.create(:valid_collecting_event))
+      s.taxon_determinations << TaxonDetermination.new(otu: o1)
+
+      p = ActionController::Parameters.new(
+       collecting_event_query: {otu_id: o1.id}  
+      )
+
+      f = Queries::Otu::Filter.new(p)
+
+      o2 # not this
+
+      expect(f.all).to contain_exactly(o1)
+    end
+
+    specify 'initialize with Hash' do
+      s = FactoryBot.create(:valid_specimen, collecting_event: FactoryBot.create(:valid_collecting_event))
+      s.taxon_determinations << TaxonDetermination.new(otu: o1)
+      
+      p = { collecting_event_query: {otu_id: o1.id}  }
+      f = Queries::Otu::Filter.new(p)
+
+      o2 # not this
+
+      expect(f.all).to contain_exactly(o1)
+    end
+
+
+  end
+
   specify '#collection_objects' do
     o2
     c = FactoryBot.create(:valid_collection_object)

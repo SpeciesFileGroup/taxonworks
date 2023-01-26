@@ -15,7 +15,7 @@ class AssertedDistributionsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @asserted_distributions = Queries::AssertedDistribution::Filter.new(filter_params)
+        @asserted_distributions = Queries::AssertedDistribution::Filter.new(params)
           .all
           .where(project_id: sessions_current_project_id)
           .page(params[:page])
@@ -176,11 +176,6 @@ class AssertedDistributionsController < ApplicationController
 
   def batch_params
     params.permit(:data_origin, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
-  end
-
-  def filter_params
-    f = ::Queries::AssertedDistribution::Filter.permit(params)
-    f.merge(project_id: sessions_current_project_id)
   end
 
   def api_params

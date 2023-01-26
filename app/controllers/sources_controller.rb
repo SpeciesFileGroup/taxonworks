@@ -13,11 +13,17 @@ class SourcesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @sources = Queries::Source::Filter.new(filter_params).all.order(:cached).page(params[:page]).per(params[:per] || 500)
+        @sources = Queries::Source::Filter.new(params).all
+        .order(:cached)
+        .page(params[:page])
+        .per(params[:per])
       }
       format.bib {
         # TODO - handle count and download
-        @sources = Queries::Source::Filter.new(filter_params).all.order(:cached).page(params[:page]).per(params[:per] || 2000)
+        @sources = Queries::Source::Filter.new(params).all
+        .order(:cached)
+        .page(params[:page])
+        .per(params[:per] || 2000)
       }
     end
   end
@@ -245,11 +251,6 @@ class SourcesController < ApplicationController
 
   def autocomplete_params
     params.permit(:limit_to_project).merge(project_id: sessions_current_project_id).to_h.symbolize_keys
-  end
-
-  def filter_params
-    f = ::Queries::Source::Filter.permit(params)
-    f.merge(project_id: sessions_current_project_id)
   end
 
   def api_params

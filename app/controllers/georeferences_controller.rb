@@ -12,7 +12,10 @@ class GeoreferencesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @georeferences = Queries::Georeference::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(50)
+        @georeferences = Queries::Georeference::Filter.new(params).all
+        .where(project_id: sessions_current_project_id)
+        .page(params[:page])
+        .per(params[:per])
       }
     end
   end
@@ -139,11 +142,6 @@ class GeoreferencesController < ApplicationController
   end
 
   private
-
-  def filter_params
-    f = ::Queries::Georeference::Filter.permit(params)
-    f.merge(project_id: sessions_current_project_id)
-  end
 
   def set_georeference
     @georeference = Georeference.with_project_id(sessions_current_project_id).find(params[:id])

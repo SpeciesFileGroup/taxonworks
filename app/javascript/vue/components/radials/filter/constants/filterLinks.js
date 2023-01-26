@@ -61,7 +61,7 @@ export const FILTER_LINKS = {
   },
   [CONTENT]: {
     label: 'Contents',
-    link: '/tasks/contents/filter'
+    link: '/tasks/content/filter'
   },
   [OBSERVATION]: {
     label: 'Observations',

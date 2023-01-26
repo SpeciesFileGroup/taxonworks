@@ -14,7 +14,7 @@ class ObservationsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @observations = Queries::Observation::Filter.new(filter_params)
+        @observations = Queries::Observation::Filter.new(params)
           .all
           .where(project_id: sessions_current_project_id)
           .page(params[:page])
@@ -172,11 +172,6 @@ class ObservationsController < ApplicationController
         image_attributes: [:image_file]
       ]
     )
-  end
-
-  def filter_params
-    f = ::Queries::Observation::Filter.permit(params)
-    f.merge(project_id: sessions_current_project_id)
   end
 
   def api_params

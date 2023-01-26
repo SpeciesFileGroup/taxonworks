@@ -13,9 +13,9 @@ class ImagesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @images = Queries::Image::Filter.new(filter_params).all
+        @images = Queries::Image::Filter.new(params).all
           .where(project_id: sessions_current_project_id)
-          .all.page(params[:page]).per(params[:per] || 50)
+          .page(params[:page]).per(params[:per])
       }
     end
   end
@@ -175,11 +175,6 @@ class ImagesController < ApplicationController
   end
 
   private
-
-  def filter_params
-    f = ::Queries::Image::Filter.permit(params)
-    f.merge(project_id: sessions_current_project_id)
-  end
 
   # TODO: need `is_public` here
   def api_params

@@ -14,7 +14,7 @@ class DescriptorsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @descriptors = ::Queries::Descriptor::Filter.new(filter_params).all
+        @descriptors = ::Queries::Descriptor::Filter.new(params).all
           .page(params[:page])
           .per(params[:per])
           .order('descriptors.name')
@@ -182,11 +182,6 @@ class DescriptorsController < ApplicationController
   end
 
   private
-
-  def filter_params
-    f = ::Queries::Descriptor::Filter.permit(params)
-    f.merge(project_id: sessions_current_project_id)
-  end
 
   def set_descriptor
     @descriptor = Descriptor.where(project_id: sessions_current_project_id).find(params[:id])

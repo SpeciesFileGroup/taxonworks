@@ -1,6 +1,16 @@
 module Queries
-  class Query::Filter < Queries::Query
 
+  # Overview
+  #
+  # This class manages params and nesting of filter queries.
+  # 
+  # Each inheriting class defines a PARAMS variable.
+  # Each concern defines `self.params`.
+  # Together these two lists are used to compose a list of 
+  # acceptable params, dynamically, based on the nature
+  # of the nested queries.
+  #
+  class Query::Filter < Queries::Query
 
     # Concerns have corresponding Facets in Vue.
     # To add the corresponding facet:
@@ -49,7 +59,7 @@ module Queries
     }.freeze
 
     # We could consider `.safe_constantize` to make this a f(n), but we'd have 
-    # to have a list somewhere to further restrict.
+    # to have a list somewhere else anyways to further restrict allowed classes.
     # 
     FILTER_QUERIES = {
       asserted_distribution_query: ::Queries::AssertedDistribution::Filter, 
@@ -111,73 +121,73 @@ module Queries
     attr_accessor :recent
 
     def initialize(params)
-
       p = nil
 
       if params.kind_of?(Hash)
         p = params
       elsif params.kind_of?(ActionController::Parameters)
-        p = deep_permit(params)
+        p = deep_permit(params).to_hash.deep_symbolize_keys # perhaps add to deep_permit
       end
 
-      set_sub_query(p)
+      set_nested_queries(p)
+      set_user_dates(p)
+      set_citations_params(p)
+      set_identifier_params(p)
 
-      set_user_dates(params)
-      set_citations_params(params)
-      set_identifier_params(params)
-
-      @recent = boolean_param(params, :recent) # was checking for 1
+      @recent = boolean_param(params, :recent)
       
-      # always on --- but need only checkes
-      @project_id = params[:project_id] || Current.project_id # TODO: revisit
+      # always on --- but need :only checks
+      @project_id = p[:project_id] || Current.project_id # TODO: revisit
+    end
 
+    def self.included_annotator_facets
+      f = [
+        ::Queries::Concerns::Citations,
+        ::Queries::Concerns::Users
+      ]
 
-   #  if params[:taxon_name_query].present?
-   #    @taxon_name_query = ::Queries::TaxonName::Filter.new(params[:taxon_name_query])
-   #    @taxon_name_query.project_id = project_id
-   #  end
+      f.push ::Queries::Concerns::Tags if self < ::Queries::Concerns::Tags
+      f.push ::Queries::Concerns::Notes if self < ::Queries::Concerns::Notes
+      f.push ::Queries::Concerns::DataAttributes if self < ::Queries::Concerns::DataAttributes
+      f.push ::Queries::Concerns::Identifiers if self < ::Queries::Concerns::Identifiers
+      f.push ::Queries::Concerns::Protocols if self < ::Queries::Concerns::Protocols
 
-   #  if params[:collection_object_query].present?
-   #    @collection_object_query = ::Queries::CollectionObject::Filter.new(params[:collection_object_query])
-   #    @collection_object_query.project_id = project_id
-   #  end
+      f
+    end
+ 
+    # @return Array, nil
+    #   a [:a, :b, {c: []}] formatted Array
+    # to be merged into included params
+    def self.annotator_params
+      h = nil
+      if i = included_annotator_facets
+        a = i.shift
+        h = a.params
 
-   #  if params[:collecting_event_query].present?
-   #    @collecting_event_query = ::Queries::CollectionEvent::Filter.new(params[:collecting_event_query])
-   #    @collecting_event_query.project_id = project_id
-   #  end
+        if !h.last.kind_of?(Hash)
+          h << {}
+        end
 
-   #  if params[:otu_query].present?
-   #    @otu_query = ::Queries::Otu::Filter.new(params[:otu_query])
-   #    @otu_query.project_id = project_id
-   #  end
+        c = h.last
 
-   #  if params[:source_query].present?
-   #    @source_query = ::Queries::Source::Filter.new(params[:source_query])
-   #    @source_query.project_id = project_id
-   #  end
+        i.each do |j|
+          p = j.params 
 
-   #  if params[:content_query].present?
-   #    @content_query = ::Queries::Content::Filter.new(params[:content_query])
-   #    @content_query.project_id = project_id
-   #  end
-
-   #  if params[:observation_query].present?
-   #    @observation_query = ::Queries::Observation::Filter.new(params[:observation_query])
-   #    @observation_query.project_id = project_id
-   #  end
-
-   #  if params[:loan_query].present?
-   #    @loan_query = ::Queries::Loan::Filter.new(params[:observation_query])
-   #    @loan.project_id = project_id
-   #  end
-
+          if p.last.kind_of?(Hash)
+            c.merge!(p.pop)
+          end
+          
+          h = p + h
+        end
+      end
+      h
     end
 
     # @params params [Hash] 
-    #    not ActionController::Parameters!
-    # Recursively set all nested queries
-    def set_sub_query(params)
+    #   Recursively set all nested queries,
+    #   e.g. @otu_filter_query
+    # @return True
+    def set_nested_queries(params)
       if n = params.select{|k, p| k.to_s =~ /_query/ }
         return nil if n.count != 1 # can't have multiple nested queries inside one level
 
@@ -186,9 +196,8 @@ module Queries
 
         q = FILTER_QUERIES[query_name].new(query_params)
 
-        v = send("#{query_name}=".to_sym, q) # set
-
-        #   v.project_id = project_id
+        # assign to @<model>_query
+        v = send("#{query_name}=".to_sym, q) 
       end
 
       true
@@ -286,98 +295,6 @@ module Queries
       a
     end
 
-    def self.included_annotator_facets
-      f = [
-        ::Queries::Concerns::Citations,
-        ::Queries::Concerns::Users
-      ]
-
-      f.push ::Queries::Concerns::Tags if self.class < ::Queries::Concerns::Tags
-      f.push ::Queries::Concerns::Notes if self.class < ::Queries::Concerns::Notes
-      f.push ::Queries::Concerns::DataAttributes if self.class < ::Queries::Concerns::DataAttributes
-      f.push ::Queries::Concerns::Identifiers if self.class < ::Queries::Concerns::Identifiers
-      f.push ::Queries::Concerns::Protocols if self.class < ::Queries::Concerns::Protocols
-
-      f
-    end
-
-    # @param filter [Symbol]
-    #   One of SUBQUERIES.keys
-    #
-    # @param params [ActionController::Parameters]
-    # @return [Hash]
-    #   all params for this base request
-    #   keys are symbolized
-    #
-    #  This may all be overkill, since we assign individual values from a hash
-    #  one at a time, and we are not writing with params we could replace all
-    #  of this with simply params.permit!
-    #
-    #a The question is whether there are benefits to housekeeping
-    # (knowing the expected/full list of params ). For example using permit
-    # tells us when the UI is sending params that we don't expect (not permitted logs).
-    #
-    # Keeping tack of the list or params in one places also helps to build API documentation.
-    #
-    # It should let us inject concern attributes as well (but again, the permit level is olikely overkill).
-    #
-    # 
-    # TODO: unselfify
-    def deep_permit(params, target_query = self.class , permitted = ActionController::Parameters.new )
-
-      byebug
-      permitted.merge! params.permit(*target_query::PARAMS)
-      permitted.merge! target_query.annotator_params(params)
-
-      # v = (table.name.singularize + '_query' ).to_sym # todo make method
-
-      i = target_query.base_name.to_sym # todo - make methd
-
-      n = child_subquery(params)
-
-      if n = child_subquery(params)
-        s = n.to_s.gsub('_query', '').to_sym
-
-        if SUBQUERIES[i].include?( s )
-          deep_permit(params[n.to_s], FILTER_QUERIES[n], permitted)
-        end
-      end
-
-      # Note, this throws an error:
-      # RuntimeError Exception: can't add a new key into hash during iteration
-      # h.permit!.to_h.deep_symbolize_keys
-
-      permitted.permit!.to_hash.deep_symbolize_keys
-    end
-
-    def self.annotator_params
-
-      h = nil
-      if i = included_annotator_facets
-        a = i.shift
-        h = a.params
-
-        if !h.last.kind_of?(Hash)
-          h << {}
-        end
-
-        c = h.last
-
-        i.each do |j|
-          p = j.params 
-
-          if p.last.kind_of?(Hash)
-            c.merge!(p.pop)
-          end
-          
-          h = p + h
-        end
-      else
-        nil
-      end
-      h
-    end
-
     # This method is a preprocessor that discovers what params the 
     # filter should allow by discovering nested subqueries.
     # It is used to build a permitable profile
@@ -408,9 +325,10 @@ module Queries
        
       c = h.last # a {}
 
-      n = self.class.annotator_params
-      c.merge!(n.pop)
-      h = n + h
+      if n = self.class.annotator_params
+        c.merge!(n.pop)
+        h = n + h
+      end
 
       b = subquery_vector(hsh)
 
@@ -423,9 +341,10 @@ module Queries
           p << {}
         end
 
-        n = q.annotator_params
-        p.last.merge!(n.pop)
-        p = n + p
+        if n = q.annotator_params
+          p.last.merge!(n.pop)
+          p = n + p
+        end
 
         c[a] = p
 
@@ -434,36 +353,27 @@ module Queries
 
       h
     end 
-        
+
+    # @params params ActionController::Parameters
+    # @return ActionController::Parameters 
     def deep_permit(params)
       params.permit(
         permitted_params(params.to_unsafe_hash) # return the signature, then the permitted params
       )
     end
 
-# @params hsh Hash 
-# @return [Array of Symbol]
-#   all queries in nested order
-# Since queries nest linearly we don't need to recurse. 
-def subquery_vector(hsh)
-  result = []
-  while !hsh.keys.select{|k| k =~ /_query/}.empty?
-    a = hsh.keys.select{|k| k =~ /_query/} 
-    result += a
-    hsh = hsh[a.first]
-  end 
-  result.map(&:to_sym)
-end
-
-
-    # Identify the embedded subquery if present and return its name
-    # @return Symbol, nil
-    # @param 
-    def child_subquery(params)
-      if n = params.keys.select{|k| k =~ /_query/}&.first
-        return n
-      end
-      nil
+    # @params hsh Hash 
+    # @return [Array of Symbol]
+    #   all queries in nested order
+    # Since queries nest linearly we don't need to recurse. 
+    def subquery_vector(hsh)
+      result = []
+      while !hsh.keys.select{|k| k =~ /_query/}.empty?
+        a = hsh.keys.select{|k| k =~ /_query/} 
+        result += a
+        hsh = hsh[a.first]
+      end 
+      result.map(&:to_sym)
     end
 
     # params attribute [Symbol]

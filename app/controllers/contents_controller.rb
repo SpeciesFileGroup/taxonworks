@@ -13,7 +13,7 @@ class ContentsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @contents = ::Queries::Content::Filter.new(filter_params).all.page(params[:page]).per(params[:per])
+        @contents = ::Queries::Content::Filter.new(params).all.page(params[:page]).per(params[:per])
       }
     end
   end
@@ -147,11 +147,6 @@ class ContentsController < ApplicationController
       topic_id: [],
       otu_id: []
     ).to_h.merge(project_id: sessions_current_project_id)
-  end
-
-  def filter_params
-    f = ::Queries::Content::Filter.permit(params)
-    f.merge(project_id: sessions_current_project_id)
   end
 
   def set_content

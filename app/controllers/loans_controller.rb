@@ -22,7 +22,7 @@ class LoansController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @loans = ::Queries::Loan::Filter.new(filter_params).all
+        @loans = ::Queries::Loan::Filter.new(params).all
           .page(params[:page])
           .per(params[:per])
       }
@@ -120,11 +120,6 @@ class LoansController < ApplicationController
   def set_loan
     @loan = Loan.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @loan
-  end
-
-  def filter_params
-    f = ::Queries::Loan::Filter.permit(params)
-    f.merge(project_id: sessions_current_project_id)
   end
 
   def loan_params

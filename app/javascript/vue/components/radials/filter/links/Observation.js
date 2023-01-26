@@ -5,8 +5,6 @@ import {
   IMAGE,
 } from 'constants/index.js'
 
-
-
 export const Observation = {
   all: [
     FILTER_LINKS[DESCRIPTOR]

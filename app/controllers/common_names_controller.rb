@@ -15,7 +15,9 @@ class CommonNamesController < ApplicationController
       end
       format.json {
         @common_names = Queries::CommonName::Filter.new(filter_params).all
-          .where(project_id: sessions_current_project_id).page(params[:page]).per(500)
+          .where(project_id: sessions_current_project_id)
+          .page(params[:page])
+          .per(params[:per])
       }
     end
   end

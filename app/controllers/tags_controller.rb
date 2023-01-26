@@ -14,7 +14,8 @@ class TagsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @tags = ::Queries::Tag::Filter.new(filter_params).all
+        # Possibly broken polymorphics?
+        @tags = ::Queries::Tag::Filter.new(params).all
           .page(params[:page])
           .per(params[:per])
       }
@@ -148,12 +149,6 @@ class TagsController < ApplicationController
 
   def set_tag
     @tag = Tag.with_project_id(sessions_current_project_id).find(params[:id])
-  end
-
-  # TODO: polymorphics?!
-  def filter_params
-    f = ::Queries::Tag::Filter.permit(params)
-    f.merge(project_id: sessions_current_project_id)
   end
 
   def api_params

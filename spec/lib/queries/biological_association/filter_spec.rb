@@ -169,8 +169,12 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
   end
 
   specify '#collection_object_id' do
-    a = BiologicalAssociation.create!(biological_association_subject: Specimen.create!, biological_association_object: o3, biological_relationship: r2)
+    a = BiologicalAssociation.create!(
+      biological_association_subject: Specimen.create!,
+      biological_association_object: o3,
+      biological_relationship: r2)
     o = {collection_object_id: a.biological_association_subject.id}
+    # byebug
     expect(query.new(o).all.map(&:id)).to contain_exactly( a.id )
   end
 

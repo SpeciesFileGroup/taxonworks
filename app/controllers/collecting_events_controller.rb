@@ -13,7 +13,9 @@ class CollectingEventsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @collecting_events = Queries::CollectingEvent::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 50)
+        @collecting_events = Queries::CollectingEvent::Filter.new(params).all
+        .where(project_id: sessions_current_project_id)
+        .page(params[:page]).per(params[:per])
       }
     end
   end
@@ -292,12 +294,6 @@ class CollectingEventsController < ApplicationController
       :import_level).merge(
         user_id: sessions_current_user_id,
         project_id: sessions_current_project_id).to_h.symbolize_keys
-  end
-
-
-  def filter_params
-    f = ::Queries::CollectingEvent::Filter.permit(params)
-    f.merge(project_id: sessions_current_project_id)
   end
 
   def api_params

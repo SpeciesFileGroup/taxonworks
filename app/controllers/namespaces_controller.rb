@@ -12,7 +12,7 @@ class NamespacesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @namespaces = Queries::Namespace::Filter.new(filter_params).all.page(params[:page]).per(params[:per])
+        @namespaces = Queries::Namespace::Filter.new(params).all.page(params[:page]).per(params[:per])
       }
     end
   end
@@ -129,11 +129,6 @@ class NamespacesController < ApplicationController
   end
 
   private
-
-  def filter_params
-    f = ::Queries::Namespace::Filter.permit(params)
-    f.merge(project_id: sessions_current_project_id)
-  end
 
   def set_namespace
     @namespace = Namespace.find(params[:id])

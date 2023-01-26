@@ -16,7 +16,7 @@ class OtusController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @otus = ::Queries::Otu::Filter.new(filter_params).all
+        @otus = ::Queries::Otu::Filter.new(params).all
           .where(project_id: sessions_current_project_id)
           .page(params[:page])
           .per(params[:per])
@@ -333,11 +333,6 @@ class OtusController < ApplicationController
         project_id: sessions_current_project_id)
       .to_h
       .symbolize_keys
-  end
-
-  def filter_params
-    f = ::Queries::Otu::Filter.permit(params)
-    f.merge(project_id: sessions_current_project_id)
   end
 
   def api_params

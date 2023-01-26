@@ -39,13 +39,6 @@ module Queries
       referenced_klass.name.tableize.singularize
     end
 
-    # TODO: Deprecated
-    # @params params ActionController::Parameters
-    # @return ActionController::Parameters
-    def self.permit(params)
-      deep_permit(base_name.to_sym, params)
-    end
-
     def table
       referenced_klass.arel_table
     end
@@ -54,9 +47,9 @@ module Queries
       referenced_klass.select( referenced_klass.name.tableize + '.*'  )
     end
 
- #  def self.base_name
- #    referenced_klass.name.tableize.singularize
- #  end
+    #  def self.base_name
+    #    referenced_klass.name.tableize.singularize
+    #  end
 
     def referenced_klass
        self.class.referenced_klass
