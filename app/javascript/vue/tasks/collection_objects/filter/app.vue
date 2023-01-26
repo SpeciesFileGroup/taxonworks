@@ -99,13 +99,8 @@ import DeleteCollectionObjects from './components/DeleteCollectionObjects.vue'
 import VSpinner from 'components/spinner.vue'
 import LayoutConfiguration from './components/Layout/LayoutConfiguration.vue'
 import { useLayoutConfiguration } from './components/Layout/useLayoutConfiguration'
-import {
-  COLLECTING_EVENT_PROPERTIES,
-  COLLECTION_OBJECT_PROPERTIES,
-  DWC_OCCURRENCE_PROPERTIES,
-  REPOSITORY_PROPERTIES,
-  TAXON_DETERMINATION_PROPERTIES
-} from 'shared/Filter/constants'
+import { LAYOUTS } from './constants/layouts.js'
+import { COLLECTION_OBJECT_PROPERTIES } from 'shared/Filter/constants'
 
 const extend = [
   'dwc_occurrence',
@@ -117,22 +112,7 @@ const extend = [
   'identifiers'
 ]
 
-const defaultLayout = {
-  properties: {
-    collection_object: COLLECTION_OBJECT_PROPERTIES,
-    current_repository: REPOSITORY_PROPERTIES,
-    repository: REPOSITORY_PROPERTIES,
-    collecting_event: COLLECTING_EVENT_PROPERTIES,
-    taxon_determinations: TAXON_DETERMINATION_PROPERTIES,
-    dwc_occurrence: DWC_OCCURRENCE_PROPERTIES,
-    identifiers: ['cached']
-  },
-  includes: {
-    data_attributes: true
-  }
-}
-
-const { currentLayout } = useLayoutConfiguration(defaultLayout)
+const { currentLayout } = useLayoutConfiguration(LAYOUTS)
 
 const selectedIds = ref([])
 const coList = ref([])

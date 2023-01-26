@@ -1,5 +1,6 @@
 export * from './collectingEvent'
 export * from './collectionObject'
 export * from './dwcOccurrence'
+export * from './identifiers'
 export * from './repository'
 export * from './taxonDetermination'

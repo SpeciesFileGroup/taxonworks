@@ -1,11 +1,11 @@
 $big-input-size: 40px;
 $normal-input-size: 28px;
 
-input[type=checkbox].locked {
+input[type='checkbox'].locked {
   display: none;
 }
 
-input[type=checkbox].increment {
+input[type='checkbox'].increment {
   display: none;
 }
 
@@ -40,20 +40,21 @@ button {
   font-size: 12px;
 }
 
-input[type=checkbox]:checked + label.lock {
+input[type='checkbox']:checked + label.lock {
   background-image: image-url('locked.svg');
   box-shadow: inset 0px 1px 2px 0px $navigation_border;
   background-color: $navigation_background;
 }
 
-input[type=checkbox]:checked + label.increment {
+input[type='checkbox']:checked + label.increment {
   background-image: image-url('inc.svg');
   box-shadow: inset 0px 1px 2px 0px $navigation_border;
   background-color: $navigation_background;
 }
 
 .input-checkbox-field {
-  input, select {
+  input,
+  select {
     border-bottom-right-radius: 0px;
     border-top-right-radius: 0px;
   }
@@ -69,34 +70,37 @@ input[type=checkbox]:checked + label.increment {
   border: 1px $color-secondary-1-3 solid;
 }
 
-textarea:focus, input:focus {
+textarea:focus,
+input:focus {
   outline: none;
 }
 
 fieldset {
   border-radius: 2px;
   border: 1px solid $navigation_border;
-  background-color: #FFF;
+  background-color: #fff;
 }
 
-input, textarea {
+input,
+textarea {
   position: relative;
   font-size: $font_small;
   padding: 0px;
-  padding-left: $standard_padding*0.9;
-  padding-right: $standard_padding*0.9;
+  padding-left: $standard_padding * 0.9;
+  padding-right: $standard_padding * 0.9;
   border-radius: 2px;
   border: 1px solid $input-border-color;
-  background-color: #FFF;
+  background-color: #fff;
   box-sizing: border-box;
   min-height: $normal-input-size;
 }
 
-input[type="checkbox"], input[type="radio"] {
-  min-height: unset
+input[type='checkbox'],
+input[type='radio'] {
+  min-height: unset;
 }
 
-input[type="submit"] {
+input[type='submit'] {
   position: relative;
   cursor: pointer;
   font-weight: 500;
@@ -105,20 +109,21 @@ input[type="submit"] {
   border-bottom: 2px solid rgba(0, 0, 0, 0.2);
 }
 
-input[type="submit"][disabled] {
+input[type='submit'][disabled] {
   color: #000;
   opacity: 0.5;
   background-color: $navigation_border;
 }
 
 select {
-  padding: $standard_padding*0.5;
+  padding: $standard_padding * 0.5;
   padding-left: $standard_padding;
   padding-right: $standard_padding;
   border-radius: 2px;
   border: 1px solid $muted_blue;
-  background-color: #FFF;
+  background-color: #fff;
   font-size: $font_tiny;
+  min-height: $normal-input-size;
 }
 
 .ui-autocomplete {
@@ -171,7 +176,8 @@ form div.required {
 }
 
 .field {
-  &.label_above, &.label-above {
+  &.label_above,
+  &.label-above {
     label {
       display: block;
     }

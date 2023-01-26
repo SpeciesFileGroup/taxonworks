@@ -76,12 +76,26 @@
       </div>
     </template>
   </VModal>
+  <select v-model="currentLayout">
+    <option
+      v-for="(item, key) in layouts"
+      :key="key"
+      :value="item"
+    >
+      {{ key }}
+    </option>
+  </select>
+
   <VBtn
+    class="rounded-tl-none rounded-bl-none"
     medium
     color="primary"
-    @click="isModalVisible = true"
+    @click="openLayoutPreferences"
   >
-    Layout preferences
+    <VIcon
+      name="pencil"
+      x-small
+    />
   </VBtn>
 </template>
 
@@ -90,6 +104,7 @@ import { ref } from 'vue'
 import VModal from 'components/ui/Modal.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VueDraggable from 'vuedraggable'
+import VIcon from 'components/ui/VIcon/index.vue'
 import { useLayoutConfiguration } from './useLayoutConfiguration'
 import { humanize } from 'helpers/strings.js'
 
@@ -97,10 +112,14 @@ const {
   currentLayout,
   layouts,
   properties,
-  newLayout,
   includes,
   updatePropertiesPositions
 } = useLayoutConfiguration()
+
+function openLayoutPreferences() {
+  currentLayout.value = layouts.value.Custom
+  isModalVisible.value = true
+}
 
 const isModalVisible = ref(false)
 </script>
