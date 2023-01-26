@@ -9,15 +9,15 @@
 module Queries::Concerns::DataAttributes
   include Queries::Helpers
 
-  def self.permit(params)
-    params.permit(
+  def self.params
+   [   
       :data_attribute_exact_value,
       :data_attribute_predicate_id,
       :data_attribute_value,
       :data_attributes,
       data_attribute_predicate_id: [],
       data_attribute_value: [],
-    )
+    ]
   end
 
   extend ActiveSupport::Concern

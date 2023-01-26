@@ -9,8 +9,8 @@ module Queries::Concerns::Identifiers
 
   extend ActiveSupport::Concern
 
-  def self.permit(params)
-    params.permit(
+  def self.params
+    [
       :identifier,
       :identifier_end,
       :identifier_exact,
@@ -23,7 +23,7 @@ module Queries::Concerns::Identifiers
       :match_identifiers_type,
       :namespace_id,
       identifier_type: [],
-    )
+    ]
   end
 
   included do

@@ -6,7 +6,6 @@ module Queries
       include Queries::Concerns::Notes
       include Queries::Concerns::Tags
 
-
       PARAMS = [
         :geographic_area_mode,
         :geo_json,
@@ -124,7 +123,7 @@ module Queries
       attr_accessor :object_biological_property_id
 
       # @return [Array]
-      #   one or more biological association ids
+      #   one or more BiologicalAssociation#id
       # @param biological_association_id [Array, Integer]
       attr_accessor :biological_association_id
 
@@ -280,17 +279,6 @@ module Queries
         )
       end
 
-      def matching_global_id(target = :subject, global_ids = [])
-        a = global_ids
-        b = "#{target}_matches".to_sym
-
-        q = send(b, object_for(a[0]))
-        a[1..a.length].each do |i|
-          q = q.or( send(b, object_for(i) ))
-        end
-        q
-      end
-
       def geographic_area_id_facet
         return nil if geographic_area_id.empty?
 
@@ -420,18 +408,6 @@ module Queries
 
       def base_collection_object_query
         ::Queries::CollectionObject::Filter.new(collection_object_params)
-      end
-
-      def object_taxon_name_ids
-        return taxon_name_id if !taxon_name_id.empty?
-        return object_taxon_name_id if !object_taxon_name_id.empty?
-        return []
-      end
-
-      def subject_taxon_name_ids
-        return taxon_name_id if !taxon_name_id.empty? # only one or the other supposed to be sent
-        return subject_taxon_name_id if !subject_taxon_name_id.empty?
-        return []
       end
 
       def subject_collection_object_query
@@ -609,7 +585,7 @@ module Queries
         b = ::Queries::CollectionObject::Filter.new(ancestor_id: subject_taxon_name_id).all
 
         ::BiologicalAssociation.where(
-          biological_association_subject: a + b, #  [a, b].flatten
+          biological_association_subject: a + b, # [a, b].flatten
         )
       end
 
@@ -697,6 +673,8 @@ module Queries
           subject_object_facet,
           object_biological_property_id_facet,
           subject_biological_property_id_facet,
+          collection_object_id_facet,
+          biological_associations_graph_id_facet,
 
           # wkt_facet,
           # geo_json_facet,
@@ -706,22 +684,6 @@ module Queries
           # otu_id_facet,
           # subject_taxon_name_id_facet,
           # object_taxon_name_id_facet,
-
-          collection_object_id_facet,
-
-          biological_associations_graph_id_facet,
-
-          created_updated_facet, # See Queries::Concerns::Users
-
-          keyword_id_facet,
-
-          identifier_between_facet, # See Queries::Concerns::Identifiers
-          identifier_facet,
-          identifier_namespace_facet,
-          match_identifiers_facet,
-
-          note_text_facet,        # See Queries::Concerns::Notes
-          notes_facet,            # See Queries::Concerns::Notes
         ]
       end
 
@@ -781,6 +743,33 @@ module Queries
       #   c
       # end
 
+      private
+
+      def matching_global_id(target = :subject, global_id = [])
+        a = global_id
+        b = "#{target}_matches".to_sym
+
+        q = send(b, object_for(a[0]))
+        a[1..a.length].each do |i|
+          q = q.or( send(b, object_for(i) ))
+        end
+        q
       end
+
+      # !! Plural is correct
+      def object_taxon_name_ids
+        return taxon_name_id if !taxon_name_id.empty?
+        return object_taxon_name_id if !object_taxon_name_id.empty?
+        return []
       end
+
+      # !! Plural is correct
+      def subject_taxon_name_ids
+        return taxon_name_id if !taxon_name_id.empty? # only one or the other supposed to be sent
+        return subject_taxon_name_id if !subject_taxon_name_id.empty?
+        return []
       end
+
+    end
+  end
+end

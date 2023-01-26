@@ -4,11 +4,11 @@ module Queries::Concerns::Citations
 
   extend ActiveSupport::Concern
 
-  def self.permit(params)
-    params.permit(
+  def self.params
+    [
       :citations,
       :origin_citation
-    )
+    ]
   end
 
   included do

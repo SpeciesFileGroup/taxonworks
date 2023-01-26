@@ -28,19 +28,42 @@ module Queries
     # https://github.com/SpeciesFileGroup/taxonworks/blob/2652_unified_filters/app/javascript/vue/components/radials/filter/constants/filterLinks.js
     # https://github.com/SpeciesFileGroup/taxonworks/blob/2652_unified_filters/app/javascript/vue/components/radials/filter/links/CollectionObject.js
     #
+    # You may also need a reference in
+    # app/javascript/vue/routes/routes.js
+    # app/javascript/vue/components/radials/linker/links 
+    #
     # This is read as  :too <- [:from1, from1] ].
     SUBQUERIES = {
-      taxon_name: [:source, :otu, :collection_object, :collecting_event],
-      otu: [:source, :taxon_name, :collection_object, :extract, :collecting_event],
-      collection_object: [:source, :otu, :taxon_name, :extract, :collecting_event],
-      collecting_event: [:source, :collection_object],
-      asserted_distribution: [:source, :otu_query],
-      image: [:source, :otu, :observation],
+      asserted_distribution: [:source, :otu],
       biological_association: [:source],
-      extract: [:otu, :collection_object],
+      collecting_event: [:source, :collection_object],
+      collection_object: [:source, :otu, :taxon_name, :extract, :collecting_event],
+      content: [],
       descriptor: [:observation], # TODO: confirm
-      observation: [:descriptor], #  TOOD: confirm
+      extract: [:otu, :collection_object],
+      image: [:source, :otu, :observation],
       loan: [],
+      observation: [:descriptor], #  TOOD: confirm
+      otu: [:source, :taxon_name, :collection_object, :extract, :collecting_event, :content],
+      taxon_name: [:source, :otu, :collection_object, :collecting_event]
+    }.freeze
+
+    # We could consider `.safe_constantize` to make this a f(n), but we'd have 
+    # to have a list somewhere to further restrict.
+    # 
+    FILTER_QUERIES = {
+      asserted_distribution_query: ::Queries::AssertedDistribution::Filter, 
+      biological_association_query: ::Queries::BiologicalAssociation::Filter, 
+      collecting_event_query: ::Queries::CollectingEvent::Filter, 
+      collection_object_query: ::Queries::CollectionObject::Filter, 
+      content_query: ::Queries::Content::Filter, 
+      descriptor_query: ::Queries::Descriptor::Filter, 
+      extract_query: ::Queries::Extract::Filter, 
+      image_query: ::Queries::Image::Filter, 
+      loan_query: ::Queries::Loan::Filter, 
+      observation_query: ::Queries::Observation::Filter, 
+      otu_query: ::Queries::Otu::Filter, 
+      taxon_name_query: ::Queries::TaxonName::Filter, 
     }.freeze
 
     #
@@ -80,55 +103,95 @@ module Queries
     # @return [Query::Observation::Filter, nil]
     attr_accessor :content_query
 
+    # @return [Query::Observation::Filter, nil]
+    attr_accessor :loan_query
+
     # @return Boolean
     #   Applies an order on updated.
     attr_accessor :recent
 
     def initialize(params)
+
+      p = nil
+
+      if params.kind_of?(Hash)
+        p = params
+      elsif params.kind_of?(ActionController::Parameters)
+        p = deep_permit(params)
+      end
+
+      set_sub_query(p)
+
       set_user_dates(params)
       set_citations_params(params)
       set_identifier_params(params)
 
       @recent = boolean_param(params, :recent) # was checking for 1
-
+      
       # always on --- but need only checkes
-
       @project_id = params[:project_id] || Current.project_id # TODO: revisit
 
-      if params[:taxon_name_query].present?
-        @taxon_name_query = ::Queries::TaxonName::Filter.new(params[:taxon_name_query])
-        @taxon_name_query.project_id = project_id
+
+   #  if params[:taxon_name_query].present?
+   #    @taxon_name_query = ::Queries::TaxonName::Filter.new(params[:taxon_name_query])
+   #    @taxon_name_query.project_id = project_id
+   #  end
+
+   #  if params[:collection_object_query].present?
+   #    @collection_object_query = ::Queries::CollectionObject::Filter.new(params[:collection_object_query])
+   #    @collection_object_query.project_id = project_id
+   #  end
+
+   #  if params[:collecting_event_query].present?
+   #    @collecting_event_query = ::Queries::CollectionEvent::Filter.new(params[:collecting_event_query])
+   #    @collecting_event_query.project_id = project_id
+   #  end
+
+   #  if params[:otu_query].present?
+   #    @otu_query = ::Queries::Otu::Filter.new(params[:otu_query])
+   #    @otu_query.project_id = project_id
+   #  end
+
+   #  if params[:source_query].present?
+   #    @source_query = ::Queries::Source::Filter.new(params[:source_query])
+   #    @source_query.project_id = project_id
+   #  end
+
+   #  if params[:content_query].present?
+   #    @content_query = ::Queries::Content::Filter.new(params[:content_query])
+   #    @content_query.project_id = project_id
+   #  end
+
+   #  if params[:observation_query].present?
+   #    @observation_query = ::Queries::Observation::Filter.new(params[:observation_query])
+   #    @observation_query.project_id = project_id
+   #  end
+
+   #  if params[:loan_query].present?
+   #    @loan_query = ::Queries::Loan::Filter.new(params[:observation_query])
+   #    @loan.project_id = project_id
+   #  end
+
+    end
+
+    # @params params [Hash] 
+    #    not ActionController::Parameters!
+    # Recursively set all nested queries
+    def set_sub_query(params)
+      if n = params.select{|k, p| k.to_s =~ /_query/ }
+        return nil if n.count != 1 # can't have multiple nested queries inside one level
+
+        query_name = n.first.first
+        query_params = n.first.last 
+
+        q = FILTER_QUERIES[query_name].new(query_params)
+
+        v = send("#{query_name}=".to_sym, q) # set
+
+        #   v.project_id = project_id
       end
 
-      if params[:collection_object_query].present?
-        @collection_object_query = ::Queries::CollectionObject::Filter.new(params[:collection_object_query])
-        @collection_object_query.project_id = project_id
-      end
-
-      if params[:collecting_event_query].present?
-        @collecting_event_query = ::Queries::CollectionEvent::Filter.new(params[:collecting_event_query])
-        @collecting_event_query.project_id = project_id
-      end
-
-      if params[:otu_query].present?
-        @otu_query = ::Queries::Otu::Filter.new(params[:otu_query])
-        @otu_query.project_id = project_id
-      end
-
-      if params[:source_query].present?
-        @source_query = ::Queries::Source::Filter.new(params[:source_query])
-        @source_query.project_id = project_id
-      end
-
-      if params[:content_query].present?
-        @content_query = ::Queries::Content::Filter.new(params[:content_query])
-        @content_query.project_id = project_id
-      end
-
-      if params[:observation_query].present?
-        @observation_query = ::Queries::Observation::Filter.new(params[:observation_query])
-        @observation_query.project_id = project_id
-      end
+      true
     end
 
     # See CE, Loan for example.  
@@ -229,22 +292,13 @@ module Queries
         ::Queries::Concerns::Users
       ]
 
-      f.push ::Queries::Concerns::Tags if self < ::Queries::Concerns::Tags
-      f.push ::Queries::Concerns::Notes if self < ::Queries::Concerns::Notes
-      f.push ::Queries::Concerns::DataAttributes if self < ::Queries::Concerns::DataAttributes
-      f.push ::Queries::Concerns::Identifiers if self < ::Queries::Concerns::Identifiers
-      f.push ::Queries::Concerns::Protocols if self < ::Queries::Concerns::Protocols
+      f.push ::Queries::Concerns::Tags if self.class < ::Queries::Concerns::Tags
+      f.push ::Queries::Concerns::Notes if self.class < ::Queries::Concerns::Notes
+      f.push ::Queries::Concerns::DataAttributes if self.class < ::Queries::Concerns::DataAttributes
+      f.push ::Queries::Concerns::Identifiers if self.class < ::Queries::Concerns::Identifiers
+      f.push ::Queries::Concerns::Protocols if self.class < ::Queries::Concerns::Protocols
 
       f
-    end
-
-    def self.annotator_params(params)
-      h = ActionController::Parameters.new.permit!
-
-      included_annotator_facets.each do |q|
-        h.merge! q.permit(params)
-      end
-      h
     end
 
     # @param filter [Symbol]
@@ -267,16 +321,25 @@ module Queries
     #
     # It should let us inject concern attributes as well (but again, the permit level is olikely overkill).
     #
-    def self.deep_permit(filter, params)
-      h = ActionController::Parameters.new
-      h.merge! params.permit(*self::PARAMS)
+    # 
+    # TODO: unselfify
+    def deep_permit(params, target_query = self.class , permitted = ActionController::Parameters.new )
 
-      h.merge! annotator_params(params)
+      byebug
+      permitted.merge! params.permit(*target_query::PARAMS)
+      permitted.merge! target_query.annotator_params(params)
 
-      if s = SUBQUERIES[filter] 
-        s.each do |k|
-          q = (k.to_s + '_query').to_sym
-          h.merge! params.permit( q => {} )
+      # v = (table.name.singularize + '_query' ).to_sym # todo make method
+
+      i = target_query.base_name.to_sym # todo - make methd
+
+      n = child_subquery(params)
+
+      if n = child_subquery(params)
+        s = n.to_s.gsub('_query', '').to_sym
+
+        if SUBQUERIES[i].include?( s )
+          deep_permit(params[n.to_s], FILTER_QUERIES[n], permitted)
         end
       end
 
@@ -284,7 +347,123 @@ module Queries
       # RuntimeError Exception: can't add a new key into hash during iteration
       # h.permit!.to_h.deep_symbolize_keys
 
-      h.permit!.to_hash.deep_symbolize_keys
+      permitted.permit!.to_hash.deep_symbolize_keys
+    end
+
+    def self.annotator_params
+
+      h = nil
+      if i = included_annotator_facets
+        a = i.shift
+        h = a.params
+
+        if !h.last.kind_of?(Hash)
+          h << {}
+        end
+
+        c = h.last
+
+        i.each do |j|
+          p = j.params 
+
+          if p.last.kind_of?(Hash)
+            c.merge!(p.pop)
+          end
+          
+          h = p + h
+        end
+      else
+        nil
+      end
+      h
+    end
+
+    # This method is a preprocessor that discovers what params the 
+    # filter should allow by discovering nested subqueries.
+    # It is used to build a permitable profile
+    # of parameters. That profile is then used in the actual .permit() 
+    # call. 
+    # 
+    # An alternate solution, first tried, is to permit the params directly.
+    # This also would work with some work, however there are some nice 
+    # benefits to having a profile of the allowed params available as an Array,
+    # for example we can use it for API documentation a little easier(?!).
+    #
+    # In essence what we needed was for ActionController::Parameters to be
+    # able to accumulate (remember) all permitted params (not just their actual data)
+    # over multiple .permit() calls.  If we had that, then we could do 
+    # something like params.permitted_params after multiple calls like params.permit(:a), 
+    # parms.permit(:b).
+    # 
+    # @return Hash
+    # @params hsh Hash
+    #    Uses an *unsafe* hash from an instance of ActionController::Parameters or 
+    # any parameter set for the query.
+    def permitted_params(hsh)
+      h = self.class::PARAMS.deep_dup
+
+      if !h.last.kind_of?(Hash)
+        h << {}
+      end
+       
+      c = h.last # a {}
+
+      n = self.class.annotator_params
+      c.merge!(n.pop)
+      h = n + h
+
+      b = subquery_vector(hsh)
+
+      while !b.empty?
+        a = b.shift
+        q = FILTER_QUERIES[a]
+        p = q::PARAMS.deep_dup
+
+        if !p.last.kind_of?(Hash)
+          p << {}
+        end
+
+        n = q.annotator_params
+        p.last.merge!(n.pop)
+        p = n + p
+
+        c[a] = p
+
+        c = p.last
+      end
+
+      h
+    end 
+        
+    def deep_permit(params)
+      params.permit(
+        permitted_params(params.to_unsafe_hash) # return the signature, then the permitted params
+      )
+    end
+
+# @params hsh Hash 
+# @return [Array of Symbol]
+#   all queries in nested order
+# Since queries nest linearly we don't need to recurse. 
+def subquery_vector(hsh)
+  result = []
+  while !hsh.keys.select{|k| k =~ /_query/}.empty?
+    a = hsh.keys.select{|k| k =~ /_query/} 
+    result += a
+    hsh = hsh[a.first]
+  end 
+  result.map(&:to_sym)
+end
+
+
+    # Identify the embedded subquery if present and return its name
+    # @return Symbol, nil
+    # @param 
+    def child_subquery(params)
+      if n = params.keys.select{|k| k =~ /_query/}&.first
+        return n
+      end
+      nil
     end
 
     # params attribute [Symbol]

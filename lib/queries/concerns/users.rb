@@ -10,14 +10,14 @@ module Queries::Concerns::Users
 
   extend ActiveSupport::Concern
 
-  def self.permit(params)
-    params.permit(
+  def self.params
+    [
       :user_id,
       :user_target,
       :user_date_start,
       :user_date_end,
       :updated_since
-    )
+    ]
   end
 
   included do

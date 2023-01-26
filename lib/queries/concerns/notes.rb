@@ -6,12 +6,12 @@ module Queries::Concerns::Notes
 
   extend ActiveSupport::Concern
 
-  def self.permit(params)
-    params.permit(
+  def self.params
+    [
       :note_exact,
       :note_text,
       :notes
-    )
+    ]
   end
 
   included do

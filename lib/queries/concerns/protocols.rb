@@ -8,7 +8,8 @@ module Queries::Concerns::Protocols
     params.permit(
       :protocols,
       :protocol_id_or,
-      :protocol_id_and
+      :protocol_id_and,
+      :protocol_id, # TODO: unused? or maybe in polymorphics setters!! 
     )
   end
 
@@ -34,8 +35,8 @@ module Queries::Concerns::Protocols
     end
 
     # TODO: why here?
-    def protocol_ids=(value = [])
-      @protocol_ids = value
+    def protocol_id=(value = [])
+      @protocol_id = value
     end
   end
 

@@ -6,14 +6,14 @@ module Queries::Concerns::Tags
 
   extend ActiveSupport::Concern
 
-  def self.permit(params)
-    params.permit(
+  def self.params
+   [ 
       :keyword_id_and,
       :keyword_id_or,
       :tags,
       keyword_id_and: [],
       keyword_id_or: []
-    )
+    ]
   end
 
   included do

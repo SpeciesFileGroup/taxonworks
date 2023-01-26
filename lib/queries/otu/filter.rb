@@ -516,7 +516,6 @@ module Queries
         ::Otu.from("((#{q1.to_sql}) UNION (#{q2.to_sql})) as otus")
       end
 
-
       # @return [ActiveRecord::Relation, nil]
       def and_clauses
         clauses = [
