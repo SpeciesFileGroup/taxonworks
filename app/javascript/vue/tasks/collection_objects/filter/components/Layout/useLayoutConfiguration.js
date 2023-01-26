@@ -8,28 +8,17 @@ const state = reactive({
   includes: {}
 })
 
-export function useLayoutConfiguration({ properties, includes } = {}) {
-  if (properties) {
-    const DEFAULT_LAYOUT = {
-      name: 'Default',
-      properties: { ...properties },
-      includes: { ...includes }
-    }
+export function useLayoutConfiguration(Layouts) {
+  if (Layouts) {
+    const { All } = Layouts
 
-    state.properties = { ...properties }
-    state.includes = { ...includes }
-    state.layouts.push(DEFAULT_LAYOUT)
-    Object.assign(state.currentLayout, DEFAULT_LAYOUT)
+    state.properties = { ...All.properties }
+    state.includes = { ...All.includes }
+    state.layouts = { ...Layouts }
+    Object.assign(state.currentLayout, All)
   }
 
-  const newLayout = (name) => {
-    const newLayout = {
-      name,
-      properties: { ...properties }
-    }
-
-    state.layouts.push(newLayout)
-  }
+  const updateLayout = () => {}
 
   const updatePropertiesPositions = (listType) => {
     const usedProperties = state.properties[listType].filter((item) =>
@@ -45,7 +34,7 @@ export function useLayoutConfiguration({ properties, includes } = {}) {
 
   return {
     ...toRefs(state),
-    newLayout,
+    updateLayout,
     updatePropertiesPositions
   }
 }

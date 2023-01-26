@@ -8,18 +8,18 @@
       <h3>Nested parameters</h3>
     </template>
     <template #body>
-      <ul class="no_bullets">
+      <ol>
         <li
-          v-for="(params, objType) in queryParameters"
-          :key="objType"
+          v-for="{ params, objectType } in nestedLevels"
+          :key="params"
         >
           <div class="flex-separate middle">
-            <span>{{ objType }}</span>
+            <span>{{ objectType }}</span>
             <VBtn
               class="middle"
               color="primary"
               medium
-              @click="openFilterFor(objType, params)"
+              @click="openFilterFor(objectType, params)"
             >
               Go
             </VBtn>
@@ -29,7 +29,7 @@
             v-text="JSON.stringify(params, null, 2)"
           />
         </li>
-      </ul>
+      </ol>
     </template>
   </VModal>
   <VBtn
@@ -64,28 +64,44 @@ const props = defineProps({
   }
 })
 
-const isEmpty = computed(() => !Object.keys(queryParameters.value).length)
+const isEmpty = computed(() => !nestedLevels.value.length)
 
-const queryParameters = computed(() => {
-  const params = Object.keys(props.parameters).filter((key) =>
-    key.includes('_query')
-  )
+const nestedLevels = computed(() => {
+  const levels = []
+  let params = props.parameters
+  let subLevel = true
 
-  return Object.fromEntries(
-    params.map((param) => {
-      const [objectType] = Object.entries(QUERY_PARAM).find(
-        ([_, key]) => param === key
-      )
+  do {
+    const keys = Object.keys(params)
+    const queryParam = keys.find((item) => item.includes('_query'))
 
-      return [objectType, props.parameters[param]]
-    })
-  )
+    if (queryParam) {
+      params = params[queryParam]
+
+      levels.push({
+        objectType: getObjectTypeByQueryParam(queryParam),
+        params: { [queryParam]: params }
+      })
+    } else {
+      subLevel = false
+    }
+  } while (subLevel)
+
+  return levels
 })
 
 function openFilterFor(objType, params) {
   const url = `${FILTER_ROUTES[objType]}?${qs.stringify(params)}`
 
   window.open(url, '_self')
+}
+
+function getObjectTypeByQueryParam(queryParam) {
+  const [objectType] = Object.entries(QUERY_PARAM).find(
+    ([_, key]) => queryParam === key
+  )
+
+  return objectType
 }
 
 const isModalVisible = ref(false)
