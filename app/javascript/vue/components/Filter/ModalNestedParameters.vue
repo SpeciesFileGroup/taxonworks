@@ -19,7 +19,7 @@
               class="middle"
               color="primary"
               medium
-              @click="openFilterFor(objectType, params)"
+              @click="openFilterFor(objectType, Object.values(params)[0])"
             >
               Go
             </VBtn>
