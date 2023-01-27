@@ -62,18 +62,18 @@ module Queries
     # to have a list somewhere else anyways to further restrict allowed classes.
     # 
     FILTER_QUERIES = {
-      asserted_distribution_query: ::Queries::AssertedDistribution::Filter, 
-      biological_association_query: ::Queries::BiologicalAssociation::Filter, 
-      collecting_event_query: ::Queries::CollectingEvent::Filter, 
-      collection_object_query: ::Queries::CollectionObject::Filter, 
-      content_query: ::Queries::Content::Filter, 
-      descriptor_query: ::Queries::Descriptor::Filter, 
-      extract_query: ::Queries::Extract::Filter, 
-      image_query: ::Queries::Image::Filter, 
-      loan_query: ::Queries::Loan::Filter, 
-      observation_query: ::Queries::Observation::Filter, 
-      otu_query: ::Queries::Otu::Filter, 
-      taxon_name_query: ::Queries::TaxonName::Filter, 
+      asserted_distribution_query: '::Queries::AssertedDistribution::Filter', 
+      biological_association_query: '::Queries::BiologicalAssociation::Filter', 
+      collecting_event_query: '::Queries::CollectingEvent::Filter', 
+      collection_object_query: '::Queries::CollectionObject::Filter', 
+      content_query: '::Queries::Content::Filter', 
+      descriptor_query: '::Queries::Descriptor::Filter', 
+      extract_query: '::Queries::Extract::Filter', 
+      image_query: '::Queries::Image::Filter', 
+      loan_query: '::Queries::Loan::Filter', 
+      observation_query: '::Queries::Observation::Filter', 
+      otu_query: '::Queries::Otu::Filter', 
+      taxon_name_query: '::Queries::TaxonName::Filter', 
     }.freeze
 
     #
@@ -183,6 +183,91 @@ module Queries
       h
     end
 
+    def project_id
+      [@project_id].flatten.compact
+    end
+
+    # This method is a preprocessor that discovers what params the 
+    # filter should allow by discovering nested subqueries.
+    # It is used to build a permitable profile
+    # of parameters. That profile is then used in the actual .permit() 
+    # call. 
+    # 
+    # An alternate solution, first tried, is to permit the params directly.
+    # This also would work with some work, however there are some nice 
+    # benefits to having a profile of the allowed params available as an Array,
+    # for example we can use it for API documentation a little easier(?!).
+    #
+    # In essence what we needed was for ActionController::Parameters to be
+    # able to accumulate (remember) all permitted params (not just their actual data)
+    # over multiple .permit() calls.  If we had that, then we could do 
+    # something like params.permitted_params after multiple calls like params.permit(:a), 
+    # parms.permit(:b).
+    # 
+    # @return Hash
+    # @params hsh Hash
+    #    Uses an *unsafe* hash from an instance of ActionController::Parameters or 
+    # any parameter set for the query.
+    def permitted_params(hsh)
+      h = self.class::PARAMS.deep_dup
+
+      if !h.last.kind_of?(Hash)
+        h << {}
+      end
+       
+      c = h.last # a {}
+
+      if n = self.class.annotator_params
+        c.merge!(n.pop)
+        h = n + h
+      end
+
+      b = subquery_vector(hsh)
+
+      while !b.empty?
+        a = b.shift
+        q = FILTER_QUERIES[a].safe_constantize
+        p = q::PARAMS.deep_dup
+
+        if !p.last.kind_of?(Hash)
+          p << {}
+        end
+
+        if n = q.annotator_params
+          p.last.merge!(n.pop)
+          p = n + p
+        end
+
+        c[a] = p
+
+        c = p.last
+      end
+
+      h
+    end 
+
+    # @params hsh Hash 
+    # @return [Array of Symbol]
+    #   all queries in nested order
+    # Since queries nest linearly we don't need to recurse. 
+    def subquery_vector(hsh)
+      result = []
+      while !hsh.keys.select{|k| k =~ /_query/}.empty?
+        a = hsh.keys.select{|k| k =~ /_query/} 
+        result += a
+        hsh = hsh[a.first]
+      end 
+      result.map(&:to_sym)
+    end
+
+    # @params params ActionController::Parameters
+    # @return ActionController::Parameters 
+    def deep_permit(params)
+      params.permit(
+        permitted_params(params.to_unsafe_hash) # return the signature, then the permitted params
+      )
+    end
+
     # @params params [Hash] 
     #   Recursively set all nested queries,
     #   e.g. @otu_filter_query
@@ -194,7 +279,7 @@ module Queries
         query_name = n.first.first
         query_params = n.first.last 
 
-        q = FILTER_QUERIES[query_name].new(query_params)
+        q = FILTER_QUERIES[query_name].safe_constantize.new(query_params)
 
         # assign to @<model>_query
         v = send("#{query_name}=".to_sym, q) 
@@ -208,15 +293,6 @@ module Queries
       self.class::ATTRIBUTES.each do |a|
         send("#{a}=", params[a.to_sym])
       end
-    end
-
-    def project_id
-      [@project_id].flatten.compact
-    end
-
-    def project_id_facet
-      return nil if project_id.empty?
-      table[:project_id].eq_any(project_id)
     end
 
     def annotator_merge_clauses
@@ -295,85 +371,9 @@ module Queries
       a
     end
 
-    # This method is a preprocessor that discovers what params the 
-    # filter should allow by discovering nested subqueries.
-    # It is used to build a permitable profile
-    # of parameters. That profile is then used in the actual .permit() 
-    # call. 
-    # 
-    # An alternate solution, first tried, is to permit the params directly.
-    # This also would work with some work, however there are some nice 
-    # benefits to having a profile of the allowed params available as an Array,
-    # for example we can use it for API documentation a little easier(?!).
-    #
-    # In essence what we needed was for ActionController::Parameters to be
-    # able to accumulate (remember) all permitted params (not just their actual data)
-    # over multiple .permit() calls.  If we had that, then we could do 
-    # something like params.permitted_params after multiple calls like params.permit(:a), 
-    # parms.permit(:b).
-    # 
-    # @return Hash
-    # @params hsh Hash
-    #    Uses an *unsafe* hash from an instance of ActionController::Parameters or 
-    # any parameter set for the query.
-    def permitted_params(hsh)
-      h = self.class::PARAMS.deep_dup
-
-      if !h.last.kind_of?(Hash)
-        h << {}
-      end
-       
-      c = h.last # a {}
-
-      if n = self.class.annotator_params
-        c.merge!(n.pop)
-        h = n + h
-      end
-
-      b = subquery_vector(hsh)
-
-      while !b.empty?
-        a = b.shift
-        q = FILTER_QUERIES[a]
-        p = q::PARAMS.deep_dup
-
-        if !p.last.kind_of?(Hash)
-          p << {}
-        end
-
-        if n = q.annotator_params
-          p.last.merge!(n.pop)
-          p = n + p
-        end
-
-        c[a] = p
-
-        c = p.last
-      end
-
-      h
-    end 
-
-    # @params params ActionController::Parameters
-    # @return ActionController::Parameters 
-    def deep_permit(params)
-      params.permit(
-        permitted_params(params.to_unsafe_hash) # return the signature, then the permitted params
-      )
-    end
-
-    # @params hsh Hash 
-    # @return [Array of Symbol]
-    #   all queries in nested order
-    # Since queries nest linearly we don't need to recurse. 
-    def subquery_vector(hsh)
-      result = []
-      while !hsh.keys.select{|k| k =~ /_query/}.empty?
-        a = hsh.keys.select{|k| k =~ /_query/} 
-        result += a
-        hsh = hsh[a.first]
-      end 
-      result.map(&:to_sym)
+    def project_id_facet
+      return nil if project_id.empty?
+      table[:project_id].eq_any(project_id)
     end
 
     # params attribute [Symbol]

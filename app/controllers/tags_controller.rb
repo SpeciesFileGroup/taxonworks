@@ -1,4 +1,4 @@
-require_dependency 'queries/tag/filter'
+# require_dependency 'queries/tag/filter'
 
 class TagsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration

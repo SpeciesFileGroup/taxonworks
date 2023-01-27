@@ -1,3 +1,5 @@
+require_dependency 'lib/queries/query/filter'
+
 module Queries
   module AssertedDistribution
 

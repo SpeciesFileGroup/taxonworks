@@ -1,4 +1,4 @@
-require_dependency Rails.root.to_s + '/lib/queries/citation/filter'
+# require_dependency Rails.root.to_s + '/lib/queries/citation/filter'
 
 class CitationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
@@ -15,7 +15,7 @@ class CitationsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @citations = Queries::Citation::Filter.new(params).all.where(project_id: sessions_current_project_id).includes(:source)
+        @citations = ::Queries::Citation::Filter.new(params).all.where(project_id: sessions_current_project_id).includes(:source)
           .order(:source_id, :pages)
           .page(params[:page]).per(params[:per] || 500)
       }
