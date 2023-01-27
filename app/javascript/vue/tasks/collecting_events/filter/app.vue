@@ -1,26 +1,6 @@
 <template>
   <div>
-    <div class="flex-separate middle">
-      <h1>Filter collecting events</h1>
-      <FilterSettings
-        v-model:filter="preferences.activeFilter"
-        v-model:url="preferences.activeJSONRequest"
-        v-model:append="append"
-        v-model:list="preferences.showList"
-      >
-        <template #last>
-          <li>
-            <label>
-              <input
-                type="checkbox"
-                v-model="preferences.showMap"
-              />
-              Show map
-            </label>
-          </li>
-        </template>
-      </FilterSettings>
-    </div>
+    <h1>Filter collecting events</h1>
 
     <JsonRequestUrl
       v-show="preferences.activeJSONRequest"
@@ -36,15 +16,28 @@
       :object-type="COLLECTING_EVENT"
       :selected-ids="selectedIds"
       v-model:per="per"
+      v-model:preferences="preferences"
+      v-model:append="append"
       @filter="loadList"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
+      <template #preferences-last>
+        <li>
+          <label>
+            <input
+              type="checkbox"
+              v-model="preferences.showMap"
+            />
+            Show map
+          </label>
+        </li>
+      </template>
       <template #nav-right>
         <RadialFilter
           object-type="CollectingEvent"
-          :disabled="!selectedCEIds.length"
-          :parameters="{ collecting_event_id: selectedCEIds }"
+          :disabled="!selectedIds.length"
+          :parameters="{ collecting_event_id: selectedIds }"
         />
         <span class="separate-left separate-right">|</span>
         <CsvButton :list="list" />
@@ -67,7 +60,7 @@
             />
             <list-component
               v-if="preferences.showList"
-              v-model="selectedCEIds"
+              v-model="selectedIds"
               :list="list"
               @on-row-hover="setRowHover"
               @on-sort="list = $event"
@@ -89,9 +82,7 @@ import ListComponent from './components/List.vue'
 import CsvButton from 'components/csvButton'
 import MapComponent from './components/Map.vue'
 import RadialFilter from 'components/radials/linker/radial.vue'
-import OpenCollectionObjectFilter from './components/OpenCollectionObjectFilter.vue'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
-import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
@@ -141,7 +132,7 @@ const {
   parameters
 } = useFilter(CollectingEvent)
 
-const selectedCEIds = ref([])
+const selectedIds = ref([])
 const rowHover = ref()
 const georeferences = ref([])
 

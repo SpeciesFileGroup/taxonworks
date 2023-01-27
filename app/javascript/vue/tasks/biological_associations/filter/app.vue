@@ -1,14 +1,6 @@
 <template>
   <div>
-    <div class="flex-separate middle">
-      <h1>Filter biological associations</h1>
-      <FilterSettings
-        v-model:filter="preferences.activeFilter"
-        v-model:url="preferences.activeJSONRequest"
-        v-model:append="append"
-        v-model:list="preferences.showList"
-      />
-    </div>
+    <h1>Filter biological associations</h1>
 
     <JsonRequestUrl
       v-show="preferences.activeJSONRequest"
@@ -24,6 +16,8 @@
       :object-type="BIOLOGICAL_ASSOCIATION"
       :selected-ids="selectedIds"
       v-model:per="per"
+      v-model:preferences="preferences"
+      v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend })"
       @nextpage="loadPage"
       @reset="resetFilter"
@@ -66,7 +60,6 @@ import CsvButton from 'components/csvButton'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import VSpinner from 'components/spinner.vue'
-import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
 import { BIOLOGICAL_ASSOCIATION } from 'constants/index.js'
 import { BiologicalAssociation } from 'routes/endpoints'
 import { computed, reactive, ref } from 'vue'

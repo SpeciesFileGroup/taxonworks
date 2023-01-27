@@ -2,13 +2,22 @@
   <NavBar>
     <div class="middle grid-filter__nav">
       <div class="flex-separate middle">
-        <VBtn
-          color="primary"
-          medium
-          @click="handleClickFilterButton"
-        >
-          Filter
-        </VBtn>
+        <div class="horizontal-left-content gap-small">
+          <VBtn
+            color="primary"
+            medium
+            @click="handleClickFilterButton"
+          >
+            Filter
+          </VBtn>
+          <label>
+            <input
+              type="checkbox"
+              v-model="appendValue"
+            />
+            Append
+          </label>
+        </div>
         <ModalNestedParameters :parameters="parameters" />
         <div class="horizontal-left-content">
           <RadialFilter
@@ -21,6 +30,15 @@
             :parameters="parameters"
             object-type="objectType"
           />
+          <FilterSettings
+            v-model:filter="preferences.activeFilter"
+            v-model:url="preferences.activeJSONRequest"
+            v-model:list="preferences.showList"
+          >
+            <template #preferences-last>
+              <slot name="preferences-last" />
+            </template>
+          </FilterSettings>
           <VBtn
             color="primary"
             class="circle-button"
@@ -107,6 +125,7 @@ import RadialFilter from 'components/radials/filter/radial.vue'
 import ModalNestedParameters from 'components/Filter/ModalNestedParameters.vue'
 import RadialLinker from 'components/radials/linker/radial.vue'
 import RadialMassAnnotator from 'components/radials/mass/radial.vue'
+import FilterSettings from './FilterSettings.vue'
 
 import { ref, computed, onBeforeUnmount } from 'vue'
 
@@ -146,6 +165,11 @@ const props = defineProps({
     default: () => ({})
   },
 
+  preferences: {
+    type: Object,
+    default: () => ({})
+  },
+
   facets: {
     type: Array,
     default: () => []
@@ -154,6 +178,11 @@ const props = defineProps({
   modelValue: {
     type: Object,
     default: () => ({})
+  },
+
+  append: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -162,8 +191,15 @@ const emit = defineEmits([
   'filter',
   'nextpage',
   'update:per',
-  'update:modelValue'
+  'update:modelValue',
+  'update:append',
+  'update:preferences'
 ])
+
+const appendValue = computed({
+  get: () => props.append,
+  set: (value) => emit('update:append', value)
+})
 
 const perValue = computed({
   get: () => props.per,
@@ -173,6 +209,11 @@ const perValue = computed({
 const params = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value)
+})
+
+const preferences = computed({
+  get: () => props.preferences,
+  set: (value) => emit('update:preferences', value)
 })
 
 const hotkeys = ref([

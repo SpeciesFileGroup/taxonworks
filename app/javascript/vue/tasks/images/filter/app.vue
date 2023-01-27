@@ -1,15 +1,6 @@
-
 <template>
   <div>
-    <div class="flex-separate middle">
-      <h1>Filter images</h1>
-      <FilterSettings
-        v-model:filter="preferences.activeFilter"
-        v-model:url="preferences.activeJSONRequest"
-        v-model:append="append"
-        v-model:list="preferences.showList"
-      />
-    </div>
+    <h1>Filter images</h1>
 
     <JsonRequestUrl
       v-show="preferences.activeJSONRequest"
@@ -24,6 +15,8 @@
       :object-type="IMAGE"
       v-model:per="per"
       :parameters="parameters"
+      v-model:preferences="preferences"
+      v-model:append="append"
       @filter="makeFilterRequest()"
       @nextpage="loadPage"
       @reset="resetFilter"
@@ -46,7 +39,7 @@
           <div class="margin-small-left">
             <SelectAll
               v-model="selectedIds"
-              :ids="list.map(({id}) => id)"
+              :ids="list.map(({ id }) => id)"
             />
           </div>
         </div>
@@ -68,13 +61,12 @@
       v-if="isLoading"
       full-screen
       legend="Searching..."
-      :logo-size="{ width: '100px', height: '100px'}"
+      :logo-size="{ width: '100px', height: '100px' }"
     />
   </div>
 </template>
 
 <script setup>
-import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
