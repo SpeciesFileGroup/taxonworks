@@ -1,14 +1,6 @@
 <template>
   <div>
-    <div class="flex-separate middle">
-      <h1>Filter extracts</h1>
-      <FilterSettings
-        v-model:filter="preferences.activeFilter"
-        v-model:url="preferences.activeJSONRequest"
-        v-model:append="append"
-        v-model:list="preferences.showList"
-      />
-    </div>
+    <h1>Filter extracts</h1>
 
     <JsonRequestUrl
       v-show="preferences.activeJSONRequest"
@@ -24,6 +16,8 @@
       :object-type="EXTRACT"
       :selected-ids="selectedIds"
       v-model:per="per"
+      v-model:preferences="preferences"
+      v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend })"
       @nextpage="loadPage"
       @reset="resetFilter"
@@ -67,7 +61,6 @@ import CsvButton from 'components/csvButton'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
-import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
 import extend from 'tasks/extracts/new_extract/const/extendRequest'
 import TagAll from 'tasks/collection_objects/filter/components/tagAll.vue'
 import { EXTRACT } from 'constants/index.js'
@@ -123,9 +116,3 @@ export default {
   name: 'FilterExtracts'
 }
 </script>
-
-<style scoped>
-.no-found-message {
-  height: 70vh;
-}
-</style>

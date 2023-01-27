@@ -1,14 +1,6 @@
 <template>
   <div>
-    <div class="flex-separate middle">
-      <h1>Filter OTUs</h1>
-      <FilterSettings
-        v-model:filter="preferences.activeFilter"
-        v-model:url="preferences.activeJSONRequest"
-        v-model:append="append"
-        v-model:list="preferences.showList"
-      />
-    </div>
+    <h1>Filter OTUs</h1>
 
     <JsonRequestUrl
       v-show="preferences.activeJSONRequest"
@@ -23,6 +15,8 @@
       :parameters="parameters"
       :object-type="OTU"
       v-model:per="per"
+      v-model:preferences="preferences"
+      v-model:append="append"
       :selected-ids="selectedIds"
       @filter="makeFilterRequest({ ...parameters, extend })"
       @nextpage="loadPage"
@@ -56,7 +50,6 @@
 
 <script setup>
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
-import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
 import FilterComponent from './components/FilterView.vue'
 import ListComponent from './components/list'
 import CsvButton from 'components/csvButton'

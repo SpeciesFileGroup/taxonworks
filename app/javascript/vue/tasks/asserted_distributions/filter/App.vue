@@ -1,14 +1,6 @@
 <template>
   <div>
-    <div class="flex-separate middle">
-      <h1>Filter asserted distributions</h1>
-      <FilterSettings
-        v-model:filter="preferences.activeFilter"
-        v-model:url="preferences.activeJSONRequest"
-        v-model:append="append"
-        v-model:list="preferences.showList"
-      />
-    </div>
+    <h1>Filter asserted distributions</h1>
 
     <JsonRequestUrl
       v-show="preferences.activeJSONRequest"
@@ -23,6 +15,8 @@
       v-model:per="per"
       :selected-ids="selectedIds"
       :object-type="ASSERTED_DISTRIBUTION"
+      v-model:preferences="preferences"
+      v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend })"
       @nextpage="loadPage"
       @reset="resetFilter"
@@ -61,7 +55,6 @@ import CsvButton from 'components/csvButton'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
-import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
 import { AssertedDistribution } from 'routes/endpoints'
 import { computed, reactive, ref, onBeforeMount } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'

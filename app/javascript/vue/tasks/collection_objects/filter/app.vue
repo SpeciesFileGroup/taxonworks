@@ -1,14 +1,6 @@
 <template>
   <div>
-    <div class="flex-separate middle">
-      <h1>Filter collection objects</h1>
-      <FilterSettings
-        v-model:filter="preferences.activeFilter"
-        v-model:url="preferences.activeJSONRequest"
-        v-model:append="append"
-        v-model:list="preferences.showList"
-      />
-    </div>
+    <h1>Filter collection objects</h1>
 
     <JsonRequestUrl
       v-show="preferences.activeJSONRequest"
@@ -24,6 +16,8 @@
       :selected-ids="selectedIds"
       :object-type="COLLECTION_OBJECT"
       v-model:per="per"
+      v-model:preferences="preferences"
+      v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend })"
       @nextpage="loadPage"
       @reset="resetFilter"
@@ -86,7 +80,6 @@ import { computed, ref, reactive, onBeforeMount, watch } from 'vue'
 import { CollectionObject } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse'
 import { COLLECTION_OBJECT } from 'constants/index.js'
-import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import FilterComponent from './components/filter.vue'
@@ -163,7 +156,6 @@ function parseDataAttributes(item) {
 }
 
 watch(list, (newVal) => {
-  console.log('SE')
   coList.value = newVal.map((item) => {
     const baseAttributes = Object.assign(
       {},
