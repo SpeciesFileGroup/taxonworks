@@ -1,82 +1,90 @@
 <template>
-  <button
+  <VBtn
+    class="circle-button"
+    color="primary"
+    :title="title"
     :disabled="!csvFile"
-    class="button normal-input button-default"
-    @click="downloadCSV">
-    Download CSV
-  </button>
+    @click="downloadCSV"
+  >
+    <VIcon
+      name="download"
+      x-small
+      :title="title"
+    />
+  </VBtn>
 </template>
 
-<script>
-
+<script setup>
+import { watch, ref } from 'vue'
+import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
 import { parse } from 'json2csv'
- 
-export default {
-  props: {
-    list: {
-      type: Array,
-      default: () => []
-    },
 
-    options: {
-      type: [Array, Object],
-      default: () => []
-    },
-
-    filename: {
-      type: String,
-      default: 'list.csv'
-    }
+const props = defineProps({
+  list: {
+    type: Array,
+    default: () => []
   },
 
-  data () {
-    return {
-      csvFile: undefined,
-    }
+  options: {
+    type: [Array, Object],
+    default: () => []
   },
 
-  watch: {
-    list: {
-      handler(newVal) {
-        if(newVal.length)
-          this.parseJSONToCSV()
-        else 
-          this.csvFile = undefined
-      },
-      deep: true,
-      immediate: true
-    },
-
-    options: {
-      handler(newVal) {
-        if(this.list.length)
-          this.parseJSONToCSV()
-        else 
-          this.csvFile = undefined
-      },
-      deep: true,
-      immediate: true 
-    }
+  filename: {
+    type: String,
+    default: 'list.csv'
   },
 
-  methods: {
-    parseJSONToCSV () {
-      try {
-        this.csvFile = parse(this.list, this.options)
-      } catch (err) {
-        console.error(err)
-      }
-    },
-
-    downloadCSV() {
-      const a = window.document.createElement('a')
-      a.href = window.URL.createObjectURL(new Blob([this.csvFile], { type: 'text/csv' }))
-      a.download = this.filename
-
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-    }
+  title: {
+    type: String,
+    default: 'Download CSV'
   }
+})
+
+const csvFile = ref()
+
+watch(
+  () => props.list,
+  (newVal) => {
+    if (newVal.length) parseJSONToCSV()
+    else csvFile.value = undefined
+  },
+  {
+    deep: true,
+    immediate: true
+  }
+)
+
+watch(
+  () => props.options,
+  (newVal) => {
+    if (props.list.length) parseJSONToCSV()
+    else csvFile.value = undefined
+  },
+  {
+    deep: true,
+    immediate: true
+  }
+)
+
+function parseJSONToCSV() {
+  try {
+    csvFile.value = parse(props.list, props.options)
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+function downloadCSV() {
+  const a = window.document.createElement('a')
+  a.href = window.URL.createObjectURL(
+    new Blob([csvFile.value], { type: 'text/csv' })
+  )
+  a.download = props.filename
+
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
 }
 </script>
