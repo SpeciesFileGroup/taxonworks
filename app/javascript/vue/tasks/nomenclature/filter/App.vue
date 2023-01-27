@@ -15,6 +15,7 @@
       :parameters="parameters"
       :selected-ids="selectedIds"
       :object-type="TAXON_NAME"
+      :list="list"
       v-model:per="per"
       v-model:preferences="preferences"
       v-model:append="append"

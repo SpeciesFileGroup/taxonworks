@@ -15,6 +15,7 @@
       :parameters="parameters"
       :selected-ids="selectedIds"
       :object-type="LOAN"
+      :list="list"
       v-model:per="per"
       v-model:preferences="preferences"
       v-model:append="append"

@@ -1,6 +1,6 @@
 <template>
   <div class="radial-annotator">
-    <modal
+    <VModal
       v-if="isVisible"
       transparent
       @close="closeModal"
@@ -23,7 +23,7 @@
           </div>
         </div>
       </template>
-    </modal>
+    </VModal>
     <VBtn
       class="circle-button"
       color="radial"
@@ -49,7 +49,7 @@ import { ID_PARAM_FOR } from './constants/idParams'
 import RadialMenu from 'components/radials/RadialMenu.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
-import Modal from 'components/ui/Modal.vue'
+import VModal from 'components/ui/Modal.vue'
 import Qs from 'qs'
 import * as FILTER_LINKS from './links'
 
@@ -105,20 +105,6 @@ const filterLinks = computed(() => {
 const queryObject = computed(() => {
   const params = { ...filteredParameters.value }
   const currentQueryParam = QUERY_PARAM[props.objectType]
-  /*   const queryParams = Object.keys(params).filter((param) =>
-    param.includes('_query')
-  )
-
-  queryParams.forEach((queryParam) => {
-    delete params[queryParam]
-  })
-
-  const queryParameters = Object.assign(
-    {},
-    ...queryParams.map((param) => ({
-      [param]: filteredParameters.value[param]
-    }))
-  ) */
 
   return { [currentQueryParam]: params }
 })

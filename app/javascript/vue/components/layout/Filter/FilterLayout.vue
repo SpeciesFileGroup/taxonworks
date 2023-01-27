@@ -24,11 +24,13 @@
             v-if="objectType"
             :parameters="parameters"
             :object-type="objectType"
+            :disabled="!list.length"
           />
           <RadialLinker
             v-if="objectType"
             :parameters="parameters"
-            object-type="objectType"
+            :object-type="objectType"
+            :disabled="!list.length"
           />
           <FilterSettings
             v-model:filter="preferences.activeFilter"
@@ -178,6 +180,11 @@ const props = defineProps({
   modelValue: {
     type: Object,
     default: () => ({})
+  },
+
+  list: {
+    type: Array,
+    required: true
   },
 
   append: {

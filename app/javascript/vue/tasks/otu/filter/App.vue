@@ -14,6 +14,7 @@
       :pagination="pagination"
       :parameters="parameters"
       :object-type="OTU"
+      :list="list"
       v-model:per="per"
       v-model:preferences="preferences"
       v-model:append="append"

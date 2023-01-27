@@ -13,6 +13,7 @@
       :table="preferences.showList"
       :pagination="pagination"
       :object-type="IMAGE"
+      :list="list"
       v-model:per="per"
       :parameters="parameters"
       v-model:preferences="preferences"

@@ -15,6 +15,7 @@
       v-model:per="per"
       :selected-ids="selectedIds"
       :object-type="ASSERTED_DISTRIBUTION"
+      :list="list"
       v-model:preferences="preferences"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend })"
@@ -110,9 +111,3 @@ export default {
   name: 'FilterAssertedDistributions'
 }
 </script>
-
-<style scoped>
-.no-found-message {
-  height: 70vh;
-}
-</style>

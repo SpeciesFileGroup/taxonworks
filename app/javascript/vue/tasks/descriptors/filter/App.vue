@@ -15,6 +15,7 @@
       :parameters="parameters"
       :object-type="DESCRIPTOR"
       :selected-ids="selectedIds"
+      :list="list"
       v-model:per="per"
       v-model:preferences="preferences"
       v-model:append="append"
