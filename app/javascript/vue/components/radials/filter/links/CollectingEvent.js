@@ -8,5 +8,7 @@ export const CollectingEvent = {
     FILTER_LINKS[TAXON_NAME],
     FILTER_LINKS[COLLECTION_OBJECT]
   ],
-  ids: []
+  ids: [
+    FILTER_LINKS[OTU],
+  ]
 }

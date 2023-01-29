@@ -1,4 +1,10 @@
+import { FILTER_LINKS } from '../constants/filterLinks'
+
 export const Descriptor = {
-  all: [],
-  ids: []
+  all: [
+    FILTER_LINKS[OTU],
+  ],
+  ids: [
+    FILTER_LINKS[OTU],
+  ]
 }
