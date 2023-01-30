@@ -38,15 +38,17 @@
             :disabled="!selectedIds.length"
             @delete="removeCOFromList"
           />
-          <CsvButton
-            class="margin-small-left"
-            :list="coList?.data"
-            :options="{ fields: csvFields }"
-          />
-          <DwcDownload
-            :params="parameters"
-            :total="pagination?.total"
-          />
+          <span class="separate-left separate-right">|</span>
+          <div class="horizontal-left-content gap-xsmall">
+            <CsvButton
+              :list="coList?.data"
+              :options="{ fields: csvFields }"
+            />
+            <DwcDownload
+              :params="parameters"
+              :total="pagination?.total"
+            />
+          </div>
           <span class="separate-left separate-right">|</span>
 
           <LayoutConfiguration />
