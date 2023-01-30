@@ -187,22 +187,22 @@ module Queries
       [@project_id].flatten.compact
     end
 
-    # This method is a preprocessor that discovers what params the 
-    # filter should allow by discovering nested subqueries.
-    # It is used to build a permitable profile
-    # of parameters. That profile is then used in the actual .permit() 
-    # call. 
+    # This method is a preprocessor that discovers, by finding the nested
+    # subqueries, which params should be permitted. It is used to build a 
+    # permitable profile of parameters.
     # 
-    # An alternate solution, first tried, is to permit the params directly.
-    # This also would work with some work, however there are some nice 
-    # benefits to having a profile of the allowed params available as an Array,
+    # That profile is then used in the actual .permit() call. 
+    # 
+    # An alternate solution, first tried, is to permit the params directly
+    # during inspection for subquries.  This also would work, however there are 
+    # some nice benefits to having a profile of the allowed params available as an Array,
     # for example we can use it for API documentation a little easier(?!).
     #
     # In essence what we needed was for ActionController::Parameters to be
     # able to accumulate (remember) all permitted params (not just their actual data)
     # over multiple .permit() calls.  If we had that, then we could do 
-    # something like params.permitted_params after multiple calls like params.permit(:a), 
-    # parms.permit(:b).
+    # something like params.permitted_params => Array after multiple calls like params.permit(:a), 
+    # params.permit(:b).
     # 
     # @return Hash
     # @params hsh Hash
@@ -248,8 +248,8 @@ module Queries
 
     # @params hsh Hash 
     # @return [Array of Symbol]
-    #   all queries in nested order
-    # Since queries nest linearly we don't need to recurse. 
+    #   all queries, in nested order
+    # Since queries nest linearly we don't need to recursion.
     def subquery_vector(hsh)
       result = []
       while !hsh.keys.select{|k| k =~ /_query/}.empty?
@@ -264,13 +264,12 @@ module Queries
     # @return ActionController::Parameters 
     def deep_permit(params)
       params.permit(
-        permitted_params(params.to_unsafe_hash) # return the signature, then the permitted params
+        permitted_params(params.to_unsafe_hash)
       )
     end
 
     # @params params [Hash] 
-    #   Recursively set all nested queries,
-    #   e.g. @otu_filter_query
+    #   set all nested queries variables, e.g. @otu_filter_query
     # @return True
     def set_nested_queries(params)
       if n = params.select{|k, p| k.to_s =~ /_query/ }
@@ -288,7 +287,9 @@ module Queries
       true
     end
 
-    # See CE, Loan for example.  
+    # @params params [Hash, ActionControllerParameters]
+    #   in practice we only pass Hash
+    # See CE, Loan filters for use.  
     def set_attributes(params)
       self.class::ATTRIBUTES.each do |a|
         send("#{a}=", params[a.to_sym])

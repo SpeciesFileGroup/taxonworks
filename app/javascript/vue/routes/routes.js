@@ -15,6 +15,7 @@ import {
 } from 'constants/index.js'
 
 const RouteNames = {
+  // FilterAssertedDistribition: '/tasks/asserted_distributions/filter',
   BrowseCollectionObject: '/tasks/collection_objects/browse',
   BrowseNomenclature: '/tasks/nomenclature/browse',
   BrowseOtu: '/tasks/otus/browse',

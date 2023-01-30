@@ -102,6 +102,7 @@ module Queries
       # All params managed by CollectingEvent filter are available here as well
       attr_accessor :base_collecting_event_query
 
+      # @param [Array]
       # @return [Array, nil]
       #  Otu ids, matches on the TaxonDetermination, see also current_determinations
       attr_accessor :otu_id
@@ -682,7 +683,7 @@ module Queries
         end
       end
 
-      def otus_facet
+      def otu_id_facet
         return nil if otu_id.empty?
 
         w = taxon_determination_table[:biological_collection_object_id].eq(table[:id])
@@ -834,7 +835,7 @@ module Queries
           loaned_facet,
           never_loaned_facet,
           on_loan_facet,
-          otus_facet,
+          otu_id_facet,
           preparation_type_facet,
           repository_facet,
           sled_image_facet,

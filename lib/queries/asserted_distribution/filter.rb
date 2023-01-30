@@ -80,19 +80,15 @@ module Queries
       # attr_accessor ancestor
 
       def initialize(params)
-        @otu_id = params[:otu_id]
+        @descendants = boolean_param(params, :descendants)
+        @geo_json = params[:geo_json]
         @geographic_area_id = params[:geographic_area_id]
         @geographic_area_mode = boolean_param(params, :geographic_area_mode)
-
-        @taxon_name_id = params[:taxon_name_id]
-        @descendants = boolean_param(params, :descendants)
-
         @geographic_area_mode = boolean_param(params, :geographic_area_mode)
-
-        @wkt = params[:wkt]
-        @geo_json = params[:geo_json]
-
+        @otu_id = params[:otu_id]
         @presence = boolean_param(params, :presence)
+        @taxon_name_id = params[:taxon_name_id]
+        @wkt = params[:wkt]
         super
       end
 
@@ -219,6 +215,11 @@ module Queries
         ::AssertedDistribution.from('(' + s + ') as asserted_distributions')
       end
 
+      def otu_id_facet
+        return nil if otu_id.empty?
+        table[:otu_id].eq_any(otu_id)
+      end
+
       def taxon_name_id_facet
         return nil if taxon_name_id.empty?
         if descendants
@@ -236,6 +237,7 @@ module Queries
 
       def and_clauses
         [
+          otu_id_facet,
           presence_facet,
           asserted_distribution_attribute_equals(:otu_id),  # TODO: handles array?multiple?
         ]

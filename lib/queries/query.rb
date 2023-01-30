@@ -25,16 +25,14 @@ module Queries
     # @return [String]
     attr_accessor :query_string
 
-#   # See subclasses.
-#   def initialize
-#   end
-
     # @return ApplicationRecord subclass
     #    e.g. Otu, TaxonName, the class this filter acts on
     def self.referenced_klass
       ('::' + name.split('::').second).safe_constantize
     end
 
+    # @return String
+    #  like "otu" or "taxon_name"
     def self.base_name
       referenced_klass.name.tableize.singularize
     end
@@ -47,12 +45,8 @@ module Queries
       referenced_klass.select( referenced_klass.name.tableize + '.*'  )
     end
 
-    #  def self.base_name
-    #    referenced_klass.name.tableize.singularize
-    #  end
-
     def referenced_klass
-       self.class.referenced_klass
+      self.class.referenced_klass
     end
 
     def terms=(string)

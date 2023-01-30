@@ -268,47 +268,6 @@ module Queries
         end
       end
 
-      # TODO: could be optimized with full join pathway perhaps
-      def collecting_event_id_facet
-        return nil if collecting_event_id.empty?
-        q = ::Queries::CollectionObject::Filter.new(collecting_event_id: collecting_event_id)
-        if historical_determinations.nil?
-          ::Otu.joins(:collection_objects).where(collection_objects: q.all, taxon_determinations: {position: 1})
-        elsif historical_determinations
-          ::Otu.joins(:collection_objects).where(collection_objects: q.all).where.not(taxon_determinations: {position: 1})
-        else
-          ::Otu.joins(:collection_objects).where(collection_objects: q.all)
-        end
-      end
-
-      def biological_association_id_facet
-        return nil if biological_association_id.empty?
-
-        q = ::BiologicalAssociation.where(id: biological_association_id)
-
-        q1 = ::Otu.joins(:biological_associations).where(biological_associations: {id: q, biological_association_subject_type: 'Otu'})
-        q2 = ::Otu.joins(:related_biological_associations).where(related_biological_associations: {id:  q, biological_association_object_type: 'Otu'} )
-        q3 = ::Otu.joins(collection_objects: [:biological_associations] ).where(biological_associations: {id: q, biological_association_subject_type: 'CollectionObject'})
-        q4 = ::Otu.joins(collection_objects: [:related_biological_associations] ).where(related_biological_associations: {id: q, biological_association_object_type: 'CollectionObject'})
-
-        if historical_determinations.nil?
-          q3 = q3.where(taxon_determinations: {position: 1})
-          q4 = q4.where(taxon_determinations: {position: 1})
-        elsif historical_determinations
-          q3 = q3.where.not(taxon_determinations: {position: 1})
-          q4 = q4.where.not(taxon_determinations: {position: 1})
-        end
-
-        query =  [q1,q2,q3,q4].collect{|s| '(' + s.to_sql + ')'}.join(' UNION ')
-
-        ::Otu.from("(#{query}) as otus")
-      end
-
-      def asserted_distribution_id_facet
-        return nil if asserted_distribution_id.empty?
-        ::Otu.joins(:asserted_distributions).where(asserted_distributions: {id: asserted_distribution_id})
-      end
-
       def wkt_facet
         return nil if wkt.nil?
         from_wkt(wkt)
@@ -334,34 +293,6 @@ module Queries
         q2 = ::Otu.joins(:asserted_distributions).where(asserted_distributions: a.all).to_sql
 
         ::Otu.from("((#{q1}) UNION (#{q2})) as otus")
-      end
-
-      def geographic_area_id_facet
-        return nil if geographic_area_id.empty?
-
-        a = nil
-
-        case geographic_area_mode
-        when nil, true # exact and spatial start the same
-          a = ::GeographicArea.where(id: geographic_area_id)
-        when false # descendants
-          a = ::GeographicArea.descendants_of_any(geographic_area_id)
-        end
-
-        b = nil # from AssertedDistributions
-        c = nil # from CollectionObjects
-
-        case geographic_area_mode
-        when nil, false # exact, descendants
-          b = ::Otu.joins(:asserted_distributions).where(asserted_distributions: {geographic_area: a})
-          c = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: {geographic_area: a} )
-        when true # spatial
-          i = ::GeographicItem.joins(:geographic_areas).where(geographic_areas: a) # .unscope
-          wkt_shape = ::GeographicItem.st_union(i).to_a.first['collection'].to_s # todo, check
-          return from_wkt(wkt_shape)
-        end
-
-        ::Otu.from("((#{b.to_sql}) UNION (#{c.to_sql})) as otus")
       end
 
       def taxon_name_query_facet
@@ -505,13 +436,80 @@ module Queries
         end
       end
 
-      # ---- CLEAR TILL HERE
+      # TODO: could be optimized with full join pathway perhaps
+      def collecting_event_id_facet
+        return nil if collecting_event_id.empty?
+        q = ::Queries::CollectionObject::Filter.new(collecting_event_id: collecting_event_id)
+        if historical_determinations.nil?
+          ::Otu.joins(:collection_objects).where(collection_objects: q.all, taxon_determinations: {position: 1})
+        elsif historical_determinations
+          ::Otu.joins(:collection_objects).where(collection_objects: q.all).where.not(taxon_determinations: {position: 1})
+        else
+          ::Otu.joins(:collection_objects).where(collection_objects: q.all)
+        end
+      end
+
+      def biological_association_id_facet
+        return nil if biological_association_id.empty?
+
+        q = ::BiologicalAssociation.where(id: biological_association_id)
+
+        q1 = ::Otu.joins(:biological_associations).where(biological_associations: {id: q, biological_association_subject_type: 'Otu'})
+        q2 = ::Otu.joins(:related_biological_associations).where(related_biological_associations: {id:  q, biological_association_object_type: 'Otu'} )
+        q3 = ::Otu.joins(collection_objects: [:biological_associations] ).where(biological_associations: {id: q, biological_association_subject_type: 'CollectionObject'})
+        q4 = ::Otu.joins(collection_objects: [:related_biological_associations] ).where(related_biological_associations: {id: q, biological_association_object_type: 'CollectionObject'})
+
+        if historical_determinations.nil?
+          q3 = q3.where(taxon_determinations: {position: 1})
+          q4 = q4.where(taxon_determinations: {position: 1})
+        elsif historical_determinations
+          q3 = q3.where.not(taxon_determinations: {position: 1})
+          q4 = q4.where.not(taxon_determinations: {position: 1})
+        end
+
+        query =  [q1,q2,q3,q4].collect{|s| '(' + s.to_sql + ')'}.join(' UNION ')
+
+        ::Otu.from("(#{query}) as otus")
+      end
+
+      def asserted_distribution_id_facet
+        return nil if asserted_distribution_id.empty?
+        ::Otu.joins(:asserted_distributions).where(asserted_distributions: {id: asserted_distribution_id})
+      end
+
+      def geographic_area_id_facet
+        return nil if geographic_area_id.empty?
+
+        a = nil
+
+        case geographic_area_mode
+        when nil, true # exact and spatial start the same
+          a = ::GeographicArea.where(id: geographic_area_id)
+        when false # descendants
+          a = ::GeographicArea.descendants_of_any(geographic_area_id)
+        end
+
+        b = nil # from AssertedDistributions
+        c = nil # from CollectionObjects
+
+        case geographic_area_mode
+        when nil, false # exact, descendants
+          b = ::Otu.joins(:asserted_distributions).where(asserted_distributions: {geographic_area: a})
+          c = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: {geographic_area: a} )
+        when true # spatial
+          i = ::GeographicItem.joins(:geographic_areas).where(geographic_areas: a) # .unscope
+          wkt_shape = ::GeographicItem.st_union(i).to_a.first['collection'].to_s # todo, check
+          return from_wkt(wkt_shape)
+        end
+
+        ::Otu.from("((#{b.to_sql}) UNION (#{c.to_sql})) as otus")
+      end
 
       def descriptor_id_facet
         return nil if descriptor_id.empty?
 
         q1 = ::Otu.joins(:descriptors).where(descriptors: {id: descriptor_id})
-        q2 = ::Otu.joins(collection_objects: [:descriptors]).where(descriptors: {id: :descriptor_id})
+        q2 = ::Otu.joins(collection_objects: [:descriptors]).where(descriptors: {id: descriptor_id})
 
         ::Otu.from("((#{q1.to_sql}) UNION (#{q2.to_sql})) as otus")
       end
