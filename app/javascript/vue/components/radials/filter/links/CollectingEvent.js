@@ -1,14 +1,11 @@
 // Update corresponding at SUBQUERIES in /lib/queries/query/filter.rb
-import { FILTER_LINKS } from '../constants/filterLinks'
-import { COLLECTION_OBJECT, TAXON_NAME, OTU } from 'constants/index.js'
+import {
+  FILTER_OTU,
+  FILTER_TAXON_NAME,
+  FILTER_COLLECTION_OBJECT
+} from '../constants/filterLinks'
 
 export const CollectingEvent = {
-  all: [
-    FILTER_LINKS[OTU],
-    FILTER_LINKS[TAXON_NAME],
-    FILTER_LINKS[COLLECTION_OBJECT]
-  ],
-  ids: [
-    FILTER_LINKS[OTU],
-  ]
+  all: [FILTER_OTU, FILTER_TAXON_NAME, FILTER_COLLECTION_OBJECT],
+  ids: [FILTER_OTU]
 }

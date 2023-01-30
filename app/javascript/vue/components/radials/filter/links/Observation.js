@@ -1,13 +1,6 @@
-import { FILTER_LINKS } from '../constants/filterLinks'
-import {
-  OTU,
-  DESCRIPTOR,
-  IMAGE,
-} from 'constants/index.js'
+import { FILTER_DESCRIPTOR } from '../constants/filterLinks'
 
 export const Observation = {
-  all: [
-    FILTER_LINKS[DESCRIPTOR]
-    ],
+  all: [FILTER_DESCRIPTOR],
   ids: []
 }
