@@ -88,7 +88,7 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
 
   specify '#wkt & #taxon_name_id 2' do
     o4 = Specimen.create!
-    ba4 = BiologicalAssociation.create!(biological_association_subject: o2, biological_association_object: o4, biological_relationship: r2) 
+    ba4 = BiologicalAssociation.create!(biological_association_subject: o2, biological_association_object: o4, biological_relationship: r2)
 
     # o4 gets spatial, o4 does not
     o4.update!(collecting_event: FactoryBot.create(:valid_collecting_event, verbatim_latitude: '7.0', verbatim_longitude: '12.0'))
@@ -173,8 +173,8 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
       biological_association_subject: Specimen.create!,
       biological_association_object: o3,
       biological_relationship: r2)
+
     o = {collection_object_id: a.biological_association_subject.id}
-    # byebug
     expect(query.new(o).all.map(&:id)).to contain_exactly( a.id )
   end
 
@@ -248,9 +248,10 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
     s2 =  Protonym.create!(name: 'dus', rank_class: Ranks.lookup(:iczn, :species), parent: g2)
 
     o2.update!(taxon_name: s1)
-
     o = {object_taxon_name_id: g1.id, descendants: true}
+
     q = query.new(o)
+
     expect(q.all.map(&:id)).to contain_exactly(ba1.id)
   end
 

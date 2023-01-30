@@ -37,7 +37,7 @@ module Queries
         :taxon_name_id,
         :wkt,
 
-        asserted_distribution_id: [],       
+        asserted_distribution_id: [],
         collecting_event_id: [],
         descriptor_id: [],
         geographic_area_id: [],
@@ -132,44 +132,44 @@ module Queries
 
       # @return [True, False, nil]
       #   true - Otu has AssertedDistribution
-      #   false - Otu without AssertedDistribution 
+      #   false - Otu without AssertedDistribution
       #   nil - not applied
-      attr_accessor :asserted_distributions 
+      attr_accessor :asserted_distributions
 
       # @return [True, False, nil]
-      #   true - Otu has Conten 
-      #   false - Otu without Conten 
+      #   true - Otu has Conten
+      #   false - Otu without Conten
       #   nil - not applied
       attr_accessor :contents
 
       # @return [True, False, nil]
       #   true - Otu has Depictions
-      #   false - Otu without Depictions 
+      #   false - Otu without Depictions
       #   nil - not applied
       #  Currently applies only directly on OTU
       attr_accessor :depictions
 
       # @return [True, False, nil]
-      #   true - Otu has CollectionObjects 
+      #   true - Otu has CollectionObjects
       #   false - Otu without CollectionObjects
       #   nil - not applied
       attr_accessor :collection_objects
 
       # @return [True, False, nil]
-      #   true - Otu has TaxonName 
-      #   false - Otu without TaxonName 
+      #   true - Otu has TaxonName
+      #   false - Otu without TaxonName
       #   nil - not applied
       attr_accessor :taxon_name
 
       # @return [True, False, nil]
-      #   true - Otu has BiologicalAssocation (subject or object) 
+      #   true - Otu has BiologicalAssocation (subject or object)
       #   false - Otu without BiologicalAssociation
       #   nil - not applied
       attr_accessor :biological_associations
 
       # @return [True, False, nil]
-      #   true - Otu has observations 
-      #   false - Otu without observations 
+      #   true - Otu has observations
+      #   false - Otu without observations
       #   nil - not applied
       attr_accessor :observations
 
@@ -372,7 +372,7 @@ module Queries
 
       def contents_facet
         return nil if contents.nil?
-        if contents 
+        if contents
           ::Otu.joins(:contents)
         else
           ::Otu.where.missing(:contents)
@@ -392,9 +392,9 @@ module Queries
           ::Otu.from("((#{a.to_sql}) UNION (#{b.to_sql})) as otus")
         else
           ::Otu.where( 'NOT EXISTS (' + ::Otu.select('1').from(    # not exists ( a select(1) from <opposite query>  )
-            ::Otu.from(
-              "((#{a.to_sql}) UNION (#{b.to_sql})) as ba_otus_join"
-            ).where('otus.id = ba_otus_join.id') ).to_sql  + ')' )  # where includes in/out link
+                                                               ::Otu.from(
+                                                                 "((#{a.to_sql}) UNION (#{b.to_sql})) as ba_otus_join"
+                                                               ).where('otus.id = ba_otus_join.id') ).to_sql  + ')' )  # where includes in/out link
         end
       end
 
@@ -514,15 +514,12 @@ module Queries
         ::Otu.from("((#{q1.to_sql}) UNION (#{q2.to_sql})) as otus")
       end
 
-      # @return [ActiveRecord::Relation, nil]
       def and_clauses
-        clauses = [
+        [
           otu_id_facet,
           name_facet,
           taxon_name_facet
-
-          # Queries::Annotator.annotator_params(options, ::Citation),
-        ].compact
+        ]
       end
 
       def merge_clauses

@@ -7,9 +7,6 @@ module Queries
       include Queries::Concerns::Tags
 
       PARAMS = [
-        :geographic_area_mode,
-        :geo_json,
-
         :biological_association_id,
         :biological_associations_graph_id,
         :biological_relationship_id,
@@ -17,7 +14,9 @@ module Queries
         :collection_object_id,
         :descendants,
         :geo_json,
+        :geo_json,
         :geographic_area_id,
+        :geographic_area_mode,
         :geographic_area_mode,
         :object_biological_property_id,
         :object_global_id,
@@ -49,11 +48,12 @@ module Queries
       # Params to consider for OTU scopes
       #   taxon_name_id, object_taxon_name_id and subject_taxon_name_id and otu_id and descendants are handled seperately
       OTU_PARAMS = %i{
-        otu_id
         collecting_event_id
+        collection_object_id
         geo_json
         geographic_area_id
         geographic_area_mode
+        otu_id
         wkt
       }.freeze
 
@@ -154,39 +154,25 @@ module Queries
       attr_accessor :geographic_area_mode
 
       def initialize(params)
-        # TODO: should be handled prior likely
-        # params.reject!{ |_k, v| v.nil? || v == '' }
-
-        @subject_global_id = params[:subject_global_id]
-        @object_global_id = params[:object_global_id]
         @any_global_id = params[:any_global_id]
-        @biological_relationship_id = params[:biological_relationship_id]
-
         @biological_association_id = params[:biological_association_id]
-
-        @subject_taxon_name_id = params[:subject_taxon_name_id]
-        @object_taxon_name_id = params[:object_taxon_name_id]
-
-        @taxon_name_id = params[:taxon_name_id]
-
-        @descendants = boolean_param(params, :descendants)
-
-        @otu_id = params[:otu_id]
-
-        @collection_object_id = params[:collection_object_id]
-
         @biological_associations_graph_id = params[:biological_associations_graph_id]
-
-        @wkt = params[:wkt]
-        @geo_json = params[:geo_json]
-
+        @biological_relationship_id = params[:biological_relationship_id]
         @collecting_event_id = params[:collecting_event_id]
-
-        @object_biological_property_id = params[:object_biological_property_id]
-        @subject_biological_property_id = params[:subject_biological_property_id]
-
+        @collection_object_id = params[:collection_object_id]
+        @descendants = boolean_param(params, :descendants)
+        @geo_json = params[:geo_json]
         @geographic_area_id = params[:geographic_area_id]
         @geographic_area_mode = boolean_param(params, :geographic_area_mode)
+        @object_biological_property_id = params[:object_biological_property_id]
+        @object_global_id = params[:object_global_id]
+        @object_taxon_name_id = params[:object_taxon_name_id]
+        @otu_id = params[:otu_id]
+        @subject_biological_property_id = params[:subject_biological_property_id]
+        @subject_global_id = params[:subject_global_id]
+        @subject_taxon_name_id = params[:subject_taxon_name_id]
+        @taxon_name_id = params[:taxon_name_id]
+        @wkt = params[:wkt]
 
         set_notes_params(params)
         set_tags_params(params)
@@ -415,6 +401,7 @@ module Queries
         q = base_collection_object_query
         q.descendants = descendants
         q.taxon_name_id = subject_taxon_name_ids
+        q.project_id = nil # as a first test we want `.all(true)`` to be nil if project_id is the only param
         q
       end
 
@@ -423,6 +410,7 @@ module Queries
         q = base_collection_object_query
         q.taxon_name_id = object_taxon_name_ids
         q.descendants = descendants
+        q.project_id = nil # see subject_collection_object_query
         q
       end
 
@@ -451,7 +439,9 @@ module Queries
       end
 
       def base_otu_query(opts)
-        ::Queries::Otu::Filter.new(opts)
+        q = ::Queries::Otu::Filter.new(opts)
+        q.project_id = nil # reset at use
+        q
       end
 
       def subject_otu_query
@@ -495,20 +485,29 @@ module Queries
         a = subject_query
         b = object_query
 
-        return nil if a.nil? && b.nil?
+        a_sql, b_sql = nil, nil
 
-        a_sql = a&.all&.where(project_id: project_id)&.to_sql
-        b_sql = b&.all&.where(project_id: project_id)&.to_sql
+        if !a&.all(true).nil?
+          a.project_id = project_id
+          a_sql = a.all.to_sql
+        end
+
+        if !b&.all(true).nil?
+          b.project_id = project_id
+          b_sql = b.all.to_sql
+        end
+
+        return nil if a_sql.nil? and b_sql.nil?
 
         # Setup for "WITH" use
         t = []
-        t.push 'a_objects AS (' + a_sql + ')' if a
-        t.push 'b_objects AS (' + b_sql + ')' if b && (b_sql != a_sql)
+        t.push 'a_objects AS (' + a_sql + ')' if a_sql
+        t.push 'b_objects AS (' + b_sql + ')' if b_sql && (b_sql != a_sql)
 
         s = 'WITH ' + t.join(', ')
 
         # subject/object queries reference different params
-        if a && b && (a_sql != b_sql)
+        if a_sql && b_sql && (a_sql != b_sql)
           s << ' ' + ::BiologicalAssociation
             .joins("LEFT JOIN a_objects as a_objects1 on a_objects1.id = biological_associations.biological_association_subject_id AND biological_associations.biological_association_subject_type = '" + target + "'")
             .joins("LEFT JOIN b_objects as b_objects1 on b_objects1.id = biological_associations.biological_association_object_id AND biological_associations.biological_association_object_type = '" + target + "'")
@@ -516,7 +515,7 @@ module Queries
             .to_sql
 
           # subject/object queries reference same params
-        elsif a && b
+        elsif a_sql && b_sql
           s << ' ' + ::BiologicalAssociation
             .joins("LEFT JOIN a_objects as a_objects1 on a_objects1.id = biological_associations.biological_association_subject_id AND biological_associations.biological_association_subject_type = '" + target + "'")
             .joins("LEFT JOIN a_objects as a_objects2 on a_objects2.id = biological_associations.biological_association_object_id AND biological_associations.biological_association_object_type = '" + target + "'")
@@ -524,7 +523,7 @@ module Queries
             .to_sql
 
           # subject only
-        elsif a
+        elsif a_sql
           s << ' ' + ::BiologicalAssociation
             .joins("JOIN a_objects as a_objects1 on a_objects1.id = biological_associations.biological_association_subject_id AND biological_associations.biological_association_subject_type = '" + target + "'")
             .to_sql
@@ -631,17 +630,6 @@ module Queries
       def biological_association_id_facet
         return nil if biological_association_id.empty?
         table[:id].eq_any(biological_association_id)
-      end
-
-      # @return [ActiveRecord::Relation]
-      def and_clauses
-        clauses = base_and_clauses
-        return nil if clauses.empty?
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
       end
 
       # Merges results from Otu and CollectionObject filters as the
