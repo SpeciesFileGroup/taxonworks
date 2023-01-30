@@ -1,7 +1,10 @@
-import { FILTER_LINKS } from '../constants/filterLinks'
-import { SOURCE, TAXON_NAME, OTU } from 'constants/index.js'
+import {
+  FILTER_OTU,
+  FILTER_SOURCE,
+  FILTER_TAXON_NAME
+} from '../constants/filterLinks'
 
 export const AssertedDistribution = {
-  all: [FILTER_LINKS[SOURCE], FILTER_LINKS[TAXON_NAME], FILTER_LINKS[OTU]],
+  all: [FILTER_SOURCE, FILTER_TAXON_NAME, FILTER_OTU],
   ids: []
 }

@@ -1,19 +1,18 @@
-import { FILTER_LINKS } from '../constants/filterLinks'
 import {
-  COLLECTION_OBJECT,
-  COLLECTING_EVENT,
-  SOURCE,
-  TAXON_NAME,
-  OTU
-} from 'constants/index.js'
+  FILTER_COLLECTING_EVENT,
+  FILTER_COLLECTION_OBJECT,
+  FILTER_OTU,
+  FILTER_TAXON_NAME,
+  FILTER_SOURCE
+} from '../constants/filterLinks'
 
 export const BiologicalAssociation = {
   all: [
-    FILTER_LINKS[COLLECTION_OBJECT],
-    FILTER_LINKS[COLLECTING_EVENT],
-    FILTER_LINKS[OTU],
-    FILTER_LINKS[TAXON_NAME],
-    FILTER_LINKS[SOURCE]
+    FILTER_COLLECTION_OBJECT,
+    FILTER_COLLECTING_EVENT,
+    FILTER_OTU,
+    FILTER_TAXON_NAME,
+    FILTER_SOURCE
   ],
   ids: []
 }

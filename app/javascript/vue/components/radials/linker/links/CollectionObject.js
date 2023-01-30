@@ -1,5 +1,12 @@
+import {
+  TASK_COLLECTION_OBJECT_MATCH,
+  TASK_COLLECTION_OBJECT_TABLE
+} from '../constants/links'
+
 export const CollectionObject = {
-  all: [
+  all: [TASK_COLLECTION_OBJECT_MATCH, TASK_COLLECTION_OBJECT_TABLE],
+  ids: [TASK_COLLECTION_OBJECT_MATCH, TASK_COLLECTION_OBJECT_TABLE]
+  /*   per: [
     {
       label: 'By collecting event',
       link: '/tasks/collection_objects/filter',
@@ -34,16 +41,6 @@ export const CollectionObject = {
       label: 'By geographic area',
       link: '/tasks/collection_objects/filter',
       params: ['geographic_area_id']
-    },
-    {
-      label: 'Table',
-      link: '/tasks/collection_objects/table'
     }
-  ],
-  ids: [
-    {
-      label: 'Table',
-      link: '/tasks/collection_objects/table'
-    }
-  ]
+  ] */
 }

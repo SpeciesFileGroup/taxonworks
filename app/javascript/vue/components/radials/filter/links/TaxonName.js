@@ -1,17 +1,16 @@
-import { FILTER_LINKS } from '../constants/filterLinks'
 import {
-  OTU,
-  COLLECTION_OBJECT,
-  SOURCE,
-  COLLECTING_EVENT
-} from 'constants/index.js'
+  FILTER_COLLECTING_EVENT,
+  FILTER_COLLECTION_OBJECT,
+  FILTER_OTU,
+  FILTER_SOURCE
+} from '../constants/filterLinks'
 
 export const TaxonName = {
   all: [
-    FILTER_LINKS[COLLECTING_EVENT],
-    FILTER_LINKS[SOURCE],
-    FILTER_LINKS[OTU],
-    FILTER_LINKS[COLLECTION_OBJECT]
+    FILTER_COLLECTING_EVENT,
+    FILTER_SOURCE,
+    FILTER_OTU,
+    FILTER_COLLECTION_OBJECT
   ],
   ids: []
 }

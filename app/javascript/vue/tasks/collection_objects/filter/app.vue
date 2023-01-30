@@ -39,17 +39,19 @@
             @delete="removeCOFromList"
           />
           <span class="separate-left separate-right">|</span>
+          <div class="horizontal-left-content gap-xsmall">
+            <CsvButton
+              :list="coList?.data"
+              :options="{ fields: csvFields }"
+            />
+            <DwcDownload
+              :params="parameters"
+              :total="pagination?.total"
+            />
+          </div>
+          <span class="separate-left separate-right">|</span>
+
           <LayoutConfiguration />
-          <CsvButton
-            class="margin-small-left"
-            :list="coList?.data"
-            :options="{ fields: csvFields }"
-          />
-          <DwcDownload
-            class="margin-small-left"
-            :params="parameters"
-            :total="pagination?.total"
-          />
         </div>
       </template>
       <template #facets>

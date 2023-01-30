@@ -28,29 +28,11 @@
           />
           <RadialLinker
             v-if="objectType"
+            all
             :parameters="parameters"
             :object-type="objectType"
             :disabled="!list.length"
           />
-          <FilterSettings
-            v-model:filter="preferences.activeFilter"
-            v-model:url="preferences.activeJSONRequest"
-            v-model:list="preferences.showList"
-          >
-            <template #preferences-last>
-              <slot name="preferences-last" />
-            </template>
-          </FilterSettings>
-          <VBtn
-            color="primary"
-            class="circle-button"
-            @click="emit('reset')"
-          >
-            <VIcon
-              name="reset"
-              x-small
-            />
-          </VBtn>
         </div>
       </div>
       <span>|</span>
@@ -86,6 +68,26 @@
           :ids="selectedIds"
         />
         <slot name="nav-right" />
+        <span class="separate-left separate-right">|</span>
+        <FilterSettings
+          v-model:filter="preferences.activeFilter"
+          v-model:url="preferences.activeJSONRequest"
+          v-model:list="preferences.showList"
+        >
+          <template #preferences-last>
+            <slot name="preferences-last" />
+          </template>
+        </FilterSettings>
+        <VBtn
+          color="primary"
+          class="circle-button"
+          @click="emit('reset')"
+        >
+          <VIcon
+            name="reset"
+            x-small
+          />
+        </VBtn>
       </div>
     </div>
   </NavBar>
