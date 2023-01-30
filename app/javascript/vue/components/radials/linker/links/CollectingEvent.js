@@ -1,5 +1,7 @@
 export const CollectingEvent = {
-  all: [
+  all: [],
+  ids: []
+  /*   per: [
     {
       label: 'By collection object',
       link: '/tasks/collecting_events/filter',
@@ -10,6 +12,5 @@ export const CollectingEvent = {
       link: '/tasks/collecting_events/filter',
       params: ['geographic_area_id']
     }
-  ],
-  ids: []
+  ], */
 }
