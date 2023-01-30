@@ -226,19 +226,49 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
     expect(query.new(o).all.map(&:id)).to contain_exactly(ba1.id, ba2.id)
   end
 
-  specify '#subject_taxon_name_id' do
+  specify '#subject_taxon_name_id (Otu)' do
     g1 =  Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
     s1 =  Protonym.create!(name: 'eus', rank_class: Ranks.lookup(:iczn, :species), parent: g1)
 
     g2 =  Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
     s2 =  Protonym.create!(name: 'dus', rank_class: Ranks.lookup(:iczn, :species), parent: g2)
 
-    o1.update!(taxon_name: s1)
+    o2.update!(taxon_name: s1)
 
     o = {subject_taxon_name_id: g1.id, descendants: true}
     q = query.new(o)
-    expect(q.all.map(&:id)).to contain_exactly(ba1.id, ba2.id)
+    expect(q.all.map(&:id)).to contain_exactly(ba3.id)
   end
+
+  specify '#object_taxon_name_id (CollectionObject)' do
+    g1 =  Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+    s1 =  Protonym.create!(name: 'eus', rank_class: Ranks.lookup(:iczn, :species), parent: g1)
+
+    g2 =  Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+    s2 =  Protonym.create!(name: 'dus', rank_class: Ranks.lookup(:iczn, :species), parent: g2)
+
+    oz = Otu.create!(taxon_name: s1)
+    bz = FactoryBot.create(:valid_biological_association, biological_association_object: oz)
+
+    o = {object_taxon_name_id: g1.id, descendants: true}
+    q = query.new(o)
+    expect(q.all.map(&:id)).to contain_exactly(bz.id)
+   end
+
+  specify '#subject_taxon_name_id (CollectionObject)' do
+    g1 =  Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+    s1 =  Protonym.create!(name: 'eus', rank_class: Ranks.lookup(:iczn, :species), parent: g1)
+
+    g2 =  Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+    s2 =  Protonym.create!(name: 'dus', rank_class: Ranks.lookup(:iczn, :species), parent: g2)
+
+    oz = Otu.create!(taxon_name: s1)
+    bz = FactoryBot.create(:valid_biological_association, biological_association_subject: oz)
+
+    o = {subject_taxon_name_id: g1.id, descendants: true}
+    q = query.new(o)
+    expect(q.all.map(&:id)).to contain_exactly(bz.id)
+   end
 
   specify '#object_taxon_name_id' do
     g1 =  Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)

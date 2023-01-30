@@ -46,7 +46,7 @@ module Queries
 
 
       # Params to consider for OTU scopes
-      #   taxon_name_id, object_taxon_name_id and subject_taxon_name_id and otu_id and descendants are handled seperately
+      #  !! taxon_name_id, object_taxon_name_id, subject_taxon_name_id, otu_id and descendants are handled seperately
       OTU_PARAMS = %i{
         collecting_event_id
         collection_object_id
@@ -392,30 +392,6 @@ module Queries
         h
       end
 
-      def base_collection_object_query
-        ::Queries::CollectionObject::Filter.new(collection_object_params)
-      end
-
-      def subject_collection_object_query
-        return nil if collection_object_params.blank?
-        q = base_collection_object_query
-        q.descendants = descendants
-        q.taxon_name_id = subject_taxon_name_ids
-        q.project_id = nil # as a first test we want `.all(true)`` to be nil if project_id is the only param
-        q
-      end
-
-      def object_collection_object_query
-        return nil if collection_object_params.blank?
-        q = base_collection_object_query
-        q.taxon_name_id = object_taxon_name_ids
-        q.descendants = descendants
-        q.project_id = nil # see subject_collection_object_query
-        q
-      end
-
-      #----
-
       # TODO: same as co for now ?!
       def otu_params
         h = {}
@@ -425,6 +401,8 @@ module Queries
         end
         h
       end
+
+      #----
 
       def object_taxon_name_ids
         return taxon_name_id if taxon_name_id.present?
@@ -442,6 +420,40 @@ module Queries
         q = ::Queries::Otu::Filter.new(opts)
         q.project_id = nil # reset at use
         q
+      end
+
+      def base_collection_object_query(opts)
+        q = ::Queries::CollectionObject::Filter.new(opts)
+        q.project_id = nil
+        q
+      end
+
+      def subject_collection_object_query
+        p = collection_object_params
+        s = subject_taxon_name_ids
+
+        if p.blank? && s.nil?
+          return nil
+        elsif s.present?
+          p[:taxon_name_id] = s
+          p[:descendants] = descendants
+        end
+
+        q = base_collection_object_query(p)
+      end
+
+      def object_collection_object_query
+        p = collection_object_params
+        s = object_taxon_name_ids
+
+        if p.blank? && s.nil?
+          return nil
+        elsif s.present?
+          p[:taxon_name_id] = s
+          p[:descendants] = descendants
+        end
+
+        q = base_collection_object_query(p)
       end
 
       def subject_otu_query
@@ -514,7 +526,7 @@ module Queries
             .where('a_objects1.id is not null').or('b_objects1.id is not null')
             .to_sql
 
-          # subject/object queries reference same params
+        # subject/object queries reference same params
         elsif a_sql && b_sql
           s << ' ' + ::BiologicalAssociation
             .joins("LEFT JOIN a_objects as a_objects1 on a_objects1.id = biological_associations.biological_association_subject_id AND biological_associations.biological_association_subject_type = '" + target + "'")
@@ -522,13 +534,13 @@ module Queries
             .where('a_objects1.id is not null').or('a_objects2.id is not null')
             .to_sql
 
-          # subject only
+        # subject only
         elsif a_sql
           s << ' ' + ::BiologicalAssociation
             .joins("JOIN a_objects as a_objects1 on a_objects1.id = biological_associations.biological_association_subject_id AND biological_associations.biological_association_subject_type = '" + target + "'")
             .to_sql
 
-          # object_only
+        # object_only
         else
           s << ' ' + ::BiologicalAssociation
             .joins("JOIN b_objects as b_objects1 on b_objects1.id = biological_associations.biological_association_object_id AND biological_associations.biological_association_object_type = '" + target + "'")
@@ -577,27 +589,27 @@ module Queries
         )
       end
 
-      def subject_taxon_name_id_facet
-        return nil if subject_taxon_name_id.blank?
+   #  def subject_taxon_name_id_facet
+   #    return nil if subject_taxon_name_id.blank?
 
-        a = ::Otu.descendant_of_taxon_name(subject_taxon_name_id).all
-        b = ::Queries::CollectionObject::Filter.new(ancestor_id: subject_taxon_name_id).all
+   #    a = ::Otu.descendant_of_taxon_name(subject_taxon_name_id).all
+   #    b = ::Queries::CollectionObject::Filter.new(ancestor_id: subject_taxon_name_id).all
 
-        ::BiologicalAssociation.where(
-          biological_association_subject: a + b, # [a, b].flatten
-        )
-      end
+   #    ::BiologicalAssociation.where(
+   #      biological_association_subject: a + b, # [a, b].flatten
+   #    )
+   #  end
 
-      def object_taxon_name_id_facet
-        return nil if object_taxon_name_id.blank?
+   #  def object_taxon_name_id_facet
+   #    return nil if object_taxon_name_id.blank?
 
-        a = ::Otu.descendant_of_taxon_name(object_taxon_name_id).all
-        b = ::Queries::CollectionObject::Filter.new(ancestor_id: object_taxon_name_id).all
+   #    a = ::Otu.descendant_of_taxon_name(object_taxon_name_id).all
+   #    b = ::Queries::CollectionObject::Filter.new(ancestor_id: object_taxon_name_id).all
 
-        ::BiologicalAssociation.where(
-          biological_association_object: [a, b].flatten
-        )
-      end
+   #    ::BiologicalAssociation.where(
+   #      biological_association_object: [a, b].flatten
+   #    )
+   #  end
 
       def subject_global_id_facet
         return nil if subject_global_id.empty?
