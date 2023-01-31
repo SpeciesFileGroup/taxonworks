@@ -17,6 +17,62 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
 
   let(:query) { Queries::BiologicalAssociation::Filter }
 
+  specify '#object_scope' do
+    g1 =  Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+    s1 =  Protonym.create!(name: 'eus', rank_class: Ranks.lookup(:iczn, :species), parent: g1)
+
+    g2 =  Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+    s2 =  Protonym.create!(name: 'dus', rank_class: Ranks.lookup(:iczn, :species), parent: g2)
+
+    o1.update!(taxon_name: s1)
+    o2.update!(taxon_name: s2)
+
+    o = { object_taxon_name_id: [s1.id, s2.id] }
+    expect(query.new(o).object_scope.map(&:id)).to contain_exactly(ba1.id)
+  end
+
+  specify '#subject_scope' do
+    g1 =  Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+    s1 =  Protonym.create!(name: 'eus', rank_class: Ranks.lookup(:iczn, :species), parent: g1)
+
+    g2 =  Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+    s2 =  Protonym.create!(name: 'dus', rank_class: Ranks.lookup(:iczn, :species), parent: g2)
+
+    o1.update!(taxon_name: s1)
+    o2.update!(taxon_name: s2)
+
+    o = { subject_taxon_name_id: [s1.id] }
+    expect(query.new(o).subject_scope.map(&:id)).to contain_exactly(ba1.id, ba2.id)
+  end
+
+  specify '#subject_taxon_name_id, #object_taxon_name_id, #taxon_name_id_mode 2' do
+    g1 =  Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+    s1 =  Protonym.create!(name: 'eus', rank_class: Ranks.lookup(:iczn, :species), parent: g1)
+
+    g2 =  Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+    s2 =  Protonym.create!(name: 'dus', rank_class: Ranks.lookup(:iczn, :species), parent: g2)
+
+    o1.update!(taxon_name: s1)
+    o2.update!(taxon_name: s2)
+
+    o = { subject_taxon_name_id: s1.id, object_taxon_name_id: g2.id, taxon_name_id_mode: false }
+    expect(query.new(o).all.map(&:id)).to contain_exactly(ba1.id, ba2.id)
+  end
+
+  specify '#subject_taxon_name_id, #object_taxon_name_id, #taxon_name_id_mode, #descendants' do
+    g1 =  Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+    s1 =  Protonym.create!(name: 'eus', rank_class: Ranks.lookup(:iczn, :species), parent: g1)
+
+    g2 =  Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+    s2 =  Protonym.create!(name: 'dus', rank_class: Ranks.lookup(:iczn, :species), parent: g2)
+
+    o1.update!(taxon_name: s1)
+    o2.update!(taxon_name: s2)
+
+    o = { subject_taxon_name_id: s1.id, object_taxon_name_id: g2.id, taxon_name_id_mode: true, descendants: true }
+    expect(query.new(o).all.map(&:id)).to contain_exactly(ba1.id)
+  end
+
   specify '#taxon_name_id descendants = false' do
     p = FactoryBot.create(:root_taxon_name)
     o1.update!(taxon_name: FactoryBot.create(:valid_taxon_name, parent: p) )
@@ -241,11 +297,11 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
   end
 
   specify '#object_taxon_name_id (CollectionObject)' do
-    g1 =  Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
-    s1 =  Protonym.create!(name: 'eus', rank_class: Ranks.lookup(:iczn, :species), parent: g1)
+    g1 = Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+    s1 = Protonym.create!(name: 'eus', rank_class: Ranks.lookup(:iczn, :species), parent: g1)
 
-    g2 =  Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
-    s2 =  Protonym.create!(name: 'dus', rank_class: Ranks.lookup(:iczn, :species), parent: g2)
+    g2 = Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+    s2 = Protonym.create!(name: 'dus', rank_class: Ranks.lookup(:iczn, :species), parent: g2)
 
     oz = Otu.create!(taxon_name: s1)
     bz = FactoryBot.create(:valid_biological_association, biological_association_object: oz)
