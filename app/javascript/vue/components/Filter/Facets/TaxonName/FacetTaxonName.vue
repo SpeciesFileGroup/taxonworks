@@ -5,7 +5,10 @@
       v-model="params"
       :relation="relation"
     />
-    <TaxonNameMode v-model="params" />
+    <TaxonNameMode
+      v-if="mode"
+      v-model="params"
+    />
     <CoverageSelector
       v-if="coverage"
       v-model="params"
@@ -59,7 +62,7 @@ const props = defineProps({
 
   mode: {
     type: Boolean,
-    default: true
+    default: false
   }
 })
 
