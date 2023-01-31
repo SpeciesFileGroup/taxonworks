@@ -47,7 +47,7 @@ module Queries
     # This is read as  :too <- [:from1, from1] ].
     SUBQUERIES = {
       asserted_distribution: [:source, :otu],
-      biological_association: [:source, :collecting_event],
+      biological_association: [:source, :collecting_event, :otu],
       collecting_event: [:source, :collection_object, :biological_association],
       collection_object: [:source, :otu, :taxon_name, :extract, :collecting_event, :biological_association],
       content: [],

@@ -13,6 +13,7 @@ module Queries
         :collecting_event_id,
         :collection_object_id,
         :descendants,
+        :exclude_taxon_name_relationship,
         :geo_json,
         :geo_json,
         :geographic_area_id,
@@ -60,7 +61,13 @@ module Queries
         wkt
       }.freeze
 
-     # @param collecting_event_id
+
+      # @return Boolean, nil
+      #  if true then return relationships *excluding*
+      # those listed in biological_relationship_id 
+      attr_accessor :exclude_taxon_name_relationship
+      
+      # @param collecting_event_id
       # @return Integer
       #   All BiologicalAssociations with CollectionObjects
       # linked to one or more CollectingEvent
@@ -121,6 +128,7 @@ module Queries
 
       # @return [Array]
       #   one or more biological relationship ID
+      # See also exclude_taxon_name_relationship
       # @param biological_relationship_id [Array, Integer]
       attr_accessor :biological_relationship_id
 
@@ -161,6 +169,7 @@ module Queries
         @collecting_event_id = params[:collecting_event_id]
         @collection_object_id = params[:collection_object_id]
         @descendants = boolean_param(params, :descendants)
+        @exclude_taxon_name_relationship = boolean_param(params, :exclude_taxon_name_relationship)
         @geo_json = params[:geo_json]
         @geographic_area_id = params[:geographic_area_id]
         @geographic_area_mode = boolean_param(params, :geographic_area_mode)
@@ -549,7 +558,11 @@ module Queries
 
       def biological_relationship_id_facet
         return nil if biological_relationship_id.empty?
-        table[:biological_relationship_id].eq_any(biological_relationship_id)
+        if exclude_taxon_name_relationship
+          table[:biological_relationship_id].not_eq_any(biological_relationship_id)
+        else
+          table[:biological_relationship_id].eq_any(biological_relationship_id)
+        end
       end
 
       def biological_association_id_facet
@@ -582,6 +595,19 @@ module Queries
         ::BiologicalAssociation.from('(' + s + ') as biological_associations')
       end
 
+      def otu_query_facet
+        return nil if otu_query.nil?
+
+        s = 'WITH query_otu_ba AS (' + otu_query.all.to_sql + ') ' + 
+          ::BiologicalAssociation
+          .joins("LEFT JOIN query_otu_ba as query_otu_ba1 on biological_associations.biological_association_subject_id = query_otu_ba1.id AND biological_associations.biological_association_subject_type = 'Otu'")
+          .joins("LEFT JOIN query_otu_ba as query_otu_ba2 on biological_associations.biological_association_object_id = query_otu_ba2.id AND biological_associations.biological_association_object_type = 'Otu'")
+          .where('query_otu_ba1.id IS NOT NULL OR query_otu_ba2.id IS NOT NULL')
+          .to_sql
+
+        ::BiologicalAssociation.from('(' + s + ') as biological_associations')
+      end
+
       def and_clauses
         [
           any_global_id_facet,
@@ -596,6 +622,7 @@ module Queries
 
       def merge_clauses
         [
+          otu_query_facet,
           source_query_facet,
           collecting_event_query_facet,
 
