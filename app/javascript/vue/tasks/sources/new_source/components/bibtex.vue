@@ -1,7 +1,8 @@
 <template>
   <modal-component
     @close="$emit('close', true)"
-    class="full_width">
+    class="full_width"
+  >
     <template #header>
       <h3>New source from BibTeX</h3>
     </template>
@@ -9,9 +10,13 @@
       <spinner-component
         v-if="creating"
         :full-screen="true"
-        legend="Creating..."/>
-      <p>Creates a single record. For multiple records use a Source batch loader.</p>
-      <textarea 
+        legend="Creating..."
+      />
+      <p>
+        Creates a single record. For multiple records use a Source batch loader.
+      </p>
+      <textarea
+        ref="textareaRef"
         class="full_width"
         v-model="bibtexInput"
         placeholder="@article{naumann1988ambositrinae,
@@ -20,7 +25,8 @@
           journal={Fauna of New Zealand},
           volume={15},
           year={1988}
-      }"/>
+      }"
+      />
     </template>
     <template #footer>
       <div class="flex-separate separate-top">
@@ -28,7 +34,8 @@
           @click="createSource"
           :disabled="!bibtexInput.length"
           class="button normal-input button-default"
-          type="button">
+          type="button"
+        >
           Create
         </button>
       </div>
@@ -37,7 +44,6 @@
 </template>
 
 <script>
-
 import SpinnerComponent from 'components/spinner'
 import ModalComponent from 'components/ui/Modal'
 import newSource from '../const/source'
@@ -53,7 +59,7 @@ export default {
 
   emits: ['close'],
 
-  data () {
+  data() {
     return {
       bibtexInput: '',
       creating: false,
@@ -61,28 +67,37 @@ export default {
     }
   },
 
+  mounted() {
+    this.$refs.textareaRef.focus()
+  },
+
   methods: {
-    createSource () {
+    createSource() {
       this.creating = true
       this.$store.dispatch(ActionNames.ResetSource)
-      Source.create({ bibtex_input: this.bibtexInput }).then(response => {
-        this.bibtexInput = ''
-        this.$emit('close', true)
-        this.$store.commit(MutationNames.SetSource, Object.assign(newSource(), response.body))
-        TW.workbench.alert.create('New source from BibTeX created.', 'notice')
-      }).finally(() => {
-        this.creating = false
-      })
+      Source.create({ bibtex_input: this.bibtexInput })
+        .then((response) => {
+          this.bibtexInput = ''
+          this.$emit('close', true)
+          this.$store.commit(
+            MutationNames.SetSource,
+            Object.assign(newSource(), response.body)
+          )
+          TW.workbench.alert.create('New source from BibTeX created.', 'notice')
+        })
+        .finally(() => {
+          this.creating = false
+        })
     }
   }
 }
 </script>
 
 <style scoped>
-  :deep(.modal-container) {
-    width: 500px;
-  }
-  textarea {
-    height: 200px;
-  }
+:deep(.modal-container) {
+  width: 500px;
+}
+textarea {
+  height: 200px;
+}
 </style>
