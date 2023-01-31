@@ -236,10 +236,10 @@ export default {
         sliceSize: 130,
         centerSize: 34,
         innerPosition: 1.7,
-        margin: 2,
+        margin: 0,
         middleButton: this.middleButton,
         svgAttributes: {
-          class: 'svg-radial-menu'
+          class: 'svg-radial-menu svg-radial-menu-navigator'
         },
         svgSliceAttributes: {
           fontSize: 11,
@@ -478,3 +478,10 @@ export default {
   }
 }
 </script>
+
+<style>
+.svg-radial-menu-navigator path {
+  stroke: #444;
+  stroke-width: 2px;
+}
+</style>
