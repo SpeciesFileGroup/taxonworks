@@ -10,7 +10,7 @@
 
     <FilterLayout
       :filter="preferences.activeFilter"
-      :table="preferences.showList"
+      table
       :pagination="pagination"
       :parameters="parameters"
       :object-type="COLLECTING_EVENT"
@@ -52,21 +52,18 @@
       </template>
 
       <template #table>
-        <div>
-          <div class="full_width">
-            <map-component
-              v-if="preferences.showMap"
-              class="full_width"
-              :geojson="geojson"
-            />
-            <list-component
-              v-if="preferences.showList"
-              v-model="selectedIds"
-              :list="list"
-              @on-row-hover="setRowHover"
-              @on-sort="list = $event"
-            />
-          </div>
+        <div class="full_width">
+          <map-component
+            v-if="preferences.showMap"
+            :geojson="geojson"
+          />
+          <list-component
+            v-if="preferences.showList"
+            v-model="selectedIds"
+            :list="list"
+            @on-row-hover="setRowHover"
+            @on-sort="list = $event"
+          />
         </div>
       </template>
     </FilterLayout>
@@ -90,27 +87,36 @@ import useFilter from 'shared/Filter/composition/useFilter.js'
 import { COLLECTING_EVENT } from 'constants/index.js'
 import { URLParamsToJSON } from 'helpers/url/parse'
 import { computed, ref, watch, reactive, onBeforeMount } from 'vue'
-import { chunkArray } from 'helpers/arrays'
+import { chunkArray, sortArray } from 'helpers/arrays'
 import { CollectingEvent, Georeference } from 'routes/endpoints'
 
 const CHUNK_ARRAY_SIZE = 40
 const extend = ['roles']
 
 const geojson = computed(() => {
-  const ceId = rowHover.value?.id
-  const items = ceId
-    ? georeferences.value.filter((item) => item.collecting_event_id === ceId)
+  const hoverId = rowHover.value?.id
+  const hoverGeoreferences = georeferences.value.filter(
+    (item) => item.collecting_event_id === hoverId
+  )
+  const items = hoverGeoreferences.length
+    ? hoverGeoreferences
     : georeferences.value
 
-  return items.map((georeference) => {
+  const geojsonObjects = items.map((georeference) => {
     const geojson = georeference.geo_json
 
     geojson.properties.marker = {
-      icon: georeference.collecting_event_id === ceId ? 'green' : 'blue'
+      icon:
+        georeference.collecting_event_id === hoverId ||
+        selectedIds.value.includes(georeference.collecting_event_id)
+          ? 'green'
+          : 'blue'
     }
 
     return geojson
   })
+
+  return sortArray(geojsonObjects, 'properties.marker.icon')
 })
 
 const preferences = reactive({
