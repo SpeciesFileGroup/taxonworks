@@ -229,10 +229,12 @@ module Queries
 
       b = subquery_vector(hsh)
 
+      parent = self.class
+
       while !b.empty?
         a = b.shift
 
-        next unless SUBQUERIES[base_name.to_sym].include?( a.to_s.gsub('_query', '').to_sym )
+        next unless SUBQUERIES[parent.base_name.to_sym].include?( a.to_s.gsub('_query', '').to_sym )
 
         q = FILTER_QUERIES[a].safe_constantize
         p = q::PARAMS.deep_dup
@@ -249,6 +251,8 @@ module Queries
         c[a] = p
 
         c = p.last
+
+        parent = q
       end
 
       h
@@ -281,7 +285,7 @@ module Queries
     # @return True
     def set_nested_queries(params)
       if n = params.select{|k, p| k.to_s =~ /_query/ }
-        return nil if n.count != 1 # can't have multiple nested queries inside one level
+        return nil if n.keys.count != 1 # can't have multiple nested queries inside one level
 
         query_name = n.first.first
         

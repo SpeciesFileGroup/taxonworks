@@ -17,6 +17,31 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
 
   let(:query) { Queries::BiologicalAssociation::Filter }
 
+
+  # TODO: meld with 
+  context 'subqueries' do
+    specify 'A->B->A params' do
+      h = { 'collecting_event_query':  { 'biological_association_query': { 'taxon_name_id': ['99'], 'descendants':  'true'}} }
+      q = query.new(h)
+      expect(q.collecting_event_query.biological_association_query.taxon_name_id).to contain_exactly('99')
+    end
+
+    specify 'A->B->A params 2' do
+      h = { 'collecting_event_query':  { 'biological_association_query': { 'taxon_name_id': ['99'], 'descendants':  'true'}} }
+      p = ActionController::Parameters.new(h)
+      q = query.new(p)
+      expect(q.collecting_event_query.biological_association_query.taxon_name_id).to contain_exactly('99')
+    end
+
+    specify 'A->B->A permission' do
+      h = { 'collecting_event_query':  { 'biological_association_query': { 'taxon_name_id': ['99'], 'descendants':  'true'}} }
+      p = ActionController::Parameters.new(h)
+      q = query.new(p)
+      expect(q.deep_permit(p).to_hash.deep_symbolize_keys).to eq(h)
+    end
+
+  end
+
   specify '#object_scope' do
     g1 =  Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
     s1 =  Protonym.create!(name: 'eus', rank_class: Ranks.lookup(:iczn, :species), parent: g1)

@@ -576,7 +576,7 @@ module Queries
           .joins("LEFT JOIN collection_objects co2 on co2.id = biological_associations.biological_association_object_id AND biological_associations.biological_association_object_type = 'CollectionObject'")
           .joins('LEFT JOIN query_ce_ba as query_ce_ba1 on co1.collecting_event_id = query_ce_ba1.id')
           .joins('LEFT JOIN query_ce_ba as query_ce_ba2 on co2.collecting_event_id = query_ce_ba2.id')
-          .where('co1.id IS NOT NULL OR query_ce_ba2.id IS NOT NULL')
+          .where('query_ce_ba1.id IS NOT NULL OR query_ce_ba1.id IS NOT NULL')
           .to_sql
 
         ::BiologicalAssociation.from('(' + s + ') as biological_associations')
