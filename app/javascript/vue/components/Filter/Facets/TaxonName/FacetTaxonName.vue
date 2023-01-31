@@ -5,6 +5,7 @@
       v-model="params"
       :relation="relation"
     />
+    <TaxonNameMode v-model="params" />
     <CoverageSelector
       v-if="coverage"
       v-model="params"
@@ -26,6 +27,7 @@ import TaxonNameSelector from './components/TaxonNameSelector.vue'
 import IncludeSelector from './components/IncludeSelector.vue'
 import CoverageSelector from './components/ConverageSelector.vue'
 import ValiditySelector from './components/ValiditySelector.vue'
+import TaxonNameMode from './components/TaxonNameMode.vue'
 import { computed, onBeforeMount } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
@@ -53,6 +55,11 @@ const props = defineProps({
   validity: {
     type: Boolean,
     default: false
+  },
+
+  mode: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -60,7 +67,7 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 onBeforeMount(() => {
@@ -70,5 +77,4 @@ onBeforeMount(() => {
   params.value.ancestors = urlParams.ancestors
   params.value.validity = urlParams.validity
 })
-
 </script>
