@@ -37,6 +37,10 @@ module Queries
       referenced_klass.name.tableize.singularize
     end
 
+    def base_name
+      self.class.base_name
+    end
+
     def table
       referenced_klass.arel_table
     end
@@ -100,7 +104,6 @@ module Queries
     def alphanumeric_strings
       Utilities::Strings.alphanumeric_strings(query_string)
     end
-
 
     def levenshtein_distance(attribute, value)
       value = "'" + value.gsub(/'/, "''") + "'"

@@ -17,7 +17,7 @@ import {
 export const QUERY_PARAM = {
   [ASSERTED_DISTRIBUTION]: 'asserted_distribution_query',
   [BIOLOGICAL_ASSOCIATION]: 'biological_association_query',
-  [COLLECTING_EVENT]: 'collecting_event_query,',
+  [COLLECTING_EVENT]: 'collecting_event_query',
   [COLLECTION_OBJECT]: 'collection_object_query',
   [DESCRIPTOR]: 'descriptor_query',
   [EXTRACT]: 'extract_query,',

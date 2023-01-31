@@ -798,6 +798,18 @@ module Queries
         ::CollectionObject.from('(' + s + ') as collection_objects')
       end
 
+      def biological_association_query_facet
+        return nil if biological_association_query.nil?
+        s = 'WITH query_ba_co AS (' + biological_association_query.all.to_sql + ') ' +
+          ::CollectionObject
+          .joins("LEFT JOIN query_ba_co as query_ba_co1 on collection_objects.id = query_ba_co1.biological_association_subject_id AND query_ba_co1.biological_association_subject_type = 'CollectionObject'")
+          .joins("LEFT JOIN query_ba_co as query_ba_co2 on collection_objects.id = query_ba_co2.biological_association_object_id AND query_ba_co2.biological_association_object_type = 'CollectionObject'")
+          .where('(query_ba_co1.id) IS NOT NULL OR (query_ba_co2.id IS NOT NULL)')
+          .to_sql
+
+        ::CollectionObject.from('(' + s + ') as collection_objects')
+      end
+
       def and_clauses
         [
           attribute_exact_facet(:buffered_collecting_event),
@@ -815,6 +827,7 @@ module Queries
 
       def merge_clauses
         [
+          biological_association_query_facet,
           source_query_facet,
           collecting_event_query_facet,
           taxon_name_query_facet,

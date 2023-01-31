@@ -368,6 +368,18 @@ module Queries
         table[:verbatim_locality].matches(t)
       end
 
+      def biological_association_query_facet
+        return nil if biological_association_query.nil?
+        s = 'WITH query_ba_ces AS (' + biological_association_query.all.to_sql + ') ' +
+          ::CollectingEvent.joins(:collection_objects)
+          .joins("LEFT JOIN query_ba_ces as query_ba_ces1 on collection_objects.id = query_ba_ces1.biological_association_subject_id AND query_ba_ces1.biological_association_subject_type = 'CollectionObject'")
+          .joins("LEFT JOIN query_ba_ces as query_ba_ces2 on collection_objects.id = query_ba_ces2.biological_association_object_id AND query_ba_ces2.biological_association_object_type = 'CollectionObject'")
+          .where('(query_ba_ces1.id) IS NOT NULL OR (query_ba_ces2.id IS NOT NULL)')
+          .to_sql
+
+        ::CollectingEvent.from('(' + s + ') as collecting_events')
+      end
+
       # @return [Array]
       def and_clauses
         clauses = attribute_clauses
@@ -385,6 +397,7 @@ module Queries
         [
           source_query_facet,
           collection_object_query_facet,
+          biological_association_query_facet,
 
           collection_objects_facet,
           collector_id_facet,

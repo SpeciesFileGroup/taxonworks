@@ -514,6 +514,18 @@ module Queries
         ::Otu.from("((#{q1.to_sql}) UNION (#{q2.to_sql})) as otus")
       end
 
+      def biological_association_query_facet
+        return nil if biological_association_query.nil?
+        s = 'WITH query_ba_otu AS (' + biological_association_query.all.to_sql + ') ' +
+          ::Otu
+          .joins("LEFT JOIN query_ba_otu as query_ba_otu1 on otus.id = query_ba_otu1.biological_association_subject_id AND query_ba_otu1.biological_association_subject_type = 'Otu'")
+          .joins("LEFT JOIN query_ba_otu as query_ba_otu2 on otus.id = query_ba_otu2.biological_association_object_id AND query_ba_otu2.biological_association_object_type = 'Otu'")
+          .where('(query_ba_otu1.id) IS NOT NULL OR (query_ba_otu2.id IS NOT NULL)')
+          .to_sql
+
+        ::Otu.from('(' + s + ') as otus')
+      end
+
       def and_clauses
         [
           otu_id_facet,
@@ -524,6 +536,7 @@ module Queries
 
       def merge_clauses
         [
+          biological_association_query_facet,
           source_query_facet,
           collection_object_query_facet,
           collecting_event_query_facet,

@@ -10,6 +10,8 @@ module Queries
   # acceptable params, dynamically, based on the nature
   # of the nested queries.
   #
+  # Test coverage is currently in /spec/lib/queries/otu/filter_spec.rb.
+  # 
   class Query::Filter < Queries::Query
 
     # Concerns have corresponding Facets in Vue.
@@ -45,9 +47,9 @@ module Queries
     # This is read as  :too <- [:from1, from1] ].
     SUBQUERIES = {
       asserted_distribution: [:source, :otu],
-      biological_association: [:source],
-      collecting_event: [:source, :collection_object],
-      collection_object: [:source, :otu, :taxon_name, :extract, :collecting_event],
+      biological_association: [:source, :collecting_event],
+      collecting_event: [:source, :collection_object, :biological_association],
+      collection_object: [:source, :otu, :taxon_name, :extract, :collecting_event, :biological_association],
       content: [],
       descriptor: [:observation], # TODO: confirm
       extract: [:otu, :collection_object],
@@ -115,6 +117,9 @@ module Queries
 
     # @return [Query::Observation::Filter, nil]
     attr_accessor :loan_query
+
+    # @return [Query::BiologicalAssociation::Filter, nil]
+    attr_accessor :biological_association_query
 
     # @return Boolean
     #   Applies an order on updated.
@@ -226,6 +231,9 @@ module Queries
 
       while !b.empty?
         a = b.shift
+
+        next unless SUBQUERIES[base_name.to_sym].include?( a.to_s.gsub('_query', '').to_sym )
+
         q = FILTER_QUERIES[a].safe_constantize
         p = q::PARAMS.deep_dup
 
@@ -276,6 +284,9 @@ module Queries
         return nil if n.count != 1 # can't have multiple nested queries inside one level
 
         query_name = n.first.first
+        
+        return nil unless SUBQUERIES[base_name.to_sym].include?( query_name.to_s.gsub('_query', '').to_sym ) # must be registered 
+
         query_params = n.first.last 
 
         q = FILTER_QUERIES[query_name].safe_constantize.new(query_params)
