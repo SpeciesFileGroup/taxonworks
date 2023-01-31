@@ -1,93 +1,98 @@
 <template>
-  <NavBar>
+  <NavBar navbar-class>
     <div class="middle grid-filter__nav">
-      <div class="flex-separate middle">
-        <div class="horizontal-left-content gap-small">
-          <VBtn
-            color="primary"
-            medium
-            @click="handleClickFilterButton"
-          >
-            Filter
-          </VBtn>
-          <label>
-            <input
-              type="checkbox"
-              v-model="appendValue"
+      <div class="panel content">
+        <div class="flex-separate middle">
+          <div class="horizontal-left-content gap-small">
+            <VBtn
+              color="primary"
+              medium
+              @click="handleClickFilterButton"
+            >
+              Filter
+            </VBtn>
+            <label>
+              <input
+                type="checkbox"
+                v-model="appendValue"
+              />
+              Append
+            </label>
+          </div>
+          <ModalNestedParameters :parameters="parameters" />
+          <div class="horizontal-left-content">
+            <RadialFilter
+              v-if="objectType"
+              :parameters="parameters"
+              :object-type="objectType"
+              :disabled="!list.length"
             />
-            Append
-          </label>
-        </div>
-        <ModalNestedParameters :parameters="parameters" />
-        <div class="horizontal-left-content">
-          <RadialFilter
-            v-if="objectType"
-            :parameters="parameters"
-            :object-type="objectType"
-            :disabled="!list.length"
-          />
-          <RadialLinker
-            v-if="objectType"
-            all
-            :parameters="parameters"
-            :object-type="objectType"
-            :disabled="!list.length"
-          />
+            <RadialLinker
+              v-if="objectType"
+              all
+              :parameters="parameters"
+              :object-type="objectType"
+              :disabled="!list.length"
+            />
+          </div>
         </div>
       </div>
-      <span>|</span>
-      <slot name="nav-left" />
-      <div class="flex-separate">
-        <pagination-component
-          v-if="pagination"
-          :pagination="pagination"
-          @next-page="emit('nextpage', $event)"
-        />
-        <pagination-count
-          v-if="pagination"
-          :pagination="pagination"
-          v-model="perValue"
-        />
-      </div>
-      <div class="horizontal-right-content">
-        <RadialFilter
-          v-if="selectedIds"
-          :ids="selectedIds"
-          :disabled="!selectedIds.length"
-          :object-type="objectType"
-        />
-        <RadialLinker
-          v-if="selectedIds"
-          :ids="selectedIds"
-          :disabled="!selectedIds.length"
-          :object-type="objectType"
-        />
-        <RadialMassAnnotator
-          v-if="selectedIds"
-          :object-type="objectType"
-          :ids="selectedIds"
-        />
-        <slot name="nav-right" />
-        <span class="separate-left separate-right">|</span>
-        <FilterSettings
-          v-model:filter="preferences.activeFilter"
-          v-model:url="preferences.activeJSONRequest"
-          v-model:list="preferences.showList"
-        >
-          <template #preferences-last>
-            <slot name="preferences-last" />
-          </template>
-        </FilterSettings>
-        <VBtn
-          color="primary"
-          class="circle-button"
-          @click="emit('reset')"
-        >
-          <VIcon
-            name="reset"
-            x-small
+      <div class="panel content">
+        <div class="flex-separate">
+          <slot name="nav-left" />
+          <div>
+            <pagination-component
+              v-if="pagination"
+              :pagination="pagination"
+              @next-page="emit('nextpage', $event)"
+            />
+          </div>
+          <pagination-count
+            v-if="pagination"
+            :pagination="pagination"
+            v-model="perValue"
           />
-        </VBtn>
+          <div class="horizontal-right-content">
+            <RadialFilter
+              v-if="selectedIds"
+              :ids="selectedIds"
+              :disabled="!selectedIds.length"
+              :object-type="objectType"
+            />
+            <RadialLinker
+              v-if="selectedIds"
+              :ids="selectedIds"
+              :disabled="!selectedIds.length"
+              :object-type="objectType"
+            />
+            <RadialMassAnnotator
+              v-if="selectedIds"
+              :object-type="objectType"
+              :ids="selectedIds"
+            />
+            <slot name="nav-right" />
+            <span class="separate-left separate-right">|</span>
+            <FilterSettings
+              v-model:filter="preferences.activeFilter"
+              v-model:url="preferences.activeJSONRequest"
+              v-model:list="preferences.showList"
+            >
+              <template #preferences-last>
+                <slot name="preferences-last" />
+              </template>
+            </FilterSettings>
+            <VBtn
+              color="primary"
+              class="circle-button"
+              @click="emit('reset')"
+            >
+              <VIcon
+                name="reset"
+                x-small
+              />
+            </VBtn>
+          </div>
+        </div>
       </div>
     </div>
   </NavBar>
@@ -286,7 +291,7 @@ onBeforeUnmount(() => {
 
 .grid-filter__nav {
   display: grid;
-  grid-template-columns: 380px 2px 1fr 1fr;
+  grid-template-columns: 400px 1fr;
   gap: 1em;
 }
 
