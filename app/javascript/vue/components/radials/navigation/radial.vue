@@ -181,7 +181,7 @@ export default {
         .slice(0, this.maxTaskInPie)
         .map(([task, { name, path }]) => ({
           name: task,
-          label: name,
+          label: this.splitLongWords(name),
           link: path,
           icon: Icons[task]
             ? {
@@ -393,6 +393,26 @@ export default {
 
     setTotal(total) {
       this.recentTotal = total
+    },
+
+    splitLongWords(taskName) {
+      const totalTasks = Object.keys(this.metadata.tasks).length
+      const maxPerLine = totalTasks > 4 ? 8 : 16
+      const arr = taskName.split(' ')
+      const words = []
+
+      arr.forEach((word) => {
+        const wordLength = word.length
+        const wordArr = []
+
+        for (let i = 0; i < wordLength; i += maxPerLine) {
+          wordArr.push(word.slice(i, maxPerLine + i))
+        }
+
+        words.push(wordArr.join('- '))
+      })
+
+      return words.join(' ')
     },
 
     eventClose() {
