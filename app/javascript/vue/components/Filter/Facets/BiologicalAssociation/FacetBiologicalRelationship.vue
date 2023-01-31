@@ -6,6 +6,14 @@
         model="biological_relationships"
         @selected="addBiologicalRelationship"
       />
+      <label>
+        <input
+          type="checkbox"
+          :disabled="!biologicalRelationships.length"
+          v-model="params.exclude_taxon_name_relationship"
+        />
+        Exclude
+      </label>
       <DisplayList
         :list="biologicalRelationships"
         label="object_tag"
@@ -37,7 +45,7 @@ const emit = defineEmits(['update:modelValue'])
 const biologicalRelationships = ref([])
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 watch(
@@ -45,32 +53,32 @@ watch(
   (newVal, oldVal) => {
     if (!newVal?.length && oldVal?.length) {
       biologicalRelationships.value = []
+      params.value.exclude_taxon_name_relationship = undefined
     }
   }
 )
 
 watch(
   biologicalRelationships,
-  newVal => {
-    params.value.biological_relationship_id = newVal.map(item => item.id)
+  (newVal) => {
+    params.value.biological_relationship_id = newVal.map((item) => item.id)
   },
   { deep: true }
 )
 
-function addBiologicalRelationship (item) {
+function addBiologicalRelationship(item) {
   biologicalRelationships.value.push(item)
 }
 
-function removeBiologicalRelationship (biologicalRelationship) {
+function removeBiologicalRelationship(biologicalRelationship) {
   removeFromArray(biologicalRelationships.value, biologicalRelationship)
 }
 
 onBeforeMount(() => {
-  params.value.biological_relationship_id?.forEach(id => {
+  params.value.biological_relationship_id?.forEach((id) => {
     BiologicalRelationship.find(id).then(({ body }) => {
       addBiologicalRelationship(body)
     })
   })
 })
-
 </script>
