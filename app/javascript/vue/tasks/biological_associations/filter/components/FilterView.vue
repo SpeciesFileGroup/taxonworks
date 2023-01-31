@@ -22,6 +22,18 @@
   />
   <FacetUsers v-model="params" />
   <FacetWith
+    :options="OBJECT_TYPE_OPTIONS"
+    title="Object type"
+    param="object_type"
+    v-model="params"
+  />
+  <FacetWith
+    :options="OBJECT_TYPE_OPTIONS"
+    title="Subject type"
+    param="subject_type"
+    v-model="params"
+  />
+  <FacetWith
     v-for="param in WITH_PARAMS"
     :key="param"
     :title="param"
@@ -44,12 +56,10 @@ import FacetCollectingEvent from './Facet/FacetCollectingEvent.vue'
 import FacetBiologicalProperty from 'components/Filter/Facets/BiologicalAssociation/FacetBiologicalProperty.vue'
 import FacetOtu from 'components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
+import { OTU, COLLECTION_OBJECT } from 'constants/index.js'
 import { computed } from 'vue'
 
-const WITH_PARAMS = [
-  'citations',
-  'origin_citation'
-]
+const WITH_PARAMS = ['citations', 'origin_citation']
 
 const props = defineProps({
   modelValue: {
@@ -58,11 +68,25 @@ const props = defineProps({
   }
 })
 
+const OBJECT_TYPE_OPTIONS = [
+  {
+    label: 'Both',
+    value: undefined
+  },
+  {
+    label: 'Collection object',
+    value: COLLECTION_OBJECT
+  },
+  {
+    label: 'OTU',
+    value: OTU
+  }
+]
+
 const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
-
 </script>
