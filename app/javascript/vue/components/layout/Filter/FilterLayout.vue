@@ -34,6 +34,17 @@
               :object-type="objectType"
               :disabled="!list.length"
             />
+            <span class="separate-left separate-right">|</span>
+            <VBtn
+              color="primary"
+              class="circle-button"
+              @click="emit('reset')"
+            >
+              <VIcon
+                name="reset"
+                x-small
+              />
+            </VBtn>
           </div>
         </div>
       </div>
@@ -81,16 +92,6 @@
                 <slot name="preferences-last" />
               </template>
             </FilterSettings>
-            <VBtn
-              color="primary"
-              class="circle-button"
-              @click="emit('reset')"
-            >
-              <VIcon
-                name="reset"
-                x-small
-              />
-            </VBtn>
           </div>
         </div>
       </div>
