@@ -4,6 +4,7 @@
   <FacetTaxonName
     v-model="params"
     coverage
+    mode
   />
   <FacetOtu
     target="AssertedDistribution"
@@ -62,7 +63,6 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
-
 </script>
