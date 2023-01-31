@@ -4,7 +4,6 @@
   <FacetTaxonName
     v-model="params"
     coverage
-    mode
   />
   <FacetOtu
     target="AssertedDistribution"

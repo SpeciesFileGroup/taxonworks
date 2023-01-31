@@ -9,7 +9,7 @@
         <label>
           <input
             type="radio"
-            :disabled="!params.taxon_name_id?.length"
+            :disabled="!isInputEnable"
             :value="value"
             v-model="params.taxon_name_mode"
           />
@@ -37,14 +37,20 @@ const params = computed({
   set: (value) => emit('update:modelValue', value)
 })
 
-watch(
-  () => props.modelValue.taxon_name_id,
-  (newVal, oldVal) => {
-    if ((newVal, !oldVal)) {
-      params.value.taxon_name_mode = true
-    }
-  }
+const isInputEnable = computed(
+  () =>
+    [
+      ...(params.value.taxon_name_id || []),
+      ...(params.value.subject_taxon_name_id || []),
+      ...(params.value.object_taxon_name_id || [])
+    ].length > 1
 )
+
+watch(isInputEnable, (newVal, oldVal) => {
+  if (newVal && !oldVal) {
+    params.value.taxon_name_mode = true
+  }
+})
 
 const MODE_OPTIONS = [
   {
