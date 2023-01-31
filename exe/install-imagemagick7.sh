@@ -7,9 +7,10 @@ apt-get build-dep -y libmagickcore-dev
 
 cd /usr/src/
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 [ ! -d libde265-* ] && curl -sL $(curl -s https://api.github.com/repos/strukturag/libde265/releases/latest | jq --raw-output '.assets[0] | .browser_download_url') | tar xzf - && \
   cd libde265-* && \
-  (patch -p1 < "$(dirname "$(realpath "$0")")/libde265.patch" || echo "WARN: Workaround patch no longer needed.") && \
+  (patch -p1 < "$SCRIPT_DIR/libde265.patch" || echo "WARN: Workaround patch no longer needed.") && \
   ./autogen.sh && \
   ./configure && \
   cd ..
