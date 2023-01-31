@@ -2,6 +2,7 @@
   <FacetTaxonName
     coverage
     relation
+    mode
     v-model="params"
   />
   <FacetGeographic v-model="params" />
