@@ -253,15 +253,15 @@ tr {
 }
 
 td {
-  max-width: 120px;
+  /*   max-width: 120px;
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-overflow: ellipsis; */
   white-space: nowrap;
 }
 
 td:hover {
-  max-width: 200px;
-  text-overflow: ellipsis;
+  /*   max-width: 200px;
+  text-overflow: ellipsis; */
   white-space: normal;
 }
 
