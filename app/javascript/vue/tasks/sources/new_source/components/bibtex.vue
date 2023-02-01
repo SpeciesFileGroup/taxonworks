@@ -43,53 +43,51 @@
   </modal-component>
 </template>
 
-<script>
+<script setup>
 import SpinnerComponent from 'components/spinner'
 import ModalComponent from 'components/ui/Modal'
 import newSource from '../const/source'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
-import { Source } from 'routes/endpoints'
+import { Source, Serial } from 'routes/endpoints'
+import { ref, onMounted } from 'vue'
+import { useStore } from 'vuex'
 
-export default {
-  components: {
-    ModalComponent,
-    SpinnerComponent
-  },
+const emit = defineEmits(['close'])
 
-  emits: ['close'],
+const bibtexInput = ref('')
+const creating = ref(false)
+const textareaRef = ref(null)
+const store = useStore()
 
-  data() {
-    return {
-      bibtexInput: '',
-      creating: false,
-      recentCreated: []
-    }
-  },
+onMounted(() => {
+  textareaRef.value.focus()
+})
 
-  mounted() {
-    this.$refs.textareaRef.focus()
-  },
+function createSource() {
+  creating.value = true
+  store.dispatch(ActionNames.ResetSource)
+  Source.create({ bibtex_input: bibtexInput.value })
+    .then((response) => {
+      bibtexInput.value = ''
+      emit('close', true)
+      store.commit(
+        MutationNames.SetSource,
+        Object.assign(newSource(), response.body)
+      )
 
-  methods: {
-    createSource() {
-      this.creating = true
-      this.$store.dispatch(ActionNames.ResetSource)
-      Source.create({ bibtex_input: this.bibtexInput })
-        .then((response) => {
-          this.bibtexInput = ''
-          this.$emit('close', true)
-          this.$store.commit(
-            MutationNames.SetSource,
-            Object.assign(newSource(), response.body)
-          )
-          TW.workbench.alert.create('New source from BibTeX created.', 'notice')
+      if (response.body.journal) {
+        Serial.where({ name: response.body.journal }).then(({ body }) => {
+          if (body.length) {
+            store.commit(MutationNames.SetSerialId, body[0].id)
+          }
         })
-        .finally(() => {
-          this.creating = false
-        })
-    }
-  }
+      }
+      TW.workbench.alert.create('New source from BibTeX created.', 'notice')
+    })
+    .finally(() => {
+      creating.value = false
+    })
 }
 </script>
 
