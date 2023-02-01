@@ -7,28 +7,8 @@ apt-get build-dep -y libmagickcore-dev
 
 cd /usr/src/
 
-# Workaround for strukturag/libde265#387
-PATCH=$(cat <<'EOF'
-diff -ruN orig/libde265.pc.in new/libde265.pc.in
---- orig/libde265.pc.in	2023-01-27 11:31:04.000000000 -0300
-+++ new/libde265.pc.in	2023-01-30 19:23:30.385640774 -0300
-@@ -1,7 +1,7 @@
--prefix=@CMAKE_INSTALL_PREFIX@
--exec_prefix=@CMAKE_INSTALL_PREFIX@
--libdir=${exec_prefix}/@CMAKE_INSTALL_LIBDIR@
--includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
-+prefix=@prefix@
-+exec_prefix=@exec_prefix@
-+libdir=@libdir@
-+includedir=@includedir@
- 
- Name: libde265
- Description: H.265/HEVC video decoder.
-EOF
-)
 [ ! -d libde265-* ] && curl -sL $(curl -s https://api.github.com/repos/strukturag/libde265/releases/latest | jq --raw-output '.assets[0] | .browser_download_url') | tar xzf - && \
   cd libde265-* && \
-  (echo "$PATCH" | patch -p1 || echo "WARN: Workaround patch no longer needed.") && \
   ./autogen.sh && \
   ./configure && \
   cd ..
