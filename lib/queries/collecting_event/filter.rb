@@ -208,9 +208,9 @@ module Queries
       def geographic_area_facet
         return nil if geographic_area.nil?
         if geographic_area
-          ::CollectingEvent.where.not(geographic_area_id: null).distinct
+          ::CollectingEvent.where.not(geographic_area_id: nil).distinct
         else
-          ::CollectingEvent.where(geographic_area_id: null).distinct
+          ::CollectingEvent.where(geographic_area_id: nil).distinct
         end
       end
 
