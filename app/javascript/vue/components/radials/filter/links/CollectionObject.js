@@ -1,5 +1,7 @@
 // Update corresponding at SUBQUERIES in /lib/queries/query/filter.rb
 import {
+  FILTER_BIOLOGICAL_ASSOCIATION,
+
   FILTER_COLLECTING_EVENT,
   FILTER_EXTRACT,
   FILTER_OTU,
@@ -8,7 +10,12 @@ import {
 } from '../constants/filterLinks'
 
 export const CollectionObject = {
-  all: [FILTER_TAXON_NAME, FILTER_COLLECTING_EVENT, FILTER_OTU, FILTER_EXTRACT],
+  all: [
+    FILTER_BIOLOGICAL_ASSOCIATION,
+    
+    FILTER_TAXON_NAME,
+    FILTER_COLLECTING_EVENT,
+    FILTER_OTU, FILTER_EXTRACT],
   ids: [
     FILTER_TAXON_NAME,
     FILTER_COLLECTING_EVENT,

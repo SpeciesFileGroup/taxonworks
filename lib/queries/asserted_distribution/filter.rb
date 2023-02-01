@@ -206,15 +206,6 @@ module Queries
         b
       end
 
-      def otu_query_facet
-        return nil if otu_query.nil?
-        s = 'WITH query_otu_ad AS (' + otu_query.all.to_sql + ') ' +
-          ::AssertedDistribution
-          .joins('JOIN query_otu_ad as query_otu_ad1 on query_otu_ad1.id = asserted_distributions.otu_id')
-          .to_sql
-        ::AssertedDistribution.from('(' + s + ') as asserted_distributions')
-      end
-
       def otu_id_facet
         return nil if otu_id.empty?
         table[:otu_id].eq_any(otu_id)
@@ -235,6 +226,30 @@ module Queries
         end
       end
 
+      def otu_query_facet
+        return nil if otu_query.nil?
+        s = 'WITH query_otu_ad AS (' + otu_query.all.to_sql + ') ' +
+          ::AssertedDistribution
+          .joins('JOIN query_otu_ad as query_otu_ad1 on query_otu_ad1.id = asserted_distributions.otu_id')
+          .to_sql
+        ::AssertedDistribution.from('(' + s + ') as asserted_distributions')
+      end
+
+      def biological_association_query_facet
+        return nil if biological_association_query.nil?
+        s = 'WITH query_ad_ba AS (' + biological_association_query.all.to_sql + ') '
+       
+        a = ::AssertedDistribution
+          .joins("JOIN query_ad_ba as query_ad_ba1 on asserted_distributions.otu_id = query_ad_ba1.biological_association_subject_id AND query_ad_ba1.biological_association_subject_type = 'Otu'").to_sql
+ 
+        b = ::AssertedDistribution
+          .joins("JOIN query_ad_ba as query_ad_ba2 on asserted_distributions.otu_id = query_ad_ba2.biological_association_object_id AND query_ad_ba2.biological_association_object_type = 'Otu'").to_sql
+
+        s << ::AssertedDistribution.from("(#{a} UNION #{b}) as asserted_distributions").to_sql
+
+        ::AssertedDistribution.from('(' + s + ') as asserted_distributions')
+      end
+
       def and_clauses
         [
           otu_id_facet,
@@ -245,10 +260,12 @@ module Queries
 
       def merge_clauses
         [
-          geo_json_facet,
-          geographic_area_id_facet,
+          biological_association_query_facet,
           otu_query_facet,
           source_query_facet,
+
+          geo_json_facet,
+          geographic_area_id_facet,
           taxon_name_id_facet,
           wkt_facet,
         ]

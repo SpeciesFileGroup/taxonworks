@@ -46,8 +46,9 @@ module Queries
     #
     # This is read as  :too <- [:from1, from1] ].
     SUBQUERIES = {
-      asserted_distribution: [:source, :otu],
-      biological_association: [:source, :collecting_event, :otu],
+      asserted_distribution: [:source, :otu, :biological_association], # OK
+
+      biological_association: [:source, :collecting_event, :otu, :collection_object],
       collecting_event: [:source, :collection_object, :biological_association],
       collection_object: [:source, :otu, :taxon_name, :extract, :collecting_event, :biological_association],
       content: [:source],
@@ -57,7 +58,7 @@ module Queries
       loan: [],
       observation: [:source, :descriptor], #  TOOD: confirm
       otu: [:source, :taxon_name, :collection_object, :extract, :collecting_event, :content, :biological_association],
-      source: [:otu, :biological_association, :collecting_event, :extract, :collection_object, :content, :observation, :image, :descriptor ],
+      source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :source, :taxon_name],
       taxon_name: [:source, :otu, :collection_object, :collecting_event],
     }.freeze
 
@@ -66,7 +67,9 @@ module Queries
     # 
     FILTER_QUERIES = {
       asserted_distribution_query: '::Queries::AssertedDistribution::Filter', 
-      biological_association_query: '::Queries::BiologicalAssociation::Filter', 
+      
+      biological_association_query: '::Queries::BiologicalAssociation::Filter',
+
       collecting_event_query: '::Queries::CollectingEvent::Filter', 
       collection_object_query: '::Queries::CollectionObject::Filter', 
       content_query: '::Queries::Content::Filter', 
@@ -76,6 +79,7 @@ module Queries
       loan_query: '::Queries::Loan::Filter', 
       observation_query: '::Queries::Observation::Filter', 
       otu_query: '::Queries::Otu::Filter', 
+      source_query: '::Queries::Source::Filter',
       taxon_name_query: '::Queries::TaxonName::Filter', 
     }.freeze
 

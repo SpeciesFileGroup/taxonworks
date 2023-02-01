@@ -388,6 +388,7 @@ module Queries
         return nil if name.nil?
 
         q = send((name + '_query').to_sym)
+
         return nil if q.nil?
        
         n = "query_#{name}_src"

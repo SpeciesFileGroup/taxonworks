@@ -608,6 +608,20 @@ module Queries
         ::BiologicalAssociation.from('(' + s + ') as biological_associations')
       end
 
+      # TODO: not working?
+      def collection_object_query_facet
+        return nil if collection_object_query.nil?
+
+        s = 'WITH query_co_ba AS (' + collection_object_query.all.to_sql + ') ' + 
+          ::BiologicalAssociation
+          .joins("LEFT JOIN query_co_ba as query_co_ba1 on biological_associations.biological_association_subject_id = query_co_ba1.id AND biological_associations.biological_association_subject_type = 'CollectionObject'")
+          .joins("LEFT JOIN query_co_ba as query_co_ba2 on biological_associations.biological_association_object_id = query_co_ba2.id AND biological_associations.biological_association_object_type = 'CollectionObject'")
+          .where('query_co_ba1.id IS NOT NULL OR query_co_ba2.id IS NOT NULL')
+          .to_sql
+
+        ::BiologicalAssociation.from('(' + s + ') as biological_associations')
+      end
+
       def and_clauses
         [
           any_global_id_facet,
@@ -622,9 +636,9 @@ module Queries
 
       def merge_clauses
         [
+          collection_object_query_facet,
           otu_query_facet,
           source_query_facet,
-          
           collecting_event_query_facet,
 
           biological_associations_graph_id_facet,

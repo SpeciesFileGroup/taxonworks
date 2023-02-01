@@ -520,7 +520,7 @@ module Queries
           ::Otu
           .joins("LEFT JOIN query_ba_otu as query_ba_otu1 on otus.id = query_ba_otu1.biological_association_subject_id AND query_ba_otu1.biological_association_subject_type = 'Otu'")
           .joins("LEFT JOIN query_ba_otu as query_ba_otu2 on otus.id = query_ba_otu2.biological_association_object_id AND query_ba_otu2.biological_association_object_type = 'Otu'")
-          .where('(query_ba_otu1.id) IS NOT NULL OR (query_ba_otu2.id IS NOT NULL)')
+          .where('(query_ba_otu1.id IS NOT NULL) OR (query_ba_otu2.id IS NOT NULL)')
           .to_sql
 
         ::Otu.from('(' + s + ') as otus')
@@ -541,6 +541,7 @@ module Queries
           collection_object_query_facet,
           collecting_event_query_facet,
           content_query_facet,
+          taxon_name_query_facet,
 
           asserted_distribution_id_facet,
           asserted_distributions_facet,
@@ -555,7 +556,6 @@ module Queries
           geographic_area_id_facet,
           observations_facet,
           taxon_name_id_facet,
-          taxon_name_query_facet,
           wkt_facet,
         ].compact
       end
