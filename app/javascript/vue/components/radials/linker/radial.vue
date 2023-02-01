@@ -26,7 +26,7 @@
       color="radial"
       :title="title"
       circle
-      :disabled="disabled"
+      :disabled="disabled || !filterLinks.length"
       @click="openRadialMenu()"
     >
       <VIcon
