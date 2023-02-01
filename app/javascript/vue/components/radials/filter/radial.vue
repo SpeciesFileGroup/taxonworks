@@ -53,7 +53,7 @@ import VModal from 'components/ui/Modal.vue'
 import Qs from 'qs'
 import * as FILTER_LINKS from './links'
 
-const MAX_LINK_SIZE = 450
+const MAX_LINK_SIZE = 2048
 const EXCLUDE_PARAMETERS = ['per', 'extend']
 
 const props = defineProps({
