@@ -91,7 +91,9 @@ const filteredParameters = computed(() => {
 })
 
 const title = computed(() =>
-  isOnlyIds.value ? 'Radial Filter (IDs)' : 'Radial Filter (Query params)'
+  isOnlyIds.value
+    ? 'Radial Filter (Send checked rows to filter)'
+    : 'Radial Filter (Send full request to filter)'
 )
 
 const isOnlyIds = computed(() => Array.isArray(props.ids))

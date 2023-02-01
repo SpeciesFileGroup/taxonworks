@@ -86,7 +86,9 @@ const filterLinks = computed(() => {
 })
 
 const title = computed(() =>
-  isOnlyIds.value ? 'Radial Linker (IDs)' : 'Radial Linker (Query params)'
+  isOnlyIds.value
+    ? 'Radial Linker (Send checked rows to task)'
+    : 'Radial Linker (Send full request to task)'
 )
 
 const menuOptions = computed(() => {
