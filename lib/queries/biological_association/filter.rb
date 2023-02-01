@@ -624,6 +624,7 @@ module Queries
         [
           otu_query_facet,
           source_query_facet,
+          
           collecting_event_query_facet,
 
           biological_associations_graph_id_facet,

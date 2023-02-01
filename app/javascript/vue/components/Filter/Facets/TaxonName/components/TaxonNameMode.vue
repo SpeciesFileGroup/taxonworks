@@ -11,7 +11,7 @@
             type="radio"
             :disabled="!isInputEnable"
             :value="value"
-            v-model="params.taxon_name_mode"
+            v-model="params.taxon_name_id_mode"
           />
           {{ label }}
         </label>
@@ -48,7 +48,7 @@ const isInputEnable = computed(
 
 watch(isInputEnable, (newVal, oldVal) => {
   if (newVal && !oldVal) {
-    params.value.taxon_name_mode = true
+    params.value.taxon_name_id_mode = true
   }
 })
 

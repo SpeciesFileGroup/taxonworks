@@ -384,8 +384,27 @@ module Queries
         nil
       end
 
+      def query_facets_facet(name = nil)
+        return nil if name.nil?
+
+        q = send((name + '_query').to_sym)
+        return nil if q.nil?
+       
+        n = "query_#{name}_src"
+
+        s = "WITH #{n} AS (" + q.all.to_sql + ') ' +
+          ::Source
+          .joins(:citations)
+          .joins("JOIN #{n} as #{n}1 on citations.citation_object_id = #{n}1.id AND citations.citation_object_type = '#{name.treetop_camelize}'")
+          .to_sql
+
+        ::Source.from('(' + s + ') as sources')
+      end
+
       def merge_clauses
+        s = ::Queries::Query::Filter::SUBQUERIES.select{|k,v| v.include?(:source)}.keys.map(&:to_s)
         [
+          *s.collect{|m| query_facets_facet(m)}, # Reference all the Source referencing SUBQUERIES
           ancestors_facet,
           author_ids_facet,
           citation_object_type_facet,

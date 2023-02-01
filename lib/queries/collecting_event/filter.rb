@@ -380,6 +380,16 @@ module Queries
         ::CollectingEvent.from('(' + s + ') as collecting_events')
       end
 
+      def otu_query_facet
+        return nil if otu_query.nil?
+        s = 'WITH query_otu_ces AS (' + otu_query.all.to_sql + ') ' +
+          ::CollectingEvent.joins(:otus)
+          .joins("JOIN query_otu_ces as query_otu_ces1 on query_otu_ces1.id = otus.id")
+          .to_sql
+
+        ::CollectingEvent.from('(' + s + ') as collecting_events')
+      end
+
       # @return [Array]
       def and_clauses
         clauses = attribute_clauses
@@ -395,6 +405,7 @@ module Queries
 
       def merge_clauses
         [
+          otu_query_facet,
           source_query_facet,
           collection_object_query_facet,
           biological_association_query_facet,

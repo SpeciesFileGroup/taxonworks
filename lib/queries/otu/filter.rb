@@ -391,10 +391,10 @@ module Queries
         if biological_associations
           ::Otu.from("((#{a.to_sql}) UNION (#{b.to_sql})) as otus")
         else
-          ::Otu.where( 'NOT EXISTS (' + ::Otu.select('1').from(    # not exists ( a select(1) from <opposite query>  )
-                                                               ::Otu.from(
-                                                                 "((#{a.to_sql}) UNION (#{b.to_sql})) as ba_otus_join"
-                                                               ).where('otus.id = ba_otus_join.id') ).to_sql  + ')' )  # where includes in/out link
+          ::Otu.where( 'NOT EXISTS (' + ::Otu.select('1').from( # not exists ( a select(1) from <opposite query>  )
+            ::Otu.from(
+              "((#{a.to_sql}) UNION (#{b.to_sql})) as ba_otus_join"
+            ).where('otus.id = ba_otus_join.id') ).to_sql  + ')' )  # where includes in/out link
         end
       end
 

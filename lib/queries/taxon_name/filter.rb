@@ -587,6 +587,7 @@ module Queries
 
       def collection_object_query_facet
         return nil if collection_object_query.nil?
+        byebug
         s = 'WITH query_collection_objects AS (' + collection_object_query.all.to_sql + ') ' +
           ::TaxonName
           .joins(:collection_objects)

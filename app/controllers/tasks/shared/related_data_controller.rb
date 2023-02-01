@@ -9,7 +9,7 @@ class Tasks::Shared::RelatedDataController < ApplicationController
   def set_object
     @object = GlobalID::Locator.locate(params[:object_global_id])
 
-    if @object.nil? || (@object.project_id != sessions_current_project_id)
+    if @object.nil? || (@object.respond_to?(:project_id) && @object.project_id != sessions_current_project_id)
       render status: 404 and return
     end
   end

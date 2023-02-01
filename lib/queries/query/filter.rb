@@ -50,14 +50,15 @@ module Queries
       biological_association: [:source, :collecting_event, :otu],
       collecting_event: [:source, :collection_object, :biological_association],
       collection_object: [:source, :otu, :taxon_name, :extract, :collecting_event, :biological_association],
-      content: [],
-      descriptor: [:observation], # TODO: confirm
-      extract: [:otu, :collection_object],
+      content: [:source],
+      descriptor: [:source, :observation], # TODO: confirm
+      extract: [:source, :otu, :collection_object],
       image: [:source, :otu, :observation],
       loan: [],
-      observation: [:descriptor], #  TOOD: confirm
-      otu: [:source, :taxon_name, :collection_object, :extract, :collecting_event, :content],
-      taxon_name: [:source, :otu, :collection_object, :collecting_event]
+      observation: [:source, :descriptor], #  TOOD: confirm
+      otu: [:source, :taxon_name, :collection_object, :extract, :collecting_event, :content, :biological_association],
+      source: [:otu, :biological_association, :collecting_event, :extract, :collection_object, :content, :observation, :image, :descriptor ],
+      taxon_name: [:source, :otu, :collection_object, :collecting_event],
     }.freeze
 
     # We could consider `.safe_constantize` to make this a f(n), but we'd have 
@@ -90,14 +91,31 @@ module Queries
     # @param project_id [Array, Integer]
     attr_accessor :project_id
 
-    # @return [Query::TaxonName::Filter, nil]
-    attr_accessor :taxon_name_query
+    # TODO: macro these dynamically
+
+    # @return [Query::AssertedDistributionn::Filter, nil]
+    attr_accessor :asserted_distribution_query
+
+    # @return [Query::BiologicalAssociation::Filter, nil]
+    attr_accessor :biological_association_query
 
     # @return [Query::TaxonName::Filter, nil]
     attr_accessor :collection_object_query
 
     # @return [Query::CollectingEvent::Filter, nil]
     attr_accessor :collecting_event_query
+
+    # @return [Query::Observation::Filter, nil]
+    attr_accessor :content_query
+
+    # @return [Query::Descriptor::Filter, nil]
+    attr_accessor :descriptor_query
+
+    # @return [Query::Descriptor::Filter, nil]
+    attr_accessor :image_query
+
+    # @return [Query::TaxonName::Filter, nil]
+    attr_accessor :taxon_name_query
 
     # @return [Query::Otu::Filter, nil]
     attr_accessor :otu_query
@@ -113,13 +131,7 @@ module Queries
     attr_accessor :observation_query
 
     # @return [Query::Observation::Filter, nil]
-    attr_accessor :content_query
-
-    # @return [Query::Observation::Filter, nil]
     attr_accessor :loan_query
-
-    # @return [Query::BiologicalAssociation::Filter, nil]
-    attr_accessor :biological_association_query
 
     # @return Boolean
     #   Applies an order on updated.
