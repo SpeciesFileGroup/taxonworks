@@ -2,24 +2,29 @@
   <transition-group
     class="table-entrys-list"
     name="list-complete"
-    tag="ul">
+    tag="ul"
+  >
     <li
       v-for="(item, index) in list"
       :key="setKey ? item[setKey] : item.id || JSON.stringify(item)"
       class="list-complete-item flex-separate middle"
-      :class="{ 'highlight': checkHighlight(item) }">
+      :class="{ highlight: checkHighlight(item) }"
+    >
       <span>
         <soft-validation
           v-if="validations"
-          :global-id="item.global_id"/>
+          :global-id="item.global_id"
+        />
         <span
           class="list-item"
-          v-html="displayName(item)"/>
+          v-html="displayName(item)"
+        />
       </span>
       <div class="list-controls">
         <slot
           name="options"
-          :item="item"/>
+          :item="item"
+        />
         <a
           v-if="download"
           class="btn-download circle-button"
@@ -32,27 +37,30 @@
         />
         <radial-annotator
           v-if="annotator"
-          :global-id="item.global_id"/>
+          :global-id="item.global_id"
+        />
         <radial-object
           v-if="radialObject && item.hasOwnProperty('global_id')"
-          :global-id="item.global_id"/>
+          :global-id="item.global_id"
+        />
         <span
           v-if="edit"
           class="circle-button btn-edit"
-          @click="$emit('edit', Object.assign({}, item))">Edit
+          @click="$emit('edit', Object.assign({}, item))"
+          >Edit
         </span>
         <span
           v-if="remove"
           class="circle-button btn-delete"
           :class="{ 'button-default': softDelete }"
-          @click="deleteItem(item, index)">Remove
+          @click="deleteItem(item, index)"
+          >Remove
         </span>
       </div>
     </li>
   </transition-group>
 </template>
 <script>
-
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/navigation/radial.vue'
 import SoftValidation from 'components/soft_validations/objectValidation.vue'
@@ -126,13 +134,13 @@ export default {
 
   emits: ['delete', 'edit', 'deleteIndex'],
 
-  beforeCreate () {
+  beforeCreate() {
     this.$options.components['RadialAnnotator'] = RadialAnnotator
     this.$options.components['RadialObject'] = RadialObject
   },
 
   methods: {
-    displayName (item) {
+    displayName(item) {
       if (!this.label) return item
       if (typeof this.label === 'string') {
         return item[this.label]
@@ -145,7 +153,7 @@ export default {
       }
     },
 
-    checkHighlight (item) {
+    checkHighlight(item) {
       if (this.highlight) {
         if (this.highlight.key) {
           return item[this.highlight.key] == this.highlight.value
@@ -156,9 +164,13 @@ export default {
       return false
     },
 
-    deleteItem (item, index) {
+    deleteItem(item, index) {
       if (this.deleteWarning && this.warning) {
-        if (window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+        if (
+          window.confirm(
+            `You're trying to delete this record. Are you sure want to proceed?`
+          )
+        ) {
           this.$emit('delete', item)
           this.$emit('deleteIndex', index)
         }
@@ -167,15 +179,14 @@ export default {
         this.$emit('deleteIndex', index)
       }
     },
-  
-    getPropertyValue (item, stringPath) {
+
+    getPropertyValue(item, stringPath) {
       let keys = stringPath.split('.')
-      if(keys.length === 1) {
+      if (keys.length === 1) {
         return item[stringPath]
-      }
-      else {
+      } else {
         let value = item
-        keys.forEach(key => {
+        keys.forEach((key) => {
           value = value[key]
         })
         return value
@@ -190,12 +201,15 @@ export default {
         return item.document
       }
 
-      return 
+      return
     }
   }
 }
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
+.table-entrys-list {
+  padding: 0px;
+  position: relative;
 
   .list-controls {
     display: flex;
@@ -208,7 +222,7 @@ export default {
   }
 
   .highlight {
-    background-color: #E3E8E3;
+    background-color: #e3e8e3;
   }
 
   .list-item {
@@ -219,32 +233,26 @@ export default {
     }
   }
 
-  .table-entrys-list {
-    padding: 0px;
-    position: relative;
-
-    li {
-      margin: 0px;
-      padding: 1em 0;
-      border: 0px;
-      border-bottom: 1px solid #f5f5f5;
-    }
-  }
-
   .list-complete-item {
     justify-content: space-between;
     transition: all 0.5s, opacity 0.2s;
+    margin: 0px;
+    padding: 1em 0;
+    border: 0px;
+    border-bottom: 1px solid #f5f5f5;
   }
 
-  .list-complete-enter, .list-complete-leave-to {
+  .list-complete-enter,
+  .list-complete-leave-to {
     opacity: 0;
     font-size: 0px;
     border: none;
-    transform: scale(0.0);
+    transform: scale(0);
   }
 
   .list-complete-leave-active {
     width: 100%;
     position: absolute;
   }
+}
 </style>
