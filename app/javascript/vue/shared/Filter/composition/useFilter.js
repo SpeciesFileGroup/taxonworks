@@ -1,8 +1,9 @@
-import { reactive, toRefs } from 'vue'
+import { reactive, toRefs, onBeforeMount } from 'vue'
+import { URLParamsToJSON } from 'helpers/url/parse'
 import qs from 'qs'
 import getPagination from 'helpers/getPagination'
 
-export default function (service) {
+export default function (service, { listParser, initParameters } = {}) {
   const state = reactive({
     append: false,
     parameters: {
@@ -24,8 +25,10 @@ export default function (service) {
     return service
       .filter(payload)
       .then((response) => {
+        const result = listParser ? listParser(response.body) : response.body
+
         if (state.append) {
-          let concat = response.body.concat(state.list)
+          let concat = result.concat(state.list)
 
           concat = concat.filter(
             (item, index, self) =>
@@ -34,13 +37,13 @@ export default function (service) {
 
           state.list = concat
         } else {
-          state.list = response.body
+          state.list = result
         }
 
         state.pagination = getPagination(response)
         state.urlRequest = response.request.url
         setRequestUrl(response.request.responseURL, payload)
-        sessionStorage.setItem('totalFilterResult', response.body.length)
+        sessionStorage.setItem('totalFilterResult', state.pagination.total)
       })
       .finally(() => {
         state.isLoading = false
@@ -87,6 +90,24 @@ export default function (service) {
     state.pagination = undefined
     history.pushState(null, null, `${window.location.pathname}`)
   }
+
+  onBeforeMount(() => {
+    const urlParameters = {
+      ...URLParamsToJSON(location.href),
+      ...JSON.parse(sessionStorage.getItem('filterQuery'))
+    }
+
+    Object.assign(state.parameters, urlParameters)
+
+    sessionStorage.removeItem('filterQuery')
+
+    if (Object.keys(urlParameters).length) {
+      makeFilterRequest({
+        ...state.parameters,
+        ...initParameters
+      })
+    }
+  })
 
   return {
     ...toRefs(state),

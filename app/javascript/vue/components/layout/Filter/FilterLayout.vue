@@ -1,4 +1,9 @@
 <template>
+  <FilterJsonRequestPanel
+    v-show="preferences.activeJSONRequest"
+    class="panel content separate-bottom"
+    :url="urlRequest"
+  />
   <NavBar navbar-class>
     <div class="middle grid-filter__nav">
       <div class="panel content">
@@ -101,23 +106,24 @@
   </NavBar>
   <div
     class="grid-filter"
-    :class="{ 'grid-filter--without-facets': !filter }"
+    :class="{ 'grid-filter--without-facets': !preferences.activeFilter }"
   >
     <div
-      v-show="filter"
+      v-show="preferences.activeFilter"
       class="grid-filter__facets margin-medium-bottom"
     >
       <slot name="facets" />
     </div>
 
     <slot
-      v-if="table"
+      v-if="preferences.showList"
       name="table"
     />
   </div>
 </template>
 
 <script setup>
+import FilterJsonRequestPanel from './FilterJsonRequestPanel.vue'
 import PaginationComponent from 'components/pagination'
 import PaginationCount from 'components/pagination/PaginationCount'
 import NavBar from 'components/layout/NavBar.vue'
@@ -131,22 +137,17 @@ import RadialLinker from 'components/radials/linker/radial.vue'
 import RadialMassAnnotator from 'components/radials/mass/radial.vue'
 import FilterSettings from './FilterSettings.vue'
 
-import { ref, computed, onBeforeUnmount } from 'vue'
+import { ref, computed, onBeforeUnmount, reactive } from 'vue'
 
 const props = defineProps({
-  filter: {
-    type: Boolean,
-    default: false
-  },
-
-  table: {
-    type: Boolean,
-    default: false
-  },
-
   pagination: {
     type: Object,
     default: undefined
+  },
+
+  urlRequest: {
+    type: String,
+    default: ''
   },
 
   objectType: {
@@ -157,11 +158,6 @@ const props = defineProps({
   selectedIds: {
     type: Array,
     default: undefined
-  },
-
-  preferences: {
-    type: Object,
-    default: () => ({})
   },
 
   facets: {
@@ -185,14 +181,19 @@ const props = defineProps({
   }
 })
 
+const preferences = reactive({
+  activeFilter: true,
+  activeJSONRequest: false,
+  showList: true
+})
+
 const emit = defineEmits([
   'reset',
   'filter',
   'nextpage',
   'update:per',
   'update:modelValue',
-  'update:append',
-  'update:preferences'
+  'update:append'
 ])
 
 const appendValue = computed({
@@ -203,11 +204,6 @@ const appendValue = computed({
 const parameters = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value)
-})
-
-const preferences = computed({
-  get: () => props.preferences,
-  set: (value) => emit('update:preferences', value)
 })
 
 const perValue = computed({

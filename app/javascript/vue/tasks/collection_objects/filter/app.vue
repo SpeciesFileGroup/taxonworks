@@ -2,21 +2,13 @@
   <div>
     <h1>Filter collection objects</h1>
 
-    <JsonRequestUrl
-      v-show="preferences.activeJSONRequest"
-      class="panel content separate-bottom"
-      :url="urlRequest"
-    />
-
     <FilterLayout
-      :filter="preferences.activeFilter"
-      :table="preferences.showList"
+      :url-request="urlRequest"
       :pagination="pagination"
-      v-model="parameters"
       :selected-ids="selectedIds"
       :object-type="COLLECTION_OBJECT"
       :list="list"
-      v-model:preferences="preferences"
+      v-model="parameters"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend })"
       @nextpage="loadPage"
@@ -57,9 +49,8 @@
         <FilterComponent v-model="parameters" />
       </template>
       <template #table>
-        <div class="full_width overflow-x-scroll">
+        <div class="full_width overflow-x-auto">
           <ListComponent
-            v-if="coList.length"
             v-model="selectedIds"
             :list="coList"
             :layout="currentLayout"
@@ -78,7 +69,7 @@
 </template>
 
 <script setup>
-import { computed, ref, reactive, onBeforeMount, watch } from 'vue'
+import { computed, ref, onBeforeMount, watch } from 'vue'
 import { CollectionObject } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse'
 import { COLLECTION_OBJECT } from 'constants/index.js'
@@ -89,7 +80,6 @@ import ListComponent from './components/list'
 import CsvButton from 'components/csvButton'
 import DwcDownload from './components/dwcDownload.vue'
 import TagAll from './components/tagAll'
-import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import DeleteCollectionObjects from './components/DeleteCollectionObjects.vue'
 import VSpinner from 'components/spinner.vue'
 import LayoutConfiguration from './components/Layout/LayoutConfiguration.vue'
@@ -111,11 +101,6 @@ const { currentLayout } = useLayoutConfiguration(LAYOUTS)
 
 const selectedIds = ref([])
 const coList = ref([])
-const preferences = reactive({
-  activeFilter: true,
-  activeJSONRequest: false,
-  showList: true
-})
 
 const {
   isLoading,
@@ -127,7 +112,7 @@ const {
   parameters,
   makeFilterRequest,
   resetFilter
-} = useFilter(CollectionObject)
+} = useFilter(CollectionObject, { initParameters: { extend } })
 
 const csvFields = computed(() => {
   return list.value.map((item, index) => ({
@@ -171,21 +156,6 @@ watch(list, (newVal) => {
       data_attributes: parseDataAttributes(item)
     }
   })
-})
-
-onBeforeMount(() => {
-  const urlParameters = {
-    ...URLParamsToJSON(location.href),
-    ...JSON.parse(sessionStorage.getItem('filterQuery'))
-  }
-
-  Object.assign(parameters.value, urlParameters)
-
-  sessionStorage.removeItem('filterQuery')
-
-  if (Object.keys(urlParameters).length) {
-    makeFilterRequest({ ...parameters.value, extend })
-  }
 })
 </script>
 

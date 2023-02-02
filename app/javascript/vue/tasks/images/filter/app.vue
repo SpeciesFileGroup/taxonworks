@@ -2,20 +2,12 @@
   <div>
     <h1>Filter images</h1>
 
-    <JsonRequestUrl
-      v-show="preferences.activeJSONRequest"
-      class="panel content separate-bottom"
-      :url="urlRequest"
-    />
-
     <FilterLayout
-      :filter="preferences.activeFilter"
-      :table="preferences.showList"
+      :url-request="urlRequest"
       :pagination="pagination"
       :object-type="IMAGE"
       :list="list"
       v-model="parameters"
-      v-model:preferences="preferences"
       v-model:append="append"
       @filter="makeFilterRequest()"
       @nextpage="loadPage"
@@ -75,19 +67,11 @@ import SelectAll from 'tasks/collection_objects/filter/components/selectAll.vue'
 import AttributionComponent from './components/attributions/main.vue'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
-import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import { IMAGE } from 'constants/index.js'
 import { Image } from 'routes/endpoints'
-import { reactive, ref, onBeforeMount } from 'vue'
-import { URLParamsToJSON } from 'helpers/url/parse'
+import { ref } from 'vue'
 
 const selectedIds = ref([])
-
-const preferences = reactive({
-  activeFilter: true,
-  activeJSONRequest: false,
-  showList: true
-})
 
 const {
   isLoading,
@@ -100,20 +84,6 @@ const {
   makeFilterRequest,
   resetFilter
 } = useFilter(Image)
-
-onBeforeMount(() => {
-  const urlParameters = {
-    ...URLParamsToJSON(location.href),
-    ...JSON.parse(sessionStorage.getItem('filterQuery'))
-  }
-
-  Object.assign(parameters.value, urlParameters)
-  sessionStorage.removeItem('filterQuery')
-
-  if (Object.keys(urlParameters).length) {
-    makeFilterRequest({ ...parameters.value })
-  }
-})
 </script>
 
 <script>

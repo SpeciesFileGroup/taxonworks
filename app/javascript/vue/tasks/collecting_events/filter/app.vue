@@ -2,21 +2,13 @@
   <div>
     <h1>Filter collecting events</h1>
 
-    <JsonRequestUrl
-      v-show="preferences.activeJSONRequest"
-      class="panel content separate-bottom"
-      :url="urlRequest"
-    />
-
     <FilterLayout
-      :filter="preferences.activeFilter"
-      table
       :pagination="pagination"
       v-model="parameters"
       :object-type="COLLECTING_EVENT"
       :selected-ids="selectedIds"
+      :url-request="urlRequest"
       :list="list"
-      v-model:preferences="preferences"
       v-model:append="append"
       @filter="loadList"
       @nextpage="loadPage"
@@ -79,13 +71,11 @@ import ListComponent from './components/List.vue'
 import CsvButton from 'components/csvButton'
 import MapComponent from './components/Map.vue'
 import RadialFilter from 'components/radials/linker/radial.vue'
-import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import { COLLECTING_EVENT } from 'constants/index.js'
-import { URLParamsToJSON } from 'helpers/url/parse'
-import { computed, ref, watch, reactive, onBeforeMount } from 'vue'
+import { computed, ref, watch, reactive } from 'vue'
 import { chunkArray, sortArray } from 'helpers/arrays'
 import { CollectingEvent, Georeference } from 'routes/endpoints'
 
@@ -119,10 +109,7 @@ const geojson = computed(() => {
 })
 
 const preferences = reactive({
-  activeFilter: true,
-  activeJSONRequest: false,
-  showMap: false,
-  showList: true
+  showMap: false
 })
 
 const {
@@ -135,7 +122,10 @@ const {
   makeFilterRequest,
   resetFilter,
   parameters
-} = useFilter(CollectingEvent)
+} = useFilter(CollectingEvent, {
+  listParser: parseList,
+  initParameters: { extend }
+})
 
 const selectedIds = ref([])
 const rowHover = ref()
@@ -156,7 +146,7 @@ const loadList = () => {
   })
 }
 
-const parseList = (list) => {
+function parseList(list) {
   return list.map((item) => ({
     ...item,
     roles: (item?.collector_roles || [])
@@ -208,24 +198,4 @@ const parseEndDate = (ce) => {
     .filter((date) => date)
     .join('/')
 }
-
-onBeforeMount(() => {
-  const urlParameters = {
-    ...URLParamsToJSON(location.href),
-    ...JSON.parse(sessionStorage.getItem('filterQuery'))
-  }
-
-  Object.assign(parameters.value, urlParameters)
-
-  sessionStorage.removeItem('filterQuery')
-
-  if (Object.keys(urlParameters).length) {
-    makeFilterRequest({
-      ...parameters.value,
-      extend
-    }).then((_) => {
-      list.value = parseList(list.value)
-    })
-  }
-})
 </script>
