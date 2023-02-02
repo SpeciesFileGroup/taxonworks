@@ -22,15 +22,13 @@
         <FilterComponent v-model="parameters" />
       </template>
       <template #table>
-        <div class="full_width overflow-x-auto">
-          <FilterList
-            v-model="selectedIds"
-            :attributes="ATTRIBUTES"
-            :header-groups="HEADERS"
-            :list="list"
-            @on-sort="list = $event"
-          />
-        </div>
+        <FilterList
+          v-model="selectedIds"
+          :attributes="ATTRIBUTES"
+          :header-groups="HEADERS"
+          :list="list"
+          @on-sort="list = $event"
+        />
       </template>
     </FilterLayout>
     <VSpinner
@@ -52,7 +50,7 @@ import FilterList from 'components/layout/Filter/FilterList.vue'
 import { listParser } from './utils/listParser'
 import { BIOLOGICAL_ASSOCIATION } from 'constants/index.js'
 import { BiologicalAssociation } from 'routes/endpoints'
-import { computed, reactive, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { ATTRIBUTES } from './constants/attributes.js'
 
 const HEADERS = [

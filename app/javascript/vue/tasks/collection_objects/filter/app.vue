@@ -49,14 +49,12 @@
         <FilterComponent v-model="parameters" />
       </template>
       <template #table>
-        <div class="full_width overflow-x-auto">
-          <ListComponent
-            v-model="selectedIds"
-            :list="coList"
-            :layout="currentLayout"
-            @on-sort="coList = $event"
-          />
-        </div>
+        <ListComponent
+          v-model="selectedIds"
+          :list="coList"
+          :layout="currentLayout"
+          @on-sort="coList = $event"
+        />
       </template>
     </FilterLayout>
     <VSpinner
@@ -69,10 +67,6 @@
 </template>
 
 <script setup>
-import { computed, ref, onBeforeMount, watch } from 'vue'
-import { CollectionObject } from 'routes/endpoints'
-import { URLParamsToJSON } from 'helpers/url/parse'
-import { COLLECTION_OBJECT } from 'constants/index.js'
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import FilterComponent from './components/filter.vue'
@@ -83,6 +77,9 @@ import TagAll from './components/tagAll'
 import DeleteCollectionObjects from './components/DeleteCollectionObjects.vue'
 import VSpinner from 'components/spinner.vue'
 import LayoutConfiguration from './components/Layout/LayoutConfiguration.vue'
+import { computed, ref, watch } from 'vue'
+import { CollectionObject } from 'routes/endpoints'
+import { COLLECTION_OBJECT } from 'constants/index.js'
 import { useLayoutConfiguration } from './components/Layout/useLayoutConfiguration'
 import { LAYOUTS } from './constants/layouts.js'
 import { COLLECTION_OBJECT_PROPERTIES } from 'shared/Filter/constants'

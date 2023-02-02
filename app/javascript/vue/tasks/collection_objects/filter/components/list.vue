@@ -237,7 +237,7 @@ function sortTable(sortProperty) {
 }
 
 watch(
-  () => props.layout,
+  [() => props.layout, () => props.list],
   () =>
     HandyScroll.EventBus.emit('update', { sourceElement: tableElement.value }),
   { deep: true }

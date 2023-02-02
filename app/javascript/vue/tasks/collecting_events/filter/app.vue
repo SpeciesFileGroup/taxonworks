@@ -42,20 +42,19 @@
         />
       </template>
 
+      <template #above-table>
+        <map-component
+          v-if="preferences.showMap"
+          :geojson="geojson"
+        />
+      </template>
       <template #table>
-        <div class="full_width">
-          <map-component
-            v-if="preferences.showMap"
-            :geojson="geojson"
-          />
-          <list-component
-            v-if="preferences.showList"
-            v-model="selectedIds"
-            :list="list"
-            @on-row-hover="setRowHover"
-            @on-sort="list = $event"
-          />
-        </div>
+        <list-component
+          v-model="selectedIds"
+          :list="list"
+          @on-row-hover="setRowHover"
+          @on-sort="list = $event"
+        />
       </template>
     </FilterLayout>
     <VSpinner
