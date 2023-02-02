@@ -1,21 +1,18 @@
 <template>
-  <div
-    v-if="list.length"
-    class="full_width"
-  >
+  <div class="full_width">
     <table
       class="full_width table-striped"
       v-resize-column
     >
       <thead>
         <tr>
-          <th>
+          <th class="w-2">
             <input
               type="checkbox"
               v-model="toggleIds"
-            >
+            />
           </th>
-          <th />
+          <th class="w-2" />
           <th
             v-for="item in sort"
             :key="item"
@@ -37,7 +34,7 @@
               v-model="ids"
               :value="item.id"
               type="checkbox"
-            >
+            />
           </td>
           <td>
             <div class="horizontal-left-content">
@@ -82,7 +79,6 @@
 </template>
 
 <script setup>
-
 import RadialNavigation from 'components/radials/navigation/radial'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import PdfButton from 'components/pdfButton'
@@ -106,28 +102,22 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits([
-  'update:modelValue',
-  'onSort'
-])
+const emit = defineEmits(['update:modelValue', 'onSort'])
 
 const ids = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const toggleIds = computed({
   get: () => props.list.length === props.modelValue.length,
-  set: value => emit('update:modelValue',
-    value
-      ? props.list.map(item => item.id)
-      : []
-  )
+  set: (value) =>
+    emit('update:modelValue', value ? props.list.map((item) => item.id) : [])
 })
 
 const ascending = ref(false)
 
-const sortTable = sortProperty => {
+const sortTable = (sortProperty) => {
   emit('onSort', sortArray(props.list, sortProperty, ascending.value))
   ascending.value = !ascending.value
 }
