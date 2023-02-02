@@ -24,14 +24,12 @@ module Queries::Concerns::DateRanges
     attr_reader :end_day, :end_month, :end_year
 
     def start_date=(value)
-      byebug
       @start_date = value
       @start_year, @start_month, @start_day = start_date.split('-').map(&:to_i)
       @start_date
     end
 
     def end_date=(value)
-      byebug
       @end_date = value
       @end_year, @end_month, @end_day = end_date.split('-').map(&:to_i)
       @end_date
