@@ -34,7 +34,7 @@
         <FilterComponent v-model="parameters" />
       </template>
       <template #table>
-        <div class="full_width">
+        <div class="full_width overflow-x-scroll">
           <ListComponent
             v-if="preferences.showList"
             v-model="selectedIds"
