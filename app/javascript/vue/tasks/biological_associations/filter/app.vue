@@ -16,7 +16,6 @@
       :object-type="BIOLOGICAL_ASSOCIATION"
       :selected-ids="selectedIds"
       :list="list"
-      v-model:per="per"
       v-model:preferences="preferences"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend })"
@@ -25,19 +24,18 @@
     >
       <template #nav-right>
         <span class="separate-left separate-right">|</span>
-        <CsvButton
-          :list="csvFields"
-          :options="{ fields }"
-        />
+        <CsvButton :list="csvFields" />
       </template>
       <template #facets>
         <FilterComponent v-model="parameters" />
       </template>
       <template #table>
-        <div class="full_width overflow-x-scroll">
-          <ListComponent
+        <div class="full_width overflow-x-auto">
+          <FilterList
             v-if="preferences.showList"
             v-model="selectedIds"
+            :attributes="ATTRIBUTES"
+            :header-groups="HEADERS"
             :list="list"
             @on-sort="list = $event"
           />
@@ -56,15 +54,49 @@
 <script setup>
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/FilterView.vue'
-import ListComponent from './components/ListResults.vue'
 import CsvButton from 'components/csvButton'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import VSpinner from 'components/spinner.vue'
+import FilterList from 'components/layout/Filter/FilterList.vue'
+import { listParser } from './utils/listParser'
 import { BIOLOGICAL_ASSOCIATION } from 'constants/index.js'
 import { BiologicalAssociation } from 'routes/endpoints'
 import { computed, reactive, ref, onBeforeMount } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
+
+const ATTRIBUTES = {
+  subject_taxonomy_order: 'Order',
+  subject_taxonomy_family: 'Family',
+  subject_taxonomy_genus: 'Genus',
+  subject_object_tag: 'Object tag',
+  biological_property_subject: 'Biological properties',
+  biological_relationship: 'Biological relationship',
+  biological_property_object: 'Biological properties',
+  object_taxonomy_order: 'Order',
+  object_taxonomy_family: 'Family',
+  object_taxonomy_genus: 'Genus',
+  object_object_tag: 'Object tag'
+}
+
+const HEADERS = [
+  {
+    colspan: 2
+  },
+  {
+    title: 'Subject',
+    colspan: 5,
+    scope: 'colgroup'
+  },
+  {
+    colspan: 1
+  },
+  {
+    title: 'Object',
+    colspan: 5,
+    scope: 'colgroup'
+  }
+]
 
 const extend = [
   'object',
@@ -81,77 +113,19 @@ const preferences = reactive({
 })
 
 const csvFields = computed(() => (selectedIds.value.length ? list.value : []))
-
-const fields = [
-  'id',
-  {
-    label: 'Order',
-    value: 'subject.taxonomy.order'
-  },
-  {
-    label: 'Family',
-    value: 'subject.taxonomy.family'
-  },
-  {
-    label: 'Genus',
-    value: (item) => item.subject.taxonomy.genus.filter(Boolean).join(' ')
-  },
-  {
-    label: 'Subject',
-    value: 'subject.object_label'
-  },
-  {
-    label: 'Biological properties',
-    value: (item) =>
-      item.biological_relationship_types
-        .filter((b) => b.target === 'subject')
-        .map((b) => b.biological_property.name)
-        .join(', ')
-  },
-  {
-    label: 'Biological relationship',
-    value: 'biological_relationship.object_label'
-  },
-  {
-    label: 'Biological properties',
-    value: (item) =>
-      item.biological_relationship_types
-        .filter((b) => b.target === 'object')
-        .map((b) => b.biological_property.name)
-        .join(', ')
-  },
-  {
-    label: 'Order',
-    value: 'object.taxonomy.order'
-  },
-  {
-    label: 'Family',
-    value: 'object.taxonomy.family'
-  },
-  {
-    label: 'Genus',
-    value: (item) => item.object.taxonomy.genus.filter(Boolean).join(' ')
-  },
-  {
-    label: 'Object',
-    value: 'object.object_label'
-  }
-]
-
 const selectedIds = ref([])
 
 const {
   isLoading,
   list,
   pagination,
-  per,
   append,
   urlRequest,
   loadPage,
   parameters,
   makeFilterRequest,
   resetFilter
-} = useFilter(BiologicalAssociation)
+} = useFilter(BiologicalAssociation, { listParser })
 
 onBeforeMount(() => {
   const urlParameters = {

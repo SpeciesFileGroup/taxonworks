@@ -2,7 +2,7 @@ import { reactive, toRefs } from 'vue'
 import qs from 'qs'
 import getPagination from 'helpers/getPagination'
 
-export default function (service) {
+export default function (service, { listParser } = {}) {
   const state = reactive({
     append: false,
     parameters: {
@@ -24,8 +24,10 @@ export default function (service) {
     return service
       .filter(payload)
       .then((response) => {
+        const result = listParser ? listParser(response.body) : response.body
+
         if (state.append) {
-          let concat = response.body.concat(state.list)
+          let concat = result.concat(state.list)
 
           concat = concat.filter(
             (item, index, self) =>
@@ -34,13 +36,13 @@ export default function (service) {
 
           state.list = concat
         } else {
-          state.list = response.body
+          state.list = result
         }
 
         state.pagination = getPagination(response)
         state.urlRequest = response.request.url
         setRequestUrl(response.request.responseURL, payload)
-        sessionStorage.setItem('totalFilterResult', response.body.length)
+        sessionStorage.setItem('totalFilterResult', result.length)
       })
       .finally(() => {
         state.isLoading = false

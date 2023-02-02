@@ -39,8 +39,9 @@
       </template>
       <template #table>
         <div class="full_width">
-          <ListComponent
+          <FilterList
             v-model="selectedIds"
+            :attributes="ATTRIBUTES"
             :list="list"
             @on-sort="list = $event"
           />
@@ -58,26 +59,18 @@
 <script setup>
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/FilterView.vue'
-import ListComponent from './components/list'
+import FilterList from 'components/layout/Filter/FilterList.vue'
 import CsvButton from 'components/csvButton'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import RadialLabel from 'components/radials/label/radial.vue'
+import { ATTRIBUTES } from './constants/attributes.js'
+import { listParser } from './utils/listParser'
 import { TaxonName } from 'routes/endpoints'
 import { reactive, ref, computed, onBeforeMount } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
 import { TAXON_NAME } from 'constants/index.js'
-
-const fields = [
-  'id',
-  { label: 'name', value: 'cached' },
-  { label: 'author', value: 'cached_author_year' },
-  { label: 'year of publication', value: 'year_of_publication' },
-  { label: 'original combination', value: 'cached_original_combination' },
-  'rank',
-  { label: 'parent', value: 'parent.cached' }
-]
 
 const extend = ['parent']
 
@@ -97,7 +90,7 @@ const {
   parameters,
   makeFilterRequest,
   resetFilter
-} = useFilter(TaxonName)
+} = useFilter(TaxonName, { listParser })
 
 const selectedIds = ref([])
 

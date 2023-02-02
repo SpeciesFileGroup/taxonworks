@@ -35,10 +35,11 @@
         <FilterComponent v-model="parameters" />
       </template>
       <template #table>
-        <div class="full_width">
-          <ListComponent
+        <div class="full_width overflow-x-auto">
+          <FilterList
             v-model="selectedIds"
             :list="list"
+            :attributes="ATTRIBUTES"
             @on-sort="list = $event"
           />
         </div>
@@ -56,13 +57,14 @@
 <script setup>
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/Filter.vue'
-import ListComponent from './components/list'
+import FilterList from 'components/layout/Filter/FilterList.vue'
 import CsvButton from 'components/csvButton'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import extend from 'tasks/extracts/new_extract/const/extendRequest'
 import TagAll from 'tasks/collection_objects/filter/components/tagAll.vue'
+import { ATTRIBUTES } from './constants/attributes'
 import { EXTRACT } from 'constants/index.js'
 import { Extract } from 'routes/endpoints'
 import { computed, reactive, ref, onBeforeMount } from 'vue'

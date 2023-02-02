@@ -30,10 +30,11 @@
         <FilterComponent v-model="parameters" />
       </template>
       <template #table>
-        <div class="full_width">
-          <ListComponent
-            v-model="selectedIds"
+        <div class="full_width overflow-x-auto">
+          <FilterList
             :list="list"
+            :attributes="ATTRIBUTES"
+            v-model="selectedIds"
             @on-sort="list = $event"
           />
         </div>
@@ -50,12 +51,13 @@
 
 <script setup>
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
-import FilterComponent from './components/FilterView.vue'
-import ListComponent from './components/list'
+import FilterList from 'components/layout/Filter/FilterList.vue'
 import CsvButton from 'components/csvButton'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import VSpinner from 'components/spinner.vue'
+import { ATTRIBUTES } from './constants/attributes'
+import { listParser } from './utils/listParser'
 import { OTU } from 'constants/index.js'
 import { Otu } from 'routes/endpoints'
 import { computed, reactive, ref, onBeforeMount } from 'vue'
@@ -83,7 +85,7 @@ const {
   parameters,
   makeFilterRequest,
   resetFilter
-} = useFilter(Otu)
+} = useFilter(Otu, { listParser })
 
 onBeforeMount(() => {
   const urlParameters = {

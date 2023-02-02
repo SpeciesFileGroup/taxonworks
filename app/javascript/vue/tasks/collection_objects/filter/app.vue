@@ -57,9 +57,8 @@
         <FilterComponent v-model="parameters" />
       </template>
       <template #table>
-        <div class="full_width overflow-x-scroll">
+        <div class="full_width overflow-x-auto">
           <ListComponent
-            v-if="coList.length"
             v-model="selectedIds"
             :list="coList"
             :layout="currentLayout"
