@@ -2,22 +2,14 @@
   <div>
     <h1>Filter OTUs</h1>
 
-    <JsonRequestUrl
-      v-show="preferences.activeJSONRequest"
-      class="panel content separate-bottom"
-      :url="urlRequest"
-    />
-
     <FilterLayout
-      :filter="preferences.activeFilter"
-      :table="preferences.showList"
       :pagination="pagination"
-      v-model="parameters"
+      :url-request="urlRequest"
       :object-type="OTU"
-      :list="list"
-      v-model:preferences="preferences"
-      v-model:append="append"
       :selected-ids="selectedIds"
+      :list="list"
+      v-model="parameters"
+      v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend })"
       @nextpage="loadPage"
       @reset="resetFilter"
@@ -27,7 +19,7 @@
         <CsvButton :list="csvFields" />
       </template>
       <template #facets>
-        <FilterComponent v-model="parameters" />
+        <FilterView v-model="parameters" />
       </template>
       <template #table>
         <div class="full_width overflow-x-auto">
@@ -51,29 +43,21 @@
 
 <script setup>
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
+import FilterView from './components/FilterView.vue'
 import FilterList from 'components/layout/Filter/FilterList.vue'
 import CsvButton from 'components/csvButton'
 import useFilter from 'shared/Filter/composition/useFilter.js'
-import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import VSpinner from 'components/spinner.vue'
 import { ATTRIBUTES } from './constants/attributes'
 import { listParser } from './utils/listParser'
 import { OTU } from 'constants/index.js'
 import { Otu } from 'routes/endpoints'
-import { computed, reactive, ref, onBeforeMount } from 'vue'
-import { URLParamsToJSON } from 'helpers/url/parse'
+import { computed, ref } from 'vue'
 
 const extend = ['taxonomy']
 
 const csvFields = computed(() => (selectedIds.value.length ? list.value : []))
-
 const selectedIds = ref([])
-
-const preferences = reactive({
-  activeFilter: true,
-  activeJSONRequest: false,
-  showList: true
-})
 
 const {
   isLoading,
@@ -85,23 +69,11 @@ const {
   parameters,
   makeFilterRequest,
   resetFilter
-} = useFilter(Otu, { listParser })
+} = useFilter(Otu, { listParser, initParameters: { extend } })
+</script>
 
-onBeforeMount(() => {
-  const urlParameters = {
-    ...URLParamsToJSON(location.href),
-    ...JSON.parse(sessionStorage.getItem('filterQuery'))
-  }
-
-  Object.assign(parameters.value, urlParameters)
-
-  sessionStorage.removeItem('filterQuery')
-
-  if (Object.keys(urlParameters).length) {
-    makeFilterRequest({
-      ...parameters.value,
-      extend
-    })
-  }
-})
+<script>
+export default {
+  name: 'FilterOTU'
+}
 </script>

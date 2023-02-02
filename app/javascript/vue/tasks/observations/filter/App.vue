@@ -2,21 +2,13 @@
   <div>
     <h1>Filter observations</h1>
 
-    <JsonRequestUrl
-      v-show="preferences.activeJSONRequest"
-      class="panel content separate-bottom"
-      :url="urlRequest"
-    />
-
     <FilterLayout
-      :filter="preferences.activeFilter"
       :pagination="pagination"
-      :table="preferences.showList"
+      :url-request="urlRequest"
       v-model="parameters"
       :object-type="OBSERVATION"
       :selected-ids="selectedIds"
       :list="list"
-      v-model:preferences="preferences"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend })"
       @nextpage="loadPage"
@@ -61,23 +53,15 @@ import FilterList from 'components/layout/Filter/FilterList.vue'
 import CsvButton from 'components/csvButton'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
-import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import TagAll from 'tasks/collection_objects/filter/components/tagAll.vue'
 import { listParser } from './utils/listParser'
 import { ATTRIBUTES } from './constants/attributes'
 import { Observation } from 'routes/endpoints'
 import { OBSERVATION } from 'constants/index.js'
-import { computed, reactive, ref, onBeforeMount } from 'vue'
-import { URLParamsToJSON } from 'helpers/url/parse'
+import { computed, ref } from 'vue'
 
 const extend = ['observation_object']
-
 const selectedIds = ref([])
-const preferences = reactive({
-  activeFilter: true,
-  activeJSONRequest: false,
-  showList: true
-})
 
 const {
   isLoading,
@@ -89,31 +73,13 @@ const {
   parameters,
   makeFilterRequest,
   resetFilter
-} = useFilter(Observation, { listParser })
+} = useFilter(Observation, { listParser, initParameters: { extend } })
 
 const csvList = computed(() =>
   selectedIds.value.length
     ? list.value.filter((item) => selectedIds.value.includes(item.id))
     : list.value
 )
-
-onBeforeMount(() => {
-  const urlParameters = {
-    ...URLParamsToJSON(location.href),
-    ...JSON.parse(sessionStorage.getItem('filterQuery'))
-  }
-
-  Object.assign(parameters.value, urlParameters)
-
-  sessionStorage.removeItem('filterQuery')
-
-  if (Object.keys(urlParameters).length) {
-    makeFilterRequest({
-      ...parameters.value,
-      extend
-    })
-  }
-})
 </script>
 
 <script>

@@ -3,7 +3,7 @@ function parseRank(rank) {
 }
 
 export function listParser(list) {
-  list.map((item) => ({
+  return list.map((item) => ({
     id: item.id,
     global_id: item.global_id,
     otu_taxonomy_order: parseRank(item?.taxonomy?.order),

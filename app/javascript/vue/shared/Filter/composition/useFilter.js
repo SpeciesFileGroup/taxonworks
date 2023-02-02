@@ -1,8 +1,9 @@
-import { reactive, toRefs } from 'vue'
+import { reactive, toRefs, onBeforeMount } from 'vue'
+import { URLParamsToJSON } from 'helpers/url/parse'
 import qs from 'qs'
 import getPagination from 'helpers/getPagination'
 
-export default function (service, { listParser } = {}) {
+export default function (service, { listParser, initParameters } = {}) {
   const state = reactive({
     append: false,
     parameters: {
@@ -42,7 +43,7 @@ export default function (service, { listParser } = {}) {
         state.pagination = getPagination(response)
         state.urlRequest = response.request.url
         setRequestUrl(response.request.responseURL, payload)
-        sessionStorage.setItem('totalFilterResult', result.length)
+        sessionStorage.setItem('totalFilterResult', state.pagination.total)
       })
       .finally(() => {
         state.isLoading = false
@@ -89,6 +90,24 @@ export default function (service, { listParser } = {}) {
     state.pagination = undefined
     history.pushState(null, null, `${window.location.pathname}`)
   }
+
+  onBeforeMount(() => {
+    const urlParameters = {
+      ...URLParamsToJSON(location.href),
+      ...JSON.parse(sessionStorage.getItem('filterQuery'))
+    }
+
+    Object.assign(state.parameters, urlParameters)
+
+    sessionStorage.removeItem('filterQuery')
+
+    if (Object.keys(urlParameters).length) {
+      makeFilterRequest({
+        ...state.parameters,
+        ...initParameters
+      })
+    }
+  })
 
   return {
     ...toRefs(state),

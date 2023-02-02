@@ -1,20 +1,6 @@
 <template>
   <div>
-    <div class="flex-separate middle">
-      <h1>Filter staged images</h1>
-      <FilterSettings
-        v-model:filter="preferences.activeFilter"
-        v-model:url="preferences.activeJSONRequest"
-        v-model:append="append"
-        v-model:list="preferences.showList"
-      />
-    </div>
-
-    <JsonRequestUrl
-      v-show="preferences.activeJSONRequest"
-      class="panel content separate-bottom"
-      :url="urlRequest"
-    />
+    <h1>Filter staged images</h1>
 
     <FilterLayout
       :filter="preferences.activeFilter"
@@ -42,18 +28,16 @@
       v-if="isLoading"
       full-screen
       legend="Searching..."
-      :logo-size="{ width: '100px', height: '100px'}"
+      :logo-size="{ width: '100px', height: '100px' }"
     />
   </div>
 </template>
 
 <script setup>
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
-import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
 import useFilter from 'shared/Filter/composition/useFilter.js'
-import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import VSpinner from 'components/spinner.vue'
 import { CollectionObject } from 'routes/endpoints'
 import { computed, reactive } from 'vue'
@@ -78,11 +62,10 @@ const {
   resetFilter
 } = useFilter({ filter: CollectionObject.sqedFilter })
 
-const sqedResult = computed(() => Array.isArray(list.value) ? {} : list.value)
+const sqedResult = computed(() => (Array.isArray(list.value) ? {} : list.value))
 const urlParams = URLParamsToJSON(location.href)
 
 makeFilterRequest(urlParams)
-
 </script>
 
 <script>
@@ -92,7 +75,7 @@ export default {
 </script>
 
 <style scoped>
-  .no-found-message {
-    height: 70vh;
-  }
+.no-found-message {
+  height: 70vh;
+}
 </style>
