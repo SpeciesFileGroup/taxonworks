@@ -10,7 +10,7 @@
             <input
               type="checkbox"
               v-model="toggleIds"
-            >
+            />
           </th>
           <th class="w-2" />
           <th
@@ -32,7 +32,7 @@
               :value="otu.id"
               v-model="ids"
               type="checkbox"
-            >
+            />
           </td>
           <td>
             <div class="horizontal-right-content">
@@ -44,7 +44,7 @@
           <td
             v-for="rank in RANKS"
             :key="rank"
-            v-html="parseRank(otu.taxonomy[rank])"
+            v-html="parseRank(otu?.taxonomy[rank])"
           />
           <td v-html="otu.object_tag" />
         </tr>
@@ -75,24 +75,18 @@ const emit = defineEmits(['update:modelValue'])
 
 const ids = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const toggleIds = computed({
   get: () => props.list.length === props.modelValue.length,
-  set: value => emit('update:modelValue',
-    value
-      ? props.list.map(item => item.id)
-      : []
-  )
+  set: (value) =>
+    emit('update:modelValue', value ? props.list.map((item) => item.id) : [])
 })
 
 const RANKS = ['order', 'family', 'genus']
 
-function parseRank (rank) {
-  return Array.isArray(rank)
-    ? rank.filter(Boolean).join(' ')
-    : rank
+function parseRank(rank) {
+  return Array.isArray(rank) ? rank.filter(Boolean).join(' ') : rank
 }
-
 </script>

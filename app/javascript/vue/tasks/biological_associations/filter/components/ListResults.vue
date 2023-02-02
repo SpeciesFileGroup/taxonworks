@@ -66,7 +66,7 @@
             <td
               v-for="rank in RANKS"
               :key="rank"
-              v-html="parseRank(item.subject.taxonomy[rank])"
+              v-html="parseRank(item.subject?.taxonomy[rank])"
             />
             <td v-html="item.subject.object_tag" />
             <td
@@ -89,7 +89,7 @@
             <td
               v-for="rank in RANKS"
               :key="rank"
-              v-html="parseRank(item.object.taxonomy[rank])"
+              v-html="parseRank(item.object?.taxonomy[rank])"
             />
             <td v-html="item.object.object_tag" />
           </tr>
