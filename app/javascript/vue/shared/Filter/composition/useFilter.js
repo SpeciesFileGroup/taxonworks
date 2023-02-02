@@ -40,6 +40,7 @@ export default function (service) {
         state.pagination = getPagination(response)
         state.urlRequest = response.request.url
         setRequestUrl(response.request.responseURL, payload)
+        sessionStorage.setItem('totalFilterResult', response.body.length)
       })
       .finally(() => {
         state.isLoading = false

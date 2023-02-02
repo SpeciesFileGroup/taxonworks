@@ -14,7 +14,7 @@
           :key="params"
         >
           <div class="flex-separate middle">
-            <span>{{ objectType }}</span>
+            <span>{{ objectType }} ({{ getTotalResult(params) }})</span>
             <VBtn
               class="middle"
               color="primary"
@@ -52,6 +52,7 @@
 import { ref, computed } from 'vue'
 import { QUERY_PARAM } from 'components/radials/filter/constants/queryParam'
 import { FILTER_ROUTES } from 'routes/routes'
+import { isDeepEqual } from 'helpers/objects'
 import VModal from 'components/ui/Modal.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
@@ -63,6 +64,8 @@ const props = defineProps({
     default: () => ({})
   }
 })
+
+const isModalVisible = ref(false)
 
 const isEmpty = computed(() => !nestedLevels.value.length)
 
@@ -104,5 +107,9 @@ function getObjectTypeByQueryParam(queryParam) {
   return objectType
 }
 
-const isModalVisible = ref(false)
+function getTotalResult(params) {
+  const total = JSON.parse(sessionStorage.getItem('totalQueries')) || []
+
+  return total.find((item) => isDeepEqual(params, item.params))?.total || '??'
+}
 </script>

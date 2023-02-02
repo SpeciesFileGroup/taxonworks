@@ -105,37 +105,19 @@ const filterLinks = computed(() => {
   return isOnlyIds.value ? objLinks.ids : objLinks.all
 })
 const queryObject = computed(() => {
-  const params = { ...filteredParameters.value }
   const currentQueryParam = QUERY_PARAM[props.objectType]
+  const params = isOnlyIds.value ? props.ids : { ...filteredParameters.value }
 
-  return { [currentQueryParam]: params, per: props.parameters?.per }
+  return { [currentQueryParam]: params }
 })
 
 const hasParameters = computed(
   () => !!Object.keys(filteredParameters.value).length || !!props.ids?.length
 )
 
-function getParametersForAll(link) {
-  const currentQueryParam = getCurrentQueryParam(link)
-  const params = unnestParameter(currentQueryParam)
-
-  return params
-}
-
-function getParametersForId() {
-  const params = {
-    [ID_PARAM_FOR[props.objectType]]: props.ids,
-    per: props.parameters?.per
-  }
-
-  return params
-}
-
 const menuOptions = computed(() => {
   const slices = filterLinks.value.map((item) => {
-    const urlParameters = isOnlyIds.value
-      ? getParametersForId()
-      : getParametersForAll(item.link)
+    const urlParameters = { ...queryObject.value, per: props.parameters?.per }
 
     const urlWithParameters =
       item.link + (hasParameters.value ? `?${Qs.stringify(urlParameters)}` : '')
@@ -187,29 +169,32 @@ function openRadialMenu() {
   isVisible.value = true
 }
 
-function saveParametersOnStorage({ name }) {
+function saveParametersOnStorage() {
   if (hasParameters.value) {
-    const params = isOnlyIds.value
-      ? getParametersForId()
-      : unnestParameter(name)
+    const params = { ...queryObject.value, per: props.parameters?.per }
     const state = JSON.stringify(params)
+    const total = sessionStorage.getItem('totalFilterResult')
+    const totalQueries =
+      JSON.parse(sessionStorage.getItem('totalQueries')) || []
 
+    totalQueries.push({
+      objectType: props.objectType,
+      params: queryObject.value,
+      total
+    })
+
+    sessionStorage.setItem('totalQueries', JSON.stringify(totalQueries))
     sessionStorage.setItem('filterQuery', state)
   }
 }
 
 function getCurrentQueryParam(link) {
   const [targetObjectType] = Object.entries(FILTER_ROUTES).find(
-    ([key, value]) => value === link
+    ([_, value]) => value === link
   )
   const currentQueryParam = QUERY_PARAM[targetObjectType]
 
   return currentQueryParam
-}
-
-function unnestParameter() {
-  const params = { ...queryObject.value }
-  return params
 }
 
 function filterEmptyParams(object) {
