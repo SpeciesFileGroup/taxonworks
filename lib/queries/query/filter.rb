@@ -141,6 +141,7 @@ module Queries
     #   Applies an order on updated.
     attr_accessor :recent
 
+    # @return Hash
     def initialize(params)
       p = nil
 
