@@ -78,6 +78,8 @@ module Queries
 
       # @param [Hash] args are permitted params
       def initialize(params)
+        super
+
         @collection_object_id = params[:collection_object_id]
         @descendants = boolean_param(params, :descendants)
         @exact_verbatim_anatomical_origin = params[:exact_verbatim_anatomical_origin]
@@ -94,7 +96,6 @@ module Queries
         set_dates(params)
         set_tags_params(params)
         set_protocols_params(params)
-        super
       end
 
       def extract_id

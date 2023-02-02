@@ -11,7 +11,7 @@ class CollectionObjectsController < ApplicationController
   # GET /collecting_events
   # GET /collecting_events.json
   def index
-    respond_to do |format|include CollectionObjects::FilterParams
+    respond_to do |format|
       format.html do
         @recent_objects = CollectionObject.recent_from_project_id(sessions_current_project_id)
           .order(updated_at: :desc)
@@ -20,8 +20,8 @@ class CollectionObjectsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        # see app/controllers/collection_objects/filter_params.rb
-        @collection_objects = ::Queries::CollectionObject::Filter.new(params).order('collection_objects.id')
+        @collection_objects = ::Queries::CollectionObject::Filter.new(params).all
+        .order('collection_objects.id')
         .page(params[:page])
         .per(params[:per])
       }
@@ -361,7 +361,8 @@ class CollectionObjectsController < ApplicationController
 
   # GET /api/v1/collection_objects
   def api_index
-    @collection_objects = ::Queries::CollectionObject::Filter.new(collection_object_api_params).all.where(project_id: sessions_current_project_id)
+    @collection_objects = ::Queries::CollectionObject::Filter.new(collection_object_api_params).all
+       .where(project_id: sessions_current_project_id)
       .order('collection_objects.id')
       .page(params[:page]).per(params[:per])
     render '/collection_objects/api/v1/index'

@@ -136,7 +136,9 @@ module Queries
       attr_accessor :geographic_area_id
       attr_accessor :geographic_area_mode
 
-      def initialize(params)
+      def initialize(query_params)
+        super
+
         @collecting_event_id = params[:collecting_event_id]
         @collecting_event_wildcards = params[:collecting_event_wildcards]
         @collection_object_id = params[:collection_object_id]
@@ -156,15 +158,15 @@ module Queries
         @radius = params[:radius].presence || 100
         @wkt = params[:wkt]
 
+        set_dates(params)
+
         set_attributes(params)
 
         set_tags_params(params)
-        set_dates(params)
+
         set_data_attributes_params(params)
         set_notes_params(params)
-        super
       end
-
 
       def collecting_event_id
         [@collecting_event_id].flatten.compact

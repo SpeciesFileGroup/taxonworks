@@ -55,7 +55,9 @@ module Queries
       # @return Array
       attr_accessor :taxon_name_id
 
-      def initialize(params)
+      def initialize(query_params)
+        super
+
         @otu_id = params[:otu_id]
         @collection_object_id = params[:collection_object_id]
         @observation_object_global_id = params[:observation_object_global_id]
@@ -70,7 +72,6 @@ module Queries
 
         set_tags_params(params)
         set_notes_params(params)
-        super
       end
 
       def observation_object_type

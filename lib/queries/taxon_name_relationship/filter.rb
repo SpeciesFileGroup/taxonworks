@@ -50,16 +50,16 @@ module Queries
       attr_accessor :taxon_name_relationship_set
 
       # @param params [Params]
-      def initialize(params)
-        @as_object = (params[:as_object]&.to_s&.downcase == 'true' ? true : false) if !params[:as_object].nil?
-        @as_subject = (params[:as_subject]&.to_s&.downcase == 'true' ? true : false) if !params[:as_subject].nil?
+      def initialize(query_params)
+        super
+
+        @as_object = boolean_param(params, :as_object) 
+        @as_subject = boolean_param(params, :as_subject)
         @object_taxon_name_id = params[:object_taxon_name_id]
         @subject_taxon_name_id = params[:subject_taxon_name_id]
         @taxon_name_id = params[:taxon_name_id]
         @taxon_name_relationship_set = params[:taxon_name_relationship_set]
         @taxon_name_relationship_type = params[:taxon_name_relationship_type]
-        
-        super
       end
 
       def taxon_name_id

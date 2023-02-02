@@ -47,7 +47,9 @@ module Queries
       attr_accessor :observations
 
       # @param [Hash] params
-      def initialize(params)
+      def initialize(query_params)
+        super
+
         @term = params[:term]
         @term_target = params[:term_target]
         @term_exact = boolean_param(params, :term_exact)
@@ -59,8 +61,6 @@ module Queries
         set_notes_params(params)
         set_tags_params(params)
         set_user_dates(params)
-
-        super
       end
 
       def observation_matrix_id

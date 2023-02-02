@@ -37,13 +37,13 @@ module Queries
 
       # @param [Hash] args
       def initialize(params)
+        super
         @depictions = boolean_param(params, :depictions)
         @exact = boolean_param(params, :exact)
         @otu_id = params[:otu_id]
         @text = params[:text]
         @topic_id = params[:topic_id]
         @content_id = params[:content_id]
-        super
       end
 
       def topic_id

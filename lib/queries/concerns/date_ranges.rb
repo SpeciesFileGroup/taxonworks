@@ -24,25 +24,29 @@ module Queries::Concerns::DateRanges
     attr_reader :end_day, :end_month, :end_year
 
     def start_date=(value)
+      byebug
       @start_date = value
       @start_year, @start_month, @start_day = start_date.split('-').map(&:to_i)
       @start_date
     end
 
     def end_date=(value)
+      byebug
       @end_date = value
       @end_year, @end_month, @end_day = end_date.split('-').map(&:to_i)
       @end_date
     end
+
+    def set_dates(params)
+      # Why do we have to do this?
+      self.send('start_date='.to_sym, params[:start_date]) if params[:start_date].present?
+      self.send('end_date=', params[:end_date]) if params[:end_date].present?
+
+      @partial_overlap_dates = params[:partial_overlap_dates]
+      @partial_overlap_dates = true if @partial_overlap_dates.nil?
+    end
   end
 
-  def set_dates(params)
-    start_date = params[:start_date] unless params[:start_date].blank?
-    end_date = params[:end_date] unless params[:end_date].blank?
-
-    @partial_overlap_dates = params[:partial_overlap_dates]
-    @partial_overlap_dates = true if @partial_overlap_dates.nil?
-  end
 
   def use_date_range?
     !start_date.blank? && !end_date.blank?

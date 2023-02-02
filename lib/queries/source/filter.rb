@@ -158,9 +158,8 @@ module Queries
       attr_accessor :bibtex_type
 
       # @param [Hash] params
-      def initialize(params)
-
-        @query_string = params[:query_term]&.delete("\u0000") # TODO, we need to sanitize params in general.
+      def initialize(query_params)
+        super
 
         @ancestor_id = params[:ancestor_id]
         @author = params[:author]
@@ -176,6 +175,7 @@ module Queries
         @ids = params[:ids] || []
         @in_project = boolean_param(params,:in_project)
         @nomenclature = boolean_param(params,:nomenclature)
+        @query_string = params[:query_term]&.delete("\u0000") # TODO: likely remove with current permit() paradigm
         @roles = boolean_param(params,:roles)
         @serial = boolean_param(params,:serial)
         @serial_ids = params[:serial_ids] || []
@@ -186,13 +186,12 @@ module Queries
         @with_title = boolean_param(params, :with_title)
         @year_end = params[:year_end]
         @year_start = params[:year_start]
-
+        
         build_terms
 
         set_tags_params(params)
         set_user_dates(params)
         set_empty_params(params)
-        super
       end
 
       # @return [Arel::Table]

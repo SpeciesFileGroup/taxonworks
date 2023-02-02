@@ -80,6 +80,7 @@ module Queries
       # attr_accessor ancestor
 
       def initialize(params)
+        super
         @descendants = boolean_param(params, :descendants)
         @geo_json = params[:geo_json]
         @geographic_area_id = params[:geographic_area_id]
@@ -89,7 +90,6 @@ module Queries
         @presence = boolean_param(params, :presence)
         @taxon_name_id = params[:taxon_name_id]
         @wkt = params[:wkt]
-        super
       end
 
       def otu_id

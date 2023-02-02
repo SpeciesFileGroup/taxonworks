@@ -10,7 +10,7 @@ module Queries
         keyword_id: [],
         tag_object_type: [],
         tag_object_id: [],
-      ]
+      ].freeze
 
       include Concerns::Polymorphic
       polymorphic_klass(::Tag)
@@ -28,14 +28,15 @@ module Queries
       # attr_accessor :object_global_id
 
       # @params params [ActionController::Parameters]
-      def initialize(params)
+      def initialize(query_params)
+        super
+
         @keyword_id = [params[:keyword_id]].flatten.compact
         @tag_object_type = params[:tag_object_type]
         @tag_object_id = params[:tag_object_id]
         @object_global_id = params[:object_global_id]
 
         set_polymorphic_ids(params)
-        super
       end
 
       def tag_object_type

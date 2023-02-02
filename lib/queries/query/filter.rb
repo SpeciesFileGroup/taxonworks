@@ -46,20 +46,20 @@ module Queries
     #
     # This is read as  :too <- [:from1, from1] ].
     SUBQUERIES = {
-      asserted_distribution: [:source, :otu, :biological_association, :taxon_name], # OK
+      asserted_distribution: [:source, :otu, :biological_association, :taxon_name],
 
       biological_association: [:source, :collecting_event, :otu, :collection_object, :taxon_name],
-      collecting_event: [:source, :collection_object, :biological_association],
+      collecting_event: [:source, :collection_object, :biological_association, :otu],
       collection_object: [:source, :otu, :taxon_name, :extract, :collecting_event, :biological_association],
       content: [:source],
-      descriptor: [:source, :observation], # TODO: confirm
+      descriptor: [:source, :observation],
       extract: [:source, :otu, :collection_object],
       image: [:source, :otu, :observation],
       loan: [],
-      observation: [:source, :descriptor], #  TOOD: confirm
+      observation: [:source, :descriptor],
       otu: [:source, :taxon_name, :collection_object, :extract, :collecting_event, :content, :biological_association, :asserted_distribution],
       source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :source, :taxon_name],
-      taxon_name: [:source, :otu, :collection_object, :collecting_event, :biological_association, :asserted_distribution],
+      taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :otu, :source ],
     }.freeze
 
     # We could consider `.safe_constantize` to make this a f(n), but we'd have 
@@ -142,26 +142,33 @@ module Queries
     attr_accessor :recent
 
     # @return Hash
-    def initialize(params)
-      p = nil
+    # the parsed/permitted params 
+    #   that were used to initialize the query
+    # !! other attributes do not alter this !! 
+    attr_reader :params
 
-      if params.kind_of?(Hash)
-        p = params
-      elsif params.kind_of?(ActionController::Parameters)
-        p = deep_permit(params).to_hash.deep_symbolize_keys # perhaps add to deep_permit
+    # @return Hash
+    def initialize(query_params)
+
+      if query_params.kind_of?(Hash)
+        @params = query_params
+      elsif query_params.kind_of?(ActionController::Parameters)
+        @params = deep_permit(query_params).to_hash.deep_symbolize_keys
+      elsif query_params.nil?
+        @params = {}
+      else 
+        raise TaxonWorks::Error, "can not initialize filter with #{query_params.class.name}"
       end
 
-      set_nested_queries(p)
-      set_user_dates(p)
-      set_citations_params(p)
-      set_identifier_params(p)
+      set_nested_queries(params)
+      set_user_dates(params)
+      set_citations_params(params)
+      set_identifier_params(params)
 
       @recent = boolean_param(params, :recent)
       
-      # always on --- but need :only checks
-      @project_id = p[:project_id] || Current.project_id # TODO: revisit
-
-      p 
+      # always on
+      @project_id = params[:project_id] || Current.project_id # TODO: revisit
     end
 
     def self.included_annotator_facets
@@ -444,7 +451,6 @@ module Queries
     # @param nil_empty [Boolean]
     #   If true then if there are no clauses return nil not .all
     # @return [ActiveRecord::Relation]
-    #   super is called on this method
     def all(nil_empty = false)
       a = all_and_clauses
       b = all_merge_clauses

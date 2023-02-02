@@ -162,7 +162,9 @@ module Queries
       #  limit object to a type
       attr_accessor :object_type
 
-      def initialize(params)
+      def initialize(query_params)
+        super
+        
         @any_global_id = params[:any_global_id]
         @biological_association_id = params[:biological_association_id]
         @biological_associations_graph_id = params[:biological_associations_graph_id]
@@ -189,7 +191,6 @@ module Queries
 
         set_notes_params(params)
         set_tags_params(params)
-        super
       end
 
       def biological_association_id

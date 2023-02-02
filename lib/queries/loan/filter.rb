@@ -65,7 +65,9 @@ module Queries
       attr_accessor :loan_item_disposition
 
       # @param [Hash] params
-      def initialize(params)
+      def initialize(query_params)
+        super
+
         @descendants = boolean_param(params, :descendants)
         @documentation = boolean_param(params, :documentation)
         @loan_item_disposition = params[:loan_item_disposition]
@@ -79,7 +81,6 @@ module Queries
         set_attributes(params)
         set_notes_params(params)
         set_tags_params(params)
-        super
       end
 
       def role

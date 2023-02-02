@@ -138,7 +138,9 @@ module Queries
       attr_accessor :without
 
       # @params params [ActionController::Parameters]
-      def initialize(params = {})
+      def initialize(query_params = {})
+        super
+      
         @active_after_year = params[:active_after_year]
         @active_before_year = params[:active_before_year]
         @born_after_year = params[:born_after_year]
@@ -164,8 +166,6 @@ module Queries
         set_tags_params(params)
         set_data_attributes_params(params)
         set_notes_params(params)
-
-        super
       end
 
       def with

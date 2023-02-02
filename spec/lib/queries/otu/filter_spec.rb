@@ -10,6 +10,21 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
 
   # TODO: This block tests Queries::Query::Filter
   context '<sub>_query initialization' do
+
+    specify '#params' do
+      h = {collecting_event_query: {otu_id: 1, otu_query: {otu_id: 10, taxon_name_query: {name: 'foo'}  }} }
+      p = ActionController::Parameters.new( h  )
+      query = Queries::Otu::Filter.new(p) 
+      expect(query.params ).to eq( h)
+    end
+
+    specify 'super' do
+      h = { name: 'foo' }
+      p = ActionController::Parameters.new( h )
+      query = Queries::Otu::Filter.new(p) 
+      expect(query.name ).to eq( ['foo'] )
+    end
+    
     specify '.permit' do
       expect(q.class.annotator_params).to include(:identifier)
       expect(q.class.annotator_params.last.keys).to include(:identifier_type)

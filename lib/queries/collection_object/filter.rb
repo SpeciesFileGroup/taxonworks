@@ -291,14 +291,14 @@ module Queries
 
 # rubocop:disable Metric/MethodLength
       # @param [Hash] args are permitted params
-      def initialize(params)
-        params = super
+      def initialize(query_params)
+        super
 
         # Only CollectingEvent fields are permitted, for advanced nesting (e.g. tags on CEs), use collecting_event_query
         collecting_event_params = ::Queries::CollectingEvent::Filter.params
 
         @base_collecting_event_query = ::Queries::CollectingEvent::Filter.new(
-          params.select{|a,b| collecting_event_params.include?(a) }
+          params.select{|a,b| collecting_event_params.include?(a) } # maintain this to avoid sub query initialization for now
         )
 
         @biocuration_class_id = params[:biocuration_class_id]

@@ -13,12 +13,13 @@ module Queries
       #   matching name exactlyjk 
       attr_accessor :name
 
-      def initialize(params)
+      def initialize(query_params)
+        super
         @name = params[:name]
         set_data_attribute_params(params)
-        super
       end
 
+      # Required, disable default facet
       def project_id_facet
         nil
       end

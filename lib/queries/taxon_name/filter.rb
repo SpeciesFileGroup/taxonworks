@@ -226,7 +226,8 @@ module Queries
 
       # @param params [Params]
       #   as permitted via controller
-      def initialize(params)
+      def initialize(query_params)
+        super
 
         @ancestors = boolean_param(params,:ancestors )
         @author = params[:author]
@@ -246,7 +247,6 @@ module Queries
         @otu_id = params[:otu_id]
         @otus = boolean_param(params, :otus)
         @parent_id = params[:parent_id]
-        @project_id = params[:project_id]
         @rank = params[:rank]
         @sort = params[:sort]
         @taxon_name_author_ids = params[:taxon_name_author_ids].blank? ? [] : params[:taxon_name_author_ids]
@@ -266,7 +266,6 @@ module Queries
         set_notes_params(params)
         set_data_attributes_params(params)
         set_tags_params(params)
-        super
       end
 
       def year
@@ -614,7 +613,7 @@ module Queries
         s = 'WITH query_ce_tns AS (' + collecting_event_query.all.to_sql + ') ' +
           ::TaxonName
           .joins(:collection_objects)
-          .joins('JOIN query_ce_tns as query_ce_tns1 on collection_objects.collecting_event_id = query_ce_tns.id')
+          .joins('JOIN query_ce_tns as query_ce_tns1 on collection_objects.collecting_event_id = query_ce_tns1.id')
           .to_sql
 
         ::TaxonName.from('(' + s + ') as taxon_names').distinct
@@ -657,10 +656,11 @@ module Queries
         clauses = [
           asserted_distribution_query_facet,
           biological_association_query_facet,
+          collecting_event_query_facet,
           collection_object_query_facet,
           otu_query_facet,
           source_query_facet,
-          
+
           ancestor_facet,
           authors_facet,
           combination_taxon_name_id_facet,

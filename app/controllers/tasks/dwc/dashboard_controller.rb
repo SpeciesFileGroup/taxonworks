@@ -1,6 +1,5 @@
 class Tasks::Dwc::DashboardController < ApplicationController
   include TaskControllerConfiguration
-  include CollectionObjects::FilterParams
 
   # DWC_TASK
   def index
@@ -15,7 +14,7 @@ class Tasks::Dwc::DashboardController < ApplicationController
     a = nil
     if collection_object_filter_params.to_h.any?
       a = DwcOccurrence.by_collection_object_filter(
-        filter_scope: filtered_collection_objects,
+        filter_scope: ::Queries::CollectionObject::Filter.new(params).all,
         project_id: sessions_current_project_id)
     else
       a = DwcOccurrence.where(project_id: sessions_current_project_id)
@@ -30,7 +29,7 @@ class Tasks::Dwc::DashboardController < ApplicationController
 
   def create_index
     if collection_object_filter_params.to_h.any?
-      metadata = ::Export::Dwca.build_index_async(CollectionObject, filtered_collection_objects)
+      metadata = ::Export::Dwca.build_index_async(CollectionObject, ::Queries::CollectionObject::Filter.new(params).all)
       render json: metadata, status: :ok
     else
       render json: {}, status: :unprocessable_entity

@@ -177,7 +177,9 @@ module Queries
       #   from these asserted distributions
       attr_accessor :asserted_distribution_id
 
-      def initialize(params)
+      def initialize(query_params)
+        super
+
         @asserted_distribution_id = params[:asserted_distribution_id]
         @asserted_distributions = boolean_param(params,:asserted_distributions)
         @biological_association_id = params[:biological_association_id]
@@ -202,7 +204,6 @@ module Queries
 
         set_data_attributes_params(params)
         set_tags_params(params)
-        super
       end
 
       def biological_associations_table

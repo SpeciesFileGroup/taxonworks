@@ -10,7 +10,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     p = ActionController::Parameters.new(h)
     q = Queries::CollectionObject::Filter.new(p)
     
-    expect(q.base_collecting_event_query.geographic_area_id).to eq(1)
+    expect(q.base_collecting_event_query.geographic_area_id).to eq([1])
   end
 
   specify '#determiner_name_regex' do

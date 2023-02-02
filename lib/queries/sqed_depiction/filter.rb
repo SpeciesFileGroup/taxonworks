@@ -15,12 +15,13 @@ module Queries
 
       attr_accessor :collection_object_filter_params
 
-      def initialize(params)
+      def initialize(query_params)
+        super
+
         @collection_object_filter_params = params.permit(COLLECTION_OBJECT_FILTER_PARAMS)
           .to_h.select{|k,v| COLLECTION_OBJECT_FILTER_PARAMS.include?(k) ? k : nil}
 
         set_user_dates(params)
-        super
       end
 
       def collection_object_query_facet

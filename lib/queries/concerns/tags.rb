@@ -46,10 +46,18 @@ module Queries::Concerns::Tags
   end
 
   def set_tags_params(params)
-    @keyword_id_and = params[:keyword_id_and].blank? ? [] : params[:keyword_id_and]
-    @keyword_id_or = params[:keyword_id_or].blank? ? [] : params[:keyword_id_or]
+    @keyword_id_and = params[:keyword_id_and]
+    @keyword_id_or = params[:keyword_id_or]
 
-    @tags = (params[:tags]&.to_s&.downcase == 'true' ? true : false) if !params[:tags].nil?
+    @tags = boolean_param(params, :tags) # (params[:tags]&.to_s&.downcase == 'true' ? true : false) if !params[:tags].nil?
+  end
+
+  def keyword_id_and
+    [@keyword_id_and].flatten.compact.uniq
+  end
+
+  def keyword_id_or
+    [@keyword_id_or].flatten.compact.uniq
   end
 
   # @return [Arel::Table]
@@ -91,7 +99,6 @@ module Queries::Concerns::Tags
         .where(tags: {id: nil})
     end
   end
-
  
   def matching_keyword_id_or
     return nil if keyword_id_or.empty?

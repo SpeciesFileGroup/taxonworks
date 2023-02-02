@@ -117,25 +117,23 @@ module Queries
       # attr_accessor :current_determinations
 
       # @param params [Hash]
-      def initialize(params)
-        params.reject!{ |_k, v| v.nil? || (v == '') } # dump all entries with empty values
+      def initialize(query_params)
+        super
 
+        @ancestor_id_target = params[:ancestor_id_target]
+        @biocuration_class_id = params[:biocuration_class_id]
+        @collecting_event_id = params[:collecting_event_id]
+        @collection_object_id = params[:collection_object_id]
+        @collection_object_scope = params[:collection_object_scope]&.map(&:to_sym)
+        @depiction = boolean_param(params, :depiction)
+        @image_id = params[:image_id]
         @otu_id = params[:otu_id]
         @otu_scope = params[:otu_scope]&.map(&:to_sym)
-        @collection_object_scope = params[:collection_object_scope]&.map(&:to_sym)
-        @collection_object_id = params[:collection_object_id]
-        @collecting_event_id = params[:collecting_event_id]
-        @image_id = params[:image_id]
-        @biocuration_class_id = params[:biocuration_class_id]
         @sled_image_id = params[:sled_image_id]
         @sqed_depiction_id = params[:sqed_depiction_id]
         @taxon_name_id = params[:taxon_name_id]
-        @ancestor_id_target = params[:ancestor_id_target]
-
-        @depiction = (params[:depiction]&.downcase == 'true' ? true : false) if !params[:depiction].nil?
 
         set_tags_params(params)
-        super
       end
 
       def taxon_name_id

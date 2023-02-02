@@ -6,7 +6,7 @@ module Queries
       PARAMS = [
         :options,
         :source_id,
-      ]
+      ].freeze
 
       # General annotator options handling
       # happens directly on the params as passed

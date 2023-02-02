@@ -17,13 +17,13 @@ module Queries
 
       attr_accessor :object_global_id
 
-      def initialize(params)
+      def initialize(query_params)
+        super
+
         @text = params[:text]
         @note_object_type = params[:note_object_type]
         @note_object_id = params[:note_object_id]
         @object_global_id = params[:object_global_id]
-
-        super
       end
 
       def note_object_id

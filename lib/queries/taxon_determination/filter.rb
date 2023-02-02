@@ -8,18 +8,19 @@ module Queries
         otu_id: [],
         determiner_id: [],
         collection_object_id: [],
-      ]
+      ].freeze
 
       # all Arrays
       attr_accessor :collection_object_id
       attr_accessor :otu_id
       attr_accessor :determiner_id
 
-      def initialize(params = {})
-        @otu_id = params[:otu_id]
+      def initialize(query_params = {})
+        super
+        
         @collection_object_id = params[:collection_object_id]
         @determiner_id = params[:determiner_id]
-        super
+        @otu_id = params[:otu_id]
       end
 
       def otu_id
