@@ -12,7 +12,7 @@ class HubController < ApplicationController
    #    render partial: 'navigation_index' # layout: nil
    #  }
       format.json{
-        render json: UserTasks.hub_tasks
+        render json: {tasks: UserTasks.hub_tasks, data: Hub::Data::CONFIG_DATA, favourites: sessions_current_user.hub_favorites[sessions_current_project_id.to_s] }
       }
     end 
   end

@@ -23,6 +23,14 @@ module HubHelper
     }
   end
 
+  def hub_json
+    return  {
+      tasks: UserTasks.hub_tasks,
+      data: Hub::Data::CONFIG_DATA,
+      favourites: sessions_current_user.hub_favorites[sessions_current_project_id.to_s]
+    }
+  end
+
   def data_link(data)
     link_to(data.name, data.klass)
   end
