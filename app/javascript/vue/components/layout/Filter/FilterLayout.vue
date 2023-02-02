@@ -93,7 +93,7 @@
             <FilterSettings
               v-model:filter="preferences.activeFilter"
               v-model:url="preferences.activeJSONRequest"
-              v-model:list="preferences.showList"
+              v-model:list="preferences.showTable"
             >
               <template #preferences-last>
                 <slot name="preferences-last" />
@@ -115,10 +115,13 @@
       <slot name="facets" />
     </div>
 
-    <slot
-      v-if="preferences.showList"
-      name="table"
-    />
+    <div class="full_width overflow-x-auto">
+      <slot name="above-table" />
+      <slot
+        v-if="preferences.showTable"
+        name="table"
+      />
+    </div>
   </div>
 </template>
 
@@ -184,7 +187,7 @@ const props = defineProps({
 const preferences = reactive({
   activeFilter: true,
   activeJSONRequest: false,
-  showList: true
+  showTable: true
 })
 
 const emit = defineEmits([

@@ -40,13 +40,11 @@
         <FilterComponent v-model="parameters" />
       </template>
       <template #table>
-        <div class="full_width">
-          <ListComponent
-            v-model="selectedIds"
-            :list="list"
-            @on-sort="list = $event"
-          />
-        </div>
+        <ListComponent
+          v-model="selectedIds"
+          :list="list"
+          @on-sort="list = $event"
+        />
       </template>
     </FilterLayout>
     <VSpinner

@@ -22,14 +22,12 @@
         <FilterView v-model="parameters" />
       </template>
       <template #table>
-        <div class="full_width overflow-x-auto">
-          <FilterList
-            :list="list"
-            :attributes="ATTRIBUTES"
-            v-model="selectedIds"
-            @on-sort="list = $event"
-          />
-        </div>
+        <FilterList
+          :list="list"
+          :attributes="ATTRIBUTES"
+          v-model="selectedIds"
+          @on-sort="list = $event"
+        />
       </template>
     </FilterLayout>
     <VSpinner
