@@ -14,8 +14,7 @@
       :pagination="pagination"
       :object-type="IMAGE"
       :list="list"
-      v-model:per="per"
-      :parameters="parameters"
+      v-model="parameters"
       v-model:preferences="preferences"
       v-model:append="append"
       @filter="makeFilterRequest()"
@@ -94,7 +93,6 @@ const {
   isLoading,
   list,
   pagination,
-  per,
   append,
   urlRequest,
   loadPage,
@@ -104,14 +102,15 @@ const {
 } = useFilter(Image)
 
 onBeforeMount(() => {
-  parameters.value = {
+  const urlParameters = {
     ...URLParamsToJSON(location.href),
     ...JSON.parse(sessionStorage.getItem('filterQuery'))
   }
 
+  Object.assign(parameters.value, urlParameters)
   sessionStorage.removeItem('filterQuery')
 
-  if (Object.keys(parameters.value).length) {
+  if (Object.keys(urlParameters).length) {
     makeFilterRequest({ ...parameters.value })
   }
 })

@@ -1,14 +1,6 @@
 <template>
   <div>
-    <div class="flex-separate middle">
-      <h1>Filter people</h1>
-      <FilterSettings
-        v-model:filter="preferences.activeFilter"
-        v-model:url="preferences.activeJSONRequest"
-        v-model:append="append"
-        v-model:list="preferences.showList"
-      />
-    </div>
+    <h1>Filter people</h1>
 
     <JsonRequestUrl
       v-show="preferences.activeJSONRequest"
@@ -18,12 +10,14 @@
 
     <FilterLayout
       :filter="preferences.activeFilter"
-      :table="preferences.showList"
-      :pagination="pagination"
-      :parameters="parameters"
+      :list="list"
       :object-type="PEOPLE"
+      :pagination="pagination"
+      v-model="parameters"
       :selected-ids="selectedIds"
-      v-model:per="per"
+      :table="preferences.showList"
+      v-model:preferences="preferences"
+      v-model:append="append"
       @filter="makeFilterRequest()"
       @nextpage="loadPage"
       @reset="resetFilter"
@@ -65,7 +59,6 @@ import CsvButton from 'components/csvButton'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
-import FilterSettings from 'components/layout/Filter/FilterSettings.vue'
 import { PEOPLE } from 'constants/index.js'
 import { People } from 'routes/endpoints'
 import { computed, reactive, ref, onBeforeMount } from 'vue'
@@ -89,7 +82,6 @@ const {
   isLoading,
   list,
   pagination,
-  per,
   append,
   urlRequest,
   loadPage,
@@ -99,14 +91,16 @@ const {
 } = useFilter(People)
 
 onBeforeMount(() => {
-  parameters.value = {
+  const urlParameters = {
     ...URLParamsToJSON(location.href),
     ...JSON.parse(sessionStorage.getItem('filterQuery'))
   }
 
+  Object.assign(parameters.value, urlParameters)
+
   sessionStorage.removeItem('filterQuery')
 
-  if (Object.keys(parameters.value).length) {
+  if (Object.keys(urlParameters).length) {
     makeFilterRequest({ ...parameters.value })
   }
 })

@@ -67,6 +67,7 @@
             <RadialFilter
               v-if="selectedIds"
               :ids="selectedIds"
+              :parameters="parameters"
               :disabled="!selectedIds.length"
               :object-type="objectType"
             />
@@ -79,6 +80,7 @@
             <RadialMassAnnotator
               v-if="selectedIds"
               :object-type="objectType"
+              :parameters="parameters"
               :ids="selectedIds"
             />
             <slot name="nav-right" />
@@ -105,15 +107,7 @@
       v-show="filter"
       class="grid-filter__facets margin-medium-bottom"
     >
-      <slot name="facets">
-        <component
-          v-for="(facet, index) in facets"
-          :key="index"
-          :is="facet.component"
-          v-bind="facet.props"
-          v-model="params"
-        />
-      </slot>
+      <slot name="facets" />
     </div>
 
     <slot
@@ -155,11 +149,6 @@ const props = defineProps({
     default: undefined
   },
 
-  per: {
-    type: Number,
-    default: 500
-  },
-
   objectType: {
     type: String,
     default: undefined
@@ -168,11 +157,6 @@ const props = defineProps({
   selectedIds: {
     type: Array,
     default: undefined
-  },
-
-  parameters: {
-    type: Object,
-    default: () => ({})
   },
 
   preferences: {
@@ -216,12 +200,7 @@ const appendValue = computed({
   set: (value) => emit('update:append', value)
 })
 
-const perValue = computed({
-  get: () => props.per,
-  set: (value) => emit('update:per', value)
-})
-
-const params = computed({
+const parameters = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value)
 })
@@ -229,6 +208,13 @@ const params = computed({
 const preferences = computed({
   get: () => props.preferences,
   set: (value) => emit('update:preferences', value)
+})
+
+const perValue = computed({
+  get: () => parameters.value.per,
+  set: (value) => {
+    parameters.value.per = value
+  }
 })
 
 const hotkeys = ref([

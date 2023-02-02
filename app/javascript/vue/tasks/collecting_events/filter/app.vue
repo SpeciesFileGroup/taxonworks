@@ -12,11 +12,10 @@
       :filter="preferences.activeFilter"
       table
       :pagination="pagination"
-      :parameters="parameters"
+      v-model="parameters"
       :object-type="COLLECTING_EVENT"
       :selected-ids="selectedIds"
       :list="list"
-      v-model:per="per"
       v-model:preferences="preferences"
       v-model:append="append"
       @filter="loadList"
@@ -131,7 +130,6 @@ const {
   isLoading,
   list,
   pagination,
-  per,
   urlRequest,
   loadPage,
   makeFilterRequest,
@@ -142,10 +140,6 @@ const {
 const selectedIds = ref([])
 const rowHover = ref()
 const georeferences = ref([])
-
-watch(per, () => {
-  loadPage(1)
-})
 
 watch(list, (newVal, oldList) => {
   const currIds = newVal.map((item) => item.id)
@@ -216,14 +210,16 @@ const parseEndDate = (ce) => {
 }
 
 onBeforeMount(() => {
-  parameters.value = {
+  const urlParameters = {
     ...URLParamsToJSON(location.href),
     ...JSON.parse(sessionStorage.getItem('filterQuery'))
   }
 
+  Object.assign(parameters.value, urlParameters)
+
   sessionStorage.removeItem('filterQuery')
 
-  if (Object.keys(parameters.value).length) {
+  if (Object.keys(urlParameters).length) {
     makeFilterRequest({
       ...parameters.value,
       extend

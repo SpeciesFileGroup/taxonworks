@@ -12,7 +12,7 @@
       :filter="preferences.activeFilter"
       :table="preferences.showList"
       :pagination="pagination"
-      :parameters="parameters"
+      v-model="parameters"
       :object-type="BIOLOGICAL_ASSOCIATION"
       :selected-ids="selectedIds"
       :list="list"
@@ -63,7 +63,7 @@ import JsonRequestUrl from 'tasks/people/filter/components/JsonRequestUrl.vue'
 import VSpinner from 'components/spinner.vue'
 import { BIOLOGICAL_ASSOCIATION } from 'constants/index.js'
 import { BiologicalAssociation } from 'routes/endpoints'
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, onBeforeMount } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse'
 
 const extend = [
@@ -153,15 +153,23 @@ const {
   resetFilter
 } = useFilter(BiologicalAssociation)
 
-const urlParams = URLParamsToJSON(location.href)
+onBeforeMount(() => {
+  const urlParameters = {
+    ...URLParamsToJSON(location.href),
+    ...JSON.parse(sessionStorage.getItem('filterQuery'))
+  }
 
-if (Object.keys(urlParams).length) {
-  makeFilterRequest({
-    ...urlParams,
-    geo_json: JSON.stringify(urlParams.geo_json),
-    extend
-  })
-}
+  Object.assign(parameters.value, urlParameters)
+
+  sessionStorage.removeItem('filterQuery')
+
+  if (Object.keys(urlParameters).length) {
+    makeFilterRequest({
+      ...parameters.value,
+      extend
+    })
+  }
+})
 </script>
 
 <script>

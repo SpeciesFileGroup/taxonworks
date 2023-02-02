@@ -12,11 +12,10 @@
       :filter="preferences.activeFilter"
       :pagination="pagination"
       :table="preferences.showList"
-      :parameters="parameters"
+      v-model="parameters"
       :object-type="DESCRIPTOR"
       :selected-ids="selectedIds"
       :list="list"
-      v-model:per="per"
       v-model:preferences="preferences"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters })"
@@ -86,7 +85,6 @@ const {
   isLoading,
   list,
   pagination,
-  per,
   append,
   urlRequest,
   loadPage,
@@ -102,14 +100,16 @@ const csvList = computed(() =>
 )
 
 onBeforeMount(() => {
-  parameters.value = {
+  const urlParameters = {
     ...URLParamsToJSON(location.href),
     ...JSON.parse(sessionStorage.getItem('filterQuery'))
   }
 
+  Object.assign(parameters.value, urlParameters)
+
   sessionStorage.removeItem('filterQuery')
 
-  if (Object.keys(parameters.value).length) {
+  if (Object.keys(urlParameters).length) {
     makeFilterRequest({
       ...parameters.value
     })

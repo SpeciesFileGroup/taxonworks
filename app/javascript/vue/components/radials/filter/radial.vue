@@ -108,7 +108,7 @@ const queryObject = computed(() => {
   const params = { ...filteredParameters.value }
   const currentQueryParam = QUERY_PARAM[props.objectType]
 
-  return { [currentQueryParam]: params }
+  return { [currentQueryParam]: params, per: props.parameters?.per }
 })
 
 const hasParameters = computed(
@@ -124,7 +124,8 @@ function getParametersForAll(link) {
 
 function getParametersForId() {
   const params = {
-    [ID_PARAM_FOR[props.objectType]]: props.ids
+    [ID_PARAM_FOR[props.objectType]]: props.ids,
+    per: props.parameters?.per
   }
 
   return params
@@ -206,16 +207,9 @@ function getCurrentQueryParam(link) {
   return currentQueryParam
 }
 
-function unnestParameter(param) {
+function unnestParameter() {
   const params = { ...queryObject.value }
   return params
-
-  delete params[param]
-
-  return {
-    ...params,
-    ...queryObject.value[param]
-  }
 }
 
 function filterEmptyParams(object) {

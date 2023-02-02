@@ -5,8 +5,9 @@ import getPagination from 'helpers/getPagination'
 export default function (service) {
   const state = reactive({
     append: false,
-    parameters: {},
-    per: 50,
+    parameters: {
+      per: 50
+    },
     pagination: undefined,
     list: [],
     isLoading: false,
@@ -15,33 +16,34 @@ export default function (service) {
 
   const makeFilterRequest = (params = state.parameters) => {
     const payload = removeEmptyParameters({
-      per: state.per,
       ...params
     })
 
     state.isLoading = true
 
-    return service.filter(payload).then(response => {
-      if (state.append) {
-        let concat = response.body.concat(state.list)
+    return service
+      .filter(payload)
+      .then((response) => {
+        if (state.append) {
+          let concat = response.body.concat(state.list)
 
-        concat = concat.filter((item, index, self) =>
-          index === self.findIndex((i) => (
-            i.id === item.id
-          ))
-        )
+          concat = concat.filter(
+            (item, index, self) =>
+              index === self.findIndex((i) => i.id === item.id)
+          )
 
-        state.list = concat
-      } else {
-        state.list = response.body
-      }
+          state.list = concat
+        } else {
+          state.list = response.body
+        }
 
-      state.pagination = getPagination(response)
-      state.urlRequest = response.request.url
-      setRequestUrl(response.request.responseURL, payload)
-    }).finally(() => {
-      state.isLoading = false
-    })
+        state.pagination = getPagination(response)
+        state.urlRequest = response.request.url
+        setRequestUrl(response.request.responseURL, payload)
+      })
+      .finally(() => {
+        state.isLoading = false
+      })
   }
 
   const setRequestUrl = (url, params) => {
@@ -69,7 +71,7 @@ export default function (service) {
     return cleanedParameters
   }
 
-  const loadPage = params => {
+  const loadPage = (params) => {
     makeFilterRequest({
       ...state.parameters,
       ...params
@@ -77,7 +79,7 @@ export default function (service) {
   }
 
   const resetFilter = () => {
-    state.parameters = {}
+    state.parameters = { per: 50 }
     state.list = []
     state.isLoading = false
     state.urlRequest = ''
