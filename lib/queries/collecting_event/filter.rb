@@ -165,6 +165,7 @@ module Queries
         super
       end
 
+
       def collecting_event_id
         [@collecting_event_id].flatten.compact
       end

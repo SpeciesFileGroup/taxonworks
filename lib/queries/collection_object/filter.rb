@@ -289,21 +289,20 @@ module Queries
       # !! Probably shouldn't expose to external API.
       attr_accessor :determiner_name_regex
 
+# rubocop:disable Metric/MethodLength
       # @param [Hash] args are permitted params
       def initialize(params)
-        # params.reject!{ |_k, v| v.nil? || (v == '') } # dump all entries with empty values
+        params = super
 
         # Only CollectingEvent fields are permitted, for advanced nesting (e.g. tags on CEs), use collecting_event_query
-        collecting_event_params = ::Queries::CollectingEvent::Filter::ATTRIBUTES + ::Queries::CollectingEvent::Filter::PARAMS
+        collecting_event_params = ::Queries::CollectingEvent::Filter.params
 
         @base_collecting_event_query = ::Queries::CollectingEvent::Filter.new(
           params.select{|a,b| collecting_event_params.include?(a) }
         )
 
         @biocuration_class_id = params[:biocuration_class_id]
-
         @biological_relationship_id = params[:biological_relationship_id] # TODO: no reference?
-
         @buffered_collecting_event = params[:buffered_collecting_event]
         @buffered_determinations = params[:buffered_determinations]
         @buffered_other_labels = params[:buffered_other_labels]
@@ -350,7 +349,6 @@ module Queries
         set_data_attributes_params(params)
         set_notes_params(params)
         set_tags_params(params)
-        super
       end
 
       # @return [Arel::Table]

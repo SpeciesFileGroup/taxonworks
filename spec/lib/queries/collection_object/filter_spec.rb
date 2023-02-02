@@ -5,6 +5,14 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
   let(:query) { Queries::CollectionObject::Filter.new({}) }
 
+  specify 'CollectingEvent params are permitted' do
+    h = {geographic_area_id: 1 }
+    p = ActionController::Parameters.new(h)
+    q = Queries::CollectionObject::Filter.new(p)
+    
+    expect(q.base_collecting_event_query.geographic_area_id).to eq(1)
+  end
+
   specify '#determiner_name_regex' do
     s = Specimen.create!
     a = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s, determiners: [ FactoryBot.create(:valid_person, last_name: 'Smith') ] )

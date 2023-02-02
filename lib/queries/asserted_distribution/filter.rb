@@ -235,6 +235,16 @@ module Queries
         ::AssertedDistribution.from('(' + s + ') as asserted_distributions')
       end
 
+      def taxon_name_query_facet
+        return nil if taxon_name_query.nil?
+        s = 'WITH query_tn_ad AS (' + taxon_name_query.all.to_sql + ') ' +
+          ::AssertedDistribution
+          .joins(:otu)
+          .joins('JOIN query_tn_ad as query_tn_ad1 on query_tn_ad1.id = otus.taxon_name_id')
+          .to_sql
+        ::AssertedDistribution.from('(' + s + ') as asserted_distributions')
+      end
+
       def biological_association_query_facet
         return nil if biological_association_query.nil?
         s = 'WITH query_ad_ba AS (' + biological_association_query.all.to_sql + ') '
@@ -245,13 +255,14 @@ module Queries
         b = ::AssertedDistribution
           .joins("JOIN query_ad_ba as query_ad_ba2 on asserted_distributions.otu_id = query_ad_ba2.biological_association_object_id AND query_ad_ba2.biological_association_object_type = 'Otu'").to_sql
 
-        s << ::AssertedDistribution.from("(#{a} UNION #{b}) as asserted_distributions").to_sql
+        s << ::AssertedDistribution.from("((#{a}) UNION (#{b})) as asserted_distributions").to_sql
 
         ::AssertedDistribution.from('(' + s + ') as asserted_distributions')
       end
 
       def and_clauses
         [
+          taxon_name_query_facet,
           otu_id_facet,
           presence_facet,
           asserted_distribution_attribute_equals(:otu_id),  # TODO: handles array?multiple?

@@ -42,6 +42,8 @@ module Queries
         :year,
         :year_end,
         :year_start,
+        :taxon_name_id,
+
         name: [],
         otu_id: [],
         combination_taxon_name_id: [],
@@ -585,6 +587,17 @@ module Queries
         ::TaxonName.from('(' + s + ') as taxon_names').distinct
       end
 
+      def asserted_distribution_query_facet
+        return nil if asserted_distribution_query.nil?
+        s = 'WITH query_ad_tn AS (' + asserted_distribution_query.all.to_sql + ') ' +
+          ::TaxonName
+          .joins(otus: [:asserted_distributions])
+          .joins('JOIN query_ad_tn as query_ad_tn1 on query_ad_tn1.otu_id = asserted_distributions.otu_id')
+          .to_sql
+
+        ::TaxonName.from('(' + s + ') as taxon_names').distinct
+      end
+
       def collection_object_query_facet
         return nil if collection_object_query.nil?
         s = 'WITH query_collection_objects AS (' + collection_object_query.all.to_sql + ') ' +
@@ -607,6 +620,23 @@ module Queries
         ::TaxonName.from('(' + s + ') as taxon_names').distinct
       end
 
+      def biological_association_query_facet
+        return nil if biological_association_query.nil?
+        s = 'WITH query_tn_ba AS (' + biological_association_query.all.to_sql + ') '
+       
+        a = ::TaxonName
+          .joins(:otus)
+          .joins("JOIN query_tn_ba as query_tn_ba1 on query_tn_ba1.biological_association_subject_id = otus.id AND query_tn_ba1.biological_association_subject_type = 'Otu'").to_sql
+
+       b = ::TaxonName
+         .joins(:otus)
+         .joins("JOIN query_tn_ba as query_tn_ba2 on query_tn_ba2.biological_association_object_id = otus.id AND query_tn_ba2.biological_association_subject_type = 'Otu'").to_sql
+
+        s << ::TaxonName.from("((#{a}) UNION (#{b})) as taxon_names").to_sql
+
+        ::TaxonName.from('(' + s + ') as taxon_names')
+      end
+
       # @return [ActiveRecord::Relation]
       def and_clauses
         [ 
@@ -625,6 +655,8 @@ module Queries
 
       def merge_clauses
         clauses = [
+          asserted_distribution_query_facet,
+          biological_association_query_facet,
           collection_object_query_facet,
           otu_query_facet,
           source_query_facet,

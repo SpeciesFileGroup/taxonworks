@@ -46,9 +46,9 @@ module Queries
     #
     # This is read as  :too <- [:from1, from1] ].
     SUBQUERIES = {
-      asserted_distribution: [:source, :otu, :biological_association], # OK
+      asserted_distribution: [:source, :otu, :biological_association, :taxon_name], # OK
 
-      biological_association: [:source, :collecting_event, :otu, :collection_object],
+      biological_association: [:source, :collecting_event, :otu, :collection_object, :taxon_name],
       collecting_event: [:source, :collection_object, :biological_association],
       collection_object: [:source, :otu, :taxon_name, :extract, :collecting_event, :biological_association],
       content: [:source],
@@ -57,9 +57,9 @@ module Queries
       image: [:source, :otu, :observation],
       loan: [],
       observation: [:source, :descriptor], #  TOOD: confirm
-      otu: [:source, :taxon_name, :collection_object, :extract, :collecting_event, :content, :biological_association],
+      otu: [:source, :taxon_name, :collection_object, :extract, :collecting_event, :content, :biological_association, :asserted_distribution],
       source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :source, :taxon_name],
-      taxon_name: [:source, :otu, :collection_object, :collecting_event],
+      taxon_name: [:source, :otu, :collection_object, :collecting_event, :biological_association, :asserted_distribution],
     }.freeze
 
     # We could consider `.safe_constantize` to make this a f(n), but we'd have 
@@ -159,6 +159,8 @@ module Queries
       
       # always on --- but need :only checks
       @project_id = p[:project_id] || Current.project_id # TODO: revisit
+
+      p 
     end
 
     def self.included_annotator_facets
@@ -175,7 +177,13 @@ module Queries
 
       f
     end
- 
+
+    def self.params
+      a = self::PARAMS.dup
+      b = a.pop.keys
+      (a + b).uniq
+    end   
+
     # @return Array, nil
     #   a [:a, :b, {c: []}] formatted Array
     # to be merged into included params

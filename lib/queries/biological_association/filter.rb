@@ -23,6 +23,7 @@ module Queries
         :object_global_id,
         :object_taxon_name_id,
         :object_type,
+        :otu_id,
         :subject_biological_property_id,
         :subject_global_id,
         :subject_taxon_name_id,
@@ -469,8 +470,8 @@ module Queries
       end
 
       # rubocop:disable Metrics/MethodLength
-      # !! PostgreSQL specific (uses "WITH")
-      def subject_object_scope(subject_query, object_query, target = 'Otu', mode: :or)
+      # This is "or"
+      def subject_object_scope(subject_query, object_query, target = 'Otu')
         a = subject_query
         b = object_query
 
@@ -580,6 +581,7 @@ module Queries
         table[:biological_association_subject_type].eq(subject_type)
       end
 
+      # TODO: make OR into UNION
       def collecting_event_query_facet
         return nil if collecting_event_query.nil?
 
@@ -612,12 +614,52 @@ module Queries
       def collection_object_query_facet
         return nil if collection_object_query.nil?
 
-        s = 'WITH query_co_ba AS (' + collection_object_query.all.to_sql + ') ' + 
-          ::BiologicalAssociation
-          .joins("LEFT JOIN query_co_ba as query_co_ba1 on biological_associations.biological_association_subject_id = query_co_ba1.id AND biological_associations.biological_association_subject_type = 'CollectionObject'")
-          .joins("LEFT JOIN query_co_ba as query_co_ba2 on biological_associations.biological_association_object_id = query_co_ba2.id AND biological_associations.biological_association_object_type = 'CollectionObject'")
-          .where('query_co_ba1.id IS NOT NULL OR query_co_ba2.id IS NOT NULL')
+        s = 'WITH query_co_ba AS (' + collection_object_query.all.to_sql + ') '
+
+        a = ::BiologicalAssociation
+          .joins("JOIN query_co_ba as query_co_ba1 on biological_associations.biological_association_subject_id = query_co_ba1.id AND biological_associations.biological_association_subject_type = 'CollectionObject'").to_sql
+
+        b = ::BiologicalAssociation
+          .joins("JOIN query_co_ba as query_co_ba2 on biological_associations.biological_association_object_id = query_co_ba2.id AND biological_associations.biological_association_object_type = 'CollectionObject'").to_sql
+
+        s << ::BiologicalAssociation.from('(' + [a,b].collect{|q| "(#{q})"}.join(' UNION ') + ') as biological_associations').to_sql
+
+        ::BiologicalAssociation.from('(' + s + ') as biological_associations')
+      end
+
+      # Brute-force style
+      def taxon_name_query_facet
+        return nil if taxon_name_query.nil?
+        
+        s = 'WITH query_tn_ba AS (' + taxon_name_query.all.to_sql + ') '
+
+        a = ::BiologicalAssociation
+          .joins("JOIN otus on otus.id = biological_associations.biological_association_subject_id AND biological_associations.biological_association_subject_type = 'Otu'")
+          .joins('JOIN query_tn_ba as query_tn_ba1 on otus.taxon_name_id = query_tn_ba1.id')
           .to_sql
+
+        b = ::BiologicalAssociation
+          .joins("JOIN otus on otus.id = biological_associations.biological_association_object_id AND biological_associations.biological_association_object_type = 'Otu'")
+          .joins('JOIN query_tn_ba as query_tn_ba2 on otus.taxon_name_id = query_tn_ba2.id')
+          .to_sql
+
+        c = ::BiologicalAssociation
+          .joins("JOIN collection_objects on collection_objects.id = biological_associations.biological_association_subject_id AND biological_associations.biological_association_subject_type = 'CollectionObject'")
+          .joins('JOIN taxon_determinations on taxon_determinations.biological_collection_object_id = collection_objects.id')
+          .joins('JOIN otus on otus.id = taxon_determinations.otu_id')
+          .joins('JOIN query_tn_ba as query_tn_ba3 on otus.taxon_name_id = query_tn_ba3.id')
+          .where('taxon_determinations.position = 1')
+          .to_sql
+
+       d = ::BiologicalAssociation
+          .joins("JOIN collection_objects on collection_objects.id = biological_associations.biological_association_object_id AND biological_associations.biological_association_object_type = 'CollectionObject'")
+          .joins('JOIN taxon_determinations on taxon_determinations.biological_collection_object_id = collection_objects.id')
+          .joins('JOIN otus on otus.id = taxon_determinations.otu_id')
+          .joins('JOIN query_tn_ba as query_tn_ba4 on otus.taxon_name_id = query_tn_ba4.id')
+          .where('taxon_determinations.position = 1')
+          .to_sql
+
+        s << ::BiologicalAssociation.from('(' + [a,b,c,d].collect{|q| "(#{q})"}.join(' UNION ') + ') as biological_associations').to_sql
 
         ::BiologicalAssociation.from('(' + s + ') as biological_associations')
       end
@@ -636,6 +678,7 @@ module Queries
 
       def merge_clauses
         [
+          taxon_name_query_facet,
           collection_object_query_facet,
           otu_query_facet,
           source_query_facet,

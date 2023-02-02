@@ -1,6 +1,7 @@
 import {
   FILTER_SOURCE,
 
+  FILTER_TAXON_NAME,
   FILTER_COLLECTING_EVENT,
   FILTER_COLLECTION_OBJECT,
   FILTER_OTU,
@@ -10,11 +11,13 @@ import {
 export const BiologicalAssociation = {
   all: [
     FILTER_SOURCE,
-    
+    FILTER_TAXON_NAME,
     FILTER_ASSERTED_DISTRIBUTION,
     FILTER_COLLECTION_OBJECT,
     FILTER_COLLECTING_EVENT,
     FILTER_OTU,
   ],
-  ids: []
+  ids: [
+    FILTER_OTU,
+  ]
 }
