@@ -107,7 +107,7 @@ class CollectingEventsController < ApplicationController
   def attributes
     render json: ::CollectingEvent.columns.select{
       |a| Queries::CollectingEvent::Filter::ATTRIBUTES.include?(
-        a.name)
+        a.name.to_sym)
     }.collect{|b| {'name' => b.name, 'type' => b.type } }
   end
 
