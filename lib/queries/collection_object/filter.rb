@@ -40,6 +40,7 @@ module Queries
         :exact_buffered_collecting_event,
         :exact_buffered_determinations,
         :exact_buffered_other_labels,
+        :extract_id,
         :geographic_area,
         :geographic_area_id,
         :geographic_area_mode,
@@ -75,6 +76,7 @@ module Queries
         collecting_event_wildcards: [], # !! TODO, factor into CONSTANT
         collector_id: [], #
         determiner_id: [],
+        extract_id: [],
         geographic_area_id: [],
         is_type: [],
         loan_id: [],
@@ -289,6 +291,9 @@ module Queries
       # !! Probably shouldn't expose to external API.
       attr_accessor :determiner_name_regex
 
+      # @return Array
+      attr_accessor :extract_id
+
 # rubocop:disable Metric/MethodLength
       # @param [Hash] args are permitted params
       def initialize(query_params)
@@ -322,6 +327,7 @@ module Queries
         @exact_buffered_collecting_event = boolean_param(params, :exact_buffered_collecting_event)
         @exact_buffered_determinations = boolean_param(params, :exact_buffered_determinations)
         @exact_buffered_other_labels = boolean_param(params, :exact_buffered_other_labels)
+        @extract_id = params[:extract_id]
         @geographic_area = boolean_param(params, :geographic_area)
         @georeferences = boolean_param(params, :georeferences)
         @is_type = params[:is_type] || []
@@ -376,6 +382,10 @@ module Queries
         ::TaxonDetermination.arel_table
       end
 
+      def extract_id
+        [@extract_id].flatten.compact.uniq
+      end
+ 
       def taxon_name_id
         [@taxon_name_id].flatten.compact.uniq
       end
@@ -415,6 +425,13 @@ module Queries
 
       def loan_id
         [@loan_id].flatten.compact
+      end
+
+      def extract_id_facet
+        return nil if extract_id.empty?
+          ::CollectionObject
+          .joins(:origin_relationships)
+          .where(origin_relationships: {new_object_id: extract_id, new_object_type: 'Extract'})
       end
 
       def taxon_determinations_facet
@@ -808,6 +825,18 @@ module Queries
         ::CollectionObject.from('(' + s + ') as collection_objects')
       end
 
+      def extract_query_facet
+        return nil if extract_query.nil?
+
+        s = 'WITH query_extract_co AS (' + extract_query.all.to_sql + ') ' +
+          ::CollectionObject
+          .joins(:origin_relationships)
+          .joins("JOIN query_extract_co as query_extract_co1 on origin_relationships.new_object_id = query_extract_co1.id and origin_relationships.new_object_type = 'Extract'")
+          .to_sql
+
+        ::CollectionObject.from('(' + s + ') as collection_objects')
+      end
+ 
       def and_clauses
         [
           attribute_exact_facet(:buffered_collecting_event),
@@ -825,6 +854,7 @@ module Queries
 
       def merge_clauses
         [
+          extract_query_facet,
           biological_association_query_facet,
           source_query_facet,
           collecting_event_query_facet,
@@ -832,6 +862,7 @@ module Queries
           otu_query_facet,
           base_collecting_event_query_facet,
 
+          extract_id_facet, 
           biocuration_facet,
           biological_relationship_id_facet,
           collecting_event_facet,

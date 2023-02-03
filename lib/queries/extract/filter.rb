@@ -246,24 +246,24 @@ module Queries
       # @return [Array]
       def and_clauses
         [
-          extract_id_facet, # TODO: remove all to Queries::Filter
-          repository_id_facet,
-          date_made_facet,
+          extract_id_facet,
           attribute_exact_facet(:verbatim_anatomical_origin),
+          date_made_facet,
+          repository_id_facet,
         ]
       end
 
       def merge_clauses
         [
-          source_query_facet,
-          otu_query_facet,
           collection_object_query_facet,
+          otu_query_facet,
+          source_query_facet,
 
-          taxon_name_id_facet,
           collection_object_id_facet,
           extract_origin_facet,
           otu_id_facet,
           sequences_facet,
+          taxon_name_id_facet,
         ]
       end
 

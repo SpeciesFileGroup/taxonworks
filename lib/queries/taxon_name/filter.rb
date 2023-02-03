@@ -22,6 +22,7 @@ module Queries
         :author,
         :author_exact,
         :authors,
+        :collecting_event_id,
         :descendants,
         :descendants_max_depth,
         :etymology,
@@ -44,9 +45,10 @@ module Queries
         :year_start,
         :taxon_name_id,
 
+        collecting_event_id: [],
+        combination_taxon_name_id: [],
         name: [],
         otu_id: [],
-        combination_taxon_name_id: [],
         parent_id: [],
         rank: [],
         taxon_name_author_ids: [],
@@ -60,6 +62,10 @@ module Queries
         taxon_name_relationship_type: [],
         type: [],
       ].freeze
+
+      # @param collecting_event_id [String, Array]
+      # @return Array
+      attr_accessor :collecting_event_id
 
       # @param name [String, Array]
       # @return [Array]
@@ -233,6 +239,7 @@ module Queries
         @author = params[:author]
         @author_exact = boolean_param(params, :author_exact)
         @authors = boolean_param(params, :authors )
+        @collecting_event_id = params[:collecting_event_id]
         @combination_taxon_name_id = params[:combination_taxon_name_id]
         @descendants = boolean_param(params,:descendants )
         @descendants_max_depth = params[:descendants_max_depth]
@@ -277,8 +284,8 @@ module Queries
         [@name].flatten.compact
       end
 
-      def taxon_name_id
-        [@taxon_name_id].flatten.compact
+      def collecting_event_id
+        [@collecting_event_id].flatten.compact
       end
 
       def taxon_name_id
@@ -575,6 +582,13 @@ module Queries
               subject_taxon_name_id: combination_taxon_name_id}).distinct
       end
 
+      def collecting_event_id_facet
+        return nil if collecting_event_id.empty?
+          ::TaxonName
+          .joins(:collection_objects)
+          .where(collection_objects: {collecting_event_id: collecting_event_id})
+      end
+
       def otu_query_facet
         return nil if otu_query.nil?
         s = 'WITH query_otu_tn AS (' + otu_query.all.to_sql + ') ' +
@@ -663,6 +677,7 @@ module Queries
 
           ancestor_facet,
           authors_facet,
+          collecting_event_id_facet,
           combination_taxon_name_id_facet,
           descendant_facet,
           leaves_facet,

@@ -4,13 +4,12 @@ module Queries::Concerns::Protocols
 
   extend ActiveSupport::Concern
 
-  def self.permit(params)
-    params.permit(
-      :protocols,
+  def self.params 
+    [:protocols,
       :protocol_id_or,
       :protocol_id_and,
       :protocol_id, # TODO: unused? or maybe in polymorphics setters!! 
-    )
+    ]
   end
 
   included do

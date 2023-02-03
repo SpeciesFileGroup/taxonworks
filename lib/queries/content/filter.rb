@@ -96,18 +96,43 @@ module Queries
         table[:topic_id].eq_any(topic_id)
       end
 
-      # @return [ActiveRecord::Relation]
+      def otu_query_facet
+        return nil if otu_query.nil?
+
+        s = 'WITH query_otu_con AS (' + otu_query.all.to_sql + ') ' + 
+          ::Content
+          .joins('JOIN query_otu_con as query_otu_con1 on contents.otu_id = query_otu_con1.id'
+          .to_sql
+
+        ::Content.from('(' + s + ') as contents')
+      end
+
+      def taxon_name_query_facet
+        return nil if taxon_name_query.nil?
+
+        s = 'WITH query_tn_con AS (' + taxon_name_query.all.to_sql + ') ' + 
+          ::Content
+          .joins(otu: [:taxon_name])
+          .joins('JOIN query_tn_con as query_tn_con1 on taxon_names.id = query_tn_con1.id'
+          .to_sql
+
+        ::Content.from('(' + s + ') as contents')
+      end
+
       def and_clauses
         [
-          content_id_facet, # All canonical _id will be macroed out at some point
+          content_id_facet,
+          otu_id_facet,
           text_facet,
           topic_id_facet,
-          otu_id_facet,
         ]
       end
 
       def merge_clauses
         [
+          taxon_name_query_facet,
+          source_query_facet,
+          otu_query_facet,
           depictions_facet,
           citations_facet,
           origin_citation_facet,

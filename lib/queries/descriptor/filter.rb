@@ -137,6 +137,17 @@ module Queries
         ::Descriptor.from('(' + s + ') as descriptors')
       end
 
+      def otu_query_facet
+        return nil if otu_query.nil?
+        s = 'WITH query_otu_ob AS (' + otu_query.all.to_sql + ') ' +
+          ::Descriptor
+          .joins(:observations)
+          .joins("JOIN query_otu_ob as query_otu_ob1 on observations.observation_object_id = query_otu_ob1.id and observation.observation_object_type = 'Otu'")
+          .to_sql
+
+        ::Descriptor.from('(' + s + ') as descriptors')
+      end
+
       def and_clauses
         [ term_facet,
           descriptor_type_facet,
@@ -145,11 +156,13 @@ module Queries
 
       def merge_clauses
         [ 
+          otu_query_facet
           observation_query_facet,
-          observations_facet,
+          source_query_facet,
+
           observation_matrices_facet,
           observation_matrix_id_facet,
-          source_query_facet,
+          observations_facet,
         ]
       end
 

@@ -47,17 +47,18 @@ module Queries
     # This is read as  :too <- [:from1, from1] ].
     SUBQUERIES = {
       asserted_distribution: [:source, :otu, :biological_association, :taxon_name],
-
       biological_association: [:source, :collecting_event, :otu, :collection_object, :taxon_name],
       collecting_event: [:source, :collection_object, :biological_association, :otu],
-      collection_object: [:source, :otu, :taxon_name, :extract, :collecting_event, :biological_association],
-      content: [:source],
-      descriptor: [:source, :observation],
+      collection_object: [:source, :otu, :taxon_name, :collecting_event, :biological_association, :extract],
+      content: [:source, :otu, :taxon_name],
+      descriptor: [:source, :observation, :otu],
+      
       extract: [:source, :otu, :collection_object],
+      
       image: [:source, :otu, :observation],
       loan: [],
       observation: [:source, :descriptor],
-      otu: [:source, :taxon_name, :collection_object, :extract, :collecting_event, :content, :biological_association, :asserted_distribution],
+      otu: [:source, :taxon_name, :collection_object, :extract, :collecting_event, :content, :biological_association, :asserted_distribution, :descriptor],
       source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :source, :taxon_name],
       taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :otu, :source ],
     }.freeze

@@ -371,28 +371,24 @@ module Queries
         end
       end
 
-      # TODO: could be optimized with full join pathway perhaps
       def collecting_event_id_facet
         return nil if collecting_event_id.empty?
-        q = ::Queries::CollectionObject::Filter.new(collecting_event_id: collecting_event_id)
         if historical_determinations.nil?
-          ::Otu.joins(:collection_objects).where(collection_objects: q.all, taxon_determinations: {position: 1})
+          ::Otu.joins(:collection_objects).where(collection_objects: {collecting_event_id: collecting_event_id}, taxon_determinations: {position: 1})
         elsif historical_determinations
-          ::Otu.joins(:collection_objects).where(collection_objects: q.all).where.not(taxon_determinations: {position: 1})
+          ::Otu.joins(:collection_objects).where(collection_objects: {collecting_event_id: collecting_event_id}).where.not(taxon_determinations: {position: 1})
         else
-          ::Otu.joins(:collection_objects).where(collection_objects: q.all)
+          ::Otu.joins(:collection_objects).where(collection_objects: {collecting_event_id: collecting_event_id})
         end
       end
 
       def biological_association_id_facet
         return nil if biological_association_id.empty?
 
-        q = ::BiologicalAssociation.where(id: biological_association_id)
-
-        q1 = ::Otu.joins(:biological_associations).where(biological_associations: {id: q, biological_association_subject_type: 'Otu'})
-        q2 = ::Otu.joins(:related_biological_associations).where(related_biological_associations: {id:  q, biological_association_object_type: 'Otu'} )
-        q3 = ::Otu.joins(collection_objects: [:biological_associations] ).where(biological_associations: {id: q, biological_association_subject_type: 'CollectionObject'})
-        q4 = ::Otu.joins(collection_objects: [:related_biological_associations] ).where(related_biological_associations: {id: q, biological_association_object_type: 'CollectionObject'})
+        q1 = ::Otu.joins(:biological_associations).where(biological_associations: {id: biological_association_id, biological_association_subject_type: 'Otu'})
+        q2 = ::Otu.joins(:related_biological_associations).where(related_biological_associations: {id:  biological_association_id, biological_association_object_type: 'Otu'} )
+        q3 = ::Otu.joins(collection_objects: [:biological_associations] ).where(biological_associations: {id: biological_association_id, biological_association_subject_type: 'CollectionObject'})
+        q4 = ::Otu.joins(collection_objects: [:related_biological_associations] ).where(related_biological_associations: {id: biological_association_id, biological_association_object_type: 'CollectionObject'})
 
         if historical_determinations.nil?
           q3 = q3.where(taxon_determinations: {position: 1})
@@ -449,7 +445,6 @@ module Queries
         ::Otu.from("((#{q1.to_sql}) UNION (#{q2.to_sql})) as otus")
       end
 
-      # TODO: Validate
       def asserted_distribution_query_facet
         return nil if asserted_distribution_query.nil?
         s = 'WITH query_ad_otus AS (' + asserted_distribution_query.all.to_sql + ') ' +
@@ -530,6 +525,17 @@ module Queries
         ::Otu.from('(' + s + ') as otus')
       end
 
+      def descriptor_query_facet
+        return nil if descriptor_query.nil?
+        s = 'WITH query_de_otus AS (' + descriptor_query.all.to_sql + ') ' +
+          ::Otu
+          .joins(:observations)
+          .joins('JOIN query_de_otus as query_de_otus1 on observations.descriptor_id = query_de_otus1.id')
+          .to_sql
+
+        ::Otu.from('(' + s + ') as otus')
+      end
+
       def and_clauses
         [
           otu_id_facet,
@@ -540,6 +546,7 @@ module Queries
 
       def merge_clauses
         [
+          descriptor_query_facet,
           asserted_distribution_query_facet,
           biological_association_query_facet,
           source_query_facet,
