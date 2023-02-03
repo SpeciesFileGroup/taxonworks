@@ -1,12 +1,13 @@
 <template>
   <FacetContainer>
+    <h3>Usage</h3>
     <div class="field label-above">
       <label>Used more than</label>
       <input
         v-model="params.role_total_min"
         type="number"
         class="input-xsmall-width"
-      >
+      />
     </div>
     <div class="field label-above">
       <label>Used less than</label>
@@ -14,7 +15,7 @@
         v-model="params.role_total_max"
         type="number"
         class="input-xsmall-width"
-      >
+      />
     </div>
   </FacetContainer>
 </template>
@@ -36,7 +37,7 @@ const emit = defineEmits(['update:modelValue'])
 const params = computed({
   get: () => props.modelValue,
 
-  set: value => {
+  set: (value) => {
     emit('update:modelValue', value)
   }
 })
@@ -44,7 +45,7 @@ const params = computed({
 const urlParams = URLParamsToJSON(location.href)
 
 Object.assign(params.value, {
-  role_total_min: urlParams.role_total_min,
-  role_total_max: urlParams.role_total_max
+  use_min: urlParams.use_min,
+  use_max: urlParams.use_max
 })
 </script>

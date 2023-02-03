@@ -20,7 +20,7 @@
     after-param="died_after_year"
   />
   <FacetTimesRepeated v-model="params" />
-  <FacetRolesTotalUsed v-model="params" />
+  <FacetTotalUsed v-model="params" />
   <FacetRoles
     v-model="params"
     title="Roles"
@@ -57,12 +57,11 @@
 </template>
 
 <script setup>
-
 import FacetUsers from 'components/Filter/Facets/shared/FacetUsers.vue'
 import FacetIdentifiers from 'components/Filter/Facets/shared/FacetIdentifiers.vue'
 import FacetTags from 'components/Filter/Facets/shared/FacetTags.vue'
 import FacetRoles from './Facet/FacetRoles.vue'
-import FacetRolesTotalUsed from './Facet/FacetRolesTotalUsed.vue'
+import FacetTotalUsed from 'components/Filter/Facets/shared/FacetTotalUsed.vue'
 import FacetPerson from './Facet/FacetPerson.vue'
 import FacetBetweenYear from './Facet/FacetBetweenYear.vue'
 import FacetTimesRepeated from './Facet/FacetTimesRepeated.vue'
@@ -76,11 +75,7 @@ import WithComponent from 'components/Filter/Facets/shared/FacetWith.vue'
 import { computed } from 'vue'
 
 const withFilter = ['first_name', 'suffix', 'prefix']
-const WITH_PARAMS = [
-  'identifiers',
-  'data_attributes',
-  'notes'
-]
+const WITH_PARAMS = ['identifiers', 'data_attributes', 'notes']
 
 const props = defineProps({
   modelValue: {
@@ -93,7 +88,6 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
-
 </script>

@@ -20,6 +20,7 @@
     target="CollectingEvent"
     v-model="params"
   />
+  <FacetTotalUsed v-model="params" />
   <FacetUsers v-model="params" />
   <FacetCollectingEventAttributes v-model="params" />
   <FacetDataAttribute v-model="params" />
@@ -37,6 +38,7 @@ import FacetIdentifiers from 'components/Filter/Facets/shared/FacetIdentifiers.v
 import FacetGeographic from 'components/Filter/Facets/shared/FacetGeographic.vue'
 import FacetUsers from 'components/Filter/Facets/shared/FacetUsers.vue'
 import FacetTaxonName from 'components/Filter/Facets/TaxonName/FacetTaxonName.vue'
+import FacetTotalUsed from 'components/Filter/Facets/shared/FacetTotalUsed.vue'
 import FacetCollectingEventAttributes from 'components/Filter/Facets/CollectingEvent/FacetCollectingEvent/FacetCollectingEvent.vue'
 import FacetKeywords from 'components/Filter/Facets/shared/FacetTags.vue'
 import FaceDeterminations from 'components/Filter/Facets/CollectionObject/Determiner/FacetDetermination.vue'

@@ -11,7 +11,7 @@
             type="checkbox"
             :value="key"
             v-model="selectedRoles"
-          >
+          />
           {{ label }}
         </label>
       </li>
@@ -46,19 +46,19 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const selectedRoles = computed({
   get: () => props.modelValue[props.param] || [],
-  set: value => {
+  set: (value) => {
     params.value[props.param] = value
   }
 })
 
 const roleTypes = ref([])
 
-People.roleTypes().then(response => {
+People.roleTypes().then((response) => {
   roleTypes.value = response.body
 })
 
