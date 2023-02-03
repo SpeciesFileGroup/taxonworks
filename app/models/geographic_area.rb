@@ -159,6 +159,8 @@ class GeographicArea < ApplicationRecord
     end
   }
 
+  scope :ordered_by_area, -> (direction = :ASC) { joins(:geographic_items).order("geographic_items.cached_total_area #{direction || 'ASC'}") }
+
   before_destroy :check_for_children
 
   # @param array [Array] of strings of names for areas
@@ -247,14 +249,13 @@ class GeographicArea < ApplicationRecord
   #   !! This is an estimation, although likely highly accurate.  It uses assumptions about how data are stored in GeographicAreas
   #   to derive additional data, particularly for State
   def categorize
-
     s = name
     if m = ::Utilities::Geo::DICTIONARY[s]
       s = m
     end
 
      # TODO: Wrap this a pre-loading constant. This makes specs very fragile.
-     
+
      unless Rails.env == 'test'
        n = CACHED_GEOGRAPHIC_AREA_TYPES[geographic_area_type_id]
      end
@@ -296,10 +297,11 @@ class GeographicArea < ApplicationRecord
         .where.not(geographic_area_type: [111,112]).any? # not another TDWG record
       return {country: name}
     end
+
     {}
   end
 
-    # @return [Hash]
+  # @return [Hash]
   #   use the parent/child relationships of the this GeographicArea to return a country/state/county categorization
   def geographic_name_classification
     v = {}
@@ -492,11 +494,11 @@ class GeographicArea < ApplicationRecord
         when 'CollectingEvent'
           t = CollectingEvent.arel_table
           # i is a select manager
-          i = t.project(t['geographic_area_id'], t['created_at']).from(t)
-                  .where(t['created_at'].gt(1.weeks.ago))
-                  .where(t['created_by_id'].eq(user_id))
+          i = t.project(t['geographic_area_id'], t['updated_at']).from(t)
+                  .where(t['updated_at'].gt(1.weeks.ago))
+                  .where(t['updated_by_id'].eq(user_id))
                   .where(t['project_id'].eq(project_id))
-                  .order(t['created_at'].desc)
+                  .order(t['updated_at'].desc)
 
           # z is a table alias
           z = i.as('recent_t')

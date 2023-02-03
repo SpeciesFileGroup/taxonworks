@@ -60,9 +60,10 @@ class GeographicAreasGeographicItem < ApplicationRecord
     t = t.alias(table_alias) if !table_alias.blank?
 
     c = Arel::Nodes::Case.new(t[:data_origin])
-    c.when('ne_country').then(1)
-    c.when('ne_state').then(2)
-    c.when('gadm').then(3)
+    c.when('gadm').then(1)
+    c.when('ne_country').then(2)
+    c.when('ne_state').then(3)
+
     c.else(4)
     c
   end

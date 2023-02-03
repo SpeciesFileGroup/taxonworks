@@ -190,5 +190,9 @@ export default {
     .otu_tag_taxon_name {
       white-space: pre-wrap !important;
     }
+
+    textarea {
+      resize: vertical
+    }
   }
 </style>

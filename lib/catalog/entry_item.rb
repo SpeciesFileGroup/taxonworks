@@ -49,8 +49,8 @@ class Catalog::EntryItem
     @object = object
     @base_object = base_object
     @nomenclature_date = nomenclature_date
-    @year_suffix = citation.try(:source).try(:year_suffix)
-    @pages =  citation.try(:source).try(:pages)
+    @year_suffix = citation&.source&.year_suffix
+    @pages = citation&.source&.pages
     @citation = citation
     @matches_current_target = current_target
   end
@@ -87,7 +87,7 @@ class Catalog::EntryItem
 
   # @return [Source, nil]
   def source
-    citation.try(:source)
+    citation&.source
   end
 
   # @return [Date]

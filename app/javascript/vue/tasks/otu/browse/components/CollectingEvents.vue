@@ -46,7 +46,6 @@ import SwitchComponent from 'components/switch.vue'
 import nonReactiveStore from '../store/nonReactiveStore.js'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { getUnique } from 'helpers/arrays.js'
 import { computed, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 

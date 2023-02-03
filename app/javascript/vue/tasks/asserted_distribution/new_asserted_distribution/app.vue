@@ -40,13 +40,16 @@
     <div class="horizontal-left-content align-start">
       <div class="width-30">
         <div class="horizontal-left-content panel-section separate-right align-start">
-          <source-component
-            v-model="asserted_distribution"
-            ref="sourceComponent"
-            class="separate-right full_width"/>
-          <lock-component
-            class="margin-medium-top"
-            v-model="locks.citation"/>
+          <FormCitation
+            class="full_width"
+            v-model="asserted_distribution.citation"
+            v-model:absent="asserted_distribution.is_absent"
+            :klass="ASSERTED_DISTRIBUTION"
+            :target="ASSERTED_DISTRIBUTION"
+            lock-button
+            absent-field
+            @lock="locks.citation = $event"
+          />
         </div>
         <p class="horizontal-left-content">
           <ul class="no_bullets context-menu">
@@ -60,21 +63,17 @@
       <div class="horizontal-left-content separate-bottom separate-left separate-right align-start width-40">
         <otu-component
           class="separate-right full_width"
-          ref="otuComponent"
-          v-model="asserted_distribution.otu"/>
-        <lock-component
-          class="margin-medium-top"
-          v-model="locks.otu"/>
+          v-model="asserted_distribution.otu"
+          v-model:lock="locks.otu"
+        />
       </div>
       <div class="horizontal-left-content separate-left align-start width-30">
         <geographic-area
           class="separate-right full_width"
-          ref="geoComponent"
+          v-model="asserted_distribution.geographicArea"
+          v-model:lock="locks.geographicArea"
           @selected="triggerAutosave"
-          v-model="asserted_distribution"/>
-        <lock-component
-          class="margin-medium-top"
-          v-model="locks.geographicArea"/>
+        />
       </div>
     </div>
 
@@ -90,7 +89,6 @@
 
 <script>
 
-import SourceComponent from './components/source'
 import OtuComponent from './components/otu'
 import GeographicArea from './components/geographicArea'
 import TableComponent from './components/table'
@@ -98,6 +96,9 @@ import LockComponent from 'components/ui/VLock/index.vue'
 import SpinnerComponent from 'components/spinner'
 import NavBarComponent from 'components/layout/NavBar'
 import platformKey from 'helpers/getPlatformKey'
+import FormCitation from 'components/Form/FormCitation.vue'
+import { smartSelectorRefresh } from 'helpers/smartSelector/index.js'
+import { ASSERTED_DISTRIBUTION } from 'constants/index.js'
 
 import { Source, AssertedDistribution } from 'routes/endpoints'
 
@@ -109,8 +110,10 @@ const extend = [
 ]
 
 export default {
+  name: 'NewAssertedDistribution',
+
   components: {
-    SourceComponent,
+    FormCitation,
     OtuComponent,
     GeographicArea,
     TableComponent,
@@ -121,7 +124,7 @@ export default {
 
   computed: {
     validate () {
-      return this.asserted_distribution.otu && this.asserted_distribution.geographicArea && this.asserted_distribution.citation.source
+      return this.asserted_distribution.otu && this.asserted_distribution.geographicArea && this.asserted_distribution.citation.source_id
     },
     currentAssertedDistribution () {
       return this.list.find(item => item.id === this.asserted_distribution.id)
@@ -145,7 +148,8 @@ export default {
         otu: false,
         geographicArea: false,
         citation: false
-      }
+      },
+      ASSERTED_DISTRIBUTION
     }
   },
 
@@ -199,7 +203,7 @@ export default {
         is_absent: this.asserted_distribution.is_absent,
         citations_attributes: [{
           id: this.asserted_distribution.citation.id,
-          source_id: this.asserted_distribution.citation.source.id,
+          source_id: this.asserted_distribution.citation.source_id,
           is_original: this.asserted_distribution.citation.is_original,
           pages: this.asserted_distribution.citation.pages
         }]
@@ -227,7 +231,7 @@ export default {
       AssertedDistribution.create({ asserted_distribution, extend }).then(response => {
         this.list.unshift(response.body)
         TW.workbench.alert.create('Asserted distribution was successfully created.', 'notice')
-        this.refreshSmarts()
+        smartSelectorRefresh()
         this.newWithLock()
       })
     },
@@ -238,7 +242,7 @@ export default {
 
         this.list[index] = response.body
         TW.workbench.alert.create('Asserted distribution was successfully updated.', 'notice')
-        this.refreshSmarts()
+        smartSelectorRefresh()
         this.newWithLock()
       })
     },
@@ -248,23 +252,21 @@ export default {
         this.list.splice(this.list.findIndex(item => item.id === asserted.id), 1)
       })
     },
-    refreshSmarts () {
-      this.$refs.sourceComponent.refresh()
-      this.$refs.geoComponent.refresh()
-      this.$refs.otuComponent.refresh()
-    },
+
     setSourceOtu (item) {
       this.newWithLock()
       this.setCitation(item.citations[0])
       this.asserted_distribution.id = undefined
       this.asserted_distribution.otu = item.otu
     },
+
     setSourceGeo (item) {
       this.newWithLock()
       this.setCitation(item.citations[0])
       this.asserted_distribution.geographicArea = item.geographic_area
       this.asserted_distribution.is_absent = item.is_absent
     },
+
     setGeoOtu (item) {
       this.newWithLock()
       this.autosave = false
@@ -273,6 +275,7 @@ export default {
       this.asserted_distribution.otu = item.otu
       this.asserted_distribution.is_absent = item.is_absent
     },
+
     setCitation (citation) {
       Source.find(citation.source_id).then(response => {
         this.asserted_distribution.citation = {

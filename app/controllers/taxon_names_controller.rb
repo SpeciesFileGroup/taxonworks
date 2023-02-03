@@ -186,7 +186,7 @@ class TaxonNamesController < ApplicationController
   def preview_castor_batch_load
     if params[:file]
       @result = BatchLoad::Import::TaxonNames::CastorInterpreter.new(**batch_params)
-      digest_cookie(params[:file].tempfile, :Castor_taxon_names_md5)
+      digest_cookie(params[:file].tempfile, :nomen_taxon_names_md5)
       render 'taxon_names/batch_load/castor/preview'
     else
       flash[:notice] = 'No file provided!'
@@ -195,7 +195,7 @@ class TaxonNamesController < ApplicationController
   end
 
   def create_castor_batch_load
-    if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Castor_taxon_names_md5)
+    if params[:file] && digested_cookie_exists?(params[:file].tempfile, :nomen_taxon_names_md5)
       @result = BatchLoad::Import::TaxonNames::CastorInterpreter.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} items were created."
@@ -346,7 +346,11 @@ class TaxonNamesController < ApplicationController
       taxon_name_author_ids: [],
       taxon_name_classification: [],
       taxon_name_id: [],
-      taxon_name_relationship: [],
+      taxon_name_relationship: [
+        :subject_taxon_name_id,
+        :object_taxon_name_id,
+        :type
+      ],
       taxon_name_relationship_type: [],
       type: [],
       # user_id: []
@@ -394,7 +398,11 @@ class TaxonNamesController < ApplicationController
       parent_id: [],
       taxon_name_classification: [],
       taxon_name_id: [],
-      taxon_name_relationship: [],
+      taxon_name_relationship: [
+        :subject_taxon_name_id,
+        :object_taxon_name_id,
+        :type
+      ],
       taxon_name_relationship_type: [],
       type: []
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)

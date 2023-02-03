@@ -54,4 +54,8 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary19
     true
   end
 
+  def sv_not_specific_relationship
+    true
+  end
+
 end

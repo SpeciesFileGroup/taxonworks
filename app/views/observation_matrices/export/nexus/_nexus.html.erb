@@ -14,7 +14,7 @@ Taxlabels <% m.observation_matrix_rows.each do |r| -%>
 ;
 end;
 
-<% descriptors = m.descriptors.where(type: %w{Descriptor::Qualitative Descriptor::PresenceAbsence }) %> 
+<% descriptors = m.descriptors.where(type: %w{Descriptor::Qualitative Descriptor::PresenceAbsence }) %>
 <% if descriptors.load.any? %>
 Begin characters;
 Title qualitative_characters;

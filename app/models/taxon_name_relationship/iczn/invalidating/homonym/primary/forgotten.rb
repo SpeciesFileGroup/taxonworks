@@ -46,4 +46,10 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::Forgotten < T
       soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be younger than #{self.object_taxon_name.cached_html_name_and_author_year}")
     end
   end
+
+  def sv_synonym_relationship
+    unless self.source
+      soft_validations.add(:base, 'The original publication is not selected')
+    end
+  end
 end

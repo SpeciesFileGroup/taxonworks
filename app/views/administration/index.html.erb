@@ -35,6 +35,7 @@
     <div class="content">
       <ul class="no_bullets list list-arrow">
         <%= content_tag(:li, link_to("Overview", data_overview_path, data: { turbolinks: false })) -%>
+        <%= content_tag(:li, link_to("Project classification", project_classification_task_path, data: { turbolinks: false })) -%>
         <%= content_tag(:li, link_to("Health", data_health_path, data: { turbolinks: false })) -%>
         <%= content_tag(:li, link_to("Reindex", data_reindex_path, data: { turbolinks: false })) -%>
       </ul>

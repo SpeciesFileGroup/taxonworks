@@ -92,12 +92,12 @@ describe TaxonWorks::Vendor::Serrano, type: :model, group: [:sources] do
     }
 
     specify 'text1' do
-      expect(src1.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. G. Fischer, Available from https://doi.org/10.5962%2Fbhl.title.1086')
+      expect(src1.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. G. Fischer, Available at https://doi.org/10.5962%2Fbhl.title.1086')
     end
 
     specify 'html1' do
       expect(src1.cached_string('html')).to eq(
-        'Brauer, A. (1909) <i>Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer.</i> G. Fischer, Available from https://doi.org/10.5962%2Fbhl.title.1086')
+        'Brauer, A. (1909) <i>Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer.</i> G. Fischer, Available at https://doi.org/10.5962%2Fbhl.title.1086')
     end
 
     # Hacked Zootaxa format

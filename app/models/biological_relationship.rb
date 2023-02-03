@@ -43,19 +43,19 @@ class BiologicalRelationship < ApplicationRecord
   accepts_nested_attributes_for :biological_relationship_types, allow_destroy: true
 
   # @return [Scope]
-  #    the max 10 most recently used biological relationships 
+  #    the max 10 most recently used biological relationships
   def self.used_recently(user_id, project_id)
       t = BiologicalAssociation.arel_table
-    k = BiologicalRelationship.arel_table 
+    k = BiologicalRelationship.arel_table
 
     # i is a select manager
     i = t.project(t['biological_relationship_id'], t['created_at']).from(t)
-      .where(t['created_at'].gt( 10.weeks.ago ))
-      .where(t['created_by_id'].eq(user_id))
+      .where(t['updated_at'].gt( 10.weeks.ago ))
+      .where(t['updated_by_id'].eq(user_id))
       .where(t['project_id'].eq(project_id))
-      .order(t['created_at'].desc)
+      .order(t['updated_at'].desc)
 
-    # z is a table alias 
+    # z is a table alias
     z = i.as('recent_t')
 
     BiologicalRelationship.joins(

@@ -60,6 +60,7 @@
 
 import ModalComponent from 'components/ui/Modal'
 import { BiologicalRelationship } from 'routes/endpoints'
+import { extend } from '../constants/extend.js'
 
 export default {
   components: { ModalComponent },
@@ -75,7 +76,7 @@ export default {
 
   methods: {
     create () {
-      BiologicalRelationship.create({ biological_relationship: this.biologicalRelationship }).then(response => {
+      BiologicalRelationship.create({ biological_relationship: this.biologicalRelationship, extend }).then(response => {
         this.$emit('create', response.body)
         this.showModal = false
       })

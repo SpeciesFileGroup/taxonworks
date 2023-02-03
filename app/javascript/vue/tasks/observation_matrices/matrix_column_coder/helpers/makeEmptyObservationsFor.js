@@ -26,12 +26,11 @@ export default function (descriptor, rowObject) {
       const emptyCharacterStateObservationData = Object.assign({}, emptyObservationData, { characterStateId: characterState.id })
       observations.push(makeObservation(emptyCharacterStateObservationData))
     })
-  } else if (descriptor.componentName === ComponentNames.Continuous) {
-    const emptyContinuousObservationData = Object.assign({}, emptyObservationData, { default_unit: descriptor.default_unit })
-    observations.push(makeObservation(emptyContinuousObservationData))
-  } else if (descriptor.componentName === ComponentNames.Sample) {
-    const emptyContinuousObservationData = Object.assign({}, emptyObservationData, { default_unit: descriptor.default_unit })
-    observations.push(makeObservation(emptyContinuousObservationData))
+  } else if (
+    descriptor.componentName === ComponentNames.Continuous ||
+    descriptor.componentName === ComponentNames.Sample
+  ) {
+    observations.push(makeObservation(Object.assign({}, emptyObservationData, { defaultUnit: descriptor.defaultUnit })))
   } else {
     observations.push(makeObservation(emptyObservationData))
   }

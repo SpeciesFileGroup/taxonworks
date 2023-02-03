@@ -116,6 +116,7 @@ import FacetWith from './Facet/FacetWith.vue'
 import FacetMatchIdentifiers from './Facet/FacetMatchIdentifiers.vue'
 import WithComponent from 'tasks/sources/filter/components/filters/with'
 import checkMatchIdentifiersParams from '../helpers/checkMatchIdentifiersParams'
+import { removeEmptyProperties } from 'helpers/objects'
 import { computed, ref } from 'vue'
 
 const withFilter = ['first_name', 'suffix', 'prefix']
@@ -135,7 +136,7 @@ const shortcuts = computed(() => {
 })
 
 const parseParams = computed(() =>
-  ({
+  removeEmptyProperties({
     ...params.value.base,
     ...params.value.with,
     ...params.value.roles,

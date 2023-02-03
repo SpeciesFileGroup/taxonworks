@@ -9,13 +9,11 @@ import makeColumnObject from '../../helpers/makeColumnObject'
 export default async ({ dispatch, state }, id) => {
   ObservationMatrix.objectsByColumnId(id).then(({ body }) => {
     state.observationMatrix = body.observation_matrix
+    state.observationColumnId = id
     state.descriptor = makeDescriptor(body.descriptor)
     state.previousColumn = makeColumnObject(body.previous_column || {})
     state.nextColumn = makeColumnObject(body.next_column || {})
-    state.rowObjects = [
-      ...body.otus,
-      ...body.collection_objects
-    ].map(o => makeRowObject(o))
+    state.rowObjects = body.rows.map(o => makeRowObject(o))
 
     state.rowObjects.forEach(rowObject => {
       state.observations = [...state.observations, ...makeEmptyObservationsFor(state.descriptor, rowObject)]
@@ -45,6 +43,10 @@ function makeDescriptor (descriptorData) {
     title: descriptorData.object_tag,
     globalId: descriptorData.global_id,
     type: getComponentNameForDescriptorType(descriptorData)
+  }
+
+  if (descriptorData.default_unit) {
+    Object.assign(descriptor, { defaultUnit: descriptorData.default_unit })
   }
 
   if (descriptor.type === ComponentNames.Qualitative) {

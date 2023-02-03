@@ -3,7 +3,8 @@
     <button
       type="button"
       class="button normal-input button-default margin-small-bottom"
-      @click="setModelView(true)">
+      @click="setModelView(true)"
+    >
       Select
     </button>
     <modal-component
@@ -13,7 +14,8 @@
         width: '500px',
         overflow: 'scroll',
         maxHeight: '80vh'
-      }">
+      }"
+    >
       <template #header>
         <h3>Row filter</h3>
       </template>
@@ -22,37 +24,41 @@
           <button
             v-if="allSelected"
             type="button"
-            class="button normal-input button-default margin-small-bottom"
-            @click="unselectAll">
+            class="button normal-input button-default margin-small-bottom margin-small-right"
+            @click="unselectAll"
+          >
             Unselect all
           </button>
           <button
             v-else
             type="button"
-            class="button normal-input button-default margin-small-bottom"
-            @click="selectAll">
+            class="button normal-input button-default margin-small-bottom margin-small-right"
+            @click="selectAll"
+          >
             Select all
           </button>
           <button
             type="button"
-            class="button normal-input button-default"
-            @click="closeAndApply">
+            class="button normal-input button-default margin-small-right"
+            @click="closeAndApply"
+          >
             Apply filter
           </button>
-          <button-image-matrix
-            :otu-ids="otuIds"/>
+          <button-image-matrix :otu-ids="otuIds" />
         </div>
         <ul class="no_bullets">
           <li
             v-for="item in remaining"
             :key="item.object.id"
-            class="margin-small-bottom middle">
+            class="margin-small-bottom middle"
+          >
             <label>
               <input
                 v-model="selectedRows"
                 :value="item.object.id"
-                type="checkbox">
-              <span v-html="displayLabel(item.object)"/>
+                type="checkbox"
+              >
+              <span v-html="displayLabel(item.object)" />
             </label>
           </li>
         </ul>
@@ -62,25 +68,27 @@
           <button
             v-if="allSelected"
             type="button"
-            class="button normal-input button-default margin-small-bottom"
-            @click="unselectAll">
+            class="button normal-input button-default margin-small-bottom margin-small-right"
+            @click="unselectAll"
+          >
             Unselect all
           </button>
           <button
             v-else
             type="button"
-            class="button normal-input button-default margin-small-bottom"
-            @click="selectAll">
+            class="button normal-input button-default margin-small-bottom margin-small-right"
+            @click="selectAll"
+          >
             Select all
           </button>
           <button
             type="button"
-            class="button normal-input button-default"
-            @click="closeAndApply">
+            class="button normal-input button-default margin-small-right"
+            @click="closeAndApply"
+          >
             Apply filter
           </button>
-          <button-image-matrix
-            :otu-ids="otuIds"/>
+          <button-image-matrix :otu-ids="otuIds" />
         </div>
       </template>
     </modal-component>
@@ -125,11 +133,15 @@ export default {
     },
 
     otuIds () {
-      const objects = this.remaining
-        .map(item => item.object)
-        .filter(item => this.selectedRows.includes(item.id))
+      const ids = []
 
-      return objects.map(item => item.otu_id).filter(id => id)
+      this.remaining.forEach(({ object }) => {
+        if (this.selectedRows.includes(object.id)) {
+          ids.push(object.observation_object_id)
+        }
+      })
+
+      return ids
     },
 
     allSelected () {

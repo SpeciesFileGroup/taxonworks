@@ -131,6 +131,12 @@ class Georeference < ApplicationRecord
 
   after_save :set_cached, unless: -> { self.no_cached }
 
+  after_destroy :set_cached_collecting_event
+
+  def set_cached_collecting_event
+    collecting_event.send(:set_cached)
+  end
+
   def self.point_type
     joins(:geographic_item).where(geographic_items: {type: 'GeographicItem::Point'})
   end

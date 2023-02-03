@@ -35,9 +35,10 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
 
   end
 
-#  def self.disjoint_object_classes
-#    self.parent.disjoint_object_classes
-#  end
+  def self.disjoint_object_classes
+    self.parent.disjoint_object_classes +
+      self.collect_descendants_and_itself_to_s(TaxonNameClassification::Iczn::Unavailable)
+  end
 
   def subject_properties
     [ TaxonNameClassification::Iczn::Available::Invalid::Homonym ]
@@ -100,7 +101,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
   end
 
   def sv_not_specific_relationship
-    if SPECIES_RANK_NAMES_ICZN.include?(self.subject_taxon_name.rank_string)
+    if self.subject_taxon_name.is_species_rank?
       soft_validations.add(
         :type, 'Please specify if this is a primary or secondary homonym',
         success_message: 'Homonym updated to being primary or secondary',
@@ -120,7 +121,8 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
       new_relationship_name = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
     end
     if new_relationship_name && self.type_name != new_relationship_name
-      self.update_columns(type: new_relationship_name)
+      self.type = new_relationship_name
+      self.save
       return true
     end
     false
@@ -150,4 +152,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
     false
   end
 
+  def sv_synonym_relationship
+    true
+  end
 end

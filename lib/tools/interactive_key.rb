@@ -442,7 +442,11 @@ class Tools::InteractiveKey
     array_of_descriptors = []
 
     descriptors_hash.each do |d_key, d_value|
-      taxa_with_unknown_character_states = list_of_remaining_taxa if @eliminate_unknown == false
+      taxa_with_unknown_character_states = {}
+      list_of_remaining_taxa.each do |key, value|
+        taxa_with_unknown_character_states[key] = value
+      end
+      # taxa_with_unknown_character_states = list_of_remaining_taxa if @eliminate_unknown == false
       d_value[:observations].each do |otu_key, otu_value|
         otu_collection_object = otu_key
         if true #@row_hash[otu_collection_object]
@@ -587,6 +591,7 @@ class Tools::InteractiveKey
             state[:status] = 'useless'
           else
             d_value[:status] = 'useful'
+            descriptor[:status] = 'useful'
           end
           s = (number_of_taxa / number_of_states - s_value[:rows].count) ** 2
           descriptor[:states] += [state]
@@ -600,7 +605,6 @@ class Tools::InteractiveKey
       descriptor[:max] = "%g" % descriptor[:max] if descriptor[:max]
       array_of_descriptors += [descriptor]
     end
-
     case sorting
     when 'ordered'
       array_of_descriptors.sort_by!{|i| i[:position]}

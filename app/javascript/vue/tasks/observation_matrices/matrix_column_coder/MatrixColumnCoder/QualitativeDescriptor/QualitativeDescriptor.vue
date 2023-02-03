@@ -10,6 +10,7 @@
           class="horizontal-left-content middle qualitative-descriptor__descriptor-li"
           v-for="characterState in descriptor.characterStates"
           :key="characterState.id"
+          v-show="!showCharacterStates.length || showCharacterStates.includes(characterState.id)"
         >
           <label class="margin-small-right middle">
             <input
@@ -73,6 +74,10 @@ export default {
         o.rowObjectId === this.rowObject.id &&
         o.rowObjectType === this.rowObject.type
       )
+    },
+
+    showCharacterStates () {
+      return this.$store.getters[GetterNames.GetDisplayCharacterStates]
     }
   },
 

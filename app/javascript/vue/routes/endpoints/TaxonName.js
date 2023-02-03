@@ -42,6 +42,8 @@ const permitParams = {
 export const TaxonName = {
   ...baseCRUD(model, permitParams),
 
+  filter: params => AjaxCall('post', `/${model}/filter.json`, params),
+
   ranks: () => AjaxCall('get', `/${model}/ranks`),
 
   rankTable: (params) => AjaxCall('get', `/${model}/rank_table`, { params }),
@@ -54,7 +56,7 @@ export const TaxonName = {
 
   parse: (params) => AjaxCall('get', '/taxon_names/parse', { params }),
 
-  predictedRank: (parentId, name) => AjaxCall('get', `/${model}/predicted_rank`, { params: { parent_id: parentId, name: name }}),
+  predictedRank: (parentId, name) => AjaxCall('get', `/${model}/predicted_rank`, { params: { parent_id: parentId, name } }),
 
   otus: id => AjaxCall('get', `/${model}/${id}/otus.json`, { headers: { 'Cache-Control': 'no-cache' } })
 }

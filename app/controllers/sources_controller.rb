@@ -60,13 +60,15 @@ class SourcesController < ApplicationController
   def create
     @source = new_source
     respond_to do |format|
-      if @source&.save
+      # We must check for manually added errors first, as they
+      # are lost when .valid? is called during the callback chain.
+      if !@source.errors.any? && @source.save
         format.html { redirect_to url_for(@source.metamorphosize),
                       notice: "#{@source.type} successfully created." }
         format.json { render action: 'show', status: :created, location: @source.metamorphosize }
       else
         format.html { render action: 'new' }
-        format.json { render json: @source&.errors, status: :unprocessable_entity }
+        format.json { render json: @source.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -98,19 +100,8 @@ class SourcesController < ApplicationController
   end
 
   def parse
-    error_message = 'Unknown'
-
-    begin
-      @source = new_source
-    rescue BibTeX::ParseError => e
-      error_message = e.message
-    end
-
-    if @source
-      render '/sources/show'
-    else
-      render json: { status: :failed, error: error_message }
-    end
+    @source = new_source
+    render '/sources/show'
   end
 
   # PATCH/PUT /sources/1
@@ -147,7 +138,7 @@ class SourcesController < ApplicationController
   end
 
   def autocomplete
-    @term = params.require(:term) 
+    @term = params.require(:term)
     @sources = Queries::Source::Autocomplete.new(
       @term,
       **autocomplete_params
@@ -245,7 +236,11 @@ class SourcesController < ApplicationController
   private
 
   def new_source
-    (params[:bibtex_input].blank? ? Source.new(source_params) : Source::Bibtex.new_from_bibtex_text(params[:bibtex_input])) || nil
+    if params[:bibtex_input].blank?
+      Source.new(source_params)
+    else
+      Source::Bibtex.new_from_bibtex_text(params[:bibtex_input])
+    end
   end
 
   def autocomplete_params
@@ -258,6 +253,7 @@ class SourcesController < ApplicationController
       :author,
       :ancestor_id,
       :author_ids_or,
+      :bibtex_type,
       :citations,
       :citations_on_otus,
       :documents,
@@ -280,6 +276,7 @@ class SourcesController < ApplicationController
       :recent,
       :roles,
       :source_type,
+      :serial,
       :tags,
       :title,
       :user_date_end,
@@ -287,9 +284,11 @@ class SourcesController < ApplicationController
       :user_id,
       :user_target,
       :with_doi,
+      :with_title,
       :year_end,
       :year_start,
       author_ids: [],
+      bibtex_type: [],
       citation_object_type: [],
       ids: [],
       keyword_id_and: [],
@@ -307,6 +306,7 @@ class SourcesController < ApplicationController
       :ancestor_id,
       :author,
       :author_ids_or,
+      :bibtex_type,
       :citations,
       :citations_on_otus,
       # :documents
@@ -328,6 +328,7 @@ class SourcesController < ApplicationController
       :query_term,
       :recent,
       :roles,
+      :serial,
       :source_type,
       :tags,
       :title,
@@ -336,8 +337,10 @@ class SourcesController < ApplicationController
       :user_id,
       :user_target,
       :with_doi,
+      :with_title,
       :year_end,
       :year_start,
+      bibtex_type: [],
       ids: [],
       author_ids: [],
       citation_object_type: [],

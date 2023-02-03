@@ -2,6 +2,7 @@ import addObservation from './addObservation'
 import setDescription from './setDescription'
 import setDescriptors from './setDescriptors'
 import setDescriptorUnsaved from './setDescriptorUnsaved'
+import setDisplayOnlyUnscored from './setDisplayUnscoredRows'
 import setFreeTextValue from './setFreeTextValue'
 import setTaxonTitle from './setTaxonTitle'
 import setTaxonId from './setTaxonId'
@@ -38,6 +39,7 @@ export const MutationNames = {
   SetDescription: 'setDescription',
   SetDescriptors: 'setDescriptors',
   SetDescriptorUnsaved: 'setDescriptorUnsaved',
+  SetDisplayUnscoredRows: 'setDisplayUnscoredRows',
   SetTaxonTitle: 'setTaxonTitle',
   SetTaxonId: 'setTaxonId',
   SetObservation: 'setObservation',
@@ -46,6 +48,7 @@ export const MutationNames = {
   SetFreeTextValue: 'setFreeTextValue',
   SetPresence: 'setPresence',
   SetCharacterStateChecked: 'setCharacterStateChecked',
+  SetDisplayOnlyUnscored: 'setDisplayOnlyUnscored',
   SetSampleMedian: 'setSampleMedian ',
   SetSampleStandardMean: 'setSampleStandardMean',
   SetSampleStandardDeviation: 'setSampleStandardDeviation',
@@ -76,6 +79,7 @@ export const MutationFunctions = {
   [MutationNames.SetDescription]: setDescription,
   [MutationNames.SetDescriptors]: setDescriptors,
   [MutationNames.SetDescriptorUnsaved]: setDescriptorUnsaved,
+  [MutationNames.SetDisplayOnlyUnscored]: setDisplayOnlyUnscored,
   [MutationNames.SetTaxonTitle]: setTaxonTitle,
   [MutationNames.SetTaxonId]: setTaxonId,
   [MutationNames.SetObservation]: setObservation,

@@ -95,7 +95,6 @@ module Queries
       #  whether the CollectingEvent has associated CollectionObjects
       attr_accessor :collection_objects
 
-
       # @return Array
       # @param collection_object_id [Array, Integer, String]
       #    all collecting events matching collection objects
@@ -107,6 +106,18 @@ module Queries
       #   nil - not applied
       attr_accessor :depictions
 
+      # @return [True, False, nil]
+      #   true - georeferences
+      #   false - not georeferenced
+      #   nil - not applied
+      attr_accessor :georeferences
+
+      # @return [True, False, nil]
+      #   true - has geographic_area present
+      #   false - without geographic_area
+      #   nil - not applied
+      attr_accessor :geographic_area
+
       def initialize(params)
         # @spatial_geographic_area_ids = params[:spatial_geographic_areas].blank? ? [] : params[:spatial_geographic_area_ids]
 
@@ -116,6 +127,8 @@ module Queries
         @collection_objects = boolean_param(params, :collection_objects )
         @collection_object_id = params[:collection_object_id]
         @depictions = boolean_param(params, :depictions)
+        @georeferences = boolean_param(params, :georeferences)
+        @geographic_area = boolean_param(params, :geographic_area)
         @geo_json = params[:geo_json]
         @geographic_area_id = params[:geographic_area_id]
         @in_labels = params[:in_labels]
@@ -183,6 +196,15 @@ module Queries
         c
       end
 
+      def geographic_area_facet
+        return nil if geographic_area.nil?
+        if geographic_area 
+          ::CollectingEvent.where.not(geographic_area_id: null).distinct
+        else
+          ::CollectingEvent.where(geographic_area_id: null).distinct
+        end
+      end
+
       def depictions_facet
         return nil if depictions.nil?
 
@@ -191,6 +213,18 @@ module Queries
         else
           ::CollectingEvent.left_outer_joins(:depictions)
             .where(depictions: {id: nil})
+            .distinct
+        end
+      end
+
+      def georeferences_facet
+        return nil if georeferences.nil?
+
+        if georeferences
+          ::CollectingEvent.joins(:georeferences).distinct
+        else
+          ::CollectingEvent.left_outer_joins(:georeferences)
+            .where(georeferences: {id: nil})
             .distinct
         end
       end
@@ -336,7 +370,9 @@ module Queries
           data_attribute_predicate_facet,
           data_attribute_value_facet,
           data_attributes_facet,
+          geographic_area_facet,
           depictions_facet,
+          georeferences_facet,
           geo_json_facet,
           identifier_between_facet,
           identifier_facet,       # See Queries::Concerns::Identifiers

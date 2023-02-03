@@ -43,8 +43,8 @@ module Queries
         @subject_taxon_name_id = params[:subject_taxon_name_id]
         @object_taxon_name_id = params[:object_taxon_name_id]
 
-        @as_object = (params[:as_object]&.downcase == 'true' ? true : false) if !params[:as_object].nil?
-        @as_subject = (params[:as_subject]&.downcase == 'true' ? true : false) if !params[:as_subject].nil?
+        @as_object = (params[:as_object]&.to_s&.downcase == 'true' ? true : false) if !params[:as_object].nil?
+        @as_subject = (params[:as_subject]&.to_s&.downcase == 'true' ? true : false) if !params[:as_subject].nil?
 
         @taxon_name_relationship_type = [params[:taxon_name_relationship_type]].flatten.compact
         @taxon_name_relationship_set = [params[:taxon_name_relationship_set]].flatten.compact

@@ -63,7 +63,7 @@ import VBtn from 'components/ui/VBtn/index.vue'
 
 const props = defineProps({
   modelValue: {
-    type: Array,
+    type: Object,
     required: true
   }
 })

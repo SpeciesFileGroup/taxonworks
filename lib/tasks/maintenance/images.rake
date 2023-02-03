@@ -5,6 +5,7 @@ namespace :tw do
 
     namespace :images do
 
+      # rake tw:maintenance:images:recalculate_sqed_boundaries project_id=20 id_start=1 id_end=999999
       desc 'Re-calculate the boundaries for Sqed depictions'
       task recalculate_sqed_boundaries: [:environment, :project_id, :id_start, :id_end] do |t|
         project_id = ENV['project_id']
@@ -29,12 +30,15 @@ namespace :tw do
             begin
               print Rainbow("Writing\n").bold
               group.each do |o|
-                o.preprocess
                 print " id: #{o.id}\n"
+                o.preprocess
                 i += 1
               end
               print Rainbow("...saved.\n").bold
 
+            rescue Magick::ImageMagickError => e
+              puts Rainbow("Error: #{e}. ImageMagick processing error. Current batch of 3 records not written, skipping.").red.bold
+              next
             rescue RuntimeError => e
               puts Rainbow("Error: #{e}. Current batch of 3 records not written, skipping.").red.bold
               next

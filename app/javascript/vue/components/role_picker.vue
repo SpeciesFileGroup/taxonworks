@@ -18,7 +18,7 @@
             label="label_html"
             display="label"
             min="2"
-            clear-after="true"
+            clear-after
             placeholder="Family name, given name"
             param="term"
             @get-input="setInput"

@@ -13,7 +13,7 @@ class CollectingEventsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @collecting_events = Queries::CollectingEvent::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
+        @collecting_events = Queries::CollectingEvent::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 50)
       }
     end
   end
@@ -276,7 +276,7 @@ class CollectingEventsController < ApplicationController
       :start_date_month, :start_date_year, :end_date_day, :end_date_month,
       :group, :member, :formation, :lithology, :max_ma, :min_ma,
       :end_date_year, :verbatim_habitat, :field_notes, :verbatim_datum,
-      :verbatim_elevation,
+      :verbatim_elevation, :meta_prioritize_geographic_area,
       roles_attributes: [:id, :_destroy, :type, :person_id, :position,
                          person_attributes: [:last_name, :first_name, :suffix, :prefix]],
     identifiers_attributes: [:id, :namespace_id, :identifier, :type, :_destroy],
@@ -307,6 +307,8 @@ class CollectingEventsController < ApplicationController
       :end_date,   # used in date range
       :geo_json,
       :geographic_area_id,
+      :georeferences,
+      :geographic_area,
       :identifier,
       :identifier_end,
       :identifier_exact,
@@ -327,6 +329,7 @@ class CollectingEventsController < ApplicationController
       :user_date_end,
       :user_date_start,
       :user_target,
+      :user_id,
       :wkt,
       collection_object_id: [],
       collecting_event_wildcards: [],
@@ -349,7 +352,9 @@ class CollectingEventsController < ApplicationController
       :depictions,
       :end_date, # used in date range
       :geo_json,
+      :georeferences,
       :geographic_area_id,
+      :geographic_area,
       :identifier,
       :identifier_end,
       :identifier_exact,

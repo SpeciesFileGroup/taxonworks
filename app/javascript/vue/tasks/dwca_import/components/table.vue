@@ -165,7 +165,8 @@ export default {
       const ok = await this.$refs.confirmation.show({
         title: this.datasetHeaders[columnIndex],
         message: `<i>${currentValue}</i> will be replaced with <i>${replaceValue}</i> in ${this.pagination.total} records.`,
-        typeButton: 'submit'
+        typeButton: 'submit',
+        cancelButton: 'Cancel'
       })
       if (ok) {
         this.isSaving = true

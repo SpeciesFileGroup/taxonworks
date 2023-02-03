@@ -38,9 +38,9 @@ module Queries
         @text = params[:text]
 
         # TODO: use helper method
-        @exact = (params[:exact]&.downcase == 'true' ? true : false) if !params[:exact].nil?
-        @depictions = (params[:depictions]&.downcase == 'true' ? true : false) if !params[:depictions].nil?
-        @citations = (params[:citations]&.downcase == 'true' ? true : false) if !params[:citations].nil?
+        @exact = (params[:exact]&.to_s&.downcase == 'true' ? true : false) if !params[:exact].nil?
+        @depictions = (params[:depictions]&.to_s&.downcase == 'true' ? true : false) if !params[:depictions].nil?
+        @citations = (params[:citations]&.to_s&.downcase == 'true' ? true : false) if !params[:citations].nil?
 
         set_user_dates(params)
       end

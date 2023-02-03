@@ -3,18 +3,24 @@
     <div>
       <div
         class="flex-separate"
-        v-if="asserted_distribution.id">
+        v-if="asserted_distribution.id"
+      >
         <h4
           class="separate-bottom"
-          v-html="editTitle"/>
+          v-html="editTitle"
+        />
         <span
           data-icon="reset"
-          @click="resetForm()"/>
+          @click="resetForm()"
+        />
       </div>
-      <source-picker
+      <FormCitation
         v-model="citation"
         v-model:absent="asserted_distribution.is_absent"
+        :klass="ASSERTED_DISTRIBUTION"
+        :target="ASSERTED_DISTRIBUTION"
         absent-field
+        lock-button
         @lock="lock.source = $event"
       />
       <button
@@ -51,9 +57,12 @@
       <map-component
         width="90%"
         height="300px"
+        tooltips
+        actions
         :zoom="2"
         :zoom-on-click="false"
-        :geojson="shapes"/>
+        :geojson="shapes"
+      />
     </div>
     <table-list
       class="separate-top"
@@ -73,10 +82,11 @@ import AnnotatorExtend from '../annotatorExtend.js'
 import TableList from './table.vue'
 import DisplayList from 'components/displayList.vue'
 import GeographicArea from './geographicArea.vue'
-import SourcePicker from './sourcePicker.vue'
 import Spinner from 'components/spinner.vue'
 import MapComponent from 'components/georeferences/map.vue'
 import makeEmptyCitation from '../../helpers/makeEmptyCitation.js'
+import FormCitation from 'components/Form/FormCitation.vue'
+import { ASSERTED_DISTRIBUTION } from 'constants/index'
 import { addToArray } from 'helpers/arrays.js'
 import { AssertedDistribution } from 'routes/endpoints'
 
@@ -96,7 +106,7 @@ export default {
   components: {
     Spinner,
     TableList,
-    SourcePicker,
+    FormCitation,
     DisplayList,
     GeographicArea,
     MapComponent
@@ -134,7 +144,8 @@ export default {
       lock: {
         geo: false,
         source: false
-      }
+      },
+      ASSERTED_DISTRIBUTION
     }
   },
 

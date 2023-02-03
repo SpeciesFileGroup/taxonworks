@@ -55,6 +55,10 @@
         class="margin-large-bottom"
         v-model="params.repository.repository_id"
       />
+      <FacetMatchIdentifiers
+        class="margin-large-bottom"
+        v-model="params.matchIdentifiers"
+      />
       <keywords-component
         class="margin-large-bottom"
         v-model="params.keywords"
@@ -88,9 +92,11 @@ import DateRangeFacet from './filters/DateRangeFacet.vue'
 import CollectionObjectFacet from './filters/CollectionObjectFacet.vue'
 import ExtractOriginFacet from './filters/ExtractOriginFacet.vue'
 import ExtractVerbatimAnatomicalFacet from './filters/ExtractVerbatimAnatomicalFacet.vue'
+import FacetMatchIdentifiers from 'tasks/people/filter/components/Facet/FacetMatchIdentifiers.vue'
 import KeywordsComponent from 'tasks/sources/filter/components/filters/tags'
 import platformKey from 'helpers/getPlatformKey.js'
 import WithComponent from 'tasks/sources/filter/components/filters/with'
+import checkMatchIdentifiersParams from 'tasks/people/filter/helpers/checkMatchIdentifiersParams'
 import { computed, ref } from 'vue'
 
 const emit = defineEmits([
@@ -119,6 +125,7 @@ const parseParams = computed(() =>
     ...params.value.protocols,
     ...params.value.taxon,
     ...params.value.verbatimAnatomical,
+    ...checkMatchIdentifiersParams(params.value.matchIdentifiers),
     ...filterEmptyParams(params.value.user)
   })
 )
@@ -153,6 +160,11 @@ const initParams = () => ({
     radius: undefined,
     spatial_geographic_areas: undefined,
     geographic_area_id: []
+  },
+  matchIdentifiers: {
+    match_identifiers: undefined,
+    match_identifiers_delimiter: ',',
+    match_identifiers_type: 'internal'
   },
   repository: {
     repository_id: undefined

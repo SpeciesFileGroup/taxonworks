@@ -6,7 +6,6 @@ module Queries
 
       include Queries::Concerns::Tags
       include Queries::Concerns::Users
-      include Queries::Concerns::Identifiers
       include Queries::Concerns::Protocols
 
       # @param [String, nil]
@@ -236,6 +235,7 @@ module Queries
           identifier_between_facet,
           identifier_facet,
           identifier_namespace_facet,
+          match_identifiers_facet,
           collection_object_id_facet,
           otu_id_facet,
           ancestors_facet,

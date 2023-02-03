@@ -43,6 +43,7 @@ const permitParams = {
     field_notes: String,
     verbatim_datum: String,
     verbatim_elevation: String,
+    meta_prioritize_geographic_area: Boolean,
     roles_attributes: {
       id: Number,
       _destroy: Boolean,
@@ -83,6 +84,8 @@ export const CollectingEvent = {
   attributes: () => AjaxCall('get', `/${controller}/attributes`),
 
   clone: (id, params) => AjaxCall('post', `/${controller}/${id}/clone`, params),
+
+  filter: params => AjaxCall('post', `/${controller}/filter.json`, params),
 
   navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`),
 

@@ -1,5 +1,5 @@
 <template>
-  <HandyScroll>
+  <HandyScroll ref="root">
     <div>
       <table
         ref="tableBar"
@@ -8,17 +8,21 @@
         <thead>
           <tr>
             <th>
-              <tag-all
-                :ids="ids"
-                type="CollectionObject"
-                class="separate-right"/>
+              <input
+                type="checkbox"
+                v-model="selectIds"
+              >
             </th>
             <th>Collection object</th>
             <template
-              v-for="(item, index) in list.column_headers">
+              v-for="(item, index) in list.column_headers"
+              :key="item"
+            >
               <th
                 v-if="index > 2"
-                @click="sortTable(index)">{{item}}
+                @click="sortTable(index)"
+              >
+                {{ item }}
               </th>
             </template>
           </tr>
@@ -28,23 +32,29 @@
             class="contextMenuCells"
             :class="{ even: indexR % 2 }"
             v-for="(row, indexR) in list.data"
-            :key="row[0]">
+            :key="row[0]"
+          >
             <td>
               <input
                 v-model="ids"
                 :value="row[0]"
-                type="checkbox">
+                type="checkbox"
+              >
             </td>
             <td>
               <a
                 :href="`/tasks/collection_objects/browse?collection_object_id=${row[0]}`"
-                target="_blank">
+                target="_blank"
+              >
                 Show
               </a>
             </td>
-            <template v-for="(item, index) in row">
+            <template
+              v-for="(item, index) in row"
+              :key="index"
+            >
               <td v-if="index > 2">
-                <span>{{item}}</span>
+                <span>{{ item }}</span>
               </td>
             </template>
           </tr>
@@ -54,71 +64,59 @@
   </HandyScroll>
 </template>
 
-<script>
-
+<script setup>
+import { computed, watch, ref } from 'vue'
 import { sortArray } from 'helpers/arrays.js'
 import { vResizeColumn } from 'directives/resizeColumn.js'
-import TagAll from './tagAll'
 import HandyScroll from 'vue-handy-scroll'
 
-export default {
-  components: {
-    TagAll,
-    HandyScroll
+const props = defineProps({
+  list: {
+    type: Object,
+    default: undefined
   },
-
-  directives: {
-    ResizeColumn: vResizeColumn
-  },
-
-  props: {
-    list: {
-      type: Object,
-      default: undefined
-    },
-    modelValue: {
-      type: Array,
-      default: () => []
-    }
-  },
-
-  emits: [
-    'onSort',
-    'update:modelValue'
-  ],
-
-  computed: {
-    ids: {
-      get () {
-        return this.modelValue
-      },
-      set (value) {
-        this.$emit('update:modelValue', value)
-      }
-    }
-  },
-
-  data () {
-    return {
-      ascending: false
-    }
-  },
-
-  watch: {
-    list: {
-      handler () {
-        HandyScroll.EventBus.emit('update', { sourceElement: this.$el })  
-      },
-      immediate: true
-    }
-  },
-
-  methods: {
-    sortTable (sortProperty) {
-      this.$emit('onSort', sortArray(this.list.data, sortProperty, this.ascending))
-      this.ascending = !this.ascending
-    }
+  modelValue: {
+    type: Array,
+    default: () => []
   }
+})
+
+const emit = defineEmits([
+  'onSort',
+  'update:modelValue'
+])
+
+const root = ref(null)
+
+const ids = computed({
+  get () {
+    return props.modelValue
+  },
+  set (value) {
+    emit('update:modelValue', value)
+  }
+})
+
+const selectIds = computed({
+  get: () => props.list?.data?.length === ids.value.length,
+  set: value => {
+    ids.value = value
+      ? props.list.data.map(r => r[0])
+      : []
+  }
+})
+
+const ascending = ref(false)
+
+watch(
+  () => props.list,
+  () => {
+    HandyScroll.EventBus.emit('update', { sourceElement: root.value })
+  })
+
+const sortTable = (sortProperty) => {
+  emit('onSort', sortArray(props.list.data, sortProperty, ascending.value))
+  ascending.value = !ascending.value
 }
 </script>
 

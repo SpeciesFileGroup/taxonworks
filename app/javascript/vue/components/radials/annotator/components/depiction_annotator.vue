@@ -112,7 +112,8 @@
         :target="objectType"
         :add-tabs="['new', 'filter']"
         pin-section="Images"
-        @selected="createDepiction">
+        @selected="createDepiction"
+      >
         <template #new>
           <dropzone
             class="dropzone-card separate-bottom"
@@ -126,18 +127,19 @@
         </template>
         <template #filter>
           <div class="horizontal-left-content align-start">
-            <filter-image
-              @result="loadList"/>
+            <FilterImage @parameters="loadList" />
             <div class="margin-small-left flex-wrap-row">
               <div
                 v-for="image in filterList"
                 :key="image.id"
                 class="thumbnail-container margin-small cursor-pointer"
-                @click="createDepiction(image)">
+                @click="createDepiction(image)"
+              >
                 <img
                   :width="image.alternatives.thumb.width"
                   :height="image.alternatives.thumb.height"
-                  :src="image.alternatives.thumb.image_file_url">
+                  :src="image.alternatives.thumb.image_file_url"
+                >
               </div>
             </div>
           </div>
@@ -173,7 +175,8 @@
                 />
                 <span
                   class="button circle-button btn-edit button-submit"
-                  @click="depiction = item" />
+                  @click="depiction = item"
+                />
                 <span
                   @click="confirmDelete(item)"
                   class="button circle-button btn-delete"
@@ -196,7 +199,7 @@ import OtuPicker from 'components/otu/otu_picker/otu_picker'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import FilterImage from 'tasks/images/filter/components/filter'
 import SmartSelector from 'components/ui/SmartSelector'
-import { Depiction } from 'routes/endpoints'
+import { Depiction, Image } from 'routes/endpoints'
 
 export default {
   mixins: [CRUD, annotatorExtend],
@@ -316,8 +319,10 @@ export default {
       })
     },
 
-    loadList (newList) {
-      this.filterList = newList
+    loadList (params) {
+      Image.filter(params).then(({ body }) => {
+        this.filterList = body
+      })
     }
   }
 }

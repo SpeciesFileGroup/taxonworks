@@ -115,6 +115,23 @@ class ObservationsController < ApplicationController
     end
   end
 
+  # DELETE /observations/destroy_column.json?observation_matrix_column_id=123
+  def destroy_column
+    @observation_matrix_column = ObservationMatrixColumn.where(project_id: sessions_current_project_id).find(params.require(:observation_matrix_column_id))
+    if Observation.destroy_column(@observation_matrix_column.id)
+      render json: {success: true}
+    else
+      render json: {success: false}
+    end
+  end
+
+  # POST /observations/code_column.json?observation_matrix_column_id=123&observation_matrix_id=456&<observation params>
+  def code_column
+    if o = ObservationMatrixColumn.where(project_id: sessions_current_project_id).find(params[:observation_matrix_column_id])
+      render json: Observation.code_column(params[:observation_matrix_column_id], observation_params )
+    end
+  end
+
   # GET /annotations
   def annotations
     @object = @observation

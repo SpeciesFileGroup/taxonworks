@@ -2,34 +2,59 @@ module Queries
   module Confidence 
 
     # !! does not inherit from base query
-    class Filter 
+    class Filter
+      # Params specific to Confidence
 
-      # Params specific to Confidence 
-
-      # General annotator options handling 
+      # General annotator options handling
       # happens directly on the params as passed
       # through to the controller, keep them
       # together here
-      attr_accessor :options
+
+      include Concerns::Polymorphic
+      polymorphic_klass(::Confidence)
 
       # Array, Integer
-      attr_accessor :confidence_level_id, :object_global_id, :confidence_object_type
+      attr_accessor :confidence_level_id
+
+      # Array, Integer
+      attr_accessor :confidence_object_type
+
+      # Array, Integer
+      attr_accessor :confidence_object_id
+
+      # attr_accessor :options
+
+      # Array, Integer
+      # attr_accessor :object_global_id
 
       # @params params [ActionController::Parameters]
       def initialize(params)
         @confidence_level_id = [params[:confidence_level_id]].flatten.compact
-        @object_global_id = params[:object_global_id]
         @confidence_object_type = params[:confidence_object_type]
-        @options = params
+        @confidence_object_id = params[:confidence_object_id]
+        @object_global_id = params[:object_global_id]
+        #@options = params
+
+        set_polymorphic_ids(params)
       end
+
+      def confidence_object_type
+        [@confidence_object_type, global_object_type].flatten.compact
+      end
+
+      def confidence_object_id
+        [@confidence_object_id, global_object_id].flatten.compact
+      end
+
 
       # @return [ActiveRecord::Relation]
       def and_clauses
         clauses = [
-          ::Queries::Annotator.annotator_params(options, ::Confidence),
+          #::Queries::Annotator.annotator_params(options, ::Confidence),
           matching_confidence_level_id,
+          matching_polymorphic_ids,
           matching_confidence_object_type,
-          matching_object,
+          matching_confidence_object_id,
         ].compact
 
         return nil if clauses.empty? 
@@ -41,6 +66,7 @@ module Queries
         a
       end
 
+=begin
       # @return [ActiveRecord object, nil]
       # TODO: DRY
       def object_for
@@ -62,7 +88,7 @@ module Queries
           nil
         end
       end
-
+=end
       # @return [Arel::Node, nil]
       def matching_confidence_level_id
         !confidence_level_id.blank? ? table[:confidence_level_id].eq_any(confidence_level_id)  : nil
@@ -71,6 +97,11 @@ module Queries
       # @return [Arel::Node, nil]
       def matching_confidence_object_type
         !confidence_object_type.blank? ? table[:confidence_object_type].eq(confidence_object_type)  : nil
+      end
+
+      # @return [Arel::Node, nil]
+      def matching_confidence_object_id
+        confidence_object_id.empty? ? nil : table[:confidence_object_id].eq_any(confidence_object_id)
       end
 
       # @return [ActiveRecord::Relation]

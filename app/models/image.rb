@@ -319,7 +319,7 @@ class Image < ApplicationRecord
     # i is a select manager
     j = d.project(d['image_id'], d['updated_at'], d['depiction_object_type']).from(d)
       .where(d['updated_at'].gt( 1.weeks.ago ))
-      .where(d['created_by_id'].eq(user_id))
+      .where(d['updated_by_id'].eq(user_id))
       .where(d['project_id'].eq(project_id))
       .order(d['updated_at'].desc)
 

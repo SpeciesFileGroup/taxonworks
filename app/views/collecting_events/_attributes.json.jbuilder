@@ -23,6 +23,7 @@ json.extract! collecting_event, :id,
   :max_ma,
   :min_ma,
   :identifiers,
+  :meta_prioritize_geographic_area,
   :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
 
 json.partial! '/shared/data/all/metadata', object: collecting_event

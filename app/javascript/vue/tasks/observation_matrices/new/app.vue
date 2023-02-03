@@ -27,9 +27,6 @@
           </li>
 
           <li>
-            <a href="/otus/new">New OTU</a>
-          </li>
-          <li>
             <a
               v-if="matrix.id"
               :href="`/tasks/descriptors/new_descriptor?observation_matrix_id=${matrix.id}`">New descriptor

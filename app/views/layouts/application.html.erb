@@ -24,7 +24,6 @@
   </head>
   
   <body <%= turbolinks_off_tag -%> >
-
     <header> 
       <%= render(partial: 'sessions/summary') if sessions_signed_in? %>
     </header>
@@ -36,7 +35,6 @@
     </nav>
 
     <div id="main">
-
       <aside>
         <% flash.each do |key, value| %>
           <div class="alert alert-<%= key %>">

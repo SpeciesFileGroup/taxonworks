@@ -1,5 +1,6 @@
 export * from './alternateValueTypes.js'
 export * from './attributionTypes.js'
+export * from './dataAttributes.js'
 export * from './downloadTypes.js'
 export * from './events.js'
 export * from './identifierTypes.js'

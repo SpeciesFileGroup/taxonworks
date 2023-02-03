@@ -41,6 +41,7 @@ import PropertyBox from './PropertyBox'
 import RelationshipBox from './Relationship'
 import PreviewTable from './PreviewTable'
 import { BiologicalRelationship } from 'routes/endpoints'
+import { extend } from '../constants/extend.js'
 
 export default {
   components: {
@@ -120,8 +121,8 @@ export default {
       data.biological_relationship_types_attributes = subject.concat(object, removed)
 
       const saveRecord = data.id
-        ? BiologicalRelationship.update(data.id, { biological_relationship: data })
-        : BiologicalRelationship.create({ biological_relationship: data })
+        ? BiologicalRelationship.update(data.id, { biological_relationship: data, extend })
+        : BiologicalRelationship.create({ biological_relationship: data, extend })
 
       saveRecord.then(response => {
         this.setBiologicalRelationship(response.body)

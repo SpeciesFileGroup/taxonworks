@@ -17,7 +17,7 @@ module Queries
 
     # @param [Hash] params
     def initialize(params)
-      params.reject! { |_k, v| v.blank? }
+      params.reject!{ |_k, v| v.nil? || (v == '') }
       @and_or_select = params[:and_or_select]
 
       @geographic_area_ids = params[:geographic_area_ids]
@@ -218,7 +218,7 @@ module Queries
             r['role_object_id'].eq(t['id']).and(
               r['type'].eq('TaxonNameAuthor')
             )
-        )
+          )
 
         author_ids.each_with_index do |person_id, i|
           x = r.alias("#{table_alias}_#{i}")
@@ -275,12 +275,12 @@ module Queries
       b = b.join(c, Arel::Nodes::OuterJoin)
         .on(
           a[:taxon_name_id].eq(c[:subject_taxon_name_id])
-      )
+        )
 
       b = b.join(d, Arel::Nodes::OuterJoin)
         .on(
           a[:id].eq(d[:object_taxon_name_id])
-      )
+        )
 
       e = c[:subject_taxon_name_id].not_eq(nil)
       f = d[:object_taxon_name_id].not_eq(nil)
@@ -310,13 +310,13 @@ module Queries
         .on(
           a[:id].eq(c[:biological_association_subject_id])
         .and(c[:biological_association_subject_type].eq('Otu'))
-      )
+        )
 
       b = b.join(d, Arel::Nodes::OuterJoin)
         .on(
           a[:id].eq(d[:biological_association_object_id])
         .and(d[:biological_association_object_type].eq('Otu'))
-      )
+        )
 
       e = c[:biological_association_subject_id].not_eq(nil)
       f = d[:biological_association_object_id].not_eq(nil)
@@ -344,7 +344,7 @@ module Queries
       b = b.join(c, Arel::Nodes::OuterJoin)
         .on(
           a[:taxon_name_id].eq(c[:taxon_name_id])
-      )
+        )
 
       e = c[:id].not_eq(nil)
       f = c[:id].eq_any(taxon_name_classification_ids)
@@ -369,7 +369,7 @@ module Queries
       b = b.join(c, Arel::Nodes::OuterJoin)
         .on(
           a[:id].eq(c[:otu_id])
-      )
+        )
 
       e = c[:otu_id].not_eq(nil)
       f = c[:id].eq_any(asserted_distribution_ids)
@@ -437,3 +437,4 @@ module Queries
 
   end
 end
+

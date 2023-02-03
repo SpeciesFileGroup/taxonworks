@@ -10,11 +10,14 @@ module BatchLoad
     # The code (Rank Class) that new names will use
     attr_accessor :nomenclature_code
 
+    # @return Boolean
     # Whether to create an OTU as well
     attr_accessor :also_create_otu
 
     # Required to handle some defaults
     attr_accessor :project_id
+
+    SAVE_ORDER = [:original_taxon_name, :taxon_name, :taxon_name_relationship, :otu]
 
     # @param [Hash] args
     def initialize(nomenclature_code: nil, parent_taxon_name_id: nil, also_create_otu: false, **args)
@@ -23,6 +26,11 @@ module BatchLoad
       @also_create_otu = also_create_otu
 
       super(**args)
+    end
+
+    def also_create_otu
+      return true if [1, '1', true].include?(@also_create_otu)
+      false
     end
 
     # @return [String]
@@ -54,19 +62,14 @@ module BatchLoad
         @processed_rows[i] = parse_result
 
         begin
-          next if row['rank'] == 'complex'
-          next if row['rank'] == 'species group'
-          next if row['rank'] == 'series'
-          next if row['rank'] == 'variety'
-          next if row['taxon_name'] == 'unidentified'
+          next if ['complex', 'species group', 'series', 'variety', 'unidentified'].include?(row['rank'])
 
           protonym_attributes = {
             name: row['taxon_name'],
             year_of_publication: year_of_publication(row['author_year']),
             rank_class: Ranks.lookup(@nomenclature_code.to_sym, row['rank']),
-            by: @user,
-            also_create_otu: false,
-            project: @project,
+            by: user,
+            project: project,
             verbatim_author: verbatim_author(row['author_year']),
             taxon_name_authors_attributes: taxon_name_authors_attributes(verbatim_author(row['author_year']))
           }
@@ -78,9 +81,8 @@ module BatchLoad
               year_of_publication: year_of_publication(row['author_year']),
               rank_class: Ranks.lookup(@nomenclature_code.to_sym, row['original_rank']),
               parent: parent_taxon_name,
-              by: @user,
-              also_create_otu: false,
-              project: @project,
+              by: user,
+              project: project,
               verbatim_author: verbatim_author(row['author_year']),
               taxon_name_authors_attributes: taxon_name_authors_attributes(verbatim_author(row['author_year']))
             }
@@ -113,17 +115,18 @@ module BatchLoad
 
           # TaxonNameRelationship
           related_name_id = row['related_name_id']
-
-          if !taxon_names[related_name_id].nil?
+          
+          if !taxon_names[related_name_id].blank?
             related_name_nomen_class = nil
 
             begin
-              related_name_nomen_class = row['related_name_nomen_class'].constantize
+              related_name_nomen_class = row['related_name_nomen_class'].safe_constantize
 
               if related_name_nomen_class.ancestors.include?(TaxonNameRelationship)
-                p.name = row['taxon_name'].split(' ')[-1]
-                p.verbatim_name = row['taxon_name']
-                taxon_name_relationship = related_name_nomen_class.new(subject_taxon_name: p, object_taxon_name: taxon_names[related_name_id])
+                
+                taxon_name_relationship = related_name_nomen_class.new(
+                  subject_taxon_name: p, object_taxon_name: taxon_names[related_name_id]
+                )
                 parse_result.objects[:taxon_name_relationship].push taxon_name_relationship
               end
             rescue NameError
@@ -131,22 +134,34 @@ module BatchLoad
           end
 
           # TaxonNameClassification
-          name_nomen_classification = row['name_nomen_classification']
-          p.taxon_name_classifications.new(type: name_nomen_classification) if EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(name_nomen_classification)
 
-          taxon_concept_identifier_castor_text = row['guid']
+          # TODO: add to index, not here
+          if name_nomen_classification = row['name_nomen_classification']
+            if c = name_nomen_classification.safe_constantize
+              # if EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(name_nomen_classification)
+              p.taxon_name_classifications_attributes = [ {type: name_nomen_classification} ]
+            end
+          end
 
-          if taxon_concept_identifier_castor_text.present?
-            taxon_concept_identifier_castor = {
-              type: 'Identifier::Global::Uri',
-              identifier: taxon_concept_identifier_castor_text
-            }
+          # There is an OTU linked to the taxon name
+          if !row['taxon_concept_name'].blank? || !row['guid'].blank?
+            taxon_concept_identifier_castor = {}
 
-            taxon_concept_identifiers = []
-            taxon_concept_identifiers.push(taxon_concept_identifier_castor)
+            if !row['guid'].blank?
+              taxon_concept_identifier_castor = {
+                type: 'Identifier::Global::Uri',
+                identifier: row['guid'] }
+            end
 
-            otu = Otu.new(name: row['taxon_concept_name'], taxon_name: p, identifiers_attributes: taxon_concept_identifiers)
+            otu = Otu.new(name: row['taxon_concept_name'], taxon_name: p, identifiers_attributes: [taxon_concept_identifier_castor] )
+
             parse_result.objects[:otu].push(otu)
+          else
+            # Note we are not technically using the param like TaxonName.new(), so we can't just set the attribute
+            # So we hack in the OTUs 'manually".  This also lets us see them in the result
+            if also_create_otu 
+              parse_result.objects[:otu].push( Otu.new(taxon_name: p) )
+            end
           end
 
           parse_result.objects[:taxon_name].push p
@@ -178,12 +193,10 @@ module BatchLoad
     end
 
     # @param [String] author_year
-    # @return [String, nil]
+    # @return [String, nil] just the author name, wiht parens left on
     def verbatim_author(author_year)
       return nil if author_year.blank?
-      author_end_index = author_year.rindex(' ')
-      author_end_index ||= author_year.length
-      author_year[0...author_end_index]
+      author_year.gsub(/\,+\s*\d\d\d\d/, '')
     end
 
     # @param [String] author_info

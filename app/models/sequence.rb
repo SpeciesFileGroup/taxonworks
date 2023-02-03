@@ -87,12 +87,12 @@ class Sequence < ApplicationRecord
     # i is a select manager
     i = t.project(t['sequence_id'], t['updated_at']).from(t)
       .where(t['updated_at'].gt( 1.weeks.ago ))
-      .where(t['created_by_id'].eq(user_id))
+      .where(t['updated_by_id'].eq(user_id))
       .where(t['project_id'].eq(project_id))
       .order(t['updated_at'].desc)
 
     # i is a select manager
-    i = case used_on 
+    i = case used_on
         when 'SequenceRelationship'
           t.project(t['object_sequence_id'], t['updated_at']).from(t)
             .where(
@@ -113,7 +113,7 @@ class Sequence < ApplicationRecord
     z = i.as('recent_t')
 
     j = case used_on
-        when 'SequenceRelationship' 
+        when 'SequenceRelationship'
           Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
             z['object_sequence_id'].eq(p['id'])
           ))
