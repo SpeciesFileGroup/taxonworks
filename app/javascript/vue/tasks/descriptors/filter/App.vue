@@ -15,19 +15,10 @@
       @reset="resetFilter"
     >
       <template #nav-right>
-        <div
-          v-if="list.length"
-          class="horizontal-right-content"
-        >
-          <div class="horizontal-left-content">
-            <TagAll
-              :ids="selectedIds"
-              :type="DESCRIPTOR"
-            />
-            <span class="separate-left separate-right">|</span>
-            <CsvButton :list="csvList" />
-          </div>
-        </div>
+        <TagAll
+          :ids="selectedIds"
+          :type="DESCRIPTOR"
+        />
       </template>
       <template #facets>
         <FilterView v-model="parameters" />
@@ -54,7 +45,6 @@
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import FilterView from './components/FilterView.vue'
 import FilterList from 'components/layout/Filter/FilterList.vue'
-import CsvButton from 'components/csvButton'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import TagAll from 'tasks/collection_objects/filter/components/tagAll.vue'
@@ -62,7 +52,7 @@ import { listParser } from './utils/listParser'
 import { ATTRIBUTES } from './constants/attributes'
 import { Descriptor } from 'routes/endpoints'
 import { DESCRIPTOR } from 'constants/index.js'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 
 const selectedIds = ref([])
 
@@ -77,12 +67,6 @@ const {
   makeFilterRequest,
   resetFilter
 } = useFilter(Descriptor, { listParser })
-
-const csvList = computed(() =>
-  selectedIds.value.length
-    ? list.value.filter((item) => selectedIds.value.includes(item.id))
-    : list.value
-)
 </script>
 
 <script>

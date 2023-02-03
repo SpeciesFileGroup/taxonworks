@@ -14,13 +14,6 @@
       @nextpage="loadPage"
       @reset="resetFilter"
     >
-      <template #nav-right>
-        <span class="separate-left separate-right">|</span>
-        <CsvButton
-          class="margin-small-left"
-          :list="csvList"
-        />
-      </template>
       <template #facets>
         <FilterComponent v-model="parameters" />
       </template>
@@ -46,19 +39,12 @@
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/FilterView.vue'
 import FilterList from 'components/layout/Filter/FilterList.vue'
-import CsvButton from 'components/csvButton'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import { ATTRIBUTES } from './constants/attributes.js'
 import { PEOPLE } from 'constants/index.js'
 import { People } from 'routes/endpoints'
-import { computed, ref } from 'vue'
-
-const csvList = computed(() =>
-  selectedIds.value.length
-    ? list.value.filter((item) => selectedIds.value.includes(item.id))
-    : list.value
-)
+import { ref } from 'vue'
 
 const selectedIds = ref([])
 

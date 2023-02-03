@@ -57,13 +57,13 @@
         <div class="flex-separate">
           <slot name="nav-left" />
           <div>
-            <pagination-component
+            <PaginationComponent
               v-if="pagination"
               :pagination="pagination"
               @next-page="emit('nextpage', $event)"
             />
           </div>
-          <pagination-count
+          <PaginationCount
             v-if="pagination"
             :pagination="pagination"
             v-model="perValue"
@@ -89,6 +89,11 @@
               :ids="selectedIds"
             />
             <slot name="nav-right" />
+            <span class="separate-left separate-right">|</span>
+            <FilterDownload
+              :list="selectedItems"
+              :extend-download="extendDownload"
+            />
             <span class="separate-left separate-right">|</span>
             <FilterSettings
               v-model:filter="preferences.activeFilter"
@@ -126,6 +131,7 @@
 </template>
 
 <script setup>
+import FilterDownload from './FilterDownload.vue'
 import FilterJsonRequestPanel from './FilterJsonRequestPanel.vue'
 import PaginationComponent from 'components/pagination'
 import PaginationCount from 'components/pagination/PaginationCount'
@@ -139,13 +145,17 @@ import ModalNestedParameters from 'components/Filter/ModalNestedParameters.vue'
 import RadialLinker from 'components/radials/linker/radial.vue'
 import RadialMassAnnotator from 'components/radials/mass/radial.vue'
 import FilterSettings from './FilterSettings.vue'
-
 import { ref, computed, onBeforeUnmount, reactive } from 'vue'
 
 const props = defineProps({
   pagination: {
     type: Object,
     default: undefined
+  },
+
+  extendDownload: {
+    type: Array,
+    default: () => []
   },
 
   urlRequest: {
@@ -198,6 +208,12 @@ const emit = defineEmits([
   'update:modelValue',
   'update:append'
 ])
+
+const selectedItems = computed(() =>
+  props.selectedIds?.length
+    ? props.list.filter((item) => props.selectedIds.includes(item.id))
+    : props.list
+)
 
 const appendValue = computed({
   get: () => props.append,

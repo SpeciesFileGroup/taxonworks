@@ -31,8 +31,6 @@
           :disabled="!selectedIds.length"
           :parameters="{ collecting_event_id: selectedIds }"
         />
-        <span class="separate-left separate-right">|</span>
-        <CsvButton :list="list" />
       </template>
       <template #facets>
         <filter-component
@@ -67,7 +65,6 @@
 <script setup>
 import FilterComponent from './components/Filter.vue'
 import ListComponent from './components/List.vue'
-import CsvButton from 'components/csvButton'
 import MapComponent from './components/Map.vue'
 import RadialFilter from 'components/radials/linker/radial.vue'
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'

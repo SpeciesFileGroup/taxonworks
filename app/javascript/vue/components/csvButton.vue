@@ -1,17 +1,19 @@
 <template>
-  <VBtn
-    class="circle-button"
-    color="primary"
-    :title="title"
-    :disabled="!csvFile"
-    @click="downloadCSV"
-  >
-    <VIcon
-      name="download"
-      x-small
+  <slot :action="downloadCSV">
+    <VBtn
+      class="circle-button"
+      color="primary"
       :title="title"
-    />
-  </VBtn>
+      :disabled="!csvFile"
+      @click="downloadCSV"
+    >
+      <VIcon
+        name="download"
+        x-small
+        :title="title"
+      />
+    </VBtn>
+  </slot>
 </template>
 
 <script setup>

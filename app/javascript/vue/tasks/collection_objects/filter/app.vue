@@ -8,6 +8,7 @@
       :selected-ids="selectedIds"
       :object-type="COLLECTION_OBJECT"
       :list="list"
+      :extend-download="extendDownload"
       v-model="parameters"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend })"
@@ -15,10 +16,7 @@
       @reset="resetFilter"
     >
       <template #nav-right>
-        <div
-          v-if="list.length"
-          class="horizontal-right-content"
-        >
+        <div class="horizontal-right-content">
           <TagAll
             class="circle-button"
             :ids="selectedIds"
@@ -29,17 +27,6 @@
             :disabled="!selectedIds.length"
             @delete="removeCOFromList"
           />
-          <span class="separate-left separate-right">|</span>
-          <div class="horizontal-left-content gap-xsmall">
-            <CsvButton
-              :list="coList?.data"
-              :options="{ fields: csvFields }"
-            />
-            <DwcDownload
-              :params="parameters"
-              :total="pagination?.total"
-            />
-          </div>
           <span class="separate-left separate-right">|</span>
 
           <LayoutConfiguration />
@@ -71,7 +58,6 @@ import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
-import CsvButton from 'components/csvButton'
 import DwcDownload from './components/dwcDownload.vue'
 import TagAll from './components/tagAll'
 import DeleteCollectionObjects from './components/DeleteCollectionObjects.vue'
@@ -111,13 +97,16 @@ const {
   resetFilter
 } = useFilter(CollectionObject, { initParameters: { extend } })
 
-const csvFields = computed(() => {
-  return list.value.map((item, index) => ({
-    label: item,
-    value: (row, field) => row[index] || field.default,
-    default: ''
-  }))
-})
+const extendDownload = computed(() => [
+  {
+    label: 'DwC',
+    component: DwcDownload,
+    bind: {
+      params: parameters.value,
+      total: pagination.value?.total
+    }
+  }
+])
 
 function removeCOFromList(ids) {
   list.value = list.value.filter((item) => !ids.includes(item.id))

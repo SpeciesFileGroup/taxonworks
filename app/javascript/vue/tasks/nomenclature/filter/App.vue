@@ -20,11 +20,6 @@
           :ids="selectedIds"
           :disabled="!selectedIds.length"
         />
-        <span class="separate-left separate-right">|</span>
-        <CsvButton
-          :list="csvList"
-          :options="{ fields }"
-        />
       </template>
       <template #facets>
         <FilterComponent v-model="parameters" />
@@ -50,14 +45,13 @@
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/FilterView.vue'
 import FilterList from 'components/layout/Filter/FilterList.vue'
-import CsvButton from 'components/csvButton'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import RadialLabel from 'components/radials/label/radial.vue'
 import { ATTRIBUTES } from './constants/attributes.js'
 import { listParser } from './utils/listParser'
 import { TaxonName } from 'routes/endpoints'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { TAXON_NAME } from 'constants/index.js'
 
 const extend = ['parent']
@@ -75,12 +69,6 @@ const {
 } = useFilter(TaxonName, { listParser, initParameters: { extend } })
 
 const selectedIds = ref([])
-
-const csvList = computed(() =>
-  selectedIds.value.length
-    ? list.value.filter((item) => selectedIds.value.includes(item.id))
-    : list.value
-)
 </script>
 
 <script>

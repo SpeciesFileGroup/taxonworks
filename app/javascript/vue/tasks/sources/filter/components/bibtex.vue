@@ -4,16 +4,18 @@
       :full-screen="true"
       v-if="isLoading"
     />
-    <button
-      type="button"
-      class="button normal-input button-default"
-      :disabled="
-        params.source_type != sourceType && params.source_type != undefined
-      "
-      @click="loadBibtex"
-    >
-      BibTeX
-    </button>
+    <slot :action="loadBibtex">
+      <button
+        type="button"
+        class="button normal-input button-default"
+        :disabled="
+          params.source_type != sourceType && params.source_type != undefined
+        "
+        @click="loadBibtex"
+      >
+        BibTeX
+      </button>
+    </slot>
     <modal-component
       v-if="showModal"
       @close="showModal = false"

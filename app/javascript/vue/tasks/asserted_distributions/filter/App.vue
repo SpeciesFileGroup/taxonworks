@@ -14,10 +14,6 @@
       @nextpage="loadPage"
       @reset="resetFilter"
     >
-      <template #nav-right>
-        <span class="separate-left separate-right">|</span>
-        <CsvButton :list="csvList" />
-      </template>
       <template #facets>
         <FilterComponent v-model="parameters" />
       </template>
@@ -42,14 +38,13 @@
 <script setup>
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/FilterView.vue'
-import CsvButton from 'components/csvButton'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import FilterList from 'components/layout/Filter/FilterList.vue'
 import { ATTRIBUTES } from './constants/attributes'
 import { listParser } from './utils/listParser'
 import { AssertedDistribution } from 'routes/endpoints'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { ASSERTED_DISTRIBUTION } from 'constants/index.js'
 
 const extend = ['otu', 'citations', 'geographic_area', 'taxonomy']
@@ -67,12 +62,6 @@ const {
   makeFilterRequest,
   resetFilter
 } = useFilter(AssertedDistribution, { listParser, initParameters: { extend } })
-
-const csvList = computed(() =>
-  selectedIds.value.length
-    ? list.value.filter((item) => selectedIds.value.includes(item.id))
-    : list.value
-)
 </script>
 
 <script>

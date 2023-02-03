@@ -14,10 +14,6 @@
       @nextpage="loadPage"
       @reset="resetFilter"
     >
-      <template #nav-right>
-        <span class="separate-left separate-right">|</span>
-        <CsvButton :list="csvFields" />
-      </template>
       <template #facets>
         <FilterComponent v-model="parameters" />
       </template>
@@ -43,7 +39,6 @@
 <script setup>
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/FilterView.vue'
-import CsvButton from 'components/csvButton'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import VSpinner from 'components/spinner.vue'
 import FilterList from 'components/layout/Filter/FilterList.vue'
@@ -80,7 +75,6 @@ const extend = [
   'biological_relationship_types'
 ]
 
-const csvFields = computed(() => (selectedIds.value.length ? list.value : []))
 const selectedIds = ref([])
 
 const {

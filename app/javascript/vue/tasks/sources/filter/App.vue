@@ -9,6 +9,7 @@
       :object-type="SOURCE"
       :selected-ids="selectedIds"
       :list="list"
+      :extend-download="extendDownload"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend })"
       @nextpage="loadPage"
@@ -20,20 +21,6 @@
           :ids="selectedIds"
           :type="SOURCE"
         />
-        <span class="separate-left separate-right">|</span>
-        <div class="horizontal-left-content gap-small">
-          <CsvButton :list="csvList" />
-          <BibliographyButton
-            :selected-list="selectedIds"
-            :pagination="pagination"
-            :params="parameters"
-          />
-          <BibtexButton
-            :selected-list="selectedIds"
-            :pagination="pagination"
-            :params="parameters"
-          />
-        </div>
       </template>
       <template #facets>
         <FilterComponent v-model="parameters" />
@@ -59,7 +46,6 @@
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
-import CsvButton from 'components/csvButton'
 import BibtexButton from './components/bibtex'
 import BibliographyButton from './components/bibliography.vue'
 import VSpinner from 'components/spinner.vue'
@@ -84,11 +70,26 @@ const {
   resetFilter
 } = useFilter(Source, { initParameters: { extend } })
 
-const csvList = computed(() =>
-  selectedIds.value.length
-    ? list.value.filter((item) => selectedIds.value.includes(item.id))
-    : list.value
-)
+const extendDownload = computed(() => [
+  {
+    label: 'BibTeX',
+    component: BibtexButton,
+    bind: {
+      selectedList: selectedIds.value,
+      pagination: pagination.value,
+      params: parameters.value
+    }
+  },
+  {
+    label: 'Download formatted',
+    component: BibliographyButton,
+    bind: {
+      selectedList: selectedIds.value,
+      pagination: pagination.value,
+      params: parameters.value
+    }
+  }
+])
 </script>
 
 <script>
