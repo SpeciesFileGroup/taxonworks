@@ -87,7 +87,7 @@ class SourcesController < ApplicationController
   def attributes
     render json: ::Source.columns.select{
       |a| Queries::Source::Filter::ATTRIBUTES.include?(
-        a.name)
+        a.name.to_sym)
     }.collect{|b| {'name' => b.name, 'type' => b.type } }
   end
 
