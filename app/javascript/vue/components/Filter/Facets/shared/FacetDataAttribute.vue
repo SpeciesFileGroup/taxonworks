@@ -3,9 +3,8 @@
     <h3>Data attributes</h3>
     <label>Predicate</label>
     <smart-selector
-      class="margin-medium-bottom"
       autocomplete-url="/controlled_vocabulary_terms/autocomplete"
-      :autocomplete-params="{'type[]' : 'Predicate'}"
+      :autocomplete-params="{ 'type[]': 'Predicate' }"
       get-url="/controlled_vocabulary_terms/"
       model="predicates"
       buttons
@@ -39,12 +38,12 @@
           <input
             v-model="params.data_attribute_exact"
             type="checkbox"
-          >
+          />
           Data attribute exact
         </label>
       </div>
     </div>
-    <display-list
+    <DisplayList
       :list="params.data_attribute_value"
       :delete-warning="false"
       @delete-index="params.data_attribute_value.splice($event, 1)"
@@ -73,19 +72,19 @@ const emit = defineEmits(['update:modelValue'])
 const predicates = ref([])
 
 const params = computed({
-  get () {
+  get() {
     return props.modelValue
   },
 
-  set (value) {
+  set(value) {
     emit('update:modelValue', value)
   }
 })
 
 watch(
   predicates,
-  newVal => {
-    params.value.data_attribute_predicate_id = newVal.map(item => item.id)
+  (newVal) => {
+    params.value.data_attribute_predicate_id = newVal.map((item) => item.id)
   },
   { deep: true }
 )
@@ -95,7 +94,8 @@ watch(
   (newVal, oldVal) => {
     if (
       !newVal?.data_attribute_predicate_id?.length &&
-      newVal?.data_attribute_predicate_id?.length !== oldVal?.data_attribute_predicate_id?.length
+      newVal?.data_attribute_predicate_id?.length !==
+        oldVal?.data_attribute_predicate_id?.length
     ) {
       predicates.value = []
     }
@@ -106,7 +106,7 @@ watch(
 const inputValue = ref('')
 
 const addValue = () => {
-  (params.value.data_attribute_value ||= []).push(inputValue.value)
+  ;(params.value.data_attribute_value ||= []).push(inputValue.value)
   inputValue.value = ''
 }
 
@@ -127,5 +127,4 @@ if (predicateIds.length) {
     predicates.value = body
   })
 }
-
 </script>
