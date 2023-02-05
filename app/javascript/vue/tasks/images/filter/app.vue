@@ -7,6 +7,7 @@
       :pagination="pagination"
       :object-type="IMAGE"
       :list="list"
+      :selected-ids="selectedIds"
       v-model="parameters"
       v-model:append="append"
       @filter="makeFilterRequest()"
@@ -19,11 +20,12 @@
           class="horizontal-right-content"
         >
           <TagAll
+            class="circle-button"
             type="Image"
             :ids="selectedIds"
           />
           <AttributionComponent
-            class="margin-small-left margin-small-right"
+            class="margin-small-right margin-xsmall-left"
             :ids="selectedIds"
             type="Image"
           />

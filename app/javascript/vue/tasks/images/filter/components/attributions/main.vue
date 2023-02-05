@@ -2,11 +2,11 @@
   <div>
     <v-btn
       color="primary"
-      medium
+      circle
       :disabled="!ids.length"
       @click="activeModal = true"
     >
-      Attribution
+      <b>C</b>
     </v-btn>
     <v-modal
       v-if="activeModal"
@@ -19,7 +19,8 @@
       <template #body>
         <attribution-component
           :type="type"
-          @attribution="createAttribution"/>
+          @attribution="createAttribution"
+        />
       </template>
     </v-modal>
 
@@ -54,22 +55,26 @@ const props = defineProps({
 const activeModal = ref(false)
 const isSaving = ref(false)
 
-const createAttribution = attribution => {
-  const requests = props.ids.map(id => Attribution.create({
-    attribution: {
-      ...attribution,
-      attribution_object_type: props.type,
-      attribution_object_id: id
-    }
-  }))
+const createAttribution = (attribution) => {
+  const requests = props.ids.map((id) =>
+    Attribution.create({
+      attribution: {
+        ...attribution,
+        attribution_object_type: props.type,
+        attribution_object_id: id
+      }
+    })
+  )
 
   isSaving.value = true
 
-  Promise.allSettled(requests).then(_ => {
+  Promise.allSettled(requests).then((_) => {
     isSaving.value = false
     activeModal.value = false
-    TW.workbench.alert.create('Attributions were successfully created.', 'notice')
+    TW.workbench.alert.create(
+      'Attributions were successfully created.',
+      'notice'
+    )
   })
 }
-
 </script>
