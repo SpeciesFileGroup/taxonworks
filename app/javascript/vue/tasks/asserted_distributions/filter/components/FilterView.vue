@@ -10,6 +10,12 @@
     v-model="params"
   />
   <FacetUsers v-model="params" />
+  <FacetNotes v-model="params" />
+  <FacetTags
+    :target="ASSERTED_DISTRIBUTION"
+    v-model="params"
+  />
+  <FacetDataAttribute v-model="params" />
   <FacetWith
     v-for="param in WITH_PARAMS"
     :key="param"
@@ -32,7 +38,11 @@ import FacetGeographic from 'components/Filter/Facets/shared/FacetGeographic'
 import FacetUsers from 'components/Filter/Facets/shared/FacetUsers.vue'
 import FacetOtu from 'components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetWKT from 'components/Filter/Facets/Otu/FacetWKT.vue'
+import FacetNotes from 'components/Filter/Facets/shared/FacetNotes.vue'
+import FacetTags from 'components/Filter/Facets/shared/FacetTags.vue'
+import FacetDataAttribute from 'components/Filter/Facets/shared/FacetDataAttribute.vue'
 import FacetTaxonName from 'components/Filter/Facets/TaxonName/FacetTaxonName.vue'
+import { ASSERTED_DISTRIBUTION } from 'constants/index.js'
 
 const PRESENCE_OPTIONS = [
   {
