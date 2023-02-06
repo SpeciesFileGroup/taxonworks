@@ -32,6 +32,7 @@ import FacetIdentifiers from 'components/Filter/Facets/shared/FacetIdentifiers.v
 import FacetAncestorTarget from './filters/FacetAncestorTarget.vue'
 import FacetTaxonName from 'components/Filter/Facets/TaxonName/FacetTaxonName.vue'
 import FacetOtu from 'components/Filter/Facets/Otu/FacetOtu.vue'
+import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
 
 const props = defineProps({
   modelValue: {
@@ -40,16 +41,12 @@ const props = defineProps({
   }
 })
 
-const WITH_PARAMS = [
-  'citations',
-  'origin_citation'
-]
+const WITH_PARAMS = ['citations', 'origin_citation']
 
 const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
-
 </script>
