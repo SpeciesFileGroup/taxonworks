@@ -17,7 +17,6 @@ module Queries
 
     include Queries::Concerns::Identifiers
 
-    # !! TODO: search for collisions!
     # @return [Array]
     #   an expanded search target arary, splitting query_string into a number of wild-carded values
     attr_accessor :terms
@@ -121,10 +120,9 @@ module Queries
       table[:cached].matches(wildcard_pieces)
     end
 
-    # !!TODO: rename :cached_matches or similar (this is problematic !!)
     # @return [ActiveRecord::Relation, nil]
     #   cached matches full query string wildcarded
-    def cached
+    def cached_facet
       return nil if no_terms?
       (table[:cached].matches_any(terms)).or(match_ordered_wildcard_pieces_in_cached)
     end
@@ -135,6 +133,15 @@ module Queries
       a = '%' + query_string.gsub(/[^[[:word:]]]+/, '%') + '%' ### DD: if query_string is cyrilic or diacritics, it returns '%%%'
       a = 'NothingToMatch' if a.gsub('%','').gsub(' ', '').blank?
       a
+    end
+
+    # Not the same as Query.object_for
+    def object_for(global_id)
+      if o = GlobalID::Locator.locate(global_id)
+        o
+      else
+        nil
+      end
     end
 
   end

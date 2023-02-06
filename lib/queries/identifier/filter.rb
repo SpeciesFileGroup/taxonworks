@@ -4,7 +4,20 @@ module Queries
     # !! Does not inherit from Filter.
     # !! There are significant collisions with the Identifiers concern
     # !! so this is isolated for now
-    class Filter
+    class Filter < Query::Filter
+
+
+      PARAMS = [
+        :query_string,
+        :identifier,
+        :namespace_id,
+        :namespace_short_name,
+        :namespace_name,
+        :identifier_object_type,
+        :identifier_object_id,
+        :object_global_id,
+        :type,
+      ].freeze
 
       include Concerns::Polymorphic
       polymorphic_klass(::Identifier)
@@ -33,14 +46,16 @@ module Queries
       # @return Array
       attr_accessor :type
 
-      attr_accessor :project_id
+      # TODO: community likely broken/intercept somewhere
+      # attr_accessor :project_id
 
-      attr_accessor :options
+      # attr_accessor :options
 
       # @params params [ActionController::Parameters]
-      def initialize(params)
+      def initialize(query_params)
+        super
 
-        @options = params
+        # @options = params
 
         @identifier = params[:identifier]
         @identifier_object_id = params[:identifier_object_id]
@@ -48,7 +63,10 @@ module Queries
         @namespace_id = params[:namespace_id]
         @namespace_name = params[:namespace_name]
         @namespace_short_name = params[:namespace_short_name]
-        @project_id = params[:project_id]
+
+        # TODO: always on project_id likely breaking things
+        # @project_id = params[:project_id]
+
         @query_string = params[:query_string]
         @type = params[:type]
 
@@ -82,7 +100,7 @@ module Queries
       end
 
       def annotated_class
-        ::Queries::Annotator.annotated_class(options, ::Identifier)
+        ::Queries::Annotator.annotated_class(params, ::Identifier)
       end
 
       def ignores_project?
@@ -107,7 +125,7 @@ module Queries
       # @return [ActiveRecord::Relation]
       def and_clauses
         clauses = [
-          Queries::Annotator.annotator_params(options, ::Identifier),
+          Queries::Annotator.annotator_params(params, ::Identifier),
           matching_cached,
           matching_identifier_attribute(:identifier),
           matching_identifier_attribute(:namespace_id),

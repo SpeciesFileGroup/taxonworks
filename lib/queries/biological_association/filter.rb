@@ -15,9 +15,7 @@ module Queries
         :descendants,
         :exclude_taxon_name_relationship,
         :geo_json,
-        :geo_json,
         :geographic_area_id,
-        :geographic_area_mode,
         :geographic_area_mode,
         :object_biological_property_id,
         :object_global_id,
@@ -50,18 +48,7 @@ module Queries
       ].freeze
 
 
-      # Params to consider for OTU scopes
-      #  !! taxon_name_id, object_taxon_name_id, subject_taxon_name_id, otu_id and descendants are handled seperately
-      OTU_PARAMS = %i{
-        collecting_event_id
-        collection_object_id
-        geo_json
-        geographic_area_id
-        geographic_area_mode
-        otu_id
-        wkt
-      }.freeze
-
+ 
 
       # @return Boolean, nil
       #  if true then return relationships *excluding*
@@ -102,7 +89,6 @@ module Queries
       # @return [Array]
       #   All BiologicalAssociations matching these names or
       # their children
-      # ??TODO: TaxonNames must be valid!
       attr_accessor :taxon_name_id
 
       # @return [Boolean, nil]
@@ -253,16 +239,6 @@ module Queries
         [@geographic_area_id].flatten.compact
       end
 
-      # @return [ActiveRecord object, nil]
-      # TODO: DRY
-      def object_for(global_id)
-        if o = GlobalID::Locator.locate(global_id)
-          o
-        else
-          nil
-        end
-      end
-
       def subject_matches(object)
         table['biological_association_subject_id'].eq(object.id).and(
           table['biological_association_subject_type'].eq(object.class.base_class.name)
@@ -292,28 +268,37 @@ module Queries
         ::BiologicalAssociation.joins(:biological_associations_graphs).where(biological_associations_graphs: {id: biological_associations_graph_id})
       end
 
-      #--
-
       def collection_object_params
         h = {}
-        OTU_PARAMS.each do |p|
+        [
+          :collecting_event_id,
+          :collection_object_id,
+          :geo_json,
+          :geographic_area_id,
+          :geographic_area_mode,
+          :wkt,
+        ].each  
+        .each do |p|
           v = send(p)
           h[p] = v if v.present?
         end
         h
       end
 
-      # TODO: same as co for now ?!
       def otu_params
         h = {}
-        OTU_PARAMS.each do |p|
+        [
+          :geo_json,
+          :geographic_area_id,
+          :geographic_area_mode,
+          :otu_id,
+          :wkt,
+        ].each do |p|
           v = send(p)
           h[p] = v if v.present?
         end
         h
       end
-
-      #----
 
       def object_taxon_name_ids
         return taxon_name_id if taxon_name_id.present?
@@ -335,7 +320,7 @@ module Queries
 
       def base_collection_object_query(opts)
         q = ::Queries::CollectionObject::Filter.new(opts)
-        q.project_id = nil
+        q.project_id = nil # reset at use
         q
       end
 
@@ -343,7 +328,7 @@ module Queries
         p = collection_object_params
         s = subject_taxon_name_ids
 
-        if p.blank? && s.nil?
+        if p.blank? && s.empty? #.nil?
           return nil
         elsif s.present?
           p[:taxon_name_id] = s
@@ -357,7 +342,7 @@ module Queries
         p = collection_object_params
         s = object_taxon_name_ids
 
-        if p.blank? && s.nil?
+        if p.blank? && s.empty? # .nil?
           return nil
         elsif s.present?
           p[:taxon_name_id] = s
@@ -445,7 +430,7 @@ module Queries
             .joins("JOIN b_#{target}_objects as b_#{target}_objects1 on b_#{target}_objects1.id = biological_associations.biological_association_#{target}_id AND biological_associations.biological_association_#{target}_type = 'CollectionObject'").to_sql
         end
 
-        return ::BiologicalAssociation.from(
+        ::BiologicalAssociation.from(
           '(' + [d,e].compact.collect{|q| '(' + q + ')'}.join(' UNION ') + ') as biological_associations'
         )
       end
@@ -487,6 +472,8 @@ module Queries
           b.project_id = project_id
           b_sql = b.all.to_sql
         end
+        
+        
 
         return nil if a_sql.nil? and b_sql.nil?
 
@@ -527,14 +514,6 @@ module Queries
         end
 
         return ::BiologicalAssociation.from('(' + s + ') as biological_associations')
-      end
-
-      def collection_object_id_facet
-        return nil if collection_object_id.empty?
-        ::BiologicalAssociation.where(
-          table[:biological_association_subject_id].eq_any(collection_object_id).and(table[:biological_association_subject_type].eq('CollectionObject')
-          .or( table[:biological_association_object_id].eq_any(collection_object_id).and(table[:biological_association_object_type].eq('CollectionObject'))))
-        )
       end
 
       def subject_global_id_facet
@@ -582,34 +561,39 @@ module Queries
         table[:biological_association_subject_type].eq(subject_type)
       end
 
-      # TODO: make OR into UNION
       def collecting_event_query_facet
         return nil if collecting_event_query.nil?
 
-        s = 'WITH query_ce_ba AS (' + collecting_event_query.all.to_sql + ') ' + 
-          ::BiologicalAssociation
-          .joins("LEFT JOIN collection_objects co1 on co1.id = biological_associations.biological_association_subject_id AND biological_associations.biological_association_subject_type = 'CollectionObject'")
-          .joins("LEFT JOIN collection_objects co2 on co2.id = biological_associations.biological_association_object_id AND biological_associations.biological_association_object_type = 'CollectionObject'")
-          .joins('LEFT JOIN query_ce_ba as query_ce_ba1 on co1.collecting_event_id = query_ce_ba1.id')
-          .joins('LEFT JOIN query_ce_ba as query_ce_ba2 on co2.collecting_event_id = query_ce_ba2.id')
-          .where('query_ce_ba1.id IS NOT NULL OR query_ce_ba1.id IS NOT NULL')
-          .to_sql
+        s = 'WITH query_ce_ba AS (' + collecting_event_query.all.to_sql + ') '
+
+        a = ::BiologicalAssociation
+          .joins("JOIN collection_objects co1 on co1.id = biological_associations.biological_association_subject_id AND biological_associations.biological_association_subject_type = 'CollectionObject'")
+          .joins('JOIN query_ce_ba as query_ce_ba1 on co1.collecting_event_id = query_ce_ba1.id').to_sql
+
+        b = ::BiologicalAssociation
+          .joins("JOIN collection_objects co2 on co2.id = biological_associations.biological_association_object_id AND biological_associations.biological_association_object_type = 'CollectionObject'")
+          .joins('JOIN query_ce_ba as query_ce_ba2 on co2.collecting_event_id = query_ce_ba2.id').to_sql
+
+        s << ::BiologicalAssociation.from("((#{a} UNION (#{b})) as biological_associations").to_sql
 
         ::BiologicalAssociation.from('(' + s + ') as biological_associations')
       end
 
       def otu_query_facet
         return nil if otu_query.nil?
-
-        s = 'WITH query_otu_ba AS (' + otu_query.all.to_sql + ') ' + 
+        s = 'WITH query_otu_ba AS (' + otu_query.all.to_sql + ') ' 
           ::BiologicalAssociation
-          .joins("LEFT JOIN query_otu_ba as query_otu_ba1 on biological_associations.biological_association_subject_id = query_otu_ba1.id AND biological_associations.biological_association_subject_type = 'Otu'")
-          .joins("LEFT JOIN query_otu_ba as query_otu_ba2 on biological_associations.biological_association_object_id = query_otu_ba2.id AND biological_associations.biological_association_object_type = 'Otu'")
-          .where('query_otu_ba1.id IS NOT NULL OR query_otu_ba2.id IS NOT NULL')
-          .to_sql
 
+        a = ::BiologicalAssociation
+           .joins("JOIN query_otu_ba as query_otu_ba1 on biological_associations.biological_association_subject_id = query_otu_ba1.id AND biological_associations.biological_association_subject_type = 'Otu'").to_sql
+
+        b = ::BiologicalAssociation
+          .joins("JOIN query_otu_ba as query_otu_ba2 on biological_associations.biological_association_object_id = query_otu_ba2.id AND biological_associations.biological_association_object_type = 'Otu'").to_sql
+
+        s << ::BiologicalAssociation.from("((#{a} UNION (#{b})) as biological_associations").to_sql
         ::BiologicalAssociation.from('(' + s + ') as biological_associations')
       end
+
 
       # TODO: not working?
       def collection_object_query_facet
@@ -679,17 +663,16 @@ module Queries
 
       def merge_clauses
         [
-          taxon_name_query_facet,
+          collecting_event_query_facet,
           collection_object_query_facet,
           otu_query_facet,
           source_query_facet,
-          collecting_event_query_facet,
+          taxon_name_query_facet,
 
           biological_associations_graph_id_facet,
-          collection_object_id_facet,
           object_biological_property_id_facet,
           subject_biological_property_id_facet,
-          subject_object_facet,
+          subject_object_facet, # This handles all Otu/CollectionObject attributes
         ]
       end
 

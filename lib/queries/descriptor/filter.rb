@@ -156,7 +156,7 @@ module Queries
 
       def merge_clauses
         [ 
-          otu_query_facet
+          otu_query_facet,
           observation_query_facet,
           source_query_facet,
 

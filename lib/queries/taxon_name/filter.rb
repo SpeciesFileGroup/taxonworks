@@ -16,12 +16,14 @@ module Queries
       include Queries::Concerns::Notes
       include Queries::Concerns::Tags
       include Queries::Concerns::DataAttributes
+      include Queries::Concerns::Depictions
 
       PARAMS = [ 
         :ancestors,
         :author,
         :author_exact,
         :authors,
+        :collection_object_id, 
         :collecting_event_id,
         :descendants,
         :descendants_max_depth,
@@ -45,6 +47,7 @@ module Queries
         :year_start,
         :taxon_name_id,
 
+        collection_object_id: [],
         collecting_event_id: [],
         combination_taxon_name_id: [],
         name: [],
@@ -62,6 +65,10 @@ module Queries
         taxon_name_relationship_type: [],
         type: [],
       ].freeze
+
+      # @param collection_object_id[String, Array]
+      # @return Array
+      attr_accessor :collection_object_id
 
       # @param collecting_event_id [String, Array]
       # @return Array
@@ -240,6 +247,7 @@ module Queries
         @author_exact = boolean_param(params, :author_exact)
         @authors = boolean_param(params, :authors )
         @collecting_event_id = params[:collecting_event_id]
+        @collection_object_id = params[:collection_object_id]
         @combination_taxon_name_id = params[:combination_taxon_name_id]
         @descendants = boolean_param(params,:descendants )
         @descendants_max_depth = params[:descendants_max_depth]
@@ -270,6 +278,7 @@ module Queries
         @year_end = params[:year_end]
         @year_start = params[:year_start]
 
+        set_depiction_params(params)
         set_notes_params(params)
         set_data_attributes_params(params)
         set_tags_params(params)
@@ -282,6 +291,10 @@ module Queries
 
       def name
         [@name].flatten.compact
+      end
+
+      def collection_object_id
+        [@collection_object_id].flatten.compact
       end
 
       def collecting_event_id
@@ -386,13 +399,16 @@ module Queries
         ::TaxonName.where(ancestors_subquery.arel.exists)
       end
 
-      # @return Scope
+      def collection_object_id_facet
+        return nil if collection_object_id.empty?
+        ::TaxonName.joins(:collection_objects).where(collection_objects: {id: collection_object_id})
+      end
+
       def otu_id_facet
         return nil if otu_id.empty?
         ::TaxonName.joins(:otus).where(otus: {id: otu_id})
       end
 
-      # @return Scope
       def otus_facet
         return nil if otus.nil?
         subquery = ::Otu.where(::Otu.arel_table[:taxon_name_id].eq(::TaxonName.arel_table[:id])).arel.exists
@@ -678,6 +694,7 @@ module Queries
           ancestor_facet,
           authors_facet,
           collecting_event_id_facet,
+          collection_object_id_facet,
           combination_taxon_name_id_facet,
           descendant_facet,
           leaves_facet,

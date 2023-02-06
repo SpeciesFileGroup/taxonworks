@@ -24,18 +24,18 @@
           <label>
             <input
               type="checkbox"
-              v-model="activeFilter"
+              v-model="activeUrl"
             />
-            Show filter
+            Show JSON Request
           </label>
         </li>
         <li>
           <label>
             <input
               type="checkbox"
-              v-model="activeUrl"
+              v-model="activeFilter"
             />
-            Show JSON Request
+            Show filter
           </label>
         </li>
         <li>

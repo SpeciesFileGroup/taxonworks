@@ -52,7 +52,7 @@ module Queries
 
         clauses += [
           only_ids,
-          cached,
+          cached_facet,
           with_cached_author_year,
         ] unless exact
 

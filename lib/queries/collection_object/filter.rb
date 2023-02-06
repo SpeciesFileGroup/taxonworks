@@ -1,4 +1,3 @@
-require 'queries/collecting_event/filter'
 module Queries
   module CollectionObject
 
@@ -19,48 +18,52 @@ module Queries
       include Queries::Concerns::Tags
       include Queries::Concerns::Notes
       include Queries::Concerns::DataAttributes
+      include Queries::Concerns::Depictions
 
       PARAMS = [
         *::Queries::CollectingEvent::Filter::BASE_PARAMS,
+        :biological_association_id,
+        :biological_associations,
         :buffered_collecting_event,
         :buffered_determinations,
         :buffered_other_labels,
+        :collectors,
         :collecting_event,
         :collection_object_type,
-        :collector_id_or,
+   #     :collector_id_or,
+        :determiners,
         :current_determinations,
         :current_repository,
         :current_repository_id,
-        :depictions,
         :descendants,
         :determiner_id_or,
         :determiner_name_regex,
         :dwc_indexed,
-        :end_date,
+  #      :end_date,
         :exact_buffered_collecting_event,
         :exact_buffered_determinations,
         :exact_buffered_other_labels,
         :extract_id,
-        :geographic_area,
-        :geographic_area_id,
-        :geographic_area_mode,
+   #    :geographic_area,
+   #    :geographic_area_id,
+   #    :geographic_area_mode,
         :georeferences,
-        :in_labels,
-        :in_verbatim_locality,
+   #    :in_labels,
+   #    :in_verbatim_locality,
         :loaned,
-        :md5_verbatim_label,
+  #      :md5_verbatim_label,
         :never_loaned,
         :object_global_id,
         :on_loan,
-        :partial_overlap_dates,
+  #      :partial_overlap_dates,
         :preparation_type,
         :preparation_type_id,
-        :radius,  # CE filter
+    #    :radius,  # CE filter
         :repository,
         :repository_id,
         :sled_image_id,
         :spatial_geographic_areas,
-        :start_date,  # CE filter
+    #    :start_date,  # CE filter
         :taxon_determination_id,
         :taxon_determinations,
         :taxon_name_id,
@@ -70,6 +73,10 @@ module Queries
         :with_buffered_collecting_event,
         :with_buffered_determinations,
         :with_buffered_other_labels,
+        :collection_object_id,
+
+        biological_association_id: [],
+        collection_object_id: [],
         biocuration_class_id: [],
         biological_relationship_id: [],
         collecting_event_id: [],
@@ -83,11 +90,17 @@ module Queries
         otu_id: [],
         preparation_type_id: [],
         taxon_name_id: [],
-      ].flatten.sort{|a,b| a.is_a?(Hash) ? 1 : 0  <=> b.is_a?(Hash) ? 1 : 0}.uniq!.freeze
+      ].inject([{}]){|ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary}.freeze
 
-      # .flatten.sort{|a,b| a.is_a?(Hash) ? 1 : 0  <=> b.is_a?(Hash) ? 1 : 0}.uniq.freeze
+      # @return [True, False, nil]
+      #   true - has collecting event that has  geographic_area
+      #   false - does not have  collecting event that has geographic area
+      #   nil - not applied
+      attr_accessor :biological_associations
 
-      # TODO: look for name collisions with CE filter
+      # @return Array
+      #   Matching records in this BiologicalAssociation
+      attr_accessor :biological_association_id
 
       # @param [String, nil]
       #    Array or Integer of CollectionObject ids
@@ -127,6 +140,18 @@ module Queries
       #   true = TaxonDetermination must be .current
       #   false = TaxonDetermination must be .historical
       attr_accessor :current_determinations
+
+      # @return [Boolean, nil]
+      #  true - A determiner role exists
+      #  false - No determiner role exists
+      #  nil - not applied
+      attr_accessor :determiners
+
+      # @return [Boolean, nil]
+      #  true - A collector role exists
+      #  false - A collector role exists
+      #  nil - not applied
+      attr_accessor :collectors
 
       # @return [True, nil]
       attr_accessor :on_loan
@@ -171,12 +196,6 @@ module Queries
 
       # @return [SledImage#id, nil]
       attr_accessor :sled_image_id
-
-      # @return [True, False, nil]
-      #   true - index is built
-      #   false - index is not built
-      #   nil - not applied
-      attr_accessor :depictions
 
       # @return [True, False, nil]
       #   true - has one ore more taxon_determinations
@@ -300,26 +319,29 @@ module Queries
         super
 
         # Only CollectingEvent fields are permitted, for advanced nesting (e.g. tags on CEs), use collecting_event_query
-        collecting_event_params = ::Queries::CollectingEvent::Filter.params
+        collecting_event_params = ::Queries::CollectingEvent::Filter.base_params
 
         @base_collecting_event_query = ::Queries::CollectingEvent::Filter.new(
           params.select{|a,b| collecting_event_params.include?(a) } # maintain this to avoid sub query initialization for now
         )
 
+        @biological_association_id = params[:biological_association_id]
         @biocuration_class_id = params[:biocuration_class_id]
         @biological_relationship_id = params[:biological_relationship_id] # TODO: no reference?
         @buffered_collecting_event = params[:buffered_collecting_event]
         @buffered_determinations = params[:buffered_determinations]
         @buffered_other_labels = params[:buffered_other_labels]
+        @biological_associations = boolean_param(params, :biological_associations)
         @collecting_event = boolean_param(params, :collecting_event)
+        @collectors = boolean_param(params, :collectors)
         @collecting_event_id = params[:collecting_event_id]
         @collection_object_id = params[:collection_object_id]
         @collection_object_type = params[:collection_object_type].blank? ? nil : params[:collection_object_type]
         @current_determinations = boolean_param(params, :current_determinations)
         @current_repository = boolean_param(params, :current_repository)
         @current_repository_id = params[:current_repository_id].blank? ? nil : params[:current_repository_id]
-        @depictions = boolean_param(params, :depictions)
         @descendants = boolean_param(params, :descendants)
+        @determiners = boolean_param(params, :determiners)
         @determiner_id = params[:determiner_id]
         @determiner_id_or = boolean_param(params, :determiner_id_or)
         @determiner_name_regex = params[:determiner_name_regex]
@@ -352,6 +374,7 @@ module Queries
         @with_buffered_determinations =  boolean_param(params, :with_buffered_determinations)
         @with_buffered_other_labels = boolean_param(params, :with_buffered_other_labels)
 
+        set_depiction_params(params)
         set_data_attributes_params(params)
         set_notes_params(params)
         set_tags_params(params)
@@ -373,13 +396,12 @@ module Queries
       end
 
       # @return [Arel::Table]
-      def depiction_table
-        ::Depiction.arel_table
-      end
-
-      # @return [Arel::Table]
       def taxon_determination_table
         ::TaxonDetermination.arel_table
+      end
+
+      def biological_association_id 
+        [@biological_association_id].flatten.compact.uniq
       end
 
       def extract_id
@@ -391,31 +413,31 @@ module Queries
       end
 
       def otu_id
-        [@otu_id].flatten.compact
+        [@otu_id].flatten.compact.uniq
       end
 
       def biocuration_class_id
-        [@biocuration_class_id].flatten.compact
+        [@biocuration_class_id].flatten.compact.uniq
       end
 
       def biological_relationship_id
-        [@biological_relationship_id].flatten.compact
+        [@biological_relationship_id].flatten.compact.uniq
       end
 
       def collecting_event_id
-        [@collecting_event_id].flatten.compact
+        [@collecting_event_id].flatten.compact.uniq
       end
 
       def collection_object_id
-        [@collection_object_id].flatten.compact
+        [@collection_object_id].flatten.compact.uniq
       end
 
       def determiner_id
-        [@determiner_id].flatten.compact
+        [@determiner_id].flatten.compact.uniq
       end
 
       def preparation_type_id
-        [@preparation_type_id].flatten.compact
+        [@preparation_type_id].flatten.compact.uniq
       end
 
       def collection_object_id_facet
@@ -477,6 +499,24 @@ module Queries
         b = b.as('det_z1_')
 
         ::CollectionObject.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['biological_collection_object_id'].eq(tt['id']))))
+      end
+
+      def determiners_facet
+        return nil if determiners.nil?
+        if determiners
+          ::CollectionObject.joins(:determiners)
+        else
+          ::CollectionObject.where.missing(:determiners)
+        end
+      end
+
+      def collectors_facet 
+        return nil if collectors.nil?
+        if collectors
+          ::CollectionObject.joins(:collectors)
+        else
+          ::CollectionObject.where.missing(:collectors)
+        end
       end
 
       def determiner_name_regex_facet
@@ -598,18 +638,6 @@ module Queries
       def type_facet
         return nil if collection_object_type.nil?
         table[:type].eq(collection_object_type)
-      end
-
-      def depictions_facet
-        return nil if depictions.nil?
-
-        if depictions
-          ::CollectionObject.joins(:depictions).distinct
-        else
-          ::CollectionObject.left_outer_joins(:depictions)
-            .where(depictions: {id: nil})
-            .distinct
-        end
       end
 
       def sled_image_facet
@@ -792,7 +820,6 @@ module Queries
         # Turn project_id back on
         base_collecting_event_query.project_id = project_id
 
-
         s = 'WITH query_ce_base_co AS (' + base_collecting_event_query.all.to_sql + ') ' +
           ::CollectionObject
           .joins('JOIN query_ce_base_co as query_ce_base_co1 on query_ce_base_co1.id = collection_objects.collecting_event_id')
@@ -812,6 +839,27 @@ module Queries
 
         ::CollectionObject.from('(' + s + ') as collection_objects')
       end
+
+      def biological_associations_facet
+        return nil if biological_associations.nil?
+          a = ::CollectionObject.joins(:biological_associations)
+          b = ::CollectionObject.joins(:related_biological_associations)
+
+        ::CollectionObject.from("((#{a.to_sql}) UNION (#{b.to_sql})) as collection_objects")
+      end
+     
+      def biological_association_id_facet
+        return nil if biological_association_id.empty?
+        b = ::BiologicalAssociation.where(id: biological_association_id)
+        s = 'WITH query_ba_id_co AS (' + b.all.to_sql + ') ' +
+          ::CollectionObject
+          .joins("LEFT JOIN query_ba_id_co as query_ba_id_co1 on collection_objects.id = query_ba_id_co1.biological_association_subject_id AND query_ba_id_co1.biological_association_subject_type = 'CollectionObject'")
+          .joins("LEFT JOIN query_ba_id_co as query_ba_id_co2 on collection_objects.id = query_ba_id_co2.biological_association_object_id AND query_ba_id_co2.biological_association_object_type = 'CollectionObject'")
+          .where('(query_ba_id_co1.id) IS NOT NULL OR (query_ba_id_co2.id IS NOT NULL)')
+          .to_sql
+
+        ::CollectionObject.from('(' + s + ') as collection_objects')
+      end     
 
       def biological_association_query_facet
         return nil if biological_association_query.nil?
@@ -854,23 +902,26 @@ module Queries
 
       def merge_clauses
         [
-          extract_query_facet,
-          biological_association_query_facet,
-          source_query_facet,
-          collecting_event_query_facet,
-          taxon_name_query_facet,
-          otu_query_facet,
+          biological_association_id_facet,
           base_collecting_event_query_facet,
+          biological_association_query_facet,
+          collecting_event_query_facet,
+          extract_query_facet,
+          otu_query_facet,
+          source_query_facet,
+          taxon_name_query_facet,
 
-          extract_id_facet, 
+          biological_associations_facet,
           biocuration_facet,
           biological_relationship_id_facet,
           collecting_event_facet,
+          collectors_facet,
           current_repository_facet,
-          depictions_facet,
           determiner_facet,
           determiner_name_regex_facet,
+          determiners_facet,
           dwc_indexed_facet,
+          extract_id_facet, 
           geographic_area_facet,
           georeferences_facet,
           loan_facet,

@@ -23,8 +23,8 @@ module Queries
         :prefix,
         :regex, # !! DO NOT EXPOSE TO EXTERNAL API
         :repeated_total,
-        :role_total_max,
-        :role_total_min,
+        :use_max,
+        :use_min,
         :suffix,
         exact: [],
         except_project_id: [],
@@ -119,11 +119,11 @@ module Queries
 
       # @return [String, nil]
       #   the maximum number of roles the Person must be in, further scoped to only counting `role` when provided
-      attr_accessor :role_total_max
+      attr_accessor :use_max
 
       # @return [String, nil]
       #   the minimum number of roles the Person must be in, further scoped to only counting `role` when provided
-      attr_accessor :role_total_min
+      attr_accessor :use_min
 
       # @return [Array]
       # @param with [Array of strings]
@@ -158,8 +158,8 @@ module Queries
         @regex = params[:regex]
         @repeated_total = params[:repeated_total]
         @role = params[:role]
-        @role_total_max = params[:role_total_max]
-        @role_total_min = params[:role_total_min]
+        @use_max = params[:use_max]
+        @use_min = params[:use_min]
         @with = params[:with]
         @without = params[:without]
 
@@ -307,9 +307,9 @@ module Queries
         )
       end
 
-      def role_total_facet
-        return nil if (role_total_min.blank? && role_total_max.blank?)
-        min_max = [role_total_min&.to_i, role_total_max&.to_i ].compact
+      def use_facet
+        return nil if (use_min.blank? && use_max.blank?)
+        min_max = [use_min&.to_i, use_max&.to_i ].compact
 
         q = ::Person.joins(:roles)
           .select('people.*, COUNT(roles.person_id)')
@@ -411,7 +411,7 @@ module Queries
           regex_facet,
           repeated_total_facet,
           role_facet,
-          role_total_facet,
+          use_facet,
         ]
       end
 

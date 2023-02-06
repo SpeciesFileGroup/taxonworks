@@ -7,55 +7,77 @@ module Queries
       include Queries::Concerns::Notes
       include Queries::Concerns::DateRanges
       include Queries::Concerns::DataAttributes
+      include Queries::Concerns::Depictions
 
       # TODO: likely move to model (replicated in Source too) and setup via macro?
       # Params exists for all CollectingEvent attributes except these.
       # collecting_event_id is excluded because we handle it specially in conjunction with `geographic_area_mode``
       ATTRIBUTES = (::CollectingEvent.core_attributes - %w{geographic_area_id}).map(&:to_sym).freeze
 
-      # This is still used in CollectionObject query.
-      # !!
-      # !! There is likely some collision with wkt, other shared variables
-      # !!
-      BASE_PARAMS = %i{
-        collecting_event_object_id
-        collecting_event_wildcards
-        collection_objects
-        collector_id
-        collector_id_or
-        depictions
-        determiner_name_regex
-        end_date
-        geo_json
-        geographic_area
-        geographic_area_id
-        geographic_area_mode
-        georeferences
-        in_labels
-        in_verbatim_locality
-        md5_verbatim_label
-        otu_id
-        partial_overlap_dates
-        radius
-        start_date
-        wkt
-      }.freeze
-
-      PARAMS = [
+      # This list of params are those that only occur 
+      # in this CollectingEvent filter. For those 
+      # that overlap other filters place in PARAMS.
+      #
+      # Used to define a base collecting query for CollectionObject 
+      # filters scope, this is still used in CollectionObject query.
+      # This is "necessary" so that we can use CollectingEvent
+      # referencing facets in the CollectionObject filter for
+      # convienience. 
+      # 
+      BASE_PARAMS = [
         *ATTRIBUTES,
-        *BASE_PARAMS,
+        :collectors,
+        :collecting_event_object_id,
+        :collecting_event_wildcards,
+        :collection_objects,
+        :collector_id,
+        :collector_id_or,
+        :determiner_name_regex,
+        :end_date,
+        :geo_json,
+        :geographic_area,
+        :geographic_area_id,
+        :geographic_area_mode,
+        :georeferences,
+        :in_labels,
+        :in_verbatim_locality,
+        :md5_verbatim_label,
+        :partial_overlap_dates,
+        :radius,
+        :start_date,
+        :use_max,
+        :use_min,
+        :wkt,
+        collecting_event_id: [],
         collecting_event_wildcards: [],
-        collection_object_id: [],
         collector_id: [],
         geographic_area_id: [],
-        otu_id: [],
-        collecting_event_id: [],
-      ].freeze # not needed right now# .flatten.sort{|a,b| a.is_a?(Hash) ? 1 : 0  <=> b.is_a?(Hash) ? 1 : 0}.uniq!.freeze
+      ].freeze
 
-      # All collecting event fields have their own accessor.
+      PARAMS = [
+        *BASE_PARAMS,
+        :otu_id,
+        :collection_object_id,
+        collection_object_id: [],
+        otu_id: [],
+      ].inject([{}]){|ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary}.freeze
+
+      # All CollectingEvent fields have their own accessor.
       ATTRIBUTES.each do |a|
         class_eval { attr_accessor a.to_sym }
       end
+
+      def self.base_params
+        a = BASE_PARAMS.dup
+        b = a.pop.keys
+        (a + b).uniq
+      end
+
+      # @return [Boolean, nil]
+      #  true - A collector role exists
+      #  false - A collector role exists
+      #  nil - not applied
+      attr_accessor :collectors
 
       # @param collecting_event_id [ Array, Integer, nil]
       #   One or more collecting_event_id
@@ -115,12 +137,6 @@ module Queries
       attr_accessor :collection_object_id
 
       # @return [True, False, nil]
-      #   true - index is built
-      #   false - index is not built
-      #   nil - not applied
-      attr_accessor :depictions
-
-      # @return [True, False, nil]
       #   true - georeferences
       #   false - not georeferenced
       #   nil - not applied
@@ -136,16 +152,24 @@ module Queries
       attr_accessor :geographic_area_id
       attr_accessor :geographic_area_mode
 
+      # @return [String, nil]
+      #   the maximum number of CollectionObjects linked to CollectingEvent
+      attr_accessor :use_max
+
+      # @return [String, nil]
+      #   the minimum number of CollectionObjects linked to CollectingEvent
+      attr_accessor :use_min
+
       def initialize(query_params)
         super
 
+        @collectors = boolean_param(params, :collectors )
         @collecting_event_id = params[:collecting_event_id]
         @collecting_event_wildcards = params[:collecting_event_wildcards]
         @collection_object_id = params[:collection_object_id]
         @collection_objects = boolean_param(params, :collection_objects )
         @collector_id = params[:collector_id]
         @collector_id_or = boolean_param(params, :collector_id_or )
-        @depictions = boolean_param(params, :depictions)
         @geo_json = params[:geo_json]
         @geographic_area = boolean_param(params, :geographic_area)
         @geographic_area_id = params[:geographic_area_id]
@@ -156,16 +180,16 @@ module Queries
         @md5_verbatim_label = params[:md5_verbatim_label]&.to_s&.downcase == 'true'
         @otu_id = params[:otu_id].presence
         @radius = params[:radius].presence || 100
+        @use_max = params[:use_max]
+        @use_min = params[:use_min]
         @wkt = params[:wkt]
 
         set_dates(params)
-
         set_attributes(params)
-
         set_tags_params(params)
-
         set_data_attributes_params(params)
         set_notes_params(params)
+        set_depiction_params(params)
       end
 
       def collecting_event_id
@@ -208,6 +232,21 @@ module Queries
         c
       end
 
+      def use_facet
+        return nil if (use_min.blank? && use_max.blank?)
+        min_max = [use_min&.to_i, use_max&.to_i ].compact
+
+        q = ::CollectingEvent.joins(:collection_objects)
+          .select('collecting_events.*, COUNT(collection_objects.collecting_event_id)')
+          .group('collecting_events.id')
+          .having("COUNT(collecting_event_id) >= #{min_max[0]}")
+
+        # Untested
+        q = q.having("COUNT(collecting_event_id) <= #{min_max[1]}") if min_max[1]
+
+        ::CollectingEvent.from('(' + q.to_sql + ') as collecting_events').distinct
+      end
+
       def geographic_area_facet
         return nil if geographic_area.nil?
         if geographic_area
@@ -237,18 +276,6 @@ module Queries
           i = ::GeographicItem.joins(:geographic_areas).where(geographic_areas: a) # .unscope
           wkt_shape = ::GeographicItem.st_union(i).to_a.first['collection'].to_s
           return from_wkt(wkt_shape)
-        end
-      end
-
-      def depictions_facet
-        return nil if depictions.nil?
-
-        if depictions
-          ::CollectingEvent.joins(:depictions).distinct
-        else
-          ::CollectingEvent.left_outer_joins(:depictions)
-            .where(depictions: {id: nil})
-            .distinct
         end
       end
 
@@ -327,7 +354,7 @@ module Queries
         when 'Point'
           ::CollectingEvent
             .joins(:geographic_items)
-            .where(::GeographicItem.within_radius_of_wkt_sql(wkt, radius )) # !! TODO: radius is not defined
+            .where(::GeographicItem.within_radius_of_wkt_sql(wkt, radius ))
         when 'Polygon', 'MultiPolygon'
           ::CollectingEvent
             .joins(:geographic_items)
@@ -371,6 +398,15 @@ module Queries
         table[:verbatim_locality].matches(t)
       end
 
+      def collectors_facet 
+        return nil if collectors.nil?
+        if collectors
+          ::CollectingEvent.joins(:collectors)
+        else
+          ::CollectingEvent.where.missing(:collectors)
+        end
+      end
+
       def biological_association_query_facet
         return nil if biological_association_query.nil?
         s = 'WITH query_ba_ces AS (' + biological_association_query.all.to_sql + ') ' +
@@ -412,16 +448,17 @@ module Queries
           source_query_facet,
           collection_object_query_facet,
           biological_association_query_facet,
-
+         
+          collectors_facet,
           collection_objects_facet,
           collector_id_facet,
-          depictions_facet,
           geo_json_facet,
           geographic_area_facet,
           geographic_area_id_facet,
           georeferences_facet,
           matching_collection_object_id,
           otu_id_facet,
+          use_facet,
           wkt_facet,
         ]
       end

@@ -1,50 +1,62 @@
 module Queries
   module Image
     class Filter < Query::Filter
-
       include Queries::Concerns::Tags
 
       PARAMS = [
         :ancestor_id_target,
         :biocuration_class_id,
+        :collecting_event_id,
         :collection_object_id,
+        :collection_object_scope,
+        :content_id,
         :depiction,
-        :identifier,
-        :identifier_end,
-        :identifier_exact,
-        :identifier_start,
         :image_id,
+        :observation_id,
         :otu_id,
         :sled_image_id,
+        :source_id,
         :taxon_name_id,
-        :user_date_end,
-        :user_date_start,
-        :user_id, # user
-        :user_target,
+
         biocuration_class_id: [],
+        collecting_event_id: [],
         collection_object_id: [],
+        content_id: [],
         image_id: [],
         keyword_id_and: [],
         keyword_id_or: [],
+        observation_id: [],
         otu_id: [],
-        sled_image_id: [],
-        taxon_name_id: [],
         otu_scope: [],
+        sled_image_id: [],
+        source_id: [],
+        taxon_name_id: [],
       ].freeze
 
       # @return [Array]
-      #   only return objects with this collecting event ID
+      #   images depicting content
+      attr_accessor :content_id
+
+      # @return [Array]
+      #   images depicting collecting_event
       attr_accessor :collecting_event_id
 
       # @return [Array]
-      #    a list of Collection object ids, matches one ot one only
+      #   images depicting collecting_object
       attr_accessor :collection_object_id
 
       # @return [Array]
-      #    a list of Otu ids, matches one ot one only
-      # @param otu_id [Array, Integer]
-      #   `otu_id=1` or `otu_id[]=1`
+      #   images depicting otus
       attr_accessor :otu_id
+
+      # @return [Array]
+      #   images depicting observations
+      attr_accessor :observation_id
+
+      # @return [Protonym.id, nil]
+      #   return all images depicting an Otu that is self or descendant linked
+      #   to this TaxonName
+      attr_accessor :taxon_name_id
 
       # @return [Array]
       # A sub scope of sorts. Purpose is to gather all images
@@ -95,11 +107,6 @@ module Queries
       #   nil - either
       attr_accessor :depiction
 
-      # @return [Protonym.id, nil]
-      #   return all images depicting an Otu that is self or descendant linked
-      #   to this TaxonName
-      attr_accessor :taxon_name_id
-
       # TODO: taxon_name_id_target?
       # @return [Array]
       #   one or both of 'Otu', 'CollectionObject', defaults to both if nothing provided
@@ -119,25 +126,51 @@ module Queries
       # @param params [Hash]
       def initialize(query_params)
         super
-
+        
         @ancestor_id_target = params[:ancestor_id_target]
         @biocuration_class_id = params[:biocuration_class_id]
         @collecting_event_id = params[:collecting_event_id]
         @collection_object_id = params[:collection_object_id]
-        @collection_object_scope = params[:collection_object_scope]&.map(&:to_sym)
+        @collection_object_scope = params[:collection_object_scope]
+        @content_id = params[:content_id]
         @depiction = boolean_param(params, :depiction)
         @image_id = params[:image_id]
+        @observation_id = params[:observation_id]
         @otu_id = params[:otu_id]
         @otu_scope = params[:otu_scope]&.map(&:to_sym)
         @sled_image_id = params[:sled_image_id]
         @sqed_depiction_id = params[:sqed_depiction_id]
         @taxon_name_id = params[:taxon_name_id]
-
+       
         set_tags_params(params)
+      end
+
+      def observation_id 
+        [ @observation_id ].flatten.compact
+      end
+
+      def content_id
+        [ @content_id ].flatten.compact
       end
 
       def taxon_name_id
         [ @taxon_name_id ].flatten.compact
+      end
+
+      def collection_object_id
+        [ @collection_object_id ].flatten.compact
+      end
+
+      def collecting_event_id
+        [ @collecting_event_id ].flatten.compact
+      end
+
+      def image_id
+        [ @image_id ].flatten.compact
+      end
+
+      def otu_id
+        [ @otu_id ].flatten.compact
       end
 
       def ancestor_id_target
@@ -150,28 +183,12 @@ module Queries
         [ @biocuration_class_id ].flatten.compact
       end
 
-      def image_id
-        [ @image_id ].flatten.compact
-      end
-
-      def otu_id
-        [ @otu_id ].flatten.compact
-      end
-
       def otu_scope
         [ @otu_scope ].flatten.compact.map(&:to_sym)
       end
 
       def collection_object_scope
         [ @collection_object_scope ].flatten.compact.map(&:to_sym)
-      end
-
-      def collection_object_id
-        [ @collection_object_id ].flatten.compact
-      end
-
-      def collecting_event_id
-        [ @collecting_event_id ].flatten.compact
       end
 
       def sled_image_id
@@ -217,11 +234,13 @@ module Queries
 
       def depiction_facet
         return nil if depiction.nil?
-        subquery = ::Image.joins(:depictions).where(table[:id].eq(depiction_table[:image_id])).arel.exists
-        ::Image.where(depiction == true ? subquery : subquery.not)
+        if depiction
+          ::Image.joins(:depictions)
+        else
+          ::Image.where.missing(:depictions)
+        end
       end
 
-      # facet
       def type_facet
         return nil if is_type.nil?
         table[:type].eq(collection_object_type)
@@ -235,16 +254,6 @@ module Queries
       def sqed_depiction_facet
         return nil if sqed_depiction_id.empty?
         ::Image.joins(depictions: [:sqed_depiction]).where(sqed_depictions: {id: sqed_depiction_id})
-      end
-
-      def otu_facet
-        return nil if otu_id.empty? || !otu_scope.empty?
-        build_depiction_facet('Otu', otu_id)
-      end
-
-      def collection_object_facet
-        return nil if collection_object_id.empty? || !collection_object_scope.empty?
-        build_depiction_facet('CollectionObject', collection_object_id)
       end
 
       def coordinate_otu_ids
@@ -300,11 +309,12 @@ module Queries
             :collection_object_facet_observations,
             :collection_object_facet_collecting_events,
           ]
-        else
-
+        elsif collection_object_scope.present? 
           selected.push :collection_object_facet_collection_objects if collection_object_scope.include?(:collection_objects)
           selected.push :collection_object_facet_observations if collection_object_scope.include?(:observations)
           selected.push :collection_object_facet_collecting_events if collection_object_scope.include?(:collecting_events)
+        else
+          selected.push collection_object_facet_collection_objects 
         end
 
         q = selected.collect{|a| '(' + send(a).to_sql + ')'}.join(' UNION ')
@@ -358,19 +368,6 @@ module Queries
       def otu_facet_otu_observations(otu_ids)
         ::Image.joins(:observations)
           .where(observations: {observation_object_id: otu_ids, observation_object_type: 'Otu'})
-      end
-
-      # @return [ActiveRecord::Relation]
-      def and_clauses
-        clauses = base_and_clauses
-
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
       end
 
       # @return [Scope]
@@ -469,51 +466,47 @@ module Queries
         # end
 
       end
+     
+      def query_facets_facet(name = nil)
+        return nil if name.nil?
 
-      def otu_query_facet
-        return nil if otu_query.nil?
-        s = 'WITH query_otu_img AS (' + otu_query.all.to_sql + ') ' +
+        q = send((name + '_query').to_sym)
+
+        return nil if q.nil?
+       
+        n = "query_#{name}_img"
+
+        s = "WITH #{n} AS (" + q.all.to_sql + ') ' +
           ::Image
           .joins(:depictions)
-          .joins("JOIN query_otu_img as query_otu_img1 on depictions.depiction_object_id = query_otu_img.id AND depictions.depiction_object_type = 'Otu'") # Don't change, see `validify`
-          .to_sql
-
-        ::Image.from('(' + s + ') as images').distinct
-      end
-
-      def observation_query_facet
-        return nil if observation_query.nil?
-        s = 'WITH query_ob_i AS (' + observation_query.all.to_sql + ') ' +
-          ::Image.joins(:depictions)
-          .joins("JOIN query_ob_i as query_ob_i1 on query_ob_i1.id = depictions.depiction_object_id AND depictions.depiction_object_type = #{table.name}")
+          .joins("JOIN #{n} as #{n}1 on depictions.depiction_object_id = #{n}1.id AND depictions.depiction_object_type = '#{name.treetop_camelize}'")
           .to_sql
 
         ::Image.from('(' + s + ') as images')
       end
 
       def and_clauses
-        clauses = [
-          image_facet
-        ]
+        [ image_facet ]
       end
 
       def merge_clauses
-        #  clauses += collecting_event_merge_clauses + collecting_event_and_clauses
+        s = ::Queries::Query::Filter::SUBQUERIES.select{|k,v| v.include?(:image)}.keys.map(&:to_s)
         [
           # type_material_facet,
           # type_material_type_facet,
-          ancestors_facet,
+          *s.collect{|m| query_facets_facet(m)}, # Reference all the Image referencing SUBQUERIES
+          ancestors_facet,  # currently covers taxon_name_id
           biocuration_facet,
           build_depiction_facet('CollectingEvent', collecting_event_id),
-          collection_object_facet,
-          collection_object_scope_facet,
+          build_depiction_facet('Observation', observation_id),
+          build_depiction_facet('Content', content_id),
+
+          # build_depiction_facet('CollectionObject', collection_object_id),
+          collection_object_scope_facet, # handles ^
+
           depiction_facet,
-          observation_query_facet,
-          otu_facet,
-          otu_query_facet,
           otu_scope_facet,
           sled_image_facet,
-          source_query_facet,
           sqed_depiction_facet,
         ]
       end

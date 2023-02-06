@@ -90,10 +90,10 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     expect(q.all).to contain_exactly(o1)
   end
 
-  specify '#depictions' do
+  specify '#images' do
     o2
     c = FactoryBot.create(:valid_depiction, depiction_object:  o1 ) 
-    q.depictions = true
+    q.images = true
     expect(q.all).to contain_exactly(o1)
   end
   

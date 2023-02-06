@@ -18,5 +18,6 @@ export const BiologicalAssociation = {
   ],
   ids: [
     FILTER_OTU,
+    FILTER_COLLECTION_OBJECT
   ]
 }

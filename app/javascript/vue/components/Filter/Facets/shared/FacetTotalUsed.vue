@@ -4,7 +4,7 @@
     <div class="field label-above">
       <label>Used more than</label>
       <input
-        v-model="params.role_total_min"
+        v-model="params.use_min"
         type="number"
         class="input-xsmall-width"
       />
@@ -12,7 +12,7 @@
     <div class="field label-above">
       <label>Used less than</label>
       <input
-        v-model="params.role_total_max"
+        v-model="params.use_max"
         type="number"
         class="input-xsmall-width"
       />

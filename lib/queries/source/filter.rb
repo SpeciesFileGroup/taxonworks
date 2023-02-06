@@ -424,7 +424,7 @@ module Queries
           attribute_exact_facet(:author),
           attribute_exact_facet(:title),
           bibtex_type_facet,
-          cached,
+          cached_facet,
           serial_facet,
           serial_ids_facet,
           source_ids_facet,

@@ -17,7 +17,6 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
 
   let(:query) { Queries::BiologicalAssociation::Filter }
 
-
   # TODO: meld with 
   context 'subqueries' do
     specify 'A->B->A params' do
@@ -39,7 +38,6 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
       q = query.new(p)
       expect(q.deep_permit(p).to_hash.deep_symbolize_keys).to eq(h)
     end
-
   end
 
   specify '#object_scope' do

@@ -3,13 +3,12 @@ require_dependency 'lib/queries/query/filter'
 module Queries
   module AssertedDistribution
 
-    # TODO:
-    #   add geographic_area_mode
-    #   inherit from queries
-    #   add annotations
-
     # !! does not inherit from base query
     class Filter < Query::Filter
+
+      include Queries::Concerns::Tags
+      include Queries::Concerns::Notes
+      include Queries::Concerns::DataAttributes
 
       PARAMS = [
         :descendants,
@@ -18,14 +17,9 @@ module Queries
         :geographic_area_mode,
         :otu_id,
         :presence,
+        :radius,
         :taxon_name_id,
         :wkt,
-
-        :user_date_end,
-        :user_date_start,
-        :user_id,
-        :user_target,
-
         geographic_area_id: [],
         otu_id: [],
         taxon_name_id: [],
@@ -66,18 +60,9 @@ module Queries
       #  false, nil - only exact matches
       attr_accessor :descendants
 
-      # Add citations extension
-
-      # @param sourceid [Array, Integer, String]
-      # @return [Array]
-      # attr_accessor :source_id
-
-      # @param otu_id [Array, Integer, String]
-      # @return [Array]
-      # attr_accessor :is_original
-
-      # TODO: replicate the TaxonName Parenthood params here
-      # attr_accessor ancestor
+      # Integer in Meters
+      #   !! defaults to 100m
+      attr_accessor :radius
 
       def initialize(params)
         super
@@ -88,8 +73,13 @@ module Queries
         @geographic_area_mode = boolean_param(params, :geographic_area_mode)
         @otu_id = params[:otu_id]
         @presence = boolean_param(params, :presence)
+        @radius = params[:radius].presence || 100
         @taxon_name_id = params[:taxon_name_id]
         @wkt = params[:wkt]
+
+        set_data_attributes_params(params)
+        set_notes_params(params)
+        set_tags_params(params)
       end
 
       def otu_id
@@ -104,14 +94,6 @@ module Queries
         [@taxon_name_id].flatten.compact
       end
 
-      def asserted_distribution_attribute_equals(attribute)
-        a = send(attribute)
-        if a
-          return a.empty? ? nil : table[attribute].eq_any(a)
-        end
-        nil
-      end
-
       def presence_facet
         return nil if presence.nil?
         if presence
@@ -121,7 +103,6 @@ module Queries
         end
       end
 
-      # TODO - joins, not n+1
       def wkt_facet
         return nil if wkt.nil?
         from_wkt(wkt)
@@ -168,8 +149,7 @@ module Queries
         if geometry = RGeo::GeoJSON.decode(geo_json)
           case geometry.geometry_type.to_s
           when 'Point'
-            # TODO:  radius = WHAT?
-            ::GeographicItem.where(::GeographicItem.within_radius_of_wkt_sql(geometry.to_s, radius ) ) # TODO: FIX THIS, radius is not defined
+            ::GeographicItem.where(::GeographicItem.within_radius_of_wkt_sql(geometry.to_s, radius ) )
           when 'Polygon', 'MultiPolygon'
             ::GeographicItem.where(::GeographicItem.contained_by_wkt_sql(geometry.to_s))
           else
@@ -262,20 +242,19 @@ module Queries
 
       def and_clauses
         [
-          taxon_name_query_facet,
           otu_id_facet,
           presence_facet,
-          asserted_distribution_attribute_equals(:otu_id),  # TODO: handles array?multiple?
         ]
       end
 
       def merge_clauses
         [
           biological_association_query_facet,
+          geo_json_facet,
           otu_query_facet,
           source_query_facet,
+          taxon_name_query_facet,
 
-          geo_json_facet,
           geographic_area_id_facet,
           taxon_name_id_facet,
           wkt_facet,

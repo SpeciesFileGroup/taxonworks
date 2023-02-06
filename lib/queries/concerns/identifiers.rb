@@ -127,7 +127,6 @@ module Queries::Concerns::Identifiers
     ]
   end
 
-  # TODO: use where.between
   def between
     Arel::Nodes::Between.new(
       identifier_table[:cached_numeric_identifier],

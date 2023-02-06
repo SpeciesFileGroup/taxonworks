@@ -58,14 +58,15 @@ const props = defineProps({
 
 const WITH_PARAMS = [
   'citations',
-  'origin_citation',
   'collection_objects',
-  'depictions',
+  'collectors',
   'data_attributes',
+  'images',
   'geographic_area',
   'georeferences',
   'identifiers',
-  'local_identifiers'
+  'local_identifiers',
+  'origin_citation',
 ]
 
 const emit = defineEmits(['update:modelValue'])

@@ -65,29 +65,6 @@ module Queries
         a
       end
 
-=begin
-      # @return [ActiveRecord object, nil]
-      # TODO: DRY
-      def object_for
-        if o = GlobalID::Locator.locate(object_global_id)
-          o
-        else
-          nil
-        end
-      end
-
-      # TODO: Dry
-      # @return [Arel::Node, nil]
-      def matching_object
-        if o = object_for
-          table["confidence_object_id"].eq(o.id).and(
-              table["confidence_object_type"].eq(o.metamorphosize.class.name)
-          )
-        else
-          nil
-        end
-      end
-=end
       # @return [Arel::Node, nil]
       def matching_confidence_level_id
         !confidence_level_id.blank? ? table[:confidence_level_id].eq_any(confidence_level_id)  : nil

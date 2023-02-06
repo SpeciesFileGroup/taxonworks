@@ -102,16 +102,6 @@ module Queries
         controlled_vocabulary_term_id.empty? ? nil : table[:controlled_vocabulary_term_id].eq_any(controlled_vocabulary_term_id)
       end
 
-      # @return [ActiveRecord object, nil]
-      # TODO: DRY
-      def object_for
-        if o = GlobalID::Locator.locate(object_global_id)
-          o
-        else
-          nil
-        end
-      end
-
       # @return [ActiveRecord::Relation]
       def all
         if _a = and_clauses

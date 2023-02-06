@@ -21,7 +21,6 @@ module Queries
       nodes
     end
 
-    # TODO: rename
     # @params params [ActionController::Parameters]
     #    from controller, MUST BE the full, pre-permitted set
     # @params klass [ ApplicationRecord subclass]

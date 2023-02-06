@@ -12,6 +12,7 @@ module Queries
     #   the initial, unparsed value
     attr_accessor :query_string
 
+    # TODO: Make it params
     # parameters from keyword_args, used to group and pass along things like annotator params
     attr_accessor :options
 
@@ -247,7 +248,7 @@ module Queries
 
     # @return [ActiveRecord::Relation]
     def autocomplete_cached
-      if a = cached
+      if a = cached_facet
         base_query.where(a.to_sql).limit(20)
       else
         nil

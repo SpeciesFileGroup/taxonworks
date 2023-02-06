@@ -44,23 +44,24 @@ module Queries
     # app/javascript/vue/routes/routes.js
     # app/javascript/vue/components/radials/linker/links 
     #
-    # This is read as  :too <- [:from1, from1] ].
+    # This is read as  :to <- [:from1, from1] ].
     SUBQUERIES = {
       asserted_distribution: [:source, :otu, :biological_association, :taxon_name],
       biological_association: [:source, :collecting_event, :otu, :collection_object, :taxon_name],
-      collecting_event: [:source, :collection_object, :biological_association, :otu],
-      collection_object: [:source, :otu, :taxon_name, :collecting_event, :biological_association, :extract],
-      content: [:source, :otu, :taxon_name],
+      collecting_event: [:source, :collection_object, :biological_association, :otu, :image],
+      collection_object: [:source, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image],
+      content: [:source, :otu, :taxon_name, :image],
       descriptor: [:source, :observation, :otu],
-      
       extract: [:source, :otu, :collection_object],
-      
-      image: [:source, :otu, :observation],
+
+      # --- 
+
+      image: [:source, :otu, :observation, :collection_object, :taxon_name, :content],
       loan: [],
-      observation: [:source, :descriptor],
-      otu: [:source, :taxon_name, :collection_object, :extract, :collecting_event, :content, :biological_association, :asserted_distribution, :descriptor],
+      observation: [:source, :descriptor, :image],
+      otu: [:source, :taxon_name, :collection_object, :extract, :collecting_event, :content, :biological_association, :asserted_distribution, :descriptor, :image],
       source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :source, :taxon_name],
-      taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :otu, :source ],
+      taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :otu, :source, :image ],
     }.freeze
 
     # We could consider `.safe_constantize` to make this a f(n), but we'd have 
@@ -68,9 +69,7 @@ module Queries
     # 
     FILTER_QUERIES = {
       asserted_distribution_query: '::Queries::AssertedDistribution::Filter', 
-      
       biological_association_query: '::Queries::BiologicalAssociation::Filter',
-
       collecting_event_query: '::Queries::CollectingEvent::Filter', 
       collection_object_query: '::Queries::CollectionObject::Filter', 
       content_query: '::Queries::Content::Filter', 
@@ -116,7 +115,7 @@ module Queries
     # @return [Query::Descriptor::Filter, nil]
     attr_accessor :descriptor_query
 
-    # @return [Query::Descriptor::Filter, nil]
+    # @return [Query::Image::Filter, nil]
     attr_accessor :image_query
 
     # @return [Query::TaxonName::Filter, nil]
@@ -144,13 +143,14 @@ module Queries
 
     # @return Hash
     # the parsed/permitted params 
-    #   that were used to initialize the query
-    # !! other attributes do not alter this !! 
+    #   that were used to on initialize() only!!
+    # !! Using setters directly on query parameters will not alter this variable !!
+    # !! This is used strictly during the permission process of ActionController::Parameters !!
     attr_reader :params
 
     # @return Hash
     def initialize(query_params)
-
+      
       if query_params.kind_of?(Hash)
         @params = query_params
       elsif query_params.kind_of?(ActionController::Parameters)
@@ -183,10 +183,13 @@ module Queries
       f.push ::Queries::Concerns::DataAttributes if self < ::Queries::Concerns::DataAttributes
       f.push ::Queries::Concerns::Identifiers if self < ::Queries::Concerns::Identifiers
       f.push ::Queries::Concerns::Protocols if self < ::Queries::Concerns::Protocols
+      f.push ::Queries::Concerns::Depictions if self < ::Queries::Concerns::Depictions
 
       f
     end
 
+    # @return Array
+    #  merges `[:a, {a: []}]` into [:a]
     def self.params
       a = self::PARAMS.dup
       b = a.pop.keys
@@ -308,9 +311,7 @@ module Queries
     # @params params ActionController::Parameters
     # @return ActionController::Parameters 
     def deep_permit(params)
-      params.permit(
-        permitted_params(params.to_unsafe_hash)
-      )
+      p = params.permit( permitted_params(params.to_unsafe_hash))
     end
 
     # @params params [Hash] 

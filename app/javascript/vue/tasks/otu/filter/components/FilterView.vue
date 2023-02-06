@@ -21,7 +21,7 @@
   />
   <FacetIdentifiers v-model="params" />
   <FacetWith
-    v-for="param in WITH_PARAM"
+    v-for="param in WITH_PARAMS"
     :key="param"
     :title="param"
     :param="param"
@@ -45,7 +45,7 @@ import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
 import FacetTags from 'components/Filter/Facets/shared/FacetTags.vue'
 import FacetIdentifiers from 'components/Filter/Facets/shared/FacetIdentifiers.vue'
 
-const WITH_PARAM = [
+const WITH_PARAMS = [
   'asserted_distributions',
   'biological_associations',
   'citations',

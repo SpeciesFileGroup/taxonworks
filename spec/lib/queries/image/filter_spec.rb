@@ -16,6 +16,14 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
   let(:t2) { Protonym.create(name: 'Aus', parent: t1, rank_class: Ranks.lookup(:iczn, :genus) ) }
   let(:t3) { Protonym.create(name: 'bus', parent: t2, rank_class: Ranks.lookup(:iczn, :species) ) }
 
+  specify '#params, ActionController::Parameters, array' do
+    ce.images << i1
+    h = {collecting_event_id: [ce.id]}
+    p = ActionController::Parameters.new( h  )
+    query = Queries::Image::Filter.new(p) 
+    expect(query.params ).to eq(h)
+  end
+
   specify '#collection_object_scope :observations' do
     t = FactoryBot.create(:valid_observation, observation_object: co)
     t.images << i1
@@ -60,7 +68,6 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     expect(q.coordinate_otu_ids).to contain_exactly(o.id, o1.id)
   end
 
-
   specify '#otu_scope :coordinate_otus, :collection_object_observations' do
     # First image, on valid
     o.update!(taxon_name: t3)
@@ -94,7 +101,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     t = Protonym.create(name: 'cus', parent: t2, rank_class: Ranks.lookup(:iczn, :species) )
     t.synonymize_with(t3)
 
-    o.update(taxon_name: t3)
+    o.update!(taxon_name: t3)
 
     o1 = Otu.create!(taxon_name: t)
     o1.images << i2
@@ -114,7 +121,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     t = Protonym.create(name: 'cus', parent: t2, rank_class: Ranks.lookup(:iczn, :species) )
     t.synonymize_with(t3)
 
-    o.update(taxon_name: t3)
+    o.update!(taxon_name: t3)
     o1 = Otu.create!(taxon_name: t)
 
     td = TaxonDetermination.create!(otu: o1, biological_collection_object: Specimen.create!)
@@ -134,7 +141,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     t = Protonym.create(name: 'cus', parent: t2, rank_class: Ranks.lookup(:iczn, :species) )
     t.synonymize_with(t3)
 
-    o.update(taxon_name: t3)
+    o.update!(taxon_name: t3)
     o1 = Otu.create!(taxon_name: t)
 
     o1.images << i2
@@ -219,6 +226,14 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     co.images << i1
     q.collection_object_id = [co.id]
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
+  specify '#params' do
+    ce.images << i1
+    h = {collecting_event_id: [ce.id]}
+    p = ActionController::Parameters.new( h  )
+    query = Queries::Image::Filter.new(p) 
+    expect(query.params ).to eq(h)
   end
 
   specify '#collecting_event_id id' do

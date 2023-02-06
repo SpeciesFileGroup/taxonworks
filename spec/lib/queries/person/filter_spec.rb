@@ -23,7 +23,7 @@ describe Queries::Person::Filter, type: :model, group: :people do
 
   let(:collecting_event) {
     CollectingEvent.create!(
-      verbatim_locality: 'Neverland',
+      verbatim_locality: 'Alwaysland',
       with_verbatim_data_georeference: true,
       verbatim_latitude: '10',
       verbatim_longitude: '10',
@@ -31,15 +31,15 @@ describe Queries::Person::Filter, type: :model, group: :people do
 
   let(:query) { Queries::Person::Filter.new() }
 
-  specify '#role_total_min' do
-    query.role_total_min = 2
+  specify '#use_min' do
+    query.use_min = 2
     expect(query.all.map(&:id)).to be_empty
   end
 
-  specify '#role_total_min 2' do
+  specify '#use_min 2' do
     collecting_event
     s = FactoryBot.create(:valid_source, authors: [p2]) # p1 an author, not eliminated
-    query.role_total_min = 2
+    query.use_min = 2
     expect(query.all.map(&:id)).to contain_exactly(p2.id)
   end
 

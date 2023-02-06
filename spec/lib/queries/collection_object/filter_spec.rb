@@ -291,9 +291,9 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       updated_at: '2015-01-01'
     ) }
 
-    specify '#depictions' do
+    specify '#images' do
       t = FactoryBot.create(:valid_depiction, depiction_object: co1)
-      query.depictions = true
+      query.images = true
       expect(query.all.pluck(:id)).to contain_exactly(co1.id)
     end
 

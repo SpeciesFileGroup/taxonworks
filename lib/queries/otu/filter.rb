@@ -7,6 +7,7 @@ module Queries
       include Queries::Helpers
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Tags
+      include Queries::Concerns::Depictions
 
       # Changelog
       # `name` now handles one or more of Otu#name
@@ -23,7 +24,6 @@ module Queries
         :collecting_event_id,
         :collection_objects,
         :contents,
-        :depictions,
         :descendants,
         :descriptor_id,
         :geo_json,
@@ -143,13 +143,6 @@ module Queries
       attr_accessor :contents
 
       # @return [True, False, nil]
-      #   true - Otu has Depictions
-      #   false - Otu without Depictions
-      #   nil - not applied
-      #  Currently applies only directly on OTU
-      attr_accessor :depictions
-
-      # @return [True, False, nil]
       #   true - Otu has CollectionObjects
       #   false - Otu without CollectionObjects
       #   nil - not applied
@@ -187,7 +180,6 @@ module Queries
         @collecting_event_id = params[:collecting_event_id]
         @collection_objects = boolean_param(params, :collection_objects)
         @contents = boolean_param(params, :contents)
-        @depictions = boolean_param(params, :depictions)
         @descendants = boolean_param(params, :descendants)
         @descriptor_id = params[:descriptor_id]
         @geo_json = params[:geo_json]
@@ -202,6 +194,7 @@ module Queries
         @taxon_name_id = params[:taxon_name_id]
         @wkt = params[:wkt]
 
+        set_depiction_params(params)
         set_data_attributes_params(params)
         set_tags_params(params)
       end
@@ -330,15 +323,6 @@ module Queries
             ::Otu.from(
               "((#{a.to_sql}) UNION (#{b.to_sql})) as ba_otus_join"
             ).where('otus.id = ba_otus_join.id') ).to_sql  + ')' )  # where includes in/out link
-        end
-      end
-
-      def depictions_facet
-        return nil if depictions.nil?
-        if depictions
-          ::Otu.joins(:depictions)
-        else
-          ::Otu.where.missing(:depitions)
         end
       end
 
@@ -562,7 +546,6 @@ module Queries
           collecting_event_id_facet,
           collection_objects_facet,
           contents_facet,
-          depictions_facet,
           descriptor_id_facet,
           geo_json_facet,
           geographic_area_id_facet,

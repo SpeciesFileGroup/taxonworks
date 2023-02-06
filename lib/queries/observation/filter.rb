@@ -5,6 +5,7 @@ module Queries
     class Filter < Query::Filter
       include Queries::Concerns::Notes
       include Queries::Concerns::Tags
+      include Queries::Concerns::Depictions
 
       PARAMS = [
         :character_state_id,
@@ -70,6 +71,7 @@ module Queries
         @taxon_name_id = params[:taxon_name_id]
         @descendants = boolean_param(params, :descendants)
 
+        set_depiction_params(params)
         set_tags_params(params)
         set_notes_params(params)
       end
