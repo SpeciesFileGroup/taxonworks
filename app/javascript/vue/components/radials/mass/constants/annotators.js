@@ -1,4 +1,5 @@
 import {
+  ATTRIBUTION,
   ALTERNATE_VALUE,
   CITATION,
   CONFIDENCE,
@@ -15,10 +16,15 @@ import AnnotatorTag from '../components/Annotator/AnnotatorTag.vue'
 import AnnotatorNote from '../components/Annotator/AnnotatorNote.vue'
 import AnnotatorConfidence from '../components/Annotator/AnnotatorConfidence.vue'
 import AnnotatorVerifier from '../components/Annotator/AnnotatorVerifier.vue'
+import AnnotatorAttribution from '../components/Annotator/Attribution/AttributionMain.vue'
 
 export const ANNOTATORS = {
   [ALTERNATE_VALUE]: {
     label: 'Alternate values'
+  },
+  [ATTRIBUTION]: {
+    label: 'Attribution',
+    component: AnnotatorAttribution
   },
   [CITATION]: {
     label: 'Citations'
@@ -48,7 +54,7 @@ export const ANNOTATORS = {
     component: AnnotatorTag
   },
   [VERIFIER]: {
-    label: 'Verifiers',
+    label: 'Verifiers'
     //component: AnnotatorVerifier
   }
 }

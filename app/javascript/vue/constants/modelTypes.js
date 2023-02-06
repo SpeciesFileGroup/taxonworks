@@ -1,4 +1,5 @@
 export const ALTERNATE_VALUE = 'AlternateValue'
+export const ATTRIBUTION = 'Attribution'
 export const ASSERTED_DISTRIBUTION = 'AssertedDistribution'
 export const BIOCURATION_CLASS = 'BiocurationClass'
 export const BIOCURATION_GROUP = 'BiocurationGroup'

@@ -24,11 +24,6 @@
             type="Image"
             :ids="selectedIds"
           />
-          <AttributionComponent
-            class="margin-small-right margin-xsmall-left"
-            :ids="selectedIds"
-            type="Image"
-          />
           <span>|</span>
           <div class="margin-small-left">
             <SelectAll
@@ -64,7 +59,6 @@ import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
 import TagAll from 'tasks/collection_objects/filter/components/tagAll.vue'
 import SelectAll from 'tasks/collection_objects/filter/components/selectAll.vue'
-import AttributionComponent from './components/attributions/main.vue'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import { IMAGE } from 'constants/index.js'
