@@ -37,7 +37,6 @@ module Queries
         queries.each_with_index do |q ,i|
           a = q
           if project_id
-            # a = q.joins(:project_sources).where(member_of_project_id.to_sql) if project_id && limit_to_project
             a = a.select("serials.*, COUNT(project_sources.source_id) AS use_count, CASE WHEN project_sources.project_id = #{Current.project_id} THEN project_sources.project_id ELSE NULL END AS in_project")
                  .left_outer_joins(:sources)
                  .joins('LEFT OUTER JOIN project_sources ON sources.id = project_sources.source_id')

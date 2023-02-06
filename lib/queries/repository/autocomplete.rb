@@ -50,7 +50,7 @@ module Queries
         [autocomplete_exactly_named, true],
         [autocomplete_exact_acronym, true],
         [autocomplete_identifier_identifier_exact, nil],
-        [autocomplete_acronym_match.limit(5), true],
+        [autocomplete_acronym_match.limit(10), true],
         [autocomplete_named, true ],
         [autocomplete_alternate_values_acronym.limit(20), true ],
         [autocomplete_alternate_values_name.limit(20), true ]
@@ -63,7 +63,6 @@ module Queries
       queries.each do |q, scope|
         a = q
         if project_id && scope
-          # TODO: there are now 2 repository references, see also current_repository_id
           a = a.select("repositories.*, COUNT(collection_objects.id) AS use_count, CASE WHEN collection_objects.project_id = #{Current.project_id} THEN collection_objects.project_id ELSE NULL END AS in_project")
             .joins('LEFT OUTER JOIN collection_objects ON (repositories.id = collection_objects.repository_id OR repositories.id = collection_objects.current_repository_id)')
             .where('collection_objects.project_id = ? OR collection_objects.project_id IS DISTINCT FROM ?', project_id, project_id)
