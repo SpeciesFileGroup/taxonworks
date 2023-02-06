@@ -99,7 +99,10 @@ const menuOptions = computed(() => {
       isOnlyIds.value ? getParametersForId() : getParametersForAll(item.params)
     )
 
-    const link = item.link + '?' + qs.stringify(filteredParameters)
+    const link =
+      item.link +
+      '?' +
+      qs.stringify(filteredParameters, { arrayFormat: 'brackets' })
 
     if (Object.values(filteredParameters).some(Boolean)) {
       slices.push(addSlice({ ...item, link }))

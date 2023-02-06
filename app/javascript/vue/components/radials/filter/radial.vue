@@ -126,7 +126,10 @@ const menuOptions = computed(() => {
     const urlParameters = { ...queryObject.value, per: props.parameters?.per }
 
     const urlWithParameters =
-      item.link + (hasParameters.value ? `?${Qs.stringify(urlParameters)}` : '')
+      item.link +
+      (hasParameters.value
+        ? `?${Qs.stringify(urlParameters, { arrayFormat: 'brackets' })}`
+        : '')
 
     return addSlice({
       ...item,
