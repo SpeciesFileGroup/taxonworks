@@ -1,6 +1,7 @@
 <template>
   <FacetContainer>
     <h3>Taxon name</h3>
+    <slot name="top"></slot>
     <TaxonNameSelector
       v-model="params"
       :relation="relation"
@@ -21,6 +22,7 @@
       v-if="validity"
       v-model="params"
     />
+    <slot name="bottom"></slot>
   </FacetContainer>
 </template>
 

@@ -3,8 +3,11 @@
     v-model="params"
     target="Image"
   />
-  <FacetTaxonName v-model="params" />
-  <FacetAncestorTarget v-model="params" />
+  <FacetTaxonName v-model="params">
+    <template #bottom>
+      <FacetAncestorTarget v-model="params" />
+    </template>
+  </FacetTaxonName>
   <FacetCollectionObject v-model="params" />
   <FacetBiocurations v-model="params" />
   <FacetIdentifiers v-model="params" />

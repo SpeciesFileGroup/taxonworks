@@ -1,26 +1,23 @@
 <template>
-  <FacetContainer>
-    <h3>Target</h3>
-    <ul class="no_bullets">
-      <li
-        v-for="(value, key) in OPTIONS"
-        :key="key"
-      >
-        <label>
-          <input
-            type="radio"
-            :value="value"
-            v-model="params.ancestor_id_target"
-          >
-          {{ key }}
-        </label>
-      </li>
-    </ul>
-  </FacetContainer>
+  <label>Target</label>
+  <ul class="no_bullets">
+    <li
+      v-for="(value, key) in OPTIONS"
+      :key="key"
+    >
+      <label>
+        <input
+          type="radio"
+          :value="value"
+          v-model="params.taxon_name_id_target"
+        />
+        {{ key }}
+      </label>
+    </li>
+  </ul>
 </template>
 
 <script setup>
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { computed, onBeforeMount } from 'vue'
 
@@ -41,10 +38,12 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 onBeforeMount(() => {
-  params.value.ancestor_id_target = URLParamsToJSON(location.href).ancestor_id_target
+  params.value.ancestor_id_target = URLParamsToJSON(
+    location.href
+  ).ancestor_id_target
 })
 </script>
