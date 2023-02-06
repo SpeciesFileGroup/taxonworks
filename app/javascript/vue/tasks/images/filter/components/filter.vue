@@ -8,6 +8,7 @@
       <FacetAncestorTarget v-model="params" />
     </template>
   </FacetTaxonName>
+  <FacetDepictionObjectType v-model="params" />
   <FacetCollectionObject v-model="params" />
   <FacetBiocurations v-model="params" />
   <FacetIdentifiers v-model="params" />
@@ -36,6 +37,7 @@ import FacetAncestorTarget from './filters/FacetAncestorTarget.vue'
 import FacetTaxonName from 'components/Filter/Facets/TaxonName/FacetTaxonName.vue'
 import FacetOtu from 'components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
+import FacetDepictionObjectType from 'components/Filter/Facets/Depiction/FacetDepictionObjectType.vue'
 
 const props = defineProps({
   modelValue: {
