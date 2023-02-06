@@ -25,7 +25,7 @@ module HubHelper
 
   def hub_json
     return  {
-      tasks: UserTasks.hub_tasks,
+      tasks: UserTasks.hub_tasks.inject([]){|ary, t| ary.push(t.to_h.merge(url: send(t.path))) ; ary},
       data: Hub::Data::CONFIG_DATA,
       favourites: sessions_current_user.hub_favorites[sessions_current_project_id.to_s]
     }
