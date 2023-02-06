@@ -7,6 +7,7 @@ module Queries::Concerns::Depictions
     [ 
       :image_id,
       :images,
+      # :depictions ?
       image_id: []
     ]
   end
@@ -35,7 +36,7 @@ module Queries::Concerns::Depictions
   #   all sources that match all _and ids OR any OR id
   def image_id_facet
     return nil if image_id.empty?
-    referenced_klass.joins(:depictions).where(image_id: image_id)
+    referenced_klass.joins(:depictions).where(depictions: {image_id: image_id})
   end
 
   def images_facet
@@ -52,8 +53,8 @@ module Queries::Concerns::Depictions
     s = 'WITH query_images AS (' + image_query.all.to_sql + ')' 
 
     s << ' ' + referenced_klass
-    .joins(:citations)
-    .joins('JOIN query_images as query_images1 on citations.image_id = query_images1.id')
+    .joins(:depictions)
+    .joins('JOIN query_images as query_images1 on depictions.image_id = query_images1.id')
     .to_sql
 
     referenced_klass.from('(' + s + ') as ' + referenced_klass.name.tableize) 

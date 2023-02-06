@@ -2,20 +2,11 @@ module Queries
   module Otu
     class Filter < Query::Filter
 
-      # TODO: Likely need to sink some queries together (wkt, ce_id) into CO query
-
       include Queries::Helpers
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Tags
       include Queries::Concerns::Depictions
-
-      # Changelog
-      # `name` now handles one or more of Otu#name
-      # `geographic_area_ids` -> `geographic_area_id
-      # `otu_ids` -> `otu_id (String or Array)
-      # removed `taxon_name_ids`, allowed Array for `taxon_name_id`
-      # created Queries::Concerns::Citations  Citation concern and refactor filters referencing citations accordingly
-
+      
       PARAMS = [
         :asserted_distribution_id,
         :asserted_distributions,

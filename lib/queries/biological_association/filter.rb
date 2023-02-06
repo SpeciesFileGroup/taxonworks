@@ -47,9 +47,10 @@ module Queries
         taxon_name_id: [],
       ].freeze
 
-
- 
-
+      API_PARAM_EXCLUSIONS = [
+        :any_global_id
+      ]
+      
       # @return Boolean, nil
       #  if true then return relationships *excluding*
       # those listed in biological_relationship_id 

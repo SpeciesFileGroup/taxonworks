@@ -4,6 +4,8 @@ module Queries
 
       include Queries::Concerns::Tags
       include Queries::Concerns::Notes
+      include Queries::Concerns::Depictions
+
       include Queries::Helpers
 
       PARAMS = [

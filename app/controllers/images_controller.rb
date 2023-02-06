@@ -179,7 +179,7 @@ class ImagesController < ApplicationController
   # TODO: need `is_public` here
   def api_params
     params.permit(
-      :ancestor_id_target,
+      :taxon_name_target,
       :biocuration_class_id,
       :collection_object_id,
       :depiction,

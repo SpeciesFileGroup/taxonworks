@@ -289,15 +289,15 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
-  specify '#depiction false' do
+  specify '#depictions false' do
     i1
     i2
-    q.depiction = false
+    q.depictions = false
     expect(q.all.map(&:id)).to contain_exactly(i1.id, i2.id)
   end
 
   specify '#depiction true' do
-    q.depiction = true
+    q.depictions = true
     o.images << i1
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
@@ -324,7 +324,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
-  specify '#taxon_name_id, #ancestor_id_target' do
+  specify '#taxon_name_id, #taxon_name_id_target' do
     # Collection object
     o.update!(taxon_name: t3)
     co.images << i1
@@ -334,7 +334,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     o.images << i2
 
     q.taxon_name_id = [t2.id]
-    q.ancestor_id_target = 'CollectionObject'
+    q.taxon_name_id_target = 'CollectionObject'
 
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
@@ -349,7 +349,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     o.images << i2
 
     q.taxon_name_id = [t2.id]
-    q.depiction = true
+    q.depictions = true
     q.image_id = [i1.id]
 
     expect(q.all.map(&:id)).to contain_exactly(i1.id)

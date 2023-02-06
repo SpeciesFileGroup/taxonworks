@@ -4,13 +4,14 @@ module Queries
       include Queries::Concerns::Tags
 
       PARAMS = [
-        :ancestor_id_target,
+        :taxon_name_id_target,
         :biocuration_class_id,
         :collecting_event_id,
         :collection_object_id,
         :collection_object_scope,
         :content_id,
-        :depiction,
+        :depictions,
+        :depiction_object_type,
         :image_id,
         :observation_id,
         :otu_id,
@@ -22,6 +23,7 @@ module Queries
         collecting_event_id: [],
         collection_object_id: [],
         content_id: [],
+        depiction_object_type: [],
         image_id: [],
         keyword_id_and: [],
         keyword_id_or: [],
@@ -105,13 +107,19 @@ module Queries
       #   true - image is used (in a depiction)
       #   false - image is not used
       #   nil - either
-      attr_accessor :depiction
+      attr_accessor :depictions
 
-      # TODO: taxon_name_id_target?
       # @return [Array]
       #   one or both of 'Otu', 'CollectionObject', defaults to both if nothing provided
       # Only used when `taxon_name_id` provided
-      attr_accessor :ancestor_id_target
+      attr_accessor :taxon_name_id_target
+
+
+      # @return [Array]
+      # @param depiction_object_type
+      #   one or more names of classes.
+      # Restricts Images to those that depict these classes
+      attr_accessor :depiction_object_type
 
       # @return [Array]
       #   depicts some collection objec that is a type specimen
@@ -126,14 +134,14 @@ module Queries
       # @param params [Hash]
       def initialize(query_params)
         super
-        
-        @ancestor_id_target = params[:ancestor_id_target]
+       
+        @taxon_name_id_target = params[:taxon_name_id_target]
         @biocuration_class_id = params[:biocuration_class_id]
         @collecting_event_id = params[:collecting_event_id]
         @collection_object_id = params[:collection_object_id]
         @collection_object_scope = params[:collection_object_scope]
         @content_id = params[:content_id]
-        @depiction = boolean_param(params, :depiction)
+        @depictions = boolean_param(params, :depictions)
         @image_id = params[:image_id]
         @observation_id = params[:observation_id]
         @otu_id = params[:otu_id]
@@ -141,8 +149,13 @@ module Queries
         @sled_image_id = params[:sled_image_id]
         @sqed_depiction_id = params[:sqed_depiction_id]
         @taxon_name_id = params[:taxon_name_id]
-       
+        @depiction_object_type = params[:depiction_object_type]
+
         set_tags_params(params)
+      end
+
+      def depiction_object_type 
+        [ @depiction_object_type ].flatten.compact
       end
 
       def observation_id 
@@ -173,8 +186,8 @@ module Queries
         [ @otu_id ].flatten.compact
       end
 
-      def ancestor_id_target
-        a = [ @ancestor_id_target ].flatten.compact
+      def taxon_name_id_target
+        a = [ @taxon_name_id_target ].flatten.compact
         a = ['Otu', 'CollectionObject'] if a.empty?
         a
       end
@@ -232,9 +245,14 @@ module Queries
         )
       end
 
-      def depiction_facet
-        return nil if depiction.nil?
-        if depiction
+      def depiction_object_type_facet
+        return nil if depiction_object_type.empty?
+        ::Image.joins(:depictions).where(depictions: {depiction_object_type: depiction_object_type})
+      end
+
+      def depictions_facet
+        return nil if depictions.nil?
+        if depictions
           ::Image.joins(:depictions)
         else
           ::Image.where.missing(:depictions)
@@ -394,7 +412,7 @@ module Queries
         )
       end
 
-      def image_facet
+      def image_id_facet
         return nil if image_id.empty?
         table[:id].eq_any(image_id)
       end
@@ -404,7 +422,7 @@ module Queries
         ::Image.joins(:depictions).where(depictions: {depiction_object_id: ids, depiction_object_type: kind})
       end
 
-      def ancestors_facet
+      def taxon_name_id_facet
         #  Image -> Depictions -> Otu -> TaxonName -> Ancestors
         return nil if taxon_name_id.empty?
 
@@ -413,7 +431,7 @@ module Queries
 
         j1, j2, q1, q2 = nil, nil, nil, nil
 
-        if ancestor_id_target.include?('Otu')
+        if taxon_name_id_target.include?('Otu')
           a = otu_table.alias('oj1')
           b = t.alias('tj1')
           h_alias = h.alias('th1')
@@ -428,7 +446,7 @@ module Queries
           q1 = ::Image.joins(j1.join_sources).where(z)
         end
 
-        if ancestor_id_target.include?('CollectionObject')
+        if taxon_name_id_target.include?('CollectionObject')
           a = otu_table.alias('oj2')
           b = t.alias('tj2')
           h_alias = h.alias('th2')
@@ -485,26 +503,40 @@ module Queries
         ::Image.from('(' + s + ') as images')
       end
 
+      def otu_id_facet
+        return nil unless otu_id.present? && otu_scope.empty?
+        ::Image.joins(:depictions).where(depictions: {depiction_object_id: otu_id, depiction_object_type: 'Otu'})
+      end
+
+      def collection_object_id_facet
+        return nil unless collection_object_id.present? && collection_object_scope.empty?
+        ::Image.joins(:depictions).where(depictions: {depiction_object_id: collection_object_id, depiction_object_type: 'CollectionObject'})
+      end
+
       def and_clauses
-        [ image_facet ]
+        [ image_id_facet ]
       end
 
       def merge_clauses
         s = ::Queries::Query::Filter::SUBQUERIES.select{|k,v| v.include?(:image)}.keys.map(&:to_s)
         [
+          *s.collect{|m| query_facets_facet(m)}, # Reference all the Image referencing SUBQUERIES
+          depiction_object_type_facet,
+
           # type_material_facet,
           # type_material_type_facet,
-          *s.collect{|m| query_facets_facet(m)}, # Reference all the Image referencing SUBQUERIES
-          ancestors_facet,  # currently covers taxon_name_id
+
+          taxon_name_id_facet,  # currently covers taxon_name_id
           biocuration_facet,
           build_depiction_facet('CollectingEvent', collecting_event_id),
           build_depiction_facet('Observation', observation_id),
           build_depiction_facet('Content', content_id),
 
-          # build_depiction_facet('CollectionObject', collection_object_id),
-          collection_object_scope_facet, # handles ^
+          otu_id_facet,
+          collection_object_id_facet,
 
-          depiction_facet,
+          collection_object_scope_facet, 
+          depictions_facet,
           otu_scope_facet,
           sled_image_facet,
           sqed_depiction_facet,

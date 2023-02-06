@@ -42,8 +42,8 @@ const params = computed({
 })
 
 onBeforeMount(() => {
-  params.value.ancestor_id_target = URLParamsToJSON(
+  params.value.taxon_name_id_target = URLParamsToJSON(
     location.href
-  ).ancestor_id_target
+  ).taxon_name_id_target
 })
 </script>

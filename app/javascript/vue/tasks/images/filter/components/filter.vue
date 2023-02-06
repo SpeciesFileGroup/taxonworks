@@ -46,7 +46,11 @@ const props = defineProps({
   }
 })
 
-const WITH_PARAMS = ['citations', 'origin_citation']
+const WITH_PARAMS = [
+  'citations',
+  'depictions',
+  'origin_citation'
+]
 
 const emit = defineEmits(['update:modelValue'])
 
