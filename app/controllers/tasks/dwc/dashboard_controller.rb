@@ -12,9 +12,14 @@ class Tasks::Dwc::DashboardController < ApplicationController
     # we will have to scope all filter params throughout by their target base
     # e.g. collection_object[param]
     a = nil
-    if collection_object_filter_params.to_h.any?
+
+    q = ::Queries::CollectionObject::Filter.new(params)
+    q.project_id = nil
+
+    if q.all(true)
+      q.project_id = sessions_current_project_id
       a = DwcOccurrence.by_collection_object_filter(
-        filter_scope: ::Queries::CollectionObject::Filter.new(params).all,
+        filter_scope: q.all,
         project_id: sessions_current_project_id)
     else
       a = DwcOccurrence.where(project_id: sessions_current_project_id)
@@ -28,8 +33,13 @@ class Tasks::Dwc::DashboardController < ApplicationController
   end
 
   def create_index
-    if collection_object_filter_params.to_h.any?
-      metadata = ::Export::Dwca.build_index_async(CollectionObject, ::Queries::CollectionObject::Filter.new(params).all)
+
+    q = ::Queries::CollectionObject::Filter.new(params)
+    q.project_id = nil
+
+    if q.all(true)
+      q.project_id = sessions_current_project_id
+      metadata = ::Export::Dwca.build_index_async(CollectionObject, q.all)
       render json: metadata, status: :ok
     else
       render json: {}, status: :unprocessable_entity

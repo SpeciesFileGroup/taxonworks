@@ -429,6 +429,28 @@ module Queries
         ::CollectingEvent.from('(' + s + ') as collecting_events')
       end
 
+      def collection_object_query_facet
+        return nil if collection_object_query.nil?
+        s = 'WITH query_co_ce AS (' + collection_object_query.all.to_sql + ') ' +
+          ::CollectingEvent
+          .joins(:collection_objects)
+          .joins('JOIN query_co_ce as query_co_ce1 on collection_objects.id = query_co_ce1.id')
+          .to_sql
+
+        ::CollectingEvent.from('(' + s + ') as collecting_events')
+      end
+
+      def taxon_name_query_facet
+        return nil if taxon_name_query.nil?
+        s = 'WITH query_tn_ce AS (' + taxon_name_query.all.to_sql + ') ' +
+          ::CollectingEvent
+          .joins(collection_objects: [:otus])
+          .joins('JOIN query_tn_ce as query_tn_ce1 on otus.taxon_name_id = query_tn_ce1.id')
+          .to_sql
+
+        ::CollectingEvent.from('(' + s + ') as collecting_events')
+      end
+
       # @return [Array]
       def and_clauses
         clauses = attribute_clauses
@@ -444,6 +466,7 @@ module Queries
 
       def merge_clauses
         [
+          taxon_name_query_facet,
           otu_query_facet,
           source_query_facet,
           collection_object_query_facet,
@@ -461,17 +484,6 @@ module Queries
           use_facet,
           wkt_facet,
         ]
-      end
-
-      def collection_object_query_facet
-        return nil if collection_object_query.nil?
-        s = 'WITH query_co_ce AS (' + collection_object_query.all.to_sql + ') ' +
-          ::CollectingEvent
-          .joins(:collection_objects)
-          .joins('JOIN query_co_ce as query_co_ce1 on collection_objects.id = query_co_ce1.id')
-          .to_sql
-
-        ::CollectingEvent.from('(' + s + ') as collecting_events')
       end
 
     end
