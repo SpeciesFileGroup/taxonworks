@@ -1,5 +1,8 @@
 <template>
-  <FacetByAttribute v-model="params" />
+  <FacetByAttribute
+    controller="loans"
+    v-model="params"
+  />
   <FacetPerson v-model="params" />
   <FacetTags
     v-model="params"
@@ -39,19 +42,15 @@ import FacetTags from 'components/Filter/Facets/shared/FacetTags.vue'
 import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
 import FacetUsers from 'components/Filter/Facets/shared/FacetUsers.vue'
 import FacetNotes from 'components/Filter/Facets/shared/FacetNotes.vue'
+import FacetByAttribute from 'components/Filter/Facets/shared/FacetByAttribute.vue'
 import FacetIdentifiers from 'components/Filter/Facets/shared/FacetIdentifiers.vue'
 import FacetMatchIdentifiers from 'components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 import FacetTaxonName from 'components/Filter/Facets/TaxonName/FacetTaxonName.vue'
 import FacetLoanItemStatus from './Facet/FacetLoanItemStatus.vue'
-import FacetByAttribute from './Facet/FacetByAttribute.vue'
 import FacetOtu from 'components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetPerson from './Facet/FacetPerson.vue'
 
-const WITH_PARAMS = [
-  'overdue',
-  'documentation',
-  'identifiers'
-]
+const WITH_PARAMS = ['overdue', 'documentation', 'identifiers']
 
 const OVERDUE_OPTIONS = [
   {
@@ -79,7 +78,6 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
-
 </script>

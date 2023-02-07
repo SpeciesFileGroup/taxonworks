@@ -58,7 +58,7 @@ import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { addToArray, removeFromArray } from 'helpers/arrays.js'
 import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
-import displayList from 'components/displayList.vue'
+import DisplayList from 'components/displayList.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 
 const props = defineProps({

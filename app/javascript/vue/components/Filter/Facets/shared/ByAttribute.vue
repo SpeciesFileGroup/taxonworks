@@ -1,81 +1,82 @@
 <template>
-  <FacetContainer>
-    <h3>By attribute</h3>
-    <div class="horizontal-left-content align-start">
-      <div class="field separate-right full_width">
-        <label>Field</label>
-        <br />
-        <select
-          class="normal-input full_width"
-          v-model="selectedField"
+  <div class="horizontal-left-content align-start">
+    <div class="field separate-right full_width">
+      <label>Field</label>
+      <br />
+      <select
+        class="normal-input full_width"
+        v-model="selectedField"
+      >
+        <template
+          v-for="field in fields"
+          :key="field.name"
         >
-          <template
-            v-for="field in fields"
-            :key="field.name"
+          <option
+            v-if="!selectedFields.find((item) => item.param === field.name)"
+            :value="field"
           >
-            <option
-              v-if="!selectedFields.find((item) => item.param === field.name)"
-              :value="field"
-            >
-              {{ field.name }}
-            </option>
-          </template>
-        </select>
-      </div>
+            {{ field.name }}
+          </option>
+        </template>
+      </select>
     </div>
-    <AttributeForm
-      v-if="selectedField"
-      class="horizontal-left-content"
-      :field="selectedField"
-      @add="addField"
-    />
+  </div>
+  <AttributeForm
+    v-if="selectedField"
+    class="horizontal-left-content"
+    :field="selectedField"
+    @add="addField"
+  />
 
-    <div v-if="selectedFields.length">
-      <table class="full_width">
-        <thead>
-          <tr>
-            <th>Field</th>
-            <th>Value</th>
-            <th>Exact</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="(field, index) in selectedFields"
-            :key="field.param"
-          >
-            <td>{{ field.param }}</td>
-            <td>{{ field.value }}</td>
-            <td>
-              <input
-                v-if="checkForMatch(field.type)"
-                v-model="field.exact"
-                type="checkbox"
-              />
-            </td>
-            <td>
-              <span
-                class="button circle-button btn-delete button-default"
-                @click="removeField(index)"
-              />
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </FacetContainer>
+  <div v-if="selectedFields.length">
+    <table class="full_width">
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Value</th>
+          <th>Exact</th>
+          <th />
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="(field, index) in selectedFields"
+          :key="field.param"
+        >
+          <td>{{ field.param }}</td>
+          <td>{{ field.value }}</td>
+          <td>
+            <input
+              v-if="checkForMatch(field.type)"
+              v-model="field.exact"
+              type="checkbox"
+            />
+          </td>
+          <td>
+            <span
+              class="button circle-button btn-delete button-default"
+              @click="removeField(index)"
+            />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
 
 <script setup>
 import { ref, watch, computed, onBeforeMount } from 'vue'
-import { Loan } from 'routes/endpoints'
+import ajaxCall from 'helpers/ajaxCall'
 import AttributeForm from 'components/Filter/Facets/CollectingEvent/FacetCollectingEvent/AttributeForm.vue'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 
 const props = defineProps({
   modelValue: {
     type: Object,
+    required: true
+  },
+
+  controller: {
+    type: String,
     required: true
   }
 })
@@ -129,7 +130,7 @@ watch(
 )
 
 onBeforeMount(() => {
-  Loan.attributes().then((response) => {
+  ajaxCall('get', `/${props.controller}/attributes`).then((response) => {
     fields.value = response.body
 
     fields.value.forEach((field) => {

@@ -53,10 +53,9 @@
         </li>
       </ul>
     </div>
-    <add-field
-      ref="addFieldRef"
-      :list="params.fields"
-      @fields="setFields"
+    <ByAttribute
+      controller="collecting_events"
+      v-model="params"
     />
   </FacetContainer>
 </template>
@@ -64,10 +63,10 @@
 <script setup>
 import { ref, computed, watch, onBeforeMount } from 'vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-import SmartSelector from 'components/ui/SmartSelector'
-import AddField from './addFields'
-import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import { CollectingEvent } from 'routes/endpoints'
+import SmartSelector from 'components/ui/SmartSelector'
+import ByAttribute from '../../shared/ByAttribute.vue'
+import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 
 const props = defineProps({
   modelValue: {
@@ -77,7 +76,6 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:modelValue'])
-const addFieldRef = ref(null)
 
 const params = computed({
   get() {
@@ -85,12 +83,6 @@ const params = computed({
   },
   set(value) {
     emit('update:modelValue', value)
-  }
-})
-
-watch(params, (newVal) => {
-  if (!newVal.fields) {
-    addFieldRef.value.fields?.cleanList()
   }
 })
 
@@ -122,13 +114,6 @@ const addCe = (ce) => {
 
 const removeCe = (index) => {
   collectingEvents.value.splice(index, 1)
-}
-
-const setFields = (fields) => {
-  params.value = {
-    ...params.value,
-    ...fields
-  }
 }
 </script>
 <style scoped>
