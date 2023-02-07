@@ -11,6 +11,7 @@ import {
   SOURCE,
   TAXON_NAME,
   OBSERVATION,
+  LOAN,
   CONTENT
 } from 'constants/index.js'
 
@@ -27,5 +28,6 @@ export const QUERY_PARAM = {
   [TAXON_NAME]: 'taxon_name_query',
   [PEOPLE]: 'people_query',
   [CONTENT]: 'content_query',
+  [LOAN]: 'loan_query',
   [OBSERVATION]: 'observation_query'
 }

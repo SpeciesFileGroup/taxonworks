@@ -1,10 +1,6 @@
-import {
-  FILTER_OTU,
-} from '../constants/filterLinks'
+import { FILTER_OTU } from '../constants/filterLinks'
 
 export const Loan = {
-  all: [
-    FILTER_OTU,
-  ],
-  ids: [ ]
+  all: [FILTER_OTU],
+  ids: []
 }
