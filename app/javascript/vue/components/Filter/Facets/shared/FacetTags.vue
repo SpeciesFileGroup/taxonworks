@@ -128,14 +128,12 @@ watch(
 watch(
   keywords,
   () => {
-    params.value = {
-      keyword_id_and: keywords.value
-        .filter((keyword) => keyword.and)
-        .map((keyword) => keyword.id),
-      keyword_id_or: keywords.value
-        .filter((keyword) => !keyword.and)
-        .map((keyword) => keyword.id)
-    }
+    params.value.keyword_id_and = keywords.value
+      .filter((keyword) => keyword.and)
+      .map((keyword) => keyword.id)
+    params.value.keyword_id_or = keywords.value
+      .filter((keyword) => !keyword.and)
+      .map((keyword) => keyword.id)
   },
   { deep: true }
 )

@@ -4,7 +4,7 @@
     <div class="horizontal-left-content align-start">
       <div class="field separate-right full_width">
         <label>Field</label>
-        <br>
+        <br />
         <select
           class="normal-input full_width"
           v-model="selectedField"
@@ -14,7 +14,7 @@
             :key="field.name"
           >
             <option
-              v-if="!selectedFields.find(item => item.param === field.name)"
+              v-if="!selectedFields.find((item) => item.param === field.name)"
               :value="field"
             >
               {{ field.name }}
@@ -52,7 +52,7 @@
                 v-if="checkForMatch(field.type)"
                 v-model="field.exact"
                 type="checkbox"
-              >
+              />
             </td>
             <td>
               <span
@@ -84,7 +84,7 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const fields = ref([])
@@ -93,8 +93,10 @@ const selectedField = ref(undefined)
 
 watch(
   selectedFields,
-  newVal => {
-    const matches = newVal.filter(item => !item.exact).map(item => item.param)
+  (newVal) => {
+    const matches = newVal
+      .filter((item) => !item.exact)
+      .map((item) => item.param)
     const attributes = {}
 
     params.value.loan_wildcards = matches
@@ -114,18 +116,23 @@ watch(
 
 watch(
   () => props.modelValue,
-  newVal => {
-    if (!Object.keys(newVal).length) {
+  (newVal) => {
+    const parameters = Object.keys(newVal)
+    const isAttributeSetted = fields.value.some(({ name }) =>
+      parameters.includes(name)
+    )
+
+    if (!parameters.includes('loan_wildcards') && !isAttributeSetted) {
       selectedFields.value = []
     }
   }
 )
 
 onBeforeMount(() => {
-  Loan.attributes().then(response => {
+  Loan.attributes().then((response) => {
     fields.value = response.body
 
-    fields.value.forEach(field => {
+    fields.value.forEach((field) => {
       if (params.value[field.name]) {
         selectedFields.value.push({
           param: field.name,
@@ -148,6 +155,6 @@ const removeField = (index) => {
 }
 
 const checkForMatch = (type) => {
-  return (type === 'string' || type === 'text')
+  return type === 'string' || type === 'text'
 }
 </script>
