@@ -17,11 +17,6 @@
     >
       <template #nav-right>
         <div class="horizontal-right-content">
-          <TagAll
-            class="circle-button"
-            :ids="selectedIds"
-            :type="COLLECTION_OBJECT"
-          />
           <DeleteCollectionObjects
             :ids="selectedIds"
             :disabled="!selectedIds.length"
@@ -59,7 +54,6 @@ import useFilter from 'shared/Filter/composition/useFilter.js'
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
 import DwcDownload from './components/dwcDownload.vue'
-import TagAll from './components/tagAll'
 import DeleteCollectionObjects from './components/DeleteCollectionObjects.vue'
 import VSpinner from 'components/spinner.vue'
 import LayoutConfiguration from './components/Layout/LayoutConfiguration.vue'

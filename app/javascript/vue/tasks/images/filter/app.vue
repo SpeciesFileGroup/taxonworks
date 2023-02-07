@@ -19,11 +19,6 @@
           v-if="list.length"
           class="horizontal-right-content"
         >
-          <TagAll
-            class="circle-button"
-            type="Image"
-            :ids="selectedIds"
-          />
           <span>|</span>
           <div class="margin-small-left">
             <SelectAll
@@ -57,7 +52,6 @@
 import FilterLayout from 'components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
-import TagAll from 'tasks/collection_objects/filter/components/tagAll.vue'
 import SelectAll from 'tasks/collection_objects/filter/components/selectAll.vue'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'

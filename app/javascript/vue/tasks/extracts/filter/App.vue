@@ -14,13 +14,6 @@
       @nextpage="loadPage"
       @reset="resetFilter"
     >
-      <template #nav-right>
-        <TagAll
-          class="circle-button"
-          :ids="selectedIds"
-          type="Extract"
-        />
-      </template>
       <template #facets>
         <FilterComponent v-model="parameters" />
       </template>
@@ -49,7 +42,6 @@ import FilterList from 'components/layout/Filter/FilterList.vue'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import extend from 'tasks/extracts/new_extract/const/extendRequest'
-import TagAll from 'tasks/collection_objects/filter/components/tagAll.vue'
 import { ATTRIBUTES } from './constants/attributes'
 import { EXTRACT } from 'constants/index.js'
 import { Extract } from 'routes/endpoints'

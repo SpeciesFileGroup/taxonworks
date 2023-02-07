@@ -14,18 +14,6 @@
       @nextpage="loadPage"
       @reset="resetFilter"
     >
-      <template #nav-right>
-        <div
-          v-if="list.length"
-          class="horizontal-right-content"
-        >
-          <TagAll
-            class="circle-button"
-            :ids="selectedIds"
-            :type="CONTENT"
-          />
-        </div>
-      </template>
       <template #facets>
         <FilterView v-model="parameters" />
       </template>
@@ -53,7 +41,6 @@ import FilterView from './components/FilterView.vue'
 import FilterList from 'components/layout/Filter/FilterList.vue'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
-import TagAll from 'tasks/collection_objects/filter/components/tagAll.vue'
 import { listParser } from './utils/listParser'
 import { ATTRIBUTES } from './constants/attributes'
 import { Content } from 'routes/endpoints'

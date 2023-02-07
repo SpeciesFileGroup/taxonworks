@@ -14,12 +14,6 @@
       @nextpage="loadPage"
       @reset="resetFilter"
     >
-      <template #nav-right>
-        <TagAll
-          :ids="selectedIds"
-          :type="LOAN"
-        />
-      </template>
       <template #facets>
         <FilterView v-model="parameters" />
       </template>
@@ -47,7 +41,6 @@ import FilterView from './components/FilterView.vue'
 import FilterList from 'components/layout/Filter/FilterList.vue'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
-import TagAll from 'tasks/collection_objects/filter/components/tagAll.vue'
 import { ATTRIBUTES } from './constants/attributes'
 import { Loan } from 'routes/endpoints'
 import { LOAN } from 'constants/index.js'

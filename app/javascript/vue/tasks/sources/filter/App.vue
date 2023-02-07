@@ -15,13 +15,6 @@
       @nextpage="loadPage"
       @reset="resetFilter"
     >
-      <template #nav-right>
-        <TagAll
-          class="circle-button"
-          :ids="selectedIds"
-          :type="SOURCE"
-        />
-      </template>
       <template #facets>
         <FilterComponent v-model="parameters" />
       </template>
@@ -50,7 +43,6 @@ import BibtexButton from './components/bibtex'
 import BibliographyButton from './components/bibliography.vue'
 import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
-import TagAll from 'tasks/collection_objects/filter/components/tagAll.vue'
 import { Source } from 'routes/endpoints'
 import { SOURCE } from 'constants/index.js'
 import { computed, ref } from 'vue'

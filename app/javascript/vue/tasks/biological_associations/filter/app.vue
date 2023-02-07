@@ -45,7 +45,7 @@ import FilterList from 'components/layout/Filter/FilterList.vue'
 import { listParser } from './utils/listParser'
 import { BIOLOGICAL_ASSOCIATION } from 'constants/index.js'
 import { BiologicalAssociation } from 'routes/endpoints'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { ATTRIBUTES } from './constants/attributes.js'
 
 const HEADERS = [
