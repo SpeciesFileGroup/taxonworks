@@ -24,6 +24,7 @@
           <th class="w-2">
             <input
               v-model="selectIds"
+              :disabled="!list.length"
               type="checkbox"
             />
           </th>
@@ -107,7 +108,8 @@ const element = ref(null)
 const ascending = ref(false)
 
 const selectIds = computed({
-  get: () => props.list.length === props.modelValue.length,
+  get: () =>
+    props.list.length === props.modelValue.length && props.list.length > 0,
   set: (value) =>
     emit('update:modelValue', value ? props.list.map((item) => item.id) : [])
 })
