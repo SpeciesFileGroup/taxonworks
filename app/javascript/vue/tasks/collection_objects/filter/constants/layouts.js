@@ -46,57 +46,142 @@ export const LAYOUTS = {
     }
   },
 
-
   LocateInCollection: {
     properties: {
-        dwc_occurrence: ['catalogNumber', 'preparations', 'scientificName', 'order', 'family']
-      },
-    includes: { }
+      dwc_occurrence: [
+        'catalogNumber',
+        'preparations',
+        'scientificName',
+        'order',
+        'family'
+      ]
+    },
+    includes: {}
   },
 
   Place: {
     properties: {
-      dwc_occurrence: ['country', 'stateProvince', 'county', 'decimalLatitude', 'decimalLongitude', 'verbatimCoordinates', 'coordinateUncertaintyInMeters', 'geodeticDatum', 'georeferenceProtocol', 'georeferenceRemarks', 'georeferenceSources', 'georeferencedBy', 'georeferenceDate', 'verbatimSRS'],
-      collecting_event: ['verbatim_locality', 'verbatim_latititude', 'verbatim_longitude', 'verbatim_geolocation_uncertainty', 'minimum_elevation', 'maximum_elevation'],
+      dwc_occurrence: [
+        'country',
+        'stateProvince',
+        'county',
+        'decimalLatitude',
+        'decimalLongitude',
+        'verbatimCoordinates',
+        'coordinateUncertaintyInMeters',
+        'geodeticDatum',
+        'georeferenceProtocol',
+        'georeferenceRemarks',
+        'georeferenceSources',
+        'georeferencedBy',
+        'georeferenceDate',
+        'verbatimSRS'
+      ],
+      collecting_event: [
+        'verbatim_locality',
+        'verbatim_latititude',
+        'verbatim_longitude',
+        'verbatim_geolocation_uncertainty',
+        'minimum_elevation',
+        'maximum_elevation'
+      ]
     },
-    includes: { }
+    includes: {}
   },
 
   Time: {
     properties: {
-      collecting_event: ['verbatim_date', 'start_date_year', 'start_date_month', 'start_date_day', 'end_date_year', 'end_date_month', 'end_date_day', 'time_start_hour', 'time_start_minute', 'time_start_second', 'time_end_hour', 'time_end_minute', 'time_end_second', 'max_ma', 'min_ma'],
-      dwc_occurrence: [],
+      collecting_event: [
+        'verbatim_date',
+        'start_date_year',
+        'start_date_month',
+        'start_date_day',
+        'end_date_year',
+        'end_date_month',
+        'end_date_day',
+        'time_start_hour',
+        'time_start_minute',
+        'time_start_second',
+        'time_end_hour',
+        'time_end_minute',
+        'time_end_second',
+        'max_ma',
+        'min_ma'
+      ],
+      dwc_occurrence: []
     },
-    includes: { }
+    includes: {}
   },
 
   Georeference: {
     properties: {
-      dwc_occurrence: [ 'decimalLatitude', 'decimalLongitude', 'verbatimCoordinates', 'coordinateUncertaintyInMeters', 'geodeticDatum', 'georeferenceProtocol', 'georeferenceRemarks', 'georeferenceSources', 'georeferencedBy', 'georeferenceDate', 'verbatimSRS'],
-      collecting_event: ['verbatim_latititude', 'verbatim_longitude', 'verbatim_geolocation_uncertainty'],
+      dwc_occurrence: [
+        'decimalLatitude',
+        'decimalLongitude',
+        'verbatimCoordinates',
+        'coordinateUncertaintyInMeters',
+        'geodeticDatum',
+        'georeferenceProtocol',
+        'georeferenceRemarks',
+        'georeferenceSources',
+        'georeferencedBy',
+        'georeferenceDate',
+        'verbatimSRS'
+      ],
+      collecting_event: [
+        'verbatim_latititude',
+        'verbatim_longitude',
+        'verbatim_geolocation_uncertainty'
+      ]
     },
-    includes: { }
-  }, 
-  
+    includes: {}
+  },
+
   Verbatim: {
-  properties: {
-    collection_object: ['buffered_collecting_event', 'buffered_determinations', 'buffered_other_labels'],
-    collecting_event: ['verbatim_label', 'verbatim_locality', 'verbatim_longitude', 'verbatim_latitude', 'verbatim_geolocation_uncertainty', 'verbatim_trip_identifier', 'verbatim_collectors', 'verbatim_method', 'verbatim_elevation', 'verbatim_habitat', 'verbatim_habitat', 'verbatim_datum', 'verbatim_date', 'md5_of_verbatim_label']
+    properties: {
+      collection_object: [
+        'buffered_collecting_event',
+        'buffered_determinations',
+        'buffered_other_labels'
+      ],
+      collecting_event: [
+        'verbatim_label',
+        'verbatim_locality',
+        'verbatim_longitude',
+        'verbatim_latitude',
+        'verbatim_geolocation_uncertainty',
+        'verbatim_trip_identifier',
+        'verbatim_collectors',
+        'verbatim_method',
+        'verbatim_elevation',
+        'verbatim_habitat',
+        'verbatim_habitat',
+        'verbatim_datum',
+        'verbatim_date',
+        'md5_of_verbatim_label'
+      ]
     },
-    includes: { }
+    includes: {}
   },
 
   Paleo: {
-  properties: {
-    collection_object: ['group', 'formation', 'member', 'lithology', 'max_ma', 'min_ma'],
+    properties: {
+      collection_object: [
+        'group',
+        'formation',
+        'member',
+        'lithology',
+        'max_ma',
+        'min_ma'
+      ]
     },
-    includes: { }
+    includes: {}
   },
 
   Labels: {
-  properties: {
-    collecting_event: ['verbatim_label', 'document_label', 'print_label']
+    properties: {
+      collecting_event: ['verbatim_label', 'document_label', 'print_label']
     },
-    includes: { }
-  },
+    includes: {}
+  }
 }

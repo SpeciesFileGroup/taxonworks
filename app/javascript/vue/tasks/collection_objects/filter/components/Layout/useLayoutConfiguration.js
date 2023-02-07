@@ -3,7 +3,7 @@ import { sortArrayByArray } from 'helpers/arrays.js'
 
 const state = reactive({
   currentLayout: {},
-  layouts: [],
+  layouts: {},
   properties: {},
   includes: {}
 })
@@ -14,7 +14,7 @@ export function useLayoutConfiguration(Layouts) {
 
     state.properties = { ...All.properties }
     state.includes = { ...All.includes }
-    state.layouts = { ...Layouts }
+    state.layouts = { ...Layouts, Custom: structuredClone(All) }
     Object.assign(state.currentLayout, All)
   }
 

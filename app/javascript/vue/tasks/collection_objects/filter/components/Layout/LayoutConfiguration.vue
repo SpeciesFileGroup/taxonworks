@@ -68,7 +68,7 @@
                   type="checkbox"
                   v-model="currentLayout.includes[key]"
                 />
-                Data attributes
+                {{ humanize(key) }}
               </label>
             </li>
           </ul>
