@@ -50,3 +50,7 @@ export const FILTER_OBSERVATION = {
   label: 'Observations',
   link: '/tasks/observations/filter'
 }
+export const FILTER_LOAN = {
+  label: 'Loans',
+  link: '/tasks/loans/filter'
+}

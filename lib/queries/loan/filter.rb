@@ -19,10 +19,11 @@ module Queries
         :role,
         :taxon_name_id,
 
-        role: [],
+        loan_wildcards: [],
         loan_item_disposition: [],
         otu_id: [],
         person_id: [],
+        role: [],
         taxon_name_id: [],
       ].freeze
 
@@ -160,12 +161,25 @@ module Queries
         ::Loan.joins(:roles).where(roles: {type: role, person_id: person_id})
       end
 
+      def otu_id_facet
+        return nil if otu_id.empty?
+
+        a = ::Loan.joins(:loan_items).where(loan_items: {loan_item_object_type: 'Otu', loan_item_object_id: otu_id})
+        b = ::Loan.joins(:loan_items)
+          .joins("collection_objects co on co.id = loan_items.loan_item_object_id and loan_items.loan_item_object_type = 'CollectionObject'")
+          .joins('taxon_determinations td on co.id = td.biological_collection_object_id')
+          .where(td: {otu_id: otu_id})
+
+        ::Loan.from("((#{a.to_sql}) UNION (#{b.to_sql})) as loans")
+      end
+
       def and_clauses
         attribute_clauses
       end
 
       def merge_clauses
         [ 
+          otu_id_facet,
           person_role_facet,
           documentation_facet,
           overdue_facet,
