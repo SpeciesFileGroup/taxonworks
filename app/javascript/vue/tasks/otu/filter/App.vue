@@ -45,10 +45,8 @@ import { ATTRIBUTES } from './constants/attributes'
 import { listParser } from './utils/listParser'
 import { OTU } from 'constants/index.js'
 import { Otu } from 'routes/endpoints'
-import { ref } from 'vue'
 
 const extend = ['taxonomy']
-const selectedIds = ref([])
 
 const {
   isLoading,
@@ -58,6 +56,7 @@ const {
   urlRequest,
   loadPage,
   parameters,
+  selectedIds,
   makeFilterRequest,
   resetFilter
 } = useFilter(Otu, { listParser, initParameters: { extend } })

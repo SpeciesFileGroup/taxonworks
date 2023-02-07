@@ -76,7 +76,6 @@ const extend = [
 
 const { currentLayout } = useLayoutConfiguration(LAYOUTS)
 
-const selectedIds = ref([])
 const coList = ref([])
 
 const {
@@ -87,6 +86,7 @@ const {
   urlRequest,
   loadPage,
   parameters,
+  selectedIds,
   makeFilterRequest,
   resetFilter
 } = useFilter(CollectionObject, { initParameters: { extend } })

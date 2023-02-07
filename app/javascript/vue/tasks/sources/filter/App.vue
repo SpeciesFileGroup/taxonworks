@@ -45,10 +45,9 @@ import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import { Source } from 'routes/endpoints'
 import { SOURCE } from 'constants/index.js'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
 const extend = ['documents']
-const selectedIds = ref([])
 
 const {
   isLoading,
@@ -58,6 +57,7 @@ const {
   urlRequest,
   loadPage,
   parameters,
+  selectedIds,
   makeFilterRequest,
   resetFilter
 } = useFilter(Source, { initParameters: { extend } })

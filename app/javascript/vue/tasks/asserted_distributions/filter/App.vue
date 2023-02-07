@@ -44,12 +44,9 @@ import FilterList from 'components/layout/Filter/FilterList.vue'
 import { ATTRIBUTES } from './constants/attributes'
 import { listParser } from './utils/listParser'
 import { AssertedDistribution } from 'routes/endpoints'
-import { ref } from 'vue'
 import { ASSERTED_DISTRIBUTION } from 'constants/index.js'
 
 const extend = ['otu', 'citations', 'geographic_area', 'taxonomy']
-
-const selectedIds = ref([])
 
 const {
   isLoading,
@@ -59,6 +56,7 @@ const {
   urlRequest,
   loadPage,
   parameters,
+  selectedIds,
   makeFilterRequest,
   resetFilter
 } = useFilter(AssertedDistribution, { listParser, initParameters: { extend } })

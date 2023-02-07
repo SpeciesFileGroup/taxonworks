@@ -57,9 +57,6 @@ import VSpinner from 'components/spinner.vue'
 import useFilter from 'shared/Filter/composition/useFilter.js'
 import { IMAGE } from 'constants/index.js'
 import { Image } from 'routes/endpoints'
-import { ref } from 'vue'
-
-const selectedIds = ref([])
 
 const {
   isLoading,
@@ -69,6 +66,7 @@ const {
   urlRequest,
   loadPage,
   parameters,
+  selectedIds,
   makeFilterRequest,
   resetFilter
 } = useFilter(Image)

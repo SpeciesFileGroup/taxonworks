@@ -51,7 +51,6 @@ import RadialLabel from 'components/radials/label/radial.vue'
 import { ATTRIBUTES } from './constants/attributes.js'
 import { listParser } from './utils/listParser'
 import { TaxonName } from 'routes/endpoints'
-import { ref } from 'vue'
 import { TAXON_NAME } from 'constants/index.js'
 
 const extend = ['parent']
@@ -64,11 +63,10 @@ const {
   urlRequest,
   loadPage,
   parameters,
+  selectedIds,
   makeFilterRequest,
   resetFilter
 } = useFilter(TaxonName, { listParser, initParameters: { extend } })
-
-const selectedIds = ref([])
 </script>
 
 <script>

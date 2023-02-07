@@ -45,10 +45,8 @@ import { listParser } from './utils/listParser'
 import { ATTRIBUTES } from './constants/attributes'
 import { Observation } from 'routes/endpoints'
 import { OBSERVATION } from 'constants/index.js'
-import { ref } from 'vue'
 
 const extend = ['observation_object']
-const selectedIds = ref([])
 
 const {
   isLoading,
@@ -57,6 +55,7 @@ const {
   append,
   urlRequest,
   loadPage,
+  selectedIds,
   parameters,
   makeFilterRequest,
   resetFilter

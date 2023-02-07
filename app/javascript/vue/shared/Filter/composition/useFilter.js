@@ -10,6 +10,7 @@ export default function (service, { listParser, initParameters } = {}) {
       per: 50
     },
     pagination: undefined,
+    selectedIds: [],
     list: [],
     isLoading: false,
     urlRequest: ''
@@ -88,6 +89,7 @@ export default function (service, { listParser, initParameters } = {}) {
     state.isLoading = false
     state.urlRequest = ''
     state.pagination = undefined
+    state.selectedIds = []
     history.pushState(null, null, `${window.location.pathname}`)
   }
 

@@ -45,7 +45,6 @@ import FilterList from 'components/layout/Filter/FilterList.vue'
 import { listParser } from './utils/listParser'
 import { BIOLOGICAL_ASSOCIATION } from 'constants/index.js'
 import { BiologicalAssociation } from 'routes/endpoints'
-import { ref } from 'vue'
 import { ATTRIBUTES } from './constants/attributes.js'
 
 const HEADERS = [
@@ -75,8 +74,6 @@ const extend = [
   'biological_relationship_types'
 ]
 
-const selectedIds = ref([])
-
 const {
   isLoading,
   list,
@@ -85,6 +82,7 @@ const {
   urlRequest,
   loadPage,
   parameters,
+  selectedIds,
   makeFilterRequest,
   resetFilter
 } = useFilter(BiologicalAssociation, { listParser, initParameters: { extend } })

@@ -45,10 +45,8 @@ import { listParser } from './utils/listParser'
 import { ATTRIBUTES } from './constants/attributes'
 import { Content } from 'routes/endpoints'
 import { CONTENT } from 'constants/index.js'
-import { ref } from 'vue'
 
 const extend = ['otu', 'topic']
-const selectedIds = ref([])
 
 const {
   isLoading,
@@ -58,6 +56,7 @@ const {
   urlRequest,
   loadPage,
   parameters,
+  selectedIds,
   makeFilterRequest,
   resetFilter
 } = useFilter(Content, { listParser, initParameters: { extend } })

@@ -116,6 +116,7 @@ const {
   urlRequest,
   loadPage,
   makeFilterRequest,
+  selectedIds,
   resetFilter,
   parameters
 } = useFilter(CollectingEvent, {
@@ -123,7 +124,6 @@ const {
   initParameters: { extend }
 })
 
-const selectedIds = ref([])
 const rowHover = ref()
 const georeferences = ref([])
 

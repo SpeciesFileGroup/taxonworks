@@ -44,9 +44,6 @@ import useFilter from 'shared/Filter/composition/useFilter.js'
 import { ATTRIBUTES } from './constants/attributes.js'
 import { PEOPLE } from 'constants/index.js'
 import { People } from 'routes/endpoints'
-import { ref } from 'vue'
-
-const selectedIds = ref([])
 
 const {
   isLoading,
@@ -56,6 +53,7 @@ const {
   urlRequest,
   loadPage,
   parameters,
+  selectedIds,
   makeFilterRequest,
   resetFilter
 } = useFilter(People)

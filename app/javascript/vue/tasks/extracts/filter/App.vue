@@ -45,9 +45,6 @@ import extend from 'tasks/extracts/new_extract/const/extendRequest'
 import { ATTRIBUTES } from './constants/attributes'
 import { EXTRACT } from 'constants/index.js'
 import { Extract } from 'routes/endpoints'
-import { ref } from 'vue'
-
-const selectedIds = ref([])
 
 const {
   isLoading,
@@ -56,6 +53,7 @@ const {
   append,
   urlRequest,
   loadPage,
+  selectedIds,
   parameters,
   makeFilterRequest,
   resetFilter
