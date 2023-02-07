@@ -20,7 +20,7 @@ export const Image = {
     FILTER_SOURCE,
     FILTER_TAXON_NAME,
   ],
-  ids: [
+  ids: [ // handled in /lib/queries/concerns/depictions.rb
     FILTER_COLLECTING_EVENT,
     FILTER_COLLECTION_OBJECT,
     FILTER_CONTENT,

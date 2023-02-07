@@ -63,6 +63,13 @@ class LoansController < ApplicationController
     render layout: 'us_letter'
   end
 
+  def attributes
+    render json: ::Loan.columns.select{
+      |a| Queries::Loan::Filter::ATTRIBUTES.include?(
+        a.name.to_sym)
+    }.collect{|b| {'name' => b.name, 'type' => b.type } }
+  end
+
   # PATCH/PUT /loans/1
   # PATCH/PUT /loanss/1.json
   def update

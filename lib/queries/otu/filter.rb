@@ -2,6 +2,8 @@ module Queries
   module Otu
     class Filter < Query::Filter
 
+      # TODO: Likely need to sink some queries together (wkt, ce_id) into CO query
+
       include Queries::Helpers
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Tags

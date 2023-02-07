@@ -53,12 +53,11 @@ module Queries
       content: [:source, :otu, :taxon_name, :image],
       descriptor: [:source, :observation, :otu, :descriptor ],
       extract: [:source, :otu, :collection_object],
-
-      # --- 
-
       image: [:content, :collection_object, :collecting_event, :otu, :observation, :source, :taxon_name ],
 
+
       loan: [],
+
       observation: [:source, :descriptor, :image],
       otu: [:source, :taxon_name, :collection_object, :extract, :collecting_event, :content, :biological_association, :asserted_distribution, :descriptor, :image],
       source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :source, :taxon_name],

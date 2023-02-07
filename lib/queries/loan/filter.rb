@@ -1,9 +1,7 @@
 module Queries
   module Loan
     class Filter < Query::Filter
-
       include Queries::Helpers
-
       include Queries::Concerns::Tags
       include Queries::Concerns::Notes
 
@@ -21,6 +19,7 @@ module Queries
         :role,
         :taxon_name_id,
 
+        role: [],
         loan_item_disposition: [],
         otu_id: [],
         person_id: [],
@@ -49,20 +48,31 @@ module Queries
       #   false - not overdue
       attr_accessor :overdue
 
+      # @return [Array]
+      # @param Role [String, nil]
+      #   LoanRecipient, LoanSupervisor
+      # If none provided both returned. 
+      # Only applied when person_id is present
       attr_accessor :role
 
+      # @return [Array]
+      #   one per of Person#id
+      # See also role
       attr_accessor :person_id
 
-      attr_accessor :taxon_name_id
-
-      attr_accessor :descendants
-
+      # @return [Array]
+      #   Loans with LoanItems that reference Otu OR CollectionObject with Otu as determination
       attr_accessor :otu_id
 
       # @return [Array]
       # @param loan_item_disposition [Array, String]
       #  Match all loans with loan items that have that disposition
       attr_accessor :loan_item_disposition
+
+      # not done
+      attr_accessor :taxon_name_id
+      attr_accessor :descendants
+
 
       # @param [Hash] params
       def initialize(query_params)
@@ -84,7 +94,8 @@ module Queries
       end
 
       def role
-        [@role].flatten.compact.uniq
+        r = [@role].flatten.compact.uniq
+        r.empty? ? ['LoanSupervisor', 'LoanRecipient'] : r
       end
 
       def loan_wildcards
@@ -144,12 +155,19 @@ module Queries
         ::Loan.joins(:loan_items).where(loan_items: {disposition: loan_item_disposition})
       end
 
+      def person_role_facet
+        return nil if person_id.empty?
+        ::Loan.joins(:roles).where(roles: {type: role, person_id: person_id})
+      end
+
       def and_clauses
         attribute_clauses
       end
 
       def merge_clauses
-        [ documentation_facet,
+        [ 
+          person_role_facet,
+          documentation_facet,
           overdue_facet,
           loan_item_disposition_facet,
         ]

@@ -82,7 +82,7 @@ class Loan < ApplicationRecord
     :supervisor_email,
     :supervisor_phone,
     :recipient_honorific,
-  ]
+  ].freeze
 
   # A Loan#id, when present values
   # from that record are copied

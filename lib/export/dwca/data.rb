@@ -53,7 +53,7 @@ module Export::Dwca
     end
 
     def predicate_options_present?
-      !data_predicate_ids[:collection_object_predicate_id].empty? || !data_predicate_ids[:collecting_event_predicate_id].empty?
+      data_predicate_ids[:collection_object_predicate_id].present? || data_predicate_ids[:collecting_event_predicate_id].present?
     end
 
     def total
