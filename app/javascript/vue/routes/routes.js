@@ -11,7 +11,8 @@ import {
   TAXON_NAME,
   DESCRIPTOR,
   OBSERVATION,
-  CONTENT
+  CONTENT,
+  LOAN
 } from 'constants/index.js'
 
 const RouteNames = {
@@ -58,7 +59,8 @@ const FILTER_ROUTES = {
   [TAXON_NAME]: '/tasks/taxon_names/filter',
   [DESCRIPTOR]: '/tasks/descriptors/filter',
   [OBSERVATION]: '/tasks/observations/filter',
-  [CONTENT]: '/tasks/content/filter'
+  [CONTENT]: '/tasks/content/filter',
+  [LOAN]: '/tasks/loans/filter'
 }
 
 export { RouteNames, FILTER_ROUTES }
