@@ -44,7 +44,6 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { QUERY_PARAM } from './constants/queryParam'
-import { FILTER_ROUTES } from 'routes/routes'
 import { ID_PARAM_FOR } from './constants/idParams'
 import RadialMenu from 'components/radials/RadialMenu.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
@@ -133,7 +132,6 @@ const menuOptions = computed(() => {
 
     return addSlice({
       ...item,
-      name: getCurrentQueryParam(item.link),
       link:
         urlWithParameters.length < MAX_LINK_SIZE ? urlWithParameters : item.link
     })
@@ -195,15 +193,6 @@ function saveParametersOnStorage() {
     sessionStorage.setItem('totalQueries', JSON.stringify(totalQueries))
     sessionStorage.setItem('filterQuery', state)
   }
-}
-
-function getCurrentQueryParam(link) {
-  const [targetObjectType] = Object.entries(FILTER_ROUTES).find(
-    ([_, value]) => value === link
-  )
-  const currentQueryParam = QUERY_PARAM[targetObjectType]
-
-  return currentQueryParam
 }
 
 function filterEmptyParams(object) {
