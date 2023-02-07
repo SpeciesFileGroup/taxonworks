@@ -14,10 +14,6 @@
   <component
     :is="selectedDownloadItem.component"
     :list="list"
-    :parameters="parameters"
-    class="rounded-tl-none rounded-bl-none no-margin"
-    medium
-    color="primary"
     v-bind="selectedDownloadItem.bind"
     v-slot="{ action }"
   >
