@@ -49,6 +49,7 @@ const props = defineProps({
 const WITH_PARAMS = [
   'citations',
   'depictions',
+  'type_material_depictions',
   'origin_citation'
 ]
 

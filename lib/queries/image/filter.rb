@@ -4,20 +4,21 @@ module Queries
       include Queries::Concerns::Tags
 
       PARAMS = [
-        :taxon_name_id_target,
         :biocuration_class_id,
         :collecting_event_id,
         :collection_object_id,
         :collection_object_scope,
         :content_id,
-        :depictions,
         :depiction_object_type,
+        :depictions,
         :image_id,
         :observation_id,
         :otu_id,
         :sled_image_id,
         :source_id,
         :taxon_name_id,
+        :taxon_name_id_target,
+        :type_material_depictions,
 
         biocuration_class_id: [],
         collecting_event_id: [],
@@ -46,6 +47,28 @@ module Queries
       # @return [Array]
       #   images depicting collecting_object
       attr_accessor :collection_object_id
+
+      # @param collection_object_scope
+      #   options
+      #     :all (default, includes all below)
+      #
+      #     :collection_objects (those on the collection_object)
+      #     :observations (those on just the CollectionObject observations)
+      #      collecting_events (those on the associated collecting event)
+      #     # maybe those on the CE
+      attr_accessor :collection_object_scope
+
+      # @return [Boolean, nil]
+      #   true - image is used (in a depiction)
+      #   false - image is not used
+      #   nil - either
+      attr_accessor :depictions
+
+      # @return [Array]
+      # @param depiction_object_type
+      #   one or more names of classes.
+      # Restricts Images to those that depict these classes
+      attr_accessor :depiction_object_type
 
       # @return [Array]
       #   images depicting otus
@@ -80,16 +103,6 @@ module Queries
       #
       attr_accessor :otu_scope
 
-      # @param collection_object_scope
-      #   options
-      #     :all (default, includes all below)
-      #
-      #     :collection_objects (those on the collection_object)
-      #     :observations (those on just the CollectionObject observations)
-      #      collecting_events (those on the associated collecting event)
-      #     # maybe those on the CE
-      attr_accessor :collection_object_scope
-
       # @return [Array]
       attr_accessor :image_id
 
@@ -103,44 +116,25 @@ module Queries
       # @return [Array]
       attr_accessor :sqed_depiction_id
 
-      # @return [Boolean, nil]
-      #   true - image is used (in a depiction)
-      #   false - image is not used
-      #   nil - either
-      attr_accessor :depictions
-
       # @return [Array]
       #   one or both of 'Otu', 'CollectionObject', defaults to both if nothing provided
       # Only used when `taxon_name_id` provided
       attr_accessor :taxon_name_id_target
 
-
       # @return [Array]
-      # @param depiction_object_type
-      #   one or more names of classes.
-      # Restricts Images to those that depict these classes
-      attr_accessor :depiction_object_type
-
-      # @return [Array]
-      #   depicts some collection objec that is a type specimen
-      # attr_accessor :is_type
-
-      # @return [Boolean, nil]
-      #   nil = TaxonDeterminations match regardless of current or historical
-      #   true = TaxonDetermination must be .current
-      #   false = TaxonDetermination must be .historical
-      # attr_accessor :current_determinations
+      #   depicts some  that is a type specimen
+      attr_accessor :type_material_depictions
 
       # @param params [Hash]
       def initialize(query_params)
         super
        
-        @taxon_name_id_target = params[:taxon_name_id_target]
         @biocuration_class_id = params[:biocuration_class_id]
         @collecting_event_id = params[:collecting_event_id]
         @collection_object_id = params[:collection_object_id]
         @collection_object_scope = params[:collection_object_scope]
         @content_id = params[:content_id]
+        @depiction_object_type = params[:depiction_object_type]
         @depictions = boolean_param(params, :depictions)
         @image_id = params[:image_id]
         @observation_id = params[:observation_id]
@@ -149,7 +143,8 @@ module Queries
         @sled_image_id = params[:sled_image_id]
         @sqed_depiction_id = params[:sqed_depiction_id]
         @taxon_name_id = params[:taxon_name_id]
-        @depiction_object_type = params[:depiction_object_type]
+        @taxon_name_id_target = params[:taxon_name_id_target]
+        @type_material_depictions = boolean_param(params, :type_material_depictions)
 
         set_tags_params(params)
       end
@@ -257,11 +252,6 @@ module Queries
         else
           ::Image.where.missing(:depictions)
         end
-      end
-
-      def type_facet
-        return nil if is_type.nil?
-        table[:type].eq(collection_object_type)
       end
 
       def sled_image_facet
@@ -389,27 +379,9 @@ module Queries
       end
 
       # @return [Scope]
-      def type_material_facet
-        return nil if type_specimen_taxon_name_id.nil?
-
-        w = type_materials_table[:collection_object_id].eq(table[:id])
-          .and( type_materials_table[:protonym_id].eq(type_specimen_taxon_name_id) )
-
-        ::Image.where(
-          ::TypeMaterial.where(w).arel.exists
-        )
-      end
-
-      # @return [Scope]
-      def type_material_type_facet
-        return nil if is_type.empty?
-
-        w = type_materials_table[:collection_object_id].eq(table[:id])
-          .and( type_materials_table[:type_type].eq_any(is_type) )
-
-        ::Image.where(
-          ::TypeMaterial.where(w).arel.exists
-        )
+      def type_material_depictions_facet
+        return nil if type_material_depictions.nil?
+        ::Image.joins(collection_objects: [:type_materials])
       end
 
       def image_id_facet
@@ -470,19 +442,6 @@ module Queries
         else
           q2
         end
-
-        #  if validity == true
-        #    z = z.and(t[:cached_valid_taxon_name_id].eq(t[:id]))
-        #  elsif validity == false
-        #    z = z.and(t[:cached_valid_taxon_name_id].not_eq(t[:id]))
-        #  end
-
-        # if current_determinations == true
-        #   z = z.and(taxon_determination_table[:position].eq(1))
-        # elsif current_determinations == false
-        #   z = z.and(taxon_determination_table[:position].gt(1))
-        # end
-
       end
      
       def query_facets_facet(name = nil)
@@ -521,25 +480,20 @@ module Queries
         s = ::Queries::Query::Filter::SUBQUERIES.select{|k,v| v.include?(:image)}.keys.map(&:to_s)
         [
           *s.collect{|m| query_facets_facet(m)}, # Reference all the Image referencing SUBQUERIES
-          depiction_object_type_facet,
-
-          # type_material_facet,
-          # type_material_type_facet,
-
-          taxon_name_id_facet,  # currently covers taxon_name_id
           biocuration_facet,
           build_depiction_facet('CollectingEvent', collecting_event_id),
-          build_depiction_facet('Observation', observation_id),
           build_depiction_facet('Content', content_id),
-
-          otu_id_facet,
+          build_depiction_facet('Observation', observation_id),
           collection_object_id_facet,
-
           collection_object_scope_facet, 
+          depiction_object_type_facet,
           depictions_facet,
+          otu_id_facet,
           otu_scope_facet,
           sled_image_facet,
           sqed_depiction_facet,
+          taxon_name_id_facet,
+          type_material_depictions_facet,
         ]
       end
 
