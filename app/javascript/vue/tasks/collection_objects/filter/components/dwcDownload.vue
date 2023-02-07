@@ -119,13 +119,13 @@
           </div>
         </div>
         <div class="margin-medium-top">
-          <v-btn
+          <VBtn
             color="create"
             medium
             @click="download"
           >
             Download
-          </v-btn>
+          </VBtn>
         </div>
       </template>
     </v-modal>
@@ -135,7 +135,7 @@
 import { computed, reactive, ref, onBeforeMount, watch } from 'vue'
 import { RouteNames } from 'routes/routes.js'
 import { DwcOcurrence } from 'routes/endpoints'
-import { transformObjectToParams } from 'helpers/setParam.js'
+import { qs } from 'qs'
 import VBtn from 'components/ui/VBtn/index.vue'
 import VModal from 'components/ui/Modal.vue'
 import VSpinner from 'components/spinner.vue'
@@ -149,6 +149,11 @@ const props = defineProps({
   total: {
     type: Number,
     required: true
+  },
+
+  selectedIds: {
+    type: Array,
+    default: () => []
   }
 })
 
@@ -196,11 +201,15 @@ const checkAllCo = computed({
 })
 
 function download() {
-  const downloadParams = getFilterParams(props.params)
+  const downloadParams = props.selectedIds.length
+    ? { collection_object_id: props.selectedIds }
+    : getFilterParams(props.params)
 
   DwcOcurrence.generateDownload({ ...downloadParams }).then((_) => {
     window.open(
-      `${RouteNames.DwcDashboard}?${transformObjectToParams(downloadParams)}`
+      `${RouteNames.DwcDashboard}?${qs.stringify(downloadParams, {
+        arrayFormat: 'brackets'
+      })}`
     )
     setModalView(false)
   })

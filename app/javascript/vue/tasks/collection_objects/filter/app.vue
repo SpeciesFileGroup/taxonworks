@@ -97,7 +97,8 @@ const extendDownload = computed(() => [
     component: DwcDownload,
     bind: {
       params: parameters.value,
-      total: pagination.value?.total
+      total: pagination.value?.total,
+      selectedIds: selectedIds.value
     }
   }
 ])
