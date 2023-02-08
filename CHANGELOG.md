@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - PK sequences was not setup in the correct dump stage in Export project task occasionally causing PK constraints errors on usage.
 - Radial object redirects to `Data` page after destroy a collection object in Simple new specimen task [#3284]
 - Wrong label for display unscored columns in Matrix column coder [#3292]
+- Duplicate records in nomenclature match task [#3300]
 
 ### Changed
 
