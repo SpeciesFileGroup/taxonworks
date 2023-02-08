@@ -99,9 +99,7 @@ const isOnlyIds = computed(() => Array.isArray(props.ids))
 const filterLinks = computed(() => {
   const objLinks = FILTER_LINKS[props.objectType]
 
-  if (!objLinks) return []
-
-  return isOnlyIds.value ? objLinks.ids : objLinks.all
+  return objLinks || []
 })
 
 const queryObject = computed(() => {

@@ -1,4 +1,1 @@
-export const People = {
-  all: [],
-  ids: []
-}
+export const People = []

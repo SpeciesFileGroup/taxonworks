@@ -1,6 +1,3 @@
 import { FILTER_OTU } from '../constants/filterLinks'
 
-export const Loan = {
-  all: [FILTER_OTU],
-  ids: []
-}
+export const Loan = [FILTER_OTU]

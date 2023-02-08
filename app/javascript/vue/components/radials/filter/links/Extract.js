@@ -1,16 +1,7 @@
 import {
   FILTER_OTU,
   FILTER_SOURCE,
-  FILTER_COLLECTION_OBJECT,
+  FILTER_COLLECTION_OBJECT
 } from '../constants/filterLinks'
 
-export const Extract = {
-  all: [
-    FILTER_OTU,
-    FILTER_SOURCE,
-    FILTER_COLLECTION_OBJECT,
-  ],
-  ids: [
-    FILTER_COLLECTION_OBJECT,
-  ]
-}
+export const Extract = [FILTER_OTU, FILTER_SOURCE, FILTER_COLLECTION_OBJECT]

@@ -1,6 +1,3 @@
 import { FILTER_DESCRIPTOR } from '../constants/filterLinks'
 
-export const Observation = {
-  all: [FILTER_DESCRIPTOR],
-  ids: []
-}
+export const Observation = [FILTER_DESCRIPTOR]
