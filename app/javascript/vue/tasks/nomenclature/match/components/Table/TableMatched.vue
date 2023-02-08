@@ -15,23 +15,16 @@
         <td>{{ match.join(', ') }}</td>
         <td>
           <a :href="makeBrowseNomenclatureLink(taxon.id)">
-            <span v-html="taxon.object_tag" /> {{ taxon.cached_author_year }}
+            <span v-html="taxon.cached_html" /> {{ taxon.cached_author_year }}
           </a>
         </td>
         <td>
-          <a
-            v-if="taxon.cached_is_valid"
-            :href="makeBrowseNomenclatureLink(taxon.id)"
-          >
-            <span v-html="taxon.object_tag" /> {{ taxon.cached_author_year }}
-          </a>
-
           <a
             v-if="validNames[taxon.cached_valid_taxon_name_id]"
             :href="makeBrowseNomenclatureLink(taxon.cached_valid_taxon_name_id)"
           >
             <span
-              v-html="validNames[taxon.cached_valid_taxon_name_id].object_tag"
+              v-html="validNames[taxon.cached_valid_taxon_name_id].cached_html"
             />
             {{
               validNames[taxon.cached_valid_taxon_name_id].cached_author_year

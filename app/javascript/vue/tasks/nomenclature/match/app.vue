@@ -22,6 +22,8 @@
         />
         Exact match
       </label>
+
+      <Validity v-model="valid" />
     </div>
 
     <navbar-component>
@@ -62,14 +64,14 @@
         tableView === tableComponent.Both
       "
       :valid-names="validTaxonNames"
-      :list="matches"
+      :list="matchesList"
       class="full_width"
     />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { TaxonName } from 'routes/endpoints'
 import { getUnique } from 'helpers/arrays'
 import TableMatched from './components/Table/TableMatched.vue'
@@ -78,6 +80,7 @@ import InputComponent from './components/InputComponent.vue'
 import SpinnerComponent from 'components/spinner'
 import NavbarComponent from 'components/layout/NavBar'
 import CSVButton from 'components/csvButton.vue'
+import Validity from './components/Validity.vue'
 
 const fields = [
   { label: 'Id', value: 'taxon.id' },
@@ -99,6 +102,17 @@ const isLoading = ref(false)
 const lines = ref([])
 const tableView = ref(tableComponent.Both)
 const validTaxonNames = ref({})
+const valid = ref(undefined)
+
+const matchesList = computed(() => {
+  if (valid.value === true) {
+    return matches.value.filter((item) => item.taxon.cached_is_valid)
+  } else if (valid.value === false) {
+    return matches.value.filter((item) => !item.taxon.cached_is_valid)
+  } else {
+    return matches.value
+  }
+})
 
 function GetMatches() {
   const requests = lines.value.map((name) =>
@@ -125,7 +139,7 @@ function GetMatches() {
       matches.value = uniqueList.map((taxon) => ({
         taxon,
         match: lines.value.filter((line) =>
-          taxon.object_label.toLowerCase().includes(line.toLowerCase())
+          taxon.cached.toLowerCase().includes(line.toLowerCase())
         )
       }))
 
