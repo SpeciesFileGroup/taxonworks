@@ -115,9 +115,16 @@ const matchesList = computed(() => {
 })
 
 function GetMatches() {
-  const requests = lines.value.map((name) =>
-    TaxonName.where({ name, exact: exact.value })
-  )
+  const lineRequests = {}
+  const requests = lines.value.map((line) => {
+    const request = TaxonName.where({ name: line, exact: exact.value })
+
+    request.then((response) => {
+      lineRequests[line] = response.body
+    })
+
+    return request
+  })
 
   isLoading.value = true
   Promise.all(requests)
@@ -136,12 +143,14 @@ function GetMatches() {
         validTaxonNames.value[taxon.id] = taxon
       })
 
-      matches.value = uniqueList.map((taxon) => ({
-        taxon,
-        match: lines.value.filter((line) =>
-          taxon.cached.toLowerCase().includes(line.toLowerCase())
-        )
-      }))
+      matches.value = uniqueList.map((taxon) => {
+        return {
+          taxon,
+          match: Object.keys(lineRequests).filter((key) =>
+            lineRequests[key].some((item) => item.id === taxon.id)
+          )
+        }
+      })
 
       unmatched.value = matches.value.length
         ? lines.value.filter(
