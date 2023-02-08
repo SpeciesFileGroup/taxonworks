@@ -16,6 +16,7 @@
         <td>
           <a :href="makeBrowseNomenclatureLink(taxon.id)">
             <span v-html="taxon.cached_html" /> {{ taxon.cached_author_year }}
+            {{ getTaxonNameStatus(taxon) }}
           </a>
         </td>
         <td>
@@ -38,6 +39,7 @@
 
 <script setup>
 import { RouteNames } from 'routes/routes'
+import { getTaxonNameStatus } from 'helpers/taxon_names.js'
 defineProps({
   list: {
     type: Array,
