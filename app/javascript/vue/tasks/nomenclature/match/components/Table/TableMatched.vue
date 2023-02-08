@@ -4,6 +4,7 @@
       <tr>
         <th>Original</th>
         <th>Match</th>
+        <th>Original combination</th>
         <th>Valid name</th>
       </tr>
     </thead>
@@ -19,6 +20,7 @@
             {{ getTaxonNameStatus(taxon) }}
           </a>
         </td>
+        <td v-html="taxon.cached_original_combination_html" />
         <td>
           <a
             v-if="validNames[taxon.cached_valid_taxon_name_id]"
