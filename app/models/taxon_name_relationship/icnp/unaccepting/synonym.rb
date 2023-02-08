@@ -35,7 +35,7 @@ class TaxonNameRelationship::Icnp::Unaccepting::Synonym < TaxonNameRelationship:
       date1 = self.source.cached_nomenclature_date.to_time
       date2 = self.subject_taxon_name.nomenclature_date
       if !!date1 && !!date2
-        soft_validations.add(:base, "#{self.subject_taxon_name.cached_html_name_and_author_year} was not described at the time of citation (#{date1.to_date})") if date2 > date1
+        soft_validations.add(:base, "#{self.subject_taxon_name.cached_html_name_and_author_year} was not described at the time of citation (#{date1.to_date})") if date2.to_date > date1.to_date
       end
     else
       soft_validations.add(:base, 'The original publication is not selected')
