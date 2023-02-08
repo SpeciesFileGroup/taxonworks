@@ -55,11 +55,10 @@ module Queries
       extract: [:source, :otu, :collection_object],
       image: [:content, :collection_object, :collecting_event, :otu, :observation, :source, :taxon_name ],
 
-
       loan: [],
 
       observation: [:source, :descriptor, :image],
-      otu: [:source, :taxon_name, :collection_object, :extract, :collecting_event, :content, :biological_association, :asserted_distribution, :descriptor, :image],
+      otu: [:source, :taxon_name, :collection_object, :extract, :collecting_event, :content, :biological_association, :asserted_distribution, :descriptor, :image, :loan],
       source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :source, :taxon_name],
       taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :otu, :source, :image ],
     }.freeze
@@ -109,7 +108,7 @@ module Queries
     # @return [Query::CollectingEvent::Filter, nil]
     attr_accessor :collecting_event_query
 
-    # @return [Query::Observation::Filter, nil]
+    # @return [Query::Content::Filter, nil]
     attr_accessor :content_query
 
     # @return [Query::Descriptor::Filter, nil]
@@ -125,7 +124,7 @@ module Queries
     attr_accessor :otu_query
 
     # @return [Query::Source::Filter, nil]
-    # Note, see also Queries::Concerns::Citations for shared citation-related facets.
+    #   See also Queries::Concerns::Citations for shared citation-related facets.
     attr_accessor :source_query
 
     # @return [Query::Extract::Filter, nil]
@@ -134,7 +133,7 @@ module Queries
     # @return [Query::Observation::Filter, nil]
     attr_accessor :observation_query
 
-    # @return [Query::Observation::Filter, nil]
+    # @return [Query::Loan::Filter, nil]
     attr_accessor :loan_query
 
     # @return Boolean
@@ -378,7 +377,10 @@ module Queries
     end
 
     def shared_and_clauses
-      [project_id_facet].compact
+      [
+        project_id_facet,
+        model_id_facet
+      ].compact
     end
 
     # Defined in inheriting classes
@@ -419,6 +421,12 @@ module Queries
         a = a.merge(b)
       end
       a
+    end
+ 
+    def model_id_facet
+      m = (base_name + '_id').to_sym
+      return nil if send(m).empty? 
+      table[m].eq_any(send(m))
     end
 
     def project_id_facet

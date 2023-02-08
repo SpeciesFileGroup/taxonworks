@@ -513,6 +513,24 @@ module Queries
         ::Otu.from('(' + s + ') as otus')
       end
 
+      def loan_query_facet
+        return nil if loan_query.nil?
+        s = 'WITH query_loan_otus AS (' + loan_query.all.to_sql + ') ' 
+
+        a = ::Otu.joins(:loan_items)
+          .joins('JOIN query_loan_otus as query_loan_otus1 on loan_items.loan_id = query_loan_otus1.id')
+          .to_sql
+
+        b = ::Otu.joins(collection_objects: [:loan_items])
+          .joins('JOIN query_loan_otus as query_loan_otus1 on loan_items.loan_id = query_loan_otus1.id')
+          .to_sql
+          
+        s << ::Otu.from("((#{a}) UNION (#{b})) as otus").to_sql
+
+        ::Otu.from('(' + s + ') as otus')
+      end
+
+
       def and_clauses
         [
           otu_id_facet,
@@ -523,6 +541,7 @@ module Queries
 
       def merge_clauses
         [
+          loan_query_facet,
           descriptor_query_facet,
           asserted_distribution_query_facet,
           biological_association_query_facet,

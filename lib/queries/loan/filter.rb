@@ -18,7 +18,9 @@ module Queries
         :person_id,
         :role,
         :taxon_name_id,
+        :loan_id,
 
+        loan_id: [],
         loan_wildcards: [],
         loan_item_disposition: [],
         otu_id: [],
@@ -30,6 +32,8 @@ module Queries
       ATTRIBUTES.each do |a|
         class_eval { attr_accessor a.to_sym }
       end
+
+      attr_accessor :loan_id
 
       # @return [Array, of Symbols]
       # @param loan_wildcards [String, Array]
@@ -74,7 +78,6 @@ module Queries
       attr_accessor :taxon_name_id
       attr_accessor :descendants
 
-
       # @param [Hash] params
       def initialize(query_params)
         super
@@ -88,6 +91,8 @@ module Queries
         @person_id = params[:person_id]
         @role = params[:role]
         @taxon_name_id = params[:taxon_name_id]
+
+        @loan_id = params[:loan_id]
 
         set_attributes(params)
         set_notes_params(params)
@@ -103,6 +108,10 @@ module Queries
         [@loan_wildcards].flatten.compact.uniq.map(&:to_sym)
       end
 
+      def loan_id
+        [@loan_id].flatten.compact.uniq
+      end
+
       def person_id
         [@person_id].flatten.compact.uniq
       end
@@ -115,6 +124,7 @@ module Queries
         [@loan_item_disposition].flatten.compact.uniq
       end
 
+      # @return Array
       # TODO: refactor into Query::Filter
       # See also CollectingEvent filter
       def attribute_clauses
@@ -166,15 +176,17 @@ module Queries
 
         a = ::Loan.joins(:loan_items).where(loan_items: {loan_item_object_type: 'Otu', loan_item_object_id: otu_id})
         b = ::Loan.joins(:loan_items)
-          .joins("collection_objects co on co.id = loan_items.loan_item_object_id and loan_items.loan_item_object_type = 'CollectionObject'")
-          .joins('taxon_determinations td on co.id = td.biological_collection_object_id')
-          .where(td: {otu_id: otu_id})
+          .joins("JOIN collection_objects co on co.id = loan_items.loan_item_object_id and loan_items.loan_item_object_type = 'CollectionObject'")
+          .joins('JOIN taxon_determinations td on co.id = td.biological_collection_object_id')
+          .where(td: {otu_id:})
 
         ::Loan.from("((#{a.to_sql}) UNION (#{b.to_sql})) as loans")
       end
 
       def and_clauses
-        attribute_clauses
+        attribute_clauses + [
+          loan_id_facet
+        ]
       end
 
       def merge_clauses

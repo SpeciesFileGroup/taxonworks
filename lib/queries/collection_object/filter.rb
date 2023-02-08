@@ -660,6 +660,7 @@ module Queries
         ::CollectionObject.never_loaned
       end
 
+      # TODO: change to not/on
       def on_loan_facet
         return nil unless on_loan
         ::CollectionObject.on_loan

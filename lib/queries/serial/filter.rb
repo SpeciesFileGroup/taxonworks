@@ -1,7 +1,7 @@
 module Queries
   module Serial
 
-    class Filter << Query::Filter
+    class Filter < Query::Filter
 
       include Queries::Concerns::DataAttributes
 
