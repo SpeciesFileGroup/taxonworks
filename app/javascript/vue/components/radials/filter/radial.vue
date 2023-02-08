@@ -104,16 +104,12 @@ const filterLinks = computed(() => {
   return isOnlyIds.value ? objLinks.ids : objLinks.all
 })
 
-const currentQueryParam = computed(() =>
-  isOnlyIds.value
-    ? ID_PARAM_FOR[props.objectType]
-    : QUERY_PARAM[props.objectType]
-)
-
 const queryObject = computed(() => {
-  const params = isOnlyIds.value ? props.ids : { ...filteredParameters.value }
+  const params = isOnlyIds.value
+    ? { [ID_PARAM_FOR[props.objectType]]: props.ids }
+    : { ...filteredParameters.value }
 
-  return { [currentQueryParam.value]: params }
+  return { [QUERY_PARAM[props.objectType]]: params }
 })
 
 const hasParameters = computed(
