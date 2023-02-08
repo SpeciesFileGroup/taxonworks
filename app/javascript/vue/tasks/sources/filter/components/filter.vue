@@ -18,7 +18,11 @@
   <FacetBibtexType v-model="params" />
   <FacetCitationTopics v-model="params" />
   <FacetIdentifiers v-model="params" />
-  <FacetNomenclaturalScope v-model="params" />
+  <FacetTaxonName v-model="params">
+    <template #bottom>
+      <CitationOnOtus v-model="params" />
+    </template>
+  </FacetTaxonName>
   <FacetCitationTypes v-model="params" />
   <FacetUsers v-model="params" />
   <FacetSomeValue
@@ -49,9 +53,10 @@ import FacetSourceType from 'components/Filter/Facets/Source/FacetSourceType'
 import FacetCitationTopics from 'components/Filter/Facets/Source/FacetCitationTopics'
 import FacetUsers from 'components/Filter/Facets/shared/FacetUsers.vue'
 import FacetSomeValue from 'components/Filter/Facets/shared/FacetSomeValue.vue'
-import FacetNomenclaturalScope from 'components/Filter/Facets/Source/FacetNomenclaturalScope.vue'
+import FacetTaxonName from 'components/Filter/Facets/TaxonName/FacetTaxonName.vue'
 import FacetMatchIdentifiers from 'components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 import FacetBibtexType from 'components/Filter/Facets/Source/FacetBibtexType.vue'
+import CitationOnOtus from 'components/Filter/Facets/Source/CitationOnOtus.vue'
 
 const WITH_TITLES = {
   with_title: 'BibTeX title'
@@ -95,7 +100,6 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
-
 </script>

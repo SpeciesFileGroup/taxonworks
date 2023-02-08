@@ -165,7 +165,9 @@ export default {
         GetBibliography({
           params: Object.assign(
             {},
-            this.selectedList.length ? { ids: this.selectedList } : this.params,
+            this.selectedList.length
+              ? { source_id: this.selectedList }
+              : this.params,
             {
               is_public: true,
               style_id: this.styleId,
@@ -185,7 +187,9 @@ export default {
         GetBibtex({
           params: Object.assign(
             {},
-            this.selectedList.length ? { ids: this.selectedList } : this.params,
+            this.selectedList.length
+              ? { source_id: this.selectedList }
+              : this.params,
             { is_public: true, style_id: this.styleId }
           )
         }).then((response) => {
