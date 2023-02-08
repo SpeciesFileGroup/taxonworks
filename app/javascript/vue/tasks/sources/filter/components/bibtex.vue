@@ -124,7 +124,7 @@ export default {
       this.isLoading = true
       GetBibtex({
         params: this.selectedList.length
-          ? { ids: this.selectedList }
+          ? { source_id: this.selectedList }
           : this.params
       }).then((response) => {
         this.bibtex = response.body
@@ -135,7 +135,9 @@ export default {
     createDownloadLink() {
       GetBibtex({
         params: Object.assign(
-          this.selectedList.length ? { ids: this.selectedList } : this.params,
+          this.selectedList.length
+            ? { source_id: this.selectedList }
+            : this.params,
           { per: this.pagination.total }
         ),
         responseType: 'blob'
@@ -155,7 +157,9 @@ export default {
       GetGenerateLinks(
         Object.assign(
           {},
-          this.selectedList.length ? { ids: this.selectedList } : this.params,
+          this.selectedList.length
+            ? { source_id: this.selectedList }
+            : this.params,
           { is_public: true }
         )
       ).then((response) => {

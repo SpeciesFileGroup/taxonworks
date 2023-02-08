@@ -48,11 +48,14 @@ const params = computed({
 const topics = ref([])
 const topicList = ref([])
 
-watch(params, (newVal, oldVal) => {
-  if (!newVal?.topic_id?.length && oldVal?.topic_id?.length) {
-    this.topics = []
+watch(
+  () => props.modelValue.topic_id,
+  (newVal, oldVal) => {
+    if (!newVal?.length && oldVal?.length) {
+      topics.value = []
+    }
   }
-})
+)
 
 watch(
   topics,

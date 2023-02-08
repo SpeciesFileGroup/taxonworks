@@ -6,12 +6,12 @@
       <input
         type="text"
         class="full_width"
-        v-model="source.author"
+        v-model="params.author"
       />
       <label class="horizontal-left-content">
         <input
           type="checkbox"
-          v-model="source.exact_author"
+          v-model="params.exact_author"
         />
         Exact
       </label>
@@ -29,7 +29,7 @@
       />
       <label>
         <input
-          v-model="source.author_id_or"
+          v-model="params.author_id_or"
           type="checkbox"
         />
         Any
@@ -44,90 +44,64 @@
   </FacetContainer>
 </template>
 
-<script>
+<script setup>
 import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import SmartSelector from 'components/ui/SmartSelector'
 import DisplayList from 'components/displayList'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { People } from 'routes/endpoints'
+import { computed, ref, watch, onBeforeMount } from 'vue'
 
-export default {
-  components: {
-    SmartSelector,
-    DisplayList,
-    FacetContainer
-  },
-
-  props: {
-    modelValue: {
-      type: Object,
-      default: undefined
-    }
-  },
-
-  emits: ['update:modelValue'],
-
-  computed: {
-    source: {
-      get() {
-        return this.modelValue
-      },
-      set(value) {
-        this.$emit('update:modelValue', value)
-      }
-    }
-  },
-
-  data() {
-    return {
-      authors: []
-    }
-  },
-
-  watch: {
-    modelValue: {
-      handler(newVal, oldVal) {
-        if (!newVal?.author_id?.length && oldVal?.author_id?.length) {
-          this.authors = []
-        }
-      },
-      deep: true
-    },
-
-    authors: {
-      handler(newVal) {
-        this.source.author_id = this.authors.map((author) => author.id)
-      },
-      deep: true
-    }
-  },
-
-  mounted() {
-    const params = URLParamsToJSON(location.href)
-
-    this.source.author = params.author
-    this.source.exact_author = params.exact_author
-    this.source.author_id_or = params.author_id_or
-    if (params.author_id) {
-      params.author_id.forEach((id) => {
-        People.find(id).then((response) => {
-          this.addAuthor(response.body)
-        })
-      })
-    }
-  },
-
-  methods: {
-    addAuthor(author) {
-      if (!this.source.author_id.includes(author.id)) {
-        this.authors.push(author)
-      }
-    },
-
-    removeAuthor(index) {
-      this.authors.splice(index, 1)
-    }
+const props = defineProps({
+  modelValue: {
+    type: Object,
+    default: undefined
   }
+})
+
+const emit = defineEmits(['update:modelValue'])
+
+const params = computed({
+  get: () => props.modelValue,
+  set: (value) => emit('update:modelValue', value)
+})
+
+const authors = ref([])
+
+watch(
+  () => props.modelValue.author_id,
+  (newVal, oldVal) => {
+    if (!newVal?.length && oldVal?.length) {
+      authors.value = []
+    }
+  },
+  { deep: true }
+)
+watch(
+  authors,
+  (newVal) => {
+    params.value.author_id = newVal.map((author) => author.id)
+  },
+  { deep: true }
+)
+
+onBeforeMount(() => {
+  if (params.value.author_id) {
+    params.value.author_id.forEach((id) => {
+      People.find(id).then((response) => {
+        addAuthor(response.body)
+      })
+    })
+  }
+})
+
+function addAuthor(author) {
+  if (!params.value.author_id?.includes(author.id)) {
+    authors.value.push(author)
+  }
+}
+
+function removeAuthor(index) {
+  authors.value.splice(index, 1)
 }
 </script>
 <style scoped>
