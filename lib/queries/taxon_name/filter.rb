@@ -380,13 +380,6 @@ module Queries
       end
 
       # @return Scope
-      def otus_facet
-        return nil if otus.nil?
-        subquery = ::Otu.where(::Otu.arel_table[:taxon_name_id].eq(::TaxonName.arel_table[:id])).arel.exists
-        ::TaxonName.where(otus ? subquery : subquery.not)
-      end
-
-      # @return Scope
       def citations_facet
         return nil if citations.nil?
 
@@ -429,7 +422,7 @@ module Queries
       def cached_name
         return nil if name.blank?
         if exact
-          table[:cached].eq(name.strip)
+          table[:cached].eq(name.strip).or(table[:cached_original_combination].eq(name.strip))
         else
           table[:cached].matches('%' + name.strip.gsub(/\s+/, '%') + '%')
         end
