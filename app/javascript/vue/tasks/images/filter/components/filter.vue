@@ -2,6 +2,8 @@
   <FacetOtu
     v-model="params"
     target="Image"
+    includes
+    coordinate
   />
   <FacetTaxonName v-model="params">
     <template #bottom>
@@ -9,7 +11,10 @@
     </template>
   </FacetTaxonName>
   <FacetDepictionObjectType v-model="params" />
-  <FacetCollectionObject v-model="params" />
+  <FacetCollectionObject
+    v-model="params"
+    includes
+  />
   <FacetBiocurations v-model="params" />
   <FacetIdentifiers v-model="params" />
   <FacetTags

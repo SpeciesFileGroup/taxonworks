@@ -16,6 +16,11 @@
       :delete-warning="false"
       @delete="removeFromArray(otusStore, $event)"
     />
+    <OtuCoordinate v-if="coordinate" />
+    <VIncludes
+      v-if="includes"
+      v-model="params"
+    />
   </FacetContainer>
 </template>
 
@@ -27,6 +32,8 @@ import { addToArray, removeFromArray } from 'helpers/arrays'
 import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import DisplayList from 'components/displayList.vue'
+import VIncludes from './components/Includes.vue'
+import OtuCoordinate from './components/OtuCoordinate.vue'
 
 const props = defineProps({
   modelValue: {
@@ -37,6 +44,16 @@ const props = defineProps({
   target: {
     type: String,
     required: true
+  },
+
+  includes: {
+    type: Boolean,
+    default: false
+  },
+
+  coordinate: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -45,7 +62,9 @@ const otusStore = ref([])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => { emit('update:modelValue', value) }
+  set: (value) => {
+    emit('update:modelValue', value)
+  }
 })
 
 watch(
@@ -59,23 +78,20 @@ watch(
 
 watch(
   otusStore,
-  newVal => {
-    params.value.otu_id = newVal.map(otu => otu.id)
+  (newVal) => {
+    params.value.otu_id = newVal.map((otu) => otu.id)
   },
   { deep: true }
 )
 
 const { otu_id = [] } = URLParamsToJSON(location.href)
 
-Promise
-  .all(otu_id.map(id => Otu.find(id)))
-  .then(responses => {
-    otusStore.value = responses.map(r => r.body)
-  })
-
+Promise.all(otu_id.map((id) => Otu.find(id))).then((responses) => {
+  otusStore.value = responses.map((r) => r.body)
+})
 </script>
 <style scoped>
-  :deep(.vue-autocomplete-input) {
-    width: 100%
-  }
+:deep(.vue-autocomplete-input) {
+  width: 100%;
+}
 </style>
