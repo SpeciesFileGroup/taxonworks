@@ -133,6 +133,7 @@ const menuOptions = computed(() => {
     sliceSize: 190,
     centerSize: 34,
     margin: 2,
+    innerPosition: 1.4,
     middleButton: {
       svgAttributes: {
         fill: 'transparent'
