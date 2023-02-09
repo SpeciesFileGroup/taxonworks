@@ -152,7 +152,7 @@ const isVisible = ref(false)
 
 function addSlice({ label, link, name }) {
   return {
-    label,
+    label: splitLongWords(label),
     link,
     name,
     svgAttributes: {
@@ -205,6 +205,26 @@ function filterEmptyParams(object) {
   }
 
   return obj
+}
+
+function splitLongWords(taskName) {
+  const totalTasks = filterLinks.value.length
+  const maxPerLine = totalTasks > 9 ? 10 : 16
+  const arr = taskName.split(' ')
+  const words = []
+
+  arr.forEach((word) => {
+    const wordLength = word.length
+    const wordArr = []
+
+    for (let i = 0; i < wordLength; i += maxPerLine) {
+      wordArr.push(word.slice(i, maxPerLine + i))
+    }
+
+    words.push(wordArr.join('- '))
+  })
+
+  return words.join(' ')
 }
 </script>
 
