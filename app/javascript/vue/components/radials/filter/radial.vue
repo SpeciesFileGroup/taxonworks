@@ -143,7 +143,7 @@ const menuOptions = computed(() => {
       class: 'svg-radial-menu'
     },
     svgSliceAttributes: {
-      fontSize: 11,
+      fontSize: 13,
       class: 'slice'
     },
     slices
