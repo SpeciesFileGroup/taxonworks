@@ -5,9 +5,9 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, .5);
+  background-color: rgba(0, 0, 0, 0.5);
   display: table;
-  transition: opacity .3s ease;
+  transition: opacity 0.3s ease;
 }
 
 .modal-wrapper {
@@ -22,8 +22,8 @@
   padding: 20px 30px;
   background-color: #fff;
   border-radius: 2px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
-  transition: all .3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
+  transition: all 0.3s ease;
   font-family: IBM Plex Sans, Helvetica, Arial, sans-serif;
   max-height: 90vh;
   overflow-y: auto;
@@ -32,8 +32,8 @@
 .modal-close {
   position: absolute;
   cursor: pointer;
-  top:26px;
-  right:30px;
+  top: 26px;
+  right: 30px;
   width: 10px;
   height: 10px;
   background-image: image-url('close.svg');
@@ -48,6 +48,10 @@
 .modal-header h3 {
   margin-top: 0;
   color: #42b983;
+}
+
+.bg-transparent .modal-header h3 {
+  color: #42ffaa;
 }
 
 .modal-body {
@@ -72,71 +76,71 @@
   transform: scale(1.1);
 }
 
-  .transparent-modal {
-      background-color: rgba(0,0,0,0.8) !important;
-  
-    .modal-header {
-      h3 {
-        margin: 2em;
-        margin-right: 0px;
-        margin-top: 0px;
-        padding: 6px;
-        padding-left:12px;
-        border-radius: 3px;
-        background-color: rgba(0, 0, 0, .3);
-        color: rgba(255, 255, 255, .5);
+.transparent-modal {
+  background-color: rgba(0, 0, 0, 0.8) !important;
+
+  .modal-header {
+    h3 {
+      margin: 2em;
+      margin-right: 0px;
+      margin-top: 0px;
+      padding: 6px;
+      padding-left: 12px;
+      border-radius: 3px;
+      background-color: rgba(0, 0, 0, 0.3);
+      color: rgba(255, 255, 255, 0.5);
+    }
+  }
+  .modal-close {
+    right: 42px;
+    top: 30px;
+    color: rgba(255, 255, 255, 0.5);
+    background-image: image-url('w_close.svg');
+  }
+  .modal-container {
+    width: 70%;
+    position: relative;
+    background-color: transparent !important;
+    box-shadow: none;
+
+    .modal-body {
+      overflow: auto;
+      margin-right: 1em;
+      max-height: 80vh;
+      &::-webkit-scrollbar {
+        position: absolute;
+        right: 40px;
+        -webkit-appearance: none;
       }
-    }
-    .modal-close {
-      right: 42px;
-      top:30px;
-      color: rgba(255, 255, 255, .5);
-      background-image: image-url('w_close.svg');
-    }
-    .modal-container {
-      width: 70%;
-      position: relative;
-      background-color: transparent !important;
-      box-shadow: none;
 
-      .modal-body {
-        overflow: auto;
-        margin-right: 1em;
-        max-height: 80vh;
-        &::-webkit-scrollbar {
-          position: absolute;
-          right:40px;
-            -webkit-appearance: none;
-        }
+      &::-webkit-scrollbar:vertical {
+        width: 6px;
+      }
 
-        &::-webkit-scrollbar:vertical {
-            width: 6px;
-        }
+      &::-webkit-scrollbar:horizontal {
+        height: 6px;
+      }
 
-        &::-webkit-scrollbar:horizontal {
-            height: 6px;
-        }
+      &::-webkit-scrollbar-thumb {
+        border-radius: 8px;
+        width: 11px;
+        height: 5px;
+        border: rgba(255, 255, 255, 0.5);
+        background-color: rgba(255, 255, 255, 0.5);
+      }
 
-        &::-webkit-scrollbar-thumb {
-            border-radius: 8px;
-            width: 11px;
-            height: 5px;
-            border: rgba(255, 255, 255, .5);
-            background-color: rgba(255, 255, 255, .5);
-        }
-
-        &::-webkit-scrollbar-track { 
-            background-color: rgba(0, 0, 0, .3);
-            border-radius: 8px; 
-        } 
+      &::-webkit-scrollbar-track {
+        background-color: rgba(0, 0, 0, 0.3);
+        border-radius: 8px;
       }
     }
   }
+}
 
-  .radial-annotator {
-    .modal-close {
-      background-image: image-url('w_close.svg');
-      background-size: 10px 10px;
-      opacity: 0.7;
-    }
+.radial-annotator {
+  .modal-close {
+    background-image: image-url('w_close.svg');
+    background-size: 10px 10px;
+    opacity: 0.7;
   }
+}

@@ -12,15 +12,11 @@
         </h3>
       </template>
       <template #body>
-        <div class="flex-separate">
-          <div class="radial-annotator-menu">
-            <div>
-              <RadialMenu
-                :options="menuOptions"
-                @on-click="saveParametersOnStorage"
-              />
-            </div>
-          </div>
+        <div class="horizontal-center-content">
+          <RadialMenu
+            :options="menuOptions"
+            @on-click="saveParametersOnStorage"
+          />
         </div>
       </template>
     </VModal>
@@ -132,11 +128,16 @@ const menuOptions = computed(() => {
   })
 
   return {
-    width: 400,
-    height: 400,
-    sliceSize: 130,
+    width: 500,
+    height: 500,
+    sliceSize: 190,
     centerSize: 34,
     margin: 2,
+    middleButton: {
+      svgAttributes: {
+        fill: 'transparent'
+      }
+    },
     svgAttributes: {
       class: 'svg-radial-menu'
     },
