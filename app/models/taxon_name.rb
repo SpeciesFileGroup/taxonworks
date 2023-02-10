@@ -420,11 +420,6 @@ class TaxonName < ApplicationRecord
     ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(t['id']))))
   end
 
-  # @return [Scope] Protonym(s) the **broad sense** synonyms of this name
-  def synonyms
-    TaxonName.with_cached_valid_taxon_name_id(self.id)
-  end
-
   soft_validate(:sv_missing_confidence_level,
                 set: :missing_fields,
                 name: 'Missing confidence level',
@@ -516,6 +511,11 @@ class TaxonName < ApplicationRecord
     end
   end
 
+  # @return [Scope] Protonym(s) the **broad sense** synonyms of this name
+  def synonyms
+    TaxonName.with_cached_valid_taxon_name_id(self.id)
+  end
+
   # @return [String]
   #   rank as human readable short-form, like 'genus' or 'species'
   def rank
@@ -572,11 +572,6 @@ class TaxonName < ApplicationRecord
     )
   end
 
-  # @return [Scope] Protonym(s) the **broad sense** synonyms of this name
-  def synonyms
-    TaxonName.with_cached_valid_taxon_name_id(id)
-  end
-
   # @return [Array]
   #   all TaxonNameRelationships where this taxon is an object or subject.
   def all_taxon_name_relationships
@@ -629,7 +624,7 @@ class TaxonName < ApplicationRecord
 
   # @return String, nil
   #   virtual attribute, to ultimately be fixed in db
-  def cached_author
+  def get_author
     cached_author_year&.gsub(/,\s\d+/, '')
   end
 
@@ -806,6 +801,12 @@ class TaxonName < ApplicationRecord
     taxon_name_classifications.with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).any?
   end
 
+  # @return [Boolean]
+  #  whether this name has any classification asserting that this the name is unavailable
+  def classification_unavailable?
+    taxon_name_classifications.with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE).any?
+  end
+
   #  @return [Boolean]
   #     return true if name is unavailable OR invalid, else false, checks both classifications and relationships
   # !! Should only be referenced when building cached values, all other uses should rather be `!is_valid?`
@@ -958,6 +959,7 @@ class TaxonName < ApplicationRecord
     assign_attributes(
       cached_html: nil,
       cached_author_year: nil,
+      cached_author: nil,
       cached_original_combination_html: nil,
       cached_secondary_homonym: nil,
       cached_primary_homonym: nil,
@@ -992,6 +994,7 @@ class TaxonName < ApplicationRecord
     # For example, when a TaxonName relationship forces a cached reload it may/not need to call these two things
     set_cached_classified_as
     set_cached_author_year
+    set_cached_author # should be after the 'set_cached_author_year'
   end
 
   def set_cached_valid_taxon_name_id
@@ -1007,6 +1010,7 @@ class TaxonName < ApplicationRecord
     update_columns(
       cached:  NO_CACHED_MESSAGE,
       cached_author_year:  NO_CACHED_MESSAGE,
+      cached_author: NO_CACHED_MESSAGE,
       cached_nomenclature_date: NO_CACHED_MESSAGE,
       cached_classified_as: NO_CACHED_MESSAGE,
       cached_html:  NO_CACHED_MESSAGE
@@ -1016,6 +1020,11 @@ class TaxonName < ApplicationRecord
   def set_cached_author_year
     update_column(:cached_author_year, get_author_and_year)
   end
+
+  def set_cached_author
+    update_column(:cached_author, get_author)
+  end
+
 
   def set_cached_classified_as
     update_column(:cached_classified_as, get_cached_classified_as)

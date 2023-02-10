@@ -430,6 +430,7 @@ watch(props.model, () => {
   refresh()
 })
 
+
 onUnmounted(() => {
   document.removeEventListener('smartselector:update', refresh)
 })

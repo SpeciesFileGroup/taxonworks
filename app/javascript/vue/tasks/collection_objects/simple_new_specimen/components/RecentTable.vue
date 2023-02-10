@@ -5,6 +5,7 @@
     <table class="full_width">
       <thead>
         <tr>
+          <th class="w-10px" />
           <th>Catalog number</th>
           <th>Total</th>
           <th>Family</th>
@@ -18,7 +19,6 @@
           <th>Container</th>
           <th>Updated by</th>
           <th>Updated at</th>
-          <th />
         </tr>
       </thead>
       <tbody>
@@ -28,6 +28,21 @@
           class="contextMenuCells"
           :class="{ 'even': (index % 2 == 0) }"
         >
+          <td>
+            <div class="horizontal-right-content">
+              <TagButtom
+                class="circle-button"
+                :global-id="item.global_id"
+              />
+              <RadialObject :global-id="item.global_id" />
+              <RadialAnnotator :global-id="item.global_id" />
+              <RadialNavigation
+                :global-id="item.global_id"
+                :redirect="false"
+                @delete="removeFromArray(store.recentList, item)"
+              />
+            </div>
+          </td>
           <td>{{ item.dwc_attributes.catalogNumber }}</td>
           <td>{{ item.dwc_attributes.individualCount }}</td>
           <td>{{ item.dwc_attributes.family }}</td>
@@ -47,17 +62,6 @@
           <td v-html="item.container" />
           <td>{{ item.updater }}</td>
           <td>{{ item.updated_at }}</td>
-          <td>
-            <div class="horizontal-right-content">
-              <TagButtom
-                class="circle-button"
-                :global-id="item.global_id"
-              />
-              <RadialObject :global-id="item.global_id" />
-              <RadialAnnotator :global-id="item.global_id" />
-              <RadialNavigation :global-id="item.global_id" />
-            </div>
-          </td>
         </tr>
       </tbody>
     </table>
@@ -67,6 +71,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useStore } from '../store/useStore'
+import { removeFromArray } from 'helpers/arrays'
 import RadialNavigation from 'components/radials/navigation/radial.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/object/radial.vue'
@@ -77,3 +82,9 @@ const store = useStore()
 const isLoading = ref(false)
 
 </script>
+
+<style scoped>
+.w-10px {
+  width: 10px;
+}
+</style>

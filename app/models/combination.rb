@@ -475,6 +475,7 @@ class Combination < TaxonName
   def sv_cached_names
     is_cached = true
     is_cached = false if cached_author_year != get_author_and_year
+    is_cached = false if cached_author != get_author
 
     if  is_cached && (
         cached_is_valid.nil? ||

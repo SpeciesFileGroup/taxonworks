@@ -539,6 +539,7 @@ module Queries
         return nil if name.empty?
         if name_exact
           table[:cached].eq_any(name)
+          #  table[:cached].eq(name.strip).or(table[:cached_original_combination].eq(name.strip))
         else
           table[:cached].matches_any( name.collect{|n| '%' + n.gsub(/\s+/, '%') + '%' } )
         end

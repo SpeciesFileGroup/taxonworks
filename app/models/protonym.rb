@@ -266,9 +266,9 @@ class Protonym < TaxonName
 
   def is_available?(refresh = false)
     if !refresh
-      @is_available ||= !has_misspelling_relationship? && !name_is_misapplied? && !classification_invalid_or_unavailable?
+      @is_available ||= !has_misspelling_or_misapplication_relationship? && !classification_unavailable?
     else
-      @is_available = !has_misspelling_relationship? && !name_is_misapplied? && !classification_invalid_or_unavailable?
+      @is_available = !has_misspelling_or_misapplication_relationship? && !classification_unavailable?
     end
     @is_available
   end
@@ -489,6 +489,11 @@ class Protonym < TaxonName
   #   whether this name has one of the TaxonNameRelationships which justify wrong form of the name
   def has_misspelling_relationship?
     taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING).any?
+  end
+
+  # @return [Boolean]
+  def has_misspelling_or_misapplication_relationship?
+    taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION).any?
   end
 
   # Same as is_original_name?!
@@ -973,6 +978,7 @@ class Protonym < TaxonName
   def sv_cached_names # this cannot be moved to soft_validation_extensions
   is_cached = true
   is_cached = false if cached_author_year != get_author_and_year
+  is_cached = false if cached_author != get_author
 
   if is_cached && (
       cached_valid_taxon_name_id != get_valid_taxon_name.id ||

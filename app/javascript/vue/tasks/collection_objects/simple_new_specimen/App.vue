@@ -19,6 +19,7 @@
           </div>
           <FormDepictions />
           <div>
+            <FormCreateTotal />
             <VBtn
               color="create"
               medium
@@ -41,6 +42,7 @@ import FormPreparationType from './components/FormPreparationType.vue'
 import FormCatalogNumber from './components/FormCatalogNumber.vue'
 import FormDepictions from './components/FormDepictions.vue'
 import FormDetermination from './components/FormDetermination.vue'
+import FormCreateTotal from './components/FormCreateTotal.vue'
 import BlockLayout from 'components/layout/BlockLayout.vue'
 import VBtn from 'components/ui/VBtn/index.vue'
 import RecentTable from './components/RecentTable.vue'

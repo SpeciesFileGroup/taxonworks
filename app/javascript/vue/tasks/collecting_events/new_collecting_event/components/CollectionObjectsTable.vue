@@ -29,7 +29,7 @@
       transparent
       :container-style="{
         width: '100%',
-        maxWidth: '1400px',
+        maxWidth: '90vw',
         height: '90vh',
         overflowX: 'auto'
       }"

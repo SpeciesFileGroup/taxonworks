@@ -158,10 +158,16 @@ export default {
     disabled: {
       type: Boolean,
       default: false
+//    redirect: {  JLP 
+//      type: Boolean,
+//      default: true
     }
   },
 
-  emits: ['close'],
+  emits: [
+    'close',
+    'delete'
+  ],
 
   computed: {
     defaultTasks() {
@@ -492,16 +498,6 @@ export default {
             ),
             '_self'
           )
-        }
-      })
-    }
-  }
-}
-</script>
-
-<style>
-.svg-radial-menu-navigator path {
-  stroke: #444;
-  stroke-width: 2px;
+    stroke-width: 2px;
 }
 </style>
