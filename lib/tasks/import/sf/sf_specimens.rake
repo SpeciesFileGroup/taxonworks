@@ -71,13 +71,20 @@ namespace :tw do
             repo = Repository.find(tw_depo_id)
             name = repo.acronym ? "#{repo.name} (#{repo.acronym})" : repo.name
             short_name = repo.acronym
+            namespace = nil
+
             if sf_depo_id == "3664"
               name = 'Museo di Zoologia, Instituto di Zoologia e Anatomia Comparata Universita di Torino (MZT)'
               short_name = 'MZT'
             end
-            [sf_depo_id, Namespace.find_or_create_by!(
-              institution: repo.name, name: name, short_name: short_name)
-            ]
+            begin
+              namespace = Namespace.find_or_create_by!(
+                institution: repo.name, name: name, short_name: short_name)
+            rescue
+              namespace = Namespace.find_or_create_by!(
+                institution: repo.name, name: name + "(SF IMPORT DUPLICATE)", short_name: short_name + "(SF IMPORT DUPLICATE)")
+            end
+            [sf_depo_id, namespace]
           end.to_h
           default_repo_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'SpecimenDepository', short_name: 'Depo')
 
