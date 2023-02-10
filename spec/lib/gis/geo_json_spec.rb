@@ -33,7 +33,7 @@ describe Gis::GeoJSON, type: :model, group: [:geo, :shared_geo] do
 
   let(:multilinestring) { RSPEC_GEO_FACTORY.multi_line_string([list_box_a, list_box_b]) }
 
- rlet(:polygon_outer) {
+ let(:polygon_outer) {
     RSPEC_GEO_FACTORY.line_string(
         [RSPEC_GEO_FACTORY.point(1, -1, 0.0),
          RSPEC_GEO_FACTORY.point(9, -1, 0.0),
