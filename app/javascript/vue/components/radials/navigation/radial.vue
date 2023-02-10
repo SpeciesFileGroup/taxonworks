@@ -75,6 +75,7 @@
     </div>
   </div>
 </template>
+
 <script>
 import RadialMenu from 'components/radials/RadialMenu.vue'
 import Modal from 'components/ui/Modal.vue'
@@ -161,10 +162,7 @@ export default {
     }
   },
 
-  emits: [
-    'close',
-    'delete'
-  ],
+  emits: ['close', 'delete'],
 
   computed: {
     defaultTasks() {
@@ -482,7 +480,6 @@ export default {
           this.eventDestroy()
           this.deleted = true
         }
-
         if (this.metadata.destroyed_redirect) {
           window.open(this.metadata.destroyed_redirect, '_self')
         } else if (window.location.pathname === this.metadata.resource_path) {
@@ -495,6 +492,16 @@ export default {
             ),
             '_self'
           )
-    stroke-width: 2px;
+        }
+      })
+    }
+  }
+}
+</script>
+
+<style>
+.svg-radial-menu-navigator path {
+  stroke: #444;
+  stroke-width: 2px;
 }
 </style>

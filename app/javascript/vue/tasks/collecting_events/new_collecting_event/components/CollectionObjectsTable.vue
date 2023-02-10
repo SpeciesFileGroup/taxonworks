@@ -149,7 +149,11 @@
                   class="contextMenuCells"
                 >
                   <td>{{ item.id }}</td>
-                  <td v-html="item.identifiers.join('<br>')" />
+                  <td
+                    v-html="
+                      item.identifiers.map((item) => item.cached).join('<br>')
+                    "
+                  />
                   <td
                     v-html="
                       item.taxon_determinations
