@@ -14,7 +14,7 @@ module Queries
         :data_attribute_id,
         controlled_vocabulary_term_id: [],
         data_attribute_id: []
-      ]
+      ].freeze
 
       # General annotator options handling
       # happens directly on the params as passed
@@ -67,7 +67,7 @@ module Queries
 
       # @return [Arel::Node, nil]
       def matching_subject
-        if o = object_for
+        if o = object_for(object_global_id)
           table['attribute_subject_id'].eq(o.id).and(
             table['attribute_subject_type'].eq(o.metamorphosize.class.name)
           )
