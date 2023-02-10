@@ -1,26 +1,31 @@
 module Queries
   module Identifier
 
-    # !! Does not inherit from Filter.
-    # !! There are significant collisions with the Identifiers concern
-    # !! so this is isolated for now
     class Filter < Query::Filter
 
-
       PARAMS = [
-        :query_string,
         :identifier,
-        :namespace_id,
-        :namespace_short_name,
-        :namespace_name,
-        :identifier_object_type,
+        :identifier_id,
         :identifier_object_id,
+        :identifier_object_type,
+        :namespace_id,
+        :namespace_name,
+        :namespace_short_name,
         :object_global_id,
+        :query_string,
         :type,
+        identifier: [],
+        identifier_id: [],
+        identifier_object_id: [],
+        identifier_object_type: [],
+        namespace_id: [],
       ].freeze
 
       include Concerns::Polymorphic
       polymorphic_klass(::Identifier)
+
+      # @return Array
+      attr_accessor :identifier_id
 
       # A fully qualified identifier, matches cached
       # !! This is the only wildcarded value !!
@@ -39,6 +44,7 @@ module Queries
       #      or ['Otu', 'Specimen']
       attr_accessor :identifier_object_type
 
+      # @return Array
       attr_accessor :identifier_object_id
 
       attr_accessor :object_global_id
@@ -57,16 +63,16 @@ module Queries
 
         # @options = params
 
+        # TODO: always on project_id likely breaking things !!
+        # @project_id = params[:project_id]
+
         @identifier = params[:identifier]
+        @identifier_id = params[:identifier_id]
         @identifier_object_id = params[:identifier_object_id]
         @identifier_object_type = params[:identifier_object_type]
         @namespace_id = params[:namespace_id]
         @namespace_name = params[:namespace_name]
         @namespace_short_name = params[:namespace_short_name]
-
-        # TODO: always on project_id likely breaking things
-        # @project_id = params[:project_id]
-
         @query_string = params[:query_string]
         @type = params[:type]
 
@@ -81,6 +87,10 @@ module Queries
 
       def type
         [@type].flatten.compact.uniq
+      end
+
+      def identifier_id
+        [@namespace_id].flatten.compact.uniq
       end
 
       def namespace_id

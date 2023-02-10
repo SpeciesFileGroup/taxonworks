@@ -15,6 +15,10 @@ module Queries
       include Concerns::Polymorphic
       polymorphic_klass(::Tag)
 
+
+      # @return Array
+      attr_accessor :tag_id
+
       # Array, Integer
       attr_accessor :keyword_id
 
@@ -31,12 +35,21 @@ module Queries
       def initialize(query_params)
         super
 
-        @keyword_id = [params[:keyword_id]].flatten.compact
+        @tag_id = params[:tag_id]
+        @keyword_id = [params[:keyword_id]]
         @tag_object_type = params[:tag_object_type]
         @tag_object_id = params[:tag_object_id]
         @object_global_id = params[:object_global_id]
 
         set_polymorphic_ids(params)
+      end
+
+      def tag_id
+        [@tag_id].flatten.compact.uniq
+      end
+
+      def keyword_id
+        [@keyword_id].flatten.compact.uniq
       end
 
       def tag_object_type
@@ -63,14 +76,14 @@ module Queries
       end
 
       def and_clauses
-        [ 
+        [
           #  ::Queries::Annotator.annotator_params(options, ::Tag),
           keyword_id_facet,
           matching_polymorphic_ids, # concern
           object_id_facet,
           tag_object_type_facet,
         ]
-     end
+      end
 
 
     end

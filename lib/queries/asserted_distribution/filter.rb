@@ -9,8 +9,10 @@ module Queries
       include Queries::Concerns::Tags
       include Queries::Concerns::Notes
       include Queries::Concerns::DataAttributes
+      include Queries::Concerns::Citations
 
       PARAMS = [
+        :asserted_distribution_id,
         :descendants,
         :geo_json,
         :geographic_area_id,
@@ -20,10 +22,15 @@ module Queries
         :radius,
         :taxon_name_id,
         :wkt,
+        asserted_distribution_id: [],
         geographic_area_id: [],
         otu_id: [],
         taxon_name_id: [],
       ].freeze
+
+      # @param asserted_distribution_id [Array, Integer, String]
+      # @return [Array]
+      attr_accessor :asserted_distribution_id
 
       # @param otu_id [Array, Integer, String]
       # @return [Array]
@@ -64,8 +71,9 @@ module Queries
       #   !! defaults to 100m
       attr_accessor :radius
 
-      def initialize(params)
+      def initialize(query_params)
         super
+        @asserted_distribution_id = params[:asserted_distribution_id]
         @descendants = boolean_param(params, :descendants)
         @geo_json = params[:geo_json]
         @geographic_area_id = params[:geographic_area_id]
@@ -77,9 +85,14 @@ module Queries
         @taxon_name_id = params[:taxon_name_id]
         @wkt = params[:wkt]
 
+        set_citations_params(params)
         set_data_attributes_params(params)
         set_notes_params(params)
         set_tags_params(params)
+      end
+
+      def asserted_distribution_id
+        [@asserted_distribution_id].flatten.compact
       end
 
       def otu_id
@@ -111,7 +124,7 @@ module Queries
       def from_wkt(wkt_shape)
 
         i = ::GeographicItem.joins(:geographic_areas).where(::GeographicItem.contained_by_wkt_sql(wkt_shape))
-      
+
         j = ::GeographicArea.joins(:geographic_items).where(geographic_items: i)
         k = ::GeographicArea.descendants_of(j) # Add children that might not be caught because they don't have a shapes
 
@@ -228,10 +241,10 @@ module Queries
       def biological_association_query_facet
         return nil if biological_association_query.nil?
         s = 'WITH query_ad_ba AS (' + biological_association_query.all.to_sql + ') '
-       
+
         a = ::AssertedDistribution
           .joins("JOIN query_ad_ba as query_ad_ba1 on asserted_distributions.otu_id = query_ad_ba1.biological_association_subject_id AND query_ad_ba1.biological_association_subject_type = 'Otu'").to_sql
- 
+
         b = ::AssertedDistribution
           .joins("JOIN query_ad_ba as query_ad_ba2 on asserted_distributions.otu_id = query_ad_ba2.biological_association_object_id AND query_ad_ba2.biological_association_object_type = 'Otu'").to_sql
 
@@ -252,7 +265,6 @@ module Queries
           biological_association_query_facet,
           geo_json_facet,
           otu_query_facet,
-          source_query_facet,
           taxon_name_query_facet,
 
           geographic_area_id_facet,

@@ -46,7 +46,7 @@ module Queries::Concerns::Citations
   def self.merge_clauses
     [ :citations_facet,
       :origin_citation_facet,
-      # Do not include source_query_facet here
+      :source_query_facet
     ]
   end
 

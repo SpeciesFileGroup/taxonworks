@@ -3,15 +3,15 @@ module Queries
   # Overview
   #
   # This class manages params and nesting of filter queries.
-  # 
+  #
   # Each inheriting class defines a PARAMS variable.
   # Each concern defines `self.params`.
-  # Together these two lists are used to compose a list of 
+  # Together these two lists are used to compose a list of
   # acceptable params, dynamically, based on the nature
   # of the nested queries.
   #
   # Test coverage is currently in /spec/lib/queries/otu/filter_spec.rb.
-  # 
+  #
   class Query::Filter < Queries::Query
 
     # Concerns have corresponding Facets in Vue.
@@ -27,59 +27,72 @@ module Queries
     #
     # `<FacetUsers v-model="params" />`
     #
-    include Queries::Concerns::Citations
     include Queries::Concerns::Users
     # include Queries::Concerns::Identifiers # Presently in Queries for other use in autocompletes
 
     #
     # !! SUBQUERIES is cross-referenced in app/views/javascript/vue/components/radials/filter/links/*.js models.
-    # !! When you add a reference here, ensure corresponding js model is aligned.
+    # !! When you add a reference here, ensure corresponding js model is aligned. There are tests that will catch if they are not.
     #
-    # For example: (TODO: correct path after merge)
-    # https://github.com/SpeciesFileGroup/taxonworks/blob/2652_unified_filters/app/javascript/vue/components/radials/filter/constants/queryParam.js
-    # https://github.com/SpeciesFileGroup/taxonworks/blob/2652_unified_filters/app/javascript/vue/components/radials/filter/constants/filterLinks.js
-    # https://github.com/SpeciesFileGroup/taxonworks/blob/2652_unified_filters/app/javascript/vue/components/radials/filter/links/CollectionObject.js
+    # For example:
+    # https://github.com/SpeciesFileGroup/taxonworks/app/javascript/vue/components/radials/filter/constants/queryParam.js
+    # https://github.com/SpeciesFileGroup/taxonworks/app/javascript/vue/components/radials/filter/constants/filterLinks.js
+    # https://github.com/SpeciesFileGroup/taxonworks/app/javascript/vue/components/radials/filter/links/CollectionObject.js
     #
     # You may also need a reference in
     # app/javascript/vue/routes/routes.js
-    # app/javascript/vue/components/radials/linker/links 
+    # app/javascript/vue/components/radials/linker/links
     #
-    # This is read as  :to <- [:from1, from1] ].
+    # This is read as  :to <- [:from1, from2...] ].
     SUBQUERIES = {
       asserted_distribution: [:source, :otu, :biological_association, :taxon_name],
       biological_association: [:source, :collecting_event, :otu, :collection_object, :taxon_name],
       collecting_event: [:source, :collection_object, :biological_association, :otu, :image, :taxon_name],
-      collection_object: [:source, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image],
+      collection_object: [:source, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation],
       content: [:source, :otu, :taxon_name, :image],
-      descriptor: [:source, :observation, :otu, :descriptor ],
+      descriptor: [:source, :observation, :otu],
       extract: [:source, :otu, :collection_object],
       image: [:content, :collection_object, :collecting_event, :otu, :observation, :source, :taxon_name ],
-
-      loan: [],
-
-      observation: [:source, :descriptor, :image],
-      otu: [:source, :taxon_name, :collection_object, :extract, :collecting_event, :content, :biological_association, :asserted_distribution, :descriptor, :image, :loan],
-      source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :source, :taxon_name],
-      taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :otu, :source, :image ],
+      loan: [:collection_object, :otu],
+      observation: [:collection_object, :descriptor, :image, :otu, :source, :taxon_name],
+      otu: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :content, :descriptor, :extract, :image, :loan, :observation, :source, :taxon_name ],
+      person: [],
+      source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :taxon_name],
+      taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :image, :otu, :source ]
     }.freeze
 
-    # We could consider `.safe_constantize` to make this a f(n), but we'd have 
+    def self.inverted_subqueries
+      r = {}
+      SUBQUERIES.each do |k,v|
+        v.each do |m|
+          if r[m]
+            r[m].push k
+          else
+            r[m] = [k]
+          end
+        end
+      end
+      r
+    end
+
+    # We could consider `.safe_constantize` to make this a f(n), but we'd have
     # to have a list somewhere else anyways to further restrict allowed classes.
-    # 
+    #
     FILTER_QUERIES = {
-      asserted_distribution_query: '::Queries::AssertedDistribution::Filter', 
+      asserted_distribution_query: '::Queries::AssertedDistribution::Filter',
       biological_association_query: '::Queries::BiologicalAssociation::Filter',
-      collecting_event_query: '::Queries::CollectingEvent::Filter', 
-      collection_object_query: '::Queries::CollectionObject::Filter', 
-      content_query: '::Queries::Content::Filter', 
-      descriptor_query: '::Queries::Descriptor::Filter', 
-      extract_query: '::Queries::Extract::Filter', 
-      image_query: '::Queries::Image::Filter', 
-      loan_query: '::Queries::Loan::Filter', 
-      observation_query: '::Queries::Observation::Filter', 
-      otu_query: '::Queries::Otu::Filter', 
+      collecting_event_query: '::Queries::CollectingEvent::Filter',
+      collection_object_query: '::Queries::CollectionObject::Filter',
+      content_query: '::Queries::Content::Filter',
+      descriptor_query: '::Queries::Descriptor::Filter',
+      extract_query: '::Queries::Extract::Filter',
+      image_query: '::Queries::Image::Filter',
+      loan_query: '::Queries::Loan::Filter',
+      observation_query: '::Queries::Observation::Filter',
+      otu_query: '::Queries::Otu::Filter',
+      person_query: '::Queries::Person::Filter',
       source_query: '::Queries::Source::Filter',
-      taxon_name_query: '::Queries::TaxonName::Filter', 
+      taxon_name_query: '::Queries::TaxonName::Filter',
     }.freeze
 
     #
@@ -123,10 +136,6 @@ module Queries
     # @return [Query::Otu::Filter, nil]
     attr_accessor :otu_query
 
-    # @return [Query::Source::Filter, nil]
-    #   See also Queries::Concerns::Citations for shared citation-related facets.
-    attr_accessor :source_query
-
     # @return [Query::Extract::Filter, nil]
     attr_accessor :extract_query
 
@@ -136,12 +145,15 @@ module Queries
     # @return [Query::Loan::Filter, nil]
     attr_accessor :loan_query
 
+    # @return [Query::Person::Filter, nil]
+    attr_accessor :person_query
+
     # @return Boolean
     #   Applies an order on updated.
     attr_accessor :recent
 
     # @return Hash
-    # the parsed/permitted params 
+    # the parsed/permitted params
     #   that were used to on initialize() only!!
     # !! Using setters directly on query parameters will not alter this variable !!
     # !! This is used strictly during the permission process of ActionController::Parameters !!
@@ -149,40 +161,39 @@ module Queries
 
     # @return Hash
     def initialize(query_params)
-      
+
       if query_params.kind_of?(Hash)
         @params = query_params
       elsif query_params.kind_of?(ActionController::Parameters)
         @params = deep_permit(query_params).to_hash.deep_symbolize_keys
       elsif query_params.nil?
         @params = {}
-      else 
+      else
         raise TaxonWorks::Error, "can not initialize filter with #{query_params.class.name}"
       end
 
       set_nested_queries(params)
       set_user_dates(params)
-      set_citations_params(params)
       set_identifier_params(params)
 
       @recent = boolean_param(params, :recent)
-      
+
       # always on
       @project_id = params[:project_id] || Current.project_id # TODO: revisit
     end
 
     def self.included_annotator_facets
       f = [
-        ::Queries::Concerns::Citations,
         ::Queries::Concerns::Users
       ]
 
-      f.push ::Queries::Concerns::Tags if self < ::Queries::Concerns::Tags
-      f.push ::Queries::Concerns::Notes if self < ::Queries::Concerns::Notes
+      f.push ::Queries::Concerns::Citations if self < ::Queries::Concerns::Citations
       f.push ::Queries::Concerns::DataAttributes if self < ::Queries::Concerns::DataAttributes
-      f.push ::Queries::Concerns::Identifiers if self < ::Queries::Concerns::Identifiers
-      f.push ::Queries::Concerns::Protocols if self < ::Queries::Concerns::Protocols
       f.push ::Queries::Concerns::Depictions if self < ::Queries::Concerns::Depictions
+      f.push ::Queries::Concerns::Identifiers if self < ::Queries::Concerns::Identifiers
+      f.push ::Queries::Concerns::Notes if self < ::Queries::Concerns::Notes
+      f.push ::Queries::Concerns::Protocols if self < ::Queries::Concerns::Protocols
+      f.push ::Queries::Concerns::Tags if self < ::Queries::Concerns::Tags
 
       f
     end
@@ -193,7 +204,7 @@ module Queries
       a = self::PARAMS.dup
       b = a.pop.keys
       (a + b).uniq
-    end   
+    end
 
     # @return Array, nil
     #   a [:a, :b, {c: []}] formatted Array
@@ -211,12 +222,12 @@ module Queries
         c = h.last
 
         i.each do |j|
-          p = j.params 
+          p = j.params
 
           if p.last.kind_of?(Hash)
             c.merge!(p.pop)
           end
-          
+
           h = p + h
         end
       end
@@ -228,25 +239,25 @@ module Queries
     end
 
     # This method is a preprocessor that discovers, by finding the nested
-    # subqueries, which params should be permitted. It is used to build a 
+    # subqueries, which params should be permitted. It is used to build a
     # permitable profile of parameters.
-    # 
-    # That profile is then used in the actual .permit() call. 
-    # 
+    #
+    # That profile is then used in the actual .permit() call.
+    #
     # An alternate solution, first tried, is to permit the params directly
-    # during inspection for subquries.  This also would work, however there are 
+    # during inspection for subquries.  This also would work, however there are
     # some nice benefits to having a profile of the allowed params available as an Array,
     # for example we can use it for API documentation a little easier(?!).
     #
     # In essence what we needed was for ActionController::Parameters to be
     # able to accumulate (remember) all permitted params (not just their actual data)
-    # over multiple .permit() calls.  If we had that, then we could do 
-    # something like params.permitted_params => Array after multiple calls like params.permit(:a), 
+    # over multiple .permit() calls.  If we had that, then we could do
+    # something like params.permitted_params => Array after multiple calls like params.permit(:a),
     # params.permit(:b).
-    # 
+    #
     # @return Hash
     # @params hsh Hash
-    #    Uses an *unsafe* hash from an instance of ActionController::Parameters or 
+    #    Uses an *unsafe* hash from an instance of ActionController::Parameters or
     # any parameter set for the query.
     def permitted_params(hsh)
       h = self.class::PARAMS.deep_dup
@@ -254,7 +265,7 @@ module Queries
       if !h.last.kind_of?(Hash)
         h << {}
       end
-       
+
       c = h.last # a {}
 
       if n = self.class.annotator_params
@@ -291,29 +302,29 @@ module Queries
       end
 
       h
-    end 
+    end
 
-    # @params hsh Hash 
+    # @params hsh Hash
     # @return [Array of Symbol]
     #   all queries, in nested order
     # Since queries nest linearly we don't need to recursion.
     def subquery_vector(hsh)
       result = []
       while !hsh.keys.select{|k| k =~ /_query/}.empty?
-        a = hsh.keys.select{|k| k =~ /_query/} 
+        a = hsh.keys.select{|k| k =~ /_query/}
         result += a
         hsh = hsh[a.first]
-      end 
+      end
       result.map(&:to_sym)
     end
 
     # @params params ActionController::Parameters
-    # @return ActionController::Parameters 
+    # @return ActionController::Parameters
     def deep_permit(params)
       p = params.permit( permitted_params(params.to_unsafe_hash))
     end
 
-    # @params params [Hash] 
+    # @params params [Hash]
     #   set all nested queries variables, e.g. @otu_filter_query
     # @return True
     def set_nested_queries(params)
@@ -321,15 +332,15 @@ module Queries
         return nil if n.keys.count != 1 # can't have multiple nested queries inside one level
 
         query_name = n.first.first
-        
-        return nil unless SUBQUERIES[base_name.to_sym].include?( query_name.to_s.gsub('_query', '').to_sym ) # must be registered 
 
-        query_params = n.first.last 
+        return nil unless SUBQUERIES[base_name.to_sym].include?( query_name.to_s.gsub('_query', '').to_sym ) # must be registered
+
+        query_params = n.first.last
 
         q = FILTER_QUERIES[query_name].safe_constantize.new(query_params)
 
         # assign to @<model>_query
-        v = send("#{query_name}=".to_sym, q) 
+        v = send("#{query_name}=".to_sym, q)
       end
 
       true
@@ -337,7 +348,7 @@ module Queries
 
     # @params params [Hash, ActionControllerParameters]
     #   in practice we only pass Hash
-    # See CE, Loan filters for use.  
+    # See CE, Loan filters for use.
     def set_attributes(params)
       self.class::ATTRIBUTES.each do |a|
         send("#{a}=", params[a.to_sym])
@@ -422,11 +433,14 @@ module Queries
       end
       a
     end
- 
+
+    # Returns id= facet, automatically
+    # added to all queries.
+    # Over-ridden in some base classes.
     def model_id_facet
       m = (base_name + '_id').to_sym
-      return nil if send(m).empty? 
-      table[m].eq_any(send(m))
+      return nil if send(m).empty?
+      table[:id].eq_any(send(m))
     end
 
     def project_id_facet

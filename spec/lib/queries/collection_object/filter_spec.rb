@@ -363,15 +363,15 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       let!(:td5) { FactoryBot.create(:valid_taxon_determination, biological_collection_object: co3, otu: o3) } # current
 
 
-      # collection_objects/dwc_index?collector_id_or=false&per=500&page=1&determiner_id[]=61279&taxon_name_id=606330
-      specify '#determiner_id, collector_id_or, taxon_name_id combo' do
+      # collection_objects/dwc_index?&per=500&page=1&determiner_id[]=61279&taxon_name_id=606330
+      specify '#determiner_id, taxon_name_id combo' do
         t1 = Specimen.create!
         t2 = Specimen.create!
         o = Otu.create!(taxon_name: species1)
         a = FactoryBot.create(:valid_taxon_determination, otu: o, biological_collection_object: t1, determiners: [ FactoryBot.create(:valid_person) ] )
 
         query.determiner_id = a.determiners.pluck(:id)
-        query.collector_id_or = false
+        # query.collector_id_or = false
         query.taxon_name_id = genus1.id
         query.descendants = true
 

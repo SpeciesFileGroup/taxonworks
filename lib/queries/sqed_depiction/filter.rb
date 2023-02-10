@@ -13,24 +13,37 @@ module Queries
        local_identifiers
       }.freeze
 
-      attr_accessor :collection_object_filter_params
+      PARAMS = [
+        *COLLECTION_OBJECT_FILTER_PARAMS,
+        :sqed_depiction_id,
+        sqed_depiction_id: [],
+      ].freeze
+
+      # @return Hash
+      attr_accessor :base_collection_object_filter_params
+
+      attr_accessor :sqed_depiction_id
 
       def initialize(query_params)
         super
 
-        @collection_object_filter_params = params.permit(COLLECTION_OBJECT_FILTER_PARAMS)
-          .to_h.select{|k,v| COLLECTION_OBJECT_FILTER_PARAMS.include?(k) ? k : nil}
+        @sqed_depiction_id = params[:sqed_depiction_id]
+        @base_collection_object_filter_params = params.select{|k,v| COLLECTION_OBJECT_FILTER_PARAMS.include?(k) ? k : nil}
 
         set_user_dates(params)
       end
 
-      def collection_object_query_facet
-        q = ::Queries::CollectionObject::Filter.new(collection_object_filter_params).all
+      def sqed_depiction_id
+        [@sqed_depiction_id].flatten.compact
+      end
+
+      def base_collection_object_query_facet
+        q = ::Queries::CollectionObject::Filter.new(base_collection_object_filter_params).all
         ::SqedDepiction.joins(:collection_object).where(collection_objects: q)
       end
 
       def merge_clauses
-        [ collection_object_query_facet ]
+        [ base_collection_object_query_facet ]
       end
 
     end

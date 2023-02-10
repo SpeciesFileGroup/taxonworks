@@ -5,22 +5,31 @@ module Queries
       PARAMS = [
         :collection_object_id,
         :otu_id,
-        otu_id: [],
-        determiner_id: [],
+        :taxon_determination_id,
+
         collection_object_id: [],
+        determiner_id: [],
+        otu_id: [],
+        taxon_determination_id: [],
       ].freeze
 
       # all Arrays
+      attr_accessor :taxon_determination_id
       attr_accessor :collection_object_id
       attr_accessor :otu_id
       attr_accessor :determiner_id
 
       def initialize(query_params = {})
         super
-        
+
         @collection_object_id = params[:collection_object_id]
         @determiner_id = params[:determiner_id]
         @otu_id = params[:otu_id]
+        @taxon_determination_id = params[:taxon_determination_id]
+      end
+
+      def taxon_determination_id
+        [@taxon_determination_id].flatten.compact.uniq
       end
 
       def otu_id
@@ -34,7 +43,7 @@ module Queries
       def determiner_id
         [@determiner_id].flatten.compact.uniq
       end
-      
+
       def otu_id_facet
         return nil if otu_id.empty?
         table[:otu_id].eq_any(otu_id)
@@ -42,7 +51,7 @@ module Queries
 
       def collection_object_id_facet
         return nil if collection_object_id.empty?
-         table[:biological_collection_object_id].eq_any(collection_object_id)
+        table[:biological_collection_object_id].eq_any(collection_object_id)
       end
 
       def determiner_id_facet

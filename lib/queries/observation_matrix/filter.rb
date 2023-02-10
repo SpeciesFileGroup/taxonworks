@@ -4,11 +4,12 @@ module Queries
 
       PARAMS = [
         :observation_matrix_id
-      ]
+      ].freeze
 
       attr_accessor :observation_matrix_id
 
-      def initialize(params = {})
+      def initialize(query_params)
+        super
         @observation_matrix_id = params[:observation_matrix_id]
       end
 
@@ -16,14 +17,8 @@ module Queries
         [@observation_matrix_id].flatten.compact
       end
 
-      def observation_matrix_id_facet
-        return nil if observation_matrix_id.empty?
-        table[:id].eq_any(observation_matrix_id)
-      end
-
-      # @return [ActiveRecord::Relation]
       def and_clauses
-        [ observation_matrix_id_facet ]
+        [ ]
       end
 
     end

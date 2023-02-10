@@ -1,30 +1,22 @@
 module Queries
   module TaxonName
 
-    # Changed:
-    # * added year_start, :year_end, :name_exact, :author_exact
-    # * removed :exact
-
-
-    # TODO: consider merge and search on cached_author
-
-    # https://api.taxonworks.org/#/taxon_names
     class Filter < Query::Filter
-
       include Queries::Helpers
 
-      include Queries::Concerns::Notes
-      include Queries::Concerns::Tags
+      include Queries::Concerns::Citations
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
+      include Queries::Concerns::Notes
+      include Queries::Concerns::Tags
 
-      PARAMS = [ 
+      PARAMS = [
         :ancestors,
         :author,
         :author_exact,
         :authors,
-        :collection_object_id, 
         :collecting_event_id,
+        :collection_object_id,
         :descendants,
         :descendants_max_depth,
         :etymology,
@@ -37,7 +29,8 @@ module Queries
         :otu_id,
         :otus,
         :rank,
-        :taxon_name_author_ids_or,
+        :taxon_name_author_id_or,
+        :taxon_name_id,
         :taxon_name_type,
         :type_metadata,
         :validify,
@@ -45,7 +38,6 @@ module Queries
         :year,
         :year_end,
         :year_start,
-        :taxon_name_id,
 
         collection_object_id: [],
         collecting_event_id: [],
@@ -54,7 +46,7 @@ module Queries
         otu_id: [],
         parent_id: [],
         rank: [],
-        taxon_name_author_ids: [],
+        taxon_name_author_id: [],
         taxon_name_classification: [],
         taxon_name_id: [],
         taxon_name_relationship: [
@@ -113,7 +105,7 @@ module Queries
       # @return Boolean
       #    if true then for each name in the result its valid
       # name is returned
-      # !! This param is not like the others. !! 
+      # !! This param is not like the others. !!
       attr_accessor :validify
 
       # @params taxon_name_id [Array]
@@ -212,12 +204,12 @@ module Queries
       attr_accessor :taxon_name_type
 
       # @return [Array]
-      attr_accessor :taxon_name_author_ids
+      attr_accessor :taxon_name_author_id
 
       # @return [Boolean]
       # @param [String]
       #    'true'
-      attr_accessor :taxon_name_author_ids_or
+      attr_accessor :taxon_name_author_id_or
 
       # @return [String, nil]
       # @param sort [String, nil]
@@ -264,8 +256,8 @@ module Queries
         @parent_id = params[:parent_id]
         @rank = params[:rank]
         @sort = params[:sort]
-        @taxon_name_author_ids = params[:taxon_name_author_ids].blank? ? [] : params[:taxon_name_author_ids]
-        @taxon_name_author_ids_or = boolean_param(params, :taxon_name_author_ids_or)
+        @taxon_name_author_id = params[:taxon_name_author_ids]
+        @taxon_name_author_id_or = boolean_param(params, :taxon_name_author_id_or)
         @taxon_name_classification = params[:taxon_name_classification] || []
         @taxon_name_id = params[:taxon_name_id]
         @taxon_name_relationship = params[:taxon_name_relationship] || []
@@ -278,10 +270,15 @@ module Queries
         @year_end = params[:year_end]
         @year_start = params[:year_start]
 
+        set_citations_params(params)
         set_depiction_params(params)
         set_notes_params(params)
         set_data_attributes_params(params)
         set_tags_params(params)
+      end
+
+      def taxon_name_author_id
+        [ @taxon_name_author_id ].flatten.compact
       end
 
       def year
@@ -471,9 +468,8 @@ module Queries
         )
       end
 
-      # TODO: dry with Source, CollectingEvent , etc.
-      def matching_taxon_name_author_ids
-        return nil if taxon_name_author_ids.empty?
+      def taxon_name_author_id_facet
+        return nil if taxon_name_author_id.empty?
         o = table
         r = ::Role.arel_table
 
@@ -494,7 +490,7 @@ module Queries
 
         b = b.where(e.and(f))
         b = b.group(a['id'])
-        b = b.having(a['id'].count.eq(taxon_name_author_ids.length)) unless taxon_name_author_ids_or
+        b = b.having(a['id'].count.eq(taxon_name_author_id.length)) unless taxon_name_author_id_or
         b = b.as('tn_z1_')
 
         ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
@@ -539,7 +535,6 @@ module Queries
         table[:type].eq(taxon_name_type)
       end
 
-      # TODO: Identical use in Otu
       def name_facet
         return nil if name.empty?
         if name_exact
@@ -564,6 +559,7 @@ module Queries
       end
 
       # TODO: should match against cached_nomenclature_date?
+      # (yes, likely, but needs more logi)
       def year_facet
         return nil if year.blank?
         table[:cached_author_year].matches('%' + year + '%')
@@ -584,11 +580,6 @@ module Queries
         end
       end
 
-      def taxon_name_id_facet
-        return nil if taxon_name_id.empty? || descendants || ancestors
-        table[:id].eq_any(taxon_name_id)
-      end
-
       def combination_taxon_name_id_facet
         return nil if combination_taxon_name_id.empty?
         ::Combination.joins(:related_taxon_name_relationships)
@@ -600,7 +591,7 @@ module Queries
 
       def collecting_event_id_facet
         return nil if collecting_event_id.empty?
-          ::TaxonName
+        ::TaxonName
           .joins(:collection_objects)
           .where(collection_objects: {collecting_event_id: collecting_event_id})
       end
@@ -652,14 +643,14 @@ module Queries
       def biological_association_query_facet
         return nil if biological_association_query.nil?
         s = 'WITH query_tn_ba AS (' + biological_association_query.all.to_sql + ') '
-       
+
         a = ::TaxonName
           .joins(:otus)
           .joins("JOIN query_tn_ba as query_tn_ba1 on query_tn_ba1.biological_association_subject_id = otus.id AND query_tn_ba1.biological_association_subject_type = 'Otu'").to_sql
 
-       b = ::TaxonName
-         .joins(:otus)
-         .joins("JOIN query_tn_ba as query_tn_ba2 on query_tn_ba2.biological_association_object_id = otus.id AND query_tn_ba2.biological_association_subject_type = 'Otu'").to_sql
+        b = ::TaxonName
+          .joins(:otus)
+          .joins("JOIN query_tn_ba as query_tn_ba2 on query_tn_ba2.biological_association_object_id = otus.id AND query_tn_ba2.biological_association_subject_type = 'Otu'").to_sql
 
         s << ::TaxonName.from("((#{a}) UNION (#{b})) as taxon_names").to_sql
 
@@ -668,12 +659,11 @@ module Queries
 
       # @return [ActiveRecord::Relation]
       def and_clauses
-        [ 
+        [
           author_facet,
           name_facet,
           parent_id_facet,
           rank_facet,
-          taxon_name_id_facet,
           taxon_name_type_facet,
           validity_facet,
           with_nomenclature_code,
@@ -689,7 +679,6 @@ module Queries
           collecting_event_query_facet,
           collection_object_query_facet,
           otu_query_facet,
-          source_query_facet,
 
           ancestor_facet,
           authors_facet,
@@ -698,7 +687,7 @@ module Queries
           combination_taxon_name_id_facet,
           descendant_facet,
           leaves_facet,
-          matching_taxon_name_author_ids,
+          taxon_name_author_id_facet,
           not_specified_facet,
           otu_id_facet,
           otus_facet,
@@ -714,6 +703,12 @@ module Queries
         end
 
         clauses.compact
+      end
+
+      # Overrides base class
+      def model_id_facet
+        return nil if taxon_name_id.empty? || descendants || ancestors
+        table[:id].eq_any(taxon_name_id)
       end
 
       def validify_result(q)

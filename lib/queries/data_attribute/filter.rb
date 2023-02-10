@@ -2,6 +2,20 @@ module Queries
   module DataAttribute
     class Filter < Query::Filter
 
+      PARAMS = [
+        :options,
+        :value,
+        :controlled_vocabulary_term_id,
+        :import_predicate,
+        :type,
+        :object_global_id,
+        :attribute_subject_type,
+        :attribute_subject_id,
+        :data_attribute_id,
+        controlled_vocabulary_term_id: [],
+        data_attribute_id: []
+      ]
+
       # General annotator options handling
       # happens directly on the params as passed
       # through to the controller, keep them
@@ -24,42 +38,32 @@ module Queries
 
       attr_accessor :attribute_subject_id
 
+      attr_accessor :data_attribute_id
+
       # @params params [ActionController::Parameters]
-      def initialize(params)
-        @value = params[:value]
-        @controlled_vocabulary_term_id = params[:controlled_vocabulary_term_id]
-        @import_predicate = params[:import_predicate]
-        @type = params[:type]
+      def initialize(query_params)
+        @options = query_params
+        super
 
         @attribute_subject_id = params[:attribute_subject_id]
         @attribute_subject_type = params[:attribute_subject_type]
+        @controlled_vocabulary_term_id = params[:controlled_vocabulary_term_id]
+        @data_attribute_id = params[:data_attribute_id]
+        @import_predicate = params[:import_predicate]
         @object_global_id = params[:object_global_id]
-        @options = params
+        @type = params[:type]
+        @value = params[:value]
+      end
+
+      def data_attribute_id
+        [@data_attribute_id].flatten.compact
       end
 
       def controlled_vocabulary_term_id
         [@controlled_vocabulary_term_id].flatten.compact
       end
 
-      # @return [ActiveRecord::Relation]
-      def and_clauses
-        clauses = [
-          ::Queries::Annotator.annotator_params(options, ::DataAttribute),
-          matching_type,
-          matching_value,
-          matching_import_predicate,
-          matching_attribute_subject_id,
-          matching_attribute_subject_type,
-          matching_controlled_vocabulary_term_id,
-          matching_subject
-        ].compact
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
-      end
+      # TODO - rename matching to _facet
 
       # @return [Arel::Node, nil]
       def matching_subject
@@ -102,13 +106,17 @@ module Queries
         controlled_vocabulary_term_id.empty? ? nil : table[:controlled_vocabulary_term_id].eq_any(controlled_vocabulary_term_id)
       end
 
-      # @return [ActiveRecord::Relation]
-      def all
-        if _a = and_clauses
-          ::DataAttribute.where(and_clauses)
-        else
-          ::DataAttribute.all
-        end
+      def and_clauses
+        [
+          ::Queries::Annotator.annotator_params(options, ::DataAttribute),
+          matching_type,
+          matching_value,
+          matching_import_predicate,
+          matching_attribute_subject_id,
+          matching_attribute_subject_type,
+          matching_controlled_vocabulary_term_id,
+          matching_subject
+        ]
       end
 
     end

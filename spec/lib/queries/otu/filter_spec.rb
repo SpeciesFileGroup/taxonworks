@@ -78,8 +78,13 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
 
       expect(f.all).to contain_exactly(o1)
     end
+  end
 
-
+  specify '#extract_query' do
+    e = FactoryBot.create(:valid_extract, origin: o1)
+    q.extract_query = ::Queries::Extract::Filter.new(extract_id: e.id)
+    o2
+    expect(q.all).to contain_exactly(o1)
   end
 
   specify '#collection_objects' do

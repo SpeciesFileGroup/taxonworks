@@ -7,6 +7,34 @@ describe Queries::Loan::Filter, type: :model, group: [:geo, :collection_objects,
   # let!(:l1) { FactoryBot.create(:valid_loan) }
   # let!(:l2) { FactoryBot.create(:valid_loan) }
 
+  specify '#collection_object_query' do
+    l1 = FactoryBot.create(:valid_loan, recipient_address: 'Mars, home of chocolate bars.') 
+    l2 = FactoryBot.create(:valid_loan) 
+    o =  Specimen.create!
+    l1.loan_items << FactoryBot.create(:valid_loan_item, loan_item_object: o)
+
+    q.collection_object_query = ::Queries::CollectionObject::Filter.new(collection_object_id: o.id)
+    expect(q.all).to contain_exactly(l1)
+  end
+
+  specify '#otu_query' do
+    l1 = FactoryBot.create(:valid_loan, recipient_address: 'Mars, home of chocolate bars.') 
+    l2 = FactoryBot.create(:valid_loan) 
+    o =  Otu.create(name: 'foo')
+    l1.loan_items << FactoryBot.create(:valid_loan_item, loan_item_object: o)
+
+    q.otu_query = ::Queries::Otu::Filter.new(otu_id: o.id)
+    expect(q.all).to contain_exactly(l1)
+  end
+
+  specify '#loan_id' do
+    l1 = FactoryBot.create(:valid_loan, recipient_address: 'Mars, home of chocolate bars.') 
+    l2 = FactoryBot.create(:valid_loan) 
+
+    q.loan_id = l1.id
+    expect(q.all).to contain_exactly(l1)
+  end
+
   specify '#loan_wildcards' do
     l1 = FactoryBot.create(:valid_loan, recipient_address: 'Mars, home of chocolate bars.') 
     l2 = FactoryBot.create(:valid_loan) 

@@ -2,16 +2,27 @@ module Queries
 
   class TaxonNameRelationshipsFilterQuery < ::Query::Filter
 
+    PARAMS = [
+      :taxon_name_id, 
+      :keyword_args,
+      :person_id
+    ].freeze
+
     attr_accessor :taxon_name_id
 
     attr_accessor :keyword_args
 
+    # @return [Array]
+    attr_accessor :taxon_name_relationship_id
+
     # @param [Hash] args
-    def initialize(taxon_name_id: nil, project_id: nil, **keyword_args)
-      return if taxon_name_id.nil?
-      @taxon_name_id = taxon_name_id
-      @project_id = project_id
-      @keyword_args = keyword_args
+    def initialize(query_params)
+      super
+      return if params[:taxon_name_id].blank?
+      @taxon_name_relationship_id = params[:taxon_name_relationship_id]
+      @taxon_name_id = params[:taxon_name_id]
+      @project_id = params[:project_id]
+      @keyword_args = params[:keyword_args]
     end
 
     # @return [Array]

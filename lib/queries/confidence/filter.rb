@@ -12,6 +12,18 @@ module Queries
       include Concerns::Polymorphic
       polymorphic_klass(::Confidence)
 
+      PARAMS = [
+        :confidence_id,
+        :confidence_level_id,
+        :confidence_object_type,
+        confidence_id: [],
+        confidence_level_id: [],
+        confidence_object_type: [],
+      ].freeze
+
+      # Array, Integer
+      attr_accessor :confidence_id
+
       # Array, Integer
       attr_accessor :confidence_level_id
 
@@ -27,7 +39,9 @@ module Queries
       # attr_accessor :object_global_id
 
       # @params params [ActionController::Parameters]
-      def initialize(params)
+      def initialize(query_params)
+        super
+        @confidence_id = params[:confidence_id]
         @confidence_level_id = [params[:confidence_level_id]].flatten.compact
         @confidence_object_type = params[:confidence_object_type]
         @confidence_object_id = params[:confidence_object_id]
@@ -35,6 +49,10 @@ module Queries
         #@options = params
 
         set_polymorphic_ids(params)
+      end
+
+      def confidence_id
+        [@confidence_id].flatten.compact.uniq
       end
 
       def confidence_object_type
@@ -45,25 +63,7 @@ module Queries
         [@confidence_object_id, global_object_id].flatten.compact
       end
 
-
-      # @return [ActiveRecord::Relation]
-      def and_clauses
-        clauses = [
-          #::Queries::Annotator.annotator_params(options, ::Confidence),
-          matching_confidence_level_id,
-          matching_polymorphic_ids,
-          matching_confidence_object_type,
-          matching_confidence_object_id,
-        ].compact
-
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
-      end
+      # TODO - rename _facet
 
       # @return [Arel::Node, nil]
       def matching_confidence_level_id
@@ -80,13 +80,13 @@ module Queries
         confidence_object_id.empty? ? nil : table[:confidence_object_id].eq_any(confidence_object_id)
       end
 
-      # @return [ActiveRecord::Relation]
-      def all
-        if a = and_clauses
-          ::Confidence.where(and_clauses).distinct
-        else
-          ::Confidence.all
-        end
+      def and_clauses
+        [
+          matching_confidence_level_id,
+          matching_confidence_object_id,
+          matching_confidence_object_type,
+          matching_polymorphic_ids,
+        ]
       end
 
     end

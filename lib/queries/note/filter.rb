@@ -3,6 +3,18 @@ module Queries
 
     class Filter < Query::Filter
 
+      PARAMS = [
+        :note_id,
+        :text,
+        :note_object_type,
+        :note_object_id,
+        :object_global_id,
+        note_id: []
+      ].freeze
+
+      # @return Array
+      attr_accessor :note_id
+
       # @param text [String, nil]
       #   wildcard wrapped, always, to match against `text`
       attr_accessor :text
@@ -20,10 +32,15 @@ module Queries
       def initialize(query_params)
         super
 
+        @note_id = params[:note_id]
         @text = params[:text]
         @note_object_type = params[:note_object_type]
         @note_object_id = params[:note_object_id]
         @object_global_id = params[:object_global_id]
+      end
+
+      def note_id
+        [@note_id].flatten.compact
       end
 
       def note_object_id

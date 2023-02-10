@@ -8,22 +8,23 @@ module Queries
       include Queries::Concerns::DateRanges
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
+      include Queries::Concerns::Citations
 
       # TODO: likely move to model (replicated in Source too) and setup via macro?
       # Params exists for all CollectingEvent attributes except these.
       # collecting_event_id is excluded because we handle it specially in conjunction with `geographic_area_mode``
       ATTRIBUTES = (::CollectingEvent.core_attributes - %w{geographic_area_id}).map(&:to_sym).freeze
 
-      # This list of params are those that only occur 
-      # in this CollectingEvent filter. For those 
+      # This list of params are those that only occur
+      # in this CollectingEvent filter. For those
       # that overlap other filters place in PARAMS.
       #
-      # Used to define a base collecting query for CollectionObject 
+      # Used to define a base collecting query for CollectionObject
       # filters scope, this is still used in CollectionObject query.
       # This is "necessary" so that we can use CollectingEvent
       # referencing facets in the CollectionObject filter for
-      # convienience. 
-      # 
+      # convienience.
+      #
       BASE_PARAMS = [
         *ATTRIBUTES,
         :collectors,
@@ -184,6 +185,7 @@ module Queries
         @use_min = params[:use_min]
         @wkt = params[:wkt]
 
+        set_citations_params(params)
         set_dates(params)
         set_attributes(params)
         set_tags_params(params)
@@ -398,7 +400,7 @@ module Queries
         table[:verbatim_locality].matches(t)
       end
 
-      def collectors_facet 
+      def collectors_facet
         return nil if collectors.nil?
         if collectors
           ::CollectingEvent.joins(:collectors)
@@ -468,10 +470,9 @@ module Queries
         [
           taxon_name_query_facet,
           otu_query_facet,
-          source_query_facet,
           collection_object_query_facet,
           biological_association_query_facet,
-         
+
           collectors_facet,
           collection_objects_facet,
           collector_id_facet,

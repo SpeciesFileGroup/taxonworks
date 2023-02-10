@@ -4,6 +4,20 @@ module Queries
 
       include Queries::Helpers
 
+      PARAMS = [
+        :alternate_value_id,
+        :options, #TODO: out
+        :value,
+        :language_id,
+        :type,
+        :alternate_value_object_attribute,
+        alternate_value_id: []
+      ].freeze
+
+      # @return [Array]
+      attr_accessor :alternate_value_id
+
+      # TODO: out
       # General annotator options handling
       # happens directly on the params as passed
       # through to the controller, keep them
@@ -15,12 +29,18 @@ module Queries
       attr_accessor :value, :language_id, :type, :alternate_value_object_attribute
 
       # @params params [ActionController::Parameters]
-      def initialize(params)
-        @value = params[:value]
+      def initialize(query_params)
+        @options = query_params # TOOD: swap for params
+        super
+        @alternate_value_id = params[:alternate_value_id]
+        @alternate_value_object_attribute = params[:alternate_value_object_attribute]
         @language_id = params[:language_id]
         @type = params[:type]
-        @alternate_value_object_attribute = params[:alternate_value_object_attribute]
-        @options = params
+        @value = params[:value]
+      end
+
+      def alternate_value_id
+        [@alternate_value_id].flatten.compact
       end
 
       def annotated_class
@@ -59,31 +79,15 @@ module Queries
         alternate_value_object_attribute.blank? ? nil : table[:alternate_value_object_attribute].eq(alternate_value_object_attribute)
       end
 
-      # @return [ActiveRecord::Relation]
       def and_clauses
-        clauses = [
+        [
           Queries::Annotator.annotator_params(options, ::AlternateValue),
           matching_value,
           matching_language_id,
           matching_type,
           matching_alternate_value_object_attribute,
           community_project_id_facet,
-        ].flatten.compact
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
-      end
-
-      # @return [ActiveRecord::Relation]
-      def all
-        if a = and_clauses
-          ::AlternateValue.where(and_clauses)
-        else
-          ::AlternateValue.all
-        end
+        ]
       end
 
     end

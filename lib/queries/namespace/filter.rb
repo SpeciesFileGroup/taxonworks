@@ -6,9 +6,13 @@ module Queries
         :institution,
         :is_virtual,
         :name,
+        :namespace_id,
         :short_name,
         :verbatim_name,
+        namespace_id: [],
       ].freeze
+
+      attr_accessor :namespace_id
 
       # @param institution [String]
       #   wildcarded to match institution
@@ -29,16 +33,22 @@ module Queries
       # @return Boolean
       attr_accessor :is_virtual
 
-      def initialize(params)
-        @is_virtual = boolean_param(params, :is_virtual)
+      def initialize(query_params)
+        super
         @institution = params[:institution]
+        @is_virtual = boolean_param(params, :is_virtual)
         @name = params[:name]
+        @namespace_id = params[:namespace_id]
         @short_name = params[:short_name]
         @verbatim_short_name = params[:verbatim_short_name]
       end
 
       def name
         [@name].flatten.compact
+      end
+
+      def namespace_id
+        [@namespace_id].flatten.compact
       end
 
       def short_name
@@ -74,17 +84,16 @@ module Queries
         table[:is_virtual].eq(is_virtual)
       end
 
-      # @return [ActiveRecord::Relation, nil]
       def and_clauses
-        clauses = [
+        [
+          institution_facet,
+          is_virtual_facet,
           name_facet,
           short_name_facet,
           verbatim_name_facet,
-          institution_facet,
-          is_virtual_facet
         ]
       end
-    
+
     end
   end
 end

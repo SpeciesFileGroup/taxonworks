@@ -2,12 +2,29 @@ module Queries
   module ProtocolRelationship
     class Filter < Query::Filter
 
+      PARAMS = [
+        :options,
+        :protocol_id,
+        :protocol_relationship_id,
+
+        :protocol_relationship_object_id,
+        :protocol_relationship_object_type,
+        protocol_relationship_id: [],
+        protocol_relationship_object_id: [],
+        protocol_id: []
+      ].freeze
+
       # TODO: revisit for permitted params
       # General annotator options handling
       # happens directly on the params as passed
       # through to the controller, keep them
       # together here
       attr_accessor :options
+
+
+      # @param [Array, Integer]
+      # @return Array
+      attr_accessor :protocol_relationship_id
 
       # @param [Array, Integer]
       # @return Array
@@ -24,11 +41,17 @@ module Queries
 
       # TODO: See ::Queries::Annotator params - move to permitted section in controller likely.
       # @params params [ActionController::Parameters]
-      def initialize(params)
-        @options = params
+      def initialize(query_params)
+        @options = query_params # TODO: merge with params
+        super
         @protocol_relationship_object_id = params[:protocol_relationship_object_id]
         @protocol_relationship_object_type = params[:protocol_relationship_object_type]
         @protocol_id = params[:protocol_id]
+        @protocol_relationhip_id = params[:protocol_relationship_id]
+      end
+
+      def protocol_relationship_id
+        [@protocol_relationship_id].flatten.compact
       end
 
       def protocol_id

@@ -4,7 +4,8 @@ import {
   FILTER_COLLECTION_OBJECT,
   FILTER_OTU,
   FILTER_SOURCE,
-  FILTER_TAXON_NAME
+  FILTER_TAXON_NAME,
+  FILTER_IMAGE,
 } from '../constants/filterLinks'
 
 export const CollectingEvent = [
@@ -12,5 +13,6 @@ export const CollectingEvent = [
   FILTER_COLLECTION_OBJECT,
   FILTER_OTU,
   FILTER_SOURCE,
-  FILTER_TAXON_NAME
+  FILTER_TAXON_NAME,
+  FILTER_IMAGE,
 ]

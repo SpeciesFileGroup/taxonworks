@@ -2,10 +2,11 @@ module Queries
   module Extract
 
     class Filter < Query::Filter
-      include Queries::Helpers
-      include Queries::Concerns::Tags
-      include Queries::Concerns::Protocols
+      include Queries::Concerns::Citations
       include Queries::Concerns::DateRanges
+      include Queries::Concerns::Protocols
+      include Queries::Concerns::Tags
+      include Queries::Helpers
 
       PARAMS = [
         :taxon_name_id,
@@ -77,7 +78,7 @@ module Queries
       attr_accessor :extract_id
 
       # @param [Hash] args are permitted params
-      def initialize(params)
+      def initialize(query_params)
         super
 
         @collection_object_id = params[:collection_object_id]
@@ -93,6 +94,7 @@ module Queries
         @taxon_name_id = params[:taxon_name_id]
         @verbatim_anatomical_origin = params[:verbatim_anatomical_origin]
 
+        set_citations_params(params)
         set_dates(params)
         set_tags_params(params)
         set_protocols_params(params)
@@ -114,7 +116,7 @@ module Queries
         [@collection_object_id].flatten.compact
       end
 
-      def taxon_name_id 
+      def taxon_name_id
         [@taxon_name_id].flatten.compact
       end
 
@@ -257,7 +259,6 @@ module Queries
         [
           collection_object_query_facet,
           otu_query_facet,
-          source_query_facet,
 
           collection_object_id_facet,
           extract_origin_facet,

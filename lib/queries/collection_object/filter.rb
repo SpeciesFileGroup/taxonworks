@@ -14,11 +14,11 @@ module Queries
     class Filter < Query::Filter
 
       include Queries::Helpers
-
-      include Queries::Concerns::Tags
-      include Queries::Concerns::Notes
+      include Queries::Concerns::Citations
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
+      include Queries::Concerns::Notes
+      include Queries::Concerns::Tags
 
       PARAMS = [
         *::Queries::CollectingEvent::Filter::BASE_PARAMS,
@@ -27,43 +27,33 @@ module Queries
         :buffered_collecting_event,
         :buffered_determinations,
         :buffered_other_labels,
-        :collectors,
         :collecting_event,
+        :collection_object_id,
         :collection_object_type,
-   #     :collector_id_or,
-        :determiners,
+        :collectors,
         :current_determinations,
         :current_repository,
         :current_repository_id,
         :descendants,
         :determiner_id_or,
         :determiner_name_regex,
+        :determiners,
         :dwc_indexed,
-  #      :end_date,
         :exact_buffered_collecting_event,
         :exact_buffered_determinations,
         :exact_buffered_other_labels,
         :extract_id,
-   #    :geographic_area,
-   #    :geographic_area_id,
-   #    :geographic_area_mode,
         :georeferences,
-   #    :in_labels,
-   #    :in_verbatim_locality,
         :loaned,
-  #      :md5_verbatim_label,
         :never_loaned,
         :object_global_id,
         :on_loan,
-  #      :partial_overlap_dates,
         :preparation_type,
         :preparation_type_id,
-    #    :radius,  # CE filter
         :repository,
         :repository_id,
         :sled_image_id,
         :spatial_geographic_areas,
-    #    :start_date,  # CE filter
         :taxon_determination_id,
         :taxon_determinations,
         :taxon_name_id,
@@ -73,15 +63,12 @@ module Queries
         :with_buffered_collecting_event,
         :with_buffered_determinations,
         :with_buffered_other_labels,
-        :collection_object_id,
 
-        biological_association_id: [],
-        collection_object_id: [],
         biocuration_class_id: [],
+        biological_association_id: [],
         biological_relationship_id: [],
         collecting_event_id: [],
-        collecting_event_wildcards: [], # !! TODO, factor into CONSTANT
-        collector_id: [], #
+        collection_object_id: [],
         determiner_id: [],
         extract_id: [],
         geographic_area_id: [],
@@ -282,10 +269,6 @@ module Queries
       # @return [String, nil]
       attr_accessor :buffered_other_labels
 
-      # See Queries::CollectingEvent::Filter
-      attr_accessor :collector_id
-      attr_accessor :collector_id_or
-
       # @return [True, False, nil]
       #   true - has collecting event that has  geographic_area
       #   false - does not have  collecting event that has geographic area
@@ -313,7 +296,7 @@ module Queries
       # @return Array
       attr_accessor :extract_id
 
-# rubocop:disable Metric/MethodLength
+      # rubocop:disable Metric/MethodLength
       # @param [Hash] args are permitted params
       def initialize(query_params)
         super
@@ -374,6 +357,7 @@ module Queries
         @with_buffered_determinations =  boolean_param(params, :with_buffered_determinations)
         @with_buffered_other_labels = boolean_param(params, :with_buffered_other_labels)
 
+        set_citations_params(params)
         set_depiction_params(params)
         set_data_attributes_params(params)
         set_notes_params(params)
@@ -400,14 +384,14 @@ module Queries
         ::TaxonDetermination.arel_table
       end
 
-      def biological_association_id 
+      def biological_association_id
         [@biological_association_id].flatten.compact.uniq
       end
 
       def extract_id
         [@extract_id].flatten.compact.uniq
       end
- 
+
       def taxon_name_id
         [@taxon_name_id].flatten.compact.uniq
       end
@@ -451,7 +435,7 @@ module Queries
 
       def extract_id_facet
         return nil if extract_id.empty?
-          ::CollectionObject
+        ::CollectionObject
           .joins(:origin_relationships)
           .where(origin_relationships: {new_object_id: extract_id, new_object_type: 'Extract'})
       end
@@ -510,7 +494,7 @@ module Queries
         end
       end
 
-      def collectors_facet 
+      def collectors_facet
         return nil if collectors.nil?
         if collectors
           ::CollectionObject.joins(:collectors)
@@ -843,12 +827,12 @@ module Queries
 
       def biological_associations_facet
         return nil if biological_associations.nil?
-          a = ::CollectionObject.joins(:biological_associations)
-          b = ::CollectionObject.joins(:related_biological_associations)
+        a = ::CollectionObject.joins(:biological_associations)
+        b = ::CollectionObject.joins(:related_biological_associations)
 
         ::CollectionObject.from("((#{a.to_sql}) UNION (#{b.to_sql})) as collection_objects")
       end
-     
+
       def biological_association_id_facet
         return nil if biological_association_id.empty?
         b = ::BiologicalAssociation.where(id: biological_association_id)
@@ -860,7 +844,7 @@ module Queries
           .to_sql
 
         ::CollectionObject.from('(' + s + ') as collection_objects')
-      end     
+      end
 
       def biological_association_query_facet
         return nil if biological_association_query.nil?
@@ -885,7 +869,19 @@ module Queries
 
         ::CollectionObject.from('(' + s + ') as collection_objects')
       end
- 
+
+      def observation_query_facet
+        return nil if observation_query.nil?
+
+        s = 'WITH query_obs_co AS (' + observation_query.all.to_sql + ') ' +
+          ::CollectionObject
+          .joins(:observations)
+          .joins('JOIN query_obs_co as query_obs_co1 on observations.id = query_obs_co1.id')
+          .to_sql
+
+        ::CollectionObject.from('(' + s + ') as collection_objects')
+      end
+
       def and_clauses
         [
           attribute_exact_facet(:buffered_collecting_event),
@@ -903,13 +899,13 @@ module Queries
 
       def merge_clauses
         [
+          observation_query_facet,
           biological_association_id_facet,
           base_collecting_event_query_facet,
           biological_association_query_facet,
           collecting_event_query_facet,
           extract_query_facet,
           otu_query_facet,
-          source_query_facet,
           taxon_name_query_facet,
 
           biological_associations_facet,
@@ -922,7 +918,7 @@ module Queries
           determiner_name_regex_facet,
           determiners_facet,
           dwc_indexed_facet,
-          extract_id_facet, 
+          extract_id_facet,
           geographic_area_facet,
           georeferences_facet,
           loan_facet,
@@ -944,6 +940,6 @@ module Queries
         ]
       end
 
-    end
-  end
-end
+      end
+      end
+      end

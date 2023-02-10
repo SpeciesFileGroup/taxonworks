@@ -13,7 +13,6 @@ module Queries
         :documentation, # TODO: concern?
         :loan_item_disposition,
         :loan_wildcards,
-        :otu_id,
         :overdue,
         :person_id,
         :role,
@@ -23,7 +22,6 @@ module Queries
         loan_id: [],
         loan_wildcards: [],
         loan_item_disposition: [],
-        otu_id: [],
         person_id: [],
         role: [],
         taxon_name_id: [],
@@ -56,7 +54,7 @@ module Queries
       # @return [Array]
       # @param Role [String, nil]
       #   LoanRecipient, LoanSupervisor
-      # If none provided both returned. 
+      # If none provided both returned.
       # Only applied when person_id is present
       attr_accessor :role
 
@@ -64,10 +62,6 @@ module Queries
       #   one per of Person#id
       # See also role
       attr_accessor :person_id
-
-      # @return [Array]
-      #   Loans with LoanItems that reference Otu OR CollectionObject with Otu as determination
-      attr_accessor :otu_id
 
       # @return [Array]
       # @param loan_item_disposition [Array, String]
@@ -84,15 +78,13 @@ module Queries
 
         @descendants = boolean_param(params, :descendants)
         @documentation = boolean_param(params, :documentation)
+        @loan_id = params[:loan_id]
         @loan_item_disposition = params[:loan_item_disposition]
         @loan_wildcards = params[:loan_wildcards]
-        @otu_id = params[:otu_id]
         @overdue = boolean_param(params, :overdue)
         @person_id = params[:person_id]
         @role = params[:role]
         @taxon_name_id = params[:taxon_name_id]
-
-        @loan_id = params[:loan_id]
 
         set_attributes(params)
         set_notes_params(params)
@@ -171,31 +163,46 @@ module Queries
         ::Loan.joins(:roles).where(roles: {type: role, person_id: person_id})
       end
 
-      def otu_id_facet
-        return nil if otu_id.empty?
+      def otu_query_facet
+        return nil if otu_query.nil?
+        s = 'WITH query_otu_loan AS (' + otu_query.all.to_sql + ') '
 
-        a = ::Loan.joins(:loan_items).where(loan_items: {loan_item_object_type: 'Otu', loan_item_object_id: otu_id})
+        a = ::Loan.joins(:loan_items)
+          .joins("JOIN query_otu_loan as query_otu_loan1 on query_otu_loan1.id = loan_items.loan_item_object_id AND loan_items.loan_item_object_type = 'Otu'").to_sql
+
+        # Consider position = 1
         b = ::Loan.joins(:loan_items)
           .joins("JOIN collection_objects co on co.id = loan_items.loan_item_object_id and loan_items.loan_item_object_type = 'CollectionObject'")
           .joins('JOIN taxon_determinations td on co.id = td.biological_collection_object_id')
-          .where(td: {otu_id:})
+          .joins('JOIN query_otu_loan as query_otu_loan2 ON query_otu_loan2.id = td.otu_id').to_sql
 
-        ::Loan.from("((#{a.to_sql}) UNION (#{b.to_sql})) as loans")
+        s << ::Loan.from("((#{a}) UNION (#{b})) as loans").to_sql
+
+        ::Loan.from('(' + s + ') as loans')
+      end
+
+      def collection_object_query_facet
+        return nil if collection_object_query.nil?
+        s = 'WITH query_co_loan AS (' + collection_object_query.all.to_sql + ') '
+
+        a = ::Loan.joins(:loan_items)
+          .joins("JOIN query_co_loan as query_co_loan1 on query_co_loan1.id = loan_items.loan_item_object_id AND loan_items.loan_item_object_type = 'CollectionObject'").to_sql
+
+        ::Loan.from('(' + s + ::Loan.from("(#{a}) as loans").to_sql + ') as loans' )
       end
 
       def and_clauses
-        attribute_clauses + [
-          loan_id_facet
-        ]
+        attribute_clauses
       end
 
       def merge_clauses
-        [ 
-          otu_id_facet,
-          person_role_facet,
+        [
+          collection_object_query_facet,
           documentation_facet,
-          overdue_facet,
           loan_item_disposition_facet,
+          otu_query_facet,
+          overdue_facet,
+          person_role_facet,
         ]
       end
 

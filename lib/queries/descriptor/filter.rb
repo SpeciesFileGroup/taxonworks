@@ -2,20 +2,25 @@ module Queries
   module Descriptor
     class Filter < Query::Filter
 
-      include Queries::Concerns::Tags
-      include Queries::Concerns::Notes
+      include Queries::Concerns::Citations
       include Queries::Concerns::Depictions
+      include Queries::Concerns::Notes
+      include Queries::Concerns::Tags
 
       include Queries::Helpers
 
       PARAMS = [
-        :term,
-        :term_target,
-        :term_exact,
+        :descriptor_id,
         :descriptor_type,
-        :observation_matrix_id,
         :observation_matrices,
+        :observation_matrix_id,
         :observations,
+        :term,
+        :term_exact,
+        :term_target,
+        descriptor_type: [],
+        observation_matrix_id: [],
+        descriptor_id: [],
       ].freeze
 
       # @param name [String, Symbol]
@@ -52,17 +57,23 @@ module Queries
       def initialize(query_params)
         super
 
-        @term = params[:term]
-        @term_target = params[:term_target]
-        @term_exact = boolean_param(params, :term_exact)
-        @observation_matrix_id = params[:observation_matrix_id]
+        @descriptor_id = params[:descriptor_id]
         @descriptor_type = params[:descriptor_type]
         @observation_matrices = boolean_param(params, :observation_matrices)
+        @observation_matrix_id = params[:observation_matrix_id]
         @observations = boolean_param(params, :observations)
+        @term = params[:term]
+        @term_exact = boolean_param(params, :term_exact)
+        @term_target = params[:term_target]
 
+        set_citations_params(params)
         set_notes_params(params)
         set_tags_params(params)
         set_user_dates(params)
+      end
+
+      def descriptor_id
+        [@descriptor_id].flatten.compact.uniq
       end
 
       def observation_matrix_id
@@ -157,10 +168,9 @@ module Queries
       end
 
       def merge_clauses
-        [ 
+        [
           otu_query_facet,
           observation_query_facet,
-          source_query_facet,
 
           observation_matrices_facet,
           observation_matrix_id_facet,

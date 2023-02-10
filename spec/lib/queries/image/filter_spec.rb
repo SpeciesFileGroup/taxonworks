@@ -18,10 +18,10 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
 
   specify '#params, ActionController::Parameters, array' do
     ce.images << i1
-    h = {collecting_event_id: [ce.id]}
+    h = {collecting_event_query: {collecting_event_id: [ce.id]}}
     p = ActionController::Parameters.new( h  )
     query = Queries::Image::Filter.new(p) 
-    expect(query.params ).to eq(h)
+    expect(query.params).to eq(h)
   end
 
   specify '#collection_object_scope :observations' do
@@ -228,23 +228,15 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
-  specify '#params' do
-    ce.images << i1
-    h = {collecting_event_id: [ce.id]}
-    p = ActionController::Parameters.new( h  )
-    query = Queries::Image::Filter.new(p) 
-    expect(query.params ).to eq(h)
-  end
-
   specify '#collecting_event_id id' do
     ce.images << i1
-    q.collecting_event_id = ce.id
+    q.collecting_event_query = ::Queries::CollectingEvent::Filter.new(collecting_event_id: ce.id)
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
   specify '#collecting_event_id array' do
     ce.images << i1
-    q.collecting_event_id = [ce.id]
+    q.collecting_event_query = ::Queries::CollectingEvent::Filter.new(collecting_event_id: [ce.id])
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 

@@ -5,7 +5,9 @@ import {
   FILTER_COLLECTION_OBJECT,
   FILTER_CONTENT,
   FILTER_OTU,
-  FILTER_SOURCE
+  FILTER_SOURCE,
+  FILTER_OBSERVATION,
+  FILTER_IMAGE,
 } from '../constants/filterLinks'
 
 export const TaxonName = [
@@ -15,5 +17,7 @@ export const TaxonName = [
   FILTER_COLLECTION_OBJECT,
   FILTER_CONTENT,
   FILTER_OTU,
-  FILTER_SOURCE
+  FILTER_SOURCE,
+  FILTER_OBSERVATION,
+  FILTER_IMAGE,
 ]

@@ -1,9 +1,10 @@
 module Queries
   module Content
     class Filter < Query::Filter
-      
+
+      include Queries::Concerns::Citations
       include Queries::Concerns::Depictions
-      
+
       PARAMS = [
         :exact,
         :text,
@@ -27,11 +28,11 @@ module Queries
       attr_accessor :topic_id
 
       # @return [String, nil]
-      #   text to match against 
+      #   text to match against
       attr_accessor :text
 
       # @param [Hash] args
-      def initialize(params)
+      def initialize(query_params)
         super
         @exact = boolean_param(params, :exact)
         @otu_id = params[:otu_id]
@@ -39,6 +40,7 @@ module Queries
         @topic_id = params[:topic_id]
         @content_id = params[:content_id]
 
+        set_citations_params(params)
         set_depiction_params(params)
       end
 
@@ -49,10 +51,10 @@ module Queries
       def otu_id
         [@otu_id].flatten.compact
       end
- 
+
       def content_id
         [@content_id].flatten.compact
-      end     
+      end
 
       # @return [Arel::Node, nil]
       def text_facet
@@ -85,7 +87,7 @@ module Queries
       def otu_query_facet
         return nil if otu_query.nil?
 
-        s = 'WITH query_otu_con AS (' + otu_query.all.to_sql + ') ' + 
+        s = 'WITH query_otu_con AS (' + otu_query.all.to_sql + ') ' +
           ::Content
           .joins('JOIN query_otu_con as query_otu_con1 on contents.otu_id = query_otu_con1.id')
           .to_sql
@@ -96,7 +98,7 @@ module Queries
       def taxon_name_query_facet
         return nil if taxon_name_query.nil?
 
-        s = 'WITH query_tn_con AS (' + taxon_name_query.all.to_sql + ') ' + 
+        s = 'WITH query_tn_con AS (' + taxon_name_query.all.to_sql + ') ' +
           ::Content
           .joins(otu: [:taxon_name])
           .joins('JOIN query_tn_con as query_tn_con1 on taxon_names.id = query_tn_con1.id')
@@ -117,10 +119,9 @@ module Queries
       def merge_clauses
         [
           otu_query_facet,
-          source_query_facet,
           taxon_name_query_facet,
         ]
-     end
+      end
     end
 
   end

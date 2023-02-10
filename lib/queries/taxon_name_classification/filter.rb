@@ -11,6 +11,9 @@ module Queries
         taxon_name_classification_set: []
       ]
 
+      # @return [Array]
+      attr_accessor :taxon_name_classification_id
+
       # @param taxon_name_id [String, Array, nil]
       #   Match all TaxonNameClassifications a taxon_name_id(s)
       attr_accessor :taxon_name_id
@@ -32,6 +35,11 @@ module Queries
         @taxon_name_id = params[:taxon_name_id]
         @taxon_name_classification_type = params[:taxon_name_classification_type]
         @taxon_name_classification_set = params[:taxon_name_classification_set]
+        @taxon_name_classification_id = params[:taxon_name_classification_id]
+      end
+
+      def taxon_name_classification_id
+        [@taxon_name_classification_id].flatten.compact
       end
 
       def taxon_name_id

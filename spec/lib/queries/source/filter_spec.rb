@@ -16,31 +16,31 @@ describe Queries::Source::Filter, type: :model, group: [:sources, :filter] do
     expect(query.all.map(&:id)).to contain_exactly(s.id)
   end
 
-  specify '#ancestor_id' do
+  specify '#taxon_name_id' do
     t = FactoryBot.create(:valid_taxon_name)
     c = FactoryBot.create(:valid_citation, citation_object: t)
-    query.ancestor_id = t.id
+    query.taxon_name_id = t.id
     expect(query.all.map(&:id)).to contain_exactly( c.source.id)
   end
 
-  specify '#ancestor_id, omits in scope sources on OTUs' do
+  specify '#taxon_name_id, omits in scope sources on OTUs' do
     t = FactoryBot.create(:valid_taxon_name)
     c = FactoryBot.create(:valid_citation, citation_object: t)
 
     c2 = FactoryBot.create(:valid_citation, citation_object: FactoryBot.create(:valid_descriptor))
     c3 = FactoryBot.create(:valid_citation, citation_object: FactoryBot.create(:valid_otu, taxon_name: t))
 
-    query.ancestor_id = t.id
+    query.taxon_name_id = t.id
     expect(query.all.map(&:id)).to contain_exactly( c.source.id)
   end
 
-  specify '#ancestor_id, includes TaxonNameClassifications' do
+  specify '#taxon_name_id, includes TaxonNameClassifications' do
     t = FactoryBot.create(:valid_taxon_name)
     c = FactoryBot.create(:valid_citation, citation_object: t)
 
     c1 = FactoryBot.create(:valid_citation, citation_object: FactoryBot.create(:valid_taxon_name_classification, taxon_name: t))
 
-    query.ancestor_id = t.id
+    query.taxon_name_id = t.id
     expect(query.all.map(&:id)).to contain_exactly( c.source.id, c1.source.id)
   end
 
@@ -51,7 +51,7 @@ describe Queries::Source::Filter, type: :model, group: [:sources, :filter] do
     FactoryBot.create(:valid_citation, citation_object: Otu.create!(name: 'ancestor no'))
 
     query.citations_on_otus = true
-    query.ancestor_id = o.taxon_name_id
+    query.taxon_name_id = o.taxon_name_id
 
     expect(query.all.map(&:id)).to contain_exactly(c.source.id)
   end
@@ -63,7 +63,7 @@ describe Queries::Source::Filter, type: :model, group: [:sources, :filter] do
     c2 = FactoryBot.create(:valid_citation, citation_object: o.taxon_name)
 
     query.citations_on_otus = true
-    query.ancestor_id = o.taxon_name_id
+    query.taxon_name_id = o.taxon_name_id
 
     expect(query.all.map(&:id)).to contain_exactly(c1.source.id, c2.source.id )
   end
@@ -133,22 +133,22 @@ describe Queries::Source::Filter, type: :model, group: [:sources, :filter] do
     expect(query.all.map(&:id)).to contain_exactly()
   end
 
-  specify '#topic_ids 1' do
+  specify '#topic_id 1' do
     topic = FactoryBot.create(:valid_topic)
     Citation.create!(source: s1, citation_object: FactoryBot.create(:root_taxon_name), topics: [topic])
-    query.topic_ids = [topic.id]
+    query.topic_id = [topic.id]
     expect(query.all.map(&:id)).to contain_exactly(s1.id)
   end
 
-  specify '#topic_ids 2' do
+  specify '#topic_id 2' do
     t1 = FactoryBot.create(:valid_topic)
     t2 = FactoryBot.create(:valid_topic)
     Citation.create!(source: s1, citation_object: FactoryBot.create(:root_taxon_name), topics: [t1])
-    query.topic_ids = [t2.id]
+    query.topic_id = [t2.id]
     expect(query.all.map(&:id)).to contain_exactly()
   end
 
-  specify '#topic_ids 3' do
+  specify '#topic_id 3' do
     topic = FactoryBot.create(:valid_topic)
     Citation.create!(source: s1, citation_object: FactoryBot.create(:root_taxon_name), topics: [topic])
     expect(query.all.map(&:id)).to_not contain_exactly()
@@ -257,8 +257,8 @@ describe Queries::Source::Filter, type: :model, group: [:sources, :filter] do
     expect(query.all.map(&:id)).to contain_exactly(s3.id, s4.id, s5.id)
   end
 
-  specify '#author_ids' do
-    query.author_ids = [p1.id]
+  specify '#author_id' do
+    query.author_id = [p1.id]
     expect(query.all.map(&:id)).to contain_exactly(s2.id, s4.id)
   end
 

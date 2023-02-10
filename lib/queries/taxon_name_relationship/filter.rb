@@ -8,12 +8,17 @@ module Queries
         :taxon_name_id,
         :taxon_name_relationship_set,
         :taxon_name_relationship_type,
+        :taxon_name_relationship_id,
         object_taxon_name_id: [],
         subject_taxon_name_id: [],
         taxon_name_id: [],
+        taxon_name_relationship_id: [],
         taxon_name_relationship_set: [],
         taxon_name_relationship_type: [],
-      ]
+      ].freeze
+
+      # @param taxon_name_relationship_id [String, Array, nil]
+      attr_accessor :taxon_name_relationship_id
 
       # @param taxon_name_id [String, Array, nil]
       #   Match all relationships where either subject OR object is taxon_name_id(s)
@@ -60,6 +65,12 @@ module Queries
         @taxon_name_id = params[:taxon_name_id]
         @taxon_name_relationship_set = params[:taxon_name_relationship_set]
         @taxon_name_relationship_type = params[:taxon_name_relationship_type]
+
+        @taxon_name_relationship_id = params[:taxon_name_relationship_id]
+      end
+
+      def taxon_name_relationship_id
+        [@taxon_name_relationship_id].flatten.compact
       end
 
       def taxon_name_id

@@ -61,6 +61,7 @@ class Otu < ApplicationRecord
   has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus
   has_many :type_materials, through: :protonym
 
+  # TODO: no longer true since they can come through Otu as well
   has_many :extracts, through: :collection_objects, source: :extracts
   has_many :sequences, through: :extracts, source: :derived_sequences
 

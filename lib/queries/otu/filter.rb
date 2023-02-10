@@ -2,15 +2,13 @@ module Queries
   module Otu
     class Filter < Query::Filter
 
-      # TODO: Likely need to sink some queries together (wkt, ce_id) into CO query
-
-      include Queries::Helpers
+      include Queries::Concerns::Citations
       include Queries::Concerns::DataAttributes
-      include Queries::Concerns::Tags
       include Queries::Concerns::Depictions
-      
+      include Queries::Concerns::Tags
+      include Queries::Helpers
+
       PARAMS = [
-        :asserted_distribution_id,
         :asserted_distributions,
         :biological_association_id,
         :biological_associations,
@@ -30,7 +28,6 @@ module Queries
         :taxon_name_id,
         :wkt,
 
-        asserted_distribution_id: [],
         collecting_event_id: [],
         descriptor_id: [],
         geographic_area_id: [],
@@ -58,6 +55,7 @@ module Queries
       #   one or more Otu taxon_name_id
       attr_accessor :taxon_name_id
 
+      # @return Boolean
       attr_accessor :descendants
 
       # @param collecting_event_id [Integer, Array]
@@ -87,12 +85,6 @@ module Queries
       # Altered by historical_determinations.
       attr_accessor :biological_association_id
 
-      # @param asserted_distribution_id [Integer, Array]
-      # @return Array
-      #   one or more asserted_distribution_id
-      # Finds all OTUs that are in these asserted distributions
-      attr_accessor :asserted_distribution_id
-
       # @param wkt [String]
       #  A Spatial area in WKT format
       attr_accessor :wkt
@@ -105,7 +97,6 @@ module Queries
       # @return [Array]
       attr_accessor :geographic_area_id
 
-      # TODO: unify across filters (remove spatial etc.)
       # @return [Boolean, nil]
       #   How to treat GeographicAreas
       #     nil - non-spatial match by only those records matching the geographic_area_id exactly
@@ -159,14 +150,9 @@ module Queries
       #   nil - not applied
       attr_accessor :observations
 
-      # @return Array
-      #   from these asserted distributions
-      attr_accessor :asserted_distribution_id
-
       def initialize(query_params)
         super
 
-        @asserted_distribution_id = params[:asserted_distribution_id]
         @asserted_distributions = boolean_param(params,:asserted_distributions)
         @biological_association_id = params[:biological_association_id]
         @biological_associations = boolean_param(params,:biological_associations)
@@ -187,6 +173,7 @@ module Queries
         @taxon_name_id = params[:taxon_name_id]
         @wkt = params[:wkt]
 
+        set_citations_params(params)
         set_depiction_params(params)
         set_data_attributes_params(params)
         set_tags_params(params)
@@ -222,15 +209,6 @@ module Queries
 
       def biological_association_id
         [@biological_association_id].flatten.compact
-      end
-
-      def asserted_distribution_id
-        [@asserted_distribution_id].flatten.compact
-      end
-
-      def otu_id_facet
-        return nil if otu_id.empty?
-        table[:id].eq_any(otu_id)
       end
 
       def name_facet
@@ -313,9 +291,9 @@ module Queries
           ::Otu.from("((#{a.to_sql}) UNION (#{b.to_sql})) as otus")
         else
           ::Otu.where( 'NOT EXISTS (' + ::Otu.select('1').from( # not exists ( a select(1) from <opposite query>  )
-            ::Otu.from(
-              "((#{a.to_sql}) UNION (#{b.to_sql})) as ba_otus_join"
-            ).where('otus.id = ba_otus_join.id') ).to_sql  + ')' )  # where includes in/out link
+                                                               ::Otu.from(
+                                                                 "((#{a.to_sql}) UNION (#{b.to_sql})) as ba_otus_join"
+                                                               ).where('otus.id = ba_otus_join.id') ).to_sql  + ')' )  # where includes in/out link
         end
       end
 
@@ -380,14 +358,8 @@ module Queries
         ::Otu.from("(#{query}) as otus")
       end
 
-      def asserted_distribution_id_facet
-        return nil if asserted_distribution_id.empty?
-        ::Otu.joins(:asserted_distributions).where(asserted_distributions: {id: asserted_distribution_id})
-      end
-
       def geographic_area_id_facet
         return nil if geographic_area_id.empty?
-
         a = nil
 
         case geographic_area_mode
@@ -445,10 +417,10 @@ module Queries
       def biological_association_query_facet
         return nil if biological_association_query.nil?
         s = 'WITH query_ba_otu AS (' + biological_association_query.all.to_sql + ') '
-       
+
         a = ::Otu
           .joins("JOIN query_ba_otu as query_ba_otu1 on otus.id = query_ba_otu1.biological_association_subject_id AND query_ba_otu1.biological_association_subject_type = 'Otu'").to_sql
- 
+
         b = ::Otu
           .joins("JOIN query_ba_otu as query_ba_otu2 on otus.id = query_ba_otu2.biological_association_object_id AND query_ba_otu2.biological_association_object_type = 'Otu'").to_sql
 
@@ -479,13 +451,12 @@ module Queries
         ::Otu.from('(' + s + ') as otus')
       end
 
-      # TODO: Validate
       def extract_query_facet
         return nil if extract_query.nil?
         s = 'WITH query_ex_otus AS (' + extract_query.all.to_sql + ') ' +
           ::Otu
-          .joins(:extracts)
-          .joins('JOIN query_ex_otus as query_ex_otu1s on extracts.id = query_ex_otus1.id')
+          .joins(:origin_relationships)
+          .joins("JOIN query_ex_otus as query_ex_otus1 on origin_relationships.new_object_id = query_ex_otus1.id and origin_relationships.new_object_type = 'Extract'")
           .to_sql
 
         ::Otu.from('(' + s + ') as otus')
@@ -515,7 +486,7 @@ module Queries
 
       def loan_query_facet
         return nil if loan_query.nil?
-        s = 'WITH query_loan_otus AS (' + loan_query.all.to_sql + ') ' 
+        s = 'WITH query_loan_otus AS (' + loan_query.all.to_sql + ') '
 
         a = ::Otu.joins(:loan_items)
           .joins('JOIN query_loan_otus as query_loan_otus1 on loan_items.loan_id = query_loan_otus1.id')
@@ -524,16 +495,25 @@ module Queries
         b = ::Otu.joins(collection_objects: [:loan_items])
           .joins('JOIN query_loan_otus as query_loan_otus1 on loan_items.loan_id = query_loan_otus1.id')
           .to_sql
-          
+
         s << ::Otu.from("((#{a}) UNION (#{b})) as otus").to_sql
 
         ::Otu.from('(' + s + ') as otus')
       end
 
+      def observation_query_facet
+        return nil if observation_query.nil?
+        s = 'WITH query_obs_otus AS (' + observation_query.all.to_sql + ') ' +
+          ::Otu
+          .joins(:observations)
+          .joins('JOIN query_obs_otus as query_obs_otus1 on observations.id = query_obs_otus1.id')
+          .to_sql
+
+        ::Otu.from('(' + s + ') as otus')
+      end
 
       def and_clauses
         [
-          otu_id_facet,
           name_facet,
           taxon_name_facet
         ]
@@ -541,18 +521,18 @@ module Queries
 
       def merge_clauses
         [
-          loan_query_facet,
-          descriptor_query_facet,
           asserted_distribution_query_facet,
+          asserted_distributions_facet,
           biological_association_query_facet,
-          source_query_facet,
-          collection_object_query_facet,
           collecting_event_query_facet,
+          collection_object_query_facet,
           content_query_facet,
+          descriptor_query_facet,
+          extract_query_facet,
+          loan_query_facet,
+          observation_query_facet,
           taxon_name_query_facet,
 
-          asserted_distribution_id_facet,
-          asserted_distributions_facet,
           biological_association_id_facet,
           biological_associations_facet,
           collecting_event_id_facet,

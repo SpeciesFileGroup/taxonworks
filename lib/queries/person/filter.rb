@@ -20,23 +20,29 @@ module Queries
         :levenshtein_cuttoff,
         :name,
         :only_project_id,
+        :person_id,
         :prefix,
         :regex, # !! DO NOT EXPOSE TO EXTERNAL API
         :repeated_total,
+        :suffix,
         :use_max,
         :use_min,
-        :suffix,
+
         exact: [],
         except_project_id: [],
         except_role: [],
         keyword_id_and: [],
         keyword_id_or: [],
         only_project_id: [],
+        person_id: [],
         role: [],
         used_in_project_id: [],
         with: [],
         without: [],
       ].freeze
+
+      # @return [Array]
+      attr_accessor :person_id
 
       # @return [String, nil]
       attr_accessor :active_after_year
@@ -140,7 +146,7 @@ module Queries
       # @params params [ActionController::Parameters]
       def initialize(query_params = {})
         super
-      
+
         @active_after_year = params[:active_after_year]
         @active_before_year = params[:active_before_year]
         @born_after_year = params[:born_after_year]
@@ -166,6 +172,10 @@ module Queries
         set_tags_params(params)
         set_data_attributes_params(params)
         set_notes_params(params)
+      end
+
+      def person_id
+        [@person_id].flatten.compact.uniq
       end
 
       def with
@@ -415,7 +425,7 @@ module Queries
         ]
       end
 
- 
+
     end
   end
 end

@@ -2,6 +2,14 @@ module Queries
   module ObservationMatrixRow
     class Filter < Query::Filter
 
+      PARAMS = [
+        :observation_object_type,
+        :observation_object_id,
+        :observation_matrix_id,
+        :observation_matrix_row_id,
+        observation_matrix_row_id: []
+      ].freeze
+
       attr_accessor :observation_object_type
       attr_accessor :observation_object_id
       attr_accessor :observation_matrix_id
@@ -10,12 +18,18 @@ module Queries
       #   a vector of ids in the format `123|456|790|`
       attr :observation_object_id_vector
 
-      def initialize(params)
+      def initialize(query_params)
+        super
         @observation_object_type = params[:observation_object_type]
         @observation_object_id = params[:observation_object_id]
         @project_id = params[:project_id]
         @observation_object_id_vector = params[:observation_object_id_vector]
         @observation_matrix_id = params[:observation_matrix_id]
+        @observation_matrix_row_id = params[:observation_matrix_row_id]
+      end
+
+      def observation_matrix_row_id
+        [@observation_matrix_row_id].flatten.compact
       end
 
       def observation_object_id
