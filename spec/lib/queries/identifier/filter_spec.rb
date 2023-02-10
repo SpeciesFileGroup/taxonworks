@@ -89,13 +89,13 @@ describe Queries::Identifier::Filter, type: :model, group: :identifiers do
     expect(query.all.map(&:id)).to contain_exactly( i2.id, i3.id)
   end
 
-  specify 'matching_polymorphic_ids #1' do
-    query.polymorphic_ids = {'otu_id' => o1.id}
+  specify 'matching_polymorphic_id #1' do
+    query.polymorphic_id = {'otu_id' => o1.id}
     expect(query.all.map(&:id)).to contain_exactly(i1.id)
   end
 
-  specify 'matching_polymorphic_ids #1' do
-    query.polymorphic_ids = {'collecting_event_id' => o3.id}
+  specify 'matching_polymorphic_id #1' do
+    query.polymorphic_id = {'collecting_event_id' => o3.id}
     expect(query.all.map(&:id)).to contain_exactly(i3.id)
   end
 

@@ -78,7 +78,7 @@ module Queries
 
         # See Queries::Concerns::Polymorphic
         @object_global_id = params[:object_global_id]
-        set_polymorphic_ids(params)
+        set_polymorphic_id(params)
       end
 
       def table

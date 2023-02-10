@@ -13,7 +13,7 @@ module Queries::Concerns::Polymorphic
   end
 
   included do
-    attr_accessor :polymorphic_ids
+    attr_accessor :polymorphic_id
 
     attr_accessor :object_global_id
 
@@ -23,8 +23,8 @@ module Queries::Concerns::Polymorphic
       define_singleton_method(:annotating_class){klass}
     end
 
-    def polymorphic_ids=(hash)
-      set_polymorphic_ids(hash)
+    def polymorphic_id=(hash)
+      set_polymorphic_id(hash)
     end
 
     def object_global_id=(value)
@@ -32,9 +32,9 @@ module Queries::Concerns::Polymorphic
     end
   end
 
-  def set_polymorphic_ids(hash)
-    @polymorphic_ids = hash.select{|k,v| self.class.annotating_class.related_foreign_keys.include?(k.to_s)}
-    @polymorphic_ids ||= {}
+  def set_polymorphic_id(hash)
+    @polymorphic_id = hash.select{|k,v| self.class.annotating_class.related_foreign_keys.include?(k.to_s)}
+    @polymorphic_id ||= {}
   end
 
   # @return [ActiveRecord object, nil]
@@ -60,8 +60,8 @@ module Queries::Concerns::Polymorphic
 
   # TODO: Dry with polymorphic_params
   # @return [Arel::Node, nil]
-  def matching_polymorphic_ids
-    nodes = Queries::Annotator.polymorphic_nodes(polymorphic_ids, self.class.annotating_class)
+  def matching_polymorphic_id
+    nodes = Queries::Annotator.polymorphic_nodes(polymorphic_id, self.class.annotating_class)
     return nil if nodes.nil?
     a = nodes.shift
     nodes.each do |b|
