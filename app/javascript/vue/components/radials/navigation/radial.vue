@@ -7,14 +7,14 @@
         @close="closeModal()"
       >
         <template #header>
-          <h3 class="flex-separate">
+          <span class="flex-separate middle">
             <span v-html="title" />
-            <span
+            <b
               v-if="metadata"
               class="separate-right"
               v-text="metadata.type"
             />
-          </h3>
+          </span>
         </template>
         <template #body>
           <div class="flex-separate">

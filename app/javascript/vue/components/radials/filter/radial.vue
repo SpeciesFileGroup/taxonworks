@@ -6,9 +6,9 @@
       @close="closeModal"
     >
       <template #header>
-        <h3 class="flex-separate">
+        <h3 class="flex-separate middle">
           <span>Radial filters</span>
-          <span class="separate-right"> {{ objectType }}</span>
+          <span class="margin-large-left"> {{ objectType }}</span>
         </h3>
       </template>
       <template #body>

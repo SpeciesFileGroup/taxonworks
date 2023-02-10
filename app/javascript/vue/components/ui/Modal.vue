@@ -15,20 +15,14 @@
           :style="containerStyle"
           @click.stop
         >
-          <div class="modal-header">
-            <div
-              class="modal-close"
-              :class="{ 'invert-color opacity-100': transparent }"
-              @click="emit('close')"
-            />
-            <slot name="header">
-              default header
-            </slot>
+          <div
+            class="modal-header"
+            :class="{ 'panel content': transparent }"
+          >
+            <slot name="header"> default header </slot>
           </div>
           <div class="modal-body">
-            <slot name="body">
-              default body
-            </slot>
+            <slot name="body"> default body </slot>
           </div>
           <div class="modal-footer">
             <slot name="footer" />
@@ -67,6 +61,10 @@ const handleKeys = (e) => {
   }
 }
 
-onMounted(() => { document.addEventListener('keydown', handleKeys) })
-onUnmounted(() => { document.removeEventListener('keydown', handleKeys) })
+onMounted(() => {
+  document.addEventListener('keydown', handleKeys)
+})
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleKeys)
+})
 </script>

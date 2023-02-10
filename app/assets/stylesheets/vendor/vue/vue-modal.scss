@@ -29,29 +29,13 @@
   overflow-y: auto;
 }
 
-.modal-close {
-  position: absolute;
-  cursor: pointer;
-  top: 26px;
-  right: 30px;
-  width: 10px;
-  height: 10px;
-  background-image: image-url('close.svg');
-  background-size: 10px 10px;
-  opacity: 0.4;
-}
-
 .modal-close:hover {
   opacity: 1;
 }
 
 .modal-header h3 {
   margin-top: 0;
-  color: #42b983;
-}
-
-.bg-transparent .modal-header h3 {
-  color: #42ffaa;
+  //color: #42b983;
 }
 
 .modal-body {
@@ -92,8 +76,6 @@
     }
   }
   .modal-close {
-    right: 42px;
-    top: 30px;
     color: rgba(255, 255, 255, 0.5);
     background-image: image-url('w_close.svg');
   }
