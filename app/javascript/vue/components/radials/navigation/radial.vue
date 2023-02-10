@@ -158,9 +158,6 @@ export default {
     disabled: {
       type: Boolean,
       default: false
-//    redirect: {  JLP 
-//      type: Boolean,
-//      default: true
     }
   },
 
