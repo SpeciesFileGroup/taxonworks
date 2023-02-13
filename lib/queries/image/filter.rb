@@ -36,7 +36,7 @@ module Queries
       attr_accessor :collection_object_id
 
       # @param collection_object_scope
-      #   options
+      #   One or more of:
       #     :all (default, includes all below)
       #
       #     :collection_objects (those on the collection_object)
@@ -72,7 +72,7 @@ module Queries
       #
       # !! Must be used with an otu_id !!
       # @param otu_scope
-      #   options
+      #   One or more of: 
       #     :all (default, includes all below)
       #
       #     :otu (those on the OTU)

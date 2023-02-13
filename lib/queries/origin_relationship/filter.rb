@@ -5,10 +5,8 @@ module Queries
       include Concerns::Polymorphic
       polymorphic_klass(::OriginRelationship)
 
-      # attr_accessor :object_global_id  from Queries::Concerns::Polymorphic
-      # attr_accessor :polymorphic_id   from Queries::Concerns::Polymorphic
-
       PARAMS = [
+        *::OriginRelationship.related_foreign_keys.map(&:to_sym), # TODO:!?!
         :origin_relationship_id,
         :new_object_global_id,
         :old_object_global_id,

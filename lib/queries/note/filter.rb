@@ -6,6 +6,7 @@ module Queries
       polymorphic_klass(::Identifier)
 
       PARAMS = [
+        *::Note.related_foreign_keys.map(&:to_sym),
         :note_id,
         :text,
         :note_object_type,

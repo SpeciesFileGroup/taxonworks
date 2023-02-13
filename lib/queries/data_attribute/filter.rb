@@ -7,7 +7,6 @@ module Queries
 
       PARAMS = [
         *::DataAttribute.related_foreign_keys.map(&:to_sym),
-        :options, # TODO: Remove
         :value,
         :controlled_vocabulary_term_id,
         :import_predicate,
@@ -18,12 +17,6 @@ module Queries
         controlled_vocabulary_term_id: [],
         data_attribute_id: []
       ].freeze 
-
-      # General annotator options handling
-      # happens directly on the params as passed
-      # through to the controller, keep them
-      # together here
-      attr_accessor :options
 
       # Params specific to DataAttribute
       attr_accessor :value
@@ -43,7 +36,6 @@ module Queries
 
       # @params params [ActionController::Parameters]
       def initialize(query_params)
-        @options = query_params
         super
 
         @attribute_subject_id = params[:attribute_subject_id]
@@ -99,7 +91,6 @@ module Queries
 
       def and_clauses
         [
-#          ::Queries::Annotator.annotator_params(options, ::DataAttribute),
           matching_type,
           matching_value,
           matching_import_predicate,

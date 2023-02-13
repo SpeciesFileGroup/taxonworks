@@ -5,6 +5,7 @@ module Queries
       polymorphic_klass(::Confidence)
 
       PARAMS = [
+        *::Confidence.related_foreign_keys.map(&:to_sym),
         :confidence_id,
         :confidence_level_id,
         :confidence_object_type,

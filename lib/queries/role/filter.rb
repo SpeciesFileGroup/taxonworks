@@ -6,6 +6,7 @@ module Queries
       polymorphic_klass(::Role)
 
       PARAMS = [
+        *::Role.related_foreign_keys.map(&:to_sym),
         :role_id,
         :role_type,
         role_id: [],

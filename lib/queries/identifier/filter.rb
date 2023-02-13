@@ -7,6 +7,7 @@ module Queries
       polymorphic_klass(::Identifier)
 
       PARAMS = [
+        *::Identifier.related_foreign_keys.map(&:to_sym),
         :identifier,
         :identifier_id,
         :identifier_object_id,

@@ -7,21 +7,18 @@ module Queries
     class Filter < Query::Filter
       include Queries::Helpers
 
+      include Concerns::Polymorphic
+      polymorphic_klass(::Citation)
+
       PARAMS = [
+        *::Citation.related_foreign_keys.map(&:to_sym),
         :citation_id,
-        :options,
         :citation_object_type,
         :citation_object_id,
         :source_id,
         :is_original,
         citation_id: [],
       ].freeze
-
-      # General annotator options handling
-      # happens directly on the params as passed
-      # through to the controller, keep them
-      # together here
-      attr_accessor :options
 
       # Array, Integer
       attr_accessor :citation_object_type
@@ -36,7 +33,6 @@ module Queries
       # @params params [Hash]
       #   already Permitted params, or new Hash
       def initialize(query_params)
-        @options = query_params
         super
 
         @citation_id = params[:citation_id]
@@ -44,6 +40,7 @@ module Queries
         @citation_object_type = params[:citation_object_type]
         @is_original = params[:is_original]
         @source_id = params[:source_id]
+        set_polymorphic_params(params)
       end
 
       def citation_object_type
@@ -118,7 +115,6 @@ module Queries
 
       def and_clauses
         [
-          ::Queries::Annotator.annotator_params(options, ::Citation), # TODO: remove
           matching_citation_object_type,
           matching_citation_object_id,
           source_id_facet,
