@@ -2,7 +2,8 @@
 #
 # !! You must have `#base_query` defined in the module to use this concern
 # !! You must call set_user_dates in initialize()
-# TODO: Isolate code to a gem
+# * TODO: Isolate code to a gem
+# * TODO: validate User/Project relationships
 #
 # Concern specs are in
 #   spec/lib/queries/person/filter_spec.rb

@@ -3,6 +3,8 @@ module Queries
     class Filter < Query::Filter
 
       include Queries::Helpers
+      include Concerns::Polymorphic
+      polymorphic_klass(::AlternateValue)
 
       PARAMS = [
         *::AlternateValue.related_foreign_keys.map(&:to_sym),
@@ -28,15 +30,15 @@ module Queries
         @language_id = params[:language_id]
         @type = params[:type]
         @value = params[:value]
+        set_polymorphic_params(params)
       end
 
       def alternate_value_id
         [@alternate_value_id].flatten.compact
       end
 
-      # TODO: check type
       def ignores_project?
-        ::AlternateValue::ALWAYS_COMMUNITY.include?( referenced_klass )
+        ::AlternateValue::ALWAYS_COMMUNITY.include?( polymorphic_type )
       end
 
       def community_project_id_facet
@@ -46,6 +48,10 @@ module Queries
         end
         nil
       end
+
+    # def project_id_facet
+    #   nil
+    # end
 
       def value_facet
         return nil if value.blank?

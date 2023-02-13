@@ -12,17 +12,12 @@ module Queries
     #   the initial, unparsed value
     attr_accessor :query_string
 
-    # TODO: Make it params
-    # parameters from keyword_args, used to group and pass along things like annotator params
-    attr_accessor :options
-
     # limit based on size and potentially properties of terms
     attr_accessor :dynamic_limit
 
     # @param [Hash] args
     def initialize(string, project_id: nil, **keyword_args)
       @query_string = ::ApplicationRecord.sanitize_sql(string)&.delete("\u0000") # remove null bytes
-      @options = keyword_args
       @project_id = project_id
       build_terms
     end
