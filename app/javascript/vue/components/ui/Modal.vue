@@ -3,7 +3,7 @@
     <div
       class="modal-mask"
       @click="emit('close')"
-      @key.esc="emit('close')"
+      @key.esc.stop="emit('close')"
     >
       <div class="modal-wrapper">
         <div
@@ -57,6 +57,7 @@ const emit = defineEmits(['close'])
 
 const handleKeys = (e) => {
   if (e.key === 'Escape') {
+    e.stopPropagation()
     emit('close')
   }
 }
