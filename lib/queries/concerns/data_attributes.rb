@@ -50,7 +50,7 @@ module Queries::Concerns::DataAttributes
     end
   end
 
-  def set_data_attributes_params(params)
+  def set_data_attributes_params(params) # ... hash
     @data_attribute_predicate_id = params[:data_attribute_predicate_id]
     @data_attribute_value = params[:data_attribute_value]
     @data_attribute_exact_value = boolean_param(params, :data_attribute_exact_value)

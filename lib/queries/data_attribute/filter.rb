@@ -2,19 +2,22 @@ module Queries
   module DataAttribute
     class Filter < Query::Filter
 
+      include Concerns::Polymorphic
+      polymorphic_klass(::DataAttribute)
+
       PARAMS = [
-        :options,
+        *::DataAttribute.related_foreign_keys.map(&:to_sym),
+        :options, # TODO: Remove
         :value,
         :controlled_vocabulary_term_id,
         :import_predicate,
         :type,
-        :object_global_id,
         :attribute_subject_type,
         :attribute_subject_id,
         :data_attribute_id,
         controlled_vocabulary_term_id: [],
         data_attribute_id: []
-      ].freeze
+      ].freeze 
 
       # General annotator options handling
       # happens directly on the params as passed
@@ -32,8 +35,6 @@ module Queries
 
       attr_accessor :type
 
-      attr_accessor :object_global_id
-
       attr_accessor :attribute_subject_type
 
       attr_accessor :attribute_subject_id
@@ -50,9 +51,10 @@ module Queries
         @controlled_vocabulary_term_id = params[:controlled_vocabulary_term_id]
         @data_attribute_id = params[:data_attribute_id]
         @import_predicate = params[:import_predicate]
-        @object_global_id = params[:object_global_id]
         @type = params[:type]
         @value = params[:value]
+
+        set_polymorphic_params(params)
       end
 
       def data_attribute_id
@@ -64,17 +66,6 @@ module Queries
       end
 
       # TODO - rename matching to _facet
-
-      # @return [Arel::Node, nil]
-      def matching_subject
-        if o = object_for(object_global_id)
-          table['attribute_subject_id'].eq(o.id).and(
-            table['attribute_subject_type'].eq(o.metamorphosize.class.name)
-          )
-        else
-          nil
-        end
-      end
 
       # @return [Arel::Node, nil]
       def matching_attribute_subject_type
@@ -108,14 +99,13 @@ module Queries
 
       def and_clauses
         [
-          ::Queries::Annotator.annotator_params(options, ::DataAttribute),
+#          ::Queries::Annotator.annotator_params(options, ::DataAttribute),
           matching_type,
           matching_value,
           matching_import_predicate,
           matching_attribute_subject_id,
           matching_attribute_subject_type,
           matching_controlled_vocabulary_term_id,
-          matching_subject
         ]
       end
 

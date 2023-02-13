@@ -9,13 +9,22 @@ module Shared::IsData::Annotation
 
   # see config/initializes/constanst/model/annotations for types
 
-  module ClassMethods
+  included do
+
     # @return [Boolean]
     # true if model is an "annotator" (e.g. identifiers, tags, notes, data attributes, alternate values, citations), i.e. data that references another data element through STI
     def annotates?
       respond_to?(:annotated_object)
     end
+  end
 
+
+  module ClassMethods
+
+    def annotates?
+      self < Shared::PolymorphicAnnotator ? true : false
+    end
+    
     # Determines whether the class can be annotated
     # in one of the following ways
     ::ANNOTATION_TYPES.each do |t|

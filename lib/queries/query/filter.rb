@@ -61,6 +61,8 @@ module Queries
       taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :image, :otu, :source ]
     }.freeze
 
+    # @return [Hash]
+    #  only referenced in specs
     def self.inverted_subqueries
       r = {}
       SUBQUERIES.each do |k,v|
@@ -106,6 +108,19 @@ module Queries
     # @return [Array]
     # @param project_id [Array, Integer]
     attr_accessor :project_id
+
+    # @return [Array]
+    # @params object_global_id
+    #   Rails global ids.
+    #  Locally these look like gid://taxon-works/Otu/1
+    # Using a global id is equivalent to 
+    # using <model>_id.  I.e. it simply restricts
+    # the filter to those matching Model#id.
+    #
+    # !! If any global id model name does not 
+    # match the current filter, then then facet
+    # is completely rejected.
+    attr_accessor :object_global_id
 
     # TODO: macro these dynamically
 
@@ -172,14 +187,21 @@ module Queries
         raise TaxonWorks::Error, "can not initialize filter with #{query_params.class.name}"
       end
 
+      @recent = boolean_param(params, :recent)
+      @object_global_id = params[:object_global_id]
+      @project_id = params[:project_id] || Current.project_id # !! Always on. 
+
+      set_identifier_params(params)
       set_nested_queries(params)
       set_user_dates(params)
-      set_identifier_params(params)
+    end
 
-      @recent = boolean_param(params, :recent)
+    def object_global_id
+      [@object_global_id].flatten.compact
+    end
 
-      # always on
-      @project_id = params[:project_id] || Current.project_id # TODO: revisit
+    def project_id
+      [@project_id].flatten.compact
     end
 
     def self.included_annotator_facets
@@ -187,13 +209,17 @@ module Queries
         ::Queries::Concerns::Users
       ]
 
-      f.push ::Queries::Concerns::Citations if self < ::Queries::Concerns::Citations
-      f.push ::Queries::Concerns::DataAttributes if self < ::Queries::Concerns::DataAttributes
-      f.push ::Queries::Concerns::Depictions if self < ::Queries::Concerns::Depictions
-      f.push ::Queries::Concerns::Identifiers if self < ::Queries::Concerns::Identifiers
-      f.push ::Queries::Concerns::Notes if self < ::Queries::Concerns::Notes
-      f.push ::Queries::Concerns::Protocols if self < ::Queries::Concerns::Protocols
-      f.push ::Queries::Concerns::Tags if self < ::Queries::Concerns::Tags
+      if referenced_klass.annotates?
+        f.push ::Queries::Concerns::Polymorphic if self < ::Queries::Concerns::Polymorphic
+      else
+        f.push ::Queries::Concerns::Citations if self < ::Queries::Concerns::Citations
+        f.push ::Queries::Concerns::DataAttributes if self < ::Queries::Concerns::DataAttributes
+        f.push ::Queries::Concerns::Depictions if self < ::Queries::Concerns::Depictions
+        f.push ::Queries::Concerns::Identifiers if self < ::Queries::Concerns::Identifiers
+        f.push ::Queries::Concerns::Notes if self < ::Queries::Concerns::Notes
+        f.push ::Queries::Concerns::Protocols if self < ::Queries::Concerns::Protocols
+        f.push ::Queries::Concerns::Tags if self < ::Queries::Concerns::Tags
+      end
 
       f
     end
@@ -212,6 +238,7 @@ module Queries
     def self.annotator_params
       h = nil
       if i = included_annotator_facets
+        # Setup with the first
         a = i.shift
         h = a.params
 
@@ -221,6 +248,7 @@ module Queries
 
         c = h.last
 
+        # Now do the rest
         i.each do |j|
           p = j.params
 
@@ -232,10 +260,6 @@ module Queries
         end
       end
       h
-    end
-
-    def project_id
-      [@project_id].flatten.compact
     end
 
     # This method is a preprocessor that discovers, by finding the nested
@@ -355,6 +379,57 @@ module Queries
       end
     end
 
+    # Returns id= facet, automatically
+    # added to all queries.
+    # Over-ridden in some base classes.
+    def model_id_facet
+      m = (base_name + '_id').to_sym
+      return nil if send(m).empty?
+      table[:id].eq_any(send(m))
+    end
+
+    def project_id_facet
+      return nil if project_id.empty?
+      table[:project_id].eq_any(project_id)
+    end
+
+    def object_global_id_facet
+      return nil if object_global_id.empty?
+      ids = []
+      object_global_id.each do |i|
+        g = GlobalID.parse(i)
+        # If any global_ids do not reference this Class, abort
+        return nil unless g.model_class.base_class.name == referenced_klass.name
+        ids.push g.model_id
+      end
+
+      table[:id].eq_any(ids)
+    end
+
+    # params attribute [Symbol]
+    #   a facet for use when params include `author`, and `exact_author` pattern combinations
+    #   See queries/source/filter.rb for example use
+    #   See /spec/lib/queries/source/filter_spec.rb
+    #  !! Whitespace (e.g. tabs, newlines) is ignored when exact is used !!!
+    def attribute_exact_facet(attribute = nil)
+      a = attribute.to_sym
+      return nil if send(a).blank?
+      if send("exact_#{a}".to_sym)
+
+        # TODO: Think we need to handle ' and '
+
+        v = send(a)
+        v.gsub!(/\s+/, ' ')
+        v = ::Regexp.escape(v)
+        v.gsub!(/\\\s+/, '\s*') # spaces are escaped, but we need to expand them in case we dont' get them caught
+        v = '^\s*' + v + '\s*$'
+
+        table[a].matches_regexp(v)
+      else
+        table[a].matches('%' + send(a).strip.gsub(/\s+/, '%') + '%')
+      end
+    end
+
     def annotator_merge_clauses
       a = []
 
@@ -390,8 +465,9 @@ module Queries
     def shared_and_clauses
       [
         project_id_facet,
-        model_id_facet
-      ].compact
+        model_id_facet,
+        object_global_id_facet,
+      ]
     end
 
     # Defined in inheriting classes
@@ -401,7 +477,7 @@ module Queries
 
     # @return [ActiveRecord::Relation, nil]
     def all_and_clauses
-      clauses = and_clauses + shared_and_clauses + annotator_and_clauses
+      clauses = and_clauses + annotator_and_clauses + shared_and_clauses
       clauses.compact!
       return nil if clauses.empty?
 
@@ -412,10 +488,6 @@ module Queries
       a
     end
 
-    def shared_merge_clauses
-      []
-    end
-
     # Defined in inheriting classes
     def merge_clauses
       []
@@ -423,7 +495,7 @@ module Queries
 
     # @return [Scope, nil]
     def all_merge_clauses
-      clauses = merge_clauses + shared_merge_clauses + annotator_merge_clauses
+      clauses = merge_clauses + annotator_merge_clauses
       clauses.compact!
       return nil if clauses.empty?
 
@@ -432,44 +504,6 @@ module Queries
         a = a.merge(b)
       end
       a
-    end
-
-    # Returns id= facet, automatically
-    # added to all queries.
-    # Over-ridden in some base classes.
-    def model_id_facet
-      m = (base_name + '_id').to_sym
-      return nil if send(m).empty?
-      table[:id].eq_any(send(m))
-    end
-
-    def project_id_facet
-      return nil if project_id.empty?
-      table[:project_id].eq_any(project_id)
-    end
-
-    # params attribute [Symbol]
-    #   a facet for use when params include `author`, and `exact_author` pattern combinations
-    #   See queries/source/filter.rb for example use
-    #   See /spec/lib/queries/source/filter_spec.rb
-    #  !! Whitespace (e.g. tabs, newlines) is ignored when exact is used !!!
-    def attribute_exact_facet(attribute = nil)
-      a = attribute.to_sym
-      return nil if send(a).blank?
-      if send("exact_#{a}".to_sym)
-
-        # TODO: Think we need to handle ' and '
-
-        v = send(a)
-        v.gsub!(/\s+/, ' ')
-        v = ::Regexp.escape(v)
-        v.gsub!(/\\\s+/, '\s*') # spaces are escaped, but we need to expand them in case we dont' get them caught
-        v = '^\s*' + v + '\s*$'
-
-        table[a].matches_regexp(v)
-      else
-        table[a].matches('%' + send(a).strip.gsub(/\s+/, '%') + '%')
-      end
     end
 
     # @param nil_empty [Boolean]

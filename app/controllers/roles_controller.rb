@@ -1,6 +1,6 @@
 class RolesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-  include ShallowPolymorphic
+ # include ShallowPolymorphic
 
   before_action :set_role, only: [:update, :destroy]
   after_action -> { set_pagination_headers(:roles) }, only: [:index, :api_index ], if: :json_request?

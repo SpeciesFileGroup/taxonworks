@@ -257,18 +257,18 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
     expect(query.new(o).all.map(&:id)).to contain_exactly( a.id )
   end
 
-  specify '#subject_global_id' do
-    o = {subject_global_id: o1.to_global_id.to_s}
+  specify '#subject_objectglobal_id' do
+    o = {subject_object_global_id: o1.to_global_id.to_s}
     expect(query.new(o).all.map(&:id)).to contain_exactly(ba1.id, ba2.id )
   end
 
-  specify '#object_global_id' do
-    o = {object_global_id: o2.to_global_id.to_s}
+  specify '#object_object_global_id' do
+    o = {object_object_global_id: o2.to_global_id.to_s}
     expect(query.new(o).all.map(&:id)).to contain_exactly(ba1.id)
   end
 
-  specify '#subject_global_id and #object_global_id' do
-    o = {subject_global_id: o1.to_global_id.to_s, object_global_id: o3.to_global_id.to_s}
+  specify '#subject_object_global_id and #object_object_global_id' do
+    o = {subject_object_global_id: o1.to_global_id.to_s, object_object_global_id: o3.to_global_id.to_s}
     expect(query.new(o).all.map(&:id)).to contain_exactly(ba2.id)
   end
 

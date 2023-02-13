@@ -6,7 +6,7 @@ module Queries
       polymorphic_klass(::OriginRelationship)
 
       # attr_accessor :object_global_id  from Queries::Concerns::Polymorphic
-      # attr_accessor :polymorphic_ids   from Queries::Concerns::Polymorphic
+      # attr_accessor :polymorphic_id   from Queries::Concerns::Polymorphic
 
       PARAMS = [
         :origin_relationship_id,
@@ -26,7 +26,7 @@ module Queries
         @new_object_global_id = params[:new_object_global_id]
         @old_object_global_id = params[:old_object_global_id]
 
-        set_polymorphic_ids(params)
+        set_polymorphic_params(params)
       end
 
       def origin_relationship_id
@@ -65,7 +65,6 @@ module Queries
         [
           matching_new_object_facet,
           matching_old_object_facet,
-          matching_polymorphic_ids
         ]
       end
 

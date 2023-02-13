@@ -23,15 +23,10 @@ describe Queries::Identifier::Filter, type: :model, group: :identifiers do
 
     expect(query.all.map(&:id)).to contain_exactly(i2.id)
   end
-
-  specify '#object_global_id 1' do
-    query.object_global_id = o1.to_global_id.to_s
+  
+  specify '#object_global_id'  do
+    query.object_global_id = i1.to_global_id.to_s
     expect(query.all.map(&:id)).to contain_exactly(i1.id)
-  end
-
-  specify '#object_global_id 2' do
-    query.identifier_object_id = [o1.id + 99]
-    expect(query.all.map(&:id)).to contain_exactly()
   end
 
   specify '#query_string' do
@@ -89,15 +84,6 @@ describe Queries::Identifier::Filter, type: :model, group: :identifiers do
     expect(query.all.map(&:id)).to contain_exactly( i2.id, i3.id)
   end
 
-  specify 'matching_polymorphic_id #1' do
-    query.polymorphic_id = {'otu_id' => o1.id}
-    expect(query.all.map(&:id)).to contain_exactly(i1.id)
-  end
-
-  specify 'matching_polymorphic_id #1' do
-    query.polymorphic_id = {'collecting_event_id' => o3.id}
-    expect(query.all.map(&:id)).to contain_exactly(i3.id)
-  end
 
   specify 'matching_identifier_object_type[] #1' do
     query.identifier_object_type = %w{Otu CollectionObject}

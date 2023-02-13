@@ -1,7 +1,7 @@
 class NotesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  include ShallowPolymorphic
+  # include ShallowPolymorphic
 
   before_action :set_note, only: [:update, :destroy, :api_show]
   after_action -> { set_pagination_headers(:notes) }, only: [:index, :api_index ], if: :json_request?
@@ -16,7 +16,7 @@ class NotesController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @notes = Queries::Note::Filter.new(filter_params)
+        @notes = Queries::Note::Filter.new(params)
           .all
           .page(params[:page])
           .per(params[:per])
@@ -123,18 +123,18 @@ class NotesController < ApplicationController
 
   private
 
-  def filter_params
-    params.permit(
-      :text,
-      :note_object_id,
-      :note_object_type,
-      :object_global_id,
-      note_object_id: [],
-      note_object_type: [],
-    ).to_h
-      .merge(shallow_object_global_param)
-      .merge(project_id: sessions_current_project_id)
-  end
+ #def filter_params
+ #  params.permit(
+ #    :text,
+ #    :note_object_id,
+ #    :note_object_type,
+ #    :object_global_id,
+ #    note_object_id: [],
+ #    note_object_type: [],
+ #  ).to_h
+ #    .merge(shallow_object_global_param)
+ #    .merge(project_id: sessions_current_project_id)
+ #end
 
   def api_params
     params.permit(
@@ -145,8 +145,9 @@ class NotesController < ApplicationController
       note_object_id: [],
       note_object_type: [],
     ).to_h
-      .merge(shallow_object_global_param)
-      .merge(project_id: sessions_current_project_id)
+    .merge(project_id: sessions_current_project_id) 
+    # .merge(shallow_object_global_param)
+     
   end
 
   def set_note

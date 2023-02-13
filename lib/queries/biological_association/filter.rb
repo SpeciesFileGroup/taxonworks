@@ -1,4 +1,3 @@
-require 'queries/taxon_name/filter'
 module Queries
   module BiologicalAssociation
 
@@ -19,12 +18,12 @@ module Queries
         :geographic_area_id,
         :geographic_area_mode,
         :object_biological_property_id,
-        :object_global_id,
+        :object_object_global_id,
         :object_taxon_name_id,
         :object_type,
         :otu_id,
         :subject_biological_property_id,
-        :subject_global_id,
+        :subject_object_global_id,
         :subject_taxon_name_id,
         :subject_type,
         :taxon_name_id,
@@ -39,11 +38,11 @@ module Queries
         collection_object_id: [],
         geographic_area_id: [],
         object_biological_property_id: [],
-        object_global_id: [],
+        object_object_global_id: [],
         object_taxon_name_id: [],
         otu_id: [],
         subject_biological_property_id: [],
-        subject_global_id: [],
+        subject_object_global_id: [],
         subject_taxon_name_id: [],
         taxon_name_id: [],
       ].freeze
@@ -127,10 +126,10 @@ module Queries
       attr_accessor :biological_associations_graph_id
 
       # @return [Array]
-      attr_accessor :subject_global_id
+      attr_accessor :subject_object_global_id
 
       # @return [Array]
-      attr_accessor :object_global_id
+      attr_accessor :object_object_global_id
 
       # @return [Array]
       attr_accessor :any_global_id
@@ -165,12 +164,12 @@ module Queries
         @geographic_area_id = params[:geographic_area_id]
         @geographic_area_mode = boolean_param(params, :geographic_area_mode)
         @object_biological_property_id = params[:object_biological_property_id]
-        @object_global_id = params[:object_global_id]
+        @object_object_global_id = params[:object_object_global_id]
         @object_taxon_name_id = params[:object_taxon_name_id]
         @object_type = params[:object_type]
         @otu_id = params[:otu_id]
         @subject_biological_property_id = params[:subject_biological_property_id]
-        @subject_global_id = params[:subject_global_id]
+        @subject_object_global_id = params[:subject_object_global_id]
         @subject_taxon_name_id = params[:subject_taxon_name_id]
         @subject_type = params[:subject_type]
         @taxon_name_id = params[:taxon_name_id]
@@ -226,12 +225,12 @@ module Queries
         [@biological_associations_graph_id].flatten.compact
       end
 
-      def subject_global_id
-        [@subject_global_id].flatten.compact
+      def subject_object_global_id
+        [@subject_object_global_id].flatten.compact
       end
 
-      def object_global_id
-        [@object_global_id].flatten.compact
+      def object_object_global_id
+        [@object_object_global_id].flatten.compact
       end
 
       def any_global_id
@@ -519,14 +518,14 @@ module Queries
         return ::BiologicalAssociation.from('(' + s + ') as biological_associations')
       end
 
-      def subject_global_id_facet
-        return nil if subject_global_id.empty?
-        matching_global_id(:subject, subject_global_id)
+      def subject_object_global_id_facet
+        return nil if subject_object_global_id.empty?
+        matching_global_id(:subject, subject_object_global_id)
       end
 
-      def object_global_id_facet
-        return nil if object_global_id.empty?
-        matching_global_id(:object, object_global_id)
+      def object_object_global_id_facet
+        return nil if object_object_global_id.empty?
+        matching_global_id(:object, object_object_global_id)
       end
 
       def any_global_id_facet
@@ -597,11 +596,8 @@ module Queries
         ::BiologicalAssociation.from('(' + s + ') as biological_associations')
       end
 
-
-      # TODO: not working?
       def collection_object_query_facet
         return nil if collection_object_query.nil?
-
         s = 'WITH query_co_ba AS (' + collection_object_query.all.to_sql + ') '
 
         a = ::BiologicalAssociation
@@ -657,9 +653,9 @@ module Queries
           any_global_id_facet,
           biological_association_id_facet,
           biological_relationship_id_facet,
-          object_global_id_facet,
+          object_object_global_id_facet,
           object_type_facet,
-          subject_global_id_facet,
+          subject_object_global_id_facet,
           subject_type_facet,
         ]
       end
@@ -679,6 +675,14 @@ module Queries
       end
 
       private
+
+      def object_for(global_id)
+        if o = GlobalID::Locator.locate(global_id)
+          o
+        else
+          nil
+        end
+      end
 
       def matching_global_id(target = :subject, global_id = [])
         a = global_id

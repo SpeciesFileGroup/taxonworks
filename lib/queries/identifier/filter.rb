@@ -3,6 +3,9 @@ module Queries
 
     class Filter < Query::Filter
 
+      include Concerns::Polymorphic
+      polymorphic_klass(::Identifier)
+
       PARAMS = [
         :identifier,
         :identifier_id,
@@ -11,7 +14,6 @@ module Queries
         :namespace_id,
         :namespace_name,
         :namespace_short_name,
-        :object_global_id,
         :query_string,
         :type,
         identifier: [],
@@ -20,9 +22,6 @@ module Queries
         identifier_object_type: [],
         namespace_id: [],
       ].freeze
-
-      include Concerns::Polymorphic
-      polymorphic_klass(::Identifier)
 
       # @return Array
       attr_accessor :identifier_id
@@ -47,24 +46,15 @@ module Queries
       # @return Array
       attr_accessor :identifier_object_id
 
-      attr_accessor :object_global_id
-
       # @return Array
       attr_accessor :type
 
       # TODO: community likely broken/intercept somewhere
       # attr_accessor :project_id
 
-      # attr_accessor :options
-
       # @params params [ActionController::Parameters]
       def initialize(query_params)
         super
-
-        # @options = params
-
-        # TODO: always on project_id likely breaking things !!
-        # @project_id = params[:project_id]
 
         @identifier = params[:identifier]
         @identifier_id = params[:identifier_id]
@@ -76,9 +66,7 @@ module Queries
         @query_string = params[:query_string]
         @type = params[:type]
 
-        # See Queries::Concerns::Polymorphic
-        @object_global_id = params[:object_global_id]
-        set_polymorphic_id(params)
+        set_polymorphic_params(params)
       end
 
       def table
@@ -90,7 +78,7 @@ module Queries
       end
 
       def identifier_id
-        [@namespace_id].flatten.compact.uniq
+        [@identifier_id].flatten.compact.uniq
       end
 
       def namespace_id
@@ -102,11 +90,11 @@ module Queries
       end
 
       def identifier_object_type
-        [@identifier_object_type, global_object_type].flatten.compact
+        [@identifier_object_type].flatten.compact
       end
 
       def identifier_object_id
-        [@identifier_object_id, global_object_id].flatten.compact
+        [@identifier_object_id].flatten.compact
       end
 
       def annotated_class
@@ -132,59 +120,21 @@ module Queries
         nil
       end
 
-      # @return [ActiveRecord::Relation]
-      def and_clauses
-        clauses = [
-          Queries::Annotator.annotator_params(params, ::Identifier),
-          matching_cached,
-          matching_identifier_attribute(:identifier),
-          matching_identifier_attribute(:namespace_id),
-          matching_identifier_attribute(:type),
-          matching_identifier_object_id,
-          matching_identifier_object_type,
-          matching_polymorphic_ids,
-
-          community_project_id_facet,
-        ].flatten.compact
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
+      def cached_facet
+        return nil if query_string.blank?
+        table[:cached].matches('%' + query_string + '%')
       end
 
-      def merge_clauses
-        clauses = [
-          matching_namespace(:short_name),
-          matching_namespace(:name),
-        ].compact
-
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.merge(b)
-        end
-        a
+      def identifier_object_id_facet
+        return nil 
+        table[:identifier_object_id].eq_any(identifier_object_id)
       end
 
-      # @return [Arel::Node, nil]
-      def matching_cached
-        query_string.blank? ? nil : table[:cached].matches('%' + query_string + '%')
-      end
-
-      # @return [Arel::Node, nil]
-      def matching_identifier_object_id
-        identifier_object_id.empty? ? nil : table[:identifier_object_id].eq_any(identifier_object_id)
-      end
-
-      # @return [Arel::Node, nil]
       def matching_identifier_object_type
-        identifier_object_type.empty? ? nil : table[:identifier_object_type].eq_any(identifier_object_type)
+        return nil if identifier_object_type.empty?
+         table[:identifier_object_type].eq_any(identifier_object_type)
       end
 
-      # @return [Arel::Node, nil]
       def matching_identifier_attribute(attribute)
         v = send(attribute)
         v.blank? ? nil : table[attribute].eq_any(v)
@@ -217,19 +167,25 @@ module Queries
       end
 
       # @return [ActiveRecord::Relation]
-      def all
-        a = and_clauses
-        b = merge_clauses
-        if a && b
-          b.where(a).distinct
-        elsif a
-          ::Identifier.where(a).distinct
-        elsif b
-          b.distinct
-        else
-          ::Identifier.all
-        end
+      def and_clauses
+        [
+          cached_facet,
+          matching_identifier_attribute(:identifier),
+          matching_identifier_attribute(:namespace_id),
+          matching_identifier_attribute(:type),
+          identifier_object_id_facet,
+          matching_identifier_object_type,
+          community_project_id_facet,
+        ]
       end
+
+      def merge_clauses
+        [
+          matching_namespace(:short_name),
+          matching_namespace(:name),
+        ]
+      end
+
     end
   end
 end

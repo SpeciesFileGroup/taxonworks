@@ -1,6 +1,7 @@
 class OriginRelationshipsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-  include ShallowPolymorphic
+ 
+ # include ShallowPolymorphic
 
   before_action :set_origin_relationship, only: [:show, :edit, :update, :destroy]
 

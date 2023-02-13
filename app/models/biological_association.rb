@@ -61,7 +61,7 @@ class BiologicalAssociation < ApplicationRecord
   validate :biological_association_object_type_is_allowed
 
   attr_accessor :subject_global_id
-  attr_accessor :object_global_id
+  attr_accessor :object_global_id # TODO: this is badly named
 
   # TODO: Why?! this is just biological_association.biological_association_subject_type
   def subject_class_name

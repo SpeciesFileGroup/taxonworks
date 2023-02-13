@@ -53,7 +53,7 @@ module Queries
     # @return Hash
     def self.shallow_id(params, klass)
       return {} unless params.class.name == 'ActionController::Parameters'
-      params.permit(klass.related_foreign_keys).to_h
+      params.permit(klass.related_foreign_keys).to_h # could be added into permit framework 
     end
 
     # @params params [ActionController::Parameters]

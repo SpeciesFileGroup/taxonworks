@@ -37,8 +37,6 @@ module Queries
       # @return String, nil
       attr_accessor :protocol_relationship_object_type
 
-      # TODO: object_global_id
-
       # TODO: See ::Queries::Annotator params - move to permitted section in controller likely.
       # @params params [ActionController::Parameters]
       def initialize(query_params)
@@ -81,31 +79,14 @@ module Queries
         table[:protocol_relationship_object_type].eq_any(protocol_relationship_object_type)
       end
 
-      # @return [ActiveRecord::Relation]
       def and_clauses
-        clauses = [
+         [
           protocol_id_facet,
           protocol_relationship_object_id_facet,
           protocol_relationship_object_type_facet,
           ::Queries::Annotator.annotator_params(options, ::ProtocolRelationship),
-        ].compact
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
+        ]
       end
-
-      # @return [ActiveRecord::Relation]
-      def all
-        if a = and_clauses
-          ::ProtocolRelationship.where(and_clauses)
-        else
-          ::ProtocolRelationship.all
-        end
-      end
-
     end
   end
 end

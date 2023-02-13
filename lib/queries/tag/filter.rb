@@ -3,6 +3,9 @@ module Queries
 
     class Filter < Query::Filter
 
+      include Concerns::Polymorphic
+      polymorphic_klass(::Tag)
+
       PARAMS = [
         :keyword_id,
         :tag_object_type,
@@ -11,10 +14,6 @@ module Queries
         tag_object_type: [],
         tag_object_id: [],
       ].freeze
-
-      include Concerns::Polymorphic
-      polymorphic_klass(::Tag)
-
 
       # @return Array
       attr_accessor :tag_id
@@ -28,9 +27,6 @@ module Queries
       # Array, Integer
       attr_accessor :tag_object_id
 
-      # From concern
-      # attr_accessor :object_global_id
-
       # @params params [ActionController::Parameters]
       def initialize(query_params)
         super
@@ -39,9 +35,8 @@ module Queries
         @keyword_id = [params[:keyword_id]]
         @tag_object_type = params[:tag_object_type]
         @tag_object_id = params[:tag_object_id]
-        @object_global_id = params[:object_global_id]
 
-        set_polymorphic_ids(params)
+        set_polymorphic_params(params)
       end
 
       def tag_id
@@ -53,38 +48,32 @@ module Queries
       end
 
       def tag_object_type
-        [@tag_object_type, global_object_type].flatten.compact
+        [@tag_object_type].flatten.compact
       end
 
       def tag_object_id
-        [@tag_object_id, global_object_id].flatten.compact
+        [@tag_object_id].flatten.compact
       end
 
-      # @return [Arel::Node, nil]
       def keyword_id_facet
         !keyword_id.empty? ? table[:keyword_id].eq_any(keyword_id)  : nil
       end
 
-      # @return [Arel::Node, nil]
       def object_id_facet
         tag_object_id.empty? ? nil : table[:tag_object_id].eq_any(tag_object_id)
       end
 
-      # @return [Arel::Node, nil]
       def tag_object_type_facet
         tag_object_type.empty? ? nil : table[:tag_object_type].eq_any(tag_object_type)
       end
 
       def and_clauses
         [
-          #  ::Queries::Annotator.annotator_params(options, ::Tag),
           keyword_id_facet,
-          matching_polymorphic_ids, # concern
           object_id_facet,
           tag_object_type_facet,
         ]
       end
-
 
     end
   end
