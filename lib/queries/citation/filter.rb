@@ -59,66 +59,31 @@ module Queries
         [@citation_id].flatten.compact
       end
 
-      #     def merge_clauses
-      #       c = []
-      #       c = c + source_merge_clauses + source_and_clauses
-      #       c.compact!
-      #       c
-      #     end
-
-      #     def source_merge_clauses
-      #       c = []
-      #       # Convert base and clauses to merge clauses
-      #       source_query.merge_clauses.each do |i|
-      #         c.push ::Citation.joins(:source).merge( i )
-      #       end
-      #       c
-      #     end
-
-      #     def source_and_clauses
-      #       c = []
-      #       # Convert base and clauses to merge clauses
-      #       source_query.base_and_clauses.each do |i|
-      #         c.push ::Citation.joins(:source).where( i )
-      #       end
-      #       c
-      #     end
-
-      # @return [Arel::Node, nil]
-      def matching_citation_object_type
+      def citation_object_type_facet
         return nil if citation_object_type.empty?
         table[:citation_object_type].eq(citation_object_type)
       end
 
-      # @return [Arel::Node, nil]
-      def matching_citation_object_id
+      def citation_object_id_facet
         return nil if citation_object_id.empty?
         table[:citation_object_id].eq(citation_object_id)
       end
 
-      # @return [Arel::Node, nil]
       def source_id_facet
         return nil if source_id.empty?
         table[:source_id].eq_any(source_id)
       end
 
-      # Replace with lib/concerns/user.rb ...
-      # Never use Current.user_id here
-      # def matching_updated_by_id
-      #   return nil if Current.user_id.nil?
-      #   user_id == 'true' ? table[:updated_by_id].eq(Current.user_id) : nil
-      # end
-
-      def matching_is_original
+      def is_original_facet
         is_original.blank? ? nil : table[:is_original].eq(is_original)
       end
 
       def and_clauses
         [
-          matching_citation_object_type,
-          matching_citation_object_id,
+          citation_object_type_facet,
+          citation_object_id_facet,
           source_id_facet,
-          matching_is_original
+          is_original_facet
         ]
       end
 

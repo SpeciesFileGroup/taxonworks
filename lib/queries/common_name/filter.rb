@@ -17,10 +17,10 @@ module Queries
 
       def initialize(query_params)
         super
-        @geographic_area_id = options[:geographic_area_id]
-        @language_id = options[:language_id]
-        @name = options[:name]
-        @otu_id = options[:otu_id]
+        @geographic_area_id = params[:geographic_area_id]
+        @language_id = params[:language_id]
+        @name = params[:name]
+        @otu_id = params[:otu_id]
       end
 
       def otu_id

@@ -5,8 +5,8 @@ module Queries
       include Queries::Helpers
 
       PARAMS = [
+        *::AlternateValue.related_foreign_keys.map(&:to_sym),
         :alternate_value_id,
-        :options, #TODO: out
         :value,
         :language_id,
         :type,
@@ -17,20 +17,11 @@ module Queries
       # @return [Array]
       attr_accessor :alternate_value_id
 
-      # TODO: out
-      # General annotator options handling
-      # happens directly on the params as passed
-      # through to the controller, keep them
-      # together here
-      # @params options [ ActionController::Parameters instance ]
-      attr_accessor :options
-
       # Params specific to AlternateValue
       attr_accessor :value, :language_id, :type, :alternate_value_object_attribute
 
       # @params params [ActionController::Parameters]
       def initialize(query_params)
-        @options = query_params # TOOD: swap for params
         super
         @alternate_value_id = params[:alternate_value_id]
         @alternate_value_object_attribute = params[:alternate_value_object_attribute]
@@ -43,12 +34,9 @@ module Queries
         [@alternate_value_id].flatten.compact
       end
 
-      def annotated_class
-        ::Queries::Annotator.annotated_class(options, ::AlternateValue)
-      end
-
+      # TODO: check type
       def ignores_project?
-        ::AlternateValue::ALWAYS_COMMUNITY.include?( annotated_class )
+        ::AlternateValue::ALWAYS_COMMUNITY.include?( referenced_klass )
       end
 
       def community_project_id_facet
@@ -59,33 +47,32 @@ module Queries
         nil
       end
 
-      # @return [Arel::Node, nil]
-      def matching_value
-        value.blank? ? nil : table[:value].eq(value)
+      def value_facet
+        return nil if value.blank?
+        table[:value].eq(value)
+      end
+
+      def language_id_facet
+        return nil if language_id.blank?
+        table[:language_id].eq(language_id)
+      end
+
+      def type_facet
+        return nil if type.blank?
+        table[:type].eq(type)
       end
 
       # @return [Arel::Node, nil]
-      def matching_language_id
-        language_id.blank? ? nil : table[:language_id].eq(language_id)
-      end
-
-      # @return [Arel::Node, nil]
-      def matching_type
-        type.blank? ? nil : table[:type].eq(type)
-      end
-
-      # @return [Arel::Node, nil]
-      def matching_alternate_value_object_attribute
+      def alternate_value_object_attribute_facet
         alternate_value_object_attribute.blank? ? nil : table[:alternate_value_object_attribute].eq(alternate_value_object_attribute)
       end
 
       def and_clauses
         [
-          Queries::Annotator.annotator_params(options, ::AlternateValue),
-          matching_value,
-          matching_language_id,
-          matching_type,
-          matching_alternate_value_object_attribute,
+          value_facet,
+          language_id_facet,
+          type_facet,
+          alternate_value_object_attribute_facet,
           community_project_id_facet,
         ]
       end
