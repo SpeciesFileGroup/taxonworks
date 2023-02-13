@@ -14,8 +14,7 @@ class CommonNamesController < ApplicationController
         render '/shared/data/all/index' 
       end
       format.json {
-        @common_names = Queries::CommonName::Filter.new(filter_params).all
-          .where(project_id: sessions_current_project_id)
+        @common_names = Queries::CommonName::Filter.new(params).all
           .page(params[:page])
           .per(params[:per])
       }
@@ -81,12 +80,6 @@ class CommonNamesController < ApplicationController
   end
 
   private
-
-  def filter_params
-    params.permit(
-      :name, :geographic_area_id, :otu_id, :language_id
-    )
-  end
 
   def set_common_name
     @common_name = CommonName.with_project_id(sessions_current_project_id).find(params[:id])

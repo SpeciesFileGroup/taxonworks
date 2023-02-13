@@ -135,14 +135,6 @@ module Queries
       a
     end
 
-    # Not the same as Query.object_for
-    def object_for(global_id)
-      if o = GlobalID::Locator.locate(global_id)
-        o
-      else
-        nil
-      end
-    end
 
   end
 end

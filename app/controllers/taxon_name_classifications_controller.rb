@@ -14,9 +14,8 @@ class TaxonNameClassificationsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @taxon_name_classifications = Queries::TaxonNameClassification::Filter.new(filter_params)
+        @taxon_name_classifications = Queries::TaxonNameClassification::Filter.new(params)
           .all
-          .where(project_id: sessions_current_project_id)
           .page(params[:page])
           .per(params[:per])
       }
@@ -159,11 +158,6 @@ class TaxonNameClassificationsController < ApplicationController
       taxon_name_classification_type: [],
       taxon_name_classification_set: []
     )
-  end
-
-  def filter_params
-    f = ::Queries::TaxonNameClassification:Filter.permit(params)
-    f.merge(project_id: sessions_current_project_id)
   end
 
   def set_taxon_name_classification

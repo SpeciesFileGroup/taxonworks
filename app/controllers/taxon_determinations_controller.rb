@@ -12,8 +12,9 @@ class TaxonDeterminationsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @taxon_determinations = Queries::TaxonDetermination::Filter.new(filter_params).all
-        .with_project_id(sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
+        @taxon_determinations = Queries::TaxonDetermination::Filter.new(params).all
+        .page(params[:page])
+        .per(params[:per])
       }
     end
   end
@@ -119,7 +120,7 @@ class TaxonDeterminationsController < ApplicationController
   end
 
   private
-  def set_taxon_determination
+    def set_taxon_determination
       @taxon_determination = TaxonDetermination.with_project_id(sessions_current_project_id).find(params[:id])
       @recent_object = @taxon_determination
     end
@@ -130,11 +131,6 @@ class TaxonDeterminationsController < ApplicationController
         roles_attributes: [:id, :_destroy, :type, :organization_id, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
         otu_attributes: [:id, :_destroy, :name, :taxon_name_id]
       )
-    end
-
-    def filter_params
-      f = ::Queries::TaxonDetermination::Filter.permit(params)
-      f.merge(project_id: sessions_current_project_id)
     end
 
 end

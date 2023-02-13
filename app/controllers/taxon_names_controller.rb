@@ -305,9 +305,6 @@ class TaxonNamesController < ApplicationController
       # ...
     }
 
-    # f = filter_params
-    # ...
-
     params.permit(
       :ancestors,
       :author,

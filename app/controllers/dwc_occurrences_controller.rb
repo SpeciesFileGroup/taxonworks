@@ -7,7 +7,7 @@ class DwcOccurrencesController < ApplicationController
 
   # .json only
   def index
-    @dwc_occurrences = Queries::DwcOccurrence::Filter.new(filter_params).all
+    @dwc_occurrences = Queries::DwcOccurrence::Filter.new(params).all
       .where(project_id: sessions_current_project_id)
       .page(params[:page])
       .per(params[:per] || 1)
@@ -76,20 +76,7 @@ class DwcOccurrencesController < ApplicationController
       dwc_occurrence_object_type: []
     )
   end
-
-  def filter_params
-    params.permit(
-      :user_date_end,
-      :user_date_start,
-      :user_id,
-      :user_target,
-      :dwc_occurrence_id,
-      dwc_occurrence_id: [],
-      dwc_occurrence_object_id: [],
-      dwc_occurrence_object_type: []
-    )
-  end
-
+  
   def set_object
     @object = GlobalID::Locator.locate(params[:object_global_id])
 

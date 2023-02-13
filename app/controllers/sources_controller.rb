@@ -216,7 +216,7 @@ class SourcesController < ApplicationController
 
   # GET /sources/generate.json?<filter params>
   def generate
-    sources = Queries::Source::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 2000)
+    sources = Queries::Source::Filter.new(params).all.page(params[:page]).per(params[:per] || 2000)
     @download = ::Export::Bibtex.download(
       sources,
       request.url,

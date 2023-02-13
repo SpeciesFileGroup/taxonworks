@@ -118,6 +118,7 @@ class TypeMaterialsController < ApplicationController
 
   private
 
+  # No filter.rb available
   def filter_params
     params.permit(:protonym_id, :collection_object_id, :type_type)
   end

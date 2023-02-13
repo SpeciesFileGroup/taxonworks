@@ -129,6 +129,7 @@ class ControlledVocabularyTermsController < ApplicationController
     params.require(:controlled_vocabulary_term).permit(:type, :name, :definition, :uri, :uri_relation, :css_color)
   end
 
+  # ! No corresponding filter.rb
   def filter_params
     params.permit(
       type: [],

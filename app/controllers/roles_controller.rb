@@ -78,6 +78,7 @@ class RolesController < ApplicationController
     @role = Role.find(params[:id])
   end
 
+  # TODO: move logic to Filter
   def filter_params
     add_project_id = false
     role_types = [params[:role_type]].flatten.compact.map(&:safe_constantize)

@@ -123,19 +123,6 @@ class NotesController < ApplicationController
 
   private
 
- #def filter_params
- #  params.permit(
- #    :text,
- #    :note_object_id,
- #    :note_object_type,
- #    :object_global_id,
- #    note_object_id: [],
- #    note_object_type: [],
- #  ).to_h
- #    .merge(shallow_object_global_param)
- #    .merge(project_id: sessions_current_project_id)
- #end
-
   def api_params
     params.permit(
       :text,

@@ -15,8 +15,8 @@ module Queries
       # Query variables
       attr_accessor :name, :geographic_area_id, :otu_id, :language_id
 
-      # @param options [Hash]
-      def initialize(options)
+      def initialize(query_params)
+        super
         @geographic_area_id = options[:geographic_area_id]
         @language_id = options[:language_id]
         @name = options[:name]

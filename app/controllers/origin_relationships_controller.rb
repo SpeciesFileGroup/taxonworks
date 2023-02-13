@@ -14,7 +14,7 @@ class OriginRelationshipsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json{
-        @origin_relationships = Queries::OriginRelationship::Filter.new(filter_params)
+        @origin_relationships = Queries::OriginRelationship::Filter.new(params)
           .all
           .where(project_id: sessions_current_project_id)
           .page(params[:page])
@@ -108,16 +108,16 @@ class OriginRelationshipsController < ApplicationController
 
   private
 
-  def filter_params
-    params.permit(
-      :new_object_global_id,
-      :old_object_global_id,
-    ).to_h
-      .merge(
-        old_object_global_id: shallow_object_global_param[:object_global_id],
-        project_id: sessions_current_project_id
-      )
-  end
+# def filter_params
+#   params.permit(
+#     :new_object_global_id,
+#     :old_object_global_id,
+#   ).to_h
+#     .merge(
+#   #    old_object_global_id: shallow_object_global_param[:object_global_id],
+#       project_id: sessions_current_project_id
+#     )
+# end
 
   # Use callbacks to share common setup or constraints between actions.
   def set_origin_relationship

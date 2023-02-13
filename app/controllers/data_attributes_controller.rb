@@ -14,7 +14,8 @@ class DataAttributesController < ApplicationController
       }
       format.json {
         @data_attributes = Queries::DataAttribute::Filter.new(params).all
-          .where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per])
+          .page(params[:page])
+          .per(params[:per])
       }
     end
   end
@@ -114,18 +115,6 @@ class DataAttributesController < ApplicationController
   end
 
   private
-
-  def filter_params
-    params.permit(
-      :value,
-      :controlled_vocabulary_term_id,
-      :import_predicate,
-      :type,
-      :object_global_id,
-      :attribute_subject_type,
-      :attribute_subject_id
-    )
-  end
 
   def api_params
     params.permit(
