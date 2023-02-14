@@ -7,9 +7,7 @@
   ],
   "plugins": ["vue", "import"],
   "env": {
-    "browser": true,
-    "es2021": true,
-    "jquery": true
+    "browser": true
   },
   "parserOptions": {
     "ecmaVersion": "latest",
