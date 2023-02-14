@@ -5,14 +5,16 @@
       <label class="capitalize">{{ param }}</label>
       <input
         class="full_width"
-        v-model="params[param]"
+        :name="param"
         type="text"
-      >
+        v-model="params[param]"
+      />
       <label>
         <input
           v-model="params[`${param}_exact`]"
           type="checkbox"
-        >
+          :name="`${param}_exact`"
+        />
         Exact
       </label>
     </div>
@@ -45,7 +47,7 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 onBeforeMount(() => {

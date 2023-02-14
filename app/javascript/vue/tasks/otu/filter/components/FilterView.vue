@@ -5,7 +5,11 @@
   />
   <FacetWKT v-model="params" />
   <FacetCollectingEvent v-model="params" />
-  <FacetOtuName v-model="params" />
+  <FacetParamExact
+    title="OTU"
+    v-model="params"
+    param="name"
+  />
   <FacetTaxonName
     v-model="params"
     coverage
@@ -37,13 +41,13 @@ import FacetDataAttribute from 'components/Filter/Facets/shared/FacetDataAttribu
 import FacetDescriptor from 'components/Filter/Facets/shared/FacetDescriptor.vue'
 import FacetGeographicArea from 'components/Filter/Facets/shared/FacetGeographic.vue'
 import FacetHistorialDeterminations from './Facet/FacetHistorialDeterminations.vue'
-import FacetOtuName from './Facet/FacetOtuName.vue'
 import FacetTaxonName from 'components/Filter/Facets/TaxonName/FacetTaxonName.vue'
 import FacetUsers from 'components/Filter/Facets/shared/FacetUsers.vue'
 import FacetWKT from 'components/Filter/Facets/Otu/FacetWKT.vue'
 import FacetWith from 'components/Filter/Facets/shared/FacetWith.vue'
 import FacetTags from 'components/Filter/Facets/shared/FacetTags.vue'
 import FacetIdentifiers from 'components/Filter/Facets/shared/FacetIdentifiers.vue'
+import FacetParamExact from 'components/Filter/Facets/shared/FacetParamExact.vue'
 
 const WITH_PARAMS = [
   'asserted_distributions',
