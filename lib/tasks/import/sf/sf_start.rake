@@ -1019,12 +1019,13 @@ namespace :tw do
 
         desc 'time rake tw:project_import:sf_import:last:filter_users user_id=1 data_directory=~/src/onedb2tw/working/'
         LoggedTask.define filter_users: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
+          user_ids = Import.find_or_create_by(name: 'SpeciesFileData').get('SFFileUserIDToTWUserID').values.uniq.map(&:to_i)
 
           logger.info 'Running filter_users...'
 
           destroyed_counter = 0
 
-          User.all.each do |user|
+          User.where(id: user_ids).each do |user|
             puts "user.id = #{user.id} \n"
             unless user.curates_data?
               user.destroy
