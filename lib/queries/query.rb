@@ -138,6 +138,5 @@ module Queries
       a
     end
 
-
   end
 end

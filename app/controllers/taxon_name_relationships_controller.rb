@@ -118,7 +118,7 @@ class TaxonNameRelationshipsController < ApplicationController
 
   # GET /api/v1/taxon_name_relationships
   def api_index
-    @taxon_name_relationships = Queries::TaxonNameRelationship::Filter.new(api_params).all
+    @taxon_name_relationships = Queries::TaxonNameRelationship::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('taxon_name_relationships.id')
       .page(params[:page])
@@ -142,21 +142,6 @@ class TaxonNameRelationshipsController < ApplicationController
       :subject_taxon_name_id, :object_taxon_name_id, :type,
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages]
     )
-  end
-
-  def api_params
-    params.permit(
-      :object_taxon_name_id,
-      :subject_taxon_name_id,
-      :taxon_name_id,
-      :taxon_name_relationship_set,
-      :taxon_name_relationship_type,
-      object_taxon_name_id: [],
-      subject_taxon_name_id: [],
-      taxon_name_id: [],
-      taxon_name_relationship_set: [],
-      taxon_name_relationship_type: []
-    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
 end

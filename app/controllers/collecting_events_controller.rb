@@ -239,7 +239,7 @@ class CollectingEventsController < ApplicationController
   end
 
   def api_index
-    @collecting_events = Queries::CollectingEvent::Filter.new(api_params).all
+    @collecting_events = Queries::CollectingEvent::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('collecting_events.id')
       .page(params[:page]).per(params[:per])
@@ -295,51 +295,4 @@ class CollectingEventsController < ApplicationController
         user_id: sessions_current_user_id,
         project_id: sessions_current_project_id).to_h.symbolize_keys
   end
-
-  def api_params
-    params.permit(
-      Queries::CollectingEvent::Filter::ATTRIBUTES,
-      :collection_objects,
-      :collector_id,
-      :collector_ids_or,
-      :depictions,
-      :end_date, # used in date range
-      :geo_json,
-      :georeferences,
-      :geographic_area_id,
-      :geographic_area,
-      :geographic_area_mode,
-      :identifier,
-      :identifier_end,
-      :identifier_exact,
-      :identifier_start,
-      :identifiers,
-      :match_identifiers,
-      :match_identifiers_delimiter,
-      :match_identifiers_type,
-      :in_labels,
-      :in_verbatim_locality,
-      :md5_verbatim_label,
-      :partial_overlap_dates,
-      :otu_id,
-      :radius,
-      :recent,
-      :start_date, # used in date range
-      :wkt,
-      :user_target,
-      :user_date_start,
-      :user_date_end,
-      :data_attribute_exact_value,  # DataAttributes concern
-      :data_attributes,             # DataAttributes concern
-      collection_object_id: [],
-      collector_id: [],
-      geographic_area_id: [],
-      keyword_id_and: [],
-      keyword_id_or: [],
-      otu_id: [],
-      data_attribute_predicate_id: [], # DataAttributes concern
-      data_attribute_value: [],        # DataAttributes concern
-    )
-  end
-
 end

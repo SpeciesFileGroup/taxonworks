@@ -357,11 +357,10 @@ class CollectionObjectsController < ApplicationController
         project_id: sessions_current_project_id
       ).autocomplete
   end
-
-
+  
   # GET /api/v1/collection_objects
   def api_index
-    @collection_objects = ::Queries::CollectionObject::Filter.new(collection_object_api_params).all
+    @collection_objects = ::Queries::CollectionObject::Filter.new(params.merge!(api: true)).all
        .where(project_id: sessions_current_project_id)
       .order('collection_objects.id')
       .page(params[:page]).per(params[:per])

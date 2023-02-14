@@ -1,3 +1,4 @@
+# See also ARCHITECTURE.md
 module Queries
 
   # Overview
@@ -14,19 +15,6 @@ module Queries
   #
   class Query::Filter < Queries::Query
 
-    # Concerns have corresponding Facets in Vue.
-    # To add the corresponding facet:
-    # In the corresponding FilterVue.vue
-    # E.g. `app/javascript/vue/tasks/otu/filter/components/FilterVue.vue`
-    #
-    # 1- Import the facet:
-    #
-    # `import FacetUsers from 'components/Filter/Facets/shared/FacetUsers.vue'`
-    #
-    #  2- Add it to the layout in the position you want it to appear:
-    #
-    # `<FacetUsers v-model="params" />`
-    #
     include Queries::Concerns::Users
     # include Queries::Concerns::Identifiers # Presently in Queries for other use in autocompletes
 
@@ -97,13 +85,6 @@ module Queries
       taxon_name_query: '::Queries::TaxonName::Filter',
     }.freeze
 
-    #
-    # With/out facets
-    #
-    # To add a corresponding With/Out facet in the UI simply
-    # give it a title (must correspond with the param name) in
-    #  const WITH_PARAM = [ 'citations' ];
-    #
 
     # @return [Array]
     # @param project_id [Array, Integer]
@@ -167,8 +148,12 @@ module Queries
     #   Applies an order on updated.
     attr_accessor :recent
 
+    # @return Boolean
+    #   When true api_except_params is applied
+    attr_accessor :api
+
     # @return Hash
-    # the parsed/permitted params
+    #  the parsed/permitted params
     #   that were used to on initialize() only!!
     # !! Using setters directly on query parameters will not alter this variable !!
     # !! This is used strictly during the permission process of ActionController::Parameters !!
@@ -177,6 +162,14 @@ module Queries
     # @return Hash
     def initialize(query_params)
 
+      # Reference to query_params, i.e. always permitted
+      @api = boolean_param(query_params, :api)
+      @recent = boolean_param(query_params, :recent)
+      @object_global_id = query_params[:object_global_id]
+      @project_id = query_params[:project_id] || Current.project_id # !! Always on. TODO: Current reference bad, reconsider.
+
+      # After this point, if you started with ActionController::Parameters, 
+      # then all values have been explicitly permitted.
       if query_params.kind_of?(Hash)
         @params = query_params
       elsif query_params.kind_of?(ActionController::Parameters)
@@ -186,11 +179,7 @@ module Queries
       else
         raise TaxonWorks::Error, "can not initialize filter with #{query_params.class.name}"
       end
-
-      @recent = boolean_param(params, :recent)
-      @object_global_id = params[:object_global_id]
-      @project_id = params[:project_id] || Current.project_id # !! Always on. 
-
+      
       set_identifier_params(params)
       set_nested_queries(params)
       set_user_dates(params)
@@ -233,6 +222,12 @@ module Queries
       (a + b).uniq
     end
 
+    # Any params set here, and in corresponding subclasses will not 
+    # be permitted when api: true is present
+    def self.api_except_params
+      []
+    end
+
     # @return Array, nil
     #   a [:a, :b, {c: []}] formatted Array
     # to be merged into included params
@@ -263,6 +258,12 @@ module Queries
       h
     end
 
+    def self.api_excluded_params
+      [
+        # if there are things like created_by_id that we deem universally out they go here
+      ] + api_except_params
+    end
+
     # This method is a preprocessor that discovers, by finding the nested
     # subqueries, which params should be permitted. It is used to build a
     # permitable profile of parameters.
@@ -280,7 +281,7 @@ module Queries
     # something like params.permitted_params => Array after multiple calls like params.permit(:a),
     # params.permit(:b).
     #
-    # @return Hash
+    # @return Array like [:a,:b, :c, {d: []}]
     # @params hsh Hash
     #    Uses an *unsafe* hash from an instance of ActionController::Parameters or
     # any parameter set for the query.
@@ -325,6 +326,14 @@ module Queries
 
         parent = q
       end
+
+      if api
+        self.class.api_excluded_params.each do |a|
+          h.delete_if{|k,v| a == k}
+          h.last.delete_if{|k,v| a == k }
+        end
+      end
+
 
       h
     end

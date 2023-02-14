@@ -109,7 +109,7 @@ class NotesController < ApplicationController
 
   # GET /api/v1/notes
   def api_index
-    @notes = Queries::Note::Filter.new(api_params).all
+    @notes = Queries::Note::Filter.new(params.merge!(api: true)).all
       .order('notes.id')
       .page(params[:page])
       .per(params[:per])
@@ -122,20 +122,6 @@ class NotesController < ApplicationController
   end
 
   private
-
-  def api_params
-    params.permit(
-      :text,
-      :note_object_id,
-      :note_object_type,
-      :object_global_id,
-      note_object_id: [],
-      note_object_type: [],
-    ).to_h
-    .merge(project_id: sessions_current_project_id) 
-    # .merge(shallow_object_global_param)
-     
-  end
 
   def set_note
     @note = Note.where(project_id: sessions_current_project_id).find(params[:id])

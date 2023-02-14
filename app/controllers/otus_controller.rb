@@ -254,10 +254,11 @@ class OtusController < ApplicationController
 
   # GET /api/v1/otus
   def api_index
-    @otus = Queries::Otu::Filter.new(api_params).all
+    @otus = Queries::Otu::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('otus.id')
-      .page(params[:page]).per(params[:per])
+      .page(params[:page])
+      .per(params[:per])
     render '/otus/api/v1/index'
   end
 
@@ -332,17 +333,6 @@ class OtusController < ApplicationController
         project_id: sessions_current_project_id)
       .to_h
       .symbolize_keys
-  end
-
-  def api_params
-    params.permit(
-      :name,
-      :taxon_name_id, :otu_id,
-      biological_association_ids: [], taxon_name_ids: [], otu_ids: [],
-      taxon_name_relationship_ids: [],taxon_name_classification_ids: [],
-      asserted_distribution_ids: [],
-      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
-    )
   end
 
   def user_map

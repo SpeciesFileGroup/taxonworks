@@ -21,9 +21,10 @@ class DataAttributesController < ApplicationController
   end
 
   def api_index
-    @data_attributes = Queries::DataAttribute::Filter.new(api_params).all
+    @data_attributes = Queries::DataAttribute::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
-      .page(params[:page]).per(params[:per])
+      .page(params[:page])
+      .per(params[:per])
     render '/data_attributes/api/v1/index'
   end
 
@@ -115,19 +116,7 @@ class DataAttributesController < ApplicationController
   end
 
   private
-
-  def api_params
-    params.permit(
-      :value,
-      :controlled_vocabulary_term_id,
-      :import_predicate,
-      :type,
-      :object_global_id,
-      :attribute_subject_type,
-      :attribute_subject_id
-    )
-  end
-
+  
   def value_autocomplete_params
     params.permit(:predicate_id).merge(project_id: sessions_current_project_id).to_h.symbolize_keys
   end

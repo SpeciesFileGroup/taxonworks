@@ -59,7 +59,7 @@ class RolesController < ApplicationController
 
   # # GET /api/v1/roles
   # def api_index
-  #   @roles = Queries::Role::Filter.new(api_params).all
+  #   @roles = Queries::Role::Filter.new(params.merge!(api: true)).all
   #     .order('roles.id')
   #     .page(params[:page])
   #     .per(params[:per])

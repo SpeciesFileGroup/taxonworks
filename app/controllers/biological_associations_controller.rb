@@ -93,7 +93,7 @@ class BiologicalAssociationsController < ApplicationController
   end
 
   def api_index
-    @biological_associations = Queries::BiologicalAssociation::Filter.new(api_params).all
+    @biological_associations = Queries::BiologicalAssociation::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('biological_associations.id')
       .page(params[:page])
@@ -102,61 +102,6 @@ class BiologicalAssociationsController < ApplicationController
   end
 
   private
-
-  def api_params
-    params.permit(
-      ::Queries::BiologicalAssocation::PARAMS,
-
-      :identifier,
-      :identifier_end,
-      :identifier_exact,
-      :identifier_start,
-      :identifiers,
-      :match_identifiers,
-      :match_identifiers_delimiter,
-      :match_identifiers_type,
-
-      :note_exact, # Notes concern
-      :note_text,
-      :notes,
-
-      # TODO reconcile with PARAMS
-      :user_date_end,
-      :user_date_start,
-      :user_id,
-      :user_target,
-
-      user_id: [],
-      geographic_area_id: [], 
-      object_taxon_name_id: [],
-      subject_taxon_name_id: [],
-
-      keyword_id_and: [],
-      keyword_id_or: [],
-
-      any_global_id: [],
-      biological_association_id: [],
-      biological_associations_graph_id: [],
-      biological_relationship_id: [],
-      collecting_event_id: [],
-      collection_object_id: [],
-      object_biological_property_id: [],
-      object_global_id: [],
-      otu_id: [],
-      subject_biological_property_id: [],
-      subject_global_id: [],
-      taxon_name_id: [],
-    )
-
-
-    # Shallow resource hack
-    if !params[:collection_object_id].blank? && c = CollectionObject.where(project_id: sessions_current_project_id).find(params[:collection_object_id])
-      params[:any_global_id] = c.to_global_id.to_s
-    end
-
-    # TODO: is this permitting anything?! it's not permitted
-    params
-  end
 
   def set_biological_association
     @biological_association = BiologicalAssociation.where(project_id: sessions_current_project_id).find(params[:id])

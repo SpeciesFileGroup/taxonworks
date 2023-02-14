@@ -24,7 +24,7 @@ class ObservationsController < ApplicationController
   end
 
   def api_index
-    @observations = Queries::Observation::Filter.new(api_params).all
+    @observations = Queries::Observation::Filter.new(params.merge!(api: true)).all
       .with_project_id(sessions_current_project_id)
       .page(params[:page])
       .per(params[:per])
@@ -172,16 +172,6 @@ class ObservationsController < ApplicationController
         image_attributes: [:image_file]
       ]
     )
-  end
-
-  def api_params
-    params.permit(
-      :collection_object_id,
-      :descriptor_id,
-      :observation_matrix_id,
-      :observation_object_global_id,
-      :otu_id
-    ).to_h
   end
 
 end

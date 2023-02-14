@@ -119,9 +119,10 @@ class ContentsController < ApplicationController
 
   # GET /api/v1/content
   def api_index
-    @contents = ::Queries::Content::Filter.new(api_params).all
+    @contents = ::Queries::Content::Filter.new(params.merge!(api: true)).all
       .order('contents.otu_id, contents.topic_id')
-      .page(params[:page]).per(params[:per])
+      .page(params[:page])
+      .per(params[:per])
     render '/contents/api/v1/index'
   end
 
@@ -131,23 +132,6 @@ class ContentsController < ApplicationController
   end
 
   private
-
-  def api_params
-    params.permit(
-      :otu_id,
-      :topic_id,
-      :text,
-      :exact,
-      :citations,
-      :depictions,
-      :user_date_end,
-      :user_date_start,
-      :user_id,
-      :user_target,
-      topic_id: [],
-      otu_id: []
-    ).to_h.merge(project_id: sessions_current_project_id)
-  end
 
   def set_content
     @content = Content.with_project_id(sessions_current_project_id).find(params[:id])

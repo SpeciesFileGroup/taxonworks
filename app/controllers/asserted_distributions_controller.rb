@@ -142,12 +142,12 @@ class AssertedDistributionsController < ApplicationController
   end
 
   def api_index
-    @asserted_distributions = Queries::AssertedDistribution::Filter.new(api_params)
+    @asserted_distributions = Queries::AssertedDistribution::Filter.new(params.merge!(api: true))
       .all
       .where(project_id: sessions_current_project_id)
       .order('asserted_distributions.id')
       .page(params[:page])
-      .per(params[:per] || 100)
+      .per(params[:per])
     render '/asserted_distributions/api/v1/index'
   end
 
@@ -177,29 +177,5 @@ class AssertedDistributionsController < ApplicationController
   def batch_params
     params.permit(:data_origin, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
   end
-
-  def api_params
-    params.permit(
-      :descendants,
-      :geo_json,
-      :geographic_area_id,
-      :geographic_area_mode,
-      :otu_id,
-      :presence,
-      :recent,
-      :taxon_name_id, 
-      :wkt,
-
-      :user_date_end,
-      :user_date_start,
-      :user_id,
-      :user_target,
-
-      geographic_area_id: [],
-      otu_id: [],
-      taxon_name_id: [],
-    )
-  end
-
 
 end

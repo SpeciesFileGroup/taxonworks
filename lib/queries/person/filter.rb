@@ -174,6 +174,10 @@ module Queries
         set_notes_params(params)
       end
 
+      def self.api_except_params
+        [:regex]
+      end
+
       def person_id
         [@person_id].flatten.compact.uniq
       end
