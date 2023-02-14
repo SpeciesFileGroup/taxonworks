@@ -11,7 +11,7 @@ describe 'Filter sources', type: :feature, group: :sources, js: true do
       let!(:source) { FactoryBot.create(:valid_source_bibtex, title: 'Qurious', year: 1999, by: @user) }
 
       specify 'find a source' do
-        fill_in 'source.query_term', with: 'Qurious'
+        fill_in 'Full citation.query_term', with: 'Qurious'
         choose 'Both', name: 'params.source.in_project'
 
         click_button 'Search'
