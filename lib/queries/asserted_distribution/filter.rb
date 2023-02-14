@@ -1,9 +1,6 @@
-require_dependency 'lib/queries/query/filter'
-
 module Queries
   module AssertedDistribution
 
-    # !! does not inherit from base query
     class Filter < Query::Filter
 
       include Queries::Concerns::Tags

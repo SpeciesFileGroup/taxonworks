@@ -44,6 +44,11 @@ module Shared::PolymorphicAnnotator
     def related_foreign_keys=(value)
       @related_foreign_keys.push value
     end
+
+    # @return Array of class names can be cited
+    def related_klasses
+      related_foreign_keys.sort{|a,b| a.to_s <=> b.to_s}.collect{|k| k.to_s.gsub('_id', '').camelize } 
+    end
   end
 
   included do

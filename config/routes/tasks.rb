@@ -194,6 +194,10 @@ scope :tasks do
   end
 
   scope :sources do
+      scope :source_citation_totals, controller: 'tasks/sources/source_citation_totals' do
+        get '/', action: :index, as: 'source_citation_totals_task'
+      end
+
     scope :gnfinder, controller: 'tasks/sources/gnfinder' do
       get '/', action: :index, as: 'gnfinder_task'
     end

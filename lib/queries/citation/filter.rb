@@ -1,6 +1,3 @@
-# To identify the polymorphic params, include the pertinent model we rereference here
-# require_dependency Rails.root.to_s + '/app/models/collecting_event'
-
 module Queries
   module Citation
 

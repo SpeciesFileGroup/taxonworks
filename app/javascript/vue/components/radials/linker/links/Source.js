@@ -1,4 +1,8 @@
+import {
+  TASK_SOURCE_CITATION_TOTALS
+} from '../constants/links'
+
 export const Source = {
-  all: [],
-  ids: []
+  all: [ TASK_SOURCE_CITATION_TOTALS ],
+  ids: [ TASK_SOURCE_CITATION_TOTALS ]
 }
