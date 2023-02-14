@@ -24,6 +24,7 @@ import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import { computed, ref } from 'vue'
 import { People } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse'
+import { humanize, toSnakeCase } from 'helpers/strings'
 
 const props = defineProps({
   modelValue: {
@@ -59,7 +60,10 @@ const selectedRoles = computed({
 const roleTypes = ref([])
 
 People.roleTypes().then((response) => {
-  roleTypes.value = response.body
+  const arr = Object.entries(response.body)
+  roleTypes.value = Object.fromEntries(
+    arr.map(([key, _]) => [key, humanize(toSnakeCase(key))])
+  )
 })
 
 const { [props.param]: urlParam = [] } = URLParamsToJSON(location.href)
