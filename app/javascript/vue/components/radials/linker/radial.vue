@@ -12,12 +12,8 @@
         </h3>
       </template>
       <template #body>
-        <div class="flex-separate">
-          <div class="radial-annotator-menu">
-            <div>
-              <radial-menu :options="menuOptions" />
-            </div>
-          </div>
+        <div class="horizontal-center-content">
+          <radial-menu :options="menuOptions" />
         </div>
       </template>
     </modal>
@@ -110,16 +106,17 @@ const menuOptions = computed(() => {
   })
 
   return {
-    width: 400,
-    height: 400,
-    sliceSize: 130,
+    width: 500,
+    height: 500,
+    sliceSize: 190,
     centerSize: 34,
     margin: 2,
+    innerPosition: 1.4,
     svgAttributes: {
       class: 'svg-radial-menu'
     },
     svgSliceAttributes: {
-      fontSize: 11,
+      fontSize: 13,
       class: 'slice'
     },
     middleButton: {
