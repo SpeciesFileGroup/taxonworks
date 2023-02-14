@@ -122,12 +122,15 @@ module Queries
 
     # @return [ActiveRecord::Relation, nil]
     #   cached matches full query string wildcarded
+    # TODO: Used in taxon_name, source, identifier
     def cached_facet
       return nil if no_terms?
+      # TODO: or is redundant with terms in many cases
       (table[:cached].matches_any(terms)).or(match_ordered_wildcard_pieces_in_cached)
     end
 
-    # @return [String]
+    # TODO: This is bad, it should return nil, not 'NothingToMatch'
+    # @return [String, TODO: nil]
     #   if `foo, and 123 and stuff` then %foo%and%123%and%stuff%
     def wildcard_pieces
       a = '%' + query_string.gsub(/[^[[:word:]]]+/, '%') + '%' ### DD: if query_string is cyrilic or diacritics, it returns '%%%'

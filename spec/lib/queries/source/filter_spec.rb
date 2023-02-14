@@ -10,6 +10,11 @@ describe Queries::Source::Filter, type: :model, group: [:sources, :filter] do
   let!(:doi) { '10.11646/stuff.1234.5.6' }
   let(:tomorrow) {  (Time.now + 1.day).strftime("%Y-%m-%d") }
 
+  specify '#cached_facet' do
+    query.query_string = 'good'
+    expect(query.cached_facet.to_sql).to match("ILIKE 'good%'")
+  end
+
   specify '#cached ordered fragments' do
     s = FactoryBot.create(:valid_source_verbatim, verbatim: 'Jones, AP (1920) stuff and things')
     query.query_string = 'Jones 1920'

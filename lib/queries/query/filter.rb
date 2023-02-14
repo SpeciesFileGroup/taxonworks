@@ -212,6 +212,7 @@ module Queries
       if referenced_klass.annotates?
         f.push ::Queries::Concerns::Polymorphic if self < ::Queries::Concerns::Polymorphic
       else
+        # TODO There is room for an AlternateValue concern here ultimtely
         f.push ::Queries::Concerns::Citations if self < ::Queries::Concerns::Citations
         f.push ::Queries::Concerns::DataAttributes if self < ::Queries::Concerns::DataAttributes
         f.push ::Queries::Concerns::Depictions if self < ::Queries::Concerns::Depictions
