@@ -78,7 +78,7 @@ gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
 gem 'turbolinks', '~> 5.2.0'
 gem 'jquery-turbolinks', '~> 2.1'
-gem "shakapacker", '~>6.3'
+gem "shakapacker", '6.5.5'
 
 # BibTeX handling
 gem 'csl', '~> 1.6.0'
@@ -148,7 +148,7 @@ group :test, :development do
   gem 'webdrivers', '~> 5.0', require: false
   gem 'selenium-webdriver', '~> 4.6', '>= 4.6.1'
   gem 'prawn', '~> 2.4.0'
-  gem 'puma', '~> 5.5'
+  gem 'puma', '~> 6.0'
 end
 
 gem 'parallel_tests', group: [:development, :test]
