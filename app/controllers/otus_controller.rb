@@ -17,7 +17,6 @@ class OtusController < ApplicationController
       end
       format.json {
         @otus = ::Queries::Otu::Filter.new(params).all
-          .where(project_id: sessions_current_project_id)
           .page(params[:page])
           .per(params[:per])
           .eager_load(:taxon_name)
