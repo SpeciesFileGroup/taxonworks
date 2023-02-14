@@ -11,10 +11,10 @@
         <label class="capitalize">
           <input
             :value="option.value"
-            :name="name"
+            :name="param"
             v-model="optionValue[param]"
             type="radio"
-          >
+          />
           {{ option.label }}
         </label>
       </li>
@@ -28,11 +28,6 @@ import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 const props = defineProps({
-  name: {
-    type: String,
-    default: () => Math.random().toString(36).substr(2, 5)
-  },
-
   title: {
     type: String,
     required: true
@@ -81,13 +76,11 @@ const emit = defineEmits(['update:modelValue'])
 
 const optionValue = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const list = computed(() =>
-  props.inverted
-    ? invertedOptions.value
-    : props.options
+  props.inverted ? invertedOptions.value : props.options
 )
 
 const invertedOptions = ref([

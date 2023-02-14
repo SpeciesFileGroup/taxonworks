@@ -6,21 +6,23 @@
       <input
         type="text"
         class="full_width"
+        name="query_term"
         v-model="params.query_term"
-      >
+      />
     </div>
     <div class="field label-above">
       <label>Title</label>
       <input
         type="text"
         class="full_width"
+        name="title"
         v-model="params.title"
-      >
+      />
       <label class="horizontal-left-content">
         <input
           type="checkbox"
           v-model="params.exact_title"
-        >
+        />
         Exact
       </label>
     </div>
@@ -43,7 +45,7 @@ const emit = defineEmits(['update:modelValue'])
 
 const params = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 onBeforeMount(() => {
