@@ -1611,9 +1611,14 @@ namespace :tw do
 
         desc 'time rake tw:project_import:sf_import:specimens:set_dwc_occurrence user_id=1 data_directory=~/src/onedb2tw/working/'
         LoggedTask.define set_dwc_occurrence: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
+          project_ids = Import.find_by(name: 'SpeciesFileData').get('SFFileIDToTWProjectID').values.map(&:to_i)
+
           GC.start # VERY important, line below will fork into [number of threads] copies of this process, so memory usage must be as minimal as possible before starting.
           # Runs in parallel only if PARALLEL_PROCESSOR_COUNT is explicitely set
-          Parallel.each(CollectionObject.find_each, progress: 'set_dwc_occurrence', in_processes: ENV['PARALLEL_PROCESSOR_COUNT'].to_i || 0) do |collection_object|
+          Parallel.each(CollectionObject.where(project_id: project_ids).find_each,
+            progress: 'set_dwc_occurrence',
+            in_processes: ENV['PARALLEL_PROCESSOR_COUNT'].to_i || 0
+          ) do |collection_object|
             begin
               collection_object.set_dwc_occurrence
             rescue => exception
