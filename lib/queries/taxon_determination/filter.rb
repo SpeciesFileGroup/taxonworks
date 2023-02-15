@@ -6,7 +6,9 @@ module Queries
         :collection_object_id,
         :otu_id,
         :taxon_determination_id,
+        :biological_colletion_object_id,
 
+        biological_collection_object_id: [],
         collection_object_id: [],
         determiner_id: [],
         otu_id: [],
@@ -16,12 +18,14 @@ module Queries
       # all Arrays
       attr_accessor :taxon_determination_id
       attr_accessor :collection_object_id
+      attr_accessor :biological_collection_object_id
       attr_accessor :otu_id
       attr_accessor :determiner_id
 
       def initialize(query_params = {})
         super
 
+        @biological_collection_object_id = params[:biological_collection_object_id]
         @collection_object_id = params[:collection_object_id]
         @determiner_id = params[:determiner_id]
         @otu_id = params[:otu_id]
@@ -37,7 +41,7 @@ module Queries
       end
 
       def collection_object_id
-        [@collection_object_id].flatten.compact.uniq
+        [@collection_object_id, @biological_collection_object_id].flatten.compact.uniq
       end
 
       def determiner_id
