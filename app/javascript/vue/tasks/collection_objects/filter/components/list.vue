@@ -200,7 +200,7 @@ const ids = computed({
 })
 
 const selectIds = computed({
-  get: () => props.list.length === ids.value.length,
+  get: () => props.list.length === ids.value.length && props.list.length > 0,
   set: (value) => {
     ids.value = value ? props.list.map((r) => r.id) : []
   }
@@ -246,6 +246,15 @@ watch(
   () =>
     HandyScroll.EventBus.emit('update', { sourceElement: tableElement.value }),
   { deep: true }
+)
+
+watch(
+  () => props.list,
+  (newVal) => {
+    if (!newVal.length) {
+      filterValues.value = {}
+    }
+  }
 )
 </script>
 
