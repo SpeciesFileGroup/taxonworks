@@ -17,7 +17,7 @@
       <ul class="no_bullets table-entrys-list">
         <li
           class="middle flex-separate list-complete-item"
-          v-for="(otu, index) in otusStore"
+          v-for="(otu, index) in otus"
           :key="otu.id"
         >
           <span v-html="otu.object_tag" />
@@ -31,7 +31,7 @@
     <div class="field">
       <determiner-component
         class="no-shadow no-padding"
-        v-model="determination"
+        v-model="params"
         role="Determiner"
         title="Determiner"
         klass="CollectionObject"
@@ -48,7 +48,7 @@
     >
       <ul class="no_bullets">
         <li
-          v-for="item in currentDeterminationsOptions"
+          v-for="item in CURRENT_DETERMINATION_OPTIONS"
           :key="item.value"
         >
           <label>
@@ -56,7 +56,7 @@
               type="radio"
               :value="item.value"
               name="current-determination"
-              v-model="determination.current_determinations"
+              v-model="params.current_determinations"
             />
             {{ item.label }}
           </label>
@@ -66,110 +66,82 @@
   </FacetContainer>
 </template>
 
-<script>
+<script setup>
 import FacetContainer from 'components/Filter/Facets/FacetContainer.vue'
 import Autocomplete from 'components/ui/Autocomplete'
 import DeterminerComponent from '../../shared/FacetPeople.vue'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { Otu } from 'routes/endpoints'
+import { ref, computed, watch, onBeforeMount } from 'vue'
 
-export default {
-  components: {
-    Autocomplete,
-    DeterminerComponent,
-    FacetContainer
+const CURRENT_DETERMINATION_OPTIONS = [
+  {
+    label: 'Current and historical',
+    value: undefined
   },
-
-  props: {
-    modelValue: {
-      type: Object,
-      default: () => ({})
-    }
+  {
+    label: 'Current only',
+    value: true
   },
-
-  emits: ['update:modelValue'],
-
-  data() {
-    return {
-      otusStore: [],
-      determiners: [],
-      isCurrentDeterminationVisible: true,
-      currentDeterminationsOptions: [
-        {
-          label: 'Current and historical',
-          value: undefined
-        },
-        {
-          label: 'Current only',
-          value: true
-        },
-        {
-          label: 'Historical only',
-          value: false
-        }
-      ]
-    }
-  },
-
-  computed: {
-    determination: {
-      get() {
-        return this.modelValue
-      },
-      set(value) {
-        this.$emit('update:modelValue', value)
-      }
-    }
-  },
-
-  watch: {
-    determination: {
-      handler(newVal) {
-        if (!newVal.otu_id?.length) {
-          this.otusStore = []
-        }
-      },
-      deep: true
-    },
-
-    isCurrentDeterminationVisible() {
-      this.determination.current_determinations = undefined
-    }
-  },
-
-  created() {
-    const { current_determinations, otu_id = [] } = URLParamsToJSON(
-      location.href
-    )
-
-    otu_id.forEach((id) => {
-      this.addOtu(id)
-    })
-    this.determination.current_determinations = current_determinations
-  },
-
-  methods: {
-    addOtu(id) {
-      Otu.find(id).then((response) => {
-        this.determination.otu_id.push(response.body.id)
-        this.otusStore.push(response.body)
-      })
-    },
-
-    removePerson(index) {
-      this.determiners.splice(index, 1)
-      this.determination.determiner_id.splice(index, 1)
-    },
-
-    removeOtu(index) {
-      this.determination.otu_id.splice(index, 1)
-      this.otusStore.splice(index, 1)
-    }
+  {
+    label: 'Historical only',
+    value: false
   }
+]
+
+const props = defineProps({
+  modelValue: {
+    type: Object,
+    default: () => ({})
+  }
+})
+
+const emit = defineEmits(['update:modelValue'])
+
+const otus = ref([])
+const isCurrentDeterminationVisible = ref(true)
+
+const params = computed({
+  get: () => props.modelValue,
+  set: (value) => emit('update:modelValue', value)
+})
+
+watch(
+  otus,
+  (newVal) => {
+    params.value.otu_id = newVal.map((otu) => otu.id)
+  },
+  { deep: true }
+)
+
+watch(
+  () => props.modelValue.otu_id,
+  (newVal, oldVal) => {
+    if (!newVal?.length && oldVal?.length) {
+      otus.value = []
+    }
+  },
+  { deep: true }
+)
+
+watch(isCurrentDeterminationVisible, () => {
+  params.value.current_determinations = undefined
+})
+
+onBeforeMount(() => {
+  const { otu_id = [] } = props.modelValue
+
+  otu_id.forEach((id) => {
+    addOtu(id)
+  })
+})
+
+function addOtu(id) {
+  Otu.find(id).then((response) => {
+    otus.value.push(response.body)
+  })
+}
+
+function removeOtu(index) {
+  otus.value.splice(index, 1)
 }
 </script>
-<style scoped>
-:deep(.vue-autocomplete-input) {
-  width: 100%;
-}
-</style>

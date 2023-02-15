@@ -33,9 +33,9 @@
       <template #table>
         <ListComponent
           v-model="selectedIds"
-          :list="coList"
+          :list="list"
           :layout="currentLayout"
-          @on-sort="coList = $event"
+          @on-sort="list = $event"
         />
       </template>
     </FilterLayout>
@@ -57,12 +57,12 @@ import DwcDownload from './components/dwcDownload.vue'
 import DeleteCollectionObjects from './components/DeleteCollectionObjects.vue'
 import VSpinner from 'components/spinner.vue'
 import LayoutConfiguration from './components/Layout/LayoutConfiguration.vue'
-import { computed, ref, watch } from 'vue'
+import { computed } from 'vue'
 import { CollectionObject } from 'routes/endpoints'
 import { COLLECTION_OBJECT } from 'constants/index.js'
 import { useLayoutConfiguration } from './components/Layout/useLayoutConfiguration'
 import { LAYOUTS } from './constants/layouts.js'
-import { COLLECTION_OBJECT_PROPERTIES } from 'shared/Filter/constants'
+import { listParser } from './utils/listParser.js'
 
 const extend = [
   'dwc_occurrence',
@@ -76,8 +76,6 @@ const extend = [
 
 const { currentLayout } = useLayoutConfiguration(LAYOUTS)
 
-const coList = ref([])
-
 const {
   isLoading,
   list,
@@ -89,7 +87,7 @@ const {
   selectedIds,
   makeFilterRequest,
   resetFilter
-} = useFilter(CollectionObject, { initParameters: { extend } })
+} = useFilter(CollectionObject, { initParameters: { extend }, listParser })
 
 const extendDownload = computed(() => [
   {
@@ -107,37 +105,6 @@ function removeCOFromList(ids) {
   list.value = list.value.filter((item) => !ids.includes(item.id))
   selectedIds.value = selectedIds.value.filter((id) => !ids.includes(id))
 }
-
-function parseDataAttributes(item) {
-  const da = item.data_attributes
-
-  if (!Array.isArray(da)) return
-
-  const obj = {}
-
-  da.forEach(({ predicate_name, value }) => {
-    obj[predicate_name] = value
-  })
-
-  return obj
-}
-
-watch(list, (newVal) => {
-  coList.value = newVal.map((item) => {
-    const baseAttributes = Object.assign(
-      {},
-      ...COLLECTION_OBJECT_PROPERTIES.map((property) => ({
-        [property]: item[property]
-      }))
-    )
-
-    return {
-      ...item,
-      collection_object: baseAttributes,
-      data_attributes: parseDataAttributes(item)
-    }
-  })
-})
 </script>
 
 <script>
