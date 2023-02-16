@@ -57,6 +57,11 @@ class DwcOccurrence < ApplicationRecord
 
   attr_accessor :occurrence_identifier
 
+
+  def self.annotates?
+    false 
+  end
+
   # TODO: will need similar join for AssertedDistribution, or any object
   # that matches, consider moving to Shared
   # @return [ActiveRecord::Relation]

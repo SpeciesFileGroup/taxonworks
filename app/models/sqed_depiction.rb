@@ -78,6 +78,10 @@ class SqedDepiction < ApplicationRecord
     depiction.depiction_object
   end
 
+  def self.annotates?
+    false 
+  end
+
   def self.with_collection_object_data
     t = CollectionObject.arel_table
     q = t[:buffered_collecting_event].not_eq(nil).
