@@ -16,13 +16,12 @@ namespace :tw do
           require_relative Rails.root + f
         end
 
-        puts Rainbow('* - array allowed').gold
-        puts Rainbow('annotator param').gray
+        puts '* - also in array format'
         puts
 
         filters = ::Queries::Query::Filter.descendants 
         filters.each do |f|
-          puts Rainbow(f.name).blue.bold
+          puts '# ' + f.name
 
           p = f::PARAMS.deep_dup
           array_allowed = []
@@ -32,9 +31,9 @@ namespace :tw do
           end
 
           p.each do |i|
-            print i 
+            print i.to_s 
             if array_allowed.include?(i) 
-              print Rainbow('*').gold
+              print ' *'
             end
             print "\n" 
           end
@@ -42,7 +41,7 @@ namespace :tw do
           # Crude replication of the same loop to get annotator params.
           f.included_annotator_facets.each do |af|
 
-            puts Rainbow('- ' + af.name.split('::').last).blue
+            puts '- ' + af.name.split('::').last
 
             p = af.params
             array_allowed = []
@@ -52,9 +51,9 @@ namespace :tw do
             end
 
             p.each do |i|
-              print Rainbow(i).gray
+              print '    ' + i.to_s
               if array_allowed.include?(i) 
-                print Rainbow('*').gold
+                print ' *'
               end
               print "\n" 
             end
