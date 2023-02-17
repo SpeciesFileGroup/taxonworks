@@ -23,13 +23,13 @@ services:
     volumes:
       - pg:/var/lib/postgresql/data
   db:
-    image: postgis/postgis:12-3.0
+    image: postgis/postgis:14-3.0
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
     ports: 
       - "0.0.0.0:15432:5432"
     volumes:
-      - pg12:/var/lib/postgresql/data
+      - pg14:/var/lib/postgresql/data
   webpack:
     build: 
       context: .

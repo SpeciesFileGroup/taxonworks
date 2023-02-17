@@ -6,7 +6,7 @@ set -x
 
 export REVISION=$(echo $GITHUB_SHA | cut -c1-9)
 
-for ver in `echo 10 12`; do
+for ver in `echo 10 14`; do
   export PG_VERSION=$ver
 
   echo "Testing with Postgres $PG_VERSION"
