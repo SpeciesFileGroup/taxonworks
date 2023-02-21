@@ -314,7 +314,7 @@ GEM
     method_source (1.0.0)
     mime-types (3.4.1)
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2022.0105)
+    mime-types-data (3.2023.0218.1)
     mimemagic (0.3.10)
       nokogiri (~> 1)
       rake
@@ -493,7 +493,7 @@ GEM
       unicode-display_width (>= 2.4.0, < 3.0)
     rubocop-ast (1.26.0)
       parser (>= 3.2.1.0)
-    rubocop-capybara (2.17.0)
+    rubocop-capybara (2.17.1)
       rubocop (~> 1.41)
     rubocop-faker (1.1.0)
       faker (>= 2.12.0)
@@ -529,7 +529,7 @@ GEM
       rdoc (>= 5.0)
     seedbank (0.5.0)
       rake (>= 10.0)
-    selenium-webdriver (4.8.0)
+    selenium-webdriver (4.8.1)
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 3.0)
       websocket (~> 1.0)
@@ -579,7 +579,7 @@ GEM
     tilt (2.0.11)
     timecop (0.9.6)
     timeliness (0.4.5)
-    timeout (0.3.1)
+    timeout (0.3.2)
     tins (1.32.1)
       sync
     treetop (1.6.12)
@@ -637,6 +637,7 @@ GEM
 
 PLATFORMS
   x86_64-darwin-20
+  x86_64-darwin-22
 
 DEPENDENCIES
   activerecord-postgis-adapter (~> 7.0)

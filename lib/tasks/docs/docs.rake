@@ -705,7 +705,7 @@ namespace :tw do
       dirs = DOCS_OUTPUT_LOCATIONS.values.collect{|l| @target_path + l}
 
       dirs.each do |d|
-        if Dir.exists?(d)
+        if Dir.exist?(d)
           puts Rainbow('Found ' + d).green
         else
           puts Rainbow('Did not find ' + d).red
