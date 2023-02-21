@@ -7,6 +7,9 @@ export const useGraphStore = defineStore('useGraphStore', {
     layouts: {
       nodes: {}
     },
+    currentNode: null,
+    currentEvent: null,
+    currentEdge: null,
     currentSVGCursorPosition: undefined,
     selectedNodes: [],
     selectedEdge: [],
@@ -61,6 +64,16 @@ export const useGraphStore = defineStore('useGraphStore', {
       }
 
       this.nextEdgeIndex++
+    },
+
+    reverseRelation(edgeId) {
+      const edge = this.edges[edgeId]
+
+      this.edges[edgeId] = {
+        ...edge,
+        source: edge.target,
+        target: edge.source
+      }
     }
   }
 })

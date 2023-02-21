@@ -25,7 +25,7 @@
     @focusout="() => (showViewContext = false)"
   >
     <p>Add node</p>
-    <div class="graph-context-menu-buttons">
+    <div class="horizontal-left-content gap-xsmall">
       <VBtn
         color="primary"
         @click="() => (isModalNodeVisible = true)"
@@ -41,7 +41,7 @@
     :position="currentEvent"
     @focusout="() => (showNodeMenu = false)"
   >
-    <div class="flex-separate middle">
+    <div class="flex-separate middle gap-small">
       {{ store.getNodes[menuTargetNode]?.name }}
       <VBtn
         circle
@@ -67,25 +67,38 @@
     @focusout="() => (showEdgeMenu = false)"
   >
     <div
-      v-for="edge in menuTargetEdges"
-      :key="edge"
+      v-for="edgeId in menuTargetEdges"
+      :key="edgeId"
+      class="flex-separate middle gap-small"
     >
-      {{ store.edges[edge]?.label }}
-      <VBtn
-        circle
-        color="primary"
-        @click="
-          () => {
-            store.removeEdge(edge)
-            showEdgeMenu = false
-          }
-        "
-      >
-        <VIcon
-          x-small
-          name="trash"
-        />
-      </VBtn>
+      {{ store.edges[edgeId]?.label }}
+      <div class="horizontal-right-content gap-xsmall">
+        <VBtn
+          color="primary"
+          class="circle-button"
+          @click="() => store.reverseRelation(edgeId)"
+        >
+          <VIcon
+            name="swap"
+            x-small
+          />
+        </VBtn>
+        <VBtn
+          circle
+          color="primary"
+          @click="
+            () => {
+              store.removeEdge(edgeId)
+              showEdgeMenu = false
+            }
+          "
+        >
+          <VIcon
+            x-small
+            name="trash"
+          />
+        </VBtn>
+      </div>
     </div>
   </GraphContextMenu>
   <ModalNode
@@ -112,22 +125,6 @@ const store = useGraphStore()
 const isModalEdgeVisible = ref(false)
 const isModalNodeVisible = ref(false)
 const currentEvent = ref()
-
-function showContextMenu(element, event) {
-  element.style.left = event.x + 'px'
-  element.style.top = event.y + 'px'
-  element.style.visibility = 'visible'
-  const handler = (event) => {
-    if (!event.target || !element.contains(event.target)) {
-      element.style.visibility = 'hidden'
-      document.removeEventListener('pointerdown', handler, { capture: true })
-    }
-  }
-  document.addEventListener('pointerdown', handler, {
-    passive: true,
-    capture: true
-  })
-}
 
 const showViewContext = ref()
 function showViewContextMenu(params) {
@@ -186,6 +183,6 @@ const eventHandlers = {
 <style lang="scss" scoped>
 .graph {
   width: calc(100vw - 2em);
-  height: calc(100vh - 180px);
+  height: calc(100vh - 250px);
 }
 </style>

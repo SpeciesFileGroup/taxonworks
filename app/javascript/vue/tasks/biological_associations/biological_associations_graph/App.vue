@@ -1,16 +1,16 @@
 <template>
   <div>
     <h1>Biological associations graph</h1>
+    <VNavbar />
     <section class="graph-section">
       <NetworkCanvas />
-      <VRelationship />
     </section>
   </div>
 </template>
 
 <script setup>
 import NetworkCanvas from './components/NetworkCanvas.vue'
-import VRelationship from './components/Relationship.vue'
+import VNavbar from './components/Navbar.vue'
 </script>
 
 <style scoped>

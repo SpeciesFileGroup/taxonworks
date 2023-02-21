@@ -45,22 +45,12 @@ onUnmounted(() => {
 .graph-context-menu {
   display: flex;
   flex-direction: column;
-  width: 180px;
+  width: 220px;
   background-color: white;
   padding: 10px;
   position: fixed;
   font-size: 12px;
   border: 1px solid #aaa;
   box-shadow: 2px 2px 2px #aaa;
-  > .layer {
-    border: 1px dashed #aaa;
-    padding: 4px;
-    margin-top: 8px;
-  }
-}
-
-.graph-context-menu-buttons {
-  display: flex;
-  gap: 1em;
 }
 </style>
