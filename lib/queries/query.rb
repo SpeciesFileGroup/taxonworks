@@ -33,7 +33,7 @@ module Queries
     # @return String
     #  like "otu" or "taxon_name"
     def self.base_name
-      referenced_klass.name.tableize.singularize
+      referenced_klass.name.tableize.singularize # classify ?
     end
 
     def base_name
@@ -50,6 +50,12 @@ module Queries
 
     def referenced_klass
       self.class.referenced_klass
+    end
+
+    # @param queries Array of [nil, merge clauses]
+    def referenced_klass_union(queries)
+      q = queries.compact
+      referenced_klass.from("( #{q.collect{|i| '(' + i.to_sql + ')' }.join(' UNION ')}) as #{table.name}")
     end
 
     def terms=(string)

@@ -1,20 +1,11 @@
 module Queries
   module CollectionObject
 
-    # TODO
-    # - use date processing? / DateConcern
-    # - syncronize with GIS/GEO
-
-    # Changed:
-    # - numerous _ids -> id
-    # - ancestor_id -> taxon_name_id
-    #
-    # Added:
-    # - descendants
     class Filter < Query::Filter
 
       include Queries::Helpers
       include Queries::Concerns::Citations
+      include Queries::Concerns::Containable
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
       include Queries::Concerns::Notes
@@ -353,6 +344,7 @@ module Queries
         @with_buffered_determinations =  boolean_param(params, :with_buffered_determinations)
         @with_buffered_other_labels = boolean_param(params, :with_buffered_other_labels)
 
+        set_containable_params(params)
         set_citations_params(params)
         set_depiction_params(params)
         set_data_attributes_params(params)
