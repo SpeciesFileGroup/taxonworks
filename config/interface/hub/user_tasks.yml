@@ -810,9 +810,17 @@ filter_contents_task:
   status: prototype
   description: 'Content is text blocks, with optional figures, per OTU. Search and return sets by text, topic, or OTU.'
 source_citation_totals_task:
-  hub: false 
+  hub: false
   name: 'Source citation totals'
   related:
   categories:
   status: prototype
   description: 'Report a count per citation object type for each source in the result.'
+
+index_biological_associations_graph_task:
+  hub: true
+  name: 'Biological associations graph'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'
