@@ -1,4 +1,4 @@
-FROM sfgrp/taxonworks
+FROM sfgrp/taxonworks:ruby32
 
 COPY init.rb /app/exe
 COPY should_not_run_job.rb /app/app/jobs
