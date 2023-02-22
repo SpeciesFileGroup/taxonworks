@@ -816,3 +816,11 @@ source_citation_totals_task:
   categories:
   status: prototype
   description: 'Report a count per citation object type for each source in the result.'
+loan_dashboard_task:
+  hub: true
+  name: 'Loans dashboard'
+  related:
+  categories:
+  status: prototype
+  description: 'Summarize various loan-related statistics.'
+
