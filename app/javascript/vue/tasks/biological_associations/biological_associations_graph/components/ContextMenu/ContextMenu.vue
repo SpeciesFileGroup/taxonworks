@@ -41,16 +41,36 @@ onUnmounted(() => {
 })
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .graph-context-menu {
   display: flex;
   flex-direction: column;
-  width: 220px;
+  width: 260px;
   background-color: white;
-  padding: 10px;
   position: fixed;
   font-size: 12px;
   border: 1px solid #aaa;
   box-shadow: 2px 2px 2px #aaa;
+  overflow: hidden;
+}
+
+.graph-context-menu-list {
+  margin: 0px;
+  padding: 0px;
+  list-style: none;
+}
+.graph-context-menu-list li,
+.graph-context-menu-list-item {
+  cursor: pointer;
+  padding: 1em;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.graph-context-menu-list-item:hover {
+  background-color: #fafafa;
+}
+
+.graph-context-menu-list-item:last-child {
+  border-bottom: none;
 }
 </style>

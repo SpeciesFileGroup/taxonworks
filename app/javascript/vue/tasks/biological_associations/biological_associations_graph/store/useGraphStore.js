@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-
+import { BiologicalAssociation } from 'routes/endpoints'
 export const useGraphStore = defineStore('useGraphStore', {
   state: () => ({
     nodes: {},
@@ -7,9 +7,14 @@ export const useGraphStore = defineStore('useGraphStore', {
     layouts: {
       nodes: {}
     },
+    modal: {
+      node: false,
+      edge: false
+    },
+    currentNodeType: null,
     currentNode: null,
     currentEvent: null,
-    currentEdge: null,
+    currentEdge: [],
     currentSVGCursorPosition: undefined,
     selectedNodes: [],
     selectedEdge: [],
@@ -24,6 +29,16 @@ export const useGraphStore = defineStore('useGraphStore', {
 
     getEdges(state) {
       return state.edges
+    },
+
+    getCreatedAssociationsByNodeId(state) {
+      return (nodeId) =>
+        Object.values(state.edges)
+          .filter(
+            (edge) =>
+              edge.id && (nodeId === edge.source || nodeId === edge.target)
+          )
+          .map((edge) => edge.id)
     }
   },
 
@@ -74,6 +89,31 @@ export const useGraphStore = defineStore('useGraphStore', {
         source: edge.target,
         target: edge.source
       }
+    },
+
+    createBiologicalAssociation() {
+      const relations = Object.values(this.edges).filter((edge) => !edge.id)
+
+      const requests = relations.map((relation) => {
+        const subject = this.nodes[relation.source].obj
+        const object = this.nodes[relation.target].obj
+
+        const payload = {
+          biological_relationship_id: relation.relationship.id,
+          biological_association_object_id: object.id,
+          biological_association_object_type: object.base_class,
+          biological_association_subject_id: subject.id,
+          biological_association_subject_type: subject.base_class
+        }
+
+        return BiologicalAssociation.create({
+          biological_association: payload
+        }).then(({ body }) => {
+          relation.id = body.id
+        })
+      })
+
+      return requests
     }
   }
 })

@@ -20,118 +20,46 @@
   </VNetworkGraph>
 
   <GraphContextMenu
-    v-if="showViewContext"
-    :position="currentEvent"
-    @focusout="() => (showViewContext = false)"
+    v-if="showViewMenu"
+    :position="store.currentEvent"
+    @focusout="() => (showViewMenu = false)"
   >
-    <p>Add node</p>
-    <div class="horizontal-left-content gap-xsmall">
-      <VBtn
-        color="primary"
-        @click="() => (isModalNodeVisible = true)"
-      >
-        OTU
-      </VBtn>
-      <VBtn color="primary"> Collection Object </VBtn>
-    </div>
+    <ContextMenuView @focusout="() => (showViewMenu = false)" />
   </GraphContextMenu>
 
   <GraphContextMenu
     v-if="showNodeMenu"
-    :position="currentEvent"
+    :position="store.currentEvent"
     @focusout="() => (showNodeMenu = false)"
   >
-    <div class="flex-separate middle gap-small">
-      {{ store.getNodes[menuTargetNode]?.name }}
-      <VBtn
-        circle
-        color="primary"
-        @click="
-          () => {
-            store.removeNode(menuTargetNode)
-            showNodeMenu = false
-          }
-        "
-      >
-        <VIcon
-          x-small
-          name="trash"
-        />
-      </VBtn>
-    </div>
+    <ContextMenuNode @focusout="() => (showNodeMenu = false)" />
   </GraphContextMenu>
 
   <GraphContextMenu
     v-if="showEdgeMenu"
-    :position="currentEvent"
+    :position="store.currentEvent"
     @focusout="() => (showEdgeMenu = false)"
   >
-    <div
-      v-for="edgeId in menuTargetEdges"
-      :key="edgeId"
-      class="flex-separate middle gap-small"
-    >
-      {{ store.edges[edgeId]?.label }}
-      <div class="horizontal-right-content gap-xsmall">
-        <VBtn
-          color="primary"
-          class="circle-button"
-          @click="() => store.reverseRelation(edgeId)"
-        >
-          <VIcon
-            name="swap"
-            x-small
-          />
-        </VBtn>
-        <VBtn
-          circle
-          color="primary"
-          @click="
-            () => {
-              store.removeEdge(edgeId)
-              showEdgeMenu = false
-            }
-          "
-        >
-          <VIcon
-            x-small
-            name="trash"
-          />
-        </VBtn>
-      </div>
-    </div>
+    <ContextMenuEdge @focusout="() => (showEdgeMenu = false)" />
   </GraphContextMenu>
-  <ModalNode
-    v-if="isModalNodeVisible"
-    @close="() => (isModalNodeVisible = false)"
-  />
-  <ModalEdge
-    v-if="isModalEdgeVisible"
-    @close="() => (isModalEdgeVisible = false)"
-  />
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { useGraphStore } from '../store/useGraphStore.js'
-import ModalNode from './ModalNode.vue'
-import ModalEdge from './ModalEdge.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
-import GraphContextMenu from './ContextMenu.vue'
 import { configs } from '../constants/networkConfig'
+import GraphContextMenu from './ContextMenu/ContextMenu.vue'
+import ContextMenuView from './ContextMenu/ContextMenuView.vue'
+import ContextMenuNode from './ContextMenu/ContextMenuNode.vue'
+import ContextMenuEdge from './ContextMenu/ContextMenuEdge.vue'
 
 const store = useGraphStore()
-const isModalEdgeVisible = ref(false)
-const isModalNodeVisible = ref(false)
-const currentEvent = ref()
 
-const showViewContext = ref()
+const showViewMenu = ref()
 function showViewContextMenu(params) {
   const { event } = params
 
-  event.stopPropagation()
-  event.preventDefault()
+  handleEvent(event)
 
   if (!graph.value) return
 
@@ -140,35 +68,32 @@ function showViewContextMenu(params) {
   store.currentSVGCursorPosition =
     graph.value.translateFromDomToSvgCoordinates(point)
 
-  currentEvent.value = event
-  showViewContext.value = true
+  showViewMenu.value = true
 }
 
-const showNodeMenu = ref(false)
-const menuTargetNode = ref('')
+const showNodeMenu = ref()
 
 function showNodeContextMenu(params) {
   const { node, event } = params
 
   handleEvent(event)
-  menuTargetNode.value = node
+  store.currentNode = node
   showNodeMenu.value = true
 }
 
 const showEdgeMenu = ref(false)
-const menuTargetEdges = ref([])
 function showEdgeContextMenu(params) {
   const { event } = params
 
   handleEvent(event)
-  menuTargetEdges.value = params.summarized ? params.edges : [params.edge]
+  store.currentEdge = params.summarized ? params.edges : [params.edge]
   showEdgeMenu.value = true
 }
 
 function handleEvent(event) {
   event.stopPropagation()
   event.preventDefault()
-  currentEvent.value = event
+  store.currentEvent = event
 }
 
 const graph = ref()

@@ -1,0 +1,34 @@
+<template>
+  <div
+    class="graph-context-menu-list-item"
+    @click="
+      () => {
+        store.modal.node = true
+        store.currentNodeType = OTU
+        emit('focusout')
+      }
+    "
+  >
+    Add OTU
+  </div>
+  <div
+    class="graph-context-menu-list-item"
+    @click="
+      () => {
+        store.modal.node = true
+        store.currentNodeType = COLLECTION_OBJECT
+        emit('focusout')
+      }
+    "
+  >
+    Add Collection object
+  </div>
+</template>
+
+<script setup>
+import { useGraphStore } from '../../store/useGraphStore'
+import { COLLECTION_OBJECT, OTU } from 'constants/index.js'
+
+const store = useGraphStore()
+const emit = defineEmits(['focusout'])
+</script>

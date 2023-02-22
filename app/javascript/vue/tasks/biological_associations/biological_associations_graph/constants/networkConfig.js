@@ -1,6 +1,9 @@
 import { defineConfigs } from 'v-network-graph'
 
 export const configs = defineConfigs({
+  view: {
+    boxSelectionEnabled: true
+  },
   node: {
     selectable: 2
   },
