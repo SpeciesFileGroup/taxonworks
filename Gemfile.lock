@@ -513,7 +513,7 @@ GEM
     ruby-graphviz (1.2.5)
       rexml
     ruby-ole (1.2.12.2)
-    ruby-prof (1.6.1)
+    ruby-prof (1.6.0)
     ruby-progressbar (1.11.0)
     ruby-rc4 (0.1.5)
     ruby-units (2.3.2)
