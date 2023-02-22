@@ -23,7 +23,7 @@
       </VBtn>
       <VBtn
         circle
-        color="primary"
+        :color="store.edges[edgeId].id ? 'destroy' : 'primary'"
         @click="
           () => {
             store.removeEdge(edgeId)

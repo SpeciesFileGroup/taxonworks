@@ -58,6 +58,13 @@ export const useGraphStore = defineStore('useGraphStore', {
     },
 
     removeNode(nodeId) {
+      const biologicalAssociationsCreated =
+        this.getCreatedAssociationsByNodeId(nodeId)
+
+      biologicalAssociationsCreated.forEach((id) =>
+        BiologicalAssociation.destroy(id)
+      )
+
       delete this.nodes[nodeId]
 
       for (const key in this.edges) {

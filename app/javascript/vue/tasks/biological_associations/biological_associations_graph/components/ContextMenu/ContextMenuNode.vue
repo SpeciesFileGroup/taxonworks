@@ -5,15 +5,10 @@
         <span>{{ store.getNodes[store.currentNode]?.name }}</span>
         <VBtn
           circle
-          :color="
-            store.getCreatedAssociationsByNodeId(store.currentNode).length
-              ? 'create'
-              : 'delete'
-          "
+          :color="isCreated ? 'destroy' : 'primary'"
           @click="
             () => {
-              store.removeNode(store.currentNode)
-              emit('focusout')
+              removeNode(store.currentNode)
             }
           "
         >
@@ -33,13 +28,40 @@
       </div>
     </li>
   </ul>
+  <ConfirmationModal ref="confirmationModalRef" />
 </template>
 
 <script setup>
 import VBtn from 'components/ui/VBtn/index.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
+import ConfirmationModal from 'components/ConfirmationModal.vue'
+import { computed, ref } from 'vue'
 import { useGraphStore } from '../../store/useGraphStore'
 
 const store = useGraphStore()
 const emit = defineEmits(['focusout'])
+
+const isCreated = computed(
+  () => store.getCreatedAssociationsByNodeId(store.currentNode).length > 0
+)
+
+const confirmationModalRef = ref()
+
+async function removeNode(node) {
+  const ok =
+    !isCreated.value ||
+    (await confirmationModalRef.value.show({
+      title: 'Destroy biological association',
+      message:
+        'This will delete biological associations connected to this node. Are you sure you want to proceed?',
+      okButton: 'Destroy',
+      cancelButton: 'Cancel',
+      typeButton: 'submit'
+    }))
+
+  if (ok) {
+    store.removeNode(node)
+    emit('focusout')
+  }
+}
 </script>
