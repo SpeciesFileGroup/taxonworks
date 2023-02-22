@@ -95,10 +95,10 @@ module Queries::Concerns::Containable
       q
     else
       s = "WITH co_with_local as (#{q.to_sql}) " +
-        referenced_klass.joins("LEFT JOIN co_with_local AS co_with_local1 on co_with_local1.id = #{table.name}.id")
+      referenced_klass_with_container_items.joins("LEFT JOIN co_with_local AS co_with_local1 on co_with_local1.id = #{table.name}.id")
           .where('co_with_local1.id IS NULL').to_sql
 
-        referenced_klass.from( "(#{s}) as #{table.name}")
+      referenced_klass.from( "(#{s}) as #{table.name}")
     end
   end
 
@@ -114,11 +114,11 @@ module Queries::Concerns::Containable
     if identifiers
       q
     else
-      s = "WITH co_with_identifiers as (#{q.to_sql}) " +
-        referenced_klass.joins("LEFT JOIN co_with_identifiers AS co_with_local1 on co_with_local1.id = #{table.name}.id")
-          .where('co_with_local1.id IS NULL').to_sql
+      s = "WITH co_with_identifier_containers as (#{q.to_sql}) " +
+      referenced_klass_with_container_items.joins("LEFT JOIN co_with_identifier_containers AS co_with_identifier_containers1 on co_with_identifier_containers1.id = #{table.name}.id")
+          .where('co_with_identifier_containers1.id IS NULL').to_sql
 
-        referenced_klass.from( "(#{s}) as #{table.name}")
+      referenced_klass.from( "(#{s}) as #{table.name}")
     end
   end
 
