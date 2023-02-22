@@ -168,7 +168,7 @@ class SqedDepiction < ApplicationRecord
   end
 
   def preprocess(force = true)
-    return true if !File.exists?(depiction.image.image_file.path(:original))
+    return true if !File.exist?(depiction.image.image_file.path(:original))
     # don't rebuild if not forced and one or both cache is empty
     if !force
       if !result_ocr.blank? || !result_boundary_coordinates.blank?

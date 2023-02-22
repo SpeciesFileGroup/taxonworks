@@ -80,7 +80,7 @@ namespace :tw do
     end
     @args.merge!(data_directory: (ENV['data_directory'] || default))
     # TODO: Use Dir.exist? and fix tasks that are treating data_directory as a file parameter
-    raise Rainbow("Path to data directory (#{default}) not found").red if !File.exists?(@args[:data_directory])
+    raise Rainbow("Path to data directory (#{default}) not found").red if !File.exist?(@args[:data_directory])
     @args
   end
 
@@ -131,12 +131,12 @@ namespace :tw do
 
   desc 'provide file=/foo/something.bar and ensure file exists with provided value'
   task existing_file: [:file] do
-    raise TaxonWorks::Error, "Provided file (#{@args[:file]}) does not exist." unless File.exists?(@args[:file])
+    raise TaxonWorks::Error, "Provided file (#{@args[:file]}) does not exist." unless File.exists(@args[:file])
   end
 
   task backup_exists: [:file, :backup_directory] do
     path = File.join(@args[:backup_directory], @args[:file])
-    raise TaxonWorks::Error, "Provided file (#{path}) does not exist." unless File.exists?(path)
+    raise TaxonWorks::Error, "Provided file (#{path}) does not exist." unless File.exists(path)
     @args[:tw_backup_file] = path
   end
 
