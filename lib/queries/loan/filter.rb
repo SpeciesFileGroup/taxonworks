@@ -19,6 +19,19 @@ module Queries
         :taxon_name_id,
         :loan_id,
 
+        :start_date_requested,           
+        :start_date_sent,           
+        :start_date_received,       
+        :start_date_return_expected,
+        :start_date_closed,    
+
+        :end_date_requested,
+        :end_date_sent,           
+        :end_date_received,       
+        :end_date_return_expected,
+        :end_date_closed,    
+
+
         loan_id: [],
         loan_wildcards: [],
         loan_item_disposition: [],
@@ -68,6 +81,18 @@ module Queries
       #  Match all loans with loan items that have that disposition
       attr_accessor :loan_item_disposition
 
+      attr_accessor :start_date_requested
+      attr_accessor :start_date_sent
+      attr_accessor :start_date_received
+      attr_accessor :start_date_return_expected
+      attr_accessor :start_date_closed
+
+      attr_accessor :end_date_requested
+      attr_accessor :end_date_sent
+      attr_accessor :end_date_received
+      attr_accessor :end_date_return_expected
+      attr_accessor :end_date_closed
+
       # not done
       attr_accessor :taxon_name_id
       attr_accessor :descendants
@@ -85,6 +110,17 @@ module Queries
         @person_id = params[:person_id]
         @role = params[:role]
         @taxon_name_id = params[:taxon_name_id]
+
+        @start_date_requested = params[:start_date_requested]           
+        @start_date_sent = params[:start_date_sent]           
+        @start_date_received = params[:start_date_received]
+        @start_date_return_expected = params[:start_date_return_expected]
+        @start_date_closed = params[:start_date_closed]    
+        @end_date_requested = params[:end_date_requested]           
+        @end_date_sent = params[:end_date_sent]           
+        @end_date_received = params[:end_date_received]       
+        @end_date_return_expected = params[:end_date_return_expected]
+        @end_date_closed = params[:end_date_closed]
 
         set_attributes(params)
         set_notes_params(params)
@@ -133,6 +169,41 @@ module Queries
           end
         end
         c
+      end
+
+      def date_requested_facet
+        return nil if start_date_requested.nil? && end_date_requested.nil?
+        s,e = [start_date_requested, end_date_requested].compact
+        e = s if e.nil?
+        ::Loan.where(date_requested: (s..e))
+      end
+
+      def date_sent_facet
+        return nil if start_date_sent.nil? && end_date_sent.nil?
+        s,e = [start_date_sent, end_date_sent].compact
+        e = s if e.nil?
+        ::Loan.where(date_sent: (s..e))
+      end
+
+      def date_received_facet
+        return nil if start_date_received.nil? && end_date_received.nil?
+        s,e = [start_date_received, end_date_received].compact
+        e = s if e.nil?
+        ::Loan.where(date_received: (s..e))
+      end
+
+      def date_return_expected_facet
+        return nil if start_date_return_expected.nil? && end_date_return_expected.nil?
+        s,e = [start_date_return_expected, end_date_return_expected].compact
+        e = s if e.nil?
+        ::Loan.where(date_return_expected: (s..e))
+      end
+
+      def date_closed_facet
+        return nil if start_date_closed.nil? && end_date_closed.nil?
+        s,e = [start_date_closed, end_date_closed].compact
+        e = s if e.nil?
+        ::Loan.where(date_closed: (s..e))
       end
 
       def overdue_facet
@@ -197,6 +268,12 @@ module Queries
 
       def merge_clauses
         [
+          date_requested_facet,
+          date_sent_facet,
+          date_received_facet,
+          date_return_expected_facet,
+          date_closed_facet,
+
           collection_object_query_facet,
           documentation_facet,
           loan_item_disposition_facet,
